@@ -1,0 +1,308 @@
+<html lang="es"><head></head><body class="bg-background-light dark:bg-background-dark text-gray-900 dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-300">```html
+
+
+
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EstuRED - Resultados de Búsqueda</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#3b5998", // Indigo/Blue from screenshot
+                        secondary: "#4b5563",
+                        "background-light": "#f3f4f6", // Light gray background
+                        "background-dark": "#111827", // Dark gray background
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                        body: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.5rem",
+                        'lg': '0.75rem',
+                        'xl': '1rem',
+                    },
+                },
+            },
+        };
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+
+
+<nav class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between h-16">
+<div class="flex items-center gap-8">
+<a class="flex items-center gap-2 group" href="#">
+<span class="material-icons-outlined text-primary text-3xl group-hover:scale-110 transition-transform">home_work</span>
+<span class="text-xl font-bold text-gray-900 dark:text-white tracking-tight">EstuRED</span>
+</a>
+<div class="hidden md:flex items-center space-x-1">
+<a class="px-3 py-2 rounded-md text-sm font-medium bg-gray-100 dark:bg-gray-700 text-primary" href="#">Buscar</a>
+<a class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" href="#">Para Estudiantes</a>
+<a class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" href="#">Para Padres</a>
+<a class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" href="#">Publicar Residencia</a>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<a class="hidden sm:block px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary transition-colors" href="#">Ingresar</a>
+<a class="px-4 py-2 text-sm font-medium bg-primary text-white rounded-md hover:bg-blue-700 shadow-sm transition-colors" href="#">Registrarse</a>
+</div>
+</div>
+</div>
+</nav>
+<main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+<div class="mb-6">
+<h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Encontrá tu próximo hogar en Buenos Aires</h1>
+<p class="text-primary text-sm font-medium mb-1">142 residencias encontradas</p>
+</div>
+<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 mb-6">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+<div class="md:col-span-5">
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Desde</label>
+<div class="relative">
+<select class="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white appearance-none cursor-pointer">
+<option>Agosto 2024</option>
+<option>Septiembre 2024</option>
+<option>Octubre 2024</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+<span class="material-icons-outlined text-lg">expand_more</span>
+</div>
+</div>
+</div>
+<div class="md:col-span-5">
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Hasta</label>
+<div class="relative">
+<select class="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white appearance-none cursor-pointer">
+<option>Diciembre 2024</option>
+<option>Enero 2025</option>
+<option>Febrero 2025</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+<span class="material-icons-outlined text-lg">expand_more</span>
+</div>
+</div>
+</div>
+<div class="md:col-span-2">
+<button class="w-full flex justify-center items-center gap-2 bg-primary hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors">
+<span class="material-icons-outlined text-lg">search</span>
+                        Buscar
+                    </button>
+</div>
+</div>
+</div>
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 overflow-x-auto no-scrollbar pb-2">
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-1 text-primary font-medium text-sm whitespace-nowrap">
+<span class="material-icons-outlined text-lg">tune</span>
+                    Filtros rápidos:
+                </div>
+<div class="relative group">
+<button class="flex items-center gap-1 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 whitespace-nowrap">
+                        Ubicación
+                        <span class="material-icons-outlined text-base text-gray-400">expand_more</span>
+</button>
+</div>
+<div class="relative group">
+<button class="flex items-center gap-1 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 whitespace-nowrap">
+                        Tipo de Habitación
+                        <span class="material-icons-outlined text-base text-gray-400">expand_more</span>
+</button>
+</div>
+<div class="relative group">
+<button class="flex items-center gap-1 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 whitespace-nowrap">
+                        Precio
+                        <span class="material-icons-outlined text-base text-gray-400">expand_more</span>
+</button>
+</div>
+</div>
+<div class="flex items-center gap-3 w-full md:w-auto">
+<div class="relative flex-grow md:flex-grow-0">
+<select class="block w-full pl-3 pr-10 py-2 text-sm border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 focus:ring-primary focus:border-primary appearance-none cursor-pointer">
+<option>Recomendados</option>
+<option>Menor precio</option>
+<option>Mayor precio</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+<span class="material-icons-outlined text-lg">expand_more</span>
+</div>
+</div>
+<button class="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 whitespace-nowrap">
+<span class="material-icons-outlined text-lg">map</span>
+                    Mapa
+                </button>
+</div>
+</div>
+<div class="mb-4">
+<p class="text-sm text-gray-500 dark:text-gray-400">Señales recientes. Ayudan a anticipar el clima general.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col h-full">
+<div class="relative h-48 bg-gray-200 dark:bg-gray-700">
+<img alt="Residencia El Sol interior area" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC87GaomwY2L014BKzcN8O0DmfE1dFMAVi61sL9a70Z114-37MvAOnEexwpNX5j9gNQUEu99VnWG-I0Ns-pLApIsrc-UPYYgtLw1PkpXita8MnJRB5UvXrdIcP5NuUOJ8-R0O_afxBNCTYMiliCWtACSS8amHxPwKLHYp57-9BE75rlvF1_3lmv-Uj30_vLMpQBnUJccwqdeym-PAeSWdKH1MRnXKX0JRy6bzP9ySo3HMWp0eTP6WnI8BDjZKIW0VyZ0kMhjUzHTw"/>
+<button class="absolute top-3 right-3 p-2 bg-white/80 dark:bg-black/50 rounded-full hover:bg-white dark:hover:bg-black/70 transition-colors">
+<span class="material-icons-outlined text-gray-600 dark:text-gray-200 text-lg block">favorite_border</span>
+</button>
+</div>
+<div class="p-5 flex flex-col flex-grow">
+<div class="flex justify-between items-start mb-2">
+<h3 class="text-lg font-bold text-gray-900 dark:text-white">Residencia El Sol</h3>
+<span class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 text-xs font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap">Buen ritmo</span>
+</div>
+<div class="flex items-center text-gray-500 dark:text-gray-400 text-sm mb-4">
+<span class="material-icons-outlined text-base mr-1">location_on</span>
+                        Buenos Aires, Argentina
+                    </div>
+<div class="flex flex-wrap gap-2 mb-4">
+<span class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-medium px-2 py-1 rounded">Ambiente tranquilo</span>
+<span class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-medium px-2 py-1 rounded">Buena comunicación</span>
+<span class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-medium px-2 py-1 rounded">Espacios cuidados</span>
+</div>
+<div class="flex items-center text-primary text-sm font-medium mb-4">
+<span class="material-icons-outlined text-lg mr-1">groups</span>
+                        30 residentes
+                    </div>
+<div class="flex gap-3 mb-6">
+<div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400" title="Wifi">
+<span class="material-icons-outlined text-base">wifi</span>
+</div>
+<div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400" title="Comidas">
+<span class="material-icons-outlined text-base">restaurant</span>
+</div>
+<div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400" title="TV">
+<span class="material-icons-outlined text-base">tv</span>
+</div>
+<div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400" title="Seguridad">
+<span class="material-icons-outlined text-base">lock</span>
+</div>
+</div>
+<div class="mt-auto">
+<button class="w-full bg-primary hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition-colors mb-4">
+                            Ver residencia
+                        </button>
+<div class="flex justify-between items-center pt-3 border-t border-gray-100 dark:border-gray-700">
+<button class="text-primary hover:text-blue-800 text-sm font-medium">Ver residentes</button>
+<div class="h-4 w-px bg-gray-300 dark:bg-gray-600"></div>
+<button class="text-primary hover:text-blue-800 text-sm font-medium">Disponibilidad</button>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col h-full">
+<div class="relative h-48 bg-gray-200 dark:bg-gray-700">
+<img alt="Hogar Universitario Central living room" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFa7Sy9fgwjkAo75avbyJON2m6BODMpN2BEC4NTslJwUN5gTplLK9nu4I0A3Y-QA2F-OPWMNRJA97EiNJFC1SOVjHeGdNhPrXaIqlSgycb46iObxwgvTQK7X-KMfrRe4KU2tIUbNNbUgPq4-46yjEOlL_zxXdHD5ctPrCcpS-i11riYSghVbHph5bvTMJ6mQp_rkHQoI-751j6Pw7WHXkt8Q_teFGu66zU3n929HaRNUkYHNWNaTitCF1jWnS1QXsShJT8sf_Y7w"/>
+<button class="absolute top-3 right-3 p-2 bg-white/80 dark:bg-black/50 rounded-full hover:bg-white dark:hover:bg-black/70 transition-colors">
+<span class="material-icons-outlined text-gray-600 dark:text-gray-200 text-lg block">favorite_border</span>
+</button>
+</div>
+<div class="p-5 flex flex-col flex-grow">
+<div class="flex justify-between items-start mb-2">
+<h3 class="text-lg font-bold text-gray-900 dark:text-white leading-tight">Hogar Universitario Central</h3>
+<span class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 text-xs font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap">Super bien</span>
+</div>
+<div class="flex items-center text-gray-500 dark:text-gray-400 text-sm mb-4">
+<span class="material-icons-outlined text-base mr-1">location_on</span>
+                        Santiago, Chile
+                    </div>
+<div class="flex flex-wrap gap-2 mb-4">
+<span class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-medium px-2 py-1 rounded">Foco en estudio</span>
+<span class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-medium px-2 py-1 rounded">Orden impecable</span>
+<span class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-medium px-2 py-1 rounded">Respeto</span>
+</div>
+<div class="flex items-center text-primary text-sm font-medium mb-4">
+<span class="material-icons-outlined text-lg mr-1">groups</span>
+                        45 residentes
+                    </div>
+<div class="flex gap-3 mb-6">
+<div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400" title="Wifi">
+<span class="material-icons-outlined text-base">wifi</span>
+</div>
+<div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400" title="TV">
+<span class="material-icons-outlined text-base">tv</span>
+</div>
+<div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400" title="Seguridad">
+<span class="material-icons-outlined text-base">lock</span>
+</div>
+</div>
+<div class="mt-auto">
+<button class="w-full bg-primary hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition-colors mb-4">
+                            Ver residencia
+                        </button>
+<div class="flex justify-between items-center pt-3 border-t border-gray-100 dark:border-gray-700">
+<button class="text-primary hover:text-blue-800 text-sm font-medium">Ver residentes</button>
+<div class="h-4 w-px bg-gray-300 dark:bg-gray-600"></div>
+<button class="text-primary hover:text-blue-800 text-sm font-medium">Disponibilidad</button>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col h-full">
+<div class="relative h-48 bg-gray-200 dark:bg-gray-700">
+<img alt="Casa del Estudiante communal area" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcNQV6s4Zke02A3FEMlR23SKbaCep9gSZVV8WMPCQAwcnS_RqfbhhzCgkKElxtL3vKefj5_hbeSDjWPM2YpwQYfgR2GeZGpFH99Uv8-8DCqohZp-FeqDXtdiNAl44br8M7vY6lc7fXj7P7rVkCYiDY7OdiI4YM_P5hHoYj_9N4rVlCYFUIf_62hhOfETxelh_gAQNUF_TjCbqifNPu0QRtcst0q7y86ORmPhyftPo9-WhPczenHTP2oEbUG_-x5-RYKD0rkS9r1A"/>
+<button class="absolute top-3 right-3 p-2 bg-white/80 dark:bg-black/50 rounded-full hover:bg-white dark:hover:bg-black/70 transition-colors">
+<span class="material-icons-outlined text-gray-600 dark:text-gray-200 text-lg block">favorite_border</span>
+</button>
+</div>
+<div class="p-5 flex flex-col flex-grow">
+<div class="flex justify-between items-start mb-2">
+<h3 class="text-lg font-bold text-gray-900 dark:text-white">Casa del Estudiante</h3>
+<span class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 text-xs font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap">Re facil convivir</span>
+</div>
+<div class="flex items-center text-gray-500 dark:text-gray-400 text-sm mb-4">
+<span class="material-icons-outlined text-base mr-1">location_on</span>
+                        Bogotá, Colombia
+                    </div>
+<div class="flex flex-wrap gap-2 mb-4">
+<span class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-medium px-2 py-1 rounded">Muy social</span>
+<span class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-medium px-2 py-1 rounded">Eventos frecuentes</span>
+<span class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-medium px-2 py-1 rounded">Flexibilidad</span>
+</div>
+<div class="flex items-center text-primary text-sm font-medium mb-4">
+<span class="material-icons-outlined text-lg mr-1">groups</span>
+                        25 residentes
+                    </div>
+<div class="flex gap-3 mb-6">
+<div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400" title="Wifi">
+<span class="material-icons-outlined text-base">wifi</span>
+</div>
+<div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400" title="Comidas">
+<span class="material-icons-outlined text-base">restaurant</span>
+</div>
+<div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400" title="TV">
+<span class="material-icons-outlined text-base">tv</span>
+</div>
+</div>
+<div class="mt-auto">
+<button class="w-full bg-primary hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition-colors mb-4">
+                            Ver residencia
+                        </button>
+<div class="flex justify-between items-center pt-3 border-t border-gray-100 dark:border-gray-700">
+<button class="text-primary hover:text-blue-800 text-sm font-medium">Ver residentes</button>
+<div class="h-4 w-px bg-gray-300 dark:bg-gray-600"></div>
+<button class="text-primary hover:text-blue-800 text-sm font-medium">Disponibilidad</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+
+</body></html>

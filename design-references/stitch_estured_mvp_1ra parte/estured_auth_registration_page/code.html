@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EstuRED - Registro e Inicio de Sesión</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2b8cee",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#111418] dark:text-white transition-colors duration-300">
+<!-- Global Header -->
+<header class="sticky top-0 z-50 w-full bg-white dark:bg-background-dark border-b border-gray-200 dark:border-gray-800">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex items-center justify-between h-16">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-2 text-primary">
+<div class="size-8">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-xl font-extrabold tracking-tight">EstuRED</h2>
+</div>
+<div class="hidden md:flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg px-3 py-1.5 w-64">
+<span class="material-symbols-outlined text-gray-500 text-lg">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-full placeholder:text-gray-500" placeholder="Buscar residencias..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<nav class="hidden lg:flex items-center gap-6">
+<a class="text-sm font-semibold hover:text-primary transition-colors" href="#">Estudiantes</a>
+<a class="text-sm font-semibold hover:text-primary transition-colors" href="#">Residencias</a>
+</nav>
+<div class="flex items-center gap-3">
+<button class="text-sm font-bold px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">Iniciar sesión</button>
+<button class="bg-primary text-white text-sm font-bold px-5 py-2 rounded-lg hover:bg-primary/90 transition-shadow shadow-md">Registrarse</button>
+</div>
+</div>
+</div>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-4 py-12 lg:px-8">
+<div class="mb-10 text-center lg:text-left">
+<h1 class="text-4xl font-black tracking-tight mb-2">Unite a EstuRED</h1>
+<p class="text-gray-600 dark:text-gray-400 text-lg">Elegí tu perfil y empezá a explorar residencias universitarias en LATAM.</p>
+</div>
+<div class="grid lg:grid-cols-12 gap-12 items-start">
+<!-- Left Column: Role Selection -->
+<div class="lg:col-span-5 space-y-6">
+<h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+<span class="bg-primary/10 text-primary p-1 rounded-md material-symbols-outlined">person_pin</span>
+                    1. Seleccioná tu perfil
+                </h3>
+<!-- Role Card: Student -->
+<div class="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 group hover:border-primary/50 transition-all">
+<div class="flex items-start gap-4">
+<div class="w-24 h-24 rounded-lg overflow-hidden shrink-0 bg-gray-200">
+<img class="w-full h-full object-cover" data-alt="Estudiante universitario sonriendo con mochila" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1FBVs4YlnMijsjqHl34PzSY5n1jKpEaafd_2vvIDSArA0AiWekgCmnVxIEz38tcXqeUaOlT3eUHum5g5tGHYirtYezc8O5L3pFyBbHt0O-1tFbRSrXCINp2qW9da24qbQzncOEv-DUNVplVJI27RD-Iqfty882sIcsYhkUxFpKXZxB1NtIeQFXHMQvWSNGvX9vHbExn9o-trmfBL04vxChv7TSHp2y_diPk_8_7vpAudqfxllUfwJ6loJMeSMuTQ8dKlyYBPnOA"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h4 class="text-lg font-bold">Estudiante</h4>
+<a class="text-xs font-semibold text-primary hover:underline" href="#">Saber más</a>
+</div>
+<p class="text-gray-600 dark:text-gray-400 text-sm mt-1 mb-4">Busca tu próximo hogar universitario de forma segura y conectá con otros.</p>
+<button class="w-full sm:w-auto bg-primary text-white text-xs font-bold px-6 py-2 rounded-lg">Registrarme</button>
+</div>
+</div>
+</div>
+<!-- Role Card: Parent -->
+<div class="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 hover:border-primary/50 transition-all">
+<div class="flex items-start gap-4">
+<div class="w-24 h-24 rounded-lg overflow-hidden shrink-0 bg-gray-200">
+<img class="w-full h-full object-cover" data-alt="Padres apoyando a su hijo estudiante" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-HZ-Y4Asg0YyUaSQBOtJUw2xocE7F5aMfHMWBy5KqvT-26SZvx5OTFZmhGV7inLCfSYar4tdlSBAp2-VeicClqKAiGGoiZJ9wAelJg-FIR2YJ-kFZ2hQud5qaPGhG4pZ2SyHqxs8VgAcREY37o5PnYwfGgboWgLddP6kOJm3MxmqOTLbMTP1rh1kvMQCE86tUPJehit2oNDYK0k0AXvB4kJKZTgY35VO98OJZTyKPg3cy2eWVVL91rEHx6ERc3_Und3RObE_5JA"/>
+</div>
+<div class="flex-1">
+<h4 class="text-lg font-bold">Padre / Madre</h4>
+<p class="text-gray-600 dark:text-gray-400 text-sm mt-1 mb-4">Acompañá el proceso con seguridad y seguimiento compartido.</p>
+<!-- Accordion Placeholder -->
+<details class="group border-t border-gray-100 dark:border-gray-800 pt-3">
+<summary class="flex justify-between items-center cursor-pointer list-none text-xs font-bold text-gray-500 hover:text-primary">
+<span>¿CÓMO FUNCIONA EL ACOMPAÑAMIENTO?</span>
+<span class="material-symbols-outlined text-sm group-open:rotate-180 transition-transform">expand_more</span>
+</summary>
+<p class="text-xs text-gray-500 mt-2 leading-relaxed">
+                                    Podrás ver las mismas residencias que tu hijo, recibir alertas de visitas y gestionar pagos de forma conjunta.
+                                </p>
+</details>
+<button class="w-full sm:w-auto bg-primary text-white text-xs font-bold px-6 py-2 rounded-lg mt-4">Registrarme</button>
+</div>
+</div>
+</div>
+<!-- Role Card: Residence -->
+<div class="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 hover:border-primary/50 transition-all">
+<div class="flex items-start gap-4">
+<div class="w-24 h-24 rounded-lg overflow-hidden shrink-0 bg-gray-200">
+<img class="w-full h-full object-cover" data-alt="Edificio moderno de residencia universitaria" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqz7ha8134Fpp9mAhvuXR8pf80wqn5xKZYy1GbV1zoCKHBEZ27EKZxgbQFhOdJBBE-hU9Tqeg01zfOtoK3TryGHSQN9KtJz38GseXgQDWENQBLozwHo5xPRm_MSAz9zjC64fkrpoHUbhhQ0EoZdnew1QUKnI2aF0pwynalTNkRI0ONqVGOKgtX5f6db4T3AWVhQxJZUL-yIZDS5tecB7Qc7ORlwyKvoE1YZfESV-ZwTTMUxDashFHIXrhUYmWMU9uHbiu_XrNu2w"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h4 class="text-lg font-bold">Residencia</h4>
+<a class="text-xs font-semibold text-primary hover:underline" href="#">Ver cómo funciona</a>
+</div>
+<p class="text-gray-600 dark:text-gray-400 text-sm mt-1 mb-4">Publicá tu espacio, gestioná reservas y llegá a miles de estudiantes.</p>
+<button class="w-full sm:w-auto bg-primary text-white text-xs font-bold px-6 py-2 rounded-lg">Sumar mi residencia</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Auth Module -->
+<div class="lg:col-span-7">
+<div class="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden">
+<!-- Tabs -->
+<div class="flex border-b border-gray-100 dark:border-gray-800">
+<button class="flex-1 py-4 text-sm font-bold border-b-2 border-primary text-primary">Crear cuenta</button>
+<button class="flex-1 py-4 text-sm font-bold text-gray-500 hover:text-primary transition-colors">Iniciar sesión</button>
+</div>
+<div class="p-8 lg:p-10">
+<!-- Google Auth -->
+<button class="w-full flex items-center justify-center gap-3 py-3 border border-gray-300 dark:border-gray-700 rounded-xl font-semibold text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors mb-8">
+<img alt="Google" class="w-5 h-5" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEdDqhfezkdkobkQLZiUnW36uZVYzYBo9-5Ba-YKOZgfWdk5jmxXG_iLKtsLOLlNUuim5xNo0BdvqqRquT4OcnmPBxnQq2ebIMxQ1cN1X6jBzEgCXAUZDkI3sbMlVDf0xOwhyNKj4qVYT4T1fjminlAAe6hKPAhbYPSD13DkmpE2wPSW288cP9NtJjERSwXmcmESv5xZSxFDV3am7BWRvp4PxmcOk4cMnQX5tfMzqfxdLmZZPmrbFNkqqvkPKnv5yF1-kNhVNdnA"/>
+                            Registrarse con Google
+                        </button>
+<div class="relative flex items-center gap-4 mb-8">
+<div class="flex-1 border-t border-gray-200 dark:border-gray-800"></div>
+<span class="text-xs font-bold text-gray-400 uppercase tracking-widest">o con tu email</span>
+<div class="flex-1 border-t border-gray-200 dark:border-gray-800"></div>
+</div>
+<!-- Registration Form -->
+<form class="space-y-5">
+<div class="grid sm:grid-cols-2 gap-4">
+<div class="space-y-1.5">
+<label class="text-xs font-bold text-gray-700 dark:text-gray-300 ml-1">NOMBRE</label>
+<input class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800 focus:ring-primary focus:border-primary transition-all" placeholder="Ej: Juan" type="text"/>
+</div>
+<div class="space-y-1.5">
+<div class="flex justify-between">
+<label class="text-xs font-bold text-gray-700 dark:text-gray-300 ml-1">APELLIDO (INICIAL)</label>
+<span class="text-[10px] text-primary bg-primary/10 px-1.5 rounded uppercase font-bold self-center">Privacidad</span>
+</div>
+<input class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800 focus:ring-primary focus:border-primary transition-all" placeholder="Ej: P" type="text"/>
+<p class="text-[10px] text-gray-500 ml-1">Solo usamos la inicial para proteger tu identidad.</p>
+</div>
+</div>
+<div class="space-y-1.5">
+<label class="text-xs font-bold text-gray-700 dark:text-gray-300 ml-1">CORREO ELECTRÓNICO</label>
+<input class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800 focus:ring-primary focus:border-primary transition-all" placeholder="hola@ejemplo.com" type="email"/>
+</div>
+<div class="space-y-1.5">
+<label class="text-xs font-bold text-gray-700 dark:text-gray-300 ml-1">CONTRASEÑA</label>
+<input class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800 focus:ring-primary focus:border-primary transition-all" placeholder="Min. 8 caracteres" type="password"/>
+</div>
+<!-- Linking Section -->
+<div class="mt-8 p-4 bg-primary/5 rounded-xl border border-primary/10">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary mt-0.5">link</span>
+<div class="flex-1">
+<h5 class="text-sm font-bold text-primary">Vincular cuenta (Recomendado)</h5>
+<p class="text-xs text-gray-600 dark:text-gray-400 mt-1 mb-3">Compartí el seguimiento de residencias con tu padre, madre o tutor.</p>
+<input class="w-full px-3 py-2 text-xs rounded-lg border-gray-200 dark:border-gray-700 dark:bg-gray-800 focus:ring-primary focus:border-primary" placeholder="Email de tu familiar" type="email"/>
+</div>
+</div>
+</div>
+<div class="flex items-start gap-3 pt-2">
+<input class="mt-1 rounded border-gray-300 text-primary focus:ring-primary" id="terms" type="checkbox"/>
+<label class="text-xs text-gray-500 leading-normal" for="terms">
+                                    Al registrarme, acepto los <a class="text-primary font-semibold" href="#">Términos y Condiciones</a> y la <a class="text-primary font-semibold" href="#">Política de Privacidad</a> de EstuRED.
+                                </label>
+</div>
+<button class="w-full bg-primary text-white font-extrabold py-4 rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all text-base mt-4" type="button">
+                                Crear mi cuenta
+                            </button>
+</form>
+</div>
+</div>
+<!-- Post-registration Mock (Success Toast / Card) -->
+<div class="mt-8 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-6 rounded-2xl flex items-center gap-5">
+<div class="bg-green-500 text-white rounded-full p-2 flex items-center justify-center">
+<span class="material-symbols-outlined text-3xl">mark_email_unread</span>
+</div>
+<div>
+<h4 class="text-green-800 dark:text-green-300 font-bold">¡Revisá tu email!</h4>
+<p class="text-green-700 dark:text-green-400/80 text-sm">Enviamos un link de verificación a tu casilla. Revisá también tu carpeta de Spam.</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer class="max-w-7xl mx-auto px-4 py-12 lg:px-8 border-t border-gray-200 dark:border-gray-800 text-center text-gray-500 text-sm">
+<p>© 2024 EstuRED. La red de residencias universitarias más grande de LATAM.</p>
+</footer>
+</body></html>

@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+/*
+  EstuRed — Design tokens fundacionales.
+
+  Identidad: confiable, clara, humana, profesional, cálida, optimista.
+  Evitar: estética inmobiliaria tradicional, SaaS frío, gradientes y
+  sombras fuertes.
+
+  Los documentos estratégicos (docs/) no definen identidad visual;
+  esta paleta y tipografías son la decisión fundacional del ciclo 0
+  (ver docs/CLAUDE_CODE_AUDIT.md).
+*/
+
+@theme {
+  /* ---- Marca ---- */
+  /* Azul petróleo — color primario, confianza y profesionalismo */
+  --color-petrol-50: #eef6fa;
+  --color-petrol-100: #d7eaf2;
+  --color-petrol-200: #aed4e4;
+  --color-petrol-300: #7db8d0;
+  --color-petrol-400: #4795b5;
+  --color-petrol-500: #1f7396;
+  --color-petrol-600: #0f5c7a; /* base de marca */
+  --color-petrol-700: #0c4a63;
+  --color-petrol-800: #0a3a4e;
+  --color-petrol-900: #082d3d;
+
+  /* Verde salvia — comunidad, calma, señal positiva suave */
+  --color-sage-50: #f1f8f4;
+  --color-sage-100: #ddefe5;
+  --color-sage-200: #bcdfca;
+  --color-sage-300: #9ccdb2;
+  --color-sage-400: #7cb89c; /* base de marca */
+  --color-sage-500: #5d9e81;
+  --color-sage-600: #487f67;
+  --color-sage-700: #3a6553;
+  --color-sage-800: #2f5143;
+  --color-sage-900: #274238;
+
+  /* Arena — fondos cálidos */
+  --color-sand-50: #fbfaf7;
+  --color-sand-100: #f4f1eb; /* base de marca */
+  --color-sand-200: #e9e3d7;
+  --color-sand-300: #d9d0bd;
+
+  /* Amarillo suave — acento optimista, usar con moderación */
+  --color-amber-soft-100: #fdf0d9;
+  --color-amber-soft-300: #f9d48a;
+  --color-amber-soft-400: #f5b041; /* base de marca */
+  --color-amber-soft-500: #e09a26;
+  --color-amber-soft-700: #9c6a15;
+
+  /* ---- Semánticos ---- */
+  --color-ink: #1c2b33; /* texto principal, cálido, no negro puro */
+  --color-ink-soft: #4d5f68; /* texto secundario */
+  --color-ink-faint: #7b8a92; /* texto terciario / hints */
+  --color-surface: #ffffff;
+  --color-success-bg: #e6f4ec;
+  --color-success-fg: #1e6b45;
+  --color-warning-bg: #fdf0d9;
+  --color-warning-fg: #8a5a0e;
+  --color-danger-bg: #fbe9e7;
+  --color-danger-fg: #a63a2a;
+  --color-info-bg: #e8f2f7;
+  --color-info-fg: #0c4a63;
+
+  /* ---- Tipografía ---- */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-manrope), var(--font-inter), ui-sans-serif,
+    system-ui, sans-serif;
+
+  /* ---- Radios: generosos pero no juguetones ---- */
+  --radius-card: 1rem;
+  --radius-field: 0.625rem;
+
+  /* ---- Sombras suaves ---- */
+  --shadow-card: 0 1px 2px rgb(8 45 61 / 0.05), 0 4px 16px rgb(8 45 61 / 0.06);
+  --shadow-card-hover: 0 2px 4px rgb(8 45 61 / 0.06),
+    0 8px 28px rgb(8 45 61 / 0.1);
+  /* Elementos flotantes sobre imágenes o composiciones del hero */
+  --shadow-float: 0 4px 12px rgb(8 45 61 / 0.08), 0 12px 40px rgb(8 45 61 / 0.14);
+}
+
+body {
+  background-color: var(--color-sand-50);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+::selection {
+  background-color: var(--color-amber-soft-300);
+  color: var(--color-ink);
+}

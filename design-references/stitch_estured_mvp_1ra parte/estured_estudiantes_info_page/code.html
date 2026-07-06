@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EstuRED - Estudiantes Info Page</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2b8dee",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#111418] dark:text-white transition-colors duration-300">
+<div class="layout-container flex h-full grow flex-col">
+<!-- Top Navigation Bar -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-primary/10 bg-white dark:bg-background-dark px-10 py-3 sticky top-0 z-50">
+<div class="flex items-center gap-4 text-primary">
+<div class="size-8">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_6_330)">
+<path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+</g>
+<defs>
+<clippath id="clip0_6_330"><rect fill="white" height="48" width="48"></rect></clippath>
+</defs>
+</svg>
+</div>
+<h2 class="text-[#111418] dark:text-white text-xl font-bold leading-tight tracking-[-0.015em]">EstuRED</h2>
+</div>
+<div class="flex flex-1 justify-end gap-8">
+<nav class="flex items-center gap-9">
+<a class="text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Home</a>
+<a class="text-primary text-sm font-bold leading-normal" href="#">Estudiantes</a>
+<a class="text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Residencias</a>
+<a class="text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Sobre Nosotros</a>
+</nav>
+<div class="flex gap-2">
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold">
+                        Registrarme
+                    </button>
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-[#f0f2f4] dark:bg-white/10 text-[#111418] dark:text-white text-sm font-bold">
+                        Ingresar
+                    </button>
+</div>
+</div>
+</header>
+<main class="flex flex-col items-center">
+<div class="w-full max-w-[1200px] px-6 lg:px-10">
+<!-- 1. Hero Section -->
+<section class="py-16 md:py-24">
+<div class="flex flex-col md:flex-row gap-12 items-center">
+<div class="flex-1 flex flex-col gap-6">
+<span class="inline-block px-3 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full w-fit tracking-wider uppercase">
+                                PRIMERA ETAPA: ARGENTINA, PRÓXIMAMENTE LATINOAMÉRICA
+                            </span>
+<h1 class="text-[#111418] dark:text-white text-4xl md:text-6xl font-black leading-[1.1] tracking-tight">
+                                Reservá con confianza. No solo dónde vivir, sino cómo.
+                            </h1>
+<p class="text-[#617589] dark:text-gray-400 text-lg md:text-xl leading-relaxed max-w-2xl">
+                                Información clara, reserva registrada y comprobante digital para que llegues con tranquilidad a tu nuevo hogar estudiantil.
+                            </p>
+<div class="flex flex-wrap gap-4 mt-4">
+<button class="flex min-w-[180px] cursor-pointer items-center justify-center rounded-lg h-14 px-8 bg-primary text-white text-lg font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform">
+                                    Buscar residencias
+                                </button>
+<button class="flex min-w-[180px] cursor-pointer items-center justify-center rounded-lg h-14 px-8 bg-white dark:bg-white/5 border border-[#dbe0e6] dark:border-white/10 text-[#111418] dark:text-white text-lg font-bold hover:bg-gray-50 transition-colors">
+                                    Registrarme
+                                </button>
+</div>
+</div>
+<div class="flex-1 w-full aspect-[4/3] bg-primary/5 rounded-2xl overflow-hidden relative border border-primary/10">
+<div class="absolute inset-0 bg-cover bg-center opacity-90" data-alt="A group of smiling students studying together in a modern residence common area" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBM2cMabu8yPswwc4kDGnmyTF-w2O0ujDEOKfyWOyR4YXJzy1psV4cPX9wvK5owm3OjUMcGONhmj8Isy6wN17EEWIoRONNbPpVKVRJ5PMhf_CNbSlrmjG52zxey7cM7ufroSHIdzpf269aqgq_pwBAoGc2iZMcSA-7JoNdYF-iAbyEzcXkBttDw3riA4ueh-iScMLr9U3rPXNKg6B-t_axnV0IhnrfQOODCibavvjg_Q-YztGXHY3Ge2MhORkeEBLBNSmFklMuBQQ');"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+</div>
+</div>
+</section>
+<!-- 2. Anti-bypass Section -->
+<section class="py-20 border-t border-primary/5">
+<div class="text-center mb-16">
+<h2 class="text-3xl font-bold tracking-tight mb-4">¿Por qué reservar por EstuRED y no por fuera?</h2>
+<p class="text-[#617589] dark:text-gray-400 text-lg max-w-2xl mx-auto">
+                            Reservar por el portal te da respaldo y trazabilidad. Un chat de WhatsApp no puede darte la seguridad de un proceso legalizado.
+                        </p>
+</div>
+<div class="grid lg:grid-cols-2 gap-8 items-stretch">
+<!-- Positive Features -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="flex flex-col gap-4 rounded-xl border border-primary/20 bg-primary/5 p-6 hover:border-primary transition-colors">
+<span class="material-symbols-outlined text-primary text-3xl">verified_user</span>
+<div>
+<h3 class="text-lg font-bold mb-1">Reserva registrada</h3>
+<p class="text-[#617589] dark:text-gray-400 text-sm">Tu lugar queda bloqueado oficialmente en nuestro sistema.</p>
+</div>
+</div>
+<div class="flex flex-col gap-4 rounded-xl border border-primary/20 bg-primary/5 p-6 hover:border-primary transition-colors">
+<span class="material-symbols-outlined text-primary text-3xl">description</span>
+<div>
+<h3 class="text-lg font-bold mb-1">Comprobante de reserva</h3>
+<p class="text-[#617589] dark:text-gray-400 text-sm">Documento digital legal de tu transacción.</p>
+</div>
+</div>
+<div class="flex flex-col gap-4 rounded-xl border border-primary/20 bg-primary/5 p-6 hover:border-primary transition-colors">
+<span class="material-symbols-outlined text-primary text-3xl">task_alt</span>
+<div>
+<h3 class="text-lg font-bold mb-1">Información verificada</h3>
+<p class="text-[#617589] dark:text-gray-400 text-sm">Datos de la residencia chequeados por nuestro equipo.</p>
+</div>
+</div>
+<div class="flex flex-col gap-4 rounded-xl border border-primary/20 bg-primary/5 p-6 hover:border-primary transition-colors">
+<span class="material-symbols-outlined text-primary text-3xl">support_agent</span>
+<div>
+<h3 class="text-lg font-bold mb-1">Acompañamiento</h3>
+<p class="text-[#617589] dark:text-gray-400 text-sm">Soporte humano de EstuRED en todo momento.</p>
+</div>
+</div>
+</div>
+<!-- Comparison Box -->
+<div class="bg-gray-100 dark:bg-white/5 rounded-2xl p-8 flex flex-col justify-center border border-[#dbe0e6] dark:border-white/10">
+<h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-red-500">warning</span>
+                                Si reservás por fuera
+                            </h3>
+<ul class="space-y-4">
+<li class="flex gap-3 text-[#617589] dark:text-gray-300">
+<span class="material-symbols-outlined text-gray-400">close</span>
+<span>Menos trazabilidad en caso de reclamos o cambios.</span>
+</li>
+<li class="flex gap-3 text-[#617589] dark:text-gray-300">
+<span class="material-symbols-outlined text-gray-400">close</span>
+<span>Sin comprobante oficial que respalde el pago inicial.</span>
+</li>
+<li class="flex gap-3 text-[#617589] dark:text-gray-300">
+<span class="material-symbols-outlined text-gray-400">close</span>
+<span>Más incertidumbre sobre la veracidad del alojamiento.</span>
+</li>
+<li class="flex gap-3 text-[#617589] dark:text-gray-300">
+<span class="material-symbols-outlined text-gray-400">close</span>
+<span>Pérdida de la mediación gratuita de EstuRED.</span>
+</li>
+</ul>
+</div>
+</div>
+</section>
+<!-- 3. Accordion Section -->
+<section class="py-20 bg-white dark:bg-white/5 rounded-3xl p-8 md:p-12 border border-primary/5">
+<h2 class="text-3xl font-bold text-center mb-12">Qué hace EstuRED y qué no</h2>
+<div class="max-w-3xl mx-auto space-y-6">
+<div class="border border-[#dbe0e6] dark:border-white/10 rounded-xl overflow-hidden">
+<button class="w-full flex items-center justify-between p-6 bg-gray-50 dark:bg-white/5 font-bold text-lg text-left">
+                                Gestión de Reserva y Mediación
+                                <span class="material-symbols-outlined">expand_more</span>
+</button>
+<div class="p-6 bg-white dark:bg-background-dark border-t border-[#dbe0e6] dark:border-white/10">
+<div class="grid md:grid-cols-2 gap-8">
+<div>
+<h4 class="text-primary font-bold mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined">check_circle</span> Sí hacemos
+                                        </h4>
+<ul class="text-sm space-y-2 text-[#617589] dark:text-gray-400">
+<li>• Formalizamos tu interés mediante un registro digital.</li>
+<li>• Mediamos en la comunicación inicial con el propietario.</li>
+<li>• Aseguramos que los datos publicados sean consistentes.</li>
+</ul>
+</div>
+<div>
+<h4 class="text-gray-400 font-bold mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined">cancel</span> No hacemos
+                                        </h4>
+<ul class="text-sm space-y-2 text-[#617589] dark:text-gray-400">
+<li>• No somos los dueños legales de las propiedades.</li>
+<li>• No redactamos contratos de alquiler permanentes.</li>
+<li>• No manejamos depósitos de garantía post-ingreso.</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 4. How it Works -->
+<section class="py-20 text-center">
+<h2 class="text-3xl font-bold mb-16">Cómo funciona</h2>
+<div class="grid md:grid-cols-3 gap-12 relative">
+<div class="hidden md:block absolute top-10 left-[20%] right-[20%] h-0.5 bg-primary/20 -z-10"></div>
+<div class="flex flex-col items-center gap-4">
+<div class="size-20 rounded-full bg-primary text-white flex items-center justify-center text-2xl font-bold">1</div>
+<h3 class="text-xl font-bold">Buscá por universidad</h3>
+<p class="text-[#617589] dark:text-gray-400">Filtra residencias cercanas a tu lugar de estudio para ahorrar tiempo y dinero.</p>
+</div>
+<div class="flex flex-col items-center gap-4">
+<div class="size-20 rounded-full bg-primary text-white flex items-center justify-center text-2xl font-bold">2</div>
+<h3 class="text-xl font-bold">Entendé el contexto</h3>
+<p class="text-[#617589] dark:text-gray-400">Revisá fotos, servicios y normas de convivencia antes de decidir.</p>
+</div>
+<div class="flex flex-col items-center gap-4">
+<div class="size-20 rounded-full bg-primary text-white flex items-center justify-center text-2xl font-bold">3</div>
+<h3 class="text-xl font-bold">Reservá con registro</h3>
+<p class="text-[#617589] dark:text-gray-400">Generá tu comprobante digital y asegurá tu plaza con respaldo oficial.</p>
+</div>
+</div>
+</section>
+<!-- 5. Acompañamiento Section -->
+<section class="py-20 bg-primary/5 rounded-3xl p-8 md:p-12">
+<div class="text-center mb-12">
+<h2 class="text-3xl font-bold mb-4">Acompañamiento antes, durante y luego de tu reserva</h2>
+<p class="text-[#617589] dark:text-gray-400 max-w-2xl mx-auto">
+                            EstuRED acompaña como mediador y ordena el proceso para que tu única preocupación sea el estudio.
+                        </p>
+</div>
+<div class="grid md:grid-cols-3 gap-6">
+<div class="bg-white dark:bg-background-dark p-8 rounded-2xl shadow-sm border border-primary/10">
+<div class="text-primary font-black text-4xl mb-4 opacity-20">01</div>
+<h3 class="text-xl font-bold mb-3">Antes</h3>
+<p class="text-[#617589] dark:text-gray-400 text-sm">Validamos tus dudas con los encargados y aclaramos las reglas de cada residencia.</p>
+</div>
+<div class="bg-white dark:bg-background-dark p-8 rounded-2xl shadow-sm border border-primary/10">
+<div class="text-primary font-black text-4xl mb-4 opacity-20">02</div>
+<h3 class="text-xl font-bold mb-3">Durante</h3>
+<p class="text-[#617589] dark:text-gray-400 text-sm">Acompañamos el proceso de reserva y pago inicial para asegurar la transparencia.</p>
+</div>
+<div class="bg-white dark:bg-background-dark p-8 rounded-2xl shadow-sm border border-primary/10">
+<div class="text-primary font-black text-4xl mb-4 opacity-20">03</div>
+<h3 class="text-xl font-bold mb-3">Después</h3>
+<p class="text-[#617589] dark:text-gray-400 text-sm">Mantenemos el canal abierto para feedback y mediación ante eventualidades.</p>
+</div>
+</div>
+</section>
+<!-- 6. Roadmap -->
+<section class="py-20 border-b border-primary/5">
+<div class="flex flex-col md:flex-row gap-12 items-center">
+<div class="flex-1">
+<h2 class="text-3xl font-bold mb-8">Lo que se viene en EstuRED</h2>
+<ul class="space-y-6">
+<li class="flex items-start gap-4">
+<div class="mt-1 size-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+<span class="size-2 rounded-full bg-primary"></span>
+</div>
+<div>
+<h4 class="font-bold">Puntos y beneficios</h4>
+<p class="text-sm text-[#617589] dark:text-gray-400">Sistema de recompensas por buen comportamiento y antigüedad.</p>
+</div>
+</li>
+<li class="flex items-start gap-4">
+<div class="mt-1 size-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+<span class="size-2 rounded-full bg-primary"></span>
+</div>
+<div>
+<h4 class="font-bold">Sistema de reviews verificado</h4>
+<p class="text-sm text-[#617589] dark:text-gray-400">Calificaciones reales de estudiantes que ya vivieron ahí.</p>
+</div>
+</li>
+<li class="flex items-start gap-4">
+<div class="mt-1 size-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+<span class="size-2 rounded-full bg-primary"></span>
+</div>
+<div>
+<h4 class="font-bold">Comunidad EstuRED</h4>
+<p class="text-sm text-[#617589] dark:text-gray-400">Conectá con otros estudiantes antes de llegar a la ciudad.</p>
+</div>
+</li>
+</ul>
+</div>
+<div class="flex-1 bg-[#111418] rounded-2xl p-8 text-white">
+<div class="flex items-center gap-2 text-primary mb-4">
+<span class="material-symbols-outlined">rocket_launch</span>
+<span class="font-bold uppercase tracking-widest text-xs">Futuro</span>
+</div>
+<h3 class="text-2xl font-bold mb-4">Próximamente: Expansión Latam</h3>
+<p class="text-gray-400 mb-6">Estamos trabajando para llevar esta seguridad a Chile, Uruguay, Colombia y toda la región.</p>
+<div class="w-full aspect-video rounded-lg bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden">
+<div class="bg-primary/20 w-full h-full flex items-center justify-center" data-alt="Abstract colorful map of South America representing growth">
+<span class="material-symbols-outlined text-6xl opacity-30">public</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 7. Final CTA -->
+<section class="py-24 text-center">
+<div class="bg-primary rounded-[2rem] p-12 md:p-20 text-white shadow-2xl shadow-primary/30">
+<h2 class="text-4xl md:text-5xl font-black mb-6">Empezá tu búsqueda con respaldo</h2>
+<p class="text-white/80 text-lg md:text-xl max-w-2xl mx-auto mb-10">
+                            Unite a la red más segura de alojamiento estudiantil en Argentina y viví tu etapa universitaria sin complicaciones.
+                        </p>
+<div class="flex flex-wrap justify-center gap-4">
+<button class="bg-white text-primary px-10 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-colors">
+                                Buscar residencias
+                            </button>
+<button class="bg-primary/20 border border-white/30 backdrop-blur-sm text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-white/10 transition-colors">
+                                Registrarme
+                            </button>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-white dark:bg-background-dark border-t border-primary/10 py-16 px-10">
+<div class="max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
+<div class="flex flex-col gap-4">
+<div class="flex items-center gap-2 text-primary">
+<div class="size-6">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor"></path>
+</svg>
+</div>
+<span class="text-xl font-bold text-[#111418] dark:text-white">EstuRED</span>
+</div>
+<p class="text-sm text-[#617589] dark:text-gray-400">La red que conecta estudiantes con su próximo hogar de forma segura.</p>
+</div>
+<div>
+<h4 class="font-bold mb-6">Plataforma</h4>
+<ul class="space-y-4 text-sm text-[#617589] dark:text-gray-400">
+<li><a class="hover:text-primary transition-colors" href="#">Búsqueda</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Residencias</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Universidades</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold mb-6">Soporte</h4>
+<ul class="space-y-4 text-sm text-[#617589] dark:text-gray-400">
+<li><a class="hover:text-primary transition-colors" href="#">Centro de ayuda</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Términos y condiciones</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Privacidad</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold mb-6">Contacto</h4>
+<ul class="space-y-4 text-sm text-[#617589] dark:text-gray-400">
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm">mail</span> info@estured.com</li>
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm">location_on</span> Buenos Aires, Argentina</li>
+</ul>
+</div>
+</div>
+<div class="max-w-[1200px] mx-auto mt-16 pt-8 border-t border-primary/5 text-center text-sm text-[#617589] dark:text-gray-500">
+                © 2024 EstuRED. Todos los derechos reservados.
+            </div>
+</footer>
+</div>
+</body></html>
