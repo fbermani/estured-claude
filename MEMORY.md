@@ -1,6 +1,6 @@
 # MEMORY.md — Memoria persistente de EstuRed
 
-**Última actualización:** 2026-07-06 (cierre del Ciclo 2 — calidad visual y UX)
+**Última actualización:** 2026-07-07 (Ciclo 3 — infraestructura operativa: GitHub + Supabase + waitlist e2e)
 
 > Bitácora ejecutiva viva. NO reemplaza la documentación estratégica de `/docs`
 > (los 23 archivos `00`–`22` son la fuente de verdad de producto). Leer este
@@ -12,7 +12,9 @@
 
 EstuRed es una webapp responsive para conectar estudiantes y familias con residencias estudiantiles **verificadas presencialmente** en CABA. Plataforma híbrida de confianza: descubrimiento + solicitud + negociación estructurada + reserva con fee + comprobante verificable + gestión para residencias (freemium). Frase de marca: *"La convivencia también se elige."* La confianza es el producto.
 
-**Estado:** Ciclos 0 y 2 completados (fundaciones + calidad visual/UX). Landing con dirección visual clara, catálogo y cards enriquecidas, componentes pulidos, mobile verificado. Sin DB, sin auth, sin git todavía — el Ciclo 1 (infraestructura) sigue pendiente y es el próximo.
+**Estado:** Ciclos 0, 2 y base del 3 completados. **Git con remoto en GitHub (`github.com/fbermani/estured-claude`, SSH configurada). Supabase aprovisionado y operativo** (proyecto `mrwooskdcnkbitkhcvbf`, región São Paulo): migración 0001 aplicada, formulario de waitlist verificado end-to-end (envío real → fila en DB → RLS bloquea lectura y escritura anónimas). Falta del Ciclo 3: auth + roles + tablas base + audit log, y deploy a Vercel.
+
+⚠️ Gotcha aprendido: al pegar la URL de Supabase en `.env.local` el dueño copió el endpoint REST (`.../rest/v1/`) y produjo `PGRST125`; la URL correcta es la base del proyecto sin path. El proyecto Supabase original (`agvcuqgakvsxedpoyefw`) quedó atascado en aprovisionamiento y fue recreado.
 
 ## 2. Visión del producto
 
@@ -91,9 +93,9 @@ Todo el resto del MVP: ver `docs/PRODUCT_IMPLEMENTATION_PLAN.md` (Ciclos 1–7+)
 
 ## 14. Próxima tarea recomendada
 
-**Ciclo 1 (infraestructura), ahora sí:** git + Supabase + migraciones base + auth + RLS + `createAuditLog` + persistir formulario de waitlist. Prompt sugerido en `docs/NEXT_STEPS.md` §6 (sección histórica). La base visual ya está sólida; no postergar más la infraestructura.
+**Ciclo 3, segunda mitad — auth, roles y auditoría** (docs/12 Fase 1): migración 0002 con tablas base (`users`, `user_roles`, `student_profiles`, `family_links`, `residences`, `residence_users`, `audit_logs`, `consents`) + enums de estados de docs/04 + Supabase Auth (registro por rol, login, protección de rutas, redirect por rol) + RLS por rol + helper `createAuditLog`. Leer antes: docs/05, docs/06, docs/12 §5. Luego: deploy a Vercel (repo ya en GitHub).
 
-Pendientes visuales menores (no bloquean): fotos curadas en vez de picsum, logo real, modal de tipo de cambio cuando exista el provider.
+Pendientes menores (no bloquean): fotos curadas en vez de picsum, logo real, modal de tipo de cambio con provider real, rate limiting del waitlist (GAPS.md), página /privacy antes del deploy público.
 
 ## 15. Instrucciones para futuras sesiones
 
