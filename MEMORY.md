@@ -1,6 +1,6 @@
 # MEMORY.md — Memoria persistente de EstuRed
 
-**Última actualización:** 2026-07-07 (Ciclo 3 — infraestructura operativa: GitHub + Supabase + waitlist e2e)
+**Última actualización:** 2026-07-07 (Ciclo 3 — GitHub + Supabase + **deploy a Vercel: https://estured.vercel.app**)
 
 > Bitácora ejecutiva viva. NO reemplaza la documentación estratégica de `/docs`
 > (los 23 archivos `00`–`22` son la fuente de verdad de producto). Leer este
@@ -12,7 +12,7 @@
 
 EstuRed es una webapp responsive para conectar estudiantes y familias con residencias estudiantiles **verificadas presencialmente** en CABA. Plataforma híbrida de confianza: descubrimiento + solicitud + negociación estructurada + reserva con fee + comprobante verificable + gestión para residencias (freemium). Frase de marca: *"La convivencia también se elige."* La confianza es el producto.
 
-**Estado:** Ciclos 0, 2 y base del 3 completados. **Git con remoto en GitHub (`github.com/fbermani/estured-claude`, SSH configurada). Supabase aprovisionado y operativo** (proyecto `mrwooskdcnkbitkhcvbf`, región São Paulo): migración 0001 aplicada, formulario de waitlist verificado end-to-end (envío real → fila en DB → RLS bloquea lectura y escritura anónimas). Falta del Ciclo 3: auth + roles + tablas base + audit log, y deploy a Vercel.
+**Estado:** Ciclos 0, 2 y base del 3 completados. **Git con remoto en GitHub (`github.com/fbermani/estured-claude`, SSH configurada). Supabase aprovisionado y operativo** (proyecto `mrwooskdcnkbitkhcvbf`, región São Paulo): migración 0001 aplicada, formulario de waitlist verificado end-to-end (envío real → fila en DB → RLS bloquea lectura y escritura anónimas). **Deploy en producción: https://estured.vercel.app** (Vercel conectado al repo de GitHub — cada push a `main` deploya solo; env vars cargadas en el dashboard de Vercel salvo `NEXT_PUBLIC_APP_URL`, que hay que agregar como `https://estured.vercel.app` cuando auth la necesite). Waitlist verificada e2e también en producción (2026-07-07). Falta del Ciclo 3: auth + roles + tablas base + audit log.
 
 ⚠️ Gotcha aprendido: al pegar la URL de Supabase en `.env.local` el dueño copió el endpoint REST (`.../rest/v1/`) y produjo `PGRST125`; la URL correcta es la base del proyecto sin path. El proyecto Supabase original (`agvcuqgakvsxedpoyefw`) quedó atascado en aprovisionamiento y fue recreado.
 
