@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Manrope } from "next/font/google";
+import { DemoSwitcherGate } from "@/components/dev/DemoSwitcherGate";
 import "./globals.css";
 
 const inter = Inter({
@@ -28,6 +29,7 @@ export default function RootLayout({
     <html lang="es">
       <body className={`${inter.variable} ${manrope.variable} antialiased`}>
         {children}
+        {process.env.DEMO_LOGIN_ENABLED === "true" && <DemoSwitcherGate />}
       </body>
     </html>
   );

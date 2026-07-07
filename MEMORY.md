@@ -1,6 +1,6 @@
 # MEMORY.md — Memoria persistente de EstuRed
 
-**Última actualización:** 2026-07-07 (Ciclo 3 — GitHub + Supabase + **deploy a Vercel: https://estured.vercel.app**)
+**Última actualización:** 2026-07-07 (Ciclo 3 completo — auth + roles + auditoría + selector de sesión demo)
 
 > Bitácora ejecutiva viva. NO reemplaza la documentación estratégica de `/docs`
 > (los 23 archivos `00`–`22` son la fuente de verdad de producto). Leer este
@@ -12,7 +12,17 @@
 
 EstuRed es una webapp responsive para conectar estudiantes y familias con residencias estudiantiles **verificadas presencialmente** en CABA. Plataforma híbrida de confianza: descubrimiento + solicitud + negociación estructurada + reserva con fee + comprobante verificable + gestión para residencias (freemium). Frase de marca: *"La convivencia también se elige."* La confianza es el producto.
 
-**Estado:** Ciclos 0, 2 y base del 3 completados. **Git con remoto en GitHub (`github.com/fbermani/estured-claude`, SSH configurada). Supabase aprovisionado y operativo** (proyecto `mrwooskdcnkbitkhcvbf`, región São Paulo): migración 0001 aplicada, formulario de waitlist verificado end-to-end (envío real → fila en DB → RLS bloquea lectura y escritura anónimas). **Deploy en producción: https://estured.vercel.app** (Vercel conectado al repo de GitHub — cada push a `main` deploya solo; env vars cargadas en el dashboard de Vercel salvo `NEXT_PUBLIC_APP_URL`, que hay que agregar como `https://estured.vercel.app` cuando auth la necesite). Waitlist verificada e2e también en producción (2026-07-07). Falta del Ciclo 3: auth + roles + tablas base + audit log.
+**Estado:** Ciclos 0, 2 y base del 3 completados. **Git con remoto en GitHub (`github.com/fbermani/estured-claude`, SSH configurada). Supabase aprovisionado y operativo** (proyecto `mrwooskdcnkbitkhcvbf`, región São Paulo): migración 0001 aplicada, formulario de waitlist verificado end-to-end (envío real → fila en DB → RLS bloquea lectura y escritura anónimas). **Deploy en producción: https://estured.vercel.app** (Vercel conectado al repo de GitHub — cada push a `main` deploya solo; env vars cargadas en el dashboard de Vercel salvo `NEXT_PUBLIC_APP_URL`, que hay que agregar como `https://estured.vercel.app` cuando auth la necesite). Waitlist verificada e2e también en producción (2026-07-07).
+
+**Auth operativo (migración 0002 aplicada, verificado e2e 2026-07-07):**
+- Tablas: `users`, `user_roles`, `consents`, `student_profiles`, `student_visibility_settings`, `audit_logs` — con RLS "solo lo propio" y auditoría append-only solo service role.
+- Login real (`/login`) con redirect por rol; registro de estudiante completo (`/register/student`) con validación server-side, detección de menores, consentimientos versionados (`v0.1-borrador`), auditoría y rollback si falla a mitad; selector de rol en `/register` (familiar y residencia = "Muy pronto", siguiente slice).
+- Protección en dos capas: `middleware.ts` (sesión) + layouts por área (rol). Verificado: estudiante que intenta `/admin` rebota a su home.
+- **Decisión documentada:** usuarios pre-confirmados vía admin API (sin verificación de email) mientras el proveedor de email sea pendiente de docs/00 §29.
+- **Gotcha PostgREST:** en inserts múltiples, las filas sin una columna la mandan como `null` (ignora el default de la tabla) → declarar `metadata: {}` explícito (bug real corregido en `registerStudent`).
+- Admin: `node --env-file=.env.local scripts/create-admin.mjs <email> <password>` (aún no se creó el admin real del dueño).
+
+**Selector de sesión simulada (pedido del dueño, 2026-07-07):** widget flotante "Simular usuario" con los 8 usuarios demo de docs/17 (Lucía/Camila/Valentina estudiantes, Martín familiar, Ricardo owner, Sofía staff, admin, superadmin — seed: `scripts/seed-demo-users.mjs`). Usa auth real (signInWithPassword) así ejercita RLS/roles/redirects de verdad. Doble bloqueo: solo se monta y solo funciona con `DEMO_LOGIN_ENABLED=true` (en `.env.local`; **jamás configurarlo en Vercel**). Contraseña común en `DEMO_USERS_PASSWORD`.
 
 ⚠️ Gotcha aprendido: al pegar la URL de Supabase en `.env.local` el dueño copió el endpoint REST (`.../rest/v1/`) y produjo `PGRST125`; la URL correcta es la base del proyecto sin path. El proyecto Supabase original (`agvcuqgakvsxedpoyefw`) quedó atascado en aprovisionamiento y fue recreado.
 
@@ -93,9 +103,9 @@ Todo el resto del MVP: ver `docs/PRODUCT_IMPLEMENTATION_PLAN.md` (Ciclos 1–7+)
 
 ## 14. Próxima tarea recomendada
 
-**Ciclo 3, segunda mitad — auth, roles y auditoría** (docs/12 Fase 1): migración 0002 con tablas base (`users`, `user_roles`, `student_profiles`, `family_links`, `residences`, `residence_users`, `audit_logs`, `consents`) + enums de estados de docs/04 + Supabase Auth (registro por rol, login, protección de rutas, redirect por rol) + RLS por rol + helper `createAuditLog`. Leer antes: docs/05, docs/06, docs/12 §5. Luego: deploy a Vercel (repo ya en GitHub).
+**Ciclo 4 — residencias reales** (docs/12 Fases 1 restante + 2): migración con `residences`, `residence_users`, `rooms`/`places`, `family_members`, `family_links` + registro de familiar (con vinculación aprobada por estudiante) + registro/onboarding de residencia + reemplazo de `lib/mock/residences.ts` por repositorios Supabase + `ExchangeRateProvider` (monedapi.ar) con modal obligatorio (docs/08 §2.8). Leer antes: docs/06 §6-8, docs/03, docs/12 §6-7.
 
-Pendientes menores (no bloquean): fotos curadas en vez de picsum, logo real, modal de tipo de cambio con provider real, rate limiting del waitlist (GAPS.md), página /privacy antes del deploy público.
+Pendientes menores (no bloquean): crear el admin real del dueño (`scripts/create-admin.mjs`), recuperación de contraseña (necesita decisión de proveedor de email, docs/00 §29), fotos curadas, logo real, rate limiting del waitlist (GAPS.md), página /privacy antes de difusión masiva.
 
 ## 15. Instrucciones para futuras sesiones
 
