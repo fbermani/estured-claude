@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EstuRED Admin - Master Panel</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline": "#737685",
+                    "on-surface": "#191c1e",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary-container": "#a33500",
+                    "on-tertiary-fixed-variant": "#812800",
+                    "secondary-container": "#d5e3fc",
+                    "on-primary-fixed": "#001848",
+                    "on-primary-container": "#c4d2ff",
+                    "on-primary-fixed-variant": "#0040a2",
+                    "tertiary-fixed-dim": "#ffb59b",
+                    "on-secondary": "#ffffff",
+                    "on-secondary-container": "#57657a",
+                    "surface-container-low": "#f2f4f6",
+                    "primary-fixed": "#dae2ff",
+                    "primary": "#003d9b",
+                    "surface-tint": "#0c56d0",
+                    "on-secondary-fixed": "#0d1c2e",
+                    "tertiary-fixed": "#ffdbcf",
+                    "outline-variant": "#c3c6d6",
+                    "on-secondary-fixed-variant": "#3a485b",
+                    "secondary-fixed": "#d5e3fc",
+                    "on-tertiary-fixed": "#380d00",
+                    "surface-variant": "#e0e3e5",
+                    "primary-container": "#0052cc",
+                    "on-background": "#191c1e",
+                    "on-tertiary": "#ffffff",
+                    "background": "#f7f9fb",
+                    "surface": "#f7f9fb",
+                    "on-error-container": "#93000a",
+                    "on-error": "#ffffff",
+                    "primary-fixed-dim": "#b2c5ff",
+                    "surface-container-high": "#e6e8ea",
+                    "surface-bright": "#f7f9fb",
+                    "secondary": "#515f74",
+                    "inverse-on-surface": "#eff1f3",
+                    "surface-dim": "#d8dadc",
+                    "on-tertiary-container": "#ffc6b2",
+                    "on-primary": "#ffffff",
+                    "surface-container-highest": "#e0e3e5",
+                    "error-container": "#ffdad6",
+                    "inverse-primary": "#b2c5ff",
+                    "on-surface-variant": "#434654",
+                    "surface-container": "#eceef0",
+                    "secondary-fixed-dim": "#b9c7df",
+                    "tertiary": "#7b2600",
+                    "inverse-surface": "#2d3133",
+                    "error": "#ba1a1a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "gutter": "16px",
+                    "unit": "4px",
+                    "margin-page": "24px",
+                    "density-compact": "8px",
+                    "density-normal": "12px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "headline-sm": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "data-mono": ["Plus Jakarta Sans"],
+                    "label-caps": ["Plus Jakarta Sans"],
+                    "body-sm": ["Plus Jakarta Sans"],
+                    "body-md": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "headline-md": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "headline-sm": ["16px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "headline-lg": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["15px", {"lineHeight": "22px", "fontWeight": "400"}],
+                    "data-mono": ["13px", {"lineHeight": "18px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f7f9fb; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .data-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
+        .scroll-hide::-webkit-scrollbar { display: none; }
+        .scroll-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- SideNavBar Anchor -->
+<aside class="h-screen w-60 fixed left-0 top-0 bg-surface-container-lowest border-r border-outline-variant flex flex-col py-margin-page z-50">
+<div class="px-6 mb-8">
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary">EstuRED Admin</h1>
+<p class="font-body-sm text-on-surface-variant opacity-70">System Controller</p>
+</div>
+<nav class="flex-1 space-y-1 px-3">
+<a class="flex items-center px-3 py-2.5 rounded-lg text-primary font-bold bg-secondary-fixed transition-all duration-75 active:scale-95" href="#">
+<span class="material-symbols-outlined mr-3">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<a class="flex items-center px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined mr-3">domain</span>
+<span class="font-body-md text-body-md">Residencias</span>
+</a>
+<a class="flex items-center px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined mr-3">pending_actions</span>
+<span class="font-body-md text-body-md">Solicitudes</span>
+</a>
+<a class="flex items-center px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined mr-3">group</span>
+<span class="font-body-md text-body-md">Usuarios</span>
+</a>
+<a class="flex items-center px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined mr-3">payments</span>
+<span class="font-body-md text-body-md">Tarifas</span>
+</a>
+<a class="flex items-center px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined mr-3">history</span>
+<span class="font-body-md text-body-md">Logs</span>
+</a>
+</nav>
+<div class="mt-auto px-6 pt-6 border-t border-outline-variant flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-white font-bold">A</div>
+<div>
+<p class="font-body-md font-bold text-on-surface">Admin Profile</p>
+<p class="text-xs text-on-surface-variant uppercase tracking-wider">Superadmin</p>
+</div>
+</div>
+</aside>
+<!-- TopNavBar Anchor -->
+<header class="fixed top-0 right-0 left-60 h-16 bg-surface-bright border-b border-outline-variant flex items-center justify-between px-gutter z-40">
+<div class="flex items-center gap-6 flex-1">
+<span class="font-headline-md text-headline-md font-extrabold tracking-tight text-primary">EstuRED Control</span>
+<div class="relative w-96 max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-lg text-body-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all" placeholder="Search system records..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-lg text-on-surface-variant hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 rounded-lg text-on-surface-variant hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="p-2 rounded-lg text-on-surface-variant hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined">help</span>
+</button>
+<div class="ml-2 w-8 h-8 rounded-full overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a corporate administrator in a modern office environment. The person is wearing a navy blue suit and a crisp white shirt, exuding authority and precision. The background is softly blurred with clean glass partitions and subtle technical data displays, reflecting a high-stakes command center aesthetic with cool blue and slate tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBEpfio4Wa2Ufv9KSy9j9VarVUa-J0_Rp685hB6pX-vx_1pDQQESCnE4GXi3TFpfEupMv8EwLfcneyMkVhyAo-zB4K0SSwt5T9QWM3TOOHmxy2pxYUGt0aWi_VHhjQVeZsbA6RJapDXo1Y4q3fUYrkP90baXH_DV6H5lGabvrfunfnfecj4yvlLDbNS0ILgUuzj3Nm40ViK3Yu9sSF4aUUpsvDzl5q91t5oU-edvJi7P8EpYYLKae13IvbeEPGRqQ37bey4XWwvJw"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-60 pt-24 pb-12 px-margin-page min-h-screen">
+<!-- Header Section -->
+<div class="mb-8 flex justify-between items-end">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Global Operations Dashboard</h2>
+<p class="font-body-md text-on-surface-variant">Real-time oversight across all metropolitan residency nodes.</p>
+</div>
+<div class="flex gap-3">
+<button class="px-4 py-2 bg-white border border-outline-variant rounded-lg font-body-md font-bold text-secondary flex items-center gap-2 hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined text-[20px]">file_download</span> Export PDF
+                </button>
+<button class="px-4 py-2 bg-primary text-white rounded-lg font-body-md font-bold flex items-center gap-2 shadow-sm hover:opacity-90 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[20px]">add</span> New Residency
+                </button>
+</div>
+</div>
+<!-- KPI Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter mb-gutter">
+<!-- Total Active Residencies -->
+<div class="bg-surface-container-lowest border border-outline-variant p-5 rounded-xl">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-primary-fixed text-primary rounded-lg">
+<span class="material-symbols-outlined">home_work</span>
+</div>
+<span class="font-label-caps text-label-caps text-green-600 bg-green-50 px-2 py-0.5 rounded">+4.2%</span>
+</div>
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-1">TOTAL ACTIVE RESIDENCIES</p>
+<div class="flex items-baseline gap-2">
+<h3 class="font-headline-lg text-headline-lg text-on-surface">1,482</h3>
+<span class="text-xs text-on-surface-variant">units</span>
+</div>
+</div>
+<!-- Pending Validations (Alert) -->
+<div class="bg-surface-container-lowest border border-outline-variant p-5 rounded-xl border-l-4 border-l-error">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-error-container text-error rounded-lg">
+<span class="material-symbols-outlined">report</span>
+</div>
+<span class="font-label-caps text-label-caps text-error bg-error-container px-2 py-0.5 rounded">URGENT</span>
+</div>
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-1">PENDING VALIDATIONS</p>
+<div class="flex items-baseline gap-2">
+<h3 class="font-headline-lg text-headline-lg text-error">24</h3>
+<span class="text-xs text-on-surface-variant">awaiting action</span>
+</div>
+</div>
+<!-- Monthly Booking Volume -->
+<div class="bg-surface-container-lowest border border-outline-variant p-5 rounded-xl">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-secondary-fixed text-on-secondary-container rounded-lg">
+<span class="material-symbols-outlined">calendar_month</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant">MTD</span>
+</div>
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-1">MONTHLY BOOKING VOLUME</p>
+<div class="flex items-baseline gap-2">
+<h3 class="font-headline-lg text-headline-lg text-on-surface">3,910</h3>
+<span class="text-xs text-green-600 font-bold">↑ 12%</span>
+</div>
+</div>
+<!-- Fee Revenue -->
+<div class="bg-surface-container-lowest border border-outline-variant p-5 rounded-xl">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-tertiary-fixed text-tertiary rounded-lg">
+<span class="material-symbols-outlined">payments</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant">ESTIMATED</span>
+</div>
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-1">FEE REVENUE (ARS)</p>
+<div class="flex items-baseline gap-2">
+<h3 class="font-headline-lg text-headline-lg text-on-surface">$14.2M</h3>
+<span class="text-xs text-on-surface-variant">cycle total</span>
+</div>
+</div>
+</div>
+<!-- Middle Section: Heatmap and Activity -->
+<div class="grid grid-cols-12 gap-gutter mb-gutter">
+<!-- Geographical Heatmap -->
+<div class="col-span-12 lg:col-span-8 bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden flex flex-col">
+<div class="p-gutter border-b border-outline-variant flex justify-between items-center bg-white">
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Residency Concentration: Buenos Aires</h4>
+<div class="flex gap-2">
+<span class="flex items-center gap-1.5 font-label-caps text-label-caps text-on-surface-variant border border-outline-variant rounded px-2 py-1">
+<span class="w-2 h-2 rounded-full bg-primary"></span> High Density
+                        </span>
+<span class="flex items-center gap-1.5 font-label-caps text-label-caps text-on-surface-variant border border-outline-variant rounded px-2 py-1">
+<span class="w-2 h-2 rounded-full bg-blue-300"></span> Low Density
+                        </span>
+</div>
+</div>
+<div class="relative flex-1 min-h-[400px] bg-slate-100">
+<div class="absolute inset-0 grayscale contrast-125 opacity-40" data-location="Buenos Aires" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDVLHGQxlDXEn0N410tE-QsymJ54TZ3_KKNfq0F4qeOsxKBIqbcBOfzR2lK4pYcQJCcrD5yd2LNFPgPWXF1_AjMfhdzLlrovk1Tf7nq388DlM-fh9A1PzUkJ2z2n_EMTw2nWyWM_FgOhGiqLCAG0mnMQQrCC8RCZkkwS_CGZkrRx_1eRpC5D1U_bC5Ap1CKoSDYcHQ003qEvUOx0ESSWV_8XKpBLal1Q9XXmkTpxODIKE_Hy9tNL6F1Kl-5KJPecGGVzQT4thSK5g')"></div>
+<!-- Mock Data Heatmap Overlay -->
+<div class="absolute inset-0 p-gutter flex items-center justify-center pointer-events-none">
+<div class="relative w-full h-full">
+<!-- Heat Points -->
+<div class="absolute top-1/4 left-1/3 w-32 h-32 bg-primary/20 rounded-full blur-3xl animate-pulse"></div>
+<div class="absolute top-1/2 left-1/2 w-48 h-48 bg-primary/30 rounded-full blur-3xl"></div>
+<div class="absolute bottom-1/4 right-1/4 w-24 h-24 bg-primary/15 rounded-full blur-3xl"></div>
+<!-- Marker -->
+<div class="absolute top-[45%] left-[52%] flex flex-col items-center group pointer-events-auto cursor-pointer">
+<div class="bg-primary text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg mb-1 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">Palermo Central: 412 Units</div>
+<div class="w-4 h-4 bg-primary border-4 border-white rounded-full shadow-md animate-bounce"></div>
+</div>
+</div>
+</div>
+<!-- Controls -->
+<div class="absolute bottom-4 right-4 flex flex-col gap-2">
+<button class="w-8 h-8 bg-white border border-outline-variant rounded shadow-sm flex items-center justify-center hover:bg-surface-container"><span class="material-symbols-outlined text-sm">add</span></button>
+<button class="w-8 h-8 bg-white border border-outline-variant rounded shadow-sm flex items-center justify-center hover:bg-surface-container"><span class="material-symbols-outlined text-sm">remove</span></button>
+</div>
+</div>
+</div>
+<!-- Operational Health Widget -->
+<div class="col-span-12 lg:col-span-4 flex flex-col gap-gutter">
+<div class="bg-primary text-white p-6 rounded-xl shadow-lg relative overflow-hidden">
+<!-- Subtle background pattern -->
+<div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 10px 10px;"></div>
+<h4 class="font-label-caps text-label-caps opacity-80 mb-4">OPERATIONAL HEALTH</h4>
+<div class="flex items-center gap-4 mb-6">
+<div class="text-4xl font-extrabold">99.98%</div>
+<div class="flex flex-col">
+<span class="text-xs font-bold uppercase tracking-widest">Uptime</span>
+<span class="text-[10px] opacity-70">Last 30 Days</span>
+</div>
+</div>
+<div class="space-y-4">
+<div>
+<div class="flex justify-between text-xs font-bold mb-1.5 uppercase tracking-wider">
+<span>API Response Time</span>
+<span>142ms</span>
+</div>
+<div class="w-full bg-white/20 h-1.5 rounded-full overflow-hidden">
+<div class="bg-white h-full" style="width: 85%;"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-xs font-bold mb-1.5 uppercase tracking-wider">
+<span>Database Load</span>
+<span>24%</span>
+</div>
+<div class="w-full bg-white/20 h-1.5 rounded-full overflow-hidden">
+<div class="bg-white h-full" style="width: 24%;"></div>
+</div>
+</div>
+</div>
+<button class="mt-8 w-full py-2 bg-white/10 hover:bg-white/20 border border-white/30 rounded-lg text-xs font-bold uppercase tracking-widest transition-all">
+                        View Detailed Metrics
+                    </button>
+</div>
+<!-- Recent Activity Feed -->
+<div class="flex-1 bg-surface-container-lowest border border-outline-variant rounded-xl flex flex-col">
+<div class="p-gutter border-b border-outline-variant bg-white">
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Recent Activity</h4>
+</div>
+<div class="p-gutter space-y-5 overflow-y-auto max-h-[300px] scroll-hide">
+<!-- Activity Item -->
+<div class="flex gap-4">
+<div class="mt-1 w-2 h-2 rounded-full bg-primary flex-shrink-0"></div>
+<div>
+<p class="font-body-md text-on-surface"><span class="font-bold">Valeria Rossi</span> approved a new unit in Belgrano.</p>
+<p class="text-[11px] text-on-surface-variant font-data-mono mt-0.5">14:22 · Transaction #4892</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="mt-1 w-2 h-2 rounded-full bg-error flex-shrink-0"></div>
+<div>
+<p class="font-body-md text-on-surface"><span class="font-bold">System Alert</span>: Delayed payment detected for Residencias ABC.</p>
+<p class="text-[11px] text-on-surface-variant font-data-mono mt-0.5">13:10 · Log ID: 0092</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="mt-1 w-2 h-2 rounded-full bg-secondary flex-shrink-0"></div>
+<div>
+<p class="font-body-md text-on-surface"><span class="font-bold">New Partner</span>: 'Estudio San Telmo' joined the network.</p>
+<p class="text-[11px] text-on-surface-variant font-data-mono mt-0.5">11:45 · Onboarding</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="mt-1 w-2 h-2 rounded-full bg-primary flex-shrink-0"></div>
+<div>
+<p class="font-body-md text-on-surface"><span class="font-bold">Admin Update</span>: Fee structure revised for Q4.</p>
+<p class="text-[11px] text-on-surface-variant font-data-mono mt-0.5">09:30 · Global Config</p>
+</div>
+</div>
+</div>
+<a class="block p-4 text-center text-primary font-bold text-xs uppercase tracking-widest border-t border-outline-variant hover:bg-surface-container transition-colors" href="#">
+                        See All Activity
+                    </a>
+</div>
+</div>
+</div>
+<!-- High Density Data Table Section -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden">
+<div class="p-gutter border-b border-outline-variant flex justify-between items-center bg-white">
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Top Performing Residencies</h4>
+<p class="text-xs text-on-surface-variant mt-1">Snapshot of occupancy and revenue efficiency by region.</p>
+</div>
+<div class="flex gap-2">
+<select class="bg-surface-container-low border border-outline-variant text-xs font-bold rounded-lg px-3 py-1.5 focus:ring-1 focus:ring-primary">
+<option>Current Quarter</option>
+<option>Last 12 Months</option>
+</select>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-low text-on-surface-variant font-label-caps text-[10px] uppercase tracking-wider sticky top-0">
+<tr>
+<th class="px-6 py-3 border-b border-outline-variant font-bold">Residency Name</th>
+<th class="px-6 py-3 border-b border-outline-variant font-bold">Region</th>
+<th class="px-6 py-3 border-b border-outline-variant font-bold">Units</th>
+<th class="px-6 py-3 border-b border-outline-variant font-bold">Occupancy</th>
+<th class="px-6 py-3 border-b border-outline-variant font-bold">Avg. Revenue</th>
+<th class="px-6 py-3 border-b border-outline-variant font-bold">Status</th>
+<th class="px-6 py-3 border-b border-outline-variant font-bold text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="text-body-md divide-y divide-outline-variant/30">
+<tr class="hover:bg-surface-container/50 transition-colors">
+<td class="px-6 py-3.5 font-bold text-on-surface">Palermo Hollywood Suites</td>
+<td class="px-6 py-3.5 text-on-surface-variant">CABA, Palermo</td>
+<td class="px-6 py-3.5 font-data-mono">124</td>
+<td class="px-6 py-3.5">
+<div class="flex items-center gap-2">
+<div class="w-16 bg-surface-container h-1.5 rounded-full overflow-hidden">
+<div class="bg-green-500 h-full" style="width: 96%;"></div>
+</div>
+<span class="text-xs font-bold">96%</span>
+</div>
+</td>
+<td class="px-6 py-3.5 font-data-mono">$840k/mo</td>
+<td class="px-6 py-3.5">
+<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-700 uppercase">Verified</span>
+</td>
+<td class="px-6 py-3.5 text-right">
+<button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container/50 transition-colors">
+<td class="px-6 py-3.5 font-bold text-on-surface">San Telmo Heritage Hub</td>
+<td class="px-6 py-3.5 text-on-surface-variant">CABA, San Telmo</td>
+<td class="px-6 py-3.5 font-data-mono">82</td>
+<td class="px-6 py-3.5">
+<div class="flex items-center gap-2">
+<div class="w-16 bg-surface-container h-1.5 rounded-full overflow-hidden">
+<div class="bg-yellow-500 h-full" style="width: 72%;"></div>
+</div>
+<span class="text-xs font-bold">72%</span>
+</div>
+</td>
+<td class="px-6 py-3.5 font-data-mono">$410k/mo</td>
+<td class="px-6 py-3.5">
+<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-700 uppercase">Verified</span>
+</td>
+<td class="px-6 py-3.5 text-right">
+<button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container/50 transition-colors">
+<td class="px-6 py-3.5 font-bold text-on-surface">Recoleta Scholars House</td>
+<td class="px-6 py-3.5 text-on-surface-variant">CABA, Recoleta</td>
+<td class="px-6 py-3.5 font-data-mono">45</td>
+<td class="px-6 py-3.5">
+<div class="flex items-center gap-2">
+<div class="w-16 bg-surface-container h-1.5 rounded-full overflow-hidden">
+<div class="bg-green-500 h-full" style="width: 100%;"></div>
+</div>
+<span class="text-xs font-bold">100%</span>
+</div>
+</td>
+<td class="px-6 py-3.5 font-data-mono">$320k/mo</td>
+<td class="px-6 py-3.5">
+<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-yellow-100 text-yellow-700 uppercase">Inspection Due</span>
+</td>
+<td class="px-6 py-3.5 text-right">
+<button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container/50 transition-colors">
+<td class="px-6 py-3.5 font-bold text-on-surface">Nuñez Tech Commons</td>
+<td class="px-6 py-3.5 text-on-surface-variant">CABA, Nuñez</td>
+<td class="px-6 py-3.5 font-data-mono">210</td>
+<td class="px-6 py-3.5">
+<div class="flex items-center gap-2">
+<div class="w-16 bg-surface-container h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full" style="width: 88%;"></div>
+</div>
+<span class="text-xs font-bold">88%</span>
+</div>
+</td>
+<td class="px-6 py-3.5 font-data-mono">$1.2M/mo</td>
+<td class="px-6 py-3.5">
+<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-700 uppercase">Verified</span>
+</td>
+<td class="px-6 py-3.5 text-right">
+<button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-4 bg-white border-t border-outline-variant flex justify-between items-center">
+<span class="text-xs text-on-surface-variant font-bold uppercase tracking-wider">Showing 4 of 1,482 Entries</span>
+<div class="flex gap-1">
+<button class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant hover:bg-surface-container text-on-surface-variant disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-primary bg-primary-fixed text-primary text-xs font-bold">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant hover:bg-surface-container text-on-surface-variant text-xs font-bold">2</button>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant hover:bg-surface-container text-on-surface-variant text-xs font-bold">3</button>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant hover:bg-surface-container text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Micro-interaction Scripts -->
+<script>
+        // Simple data refresh effect
+        const refreshActivity = () => {
+            const feed = document.querySelector('.overflow-y-auto');
+            if (feed) {
+                feed.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        };
+
+        // Simulated real-time stats update
+        setInterval(() => {
+            const upTime = document.querySelector('.text-4xl.font-extrabold');
+            if (upTime) {
+                const current = 99.98;
+                const variance = (Math.random() * 0.01 - 0.005).toFixed(2);
+                const newVal = (current + parseFloat(variance)).toFixed(2);
+                upTime.textContent = newVal + '%';
+            }
+        }, 5000);
+    </script>
+</body></html>

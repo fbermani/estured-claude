@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EstuRED Control - Validación de Residencias</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#737685",
+                        "on-surface": "#191c1e",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-container": "#a33500",
+                        "on-tertiary-fixed-variant": "#812800",
+                        "secondary-container": "#d5e3fc",
+                        "on-primary-fixed": "#001848",
+                        "on-primary-container": "#c4d2ff",
+                        "on-primary-fixed-variant": "#0040a2",
+                        "tertiary-fixed-dim": "#ffb59b",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-container": "#57657a",
+                        "surface-container-low": "#f2f4f6",
+                        "primary-fixed": "#dae2ff",
+                        "primary": "#003d9b",
+                        "surface-tint": "#0c56d0",
+                        "on-secondary-fixed": "#0d1c2e",
+                        "tertiary-fixed": "#ffdbcf",
+                        "outline-variant": "#c3c6d6",
+                        "on-secondary-fixed-variant": "#3a485b",
+                        "secondary-fixed": "#d5e3fc",
+                        "on-tertiary-fixed": "#380d00",
+                        "surface-variant": "#e0e3e5",
+                        "primary-container": "#0052cc",
+                        "on-background": "#191c1e",
+                        "on-tertiary": "#ffffff",
+                        "background": "#f7f9fb",
+                        "surface": "#f7f9fb",
+                        "on-error-container": "#93000a",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#b2c5ff",
+                        "surface-container-high": "#e6e8ea",
+                        "surface-bright": "#f7f9fb",
+                        "secondary": "#515f74",
+                        "inverse-on-surface": "#eff1f3",
+                        "surface-dim": "#d8dadc",
+                        "on-tertiary-container": "#ffc6b2",
+                        "on-primary": "#ffffff",
+                        "surface-container-highest": "#e0e3e5",
+                        "error-container": "#ffdad6",
+                        "inverse-primary": "#b2c5ff",
+                        "on-surface-variant": "#434654",
+                        "surface-container": "#eceef0",
+                        "secondary-fixed-dim": "#b9c7df",
+                        "tertiary": "#7b2600",
+                        "inverse-surface": "#2d3133",
+                        "error": "#ba1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "unit": "4px",
+                        "margin-page": "24px",
+                        "density-compact": "8px",
+                        "density-normal": "12px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-sm": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "data-mono": ["Plus Jakarta Sans"],
+                        "label-caps": ["Plus Jakarta Sans"],
+                        "body-sm": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "headline-sm": ["16px", {"lineHeight": "24px", "fontWeight": "600"}],
+                        "headline-lg": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-lg": ["15px", {"lineHeight": "22px", "fontWeight": "400"}],
+                        "data-mono": ["13px", {"lineHeight": "18px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                        "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased flex">
+<!-- SideNavBar Anchor -->
+<aside class="bg-surface-container-lowest dark:bg-inverse-surface border-r border-outline-variant dark:border-outline h-screen w-60 fixed left-0 top-0 flex flex-col h-full py-spacing-margin-page z-50">
+<div class="px-6 mb-8">
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary dark:text-inverse-primary">EstuRED Admin</h1>
+<p class="text-on-surface-variant font-body-sm">System Controller</p>
+</div>
+<nav class="flex-1 px-3 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors font-body-md" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Dashboard</span>
+</a>
+<!-- Active State Logic: Mapping "Residencias" -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary dark:text-primary-fixed-dim font-bold bg-secondary-fixed dark:bg-secondary-container font-body-md scale-95 duration-75" href="#">
+<span class="material-symbols-outlined">domain</span>
+<span>Residencias</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors font-body-md" href="#">
+<span class="material-symbols-outlined">pending_actions</span>
+<span>Solicitudes</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors font-body-md" href="#">
+<span class="material-symbols-outlined">group</span>
+<span>Usuarios</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors font-body-md" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span>Tarifas</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors font-body-md" href="#">
+<span class="material-symbols-outlined">history</span>
+<span>Logs</span>
+</a>
+</nav>
+<div class="px-4 mt-auto">
+<div class="flex items-center gap-3 p-3 rounded-xl bg-surface-container">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined">shield_person</span>
+</div>
+<div>
+<p class="font-body-sm font-bold">Admin Profile</p>
+<p class="text-[10px] uppercase tracking-wider text-outline">Super Admin</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- TopNavBar Anchor -->
+<header class="fixed top-0 right-0 left-60 h-16 bg-surface-bright dark:bg-surface-dim border-b border-outline-variant dark:border-outline flex items-center justify-between px-gutter w-full z-40">
+<div class="flex items-center gap-4">
+<span class="font-headline-md text-headline-md font-extrabold tracking-tight text-primary">EstuRED Control</span>
+<div class="h-6 w-[1px] bg-outline-variant mx-2"></div>
+<h2 class="text-on-surface font-body-md font-semibold">Validación de Residencias</h2>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined">help</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a system administrator in a clean, modern corporate setting. The lighting is soft and professional, with a shallow depth of field focusing on the person. The color palette is cool and tech-oriented, featuring subtle blues and greys to maintain the command center aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6MkEx1UJq1wsWPBHd2CV3d3tnO7BKL0zn6YjvQzzPfAXrcfw6BF146cM53-7rsS2U0Kv_BnHcsQX3SK4tYmpLQoB5DGnt5HGk1FksNLL3g0PYWE1gg0l3ywamKwnHlmMpfzIkm7OBYnFxioQweX-dm9tef5ej5vW0fgna-puo5F1TLfr3IBjztDasMeYgn_N-ImMdQW-B054CeR930fofoGK6zHAB9ZYT-E7ZqcdKnatZ3fWCCbf6kBRwlCw9nYjzsTJYqYj-gw"/>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="ml-60 pt-16 w-full min-h-screen flex">
+<!-- List View (Queue) -->
+<section class="w-80 border-r border-outline-variant bg-surface-container-lowest flex flex-col h-[calc(100vh-64px)] overflow-hidden">
+<div class="p-4 border-b border-outline-variant">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-outline text-sm">search</span>
+<input class="w-full pl-9 pr-4 py-2 bg-surface-container-low border-none rounded-lg text-body-sm focus:ring-2 focus:ring-primary" placeholder="Buscar residencias..." type="text"/>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto scrollbar-hide">
+<!-- Queue Item Active -->
+<div class="p-4 border-b border-outline-variant bg-primary-fixed/30 border-l-4 border-l-primary cursor-pointer">
+<div class="flex justify-between items-start mb-1">
+<span class="text-[10px] font-bold text-primary px-2 py-0.5 bg-primary-container/20 rounded uppercase">Nueva</span>
+<span class="text-[10px] text-outline font-data-mono">Hace 2h</span>
+</div>
+<h4 class="font-headline-sm text-sm truncate">Residencia El Sol - Loft B</h4>
+<p class="text-body-sm text-outline truncate mb-2">Calle 45 #12-34, Bogotá</p>
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-secondary-container flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Small circular avatar of a property owner, a middle-aged woman with a friendly smile, professional attire, against a neutral studio background. The lighting is warm and clear, emphasizing trust and reliability in a corporate residential management context." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAY9ZAP1hM0nXOw4eMTFLjLEtygqpYA-c6KYF7kjhbvMSxCkP6k6VUy81XuqxZ-7qi1Kj7Cf6iTO8qx6NH0m6sLWjzqJrTSJwXLC4Lgcz8C9NzSN-u6TOHxYjrSkoE-AaeXBcPtgFMSOg91lZj-HWu6t3aC41IqG9i1HuKW414o3QLEKSmMty2h1_k-vnDxZaV565HxcLolMefIGHyxHgJDw_mHtLNbm9DK5X1TlN-emwwAa4ljIljiHRK1AasnyX9qFXYGId1K2A"/>
+</div>
+<span class="text-xs font-medium">Martha Quiñones</span>
+</div>
+</div>
+<!-- Queue Items -->
+<div class="p-4 border-b border-outline-variant hover:bg-surface-container transition-colors cursor-pointer">
+<div class="flex justify-between items-start mb-1">
+<span class="text-[10px] font-bold text-tertiary px-2 py-0.5 bg-tertiary-fixed rounded uppercase">Pendiente</span>
+<span class="text-[10px] text-outline font-data-mono">Hace 5h</span>
+</div>
+<h4 class="font-headline-sm text-sm truncate">Casa Universitaria Norte</h4>
+<p class="text-body-sm text-outline truncate mb-2">Av. Suba #100-22</p>
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-secondary-container flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Profile photo of a young entrepreneur in a modern office, wearing a casual blazer. The background shows blurred architectural blueprints, conveying a sense of professional property development and management within a clean, high-density interface style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCll1YboCSSdKpIUvFpVWZEPol2w8QxNwyiD7jPoD4UrBIf0ZfDg1cixazvzvvbpH21nO-yayINQyQg4cZgV_sN2joOX6bVTBz9cgmseCxa3PnGQAb7KtYd52GXJ6t2D0M_Px2nR8_w0OIxw-5lZzOV5qUguIlPdTCGZ0xj8UMhAy-MkY6L20ljU9hv14oHBAwrJRRaUHDz4P8Si4c1FfGFHvUaQOoeV9CVcGwDiKA5ide95OnYng8bEhFlusA_aMdqc1uxSwWMCw"/>
+</div>
+<span class="text-xs font-medium">Carlos Méndez</span>
+</div>
+</div>
+<div class="p-4 border-b border-outline-variant hover:bg-surface-container transition-colors cursor-pointer">
+<div class="flex justify-between items-start mb-1">
+<span class="text-[10px] font-bold text-outline px-2 py-0.5 bg-surface-container-high rounded uppercase">Revision</span>
+<span class="text-[10px] text-outline font-data-mono">Ayer</span>
+</div>
+<h4 class="font-headline-sm text-sm truncate">Estudios La Macarena</h4>
+<p class="text-body-sm text-outline truncate mb-2">Carrera 4 #26-10</p>
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-secondary-container flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Portrait of an elderly gentleman with glasses, looking experienced and trustworthy. He is set against a brightly lit home interior, representing an established property owner. The visual style is crisp and clear, aligning with a professional command center aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMrUUNDoRa7y_SxM02Mxg_q1iXrthSgXBaxj8BQWtRf5HNRZzrvJdenbOHWy1OFCoz91OQ_enMVZoQ5Ig9YVx5NDK1m1equW3WYkqZPCqcaxHvPZ6vWuqccB1QweR0C1UaRND4mBfSTrvKuj_ywp4Q6sL9iQpVgi9jcn35SKCKE4dwsDNIpHo23aRWnP1P7k0We-vccA_KPaF9UQz2YmMKjosCZjfJxOl7MsWJ0in-ZRTQj464ZBqOazP7iUMrSYYiHxDV3mxhPw"/>
+</div>
+<span class="text-xs font-medium">Jorge Tadeo</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Detail View -->
+<section class="flex-1 bg-surface-container-low overflow-y-auto p-gutter relative">
+<!-- Floating Action Bar -->
+<div class="fixed bottom-6 right-6 flex gap-3 z-30">
+<button class="px-6 py-3 rounded-full bg-surface-container-highest text-on-surface border border-outline-variant hover:bg-surface-variant transition-all font-bold text-body-md flex items-center gap-2">
+<span class="material-symbols-outlined">edit_note</span>
+                    Request Corrections
+                </button>
+<button class="px-6 py-3 rounded-full bg-error text-on-error hover:opacity-90 transition-all font-bold text-body-md flex items-center gap-2">
+<span class="material-symbols-outlined">block</span>
+                    Reject
+                </button>
+<button class="px-8 py-3 rounded-full bg-primary text-on-primary hover:bg-primary-container transition-all font-bold text-body-md flex items-center gap-2 shadow-lg">
+<span class="material-symbols-outlined">verified</span>
+                    Approve &amp; Publish
+                </button>
+</div>
+<div class="max-w-6xl mx-auto space-y-6 pb-24">
+<!-- Header Card -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex justify-between items-center">
+<div>
+<nav class="flex gap-2 text-xs text-outline mb-2 uppercase tracking-widest font-bold">
+<span>Residencias</span>
+<span>/</span>
+<span class="text-primary">Validación</span>
+</nav>
+<h2 class="font-headline-lg text-headline-lg">Residencia El Sol - Loft B</h2>
+<div class="flex items-center gap-4 mt-2">
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span class="text-body-sm">Calle 45 #12-34, Chapinero Alto, Bogotá</span>
+</div>
+<div class="h-4 w-[1px] bg-outline-variant"></div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">calendar_today</span>
+<span class="text-body-sm">Registrado: Oct 12, 2023</span>
+</div>
+</div>
+</div>
+<!-- Trust Score Card -->
+<div class="bg-surface-container p-4 rounded-xl border border-outline-variant flex flex-col items-center min-w-[140px]">
+<span class="text-label-caps text-outline mb-1 uppercase">Trust Score</span>
+<div class="relative flex items-center justify-center">
+<svg class="w-16 h-16 transform -rotate-90">
+<circle class="text-outline-variant" cx="32" cy="32" fill="transparent" r="28" stroke="currentColor" stroke-width="4"></circle>
+<circle class="text-primary" cx="32" cy="32" fill="transparent" r="28" stroke="currentColor" stroke-dasharray="175.9" stroke-dashoffset="26" stroke-width="4"></circle>
+</svg>
+<span class="absolute font-headline-sm text-lg">85</span>
+</div>
+<span class="text-[10px] text-primary font-bold mt-2 uppercase">Alta Confiabilidad</span>
+</div>
+</div>
+<div class="grid grid-cols-12 gap-6">
+<!-- Left Column: Media & Docs -->
+<div class="col-span-8 space-y-6">
+<!-- Property Gallery -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden">
+<div class="p-4 border-b border-outline-variant flex justify-between items-center">
+<h3 class="font-headline-sm">Galería de Propiedad</h3>
+<button class="text-primary text-xs font-bold hover:underline">Ver todas (12)</button>
+</div>
+<div class="grid grid-cols-3 grid-rows-2 h-96 gap-1 p-1">
+<div class="col-span-2 row-span-2 relative group overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A wide-angle, professional photograph of a bright, modern studio loft apartment. The interior features polished concrete floors, minimalist white furniture, and large industrial-style windows letting in natural sunlight. The aesthetic is clean, high-end, and perfectly aligned with a professional property management platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-Zz3fABiA8sZ_2e5NeqhGdeJzAgh7EWDcdYPBeSp-AdbXckORWLTxieU-phARKJfwPM_mG2v_qX8Sj9XipImzcsfXVYPSSlKez9pE4kqlhTwgd0IKINp5Y06NiTxzKThIqw74zkzs_1tKy_HBdVc4_DUSbiM9bnX33ASnsZnHWfOiR7A0jhDEN_8qw6A1s4QlsWYj3N7S6o7jTnoAN3DiX_w9wXqJbPxzp7NcX_glOyjzsi7XjrVlTymXvlWfJmDk8I1IAKZIqA"/>
+<div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-4xl">zoom_in</span>
+</div>
+</div>
+<div class="relative group overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Detailed shot of a modern, compact kitchen area in a residential studio. Features stainless steel appliances, white subway tile backsplash, and sleek wooden cabinetry. The lighting is bright and even, highlighting cleanliness and functional design for a student housing context." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8byo0_ot7eLw7wVMeNKjAmFFT24wVO3XHUF9YOvSZMEa9omr6VC06k39dCsVSHnHjn9Y2LeV_KcKlPfI2ixEjVYOlU2mpTTYbKZaPw6sg0EOZzNtNHBqgGDKinrhHAL3CZMbIY67SWkN1rZQ6WlzGr0oCGyVXWMBty-SjdM77WIBsbuqOjnSD3fY84nUeKT1ZDf6iSX5yFCUBH6DxPsITrHbPwNFNOIFGWUPS6ftCRMrJC3VKMs98PPY8fNFp5uoRegFmdHiSmQ"/>
+</div>
+<div class="relative group overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="High-quality photo of a clean, minimalist bathroom with contemporary fixtures, glass shower partition, and soft grey tiling. The lighting is crisp and refreshing, emphasizing maintenance standards in a premium residency validation interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrN_4-5_Q2JQ218mswO0WUCG_oH1OG1D4QhRjDnCTGYcbx-jFb6Ol-jAOYUama_Y-IrA10l03TGys2bGh4m_f25Y2wfAzSrB9egz9XTnfCjC7dgUdtwahPZzzZ9FV1gKOxtLoA1wEr7THwPTSlZE0fi1uXvC3CGTcDon-k_q7SiQEObrpp6GawOX4pPreZ6j-we7_gaKcOHknnFdy8yDjEaQUlU_HQKeKG2TvC2c_0l7hKTwFR9ZWfepjc54fG4D7fDcFz9cEgfA"/>
+<div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+<span class="text-white font-bold text-xl">+9</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Owner Documentation -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6">
+<h3 class="font-headline-sm mb-4">Documentación del Propietario</h3>
+<div class="grid grid-cols-2 gap-4">
+<div class="p-4 border border-outline-variant rounded-lg flex items-center gap-4 hover:border-primary transition-colors cursor-pointer group">
+<div class="w-12 h-12 rounded bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined">badge</span>
+</div>
+<div class="flex-1">
+<p class="text-body-sm font-bold">Identificación (Cédula)</p>
+<p class="text-xs text-outline">ID_Martha_Q.pdf • 1.2 MB</p>
+</div>
+<span class="material-symbols-outlined text-outline">download</span>
+</div>
+<div class="p-4 border border-outline-variant rounded-lg flex items-center gap-4 hover:border-primary transition-colors cursor-pointer group">
+<div class="w-12 h-12 rounded bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined">description</span>
+</div>
+<div class="flex-1">
+<p class="text-body-sm font-bold">Certificado de Tradición</p>
+<p class="text-xs text-outline">Cert_Propiedad_09.pdf • 3.5 MB</p>
+</div>
+<span class="material-symbols-outlined text-outline">download</span>
+</div>
+<div class="p-4 border border-outline-variant rounded-lg flex items-center gap-4 hover:border-primary transition-colors cursor-pointer group">
+<div class="w-12 h-12 rounded bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined">receipt_long</span>
+</div>
+<div class="flex-1">
+<p class="text-body-sm font-bold">Recibo de Servicios</p>
+<p class="text-xs text-outline">Enel_Oct_2023.png • 800 KB</p>
+</div>
+<span class="material-symbols-outlined text-outline">visibility</span>
+</div>
+<div class="p-4 border border-outline-variant rounded-lg flex items-center gap-4 hover:border-primary transition-colors cursor-pointer group">
+<div class="w-12 h-12 rounded bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined">verified_user</span>
+</div>
+<div class="flex-1">
+<p class="text-body-sm font-bold">Antecedentes Judiciales</p>
+<p class="text-xs text-outline">Check_Passed_2023.pdf • 450 KB</p>
+</div>
+<span class="material-symbols-outlined text-success text-green-600">check_circle</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Verification & Checklist -->
+<div class="col-span-4 space-y-6">
+<!-- Map Verification -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden">
+<div class="p-4 border-b border-outline-variant">
+<h3 class="font-headline-sm">Ubicación Verificada</h3>
+</div>
+<div class="h-48 bg-surface-variant relative">
+<div class="w-full h-full bg-cover bg-center" data-location="Bogotá, Colombia" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDXZvvXFfHWShLRJ9ZvqKjiLrLLSz93TiUi210aRRepVNtEd9w5w5Kb0rZx_mb7_BOBAo0o-6brO4or-P6opOVAxYHpp5pJ6aKtTqsxOAgk6vy6E2qNjFmSI1jwJB18T7UOBRFzHs1lxUoScaKtFx7-869Wr9s8ZcqYtuzOyV2TS1cS6xysGS_Ipso9BUoLSJGn_a8MbSw4e6Br4eFT12ihPX7aj4157fjBQlect3ELnM4GlNqrtmJR_0dGu4-j4I10YB5O9ee2VA')"></div>
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="w-10 h-10 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-lg border-2 border-white animate-pulse">
+<span class="material-symbols-outlined">location_on</span>
+</div>
+</div>
+</div>
+<div class="p-4 bg-surface-container">
+<div class="flex items-center gap-2 text-xs font-bold text-outline uppercase tracking-wider mb-2">
+<span class="material-symbols-outlined text-[14px]">map</span>
+                                    Entorno Académico
+                                </div>
+<div class="space-y-2">
+<div class="flex justify-between text-body-sm">
+<span class="text-on-surface-variant">U. Javeriana</span>
+<span class="font-bold">500m</span>
+</div>
+<div class="flex justify-between text-body-sm">
+<span class="text-on-surface-variant">U. Piloto</span>
+<span class="font-bold">1.2km</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Checklist Requirements -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6">
+<h3 class="font-headline-sm mb-4">Mandatory Requirements</h3>
+<div class="space-y-4">
+<!-- Safety -->
+<div>
+<div class="flex items-center justify-between mb-2">
+<span class="text-xs font-bold text-outline uppercase">Safety</span>
+<span class="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded">Passed</span>
+</div>
+<div class="space-y-3">
+<label class="flex items-start gap-3 cursor-pointer group">
+<input checked="" class="mt-1 w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-body-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Extintor vigente y accesible</span>
+</label>
+<label class="flex items-start gap-3 cursor-pointer group">
+<input checked="" class="mt-1 w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-body-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Salida de emergencia señalizada</span>
+</label>
+</div>
+</div>
+<div class="h-[1px] bg-outline-variant"></div>
+<!-- Verification -->
+<div>
+<div class="flex items-center justify-between mb-2">
+<span class="text-xs font-bold text-outline uppercase">Verification</span>
+<span class="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">Pending Review</span>
+</div>
+<div class="space-y-3">
+<label class="flex items-start gap-3 cursor-pointer group">
+<input class="mt-1 w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-body-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Coincidencia de dirección catastral</span>
+</label>
+<label class="flex items-start gap-3 cursor-pointer group">
+<input class="mt-1 w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-body-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Validación biométrica del propietario</span>
+</label>
+</div>
+</div>
+<div class="h-[1px] bg-outline-variant"></div>
+<!-- Policy -->
+<div>
+<div class="flex items-center justify-between mb-2">
+<span class="text-xs font-bold text-outline uppercase">Policy</span>
+</div>
+<div class="space-y-3">
+<label class="flex items-start gap-3 cursor-pointer group">
+<input checked="" class="mt-1 w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-body-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Aceptación de términos de EstuRED</span>
+</label>
+<label class="flex items-start gap-3 cursor-pointer group">
+<input class="mt-1 w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-body-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Política de no discriminación firmada</span>
+</label>
+</div>
+</div>
+</div>
+</div>
+<!-- Internal Notes -->
+<div class="bg-primary-fixed/20 border border-primary-container rounded-xl p-4">
+<h4 class="text-xs font-bold text-primary-fixed-variant uppercase mb-2">Notas del Auditor</h4>
+<textarea class="w-full bg-white/50 border-none rounded-lg text-body-sm p-3 focus:ring-1 focus:ring-primary" placeholder="Agregar nota privada sobre este registro..." rows="3"></textarea>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<script>
+        // Micro-interactions for buttons
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('mousedown', () => {
+                button.classList.add('scale-95');
+            });
+            button.addEventListener('mouseup', () => {
+                button.classList.remove('scale-95');
+            });
+            button.addEventListener('mouseleave', () => {
+                button.classList.remove('scale-95');
+            });
+        });
+
+        // Simple mock for selection logic
+        const queueItems = document.querySelectorAll('.scrollbar-hide > div');
+        queueItems.forEach(item => {
+            item.addEventListener('click', () => {
+                queueItems.forEach(i => {
+                    i.classList.remove('bg-primary-fixed/30', 'border-l-4', 'border-l-primary');
+                    i.classList.add('hover:bg-surface-container');
+                });
+                item.classList.remove('hover:bg-surface-container');
+                item.classList.add('bg-primary-fixed/30', 'border-l-4', 'border-l-primary');
+            });
+        });
+    </script>
+</body></html>

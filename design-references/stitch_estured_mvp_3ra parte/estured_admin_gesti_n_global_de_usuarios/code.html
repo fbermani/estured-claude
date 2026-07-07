@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EstuRED Admin | User Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@100..900&display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-nav-item {
+            font-variation-settings: 'FILL' 1;
+        }
+        /* Custom scrollbar for high-density UI */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c3c6d6;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #737685;
+        }
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline": "#737685",
+                    "on-surface": "#191c1e",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary-container": "#a33500",
+                    "on-tertiary-fixed-variant": "#812800",
+                    "secondary-container": "#d5e3fc",
+                    "on-primary-fixed": "#001848",
+                    "on-primary-container": "#c4d2ff",
+                    "on-primary-fixed-variant": "#0040a2",
+                    "tertiary-fixed-dim": "#ffb59b",
+                    "on-secondary": "#ffffff",
+                    "on-secondary-container": "#57657a",
+                    "surface-container-low": "#f2f4f6",
+                    "primary-fixed": "#dae2ff",
+                    "primary": "#003d9b",
+                    "surface-tint": "#0c56d0",
+                    "on-secondary-fixed": "#0d1c2e",
+                    "tertiary-fixed": "#ffdbcf",
+                    "outline-variant": "#c3c6d6",
+                    "on-secondary-fixed-variant": "#3a485b",
+                    "secondary-fixed": "#d5e3fc",
+                    "on-tertiary-fixed": "#380d00",
+                    "surface-variant": "#e0e3e5",
+                    "primary-container": "#0052cc",
+                    "on-background": "#191c1e",
+                    "on-tertiary": "#ffffff",
+                    "background": "#f7f9fb",
+                    "surface": "#f7f9fb",
+                    "on-error-container": "#93000a",
+                    "on-error": "#ffffff",
+                    "primary-fixed-dim": "#b2c5ff",
+                    "surface-container-high": "#e6e8ea",
+                    "surface-bright": "#f7f9fb",
+                    "secondary": "#515f74",
+                    "inverse-on-surface": "#eff1f3",
+                    "surface-dim": "#d8dadc",
+                    "on-tertiary-container": "#ffc6b2",
+                    "on-primary": "#ffffff",
+                    "surface-container-highest": "#e0e3e5",
+                    "error-container": "#ffdad6",
+                    "inverse-primary": "#b2c5ff",
+                    "on-surface-variant": "#434654",
+                    "surface-container": "#eceef0",
+                    "secondary-fixed-dim": "#b9c7df",
+                    "tertiary": "#7b2600",
+                    "inverse-surface": "#2d3133",
+                    "error": "#ba1a1a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "gutter": "16px",
+                    "unit": "4px",
+                    "margin-page": "24px",
+                    "density-compact": "8px",
+                    "density-normal": "12px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "headline-sm": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "data-mono": ["Plus Jakarta Sans"],
+                    "label-caps": ["Plus Jakarta Sans"],
+                    "body-sm": ["Plus Jakarta Sans"],
+                    "body-md": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "headline-md": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "headline-sm": ["16px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "headline-lg": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["15px", {"lineHeight": "22px", "fontWeight": "400"}],
+                    "data-mono": ["13px", {"lineHeight": "18px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+</head>
+<body class="bg-surface text-on-surface font-body-md antialiased overflow-hidden">
+<!-- Side Navigation Bar -->
+<nav class="h-screen w-60 fixed left-0 top-0 bg-surface-container-lowest dark:bg-inverse-surface border-r border-outline-variant dark:border-outline flex flex-col py-spacing-margin-page z-50">
+<div class="px-6 mb-8">
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary dark:text-inverse-primary">EstuRED Admin</h1>
+<p class="font-body-sm text-on-surface-variant opacity-70">System Controller</p>
+</div>
+<div class="flex-1 space-y-1 px-3">
+<!-- Nav Item: Dashboard -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors group" href="#">
+<span class="material-symbols-outlined text-xl">dashboard</span>
+<span class="font-body-md">Dashboard</span>
+</a>
+<!-- Nav Item: Residencias -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors group" href="#">
+<span class="material-symbols-outlined text-xl">domain</span>
+<span class="font-body-md">Residencias</span>
+</a>
+<!-- Nav Item: Solicitudes -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors group" href="#">
+<span class="material-symbols-outlined text-xl">pending_actions</span>
+<span class="font-body-md">Solicitudes</span>
+</a>
+<!-- Nav Item: Usuarios (Active) -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-primary font-bold bg-secondary-fixed active:scale-95 duration-75" href="#">
+<span class="material-symbols-outlined text-xl active-nav-item">group</span>
+<span class="font-body-md">Usuarios</span>
+</a>
+<!-- Nav Item: Tarifas -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors group" href="#">
+<span class="material-symbols-outlined text-xl">payments</span>
+<span class="font-body-md">Tarifas</span>
+</a>
+<!-- Nav Item: Logs -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors group" href="#">
+<span class="material-symbols-outlined text-xl">history</span>
+<span class="font-body-md">Logs</span>
+</a>
+</div>
+<div class="px-3 mt-auto pt-6 border-t border-outline-variant">
+<div class="flex items-center gap-3 px-3 py-3">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold text-xs">AD</div>
+<div class="overflow-hidden">
+<p class="font-body-sm font-bold truncate">Admin Profile</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-wider">Superadmin</p>
+</div>
+</div>
+</div>
+</nav>
+<!-- Top App Bar -->
+<header class="fixed top-0 right-0 left-60 h-16 bg-surface-bright dark:bg-surface-dim border-b border-outline-variant dark:border-outline flex items-center justify-between px-gutter z-40">
+<div class="flex items-center gap-4 w-1/3">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-lg pl-10 pr-4 py-2 text-body-md focus:ring-2 focus:ring-primary/20" placeholder="Search by DNI or Email..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-full hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+</button>
+<button class="p-2 rounded-full hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined text-on-surface-variant">settings</span>
+</button>
+<button class="p-2 rounded-full hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined text-on-surface-variant">help</span>
+</button>
+</div>
+<div class="h-8 w-px bg-outline-variant"></div>
+<span class="font-headline-md text-headline-md font-extrabold tracking-tight text-primary">EstuRED Control</span>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="pl-60 pt-16 h-screen flex flex-col overflow-hidden">
+<!-- Header Filters -->
+<section class="p-gutter flex items-center justify-between bg-surface-bright border-b border-outline-variant/30">
+<div class="flex items-center gap-3">
+<h2 class="font-headline-sm text-on-surface">Directory</h2>
+<div class="flex bg-surface-container rounded-lg p-1">
+<button class="px-4 py-1.5 text-label-caps bg-surface-container-lowest shadow-sm rounded-md text-primary font-bold">All Users</button>
+<button class="px-4 py-1.5 text-label-caps text-on-surface-variant hover:text-on-surface transition-colors">Students</button>
+<button class="px-4 py-1.5 text-label-caps text-on-surface-variant hover:text-on-surface transition-colors">Parents</button>
+<button class="px-4 py-1.5 text-label-caps text-on-surface-variant hover:text-on-surface transition-colors">Managers</button>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-lg font-body-sm font-bold hover:brightness-110 transition-all">
+<span class="material-symbols-outlined text-sm">person_add</span>
+                    Register User
+                </button>
+</div>
+</section>
+<!-- Dynamic Grid Content -->
+<div class="flex-1 flex overflow-hidden">
+<!-- Directory Table Area -->
+<div class="flex-1 overflow-y-auto p-gutter scroll-smooth">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+<table class="w-full text-left border-collapse">
+<thead class="sticky top-0 bg-surface-container-low z-10">
+<tr>
+<th class="p-4 font-label-caps text-on-surface-variant border-b border-outline-variant">User Profile</th>
+<th class="p-4 font-label-caps text-on-surface-variant border-b border-outline-variant">Identifier</th>
+<th class="p-4 font-label-caps text-on-surface-variant border-b border-outline-variant">Role</th>
+<th class="p-4 font-label-caps text-on-surface-variant border-b border-outline-variant">Status</th>
+<th class="p-4 font-label-caps text-on-surface-variant border-b border-outline-variant">Last Activity</th>
+<th class="p-4 font-label-caps text-on-surface-variant border-b border-outline-variant text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/30">
+<!-- User Row 1 -->
+<tr class="hover:bg-surface-container-low transition-colors group cursor-pointer" onclick="selectUser('javier')">
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-cover bg-center border border-outline-variant" data-alt="A professional headshot of a young university student with a friendly smile, wearing a casual navy blue sweater. The background is a clean, bright, and modern academic setting with soft natural light. The overall aesthetic is professional yet approachable, following a high-key light mode corporate design." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDfNohzoP77aNqdQD6s5aad73vYtyhKf8482K0vvqcH5rYr9oj6-K1hw0pKwFtcIfRB1-UH8Nq-Msdifd-NPy_v3iu5rr2m9u7cwytjMZrYZS-QjamL0mK6GPbC3EMgsXwpwd6bVjT9wlHxVH5quYIxulzHpc1gstsUlehe4pGUMtSXPaZ_d7VJZ9A2PKn0xP0rQbKpbKd6pFqp4WkRhvyq70OVmF6bACCgvo_waXYFw3BCXrPm7fNTh-pCsJdQovfhFI4ivxzibg')"></div>
+<div>
+<p class="font-body-md font-bold text-on-surface">Javier Domínguez</p>
+<p class="text-body-sm text-on-surface-variant">j.dominguez@uni.edu</p>
+</div>
+</div>
+</td>
+<td class="p-4 font-data-mono text-on-surface">48293022-K</td>
+<td class="p-4">
+<span class="px-2 py-1 bg-secondary-container text-on-secondary-container rounded text-[10px] font-bold uppercase tracking-widest">Student</span>
+</td>
+<td class="p-4">
+<div class="flex items-center gap-1.5 text-green-600 font-bold text-xs">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                                        Verified
+                                    </div>
+</td>
+<td class="p-4 text-body-sm text-on-surface-variant">2h ago</td>
+<td class="p-4 text-right">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">more_vert</button>
+</td>
+</tr>
+<!-- User Row 2 (Flagged) -->
+<tr class="hover:bg-surface-container-low transition-colors group cursor-pointer bg-error-container/5" onclick="selectUser('elena')">
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-cover bg-center border border-outline-variant" data-alt="A middle-aged professional woman with glasses, representing a residency manager. She has a composed and authoritative expression, wearing a sharp grey blazer. The setting is a bright, minimalist office interior with glass partitions and soft bokeh lighting. High-density professional corporate photography style." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCvlqqOK3SAT8GiFckzU6QsVhBoo3uOdFKvZ11lXmaEkmOfmjcsLHO4TxsNOeuCIF6SP75ws1LIvXZcSQatSl7oItsnuvE5VwJwcn2ps33-pKFfGQrU0F0ycuRLC_FEhFETAHtnx9GECWIj2QtlQKzHvy5xZ-7hWHAISqcrP2I5fiy5JoK3sGKwOccVt5g-ViWqJnOGgqA41sexcqsL_S46sIW-qoKUkyrb4EW_fLL35tdtitz6wARrN9Xv446VeJ7PEmlxTJbtpw')"></div>
+<div>
+<p class="font-body-md font-bold text-on-surface">Elena Martínez</p>
+<p class="text-body-sm text-on-surface-variant">elena.m@residenciamadrid.com</p>
+</div>
+</div>
+</td>
+<td class="p-4 font-data-mono text-on-surface">33990221-M</td>
+<td class="p-4">
+<span class="px-2 py-1 bg-tertiary-container text-on-tertiary-container rounded text-[10px] font-bold uppercase tracking-widest">Manager</span>
+</td>
+<td class="p-4">
+<div class="flex items-center gap-1.5 text-error font-bold text-xs">
+<span class="w-1.5 h-1.5 rounded-full bg-error animate-pulse"></span>
+                                        Flagged
+                                    </div>
+</td>
+<td class="p-4 text-body-sm text-on-surface-variant">15m ago</td>
+<td class="p-4 text-right">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">more_vert</button>
+</td>
+</tr>
+<!-- User Row 3 -->
+<tr class="hover:bg-surface-container-low transition-colors group cursor-pointer" onclick="selectUser('roberto')">
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-cover bg-center border border-outline-variant" data-alt="A mature man in his 50s, dressed in a smart-casual white shirt, portraying a parent role. He has a warm, trustworthy facial expression. The background is a brightly lit, high-end residential living room with minimalist decor and clean lines. Professional lighting with a focus on trust and reliability." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuASraJKBPkwVJDYVMtYIc8SW2hs2GyiKCL1gabDcejpt94pl7RuvMopbseYIvse2JraEnDTURbdZ_vq2f6aVhNKpTwBfIYM-84QTfHSCt7eksJASPwHU1HXcrQa2zc3N813Gr3UIRL-2DclA7IRm-FYPf7urVympT17Jfe9rj7LSqvRRbMqKul2cximqLcsMTV117mxaJWjn0CTt8itTRv7j5GvCENNKmYeOpWtGdf-lilgUqp0-5H8JYOAUc3JyOamPc4cww2eOQ')"></div>
+<div>
+<p class="font-body-md font-bold text-on-surface">Roberto Sanz</p>
+<p class="text-body-sm text-on-surface-variant">r.sanz.consult@gmail.com</p>
+</div>
+</div>
+</td>
+<td class="p-4 font-data-mono text-on-surface">50112993-R</td>
+<td class="p-4">
+<span class="px-2 py-1 bg-outline-variant/30 text-on-surface-variant rounded text-[10px] font-bold uppercase tracking-widest">Parent</span>
+</td>
+<td class="p-4">
+<div class="flex items-center gap-1.5 text-on-surface-variant font-bold text-xs">
+<span class="w-1.5 h-1.5 rounded-full bg-outline-variant"></span>
+                                        Pending
+                                    </div>
+</td>
+<td class="p-4 text-body-sm text-on-surface-variant">3d ago</td>
+<td class="p-4 text-right">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">more_vert</button>
+</td>
+</tr>
+<!-- Multiple filler rows for density -->
+<script>
+                                for(let i=0; i<8; i++) {
+                                    document.write(`
+                                    <tr class="hover:bg-surface-container-low transition-colors group cursor-pointer opacity-80">
+                                        <td class="p-4">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center"><span class="material-symbols-outlined text-on-surface-variant">person</span></div>
+                                                <div>
+                                                    <p class="font-body-md font-bold text-on-surface">System User #${1024 + i}</p>
+                                                    <p class="text-body-sm text-on-surface-variant">user_${i}@estured.es</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="p-4 font-data-mono text-on-surface">XXXXXXXX-X</td>
+                                        <td class="p-4"><span class="px-2 py-1 bg-secondary-container/50 text-on-secondary-container rounded text-[10px] font-bold uppercase tracking-widest">Student</span></td>
+                                        <td class="p-4"><div class="flex items-center gap-1.5 text-green-600 font-bold text-xs"><span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>Verified</div></td>
+                                        <td class="p-4 text-body-sm text-on-surface-variant">Recent</td>
+                                        <td class="p-4 text-right"><button class="material-symbols-outlined text-on-surface-variant">more_vert</button></td>
+                                    </tr>
+                                    `);
+                                }
+                            </script>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Side Panel: User Health & Details -->
+<aside class="w-80 bg-surface-container-lowest border-l border-outline-variant flex flex-col shadow-lg z-20 overflow-y-auto">
+<!-- Active User Card -->
+<div class="p-gutter border-b border-outline-variant bg-primary/5">
+<div class="flex items-start justify-between mb-4">
+<div class="w-16 h-16 rounded-xl bg-cover bg-center border-2 border-white shadow-md" data-alt="Close-up professional portrait of Elena Martínez, a residency manager with a serious yet professional expression. High-detail facial features, wearing designer glasses. Lighting is soft and directional, typical of a high-end corporate command center interface. Aesthetic is disciplined and reliable." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBBKZ0HliVdbhvcSBRjFvynzJ8bGqBrFq5WPB2sL55vNdShEguiC8kVj8P7tsUymM7M16SmzqeEQrCZx6A_f7ZzvSVT4thk3qmM9KKPpmDrLZALica1Et1wZZ4SwChmkQb1BlIGCn1rQ3pwX32hNRuWqAMm7CFk8BSGU8eBNiO3Q-FCz1h0ASCbztQuuxBN-xDwOOjUhG_pO_hyScMfFfPcgoMHCS2b7gI-wcelVldxQATApx_lMNnufaYb5V4Kh0lMl9MQunWTKA')"></div>
+<div class="flex flex-col items-end">
+<span class="px-2 py-1 bg-error text-on-error rounded text-[10px] font-bold uppercase">Priority Case</span>
+<span class="text-[10px] text-on-surface-variant mt-1">ID: 8829-X</span>
+</div>
+</div>
+<h3 class="font-headline-sm text-on-surface">Elena Martínez</h3>
+<p class="text-body-sm text-on-surface-variant">Manager at "Residencia Sol"</p>
+<div class="mt-4 grid grid-cols-2 gap-2">
+<button class="flex items-center justify-center gap-2 py-2 bg-primary text-on-primary rounded-lg text-xs font-bold hover:brightness-110 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-sm">login</span>
+                            Impersonate
+                        </button>
+<button class="flex items-center justify-center gap-2 py-2 border border-outline-variant text-on-surface-variant rounded-lg text-xs font-bold hover:bg-surface-variant active:scale-95 transition-all">
+<span class="material-symbols-outlined text-sm">lock_reset</span>
+                            Reset PWD
+                        </button>
+</div>
+</div>
+<!-- User Health Stats -->
+<div class="p-gutter space-y-6">
+<div>
+<h4 class="text-label-caps text-on-surface-variant mb-3 flex items-center justify-between">
+                            User Health 
+                            <span class="text-error font-bold">Attention Needed</span>
+</h4>
+<div class="space-y-3">
+<div class="p-3 bg-surface border border-outline-variant rounded-lg">
+<div class="flex items-center justify-between mb-1">
+<span class="text-xs font-bold">Trust Score</span>
+<span class="text-xs text-error font-bold">42%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="w-[42%] h-full bg-error"></div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div class="p-3 bg-surface border border-outline-variant rounded-lg">
+<p class="text-[10px] text-on-surface-variant uppercase font-bold">Reports</p>
+<p class="text-xl font-headline-md text-error">12</p>
+</div>
+<div class="p-3 bg-surface border border-outline-variant rounded-lg">
+<p class="text-[10px] text-on-surface-variant uppercase font-bold">Success</p>
+<p class="text-xl font-headline-md text-primary">142</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Previous Reports (History) -->
+<div>
+<h4 class="text-label-caps text-on-surface-variant mb-3">Previous Reports</h4>
+<div class="space-y-2">
+<div class="p-3 bg-error-container/20 border-l-4 border-error rounded-r-lg">
+<div class="flex items-center justify-between mb-1">
+<span class="text-xs font-bold text-on-error-container">Payment Dispute</span>
+<span class="text-[10px] opacity-60">12 Oct</span>
+</div>
+<p class="text-[11px] leading-relaxed text-on-surface-variant">User failed to refund deposit after reservation cancellation. Multiple student complaints.</p>
+</div>
+<div class="p-3 bg-surface border border-outline-variant rounded-lg">
+<div class="flex items-center justify-between mb-1">
+<span class="text-xs font-bold">Late Response</span>
+<span class="text-[10px] opacity-60">04 Sep</span>
+</div>
+<p class="text-[11px] leading-relaxed text-on-surface-variant">Manager consistently responds after 48h SLA window.</p>
+</div>
+</div>
+</div>
+<!-- Booking History Snap -->
+<div>
+<h4 class="text-label-caps text-on-surface-variant mb-3">Booking History</h4>
+<div class="space-y-2">
+<div class="flex items-center gap-3 p-2 hover:bg-surface-container rounded-lg transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-primary bg-primary-fixed p-1.5 rounded-md text-sm">check_circle</span>
+<div>
+<p class="text-xs font-bold">Summer Stay 2023</p>
+<p class="text-[10px] text-on-surface-variant">Managed 12 bookings</p>
+</div>
+<span class="ml-auto text-[10px] font-data-mono text-on-surface-variant">€14.2k</span>
+</div>
+<div class="flex items-center gap-3 p-2 hover:bg-surface-container rounded-lg transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-primary bg-primary-fixed p-1.5 rounded-md text-sm">check_circle</span>
+<div>
+<p class="text-xs font-bold">Winter Semester</p>
+<p class="text-[10px] text-on-surface-variant">Managed 8 bookings</p>
+</div>
+<span class="ml-auto text-[10px] font-data-mono text-on-surface-variant">€9.1k</span>
+</div>
+</div>
+</div>
+<!-- Final Actions -->
+<div class="pt-4 mt-auto">
+<button class="w-full flex items-center justify-center gap-2 py-3 bg-error text-on-error rounded-lg font-bold text-sm shadow-sm hover:brightness-90 active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">flag</span>
+                            Flag Account for Review
+                        </button>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- Micro-interactions Script -->
+<script>
+        function selectUser(userId) {
+            // In a real app, this would fetch data and update the side panel
+            console.log("Selected user:", userId);
+            
+            // Visual feedback for row selection
+            const rows = document.querySelectorAll('tbody tr');
+            rows.forEach(r => r.classList.remove('bg-primary/5', 'border-primary/20'));
+            
+            // Just a placeholder interaction logic
+            event.currentTarget.classList.add('bg-primary/5');
+        }
+
+        // Search bar ripple/focus effect
+        const searchInput = document.querySelector('input[type="text"]');
+        searchInput.addEventListener('focus', () => {
+            searchInput.parentElement.classList.add('ring-2', 'ring-primary/20');
+        });
+        searchInput.addEventListener('blur', () => {
+            searchInput.parentElement.classList.remove('ring-2', 'ring-primary/20');
+        });
+    </script>
+</body></html>

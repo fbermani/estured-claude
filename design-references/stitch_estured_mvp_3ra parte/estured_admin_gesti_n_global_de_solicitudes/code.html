@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EstuRED Admin - Gestión Global de Solicitudes</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Plus Jakarta Sans -->
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline": "#737685",
+                    "inverse-on-surface": "#eff1f3",
+                    "tertiary-fixed": "#ffdbcf",
+                    "primary": "#003d9b",
+                    "secondary-fixed": "#d5e3fc",
+                    "surface-container": "#eceef0",
+                    "on-tertiary-container": "#ffc6b2",
+                    "surface-bright": "#f7f9fb",
+                    "error-container": "#ffdad6",
+                    "background": "#f7f9fb",
+                    "surface-container-highest": "#e0e3e5",
+                    "on-secondary-container": "#57657a",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary": "#7b2600",
+                    "on-primary": "#ffffff",
+                    "secondary-fixed-dim": "#b9c7df",
+                    "on-error": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "on-surface-variant": "#434654",
+                    "on-tertiary-fixed-variant": "#812800",
+                    "inverse-primary": "#b2c5ff",
+                    "surface-dim": "#d8dadc",
+                    "error": "#ba1a1a",
+                    "outline-variant": "#c3c6d6",
+                    "secondary-container": "#d5e3fc",
+                    "primary-container": "#0052cc",
+                    "surface-container-high": "#e6e8ea",
+                    "on-error-container": "#93000a",
+                    "on-primary-fixed-variant": "#0040a2",
+                    "on-tertiary-fixed": "#380d00",
+                    "inverse-surface": "#2d3133",
+                    "on-primary-container": "#c4d2ff",
+                    "primary-fixed-dim": "#b2c5ff",
+                    "surface-variant": "#e0e3e5",
+                    "primary-fixed": "#dae2ff",
+                    "on-secondary-fixed": "#0d1c2e",
+                    "on-background": "#191c1e",
+                    "on-surface": "#191c1e",
+                    "tertiary-fixed-dim": "#ffb59b",
+                    "tertiary-container": "#a33500",
+                    "on-secondary-fixed-variant": "#3a485b",
+                    "secondary": "#515f74",
+                    "on-primary-fixed": "#001848",
+                    "surface-tint": "#0c56d0",
+                    "surface-container-low": "#f2f4f6",
+                    "surface": "#f7f9fb",
+                    "on-tertiary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "density-normal": "12px",
+                    "unit": "4px",
+                    "density-compact": "8px",
+                    "gutter": "16px",
+                    "margin-page": "24px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "label-caps": ["Plus Jakarta Sans"],
+                    "body-sm": ["Plus Jakarta Sans"],
+                    "headline-sm": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "body-md": ["Plus Jakarta Sans"],
+                    "data-mono": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "body-lg": ["15px", {"lineHeight": "22px", "fontWeight": "400"}],
+                    "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+                    "headline-sm": ["16px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "headline-lg": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "data-mono": ["13px", {"lineHeight": "18px", "letterSpacing": "0.02em", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        /* Custom scrollbar for high-density feel */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #c3c6d6; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #737685; }
+
+        .urgent-pulse {
+            animation: pulse-red 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse-red {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .6; }
+        }
+    </style>
+</head>
+<body class="bg-surface-bright text-on-surface">
+<!-- Side Navigation Shell -->
+<aside class="h-screen w-60 fixed left-0 top-0 bg-surface-container-lowest border-r border-outline-variant flex flex-col py-margin-page z-50">
+<div class="px-6 mb-8">
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary">EstuRED Admin</h1>
+<p class="text-xs text-on-surface-variant uppercase tracking-widest font-bold mt-1">System Controller</p>
+</div>
+<nav class="flex-1 space-y-1 px-3">
+<a class="flex items-center px-3 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg group" href="#">
+<span class="material-symbols-outlined mr-3">dashboard</span>
+<span class="font-body-md">Dashboard</span>
+</a>
+<a class="flex items-center px-3 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg group" href="#">
+<span class="material-symbols-outlined mr-3">domain</span>
+<span class="font-body-md">Residencias</span>
+</a>
+<!-- ACTIVE TAB: Solicitudes -->
+<a class="flex items-center px-3 py-3 text-primary font-bold bg-secondary-fixed rounded-lg group scale-95 duration-75" href="#">
+<span class="material-symbols-outlined mr-3" style="font-variation-settings: 'FILL' 1;">pending_actions</span>
+<span class="font-body-md">Solicitudes</span>
+</a>
+<a class="flex items-center px-3 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg group" href="#">
+<span class="material-symbols-outlined mr-3">group</span>
+<span class="font-body-md">Usuarios</span>
+</a>
+<a class="flex items-center px-3 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg group" href="#">
+<span class="material-symbols-outlined mr-3">payments</span>
+<span class="font-body-md">Tarifas</span>
+</a>
+<a class="flex items-center px-3 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg group" href="#">
+<span class="material-symbols-outlined mr-3">history</span>
+<span class="font-body-md">Logs</span>
+</a>
+</nav>
+<div class="px-6 mt-auto">
+<div class="flex items-center space-x-3 p-3 bg-surface-container rounded-xl">
+<img class="w-10 h-10 rounded-full border-2 border-primary-container object-cover" data-alt="A professional headshot of a middle-aged male administrator with a confident expression, wearing a navy blue suit and a clean white shirt. The background is a blurred high-tech command center with soft blue and white ambient lighting, matching the EstuRED professional brand aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOca6YnDBdupCcfBxek6yyS9C-5FE1RaIxGdgDx6gVDvM95SkEBQN7wrRgfmlT5N43vES0UvgSL-9XUROhwY8Oj37H1Bx9kR-ph8cYwJcbbxAxay83xKpA27YvF35RRoVGhWuSnKPojpWveMYG6m075nUswoaci0Mt79r09Bz7Uc7vxNNF_1Me7b8nReTJg-Tgee9ivx5imqI8eKpqXb39NVK1BCtGlKMYmuoaM6BY7oUqIl2PPmzt2a33e8Up_m4PAdwHK5Dihw"/>
+<div class="overflow-hidden">
+<p class="text-sm font-bold truncate">Admin Central</p>
+<p class="text-xs text-on-surface-variant truncate">Global Ops</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-60 min-h-screen flex flex-col">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 right-0 left-60 h-16 bg-surface-bright border-b border-outline-variant flex items-center justify-between px-gutter z-40">
+<div class="flex items-center flex-1">
+<div class="relative w-96">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-lg focus:outline-none focus:border-primary text-body-sm" placeholder="Buscar por ID, Estudiante o Residencia..." type="text"/>
+</div>
+</div>
+<div class="flex items-center space-x-4">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-all">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-all">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-all">
+<span class="material-symbols-outlined">help</span>
+</button>
+</div>
+</header>
+<!-- Main Workspace -->
+<div class="mt-16 p-margin-page flex flex-col gap-6 flex-1 overflow-hidden">
+<!-- Page Header & Global Stats -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div>
+<h2 class="font-headline-md text-headline-md text-primary tracking-tight">Gestión Global de Solicitudes</h2>
+<p class="text-body-sm text-on-surface-variant">Monitoreo y procesamiento de admisiones universitarias.</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center px-4 py-2 bg-primary text-on-primary rounded-lg font-body-sm shadow-sm hover:brightness-110 transition-all">
+<span class="material-symbols-outlined mr-2">download</span> Exportar Data
+                    </button>
+<button class="flex items-center px-4 py-2 border border-outline-variant bg-surface-container-lowest text-on-surface-variant rounded-lg font-body-sm hover:bg-surface-container-high transition-all">
+<span class="material-symbols-outlined mr-2">filter_alt</span> Filtros Avanzados
+                    </button>
+</div>
+</div>
+<!-- Quick Stats Row -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+<div class="bg-surface-container-lowest border border-outline-variant p-4 rounded-xl flex items-center gap-4">
+<div class="p-3 bg-secondary-fixed text-primary rounded-lg">
+<span class="material-symbols-outlined">pending_actions</span>
+</div>
+<div>
+<p class="font-label-caps text-on-surface-variant">PENDIENTES</p>
+<p class="font-headline-sm text-2xl font-bold">142</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-4 rounded-xl flex items-center gap-4">
+<div class="p-3 bg-error-container text-error rounded-lg">
+<span class="material-symbols-outlined urgent-pulse">priority_high</span>
+</div>
+<div>
+<p class="font-label-caps text-error">CRÍTICAS (48h)</p>
+<p class="font-headline-sm text-2xl font-bold text-error">12</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-4 rounded-xl flex items-center gap-4">
+<div class="p-3 bg-primary-container text-on-primary-container rounded-lg">
+<span class="material-symbols-outlined">rule</span>
+</div>
+<div>
+<p class="font-label-caps text-on-surface-variant">EN REVISIÓN</p>
+<p class="font-headline-sm text-2xl font-bold">45</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-4 rounded-xl flex items-center gap-4">
+<div class="p-3 bg-surface-container-highest text-on-surface-variant rounded-lg">
+<span class="material-symbols-outlined">history</span>
+</div>
+<div>
+<p class="font-label-caps text-on-surface-variant">HISTÓRICO (MES)</p>
+<p class="font-headline-sm text-2xl font-bold">1.2k</p>
+</div>
+</div>
+</div>
+<!-- Filters Bar -->
+<div class="bg-surface-container-low p-3 border border-outline-variant rounded-xl flex flex-wrap items-center gap-4">
+<div class="flex items-center space-x-2">
+<span class="text-body-sm font-bold text-on-surface-variant">Estado:</span>
+<select class="bg-surface-container-lowest border border-outline-variant rounded px-2 py-1 text-body-sm outline-none">
+<option>Todos</option>
+<option>Pendiente</option>
+<option>En Revisión</option>
+<option>Aprobado</option>
+<option>Pago Pendiente</option>
+</select>
+</div>
+<div class="flex items-center space-x-2 border-l border-outline-variant pl-4">
+<span class="text-body-sm font-bold text-on-surface-variant">Ciudad:</span>
+<select class="bg-surface-container-lowest border border-outline-variant rounded px-2 py-1 text-body-sm outline-none">
+<option>Buenos Aires</option>
+<option>Madrid</option>
+<option>Bogotá</option>
+</select>
+</div>
+<div class="flex items-center space-x-2 border-l border-outline-variant pl-4">
+<span class="text-body-sm font-bold text-on-surface-variant">Residencia:</span>
+<input class="bg-surface-container-lowest border border-outline-variant rounded px-2 py-1 text-body-sm outline-none" placeholder="Ej: Palermo Soho..." type="text"/>
+</div>
+<div class="flex items-center space-x-2 border-l border-outline-variant pl-4">
+<span class="text-body-sm font-bold text-on-surface-variant">Fecha:</span>
+<input class="bg-surface-container-lowest border border-outline-variant rounded px-2 py-1 text-body-sm outline-none" type="date"/>
+</div>
+<button class="ml-auto text-primary text-body-sm font-bold hover:underline flex items-center">
+                    Limpiar Filtros
+                </button>
+</div>
+<!-- Data Table Container -->
+<div class="flex-1 bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden flex flex-col shadow-sm">
+<!-- Batch Actions Header -->
+<div class="px-gutter py-3 bg-surface-container-low border-b border-outline-variant flex items-center justify-between">
+<div class="flex items-center gap-4">
+<input class="rounded border-outline-variant text-primary focus:ring-primary h-4 w-4" type="checkbox"/>
+<span class="text-body-sm text-on-surface-variant font-medium">12 seleccionadas</span>
+<div class="h-4 w-px bg-outline-variant"></div>
+<button class="text-body-sm font-bold text-primary hover:text-primary-container transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">check_circle</span> Aprobar Lote
+                        </button>
+<button class="text-body-sm font-bold text-on-surface-variant hover:text-on-surface transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">mail</span> Notificar
+                        </button>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-body-sm text-on-surface-variant">Filas por página:</span>
+<select class="bg-transparent border-none text-body-sm font-bold">
+<option>25</option>
+<option>50</option>
+<option>100</option>
+</select>
+</div>
+</div>
+<!-- Scrollable Table -->
+<div class="flex-1 overflow-auto">
+<table class="w-full text-left border-collapse min-w-[1000px]">
+<thead class="sticky top-0 bg-surface-container-lowest border-b border-outline-variant z-10">
+<tr class="font-label-caps text-on-surface-variant bg-surface-container-low">
+<th class="p-4 w-12"><input class="rounded border-outline-variant" type="checkbox"/></th>
+<th class="p-4">Estudiante</th>
+<th class="p-4">Residencia / Habitación</th>
+<th class="p-4">Fechas</th>
+<th class="p-4">Estado</th>
+<th class="p-4">Tiempo Transcurrido</th>
+<th class="p-4 text-right">Acciones</th>
+</tr>
+</thead>
+<tbody class="text-body-sm">
+<!-- Row 1: Urgent -->
+<tr class="border-b border-outline-variant hover:bg-surface-container-low transition-colors group cursor-pointer bg-error-container/10">
+<td class="p-4"><input class="rounded border-outline-variant" type="checkbox"/></td>
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center font-bold text-primary border border-outline-variant">MC</div>
+<div>
+<p class="font-bold">Martina Cavalcanti</p>
+<p class="text-xs text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">flag</span> Brasil
+                                            </p>
+</div>
+</div>
+</td>
+<td class="p-4">
+<p class="font-medium">Residencia Palermo XII</p>
+<p class="text-xs text-on-surface-variant">Suite Individual B-104</p>
+</td>
+<td class="p-4 font-data-mono">
+<div class="flex flex-col">
+<span>01 Mar 2024</span>
+<span class="text-outline">30 Jun 2024</span>
+</div>
+</td>
+<td class="p-4">
+<span class="px-2 py-1 rounded bg-error-container text-on-error-container font-bold text-[10px] uppercase tracking-wider flex items-center w-fit gap-1 urgent-pulse">
+<span class="material-symbols-outlined text-[14px]">warning</span> Pendiente
+                                    </span>
+</td>
+<td class="p-4">
+<p class="font-bold text-error">42h 15m</p>
+<p class="text-[10px] text-on-surface-variant uppercase">Límite Próximo</p>
+</td>
+<td class="p-4 text-right">
+<button class="p-2 hover:bg-surface-container-high rounded transition-colors text-primary" title="Ver Detalles">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="border-b border-outline-variant hover:bg-surface-container-low transition-colors group cursor-pointer">
+<td class="p-4"><input class="rounded border-outline-variant" type="checkbox"/></td>
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center font-bold text-primary border border-outline-variant">JG</div>
+<div>
+<p class="font-bold">Juan González</p>
+<p class="text-xs text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">flag</span> Colombia
+                                            </p>
+</div>
+</div>
+</td>
+<td class="p-4">
+<p class="font-medium">Campus Recoleta</p>
+<p class="text-xs text-on-surface-variant">Doble Compartida C-202</p>
+</td>
+<td class="p-4 font-data-mono">
+<div class="flex flex-col">
+<span>15 Feb 2024</span>
+<span class="text-outline">15 Dic 2024</span>
+</div>
+</td>
+<td class="p-4">
+<span class="px-2 py-1 rounded bg-secondary-fixed text-primary font-bold text-[10px] uppercase tracking-wider flex items-center w-fit gap-1">
+<span class="material-symbols-outlined text-[14px]">search</span> En Revisión
+                                    </span>
+</td>
+<td class="p-4">
+<p class="font-bold text-on-surface">06h 20m</p>
+<p class="text-[10px] text-on-surface-variant uppercase">SLA OK</p>
+</td>
+<td class="p-4 text-right">
+<button class="p-2 hover:bg-surface-container-high rounded transition-colors text-primary">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="border-b border-outline-variant hover:bg-surface-container-low transition-colors group cursor-pointer">
+<td class="p-4"><input class="rounded border-outline-variant" type="checkbox"/></td>
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center font-bold text-primary border border-outline-variant">AS</div>
+<div>
+<p class="font-bold">Ana Schmidt</p>
+<p class="text-xs text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">flag</span> Alemania
+                                            </p>
+</div>
+</div>
+</td>
+<td class="p-4">
+<p class="font-medium">Belgrano Suites</p>
+<p class="text-xs text-on-surface-variant">Individual Premium A-05</p>
+</td>
+<td class="p-4 font-data-mono">
+<div class="flex flex-col">
+<span>10 Mar 2024</span>
+<span class="text-outline">10 Jul 2024</span>
+</div>
+</td>
+<td class="p-4">
+<span class="px-2 py-1 rounded bg-tertiary-fixed text-tertiary font-bold text-[10px] uppercase tracking-wider flex items-center w-fit gap-1">
+<span class="material-symbols-outlined text-[14px]">payments</span> Pago Pendiente
+                                    </span>
+</td>
+<td class="p-4">
+<p class="font-bold text-on-surface">12h 45m</p>
+<p class="text-[10px] text-on-surface-variant uppercase">SLA OK</p>
+</td>
+<td class="p-4 text-right">
+<button class="p-2 hover:bg-surface-container-high rounded transition-colors text-primary">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="border-b border-outline-variant hover:bg-surface-container-low transition-colors group cursor-pointer">
+<td class="p-4"><input class="rounded border-outline-variant" type="checkbox"/></td>
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center font-bold text-primary border border-outline-variant">LL</div>
+<div>
+<p class="font-bold">Liam Lawson</p>
+<p class="text-xs text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">flag</span> Reino Unido
+                                            </p>
+</div>
+</div>
+</td>
+<td class="p-4">
+<p class="font-medium">Residencia Palermo XII</p>
+<p class="text-xs text-on-surface-variant">Doble Estándar D-301</p>
+</td>
+<td class="p-4 font-data-mono">
+<div class="flex flex-col">
+<span>01 Ago 2024</span>
+<span class="text-outline">30 Nov 2024</span>
+</div>
+</td>
+<td class="p-4">
+<span class="px-2 py-1 rounded bg-secondary-container text-on-secondary-container font-bold text-[10px] uppercase tracking-wider flex items-center w-fit gap-1">
+<span class="material-symbols-outlined text-[14px]">check_circle</span> Aprobado
+                                    </span>
+</td>
+<td class="p-4">
+<p class="font-bold text-on-surface">02h 10m</p>
+<p class="text-[10px] text-on-surface-variant uppercase">Procesado Fast</p>
+</td>
+<td class="p-4 text-right">
+<button class="p-2 hover:bg-surface-container-high rounded transition-colors text-primary">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Footer Pagination -->
+<div class="p-4 border-t border-outline-variant flex items-center justify-between bg-surface-container-low">
+<p class="text-body-sm text-on-surface-variant">Mostrando 1-25 de 1,245 resultados</p>
+<div class="flex gap-2">
+<button class="p-2 border border-outline-variant rounded bg-surface-container-lowest hover:bg-surface-container-high disabled:opacity-50 transition-all" disabled="">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="px-3 py-1 bg-primary text-on-primary rounded font-bold text-sm">1</button>
+<button class="px-3 py-1 border border-outline-variant rounded bg-surface-container-lowest hover:bg-surface-container-high text-sm">2</button>
+<button class="px-3 py-1 border border-outline-variant rounded bg-surface-container-lowest hover:bg-surface-container-high text-sm">3</button>
+<button class="p-2 border border-outline-variant rounded bg-surface-container-lowest hover:bg-surface-container-high transition-all">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Side Detail Panel (Floating Preview Mock) -->
+<div class="fixed right-0 top-0 h-screen w-80 bg-surface-container-lowest border-l border-outline-variant shadow-2xl z-50 transform translate-x-full transition-transform duration-300" id="detail-panel">
+<div class="p-gutter h-full flex flex-col">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-headline-sm text-primary">Vista Previa</h3>
+<button class="p-1 hover:bg-surface-container rounded-full" onclick="togglePanel()">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="flex flex-col items-center mb-6">
+<img class="w-20 h-20 rounded-full object-cover mb-2" data-alt="A small ID photo of a young Brazilian female student with dark curly hair and a friendly smile. She is wearing a yellow polo shirt. The image is circular and framed with a thin blue border." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAW2vV0hrUdRJctNRGx6Rla9ZtV7pQOPfHiPNAkYCf1atUpSRTaIHUMinYPDkor6BU4oJLPNtnaq2Ns6RgrUc9bB0jtwkMnuFOF_2ov5M3KprQKWjYfvncWTET_FkqrtEC1SIg4fpxSzx6m_-OGf2e_ZiCeppvh-j4mOUq2DXM10TAEilidlKDxPrV3mc5pkyysaLMYUg97jzyp6C7fu4zYFw-mv1WUdWKgqic8KA51iU81xkMeWPO9FozhdExWwpe4sym-2D4uJg"/>
+<h4 class="font-bold text-lg">Martina Cavalcanti</h4>
+<span class="text-xs text-on-surface-variant">Universidade de São Paulo | Intercambio</span>
+</div>
+<div class="space-y-6 flex-1 overflow-y-auto">
+<section>
+<p class="font-label-caps text-on-surface-variant mb-2">SEÑALES DE PERFIL</p>
+<div class="grid grid-cols-2 gap-2">
+<div class="p-2 bg-surface-container-high rounded text-center">
+<p class="text-xs text-on-surface-variant">Documentos</p>
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="p-2 bg-surface-container-high rounded text-center">
+<p class="text-xs text-on-surface-variant">Garante</p>
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+</section>
+<section>
+<p class="font-label-caps text-on-surface-variant mb-2">DISPONIBILIDAD RESIDENCIA</p>
+<div class="bg-surface-container p-3 rounded-lg">
+<div class="flex justify-between text-xs mb-1">
+<span>Ocupación Actual</span>
+<span class="font-bold">92%</span>
+</div>
+<div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 92%"></div>
+</div>
+<p class="text-[10px] text-on-surface-variant mt-2">Solo 2 habitaciones tipo 'Individual B' restantes para las fechas solicitadas.</p>
+</div>
+</section>
+<section>
+<p class="font-label-caps text-on-surface-variant mb-2">NOTAS DEL AGENTE</p>
+<textarea class="w-full h-24 bg-surface-container-low border border-outline-variant rounded p-2 text-xs" placeholder="Agregar comentario interno..."></textarea>
+</section>
+</div>
+<div class="mt-auto pt-gutter space-y-2">
+<button class="w-full py-2 bg-primary text-on-primary rounded font-bold text-sm">Aprobar Inmediatamente</button>
+<button class="w-full py-2 border border-outline-variant rounded font-bold text-sm">Rechazar Solicitud</button>
+</div>
+</div>
+</div>
+<!-- Script for interaction -->
+<script>
+        function togglePanel() {
+            const panel = document.getElementById('detail-panel');
+            panel.classList.toggle('translate-x-full');
+        }
+
+        // Add event listeners to table rows for demo purposes
+        document.querySelectorAll('tbody tr').forEach(row => {
+            row.addEventListener('click', (e) => {
+                if (e.target.tagName !== 'INPUT') {
+                    togglePanel();
+                }
+            });
+        });
+    </script>
+</body></html>

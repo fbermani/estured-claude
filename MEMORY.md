@@ -1,6 +1,6 @@
 # MEMORY.md — Memoria persistente de EstuRed
 
-**Última actualización:** 2026-07-07 (Ciclo 4 — onboarding de residencias, verificado e2e)
+**Última actualización:** 2026-07-07 (Ciclo 5 — panel admin de verificación, loop de publicación cerrado e2e)
 
 > Bitácora ejecutiva viva. NO reemplaza la documentación estratégica de `/docs`
 > (los 23 archivos `00`–`22` son la fuente de verdad de producto). Leer este
@@ -33,6 +33,15 @@ EstuRed es una webapp responsive para conectar estudiantes y familias con reside
 - **Bug real encontrado y corregido durante el e2e**: los dos botones submit (Guardar/Enviar) usaban `onClick` + `setState` de React para decidir el `intent`, lo cual es una condición de carrera — el botón "Enviar para revisión" guardaba como borrador. Fix: `name="intent" value="draft|submit"` nativo en cada `<button>` + `useFormStatus()` en un subcomponente para el label de pending (patrón HTML correcto, no React state).
 - Decisiones de extensión no bloqueantes documentadas en la cabecera de la migración 0003 (tagline, property_type, gender_policy, bathroom_type, features, minimum_stay_months, document_type +residence_photo/+residence_rules_document).
 - **Simplificación deliberada**: precios se cargan solo en USD (recomendación docs/12 §6.4) y el ARS se calcula con el mock de tipo de cambio — reemplazar cuando exista `ExchangeRateProvider` real. "Meses Vacíos (Gap Filling)" de la referencia se omitió (no está en ningún doc de negocio).
+
+**Panel admin — validación de residencias (Ciclo 5, verificado e2e 2026-07-07):**
+- **Sistema visual "Operational Command"** deliberadamente distinto del sitio público (azul comando #003d9b, Plus Jakarta Sans conceptual con Inter real, radios 4-8px vs 1rem) — fuente: `design-references/stitch_estured_mvp_3ra parte/operational_command/DESIGN.md`. Tokens en `components/admin/ui/tokens.ts`, componentes en `components/admin/ui/` (AdminCard/AdminBadge/AdminButton). No mezclar con `app/globals.css` (marca pública).
+- `/admin/verifications`: cola de residencias pendientes (patrón inbox de 2 columnas, seleccionable por `?id=`) + panel de detalle con galería, documentación (reglamento PDF vía signed URL de Storage privado), universidades, tipos de habitación, y el **checklist real de `residence_verifications`** (identidad responsable/coordinador, dirección, fotos) — no el "Trust Score" inventado de la referencia (se omitió a propósito: mostrarle a un admin un score sin metodología real socava la confianza que el checklist sí tiene).
+- 3 acciones con validación server-side: **Aprobar y publicar** (exige mínimo identidad+dirección+fotos marcadas; `residences.status→verified_active`, `expires_at`=+1 año), **Pedir cambios** y **Rechazar** (ambas exigen motivo de ≥5 caracteres) — todas auditadas.
+- `/admin/dashboard`: métricas reales (residencias activas, validaciones pendientes, usuarios, leads) + actividad reciente desde `audit_logs`. Se omitieron deliberadamente el mapa de densidad y el "Operational Health" (uptime/API response/DB load) de la referencia — son datos de infraestructura falsos, no hay monitoreo real detrás.
+- `/admin/logs`: tabla de `audit_logs` (últimos 50 eventos), sin las categorías "Security & Rates"/"System Core" de la referencia (no existen esas categorías en el modelo).
+- `/admin/users` y `/admin/applications`: placeholders "Próximamente" — gestión de usuarios y de solicitudes quedan para ciclos posteriores.
+- **Bug real corregido durante el e2e** (mismo patrón que en el onboarding de residencias): los 3 botones de acción usaban el patrón correcto desde el inicio esta vez (`name="action" value="approve|needs_changes|reject"` + `useFormStatus`) — aplicué la lección del bug anterior preventivamente.
 
 ⚠️ Gotcha aprendido: al pegar la URL de Supabase en `.env.local` el dueño copió el endpoint REST (`.../rest/v1/`) y produjo `PGRST125`; la URL correcta es la base del proyecto sin path. El proyecto Supabase original (`agvcuqgakvsxedpoyefw`) quedó atascado en aprovisionamiento y fue recreado.
 
@@ -113,9 +122,9 @@ Todo el resto del MVP: ver `docs/PRODUCT_IMPLEMENTATION_PLAN.md` (Ciclos 1–7+)
 
 ## 14. Próxima tarea recomendada
 
-**Ciclo 5 — catálogo real + registro de familiar** (docs/12 Fase 2 restante + Fase 3 + §5.5): reemplazar `lib/mock/residences.ts` por repositorios Supabase en `/search` y `/r/[slug]` (leer `residences` con status=verified_active + room_types + profile_availability + profile_sections; recordar que hoy NINGUNA residencia tiene ese status — hace falta un flujo admin de verificación, aunque sea manual/SQL, antes de que algo aparezca en el catálogo real) + `ExchangeRateProvider` (monedapi.ar) con modal obligatorio (docs/08 §2.8) + registro de familiar con vinculación aprobada por estudiante (docs/08 §5.5, `family_members`/`family_links`). Leer antes: docs/03, docs/12 §6.3 (verificación) y §7.
+**Ciclo 6 — catálogo real + registro de familiar** (docs/12 Fase 2 restante + Fase 3 + §5.5): ya existe el camino completo para que una residencia llegue a `verified_active` (registro → perfil → admin aprueba), así que ahora sí tiene sentido reemplazar `lib/mock/residences.ts` por repositorios Supabase en `/search` y `/r/[slug]` (leer `residences` con status=verified_active + room_types + profile_availability + profile_sections) + `ExchangeRateProvider` (monedapi.ar) con modal obligatorio (docs/08 §2.8) + registro de familiar con vinculación aprobada por estudiante (docs/08 §5.5, `family_members`/`family_links`). Leer antes: docs/03, docs/12 §6.3 y §7.
 
-Pendientes menores (no bloquean): crear el admin real del dueño (`scripts/create-admin.mjs`), recuperación de contraseña (necesita proveedor de email, docs/00 §29), fotos curadas para mocks, logo real, rate limiting del waitlist (GAPS.md), página /privacy antes de difusión masiva, panel admin de verificación de residencias (hoy no hay forma de pasar una residencia de pending_verification a verified_active salvo SQL manual).
+Pendientes menores (no bloquean): crear el admin real del dueño (`scripts/create-admin.mjs`), recuperación de contraseña (necesita proveedor de email, docs/00 §29), fotos curadas para mocks, logo real, rate limiting del waitlist (GAPS.md), página /privacy antes de difusión masiva, `/admin/users` y `/admin/applications` son placeholders (gestión global de usuarios y solicitudes — esta última espera a que exista `application_requests`).
 
 ## 15. Instrucciones para futuras sesiones
 
@@ -123,5 +132,5 @@ Pendientes menores (no bloquean): crear el admin real del dueño (`scripts/creat
 2. Jerarquía ante contradicción: docs/13 §2 (el 00 manda).
 3. Nunca: fusionar entidades del loop, inventar estados/reglas, API de WhatsApp, mutar estados críticos desde el cliente, comprobante sin fee pagado.
 4. **Comandos de validación:** `npm run typecheck` · `npm run lint` · `npm run build` · dev: `npm run dev` (launch config `estured-dev` en `.claude/launch.json`).
-5. **Resultado última validación (2026-07-07, Ciclo 4):** typecheck ✅ · lint ✅ · build ✅ (19 rutas; landing/catálogo estáticos sin `DEMO_LOGIN_ENABLED`, verificado explícitamente) · e2e en navegador: registro de residencia → perfil completo → enviar para revisión → estado `pending_verification` en DB → dashboard con badge correcto → aislamiento por residencia confirmado · sin tests automatizados aún (ver GAPS.md).
+5. **Resultado última validación (2026-07-07, Ciclo 5):** typecheck ✅ · lint ✅ · build ✅ (21 rutas) · e2e completo: registro de residencia → perfil → enviar para revisión → login como admin demo → `/admin/verifications` → checklist → "Aprobar y publicar" → `residences.status='verified_active'` confirmado → **RLS anónimo verificado: la residencia recién aprobada ya es visible para el rol `anon`** → auditoría completa en `/admin/logs` · sin tests automatizados aún (ver GAPS.md).
 6. Al cerrar cada ciclo: validar, actualizar `MEMORY.md` + `docs/NEXT_STEPS.md`.
