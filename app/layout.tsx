@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Inter, Manrope } from "next/font/google";
 import { DemoSwitcherGate } from "@/components/dev/DemoSwitcherGate";
 import "./globals.css";
@@ -29,7 +30,14 @@ export default function RootLayout({
     <html lang="es">
       <body className={`${inter.variable} ${manrope.variable} antialiased`}>
         {children}
-        {process.env.DEMO_LOGIN_ENABLED === "true" && <DemoSwitcherGate />}
+        {process.env.DEMO_LOGIN_ENABLED === "true" && (
+          // Suspense evita que la lectura de cookies() del switcher (solo
+          // dev) fuerce rendering dinámico en toda página pública que use
+          // este layout — el resto del árbol se sigue sirviendo estático.
+          <Suspense fallback={null}>
+            <DemoSwitcherGate />
+          </Suspense>
+        )}
       </body>
     </html>
   );

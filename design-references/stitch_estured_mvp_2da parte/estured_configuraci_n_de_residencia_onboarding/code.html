@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EstuRED - Configuración de Residencia</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#1d4ed8", // Using a rich blue as primary based on the logo and buttons
+                        "primary-hover": "#1e40af",
+                        "background-light": "#f3f4f6", // Light gray background
+                        "background-dark": "#111827", // Very dark gray/black
+                        "card-light": "#ffffff",
+                        "card-dark": "#1f2937",
+                        "input-border-light": "#d1d5db",
+                        "input-border-dark": "#4b5563",
+                        "text-light": "#1f2937",
+                        "text-dark": "#f9fafb",
+                        "text-muted-light": "#6b7280",
+                        "text-muted-dark": "#9ca3af",
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                        body: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.5rem",
+                    },
+                },
+            },
+        };
+    </script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 20px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background-color: #4b5563;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark min-h-screen flex flex-col transition-colors duration-200">
+<header class="bg-card-light dark:bg-card-dark border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="text-primary font-bold text-xl flex items-center gap-1">
+<span class="material-icons-outlined text-3xl">layers</span>
+                    EstuRED
+                </div>
+</div>
+<nav class="hidden md:flex space-x-6 text-sm font-medium text-text-muted-light dark:text-text-muted-dark">
+<a class="hover:text-primary dark:hover:text-primary transition-colors" href="#">Dashboard</a>
+<a class="hover:text-primary dark:hover:text-primary transition-colors" href="#">Reservas</a>
+<a class="hover:text-primary dark:hover:text-primary transition-colors" href="#">Mensajes</a>
+<a class="text-primary" href="#">Perfil</a>
+</nav>
+<div class="flex items-center gap-4">
+<span class="hidden md:inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+<span class="w-2 h-2 mr-1.5 bg-yellow-400 rounded-full"></span>
+                    Perfil Incompleto
+                </span>
+<img alt="User avatar" class="h-8 w-8 rounded-full object-cover border border-gray-200 dark:border-gray-600" src="https://lh3.googleusercontent.com/aida-public/AB6AXuACCETMoj7hfz_VCNCsDYn6vXJg1oMerCbHWP4TbLefy4QU5bLeAqzAXaERCjT1Qin-7HcuMsEbUj601yY6PQbATfcBkCCN7Ee96l3UV42q3XJ26J4GDn1DQtflWqqyZjtym_BVv8JVGAbrSkXdDO2Mr_nTzZ-93FUz0OudpYbnt5V-2IHCUpF7h8QgmFOQSHYCJEY2Pq449ydCSBLD9BX9Vs0FEO12CwaXSGBV5caJx3Y1E5ZIcsz3btG0nOclkqRhka50D8n0Gg"/>
+</div>
+</div>
+</header>
+<main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="mb-8">
+<h1 class="text-2xl font-bold text-text-light dark:text-text-dark">Configuración de Residencia</h1>
+<p class="mt-1 text-sm text-text-muted-light dark:text-text-muted-dark">Completa la información de tu residencia para poder publicarla. Tu progreso se guarda automáticamente como borrador.</p>
+</div>
+<div class="border-b border-gray-200 dark:border-gray-700 mb-6">
+<nav aria-label="Tabs" class="-mb-px flex space-x-8">
+<a class="border-primary text-primary whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2" href="#">
+<span class="material-icons-outlined text-lg">info</span>
+                    Información General
+                </a>
+<a class="border-transparent text-text-muted-light dark:text-text-muted-dark hover:text-text-light dark:hover:text-text-dark hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2" href="#">
+<span class="material-icons-outlined text-lg">payments</span>
+                    Disponibilidad y Tarifas
+                </a>
+</nav>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<div class="lg:col-span-2 space-y-6">
+<section class="bg-card-light dark:bg-card-dark rounded-lg shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+<div class="flex items-center gap-2 mb-4 text-primary">
+<span class="material-icons-outlined">location_on</span>
+<h2 class="text-lg font-semibold text-text-light dark:text-text-dark">Datos Básicos</h2>
+</div>
+<div class="space-y-4">
+<div>
+<label class="block text-xs font-medium text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1">Nombre de la Residencia</label>
+<input class="block w-full rounded-md border-input-border-light dark:border-input-border-dark bg-white dark:bg-gray-800 text-text-light dark:text-text-dark shadow-sm focus:border-primary focus:ring-primary sm:text-sm py-2" placeholder="Ej: Residencia Universitaria Los Andes" type="text"/>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div>
+<label class="block text-xs font-medium text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1">Tipo de Propiedad</label>
+<select class="block w-full rounded-md border-input-border-light dark:border-input-border-dark bg-white dark:bg-gray-800 text-text-light dark:text-text-dark shadow-sm focus:border-primary focus:ring-primary sm:text-sm py-2">
+<option>Residencia Estudiantil</option>
+<option>Departamento</option>
+<option>Casa Compartida</option>
+</select>
+</div>
+<div>
+<label class="block text-xs font-medium text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1">Dirección Completa</label>
+<input class="block w-full rounded-md border-input-border-light dark:border-input-border-dark bg-white dark:bg-gray-800 text-text-light dark:text-text-dark shadow-sm focus:border-primary focus:ring-primary sm:text-sm py-2" placeholder="Calle, Número, Ciudad" type="text"/>
+</div>
+</div>
+<div class="bg-gray-100 dark:bg-gray-800 rounded-lg h-32 flex flex-col items-center justify-center border border-dashed border-gray-300 dark:border-gray-600 text-text-muted-light dark:text-text-muted-dark cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+<span class="material-icons-outlined text-3xl mb-1">map</span>
+<span class="text-sm">Ajustar ubicación en el mapa</span>
+</div>
+</div>
+</section>
+<section class="bg-card-light dark:bg-card-dark rounded-lg shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+<div class="flex items-center gap-2 mb-4 text-primary">
+<span class="material-icons-outlined">edit</span>
+<h2 class="text-lg font-semibold text-text-light dark:text-text-dark">Eslogan y Descripción</h2>
+</div>
+<div class="space-y-4">
+<div>
+<label class="block text-xs font-medium text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1">Frase Corta (Eslogan)</label>
+<input class="block w-full rounded-md border-input-border-light dark:border-input-border-dark bg-white dark:bg-gray-800 text-text-light dark:text-text-dark shadow-sm focus:border-primary focus:ring-primary sm:text-sm py-2" placeholder="Tu hogar lejos de casa" type="text"/>
+<p class="mt-1 text-xs text-gray-400">Visible en resultados de búsqueda. Max 50 caracteres.</p>
+</div>
+<div>
+<label class="block text-xs font-medium text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1">Descripción Detallada</label>
+<textarea class="block w-full rounded-md border-input-border-light dark:border-input-border-dark bg-white dark:bg-gray-800 text-text-light dark:text-text-dark shadow-sm focus:border-primary focus:ring-primary sm:text-sm py-2" placeholder="Describe el ambiente, la comunidad y lo que hace única a tu residencia..." rows="4"></textarea>
+</div>
+</div>
+</section>
+<section class="bg-card-light dark:bg-card-dark rounded-lg shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+<div class="flex items-center gap-2 mb-4 text-primary">
+<span class="material-icons-outlined">wifi</span>
+<h2 class="text-lg font-semibold text-text-light dark:text-text-dark">Servicios Incluidos</h2>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-3 gap-x-4">
+<label class="inline-flex items-center">
+<input class="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4 bg-white dark:bg-gray-800 dark:border-gray-600" type="checkbox"/>
+<span class="ml-2 text-sm text-text-light dark:text-text-dark">Wifi Alta Velocidad</span>
+</label>
+<label class="inline-flex items-center">
+<input class="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4 bg-white dark:bg-gray-800 dark:border-gray-600" type="checkbox"/>
+<span class="ml-2 text-sm text-text-light dark:text-text-dark">Limpieza</span>
+</label>
+<label class="inline-flex items-center">
+<input class="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4 bg-white dark:bg-gray-800 dark:border-gray-600" type="checkbox"/>
+<span class="ml-2 text-sm text-text-light dark:text-text-dark">Seguridad 24/7</span>
+</label>
+<label class="inline-flex items-center">
+<input class="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4 bg-white dark:bg-gray-800 dark:border-gray-600" type="checkbox"/>
+<span class="ml-2 text-sm text-text-light dark:text-text-dark">Lavandería</span>
+</label>
+<label class="inline-flex items-center">
+<input class="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4 bg-white dark:bg-gray-800 dark:border-gray-600" type="checkbox"/>
+<span class="ml-2 text-sm text-text-light dark:text-text-dark">Cocina equipada</span>
+</label>
+<label class="inline-flex items-center">
+<input class="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4 bg-white dark:bg-gray-800 dark:border-gray-600" type="checkbox"/>
+<span class="ml-2 text-sm text-text-light dark:text-text-dark">Asistencia Médica</span>
+</label>
+<label class="inline-flex items-center">
+<input class="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4 bg-white dark:bg-gray-800 dark:border-gray-600" type="checkbox"/>
+<span class="ml-2 text-sm text-text-light dark:text-text-dark">Portero</span>
+</label>
+<label class="inline-flex items-center">
+<input class="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4 bg-white dark:bg-gray-800 dark:border-gray-600" type="checkbox"/>
+<span class="ml-2 text-sm text-text-light dark:text-text-dark">CCTV</span>
+</label>
+<label class="inline-flex items-center">
+<input class="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4 bg-white dark:bg-gray-800 dark:border-gray-600" type="checkbox"/>
+<span class="ml-2 text-sm text-text-light dark:text-text-dark">Acceso con Tarjeta</span>
+</label>
+<label class="inline-flex items-center">
+<input class="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4 bg-white dark:bg-gray-800 dark:border-gray-600" type="checkbox"/>
+<span class="ml-2 text-sm text-text-light dark:text-text-dark">Ropa de Cama</span>
+</label>
+<label class="inline-flex items-center">
+<input class="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4 bg-white dark:bg-gray-800 dark:border-gray-600" type="checkbox"/>
+<span class="ml-2 text-sm text-text-light dark:text-text-dark">Toallas</span>
+</label>
+<label class="inline-flex items-center">
+<input class="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4 bg-white dark:bg-gray-800 dark:border-gray-600" type="checkbox"/>
+<span class="ml-2 text-sm text-text-light dark:text-text-dark">Clases de Idiomas</span>
+</label>
+</div>
+</section>
+<section class="bg-card-light dark:bg-card-dark rounded-lg shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+<div class="flex items-center gap-2 mb-4 text-primary">
+<span class="material-icons-outlined">weekend</span>
+<h2 class="text-lg font-semibold text-text-light dark:text-text-dark">Áreas Comunes</h2>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-3 gap-x-4">
+<label class="inline-flex items-center">
+<input class="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4 bg-white dark:bg-gray-800 dark:border-gray-600" type="checkbox"/>
+<span class="ml-2 text-sm text-text-light dark:text-text-dark">Gimnasio</span>
+</label>
+<label class="inline-flex items-center">
+<input class="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4 bg-white dark:bg-gray-800 dark:border-gray-600" type="checkbox"/>
+<span class="ml-2 text-sm text-text-light dark:text-text-dark">Cocina</span>
+</label>
+<label class="inline-flex items-center">
+<input class="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4 bg-white dark:bg-gray-800 dark:border-gray-600" type="checkbox"/>
+<span class="ml-2 text-sm text-text-light dark:text-text-dark">Sala de estudio</span>
+</label>
+<label class="inline-flex items-center">
+<input class="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4 bg-white dark:bg-gray-800 dark:border-gray-600" type="checkbox"/>
+<span class="ml-2 text-sm text-text-light dark:text-text-dark">Terraza</span>
+</label>
+<label class="inline-flex items-center">
+<input class="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4 bg-white dark:bg-gray-800 dark:border-gray-600" type="checkbox"/>
+<span class="ml-2 text-sm text-text-light dark:text-text-dark">Coworking</span>
+</label>
+<label class="inline-flex items-center">
+<input class="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4 bg-white dark:bg-gray-800 dark:border-gray-600" type="checkbox"/>
+<span class="ml-2 text-sm text-text-light dark:text-text-dark">Salón de Juegos</span>
+</label>
+<label class="inline-flex items-center">
+<input class="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4 bg-white dark:bg-gray-800 dark:border-gray-600" type="checkbox"/>
+<span class="ml-2 text-sm text-text-light dark:text-text-dark">Sala de Cine</span>
+</label>
+<label class="inline-flex items-center">
+<input class="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4 bg-white dark:bg-gray-800 dark:border-gray-600" type="checkbox"/>
+<span class="ml-2 text-sm text-text-light dark:text-text-dark">Balcón</span>
+</label>
+</div>
+</section>
+<section class="bg-card-light dark:bg-card-dark rounded-lg shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-icons-outlined">gavel</span>
+<h2 class="text-lg font-semibold text-text-light dark:text-text-dark">Reglas y Políticas</h2>
+</div>
+<span class="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 text-xs px-2 py-1 rounded font-medium border border-yellow-200 dark:border-yellow-800">DATOS SENSIBLES</span>
+</div>
+<div class="bg-amber-50 dark:bg-amber-900/30 border-l-4 border-amber-400 p-4 mb-4">
+<div class="flex">
+<div class="flex-shrink-0">
+<span class="material-icons-outlined text-amber-400">info</span>
+</div>
+<div class="ml-3">
+<p class="text-xs text-amber-700 dark:text-amber-200">
+<span class="font-bold">Atención:</span> Cualquier cambio en esta sección requerirá validación por el equipo de EstuRED antes de ser público.
+                                </p>
+</div>
+</div>
+</div>
+<div class="space-y-4">
+<div>
+<label class="block text-xs font-medium text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1">Resumen de Normas de Convivencia</label>
+<textarea class="block w-full rounded-md border-input-border-light dark:border-input-border-dark bg-white dark:bg-gray-800 text-text-light dark:text-text-dark shadow-sm focus:border-primary focus:ring-primary sm:text-sm py-2" placeholder="Ej: No se permiten fiestas ruidosas después de las 22hs. Prohibido fumar en interiores..." rows="3"></textarea>
+</div>
+<div>
+<label class="block text-xs font-medium text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1">Reglamento Completo</label>
+<div class="flex items-center gap-3">
+<button class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-text-light dark:text-text-dark bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary" type="button">
+<span class="material-icons-outlined text-lg mr-2">upload_file</span>
+                                    Subir PDF
+                                </button>
+<span class="text-sm text-text-muted-light dark:text-text-muted-dark italic">Ningún archivo seleccionado</span>
+</div>
+</div>
+</div>
+</section>
+<section class="bg-card-light dark:bg-card-dark rounded-lg shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+<div class="flex items-center gap-2 mb-4 text-primary">
+<span class="material-icons-outlined">school</span>
+<h2 class="text-lg font-semibold text-text-light dark:text-text-dark">Proximidad a Universidades</h2>
+</div>
+<div>
+<label class="block text-xs font-medium text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1">Universidades Cercanas (Selección Múltiple)</label>
+<select class="block w-full rounded-md border-input-border-light dark:border-input-border-dark bg-white dark:bg-gray-800 text-text-light dark:text-text-dark shadow-sm focus:border-primary focus:ring-primary sm:text-sm py-2 h-32" multiple="">
+<option>Universidad de Palermo (UP)</option>
+<option>Universidad Católica Argentina (UCA)</option>
+<option>UBA - Ciudad Universitaria</option>
+<option>Instituto Tecnológico de Buenos Aires (ITBA)</option>
+<option>UADE</option>
+<option>Universidad de Belgrano</option>
+</select>
+<p class="mt-1 text-xs text-gray-400">Mantenga presionada la tecla Ctrl (Windows) o Command (Mac) para seleccionar varias.</p>
+</div>
+</section>
+<section class="bg-card-light dark:bg-card-dark rounded-lg shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+<div class="flex items-center gap-2 mb-4 text-primary">
+<span class="material-icons-outlined">photo_library</span>
+<h2 class="text-lg font-semibold text-text-light dark:text-text-dark">Galería de Fotos</h2>
+</div>
+<div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-12 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors mb-6">
+<span class="material-icons-outlined text-4xl text-gray-400 mb-2">add_a_photo</span>
+<span class="text-sm font-medium text-text-light dark:text-text-dark">Arrastra tus fotos aquí o haz clic para subir</span>
+<span class="text-xs text-gray-400 mt-1">Soporta JPG, PNG. Máx 5MB por imagen.</span>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<div class="relative group aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+<img alt="Room preview 1" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBt0_loXCuQD9jJhh-L_GwyLCrn2FCeVfrDdAnNRinVYKBwoLLumcKQYDihxMbmFp-m2WTXE-Pq7pVUr_HfhMEUuih7FLms0x7pobyS1nOf957QfhS35uDD3vXE6sA6XrfjPPJnbSXcr0L62QnyYUi5RkFkMPsEktylzAHGBPvLrxiMn0gn-FjrOYwy4kkDaR8t5bfoj7zU4zg6BBYkTmhSd1dREFjy57Vs1-_iS5i9LEaMTK6N-vJ3uyXYSfMA0lZ5GLU3vOqPrQ"/>
+<div class="absolute top-2 left-2 bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded">Portada</div>
+</div>
+<div class="relative group aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 flex items-center justify-center text-xs text-gray-400">
+                            Foto 2
+                        </div>
+<div class="relative group aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 flex items-center justify-center text-xs text-gray-400">
+                            Foto 3
+                        </div>
+</div>
+</section>
+<div class="flex justify-end pt-4">
+<button class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary" type="button">
+                        Siguiente: Tarifas
+                        <span class="material-icons-outlined ml-2 text-lg">arrow_forward</span>
+</button>
+</div>
+<section class="bg-card-light dark:bg-card-dark rounded-lg shadow-sm p-6 border border-gray-100 dark:border-gray-700 opacity-50 pointer-events-none filter grayscale hidden">
+</section>
+<section class="bg-card-light dark:bg-card-dark rounded-lg shadow-sm p-6 border border-gray-100 dark:border-gray-700 mt-8">
+<div class="flex items-center gap-2 mb-4 text-primary">
+<span class="material-icons-outlined">king_bed</span>
+<h2 class="text-lg font-semibold text-text-light dark:text-text-dark">Tipos de Habitaciones</h2>
+</div>
+<div class="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700 mb-4 relative">
+<button class="absolute top-4 right-4 text-gray-400 hover:text-red-500">
+<span class="material-icons-outlined text-sm">delete</span>
+</button>
+<h3 class="font-medium text-text-light dark:text-text-dark mb-4">Habitación 1</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+<div>
+<label class="block text-xs font-medium text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1">Tipo <span class="text-yellow-500">🔒</span></label>
+<select class="block w-full rounded-md border-input-border-light dark:border-input-border-dark bg-white dark:bg-gray-800 text-text-light dark:text-text-dark shadow-sm sm:text-sm py-2">
+<option>Individual</option>
+<option>Compartida (2 personas)</option>
+</select>
+</div>
+<div>
+<label class="block text-xs font-medium text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1">Género Permitido <span class="text-yellow-500">🔒</span></label>
+<select class="block w-full rounded-md border-input-border-light dark:border-input-border-dark bg-white dark:bg-gray-800 text-text-light dark:text-text-dark shadow-sm sm:text-sm py-2">
+<option>Mixto</option>
+<option>Solo Hombres</option>
+<option>Solo Mujeres</option>
+</select>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+<div>
+<label class="block text-xs font-medium text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-2">Baño <span class="text-yellow-500">🔒</span></label>
+<div class="flex gap-4">
+<label class="inline-flex items-center">
+<input checked="" class="text-primary focus:ring-primary h-4 w-4 border-gray-300 dark:border-gray-600 dark:bg-gray-700" name="bathroom" type="radio"/>
+<span class="ml-2 text-sm text-text-light dark:text-text-dark">Privado</span>
+</label>
+<label class="inline-flex items-center">
+<input class="text-primary focus:ring-primary h-4 w-4 border-gray-300 dark:border-gray-600 dark:bg-gray-700" name="bathroom" type="radio"/>
+<span class="ml-2 text-sm text-text-light dark:text-text-dark">Compartido</span>
+</label>
+</div>
+</div>
+<div>
+<label class="block text-xs font-medium text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1">Cantidad Disponible</label>
+<input class="block w-full rounded-md border-input-border-light dark:border-input-border-dark bg-white dark:bg-gray-800 text-text-light dark:text-text-dark shadow-sm focus:border-primary focus:ring-primary sm:text-sm py-2" type="number" value="10"/>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div>
+<label class="block text-xs font-medium text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-2">Características</label>
+<div class="flex flex-wrap gap-3">
+<label class="inline-flex items-center">
+<input class="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4 dark:bg-gray-800 dark:border-gray-600" type="checkbox"/>
+<span class="ml-2 text-sm text-text-light dark:text-text-dark">Ventana</span>
+</label>
+<label class="inline-flex items-center">
+<input class="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4 dark:bg-gray-800 dark:border-gray-600" type="checkbox"/>
+<span class="ml-2 text-sm text-text-light dark:text-text-dark">Balcón</span>
+</label>
+</div>
+</div>
+<div>
+<label class="block text-xs font-medium text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-1">Tarifa Mensual <span class="text-yellow-500">🔒</span></label>
+<div class="flex rounded-md shadow-sm">
+<span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input-border-light dark:border-input-border-dark bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-300 sm:text-sm">
+                                        $
+                                    </span>
+<input class="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border-input-border-light dark:border-input-border-dark bg-white dark:bg-gray-800 text-text-light dark:text-text-dark focus:ring-primary focus:border-primary sm:text-sm" type="text" value="350.000"/>
+<select class="ml-2 rounded-md border-input-border-light dark:border-input-border-dark bg-white dark:bg-gray-800 text-text-light dark:text-text-dark sm:text-sm">
+<option>ARS</option>
+<option>USD</option>
+</select>
+</div>
+</div>
+</div>
+<div class="mt-4 p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded border border-yellow-100 dark:border-yellow-900/30 flex items-start gap-2">
+<span class="material-icons-outlined text-yellow-600 dark:text-yellow-500 text-sm mt-0.5">info</span>
+<p class="text-xs text-yellow-700 dark:text-yellow-400">Este cambio será visible una vez validado por el equipo de EstuRED.</p>
+</div>
+</div>
+<button class="w-full border-2 border-dashed border-primary/40 text-primary hover:bg-primary/5 hover:border-primary font-medium rounded-lg p-3 flex items-center justify-center transition-all">
+<span class="material-icons-outlined mr-2">add_circle</span>
+                        Agregar Tipo de Habitación
+                    </button>
+</section>
+<section class="bg-card-light dark:bg-card-dark rounded-lg shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-icons-outlined">fact_check</span>
+<h2 class="text-lg font-semibold text-text-light dark:text-text-dark">Condiciones de Reserva</h2>
+</div>
+<span class="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 text-xs px-2 py-1 rounded font-medium border border-yellow-200 dark:border-yellow-800">DATOS SENSIBLES</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+<div>
+<label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Mínimo de Estadía</label>
+<p class="text-xs text-text-muted-light dark:text-text-muted-dark mb-2">Duración mínima de contrato requerida</p>
+<select class="block w-full rounded-md border-input-border-light dark:border-input-border-dark bg-white dark:bg-gray-800 text-text-light dark:text-text-dark shadow-sm sm:text-sm py-2">
+<option>6 Meses</option>
+<option>3 Meses</option>
+<option>12 Meses</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Ajuste cada</label>
+<p class="text-xs text-text-muted-light dark:text-text-muted-dark mb-2">Duración</p>
+<select class="block w-full rounded-md border-input-border-light dark:border-input-border-dark bg-white dark:bg-gray-800 text-text-light dark:text-text-dark shadow-sm sm:text-sm py-2">
+<option>3 Meses</option>
+<option>6 Meses</option>
+<option>Anual</option>
+</select>
+</div>
+</div>
+<div class="border-t border-gray-100 dark:border-gray-700 pt-6 mb-6">
+<div class="flex items-center justify-between mb-4">
+<div>
+<h3 class="text-sm font-medium text-text-light dark:text-text-dark">Matrícula de Inscripción</h3>
+<p class="text-xs text-text-muted-light dark:text-text-muted-dark">¿Cobras una tarifa administrativa al inicio?</p>
+</div>
+<div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+<input checked="" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-primary checked:right-0 right-4" id="toggle1" name="toggle" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-primary cursor-pointer" for="toggle1"></label>
+</div>
+</div>
+<div class="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
+<label class="block text-xs font-medium text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-2">Equivalente A</label>
+<div class="flex items-center gap-4 mb-4">
+<label class="inline-flex items-center">
+<input checked="" class="text-primary focus:ring-primary h-4 w-4 border-gray-300 dark:border-gray-600 dark:bg-gray-700" name="matricula" type="radio"/>
+<span class="ml-2 text-sm text-text-light dark:text-text-dark">1 Mes</span>
+</label>
+<label class="inline-flex items-center">
+<input class="text-primary focus:ring-primary h-4 w-4 border-gray-300 dark:border-gray-600 dark:bg-gray-700" name="matricula" type="radio"/>
+<span class="ml-2 text-sm text-text-light dark:text-text-dark">Valor Manual</span>
+</label>
+<input class="w-32 rounded-md border-input-border-light dark:border-input-border-dark bg-gray-100 dark:bg-gray-700 text-text-light dark:text-text-dark shadow-sm sm:text-sm py-1" disabled="" placeholder="$ Monto" type="text"/>
+</div>
+<div class="flex gap-8">
+<div>
+<label class="block text-xs font-medium text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-2">Reembolso</label>
+<span class="text-sm text-red-500 font-medium">No reembolsable</span>
+</div>
+<div>
+<label class="block text-xs font-medium text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider mb-2">Frecuencia</label>
+<div class="flex gap-4">
+<label class="inline-flex items-center">
+<input checked="" class="text-primary focus:ring-primary h-4 w-4 border-gray-300 dark:border-gray-600 dark:bg-gray-700" name="freq" type="radio"/>
+<span class="ml-2 text-sm text-text-light dark:text-text-dark">Única vez</span>
+</label>
+<label class="inline-flex items-center">
+<input class="text-primary focus:ring-primary h-4 w-4 border-gray-300 dark:border-gray-600 dark:bg-gray-700" name="freq" type="radio"/>
+<span class="ml-2 text-sm text-text-light dark:text-text-dark">Anual</span>
+</label>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="border-t border-gray-100 dark:border-gray-700 pt-6 mb-6">
+<div class="flex items-center justify-between mb-4">
+<div>
+<h3 class="text-sm font-medium text-text-light dark:text-text-dark">Depósito de Garantía</h3>
+<p class="text-xs text-text-muted-light dark:text-text-muted-dark">Excluyente con Matrícula.</p>
+</div>
+<div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in opacity-50">
+<input class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300 right-4" id="toggle2" name="toggle2" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer" for="toggle2"></label>
+</div>
+</div>
+</div>
+<div class="border-t border-gray-100 dark:border-gray-700 pt-6">
+<div class="flex items-center justify-between mb-4">
+<div>
+<h3 class="text-sm font-medium text-text-light dark:text-text-dark">Meses Vacíos (Gap Filling)</h3>
+<p class="text-xs text-text-muted-light dark:text-text-muted-dark">Optimiza la ocupación cobrando un mínimo por meses huecos.</p>
+</div>
+<div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+<input checked="" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-primary checked:right-0 right-4" id="toggle3" name="toggle3" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-primary cursor-pointer" for="toggle3"></label>
+</div>
+</div>
+<div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-900/30">
+<p class="text-xs text-blue-800 dark:text-blue-300 mb-3">
+                                Al reservar un cupo futuro (máximo 3 meses), los meses no ocupados tendrán un cargo mínimo.
+                            </p>
+<label class="block text-xs font-medium text-blue-800 dark:text-blue-300 uppercase tracking-wider mb-1">Descuento para meses no ocupados</label>
+<select class="block w-full max-w-xs rounded-md border-blue-200 dark:border-blue-800 bg-white dark:bg-gray-800 text-text-light dark:text-text-dark shadow-sm sm:text-sm py-2">
+<option>50% Descuento</option>
+<option>30% Descuento</option>
+<option>70% Descuento</option>
+</select>
+</div>
+</div>
+</section>
+</div>
+<div class="space-y-6">
+<div class="bg-card-light dark:bg-card-dark rounded-lg shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+<div class="flex justify-between items-center mb-2">
+<h3 class="font-semibold text-sm text-text-light dark:text-text-dark">Fortaleza del Perfil</h3>
+<span class="text-primary font-bold text-sm">60%</span>
+</div>
+<div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-4">
+<div class="bg-primary h-2 rounded-full" style="width: 60%"></div>
+</div>
+<div class="bg-blue-50 dark:bg-blue-900/20 rounded p-3 flex gap-3">
+<span class="text-primary h-5 w-5 rounded-full border border-primary flex items-center justify-center text-[10px] mt-0.5">•</span>
+<div>
+<p class="text-xs font-bold text-text-light dark:text-text-dark mb-1">Sugerencia</p>
+<p class="text-xs text-text-muted-light dark:text-text-muted-dark">Sube al menos 3 fotos más a la galería para mejorar tu posicionamiento.</p>
+</div>
+</div>
+</div>
+<div class="bg-card-light dark:bg-card-dark rounded-lg shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+<div class="flex justify-between items-center mb-4">
+<div class="flex items-center gap-2">
+<span class="material-icons-outlined text-gray-500">visibility</span>
+<h3 class="font-semibold text-sm text-text-light dark:text-text-dark">Vista Previa</h3>
+</div>
+<span class="text-xs text-gray-400 uppercase">Tarjeta</span>
+</div>
+<div class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-800 shadow-sm">
+<div class="relative bg-gray-200 dark:bg-gray-700 h-40 flex items-center justify-center">
+<span class="text-xs text-gray-400 font-mono">PREVIEW: 16:9 400x225</span>
+<span class="absolute top-2 left-2 bg-white dark:bg-gray-900 text-text-light dark:text-text-dark text-xs px-1.5 py-0.5 rounded shadow-sm flex items-center">
+<span class="material-icons-outlined text-yellow-400 text-[10px] mr-1">star</span> 4.8 (24)
+                            </span>
+<button class="absolute top-2 right-2 w-6 h-6 bg-white dark:bg-gray-900 rounded-full flex items-center justify-center shadow-sm">
+<span class="material-icons-outlined text-gray-400 text-sm">favorite</span>
+</button>
+</div>
+<div class="p-3">
+<h4 class="font-bold text-sm text-text-light dark:text-text-dark mb-1">Residencia Los Andes</h4>
+<div class="flex items-center text-xs text-gray-500 dark:text-gray-400 mb-2">
+<span class="material-icons-outlined text-[12px] mr-1">place</span>
+                                Providencia, Santiago
+                            </div>
+<div class="flex gap-1 mb-3">
+<span class="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-[10px] text-gray-600 dark:text-gray-300">Wifi</span>
+<span class="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-[10px] text-gray-600 dark:text-gray-300">Gym</span>
+<span class="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-[10px] text-gray-600 dark:text-gray-300">+3</span>
+</div>
+<div class="flex items-end justify-between">
+<div>
+<span class="text-[10px] text-gray-400 block">Desde</span>
+<span class="text-primary font-bold text-sm">$350.000 <span class="text-[10px] text-gray-400 font-normal">/mes</span></span>
+</div>
+<button class="bg-primary hover:bg-primary-hover text-white text-xs font-medium px-3 py-1 rounded">Ver</button>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-gradient-to-br from-primary to-blue-500 rounded-lg shadow-sm p-6 text-white relative overflow-hidden">
+<div class="relative z-10">
+<h3 class="font-bold text-lg mb-1">¿Necesitas ayuda?</h3>
+<p class="text-blue-100 text-sm mb-4">Contacta a nuestro equipo de soporte para configurar tu perfil.</p>
+<button class="bg-white text-primary text-sm font-medium px-4 py-2 rounded shadow-sm hover:bg-gray-50 transition-colors">
+                            Contactar Soporte
+                        </button>
+</div>
+<div class="absolute -right-6 -bottom-6 w-32 h-32 bg-white opacity-10 rounded-full"></div>
+</div>
+</div>
+</div>
+</main>
+<footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-auto sticky bottom-0 z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+<button class="text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors">
+                Cancelar
+            </button>
+<div class="flex items-center gap-3">
+<button class="bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
+                    Guardar Cambios
+                </button>
+<button class="bg-[#10b981] hover:bg-[#059669] text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors shadow-sm">
+                    Enviar para revisión
+                    <span class="material-icons-outlined text-sm">send</span>
+</button>
+</div>
+</div>
+</footer>
+
+</body></html>

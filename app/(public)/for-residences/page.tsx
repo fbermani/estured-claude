@@ -61,7 +61,7 @@ export default function ForResidencesPage() {
               con un proceso claro — y un plan gratuito para empezar.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Button href="/waitlist" size="lg" variant="secondary">
+              <Button href="/register/residence" size="lg" variant="secondary">
                 Quiero sumar mi residencia
               </Button>
               <Button

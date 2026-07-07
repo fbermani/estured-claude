@@ -1,13 +1,20 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Placeholder images de picsum.photos para los mocks del primer ciclo.
-  // Reemplazar por Supabase Storage cuando exista carga real de fotos.
   images: {
     remotePatterns: [
       {
+        // Placeholder de los mocks del ciclo fundacional.
         protocol: "https",
         hostname: "picsum.photos",
+      },
+      {
+        // Fotos reales subidas a Supabase Storage (bucket público
+        // public-residence-media). Wildcard porque el subdominio del
+        // proyecto varía por entorno (dev/staging/prod).
+        protocol: "https",
+        hostname: "*.supabase.co",
+        pathname: "/storage/v1/object/public/**",
       },
     ],
   },

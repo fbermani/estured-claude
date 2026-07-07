@@ -27,7 +27,7 @@ const options = [
     title: "Soy residencia",
     description:
       "Administro una residencia estudiantil y quiero sumarla a la red verificada de EstuRed.",
-    available: false,
+    available: true,
   },
 ];
 

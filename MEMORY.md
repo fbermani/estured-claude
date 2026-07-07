@@ -1,6 +1,6 @@
 # MEMORY.md — Memoria persistente de EstuRed
 
-**Última actualización:** 2026-07-07 (Ciclo 3 completo — auth + roles + auditoría + selector de sesión demo)
+**Última actualización:** 2026-07-07 (Ciclo 4 — onboarding de residencias, verificado e2e)
 
 > Bitácora ejecutiva viva. NO reemplaza la documentación estratégica de `/docs`
 > (los 23 archivos `00`–`22` son la fuente de verdad de producto). Leer este
@@ -22,7 +22,17 @@ EstuRed es una webapp responsive para conectar estudiantes y familias con reside
 - **Gotcha PostgREST:** en inserts múltiples, las filas sin una columna la mandan como `null` (ignora el default de la tabla) → declarar `metadata: {}` explícito (bug real corregido en `registerStudent`).
 - Admin: `node --env-file=.env.local scripts/create-admin.mjs <email> <password>` (aún no se creó el admin real del dueño).
 
-**Selector de sesión simulada (pedido del dueño, 2026-07-07):** widget flotante "Simular usuario" con los 8 usuarios demo de docs/17 (Lucía/Camila/Valentina estudiantes, Martín familiar, Ricardo owner, Sofía staff, admin, superadmin — seed: `scripts/seed-demo-users.mjs`). Usa auth real (signInWithPassword) así ejercita RLS/roles/redirects de verdad. Doble bloqueo: solo se monta y solo funciona con `DEMO_LOGIN_ENABLED=true` (en `.env.local`; **jamás configurarlo en Vercel**). Contraseña común en `DEMO_USERS_PASSWORD`.
+**Selector de sesión simulada (pedido del dueño, 2026-07-07):** widget flotante "Simular usuario" con los 8 usuarios demo de docs/17 (Lucía/Camila/Valentina estudiantes, Martín familiar, Ricardo owner, Sofía staff, admin, superadmin — seed: `scripts/seed-demo-users.mjs`). Usa auth real (signInWithPassword) así ejercita RLS/roles/redirects de verdad. Doble bloqueo: solo se monta y solo funciona con `DEMO_LOGIN_ENABLED=true` (en `.env.local`; **jamás configurarlo en Vercel**). Contraseña común en `DEMO_USERS_PASSWORD`. El gate en `app/layout.tsx` está envuelto en `<Suspense>` para no forzar rendering dinámico en toda página pública — verificado: sin la flag (como en Vercel), `/`, `/search`, `/for-students`, `/for-residences` vuelven a ser estáticas.
+
+**Onboarding de residencias (Ciclo 4, verificado e2e 2026-07-07):**
+- Migración 0003: `residences`, `residence_users` (con trigger de límite de 10 por owner — docs/06 §8.2), `residence_verifications`, `residence_profile_sections` (jsonb por sección: services/common_areas/rules/near_universities), `room_types`, `profile_availability`, `files` — RLS: público solo ve `status='verified_active'`; owner/staff ven la propia vía `residence_users`.
+- Storage: buckets `public-residence-media` (fotos, público) y `private-residence-documents` (reglamento PDF, privado) creados vía `scripts/setup-storage.mjs`. Todo upload pasa por server action con service role — no hay policies de Storage, mismo patrón que `files`.
+- `/register/residence`: alta de cuenta + residencia en `draft`. **Gestión Operativa nunca autoseleccionable** — el alta siempre crea `operating_mode='verified_profile'` (docs/00 §6.2: es plan pago otorgado por admin).
+- `/residence/[residence_id]/profile`: formulario completo (referencia Stitch "2da parte" — ver `docs/VISUAL_UX_AUDIT.md` si se actualiza) con guardar borrador / enviar para revisión (→ `pending_verification` + `documents_pending`). Aislamiento verificado: un usuario sin `residence_users` activo para ese ID recibe 404 (`assertResidenceAccess` en el server action, además del guard de rol en el layout).
+- `/residence/dashboard`: lista real de residencias del owner (ya soporta N, aunque hoy solo se prueba con 1).
+- **Bug real encontrado y corregido durante el e2e**: los dos botones submit (Guardar/Enviar) usaban `onClick` + `setState` de React para decidir el `intent`, lo cual es una condición de carrera — el botón "Enviar para revisión" guardaba como borrador. Fix: `name="intent" value="draft|submit"` nativo en cada `<button>` + `useFormStatus()` en un subcomponente para el label de pending (patrón HTML correcto, no React state).
+- Decisiones de extensión no bloqueantes documentadas en la cabecera de la migración 0003 (tagline, property_type, gender_policy, bathroom_type, features, minimum_stay_months, document_type +residence_photo/+residence_rules_document).
+- **Simplificación deliberada**: precios se cargan solo en USD (recomendación docs/12 §6.4) y el ARS se calcula con el mock de tipo de cambio — reemplazar cuando exista `ExchangeRateProvider` real. "Meses Vacíos (Gap Filling)" de la referencia se omitió (no está en ningún doc de negocio).
 
 ⚠️ Gotcha aprendido: al pegar la URL de Supabase en `.env.local` el dueño copió el endpoint REST (`.../rest/v1/`) y produjo `PGRST125`; la URL correcta es la base del proyecto sin path. El proyecto Supabase original (`agvcuqgakvsxedpoyefw`) quedó atascado en aprovisionamiento y fue recreado.
 
@@ -103,9 +113,9 @@ Todo el resto del MVP: ver `docs/PRODUCT_IMPLEMENTATION_PLAN.md` (Ciclos 1–7+)
 
 ## 14. Próxima tarea recomendada
 
-**Ciclo 4 — residencias reales** (docs/12 Fases 1 restante + 2): migración con `residences`, `residence_users`, `rooms`/`places`, `family_members`, `family_links` + registro de familiar (con vinculación aprobada por estudiante) + registro/onboarding de residencia + reemplazo de `lib/mock/residences.ts` por repositorios Supabase + `ExchangeRateProvider` (monedapi.ar) con modal obligatorio (docs/08 §2.8). Leer antes: docs/06 §6-8, docs/03, docs/12 §6-7.
+**Ciclo 5 — catálogo real + registro de familiar** (docs/12 Fase 2 restante + Fase 3 + §5.5): reemplazar `lib/mock/residences.ts` por repositorios Supabase en `/search` y `/r/[slug]` (leer `residences` con status=verified_active + room_types + profile_availability + profile_sections; recordar que hoy NINGUNA residencia tiene ese status — hace falta un flujo admin de verificación, aunque sea manual/SQL, antes de que algo aparezca en el catálogo real) + `ExchangeRateProvider` (monedapi.ar) con modal obligatorio (docs/08 §2.8) + registro de familiar con vinculación aprobada por estudiante (docs/08 §5.5, `family_members`/`family_links`). Leer antes: docs/03, docs/12 §6.3 (verificación) y §7.
 
-Pendientes menores (no bloquean): crear el admin real del dueño (`scripts/create-admin.mjs`), recuperación de contraseña (necesita decisión de proveedor de email, docs/00 §29), fotos curadas, logo real, rate limiting del waitlist (GAPS.md), página /privacy antes de difusión masiva.
+Pendientes menores (no bloquean): crear el admin real del dueño (`scripts/create-admin.mjs`), recuperación de contraseña (necesita proveedor de email, docs/00 §29), fotos curadas para mocks, logo real, rate limiting del waitlist (GAPS.md), página /privacy antes de difusión masiva, panel admin de verificación de residencias (hoy no hay forma de pasar una residencia de pending_verification a verified_active salvo SQL manual).
 
 ## 15. Instrucciones para futuras sesiones
 
@@ -113,5 +123,5 @@ Pendientes menores (no bloquean): crear el admin real del dueño (`scripts/creat
 2. Jerarquía ante contradicción: docs/13 §2 (el 00 manda).
 3. Nunca: fusionar entidades del loop, inventar estados/reglas, API de WhatsApp, mutar estados críticos desde el cliente, comprobante sin fee pagado.
 4. **Comandos de validación:** `npm run typecheck` · `npm run lint` · `npm run build` · dev: `npm run dev` (launch config `estured-dev` en `.claude/launch.json`).
-5. **Resultado última validación (2026-07-06):** typecheck ✅ · lint ✅ (`next-env.d.ts` agregado a ignores de ESLint por ser autogenerado) · build ✅ (18 páginas estáticas) · verificación visual en 1280px y 375px ✅ · sin tests aún (no hay lógica de negocio que testear).
+5. **Resultado última validación (2026-07-07, Ciclo 4):** typecheck ✅ · lint ✅ · build ✅ (19 rutas; landing/catálogo estáticos sin `DEMO_LOGIN_ENABLED`, verificado explícitamente) · e2e en navegador: registro de residencia → perfil completo → enviar para revisión → estado `pending_verification` en DB → dashboard con badge correcto → aislamiento por residencia confirmado · sin tests automatizados aún (ver GAPS.md).
 6. Al cerrar cada ciclo: validar, actualizar `MEMORY.md` + `docs/NEXT_STEPS.md`.
