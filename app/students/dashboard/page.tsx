@@ -176,12 +176,35 @@ export default async function StudentDashboardPage() {
 
       <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <Card className="flex flex-col p-6">
-          <h2 className="font-bold text-petrol-800">Explorar residencias</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="font-bold text-petrol-800">Residencias reales</h2>
+            <Badge tone="sage">Solicitá de verdad</Badge>
+          </div>
           <p className="mt-2 flex-1 text-sm text-ink-soft">
-            Residencias verificadas en CABA, con precios claros y universidades cercanas.
+            Catálogo de residencias verificadas por EstuRed. Podés enviar una solicitud de
+            reserva real.
           </p>
-          <Button href="/search" size="sm" className="mt-4 self-start">
-            Buscar residencia
+          <Button href="/residencias" size="sm" className="mt-4 self-start">
+            Ver residencias
+          </Button>
+        </Card>
+        <Card className="flex flex-col p-6">
+          <h2 className="font-bold text-petrol-800">Explorar catálogo de demostración</h2>
+          <p className="mt-2 flex-1 text-sm text-ink-soft">
+            Ejemplos editoriales de cómo se ve una residencia en EstuRed. No podés solicitar
+            desde acá todavía.
+          </p>
+          <Button href="/search" size="sm" variant="outline" className="mt-4 self-start">
+            Ver catálogo de ejemplo
+          </Button>
+        </Card>
+        <Card className="flex flex-col p-6">
+          <h2 className="font-bold text-petrol-800">Mis solicitudes</h2>
+          <p className="mt-2 flex-1 text-sm text-ink-soft">
+            Seguí tus solicitudes de reserva y su estado.
+          </p>
+          <Button href="/students/applications" size="sm" className="mt-4 self-start">
+            Ver mis solicitudes
           </Button>
         </Card>
         <Card className="flex flex-col p-6">
@@ -192,16 +215,6 @@ export default async function StudentDashboardPage() {
           <p className="mt-2 flex-1 text-sm text-ink-soft">
             Carrera, hábitos de convivencia, intereses y visibilidad. Un perfil completo mejora
             tus solicitudes.
-          </p>
-        </Card>
-        <Card className="flex flex-col p-6">
-          <div className="flex items-center gap-2">
-            <h2 className="font-bold text-petrol-800">Mis solicitudes</h2>
-            <Badge tone="amber">Muy pronto</Badge>
-          </div>
-          <p className="mt-2 flex-1 text-sm text-ink-soft">
-            Acá vas a seguir tus solicitudes de reserva, condiciones y comprobantes, todo
-            registrado.
           </p>
         </Card>
       </div>

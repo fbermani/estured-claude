@@ -1,6 +1,6 @@
 # MEMORY.md — Memoria persistente de EstuRed
 
-**Última actualización:** 2026-07-08 (Fix de producción: crash de auth por refresh token inválido)
+**Última actualización:** 2026-07-08 (Ciclo 7 — solicitud de reserva fase 1, loop cerrado e2e)
 
 > Bitácora ejecutiva viva. NO reemplaza la documentación estratégica de `/docs`
 > (los 23 archivos `00`–`22` son la fuente de verdad de producto). Leer este
@@ -139,13 +139,25 @@ Todo el resto del MVP: ver `docs/PRODUCT_IMPLEMENTATION_PLAN.md` (Ciclos 1–7+)
 
 **Regla para el futuro**: nunca llamar `supabase.auth.getUser()` directo en código server-side nuevo — siempre pasar por `getSafeUser()`.
 
+## 13ter. Solicitud de reserva — fase 1 (Ciclo 7, verificado e2e 2026-07-08)
+
+**Alcance decidido con el dueño**: solo solicitud → revisión → contacto establecido / rechazo. Sin negociación de condiciones, sin pago a residencia, sin fee, sin comprobante — son fases separadas siguientes. El loop completo tiene ~6 etapas; construirlo todo junto está explícitamente prohibido por `docs/13 §3`.
+
+- Migración 0007: `application_requests`, `application_snapshots` (congela precio/tarifas/tipo de cambio al momento de solicitar — el ARS sigue viniendo del mock de tipo de cambio, no de un provider real), `application_status_events` (historial append-only). Enum `application_status` completo (18 valores, docs/06 §4.5) aunque esta fase solo use un subconjunto — más simple crearlo entero ahora que extenderlo después.
+- **Punto de entrada real decidido con el dueño**: en vez de tocar los mocks de `/search`/`/r/[slug]` (que siguen intactos a propósito), se creó un catálogo REAL paralelo en `/residencias` (listado) y `/residencias/[slug]` (ficha, con el botón real de "Enviar solicitud de reserva" — ya no apunta a `/waitlist`). Va a estar casi siempre vacío hasta que se aprueben residencias reales; es la ruta candidata a absorber `/search` cuando se decida el reemplazo definitivo del catálogo.
+- `/students/applications` (+`/[id]`) y `/residence/[residence_id]/applications` (+`/[id]`) — rutas ya definidas en el routing oficial (docs/11 §7.2-7.3), usadas tal cual.
+- Botón de WhatsApp (`lib/applications/whatsapp.ts`): únicamente un link `wa.me` con mensaje pre-formateado (estudiante, residencia, tipo de habitación, fecha, duración, monto) — **cero integración de API**, coherente con la prohibición dura del proyecto. Lo acciona la residencia al establecer contacto, no el estudiante.
+- Reglas de negocio reales aplicadas: máximo 2 solicitudes activas por estudiante (docs/00 §9), teléfono del `contact_target` obligatorio (menor de edad → siempre el familiar vinculado activo, `docs/00 §17.3`), al establecer contacto se pausan automáticamente las otras solicitudes activas del mismo estudiante, motivos de rechazo con el enum exacto de `docs/07 §15.7`.
+- **E2E verificado de punta a punta**: residencia de prueba verified_active → estudiante ve la ficha real → envía solicitud (snapshot creado con precio/USD/ARS correctos) → dashboard de residencia muestra "1 nueva" → marcar en revisión → establecer contacto → botón de WhatsApp con el mensaje exacto esperado → "Mis solicitudes" del estudiante refleja "Contacto establecido" → auditoría completa en ambos lados.
+- **Aprendizaje operativo, no de producto**: al limpiar datos de prueba, un `.delete()` de Supabase-js que viola una FK constraint **no lanza excepción** — solo devuelve `{ error }`, que si no se chequea explícitamente, el script sigue como si hubiera funcionado. Dejó una residencia de prueba colgada en `verified_active` (visible en el catálogo real) hasta que se detectó y corrigió. **Regla para el futuro**: en scripts de limpieza, siempre loguear/chequear el `error` de cada `.delete()`, nunca asumir éxito por ausencia de excepción.
+
 ## 14. Próxima tarea recomendada
 
-**Explícitamente decidido por el dueño (2026-07-08): NO reemplazar `lib/mock/residences.ts` todavía** — no tiene sentido armar el catálogo real hasta que existan residencias reales cargadas (hoy: 0 en `verified_active` tras limpiar los datos de prueba). Retomar esto recién cuando haya altas reales o el dueño lo pida explícitamente.
+**Explícitamente decidido por el dueño (2026-07-08): NO reemplazar `lib/mock/residences.ts` todavía** — no tiene sentido armar el catálogo mock-a-real hasta que existan residencias reales cargadas de verdad (hoy: 0 en `verified_active`). El catálogo real ya existe en paralelo (`/residencias`, ver §13ter) para cuando haga falta.
 
-**Ciclo 7 — con qué seguir (a decidir con el dueño, no asumir):** opciones que no dependen de datos reales de residencias: (a) `ExchangeRateProvider` real (monedapi.ar) + modal obligatorio docs/08 §2.8; (b) modelo de solicitud de reserva (`application_requests`, docs/00 §4) — el corazón del loop central, aunque su punto de entrada natural (botón "Enviar solicitud" desde una ficha) sigue bloqueado hasta que haya catálogo real; (c) `family_application_proposals` (el familiar ya vinculado propone una solicitud que el estudiante aprueba, docs/06 §7) — depende de (b). Leer antes: docs/03, docs/00 §9 y §17.3.
+**Ciclo 8 — con qué seguir (a decidir con el dueño, no asumir):** opciones naturales desde acá: (a) fase 2 del loop de solicitudes — negociación de condiciones (`application_negotiation_proposals`, docs/06 §11.3, docs/07 §15.4-15.6: la residencia puede proponer un único ajuste, el estudiante acepta/rechaza); (b) `ExchangeRateProvider` real (monedapi.ar) + modal obligatorio docs/08 §2.8 — ya es más urgente porque los snapshots de solicitud dependen de él; (c) `family_application_proposals` (el familiar ya vinculado propone una solicitud que el estudiante aprueba, docs/06 §7); (d) pago a residencia + fee EstuRed (siguiente eslabón después de `contact_established`). Leer antes: docs/03, docs/00 §11-12.
 
-Pendientes menores (no bloquean): crear el admin real del dueño (`scripts/create-admin.mjs`), recuperación de contraseña (necesita proveedor de email, docs/00 §29), fotos curadas para mocks, logo real, rate limiting del waitlist (GAPS.md), página /privacy antes de difusión masiva, `/admin/users` y `/admin/applications` son placeholders.
+Pendientes menores (no bloquean): crear el admin real del dueño (`scripts/create-admin.mjs`), recuperación de contraseña (necesita proveedor de email, docs/00 §29), fotos curadas para mocks, logo real, rate limiting del waitlist (GAPS.md), página /privacy antes de difusión masiva, `/admin/users` y `/admin/applications` son placeholders, job de expiración automática de solicitudes a 48h (docs/00 §9.1 — hoy `expires_at` se guarda pero nada lo procesa todavía).
 
 ## 15. Instrucciones para futuras sesiones
 
@@ -153,5 +165,5 @@ Pendientes menores (no bloquean): crear el admin real del dueño (`scripts/creat
 2. Jerarquía ante contradicción: docs/13 §2 (el 00 manda).
 3. Nunca: fusionar entidades del loop, inventar estados/reglas, API de WhatsApp, mutar estados críticos desde el cliente, comprobante sin fee pagado.
 4. **Comandos de validación:** `npm run typecheck` · `npm run lint` · `npm run build` · dev: `npm run dev` (launch config `estured-dev` en `.claude/launch.json`).
-5. **Resultado última validación (2026-07-08, Ciclo 6):** typecheck ✅ · lint ✅ · build ✅ (20 rutas) · e2e completo: registro de estudiante (Julieta) → registro de familiar (Marcela, vinculando por email) → dashboard de Marcela muestra "Pendiente" → login como Julieta ve "Madre Marcela Alonso quiere vincularse" → aprueba → ambos ven "vínculo activo" con el nombre completo del otro → auditoría (`family_registered_and_link_requested`, `family_link_approved`) confirmada en DB · sin tests automatizados aún (ver GAPS.md).
+5. **Resultado última validación (2026-07-08, Ciclo 7):** typecheck ✅ · lint ✅ · build ✅ (25 rutas) · e2e completo del loop de solicitudes (ver §13ter) · sin tests automatizados aún (ver GAPS.md).
 6. Al cerrar cada ciclo: validar, actualizar `MEMORY.md` + `docs/NEXT_STEPS.md`.

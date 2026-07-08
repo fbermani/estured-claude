@@ -39,6 +39,20 @@ export default async function ResidenceDashboardPage() {
       ).data ?? []
     : [];
 
+  const pendingCounts: Record<string, number> = {};
+  if (admin) {
+    for (const ru of residences) {
+      const r = ru.residences as unknown as { id: string } | null;
+      if (!r) continue;
+      const { count } = await admin
+        .from("application_requests")
+        .select("*", { count: "exact", head: true })
+        .eq("residence_id", r.id)
+        .eq("status", "submitted");
+      pendingCounts[r.id] = count ?? 0;
+    }
+  }
+
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
@@ -79,12 +93,23 @@ export default async function ResidenceDashboardPage() {
                     {r.tagline && ` — ${r.tagline}`}
                   </p>
                 </div>
-                <Link
-                  href={`/residence/${r.id}/profile`}
-                  className="text-sm font-semibold text-petrol-600 hover:text-petrol-700"
-                >
-                  {r.status === "draft" ? "Completar perfil →" : "Editar perfil →"}
-                </Link>
+                <div className="flex items-center gap-4">
+                  {pendingCounts[r.id] > 0 && (
+                    <Link
+                      href={`/residence/${r.id}/applications`}
+                      className="flex items-center gap-1.5 text-sm font-semibold text-petrol-600 hover:text-petrol-700"
+                    >
+                      <Badge tone="amber">{pendingCounts[r.id]} nueva(s)</Badge>
+                      Solicitudes →
+                    </Link>
+                  )}
+                  <Link
+                    href={`/residence/${r.id}/profile`}
+                    className="text-sm font-semibold text-petrol-600 hover:text-petrol-700"
+                  >
+                    {r.status === "draft" ? "Completar perfil →" : "Editar perfil →"}
+                  </Link>
+                </div>
               </Card>
             );
           })}
