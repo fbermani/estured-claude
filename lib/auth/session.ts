@@ -1,5 +1,6 @@
 import "server-only";
 import { getSupabaseServer } from "@/lib/supabase/server";
+import { getSafeUser } from "@/lib/supabase/safe-get-user";
 
 /** Roles de dominio (docs/06 §4.1). */
 export type UserRole =
@@ -29,9 +30,7 @@ export async function getSessionUser(): Promise<SessionUser | null> {
   const supabase = await getSupabaseServer();
   if (!supabase) return null;
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getSafeUser(supabase);
   if (!user) return null;
 
   const [{ data: appUser }, { data: roleRows }] = await Promise.all([

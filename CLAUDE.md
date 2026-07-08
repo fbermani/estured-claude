@@ -36,7 +36,7 @@ npm run typecheck  # tsc --noEmit
 ## Gotchas
 
 - **`docs/00`–`22` son la fuente de verdad de producto, no el código.** Ante contradicción entre docs: jerarquía de `docs/13 §2` (`00_DECISION_LOG.md` manda). Cambios de reglas de negocio: protocolo de `docs/13 §5` (doc primero, código después).
-- **`/waitlist` no está en el routing oficial** (`docs/11 §7`): es pre-lanzamiento. Los CTAs "Enviar solicitud de reserva" apuntan ahí a propósito (no hay auth todavía).
+- **`/waitlist` no está en el routing oficial** (`docs/11 §7`): es pre-lanzamiento. Los CTAs "Enviar solicitud de reserva" siguen apuntando ahí porque el flujo de solicitud de reserva (`application_requests`) todavía no existe — no por falta de auth (auth sí existe desde el Ciclo 3).
 - **El tipo de cambio es un mock hardcodeado** (`lib/mock/exchange.ts`, 1480 ARS/USD). Todos los precios ARS del sitio salen de ahí. No es dato real.
 - **`waitlist_signups` tiene RLS sin policies a propósito**: solo el service role accede. No agregar policies "para que funcione" — abriría PII al público. Duplicado de email (`23505`) se trata como éxito, también a propósito.
 - **`getSupabaseAdmin()` devuelve `null` sin env vars** — degradación intencional mientras el dueño no aprovisione Supabase. No "arreglarlo" con throws.
@@ -45,7 +45,7 @@ npm run typecheck  # tsc --noEmit
 - **`Badge` vs `StatusTag`/`TrustBadge`:** `Badge` es genérico visual; los otros dos son semánticos y llevan reglas de producto. No reemplazar unos por otros.
 - **`design-references/`:** 8 de 10 `screen.png` están corruptos (texto de error). Usar los `code.html`. Son inspiración, no spec — y contienen copy PROHIBIDO por los docs ("reserva garantizada", "mediación", validación WhatsApp).
 - **`next-env.d.ts` es generado** (gitignored + eslint-ignored). No editarlo.
-- **`@supabase/ssr` está instalado pero sin uso**: reservado para auth. No lo desinstales como "dependencia muerta".
+- **Nunca llamar `supabase.auth.getUser()` directo en server code.** Usar siempre `getSafeUser(supabase)` de `lib/supabase/safe-get-user.ts`. Una cookie con un refresh token que Supabase ya no reconoce (usuario borrado, sesión de otro entorno) hace que `getUser()` lance una excepción **no capturada** que tumba el árbol de render entero — no el `{ data, error }` esperado. Ocurrió en producción local el 2026-07-08 (ver MEMORY.md §13bis).
 
 ## Reglas del proyecto (no negociables sin el dueño)
 

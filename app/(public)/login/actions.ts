@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser, roleHome } from "@/lib/auth/session";
+import { getSafeUser } from "@/lib/supabase/safe-get-user";
 import { createAuditLog } from "@/lib/audit";
 
 export type AuthState = { status: "idle" | "error"; message?: string };
@@ -68,9 +69,7 @@ export async function signIn(
 export async function signOut(): Promise<void> {
   const supabase = await getSupabaseServer();
   if (supabase) {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const user = await getSafeUser(supabase);
     await supabase.auth.signOut();
     const admin = getSupabaseAdmin();
     if (admin && user) {

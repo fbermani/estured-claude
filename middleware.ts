@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { getSafeUser } from "@/lib/supabase/safe-get-user";
 
 /**
  * Middleware de sesión y protección de áreas autenticadas.
@@ -34,9 +35,7 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getSafeUser(supabase);
 
   if (!user) {
     const loginUrl = request.nextUrl.clone();

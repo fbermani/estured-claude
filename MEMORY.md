@@ -1,6 +1,6 @@
 # MEMORY.md — Memoria persistente de EstuRed
 
-**Última actualización:** 2026-07-08 (Ciclo 6 — familiar vinculado, loop de vinculación cerrado e2e)
+**Última actualización:** 2026-07-08 (Fix de producción: crash de auth por refresh token inválido)
 
 > Bitácora ejecutiva viva. NO reemplaza la documentación estratégica de `/docs`
 > (los 23 archivos `00`–`22` son la fuente de verdad de producto). Leer este
@@ -124,6 +124,20 @@ Landing pública completa (hero, cómo funciona, destacadas, audiencias, diferen
 ## 13. Features pendientes
 
 Todo el resto del MVP: ver `docs/PRODUCT_IMPLEMENTATION_PLAN.md` (Ciclos 1–7+) y `docs/12_BUILD_PLAN.md`.
+
+## 13bis. Fix crítico de infraestructura — crash de auth por refresh token inválido (2026-07-08)
+
+**Síntoma:** el dueño vio en su navegador local un error fatal de Next.js: `AuthApiError: Invalid Refresh Token: Refresh Token Not Found`, con stack trace apuntando a `app/layout.tsx` → `<DemoSwitcherGate />` — tumbaba el árbol de render completo (no un error acotado a un componente).
+
+**Causa raíz:** cualquier cookie de sesión cuyo refresh token Supabase ya no reconoce (usuario borrado por un script, sesión de un proyecto/entorno anterior, token expirado en un caso límite) hace que `supabase.auth.getUser()` lance una excepción **no capturada** durante el intento interno de auto-refresh del SDK — no el `{ data, error }` esperado. Esto ya era un riesgo latente desde el Ciclo 3 (auth), agravado en el Ciclo 6 porque las pruebas e2e crean y borran usuarios de prueba constantemente, cualquiera de los cuales puede dejar una cookie corrupta en el navegador que la probó.
+
+**Por qué importa para producción, no solo dev:** el mismo crash ocurriría en `estured.vercel.app` para cualquier usuario real cuya cuenta se borre/bloquee mientras tiene una sesión activa en su navegador — no es un problema exclusivo del entorno de pruebas.
+
+**Fix:** `lib/supabase/safe-get-user.ts` — helper `getSafeUser(supabase)` que envuelve `auth.getUser()` en try/catch, trata cualquier fallo como "sin sesión", y limpia la cookie corrupta con `signOut({ scope: "local" })` (sin pegarle al servidor, que ya considera el token inválido). Aplicado en los 4 call sites que llamaban `auth.getUser()` directo: `middleware.ts`, `lib/auth/session.ts` (`getSessionUser`), `components/dev/DemoSwitcherGate.tsx`, `app/(public)/login/actions.ts` (`signOut`).
+
+**Verificado reproduciendo el escenario exacto**: usuario de prueba logueado → borrado desde el backend mientras el navegador conservaba la cookie → navegación a `/` (antes explotaba, ahora carga normal mostrando "Ingresar") y a `/students/dashboard` (redirige a `/login` en vez de explotar). Los logs del servidor muestran el warning capturado (`[auth] getUser failed, treating as signed out`) con tres variantes reales del error (`AuthApiError: Invalid Refresh Token`, `AuthSessionMissingError`, `User from sub claim in JWT does not exist`) — las tres ahora degradan con gracia.
+
+**Regla para el futuro**: nunca llamar `supabase.auth.getUser()` directo en código server-side nuevo — siempre pasar por `getSafeUser()`.
 
 ## 14. Próxima tarea recomendada
 

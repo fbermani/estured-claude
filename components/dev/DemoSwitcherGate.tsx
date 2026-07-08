@@ -1,4 +1,5 @@
 import { getSupabaseServer } from "@/lib/supabase/server";
+import { getSafeUser } from "@/lib/supabase/safe-get-user";
 import { DevUserSwitcher } from "@/components/dev/DevUserSwitcher";
 
 /**
@@ -12,9 +13,7 @@ export async function DemoSwitcherGate() {
   const supabase = await getSupabaseServer();
   let currentEmail: string | null = null;
   if (supabase) {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const user = await getSafeUser(supabase);
     currentEmail = user?.email ?? null;
   }
   return <DevUserSwitcher currentEmail={currentEmail} />;
