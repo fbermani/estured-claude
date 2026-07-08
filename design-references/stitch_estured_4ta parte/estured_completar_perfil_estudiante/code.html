@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EstuRED - Completar Perfil Estudiante</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#4F46E5",
+                        "primary-hover": "#4338CA",
+                        "secondary": "#E0E7FF",
+                        "accent-green": "#10B981",
+                        "background-light": "#F3F4F6",
+                        "background-dark": "#111827",
+                        "card-light": "#FFFFFF",
+                        "card-dark": "#1F2937",
+                        "text-light": "#1F2937",
+                        "text-dark": "#F3F4F6",
+                        "subtext-light": "#6B7280",
+                        "subtext-dark": "#9CA3AF",
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                        body: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.5rem",
+                        "xl": "1rem",
+                        "2xl": "1.5rem",
+                    },
+                },
+            },
+        };
+    </script>
+<style type="text/tailwindcss">
+        body { font-family: 'Inter', sans-serif; }
+        .chip-checkbox:checked + label {
+            background-color: #E0E7FF; color: #4F46E5; border-color: #4F46E5;
+        }
+        .dark .chip-checkbox:checked + label {
+            background-color: #3730A3; color: #E0E7FF;
+            border-color: #818CF8;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark min-h-screen flex flex-col transition-colors duration-200">
+<nav class="bg-card-light dark:bg-card-dark shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between h-16">
+<div class="flex items-center">
+<div class="flex-shrink-0 flex items-center gap-2">
+<span class="material-icons-round text-primary text-3xl">diversity_3</span>
+<span class="font-bold text-xl tracking-tight text-gray-900 dark:text-white">EstuRed</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-subtext-light dark:text-subtext-dark hover:text-primary transition-colors">Comunidad</button>
+<button class="text-subtext-light dark:text-subtext-dark hover:text-primary transition-colors">Mis Reservas</button>
+<div class="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center overflow-hidden">
+<img alt="Profile" class="h-full w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-sqX59IrHH3D5Yt6fa6a3bZuKlg0xpxrsRS5n2s7GOW7fEYijOrygozWoSLTbYGczXy1oHGt6F16BJFs3hcarU6FwsqOZ9ySOx1xGoDar3cGkguGqimQqJh5T9vwh0Wpgjgmlpgbe4hZ8i4NiIWW7c9iA5iy7gLPKEIS_VC28J8zQKw4I95ZEsuhkMliQb9gGyJcN7IAisGM4FMMEJPxgAhNKOmsIWy3tgII6x-l0ZUGNk2iPwh_IP3fW_TXL_8kfXLYTS66LyA"/>
+</div>
+</div>
+</div>
+</div>
+</nav>
+<main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+<div class="mb-8">
+<h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Completá tu perfil</h1>
+<p class="text-subtext-light dark:text-subtext-dark mb-6">Ayudanos a conocerte mejor para encontrar compañeros con quienes disfrutes convivir.</p>
+<div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl p-4 flex items-start gap-3">
+<span class="material-icons-round text-blue-500 mt-0.5">info</span>
+<div>
+<h3 class="font-semibold text-blue-800 dark:text-blue-300 text-sm mb-1">Tu privacidad es importante</h3>
+<p class="text-sm text-blue-600 dark:text-blue-400">Tus datos personales sensibles como nombre completo, correo electrónico, teléfono y fecha de nacimiento se mantendrán privados y solo se compartirán cuando confirmes una reserva.</p>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<div class="lg:col-span-2 space-y-6">
+<section class="bg-card-light dark:bg-card-dark rounded-2xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+<div class="flex items-center gap-2 mb-6 border-b border-gray-100 dark:border-gray-700 pb-4">
+<span class="bg-primary/10 text-primary p-1.5 rounded-lg">
+<span class="material-icons-round text-xl">person</span>
+</span>
+<h2 class="text-xl font-bold text-gray-900 dark:text-white">Datos Básicos <span class="text-xs font-normal text-red-500 ml-2 bg-red-50 dark:bg-red-900/30 px-2 py-0.5 rounded-full border border-red-100 dark:border-red-900">Obligatorio</span></h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+<div>
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre</label>
+<input class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-primary focus:border-primary shadow-sm" placeholder="Tu nombre" type="text"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Apellido</label>
+<input class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-primary focus:border-primary shadow-sm" placeholder="Tu apellido" type="text"/>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+<div>
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nacionalidad</label>
+<div class="relative">
+<span class="absolute left-3 top-2.5">🇦🇷</span>
+<select class="w-full pl-10 rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-primary focus:border-primary shadow-sm">
+<option>Argentina</option>
+<option>Chile</option>
+<option>Uruguay</option>
+<option>Brasil</option>
+<option>México</option>
+</select>
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Región o Provincia</label>
+<select class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-primary focus:border-primary shadow-sm">
+<option disabled="" selected="" value="">Seleccioná tu provincia</option>
+<option>Buenos Aires</option>
+<option>CABA</option>
+<option>Córdoba</option>
+<option>Santa Fe</option>
+<option>Mendoza</option>
+<option>Otro</option>
+</select>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+<div>
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fecha de nacimiento</label>
+<input class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-primary focus:border-primary shadow-sm" type="date"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Facultad</label>
+<input class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-primary focus:border-primary shadow-sm" placeholder="Ej: Facultad de Medicina (UBA)" type="text"/>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+<div class="md:col-span-2">
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Carrera</label>
+<input class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-primary focus:border-primary shadow-sm" placeholder="Ej: Licenciatura en Nutrición" type="text"/>
+</div>
+</div>
+<hr class="border-gray-100 dark:border-gray-700 my-6"/>
+<h3 class="text-sm font-bold uppercase text-subtext-light dark:text-subtext-dark tracking-wider mb-4">Contacto y Verificación</h3>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end mb-4">
+<div class="md:col-span-2">
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Número de WhatsApp</label>
+<div class="relative rounded-md shadow-sm">
+<div class="absolute inset-y-0 left-0 flex items-center">
+<label class="sr-only" for="phone-country">País</label>
+<select class="h-full rounded-md border-transparent bg-transparent py-0 pl-2 pr-7 text-gray-500 focus:border-primary focus:ring-primary sm:text-sm" id="phone-country" name="phone-country">
+<option>AR (+54)</option>
+<option>MX (+52)</option>
+</select>
+</div>
+<input class="block w-full rounded-lg border-gray-300 dark:border-gray-600 pl-[6.5rem] bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:border-primary focus:ring-primary shadow-sm" placeholder="11 1234 5678" type="text"/>
+</div>
+</div>
+<div class="md:col-span-1">
+<button class="w-full bg-secondary dark:bg-gray-700 text-primary dark:text-white font-medium py-2.5 px-4 rounded-lg hover:bg-primary/20 dark:hover:bg-gray-600 transition-colors border border-transparent" type="button">
+                                Enviar código
+                            </button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+<div class="md:col-span-2">
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Código de verificación</label>
+<input class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-primary focus:border-primary shadow-sm tracking-widest text-center" placeholder="• • • • • •" type="text"/>
+</div>
+<div class="md:col-span-1">
+<button class="w-full bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 font-medium py-2.5 px-4 rounded-lg cursor-not-allowed border border-gray-200 dark:border-gray-700" type="button">
+                                Verificar
+                            </button>
+</div>
+</div>
+</section>
+<section class="bg-card-light dark:bg-card-dark rounded-2xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+<div class="flex items-center gap-2 mb-6 border-b border-gray-100 dark:border-gray-700 pb-4">
+<span class="bg-primary/10 text-primary p-1.5 rounded-lg">
+<span class="material-icons-round text-xl">favorite</span>
+</span>
+<h2 class="text-xl font-bold text-gray-900 dark:text-white">Perfil de Convivencia <span class="text-xs font-normal text-green-600 ml-2 bg-green-50 dark:bg-green-900/30 px-2 py-0.5 rounded-full border border-green-100 dark:border-green-900">Recomendado</span></h2>
+</div>
+<div class="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-3 mb-6 flex items-start gap-3">
+<span class="material-icons-round text-yellow-600 dark:text-yellow-500 text-sm mt-0.5">lightbulb</span>
+<p class="text-xs text-yellow-800 dark:text-yellow-300">Los perfiles con información completa tienen un <span class="font-bold">40% más de chances</span> de encontrar compañero rápido.</p>
+</div>
+<div class="mb-8">
+<label class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">Señales de convivencia (Seleccioná 3-5)</label>
+<div class="flex flex-wrap gap-2">
+<div class="relative">
+<input class="sr-only chip-checkbox" id="chip1" type="checkbox"/>
+<label class="cursor-pointer select-none inline-flex items-center px-4 py-1.5 rounded-full border border-gray-200 dark:border-gray-600 text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" for="chip1">
+                                    😴 Madrugador/a
+                                </label>
+</div>
+<div class="relative">
+<input checked="" class="sr-only chip-checkbox" id="chip2" type="checkbox"/>
+<label class="cursor-pointer select-none inline-flex items-center px-4 py-1.5 rounded-full border border-gray-200 dark:border-gray-600 text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" for="chip2">
+                                    🌙 Nocturno/a
+                                </label>
+</div>
+<div class="relative">
+<input class="sr-only chip-checkbox" id="chip3" type="checkbox"/>
+<label class="cursor-pointer select-none inline-flex items-center px-4 py-1.5 rounded-full border border-gray-200 dark:border-gray-600 text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" for="chip3">
+                                    🧹 Ordenado/a
+                                </label>
+</div>
+<div class="relative">
+<input class="sr-only chip-checkbox" id="chip4" type="checkbox"/>
+<label class="cursor-pointer select-none inline-flex items-center px-4 py-1.5 rounded-full border border-gray-200 dark:border-gray-600 text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" for="chip4">
+                                    🍳 Cocina frecuente
+                                </label>
+</div>
+<div class="relative">
+<input checked="" class="sr-only chip-checkbox" id="chip5" type="checkbox"/>
+<label class="cursor-pointer select-none inline-flex items-center px-4 py-1.5 rounded-full border border-gray-200 dark:border-gray-600 text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" for="chip5">
+                                    🤫 Silencioso/a
+                                </label>
+</div>
+<div class="relative">
+<input class="sr-only chip-checkbox" id="chip6" type="checkbox"/>
+<label class="cursor-pointer select-none inline-flex items-center px-4 py-1.5 rounded-full border border-gray-200 dark:border-gray-600 text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" for="chip6">
+                                    🎉 Sociable
+                                </label>
+</div>
+</div>
+</div>
+<div class="mb-8">
+<label class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">Intereses y gustos</label>
+<div class="flex flex-wrap gap-2">
+<div class="relative">
+<input class="sr-only chip-checkbox" id="int1" type="checkbox"/>
+<label class="cursor-pointer select-none inline-flex items-center px-4 py-1.5 rounded-full border border-gray-200 dark:border-gray-600 text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" for="int1">
+                                    🎵 Música
+                                </label>
+</div>
+<div class="relative">
+<input class="sr-only chip-checkbox" id="int2" type="checkbox"/>
+<label class="cursor-pointer select-none inline-flex items-center px-4 py-1.5 rounded-full border border-gray-200 dark:border-gray-600 text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" for="int2">
+                                    📚 Lectura
+                                </label>
+</div>
+<div class="relative">
+<input class="sr-only chip-checkbox" id="int3" type="checkbox"/>
+<label class="cursor-pointer select-none inline-flex items-center px-4 py-1.5 rounded-full border border-gray-200 dark:border-gray-600 text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" for="int3">
+                                    🏃‍♂️ Deporte
+                                </label>
+</div>
+<div class="relative">
+<input class="sr-only chip-checkbox" id="int4" type="checkbox"/>
+<label class="cursor-pointer select-none inline-flex items-center px-4 py-1.5 rounded-full border border-gray-200 dark:border-gray-600 text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" for="int4">
+                                    🎮 Gaming
+                                </label>
+</div>
+<div class="relative">
+<input class="sr-only chip-checkbox" id="int5" type="checkbox"/>
+<label class="cursor-pointer select-none inline-flex items-center px-4 py-1.5 rounded-full border border-gray-200 dark:border-gray-600 text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" for="int5">
+                                    🎨 Arte
+                                </label>
+</div>
+<div class="relative">
+<input class="sr-only chip-checkbox" id="int6" type="checkbox"/>
+<label class="cursor-pointer select-none inline-flex items-center px-4 py-1.5 rounded-full border border-gray-200 dark:border-gray-600 text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" for="int6">
+                                    ✈️ Viajes
+                                </label>
+</div>
+</div>
+</div>
+<hr class="border-gray-100 dark:border-gray-700 my-6"/>
+<h3 class="text-sm font-bold uppercase text-subtext-light dark:text-subtext-dark tracking-wider mb-4">Sobre mí</h3>
+<div class="mb-6">
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">¿Cómo te describirías en pocas palabras?</label>
+<textarea class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-primary focus:border-primary shadow-sm" placeholder="Ej: Soy una persona tranquila, me gusta levantarme temprano y disfruto de cocinar los fines de semana..." rows="3"></textarea>
+<div class="flex justify-end mt-1">
+<span class="text-xs text-subtext-light dark:text-subtext-dark">0/200</span>
+</div>
+</div>
+<div class="mb-2">
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">¿Qué es lo más importante para vos en la convivencia?</label>
+<textarea class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-primary focus:border-primary shadow-sm" placeholder="Ej: Respeto mutuo, comunicación clara y mantener los espacios comunes ordenados..." rows="3"></textarea>
+<div class="flex justify-end mt-1">
+<span class="text-xs text-subtext-light dark:text-subtext-dark">0/200</span>
+</div>
+</div>
+</section>
+</div>
+<div class="lg:col-span-1 space-y-6">
+<div class="bg-card-light dark:bg-card-dark rounded-2xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 sticky top-24">
+<div class="flex items-center gap-2 mb-4">
+<span class="material-icons-round text-primary text-xl">folder_shared</span>
+<h3 class="font-bold text-gray-900 dark:text-white">Documentos <span class="text-xs font-normal text-subtext-light dark:text-subtext-dark ml-1">(opcionales)</span></h3>
+</div>
+<p class="text-xs text-subtext-light dark:text-subtext-dark mb-4">Subí estos documentos para obtener la insignia de "Estudiante Verificado".</p>
+<div class="space-y-3">
+<div class="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700">
+<div class="flex items-center gap-3">
+<span class="material-icons-round text-gray-400">badge</span>
+<div class="flex flex-col">
+<span class="text-sm font-medium text-gray-700 dark:text-gray-300">DNI / Pasaporte</span>
+<span class="text-xs text-gray-400">Pendiente</span>
+</div>
+</div>
+<span class="material-icons-round text-gray-300 cursor-pointer hover:text-primary">upload</span>
+</div>
+<div class="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700">
+<div class="flex items-center gap-3">
+<span class="material-icons-round text-gray-400">school</span>
+<div class="flex flex-col">
+<span class="text-sm font-medium text-gray-700 dark:text-gray-300">Certificado Alumno</span>
+<span class="text-xs text-gray-400">Pendiente</span>
+</div>
+</div>
+<span class="material-icons-round text-gray-300 cursor-pointer hover:text-primary">upload</span>
+</div>
+<div class="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700">
+<div class="flex items-center gap-3">
+<span class="material-icons-round text-gray-400">verified_user</span>
+<div class="flex flex-col">
+<span class="text-sm font-medium text-gray-700 dark:text-gray-300">Antecedentes</span>
+<span class="text-xs text-gray-400">Pendiente</span>
+</div>
+</div>
+<span class="material-icons-round text-gray-300 cursor-pointer hover:text-primary">upload</span>
+</div>
+</div>
+<button class="w-full mt-4 bg-white dark:bg-transparent border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-sm flex items-center justify-center gap-2">
+<span class="material-icons-round text-base">cloud_upload</span>
+                        Subir documentos
+                    </button>
+</div>
+<div class="bg-gradient-to-br from-indigo-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-sm p-6 border border-indigo-100 dark:border-gray-700">
+<div class="flex items-center gap-2 mb-3">
+<span class="material-icons-round text-primary text-xl">family_restroom</span>
+<h3 class="font-bold text-gray-900 dark:text-white">Para Padres</h3>
+</div>
+<p class="text-sm text-subtext-light dark:text-subtext-dark mb-4">Invitá a tu padre/madre para vincular la cuenta.</p>
+<button class="w-full text-primary dark:text-indigo-400 font-medium text-sm hover:underline flex items-center gap-1">
+                        Vincular cuenta familiar
+                        <span class="material-icons-round text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<div class="sticky bottom-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 p-4 shadow-lg z-40">
+<div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+<p class="text-xs text-gray-500 hidden sm:block">
+<span class="material-icons-round text-xs align-middle mr-1">lock</span>
+                Tu información se guarda automáticamente mientras escribís.
+            </p>
+<div class="flex w-full sm:w-auto gap-3">
+<button class="flex-1 sm:flex-none px-6 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                    Guardar borrador
+                </button>
+<button class="flex-1 sm:flex-none px-6 py-2.5 rounded-lg bg-primary text-white font-medium hover:bg-primary-hover shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                    Guardar y continuar
+                    <span class="material-icons-round text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+
+</body></html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EstuRED - Comunidad Actual</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#1e40af", // deeply saturated blue
+                        "background-light": "#f8fafc", // slate-50
+                        "background-dark": "#0f172a", // slate-900
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1e293b", // slate-800
+                        "accent-green": "#10b981", // emerald-500
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"],
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+                    }
+                },
+            },
+        };
+    </script>
+</head>
+<body class="bg-slate-200 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-sans min-h-screen flex items-center justify-center p-4">
+<div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-0"></div>
+<div class="relative z-10 w-full max-w-7xl h-[90vh] bg-surface-light dark:bg-surface-dark rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row border border-slate-200 dark:border-slate-700">
+<div class="w-full md:w-[70%] flex flex-col h-full overflow-hidden bg-slate-50/50 dark:bg-slate-900/50">
+<div class="p-6 pb-4 shrink-0 bg-white dark:bg-surface-dark border-b border-slate-100 dark:border-slate-700/50">
+<div class="flex justify-between items-start">
+<div>
+<h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Comunidad actual de la residencia</h1>
+<p class="mt-1 text-slate-500 dark:text-slate-400 text-sm">
+                        Conocé a tus futuros compañeros y la disponibilidad en tiempo real.
+                    </p>
+</div>
+<button class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors rounded-full p-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+<span class="material-icons-round text-2xl">close</span>
+</button>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto p-6 space-y-6">
+<div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm">
+<div class="flex flex-col md:flex-row gap-6 items-center md:items-start justify-between">
+<div class="flex flex-col items-center md:items-start min-w-max">
+<span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Total Habitaciones</span>
+<div class="flex items-baseline gap-1 mt-1">
+<span class="text-3xl font-bold text-slate-900 dark:text-white">15</span>
+<span class="text-sm text-slate-500">unidades</span>
+</div>
+</div>
+<div class="hidden md:block w-px h-12 bg-slate-100 dark:bg-slate-700"></div>
+<div class="flex-1 w-full">
+<span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2">Desglose por tipo</span>
+<div class="flex flex-wrap gap-2">
+<span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600">
+                                Individuales <span class="ml-1.5 font-bold text-slate-800 dark:text-white">5</span>
+</span>
+<span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600">
+                                Dobles F <span class="ml-1.5 font-bold text-slate-800 dark:text-white">2</span>
+</span>
+<span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600">
+                                Dobles M <span class="ml-1.5 font-bold text-slate-800 dark:text-white">3</span>
+</span>
+<span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600">
+                                Triples M <span class="ml-1.5 font-bold text-slate-800 dark:text-white">3</span>
+</span>
+<span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600">
+                                Cuádruples F <span class="ml-1.5 font-bold text-slate-800 dark:text-white">2</span>
+</span>
+</div>
+</div>
+<div class="hidden md:block w-px h-12 bg-slate-100 dark:bg-slate-700"></div>
+<div class="flex flex-col items-end min-w-max">
+<span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Ocupación</span>
+<div class="mt-1 flex items-center gap-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 tracking-wide">
+                                Alta disp.
+                            </span>
+<span class="text-xl font-bold text-slate-900 dark:text-white">26/32</span>
+</div>
+</div>
+</div>
+</div>
+<div class="space-y-4">
+<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+<div class="flex items-center justify-between p-4 cursor-pointer bg-slate-50/50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700/50">
+<div class="flex items-center gap-3">
+<div class="w-1 h-5 bg-primary rounded-full"></div>
+<h3 class="font-bold text-slate-800 dark:text-white text-base">Individuales</h3>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-xs font-medium px-2 py-1 rounded bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">5/5 ocupadas</span>
+<span class="material-icons-round text-primary dark:text-blue-400 transform rotate-180 text-xl">expand_more</span>
+</div>
+</div>
+<div class="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3">
+<div class="flex items-center gap-3 p-3 rounded-lg border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800/50 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+<div class="relative shrink-0">
+<div class="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-xs">LM</div>
+<div class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border border-white dark:border-slate-800 overflow-hidden bg-white">
+<img alt="Argentina" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBGE2jNOeeh_Gq6U4h1lD7OG62FxdIJwQtxwfxbeX7tLQ3p-T4kJSa0Z9i_iHp1d-ubbzfRiPJhPLGTCO47TgVG6w0_qIvTsnZQWfhZxZosoCDVooJTEeZGsoG6Ljpq67G246Rj1bBEbOCCkfEC6d-BBKdqWpbZ3Iqe-iaLBZ6l8DTFv2NV4ZaaUryJ2BSjo2PxYvo8LuFF3ExgozsuFKkU4cXVbIJwnz3ab37nQ4SAFABoaZGGEk8RhNzSEQ_v14CwcCVUhsfozA"/>
+</div>
+</div>
+<div>
+<h4 class="text-sm font-bold text-slate-800 dark:text-slate-100">Lucas M.</h4>
+<p class="text-xs text-slate-500 dark:text-slate-400">20 · Ingeniería</p>
+</div>
+</div>
+<div class="flex items-center gap-3 p-3 rounded-lg border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800/50 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+<div class="relative shrink-0">
+<div class="w-10 h-10 rounded-full bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center text-pink-600 dark:text-pink-400 font-bold text-xs">CL</div>
+<div class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border border-white dark:border-slate-800 overflow-hidden bg-white">
+<img alt="Spain" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6ouVRAiTjLFBwj_aJgR8hDldv6fFkecNLezLThKL0PQ0wnShBKTx3RY3vvYT3REnqRFgljcVSBpOw_Yr1_dLVH4B39FhQWulBxkGks3DvOnxb5vhacLGGP3OTlXgnpFqOf7x00uQnmAk7z8C0fHodPDX2dRh41tSqu-0ulNS-1C0iOmKEYvS1sTSFfGCY51UzEFwXkAZ3CJ7KNgYmpkY7gw4DWPuGWcN7xm3eCB3L0bBq8Q_UMcj7gVXqybDvce_H8rHqip9OdA"/>
+</div>
+</div>
+<div>
+<h4 class="text-sm font-bold text-slate-800 dark:text-slate-100">Camila L.</h4>
+<p class="text-xs text-slate-500 dark:text-slate-400">22 · Diseño</p>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+<div class="flex items-center justify-between p-4 cursor-pointer bg-slate-50/50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700/50">
+<div class="flex items-center gap-3">
+<div class="w-1 h-5 bg-primary rounded-full"></div>
+<h3 class="font-bold text-slate-800 dark:text-white text-base">Dobles Femeninas</h3>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-xs font-medium px-2 py-1 rounded bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300">1/2 ocupadas</span>
+<span class="material-icons-round text-primary dark:text-blue-400 transform rotate-180 text-xl">expand_more</span>
+</div>
+</div>
+<div class="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3">
+<div class="group relative flex items-center gap-3 p-3 rounded-lg border-2 border-primary bg-blue-50/30 dark:bg-blue-900/10 transition-all cursor-pointer shadow-sm">
+<div class="relative shrink-0">
+<div class="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 font-bold text-sm">SR</div>
+<div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-2 border-white dark:border-slate-800 overflow-hidden bg-white shadow-sm">
+<img alt="Colombia" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-sZqBpyF2n670DwoeFBiS3mlpotLBeNUU3gl1blj73AIJXjCum08DJqRsfxApOCTqtUYBXXpfUX3RfQt0FsFa9MkXBWa4hvoQ0i4WrvmAtpKxm95DOvWZENB7yE8aVctNk4qdnC4mAYhE5Wo17crQDo2VAe94fB8rseDPfWtDsRUfWw0GI_rihWG8ZElvUZ2HyY4aht9yd7-wk3L-8oS_0l101wPPvt24qb0lIpOHWFQfmtumFxCM4bUqrdPbi_CQU47A59r3Wg"/>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<h4 class="text-sm font-bold text-primary dark:text-blue-400">Sofía R.</h4>
+<p class="text-xs text-slate-500 dark:text-slate-400 mb-1">21 · Arquitectura</p>
+<div class="flex gap-1">
+<span class="text-[10px] px-1.5 py-0.5 rounded bg-white dark:bg-slate-700 text-slate-500 dark:text-slate-300 border border-slate-100 dark:border-slate-600">Orden</span>
+</div>
+</div>
+<div class="absolute top-3 right-3 opacity-100">
+<span class="material-icons-round text-primary text-base">check_circle</span>
+</div>
+</div>
+<div class="flex items-center gap-3 p-3 rounded-lg border-2 border-dashed border-green-300 dark:border-green-700 bg-green-50/50 dark:bg-green-900/10 cursor-pointer hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors group">
+<div class="shrink-0 w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform">
+<span class="material-icons-round text-xl">bed</span>
+</div>
+<div>
+<h4 class="text-sm font-bold text-green-700 dark:text-green-400">Lugar disponible</h4>
+<p class="text-xs text-green-600/80 dark:text-green-500/70">Seleccionar este espacio</p>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+<div class="flex items-center justify-between p-4 cursor-pointer">
+<div class="flex items-center gap-3">
+<h3 class="font-bold text-slate-700 dark:text-slate-200 text-base">Triples Masculinas</h3>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-xs font-medium px-2 py-1 rounded bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400">2/3 ocupadas</span>
+<span class="material-icons-round text-slate-400 dark:text-slate-500 transition-transform text-xl">expand_more</span>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+<div class="flex items-center justify-between p-4 cursor-pointer">
+<div class="flex items-center gap-3">
+<h3 class="font-bold text-slate-700 dark:text-slate-200 text-base">Cuádruples Femeninas</h3>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-xs font-medium px-2 py-1 rounded bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400">2/4 ocupadas</span>
+<span class="material-icons-round text-slate-400 dark:text-slate-500 transition-transform text-xl">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="p-4 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700">
+<div class="bg-slate-50 dark:bg-slate-700/30 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 border border-slate-100 dark:border-slate-700">
+<div class="flex items-center gap-3">
+<span class="hidden sm:flex shrink-0 w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 items-center justify-center text-blue-600 dark:text-blue-400">
+<span class="material-icons-round text-sm">info</span>
+</span>
+<p class="text-sm text-slate-600 dark:text-slate-300 font-medium text-center sm:text-left">
+                        Podés seleccionar un lugar disponible para reservar tu estadía.
+                    </p>
+</div>
+<button class="w-full sm:w-auto bg-primary hover:bg-blue-800 text-white font-semibold py-2.5 px-6 rounded-lg shadow-sm shadow-blue-900/20 transition-all hover:shadow-md whitespace-nowrap text-sm">
+                    Elegí tu lugar
+                </button>
+</div>
+</div>
+</div>
+<div class="hidden md:block w-[30%] border-l border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 h-full overflow-y-auto">
+<div class="p-8 flex flex-col items-center text-center">
+<div class="relative mb-5 group cursor-default">
+<div class="w-28 h-28 rounded-full bg-slate-50 dark:bg-slate-800 shadow-soft flex items-center justify-center text-4xl font-bold text-slate-400 dark:text-slate-500 border-4 border-white dark:border-slate-800 ring-1 ring-slate-100 dark:ring-slate-700">
+                    SR
+                </div>
+<div class="absolute bottom-1 right-1 w-8 h-8 rounded-full overflow-hidden border-2 border-white dark:border-slate-800 shadow-md flex items-center justify-center bg-white transform group-hover:scale-110 transition-transform">
+<img alt="Colombia" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-sZqBpyF2n670DwoeFBiS3mlpotLBeNUU3gl1blj73AIJXjCum08DJqRsfxApOCTqtUYBXXpfUX3RfQt0FsFa9MkXBWa4hvoQ0i4WrvmAtpKxm95DOvWZENB7yE8aVctNk4qdnC4mAYhE5Wo17crQDo2VAe94fB8rseDPfWtDsRUfWw0GI_rihWG8ZElvUZ2HyY4aht9yd7-wk3L-8oS_0l101wPPvt24qb0lIpOHWFQfmtumFxCM4bUqrdPbi_CQU47A59r3Wg"/>
+</div>
+</div>
+<h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-1">Sofía</h2>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-6">
+                21 · Arquitectura
+            </p>
+<div class="w-full px-4 py-3 bg-blue-50 dark:bg-blue-900/10 rounded-lg border border-blue-100 dark:border-blue-800 mb-8">
+<p class="text-xs text-blue-800 dark:text-blue-200 italic leading-relaxed">
+                    "La convivencia es dinámica: estas señales pueden cambiar con el tiempo."
+                </p>
+</div>
+<div class="w-full h-px bg-slate-100 dark:bg-slate-800 mb-8"></div>
+<div class="w-full text-left mb-8">
+<h3 class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+<span class="material-icons-round text-base">person</span> Sobre mí
+                </h3>
+<p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-light">
+                    Soy una persona tranquila, me gusta levantarme temprano para aprovechar la luz natural para mis maquetas. Busco compañeras que respeten las horas de sueño.
+                </p>
+</div>
+<div class="w-full text-left mb-8">
+<h3 class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+<span class="material-icons-round text-base">favorite</span> Intereses
+                </h3>
+<div class="flex flex-wrap gap-2">
+<span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 transition-colors hover:bg-slate-100 dark:hover:bg-slate-700">
+<span class="material-icons-round text-[14px] text-pink-400">palette</span> Diseño
+                    </span>
+<span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 transition-colors hover:bg-slate-100 dark:hover:bg-slate-700">
+<span class="material-icons-round text-[14px] text-blue-400">menu_book</span> Lectura
+                    </span>
+<span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 transition-colors hover:bg-slate-100 dark:hover:bg-slate-700">
+<span class="material-icons-round text-[14px] text-purple-400">self_improvement</span> Yoga
+                    </span>
+</div>
+</div>
+<div class="w-full text-left">
+<h3 class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+<span class="material-icons-round text-base">traffic</span> Señales de convivencia
+                </h3>
+<div class="space-y-3">
+<div class="flex items-center justify-between p-2 rounded hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+<div class="flex items-center gap-2.5">
+<span class="material-icons-round text-lg text-green-500">check_circle</span>
+<span class="text-sm font-medium text-slate-700 dark:text-slate-300">Limpieza compartida</span>
+</div>
+<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+</div>
+<div class="flex items-center justify-between p-2 rounded hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+<div class="flex items-center gap-2.5">
+<span class="material-icons-round text-lg text-green-500">check_circle</span>
+<span class="text-sm font-medium text-slate-700 dark:text-slate-300">Horarios de estudio</span>
+</div>
+<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+</div>
+<div class="flex items-center justify-between p-2 rounded hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+<div class="flex items-center gap-2.5">
+<span class="material-icons-round text-lg text-red-400">cancel</span>
+<span class="text-sm font-medium text-slate-700 dark:text-slate-300">Fiestas en el apto</span>
+</div>
+<span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</body></html>

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EstuRED Dashboard - Inicio</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#136dec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101822",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Lexend', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#0d131b] dark:text-white overflow-x-hidden">
+<div class="relative flex min-h-screen flex-col">
+<header class="sticky top-0 z-50 flex items-center justify-between border-b border-solid border-slate-200 bg-white dark:bg-[#1e2732] px-6 py-3 shadow-sm">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3 text-primary">
+<div class="size-8">
+<svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-[#0d131b] dark:text-white text-xl font-bold leading-tight tracking-[-0.015em]">EstuRED</h2>
+</div>
+<label class="hidden md:flex flex-col min-w-[320px] max-w-[480px]">
+<div class="flex w-full items-stretch rounded-lg bg-[#e7ecf3] dark:bg-[#2d3748] h-10 transition-all focus-within:ring-2 focus-within:ring-primary/50">
+<div class="flex items-center justify-center pl-4 text-[#4c6c9a] dark:text-slate-400">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="flex w-full min-w-0 flex-1 resize-none bg-transparent px-3 text-sm text-[#0d131b] dark:text-white placeholder:text-[#4c6c9a] dark:placeholder:text-slate-500 focus:outline-0 border-none h-full font-normal leading-normal" placeholder="Buscar residencias por barrio o universidad..."/>
+</div>
+</label>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden lg:flex items-center gap-6">
+<a class="text-[#0d131b] dark:text-slate-200 text-sm font-medium hover:text-primary transition-colors flex items-center gap-1" href="#" title="Tus conversaciones">
+<span class="material-symbols-outlined text-[20px]">chat_bubble_outline</span>
+                        Mensajes
+                    </a>
+<a class="text-[#0d131b] dark:text-slate-200 text-sm font-medium hover:text-primary transition-colors flex items-center gap-1" href="#" title="Centro de Ayuda">
+<span class="material-symbols-outlined text-[20px]">help_outline</span>
+                        Ayuda
+                    </a>
+</div>
+<div class="flex items-center gap-3 border-l border-slate-200 pl-6 dark:border-slate-700">
+<div class="hidden sm:flex flex-col items-end">
+<span class="text-sm font-bold leading-none">Martín G.</span>
+<div class="flex items-center gap-1 mt-1">
+<span class="text-xs text-slate-500 dark:text-slate-400">Argentina</span>
+<img alt="Argentina Flag" class="h-3 w-auto rounded-sm" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBv2suwblC53tgwEN0gWV8RRLfdH6hElmndjRwhwAZ5h8zMw935OVuAxqAkyLBND3a4dC75oysIxy_xCvtAgJtnsIawHC89rkcgjpsVWzjc13R6BgejSluqaYWm3iNYWS0mo3iEiFc35uMp-GoZeB4icYBRaa-vscLdZekGl3X1ZyQzUGr263K9aJXLzh-RPA11QKa7sqf-F9nVxfxBZnQGJr1aEbcuCBA7bfQJnBlQoYFyU6m_ptvJsNjtl2e3ZiYO3AxH-8-Pvg"/>
+</div>
+</div>
+<button class="relative group">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-10 ring-2 ring-offset-2 ring-primary/20 hover:ring-primary transition-all cursor-pointer" data-alt="User profile picture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAHQq5iNA8jgpU9UzX5pYDPoZqV1Lo4ZqPtWVNRU-WbRmA7Hj-yhKaBjtOMRXZ8l3MongcEyZHeSz9eke_MLUKFYkUmNazEo8qHM2DjSwds5dQH5et7Wrb41PQpEtvRMqGO5BKLQWk-ERGJGkVCBhCzbN4n0DRAPesoh4i9pioVGy6UD9Ta0UrS974VWjYQJpaNETOK2vvW3MFVgU6x-SpNV8bGB64MvL2E0DTgMhalYEqB0A9_GDZBpMpTDVxt1DIIQ4R1dMr6Tg");'></div>
+</button>
+</div>
+</div>
+</header>
+<div class="flex flex-1">
+<aside class="hidden w-64 flex-col border-r border-slate-200 bg-white dark:bg-[#1e2732] dark:border-slate-700 md:flex">
+<div class="flex flex-col gap-4 p-4">
+<div class="px-2 pb-2">
+<p class="text-[#4c6c9a] text-xs font-semibold uppercase tracking-wider">Menú Principal</p>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light" href="#">
+<span class="material-symbols-outlined filled">home</span>
+<p class="text-sm font-bold">Inicio</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50 text-[#0d131b] dark:text-slate-300 transition-colors" href="#">
+<span class="material-symbols-outlined">description</span>
+<p class="text-sm font-medium">Solicitudes</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50 text-[#0d131b] dark:text-slate-300 transition-colors" href="#">
+<span class="material-symbols-outlined">favorite</span>
+<p class="text-sm font-medium">Favoritos</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50 text-[#0d131b] dark:text-slate-300 transition-colors" href="#">
+<span class="material-symbols-outlined">apartment</span>
+<p class="text-sm font-medium">Mi residencia</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50 text-[#0d131b] dark:text-slate-300 transition-colors" href="#">
+<span class="material-symbols-outlined">person</span>
+<p class="text-sm font-medium">Mi perfil</p>
+</a>
+</nav>
+</div>
+<div class="mt-auto p-4 border-t border-slate-200 dark:border-slate-700">
+<div class="rounded-lg bg-slate-50 dark:bg-slate-800 p-3">
+<p class="text-xs font-medium text-slate-500 mb-2">¿Necesitas ayuda?</p>
+<button class="w-full text-left text-primary text-sm font-bold hover:underline">Contactar soporte</button>
+</div>
+</div>
+</aside>
+<main class="flex-1 overflow-y-auto bg-[#f6f7f8] dark:bg-background-dark p-6 lg:p-10">
+<div class="mx-auto max-w-7xl flex flex-col gap-8">
+<div class="flex flex-col gap-2">
+<h1 class="text-2xl md:text-3xl font-bold text-[#0d131b] dark:text-white flex items-center gap-2">
+                            ¡Ya estás alojado/a! <span class="text-3xl">🏡</span>
+</h1>
+<p class="text-slate-600 dark:text-slate-400 max-w-3xl text-base">
+                            Acá vas a ver tu estadía, tu comunidad actual y todo lo necesario para una convivencia clara.
+                        </p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+<div class="lg:col-span-2 flex flex-col gap-8">
+<div class="flex flex-wrap gap-4">
+<button class="flex-1 sm:flex-none px-6 py-3 bg-primary hover:bg-blue-700 text-white font-bold rounded-lg shadow-sm shadow-blue-500/20 transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[20px]">home_work</span>
+                                    Ver mi residencia
+                                </button>
+<button class="flex-1 sm:flex-none px-6 py-3 bg-white border border-slate-200 text-slate-700 font-bold rounded-lg hover:bg-slate-50 transition-all dark:bg-[#1e2732] dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[20px]">chat</span>
+                                    Mensajes
+                                </button>
+</div>
+<div class="bg-white dark:bg-[#1e2732] rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+<div class="p-6 border-b border-slate-100 dark:border-slate-700/50">
+<div class="flex justify-between items-start">
+<div>
+<h2 class="text-xl font-bold text-[#0d131b] dark:text-white">Mi Residencia</h2>
+<p class="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-[16px]">location_on</span>
+                                                Casa Palermo Soho · Palermo, Buenos Aires
+                                            </p>
+</div>
+<span class="hidden sm:inline-flex items-center gap-1 bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide dark:bg-green-900/30 dark:text-green-400">
+<span class="size-2 rounded-full bg-green-500 animate-pulse"></span>
+                                            Alojado
+                                        </span>
+</div>
+</div>
+<div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="space-y-5">
+<div class="space-y-3">
+<h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Tu Estadía</h3>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<p class="text-xs text-slate-500">Tipo de habitación</p>
+<p class="font-bold text-[#0d131b] dark:text-white">Triple Femenina</p>
+</div>
+<div>
+<p class="text-xs text-slate-500">Valor mensual</p>
+<p class="font-bold text-[#0d131b] dark:text-white">USD 280 / mes</p>
+</div>
+<div>
+<p class="text-xs text-slate-500">Fecha ingreso</p>
+<p class="font-medium text-[#0d131b] dark:text-white">1 Mar, 2025</p>
+</div>
+<div>
+<p class="text-xs text-slate-500">Fecha fin</p>
+<p class="font-medium text-[#0d131b] dark:text-white">31 Ago, 2025</p>
+</div>
+</div>
+</div>
+<div>
+<p class="text-xs text-slate-500 mb-2">Señales sobre vos</p>
+<div class="flex flex-wrap gap-2">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-50 text-primary text-xs font-semibold dark:bg-blue-900/20 dark:text-blue-300">
+<span class="material-symbols-outlined text-[14px]">handshake</span>
+                                                    Convivencia estable
+                                                </span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-50 text-primary text-xs font-semibold dark:bg-blue-900/20 dark:text-blue-300">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                                                    Orden
+                                                </span>
+</div>
+</div>
+</div>
+<div class="space-y-6">
+<div class="bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-800/30 rounded-lg p-3 flex items-start gap-3">
+<span class="material-symbols-outlined text-orange-500 mt-0.5">notifications_active</span>
+<div>
+<p class="text-sm font-bold text-orange-800 dark:text-orange-300">Renovación abre en 60 días</p>
+<p class="text-xs text-orange-700/80 dark:text-orange-400 mt-0.5">Te avisaremos cuando sea momento de confirmar el próximo semestre.</p>
+</div>
+</div>
+<div>
+<div class="flex justify-between items-center mb-2">
+<h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Comunidad Actual</h3>
+<span class="text-xs font-medium text-slate-500">26 de 32 residentes</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex -space-x-2">
+<div class="size-8 rounded-full ring-2 ring-white dark:ring-[#1e2732] bg-gray-200 bg-cover" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCKDo9qCnGLwMESHj-EVy7BSPFBS3D0HnbhqUxvLyS1nIsigwTyb_EUBRrXYvcTwiyWusYKM6VWDwDG6pGVQBGO90jpclWAAqBBVXoVB5gfpPDvgL9xHkCEyxUFQk1Ys-Ce-AVkTi46gT-n1FiRW6eBQQ0rt6sEOkgJJGXHg11_BP67qV-2Qr-LTM9lLQygnv6dL8BjByGV-ivXar-OXF93Vr0tEeRJgFpxyi6B8VB-RI6Hr9BzkjFk1tQLTQjZ-39RnuvmMHbL_w");'></div>
+<div class="size-8 rounded-full ring-2 ring-white dark:ring-[#1e2732] bg-gray-300 bg-cover" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDjoeNrpiUSPJbn3LaUu5xyfCKpl9jzYTe3ON4WdsDr1kLr73Av7zJlJd1PUuMCApLIz3RktjmwA90S3AnqtIPe9cfQ-ij1U0MxMB0iA3ruV3DofsnUlNmilGomYB607brcrJ4JSSdXdz4C1mF3iaodMenKYiTSWeUQxLDkO0xRRV-tRBQ7PFawG3VGEwkL771O8JLqnRhP6czyTSvZrIdnmuYP1vHt9NA7NlA_YlhIFstzqQbCJn9_Tg43zRT_nzrSSUA-TqvQog");'></div>
+<div class="size-8 rounded-full ring-2 ring-white dark:ring-[#1e2732] bg-gray-400 bg-cover" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAviIf1ko8T7mQpYo_28JJkW1cJ8h9-ww6apmi42KE4L6ACPqcisWKZbUy1ol905Vap7qHOU6kf-1fUgRYSU3SHn2gZRN1ZRvm2FDQZJLWF64kVMwlDnlwDNuSjrTpVfBQ9E6oH2s9j7BUQdIaf62DbENLY8eqqKcagmzfHEfUet7CP9mb2zEIe4OfR3zW9klxx9QMhWyzFYivby4h_OVEK-5rVzm44N7VL_DeDwPNxMY5yJgiNgQlfaG61i_mojit4xQdnb-9b4Q");'></div>
+<div class="size-8 rounded-full ring-2 ring-white dark:ring-[#1e2732] bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-600">+23</div>
+</div>
+<div class="h-4 w-px bg-slate-200 dark:bg-slate-700"></div>
+<p class="text-xs text-slate-500">14 mujeres · 12 hombres</p>
+</div>
+<button class="mt-2 text-xs font-bold text-primary hover:underline">Ver todos los perfiles</button>
+</div>
+<div>
+<p class="text-xs text-slate-500 mb-2">Señales recientes de la residencia</p>
+<div class="flex flex-wrap gap-2">
+<span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs rounded-md">Tranquila</span>
+<span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs rounded-md">Buen ritmo</span>
+<span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs rounded-md">Orden</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+<div class="flex items-center gap-4">
+<div class="p-3 bg-white dark:bg-slate-800 rounded-full shadow-sm text-slate-400">
+<span class="material-symbols-outlined text-2xl">inbox</span>
+</div>
+<div>
+<h3 class="font-bold text-[#0d131b] dark:text-white">Solicitudes</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400">No tenés solicitudes pendientes.</p>
+</div>
+</div>
+<button class="text-sm font-bold text-primary hover:bg-primary/5 px-4 py-2 rounded-lg transition-colors">
+                                    Buscar residencias
+                                </button>
+</div>
+<section>
+<div class="flex items-center justify-between mb-4">
+<h2 class="text-lg font-bold text-[#0d131b] dark:text-white">Favoritos</h2>
+<a class="text-sm font-bold text-primary hover:underline" href="#">Ver todos</a>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+<div class="group flex flex-col overflow-hidden rounded-lg bg-white shadow-sm border border-slate-200 dark:bg-[#1e2732] dark:border-slate-700 hover:shadow-md transition-all">
+<div class="relative h-28 w-full overflow-hidden bg-slate-200">
+<div class="h-full w-full bg-cover bg-center" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCKDo9qCnGLwMESHj-EVy7BSPFBS3D0HnbhqUxvLyS1nIsigwTyb_EUBRrXYvcTwiyWusYKM6VWDwDG6pGVQBGO90jpclWAAqBBVXoVB5gfpPDvgL9xHkCEyxUFQk1Ys-Ce-AVkTi46gT-n1FiRW6eBQQ0rt6sEOkgJJGXHg11_BP67qV-2Qr-LTM9lLQygnv6dL8BjByGV-ivXar-OXF93Vr0tEeRJgFpxyi6B8VB-RI6Hr9BzkjFk1tQLTQjZ-39RnuvmMHbL_w");'></div>
+<div class="absolute bottom-2 left-2 rounded-md bg-blue-600/90 px-1.5 py-0.5 text-[10px] font-bold text-white backdrop-blur-md uppercase tracking-wide">
+                                                Agregado por: Padre
+                                            </div>
+</div>
+<div class="p-3">
+<h4 class="text-sm font-bold text-[#0d131b] dark:text-white truncate">Residencia Cordobesa</h4>
+<p class="text-xs text-slate-500 mt-0.5">Nueva Córdoba</p>
+<p class="text-xs text-slate-400 mt-2 italic">"Cerca de UBA, buena luz"</p>
+</div>
+</div>
+<div class="group flex flex-col overflow-hidden rounded-lg bg-white shadow-sm border border-slate-200 dark:bg-[#1e2732] dark:border-slate-700 hover:shadow-md transition-all">
+<div class="relative h-28 w-full overflow-hidden bg-slate-200">
+<div class="h-full w-full bg-cover bg-center" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDjoeNrpiUSPJbn3LaUu5xyfCKpl9jzYTe3ON4WdsDr1kLr73Av7zJlJd1PUuMCApLIz3RktjmwA90S3AnqtIPe9cfQ-ij1U0MxMB0iA3ruV3DofsnUlNmilGomYB607brcrJ4JSSdXdz4C1mF3iaodMenKYiTSWeUQxLDkO0xRRV-tRBQ7PFawG3VGEwkL771O8JLqnRhP6czyTSvZrIdnmuYP1vHt9NA7NlA_YlhIFstzqQbCJn9_Tg43zRT_nzrSSUA-TqvQog");'></div>
+<div class="absolute bottom-2 left-2 rounded-md bg-purple-600/90 px-1.5 py-0.5 text-[10px] font-bold text-white backdrop-blur-md uppercase tracking-wide">
+                                                Agregado por: Madre
+                                            </div>
+</div>
+<div class="p-3">
+<h4 class="text-sm font-bold text-[#0d131b] dark:text-white truncate">Casa Güemes</h4>
+<p class="text-xs text-slate-500 mt-0.5">Güemes</p>
+<p class="text-xs text-slate-400 mt-2 italic">"Tiene patio grande"</p>
+</div>
+</div>
+<div class="group flex flex-col overflow-hidden rounded-lg bg-white shadow-sm border border-slate-200 dark:bg-[#1e2732] dark:border-slate-700 hover:shadow-md transition-all">
+<div class="relative h-28 w-full overflow-hidden bg-slate-200">
+<div class="h-full w-full bg-cover bg-center" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAviIf1ko8T7mQpYo_28JJkW1cJ8h9-ww6apmi42KE4L6ACPqcisWKZbUy1ol905Vap7qHOU6kf-1fUgRYSU3SHn2gZRN1ZRvm2FDQZJLWF64kVMwlDnlwDNuSjrTpVfBQ9E6oH2s9j7BUQdIaf62DbENLY8eqqKcagmzfHEfUet7CP9mb2zEIe4OfR3zW9klxx9QMhWyzFYivby4h_OVEK-5rVzm44N7VL_DeDwPNxMY5yJgiNgQlfaG61i_mojit4xQdnb-9b4Q");'></div>
+<div class="absolute bottom-2 left-2 rounded-md bg-slate-700/90 px-1.5 py-0.5 text-[10px] font-bold text-white backdrop-blur-md uppercase tracking-wide">
+                                                Agregado por: Estudiante
+                                            </div>
+</div>
+<div class="p-3">
+<h4 class="text-sm font-bold text-[#0d131b] dark:text-white truncate">Depto. Alto Alberdi</h4>
+<p class="text-xs text-slate-500 mt-0.5">Alberdi</p>
+<p class="text-xs text-slate-400 mt-2 italic">"Muy moderno"</p>
+</div>
+</div>
+</div>
+</section>
+<div class="rounded-xl bg-gradient-to-r from-blue-600 to-blue-800 p-6 sm:p-8 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-lg shadow-blue-800/20">
+<div>
+<h3 class="text-xl font-bold mb-2">Tu convivencia se construye día a día</h3>
+<p class="text-blue-100 text-sm max-w-lg">
+                                        Mantener las señales positivas ayuda a que la comunidad crezca y tengas prioridad en futuras reservas.
+                                    </p>
+</div>
+<button class="shrink-0 bg-white text-blue-700 hover:bg-blue-50 px-5 py-2.5 rounded-lg font-bold text-sm transition-colors shadow-sm">
+                                    Ver mi residencia
+                                </button>
+</div>
+</div>
+<div class="lg:col-span-1 flex flex-col gap-6">
+<div class="rounded-xl bg-white p-5 shadow-sm border border-slate-200 dark:bg-[#1e2732] dark:border-slate-700">
+<div class="flex items-center justify-between mb-2">
+<p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Vinculación Familiar</p>
+<span class="material-symbols-outlined text-slate-300">link</span>
+</div>
+<div class="flex items-center gap-3 mb-4">
+<div class="p-2 bg-green-50 rounded-full dark:bg-green-900/20">
+<span class="material-symbols-outlined text-green-600 dark:text-green-400 text-[20px]">verified_user</span>
+</div>
+<div>
+<p class="text-sm font-bold text-[#0d131b] dark:text-white">Cuenta vinculada</p>
+<p class="text-xs text-slate-500">Padre/Madre</p>
+</div>
+</div>
+<button class="w-full py-2 text-xs font-bold text-primary border border-slate-200 rounded-lg hover:bg-slate-50 dark:border-slate-600 dark:hover:bg-slate-700 transition-colors">
+                                    Gestionar
+                                </button>
+</div>
+<div class="flex flex-col gap-3">
+<div class="flex items-center gap-3 p-4 rounded-xl bg-white border border-slate-200 shadow-sm dark:bg-[#1e2732] dark:border-slate-700">
+<span class="material-symbols-outlined text-blue-500">verified</span>
+<p class="text-sm font-semibold text-slate-700 dark:text-slate-200">Tu estadía en orden</p>
+</div>
+<div class="flex items-center gap-3 p-4 rounded-xl bg-white border border-slate-200 shadow-sm dark:bg-[#1e2732] dark:border-slate-700">
+<span class="material-symbols-outlined text-purple-500">receipt_long</span>
+<p class="text-sm font-semibold text-slate-700 dark:text-slate-200">Comprobantes a mano</p>
+</div>
+<div class="flex items-center gap-3 p-4 rounded-xl bg-white border border-slate-200 shadow-sm dark:bg-[#1e2732] dark:border-slate-700">
+<span class="material-symbols-outlined text-green-500">support_agent</span>
+<p class="text-sm font-semibold text-slate-700 dark:text-slate-200">Acompañamiento EstuRED</p>
+</div>
+</div>
+<div class="rounded-xl bg-white p-5 shadow-sm border border-slate-200 dark:bg-[#1e2732] dark:border-slate-700">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-sm font-bold text-[#0d131b] dark:text-white">Documentos de tu estadía</h3>
+<span class="text-xs font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded-full dark:bg-slate-700 dark:text-slate-300">2 de 3</span>
+</div>
+<div class="space-y-3 mb-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400 text-[18px]">description</span>
+<span class="text-xs text-slate-700 dark:text-slate-300">Contrato firmado</span>
+</div>
+<span class="material-symbols-outlined text-green-500 text-[18px]">check_circle</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400 text-[18px]">description</span>
+<span class="text-xs text-slate-700 dark:text-slate-300">Reglamento</span>
+</div>
+<span class="material-symbols-outlined text-green-500 text-[18px]">check_circle</span>
+</div>
+<div class="flex items-center justify-between opacity-60">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400 text-[18px]">description</span>
+<span class="text-xs text-slate-700 dark:text-slate-300">Alta servicio</span>
+</div>
+<span class="text-[10px] font-bold text-orange-500 bg-orange-50 px-1.5 py-0.5 rounded dark:bg-orange-900/30">Pendiente</span>
+</div>
+</div>
+<button class="w-full text-center text-xs font-bold text-primary hover:underline">
+                                    Ver documentación
+                                </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+
+</body></html>

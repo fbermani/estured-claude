@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EstuRED - Mensajes</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#136dec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101822",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white h-screen flex flex-col overflow-hidden">
+<!-- Header -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-6 py-3 shrink-0 z-20">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4 text-slate-900 dark:text-white">
+<div class="size-8 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-4xl">school</span>
+</div>
+<h2 class="text-slate-900 dark:text-white text-xl font-bold leading-tight tracking-tight">EstuRED</h2>
+</div>
+<!-- Search -->
+<label class="hidden md:flex flex-col min-w-40 !h-10 w-96">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full bg-slate-100 dark:bg-slate-800">
+<div class="text-slate-500 flex border-none items-center justify-center pl-4 rounded-l-lg border-r-0">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-slate-900 dark:text-white focus:outline-0 focus:ring-0 border-none bg-transparent focus:border-none h-full placeholder:text-slate-500 px-4 rounded-l-none border-l-0 pl-2 text-sm font-normal leading-normal" placeholder="Buscar residencias..." value=""/>
+</div>
+</label>
+</div>
+<div class="flex flex-1 justify-end gap-4 items-center">
+<div class="flex gap-2">
+<button class="flex items-center justify-center rounded-lg size-10 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors">
+<span class="material-symbols-outlined">help</span>
+</button>
+<button class="flex items-center justify-center rounded-lg size-10 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border border-white dark:border-slate-900"></span>
+</button>
+</div>
+<div class="h-8 w-px bg-slate-200 dark:bg-slate-700 mx-2"></div>
+<button class="flex items-center gap-3 group">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-10 ring-2 ring-transparent group-hover:ring-primary/20 transition-all" data-alt="Profile picture of a parent user" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB10doWDTd-XkdXGr6T1q7LFCcks7S_n9CriVbE5zlogoLRj4Yy7qyQPHsfQmnWClgh-rBLuhr5r6mkx8YInk3a2EQG7ZFxuxdRg4Q60G8j5bK_YWhEBryz8U0kw-Zj79CpFibcBOPXMIzmynUjIXib5pMgOLlRuiGgKKRSudQpV81bxjC6Oq7YLNKheHN3l0bnEfuKuZqrl7eD15zlcbqDrCrE02321MiCDpaFydA6u3r6FYCET3Laom5AQ1rXvJtQyYO66cLjVg");'></div>
+<div class="hidden lg:flex flex-col items-start">
+<span class="text-sm font-semibold text-slate-900 dark:text-white leading-tight">Roberto G.</span>
+<span class="text-xs text-slate-500 dark:text-slate-400">Padre</span>
+</div>
+<span class="material-symbols-outlined text-slate-400 hidden lg:block">expand_more</span>
+</button>
+</div>
+</header>
+<!-- Main Content Layout -->
+<main class="flex flex-1 overflow-hidden relative">
+<!-- Left Sidebar: Conversations List -->
+<aside class="w-full md:w-[400px] flex flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 z-10">
+<!-- Filters Header -->
+<div class="p-4 border-b border-slate-100 dark:border-slate-800 shrink-0">
+<h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">Mensajes</h1>
+<div class="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-slate-900 dark:bg-white px-4 text-white dark:text-slate-900 text-sm font-medium transition-colors">
+                        Todas
+                    </button>
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 px-4 text-slate-700 dark:text-slate-300 text-sm font-medium transition-colors border border-transparent hover:border-slate-300 dark:hover:border-slate-600">
+                        Con solicitud activa
+                    </button>
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 px-4 text-slate-700 dark:text-slate-300 text-sm font-medium transition-colors border border-transparent hover:border-slate-300 dark:hover:border-slate-600">
+                        Alojado
+                    </button>
+</div>
+</div>
+<!-- List Items -->
+<div class="flex-1 overflow-y-auto">
+<!-- Active Item -->
+<div class="group flex gap-3 px-4 py-4 cursor-pointer bg-primary/5 border-l-4 border-primary hover:bg-primary/10 transition-colors">
+<div class="relative shrink-0">
+<div class="bg-center bg-no-repeat bg-cover rounded-lg size-[60px]" data-alt="Exterior of classic university residence building" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDbhRqjbrmI8fT0rbmrwcs4liyEU6qOPeyxNa8Fx76ag10-sxEV9NbLy0dVGEikrZp0qcSDY1fqN4XEfsD4MW2E_s_fDSSO9nrE8PgmCCZ-Tw3rVLFBNKEz0XS79TnBYUxSpXo7WVJAEt8v5E0rbFVYLhAcjfJtlQJ5ULKPE-VKi7J_1Sl6SQz4NQjAy515qzhSQfiNdm2aAggmX1Eb9mWLkZ6TntetVi9aIvpPh1Lhw0Ry43gxubsIr6mIT-YXvEAroWPLdw3oOw");'></div>
+<div class="absolute -bottom-1 -right-1 bg-green-500 border-2 border-white dark:border-slate-900 size-3 rounded-full"></div>
+</div>
+<div class="flex flex-1 flex-col min-w-0">
+<div class="flex justify-between items-start mb-0.5">
+<h3 class="text-slate-900 dark:text-white text-sm font-bold truncate pr-2">Residencia San Telmo</h3>
+<span class="text-xs font-medium text-primary whitespace-nowrap">10:30 AM</span>
+</div>
+<div class="flex items-center gap-2 mb-1">
+<span class="inline-flex items-center rounded-md bg-green-50 dark:bg-green-900/30 px-1.5 py-0.5 text-xs font-medium text-green-700 dark:text-green-400 ring-1 ring-inset ring-green-600/20">Solicitud activa</span>
+</div>
+<p class="text-slate-600 dark:text-slate-400 text-sm font-normal truncate">Residencia: Hola! Sí, exacto. Tenemos lugar...</p>
+<p class="text-slate-400 dark:text-slate-500 text-xs mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">person</span> Iniciada por: Padre
+                        </p>
+</div>
+</div>
+<!-- Inactive Item 1 -->
+<div class="group flex gap-3 px-4 py-4 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 border-l-4 border-transparent transition-colors border-b border-slate-100 dark:border-slate-800/50">
+<div class="relative shrink-0">
+<div class="bg-center bg-no-repeat bg-cover rounded-lg size-[60px]" data-alt="Modern residence building facade" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAGPUoC0ea7WW0f8zhOvG0NKCEWlGttN69qXcxTFW6J6yj7Ak8Do-joUbVpuDaqVZuVahU-WP-VZ5-OzZtmbSlkKvRXQQ44FlfNLcvZ_zb0sKVxRNhVbWDpFYIrJ7ZlFK9Z7EanNktrdLcZ6Qaiq9sh8QDeCrRQqhfj5r6LnKVMz993iGF0HXUkF6WaHtgbI0yEHSHJhTcgfXYohX8XovYABZUzDwDEWzSoP100oqBCaZ3_EgFAAuMf0pDTroj4q2Gx1-Saa0cjqA");'></div>
+</div>
+<div class="flex flex-1 flex-col min-w-0">
+<div class="flex justify-between items-start mb-0.5">
+<h3 class="text-slate-900 dark:text-white text-sm font-bold truncate pr-2">Palermo Soho House</h3>
+<span class="text-xs text-slate-500 whitespace-nowrap">Ayer</span>
+</div>
+<div class="flex items-center gap-2 mb-1">
+<span class="inline-flex items-center rounded-md bg-blue-50 dark:bg-blue-900/30 px-1.5 py-0.5 text-xs font-medium text-blue-700 dark:text-blue-400 ring-1 ring-inset ring-blue-600/20">Alojado</span>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-normal truncate">Confirmado el pago de la matrícula.</p>
+<p class="text-slate-400 dark:text-slate-500 text-xs mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">school</span> Iniciada por: Estudiante
+                        </p>
+</div>
+</div>
+<!-- Inactive Item 2 -->
+<div class="group flex gap-3 px-4 py-4 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 border-l-4 border-transparent transition-colors border-b border-slate-100 dark:border-slate-800/50">
+<div class="relative shrink-0">
+<div class="bg-center bg-no-repeat bg-cover rounded-lg size-[60px] opacity-70" data-alt="Brick residence building entrance" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA9ZKjvF2TZ-6onOGAhxdEbjbPnHtdDSDN4lHWjHCMqFWRXLCPseFAfuZEBx-bU4YaM9Ig3KuaITkPzw44jtwn5QlLuGCTJFHXMpyjiUWkJv5YunWuzA8uS4wS5RsgJvClOR5B1avlj2B8LYsjhn6NR0fQ9Irpa5PRkAKoaG7nvNHUlj1Jt7iUNoHflHrZTe0bDW1M7mbuHPlojur5Pv0ryObi389UkqRn2GsVFmgTL9TSXX8_npBia5EzsRlLO8isrgIUXkr34zg");'></div>
+</div>
+<div class="flex flex-1 flex-col min-w-0 opacity-70">
+<div class="flex justify-between items-start mb-0.5">
+<h3 class="text-slate-900 dark:text-white text-sm font-bold truncate pr-2">Residencia Belgrano R</h3>
+<span class="text-xs text-slate-500 whitespace-nowrap">23 Feb</span>
+</div>
+<div class="flex items-center gap-2 mb-1">
+<span class="inline-flex items-center rounded-md bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 text-xs font-medium text-slate-600 dark:text-slate-400 ring-1 ring-inset ring-slate-500/10">Archivada</span>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-normal truncate">Gracias por la información enviada.</p>
+<p class="text-slate-400 dark:text-slate-500 text-xs mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">person</span> Iniciada por: Padre
+                        </p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Right Content: Chat Interface -->
+<section class="flex-1 flex flex-col bg-slate-50 dark:bg-slate-950 h-full w-full">
+<!-- Chat Header -->
+<div class="h-[72px] px-6 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between shrink-0 shadow-sm z-10">
+<div class="flex items-center gap-4">
+<!-- Mobile back button (hidden on desktop) -->
+<button class="md:hidden p-2 -ml-2 text-slate-600">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<h2 class="text-lg font-bold text-slate-900 dark:text-white leading-tight">Residencia Universitaria San Telmo</h2>
+<span class="material-symbols-outlined text-green-500 text-sm filled" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+<span>San Telmo, Buenos Aires</span>
+<span class="size-1 rounded-full bg-slate-300"></span>
+<span>Mixta</span>
+<span class="size-1 rounded-full bg-slate-300"></span>
+<span>Hab. Individuales</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="hidden lg:flex px-4 h-9 items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                        Ver solicitud
+                    </button>
+<button class="px-4 h-9 flex items-center justify-center rounded-lg bg-primary text-white text-sm font-medium hover:bg-blue-600 transition-colors shadow-sm">
+                        Ver residencia
+                    </button>
+<button class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Messages Area -->
+<div class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 bg-slate-50 dark:bg-slate-950">
+<!-- Disclaimer Banner -->
+<div class="max-w-3xl mx-auto mb-8 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-lg p-3 flex gap-3 items-start">
+<span class="material-symbols-outlined text-primary text-xl shrink-0">info</span>
+<p class="text-sm text-blue-900 dark:text-blue-100">
+<span class="font-semibold">Chat Asistido:</span> Estás chateando con la residencia y el <strong>Asistente EstuRED</strong>, que te ayudará con respuestas automáticas sobre disponibilidad y precios.
+                    </p>
+</div>
+<!-- Date Separator -->
+<div class="flex justify-center">
+<span class="text-xs font-medium text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">Hoy</span>
+</div>
+<!-- Message: User (Parent) -->
+<div class="flex flex-col items-end gap-1 max-w-[85%] md:max-w-[70%] ml-auto">
+<div class="flex items-center gap-2 mb-1 px-1">
+<span class="text-xs text-slate-500 dark:text-slate-400 font-medium">Vos (Padre)</span>
+</div>
+<div class="bg-primary text-white p-4 rounded-2xl rounded-tr-sm shadow-sm">
+<p class="text-sm leading-relaxed">Hola, quería consultar disponibilidad para marzo 2024. Busco una habitación para mi hijo que empieza la facultad en la UBA.</p>
+</div>
+<span class="text-[11px] text-slate-400 font-medium px-1">10:15 AM</span>
+</div>
+<!-- Message: Assistant -->
+<div class="flex flex-col items-start gap-1 max-w-[85%] md:max-w-[70%] mr-auto">
+<div class="flex items-center gap-2 mb-1 px-1">
+<div class="size-5 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[12px]">smart_toy</span>
+</div>
+<span class="text-xs text-indigo-600 dark:text-indigo-400 font-bold">Asistente EstuRED</span>
+</div>
+<div class="bg-white dark:bg-slate-800 border border-indigo-100 dark:border-indigo-900/50 p-4 rounded-2xl rounded-tl-sm shadow-sm relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-indigo-400 to-purple-500"></div>
+<p class="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">¡Hola! 👋 Según la información actualizada de la residencia, en <strong>San Telmo</strong> cuentan con <strong>3 vacantes en habitaciones dobles</strong> para marzo.</p>
+<div class="mt-3 flex gap-2">
+<button class="text-xs bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 px-3 py-1.5 rounded-full font-medium hover:bg-indigo-100 transition-colors">Ver precios</button>
+<button class="text-xs bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 px-3 py-1.5 rounded-full font-medium hover:bg-indigo-100 transition-colors">Normas de convivencia</button>
+</div>
+</div>
+<span class="text-[11px] text-slate-400 font-medium px-1">10:16 AM</span>
+</div>
+<!-- Message: User (Parent) -->
+<div class="flex flex-col items-end gap-1 max-w-[85%] md:max-w-[70%] ml-auto">
+<div class="bg-primary text-white p-4 rounded-2xl rounded-tr-sm shadow-sm">
+<p class="text-sm leading-relaxed">Buenísimo. ¿Podría coordinar una visita para ver las instalaciones?</p>
+</div>
+<span class="text-[11px] text-slate-400 font-medium px-1">10:20 AM</span>
+</div>
+<!-- Message: Residence -->
+<div class="flex flex-col items-start gap-1 max-w-[85%] md:max-w-[70%] mr-auto">
+<div class="flex items-center gap-2 mb-1 px-1">
+<div class="size-5 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600">
+<span class="material-symbols-outlined text-[14px]">home</span>
+</div>
+<span class="text-xs text-slate-600 dark:text-slate-300 font-bold">Residencia San Telmo</span>
+</div>
+<div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 rounded-2xl rounded-tl-sm shadow-sm">
+<p class="text-sm text-slate-800 dark:text-slate-200 leading-relaxed">Hola! Sí, exacto. Tenemos lugar. ¿Te gustaría agendar una visita? Generalmente mostramos la residencia de Lunes a Viernes de 10 a 18hs.</p>
+</div>
+<span class="text-[11px] text-slate-400 font-medium px-1">10:30 AM</span>
+</div>
+</div>
+<!-- Input Area -->
+<div class="p-4 md:p-6 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shrink-0">
+<div class="relative flex items-end gap-2 max-w-5xl mx-auto">
+<div class="flex-1 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center p-2 border border-transparent focus-within:border-primary/50 focus-within:bg-white dark:focus-within:bg-slate-900 focus-within:ring-4 focus-within:ring-primary/10 transition-all">
+<button class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+<span class="material-symbols-outlined">sentiment_satisfied</span>
+</button>
+<input class="flex-1 bg-transparent border-none focus:ring-0 text-slate-900 dark:text-white placeholder:text-slate-400 text-sm py-3 px-2 resize-none h-12" placeholder="Escribí tu consulta..." type="text"/>
+</div>
+<button class="size-12 rounded-full bg-primary hover:bg-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-500/30 transition-all hover:scale-105 active:scale-95">
+<span class="material-symbols-outlined ml-0.5">send</span>
+</button>
+</div>
+<div class="max-w-5xl mx-auto mt-2 flex justify-center">
+<p class="text-[10px] text-slate-400">Presioná Enter para enviar</p>
+</div>
+</div>
+</section>
+</main>
+<script>
+        // Simple script to toggle active state on list items just for visual feedback if user clicks
+        const listItems = document.querySelectorAll('.group.flex.gap-3');
+        listItems.forEach(item => {
+            item.addEventListener('click', () => {
+                // Reset all
+                listItems.forEach(i => {
+                    i.classList.remove('bg-primary/5', 'border-primary');
+                    i.classList.add('border-transparent', 'hover:bg-slate-50', 'dark:hover:bg-slate-800');
+                    // Reset green dot if needed (hardcoded for demo though)
+                });
+                
+                // Set active
+                item.classList.remove('border-transparent', 'hover:bg-slate-50', 'dark:hover:bg-slate-800');
+                item.classList.add('bg-primary/5', 'border-primary');
+            });
+        });
+    </script>
+</body></html>

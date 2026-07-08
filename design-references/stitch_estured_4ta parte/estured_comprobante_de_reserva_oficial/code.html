@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EstuRED - Comprobante de Reserva</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#136dec",
+                        "background-light": "#f3f4f6", /* Slightly darker gray for better paper contrast */
+                        "background-dark": "#101822",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"],
+                        "body": ["Public Sans", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                    boxShadow: {
+                        'paper': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0,0,0,0.02)',
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        /* Print Styles */
+        @media print {
+            body {
+                background-color: white !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-shadow-none {
+                box-shadow: none !important;
+                border: none !important;
+            }
+            .page-break-inside-avoid {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display min-h-screen flex flex-col">
+<!-- Top Navigation (No Print) -->
+<nav class="sticky top-0 z-50 w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 no-print">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex items-center justify-between h-16">
+<!-- Logo -->
+<div class="flex items-center gap-2">
+<div class="text-primary">
+<span class="material-symbols-outlined text-3xl">school</span>
+</div>
+<h1 class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">EstuRED</h1>
+</div>
+<!-- Nav Links -->
+<div class="hidden md:flex items-center gap-8">
+<a class="text-sm font-medium text-slate-600 hover:text-primary dark:text-slate-400 dark:hover:text-white transition-colors" href="#">Mis Reservas</a>
+<a class="text-sm font-medium text-slate-600 hover:text-primary dark:text-slate-400 dark:hover:text-white transition-colors" href="#">Pagos</a>
+<div class="flex items-center gap-2">
+<div class="bg-gray-200 dark:bg-slate-700 h-8 w-8 rounded-full bg-cover bg-center" data-alt="Profile picture of the user" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCw0rbHiEbQ-10pYGUm3UK0HNriIO1ljOGpRRYgjMHeBe4OJmvxHD2XuyQqYvAZrv_co2Zl_nqIZ1teFwhhMseKr1VXAKOfQDjtuCr_aydF-7vH4DT8ReuI-bkwLJAjXmSE3pcOShbrx0hWxjeDrFS7UuWqdAwWQ70q1wXT5iE20NJcMYqZqDofCd904FznBOn7haD1frmHiCxl_A8ZfgOXn9fN6qxOTLR8VqRw2fXlVJzPg_eT6wMGTOicOUQ5ZkrWGNhNq1krRw')"></div>
+<span class="text-sm font-medium text-slate-900 dark:text-white">Juan P.</span>
+</div>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-grow py-8 px-4 sm:px-6 lg:px-8 flex justify-center">
+<!-- Document "Paper" -->
+<div class="w-full max-w-[210mm] bg-white dark:bg-slate-800 shadow-paper rounded-lg overflow-hidden relative print-shadow-none print:w-full print:max-w-none">
+<!-- Watermark / Background Pattern -->
+<div class="absolute inset-0 pointer-events-none opacity-[0.02] dark:opacity-[0.05]" style="background-image: radial-gradient(#136dec 1px, transparent 1px); background-size: 20px 20px;"></div>
+<div class="relative p-8 md:p-12 flex flex-col gap-8 h-full">
+<!-- 1. Header Section -->
+<header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-slate-100 dark:border-slate-700 pb-6">
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-4xl">verified_user</span>
+<div>
+<h2 class="text-2xl font-black text-slate-900 dark:text-white leading-tight">Comprobante de Reserva</h2>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Documento Oficial EstuRED</p>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-start md:items-end gap-2">
+<div class="flex items-center gap-2">
+<span class="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1 border border-emerald-200 dark:border-emerald-800">
+<span class="material-symbols-outlined text-sm" style="font-size: 16px;">check_circle</span>
+                                Confirmada
+                            </span>
+<span class="text-slate-400 dark:text-slate-500">|</span>
+<span class="text-slate-900 dark:text-white font-mono font-medium">ID: EST-942813</span>
+</div>
+<p class="text-xs text-slate-400 dark:text-slate-500">Fecha de emisión: 24/02/2025</p>
+<!-- Verified Seal -->
+<div class="flex items-center gap-1 text-primary text-xs font-semibold mt-1">
+<span class="material-symbols-outlined text-sm filled" style="font-variation-settings: 'FILL' 1;">stars</span>
+                            Residencia Verificada
+                        </div>
+</div>
+</header>
+<!-- 2. Quick Summary Row -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<!-- Residence -->
+<div class="flex items-start gap-3 p-3 rounded-lg border border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-700/30">
+<div class="p-2 bg-white dark:bg-slate-800 rounded-md shadow-sm text-primary shrink-0">
+<span class="material-symbols-outlined">apartment</span>
+</div>
+<div>
+<p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">Residencia</p>
+<p class="text-sm font-bold text-slate-900 dark:text-white leading-snug">Casa Palermo Soho</p>
+</div>
+</div>
+<!-- Period -->
+<div class="flex items-start gap-3 p-3 rounded-lg border border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-700/30">
+<div class="p-2 bg-white dark:bg-slate-800 rounded-md shadow-sm text-primary shrink-0">
+<span class="material-symbols-outlined">date_range</span>
+</div>
+<div>
+<p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">Periodo</p>
+<p class="text-sm font-bold text-slate-900 dark:text-white leading-snug">Mar 25 - Ago 25</p>
+</div>
+</div>
+<!-- Room Type -->
+<div class="flex items-start gap-3 p-3 rounded-lg border border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-700/30">
+<div class="p-2 bg-white dark:bg-slate-800 rounded-md shadow-sm text-primary shrink-0">
+<span class="material-symbols-outlined">bed</span>
+</div>
+<div>
+<p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">Alojamiento</p>
+<p class="text-sm font-bold text-slate-900 dark:text-white leading-snug">Hab. Triple</p>
+</div>
+</div>
+<!-- Payment Status -->
+<div class="flex items-start gap-3 p-3 rounded-lg border border-emerald-100 dark:border-emerald-900 bg-emerald-50/30 dark:bg-emerald-900/20">
+<div class="p-2 bg-white dark:bg-slate-800 rounded-md shadow-sm text-emerald-600 dark:text-emerald-400 shrink-0">
+<span class="material-symbols-outlined">payments</span>
+</div>
+<div>
+<p class="text-xs font-medium text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">Pago Fee</p>
+<p class="text-sm font-bold text-emerald-900 dark:text-emerald-100 leading-snug">Aprobado</p>
+</div>
+</div>
+</section>
+<!-- 3. Parties Involved -->
+<section class="border rounded-lg border-slate-200 dark:border-slate-700 overflow-hidden">
+<div class="bg-slate-50 dark:bg-slate-900/50 px-4 py-2 border-b border-slate-200 dark:border-slate-700">
+<h3 class="text-sm font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">Partes Intervinientes</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-200 dark:divide-slate-700">
+<!-- Student -->
+<div class="p-5 flex flex-col gap-1">
+<p class="text-xs text-slate-500 dark:text-slate-400 mb-1">Titular (Estudiante)</p>
+<div class="flex items-center gap-2">
+<span class="text-lg font-bold text-slate-900 dark:text-white">Juan P.</span>
+<span class="text-lg" title="Argentina">🇦🇷</span>
+</div>
+<div class="flex items-center gap-2 mt-2 text-sm text-slate-600 dark:text-slate-300">
+<span class="material-symbols-outlined text-base">mail</span>
+<span>juan***@email.com</span>
+</div>
+<p class="text-[10px] text-slate-400 mt-2 italic">* Apellido oculto por privacidad hasta check-in.</p>
+</div>
+<!-- Parent/Guardian -->
+<div class="p-5 flex flex-col gap-1">
+<p class="text-xs text-slate-500 dark:text-slate-400 mb-1">Acompañante / Garante</p>
+<div class="flex items-center gap-2">
+<span class="text-lg font-bold text-slate-900 dark:text-white">Maria P.</span>
+<span class="text-lg" title="Argentina">🇦🇷</span>
+</div>
+<div class="flex items-center gap-2 mt-2 text-sm text-slate-600 dark:text-slate-300">
+<span class="material-symbols-outlined text-base">mail</span>
+<span>maria***@email.com</span>
+</div>
+</div>
+</div>
+</section>
+<!-- 4. Economic Detail Table -->
+<section class="flex flex-col gap-4">
+<h3 class="text-lg font-bold text-slate-900 dark:text-white">Detalle Económico</h3>
+<div class="overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700">
+<table class="w-full text-sm text-left">
+<thead class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 font-medium border-b border-slate-200 dark:border-slate-700">
+<tr>
+<th class="px-6 py-3 w-2/3">Concepto</th>
+<th class="px-6 py-3 text-right">Monto (USD)</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+<tr class="bg-white dark:bg-slate-800">
+<td class="px-6 py-3 text-slate-600 dark:text-slate-300">Matrícula de Reserva</td>
+<td class="px-6 py-3 text-right text-slate-900 dark:text-white font-mono">0.00</td>
+</tr>
+<tr class="bg-white dark:bg-slate-800">
+<td class="px-6 py-3 text-slate-600 dark:text-slate-300">Depósito de Garantía (A pagar en check-in)</td>
+<td class="px-6 py-3 text-right text-slate-900 dark:text-white font-mono">0.00</td>
+</tr>
+<tr class="bg-primary/5 dark:bg-primary/10">
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="font-bold text-primary dark:text-blue-400">Fee de Servicio EstuRED (5%)</span>
+<span class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Único pago realizado online hoy.</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex flex-col items-end">
+<span class="font-bold text-lg text-primary dark:text-blue-400 font-mono">122.50</span>
+<span class="text-[10px] font-bold uppercase text-emerald-600 bg-emerald-100 dark:bg-emerald-900/40 dark:text-emerald-400 px-1.5 py-0.5 rounded">Pagado</span>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded border border-blue-100 dark:border-blue-800 flex gap-3">
+<span class="material-symbols-outlined text-blue-600 dark:text-blue-400 shrink-0">info</span>
+<p class="text-sm text-blue-800 dark:text-blue-200 leading-relaxed">
+<strong>Nota Importante:</strong> El alquiler mensual de la habitación se abona directamente a la residencia mes a mes. Este comprobante solo certifica el pago del Fee de Servicio que asegura la vacante.
+                        </p>
+</div>
+</section>
+<div class="border-t border-slate-200 dark:border-slate-700 my-2"></div>
+<!-- 5. Conditions & Legal -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 page-break-inside-avoid">
+<div class="flex flex-col gap-3">
+<h4 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wide">Condiciones Importantes</h4>
+<ul class="text-sm text-slate-600 dark:text-slate-300 space-y-2 list-disc pl-4 marker:text-slate-400">
+<li>Contrato final será emitido y firmado por la residencia.</li>
+<li>La estadía está sujeta a normas de convivencia de Casa Palermo Soho.</li>
+<li>Las reservas son mensuales; check-out anticipado puede incurrir en penalidades.</li>
+</ul>
+</div>
+<div class="flex flex-col gap-3">
+<h4 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wide">Rol de EstuRED</h4>
+<p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed text-justify">
+                            EstuRED actúa únicamente como intermediario digital facilitando la reserva y el pago del fee de servicio. EstuRED no es el proveedor del alojamiento y no se responsabiliza por servicios prestados en la residencia.
+                        </p>
+</div>
+</div>
+<!-- 6. Footer Verification -->
+<footer class="mt-auto pt-8 border-t border-dashed border-slate-300 dark:border-slate-600 flex flex-col sm:flex-row items-center justify-between gap-6">
+<div class="flex items-center gap-4">
+<!-- QR Placeholder -->
+<div class="bg-white p-2 rounded border border-slate-200 shadow-sm shrink-0">
+<img alt="QR code for document verification" class="w-20 h-20 mix-blend-multiply dark:mix-blend-normal" data-alt="QR Code for verifying reservation authenticity" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDOHMqSQWlQS8AMsF2Q1PQd7MM8E5NBi0m5okGFePqSIcybgJcB7oT7YFfDoNIhHIWt9R5jsw0pdvDNfnJZdUBZ6PJxsTdCT3epznG699EcRkbt43FkyapD3pz45y0ASKRuiT2pbS65nv3wbAygFsBcPeo1rUUXtwBjH07QwiCDmbi0yiovQ-atsw8LP9wA8T522mAE0ztrhzOYSB4fWOCcnZ5Z1OlQClMWUcolSCzgqQxlhnl5HluGqgOW_0rZZVpadmjXsUQtmg"/>
+</div>
+<div class="flex flex-col">
+<span class="text-xs font-bold text-slate-900 dark:text-white uppercase">Verificar Autenticidad</span>
+<span class="text-xs text-slate-500 dark:text-slate-400 max-w-[200px]">Escanee este código para validar el estado actual de esta reserva en nuestros sistemas.</span>
+</div>
+</div>
+<div class="text-right flex flex-col items-center sm:items-end gap-2">
+<a class="flex items-center gap-2 text-primary hover:text-blue-700 dark:hover:text-blue-300 font-medium text-sm transition-colors group" href="#">
+<span class="material-symbols-outlined text-lg group-hover:scale-110 transition-transform">support_agent</span>
+                            Soporte WhatsApp 24/7
+                        </a>
+<p class="text-xs text-slate-400">Generado el 24/02/2025 14:30 PM</p>
+</div>
+</footer>
+</div>
+</div>
+<!-- Floating Actions (No Print) -->
+<div class="fixed bottom-6 right-6 flex flex-col gap-3 no-print z-40">
+<button class="flex items-center justify-center gap-2 bg-white dark:bg-slate-700 text-slate-700 dark:text-white px-4 py-3 rounded-full shadow-lg hover:bg-slate-50 dark:hover:bg-slate-600 transition-all border border-slate-200 dark:border-slate-600 group" onclick="window.print()" title="Imprimir">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">print</span>
+<span class="sr-only">Imprimir</span>
+</button>
+<button class="flex items-center justify-center gap-2 bg-primary text-white px-6 py-3 rounded-full shadow-lg shadow-primary/30 hover:bg-blue-600 hover:shadow-primary/50 transition-all group">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">download</span>
+<span class="font-medium">Descargar PDF</span>
+</button>
+</div>
+</main>
+</body></html>

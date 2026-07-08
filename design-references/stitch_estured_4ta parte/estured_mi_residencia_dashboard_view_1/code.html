@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EstuRED - Mi Residencia</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#136dec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101822",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Lexend', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-filled {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen flex flex-col text-[#0d131b] dark:text-white">
+<!-- Top Navbar -->
+<header class="sticky top-0 z-50 w-full bg-slate-50 dark:bg-[#1a2634] border-b border-[#e7ecf3] dark:border-slate-700">
+<div class="flex justify-center w-full px-4 sm:px-10 py-3">
+<div class="flex w-full max-w-[960px] items-center justify-between">
+<!-- Logo & Search -->
+<div class="flex items-center gap-8 flex-1">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-3xl icon-filled">school</span>
+<h2 class="text-[#0d131b] dark:text-white text-xl font-bold tracking-tight">EstuRED</h2>
+</div>
+<label class="hidden md:flex flex-col w-full max-w-64 h-10">
+<div class="flex w-full h-full items-stretch rounded-lg bg-[#e7ecf3] dark:bg-slate-700 overflow-hidden">
+<div class="flex items-center justify-center pl-3 text-[#4c6c9a] dark:text-slate-400">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="w-full bg-transparent border-none text-sm px-3 text-[#0d131b] dark:text-white placeholder:text-[#4c6c9a] focus:ring-0" placeholder="Buscar..."/>
+</div>
+</label>
+</div>
+<!-- Actions & Profile -->
+<div class="flex items-center gap-4">
+<div class="hidden sm:flex gap-2">
+<button class="flex items-center justify-center size-10 rounded-lg bg-[#e7ecf3] dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors text-[#0d131b] dark:text-white">
+<span class="material-symbols-outlined text-[20px]">help</span>
+</button>
+<button class="flex items-center justify-center size-10 rounded-lg bg-[#e7ecf3] dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors text-[#0d131b] dark:text-white relative">
+<span class="material-symbols-outlined text-[20px]">chat_bubble</span>
+<span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border border-white dark:border-slate-700"></span>
+</button>
+</div>
+<div class="relative group cursor-pointer">
+<div class="size-10 rounded-full bg-cover bg-center border-2 border-white shadow-sm" data-alt="User profile picture" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAWL8SlEXSp5afuNYYAy3gqAweFH-cJZAE4o2pupm6iQ5bbOOJ3cc-xe6JtnyIY277k4N8KzNq45-WVDH3HhVjqH5gpua4IhOijbxJEmuk7Tbsq_WDkdo_WK3LHGTd9OSxRfSC1aAJA-M6BT5GjXE6SaqWi1QdcLUaY6fczK6jiJTEkEPC2QB_XnLwrI8B0mQXcu68utoKOaE_pJf9DEWWbgumtQk7vCtUIYbaL81TJBdONKx2p0_b6g_bDZYzy-V5cTK8PHwTveQ');"></div>
+<div class="absolute -bottom-1 -right-1 bg-white rounded-full p-[1px] shadow-sm text-xs">🇦🇷</div>
+</div>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-1 w-full px-4 sm:px-6 md:px-10 py-8 flex justify-center">
+<div class="w-full max-w-[960px] flex flex-col gap-8 pb-12">
+<!-- Hero Section -->
+<section class="flex flex-col gap-4">
+<div class="flex flex-col gap-1">
+<h1 class="text-3xl md:text-4xl font-bold text-[#0d131b] dark:text-white tracking-tight">Mi residencia</h1>
+<div class="flex items-center gap-1 text-[#4c6c9a] dark:text-slate-400 text-sm md:text-base font-medium">
+<span class="material-symbols-outlined text-[18px] icon-filled">location_on</span>
+<h2>Casa Palermo Soho · Palermo, Buenos Aires</h2>
+</div>
+</div>
+<!-- Image Gallery -->
+<div class="grid grid-cols-1 sm:grid-cols-4 gap-2 md:gap-3 rounded-xl overflow-hidden h-64 md:h-80">
+<div class="col-span-2 sm:col-span-2 h-full bg-cover bg-center relative group" data-alt="Modern living room with natural light" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBUwPBQeHai2EkqnhIFBmi4VbkrPfUcxqDaZGQnZI_r-AzsU5KIDoe0nhtwj-9KbLqELDV4dPd90g3HIhLHB3OFLntcwiw9E9SJn4s5pRY5Ni6KwivwZFz_xVJDrMpdzbNJdyzNUS1T9BJHW6MnyUNtG9IXrkgsFk9em8geFqeNJO6EJHL6HuRCqrst5QDLMo38MexIRKn4xXXgTUp6K1vk0Y9ZeMKCpwh-b77mZStkQ3zxVw3JXWah2ia_-WSS6OEGYNT9ajErXA');">
+<div class="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-all"></div>
+</div>
+<div class="col-span-1 h-full flex flex-col gap-2 md:gap-3">
+<div class="flex-1 bg-cover bg-center" data-alt="Shared kitchen area details" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD7RbhmzUq9us9eJqgfqbcOhUtevoKiN1MvCv0_A4a4Lu5Ld7vBQmYwIgMDn4zIuji34aYyC7htOKanfExTnzolVwsQHHIWKUhz3YKnYnC34fNaxOawm6Y9gkpUgSxT9pvN0ybMcMuTdxmv1lNy3_9-uTEgysv72CVxPrsWy5kM-nLNn5qa2hDWHPVVrpqv5If8xnp2gRM3ZNWoEmVnDd0ETnAfGIOdCdms0qX7PNUyOljWgZXnzMeCFG_k8tUkXO96eY1yB3kNiQ');"></div>
+<div class="flex-1 bg-cover bg-center" data-alt="Study room with desk" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA1thnb16sFzoeJ7sQJSJT8FrNpK9lRb9deeMTPlgJlijPdvyTgCseRYJteXcoZUG1QORDwdeQqFpqsgoarkY8yvxkdr4r5x2nIJT17HykrnKQ4Clcy6V3_6z6-kckaWluXuc5rUpxfGorKZK3mjDvDiKxf0mdMrFAHz-pYaa4FDsxX9h4pICs32cgE51BDMtZDlMMWrZSHM9B2WeE5-RNr2saEsEj_WyZj_Y5YHm0ELpbOYVBEpYxzfM7ygQB6wDNjOoo92Xc-BQ');"></div>
+</div>
+<div class="col-span-1 h-full flex flex-col gap-2 md:gap-3">
+<div class="flex-1 bg-cover bg-center" data-alt="Bedroom interior view" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDcV7VQ6MMMjY7xy4ad2m2lfhK3pM4M4QI8EVk61GooTy66bQum5o5fHV1C_kjVl_pInM-yATdFJIkUl1WShmFX-mSsfDT2Ynk3GrwGRRfSyDg-7VdViyKDPsK93RnLTWfTmzdzIHtqD-zn6YnaLGDdwKlhdJR1IlnCgfWjz8BMnhroxeL7DsHFu9jocR_jN-UJ6iC5qfYzD8AOkk13fb_JGCSzaohK0-fEOtavQLw8RLWEUOME9i7CYc0n3Gw7qtFHR4kAc1v17w');"></div>
+<div class="flex-1 bg-cover bg-center relative" data-alt="Outdoor terrace space" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCnudm7pQdKGisKCKOG3b7eZxFaxkCDv8rnJJ-IGfR1mMn7Bpwa3b0PZi_R5C3mNsaiaqjxVBMlmGtGiHOX8Fo685_FgBgTI7qHk6Qq6p0o7eamw8KbyYmLJn1aPdnv7VnaexWpo-jRzfN69jFWGmXhGedpoVUIH6TGxSmHLNCq3iQv8RzSVRgp0tkaLPr0uRiEX1LhTpqN4i53XYxa7aQ0G0Ou8ecMMEut1Fak6hJdDA_01ehzsZ9pfFZ4heebs3_EU0YHT_QyXw');">
+<div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+<span class="text-white font-medium text-sm hover:underline cursor-pointer">Ver todas</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Chips & Microcopy -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+<div class="flex flex-wrap gap-2">
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-200 text-sm font-medium border border-blue-200 dark:border-blue-800">
+<span class="material-symbols-outlined text-[16px] icon-filled">verified</span>
+                            Verificada
+                        </div>
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-200 text-sm font-medium border border-green-200 dark:border-green-800">
+<span class="material-symbols-outlined text-[16px]">groups</span>
+                            Comunidad activa
+                        </div>
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm font-medium border border-slate-200 dark:border-slate-600">
+<span class="material-symbols-outlined text-[16px]">calendar_today</span>
+                            Estadía mínima: 6 meses
+                        </div>
+</div>
+<p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 italic">
+                        Esta residencia tiene una comunidad dinámica con alta interacción estudiantil.
+                    </p>
+</div>
+</section>
+<!-- Grid Content: 2 Columns -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- Left Column (Main Info) -->
+<div class="lg:col-span-2 flex flex-col gap-6">
+<!-- Section: Sobre la residencia -->
+<div class="bg-white dark:bg-[#1a2634] p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
+<h3 class="text-xl font-bold mb-4">Sobre la residencia</h3>
+<p class="text-slate-600 dark:text-slate-300 mb-6 leading-relaxed">
+                            Un espacio pensado para que te sientas como en casa desde el primer día. Disfrutá de una convivencia respetuosa, espacios comunes siempre limpios y la mejor ubicación para moverte por Palermo. Aquí priorizamos el estudio, pero sabemos que los momentos de relax compartidos en la terraza son clave para recargar energías.
+                        </p>
+<div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
+<div class="flex items-center gap-3 text-slate-700 dark:text-slate-200 text-sm">
+<div class="size-8 rounded-full bg-slate-50 dark:bg-slate-700 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">wifi</span>
+</div>
+                                Wi-Fi Alta Vel.
+                            </div>
+<div class="flex items-center gap-3 text-slate-700 dark:text-slate-200 text-sm">
+<div class="size-8 rounded-full bg-slate-50 dark:bg-slate-700 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">kitchen</span>
+</div>
+                                Cocina completa
+                            </div>
+<div class="flex items-center gap-3 text-slate-700 dark:text-slate-200 text-sm">
+<div class="size-8 rounded-full bg-slate-50 dark:bg-slate-700 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">local_laundry_service</span>
+</div>
+                                Lavadero
+                            </div>
+<div class="flex items-center gap-3 text-slate-700 dark:text-slate-200 text-sm">
+<div class="size-8 rounded-full bg-slate-50 dark:bg-slate-700 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">ac_unit</span>
+</div>
+                                Aire Acond.
+                            </div>
+<div class="flex items-center gap-3 text-slate-700 dark:text-slate-200 text-sm">
+<div class="size-8 rounded-full bg-slate-50 dark:bg-slate-700 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">school</span>
+</div>
+                                Sala de estudio
+                            </div>
+<div class="flex items-center gap-3 text-slate-400 dark:text-slate-500 text-sm opacity-80">
+<div class="size-8 rounded-full bg-slate-50 dark:bg-slate-700 flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">no_meals</span>
+</div>
+                                Sin comidas
+                            </div>
+</div>
+</div>
+<!-- Section: Habitaciones y comunidad -->
+<div class="bg-white dark:bg-[#1a2634] p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col gap-6">
+<div class="flex items-center justify-between">
+<h3 class="text-xl font-bold">Comunidad</h3>
+<div class="flex items-center gap-2 px-3 py-1 bg-slate-100 dark:bg-slate-700 rounded-lg">
+<span class="material-symbols-outlined text-[18px] text-slate-500">person</span>
+<span class="text-sm font-semibold">26/32 residentes</span>
+</div>
+</div>
+<!-- Accordion Item: Expanded (User's room type) -->
+<div class="border border-primary/20 rounded-lg overflow-hidden bg-primary/5 dark:bg-primary/10">
+<div class="p-4 flex items-center justify-between cursor-pointer bg-primary/10 dark:bg-primary/20">
+<div class="flex items-center gap-2">
+<span class="font-semibold text-primary">Triples (Tu habitación)</span>
+<span class="text-xs bg-white dark:bg-slate-800 text-slate-500 px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-600">Femenina</span>
+</div>
+<span class="material-symbols-outlined text-primary">expand_less</span>
+</div>
+<div class="p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+<!-- Resident Card 1 -->
+<div class="flex items-center gap-3 p-2 bg-white dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700 shadow-sm">
+<div class="relative">
+<div class="size-10 rounded-full bg-cover bg-center" data-alt="Resident avatar" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBgG124qQIKc4ZTwf5anc5vEyuEVXsldjlmkHj0wruiUimp5y3FdBX7AhRS7ALLfpqOYzNGpGZ4VIa32kF0uwO3_ERw8A4g-FiOztL2jl-CyKeGNQeJyUAvY1dH_D_-gnH5lP4iTFy8FL_MqPCf2l5rbeLkKhRP36JUBhLBXggeOasAfeoBPWVenJzes6qSi7xRTHabsarFk9KcNf7-yLGj8J79_vEpWGdx7VGDVxtOQrzyHO3-eqqeL1COPpPjAil2ntH0S0gykw');"></div>
+<span class="absolute -bottom-1 -right-1 text-[10px] bg-white rounded-full p-[1px] shadow-sm">🇧🇷</span>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-semibold leading-tight">Ana M.</span>
+<span class="text-xs text-slate-500">Medicina</span>
+</div>
+</div>
+<!-- Resident Card 2 (User) -->
+<div class="flex items-center gap-3 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800 shadow-sm ring-1 ring-blue-200 dark:ring-blue-700">
+<div class="relative">
+<div class="size-10 rounded-full bg-cover bg-center" data-alt="Your avatar" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDaIHz2lCK0T_17t2n93v4yXlGNjmVnx3LPENOYL7NgFE_0Z_W_osRitgMg2zCy2I7SvhDx3nFNqXl1bjEsqks0SNTdzGNtEJjg9FBYmFhYrzUTuzsnOCTwaeqaLeVdVhOB1j5MKiW7bTTNXFFDpfcLTCkmd8Po2BKPwtomAFLspcrVRojJGbfeDweTfwEfR5F6PXDb2W2vKGCe0pqsqAFDDuukbcB-vVjQV-74VyJq047P5PKbPntq7atIaBN3p-uv5Nng6rGi7A');"></div>
+<span class="absolute -bottom-1 -right-1 text-[10px] bg-white rounded-full p-[1px] shadow-sm">🇦🇷</span>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-semibold leading-tight text-primary">Vos</span>
+<span class="text-xs text-slate-500">Arquitectura</span>
+</div>
+</div>
+<!-- Empty Slot -->
+<div class="flex items-center justify-center gap-2 p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-dashed border-slate-300 dark:border-slate-600 h-[58px]">
+<span class="text-xs font-medium text-slate-400">Lugar libre</span>
+</div>
+</div>
+</div>
+<!-- Accordion Items: Collapsed -->
+<div class="flex flex-col gap-2">
+<div class="p-3 flex items-center justify-between rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+<span class="font-medium text-slate-700 dark:text-slate-300">Individuales</span>
+<span class="material-symbols-outlined text-slate-400">expand_more</span>
+</div>
+<div class="p-3 flex items-center justify-between rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+<span class="font-medium text-slate-700 dark:text-slate-300">Dobles</span>
+<span class="material-symbols-outlined text-slate-400">expand_more</span>
+</div>
+<div class="p-3 flex items-center justify-between rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+<span class="font-medium text-slate-700 dark:text-slate-300">Cuádruples</span>
+<span class="material-symbols-outlined text-slate-400">expand_more</span>
+</div>
+</div>
+<button class="w-full py-2 text-sm font-semibold text-primary hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors">
+                            Ver todos los perfiles
+                        </button>
+</div>
+<!-- Evaluation Section -->
+<div class="bg-white dark:bg-[#1a2634] p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
+<h3 class="text-xl font-bold mb-4">Dejá tu evaluación</h3>
+<p class="text-sm text-slate-500 mb-4">¿Cómo viene tu experiencia este mes? Tu feedback ayuda a mejorar la comunidad.</p>
+<div class="flex flex-wrap gap-2 mb-4">
+<button class="px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-sm hover:bg-slate-50 dark:hover:bg-slate-700 focus:ring-2 focus:ring-primary focus:border-primary transition-all">Limpieza impecable</button>
+<button class="px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-sm hover:bg-slate-50 dark:hover:bg-slate-700 focus:ring-2 focus:ring-primary focus:border-primary transition-all">Buen ambiente</button>
+<button class="px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-sm hover:bg-slate-50 dark:hover:bg-slate-700 focus:ring-2 focus:ring-primary focus:border-primary transition-all">Internet rápido</button>
+<button class="px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-sm hover:bg-slate-50 dark:hover:bg-slate-700 focus:ring-2 focus:ring-primary focus:border-primary transition-all">Ruidoso</button>
+</div>
+<textarea class="w-full rounded-lg bg-slate-50 dark:bg-slate-800 border-none p-3 text-sm text-[#0d131b] dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-primary mb-4 resize-none" placeholder="Contanos más detalles sobre tu estadía..." rows="3"></textarea>
+<div class="flex justify-end">
+<button class="bg-primary hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg text-sm transition-colors">
+                                Enviar evaluación
+                            </button>
+</div>
+</div>
+</div>
+<!-- Right Column (Sticky Sidebar feel) -->
+<div class="flex flex-col gap-6">
+<!-- Section: Renovación Banner -->
+<div class="bg-gradient-to-br from-blue-50 to-white dark:from-slate-800 dark:to-slate-900 border border-blue-200 dark:border-blue-900 rounded-xl p-5 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-24 h-24 bg-blue-100 dark:bg-blue-900/40 rounded-full blur-2xl -mr-8 -mt-8"></div>
+<div class="relative z-10">
+<div class="flex items-start justify-between mb-3">
+<h3 class="text-lg font-bold text-primary">Renová con anticipación</h3>
+<span class="material-symbols-outlined text-blue-300">update</span>
+</div>
+<p class="text-sm text-slate-600 dark:text-slate-300 mb-4">Asegurá tu lugar para el próximo semestre antes que se agoten.</p>
+<div class="flex items-center gap-2 mb-4 bg-white dark:bg-slate-800 p-2 rounded-lg border border-blue-100 dark:border-slate-700 shadow-sm">
+<span class="material-symbols-outlined text-amber-500 text-[20px]">timer</span>
+<span class="text-sm font-semibold text-slate-700 dark:text-slate-200">Disponible en: 60 días</span>
+</div>
+<div class="flex flex-col gap-2">
+<button class="w-full bg-primary hover:bg-blue-600 text-white font-bold py-2.5 rounded-lg text-sm shadow-md transition-all">
+                                    Iniciar renovación
+                                </button>
+<button class="w-full bg-transparent hover:bg-blue-50 dark:hover:bg-slate-700 text-primary font-semibold py-2 rounded-lg text-sm transition-colors">
+                                    Ver comprobantes
+                                </button>
+</div>
+</div>
+</div>
+<!-- Section: Tu estadía -->
+<div class="bg-white dark:bg-[#1a2634] p-5 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
+<div class="flex items-center justify-between mb-4 border-b border-slate-100 dark:border-slate-700 pb-3">
+<h3 class="text-lg font-bold">Tu estadía</h3>
+<span class="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-bold px-2 py-1 rounded uppercase tracking-wide">Activa</span>
+</div>
+<div class="flex flex-col gap-4">
+<div>
+<p class="text-xs text-slate-400 uppercase font-semibold mb-1">Tipo de habitación</p>
+<p class="text-base font-medium text-slate-800 dark:text-slate-100">Triple Femenina</p>
+</div>
+<div class="flex justify-between items-end">
+<div>
+<p class="text-xs text-slate-400 uppercase font-semibold mb-1">Período</p>
+<p class="text-sm font-medium text-slate-800 dark:text-slate-100">Mar 2025 - Ago 2025</p>
+</div>
+<div class="text-right">
+<p class="text-2xl font-bold text-primary">$280 <span class="text-sm font-normal text-slate-500">USD</span></p>
+<p class="text-xs text-slate-400">Mensual</p>
+</div>
+</div>
+<div class="bg-slate-50 dark:bg-slate-800 p-3 rounded-lg text-xs space-y-2 text-slate-600 dark:text-slate-400">
+<div class="flex justify-between">
+<span>Fee EstuRED (Pago único)</span>
+<span class="font-semibold">$30 USD</span>
+</div>
+<div class="flex justify-between">
+<span>Pago a la residencia</span>
+<span class="font-semibold">Directo (1-5 de cada mes)</span>
+</div>
+</div>
+<ul class="text-xs text-slate-500 space-y-1 list-disc pl-4">
+<li>Contrato directo con la residencia</li>
+<li>Depósito en garantía requerido</li>
+</ul>
+</div>
+</div>
+<!-- Section: Convivencia -->
+<div class="bg-white dark:bg-[#1a2634] p-5 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
+<h3 class="text-base font-bold mb-3">Convivencia de la residencia</h3>
+<p class="text-xs text-slate-500 mb-4">Así definen la vibra tus compañeros esta semana.</p>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 rounded-md text-sm font-medium border border-purple-100 dark:border-purple-800">Tranquila</span>
+<span class="px-3 py-1 bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 rounded-md text-sm font-medium border border-orange-100 dark:border-orange-800">Buen ritmo</span>
+<span class="px-3 py-1 bg-cyan-50 dark:bg-cyan-900/20 text-cyan-700 dark:text-cyan-300 rounded-md text-sm font-medium border border-cyan-100 dark:border-cyan-800">Orden</span>
+</div>
+</div>
+<!-- Section: Señales sobre vos -->
+<div class="bg-white dark:bg-[#1a2634] p-5 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
+<h3 class="text-base font-bold mb-3">Señales sobre vos</h3>
+<div class="flex flex-wrap gap-2">
+<div class="flex items-center gap-1 px-3 py-1 bg-slate-50 dark:bg-slate-700 rounded-full border border-slate-200 dark:border-slate-600">
+<span class="material-symbols-outlined text-[16px] text-primary">check_circle</span>
+<span class="text-sm font-medium text-slate-700 dark:text-slate-200">Ordenado/a</span>
+</div>
+<div class="flex items-center gap-1 px-3 py-1 bg-slate-50 dark:bg-slate-700 rounded-full border border-slate-200 dark:border-slate-600">
+<span class="material-symbols-outlined text-[16px] text-primary">favorite</span>
+<span class="text-sm font-medium text-slate-700 dark:text-slate-200">Buen compañero/a</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

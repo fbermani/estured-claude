@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EstuRED Admin - Perfil del Residente</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#136dec",
+                        "primary-dark": "#1058c0",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101822",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for better look in modal */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 antialiased h-screen overflow-hidden">
+<!-- Modal Overlay -->
+<div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 sm:p-6 lg:p-8">
+<!-- Modal Container -->
+<div class="relative w-full max-w-[1280px] h-full max-h-[90vh] bg-white rounded-xl shadow-2xl flex flex-col overflow-hidden ring-1 ring-slate-900/5">
+<!-- 1. Header -->
+<div class="flex-none px-6 py-5 border-b border-slate-100 flex items-start justify-between bg-white z-10">
+<div>
+<h2 class="text-[#0d131b] text-2xl font-bold leading-tight tracking-tight">Perfil del Residente</h2>
+<p class="text-[#4c6c9a] text-sm font-normal mt-1">Gestión operativa y detalles de estadía</p>
+</div>
+<button class="rounded-full p-2 hover:bg-slate-100 text-slate-500 transition-colors">
+<span class="material-symbols-outlined text-[28px]">close</span>
+</button>
+</div>
+<!-- Modal Body (Scrollable) -->
+<div class="flex-1 overflow-y-auto custom-scrollbar bg-slate-50/50">
+<div class="flex flex-col lg:flex-row min-h-full">
+<!-- 3. Left Column (Context - 65%) -->
+<div class="w-full lg:w-[65%] p-6 lg:p-8 border-r border-slate-200/60 space-y-8 bg-white">
+<!-- Profile Header Component -->
+<div class="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
+<div class="relative shrink-0">
+<div class="bg-center bg-no-repeat bg-cover rounded-full h-28 w-28 ring-4 ring-slate-50 shadow-sm" data-alt="Portrait of resident Valentina Gomez" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCMUV11tqsmYPz0757jdSPclAwVDFdPltBohWH9SxvvufuF9oLQBfwqg6lJ5U0rcy3zmk_3G6jMLP6pr2A-HYAMeNd-WhR5Dz_XqM823XzZmHJBPSFidYnRsNpj2mnAV6r1fodHMHpgYQqZwhmQpzo7L8DjJWz9PBov8lPYW_Cxj-GRDXQW2bEoTgrTSVDmF1tAAVOzCUeGB8waKv1qSBG2wZ3sCzYEYlxAQf5g-KM5WldiO8HMAn5BrXoRkpA2bd79r65Tpv-S_Q");'></div>
+<!-- Flag Icon overlay -->
+<div class="absolute bottom-1 right-1 bg-white rounded-full p-1 shadow-sm ring-1 ring-slate-100">
+<img alt="Argentina Flag" class="w-6 h-6 rounded-full object-cover" data-alt="Flag of Argentina" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDnuAVZHZY7fwvYRkgpsbHdOZg2RDiHQtUBCQcot5Cpsh3MG80QQlZVRsxzrnY2gJOWoseiSb1o4eYdUBC2YJGHe39DVdocsqR65oChl9Qq6BYCbafzgp2hG0G50qFptb3ziyIM5gZfRWZcrJ5jDjaXRZdBdUCFZMUPIeEaIK0XgUbHW2ZGV4hS2LRRe1euZ-fMpW37nFBbOynD_X1lJd_d5s0aN-Coi59F90pGj_dIyUjjbpHyagi1u2fdGPhrQLock004i3TuqA"/>
+</div>
+</div>
+<div class="flex-1 space-y-2">
+<div class="flex flex-wrap items-center gap-3">
+<h3 class="text-[#0d131b] text-2xl font-bold leading-tight">Valentina Gómez</h3>
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 ring-1 ring-emerald-600/10">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                        Activo
+                                    </span>
+</div>
+<p class="text-slate-600 text-base">21 años, Arquitectura <span class="mx-2 text-slate-300">|</span> 4to Año</p>
+<div class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-[#4c6c9a]">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px]">bed</span>
+<span class="font-medium text-slate-700">204-B · Cama 2</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px]">mail</span>
+                                        valentina.gomez@ejemplo.com
+                                    </div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px]">call</span>
+                                        +54 9 11 1234 5678
+                                    </div>
+</div>
+</div>
+</div>
+<!-- Señales / Convivencia -->
+<div class="space-y-3">
+<div class="flex items-center justify-between">
+<h4 class="text-[#0d131b] text-base font-semibold">Señales de Convivencia</h4>
+<span class="text-xs text-slate-400">Basado en reportes del staff</span>
+</div>
+<div class="flex flex-wrap gap-2">
+<div class="flex h-8 items-center justify-center gap-x-2 rounded-lg bg-blue-50 border border-blue-100 px-3">
+<span class="material-symbols-outlined text-primary text-[16px]">check_circle</span>
+<p class="text-primary-dark text-sm font-medium">Ordenado</p>
+</div>
+<div class="flex h-8 items-center justify-center gap-x-2 rounded-lg bg-blue-50 border border-blue-100 px-3">
+<span class="material-symbols-outlined text-primary text-[16px]">schedule</span>
+<p class="text-primary-dark text-sm font-medium">Buen ritmo</p>
+</div>
+<div class="flex h-8 items-center justify-center gap-x-2 rounded-lg bg-blue-50 border border-blue-100 px-3">
+<span class="material-symbols-outlined text-primary text-[16px]">handshake</span>
+<p class="text-primary-dark text-sm font-medium">Respeto</p>
+</div>
+</div>
+<p class="text-xs text-slate-400 mt-2">La residente mantiene una excelente relación con sus compañeras de cuarto y respeta los horarios de silencio.</p>
+</div>
+<!-- Notas Internas -->
+<div class="space-y-4 pt-2">
+<h4 class="text-[#0d131b] text-base font-semibold flex items-center gap-2">
+                                Notas Internas
+                                <span class="text-xs font-normal text-slate-400 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">Solo visible para la residencia</span>
+</h4>
+<div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+<textarea class="w-full text-sm bg-white border-slate-200 rounded-lg focus:ring-primary focus:border-primary placeholder:text-slate-400 min-h-[80px] resize-none mb-3" placeholder="Escribe una nota sobre el residente..."></textarea>
+<div class="flex justify-between items-center">
+<div class="flex gap-2">
+<label class="flex items-center gap-1.5 px-2 py-1 bg-white rounded border border-slate-200 text-xs text-slate-600 cursor-pointer hover:bg-slate-50">
+<input class="text-primary focus:ring-0 w-3 h-3" name="tag" type="radio"/> General
+                                        </label>
+<label class="flex items-center gap-1.5 px-2 py-1 bg-white rounded border border-slate-200 text-xs text-slate-600 cursor-pointer hover:bg-slate-50">
+<input class="text-orange-500 focus:ring-0 w-3 h-3" name="tag" type="radio"/> Pagos
+                                        </label>
+</div>
+<button class="bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium py-1.5 px-4 rounded-lg border border-slate-200 shadow-sm transition-all">Guardar nota</button>
+</div>
+</div>
+<div class="space-y-4 pl-2 border-l-2 border-slate-100 ml-2">
+<!-- Note Item -->
+<div class="relative pl-6 pb-2">
+<div class="absolute -left-[9px] top-1 h-4 w-4 rounded-full bg-blue-100 border-2 border-white ring-1 ring-blue-200"></div>
+<div class="flex justify-between items-start mb-1">
+<span class="text-xs font-semibold text-slate-700">Admin General</span>
+<span class="text-xs text-slate-400">Hace 2 días</span>
+</div>
+<p class="text-sm text-slate-600">Se reportó un problema menor con el aire acondicionado, mantenimiento notificado.</p>
+<span class="inline-block mt-1.5 text-[10px] uppercase font-bold text-slate-400 tracking-wider">Mantenimiento</span>
+</div>
+<!-- Note Item -->
+<div class="relative pl-6 pb-2">
+<div class="absolute -left-[9px] top-1 h-4 w-4 rounded-full bg-orange-100 border-2 border-white ring-1 ring-orange-200"></div>
+<div class="flex justify-between items-start mb-1">
+<span class="text-xs font-semibold text-slate-700">Finanzas</span>
+<span class="text-xs text-slate-400">10 Oct 2023</span>
+</div>
+<p class="text-sm text-slate-600">Pago de Octubre recibido correctamente vía transferencia. Comprobante archivado.</p>
+<span class="inline-block mt-1.5 text-[10px] uppercase font-bold text-orange-400 tracking-wider">Pagos</span>
+</div>
+</div>
+</div>
+<!-- Historial Reciente -->
+<div class="pt-2">
+<h4 class="text-[#0d131b] text-base font-semibold mb-3">Historial Reciente</h4>
+<div class="flex flex-col gap-3">
+<div class="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-100">
+<div class="h-8 w-8 rounded-full bg-white flex items-center justify-center border border-slate-200 text-slate-500">
+<span class="material-symbols-outlined text-[18px]">currency_exchange</span>
+</div>
+<div class="flex flex-1 justify-between items-center">
+<span class="text-sm font-medium text-slate-700">Tarifa ajustada a $180.000 ARS</span>
+<span class="text-xs text-slate-400">15 Oct</span>
+</div>
+</div>
+<div class="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-100">
+<div class="h-8 w-8 rounded-full bg-white flex items-center justify-center border border-slate-200 text-slate-500">
+<span class="material-symbols-outlined text-[18px]">bed</span>
+</div>
+<div class="flex flex-1 justify-between items-center">
+<span class="text-sm font-medium text-slate-700">Cambio de habitación (201-A → 204-B)</span>
+<span class="text-xs text-slate-400">01 Sep</span>
+</div>
+</div>
+<div class="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-100">
+<div class="h-8 w-8 rounded-full bg-white flex items-center justify-center border border-slate-200 text-slate-500">
+<span class="material-symbols-outlined text-[18px]">contract</span>
+</div>
+<div class="flex flex-1 justify-between items-center">
+<span class="text-sm font-medium text-slate-700">Renovación iniciada</span>
+<span class="text-xs text-slate-400">28 Ago</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 4. Right Column (Actions - 35%) -->
+<div class="w-full lg:w-[35%] bg-slate-50 p-6 space-y-5">
+<!-- Tarifa -->
+<div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+<div class="flex items-center gap-2 mb-3 text-slate-800">
+<span class="material-symbols-outlined filled text-primary">attach_money</span>
+<h4 class="font-semibold text-sm">Tarifa del residente</h4>
+</div>
+<div class="flex gap-2">
+<div class="relative flex-1">
+<span class="absolute left-3 top-2.5 text-slate-400 text-sm">$</span>
+<input class="w-full pl-6 pr-12 py-2 text-sm border-slate-200 rounded-lg focus:ring-primary focus:border-primary font-medium text-right text-slate-700" placeholder="0.00" type="text" value="180.000"/>
+<span class="absolute right-3 top-2.5 text-slate-400 text-xs font-medium">ARS</span>
+</div>
+<button class="text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 px-3 py-2 rounded-lg transition-colors">Guardar</button>
+</div>
+<p class="text-xs text-slate-400 mt-2">Próximo vencimiento: 05 Nov</p>
+</div>
+<!-- Salida Exacta -->
+<div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+<div class="flex items-center gap-2 mb-3 text-slate-800">
+<span class="material-symbols-outlined text-slate-500">event_available</span>
+<h4 class="font-semibold text-sm">Salida exacta</h4>
+</div>
+<div class="flex gap-2">
+<input class="flex-1 py-2 text-sm border-slate-200 rounded-lg focus:ring-primary focus:border-primary text-slate-600" type="date" value="2023-12-15"/>
+<button class="text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 px-3 py-2 rounded-lg transition-colors border border-slate-200">Actualizar</button>
+</div>
+</div>
+<!-- Renovación -->
+<div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-100 shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<h4 class="font-semibold text-sm text-primary-dark">Renovación 2024</h4>
+<span class="material-symbols-outlined text-primary text-[20px]">autorenew</span>
+</div>
+<p class="text-xs text-blue-600/80 mb-3">La residente es elegible para renovación anticipada con descuento.</p>
+<button class="w-full py-2 bg-white border border-blue-200 text-primary font-medium text-sm rounded-lg hover:bg-blue-50 hover:shadow-sm transition-all shadow-sm">Iniciar renovación</button>
+</div>
+<!-- Habitación -->
+<div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm group">
+<div class="flex items-center gap-2 mb-3 text-slate-800">
+<span class="material-symbols-outlined text-slate-500">meeting_room</span>
+<h4 class="font-semibold text-sm">Habitación y cama</h4>
+</div>
+<div class="grid grid-cols-2 gap-2 mb-2">
+<select class="text-sm border-slate-200 rounded-lg focus:ring-primary focus:border-primary py-2 text-slate-600 bg-slate-50">
+<option selected="" value="204">204-B</option>
+<option value="205">205-A</option>
+<option value="206">206-C</option>
+</select>
+<select class="text-sm border-slate-200 rounded-lg focus:ring-primary focus:border-primary py-2 text-slate-600 bg-slate-50">
+<option value="1">Cama 1</option>
+<option selected="" value="2">Cama 2</option>
+</select>
+</div>
+<button class="w-full text-xs font-medium text-slate-500 hover:text-primary py-1 text-center transition-colors">Cambiar ubicación</button>
+</div>
+<!-- Evaluación -->
+<div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+<div>
+<h4 class="font-semibold text-sm text-slate-800">Evaluación mensual</h4>
+<p class="text-xs text-slate-400 mt-0.5">Disponible en 27 días</p>
+</div>
+<button class="px-3 py-1.5 bg-slate-100 text-slate-400 rounded-lg text-xs font-medium cursor-not-allowed" disabled="">Dar evaluación</button>
+</div>
+<!-- Zona de riesgo -->
+<div class="mt-4 border border-red-200 bg-red-50/50 p-4 rounded-xl">
+<h4 class="font-semibold text-sm text-red-700 flex items-center gap-2 mb-3">
+<span class="material-symbols-outlined text-[18px]">warning</span>
+                                Zona de Riesgo
+                            </h4>
+<div class="space-y-3">
+<textarea class="w-full text-xs border-red-200 rounded-lg focus:ring-red-500 focus:border-red-500 placeholder:text-red-300 min-h-[60px] resize-none bg-white" placeholder="Motivo de la expulsión..."></textarea>
+<label class="flex items-start gap-2 cursor-pointer">
+<input class="mt-0.5 rounded border-red-300 text-red-600 focus:ring-red-500 bg-white" type="checkbox"/>
+<span class="text-xs text-red-600/80 leading-tight">Entiendo que esta acción es irreversible y bloqueará el acceso.</span>
+</label>
+<button class="w-full py-2 bg-white border border-red-200 text-red-600 font-medium text-sm rounded-lg hover:bg-red-50 hover:border-red-300 transition-all shadow-sm">Registrar expulsión</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 5. Footer -->
+<div class="flex-none px-6 py-4 bg-white border-t border-slate-200 flex justify-between items-center z-10">
+<button class="text-slate-500 hover:text-slate-800 font-medium text-sm px-4 py-2 rounded-lg transition-colors hover:bg-slate-50">Cancelar</button>
+<div class="flex gap-3">
+<button class="bg-primary hover:bg-primary-dark text-white font-medium text-sm px-6 py-2.5 rounded-lg shadow-sm shadow-blue-200 transition-all transform active:scale-95">Guardar cambios</button>
+</div>
+</div>
+</div>
+</div>
+</body></html>

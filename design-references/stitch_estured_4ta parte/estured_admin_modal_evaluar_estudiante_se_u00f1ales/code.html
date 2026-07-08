@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EstuRED Admin - Modal Evaluar Estudiante</title>
+<!-- Fonts and Icons -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#136dec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101822",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "1.5rem", "xl": "2rem", "2xl": "2.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for better UX within modal */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #d1d5db; 
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af; 
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white h-screen overflow-hidden">
+<!-- Modal Overlay -->
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+<!-- Backdrop -->
+<div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"></div>
+<!-- Modal Content -->
+<div class="relative flex w-full max-w-[1100px] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl h-[90vh]">
+<!-- Header -->
+<header class="flex flex-shrink-0 items-center justify-between border-b border-slate-100 px-6 py-4">
+<!-- Left: Student Mini-Card -->
+<div class="flex items-center gap-4">
+<div class="relative">
+<div class="h-12 w-12 rounded-full bg-cover bg-center ring-2 ring-white shadow-sm" data-alt="Portrait of a young female student looking confident" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBS_U2jjxDICt93FHiYq-XwYXgPIWmwZbDWyEk8Dmm2rwLgm-cAQs_yptx71VpzkqJiyJCKp509yIujb6-pfGJ95s9WifjQsIdVbdQhngxYJcZL7Sh-Qkj3UMvcpDjCsITSqFpskjK3Ti5I6y3FBxtcGo0W6q6SAef_8a_Y8KYWOfT3sixVkzy3vgCN7T0_enAP9nUU2EU8dXtEc3v7CA6YrXUrnOSET8JEaTE0DIvjoHX4M3TBt3JzYZB2H47KJlL0Rg1VD3Pabw");'></div>
+<div class="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center overflow-hidden rounded-full border border-white bg-slate-100">
+<img alt="Argentina Flag" class="h-full w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZcuT7mpqhM3g4eiOcwvIo4_LmmF8WcYC1gxeqIbZq0GCziGu6cDpDOyKJhGcMWqLrLALk390R-Kivh07VZf6W1e033rg5HWEUPK-xv6A6akw9rzx5-FUmzujqqpDznL3T4zN7hBVlOpbtGfzez3wCR5ljjH0emDk002kMkWduQbWzZTq_6ZtgjppjQMo78wdfLB4KvOHZNpypG74JZXyHTDMnUjOdL1w8QmK1E6go0qMJpNka8SUmepjVLXc7CYWM6M6mEn6GWw"/>
+</div>
+</div>
+<div class="flex flex-col">
+<h2 class="text-lg font-bold text-slate-900 leading-tight">Ana García</h2>
+<p class="text-sm text-slate-500">21 años · Arquitectura · Hab 204-B</p>
+</div>
+</div>
+<!-- Right: Status Pill + Close -->
+<div class="flex items-center gap-3">
+<div class="hidden sm:flex h-8 items-center justify-center gap-x-2 rounded-full bg-green-50 px-4 ring-1 ring-green-600/20">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+</span>
+<p class="text-xs font-semibold text-green-700">Ventana abierta · Te quedan 12 días</p>
+</div>
+<button class="group flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 transition-colors">
+<span class="material-symbols-outlined text-slate-600 group-hover:text-slate-900" style="font-size: 24px;">close</span>
+</button>
+</div>
+</header>
+<!-- Main Layout: 2 Columns -->
+<div class="flex flex-1 overflow-hidden">
+<!-- Left Column: Evaluation Form (Scrollable) -->
+<div class="flex-1 overflow-y-auto custom-scrollbar bg-slate-50/50 p-6 sm:p-10">
+<div class="mx-auto max-w-2xl">
+<!-- Subtitle / Intro -->
+<div class="mb-8">
+<h1 class="text-2xl font-bold text-slate-900 mb-2">Señales de convivencia</h1>
+<div class="flex gap-3 items-start bg-blue-50/50 p-4 rounded-xl border border-blue-100/50">
+<span class="material-symbols-outlined text-primary mt-0.5">info</span>
+<div class="space-y-1 text-sm text-slate-600">
+<p>Evaluar la convivencia ayuda a mejorar el clima de la residencia.</p>
+<p>Enfócate en la estadía completa, no solo en la última semana.</p>
+<p>Tus comentarios ayudan a Ana a crecer personal y profesionalmente.</p>
+</div>
+</div>
+</div>
+<!-- Category 1: Reglas y responsabilidad -->
+<div class="mb-10 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+<div class="flex items-center gap-3 mb-6">
+<div class="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
+<span class="material-symbols-outlined">gavel</span>
+</div>
+<h3 class="text-lg font-bold text-slate-900">Reglas y responsabilidad</h3>
+</div>
+<p class="mb-4 text-sm font-medium text-slate-500 uppercase tracking-wide">Selecciona hasta 2 señales:</p>
+<div class="flex flex-wrap gap-3">
+<!-- Option 1 -->
+<button class="group relative flex cursor-pointer select-none items-center gap-2 rounded-full border border-slate-200 bg-white py-2 px-4 transition-all hover:border-slate-300 hover:bg-slate-50 focus:outline-none data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-white data-[state=error]:border-red-500 data-[state=error]:bg-red-50 data-[state=error]:text-red-700" data-state="inactive">
+<span class="text-sm font-medium">Cuesta mucho sostener</span>
+</button>
+<!-- Option 2 -->
+<button class="group relative flex cursor-pointer select-none items-center gap-2 rounded-full border border-slate-200 bg-white py-2 px-4 transition-all hover:border-slate-300 hover:bg-slate-50 focus:outline-none data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-white" data-state="active">
+<span class="material-symbols-outlined text-[18px]">check</span>
+<span class="text-sm font-medium">A veces olvida</span>
+</button>
+<!-- Option 3 -->
+<button class="group relative flex cursor-pointer select-none items-center gap-2 rounded-full border border-slate-200 bg-white py-2 px-4 transition-all hover:border-slate-300 hover:bg-slate-50 focus:outline-none data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-white" data-state="inactive">
+<span class="text-sm font-medium">Cumple lo justo</span>
+</button>
+<!-- Option 4 -->
+<button class="group relative flex cursor-pointer select-none items-center gap-2 rounded-full border border-slate-200 bg-white py-2 px-4 transition-all hover:border-slate-300 hover:bg-slate-50 focus:outline-none data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-white" data-state="inactive">
+<span class="text-sm font-medium">Muy responsable</span>
+</button>
+<!-- Option 5 (Conflicting Example) -->
+<button class="group relative flex cursor-pointer select-none items-center gap-2 rounded-full border border-slate-200 bg-white py-2 px-4 transition-all hover:border-slate-300 hover:bg-slate-50 focus:outline-none data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-white" data-state="inactive">
+<span class="text-sm font-medium">Un ejemplo</span>
+</button>
+</div>
+</div>
+<!-- Category 2: Convivencia General -->
+<div class="mb-10 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+<div class="flex items-center gap-3 mb-6">
+<div class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+<span class="material-symbols-outlined">groups</span>
+</div>
+<h3 class="text-lg font-bold text-slate-900">Convivencia general</h3>
+</div>
+<p class="mb-4 text-sm font-medium text-slate-500 uppercase tracking-wide">Selecciona hasta 2 señales:</p>
+<!-- Visual Error State Example -->
+<div class="mb-3 flex items-center gap-2 text-xs font-medium text-red-600 bg-red-50 p-2 px-3 rounded-lg border border-red-100 w-fit">
+<span class="material-symbols-outlined text-[16px]">error</span>
+                                No puedes seleccionar opciones contradictorias
+                            </div>
+<div class="flex flex-wrap gap-3">
+<!-- Option 1: Selected & Error -->
+<button class="group relative flex cursor-pointer select-none items-center gap-2 rounded-full border-2 border-red-500 bg-red-50 py-2 px-4 text-red-700 transition-all focus:outline-none">
+<span class="material-symbols-outlined text-[18px]">close</span>
+<span class="text-sm font-bold">Conflictiva</span>
+</button>
+<!-- Option 2 -->
+<button class="group relative flex cursor-pointer select-none items-center gap-2 rounded-full border border-slate-200 bg-white py-2 px-4 transition-all hover:border-slate-300 hover:bg-slate-50 focus:outline-none" data-state="inactive">
+<span class="text-sm font-medium">Distante</span>
+</button>
+<!-- Option 3 -->
+<button class="group relative flex cursor-pointer select-none items-center gap-2 rounded-full border border-slate-200 bg-white py-2 px-4 transition-all hover:border-slate-300 hover:bg-slate-50 focus:outline-none" data-state="inactive">
+<span class="text-sm font-medium">Amable</span>
+</button>
+<!-- Option 4 -->
+<button class="group relative flex cursor-pointer select-none items-center gap-2 rounded-full border border-slate-200 bg-white py-2 px-4 transition-all hover:border-slate-300 hover:bg-slate-50 focus:outline-none" data-state="inactive">
+<span class="text-sm font-medium">Integradora</span>
+</button>
+<!-- Option 5: Selected & Error -->
+<button class="group relative flex cursor-pointer select-none items-center gap-2 rounded-full border-2 border-red-500 bg-red-50 py-2 px-4 text-red-700 transition-all focus:outline-none">
+<span class="material-symbols-outlined text-[18px]">close</span>
+<span class="text-sm font-bold">Líder Positiva</span>
+</button>
+</div>
+</div>
+<!-- Action Area -->
+<div class="mt-8 pt-8 border-t border-slate-200">
+<!-- Anonymity Toggle -->
+<div class="mb-6 flex items-center justify-between rounded-xl bg-slate-100 p-4">
+<div class="flex items-center gap-3">
+<div class="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm text-slate-500">
+<span class="material-symbols-outlined">visibility</span>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-slate-900">Visibilidad</span>
+<span class="text-xs text-slate-500">Quiero que este estudiante sepa que lo evalué</span>
+</div>
+</div>
+<!-- Switch Component -->
+<button aria-checked="false" class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none bg-slate-300" role="switch">
+<span class="sr-only">Use setting</span>
+<span aria-hidden="true" class="translate-x-0 pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
+</button>
+</div>
+<button class="w-full rounded-full bg-primary py-4 px-6 text-base font-bold text-white shadow-lg shadow-blue-500/30 hover:bg-blue-600 transition-all flex items-center justify-center gap-2">
+<span>Revisar y enviar</span>
+<span class="material-symbols-outlined">send</span>
+</button>
+<p class="mt-4 text-center text-xs text-slate-400">Gracias por aportar a la comunidad EstuRED.</p>
+</div>
+</div>
+</div>
+<!-- Right Column: Student Profile Context (Sticky) -->
+<div class="hidden w-[380px] flex-shrink-0 flex-col border-l border-slate-100 bg-white lg:flex">
+<div class="flex-1 overflow-y-auto custom-scrollbar p-8">
+<!-- Large Avatar Profile -->
+<div class="flex flex-col items-center text-center">
+<div class="relative mb-4 h-32 w-32">
+<div class="h-full w-full rounded-full bg-cover bg-center shadow-lg" data-alt="Portrait of Ana Garcia" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCV_bb0qRrF_zDOtylUsMOvJjA4YreqmIAFpSBu_Ef3GKydUTD-9mX5Z-loaKl2QeDxR_ES_DQtGSSAwXvX6T-fsgGxLKcO0CfJiXpt5H6L-Sddqtvksi2tm5ijjFO2Rd7U3hm2K4E0AciMWcEWEMxK4gdhCMN7eJfnaz_E8HJCwf_hqXED6KPWveIa_7r4RGSKBey3In6hEofi9xwjCiJHbq2fN_edAagpABQ5i_Ay8c5l6FgTr4LZv-KR7T6OKyNi8ud8Jlyg-g");'></div>
+<div class="absolute bottom-1 right-1 flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-slate-100 shadow-sm">
+<img alt="Argentina Flag" class="h-full w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDavlTdlO3wX266aEKgg2YBMTpd15zJifVnvPg2cVSvxBxO-Jn1AhS29Dgn6ReLk61dFJi6S00Bgq3N2Ts7r-8oSpN6qTVUxpOHMhjd2M2zklLw2iHjubBu6xEngmipelSzM60Z-Fq2123VyFCHKSGV1i9mSchcW1hkhzTjJKj6yC3Q9Otrx0hsfUlZDNUuOzfRUj0eVHuPFz3yFujh1__zTN7AKr2Lv8_gvF-MIqMWiIwHXfNFXiFhRbqFzRPrPtiaPnHgH1B97Q"/>
+</div>
+</div>
+<h3 class="text-xl font-bold text-slate-900">Ana García</h3>
+<p class="text-sm text-slate-500">Buenos Aires, Argentina</p>
+<div class="mt-4 flex gap-2">
+<span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">Habitación 204-B</span>
+<span class="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">Becada</span>
+</div>
+</div>
+<!-- Bio -->
+<div class="mt-8">
+<h4 class="mb-3 text-sm font-bold uppercase tracking-wider text-slate-400">Sobre mí</h4>
+<p class="text-sm leading-relaxed text-slate-600">
+                                "Estudiante de tercer año de Arquitectura. Me gusta el orden en los espacios comunes y valoro mucho el silencio durante las noches de semana. Suelo cocinar los domingos."
+                            </p>
+</div>
+<!-- Chips -->
+<div class="mt-8">
+<h4 class="mb-3 text-sm font-bold uppercase tracking-wider text-slate-400">Intereses y gustos</h4>
+<div class="flex flex-wrap gap-2">
+<span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">#Arquitectura</span>
+<span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">#Fotografía</span>
+<span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">#Yoga</span>
+<span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">#Café</span>
+</div>
+</div>
+<!-- Current Signals (Microcopy Dynamic) -->
+<div class="mt-8 rounded-xl bg-slate-50 p-4 border border-slate-100">
+<h4 class="mb-3 text-sm font-bold uppercase tracking-wider text-slate-400">Señales actuales</h4>
+<div class="space-y-3">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-yellow-500 text-[20px] mt-0.5">lightbulb</span>
+<div>
+<p class="text-sm font-semibold text-slate-800">Muy Proactiva</p>
+<p class="text-xs text-slate-500">Última eval: hace 3 meses</p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-green-500 text-[20px] mt-0.5">spa</span>
+<div>
+<p class="text-sm font-semibold text-slate-800">Genera buen clima</p>
+<p class="text-xs text-slate-500">Consistente en 2023</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Sticky Bottom Summary in Right Col -->
+<div class="border-t border-slate-100 bg-slate-50 p-6">
+<div class="flex items-center justify-between mb-2">
+<span class="text-sm font-bold text-slate-700">Resumen de selección</span>
+<span class="text-xs font-medium text-slate-500">1 de 2 categorías completas</span>
+</div>
+<div class="h-2 w-full overflow-hidden rounded-full bg-slate-200">
+<div class="h-full w-1/2 rounded-full bg-primary transition-all duration-500"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body></html>

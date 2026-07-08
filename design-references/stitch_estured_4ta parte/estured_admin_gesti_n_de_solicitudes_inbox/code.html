@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EstuRED Admin - Solicitudes</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&amp;family=Noto+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#136dec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101822",
+                        "text-main": "#0d131b",
+                        "text-secondary": "#4c6c9a",
+                        "border-color": "#e7ecf3"
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Lexend', sans-serif;
+        }
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-main h-screen overflow-hidden flex">
+<!-- Sidebar -->
+<aside class="w-64 bg-slate-50 border-r border-border-color h-full hidden md:flex flex-col shrink-0">
+<div class="flex h-full flex-col justify-between p-4">
+<div class="flex flex-col gap-6">
+<!-- User Profile Snippet in Sidebar -->
+<div class="flex gap-3 items-center px-2">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-10 shrink-0" data-alt="Admin user avatar abstract pattern" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA0PPmDl6CB7HMgZqGOv9SNofVJuvkaXiZyKM3RzgLPo0OD-pLekTfVLebptg9uw-weHhnIezJ_PYMN0nTXQjGiW5jiCbA-ngcvg1FsDskgnl2ol3kinviPwUS70DaEpmYbO6bMHo8eIwJokdSbNSYEHfEF74AdAuPQ4zgHQpwhJcL09yvQjIOqVgA31eKXyBLEKsTu95EdPaElqZQMpZO726-tLg_jdmipHX2ejDP8icaZycyt_1vTv_ltA_diKw7JWcUUmTFlRA");'></div>
+<div class="flex flex-col overflow-hidden">
+<h1 class="text-text-main text-sm font-medium leading-normal truncate">EstuRED Admin</h1>
+<p class="text-text-secondary text-xs font-normal leading-normal truncate">Panel de Administración</p>
+</div>
+</div>
+<!-- Navigation Links -->
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors" href="#">
+<span class="material-symbols-outlined text-text-main">grid_view</span>
+<p class="text-text-main text-sm font-medium">Dashboard</p>
+</a>
+<!-- Active State -->
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-[#e7ecf3] dark:bg-slate-700" href="#">
+<span class="material-symbols-outlined text-primary font-variation-settings-'FILL' 1">inbox</span>
+<p class="text-text-main dark:text-white text-sm font-medium">Solicitudes</p>
+<span class="ml-auto bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-full">5</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors" href="#">
+<span class="material-symbols-outlined text-text-main">apartment</span>
+<p class="text-text-main text-sm font-medium">Propiedades</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors" href="#">
+<span class="material-symbols-outlined text-text-main">payments</span>
+<p class="text-text-main text-sm font-medium">Pagos</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors" href="#">
+<span class="material-symbols-outlined text-text-main">chat</span>
+<p class="text-text-main text-sm font-medium">Mensajes</p>
+</a>
+</nav>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 text-text-secondary hover:text-text-main cursor-pointer">
+<span class="material-symbols-outlined">logout</span>
+<p class="text-sm font-medium">Cerrar Sesión</p>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<div class="flex flex-1 flex-col h-full min-w-0 bg-background-light dark:bg-background-dark">
+<!-- Top Navbar -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-border-color bg-slate-50 px-6 py-3 shrink-0">
+<div class="flex items-center gap-4 text-text-main">
+<!-- Mobile Menu Button (Visible on small screens) -->
+<button class="md:hidden p-1 rounded-md hover:bg-gray-100">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="flex items-center gap-2">
+<div class="size-6 text-primary">
+<span class="material-symbols-outlined text-3xl">home_work</span>
+</div>
+<h2 class="text-text-main text-lg font-bold tracking-tight hidden sm:block">EstuRED</h2>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-2.5 top-2 text-gray-400 text-[20px]">search</span>
+<input class="h-9 pl-9 pr-4 rounded-lg bg-[#e7ecf3] border-none text-sm w-64 focus:ring-2 focus:ring-primary/20" placeholder="Buscar..." type="text"/>
+</div>
+<div class="flex gap-2">
+<button class="flex items-center justify-center rounded-lg size-9 bg-[#e7ecf3] text-text-main hover:bg-gray-200 transition-colors relative">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border border-white"></span>
+</button>
+<button class="flex items-center justify-center rounded-lg size-9 bg-[#e7ecf3] text-text-main hover:bg-gray-200 transition-colors">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Page Content Scrollable -->
+<main class="flex flex-col flex-1 overflow-hidden">
+<!-- Page Heading & Stats -->
+<div class="px-6 pt-6 pb-2 shrink-0">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-4">
+<div class="flex flex-col gap-1">
+<h1 class="text-text-main text-3xl font-black tracking-tight">Solicitudes</h1>
+<p class="text-text-secondary text-sm">Respondé dentro de 48 hs para no perder la oportunidad.</p>
+</div>
+<!-- Stats Chips -->
+<div class="flex gap-3">
+<div class="flex h-8 items-center justify-center gap-x-2 rounded-full bg-primary/10 pl-3 pr-4 border border-primary/20">
+<span class="size-2 rounded-full bg-primary animate-pulse"></span>
+<p class="text-primary text-sm font-semibold">Activas: 5</p>
+</div>
+<div class="flex h-8 items-center justify-center gap-x-2 rounded-full bg-orange-100 pl-3 pr-4 border border-orange-200">
+<span class="material-symbols-outlined text-orange-600 text-[16px]">warning</span>
+<p class="text-orange-700 text-sm font-semibold">Por vencer: 2</p>
+</div>
+</div>
+</div>
+<!-- Tabs -->
+<div class="flex border-b border-border-color gap-8">
+<button class="flex items-center border-b-[3px] border-primary text-primary px-2 pb-3 pt-2 font-bold text-sm">
+                        Activas
+                    </button>
+<button class="flex items-center border-b-[3px] border-transparent text-text-secondary hover:text-text-main px-2 pb-3 pt-2 font-medium text-sm transition-colors">
+                        Historial
+                    </button>
+</div>
+</div>
+<!-- Inbox Split View -->
+<div class="flex flex-1 overflow-hidden px-6 pb-6">
+<div class="flex w-full h-full bg-white rounded-xl border border-border-color shadow-sm overflow-hidden">
+<!-- Left Column: List -->
+<div class="w-full md:w-[400px] flex flex-col border-r border-border-color shrink-0 bg-white z-10">
+<!-- Filters Toolbar -->
+<div class="p-4 border-b border-border-color flex flex-col gap-3 bg-white">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 text-[20px]">search</span>
+<input class="w-full h-10 pl-10 pr-4 rounded-lg border border-border-color bg-slate-50 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none" placeholder="Buscar por nombre..." type="text"/>
+</div>
+<div class="flex gap-2">
+<select class="h-8 pl-2 pr-8 rounded-md border border-border-color text-xs bg-slate-50 text-text-secondary focus:border-primary outline-none">
+<option>Mes de ingreso</option>
+<option>Marzo</option>
+<option>Abril</option>
+</select>
+<select class="h-8 pl-2 pr-8 rounded-md border border-border-color text-xs bg-slate-50 text-text-secondary focus:border-primary outline-none">
+<option>Tipo de hab.</option>
+<option>Individual</option>
+<option>Compartida</option>
+</select>
+</div>
+<div class="flex items-center justify-between mt-1">
+<span class="text-xs text-text-secondary font-medium">5 resultados</span>
+<div class="flex items-center gap-1 cursor-pointer">
+<span class="text-xs text-text-secondary">Orden: <span class="text-text-main font-medium">Por vencimiento</span></span>
+<span class="material-symbols-outlined text-[16px] text-text-secondary">sort</span>
+</div>
+</div>
+</div>
+<!-- Scrollable List -->
+<div class="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar">
+<!-- Item 1 (Selected) -->
+<div class="group flex flex-col p-4 border-b border-border-color bg-blue-50/50 cursor-pointer border-l-4 border-l-primary hover:bg-blue-50 transition-colors relative">
+<div class="flex justify-between items-start mb-2">
+<div class="flex items-center gap-3">
+<div class="relative">
+<div class="size-10 rounded-full bg-cover bg-center" data-alt="Student portrait woman" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCL27QxPrjcMj_2iuV1QZLkr4GIzUzKJP6HxDWdCrrob-McmEt1tgb1meFROm1yFFyrr2sqrzuUN-lQBP-puoUr-wXCMvcnV6yDJWccqjZMwUwaYkqTjE1FZp_t_kGESvsA48Vm6TmmcldKP_cispSa-pvGblB3z-JCu4NvsxQDT-21IuDdNs7qsxlz7V3B8G0IcWmcwdIqwh6W-ovOWnrfzvdTfS7lz--PyGoDuzeyZPj5uyNMHJkrimvORzawxpxHyZqTr6EEUg");'></div>
+<div class="absolute -bottom-1 -right-1 size-4 rounded-full border border-white overflow-hidden" data-alt="Argentina flag" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCG7tBipDZzgU_ZNjkgn9eiI66ZZM5yCfI_0KrPTRDpjRwFW-wqdMDmUOVculAJQeUqclafeUHEJl3PlN5I0YD6otLpzarL-hBeU4T7vEVX-_myjeUzgWefbQt_LMj7M5jaaiIrvvhaGag8hZk8d7e-lTlu36zfWeTH7fu4p6Q3C6CKKyDwMod32FVKg7AQOjq_k25rwyiXDNidA_qYPbHX6AltBrY0GCbFOSaGWEmRlY1zXeZyBsS3BV_t_8h0sHWl7dHxY_moTg"); background-size: cover;'></div>
+</div>
+<div>
+<h3 class="text-sm font-bold text-text-main">Sofía R.</h3>
+<p class="text-xs text-text-secondary">19 años • Arquitectura</p>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="inline-flex items-center gap-1 rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-bold text-red-700">
+<span class="material-symbols-outlined text-[12px]">schedule</span>
+                                            Restan 12h
+                                        </span>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 mb-3">
+<span class="inline-flex items-center rounded bg-white border border-border-color px-2 py-0.5 text-xs font-medium text-text-secondary">
+                                        Perfil 65%
+                                    </span>
+<span class="inline-flex items-center rounded bg-white border border-border-color px-2 py-0.5 text-xs font-medium text-text-secondary">
+<span class="material-symbols-outlined text-[14px] mr-1 text-green-600">check_circle</span>
+                                        Docs 2/3
+                                    </span>
+</div>
+<div class="flex justify-between items-end text-xs text-text-secondary">
+<span>Individual • Feb - Dic</span>
+<span class="opacity-70">Añadido por App</span>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="group flex flex-col p-4 border-b border-border-color hover:bg-slate-50 cursor-pointer border-l-4 border-l-transparent transition-colors">
+<div class="flex justify-between items-start mb-2">
+<div class="flex items-center gap-3">
+<div class="relative">
+<div class="size-10 rounded-full bg-cover bg-center" data-alt="Student portrait man" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC1sF-k829WtQbpVHxaP3aW0AYyuplB4kc_Q4VoXJzsm1kwiJutenukBeic6EGMv8o7T95CLbUaSMmJP5Qwyt6lsR5ul3mTV6m3qnYnZj0pk-ESEDwIgDsaq7f0ob04FhBsO87q3bcktgGLAPqZ05dI_kdpYH6WOecFpfPCqbm7oF26MeDGQE6e-m0om-EjkEDadQI1YOvtzi2AcMUJYZx_y3DrMjTOrIqqnvAAndAqIYzwc1byLIzh0TltLBgSscPtHJlTTn0A5A");'></div>
+<div class="absolute -bottom-1 -right-1 size-4 rounded-full border border-white overflow-hidden" data-alt="Brazil flag" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD0iXtjD2Pf3mRARdI8PG6dB4VpL_GdbFXnPF6xaUFAXCR0dw8sMxJLp-UlOMxU1wZqVd_qUgT84ShyA7lv_H_3Ae9XtytNEm3zZQUamST3a42zv2NAhFdRxdkelrusn2osdgx_LoV8CYf5ReVf4czKX_X7KwCQY3SyVM0aCROR43-4JmT-hDS8qdrnotluoFhex2tacuBw47OkYCbMqp2-NDffkiTk_gLqGPIoWd3_AYILAkBaoRkGyYunDmAPv5JE1-cyEkuKCA"); background-size: cover;'></div>
+</div>
+<div>
+<h3 class="text-sm font-bold text-text-main">Mateo L.</h3>
+<p class="text-xs text-text-secondary">21 años • Ingeniería</p>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="inline-flex items-center gap-1 rounded bg-orange-100 px-1.5 py-0.5 text-[10px] font-bold text-orange-700">
+<span class="material-symbols-outlined text-[12px]">schedule</span>
+                                            Restan 20h
+                                        </span>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 mb-3">
+<span class="inline-flex items-center rounded bg-slate-100 border border-border-color px-2 py-0.5 text-xs font-medium text-text-secondary">
+                                        Perfil 40%
+                                    </span>
+<span class="inline-flex items-center rounded bg-slate-100 border border-border-color px-2 py-0.5 text-xs font-medium text-text-secondary">
+                                        Docs 1/3
+                                    </span>
+</div>
+<div class="flex justify-between items-end text-xs text-text-secondary">
+<span>Compartida • Mar - Dic</span>
+<span class="opacity-70">Añadido por Web</span>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="group flex flex-col p-4 border-b border-border-color hover:bg-slate-50 cursor-pointer border-l-4 border-l-transparent transition-colors">
+<div class="flex justify-between items-start mb-2">
+<div class="flex items-center gap-3">
+<div class="relative">
+<div class="size-10 rounded-full bg-cover bg-center" data-alt="Student portrait woman 2" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuARrqyo-NUzI2j81_edbwsbE76_IHP8xCXaEgrsRA5fye_02EWMBLl5-gIRxkO4zpoakRiGDbvgxK6YNDKQDJNQeN3nxglulWlu3eoftl1l4CYSJ5oO3v1lLDYFkx5odkp0XN_il045OsmKc7kxUD1uq8mlfDtjMHI453bfZXT7TS-PzbLjJ9gF9dDHjQFzkUGgYlBoHs6OJUF_fKdf0o5kJmKntGs-1Ah2tsmsNdxaLeWmOxgYAY8tcR8TXo3XB2cqshwGZkROWw");'></div>
+<div class="absolute -bottom-1 -right-1 size-4 rounded-full border border-white overflow-hidden" data-alt="Peru flag" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDRiPe80c4bSkbuUTwB-h-U2VUDx2XuxBJxWVsbXFGUAn6hGvtz620k2ZP3jPwXO9C7ucDRiX3aMJJwcWMUzv2tPswA9b65_44PM_eZTQCWGtHt-pb3V8-Yeoq7tEy4ACtx22VUa3A-ioFSGM_wReqkNQKCkFcC7lvhV449Xlhws3SHY7zMAya_aRDb_3Sq2QamrPa5Aqgt0ImbwO-ElxsA0vf5BRZf8RGW3MReiZtEEzn8pC1_i8Ew184yUR2KmWuJ4emUPlX6qA"); background-size: cover;'></div>
+</div>
+<div>
+<h3 class="text-sm font-bold text-text-main">Valentina G.</h3>
+<p class="text-xs text-text-secondary">18 años • Diseño</p>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="inline-flex items-center gap-1 rounded bg-green-100 px-1.5 py-0.5 text-[10px] font-bold text-green-700">
+                                            Nueva
+                                        </span>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 mb-3">
+<span class="inline-flex items-center rounded bg-slate-100 border border-border-color px-2 py-0.5 text-xs font-medium text-text-secondary">
+                                        Perfil 80%
+                                    </span>
+<span class="inline-flex items-center rounded bg-slate-100 border border-border-color px-2 py-0.5 text-xs font-medium text-text-secondary">
+                                        Docs 3/3
+                                    </span>
+</div>
+<div class="flex justify-between items-end text-xs text-text-secondary">
+<span>Individual • Mar - Jul</span>
+<span class="opacity-70">Añadido por App</span>
+</div>
+</div>
+<!-- Item 4 -->
+<div class="group flex flex-col p-4 border-b border-border-color hover:bg-slate-50 cursor-pointer border-l-4 border-l-transparent transition-colors">
+<div class="flex justify-between items-start mb-2">
+<div class="flex items-center gap-3">
+<div class="relative">
+<div class="size-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 font-bold text-xs" data-alt="Initials avatar">
+                                                LM
+                                            </div>
+<div class="absolute -bottom-1 -right-1 size-4 rounded-full border border-white overflow-hidden bg-slate-200"></div>
+</div>
+<div>
+<h3 class="text-sm font-bold text-text-main">Lucas M.</h3>
+<p class="text-xs text-text-secondary">20 años • Medicina</p>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="inline-flex items-center gap-1 rounded bg-green-100 px-1.5 py-0.5 text-[10px] font-bold text-green-700">
+                                            Nueva
+                                        </span>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 mb-3">
+<span class="inline-flex items-center rounded bg-slate-100 border border-border-color px-2 py-0.5 text-xs font-medium text-text-secondary">
+                                        Perfil 20%
+                                    </span>
+<span class="inline-flex items-center rounded bg-slate-100 border border-border-color px-2 py-0.5 text-xs font-medium text-text-secondary">
+                                        Docs 0/3
+                                    </span>
+</div>
+<div class="flex justify-between items-end text-xs text-text-secondary">
+<span>Compartida • Mar - Dic</span>
+<span class="opacity-70">Añadido por Web</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Detail Panel -->
+<div class="flex-1 flex flex-col bg-slate-50 md:bg-white h-full relative overflow-hidden hidden md:flex">
+<!-- Panel Header -->
+<div class="p-6 border-b border-border-color flex justify-between items-start bg-white shrink-0">
+<div class="flex gap-4">
+<div class="size-16 rounded-full bg-cover bg-center ring-4 ring-slate-50 shadow-sm" data-alt="Student large portrait" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAa4h_Yc8CLn8rd-TQsVc23jMtIn5ZuqbihEy5_Ng6BciWwupyYesFOVvTmymiGsJgrxGqDMlbC-QDLBRL3boKF84O-T0P2NLwGGR4VpuzmyMAUhmBjXQswP4Cd63P0l6TWuNcv2E7GTabna_cb9e2PtPltEngkcOuCuA-PZFAXPeCCOikQdPnKVmkNFe1SWmNzMjCnIrdmzp4S9RvCmQcHhulHwWcK9ngm0W2QrjK659C7GrlQMjasp6STcD2hufumVUjGNlojUQ");'></div>
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<h2 class="text-2xl font-bold text-text-main">Sofía Rodriguez</h2>
+<span class="material-symbols-outlined text-blue-500 text-[18px]" title="Verificado">verified</span>
+</div>
+<div class="flex items-center gap-3 text-sm text-text-secondary">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">school</span>
+<span>UBA - Arquitectura</span>
+</div>
+<span class="size-1 bg-gray-300 rounded-full"></span>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">cake</span>
+<span>19 años</span>
+</div>
+<span class="size-1 bg-gray-300 rounded-full"></span>
+<div class="flex items-center gap-1">
+<div class="w-4 h-3 bg-cover rounded-sm" data-alt="Argentina flag icon" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA6s-nPaN_HBuczdyiChvIAaPY5veSpvrJqH8RbNzSRVp1WbuZrU4yZkcsMA8BT9Oy8bbr4OlOfp7EkwIjv4fi8UeYpUzjTrjMSt6yq-Pdp94Ef23ONSuJKug3600HxBEQMQ-NxkAXidsKleeqHiwg7K2xijJt2iHgGFhVf4QKgYa77tfEUabbUEaqSSJPWYGjHahw8cOnqKEgOZU4Yt407q25iaRWD-rtZLvESC7qQ_qqwCyhl9O_L5_LCJkTd6-JuUKfP2hj3jQ");'></div>
+<span>La Plata, BA</span>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold border border-primary/20">Solicitud #8492</span>
+<p class="text-xs text-text-secondary mt-1">Enviada hace 2 días</p>
+</div>
+</div>
+<!-- Panel Scrollable Content -->
+<div class="flex-1 overflow-y-auto p-6 space-y-8 bg-slate-50/50">
+<!-- Request Summary -->
+<section>
+<h3 class="text-sm font-bold text-text-main uppercase tracking-wider mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-text-secondary text-[18px]">summarize</span> Resumen Solicitud
+                                </h3>
+<div class="bg-white p-4 rounded-xl border border-border-color shadow-sm grid grid-cols-2 lg:grid-cols-4 gap-4">
+<div>
+<p class="text-xs text-text-secondary font-medium mb-1">Habitación</p>
+<p class="text-sm font-bold text-text-main">Individual Standard</p>
+</div>
+<div>
+<p class="text-xs text-text-secondary font-medium mb-1">Duración</p>
+<p class="text-sm font-bold text-text-main">10 Meses</p>
+<p class="text-xs text-text-secondary">Feb 01 - Dic 01</p>
+</div>
+<div>
+<p class="text-xs text-text-secondary font-medium mb-1">Ingreso</p>
+<p class="text-sm font-bold text-text-main">Inmediato</p>
+</div>
+<div>
+<p class="text-xs text-text-secondary font-medium mb-1">Presupuesto</p>
+<p class="text-sm font-bold text-text-main">$180.000 <span class="text-xs font-normal text-text-secondary">/ mes</span></p>
+</div>
+</div>
+</section>
+<!-- Preferences / Habits -->
+<section>
+<h3 class="text-sm font-bold text-text-main uppercase tracking-wider mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-text-secondary text-[18px]">diversity_3</span> Señales de convivencia
+                                </h3>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1.5 bg-white border border-border-color rounded-full text-sm text-text-secondary flex items-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-[16px]">smoke_free</span> No fuma
+                                    </span>
+<span class="px-3 py-1.5 bg-white border border-border-color rounded-full text-sm text-text-secondary flex items-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-[16px]">menu_book</span> Estudiosa
+                                    </span>
+<span class="px-3 py-1.5 bg-white border border-border-color rounded-full text-sm text-text-secondary flex items-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-[16px]">nightlight</span> Nocturna
+                                    </span>
+<span class="px-3 py-1.5 bg-white border border-border-color rounded-full text-sm text-text-secondary flex items-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-[16px]">pets</span> Le gustan mascotas
+                                    </span>
+</div>
+</section>
+<!-- Notes -->
+<section>
+<h3 class="text-sm font-bold text-text-main uppercase tracking-wider mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-text-secondary text-[18px]">sticky_note_2</span> Notas
+                                </h3>
+<div class="bg-yellow-50 p-4 rounded-xl border border-yellow-100 text-sm text-gray-700 italic">
+                                    "Hola, soy muy tranquila y ordenada. Busco un lugar cerca de la facultad para no perder tiempo viajando. Mis padres son los garantes."
+                                </div>
+</section>
+<!-- Documentation -->
+<section class="pb-20">
+<h3 class="text-sm font-bold text-text-main uppercase tracking-wider mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-text-secondary text-[18px]">folder_shared</span> Documentación
+                                </h3>
+<div class="bg-white rounded-xl border border-border-color shadow-sm divide-y divide-border-color">
+<!-- Doc Item 1 -->
+<div class="p-4 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-lg bg-green-50 flex items-center justify-center text-green-600">
+<span class="material-symbols-outlined">id_card</span>
+</div>
+<div>
+<p class="text-sm font-medium text-text-main">DNI / Pasaporte</p>
+<p class="text-xs text-text-secondary text-green-600 flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">check_circle</span> Verificado
+                                                </p>
+</div>
+</div>
+<button class="text-sm text-primary font-medium hover:underline">Ver documento</button>
+</div>
+<!-- Doc Item 2 -->
+<div class="p-4 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-lg bg-green-50 flex items-center justify-center text-green-600">
+<span class="material-symbols-outlined">school</span>
+</div>
+<div>
+<p class="text-sm font-medium text-text-main">Certificado de Alumno Regular</p>
+<p class="text-xs text-text-secondary text-green-600 flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">check_circle</span> Subido el 10/02
+                                                </p>
+</div>
+</div>
+<button class="text-sm text-primary font-medium hover:underline">Ver documento</button>
+</div>
+<!-- Doc Item 3 -->
+<div class="p-4 flex items-center justify-between bg-gray-50/50">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-lg bg-gray-200 flex items-center justify-center text-gray-500">
+<span class="material-symbols-outlined">gavel</span>
+</div>
+<div>
+<p class="text-sm font-medium text-text-main text-gray-500">Antecedentes Penales</p>
+<p class="text-xs text-text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">pending</span> Pendiente de carga
+                                                </p>
+</div>
+</div>
+<button class="text-sm text-gray-400 font-medium cursor-not-allowed" disabled="">No disponible</button>
+</div>
+</div>
+</section>
+</div>
+<!-- Sticky Footer Actions -->
+<div class="p-4 bg-white border-t border-border-color absolute bottom-0 left-0 right-0 flex justify-between items-center z-20 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+<p class="text-xs text-text-secondary max-w-[50%] hidden lg:block">
+                                Al aceptar, se notificará al estudiante para proceder con el pago de la reserva.
+                            </p>
+<div class="flex gap-3 ml-auto">
+<button class="px-5 py-2.5 rounded-lg border border-red-200 text-red-600 font-bold text-sm hover:bg-red-50 transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">close</span> Rechazar
+                                </button>
+<button class="px-5 py-2.5 rounded-lg bg-primary text-white font-bold text-sm hover:bg-blue-600 transition-colors shadow-sm shadow-blue-200 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">check</span> Aceptar solicitud
+                                </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

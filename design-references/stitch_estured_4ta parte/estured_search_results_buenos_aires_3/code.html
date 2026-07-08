@@ -1,0 +1,538 @@
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EstuRED - Detalle de Residencia (Final MVP)</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#3b5998",
+                        secondary: "#4b5563",
+                        "background-light": "#f9fafb",
+                        "background-dark": "#111827",
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                        body: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.5rem",
+                        'lg': '0.75rem',
+                        'xl': '1rem',
+                    },
+                },
+            },
+        };
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-gray-900 dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-300 relative">
+<nav class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between h-16">
+<div class="flex items-center gap-8">
+<a class="flex items-center gap-2 group" href="#">
+<span class="material-symbols-outlined text-primary text-3xl group-hover:scale-110 transition-transform">home_work</span>
+<span class="text-xl font-bold text-gray-900 dark:text-white tracking-tight">EstuRED</span>
+</a>
+<div class="hidden md:flex items-center space-x-6">
+<a class="text-sm font-medium text-gray-900 dark:text-white border-b-2 border-primary" href="#">Residencias</a>
+<a class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary transition-colors" href="#">Universidades</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<a class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary transition-colors" href="#">Ayuda</a>
+<div class="h-8 w-8 rounded-full bg-orange-100 flex items-center justify-center border border-orange-200">
+<span class="material-symbols-outlined text-orange-600 text-lg">person</span>
+</div>
+</div>
+</div>
+</div>
+</nav>
+<main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+<div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-4">
+<span>Buenos Aires</span>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span>Palermo</span>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="font-medium text-gray-900 dark:text-white">Casa Palermo Soho</span>
+</div>
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+<div>
+<h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Casa Palermo Soho</h1>
+<div class="flex flex-wrap items-center gap-3 text-sm">
+<div class="flex items-center text-gray-600 dark:text-gray-300">
+<span class="material-symbols-outlined text-lg mr-1 text-primary">location_on</span>
+                    Palermo Soho, Buenos Aires
+                </div>
+<div class="h-4 w-px bg-gray-300 dark:bg-gray-600"></div>
+<div class="flex items-center gap-2">
+<span class="text-gray-600 dark:text-gray-400">Señales recientes:</span>
+<span class="bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 px-2 py-0.5 rounded text-xs font-medium border border-blue-100 dark:border-blue-800">Tranquila</span>
+<span class="bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300 px-2 py-0.5 rounded text-xs font-medium border border-green-100 dark:border-green-800">Buen ritmo</span>
+<span class="bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 px-2 py-0.5 rounded text-xs font-medium border border-purple-100 dark:border-purple-800">Orden</span>
+</div>
+<span class="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">verified</span> VERIFICADA
+                </span>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="flex items-center gap-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700">
+<span class="material-symbols-outlined text-lg">favorite_border</span> Guardar
+            </button>
+<button class="flex items-center gap-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700">
+<span class="material-symbols-outlined text-lg">share</span> Compartir
+            </button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-2 mb-8 h-96 rounded-xl overflow-hidden relative">
+<div class="md:col-span-2 h-full">
+<img alt="Residencia main area" class="w-full h-full object-cover hover:opacity-95 transition-opacity cursor-pointer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC87GaomwY2L014BKzcN8O0DmfE1dFMAVi61sL9a70Z114-37MvAOnEexwpNX5j9gNQUEu99VnWG-I0Ns-pLApIsrc-UPYYgtLw1PkpXita8MnJRB5UvXrdIcP5NuUOJ8-R0O_afxBNCTYMiliCWtACSS8amHxPwKLHYp57-9BE75rlvF1_3lmv-Uj30_vLMpQBnUJccwqdeym-PAeSWdKH1MRnXKX0JRy6bzP9ySo3HMWp0eTP6WnI8BDjZKIW0VyZ0kMhjUzHTw"/>
+</div>
+<div class="md:col-span-1 h-full flex flex-col gap-2">
+<img alt="Bedroom view" class="w-full h-1/2 object-cover hover:opacity-95 transition-opacity cursor-pointer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFa7Sy9fgwjkAo75avbyJON2m6BODMpN2BEC4NTslJwUN5gTplLK9nu4I0A3Y-QA2F-OPWMNRJA97EiNJFC1SOVjHeGdNhPrXaIqlSgycb46iObxwgvTQK7X-KMfrRe4KU2tIUbNNbUgPq4-46yjEOlL_zxXdHD5ctPrCcpS-i11riYSghVbHph5bvTMJ6mQp_rkHQoI-751j6Pw7WHXkt8Q_teFGu66zU3n929HaRNUkYHNWNaTitCF1jWnS1QXsShJT8sf_Y7w"/>
+<img alt="Common area kitchen" class="w-full h-1/2 object-cover hover:opacity-95 transition-opacity cursor-pointer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcNQV6s4Zke02A3FEMlR23SKbaCep9gSZVV8WMPCQAwcnS_RqfbhhzCgkKElxtL3vKefj5_hbeSDjWPM2YpwQYfgR2GeZGpFH99Uv8-8DCqohZp-FeqDXtdiNAl44br8M7vY6lc7fXj7P7rVkCYiDY7OdiI4YM_P5hHoYj_9N4rVlCYFUIf_62hhOfETxelh_gAQNUF_TjCbqifNPu0QRtcst0q7y86ORmPhyftPo9-WhPczenHTP2oEbUG_-x5-RYKD0rkS9r1A"/>
+</div>
+<div class="md:col-span-1 h-full flex flex-col gap-2 relative">
+<img alt="Bathroom modern" class="w-full h-1/2 object-cover hover:opacity-95 transition-opacity cursor-pointer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyUHsUot5hL0EKtlGx3Xye9nXSUD02igcacHC5dtx0QheaSASG0DOEFXRi3AJMwkIphETcrNe4PtmWvzfYwUfvaDwPVkUaIDbMy5oMqb5JIyqkDaFQFlGwJvKoEgDPm8S0U1vgC52TLexDY9r6PRrGum0nBuoSvcX5zJf-2cJx3JkCbMJxxvd8QhTrxmLUSJVJklP6708gyHw1HSHc0mBJCMQmqMvh_Gowx5_6QkpuXOL4rf1wSaWkq2tad9jLw6Qvo02oRZak9g"/>
+<img alt="Study area detail" class="w-full h-1/2 object-cover hover:opacity-95 transition-opacity cursor-pointer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgrgf7yhE2bACo43Cl8f70f-t2BRV8wAKjKTqlAHHAusdMk3TUfjGYdo-Rq2Oy6SBlf0-dvT3VSx3PkB0Nq8mkhIBE1BA3FoFNFq4JICr1euDGamzqUWoq9xneX8v4QooiNC2_nKRGek0rBKZMjAVVM4tetrLwFf9S5b5TW6ovjDLFwHoyl4G2YFOZEkhfl-jkY78QKFe9aT9xOiENdM5dUKRCz7on6rdW_AoMFSC-tk6mHBOB0SfLSze0jkIpbGplOY1oWuVbig"/>
+<button class="absolute bottom-4 right-4 bg-white dark:bg-gray-900 px-3 py-1.5 rounded-lg text-sm font-medium shadow-md flex items-center gap-1 hover:bg-gray-50">
+<span class="material-symbols-outlined text-base">grid_view</span> Todas las fotos
+             </button>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 relative">
+<div class="lg:col-span-8 space-y-12">
+<section class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
+<div class="flex items-center gap-2 mb-4">
+<div class="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+<span class="material-symbols-outlined text-primary">groups</span>
+</div>
+<h2 class="text-xl font-bold text-gray-900 dark:text-white">Comunidad y Convivencia</h2>
+</div>
+<div class="relative pl-4 border-l-4 border-blue-200 dark:border-blue-900 my-6">
+<p class="text-gray-600 dark:text-gray-300 italic text-sm md:text-base leading-relaxed">
+                        "Fomentamos una comunidad respetuosa y tranquila. Compartimos espacios limpios, horarios justos y promovemos el diálogo entre compañeros. Buscamos estudiantes que valoren el estudio y la amistad."
+                    </p>
+</div>
+<div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+<div class="flex items-center gap-3">
+<div class="flex -space-x-2">
+<img alt="" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-gray-800" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBp8FcoeFH8PTU6QLNvDJqHpKWkVT5yAXEicziAsgjLN1pJLlWW4fhLjWN0IGRuHYfn0bag_oHiSH38C5l89f4ut3pLtkgG-g2Cb5C2ASV2UqCVbPGRE02Xv-65e4aiaxZHjyqrwwnEWoodJWREddh0QqzZQ_DkVMadP--jPcw99alsffKNsf6oJIouoUd4y-0KJachHPiVuZFTl003b0jGbHJlGJIi6vzT4DEmtiKbTZjMzSJAPcMSJJVSj_Zwt7rzu03ZHnJaQw"/>
+<img alt="" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-gray-800" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1tsLnYReb4N0R5rci1wBriI45tF_uedNReLC8Tr3L-rSVWKBToSnwvalsGxHMywEm2T0Fu4BD26NfBFE5L_m_ZmvFhyu5NvyYfqcDGyxUnEASRhjTCYEGm4emrL_IZoQ76u_fl-swubL9_5_hBlZFGji-aoo8jH7v2dmfOBDCQJdVVm_ETr6HtOwMZ0yL2Garp42LYHLLN8v-5uatkOLRZexbWxze1pbjHQfeWq4Crsx7qnjcAbZfpkFzLQ1T1V2mk7AA8ysgPA"/>
+<img alt="" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-gray-800" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJwUptfC3ENEk18CHOks9yQGaVmGjeQJKL5IPjYnkk9t2IpVWZ_dvw2KRrcJU7KYTX7V5TSEiahXEaRUMLr-xsFS5VsUQsmR03IdTrcoOyeOs1Orjy2nZlemoMaTWe7m9XYBi5qk8iMlLubspXou6bRnh9oFPe3fMVZ08YNOC7moXUIimYZ_4fubxHCHMpgBwzKTWvVtaabF_0yo35ivw6e6k5AFaxZHN6yrau_we4cXrY2t1_3wcnTPOLAhdjNSvC4Zc4W7977A"/>
+<div class="flex items-center justify-center h-8 w-8 rounded-full ring-2 ring-white dark:ring-gray-800 bg-gray-100 text-xs font-medium text-gray-600">+23</div>
+</div>
+<span class="text-sm text-gray-500">26 residentes actuales</span>
+</div>
+<a class="text-primary hover:text-blue-700 text-sm font-medium flex items-center gap-1" href="#">
+                        Ver todos los perfiles
+                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</a>
+</div>
+<p class="text-xs text-gray-400 mt-2 text-right">Ver configuración actual de la residencia (26 de 32 estudiantes)</p>
+</section>
+<section>
+<h2 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Sobre la residencia</h2>
+<div class="prose prose-sm text-gray-600 dark:text-gray-300 max-w-none">
+<p>
+                        Bienvenido a Casa Palermo Soho, una casona histórica renovada ubicada en el corazón de Palermo. Estamos a pasos de Plaza Serrano, rodeados de arte urbano, cafés de especialidad y excelente conexión con la UBA, UTN y UP. Nuestro espacio combina la arquitectura clásica porteña con las comodidades modernas que todo estudiante necesita.
+                    </p>
+<button class="text-primary font-medium hover:text-blue-700 mt-2">Ver más</button>
+</div>
+</section>
+<section>
+<h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Servicios incluidos</h2>
+<div class="flex flex-wrap gap-3">
+<div class="flex items-center gap-2 px-3 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700">
+<span class="material-symbols-outlined text-primary text-xl">wifi</span>
+<span class="text-sm text-gray-700 dark:text-gray-300">WiFi</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700">
+<span class="material-symbols-outlined text-primary text-xl">cleaning_services</span>
+<span class="text-sm text-gray-700 dark:text-gray-300">Limpieza semanal</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700">
+<span class="material-symbols-outlined text-primary text-xl">local_laundry_service</span>
+<span class="text-sm text-gray-700 dark:text-gray-300">Lavandería</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700">
+<span class="material-symbols-outlined text-primary text-xl">kitchen</span>
+<span class="text-sm text-gray-700 dark:text-gray-300">Cocina equipada</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700">
+<span class="material-symbols-outlined text-primary text-xl">shield</span>
+<span class="text-sm text-gray-700 dark:text-gray-300">Seguridad 24 hs</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700">
+<span class="material-symbols-outlined text-primary text-xl">ac_unit</span>
+<span class="text-sm text-gray-700 dark:text-gray-300">Aire acondicionado (en áreas comunes)</span>
+</div>
+</div>
+</section>
+<section>
+<h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Áreas comunes</h2>
+<div class="flex flex-wrap gap-3">
+<div class="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 rounded-full border border-gray-200 dark:border-gray-600 shadow-sm">
+<span class="material-symbols-outlined text-gray-500 text-lg">restaurant</span>
+<span class="text-sm font-medium text-gray-700 dark:text-gray-200">Comedor</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 rounded-full border border-gray-200 dark:border-gray-600 shadow-sm">
+<span class="material-symbols-outlined text-gray-500 text-lg">menu_book</span>
+<span class="text-sm font-medium text-gray-700 dark:text-gray-200">Zona de estudio</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 rounded-full border border-gray-200 dark:border-gray-600 shadow-sm">
+<span class="material-symbols-outlined text-gray-500 text-lg">deck</span>
+<span class="text-sm font-medium text-gray-700 dark:text-gray-200">Terraza</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 rounded-full border border-gray-200 dark:border-gray-600 shadow-sm">
+<span class="material-symbols-outlined text-gray-500 text-lg">weekend</span>
+<span class="text-sm font-medium text-gray-700 dark:text-gray-200">Sala de estar</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 rounded-full border border-gray-200 dark:border-gray-600 shadow-sm">
+<span class="material-symbols-outlined text-gray-500 text-lg">yard</span>
+<span class="text-sm font-medium text-gray-700 dark:text-gray-200">Patio</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 rounded-full border border-gray-200 dark:border-gray-600 shadow-sm">
+<span class="material-symbols-outlined text-gray-500 text-lg">tv</span>
+<span class="text-sm font-medium text-gray-700 dark:text-gray-200">Sala de TV</span>
+</div>
+</div>
+</section>
+<section class="space-y-4">
+<div class="flex justify-between items-center">
+<h2 class="text-xl font-bold text-gray-900 dark:text-white">Comunidad actual de la residencia</h2>
+</div>
+<div class="bg-blue-50 dark:bg-blue-900/10 rounded-lg p-3 text-sm text-blue-800 dark:text-blue-200 flex gap-2 items-start">
+<span class="material-symbols-outlined text-lg shrink-0">info</span>
+<p>La convivencia es dinámica. Los perfiles mostrados son los actuales, pero pueden cambiar antes de tu ingreso.</p>
+</div>
+<div class="flex items-center justify-between bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
+<div>
+<p class="text-sm text-gray-500">Ocupación actual</p>
+<div class="flex items-baseline gap-2">
+<span class="text-2xl font-bold text-gray-900 dark:text-white">26</span>
+<span class="text-sm text-gray-500">de 32</span>
+</div>
+</div>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+<span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></span>
+                        Alta Disponibilidad
+                    </span>
+</div>
+<div class="bg-white dark:bg-gray-800 rounded-xl border-2 border-primary/10 overflow-hidden">
+<div class="p-4 bg-gray-50 dark:bg-gray-700/30 flex justify-between items-center">
+<span class="font-medium text-gray-900 dark:text-white flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">bedroom_parent</span>
+                            Doble Femenina
+                        </span>
+<span class="material-symbols-outlined text-gray-400 transform rotate-180">expand_more</span>
+</div>
+<div class="p-4 space-y-4">
+<div class="flex items-start gap-4 p-3 rounded-lg border border-gray-100 dark:border-gray-700 hover:shadow-sm transition-shadow">
+<div class="relative">
+<div class="h-12 w-12 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-sm">SR</div>
+<span class="absolute -bottom-1 -right-1 text-lg">🇦🇷</span>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="text-sm font-bold text-gray-900 dark:text-white">Sofía R., 21</h4>
+<p class="text-xs text-gray-500 dark:text-gray-400">Arquitectura</p>
+</div>
+</div>
+<div class="flex flex-wrap gap-1.5 mt-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
+                                        Convivencia estable
+                                    </span>
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
+                                        Orden
+                                    </span>
+</div>
+</div>
+</div>
+<div class="border-2 border-dashed border-green-300 dark:border-green-800 bg-green-50 dark:bg-green-900/10 rounded-lg p-3 flex items-center justify-center gap-2 cursor-pointer hover:bg-green-100 dark:hover:bg-green-900/20 transition-colors py-6">
+<span class="material-symbols-outlined text-green-600 dark:text-green-400">add_circle_outline</span>
+<div class="text-center">
+<span class="block text-sm font-medium text-green-700 dark:text-green-300">Cama disponible</span>
+<span class="block text-xs text-green-600/70 dark:text-green-400/70">Seleccionar en el paso siguiente</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="scroll-mt-24" id="availability">
+<h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Disponibilidad de Habitaciones</h2>
+<div class="border border-gray-200 dark:border-gray-700 rounded-xl p-5 mb-4 hover:shadow-md transition-shadow bg-white dark:bg-gray-800 relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
+<div class="flex justify-between items-start mb-4">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<h3 class="text-lg font-bold text-gray-900 dark:text-white">Triple Femenina</h3>
+<span class="bg-pink-100 text-pink-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase">Solo Chicas</span>
+</div>
+<div class="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">bed</span> 3 camas</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">bathroom</span> Baño Compartido</span>
+</div>
+</div>
+<div class="text-right">
+<div class="text-lg font-bold text-primary">USD 280 <span class="text-xs font-normal text-gray-500">/mes</span></div>
+<div class="text-xs text-green-600 font-medium">1 lugar disponible</div>
+</div>
+</div>
+<div class="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-4 mb-4">
+<p class="text-xs font-bold text-gray-500 uppercase mb-3">Tus futuras compañeras de cuarto:</p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="flex items-center gap-3 bg-white dark:bg-gray-800 p-2 rounded border border-gray-100 dark:border-gray-700">
+<div class="h-8 w-8 rounded-full bg-yellow-100 flex items-center justify-center text-xs font-bold text-yellow-700">L</div>
+<div>
+<div class="text-xs font-bold text-gray-900 dark:text-white">Luisa, 21</div>
+<div class="text-[10px] text-gray-500">Medicina</div>
+</div>
+</div>
+<div class="flex items-center gap-3 bg-white dark:bg-gray-800 p-2 rounded border border-gray-100 dark:border-gray-700">
+<div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-xs font-bold text-blue-700">M</div>
+<div>
+<div class="text-xs font-bold text-gray-900 dark:text-white">Marta, 23</div>
+<div class="text-[10px] text-gray-500">Abogacía</div>
+</div>
+</div>
+</div>
+<div class="mt-3 flex items-center gap-2 text-[10px] text-gray-400">
+<span class="material-symbols-outlined text-sm">info</span>
+                             Al seleccionar este lugar, se actualizará el resumen de reserva.
+                         </div>
+</div>
+<button class="w-full py-2.5 bg-primary hover:bg-blue-700 text-white font-medium rounded-lg transition-colors text-sm shadow-sm">
+                         Seleccionar este lugar
+                     </button>
+</div>
+<div class="border border-gray-200 dark:border-gray-700 rounded-xl p-5 hover:shadow-md transition-shadow bg-white dark:bg-gray-800 opacity-90">
+<div class="flex justify-between items-start mb-4">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<h3 class="text-lg font-bold text-gray-900 dark:text-white">Cuádruple Masculina</h3>
+<span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase">Solo Chicos</span>
+</div>
+<div class="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">bed</span> 4 camas</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">bathroom</span> Baño Privado</span>
+</div>
+</div>
+<div class="text-right">
+<div class="text-lg font-bold text-gray-900 dark:text-white">USD 250 <span class="text-xs font-normal text-gray-500">/mes</span></div>
+<div class="text-xs text-green-600 font-medium">1 lugar disponible</div>
+</div>
+</div>
+<div class="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-4 mb-4">
+<p class="text-xs font-bold text-gray-500 uppercase mb-3">Tus futuros compañeros de cuarto:</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+<div class="flex items-center gap-2">
+<div class="h-6 w-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-[10px] font-bold">J</div>
+<span class="text-xs text-gray-700 dark:text-gray-300">João</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="h-6 w-6 rounded-full bg-orange-100 text-orange-700 flex items-center justify-center text-[10px] font-bold">P</div>
+<span class="text-xs text-gray-700 dark:text-gray-300">Pedro</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="h-6 w-6 rounded-full bg-red-100 text-red-700 flex items-center justify-center text-[10px] font-bold">T</div>
+<span class="text-xs text-gray-700 dark:text-gray-300">Tomás</span>
+</div>
+</div>
+</div>
+<button class="w-full py-2.5 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 font-medium rounded-lg transition-colors text-sm">
+                        Seleccionar
+                    </button>
+</div>
+</section>
+<section class="pt-6 border-t border-gray-100 dark:border-gray-700">
+<div class="mb-6">
+<h2 class="text-xl font-bold text-gray-900 dark:text-white">Señales de convivencia</h2>
+<p class="text-sm text-gray-500 mt-1">Lo que dicen los residentes sobre vivir aquí (Sin puntajes, solo experiencias reales).</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+<div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
+<div class="font-semibold text-sm mb-3 text-gray-900 dark:text-white">Orden y limpieza</div>
+<div class="flex flex-wrap gap-2">
+<span class="text-xs bg-white dark:bg-gray-700 px-2 py-1 rounded border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300">Impecable</span>
+<span class="text-xs bg-white dark:bg-gray-700 px-2 py-1 rounded border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300">Cocina organizada</span>
+</div>
+</div>
+<div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
+<div class="font-semibold text-sm mb-3 text-gray-900 dark:text-white">Ambiente Social</div>
+<div class="flex flex-wrap gap-2">
+<span class="text-xs bg-white dark:bg-gray-700 px-2 py-1 rounded border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300">Súper buena onda</span>
+<span class="text-xs bg-white dark:bg-gray-700 px-2 py-1 rounded border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300">Comidas compartidas</span>
+</div>
+</div>
+<div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
+<div class="font-semibold text-sm mb-3 text-gray-900 dark:text-white">Instalaciones</div>
+<div class="flex flex-wrap gap-2">
+<span class="text-xs bg-white dark:bg-gray-700 px-2 py-1 rounded border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300">Wifi vuela</span>
+<span class="text-xs bg-white dark:bg-gray-700 px-2 py-1 rounded border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300">Terraza increíble</span>
+</div>
+</div>
+</div>
+<div class="space-y-4">
+<div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700">
+<div class="flex items-center gap-3 mb-3">
+<div class="h-8 w-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-xs">MG</div>
+<div>
+<div class="text-sm font-bold text-gray-900 dark:text-white">Martina G.</div>
+<div class="text-xs text-gray-500">Estudiante de Diseño • Oct 2023</div>
+</div>
+</div>
+<p class="text-sm text-gray-600 dark:text-gray-300 italic">"¡Increíble experiencia! La casa es hermosa y la gente súper buena onda. Me sentí segura y cómoda, ideal para cursar en la UP."</p>
+</div>
+<div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700">
+<div class="flex items-center gap-3 mb-3">
+<div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs">SR</div>
+<div>
+<div class="text-sm font-bold text-gray-900 dark:text-white">Santiago R.</div>
+<div class="text-xs text-gray-500">Estudiante de Ingeniería • Sep 2023</div>
+</div>
+</div>
+<p class="text-sm text-gray-600 dark:text-gray-300 italic">"Los asados en la terraza fueron lo mejor. Muy buen ambiente de estudio. Totalmente recomendado."</p>
+</div>
+</div>
+</section>
+<section class="pt-6 border-t border-gray-100 dark:border-gray-700 mb-20">
+<h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Ubicación</h2>
+<div class="bg-gray-200 dark:bg-gray-700 h-64 rounded-xl w-full relative overflow-hidden group">
+<iframe allowfullscreen="" class="opacity-70 group-hover:opacity-100 transition-opacity" height="100%" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3284.887250684224!2d-58.42848972477383!3d-34.58170295632617!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95bcb59b6a1e8a8d%3A0x6b44a2b9045b8801!2sPalermo%20Soho%2C%20C1414%20CABA%2C%20Argentina!5e0!3m2!1sen!2sus!4v1716380000000!5m2!1sen!2sus" style="border:0;" width="100%"></iframe>
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+<div class="bg-primary text-white p-3 rounded-full shadow-lg transform -translate-y-1/2">
+<span class="material-symbols-outlined text-2xl">location_on</span>
+</div>
+</div>
+</div>
+<div class="flex gap-3 mt-4 items-start bg-blue-50 dark:bg-gray-800 p-4 rounded-lg">
+<span class="material-symbols-outlined text-primary mt-0.5">map</span>
+<div>
+<h4 class="text-sm font-bold text-gray-900 dark:text-white">Palermo Soho, Buenos Aires</h4>
+<p class="text-xs text-gray-600 dark:text-gray-400 mt-1">A metros de la UBA, cafés de especialidad, librerías y transporte público. Zona segura y vibrante.</p>
+<p class="text-xs text-gray-400 italic mt-2">Dirección exacta disponible luego de confirmada la reserva.</p>
+</div>
+</div>
+</section>
+</div>
+<div class="lg:col-span-4 relative">
+<div class="sticky top-24 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+<div class="p-5 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+<h3 class="text-lg font-bold text-gray-900 dark:text-white">Tu Solicitud de Reserva</h3>
+<p class="text-xs text-gray-500 mt-1">Revisá los detalles antes de enviar</p>
+</div>
+<div class="p-5 space-y-6">
+<div class="flex justify-between items-center">
+<span class="text-sm font-medium text-gray-900 dark:text-white">Triple Femenina</span>
+<span class="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full flex items-center gap-1 font-medium">
+<span class="material-symbols-outlined text-xs">check_circle</span> Seleccionada
+                        </span>
+</div>
+<div class="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-3 border border-gray-100 dark:border-gray-600">
+<div class="flex justify-between text-xs text-gray-500 mb-1 uppercase tracking-wide">
+<span>Entrada</span>
+<span>Salida</span>
+</div>
+<div class="flex justify-between font-medium text-gray-900 dark:text-white text-sm mb-3">
+<span>1 Mar, 2025</span>
+<span class="text-gray-400">→</span>
+<span>31 Ago, 2025</span>
+</div>
+<div class="border-t border-gray-200 dark:border-gray-600 pt-2 flex items-center justify-center">
+<span class="text-[10px] text-blue-600 dark:text-blue-300 flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">info</span> Estadía mínima: 6 meses
+                             </span>
+</div>
+</div>
+<div class="space-y-3 text-sm">
+<div class="flex justify-between text-gray-600 dark:text-gray-400">
+<span class="underline decoration-dotted cursor-help">Renta mensual (x7)</span>
+<span class="text-gray-900 dark:text-white">USD 1.960</span>
+</div>
+<div class="flex justify-between text-gray-600 dark:text-gray-400">
+<span class="flex items-center gap-1">Matrícula (Anual) <span class="material-symbols-outlined text-xs text-gray-400">help</span></span>
+<span class="text-gray-900 dark:text-white">USD 280</span>
+</div>
+<div class="flex justify-between text-orange-500 text-xs">
+<span class="flex items-center gap-1">Mes vacío (Febrero) <span class="material-symbols-outlined text-xs">error</span></span>
+<span>USD 210</span>
+</div>
+<div class="border-t border-dashed border-gray-200 dark:border-gray-600 my-2"></div>
+<div>
+<div class="flex justify-between font-bold text-gray-900 dark:text-white">
+<span>Total de la Reserva</span>
+<span>USD 2.450</span>
+</div>
+<p class="text-[10px] text-gray-400 mt-1 text-right leading-tight">
+                                    Al aprobarse tu solicitud, solo abonás el Fee EstuRED. El resto lo pagás mes a mes directamente a la residencia.
+                                </p>
+</div>
+<div>
+<div class="flex justify-between text-xs text-gray-500">
+<span class="flex items-center gap-1">Fee EstuRED (5%) <span class="material-symbols-outlined text-xs">help</span></span>
+<span>USD 122.5</span>
+</div>
+<p class="text-[10px] text-gray-400 mt-1 leading-tight">
+                                    Inversión mensual estimada del Fee EstuRED: USD 20/mes (según tu estadía).
+                                </p>
+</div>
+</div>
+<div class="bg-yellow-50 dark:bg-yellow-900/10 p-4 rounded-lg text-center border border-yellow-100 dark:border-yellow-800/30">
+<span class="block text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Total a pagar ahora</span>
+<span class="block text-3xl font-bold text-primary mb-2">USD 122.5</span>
+<p class="text-[10px] text-gray-500 leading-tight">
+                            Si aceptan tu reserva, pagas esto para asegurar tu lugar.
+                        </p>
+</div>
+<div class="flex items-start gap-2">
+<input class="mt-1 h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded" id="terms" type="checkbox"/>
+<label class="text-xs text-gray-600 dark:text-gray-400" for="terms">
+                            Acepto <a class="font-bold hover:underline" href="#">condiciones y reglamento</a>.
+                            <br/><span class="text-[10px] text-gray-400">Confirmo haber leído y aceptado las condiciones de reserva.</span>
+</label>
+</div>
+<button class="w-full bg-primary hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2">
+                        ENVIAR SOLICITUD DE RESERVA
+                        <span class="material-symbols-outlined">send</span>
+</button>
+<div class="flex justify-center gap-4 text-[10px] text-gray-400">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">lock</span> Pago Seguro</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">support_agent</span> Soporte 24/7</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-gray-500 dark:text-gray-400">
+<div class="flex justify-center gap-6 mb-4">
+<a class="hover:text-primary" href="#">Privacidad</a>
+<a class="hover:text-primary" href="#">Términos</a>
+<a class="hover:text-primary" href="#">Mapa del sitio</a>
+</div>
+<p>© 2025 EstuRED. Todos los derechos reservados.</p>
+</div>
+</footer>
+
+</body></html>

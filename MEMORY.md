@@ -1,6 +1,6 @@
 # MEMORY.md — Memoria persistente de EstuRed
 
-**Última actualización:** 2026-07-07 (Ciclo 5 — panel admin de verificación, loop de publicación cerrado e2e)
+**Última actualización:** 2026-07-08 (Ciclo 6 — familiar vinculado, loop de vinculación cerrado e2e)
 
 > Bitácora ejecutiva viva. NO reemplaza la documentación estratégica de `/docs`
 > (los 23 archivos `00`–`22` son la fuente de verdad de producto). Leer este
@@ -42,6 +42,11 @@ EstuRed es una webapp responsive para conectar estudiantes y familias con reside
 - `/admin/logs`: tabla de `audit_logs` (últimos 50 eventos), sin las categorías "Security & Rates"/"System Core" de la referencia (no existen esas categorías en el modelo).
 - `/admin/users` y `/admin/applications`: placeholders "Próximamente" — gestión de usuarios y de solicitudes quedan para ciclos posteriores.
 - **Bug real corregido durante el e2e** (mismo patrón que en el onboarding de residencias): los 3 botones de acción usaban el patrón correcto desde el inicio esta vez (`name="action" value="approve|needs_changes|reject"` + `useFormStatus`) — aplicué la lección del bug anterior preventivamente.
+
+**Familiar vinculado (Ciclo 6, verificado e2e 2026-07-08):**
+- Migración 0004: `family_members`, `family_links` (enum `family_link_status`, unique partial index "solo 1 activo por estudiante" — docs/00 §17). `/register/family` combina en un solo submit lo que los docs describen como 3 pasos (crear cuenta → buscar estudiante → solicitar vínculo): busca al estudiante **por email exacto** (debe tener cuenta ya creada; invitar a alguien sin cuenta requeriría email transaccional, pendiente docs/00 §29).
+- `/students/dashboard` ahora bifurca por rol: si `family_member`, muestra sus estudiantes vinculados y su estado; si `student`, muestra notificación de vinculación pendiente con Aprobar/Rechazar (`app/students/family-link-actions.ts` + `FamilyLinkActions.tsx`) y el familiar activo si existe. **No existe dashboard familiar separado** — comparte ruta y layout con el estudiante, como ya estaba documentado.
+- **Bug de infraestructura real, no de UI, encontrado en el e2e — dejar como referencia para el futuro**: agregar policies RLS "inversas" para que dos tablas se puedan leer mutuamente a través de una tabla puente (acá: `student_profiles` ↔ `family_links` ↔ `family_members`) causa **recursión infinita de RLS** si cada policy consulta a la otra tabla directamente (Postgres tira `infinite recursion detected in policy for relation ...`, y Supabase-js lo devuelve como error silencioso que un `.maybeSingle()` sin chequear `error` puede esconder como `null`). Fix aplicado en migración 0006: funciones `SECURITY DEFINER` (`is_family_member_of_student`, `is_student_linked_to_family_member`) que resuelven el lookup bypasseando RLS puertas adentro, rompiendo el ciclo. **Regla para el futuro**: cualquier policy nueva que haga un subquery a una tabla que a su vez tenga una policy que consulte de vuelta a la tabla original debe usar una función `SECURITY DEFINER`, no un subquery directo.
 
 ⚠️ Gotcha aprendido: al pegar la URL de Supabase en `.env.local` el dueño copió el endpoint REST (`.../rest/v1/`) y produjo `PGRST125`; la URL correcta es la base del proyecto sin path. El proyecto Supabase original (`agvcuqgakvsxedpoyefw`) quedó atascado en aprovisionamiento y fue recreado.
 
@@ -122,9 +127,11 @@ Todo el resto del MVP: ver `docs/PRODUCT_IMPLEMENTATION_PLAN.md` (Ciclos 1–7+)
 
 ## 14. Próxima tarea recomendada
 
-**Ciclo 6 — catálogo real + registro de familiar** (docs/12 Fase 2 restante + Fase 3 + §5.5): ya existe el camino completo para que una residencia llegue a `verified_active` (registro → perfil → admin aprueba), así que ahora sí tiene sentido reemplazar `lib/mock/residences.ts` por repositorios Supabase en `/search` y `/r/[slug]` (leer `residences` con status=verified_active + room_types + profile_availability + profile_sections) + `ExchangeRateProvider` (monedapi.ar) con modal obligatorio (docs/08 §2.8) + registro de familiar con vinculación aprobada por estudiante (docs/08 §5.5, `family_members`/`family_links`). Leer antes: docs/03, docs/12 §6.3 y §7.
+**Explícitamente decidido por el dueño (2026-07-08): NO reemplazar `lib/mock/residences.ts` todavía** — no tiene sentido armar el catálogo real hasta que existan residencias reales cargadas (hoy: 0 en `verified_active` tras limpiar los datos de prueba). Retomar esto recién cuando haya altas reales o el dueño lo pida explícitamente.
 
-Pendientes menores (no bloquean): crear el admin real del dueño (`scripts/create-admin.mjs`), recuperación de contraseña (necesita proveedor de email, docs/00 §29), fotos curadas para mocks, logo real, rate limiting del waitlist (GAPS.md), página /privacy antes de difusión masiva, `/admin/users` y `/admin/applications` son placeholders (gestión global de usuarios y solicitudes — esta última espera a que exista `application_requests`).
+**Ciclo 7 — con qué seguir (a decidir con el dueño, no asumir):** opciones que no dependen de datos reales de residencias: (a) `ExchangeRateProvider` real (monedapi.ar) + modal obligatorio docs/08 §2.8; (b) modelo de solicitud de reserva (`application_requests`, docs/00 §4) — el corazón del loop central, aunque su punto de entrada natural (botón "Enviar solicitud" desde una ficha) sigue bloqueado hasta que haya catálogo real; (c) `family_application_proposals` (el familiar ya vinculado propone una solicitud que el estudiante aprueba, docs/06 §7) — depende de (b). Leer antes: docs/03, docs/00 §9 y §17.3.
+
+Pendientes menores (no bloquean): crear el admin real del dueño (`scripts/create-admin.mjs`), recuperación de contraseña (necesita proveedor de email, docs/00 §29), fotos curadas para mocks, logo real, rate limiting del waitlist (GAPS.md), página /privacy antes de difusión masiva, `/admin/users` y `/admin/applications` son placeholders.
 
 ## 15. Instrucciones para futuras sesiones
 
@@ -132,5 +139,5 @@ Pendientes menores (no bloquean): crear el admin real del dueño (`scripts/creat
 2. Jerarquía ante contradicción: docs/13 §2 (el 00 manda).
 3. Nunca: fusionar entidades del loop, inventar estados/reglas, API de WhatsApp, mutar estados críticos desde el cliente, comprobante sin fee pagado.
 4. **Comandos de validación:** `npm run typecheck` · `npm run lint` · `npm run build` · dev: `npm run dev` (launch config `estured-dev` en `.claude/launch.json`).
-5. **Resultado última validación (2026-07-07, Ciclo 5):** typecheck ✅ · lint ✅ · build ✅ (21 rutas) · e2e completo: registro de residencia → perfil → enviar para revisión → login como admin demo → `/admin/verifications` → checklist → "Aprobar y publicar" → `residences.status='verified_active'` confirmado → **RLS anónimo verificado: la residencia recién aprobada ya es visible para el rol `anon`** → auditoría completa en `/admin/logs` · sin tests automatizados aún (ver GAPS.md).
+5. **Resultado última validación (2026-07-08, Ciclo 6):** typecheck ✅ · lint ✅ · build ✅ (20 rutas) · e2e completo: registro de estudiante (Julieta) → registro de familiar (Marcela, vinculando por email) → dashboard de Marcela muestra "Pendiente" → login como Julieta ve "Madre Marcela Alonso quiere vincularse" → aprueba → ambos ven "vínculo activo" con el nombre completo del otro → auditoría (`family_registered_and_link_requested`, `family_link_approved`) confirmada en DB · sin tests automatizados aún (ver GAPS.md).
 6. Al cerrar cada ciclo: validar, actualizar `MEMORY.md` + `docs/NEXT_STEPS.md`.

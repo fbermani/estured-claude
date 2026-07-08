@@ -20,7 +20,7 @@ const options = [
     title: "Soy padre, madre o familiar",
     description:
       "Quiero acompañar la búsqueda de un estudiante: proponer opciones, seguir el proceso y ver comprobantes.",
-    available: false,
+    available: true,
   },
   {
     href: "/register/residence",

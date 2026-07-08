@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es-AR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EstuRED - Centro de Notificaciones Inteligentes</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f7f9fb;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #e2e8e0;
+            border-radius: 10px;
+        }
+        .notification-card:hover .action-btn {
+            opacity: 1;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed-dim": "#b2c5ff",
+                        "on-primary-fixed-variant": "#0040a2",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e6e8ea",
+                        "inverse-surface": "#2d3133",
+                        "on-tertiary-fixed-variant": "#812800",
+                        "on-tertiary-fixed": "#380d00",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed-dim": "#b9c7df",
+                        "tertiary-container": "#a33500",
+                        "surface-container-low": "#f2f4f6",
+                        "surface-container-highest": "#e0e3e5",
+                        "surface-variant": "#e0e3e5",
+                        "on-secondary-container": "#57657a",
+                        "outline-variant": "#c3c6d6",
+                        "on-primary-fixed": "#001848",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#b2c5ff",
+                        "primary-fixed": "#dae2ff",
+                        "surface-tint": "#0c56d0",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed": "#ffdbcf",
+                        "secondary": "#515f74",
+                        "primary-container": "#0052cc",
+                        "on-tertiary-container": "#ffc6b2",
+                        "on-background": "#191c1e",
+                        "on-surface-variant": "#434654",
+                        "on-surface": "#191c1e",
+                        "tertiary-fixed-dim": "#ffb59b",
+                        "on-secondary-fixed": "#0d1c2e",
+                        "error": "#ba1a1a",
+                        "surface-dim": "#d8dadc",
+                        "surface": "#f7f9fb",
+                        "outline": "#737685",
+                        "on-error": "#ffffff",
+                        "background": "#f7f9fb",
+                        "surface-bright": "#f7f9fb",
+                        "secondary-fixed": "#d5e3fc",
+                        "on-secondary-fixed-variant": "#3a485b",
+                        "inverse-on-surface": "#eff1f3",
+                        "secondary-container": "#d5e3fc",
+                        "tertiary": "#7b2600",
+                        "surface-container": "#eceef0",
+                        "on-primary-container": "#c4d2ff",
+                        "primary": "#003d9b"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-page": "24px",
+                        "gutter": "16px",
+                        "density-compact": "8px",
+                        "unit": "4px",
+                        "density-normal": "12px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "data-mono": ["Plus Jakarta Sans"],
+                        "body-sm": ["Plus Jakarta Sans"],
+                        "label-caps": ["Plus Jakarta Sans"],
+                        "headline-sm": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "headline-lg": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "data-mono": ["13px", {"lineHeight": "18px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+                        "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                        "headline-sm": ["16px", {"lineHeight": "24px", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "body-lg": ["15px", {"lineHeight": "22px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 bg-surface border-b border-outline-variant flex justify-between items-center h-16 px-margin-page max-w-full">
+<div class="flex items-center gap-8">
+<span class="font-headline-md text-headline-md font-bold text-primary">EstuRED</span>
+<nav class="hidden md:flex gap-6">
+<a class="font-headline-sm text-headline-sm text-secondary hover:text-primary transition-colors duration-200" href="#">Dashboard</a>
+<a class="font-headline-sm text-headline-sm text-secondary hover:text-primary transition-colors duration-200" href="#">Búsqueda</a>
+<a class="font-headline-sm text-headline-sm text-secondary hover:text-primary transition-colors duration-200" href="#">Mis Pagos</a>
+<a class="font-headline-sm text-headline-sm text-secondary hover:text-primary transition-colors duration-200" href="#">Solicitudes</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative group cursor-pointer active:opacity-80 transition-opacity">
+<span class="material-symbols-outlined text-secondary" data-icon="notifications">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full border border-surface"></span>
+</div>
+<span class="material-symbols-outlined text-secondary cursor-pointer active:opacity-80 transition-opacity" data-icon="settings">settings</span>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A professional user profile portrait in a high-key corporate setting. The subject is a young professional with a friendly expression. The lighting is soft and neutral, consistent with a modern light-mode interface. The background is a blurred office environment with white and light gray tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBS21ObahOPCZi9ZGoKvbMfLljhlzN-G1tl6Ub6O3fK_SwdfMOjyvgXrZiyNWriCfMQSzr3bww3LeCEdTdhV0Mts2pfng2RFVbiv4bvmmPKd01UY73ti7VcuThweteijExUXSzxAzgC-Qih5DRN6SutxQ4yznktW27SPLVjK8GNjNS_5rc-4AiL1ju1Omzbznui14mmiVc8jDL5WvQHCRopJ3tOaT6lRGN74Frm8xdKuNjeSqCAr3JiO0jgm4RErClZIAtoMfmvZQ"/>
+</div>
+<button class="bg-primary text-on-primary font-headline-sm text-headline-sm px-4 py-2 rounded-lg hover:opacity-90 transition-all">Nuevo Ticket</button>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-16 h-[calc(100vh-64px)] w-60 z-40 bg-surface-container-low border-r border-outline-variant flex flex-col p-density-normal gap-unit">
+<div class="mb-4">
+<p class="font-headline-sm text-headline-sm font-bold text-primary">Panel Admin</p>
+<p class="font-body-sm text-body-sm text-secondary">Supervisión Global</p>
+</div>
+<div class="flex flex-col gap-1 overflow-y-auto custom-scrollbar flex-grow">
+<div class="flex items-center gap-3 px-3 py-2 text-secondary hover:bg-surface-container-high rounded-lg cursor-pointer active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-body-md text-body-md">Resumen General</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 text-secondary hover:bg-surface-container-high rounded-lg cursor-pointer active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-body-md text-body-md">Gestión de Usuarios</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 text-secondary hover:bg-surface-container-high rounded-lg cursor-pointer active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-body-md text-body-md">Tarifas y Cobros</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 bg-primary-container text-on-primary-container font-bold rounded-lg cursor-pointer active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="assignment_late">assignment_late</span>
+<span class="font-body-md text-body-md">Solicitudes</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 text-secondary hover:bg-surface-container-high rounded-lg cursor-pointer active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="domain">domain</span>
+<span class="font-body-md text-body-md">Infraestructura</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 text-secondary hover:bg-surface-container-high rounded-lg cursor-pointer active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-body-md text-body-md">Reportes</span>
+</div>
+</div>
+<div class="mt-auto border-t border-outline-variant pt-4 flex flex-col gap-1">
+<div class="flex items-center gap-3 px-3 py-2 text-secondary hover:bg-surface-container-high rounded-lg cursor-pointer">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-body-md text-body-md">Ayuda</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 text-secondary hover:bg-surface-container-high rounded-lg cursor-pointer">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-body-md text-body-md">Cerrar Sesión</span>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="ml-60 pt-16 min-h-screen">
+<div class="p-margin-page max-w-7xl mx-auto">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Centro de Notificaciones</h1>
+<p class="font-body-lg text-body-lg text-secondary">Supervisión en tiempo real de acciones operativas y alertas de seguridad.</p>
+</div>
+<div class="flex gap-2">
+<button class="flex items-center gap-2 px-4 py-2 border border-outline text-secondary rounded-lg font-headline-sm text-headline-sm hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="filter_list">filter_list</span>
+                        Filtrar
+                    </button>
+<button class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-lg font-headline-sm text-headline-sm hover:opacity-90 transition-opacity">
+                        Marcar todo como leído
+                    </button>
+</div>
+</div>
+<!-- Dashboard Bento Grid -->
+<div class="grid grid-cols-12 gap-gutter">
+<!-- Summary Stats (Top Row) -->
+<div class="col-span-12 md:col-span-3 bg-white border border-outline-variant p-4 rounded-xl shadow-sm">
+<div class="flex justify-between items-start mb-2">
+<span class="font-label-caps text-label-caps text-secondary uppercase tracking-wider">Críticos</span>
+<span class="material-symbols-outlined text-error" data-icon="report" style="font-variation-settings: 'FILL' 1;">report</span>
+</div>
+<p class="font-headline-lg text-headline-lg text-error">04</p>
+<div class="flex items-center gap-1 text-body-sm text-error mt-2">
+<span class="material-symbols-outlined text-[14px]" data-icon="trending_up">trending_up</span>
+<span>+2 desde hoy</span>
+</div>
+</div>
+<div class="col-span-12 md:col-span-3 bg-white border border-outline-variant p-4 rounded-xl shadow-sm">
+<div class="flex justify-between items-start mb-2">
+<span class="font-label-caps text-label-caps text-secondary uppercase tracking-wider">Importantes</span>
+<span class="material-symbols-outlined text-tertiary" data-icon="priority_high">priority_high</span>
+</div>
+<p class="font-headline-lg text-headline-lg text-tertiary">12</p>
+<div class="flex items-center gap-1 text-body-sm text-secondary mt-2">
+<span>Acción requerida</span>
+</div>
+</div>
+<div class="col-span-12 md:col-span-3 bg-white border border-outline-variant p-4 rounded-xl shadow-sm">
+<div class="flex justify-between items-start mb-2">
+<span class="font-label-caps text-label-caps text-secondary uppercase tracking-wider">Pendientes de Validación</span>
+<span class="material-symbols-outlined text-primary" data-icon="verified_user">verified_user</span>
+</div>
+<p class="font-headline-lg text-headline-lg text-primary">08</p>
+<div class="flex items-center gap-1 text-body-sm text-primary mt-2">
+<span>4 residencias nuevas</span>
+</div>
+</div>
+<div class="col-span-12 md:col-span-3 bg-white border border-outline-variant p-4 rounded-xl shadow-sm">
+<div class="flex justify-between items-start mb-2">
+<span class="font-label-caps text-label-caps text-secondary uppercase tracking-wider">Tasa de Resolución</span>
+<span class="material-symbols-outlined text-secondary" data-icon="check_circle">check_circle</span>
+</div>
+<p class="font-headline-lg text-headline-lg text-on-surface">94%</p>
+<div class="flex items-center gap-1 text-body-sm text-secondary mt-2">
+<span>Promedio semanal</span>
+</div>
+</div>
+<!-- Main Feed (Notification List) -->
+<div class="col-span-12 lg:col-span-8 space-y-4">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-2">Actividad Reciente</h2>
+<!-- Alert: Crítico -->
+<div class="notification-card bg-white border-l-4 border-l-error border border-outline-variant p-5 rounded-r-xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+<div class="flex gap-4">
+<div class="w-10 h-10 rounded-full bg-error-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-error" data-icon="security">security</span>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Alerta de Seguridad: Acceso no autorizado</h3>
+<p class="font-body-md text-body-md text-secondary mt-1">Se detectó un intento de ingreso fallido repetido en el Sector B-14 (Entrada Principal). Protocolo de bloqueo activado.</p>
+</div>
+<span class="font-body-sm text-body-sm text-secondary whitespace-nowrap">Hace 5 min</span>
+</div>
+<div class="mt-4 flex gap-3">
+<button class="bg-error text-on-error font-headline-sm text-headline-sm px-4 py-1.5 rounded-lg hover:opacity-90">Ver cámaras</button>
+<button class="text-secondary border border-outline px-4 py-1.5 rounded-lg font-headline-sm text-headline-sm hover:bg-surface-container-low">Desestimar</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Alert: Importante (Solicitud por vencer) -->
+<div class="notification-card bg-white border-l-4 border-l-tertiary border border-outline-variant p-5 rounded-r-xl shadow-sm hover:shadow-md transition-shadow">
+<div class="flex gap-4">
+<div class="w-10 h-10 rounded-full bg-tertiary-fixed flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-tertiary" data-icon="history_toggle_off">history_toggle_off</span>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Solicitud por Vencer: Mantenimiento Preventivo</h3>
+<p class="font-body-md text-body-md text-secondary mt-1">El ticket #8842 para la revisión de calderas en Torre Norte vence en 2 horas. No se ha asignado técnico aún.</p>
+</div>
+<span class="font-body-sm text-body-sm text-secondary whitespace-nowrap">Hace 45 min</span>
+</div>
+<div class="mt-4 flex gap-3">
+<button class="bg-primary text-on-primary font-headline-sm text-headline-sm px-4 py-1.5 rounded-lg hover:opacity-90">Asignar Urgente</button>
+<button class="text-secondary border border-outline px-4 py-1.5 rounded-lg font-headline-sm text-headline-sm">Posponer</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Alert: Informativo (Mensaje residente) -->
+<div class="notification-card bg-white border-l-4 border-l-primary border border-outline-variant p-5 rounded-r-xl shadow-sm hover:shadow-md transition-shadow">
+<div class="flex gap-4">
+<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary" data-icon="chat_bubble">chat_bubble</span>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Nuevo mensaje de Residente</h3>
+<p class="font-body-md text-body-md text-secondary mt-1"><strong>Martín Rodríguez (Depto 402):</strong> "Hola, quería consultar sobre el horario de uso del SUM para el próximo sábado..."</p>
+</div>
+<span class="font-body-sm text-body-sm text-secondary whitespace-nowrap">Hace 2 horas</span>
+</div>
+<div class="mt-4 flex gap-3">
+<button class="bg-surface-container-high text-on-surface font-headline-sm text-headline-sm px-4 py-1.5 rounded-lg hover:bg-surface-container-highest">Responder</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Alert: Validación Pendiente -->
+<div class="notification-card bg-white border-l-4 border-l-secondary border border-outline-variant p-5 rounded-r-xl shadow-sm hover:shadow-md transition-shadow">
+<div class="flex gap-4">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-secondary" data-icon="person_search">person_search</span>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Validación de Residencia Pendiente</h3>
+<p class="font-body-md text-body-md text-secondary mt-1">Nueva solicitud de registro en "Complejo Los Olivos - Unidad 12B". Documentación adjunta requiere revisión manual.</p>
+</div>
+<span class="font-body-sm text-body-sm text-secondary whitespace-nowrap">Hoy, 09:15 AM</span>
+</div>
+<div class="mt-4 flex items-center gap-4">
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full border-2 border-white bg-slate-200 flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-[16px]" data-icon="description">description</span>
+</div>
+<div class="w-8 h-8 rounded-full border-2 border-white bg-slate-200 flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-[16px]" data-icon="badge">badge</span>
+</div>
+</div>
+<button class="text-primary font-headline-sm text-headline-sm hover:underline">Revisar Documentos</button>
+</div>
+</div>
+</div>
+</div>
+<button class="w-full py-3 border-2 border-dashed border-outline-variant rounded-xl text-secondary font-headline-sm text-headline-sm hover:bg-surface-container-low hover:border-outline transition-all">
+                        Cargar notificaciones anteriores
+                    </button>
+</div>
+<!-- Right Sidebar / Contextual Actions -->
+<div class="col-span-12 lg:col-span-4 space-y-gutter">
+<!-- Performance Widget -->
+<div class="bg-white border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+<div class="p-4 border-b border-outline-variant bg-surface-container-low">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Estado del Sistema</h3>
+</div>
+<div class="p-4 space-y-4">
+<div class="relative h-32 rounded-lg overflow-hidden">
+
+<div class="relative z-10 flex flex-col justify-center h-full px-4">
+<p class="font-label-caps text-label-caps text-secondary uppercase">Salud Operativa</p>
+<p class="font-headline-lg text-headline-lg text-primary">Óptima</p>
+<p class="font-body-sm text-body-sm text-secondary">Todos los nodos activos</p>
+</div>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-center">
+<span class="font-body-md text-body-md text-secondary">Carga del Servidor</span>
+<span class="font-data-mono text-data-mono text-on-surface">24%</span>
+</div>
+<div class="w-full bg-surface-container-highest h-1.5 rounded-full">
+<div class="bg-primary h-1.5 rounded-full w-[24%]"></div>
+</div>
+<div class="flex justify-between items-center pt-2">
+<span class="font-body-md text-body-md text-secondary">Tiempo de Respuesta</span>
+<span class="font-data-mono text-data-mono text-on-surface">120ms</span>
+</div>
+<div class="w-full bg-surface-container-highest h-1.5 rounded-full">
+<div class="bg-primary h-1.5 rounded-full w-[15%]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Quick Contacts -->
+<div class="bg-white border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+<div class="p-4 border-b border-outline-variant">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Guardia de Turno</h3>
+</div>
+<div class="p-4 space-y-4">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="A portrait of a security professional in a neat uniform, looking alert and professional. The image has a clean, bright, and slightly high-contrast aesthetic. The background is a modern security command center with soft monitor glows and technical details, emphasizing a command-center atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSArdSMXlc0v6_bYBxyGeAYtCrYYIzZqhAXy25LCks-CoadRUpHIeQO8qdq7k0it_QODD2frzl-7A6cLABFqSPs51Y-MdQNt8LQYgelqozbQ3VT1g1-ZEeClhzq572CtzbA98lC_pmyuRNDvM4g0BrazKOoZ2RrMU3q1N5Y3eujHWd4X6CAkgKUVizxA4tBzp3JlUJu6P9O7cjPP2SUc4rjRWIh5Jwn-SvgPe04nFlO0GxewQJV8Yxtp0sfmBkfPHIyv-RFPisHQ"/>
+<div>
+<p class="font-headline-sm text-headline-sm text-on-surface">Oficial Rossi, J.</p>
+<p class="font-body-sm text-body-sm text-secondary">Supervisor de Seguridad</p>
+</div>
+<button class="ml-auto w-8 h-8 flex items-center justify-center rounded-full bg-primary-container text-on-primary-container">
+<span class="material-symbols-outlined text-[18px]" data-icon="call">call</span>
+</button>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary" data-icon="engineering">engineering</span>
+</div>
+<div>
+<p class="font-headline-sm text-headline-sm text-on-surface">Mantenimiento Externo</p>
+<p class="font-body-sm text-body-sm text-secondary">Ascensores (Electra S.A.)</p>
+</div>
+<button class="ml-auto w-8 h-8 flex items-center justify-center rounded-full bg-surface-container-high text-secondary">
+<span class="material-symbols-outlined text-[18px]" data-icon="chat">chat</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Calendar Glance -->
+<div class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-4">Eventos Hoy</h3>
+<div class="space-y-3">
+<div class="flex gap-3">
+<div class="flex flex-col items-center justify-center w-10 h-12 bg-surface-container-low rounded-lg border border-outline-variant shrink-0">
+<span class="font-label-caps text-[10px] text-secondary uppercase">OCT</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">24</span>
+</div>
+<div>
+<p class="font-body-md text-body-md font-bold text-on-surface">Auditoría de Higiene</p>
+<p class="font-body-sm text-body-sm text-secondary">14:00 - Todo el complejo</p>
+</div>
+</div>
+<div class="flex gap-3">
+<div class="flex flex-col items-center justify-center w-10 h-12 bg-surface-container-low rounded-lg border border-outline-variant shrink-0">
+<span class="font-label-caps text-[10px] text-secondary uppercase">OCT</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">24</span>
+</div>
+<div>
+<p class="font-body-md text-body-md font-bold text-on-surface">Corte Programado Luz</p>
+<p class="font-body-sm text-body-sm text-secondary">16:30 - Subsuelo/Garaje</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- FAB (Contextual) -->
+<button class="fixed bottom-8 right-8 w-14 h-14 bg-primary text-on-primary rounded-full shadow-lg hover:shadow-xl flex items-center justify-center transition-all active:scale-90 z-50">
+<span class="material-symbols-outlined text-[28px]" data-icon="add" style="font-variation-settings: 'wght' 700;">add</span>
+</button>
+<script>
+        // Micro-interactions and simulation logic
+        document.querySelectorAll('.notification-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.classList.add('scale-[1.01]');
+            });
+            card.addEventListener('mouseleave', () => {
+                card.classList.remove('scale-[1.01]');
+            });
+        });
+
+        // Search bar interaction (placeholder)
+        const topNav = document.querySelector('header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 10) {
+                topNav.classList.add('shadow-md');
+            } else {
+                topNav.classList.remove('shadow-md');
+            }
+        });
+    </script>
+</body></html>

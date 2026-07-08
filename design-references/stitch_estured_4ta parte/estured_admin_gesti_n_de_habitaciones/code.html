@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EstuRED Admin - Gestión de Habitaciones</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#136dec",
+                        "primary-dark": "#0f5bb5",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101822",
+                        "surface": "#ffffff",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom scrollbar for horizontal tables */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white h-screen overflow-hidden flex flex-col md:flex-row">
+<!-- SideNavBar -->
+<aside class="w-64 bg-surface h-full flex-col border-r border-slate-200 hidden md:flex z-20">
+<div class="p-6 flex items-center gap-3">
+<div class="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+<span class="material-symbols-outlined fill">apartment</span>
+</div>
+<div>
+<h1 class="text-base font-bold text-slate-900 leading-tight">EstuRED Admin</h1>
+<p class="text-slate-500 text-xs font-normal">Residencia Universitaria</p>
+</div>
+</div>
+<nav class="flex-1 px-4 py-2 flex flex-col gap-2 overflow-y-auto">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors" href="#">
+<span class="material-symbols-outlined fill">bed</span>
+<span class="text-sm font-medium">Habitaciones</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 transition-colors" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="text-sm font-medium">Residentes</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 transition-colors" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="text-sm font-medium">Pagos</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 transition-colors" href="#">
+<span class="material-symbols-outlined">build</span>
+<span class="text-sm font-medium">Mantenimiento</span>
+</a>
+</nav>
+<div class="p-4 border-t border-slate-200">
+<div class="flex items-center gap-3 px-3 py-2">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-8 bg-slate-200" data-alt="User avatar placeholder" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBHZkzO6943_JFsPJkGtkSSBtOdAQUk-K8VjDbZ2JryDapme5Dbxz3eDT970hMMnTCLZveNYxGkff-X4Y-KTPzppktCOXbuONkvBh5mxEQJS4eK_rbdQcfcSBAIHjA4Uqsr6bVlEN6ltQdyZ38jLe2CJlrm_RCa2M_nXeWskTbNNq_i5fxYgxOyRW2M4UxUc_2DJkdiw213l5uTalLnl2qKRk4lY17_3vSr10SWZU8k5G9DKjWD9SRZAUSwXA1mIrM-d7wmIrvFqQ");'></div>
+<div class="flex flex-col">
+<p class="text-sm font-medium text-slate-900">Admin General</p>
+<p class="text-xs text-slate-500">admin@estured.com</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col h-full min-w-0 bg-background-light overflow-hidden relative">
+<!-- TopNavBar -->
+<header class="h-16 bg-surface border-b border-slate-200 flex items-center justify-between px-6 md:px-10 shrink-0">
+<div class="flex items-center gap-4 md:hidden">
+<button class="text-slate-500">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h2 class="text-lg font-bold text-slate-900">EstuRED</h2>
+</div>
+<!-- Breadcrumbs / Title for Desktop -->
+<div class="hidden md:flex items-center text-slate-500 text-sm gap-2">
+<span>Admin</span>
+<span class="material-symbols-outlined text-base">chevron_right</span>
+<span class="text-slate-900 font-medium">Habitaciones</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="relative">
+<span class="absolute top-2 right-2.5 size-2 bg-red-500 rounded-full border border-white"></span>
+<button class="flex items-center justify-center size-10 rounded-full hover:bg-slate-100 text-slate-600 transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+<button class="flex items-center justify-center size-10 rounded-full hover:bg-slate-100 text-slate-600 transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</header>
+<!-- Scrollable Page Content -->
+<div class="flex-1 overflow-y-auto p-4 md:p-8 pb-32">
+<div class="max-w-7xl mx-auto flex flex-col gap-6">
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div>
+<h1 class="text-3xl font-bold text-slate-900 tracking-tight">Habitaciones</h1>
+<p class="text-slate-500 mt-1">Disponibilidad y tarifas, en un pantallazo.</p>
+</div>
+<button class="flex items-center gap-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-lg font-medium text-sm transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[20px]">print</span>
+                        Exportar / Imprimir
+                    </button>
+</div>
+<!-- KPIs Row -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<!-- Card 1 -->
+<div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<span class="text-slate-500 text-sm font-medium">Habitaciones / Plazas</span>
+<span class="bg-blue-50 text-blue-700 p-1.5 rounded-lg material-symbols-outlined text-[20px] fill">meeting_room</span>
+</div>
+<div>
+<div class="text-2xl font-bold text-slate-900">12 / 48</div>
+<div class="text-xs text-slate-500 font-medium mt-1">48 plazas configuradas</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<span class="text-slate-500 text-sm font-medium">Ocupación</span>
+<span class="bg-emerald-50 text-emerald-700 p-1.5 rounded-lg material-symbols-outlined text-[20px]">pie_chart</span>
+</div>
+<div>
+<div class="flex items-end gap-2">
+<span class="text-2xl font-bold text-slate-900">88%</span>
+<span class="text-sm text-slate-500 mb-1">(42/48)</span>
+</div>
+<div class="w-full bg-slate-100 rounded-full h-1.5 mt-2">
+<div class="bg-emerald-500 h-1.5 rounded-full" style="width: 88%"></div>
+</div>
+<div class="text-xs text-amber-600 font-medium mt-2 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">warning</span>
+                                Plazas OOO: 2
+                            </div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<span class="text-slate-500 text-sm font-medium">Vacantes actuales</span>
+<span class="bg-indigo-50 text-indigo-700 p-1.5 rounded-lg material-symbols-outlined text-[20px]">bed</span>
+</div>
+<div>
+<div class="text-2xl font-bold text-slate-900">2</div>
+<div class="flex gap-2 mt-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700">
+                                    1 Masc
+                                </span>
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-pink-50 text-pink-700">
+                                    1 Fem
+                                </span>
+</div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<span class="text-slate-500 text-sm font-medium">Movimientos próximos</span>
+<span class="bg-purple-50 text-purple-700 p-1.5 rounded-lg material-symbols-outlined text-[20px]">calendar_month</span>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-center text-sm">
+<span class="text-slate-600">Ingresos</span>
+<span class="font-bold text-green-600 bg-green-50 px-1.5 rounded">3</span>
+</div>
+<div class="flex justify-between items-center text-sm">
+<span class="text-slate-600">Salidas</span>
+<span class="font-bold text-red-600 bg-red-50 px-1.5 rounded">1</span>
+</div>
+<div class="flex justify-between items-center text-sm">
+<span class="text-slate-600">Renovaciones</span>
+<span class="font-bold text-blue-600 bg-blue-50 px-1.5 rounded">8</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Filter Bar -->
+<div class="flex flex-col xl:flex-row gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+<!-- Search -->
+<div class="relative flex-1 min-w-[280px]">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined">search</span>
+<input class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" placeholder="Buscar por número, tipo o residente..." type="text"/>
+</div>
+<!-- Controls Group -->
+<div class="flex flex-wrap items-center gap-4 md:gap-6">
+<!-- Switches -->
+<div class="flex items-center gap-4">
+<label class="inline-flex items-center cursor-pointer gap-2">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="relative w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+<span class="text-sm font-medium text-slate-600">Solo vacantes</span>
+</label>
+<label class="inline-flex items-center cursor-pointer gap-2">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="relative w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+<span class="text-sm font-medium text-slate-600">Incluye OOO</span>
+</label>
+</div>
+<div class="h-6 w-px bg-slate-200 hidden md:block"></div>
+<!-- View Toggles -->
+<div class="flex bg-slate-100 p-1 rounded-lg">
+<button class="px-3 py-1 text-xs font-medium rounded-md bg-white text-primary shadow-sm">ARS</button>
+<button class="px-3 py-1 text-xs font-medium rounded-md text-slate-500 hover:text-slate-700">USD</button>
+</div>
+<!-- Type Chips -->
+<div class="flex flex-wrap gap-2">
+<button class="px-3 py-1.5 text-xs font-medium rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors">Individual</button>
+<button class="px-3 py-1.5 text-xs font-medium rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors">Doble</button>
+<button class="px-3 py-1.5 text-xs font-medium rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors">Triple</button>
+<button class="px-3 py-1.5 text-xs font-medium rounded-full bg-primary/10 border border-primary/20 text-primary">Cuádruple</button>
+</div>
+</div>
+</div>
+<!-- Room Group: Cuádruple -->
+<section class="flex flex-col gap-4">
+<!-- Group Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-2 border-b border-slate-200">
+<div class="flex items-center gap-3">
+<h3 class="text-xl font-bold text-slate-800">Cuádruple</h3>
+<span class="bg-slate-100 text-slate-600 text-xs font-bold px-2 py-1 rounded-full">4 Habitaciones</span>
+</div>
+<!-- Pricing Matrix -->
+<div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-slate-50 p-2 rounded-lg border border-slate-200">
+<div class="flex items-center gap-2 pr-4 border-r border-slate-200">
+<span class="text-xs font-bold text-slate-500 uppercase tracking-wide">Tarifa Base</span>
+<button class="text-primary hover:text-primary-dark">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+</div>
+<div class="flex gap-4 overflow-x-auto hide-scrollbar max-w-[calc(100vw-80px)] sm:max-w-none">
+<div class="flex flex-col min-w-[50px]">
+<span class="text-[10px] text-slate-400 font-bold uppercase">Mar</span>
+<span class="text-xs font-medium text-slate-700">$150k</span>
+</div>
+<div class="flex flex-col min-w-[50px]">
+<span class="text-[10px] text-slate-400 font-bold uppercase">Abr</span>
+<span class="text-xs font-medium text-slate-700">$150k</span>
+</div>
+<div class="flex flex-col min-w-[50px]">
+<span class="text-[10px] text-slate-400 font-bold uppercase">May</span>
+<span class="text-xs font-medium text-slate-700">$160k</span>
+</div>
+<div class="flex flex-col min-w-[50px]">
+<span class="text-[10px] text-slate-400 font-bold uppercase">Jun</span>
+<span class="text-xs font-medium text-slate-700">$160k</span>
+</div>
+<div class="flex flex-col min-w-[50px]">
+<span class="text-[10px] text-slate-400 font-bold uppercase">Jul</span>
+<span class="text-xs font-medium text-slate-700">$180k</span>
+</div>
+<div class="flex flex-col min-w-[50px]">
+<span class="text-[10px] text-slate-400 font-bold uppercase">Ago</span>
+<span class="text-xs font-medium text-slate-700">$180k</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Room Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+<!-- Room 203 -->
+<div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+<div class="px-5 py-3 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+<div class="flex items-center gap-2">
+<span class="font-bold text-lg text-slate-800">203</span>
+<span class="text-pink-500 material-symbols-outlined text-[20px]" title="Habitación Femenina">female</span>
+</div>
+<span class="text-xs font-medium bg-orange-100 text-orange-700 px-2 py-0.5 rounded">2/3 Ocupadas</span>
+</div>
+<div class="p-5 flex flex-col gap-3 flex-1">
+<!-- Student 1 -->
+<div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100 group hover:border-primary/30 transition-colors">
+<div class="flex items-center gap-3">
+<div class="relative">
+<div class="size-8 rounded-full bg-cover bg-center" data-alt="Student Portrait" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCsjLMxyMTaoe9oWBQIjApyLLhVChOCXBGMliwNIUtLbCRldR2iU2wBFCDFkdf6r_v50Ds9pseiUvzM8sY_6mEFkAlEYMSZ4nqeHgalxR6bxxLxlZCM99Tgy031CBLlx-DUGUofO8_ujq195mj6obZpvjQoHjvL21qaqsrRhMfQXPagt0rThGMFe0qVvLvGhO4SUkEx_kM_roZEqeq5unHcwZFh0259b3XdN8gd85ToSyvFZvytu6DT1ELX8sv-OSNYYvfXLvnkzQ");'></div>
+<span class="absolute -bottom-1 -right-1 text-[10px] leading-none">🇦🇷</span>
+</div>
+<div>
+<p class="text-sm font-medium text-slate-800">Sofía M.</p>
+<p class="text-[10px] text-slate-500">Hasta Dic 2024</p>
+</div>
+</div>
+<button class="text-slate-400 hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+<!-- Student 2 -->
+<div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100 group hover:border-primary/30 transition-colors">
+<div class="flex items-center gap-3">
+<div class="relative">
+<div class="size-8 rounded-full bg-cover bg-center" data-alt="Student Portrait" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAAtEgV65FlNpcIPAijkcKf16mkJ4aq_OysstGX68H1CyMuGKRqFkeel7X3_x03b9GCXkZF263TawV6LmmFaeZzmj4-ETyq00YmCHe-87WGqPTiMOJHsiGTdZIB8pcE4gwgBKmYtEE1NZpDexgnjCwoIs_KlwSDcmXxB_EB1O00WKn2u7oGnkqw3cVqkhS3aWGgK0rWDzuRYHSnp3NpPpS06ab0If9i4J1u71pRId_hA3Y4gfs07vpz_Ci9dVDwaVr-GLx2U9f7Mg");'></div>
+<span class="absolute -bottom-1 -right-1 text-[10px] leading-none">🇨🇱</span>
+</div>
+<div>
+<p class="text-sm font-medium text-slate-800">Camila R.</p>
+<p class="text-[10px] text-slate-500">Hasta Jun 2024</p>
+</div>
+</div>
+<button class="text-slate-400 hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+<!-- Empty Spot -->
+<button class="flex items-center justify-center gap-2 p-2 rounded-lg border-2 border-dashed border-emerald-300 bg-emerald-50/50 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-400 transition-all group h-[52px]">
+<span class="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">add_circle</span>
+<span class="text-sm font-medium">Cama disponible</span>
+</button>
+<!-- OOO Spot -->
+<div class="flex items-center gap-3 p-2 rounded-lg bg-amber-50 border border-amber-200 opacity-70">
+<div class="size-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+<span class="material-symbols-outlined text-[18px]">block</span>
+</div>
+<div>
+<p class="text-sm font-medium text-amber-800">Fuera de Servicio</p>
+<p class="text-[10px] text-amber-600">Mantenimiento AC</p>
+</div>
+</div>
+</div>
+<div class="p-3 border-t border-slate-100 bg-slate-50 flex justify-end">
+<button class="text-sm font-medium text-primary hover:text-primary-dark px-3 py-1.5 rounded hover:bg-primary/5 transition-colors">
+                                    Gestionar
+                                </button>
+</div>
+</div>
+<!-- Room 204 (Full) -->
+<div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+<div class="px-5 py-3 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+<div class="flex items-center gap-2">
+<span class="font-bold text-lg text-slate-800">204</span>
+<span class="text-blue-500 material-symbols-outlined text-[20px]" title="Habitación Masculina">male</span>
+</div>
+<span class="text-xs font-medium bg-slate-100 text-slate-600 px-2 py-0.5 rounded">4/4 Ocupadas</span>
+</div>
+<div class="p-5 flex flex-col gap-3 flex-1">
+<!-- Student 1 -->
+<div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-xs font-bold">JD</div>
+<p class="text-sm font-medium text-slate-800">Juan D.</p>
+</div>
+</div>
+<div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-xs font-bold">LM</div>
+<p class="text-sm font-medium text-slate-800">Lucas M.</p>
+</div>
+</div>
+<div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-xs font-bold">PP</div>
+<p class="text-sm font-medium text-slate-800">Pedro P.</p>
+</div>
+</div>
+<div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-xs font-bold">AG</div>
+<p class="text-sm font-medium text-slate-800">Alan G.</p>
+</div>
+</div>
+</div>
+<div class="p-3 border-t border-slate-100 bg-slate-50 flex justify-end">
+<button class="text-sm font-medium text-slate-500 hover:text-primary px-3 py-1.5 rounded hover:bg-primary/5 transition-colors">
+                                    Gestionar
+                                </button>
+</div>
+</div>
+<!-- Room 205 (Empty) -->
+<div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col opacity-80 hover:opacity-100 transition-opacity">
+<div class="px-5 py-3 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+<div class="flex items-center gap-2">
+<span class="font-bold text-lg text-slate-800">205</span>
+<span class="text-slate-400 material-symbols-outlined text-[20px]">male</span>
+</div>
+<span class="text-xs font-medium bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded">0/4 Ocupadas</span>
+</div>
+<div class="p-5 flex flex-col gap-3 flex-1">
+<div class="flex-1 min-h-[140px] border-2 border-dashed border-slate-200 rounded-lg flex flex-col items-center justify-center text-center p-4">
+<span class="material-symbols-outlined text-slate-300 text-4xl mb-2">bed</span>
+<p class="text-sm text-slate-500 font-medium">Habitación vacía</p>
+<button class="mt-2 text-xs text-primary font-medium hover:underline">Asignar múltiples</button>
+</div>
+</div>
+<div class="p-3 border-t border-slate-100 bg-slate-50 flex justify-end">
+<button class="text-sm font-medium text-slate-500 hover:text-primary px-3 py-1.5 rounded hover:bg-primary/5 transition-colors">
+                                    Gestionar
+                                </button>
+</div>
+</div>
+</div>
+</section>
+<div class="text-center py-10 text-slate-400 text-sm">
+                    Mostrando 3 de 12 habitaciones
+                </div>
+</div>
+</div>
+</main>
+<!-- Modal Overlay - Visible for Design Purposes (Usually hidden) -->
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm bg-slate-900/40">
+<!-- Modal Content -->
+<div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[90vh]">
+<!-- Header -->
+<div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-400">bedroom_parent</span>
+<h3 class="text-lg font-bold text-slate-900">Gestión de Habitación 203</h3>
+</div>
+<button class="text-slate-400 hover:text-slate-600 rounded-lg p-1 hover:bg-slate-200 transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="flex flex-col md:flex-row h-full overflow-hidden">
+<!-- Left Column: Settings -->
+<div class="w-full md:w-1/3 p-6 border-r border-slate-200 bg-slate-50/50 overflow-y-auto">
+<h4 class="text-sm font-bold text-slate-800 mb-4 uppercase tracking-wider">Configuración</h4>
+<div class="space-y-4">
+<div>
+<label class="block text-xs font-medium text-slate-500 mb-1">Tipo</label>
+<div class="text-sm font-medium text-slate-900 bg-white border border-slate-200 px-3 py-2 rounded-lg">
+                                Cuádruple Standard
+                            </div>
+</div>
+<div>
+<label class="block text-xs font-medium text-slate-500 mb-1">Capacidad</label>
+<div class="text-sm font-medium text-slate-900 bg-white border border-slate-200 px-3 py-2 rounded-lg">
+                                4 Plazas
+                            </div>
+</div>
+<div>
+<label class="block text-xs font-medium text-slate-500 mb-1">Tarifa Mensual (ARS)</label>
+<div class="relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">$</span>
+<input class="w-full pl-6 pr-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:ring-primary focus:border-primary text-slate-900 font-medium" type="number" value="150000"/>
+</div>
+<p class="text-[10px] text-slate-400 mt-1">Cargá tarifas por mes si difieren.</p>
+</div>
+<div>
+<label class="block text-xs font-medium text-slate-500 mb-1">Estado Operativo</label>
+<div class="flex items-center gap-3 mt-1">
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-9 h-5 bg-slate-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+<span class="text-xs text-slate-700">Habitación Activa</span>
+</div>
+</div>
+<div class="pt-4 mt-2 border-t border-slate-200">
+<p class="text-[10px] leading-tight text-slate-400 italic">
+                                Una plaza fuera de operación no se publica como disponible en el portal de reservas.
+                            </p>
+</div>
+</div>
+</div>
+<!-- Right Column: Bed Management -->
+<div class="w-full md:w-2/3 p-6 bg-white overflow-y-auto">
+<div class="flex justify-between items-center mb-4">
+<h4 class="text-sm font-bold text-slate-800 uppercase tracking-wider">Plazas (Camas)</h4>
+<button class="text-xs text-primary font-medium hover:underline">Abrir cupos con anticipación</button>
+</div>
+<div class="space-y-3">
+<!-- Spot 1: Occupied -->
+<div class="flex items-center gap-4 p-3 rounded-lg border border-slate-200 bg-white shadow-sm">
+<div class="bg-primary/10 text-primary font-bold text-xs h-8 w-8 rounded flex items-center justify-center">A</div>
+<div class="flex-1 flex items-center gap-3">
+<div class="size-8 rounded-full bg-cover bg-center" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDHh7KneU3jDuRynA_nB72g5yJMiMe80X1EtUqjUo5akswb3GJkIHYG-UMdgpB-5Uc-ajDB66VtBkCruqS3I17X1NUv1u7jE0AWBTKnmsplEj4OlnJwJsFv41nlDKLtN8WVs-Ok6RLctXVGM60dT6GxoWqEiMITe1hfWqtTUsPmJxU5-MjTgVFXnvwJJPtjNPz8mPJX6bpXRHNDdeKEUo7UVJbsNhBrc-brFWFF2eUbzW9WTDgiev_Shg_SRWlZNZKvWiGfGcwBRQ");'></div>
+<div>
+<p class="text-sm font-bold text-slate-900">Sofía Martinez <span class="text-xs font-normal text-slate-500">🇦🇷</span></p>
+<p class="text-xs text-slate-500">Contrato hasta 15/12/2024</p>
+</div>
+</div>
+<button class="text-slate-400 hover:text-slate-600"><span class="material-symbols-outlined">edit</span></button>
+</div>
+<!-- Spot 2: Occupied -->
+<div class="flex items-center gap-4 p-3 rounded-lg border border-slate-200 bg-white shadow-sm">
+<div class="bg-primary/10 text-primary font-bold text-xs h-8 w-8 rounded flex items-center justify-center">B</div>
+<div class="flex-1 flex items-center gap-3">
+<div class="size-8 rounded-full bg-cover bg-center" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC49ULg-d26ORFY8Cc6_fSmzIwoO1h1j5pFpvGlHJw1Gw38flqWI2dDQX7Ojoti-DSX94TnMOTu0d6qE0HKb2DfnZHs5p8OhPxwV7fz2l28sRGwF0zNhH84ibJmJMBHjBCXgasFk9Rnv8zCM6-Hp3OuXvimSMoasHQb4xUwPNrNdUsuNcUhSJzme2N-DSsfs84sLx_Pc0Xna4lAa_a2kW4njfAoNPcBT4G633Ub2eHrIp9cyB9eiSSKRRrmYg-1pf5fHnKKOTzhlg");'></div>
+<div>
+<p class="text-sm font-bold text-slate-900">Camila Rodriguez <span class="text-xs font-normal text-slate-500">🇨🇱</span></p>
+<p class="text-xs text-slate-500">Contrato hasta 30/06/2024</p>
+</div>
+</div>
+<button class="text-slate-400 hover:text-slate-600"><span class="material-symbols-outlined">edit</span></button>
+</div>
+<!-- Spot 3: Available -->
+<div class="flex items-center gap-4 p-3 rounded-lg border-2 border-dashed border-emerald-300 bg-emerald-50/30">
+<div class="bg-emerald-100 text-emerald-700 font-bold text-xs h-8 w-8 rounded flex items-center justify-center">C</div>
+<div class="flex-1">
+<p class="text-sm font-bold text-emerald-700">Disponible</p>
+<p class="text-xs text-emerald-600">Visible en web ($150k)</p>
+</div>
+<div class="flex gap-2">
+<button class="p-1.5 rounded bg-emerald-100 text-emerald-700 hover:bg-emerald-200" title="Asignar"><span class="material-symbols-outlined text-lg">person_add</span></button>
+<button class="p-1.5 rounded bg-amber-100 text-amber-700 hover:bg-amber-200" title="Bloquear (OOO)"><span class="material-symbols-outlined text-lg">block</span></button>
+</div>
+</div>
+<!-- Spot 4: OOO -->
+<div class="flex items-center gap-4 p-3 rounded-lg border border-amber-200 bg-amber-50">
+<div class="bg-amber-200 text-amber-800 font-bold text-xs h-8 w-8 rounded flex items-center justify-center">D</div>
+<div class="flex-1">
+<p class="text-sm font-bold text-amber-800">Fuera de Servicio (OOO)</p>
+<p class="text-xs text-amber-600">Razón: Mantenimiento aire acondicionado</p>
+</div>
+<button class="text-amber-500 hover:text-amber-700"><span class="material-symbols-outlined">edit</span></button>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer -->
+<div class="px-6 py-4 bg-white border-t border-slate-200 flex justify-end gap-3">
+<button class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
+<button class="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-dark rounded-lg shadow-sm shadow-primary/30">Guardar Cambios</button>
+</div>
+</div>
+</div>
+</body></html>
