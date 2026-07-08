@@ -14,6 +14,8 @@ const STATUS_COPY: Record<string, { label: string; tone: "amber" | "sage" | "neu
   submitted: { label: "Enviada — esperando respuesta", tone: "amber" },
   under_review: { label: "En revisión", tone: "amber" },
   contact_established: { label: "Contacto establecido", tone: "sage" },
+  offer_pending_student_acceptance: { label: "Te propusieron un ajuste", tone: "amber" },
+  conditions_accepted: { label: "Condiciones aceptadas", tone: "sage" },
   paused_due_to_other_active_request: { label: "Pausada", tone: "neutral" },
   rejected: { label: "Rechazada", tone: "neutral" },
   expired_no_residence_response: { label: "Vencida — sin respuesta", tone: "neutral" },

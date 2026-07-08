@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 
 export const metadata: Metadata = { title: "Detalle de solicitud" };
 export const dynamic = "force-dynamic";
@@ -22,6 +23,16 @@ const STATUS_EXPLANATION: Record<string, { label: string; tone: "amber" | "sage"
     label: "Contacto establecido",
     tone: "sage",
     helper: "La residencia va a escribirte por WhatsApp para coordinar los próximos pasos.",
+  },
+  offer_pending_student_acceptance: {
+    label: "Te propusieron un ajuste",
+    tone: "amber",
+    helper: "La residencia propuso un cambio en las condiciones. Revisalo y decidí.",
+  },
+  conditions_accepted: {
+    label: "Condiciones aceptadas",
+    tone: "sage",
+    helper: "Ya acordaste las condiciones finales. El pago a la residencia se habilita en la próxima etapa.",
   },
   paused_due_to_other_active_request: {
     label: "Pausada",
@@ -85,6 +96,12 @@ export default async function StudentApplicationDetailPage({
         </div>
 
         <p className="mt-4 rounded-field bg-sand-100 px-4 py-3 text-sm text-ink-soft">{info.helper}</p>
+
+        {application.status === "offer_pending_student_acceptance" && (
+          <Button href={`/students/applications/${id}/negotiation`} size="lg" className="mt-4 w-full">
+            Ver propuesta de ajuste
+          </Button>
+        )}
 
         <dl className="mt-6 space-y-3 text-sm">
           <div className="flex justify-between border-b border-sand-200 pb-2">

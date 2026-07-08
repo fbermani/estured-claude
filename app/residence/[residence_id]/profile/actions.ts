@@ -5,7 +5,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { assertResidenceAccess } from "@/lib/residences/access";
 import { createAuditLog } from "@/lib/audit";
-import { usdToArsReferencial } from "@/lib/mock/exchange";
+import { usdToArsReferencial, roundUsd, roundArs } from "@/lib/mock/exchange";
 import {
   SERVICE_OPTIONS,
   COMMON_AREA_OPTIONS,
@@ -42,15 +42,6 @@ interface RoomTypeInput {
   depositUsd?: number;
   adjustmentPolicy: string;
   minimumStayMonths?: number;
-}
-
-/** Docs/06 §3.3: tarifas USD terminan en 0 o 5. Redondeo suave, no rechazo. */
-function roundUsd(value: number): number {
-  return Math.round(value / 5) * 5;
-}
-/** Docs/06 §3.3: tarifas ARS terminan en 500 o 000. */
-function roundArs(value: number): number {
-  return Math.round(value / 500) * 500;
 }
 
 function parseRoomTypes(raw: string): RoomTypeInput[] | null {

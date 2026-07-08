@@ -4,6 +4,8 @@
 
 **Fecha:** 2026-07-06 (actualizado tras el Ciclo 2 — calidad visual y UX)
 
+> **Nota (2026-07-08):** este archivo quedó desactualizado como bitácora operativa desde el Ciclo 3 en adelante — `MEMORY.md` es la fuente de verdad viva del estado del proyecto (leer siempre `MEMORY.md` §13/§13bis/§13ter/§13cuater para el historial de ciclos 3-8, y §14 para el plan de continuidad vigente). Este archivo se conserva por su valor histórico del arranque del proyecto (Ciclo 0-2).
+
 ---
 
 ## CICLO 2 (2026-07-06) — Qué se hizo

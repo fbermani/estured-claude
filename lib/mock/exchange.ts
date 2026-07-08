@@ -21,3 +21,13 @@ export function formatUsd(usd: number): string {
 export function formatArs(ars: number): string {
   return `ARS ${ars.toLocaleString("es-AR")}`;
 }
+
+/** Docs/00 §13.5 / docs/06 §3.3: tarifas USD terminan en 0 o 5. */
+export function roundUsd(value: number): number {
+  return Math.round(value / 5) * 5;
+}
+
+/** Docs/00 §13.5 / docs/06 §3.3: tarifas ARS terminan en 500 o 000. */
+export function roundArs(value: number): number {
+  return Math.round(value / 500) * 500;
+}

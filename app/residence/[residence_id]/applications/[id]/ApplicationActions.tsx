@@ -16,10 +16,12 @@ const initialState: ApplicationActionState = { status: "idle" };
 
 export function ApplicationActions({
   applicationId,
+  residenceId,
   status,
   whatsappUrl,
 }: {
   applicationId: string;
+  residenceId: string;
   status: string;
   whatsappUrl: string | null;
 }) {
@@ -42,20 +44,42 @@ export function ApplicationActions({
     return <p className="text-sm text-ink-faint">Esta solicitud ya está cerrada.</p>;
   }
 
+  if (status === "offer_pending_student_acceptance") {
+    return (
+      <p className="text-sm font-medium text-warning-fg">
+        Esperando respuesta del estudiante a tu propuesta de ajuste.
+      </p>
+    );
+  }
+
+  if (status === "conditions_accepted") {
+    return (
+      <p className="text-sm font-medium text-success-fg">
+        El estudiante aceptó las condiciones. El pago a la residencia se habilita en la próxima
+        etapa.
+      </p>
+    );
+  }
+
   if (status === "contact_established") {
     return (
-      <div>
+      <div className="space-y-4">
         <p className="text-sm font-medium text-success-fg">Ya estableciste contacto con esta solicitud.</p>
-        {whatsappUrl && (
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-3 inline-flex items-center gap-2 rounded-full bg-sage-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-sage-600"
-          >
-            Escribir por WhatsApp →
-          </a>
-        )}
+        <div className="flex flex-wrap gap-3">
+          {whatsappUrl && (
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 rounded-full bg-sage-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-sage-600"
+            >
+              Escribir por WhatsApp →
+            </a>
+          )}
+          <Button href={`/residence/${residenceId}/applications/${applicationId}/negotiation`} variant="outline">
+            Enviar propuesta de ajuste
+          </Button>
+        </div>
       </div>
     );
   }

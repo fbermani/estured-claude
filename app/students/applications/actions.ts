@@ -7,6 +7,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { createAuditLog } from "@/lib/audit";
 import { usdToArsReferencial, MOCK_EXCHANGE_RATE_ARS_PER_USD } from "@/lib/mock/exchange";
 import { ACTIVE_APPLICATION_STATUSES } from "@/lib/applications/types";
+import { calculateFeeEstimate } from "@/lib/applications/fee";
 
 export type CreateApplicationState = { status: "idle" | "error"; message?: string };
 
@@ -15,7 +16,8 @@ export type CreateApplicationState = { status: "idle" | "error"; message?: strin
  *
  * Fase 1: solo el estudiante inicia (initiated_by siempre 'student' —
  * que el familiar inicie requiere family_application_proposals, fase
- * posterior). No hay negociación, pago ni fee todavía.
+ * posterior). El fee ya se estima (docs/00 §12) para mostrarlo en la
+ * comparación de negociación, pero el cobro real es fase posterior.
  */
 export async function createApplicationRequest(
   residenceId: string,
@@ -124,6 +126,7 @@ export async function createApplicationRequest(
   const monthlyPriceUsd = Number(roomType.monthly_price_usd);
   const enrollmentFeeUsd = roomType.enrollment_fee_usd ? Number(roomType.enrollment_fee_usd) : null;
   const depositUsd = roomType.deposit_usd ? Number(roomType.deposit_usd) : null;
+  const fee = calculateFeeEstimate({ monthlyPriceUsd, durationMonths, enrollmentFeeUsd });
 
   let newRequestId: string;
   try {
@@ -147,6 +150,9 @@ export async function createApplicationRequest(
         reservation_payment_amount_usd: enrollmentFeeUsd ?? monthlyPriceUsd,
         reservation_payment_amount_ars: usdToArsReferencial(enrollmentFeeUsd ?? monthlyPriceUsd),
         adjustment_policy: roomType.adjustment_policy,
+        fee_base_usd: fee.feeBaseUsd,
+        fee_base_ars: fee.feeBaseArs,
+        estimated_estured_fee_ars: fee.estimatedFeeArs,
       })
       .select("id")
       .single();

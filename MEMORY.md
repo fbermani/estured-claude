@@ -1,6 +1,6 @@
 # MEMORY.md — Memoria persistente de EstuRed
 
-**Última actualización:** 2026-07-08 (Ciclo 7 — solicitud de reserva fase 1, loop cerrado e2e)
+**Última actualización:** 2026-07-08 (Ciclo 8 — negociación de condiciones, loop cerrado e2e)
 
 > Bitácora ejecutiva viva. NO reemplaza la documentación estratégica de `/docs`
 > (los 23 archivos `00`–`22` son la fuente de verdad de producto). Leer este
@@ -151,13 +151,25 @@ Todo el resto del MVP: ver `docs/PRODUCT_IMPLEMENTATION_PLAN.md` (Ciclos 1–7+)
 - **E2E verificado de punta a punta**: residencia de prueba verified_active → estudiante ve la ficha real → envía solicitud (snapshot creado con precio/USD/ARS correctos) → dashboard de residencia muestra "1 nueva" → marcar en revisión → establecer contacto → botón de WhatsApp con el mensaje exacto esperado → "Mis solicitudes" del estudiante refleja "Contacto establecido" → auditoría completa en ambos lados.
 - **Aprendizaje operativo, no de producto**: al limpiar datos de prueba, un `.delete()` de Supabase-js que viola una FK constraint **no lanza excepción** — solo devuelve `{ error }`, que si no se chequea explícitamente, el script sigue como si hubiera funcionado. Dejó una residencia de prueba colgada en `verified_active` (visible en el catálogo real) hasta que se detectó y corrigió. **Regla para el futuro**: en scripts de limpieza, siempre loguear/chequear el `error` de cada `.delete()`, nunca asumir éxito por ausencia de excepción.
 
+## 13cuater. Negociación de condiciones (Ciclo 8, verificado e2e 2026-07-08)
+
+**Modo de trabajo desde este ciclo**: el dueño pidió explícitamente dejar de preguntar "con qué seguimos" — planificar y ejecutar la continuidad del loop con criterio propio, y solo consultar ante dudas críticas o de flujo/pantalla genuinamente ambiguas. Este ciclo se decidió y ejecutó sin pedir aprobación de alcance.
+
+- Migración 0008: `application_negotiation_proposals` (docs/06 §11.3, docs/03 §10ter) — máximo 1 por solicitud (unique constraint). **Nombre de estado**: docs/03 §10ter.7 usa `accepted_conditions_pending_payment` en su texto narrativo, pero el enum técnico ya creado (docs/06 §4.5, migración 0007) es `conditions_accepted` — se usó el del enum (fuente técnica canónica), documentado como inconsistencia menor resuelta, no bloqueante.
+- `lib/applications/fee.ts`: cálculo del fee estimado (5% de meses×tarifa + matrícula, excluye depósito — docs/00 §12), usado tanto en el snapshot original (ahora completo, antes tenía esos campos en null) como en la comparación de negociación y el snapshot final.
+- Refactor DRY: `roundUsd`/`roundArs` (antes duplicadas en el server action de perfil de residencia) ahora viven en `lib/mock/exchange.ts`, importadas donde hacen falta.
+- `/residence/[residence_id]/applications/[id]/negotiation` (residencia envía, con advertencia bloqueante + comparación en vivo) y `/students/applications/[id]/negotiation` (estudiante ve comparación lado a lado y responde: aceptar / rechazar y continuar con originales / rechazar y cerrar) — rutas ya definidas en docs/11 §7.2-7.3.
+- **Snapshot final combina campo por campo**: lo propuesto por la residencia donde no sea null, lo original donde no se tocó — incluyendo heredar el tipo de cambio del original sin actualizarlo (docs/06 §11.2: "la negociación nunca actualiza la cotización").
+- **E2E verificado con precisión numérica exacta**: propuesta de descuento (300→270 USD) → comparación lado a lado con fee recalculado (≈127.500 ARS, verificado a mano: 270×6+100=1720 USD × 1480 = 2.545.600 ARS × 5% = 127.280 → redondeado a 127.500) → aceptación → `snapshot_final` con los valores combinados correctos → estado `conditions_accepted` en ambos lados → auditoría completa (`negotiation_proposal_sent`, `negotiation_accepted`).
+- **Gotcha de entorno reencontrado durante el e2e**: `.next/` se corrompió de nuevo (`Cannot find module './106.js'`) tras varios cambios de archivo seguidos con el dev server corriendo — mismo fix de siempre (parar servidor, `rm -rf .next`, relanzar), ya documentado en CLAUDE.md.
+
 ## 14. Próxima tarea recomendada
 
 **Explícitamente decidido por el dueño (2026-07-08): NO reemplazar `lib/mock/residences.ts` todavía** — no tiene sentido armar el catálogo mock-a-real hasta que existan residencias reales cargadas de verdad (hoy: 0 en `verified_active`). El catálogo real ya existe en paralelo (`/residencias`, ver §13ter) para cuando haga falta.
 
-**Ciclo 8 — con qué seguir (a decidir con el dueño, no asumir):** opciones naturales desde acá: (a) fase 2 del loop de solicitudes — negociación de condiciones (`application_negotiation_proposals`, docs/06 §11.3, docs/07 §15.4-15.6: la residencia puede proponer un único ajuste, el estudiante acepta/rechaza); (b) `ExchangeRateProvider` real (monedapi.ar) + modal obligatorio docs/08 §2.8 — ya es más urgente porque los snapshots de solicitud dependen de él; (c) `family_application_proposals` (el familiar ya vinculado propone una solicitud que el estudiante aprueba, docs/06 §7); (d) pago a residencia + fee EstuRed (siguiente eslabón después de `contact_established`). Leer antes: docs/03, docs/00 §11-12.
+**Plan de continuidad del loop central (a ejecutar en orden, sin volver a preguntar salvo duda crítica)**: (1) ~~negociación de condiciones~~ ✅ Ciclo 8; (2) `ExchangeRateProvider` real (monedapi.ar) + modal obligatorio docs/08 §2.8 — cada vez más urgente porque los snapshots ya dependen de él; (3) pago a residencia (`external_residence_payments`, docs/00 §11) — siguiente estado después de `conditions_accepted`; (4) fee EstuRed (MercadoPago/PayU) + factura fiscal (TusFacturas.app) + comprobante de reserva — cierra el loop central completo. `family_application_proposals` (docs/06 §7) queda como rama lateral, no bloqueante, a intercalar cuando convenga. Leer antes de cada bloque: la sección específica de docs/00 y docs/07.
 
-Pendientes menores (no bloquean): crear el admin real del dueño (`scripts/create-admin.mjs`), recuperación de contraseña (necesita proveedor de email, docs/00 §29), fotos curadas para mocks, logo real, rate limiting del waitlist (GAPS.md), página /privacy antes de difusión masiva, `/admin/users` y `/admin/applications` son placeholders, job de expiración automática de solicitudes a 48h (docs/00 §9.1 — hoy `expires_at` se guarda pero nada lo procesa todavía).
+Pendientes menores (no bloquean): crear el admin real del dueño (`scripts/create-admin.mjs`), recuperación de contraseña (necesita proveedor de email, docs/00 §29), fotos curadas para mocks, logo real, rate limiting del waitlist (GAPS.md), página /privacy antes de difusión masiva, `/admin/users` y `/admin/applications` son placeholders, job de expiración automática de solicitudes/propuestas a 48h (docs/00 §9.1 — hoy `expires_at` se guarda pero nada lo procesa todavía).
 
 ## 15. Instrucciones para futuras sesiones
 
@@ -165,5 +177,6 @@ Pendientes menores (no bloquean): crear el admin real del dueño (`scripts/creat
 2. Jerarquía ante contradicción: docs/13 §2 (el 00 manda).
 3. Nunca: fusionar entidades del loop, inventar estados/reglas, API de WhatsApp, mutar estados críticos desde el cliente, comprobante sin fee pagado.
 4. **Comandos de validación:** `npm run typecheck` · `npm run lint` · `npm run build` · dev: `npm run dev` (launch config `estured-dev` en `.claude/launch.json`).
-5. **Resultado última validación (2026-07-08, Ciclo 7):** typecheck ✅ · lint ✅ · build ✅ (25 rutas) · e2e completo del loop de solicitudes (ver §13ter) · sin tests automatizados aún (ver GAPS.md).
+5. **Resultado última validación (2026-07-08, Ciclo 8):** typecheck ✅ · lint ✅ · build ✅ (28 rutas) · e2e completo de negociación de condiciones (ver §13cuater) · sin tests automatizados aún (ver GAPS.md).
 6. Al cerrar cada ciclo: validar, actualizar `MEMORY.md` + `docs/NEXT_STEPS.md`.
+7. **Modo de trabajo (desde 2026-07-08):** no preguntar "con qué seguimos" — planificar y ejecutar la continuidad del loop central con criterio propio (ver plan en §14), consultando `docs/` y `design-references/` como corresponde. Solo consultar al dueño ante dudas realmente bloqueantes (regla de negocio ambigua no cubierta en docs, o pantalla/flujo de referencia que no se entiende). El dueño planea una pasada de estética aparte más adelante — señalar dudas estéticas sin detenerse a resolverlas ahora.

@@ -16,6 +16,8 @@ const STATUS_LABEL: Record<string, string> = {
   submitted: "Nueva",
   under_review: "En revisión",
   contact_established: "Contacto establecido",
+  offer_pending_student_acceptance: "Propuesta enviada — esperando al estudiante",
+  conditions_accepted: "Condiciones aceptadas",
   paused_due_to_other_active_request: "Pausada",
   rejected: "Rechazada",
   expired_no_residence_response: "Vencida",
@@ -138,6 +140,7 @@ export default async function ResidenceApplicationDetailPage({
         <div className="mt-8 border-t border-sand-200 pt-6">
           <ApplicationActions
             applicationId={application.id}
+            residenceId={residenceId}
             status={application.status}
             whatsappUrl={whatsappUrl}
           />
