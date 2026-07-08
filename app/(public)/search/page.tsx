@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SearchCatalog } from "@/app/(public)/search/SearchCatalog";
+import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 
 export const metadata: Metadata = {
   title: "Buscar residencias en CABA",
@@ -7,7 +8,8 @@ export const metadata: Metadata = {
     "Explorá residencias estudiantiles verificadas en CABA. Filtrá por barrio, tipo de habitación y disponibilidad.",
 };
 
-export default function SearchPage() {
+export default async function SearchPage() {
+  const rate = await getCurrentExchangeRate();
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
       <div className="mb-8 max-w-2xl">
@@ -20,7 +22,7 @@ export default function SearchPage() {
           confirmación.
         </p>
       </div>
-      <SearchCatalog />
+      <SearchCatalog arsPerUsd={rate.arsPerUsd} />
     </div>
   );
 }

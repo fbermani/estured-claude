@@ -5,7 +5,7 @@ const fieldClasses =
 
 interface FieldWrapperProps {
   label?: string;
-  hint?: string;
+  hint?: React.ReactNode;
   id?: string;
 }
 

@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { assertResidenceAccess } from "@/lib/residences/access";
+import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 import { ResidenceProfileForm } from "@/app/residence/[residence_id]/profile/ResidenceProfileForm";
 
 export const metadata: Metadata = { title: "Configuración de residencia" };
@@ -53,6 +54,7 @@ export default async function ResidenceProfilePage({
 
   if (!residence) notFound();
 
+  const rate = await getCurrentExchangeRate();
   const sectionMap = Object.fromEntries((sections ?? []).map((s) => [s.section_type, s.content]));
   const photoUrls = (photos ?? []).map(
     (p) => admin.storage.from("public-residence-media").getPublicUrl(p.storage_path).data.publicUrl,
@@ -61,6 +63,7 @@ export default async function ResidenceProfilePage({
   return (
     <ResidenceProfileForm
       residenceId={residenceId}
+      arsPerUsd={rate.arsPerUsd}
       initial={{
         name: residence.name,
         tagline: residence.tagline ?? "",

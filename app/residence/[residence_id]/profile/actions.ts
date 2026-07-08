@@ -5,7 +5,8 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { assertResidenceAccess } from "@/lib/residences/access";
 import { createAuditLog } from "@/lib/audit";
-import { usdToArsReferencial, roundUsd, roundArs } from "@/lib/mock/exchange";
+import { usdToArs, roundUsd, roundArs } from "@/lib/mock/exchange";
+import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 import {
   SERVICE_OPTIONS,
   COMMON_AREA_OPTIONS,
@@ -219,6 +220,7 @@ export async function saveResidenceProfile(
       await admin.from("room_types").delete().in("id", ids);
     }
 
+    const rate = await getCurrentExchangeRate();
     for (const rt of roomTypes) {
       const monthlyPriceUsd = roundUsd(rt.monthlyPriceUsd);
       const { data: inserted, error: rtError } = await admin
@@ -230,13 +232,13 @@ export async function saveResidenceProfile(
           bathroom_type: rt.bathroomType || null,
           features: rt.features,
           monthly_price_usd: monthlyPriceUsd,
-          monthly_price_ars: roundArs(usdToArsReferencial(monthlyPriceUsd)),
+          monthly_price_ars: roundArs(usdToArs(monthlyPriceUsd, rate.arsPerUsd)),
           enrollment_fee_usd: rt.enrollmentFeeUsd ? roundUsd(rt.enrollmentFeeUsd) : null,
           enrollment_fee_ars: rt.enrollmentFeeUsd
-            ? roundArs(usdToArsReferencial(roundUsd(rt.enrollmentFeeUsd)))
+            ? roundArs(usdToArs(roundUsd(rt.enrollmentFeeUsd), rate.arsPerUsd))
             : null,
           deposit_usd: rt.depositUsd ? roundUsd(rt.depositUsd) : null,
-          deposit_ars: rt.depositUsd ? roundArs(usdToArsReferencial(roundUsd(rt.depositUsd))) : null,
+          deposit_ars: rt.depositUsd ? roundArs(usdToArs(roundUsd(rt.depositUsd), rate.arsPerUsd)) : null,
           adjustment_policy: rt.adjustmentPolicy,
           minimum_stay_months: rt.minimumStayMonths || null,
         })

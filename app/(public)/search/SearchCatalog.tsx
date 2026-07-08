@@ -23,7 +23,7 @@ const availabilityOptions: { value: AvailabilityMode | ""; label: string }[] = [
   { value: "full", label: "Completa (lista de espera)" },
 ];
 
-export function SearchCatalog() {
+export function SearchCatalog({ arsPerUsd }: { arsPerUsd: number }) {
   const [zone, setZone] = useState("");
   const [roomType, setRoomType] = useState("");
   const [availability, setAvailability] = useState("");
@@ -112,7 +112,7 @@ export function SearchCatalog() {
       {filtered.length > 0 ? (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((r) => (
-            <ResidenceCard key={r.slug} residence={r} />
+            <ResidenceCard key={r.slug} residence={r} arsPerUsd={arsPerUsd} />
           ))}
         </div>
       ) : (

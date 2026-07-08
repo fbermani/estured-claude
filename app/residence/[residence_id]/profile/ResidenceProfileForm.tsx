@@ -7,7 +7,8 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Input, Select, Textarea } from "@/components/ui/Input";
-import { formatArs, formatUsd, usdToArsReferencial } from "@/lib/mock/exchange";
+import { formatArs, formatUsd, usdToArs } from "@/lib/mock/exchange";
+import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import {
   SERVICE_OPTIONS,
   COMMON_AREA_OPTIONS,
@@ -75,9 +76,11 @@ function emptyRoomType(): RoomTypeDraft {
 export function ResidenceProfileForm({
   residenceId,
   initial,
+  arsPerUsd,
 }: {
   residenceId: string;
   initial: ProfileInitial;
+  arsPerUsd: number;
 }) {
   const action = saveResidenceProfile.bind(null, residenceId);
   const [state, formAction] = useActionState(action, initialState);
@@ -403,7 +406,12 @@ export function ResidenceProfileForm({
                       step={5}
                       value={rt.monthlyPriceUsd}
                       onChange={(e) => updateRoomType(i, { monthlyPriceUsd: Number(e.target.value) })}
-                      hint={`≈ ${formatArs(usdToArsReferencial(rt.monthlyPriceUsd))} referencial`}
+                      hint={
+                        <>
+                          ≈ {formatArs(usdToArs(rt.monthlyPriceUsd, arsPerUsd))} referencial
+                          <ExchangeRateNote />
+                        </>
+                      }
                     />
                   </div>
                   <div className="mt-3 flex flex-wrap gap-4">

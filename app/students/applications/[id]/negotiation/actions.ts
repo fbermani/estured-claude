@@ -73,6 +73,7 @@ export async function respondNegotiationProposal(
       monthlyPriceUsd: Number(monthlyPriceUsd),
       durationMonths: Number(durationMonths),
       enrollmentFeeUsd: enrollmentFeeUsd ? Number(enrollmentFeeUsd) : null,
+      arsPerUsd: Number(original.exchange_rate_ars_per_usd),
     });
 
     const { data: finalSnapshot, error: snapshotError } = await admin

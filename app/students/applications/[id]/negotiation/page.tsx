@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { Card } from "@/components/ui/Card";
+import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import { formatUsd } from "@/lib/mock/exchange";
 import { calculateFeeEstimate } from "@/lib/applications/fee";
 import { NegotiationResponse } from "@/app/students/applications/[id]/negotiation/NegotiationResponse";
@@ -45,7 +46,7 @@ export default async function NegotiationResponsePage({
     admin
       .from("application_snapshots")
       .select(
-        "monthly_price_usd, enrollment_fee_usd, deposit_usd, initial_duration_months, reservation_payment_amount_usd",
+        "monthly_price_usd, enrollment_fee_usd, deposit_usd, initial_duration_months, reservation_payment_amount_usd, exchange_rate_ars_per_usd",
       )
       .eq("id", application.snapshot_original_id)
       .single(),
@@ -65,6 +66,7 @@ export default async function NegotiationResponsePage({
     monthlyPriceUsd: Number(finalMonthlyPrice),
     durationMonths: Number(finalDuration),
     enrollmentFeeUsd: finalEnrollmentFee ? Number(finalEnrollmentFee) : null,
+    arsPerUsd: Number(original.exchange_rate_ars_per_usd),
   });
 
   const residence = application.residences as unknown as { name: string } | null;
@@ -140,6 +142,11 @@ export default async function NegotiationResponsePage({
           </tbody>
         </table>
       </Card>
+
+      <p className="mt-3 text-xs text-ink-faint">
+        El fee EstuRed estimado en ARS es referencial.
+        <ExchangeRateNote />
+      </p>
 
       <NegotiationResponse applicationId={id} />
     </div>

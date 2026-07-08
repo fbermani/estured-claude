@@ -1,17 +1,15 @@
 /**
- * Tipo de cambio mock del ciclo fundacional.
- *
- * En producción la fuente es monedapi.ar (dólar blue, valor venta) vía
- * ExchangeRateProvider con tabla diaria y snapshot (docs/00 §13,
- * docs/11 §14). Este valor fijo existe solo para que la UI muestre el
- * patrón obligatorio "USD + ARS referencial".
+ * Último recorte de degradación del tipo de cambio (docs/00 §13, docs/11
+ * §14): `lib/exchange/rate.ts` la usa solo si Supabase y monedapi.ar no
+ * responden y no hay ningún valor histórico en `exchange_rates`. La UI
+ * de producto nunca debe importar esta constante directamente — usar
+ * `getCurrentExchangeRate()` + `usdToArs()`.
  */
 export const MOCK_EXCHANGE_RATE_ARS_PER_USD = 1480;
 
-export function usdToArsReferencial(usd: number): number {
-  // Redondeo simple para el mock; la regla oficial de redondeo vive en
-  // docs/00 §13.5 y se implementa junto con ExchangeRateProvider.
-  return Math.round(usd * MOCK_EXCHANGE_RATE_ARS_PER_USD);
+/** Conversión pura USD → ARS con la cotización vigente ya resuelta. */
+export function usdToArs(usd: number, arsPerUsd: number): number {
+  return Math.round(usd * arsPerUsd);
 }
 
 export function formatUsd(usd: number): string {

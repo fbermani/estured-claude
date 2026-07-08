@@ -93,20 +93,13 @@ Antes del deploy público: página `/privacy` mínima (los textos base están en
 
 ---
 
-## [Severidad: Media] El tipo de cambio hardcodeado alimenta todos los precios visibles
+## [RESUELTO — Ciclo 9, 2026-07-08] El tipo de cambio hardcodeado alimenta todos los precios visibles
 
-**Dónde vive:**
-- `lib/mock/exchange.ts` (`MOCK_EXCHANGE_RATE_ARS_PER_USD = 1480`)
-- Consumido por: `components/residences/ResidenceCard.tsx`, `app/(public)/r/[slug]/page.tsx`
+**Qué era:** todos los montos en ARS derivaban de `MOCK_EXCHANGE_RATE_ARS_PER_USD = 1480` (constante inventada), sin el modal obligatorio de `docs/08 §2.8`.
 
-**Qué ocurre:**
-Todos los montos en ARS del sitio derivan de una constante inventada. El disclaimer "referencial" existe, pero el modal explicativo de tipo de cambio que `docs/08 §2.8` marca como **OBLIGATORIO** no está implementado.
+**Fix aplicado:** `ExchangeRateProvider` real (`lib/exchange/provider.ts`, monedapi.ar — dólar blue, valor venta), caché diaria en `exchange_rates` (migración 0009) con degradación en cascada (`lib/exchange/rate.ts`: override manual > fila del día > último valor conocido > mock como último recurso), y el modal/tooltip obligatorio (`components/ui/ExchangeRateNote.tsx`) en ficha de residencia, catálogo, negociación y perfil de residencia. Verificado e2e: tasa real (1520 ARS/USD el día de la verificación) cacheada sin duplicados y consistente en las 6+ pantallas que muestran USD→ARS.
 
-**Por qué importa:**
-Si el sitio se muestra a residencias o familias reales con un dólar desactualizado, daña exactamente la confianza que el producto vende. Y el requisito del modal es de cumplimiento obligatorio según los docs.
-
-**Fix sugerido:**
-En el ciclo de catálogo real: implementar `ExchangeRateProvider` (monedapi.ar, tabla diaria en DB, override admin — `docs/11 §14`) + el modal obligatorio. Mientras tanto, si se hace demo pública, actualizar la constante a mano el mismo día.
+**Pendiente menor no bloqueante:** la UI de admin `/admin/exchange-rate` (docs/09 §25: forzar actualización, override manual con motivo, quitar override, histórico) no se construyó — el override solo es posible hoy insertando una fila manualmente en Supabase. Ver `MEMORY.md` §14.
 
 ---
 
@@ -236,8 +229,8 @@ Ninguna rompe nada hoy; todas son fuentes de fricción para quien entra nuevo.
 | Supabase + `.env.local` | Esperando aprovisionamiento del dueño | `.env.example` + `db/migrations/0001` |
 | Auth + roles + RLS + audit log | Siguiente paso del Ciclo 3 tras credenciales | `docs/12` Fase 1, `docs/PRODUCT_IMPLEMENTATION_PLAN.md` Ciclo 1 |
 | Deploy a Vercel | Tras el push a GitHub | `docs/15` |
-| Modal de tipo de cambio obligatorio | Con `ExchangeRateProvider` real | `docs/08 §2.8` |
-| `@supabase/ssr` instalado sin uso | Anticipa auth; no es dead code permanente | Se usa al construir login |
-| Rutas `/login` y `/register` como `ComingSoon` | Placeholder hasta auth | `docs/08 §5` |
+| UI de admin `/admin/exchange-rate` | No construida — ver ítem resuelto arriba | `docs/09 §25` |
+
+Nota (2026-07-08): esta tabla y el resto de esta sección quedaron desactualizados como snapshot del Ciclo 0-1 — varios ítems (push a GitHub, Supabase, auth+RLS, deploy) ya están resueltos hace varios ciclos. `MEMORY.md` es la fuente de verdad viva; los ítems con encabezado `[RESUELTO — Ciclo N]` arriba en este archivo reflejan el estado real más reciente.
 
 No hay TODOs/FIXMEs en el código (verificado por grep) — la deuda está documentada aquí y en `MEMORY.md`, no dispersa en comentarios.

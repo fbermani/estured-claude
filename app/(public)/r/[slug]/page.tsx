@@ -7,7 +7,9 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { StatusTag, availabilityHelpText } from "@/components/ui/StatusTag";
 import { TrustBadge } from "@/components/residences/TrustBadge";
-import { formatArs, formatUsd, usdToArsReferencial } from "@/lib/mock/exchange";
+import { formatArs, formatUsd, usdToArs } from "@/lib/mock/exchange";
+import { getCurrentExchangeRate } from "@/lib/exchange/rate";
+import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 
 export function generateStaticParams() {
   return getPublishedResidences().map((r) => ({ slug: r.slug }));
@@ -35,6 +37,7 @@ export default async function ResidenceDetailPage({
   const { slug } = await params;
   const residence = getResidenceBySlug(slug);
   if (!residence) notFound();
+  const rate = await getCurrentExchangeRate();
 
   const isFull = residence.availabilityMode === "full";
   const canApply =
@@ -126,7 +129,8 @@ export default async function ResidenceDetailPage({
                           {formatUsd(rt.priceUsd)}
                         </span>
                         <span className="ml-2 text-xs text-ink-faint">
-                          ≈ {formatArs(usdToArsReferencial(rt.priceUsd))}
+                          ≈ {formatArs(usdToArs(rt.priceUsd, rate.arsPerUsd))}
+                          <ExchangeRateNote />
                         </span>
                       </td>
                       <td className="px-4 py-3">
@@ -202,8 +206,9 @@ export default async function ResidenceDetailPage({
                 </span>
               </p>
               <p className="text-xs text-ink-faint">
-                ≈ {formatArs(usdToArsReferencial(residence.priceFromUsd))} al
+                ≈ {formatArs(usdToArs(residence.priceFromUsd, rate.arsPerUsd))} al
                 dólar blue de hoy
+                <ExchangeRateNote />
               </p>
             </div>
             <div className="mt-6 flex flex-col gap-3">

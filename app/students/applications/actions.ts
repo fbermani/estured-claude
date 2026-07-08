@@ -5,7 +5,8 @@ import { redirect } from "next/navigation";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { createAuditLog } from "@/lib/audit";
-import { usdToArsReferencial, MOCK_EXCHANGE_RATE_ARS_PER_USD } from "@/lib/mock/exchange";
+import { usdToArs } from "@/lib/mock/exchange";
+import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 import { ACTIVE_APPLICATION_STATUSES } from "@/lib/applications/types";
 import { calculateFeeEstimate } from "@/lib/applications/fee";
 
@@ -122,11 +123,11 @@ export async function createApplicationRequest(
   const headerStore = await headers();
   const ip = headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
   const userAgent = headerStore.get("user-agent");
-  const today = new Date().toISOString().slice(0, 10);
+  const rate = await getCurrentExchangeRate();
   const monthlyPriceUsd = Number(roomType.monthly_price_usd);
   const enrollmentFeeUsd = roomType.enrollment_fee_usd ? Number(roomType.enrollment_fee_usd) : null;
   const depositUsd = roomType.deposit_usd ? Number(roomType.deposit_usd) : null;
-  const fee = calculateFeeEstimate({ monthlyPriceUsd, durationMonths, enrollmentFeeUsd });
+  const fee = calculateFeeEstimate({ monthlyPriceUsd, durationMonths, enrollmentFeeUsd, arsPerUsd: rate.arsPerUsd });
 
   let newRequestId: string;
   try {
@@ -137,18 +138,18 @@ export async function createApplicationRequest(
         residence_id: residenceId,
         room_type_id: roomTypeId,
         monthly_price_usd: monthlyPriceUsd,
-        monthly_price_ars: usdToArsReferencial(monthlyPriceUsd),
-        exchange_rate_ars_per_usd: MOCK_EXCHANGE_RATE_ARS_PER_USD,
-        exchange_rate_source: "monedapi.ar (mock — ver GAPS.md)",
-        exchange_rate_date: today,
+        monthly_price_ars: usdToArs(monthlyPriceUsd, rate.arsPerUsd),
+        exchange_rate_ars_per_usd: rate.arsPerUsd,
+        exchange_rate_source: rate.source,
+        exchange_rate_date: rate.rateDate,
         initial_duration_months: durationMonths,
         enrollment_fee_usd: enrollmentFeeUsd,
-        enrollment_fee_ars: enrollmentFeeUsd ? usdToArsReferencial(enrollmentFeeUsd) : null,
+        enrollment_fee_ars: enrollmentFeeUsd ? usdToArs(enrollmentFeeUsd, rate.arsPerUsd) : null,
         deposit_usd: depositUsd,
-        deposit_ars: depositUsd ? usdToArsReferencial(depositUsd) : null,
+        deposit_ars: depositUsd ? usdToArs(depositUsd, rate.arsPerUsd) : null,
         deposit_excluded_from_fee: true,
         reservation_payment_amount_usd: enrollmentFeeUsd ?? monthlyPriceUsd,
-        reservation_payment_amount_ars: usdToArsReferencial(enrollmentFeeUsd ?? monthlyPriceUsd),
+        reservation_payment_amount_ars: usdToArs(enrollmentFeeUsd ?? monthlyPriceUsd, rate.arsPerUsd),
         adjustment_policy: roomType.adjustment_policy,
         fee_base_usd: fee.feeBaseUsd,
         fee_base_ars: fee.feeBaseArs,

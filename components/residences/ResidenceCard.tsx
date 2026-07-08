@@ -5,9 +5,15 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { StatusTag } from "@/components/ui/StatusTag";
 import { TrustBadge } from "@/components/residences/TrustBadge";
-import { formatArs, formatUsd, usdToArsReferencial } from "@/lib/mock/exchange";
+import { formatArs, formatUsd, usdToArs } from "@/lib/mock/exchange";
 
-export function ResidenceCard({ residence }: { residence: Residence }) {
+export function ResidenceCard({
+  residence,
+  arsPerUsd,
+}: {
+  residence: Residence;
+  arsPerUsd: number;
+}) {
   const availableTypes = residence.roomTypes.filter((rt) => rt.available);
   const keyServices = residence.services.slice(0, 2);
   const moreServices = residence.services.length - keyServices.length;
@@ -86,7 +92,7 @@ export function ResidenceCard({ residence }: { residence: Residence }) {
                 </span>
               </p>
               <p className="text-xs text-ink-faint">
-                ≈ {formatArs(usdToArsReferencial(residence.priceFromUsd))}{" "}
+                ≈ {formatArs(usdToArs(residence.priceFromUsd, arsPerUsd))}{" "}
                 referencial
               </p>
             </div>

@@ -8,7 +8,9 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { TrustBadge } from "@/components/residences/TrustBadge";
-import { formatArs, formatUsd, usdToArsReferencial } from "@/lib/mock/exchange";
+import { formatArs, formatUsd, usdToArs } from "@/lib/mock/exchange";
+import { getCurrentExchangeRate } from "@/lib/exchange/rate";
+import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import { ApplyForm } from "@/app/(public)/residencias/[slug]/ApplyForm";
 
 export const dynamic = "force-dynamic";
@@ -69,6 +71,7 @@ export default async function RealResidenceDetailPage({
   const data = await loadResidence(slug);
   if (!data) notFound();
   const { residence, roomTypes, sectionMap, photoUrls } = data;
+  const rate = await getCurrentExchangeRate();
 
   const sessionUser = await getSessionUser();
   const services = (sectionMap.services?.items as string[]) ?? [];
@@ -124,7 +127,8 @@ export default async function RealResidenceDetailPage({
                             {formatUsd(Number(rt.monthly_price_usd))}
                           </span>
                           <span className="ml-2 text-xs text-ink-faint">
-                            ≈ {formatArs(usdToArsReferencial(Number(rt.monthly_price_usd)))}
+                            ≈ {formatArs(usdToArs(Number(rt.monthly_price_usd), rate.arsPerUsd))}
+                            <ExchangeRateNote />
                           </span>
                         </td>
                         <td className="px-4 py-3">

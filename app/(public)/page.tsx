@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/Card";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { ResidenceCard } from "@/components/residences/ResidenceCard";
 import { getPublishedResidences, residences } from "@/lib/mock/residences";
+import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 
 const pillars = [
   {
@@ -138,11 +139,12 @@ const faqs = [
   },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
   const heroResidence = residences[0];
   const featured = getPublishedResidences()
     .filter((r) => r.availabilityMode !== "not_updated")
     .slice(0, 3);
+  const rate = await getCurrentExchangeRate();
 
   return (
     <>
@@ -179,7 +181,7 @@ export default function HomePage() {
 
           {/* Composición de producto */}
           <div className="relative mx-auto w-full max-w-sm lg:max-w-none">
-            <ResidenceCard residence={heroResidence} />
+            <ResidenceCard residence={heroResidence} arsPerUsd={rate.arsPerUsd} />
             <div className="absolute -right-3 -top-5 hidden max-w-[240px] rotate-2 rounded-card bg-surface p-3.5 shadow-float ring-1 ring-sand-200 sm:block lg:-right-6">
               <p className="flex items-start gap-2 text-xs font-bold leading-snug text-petrol-800">
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-success-bg text-success-fg">
@@ -307,7 +309,7 @@ export default function HomePage() {
           />
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {featured.map((residence) => (
-              <ResidenceCard key={residence.slug} residence={residence} />
+              <ResidenceCard key={residence.slug} residence={residence} arsPerUsd={rate.arsPerUsd} />
             ))}
           </div>
           <div className="mt-10 text-center">

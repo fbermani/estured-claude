@@ -6,7 +6,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { assertResidenceAccess } from "@/lib/residences/access";
 import { createAuditLog } from "@/lib/audit";
-import { usdToArsReferencial } from "@/lib/mock/exchange";
+import { usdToArs } from "@/lib/mock/exchange";
 
 export type SendProposalState = { status: "idle" | "error"; message?: string };
 
@@ -32,10 +32,20 @@ export async function sendNegotiationProposal(
 
   const { data: application } = await admin
     .from("application_requests")
-    .select("id, status, residence_id, proposal_count")
+    .select("id, status, residence_id, proposal_count, snapshot_original_id")
     .eq("id", applicationId)
     .maybeSingle();
   if (!application) return { status: "error", message: "No encontramos esa solicitud." };
+
+  // Docs/06 §11.2: la ARS de la propuesta usa la cotización de la
+  // solicitud original — nunca la del día en que se envía la propuesta.
+  const { data: originalSnapshot } = await admin
+    .from("application_snapshots")
+    .select("exchange_rate_ars_per_usd")
+    .eq("id", application.snapshot_original_id)
+    .single();
+  if (!originalSnapshot) return { status: "error", message: "No encontramos el snapshot original." };
+  const arsPerUsd = Number(originalSnapshot.exchange_rate_ars_per_usd);
 
   const hasAccess = await assertResidenceAccess(admin, sessionUser.id, application.residence_id);
   if (!hasAccess) return { status: "error", message: "No tenés acceso a esa residencia." };
@@ -81,11 +91,11 @@ export async function sendNegotiationProposal(
     sent_by_user_id: sessionUser.id,
     residence_id: application.residence_id,
     proposed_monthly_price_usd: monthlyPriceUsd,
-    proposed_monthly_price_ars: monthlyPriceUsd !== null ? usdToArsReferencial(monthlyPriceUsd) : null,
+    proposed_monthly_price_ars: monthlyPriceUsd !== null ? usdToArs(monthlyPriceUsd, arsPerUsd) : null,
     proposed_enrollment_fee_usd: enrollmentFeeUsd,
-    proposed_enrollment_fee_ars: enrollmentFeeUsd !== null ? usdToArsReferencial(enrollmentFeeUsd) : null,
+    proposed_enrollment_fee_ars: enrollmentFeeUsd !== null ? usdToArs(enrollmentFeeUsd, arsPerUsd) : null,
     proposed_deposit_usd: depositUsd,
-    proposed_deposit_ars: depositUsd !== null ? usdToArsReferencial(depositUsd) : null,
+    proposed_deposit_ars: depositUsd !== null ? usdToArs(depositUsd, arsPerUsd) : null,
     proposed_start_date: startDate,
     proposed_duration_months: durationMonths,
     proposed_adjustment_policy: adjustmentPolicy,
