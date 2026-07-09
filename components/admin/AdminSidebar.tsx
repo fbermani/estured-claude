@@ -48,11 +48,20 @@ function LogsIcon() {
     </svg>
   );
 }
+function PaymentsIcon() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
+      <circle cx="10" cy="10" r="7" />
+      <path strokeLinecap="round" d="M10 6.5v7M8 8.2c0-.8.9-1.4 2-1.4s2 .6 2 1.4-.9 1.2-2 1.4c-1.1.2-2 .6-2 1.4s.9 1.4 2 1.4 2-.6 2-1.4" />
+    </svg>
+  );
+}
 
 const NAV = [
   { href: "/admin/dashboard", label: "Dashboard", Icon: DashboardIcon },
   { href: "/admin/verifications", label: "Residencias", Icon: BuildingIcon },
   { href: "/admin/applications", label: "Solicitudes", Icon: ClockIcon },
+  { href: "/admin/payments", label: "Pagos", Icon: PaymentsIcon },
   { href: "/admin/users", label: "Usuarios", Icon: UsersIcon },
   { href: "/admin/logs", label: "Logs", Icon: LogsIcon },
 ] as const;

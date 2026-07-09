@@ -6,6 +6,18 @@
 
 ---
 
+## [Severidad: Media] `createAuditLog` nunca lanza, ni siquiera en flujos de pago
+
+**Dónde vive:** `lib/audit.ts` — el propio comentario del archivo ya lo marca: *"Nunca lanza: una falla de auditoría se loggea pero no rompe la operación del usuario. (Trade-off aceptado para el MVP; revisar al llegar a pagos, donde auditar es condición de la transacción.)"*
+
+**Qué ocurre:** llegamos a pagos (Ciclo 10-11: `markResidencePaymentReceived`, `markFeePaidManually`, `confirmReservationAfterFeePaid`) y no se revisó — sigue siendo "best effort". Si un insert en `audit_logs` falla silenciosamente en el momento de confirmar un pago o una reserva, la operación de negocio se completa igual sin dejar rastro auditable.
+
+**Por qué importa:** para transacciones de dinero (aunque hoy sean manuales), la trazabilidad no debería ser opcional. Es una decisión de producto pendiente, no un bug — cambiar el comportamiento global de `createAuditLog` afecta ~20 call sites, así que no se tocó en este ciclo sin decisión explícita del dueño.
+
+**Fix sugerido:** decidir con el dueño si en las acciones de pago/reserva/fee específicamente el fallo de auditoría debería revertir la transacción (o al menos alertar a un admin), sin cambiar el comportamiento default para el resto de las ~20 acciones que ya usan `createAuditLog`.
+
+---
+
 ## [RESUELTO — 2026-07-09] Residencia de prueba del Ciclo 10 quedó visible en el catálogo real
 
 **Qué era:** durante el e2e del Ciclo 10 (pago a residencia) quedaron 3 residencias de prueba en `verified_active` (1 usada para el test + 2 huérfanas de intentos fallidos del script de setup) — los scripts de limpieza automáticos fueron bloqueados por el clasificador de auto-mode del sandbox (interpretó los deletes acotados por ID exacto como "mass delete"/"bypass").

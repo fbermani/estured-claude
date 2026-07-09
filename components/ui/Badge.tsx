@@ -1,12 +1,13 @@
 import type { ReactNode } from "react";
 
-type Tone = "neutral" | "petrol" | "sage" | "amber";
+type Tone = "neutral" | "petrol" | "sage" | "amber" | "danger";
 
 const tones: Record<Tone, string> = {
   neutral: "bg-sand-100 text-ink-soft",
   petrol: "bg-petrol-50 text-petrol-700",
   sage: "bg-sage-50 text-sage-700",
   amber: "bg-amber-soft-100 text-amber-soft-700",
+  danger: "bg-danger-bg text-danger-fg",
 };
 
 export function Badge({

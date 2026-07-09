@@ -49,8 +49,7 @@ const STATUS_EXPLANATION: Record<string, { label: string; tone: "amber" | "sage"
   converted_to_reservation: {
     label: "Reserva creada",
     tone: "sage",
-    helper:
-      "La residencia confirmó tu pago y tu reserva ya está creada. El fee EstuRed se habilita en la próxima etapa del producto.",
+    helper: "La residencia confirmó tu pago. Ya podés pagar el fee EstuRed para confirmar tu reserva.",
   },
   paused_due_to_other_active_request: {
     label: "Pausada",
@@ -100,6 +99,16 @@ export default async function StudentApplicationDetailPage({
     helper: "",
   };
 
+  let reservation: { status: string; booking_receipt_id: string | null } | null = null;
+  if (application.status === "converted_to_reservation") {
+    const { data } = await supabase
+      .from("reservations")
+      .select("status, booking_receipt_id")
+      .eq("application_request_id", id)
+      .maybeSingle();
+    reservation = data;
+  }
+
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
       <Card className="p-8">
@@ -118,6 +127,17 @@ export default async function StudentApplicationDetailPage({
         {application.status === "offer_pending_student_acceptance" && (
           <Button href={`/students/applications/${id}/negotiation`} size="lg" className="mt-4 w-full">
             Ver propuesta de ajuste
+          </Button>
+        )}
+
+        {reservation?.status === "pending_estured_fee" && (
+          <Button href={`/students/applications/${id}/fee`} size="lg" className="mt-4 w-full">
+            Pagar fee EstuRed
+          </Button>
+        )}
+        {reservation?.status === "confirmed" && reservation.booking_receipt_id && (
+          <Button href={`/students/receipts/${reservation.booking_receipt_id}`} size="lg" className="mt-4 w-full">
+            Ver comprobante de reserva
           </Button>
         )}
 

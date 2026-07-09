@@ -32,11 +32,13 @@ export function ApplicationActions({
   applicationId,
   residenceId,
   status,
+  reservationStatus,
   whatsappUrl,
 }: {
   applicationId: string;
   residenceId: string;
   status: string;
+  reservationStatus: string | null;
   whatsappUrl: string | null;
 }) {
   const [isPending, startTransition] = useTransition();
@@ -177,8 +179,9 @@ export function ApplicationActions({
   if (["residence_payment_reported", "converted_to_reservation"].includes(status)) {
     return (
       <p className="text-sm font-medium text-success-fg">
-        Marcaste el pago como recibido. La reserva quedó creada y el fee EstuRed está pendiente de pago por
-        parte del estudiante — esa etapa se habilita en el próximo ciclo del producto.
+        {reservationStatus === "confirmed"
+          ? "Reserva confirmada — el estudiante ya pagó el fee EstuRed."
+          : "Marcaste el pago como recibido. La reserva quedó creada y el fee EstuRed está pendiente de pago por parte del estudiante."}
       </p>
     );
   }

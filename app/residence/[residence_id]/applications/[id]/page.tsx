@@ -20,7 +20,7 @@ const STATUS_LABEL: Record<string, string> = {
   conditions_accepted: "Condiciones aceptadas",
   residence_payment_pending: "Esperando pago del estudiante",
   residence_payment_reported: "Pago recibido — reserva creada",
-  converted_to_reservation: "Reserva creada — fee pendiente",
+  converted_to_reservation: "Reserva",
   paused_due_to_other_active_request: "Pausada",
   rejected: "Rechazada",
   expired_no_residence_response: "Vencida",
@@ -66,6 +66,22 @@ export default async function ResidenceApplicationDetailPage({
     .eq("id", application.snapshot_original_id)
     .maybeSingle();
 
+  let reservationStatus: string | null = null;
+  if (application.status === "converted_to_reservation") {
+    const { data: reservation } = await admin
+      .from("reservations")
+      .select("status")
+      .eq("application_request_id", id)
+      .maybeSingle();
+    reservationStatus = reservation?.status ?? null;
+  }
+  const statusLabel =
+    application.status === "converted_to_reservation"
+      ? reservationStatus === "confirmed"
+        ? "Reserva confirmada"
+        : "Reserva creada — fee pendiente"
+      : STATUS_LABEL[application.status] ?? application.status;
+
   // Teléfono del destinatario del contacto — nunca se expone al cliente
   // directamente, se resuelve server-side para armar el link de WhatsApp.
   let contactPhone: string | null = null;
@@ -110,7 +126,7 @@ export default async function ResidenceApplicationDetailPage({
               {student?.nationality} · {student?.origin_city} · {roomType?.name}
             </p>
           </div>
-          <Badge tone="petrol">{STATUS_LABEL[application.status] ?? application.status}</Badge>
+          <Badge tone="petrol">{statusLabel}</Badge>
         </div>
 
         <dl className="mt-6 space-y-3 text-sm">
@@ -145,6 +161,7 @@ export default async function ResidenceApplicationDetailPage({
             applicationId={application.id}
             residenceId={residenceId}
             status={application.status}
+            reservationStatus={reservationStatus}
             whatsappUrl={whatsappUrl}
           />
         </div>
