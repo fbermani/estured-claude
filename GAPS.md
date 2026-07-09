@@ -63,22 +63,18 @@ Si se deploya así, la única conversión del sitio (captar leads) falla silenci
 
 ---
 
-## [Severidad: Alta] Cero tests y cero framework de testing
+## [Severidad: Media — parcialmente resuelto Ciclo 12, 2026-07-09] Cero tests de integración en los flujos de pago/reserva
 
-**Dónde vive:**
-- No existe `tests/`, ni `vitest.config.*`, ni `jest.config.*`; `package.json` no tiene script `test`.
+**Qué era:** cero tests automatizados en todo el proyecto pese a que los Ciclos 10-11 ya shippearon lógica real de dinero (pago a residencia, fee EstuRed, confirmación de reserva) — señalado como severidad Alta porque `docs/16_QA_AND_TESTING_PLAN.md` exige tests por módulo y "auth y pagos sin tests serían inaceptables".
 
-**Qué ocurre:**
-Ninguna línea del proyecto tiene validación automática. Hasta el Ciclo 2 era defendible (solo UI estática); desde `submitWaitlist` ya hay lógica de negocio server-side sin tests.
+**Fix aplicado (Ciclo 12):** `npm i -D vitest` + script `"test": "vitest run"` + `vitest.config.ts` (resolución nativa de `@/*` vía `resolve.tsconfigPaths`, sin plugin extra). Cobertura inicial en las funciones puras de más riesgo real — donde un bug silencioso cobraría mal a alguien: `lib/mock/exchange.test.ts` (redondeo USD/ARS a múltiplos de 5/500) y `lib/applications/fee.test.ts` (cálculo del fee 5%), este último con 2 tests de regresión que reproducen exactamente las cifras verificadas a mano en los e2e de los Ciclos 8 y 10 (`MEMORY.md` §13cuater/§13sexies) — si alguien rompe el redondeo o la fórmula, el test falla con el mismo número que ya se confirmó correcto en producción simulada.
 
-**Por qué importa:**
-`docs/16_QA_AND_TESTING_PLAN.md` exige tests por módulo y `docs/13 §6` (Definition of Done) exige validación. La deuda crece con cada server action nueva; auth y pagos sin tests serían inaceptables.
+**Qué sigue sin cobertura (gap real, no cerrado)**: la orquestación que toca DB — `lib/applications/residencePayment.ts`, `lib/reservations/confirmAfterFeePaid.ts`, y los server actions de pago/negociación — sigue sin tests automatizados, solo verificación manual e2e en navegador+DB cada ciclo. Requiere una estrategia de integración (Supabase local vía CLI, o mocks del cliente) que no se armó en este ciclo por alcance — dejar para cuando se agregue más lógica de orquestación de pagos o antes de activar cobro real (MercadoPago/PayU).
 
-**Fix sugerido (en orden):**
-1. `npm i -D vitest @vitejs/plugin-react` + script `"test": "vitest"`.
-2. Primer archivo: tests de `submitWaitlist` — rol inválido, email inválido, honeypot completo (debe devolver éxito falso), longitudes excedidas, env ausente, duplicado `23505` → éxito.
-3. Segundo: test de mapeo de `availabilityCopy` en `components/ui/StatusTag.tsx` (los 4 estados oficiales tienen copy).
-4. Tercero: `getPublishedResidences`/`getResidenceBySlug` filtran `published: false`.
+**Fix sugerido siguiente:**
+1. Evaluar `supabase start` (CLI local, Docker) como target de tests de integración reales contra Postgres, en vez de mockear el cliente — más fiel a los bugs reales que este proyecto ya tuvo (RLS recursion, FK bidireccional, embeds PostgREST ambiguos).
+2. Primer candidato: `confirmReservationAfterFeePaid` — es la Internal Action de mayor impacto (confirma reserva, descuenta disponibilidad, genera comprobante) y ya se pensó para ser invocada por un futuro webhook, así que necesita ser confiable sin depender de que un humano la verifique cada vez.
+3. Test de mapeo de `availabilityCopy` en `components/ui/StatusTag.tsx` (los 4 estados oficiales tienen copy) — bajo esfuerzo, sigue pendiente.
 
 ---
 
