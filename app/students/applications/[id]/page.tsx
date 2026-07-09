@@ -4,6 +4,7 @@ import { getSupabaseServer } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { PaymentProofUpload } from "@/app/students/applications/[id]/payment/PaymentProofUpload";
 
 export const metadata: Metadata = { title: "Detalle de solicitud" };
 export const dynamic = "force-dynamic";
@@ -33,6 +34,23 @@ const STATUS_EXPLANATION: Record<string, { label: string; tone: "amber" | "sage"
     label: "Condiciones aceptadas",
     tone: "sage",
     helper: "Ya acordaste las condiciones finales. El pago a la residencia se habilita en la próxima etapa.",
+  },
+  residence_payment_pending: {
+    label: "Pagá a la residencia",
+    tone: "amber",
+    helper:
+      "Coordiná el pago directamente con la residencia (fuera de EstuRed). Cuando lo reciba, ella lo va a marcar acá.",
+  },
+  residence_payment_reported: {
+    label: "Pago informado por la residencia",
+    tone: "sage",
+    helper: "La residencia confirmó que recibió tu pago. Tu reserva se está creando.",
+  },
+  converted_to_reservation: {
+    label: "Reserva creada",
+    tone: "sage",
+    helper:
+      "La residencia confirmó tu pago y tu reserva ya está creada. El fee EstuRed se habilita en la próxima etapa del producto.",
   },
   paused_due_to_other_active_request: {
     label: "Pausada",
@@ -125,6 +143,10 @@ export default async function StudentApplicationDetailPage({
           {application.academic_objective}
         </p>
       </Card>
+
+      {["residence_payment_pending", "converted_to_reservation"].includes(application.status) && (
+        <PaymentProofUpload applicationId={id} />
+      )}
     </div>
   );
 }

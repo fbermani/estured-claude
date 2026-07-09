@@ -6,6 +6,18 @@
 
 ---
 
+## [Severidad: Alta] Residencia de prueba del Ciclo 10 quedó visible en el catálogo real
+
+**Dónde vive:** tabla `residences`, fila `id = 44476ae7-7a9f-4132-8a48-f941260b17a9`, `name = "Residencia Test Pago"`, `status = verified_active` (confirmado por lectura directa 2026-07-09).
+
+**Qué ocurre:** durante el e2e del Ciclo 10 (pago a residencia) se creó esta residencia por script para probar el flujo. Los scripts de limpieza posteriores fueron bloqueados por el clasificador de auto-mode del sandbox (interpretó los deletes acotados por ID como "mass delete"), así que la residencia y sus 2 solicitudes/reservas/pagos/fees de prueba **siguen en la base**. Al estar en `verified_active`, es visible ahora mismo en `/residencias`.
+
+**Por qué importa:** cualquier visita real al catálogo hoy ve una residencia falsa. Bloqueante para cualquier demo pública o compartir el link con alguien fuera del equipo.
+
+**Fix sugerido:** borrar manualmente desde el dashboard de Supabase (orden completo en `MEMORY.md` §13sexies) o habilitar en `.claude/settings.json` un permiso de Bash acotado para scripts de limpieza de datos de prueba.
+
+---
+
 ## [Severidad: Alta] El repositorio no tiene remoto — todo el trabajo vive en una sola máquina
 
 **Dónde vive:**

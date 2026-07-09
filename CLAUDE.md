@@ -7,6 +7,11 @@ Guía para sesiones de Claude Code (u otro agente) en este repo. Leer también:
 - **`docs/13_CLAUDE_PROJECT_INSTRUCTIONS.md`** — protocolo de trabajo oficial (fases pequeñas, ambigüedades, Definition of Done).
 - **`docs/14_PROJECT_INDEX.md`** — qué documento estratégico leer según la tarea.
 
+## Modo de colaboración (decisión del dueño, 2026-07-08)
+
+- **Los `docs/00`–`22` son una guía fuerte, no un dogma irrefutable.** Se espera análisis propio: si algo ahí parece mejorable, inconsistente o subóptimo, decirlo y proponer una alternativa concreta — no implementar en silencio algo que se considera un error solo porque "así dice el doc". Esto no reemplaza el protocolo de ambigüedades de `docs/13 §4` (seguir proponiendo supuestos reversibles documentados cuando falta información) ni la jerarquía de `docs/13 §2` para contradicciones *entre* docs — se suma a ambos como una tercera capa: además de resolver ambigüedades y contradicciones, cuestionar activamente si la regla documentada es la mejor decisión de producto.
+- **Antes de emprender un bloque de trabajo nuevo, evaluar qué skills de Claude Code ayudarían** (diseño de UI, revisión de código, verificación e2e, etc.) y decirlo explícitamente. Si una skill relevante no está instalada, pedirla antes de avanzar en vez de seguir sin ella.
+
 ## Comandos
 
 ```bash

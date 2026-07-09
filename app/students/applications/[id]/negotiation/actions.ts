@@ -6,6 +6,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { createAuditLog } from "@/lib/audit";
 import { calculateFeeEstimate } from "@/lib/applications/fee";
+import { createPendingResidencePayment } from "@/lib/applications/residencePayment";
 
 export type RespondProposalState = { status: "idle" | "error"; message?: string };
 
@@ -16,6 +17,14 @@ export type RespondProposalState = { status: "idle" | "error"; message?: string 
  * null) con lo original (donde la residencia no tocó el campo), y
  * recalcula el fee sobre esos valores finales.
  * `rejected_chose_original` / `rejected_closed`: docs/03 §10ter.8.
+ *
+ * Gap encontrado en esta sesión: docs/04 §5.4 dice que `conditions_accepted`
+ * encadena automáticamente a `residence_payment_pending` ("Se habilita
+ * pago a residencia", Sistema) — es un estado de tránsito, "solo existe
+ * en el flujo con negociación" (docs/04 §5.2). La versión anterior de
+ * esta función dejaba la solicitud parada en `conditions_accepted` sin
+ * avanzar nunca. Ahora encadena las dos transiciones en la misma
+ * operación (se registran igual los dos eventos en el historial).
  */
 export async function respondNegotiationProposal(
   applicationId: string,
@@ -113,7 +122,7 @@ export async function respondNegotiationProposal(
       return { status: "error", message: "No pudimos procesar tu respuesta. Intentá de nuevo." };
     }
     snapshotFinalId = finalSnapshot.id;
-    newStatus = "conditions_accepted";
+    newStatus = "residence_payment_pending";
 
     await admin
       .from("application_requests")
@@ -126,10 +135,14 @@ export async function respondNegotiationProposal(
       })
       .eq("id", applicationId);
   } else if (response === "rejected_chose_original") {
-    newStatus = "conditions_accepted";
+    newStatus = "residence_payment_pending";
     await admin
       .from("application_requests")
-      .update({ snapshot_final_id: application.snapshot_original_id, status: newStatus })
+      .update({
+        snapshot_final_id: application.snapshot_original_id,
+        status: newStatus,
+        payment_deadline_at: new Date(now.getTime() + 48 * 60 * 60 * 1000).toISOString(),
+      })
       .eq("id", applicationId);
   } else {
     newStatus = "cancelled_by_student";
@@ -145,14 +158,37 @@ export async function respondNegotiationProposal(
     })
     .eq("id", proposal.id);
 
-  await admin.from("application_status_events").insert({
-    application_request_id: applicationId,
-    from_status: "offer_pending_student_acceptance",
-    to_status: newStatus,
-    changed_by_user_id: sessionUser.id,
-    changed_by_role: "student",
-    reason_code: response,
-  });
+  if (newStatus === "residence_payment_pending") {
+    await admin.from("application_status_events").insert({
+      application_request_id: applicationId,
+      from_status: "offer_pending_student_acceptance",
+      to_status: "conditions_accepted",
+      changed_by_user_id: sessionUser.id,
+      changed_by_role: "student",
+      reason_code: response,
+    });
+    await admin.from("application_status_events").insert({
+      application_request_id: applicationId,
+      from_status: "conditions_accepted",
+      to_status: "residence_payment_pending",
+      changed_by_role: "system",
+      reason_text: "Condiciones aceptadas — pago a residencia habilitado automáticamente.",
+    });
+    await createPendingResidencePayment(admin, {
+      applicationId,
+      residenceId: application.residence_id,
+      studentProfileId: application.student_profile_id,
+    });
+  } else {
+    await admin.from("application_status_events").insert({
+      application_request_id: applicationId,
+      from_status: "offer_pending_student_acceptance",
+      to_status: newStatus,
+      changed_by_user_id: sessionUser.id,
+      changed_by_role: "student",
+      reason_code: response,
+    });
+  }
 
   await createAuditLog(admin, {
     actorUserId: sessionUser.id,

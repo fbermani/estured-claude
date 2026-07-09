@@ -5,12 +5,15 @@
  * Uso:
  *   node --env-file=.env.local scripts/setup-storage.mjs
  *
- * Buckets creados en este ciclo (los demás de docs/06 §26 se crean
- * cuando exista el módulo que los necesita: pagos, comprobantes, etc.):
+ * Buckets creados hasta ahora (los demás de docs/06 §26 se crean cuando
+ * exista el módulo que los necesita: comprobante de reserva, factura
+ * fiscal, etc.):
  *   - public-residence-media: fotos de residencias. Lectura pública.
  *   - private-residence-documents: reglamentos internos. Privado —
  *     todo acceso pasa por server actions con service role, no hay
  *     policies de Storage (mismo patrón que la tabla `files`).
+ *   - payment-proofs (Ciclo 10): comprobantes de pago a residencia
+ *     (estudiante) y recibo de la residencia. Mismo patrón privado.
  */
 import { createClient } from "@supabase/supabase-js";
 
@@ -35,6 +38,12 @@ const BUCKETS = [
     public: false,
     fileSizeLimit: 10 * 1024 * 1024,
     allowedMimeTypes: ["application/pdf"],
+  },
+  {
+    id: "payment-proofs",
+    public: false,
+    fileSizeLimit: 10 * 1024 * 1024,
+    allowedMimeTypes: ["application/pdf", "image/jpeg", "image/png", "image/webp"],
   },
 ];
 

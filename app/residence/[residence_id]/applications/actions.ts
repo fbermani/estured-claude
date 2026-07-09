@@ -6,6 +6,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { assertResidenceAccess } from "@/lib/residences/access";
 import { createAuditLog } from "@/lib/audit";
 import { ACTIVE_APPLICATION_STATUSES, REJECTION_REASONS } from "@/lib/applications/types";
+import { createPendingResidencePayment } from "@/lib/applications/residencePayment";
 
 export type ApplicationActionState = { status: "idle" | "error" | "saved"; message?: string };
 
@@ -14,7 +15,7 @@ const REASON_CODES = new Set(REJECTION_REASONS.map((r) => r.value));
 async function loadAndAuthorize(admin: ReturnType<typeof getSupabaseAdmin>, applicationId: string, userId: string) {
   const { data: application } = await admin!
     .from("application_requests")
-    .select("id, status, residence_id, student_profile_id")
+    .select("id, status, residence_id, student_profile_id, proposal_count, snapshot_original_id")
     .eq("id", applicationId)
     .maybeSingle();
   if (!application) return { error: "No encontramos esa solicitud." as const };
@@ -125,6 +126,71 @@ export async function establishContact(applicationId: string): Promise<Applicati
   });
 
   revalidatePath(`/residence/${result.application.residence_id}/applications`);
+  return { status: "saved" };
+}
+
+/**
+ * Docs/04 §5.4: `contact_established → residence_payment_pending` sin
+ * propuesta de ajuste — la residencia confirma que las condiciones
+ * originales están bien y habilita el pago directamente. Gap encontrado
+ * en esta sesión: antes de este fix no existía forma de avanzar una
+ * solicitud que llegó a `contact_established` sin negociación (el único
+ * camino cableado era enviar una propuesta).
+ */
+export async function enableResidencePayment(applicationId: string): Promise<ApplicationActionState> {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) return { status: "error", message: "Tu sesión expiró." };
+  const admin = getSupabaseAdmin();
+  if (!admin) return { status: "error", message: "No disponible en este momento." };
+
+  const result = await loadAndAuthorize(admin, applicationId, sessionUser.id);
+  if ("error" in result) return { status: "error", message: result.error };
+  if (result.application.status !== "contact_established") {
+    return { status: "error", message: "Esa solicitud no está en un estado válido para habilitar el pago." };
+  }
+  if (result.application.proposal_count > 0) {
+    return {
+      status: "error",
+      message: "Ya enviaste una propuesta de ajuste — el estudiante tiene que responderla primero.",
+    };
+  }
+
+  const paymentDeadline = new Date(Date.now() + 48 * 60 * 60 * 1000);
+
+  const { error } = await admin
+    .from("application_requests")
+    .update({
+      status: "residence_payment_pending",
+      snapshot_final_id: result.application.snapshot_original_id,
+      payment_deadline_at: paymentDeadline.toISOString(),
+    })
+    .eq("id", applicationId);
+  if (error) return { status: "error", message: "No pudimos guardar el cambio." };
+
+  await admin.from("application_status_events").insert({
+    application_request_id: applicationId,
+    from_status: "contact_established",
+    to_status: "residence_payment_pending",
+    changed_by_user_id: sessionUser.id,
+    changed_by_role: "residence_owner",
+    reason_text: "Sin propuesta de ajuste — condiciones originales confirmadas.",
+  });
+
+  await createPendingResidencePayment(admin, {
+    applicationId,
+    residenceId: result.application.residence_id,
+    studentProfileId: result.application.student_profile_id,
+  });
+
+  await createAuditLog(admin, {
+    actorUserId: sessionUser.id,
+    actorRole: "residence_owner",
+    action: "residence_payment_enabled_without_negotiation",
+    entityType: "application_requests",
+    entityId: applicationId,
+  });
+
+  revalidatePath(`/residence/${result.application.residence_id}/applications/${applicationId}`);
   return { status: "saved" };
 }
 
