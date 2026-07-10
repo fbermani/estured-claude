@@ -16,5 +16,12 @@ export default defineConfig({
     include: ["**/*.test.ts"],
     exclude: ["node_modules", ".next"],
     setupFiles: ["./vitest.setup.ts"],
+    // Los tests de integración pegan contra el mismo Supabase real del
+    // proyecto y reusan los mismos usuarios demo (docs/17) entre archivos
+    // — correr archivos en paralelo puede hacer que dos tests choquen
+    // sobre la misma regla de negocio compartida (ej.: "máx. 2 solicitudes
+    // activas" de un mismo estudiante). Ciclo 21: se detectó como test
+    // flaky real, no como bug de la app. Ver MEMORY.md.
+    fileParallelism: false,
   },
 });
