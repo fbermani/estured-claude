@@ -1,24 +1,19 @@
 "use server";
 
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
-import { createAuditLog } from "@/lib/audit";
-import { usdToArs } from "@/lib/mock/exchange";
-import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 import { ACTIVE_APPLICATION_STATUSES } from "@/lib/applications/types";
-import { calculateFeeEstimate } from "@/lib/applications/fee";
+import { createApplicationFromRoomType } from "@/lib/applications/createRequestFromRoomType";
 
 export type CreateApplicationState = { status: "idle" | "error"; message?: string };
 
 /**
- * Crear solicitud de reserva (docs/07 §15.1, docs/00 §9-10).
- *
- * Fase 1: solo el estudiante inicia (initiated_by siempre 'student' —
- * que el familiar inicie requiere family_application_proposals, fase
- * posterior). El fee ya se estima (docs/00 §12) para mostrarlo en la
- * comparación de negociación, pero el cobro real es fase posterior.
+ * Crear solicitud de reserva (docs/07 §15.1, docs/00 §9-10) iniciada
+ * directamente por el estudiante. La variante iniciada por el familiar
+ * (propuesta aprobada) vive en `app/students/family-proposals/actions.ts`
+ * y reusa `createApplicationFromRoomType` (Ciclo 12) para no duplicar
+ * la lógica de snapshot/fee.
  */
 export async function createApplicationRequest(
   residenceId: string,
@@ -120,89 +115,27 @@ export async function createApplicationRequest(
     return { status: "error", message: "Esa habitación ya no tiene lugar. Probá otro tipo." };
   }
 
-  const headerStore = await headers();
-  const ip = headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
-  const userAgent = headerStore.get("user-agent");
-  const rate = await getCurrentExchangeRate();
-  const monthlyPriceUsd = Number(roomType.monthly_price_usd);
-  const enrollmentFeeUsd = roomType.enrollment_fee_usd ? Number(roomType.enrollment_fee_usd) : null;
-  const depositUsd = roomType.deposit_usd ? Number(roomType.deposit_usd) : null;
-  const fee = calculateFeeEstimate({ monthlyPriceUsd, durationMonths, enrollmentFeeUsd, arsPerUsd: rate.arsPerUsd });
+  const result = await createApplicationFromRoomType(admin, {
+    studentProfileId: studentProfile.id,
+    residenceId,
+    roomTypeId,
+    roomType: {
+      monthly_price_usd: Number(roomType.monthly_price_usd),
+      enrollment_fee_usd: roomType.enrollment_fee_usd ? Number(roomType.enrollment_fee_usd) : null,
+      deposit_usd: roomType.deposit_usd ? Number(roomType.deposit_usd) : null,
+      adjustment_policy: roomType.adjustment_policy,
+    },
+    desiredStartDate,
+    durationMonths,
+    academicObjective,
+    initiatedBy: "student",
+    contactTarget,
+    familyLinkId,
+    familyProposalId: null,
+    createdByUserId: sessionUser.id,
+    actorRole: "student",
+  });
+  if ("error" in result) return { status: "error", message: result.error };
 
-  let newRequestId: string;
-  try {
-    const { data: snapshot, error: snapshotError } = await admin
-      .from("application_snapshots")
-      .insert({
-        snapshot_type: "original",
-        residence_id: residenceId,
-        room_type_id: roomTypeId,
-        monthly_price_usd: monthlyPriceUsd,
-        monthly_price_ars: usdToArs(monthlyPriceUsd, rate.arsPerUsd),
-        exchange_rate_ars_per_usd: rate.arsPerUsd,
-        exchange_rate_source: rate.source,
-        exchange_rate_date: rate.rateDate,
-        initial_duration_months: durationMonths,
-        enrollment_fee_usd: enrollmentFeeUsd,
-        enrollment_fee_ars: enrollmentFeeUsd ? usdToArs(enrollmentFeeUsd, rate.arsPerUsd) : null,
-        deposit_usd: depositUsd,
-        deposit_ars: depositUsd ? usdToArs(depositUsd, rate.arsPerUsd) : null,
-        deposit_excluded_from_fee: true,
-        reservation_payment_amount_usd: enrollmentFeeUsd ?? monthlyPriceUsd,
-        reservation_payment_amount_ars: usdToArs(enrollmentFeeUsd ?? monthlyPriceUsd, rate.arsPerUsd),
-        adjustment_policy: roomType.adjustment_policy,
-        fee_base_usd: fee.feeBaseUsd,
-        fee_base_ars: fee.feeBaseArs,
-        estimated_estured_fee_ars: fee.estimatedFeeArs,
-      })
-      .select("id")
-      .single();
-    if (snapshotError || !snapshot) throw snapshotError;
-
-    const { data: request, error: requestError } = await admin
-      .from("application_requests")
-      .insert({
-        student_profile_id: studentProfile.id,
-        family_link_id: familyLinkId,
-        initiated_by: "student",
-        contact_target: contactTarget,
-        residence_id: residenceId,
-        room_type_id: roomTypeId,
-        desired_start_date: desiredStartDate,
-        initial_duration_months: durationMonths,
-        academic_objective: academicObjective,
-        snapshot_original_id: snapshot.id,
-        created_by_user_id: sessionUser.id,
-      })
-      .select("id")
-      .single();
-    if (requestError || !request) throw requestError;
-    newRequestId = request.id;
-
-    await admin.from("application_snapshots").update({ application_request_id: request.id }).eq("id", snapshot.id);
-
-    await admin.from("application_status_events").insert({
-      application_request_id: request.id,
-      from_status: null,
-      to_status: "submitted",
-      changed_by_user_id: sessionUser.id,
-      changed_by_role: "student",
-    });
-
-    await createAuditLog(admin, {
-      actorUserId: sessionUser.id,
-      actorRole: "student",
-      action: "application_request_submitted",
-      entityType: "application_requests",
-      entityId: request.id,
-      newValue: { residence_id: residenceId, room_type_id: roomTypeId, contact_target: contactTarget },
-      ipAddress: ip,
-      userAgent,
-    });
-  } catch (error) {
-    console.error("[application] create failed:", error);
-    return { status: "error", message: "No pudimos enviar tu solicitud. Intentá de nuevo en unos minutos." };
-  }
-
-  redirect(`/students/applications/${newRequestId}`);
+  redirect(`/students/applications/${result.id}`);
 }

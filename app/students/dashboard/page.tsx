@@ -20,6 +20,19 @@ interface FamilyLinkRow {
   status: string;
   student_profiles: { first_name: string; last_initial: string } | null;
 }
+interface SentProposalRow {
+  id: string;
+  status: string;
+  residences: { name: string } | null;
+  student_profiles: { first_name: string; last_initial: string } | null;
+}
+
+const PROPOSAL_STATUS_LABEL: Record<string, { label: string; tone: "amber" | "sage" | "neutral" }> = {
+  pending_student_approval: { label: "Esperando respuesta", tone: "amber" },
+  approved_by_student: { label: "Aprobada", tone: "sage" },
+  rejected_by_student: { label: "Rechazada", tone: "neutral" },
+  expired: { label: "Vencida", tone: "neutral" },
+};
 
 const RELATIONSHIP_LABEL: Record<string, string> = {
   padre: "Padre",
@@ -35,12 +48,20 @@ export default async function StudentDashboardPage() {
 
   if (isFamilyMember) {
     let links: FamilyLinkRow[] = [];
+    let sentProposals: SentProposalRow[] = [];
     if (supabase) {
       const { data } = await supabase
         .from("family_links")
         .select("id, status, student_profiles(first_name, last_initial)")
         .order("created_at", { ascending: false });
       links = (data as unknown as FamilyLinkRow[]) ?? [];
+
+      const { data: proposalData } = await supabase
+        .from("family_application_proposals")
+        .select("id, status, residences(name), student_profiles(first_name, last_initial)")
+        .order("created_at", { ascending: false })
+        .limit(5);
+      sentProposals = (proposalData as unknown as SentProposalRow[]) ?? [];
     }
 
     return (
@@ -86,12 +107,34 @@ export default async function StudentDashboardPage() {
         <Card className="mt-8 flex flex-col p-6">
           <h2 className="font-bold text-petrol-800">Explorar residencias</h2>
           <p className="mt-2 flex-1 text-sm text-ink-soft">
-            Podés sugerirle opciones al estudiante que acompañás.
+            Podés proponerle opciones al estudiante que acompañás — él o ella decide si aprobarlas.
           </p>
-          <Button href="/search" size="sm" className="mt-4 self-start">
+          <Button href="/residencias" size="sm" className="mt-4 self-start">
             Buscar residencia
           </Button>
         </Card>
+
+        {sentProposals.length > 0 && (
+          <Card className="mt-6 p-6">
+            <h2 className="font-bold text-petrol-800">Propuestas que enviaste</h2>
+            <div className="mt-4 space-y-3">
+              {sentProposals.map((p) => {
+                const status = PROPOSAL_STATUS_LABEL[p.status] ?? PROPOSAL_STATUS_LABEL.pending_student_approval;
+                return (
+                  <div key={p.id} className="flex items-center justify-between border-b border-sand-200 pb-3 last:border-0 last:pb-0">
+                    <div>
+                      <p className="text-sm font-semibold text-ink">{p.residences?.name}</p>
+                      <p className="text-xs text-ink-faint">
+                        Para {p.student_profiles?.first_name} {p.student_profiles?.last_initial}
+                      </p>
+                    </div>
+                    <Badge tone={status.tone}>{status.label}</Badge>
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+        )}
       </div>
     );
   }
@@ -100,6 +143,7 @@ export default async function StudentDashboardPage() {
   let firstName: string | null = null;
   let isMinor = false;
   let studentLinks: StudentLinkRow[] = [];
+  let pendingProposalsCount = 0;
 
   if (supabase && sessionUser) {
     const { data: profile } = await supabase
@@ -115,6 +159,13 @@ export default async function StudentDashboardPage() {
       .select("id, status, family_members(first_name, last_name, relationship_type)")
       .order("created_at", { ascending: false });
     studentLinks = (data as unknown as StudentLinkRow[]) ?? [];
+
+    const { count } = await supabase
+      .from("family_application_proposals")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "pending_student_approval")
+      .gt("expires_at", new Date().toISOString());
+    pendingProposalsCount = count ?? 0;
   }
 
   const pendingLinks = studentLinks.filter((l) => l.status === "pending_student_approval");
@@ -128,6 +179,22 @@ export default async function StudentDashboardPage() {
       <p className="mt-2 text-ink-soft">
         Tu cuenta está lista. Desde acá vas a seguir toda tu búsqueda.
       </p>
+
+      {pendingProposalsCount > 0 && (
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-card border border-petrol-200 bg-petrol-50 p-5">
+          <div>
+            <p className="font-semibold text-petrol-800">
+              {pendingProposalsCount === 1
+                ? "Tu familiar te sugirió una residencia"
+                : `Tu familiar te sugirió ${pendingProposalsCount} residencias`}
+            </p>
+            <p className="mt-1 text-sm text-ink-soft">Tenés 48 horas para aprobar o rechazar cada propuesta.</p>
+          </div>
+          <Button href="/students/family-proposals" size="sm">
+            Ver propuestas
+          </Button>
+        </div>
+      )}
 
       {pendingLinks.map((link) => (
         <div

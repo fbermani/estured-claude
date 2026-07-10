@@ -12,6 +12,7 @@ import { formatArs, formatUsd, usdToArs } from "@/lib/mock/exchange";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import { ApplyForm } from "@/app/(public)/residencias/[slug]/ApplyForm";
+import { ProposeForm } from "@/app/(public)/residencias/[slug]/ProposeForm";
 
 export const dynamic = "force-dynamic";
 
@@ -77,6 +78,28 @@ export default async function RealResidenceDetailPage({
   const services = (sectionMap.services?.items as string[]) ?? [];
   const nearUniversities = (sectionMap.near_universities?.items as string[]) ?? [];
   const rulesSummary = (sectionMap.rules?.summary as string) ?? "";
+
+  let linkedStudents: { id: string; first_name: string; last_initial: string }[] = [];
+  if (sessionUser?.roles.includes("family_member")) {
+    const admin = getSupabaseAdmin();
+    if (admin) {
+      const { data: familyMember } = await admin
+        .from("family_members")
+        .select("id")
+        .eq("user_id", sessionUser.id)
+        .maybeSingle();
+      if (familyMember) {
+        const { data: links } = await admin
+          .from("family_links")
+          .select("student_profiles(id, first_name, last_initial)")
+          .eq("family_member_id", familyMember.id)
+          .eq("status", "active");
+        linkedStudents = ((links ?? []) as unknown as { student_profiles: { id: string; first_name: string; last_initial: string } | null }[])
+          .map((l) => l.student_profiles)
+          .filter((s): s is { id: string; first_name: string; last_initial: string } => s !== null);
+      }
+    }
+  }
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
@@ -181,9 +204,11 @@ export default async function RealResidenceDetailPage({
                   Crear cuenta de estudiante
                 </Button>
               </>
+            ) : sessionUser.roles.includes("family_member") ? (
+              <ProposeForm residenceId={residence.id} roomTypes={roomTypes} students={linkedStudents} />
             ) : !sessionUser.roles.includes("student") ? (
               <p className="text-sm text-ink-soft">
-                Solo cuentas de estudiante pueden enviar solicitudes de reserva.
+                Solo cuentas de estudiante o familiares vinculados pueden actuar acá.
               </p>
             ) : (
               <ApplyForm residenceId={residence.id} roomTypes={roomTypes} />

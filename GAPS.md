@@ -223,6 +223,18 @@ Re-exportar los PNG desde Stitch, o borrar los 8 corruptos y dejar nota en un `d
 
 ---
 
+## [Severidad: Baja] `seed-demo-users.mjs` no crea vínculo familiar activo
+
+**Dónde vive:** `scripts/seed-demo-users.mjs` (solo crea `student_profiles` para roles `student`) y `lib/dev/demo-users.ts` (descripción de Martín: "vinculación: próxima etapa").
+
+**Qué ocurre:** el familiar demo (Martín, `padre.lucia@example.com`) no tiene fila en `family_members` ni `family_links` — la vinculación real con Lucía nunca se completó en el seed. La descripción del selector de sesión simulada quedó desactualizada desde antes del Ciclo 6 (cuando el vínculo familiar se terminó de construir).
+
+**Por qué importa:** cualquier e2e futuro sobre flujos de familiar (propuestas, pagos, documentos) tiene que crear el vínculo a mano con un script ad hoc en vez de tener el demo listo para usar.
+
+**Fix sugerido:** extender `seed-demo-users.mjs` para crear `family_members` + `family_links` (`status='active'`) entre Martín y Lucía, y actualizar la descripción en `lib/dev/demo-users.ts`.
+
+---
+
 ## [Severidad: Baja] Inconsistencias menores de convención
 
 **Dónde vive / qué ocurre:**
