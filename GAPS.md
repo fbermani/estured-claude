@@ -83,6 +83,22 @@ Si se deploya así, la única conversión del sitio (captar leads) falla silenci
 
 ---
 
+## [RESUELTO — Ciclo 22, 2026-07-10] Sin job de vencimiento a 48h — `expires_at`/`payment_deadline_at` se guardaban pero nada los procesaba
+
+**Qué era:** docs/00 §9.1 documenta 5 reglas de vencimiento a 48h (propuesta del familiar, solicitud sin respuesta de la residencia, pago a la residencia, respuesta a propuesta de ajuste, pago del fee EstuRed) y docs/07 §31 los nombra como 4 jobs concretos (`expire_family_proposals`, `expire_negotiation_proposals`, `expire_application_requests`, `expire_estured_fee_windows`), todos "cada hora". Ninguno estaba implementado — cualquier solicitud/propuesta/fee vencido quedaba colgado indefinidamente en su estado activo, sin transición automática.
+
+**Fix aplicado:** `lib/jobs/expireFamilyProposals.ts`, `expireNegotiationProposals.ts`, `expireApplicationRequests.ts`, `expireEsturedFeeWindows.ts` (uno por job nombrado, mismo patrón `admin: SupabaseClient` + retorno tipado que ya usan `confirmReservationAfterFeePaid`/`recordManualFeePayment`) + `runExpirationJobs.ts` (orquestador). `app/api/cron/expire-stale-records/route.ts`: endpoint interno protegido por `Authorization: Bearer ${CRON_SECRET}`, invocado por `pg_cron` vía `pg_net` (`net.http_get`) cada hora — `db/migrations/0013_expiration_cron.sql` agenda el schedule.
+
+**Decisión de implementación (análisis propio, no en docs literal):** docs/00 solo decide el disparador (pg_cron), no si la lógica de vencimiento vive en SQL o en la app. Se eligió TypeScript reusando el patrón "Internal Action" (evita duplicar `createAuditLog`/reglas de negocio en plpgsql) — respaldado por que `docs/11 §27.3` ya anticipaba `CRON_SECRET` en las env vars esperadas, señal de que el diseño previsto siempre fue un endpoint HTTP.
+
+**Alcance deliberadamente acotado**: sin notificaciones reales (`NotificationProvider` pendiente, docs/00 §29); sin liberar disponibilidad automáticamente al vencer el pago a residencia (docs/00 §9.1: la residencia "puede" liberarla, acción manual, no automática); sin contar "hasta 3 intentos" en el vencimiento del fee (docs/07 §17.2) porque no hay cobro automático real que reintente todavía.
+
+4 tests de integración nuevos (29/29 en total). Verificado en vivo: `401` sin auth, `401` con secret incorrecto, `200` con secret real contra el Supabase provisionado.
+
+**Pendiente real, no bloqueante**: la migración 0013 necesita que el dueño reemplace 2 placeholders (URL de producción, `CRON_SECRET`) antes de aplicarla, y configurar `CRON_SECRET` en Vercel — hasta entonces el código está listo pero el cron no corre en producción.
+
+---
+
 ## [Severidad: Media] Sin rate limiting ni protección real anti-spam en la waitlist
 
 **Dónde vive:**
