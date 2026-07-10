@@ -31,7 +31,7 @@ export const DEMO_USERS: DemoUser[] = [
   {
     email: "padre.lucia@example.com",
     label: "Martín — familiar",
-    detail: "Padre de Lucía (vinculación: próxima etapa)",
+    detail: "Padre de Lucía, vínculo activo",
   },
   {
     email: "owner.residencia.norte@example.com",

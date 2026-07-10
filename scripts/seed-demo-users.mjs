@@ -79,7 +79,14 @@ const SEEDS = [
       visible: false,
     },
   },
-  { email: "padre.lucia@example.com", role: "family_member", phone: "+54 9 341 555-0104" },
+  {
+    email: "padre.lucia@example.com",
+    role: "family_member",
+    phone: "+54 9 341 555-0104",
+    // docs/17 §Usuarios demo obligatorios #4: vínculo activo con Lucía, can_create_proposals=true.
+    familyMemberProfile: { first_name: "Martin", last_name: "Fernandez", relationship_type: "padre" },
+    linkedStudentEmail: "lucia.fernandez@example.com",
+  },
   { email: "owner.residencia.norte@example.com", role: "residence_owner", phone: "+54 9 11 5555-0105" },
   { email: "staff.norte@estured.test", role: "residence_staff", phone: "+54 9 11 5555-0106" },
   { email: "admin.operaciones@estured.test", role: "admin", phone: null },
@@ -181,6 +188,22 @@ for (const seed of SEEDS) {
     );
   }
 
+  // 3bis. Perfil de familiar si aplica.
+  if (seed.familyMemberProfile) {
+    const fm = seed.familyMemberProfile;
+    const { error: fmError } = await admin.from("family_members").upsert(
+      {
+        user_id: userId,
+        first_name: fm.first_name,
+        last_name: fm.last_name,
+        relationship_type: fm.relationship_type,
+        phone: seed.phone,
+      },
+      { onConflict: "user_id" },
+    );
+    if (fmError) console.error(`✗ ${email} perfil de familiar: ${fmError.message}`);
+  }
+
   // 4. Consents demo + auditoría del seed.
   const { data: hasConsent } = await admin
     .from("consents")
@@ -206,6 +229,56 @@ for (const seed of SEEDS) {
   }
 
   console.log(`✓ ${email} (${seed.role})`);
+}
+
+// 5. Vínculos familiares demo (docs/17 #4: Martín↔Lucía, link_status=active).
+for (const seed of SEEDS) {
+  if (!seed.linkedStudentEmail) continue;
+
+  const { data: familyUser } = await admin.from("users").select("id").eq("email", seed.email).maybeSingle();
+  const { data: familyMember } = await admin
+    .from("family_members")
+    .select("id")
+    .eq("user_id", familyUser?.id)
+    .maybeSingle();
+  const { data: studentUser } = await admin
+    .from("users")
+    .select("id")
+    .eq("email", seed.linkedStudentEmail)
+    .maybeSingle();
+  const { data: studentProfile } = await admin
+    .from("student_profiles")
+    .select("id")
+    .eq("user_id", studentUser?.id)
+    .maybeSingle();
+  if (!familyMember || !studentProfile) {
+    console.error(`✗ vínculo ${seed.email} → ${seed.linkedStudentEmail}: falta el familiar o el estudiante`);
+    continue;
+  }
+
+  const { data: existingLink } = await admin
+    .from("family_links")
+    .select("id, status")
+    .eq("family_member_id", familyMember.id)
+    .eq("student_profile_id", studentProfile.id)
+    .maybeSingle();
+  if (existingLink) {
+    if (existingLink.status !== "active") {
+      await admin
+        .from("family_links")
+        .update({ status: "active", approved_at: new Date().toISOString() })
+        .eq("id", existingLink.id);
+    }
+  } else {
+    await admin.from("family_links").insert({
+      student_profile_id: studentProfile.id,
+      family_member_id: familyMember.id,
+      status: "active",
+      requested_by_user_id: familyUser.id,
+      approved_at: new Date().toISOString(),
+    });
+  }
+  console.log(`✓ vínculo activo ${seed.email} ↔ ${seed.linkedStudentEmail}`);
 }
 
 console.log("\nSeed de usuarios demo completo.");

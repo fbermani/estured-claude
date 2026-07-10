@@ -73,9 +73,11 @@ Si se deploya así, la única conversión del sitio (captar leads) falla silenci
 
 **Qué sigue sin cobertura (gap real, no cerrado)**: `lib/applications/residencePayment.ts` y los server actions de pago/negociación/propuesta del familiar siguen sin tests automatizados, solo verificación manual e2e en navegador+DB cada ciclo. Extender el mismo patrón de test de integración cuando se toquen de nuevo.
 
+**Por qué `markResidencePaymentReceived`/`markFeePaidManually` NO recibieron el mismo test (intentado en el Ciclo 14, pausado por diseño real):** a diferencia de `confirmReservationAfterFeePaid` (recibe `admin` y los datos por parámetro — "inyección de dependencias"), estas dos son Server Actions que llaman `getSessionUser()` internamente, que a su vez depende de `cookies()` de `next/headers` — requiere el contexto de request de Next.js real, no disponible en Vitest. Mockear `next/headers` es frágil (testearía el mock, no el comportamiento real) y refactorizarlas para inyectar la sesión (mismo patrón que `confirmAfterFeePaid`) es un cambio de diseño más grande que no se hizo sin pedido explícito. **Lección de arquitectura para el futuro**: los server actions nuevos que tengan lógica de negocio no trivial se benefician de separar "resolver sesión + parsear formData" (capa fina, no testeable sin Next) de "hacer el trabajo" (función pura que recibe `admin` + datos ya validados — testeable igual que `confirmAfterFeePaid`/`createRequestFromRoomType`).
+
 **Fix sugerido siguiente:**
 1. Test de mapeo de `availabilityCopy` en `components/ui/StatusTag.tsx` (los 4 estados oficiales tienen copy) — bajo esfuerzo, sigue pendiente.
-2. Extender el patrón de integración de `confirmAfterFeePaid.test.ts` a `markResidencePaymentReceived` y `markFeePaidManually` cuando se vuelva a tocar esa zona.
+2. Si se retoma `markResidencePaymentReceived`/`markFeePaidManually`, extraer primero la lógica de negocio a una función inyectada (mismo refactor que ya se hizo para la creación de solicitudes en `createRequestFromRoomType`, Ciclo 13) y recién ahí testear esa función — no mockear `next/headers`.
 
 ---
 
@@ -224,15 +226,11 @@ Re-exportar los PNG desde Stitch, o borrar los 8 corruptos y dejar nota en un `d
 
 ---
 
-## [Severidad: Baja] `seed-demo-users.mjs` no crea vínculo familiar activo
+## [RESUELTO — Ciclo 15, 2026-07-09] `seed-demo-users.mjs` no creaba vínculo familiar activo
 
-**Dónde vive:** `scripts/seed-demo-users.mjs` (solo crea `student_profiles` para roles `student`) y `lib/dev/demo-users.ts` (descripción de Martín: "vinculación: próxima etapa").
+**Qué era:** el familiar demo (Martín, `padre.lucia@example.com`) no tenía fila en `family_members` ni `family_links`, pese a que `docs/17_SEED_DATA_AND_DEMO_SCENARIOS.md` (usuario demo #4) documenta explícitamente `name: Martin Fernandez`, `relationship: father`, `link_status: active`, `can_create_proposals: true` — no era una mejora inventada, el seed real no cumplía su propia especificación.
 
-**Qué ocurre:** el familiar demo (Martín, `padre.lucia@example.com`) no tiene fila en `family_members` ni `family_links` — la vinculación real con Lucía nunca se completó en el seed. La descripción del selector de sesión simulada quedó desactualizada desde antes del Ciclo 6 (cuando el vínculo familiar se terminó de construir).
-
-**Por qué importa:** cualquier e2e futuro sobre flujos de familiar (propuestas, pagos, documentos) tiene que crear el vínculo a mano con un script ad hoc en vez de tener el demo listo para usar.
-
-**Fix sugerido:** extender `seed-demo-users.mjs` para crear `family_members` + `family_links` (`status='active'`) entre Martín y Lucía, y actualizar la descripción en `lib/dev/demo-users.ts`.
+**Fix aplicado:** `scripts/seed-demo-users.mjs` ahora crea `family_members` para el seed con `familyMemberProfile`, y un paso final activa `family_links` (`status='active'`) para cualquier seed con `linkedStudentEmail` — idempotente (verificado corriendo el script dos veces seguidas, sin duplicar el vínculo). `lib/dev/demo-users.ts` actualizado ("Padre de Lucía, vínculo activo") y verificado visualmente en el widget de sesión simulada.
 
 ---
 

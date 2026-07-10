@@ -1,6 +1,6 @@
 # MEMORY.md — Memoria persistente de EstuRed
 
-**Última actualización:** 2026-07-09 (Ciclo 14 — test de integración de confirmReservationAfterFeePaid)
+**Última actualización:** 2026-07-09 (Ciclo 15 — fix del seed demo, vínculo familiar Martín↔Lucía)
 
 > Bitácora ejecutiva viva. NO reemplaza la documentación estratégica de `/docs`
 > (los 23 archivos `00`–`22` son la fuente de verdad de producto). Leer este
@@ -237,6 +237,13 @@ Todo el resto del MVP: ver `docs/PRODUCT_IMPLEMENTATION_PLAN.md` (Ciclos 1–7+)
 - **Trampa de FK circular, cuarta vez** (Ciclos 10/11/13/14): la limpieza de fixtures en `afterAll` tuvo que anular `reservations.estured_fee_payment_id`/`booking_receipt_id` y `external_residence_payments.reservation_id` antes de los deletes, en el orden correcto, para no repetir los mismos errores ya documentados — esta vez se escribió bien al primer intento porque el orden ya estaba documentado en MEMORY.md.
 - Verificado: 3 corridas consecutivas de `npm run test` (9/9 tests, incluye los 8 de fee/exchange del Ciclo 12) sin dejar filas huérfanas — confirmado con conteos posteriores en las tablas involucradas.
 
+## 13undecies. Fix del seed demo — vínculo familiar Martín↔Lucía (Ciclo 15, 2026-07-09)
+
+**Contexto**: al intentar extender el test de integración del Ciclo 14 a `markResidencePaymentReceived`/`markFeePaidManually`, encontré que son Server Actions que llaman `getSessionUser()` internamente (dependiente de `cookies()` de `next/headers`, no disponible fuera del contexto de request de Next) — a diferencia de `confirmReservationAfterFeePaid`, que recibe sus dependencias por parámetro. Mockear `next/headers` es frágil y de bajo valor real; refactorizar esas dos acciones no estaba pedido. Documenté el hallazgo en GAPS.md (lección de arquitectura: separar "resolver sesión" de "hacer el trabajo" para que la lógica de negocio sea testeable) y pivoteé a un bloque distinto ya identificado.
+
+- `scripts/seed-demo-users.mjs`: ahora crea `family_members` (para seeds con `familyMemberProfile`) y activa `family_links` (`status='active'`, para seeds con `linkedStudentEmail`) — cierra un gap real donde el seed no cumplía su propia especificación (`docs/17` usuario demo #4 documenta explícitamente el vínculo Martín↔Lucía como activo). Verificado idempotente (2 corridas seguidas, sin duplicar el vínculo) y verificado visualmente en el navegador (`lib/dev/demo-users.ts` actualizado).
+- Este fix también sirve para futuros e2e de flujos de familiar (ya no hace falta crear el vínculo a mano con un script ad hoc, como tuve que hacer en el Ciclo 13).
+
 ## 14. Próxima tarea recomendada
 
 **Explícitamente decidido por el dueño (2026-07-08): NO reemplazar `lib/mock/residences.ts` todavía** — no tiene sentido armar el catálogo mock-a-real hasta que existan residencias reales cargadas de verdad (hoy: 0 en `verified_active`, confirmado tras limpiar los datos de prueba del Ciclo 11).
@@ -249,7 +256,9 @@ Todo el resto del MVP: ver `docs/PRODUCT_IMPLEMENTATION_PLAN.md` (Ciclos 1–7+)
 
 **Ciclo 14** (✅): test de integración de `confirmReservationAfterFeePaid` contra Supabase real — ver §13decies. Cierra el candidato principal que quedaba abierto en `GAPS.md` sobre testing de pagos.
 
-Próximo bloque sugerido (a decidir con criterio propio cuando se retome): extender el mismo patrón de test de integración a `markResidencePaymentReceived`/`markFeePaidManually`, o PDF real del comprobante, o UI de admin `/admin/exchange-rate`/`/admin/invoices`/`/admin/receipts`/`/admin/family-proposals`, o extender `seed-demo-users.mjs` con el vínculo familiar activo (gap detectado en el Ciclo 13, ver §13nonies) — todas ramas no bloqueantes.
+**Ciclo 15** (✅): fix del seed demo — vínculo familiar Martín↔Lucía activo, cerrando un gap real detectado en el Ciclo 13 — ver §13undecies.
+
+Próximo bloque sugerido (a decidir con criterio propio cuando se retome): PDF real del comprobante, o UI de admin `/admin/exchange-rate`/`/admin/invoices`/`/admin/receipts`/`/admin/family-proposals`, o refactor de `markResidencePaymentReceived`/`markFeePaidManually` para separar lógica de negocio testeable de la resolución de sesión (ver GAPS.md, gap de arquitectura detectado en el Ciclo 14) — todas ramas no bloqueantes.
 
 Pendientes menores (no bloquean): permiso de Bash para scripts de limpieza de datos de prueba acotados por ID (ver §13sexies/§13septies — el sandbox los bloquea hoy, requiere limpieza manual del dueño vía SQL Editor), UI de admin `/admin/exchange-rate`/`/admin/invoices`/`/admin/receipts`, crear el admin real del dueño (`scripts/create-admin.mjs`), recuperación de contraseña (necesita proveedor de email, docs/00 §29), fotos curadas para mocks, logo real, rate limiting del waitlist (GAPS.md), página /privacy antes de difusión masiva, `/admin/users` y `/admin/applications` son placeholders, job de expiración automática de solicitudes/propuestas a 48h (docs/00 §9.1 — hoy `expires_at` se guarda pero nada lo procesa todavía), revocación del fee (`/students/revocation`), PDF real del comprobante.
 
@@ -259,7 +268,7 @@ Pendientes menores (no bloquean): permiso de Bash para scripts de limpieza de da
 2. Jerarquía ante contradicción: docs/13 §2 (el 00 manda).
 3. Nunca: fusionar entidades del loop, inventar estados/reglas, API de WhatsApp, mutar estados críticos desde el cliente, comprobante sin fee pagado.
 4. **Comandos de validación:** `npm run typecheck` · `npm run lint` · `npm run build` · `npm run test` (Vitest, desde Ciclo 12) · dev: `npm run dev` (launch config `estured-dev` en `.claude/launch.json`).
-5. **Resultado última validación (2026-07-09, Ciclo 14):** typecheck ✅ · lint ✅ · build ✅ (33 rutas) · test ✅ (9/9, Vitest — incluye 1 test de integración real contra Supabase) — ver §13decies. Ciclo 13 (propuesta del familiar, e2e en navegador+DB) y Ciclo 11 (fee manual + reserva confirmada + comprobante) siguen vigentes — ver §13nonies/§13septies. `markResidencePaymentReceived`/`markFeePaidManually` siguen sin tests de integración propios (gap real, ver GAPS.md).
+5. **Resultado última validación (2026-07-09, Ciclo 15):** typecheck ✅ · lint ✅ · build ✅ (33 rutas) · test ✅ (9/9, Vitest) · seed demo verificado idempotente (2 corridas) y visualmente en navegador. Ciclo 14 (test de integración de `confirmReservationAfterFeePaid`), Ciclo 13 (propuesta del familiar, e2e) y Ciclo 11 (fee manual + reserva confirmada + comprobante) siguen vigentes — ver §13decies/§13nonies/§13septies. `markResidencePaymentReceived`/`markFeePaidManually` siguen sin tests de integración propios (gap de arquitectura real, ver GAPS.md).
 6. Al cerrar cada ciclo: validar, actualizar `MEMORY.md` + `docs/NEXT_STEPS.md`.
 7. **Modo de trabajo (desde 2026-07-08):** no preguntar "con qué seguimos" — planificar y ejecutar la continuidad del loop central con criterio propio (ver plan en §14), consultando `docs/` y `design-references/` como corresponde. Solo consultar al dueño ante dudas realmente bloqueantes (regla de negocio ambigua no cubierta en docs, o pantalla/flujo de referencia que no se entiende, o dependencia externa real como credenciales — ver §13septies). El dueño planea una pasada de estética aparte más adelante — señalar dudas estéticas sin detenerse a resolverlas ahora.
 8. **Modo de colaboración (desde 2026-07-09, ver CLAUDE.md):** los docs son guía fuerte, no dogma — traer análisis propio y recomendar mejoras activamente, no solo implementar literal (ver §13sexies y §13septies para ejemplos reales: los dos gaps de transición, la comparación TusFacturas vs Facturitas, la decisión de seguridad en la RLS de `booking_receipts`). Evaluar qué skills de Claude Code ayudarían antes de cada bloque de trabajo nuevo y pedirlas si no están instaladas.
