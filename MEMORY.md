@@ -1,6 +1,6 @@
 # MEMORY.md — Memoria persistente de EstuRed
 
-**Última actualización:** 2026-07-09 (Ciclo 16 — dataset demo persistente para exploración UX)
+**Última actualización:** 2026-07-09 (Ciclo 17 — UI de admin /admin/exchange-rate)
 
 > Bitácora ejecutiva viva. NO reemplaza la documentación estratégica de `/docs`
 > (los 23 archivos `00`–`22` son la fuente de verdad de producto). Leer este
@@ -172,7 +172,7 @@ Todo el resto del MVP: ver `docs/PRODUCT_IMPLEMENTATION_PLAN.md` (Ciclos 1–7+)
 - `components/ui/ExchangeRateNote.tsx`: tooltip reutilizable con el texto exacto de docs/08 §2.8/§9.9, click-to-toggle (no hover-only, más robusto en mobile), cierre por click afuera. Insertado en ficha de residencia (`/r/[slug]`, `/residencias/[slug]`), perfil de residencia (edición de tarifas) y pantalla de negociación del estudiante. **Deliberadamente omitido en `ResidenceCard`** (grid de catálogo): insertar un `<button>` dentro del `<Link>` que envuelve toda la card genera HTML inválido (botón anidado en anchor) — docs/08 §2.8 no exige el modal en tarjetas de listado, solo en ficha/negociación/fee, así que ahí se dejó el texto "referencial" sin el ícono interactivo.
 - Cambio de plataforma menor: `hint` de `components/ui/Input.tsx` pasó de `string` a `React.ReactNode` (compatible hacia atrás) para poder insertar el tooltip dentro del hint de un campo de formulario.
 - **E2E verificado**: tasa real cacheada sin duplicados (1520 ARS/USD el día de la verificación) en `exchange_rates`; valores ARS consistentes (mismo cálculo `USD × 1520`) en landing, `/search`, `/r/[slug]` y `/residencias/[slug]`; tooltip abre con el texto exacto y cierra al clickear afuera.
-- **Pendiente menor no bloqueante**: la UI de admin `/admin/exchange-rate` (docs/09 §25: forzar actualización, override manual con motivo obligatorio, quitar override, histórico) no se construyó — hoy sería necesario insertar una fila manualmente en Supabase para un override. No bloquea el loop central.
+- ~~Pendiente menor no bloqueante: la UI de admin `/admin/exchange-rate`~~ ✅ Ciclo 17.
 
 ## 13sexies. Pago a residencia + creación de reserva y fee EstuRed (Ciclo 10, 2026-07-09)
 
@@ -257,6 +257,15 @@ Todo el resto del MVP: ver `docs/PRODUCT_IMPLEMENTATION_PLAN.md` (Ciclos 1–7+)
 - **Cómo usarlo**: `DEMO_LOGIN_ENABLED=true` en `.env.local` (ya está) + widget "Simular sesión" (esquina inferior izquierda) para entrar como cualquiera de los 8 usuarios sin contraseña. Para reponer/resetear el dataset en cualquier momento: `node --env-file=.env.local scripts/seed-demo-data.mjs` (requiere haber corrido `seed-demo-users.mjs` antes al menos una vez).
 - **Simplificaciones deliberadas, no bugs**: sin fotos reales (bucket `public-residence-media` vacío para las residencias demo — la ficha funciona igual, sin imagen destacada); tipo de cambio fijo 1520 ARS/USD en el script (no llama a monedapi.ar).
 
+## 13terdecies. UI de admin `/admin/exchange-rate` (Ciclo 17, 2026-07-09)
+
+**Contexto**: pendiente menor no bloqueante documentado desde el Ciclo 9 — el override manual del tipo de cambio solo era posible insertando una fila a mano en Supabase. Con el dueño ya explorando la app activamente (Ciclo 16), esto pasó a ser una limitación operativa real, no solo teórica.
+
+- `app/admin/exchange-rate/page.tsx` + `ExchangeRateActions.tsx` + `actions.ts` (docs/09 §25): valor vigente (ARS/USD, fuente, hora de última actualización, badge de estado — automático/override/fallback a mock), histórico (últimas 15 filas), y las 3 acciones documentadas: **Forzar actualización** (vuelve a consultar monedapi.ar; actualiza la fila automática del día en el lugar en vez de duplicarla — se chequeó explícitamente para no pisar el unique index parcial de `exchange_rates`), **Establecer override manual** (motivo obligatorio, ≥5 caracteres), **Quitar override** (solo aparece si hay uno activo hoy). Las 3 auditadas.
+- Ítem "Tipo de cambio" agregado al sidebar de admin (`components/admin/AdminSidebar.tsx`).
+- **E2E verificado en vivo, no solo en teoría**: override 1520→1550 ARS/USD → confirmado que se propaga en tiempo real a `/residencias/[slug]` (300 USD → ARS 465.000, 220 USD → ARS 341.000, ambos exactos) → "Quitar override" → vuelve a 1520 automático → "Forzar actualización" → refresca el timestamp sin duplicar la fila del día (histórico se mantiene en 1 fila por fecha automática, como exige el unique index parcial).
+- **Error propio durante la verificación, no de la app**: al testear el submit del formulario de override con un selector CSS genérico (`button[type="submit"]`), matcheé por accidente el botón "Cerrar sesión" del sidebar (también `type="submit"`) y me desloguée a mitad de la prueba — ningún dato se guardó a medias, la sesión simplemente terminó. Se corrigió acotando el selector al texto exacto del botón. **Lección para futuras verificaciones con `preview_click`/`preview_eval`**: en pantallas con múltiples `<form>` (sidebar + contenido), nunca usar selectores por atributo genérico como `button[type="submit"]` — siempre por texto exacto o `data-testid`.
+
 ## 14. Próxima tarea recomendada
 
 **Explícitamente decidido por el dueño (2026-07-08): NO reemplazar `lib/mock/residences.ts` todavía** — no tiene sentido armar el catálogo mock-a-real hasta que existan residencias reales cargadas de verdad (hoy: 0 en `verified_active`, confirmado tras limpiar los datos de prueba del Ciclo 11).
@@ -273,9 +282,11 @@ Todo el resto del MVP: ver `docs/PRODUCT_IMPLEMENTATION_PLAN.md` (Ciclos 1–7+)
 
 **Ciclo 16** (✅, a pedido explícito del dueño): dataset demo persistente (`scripts/seed-demo-data.mjs`) para poder recorrer todas las pantallas con los 8 usuarios demo e interactuar con datos reales — ver §13duodecies. Encontró y corrigió 2 bugs reales de UX en el propio proceso de exploración.
 
-Próximo bloque sugerido (a decidir con criterio propio cuando se retome): PDF real del comprobante, o UI de admin `/admin/exchange-rate`/`/admin/invoices`/`/admin/receipts`/`/admin/family-proposals`, o refactor de `markResidencePaymentReceived`/`markFeePaidManually` para separar lógica de negocio testeable de la resolución de sesión (ver GAPS.md, gap de arquitectura detectado en el Ciclo 14) — todas ramas no bloqueantes.
+**Ciclo 17** (✅): UI de admin `/admin/exchange-rate` — forzar actualización, override manual con motivo, quitar override, histórico — ver §13terdecies. Cierra el último pendiente menor del Ciclo 9.
 
-Pendientes menores (no bloquean): permiso de Bash para scripts de limpieza de datos de prueba acotados por ID (ver §13sexies/§13septies — el sandbox los bloquea hoy, requiere limpieza manual del dueño vía SQL Editor), UI de admin `/admin/exchange-rate`/`/admin/invoices`/`/admin/receipts`, crear el admin real del dueño (`scripts/create-admin.mjs`), recuperación de contraseña (necesita proveedor de email, docs/00 §29), fotos curadas para mocks, logo real, rate limiting del waitlist (GAPS.md), página /privacy antes de difusión masiva, `/admin/users` y `/admin/applications` son placeholders, job de expiración automática de solicitudes/propuestas a 48h (docs/00 §9.1 — hoy `expires_at` se guarda pero nada lo procesa todavía), revocación del fee (`/students/revocation`), PDF real del comprobante.
+Próximo bloque sugerido (a decidir con criterio propio cuando se retome): PDF real del comprobante, o UI de admin `/admin/invoices`/`/admin/receipts`/`/admin/family-proposals`, o refactor de `markResidencePaymentReceived`/`markFeePaidManually` para separar lógica de negocio testeable de la resolución de sesión (ver GAPS.md, gap de arquitectura detectado en el Ciclo 14) — todas ramas no bloqueantes.
+
+Pendientes menores (no bloquean): permiso de Bash para scripts de limpieza de datos de prueba acotados por ID (ver §13sexies/§13septies — el sandbox los bloquea hoy, requiere limpieza manual del dueño vía SQL Editor), UI de admin `/admin/invoices`/`/admin/receipts`/`/admin/family-proposals`, crear el admin real del dueño (`scripts/create-admin.mjs`), recuperación de contraseña (necesita proveedor de email, docs/00 §29), fotos curadas para mocks, logo real, rate limiting del waitlist (GAPS.md), página /privacy antes de difusión masiva, `/admin/users` y `/admin/applications` son placeholders, job de expiración automática de solicitudes/propuestas a 48h (docs/00 §9.1 — hoy `expires_at` se guarda pero nada lo procesa todavía), revocación del fee (`/students/revocation`), PDF real del comprobante.
 
 ## 15. Instrucciones para futuras sesiones
 
@@ -283,7 +294,7 @@ Pendientes menores (no bloquean): permiso de Bash para scripts de limpieza de da
 2. Jerarquía ante contradicción: docs/13 §2 (el 00 manda).
 3. Nunca: fusionar entidades del loop, inventar estados/reglas, API de WhatsApp, mutar estados críticos desde el cliente, comprobante sin fee pagado.
 4. **Comandos de validación:** `npm run typecheck` · `npm run lint` · `npm run build` · `npm run test` (Vitest, desde Ciclo 12) · dev: `npm run dev` (launch config `estured-dev` en `.claude/launch.json`).
-5. **Resultado última validación (2026-07-09, Ciclo 16):** typecheck ✅ · lint ✅ · build ✅ (33 rutas) · test ✅ (9/9, Vitest) · dataset demo verificado con los 8 usuarios demo sin errores de consola — ver §13duodecies. Ciclos 11-15 siguen vigentes — ver secciones correspondientes. `markResidencePaymentReceived`/`markFeePaidManually` siguen sin tests de integración propios (gap de arquitectura real, ver GAPS.md).
+5. **Resultado última validación (2026-07-09, Ciclo 17):** typecheck ✅ · lint ✅ · build ✅ (34 rutas) · test ✅ (9/9, Vitest) · `/admin/exchange-rate` verificado e2e en vivo (override → propagación en catálogo real → quitar → forzar actualización) — ver §13terdecies. Ciclos 11-16 siguen vigentes — ver secciones correspondientes. `markResidencePaymentReceived`/`markFeePaidManually` siguen sin tests de integración propios (gap de arquitectura real, ver GAPS.md).
 6. Al cerrar cada ciclo: validar, actualizar `MEMORY.md` + `docs/NEXT_STEPS.md`.
 7. **Modo de trabajo (desde 2026-07-08):** no preguntar "con qué seguimos" — planificar y ejecutar la continuidad del loop central con criterio propio (ver plan en §14), consultando `docs/` y `design-references/` como corresponde. Solo consultar al dueño ante dudas realmente bloqueantes (regla de negocio ambigua no cubierta en docs, o pantalla/flujo de referencia que no se entiende, o dependencia externa real como credenciales — ver §13septies). El dueño planea una pasada de estética aparte más adelante — señalar dudas estéticas sin detenerse a resolverlas ahora.
 8. **Modo de colaboración (desde 2026-07-09, ver CLAUDE.md):** los docs son guía fuerte, no dogma — traer análisis propio y recomendar mejoras activamente, no solo implementar literal (ver §13sexies y §13septies para ejemplos reales: los dos gaps de transición, la comparación TusFacturas vs Facturitas, la decisión de seguridad en la RLS de `booking_receipts`). Evaluar qué skills de Claude Code ayudarían antes de cada bloque de trabajo nuevo y pedirlas si no están instaladas.

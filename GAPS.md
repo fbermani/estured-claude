@@ -120,7 +120,7 @@ Antes del deploy público: página `/privacy` mínima (los textos base están en
 
 **Fix aplicado:** `ExchangeRateProvider` real (`lib/exchange/provider.ts`, monedapi.ar — dólar blue, valor venta), caché diaria en `exchange_rates` (migración 0009) con degradación en cascada (`lib/exchange/rate.ts`: override manual > fila del día > último valor conocido > mock como último recurso), y el modal/tooltip obligatorio (`components/ui/ExchangeRateNote.tsx`) en ficha de residencia, catálogo, negociación y perfil de residencia. Verificado e2e: tasa real (1520 ARS/USD el día de la verificación) cacheada sin duplicados y consistente en las 6+ pantallas que muestran USD→ARS.
 
-**Pendiente menor no bloqueante:** la UI de admin `/admin/exchange-rate` (docs/09 §25: forzar actualización, override manual con motivo, quitar override, histórico) no se construyó — el override solo es posible hoy insertando una fila manualmente en Supabase. Ver `MEMORY.md` §14.
+**Pendiente resuelto en el Ciclo 17:** la UI de admin `/admin/exchange-rate` ya está construida y verificada e2e (forzar actualización, override manual con motivo, quitar override, histórico). Ver `MEMORY.md` §13terdecies.
 
 ---
 

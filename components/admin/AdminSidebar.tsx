@@ -56,12 +56,20 @@ function PaymentsIcon() {
     </svg>
   );
 }
+function ExchangeIcon() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 7h9l-2.5-2.5M16 13H7l2.5 2.5" />
+    </svg>
+  );
+}
 
 const NAV = [
   { href: "/admin/dashboard", label: "Dashboard", Icon: DashboardIcon },
   { href: "/admin/verifications", label: "Residencias", Icon: BuildingIcon },
   { href: "/admin/applications", label: "Solicitudes", Icon: ClockIcon },
   { href: "/admin/payments", label: "Pagos", Icon: PaymentsIcon },
+  { href: "/admin/exchange-rate", label: "Tipo de cambio", Icon: ExchangeIcon },
   { href: "/admin/users", label: "Usuarios", Icon: UsersIcon },
   { href: "/admin/logs", label: "Logs", Icon: LogsIcon },
 ] as const;
