@@ -234,6 +234,14 @@ Re-exportar los PNG desde Stitch, o borrar los 8 corruptos y dejar nota en un `d
 
 ---
 
+## [RESUELTO — Ciclo 16, 2026-07-09] Estado de solicitud del estudiante no distinguía reserva confirmada de fee pendiente
+
+**Qué era:** `app/students/applications/[id]/page.tsx` mostraba el mismo label/helper estático ("Reserva creada" / "Ya podés pagar el fee EstuRed...") para `application.status = converted_to_reservation` sin importar si la reserva ya estaba `confirmed` (fee pagado) — encontrado explorando la app como Lucía con un dataset demo real. El lado de la residencia sí distinguía esto desde el Ciclo 11; el lado del estudiante había quedado sin el mismo tratamiento.
+
+**Fix aplicado:** el label/helper ahora se calculan a partir de `reservation.status` (no solo `application.status`), mostrando "Reserva confirmada" con el copy correcto cuando corresponde; el formulario de subir comprobante de pago deja de mostrarse una vez que la reserva ya está confirmada.
+
+---
+
 ## [Severidad: Baja] Inconsistencias menores de convención
 
 **Dónde vive / qué ocurre:**

@@ -93,11 +93,6 @@ export default async function StudentApplicationDetailPage({
 
   const residence = application.residences as unknown as { name: string; public_area: string } | null;
   const roomType = application.room_types as unknown as { name: string } | null;
-  const info = STATUS_EXPLANATION[application.status] ?? {
-    label: application.status,
-    tone: "neutral" as const,
-    helper: "",
-  };
 
   let reservation: { status: string; booking_receipt_id: string | null } | null = null;
   if (application.status === "converted_to_reservation") {
@@ -108,6 +103,19 @@ export default async function StudentApplicationDetailPage({
       .maybeSingle();
     reservation = data;
   }
+
+  const info =
+    application.status === "converted_to_reservation" && reservation?.status === "confirmed"
+      ? {
+          label: "Reserva confirmada",
+          tone: "sage" as const,
+          helper: "Ya pagaste el fee EstuRed — tu reserva está confirmada. Descargá tu comprobante abajo.",
+        }
+      : (STATUS_EXPLANATION[application.status] ?? {
+          label: application.status,
+          tone: "neutral" as const,
+          helper: "",
+        });
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
@@ -164,9 +172,8 @@ export default async function StudentApplicationDetailPage({
         </p>
       </Card>
 
-      {["residence_payment_pending", "converted_to_reservation"].includes(application.status) && (
-        <PaymentProofUpload applicationId={id} />
-      )}
+      {["residence_payment_pending", "converted_to_reservation"].includes(application.status) &&
+        reservation?.status !== "confirmed" && <PaymentProofUpload applicationId={id} />}
     </div>
   );
 }
