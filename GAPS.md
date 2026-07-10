@@ -63,7 +63,7 @@ Si se deploya así, la única conversión del sitio (captar leads) falla silenci
 
 ---
 
-## [Severidad: Media — parcialmente resuelto Ciclo 12, 2026-07-09] Cero tests de integración en los flujos de pago/reserva
+## [RESUELTO — Ciclo 19, 2026-07-10] Cero tests de integración en los flujos de pago/reserva
 
 **Qué era:** cero tests automatizados en todo el proyecto pese a que los Ciclos 10-11 ya shippearon lógica real de dinero (pago a residencia, fee EstuRed, confirmación de reserva) — señalado como severidad Alta porque `docs/16_QA_AND_TESTING_PLAN.md` exige tests por módulo y "auth y pagos sin tests serían inaceptables".
 
@@ -73,11 +73,11 @@ Si se deploya así, la única conversión del sitio (captar leads) falla silenci
 
 **Qué sigue sin cobertura (gap real, no cerrado)**: `lib/applications/residencePayment.ts` y los server actions de pago/negociación/propuesta del familiar siguen sin tests automatizados, solo verificación manual e2e en navegador+DB cada ciclo. Extender el mismo patrón de test de integración cuando se toquen de nuevo.
 
-**Por qué `markResidencePaymentReceived`/`markFeePaidManually` NO recibieron el mismo test (intentado en el Ciclo 14, pausado por diseño real):** a diferencia de `confirmReservationAfterFeePaid` (recibe `admin` y los datos por parámetro — "inyección de dependencias"), estas dos son Server Actions que llaman `getSessionUser()` internamente, que a su vez depende de `cookies()` de `next/headers` — requiere el contexto de request de Next.js real, no disponible en Vitest. Mockear `next/headers` es frágil (testearía el mock, no el comportamiento real) y refactorizarlas para inyectar la sesión (mismo patrón que `confirmAfterFeePaid`) es un cambio de diseño más grande que no se hizo sin pedido explícito. **Lección de arquitectura para el futuro**: los server actions nuevos que tengan lógica de negocio no trivial se benefician de separar "resolver sesión + parsear formData" (capa fina, no testeable sin Next) de "hacer el trabajo" (función pura que recibe `admin` + datos ya validados — testeable igual que `confirmAfterFeePaid`/`createRequestFromRoomType`).
+**Por qué `markResidencePaymentReceived`/`markFeePaidManually` NO recibieron el mismo test en el Ciclo 14 (pausado por diseño real, en ese momento):** a diferencia de `confirmReservationAfterFeePaid` (recibe `admin` y los datos por parámetro — "inyección de dependencias"), estas dos eran Server Actions que llamaban `getSessionUser()` internamente, que a su vez depende de `cookies()` de `next/headers` — requiere el contexto de request de Next.js real, no disponible en Vitest. Mockear `next/headers` es frágil (testearía el mock, no el comportamiento real) y refactorizarlas para inyectar la sesión (mismo patrón que `confirmAfterFeePaid`) era un cambio de diseño más grande que no se hizo sin pedido explícito en ese momento.
 
-**Fix sugerido siguiente:**
-1. Test de mapeo de `availabilityCopy` en `components/ui/StatusTag.tsx` (los 4 estados oficiales tienen copy) — bajo esfuerzo, sigue pendiente.
-2. Si se retoma `markResidencePaymentReceived`/`markFeePaidManually`, extraer primero la lógica de negocio a una función inyectada (mismo refactor que ya se hizo para la creación de solicitudes en `createRequestFromRoomType`, Ciclo 13) y recién ahí testear esa función — no mockear `next/headers`.
+**Cierre definitivo (Ciclo 19, 2026-07-10):** se aplicó el refactor sugerido. `lib/reservations/recordResidencePaymentReceived.ts` y `lib/reservations/recordManualFeePayment.ts` extraen toda la lógica de negocio (incluida la validación server-side: motivo ≥5 caracteres, moneda válida, estado correcto, acceso a la residencia) de los server actions originales, que ahora son capas finas de ~15-30 líneas (resolver sesión, parsear `FormData`, delegar, `revalidatePath`). Ambas funciones tienen tests de integración reales contra el Supabase provisionado del proyecto (`recordResidencePaymentReceived.test.ts`, `recordManualFeePayment.test.ts`), mismo patrón que `confirmAfterFeePaid.test.ts` — más 2 tests de validación pura que no requieren credenciales (motivo corto, moneda inválida devuelven error antes de tocar la DB). 17/17 tests verdes. Verificado además con clicks reales en el navegador sobre el dataset demo persistente (Ciclo 16), restaurado con `seed-demo-data.mjs` después de la verificación para no dejar el dataset de exploración del dueño en un estado distinto al esperado.
+
+**Qué sigue sin cobertura (gap real, no cerrado)**: los server actions de negociación y de propuesta del familiar (`respondNegotiationProposal`, `respondFamilyProposal`) siguen sin tests automatizados, solo verificación manual e2e en navegador+DB cada ciclo. Extender el mismo patrón cuando se toquen de nuevo. Test de mapeo de `availabilityCopy` en `components/ui/StatusTag.tsx` (los 4 estados oficiales tienen copy) — bajo esfuerzo, sigue pendiente.
 
 ---
 
