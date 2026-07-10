@@ -63,11 +63,19 @@ function ExchangeIcon() {
     </svg>
   );
 }
+function FamilyProposalsIcon() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3 6l7 5 7-5M4 4h12a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1z" />
+    </svg>
+  );
+}
 
 const NAV = [
   { href: "/admin/dashboard", label: "Dashboard", Icon: DashboardIcon },
   { href: "/admin/verifications", label: "Residencias", Icon: BuildingIcon },
   { href: "/admin/applications", label: "Solicitudes", Icon: ClockIcon },
+  { href: "/admin/family-proposals", label: "Propuestas familiar", Icon: FamilyProposalsIcon },
   { href: "/admin/payments", label: "Pagos", Icon: PaymentsIcon },
   { href: "/admin/exchange-rate", label: "Tipo de cambio", Icon: ExchangeIcon },
   { href: "/admin/users", label: "Usuarios", Icon: UsersIcon },
