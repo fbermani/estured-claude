@@ -276,6 +276,18 @@ Ninguna rompe nada hoy; todas son fuentes de fricción para quien entra nuevo.
 
 ---
 
+## [RESUELTO — Ciclo 23, 2026-07-10] Sin implementación del derecho de revocación del fee — gap de cumplimiento legal, no solo de producto
+
+**Qué era:** docs/10 §15.4 marca el derecho de revocación del fee dentro de 10 días corridos como "DECISIÓN CONFIRMADA" (requisito legal de contratación a distancia) y docs/08 §2.8bis exige el link "Botón de arrepentimiento" como **obligatorio** en el footer de toda la plataforma — ninguno de los dos existía. No era una feature de producto pendiente entre varias, era un gap de cumplimiento real en un sitio que ya procesa pagos de fee reales (modo manual).
+
+**Fix aplicado:** `lib/reservations/revokeEsturedFee.ts` (docs/07 §18.6) — valida ownership (estudiante dueño o familiar pagador del fee, no cualquier familiar vinculado), estado `confirmed`, fee `paid`, ventana de 10 días desde `paid_at`. Cancela la reserva (`cancelled_by_student`, `student_revocation_right`), anula el comprobante (`voided`), el fee **permanece `paid`** (nunca `refunded` automático). `/students/revocation` + link obligatorio en `Footer.tsx`. 4 tests de integración nuevos (33/33 en total). Verificado en vivo de punta a punta.
+
+**Simplificación deliberada, documentada, mismo criterio que otras pantallas admin de este proyecto**: sin `support_cases` (docs/07 §18.6 pide abrir uno — la tabla no existe, ningún flujo de soporte real construido). La auditoría completa en `audit_logs` cumple el propósito real (registro revisable) sin inventar infraestructura de soporte completa. Pendiente sugerido, no bloqueante: una UI de admin simple para listar revocaciones.
+
+**Bug real encontrado en la propia verificación e2e**: séptima aparición de la trampa de FK bidireccional entre `reservations` y `estured_fee_payments` (ver MEMORY.md #10/#17/#18) — el embed implícito en la query de la página fallaba en silencio, mostrando "sin reservas revocables" con una reserva confirmada real. Corregido con el hint de FK explícito + chequeo de `error`.
+
+---
+
 ## Trabajo incompleto conocido (intencional, no descuido)
 
 | Qué | Estado | Dónde retomarlo |

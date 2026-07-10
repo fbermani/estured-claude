@@ -55,7 +55,11 @@ export function Footer() {
           <p className="text-xs text-petrol-300">
             EstuRed actúa como plataforma intermediaria de búsqueda, solicitud,
             registro y comprobante. No presta directamente el alojamiento. Los
-            precios en ARS son referenciales al dólar blue del día.
+            precios en ARS son referenciales al dólar blue del día.{" "}
+            <Link href="/students/revocation" className="underline hover:text-white">
+              Botón de arrepentimiento
+            </Link>
+            .
           </p>
           <p className="shrink-0 text-xs text-petrol-300">
             Hecho con <span aria-hidden>♥</span> en Buenos Aires
