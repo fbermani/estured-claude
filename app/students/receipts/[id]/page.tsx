@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import QRCode from "qrcode";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -39,6 +40,7 @@ export default async function ReceiptPage({
   if (!receipt) notFound();
 
   const payload = receipt.receipt_payload as Payload;
+  const qrDataUrl = await QRCode.toDataURL(receipt.qr_code_value, { margin: 1, width: 160 });
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
@@ -107,10 +109,27 @@ export default async function ReceiptPage({
         {payload.disclaimer}
       </p>
 
+      <Card className="mt-6 flex flex-col items-center gap-3 p-6 sm:flex-row sm:justify-between">
+        <div className="flex items-center gap-4">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={qrDataUrl} alt="Código QR de verificación" width={96} height={96} className="rounded-field border border-sand-200" />
+          <p className="max-w-xs text-xs text-ink-faint">
+            Escaneá el código o compartí el enlace para que cualquiera pueda verificar este comprobante en{" "}
+            <span className="font-medium text-ink">/verify</span>.
+          </p>
+        </div>
+        <a
+          href={`/students/receipts/${id}/pdf`}
+          className="inline-flex items-center justify-center gap-2 rounded-full bg-petrol-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-petrol-700 hover:shadow"
+        >
+          Descargar PDF
+        </a>
+      </Card>
+
       <CopyVerificationLink qrCodeValue={receipt.qr_code_value} />
 
       <p className="mt-4 text-xs text-ink-faint">
-        Descarga en PDF y Factura C disponibles próximamente.
+        Descarga de Factura C disponible cuando exista la integración de facturación fiscal real.
       </p>
     </div>
   );
