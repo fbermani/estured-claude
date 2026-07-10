@@ -99,19 +99,18 @@ Si se deploya así, la única conversión del sitio (captar leads) falla silenci
 
 ---
 
-## [Severidad: Media] Sin rate limiting ni protección real anti-spam en la waitlist
+## [RESUELTO — Ciclo 24] Sin rate limiting ni protección real anti-spam en la waitlist
 
-**Dónde vive:**
+**Dónde vivía:**
 - `app/(public)/waitlist/actions.ts`
 
-**Qué ocurre:**
-La única protección es un honeypot (campo oculto `website`). Un script trivial que omita el honeypot puede insertar filas ilimitadas con emails únicos falsos.
+**Qué ocurría:**
+La única protección era un honeypot (campo oculto `website`). Un script trivial que omitiera el honeypot podía insertar filas ilimitadas con emails únicos falsos.
 
-**Por qué importa:**
-Es una tabla de PII expuesta a escritura pública indirecta. Spam masivo = base de leads inservible y costos de storage. `docs/11 §3.3` delega rate limiting a criterio técnico, pero "ninguno" no es un criterio.
+**Por qué importaba:**
+Es una tabla de PII expuesta a escritura pública indirecta. Spam masivo = base de leads inservible y costos de storage. `docs/11 §3.3` delegaba rate limiting a criterio técnico, pero "ninguno" no era un criterio.
 
-**Fix sugerido:**
-Al conectar Supabase: rate limit simple por IP en la server action (contador en tabla `waitlist_rate_limits` o Upstash si se prefiere no reinventar; para el tráfico pre-lanzamiento basta un check de "máx. N inserts por IP por hora" contra la propia tabla usando una columna `ip_hash`). Alternativa mínima inmediata: CAPTCHA invisible (Cloudflare Turnstile, gratuito).
+**Fix aplicado (el más simple de los dos sugeridos originalmente):** columna `ip_hash` (SHA-256 de la IP, nunca texto plano) en la propia tabla `waitlist_signups` (`db/migrations/0014_waitlist_rate_limit.sql`) + `lib/waitlist/submitWaitlistSignup.ts` — rechaza el insert si ya hay 5+ filas con el mismo `ip_hash` en la última hora. Verificado en vivo: 5 envíos consecutivos insertaron correctamente, el 6to mostró "Ya recibimos varias solicitudes desde acá. Probá de nuevo más tarde." Ver MEMORY.md §13vicies.
 
 ---
 

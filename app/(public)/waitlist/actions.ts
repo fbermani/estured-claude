@@ -1,6 +1,9 @@
 "use server";
 
+import { headers } from "next/headers";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { hashIp } from "@/lib/waitlist/hashIp";
+import { submitWaitlistSignup } from "@/lib/waitlist/submitWaitlistSignup";
 
 export type WaitlistState = {
   status: "idle" | "success" | "error";
@@ -9,6 +12,14 @@ export type WaitlistState = {
 
 const VALID_ROLES = new Set(["student", "family", "residence"]);
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** Vercel/proxies estándar inyectan `x-forwarded-for`; sin proxy (dev local) no hay IP y el rate limit simplemente no aplica. */
+async function getClientIp(): Promise<string | null> {
+  const headerList = await headers();
+  const forwardedFor = headerList.get("x-forwarded-for");
+  if (forwardedFor) return forwardedFor.split(",")[0].trim();
+  return headerList.get("x-real-ip");
+}
 
 /**
  * Alta en la lista de espera pre-lanzamiento.
@@ -59,26 +70,18 @@ export async function submitWaitlist(
     };
   }
 
-  const { error } = await supabase.from("waitlist_signups").insert({
+  const clientIp = await getClientIp();
+  const ipHash = clientIp ? await hashIp(clientIp) : null;
+
+  const result = await submitWaitlistSignup(supabase, {
     role,
     name,
     email,
     city: city || null,
     message: message || null,
+    ipHash,
   });
-
-  if (error) {
-    // 23505 = unique_violation: el email ya estaba anotado. Para el
-    // usuario es un éxito idempotente, no un error.
-    if (error.code === "23505") {
-      return { status: "success" };
-    }
-    console.error("[waitlist] insert failed:", error.code, error.message);
-    return {
-      status: "error",
-      message: "No pudimos guardar tus datos. Intentá de nuevo en unos minutos.",
-    };
-  }
+  if (!result.ok) return { status: "error", message: result.error };
 
   return { status: "success" };
 }
