@@ -48,6 +48,13 @@ function LogsIcon() {
     </svg>
   );
 }
+function RevocationsIcon() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 4l12 12M16 4L4 16" />
+    </svg>
+  );
+}
 function PaymentsIcon() {
   return (
     <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
@@ -77,6 +84,7 @@ const NAV = [
   { href: "/admin/applications", label: "Solicitudes", Icon: ClockIcon },
   { href: "/admin/family-proposals", label: "Propuestas familiar", Icon: FamilyProposalsIcon },
   { href: "/admin/payments", label: "Pagos", Icon: PaymentsIcon },
+  { href: "/admin/revocations", label: "Revocaciones", Icon: RevocationsIcon },
   { href: "/admin/exchange-rate", label: "Tipo de cambio", Icon: ExchangeIcon },
   { href: "/admin/users", label: "Usuarios", Icon: UsersIcon },
   { href: "/admin/logs", label: "Logs", Icon: LogsIcon },
