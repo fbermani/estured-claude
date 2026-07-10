@@ -28,38 +28,19 @@
 
 ---
 
-## [Severidad: Alta] El repositorio no tiene remoto — todo el trabajo vive en una sola máquina
+## [RESUELTO — Ciclo 3, confirmado obsoleto recién en Ciclo 26, 2026-07-10] El repositorio no tenía remoto — todo el trabajo vivía en una sola máquina
 
-**Dónde vive:**
-- `.git/` (local, 2 commits, `git remote -v` vacío)
+**Qué era:** el proyecto estaba versionado localmente pero sin remoto (`git remote -v` vacío) — único punto de falla total, los 23 documentos estratégicos son más valiosos que el código.
 
-**Qué ocurre:**
-El proyecto está versionado localmente pero sin remoto. Un fallo de disco o un borrado accidental de la carpeta pierde el 100% del trabajo (código + 23 documentos estratégicos irreproducibles).
-
-**Por qué importa:**
-Es el único punto de falla total del proyecto. Los documentos estratégicos son más valiosos que el código: representan meses de decisiones de producto.
-
-**Fix sugerido:**
-Crear repo privado en GitHub (`github.com/new`, sin README inicial) y ejecutar `git remote add origin <URL> && git push -u origin main`. Está instruido y pendiente del dueño desde el Ciclo 3. Es la tarea nº 1 del proyecto.
+**Fix aplicado:** el dueño creó `github.com/fbermani/estured-claude` (privado) hace muchos ciclos — `git remote -v` confirma `origin` configurado y cada ciclo desde el 19 (al menos) termina con `git push origin main` exitoso. **Esta entrada quedó "Severidad: Alta" sin actualizar durante ~19 ciclos** después de resuelta — encontrado al revisar gaps abiertos antes de elegir el bloque del Ciclo 26; ejemplo real de por qué conviene re-auditar `GAPS.md` completo de vez en cuando, no solo agregar entradas nuevas.
 
 ---
 
-## [Severidad: Alta] La única feature con backend apunta a una base de datos que no existe
+## [RESUELTO — Ciclo 3, confirmado obsoleto recién en Ciclo 26, 2026-07-10] La única feature con backend apuntaba a una base de datos que no existía
 
-**Dónde vive:**
-- `lib/supabase/admin.ts` (devuelve `null` sin env vars)
-- `app/(public)/waitlist/actions.ts` (rama "Todavía estamos conectando la base de datos")
-- `db/migrations/0001_waitlist_signups.sql` (sin aplicar en ningún Supabase)
-- `.env.local` (no existe)
+**Qué era:** `getSupabaseAdmin()` devolvía `null` sin env vars, `.env.local` no existía, y la migración `0001_waitlist_signups.sql` nunca se había aplicado — la waitlist (única conversión del sitio en ese momento) fallaba silenciosamente para todo envío.
 
-**Qué ocurre:**
-El formulario de lista de espera valida y responde, pero todo envío termina en el error amigable de "base no conectada". La migración SQL nunca se aplicó porque el proyecto Supabase no fue creado.
-
-**Por qué importa:**
-Si se deploya así, la única conversión del sitio (captar leads) falla silenciosamente para el negocio: los usuarios ven un error y no queda registro de nadie. Además bloquea el resto del Ciclo 3 (auth, roles, RLS).
-
-**Fix sugerido:**
-(1) Dueño crea proyecto en supabase.com y completa `.env.local` según `.env.example`. (2) Aplicar `db/migrations/0001_waitlist_signups.sql` en el SQL Editor. (3) Probar el form end-to-end y verificar la fila en Table Editor. Instrucciones completas ya escritas en la conversación del Ciclo 3 y en `docs/NEXT_STEPS.md`.
+**Fix aplicado:** el dueño provisionó el proyecto de Supabase y completó `.env.local` hace muchos ciclos — confirmado por el uso exitoso y continuo de `getSupabaseAdmin()`/`getSupabaseServer()` en cada ciclo desde el 3 en adelante (incluye 15 migraciones aplicadas, Ciclos 8-24). **Misma situación que el gap anterior**: quedó "Severidad: Alta" sin actualizar ~19 ciclos después de resuelta.
 
 ---
 
@@ -114,20 +95,17 @@ Es una tabla de PII expuesta a escritura pública indirecta. Spam masivo = base 
 
 ---
 
-## [Severidad: Media] PII sin política de retención ni consentimiento formal
+## [PARCIALMENTE RESUELTO — Ciclo 26, 2026-07-10] PII sin política de retención ni consentimiento formal
 
-**Dónde vive:**
-- `db/migrations/0001_waitlist_signups.sql` (guarda nombre, email, ciudad, mensaje libre)
-- `app/(public)/waitlist/WaitlistForm.tsx` (microcopy: "Usamos tus datos solo para avisarte…")
+**Qué era:** se capturaba PII (waitlist y el resto del producto) con una promesa informal en el microcopy, sin link a política de privacidad (no existía página), sin proceso de borrado documentado.
 
-**Qué ocurre:**
-Se captura PII con una promesa informal en el microcopy, sin checkbox de consentimiento, sin link a política de privacidad (no existe página), sin proceso de borrado.
+**Fix aplicado:** `/privacy` (ver MEMORY.md §13duovicies) — cubre qué se recolecta, para qué, con quién se comparte, menores, retención, derechos (Ley 25.326) y cómo pedir el borrado (hoy manual, por email). Linkeada desde el footer y desde `WaitlistForm.tsx`.
 
-**Por qué importa:**
-`docs/10_PRIVACY_AND_LEGAL_RULES.md` es estricto en consentimiento y minimización; Argentina tiene ley de protección de datos personales (25.326). Para una plataforma cuyo producto es la confianza, incumplir en el primer formulario es incoherente.
-
-**Fix sugerido:**
-Antes del deploy público: página `/privacy` mínima (los textos base están en `docs/10` y `docs/21`), link desde el form y el footer, y documentar en `docs/` cómo borrar un registro a pedido (un DELETE manual documentado alcanza en esta etapa).
+**Todavía abierto, no bloqueante:**
+- Sin checkbox de consentimiento explícito en `WaitlistForm.tsx` (el fix original lo pedía; se priorizó la página en sí, que es el prerequisito — el checkbox es una mejora incremental sobre eso).
+- El `docs/10 §27.1` (retención) y `§9.6` (menores) siguen marcados "pendiente de revisión legal" en el propio documento fuente — la página de `/privacy` lo hereda y lo dice explícitamente, no es un vacío nuevo introducido acá.
+- `hola@estured.com` es un placeholder de contacto — el dueño confirmó usarlo así por ahora; reemplazar por el email real antes del lanzamiento público masivo.
+- Sin runbook formal de "cómo borrar el registro de una persona a pedido" documentado en `docs/` (la página promete gestión manual, pero no hay un doc interno con los pasos exactos/tablas a tocar).
 
 ---
 
@@ -176,20 +154,11 @@ Pequeño y seguro: en `ResidenceCard` y la ficha, renderizar un placeholder de m
 
 ---
 
-## [Severidad: Media] Dashboards placeholder duplican el layout a mano
+## [RESUELTO — resuelto hace varios ciclos, confirmado obsoleto recién en Ciclo 26, 2026-07-10] Dashboards placeholder duplicaban el layout a mano
 
-**Dónde vive:**
-- `app/students/dashboard/page.tsx` y `app/residence/dashboard/page.tsx` (ambos repiten `<Navbar/> + <main> + <Footer/>`)
-- `app/admin/dashboard/page.tsx` (sin layout alguno)
+**Qué era:** `students/` y `residence/` no tenían `layout.tsx`; cada page armaba la cáscara (`Navbar`+`main`+`Footer`) a mano.
 
-**Qué ocurre:**
-Las áreas `students/` y `residence/` no tienen `layout.tsx`; cada page arma la cáscara manualmente. Es la única duplicación estructural del repo.
-
-**Por qué importa:**
-Bajo impacto hoy (son placeholders), pero al construir las áreas reales, alguien puede copiar el patrón duplicado en vez de crear los layouts por área que `docs/12` Fase 0 ya pedía ("layout base público, autenticado y admin").
-
-**Fix sugerido:**
-Al iniciar el ciclo de auth: crear `app/students/layout.tsx`, `app/residence/layout.tsx` y `app/admin/layout.tsx` (con la protección de rutas ahí mismo) y limpiar las pages. No vale la pena hacerlo antes.
+**Fix aplicado:** `app/students/layout.tsx`, `app/residence/layout.tsx` y `app/admin/layout.tsx` ya existen los tres, con la protección de rol server-side incluida ahí (`getSessionUser` + `hasAnyRole` + `redirect`) — confirmado que ninguna page bajo esas tres áreas repite `Navbar`/`Footer` manualmente. **Tercera entrada de `GAPS.md` encontrada obsoleta en la re-auditoría de este ciclo** (junto con las dos de severidad Alta) — confirma que vale la pena re-revisar gaps abiertos periódicamente, no solo agregar entradas nuevas cada ciclo.
 
 ---
 

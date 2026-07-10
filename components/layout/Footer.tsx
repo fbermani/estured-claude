@@ -59,6 +59,10 @@ export function Footer() {
             <Link href="/students/revocation" className="underline hover:text-white">
               Botón de arrepentimiento
             </Link>
+            {" · "}
+            <Link href="/privacy" className="underline hover:text-white">
+              Política de privacidad
+            </Link>
             .
           </p>
           <p className="shrink-0 text-xs text-petrol-300">

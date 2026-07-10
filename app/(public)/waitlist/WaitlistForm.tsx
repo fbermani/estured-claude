@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input, Select, Textarea } from "@/components/ui/Input";
@@ -98,7 +99,11 @@ export function WaitlistForm() {
         </Button>
         <p className="text-xs text-ink-faint">
           Usamos tus datos solo para avisarte sobre el lanzamiento de EstuRed.
-          No los compartimos con terceros.
+          No los compartimos con terceros. Más información en nuestra{" "}
+          <Link href="/privacy" className="underline hover:text-ink">
+            política de privacidad
+          </Link>
+          .
         </p>
       </form>
     </Card>
