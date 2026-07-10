@@ -85,6 +85,24 @@ export function WaitlistForm() {
           <input id="wl-website" name="website" type="text" tabIndex={-1} autoComplete="off" />
         </div>
 
+        <label htmlFor="wl-privacy-consent" className="flex items-start gap-2.5 text-xs text-ink-faint">
+          <input
+            id="wl-privacy-consent"
+            name="privacy_consent"
+            type="checkbox"
+            required
+            className="mt-0.5 h-4 w-4 accent-petrol-600"
+          />
+          <span>
+            Acepto la{" "}
+            <Link href="/privacy" className="underline hover:text-ink">
+              política de privacidad
+            </Link>{" "}
+            de EstuRed. Usamos tus datos solo para avisarte sobre el lanzamiento — no los compartimos con
+            terceros.
+          </span>
+        </label>
+
         {state.status === "error" && (
           <p
             role="alert"
@@ -97,14 +115,6 @@ export function WaitlistForm() {
         <Button type="submit" size="lg" disabled={isPending}>
           {isPending ? "Enviando…" : "Sumarme a la lista de espera"}
         </Button>
-        <p className="text-xs text-ink-faint">
-          Usamos tus datos solo para avisarte sobre el lanzamiento de EstuRed.
-          No los compartimos con terceros. Más información en nuestra{" "}
-          <Link href="/privacy" className="underline hover:text-ink">
-            política de privacidad
-          </Link>
-          .
-        </p>
       </form>
     </Card>
   );

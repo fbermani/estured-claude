@@ -95,17 +95,19 @@ Es una tabla de PII expuesta a escritura pública indirecta. Spam masivo = base 
 
 ---
 
-## [PARCIALMENTE RESUELTO — Ciclo 26, 2026-07-10] PII sin política de retención ni consentimiento formal
+## [RESUELTO — Ciclos 26-27, 2026-07-10] PII sin política de retención ni consentimiento formal
 
-**Qué era:** se capturaba PII (waitlist y el resto del producto) con una promesa informal en el microcopy, sin link a política de privacidad (no existía página), sin proceso de borrado documentado.
+**Qué era:** se capturaba PII (waitlist y el resto del producto) con una promesa informal en el microcopy, sin link a política de privacidad (no existía página), sin checkbox de consentimiento, sin proceso de borrado documentado.
 
-**Fix aplicado:** `/privacy` (ver MEMORY.md §13duovicies) — cubre qué se recolecta, para qué, con quién se comparte, menores, retención, derechos (Ley 25.326) y cómo pedir el borrado (hoy manual, por email). Linkeada desde el footer y desde `WaitlistForm.tsx`.
+**Fix aplicado:**
+- Ciclo 26: `/privacy` (ver MEMORY.md §13duovicies) — cubre qué se recolecta, para qué, con quién se comparte, menores, retención, derechos (Ley 25.326) y cómo pedir el borrado (hoy manual, por email). Linkeada desde el footer y desde `WaitlistForm.tsx`.
+- Ciclo 27: checkbox de consentimiento explícito y obligatorio en `WaitlistForm.tsx` (ver MEMORY.md §13quatervicies), validado tanto client-side (`required` nativo del navegador) como server-side (`submitWaitlistSignup` rechaza el insert si no viene marcado), con timestamp `privacy_consent_at` guardado en la fila (migración `0015_waitlist_privacy_consent.sql`) siguiendo el mismo patrón de consentimiento nombrado con timestamp que `docs/10 §17.1bis`.
 
 **Todavía abierto, no bloqueante:**
-- Sin checkbox de consentimiento explícito en `WaitlistForm.tsx` (el fix original lo pedía; se priorizó la página en sí, que es el prerequisito — el checkbox es una mejora incremental sobre eso).
 - El `docs/10 §27.1` (retención) y `§9.6` (menores) siguen marcados "pendiente de revisión legal" en el propio documento fuente — la página de `/privacy` lo hereda y lo dice explícitamente, no es un vacío nuevo introducido acá.
 - `hola@estured.com` es un placeholder de contacto — el dueño confirmó usarlo así por ahora; reemplazar por el email real antes del lanzamiento público masivo.
 - Sin runbook formal de "cómo borrar el registro de una persona a pedido" documentado en `docs/` (la página promete gestión manual, pero no hay un doc interno con los pasos exactos/tablas a tocar).
+- El resto del producto (registro de estudiante/familiar/residencia) no tiene todavía su propio checkbox de consentimiento — este ciclo cerró específicamente la waitlist, que era el caso concreto de `GAPS.md`.
 
 ---
 

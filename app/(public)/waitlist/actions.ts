@@ -72,6 +72,7 @@ export async function submitWaitlist(
 
   const clientIp = await getClientIp();
   const ipHash = clientIp ? await hashIp(clientIp) : null;
+  const privacyConsentGiven = formData.get("privacy_consent") === "on";
 
   const result = await submitWaitlistSignup(supabase, {
     role,
@@ -80,6 +81,7 @@ export async function submitWaitlist(
     city: city || null,
     message: message || null,
     ipHash,
+    privacyConsentGiven,
   });
   if (!result.ok) return { status: "error", message: result.error };
 

@@ -34,6 +34,7 @@ describe.skipIf(!hasCreds)("submitWaitlistSignup (integración)", () => {
       city: null,
       message: null,
       ipHash: null,
+      privacyConsentGiven: true,
     });
     expect(result.ok).toBe(true);
   });
@@ -47,6 +48,7 @@ describe.skipIf(!hasCreds)("submitWaitlistSignup (integración)", () => {
       city: null,
       message: null,
       ipHash: null,
+      privacyConsentGiven: true,
     });
     expect(first.ok).toBe(true);
 
@@ -57,6 +59,7 @@ describe.skipIf(!hasCreds)("submitWaitlistSignup (integración)", () => {
       city: null,
       message: null,
       ipHash: null,
+      privacyConsentGiven: true,
     });
     expect(second.ok).toBe(true);
   });
@@ -70,6 +73,7 @@ describe.skipIf(!hasCreds)("submitWaitlistSignup (integración)", () => {
         city: null,
         message: null,
         ipHash: testIpHash,
+        privacyConsentGiven: true,
       });
       expect(result.ok).toBe(true);
     }
@@ -81,6 +85,7 @@ describe.skipIf(!hasCreds)("submitWaitlistSignup (integración)", () => {
       city: null,
       message: null,
       ipHash: testIpHash,
+      privacyConsentGiven: true,
     });
     expect(sixth.ok).toBe(false);
     if (!sixth.ok) expect(sixth.error).toMatch(/más tarde/i);
@@ -91,5 +96,27 @@ describe.skipIf(!hasCreds)("submitWaitlistSignup (integración)", () => {
       .select("*", { count: "exact", head: true })
       .eq("ip_hash", testIpHash);
     expect(count).toBe(5);
+  });
+
+  it("rechaza el insert si no se dio el consentimiento de privacidad", async () => {
+    const email = nextEmail();
+    const result = await submitWaitlistSignup(admin, {
+      role: "student",
+      name: "Test Sin Consentimiento",
+      email,
+      city: null,
+      message: null,
+      ipHash: null,
+      privacyConsentGiven: false,
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error).toMatch(/política de privacidad/i);
+
+    // No debe haber insertado la fila.
+    const { count } = await admin
+      .from("waitlist_signups")
+      .select("*", { count: "exact", head: true })
+      .eq("email", email);
+    expect(count).toBe(0);
   });
 });

@@ -25,8 +25,13 @@ export async function submitWaitlistSignup(
     city: string | null;
     message: string | null;
     ipHash: string | null;
+    privacyConsentGiven: boolean;
   },
 ): Promise<SubmitWaitlistSignupResult> {
+  if (!params.privacyConsentGiven) {
+    return { ok: false, error: "Tenés que aceptar la política de privacidad para sumarte a la lista." };
+  }
+
   if (params.ipHash) {
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
     const { count } = await admin
@@ -46,6 +51,7 @@ export async function submitWaitlistSignup(
     city: params.city,
     message: params.message,
     ip_hash: params.ipHash,
+    privacy_consent_at: new Date().toISOString(),
   });
 
   if (error) {
