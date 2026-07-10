@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 
@@ -14,6 +14,15 @@ const links = [
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+
+  useEffect(() => {
+    if (!open) return;
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [open]);
 
   return (
     <header className="sticky top-0 z-40 border-b border-sand-200 bg-surface/90 backdrop-blur">
@@ -55,7 +64,8 @@ export function Navbar() {
           className="rounded-md p-2 text-ink-soft md:hidden"
           onClick={() => setOpen(!open)}
           aria-expanded={open}
-          aria-label="Abrir menú"
+          aria-controls="mobile-menu"
+          aria-label={open ? "Cerrar menú" : "Abrir menú"}
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-6 w-6">
             {open ? (
@@ -68,7 +78,7 @@ export function Navbar() {
       </nav>
 
       {open && (
-        <div className="border-t border-sand-200 bg-surface px-4 py-4 md:hidden">
+        <div id="mobile-menu" className="border-t border-sand-200 bg-surface px-4 py-4 md:hidden">
           <div className="flex flex-col gap-1">
             {links.map((link) => (
               <Link

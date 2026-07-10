@@ -389,7 +389,7 @@ export default async function HomePage() {
             >
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-petrol-800 marker:hidden">
                 {faq.q}
-                <span className="text-petrol-400 transition-transform group-open:rotate-45">
+                <span aria-hidden="true" className="text-petrol-400 transition-transform group-open:rotate-45">
                   +
                 </span>
               </summary>

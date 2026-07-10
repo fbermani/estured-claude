@@ -164,20 +164,13 @@ Pequeño y seguro: en `ResidenceCard` y la ficha, renderizar un placeholder de m
 
 ---
 
-## [Severidad: Baja] Formulario "Sí" de accesibilidad a medias en Navbar mobile y FAQ
+## [RESUELTO — Ciclo 27, 2026-07-10] Formulario "Sí" de accesibilidad a medias en Navbar mobile y FAQ
 
-**Dónde vive:**
-- `components/layout/Navbar.tsx` (menú mobile: sin `aria-controls`, sin cierre con Escape, sin focus trap)
-- `app/(public)/page.tsx` (FAQ con `<details>`: correcto y nativo, pero el indicador «+» es solo visual)
+**Qué era:** el menú mobile del `Navbar` no tenía `aria-controls`/cierre con `Escape`, y el indicador «+» del FAQ (`<details>`/`<summary>`, correcto y nativo) era puramente visual sin marcarlo como decorativo.
 
-**Qué ocurre:**
-Interacciones funcionales pero con soporte de teclado/lectores incompleto en el menú mobile.
+**Fix aplicado:** `components/layout/Navbar.tsx` — `aria-controls="mobile-menu"` en el botón (apuntando al `id="mobile-menu"` del panel), `aria-label` dinámico ("Abrir menú"/"Cerrar menú"), y un `useEffect` que cierra el menú con `Escape` mientras está abierto. `app/(public)/page.tsx` — el `+` del FAQ ahora lleva `aria-hidden="true"` (el estado expandido/colapsado ya lo comunica nativamente `<details>`, el símbolo es puramente decorativo). Verificado en vivo en viewport mobile: `aria-expanded` cambia correctamente, `Escape` cierra el panel y lo desmonta del DOM, los 4 FAQ tienen el `+` oculto a lectores de pantalla.
 
-**Por qué importa:**
-Público objetivo incluye familias; accesibilidad razonable es parte de "confianza". Bajo impacto actual por tráfico cero.
-
-**Fix sugerido:**
-Añadir `aria-controls`/`id` al panel mobile y cierre con `Escape` (un `onKeyDown` en el header). 15 minutos, sin riesgo.
+**No incluido** (no estaba en el "fix sugerido" original, que solo pedía `aria-controls` + `Escape`): focus trap dentro del menú mobile mientras está abierto — mencionado en el "dónde vive" original pero no en el fix concreto. Si se retoma, sería una mejora incremental sobre esta, no un vacío nuevo.
 
 ---
 
