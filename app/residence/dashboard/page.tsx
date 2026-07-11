@@ -40,6 +40,7 @@ export default async function ResidenceDashboardPage() {
     : [];
 
   const pendingCounts: Record<string, number> = {};
+  const pendingRenewalCounts: Record<string, number> = {};
   if (admin) {
     for (const ru of residences) {
       const r = ru.residences as unknown as { id: string } | null;
@@ -50,6 +51,12 @@ export default async function ResidenceDashboardPage() {
         .eq("residence_id", r.id)
         .eq("status", "submitted");
       pendingCounts[r.id] = count ?? 0;
+      const { count: renewalCount } = await admin
+        .from("renewal_requests")
+        .select("*", { count: "exact", head: true })
+        .eq("residence_id", r.id)
+        .in("status", ["created_by_student", "notified_to_residence"]);
+      pendingRenewalCounts[r.id] = renewalCount ?? 0;
     }
   }
 
@@ -103,6 +110,13 @@ export default async function ResidenceDashboardPage() {
                       Solicitudes →
                     </Link>
                   )}
+                  <Link
+                    href={`/residence/${r.id}/renewals`}
+                    className="flex items-center gap-1.5 text-sm font-semibold text-petrol-600 hover:text-petrol-700"
+                  >
+                    {pendingRenewalCounts[r.id] > 0 && <Badge tone="amber">{pendingRenewalCounts[r.id]} nueva(s)</Badge>}
+                    Renovaciones →
+                  </Link>
                   <Link
                     href={`/residence/${r.id}/profile`}
                     className="text-sm font-semibold text-petrol-600 hover:text-petrol-700"

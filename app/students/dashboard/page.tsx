@@ -144,6 +144,7 @@ export default async function StudentDashboardPage() {
   let isMinor = false;
   let studentLinks: StudentLinkRow[] = [];
   let pendingProposalsCount = 0;
+  let hasConfirmedReservation = false;
 
   if (supabase && sessionUser) {
     const { data: profile } = await supabase
@@ -166,6 +167,12 @@ export default async function StudentDashboardPage() {
       .eq("status", "pending_student_approval")
       .gt("expires_at", new Date().toISOString());
     pendingProposalsCount = count ?? 0;
+
+    const { count: confirmedCount } = await supabase
+      .from("reservations")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "confirmed");
+    hasConfirmedReservation = (confirmedCount ?? 0) > 0;
   }
 
   const pendingLinks = studentLinks.filter((l) => l.status === "pending_student_approval");
@@ -274,6 +281,17 @@ export default async function StudentDashboardPage() {
             Ver mis solicitudes
           </Button>
         </Card>
+        {hasConfirmedReservation && (
+          <Card className="flex flex-col p-6">
+            <h2 className="font-bold text-petrol-800">Renovaciones</h2>
+            <p className="mt-2 flex-1 text-sm text-ink-soft">
+              Solicitá renovar tu estadía o revisá las ofertas de renovación que te envió la residencia.
+            </p>
+            <Button href="/students/renewals" size="sm" className="mt-4 self-start">
+              Ver renovaciones
+            </Button>
+          </Card>
+        )}
         <Card className="flex flex-col p-6">
           <div className="flex items-center gap-2">
             <h2 className="font-bold text-petrol-800">Completar mi perfil</h2>
