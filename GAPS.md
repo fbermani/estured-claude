@@ -191,19 +191,11 @@ Elegir 12–15 fotos libres coherentes (Unsplash: habitaciones/fachadas/espacios
 
 ---
 
-## [Severidad: Baja] Referencias de diseño corruptas en el repo
+## [RESUELTO — Ciclo 28, 2026-07-10] Referencias de diseño corruptas en el repo
 
-**Dónde vive:**
-- `design-references/stitch_estured_mvp_1ra parte/*/screen.png` — 8 de 10 son texto de error de 28 bytes (`<FIFE Image failed to fetch>`)
+**Qué era:** 9 `screen.png` en `design-references/` (8 en `stitch_estured_mvp_1ra parte/`, 1 en `stitch_estured_4ta parte/`) eran texto de error de 28 bytes (`<FIFE Image failed to fetch>`) en vez de imagen real — las descargas de Stitch fallaron. Riesgo real: un futuro agente perdiendo tiempo intentando "leerlos" (ya había pasado en el Ciclo 2).
 
-**Qué ocurre:**
-Las descargas de Stitch fallaron; solo `bienvenida_y_onboarding` y `search_results_2` tienen PNG válido. Los `code.html` están completos y son la referencia usable.
-
-**Por qué importa:**
-Un futuro agente puede perder tiempo intentando "leer" esos PNG (ya pasó en el Ciclo 2). Además el repo versiona archivos basura.
-
-**Fix sugerido:**
-Re-exportar los PNG desde Stitch, o borrar los 8 corruptos y dejar nota en un `design-references/README.md` de una línea ("usar code.html; PNGs válidos solo en X e Y").
+**Fix aplicado:** los 9 archivos corruptos borrados vía `git rm` (reversible en el historial de git si hiciera falta recuperarlos). `design-references/README.md` nuevo: instruye usar siempre `code.html` (la referencia completa en todas las carpetas), documenta qué se borró y por qué, y — a pedido explícito del dueño — instruye a cualquier sesión futura que necesite específicamente el `screen.png` de una de esas carpetas a decirlo explícitamente y pedir una captura/imagen, en vez de inventar el diseño a partir de otra fuente.
 
 ---
 
