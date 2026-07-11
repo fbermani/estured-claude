@@ -42,15 +42,42 @@ export default async function ReceiptPage({
   const payload = receipt.receipt_payload as Payload;
   const qrDataUrl = await QRCode.toDataURL(receipt.qr_code_value, { margin: 1, width: 160 });
 
+  const newReceipt =
+    receipt.status === "reissued"
+      ? (
+          await supabase
+            .from("booking_receipts")
+            .select("id")
+            .eq("reissued_from_receipt_id", id)
+            .maybeSingle()
+        ).data
+      : null;
+
+  const statusBadge =
+    receipt.status === "voided"
+      ? { tone: "danger" as const, label: "Anulado" }
+      : receipt.status === "reissued"
+        ? { tone: "neutral" as const, label: "Reemitido" }
+        : { tone: "sage" as const, label: "Válido" };
+
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-petrol-800">Comprobante de Reserva Confirmada</h1>
-        <Badge tone={receipt.status === "voided" ? "danger" : "sage"}>
-          {receipt.status === "voided" ? "Anulado" : "Válido"}
-        </Badge>
+        <Badge tone={statusBadge.tone}>{statusBadge.label}</Badge>
       </div>
       <p className="mt-1 text-sm text-ink-faint">N.º {receipt.receipt_number}</p>
+
+      {receipt.status === "reissued" && (
+        <p className="mt-4 rounded-field bg-sand-100 px-4 py-3 text-sm text-ink-soft">
+          Este comprobante fue reemitido y ya no es el vigente.{" "}
+          {newReceipt && (
+            <a href={`/students/receipts/${newReceipt.id}`} className="font-semibold text-petrol-700 underline">
+              Ver el comprobante vigente
+            </a>
+          )}
+        </p>
+      )}
 
       <Card className="mt-6 p-6">
         <dl className="space-y-3 text-sm">

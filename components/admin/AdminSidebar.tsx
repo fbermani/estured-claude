@@ -77,6 +77,14 @@ function FamilyProposalsIcon() {
     </svg>
   );
 }
+function ReceiptsIcon() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M5 3h10v14l-2.5-1.5L10 17l-2.5-1.5L5 17V3z" />
+      <path strokeLinecap="round" d="M7.5 7h5M7.5 10h5" />
+    </svg>
+  );
+}
 
 const NAV = [
   { href: "/admin/dashboard", label: "Dashboard", Icon: DashboardIcon },
@@ -85,6 +93,7 @@ const NAV = [
   { href: "/admin/family-proposals", label: "Propuestas familiar", Icon: FamilyProposalsIcon },
   { href: "/admin/payments", label: "Pagos", Icon: PaymentsIcon },
   { href: "/admin/revocations", label: "Revocaciones", Icon: RevocationsIcon },
+  { href: "/admin/receipts", label: "Comprobantes", Icon: ReceiptsIcon },
   { href: "/admin/exchange-rate", label: "Tipo de cambio", Icon: ExchangeIcon },
   { href: "/admin/users", label: "Usuarios", Icon: UsersIcon },
   { href: "/admin/logs", label: "Logs", Icon: LogsIcon },

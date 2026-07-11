@@ -50,6 +50,14 @@ export default async function VerifyReceiptPage({
               Ya no es válido como respaldo de una reserva confirmada.
             </p>
           </>
+        ) : receipt.status === "reissued" ? (
+          <>
+            <Badge tone="neutral">Reemitido</Badge>
+            <h1 className="mt-4 text-xl font-bold text-petrol-800">Este comprobante fue reemitido</h1>
+            <p className="mt-2 text-sm text-ink-soft">
+              Ya no es el vigente. Pedile al titular el enlace del comprobante actualizado.
+            </p>
+          </>
         ) : (
           <>
             <Badge tone="sage">Válido</Badge>
