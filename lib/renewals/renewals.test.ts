@@ -63,6 +63,16 @@ describe.skipIf(!hasCreds)("módulo de renovaciones (integración)", () => {
       .single();
     residenceId = residence!.id;
 
+    // assertResidenceAccess (lib/residences/access.ts) valida residence_users,
+    // no alcanza con `created_by` en la residencia — sin esto,
+    // createRenewalOffer rechaza con "No tenés acceso a esta residencia."
+    await admin.from("residence_users").insert({
+      residence_id: residenceId,
+      user_id: ownerId,
+      role: "owner",
+      is_active: true,
+    });
+
     const { data: roomType } = await admin
       .from("room_types")
       .insert({

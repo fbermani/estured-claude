@@ -83,6 +83,19 @@ for (const slug of DEMO_SLUGS) {
       const { data: reservations } = await admin.from("reservations").select("id").in("application_request_id", appIds);
       const reservationIds = (reservations ?? []).map((r) => r.id);
       if (reservationIds.length) {
+        // renewal_offers/renewal_requests (migración 0016, Ciclo 30) también
+        // referencian reservation_id sin cascade — hay que limpiarlos antes
+        // de borrar la reserva, mismo motivo que booking_receipts/fee_payments.
+        const { data: offers } = await admin.from("renewal_offers").select("id").in("reservation_id", reservationIds);
+        const offerIds = (offers ?? []).map((o) => o.id);
+        if (offerIds.length) {
+          await admin.from("renewal_offers").update({ estured_fee_payment_id: null, renewal_receipt_id: null }).in("id", offerIds);
+          await admin.from("renewal_receipts").delete().in("renewal_offer_id", offerIds);
+          await admin.from("estured_fee_payments").delete().in("renewal_offer_id", offerIds);
+          await admin.from("renewal_offers").delete().in("id", offerIds);
+        }
+        await admin.from("renewal_requests").delete().in("reservation_id", reservationIds);
+
         await admin.from("reservations").update({ estured_fee_payment_id: null, booking_receipt_id: null }).in("id", reservationIds);
         await admin.from("booking_receipts").delete().in("reservation_id", reservationIds);
         await admin.from("estured_fee_payments").delete().in("reservation_id", reservationIds);
