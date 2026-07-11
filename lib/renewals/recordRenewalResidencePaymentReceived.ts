@@ -145,7 +145,11 @@ export async function recordRenewalResidencePaymentReceived(
 
     const { error: offerUpdateError } = await admin
       .from("renewal_offers")
-      .update({ status: "estured_fee_pending", estured_fee_payment_id: feePayment.id })
+      .update({
+        status: "estured_fee_pending",
+        estured_fee_payment_id: feePayment.id,
+        external_residence_payment_id: payment.id,
+      })
       .eq("id", offer.id);
     if (offerUpdateError) throw offerUpdateError;
 

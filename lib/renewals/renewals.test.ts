@@ -642,7 +642,7 @@ describe.skipIf(!hasCreds)("módulo de renovaciones (integración)", () => {
       await cleanupFixture(fixture);
       throw e;
     }
-  });
+  }, 20000);
 
   it("recordRenewalResidencePaymentReceived: rechaza sin confirmar el checkbox", async () => {
     const fixture = await createConfirmedReservation();
