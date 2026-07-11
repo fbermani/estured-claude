@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { formatUsd, formatArs } from "@/lib/mock/exchange";
 import { RespondOfferForm } from "@/app/students/renewals/[id]/RespondOfferForm";
+import { RenewalFeePaymentForm } from "@/app/students/renewals/[id]/RenewalFeePaymentForm";
 
 export const metadata: Metadata = { title: "Detalle de renovación" };
 export const dynamic = "force-dynamic";
@@ -25,6 +26,10 @@ const STATUS_COPY: Record<string, { label: string; tone: "amber" | "sage" | "neu
   accepted_by_student: { label: "Aceptaste esta oferta", tone: "sage" },
   rejected_by_student: { label: "Rechazaste esta oferta", tone: "neutral" },
   expired: { label: "Oferta vencida", tone: "danger" },
+  residence_payment_pending: { label: "Pagá a la residencia", tone: "amber" },
+  estured_fee_pending: { label: "Pagá el fee EstuRed", tone: "amber" },
+  confirmed: { label: "Renovación confirmada", tone: "sage" },
+  receipt_issued: { label: "Renovación confirmada", tone: "sage" },
 };
 
 export default async function StudentRenewalOfferDetailPage({
@@ -40,7 +45,14 @@ export default async function StudentRenewalOfferDetailPage({
   const { data: offer, error } = await supabase
     .from("renewal_offers")
     .select(
-      "id, status, period_start_date, period_end_date, duration_months, monthly_price_usd, monthly_price_ars, enrollment_or_renewal_fee_usd, deposit_usd, adjustment_policy, estimated_estured_fee_ars, acceptance_deadline_at, residences (name, public_area)",
+      // Hints de FK explícitos: ambas son la misma trampa bidireccional
+      // documentada en MEMORY.md §10/§17/§18/§22/§23 (novena y décima
+      // aparición) — renewal_offers.estured_fee_payment_id ↔
+      // estured_fee_payments.renewal_offer_id, y
+      // renewal_offers.renewal_receipt_id ↔
+      // renewal_receipts.renewal_offer_id. Sin el hint, PostgREST no
+      // sabe qué FK usar y falla en silencio (PGRST201).
+      "id, status, period_start_date, period_end_date, duration_months, monthly_price_usd, monthly_price_ars, enrollment_or_renewal_fee_usd, deposit_usd, adjustment_policy, estimated_estured_fee_ars, acceptance_deadline_at, residences (name, public_area), estured_fee_payments!renewal_offers_estured_fee_payment_id_fkey (status), renewal_receipts!renewal_offers_renewal_receipt_fk (verification_code)",
     )
     .eq("id", id)
     .maybeSingle();
@@ -48,6 +60,8 @@ export default async function StudentRenewalOfferDetailPage({
   if (!offer) notFound();
 
   const residence = offer.residences as unknown as { name: string; public_area: string } | null;
+  const feePayment = offer.estured_fee_payments as unknown as { status: string } | null;
+  const receipt = offer.renewal_receipts as unknown as { verification_code: string } | null;
   const badge = STATUS_COPY[offer.status] ?? { label: offer.status, tone: "neutral" as const };
   const canRespond = offer.status === "sent" || offer.status === "viewed";
   const withinDeadline = new Date(offer.acceptance_deadline_at) > new Date();
@@ -111,6 +125,43 @@ export default async function StudentRenewalOfferDetailPage({
           <p className="mt-4 rounded-field bg-sand-100 px-4 py-3 text-sm text-ink-faint">
             El plazo para responder esta oferta venció.
           </p>
+        )}
+
+        {offer.status === "residence_payment_pending" && (
+          <p className="mt-4 rounded-field bg-sand-100 px-4 py-3 text-sm text-ink-faint">
+            Pagale directamente a la residencia el monto acordado. Cuando la residencia confirme que lo
+            recibió, vas a poder pagar el fee EstuRed acá mismo.
+          </p>
+        )}
+
+        {offer.status === "estured_fee_pending" && feePayment?.status === "pending_payment_method" && (
+          <RenewalFeePaymentForm renewalOfferId={offer.id} />
+        )}
+        {offer.status === "estured_fee_pending" && feePayment?.status === "pending_manual_payment" && (
+          <p className="mt-4 rounded-field bg-sand-100 px-4 py-3 text-sm text-ink-faint">
+            Ya registraste un comprobante para este pago — está esperando validación de EstuRed. Te
+            avisamos cuando se confirme.
+          </p>
+        )}
+
+        {(offer.status === "confirmed" || offer.status === "receipt_issued") && (
+          <div className="mt-4 rounded-field bg-sage-50 px-4 py-3 text-sm text-sage-800">
+            <p className="font-medium">Tu renovación quedó confirmada.</p>
+            {receipt ? (
+              <a
+                href={`/verify/${receipt.verification_code}`}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-1 inline-block underline"
+              >
+                Ver Comprobante de Renovación Confirmada →
+              </a>
+            ) : (
+              <p className="mt-1 text-xs text-ink-faint">
+                Estamos generando tu comprobante — volvé a entrar en unos minutos si todavía no aparece acá.
+              </p>
+            )}
+          </div>
         )}
       </Card>
     </div>

@@ -9,8 +9,13 @@ export const dynamic = "force-dynamic";
 /**
  * Docs/08 §4.6 — pública, sin login. Proyecta a mano solo los campos
  * mínimos permitidos (nunca montos, documentos ni datos de contacto) —
- * lee con el service role porque `booking_receipts` no tiene policy
- * para `anon` a propósito (ver migración 0011).
+ * lee con el service role porque `booking_receipts`/`renewal_receipts`
+ * no tienen policy para `anon` a propósito (ver migración 0011/0016).
+ *
+ * Un mismo `verification_code` nunca puede existir en ambas tablas
+ * (cada una genera el suyo con `crypto.randomUUID()` en el momento de
+ * emitir) — se prueba `booking_receipts` primero y solo se cae a
+ * `renewal_receipts` si no hubo match, no hace falta desambiguar.
  */
 export default async function VerifyReceiptPage({
   params,
@@ -20,7 +25,7 @@ export default async function VerifyReceiptPage({
   const { verification_code: code } = await params;
   const admin = getSupabaseAdmin();
 
-  const receipt = admin
+  const bookingReceipt = admin
     ? (
         await admin
           .from("booking_receipts")
@@ -29,6 +34,20 @@ export default async function VerifyReceiptPage({
           .maybeSingle()
       ).data
     : null;
+
+  const renewalReceipt =
+    admin && !bookingReceipt
+      ? (
+          await admin
+            .from("renewal_receipts")
+            .select("status, receipt_number, issued_at, voided_at, receipt_payload")
+            .eq("verification_code", code)
+            .maybeSingle()
+        ).data
+      : null;
+
+  const receipt = bookingReceipt ?? renewalReceipt;
+  const isRenewal = !bookingReceipt && !!renewalReceipt;
 
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-lg flex-col items-center justify-center px-4 py-14 sm:px-6">
@@ -61,12 +80,16 @@ export default async function VerifyReceiptPage({
         ) : (
           <>
             <Badge tone="sage">Válido</Badge>
-            <h1 className="mt-4 text-xl font-bold text-petrol-800">Comprobante de Reserva Confirmada</h1>
+            <h1 className="mt-4 text-xl font-bold text-petrol-800">
+              {isRenewal ? "Comprobante de Renovación Confirmada" : "Comprobante de Reserva Confirmada"}
+            </h1>
             <dl className="mt-6 space-y-3 text-left text-sm">
               <div className="flex justify-between border-b border-sand-200 pb-2">
                 <dt className="text-ink-faint">Residencia</dt>
                 <dd className="font-medium text-ink">
-                  {(receipt.residences as unknown as { name: string } | null)?.name}
+                  {isRenewal
+                    ? (receipt.receipt_payload as { residence?: { name?: string } })?.residence?.name
+                    : (("residences" in receipt ? receipt.residences : null) as { name: string } | null)?.name}
                 </dd>
               </div>
               <div className="flex justify-between border-b border-sand-200 pb-2">
@@ -77,24 +100,45 @@ export default async function VerifyReceiptPage({
                   {(receipt.receipt_payload as { student?: { last_initial?: string } })?.student?.last_initial}
                 </dd>
               </div>
-              <div className="flex justify-between border-b border-sand-200 pb-2">
-                <dt className="text-ink-faint">Tipo de habitación</dt>
-                <dd className="font-medium text-ink">
-                  {(receipt.receipt_payload as { room_type?: string })?.room_type}
-                </dd>
-              </div>
-              <div className="flex justify-between border-b border-sand-200 pb-2">
-                <dt className="text-ink-faint">Fecha de ingreso</dt>
-                <dd className="font-medium text-ink">
-                  {(receipt.receipt_payload as { desired_start_date?: string })?.desired_start_date}
-                </dd>
-              </div>
-              <div className="flex justify-between border-b border-sand-200 pb-2">
-                <dt className="text-ink-faint">Duración inicial</dt>
-                <dd className="font-medium text-ink">
-                  {(receipt.receipt_payload as { initial_duration_months?: number })?.initial_duration_months} meses
-                </dd>
-              </div>
+              {isRenewal ? (
+                <>
+                  <div className="flex justify-between border-b border-sand-200 pb-2">
+                    <dt className="text-ink-faint">Nuevo período</dt>
+                    <dd className="font-medium text-ink">
+                      {(receipt.receipt_payload as { period_start_date?: string })?.period_start_date} →{" "}
+                      {(receipt.receipt_payload as { period_end_date?: string })?.period_end_date}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between border-b border-sand-200 pb-2">
+                    <dt className="text-ink-faint">Duración</dt>
+                    <dd className="font-medium text-ink">
+                      {(receipt.receipt_payload as { duration_months?: number })?.duration_months} meses
+                    </dd>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex justify-between border-b border-sand-200 pb-2">
+                    <dt className="text-ink-faint">Tipo de habitación</dt>
+                    <dd className="font-medium text-ink">
+                      {(receipt.receipt_payload as { room_type?: string })?.room_type}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between border-b border-sand-200 pb-2">
+                    <dt className="text-ink-faint">Fecha de ingreso</dt>
+                    <dd className="font-medium text-ink">
+                      {(receipt.receipt_payload as { desired_start_date?: string })?.desired_start_date}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between border-b border-sand-200 pb-2">
+                    <dt className="text-ink-faint">Duración inicial</dt>
+                    <dd className="font-medium text-ink">
+                      {(receipt.receipt_payload as { initial_duration_months?: number })?.initial_duration_months}{" "}
+                      meses
+                    </dd>
+                  </div>
+                </>
+              )}
               <div className="flex justify-between">
                 <dt className="text-ink-faint">Emitido</dt>
                 <dd className="font-medium text-ink">

@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/Badge";
 import { formatUsd, formatArs } from "@/lib/mock/exchange";
 import { CreateOfferForm } from "@/app/residence/[residence_id]/renewals/[id]/CreateOfferForm";
 import { SendOfferButton } from "@/app/residence/[residence_id]/renewals/[id]/SendOfferButton";
+import { MarkResidencePaymentReceivedForm } from "@/app/residence/[residence_id]/renewals/[id]/MarkResidencePaymentReceivedForm";
 import { RESIDENCE_OFFER_STATUS_COPY } from "@/lib/renewals/statusCopy";
 
 export const metadata: Metadata = { title: "Detalle de renovación" };
@@ -120,6 +121,26 @@ export default async function ResidenceRenewalDetailPage({
                   <div className="mt-4">
                     <SendOfferButton offerId={o.id} residenceId={residenceId} reservationId={reservationId} />
                   </div>
+                )}
+                {o.status === "residence_payment_pending" && (
+                  <div className="mt-4">
+                    <MarkResidencePaymentReceivedForm
+                      offerId={o.id}
+                      residenceId={residenceId}
+                      reservationId={reservationId}
+                    />
+                  </div>
+                )}
+                {o.status === "estured_fee_pending" && (
+                  <p className="mt-4 rounded-field bg-sand-100 px-4 py-3 text-sm text-ink-faint">
+                    Esperando que el estudiante pague el fee EstuRed. Se confirma automáticamente cuando
+                    EstuRed lo valide.
+                  </p>
+                )}
+                {(o.status === "confirmed" || o.status === "receipt_issued") && (
+                  <p className="mt-4 rounded-field bg-sage-50 px-4 py-3 text-sm text-sage-800">
+                    Renovación confirmada — comprobante emitido para el estudiante.
+                  </p>
                 )}
               </Card>
             );

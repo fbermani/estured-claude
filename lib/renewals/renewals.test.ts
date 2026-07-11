@@ -4,11 +4,15 @@ import { createRenewalRequest } from "@/lib/renewals/createRenewalRequest";
 import { createRenewalOffer } from "@/lib/renewals/createRenewalOffer";
 import { sendRenewalOffer } from "@/lib/renewals/sendRenewalOffer";
 import { respondRenewalOffer } from "@/lib/renewals/respondRenewalOffer";
+import { recordRenewalResidencePaymentReceived } from "@/lib/renewals/recordRenewalResidencePaymentReceived";
+import { registerRenewalManualFeePayment } from "@/lib/renewals/registerRenewalManualFeePayment";
+import { recordRenewalManualFeePayment } from "@/lib/renewals/recordRenewalManualFeePayment";
 
 /**
- * Docs/12 §13 (módulo de Renovaciones, fase 1: solicitud → oferta →
- * aceptar/rechazar). Mismo patrón de fixtures que
- * `revokeEsturedFee.test.ts` (crea una reserva `confirmed` real).
+ * Docs/12 §13 (módulo de Renovaciones — fase 1: solicitud → oferta →
+ * aceptar/rechazar; fase 2: pago a residencia → fee EstuRed →
+ * comprobante). Mismo patrón de fixtures que `revokeEsturedFee.test.ts`
+ * (crea una reserva `confirmed` real).
  */
 const hasCreds = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
 
@@ -366,9 +370,19 @@ describe.skipIf(!hasCreds)("módulo de renovaciones (integración)", () => {
         .select("status, accepted_at")
         .eq("id", created.renewalOfferId)
         .single();
-      expect(afterAccept!.status).toBe("accepted_by_student");
+      // Docs/07 §15.5: aceptar es un tránsito automático hacia el pago,
+      // no un estado final — mismo criterio que `recordNegotiationResponse`.
+      expect(afterAccept!.status).toBe("residence_payment_pending");
       expect(afterAccept!.accepted_at).not.toBeNull();
 
+      const { data: residencePayment } = await admin
+        .from("external_residence_payments")
+        .select("id, status, renewal_offer_id")
+        .eq("renewal_offer_id", created.renewalOfferId)
+        .single();
+      expect(residencePayment!.status).toBe("pending");
+
+      await admin.from("external_residence_payments").delete().eq("id", residencePayment!.id);
       await cleanupFixture(fixture, { renewalOfferIds: [created.renewalOfferId] });
     } catch (e) {
       await cleanupFixture(fixture);
@@ -490,6 +504,297 @@ describe.skipIf(!hasCreds)("módulo de renovaciones (integración)", () => {
         renewalRequestIds: [request.renewalRequestId],
       });
     } catch (e) {
+      await cleanupFixture(fixture);
+      throw e;
+    }
+  });
+
+  // ==== Fase 2: pago a residencia → fee EstuRed → comprobante ====
+
+  async function cleanupFase2(offerId: string) {
+    const { data: offer } = await admin
+      .from("renewal_offers")
+      .select("estured_fee_payment_id, renewal_receipt_id, external_residence_payment_id")
+      .eq("id", offerId)
+      .maybeSingle();
+    if (offer?.renewal_receipt_id) {
+      await admin.from("renewal_offers").update({ renewal_receipt_id: null }).eq("id", offerId);
+      await admin.from("renewal_receipts").delete().eq("id", offer.renewal_receipt_id);
+    }
+    if (offer?.estured_fee_payment_id) {
+      await admin.from("renewal_offers").update({ estured_fee_payment_id: null }).eq("id", offerId);
+      await admin.from("estured_fee_payments").delete().eq("id", offer.estured_fee_payment_id);
+    }
+    await admin.from("external_residence_payments").delete().eq("renewal_offer_id", offerId);
+  }
+
+  it("flujo completo Fase 2: aceptar → pago a residencia → fee → confirmada con comprobante", async () => {
+    const fixture = await createConfirmedReservation();
+    let offerId: string | null = null;
+    try {
+      const created = await createRenewalOffer(admin, {
+        reservationId: fixture.reservationId,
+        renewalRequestId: null,
+        actorUserId: ownerId,
+        periodStartDate: "2027-08-15",
+        durationMonths: 6,
+        monthlyPriceUsd: 300,
+        enrollmentOrRenewalFeeUsd: null,
+        depositUsd: null,
+        adjustmentPolicy: "quarterly",
+        acceptanceDeadlineAt: new Date(Date.now() + 7 * 24 * 3_600_000).toISOString(),
+        sendNow: true,
+      });
+      expect(created.ok).toBe(true);
+      if (!created.ok) return;
+      offerId = created.renewalOfferId;
+
+      const accepted = await respondRenewalOffer(admin, {
+        renewalOfferId: offerId,
+        response: "accepted",
+        actorUserId: studentUserId,
+      });
+      expect(accepted.ok).toBe(true);
+
+      const received = await recordRenewalResidencePaymentReceived(admin, {
+        renewalOfferId: offerId,
+        actorUserId: ownerId,
+        receivedAmountArs: null,
+        receivedAmountUsd: 1800,
+        paymentMethodLabel: "Transferencia",
+        confirmationAccepted: true,
+        receiptFile: null,
+      });
+      expect(received.ok).toBe(true);
+
+      const { data: afterReceived } = await admin
+        .from("renewal_offers")
+        .select("status, estured_fee_payment_id")
+        .eq("id", offerId)
+        .single();
+      expect(afterReceived!.status).toBe("estured_fee_pending");
+      expect(afterReceived!.estured_fee_payment_id).not.toBeNull();
+      const feePaymentId = afterReceived!.estured_fee_payment_id as string;
+
+      const proofFile = new File([new Uint8Array([1, 2, 3])], "comprobante.pdf", { type: "application/pdf" });
+      const registered = await registerRenewalManualFeePayment(admin, {
+        renewalOfferId: offerId,
+        actorUserId: studentUserId,
+        file: proofFile,
+        payerBillingName: "Lucia Fernandez",
+        payerBillingCuit: null,
+        payerIvaCondition: "consumidor_final",
+        paymentChannel: "Transferencia",
+        acknowledgeNoRefund: true,
+      });
+      expect(registered.ok).toBe(true);
+
+      const { data: feeAfterRegister } = await admin
+        .from("estured_fee_payments")
+        .select("status")
+        .eq("id", feePaymentId)
+        .single();
+      expect(feeAfterRegister!.status).toBe("pending_manual_payment");
+
+      const validated = await recordRenewalManualFeePayment(admin, {
+        feePaymentId,
+        reason: "Comprobante verificado manualmente (test).",
+        paymentCurrency: "USD",
+        providerReference: null,
+        actorUserId: ownerId,
+        actorRole: "admin",
+      });
+      expect(validated.ok).toBe(true);
+
+      const { data: offerFinal } = await admin
+        .from("renewal_offers")
+        .select("status, renewal_receipt_id")
+        .eq("id", offerId)
+        .single();
+      expect(offerFinal!.status).toBe("confirmed");
+      expect(offerFinal!.renewal_receipt_id).not.toBeNull();
+
+      const { data: receipt } = await admin
+        .from("renewal_receipts")
+        .select("status, receipt_number, verification_code, receipt_payload")
+        .eq("id", offerFinal!.renewal_receipt_id as string)
+        .single();
+      expect(receipt!.status).toBe("issued");
+      expect(receipt!.receipt_number).toMatch(/^ERR-/);
+      expect((receipt!.receipt_payload as { residence_payment_confirmed: boolean }).residence_payment_confirmed).toBe(
+        true,
+      );
+
+      // La reserva original no se toca (docs/06 §14.2: la renovación no crea
+      // una reservation nueva ni altera la existente en esta fase).
+      const { data: reservationAfter } = await admin
+        .from("reservations")
+        .select("status, initial_duration_months")
+        .eq("id", fixture.reservationId)
+        .single();
+      expect(reservationAfter!.status).toBe("confirmed");
+      expect(reservationAfter!.initial_duration_months).toBe(6);
+
+      await cleanupFase2(offerId);
+      await cleanupFixture(fixture, { renewalOfferIds: [offerId] });
+    } catch (e) {
+      if (offerId) await cleanupFase2(offerId);
+      await cleanupFixture(fixture);
+      throw e;
+    }
+  });
+
+  it("recordRenewalResidencePaymentReceived: rechaza sin confirmar el checkbox", async () => {
+    const fixture = await createConfirmedReservation();
+    let offerId: string | null = null;
+    try {
+      const created = await createRenewalOffer(admin, {
+        reservationId: fixture.reservationId,
+        renewalRequestId: null,
+        actorUserId: ownerId,
+        periodStartDate: "2027-08-15",
+        durationMonths: 6,
+        monthlyPriceUsd: 300,
+        enrollmentOrRenewalFeeUsd: null,
+        depositUsd: null,
+        adjustmentPolicy: "quarterly",
+        acceptanceDeadlineAt: new Date(Date.now() + 7 * 24 * 3_600_000).toISOString(),
+        sendNow: true,
+      });
+      expect(created.ok).toBe(true);
+      if (!created.ok) return;
+      offerId = created.renewalOfferId;
+
+      await respondRenewalOffer(admin, { renewalOfferId: offerId, response: "accepted", actorUserId: studentUserId });
+
+      const result = await recordRenewalResidencePaymentReceived(admin, {
+        renewalOfferId: offerId,
+        actorUserId: ownerId,
+        receivedAmountArs: null,
+        receivedAmountUsd: null,
+        paymentMethodLabel: "Transferencia",
+        confirmationAccepted: false,
+        receiptFile: null,
+      });
+      expect(result.ok).toBe(false);
+      if (!result.ok) expect(result.error).toMatch(/confirmar/i);
+
+      await cleanupFase2(offerId);
+      await cleanupFixture(fixture, { renewalOfferIds: [offerId] });
+    } catch (e) {
+      if (offerId) await cleanupFase2(offerId);
+      await cleanupFixture(fixture);
+      throw e;
+    }
+  });
+
+  it("registerRenewalManualFeePayment: rechaza si el actor no es el estudiante dueño", async () => {
+    const fixture = await createConfirmedReservation();
+    let offerId: string | null = null;
+    try {
+      const created = await createRenewalOffer(admin, {
+        reservationId: fixture.reservationId,
+        renewalRequestId: null,
+        actorUserId: ownerId,
+        periodStartDate: "2027-08-15",
+        durationMonths: 6,
+        monthlyPriceUsd: 300,
+        enrollmentOrRenewalFeeUsd: null,
+        depositUsd: null,
+        adjustmentPolicy: "quarterly",
+        acceptanceDeadlineAt: new Date(Date.now() + 7 * 24 * 3_600_000).toISOString(),
+        sendNow: true,
+      });
+      expect(created.ok).toBe(true);
+      if (!created.ok) return;
+      offerId = created.renewalOfferId;
+
+      await respondRenewalOffer(admin, { renewalOfferId: offerId, response: "accepted", actorUserId: studentUserId });
+      await recordRenewalResidencePaymentReceived(admin, {
+        renewalOfferId: offerId,
+        actorUserId: ownerId,
+        receivedAmountArs: null,
+        receivedAmountUsd: 1800,
+        paymentMethodLabel: "Transferencia",
+        confirmationAccepted: true,
+        receiptFile: null,
+      });
+
+      const proofFile = new File([new Uint8Array([1, 2, 3])], "comprobante.pdf", { type: "application/pdf" });
+      const result = await registerRenewalManualFeePayment(admin, {
+        renewalOfferId: offerId,
+        actorUserId: ownerId, // dueño de la residencia, no el estudiante
+        file: proofFile,
+        payerBillingName: "Lucia Fernandez",
+        payerBillingCuit: null,
+        payerIvaCondition: "consumidor_final",
+        paymentChannel: null,
+        acknowledgeNoRefund: true,
+      });
+      expect(result.ok).toBe(false);
+      if (!result.ok) expect(result.error).toMatch(/no te pertenece/i);
+
+      await cleanupFase2(offerId);
+      await cleanupFixture(fixture, { renewalOfferIds: [offerId] });
+    } catch (e) {
+      if (offerId) await cleanupFase2(offerId);
+      await cleanupFixture(fixture);
+      throw e;
+    }
+  });
+
+  it("recordRenewalManualFeePayment: rechaza sin motivo", async () => {
+    const fixture = await createConfirmedReservation();
+    let offerId: string | null = null;
+    try {
+      const created = await createRenewalOffer(admin, {
+        reservationId: fixture.reservationId,
+        renewalRequestId: null,
+        actorUserId: ownerId,
+        periodStartDate: "2027-08-15",
+        durationMonths: 6,
+        monthlyPriceUsd: 300,
+        enrollmentOrRenewalFeeUsd: null,
+        depositUsd: null,
+        adjustmentPolicy: "quarterly",
+        acceptanceDeadlineAt: new Date(Date.now() + 7 * 24 * 3_600_000).toISOString(),
+        sendNow: true,
+      });
+      expect(created.ok).toBe(true);
+      if (!created.ok) return;
+      offerId = created.renewalOfferId;
+
+      await respondRenewalOffer(admin, { renewalOfferId: offerId, response: "accepted", actorUserId: studentUserId });
+      await recordRenewalResidencePaymentReceived(admin, {
+        renewalOfferId: offerId,
+        actorUserId: ownerId,
+        receivedAmountArs: null,
+        receivedAmountUsd: 1800,
+        paymentMethodLabel: "Transferencia",
+        confirmationAccepted: true,
+        receiptFile: null,
+      });
+      const { data: offerWithFee } = await admin
+        .from("renewal_offers")
+        .select("estured_fee_payment_id")
+        .eq("id", offerId)
+        .single();
+
+      const result = await recordRenewalManualFeePayment(admin, {
+        feePaymentId: offerWithFee!.estured_fee_payment_id as string,
+        reason: "no",
+        paymentCurrency: "USD",
+        providerReference: null,
+        actorUserId: ownerId,
+        actorRole: "admin",
+      });
+      expect(result.ok).toBe(false);
+      if (!result.ok) expect(result.error).toMatch(/motivo/i);
+
+      await cleanupFase2(offerId);
+      await cleanupFixture(fixture, { renewalOfferIds: [offerId] });
+    } catch (e) {
+      if (offerId) await cleanupFase2(offerId);
       await cleanupFixture(fixture);
       throw e;
     }

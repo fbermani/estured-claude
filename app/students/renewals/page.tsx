@@ -17,6 +17,10 @@ const OFFER_STATUS_COPY: Record<string, { label: string; tone: "amber" | "sage" 
   accepted_by_student: { label: "Aceptaste la renovación", tone: "sage" },
   rejected_by_student: { label: "Rechazaste la oferta", tone: "neutral" },
   expired: { label: "Oferta vencida", tone: "danger" },
+  residence_payment_pending: { label: "Pagá a la residencia", tone: "amber" },
+  estured_fee_pending: { label: "Pagá el fee EstuRed", tone: "amber" },
+  confirmed: { label: "Renovación confirmada", tone: "sage" },
+  receipt_issued: { label: "Renovación confirmada", tone: "sage" },
 };
 
 type ReservationRow = {

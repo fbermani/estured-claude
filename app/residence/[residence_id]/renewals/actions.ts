@@ -6,6 +6,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { createRenewalOffer } from "@/lib/renewals/createRenewalOffer";
 import { sendRenewalOffer } from "@/lib/renewals/sendRenewalOffer";
+import { recordRenewalResidencePaymentReceived } from "@/lib/renewals/recordRenewalResidencePaymentReceived";
 
 export type RenewalOfferFormState = { status: "idle" | "error"; message?: string };
 
@@ -69,4 +70,33 @@ export async function sendRenewalOfferAction(
 
   revalidatePath(`/residence/${residenceId}/renewals/${reservationId}`);
   redirect(`/residence/${residenceId}/renewals/${reservationId}`);
+}
+
+export async function markRenewalResidencePaymentReceivedAction(
+  offerId: string,
+  residenceId: string,
+  reservationId: string,
+  _prev: RenewalOfferFormState,
+  formData: FormData,
+): Promise<RenewalOfferFormState> {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) return { status: "error", message: "Tu sesión expiró." };
+  const admin = getSupabaseAdmin();
+  if (!admin) return { status: "error", message: "No disponible en este momento." };
+
+  const receiptFile = formData.get("receipt_file");
+
+  const result = await recordRenewalResidencePaymentReceived(admin, {
+    renewalOfferId: offerId,
+    actorUserId: sessionUser.id,
+    receivedAmountArs: Number(formData.get("received_amount_ars") ?? 0) || null,
+    receivedAmountUsd: Number(formData.get("received_amount_usd") ?? 0) || null,
+    paymentMethodLabel: String(formData.get("payment_method_label") ?? "").trim(),
+    confirmationAccepted: formData.get("confirmation_checkbox_accepted") === "on",
+    receiptFile: receiptFile instanceof File && receiptFile.size > 0 ? receiptFile : null,
+  });
+  if (!result.ok) return { status: "error", message: result.error };
+
+  revalidatePath(`/residence/${residenceId}/renewals/${reservationId}`);
+  return { status: "idle" };
 }
