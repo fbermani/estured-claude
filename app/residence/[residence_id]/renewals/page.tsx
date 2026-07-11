@@ -7,18 +7,10 @@ import { assertResidenceAccess } from "@/lib/residences/access";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { RESIDENCE_OFFER_STATUS_COPY } from "@/lib/renewals/statusCopy";
 
 export const metadata: Metadata = { title: "Renovaciones" };
 export const dynamic = "force-dynamic";
-
-const OFFER_STATUS_COPY: Record<string, { label: string; tone: "amber" | "sage" | "neutral" | "danger" }> = {
-  draft: { label: "Borrador", tone: "neutral" },
-  sent: { label: "Oferta enviada", tone: "amber" },
-  viewed: { label: "Vista por el estudiante", tone: "amber" },
-  accepted_by_student: { label: "Aceptada", tone: "sage" },
-  rejected_by_student: { label: "Rechazada", tone: "danger" },
-  expired: { label: "Vencida", tone: "neutral" },
-};
 
 export default async function ResidenceRenewalsPage({
   params,
@@ -100,8 +92,8 @@ export default async function ResidenceRenewalsPage({
                     </p>
                   </div>
                   {latestOffer ? (
-                    <Badge tone={OFFER_STATUS_COPY[latestOffer.status]?.tone ?? "neutral"}>
-                      {OFFER_STATUS_COPY[latestOffer.status]?.label ?? latestOffer.status}
+                    <Badge tone={RESIDENCE_OFFER_STATUS_COPY[latestOffer.status]?.tone ?? "neutral"}>
+                      {RESIDENCE_OFFER_STATUS_COPY[latestOffer.status]?.label ?? latestOffer.status}
                     </Badge>
                   ) : pendingRequest ? (
                     <Badge tone="amber">Solicitó renovación</Badge>

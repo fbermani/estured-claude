@@ -8,18 +8,10 @@ import { Badge } from "@/components/ui/Badge";
 import { formatUsd, formatArs } from "@/lib/mock/exchange";
 import { CreateOfferForm } from "@/app/residence/[residence_id]/renewals/[id]/CreateOfferForm";
 import { SendOfferButton } from "@/app/residence/[residence_id]/renewals/[id]/SendOfferButton";
+import { RESIDENCE_OFFER_STATUS_COPY } from "@/lib/renewals/statusCopy";
 
 export const metadata: Metadata = { title: "Detalle de renovación" };
 export const dynamic = "force-dynamic";
-
-const OFFER_STATUS_COPY: Record<string, { label: string; tone: "amber" | "sage" | "neutral" | "danger" }> = {
-  draft: { label: "Borrador", tone: "neutral" },
-  sent: { label: "Oferta enviada", tone: "amber" },
-  viewed: { label: "Vista por el estudiante", tone: "amber" },
-  accepted_by_student: { label: "Aceptada", tone: "sage" },
-  rejected_by_student: { label: "Rechazada", tone: "danger" },
-  expired: { label: "Vencida", tone: "neutral" },
-};
 
 const ACTIVE_OFFER_STATUSES = new Set(["draft", "sent", "viewed"]);
 
@@ -99,7 +91,7 @@ export default async function ResidenceRenewalDetailPage({
       {offers && offers.length > 0 && (
         <div className="mt-6 space-y-3">
           {offers.map((o) => {
-            const badge = OFFER_STATUS_COPY[o.status] ?? { label: o.status, tone: "neutral" as const };
+            const badge = RESIDENCE_OFFER_STATUS_COPY[o.status] ?? { label: o.status, tone: "neutral" as const };
             return (
               <Card key={o.id} className="p-5">
                 <div className="flex items-center justify-between">
