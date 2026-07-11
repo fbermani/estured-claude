@@ -69,12 +69,22 @@ describe.skipIf(!hasCreds)("recordResidencePaymentReceived (integración)", () =
 
     // El owner necesita `residence_users` activo para pasar `assertResidenceAccess`
     // — a diferencia de los fixtures de otros tests, acá SÍ importa (es lo que se prueba).
-    await admin.from("residence_users").insert({
+    // Chequeo de error explícito: si el owner demo ya tiene 10 residencias
+    // activas (docs/06 §8.2, trigger enforce_owner_residence_limit), este
+    // insert falla y sin este check el fallo queda silencioso — se
+    // manifiesta después como "No tenés acceso" en cascada, muy difícil
+    // de diagnosticar sin este mensaje.
+    const { error: residenceUsersError } = await admin.from("residence_users").insert({
       residence_id: residenceId,
       user_id: ownerId,
       role: "owner",
       is_active: true,
     });
+    if (residenceUsersError) {
+      throw new Error(
+        `No se pudo dar acceso al owner demo a la residencia de test (¿llegó al límite de 10 residencias activas? revisar residencias de prueba huérfanas): ${residenceUsersError.message}`,
+      );
+    }
 
     const { data: roomType } = await admin
       .from("room_types")

@@ -89,12 +89,24 @@ for (const slug of DEMO_SLUGS) {
         const { data: offers } = await admin.from("renewal_offers").select("id").in("reservation_id", reservationIds);
         const offerIds = (offers ?? []).map((o) => o.id);
         if (offerIds.length) {
-          await admin.from("renewal_offers").update({ estured_fee_payment_id: null, renewal_receipt_id: null }).in("id", offerIds);
+          // Bug real encontrado en Ciclo 31: faltaba anular external_residence_payment_id
+          // y borrar la external_residence_payments de renovación antes del delete de
+          // renewal_offers — no se manifestaba porque ninguna renovación demo llegaba
+          // a pago confirmado hasta ahora (23503 en el próximo re-seed si no se corrige).
+          await admin.from("renewal_offers").update({ estured_fee_payment_id: null, renewal_receipt_id: null, external_residence_payment_id: null }).in("id", offerIds);
           await admin.from("renewal_receipts").delete().in("renewal_offer_id", offerIds);
           await admin.from("estured_fee_payments").delete().in("renewal_offer_id", offerIds);
+          await admin.from("external_residence_payments").delete().in("renewal_offer_id", offerIds);
           await admin.from("renewal_offers").delete().in("id", offerIds);
         }
         await admin.from("renewal_requests").delete().in("reservation_id", reservationIds);
+
+        const { data: receipts } = await admin.from("booking_receipts").select("id").in("reservation_id", reservationIds);
+        const receiptIds = (receipts ?? []).map((r) => r.id);
+        if (receiptIds.length) {
+          await admin.from("audit_logs").delete().eq("entity_type", "booking_receipts").in("entity_id", receiptIds);
+        }
+        await admin.from("audit_logs").delete().eq("entity_type", "reservations").eq("action", "estured_fee_revoked").in("entity_id", reservationIds);
 
         await admin.from("reservations").update({ estured_fee_payment_id: null, booking_receipt_id: null }).in("id", reservationIds);
         await admin.from("booking_receipts").delete().in("reservation_id", reservationIds);
@@ -568,6 +580,494 @@ const { data: proposal } = await admin
   .select("id")
   .single();
 console.log("✓ Propuesta del familiar — Martín → Lucía @ Norte/Individual (pendiente):", proposal.id);
+
+// ==== Helper de auditoría (mismas columnas que lib/audit.ts — el script
+// no puede importar módulos "server-only" fuera de Next, así que se
+// replica el insert directo). ====
+async function logAudit({ actorUserId, actorRole, action, entityType, entityId, reasonText, newValue, source = "user" }) {
+  await admin.from("audit_logs").insert({
+    actor_user_id: actorUserId,
+    actor_role: actorRole,
+    action,
+    entity_type: entityType,
+    entity_id: entityId,
+    old_value: null,
+    new_value: newValue ?? null,
+    reason_code: null,
+    reason_text: reasonText ?? null,
+    ip_address: null,
+    user_agent: null,
+    is_system_action: false,
+    source,
+  });
+}
+
+// ==== 7. Renovación CONFIRMADA: Lucía @ Río de la Plata (sobre la reserva 4) ====
+// Mismo escenario verificado en vivo el 2026-07-11 (Ciclo 30bis, comprobante
+// ERR-2026-DD7CA0) — se incorpora tal cual al dataset permanente.
+const renewal7Fee = feeEstimate(350, 6);
+const { data: renewalRequest7 } = await admin
+  .from("renewal_requests")
+  .insert({
+    reservation_id: reservation4.id,
+    student_profile_id: lucia.profileId,
+    residence_id: rioplataId,
+    message: "Me gustaría quedarme otros 6 meses más, ¿tienen disponibilidad?",
+    desired_duration_months: 6,
+    status: "offer_received",
+  })
+  .select("id")
+  .single();
+const { data: renewalOffer7 } = await admin
+  .from("renewal_offers")
+  .insert({
+    reservation_id: reservation4.id,
+    renewal_request_id: renewalRequest7.id,
+    student_profile_id: lucia.profileId,
+    residence_id: rioplataId,
+    status: "confirmed",
+    period_start_date: "2027-01-15",
+    period_end_date: "2027-07-15",
+    duration_months: 6,
+    monthly_price_usd: 350,
+    monthly_price_ars: usdToArs(350),
+    adjustment_policy: "quarterly",
+    fee_base_usd: renewal7Fee.feeBaseUsd,
+    fee_base_ars: renewal7Fee.feeBaseArs,
+    estimated_estured_fee_ars: renewal7Fee.estimatedFeeArs,
+    acceptance_deadline_at: new Date(Date.now() + 7 * 24 * 3_600_000).toISOString(),
+    sent_by_user_id: ricardoId,
+    accepted_at: new Date().toISOString(),
+  })
+  .select("id")
+  .single();
+const { data: renewalPayment7 } = await admin
+  .from("external_residence_payments")
+  .insert({
+    renewal_offer_id: renewalOffer7.id,
+    reservation_id: reservation4.id,
+    residence_id: rioplataId,
+    student_profile_id: lucia.profileId,
+    status: "reported_received_by_residence",
+    amount_reported_usd: 350,
+    amount_reported_ars: usdToArs(350),
+    payment_method_to_residence: "transfer",
+    reported_received_by_user_id: ricardoId,
+    reported_received_at: new Date().toISOString(),
+  })
+  .select("id")
+  .single();
+const { data: renewalFeePayment7 } = await admin
+  .from("estured_fee_payments")
+  .insert({
+    renewal_offer_id: renewalOffer7.id,
+    payer_user_id: lucia.userId,
+    beneficiary_student_profile_id: lucia.profileId,
+    status: "paid",
+    fee_base_usd: renewal7Fee.feeBaseUsd,
+    fee_base_ars: renewal7Fee.feeBaseArs,
+    fee_amount_ars: renewal7Fee.estimatedFeeArs,
+    payment_currency: "ARS",
+    payment_provider: "manual",
+    payer_billing_name: "Lucia Fernandez",
+    payer_iva_condition: "consumidor_final",
+    payment_channel: "transfer",
+    paid_at: new Date().toISOString(),
+    expires_at: new Date(Date.now() + 48 * 3600000).toISOString(),
+    fiscal_invoice_status: "pending_issue",
+  })
+  .select("id")
+  .single();
+const renewalVerificationCode7 = crypto.randomUUID();
+const renewalReceiptNumber7 = `ERR-${new Date().getFullYear()}-${crypto.randomUUID().slice(0, 6).toUpperCase()}`;
+const { data: renewalReceipt7 } = await admin
+  .from("renewal_receipts")
+  .insert({
+    renewal_offer_id: renewalOffer7.id,
+    status: "issued",
+    receipt_number: renewalReceiptNumber7,
+    verification_code: renewalVerificationCode7,
+    qr_code_value: `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/verify/${renewalVerificationCode7}`,
+    issued_at: new Date().toISOString(),
+    receipt_payload: {
+      renewal_offer_id: renewalOffer7.id,
+      reservation_id: reservation4.id,
+      student: { first_name: "Lucia", last_initial: "F." },
+      residence: { name: "Residencia Río de la Plata", public_area: "Recoleta" },
+      period_start_date: "2027-01-15",
+      period_end_date: "2027-07-15",
+      duration_months: 6,
+      monthly_price_usd: 350,
+      monthly_price_ars: usdToArs(350),
+      adjustment_policy: "quarterly",
+      residence_payment_confirmed: true,
+      estured_fee: { amount_ars: renewal7Fee.estimatedFeeArs, currency: "ARS", paid_at: new Date().toISOString() },
+      disclaimer:
+        "EstuRed es una plataforma intermediaria de búsqueda, solicitud, registro y comprobante. No presta directamente el alojamiento ni garantiza la conducta de las partes.",
+    },
+  })
+  .select("id")
+  .single();
+await admin
+  .from("renewal_offers")
+  .update({
+    external_residence_payment_id: renewalPayment7.id,
+    estured_fee_payment_id: renewalFeePayment7.id,
+    renewal_receipt_id: renewalReceipt7.id,
+  })
+  .eq("id", renewalOffer7.id);
+console.log("✓ Renovación 1 — Lucía @ Río de la Plata → CONFIRMADA + comprobante:", renewalReceiptNumber7);
+
+// ==== 8. Camila @ Norte/Individual — 2da reserva confirmada, con comprobante
+// reemitido por el admin y una renovación con OFERTA ENVIADA (sin responder). ====
+const app8 = await createApplication({
+  student: camila,
+  residenceId: norteId,
+  roomTypeId: norteIndividualId,
+  usd: 300,
+  ars: 456000,
+  months: 6,
+  status: "converted_to_reservation",
+  startDate: "2026-02-01",
+  contactEstablished: true,
+});
+const { data: erp8 } = await admin
+  .from("external_residence_payments")
+  .insert({
+    application_request_id: app8.appId,
+    residence_id: norteId,
+    student_profile_id: camila.profileId,
+    status: "reported_received_by_residence",
+    amount_reported_usd: 300,
+    amount_reported_ars: usdToArs(300),
+    payment_method_to_residence: "transfer",
+    reported_received_by_user_id: ricardoId,
+    reported_received_at: new Date().toISOString(),
+  })
+  .select("id")
+  .single();
+const { data: reservation8 } = await admin
+  .from("reservations")
+  .insert({
+    application_request_id: app8.appId,
+    student_profile_id: camila.profileId,
+    residence_id: norteId,
+    room_type_id: norteIndividualId,
+    status: "confirmed",
+    start_date: "2026-02-01",
+    initial_duration_months: 6,
+    academic_objective: camila.academicObjective,
+    snapshot_id: app8.snapshotId,
+    external_residence_payment_id: erp8.id,
+    confirmed_at: new Date().toISOString(),
+  })
+  .select("id")
+  .single();
+await admin.from("external_residence_payments").update({ reservation_id: reservation8.id }).eq("id", erp8.id);
+const { data: feePayment8 } = await admin
+  .from("estured_fee_payments")
+  .insert({
+    reservation_id: reservation8.id,
+    payer_user_id: camila.userId,
+    beneficiary_student_profile_id: camila.profileId,
+    status: "paid",
+    fee_base_usd: app8.fee.feeBaseUsd,
+    fee_base_ars: app8.fee.feeBaseArs,
+    fee_amount_ars: app8.fee.estimatedFeeArs,
+    payment_currency: "ARS",
+    payment_provider: "manual",
+    payer_billing_name: "Camila Rojas",
+    payer_iva_condition: "consumidor_final",
+    payment_channel: "transfer",
+    paid_at: new Date().toISOString(),
+    expires_at: new Date(Date.now() + 48 * 3600000).toISOString(),
+    fiscal_invoice_status: "pending_issue",
+  })
+  .select("id")
+  .single();
+await admin.from("reservations").update({ estured_fee_payment_id: feePayment8.id }).eq("id", reservation8.id);
+const originalCode8 = crypto.randomUUID();
+const originalReceiptNumber8 = `ER-${new Date().getFullYear()}-${crypto.randomUUID().slice(0, 6).toUpperCase()}`;
+const receiptPayload8 = {
+  reservation_id: reservation8.id,
+  student: { first_name: "Camila", last_initial: "R." },
+  residence: { name: "Residencia Norte", public_area: "Palermo" },
+  room_type: "Individual",
+  desired_start_date: "2026-02-01",
+  initial_duration_months: 6,
+  academic_objective: camila.academicObjective,
+  final_conditions: { monthly_price_usd: 300 },
+  residence_payment_confirmed: true,
+  estured_fee: { amount_ars: app8.fee.estimatedFeeArs, currency: "ARS", paid_at: new Date().toISOString() },
+  disclaimer:
+    "EstuRed es una plataforma intermediaria de búsqueda, solicitud, registro y comprobante. No presta directamente el alojamiento ni garantiza la conducta de las partes.",
+};
+const { data: originalReceipt8 } = await admin
+  .from("booking_receipts")
+  .insert({
+    reservation_id: reservation8.id,
+    student_profile_id: camila.profileId,
+    payer_user_id: camila.userId,
+    residence_id: norteId,
+    status: "reissued",
+    receipt_number: originalReceiptNumber8,
+    verification_code: originalCode8,
+    qr_code_value: `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/verify/${originalCode8}`,
+    issued_at: new Date().toISOString(),
+    receipt_payload: receiptPayload8,
+  })
+  .select("id")
+  .single();
+const reissuedCode8 = crypto.randomUUID();
+const reissuedReceiptNumber8 = `ER-${new Date().getFullYear()}-${crypto.randomUUID().slice(0, 6).toUpperCase()}`;
+const { data: reissuedReceipt8 } = await admin
+  .from("booking_receipts")
+  .insert({
+    reservation_id: reservation8.id,
+    student_profile_id: camila.profileId,
+    payer_user_id: camila.userId,
+    residence_id: norteId,
+    status: "issued",
+    receipt_number: reissuedReceiptNumber8,
+    verification_code: reissuedCode8,
+    qr_code_value: `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/verify/${reissuedCode8}`,
+    issued_at: new Date().toISOString(),
+    reissued_from_receipt_id: originalReceipt8.id,
+    receipt_payload: { ...receiptPayload8, issued_at: new Date().toISOString() },
+  })
+  .select("id")
+  .single();
+await admin.from("reservations").update({ booking_receipt_id: reissuedReceipt8.id }).eq("id", reservation8.id);
+const adminUserId = await userIdByEmail("admin.operaciones@estured.test");
+await logAudit({
+  actorUserId: adminUserId,
+  actorRole: "admin",
+  action: "booking_receipt_reissued",
+  entityType: "booking_receipts",
+  entityId: originalReceipt8.id,
+  reasonText: "El estudiante pidió el comprobante con el apellido completo corregido.",
+  newValue: { new_receipt_id: reissuedReceipt8.id, new_receipt_number: reissuedReceiptNumber8 },
+  source: "admin",
+});
+console.log("✓ Solicitud 6 — Camila @ Norte/Individual → RESERVA CONFIRMADA, comprobante reemitido:", reissuedReceiptNumber8, "(anterior:", originalReceiptNumber8 + ")");
+
+// Renovación de Camila sobre reservation8 — oferta ENVIADA, sin responder
+// todavía (para probar en vivo Aceptar/Rechazar como Camila).
+const renewal8Fee = feeEstimate(310, 6);
+const { data: renewalRequest8 } = await admin
+  .from("renewal_requests")
+  .insert({
+    reservation_id: reservation8.id,
+    student_profile_id: camila.profileId,
+    residence_id: norteId,
+    message: "Quisiera renovar por 6 meses más si es posible.",
+    desired_duration_months: 6,
+    status: "offer_received",
+  })
+  .select("id")
+  .single();
+const { data: renewalOffer8 } = await admin
+  .from("renewal_offers")
+  .insert({
+    reservation_id: reservation8.id,
+    renewal_request_id: renewalRequest8.id,
+    student_profile_id: camila.profileId,
+    residence_id: norteId,
+    status: "sent",
+    period_start_date: "2026-08-01",
+    period_end_date: "2027-02-01",
+    duration_months: 6,
+    monthly_price_usd: 310,
+    monthly_price_ars: usdToArs(310),
+    adjustment_policy: "quarterly",
+    fee_base_usd: renewal8Fee.feeBaseUsd,
+    fee_base_ars: renewal8Fee.feeBaseArs,
+    estimated_estured_fee_ars: renewal8Fee.estimatedFeeArs,
+    acceptance_deadline_at: new Date(Date.now() + 7 * 24 * 3_600_000).toISOString(),
+    sent_by_user_id: ricardoId,
+  })
+  .select("id")
+  .single();
+console.log("✓ Renovación 2 — Camila @ Norte/Individual → OFERTA ENVIADA, esperando respuesta:", renewalOffer8.id);
+
+// ==== 9. Camila @ Norte/Doble — 3ra reserva confirmada, fee pagado y luego
+// REVOCADA por la estudiante (botón de arrepentimiento, docs/10 §15.4) ====
+const app9 = await createApplication({
+  student: camila,
+  residenceId: norteId,
+  roomTypeId: norteDobleId,
+  usd: 220,
+  ars: 334500,
+  months: 4,
+  status: "converted_to_reservation",
+  startDate: "2026-06-01",
+  contactEstablished: true,
+});
+const { data: erp9 } = await admin
+  .from("external_residence_payments")
+  .insert({
+    application_request_id: app9.appId,
+    residence_id: norteId,
+    student_profile_id: camila.profileId,
+    status: "reported_received_by_residence",
+    amount_reported_usd: 220,
+    amount_reported_ars: usdToArs(220),
+    payment_method_to_residence: "cash",
+    reported_received_by_user_id: ricardoId,
+    reported_received_at: new Date().toISOString(),
+  })
+  .select("id")
+  .single();
+const { data: reservation9 } = await admin
+  .from("reservations")
+  .insert({
+    application_request_id: app9.appId,
+    student_profile_id: camila.profileId,
+    residence_id: norteId,
+    room_type_id: norteDobleId,
+    status: "confirmed",
+    start_date: "2026-06-01",
+    initial_duration_months: 4,
+    academic_objective: camila.academicObjective,
+    snapshot_id: app9.snapshotId,
+    external_residence_payment_id: erp9.id,
+    confirmed_at: new Date().toISOString(),
+  })
+  .select("id")
+  .single();
+await admin.from("external_residence_payments").update({ reservation_id: reservation9.id }).eq("id", erp9.id);
+const { data: feePayment9 } = await admin
+  .from("estured_fee_payments")
+  .insert({
+    reservation_id: reservation9.id,
+    payer_user_id: camila.userId,
+    beneficiary_student_profile_id: camila.profileId,
+    status: "paid",
+    fee_base_usd: app9.fee.feeBaseUsd,
+    fee_base_ars: app9.fee.feeBaseArs,
+    fee_amount_ars: app9.fee.estimatedFeeArs,
+    payment_currency: "ARS",
+    payment_provider: "manual",
+    payer_billing_name: "Camila Rojas",
+    payer_iva_condition: "consumidor_final",
+    payment_channel: "transfer",
+    paid_at: new Date().toISOString(),
+    expires_at: new Date(Date.now() + 48 * 3600000).toISOString(),
+    fiscal_invoice_status: "pending_issue",
+  })
+  .select("id")
+  .single();
+await admin.from("reservations").update({ estured_fee_payment_id: feePayment9.id }).eq("id", reservation9.id);
+const code9 = crypto.randomUUID();
+const receiptNumber9 = `ER-${new Date().getFullYear()}-${crypto.randomUUID().slice(0, 6).toUpperCase()}`;
+const { data: receipt9 } = await admin
+  .from("booking_receipts")
+  .insert({
+    reservation_id: reservation9.id,
+    student_profile_id: camila.profileId,
+    payer_user_id: camila.userId,
+    residence_id: norteId,
+    status: "voided",
+    receipt_number: receiptNumber9,
+    verification_code: code9,
+    qr_code_value: `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/verify/${code9}`,
+    issued_at: new Date().toISOString(),
+    voided_at: new Date().toISOString(),
+    receipt_payload: {
+      reservation_id: reservation9.id,
+      student: { first_name: "Camila", last_initial: "R." },
+      residence: { name: "Residencia Norte", public_area: "Palermo" },
+      room_type: "Doble",
+      desired_start_date: "2026-06-01",
+      initial_duration_months: 4,
+      academic_objective: camila.academicObjective,
+      final_conditions: { monthly_price_usd: 220 },
+      residence_payment_confirmed: true,
+      estured_fee: { amount_ars: app9.fee.estimatedFeeArs, currency: "ARS", paid_at: new Date().toISOString() },
+      disclaimer:
+        "EstuRed es una plataforma intermediaria de búsqueda, solicitud, registro y comprobante. No presta directamente el alojamiento ni garantiza la conducta de las partes.",
+    },
+  })
+  .select("id")
+  .single();
+await admin.from("reservations").update({ booking_receipt_id: receipt9.id }).eq("id", reservation9.id);
+await admin
+  .from("reservations")
+  .update({
+    status: "cancelled_by_student",
+    cancellation_reason_code: "student_revocation_right",
+    cancelled_at: new Date().toISOString(),
+  })
+  .eq("id", reservation9.id);
+await logAudit({
+  actorUserId: camila.userId,
+  actorRole: "student",
+  action: "estured_fee_revoked",
+  entityType: "reservations",
+  entityId: reservation9.id,
+  reasonText: "Conseguí un lugar más cerca de la facultad y no voy a poder mudarme acá.",
+  newValue: { estured_fee_payment_id: feePayment9.id, days_since_paid: 2 },
+  source: "user",
+});
+console.log("✓ Solicitud 7 — Camila @ Norte/Doble → REVOCADA (botón de arrepentimiento):", reservation9.id);
+
+// ==== 10. Propuestas del familiar RECHAZADAS x2 (Martín → Lucía) — para
+// probar la alerta "familiares con 2+ propuestas rechazadas" en
+// /admin/family-proposals (docs/08 §8.7). ====
+async function createRejectedProposal({ residenceId, roomTypeId, startDate, months, message, reason }) {
+  await admin.from("family_application_proposals").insert({
+    family_link_id: luciaLink.id,
+    family_member_id: martinFamilyMember.id,
+    student_profile_id: lucia.profileId,
+    residence_id: residenceId,
+    room_type_id: roomTypeId,
+    desired_start_date: startDate,
+    initial_duration_months: months,
+    status: "rejected_by_student",
+    message_to_student: message,
+    rejection_reason: reason,
+    student_response_at: new Date().toISOString(),
+    student_response_by_user_id: lucia.userId,
+  });
+}
+await createRejectedProposal({
+  residenceId: norteId,
+  roomTypeId: norteDobleId,
+  startDate: "2026-08-01",
+  months: 6,
+  message: "Esta otra habitación en Norte también está buena, ¿la vemos?",
+  reason: "Prefiero seguir buscando algo más cerca de mi facultad.",
+});
+await createRejectedProposal({
+  residenceId: rioplataId,
+  roomTypeId: rioplataEstudioId,
+  startDate: "2026-09-01",
+  months: 6,
+  message: "Vi este estudio en Río de la Plata, parece cómodo para vos sola.",
+  reason: "El precio no entra en el presupuesto que hablamos.",
+});
+console.log("✓ 2 propuestas del familiar rechazadas (Martín → Lucía) — dispara la alerta de repetidas en /admin/family-proposals");
+
+// ==== 11. Waitlist pública — algunos leads para /admin/dashboard ====
+const waitlistLeads = [
+  { role: "student", name: "Julieta Gómez", email: "julieta.gomez@example.com", city: "Rosario", message: "Busco para marzo 2027." },
+  { role: "family", name: "Roberto Díaz", email: "roberto.diaz@example.com", city: "Mendoza", message: "Mi hija empieza la facultad el año que viene." },
+  { role: "residence", name: "Marina Suárez", email: "marina.suarez@example.com", city: "CABA", message: "Tengo una casa en Belgrano, ¿cómo la publico?" },
+];
+// El índice único real es sobre lower(email) (migración 0001), no sobre
+// la columna "email" en sí — upsert con onConflict:"email" no matchea
+// ningún constraint real y falla en silencio (42P10) si no se revisa el
+// error. Delete-then-insert por email es más simple y sigue el mismo
+// patrón de idempotencia que el resto del script.
+for (const lead of waitlistLeads) {
+  const { error: delError } = await admin.from("waitlist_signups").delete().ilike("email", lead.email);
+  if (delError) console.error("[seed] waitlist delete failed:", lead.email, delError.message);
+  const { error: insError } = await admin
+    .from("waitlist_signups")
+    .insert({ ...lead, privacy_consent_at: new Date().toISOString() });
+  if (insError) console.error("[seed] waitlist insert failed:", lead.email, insError.message);
+}
+console.log(`✓ ${waitlistLeads.length} leads de waitlist (para el contador de /admin/dashboard)`);
 
 console.log("\nSeed de datos demo completo. Residencias reales: Norte, Río de la Plata (verificadas) + Almagro (pendiente).");
 console.log("Login con DEMO_LOGIN_ENABLED=true y el widget 'Simular sesión' en la esquina inferior izquierda.");

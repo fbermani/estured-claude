@@ -70,12 +70,22 @@ describe.skipIf(!hasCreds)("módulo de renovaciones (integración)", () => {
     // assertResidenceAccess (lib/residences/access.ts) valida residence_users,
     // no alcanza con `created_by` en la residencia — sin esto,
     // createRenewalOffer rechaza con "No tenés acceso a esta residencia."
-    await admin.from("residence_users").insert({
+    // Chequeo de error explícito: si el owner demo ya tiene 10 residencias
+    // activas (docs/06 §8.2, trigger enforce_owner_residence_limit), este
+    // insert falla y sin este check el fallo queda silencioso — se
+    // manifiesta después como "No tenés acceso" en cascada en todos los
+    // tests del archivo, muy difícil de diagnosticar sin este mensaje.
+    const { error: residenceUsersError } = await admin.from("residence_users").insert({
       residence_id: residenceId,
       user_id: ownerId,
       role: "owner",
       is_active: true,
     });
+    if (residenceUsersError) {
+      throw new Error(
+        `No se pudo dar acceso al owner demo a la residencia de test (¿llegó al límite de 10 residencias activas? revisar residencias de prueba huérfanas): ${residenceUsersError.message}`,
+      );
+    }
 
     const { data: roomType } = await admin
       .from("room_types")
