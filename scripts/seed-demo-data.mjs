@@ -1097,21 +1097,36 @@ await admin
   .eq("room_type_id", norteIndividualId);
 console.log("✓ Norte/Individual → disponibilidad SIN ACTUALIZAR (40 días)");
 
-// Lucía → lista de espera de Casa Compartida Almagro, ya AVISADA de que
-// hay lugar (para probar "Activar solicitud"/"Quedarme en lista" en vivo).
+// Lucía → lista de espera de Norte/Individual, ya AVISADA de que hay
+// lugar (para probar "Activar solicitud"/"Quedarme en lista" en vivo,
+// con el happy path completo — activar SÍ debe funcionar acá).
+// Con Casa Compartida Almagro no alcanzaba: es `pending_verification`,
+// y RLS (residences_select_public, migración 0003) solo deja ver
+// residencias `verified_active` a quien no es owner/staff — un
+// estudiante real nunca llega a sumarse a la espera de una residencia
+// no publicada. Con Norte/Doble tampoco (aunque es verified_active):
+// esa habitación queda "sin lugar" a propósito para la historia de
+// Camila, y `activateFromWaitlist` valida la disponibilidad REAL de la
+// habitación (no solo el flag de "avisado") — activar ahí fallaría con
+// "esa habitación todavía no tiene lugar", un hallazgo real de que
+// notificar y actualizar disponibilidad son dos acciones independientes
+// a propósito (evita confiar en un aviso que puede quedar desactualizado).
+// Norte/Individual está "sin actualizar" (not_updated) pero NO full, así
+// que activar sí funciona. Lucía tiene 1 sola solicitud activa
+// (Solicitud 2), así que puede activar esta sin chocar con el límite de 2.
 const { data: luciaWaitlistEntry } = await admin
   .from("waitlist_entries")
   .insert({
     student_profile_id: lucia.profileId,
-    residence_id: almagroId,
-    room_type_id: null,
+    residence_id: norteId,
+    room_type_id: norteIndividualId,
     desired_start_date: "2026-10-01",
     desired_duration_months: 4,
     status: "availability_notification_sent",
   })
   .select("id")
   .single();
-console.log("✓ Lucía @ Casa Compartida Almagro → AVISADA de disponibilidad:", luciaWaitlistEntry?.id);
+console.log("✓ Lucía @ Norte/Individual → AVISADA de disponibilidad:", luciaWaitlistEntry?.id);
 
 console.log("\nSeed de datos demo completo. Residencias reales: Norte, Río de la Plata (verificadas) + Almagro (pendiente).");
 console.log("Login con DEMO_LOGIN_ENABLED=true y el widget 'Simular sesión' en la esquina inferior izquierda.");

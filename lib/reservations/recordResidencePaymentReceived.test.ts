@@ -81,6 +81,12 @@ describe.skipIf(!hasCreds)("recordResidencePaymentReceived (integración)", () =
       is_active: true,
     });
     if (residenceUsersError) {
+      // Si no se pudo dar acceso, la residencia recién creada queda huérfana
+      // para siempre — Vitest NO corre `afterAll` cuando `beforeAll` lanza.
+      // Limpiar acá mismo antes de relanzar, para que un fallo por el
+      // límite de 10 no deje basura que empeora el problema en la próxima
+      // corrida (Ciclo 32bis).
+      await admin.from("residences").delete().eq("id", residenceId);
       throw new Error(
         `No se pudo dar acceso al owner demo a la residencia de test (¿llegó al límite de 10 residencias activas? revisar residencias de prueba huérfanas): ${residenceUsersError.message}`,
       );
