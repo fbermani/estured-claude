@@ -75,11 +75,13 @@ export async function createFamilyProposal(
     .eq("id", roomTypeId)
     .eq("residence_id", residenceId)
     .maybeSingle();
-  const availability = roomType?.profile_availability as unknown as { status: string }[] | undefined;
+  // profile_availability tiene unique(room_type_id) — PostgREST devuelve
+  // un objeto singular en el embed, no un array.
+  const availability = roomType?.profile_availability as unknown as { status: string } | null;
   if (!roomType || !roomType.is_active) {
     return { status: "error", message: "Ese tipo de habitación ya no está disponible." };
   }
-  if (availability?.[0]?.status === "full") {
+  if (availability?.status === "full") {
     return { status: "error", message: "Esa habitación ya no tiene lugar. Probá otro tipo." };
   }
 

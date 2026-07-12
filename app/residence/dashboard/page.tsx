@@ -118,6 +118,18 @@ export default async function ResidenceDashboardPage() {
                     Renovaciones →
                   </Link>
                   <Link
+                    href={`/residence/${r.id}/availability`}
+                    className="text-sm font-semibold text-petrol-600 hover:text-petrol-700"
+                  >
+                    Disponibilidad →
+                  </Link>
+                  <Link
+                    href={`/residence/${r.id}/waitlist`}
+                    className="text-sm font-semibold text-petrol-600 hover:text-petrol-700"
+                  >
+                    Lista de espera →
+                  </Link>
+                  <Link
                     href={`/residence/${r.id}/profile`}
                     className="text-sm font-semibold text-petrol-600 hover:text-petrol-700"
                   >

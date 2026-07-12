@@ -13,7 +13,7 @@ interface RoomTypeOption {
   id: string;
   name: string;
   monthly_price_usd: number;
-  profile_availability: { status: string }[];
+  profile_availability: { status: string } | null;
 }
 interface StudentOption {
   id: string;
@@ -35,7 +35,7 @@ export function ProposeForm({
   const action = createFamilyProposal.bind(null, residenceId);
   const [state, formAction, isPending] = useActionState(action, initialState);
 
-  const availableTypes = roomTypes.filter((rt) => rt.profile_availability?.[0]?.status !== "full");
+  const availableTypes = roomTypes.filter((rt) => rt.profile_availability?.status !== "full");
 
   if (students.length === 0) {
     return (

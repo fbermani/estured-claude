@@ -8,12 +8,13 @@ import {
   createApplicationRequest,
   type CreateApplicationState,
 } from "@/app/students/applications/actions";
+import { JoinWaitlistForm } from "@/app/(public)/residencias/[slug]/JoinWaitlistForm";
 
 interface RoomTypeOption {
   id: string;
   name: string;
   monthly_price_usd: number;
-  profile_availability: { status: string }[];
+  profile_availability: { status: string } | null;
 }
 
 const initialState: CreateApplicationState = { status: "idle" };
@@ -28,13 +29,13 @@ export function ApplyForm({
   const action = createApplicationRequest.bind(null, residenceId);
   const [state, formAction, isPending] = useActionState(action, initialState);
 
-  const availableTypes = roomTypes.filter((rt) => rt.profile_availability?.[0]?.status !== "full");
+  const availableTypes = roomTypes.filter((rt) => rt.profile_availability?.status !== "full");
 
   if (roomTypes.length === 0) {
     return <p className="text-sm text-ink-soft">Esta residencia todavía no cargó tipos de habitación.</p>;
   }
   if (availableTypes.length === 0) {
-    return <p className="text-sm text-ink-soft">No hay lugares disponibles en este momento.</p>;
+    return <JoinWaitlistForm residenceId={residenceId} roomTypes={roomTypes} />;
   }
 
   return (

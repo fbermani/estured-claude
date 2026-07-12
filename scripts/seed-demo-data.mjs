@@ -119,6 +119,7 @@ for (const slug of DEMO_SLUGS) {
       await admin.from("application_requests").update({ family_proposal_id: null }).in("id", appIds);
     }
     await admin.from("family_application_proposals").delete().eq("residence_id", existing.id);
+    await admin.from("waitlist_entries").delete().eq("residence_id", existing.id);
     await admin.from("application_requests").delete().eq("residence_id", existing.id);
     await admin.from("residences").delete().eq("id", existing.id);
     console.log(`(limpieza) residencia previa "${slug}" borrada`);
@@ -1068,6 +1069,49 @@ for (const lead of waitlistLeads) {
   if (insError) console.error("[seed] waitlist insert failed:", lead.email, insError.message);
 }
 console.log(`✓ ${waitlistLeads.length} leads de waitlist (para el contador de /admin/dashboard)`);
+
+// ==== 12. Fase 5.1 — Disponibilidad + lista de espera por residencia ====
+// Norte/Doble: SIN LUGAR (para probar el CTA "Sumarme a lista de espera"
+// en la ficha real y el flujo completo de lista de espera).
+await admin.from("profile_availability").update({ status: "full", available_count: 0 }).eq("room_type_id", norteDobleId);
+const { data: camilaWaitlistEntry } = await admin
+  .from("waitlist_entries")
+  .insert({
+    student_profile_id: camila.profileId,
+    residence_id: norteId,
+    room_type_id: norteDobleId,
+    desired_start_date: "2026-09-01",
+    desired_duration_months: 6,
+    status: "active",
+  })
+  .select("id")
+  .single();
+console.log("✓ Camila @ Norte/Doble → EN LISTA DE ESPERA (habitación sin lugar):", camilaWaitlistEntry?.id);
+
+// Norte/Individual: SIN ACTUALIZAR hace más de 30 días (para ver el badge
+// "Sin actualizar" en /residence/.../availability sin esperar al job real).
+const fortyDaysAgo = new Date(Date.now() - 40 * 24 * 3_600_000).toISOString();
+await admin
+  .from("profile_availability")
+  .update({ status: "not_updated", last_confirmed_at: fortyDaysAgo })
+  .eq("room_type_id", norteIndividualId);
+console.log("✓ Norte/Individual → disponibilidad SIN ACTUALIZAR (40 días)");
+
+// Lucía → lista de espera de Casa Compartida Almagro, ya AVISADA de que
+// hay lugar (para probar "Activar solicitud"/"Quedarme en lista" en vivo).
+const { data: luciaWaitlistEntry } = await admin
+  .from("waitlist_entries")
+  .insert({
+    student_profile_id: lucia.profileId,
+    residence_id: almagroId,
+    room_type_id: null,
+    desired_start_date: "2026-10-01",
+    desired_duration_months: 4,
+    status: "availability_notification_sent",
+  })
+  .select("id")
+  .single();
+console.log("✓ Lucía @ Casa Compartida Almagro → AVISADA de disponibilidad:", luciaWaitlistEntry?.id);
 
 console.log("\nSeed de datos demo completo. Residencias reales: Norte, Río de la Plata (verificadas) + Almagro (pendiente).");
 console.log("Login con DEMO_LOGIN_ENABLED=true y el widget 'Simular sesión' en la esquina inferior izquierda.");

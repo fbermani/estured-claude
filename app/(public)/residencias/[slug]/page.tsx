@@ -49,7 +49,15 @@ async function loadResidence(slug: string) {
     (p) => admin.storage.from("public-residence-media").getPublicUrl(p.storage_path).data.publicUrl,
   );
 
-  return { residence, roomTypes: roomTypes ?? [], sectionMap, photoUrls };
+  // profile_availability tiene unique(room_type_id) — PostgREST devuelve
+  // un objeto singular en el embed, no un array (a diferencia de lo que
+  // el tipo inferido por supabase-js sugiere sin un schema generado).
+  const normalizedRoomTypes = (roomTypes ?? []).map((rt) => ({
+    ...rt,
+    profile_availability: rt.profile_availability as unknown as { status: string; available_count: number | null } | null,
+  }));
+
+  return { residence, roomTypes: normalizedRoomTypes, sectionMap, photoUrls };
 }
 
 export async function generateMetadata({
@@ -140,8 +148,7 @@ export default async function RealResidenceDetailPage({
                 </thead>
                 <tbody className="divide-y divide-sand-200 bg-surface">
                   {roomTypes.map((rt) => {
-                    const availability = (rt.profile_availability as unknown as { status: string }[])?.[0];
-                    const isFull = availability?.status === "full";
+                    const isFull = rt.profile_availability?.status === "full";
                     return (
                       <tr key={rt.id}>
                         <td className="px-4 py-3 font-medium text-ink">{rt.name}</td>

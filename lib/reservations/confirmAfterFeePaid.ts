@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
+import { removeWaitlistEntriesOnConfirmedReservation } from "@/lib/waitlist-entries/removeWaitlistEntriesOnConfirmedReservation";
 
 type ConfirmResult =
   | { ok: true; reservationId: string; receiptId: string; verificationCode: string }
@@ -52,6 +53,11 @@ export async function confirmReservationAfterFeePaid(
     .update({ status: "confirmed", confirmed_at: now.toISOString() })
     .eq("id", reservation.id);
   if (reservationError) return { ok: false, error: "No pudimos confirmar la reserva." };
+
+  // Docs/06 §27.8/§08 §6.10: sale automáticamente de otras listas de
+  // espera al confirmar una reserva. Nunca lanza — no debe poder tumbar
+  // la confirmación real.
+  await removeWaitlistEntriesOnConfirmedReservation(admin, { studentProfileId: reservation.student_profile_id });
 
   // Cierra otras solicitudes activas del mismo estudiante (docs/07 §18.2) —
   // en la práctica siempre están en paused_due_to_other_active_request,

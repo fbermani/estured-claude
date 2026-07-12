@@ -293,6 +293,15 @@ export default async function StudentDashboardPage() {
           </Card>
         )}
         <Card className="flex flex-col p-6">
+          <h2 className="font-bold text-petrol-800">Lista de espera</h2>
+          <p className="mt-2 flex-1 text-sm text-ink-soft">
+            Residencias sin lugar a las que te sumaste — te avisamos si se libera un lugar.
+          </p>
+          <Button href="/students/waitlist" size="sm" variant="outline" className="mt-4 self-start">
+            Ver lista de espera
+          </Button>
+        </Card>
+        <Card className="flex flex-col p-6">
           <div className="flex items-center gap-2">
             <h2 className="font-bold text-petrol-800">Completar mi perfil</h2>
             <Badge tone="amber">Muy pronto</Badge>

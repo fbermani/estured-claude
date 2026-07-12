@@ -85,7 +85,7 @@ export default async function VerificationsPage({
           name: rt.name,
           priceUsd: Number(rt.monthly_price_usd),
           availableCount:
-            (rt.profile_availability as unknown as { available_count: number | null }[])?.[0]
+            (rt.profile_availability as unknown as { available_count: number | null } | null)
               ?.available_count ?? 0,
         })),
         photoUrls: (photos ?? []).map(

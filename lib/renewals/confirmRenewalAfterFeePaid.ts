@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
+import { removeWaitlistEntriesOnConfirmedReservation } from "@/lib/waitlist-entries/removeWaitlistEntriesOnConfirmedReservation";
 
 type ConfirmRenewalResult =
   | { ok: true; renewalOfferId: string; receiptId: string; verificationCode: string }
@@ -55,6 +56,10 @@ export async function confirmRenewalAfterFeePaid(
     .update({ status: "confirmed" })
     .eq("id", offer.id);
   if (offerError) return { ok: false, error: "No pudimos confirmar la renovación." };
+
+  // Docs/06 §27.8/§08 §6.10: sale automáticamente de otras listas de
+  // espera al confirmar una reserva (renovación incluida). Nunca lanza.
+  await removeWaitlistEntriesOnConfirmedReservation(admin, { studentProfileId: offer.student_profile_id });
 
   const [{ data: student }, { data: residence }, { data: payerUser }, { data: fullFeePayment }] = await Promise.all([
     admin

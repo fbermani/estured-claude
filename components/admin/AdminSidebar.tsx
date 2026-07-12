@@ -85,6 +85,16 @@ function ReceiptsIcon() {
     </svg>
   );
 }
+function WaitlistsIcon() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
+      <circle cx="6" cy="6" r="2" />
+      <circle cx="14" cy="10" r="2" />
+      <circle cx="6" cy="14" r="2" />
+      <path strokeLinecap="round" d="M8 6h6M8 14h6M8 10h4" />
+    </svg>
+  );
+}
 
 const NAV = [
   { href: "/admin/dashboard", label: "Dashboard", Icon: DashboardIcon },
@@ -94,6 +104,7 @@ const NAV = [
   { href: "/admin/payments", label: "Pagos", Icon: PaymentsIcon },
   { href: "/admin/revocations", label: "Revocaciones", Icon: RevocationsIcon },
   { href: "/admin/receipts", label: "Comprobantes", Icon: ReceiptsIcon },
+  { href: "/admin/waitlists", label: "Listas de espera", Icon: WaitlistsIcon },
   { href: "/admin/exchange-rate", label: "Tipo de cambio", Icon: ExchangeIcon },
   { href: "/admin/users", label: "Usuarios", Icon: UsersIcon },
   { href: "/admin/logs", label: "Logs", Icon: LogsIcon },

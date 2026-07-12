@@ -84,7 +84,7 @@ export default async function ResidenceProfilePage({
           bathroomType: rt.bathroom_type ?? undefined,
           features: (rt.features as string[]) ?? [],
           availableCount:
-            (rt.profile_availability as unknown as { available_count: number | null }[])?.[0]
+            (rt.profile_availability as unknown as { available_count: number | null } | null)
               ?.available_count ?? 0,
           monthlyPriceUsd: Number(rt.monthly_price_usd),
           enrollmentFeeUsd: rt.enrollment_fee_usd ? Number(rt.enrollment_fee_usd) : undefined,

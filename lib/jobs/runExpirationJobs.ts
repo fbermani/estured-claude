@@ -4,22 +4,42 @@ import { expireFamilyProposals } from "@/lib/jobs/expireFamilyProposals";
 import { expireNegotiationProposals } from "@/lib/jobs/expireNegotiationProposals";
 import { expireApplicationRequests } from "@/lib/jobs/expireApplicationRequests";
 import { expireEsturedFeeWindows } from "@/lib/jobs/expireEsturedFeeWindows";
+import { checkStaleAvailability } from "@/lib/jobs/checkStaleAvailability";
+import { notifyWaitlistKeepAlive } from "@/lib/jobs/notifyWaitlistKeepAlive";
 
 /**
- * Orquesta los 4 jobs de vencimiento a 48h documentados en docs/07 §31
- * (todos con la misma frecuencia — cada hora), invocado por
- * `app/api/cron/expire-stale-records/route.ts`. Un solo endpoint y un
- * solo `cron.schedule` en vez de 4 — misma frecuencia, menos superficie
- * operativa que mantener (un secret, un webhook), sin perder separación
- * de responsabilidades a nivel de código.
+ * Orquesta los jobs periódicos del proyecto, invocado por
+ * `app/api/cron/expire-stale-records/route.ts`. Empezó como los 4 jobs
+ * de vencimiento a 48h de docs/07 §31, y se le sumaron (Fase 5.1) los
+ * de umbral de días de disponibilidad/lista de espera
+ * (`checkStaleAvailability`: 30/15 días, `notifyWaitlistKeepAlive`: 90
+ * días) — mismo criterio de un solo endpoint/cron horario en vez de
+ * crear infraestructura nueva por cada frecuencia: correr un chequeo de
+ * umbral de días cada hora es idempotente y no tiene costo real.
  */
 export async function runExpirationJobs(admin: SupabaseClient) {
-  const [familyProposals, negotiationProposals, applicationRequests, esturedFeeWindows] = await Promise.all([
+  const [
+    familyProposals,
+    negotiationProposals,
+    applicationRequests,
+    esturedFeeWindows,
+    staleAvailability,
+    waitlistKeepAlive,
+  ] = await Promise.all([
     expireFamilyProposals(admin),
     expireNegotiationProposals(admin),
     expireApplicationRequests(admin),
     expireEsturedFeeWindows(admin),
+    checkStaleAvailability(admin),
+    notifyWaitlistKeepAlive(admin),
   ]);
 
-  return { familyProposals, negotiationProposals, applicationRequests, esturedFeeWindows };
+  return {
+    familyProposals,
+    negotiationProposals,
+    applicationRequests,
+    esturedFeeWindows,
+    staleAvailability,
+    waitlistKeepAlive,
+  };
 }
