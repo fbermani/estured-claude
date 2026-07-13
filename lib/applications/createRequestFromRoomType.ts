@@ -4,6 +4,7 @@ import { createAuditLog } from "@/lib/audit";
 import { usdToArs } from "@/lib/mock/exchange";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 import { calculateFeeEstimate } from "@/lib/applications/fee";
+import { determineInitialApplicationStatus } from "@/lib/applications/roomTypeQueue";
 
 /**
  * Crea el snapshot original + la solicitud (docs/06 §11.1-11.2), sea
@@ -34,6 +35,9 @@ export async function createApplicationFromRoomType(
     actorRole: "student" | "family_member";
   },
 ): Promise<{ id: string } | { error: string }> {
+  const initialStatus = await determineInitialApplicationStatus(admin, params.roomTypeId);
+  if ("error" in initialStatus) return { error: initialStatus.error };
+
   const rate = await getCurrentExchangeRate();
   const monthlyPriceUsd = Number(params.roomType.monthly_price_usd);
   const enrollmentFeeUsd = params.roomType.enrollment_fee_usd ? Number(params.roomType.enrollment_fee_usd) : null;
@@ -84,6 +88,7 @@ export async function createApplicationFromRoomType(
         contact_target: params.contactTarget,
         residence_id: params.residenceId,
         room_type_id: params.roomTypeId,
+        status: initialStatus.status,
         desired_start_date: params.desiredStartDate,
         initial_duration_months: params.durationMonths,
         academic_objective: params.academicObjective,
@@ -99,7 +104,7 @@ export async function createApplicationFromRoomType(
     await admin.from("application_status_events").insert({
       application_request_id: request.id,
       from_status: null,
-      to_status: "submitted",
+      to_status: initialStatus.status,
       changed_by_user_id: params.createdByUserId,
       changed_by_role: params.actorRole,
     });
@@ -107,7 +112,7 @@ export async function createApplicationFromRoomType(
     await createAuditLog(admin, {
       actorUserId: params.createdByUserId,
       actorRole: params.actorRole,
-      action: "application_request_submitted",
+      action: initialStatus.status === "queued_for_place" ? "application_request_queued" : "application_request_submitted",
       entityType: "application_requests",
       entityId: request.id,
       newValue: { residence_id: params.residenceId, room_type_id: params.roomTypeId, contact_target: params.contactTarget },

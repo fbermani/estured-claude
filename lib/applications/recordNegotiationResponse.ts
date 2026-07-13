@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { calculateFeeEstimate } from "@/lib/applications/fee";
 import { createPendingResidencePayment } from "@/lib/applications/residencePayment";
+import { promoteNextQueuedApplication } from "@/lib/applications/roomTypeQueue";
 
 export type RecordNegotiationResponseResult = { ok: true } | { ok: false; error: string };
 
@@ -194,6 +195,10 @@ export async function recordNegotiationResponse(
     entityType: "application_requests",
     entityId: applicationId,
   });
+
+  if (newStatus === "cancelled_by_student" && application.room_type_id) {
+    await promoteNextQueuedApplication(admin, application.room_type_id);
+  }
 
   return { ok: true };
 }

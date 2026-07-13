@@ -2,6 +2,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { removeWaitlistEntriesOnConfirmedReservation } from "@/lib/waitlist-entries/removeWaitlistEntriesOnConfirmedReservation";
+import { promoteNextQueuedApplication } from "@/lib/applications/roomTypeQueue";
 
 type ConfirmResult =
   | { ok: true; reservationId: string; receiptId: string; verificationCode: string }
@@ -64,7 +65,7 @@ export async function confirmReservationAfterFeePaid(
   // porque establishContact ya las pausó (docs/00 §9, Ciclo 7).
   const { data: siblings } = await admin
     .from("application_requests")
-    .select("id, status")
+    .select("id, status, room_type_id")
     .eq("student_profile_id", reservation.student_profile_id)
     .neq("id", reservation.application_request_id)
     .eq("status", "paused_due_to_other_active_request");
@@ -80,6 +81,9 @@ export async function confirmReservationAfterFeePaid(
       changed_by_role: "system",
       reason_text: "El estudiante confirmó una reserva en otra solicitud.",
     });
+    if (sibling.room_type_id) {
+      await promoteNextQueuedApplication(admin, sibling.room_type_id);
+    }
   }
 
   // Descuenta disponibilidad declarada (Modo Perfil Verificado, docs/07 §18.2).

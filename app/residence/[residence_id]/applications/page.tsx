@@ -13,6 +13,7 @@ export const dynamic = "force-dynamic";
 
 const STATUS_COPY: Record<string, { label: string; tone: "amber" | "sage" | "neutral" }> = {
   submitted: { label: "Nueva", tone: "amber" },
+  queued_for_place: { label: "En cola", tone: "neutral" },
   under_review: { label: "En revisión", tone: "amber" },
   contact_established: { label: "Contacto establecido", tone: "sage" },
   offer_pending_student_acceptance: { label: "Propuesta enviada", tone: "amber" },

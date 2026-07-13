@@ -110,6 +110,50 @@ describe.skipIf(!hasCreds)("módulo de renovaciones (integración)", () => {
 
   afterAll(async () => {
     if (!admin) return;
+    // Red de seguridad (Ciclo 33, gotcha #37): cada `it()` ya limpia su
+    // propio fixture, pero si alguno falla a mitad de camino (assertion
+    // antes de llegar al cleanup) deja residuos que bloquean el
+    // `residences.delete()` de acá abajo — silenciosamente, si no se
+    // revisa `error`. Mismo orden ya probado en scripts/seed-demo-data.mjs
+    // (gotchas #17/#18/#22/#23/#30/#33): los `external_residence_payments`
+    // de renovación (atados por `renewal_offer_id`) se BORRAN, nunca se
+    // anulan — `external_residence_payments_target_check` exige que
+    // exactamente uno de `application_request_id`/`renewal_offer_id`
+    // quede no-nulo siempre, así que anular `renewal_offer_id` sin tener
+    // un `application_request_id` real para poner en su lugar rompe la
+    // constraint.
+    const { data: reservations } = await admin.from("reservations").select("id").eq("residence_id", residenceId);
+    const reservationIds = (reservations ?? []).map((r) => r.id);
+    const { data: renewalOffers } = await admin.from("renewal_offers").select("id").eq("residence_id", residenceId);
+    const renewalOfferIds = (renewalOffers ?? []).map((r) => r.id);
+
+    if (renewalOfferIds.length) {
+      await admin
+        .from("renewal_offers")
+        .update({ estured_fee_payment_id: null, external_residence_payment_id: null, renewal_receipt_id: null })
+        .in("id", renewalOfferIds);
+      await admin.from("renewal_receipts").delete().in("renewal_offer_id", renewalOfferIds);
+      await admin.from("estured_fee_payments").delete().in("renewal_offer_id", renewalOfferIds);
+      await admin.from("external_residence_payments").delete().in("renewal_offer_id", renewalOfferIds);
+      await admin.from("renewal_offers").delete().in("id", renewalOfferIds);
+    }
+    await admin.from("renewal_requests").delete().eq("residence_id", residenceId);
+
+    if (reservationIds.length) {
+      await admin
+        .from("reservations")
+        .update({ estured_fee_payment_id: null, booking_receipt_id: null })
+        .in("id", reservationIds);
+      await admin.from("booking_receipts").delete().in("reservation_id", reservationIds);
+      await admin.from("estured_fee_payments").delete().in("reservation_id", reservationIds);
+      await admin.from("external_residence_payments").update({ reservation_id: null }).in("reservation_id", reservationIds);
+      await admin.from("reservations").delete().in("id", reservationIds);
+    }
+    await admin.from("external_residence_payments").delete().eq("residence_id", residenceId);
+    await admin.from("application_requests").delete().eq("residence_id", residenceId);
+    await admin.from("application_snapshots").delete().eq("residence_id", residenceId);
+    await admin.from("residence_users").delete().eq("residence_id", residenceId);
+
     const { error } = await admin.from("residences").delete().eq("id", residenceId);
     if (error) console.error("[test cleanup] delete residence failed:", error);
   });

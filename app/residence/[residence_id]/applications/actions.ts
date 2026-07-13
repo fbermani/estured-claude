@@ -7,6 +7,7 @@ import { assertResidenceAccess } from "@/lib/residences/access";
 import { createAuditLog } from "@/lib/audit";
 import { ACTIVE_APPLICATION_STATUSES, REJECTION_REASONS } from "@/lib/applications/types";
 import { createPendingResidencePayment } from "@/lib/applications/residencePayment";
+import { promoteNextQueuedApplication } from "@/lib/applications/roomTypeQueue";
 
 export type ApplicationActionState = { status: "idle" | "error" | "saved"; message?: string };
 
@@ -15,7 +16,7 @@ const REASON_CODES = new Set(REJECTION_REASONS.map((r) => r.value));
 async function loadAndAuthorize(admin: ReturnType<typeof getSupabaseAdmin>, applicationId: string, userId: string) {
   const { data: application } = await admin!
     .from("application_requests")
-    .select("id, status, residence_id, student_profile_id, proposal_count, snapshot_original_id")
+    .select("id, status, residence_id, student_profile_id, proposal_count, snapshot_original_id, room_type_id")
     .eq("id", applicationId)
     .maybeSingle();
   if (!application) return { error: "No encontramos esa solicitud." as const };
@@ -210,6 +211,12 @@ export async function rejectApplication(
   if (["rejected", "cancelled_by_student", "converted_to_reservation"].includes(result.application.status)) {
     return { status: "error", message: "Esa solicitud ya está cerrada." };
   }
+  if (result.application.status === "queued_for_place") {
+    return {
+      status: "error",
+      message: "Esta solicitud está en cola — todavía no es visible. Se vuelve rechazable cuando pase a \"Nueva\".",
+    };
+  }
 
   const reasonCode = String(formData.get("reason_code") ?? "");
   const reasonText = String(formData.get("reason_text") ?? "").trim();
@@ -249,6 +256,10 @@ export async function rejectApplication(
     reasonCode,
     reasonText: reasonText || undefined,
   });
+
+  if (result.application.room_type_id) {
+    await promoteNextQueuedApplication(admin, result.application.room_type_id);
+  }
 
   revalidatePath(`/residence/${result.application.residence_id}/applications`);
   return { status: "saved" };

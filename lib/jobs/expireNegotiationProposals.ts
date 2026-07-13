@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
+import { promoteNextQueuedApplication } from "@/lib/applications/roomTypeQueue";
 
 /**
  * Job `expire_negotiation_proposals` (docs/07 §15.6, §31) — cada hora.
@@ -14,7 +15,7 @@ import { createAuditLog } from "@/lib/audit";
 export async function expireNegotiationProposals(admin: SupabaseClient): Promise<{ expiredCount: number }> {
   const { data: stale, error } = await admin
     .from("application_negotiation_proposals")
-    .select("id, application_request_id")
+    .select("id, application_request_id, application_requests(room_type_id)")
     .is("student_response", null)
     .lt("expires_at", new Date().toISOString());
 
@@ -53,6 +54,10 @@ export async function expireNegotiationProposals(admin: SupabaseClient): Promise
       entityId: proposal.application_request_id,
       source: "system",
     });
+    const applicationRequest = proposal.application_requests as unknown as { room_type_id: string | null } | null;
+    if (applicationRequest?.room_type_id) {
+      await promoteNextQueuedApplication(admin, applicationRequest.room_type_id);
+    }
     expiredCount += 1;
   }
 

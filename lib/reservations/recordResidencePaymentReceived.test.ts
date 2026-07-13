@@ -171,7 +171,8 @@ describe.skipIf(!hasCreds)("recordResidencePaymentReceived (integración)", () =
     await admin.from("external_residence_payments").delete().eq("id", residencePaymentId);
     await admin.from("application_requests").delete().eq("id", mainAppId);
     await admin.from("residence_users").delete().eq("residence_id", residenceId);
-    await admin.from("residences").delete().eq("id", residenceId);
+    const { error } = await admin.from("residences").delete().eq("id", residenceId);
+    if (error) console.error("[test cleanup] delete residence failed:", error);
   });
 
   it("rechaza si el actor no tiene acceso activo a esa residencia", async () => {

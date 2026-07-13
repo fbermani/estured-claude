@@ -67,6 +67,15 @@ export function ApplicationActions({
     return <p className="text-sm text-ink-faint">Esta solicitud ya está cerrada.</p>;
   }
 
+  if (status === "queued_for_place") {
+    return (
+      <p className="text-sm text-ink-faint">
+        Esta solicitud está en cola: ya tenés 3 solicitudes visibles para este tipo de habitación. Se
+        vuelve visible automáticamente cuando cierres o rechaces alguna de las otras.
+      </p>
+    );
+  }
+
   if (status === "offer_pending_student_acceptance") {
     return (
       <p className="text-sm font-medium text-warning-fg">

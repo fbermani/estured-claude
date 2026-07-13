@@ -15,6 +15,12 @@ const STATUS_EXPLANATION: Record<string, { label: string; tone: "amber" | "sage"
     tone: "amber",
     helper: "La residencia tiene 48 horas para responder desde que enviaste tu solicitud.",
   },
+  queued_for_place: {
+    label: "En cola para este tipo de habitación",
+    tone: "neutral",
+    helper:
+      "Este tipo de habitación ya tiene el máximo de solicitudes visibles para la residencia. Vas a pasar a \"Enviada\" automáticamente cuando se libere un lugar.",
+  },
   under_review: {
     label: "En revisión",
     tone: "amber",

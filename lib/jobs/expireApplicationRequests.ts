@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
+import { promoteNextQueuedApplication } from "@/lib/applications/roomTypeQueue";
 
 /**
  * Job `expire_application_requests` (docs/07 §15.10, §31) — cada hora.
@@ -28,7 +29,7 @@ export async function expireApplicationRequests(admin: SupabaseClient): Promise<
     .update({ status: "expired_no_residence_response" })
     .in("status", ["submitted", "under_review"])
     .lt("expires_at", now)
-    .select("id");
+    .select("id, room_type_id");
   if (noResponseError) {
     console.error("[jobs] expireApplicationRequests (sin respuesta) failed:", noResponseError);
   }
@@ -47,6 +48,7 @@ export async function expireApplicationRequests(admin: SupabaseClient): Promise<
       entityId: row.id,
       source: "system",
     });
+    if (row.room_type_id) await promoteNextQueuedApplication(admin, row.room_type_id);
     expiredCount += 1;
   }
 
@@ -55,7 +57,7 @@ export async function expireApplicationRequests(admin: SupabaseClient): Promise<
     .update({ status: "expired_no_student_payment" })
     .eq("status", "residence_payment_pending")
     .lt("payment_deadline_at", now)
-    .select("id");
+    .select("id, room_type_id");
   if (noPaymentError) {
     console.error("[jobs] expireApplicationRequests (sin pago) failed:", noPaymentError);
   }
@@ -75,6 +77,7 @@ export async function expireApplicationRequests(admin: SupabaseClient): Promise<
       entityId: row.id,
       source: "system",
     });
+    if (row.room_type_id) await promoteNextQueuedApplication(admin, row.room_type_id);
     expiredCount += 1;
   }
 

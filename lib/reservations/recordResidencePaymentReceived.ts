@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { calculateFeeEstimate } from "@/lib/applications/fee";
 import { assertResidenceAccess } from "@/lib/residences/access";
+import { promoteNextQueuedApplication } from "@/lib/applications/roomTypeQueue";
 
 export type RecordResidencePaymentReceivedResult =
   | { ok: true; reservationId: string; residenceId: string }
@@ -237,6 +238,10 @@ export async function recordResidencePaymentReceived(
       entityId: params.applicationId,
       newValue: { reservation_id: reservation.id, estured_fee_payment_id: feePayment.id },
     });
+
+    if (application.room_type_id) {
+      await promoteNextQueuedApplication(admin, application.room_type_id);
+    }
 
     return { ok: true, reservationId: reservation.id, residenceId: application.residence_id };
   } catch (error) {

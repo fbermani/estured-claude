@@ -14,6 +14,7 @@ export const dynamic = "force-dynamic";
 
 const STATUS_LABEL: Record<string, string> = {
   submitted: "Nueva",
+  queued_for_place: "En cola — hay 3 solicitudes visibles para este tipo de habitación",
   under_review: "En revisión",
   contact_established: "Contacto establecido",
   offer_pending_student_acceptance: "Propuesta enviada — esperando al estudiante",
