@@ -33,11 +33,22 @@ function timeAgo(iso: string): string {
 export default async function AdminDashboardPage() {
   const admin = getSupabaseAdmin();
 
-  let stats = { activeResidences: 0, pendingValidations: 0, totalUsers: 0, waitlistLeads: 0 };
+  let stats = {
+    activeResidences: 0,
+    pendingValidations: 0,
+    totalUsers: 0,
+    waitlistLeads: 0,
+    reservationsThisMonth: 0,
+    feeCollectedThisMonthArs: 0,
+  };
   let recentActivity: { id: string; action: string; created_at: string; actor_role: string }[] = [];
 
   if (admin) {
-    const [active, pending, users, waitlist, activity] = await Promise.all([
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    const [active, pending, users, waitlist, activity, reservationsMonth, feePaymentsMonth] = await Promise.all([
       admin.from("residences").select("*", { count: "exact", head: true }).eq("status", "verified_active"),
       admin
         .from("residences")
@@ -50,12 +61,26 @@ export default async function AdminDashboardPage() {
         .select("id, action, created_at, actor_role")
         .order("created_at", { ascending: false })
         .limit(8),
+      admin
+        .from("reservations")
+        .select("*", { count: "exact", head: true })
+        .gte("confirmed_at", startOfMonth.toISOString()),
+      admin
+        .from("estured_fee_payments")
+        .select("fee_amount_ars")
+        .eq("status", "paid")
+        .gte("paid_at", startOfMonth.toISOString()),
     ]);
     stats = {
       activeResidences: active.count ?? 0,
       pendingValidations: pending.count ?? 0,
       totalUsers: users.count ?? 0,
       waitlistLeads: waitlist.count ?? 0,
+      reservationsThisMonth: reservationsMonth.count ?? 0,
+      feeCollectedThisMonthArs: (feePaymentsMonth.data ?? []).reduce(
+        (sum, p) => sum + Number(p.fee_amount_ars),
+        0,
+      ),
     };
     recentActivity = activity.data ?? [];
   }
@@ -69,6 +94,12 @@ export default async function AdminDashboardPage() {
     },
     { label: "Usuarios registrados", value: stats.totalUsers, tone: "neutral" as const },
     { label: "Leads en lista de espera", value: stats.waitlistLeads, tone: "neutral" as const },
+    { label: "Reservas confirmadas (mes)", value: stats.reservationsThisMonth, tone: "neutral" as const },
+    {
+      label: "Fee cobrado (mes)",
+      value: `$${stats.feeCollectedThisMonthArs.toLocaleString("es-AR")}`,
+      tone: "neutral" as const,
+    },
   ];
 
   return (
@@ -93,7 +124,7 @@ export default async function AdminDashboardPage() {
         )}
       </div>
 
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         {metrics.map((m) => (
           <AdminCard key={m.label} className="p-5">
             <p className="text-[11px] font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
