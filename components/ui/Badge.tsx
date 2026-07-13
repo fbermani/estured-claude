@@ -2,11 +2,18 @@ import type { ReactNode } from "react";
 
 type Tone = "neutral" | "petrol" | "sage" | "amber" | "danger";
 
+/**
+ * Sistema FRESH (design-references/fresh-style.md §2 "Chips / pills /
+ * badges"): fondo tint + texto -700/-600 del mismo hue, nunca borde.
+ * Los nombres de tone se mantienen (usados en ~15 páginas vía
+ * STATUS_COPY) — lo que cambia es el color real: petrol→forest,
+ * sage→mint, amber→orange.
+ */
 const tones: Record<Tone, string> = {
-  neutral: "bg-sand-100 text-ink-soft",
-  petrol: "bg-petrol-50 text-petrol-700",
-  sage: "bg-sage-50 text-sage-700",
-  amber: "bg-amber-soft-100 text-amber-soft-700",
+  neutral: "bg-cream-2 text-ink-soft",
+  petrol: "bg-forest-tint text-forest-700",
+  sage: "bg-mint text-forest-700",
+  amber: "bg-orange-tint text-orange-700",
   danger: "bg-danger-bg text-danger-fg",
 };
 

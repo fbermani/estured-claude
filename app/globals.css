@@ -1,89 +1,127 @@
 @import "tailwindcss";
 
-/*
-  EstuRed — Design tokens fundacionales.
-
-  Identidad: confiable, clara, humana, profesional, cálida, optimista.
-  Evitar: estética inmobiliaria tradicional, SaaS frío, gradientes y
-  sombras fuertes.
-
-  Los documentos estratégicos (docs/) no definen identidad visual;
-  esta paleta y tipografías son la decisión fundacional del ciclo 0
-  (ver docs/CLAUDE_CODE_AUDIT.md).
-*/
+/* EstuRed - Design tokens. Sistema visual FRESH, ver design-references/fresh-style.md */
 
 @theme {
-  /* ---- Marca ---- */
-  /* Azul petróleo — color primario, confianza y profesionalismo */
+  /* ---- FRESH: neutros cálidos ---- */
+  --color-ink: #1d2722; /* texto principal */
+  --color-ink-soft: #44524b; /* texto secundario / body */
+  --color-ink-faint: #7c8a82; /* texto terciario, alias de --color-muted */
+  --color-muted: #7c8a82;
+  --color-line: #e8e0d2; /* bordes por defecto */
+  --color-line-2: #ded4c2; /* bordes marcados (inputs, dividers fuertes) */
+  --color-cream: #fbf6ec; /* fondo base de página */
+  --color-cream-2: #f4ecdc; /* fondo secundario, hover de filas */
+  --color-paper: #ffffff; /* superficie de card/modal/tabla */
+  --color-surface: #ffffff; /* alias legacy de --color-paper */
+
+  /* ---- FRESH: marca ---- */
+  --color-forest: #1f7d5c; /* primario de acción/marca */
+  --color-forest-600: #166349; /* hover de forest */
+  --color-forest-700: #0f4d39; /* texto/ícono forest sobre fondo claro */
+  --color-forest-ink: #0c3a2c; /* fondos oscuros (footer, toasts) */
+  --color-forest-tint: #e2f1ea; /* fondo tenue chips/tiles forest */
+
+  --color-orange: #ef8551; /* acento, urgencia, foco de atención */
+  --color-orange-600: #e06d37; /* hover de orange */
+  --color-orange-700: #c4561f; /* texto/ícono orange sobre fondo claro */
+  --color-orange-tint: #fde7da; /* fondo tenue chips/tiles orange */
+
+  --color-gold: #e9b84b; /* uso puntual, nunca como color base */
+
+  /* ---- FRESH: pasteles de categoría (tiles/tags decorativos) ---- */
+  --color-peach: #fde1d2;
+  --color-butter: #fbeec3;
+  --color-butter-fg: #9a7a14;
+  --color-mint: #d7efe2;
+  --color-lilac: #e7e2f8;
+  --color-lilac-fg: #5b4ea8;
+  --color-sky: #d9ebf5;
+  --color-sky-fg: #2d6f97;
+
+  /* ---- FRESH: extendida (panel admin) ---- */
+  --color-red: #d15c4f; /* riesgo, expulsión, error */
+  --color-red-600: #b8483c;
+  --color-red-700: #9c392e;
+  --color-red-tint: #fbe5e2;
+  --color-blue-ink: #2d6f97; /* informativo neutro */
+  --color-blue-tint: #e3f0f9;
+
+  /* ---- Semánticos (mapeados a los tokens FRESH de arriba) ---- */
+  --color-success-bg: var(--color-forest-tint);
+  --color-success-fg: var(--color-forest-700);
+  --color-warning-bg: var(--color-orange-tint);
+  --color-warning-fg: var(--color-orange-700);
+  --color-danger-bg: var(--color-red-tint);
+  --color-danger-fg: var(--color-red-700);
+  --color-info-bg: var(--color-blue-tint);
+  --color-info-fg: var(--color-blue-ink);
+
+  /* ---- Legacy (Ciclo 0, compatibilidad temporal — no usar en código nuevo) ---- */
   --color-petrol-50: #eef6fa;
   --color-petrol-100: #d7eaf2;
   --color-petrol-200: #aed4e4;
   --color-petrol-300: #7db8d0;
   --color-petrol-400: #4795b5;
   --color-petrol-500: #1f7396;
-  --color-petrol-600: #0f5c7a; /* base de marca */
+  --color-petrol-600: #0f5c7a;
   --color-petrol-700: #0c4a63;
   --color-petrol-800: #0a3a4e;
   --color-petrol-900: #082d3d;
 
-  /* Verde salvia — comunidad, calma, señal positiva suave */
   --color-sage-50: #f1f8f4;
   --color-sage-100: #ddefe5;
   --color-sage-200: #bcdfca;
   --color-sage-300: #9ccdb2;
-  --color-sage-400: #7cb89c; /* base de marca */
+  --color-sage-400: #7cb89c;
   --color-sage-500: #5d9e81;
   --color-sage-600: #487f67;
   --color-sage-700: #3a6553;
   --color-sage-800: #2f5143;
   --color-sage-900: #274238;
 
-  /* Arena — fondos cálidos */
-  --color-sand-50: #fbfaf7;
-  --color-sand-100: #f4f1eb; /* base de marca */
-  --color-sand-200: #e9e3d7;
-  --color-sand-300: #d9d0bd;
+  --color-sand-50: var(--color-cream);
+  --color-sand-100: var(--color-cream-2);
+  --color-sand-200: var(--color-line);
+  --color-sand-300: var(--color-line-2);
 
-  /* Amarillo suave — acento optimista, usar con moderación */
   --color-amber-soft-100: #fdf0d9;
   --color-amber-soft-300: #f9d48a;
-  --color-amber-soft-400: #f5b041; /* base de marca */
+  --color-amber-soft-400: #f5b041;
   --color-amber-soft-500: #e09a26;
   --color-amber-soft-700: #9c6a15;
 
-  /* ---- Semánticos ---- */
-  --color-ink: #1c2b33; /* texto principal, cálido, no negro puro */
-  --color-ink-soft: #4d5f68; /* texto secundario */
-  --color-ink-faint: #7b8a92; /* texto terciario / hints */
-  --color-surface: #ffffff;
-  --color-success-bg: #e6f4ec;
-  --color-success-fg: #1e6b45;
-  --color-warning-bg: #fdf0d9;
-  --color-warning-fg: #8a5a0e;
-  --color-danger-bg: #fbe9e7;
-  --color-danger-fg: #a63a2a;
-  --color-info-bg: #e8f2f7;
-  --color-info-fg: #0c4a63;
-
-  /* ---- Tipografía ---- */
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-manrope), var(--font-inter), ui-sans-serif,
+  /* ---- Tipografía FRESH: Bricolage Grotesque (display) + Hanken Grotesk (UI/body) ---- */
+  --font-sans: var(--font-hanken), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-bricolage), var(--font-hanken), ui-sans-serif,
     system-ui, sans-serif;
 
-  /* ---- Radios: generosos pero no juguetones ---- */
-  --radius-card: 1rem;
-  --radius-field: 0.625rem;
+  /* ---- Radios FRESH: r-lg/r-md/r-sm para contenedores, pill para interactivos ---- */
+  --radius-lg: 30px;
+  --radius-md: 22px;
+  --radius-sm: 16px;
+  --radius-card: 22px; /* alias legacy de --radius-md */
+  --radius-field: 12px; /* inputs/selects/tiles chicos */
 
-  /* ---- Sombras suaves ---- */
-  --shadow-card: 0 1px 2px rgb(8 45 61 / 0.05), 0 4px 16px rgb(8 45 61 / 0.06);
-  --shadow-card-hover: 0 2px 4px rgb(8 45 61 / 0.06),
-    0 8px 28px rgb(8 45 61 / 0.1);
-  /* Elementos flotantes sobre imágenes o composiciones del hero */
-  --shadow-float: 0 4px 12px rgb(8 45 61 / 0.08), 0 12px 40px rgb(8 45 61 / 0.14);
+  /* ---- Sombras FRESH: tono cálido (ink), nunca negro puro ---- */
+  --shadow-sm: 0 1px 2px rgb(29 39 34 / 0.06), 0 2px 6px rgb(29 39 34 / 0.05);
+  --shadow-md: 0 2px 4px rgb(29 39 34 / 0.06), 0 8px 20px rgb(29 39 34 / 0.09);
+  --shadow-lg: 0 12px 32px rgb(29 39 34 / 0.16), 0 4px 10px rgb(29 39 34 / 0.08);
+  --shadow-card: 0 1px 2px rgb(29 39 34 / 0.05), 0 4px 16px rgb(29 39 34 / 0.07);
+  --shadow-card-hover: 0 2px 4px rgb(29 39 34 / 0.06),
+    0 8px 28px rgb(29 39 34 / 0.12);
+  --shadow-float: 0 4px 12px rgb(29 39 34 / 0.08), 0 12px 40px rgb(29 39 34 / 0.16);
+  --shadow-orange: 0 10px 24px rgb(239 133 81 / 0.35);
+  --shadow-forest: 0 10px 24px rgb(31 125 92 / 0.32);
+
+  /* ---- Motion FRESH ---- */
+  --ease-fresh: cubic-bezier(0.22, 0.61, 0.36, 1); /* transición estándar */
+  --ease-out-fresh: cubic-bezier(0.16, 1, 0.3, 1); /* entradas / reveals */
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1); /* hover de botones/toggles/modales — el "signature" del sistema */
 }
 
 body {
-  background-color: var(--color-sand-50);
+  background-color: var(--color-cream);
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -95,6 +133,7 @@ h2,
 h3,
 h4 {
   font-family: var(--font-display);
+  font-weight: 700;
   letter-spacing: -0.02em;
   text-wrap: balance;
 }
@@ -104,6 +143,37 @@ p {
 }
 
 ::selection {
-  background-color: var(--color-amber-soft-300);
+  background-color: var(--color-orange-tint);
   color: var(--color-ink);
+}
+
+/* ---- Íconos: Material Symbols Outlined exclusivamente (design-references/fresh-style.md §1.2) ---- */
+.material-symbols-outlined {
+  font-family: "Material Symbols Outlined";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: "liga";
+  font-feature-settings: "liga";
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+}
+
+/* ---- Motion: respeta prefers-reduced-motion para cualquier animación decorativa infinita ---- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

@@ -1,7 +1,7 @@
 import type { ComponentPropsWithoutRef } from "react";
 
 const fieldClasses =
-  "w-full rounded-field border border-sand-300 bg-surface px-3.5 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:border-petrol-400 focus:outline-2 focus:outline-petrol-200 disabled:bg-sand-100";
+  "w-full rounded-field border-[1.5px] border-line-2 bg-cream px-3.5 py-2.5 text-sm text-ink placeholder:text-muted focus:border-forest focus:outline-2 focus:outline-forest-tint disabled:bg-cream-2 disabled:text-muted";
 
 interface FieldWrapperProps {
   label?: string;
@@ -18,12 +18,12 @@ function FieldWrapper({
   return (
     <div className="flex flex-col gap-1.5">
       {label && (
-        <label htmlFor={id} className="text-sm font-medium text-ink">
+        <label htmlFor={id} className="text-sm font-bold text-ink-soft">
           {label}
         </label>
       )}
       {children}
-      {hint && <p className="text-xs text-ink-faint">{hint}</p>}
+      {hint && <p className="text-xs text-muted">{hint}</p>}
     </div>
   );
 }

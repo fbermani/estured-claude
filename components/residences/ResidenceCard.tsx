@@ -43,7 +43,7 @@ export function ResidenceCard({
 
         <div className="flex flex-1 flex-col gap-2.5 p-5">
           <div>
-            <h3 className="text-lg font-bold leading-snug text-petrol-800">
+            <h3 className="text-lg font-bold leading-snug text-ink">
               {residence.name}
             </h3>
             <p className="text-sm text-ink-soft">
@@ -52,7 +52,7 @@ export function ResidenceCard({
           </div>
 
           {residence.nearUniversities.length > 0 && (
-            <p className="flex items-center gap-1.5 text-xs font-medium text-petrol-600">
+            <p className="flex items-center gap-1.5 text-xs font-bold text-forest-700">
               <svg
                 viewBox="0 0 20 20"
                 fill="currentColor"
@@ -83,9 +83,9 @@ export function ResidenceCard({
             {moreServices > 0 && ` · +${moreServices} servicios`}
           </p>
 
-          <div className="mt-auto flex items-end justify-between border-t border-sand-200 pt-3">
+          <div className="mt-auto flex items-end justify-between border-t-[1.5px] border-line pt-3">
             <div>
-              <p className="text-lg font-bold text-petrol-700">
+              <p className="text-lg font-bold text-forest-700">
                 {formatUsd(residence.priceFromUsd)}
                 <span className="ml-1 text-xs font-normal text-ink-faint">
                   /mes desde
@@ -96,7 +96,7 @@ export function ResidenceCard({
                 referencial
               </p>
             </div>
-            <span className="text-sm font-semibold text-petrol-600 transition-transform group-hover:translate-x-0.5">
+            <span className="text-sm font-bold text-forest-700 transition-transform duration-300 ease-bounce group-hover:translate-x-[3px]">
               Ver más →
             </span>
           </div>

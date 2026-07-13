@@ -29,14 +29,14 @@ export function ExchangeRateNote() {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-label="Por qué este valor en pesos es referencial"
-        className="ml-1 inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border border-ink-faint text-[9px] font-bold leading-none text-ink-faint hover:border-petrol-500 hover:text-petrol-600"
+        className="ml-1 inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border border-muted text-[9px] font-bold leading-none text-muted hover:border-forest hover:text-forest"
       >
         i
       </button>
       {open && (
         <span
           role="tooltip"
-          className="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 rounded-field border border-sand-200 bg-surface p-3 text-left text-xs font-normal leading-relaxed text-ink-soft shadow-float"
+          className="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 rounded-field border-[1.5px] border-line bg-paper p-3 text-left text-xs font-normal leading-relaxed text-ink-soft shadow-float"
         >
           {EXCHANGE_RATE_DISCLAIMER}
         </span>

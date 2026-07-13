@@ -11,8 +11,10 @@ export function Card({
 }) {
   return (
     <div
-      className={`bg-surface rounded-card shadow-card border border-sand-200 ${
-        interactive ? "transition-shadow hover:shadow-card-hover" : ""
+      className={`bg-paper rounded-card shadow-card border-[1.5px] border-line ${
+        interactive
+          ? "transition-all duration-300 ease-bounce hover:-translate-y-[7px] hover:border-transparent hover:shadow-lg"
+          : ""
       } ${className}`}
     >
       {children}

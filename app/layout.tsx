@@ -1,17 +1,21 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { Inter, Manrope } from "next/font/google";
+import { Bricolage_Grotesque, Hanken_Grotesk } from "next/font/google";
 import { DemoSwitcherGate } from "@/components/dev/DemoSwitcherGate";
 import "./globals.css";
 
-const inter = Inter({
+/** Sistema visual FRESH (design-references/fresh-style.md §1.2). */
+const hanken = Hanken_Grotesk({
   subsets: ["latin"],
-  variable: "--font-inter",
+  weight: "variable",
+  variable: "--font-hanken",
 });
 
-const manrope = Manrope({
+const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
-  variable: "--font-manrope",
+  weight: "variable",
+  axes: ["opsz"],
+  variable: "--font-bricolage",
 });
 
 export const metadata: Metadata = {
@@ -28,7 +32,19 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="es">
-      <body className={`${inter.variable} ${manrope.variable} antialiased`}>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* Material Symbols Outlined (design-references/fresh-style.md §1.2) — librería de íconos única del proyecto.
+            eslint-disable-next-line: no-page-custom-font es una regla de Pages Router (Next 12) que no
+            reconoce el App Router — este <head> es el del root layout, así que SÍ aplica a toda la app. */}
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
+        />
+      </head>
+      <body className={`${hanken.variable} ${bricolage.variable} antialiased`}>
         {children}
         {process.env.DEMO_LOGIN_ENABLED === "true" && (
           // Suspense evita que la lectura de cookies() del switcher (solo

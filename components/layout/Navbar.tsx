@@ -25,13 +25,13 @@ export function Navbar() {
   }, [open]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-sand-200 bg-surface/90 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-line bg-cream/86 backdrop-blur-md backdrop-saturate-150">
       <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
         <Link href="/" className="flex items-center gap-2" aria-label="EstuRed, inicio">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-petrol-600 font-display text-lg font-extrabold text-white">
+          <span className="flex h-8 w-8 items-center justify-center rounded-[11px] bg-forest font-display text-lg font-extrabold text-white">
             E
           </span>
-          <span className="font-display text-xl font-extrabold tracking-tight text-petrol-800">
+          <span className="font-display text-xl font-extrabold tracking-tight text-ink">
             EstuRed
           </span>
         </Link>
@@ -41,10 +41,10 @@ export function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              className={`rounded-full px-3.5 py-2 text-sm font-medium transition-colors ${
+              className={`rounded-full px-3.5 py-2 text-sm font-bold transition-all duration-300 ease-bounce ${
                 pathname === link.href
-                  ? "bg-petrol-50 text-petrol-700"
-                  : "text-ink-soft hover:bg-sand-100 hover:text-petrol-700"
+                  ? "bg-forest-tint text-forest-700"
+                  : "text-ink-soft hover:bg-cream-2 hover:text-forest-700"
               }`}
             >
               {link.label}
@@ -61,7 +61,7 @@ export function Navbar() {
         </div>
 
         <button
-          className="rounded-md p-2 text-ink-soft md:hidden"
+          className="rounded-full p-2 text-ink-soft transition-colors hover:bg-cream-2 md:hidden"
           onClick={() => setOpen(!open)}
           aria-expanded={open}
           aria-controls="mobile-menu"
@@ -78,16 +78,16 @@ export function Navbar() {
       </nav>
 
       {open && (
-        <div id="mobile-menu" className="border-t border-sand-200 bg-surface px-4 py-4 md:hidden">
+        <div id="mobile-menu" className="border-t border-line bg-paper px-4 py-4 md:hidden">
           <div className="flex flex-col gap-1">
             {links.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setOpen(false)}
-                className={`rounded-lg px-3 py-2.5 text-sm font-medium ${
+                className={`rounded-field px-3 py-2.5 text-sm font-bold ${
                   pathname === link.href
-                    ? "bg-petrol-50 text-petrol-700"
+                    ? "bg-forest-tint text-forest-700"
                     : "text-ink-soft"
                 }`}
               >
@@ -97,7 +97,7 @@ export function Navbar() {
             <Link
               href="/login"
               onClick={() => setOpen(false)}
-              className="rounded-lg px-3 py-2.5 text-sm font-medium text-ink-soft"
+              className="rounded-field px-3 py-2.5 text-sm font-bold text-ink-soft"
             >
               Ingresar
             </Link>

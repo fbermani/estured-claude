@@ -16,7 +16,7 @@ export function TrustBadge({
     size === "md" ? "text-sm px-3 py-1" : "text-xs px-2.5 py-1";
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full bg-white/95 font-semibold text-sage-800 shadow-sm ring-1 ring-sage-200 ${sizing}`}
+      className={`inline-flex items-center gap-1 rounded-full bg-white/95 font-bold text-forest-700 shadow-sm ring-[1.5px] ring-forest-tint ${sizing}`}
       title="Verificada presencialmente por el equipo de EstuRed"
     >
       <svg
