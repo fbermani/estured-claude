@@ -114,7 +114,7 @@ export function AdminSidebar({ userEmail, roleLabel }: { userEmail: string; role
   const pathname = usePathname();
 
   return (
-    <aside className="flex w-60 shrink-0 flex-col justify-between border-r bg-white" style={{ borderColor: cmd.border }}>
+    <aside className="flex w-[260px] shrink-0 flex-col justify-between border-r bg-white" style={{ borderColor: cmd.border }}>
       <div>
         <div className="px-6 py-6">
           <p className="text-lg font-extrabold tracking-tight" style={{ color: cmd.primary }}>
@@ -132,10 +132,10 @@ export function AdminSidebar({ userEmail, roleLabel }: { userEmail: string; role
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex items-center gap-3 rounded px-3 py-2.5 text-sm font-semibold transition-colors"
+                className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors"
                 style={
                   active
-                    ? { backgroundColor: cmd.onPrimaryContainer, color: cmd.primary }
+                    ? { backgroundColor: cmd.onPrimaryContainer, color: cmd.navActiveFg }
                     : { color: cmd.onSurfaceVariant }
                 }
               >

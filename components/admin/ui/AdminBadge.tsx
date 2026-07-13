@@ -9,15 +9,15 @@ const toneStyles: Record<Tone, { bg: string; fg: string }> = {
   emerald: { bg: cmd.emeraldBg, fg: cmd.emerald },
   rose: { bg: cmd.roseBg, fg: cmd.rose },
   violet: { bg: cmd.violetBg, fg: cmd.violet },
-  primary: { bg: cmd.onPrimaryContainer, fg: cmd.primary },
+  primary: { bg: cmd.emeraldBg, fg: cmd.primary },
 };
 
-/** Status pill del design system "Operational Command" — radio 12px (vs. 4px de botones/inputs). */
+/** Status pill del panel admin — pill (999px), fresh-style.md §2 "Chips / pills / badges". */
 export function AdminBadge({ children, tone = "neutral" }: { children: ReactNode; tone?: Tone }) {
   const s = toneStyles[tone];
   return (
     <span
-      className="inline-flex items-center rounded-[12px] px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide"
+      className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide"
       style={{ backgroundColor: s.bg, color: s.fg }}
     >
       {children}
