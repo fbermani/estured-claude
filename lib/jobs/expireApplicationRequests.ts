@@ -15,6 +15,14 @@ import { promoteNextQueuedApplication } from "@/lib/applications/roomTypeQueue";
  *   (`residence_payment_pending`, `payment_deadline_at` vencido) →
  *   `expired_no_student_payment`.
  *
+ * Bug de consistencia real encontrado y corregido en el Ciclo 34terdecies:
+ * `createPendingResidencePayment` (Ciclo 8) ya crea una fila real de
+ * `external_residence_payments` en `pending` al entrar a
+ * `residence_payment_pending` — pero hasta acá nada la sincronizaba al
+ * vencer la solicitud. Quedaba huérfana en `pending`/
+ * `student_reference_uploaded` para siempre, en desacuerdo con su propia
+ * solicitud padre ya `expired_no_student_payment`.
+ *
  * Sin notificación real (pendiente, docs/00 §29) y sin liberar
  * disponibilidad automáticamente — docs/00 §9.1 dice que la residencia
  * "puede" liberar la plaza tras el vencimiento, una acción manual
@@ -69,6 +77,14 @@ export async function expireApplicationRequests(admin: SupabaseClient): Promise<
       changed_by_role: "system",
       reason_text: "El estudiante no pagó a la residencia dentro del plazo de 48h.",
     });
+    const { error: residencePaymentSyncError } = await admin
+      .from("external_residence_payments")
+      .update({ status: "expired" })
+      .eq("application_request_id", row.id)
+      .in("status", ["pending", "student_reference_uploaded"]);
+    if (residencePaymentSyncError) {
+      console.error("[jobs] expireApplicationRequests (sync external_residence_payments) failed:", residencePaymentSyncError);
+    }
     await createAuditLog(admin, {
       actorUserId: null,
       actorRole: "system",

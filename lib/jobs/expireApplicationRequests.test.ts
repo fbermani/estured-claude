@@ -125,10 +125,21 @@ describe.skipIf(!hasCreds)("expireApplicationRequests (integración)", () => {
     freshAppId = await createApp("submitted", {
       expires_at: new Date(Date.now() + 48 * 3_600_000).toISOString(),
     });
+
+    // Ciclo 34terdecies: createPendingResidencePayment (Ciclo 8) crea esta fila
+    // real al entrar a residence_payment_pending — se replica acá para poder
+    // testear que el job la sincroniza a `expired` al vencer la solicitud.
+    await admin.from("external_residence_payments").insert({
+      application_request_id: staleResidencePaymentId,
+      residence_id: residenceId,
+      student_profile_id: studentProfileId,
+      status: "pending",
+    });
   });
 
   afterAll(async () => {
     if (!admin) return;
+    await admin.from("external_residence_payments").delete().eq("application_request_id", staleResidencePaymentId);
     await admin.from("application_requests").delete().in("id", [staleSubmittedId, staleResidencePaymentId, freshAppId]);
     const { error } = await admin.from("residences").delete().eq("id", residenceId);
     if (error) console.error("[test cleanup] delete residence failed:", error);
@@ -154,5 +165,12 @@ describe.skipIf(!hasCreds)("expireApplicationRequests (integración)", () => {
 
     const { data: fresh } = await admin.from("application_requests").select("status").eq("id", freshAppId).single();
     expect(fresh!.status).toBe("submitted");
+
+    const { data: residencePayment } = await admin
+      .from("external_residence_payments")
+      .select("status")
+      .eq("application_request_id", staleResidencePaymentId)
+      .single();
+    expect(residencePayment!.status).toBe("expired");
   });
 });
