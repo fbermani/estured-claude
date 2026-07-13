@@ -110,6 +110,14 @@ function RenewalsIcon() {
     </svg>
   );
 }
+function ValidationsIcon() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 3h9l3 3v11H4V3z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M7 10.5l2 2 4-4.5" />
+    </svg>
+  );
+}
 function WaitlistsIcon() {
   return (
     <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
@@ -123,7 +131,8 @@ function WaitlistsIcon() {
 
 const NAV = [
   { href: "/admin/dashboard", label: "Dashboard", Icon: DashboardIcon },
-  { href: "/admin/verifications", label: "Residencias", Icon: BuildingIcon },
+  { href: "/admin/residences", label: "Residencias", Icon: BuildingIcon },
+  { href: "/admin/verifications", label: "Validaciones", Icon: ValidationsIcon },
   { href: "/admin/applications", label: "Solicitudes", Icon: ClockIcon },
   { href: "/admin/negotiations", label: "Negociaciones", Icon: NegotiationsIcon },
   { href: "/admin/family-proposals", label: "Propuestas familiar", Icon: FamilyProposalsIcon },
