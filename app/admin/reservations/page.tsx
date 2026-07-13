@@ -3,6 +3,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
 import { cmd } from "@/components/admin/ui/tokens";
+import { ReopenFeeWindowControl } from "@/app/admin/reservations/ReopenFeeWindowControl";
 
 export const metadata: Metadata = { title: "Reservas" };
 export const dynamic = "force-dynamic";
@@ -30,6 +31,7 @@ type ReservationRow = {
   start_date: string;
   confirmed_at: string | null;
   created_at: string;
+  estured_fee_payment_id: string | null;
   student_profiles: { first_name: string; last_initial: string } | null;
   residences: { name: string; public_area: string | null } | null;
   room_types: { name: string } | null;
@@ -42,7 +44,7 @@ export default async function AdminReservationsPage() {
     ? await admin
         .from("reservations")
         .select(
-          "id, status, start_date, confirmed_at, created_at, student_profiles(first_name, last_initial), residences(name, public_area), room_types(name)",
+          "id, status, start_date, confirmed_at, created_at, estured_fee_payment_id, student_profiles(first_name, last_initial), residences(name, public_area), room_types(name)",
         )
         .order("created_at", { ascending: false })
         .limit(200)
@@ -57,14 +59,16 @@ export default async function AdminReservationsPage() {
         Reservas
       </h1>
       <p className="text-sm" style={{ color: cmd.onSurfaceVariant }}>
-        {activeCount} activa(s) de {reservations.length} en total, todas las residencias. Vista de solo lectura.
+        {activeCount} activa(s) de {reservations.length} en total, todas las residencias. Desde acá se puede
+        reabrir la ventana de pago del fee de una reserva vencida sin pagar.
       </p>
 
       <AdminCard className="mt-6 overflow-hidden">
+        <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead style={{ backgroundColor: cmd.surfaceContainerLow, borderBottom: `1px solid ${cmd.border}` }}>
             <tr>
-              {["Alta", "Estudiante", "Residencia", "Tipo", "Ingreso", "Confirmada", "Estado"].map((h) => (
+              {["Alta", "Estudiante", "Residencia", "Tipo", "Ingreso", "Confirmada", "Estado", ""].map((h) => (
                 <th
                   key={h}
                   className="px-4 py-2.5 text-[11px] font-bold uppercase tracking-wide"
@@ -106,11 +110,17 @@ export default async function AdminReservationsPage() {
                   <td className="px-4 py-2.5">
                     <AdminBadge tone={badge.tone}>{badge.label}</AdminBadge>
                   </td>
+                  <td className="px-4 py-2.5">
+                    {r.status === "expired_fee_unpaid" && r.estured_fee_payment_id && (
+                      <ReopenFeeWindowControl feePaymentId={r.estured_fee_payment_id} />
+                    )}
+                  </td>
                 </tr>
               );
             })}
           </tbody>
         </table>
+        </div>
         {reservations.length === 0 && (
           <p className="p-6 text-sm" style={{ color: cmd.outline }}>
             Todavía no hay reservas en el sistema.
