@@ -345,24 +345,16 @@ export default async function StudentDashboardPage() {
           <p className="text-sm text-ink-soft">Sin familiar vinculado todavía.</p>
         )}
       </Card>
-      <Card className="flex flex-col gap-1 p-2">
-        <Link href="/students/applications" className="flex items-center gap-3 rounded-field px-3 py-2.5 text-sm font-medium text-ink-soft hover:bg-cream-2">
-          <Icon name="description" className="text-lg" /> Mis solicitudes
+      {waitlistCount > 0 && (
+        <Link
+          href="/students/waitlist"
+          className="flex items-center gap-3 rounded-card border-[1.5px] border-line bg-paper px-4 py-3 text-sm font-semibold text-ink-soft hover:bg-cream-2"
+        >
+          <Icon name="hourglass_top" className="text-lg text-orange-700" />
+          En {waitlistCount} lista{waitlistCount > 1 ? "s" : ""} de espera
+          <Icon name="chevron_right" className="ml-auto text-lg" />
         </Link>
-        <Link href="/students/waitlist" className="flex items-center gap-3 rounded-field px-3 py-2.5 text-sm font-medium text-ink-soft hover:bg-cream-2">
-          <Icon name="hourglass_top" className="text-lg" /> Lista de espera
-          {waitlistCount > 0 && <Badge tone="amber" className="ml-auto">{waitlistCount}</Badge>}
-        </Link>
-        <Link href="/students/residency" className="flex items-center gap-3 rounded-field px-3 py-2.5 text-sm font-medium text-ink-soft hover:bg-cream-2">
-          <Icon name="apartment" className="text-lg" /> Mi estadía
-        </Link>
-        <Link href="/students/revocation" className="flex items-center gap-3 rounded-field px-3 py-2.5 text-sm font-medium text-ink-soft hover:bg-cream-2">
-          <Icon name="undo" className="text-lg" /> Botón de arrepentimiento
-        </Link>
-        <Link href="/students/support" className="flex items-center gap-3 rounded-field px-3 py-2.5 text-sm font-medium text-ink-soft hover:bg-cream-2">
-          <Icon name="support_agent" className="text-lg" /> Soporte
-        </Link>
-      </Card>
+      )}
     </div>
   );
 

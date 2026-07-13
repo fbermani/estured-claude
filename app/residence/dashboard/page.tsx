@@ -7,6 +7,8 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { AreaHeader } from "@/components/layout/AreaHeader";
+import { Footer } from "@/components/layout/Footer";
 
 export const metadata: Metadata = { title: "Panel de residencia" };
 export const dynamic = "force-dynamic";
@@ -61,7 +63,9 @@ export default async function ResidenceDashboardPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
+    <div className="flex min-h-screen flex-col">
+      <AreaHeader areaLabel="Residencias" userEmail={sessionUser.email} />
+      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-10 sm:px-6 sm:py-14">
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-ink">Tus residencias</h1>
@@ -122,6 +126,8 @@ export default async function ResidenceDashboardPage() {
           })}
         </div>
       )}
+      </main>
+      <Footer />
     </div>
   );
 }

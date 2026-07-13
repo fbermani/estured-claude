@@ -1,9 +1,16 @@
 import { redirect } from "next/navigation";
 import { getSessionUser, hasAnyRole, roleHome } from "@/lib/auth/session";
-import { AreaHeader } from "@/components/layout/AreaHeader";
-import { Footer } from "@/components/layout/Footer";
 
-/** Área residencia (docs/11 §7.3). Rol validado server-side. */
+/**
+ * Área residencia (docs/11 §7.3). Rol validado server-side.
+ *
+ * Sin chrome visual acá (Ciclo 34sexdecies): Next anida layouts, así que
+ * si acá hubiera un header Y `[residence_id]/layout.tsx` agregara el
+ * sidebar, quedarían los dos apilados. `/residence/dashboard` (selector
+ * multi-residencia, sin una residencia activa todavía) arma su propio
+ * header simple; `[residence_id]/layout.tsx` agrega el sidebar de
+ * navegación real una vez que sí hay una residencia puntual.
+ */
 export default async function ResidenceLayout({
   children,
 }: {
@@ -15,11 +22,5 @@ export default async function ResidenceLayout({
     redirect(roleHome(user));
   }
 
-  return (
-    <div className="flex min-h-screen flex-col">
-      <AreaHeader areaLabel="Residencias" userEmail={user.email} />
-      <main className="flex-1">{children}</main>
-      <Footer />
-    </div>
-  );
+  return <>{children}</>;
 }
