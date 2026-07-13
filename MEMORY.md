@@ -647,6 +647,14 @@ end $$;
 - **Deliberadamente sin acciones** (mismo motivo que `/admin/applications` en el Ciclo 34quater): intervenir reservas/negociaciones puntuales requeriría que un admin pase `assertResidenceAccess`, que hoy solo lo cumple `residence_users` de esa residencia — cambiar eso es una decisión de seguridad real, no se tocó.
 - **Validación**: typecheck ✅ · lint ✅ (mismos 8 warnings cosméticos) · build ✅ (55 rutas) · test ✅ 87/87 · E2E verificado en vivo con datos reales del dataset demo (4 reservas, 1 negociación pendiente, ambas tablas con badges correctos).
 
+## 13undecies-Ciclo34sexies. `/admin/renewals` (Ciclo 34sexies, 2026-07-13)
+
+**Contexto**: continuación directa del mismo trabajo ("sigamos") — módulo de Renovaciones completo (Ciclos 30/30bis) seguía sin ninguna visibilidad global de admin, a diferencia de solicitudes/negociaciones/pagos/reservas ya cubiertos.
+
+- Dos tablas en una sola página (mismo criterio que `/residence/[id]/renewals`, que también separa solicitudes de ofertas): `renewal_requests` (todas las residencias) y `renewal_offers` (todas las residencias). Reutiliza `RESIDENCE_OFFER_STATUS_COPY` de `lib/renewals/statusCopy.ts` (ya existía, compartido con el lado residencia) en vez de reinventar el copy de estado de las ofertas — solo se remapea el tono al union de `AdminBadge`.
+- Mismo criterio de solo lectura sin acciones que el resto de los oversight pages de esta racha (`applications`/`reservations`/`negotiations`).
+- **Validación**: typecheck ✅ · lint ✅ (mismos 8 warnings cosméticos) · build ✅ (56 rutas) · test ✅ 87/87 · E2E verificado en vivo con datos reales (2 solicitudes ya con oferta recibida, 2 ofertas — una enviada, una confirmada).
+
 ## 14. Próxima tarea recomendada
 
 **Explícitamente decidido por el dueño (2026-07-08): NO reemplazar `lib/mock/residences.ts` todavía** — no tiene sentido armar el catálogo mock-a-real hasta que existan residencias reales cargadas de verdad (hoy: 0 en `verified_active`, confirmado tras limpiar los datos de prueba del Ciclo 11).

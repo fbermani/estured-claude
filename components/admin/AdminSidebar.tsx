@@ -102,6 +102,14 @@ function ReservationsIcon() {
     </svg>
   );
 }
+function RenewalsIcon() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a6 6 0 0110-3.5M16 14a6 6 0 01-10 3.5" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M14 2.5V6h-3.5M6 17.5V14h3.5" />
+    </svg>
+  );
+}
 function WaitlistsIcon() {
   return (
     <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
@@ -121,6 +129,7 @@ const NAV = [
   { href: "/admin/family-proposals", label: "Propuestas familiar", Icon: FamilyProposalsIcon },
   { href: "/admin/payments", label: "Pagos", Icon: PaymentsIcon },
   { href: "/admin/reservations", label: "Reservas", Icon: ReservationsIcon },
+  { href: "/admin/renewals", label: "Renovaciones", Icon: RenewalsIcon },
   { href: "/admin/revocations", label: "Revocaciones", Icon: RevocationsIcon },
   { href: "/admin/receipts", label: "Comprobantes", Icon: ReceiptsIcon },
   { href: "/admin/waitlists", label: "Listas de espera", Icon: WaitlistsIcon },
