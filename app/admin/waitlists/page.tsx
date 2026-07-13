@@ -3,6 +3,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
 import { cmd } from "@/components/admin/ui/tokens";
+import { RemoveWaitlistEntryControl } from "@/app/admin/waitlists/RemoveWaitlistEntryControl";
 
 export const metadata: Metadata = { title: "Listas de espera" };
 export const dynamic = "force-dynamic";
@@ -53,14 +54,16 @@ export default async function AdminWaitlistsPage() {
         Listas de espera
       </h1>
       <p className="text-sm" style={{ color: cmd.onSurfaceVariant }}>
-        {activeCount} en espera activa de {entries.length} registro(s) — docs/09 §19.
+        {activeCount} en espera activa de {entries.length} registro(s) — docs/09 §19. Desde acá se puede sacar a
+        alguien de una lista activa.
       </p>
 
       <AdminCard className="mt-6 overflow-hidden">
+        <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead style={{ backgroundColor: cmd.surfaceContainerLow, borderBottom: `1px solid ${cmd.border}` }}>
             <tr>
-              {["Alta", "Estudiante", "Residencia", "Tipo", "Ingreso deseado", "Estado"].map((h) => (
+              {["Alta", "Estudiante", "Residencia", "Tipo", "Ingreso deseado", "Estado", ""].map((h) => (
                 <th
                   key={h}
                   className="px-4 py-2.5 text-[11px] font-bold uppercase tracking-wide"
@@ -99,11 +102,15 @@ export default async function AdminWaitlistsPage() {
                   <td className="px-4 py-2.5">
                     <AdminBadge tone={badge.tone}>{badge.label}</AdminBadge>
                   </td>
+                  <td className="px-4 py-2.5">
+                    {ACTIVE_STATUSES.includes(e.status) && <RemoveWaitlistEntryControl waitlistEntryId={e.id} />}
+                  </td>
                 </tr>
               );
             })}
           </tbody>
         </table>
+        </div>
         {entries.length === 0 && (
           <p className="p-6 text-sm" style={{ color: cmd.outline }}>
             Todavía no hay entradas en ninguna lista de espera.

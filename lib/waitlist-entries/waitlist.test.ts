@@ -7,6 +7,7 @@ import { notifyWaitlistAvailability } from "@/lib/waitlist-entries/notifyWaitlis
 import { removeFromWaitlistByResidence } from "@/lib/waitlist-entries/removeFromWaitlistByResidence";
 import { activateFromWaitlist } from "@/lib/waitlist-entries/activateFromWaitlist";
 import { removeWaitlistEntriesOnConfirmedReservation } from "@/lib/waitlist-entries/removeWaitlistEntriesOnConfirmedReservation";
+import { removeFromWaitlistByAdmin } from "@/lib/waitlist-entries/removeFromWaitlistByAdmin";
 import { updateAvailability } from "@/lib/availability/updateAvailability";
 import { checkStaleAvailability } from "@/lib/jobs/checkStaleAvailability";
 import { notifyWaitlistKeepAlive } from "@/lib/jobs/notifyWaitlistKeepAlive";
@@ -22,6 +23,7 @@ describe.skipIf(!hasCreds)("disponibilidad y lista de espera (integración)", ()
   let residenceId: string;
   let roomTypeId: string;
   let ownerId: string;
+  let adminActorId: string;
   let studentUserId: string;
   let studentProfileId: string;
 
@@ -36,6 +38,9 @@ describe.skipIf(!hasCreds)("disponibilidad y lista de espera (integración)", ()
       .eq("email", "owner.residencia.norte@example.com")
       .single();
     ownerId = owner!.id;
+
+    const { data: adminUser } = await admin.from("users").select("id").eq("email", "admin.operaciones@estured.test").single();
+    adminActorId = adminUser!.id;
 
     const { data: studentUser } = await admin
       .from("users")
@@ -389,5 +394,58 @@ describe.skipIf(!hasCreds)("disponibilidad y lista de espera (integración)", ()
       .eq("id", joined.waitlistEntryId)
       .single();
     expect(after!.status).toBe("removed_due_to_confirmed_reservation");
+  });
+
+  it("removeFromWaitlistByAdmin: saca a alguien de una lista activa y lo notifica (Ciclo 34undecies)", async () => {
+    const joined = await joinWaitlist(admin, {
+      actorUserId: studentUserId,
+      residenceId,
+      roomTypeId: null,
+      desiredStartDate: null,
+      desiredDurationMonths: null,
+    });
+    expect(joined.ok).toBe(true);
+    if (!joined.ok) return;
+
+    const badAttempt = await removeFromWaitlistByAdmin(admin, {
+      waitlistEntryId: joined.waitlistEntryId,
+      actorUserId: adminActorId,
+      actorRole: "admin",
+      reason: "hi",
+    });
+    expect(badAttempt.status).toBe("error");
+
+    const result = await removeFromWaitlistByAdmin(admin, {
+      waitlistEntryId: joined.waitlistEntryId,
+      actorUserId: adminActorId,
+      actorRole: "admin",
+      reason: "El estudiante pidió por email que lo sacáramos manualmente.",
+    });
+    expect(result.status).toBe("ok");
+
+    const { data: after } = await admin
+      .from("waitlist_entries")
+      .select("status, removed_by, removed_reason")
+      .eq("id", joined.waitlistEntryId)
+      .single();
+    expect(after!.status).toBe("removed_by_admin");
+    expect(after!.removed_by).toBe(adminActorId);
+
+    const { data: notification } = await admin
+      .from("notifications")
+      .select("title")
+      .eq("related_entity_id", joined.waitlistEntryId)
+      .maybeSingle();
+    expect(notification?.title).toBe("EstuRed te sacó de una lista de espera");
+
+    const secondAttempt = await removeFromWaitlistByAdmin(admin, {
+      waitlistEntryId: joined.waitlistEntryId,
+      actorUserId: adminActorId,
+      actorRole: "admin",
+      reason: "Segundo intento — ya no debería estar activa.",
+    });
+    expect(secondAttempt.status).toBe("error");
+
+    await admin.from("notifications").delete().eq("related_entity_id", joined.waitlistEntryId);
   });
 });

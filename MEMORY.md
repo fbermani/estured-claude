@@ -698,6 +698,14 @@ end $$;
 - **Validación**: typecheck ✅ · lint ✅ (mismos 8 warnings cosméticos) · build ✅ (56 rutas, sin rutas nuevas — se extendió una página existente) · test ✅ **94/94** (2 tests nuevos: rechazo sin motivo, reapertura completa con auditoría+notificación+segundo intento rechazado por ya no estar vencido) · sin migración nueva (reusa columnas ya existentes) · regresión verificada en vivo en `/admin/reservations` con datos reales.
 - **Precaución aplicada correctamente esta vez**: antes de `npm run build`, se confirmó con `preview_list` que el dev server seguía arriba y se lo detuvo explícitamente primero (evitando repetir el descuido del Ciclo 34nonies).
 
+## 13sexdecies-Ciclo34undecies. Sacar de una lista de espera (Ciclo 34undecies, 2026-07-13)
+
+**Contexto**: mismo tema, barrida por otras entidades buscando estados "de admin" ya diseñados pero nunca conectados (mismo patrón que encontró los gaps de renovaciones y solicitudes). `waitlist_status` ya tenía `removed_by_admin` con copy propio en `/admin/waitlists` (admin) y `/students/waitlist` (estudiante) desde el Ciclo 31 — pero, igual que `closed_no_offer`/`expired` en renovaciones, nada lo seteaba nunca. Ya existía `removeFromWaitlistByResidence.ts` (la residencia sí puede sacar gente de su propia lista) — se armó la versión admin en base al mismo archivo.
+
+- **`lib/waitlist-entries/removeFromWaitlistByAdmin.ts`** (nuevo): mismo criterio que `removeFromWaitlistByResidence.ts` pero motivo obligatorio (consistente con el resto de las acciones de admin de este ciclo, a diferencia de la versión residencia donde es opcional) + notificación al estudiante. Solo aplica a entradas activas (`active`/`availability_notification_sent`/`retention_check_sent`).
+- UI en `/admin/waitlists` (`RemoveWaitlistEntryControl.tsx`), botón "Sacar" (variant danger, mismo color que "Bloquear" en `/admin/users`) solo en filas activas.
+- **Validación**: typecheck ✅ · lint ✅ (mismos 8 warnings cosméticos) · build ✅ (56 rutas) · test ✅ **95/95** (3 tests nuevos: rechazo sin motivo, remoción completa con auditoría+notificación, segundo intento rechazado por ya no estar activa) · **E2E verificado en vivo de punta a punta con datos reales**: saqué a Camila de la lista de espera de Residencia Norte desde `/admin/waitlists` → el estado pasó a "Sacado (admin)" → el badge de conteo en su sidebar desapareció → la campanita le mostró la notificación real con el motivo exacto, junto con el historial de la notificación anterior (reapertura de solicitud) — confirma que el historial de notificaciones se acumula correctamente entre ciclos.
+
 ## 14. Próxima tarea recomendada
 
 **Explícitamente decidido por el dueño (2026-07-08): NO reemplazar `lib/mock/residences.ts` todavía** — no tiene sentido armar el catálogo mock-a-real hasta que existan residencias reales cargadas de verdad (hoy: 0 en `verified_active`, confirmado tras limpiar los datos de prueba del Ciclo 11).
