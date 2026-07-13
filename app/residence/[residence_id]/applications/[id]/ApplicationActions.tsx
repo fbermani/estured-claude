@@ -63,7 +63,7 @@ export function ApplicationActions({
     });
   }
 
-  if (["rejected", "cancelled_by_student", "expired_no_residence_response"].includes(status)) {
+  if (["rejected", "cancelled_by_student", "expired_no_residence_response", "expired_offer_no_response"].includes(status)) {
     return <p className="text-sm text-ink-faint">Esta solicitud ya está cerrada.</p>;
   }
 

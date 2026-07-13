@@ -21,11 +21,18 @@ const STATUS_BADGE: Record<string, { label: string; tone: "amber" | "emerald" | 
   paused_due_to_other_active_request: { label: "Pausada", tone: "neutral" },
   rejected: { label: "Rechazada", tone: "rose" },
   expired_no_residence_response: { label: "Vencida", tone: "neutral" },
+  expired_offer_no_response: { label: "Vencida — propuesta sin respuesta", tone: "neutral" },
   cancelled_by_student: { label: "Cancelada", tone: "neutral" },
 };
 
-const CLOSED_STATUSES = ["converted_to_reservation", "rejected", "expired_no_residence_response", "cancelled_by_student"];
-const REOPENABLE_STATUSES = ["rejected", "expired_no_residence_response"];
+const CLOSED_STATUSES = [
+  "converted_to_reservation",
+  "rejected",
+  "expired_no_residence_response",
+  "expired_offer_no_response",
+  "cancelled_by_student",
+];
+const REOPENABLE_STATUSES = ["rejected", "expired_no_residence_response", "expired_offer_no_response"];
 
 type ApplicationRow = {
   id: string;

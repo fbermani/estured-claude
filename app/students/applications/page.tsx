@@ -23,6 +23,7 @@ const STATUS_COPY: Record<string, { label: string; tone: "amber" | "sage" | "neu
   paused_due_to_other_active_request: { label: "Pausada", tone: "neutral" },
   rejected: { label: "Rechazada", tone: "neutral" },
   expired_no_residence_response: { label: "Vencida — sin respuesta", tone: "neutral" },
+  expired_offer_no_response: { label: "Vencida — no respondiste a tiempo", tone: "neutral" },
   cancelled_by_student: { label: "Cancelada por vos", tone: "neutral" },
 };
 

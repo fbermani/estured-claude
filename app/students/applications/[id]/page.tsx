@@ -72,6 +72,11 @@ const STATUS_EXPLANATION: Record<string, { label: string; tone: "amber" | "sage"
     tone: "neutral",
     helper: "La residencia no respondió dentro de las 48 horas.",
   },
+  expired_offer_no_response: {
+    label: "Vencida — no respondiste a tiempo",
+    tone: "neutral",
+    helper: "No respondiste la propuesta de ajuste dentro de las 48 horas.",
+  },
   cancelled_by_student: {
     label: "Cancelada por vos",
     tone: "neutral",

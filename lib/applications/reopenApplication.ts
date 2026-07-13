@@ -8,14 +8,19 @@ import { determineInitialApplicationStatus } from "@/lib/applications/roomTypeQu
 export type ReopenApplicationResult = { status: "ok"; newStatus: string } | { status: "error"; message: string };
 
 /**
- * Reabrir una solicitud "trabada" (rechazada o vencida sin respuesta de
- * la residencia) — intervención de admin (docs/12 §17 Fase 11: "Admin
- * puede intervenir solicitudes trabadas"). Reusa la misma lógica de cola
+ * Reabrir una solicitud "trabada": rechazada por la residencia, vencida
+ * sin respuesta de la residencia, o vencida por no responder una
+ * propuesta de negociación a tiempo — intervención de admin (docs/12 §17
+ * Fase 11: "Admin puede intervenir solicitudes trabadas, incluyendo
+ * negociaciones vencidas"). `expired_offer_no_response` es un estado real
+ * que genera `expireNegotiationProposals` (Ciclo 22) pero que hasta acá
+ * no tenía copy en ninguna pantalla (bug preexistente, corregido en el
+ * mismo commit que agrega esta reapertura). Reusa la misma lógica de cola
  * por tipo de habitación que usa una solicitud nueva (`determineInitialApplicationStatus`)
  * para no romper el invariante de 3 visibles + 2 en cola (docs/03 §10.3-10.4),
  * y respeta el máximo de 2 solicitudes activas por estudiante (docs/00 §9).
  */
-const REOPENABLE_STATUSES = ["rejected", "expired_no_residence_response"];
+const REOPENABLE_STATUSES = ["rejected", "expired_no_residence_response", "expired_offer_no_response"];
 
 export async function reopenApplication(
   admin: SupabaseClient,

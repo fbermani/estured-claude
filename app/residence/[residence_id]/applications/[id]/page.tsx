@@ -25,6 +25,7 @@ const STATUS_LABEL: Record<string, string> = {
   paused_due_to_other_active_request: "Pausada",
   rejected: "Rechazada",
   expired_no_residence_response: "Vencida",
+  expired_offer_no_response: "Vencida — el estudiante no respondió la propuesta",
   cancelled_by_student: "Cancelada por el estudiante",
 };
 
