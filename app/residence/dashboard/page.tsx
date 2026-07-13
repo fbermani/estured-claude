@@ -100,47 +100,22 @@ export default async function ResidenceDashboardPage() {
                     {r.tagline && ` — ${r.tagline}`}
                   </p>
                 </div>
-                <div className="flex items-center gap-4">
-                  {pendingCounts[r.id] > 0 && (
-                    <Link
-                      href={`/residence/${r.id}/applications`}
-                      className="flex items-center gap-1.5 text-sm font-semibold text-forest-700 hover:text-forest-700"
-                    >
-                      <Badge tone="amber">{pendingCounts[r.id]} nueva(s)</Badge>
-                      Solicitudes →
-                    </Link>
+                <div className="flex items-center gap-3">
+                  {(pendingCounts[r.id] > 0 || pendingRenewalCounts[r.id] > 0) && (
+                    <div className="flex items-center gap-1.5">
+                      {pendingCounts[r.id] > 0 && <Badge tone="amber">{pendingCounts[r.id]} solicitud(es)</Badge>}
+                      {pendingRenewalCounts[r.id] > 0 && <Badge tone="amber">{pendingRenewalCounts[r.id]} renovación(es)</Badge>}
+                    </div>
                   )}
                   <Link
-                    href={`/residence/${r.id}/renewals`}
-                    className="flex items-center gap-1.5 text-sm font-semibold text-forest-700 hover:text-forest-700"
-                  >
-                    {pendingRenewalCounts[r.id] > 0 && <Badge tone="amber">{pendingRenewalCounts[r.id]} nueva(s)</Badge>}
-                    Renovaciones →
-                  </Link>
-                  <Link
-                    href={`/residence/${r.id}/availability`}
-                    className="text-sm font-semibold text-forest-700 hover:text-forest-700"
-                  >
-                    Disponibilidad →
-                  </Link>
-                  <Link
-                    href={`/residence/${r.id}/waitlist`}
-                    className="text-sm font-semibold text-forest-700 hover:text-forest-700"
-                  >
-                    Lista de espera →
-                  </Link>
-                  <Link
-                    href={`/residence/${r.id}/residents`}
-                    className="text-sm font-semibold text-forest-700 hover:text-forest-700"
-                  >
-                    Residentes →
-                  </Link>
-                  <Link
                     href={`/residence/${r.id}/profile`}
-                    className="text-sm font-semibold text-forest-700 hover:text-forest-700"
+                    className="text-sm font-semibold text-forest-700 hover:underline"
                   >
-                    {r.status === "draft" ? "Completar perfil →" : "Editar perfil →"}
+                    {r.status === "draft" ? "Completar perfil" : "Editar perfil"}
                   </Link>
+                  <Button href={`/residence/${r.id}`} size="sm">
+                    Ver panel →
+                  </Button>
                 </div>
               </Card>
             );
