@@ -1,0 +1,52 @@
+"use client";
+
+import { useActionState } from "react";
+import { Button } from "@/components/ui/Button";
+import { Input, Select } from "@/components/ui/Input";
+import { createResidentStayAction, type ResidentsActionState } from "@/app/residence/[residence_id]/residents/actions";
+
+const initialState: ResidentsActionState = { status: "idle" };
+
+export function AddResidentForm({
+  residenceId,
+  roomTypes,
+}: {
+  residenceId: string;
+  roomTypes: { id: string; name: string }[];
+}) {
+  const action = createResidentStayAction.bind(null, residenceId);
+  const [state, formAction, isPending] = useActionState(action, initialState);
+
+  return (
+    <form action={formAction} className="rounded-card border border-sand-200 bg-sand-50 p-4">
+      <h3 className="font-bold text-petrol-800">Cargar residente</h3>
+      <p className="mt-1 text-xs text-ink-faint">
+        Docs/05 §15.1 — el residente activa su cuenta después con este mismo email; hasta entonces aparece como
+        &ldquo;pendiente de activar cuenta&rdquo; en la comunidad visible.
+      </p>
+      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        <Input label="Email del residente" name="invite_email" type="email" required />
+        <Select label="Tipo de habitación (opcional)" name="room_type_id" defaultValue="">
+          <option value="">Sin especificar</option>
+          {roomTypes.map((rt) => (
+            <option key={rt.id} value={rt.id}>
+              {rt.name}
+            </option>
+          ))}
+        </Select>
+        <Input label="Fecha de ingreso (opcional)" name="start_date" type="date" />
+      </div>
+
+      {state.status === "error" && (
+        <p role="alert" className="mt-3 text-sm font-medium text-danger-fg">
+          {state.message}
+        </p>
+      )}
+      {state.status === "saved" && <p className="mt-3 text-sm font-medium text-sage-700">Residente cargado.</p>}
+
+      <Button type="submit" size="sm" className="mt-4" disabled={isPending}>
+        {isPending ? "Cargando…" : "Cargar residente"}
+      </Button>
+    </form>
+  );
+}

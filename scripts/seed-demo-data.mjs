@@ -75,6 +75,11 @@ const DEMO_SLUGS = ["residencia-norte-demo", "residencia-rio-de-la-plata-demo", 
 for (const slug of DEMO_SLUGS) {
   const { data: existing } = await admin.from("residences").select("id").eq("slug", slug).maybeSingle();
   if (existing) {
+    // resident_stays.reservation_id referencia reservations sin cascade
+    // (migración 0019, Ciclo 33bis) — hay que borrarla antes de tocar
+    // reservations más abajo, igual motivo que renewal_offers/requests.
+    await admin.from("resident_stays").delete().eq("residence_id", existing.id);
+
     // FK circular reservations<->estured_fee_payments/booking_receipts (MEMORY.md §15.10/13/15):
     // anular ambos lados antes de cualquier delete.
     const { data: apps } = await admin.from("application_requests").select("id").eq("residence_id", existing.id);
@@ -1127,6 +1132,72 @@ const { data: luciaWaitlistEntry } = await admin
   .select("id")
   .single();
 console.log("✓ Lucía @ Norte/Individual → AVISADA de disponibilidad:", luciaWaitlistEntry?.id);
+
+// ==== 13. Fase 5.3 acotada — residentes + comunidad visible ====
+// Lucía → residente ACTIVO en Río de la Plata (vinculada a su reserva
+// confirmada real, reservation4), con el perfil visible habilitado y
+// algunos campos mostrados a usuarios registrados — para que
+// /residencias/residencia-rio-de-la-plata-demo/comunidad tenga una
+// tarjeta real que mostrar, no solo placeholders.
+const { data: luciaResidentStay } = await admin
+  .from("resident_stays")
+  .insert({
+    student_profile_id: lucia.profileId,
+    residence_id: rioplataId,
+    room_type_id: rioplataEstudioId,
+    reservation_id: reservation4.id,
+    created_by_residence_user_id: ricardoId,
+    invite_email: (await admin.from("users").select("email").eq("id", lucia.userId).single()).data.email,
+    status: "active",
+    start_date: "2026-07-20",
+  })
+  .select("id")
+  .single();
+await admin
+  .from("student_visibility_settings")
+  .update({
+    is_individual_profile_visible: true,
+    show_age_to_registered: true,
+    show_nationality_to_registered: true,
+    show_career_to_registered: true,
+  })
+  .eq("student_profile_id", lucia.profileId);
+console.log("✓ Lucía @ Río de la Plata → RESIDENTE ACTIVO en comunidad visible:", luciaResidentStay?.id);
+
+// Camila → residente PENDIENTE DE ACTIVAR en Norte (vinculada a su
+// reserva confirmada real, reservation6, pero sin student_profile_id
+// todavía — demuestra la tarjeta "Residente pendiente de activar
+// cuenta" incluso cuando la reserva ya está confirmada).
+const { data: camilaResidentStay } = await admin
+  .from("resident_stays")
+  .insert({
+    residence_id: norteId,
+    room_type_id: norteDobleId,
+    reservation_id: reservation6.id,
+    created_by_residence_user_id: ricardoId,
+    invite_email: (await admin.from("users").select("email").eq("id", camila.userId).single()).data.email,
+    status: "pending_activation",
+    start_date: "2026-08-10",
+  })
+  .select("id")
+  .single();
+console.log("✓ Camila @ Norte → RESIDENTE PENDIENTE de activar cuenta:", camilaResidentStay?.id);
+
+// Residente cargado manualmente por la residencia, SIN reserva de
+// EstuRed (docs/05 §15.1 — "llegó por fuera de la plataforma").
+const { data: manualResidentStay } = await admin
+  .from("resident_stays")
+  .insert({
+    residence_id: norteId,
+    room_type_id: norteIndividualId,
+    created_by_residence_user_id: ricardoId,
+    invite_email: "residente.externo@example.com",
+    status: "pending_activation",
+    start_date: "2026-06-01",
+  })
+  .select("id")
+  .single();
+console.log("✓ Residente externo (sin reserva de EstuRed) cargado en Norte:", manualResidentStay?.id);
 
 console.log("\nSeed de datos demo completo. Residencias reales: Norte, Río de la Plata (verificadas) + Almagro (pendiente).");
 console.log("Login con DEMO_LOGIN_ENABLED=true y el widget 'Simular sesión' en la esquina inferior izquierda.");

@@ -302,6 +302,15 @@ export default async function StudentDashboardPage() {
           </Button>
         </Card>
         <Card className="flex flex-col p-6">
+          <h2 className="font-bold text-petrol-800">Mi estadía</h2>
+          <p className="mt-2 flex-1 text-sm text-ink-soft">
+            Si tu residencia te cargó como residente, activá tu cuenta y elegí si aparecer en su comunidad.
+          </p>
+          <Button href="/students/residency" size="sm" variant="outline" className="mt-4 self-start">
+            Ver mi estadía
+          </Button>
+        </Card>
+        <Card className="flex flex-col p-6">
           <div className="flex items-center gap-2">
             <h2 className="font-bold text-petrol-800">Completar mi perfil</h2>
             <Badge tone="amber">Muy pronto</Badge>

@@ -2,6 +2,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { removeWaitlistEntriesOnConfirmedReservation } from "@/lib/waitlist-entries/removeWaitlistEntriesOnConfirmedReservation";
+import { extendResidentStayOnRenewal } from "@/lib/residents/extendResidentStayOnRenewal";
 
 type ConfirmRenewalResult =
   | { ok: true; renewalOfferId: string; receiptId: string; verificationCode: string }
@@ -60,6 +61,10 @@ export async function confirmRenewalAfterFeePaid(
   // Docs/06 §27.8/§08 §6.10: sale automáticamente de otras listas de
   // espera al confirmar una reserva (renovación incluida). Nunca lanza.
   await removeWaitlistEntriesOnConfirmedReservation(admin, { studentProfileId: offer.student_profile_id });
+
+  // Docs/06 §14.2/§15.1: extiende resident_stays.end_date al fin del
+  // período renovado (deuda documentada desde el Ciclo 30). Nunca lanza.
+  await extendResidentStayOnRenewal(admin, { reservationId: offer.reservation_id, newEndDate: offer.period_end_date });
 
   const [{ data: student }, { data: residence }, { data: payerUser }, { data: fullFeePayment }] = await Promise.all([
     admin

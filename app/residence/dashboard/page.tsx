@@ -130,6 +130,12 @@ export default async function ResidenceDashboardPage() {
                     Lista de espera →
                   </Link>
                   <Link
+                    href={`/residence/${r.id}/residents`}
+                    className="text-sm font-semibold text-petrol-600 hover:text-petrol-700"
+                  >
+                    Residentes →
+                  </Link>
+                  <Link
                     href={`/residence/${r.id}/profile`}
                     className="text-sm font-semibold text-petrol-600 hover:text-petrol-700"
                   >

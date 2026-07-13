@@ -195,6 +195,16 @@ export default async function RealResidenceDetailPage({
               <p className="mt-3 rounded-card bg-sand-100 px-4 py-3 text-sm text-ink-soft">{rulesSummary}</p>
             </section>
           )}
+
+          <section>
+            <h2 className="text-xl font-bold text-petrol-800">Comunidad</h2>
+            <p className="mt-3 text-sm text-ink-soft">
+              Conocé quién vive hoy en esta residencia — cada estudiante decide qué mostrar.
+            </p>
+            <Button href={`/residencias/${slug}/comunidad`} variant="outline" size="sm" className="mt-3">
+              Ver comunidad →
+            </Button>
+          </section>
         </div>
 
         <aside>
