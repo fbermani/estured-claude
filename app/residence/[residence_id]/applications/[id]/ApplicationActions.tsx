@@ -99,7 +99,7 @@ export function ApplicationActions({
               href={whatsappUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-sage-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-sage-600"
+              className="inline-flex items-center gap-2 rounded-full bg-forest-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-forest-700"
             >
               Escribir por WhatsApp →
             </a>
@@ -126,7 +126,7 @@ export function ApplicationActions({
           Esperando que el estudiante te pague directamente y confirmes acá que lo recibiste.
         </p>
         <form action={paymentFormAction} className="rounded-card border border-sand-200 bg-sand-50 p-4">
-          <h3 className="font-bold text-petrol-800">Marcar pago recibido</h3>
+          <h3 className="font-bold text-ink">Marcar pago recibido</h3>
           <p className="mt-1 text-xs text-ink-faint">
             Solo confirmá esto cuando el pago ya esté efectivamente en tu cuenta o en tu poder. Habilita la
             reserva y el cobro del fee EstuRed — no se puede deshacer desde acá.
@@ -153,7 +153,7 @@ export function ApplicationActions({
                 name="receipt_file"
                 type="file"
                 accept="application/pdf,image/jpeg,image/png,image/webp"
-                className="mt-1.5 block w-full text-sm text-ink-soft file:mr-3 file:rounded-field file:border-0 file:bg-petrol-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-petrol-700"
+                className="mt-1.5 block w-full text-sm text-ink-soft file:mr-3 file:rounded-field file:border-0 file:bg-forest-tint file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-forest-700"
               />
             </div>
           </div>
@@ -170,7 +170,7 @@ export function ApplicationActions({
               name="confirmation_checkbox_accepted"
               checked={paymentConfirmed}
               onChange={(e) => setPaymentConfirmed(e.target.checked)}
-              className="mt-0.5 h-4 w-4 accent-petrol-600"
+              className="mt-0.5 h-4 w-4 accent-forest"
             />
             Confirmo que recibí el importe correspondiente, que la plaza queda retenida para el estudiante,
             que la información de la solicitud es correcta y vigente, y acepto que se active el cobro del

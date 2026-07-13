@@ -117,7 +117,7 @@ const sections = [
       <p>
         Bajo la Ley 25.326 de Protección de Datos Personales, tenés derecho a acceder, rectificar, actualizar y
         pedir la supresión de tus datos personales. Podés ejercer estos derechos escribiéndonos a{" "}
-        <a href={`mailto:${CONTACT_EMAIL}`} className="font-semibold text-petrol-700 underline">
+        <a href={`mailto:${CONTACT_EMAIL}`} className="font-semibold text-forest-700 underline">
           {CONTACT_EMAIL}
         </a>
         .
@@ -129,7 +129,7 @@ const sections = [
     body: (
       <p>
         Hoy este proceso no es automático: escribinos a{" "}
-        <a href={`mailto:${CONTACT_EMAIL}`} className="font-semibold text-petrol-700 underline">
+        <a href={`mailto:${CONTACT_EMAIL}`} className="font-semibold text-forest-700 underline">
           {CONTACT_EMAIL}
         </a>{" "}
         pidiendo la baja o eliminación de tu cuenta y lo gestionamos manualmente. Puede haber una demora si tenés
@@ -152,7 +152,7 @@ const sections = [
     body: (
       <p>
         Para cualquier consulta sobre esta política o tus datos personales, escribinos a{" "}
-        <a href={`mailto:${CONTACT_EMAIL}`} className="font-semibold text-petrol-700 underline">
+        <a href={`mailto:${CONTACT_EMAIL}`} className="font-semibold text-forest-700 underline">
           {CONTACT_EMAIL}
         </a>
         .
@@ -164,7 +164,7 @@ const sections = [
 export default function PrivacyPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6 sm:py-20">
-      <h1 className="text-3xl font-bold text-petrol-800 sm:text-4xl">Política de privacidad</h1>
+      <h1 className="text-3xl font-bold text-ink sm:text-4xl">Política de privacidad</h1>
       <p className="mt-3 text-sm text-ink-faint">Última actualización: julio de 2026.</p>
 
       <div className="mt-6 rounded-field border border-warning-fg/20 bg-warning-bg px-4 py-3 text-sm text-warning-fg">
@@ -188,7 +188,7 @@ export default function PrivacyPage() {
       <div className="mt-10 space-y-10">
         {sections.map((s) => (
           <section key={s.title}>
-            <h2 className="text-xl font-bold text-petrol-800">{s.title}</h2>
+            <h2 className="text-xl font-bold text-ink">{s.title}</h2>
             <div className="mt-3 space-y-3 text-sm leading-relaxed text-ink-soft sm:text-base">{s.body}</div>
           </section>
         ))}
@@ -196,7 +196,7 @@ export default function PrivacyPage() {
 
       <p className="mt-12 text-sm text-ink-faint">
         Volver a{" "}
-        <Link href="/" className="font-semibold text-petrol-700 underline">
+        <Link href="/" className="font-semibold text-forest-700 underline">
           EstuRed
         </Link>
         .

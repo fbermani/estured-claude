@@ -18,7 +18,7 @@ export function JoinWaitlistForm({ residenceId, roomTypes }: { residenceId: stri
 
   if (state.status === "saved") {
     return (
-      <p className="rounded-field bg-sage-50 px-4 py-3 text-sm text-sage-800">
+      <p className="rounded-field bg-mint px-4 py-3 text-sm text-forest-700">
         Te sumamos a la lista de espera. Te avisamos si se libera un lugar.
       </p>
     );

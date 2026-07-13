@@ -141,7 +141,7 @@ export function ResidenceProfileForm({
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
       <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-petrol-800">Configuración de Residencia</h1>
+          <h1 className="text-3xl font-bold text-ink">Configuración de Residencia</h1>
           <p className="mt-1 text-sm text-ink-soft">
             Completá la información de {initial.name} para poder publicarla. Guardá cuando quieras
             como borrador.
@@ -163,7 +163,7 @@ export function ResidenceProfileForm({
         <div className="space-y-6">
           {/* Datos básicos (algunos read-only: se fijan al registrarse) */}
           <Card className="p-6">
-            <h2 className="text-lg font-bold text-petrol-800">Datos Básicos</h2>
+            <h2 className="text-lg font-bold text-ink">Datos Básicos</h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <Input label="Nombre de la residencia" value={initial.name} disabled hint="Se fija al registrarse." />
               <Input
@@ -203,7 +203,7 @@ export function ResidenceProfileForm({
 
           {/* Servicios */}
           <Card className="p-6">
-            <h2 className="text-lg font-bold text-petrol-800">Servicios Incluidos</h2>
+            <h2 className="text-lg font-bold text-ink">Servicios Incluidos</h2>
             <div className="mt-4 grid gap-2.5 sm:grid-cols-3">
               {SERVICE_OPTIONS.map((s) => (
                 <label key={s} className="flex items-center gap-2 text-sm text-ink">
@@ -213,7 +213,7 @@ export function ResidenceProfileForm({
                     value={s}
                     checked={services.has(s)}
                     onChange={() => toggle(services, setServices, s)}
-                    className="h-4 w-4 accent-petrol-600"
+                    className="h-4 w-4 accent-forest"
                   />
                   {s}
                 </label>
@@ -223,7 +223,7 @@ export function ResidenceProfileForm({
 
           {/* Áreas comunes */}
           <Card className="p-6">
-            <h2 className="text-lg font-bold text-petrol-800">Áreas Comunes</h2>
+            <h2 className="text-lg font-bold text-ink">Áreas Comunes</h2>
             <div className="mt-4 grid gap-2.5 sm:grid-cols-3">
               {COMMON_AREA_OPTIONS.map((a) => (
                 <label key={a} className="flex items-center gap-2 text-sm text-ink">
@@ -233,7 +233,7 @@ export function ResidenceProfileForm({
                     value={a}
                     checked={commonAreas.has(a)}
                     onChange={() => toggle(commonAreas, setCommonAreas, a)}
-                    className="h-4 w-4 accent-petrol-600"
+                    className="h-4 w-4 accent-forest"
                   />
                   {a}
                 </label>
@@ -244,7 +244,7 @@ export function ResidenceProfileForm({
           {/* Reglas y políticas */}
           <Card className="p-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-petrol-800">Reglas y Políticas</h2>
+              <h2 className="text-lg font-bold text-ink">Reglas y Políticas</h2>
               <Badge tone="amber">Datos sensibles</Badge>
             </div>
             <p className="mt-2 rounded-field bg-warning-bg px-3 py-2 text-xs text-warning-fg">
@@ -270,7 +270,7 @@ export function ResidenceProfileForm({
                 name="rules_file"
                 type="file"
                 accept="application/pdf"
-                className="mt-1.5 block w-full text-sm text-ink-soft file:mr-3 file:rounded-full file:border-0 file:bg-petrol-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-petrol-700"
+                className="mt-1.5 block w-full text-sm text-ink-soft file:mr-3 file:rounded-full file:border-0 file:bg-forest-tint file:px-4 file:py-2 file:text-sm file:font-semibold file:text-forest-700"
               />
               {initial.rulesFileName && (
                 <p className="mt-1 text-xs text-ink-faint">Actual: {initial.rulesFileName}</p>
@@ -280,7 +280,7 @@ export function ResidenceProfileForm({
 
           {/* Universidades cercanas */}
           <Card className="p-6">
-            <h2 className="text-lg font-bold text-petrol-800">Proximidad a Universidades</h2>
+            <h2 className="text-lg font-bold text-ink">Proximidad a Universidades</h2>
             <p className="mt-1 text-sm text-ink-soft">Seleccioná las universidades cercanas a tu residencia.</p>
             <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
               {UNIVERSITY_OPTIONS.map((u) => (
@@ -291,7 +291,7 @@ export function ResidenceProfileForm({
                     value={u}
                     checked={nearUniversities.has(u)}
                     onChange={() => toggle(nearUniversities, setNearUniversities, u)}
-                    className="h-4 w-4 accent-petrol-600"
+                    className="h-4 w-4 accent-forest"
                   />
                   {u}
                 </label>
@@ -301,7 +301,7 @@ export function ResidenceProfileForm({
 
           {/* Galería de fotos */}
           <Card className="p-6">
-            <h2 className="text-lg font-bold text-petrol-800">Galería de Fotos</h2>
+            <h2 className="text-lg font-bold text-ink">Galería de Fotos</h2>
             {initial.photoUrls.length > 0 && (
               <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4">
                 {initial.photoUrls.map((url) => (
@@ -313,9 +313,9 @@ export function ResidenceProfileForm({
             )}
             <label
               htmlFor="photos"
-              className="mt-4 flex cursor-pointer flex-col items-center justify-center gap-1 rounded-field border-2 border-dashed border-sand-300 bg-sand-50 px-4 py-8 text-center hover:border-petrol-300"
+              className="mt-4 flex cursor-pointer flex-col items-center justify-center gap-1 rounded-field border-2 border-dashed border-sand-300 bg-sand-50 px-4 py-8 text-center hover:border-forest"
             >
-              <span className="text-sm font-semibold text-petrol-700">
+              <span className="text-sm font-semibold text-forest-700">
                 Arrastrá tus fotos aquí o hacé clic para subir
               </span>
               <span className="text-xs text-ink-faint">Soporta JPG, PNG, WebP. Máx 5MB por imagen.</span>
@@ -330,18 +330,18 @@ export function ResidenceProfileForm({
               />
             </label>
             {newPhotoCount > 0 && (
-              <p className="mt-2 text-xs text-sage-600">{newPhotoCount} foto(s) lista(s) para subir.</p>
+              <p className="mt-2 text-xs text-forest-700">{newPhotoCount} foto(s) lista(s) para subir.</p>
             )}
           </Card>
 
           {/* Tipos de habitación */}
           <Card className="p-6">
-            <h2 className="text-lg font-bold text-petrol-800">Tipos de Habitaciones</h2>
+            <h2 className="text-lg font-bold text-ink">Tipos de Habitaciones</h2>
             <div className="mt-4 space-y-4">
               {roomTypes.map((rt, i) => (
                 <div key={i} className="rounded-card border border-sand-200 p-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-petrol-800">Habitación {i + 1}</h3>
+                    <h3 className="font-semibold text-ink">Habitación {i + 1}</h3>
                     {roomTypes.length > 1 && (
                       <button
                         type="button"
@@ -385,7 +385,7 @@ export function ResidenceProfileForm({
                           type="radio"
                           checked={rt.bathroomType === b}
                           onChange={() => updateRoomType(i, { bathroomType: b })}
-                          className="h-4 w-4 accent-petrol-600"
+                          className="h-4 w-4 accent-forest"
                         />
                         {b}
                       </label>
@@ -422,7 +422,7 @@ export function ResidenceProfileForm({
                           type="checkbox"
                           checked={rt.features.includes(f)}
                           onChange={() => toggleRoomFeature(i, f)}
-                          className="h-4 w-4 accent-petrol-600"
+                          className="h-4 w-4 accent-forest"
                         />
                         {f}
                       </label>
@@ -468,7 +468,7 @@ export function ResidenceProfileForm({
             <button
               type="button"
               onClick={() => setRoomTypes((prev) => [...prev, emptyRoomType()])}
-              className="mt-4 text-sm font-semibold text-petrol-600 hover:text-petrol-700"
+              className="mt-4 text-sm font-semibold text-forest-700 hover:text-forest-700"
             >
               + Agregar tipo de habitación
             </button>
@@ -500,11 +500,11 @@ export function ResidenceProfileForm({
         {/* Sidebar */}
         <aside className="space-y-6">
           <Card className="sticky top-24 p-5">
-            <h3 className="font-bold text-petrol-800">Fortaleza del Perfil</h3>
+            <h3 className="font-bold text-ink">Fortaleza del Perfil</h3>
             <div className="mt-2 h-2 overflow-hidden rounded-full bg-sand-200">
-              <div className="h-full rounded-full bg-petrol-600 transition-all" style={{ width: `${strength}%` }} />
+              <div className="h-full rounded-full bg-forest transition-all" style={{ width: `${strength}%` }} />
             </div>
-            <p className="mt-1 text-right text-sm font-bold text-petrol-700">{strength}%</p>
+            <p className="mt-1 text-right text-sm font-bold text-forest-700">{strength}%</p>
             {strength < 100 && (
               <p className="mt-2 rounded-field bg-sand-100 px-3 py-2 text-xs text-ink-soft">
                 Sugerencia: completá todas las secciones y sumá al menos 3 fotos para mejorar tu
@@ -514,7 +514,7 @@ export function ResidenceProfileForm({
           </Card>
 
           <Card className="overflow-hidden p-0">
-            <p className="border-b border-sand-200 px-5 py-3 text-sm font-bold text-petrol-800">
+            <p className="border-b border-sand-200 px-5 py-3 text-sm font-bold text-ink">
               Vista previa
             </p>
             <div className="relative h-32 bg-sand-200">
@@ -523,7 +523,7 @@ export function ResidenceProfileForm({
               )}
             </div>
             <div className="p-4">
-              <p className="font-bold text-petrol-800">{initial.name}</p>
+              <p className="font-bold text-ink">{initial.name}</p>
               <p className="text-xs text-ink-soft">{initial.zone || "Zona sin definir"}, CABA</p>
               <div className="mt-2 flex flex-wrap gap-1">
                 {[...services].slice(0, 2).map((s) => (
@@ -536,7 +536,7 @@ export function ResidenceProfileForm({
               <div className="mt-3 flex items-center justify-between">
                 <div>
                   <p className="text-xs text-ink-faint">Desde</p>
-                  <p className="font-bold text-petrol-700">
+                  <p className="font-bold text-forest-700">
                     {previewPrice !== null ? formatUsd(previewPrice) : "—"}
                   </p>
                 </div>
@@ -547,8 +547,8 @@ export function ResidenceProfileForm({
             </div>
           </Card>
 
-          <Card className="border-petrol-200 bg-petrol-50 p-5">
-            <h3 className="font-bold text-petrol-800">¿Necesitás ayuda?</h3>
+          <Card className="border-line-2 bg-forest-tint p-5">
+            <h3 className="font-bold text-ink">¿Necesitás ayuda?</h3>
             <p className="mt-1 text-sm text-ink-soft">
               Contactá a nuestro equipo de soporte para configurar tu perfil.
             </p>

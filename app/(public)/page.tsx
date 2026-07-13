@@ -152,13 +152,13 @@ export default async function HomePage() {
       <section className="overflow-hidden bg-sand-100">
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 pb-20 pt-14 sm:px-6 sm:pt-20 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
           <div>
-            <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-sage-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-sage-800 sm:text-sm">
-              <span className="h-1.5 w-1.5 rounded-full bg-sage-500" aria-hidden />
+            <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-line bg-white px-3.5 py-1.5 text-xs font-semibold text-forest-700 sm:text-sm">
+              <span className="h-1.5 w-1.5 rounded-full bg-forest-600" aria-hidden />
               Primera etapa: Buenos Aires · Próximamente, Latinoamérica
             </p>
-            <h1 className="text-4xl font-extrabold leading-[1.08] text-petrol-800 sm:text-5xl lg:text-[3.4rem]">
+            <h1 className="text-4xl font-extrabold leading-[1.08] text-ink sm:text-5xl lg:text-[3.4rem]">
               No solo elijas dónde vivir,{" "}
-              <span className="text-petrol-500">sino cómo.</span>
+              <span className="text-forest-700">sino cómo.</span>
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-soft">
               Residencias estudiantiles verificadas en CABA, cerca de tu
@@ -183,7 +183,7 @@ export default async function HomePage() {
           <div className="relative mx-auto w-full max-w-sm lg:max-w-none">
             <ResidenceCard residence={heroResidence} arsPerUsd={rate.arsPerUsd} />
             <div className="absolute -right-3 -top-5 hidden max-w-[240px] rotate-2 rounded-card bg-surface p-3.5 shadow-float ring-1 ring-sand-200 sm:block lg:-right-6">
-              <p className="flex items-start gap-2 text-xs font-bold leading-snug text-petrol-800">
+              <p className="flex items-start gap-2 text-xs font-bold leading-snug text-ink">
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-success-bg text-success-fg">
                   ✓
                 </span>
@@ -194,7 +194,7 @@ export default async function HomePage() {
               </p>
             </div>
             <div className="absolute -bottom-4 -left-3 hidden -rotate-1 rounded-card bg-surface p-3.5 shadow-float ring-1 ring-sand-200 sm:block lg:-left-6">
-              <p className="text-xs font-bold text-petrol-800">
+              <p className="text-xs font-bold text-ink">
                 Solicitud registrada
               </p>
               <p className="mt-0.5 text-[11px] text-ink-faint">
@@ -215,10 +215,10 @@ export default async function HomePage() {
         <div className="grid gap-6 md:grid-cols-3">
           {pillars.map((p) => (
             <Card key={p.title} className="p-7">
-              <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-petrol-50 text-petrol-600">
+              <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-forest-tint text-forest-700">
                 {p.icon}
               </span>
-              <h3 className="mt-5 text-lg font-bold text-petrol-800">
+              <h3 className="mt-5 text-lg font-bold text-ink">
                 {p.title}
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-ink-soft">
@@ -238,9 +238,9 @@ export default async function HomePage() {
             description="Instagram, WhatsApp y los referidos sirven para descubrir. Para decidir y reservar, necesitás respaldo."
           />
           <div className="grid gap-6 md:grid-cols-2">
-            <div className="rounded-card border-2 border-petrol-200 bg-petrol-50/50 p-7">
-              <p className="flex items-center gap-2 font-display text-lg font-bold text-petrol-800">
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-petrol-600 text-sm text-white">
+            <div className="rounded-card border-2 border-line-2 bg-forest-tint/50 p-7">
+              <p className="flex items-center gap-2 font-display text-lg font-bold text-ink">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-forest text-sm text-white">
                   E
                 </span>
                 Con EstuRed
@@ -286,10 +286,10 @@ export default async function HomePage() {
           {steps.map((step, i) => (
             <div key={step.title} className="relative">
               <Card className="h-full p-6">
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-soft-100 font-display text-lg font-extrabold text-amber-soft-700">
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-tint font-display text-lg font-extrabold text-orange-700">
                   {i + 1}
                 </span>
-                <h3 className="mt-4 font-bold text-petrol-800">{step.title}</h3>
+                <h3 className="mt-4 font-bold text-ink">{step.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-ink-soft">
                   {step.description}
                 </p>
@@ -329,13 +329,13 @@ export default async function HomePage() {
         <div className="grid gap-6 md:grid-cols-3">
           {audiences.map((a) => (
             <Card key={a.title} className="flex flex-col p-7">
-              <h3 className="text-lg font-bold text-petrol-800">{a.title}</h3>
+              <h3 className="text-lg font-bold text-ink">{a.title}</h3>
               <p className="mt-2 flex-1 text-sm leading-relaxed text-ink-soft">
                 {a.description}
               </p>
               <Link
                 href={a.href}
-                className="mt-5 text-sm font-semibold text-petrol-600 hover:text-petrol-700"
+                className="mt-5 text-sm font-semibold text-forest-700 hover:text-forest-700"
               >
                 {a.cta} →
               </Link>
@@ -345,16 +345,16 @@ export default async function HomePage() {
       </section>
 
       {/* Lo que se viene */}
-      <section className="bg-petrol-800 text-white">
+      <section className="bg-forest-ink text-white">
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
           <div className="mx-auto mb-10 max-w-2xl text-center">
-            <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-amber-soft-400">
+            <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-orange">
               Lo que se viene
             </p>
             <h2 className="text-3xl font-bold sm:text-4xl">
               Estamos construyendo la red de convivencia estudiantil
             </h2>
-            <p className="mt-3 text-petrol-100">
+            <p className="mt-3 text-forest-tint">
               El MVP es el comienzo. Esto es lo que estamos desarrollando para
               las próximas etapas.
             </p>
@@ -363,13 +363,13 @@ export default async function HomePage() {
             {upcoming.map((u) => (
               <div
                 key={u.title}
-                className="rounded-card border border-petrol-700 bg-petrol-700/40 p-6"
+                className="rounded-card border border-forest-600 bg-forest-600/40 p-6"
               >
-                <p className="inline-flex rounded-full bg-petrol-900/60 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-amber-soft-300">
+                <p className="inline-flex rounded-full bg-forest-ink/60 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-gold">
                   Próximamente
                 </p>
                 <h3 className="mt-3 font-bold">{u.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-petrol-100">
+                <p className="mt-2 text-sm leading-relaxed text-forest-tint">
                   {u.description}
                 </p>
               </div>
@@ -387,9 +387,9 @@ export default async function HomePage() {
               key={faq.q}
               className="group rounded-card border border-sand-200 bg-surface p-5 open:shadow-card"
             >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-petrol-800 marker:hidden">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-ink marker:hidden">
                 {faq.q}
-                <span aria-hidden="true" className="text-petrol-400 transition-transform group-open:rotate-45">
+                <span aria-hidden="true" className="text-forest-600 transition-transform group-open:rotate-45">
                   +
                 </span>
               </summary>
@@ -402,9 +402,9 @@ export default async function HomePage() {
       </section>
 
       {/* CTA final */}
-      <section className="bg-sage-100">
+      <section className="bg-mint">
         <div className="mx-auto max-w-3xl px-4 py-20 text-center sm:px-6">
-          <p className="font-display text-2xl font-extrabold text-petrol-800 sm:text-3xl">
+          <p className="font-display text-2xl font-extrabold text-ink sm:text-3xl">
             La convivencia también se elige.
           </p>
           <p className="mx-auto mt-4 max-w-xl text-ink-soft">

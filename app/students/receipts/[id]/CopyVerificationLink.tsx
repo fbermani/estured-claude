@@ -18,7 +18,7 @@ export function CopyVerificationLink({ qrCodeValue }: { qrCodeValue: string }) {
       >
         {copied ? "¡Copiado!" : "Copiar enlace de verificación"}
       </Button>
-      <a href={qrCodeValue} target="_blank" rel="noreferrer" className="text-sm font-semibold text-petrol-600 hover:underline">
+      <a href={qrCodeValue} target="_blank" rel="noreferrer" className="text-sm font-semibold text-forest-700 hover:underline">
         Ver página de verificación →
       </a>
     </div>

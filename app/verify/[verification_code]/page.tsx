@@ -55,7 +55,7 @@ export default async function VerifyReceiptPage({
         {!receipt ? (
           <>
             <Badge tone="neutral">Código inválido</Badge>
-            <h1 className="mt-4 text-xl font-bold text-petrol-800">No encontramos ese comprobante</h1>
+            <h1 className="mt-4 text-xl font-bold text-ink">No encontramos ese comprobante</h1>
             <p className="mt-2 text-sm text-ink-soft">
               Revisá que el código o el enlace estén completos. Si creés que es un error, contactá a
               soporte de EstuRed.
@@ -64,7 +64,7 @@ export default async function VerifyReceiptPage({
         ) : receipt.status === "voided" ? (
           <>
             <Badge tone="danger">Anulado</Badge>
-            <h1 className="mt-4 text-xl font-bold text-petrol-800">Este comprobante fue anulado</h1>
+            <h1 className="mt-4 text-xl font-bold text-ink">Este comprobante fue anulado</h1>
             <p className="mt-2 text-sm text-ink-soft">
               Ya no es válido como respaldo de una reserva confirmada.
             </p>
@@ -72,7 +72,7 @@ export default async function VerifyReceiptPage({
         ) : receipt.status === "reissued" ? (
           <>
             <Badge tone="neutral">Reemitido</Badge>
-            <h1 className="mt-4 text-xl font-bold text-petrol-800">Este comprobante fue reemitido</h1>
+            <h1 className="mt-4 text-xl font-bold text-ink">Este comprobante fue reemitido</h1>
             <p className="mt-2 text-sm text-ink-soft">
               Ya no es el vigente. Pedile al titular el enlace del comprobante actualizado.
             </p>
@@ -80,7 +80,7 @@ export default async function VerifyReceiptPage({
         ) : (
           <>
             <Badge tone="sage">Válido</Badge>
-            <h1 className="mt-4 text-xl font-bold text-petrol-800">
+            <h1 className="mt-4 text-xl font-bold text-ink">
               {isRenewal ? "Comprobante de Renovación Confirmada" : "Comprobante de Reserva Confirmada"}
             </h1>
             <dl className="mt-6 space-y-3 text-left text-sm">

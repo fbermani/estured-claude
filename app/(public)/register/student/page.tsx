@@ -13,7 +13,7 @@ export default async function RegisterStudentPage() {
   return (
     <div className="mx-auto max-w-xl px-4 py-14 sm:py-20">
       <div className="text-center">
-        <h1 className="text-3xl font-bold text-petrol-800">
+        <h1 className="text-3xl font-bold text-ink">
           Crear cuenta de estudiante
         </h1>
         <p className="mt-2 text-sm text-ink-soft">
@@ -28,7 +28,7 @@ export default async function RegisterStudentPage() {
         ¿Ya tenés cuenta?{" "}
         <Link
           href="/login"
-          className="font-semibold text-petrol-600 hover:text-petrol-700"
+          className="font-semibold text-forest-700 hover:text-forest-700"
         >
           Iniciar sesión
         </Link>

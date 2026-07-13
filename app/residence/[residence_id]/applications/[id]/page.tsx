@@ -120,7 +120,7 @@ export default async function ResidenceApplicationDetailPage({
       <Card className="p-8">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-petrol-800">
+            <h1 className="text-2xl font-bold text-ink">
               {student?.first_name} {student?.last_initial}
             </h1>
             <p className="text-sm text-ink-soft">

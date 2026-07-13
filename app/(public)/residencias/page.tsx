@@ -32,7 +32,7 @@ export default async function RealResidencesPage() {
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
       <div className="mb-8 max-w-2xl">
         <Badge tone="sage">Catálogo real</Badge>
-        <h1 className="mt-2 text-3xl font-bold text-petrol-800 sm:text-4xl">
+        <h1 className="mt-2 text-3xl font-bold text-ink sm:text-4xl">
           Residencias verificadas
         </h1>
         <p className="mt-2 text-ink-soft">
@@ -54,12 +54,12 @@ export default async function RealResidencesPage() {
             return (
               <Link key={r.id} href={`/residencias/${r.slug}`}>
                 <Card interactive className="flex h-full flex-col p-6">
-                  <h2 className="text-lg font-bold text-petrol-800">{r.name}</h2>
+                  <h2 className="text-lg font-bold text-ink">{r.name}</h2>
                   <p className="text-sm text-ink-soft">{r.public_area ?? "CABA"}</p>
                   {r.tagline && <p className="mt-2 text-sm italic text-ink-faint">&ldquo;{r.tagline}&rdquo;</p>}
                   <div className="mt-auto pt-4">
                     <p className="text-xs text-ink-faint">Desde</p>
-                    <p className="font-bold text-petrol-700">{from !== null ? formatUsd(from) : "Consultar"}</p>
+                    <p className="font-bold text-forest-700">{from !== null ? formatUsd(from) : "Consultar"}</p>
                   </div>
                 </Card>
               </Link>

@@ -51,7 +51,7 @@ export default async function ResidenceApplicationsPage({
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-14">
-      <h1 className="text-3xl font-bold text-petrol-800">Solicitudes recibidas</h1>
+      <h1 className="text-3xl font-bold text-ink">Solicitudes recibidas</h1>
       <p className="mt-1 text-ink-soft">Revisá y respondé las solicitudes de reserva.</p>
 
       {!applications || applications.length === 0 ? (
@@ -69,7 +69,7 @@ export default async function ResidenceApplicationsPage({
               <Link key={a.id} href={`/residence/${residenceId}/applications/${a.id}`}>
                 <Card interactive className="flex flex-wrap items-center justify-between gap-3 p-5">
                   <div>
-                    <p className="font-bold text-petrol-800">
+                    <p className="font-bold text-ink">
                       {student?.first_name} {student?.last_initial}
                     </p>
                     <p className="text-sm text-ink-soft">

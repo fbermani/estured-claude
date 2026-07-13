@@ -56,7 +56,7 @@ export default async function FamilyProposalsPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
-      <h1 className="text-3xl font-bold text-petrol-800">Propuestas de tu familiar</h1>
+      <h1 className="text-3xl font-bold text-ink">Propuestas de tu familiar</h1>
       <p className="mt-2 text-ink-soft">
         Residencias que tu familiar te sugirió. Tenés 48 horas para aprobar o rechazar cada una.
       </p>
@@ -75,7 +75,7 @@ export default async function FamilyProposalsPage() {
               <Card key={p.id} className="p-6">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <h2 className="font-bold text-petrol-800">{p.residences?.name}</h2>
+                    <h2 className="font-bold text-ink">{p.residences?.name}</h2>
                     <p className="text-sm text-ink-soft">
                       {p.residences?.public_area}, CABA · {p.room_types?.name}
                     </p>

@@ -47,7 +47,7 @@ export function FamilyProposalActions({ proposalId }: { proposalId: string }) {
             type="checkbox"
             checked={confirmed}
             onChange={(e) => setConfirmed(e.target.checked)}
-            className="mt-0.5 h-4 w-4 accent-petrol-600"
+            className="mt-0.5 h-4 w-4 accent-forest"
           />
           Entiendo que se va a generar una solicitud real y acepto continuar.
         </label>

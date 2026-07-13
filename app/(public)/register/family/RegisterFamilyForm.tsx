@@ -67,11 +67,11 @@ export function RegisterFamilyForm() {
 
         <div className="flex flex-col gap-3 rounded-field bg-sand-100 p-4">
           <label className="flex items-start gap-3 text-sm text-ink">
-            <input type="checkbox" name="accept_terms" required className="mt-0.5 h-4 w-4 accent-petrol-600" />
+            <input type="checkbox" name="accept_terms" required className="mt-0.5 h-4 w-4 accent-forest" />
             <span>Acepto los términos y condiciones de EstuRed.</span>
           </label>
           <label className="flex items-start gap-3 text-sm text-ink">
-            <input type="checkbox" name="accept_privacy" required className="mt-0.5 h-4 w-4 accent-petrol-600" />
+            <input type="checkbox" name="accept_privacy" required className="mt-0.5 h-4 w-4 accent-forest" />
             <span>
               Acepto la política de privacidad. Entiendo que solo voy a ver lo que el estudiante
               autorice.

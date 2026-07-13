@@ -19,7 +19,7 @@ export function AddResidentForm({
 
   return (
     <form action={formAction} className="rounded-card border border-sand-200 bg-sand-50 p-4">
-      <h3 className="font-bold text-petrol-800">Cargar residente</h3>
+      <h3 className="font-bold text-ink">Cargar residente</h3>
       <p className="mt-1 text-xs text-ink-faint">
         Docs/05 §15.1 — el residente activa su cuenta después con este mismo email; hasta entonces aparece como
         &ldquo;pendiente de activar cuenta&rdquo; en la comunidad visible.
@@ -42,7 +42,7 @@ export function AddResidentForm({
           {state.message}
         </p>
       )}
-      {state.status === "saved" && <p className="mt-3 text-sm font-medium text-sage-700">Residente cargado.</p>}
+      {state.status === "saved" && <p className="mt-3 text-sm font-medium text-forest-700">Residente cargado.</p>}
 
       <Button type="submit" size="sm" className="mt-4" disabled={isPending}>
         {isPending ? "Cargando…" : "Cargar residente"}

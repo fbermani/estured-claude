@@ -111,7 +111,7 @@ export function RegisterStudentForm() {
               type="checkbox"
               name="accept_terms"
               required
-              className="mt-0.5 h-4 w-4 accent-petrol-600"
+              className="mt-0.5 h-4 w-4 accent-forest"
             />
             <span>
               Acepto los términos y condiciones de EstuRed y entiendo que actúa
@@ -124,7 +124,7 @@ export function RegisterStudentForm() {
               type="checkbox"
               name="accept_privacy"
               required
-              className="mt-0.5 h-4 w-4 accent-petrol-600"
+              className="mt-0.5 h-4 w-4 accent-forest"
             />
             <span>
               Acepto la política de privacidad. Mis datos sensibles (apellido,
@@ -136,7 +136,7 @@ export function RegisterStudentForm() {
             <input
               type="checkbox"
               name="profile_visible"
-              className="mt-0.5 h-4 w-4 accent-petrol-600"
+              className="mt-0.5 h-4 w-4 accent-forest"
             />
             <span>
               Quiero que mi perfil de comunidad (nombre e inicial) pueda verse

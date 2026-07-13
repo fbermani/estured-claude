@@ -17,14 +17,14 @@ export function AreaHeader({
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2" aria-label="EstuRed, inicio">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-petrol-600 font-display text-lg font-extrabold text-white">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-forest font-display text-lg font-extrabold text-white">
               E
             </span>
-            <span className="hidden font-display text-xl font-extrabold tracking-tight text-petrol-800 sm:inline">
+            <span className="hidden font-display text-xl font-extrabold tracking-tight text-ink sm:inline">
               EstuRed
             </span>
           </Link>
-          <span className="rounded-full bg-petrol-50 px-3 py-1 text-xs font-semibold text-petrol-700">
+          <span className="rounded-full bg-forest-tint px-3 py-1 text-xs font-semibold text-forest-700">
             {areaLabel}
           </span>
         </div>
@@ -33,7 +33,7 @@ export function AreaHeader({
           <form action={signOut}>
             <button
               type="submit"
-              className="rounded-full border border-sand-300 px-4 py-1.5 text-sm font-semibold text-ink-soft transition-colors hover:border-petrol-300 hover:text-petrol-700"
+              className="rounded-full border border-sand-300 px-4 py-1.5 text-sm font-semibold text-ink-soft transition-colors hover:border-forest hover:text-forest-700"
             >
               Salir
             </button>

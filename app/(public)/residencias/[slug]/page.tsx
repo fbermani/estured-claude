@@ -123,20 +123,20 @@ export default async function RealResidenceDetailPage({
         <div className="space-y-8 lg:col-span-2">
           <div>
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-3xl font-bold text-petrol-800 sm:text-4xl">{residence.name}</h1>
+              <h1 className="text-3xl font-bold text-ink sm:text-4xl">{residence.name}</h1>
               <TrustBadge status="verified_active" size="md" />
             </div>
             <p className="mt-1 text-ink-soft">{residence.public_area}, CABA</p>
             {residence.description && <p className="mt-4 text-ink-soft">{residence.description}</p>}
             {nearUniversities.length > 0 && (
-              <p className="mt-3 text-sm font-medium text-petrol-600">
+              <p className="mt-3 text-sm font-medium text-forest-700">
                 Cerca de {nearUniversities.join(" y ")}
               </p>
             )}
           </div>
 
           <section>
-            <h2 className="text-xl font-bold text-petrol-800">Habitaciones y tarifas</h2>
+            <h2 className="text-xl font-bold text-ink">Habitaciones y tarifas</h2>
             <div className="mt-4 overflow-hidden rounded-card border border-sand-200">
               <table className="w-full text-sm">
                 <thead className="bg-sand-100 text-left text-ink-soft">
@@ -153,7 +153,7 @@ export default async function RealResidenceDetailPage({
                       <tr key={rt.id}>
                         <td className="px-4 py-3 font-medium text-ink">{rt.name}</td>
                         <td className="px-4 py-3">
-                          <span className="font-semibold text-petrol-700">
+                          <span className="font-semibold text-forest-700">
                             {formatUsd(Number(rt.monthly_price_usd))}
                           </span>
                           <span className="ml-2 text-xs text-ink-faint">
@@ -178,11 +178,11 @@ export default async function RealResidenceDetailPage({
 
           {services.length > 0 && (
             <section>
-              <h2 className="text-xl font-bold text-petrol-800">Servicios incluidos</h2>
+              <h2 className="text-xl font-bold text-ink">Servicios incluidos</h2>
               <ul className="mt-4 grid gap-2 sm:grid-cols-2">
                 {services.map((s) => (
                   <li key={s} className="flex items-center gap-2 text-sm text-ink-soft">
-                    <span className="text-sage-600">✓</span> {s}
+                    <span className="text-forest-700">✓</span> {s}
                   </li>
                 ))}
               </ul>
@@ -191,13 +191,13 @@ export default async function RealResidenceDetailPage({
 
           {rulesSummary && (
             <section>
-              <h2 className="text-xl font-bold text-petrol-800">Reglas de convivencia</h2>
+              <h2 className="text-xl font-bold text-ink">Reglas de convivencia</h2>
               <p className="mt-3 rounded-card bg-sand-100 px-4 py-3 text-sm text-ink-soft">{rulesSummary}</p>
             </section>
           )}
 
           <section>
-            <h2 className="text-xl font-bold text-petrol-800">Comunidad</h2>
+            <h2 className="text-xl font-bold text-ink">Comunidad</h2>
             <p className="mt-3 text-sm text-ink-soft">
               Conocé quién vive hoy en esta residencia — cada estudiante decide qué mostrar.
             </p>
@@ -240,7 +240,7 @@ export default async function RealResidenceDetailPage({
 
       <p className="mt-10 text-center text-xs text-ink-faint">
         ¿Buscás más opciones?{" "}
-        <Link href="/search" className="text-petrol-600 hover:underline">
+        <Link href="/search" className="text-forest-700 hover:underline">
           Mirá el catálogo completo
         </Link>
         .

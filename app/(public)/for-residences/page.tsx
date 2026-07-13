@@ -46,16 +46,16 @@ const benefits = [
 export default function ForResidencesPage() {
   return (
     <>
-      <section className="bg-petrol-800 text-white">
+      <section className="bg-forest-ink text-white">
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
           <div className="max-w-2xl">
-            <p className="mb-4 inline-flex rounded-full bg-petrol-700 px-3 py-1 text-sm font-semibold text-petrol-100">
+            <p className="mb-4 inline-flex rounded-full bg-forest-600 px-3 py-1 text-sm font-semibold text-forest-tint">
               Para residencias estudiantiles
             </p>
             <h1 className="text-4xl font-extrabold sm:text-5xl">
               Tu residencia llena, pero tu tiempo no debería estarlo.
             </h1>
-            <p className="mt-5 text-lg text-petrol-100">
+            <p className="mt-5 text-lg text-forest-tint">
               EstuRed no reemplaza tu operación: la ordena. Menos consultas
               repetidas, solicitudes completas, lista de espera y renovaciones
               con un proceso claro — y un plan gratuito para empezar.
@@ -68,7 +68,7 @@ export default function ForResidencesPage() {
                 href="#como-funciona"
                 variant="outline"
                 size="lg"
-                className="border-petrol-400 text-white hover:bg-petrol-700"
+                className="border-forest text-white hover:bg-forest-600"
               >
                 Ver cómo funciona
               </Button>
@@ -85,7 +85,7 @@ export default function ForResidencesPage() {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {benefits.map((b) => (
             <Card key={b.title} className="p-6">
-              <h3 className="font-bold text-petrol-800">{b.title}</h3>
+              <h3 className="font-bold text-ink">{b.title}</h3>
               <p className="mt-2 text-sm text-ink-soft">{b.description}</p>
             </Card>
           ))}
@@ -102,7 +102,7 @@ export default function ForResidencesPage() {
           <div className="grid gap-6 md:grid-cols-2">
             <Card className="p-8">
               <Badge tone="sage">Gratuito</Badge>
-              <h3 className="mt-3 text-2xl font-bold text-petrol-800">
+              <h3 className="mt-3 text-2xl font-bold text-ink">
                 Perfil Verificado
               </h3>
               <p className="mt-2 text-sm text-ink-soft">
@@ -119,14 +119,14 @@ export default function ForResidencesPage() {
                   "Renovaciones",
                 ].map((f) => (
                   <li key={f} className="flex gap-2">
-                    <span className="text-sage-600">✓</span> {f}
+                    <span className="text-forest-700">✓</span> {f}
                   </li>
                 ))}
               </ul>
             </Card>
-            <Card className="border-petrol-300 p-8">
+            <Card className="border-forest p-8">
               <Badge tone="amber">Plan pago — gratis 1 año para pioneras</Badge>
-              <h3 className="mt-3 text-2xl font-bold text-petrol-800">
+              <h3 className="mt-3 text-2xl font-bold text-ink">
                 Gestión Operativa
               </h3>
               <p className="mt-2 text-sm text-ink-soft">
@@ -142,7 +142,7 @@ export default function ForResidencesPage() {
                   "Prioridad de visibilidad en el catálogo",
                 ].map((f) => (
                   <li key={f} className="flex gap-2">
-                    <span className="text-amber-soft-500">✓</span> {f}
+                    <span className="text-orange-600">✓</span> {f}
                   </li>
                 ))}
               </ul>
@@ -155,9 +155,9 @@ export default function ForResidencesPage() {
         </div>
       </section>
 
-      <section className="bg-sage-100">
+      <section className="bg-mint">
         <div className="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6">
-          <h2 className="text-3xl font-bold text-petrol-800">
+          <h2 className="text-3xl font-bold text-ink">
             Sé una residencia pionera
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-ink-soft">

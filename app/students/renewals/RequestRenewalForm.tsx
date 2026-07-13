@@ -13,7 +13,7 @@ export function RequestRenewalForm({ reservationId }: { reservationId: string })
 
   if (state.status === "saved") {
     return (
-      <p className="mt-4 rounded-field bg-sage-50 px-4 py-3 text-sm font-medium text-sage-800">
+      <p className="mt-4 rounded-field bg-mint px-4 py-3 text-sm font-medium text-forest-700">
         Solicitud enviada — te avisamos cuando la residencia responda.
       </p>
     );

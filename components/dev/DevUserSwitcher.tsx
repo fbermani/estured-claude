@@ -21,8 +21,8 @@ export function DevUserSwitcher({ currentEmail }: { currentEmail: string | null 
   return (
     <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2 font-sans">
       {open && (
-        <div className="w-80 overflow-hidden rounded-card border border-petrol-200 bg-surface shadow-float">
-          <p className="border-b border-sand-200 bg-petrol-800 px-4 py-2.5 text-xs font-bold uppercase tracking-wide text-white">
+        <div className="w-80 overflow-hidden rounded-card border border-line-2 bg-surface shadow-float">
+          <p className="border-b border-sand-200 bg-forest-ink px-4 py-2.5 text-xs font-bold uppercase tracking-wide text-white">
             Simular sesión (solo dev)
           </p>
           <ul className="max-h-96 overflow-y-auto py-1">
@@ -37,14 +37,14 @@ export function DevUserSwitcher({ currentEmail }: { currentEmail: string | null 
                       await impersonateDemoUser(fd);
                     })
                   }
-                  className={`flex w-full flex-col px-4 py-2.5 text-left transition-colors hover:bg-petrol-50 disabled:opacity-50 ${
-                    u.email === currentEmail ? "bg-sage-50" : ""
+                  className={`flex w-full flex-col px-4 py-2.5 text-left transition-colors hover:bg-forest-tint disabled:opacity-50 ${
+                    u.email === currentEmail ? "bg-mint" : ""
                   }`}
                 >
-                  <span className="text-sm font-semibold text-petrol-800">
+                  <span className="text-sm font-semibold text-ink">
                     {u.label}
                     {u.email === currentEmail && (
-                      <span className="ml-2 text-xs font-bold text-sage-600">
+                      <span className="ml-2 text-xs font-bold text-forest-700">
                         ● activa
                       </span>
                     )}
@@ -67,11 +67,11 @@ export function DevUserSwitcher({ currentEmail }: { currentEmail: string | null 
       )}
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 rounded-full bg-petrol-800 px-4 py-2.5 text-sm font-bold text-white shadow-float transition-transform hover:scale-105"
+        className="flex items-center gap-2 rounded-full bg-forest-ink px-4 py-2.5 text-sm font-bold text-white shadow-float transition-transform hover:scale-105"
         aria-expanded={open}
       >
         <span
-          className={`h-2 w-2 rounded-full ${active ? "bg-sage-400" : "bg-amber-soft-400"}`}
+          className={`h-2 w-2 rounded-full ${active ? "bg-forest-600" : "bg-orange"}`}
           aria-hidden
         />
         {isPending ? "Cambiando…" : active ? active.label : "Simular usuario"}

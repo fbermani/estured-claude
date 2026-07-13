@@ -57,10 +57,10 @@ export default function ForStudentsPage() {
       <section className="bg-sand-100">
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
           <div className="max-w-2xl">
-            <p className="mb-4 inline-flex rounded-full bg-sage-100 px-3 py-1 text-sm font-semibold text-sage-800">
+            <p className="mb-4 inline-flex rounded-full bg-mint px-3 py-1 text-sm font-semibold text-forest-700">
               Para estudiantes y familias
             </p>
-            <h1 className="text-4xl font-extrabold text-petrol-800 sm:text-5xl">
+            <h1 className="text-4xl font-extrabold text-ink sm:text-5xl">
               Mudarte a CABA con más confianza
             </h1>
             <p className="mt-5 text-lg text-ink-soft">
@@ -88,7 +88,7 @@ export default function ForStudentsPage() {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {benefits.map((b) => (
             <Card key={b.title} className="p-6">
-              <h3 className="font-bold text-petrol-800">{b.title}</h3>
+              <h3 className="font-bold text-ink">{b.title}</h3>
               <p className="mt-2 text-sm text-ink-soft">{b.description}</p>
             </Card>
           ))}
@@ -105,7 +105,7 @@ export default function ForStudentsPage() {
           <ol className="space-y-4">
             {steps.map((step, i) => (
               <li key={i} className="flex gap-4">
-                <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-petrol-600 font-display text-sm font-bold text-white">
+                <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-forest font-display text-sm font-bold text-white">
                   {i + 1}
                 </span>
                 <p className="text-sm text-ink-soft sm:text-base">{step}</p>
@@ -115,9 +115,9 @@ export default function ForStudentsPage() {
         </div>
       </section>
 
-      <section className="bg-sage-100">
+      <section className="bg-mint">
         <div className="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6">
-          <h2 className="text-3xl font-bold text-petrol-800">
+          <h2 className="text-3xl font-bold text-ink">
             Empezá tu búsqueda con respaldo
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-ink-soft">

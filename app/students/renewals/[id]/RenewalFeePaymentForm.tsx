@@ -25,8 +25,8 @@ export function RenewalFeePaymentForm({ renewalOfferId }: { renewalOfferId: stri
 
   if (state.status === "saved") {
     return (
-      <Card className="mt-6 border-sage-300 bg-sage-50 p-5">
-        <p className="text-sm font-medium text-sage-800">
+      <Card className="mt-6 border-line-2 bg-mint p-5">
+        <p className="text-sm font-medium text-forest-700">
           Comprobante registrado. Nuestro equipo lo va a validar y confirmar tu renovación.
         </p>
       </Card>
@@ -35,7 +35,7 @@ export function RenewalFeePaymentForm({ renewalOfferId }: { renewalOfferId: stri
 
   return (
     <Card className="mt-6 p-6">
-      <h2 className="font-bold text-petrol-800">Pagar el fee EstuRed de la renovación</h2>
+      <h2 className="font-bold text-ink">Pagar el fee EstuRed de la renovación</h2>
       <p className="mt-1 text-xs text-ink-faint">
         Datos para tu Factura C. Si no tenés CUIT/CUIL, dejalo en blanco.
       </p>
@@ -60,7 +60,7 @@ export function RenewalFeePaymentForm({ renewalOfferId }: { renewalOfferId: stri
             type="file"
             required
             accept="application/pdf,image/jpeg,image/png,image/webp"
-            className="mt-1.5 block w-full text-sm text-ink-soft file:mr-3 file:rounded-field file:border-0 file:bg-petrol-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-petrol-700"
+            className="mt-1.5 block w-full text-sm text-ink-soft file:mr-3 file:rounded-field file:border-0 file:bg-forest-tint file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-forest-700"
           />
         </div>
 
@@ -76,7 +76,7 @@ export function RenewalFeePaymentForm({ renewalOfferId }: { renewalOfferId: stri
             name="acknowledge_no_refund"
             checked={confirmed}
             onChange={(e) => setConfirmed(e.target.checked)}
-            className="mt-0.5 h-4 w-4 accent-petrol-600"
+            className="mt-0.5 h-4 w-4 accent-forest"
           />
           Entiendo que el fee EstuRed no se reembolsa automáticamente ante una cancelación.
         </label>

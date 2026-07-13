@@ -109,7 +109,7 @@ export default async function NegotiationResponsePage({
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
-      <h1 className="text-2xl font-bold text-petrol-800">{residence?.name} te propuso un ajuste</h1>
+      <h1 className="text-2xl font-bold text-ink">{residence?.name} te propuso un ajuste</h1>
       <p className="mt-2 rounded-field bg-sand-100 px-4 py-3 text-sm text-ink-soft">
         Esta es la única propuesta de ajuste que la residencia puede enviarte para esta solicitud.
         Solo podés aceptarla o rechazarla — no podés editarla.
@@ -136,7 +136,7 @@ export default async function NegotiationResponsePage({
               <tr key={r.label}>
                 <td className="px-4 py-3 text-ink-soft">{r.label}</td>
                 <td className="px-4 py-3 text-ink">{r.original}</td>
-                <td className="px-4 py-3 font-medium text-petrol-700">{r.proposed}</td>
+                <td className="px-4 py-3 font-medium text-forest-700">{r.proposed}</td>
               </tr>
             ))}
           </tbody>

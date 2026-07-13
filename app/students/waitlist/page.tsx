@@ -52,7 +52,7 @@ export default async function StudentWaitlistPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
-      <h1 className="text-2xl font-bold text-petrol-800">Lista de espera</h1>
+      <h1 className="text-2xl font-bold text-ink">Lista de espera</h1>
       <p className="mt-2 text-sm text-ink-soft">
         Residencias sin lugar hoy a las que te sumaste — no cuenta como solicitud activa.
       </p>

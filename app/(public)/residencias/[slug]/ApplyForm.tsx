@@ -40,7 +40,7 @@ export function ApplyForm({
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
-      <h3 className="font-bold text-petrol-800">Enviar solicitud de reserva</h3>
+      <h3 className="font-bold text-ink">Enviar solicitud de reserva</h3>
       <Select label="Tipo de habitación" id="apply-room-type" name="room_type_id" required defaultValue="">
         <option value="" disabled>
           Elegí una opción

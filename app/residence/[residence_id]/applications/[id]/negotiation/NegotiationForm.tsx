@@ -83,7 +83,7 @@ export function NegotiationForm({
 
   if (!acknowledged) {
     return (
-      <Card className="mt-8 border-amber-soft-300 bg-warning-bg p-6">
+      <Card className="mt-8 border-orange bg-warning-bg p-6">
         <h2 className="font-bold text-warning-fg">Antes de continuar</h2>
         <p className="mt-2 text-sm text-warning-fg">
           Solo podés enviar una propuesta de ajuste por solicitud. Una vez enviada, no podés
@@ -102,7 +102,7 @@ export function NegotiationForm({
       <input type="hidden" name="warning_acknowledged" value="on" />
 
       <Card className="p-6">
-        <h2 className="font-bold text-petrol-800">Condiciones a modificar</h2>
+        <h2 className="font-bold text-ink">Condiciones a modificar</h2>
         <p className="mt-1 text-xs text-ink-faint">
           Dejá en blanco lo que no cambia. Nunca podés modificar los datos del estudiante.
         </p>
@@ -176,7 +176,7 @@ export function NegotiationForm({
       </Card>
 
       <Card className="overflow-hidden p-0">
-        <p className="border-b border-sand-200 px-5 py-3 text-sm font-bold text-petrol-800">
+        <p className="border-b border-sand-200 px-5 py-3 text-sm font-bold text-ink">
           Vista previa — así lo va a ver {""}el estudiante
         </p>
         <table className="w-full text-sm">
@@ -192,7 +192,7 @@ export function NegotiationForm({
               <tr key={row.label}>
                 <td className="px-4 py-2 text-ink-soft">{row.label}</td>
                 <td className="px-4 py-2 text-ink">{row.original}</td>
-                <td className="px-4 py-2 font-medium text-petrol-700">{row.proposed}</td>
+                <td className="px-4 py-2 font-medium text-forest-700">{row.proposed}</td>
               </tr>
             ))}
           </tbody>
@@ -210,7 +210,7 @@ export function NegotiationForm({
           type="checkbox"
           checked={confirmed}
           onChange={(e) => setConfirmed(e.target.checked)}
-          className="mt-0.5 h-4 w-4 accent-petrol-600"
+          className="mt-0.5 h-4 w-4 accent-forest"
         />
         ¿Confirmás que esta es tu única propuesta de ajuste para esta solicitud?
       </label>

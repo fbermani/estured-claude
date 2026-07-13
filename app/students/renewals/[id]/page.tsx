@@ -69,7 +69,7 @@ export default async function StudentRenewalOfferDetailPage({
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-petrol-800">Oferta de renovación</h1>
+        <h1 className="text-2xl font-bold text-ink">Oferta de renovación</h1>
         <Badge tone={badge.tone}>{badge.label}</Badge>
       </div>
       <p className="mt-1 text-sm text-ink-soft">
@@ -145,7 +145,7 @@ export default async function StudentRenewalOfferDetailPage({
         )}
 
         {(offer.status === "confirmed" || offer.status === "receipt_issued") && (
-          <div className="mt-4 rounded-field bg-sage-50 px-4 py-3 text-sm text-sage-800">
+          <div className="mt-4 rounded-field bg-mint px-4 py-3 text-sm text-forest-700">
             <p className="font-medium">Tu renovación quedó confirmada.</p>
             {receipt ? (
               <a

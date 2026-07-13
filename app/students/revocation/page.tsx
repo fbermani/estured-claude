@@ -47,7 +47,7 @@ export default async function RevocationPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
-      <h1 className="text-2xl font-bold text-petrol-800">Botón de arrepentimiento</h1>
+      <h1 className="text-2xl font-bold text-ink">Botón de arrepentimiento</h1>
       <p className="mt-2 text-sm text-ink-soft">
         Derecho de revocación del fee EstuRed dentro de los 10 días corridos desde el pago (requisito de
         contratación a distancia). No alcanza a montos pagados directamente a la residencia.

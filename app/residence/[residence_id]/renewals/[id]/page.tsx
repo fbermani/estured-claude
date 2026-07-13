@@ -71,7 +71,7 @@ export default async function ResidenceRenewalDetailPage({
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
-      <h1 className="text-2xl font-bold text-petrol-800">
+      <h1 className="text-2xl font-bold text-ink">
         Renovación — {student?.first_name} {student?.last_initial}
       </h1>
       <p className="mt-1 text-sm text-ink-soft">
@@ -138,7 +138,7 @@ export default async function ResidenceRenewalDetailPage({
                   </p>
                 )}
                 {(o.status === "confirmed" || o.status === "receipt_issued") && (
-                  <p className="mt-4 rounded-field bg-sage-50 px-4 py-3 text-sm text-sage-800">
+                  <p className="mt-4 rounded-field bg-mint px-4 py-3 text-sm text-forest-700">
                     Renovación confirmada — comprobante emitido para el estudiante.
                   </p>
                 )}

@@ -21,7 +21,7 @@ export function WaitlistForm() {
         <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-success-bg text-2xl">
           ✓
         </span>
-        <h2 className="mt-4 text-xl font-bold text-petrol-800">
+        <h2 className="mt-4 text-xl font-bold text-ink">
           ¡Listo! Ya estás en la lista
         </h2>
         <p className="mx-auto mt-2 max-w-md text-sm text-ink-soft">
@@ -91,7 +91,7 @@ export function WaitlistForm() {
             name="privacy_consent"
             type="checkbox"
             required
-            className="mt-0.5 h-4 w-4 accent-petrol-600"
+            className="mt-0.5 h-4 w-4 accent-forest"
           />
           <span>
             Acepto la{" "}

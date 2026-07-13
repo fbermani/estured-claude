@@ -11,10 +11,10 @@ export default function WaitlistPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-14 sm:px-6 sm:py-20">
       <div className="text-center">
-        <p className="mb-4 inline-flex rounded-full bg-amber-soft-100 px-3 py-1 text-sm font-semibold text-amber-soft-700">
+        <p className="mb-4 inline-flex rounded-full bg-orange-tint px-3 py-1 text-sm font-semibold text-orange-700">
           EstuRed está llegando a CABA
         </p>
-        <h1 className="text-3xl font-bold text-petrol-800 sm:text-4xl">
+        <h1 className="text-3xl font-bold text-ink sm:text-4xl">
           Sumate a la lista de espera
         </h1>
         <p className="mx-auto mt-3 max-w-lg text-ink-soft">

@@ -30,7 +30,7 @@ export function CreateOfferForm({
 
   return (
     <Card className="mt-6 p-6">
-      <h2 className="font-bold text-petrol-800">Ofrecer renovación</h2>
+      <h2 className="font-bold text-ink">Ofrecer renovación</h2>
       <p className="mt-1 text-xs text-ink-faint">
         Tarifa actual: USD {currentMonthlyPriceUsd} · Duración actual: {currentDurationMonths} meses.
       </p>

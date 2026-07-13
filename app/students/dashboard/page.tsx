@@ -66,7 +66,7 @@ export default async function StudentDashboardPage() {
 
     return (
       <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-14">
-        <h1 className="text-3xl font-bold text-petrol-800">Tu espacio de familiar</h1>
+        <h1 className="text-3xl font-bold text-ink">Tu espacio de familiar</h1>
         <p className="mt-2 text-ink-soft">
           Acompañás a estos estudiantes en EstuRed. Solo ellos pueden decidir sobre sus
           solicitudes.
@@ -81,7 +81,7 @@ export default async function StudentDashboardPage() {
             links.map((l) => (
               <Card key={l.id} className="flex items-center justify-between p-6">
                 <div>
-                  <p className="font-bold text-petrol-800">
+                  <p className="font-bold text-ink">
                     {l.student_profiles?.first_name} {l.student_profiles?.last_initial}
                   </p>
                   <p className="text-sm text-ink-soft">
@@ -105,7 +105,7 @@ export default async function StudentDashboardPage() {
         </div>
 
         <Card className="mt-8 flex flex-col p-6">
-          <h2 className="font-bold text-petrol-800">Explorar residencias</h2>
+          <h2 className="font-bold text-ink">Explorar residencias</h2>
           <p className="mt-2 flex-1 text-sm text-ink-soft">
             Podés proponerle opciones al estudiante que acompañás — él o ella decide si aprobarlas.
           </p>
@@ -116,7 +116,7 @@ export default async function StudentDashboardPage() {
 
         {sentProposals.length > 0 && (
           <Card className="mt-6 p-6">
-            <h2 className="font-bold text-petrol-800">Propuestas que enviaste</h2>
+            <h2 className="font-bold text-ink">Propuestas que enviaste</h2>
             <div className="mt-4 space-y-3">
               {sentProposals.map((p) => {
                 const status = PROPOSAL_STATUS_LABEL[p.status] ?? PROPOSAL_STATUS_LABEL.pending_student_approval;
@@ -180,7 +180,7 @@ export default async function StudentDashboardPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
-      <h1 className="text-3xl font-bold text-petrol-800">
+      <h1 className="text-3xl font-bold text-ink">
         {firstName ? `¡Hola, ${firstName}!` : "¡Hola!"}
       </h1>
       <p className="mt-2 text-ink-soft">
@@ -188,9 +188,9 @@ export default async function StudentDashboardPage() {
       </p>
 
       {pendingProposalsCount > 0 && (
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-card border border-petrol-200 bg-petrol-50 p-5">
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-card border border-line-2 bg-forest-tint p-5">
           <div>
-            <p className="font-semibold text-petrol-800">
+            <p className="font-semibold text-ink">
               {pendingProposalsCount === 1
                 ? "Tu familiar te sugirió una residencia"
                 : `Tu familiar te sugirió ${pendingProposalsCount} residencias`}
@@ -206,10 +206,10 @@ export default async function StudentDashboardPage() {
       {pendingLinks.map((link) => (
         <div
           key={link.id}
-          className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-card border border-petrol-200 bg-petrol-50 p-5"
+          className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-card border border-line-2 bg-forest-tint p-5"
         >
           <div>
-            <p className="font-semibold text-petrol-800">
+            <p className="font-semibold text-ink">
               {RELATIONSHIP_LABEL[link.family_members?.relationship_type ?? "familiar"]}{" "}
               {link.family_members?.first_name} {link.family_members?.last_name} quiere
               vincularse a tu cuenta
@@ -232,7 +232,7 @@ export default async function StudentDashboardPage() {
       )}
 
       {isMinor && !activeLink && (
-        <div className="mt-6 rounded-card border border-amber-soft-300 bg-warning-bg p-5">
+        <div className="mt-6 rounded-card border border-orange bg-warning-bg p-5">
           <p className="font-semibold text-warning-fg">
             Sos menor de edad: vas a necesitar un familiar vinculado
           </p>
@@ -251,7 +251,7 @@ export default async function StudentDashboardPage() {
       <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <Card className="flex flex-col p-6">
           <div className="flex items-center gap-2">
-            <h2 className="font-bold text-petrol-800">Residencias reales</h2>
+            <h2 className="font-bold text-ink">Residencias reales</h2>
             <Badge tone="sage">Solicitá de verdad</Badge>
           </div>
           <p className="mt-2 flex-1 text-sm text-ink-soft">
@@ -263,7 +263,7 @@ export default async function StudentDashboardPage() {
           </Button>
         </Card>
         <Card className="flex flex-col p-6">
-          <h2 className="font-bold text-petrol-800">Explorar catálogo de demostración</h2>
+          <h2 className="font-bold text-ink">Explorar catálogo de demostración</h2>
           <p className="mt-2 flex-1 text-sm text-ink-soft">
             Ejemplos editoriales de cómo se ve una residencia en EstuRed. No podés solicitar
             desde acá todavía.
@@ -273,7 +273,7 @@ export default async function StudentDashboardPage() {
           </Button>
         </Card>
         <Card className="flex flex-col p-6">
-          <h2 className="font-bold text-petrol-800">Mis solicitudes</h2>
+          <h2 className="font-bold text-ink">Mis solicitudes</h2>
           <p className="mt-2 flex-1 text-sm text-ink-soft">
             Seguí tus solicitudes de reserva y su estado.
           </p>
@@ -283,7 +283,7 @@ export default async function StudentDashboardPage() {
         </Card>
         {hasConfirmedReservation && (
           <Card className="flex flex-col p-6">
-            <h2 className="font-bold text-petrol-800">Renovaciones</h2>
+            <h2 className="font-bold text-ink">Renovaciones</h2>
             <p className="mt-2 flex-1 text-sm text-ink-soft">
               Solicitá renovar tu estadía o revisá las ofertas de renovación que te envió la residencia.
             </p>
@@ -293,7 +293,7 @@ export default async function StudentDashboardPage() {
           </Card>
         )}
         <Card className="flex flex-col p-6">
-          <h2 className="font-bold text-petrol-800">Lista de espera</h2>
+          <h2 className="font-bold text-ink">Lista de espera</h2>
           <p className="mt-2 flex-1 text-sm text-ink-soft">
             Residencias sin lugar a las que te sumaste — te avisamos si se libera un lugar.
           </p>
@@ -302,7 +302,7 @@ export default async function StudentDashboardPage() {
           </Button>
         </Card>
         <Card className="flex flex-col p-6">
-          <h2 className="font-bold text-petrol-800">Mi estadía</h2>
+          <h2 className="font-bold text-ink">Mi estadía</h2>
           <p className="mt-2 flex-1 text-sm text-ink-soft">
             Si tu residencia te cargó como residente, activá tu cuenta y elegí si aparecer en su comunidad.
           </p>
@@ -312,7 +312,7 @@ export default async function StudentDashboardPage() {
         </Card>
         <Card className="flex flex-col p-6">
           <div className="flex items-center gap-2">
-            <h2 className="font-bold text-petrol-800">Completar mi perfil</h2>
+            <h2 className="font-bold text-ink">Completar mi perfil</h2>
             <Badge tone="amber">Muy pronto</Badge>
           </div>
           <p className="mt-2 flex-1 text-sm text-ink-soft">
@@ -324,7 +324,7 @@ export default async function StudentDashboardPage() {
 
       <p className="mt-8 text-xs text-ink-faint">
         ¿Dudas o problemas con tu cuenta?{" "}
-        <Link href="/waitlist" className="text-petrol-600 hover:underline">
+        <Link href="/waitlist" className="text-forest-700 hover:underline">
           Escribinos
         </Link>
         .

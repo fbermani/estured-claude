@@ -81,7 +81,7 @@ export default async function ResidenceDetailPage({
         <div className="space-y-10 lg:col-span-2">
           <div>
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-3xl font-bold text-petrol-800 sm:text-4xl">
+              <h1 className="text-3xl font-bold text-ink sm:text-4xl">
                 {residence.name}
               </h1>
               <TrustBadge status={residence.verificationStatus} size="md" />
@@ -89,7 +89,7 @@ export default async function ResidenceDetailPage({
             <p className="mt-1 text-ink-soft">
               {residence.zone}, {residence.city}
               {residence.nearUniversities.length > 0 && (
-                <span className="text-petrol-600">
+                <span className="text-forest-700">
                   {" "}
                   · Cerca de {residence.nearUniversities.join(" y ")}
                 </span>
@@ -97,7 +97,7 @@ export default async function ResidenceDetailPage({
             </p>
             <p className="mt-4 text-ink-soft">{residence.description}</p>
             {residence.idealFor && (
-              <p className="mt-3 rounded-card bg-sage-50 p-4 text-sm text-sage-800">
+              <p className="mt-3 rounded-card bg-mint p-4 text-sm text-forest-700">
                 <span className="font-semibold">Ideal para:</span>{" "}
                 {residence.idealFor}
               </p>
@@ -106,7 +106,7 @@ export default async function ResidenceDetailPage({
 
           {/* Habitaciones y tarifas */}
           <section>
-            <h2 className="text-xl font-bold text-petrol-800">
+            <h2 className="text-xl font-bold text-ink">
               Habitaciones y tarifas
             </h2>
             <div className="mt-4 overflow-hidden rounded-card border border-sand-200">
@@ -125,7 +125,7 @@ export default async function ResidenceDetailPage({
                         {rt.type}
                       </td>
                       <td className="px-4 py-3">
-                        <span className="font-semibold text-petrol-700">
+                        <span className="font-semibold text-forest-700">
                           {formatUsd(rt.priceUsd)}
                         </span>
                         <span className="ml-2 text-xs text-ink-faint">
@@ -158,13 +158,13 @@ export default async function ResidenceDetailPage({
 
           {/* Servicios */}
           <section>
-            <h2 className="text-xl font-bold text-petrol-800">
+            <h2 className="text-xl font-bold text-ink">
               Servicios incluidos
             </h2>
             <ul className="mt-4 grid gap-2 sm:grid-cols-2">
               {residence.services.map((s) => (
                 <li key={s} className="flex items-center gap-2 text-sm text-ink-soft">
-                  <span className="text-sage-600">✓</span> {s}
+                  <span className="text-forest-700">✓</span> {s}
                 </li>
               ))}
             </ul>
@@ -173,7 +173,7 @@ export default async function ResidenceDetailPage({
           {/* Reglas */}
           {residence.highlightedRules.length > 0 && (
             <section>
-              <h2 className="text-xl font-bold text-petrol-800">
+              <h2 className="text-xl font-bold text-ink">
                 Reglas de convivencia destacadas
               </h2>
               <ul className="mt-4 space-y-2">
@@ -199,7 +199,7 @@ export default async function ResidenceDetailPage({
             </p>
             <div className="mt-5 border-t border-sand-200 pt-5">
               <p className="text-xs text-ink-faint">Desde</p>
-              <p className="text-2xl font-bold text-petrol-700">
+              <p className="text-2xl font-bold text-forest-700">
                 {formatUsd(residence.priceFromUsd)}
                 <span className="ml-1 text-sm font-normal text-ink-faint">
                   /mes

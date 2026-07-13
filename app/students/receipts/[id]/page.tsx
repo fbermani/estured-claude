@@ -63,7 +63,7 @@ export default async function ReceiptPage({
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-petrol-800">Comprobante de Reserva Confirmada</h1>
+        <h1 className="text-2xl font-bold text-ink">Comprobante de Reserva Confirmada</h1>
         <Badge tone={statusBadge.tone}>{statusBadge.label}</Badge>
       </div>
       <p className="mt-1 text-sm text-ink-faint">N.º {receipt.receipt_number}</p>
@@ -72,7 +72,7 @@ export default async function ReceiptPage({
         <p className="mt-4 rounded-field bg-sand-100 px-4 py-3 text-sm text-ink-soft">
           Este comprobante fue reemitido y ya no es el vigente.{" "}
           {newReceipt && (
-            <a href={`/students/receipts/${newReceipt.id}`} className="font-semibold text-petrol-700 underline">
+            <a href={`/students/receipts/${newReceipt.id}`} className="font-semibold text-forest-700 underline">
               Ver el comprobante vigente
             </a>
           )}
@@ -147,7 +147,7 @@ export default async function ReceiptPage({
         </div>
         <a
           href={`/students/receipts/${id}/pdf`}
-          className="inline-flex items-center justify-center gap-2 rounded-full bg-petrol-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-petrol-700 hover:shadow"
+          className="inline-flex items-center justify-center gap-2 rounded-full bg-forest px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-forest-600 hover:shadow"
         >
           Descargar PDF
         </a>

@@ -105,7 +105,7 @@ export function RegisterResidenceForm() {
               type="checkbox"
               name="accept_terms"
               required
-              className="mt-0.5 h-4 w-4 accent-petrol-600"
+              className="mt-0.5 h-4 w-4 accent-forest"
             />
             <span>
               Acepto los términos y condiciones de EstuRed como residencia
@@ -117,7 +117,7 @@ export function RegisterResidenceForm() {
               type="checkbox"
               name="accept_responsibility"
               required
-              className="mt-0.5 h-4 w-4 accent-petrol-600"
+              className="mt-0.5 h-4 w-4 accent-forest"
             />
             <span>
               Entiendo que mi residencia solo se publica tras verificación

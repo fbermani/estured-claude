@@ -51,7 +51,7 @@ export default async function StudentApplicationsPage() {
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-14">
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-petrol-800">Mis solicitudes</h1>
+          <h1 className="text-3xl font-bold text-ink">Mis solicitudes</h1>
           <p className="mt-1 text-ink-soft">Seguimiento de tus solicitudes de reserva.</p>
         </div>
         <Button href="/residencias" size="sm">
@@ -77,7 +77,7 @@ export default async function StudentApplicationsPage() {
               <Link key={a.id} href={`/students/applications/${a.id}`}>
                 <Card interactive className="flex flex-wrap items-center justify-between gap-3 p-5">
                   <div>
-                    <p className="font-bold text-petrol-800">{a.residences?.name}</p>
+                    <p className="font-bold text-ink">{a.residences?.name}</p>
                     <p className="text-sm text-ink-soft">
                       {a.room_types?.name} · Ingreso {a.desired_start_date}
                     </p>

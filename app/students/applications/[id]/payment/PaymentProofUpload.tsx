@@ -26,8 +26,8 @@ export function PaymentProofUpload({ applicationId }: { applicationId: string })
 
   if (state.status === "saved") {
     return (
-      <Card className="mt-4 border-sage-300 bg-sage-50 p-5">
-        <p className="text-sm font-medium text-sage-800">
+      <Card className="mt-4 border-line-2 bg-mint p-5">
+        <p className="text-sm font-medium text-forest-700">
           Comprobante registrado. Es solo de referencia — la residencia sigue siendo quien confirma que
           recibió el pago.
         </p>
@@ -37,7 +37,7 @@ export function PaymentProofUpload({ applicationId }: { applicationId: string })
 
   return (
     <Card className="mt-4 p-5">
-      <h3 className="font-bold text-petrol-800">Subir comprobante de pago (opcional)</h3>
+      <h3 className="font-bold text-ink">Subir comprobante de pago (opcional)</h3>
       <p className="mt-1 text-xs text-ink-faint">
         Es solo de referencia para vos y la residencia — no confirma tu reserva. Solo la residencia puede
         marcar que recibió el pago.
@@ -71,7 +71,7 @@ export function PaymentProofUpload({ applicationId }: { applicationId: string })
             type="file"
             required
             accept="application/pdf,image/jpeg,image/png,image/webp"
-            className="mt-1.5 block w-full text-sm text-ink-soft file:mr-3 file:rounded-field file:border-0 file:bg-petrol-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-petrol-700"
+            className="mt-1.5 block w-full text-sm text-ink-soft file:mr-3 file:rounded-field file:border-0 file:bg-forest-tint file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-forest-700"
           />
         </div>
 

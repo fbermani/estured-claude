@@ -56,7 +56,7 @@ export default async function ResidenceWaitlistPage({
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
-      <h1 className="text-2xl font-bold text-petrol-800">Lista de espera</h1>
+      <h1 className="text-2xl font-bold text-ink">Lista de espera</h1>
       <p className="mt-1 text-sm text-ink-soft">Estudiantes esperando lugar en esta residencia.</p>
 
       {rows.length === 0 ? (

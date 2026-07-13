@@ -52,7 +52,7 @@ export function AvailabilityForm({
           {state.message}
         </p>
       )}
-      {state.status === "saved" && <p className="text-sm font-medium text-sage-700">Disponibilidad actualizada.</p>}
+      {state.status === "saved" && <p className="text-sm font-medium text-forest-700">Disponibilidad actualizada.</p>}
 
       <Button type="submit" size="sm" disabled={isPending}>
         {isPending ? "Guardando…" : "Actualizar disponibilidad"}

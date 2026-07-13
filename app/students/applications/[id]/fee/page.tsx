@@ -80,7 +80,7 @@ export default async function FeePaymentPage({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
-      <h1 className="text-2xl font-bold text-petrol-800">Fee EstuRed — {residence?.name}</h1>
+      <h1 className="text-2xl font-bold text-ink">Fee EstuRed — {residence?.name}</h1>
       <p className="mt-1 text-sm text-ink-soft">
         El fee EstuRed es el 5% de tu estadía inicial reservada. Va aparte del pago que le hiciste
         directamente a la residencia.
@@ -110,7 +110,7 @@ export default async function FeePaymentPage({
           )}
           <div className="flex justify-between border-b border-sand-200 pb-2">
             <dt className="text-ink-faint">Fee EstuRed (5%)</dt>
-            <dd className="font-bold text-petrol-700">
+            <dd className="font-bold text-forest-700">
               {formatArs(Number(feePayment.fee_amount_ars))}
               <ExchangeRateNote />
             </dd>

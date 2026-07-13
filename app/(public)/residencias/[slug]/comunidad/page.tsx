@@ -34,10 +34,10 @@ export default async function ResidenceCommunityPage({ params }: { params: Promi
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-14">
-      <Link href={`/residencias/${slug}`} className="text-sm text-petrol-600 hover:underline">
+      <Link href={`/residencias/${slug}`} className="text-sm text-forest-700 hover:underline">
         ← {residence.name}
       </Link>
-      <h1 className="mt-3 text-2xl font-bold text-petrol-800 sm:text-3xl">Comunidad de {residence.name}</h1>
+      <h1 className="mt-3 text-2xl font-bold text-ink sm:text-3xl">Comunidad de {residence.name}</h1>
       <p className="mt-2 text-sm text-ink-soft">{residence.public_area}, CABA</p>
 
       {!sessionUser && (
@@ -57,7 +57,7 @@ export default async function ResidenceCommunityPage({ params }: { params: Promi
         <>
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             <Card className="p-5">
-              <p className="text-2xl font-bold text-petrol-800">{summary.totalResidents}</p>
+              <p className="text-2xl font-bold text-ink">{summary.totalResidents}</p>
               <p className="text-sm text-ink-soft">Residentes cargados</p>
               {summary.pendingActivationCount > 0 && (
                 <p className="mt-1 text-xs text-ink-faint">

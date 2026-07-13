@@ -38,7 +38,7 @@ export default async function RegisterPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-14 sm:py-20">
       <div className="text-center">
-        <h1 className="text-3xl font-bold text-petrol-800">Crear cuenta</h1>
+        <h1 className="text-3xl font-bold text-ink">Crear cuenta</h1>
         <p className="mt-2 text-sm text-ink-soft">
           Elegí cómo vas a usar EstuRed. Después vas a poder sumar otros
           vínculos (por ejemplo, un familiar).
@@ -50,12 +50,12 @@ export default async function RegisterPage() {
             <Card interactive className="flex items-center gap-4 p-6">
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <h2 className="font-bold text-petrol-800">{o.title}</h2>
+                  <h2 className="font-bold text-ink">{o.title}</h2>
                   {!o.available && <Badge tone="amber">Muy pronto</Badge>}
                 </div>
                 <p className="mt-1 text-sm text-ink-soft">{o.description}</p>
               </div>
-              <span className="text-petrol-500 transition-transform group-hover:translate-x-0.5">
+              <span className="text-forest-700 transition-transform group-hover:translate-x-0.5">
                 →
               </span>
             </Card>
@@ -66,7 +66,7 @@ export default async function RegisterPage() {
         ¿Ya tenés cuenta?{" "}
         <Link
           href="/login"
-          className="font-semibold text-petrol-600 hover:text-petrol-700"
+          className="font-semibold text-forest-700 hover:text-forest-700"
         >
           Iniciar sesión
         </Link>

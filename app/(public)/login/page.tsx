@@ -18,7 +18,7 @@ export default async function LoginPage({
   return (
     <div className="mx-auto max-w-md px-4 py-14 sm:py-20">
       <div className="text-center">
-        <h1 className="text-3xl font-bold text-petrol-800">Iniciar sesión</h1>
+        <h1 className="text-3xl font-bold text-ink">Iniciar sesión</h1>
         <p className="mt-2 text-sm text-ink-soft">
           Entrá a tu cuenta de EstuRed.
         </p>
@@ -30,7 +30,7 @@ export default async function LoginPage({
         ¿Todavía no tenés cuenta?{" "}
         <Link
           href="/register"
-          className="font-semibold text-petrol-600 hover:text-petrol-700"
+          className="font-semibold text-forest-700 hover:text-forest-700"
         >
           Crear cuenta
         </Link>

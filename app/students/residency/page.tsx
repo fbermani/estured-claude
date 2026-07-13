@@ -62,7 +62,7 @@ export default async function StudentResidencyPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
-      <h1 className="text-2xl font-bold text-petrol-800">Mi estadía</h1>
+      <h1 className="text-2xl font-bold text-ink">Mi estadía</h1>
       <p className="mt-2 text-sm text-ink-soft">
         Si tu residencia te cargó como residente, activá tu cuenta para aparecer en la comunidad visible — vos
         decidís si aparecer o no.
@@ -71,8 +71,8 @@ export default async function StudentResidencyPage() {
       {pending.length > 0 && (
         <div className="mt-6 space-y-4">
           {pending.map((stay) => (
-            <Card key={stay.id} className="border-petrol-200 bg-petrol-50 p-5">
-              <p className="font-semibold text-petrol-800">
+            <Card key={stay.id} className="border-line-2 bg-forest-tint p-5">
+              <p className="font-semibold text-ink">
                 {stay.residences?.name} te cargó como residente
               </p>
               <p className="mt-1 text-xs text-ink-faint">{stay.room_types?.name ?? "Sin tipo asignado"}</p>

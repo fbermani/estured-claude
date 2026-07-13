@@ -23,8 +23,8 @@ export function RevocationForm({
 
   if (state.status === "saved") {
     return (
-      <Card className="mt-4 border-sage-300 bg-sage-50 p-5">
-        <p className="text-sm font-medium text-sage-800">
+      <Card className="mt-4 border-line-2 bg-mint p-5">
+        <p className="text-sm font-medium text-forest-700">
           Revocación registrada — en revisión por EstuRed. Te vamos a contactar sobre el estado del reembolso.
         </p>
       </Card>
@@ -78,7 +78,7 @@ export function RevocationForm({
           name="acknowledge_no_automatic_refund"
           checked={confirmed}
           onChange={(e) => setConfirmed(e.target.checked)}
-          className="mt-0.5 h-4 w-4 accent-petrol-600"
+          className="mt-0.5 h-4 w-4 accent-forest"
         />
         Entiendo las consecuencias y que el fee no se reembolsa automáticamente.
       </label>

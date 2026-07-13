@@ -63,7 +63,7 @@ export default async function ResidenceAvailabilityPage({
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
-      <h1 className="text-2xl font-bold text-petrol-800">Disponibilidad</h1>
+      <h1 className="text-2xl font-bold text-ink">Disponibilidad</h1>
       <p className="mt-1 text-sm text-ink-soft">
         Actualizá la disponibilidad al menos cada 30 días — si no, se muestra como &ldquo;sin actualizar&rdquo; y
         después de 15 días más deja de aparecer en las búsquedas.

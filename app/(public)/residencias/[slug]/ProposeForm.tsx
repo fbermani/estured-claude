@@ -53,7 +53,7 @@ export function ProposeForm({
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
-      <h3 className="font-bold text-petrol-800">Proponer esta residencia</h3>
+      <h3 className="font-bold text-ink">Proponer esta residencia</h3>
       <p className="text-xs text-ink-faint">
         Le va a llegar como sugerencia a tu estudiante — recién se convierte en solicitud real si él o ella
         la aprueba, y en ese caso la residencia te va a contactar a vos.

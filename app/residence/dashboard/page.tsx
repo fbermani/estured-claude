@@ -64,7 +64,7 @@ export default async function ResidenceDashboardPage() {
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-petrol-800">Tus residencias</h1>
+          <h1 className="text-3xl font-bold text-ink">Tus residencias</h1>
           <p className="mt-1 text-ink-soft">Gestioná el perfil y la publicación de cada una.</p>
         </div>
         <Button href="/register/residence" variant="outline" size="sm">
@@ -92,7 +92,7 @@ export default async function ResidenceDashboardPage() {
               <Card key={r.id} className="flex flex-wrap items-center justify-between gap-4 p-6">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h2 className="text-lg font-bold text-petrol-800">{r.name}</h2>
+                    <h2 className="text-lg font-bold text-ink">{r.name}</h2>
                     <Badge tone={badge.tone}>{badge.label}</Badge>
                   </div>
                   <p className="mt-1 text-sm text-ink-soft">
@@ -104,7 +104,7 @@ export default async function ResidenceDashboardPage() {
                   {pendingCounts[r.id] > 0 && (
                     <Link
                       href={`/residence/${r.id}/applications`}
-                      className="flex items-center gap-1.5 text-sm font-semibold text-petrol-600 hover:text-petrol-700"
+                      className="flex items-center gap-1.5 text-sm font-semibold text-forest-700 hover:text-forest-700"
                     >
                       <Badge tone="amber">{pendingCounts[r.id]} nueva(s)</Badge>
                       Solicitudes →
@@ -112,32 +112,32 @@ export default async function ResidenceDashboardPage() {
                   )}
                   <Link
                     href={`/residence/${r.id}/renewals`}
-                    className="flex items-center gap-1.5 text-sm font-semibold text-petrol-600 hover:text-petrol-700"
+                    className="flex items-center gap-1.5 text-sm font-semibold text-forest-700 hover:text-forest-700"
                   >
                     {pendingRenewalCounts[r.id] > 0 && <Badge tone="amber">{pendingRenewalCounts[r.id]} nueva(s)</Badge>}
                     Renovaciones →
                   </Link>
                   <Link
                     href={`/residence/${r.id}/availability`}
-                    className="text-sm font-semibold text-petrol-600 hover:text-petrol-700"
+                    className="text-sm font-semibold text-forest-700 hover:text-forest-700"
                   >
                     Disponibilidad →
                   </Link>
                   <Link
                     href={`/residence/${r.id}/waitlist`}
-                    className="text-sm font-semibold text-petrol-600 hover:text-petrol-700"
+                    className="text-sm font-semibold text-forest-700 hover:text-forest-700"
                   >
                     Lista de espera →
                   </Link>
                   <Link
                     href={`/residence/${r.id}/residents`}
-                    className="text-sm font-semibold text-petrol-600 hover:text-petrol-700"
+                    className="text-sm font-semibold text-forest-700 hover:text-forest-700"
                   >
                     Residentes →
                   </Link>
                   <Link
                     href={`/residence/${r.id}/profile`}
-                    className="text-sm font-semibold text-petrol-600 hover:text-petrol-700"
+                    className="text-sm font-semibold text-forest-700 hover:text-forest-700"
                   >
                     {r.status === "draft" ? "Completar perfil →" : "Editar perfil →"}
                   </Link>

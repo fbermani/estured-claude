@@ -74,7 +74,7 @@ export default async function StudentRenewalsPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
-      <h1 className="text-2xl font-bold text-petrol-800">Renovaciones</h1>
+      <h1 className="text-2xl font-bold text-ink">Renovaciones</h1>
       <p className="mt-2 text-sm text-ink-soft">
         Solicitá renovar tu estadía o revisá las ofertas de renovación que te envió la residencia.
       </p>
