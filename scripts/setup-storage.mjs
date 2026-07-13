@@ -14,6 +14,8 @@
  *     policies de Storage (mismo patrón que la tabla `files`).
  *   - payment-proofs (Ciclo 10): comprobantes de pago a residencia
  *     (estudiante) y recibo de la residencia. Mismo patrón privado.
+ *   - support-evidence (Ciclo 34quindecies): evidencia de casos de
+ *     soporte (fotos, capturas, video, audio) — docs/06 §26.
  */
 import { createClient } from "@supabase/supabase-js";
 
@@ -44,6 +46,22 @@ const BUCKETS = [
     public: false,
     fileSizeLimit: 10 * 1024 * 1024,
     allowedMimeTypes: ["application/pdf", "image/jpeg", "image/png", "image/webp"],
+  },
+  {
+    id: "support-evidence",
+    public: false,
+    fileSizeLimit: 25 * 1024 * 1024, // más grande: incluye video/audio, no solo fotos/PDF
+    allowedMimeTypes: [
+      "application/pdf",
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "video/mp4",
+      "video/quicktime",
+      "audio/mpeg",
+      "audio/mp4",
+      "audio/ogg",
+    ],
   },
 ];
 

@@ -169,6 +169,12 @@ export default async function ResidenceOverviewPage({
         </div>
         <div className="flex gap-2">
           <Link
+            href={`/residence/${residenceId}/support`}
+            className="rounded-full border-[1.5px] border-line-2 bg-paper px-4 py-2 text-sm font-bold text-ink hover:border-forest hover:bg-forest-tint"
+          >
+            Soporte
+          </Link>
+          <Link
             href={`/residence/${residenceId}/profile`}
             className="rounded-full border-[1.5px] border-line-2 bg-paper px-4 py-2 text-sm font-bold text-ink hover:border-forest hover:bg-forest-tint"
           >

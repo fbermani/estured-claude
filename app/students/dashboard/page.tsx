@@ -359,6 +359,9 @@ export default async function StudentDashboardPage() {
         <Link href="/students/revocation" className="flex items-center gap-3 rounded-field px-3 py-2.5 text-sm font-medium text-ink-soft hover:bg-cream-2">
           <Icon name="undo" className="text-lg" /> Botón de arrepentimiento
         </Link>
+        <Link href="/students/support" className="flex items-center gap-3 rounded-field px-3 py-2.5 text-sm font-medium text-ink-soft hover:bg-cream-2">
+          <Icon name="support_agent" className="text-lg" /> Soporte
+        </Link>
       </Card>
     </div>
   );

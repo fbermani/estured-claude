@@ -118,6 +118,15 @@ function ValidationsIcon() {
     </svg>
   );
 }
+function SupportCasesIcon() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
+      <circle cx="10" cy="10" r="7.5" />
+      <path strokeLinecap="round" d="M7.6 7.8a2.4 2.4 0 014.5 1.1c0 1.6-2.2 1.6-2.2 3.1" />
+      <circle cx="10" cy="14.2" r="0.15" fill="currentColor" />
+    </svg>
+  );
+}
 function WaitlistsIcon() {
   return (
     <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
@@ -142,6 +151,7 @@ const NAV = [
   { href: "/admin/revocations", label: "Revocaciones", Icon: RevocationsIcon },
   { href: "/admin/receipts", label: "Comprobantes", Icon: ReceiptsIcon },
   { href: "/admin/waitlists", label: "Listas de espera", Icon: WaitlistsIcon },
+  { href: "/admin/support-cases", label: "Soporte", Icon: SupportCasesIcon },
   { href: "/admin/exchange-rate", label: "Tipo de cambio", Icon: ExchangeIcon },
   { href: "/admin/users", label: "Usuarios", Icon: UsersIcon },
   { href: "/admin/logs", label: "Logs", Icon: LogsIcon },
