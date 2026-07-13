@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { signOut } from "@/app/(public)/login/actions";
+import { NotificationBell } from "@/components/layout/NotificationBell";
 
 /**
  * Header de las áreas autenticadas (/students, /residence, /admin).
@@ -29,6 +30,7 @@ export function AreaHeader({
           </span>
         </div>
         <div className="flex items-center gap-3">
+          <NotificationBell />
           <span className="hidden text-sm text-ink-soft sm:inline">{userEmail}</span>
           <form action={signOut}>
             <button

@@ -3,6 +3,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
 import { cmd } from "@/components/admin/ui/tokens";
+import { ReopenApplicationControl } from "@/app/admin/applications/ReopenApplicationControl";
 
 export const metadata: Metadata = { title: "Solicitudes" };
 export const dynamic = "force-dynamic";
@@ -24,6 +25,7 @@ const STATUS_BADGE: Record<string, { label: string; tone: "amber" | "emerald" | 
 };
 
 const CLOSED_STATUSES = ["converted_to_reservation", "rejected", "expired_no_residence_response", "cancelled_by_student"];
+const REOPENABLE_STATUSES = ["rejected", "expired_no_residence_response"];
 
 type ApplicationRow = {
   id: string;
@@ -57,15 +59,16 @@ export default async function AdminApplicationsPage() {
         Solicitudes
       </h1>
       <p className="text-sm" style={{ color: cmd.onSurfaceVariant }}>
-        {activeCount} activa(s) de {applications.length} en total, todas las residencias. Vista de solo lectura —
-        cada residencia gestiona sus propias solicitudes desde su panel.
+        {activeCount} activa(s) de {applications.length} en total, todas las residencias. Cada residencia gestiona
+        sus propias solicitudes desde su panel — desde acá solo se puede reabrir una rechazada o vencida.
       </p>
 
       <AdminCard className="mt-6 overflow-hidden">
+        <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead style={{ backgroundColor: cmd.surfaceContainerLow, borderBottom: `1px solid ${cmd.border}` }}>
             <tr>
-              {["Fecha", "Estudiante", "Residencia", "Tipo", "Ingreso deseado", "Estado"].map((h) => (
+              {["Fecha", "Estudiante", "Residencia", "Tipo", "Ingreso deseado", "Estado", ""].map((h) => (
                 <th
                   key={h}
                   className="px-4 py-2.5 text-[11px] font-bold uppercase tracking-wide"
@@ -104,11 +107,15 @@ export default async function AdminApplicationsPage() {
                   <td className="px-4 py-2.5">
                     <AdminBadge tone={badge.tone}>{badge.label}</AdminBadge>
                   </td>
+                  <td className="px-4 py-2.5">
+                    {REOPENABLE_STATUSES.includes(a.status) && <ReopenApplicationControl applicationId={a.id} />}
+                  </td>
                 </tr>
               );
             })}
           </tbody>
         </table>
+        </div>
         {applications.length === 0 && (
           <p className="p-6 text-sm" style={{ color: cmd.outline }}>
             Todavía no hay solicitudes en el sistema.
