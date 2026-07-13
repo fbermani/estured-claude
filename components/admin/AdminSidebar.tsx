@@ -85,6 +85,23 @@ function ReceiptsIcon() {
     </svg>
   );
 }
+function NegotiationsIcon() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 4h7l3 3v9H4V4z" />
+      <path strokeLinecap="round" d="M6.5 8.5h4M6.5 11.5h6M6.5 14h3" />
+    </svg>
+  );
+}
+function ReservationsIcon() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
+      <rect x="3" y="4" width="14" height="13" rx="1.5" />
+      <path strokeLinecap="round" d="M3 8h14M6.5 2.5v3M13.5 2.5v3" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M7 12l2 2 4-4" />
+    </svg>
+  );
+}
 function WaitlistsIcon() {
   return (
     <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
@@ -100,8 +117,10 @@ const NAV = [
   { href: "/admin/dashboard", label: "Dashboard", Icon: DashboardIcon },
   { href: "/admin/verifications", label: "Residencias", Icon: BuildingIcon },
   { href: "/admin/applications", label: "Solicitudes", Icon: ClockIcon },
+  { href: "/admin/negotiations", label: "Negociaciones", Icon: NegotiationsIcon },
   { href: "/admin/family-proposals", label: "Propuestas familiar", Icon: FamilyProposalsIcon },
   { href: "/admin/payments", label: "Pagos", Icon: PaymentsIcon },
+  { href: "/admin/reservations", label: "Reservas", Icon: ReservationsIcon },
   { href: "/admin/revocations", label: "Revocaciones", Icon: RevocationsIcon },
   { href: "/admin/receipts", label: "Comprobantes", Icon: ReceiptsIcon },
   { href: "/admin/waitlists", label: "Listas de espera", Icon: WaitlistsIcon },
