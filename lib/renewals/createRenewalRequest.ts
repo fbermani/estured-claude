@@ -16,6 +16,10 @@ export type CreateRenewalRequestResult = { ok: true; renewalRequestId: string } 
  * a `notified_to_residence`, ya que no hay una notificación real que
  * disparar (mismo criterio que otras entidades del proyecto sin
  * NotificationProvider todavía).
+ *
+ * `expires_at` a 30 días (Ciclo 34nonies, confirmado por el dueño — a
+ * diferencia de las 48h del resto del sistema, acá el plazo es más largo
+ * porque es una solicitud informal sin urgencia de negociación).
  */
 export async function createRenewalRequest(
   admin: SupabaseClient,
@@ -61,6 +65,7 @@ export async function createRenewalRequest(
       residence_id: reservation.residence_id,
       message: params.message,
       desired_duration_months: params.desiredDurationMonths,
+      expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
     })
     .select("id")
     .single();

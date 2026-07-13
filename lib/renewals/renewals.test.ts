@@ -7,6 +7,10 @@ import { respondRenewalOffer } from "@/lib/renewals/respondRenewalOffer";
 import { recordRenewalResidencePaymentReceived } from "@/lib/renewals/recordRenewalResidencePaymentReceived";
 import { registerRenewalManualFeePayment } from "@/lib/renewals/registerRenewalManualFeePayment";
 import { recordRenewalManualFeePayment } from "@/lib/renewals/recordRenewalManualFeePayment";
+import { expireRenewalRequests } from "@/lib/jobs/expireRenewalRequests";
+import { expireRenewalOffers } from "@/lib/jobs/expireRenewalOffers";
+import { reopenRenewalRequest } from "@/lib/renewals/reopenRenewalRequest";
+import { reopenRenewalOffer } from "@/lib/renewals/reopenRenewalOffer";
 
 /**
  * Docs/12 §13 (módulo de Renovaciones — fase 1: solicitud → oferta →
@@ -23,6 +27,7 @@ describe.skipIf(!hasCreds)("módulo de renovaciones (integración)", () => {
   let ownerId: string;
   let studentUserId: string;
   let studentProfileId: string;
+  let adminActorId: string;
 
   beforeAll(async () => {
     admin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
@@ -35,6 +40,9 @@ describe.skipIf(!hasCreds)("módulo de renovaciones (integración)", () => {
       .eq("email", "owner.residencia.norte@example.com")
       .single();
     ownerId = owner!.id;
+
+    const { data: adminUser } = await admin.from("users").select("id").eq("email", "admin.operaciones@estured.test").single();
+    adminActorId = adminUser!.id;
 
     const { data: studentUser } = await admin
       .from("users")
@@ -853,6 +861,156 @@ describe.skipIf(!hasCreds)("módulo de renovaciones (integración)", () => {
       if (!result.ok) expect(result.error).toMatch(/motivo/i);
 
       await cleanupFase2(offerId);
+      await cleanupFixture(fixture, { renewalOfferIds: [offerId] });
+    } catch (e) {
+      if (offerId) await cleanupFase2(offerId);
+      await cleanupFixture(fixture);
+      throw e;
+    }
+  });
+
+  it("expireRenewalRequests + reopenRenewalRequest: vence una solicitud sin oferta, notifica, y el admin la reabre (Ciclo 34nonies)", async () => {
+    const fixture = await createConfirmedReservation();
+    let requestId: string | null = null;
+    try {
+      const created = await createRenewalRequest(admin, {
+        reservationId: fixture.reservationId,
+        actorUserId: studentUserId,
+        message: null,
+        desiredDurationMonths: 6,
+      });
+      expect(created.ok).toBe(true);
+      if (!created.ok) return;
+      requestId = created.renewalRequestId;
+
+      // Backdatea el vencimiento (30 días reales) para poder testear el job sin esperar.
+      await admin.from("renewal_requests").update({ expires_at: new Date(Date.now() - 1000).toISOString() }).eq("id", requestId);
+
+      const { expiredCount } = await expireRenewalRequests(admin);
+      expect(expiredCount).toBeGreaterThanOrEqual(1);
+
+      const { data: expired } = await admin.from("renewal_requests").select("status").eq("id", requestId).single();
+      expect(expired?.status).toBe("closed_no_offer");
+
+      const { data: expiryNotification } = await admin
+        .from("notifications")
+        .select("title")
+        .eq("related_entity_id", requestId)
+        .eq("title", "Tu solicitud de renovación venció")
+        .maybeSingle();
+      expect(expiryNotification?.title).toBe("Tu solicitud de renovación venció");
+
+      const badReopen = await reopenRenewalRequest(admin, {
+        renewalRequestId: requestId,
+        actorUserId: adminActorId,
+        actorRole: "admin",
+        reason: "hi",
+      });
+      expect(badReopen.status).toBe("error");
+
+      const reopened = await reopenRenewalRequest(admin, {
+        renewalRequestId: requestId,
+        actorUserId: adminActorId,
+        actorRole: "admin",
+        reason: "La residencia confirmó que sigue interesada, fue un error no responder.",
+      });
+      expect(reopened.status).toBe("ok");
+
+      const { data: afterReopen } = await admin
+        .from("renewal_requests")
+        .select("status, expires_at")
+        .eq("id", requestId)
+        .single();
+      expect(afterReopen?.status).toBe("notified_to_residence");
+      expect(new Date(afterReopen!.expires_at).getTime()).toBeGreaterThan(Date.now());
+
+      const { data: reopenNotification } = await admin
+        .from("notifications")
+        .select("title")
+        .eq("related_entity_id", requestId)
+        .eq("title", "Tu solicitud de renovación fue reabierta")
+        .maybeSingle();
+      expect(reopenNotification?.title).toBe("Tu solicitud de renovación fue reabierta");
+
+      await admin.from("renewal_requests").delete().eq("id", requestId);
+      await cleanupFixture(fixture);
+    } catch (e) {
+      if (requestId) await admin.from("renewal_requests").delete().eq("id", requestId);
+      await cleanupFixture(fixture);
+      throw e;
+    }
+  });
+
+  it("expireRenewalOffers + reopenRenewalOffer: vence una oferta sin respuesta, notifica, y el admin la reabre (Ciclo 34nonies)", async () => {
+    const fixture = await createConfirmedReservation();
+    let offerId: string | null = null;
+    try {
+      const created = await createRenewalOffer(admin, {
+        reservationId: fixture.reservationId,
+        renewalRequestId: null,
+        actorUserId: ownerId,
+        periodStartDate: "2027-08-15",
+        durationMonths: 6,
+        monthlyPriceUsd: 300,
+        enrollmentOrRenewalFeeUsd: null,
+        depositUsd: null,
+        adjustmentPolicy: "quarterly",
+        acceptanceDeadlineAt: new Date(Date.now() + 7 * 24 * 3_600_000).toISOString(),
+        sendNow: true,
+      });
+      expect(created.ok).toBe(true);
+      if (!created.ok) return;
+      offerId = created.renewalOfferId;
+
+      // Backdatea el plazo (elegido por la residencia) para poder testear el job sin esperar.
+      await admin.from("renewal_offers").update({ acceptance_deadline_at: new Date(Date.now() - 1000).toISOString() }).eq("id", offerId);
+
+      const { expiredCount } = await expireRenewalOffers(admin);
+      expect(expiredCount).toBeGreaterThanOrEqual(1);
+
+      const { data: expired } = await admin.from("renewal_offers").select("status").eq("id", offerId).single();
+      expect(expired?.status).toBe("expired");
+
+      const { data: expiryNotification } = await admin
+        .from("notifications")
+        .select("title")
+        .eq("related_entity_id", offerId)
+        .eq("title", "Venció una oferta de renovación")
+        .maybeSingle();
+      expect(expiryNotification?.title).toBe("Venció una oferta de renovación");
+
+      const badReopen = await reopenRenewalOffer(admin, {
+        renewalOfferId: offerId,
+        actorUserId: adminActorId,
+        actorRole: "admin",
+        reason: "hi",
+      });
+      expect(badReopen.status).toBe("error");
+
+      const reopened = await reopenRenewalOffer(admin, {
+        renewalOfferId: offerId,
+        actorUserId: adminActorId,
+        actorRole: "admin",
+        reason: "El estudiante avisó que no vio la notificación a tiempo.",
+      });
+      expect(reopened.status).toBe("ok");
+
+      const { data: afterReopen } = await admin
+        .from("renewal_offers")
+        .select("status, acceptance_deadline_at")
+        .eq("id", offerId)
+        .single();
+      expect(afterReopen?.status).toBe("sent");
+      expect(new Date(afterReopen!.acceptance_deadline_at).getTime()).toBeGreaterThan(Date.now());
+
+      const { data: reopenNotification } = await admin
+        .from("notifications")
+        .select("title")
+        .eq("related_entity_id", offerId)
+        .eq("title", "Te dieron otra chance para responder una oferta de renovación")
+        .maybeSingle();
+      expect(reopenNotification?.title).toBe("Te dieron otra chance para responder una oferta de renovación");
+
       await cleanupFixture(fixture, { renewalOfferIds: [offerId] });
     } catch (e) {
       if (offerId) await cleanupFase2(offerId);

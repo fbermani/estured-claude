@@ -6,6 +6,8 @@ import { expireApplicationRequests } from "@/lib/jobs/expireApplicationRequests"
 import { expireEsturedFeeWindows } from "@/lib/jobs/expireEsturedFeeWindows";
 import { checkStaleAvailability } from "@/lib/jobs/checkStaleAvailability";
 import { notifyWaitlistKeepAlive } from "@/lib/jobs/notifyWaitlistKeepAlive";
+import { expireRenewalRequests } from "@/lib/jobs/expireRenewalRequests";
+import { expireRenewalOffers } from "@/lib/jobs/expireRenewalOffers";
 
 /**
  * Orquesta los jobs periódicos del proyecto, invocado por
@@ -25,6 +27,8 @@ export async function runExpirationJobs(admin: SupabaseClient) {
     esturedFeeWindows,
     staleAvailability,
     waitlistKeepAlive,
+    renewalRequests,
+    renewalOffers,
   ] = await Promise.all([
     expireFamilyProposals(admin),
     expireNegotiationProposals(admin),
@@ -32,6 +36,8 @@ export async function runExpirationJobs(admin: SupabaseClient) {
     expireEsturedFeeWindows(admin),
     checkStaleAvailability(admin),
     notifyWaitlistKeepAlive(admin),
+    expireRenewalRequests(admin),
+    expireRenewalOffers(admin),
   ]);
 
   return {
@@ -41,5 +47,7 @@ export async function runExpirationJobs(admin: SupabaseClient) {
     esturedFeeWindows,
     staleAvailability,
     waitlistKeepAlive,
+    renewalRequests,
+    renewalOffers,
   };
 }
