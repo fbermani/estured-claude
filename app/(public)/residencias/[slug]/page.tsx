@@ -11,6 +11,8 @@ import { TrustBadge } from "@/components/residences/TrustBadge";
 import { formatArs, formatUsd, usdToArs } from "@/lib/mock/exchange";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
+import { Icon } from "@/components/ui/Icon";
+import { getCommunityVisibility } from "@/lib/residents/communityVisibility";
 import { ApplyForm } from "@/app/(public)/residencias/[slug]/ApplyForm";
 import { ProposeForm } from "@/app/(public)/residencias/[slug]/ProposeForm";
 
@@ -73,10 +75,13 @@ export async function generateMetadata({
 
 export default async function RealResidenceDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ room?: string }>;
 }) {
   const { slug } = await params;
+  const { room: preselectedRoomTypeId } = await searchParams;
   const data = await loadResidence(slug);
   if (!data) notFound();
   const { residence, roomTypes, sectionMap, photoUrls } = data;
@@ -84,8 +89,15 @@ export default async function RealResidenceDetailPage({
 
   const sessionUser = await getSessionUser();
   const services = (sectionMap.services?.items as string[]) ?? [];
+  const commonAreas = (sectionMap.common_areas?.items as string[]) ?? [];
   const nearUniversities = (sectionMap.near_universities?.items as string[]) ?? [];
   const rulesSummary = (sectionMap.rules?.summary as string) ?? "";
+
+  const adminClient = getSupabaseAdmin();
+  const community = adminClient
+    ? await getCommunityVisibility(adminClient, residence.id, sessionUser ? "registered" : "guest")
+    : null;
+  const communityProfiles = (community?.cards ?? []).filter((c) => c.kind === "profile");
 
   let linkedStudents: { id: string; first_name: string; last_initial: string }[] = [];
   if (sessionUser?.roles.includes("family_member")) {
@@ -113,9 +125,43 @@ export default async function RealResidenceDetailPage({
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
       <Badge tone="sage">Catálogo real</Badge>
 
-      {photoUrls.length > 0 && (
+      {/* Galería — ref search_3: 1 foto grande + grilla de 4 con "+N" */}
+      {photoUrls.length === 1 && (
         <div className="relative mt-4 h-72 overflow-hidden rounded-card bg-sand-200 sm:h-96">
           <Image src={photoUrls[0]} alt={residence.name} fill className="object-cover" priority />
+        </div>
+      )}
+      {photoUrls.length > 1 && (
+        <div className="mt-4 grid h-72 grid-cols-2 grid-rows-2 gap-2 overflow-hidden rounded-card sm:h-[420px] sm:grid-cols-4">
+          <div className="relative col-span-2 row-span-2 bg-sand-200">
+            <Image
+              src={photoUrls[0]}
+              alt={residence.name}
+              fill
+              sizes="(max-width: 640px) 100vw, 50vw"
+              className="object-cover"
+              priority
+            />
+          </div>
+          {photoUrls.slice(1, 5).map((url, i) => {
+            const isLastTile = i === 3 && photoUrls.length > 5;
+            return (
+              <div key={url} className="relative hidden bg-sand-200 sm:block">
+                <Image
+                  src={url}
+                  alt={`Foto ${i + 2} de ${residence.name}`}
+                  fill
+                  sizes="25vw"
+                  className="object-cover"
+                />
+                {isLastTile && (
+                  <span className="absolute inset-0 flex items-center justify-center bg-forest-ink/50 text-xl font-bold text-white">
+                    +{photoUrls.length - 5}
+                  </span>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
 
@@ -135,7 +181,7 @@ export default async function RealResidenceDetailPage({
             )}
           </div>
 
-          <section>
+          <section id="disponibilidad" className="scroll-mt-24">
             <h2 className="text-xl font-bold text-ink">Habitaciones y tarifas</h2>
             <div className="mt-4 overflow-hidden rounded-card border border-sand-200">
               <table className="w-full text-sm">
@@ -189,6 +235,23 @@ export default async function RealResidenceDetailPage({
             </section>
           )}
 
+          {commonAreas.length > 0 && (
+            <section>
+              <h2 className="text-xl font-bold text-ink">Áreas comunes</h2>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {commonAreas.map((area) => (
+                  <span
+                    key={area}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3.5 py-1.5 text-sm font-medium text-ink-soft"
+                  >
+                    <Icon name="chair" className="text-base text-forest-700" />
+                    {area}
+                  </span>
+                ))}
+              </div>
+            </section>
+          )}
+
           {rulesSummary && (
             <section>
               <h2 className="text-xl font-bold text-ink">Reglas de convivencia</h2>
@@ -196,18 +259,61 @@ export default async function RealResidenceDetailPage({
             </section>
           )}
 
+          {/* Comunidad — ref search_3: card "Comunidad y Convivencia" con
+              contador real + avatares + "Ver todos los perfiles →" */}
           <section>
-            <h2 className="text-xl font-bold text-ink">Comunidad</h2>
-            <p className="mt-3 text-sm text-ink-soft">
-              Conocé quién vive hoy en esta residencia — cada estudiante decide qué mostrar.
-            </p>
-            <Button href={`/residencias/${slug}/comunidad`} variant="outline" size="sm" className="mt-3">
-              Ver comunidad →
-            </Button>
+            <h2 className="text-xl font-bold text-ink">Comunidad actual</h2>
+            {community && community.totalResidents > 0 ? (
+              <Card className="mt-4 p-5">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    {communityProfiles.length > 0 && (
+                      <div className="flex -space-x-2">
+                        {communityProfiles.slice(0, 5).map((c, i) => (
+                          <span
+                            key={c.residentStayId}
+                            className={`flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold ring-2 ring-paper ${
+                              ["bg-forest-tint text-forest-700", "bg-orange-tint text-orange-700", "bg-mint text-forest-700", "bg-sand-100 text-ink-soft"][i % 4]
+                            }`}
+                          >
+                            {c.firstName?.[0]?.toUpperCase() ?? "?"}
+                          </span>
+                        ))}
+                        {community.totalResidents > 5 && (
+                          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-forest text-xs font-bold text-white ring-2 ring-paper">
+                            +{community.totalResidents - 5}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                    <div>
+                      <p className="font-bold text-ink">{community.totalResidents} residentes actuales</p>
+                      <p className="text-xs text-ink-soft">
+                        {community.byRoomType
+                          .filter((rt) => rt.occupiedCount > 0)
+                          .map((rt) => `${rt.roomTypeName}: ${rt.occupiedCount}`)
+                          .join(" · ")}
+                      </p>
+                    </div>
+                  </div>
+                  <Button href={`/residencias/${slug}/comunidad`} variant="outline" size="sm">
+                    Ver todos los perfiles →
+                  </Button>
+                </div>
+                <p className="mt-3 border-t border-line pt-3 text-xs text-ink-faint">
+                  La convivencia es dinámica: los perfiles mostrados son los actuales y cada estudiante decide qué
+                  mostrar.
+                </p>
+              </Card>
+            ) : (
+              <p className="mt-3 text-sm text-ink-soft">
+                La residencia todavía no cargó su comunidad visible.
+              </p>
+            )}
           </section>
         </div>
 
-        <aside>
+        <aside id="solicitud" className="scroll-mt-24">
           <Card className="sticky top-24 p-6">
             {!sessionUser ? (
               <>
@@ -228,7 +334,12 @@ export default async function RealResidenceDetailPage({
                 Solo cuentas de estudiante o familiares vinculados pueden actuar acá.
               </p>
             ) : (
-              <ApplyForm residenceId={residence.id} roomTypes={roomTypes} />
+              <ApplyForm
+                residenceId={residence.id}
+                roomTypes={roomTypes}
+                arsPerUsd={rate.arsPerUsd}
+                preselectedRoomTypeId={preselectedRoomTypeId}
+              />
             )}
             <p className="mt-4 text-xs text-ink-faint">
               Enviar una solicitud no garantiza tu lugar: la residencia la revisa y responde. Toda

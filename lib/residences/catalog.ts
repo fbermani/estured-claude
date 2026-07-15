@@ -23,7 +23,7 @@ export async function getCatalogResidences(): Promise<Residence[]> {
 
   const ids = residences.map((r) => r.id);
 
-  const [{ data: roomTypes }, { data: sections }, { data: photos }] = await Promise.all([
+  const [{ data: roomTypes }, { data: sections }, { data: photos }, { data: stays }] = await Promise.all([
     admin
       .from("room_types")
       .select("residence_id, name, monthly_price_usd, profile_availability(status, available_count)")
@@ -37,7 +37,19 @@ export async function getCatalogResidences(): Promise<Residence[]> {
       .in("related_entity_id", ids)
       .eq("document_type", "residence_photo")
       .order("created_at", { ascending: true }),
+    admin
+      .from("resident_stays")
+      .select("residence_id")
+      .in("residence_id", ids)
+      .eq("is_current", true)
+      .neq("status", "hidden_by_user")
+      .neq("status", "inactive"),
   ]);
+
+  const residentsCountById = new Map<string, number>();
+  for (const stay of stays ?? []) {
+    residentsCountById.set(stay.residence_id, (residentsCountById.get(stay.residence_id) ?? 0) + 1);
+  }
 
   return residences.map((r): Residence => {
     const rts = (roomTypes ?? [])
@@ -92,6 +104,7 @@ export async function getCatalogResidences(): Promise<Residence[]> {
       description: r.description ?? "",
       photos: photoUrls,
       hasWaitlist: availabilityMode === "full",
+      residentsCount: residentsCountById.get(r.id) ?? 0,
     };
   });
 }

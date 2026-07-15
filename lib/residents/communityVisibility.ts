@@ -20,6 +20,7 @@ export type CommunityViewerType = "guest" | "registered";
 export type CommunityProfileCard = {
   residentStayId: string;
   kind: "profile" | "placeholder";
+  roomTypeId: string | null;
   roomTypeName: string | null;
   firstName?: string;
   age?: number | null;
@@ -27,14 +28,27 @@ export type CommunityProfileCard = {
   countryFlag?: string | null;
   career?: string | null;
   originCity?: string | null;
+  bio?: string | null;
   habits?: Record<string, unknown> | null;
   interests?: Record<string, unknown> | null;
+};
+
+export type CommunityRoomTypeSummary = {
+  roomTypeId: string | null;
+  roomTypeName: string;
+  /** Etiqueta solo cuando la política no es mixta (ref: "Doble Femenina"). */
+  genderPolicyLabel: string | null;
+  occupiedCount: number;
+  /** `profile_availability.available_count` — null si la residencia no lo informó. */
+  availableCount: number | null;
 };
 
 export type CommunitySummary = {
   totalResidents: number;
   pendingActivationCount: number;
-  byRoomType: { roomTypeId: string | null; roomTypeName: string; count: number }[];
+  /** Plazas informadas como libres (suma de available_count). */
+  totalAvailable: number;
+  byRoomType: CommunityRoomTypeSummary[];
   cards: CommunityProfileCard[];
 };
 
@@ -51,6 +65,7 @@ type RawStay = {
         country_flag: string | null;
         origin_city: string | null;
         career: string | null;
+        bio: string | null;
         habits: Record<string, unknown>;
         interests: Record<string, unknown>;
         student_visibility_settings: {
@@ -72,36 +87,65 @@ export async function getCommunityVisibility(
   residenceId: string,
   viewerType: CommunityViewerType,
 ): Promise<CommunitySummary> {
-  const { data: stays } = await admin
-    .from("resident_stays")
-    .select(
-      "id, status, student_profile_id, room_types(id, name), student_profiles(first_name, display_age, nationality, country_flag, origin_city, career, habits, interests, student_visibility_settings(show_age_to_registered, show_nationality_to_registered, show_career_to_registered, show_origin_city_to_registered, show_habits_to_registered, show_interests_to_registered, is_individual_profile_visible))",
-    )
-    .eq("residence_id", residenceId)
-    .eq("is_current", true)
-    .neq("status", "hidden_by_user")
-    .neq("status", "inactive");
+  const [{ data: stays }, { data: roomTypes }] = await Promise.all([
+    admin
+      .from("resident_stays")
+      .select(
+        "id, status, student_profile_id, room_types(id, name), student_profiles(first_name, display_age, nationality, country_flag, origin_city, career, bio, habits, interests, student_visibility_settings(show_age_to_registered, show_nationality_to_registered, show_career_to_registered, show_origin_city_to_registered, show_habits_to_registered, show_interests_to_registered, is_individual_profile_visible))",
+      )
+      .eq("residence_id", residenceId)
+      .eq("is_current", true)
+      .neq("status", "hidden_by_user")
+      .neq("status", "inactive"),
+    admin
+      .from("room_types")
+      .select("id, name, gender_policy, profile_availability(status, available_count)")
+      .eq("residence_id", residenceId)
+      .eq("is_active", true),
+  ]);
 
   const rows = (stays ?? []) as unknown as RawStay[];
 
   const totalResidents = rows.length;
   const pendingActivationCount = rows.filter((r) => r.status === "pending_activation" || r.status === "created_by_residence").length;
 
-  const byRoomTypeMap = new Map<string, { roomTypeId: string | null; roomTypeName: string; count: number }>();
+  const occupiedByRoomType = new Map<string, number>();
   for (const row of rows) {
     const key = row.room_types?.id ?? "sin-tipo";
-    const label = row.room_types?.name ?? "Sin tipo asignado";
-    const existing = byRoomTypeMap.get(key);
-    if (existing) existing.count += 1;
-    else byRoomTypeMap.set(key, { roomTypeId: row.room_types?.id ?? null, roomTypeName: label, count: 1 });
+    occupiedByRoomType.set(key, (occupiedByRoomType.get(key) ?? 0) + 1);
   }
 
+  const GENDER_LABEL: Record<string, string> = { solo_mujeres: "Femenina", solo_hombres: "Masculina" };
+  const byRoomType: CommunityRoomTypeSummary[] = (roomTypes ?? []).map((rt) => {
+    // profile_availability tiene unique(room_type_id) — embed singular.
+    const availability = rt.profile_availability as unknown as { status: string; available_count: number | null } | null;
+    return {
+      roomTypeId: rt.id,
+      roomTypeName: rt.name,
+      genderPolicyLabel: GENDER_LABEL[rt.gender_policy ?? ""] ?? null,
+      occupiedCount: occupiedByRoomType.get(rt.id) ?? 0,
+      availableCount: availability?.status === "available_to_confirm" ? (availability.available_count ?? null) : availability ? 0 : null,
+    };
+  });
+  // Residentes sin tipo asignado (room_type_id null) igual cuentan.
+  if (occupiedByRoomType.has("sin-tipo")) {
+    byRoomType.push({
+      roomTypeId: null,
+      roomTypeName: "Sin tipo asignado",
+      genderPolicyLabel: null,
+      occupiedCount: occupiedByRoomType.get("sin-tipo") ?? 0,
+      availableCount: null,
+    });
+  }
+  const totalAvailable = byRoomType.reduce((sum, rt) => sum + (rt.availableCount ?? 0), 0);
+
   const cards: CommunityProfileCard[] = rows.map((row) => {
+    const roomTypeId = row.room_types?.id ?? null;
     const roomTypeName = row.room_types?.name ?? null;
     const settings = row.student_profiles?.student_visibility_settings ?? null;
     const canShowProfile = row.status === "active" && row.student_profiles && settings?.is_individual_profile_visible;
     if (!canShowProfile || !row.student_profiles || !settings) {
-      return { residentStayId: row.id, kind: "placeholder", roomTypeName };
+      return { residentStayId: row.id, kind: "placeholder", roomTypeId, roomTypeName };
     }
 
     const profile = row.student_profiles;
@@ -109,12 +153,13 @@ export async function getCommunityVisibility(
       // Docs/06 §6.2: ningún campo individual tiene toggle "_to_guests"
       // salvo la foto (que no se construye en este ciclo, ver comentario
       // de arriba) — un invitado no logueado solo ve que hay alguien acá.
-      return { residentStayId: row.id, kind: "profile", roomTypeName, firstName: profile.first_name };
+      return { residentStayId: row.id, kind: "profile", roomTypeId, roomTypeName, firstName: profile.first_name };
     }
 
     return {
       residentStayId: row.id,
       kind: "profile",
+      roomTypeId,
       roomTypeName,
       firstName: profile.first_name,
       age: settings.show_age_to_registered ? profile.display_age : null,
@@ -122,10 +167,14 @@ export async function getCommunityVisibility(
       countryFlag: settings.show_nationality_to_registered ? profile.country_flag : null,
       career: settings.show_career_to_registered ? profile.career : null,
       originCity: settings.show_origin_city_to_registered ? profile.origin_city : null,
+      // La bio la escribe el estudiante para mostrarse; queda detrás del
+      // master toggle is_individual_profile_visible (supuesto reversible —
+      // docs/06 §6.2 no define toggle propio para bio).
+      bio: profile.bio,
       habits: settings.show_habits_to_registered ? profile.habits : null,
       interests: settings.show_interests_to_registered ? profile.interests : null,
     };
   });
 
-  return { totalResidents, pendingActivationCount, byRoomType: Array.from(byRoomTypeMap.values()), cards };
+  return { totalResidents, pendingActivationCount, totalAvailable, byRoomType, cards };
 }

@@ -66,4 +66,6 @@ export interface Residence {
   description: string;
   photos: string[]; // URLs placeholder en el ciclo fundacional
   hasWaitlist: boolean;
+  /** Residentes actuales visibles (comunidad) — opcional, lo llena el catálogo real. */
+  residentsCount?: number;
 }
