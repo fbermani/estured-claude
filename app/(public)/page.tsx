@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { ResidenceCard } from "@/components/residences/ResidenceCard";
-import { getPublishedResidences, residences } from "@/lib/mock/residences";
+import { getCatalogResidences } from "@/lib/residences/catalog";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 
 const pillars = [
@@ -139,12 +139,12 @@ const faqs = [
   },
 ];
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
-  const heroResidence = residences[0];
-  const featured = getPublishedResidences()
-    .filter((r) => r.availabilityMode !== "not_updated")
-    .slice(0, 3);
-  const rate = await getCurrentExchangeRate();
+  const [rate, catalog] = await Promise.all([getCurrentExchangeRate(), getCatalogResidences()]);
+  const heroResidence = catalog[0] ?? null;
+  const featured = catalog.slice(0, 3);
 
   return (
     <>
@@ -180,28 +180,30 @@ export default async function HomePage() {
           </div>
 
           {/* Composición de producto */}
-          <div className="relative mx-auto w-full max-w-sm lg:max-w-none">
-            <ResidenceCard residence={heroResidence} arsPerUsd={rate.arsPerUsd} />
-            <div className="absolute -right-3 -top-5 hidden max-w-[240px] rotate-2 rounded-card bg-surface p-3.5 shadow-float ring-1 ring-sand-200 sm:block lg:-right-6">
-              <p className="flex items-start gap-2 text-xs font-bold leading-snug text-ink">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-success-bg text-success-fg">
-                  ✓
-                </span>
-                Comprobante de Reserva Confirmada
-              </p>
-              <p className="mt-1 pl-8 font-mono text-[11px] text-ink-faint">
-                ER-2027-0413
-              </p>
+          {heroResidence && (
+            <div className="relative mx-auto w-full max-w-sm lg:max-w-none">
+              <ResidenceCard residence={heroResidence} arsPerUsd={rate.arsPerUsd} />
+              <div className="absolute -right-3 -top-5 hidden max-w-[240px] rotate-2 rounded-card bg-surface p-3.5 shadow-float ring-1 ring-sand-200 sm:block lg:-right-6">
+                <p className="flex items-start gap-2 text-xs font-bold leading-snug text-ink">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-success-bg text-success-fg">
+                    ✓
+                  </span>
+                  Comprobante de Reserva Confirmada
+                </p>
+                <p className="mt-1 pl-8 font-mono text-[11px] text-ink-faint">
+                  ER-2027-0413
+                </p>
+              </div>
+              <div className="absolute -bottom-4 -left-3 hidden -rotate-1 rounded-card bg-surface p-3.5 shadow-float ring-1 ring-sand-200 sm:block lg:-left-6">
+                <p className="text-xs font-bold text-ink">
+                  Solicitud registrada
+                </p>
+                <p className="mt-0.5 text-[11px] text-ink-faint">
+                  Condiciones claras, sin idas y vueltas por chat
+                </p>
+              </div>
             </div>
-            <div className="absolute -bottom-4 -left-3 hidden -rotate-1 rounded-card bg-surface p-3.5 shadow-float ring-1 ring-sand-200 sm:block lg:-left-6">
-              <p className="text-xs font-bold text-ink">
-                Solicitud registrada
-              </p>
-              <p className="mt-0.5 text-[11px] text-ink-faint">
-                Condiciones claras, sin idas y vueltas por chat
-              </p>
-            </div>
-          </div>
+          )}
         </div>
       </section>
 
@@ -300,25 +302,27 @@ export default async function HomePage() {
       </section>
 
       {/* Residencias destacadas */}
-      <section className="border-y border-sand-200 bg-surface">
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
-          <SectionHeader
-            eyebrow="Catálogo"
-            title="Explorá opciones con contexto real"
-            description="Una muestra de cómo vas a ver cada residencia: verificación, disponibilidad, precios claros y universidades cercanas."
-          />
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {featured.map((residence) => (
-              <ResidenceCard key={residence.slug} residence={residence} arsPerUsd={rate.arsPerUsd} />
-            ))}
+      {featured.length > 0 && (
+        <section className="border-y border-sand-200 bg-surface">
+          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
+            <SectionHeader
+              eyebrow="Catálogo"
+              title="Explorá opciones con contexto real"
+              description="Una muestra de cómo vas a ver cada residencia: verificación, disponibilidad, precios claros y universidades cercanas."
+            />
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {featured.map((residence) => (
+                <ResidenceCard key={residence.slug} residence={residence} arsPerUsd={rate.arsPerUsd} />
+              ))}
+            </div>
+            <div className="mt-10 text-center">
+              <Button href="/search" variant="outline">
+                Ver todas las residencias
+              </Button>
+            </div>
           </div>
-          <div className="mt-10 text-center">
-            <Button href="/search" variant="outline">
-              Ver todas las residencias
-            </Button>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Audiencias */}
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">

@@ -1,8 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { AvailabilityMode, RoomTypeName } from "@/types/domain";
-import { getPublishedResidences, zones } from "@/lib/mock/residences";
+import type { AvailabilityMode, Residence, RoomTypeName } from "@/types/domain";
 import { ResidenceCard } from "@/components/residences/ResidenceCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Select } from "@/components/ui/Input";
@@ -23,13 +22,14 @@ const availabilityOptions: { value: AvailabilityMode | ""; label: string }[] = [
   { value: "full", label: "Completa (lista de espera)" },
 ];
 
-export function SearchCatalog({ arsPerUsd }: { arsPerUsd: number }) {
+export function SearchCatalog({ residences, arsPerUsd }: { residences: Residence[]; arsPerUsd: number }) {
   const [zone, setZone] = useState("");
   const [roomType, setRoomType] = useState("");
   const [availability, setAvailability] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
 
-  const all = getPublishedResidences();
+  const all = residences;
+  const zones = useMemo(() => [...new Set(all.map((r) => r.zone))], [all]);
 
   const filtered = useMemo(() => {
     return all.filter((r) => {

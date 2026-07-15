@@ -4,11 +4,6 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        // Placeholder de los mocks del ciclo fundacional.
-        protocol: "https",
-        hostname: "picsum.photos",
-      },
-      {
         // Fotos reales subidas a Supabase Storage (bucket público
         // public-residence-media). Wildcard porque el subdominio del
         // proyecto varía por entorno (dev/staging/prod).

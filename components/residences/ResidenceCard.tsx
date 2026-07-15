@@ -21,18 +21,20 @@ export function ResidenceCard({
   return (
     <Card interactive className="group overflow-hidden flex flex-col">
       <Link
-        href={`/r/${residence.slug}`}
+        href={`/residencias/${residence.slug}`}
         className="flex flex-col flex-1"
         aria-label={`Ver ${residence.name}`}
       >
         <div className="relative h-48 w-full overflow-hidden bg-sand-200">
-          <Image
-            src={residence.photos[0]}
-            alt={`Foto de ${residence.name}`}
-            fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-          />
+          {residence.photos[0] && (
+            <Image
+              src={residence.photos[0]}
+              alt={`Foto de ${residence.name}`}
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+            />
+          )}
           <div className="absolute left-3 top-3">
             <TrustBadge status={residence.verificationStatus} />
           </div>

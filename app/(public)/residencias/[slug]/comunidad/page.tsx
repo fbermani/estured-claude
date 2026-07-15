@@ -10,6 +10,11 @@ import { getCommunityVisibility } from "@/lib/residents/communityVisibility";
 
 export const dynamic = "force-dynamic";
 
+function interestItems(value: Record<string, unknown> | null | undefined): string[] {
+  const items = value?.items;
+  return Array.isArray(items) ? items.filter((i): i is string => typeof i === "string") : [];
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   return { title: `Comunidad — ${slug}` };
@@ -100,6 +105,26 @@ export default async function ResidenceCommunityPage({ params }: { params: Promi
                       {card.career && <p>{card.career}</p>}
                       {card.originCity && <p>De {card.originCity}</p>}
                     </div>
+                    {(interestItems(card.interests).length > 0 || interestItems(card.habits).length > 0) && (
+                      <div className="mt-3 flex flex-wrap gap-1.5">
+                        {interestItems(card.interests).map((item) => (
+                          <span
+                            key={item}
+                            className="rounded-full bg-forest-tint px-2 py-0.5 text-[11px] font-medium text-forest-700"
+                          >
+                            {item}
+                          </span>
+                        ))}
+                        {interestItems(card.habits).map((item) => (
+                          <span
+                            key={item}
+                            className="rounded-full bg-sand-100 px-2 py-0.5 text-[11px] font-medium text-ink-soft"
+                          >
+                            {item}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </>
                 )}
               </Card>
