@@ -32,6 +32,7 @@ interface RoomTypeDraft {
   monthlyPriceUsd: number;
   enrollmentFeeUsd?: number;
   depositUsd?: number;
+  emptyMonthChargePercent?: number;
   adjustmentPolicy: string;
   minimumStayMonths?: number;
 }
@@ -449,6 +450,19 @@ export function ResidenceProfileForm({
                         updateRoomType(i, { depositUsd: e.target.value ? Number(e.target.value) : undefined })
                       }
                       hint="Reembolsable."
+                    />
+                    <Input
+                      label="Mes vacío (% renta, opcional)"
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={rt.emptyMonthChargePercent ?? ""}
+                      onChange={(e) =>
+                        updateRoomType(i, {
+                          emptyMonthChargePercent: e.target.value ? Number(e.target.value) : undefined,
+                        })
+                      }
+                      hint="% de la renta por mes completo entre la solicitud y el ingreso."
                     />
                     <Select
                       label="Ajuste cada"

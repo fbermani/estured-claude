@@ -41,6 +41,7 @@ interface RoomTypeInput {
   monthlyPriceUsd: number;
   enrollmentFeeUsd?: number;
   depositUsd?: number;
+  emptyMonthChargePercent?: number;
   adjustmentPolicy: string;
   minimumStayMonths?: number;
 }
@@ -58,6 +59,10 @@ function parseRoomTypes(raw: string): RoomTypeInput[] | null {
       monthlyPriceUsd: Number(r.monthlyPriceUsd) || 0,
       enrollmentFeeUsd: r.enrollmentFeeUsd ? Number(r.enrollmentFeeUsd) : undefined,
       depositUsd: r.depositUsd ? Number(r.depositUsd) : undefined,
+      emptyMonthChargePercent:
+        r.emptyMonthChargePercent != null && r.emptyMonthChargePercent !== ""
+          ? Math.min(100, Math.max(0, Number(r.emptyMonthChargePercent) || 0))
+          : undefined,
       adjustmentPolicy: String(r.adjustmentPolicy ?? "quarterly"),
       minimumStayMonths: r.minimumStayMonths ? Number(r.minimumStayMonths) : undefined,
     }));
@@ -239,6 +244,7 @@ export async function saveResidenceProfile(
             : null,
           deposit_usd: rt.depositUsd ? roundUsd(rt.depositUsd) : null,
           deposit_ars: rt.depositUsd ? roundArs(usdToArs(roundUsd(rt.depositUsd), rate.arsPerUsd)) : null,
+          empty_month_charge_percent: rt.emptyMonthChargePercent ?? null,
           adjustment_policy: rt.adjustmentPolicy,
           minimum_stay_months: rt.minimumStayMonths || null,
         })

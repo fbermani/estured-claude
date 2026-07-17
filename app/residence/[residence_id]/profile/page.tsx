@@ -31,7 +31,7 @@ export default async function ResidenceProfilePage({
       admin
         .from("room_types")
         .select(
-          "id, name, gender_policy, bathroom_type, features, monthly_price_usd, enrollment_fee_usd, deposit_usd, adjustment_policy, minimum_stay_months, profile_availability(available_count)",
+          "id, name, gender_policy, bathroom_type, features, monthly_price_usd, enrollment_fee_usd, deposit_usd, empty_month_charge_percent, adjustment_policy, minimum_stay_months, profile_availability(available_count)",
         )
         .eq("residence_id", residenceId),
       admin
@@ -89,6 +89,7 @@ export default async function ResidenceProfilePage({
           monthlyPriceUsd: Number(rt.monthly_price_usd),
           enrollmentFeeUsd: rt.enrollment_fee_usd ? Number(rt.enrollment_fee_usd) : undefined,
           depositUsd: rt.deposit_usd ? Number(rt.deposit_usd) : undefined,
+          emptyMonthChargePercent: rt.empty_month_charge_percent != null ? Number(rt.empty_month_charge_percent) : undefined,
           adjustmentPolicy: rt.adjustment_policy,
           minimumStayMonths: rt.minimum_stay_months ?? undefined,
         })),

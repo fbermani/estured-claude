@@ -17,10 +17,19 @@ export function calculateFeeEstimate(params: {
   monthlyPriceUsd: number;
   durationMonths: number;
   enrollmentFeeUsd?: number | null;
+  /**
+   * Cargo por meses vacíos (migración 0024, referencia search_3): no
+   * reembolsable, así que entra a la base del fee igual que la matrícula
+   * (en la referencia el 5% se calcula sobre el total con mes vacío).
+   * Solo lo usa la previa informativa de la solicitud.
+   */
+  emptyMonthsChargeUsd?: number | null;
   arsPerUsd: number;
 }): { feeBaseUsd: number; feeBaseArs: number; estimatedFeeArs: number } {
   const feeBaseUsd =
-    params.monthlyPriceUsd * params.durationMonths + (params.enrollmentFeeUsd ?? 0);
+    params.monthlyPriceUsd * params.durationMonths +
+    (params.enrollmentFeeUsd ?? 0) +
+    (params.emptyMonthsChargeUsd ?? 0);
   const feeBaseArs = usdToArs(feeBaseUsd, params.arsPerUsd);
   const estimatedFeeArs = roundArs(feeBaseArs * FEE_PERCENT);
   return { feeBaseUsd, feeBaseArs, estimatedFeeArs };

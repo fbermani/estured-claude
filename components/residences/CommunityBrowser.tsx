@@ -56,6 +56,68 @@ function subtitle(card: CommunityProfileCard): string {
   return parts.join(" · ");
 }
 
+function ResidentCell({
+  card,
+  index,
+  selected,
+  onSelect,
+}: {
+  card: CommunityProfileCard;
+  index: number;
+  selected: boolean;
+  onSelect: (id: string) => void;
+}) {
+  if (card.kind === "placeholder") {
+    return (
+      <div className="flex items-center gap-3 rounded-field border border-line bg-cream-2 p-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sand-100 text-ink-faint">
+          <Icon name="person" className="text-xl" />
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-ink-faint">Plaza ocupada</p>
+          <p className="text-xs text-ink-faint">Residente pendiente de activar cuenta</p>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(card.residentStayId)}
+      className={`flex cursor-pointer items-center gap-3 rounded-field border p-3 text-left transition-colors ${
+        selected
+          ? "border-[1.5px] border-forest bg-forest-tint/60 shadow-card"
+          : "border-line bg-paper hover:border-line-2 hover:bg-cream-2"
+      }`}
+      aria-pressed={selected}
+    >
+      <Avatar card={card} index={index} />
+      <div className="min-w-0 flex-1">
+        <p className={`truncate text-sm font-bold ${selected ? "text-forest-700" : "text-ink"}`}>{card.firstName}</p>
+        {subtitle(card) && <p className="truncate text-xs text-ink-soft">{subtitle(card)}</p>}
+      </div>
+      {selected && <Icon name="check_circle" className="shrink-0 text-lg text-forest-700" />}
+    </button>
+  );
+}
+
+function FreeBedSlot({ slug, roomTypeId }: { slug: string; roomTypeId: string | null }) {
+  return (
+    <Link
+      href={`/residencias/${slug}${roomTypeId ? `?room=${roomTypeId}` : ""}#solicitud`}
+      className="group flex items-center gap-3 rounded-field border-2 border-dashed border-success-fg/40 bg-success-bg/40 p-3 transition-colors hover:bg-success-bg"
+    >
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-success-bg text-success-fg transition-transform group-hover:scale-110">
+        <Icon name="bed" className="text-xl" />
+      </div>
+      <div>
+        <p className="text-sm font-bold text-success-fg">Cama disponible</p>
+        <p className="text-xs text-success-fg/80">Enviar solicitud para este lugar</p>
+      </div>
+    </Link>
+  );
+}
+
 function RoomTypeSection({
   roomType,
   cards,
@@ -80,6 +142,10 @@ function RoomTypeSection({
   const hasAvailable = (roomType.availableCount ?? 0) > 0;
   const title = roomType.genderPolicyLabel ? `${roomType.roomTypeName} ${roomType.genderPolicyLabel}` : roomType.roomTypeName;
 
+  const hasRooms = roomType.rooms.length > 0;
+  const unassigned = cards.filter((c) => !c.roomId || !roomType.rooms.some((r) => r.roomId === c.roomId));
+  const indexOf = (card: CommunityProfileCard) => startIndex + cards.indexOf(card);
+
   return (
     <div className="overflow-hidden rounded-card border-[1.5px] border-line bg-paper shadow-card">
       <button
@@ -91,6 +157,11 @@ function RoomTypeSection({
         <span className="flex items-center gap-3">
           <span className="h-5 w-1 rounded-full bg-forest" aria-hidden />
           <span className="font-bold text-ink">{title}</span>
+          {hasRooms && (
+            <span className="hidden text-xs font-medium text-ink-faint sm:inline">
+              {roomType.rooms.length} {roomType.rooms.length === 1 ? "habitación" : "habitaciones"}
+            </span>
+          )}
         </span>
         <span className="flex items-center gap-3">
           <span
@@ -105,64 +176,78 @@ function RoomTypeSection({
       </button>
 
       {open && (
-        <div className="grid gap-3 border-t border-line px-4 pb-4 pt-4 sm:grid-cols-2">
-          {cards.map((card, i) => {
-            const selected = card.residentStayId === selectedId;
-            if (card.kind === "placeholder") {
-              return (
-                <div
+        <div className="space-y-3 border-t border-line px-4 pb-4 pt-4">
+          {hasRooms ? (
+            <>
+              {/* Desglose por habitación física — quién vive en cada una
+                  y qué camas quedan libres (pedido del dueño 2026-07-15). */}
+              {roomType.rooms.map((room) => (
+                <div key={room.roomId} className="rounded-field border border-line bg-cream-2/60 p-3">
+                  <div className="mb-2.5 flex items-center justify-between gap-3 px-1">
+                    <p className="flex items-center gap-1.5 text-sm font-bold text-ink">
+                      <Icon name="meeting_room" className="text-base text-forest-700" />
+                      {room.label}
+                    </p>
+                    <span
+                      className={`text-xs font-semibold ${room.freeBeds > 0 ? "text-success-fg" : "text-ink-faint"}`}
+                    >
+                      {room.occupiedCount}/{room.capacityPerRoom}{" "}
+                      {room.capacityPerRoom === 1 ? "cama" : "camas"}
+                      {room.freeBeds > 0 && ` · ${room.freeBeds} libre${room.freeBeds > 1 ? "s" : ""}`}
+                    </span>
+                  </div>
+                  <div className="grid gap-2.5 sm:grid-cols-2">
+                    {cards
+                      .filter((c) => c.roomId === room.roomId)
+                      .map((card) => (
+                        <ResidentCell
+                          key={card.residentStayId}
+                          card={card}
+                          index={indexOf(card)}
+                          selected={card.residentStayId === selectedId}
+                          onSelect={onSelect}
+                        />
+                      ))}
+                    {Array.from({ length: room.freeBeds }, (_, i) => (
+                      <FreeBedSlot key={`slot-${room.roomId}-${i}`} slug={slug} roomTypeId={roomType.roomTypeId} />
+                    ))}
+                  </div>
+                </div>
+              ))}
+              {unassigned.length > 0 && (
+                <div className="rounded-field border border-line bg-cream-2/60 p-3">
+                  <p className="mb-2.5 px-1 text-sm font-bold text-ink-soft">Sin habitación asignada</p>
+                  <div className="grid gap-2.5 sm:grid-cols-2">
+                    {unassigned.map((card) => (
+                      <ResidentCell
+                        key={card.residentStayId}
+                        card={card}
+                        index={indexOf(card)}
+                        selected={card.residentStayId === selectedId}
+                        onSelect={onSelect}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            /* Fallback: la residencia no cargó habitaciones físicas todavía */
+            <div className="grid gap-3 sm:grid-cols-2">
+              {cards.map((card) => (
+                <ResidentCell
                   key={card.residentStayId}
-                  className="flex items-center gap-3 rounded-field border border-line bg-cream-2 p-3"
-                >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sand-100 text-ink-faint">
-                    <Icon name="person" className="text-xl" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-ink-faint">Plaza ocupada</p>
-                    <p className="text-xs text-ink-faint">Residente pendiente de activar cuenta</p>
-                  </div>
-                </div>
-              );
-            }
-            return (
-              <button
-                key={card.residentStayId}
-                type="button"
-                onClick={() => onSelect(card.residentStayId)}
-                className={`flex cursor-pointer items-center gap-3 rounded-field border p-3 text-left transition-colors ${
-                  selected
-                    ? "border-[1.5px] border-forest bg-forest-tint/60 shadow-card"
-                    : "border-line bg-paper hover:border-line-2 hover:bg-cream-2"
-                }`}
-                aria-pressed={selected}
-              >
-                <Avatar card={card} index={startIndex + i} />
-                <div className="min-w-0 flex-1">
-                  <p className={`truncate text-sm font-bold ${selected ? "text-forest-700" : "text-ink"}`}>
-                    {card.firstName}
-                  </p>
-                  {subtitle(card) && <p className="truncate text-xs text-ink-soft">{subtitle(card)}</p>}
-                </div>
-                {selected && <Icon name="check_circle" className="shrink-0 text-lg text-forest-700" />}
-              </button>
-            );
-          })}
-
-          {Array.from({ length: roomType.availableCount ?? 0 }, (_, i) => (
-            <Link
-              key={`slot-${i}`}
-              href={`/residencias/${slug}?room=${roomType.roomTypeId}#solicitud`}
-              className="group flex items-center gap-3 rounded-field border-2 border-dashed border-success-fg/40 bg-success-bg/40 p-3 transition-colors hover:bg-success-bg"
-            >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-success-bg text-success-fg transition-transform group-hover:scale-110">
-                <Icon name="bed" className="text-xl" />
-              </div>
-              <div>
-                <p className="text-sm font-bold text-success-fg">Lugar disponible</p>
-                <p className="text-xs text-success-fg/80">Enviar solicitud para este tipo</p>
-              </div>
-            </Link>
-          ))}
+                  card={card}
+                  index={indexOf(card)}
+                  selected={card.residentStayId === selectedId}
+                  onSelect={onSelect}
+                />
+              ))}
+              {Array.from({ length: roomType.availableCount ?? 0 }, (_, i) => (
+                <FreeBedSlot key={`slot-${i}`} slug={slug} roomTypeId={roomType.roomTypeId} />
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
