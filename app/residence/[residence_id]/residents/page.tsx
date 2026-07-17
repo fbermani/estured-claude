@@ -13,9 +13,9 @@ export const dynamic = "force-dynamic";
  * `estured_admin_gesti_n_de_residentes`: KPIs, buscador con pills de
  * estado y tabla (Residente · Habitación/Cama · Estado · Contrato hasta
  * · Tarifa) con panel de gestión por fila (ref
- * `estured_admin_modal_perfil_del_residente`). Sin "evaluaciones" ni
- * "señales" (feature pospuesta por el dueño) y sin notas internas
- * (pendiente, próximo ciclo).
+ * `estured_admin_modal_perfil_del_residente`, incluidas las Notas
+ * Internas — migración 0026). Sin "evaluaciones" ni "señales" (feature
+ * pospuesta por el dueño).
  */
 export default async function ResidenceResidentsPage({
   params,
@@ -31,7 +31,7 @@ export default async function ResidenceResidentsPage({
   const hasAccess = await assertResidenceAccess(admin, sessionUser.id, residenceId);
   if (!hasAccess) notFound();
 
-  const [{ data: stays, error }, { data: roomTypes }, { data: rooms }, renewals] = await Promise.all([
+  const [{ data: stays, error }, { data: roomTypes }, { data: rooms }, renewals, { data: notes }] = await Promise.all([
     admin
       .from("resident_stays")
       .select(
@@ -59,6 +59,11 @@ export default async function ResidenceResidentsPage({
         .eq("residence_id", residenceId)
         .in("status", ["sent", "viewed"]),
     ]),
+    admin
+      .from("resident_notes")
+      .select("id, resident_stay_id, category, body, created_at, users(email, primary_role)")
+      .eq("residence_id", residenceId)
+      .order("created_at", { ascending: false }),
   ]);
   if (error) console.error("[residence/residents] query failed:", error);
 
@@ -121,6 +126,28 @@ export default async function ResidenceResidentsPage({
       return { id: b.id, label: `${room?.label ?? "Habitación"} - ${b.letter}${type ? ` (${type.name})` : ""}` };
     });
 
+  const rawNotes =
+    (notes as unknown as {
+      id: string;
+      resident_stay_id: string;
+      category: "general" | "pagos";
+      body: string;
+      created_at: string;
+      users: { email: string; primary_role: string } | null;
+    }[]) ?? [];
+  const notesByStay: ResidentsData["notesByStay"] = {};
+  for (const n of rawNotes) {
+    const authorLabel =
+      n.users?.primary_role === "residence_owner"
+        ? "Dueño de residencia"
+        : n.users?.primary_role === "residence_staff"
+          ? "Staff de residencia"
+          : (n.users?.email ?? "Staff");
+    const list = notesByStay[n.resident_stay_id] ?? [];
+    list.push({ id: n.id, category: n.category, body: n.body, createdAt: n.created_at, authorLabel });
+    notesByStay[n.resident_stay_id] = list;
+  }
+
   const today = new Date();
   const todayStr = today.toISOString().slice(0, 10);
   const in30Str = new Date(today.getTime() + 30 * 24 * 3600 * 1000).toISOString().slice(0, 10);
@@ -141,6 +168,7 @@ export default async function ResidenceResidentsPage({
         freeBeds,
         roomTypes: (roomTypes ?? []).map((t) => ({ id: t.id, name: t.name })),
         kpis,
+        notesByStay,
       }}
     />
   );

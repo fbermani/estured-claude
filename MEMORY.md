@@ -1,6 +1,6 @@
 # MEMORY.md — Memoria persistente de EstuRed
 
-**Última actualización:** 2026-07-17 (Ciclo 34duovicies — módulo de gestión de residencias completo: condiciones a nivel residencia, camas con estado, módulos Habitaciones y Residentes)
+**Última actualización:** 2026-07-17 (Ciclo 34trevicies — notas internas del residente)
 
 > Bitácora ejecutiva viva. NO reemplaza la documentación estratégica de `/docs`
 > (los 23 archivos `00`–`22` son la fuente de verdad de producto). Leer este
@@ -831,7 +831,16 @@ end $$;
 - **Previa pública**: condiciones desde la residencia — matrícula "equivalente a 1 mes" mostrada con el monto real del tipo elegido, frecuencia anual etiquetada, mes vacío con tope de 3 meses, hint + min de estadía mínima. Verificado E2E con Río: renta 6×320=1.920 + matrícula 320 + mes vacío (ago y sep, 75%) 480 = total 2.720, fee 136 ✓.
 - **Seeds**: `seed-beds-and-conditions.mjs` (condiciones variadas por residencia — Río matrícula 1 mes + mes vacío 75% + mínimo 3; Norte depósito 300 + 50% + mínimo 6; Almagro matrícula manual 150 anual —, 135 camas, 90 residentes asignados a cama, fechas de salida escalonadas, 2 tarifas personalizadas, camas fuera de servicio demo + una habitación completa en mantenimiento). **Fix de datos**: los tipos viejos de Norte/Almagro tenían capacity_per_room=1 (default pre-modelado) — corregidos por nombre (Doble 2, Compartida 3) y camas re-sincronizadas. Tests: 17 fixtures actualizados por script python (borrado de `adjustment_policy` SOLO en inserts de room_types, no en snapshots).
 - **Validación**: typecheck ✅ · lint ✅ (8 warnings preexistentes) · build ✅ · tests: suite completa 95/101 con 6 fallas de colisión paralela conocida (waitlist.test.ts aislado: **11/11 ✅** — mismo patrón documentado del Ciclo 34terdecies, no regresión) · E2E completo en navegador contra las 5 referencias.
-- **Pendientes anotados**: notas internas del residente (modal de referencia — próximo ciclo), actualización de docs/06 §9.1 por el dueño, tarifa por mes del grupo (escalera MAR/ABR de la referencia — no modelada, se mantiene tarifa única + política de ajuste).
+- **Pendientes anotados**: actualización de docs/06 §9.1 por el dueño, tarifa por mes del grupo (escalera MAR/ABR de la referencia — no modelada, se mantiene tarifa única + política de ajuste).
+
+## 13quinvicies-Ciclo34trevicies. Notas internas del residente (Ciclo 34trevicies, 2026-07-17)
+
+**Contexto**: pendiente explícito dejado en el Ciclo 34duovicies — la sección "Notas Internas" del modal de referencia `estured_admin_modal_perfil_del_residente` (textarea + categoría General/Pagos + timeline con autor y fecha relativa). Continuación autónoma tras "sigamos".
+
+- **Migración 0026** (`0026_resident_notes.sql`): tabla `resident_notes` (residence_id, resident_stay_id, created_by_user_id, category 'general'|'pagos', body ≤2000 chars, created_at) — mismo patrón que `rooms`/`beds`: RLS habilitado sin policies, solo service role. Nunca visible para el residente ni en la comunidad pública — dato puramente interno de gestión.
+- **`lib/residents/addResidentNote.ts`**: valida acceso + pertenencia de la estadía a la residencia + longitud, inserta y audita (`resident_note_added`).
+- **UI** (`ResidentsBrowser.tsx`): nuevo `NotesSection` como 4ta columna del panel de gestión (grid pasó de 3 a 4 columnas) — textarea, radio General/Pagos, "Guardar nota", y debajo el historial (autor por rol — "Dueño de residencia"/"Staff de residencia", ya que no existe un campo de nombre por usuario staff; fecha relativa "hace N min/h/d"; badge de categoría). El autor se resuelve por `users.primary_role`, no por email crudo, salvo fallback.
+- **Validación**: typecheck ✅ · lint ✅ (mismos 8 warnings) · build ✅ · tests 29/29 (waitlist + residentStays + roomTypeQueue, los mismos que antes colisionaban en la corrida completa) · **E2E verificado en vivo**: nota de categoría Pagos guardada y visible al instante con autor "Dueño de residencia" y "recién".
 
 ## 14. Próxima tarea recomendada
 

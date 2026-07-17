@@ -12,6 +12,7 @@ import {
   updateStayDetailsAction,
   assignBedToStayAction,
   endResidentStayAction,
+  addResidentNoteAction,
   type ResidentsActionState,
 } from "@/app/residence/[residence_id]/residents/actions";
 
@@ -31,11 +32,20 @@ export type ResidentRow = {
   baseRateUsd: number | null;
 };
 
+export type ResidentNote = {
+  id: string;
+  category: "general" | "pagos";
+  body: string;
+  createdAt: string;
+  authorLabel: string;
+};
+
 export type ResidentsData = {
   rows: ResidentRow[];
   freeBeds: { id: string; label: string }[];
   roomTypes: { id: string; name: string }[];
   kpis: { active: number; arrivals: number; departures: number; renewals: number };
+  notesByStay: Record<string, ResidentNote[]>;
 };
 
 const initialState: ResidentsActionState = { status: "idle" };
@@ -47,6 +57,20 @@ function formatDate(dateStr: string | null): string {
   if (!y || !m || !d) return "—";
   return `${d} ${MONTHS[m - 1]} ${y}`;
 }
+
+function timeAgo(isoStr: string): string {
+  const diffMs = Date.now() - new Date(isoStr).getTime();
+  const minutes = Math.round(diffMs / 60000);
+  if (minutes < 1) return "recién";
+  if (minutes < 60) return `hace ${minutes} min`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `hace ${hours} h`;
+  const days = Math.round(hours / 24);
+  if (days < 30) return `hace ${days} d`;
+  return formatDate(isoStr.slice(0, 10));
+}
+
+const NOTE_CATEGORY_LABEL: Record<ResidentNote["category"], string> = { general: "General", pagos: "Pagos" };
 
 type StatusKey = "activo" | "por_ingresar" | "por_salir" | "pendiente";
 
@@ -72,14 +96,91 @@ const FILTER_PILLS: { key: StatusKey | "todos"; label: string }[] = [
   { key: "pendiente", label: "Pendientes" },
 ];
 
+function NotesSection({
+  residenceId,
+  row,
+  notes,
+}: {
+  residenceId: string;
+  row: ResidentRow;
+  notes: ResidentNote[];
+}) {
+  const noteAction = addResidentNoteAction.bind(null, residenceId, row.stayId);
+  const [noteState, noteFormAction, notePending] = useActionState(noteAction, initialState);
+  const [category, setCategory] = useState<ResidentNote["category"]>("general");
+
+  return (
+    <div className="rounded-field border border-line bg-paper p-4 sm:col-span-2 lg:col-span-1">
+      <p className="mb-3 flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest text-muted">
+        <Icon name="edit_note" className="text-sm" /> Notas internas
+        <span className="ml-auto normal-case tracking-normal text-ink-faint">Solo visible para la residencia</span>
+      </p>
+      <form action={noteFormAction}>
+        <textarea
+          name="body"
+          rows={3}
+          placeholder="Escribí una nota sobre el residente…"
+          required
+          maxLength={2000}
+          className="w-full resize-none rounded-field border-[1.5px] border-line bg-cream px-3 py-2 text-sm text-ink placeholder:text-ink-faint focus:border-forest focus:outline-none"
+        />
+        <div className="mt-2 flex items-center justify-between gap-2">
+          <div className="flex gap-3">
+            {(["general", "pagos"] as const).map((c) => (
+              <label key={c} className="flex cursor-pointer items-center gap-1.5 text-xs text-ink-soft">
+                <input
+                  type="radio"
+                  name="category"
+                  value={c}
+                  checked={category === c}
+                  onChange={() => setCategory(c)}
+                  className="h-3.5 w-3.5 accent-[var(--color-forest)]"
+                />
+                {NOTE_CATEGORY_LABEL[c]}
+              </label>
+            ))}
+          </div>
+          <button
+            type="submit"
+            disabled={notePending}
+            className="shrink-0 cursor-pointer rounded-full bg-forest px-4 py-1.5 text-xs font-bold text-white hover:bg-forest-600"
+          >
+            {notePending ? "…" : "Guardar nota"}
+          </button>
+        </div>
+        {noteState.status === "error" && <p className="mt-1.5 text-xs font-medium text-danger-fg">{noteState.message}</p>}
+      </form>
+
+      {notes.length > 0 && (
+        <ul className="mt-4 max-h-64 space-y-3 overflow-y-auto border-t border-line pt-3">
+          {notes.map((note) => (
+            <li key={note.id} className="text-xs">
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-bold text-ink">{note.authorLabel}</span>
+                <span className="text-ink-faint">{timeAgo(note.createdAt)}</span>
+              </div>
+              <p className="mt-0.5 leading-relaxed text-ink-soft">{note.body}</p>
+              <span className="mt-1 inline-block rounded-full bg-cream-2 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink-faint">
+                {NOTE_CATEGORY_LABEL[note.category]}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 function DetailPanel({
   residenceId,
   row,
   freeBeds,
+  notes,
 }: {
   residenceId: string;
   row: ResidentRow;
   freeBeds: { id: string; label: string }[];
+  notes: ResidentNote[];
 }) {
   const detailsAction = updateStayDetailsAction.bind(null, residenceId, row.stayId);
   const [detailsState, detailsFormAction, detailsPending] = useActionState(detailsAction, initialState);
@@ -90,7 +191,7 @@ function DetailPanel({
   const [confirmEnd, setConfirmEnd] = useState(false);
 
   return (
-    <div className="grid gap-5 border-t border-line bg-cream-2/60 p-5 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-5 border-t border-line bg-cream-2/60 p-5 sm:grid-cols-2 lg:grid-cols-4">
       {/* Salida exacta + tarifa — ref modal perfil del residente */}
       <form action={detailsFormAction} className="rounded-field border border-line bg-paper p-4">
         <p className="mb-3 flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest text-muted">
@@ -218,6 +319,8 @@ function DetailPanel({
           {endState.status === "error" && <p className="mt-2 text-xs font-medium text-danger-fg">{endState.message}</p>}
         </div>
       </div>
+
+      <NotesSection residenceId={residenceId} row={row} notes={notes} />
     </div>
   );
 }
@@ -417,7 +520,12 @@ export function ResidentsBrowser({
                       {open && (
                         <tr style={{ borderBottom: "1px solid var(--color-line)" }}>
                           <td colSpan={6} className="p-0">
-                            <DetailPanel residenceId={residenceId} row={row} freeBeds={data.freeBeds} />
+                            <DetailPanel
+                              residenceId={residenceId}
+                              row={row}
+                              freeBeds={data.freeBeds}
+                              notes={data.notesByStay[row.stayId] ?? []}
+                            />
                           </td>
                         </tr>
                       )}

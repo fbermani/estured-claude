@@ -7,6 +7,7 @@ import { createResidentStay } from "@/lib/residents/createResidentStay";
 import { endResidentStay } from "@/lib/residents/endResidentStay";
 import { updateStayDetails } from "@/lib/residents/updateStayDetails";
 import { assignStayToBed } from "@/lib/residences/roomManagement";
+import { addResidentNote } from "@/lib/residents/addResidentNote";
 
 export type ResidentsActionState = { status: "idle" | "error" | "saved"; message?: string };
 
@@ -105,6 +106,31 @@ export async function endResidentStayAction(
   if (!admin) return { status: "error", message: "No disponible en este momento." };
 
   const result = await endResidentStay(admin, { actorUserId: sessionUser.id, residentStayId, endDate: null });
+  if (!result.ok) return { status: "error", message: result.error };
+
+  revalidatePath(`/residence/${residenceId}/residents`);
+  return { status: "saved" };
+}
+
+export async function addResidentNoteAction(
+  residenceId: string,
+  residentStayId: string,
+  _prev: ResidentsActionState,
+  formData: FormData,
+): Promise<ResidentsActionState> {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) return { status: "error", message: "Tu sesión expiró." };
+  const admin = getSupabaseAdmin();
+  if (!admin) return { status: "error", message: "No disponible en este momento." };
+
+  const category = String(formData.get("category") ?? "general");
+  const result = await addResidentNote(admin, {
+    actorUserId: sessionUser.id,
+    residenceId,
+    residentStayId,
+    category: category === "pagos" ? "pagos" : "general",
+    body: String(formData.get("body") ?? ""),
+  });
   if (!result.ok) return { status: "error", message: result.error };
 
   revalidatePath(`/residence/${residenceId}/residents`);
