@@ -109,7 +109,7 @@ export async function recordFamilyProposalResponse(
 
   const { data: roomType } = await admin
     .from("room_types")
-    .select("id, monthly_price_usd, enrollment_fee_usd, deposit_usd, adjustment_policy, is_active, profile_availability(status)")
+    .select("id, monthly_price_usd, is_active, profile_availability(status)")
     .eq("id", proposal.room_type_id)
     .eq("residence_id", proposal.residence_id)
     .maybeSingle();
@@ -127,12 +127,7 @@ export async function recordFamilyProposalResponse(
     studentProfileId: studentProfile.id,
     residenceId: proposal.residence_id,
     roomTypeId: proposal.room_type_id,
-    roomType: {
-      monthly_price_usd: Number(roomType.monthly_price_usd),
-      enrollment_fee_usd: roomType.enrollment_fee_usd ? Number(roomType.enrollment_fee_usd) : null,
-      deposit_usd: roomType.deposit_usd ? Number(roomType.deposit_usd) : null,
-      adjustment_policy: roomType.adjustment_policy,
-    },
+    roomType: { monthly_price_usd: Number(roomType.monthly_price_usd) },
     desiredStartDate: proposal.desired_start_date,
     durationMonths: proposal.initial_duration_months,
     academicObjective,

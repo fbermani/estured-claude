@@ -22,6 +22,7 @@ export function ResidenceSidebar({ residenceId, userEmail }: { residenceId: stri
   const NAV: { href: string; label: string; icon: string; exact?: boolean }[] = [
     { href: base, label: "Panel", icon: "dashboard", exact: true },
     { href: `${base}/applications`, label: "Solicitudes", icon: "inbox" },
+    { href: `${base}/rooms`, label: "Habitaciones", icon: "meeting_room" },
     { href: `${base}/availability`, label: "Disponibilidad", icon: "bed" },
     { href: `${base}/renewals`, label: "Renovaciones", icon: "sync_alt" },
     { href: `${base}/residents`, label: "Residentes", icon: "groups" },

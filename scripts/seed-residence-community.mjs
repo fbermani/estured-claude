@@ -182,7 +182,6 @@ async function ensureRoomTypes(residenceId, roomTypesConfig) {
         gender_policy: "mixto",
         monthly_price_usd: rt.monthly_price_usd,
         monthly_price_ars: rt.monthly_price_usd * ARS_RATE,
-        deposit_is_refundable: true,
       })
       .select("id")
       .single();

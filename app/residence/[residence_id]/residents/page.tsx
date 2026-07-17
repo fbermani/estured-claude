@@ -3,23 +3,20 @@ import { notFound } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { assertResidenceAccess } from "@/lib/residences/access";
-import { Card } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
-import { EmptyState } from "@/components/ui/EmptyState";
-import { AddResidentForm } from "@/app/residence/[residence_id]/residents/AddResidentForm";
-import { ResidentRowActions } from "@/app/residence/[residence_id]/residents/ResidentRowActions";
+import { ResidentsBrowser, type ResidentsData } from "@/app/residence/[residence_id]/residents/ResidentsBrowser";
 
 export const metadata: Metadata = { title: "Residentes" };
 export const dynamic = "force-dynamic";
 
-const STATUS_COPY: Record<string, { label: string; tone: "amber" | "sage" | "neutral" }> = {
-  created_by_residence: { label: "Cargado, sin invitar", tone: "neutral" },
-  pending_activation: { label: "Pendiente de activar cuenta", tone: "amber" },
-  active: { label: "Activo", tone: "sage" },
-  visibility_limited: { label: "Activo — visibilidad limitada", tone: "sage" },
-  hidden_by_user: { label: "Activo — oculto de la comunidad", tone: "neutral" },
-};
-
+/**
+ * Módulo de residentes — a semejanza de la referencia
+ * `estured_admin_gesti_n_de_residentes`: KPIs, buscador con pills de
+ * estado y tabla (Residente · Habitación/Cama · Estado · Contrato hasta
+ * · Tarifa) con panel de gestión por fila (ref
+ * `estured_admin_modal_perfil_del_residente`). Sin "evaluaciones" ni
+ * "señales" (feature pospuesta por el dueño) y sin notas internas
+ * (pendiente, próximo ciclo).
+ */
 export default async function ResidenceResidentsPage({
   params,
 }: {
@@ -34,68 +31,117 @@ export default async function ResidenceResidentsPage({
   const hasAccess = await assertResidenceAccess(admin, sessionUser.id, residenceId);
   if (!hasAccess) notFound();
 
-  const [{ data: stays, error }, { data: roomTypes }] = await Promise.all([
+  const [{ data: stays, error }, { data: roomTypes }, { data: rooms }, renewals] = await Promise.all([
     admin
       .from("resident_stays")
-      .select("id, status, invite_email, start_date, end_date, room_types(name), student_profiles(first_name, last_initial)")
+      .select(
+        "id, status, invite_email, start_date, expected_end_date, monthly_rate_usd, room_id, bed_id, room_types(id, name, monthly_price_usd), student_profiles(first_name, last_initial, country_flag)",
+      )
       .eq("residence_id", residenceId)
       .eq("is_current", true)
       .order("created_at", { ascending: false }),
-    admin.from("room_types").select("id, name").eq("residence_id", residenceId).eq("is_active", true),
+    admin.from("room_types").select("id, name, monthly_price_usd").eq("residence_id", residenceId).eq("is_active", true),
+    admin
+      .from("rooms")
+      .select("id, label, room_type_id")
+      .eq("residence_id", residenceId)
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true }),
+    Promise.all([
+      admin
+        .from("renewal_requests")
+        .select("*", { count: "exact", head: true })
+        .eq("residence_id", residenceId)
+        .in("status", ["created_by_student", "notified_to_residence"]),
+      admin
+        .from("renewal_offers")
+        .select("*", { count: "exact", head: true })
+        .eq("residence_id", residenceId)
+        .in("status", ["sent", "viewed"]),
+    ]),
   ]);
   if (error) console.error("[residence/residents] query failed:", error);
 
-  const rows =
+  const roomIds = (rooms ?? []).map((r) => r.id);
+  const { data: beds } = roomIds.length
+    ? await admin
+        .from("beds")
+        .select("id, room_id, letter, status")
+        .in("room_id", roomIds)
+        .order("sort_order", { ascending: true })
+    : { data: [] };
+
+  const roomById = new Map((rooms ?? []).map((r) => [r.id, r]));
+  const bedById = new Map((beds ?? []).map((b) => [b.id, b]));
+  const typeById = new Map((roomTypes ?? []).map((t) => [t.id, t]));
+
+  const rawStays =
     (stays as unknown as {
       id: string;
       status: string;
       invite_email: string | null;
       start_date: string | null;
-      end_date: string | null;
-      room_types: { name: string } | null;
-      student_profiles: { first_name: string; last_initial: string } | null;
+      expected_end_date: string | null;
+      monthly_rate_usd: number | null;
+      room_id: string | null;
+      bed_id: string | null;
+      room_types: { id: string; name: string; monthly_price_usd: number } | null;
+      student_profiles: { first_name: string; last_initial: string; country_flag: string | null } | null;
     }[]) ?? [];
 
+  const rows: ResidentsData["rows"] = rawStays.map((s) => {
+    const room = s.room_id ? roomById.get(s.room_id) : null;
+    const bed = s.bed_id ? bedById.get(s.bed_id) : null;
+    const pending = !s.student_profiles;
+    return {
+      stayId: s.id,
+      name: s.student_profiles
+        ? `${s.student_profiles.first_name} ${s.student_profiles.last_initial}.`
+        : (s.invite_email ?? "Residente"),
+      flag: s.student_profiles?.country_flag ?? null,
+      email: s.invite_email,
+      pending,
+      hiddenFromCommunity: s.status === "hidden_by_user",
+      typeName: s.room_types?.name ?? null,
+      roomLabel: room?.label ?? null,
+      bedLetter: bed?.letter ?? null,
+      startDate: s.start_date,
+      expectedEndDate: s.expected_end_date,
+      rateUsd: s.monthly_rate_usd != null ? Number(s.monthly_rate_usd) : null,
+      baseRateUsd: s.room_types ? Number(s.room_types.monthly_price_usd) : null,
+    };
+  });
+
+  const occupiedBedIds = new Set(rawStays.map((s) => s.bed_id).filter(Boolean));
+  const freeBeds: ResidentsData["freeBeds"] = (beds ?? [])
+    .filter((b) => b.status === "active" && !occupiedBedIds.has(b.id))
+    .map((b) => {
+      const room = roomById.get(b.room_id);
+      const type = room ? typeById.get(room.room_type_id) : null;
+      return { id: b.id, label: `${room?.label ?? "Habitación"} - ${b.letter}${type ? ` (${type.name})` : ""}` };
+    });
+
+  const today = new Date();
+  const todayStr = today.toISOString().slice(0, 10);
+  const in30Str = new Date(today.getTime() + 30 * 24 * 3600 * 1000).toISOString().slice(0, 10);
+  const kpis: ResidentsData["kpis"] = {
+    active: rawStays.filter((s) => !["created_by_residence", "pending_activation"].includes(s.status)).length,
+    arrivals: rawStays.filter((s) => s.start_date && s.start_date > todayStr).length,
+    departures: rawStays.filter(
+      (s) => s.expected_end_date && s.expected_end_date >= todayStr && s.expected_end_date <= in30Str,
+    ).length,
+    renewals: (renewals[0].count ?? 0) + (renewals[1].count ?? 0),
+  };
+
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
-      <h1 className="text-2xl font-bold text-ink">Residentes</h1>
-      <p className="mt-1 text-sm text-ink-soft">
-        Cargá quiénes viven hoy en tu residencia — alimenta la comunidad visible de tu ficha pública.
-      </p>
-
-      <div className="mt-6">
-        <AddResidentForm residenceId={residenceId} roomTypes={roomTypes ?? []} />
-      </div>
-
-      {rows.length === 0 ? (
-        <div className="mt-6">
-          <EmptyState title="Sin residentes cargados" description="Cargá el primero con el formulario de arriba." />
-        </div>
-      ) : (
-        <div className="mt-6 space-y-4">
-          {rows.map((stay) => {
-            const badge = STATUS_COPY[stay.status] ?? { label: stay.status, tone: "neutral" as const };
-            const name = stay.student_profiles
-              ? `${stay.student_profiles.first_name} ${stay.student_profiles.last_initial}.`
-              : stay.invite_email;
-            return (
-              <Card key={stay.id} className="p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="font-semibold text-ink">{name}</p>
-                    <p className="text-xs text-ink-faint">
-                      {stay.room_types?.name ?? "Sin tipo asignado"}
-                      {stay.start_date && <> · Desde {stay.start_date}</>}
-                    </p>
-                  </div>
-                  <Badge tone={badge.tone}>{badge.label}</Badge>
-                </div>
-                <ResidentRowActions residenceId={residenceId} residentStayId={stay.id} />
-              </Card>
-            );
-          })}
-        </div>
-      )}
-    </div>
+    <ResidentsBrowser
+      residenceId={residenceId}
+      data={{
+        rows,
+        freeBeds,
+        roomTypes: (roomTypes ?? []).map((t) => ({ id: t.id, name: t.name })),
+        kpis,
+      }}
+    />
   );
 }

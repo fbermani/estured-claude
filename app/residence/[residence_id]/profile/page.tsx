@@ -24,16 +24,16 @@ export default async function ResidenceProfilePage({
   const hasAccess = await assertResidenceAccess(admin, sessionUser.id, residenceId);
   if (!hasAccess) notFound();
 
-  const [{ data: residence }, { data: sections }, { data: roomTypes }, { data: photos }, { data: rulesFile }] =
+  const [{ data: residence }, { data: sections }, { data: roomTypes }, { data: rooms }, { data: photos }, { data: rulesFile }] =
     await Promise.all([
       admin.from("residences").select("*").eq("id", residenceId).single(),
       admin.from("residence_profile_sections").select("section_type, content").eq("residence_id", residenceId),
       admin
         .from("room_types")
-        .select(
-          "id, name, gender_policy, bathroom_type, features, monthly_price_usd, enrollment_fee_usd, deposit_usd, empty_month_charge_percent, adjustment_policy, minimum_stay_months, profile_availability(available_count)",
-        )
-        .eq("residence_id", residenceId),
+        .select("id, name, gender_policy, bathroom_type, features, capacity_per_room, monthly_price_usd")
+        .eq("residence_id", residenceId)
+        .eq("is_active", true),
+      admin.from("rooms").select("id, room_type_id").eq("residence_id", residenceId).eq("is_active", true),
       admin
         .from("files")
         .select("id, storage_path")
@@ -79,20 +79,30 @@ export default async function ResidenceProfilePage({
         rulesFileName: rulesFile?.filename ?? null,
         photoUrls,
         roomTypes: (roomTypes ?? []).map((rt) => ({
+          id: rt.id,
           name: rt.name,
           genderPolicy: rt.gender_policy ?? undefined,
           bathroomType: rt.bathroom_type ?? undefined,
           features: (rt.features as string[]) ?? [],
-          availableCount:
-            (rt.profile_availability as unknown as { available_count: number | null } | null)
-              ?.available_count ?? 0,
+          roomCount: (rooms ?? []).filter((r) => r.room_type_id === rt.id).length,
+          capacityPerRoom: Math.max(1, rt.capacity_per_room ?? 1),
           monthlyPriceUsd: Number(rt.monthly_price_usd),
-          enrollmentFeeUsd: rt.enrollment_fee_usd ? Number(rt.enrollment_fee_usd) : undefined,
-          depositUsd: rt.deposit_usd ? Number(rt.deposit_usd) : undefined,
-          emptyMonthChargePercent: rt.empty_month_charge_percent != null ? Number(rt.empty_month_charge_percent) : undefined,
-          adjustmentPolicy: rt.adjustment_policy,
-          minimumStayMonths: rt.minimum_stay_months ?? undefined,
         })),
+        conditions: {
+          minimumStayMonths: residence.minimum_stay_months ?? "",
+          adjustmentPolicy: residence.adjustment_policy ?? "quarterly",
+          enrollmentEnabled: residence.enrollment_fee_mode != null,
+          enrollmentFeeMode: residence.enrollment_fee_mode === "manual" ? "manual" : "one_month",
+          enrollmentFeeUsd: residence.enrollment_fee_usd != null ? Number(residence.enrollment_fee_usd) : "",
+          enrollmentFeeFrequency: residence.enrollment_fee_frequency === "annual" ? "annual" : "once",
+          depositEnabled: residence.deposit_usd != null,
+          depositUsd: residence.deposit_usd != null ? Number(residence.deposit_usd) : "",
+          emptyMonthsEnabled: residence.empty_month_charge_percent != null,
+          emptyMonthDiscountPercent:
+            residence.empty_month_charge_percent != null
+              ? Math.max(0, Math.min(100, 100 - Number(residence.empty_month_charge_percent)))
+              : 50,
+        },
       }}
     />
   );

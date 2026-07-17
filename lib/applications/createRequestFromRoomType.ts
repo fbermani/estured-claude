@@ -4,6 +4,8 @@ import { createAuditLog } from "@/lib/audit";
 import { usdToArs } from "@/lib/mock/exchange";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 import { calculateFeeEstimate } from "@/lib/applications/fee";
+import { emptyMonthsChargeUsd } from "@/lib/applications/emptyMonths";
+import { getResidenceConditions, resolveEnrollmentFeeUsd } from "@/lib/residences/conditions";
 import { determineInitialApplicationStatus } from "@/lib/applications/roomTypeQueue";
 
 /**
@@ -11,6 +13,9 @@ import { determineInitialApplicationStatus } from "@/lib/applications/roomTypeQu
  * que la inicie el estudiante directo (`createApplicationRequest`) o
  * el familiar vía propuesta aprobada (`respondFamilyProposal`). Extraído
  * en el Ciclo 12 para no duplicar esta lógica entre ambos caminos.
+ * Desde la migración 0025, matrícula/depósito/ajuste/mes vacío salen de
+ * las condiciones de la RESIDENCIA (no del tipo) y quedan congeladas en
+ * el snapshot como siempre.
  */
 export async function createApplicationFromRoomType(
   admin: SupabaseClient,
@@ -20,9 +25,6 @@ export async function createApplicationFromRoomType(
     roomTypeId: string;
     roomType: {
       monthly_price_usd: number;
-      enrollment_fee_usd: number | null;
-      deposit_usd: number | null;
-      adjustment_policy: string;
     };
     desiredStartDate: string;
     durationMonths: number;
@@ -38,14 +40,28 @@ export async function createApplicationFromRoomType(
   const initialStatus = await determineInitialApplicationStatus(admin, params.roomTypeId);
   if ("error" in initialStatus) return { error: initialStatus.error };
 
+  const conditions = await getResidenceConditions(admin, params.residenceId);
+  if (!conditions) return { error: "No pudimos leer las condiciones de la residencia." };
+  if (conditions.minimumStayMonths != null && params.durationMonths < conditions.minimumStayMonths) {
+    return {
+      error: `Esta residencia pide una estadía mínima de ${conditions.minimumStayMonths} meses.`,
+    };
+  }
+
   const rate = await getCurrentExchangeRate();
   const monthlyPriceUsd = Number(params.roomType.monthly_price_usd);
-  const enrollmentFeeUsd = params.roomType.enrollment_fee_usd ? Number(params.roomType.enrollment_fee_usd) : null;
-  const depositUsd = params.roomType.deposit_usd ? Number(params.roomType.deposit_usd) : null;
+  const enrollmentFeeUsd = resolveEnrollmentFeeUsd(conditions, monthlyPriceUsd);
+  const depositUsd = conditions.depositUsd;
+  const emptyCharge = emptyMonthsChargeUsd({
+    desiredStartDate: params.desiredStartDate,
+    monthlyPriceUsd,
+    chargePercent: conditions.emptyMonthChargePercent,
+  });
   const fee = calculateFeeEstimate({
     monthlyPriceUsd,
     durationMonths: params.durationMonths,
     enrollmentFeeUsd,
+    emptyMonthsChargeUsd: emptyCharge.chargeUsd,
     arsPerUsd: rate.arsPerUsd,
   });
 
@@ -69,7 +85,7 @@ export async function createApplicationFromRoomType(
         deposit_excluded_from_fee: true,
         reservation_payment_amount_usd: enrollmentFeeUsd ?? monthlyPriceUsd,
         reservation_payment_amount_ars: usdToArs(enrollmentFeeUsd ?? monthlyPriceUsd, rate.arsPerUsd),
-        adjustment_policy: params.roomType.adjustment_policy,
+        adjustment_policy: conditions.adjustmentPolicy,
         fee_base_usd: fee.feeBaseUsd,
         fee_base_ars: fee.feeBaseArs,
         estimated_estured_fee_ars: fee.estimatedFeeArs,

@@ -35,6 +35,12 @@ export function AddResidentForm({
           ))}
         </Select>
         <Input label="Fecha de ingreso (opcional)" name="start_date" type="date" />
+        <Input
+          label="Contrato hasta (opcional)"
+          name="expected_end_date"
+          type="date"
+          hint="Salida estimada — se muestra en habitaciones y residentes."
+        />
       </div>
 
       {state.status === "error" && (

@@ -7,6 +7,7 @@ import { Icon } from "@/components/ui/Icon";
 import { InfoTip } from "@/components/ui/InfoTip";
 import { formatArs, formatUsd, usdToArs } from "@/lib/mock/exchange";
 import { calculateFeeEstimate } from "@/lib/applications/fee";
+import { emptyMonthsChargeUsd, MAX_EMPTY_MONTHS } from "@/lib/applications/emptyMonths";
 import {
   createApplicationRequest,
   type CreateApplicationState,
@@ -17,10 +18,17 @@ interface RoomTypeOption {
   id: string;
   name: string;
   monthly_price_usd: number;
-  enrollment_fee_usd?: number | null;
-  deposit_usd?: number | null;
-  empty_month_charge_percent?: number | null;
   profile_availability: { status: string } | null;
+}
+
+/** Condiciones de reserva a nivel residencia (migración 0025). */
+interface ResidenceConditionsProp {
+  minimumStayMonths: number | null;
+  enrollmentFeeMode: "one_month" | "manual" | null;
+  enrollmentFeeUsd: number | null;
+  enrollmentFeeFrequency: "once" | "annual";
+  depositUsd: number | null;
+  emptyMonthChargePercent: number | null;
 }
 
 const initialState: CreateApplicationState = { status: "idle" };
@@ -43,20 +51,14 @@ function computeExitDate(entrada: string, months: number): string {
   return `${end.getUTCDate()} ${MONTH_NAMES[end.getUTCMonth()].slice(0, 3)} ${end.getUTCFullYear()}`;
 }
 
-/**
- * Meses vacíos = meses calendario COMPLETOS entre hoy y la entrada
- * (supuesto reversible documentado en la migración 0024): la residencia
- * reserva el lugar durante esos meses y cobra un % de la renta.
- */
-function computeEmptyMonths(entrada: string): { count: number; names: string[] } {
-  const [y, m] = entrada.split("-").map(Number);
+/** Nombres de los primeros meses vacíos, para la etiqueta "Mes vacío (agosto…)". */
+function emptyMonthNames(count: number): string[] {
   const now = new Date();
-  const count = Math.max(0, (y - now.getFullYear()) * 12 + (m - 1 - now.getMonth()) - 1);
   const names: string[] = [];
   for (let i = 1; i <= count && names.length < 2; i++) {
     names.push(MONTH_NAMES[(now.getMonth() + i) % 12]);
   }
-  return { count, names };
+  return names;
 }
 
 /**
@@ -72,11 +74,13 @@ function computeEmptyMonths(entrada: string): { count: number; names: string[] }
 export function ApplyForm({
   residenceId,
   roomTypes,
+  conditions,
   arsPerUsd,
   preselectedRoomTypeId,
 }: {
   residenceId: string;
   roomTypes: RoomTypeOption[];
+  conditions: ResidenceConditionsProp;
   arsPerUsd: number;
   preselectedRoomTypeId?: string;
 }) {
@@ -100,12 +104,20 @@ export function ApplyForm({
 
   const selected = availableTypes.find((rt) => rt.id === roomTypeId) ?? null;
   const monthlyUsd = selected ? Number(selected.monthly_price_usd) : 0;
-  const enrollmentUsd = selected?.enrollment_fee_usd != null ? Number(selected.enrollment_fee_usd) : 0;
-  const depositUsd = selected?.deposit_usd != null ? Number(selected.deposit_usd) : 0;
-  const emptyPercent = selected?.empty_month_charge_percent != null ? Number(selected.empty_month_charge_percent) : null;
+  const enrollmentUsd =
+    conditions.enrollmentFeeMode === "one_month"
+      ? monthlyUsd
+      : conditions.enrollmentFeeMode === "manual"
+        ? (conditions.enrollmentFeeUsd ?? 0)
+        : 0;
+  const depositUsd = conditions.depositUsd ?? 0;
+  const emptyPercent = conditions.emptyMonthChargePercent;
 
-  const empty = startDate ? computeEmptyMonths(startDate) : { count: 0, names: [] };
-  const emptyChargeUsd = emptyPercent != null && empty.count > 0 ? empty.count * monthlyUsd * (emptyPercent / 100) : 0;
+  const empty = startDate
+    ? emptyMonthsChargeUsd({ desiredStartDate: startDate, monthlyPriceUsd: monthlyUsd, chargePercent: emptyPercent })
+    : { months: 0, chargeUsd: 0 };
+  const emptyNames = emptyMonthNames(empty.months);
+  const emptyChargeUsd = empty.chargeUsd;
   const rentTotalUsd = monthlyUsd * duration;
   const reservationTotalUsd = rentTotalUsd + enrollmentUsd + emptyChargeUsd;
   const fee =
@@ -154,11 +166,16 @@ export function ApplyForm({
         id="apply-duration"
         name="initial_duration_months"
         type="number"
-        min={1}
+        min={conditions.minimumStayMonths ?? 1}
         max={24}
         value={duration}
         onChange={(e) => setDuration(Number(e.target.value) || 0)}
         required
+        hint={
+          conditions.minimumStayMonths
+            ? `Esta residencia pide una estadía mínima de ${conditions.minimumStayMonths} meses.`
+            : undefined
+        }
       />
 
       {selected && duration > 0 && (
@@ -193,10 +210,12 @@ export function ApplyForm({
           {enrollmentUsd > 0 && (
             <div className="flex items-center justify-between border-t border-line py-1.5">
               <span className="text-ink-soft">
-                Matrícula
+                Matrícula {conditions.enrollmentFeeFrequency === "annual" ? "(anual)" : "(única vez)"}
                 <InfoTip label="Qué es la matrícula">
-                  Cargo de ingreso por única vez que define la residencia. No es reembolsable y forma parte de la
-                  base del fee de EstuRed.
+                  Cargo administrativo de ingreso que define la residencia
+                  {conditions.enrollmentFeeMode === "one_month" ? ", equivalente a 1 mes de renta" : ""}. No es
+                  reembolsable y forma parte de la base del fee de EstuRed.
+                  {conditions.enrollmentFeeFrequency === "annual" && " Se renueva cada año de estadía."}
                 </InfoTip>
               </span>
               <span className="font-bold text-ink">{formatUsd(enrollmentUsd)}</span>
@@ -206,11 +225,11 @@ export function ApplyForm({
           {emptyChargeUsd > 0 && (
             <div className="flex items-center justify-between border-t border-line py-1.5">
               <span className="text-orange-700">
-                Mes vacío {empty.names.length > 0 && `(${empty.names.join(" y ")}${empty.count > 2 ? "…" : ""})`}
+                Mes vacío {emptyNames.length > 0 && `(${emptyNames.join(" y ")}${empty.months > 2 ? "…" : ""})`}
                 <InfoTip label="Qué es el mes vacío">
-                  La residencia reserva tu lugar durante {empty.count === 1 ? "el mes completo" : `los ${empty.count} meses completos`}{" "}
-                  entre hoy y tu ingreso, al {emptyPercent}% de la renta mensual. Lo define cada residencia en su
-                  configuración.
+                  La residencia reserva tu lugar durante {empty.months === 1 ? "el mes completo" : `los ${empty.months} meses completos`}{" "}
+                  entre hoy y tu ingreso (máximo {MAX_EMPTY_MONTHS}), al {emptyPercent}% de la renta mensual. Lo
+                  define cada residencia en su configuración.
                 </InfoTip>
               </span>
               <span className="font-bold text-orange-700">{formatUsd(emptyChargeUsd)}</span>

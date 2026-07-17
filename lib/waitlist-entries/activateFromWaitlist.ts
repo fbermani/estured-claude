@@ -56,7 +56,7 @@ export async function activateFromWaitlist(
 
   const { data: roomType } = await admin
     .from("room_types")
-    .select("id, monthly_price_usd, enrollment_fee_usd, deposit_usd, adjustment_policy, is_active, profile_availability(status)")
+    .select("id, monthly_price_usd, is_active, profile_availability(status)")
     .eq("id", entry.room_type_id)
     .eq("residence_id", entry.residence_id)
     .maybeSingle();
@@ -74,12 +74,7 @@ export async function activateFromWaitlist(
     studentProfileId: studentProfile.id,
     residenceId: entry.residence_id,
     roomTypeId: entry.room_type_id,
-    roomType: {
-      monthly_price_usd: Number(roomType.monthly_price_usd),
-      enrollment_fee_usd: roomType.enrollment_fee_usd ? Number(roomType.enrollment_fee_usd) : null,
-      deposit_usd: roomType.deposit_usd ? Number(roomType.deposit_usd) : null,
-      adjustment_policy: roomType.adjustment_policy,
-    },
+    roomType: { monthly_price_usd: Number(roomType.monthly_price_usd) },
     desiredStartDate: params.desiredStartDate,
     durationMonths: params.durationMonths,
     academicObjective: studentProfile.academic_objective,

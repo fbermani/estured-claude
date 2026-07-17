@@ -123,6 +123,22 @@ export async function getCommunityVisibility(
       .order("sort_order", { ascending: true }),
   ]);
 
+  // Camas activas por habitación (migración 0025) — una cama fuera de
+  // servicio simplemente no cuenta como lugar; el público no ve el motivo.
+  const roomIds = (rooms ?? []).map((r) => r.id);
+  const activeBedsByRoom = new Map<string, number>();
+  if (roomIds.length > 0) {
+    const { data: beds } = await admin
+      .from("beds")
+      .select("room_id, status")
+      .in("room_id", roomIds);
+    for (const bed of beds ?? []) {
+      if (bed.status === "active") {
+        activeBedsByRoom.set(bed.room_id, (activeBedsByRoom.get(bed.room_id) ?? 0) + 1);
+      }
+    }
+  }
+
   const rows = (stays ?? []) as unknown as RawStay[];
 
   const totalResidents = rows.length;
@@ -145,12 +161,17 @@ export async function getCommunityVisibility(
       .filter((room) => room.room_type_id === rt.id)
       .map((room) => {
         const occupiedCount = occupiedByRoom.get(room.id) ?? 0;
+        // Si la habitación tiene camas modeladas (0025), la capacidad
+        // visible son sus camas ACTIVAS; si no, la capacidad del tipo.
+        const effectiveCapacity = activeBedsByRoom.has(room.id)
+          ? (activeBedsByRoom.get(room.id) ?? 0)
+          : capacity;
         return {
           roomId: room.id,
           label: room.label,
-          capacityPerRoom: capacity,
+          capacityPerRoom: effectiveCapacity,
           occupiedCount,
-          freeBeds: Math.max(0, capacity - occupiedCount),
+          freeBeds: Math.max(0, effectiveCapacity - occupiedCount),
         };
       });
     return {

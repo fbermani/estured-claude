@@ -74,7 +74,6 @@ describe.skipIf(!hasCreds)("reissueBookingReceipt (integración)", () => {
         name: "Individual",
         monthly_price_usd: 300,
         monthly_price_ars: 456000,
-        adjustment_policy: "quarterly",
       })
       .select("id")
       .single();

@@ -35,7 +35,7 @@ async function loadResidence(slug: string) {
     admin
       .from("room_types")
       .select(
-        "id, name, monthly_price_usd, enrollment_fee_usd, deposit_usd, empty_month_charge_percent, capacity_per_room, gender_policy, bathroom_type, profile_availability(status, available_count)",
+        "id, name, monthly_price_usd, capacity_per_room, gender_policy, bathroom_type, profile_availability(status, available_count)",
       )
       .eq("residence_id", residence.id)
       .eq("is_active", true),
@@ -102,6 +102,17 @@ export default async function RealResidenceDetailPage({
     ? await getCommunityVisibility(adminClient, residence.id, sessionUser ? "registered" : "guest")
     : null;
   const communityProfiles = (community?.cards ?? []).filter((c) => c.kind === "profile");
+
+  // Condiciones de reserva a nivel residencia (migración 0025).
+  const conditions = {
+    minimumStayMonths: residence.minimum_stay_months != null ? Number(residence.minimum_stay_months) : null,
+    enrollmentFeeMode: (residence.enrollment_fee_mode as "one_month" | "manual" | null) ?? null,
+    enrollmentFeeUsd: residence.enrollment_fee_usd != null ? Number(residence.enrollment_fee_usd) : null,
+    enrollmentFeeFrequency: (residence.enrollment_fee_frequency as "once" | "annual") ?? "once",
+    depositUsd: residence.deposit_usd != null ? Number(residence.deposit_usd) : null,
+    emptyMonthChargePercent:
+      residence.empty_month_charge_percent != null ? Number(residence.empty_month_charge_percent) : null,
+  };
 
   let linkedStudents: { id: string; first_name: string; last_initial: string }[] = [];
   if (sessionUser?.roles.includes("family_member")) {
@@ -441,6 +452,7 @@ export default async function RealResidenceDetailPage({
               <ApplyForm
                 residenceId={residence.id}
                 roomTypes={roomTypes}
+                conditions={conditions}
                 arsPerUsd={rate.arsPerUsd}
                 preselectedRoomTypeId={preselectedRoomTypeId}
               />

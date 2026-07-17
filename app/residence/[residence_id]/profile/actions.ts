@@ -16,6 +16,7 @@ import {
   ADJUSTMENT_POLICY_OPTIONS,
   ROOM_FEATURE_OPTIONS,
 } from "@/lib/residences/options";
+import { syncRoomsAndBeds } from "@/lib/residences/syncRoomsAndBeds";
 
 export type ProfileFormState = {
   status: "idle" | "error" | "saved" | "submitted";
@@ -33,17 +34,17 @@ const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 const MAX_PDF_BYTES = 10 * 1024 * 1024;
 
 interface RoomTypeInput {
+  /** id existente en DB → update; sin id → tipo nuevo. */
+  id?: string;
   name: string;
   genderPolicy?: string;
   bathroomType?: string;
   features: string[];
-  availableCount: number;
+  /** Cantidad de habitaciones físicas del tipo (sincroniza `rooms`). */
+  roomCount: number;
+  /** Camas por habitación (derivada del nombre; editable en Compartida). */
+  capacityPerRoom: number;
   monthlyPriceUsd: number;
-  enrollmentFeeUsd?: number;
-  depositUsd?: number;
-  emptyMonthChargePercent?: number;
-  adjustmentPolicy: string;
-  minimumStayMonths?: number;
 }
 
 function parseRoomTypes(raw: string): RoomTypeInput[] | null {
@@ -51,21 +52,56 @@ function parseRoomTypes(raw: string): RoomTypeInput[] | null {
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return null;
     return parsed.map((r) => ({
+      id: r.id ? String(r.id) : undefined,
       name: String(r.name ?? ""),
       genderPolicy: r.genderPolicy ? String(r.genderPolicy) : undefined,
       bathroomType: r.bathroomType ? String(r.bathroomType) : undefined,
       features: Array.isArray(r.features) ? r.features.map(String) : [],
-      availableCount: Number(r.availableCount) || 0,
+      roomCount: Math.max(0, Math.min(60, Number(r.roomCount) || 0)),
+      capacityPerRoom: Math.max(1, Math.min(10, Number(r.capacityPerRoom) || 1)),
       monthlyPriceUsd: Number(r.monthlyPriceUsd) || 0,
-      enrollmentFeeUsd: r.enrollmentFeeUsd ? Number(r.enrollmentFeeUsd) : undefined,
-      depositUsd: r.depositUsd ? Number(r.depositUsd) : undefined,
-      emptyMonthChargePercent:
-        r.emptyMonthChargePercent != null && r.emptyMonthChargePercent !== ""
-          ? Math.min(100, Math.max(0, Number(r.emptyMonthChargePercent) || 0))
-          : undefined,
-      adjustmentPolicy: String(r.adjustmentPolicy ?? "quarterly"),
-      minimumStayMonths: r.minimumStayMonths ? Number(r.minimumStayMonths) : undefined,
     }));
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Condiciones de reserva generales de la residencia (migración 0025,
+ * referencia `estured_configuraci_n_de_residencia_onboarding`):
+ * matrícula y depósito son excluyentes; el mes vacío se expresa como %
+ * de la renta cobrado por mes completo entre la solicitud y el ingreso.
+ */
+interface ConditionsInput {
+  minimumStayMonths: number | null;
+  adjustmentPolicy: string;
+  enrollmentFeeMode: "one_month" | "manual" | null;
+  enrollmentFeeUsd: number | null;
+  enrollmentFeeFrequency: "once" | "annual";
+  depositUsd: number | null;
+  emptyMonthChargePercent: number | null;
+}
+
+function parseConditions(raw: string): ConditionsInput | null {
+  try {
+    const c = JSON.parse(raw);
+    const mode = c.enrollmentFeeMode === "one_month" || c.enrollmentFeeMode === "manual" ? c.enrollmentFeeMode : null;
+    return {
+      minimumStayMonths:
+        c.minimumStayMonths != null && c.minimumStayMonths !== ""
+          ? Math.max(1, Math.min(24, Number(c.minimumStayMonths) || 1))
+          : null,
+      adjustmentPolicy: String(c.adjustmentPolicy ?? "quarterly"),
+      enrollmentFeeMode: mode,
+      enrollmentFeeUsd:
+        mode === "manual" && c.enrollmentFeeUsd != null ? Math.max(0, Number(c.enrollmentFeeUsd) || 0) : null,
+      enrollmentFeeFrequency: c.enrollmentFeeFrequency === "annual" ? "annual" : "once",
+      depositUsd: c.depositUsd != null && c.depositUsd !== "" ? Math.max(0, Number(c.depositUsd) || 0) : null,
+      emptyMonthChargePercent:
+        c.emptyMonthChargePercent != null && c.emptyMonthChargePercent !== ""
+          ? Math.min(100, Math.max(0, Number(c.emptyMonthChargePercent) || 0))
+          : null,
+    };
   } catch {
     return null;
   }
@@ -111,29 +147,57 @@ export async function saveResidenceProfile(
   const roomTypes = parseRoomTypes(roomTypesRaw);
   if (!roomTypes) return { status: "error", message: "Hubo un problema con los tipos de habitación." };
 
+  const conditionsRaw = String(formData.get("conditions_json") ?? "{}");
+  const conditions = parseConditions(conditionsRaw);
+  if (!conditions) return { status: "error", message: "Hubo un problema con las condiciones de reserva." };
+  if (!ADJUSTMENT_POLICIES.has(conditions.adjustmentPolicy as never))
+    return { status: "error", message: "Política de ajuste inválida." };
+  if (conditions.depositUsd != null && conditions.enrollmentFeeMode != null)
+    return {
+      status: "error",
+      message: "El depósito de garantía es excluyente con la matrícula: elegí uno de los dos.",
+    };
+  if (conditions.enrollmentFeeMode === "manual" && !conditions.enrollmentFeeUsd)
+    return { status: "error", message: "Indicá el monto de la matrícula o cambiá a \"equivalente a 1 mes\"." };
+
   for (const rt of roomTypes) {
     if (!ROOM_NAMES.has(rt.name))
       return { status: "error", message: "Uno de los tipos de habitación no es válido." };
     if (rt.genderPolicy && !GENDER_POLICIES.has(rt.genderPolicy as never))
       return { status: "error", message: "Género permitido inválido." };
-    if (!ADJUSTMENT_POLICIES.has(rt.adjustmentPolicy as never))
-      return { status: "error", message: "Política de ajuste inválida." };
     if (rt.monthlyPriceUsd <= 0)
       return { status: "error", message: "Cada tipo de habitación necesita una tarifa mayor a 0." };
+    if (rt.roomCount <= 0)
+      return { status: "error", message: `Indicá cuántas habitaciones ${rt.name} tenés (mínimo 1).` };
     if (rt.features.some((f) => !ROOM_FEATURES.has(f)))
       return { status: "error", message: "Una de las características no es válida." };
   }
+  const names = roomTypes.map((rt) => rt.name);
+  if (new Set(names).size !== names.length)
+    return { status: "error", message: "No repitas el mismo tipo de habitación dos veces." };
 
   if (intent === "submit") {
     if (roomTypes.length === 0)
       return { status: "error", message: "Agregá al menos un tipo de habitación antes de enviar." };
   }
 
+  const warnings: string[] = [];
+
   try {
-    // Datos básicos + descripción.
+    // Datos básicos + descripción + condiciones de reserva (0025).
     const { error: residenceError } = await admin
       .from("residences")
-      .update({ tagline: tagline || null, description: description || null })
+      .update({
+        tagline: tagline || null,
+        description: description || null,
+        minimum_stay_months: conditions.minimumStayMonths,
+        adjustment_policy: conditions.adjustmentPolicy,
+        enrollment_fee_mode: conditions.enrollmentFeeMode,
+        enrollment_fee_usd: conditions.enrollmentFeeMode === "manual" ? conditions.enrollmentFeeUsd : null,
+        enrollment_fee_frequency: conditions.enrollmentFeeFrequency,
+        deposit_usd: conditions.depositUsd,
+        empty_month_charge_percent: conditions.emptyMonthChargePercent,
+      })
       .eq("id", residenceId);
     if (residenceError) throw residenceError;
 
@@ -212,53 +276,80 @@ export async function saveResidenceProfile(
       });
     }
 
-    // Tipos de habitación: reemplaza los existentes (simplificación del
-    // ciclo — el histórico de tarifas real vía tariff_change_logs llega
-    // cuando exista edición fina post-publicación).
+    // Tipos de habitación: UPSERT por id (Ciclo 34duovicies — el viejo
+    // delete+reinsert rompería las FKs de solicitudes/estadías/habitaciones
+    // que ya referencian estos tipos). Tipos quitados del formulario se
+    // DESACTIVAN (is_active=false), nunca se borran: el histórico los
+    // sigue referenciando.
     const { data: existingTypes } = await admin
       .from("room_types")
-      .select("id")
+      .select("id, is_active")
       .eq("residence_id", residenceId);
-    if (existingTypes && existingTypes.length > 0) {
-      const ids = existingTypes.map((t) => t.id);
-      await admin.from("profile_availability").delete().in("room_type_id", ids);
-      await admin.from("room_types").delete().in("id", ids);
+    const draftIds = new Set(roomTypes.map((rt) => rt.id).filter(Boolean));
+    const removed = (existingTypes ?? []).filter((t) => t.is_active && !draftIds.has(t.id));
+    if (removed.length > 0) {
+      const { error } = await admin
+        .from("room_types")
+        .update({ is_active: false })
+        .in("id", removed.map((t) => t.id));
+      if (error) throw error;
+      // Sus habitaciones vacías también se dan de baja.
+      for (const t of removed) {
+        const sync = await syncRoomsAndBeds(admin, {
+          residenceId,
+          roomTypeId: t.id,
+          desiredRoomCount: 0,
+          capacityPerRoom: 1,
+        });
+        if (sync.ok) warnings.push(...sync.warnings);
+      }
     }
 
     const rate = await getCurrentExchangeRate();
     for (const rt of roomTypes) {
       const monthlyPriceUsd = roundUsd(rt.monthlyPriceUsd);
-      const { data: inserted, error: rtError } = await admin
-        .from("room_types")
-        .insert({
-          residence_id: residenceId,
-          name: rt.name,
-          gender_policy: rt.genderPolicy || null,
-          bathroom_type: rt.bathroomType || null,
-          features: rt.features,
-          monthly_price_usd: monthlyPriceUsd,
-          monthly_price_ars: roundArs(usdToArs(monthlyPriceUsd, rate.arsPerUsd)),
-          enrollment_fee_usd: rt.enrollmentFeeUsd ? roundUsd(rt.enrollmentFeeUsd) : null,
-          enrollment_fee_ars: rt.enrollmentFeeUsd
-            ? roundArs(usdToArs(roundUsd(rt.enrollmentFeeUsd), rate.arsPerUsd))
-            : null,
-          deposit_usd: rt.depositUsd ? roundUsd(rt.depositUsd) : null,
-          deposit_ars: rt.depositUsd ? roundArs(usdToArs(roundUsd(rt.depositUsd), rate.arsPerUsd)) : null,
-          empty_month_charge_percent: rt.emptyMonthChargePercent ?? null,
-          adjustment_policy: rt.adjustmentPolicy,
-          minimum_stay_months: rt.minimumStayMonths || null,
-        })
-        .select("id")
-        .single();
-      if (rtError || !inserted) throw rtError;
+      const baseFields = {
+        name: rt.name,
+        gender_policy: rt.genderPolicy || null,
+        bathroom_type: rt.bathroomType || null,
+        features: rt.features,
+        capacity_per_room: rt.capacityPerRoom,
+        monthly_price_usd: monthlyPriceUsd,
+        monthly_price_ars: roundArs(usdToArs(monthlyPriceUsd, rate.arsPerUsd)),
+        is_active: true,
+      };
 
-      await admin.from("profile_availability").insert({
-        residence_id: residenceId,
-        room_type_id: inserted.id,
-        status: rt.availableCount > 0 ? "available_to_confirm" : "full",
-        available_count: rt.availableCount,
-        last_confirmed_by: sessionUser.id,
+      let roomTypeId = rt.id ?? null;
+      if (roomTypeId) {
+        const { error } = await admin.from("room_types").update(baseFields).eq("id", roomTypeId);
+        if (error) throw error;
+      } else {
+        const { data: inserted, error } = await admin
+          .from("room_types")
+          .insert({ residence_id: residenceId, ...baseFields })
+          .select("id")
+          .single();
+        if (error || !inserted) throw error;
+        roomTypeId = inserted.id;
+        // La disponibilidad informada arranca "sin actualizar": se
+        // gestiona en su propia pantalla, ya no desde la configuración.
+        await admin.from("profile_availability").insert({
+          residence_id: residenceId,
+          room_type_id: roomTypeId,
+          status: "not_updated",
+          available_count: null,
+          last_confirmed_by: sessionUser.id,
+        });
+      }
+
+      const sync = await syncRoomsAndBeds(admin, {
+        residenceId,
+        roomTypeId: roomTypeId as string,
+        desiredRoomCount: rt.roomCount,
+        capacityPerRoom: rt.capacityPerRoom,
       });
+      if (!sync.ok) return { status: "error", message: sync.error };
+      warnings.push(...sync.warnings);
     }
 
     await createAuditLog(admin, {
@@ -293,8 +384,10 @@ export async function saveResidenceProfile(
   }
 
   revalidatePath(`/residence/${residenceId}/profile`);
+  revalidatePath(`/residence/${residenceId}/rooms`);
   revalidatePath("/residence/dashboard");
+  const warningSuffix = warnings.length > 0 ? ` Atención: ${warnings.join(" ")}` : "";
   return intent === "submit"
     ? { status: "submitted" }
-    : { status: "saved", message: "Cambios guardados como borrador." };
+    : { status: "saved", message: `Cambios guardados como borrador.${warningSuffix}` };
 }

@@ -119,12 +119,8 @@ async function seedRooms(residenceId) {
       console.log(`  ${rt.name}: ${unassigned.length} residentes asignados a habitación`);
     }
 
-    const { error: pctError } = await admin
-      .from("room_types")
-      .update({ empty_month_charge_percent: 75 })
-      .eq("id", rt.id)
-      .is("empty_month_charge_percent", null);
-    if (pctError) throw pctError;
+    // (El % de mes vacío pasó a nivel residencia en la migración 0025 —
+    // lo setea scripts/seed-beds-and-conditions.mjs.)
   }
 }
 

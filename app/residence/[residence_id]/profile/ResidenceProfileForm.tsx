@@ -24,17 +24,31 @@ import {
 } from "@/app/residence/[residence_id]/profile/actions";
 
 interface RoomTypeDraft {
+  id?: string;
   name: string;
   genderPolicy?: string;
   bathroomType?: string;
   features: string[];
-  availableCount: number;
+  /** Cantidad de habitaciones físicas — sincroniza el módulo de habitaciones. */
+  roomCount: number;
+  /** Camas por habitación (derivada del tipo; editable en Compartida). */
+  capacityPerRoom: number;
   monthlyPriceUsd: number;
-  enrollmentFeeUsd?: number;
-  depositUsd?: number;
-  emptyMonthChargePercent?: number;
+}
+
+/** Condiciones generales de reserva (migración 0025 — ref de configuración). */
+interface ConditionsDraft {
+  minimumStayMonths: number | "";
   adjustmentPolicy: string;
-  minimumStayMonths?: number;
+  enrollmentEnabled: boolean;
+  enrollmentFeeMode: "one_month" | "manual";
+  enrollmentFeeUsd: number | "";
+  enrollmentFeeFrequency: "once" | "annual";
+  depositEnabled: boolean;
+  depositUsd: number | "";
+  emptyMonthsEnabled: boolean;
+  /** Se muestra como "descuento"; se guarda como % cobrado (100 - descuento). */
+  emptyMonthDiscountPercent: number;
 }
 
 interface ProfileInitial {
@@ -52,6 +66,41 @@ interface ProfileInitial {
   rulesFileName: string | null;
   photoUrls: string[];
   roomTypes: RoomTypeDraft[];
+  conditions: ConditionsDraft;
+}
+
+/** Camas por habitación según el nombre del tipo (Compartida es editable). */
+const CAPACITY_BY_NAME: Record<string, number> = {
+  Individual: 1,
+  Doble: 2,
+  Triple: 3,
+  Cuádruple: 4,
+  Compartida: 3,
+};
+
+const MINIMUM_STAY_OPTIONS = [1, 3, 6, 9, 12];
+const EMPTY_MONTH_DISCOUNT_OPTIONS = [0, 25, 50, 75];
+
+function Switch({ checked, onChange, disabled, label }: { checked: boolean; onChange: (v: boolean) => void; disabled?: boolean; label: string }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      disabled={disabled}
+      onClick={() => onChange(!checked)}
+      className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
+        checked ? "bg-forest" : "bg-sand-200"
+      } ${disabled ? "cursor-not-allowed opacity-40" : "cursor-pointer"}`}
+    >
+      <span
+        className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-all ${
+          checked ? "left-[22px]" : "left-0.5"
+        }`}
+      />
+    </button>
+  );
 }
 
 const initialState: ProfileFormState = { status: "idle" };
@@ -68,9 +117,9 @@ function emptyRoomType(): RoomTypeDraft {
   return {
     name: "Individual",
     features: [],
-    availableCount: 1,
+    roomCount: 1,
+    capacityPerRoom: 1,
     monthlyPriceUsd: 300,
-    adjustmentPolicy: "quarterly",
   };
 }
 
@@ -97,7 +146,12 @@ export function ResidenceProfileForm({
   const [roomTypes, setRoomTypes] = useState<RoomTypeDraft[]>(
     initial.roomTypes.length > 0 ? initial.roomTypes : [emptyRoomType()],
   );
+  const [conditions, setConditions] = useState<ConditionsDraft>(initial.conditions);
   const [newPhotoCount, setNewPhotoCount] = useState(0);
+
+  function updateConditions(patch: Partial<ConditionsDraft>) {
+    setConditions((prev) => ({ ...prev, ...patch }));
+  }
 
   function toggle(set: Set<string>, setSet: (s: Set<string>) => void, value: string) {
     const next = new Set(set);
@@ -157,6 +211,20 @@ export function ResidenceProfileForm({
           // submit (patrón HTML nativo) — leer el botón evita la carrera
           // de usar onClick + estado de React para decidirlo.
           fd.set("room_types_json", JSON.stringify(roomTypes));
+          fd.set(
+            "conditions_json",
+            JSON.stringify({
+              minimumStayMonths: conditions.minimumStayMonths,
+              adjustmentPolicy: conditions.adjustmentPolicy,
+              enrollmentFeeMode: conditions.enrollmentEnabled ? conditions.enrollmentFeeMode : null,
+              enrollmentFeeUsd: conditions.enrollmentFeeUsd,
+              enrollmentFeeFrequency: conditions.enrollmentFeeFrequency,
+              depositUsd: conditions.depositEnabled ? conditions.depositUsd : null,
+              emptyMonthChargePercent: conditions.emptyMonthsEnabled
+                ? 100 - conditions.emptyMonthDiscountPercent
+                : null,
+            }),
+          );
           formAction(fd);
         }}
         className="grid gap-8 lg:grid-cols-[1fr_320px]"
@@ -357,7 +425,12 @@ export function ResidenceProfileForm({
                     <Select
                       label="Tipo"
                       value={rt.name}
-                      onChange={(e) => updateRoomType(i, { name: e.target.value })}
+                      onChange={(e) =>
+                        updateRoomType(i, {
+                          name: e.target.value,
+                          capacityPerRoom: CAPACITY_BY_NAME[e.target.value] ?? 3,
+                        })
+                      }
                     >
                       {ROOM_TYPE_NAMES.map((n) => (
                         <option key={n} value={n}>
@@ -394,11 +467,15 @@ export function ResidenceProfileForm({
                   </div>
                   <div className="mt-3 grid gap-4 sm:grid-cols-2">
                     <Input
-                      label="Cantidad disponible"
+                      label="Cantidad de habitaciones"
                       type="number"
-                      min={0}
-                      value={rt.availableCount}
-                      onChange={(e) => updateRoomType(i, { availableCount: Number(e.target.value) })}
+                      min={1}
+                      max={60}
+                      value={rt.roomCount}
+                      onChange={(e) => updateRoomType(i, { roomCount: Number(e.target.value) })}
+                      hint={`${rt.capacityPerRoom} ${rt.capacityPerRoom === 1 ? "cama" : "camas"} por habitación → ${
+                        rt.roomCount * rt.capacityPerRoom
+                      } plazas. Genera "Habitación 1…${rt.roomCount || "N"}", renombrables en el módulo de habitaciones.`}
                     />
                     <Input
                       label="Tarifa mensual (USD)"
@@ -415,6 +492,18 @@ export function ResidenceProfileForm({
                       }
                     />
                   </div>
+                  {rt.name === "Compartida" && (
+                    <div className="mt-3 max-w-56">
+                      <Input
+                        label="Camas por habitación"
+                        type="number"
+                        min={2}
+                        max={10}
+                        value={rt.capacityPerRoom}
+                        onChange={(e) => updateRoomType(i, { capacityPerRoom: Number(e.target.value) || 2 })}
+                      />
+                    </div>
+                  )}
                   <div className="mt-3 flex flex-wrap gap-4">
                     <span className="text-sm font-medium text-ink">Características</span>
                     {ROOM_FEATURE_OPTIONS.map((f) => (
@@ -429,53 +518,6 @@ export function ResidenceProfileForm({
                       </label>
                     ))}
                   </div>
-                  <div className="mt-3 grid gap-4 sm:grid-cols-3">
-                    <Input
-                      label="Matrícula (USD, opcional)"
-                      type="number"
-                      min={0}
-                      value={rt.enrollmentFeeUsd ?? ""}
-                      onChange={(e) =>
-                        updateRoomType(i, {
-                          enrollmentFeeUsd: e.target.value ? Number(e.target.value) : undefined,
-                        })
-                      }
-                    />
-                    <Input
-                      label="Depósito (USD, opcional)"
-                      type="number"
-                      min={0}
-                      value={rt.depositUsd ?? ""}
-                      onChange={(e) =>
-                        updateRoomType(i, { depositUsd: e.target.value ? Number(e.target.value) : undefined })
-                      }
-                      hint="Reembolsable."
-                    />
-                    <Input
-                      label="Mes vacío (% renta, opcional)"
-                      type="number"
-                      min={0}
-                      max={100}
-                      value={rt.emptyMonthChargePercent ?? ""}
-                      onChange={(e) =>
-                        updateRoomType(i, {
-                          emptyMonthChargePercent: e.target.value ? Number(e.target.value) : undefined,
-                        })
-                      }
-                      hint="% de la renta por mes completo entre la solicitud y el ingreso."
-                    />
-                    <Select
-                      label="Ajuste cada"
-                      value={rt.adjustmentPolicy}
-                      onChange={(e) => updateRoomType(i, { adjustmentPolicy: e.target.value })}
-                    >
-                      {ADJUSTMENT_POLICY_OPTIONS.map((a) => (
-                        <option key={a.value} value={a.value}>
-                          {a.label}
-                        </option>
-                      ))}
-                    </Select>
-                  </div>
                 </div>
               ))}
             </div>
@@ -486,6 +528,185 @@ export function ResidenceProfileForm({
             >
               + Agregar tipo de habitación
             </button>
+          </Card>
+
+          {/* Condiciones de Reserva — generales a todos los tipos (ref
+              de configuración; migración 0025) */}
+          <Card className="p-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-bold text-ink">Condiciones de Reserva</h2>
+              <Badge tone="amber">Datos sensibles</Badge>
+            </div>
+            <p className="mt-1 text-sm text-ink-soft">
+              Aplican a todos los tipos de habitación y se muestran en la previa de cada solicitud.
+            </p>
+
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <Select
+                label="Mínimo de estadía"
+                value={conditions.minimumStayMonths}
+                onChange={(e) =>
+                  updateConditions({ minimumStayMonths: e.target.value ? Number(e.target.value) : "" })
+                }
+                hint="Duración mínima de contrato requerida."
+              >
+                <option value="">Sin mínimo</option>
+                {MINIMUM_STAY_OPTIONS.map((m) => (
+                  <option key={m} value={m}>
+                    {m} {m === 1 ? "mes" : "meses"}
+                  </option>
+                ))}
+              </Select>
+              <Select
+                label="Ajuste cada"
+                value={conditions.adjustmentPolicy}
+                onChange={(e) => updateConditions({ adjustmentPolicy: e.target.value })}
+              >
+                {ADJUSTMENT_POLICY_OPTIONS.map((a) => (
+                  <option key={a.value} value={a.value}>
+                    {a.label}
+                  </option>
+                ))}
+              </Select>
+            </div>
+
+            {/* Matrícula */}
+            <div className="mt-5 rounded-card border border-sand-200 p-4">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="font-semibold text-ink">Matrícula de inscripción</p>
+                  <p className="text-xs text-ink-soft">
+                    ¿Cobrás una tarifa administrativa al inicio? <span className="font-semibold text-danger-fg">No reembolsable.</span>
+                  </p>
+                </div>
+                <Switch
+                  checked={conditions.enrollmentEnabled}
+                  disabled={conditions.depositEnabled}
+                  onChange={(v) => updateConditions({ enrollmentEnabled: v })}
+                  label="Cobrar matrícula"
+                />
+              </div>
+              {conditions.depositEnabled && (
+                <p className="mt-2 text-xs text-ink-faint">Excluyente con el depósito de garantía.</p>
+              )}
+              {conditions.enrollmentEnabled && (
+                <div className="mt-4 space-y-3 border-t border-sand-200 pt-4">
+                  <div className="flex flex-wrap items-center gap-4">
+                    <span className="text-xs font-bold uppercase tracking-wide text-muted">Equivalente a</span>
+                    <label className="flex items-center gap-1.5 text-sm text-ink-soft">
+                      <input
+                        type="radio"
+                        checked={conditions.enrollmentFeeMode === "one_month"}
+                        onChange={() => updateConditions({ enrollmentFeeMode: "one_month" })}
+                        className="h-4 w-4 accent-forest"
+                      />
+                      1 mes de renta
+                    </label>
+                    <label className="flex items-center gap-1.5 text-sm text-ink-soft">
+                      <input
+                        type="radio"
+                        checked={conditions.enrollmentFeeMode === "manual"}
+                        onChange={() => updateConditions({ enrollmentFeeMode: "manual" })}
+                        className="h-4 w-4 accent-forest"
+                      />
+                      Valor manual
+                    </label>
+                    {conditions.enrollmentFeeMode === "manual" && (
+                      <div className="w-32">
+                        <Input
+                          label="Monto (USD)"
+                          type="number"
+                          min={0}
+                          value={conditions.enrollmentFeeUsd}
+                          onChange={(e) =>
+                            updateConditions({ enrollmentFeeUsd: e.target.value ? Number(e.target.value) : "" })
+                          }
+                        />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-4">
+                    <span className="text-xs font-bold uppercase tracking-wide text-muted">Frecuencia</span>
+                    {(
+                      [
+                        { value: "once", label: "Única vez" },
+                        { value: "annual", label: "Anual" },
+                      ] as const
+                    ).map((f) => (
+                      <label key={f.value} className="flex items-center gap-1.5 text-sm text-ink-soft">
+                        <input
+                          type="radio"
+                          checked={conditions.enrollmentFeeFrequency === f.value}
+                          onChange={() => updateConditions({ enrollmentFeeFrequency: f.value })}
+                          className="h-4 w-4 accent-forest"
+                        />
+                        {f.label}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Depósito */}
+            <div className="mt-4 rounded-card border border-sand-200 p-4">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="font-semibold text-ink">Depósito de garantía</p>
+                  <p className="text-xs text-ink-soft">Reembolsable al egreso. Excluyente con la matrícula.</p>
+                </div>
+                <Switch
+                  checked={conditions.depositEnabled}
+                  disabled={conditions.enrollmentEnabled}
+                  onChange={(v) => updateConditions({ depositEnabled: v })}
+                  label="Pedir depósito"
+                />
+              </div>
+              {conditions.depositEnabled && (
+                <div className="mt-4 w-40 border-t border-sand-200 pt-4">
+                  <Input
+                    label="Monto (USD)"
+                    type="number"
+                    min={0}
+                    value={conditions.depositUsd}
+                    onChange={(e) => updateConditions({ depositUsd: e.target.value ? Number(e.target.value) : "" })}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Meses vacíos */}
+            <div className="mt-4 rounded-card border border-sand-200 p-4">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="font-semibold text-ink">Meses vacíos (reserva anticipada)</p>
+                  <p className="text-xs text-ink-soft">
+                    Al reservar un cupo futuro (máximo 3 meses), los meses no ocupados tienen un cargo mínimo.
+                  </p>
+                </div>
+                <Switch
+                  checked={conditions.emptyMonthsEnabled}
+                  onChange={(v) => updateConditions({ emptyMonthsEnabled: v })}
+                  label="Cobrar meses vacíos"
+                />
+              </div>
+              {conditions.emptyMonthsEnabled && (
+                <div className="mt-4 max-w-72 border-t border-sand-200 pt-4">
+                  <Select
+                    label="Descuento para meses no ocupados"
+                    value={conditions.emptyMonthDiscountPercent}
+                    onChange={(e) => updateConditions({ emptyMonthDiscountPercent: Number(e.target.value) })}
+                    hint={`El estudiante paga el ${100 - conditions.emptyMonthDiscountPercent}% de la renta por mes vacío.`}
+                  >
+                    {EMPTY_MONTH_DISCOUNT_OPTIONS.map((d) => (
+                      <option key={d} value={d}>
+                        {d}% de descuento
+                      </option>
+                    ))}
+                  </Select>
+                </div>
+              )}
+            </div>
           </Card>
 
           {state.status === "error" && (

@@ -25,6 +25,8 @@ export async function createResidentStay(
     roomTypeId: string | null;
     reservationId: string | null;
     startDate: string | null;
+    /** "Contrato hasta" — opcional (migración 0025). */
+    expectedEndDate?: string | null;
   },
 ): Promise<CreateResidentStayResult> {
   const hasAccess = await assertResidenceAccess(admin, params.actorUserId, params.residenceId);
@@ -52,6 +54,7 @@ export async function createResidentStay(
       invite_email: email,
       status: "pending_activation",
       start_date: params.startDate,
+      expected_end_date: params.expectedEndDate ?? null,
     })
     .select("id")
     .single();

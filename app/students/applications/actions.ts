@@ -101,9 +101,7 @@ export async function createApplicationRequest(
 
   const { data: roomType } = await admin
     .from("room_types")
-    .select(
-      "id, monthly_price_usd, enrollment_fee_usd, deposit_usd, adjustment_policy, is_active, profile_availability(status)",
-    )
+    .select("id, monthly_price_usd, is_active, profile_availability(status)")
     .eq("id", roomTypeId)
     .eq("residence_id", residenceId)
     .maybeSingle();
@@ -121,12 +119,7 @@ export async function createApplicationRequest(
     studentProfileId: studentProfile.id,
     residenceId,
     roomTypeId,
-    roomType: {
-      monthly_price_usd: Number(roomType.monthly_price_usd),
-      enrollment_fee_usd: roomType.enrollment_fee_usd ? Number(roomType.enrollment_fee_usd) : null,
-      deposit_usd: roomType.deposit_usd ? Number(roomType.deposit_usd) : null,
-      adjustment_policy: roomType.adjustment_policy,
-    },
+    roomType: { monthly_price_usd: Number(roomType.monthly_price_usd) },
     desiredStartDate,
     durationMonths,
     academicObjective,
