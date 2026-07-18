@@ -52,14 +52,18 @@ export default async function ResidenceOverviewPage({
 
   const { data: residence } = await admin
     .from("residences")
-    .select("id, name, public_area, status, total_capacity")
+    .select("id, name, public_area, status")
     .eq("id", residenceId)
     .maybeSingle();
   if (!residence) notFound();
 
+  const { data: activeRooms } = await admin.from("rooms").select("id").eq("residence_id", residenceId).eq("is_active", true);
+  const roomIds = (activeRooms ?? []).map((room) => room.id);
+
   const [
     { count: newApplicationsCount },
     { count: inProgressApplicationsCount },
+    { count: capacityCount },
     { count: occupiedCount },
     { count: pendingRenewalRequestsCount },
     { count: pendingRenewalOffersCount },
@@ -70,7 +74,10 @@ export default async function ResidenceOverviewPage({
   ] = await Promise.all([
     admin.from("application_requests").select("*", { count: "exact", head: true }).eq("residence_id", residenceId).eq("status", "submitted"),
     admin.from("application_requests").select("*", { count: "exact", head: true }).eq("residence_id", residenceId).in("status", ["submitted", "under_review", "contact_established"]),
-    admin.from("resident_stays").select("*", { count: "exact", head: true }).eq("residence_id", residenceId).eq("is_current", true),
+    roomIds.length > 0
+      ? admin.from("beds").select("*", { count: "exact", head: true }).in("room_id", roomIds).eq("status", "active")
+      : Promise.resolve({ count: 0 }),
+    admin.from("resident_stays").select("*", { count: "exact", head: true }).eq("residence_id", residenceId).eq("is_current", true).not("bed_id", "is", null),
     admin.from("renewal_requests").select("*", { count: "exact", head: true }).eq("residence_id", residenceId).eq("status", "notified_to_residence"),
     admin.from("renewal_offers").select("*", { count: "exact", head: true }).eq("residence_id", residenceId).in("status", ["sent", "viewed"]),
     admin.from("resident_stays").select("*", { count: "exact", head: true }).eq("residence_id", residenceId).eq("is_current", true),
@@ -85,7 +92,7 @@ export default async function ResidenceOverviewPage({
   ]);
 
   const recentApplications = (recentApplicationsData as unknown as RecentApplicationRow[]) ?? [];
-  const capacity = residence.total_capacity ?? 0;
+  const capacity = capacityCount ?? 0;
   const occupancyPct = capacity > 0 ? Math.min(100, Math.round(((occupiedCount ?? 0) / capacity) * 100)) : 0;
   const renewalsNeedingAttention = (pendingRenewalRequestsCount ?? 0) + (pendingRenewalOffersCount ?? 0);
 
