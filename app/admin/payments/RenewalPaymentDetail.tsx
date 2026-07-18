@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminButton } from "@/components/admin/ui/AdminButton";
+import { DocumentAccessButton } from "@/components/admin/ui/DocumentAccessButton";
 import { cmd } from "@/components/admin/ui/tokens";
 import { markRenewalFeePaidManually, type MarkFeePaidState } from "@/app/admin/payments/actions";
 
@@ -29,10 +30,10 @@ const initialState: MarkFeePaidState = { status: "idle" };
 
 export function RenewalPaymentDetail({
   feePayment,
-  proofUrl,
+  proofFileId,
 }: {
   feePayment: RenewalFeePayment;
-  proofUrl: string | null;
+  proofFileId: string | null;
 }) {
   const action = markRenewalFeePaidManually.bind(null, feePayment.id);
   const [state, formAction] = useActionState(action, initialState);
@@ -85,16 +86,10 @@ export function RenewalPaymentDetail({
             <dd style={{ color: cmd.onSurface }}>{feePayment.payer_iva_condition}</dd>
           </div>
         </dl>
-        {proofUrl ? (
-          <a
-            href={proofUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-4 inline-block text-sm font-semibold underline"
-            style={{ color: cmd.primary }}
-          >
-            Ver comprobante subido →
-          </a>
+        {proofFileId ? (
+          <div className="mt-4">
+            <DocumentAccessButton fileId={proofFileId} label="Ver comprobante subido →" />
+          </div>
         ) : (
           <p className="mt-4 text-sm" style={{ color: cmd.outline }}>
             El estudiante todavía no subió comprobante.

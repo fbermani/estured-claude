@@ -135,6 +135,14 @@ function PricingIcon() {
     </svg>
   );
 }
+function DocumentsIcon() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 4a1.5 1.5 0 011.5-1.5h5l4 4v9a1.5 1.5 0 01-1.5 1.5h-8A1.5 1.5 0 014 15.5V4z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 2.5V6a1 1 0 001 1H15" />
+    </svg>
+  );
+}
 function SupportCasesIcon() {
   return (
     <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
@@ -161,6 +169,7 @@ const NAV = [
   { href: "/admin/verifications", label: "Validaciones", Icon: ValidationsIcon },
   { href: "/admin/profile-edits", label: "Ediciones de perfil", Icon: ProfileEditsIcon },
   { href: "/admin/pricing", label: "Administración de tarifas", Icon: PricingIcon },
+  { href: "/admin/documents", label: "Documentos", Icon: DocumentsIcon },
   { href: "/admin/applications", label: "Solicitudes", Icon: ClockIcon },
   { href: "/admin/negotiations", label: "Negociaciones", Icon: NegotiationsIcon },
   { href: "/admin/family-proposals", label: "Propuestas familiar", Icon: FamilyProposalsIcon },

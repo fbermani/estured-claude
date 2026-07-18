@@ -57,18 +57,11 @@ export default async function AdminPaymentsPage({
     if (feePaymentError) console.error("[admin-payments] detail query failed:", feePaymentError);
 
     if (feePayment) {
-      let proofUrl: string | null = null;
-      if (feePayment.manual_payment_file_id) {
-        const { data: file } = await admin
-          .from("files")
-          .select("bucket, storage_path")
-          .eq("id", feePayment.manual_payment_file_id)
-          .maybeSingle();
-        if (file) {
-          proofUrl =
-            (await admin.storage.from(file.bucket).createSignedUrl(file.storage_path, 3600)).data?.signedUrl ?? null;
-        }
-      }
+      // El signed URL ya NO se genera acá (docs/09 §18.2: requiere
+      // justificación auditada antes de verse) — solo pasamos el id
+      // del archivo, `DocumentAccessButton` pide el motivo y genera el
+      // link recién ahí.
+      const proofFileId = feePayment.manual_payment_file_id ?? null;
       if (feePayment.renewal_offer_id) {
         const renewalOfferDetail = feePayment.renewal_offers as unknown as {
           residences: { name: string } | null;
@@ -77,7 +70,7 @@ export default async function AdminPaymentsPage({
           period_end_date: string;
           duration_months: number;
         } | null;
-        renewalDetail = { feePayment: { ...feePayment, renewal_offers: renewalOfferDetail }, proofUrl };
+        renewalDetail = { feePayment: { ...feePayment, renewal_offers: renewalOfferDetail }, proofFileId };
       } else {
         const reservationDetail = feePayment.reservations as unknown as {
           residences: { name: string } | null;
@@ -85,7 +78,7 @@ export default async function AdminPaymentsPage({
           start_date: string;
           initial_duration_months: number;
         } | null;
-        detail = { feePayment: { ...feePayment, reservations: reservationDetail }, proofUrl };
+        detail = { feePayment: { ...feePayment, reservations: reservationDetail }, proofFileId };
       }
     }
   }

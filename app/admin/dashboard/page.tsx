@@ -19,6 +19,7 @@ const ACTION_LABELS: Record<string, string> = {
   residence_profile_edit_rejected: "rechazó una edición de perfil",
   residence_profile_edit_correction_requested: "pidió corrección en una edición de perfil",
   tariff_change_reviewed: "revisó un cambio de tarifa",
+  document_accessed: "accedió a un documento sensible",
   user_logged_out: "cerró sesión",
   admin_user_created: "creó un usuario admin",
   demo_user_seeded: "sembró un usuario demo",

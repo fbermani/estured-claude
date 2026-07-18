@@ -6,6 +6,7 @@ import { useFormStatus } from "react-dom";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
 import { AdminButton } from "@/components/admin/ui/AdminButton";
+import { DocumentAccessButton } from "@/components/admin/ui/DocumentAccessButton";
 import { cmd } from "@/components/admin/ui/tokens";
 import { reviewResidence, type ReviewState } from "@/app/admin/verifications/actions";
 
@@ -50,7 +51,7 @@ export function VerificationDetail({
   rulesSummary: string;
   roomTypes: { name: string; priceUsd: number; availableCount: number }[];
   photoUrls: string[];
-  rulesFile: { filename: string; sizeKb: number; signedUrl: string | null } | null;
+  rulesFile: { id: string; filename: string; sizeKb: number } | null;
 }) {
   const action = reviewResidence.bind(null, residence.id);
   const [state, formAction] = useActionState(action, initialState);
@@ -147,21 +148,12 @@ export function VerificationDetail({
             Documentación
           </p>
           {rulesFile ? (
-            rulesFile.signedUrl ? (
-              <a
-                href={rulesFile.signedUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-1 flex items-center gap-2 text-sm font-semibold"
-                style={{ color: cmd.primary }}
-              >
+            <div className="mt-1">
+              <p className="text-sm" style={{ color: cmd.onSurfaceVariant }}>
                 📄 {rulesFile.filename} · {rulesFile.sizeKb} KB
-              </a>
-            ) : (
-              <p className="mt-1 text-sm" style={{ color: cmd.outline }}>
-                {rulesFile.filename} (no se pudo generar el link)
               </p>
-            )
+              <DocumentAccessButton fileId={rulesFile.id} label="Ver reglamento →" />
+            </div>
           ) : (
             <p className="mt-1 text-sm" style={{ color: cmd.outline }}>
               No se cargó reglamento en PDF.

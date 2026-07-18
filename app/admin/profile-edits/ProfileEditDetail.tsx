@@ -6,6 +6,7 @@ import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminButton } from "@/components/admin/ui/AdminButton";
+import { DocumentAccessButton } from "@/components/admin/ui/DocumentAccessButton";
 import { cmd } from "@/components/admin/ui/tokens";
 import { reviewProfileEdit, type ProfileEditReviewState } from "@/app/admin/profile-edits/actions";
 
@@ -41,7 +42,7 @@ export function ProfileEditDetail({
   submittedByEmail,
   createdAt,
   photoUrls,
-  rulesFileUrl,
+  rulesFileId,
 }: {
   id: string;
   residenceId: string;
@@ -53,7 +54,7 @@ export function ProfileEditDetail({
   submittedByEmail: string | null;
   createdAt: string;
   photoUrls: string[];
-  rulesFileUrl: string | null;
+  rulesFileId: string | null;
 }) {
   const action = reviewProfileEdit.bind(null, id);
   const [state, formAction] = useActionState(action, initialState);
@@ -90,7 +91,7 @@ export function ProfileEditDetail({
             oldValue={oldValue}
             newValue={newValue}
             photoUrls={photoUrls}
-            rulesFileUrl={rulesFileUrl}
+            rulesFileId={rulesFileId}
           />
         </div>
       </AdminCard>
@@ -151,13 +152,13 @@ function FieldGroupDiff({
   oldValue,
   newValue,
   photoUrls,
-  rulesFileUrl,
+  rulesFileId,
 }: {
   fieldGroup: string;
   oldValue: unknown;
   newValue: unknown;
   photoUrls: string[];
-  rulesFileUrl: string | null;
+  rulesFileId: string | null;
 }) {
   if (fieldGroup === "photos") {
     return (
@@ -194,13 +195,16 @@ function FieldGroupDiff({
             <p className="text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
               Reglamento PDF nuevo
             </p>
-            {rulesFileUrl ? (
-              <a href={rulesFileUrl} target="_blank" rel="noreferrer" className="text-sm font-bold underline" style={{ color: cmd.primary }}>
-                {rulesFile.filename}
-              </a>
+            {rulesFileId ? (
+              <div>
+                <p className="text-sm" style={{ color: cmd.onSurfaceVariant }}>
+                  {rulesFile.filename}
+                </p>
+                <DocumentAccessButton fileId={rulesFileId} label="Ver reglamento →" />
+              </div>
             ) : (
               <p className="text-sm" style={{ color: cmd.onSurfaceVariant }}>
-                {rulesFile.filename} (no se pudo generar el link)
+                {rulesFile.filename} (documento no disponible)
               </p>
             )}
           </div>

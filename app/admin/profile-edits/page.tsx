@@ -60,7 +60,7 @@ export default async function ProfileEditsPage({
     submittedByEmail: string | null;
     createdAt: string;
     photoUrls: string[];
-    rulesFileUrl: string | null;
+    rulesFileId: string | null;
   } | null = null;
 
   if (admin && activeId) {
@@ -73,7 +73,7 @@ export default async function ProfileEditsPage({
         .single();
 
       const photoUrls: string[] = [];
-      let rulesFileUrl: string | null = null;
+      let rulesFileId: string | null = null;
       const newValue = (full?.new_value ?? {}) as Record<string, unknown>;
 
       if (row.field_group === "photos") {
@@ -85,16 +85,12 @@ export default async function ProfileEditsPage({
           }
         }
       }
+      // El reglamento es un documento privado (docs/09 §18.1) — ya NO
+      // se genera el signed URL acá, `DocumentAccessButton` pide el
+      // motivo y lo genera recién ahí.
       if (row.field_group === "rules") {
         const rulesFile = newValue.rulesFile as { fileId: string } | null;
-        if (rulesFile?.fileId) {
-          const { data: file } = await admin.from("files").select("storage_path").eq("id", rulesFile.fileId).maybeSingle();
-          if (file) {
-            rulesFileUrl =
-              (await admin.storage.from("private-residence-documents").createSignedUrl(file.storage_path, 3600)).data
-                ?.signedUrl ?? null;
-          }
-        }
+        rulesFileId = rulesFile?.fileId ?? null;
       }
 
       detail = {
@@ -108,7 +104,7 @@ export default async function ProfileEditsPage({
         submittedByEmail: row.users?.email ?? null,
         createdAt: row.created_at,
         photoUrls,
-        rulesFileUrl,
+        rulesFileId,
       };
     }
   }

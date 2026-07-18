@@ -4,6 +4,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { cmd } from "@/components/admin/ui/tokens";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
+import { DocumentAccessButton } from "@/components/admin/ui/DocumentAccessButton";
 import { UpdateCaseForm } from "@/app/admin/support-cases/UpdateCaseForm";
 
 export const metadata: Metadata = { title: "Casos de soporte" };
@@ -65,19 +66,17 @@ export default async function AdminSupportCasesPage({
   const detail = cases.find((c) => c.id === activeId) ?? null;
   const openCount = cases.filter((c) => OPEN_STATUSES.includes(c.status)).length;
 
-  let evidence: { filename: string; url: string | null }[] = [];
+  // El signed URL ya NO se genera acá (docs/09 §18.2: requiere
+  // justificación auditada antes de verse) — `DocumentAccessButton`
+  // pide el motivo y genera el link recién ahí.
+  let evidence: { fileId: string; filename: string }[] = [];
   if (admin && detail) {
     const { data: files } = await admin
       .from("files")
-      .select("filename, bucket, storage_path")
+      .select("id, filename")
       .eq("related_entity_type", "support_cases")
       .eq("related_entity_id", detail.id);
-    evidence = await Promise.all(
-      (files ?? []).map(async (f) => {
-        const { data: signed } = await admin.storage.from(f.bucket).createSignedUrl(f.storage_path, 3600);
-        return { filename: f.filename, url: signed?.signedUrl ?? null };
-      }),
-    );
+    evidence = (files ?? []).map((f) => ({ fileId: f.id, filename: f.filename }));
   }
 
   return (
@@ -154,17 +153,12 @@ export default async function AdminSupportCasesPage({
                   Evidencia
                 </p>
                 <ul className="mt-1 space-y-1">
-                  {evidence.map((f, i) => (
-                    <li key={i}>
-                      {f.url ? (
-                        <a href={f.url} target="_blank" rel="noreferrer" className="text-sm font-medium underline" style={{ color: cmd.primary }}>
-                          {f.filename}
-                        </a>
-                      ) : (
-                        <span className="text-sm" style={{ color: cmd.outline }}>
-                          {f.filename} (no disponible)
-                        </span>
-                      )}
+                  {evidence.map((f) => (
+                    <li key={f.fileId}>
+                      <span className="text-sm" style={{ color: cmd.onSurfaceVariant }}>
+                        {f.filename}
+                      </span>{" "}
+                      <DocumentAccessButton fileId={f.fileId} label="Ver →" />
                     </li>
                   ))}
                 </ul>

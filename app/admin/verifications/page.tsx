@@ -56,7 +56,7 @@ export default async function VerificationsPage({
           .order("created_at", { ascending: true }),
         admin
           .from("files")
-          .select("filename, storage_path, size_bytes")
+          .select("id, filename, size_bytes")
           .eq("related_entity_type", "residences")
           .eq("related_entity_id", activeId)
           .eq("document_type", "residence_rules_document")
@@ -64,14 +64,6 @@ export default async function VerificationsPage({
           .limit(1)
           .maybeSingle(),
       ]);
-
-    const rulesFileSignedUrl = rulesFile
-      ? (
-          await admin.storage
-            .from("private-residence-documents")
-            .createSignedUrl(rulesFile.storage_path, 3600)
-        ).data?.signedUrl ?? null
-      : null;
 
     if (residence && verification) {
       const sectionMap = Object.fromEntries((sections ?? []).map((s) => [s.section_type, s.content]));
@@ -93,9 +85,9 @@ export default async function VerificationsPage({
         ),
         rulesFile: rulesFile
           ? {
+              id: rulesFile.id,
               filename: rulesFile.filename,
               sizeKb: Math.round(rulesFile.size_bytes / 1024),
-              signedUrl: rulesFileSignedUrl,
             }
           : null,
       };
