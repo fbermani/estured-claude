@@ -16,6 +16,7 @@ import {
   ROOM_FEATURE_OPTIONS,
 } from "@/lib/residences/options";
 import { applyRoomTypesUpdate, hasStructuralRoomTypeChange, stageProfileEdit, type RoomTypeEditInput } from "@/lib/residences/profileEdits";
+import { logTariffChange } from "@/lib/residences/tariffLog";
 
 export type ProfileFormState = {
   status: "idle" | "error" | "saved" | "submitted" | "saved_pending_review";
@@ -134,7 +135,7 @@ export async function saveResidenceProfile(
 
   const { data: residenceRow } = await admin
     .from("residences")
-    .select("status, minimum_stay_months")
+    .select("status, minimum_stay_months, adjustment_policy, enrollment_fee_usd, deposit_usd")
     .eq("id", residenceId)
     .single();
   const gateApplies = residenceRow?.status === "verified_active";
@@ -212,6 +213,37 @@ export async function saveResidenceProfile(
       })
       .eq("id", residenceId);
     if (residenceError) throw residenceError;
+
+    // Administración de tarifas (docs/09 §9): matrícula/depósito/
+    // política de ajuste se auditan siempre, se apliquen directo o no
+    // — nunca bloquean el guardado (docs/09 §8.2 los deja fuera de la
+    // aprobación previa).
+    const newEnrollmentFeeUsd = conditions.enrollmentFeeMode === "manual" ? conditions.enrollmentFeeUsd : null;
+    await Promise.all([
+      logTariffChange(admin, {
+        residenceId,
+        changedByUserId: sessionUser.id,
+        fieldName: "adjustment_policy",
+        oldValue: residenceRow?.adjustment_policy ?? null,
+        newValue: conditions.adjustmentPolicy,
+      }),
+      logTariffChange(admin, {
+        residenceId,
+        changedByUserId: sessionUser.id,
+        fieldName: "enrollment_fee",
+        oldValue: residenceRow?.enrollment_fee_usd ?? null,
+        newValue: newEnrollmentFeeUsd,
+        currencyCode: "USD",
+      }),
+      logTariffChange(admin, {
+        residenceId,
+        changedByUserId: sessionUser.id,
+        fieldName: "deposit",
+        oldValue: residenceRow?.deposit_usd ?? null,
+        newValue: conditions.depositUsd,
+        currencyCode: "USD",
+      }),
+    ]);
 
     // Mínimo de estadía: crítico (docs/09 §8.1) — gated si publicada.
     const currentMinStay = residenceRow?.minimum_stay_months ?? null;

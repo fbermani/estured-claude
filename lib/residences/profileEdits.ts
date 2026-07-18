@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { syncRoomsAndBeds } from "@/lib/residences/syncRoomsAndBeds";
 import { roundUsd, roundArs, usdToArs } from "@/lib/mock/exchange";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
+import { logTariffChange } from "@/lib/residences/tariffLog";
 
 /**
  * Revisión de ediciones de perfil (docs/09 §8, docs/06 §8.5, migración
@@ -125,7 +126,11 @@ export async function applyRoomTypesUpdate(
   const { residenceId, sessionUserId, roomTypes, arsPerUsd } = params;
   const warnings: string[] = [];
 
-  const { data: existingTypes } = await admin.from("room_types").select("id, is_active").eq("residence_id", residenceId);
+  const { data: existingTypes } = await admin
+    .from("room_types")
+    .select("id, is_active, monthly_price_usd")
+    .eq("residence_id", residenceId);
+  const priceById = new Map((existingTypes ?? []).map((t) => [t.id, Number(t.monthly_price_usd)]));
   const draftIds = new Set(roomTypes.map((rt) => rt.id).filter(Boolean));
   const removed = (existingTypes ?? []).filter((t) => t.is_active && !draftIds.has(t.id));
   if (removed.length > 0) {
@@ -154,6 +159,16 @@ export async function applyRoomTypesUpdate(
     if (roomTypeId) {
       const { error } = await admin.from("room_types").update(baseFields).eq("id", roomTypeId);
       if (error) return { ok: false, error: "No pudimos actualizar un tipo de habitación." };
+      const oldPrice = priceById.get(roomTypeId) ?? null;
+      await logTariffChange(admin, {
+        residenceId,
+        roomTypeId,
+        changedByUserId: sessionUserId,
+        fieldName: "monthly_price",
+        oldValue: oldPrice,
+        newValue: monthlyPriceUsd,
+        currencyCode: "USD",
+      });
     } else {
       const { data: inserted, error } = await admin
         .from("room_types")

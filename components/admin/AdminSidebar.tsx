@@ -128,6 +128,13 @@ function ProfileEditsIcon() {
     </svg>
   );
 }
+function PricingIcon() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M10 2.5v15M14 5.5c0-1.4-1.8-2.5-4-2.5s-4 1.1-4 2.5 1.8 2.3 4 2.5c2.2.2 4 1.1 4 2.5s-1.8 2.5-4 2.5-4-1.1-4-2.5" />
+    </svg>
+  );
+}
 function SupportCasesIcon() {
   return (
     <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
@@ -153,6 +160,7 @@ const NAV = [
   { href: "/admin/residences", label: "Residencias", Icon: BuildingIcon },
   { href: "/admin/verifications", label: "Validaciones", Icon: ValidationsIcon },
   { href: "/admin/profile-edits", label: "Ediciones de perfil", Icon: ProfileEditsIcon },
+  { href: "/admin/pricing", label: "Administración de tarifas", Icon: PricingIcon },
   { href: "/admin/applications", label: "Solicitudes", Icon: ClockIcon },
   { href: "/admin/negotiations", label: "Negociaciones", Icon: NegotiationsIcon },
   { href: "/admin/family-proposals", label: "Propuestas familiar", Icon: FamilyProposalsIcon },

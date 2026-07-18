@@ -18,6 +18,7 @@ const ACTION_LABELS: Record<string, string> = {
   residence_profile_edit_approved: "aprobó una edición de perfil",
   residence_profile_edit_rejected: "rechazó una edición de perfil",
   residence_profile_edit_correction_requested: "pidió corrección en una edición de perfil",
+  tariff_change_reviewed: "revisó un cambio de tarifa",
   user_logged_out: "cerró sesión",
   admin_user_created: "creó un usuario admin",
   demo_user_seeded: "sembró un usuario demo",
@@ -44,6 +45,7 @@ export default async function AdminDashboardPage() {
     reservationsThisMonth: 0,
     feeCollectedThisMonthArs: 0,
     pendingProfileEdits: 0,
+    unreviewedTariffAlerts: 0,
   };
   let recentActivity: { id: string; action: string; created_at: string; actor_role: string }[] = [];
 
@@ -52,7 +54,7 @@ export default async function AdminDashboardPage() {
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
 
-    const [active, pending, users, waitlist, activity, reservationsMonth, feePaymentsMonth, pendingProfileEdits] = await Promise.all([
+    const [active, pending, users, waitlist, activity, reservationsMonth, feePaymentsMonth, pendingProfileEdits, unreviewedTariffAlerts] = await Promise.all([
       admin.from("residences").select("*", { count: "exact", head: true }).eq("status", "verified_active"),
       admin
         .from("residences")
@@ -75,6 +77,7 @@ export default async function AdminDashboardPage() {
         .eq("status", "paid")
         .gte("paid_at", startOfMonth.toISOString()),
       admin.from("residence_profile_edits").select("*", { count: "exact", head: true }).eq("status", "pending_admin_review"),
+      admin.from("tariff_change_logs").select("*", { count: "exact", head: true }).eq("alert_triggered", true).eq("admin_review_status", "new"),
     ]);
     stats = {
       activeResidences: active.count ?? 0,
@@ -82,6 +85,7 @@ export default async function AdminDashboardPage() {
       totalUsers: users.count ?? 0,
       waitlistLeads: waitlist.count ?? 0,
       pendingProfileEdits: pendingProfileEdits.count ?? 0,
+      unreviewedTariffAlerts: unreviewedTariffAlerts.count ?? 0,
       reservationsThisMonth: reservationsMonth.count ?? 0,
       feeCollectedThisMonthArs: (feePaymentsMonth.data ?? []).reduce(
         (sum, p) => sum + Number(p.fee_amount_ars),
@@ -103,6 +107,11 @@ export default async function AdminDashboardPage() {
       label: "Ediciones de perfil pendientes",
       value: stats.pendingProfileEdits,
       tone: stats.pendingProfileEdits > 0 ? ("amber" as const) : ("emerald" as const),
+    },
+    {
+      label: "Alertas de tarifa sin revisar",
+      value: stats.unreviewedTariffAlerts,
+      tone: stats.unreviewedTariffAlerts > 0 ? ("amber" as const) : ("emerald" as const),
     },
     { label: "Leads en lista de espera", value: stats.waitlistLeads, tone: "neutral" as const },
     { label: "Reservas confirmadas (mes)", value: stats.reservationsThisMonth, tone: "neutral" as const },
