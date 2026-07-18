@@ -24,7 +24,7 @@ export default async function ResidenceProfilePage({
   const hasAccess = await assertResidenceAccess(admin, sessionUser.id, residenceId);
   if (!hasAccess) notFound();
 
-  const [{ data: residence }, { data: sections }, { data: roomTypes }, { data: rooms }, { data: photos }, { data: rulesFile }] =
+  const [{ data: residence }, { data: sections }, { data: roomTypes }, { data: rooms }, { data: photos }, { data: rulesFile }, { data: pendingEdits }] =
     await Promise.all([
       admin.from("residences").select("*").eq("id", residenceId).single(),
       admin.from("residence_profile_sections").select("section_type, content").eq("residence_id", residenceId),
@@ -36,10 +36,11 @@ export default async function ResidenceProfilePage({
       admin.from("rooms").select("id, room_type_id").eq("residence_id", residenceId).eq("is_active", true),
       admin
         .from("files")
-        .select("id, storage_path")
+        .select("id, storage_path, status")
         .eq("related_entity_type", "residences")
         .eq("related_entity_id", residenceId)
         .eq("document_type", "residence_photo")
+        .neq("status", "rejected")
         .order("created_at", { ascending: true }),
       admin
         .from("files")
@@ -50,15 +51,23 @@ export default async function ResidenceProfilePage({
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle(),
+      admin
+        .from("residence_profile_edits")
+        .select("field_group, created_at")
+        .eq("residence_id", residenceId)
+        .eq("status", "pending_admin_review")
+        .order("created_at", { ascending: false }),
     ]);
 
   if (!residence) notFound();
 
   const rate = await getCurrentExchangeRate();
   const sectionMap = Object.fromEntries((sections ?? []).map((s) => [s.section_type, s.content]));
-  const photoUrls = (photos ?? []).map(
-    (p) => admin.storage.from("public-residence-media").getPublicUrl(p.storage_path).data.publicUrl,
-  );
+  const photoItems = (photos ?? []).map((p) => ({
+    url: admin.storage.from("public-residence-media").getPublicUrl(p.storage_path).data.publicUrl,
+    pending: p.status === "pending_review",
+  }));
+  const pendingEditGroups = (pendingEdits ?? []).map((e) => ({ fieldGroup: e.field_group, createdAt: e.created_at }));
 
   return (
     <ResidenceProfileForm
@@ -77,7 +86,8 @@ export default async function ResidenceProfilePage({
         nearUniversities: (sectionMap.near_universities?.items as string[]) ?? [],
         rulesSummary: (sectionMap.rules?.summary as string) ?? "",
         rulesFileName: rulesFile?.filename ?? null,
-        photoUrls,
+        photos: photoItems,
+        pendingEditGroups,
         roomTypes: (roomTypes ?? []).map((rt) => ({
           id: rt.id,
           name: rt.name,

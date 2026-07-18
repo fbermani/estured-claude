@@ -97,6 +97,7 @@ export default async function ResidenceDashboardPage() {
               .eq("related_entity_type", "residences")
               .eq("related_entity_id", r.id)
               .eq("document_type", "residence_photo")
+              .eq("status", "approved")
               .order("created_at", { ascending: true })
               .limit(1),
           ]);

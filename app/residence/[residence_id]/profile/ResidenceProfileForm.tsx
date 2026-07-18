@@ -64,10 +64,19 @@ interface ProfileInitial {
   nearUniversities: string[];
   rulesSummary: string;
   rulesFileName: string | null;
-  photoUrls: string[];
+  photos: { url: string; pending: boolean }[];
   roomTypes: RoomTypeDraft[];
   conditions: ConditionsDraft;
+  pendingEditGroups: { fieldGroup: string; createdAt: string }[];
 }
+
+const FIELD_GROUP_LABELS: Record<string, string> = {
+  photos: "Fotos",
+  services: "Servicios",
+  rules: "Reglas y reglamento",
+  minimum_stay_months: "Mínimo de estadía",
+  room_types: "Tipos de habitación",
+};
 
 /** Camas por habitación según el nombre del tipo (Compartida es editable). */
 const CAPACITY_BY_NAME: Record<string, number> = {
@@ -175,7 +184,7 @@ export function ResidenceProfileForm({
   }
 
   const strength = useMemo(() => {
-    const totalPhotos = initial.photoUrls.length + newPhotoCount;
+    const totalPhotos = initial.photos.length + newPhotoCount;
     const checks = [
       tagline.trim().length > 0,
       description.trim().length > 20,
@@ -187,7 +196,7 @@ export function ResidenceProfileForm({
       roomTypes.length > 0 && roomTypes.every((rt) => rt.monthlyPriceUsd > 0),
     ];
     return Math.round((checks.filter(Boolean).length / checks.length) * 100);
-  }, [tagline, description, services, commonAreas, rulesSummary, nearUniversities, roomTypes, newPhotoCount, initial.photoUrls.length]);
+  }, [tagline, description, services, commonAreas, rulesSummary, nearUniversities, roomTypes, newPhotoCount, initial.photos.length]);
 
   const previewPrice = roomTypes.length > 0 ? Math.min(...roomTypes.map((r) => r.monthlyPriceUsd)) : null;
   const badge = statusCopy[initial.status] ?? statusCopy.draft;
@@ -204,6 +213,28 @@ export function ResidenceProfileForm({
         </div>
         <Badge tone={badge.tone}>{badge.label}</Badge>
       </div>
+
+      {initial.pendingEditGroups.length > 0 && (
+        <Card className="mb-8 border-orange-tint bg-orange-tint/40 p-5">
+          <p className="text-sm font-bold text-orange-700">
+            Tenés cambios esperando aprobación del equipo de EstuRed
+          </p>
+          <p className="mt-1 text-sm text-ink-soft">
+            Como esta residencia ya está publicada, estos campos no se actualizan hasta que un admin los revise.
+            Mientras tanto seguís viendo acá los valores actuales (los que ya están publicados), no los que enviaste.
+          </p>
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {initial.pendingEditGroups.map((e) => (
+              <li key={e.fieldGroup}>
+                <Badge tone="amber">
+                  {FIELD_GROUP_LABELS[e.fieldGroup] ?? e.fieldGroup} · enviado el{" "}
+                  {new Date(e.createdAt).toLocaleDateString("es-AR")}
+                </Badge>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
 
       <form
         action={(fd) => {
@@ -371,11 +402,16 @@ export function ResidenceProfileForm({
           {/* Galería de fotos */}
           <Card className="p-6">
             <h2 className="text-lg font-bold text-ink">Galería de Fotos</h2>
-            {initial.photoUrls.length > 0 && (
+            {initial.photos.length > 0 && (
               <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4">
-                {initial.photoUrls.map((url) => (
-                  <div key={url} className="relative aspect-square overflow-hidden rounded-field bg-sand-200">
-                    <Image src={url} alt="Foto de la residencia" fill className="object-cover" />
+                {initial.photos.map((photo) => (
+                  <div key={photo.url} className="relative aspect-square overflow-hidden rounded-field bg-sand-200">
+                    <Image src={photo.url} alt="Foto de la residencia" fill className="object-cover" />
+                    {photo.pending && (
+                      <div className="absolute bottom-1 left-1">
+                        <Badge tone="amber">Pendiente</Badge>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -719,6 +755,11 @@ export function ResidenceProfileForm({
               {state.message}
             </p>
           )}
+          {state.status === "saved_pending_review" && (
+            <p className="rounded-field bg-orange-tint px-4 py-3 text-sm font-medium text-orange-700">
+              {state.message}
+            </p>
+          )}
           {state.status === "submitted" && (
             <p className="rounded-field bg-success-bg px-4 py-3 text-sm font-medium text-success-fg">
               ¡Enviado! El equipo de EstuRed va a coordinar la verificación presencial antes de publicar
@@ -753,8 +794,13 @@ export function ResidenceProfileForm({
               Vista previa
             </p>
             <div className="relative h-32 bg-sand-200">
-              {initial.photoUrls[0] && (
-                <Image src={initial.photoUrls[0]} alt="" fill className="object-cover" />
+              {(initial.photos.find((p) => !p.pending) ?? initial.photos[0]) && (
+                <Image
+                  src={(initial.photos.find((p) => !p.pending) ?? initial.photos[0]).url}
+                  alt=""
+                  fill
+                  className="object-cover"
+                />
               )}
             </div>
             <div className="p-4">

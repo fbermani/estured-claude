@@ -46,6 +46,7 @@ async function loadResidence(slug: string) {
       .eq("related_entity_type", "residences")
       .eq("related_entity_id", residence.id)
       .eq("document_type", "residence_photo")
+      .eq("status", "approved")
       .order("created_at", { ascending: true }),
   ]);
 

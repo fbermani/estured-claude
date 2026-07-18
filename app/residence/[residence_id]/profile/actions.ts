@@ -5,7 +5,6 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { assertResidenceAccess } from "@/lib/residences/access";
 import { createAuditLog } from "@/lib/audit";
-import { usdToArs, roundUsd, roundArs } from "@/lib/mock/exchange";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 import {
   SERVICE_OPTIONS,
@@ -16,10 +15,10 @@ import {
   ADJUSTMENT_POLICY_OPTIONS,
   ROOM_FEATURE_OPTIONS,
 } from "@/lib/residences/options";
-import { syncRoomsAndBeds } from "@/lib/residences/syncRoomsAndBeds";
+import { applyRoomTypesUpdate, hasStructuralRoomTypeChange, stageProfileEdit, type RoomTypeEditInput } from "@/lib/residences/profileEdits";
 
 export type ProfileFormState = {
-  status: "idle" | "error" | "saved" | "submitted";
+  status: "idle" | "error" | "saved" | "submitted" | "saved_pending_review";
   message?: string;
 };
 
@@ -33,21 +32,7 @@ const ROOM_FEATURES = new Set<string>(ROOM_FEATURE_OPTIONS);
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 const MAX_PDF_BYTES = 10 * 1024 * 1024;
 
-interface RoomTypeInput {
-  /** id existente en DB → update; sin id → tipo nuevo. */
-  id?: string;
-  name: string;
-  genderPolicy?: string;
-  bathroomType?: string;
-  features: string[];
-  /** Cantidad de habitaciones físicas del tipo (sincroniza `rooms`). */
-  roomCount: number;
-  /** Camas por habitación (derivada del nombre; editable en Compartida). */
-  capacityPerRoom: number;
-  monthlyPriceUsd: number;
-}
-
-function parseRoomTypes(raw: string): RoomTypeInput[] | null {
+function parseRoomTypes(raw: string): RoomTypeEditInput[] | null {
   try {
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return null;
@@ -107,6 +92,14 @@ function parseConditions(raw: string): ConditionsInput | null {
   }
 }
 
+const FIELD_GROUP_LABELS: Record<string, string> = {
+  photos: "fotos",
+  services: "servicios",
+  rules: "reglas/reglamento",
+  minimum_stay_months: "mínimo de estadía",
+  room_types: "tipos de habitación",
+};
+
 /**
  * Guarda el perfil de residencia (docs/12 §6.2, §6.4).
  *
@@ -114,6 +107,16 @@ function parseConditions(raw: string): ConditionsInput | null {
  * `intent` = "submit" además valida mínimos de publicación y pasa
  * residences.status → pending_verification (docs/12 §6.3: no publica
  * sin verificación; acá solo se solicita).
+ *
+ * Revisión de ediciones (docs/09 §8, migración 0027, Ciclo 34sexvicies):
+ * si la residencia ya está `verified_active`, los campos críticos
+ * (fotos, servicios, reglas + reglamento, mínimo de estadía, tipos de
+ * habitación con cambio estructural) NO se aplican acá — quedan
+ * `pending_admin_review` en `residence_profile_edits` hasta que un admin
+ * los apruebe en `/admin/profile-edits`. El resto (eslogan, descripción,
+ * áreas comunes, universidades cercanas, matrícula/depósito/política de
+ * ajuste/mes vacío, precio de tipos ya existentes sin cambio
+ * estructural) se sigue aplicando al instante, igual que antes.
  */
 export async function saveResidenceProfile(
   residenceId: string,
@@ -128,6 +131,13 @@ export async function saveResidenceProfile(
 
   const hasAccess = await assertResidenceAccess(admin, sessionUser.id, residenceId);
   if (!hasAccess) return { status: "error", message: "No tenés acceso a esta residencia." };
+
+  const { data: residenceRow } = await admin
+    .from("residences")
+    .select("status, minimum_stay_months")
+    .eq("id", residenceId)
+    .single();
+  const gateApplies = residenceRow?.status === "verified_active";
 
   const intent = String(formData.get("intent") ?? "draft");
   const tagline = String(formData.get("tagline") ?? "").trim();
@@ -182,15 +192,17 @@ export async function saveResidenceProfile(
   }
 
   const warnings: string[] = [];
+  const pendingGroups: string[] = [];
 
   try {
-    // Datos básicos + descripción + condiciones de reserva (0025).
+    // Datos siempre directos: eslogan, descripción, y los términos
+    // comerciales de condiciones de reserva que docs/09 §8.2 deja
+    // explícitamente fuera de la aprobación previa (solo auditados).
     const { error: residenceError } = await admin
       .from("residences")
       .update({
         tagline: tagline || null,
         description: description || null,
-        minimum_stay_months: conditions.minimumStayMonths,
         adjustment_policy: conditions.adjustmentPolicy,
         enrollment_fee_mode: conditions.enrollmentFeeMode,
         enrollment_fee_usd: conditions.enrollmentFeeMode === "manual" ? conditions.enrollmentFeeUsd : null,
@@ -201,26 +213,72 @@ export async function saveResidenceProfile(
       .eq("id", residenceId);
     if (residenceError) throw residenceError;
 
-    // Secciones (upsert por section_type).
-    const sections = [
-      { section_type: "services", content: { items: services } },
-      { section_type: "common_areas", content: { items: commonAreas } },
-      { section_type: "near_universities", content: { items: nearUniversities } },
-      {
-        section_type: "rules",
-        content: { summary: rulesSummary },
-        requires_admin_review: true,
-      },
-    ];
-    for (const section of sections) {
-      const { error } = await admin.from("residence_profile_sections").upsert(
-        { residence_id: residenceId, ...section },
-        { onConflict: "residence_id,section_type" },
-      );
+    // Mínimo de estadía: crítico (docs/09 §8.1) — gated si publicada.
+    const currentMinStay = residenceRow?.minimum_stay_months ?? null;
+    if (gateApplies && conditions.minimumStayMonths !== currentMinStay) {
+      const stage = await stageProfileEdit(admin, {
+        residenceId,
+        fieldGroup: "minimum_stay_months",
+        oldValue: { months: currentMinStay },
+        newValue: { months: conditions.minimumStayMonths },
+        submittedByUserId: sessionUser.id,
+      });
+      if (!stage.ok) return { status: "error", message: stage.error };
+      pendingGroups.push("minimum_stay_months");
+    } else {
+      const { error } = await admin
+        .from("residences")
+        .update({ minimum_stay_months: conditions.minimumStayMonths })
+        .eq("id", residenceId);
       if (error) throw error;
     }
 
-    // Reglamento PDF (opcional).
+    // Secciones no críticas: áreas comunes, universidades cercanas —
+    // siempre directo.
+    for (const section of [
+      { section_type: "common_areas", content: { items: commonAreas } },
+      { section_type: "near_universities", content: { items: nearUniversities } },
+    ]) {
+      const { error } = await admin
+        .from("residence_profile_sections")
+        .upsert({ residence_id: residenceId, ...section }, { onConflict: "residence_id,section_type" });
+      if (error) throw error;
+    }
+
+    // Servicios: crítico (docs/09 §8.1) — gated si publicada.
+    const { data: existingSections } = await admin
+      .from("residence_profile_sections")
+      .select("section_type, content")
+      .eq("residence_id", residenceId)
+      .in("section_type", ["services", "rules"]);
+    const currentServices = ((existingSections ?? []).find((s) => s.section_type === "services")?.content as { items?: string[] } | undefined)?.items ?? [];
+    const currentRulesSummary = ((existingSections ?? []).find((s) => s.section_type === "rules")?.content as { summary?: string } | undefined)?.summary ?? "";
+
+    const servicesChanged = [...currentServices].sort().join(",") !== [...services].sort().join(",");
+    if (gateApplies && servicesChanged) {
+      const stage = await stageProfileEdit(admin, {
+        residenceId,
+        fieldGroup: "services",
+        oldValue: { items: currentServices },
+        newValue: { items: services },
+        submittedByUserId: sessionUser.id,
+      });
+      if (!stage.ok) return { status: "error", message: stage.error };
+      pendingGroups.push("services");
+    } else {
+      const { error } = await admin
+        .from("residence_profile_sections")
+        .upsert(
+          { residence_id: residenceId, section_type: "services", content: { items: services } },
+          { onConflict: "residence_id,section_type" },
+        );
+      if (error) throw error;
+    }
+
+    // Reglamento PDF (opcional) — se sube igual, pero si queda pendiente
+    // de revisión el archivo se marca `pending_review` (nunca se sirve
+    // públicamente hasta aprobarse).
+    let uploadedRulesFile: { fileId: string; filename: string } | null = null;
     const rulesFile = formData.get("rules_file");
     if (rulesFile instanceof File && rulesFile.size > 0) {
       if (rulesFile.size > MAX_PDF_BYTES)
@@ -232,23 +290,58 @@ export async function saveResidenceProfile(
         .from("private-residence-documents")
         .upload(path, rulesFile, { contentType: "application/pdf", upsert: true });
       if (uploadError) throw uploadError;
-      await admin.from("files").insert({
-        owner_user_id: sessionUser.id,
-        related_entity_type: "residences",
-        related_entity_id: residenceId,
-        bucket: "private-residence-documents",
-        storage_path: path,
-        filename: rulesFile.name,
-        mime_type: rulesFile.type,
-        size_bytes: rulesFile.size,
-        visibility: "private",
-        document_type: "residence_rules_document",
-        uploaded_by_user_id: sessionUser.id,
-      });
+      const { data: insertedFile, error: fileInsertError } = await admin
+        .from("files")
+        .insert({
+          owner_user_id: sessionUser.id,
+          related_entity_type: "residences",
+          related_entity_id: residenceId,
+          bucket: "private-residence-documents",
+          storage_path: path,
+          filename: rulesFile.name,
+          mime_type: rulesFile.type,
+          size_bytes: rulesFile.size,
+          visibility: "private",
+          document_type: "residence_rules_document",
+          status: gateApplies ? "pending_review" : "approved",
+          uploaded_by_user_id: sessionUser.id,
+        })
+        .select("id")
+        .single();
+      if (fileInsertError || !insertedFile) throw fileInsertError;
+      uploadedRulesFile = { fileId: insertedFile.id, filename: rulesFile.name };
     }
 
-    // Fotos (0 a N).
+    // Reglas: crítico (docs/09 §8.1) — gated si publicada. Cambia si el
+    // resumen cambió o si se subió un reglamento nuevo.
+    const rulesChanged = rulesSummary !== currentRulesSummary || uploadedRulesFile !== null;
+    if (gateApplies && rulesChanged) {
+      const stage = await stageProfileEdit(admin, {
+        residenceId,
+        fieldGroup: "rules",
+        oldValue: { summary: currentRulesSummary },
+        newValue: { summary: rulesSummary, rulesFile: uploadedRulesFile },
+        submittedByUserId: sessionUser.id,
+      });
+      if (!stage.ok) return { status: "error", message: stage.error };
+      pendingGroups.push("rules");
+    } else {
+      const { error } = await admin.from("residence_profile_sections").upsert(
+        { residence_id: residenceId, section_type: "rules", content: { summary: rulesSummary }, requires_admin_review: true },
+        { onConflict: "residence_id,section_type" },
+      );
+      if (error) throw error;
+      if (uploadedRulesFile) {
+        const { error: approveError } = await admin.from("files").update({ status: "approved" }).eq("id", uploadedRulesFile.fileId);
+        if (approveError) throw approveError;
+      }
+    }
+
+    // Fotos: crítico (docs/09 §8.1) — gated si publicada. Se suben
+    // siempre; si queda pendiente, el archivo entra `pending_review` y
+    // no se muestra públicamente hasta que un admin lo apruebe.
     const photos = formData.getAll("photos").filter((f): f is File => f instanceof File && f.size > 0);
+    const uploadedPhotoIds: string[] = [];
     for (const photo of photos) {
       if (photo.size > MAX_PHOTO_BYTES)
         return { status: "error", message: `"${photo.name}" supera los 5MB.` };
@@ -260,96 +353,100 @@ export async function saveResidenceProfile(
         .from("public-residence-media")
         .upload(path, photo, { contentType: photo.type });
       if (uploadError) throw uploadError;
-      await admin.from("files").insert({
-        owner_user_id: sessionUser.id,
-        related_entity_type: "residences",
-        related_entity_id: residenceId,
-        bucket: "public-residence-media",
-        storage_path: path,
-        filename: photo.name,
-        mime_type: photo.type,
-        size_bytes: photo.size,
-        visibility: "public",
-        document_type: "residence_photo",
-        status: "approved", // fotos no requieren revisión previa para pre-visualizar (docs 8.5 sí exige revisión de cambios críticos; fotos se marcan approved a nivel archivo y la publicación real depende de residence_verifications)
-        uploaded_by_user_id: sessionUser.id,
-      });
+      const { data: insertedPhoto, error: photoInsertError } = await admin
+        .from("files")
+        .insert({
+          owner_user_id: sessionUser.id,
+          related_entity_type: "residences",
+          related_entity_id: residenceId,
+          bucket: "public-residence-media",
+          storage_path: path,
+          filename: photo.name,
+          mime_type: photo.type,
+          size_bytes: photo.size,
+          visibility: "public",
+          document_type: "residence_photo",
+          status: gateApplies ? "pending_review" : "approved",
+          uploaded_by_user_id: sessionUser.id,
+        })
+        .select("id")
+        .single();
+      if (photoInsertError || !insertedPhoto) throw photoInsertError;
+      uploadedPhotoIds.push(insertedPhoto.id);
     }
-
-    // Tipos de habitación: UPSERT por id (Ciclo 34duovicies — el viejo
-    // delete+reinsert rompería las FKs de solicitudes/estadías/habitaciones
-    // que ya referencian estos tipos). Tipos quitados del formulario se
-    // DESACTIVAN (is_active=false), nunca se borran: el histórico los
-    // sigue referenciando.
-    const { data: existingTypes } = await admin
-      .from("room_types")
-      .select("id, is_active")
-      .eq("residence_id", residenceId);
-    const draftIds = new Set(roomTypes.map((rt) => rt.id).filter(Boolean));
-    const removed = (existingTypes ?? []).filter((t) => t.is_active && !draftIds.has(t.id));
-    if (removed.length > 0) {
-      const { error } = await admin
-        .from("room_types")
-        .update({ is_active: false })
-        .in("id", removed.map((t) => t.id));
-      if (error) throw error;
-      // Sus habitaciones vacías también se dan de baja.
-      for (const t of removed) {
-        const sync = await syncRoomsAndBeds(admin, {
-          residenceId,
-          roomTypeId: t.id,
-          desiredRoomCount: 0,
-          capacityPerRoom: 1,
-        });
-        if (sync.ok) warnings.push(...sync.warnings);
-      }
-    }
-
-    const rate = await getCurrentExchangeRate();
-    for (const rt of roomTypes) {
-      const monthlyPriceUsd = roundUsd(rt.monthlyPriceUsd);
-      const baseFields = {
-        name: rt.name,
-        gender_policy: rt.genderPolicy || null,
-        bathroom_type: rt.bathroomType || null,
-        features: rt.features,
-        capacity_per_room: rt.capacityPerRoom,
-        monthly_price_usd: monthlyPriceUsd,
-        monthly_price_ars: roundArs(usdToArs(monthlyPriceUsd, rate.arsPerUsd)),
-        is_active: true,
-      };
-
-      let roomTypeId = rt.id ?? null;
-      if (roomTypeId) {
-        const { error } = await admin.from("room_types").update(baseFields).eq("id", roomTypeId);
-        if (error) throw error;
-      } else {
-        const { data: inserted, error } = await admin
-          .from("room_types")
-          .insert({ residence_id: residenceId, ...baseFields })
-          .select("id")
-          .single();
-        if (error || !inserted) throw error;
-        roomTypeId = inserted.id;
-        // La disponibilidad informada arranca "sin actualizar": se
-        // gestiona en su propia pantalla, ya no desde la configuración.
-        await admin.from("profile_availability").insert({
-          residence_id: residenceId,
-          room_type_id: roomTypeId,
-          status: "not_updated",
-          available_count: null,
-          last_confirmed_by: sessionUser.id,
-        });
-      }
-
-      const sync = await syncRoomsAndBeds(admin, {
+    if (gateApplies && uploadedPhotoIds.length > 0) {
+      const stage = await stageProfileEdit(admin, {
         residenceId,
-        roomTypeId: roomTypeId as string,
-        desiredRoomCount: rt.roomCount,
-        capacityPerRoom: rt.capacityPerRoom,
+        fieldGroup: "photos",
+        oldValue: null,
+        newValue: { fileIds: uploadedPhotoIds },
+        submittedByUserId: sessionUser.id,
       });
-      if (!sync.ok) return { status: "error", message: sync.error };
-      warnings.push(...sync.warnings);
+      if (!stage.ok) return { status: "error", message: stage.error };
+      pendingGroups.push("photos");
+    }
+
+    // Tipos de habitación: crítico (docs/09 §8.1) — gated si publicada Y
+    // el cambio es estructural (agrega/quita tipos, cambia cantidad de
+    // habitaciones, género, baño o características). El precio solo NO
+    // gatea (docs/09 §8.2: "Precios" se audita, no se aprueba antes).
+    const { data: existingTypesFull } = await admin
+      .from("room_types")
+      .select("id, name, is_active, gender_policy, bathroom_type, features, capacity_per_room")
+      .eq("residence_id", residenceId);
+    const { data: existingRooms } = await admin
+      .from("rooms")
+      .select("id, room_type_id")
+      .eq("residence_id", residenceId)
+      .eq("is_active", true);
+    const roomCountByType = new Map<string, number>();
+    for (const r of existingRooms ?? []) {
+      roomCountByType.set(r.room_type_id, (roomCountByType.get(r.room_type_id) ?? 0) + 1);
+    }
+    const currentSnapshots = (existingTypesFull ?? [])
+      .filter((t) => t.is_active)
+      .map((t) => ({
+        id: t.id,
+        name: t.name,
+        genderPolicy: t.gender_policy,
+        bathroomType: t.bathroom_type,
+        features: (t.features as string[]) ?? [],
+        roomCount: roomCountByType.get(t.id) ?? 0,
+        capacityPerRoom: t.capacity_per_room ?? 1,
+      }));
+
+    const structuralChange = gateApplies && hasStructuralRoomTypeChange(currentSnapshots, roomTypes);
+    if (structuralChange) {
+      const stage = await stageProfileEdit(admin, {
+        residenceId,
+        fieldGroup: "room_types",
+        oldValue: { roomTypes: currentSnapshots },
+        newValue: { roomTypes },
+        submittedByUserId: sessionUser.id,
+      });
+      if (!stage.ok) return { status: "error", message: stage.error };
+      pendingGroups.push("room_types");
+    } else {
+      // Tipos quitados del formulario se DESACTIVAN (is_active=false),
+      // nunca se borran: el histórico los sigue referenciando.
+      const draftIds = new Set(roomTypes.map((rt) => rt.id).filter(Boolean));
+      const removed = (existingTypesFull ?? []).filter((t) => t.is_active && !draftIds.has(t.id));
+      if (removed.length > 0) {
+        const { error } = await admin.from("room_types").update({ is_active: false }).in(
+          "id",
+          removed.map((t) => t.id),
+        );
+        if (error) throw error;
+      }
+      const rate = await getCurrentExchangeRate();
+      const result = await applyRoomTypesUpdate(admin, {
+        residenceId,
+        sessionUserId: sessionUser.id,
+        roomTypes,
+        arsPerUsd: rate.arsPerUsd,
+      });
+      if (!result.ok) return { status: "error", message: result.error };
+      warnings.push(...result.warnings);
     }
 
     await createAuditLog(admin, {
@@ -358,7 +455,7 @@ export async function saveResidenceProfile(
       action: intent === "submit" ? "residence_profile_submitted" : "residence_profile_saved_draft",
       entityType: "residences",
       entityId: residenceId,
-      newValue: { services, common_areas: commonAreas, room_types_count: roomTypes.length },
+      newValue: { services, common_areas: commonAreas, room_types_count: roomTypes.length, pending_review: pendingGroups },
     });
 
     if (intent === "submit") {
@@ -387,6 +484,15 @@ export async function saveResidenceProfile(
   revalidatePath(`/residence/${residenceId}/rooms`);
   revalidatePath("/residence/dashboard");
   const warningSuffix = warnings.length > 0 ? ` Atención: ${warnings.join(" ")}` : "";
+
+  if (pendingGroups.length > 0) {
+    const labels = pendingGroups.map((g) => FIELD_GROUP_LABELS[g] ?? g).join(", ");
+    return {
+      status: "saved_pending_review",
+      message: `Guardamos tus cambios. Como esta residencia ya está publicada, lo siguiente quedó pendiente de aprobación del equipo de EstuRed: ${labels}.${warningSuffix}`,
+    };
+  }
+
   return intent === "submit"
     ? { status: "submitted" }
     : { status: "saved", message: `Cambios guardados como borrador.${warningSuffix}` };

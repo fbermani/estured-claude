@@ -150,7 +150,7 @@ export default async function VerificationsPage({
       {/* Detalle */}
       <div className="flex-1 overflow-y-auto p-8">
         {detail ? (
-          <VerificationDetail {...detail} />
+          <VerificationDetail key={detail.residence.id} {...detail} />
         ) : (
           <p className="text-sm" style={{ color: cmd.outline }}>
             Seleccioná una residencia de la lista para revisarla.

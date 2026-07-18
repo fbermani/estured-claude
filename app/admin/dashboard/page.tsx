@@ -15,6 +15,9 @@ const ACTION_LABELS: Record<string, string> = {
   residence_verification_approved: "aprobó y publicó una residencia",
   residence_verification_rejected: "rechazó una residencia",
   residence_verification_needs_changes: "pidió cambios en una residencia",
+  residence_profile_edit_approved: "aprobó una edición de perfil",
+  residence_profile_edit_rejected: "rechazó una edición de perfil",
+  residence_profile_edit_correction_requested: "pidió corrección en una edición de perfil",
   user_logged_out: "cerró sesión",
   admin_user_created: "creó un usuario admin",
   demo_user_seeded: "sembró un usuario demo",
@@ -40,6 +43,7 @@ export default async function AdminDashboardPage() {
     waitlistLeads: 0,
     reservationsThisMonth: 0,
     feeCollectedThisMonthArs: 0,
+    pendingProfileEdits: 0,
   };
   let recentActivity: { id: string; action: string; created_at: string; actor_role: string }[] = [];
 
@@ -48,7 +52,7 @@ export default async function AdminDashboardPage() {
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
 
-    const [active, pending, users, waitlist, activity, reservationsMonth, feePaymentsMonth] = await Promise.all([
+    const [active, pending, users, waitlist, activity, reservationsMonth, feePaymentsMonth, pendingProfileEdits] = await Promise.all([
       admin.from("residences").select("*", { count: "exact", head: true }).eq("status", "verified_active"),
       admin
         .from("residences")
@@ -70,12 +74,14 @@ export default async function AdminDashboardPage() {
         .select("fee_amount_ars")
         .eq("status", "paid")
         .gte("paid_at", startOfMonth.toISOString()),
+      admin.from("residence_profile_edits").select("*", { count: "exact", head: true }).eq("status", "pending_admin_review"),
     ]);
     stats = {
       activeResidences: active.count ?? 0,
       pendingValidations: pending.count ?? 0,
       totalUsers: users.count ?? 0,
       waitlistLeads: waitlist.count ?? 0,
+      pendingProfileEdits: pendingProfileEdits.count ?? 0,
       reservationsThisMonth: reservationsMonth.count ?? 0,
       feeCollectedThisMonthArs: (feePaymentsMonth.data ?? []).reduce(
         (sum, p) => sum + Number(p.fee_amount_ars),
@@ -93,6 +99,11 @@ export default async function AdminDashboardPage() {
       tone: stats.pendingValidations > 0 ? ("amber" as const) : ("emerald" as const),
     },
     { label: "Usuarios registrados", value: stats.totalUsers, tone: "neutral" as const },
+    {
+      label: "Ediciones de perfil pendientes",
+      value: stats.pendingProfileEdits,
+      tone: stats.pendingProfileEdits > 0 ? ("amber" as const) : ("emerald" as const),
+    },
     { label: "Leads en lista de espera", value: stats.waitlistLeads, tone: "neutral" as const },
     { label: "Reservas confirmadas (mes)", value: stats.reservationsThisMonth, tone: "neutral" as const },
     {

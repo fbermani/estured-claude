@@ -36,6 +36,7 @@ export async function getCatalogResidences(): Promise<Residence[]> {
       .eq("related_entity_type", "residences")
       .in("related_entity_id", ids)
       .eq("document_type", "residence_photo")
+      .eq("status", "approved")
       .order("created_at", { ascending: true }),
     admin
       .from("resident_stays")
