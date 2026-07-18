@@ -3,39 +3,16 @@ import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
+import { getOwnerResidenceCards } from "@/lib/residences/ownerDashboard";
 import { Button } from "@/components/ui/Button";
+import { Icon } from "@/components/ui/Icon";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { AreaHeader } from "@/components/layout/AreaHeader";
 import { Footer } from "@/components/layout/Footer";
-import { OwnerResidenceCard } from "@/components/residences/OwnerResidenceCard";
+import { OwnerResidenceGrid } from "@/components/residences/OwnerResidenceGrid";
 
 export const metadata: Metadata = { title: "Panel de residencia" };
 export const dynamic = "force-dynamic";
-
-const statusCopy: Record<string, { label: string; tone: "neutral" | "amber" | "sage" }> = {
-  draft: { label: "Borrador", tone: "neutral" },
-  pending_verification: { label: "Pendiente de verificación", tone: "amber" },
-  verification_scheduled: { label: "Visita programada", tone: "amber" },
-  verified_active: { label: "Verificada y publicada", tone: "sage" },
-  needs_changes: { label: "Requiere cambios", tone: "amber" },
-};
-
-const OPEN_SUPPORT_STATUSES = [
-  "opened",
-  "submitted",
-  "under_review",
-  "needs_more_info",
-  "waiting_other_party",
-  "in_progress",
-];
-
-type ResidenceRow = {
-  id: string;
-  name: string;
-  public_area: string | null;
-  status: string;
-  tagline: string | null;
-};
 
 /**
  * Vista multi-residencia en scroll vertical, sin agregado (docs/00
@@ -50,87 +27,11 @@ export default async function ResidenceDashboardPage() {
   if (!sessionUser) redirect("/login?next=/residence/dashboard");
 
   const admin = getSupabaseAdmin();
-  const residences = admin
-    ? (
-        await admin
-          .from("residence_users")
-          .select("role, residences(id, name, public_area, status, tagline)")
-          .eq("user_id", sessionUser.id)
-          .eq("is_active", true)
-      ).data ?? []
-    : [];
-
-  const rate = admin ? await getCurrentExchangeRate() : null;
+  const [validCards, rate] = await Promise.all([
+    admin ? getOwnerResidenceCards(admin, sessionUser.id) : Promise.resolve([]),
+    admin ? getCurrentExchangeRate() : Promise.resolve(null),
+  ]);
   const arsPerUsd = rate?.arsPerUsd ?? 0;
-
-  const cards = admin
-    ? await Promise.all(
-        residences.map(async (ru) => {
-          const r = ru.residences as unknown as ResidenceRow | null;
-          if (!r) return null;
-
-          const { data: activeRooms } = await admin!.from("rooms").select("id").eq("residence_id", r.id).eq("is_active", true);
-          const roomIds = (activeRooms ?? []).map((room) => room.id);
-
-          const [
-            { count: capacityCount },
-            { count: occupied },
-            { count: newApplications },
-            { count: pendingRenewalRequests },
-            { count: pendingRenewalOffers },
-            { count: supportOpen },
-            { data: roomTypes },
-            { data: photos },
-          ] = await Promise.all([
-            roomIds.length > 0
-              ? admin!.from("beds").select("*", { count: "exact", head: true }).in("room_id", roomIds).eq("status", "active")
-              : Promise.resolve({ count: 0 }),
-            admin!.from("resident_stays").select("*", { count: "exact", head: true }).eq("residence_id", r.id).eq("is_current", true).not("bed_id", "is", null),
-            admin!.from("application_requests").select("*", { count: "exact", head: true }).eq("residence_id", r.id).eq("status", "submitted"),
-            admin!.from("renewal_requests").select("*", { count: "exact", head: true }).eq("residence_id", r.id).eq("status", "notified_to_residence"),
-            admin!.from("renewal_offers").select("*", { count: "exact", head: true }).eq("residence_id", r.id).in("status", ["sent", "viewed"]),
-            admin!.from("support_cases").select("*", { count: "exact", head: true }).eq("residence_id", r.id).in("status", OPEN_SUPPORT_STATUSES),
-            admin!.from("room_types").select("monthly_price_usd").eq("residence_id", r.id).eq("is_active", true),
-            admin!
-              .from("files")
-              .select("storage_path")
-              .eq("related_entity_type", "residences")
-              .eq("related_entity_id", r.id)
-              .eq("document_type", "residence_photo")
-              .eq("status", "approved")
-              .order("created_at", { ascending: true })
-              .limit(1),
-          ]);
-
-          const prices = (roomTypes ?? []).map((rt) => Number(rt.monthly_price_usd)).filter((p) => !Number.isNaN(p));
-          const avgPriceUsd = prices.length > 0 ? Math.round(prices.reduce((sum, p) => sum + p, 0) / prices.length) : null;
-          const photoUrl = photos?.[0]
-            ? admin!.storage.from("public-residence-media").getPublicUrl(photos[0].storage_path).data.publicUrl
-            : null;
-          const capacity = capacityCount ?? 0;
-          const occupancyFull = capacity > 0 && (occupied ?? 0) >= capacity;
-          const badge = statusCopy[r.status] ?? statusCopy.draft;
-
-          return {
-            residenceId: r.id,
-            name: r.name,
-            zone: r.public_area ? `${r.public_area}, CABA` : "Zona sin definir",
-            statusLabel: badge.label,
-            statusTone: badge.tone,
-            occupancyFull,
-            occupied: occupied ?? 0,
-            capacity,
-            newApplications: newApplications ?? 0,
-            renewalsPending: (pendingRenewalRequests ?? 0) + (pendingRenewalOffers ?? 0),
-            supportOpen: supportOpen ?? 0,
-            avgPriceUsd,
-            photoUrl,
-          };
-        }),
-      )
-    : [];
-
-  const validCards = cards.filter((c): c is NonNullable<typeof c> => c !== null);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -141,9 +42,17 @@ export default async function ResidenceDashboardPage() {
             <h1 className="text-3xl font-bold text-ink">Tus residencias</h1>
             <p className="mt-1 text-ink-soft">Gestioná el perfil y la publicación de cada una.</p>
           </div>
-          <Button href="/register/residence" variant="outline" size="sm">
-            + Sumar otra residencia
-          </Button>
+          <div className="flex gap-2">
+            {validCards.length > 0 && (
+              <Button href="/residence/dashboard/pdf" variant="outline" size="sm">
+                <Icon name="download" className="text-base" />
+                Reporte PDF
+              </Button>
+            )}
+            <Button href="/register/residence" variant="outline" size="sm">
+              + Sumar otra residencia
+            </Button>
+          </div>
         </div>
 
         {validCards.length === 0 ? (
@@ -152,11 +61,7 @@ export default async function ResidenceDashboardPage() {
             description="Si acabás de registrarte, puede que falte completar el alta."
           />
         ) : (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {validCards.map((card) => (
-              <OwnerResidenceCard key={card.residenceId} {...card} arsPerUsd={arsPerUsd} />
-            ))}
-          </div>
+          <OwnerResidenceGrid cards={validCards} arsPerUsd={arsPerUsd} />
         )}
       </main>
       <Footer />
