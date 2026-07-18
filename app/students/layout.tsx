@@ -23,7 +23,7 @@ export default async function StudentsLayout({
   if (!hasAnyRole(user, ["student", "family_member"])) redirect(roleHome(user));
 
   return (
-    <div className="flex min-h-screen bg-cream">
+    <div className="flex min-h-screen flex-col bg-cream md:flex-row">
       <StudentSidebar userEmail={user.email} />
       <main className="min-w-0 flex-1">{children}</main>
     </div>

@@ -22,9 +22,9 @@ export default async function AdminLayout({
   const roleLabel = user.roles.includes("superadmin") ? "Superadmin" : "Admin";
 
   return (
-    <div className="flex h-screen" style={{ backgroundColor: cmd.surface }}>
+    <div className="flex h-screen flex-col md:flex-row" style={{ backgroundColor: cmd.surface }}>
       <AdminSidebar userEmail={user.email} roleLabel={roleLabel} />
-      <main className="flex-1 overflow-y-auto">{children}</main>
+      <main className="min-w-0 flex-1 overflow-y-auto">{children}</main>
     </div>
   );
 }

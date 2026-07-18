@@ -21,7 +21,7 @@ export default async function ResidenceDetailLayout({
   if (!user) redirect("/login?next=/residence/dashboard");
 
   return (
-    <div className="flex min-h-screen bg-cream">
+    <div className="flex min-h-screen flex-col bg-cream md:flex-row">
       <ResidenceSidebar residenceId={residenceId} userEmail={user.email} />
       <main className="min-w-0 flex-1">{children}</main>
     </div>
