@@ -121,38 +121,21 @@ Es una tabla de PII expuesta a escritura pública indirecta. Spam masivo = base 
 
 ---
 
-## [Severidad: Media] Mocks importados directamente por la UI en 4 archivos
+## [RESUELTO — confirmado obsoleto en Ciclo 34unodevicies-bis, 2026-07-18] Mocks importados directamente por la UI en 4 archivos
 
-**Dónde vive:**
-- `app/(public)/page.tsx`, `app/(public)/r/[slug]/page.tsx`, `app/(public)/search/SearchCatalog.tsx` importan de `lib/mock/residences.ts`
-- `components/residences/ResidenceCard.tsx` importa `lib/mock/exchange.ts`
-
-**Qué ocurre:**
-No hay capa de repositorio: las páginas llaman helpers del mock (`getPublishedResidences()`, etc.). Migrar a Supabase exigirá tocar los 4 call sites (y `SearchCatalog` es client component: no podrá llamar a la DB directamente — habrá que mover el fetch al server y pasar props, o crear una API).
-
-**Por qué importa:**
-Es el acoplamiento que hará más ruidoso el ciclo de catálogo real. La interfaz `Residence` amortigua el golpe (los componentes no cambian), pero el fetching sí cambia de forma.
-
-**Fix sugerido:**
-Al iniciar el ciclo de catálogo real: crear `server/repositories/residences.ts` con la misma firma que los helpers del mock, cambiar los imports (4 archivos), y convertir `SearchCatalog` para recibir `residences` por props desde el Server Component padre (el filtrado client-side puede quedarse).
+**Fix aplicado:** `lib/mock/residences.ts` ya no existe en el repo — confirmado por grep (`from "@/lib/mock/residences"`: 0 resultados en `app`/`components`). El catálogo real (`/search`, ficha de residencia, etc.) lee de Supabase desde el Ciclo 34undevicies (ver MEMORY.md línea ~934, "el mock ya no existe, /search lee datos reales"). Único mock que sigue en pie: `lib/mock/exchange.ts` (tipo de cambio ARS/USD hardcodeado) — **eso es intencional, no un gap**: `CLAUDE.md` lo documenta explícitamente como decisión del dueño mientras no haya un proveedor de tipo de cambio real conectado. Entrada quedaba desactualizada desde hace varios ciclos — encontrada en la re-auditoría de gaps abiertos antes de elegir el bloque del Ciclo 34unodevicies-bis (mismo patrón que la re-auditoría del Ciclo 26).
 
 ---
 
 ## [Severidad: Media] `Residence.photos` sin garantía de elemento — acceso `photos[0]` sin guard
 
+**Actualizado 2026-07-18 (Ciclo 34unodevicies-bis)**: re-auditado contra el código actual — el riesgo de CRASH original ya no existe. `ResidenceCard.tsx:34` guarda con `{residence.photos[0] && (<Image .../>)}`; la ficha real (`app/(public)/residencias/[slug]/page.tsx`, ruta renombrada desde `/r/[slug]`) guarda con `{photoUrls.length === 1 && ...}`/`{photoUrls.length > 1 && ...}`. Ningún `next/image` puede recibir `src={undefined}` hoy. Lo que sigue siendo un gap real, pero rebajado a **Severidad Baja** (cosmético, no crash): cuando `photoUrls.length === 0` (0 fotos aprobadas — escenario real desde que Ciclo 34sexvicies filtra por `status=approved`), la ficha no renderiza NADA en el lugar de la galería — ni imagen ni placeholder, un hueco vacío arriba de la página. `ResidenceCard.tsx` en cambio ya degrada bien (el `bg-sand-200` del contenedor queda visible solo, sin romper el layout de la card).
+
 **Dónde vive:**
-- `components/residences/ResidenceCard.tsx` (`residence.photos[0]`)
-- `app/(public)/r/[slug]/page.tsx` (`photos[0]` con `priority`, y `photos.slice(1, 3)`)
-- `types/domain.ts` (`photos: string[]` — permite `[]`)
-
-**Qué ocurre:**
-Con los mocks nunca pasa (todas tienen ≥1 foto), pero el tipo permite un array vacío. Con datos reales de residencias (carga manual por owners), `photos[0]` como `undefined` rompe `next/image` en runtime.
-
-**Por qué importa:**
-Es exactamente el tipo de bug que aparece el día que entra la primera residencia real con perfil incompleto — el peor momento.
+- `app/(public)/residencias/[slug]/page.tsx` (sección de galería, líneas ~145-182): sin rama para `photoUrls.length === 0`.
 
 **Fix sugerido:**
-Pequeño y seguro: en `ResidenceCard` y la ficha, renderizar un placeholder de marca (bloque `bg-sand-200` con monograma) cuando `photos.length === 0`. Alternativa de tipo: `photos: [string, ...string[]]` y validar al ingestar. Hacerlo junto con el ciclo de catálogo real.
+Agregar una tercera rama `{photoUrls.length === 0 && (<div className="... bg-sand-200 ...">{/* monograma o ícono */}</div>)}` del mismo alto que las otras 2 variantes, para que la página no muestre un hueco vacío cuando una residencia real todavía no cargó fotos o las tiene todas pendientes de aprobación.
 
 ---
 

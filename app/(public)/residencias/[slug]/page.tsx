@@ -142,6 +142,11 @@ export default async function RealResidenceDetailPage({
       <Badge tone="sage">Catálogo real</Badge>
 
       {/* Galería — ref search_3: 1 foto grande + grilla de 4 con "+N" */}
+      {photoUrls.length === 0 && (
+        <div className="mt-4 flex h-72 items-center justify-center rounded-card bg-sand-200 sm:h-96">
+          <Icon name="apartment" className="text-6xl text-ink-faint" />
+        </div>
+      )}
       {photoUrls.length === 1 && (
         <div className="relative mt-4 h-72 overflow-hidden rounded-card bg-sand-200 sm:h-96">
           <Image src={photoUrls[0]} alt={residence.name} fill className="object-cover" priority />
