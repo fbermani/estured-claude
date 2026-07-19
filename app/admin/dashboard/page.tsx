@@ -30,6 +30,7 @@ const ACTION_LABELS: Record<string, string> = {
   residence_visibility_reduced: "redujo la visibilidad de una residencia",
   residence_visibility_restored: "restauró la visibilidad normal de una residencia",
   residence_internal_note_added: "agregó una nota interna a una residencia",
+  residence_verification_expired: "venció la verificación anual de una residencia",
   user_logged_out: "cerró sesión",
   admin_user_created: "creó un usuario admin",
   demo_user_seeded: "sembró un usuario demo",

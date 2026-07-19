@@ -80,6 +80,20 @@ for (const slug of DEMO_SLUGS) {
     // reservations más abajo, igual motivo que renewal_offers/requests.
     await admin.from("resident_stays").delete().eq("residence_id", existing.id);
 
+    // support_cases.residence_id NO tiene cascade (migración 0023) — nunca
+    // se limpiaba, encontrado en Ciclo 34unodevicies-quinquies porque
+    // bloqueaba en silencio el DELETE de residences (sin chequeo de error
+    // más abajo, el script seguía como si hubiera borrado). Mismo patrón
+    // del gotcha #37 (application_snapshots huérfanas) — cualquier tabla
+    // con FK directa a residence_id sin cascade necesita su propia línea acá.
+    await admin.from("support_cases").delete().eq("residence_id", existing.id);
+    // application_snapshots.residence_id tampoco tiene cascade — la vía
+    // normal (application_request_id, con cascade) limpia la mayoría, pero
+    // una snapshot que quedó con application_request_id null (gotcha #37)
+    // sobrevive a la limpieza de application_requests de abajo y bloquea
+    // el DELETE final de residences. Red de seguridad explícita.
+    await admin.from("application_snapshots").delete().eq("residence_id", existing.id);
+
     // FK circular reservations<->estured_fee_payments/booking_receipts (MEMORY.md §15.10/13/15):
     // anular ambos lados antes de cualquier delete.
     const { data: apps } = await admin.from("application_requests").select("id").eq("residence_id", existing.id);
@@ -126,7 +140,14 @@ for (const slug of DEMO_SLUGS) {
     await admin.from("family_application_proposals").delete().eq("residence_id", existing.id);
     await admin.from("waitlist_entries").delete().eq("residence_id", existing.id);
     await admin.from("application_requests").delete().eq("residence_id", existing.id);
-    await admin.from("residences").delete().eq("id", existing.id);
+    const { error: deleteError } = await admin.from("residences").delete().eq("id", existing.id);
+    if (deleteError) {
+      throw new Error(
+        `No se pudo borrar la residencia previa "${slug}" (${existing.id}): ${deleteError.message}. ` +
+          `Probablemente falta cubrir una tabla con FK directa a residence_id sin cascade — revisar con la` +
+          ` query de information_schema documentada en MEMORY.md antes de re-correr.`,
+      );
+    }
     console.log(`(limpieza) residencia previa "${slug}" borrada`);
   }
 }
@@ -158,9 +179,15 @@ async function addOwner(residenceId, userId, role) {
   await admin.from("residence_users").insert({ residence_id: residenceId, user_id: userId, role, invitation_status: "accepted" });
 }
 async function addRoomType(residenceId, { name, usd, ars, count }) {
+  // `adjustment_policy` vivía en `room_types` hasta la migración 0025
+  // (Ciclo 22, "Condiciones de Reserva a nivel residencia") — se movió a
+  // `residences.adjustment_policy` (default 'quarterly', ya cubre el caso
+  // demo) y la columna se DROPeó de `room_types`. Este insert quedó
+  // desactualizado desde entonces sin que ningún re-seed completo lo
+  // ejercitara (encontrado en Ciclo 34unodevicies-quinquies).
   const { data, error } = await admin
     .from("room_types")
-    .insert({ residence_id: residenceId, name, monthly_price_usd: usd, monthly_price_ars: ars, adjustment_policy: "quarterly" })
+    .insert({ residence_id: residenceId, name, monthly_price_usd: usd, monthly_price_ars: ars })
     .select("id")
     .single();
   if (error) throw error;
@@ -191,6 +218,17 @@ const norteId = await createResidence({
 });
 await addOwner(norteId, ricardoId, "owner");
 await addOwner(norteId, sofiaId, "staff");
+const norteApprovedAt = new Date();
+await admin.from("residence_verifications").insert({
+  residence_id: norteId,
+  status: "approved",
+  responsible_identity_checked: true,
+  coordinator_identity_checked: true,
+  address_checked: true,
+  photos_match_reality: true,
+  approved_at: norteApprovedAt.toISOString(),
+  expires_at: new Date(norteApprovedAt.getTime() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+});
 const norteIndividualId = await addRoomType(norteId, { name: "Individual", usd: 300, ars: 456000, count: 3 });
 const norteDobleId = await addRoomType(norteId, { name: "Doble", usd: 220, ars: 334500, count: 2 });
 await addSections(norteId, {

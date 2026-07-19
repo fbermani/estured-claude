@@ -7,6 +7,11 @@ const STATUS_COPY: Record<string, { label: string; tone: "neutral" | "amber" | "
   verification_scheduled: { label: "Visita programada", tone: "amber" },
   verified_active: { label: "Verificada y publicada", tone: "sage" },
   needs_changes: { label: "Requiere cambios", tone: "amber" },
+  paused_by_residence: { label: "Pausada por vos", tone: "neutral" },
+  paused_by_admin: { label: "Pausada por EstuRed", tone: "amber" },
+  suspended: { label: "Suspendida", tone: "amber" },
+  verification_expired: { label: "Verificación vencida", tone: "amber" },
+  archived: { label: "Archivada", tone: "neutral" },
 };
 
 const OPEN_SUPPORT_STATUSES = [
