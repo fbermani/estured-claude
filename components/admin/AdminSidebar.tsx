@@ -152,6 +152,14 @@ function CommunityIcon() {
     </svg>
   );
 }
+function VisibilityIcon() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M2 10s2.8-5.5 8-5.5S18 10 18 10s-2.8 5.5-8 5.5S2 10 2 10z" />
+      <circle cx="10" cy="10" r="2.3" />
+    </svg>
+  );
+}
 function SupportCasesIcon() {
   return (
     <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
@@ -180,6 +188,7 @@ const NAV = [
   { href: "/admin/pricing", label: "Administración de tarifas", Icon: PricingIcon },
   { href: "/admin/documents", label: "Documentos", Icon: DocumentsIcon },
   { href: "/admin/community", label: "Comunidad", Icon: CommunityIcon },
+  { href: "/admin/visibility", label: "Visibilidad y penalizaciones", Icon: VisibilityIcon },
   { href: "/admin/applications", label: "Solicitudes", Icon: ClockIcon },
   { href: "/admin/negotiations", label: "Negociaciones", Icon: NegotiationsIcon },
   { href: "/admin/family-proposals", label: "Propuestas familiar", Icon: FamilyProposalsIcon },
