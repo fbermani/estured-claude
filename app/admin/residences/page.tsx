@@ -4,6 +4,7 @@ import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
 import { cmd } from "@/components/admin/ui/tokens";
 import { PauseResidenceControl } from "@/app/admin/residences/PauseResidenceControl";
+import { OperationalAccessControl } from "@/app/admin/residences/OperationalAccessControl";
 
 export const metadata: Metadata = { title: "Residencias" };
 export const dynamic = "force-dynamic";
@@ -27,6 +28,8 @@ type ResidenceRow = {
   public_area: string | null;
   status: string;
   created_at: string;
+  has_operational_management_access: boolean;
+  pioneer_free_access_until: string | null;
 };
 
 export default async function AdminResidencesPage({
@@ -38,7 +41,11 @@ export default async function AdminResidencesPage({
   const admin = getSupabaseAdmin();
 
   let query = admin
-    ? admin.from("residences").select("id, name, public_area, status, created_at").order("created_at", { ascending: false }).limit(200)
+    ? admin
+        .from("residences")
+        .select("id, name, public_area, status, created_at, has_operational_management_access, pioneer_free_access_until")
+        .order("created_at", { ascending: false })
+        .limit(200)
     : null;
   if (query && q?.trim()) query = query.ilike("name", `%${q.trim()}%`);
 
@@ -75,7 +82,7 @@ export default async function AdminResidencesPage({
         <table className="w-full text-left text-sm">
           <thead style={{ backgroundColor: cmd.surfaceContainerLow, borderBottom: `1px solid ${cmd.border}` }}>
             <tr>
-              {["Nombre", "Zona", "Alta", "Estado", ""].map((h) => (
+              {["Nombre", "Zona", "Alta", "Estado", "Gestión Operativa", ""].map((h) => (
                 <th key={h} className="px-4 py-2.5 text-[11px] font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
                   {h}
                 </th>
@@ -101,7 +108,19 @@ export default async function AdminResidencesPage({
                     <AdminBadge tone={badge.tone}>{badge.label}</AdminBadge>
                   </td>
                   <td className="px-4 py-2.5">
-                    {canToggle && <PauseResidenceControl residenceId={r.id} isPaused={r.status === "paused_by_admin"} />}
+                    <AdminBadge tone={r.has_operational_management_access ? "emerald" : "neutral"}>
+                      {r.has_operational_management_access ? "Con acceso" : "Sin acceso"}
+                    </AdminBadge>
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <div className="flex flex-col items-end gap-1.5">
+                      {canToggle && <PauseResidenceControl residenceId={r.id} isPaused={r.status === "paused_by_admin"} />}
+                      <OperationalAccessControl
+                        residenceId={r.id}
+                        hasAccess={r.has_operational_management_access}
+                        expiresUntil={r.pioneer_free_access_until}
+                      />
+                    </div>
                   </td>
                 </tr>
               );

@@ -8,6 +8,7 @@ import { checkStaleAvailability } from "@/lib/jobs/checkStaleAvailability";
 import { notifyWaitlistKeepAlive } from "@/lib/jobs/notifyWaitlistKeepAlive";
 import { expireRenewalRequests } from "@/lib/jobs/expireRenewalRequests";
 import { expireRenewalOffers } from "@/lib/jobs/expireRenewalOffers";
+import { expireOperationalAccess } from "@/lib/jobs/expireOperationalAccess";
 
 /**
  * Orquesta los jobs periódicos del proyecto, invocado por
@@ -29,6 +30,7 @@ export async function runExpirationJobs(admin: SupabaseClient) {
     waitlistKeepAlive,
     renewalRequests,
     renewalOffers,
+    operationalAccess,
   ] = await Promise.all([
     expireFamilyProposals(admin),
     expireNegotiationProposals(admin),
@@ -38,6 +40,7 @@ export async function runExpirationJobs(admin: SupabaseClient) {
     notifyWaitlistKeepAlive(admin),
     expireRenewalRequests(admin),
     expireRenewalOffers(admin),
+    expireOperationalAccess(admin),
   ]);
 
   return {
@@ -49,5 +52,6 @@ export async function runExpirationJobs(admin: SupabaseClient) {
     waitlistKeepAlive,
     renewalRequests,
     renewalOffers,
+    operationalAccess,
   };
 }
