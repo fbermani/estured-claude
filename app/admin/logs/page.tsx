@@ -127,6 +127,7 @@ export default async function AdminLogsPage({
       </AdminCard>
 
       <AdminCard className="mt-4 overflow-hidden">
+        <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead style={{ backgroundColor: cmd.surfaceContainerLow, borderBottom: `1px solid ${cmd.border}` }}>
             <tr>
@@ -169,6 +170,7 @@ export default async function AdminLogsPage({
             ))}
           </tbody>
         </table>
+        </div>
         {logs.length === 0 && (
           <p className="p-6 text-sm" style={{ color: cmd.outline }}>
             No hay eventos que coincidan con los filtros.

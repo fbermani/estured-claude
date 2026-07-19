@@ -76,6 +76,7 @@ export default async function AdminRevocationsPage() {
       </p>
 
       <AdminCard className="mt-6 overflow-hidden">
+        <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead style={{ backgroundColor: cmd.surfaceContainerLow, borderBottom: `1px solid ${cmd.border}` }}>
             <tr>
@@ -133,6 +134,7 @@ export default async function AdminRevocationsPage() {
             })}
           </tbody>
         </table>
+        </div>
         {revocations.length === 0 && (
           <p className="p-6 text-sm" style={{ color: cmd.outline }}>
             Todavía no hay revocaciones registradas.

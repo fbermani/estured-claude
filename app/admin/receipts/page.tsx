@@ -51,6 +51,7 @@ export default async function AdminReceiptsPage() {
       </p>
 
       <AdminCard className="mt-6 overflow-hidden">
+        <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead style={{ backgroundColor: cmd.surfaceContainerLow, borderBottom: `1px solid ${cmd.border}` }}>
             <tr>
@@ -106,6 +107,7 @@ export default async function AdminReceiptsPage() {
             })}
           </tbody>
         </table>
+        </div>
         {receipts.length === 0 && (
           <p className="p-6 text-sm" style={{ color: cmd.outline }}>
             Todavía no hay comprobantes emitidos.

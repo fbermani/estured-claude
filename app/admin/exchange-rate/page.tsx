@@ -100,6 +100,7 @@ export default async function ExchangeRatePage() {
         Histórico
       </h2>
       <AdminCard className="mt-3 overflow-hidden p-0">
+        <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead style={{ backgroundColor: cmd.surfaceContainerLow }}>
             <tr>
@@ -136,6 +137,7 @@ export default async function ExchangeRatePage() {
             )}
           </tbody>
         </table>
+        </div>
       </AdminCard>
     </div>
   );

@@ -56,6 +56,7 @@ export default async function AdminNegotiationsPage() {
       </p>
 
       <AdminCard className="mt-6 overflow-hidden">
+        <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead style={{ backgroundColor: cmd.surfaceContainerLow, borderBottom: `1px solid ${cmd.border}` }}>
             <tr>
@@ -104,6 +105,7 @@ export default async function AdminNegotiationsPage() {
             })}
           </tbody>
         </table>
+        </div>
         {proposals.length === 0 && (
           <p className="p-6 text-sm" style={{ color: cmd.outline }}>
             Todavía no hay propuestas de negociación en el sistema.
