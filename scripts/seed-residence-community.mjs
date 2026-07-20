@@ -27,7 +27,7 @@ const TARGET_PER_RESIDENCE = 30;
 
 const RESIDENCES = [
   {
-    id: "b2a25202-b08e-4dd1-bfcb-6eb1a7267583",
+    id: "1c5b4469-ac0e-4f04-9e9f-db00202d2bdc",
     label: "Residencia Río de la Plata",
     roomTypes: [
       { name: "Individual", capacity_per_room: 1, monthly_price_usd: 320, bathroom_type: "privado", available_count: 2 },
@@ -37,7 +37,7 @@ const RESIDENCES = [
     ],
   },
   {
-    id: "06addddb-349c-41ba-9a4c-3e40c7189042",
+    id: "e50e7658-6da8-45a5-a655-f8c15b3ce8d4",
     label: "Residencia Norte",
     roomTypes: [
       { name: "Individual", capacity_per_room: 1, monthly_price_usd: 340, bathroom_type: "privado", available_count: 1 },
@@ -47,7 +47,7 @@ const RESIDENCES = [
     ],
   },
   {
-    id: "063d9032-0684-44d2-90dd-6a73faa352d4",
+    id: "bd61d141-caf9-4e60-bfd0-aec429c12e41",
     label: "Casa Compartida Almagro",
     roomTypes: [
       { name: "Individual", capacity_per_room: 1, monthly_price_usd: 260, bathroom_type: "privado", available_count: 0 },

@@ -26,7 +26,7 @@ if (!url || !serviceRoleKey) {
 const admin = createClient(url, serviceRoleKey, { auth: { persistSession: false } });
 
 const CONTENT = {
-  "b2a25202-b08e-4dd1-bfcb-6eb1a7267583": {
+  "1c5b4469-ac0e-4f04-9e9f-db00202d2bdc": {
     label: "Residencia Río de la Plata",
     description:
       "Bienvenido a Residencia Río de la Plata, una casona recuperada a pasos del Jardín Botánico y de las líneas que conectan con UBA Medicina y la Universidad Católica Argentina. Combinamos estudios individuales para quienes buscan independencia con habitaciones compartidas pensadas para la vida en comunidad: cocina amplia por piso, sala de estudio en silencio y terraza compartida. La administración vive en el edificio y coordina el ingreso de cada estudiante personalmente.",
@@ -36,7 +36,7 @@ const CONTENT = {
     // no inventar etiquetas nuevas, el formulario de perfil las pisa por checkbox.
     commonAreas: ["Terraza", "Sala de estudio", "Cocina", "Gimnasio"],
   },
-  "06addddb-349c-41ba-9a4c-3e40c7189042": {
+  "e50e7658-6da8-45a5-a655-f8c15b3ce8d4": {
     label: "Residencia Norte",
     description:
       "Residencia Norte es una casa de estilo racionalista renovada en el corazón de Palermo, a metros de Plaza Italia y a minutos de la Universidad de Palermo y UBA Derecho. Los ambientes son luminosos, con techos altos y espacios comunes recién renovados: patio con parrilla, cocina equipada y un living amplio donde la comunidad se junta a estudiar y cocinar. El barrio ofrece cafés de especialidad, librerías y transporte directo a las principales facultades.",
@@ -44,7 +44,7 @@ const CONTENT = {
       "Somos una casa activa y social: acá se cocina en grupo, se estudia en el living y se arma plan de fin de semana. Buscamos estudiantes con buena onda que también respeten los horarios de descanso.",
     commonAreas: ["Terraza", "Cocina", "Sala de estudio", "Balcón"],
   },
-  "063d9032-0684-44d2-90dd-6a73faa352d4": {
+  "bd61d141-caf9-4e60-bfd0-aec429c12e41": {
     label: "Casa Compartida Almagro",
     description:
       "Casa Compartida Almagro es una casona porteña de patios internos, en un barrio tranquilo y muy bien conectado: a pocas cuadras de UTN Medrano y con subte directo a UBA Económicas. Es la opción más económica de la red sin resignar lo importante: habitaciones ventiladas, cocina compartida ordenada por turnos y un patio con limonero donde la casa entera desayuna cuando está lindo. Ideal para quienes buscan presupuesto cuidado y ambiente familiar.",

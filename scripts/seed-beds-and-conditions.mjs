@@ -30,9 +30,9 @@ if (!url || !serviceRoleKey) {
 const admin = createClient(url, serviceRoleKey, { auth: { persistSession: false } });
 
 const BED_LETTERS = "ABCDEFGHIJ";
-const RIO = "b2a25202-b08e-4dd1-bfcb-6eb1a7267583";
-const NORTE = "06addddb-349c-41ba-9a4c-3e40c7189042";
-const ALMAGRO = "063d9032-0684-44d2-90dd-6a73faa352d4";
+const RIO = "1c5b4469-ac0e-4f04-9e9f-db00202d2bdc";
+const NORTE = "e50e7658-6da8-45a5-a655-f8c15b3ce8d4";
+const ALMAGRO = "bd61d141-caf9-4e60-bfd0-aec429c12e41";
 
 const CONDITIONS = {
   [RIO]: {
