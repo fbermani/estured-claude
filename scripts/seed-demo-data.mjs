@@ -231,6 +231,7 @@ await admin.from("residence_verifications").insert({
 });
 const norteIndividualId = await addRoomType(norteId, { name: "Individual", usd: 300, ars: 456000, count: 3 });
 const norteDobleId = await addRoomType(norteId, { name: "Doble", usd: 220, ars: 334500, count: 2 });
+await addRoomType(norteId, { name: "Triple", usd: 190, ars: 288800, count: 2 });
 await addSections(norteId, {
   services: ["WiFi de alta velocidad", "Limpieza semanal de áreas comunes", "Lavadero", "Cocina equipada"],
   universities: ["Universidad de Palermo", "UBA Derecho"],
@@ -243,11 +244,12 @@ const rioplataId = await createResidence({
   slug: "residencia-rio-de-la-plata-demo",
   publicArea: "Recoleta",
   status: "verified_active",
-  tagline: "Estudios independientes",
-  description: "Estudios individuales a pasos del Botánico, ideal para quienes buscan más independencia.",
+  tagline: "Habitaciones individuales",
+  description: "Habitaciones individuales a pasos del Botánico, ideal para quienes buscan más independencia.",
 });
 await addOwner(rioplataId, ricardoId, "owner");
-const rioplataEstudioId = await addRoomType(rioplataId, { name: "Estudio", usd: 350, ars: 532000, count: 2 });
+const rioplataEstudioId = await addRoomType(rioplataId, { name: "Individual", usd: 350, ars: 532000, count: 2 });
+await addRoomType(rioplataId, { name: "Cuádruple", usd: 170, ars: 258400, count: 2 });
 await addSections(rioplataId, {
   services: ["WiFi", "Aire acondicionado", "Seguridad 24hs"],
   universities: ["UBA Medicina", "Universidad Católica Argentina"],
@@ -264,7 +266,8 @@ const almagroId = await createResidence({
   description: "Casa compartida de perfil familiar, habitaciones compartidas de hasta 3 estudiantes.",
 });
 await addOwner(almagroId, ricardoId, "owner");
-await addRoomType(almagroId, { name: "Compartida (3 personas)", usd: 180, ars: 273500, count: 4 });
+await addRoomType(almagroId, { name: "Triple", usd: 180, ars: 273500, count: 4 });
+await addRoomType(almagroId, { name: "Doble", usd: 210, ars: 319200, count: 2 });
 await addSections(almagroId, {
   services: ["WiFi", "Desayuno incluido"],
   universities: ["UBA Sociales"],
@@ -516,7 +519,7 @@ const { data: receipt4 } = await admin
       reservation_id: reservation4.id,
       student: { first_name: "Lucia", last_initial: "F." },
       residence: { name: "Residencia Río de la Plata", public_area: "Recoleta" },
-      room_type: "Estudio",
+      room_type: "Individual",
       desired_start_date: "2026-07-20",
       initial_duration_months: 6,
       academic_objective: lucia.academicObjective,
