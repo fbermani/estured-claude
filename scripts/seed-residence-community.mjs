@@ -27,7 +27,7 @@ const TARGET_PER_RESIDENCE = 30;
 
 const RESIDENCES = [
   {
-    id: "1c5b4469-ac0e-4f04-9e9f-db00202d2bdc",
+    slug: "residencia-rio-de-la-plata-demo",
     label: "Residencia Río de la Plata",
     roomTypes: [
       { name: "Individual", capacity_per_room: 1, monthly_price_usd: 320, bathroom_type: "privado", available_count: 2 },
@@ -37,7 +37,7 @@ const RESIDENCES = [
     ],
   },
   {
-    id: "e50e7658-6da8-45a5-a655-f8c15b3ce8d4",
+    slug: "residencia-norte-demo",
     label: "Residencia Norte",
     roomTypes: [
       { name: "Individual", capacity_per_room: 1, monthly_price_usd: 340, bathroom_type: "privado", available_count: 1 },
@@ -47,7 +47,7 @@ const RESIDENCES = [
     ],
   },
   {
-    id: "bd61d141-caf9-4e60-bfd0-aec429c12e41",
+    slug: "casa-almagro-demo",
     label: "Casa Compartida Almagro",
     roomTypes: [
       { name: "Individual", capacity_per_room: 1, monthly_price_usd: 260, bathroom_type: "privado", available_count: 0 },
@@ -313,7 +313,16 @@ async function main() {
   const usedEmails = new Set(allAuthUsers.keys());
 
   let globalIdx = 0;
-  for (const residence of RESIDENCES) {
+  for (const residenceConfig of RESIDENCES) {
+    const { data: residenceRow, error: residenceError } = await admin
+      .from("residences")
+      .select("id")
+      .eq("slug", residenceConfig.slug)
+      .single();
+    if (residenceError || !residenceRow) {
+      throw new Error(`No se encontró la residencia con slug "${residenceConfig.slug}" — ¿se corrió seed-demo-data.mjs?`);
+    }
+    const residence = { ...residenceConfig, id: residenceRow.id };
     console.log(`\n== ${residence.label} ==`);
     const idByName = await ensureRoomTypes(residence.id, residence.roomTypes);
     await ensureAvailability(residence.id, residence.roomTypes, idByName);

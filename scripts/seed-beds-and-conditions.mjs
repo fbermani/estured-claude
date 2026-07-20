@@ -30,12 +30,12 @@ if (!url || !serviceRoleKey) {
 const admin = createClient(url, serviceRoleKey, { auth: { persistSession: false } });
 
 const BED_LETTERS = "ABCDEFGHIJ";
-const RIO = "1c5b4469-ac0e-4f04-9e9f-db00202d2bdc";
-const NORTE = "e50e7658-6da8-45a5-a655-f8c15b3ce8d4";
-const ALMAGRO = "bd61d141-caf9-4e60-bfd0-aec429c12e41";
+const RIO_SLUG = "residencia-rio-de-la-plata-demo";
+const NORTE_SLUG = "residencia-norte-demo";
+const ALMAGRO_SLUG = "casa-almagro-demo";
 
-const CONDITIONS = {
-  [RIO]: {
+const CONDITIONS_BY_SLUG = {
+  [RIO_SLUG]: {
     label: "Residencia Río de la Plata",
     minimum_stay_months: 3,
     adjustment_policy: "quarterly",
@@ -45,7 +45,7 @@ const CONDITIONS = {
     deposit_usd: null,
     empty_month_charge_percent: 75,
   },
-  [NORTE]: {
+  [NORTE_SLUG]: {
     label: "Residencia Norte",
     minimum_stay_months: 6,
     adjustment_policy: "quarterly",
@@ -55,7 +55,7 @@ const CONDITIONS = {
     deposit_usd: 300,
     empty_month_charge_percent: 50,
   },
-  [ALMAGRO]: {
+  [ALMAGRO_SLUG]: {
     label: "Casa Compartida Almagro",
     minimum_stay_months: null,
     adjustment_policy: "semiannual",
@@ -72,6 +72,23 @@ function isoDaysFromNow(days) {
 }
 
 async function main() {
+  // Resolver slug -> id real (nunca hardcodear IDs: se rompen en silencio
+  // si la residencia se recrea con un id nuevo — ver MEMORY.md, Ciclo
+  // 34unodevicies-octies).
+  const { data: residenceRows, error: residencesError } = await admin
+    .from("residences")
+    .select("id, slug")
+    .in("slug", Object.keys(CONDITIONS_BY_SLUG));
+  if (residencesError) throw residencesError;
+  const idBySlug = Object.fromEntries((residenceRows ?? []).map((r) => [r.slug, r.id]));
+  for (const slug of Object.keys(CONDITIONS_BY_SLUG)) {
+    if (!idBySlug[slug]) throw new Error(`No se encontró la residencia con slug "${slug}" — ¿se corrió seed-demo-data.mjs?`);
+  }
+  const NORTE = idBySlug[NORTE_SLUG];
+  const CONDITIONS = Object.fromEntries(
+    Object.entries(CONDITIONS_BY_SLUG).map(([slug, value]) => [idBySlug[slug], value]),
+  );
+
   // 1. Condiciones
   for (const [residenceId, { label, ...fields }] of Object.entries(CONDITIONS)) {
     const { error } = await admin.from("residences").update(fields).eq("id", residenceId);
