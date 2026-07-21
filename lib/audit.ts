@@ -1,5 +1,6 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { createNotification } from "@/lib/notifications/createNotification";
 
 /**
  * Helper obligatorio de auditoría (docs/12 §5.4, docs/06 §22.1).
@@ -7,8 +8,12 @@ import type { SupabaseClient } from "@supabase/supabase-js";
  * admin (audit_logs no tiene policies: solo service role).
  *
  * Nunca lanza: una falla de auditoría se loggea pero no rompe la
- * operación del usuario. (Trade-off aceptado para el MVP; revisar al
- * llegar a pagos, donde auditar es condición de la transacción.)
+ * operación del usuario (~20 call sites dependen de este comportamiento
+ * default). Devuelve `true`/`false` para que los call sites de dinero
+ * puedan reaccionar puntualmente — ver `alertAdminsOfAuditFailure` y su
+ * uso en `recordResidencePaymentReceived`/`recordManualFeePayment`/
+ * `confirmReservationAfterFeePaid` (decisión del dueño, Ciclo 35bis,
+ * GAPS.md: alertar sin revertir la operación de negocio).
  */
 export async function createAuditLog(
   admin: SupabaseClient,
@@ -27,7 +32,7 @@ export async function createAuditLog(
     isSystemAction?: boolean;
     source?: "user" | "admin" | "system" | "payment_provider";
   },
-): Promise<void> {
+): Promise<boolean> {
   const { error } = await admin.from("audit_logs").insert({
     actor_user_id: entry.actorUserId,
     actor_role: entry.actorRole,
@@ -45,5 +50,37 @@ export async function createAuditLog(
   });
   if (error) {
     console.error("[audit] insert failed:", error.code, error.message, entry.action);
+    return false;
   }
+  return true;
+}
+
+/**
+ * Notifica a todos los admin/superadmin cuando un audit log de dinero
+ * (pago a residencia, fee EstuRed, confirmación de reserva) falló al
+ * escribirse — la operación de negocio YA se completó y no se revierte
+ * (revertir dinero/reserva real sería más riesgoso que un log
+ * faltante); esto es para que alguien lo revise y audite a mano.
+ * Nunca lanza, mismo criterio que `createAuditLog`/`createNotification`.
+ */
+export async function alertAdminsOfAuditFailure(
+  admin: SupabaseClient,
+  params: { action: string; entityType: string; entityId: string },
+): Promise<void> {
+  const { data: admins } = await admin
+    .from("user_roles")
+    .select("user_id")
+    .in("role", ["admin", "superadmin"]);
+  const adminUserIds = [...new Set((admins ?? []).map((a) => a.user_id))];
+  await Promise.all(
+    adminUserIds.map((userId) =>
+      createNotification(admin, {
+        userId,
+        title: "Falló un registro de auditoría de dinero",
+        body: `La acción "${params.action}" sobre ${params.entityType}:${params.entityId.slice(0, 8)} se completó, pero no se pudo auditar. Revisar manualmente.`,
+        relatedEntityType: params.entityType,
+        relatedEntityId: params.entityId,
+      }),
+    ),
+  );
 }

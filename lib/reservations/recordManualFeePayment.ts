@@ -1,6 +1,6 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { createAuditLog } from "@/lib/audit";
+import { createAuditLog, alertAdminsOfAuditFailure } from "@/lib/audit";
 import { confirmReservationAfterFeePaid } from "@/lib/reservations/confirmAfterFeePaid";
 
 export type RecordManualFeePaymentResult = { ok: true } | { ok: false; error: string };
@@ -60,7 +60,7 @@ export async function recordManualFeePayment(
     return { ok: false, error: "No pudimos guardar el pago." };
   }
 
-  await createAuditLog(admin, {
+  const audited = await createAuditLog(admin, {
     actorUserId: params.actorUserId,
     actorRole: params.actorRole,
     action: "estured_fee_marked_paid_manually",
@@ -69,6 +69,13 @@ export async function recordManualFeePayment(
     reasonText: params.reason,
     source: "admin",
   });
+  if (!audited) {
+    await alertAdminsOfAuditFailure(admin, {
+      action: "estured_fee_marked_paid_manually",
+      entityType: "estured_fee_payments",
+      entityId: params.feePaymentId,
+    });
+  }
 
   const result = await confirmReservationAfterFeePaid(admin, {
     feePaymentId: params.feePaymentId,

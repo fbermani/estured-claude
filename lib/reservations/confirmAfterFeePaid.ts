@@ -1,6 +1,6 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { createAuditLog } from "@/lib/audit";
+import { createAuditLog, alertAdminsOfAuditFailure } from "@/lib/audit";
 import { removeWaitlistEntriesOnConfirmedReservation } from "@/lib/waitlist-entries/removeWaitlistEntriesOnConfirmedReservation";
 import { promoteNextQueuedApplication } from "@/lib/applications/roomTypeQueue";
 
@@ -200,7 +200,7 @@ export async function confirmReservationAfterFeePaid(
   await admin.from("reservations").update({ booking_receipt_id: receipt.id }).eq("id", reservation.id);
   await admin.from("estured_fee_payments").update({ fiscal_invoice_status: "pending_issue" }).eq("id", feePayment.id);
 
-  await createAuditLog(admin, {
+  const audited = await createAuditLog(admin, {
     actorUserId: params.actorUserId,
     actorRole: params.actorRole,
     action: "reservation_confirmed",
@@ -209,6 +209,13 @@ export async function confirmReservationAfterFeePaid(
     newValue: { booking_receipt_id: receipt.id, verification_code: verificationCode },
     source: params.actorRole === "admin" || params.actorRole === "superadmin" ? "admin" : "system",
   });
+  if (!audited) {
+    await alertAdminsOfAuditFailure(admin, {
+      action: "reservation_confirmed",
+      entityType: "reservations",
+      entityId: reservation.id,
+    });
+  }
 
   return { ok: true, reservationId: reservation.id, receiptId: receipt.id, verificationCode };
 }

@@ -1,6 +1,6 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { createAuditLog } from "@/lib/audit";
+import { createAuditLog, alertAdminsOfAuditFailure } from "@/lib/audit";
 import { calculateFeeEstimate } from "@/lib/applications/fee";
 import { assertResidenceAccess } from "@/lib/residences/access";
 import { promoteNextQueuedApplication } from "@/lib/applications/roomTypeQueue";
@@ -230,7 +230,7 @@ export async function recordResidencePaymentReceived(
       reason_text: "Reserva y fee EstuRed creados automáticamente.",
     });
 
-    await createAuditLog(admin, {
+    const audited = await createAuditLog(admin, {
       actorUserId: params.actorUserId,
       actorRole: "residence_owner",
       action: "residence_payment_marked_received",
@@ -238,6 +238,13 @@ export async function recordResidencePaymentReceived(
       entityId: params.applicationId,
       newValue: { reservation_id: reservation.id, estured_fee_payment_id: feePayment.id },
     });
+    if (!audited) {
+      await alertAdminsOfAuditFailure(admin, {
+        action: "residence_payment_marked_received",
+        entityType: "application_requests",
+        entityId: params.applicationId,
+      });
+    }
 
     if (application.room_type_id) {
       await promoteNextQueuedApplication(admin, application.room_type_id);

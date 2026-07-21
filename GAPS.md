@@ -6,15 +6,13 @@
 
 ---
 
-## [Severidad: Media] `createAuditLog` nunca lanza, ni siquiera en flujos de pago
+## [RESUELTO — Ciclo 35bis (cont.), 2026-07-21] `createAuditLog` nunca lanza, ni siquiera en flujos de pago
 
-**Dónde vive:** `lib/audit.ts` — el propio comentario del archivo ya lo marca: *"Nunca lanza: una falla de auditoría se loggea pero no rompe la operación del usuario. (Trade-off aceptado para el MVP; revisar al llegar a pagos, donde auditar es condición de la transacción.)"*
+**Qué era:** `createAuditLog` nunca lanza (trade-off aceptado desde el MVP) y el gap nunca se revisó al llegar a pagos (Ciclo 10-11) — si el insert en `audit_logs` fallaba silenciosamente al confirmar un pago/reserva, la operación de negocio se completaba igual sin dejar rastro auditable. Quedó abierto ~26 ciclos porque cambiar el comportamiento global afecta ~20 call sites y necesitaba decisión explícita del dueño.
 
-**Qué ocurre:** llegamos a pagos (Ciclo 10-11: `markResidencePaymentReceived`, `markFeePaidManually`, `confirmReservationAfterFeePaid`) y no se revisó — sigue siendo "best effort". Si un insert en `audit_logs` falla silenciosamente en el momento de confirmar un pago o una reserva, la operación de negocio se completa igual sin dejar rastro auditable.
+**Decisión del dueño:** alertar a un admin sin revertir la operación — el dinero/reserva ya es real, revertir sería más riesgoso que un log faltante. Sin cambiar el comportamiento default de los otros ~20 call sites.
 
-**Por qué importa:** para transacciones de dinero (aunque hoy sean manuales), la trazabilidad no debería ser opcional. Es una decisión de producto pendiente, no un bug — cambiar el comportamiento global de `createAuditLog` afecta ~20 call sites, así que no se tocó en este ciclo sin decisión explícita del dueño.
-
-**Fix sugerido:** decidir con el dueño si en las acciones de pago/reserva/fee específicamente el fallo de auditoría debería revertir la transacción (o al menos alertar a un admin), sin cambiar el comportamiento default para el resto de las ~20 acciones que ya usan `createAuditLog`.
+**Fix aplicado:** `createAuditLog` ahora devuelve `boolean` (antes `void` — cambio no rompe a los callers que ignoran el valor de retorno). Nueva `alertAdminsOfAuditFailure` (mismo archivo `lib/audit.ts`) notifica in-app a todos los usuarios con rol `admin`/`superadmin` cuando falla. Enganchado solo en los 3 call sites de dinero citados en la entrada original: `recordResidencePaymentReceived` (post-refactor Ciclo 20, antes `markResidencePaymentReceived`), `recordManualFeePayment` (antes `markFeePaidManually`), `confirmReservationAfterFeePaid`. **Hallazgo al implementar**: `AdminSidebar` nunca tuvo `NotificationBell` — ninguna alerta admin habría sido visible en ningún lado. Agregado (mismo componente que ya usan `StudentSidebar`/`ResidenceSidebar`, sin lógica nueva).
 
 ---
 
@@ -127,15 +125,11 @@ Es una tabla de PII expuesta a escritura pública indirecta. Spam masivo = base 
 
 ---
 
-## [Severidad: Media] `Residence.photos` sin garantía de elemento — acceso `photos[0]` sin guard
+## [RESUELTO — Ciclo 34unodevicies-ter, 2026-07-18] `Residence.photos` sin garantía de elemento — acceso `photos[0]` sin guard
 
-**Actualizado 2026-07-18 (Ciclo 34unodevicies-bis)**: re-auditado contra el código actual — el riesgo de CRASH original ya no existe. `ResidenceCard.tsx:34` guarda con `{residence.photos[0] && (<Image .../>)}`; la ficha real (`app/(public)/residencias/[slug]/page.tsx`, ruta renombrada desde `/r/[slug]`) guarda con `{photoUrls.length === 1 && ...}`/`{photoUrls.length > 1 && ...}`. Ningún `next/image` puede recibir `src={undefined}` hoy. Lo que sigue siendo un gap real, pero rebajado a **Severidad Baja** (cosmético, no crash): cuando `photoUrls.length === 0` (0 fotos aprobadas — escenario real desde que Ciclo 34sexvicies filtra por `status=approved`), la ficha no renderiza NADA en el lugar de la galería — ni imagen ni placeholder, un hueco vacío arriba de la página. `ResidenceCard.tsx` en cambio ya degrada bien (el `bg-sand-200` del contenedor queda visible solo, sin romper el layout de la card).
+**Qué era:** riesgo de crash por `photos[0]` sin guard, ya descartado en la re-auditoría del Ciclo 34unodevicies-bis; quedaba un gap cosmético (Severidad Baja): con 0 fotos aprobadas, la ficha no renderizaba nada en el lugar de la galería.
 
-**Dónde vive:**
-- `app/(public)/residencias/[slug]/page.tsx` (sección de galería, líneas ~145-182): sin rama para `photoUrls.length === 0`.
-
-**Fix sugerido:**
-Agregar una tercera rama `{photoUrls.length === 0 && (<div className="... bg-sand-200 ...">{/* monograma o ícono */}</div>)}` del mismo alto que las otras 2 variantes, para que la página no muestre un hueco vacío cuando una residencia real todavía no cargó fotos o las tiene todas pendientes de aprobación.
+**Fix aplicado:** tercera rama en `app/(public)/residencias/[slug]/page.tsx` (`{photoUrls.length === 0 && (<div className="... bg-sand-200 ...">{ícono "apartment"}</div>)}`), mismo alto/radio que las otras 2 variantes de galería. Confirmado en el código actual (línea ~180) — esta entrada había quedado desactualizada; encontrado y corregido en la re-auditoría del Ciclo 35bis, mismo patrón recurrente que otras entradas de este archivo (ver comentario de la línea 146 de más abajo sobre re-revisar gaps abiertos periódicamente).
 
 ---
 
@@ -157,20 +151,11 @@ Agregar una tercera rama `{photoUrls.length === 0 && (<div className="... bg-san
 
 ---
 
-## [Severidad: Baja] Imágenes placeholder incoherentes y dependencia externa en `next.config.ts`
+## [RESUELTO — obsoleto, confirmado en Ciclo 35bis, 2026-07-21] Imágenes placeholder incoherentes y dependencia externa en `next.config.ts`
 
-**Dónde vive:**
-- `lib/mock/residences.ts` (URLs `picsum.photos` aleatorias — una residencia de San Telmo muestra una playa)
-- `next.config.ts` (`remotePatterns` permite `picsum.photos`)
+**Qué era:** `lib/mock/residences.ts` usaba URLs `picsum.photos` aleatorias, incoherentes con el contexto de cada residencia (ej. una de San Telmo mostraba una playa), y `next.config.ts` dependía de ese servicio externo.
 
-**Qué ocurre:**
-Las fotos aleatorias no representan residencias y a veces son absurdas para el contexto; además el build/preview depende de un servicio externo.
-
-**Por qué importa:**
-En demos con residencias o familias reales, la foto de playa socava la percepción de producto serio (señalado en `docs/VISUAL_UX_AUDIT.md §13`).
-
-**Fix sugerido:**
-Elegir 12–15 fotos libres coherentes (Unsplash: habitaciones/fachadas/espacios comunes), guardarlas en `public/mock/`, actualizar los mocks y **quitar** `picsum.photos` de `next.config.ts`.
+**Fix real:** `lib/mock/residences.ts` ya no existe desde el Ciclo 34undevicies (catálogo real sobre Supabase) — confirmado por `test -f` y `grep -rn "picsum"` sin resultados en todo el repo. Las fotos hoy son reales, subidas por cada residencia a Supabase Storage (`residence_photo`). Esta entrada había quedado desactualizada; encontrada en la misma re-auditoría de GAPS.md que la anterior.
 
 ---
 

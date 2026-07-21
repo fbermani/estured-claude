@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { cmd } from "@/components/admin/ui/tokens";
 import { signOut } from "@/app/(public)/login/actions";
 import { useSidebarCollapse } from "@/components/layout/useSidebarCollapse";
+import { NotificationBell } from "@/components/layout/NotificationBell";
 
 function DashboardIcon() {
   return (
@@ -172,7 +173,7 @@ export function AdminSidebar({ userEmail, roleLabel }: { userEmail: string; role
         <p className="text-sm font-extrabold tracking-tight" style={{ color: cmd.primary }}>
           EstuRed Admin
         </p>
-        <span className="h-9 w-9" aria-hidden />
+        <NotificationBell />
       </div>
 
       {mobileOpen && (
@@ -206,6 +207,9 @@ export function AdminSidebar({ userEmail, roleLabel }: { userEmail: string; role
             >
               E
             </span>
+            <div className={collapsed ? "md:hidden" : ""}>
+              <NotificationBell />
+            </div>
             <button
               type="button"
               onClick={() => setMobileOpen(false)}
