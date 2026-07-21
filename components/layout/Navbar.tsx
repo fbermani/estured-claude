@@ -54,8 +54,8 @@ export function Navbar() {
             <Button href="/login" variant="ghost" size="sm">
               Ingresar
             </Button>
-            <Button href="/waitlist" size="sm">
-              Lista de espera
+            <Button href="/register" size="sm">
+              Crear cuenta
             </Button>
           </div>
         </div>
@@ -101,8 +101,8 @@ export function Navbar() {
             >
               Ingresar
             </Link>
-            <Button href="/waitlist" size="md" className="mt-3 w-full">
-              Sumarme a la lista de espera
+            <Button href="/register" size="md" className="mt-3 w-full">
+              Crear cuenta
             </Button>
           </div>
         </div>

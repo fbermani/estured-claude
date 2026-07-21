@@ -27,16 +27,17 @@ export async function createApplicationRequest(
   if (!roomTypeId) return { status: "error", message: "Elegí un tipo de habitación." };
   const desiredStartDate = String(formData.get("desired_start_date") ?? "");
   const durationMonths = Number(formData.get("initial_duration_months") ?? 0);
-  const academicObjective = String(formData.get("academic_objective") ?? "").trim();
+  const academicObjectiveChoice = String(formData.get("academic_objective_choice") ?? "").trim();
+  const academicObjectiveDetail = String(formData.get("academic_objective_detail") ?? "").trim();
+  const academicObjective = academicObjectiveDetail
+    ? `${academicObjectiveChoice}. ${academicObjectiveDetail}`
+    : academicObjectiveChoice;
 
   if (!desiredStartDate) return { status: "error", message: "Elegí una fecha de ingreso estimada." };
   if (durationMonths < 1 || durationMonths > 24)
     return { status: "error", message: "La duración debe ser entre 1 y 24 meses." };
-  if (academicObjective.length < 10)
-    return {
-      status: "error",
-      message: "Contanos brevemente tu objetivo académico (obligatorio para el comprobante).",
-    };
+  if (!academicObjectiveChoice)
+    return { status: "error", message: "Elegí una opción para tu objetivo académico." };
 
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento. Probá más tarde." };

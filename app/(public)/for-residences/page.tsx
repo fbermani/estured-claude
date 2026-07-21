@@ -162,11 +162,11 @@ export default function ForResidencesPage() {
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-ink-soft">
             Estamos seleccionando entre 5 y 10 residencias de CABA para la
-            primera etapa. Dejanos tus datos y te contactamos para coordinar la
-            verificación.
+            primera etapa. Creá tu cuenta ahora — coordinamos la verificación
+            presencial una vez que completes tu perfil.
           </p>
           <div className="mt-6">
-            <Button href="/waitlist" size="lg">
+            <Button href="/register/residence" size="lg">
               Quiero sumar mi residencia
             </Button>
           </div>

@@ -6,6 +6,7 @@ import { ResidenceCard } from "@/components/residences/ResidenceCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Icon } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
+import { availabilityHelpText } from "@/components/ui/StatusTag";
 
 /**
  * Catálogo con filtros — layout a semejanza de la referencia
@@ -255,9 +256,12 @@ export function SearchCatalog({ residences, arsPerUsd }: { residences: Residence
         )}
       </div>
 
-      <p className="mb-5 mt-6 text-sm font-semibold text-forest-700">
-        {filtered.length} {filtered.length === 1 ? "residencia encontrada" : "residencias encontradas"}
-      </p>
+      <div className="mb-5 mt-6 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+        <p className="text-sm font-semibold text-forest-700">
+          {filtered.length} {filtered.length === 1 ? "residencia encontrada" : "residencias encontradas"}
+        </p>
+        <p className="text-xs text-ink-faint">{availabilityHelpText("by_room_type_to_confirm")}</p>
+      </div>
 
       {filtered.length > 0 ? (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

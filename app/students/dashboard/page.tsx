@@ -515,7 +515,7 @@ export default async function StudentDashboardPage() {
 
       <p className="mt-8 text-xs text-ink-faint">
         ¿Dudas o problemas con tu cuenta?{" "}
-        <Link href="/waitlist" className="text-forest-700 hover:underline">
+        <Link href="/students/support" className="text-forest-700 hover:underline">
           Escribinos
         </Link>
         .

@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/Button";
 
 /**
- * Placeholder para rutas cuya funcionalidad llega en próximos ciclos
- * (auth, dashboards). Mantiene la arquitectura de rutas oficial
- * (docs/11 §7) sin construir los módulos todavía.
+ * Hoy solo la usa `not-found.tsx` — el resto de las rutas que en su
+ * momento fueron placeholder (docs/11 §7) ya se construyeron en ciclos
+ * posteriores. Por eso no lleva pill de "Próximamente": para un 404 no
+ * aplica.
  */
 export function ComingSoon({
   title,
@@ -15,15 +16,12 @@ export function ComingSoon({
   return (
     <div className="flex min-h-[60vh] items-center justify-center px-4">
       <div className="max-w-md text-center">
-        <p className="mb-4 inline-flex rounded-full bg-orange-tint px-3 py-1 text-sm font-bold text-orange-700">
-          Próximamente
-        </p>
         <h1 className="text-3xl font-bold text-ink">{title}</h1>
         <p className="mt-3 text-ink-soft">{description}</p>
         <div className="mt-6 flex justify-center gap-3">
           <Button href="/">Volver al inicio</Button>
-          <Button href="/waitlist" variant="outline">
-            Lista de espera
+          <Button href="/search" variant="outline">
+            Buscar residencias
           </Button>
         </div>
       </div>

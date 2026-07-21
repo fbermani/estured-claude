@@ -33,8 +33,8 @@ export function Footer() {
               </Link>
             </li>
             <li>
-              <Link href="/waitlist" className="hover:text-white">
-                Lista de espera
+              <Link href="/register" className="hover:text-white">
+                Crear cuenta
               </Link>
             </li>
           </ul>

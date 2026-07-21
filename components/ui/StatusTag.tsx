@@ -1,4 +1,5 @@
 import type { AvailabilityMode } from "@/types/domain";
+import { InfoTip } from "@/components/ui/InfoTip";
 
 /**
  * Etiquetas de disponibilidad oficiales (docs/08 §4.5).
@@ -29,10 +30,13 @@ const availabilityCopy: Record<
 export function StatusTag({
   mode,
   elevated = false,
+  withTip = false,
 }: {
   mode: AvailabilityMode;
   /** Sobre imágenes: fondo sólido con sombra para legibilidad. */
   elevated?: boolean;
+  /** Agrega un (i) que explica qué significa el estado — para el primer contacto del usuario con el badge (ej. cards de catálogo). */
+  withTip?: boolean;
 }) {
   const { label, className } = availabilityCopy[mode];
   return (
@@ -42,6 +46,9 @@ export function StatusTag({
       }`}
     >
       {label}
+      {withTip && (
+        <InfoTip label={`Qué significa "${label}"`}>{availabilityHelpText(mode)}</InfoTip>
+      )}
     </span>
   );
 }

@@ -104,19 +104,22 @@ const audiences = [
 
 const upcoming = [
   {
-    title: "Señales de convivencia",
+    title: "Comunidad EstuRed",
+    stage: "Ya arrancó",
     description:
-      "Una primera lectura del estilo de cada casa: ritmos, hábitos y ambiente, para elegir donde realmente encajás.",
+      "Hoy ya podés ver quién vive en cada residencia antes de aplicar: nombre, carrera, intereses. Estamos sumando mensajería directa y grupos previos a la llegada, para que te conectes con tus futuros compañeros antes del primer día.",
+  },
+  {
+    title: "Señales de convivencia",
+    stage: "En diseño",
+    description:
+      "Una primera lectura del estilo de cada casa —ritmos, hábitos y ambiente— construida a partir de lo que ya compartís vos y tus futuros compañeros de cuarto, para elegir donde realmente encajás.",
   },
   {
     title: "Reseñas verificadas",
+    stage: "Depende de las primeras estadías",
     description:
-      "Opiniones de estudiantes que realmente vivieron ahí, con reserva confirmada a través de EstuRed.",
-  },
-  {
-    title: "Comunidad EstuRed",
-    description:
-      "Conectá con otros estudiantes de tu residencia y tu zona antes de llegar a Buenos Aires.",
+      "Las habilitamos apenas las primeras reservas confirmadas completen su primera estadía real: opiniones de gente que efectivamente vivió ahí, no de cualquiera.",
   },
 ];
 
@@ -348,19 +351,19 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Lo que se viene */}
+      {/* Roadmap */}
       <section className="bg-forest-ink text-white">
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
           <div className="mx-auto mb-10 max-w-2xl text-center">
             <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-orange">
-              Lo que se viene
+              Roadmap
             </p>
             <h2 className="text-3xl font-bold sm:text-4xl">
-              Estamos construyendo la red de convivencia estudiantil
+              Así seguimos construyendo EstuRed
             </h2>
             <p className="mt-3 text-forest-tint">
-              El MVP es el comienzo. Esto es lo que estamos desarrollando para
-              las próximas etapas.
+              No es una lista de promesas: cada etapa se construye sobre datos
+              reales que ya estamos generando en la plataforma.
             </p>
           </div>
           <div className="grid gap-6 md:grid-cols-3">
@@ -370,7 +373,7 @@ export default async function HomePage() {
                 className="rounded-card border border-forest-600 bg-forest-600/40 p-6"
               >
                 <p className="inline-flex rounded-full bg-forest-ink/60 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-gold">
-                  Próximamente
+                  {u.stage}
                 </p>
                 <h3 className="mt-3 font-bold">{u.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-forest-tint">
@@ -412,13 +415,15 @@ export default async function HomePage() {
             La convivencia también se elige.
           </p>
           <p className="mx-auto mt-4 max-w-xl text-ink-soft">
-            Estamos verificando las primeras residencias de Buenos Aires.
-            Sumate a la lista de espera y sé de los primeros en elegir con
-            confianza dónde empieza tu nueva etapa.
+            Ya podés buscar, comparar y enviar tu solicitud a las primeras
+            residencias verificadas de Buenos Aires.
           </p>
-          <div className="mt-7">
-            <Button href="/waitlist" size="lg">
-              Sumarme a la lista de espera
+          <div className="mt-7 flex flex-wrap justify-center gap-3">
+            <Button href="/search" size="lg">
+              Buscar residencia
+            </Button>
+            <Button href="/register" size="lg" variant="outline">
+              Crear cuenta
             </Button>
           </div>
         </div>

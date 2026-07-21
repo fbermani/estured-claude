@@ -833,7 +833,7 @@ export function ResidenceProfileForm({
             <p className="mt-1 text-sm text-ink-soft">
               Contactá a nuestro equipo de soporte para configurar tu perfil.
             </p>
-            <Button href="/waitlist" variant="outline" size="sm" className="mt-3">
+            <Button href={`/residence/${residenceId}/support`} variant="outline" size="sm" className="mt-3">
               Contactar soporte
             </Button>
           </Card>

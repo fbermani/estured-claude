@@ -33,6 +33,13 @@ interface ResidenceConditionsProp {
 
 const initialState: CreateApplicationState = { status: "idle" };
 
+const ACADEMIC_OBJECTIVE_OPTIONS = [
+  "Empezar mi carrera",
+  "Continuar mis estudios",
+  "Intercambio académico",
+  "Posgrado o especialización",
+];
+
 const MONTH_NAMES = [
   "enero", "febrero", "marzo", "abril", "mayo", "junio",
   "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre",
@@ -94,6 +101,7 @@ export function ApplyForm({
   const [roomTypeId, setRoomTypeId] = useState(validPreselected);
   const [duration, setDuration] = useState(6);
   const [startDate, setStartDate] = useState("");
+  const [objectiveChoice, setObjectiveChoice] = useState("");
 
   if (roomTypes.length === 0) {
     return <p className="text-sm text-ink-soft">Esta residencia todavía no cargó tipos de habitación.</p>;
@@ -286,15 +294,35 @@ export function ApplyForm({
         </div>
       )}
 
-      <Textarea
-        label="¿Cuál es tu objetivo académico?"
-        id="apply-objective"
-        name="academic_objective"
-        rows={3}
-        placeholder="Ej: Iniciar mi carrera universitaria en CABA durante el ciclo lectivo actual."
-        hint="Obligatorio — se usa para tu comprobante de reserva."
-        required
-      />
+      <div>
+        <span className="mb-1.5 block text-sm font-semibold text-ink">¿Cuál es tu objetivo académico?</span>
+        <input type="hidden" name="academic_objective_choice" value={objectiveChoice} />
+        <div className="flex flex-wrap gap-2">
+          {ACADEMIC_OBJECTIVE_OPTIONS.map((option) => (
+            <button
+              key={option}
+              type="button"
+              onClick={() => setObjectiveChoice(option)}
+              aria-pressed={objectiveChoice === option}
+              className={`rounded-full border px-3.5 py-1.5 text-sm font-semibold transition-colors ${
+                objectiveChoice === option
+                  ? "border-forest bg-forest-tint text-forest-700"
+                  : "border-line-2 bg-paper text-ink-soft hover:border-forest"
+              }`}
+            >
+              {option}
+            </button>
+          ))}
+        </div>
+        <Textarea
+          id="apply-objective-detail"
+          name="academic_objective_detail"
+          rows={2}
+          placeholder="Agregá más detalle si querés (opcional)."
+          hint="Se usa para tu comprobante de reserva."
+          className="mt-2.5"
+        />
+      </div>
 
       <label className="flex cursor-pointer items-start gap-2.5 text-xs text-ink-soft">
         <input type="checkbox" required className="mt-0.5 h-4 w-4 shrink-0 rounded accent-[var(--color-forest)]" />
@@ -310,6 +338,9 @@ export function ApplyForm({
       <Button type="submit" size="lg" disabled={isPending}>
         {isPending ? "Enviando…" : "Enviar solicitud de reserva"}
       </Button>
+      <p className="text-center text-xs text-ink-faint">
+        La residencia tiene 48 horas para responder. Si no lo hace, la solicitud vence automáticamente.
+      </p>
     </form>
   );
 }

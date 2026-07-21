@@ -128,8 +128,8 @@ export default function ForStudentsPage() {
             <Button href="/search" size="lg">
               Buscar residencia
             </Button>
-            <Button href="/waitlist" variant="outline" size="lg">
-              Sumarme a la lista de espera
+            <Button href="/register/student" variant="outline" size="lg">
+              Crear cuenta
             </Button>
           </div>
         </div>
