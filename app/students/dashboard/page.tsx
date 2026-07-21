@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getSupabaseServer } from "@/lib/supabase/server";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { FamilyLinkActions } from "@/app/students/FamilyLinkActions";
+import { getStudentProfileCompleteness } from "@/lib/students/profileCompleteness";
 
 export const metadata: Metadata = { title: "Tu espacio" };
 export const dynamic = "force-dynamic";
@@ -190,6 +192,8 @@ export default async function StudentDashboardPage() {
   let latestApplication: ActiveApplicationRow | null = null;
   let waitlistCount = 0;
   let renewalStatus: { label: string; tone: "amber" | "sage" | "neutral" | "danger" } | null = null;
+  let completenessPercent = 100;
+  let completenessMissing: string[] = [];
 
   if (supabase && sessionUser) {
     const { data: profile } = await supabase
@@ -199,6 +203,15 @@ export default async function StudentDashboardPage() {
       .maybeSingle();
     firstName = profile?.first_name ?? null;
     isMinor = profile?.is_minor ?? false;
+
+    const admin = getSupabaseAdmin();
+    if (admin) {
+      const completeness = await getStudentProfileCompleteness(admin, sessionUser.id);
+      if (completeness) {
+        completenessPercent = completeness.percent;
+        completenessMissing = completeness.missing.map((m) => m.label);
+      }
+    }
 
     const { data } = await supabase
       .from("family_links")
@@ -266,6 +279,20 @@ export default async function StudentDashboardPage() {
 
   const headerBanners = (
     <>
+      {completenessPercent < 100 && (
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-card border border-line-2 bg-cream-2 p-5">
+          <div>
+            <p className="font-semibold text-ink">Tu perfil está {completenessPercent}% completo</p>
+            <p className="mt-1 text-sm text-ink-soft">
+              Completá {completenessMissing.join(", ")} para aumentar tus probabilidades de ser aceptado.
+            </p>
+          </div>
+          <Button href="/students/profile" size="sm" variant="outline">
+            Completar perfil
+          </Button>
+        </div>
+      )}
+
       {pendingProposalsCount > 0 && (
         <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-card border border-line-2 bg-forest-tint p-5">
           <div>

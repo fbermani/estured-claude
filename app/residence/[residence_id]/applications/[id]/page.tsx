@@ -125,7 +125,7 @@ export default async function ResidenceApplicationDetailPage({
               {student?.first_name} {student?.last_initial}
             </h1>
             <p className="text-sm text-ink-soft">
-              {student?.nationality} · {student?.origin_city} · {roomType?.name}
+              {[student?.nationality, student?.origin_city, roomType?.name].filter(Boolean).join(" · ")}
             </p>
           </div>
           <Badge tone="petrol">{statusLabel}</Badge>

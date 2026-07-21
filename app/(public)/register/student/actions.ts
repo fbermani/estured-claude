@@ -38,10 +38,7 @@ export async function registerStudent(
 ): Promise<RegisterState> {
   const firstName = String(formData.get("first_name") ?? "").trim();
   const lastName = String(formData.get("last_name") ?? "").trim();
-  const nationality = String(formData.get("nationality") ?? "").trim();
   const birthDateRaw = String(formData.get("birth_date") ?? "").trim();
-  const institution = String(formData.get("study_institution") ?? "").trim();
-  const originCity = String(formData.get("origin_city") ?? "").trim();
   const email = String(formData.get("email") ?? "")
     .trim()
     .toLowerCase();
@@ -49,17 +46,15 @@ export async function registerStudent(
   const password = String(formData.get("password") ?? "");
   const acceptTerms = formData.get("accept_terms") === "on";
   const acceptPrivacy = formData.get("accept_privacy") === "on";
-  const profileVisible = formData.get("profile_visible") === "on";
 
   // Validación server-side (docs/11 §5.2) — el cliente nunca es confiable.
+  // Paso 1 del alta (Ciclo 35): solo identidad + contacto. Nacionalidad,
+  // universidad, ciudad de origen y visibilidad de comunidad se completan
+  // después en /students/profile, sin bloquear la cuenta.
   if (!firstName || firstName.length > 80)
     return { status: "error", message: "Contanos tu nombre." };
   if (!lastName || lastName.length > 80)
     return { status: "error", message: "Contanos tu apellido (nunca se muestra público)." };
-  if (!nationality || nationality.length > 60)
-    return { status: "error", message: "Indicá tu nacionalidad." };
-  if (!institution || institution.length > 160)
-    return { status: "error", message: "Contanos dónde vas a estudiar (es privado)." };
   if (!EMAIL_RE.test(email) || email.length > 254)
     return { status: "error", message: "Revisá el email: no parece válido." };
   if (!/^[+0-9()\-\s]{6,25}$/.test(phone))
@@ -142,20 +137,22 @@ export async function registerStudent(
         last_initial: lastName.charAt(0).toUpperCase() + ".",
         birth_date: birthDateRaw,
         display_age: age,
-        nationality,
-        origin_city: originCity || null,
-        study_institution_private: institution,
+        nationality: null,
+        origin_city: null,
+        study_institution_private: null,
         is_minor: isMinor,
       })
       .select("id")
       .single();
     if (profileError || !profile) throw profileError;
 
+    // Visibilidad de comunidad: default privado hasta que el estudiante
+    // la active explícitamente al completar su perfil (paso 2).
     const { error: visibilityError } = await admin
       .from("student_visibility_settings")
       .insert({
         student_profile_id: profile.id,
-        is_individual_profile_visible: profileVisible,
+        is_individual_profile_visible: false,
       });
     if (visibilityError) throw visibilityError;
 
@@ -165,16 +162,9 @@ export async function registerStudent(
       ip_address: ip,
       user_agent: userAgent,
     };
-    // metadata explícita en todas las filas: en inserts múltiples,
-    // PostgREST rellena con null las columnas ausentes (ignora el default).
     const { error: consentError } = await admin.from("consents").insert([
       { ...consentBase, consent_type: "terms", metadata: {} },
       { ...consentBase, consent_type: "privacy", metadata: {} },
-      {
-        ...consentBase,
-        consent_type: "student_visibility",
-        metadata: { is_individual_profile_visible: profileVisible },
-      },
     ]);
     if (consentError) throw consentError;
 
@@ -184,7 +174,7 @@ export async function registerStudent(
       action: "student_registered",
       entityType: "users",
       entityId: userId,
-      newValue: { is_minor: isMinor, profile_visible: profileVisible },
+      newValue: { is_minor: isMinor },
       ipAddress: ip,
       userAgent,
     });

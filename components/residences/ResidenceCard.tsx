@@ -12,8 +12,11 @@ import { formatArs, formatUsd, usdToArs } from "@/lib/mock/exchange";
  * Card de residencia del catálogo — layout a semejanza de la referencia
  * `estured_search_results_buenos_aires` (foto, nombre + ubicación con
  * pin, contador de residentes, servicios, CTA "Ver residencia" a ancho
- * completo y footer "Ver residentes | Disponibilidad"). Sin favoritos
- * (no existe la feature) ni badges de clima/señales (feature futura).
+ * completo y footer "Ver residentes | Disponibilidad"). Sin toggle de
+ * favoritos acá (la feature vive en la ficha + `/students/favorites`,
+ * Ciclo 35 — agregarlo a esta card requeriría conocer sesión/estado de
+ * favorito en cada render del catálogo, incluido para visitantes
+ * anónimos en `/search`) ni badges de clima/señales (feature futura).
  */
 export function ResidenceCard({
   residence,

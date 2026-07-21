@@ -28,5 +28,6 @@ export async function reopenFeeWindowAction(
   if (result.status === "error") return { status: "error", message: result.message };
 
   revalidatePath("/admin/reservations");
+  revalidatePath("/admin/activity");
   return { status: "saved", message: "Pago del fee reabierto (48hs más). Se notificó al estudiante." };
 }

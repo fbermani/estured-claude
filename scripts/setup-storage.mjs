@@ -16,6 +16,10 @@
  *     (estudiante) y recibo de la residencia. Mismo patrón privado.
  *   - support-evidence (Ciclo 34quindecies): evidencia de casos de
  *     soporte (fotos, capturas, video, audio) — docs/06 §26.
+ *   - student-documents (Ciclo 35): DNI/pasaporte y comprobante de
+ *     estudio del estudiante, subidos desde /students/profile. Privado
+ *     — mismo patrón que `files` en general (sin policies de Storage,
+ *     todo acceso pasa por server actions con service role).
  */
 import { createClient } from "@supabase/supabase-js";
 
@@ -62,6 +66,12 @@ const BUCKETS = [
       "audio/mp4",
       "audio/ogg",
     ],
+  },
+  {
+    id: "student-documents",
+    public: false,
+    fileSizeLimit: 10 * 1024 * 1024,
+    allowedMimeTypes: ["application/pdf", "image/jpeg", "image/png", "image/webp"],
   },
 ];
 

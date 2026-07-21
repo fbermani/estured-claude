@@ -28,5 +28,6 @@ export async function reissueReceiptAction(
   if (!result.ok) return { status: "error", message: result.error };
 
   revalidatePath("/admin/receipts");
+  revalidatePath("/admin/activity");
   return { status: "saved", message: `Comprobante reemitido: N.º ${result.newReceiptNumber}.` };
 }

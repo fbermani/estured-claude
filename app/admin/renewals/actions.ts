@@ -29,6 +29,7 @@ export async function reopenRenewalRequestAction(
   if (result.status === "error") return { status: "error", message: result.message };
 
   revalidatePath("/admin/renewals");
+  revalidatePath("/admin/activity");
   return { status: "saved", message: "Solicitud reabierta. Se notificó al estudiante." };
 }
 
@@ -53,5 +54,6 @@ export async function reopenRenewalOfferAction(
   if (result.status === "error") return { status: "error", message: result.message };
 
   revalidatePath("/admin/renewals");
+  revalidatePath("/admin/activity");
   return { status: "saved", message: "Oferta reabierta (7 días más). Se notificó al estudiante." };
 }

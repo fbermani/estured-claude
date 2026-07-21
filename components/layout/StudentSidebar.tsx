@@ -9,6 +9,8 @@ import { useSidebarCollapse } from "@/components/layout/useSidebarCollapse";
 
 const NAV = [
   { href: "/students/dashboard", label: "Inicio", icon: "home" },
+  { href: "/students/profile", label: "Mi perfil", icon: "person" },
+  { href: "/students/favorites", label: "Favoritos", icon: "favorite" },
   { href: "/students/applications", label: "Mis solicitudes", icon: "description" },
   { href: "/students/waitlist", label: "Lista de espera", icon: "hourglass_top" },
   { href: "/students/residency", label: "Mi estadía", icon: "apartment" },
@@ -21,8 +23,8 @@ const NAV = [
  * design-references (`estured_dashboard_inicio_user_hub_1/_2`: menú
  * lateral fijo con Inicio/Solicitudes/Mi residencia/Mi perfil). Mismo
  * patrón que `AdminSidebar`, con los tokens FRESH del sitio público.
- * Sin "Mensajes"/"Favoritos" de la referencia — no existen en el modelo
- * de datos real (chat propio prohibido, favoritos no construido).
+ * Sin "Mensajes" de la referencia — chat propio prohibido (docs/03
+ * §12.3). Favoritos sí existe desde Ciclo 35 (docs/02 §8.1).
  *
  * Colapsable en desktop (preferencia persistida en localStorage) y
  * drawer superpuesto en mobile — mismo mecanismo que `AdminSidebar` y

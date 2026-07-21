@@ -20,6 +20,10 @@ export function RegisterStudentForm() {
   return (
     <Card className="p-8">
       <form action={formAction} className="flex flex-col gap-5">
+        <p className="text-sm text-ink-soft">
+          Paso 1 de 2 — lo justo para crear tu cuenta. El resto de tu perfil (universidad, nacionalidad,
+          documentos) lo completás después, sin apuro.
+        </p>
         <div className="grid gap-5 sm:grid-cols-2">
           <Input
             label="Nombre"
@@ -39,39 +43,13 @@ export function RegisterStudentForm() {
             required
           />
         </div>
-        <div className="grid gap-5 sm:grid-cols-2">
-          <Input
-            label="Fecha de nacimiento"
-            id="reg-birth-date"
-            name="birth_date"
-            type="date"
-            hint="Privada. Si sos menor, vas a necesitar vincular un familiar."
-            required
-          />
-          <Input
-            label="Nacionalidad"
-            id="reg-nationality"
-            name="nationality"
-            placeholder="Ej: Argentina"
-            maxLength={60}
-            required
-          />
-        </div>
         <Input
-          label="¿Dónde vas a estudiar?"
-          id="reg-institution"
-          name="study_institution"
-          placeholder="Ej: UBA Medicina, Universidad de Palermo…"
-          hint="Privado — nos ayuda a mostrarte residencias bien ubicadas."
-          maxLength={160}
+          label="Fecha de nacimiento"
+          id="reg-birth-date"
+          name="birth_date"
+          type="date"
+          hint="Privada. Si sos menor, vas a necesitar vincular un familiar."
           required
-        />
-        <Input
-          label="Ciudad de origen (opcional)"
-          id="reg-origin-city"
-          name="origin_city"
-          placeholder="Ej: Córdoba, Mendoza, Lima…"
-          maxLength={120}
         />
         <div className="grid gap-5 sm:grid-cols-2">
           <Input
@@ -84,7 +62,7 @@ export function RegisterStudentForm() {
             required
           />
           <Input
-            label="Teléfono"
+            label="Teléfono / WhatsApp"
             id="reg-phone"
             name="phone"
             type="tel"
@@ -130,20 +108,6 @@ export function RegisterStudentForm() {
               Acepto la política de privacidad. Mis datos sensibles (apellido,
               fecha de nacimiento, universidad, contacto) nunca se muestran
               públicamente.
-            </span>
-          </label>
-          <label className="flex items-start gap-3 text-sm text-ink">
-            <input
-              type="checkbox"
-              name="profile_visible"
-              className="mt-0.5 h-4 w-4 accent-forest"
-            />
-            <span>
-              Quiero que mi perfil de comunidad (nombre e inicial) pueda verse
-              en las residencias donde viva.{" "}
-              <span className="text-ink-faint">
-                Opcional — podés cambiarlo cuando quieras.
-              </span>
             </span>
           </label>
         </div>

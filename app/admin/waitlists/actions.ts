@@ -28,5 +28,6 @@ export async function removeWaitlistEntryAction(
   if (result.status === "error") return { status: "error", message: result.message };
 
   revalidatePath("/admin/waitlists");
+  revalidatePath("/admin/activity");
   return { status: "saved", message: "Sacado de la lista. Se notificó al estudiante." };
 }

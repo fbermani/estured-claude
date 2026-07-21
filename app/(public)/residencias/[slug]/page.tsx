@@ -13,9 +13,12 @@ import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import { Icon } from "@/components/ui/Icon";
 import { getCommunityVisibility } from "@/lib/residents/communityVisibility";
+import { getStudentProfileCompleteness } from "@/lib/students/profileCompleteness";
 import { CommunityBrowser } from "@/components/residences/CommunityBrowser";
 import { ApplyForm } from "@/app/(public)/residencias/[slug]/ApplyForm";
 import { ProposeForm } from "@/app/(public)/residencias/[slug]/ProposeForm";
+import { FavoriteButton } from "@/app/(public)/residencias/[slug]/FavoriteButton";
+import { toggleStudentFavorite, toggleFamilyFavorite } from "@/app/students/favorites/actions";
 
 export const dynamic = "force-dynamic";
 
@@ -115,7 +118,31 @@ export default async function RealResidenceDetailPage({
       residence.empty_month_charge_percent != null ? Number(residence.empty_month_charge_percent) : null,
   };
 
+  let profileCompletenessPercent: number | null = null;
+  let studentProfileId: string | null = null;
+  let studentFavorited = false;
+  if (sessionUser?.roles.includes("student") && adminClient) {
+    const completeness = await getStudentProfileCompleteness(adminClient, sessionUser.id);
+    profileCompletenessPercent = completeness?.percent ?? null;
+    const { data: profileRow } = await adminClient
+      .from("student_profiles")
+      .select("id")
+      .eq("user_id", sessionUser.id)
+      .maybeSingle();
+    studentProfileId = profileRow?.id ?? null;
+    if (studentProfileId) {
+      const { data: fav } = await adminClient
+        .from("student_favorites")
+        .select("id")
+        .eq("student_profile_id", studentProfileId)
+        .eq("residence_id", residence.id)
+        .maybeSingle();
+      studentFavorited = !!fav;
+    }
+  }
+
   let linkedStudents: { id: string; first_name: string; last_initial: string }[] = [];
+  let linkedStudentsFavorited = new Set<string>();
   if (sessionUser?.roles.includes("family_member")) {
     const admin = getSupabaseAdmin();
     if (admin) {
@@ -133,6 +160,14 @@ export default async function RealResidenceDetailPage({
         linkedStudents = ((links ?? []) as unknown as { student_profiles: { id: string; first_name: string; last_initial: string } | null }[])
           .map((l) => l.student_profiles)
           .filter((s): s is { id: string; first_name: string; last_initial: string } => s !== null);
+        if (linkedStudents.length > 0) {
+          const { data: favs } = await admin
+            .from("student_favorites")
+            .select("student_profile_id")
+            .eq("residence_id", residence.id)
+            .in("student_profile_id", linkedStudents.map((s) => s.id));
+          linkedStudentsFavorited = new Set((favs ?? []).map((f) => f.student_profile_id));
+        }
       }
     }
   }
@@ -449,19 +484,43 @@ export default async function RealResidenceDetailPage({
                 </Button>
               </>
             ) : sessionUser.roles.includes("family_member") ? (
-              <ProposeForm residenceId={residence.id} roomTypes={roomTypes} students={linkedStudents} />
+              <>
+                {linkedStudents.length > 0 && (
+                  <div className="mb-4 flex flex-wrap gap-2">
+                    {linkedStudents.map((s) => (
+                      <FavoriteButton
+                        key={s.id}
+                        action={toggleFamilyFavorite.bind(null, residence.id, s.id)}
+                        initialFavorited={linkedStudentsFavorited.has(s.id)}
+                        label={
+                          linkedStudentsFavorited.has(s.id)
+                            ? `Sugerida a ${s.first_name}`
+                            : `Sugerir a ${s.first_name}`
+                        }
+                      />
+                    ))}
+                  </div>
+                )}
+                <ProposeForm residenceId={residence.id} roomTypes={roomTypes} students={linkedStudents} />
+              </>
             ) : !sessionUser.roles.includes("student") ? (
               <p className="text-sm text-ink-soft">
                 Solo cuentas de estudiante o familiares vinculados pueden actuar acá.
               </p>
             ) : (
-              <ApplyForm
-                residenceId={residence.id}
-                roomTypes={roomTypes}
-                conditions={conditions}
-                arsPerUsd={rate.arsPerUsd}
-                preselectedRoomTypeId={preselectedRoomTypeId}
-              />
+              <>
+                <div className="mb-4">
+                  <FavoriteButton action={toggleStudentFavorite.bind(null, residence.id)} initialFavorited={studentFavorited} />
+                </div>
+                <ApplyForm
+                  residenceId={residence.id}
+                  roomTypes={roomTypes}
+                  conditions={conditions}
+                  arsPerUsd={rate.arsPerUsd}
+                  preselectedRoomTypeId={preselectedRoomTypeId}
+                  profileCompletenessPercent={profileCompletenessPercent}
+                />
+              </>
             )}
             <p className="mt-4 text-xs text-ink-faint">
               Enviar una solicitud no garantiza tu lugar: la residencia la revisa y responde. Toda

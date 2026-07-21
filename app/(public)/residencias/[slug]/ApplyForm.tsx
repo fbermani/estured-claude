@@ -84,12 +84,15 @@ export function ApplyForm({
   conditions,
   arsPerUsd,
   preselectedRoomTypeId,
+  profileCompletenessPercent,
 }: {
   residenceId: string;
   roomTypes: RoomTypeOption[];
   conditions: ResidenceConditionsProp;
   arsPerUsd: number;
   preselectedRoomTypeId?: string;
+  /** Ciclo 35: nudge no bloqueante hacia /students/profile. `null` si ya está 100% completo. */
+  profileCompletenessPercent?: number | null;
 }) {
   const action = createApplicationRequest.bind(null, residenceId);
   const [state, formAction, isPending] = useActionState(action, initialState);
@@ -323,6 +326,19 @@ export function ApplyForm({
           className="mt-2.5"
         />
       </div>
+
+      {profileCompletenessPercent != null && profileCompletenessPercent < 100 && (
+        <a
+          href="/students/profile"
+          className="flex items-center justify-between gap-3 rounded-field border border-line-2 bg-cream-2 px-3.5 py-2.5 text-xs text-ink-soft hover:border-forest"
+        >
+          <span>
+            Tu perfil está {profileCompletenessPercent}% completo — completarlo aumenta tus probabilidades de
+            ser aceptado.
+          </span>
+          <Icon name="chevron_right" className="shrink-0 text-base" />
+        </a>
+      )}
 
       <label className="flex cursor-pointer items-start gap-2.5 text-xs text-ink-soft">
         <input type="checkbox" required className="mt-0.5 h-4 w-4 shrink-0 rounded accent-[var(--color-forest)]" />

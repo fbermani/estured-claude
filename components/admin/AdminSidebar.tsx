@@ -42,17 +42,10 @@ function UsersIcon() {
     </svg>
   );
 }
-function LogsIcon() {
+function ActivityIcon() {
   return (
     <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
-      <path strokeLinecap="round" d="M4 5h12M4 10h12M4 15h8" />
-    </svg>
-  );
-}
-function RevocationsIcon() {
-  return (
-    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M4 4l12 12M16 4L4 16" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3 11h3.5l2-6 3 12 2-9 1.5 3H17" />
     </svg>
   );
 }
@@ -75,39 +68,6 @@ function FamilyProposalsIcon() {
   return (
     <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
       <path strokeLinecap="round" strokeLinejoin="round" d="M3 6l7 5 7-5M4 4h12a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1z" />
-    </svg>
-  );
-}
-function ReceiptsIcon() {
-  return (
-    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M5 3h10v14l-2.5-1.5L10 17l-2.5-1.5L5 17V3z" />
-      <path strokeLinecap="round" d="M7.5 7h5M7.5 10h5" />
-    </svg>
-  );
-}
-function NegotiationsIcon() {
-  return (
-    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M4 4h7l3 3v9H4V4z" />
-      <path strokeLinecap="round" d="M6.5 8.5h4M6.5 11.5h6M6.5 14h3" />
-    </svg>
-  );
-}
-function ReservationsIcon() {
-  return (
-    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
-      <rect x="3" y="4" width="14" height="13" rx="1.5" />
-      <path strokeLinecap="round" d="M3 8h14M6.5 2.5v3M13.5 2.5v3" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M7 12l2 2 4-4" />
-    </svg>
-  );
-}
-function RenewalsIcon() {
-  return (
-    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a6 6 0 0110-3.5M16 14a6 6 0 01-10 3.5" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M14 2.5V6h-3.5M6 17.5V14h3.5" />
     </svg>
   );
 }
@@ -169,17 +129,6 @@ function SupportCasesIcon() {
     </svg>
   );
 }
-function WaitlistsIcon() {
-  return (
-    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
-      <circle cx="6" cy="6" r="2" />
-      <circle cx="14" cy="10" r="2" />
-      <circle cx="6" cy="14" r="2" />
-      <path strokeLinecap="round" d="M8 6h6M8 14h6M8 10h4" />
-    </svg>
-  );
-}
-
 const NAV = [
   { href: "/admin/dashboard", label: "Dashboard", Icon: DashboardIcon },
   { href: "/admin/residences", label: "Residencias", Icon: BuildingIcon },
@@ -190,18 +139,12 @@ const NAV = [
   { href: "/admin/community", label: "Comunidad", Icon: CommunityIcon },
   { href: "/admin/visibility", label: "Visibilidad y penalizaciones", Icon: VisibilityIcon },
   { href: "/admin/applications", label: "Solicitudes", Icon: ClockIcon },
-  { href: "/admin/negotiations", label: "Negociaciones", Icon: NegotiationsIcon },
   { href: "/admin/family-proposals", label: "Propuestas familiar", Icon: FamilyProposalsIcon },
   { href: "/admin/payments", label: "Pagos", Icon: PaymentsIcon },
-  { href: "/admin/reservations", label: "Reservas", Icon: ReservationsIcon },
-  { href: "/admin/renewals", label: "Renovaciones", Icon: RenewalsIcon },
-  { href: "/admin/revocations", label: "Revocaciones", Icon: RevocationsIcon },
-  { href: "/admin/receipts", label: "Comprobantes", Icon: ReceiptsIcon },
-  { href: "/admin/waitlists", label: "Listas de espera", Icon: WaitlistsIcon },
+  { href: "/admin/activity", label: "Actividad", Icon: ActivityIcon },
   { href: "/admin/support-cases", label: "Soporte", Icon: SupportCasesIcon },
   { href: "/admin/exchange-rate", label: "Tipo de cambio", Icon: ExchangeIcon },
   { href: "/admin/users", label: "Usuarios", Icon: UsersIcon },
-  { href: "/admin/logs", label: "Logs", Icon: LogsIcon },
 ] as const;
 
 export function AdminSidebar({ userEmail, roleLabel }: { userEmail: string; roleLabel: string }) {
