@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Reveal } from "@/components/ui/Reveal";
 import { Icon } from "@/components/ui/Icon";
+import { RotatingBenefits, type RotatingBenefit } from "@/components/ui/RotatingBenefits";
 import { getCatalogResidences } from "@/lib/residences/catalog";
 
 export const metadata: Metadata = {
@@ -12,42 +13,72 @@ export const metadata: Metadata = {
     "Mudarse a CABA con más confianza: residencias verificadas, solicitudes registradas y comprobante de reserva respaldado.",
 };
 
-const benefits = [
+const benefits: RotatingBenefit[] = [
   {
-    title: "Residencias verificadas",
-    description:
-      "Cada residencia del catálogo fue visitada presencialmente por el equipo de EstuRed. Lo que ves publicado es real.",
     icon: "verified",
+    title: "Residencias verificadas",
+    summary:
+      "Cada residencia del catálogo fue visitada presencialmente por el equipo de EstuRed. Lo que ves publicado es real.",
+    problem:
+      "Elegir dónde vivir a distancia, sin conocer el lugar, es de las decisiones más riesgosas de mudarte a otra ciudad.",
+    solution:
+      "Cada residencia del catálogo fue visitada presencialmente por el equipo de EstuRed. Lo que ves publicado es real, no una foto de stock ni una descripción exagerada.",
+    conclusion: "Elegís con información real, no con fe.",
   },
   {
-    title: "Solicitudes registradas",
-    description:
-      "Tu solicitud, las respuestas y cualquier ajuste de condiciones quedan registrados en la plataforma. Nada se pierde en un chat.",
     icon: "description",
+    title: "Solicitudes registradas",
+    summary:
+      "Tu solicitud, las respuestas y cualquier ajuste de condiciones quedan registrados en la plataforma. Nada se pierde en un chat.",
+    problem:
+      "Negociar condiciones por WhatsApp significa que todo depende de la memoria y la buena fe de la otra parte.",
+    solution:
+      "Tu solicitud, las respuestas y cualquier ajuste de condiciones quedan registrados en la plataforma. Nada se pierde en un chat.",
+    conclusion: "Un historial claro de todo lo que se acordó.",
   },
   {
-    title: "Tu familia puede acompañarte",
-    description:
-      "Un familiar vinculado puede proponerte opciones y seguir el proceso. Vos siempre tenés la última palabra sobre tu solicitud.",
     icon: "diversity_1",
+    title: "Tu familia puede acompañarte",
+    summary:
+      "Un familiar vinculado puede proponerte opciones y seguir el proceso. Vos siempre tenés la última palabra sobre tu solicitud.",
+    problem:
+      "Si tu familia está lejos, seguir cada paso de tu mudanza a la distancia es difícil — y vos tampoco querés decidir algo tan importante solo/a.",
+    solution:
+      "Un familiar vinculado puede proponerte opciones y seguir el proceso paso a paso. Vos siempre tenés la última palabra sobre tu solicitud.",
+    conclusion: "Acompañado/a, sin perder el control de tu decisión.",
   },
   {
-    title: "Comprobante de Reserva Confirmada",
-    description:
-      "Cuando tu reserva se confirma, recibís un comprobante verificable por cualquier persona. Respaldo real para vos y tu familia.",
     icon: "receipt_long",
+    title: "Comprobante de Reserva Confirmada",
+    summary:
+      "Cuando tu reserva se confirma, recibís un comprobante verificable por cualquier persona. Respaldo real para vos y tu familia.",
+    problem:
+      "Pagar una matrícula o depósito sin ningún papel que lo respalde deja a vos y a tu familia sin nada concreto si algo sale mal.",
+    solution:
+      "Cuando tu reserva se confirma, recibís un comprobante verificable por cualquier persona, con los datos de tu reserva.",
+    conclusion: "Respaldo real para vos y tu familia, no una promesa verbal.",
   },
   {
-    title: "Comunidad visible",
-    description:
-      "Conocé cómo es la convivencia antes de decidir: quiénes viven en la residencia, según lo que cada residente elige compartir.",
     icon: "groups",
+    title: "Comunidad visible",
+    summary:
+      "Conocé cómo es la convivencia antes de decidir: quiénes viven en la residencia, según lo que cada residente elige compartir.",
+    problem:
+      "Vas a convivir con gente que no elegiste, en un lugar que no conocés. No saber con quién vas a vivir genera mucha incertidumbre.",
+    solution:
+      "Conocé cómo es la convivencia antes de decidir: quiénes viven en la residencia, según lo que cada residente elige compartir.",
+    conclusion: "Elegís tu lugar sabiendo también con quién vas a compartirlo.",
   },
   {
-    title: "Precios claros",
-    description:
-      "Tarifas en USD con equivalente referencial en pesos al dólar blue del día, matrícula y depósito explícitos, políticas de ajuste publicadas.",
     icon: "sell",
+    title: "Precios claros",
+    summary:
+      "Tarifas en USD con equivalente referencial en pesos al dólar blue del día, matrícula y depósito explícitos, políticas de ajuste publicadas.",
+    problem:
+      "Los precios que cambian según a quién le preguntes, o que aparecen recién cuando ya avanzaste con una residencia, generan desconfianza.",
+    solution:
+      "Tarifas en USD con equivalente referencial en pesos al dólar blue del día, matrícula y depósito explícitos, políticas de ajuste publicadas.",
+    conclusion: "Sabés cuánto vas a pagar antes de comprometerte.",
   },
 ];
 
@@ -136,36 +167,13 @@ export default async function ForStudentsPage() {
         </div>
       </section>
 
-      {/* Beneficios — asimétrico: el primero (verificación presencial, la
-          base de la confianza) se planta grande; el resto acompaña en una
-          lista dividida, sin repetir 6 cards idénticas. */}
+      {/* Beneficios — interactivo, rota solo y se puede explorar con clicks */}
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
         <SectionHeader
           eyebrow="Beneficios"
           title="Lo que cambia cuando buscás con EstuRed"
         />
-        <div className="grid gap-6 lg:grid-cols-[1fr_1.2fr] lg:items-stretch">
-          <Reveal className="flex flex-col justify-center rounded-card border-2 border-forest-tint bg-forest-tint/40 p-8">
-            <Icon name={benefits[0].icon} className="text-4xl text-forest-700" />
-            <h3 className="mt-6 font-display text-2xl font-bold text-ink">{benefits[0].title}</h3>
-            <p className="mt-3 text-base leading-relaxed text-ink-soft">{benefits[0].description}</p>
-          </Reveal>
-          <div className="flex flex-col divide-y divide-line rounded-card border-[1.5px] border-line bg-paper p-2 shadow-card sm:p-3">
-            {benefits.slice(1).map((b, i) => (
-              <Reveal
-                key={b.title}
-                delay={((i % 5) + 1) as 1 | 2 | 3 | 4 | 5}
-                className="flex gap-3 rounded-field p-4 transition-colors hover:bg-cream-2"
-              >
-                <Icon name={b.icon} className="mt-0.5 shrink-0 text-xl text-forest-700" />
-                <div>
-                  <h3 className="font-bold text-ink">{b.title}</h3>
-                  <p className="mt-1 text-sm leading-relaxed text-ink-soft">{b.description}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
+        <RotatingBenefits items={benefits} />
       </section>
 
       <section className="bg-surface border-y border-sand-200">

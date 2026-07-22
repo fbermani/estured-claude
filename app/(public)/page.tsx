@@ -4,28 +4,44 @@ import { Card } from "@/components/ui/Card";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Icon } from "@/components/ui/Icon";
 import { Reveal } from "@/components/ui/Reveal";
+import { RotatingBenefits, type RotatingBenefit } from "@/components/ui/RotatingBenefits";
 import { ResidenceCard } from "@/components/residences/ResidenceCard";
 import { getCatalogResidences } from "@/lib/residences/catalog";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 
-const pillars = [
+const pillars: RotatingBenefit[] = [
   {
-    title: "Información verificada",
-    description:
-      "Cada residencia fue visitada presencialmente por el equipo de EstuRed. Fotos, servicios, reglas y precios chequeados antes de publicarse.",
     icon: "verified",
+    title: "Información verificada",
+    summary:
+      "Cada residencia fue visitada presencialmente por el equipo de EstuRed. Fotos, servicios, reglas y precios chequeados antes de publicarse.",
+    problem:
+      "Buscar residencia a distancia significa confiar en fotos y descripciones que nadie garantiza. No sabés si lo que ves es real hasta que ya pagaste una seña.",
+    solution:
+      "Cada residencia del catálogo fue visitada presencialmente por el equipo de EstuRed antes de publicarse: fotos, servicios, reglas y precios, todo chequeado.",
+    conclusion: "Lo que ves publicado es lo que vas a encontrar.",
   },
   {
-    title: "Solicitud registrada",
-    description:
-      "Tu solicitud, la respuesta de la residencia y cualquier ajuste de condiciones quedan registrados en la plataforma. Nada depende de un chat que se pierde.",
     icon: "description",
+    title: "Solicitud registrada",
+    summary:
+      "Tu solicitud, la respuesta de la residencia y cualquier ajuste de condiciones quedan registrados en la plataforma. Nada depende de un chat que se pierde.",
+    problem:
+      "Un acuerdo por WhatsApp se puede perder, editar o simplemente negar. Si algo se traba, no tenés con qué respaldarte.",
+    solution:
+      "Tu solicitud, la respuesta de la residencia y cualquier ajuste de condiciones quedan registrados en la plataforma, con fecha y estado siempre visibles.",
+    conclusion: "Todo el proceso queda por escrito, no en un chat que se borra.",
   },
   {
-    title: "Comprobante verificable",
-    description:
-      "Cuando tu reserva se confirma, EstuRed emite un Comprobante de Reserva Confirmada con código público. Respaldo real para vos y tu familia.",
     icon: "receipt_long",
+    title: "Comprobante verificable",
+    summary:
+      "Cuando tu reserva se confirma, EstuRed emite un Comprobante de Reserva Confirmada con código público. Respaldo real para vos y tu familia.",
+    problem:
+      "Transferir una seña sin ningún comprobante formal es un salto de fe — para vos y para quien te está bancando económicamente.",
+    solution:
+      "Cuando tu reserva se confirma, EstuRed emite un Comprobante de Reserva Confirmada con un código que cualquier persona puede verificar públicamente.",
+    conclusion: "Un respaldo real, no una captura de pantalla de un chat.",
   },
 ];
 
@@ -201,38 +217,14 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Pilares de confianza — asimétrico: el primer pilar (verificación
-          presencial, la base de todo lo demás) se planta como declaración
-          editorial; los otros dos acompañan en una columna más liviana,
-          sin repetir el mismo contenedor tres veces. */}
+      {/* Por qué EstuRed — interactivo, rota solo y se puede explorar con clicks */}
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
         <SectionHeader
           eyebrow="Por qué EstuRed"
           title="La incertidumbre termina acá"
           description="Reservar a distancia solía ser un acto de fe. Con EstuRed es un proceso claro, verificado y registrado de punta a punta."
         />
-        <div className="grid gap-8 lg:grid-cols-[1.3fr_1fr] lg:items-stretch">
-          <Reveal className="flex flex-col justify-center rounded-card border-2 border-forest-tint bg-forest-tint/40 p-8 sm:p-10">
-            <Icon name={pillars[0].icon} className="text-4xl text-forest-700" />
-            <h3 className="mt-6 font-display text-2xl font-bold text-ink sm:text-3xl">
-              {pillars[0].title}
-            </h3>
-            <p className="mt-3 max-w-md text-base leading-relaxed text-ink-soft">
-              {pillars[0].description}
-            </p>
-          </Reveal>
-          <div className="flex flex-col divide-y divide-line">
-            {pillars.slice(1).map((p, i) => (
-              <Reveal key={p.title} delay={(i + 1) as 1 | 2} className="flex gap-4 py-6 first:pt-0 last:pb-0">
-                <Icon name={p.icon} className="mt-0.5 shrink-0 text-2xl text-forest-700" />
-                <div>
-                  <h3 className="font-bold text-ink">{p.title}</h3>
-                  <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">{p.description}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
+        <RotatingBenefits items={pillars} />
       </section>
 
       {/* Comparación */}

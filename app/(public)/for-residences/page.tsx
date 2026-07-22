@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/Badge";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Icon } from "@/components/ui/Icon";
 import { Reveal } from "@/components/ui/Reveal";
+import { RotatingBenefits, type RotatingBenefit } from "@/components/ui/RotatingBenefits";
 
 export const metadata: Metadata = {
   title: "Para residencias",
@@ -12,42 +13,72 @@ export const metadata: Metadata = {
     "EstuRed no reemplaza tu operación. La ordena, la hace más clara y te ayuda a convertir mejores solicitudes.",
 };
 
-const benefits = [
+const benefits: RotatingBenefit[] = [
   {
-    title: "Menos consultas repetidas",
-    description:
-      "Tu perfil verificado responde las preguntas de siempre: precios, servicios, reglas y disponibilidad. Una FAQ asistida responde por vos.",
     icon: "quiz",
+    title: "Menos consultas repetidas",
+    summary:
+      "Tu perfil verificado responde las preguntas de siempre: precios, servicios, reglas y disponibilidad. Una FAQ asistida responde por vos.",
+    problem:
+      "Responder las mismas preguntas de precio, servicios y disponibilidad, una y otra vez por WhatsApp, te come el tiempo que deberías usar en gestionar tu residencia.",
+    solution:
+      "Tu perfil verificado responde las preguntas de siempre: precios, servicios, reglas y disponibilidad. Una FAQ asistida responde por vos.",
+    conclusion: "Menos tiempo respondiendo lo mismo, más tiempo gestionando.",
   },
   {
-    title: "Solicitudes ordenadas",
-    description:
-      "Recibís solicitudes completas, con el perfil del estudiante y sus preferencias. Decidís avanzar, rechazar o pedir más información.",
     icon: "inbox",
+    title: "Solicitudes ordenadas",
+    summary:
+      "Recibís solicitudes completas, con el perfil del estudiante y sus preferencias. Decidís avanzar, rechazar o pedir más información.",
+    problem:
+      "Recibir consultas sueltas por distintos canales, sin el contexto del estudiante, hace difícil evaluar quién realmente encaja.",
+    solution:
+      "Recibís solicitudes completas, con el perfil del estudiante y sus preferencias. Decidís avanzar, rechazar o pedir más información.",
+    conclusion: "Toda la información que necesitás, en un solo lugar.",
   },
   {
-    title: "Condiciones negociables con reglas claras",
-    description:
-      "Antes de confirmar, podés proponer un ajuste de condiciones por solicitud. Todo registrado, sin idas y vueltas informales.",
     icon: "handshake",
+    title: "Condiciones negociables con reglas claras",
+    summary:
+      "Antes de confirmar, podés proponer un ajuste de condiciones por solicitud. Todo registrado, sin idas y vueltas informales.",
+    problem:
+      "Negociar condiciones por chat, sin un proceso claro, genera confusión sobre qué quedó acordado y qué no.",
+    solution:
+      "Antes de confirmar, podés proponer un ajuste de condiciones por solicitud. Todo registrado, sin idas y vueltas informales.",
+    conclusion: "Un acuerdo claro, con historial, no un ida y vuelta que se pierde.",
   },
   {
-    title: "Lista de espera automática",
-    description:
-      "Si estás completa, los interesados se anotan solos. Cuando se libera una plaza, avisás con un clic.",
     icon: "hourglass_top",
+    title: "Lista de espera automática",
+    summary:
+      "Si estás completa, los interesados se anotan solos. Cuando se libera una plaza, avisás con un clic.",
+    problem:
+      "Cuando estás completa, seguir anotando manualmente a quién avisarle si se libera un lugar es trabajo extra que nadie tiene tiempo de hacer bien.",
+    solution:
+      "Si estás completa, los interesados se anotan solos. Cuando se libera una plaza, avisás con un clic.",
+    conclusion: "Ninguna oportunidad se pierde por no tener tiempo de anotarla.",
   },
   {
-    title: "Renovaciones sin fricción",
-    description:
-      "Gestioná renovaciones de tus residentes actuales con ofertas y estados claros, sin perseguir confirmaciones.",
     icon: "sync_alt",
+    title: "Renovaciones sin fricción",
+    summary:
+      "Gestioná renovaciones de tus residentes actuales con ofertas y estados claros, sin perseguir confirmaciones.",
+    problem:
+      "Perseguir a tus residentes actuales para confirmar si renuevan es una tarea manual, repetitiva y fácil de postergar.",
+    solution:
+      "Gestioná renovaciones de tus residentes actuales con ofertas y estados claros, sin perseguir confirmaciones.",
+    conclusion: "Renovaciones que se gestionan solas, no que hay que perseguir.",
   },
   {
-    title: "Sello de Residencia Verificada",
-    description:
-      "La verificación presencial te diferencia de las publicaciones informales y les da tranquilidad a estudiantes y familias.",
     icon: "verified",
+    title: "Sello de Residencia Verificada",
+    summary:
+      "La verificación presencial te diferencia de las publicaciones informales y les da tranquilidad a estudiantes y familias.",
+    problem:
+      "Compitiendo con publicaciones informales, es difícil demostrarle a un estudiante que tu residencia es seria y real, sin que lo tenga que confiar a ciegas.",
+    solution:
+      "La verificación presencial te diferencia de las publicaciones informales y les da tranquilidad a estudiantes y familias.",
+    conclusion: "Un sello que genera confianza antes de la primera consulta.",
   },
 ];
 
@@ -123,36 +154,13 @@ export default function ForResidencesPage() {
         </div>
       </section>
 
-      {/* Beneficios — asimétrico: el primero se planta grande, el resto
-          acompaña en una lista contenida (tarjeta con borde), sin repetir
-          6 cards idénticas ni dejar huecos en la grilla. */}
+      {/* Beneficios — interactivo, rota solo y se puede explorar con clicks */}
       <section id="como-funciona" className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
         <SectionHeader
           eyebrow="Beneficios"
           title="Profesionalizá tu gestión sin cambiar tu forma de trabajar"
         />
-        <div className="grid gap-6 lg:grid-cols-[1fr_1.2fr] lg:items-stretch">
-          <Reveal className="flex flex-col justify-center rounded-card border-2 border-forest-tint bg-forest-tint/40 p-8">
-            <Icon name={benefits[0].icon} className="text-4xl text-forest-700" />
-            <h3 className="mt-6 font-display text-2xl font-bold text-ink">{benefits[0].title}</h3>
-            <p className="mt-3 text-base leading-relaxed text-ink-soft">{benefits[0].description}</p>
-          </Reveal>
-          <div className="flex flex-col divide-y divide-line rounded-card border-[1.5px] border-line bg-paper p-2 shadow-card sm:p-3">
-            {benefits.slice(1).map((b, i) => (
-              <Reveal
-                key={b.title}
-                delay={((i % 5) + 1) as 1 | 2 | 3 | 4 | 5}
-                className="flex gap-3 rounded-field p-4 transition-colors hover:bg-cream-2"
-              >
-                <Icon name={b.icon} className="mt-0.5 shrink-0 text-xl text-forest-700" />
-                <div>
-                  <h3 className="font-bold text-ink">{b.title}</h3>
-                  <p className="mt-1 text-sm leading-relaxed text-ink-soft">{b.description}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
+        <RotatingBenefits items={benefits} />
       </section>
 
       <section className="bg-surface border-y border-sand-200">
