@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Reveal } from "@/components/ui/Reveal";
 import { Icon } from "@/components/ui/Icon";
+import { getCatalogResidences } from "@/lib/residences/catalog";
 
 export const metadata: Metadata = {
   title: "Para estudiantes y familias",
@@ -58,12 +60,18 @@ const steps = [
   "Tu reserva queda confirmada en EstuRed y recibís tu Comprobante de Reserva Confirmada.",
 ];
 
-export default function ForStudentsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function ForStudentsPage() {
+  const catalog = await getCatalogResidences();
+  const heroResidence = catalog[0] ?? null;
+  const heroPhoto = heroResidence?.photos[0] ?? null;
+
   return (
     <>
-      <section className="bg-sand-100">
-        <Reveal className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
-          <div className="max-w-2xl">
+      <section className="overflow-hidden bg-sand-100">
+        <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[1.05fr_0.95fr]">
+          <Reveal>
             <p className="mb-4 inline-flex rounded-full bg-mint px-3 py-1 text-sm font-semibold text-forest-700">
               Para estudiantes y familias
             </p>
@@ -83,8 +91,49 @@ export default function ForStudentsPage() {
                 Crear cuenta de estudiante
               </Button>
             </div>
-          </div>
-        </Reveal>
+          </Reveal>
+
+          {/* Composición visual — foto real de una residencia verificada,
+              con señales de confianza flotantes (mismo lenguaje que el
+              hero de home, pero como foto editorial, no card de catálogo). */}
+          <Reveal delay={2} className="relative mx-auto aspect-[4/5] w-full max-w-sm lg:max-w-none">
+            <div className="relative h-full w-full overflow-hidden rounded-card bg-sand-200 shadow-float">
+              {heroPhoto ? (
+                <Image
+                  src={heroPhoto}
+                  alt={heroResidence ? `Residentes en ${heroResidence.name}` : "Residencia verificada"}
+                  fill
+                  sizes="(max-width: 1024px) 90vw, 45vw"
+                  className="object-cover"
+                  priority
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center">
+                  <Icon name="apartment" className="text-6xl text-ink-faint" />
+                </div>
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-forest-ink/60 via-transparent to-transparent" />
+              {heroResidence && (
+                <div className="absolute inset-x-0 bottom-0 p-5">
+                  <p className="text-sm font-bold text-white">{heroResidence.name}</p>
+                  <p className="text-xs text-white/80">{heroResidence.zone}, {heroResidence.city}</p>
+                </div>
+              )}
+            </div>
+            <div className="absolute -right-4 -top-5 hidden max-w-[210px] rotate-2 rounded-card bg-surface p-3.5 shadow-float ring-1 ring-sand-200 transition-transform duration-300 ease-bounce hover:-translate-y-1 hover:rotate-0 sm:block">
+              <p className="flex items-center gap-2 text-xs font-bold leading-snug text-ink">
+                <Icon name="verified" className="text-lg text-forest-700" />
+                Verificada presencialmente
+              </p>
+            </div>
+            <div className="absolute -bottom-4 -left-4 hidden -rotate-1 rounded-card bg-surface p-3.5 shadow-float ring-1 ring-sand-200 transition-transform duration-300 ease-bounce hover:-translate-y-1 hover:rotate-0 sm:block">
+              <p className="flex items-center gap-2 text-xs font-bold leading-snug text-ink">
+                <Icon name="diversity_3" className="text-lg text-orange-700" />
+                Comunidad visible antes de mudarte
+              </p>
+            </div>
+          </Reveal>
+        </div>
       </section>
 
       {/* Beneficios — asimétrico: el primero (verificación presencial, la
@@ -95,18 +144,18 @@ export default function ForStudentsPage() {
           eyebrow="Beneficios"
           title="Lo que cambia cuando buscás con EstuRed"
         />
-        <div className="grid gap-8 lg:grid-cols-[1fr_1.2fr] lg:items-stretch">
+        <div className="grid gap-6 lg:grid-cols-[1fr_1.2fr] lg:items-stretch">
           <Reveal className="flex flex-col justify-center rounded-card border-2 border-forest-tint bg-forest-tint/40 p-8">
             <Icon name={benefits[0].icon} className="text-4xl text-forest-700" />
             <h3 className="mt-6 font-display text-2xl font-bold text-ink">{benefits[0].title}</h3>
             <p className="mt-3 text-base leading-relaxed text-ink-soft">{benefits[0].description}</p>
           </Reveal>
-          <div className="grid gap-x-8 gap-y-0 divide-y divide-line sm:grid-cols-2 sm:divide-y-0">
+          <div className="flex flex-col divide-y divide-line rounded-card border-[1.5px] border-line bg-paper p-2 shadow-card sm:p-3">
             {benefits.slice(1).map((b, i) => (
               <Reveal
                 key={b.title}
                 delay={((i % 5) + 1) as 1 | 2 | 3 | 4 | 5}
-                className={`flex gap-3 py-5 sm:py-4 ${i < 2 ? "sm:border-b sm:border-line" : ""} ${i % 2 === 0 ? "sm:pr-4" : "sm:pl-4"}`}
+                className="flex gap-3 rounded-field p-4 transition-colors hover:bg-cream-2"
               >
                 <Icon name={b.icon} className="mt-0.5 shrink-0 text-xl text-forest-700" />
                 <div>

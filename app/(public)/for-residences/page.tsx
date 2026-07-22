@@ -54,9 +54,12 @@ const benefits = [
 export default function ForResidencesPage() {
   return (
     <>
-      <section className="bg-forest-ink text-white">
-        <Reveal className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
-          <div className="max-w-2xl">
+      <section className="relative overflow-hidden bg-forest-ink text-white">
+        {/* Resplandor decorativo — le da profundidad al fondo oscuro en vez de un verde plano */}
+        <div className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-orange/20 blur-3xl" aria-hidden />
+        <div className="pointer-events-none absolute -left-24 bottom-0 h-72 w-72 rounded-full bg-forest-600/40 blur-3xl" aria-hidden />
+        <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[1.05fr_0.95fr]">
+          <Reveal>
             <p className="mb-4 inline-flex rounded-full bg-forest-600 px-3 py-1 text-sm font-semibold text-forest-tint">
               Para residencias estudiantiles
             </p>
@@ -76,34 +79,70 @@ export default function ForResidencesPage() {
                 href="#como-funciona"
                 variant="outline"
                 size="lg"
-                className="border-forest text-white hover:bg-forest-600"
+                className="border-forest bg-transparent text-white hover:bg-forest-600"
               >
                 Ver cómo funciona
               </Button>
             </div>
-          </div>
-        </Reveal>
+          </Reveal>
+
+          {/* Composición visual — un vistazo ilustrativo al panel real
+              (solicitud entrante + métrica), no una foto de stock: ancla
+              la promesa "ordena tu operación" en algo concreto. */}
+          <Reveal delay={2} className="relative mx-auto w-full max-w-sm lg:max-w-none">
+            <div className="rounded-card bg-paper p-5 text-ink shadow-float">
+              <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-forest-700">
+                <span className="h-1.5 w-1.5 rounded-full bg-forest-600" aria-hidden />
+                Solicitud nueva
+              </p>
+              <div className="mt-3 flex items-center gap-3">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-forest-tint text-sm font-bold text-forest-700">
+                  MJ
+                </span>
+                <div>
+                  <p className="font-bold text-ink">María José R.</p>
+                  <p className="text-xs text-ink-faint">Habitación Doble · Desde marzo</p>
+                </div>
+              </div>
+              <div className="mt-4 flex gap-2">
+                <span className="flex-1 rounded-full bg-forest px-4 py-2 text-center text-xs font-bold text-white">Aceptar</span>
+                <span className="flex-1 rounded-full border-[1.5px] border-line-2 px-4 py-2 text-center text-xs font-bold text-ink-soft">Ver perfil</span>
+              </div>
+            </div>
+            <div className="absolute -right-4 -top-5 hidden max-w-[190px] rotate-2 rounded-card bg-surface p-3.5 text-ink shadow-float ring-1 ring-sand-200 transition-transform duration-300 ease-bounce hover:-translate-y-1 hover:rotate-0 sm:block">
+              <p className="text-2xl font-extrabold text-forest-700">–70%</p>
+              <p className="text-xs text-ink-faint">menos consultas repetidas por WhatsApp</p>
+            </div>
+            <div className="absolute -bottom-4 -left-4 hidden -rotate-1 rounded-card bg-surface p-3.5 text-ink shadow-float ring-1 ring-sand-200 transition-transform duration-300 ease-bounce hover:-translate-y-1 hover:rotate-0 sm:block">
+              <p className="flex items-center gap-2 text-xs font-bold leading-snug text-ink">
+                <Icon name="hourglass_top" className="text-lg text-orange-700" />
+                Lista de espera automática
+              </p>
+            </div>
+          </Reveal>
+        </div>
       </section>
 
       {/* Beneficios — asimétrico: el primero se planta grande, el resto
-          acompaña en una lista dividida, sin repetir 6 cards idénticas. */}
+          acompaña en una lista contenida (tarjeta con borde), sin repetir
+          6 cards idénticas ni dejar huecos en la grilla. */}
       <section id="como-funciona" className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
         <SectionHeader
           eyebrow="Beneficios"
           title="Profesionalizá tu gestión sin cambiar tu forma de trabajar"
         />
-        <div className="grid gap-8 lg:grid-cols-[1fr_1.2fr] lg:items-stretch">
+        <div className="grid gap-6 lg:grid-cols-[1fr_1.2fr] lg:items-stretch">
           <Reveal className="flex flex-col justify-center rounded-card border-2 border-forest-tint bg-forest-tint/40 p-8">
             <Icon name={benefits[0].icon} className="text-4xl text-forest-700" />
             <h3 className="mt-6 font-display text-2xl font-bold text-ink">{benefits[0].title}</h3>
             <p className="mt-3 text-base leading-relaxed text-ink-soft">{benefits[0].description}</p>
           </Reveal>
-          <div className="grid gap-x-8 gap-y-0 divide-y divide-line sm:grid-cols-2 sm:divide-y-0">
+          <div className="flex flex-col divide-y divide-line rounded-card border-[1.5px] border-line bg-paper p-2 shadow-card sm:p-3">
             {benefits.slice(1).map((b, i) => (
               <Reveal
                 key={b.title}
                 delay={((i % 5) + 1) as 1 | 2 | 3 | 4 | 5}
-                className={`flex gap-3 py-5 sm:py-4 ${i < 2 ? "sm:border-b sm:border-line" : ""} ${i % 2 === 0 ? "sm:pr-4" : "sm:pl-4"}`}
+                className="flex gap-3 rounded-field p-4 transition-colors hover:bg-cream-2"
               >
                 <Icon name={b.icon} className="mt-0.5 shrink-0 text-xl text-forest-700" />
                 <div>
