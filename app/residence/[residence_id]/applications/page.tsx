@@ -57,6 +57,7 @@ export default async function ResidenceApplicationsPage({
 
       {!applications || applications.length === 0 ? (
         <EmptyState
+          icon="inbox"
           title="Todavía no recibiste solicitudes"
           description="Cuando un estudiante envíe una solicitud a esta residencia, va a aparecer acá."
         />

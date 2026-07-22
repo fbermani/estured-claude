@@ -56,6 +56,7 @@ export default async function RevocationPage() {
       {revocable.length === 0 && alreadyRevoked.length === 0 && (
         <div className="mt-6">
           <EmptyState
+            icon="undo"
             title="No tenés reservas con fee revocable"
             description="Este derecho aplica solo a reservas confirmadas con el fee EstuRed pagado."
           />

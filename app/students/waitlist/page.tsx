@@ -60,6 +60,7 @@ export default async function StudentWaitlistPage() {
       {entries.length === 0 ? (
         <div className="mt-6">
           <EmptyState
+            icon="hourglass_top"
             title="No estás en ninguna lista de espera"
             description="Cuando una residencia no tenga lugar, vas a poder sumarte desde su ficha."
           />

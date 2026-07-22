@@ -507,7 +507,7 @@ export function RoomsBrowser({
         <button
           type="button"
           onClick={() => setTypeFilter(null)}
-          className={`cursor-pointer rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+          className={`cursor-pointer rounded-full px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest ${
             typeFilter === null ? "bg-forest-ink text-white" : "border-[1.5px] border-line bg-paper text-ink-soft hover:border-line-2"
           }`}
         >
@@ -518,7 +518,7 @@ export function RoomsBrowser({
             key={g.id}
             type="button"
             onClick={() => setTypeFilter(typeFilter === g.id ? null : g.id)}
-            className={`cursor-pointer rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+            className={`cursor-pointer rounded-full px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest ${
               typeFilter === g.id ? "bg-forest-ink text-white" : "border-[1.5px] border-line bg-paper text-ink-soft hover:border-line-2"
             }`}
           >
@@ -531,6 +531,7 @@ export function RoomsBrowser({
       {filteredGroups.length === 0 ? (
         <div className="mt-8">
           <EmptyState
+            icon="meeting_room"
             title="Sin habitaciones para mostrar"
             description="Ajustá los filtros, o definí la cantidad de habitaciones por tipo en la configuración."
           />

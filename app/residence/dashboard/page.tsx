@@ -57,6 +57,7 @@ export default async function ResidenceDashboardPage() {
 
         {validCards.length === 0 ? (
           <EmptyState
+            icon="apartment"
             title="Todavía no tenés residencias cargadas"
             description="Si acabás de registrarte, puede que falte completar el alta."
           />

@@ -72,6 +72,7 @@ export default async function StudentSupportPage() {
       <div className="mt-8">
         {residences.length === 0 ? (
           <EmptyState
+            icon="support_agent"
             title="Todavía no tenés residencias vinculadas"
             description="Cuando envíes una solicitud o tengas una reserva, vas a poder abrir un caso sobre esa residencia."
           />

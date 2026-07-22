@@ -60,6 +60,7 @@ export default async function ResidenceCommunityPage({ params }: { params: Promi
       <div className="mt-8">
         {summary.totalResidents === 0 ? (
           <EmptyState
+            icon="groups"
             title="Todavía sin residentes cargados"
             description="La residencia todavía no cargó a nadie en su comunidad visible."
           />

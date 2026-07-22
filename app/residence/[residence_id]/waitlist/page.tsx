@@ -61,7 +61,7 @@ export default async function ResidenceWaitlistPage({
 
       {rows.length === 0 ? (
         <div className="mt-6">
-          <EmptyState title="Nadie en lista de espera" description="Cuando alguien se sume, va a aparecer acá." />
+          <EmptyState icon="hourglass_top" title="Nadie en lista de espera" description="Cuando alguien se sume, va a aparecer acá." />
         </div>
       ) : (
         <div className="mt-6 space-y-4">

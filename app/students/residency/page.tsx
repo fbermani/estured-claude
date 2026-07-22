@@ -85,6 +85,7 @@ export default async function StudentResidencyPage() {
       {mine.length === 0 && pending.length === 0 ? (
         <div className="mt-6">
           <EmptyState
+            icon="apartment"
             title="Sin estadías cargadas"
             description="Cuando la residencia donde vivís te cargue como residente, vas a poder activar tu cuenta acá."
           />

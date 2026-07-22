@@ -82,6 +82,7 @@ export default async function StudentRenewalsPage() {
       {reservations.length === 0 ? (
         <div className="mt-6">
           <EmptyState
+            icon="sync"
             title="No tenés reservas confirmadas"
             description="La renovación aplica solo a reservas confirmadas."
           />

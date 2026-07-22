@@ -439,6 +439,7 @@ export function ResidentsBrowser({
       {filtered.length === 0 ? (
         <div className="mt-6">
           <EmptyState
+            icon="groups"
             title="Sin residentes para mostrar"
             description="Ajustá los filtros o cargá el primero con “Agregar residente”."
           />

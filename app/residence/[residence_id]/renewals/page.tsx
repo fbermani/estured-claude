@@ -70,6 +70,7 @@ export default async function ResidenceRenewalsPage({
 
       {!reservations || reservations.length === 0 ? (
         <EmptyState
+          icon="sync_alt"
           title="Todavía no hay reservas confirmadas"
           description="Cuando tengas una reserva confirmada, vas a poder ofrecerle renovación desde acá."
         />
