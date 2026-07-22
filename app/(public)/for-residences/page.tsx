@@ -6,6 +6,57 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Icon } from "@/components/ui/Icon";
 import { Reveal } from "@/components/ui/Reveal";
 import { RotatingBenefits, type RotatingBenefit } from "@/components/ui/RotatingBenefits";
+import { HoverFeatureList } from "@/components/ui/HoverFeatureList";
+
+const freePlanFeatures = [
+  {
+    label: "Perfil público verificado con fotos, servicios y reglas",
+    detail: "Es lo primero que ve un estudiante al buscar — reduce las consultas de gente que no tenía la información básica.",
+  },
+  {
+    label: "Disponibilidad informada por tipo de habitación",
+    detail: "Mostrás cupo por tipo de habitación sin necesidad de gestionar cada cama individualmente.",
+  },
+  {
+    label: "Solicitudes de reserva registradas",
+    detail: "Cada solicitud queda con fecha y estado, sin depender de tu memoria o de un chat.",
+  },
+  {
+    label: "Lista de espera",
+    detail: "Los interesados se anotan solos cuando estás completa — vos avisás con un clic cuando hay lugar.",
+  },
+  {
+    label: "FAQ asistida",
+    detail: "Responde automáticamente las preguntas más comunes antes de que te escriban a vos.",
+  },
+  {
+    label: "Renovaciones",
+    detail: "Gestioná renovaciones de tus residentes actuales sin tener que perseguir confirmaciones.",
+  },
+];
+
+const paidPlanFeatures = [
+  {
+    label: "Disponibilidad real por plaza — \"Disponibilidad asegurada\"",
+    detail: "Cada cama tiene su propio estado, evitando reservas duplicadas o confusiones.",
+  },
+  {
+    label: "Gestión de habitaciones, plazas y residentes",
+    detail: "Un panel único para administrar quién ocupa qué cama y por cuánto tiempo.",
+  },
+  {
+    label: "Solicitudes por plaza específica",
+    detail: "El estudiante elige la cama exacta, no solo el tipo de habitación.",
+  },
+  {
+    label: "Métricas de gestión y respuesta",
+    detail: "Vas a poder ver cuánto tardás en responder y cuántas solicitudes convertís.",
+  },
+  {
+    label: "Prioridad de visibilidad en el catálogo",
+    detail: "Aparecés antes en los resultados de búsqueda de los estudiantes.",
+  },
+];
 
 export const metadata: Metadata = {
   title: "Para residencias",
@@ -181,20 +232,7 @@ export default function ForResidencesPage() {
                 Tu residencia en el catálogo, con el sello de verificación
                 presencial y gestión de solicitudes.
               </p>
-              <ul className="mt-6 space-y-3 text-sm text-ink-soft">
-                {[
-                  "Perfil público verificado con fotos, servicios y reglas",
-                  "Disponibilidad informada por tipo de habitación",
-                  "Solicitudes de reserva registradas",
-                  "Lista de espera",
-                  "FAQ asistida",
-                  "Renovaciones",
-                ].map((f) => (
-                  <li key={f} className="flex gap-2">
-                    <Icon name="check_circle" className="mt-0.5 shrink-0 text-base text-forest-700" /> {f}
-                  </li>
-                ))}
-              </ul>
+              <HoverFeatureList items={freePlanFeatures} icon="check_circle" tone="forest" className="mt-6 text-sm" />
             </Card>
             </Reveal>
             <Reveal delay={1}>
@@ -207,19 +245,7 @@ export default function ForResidencesPage() {
                 Todo lo del Perfil Verificado, más gestión en tiempo real de tus
                 habitaciones y plazas.
               </p>
-              <ul className="mt-6 space-y-3 text-sm text-ink-soft">
-                {[
-                  "Disponibilidad real por plaza — \"Disponibilidad asegurada\"",
-                  "Gestión de habitaciones, plazas y residentes",
-                  "Solicitudes por plaza específica",
-                  "Métricas de gestión y respuesta",
-                  "Prioridad de visibilidad en el catálogo",
-                ].map((f) => (
-                  <li key={f} className="flex gap-2">
-                    <Icon name="check_circle" className="mt-0.5 shrink-0 text-base text-orange-600" /> {f}
-                  </li>
-                ))}
-              </ul>
+              <HoverFeatureList items={paidPlanFeatures} icon="check_circle" tone="orange" className="mt-6 text-sm" />
             </Card>
             </Reveal>
           </div>

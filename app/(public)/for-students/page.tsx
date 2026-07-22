@@ -5,6 +5,7 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Reveal } from "@/components/ui/Reveal";
 import { Icon } from "@/components/ui/Icon";
 import { RotatingBenefits, type RotatingBenefit } from "@/components/ui/RotatingBenefits";
+import { StepsList } from "@/app/(public)/for-students/StepsList";
 import { getCatalogResidences } from "@/lib/residences/catalog";
 
 export const metadata: Metadata = {
@@ -83,12 +84,30 @@ const benefits: RotatingBenefit[] = [
 ];
 
 const steps = [
-  "Creá tu cuenta y completá tu perfil básico: de dónde venís, qué buscás, tu presupuesto y tu fecha estimada de mudanza.",
-  "Buscá y compará residencias verificadas. Guardá tus favoritas.",
-  "Enviá tu solicitud de reserva. Si la residencia está completa, sumate a su lista de espera.",
-  "La residencia te responde. Puede confirmar tus condiciones o proponerte un único ajuste, que podés aceptar o rechazar.",
-  "Pagás a la residencia el concepto acordado (matrícula, seña o depósito) y la residencia confirma la recepción.",
-  "Tu reserva queda confirmada en EstuRed y recibís tu Comprobante de Reserva Confirmada.",
+  {
+    text: "Creá tu cuenta y completá tu perfil básico: de dónde venís, qué buscás, tu presupuesto y tu fecha estimada de mudanza.",
+    detail: "Cuantos más datos completes, más rápido vas a poder aplicar cuando encuentres la residencia indicada.",
+  },
+  {
+    text: "Buscá y compará residencias verificadas. Guardá tus favoritas.",
+    detail: "Comparar varias opciones a la vez te ayuda a decidir con más contexto, no solo por la primera que viste.",
+  },
+  {
+    text: "Enviá tu solicitud de reserva. Si la residencia está completa, sumate a su lista de espera.",
+    detail: "Tu solicitud queda registrada y no depende de conversaciones por WhatsApp que puedan perderse.",
+  },
+  {
+    text: "La residencia te responde. Puede confirmar tus condiciones o proponerte un único ajuste, que podés aceptar o rechazar.",
+    detail: "Si te proponen un ajuste, la decisión final siempre es tuya — nadie confirma nada sin tu aprobación.",
+  },
+  {
+    text: "Pagás a la residencia el concepto acordado (matrícula, seña o depósito) y la residencia confirma la recepción.",
+    detail: "La residencia confirma la recepción del pago, así que ese paso también queda con registro.",
+  },
+  {
+    text: "Tu reserva queda confirmada en EstuRed y recibís tu Comprobante de Reserva Confirmada.",
+    detail: "Ese comprobante es tu respaldo formal frente a cualquier duda futura sobre la reserva.",
+  },
 ];
 
 export const dynamic = "force-dynamic";
@@ -183,18 +202,7 @@ export default async function ForStudentsPage() {
             title="Así funciona el proceso"
             description="La disponibilidad publicada es informativa: toda reserva está sujeta a la confirmación de la residencia."
           />
-          <ol className="relative space-y-4 border-l-2 border-dashed border-line pl-6">
-            {steps.map((step, i) => (
-              <Reveal key={i} delay={Math.min(i, 5) as 0 | 1 | 2 | 3 | 4 | 5}>
-                <li className="relative flex gap-4">
-                  <span className="absolute -left-[34px] mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-forest font-display text-sm font-bold text-white ring-4 ring-surface">
-                    {i + 1}
-                  </span>
-                  <p className="text-sm text-ink-soft sm:text-base">{step}</p>
-                </li>
-              </Reveal>
-            ))}
-          </ol>
+          <StepsList steps={steps} />
         </div>
       </section>
 

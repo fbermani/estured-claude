@@ -5,6 +5,8 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Icon } from "@/components/ui/Icon";
 import { Reveal } from "@/components/ui/Reveal";
 import { RotatingBenefits, type RotatingBenefit } from "@/components/ui/RotatingBenefits";
+import { HoverFeatureList } from "@/components/ui/HoverFeatureList";
+import { HowItWorksSteps } from "@/app/(public)/HowItWorksSteps";
 import { ResidenceCard } from "@/components/residences/ResidenceCard";
 import { getCatalogResidences } from "@/lib/residences/catalog";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
@@ -50,38 +52,72 @@ const steps = [
     title: "Buscá con contexto real",
     description:
       "Filtrá por barrio, tipo de habitación y presupuesto. Cada ficha muestra reglas, servicios, universidades cercanas y disponibilidad.",
+    detail: "Ver reglas y disponibilidad antes de escribir evita perder tiempo con residencias que no son para vos.",
   },
   {
     title: "Enviá tu solicitud",
     description:
       "Queda registrada en la plataforma. La residencia la revisa y te responde. Un familiar también puede proponer opciones para acompañarte.",
+    detail: "Tu solicitud queda registrada y no depende de conversaciones por WhatsApp que puedan perderse.",
   },
   {
     title: "Acordá las condiciones",
     description:
       "La residencia confirma tus condiciones o te propone un único ajuste antes de confirmar. Vos siempre tenés la última palabra.",
+    detail: "Si te proponen un ajuste, sos vos quien decide aceptarlo o no — nunca queda forzado.",
   },
   {
     title: "Reservá con comprobante",
     description:
       "Confirmada la reserva, recibís tu Comprobante de Reserva Confirmada con código verificable por cualquier persona.",
+    detail: "Ese comprobante te respalda a vos y a tu familia si necesitás demostrar que la reserva es real.",
   },
 ];
 
 const withEstuRed = [
-  "Residencias visitadas y verificadas presencialmente",
-  "Precios publicados con política de ajustes explícita",
-  "Solicitud y condiciones registradas en la plataforma",
-  "Comprobante de Reserva Confirmada con código verificable",
-  "Soporte de EstuRed si algo se traba en el proceso",
+  {
+    label: "Residencias visitadas y verificadas presencialmente",
+    detail: "El equipo de EstuRed confirma que existe, que es real y que la información publicada coincide.",
+  },
+  {
+    label: "Precios publicados con política de ajustes explícita",
+    detail: "Sabés de antemano bajo qué condiciones puede cambiar un precio, no te enterás después.",
+  },
+  {
+    label: "Solicitud y condiciones registradas en la plataforma",
+    detail: "Todo el proceso queda documentado, no depende de capturas de pantalla de un chat.",
+  },
+  {
+    label: "Comprobante de Reserva Confirmada con código verificable",
+    detail: "Cada reserva genera un comprobante único con respaldo dentro de la plataforma para ambas partes.",
+  },
+  {
+    label: "Soporte de EstuRed si algo se traba en el proceso",
+    detail: "Hay alguien a quien recurrir si la residencia no responde o algo no queda claro.",
+  },
 ];
 
 const outside = [
-  "Fotos y datos que nadie chequeó",
-  "Precios que cambian de un chat a otro",
-  "Acuerdos por WhatsApp que se pierden o se niegan",
-  "Señas transferidas sin comprobante ni respaldo",
-  "Nadie a quien recurrir si algo sale mal",
+  {
+    label: "Fotos y datos que nadie chequeó",
+    detail: "Lo que ves puede no coincidir con la realidad — no hay ninguna verificación presencial de por medio.",
+  },
+  {
+    label: "Precios que cambian de un chat a otro",
+    detail: "Sin nada publicado, el precio final puede depender de quién te responda ese día.",
+  },
+  {
+    label: "Acuerdos por WhatsApp que se pierden o se niegan",
+    detail: "Sin registro, tu única prueba de lo acordado es tu propia memoria.",
+  },
+  {
+    label: "Señas transferidas sin comprobante ni respaldo",
+    detail: "Si algo sale mal, no tenés ningún documento formal que respalde que pagaste.",
+  },
+  {
+    label: "Nadie a quien recurrir si algo sale mal",
+    detail: "Estás solo/a frente a cualquier problema, sin ninguna instancia intermedia.",
+  },
 ];
 
 const audiences = [
@@ -243,31 +279,13 @@ export default async function HomePage() {
                 </span>
                 Con EstuRed
               </p>
-              <ul className="mt-5 space-y-3.5">
-                {withEstuRed.map((item) => (
-                  <li key={item} className="flex gap-3 text-sm text-ink">
-                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-success-bg text-success-fg">
-                      <Icon name="check" className="text-sm" />
-                    </span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
+              <HoverFeatureList items={withEstuRed} icon="check" tone="forest" className="mt-5" />
             </Reveal>
             <Reveal delay={1} className="rounded-card border border-sand-200 bg-sand-50 p-7">
               <p className="font-display text-lg font-bold text-ink-soft">
                 Por fuera, a pulmón
               </p>
-              <ul className="mt-5 space-y-3.5">
-                {outside.map((item) => (
-                  <li key={item} className="flex gap-3 text-sm text-ink-soft">
-                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-sand-200 text-xs font-bold text-ink-faint">
-                      –
-                    </span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
+              <HoverFeatureList items={outside} icon="remove" tone="neutral" className="mt-5" />
             </Reveal>
           </div>
         </div>
@@ -280,21 +298,7 @@ export default async function HomePage() {
           title="De la búsqueda al comprobante, en cuatro pasos"
           description="Cada paso queda registrado, con las mismas reglas para estudiantes, familias y residencias."
         />
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {steps.map((step, i) => (
-            <Reveal key={step.title} delay={(i as 0 | 1 | 2 | 3)} className="relative">
-              <Card interactive className="h-full p-6">
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-tint font-display text-lg font-extrabold text-orange-700">
-                  {i + 1}
-                </span>
-                <h3 className="mt-4 font-bold text-ink">{step.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-ink-soft">
-                  {step.description}
-                </p>
-              </Card>
-            </Reveal>
-          ))}
-        </div>
+        <HowItWorksSteps steps={steps} />
       </section>
 
       {/* Residencias destacadas */}

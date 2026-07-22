@@ -1,0 +1,62 @@
+"use client";
+
+import { useState, type ReactNode, type KeyboardEvent } from "react";
+
+/**
+ * Envoltorio interactivo reutilizable para filas/tarjetas de listas
+ * (pasos, features de plan, comparaciones): hover en desktop, click/tap
+ * en mobile, foco por teclado — todos disparan el mismo estado `open`,
+ * que se pasa a `children` como render-prop para que cada consumidor
+ * decida qué resaltar (ícono, número, peso de texto) sin que este
+ * componente conozca esos detalles. Debajo se expande `detail` con
+ * fade + slide (grid-template-rows 0fr→1fr, sin medir alturas a mano).
+ */
+export function HoverDetail({
+  detail,
+  children,
+  className = "",
+}: {
+  detail: string;
+  children: (open: boolean) => ReactNode;
+  className?: string;
+}) {
+  const [open, setOpen] = useState(false);
+
+  function toggle() {
+    setOpen((o) => !o);
+  }
+
+  function onKeyDown(e: KeyboardEvent<HTMLDivElement>) {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      toggle();
+    }
+  }
+
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      aria-expanded={open}
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+      onFocus={() => setOpen(true)}
+      onBlur={() => setOpen(false)}
+      onClick={toggle}
+      onKeyDown={onKeyDown}
+      className={`cursor-pointer rounded-field transition-all duration-300 ease-fresh focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest ${
+        open ? "-translate-y-0.5 scale-[1.02] shadow-card-hover" : ""
+      } ${className}`}
+    >
+      {children(open)}
+      <div
+        className="grid transition-[grid-template-rows,opacity] duration-300 ease-fresh"
+        style={{ gridTemplateRows: open ? "1fr" : "0fr", opacity: open ? 1 : 0 }}
+      >
+        <div className="overflow-hidden">
+          <p className="mt-2 text-xs leading-relaxed text-ink-faint">{detail}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
