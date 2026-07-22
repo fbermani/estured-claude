@@ -141,7 +141,9 @@ export default async function StudentApplicationDetailPage({
           <Badge tone={info.tone}>{info.label}</Badge>
         </div>
 
-        <p className="mt-4 rounded-field bg-sand-100 px-4 py-3 text-sm text-ink-soft">{info.helper}</p>
+        {info.helper && (
+          <p className="mt-4 rounded-field bg-sand-100 px-4 py-3 text-sm text-ink-soft">{info.helper}</p>
+        )}
 
         {application.status === "offer_pending_student_acceptance" && (
           <Button href={`/students/applications/${id}/negotiation`} size="lg" className="mt-4 w-full">

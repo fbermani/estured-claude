@@ -27,6 +27,9 @@ const STATUS_COPY: Record<string, { label: string; tone: "amber" | "sage" | "neu
   cancelled_by_student: { label: "Cancelada por vos", tone: "neutral" },
 };
 
+/** El estudiante tiene algo concreto que hacer ahora — se muestran primero y con más peso visual. */
+const ACTION_REQUIRED_STATUSES = new Set(["offer_pending_student_acceptance", "residence_payment_pending"]);
+
 export default async function StudentApplicationsPage() {
   const sessionUser = await getSessionUser();
   const supabase = await getSupabaseServer();
@@ -48,6 +51,31 @@ export default async function StudentApplicationsPage() {
     applications = (data as unknown as typeof applications) ?? [];
   }
 
+  const actionNeeded = applications.filter((a) => ACTION_REQUIRED_STATUSES.has(a.status));
+  const rest = applications.filter((a) => !ACTION_REQUIRED_STATUSES.has(a.status));
+
+  const renderCard = (a: (typeof applications)[number], emphasized: boolean) => {
+    const badge = STATUS_COPY[a.status] ?? { label: a.status, tone: "neutral" as const };
+    return (
+      <Link key={a.id} href={`/students/applications/${a.id}`}>
+        <Card
+          interactive
+          className={`flex flex-wrap items-center justify-between gap-3 p-5 ${
+            emphasized ? "border-orange/40 bg-warning-bg" : ""
+          }`}
+        >
+          <div>
+            <p className="font-bold text-ink">{a.residences?.name}</p>
+            <p className="text-sm text-ink-soft">
+              {a.room_types?.name} · Ingreso {a.desired_start_date}
+            </p>
+          </div>
+          <Badge tone={badge.tone}>{badge.label}</Badge>
+        </Card>
+      </Link>
+    );
+  };
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-14">
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
@@ -55,8 +83,8 @@ export default async function StudentApplicationsPage() {
           <h1 className="text-3xl font-bold text-ink">Mis solicitudes</h1>
           <p className="mt-1 text-ink-soft">Seguimiento de tus solicitudes de reserva.</p>
         </div>
-        <Button href="/residencias" size="sm">
-          Buscar residencia real
+        <Button href="/search" size="sm">
+          Buscar residencias
         </Button>
       </div>
 
@@ -65,29 +93,30 @@ export default async function StudentApplicationsPage() {
           title="Todavía no enviaste ninguna solicitud"
           description="Explorá el catálogo de residencias verificadas y enviá tu primera solicitud."
           action={
-            <Button href="/residencias" size="sm">
+            <Button href="/search" size="sm">
               Ver residencias
             </Button>
           }
         />
       ) : (
-        <div className="space-y-4">
-          {applications.map((a) => {
-            const badge = STATUS_COPY[a.status] ?? { label: a.status, tone: "neutral" as const };
-            return (
-              <Link key={a.id} href={`/students/applications/${a.id}`}>
-                <Card interactive className="flex flex-wrap items-center justify-between gap-3 p-5">
-                  <div>
-                    <p className="font-bold text-ink">{a.residences?.name}</p>
-                    <p className="text-sm text-ink-soft">
-                      {a.room_types?.name} · Ingreso {a.desired_start_date}
-                    </p>
-                  </div>
-                  <Badge tone={badge.tone}>{badge.label}</Badge>
-                </Card>
-              </Link>
-            );
-          })}
+        <div className="flex flex-col gap-8">
+          {actionNeeded.length > 0 && (
+            <div>
+              <h2 className="mb-3 flex items-center gap-2 text-sm font-extrabold uppercase tracking-wide text-orange-700">
+                <span className="h-2 w-2 rounded-full bg-orange" aria-hidden />
+                Necesitan tu acción
+              </h2>
+              <div className="space-y-4">{actionNeeded.map((a) => renderCard(a, true))}</div>
+            </div>
+          )}
+          <div>
+            {actionNeeded.length > 0 && (
+              <h2 className="mb-3 text-sm font-extrabold uppercase tracking-wide text-muted">
+                Resto de tus solicitudes
+              </h2>
+            )}
+            <div className="space-y-4">{rest.map((a) => renderCard(a, false))}</div>
+          </div>
         </div>
       )}
     </div>

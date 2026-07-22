@@ -36,6 +36,13 @@ export default async function StudentProfilePage() {
     .in("document_type", ["student_identity", "student_academic_proof"]);
   const types = new Set((files ?? []).map((f) => f.document_type));
 
+  const { data: familyLink } = await admin
+    .from("family_links")
+    .select("id")
+    .eq("student_profile_id", profile.id)
+    .eq("status", "active")
+    .maybeSingle();
+
   const completeness = computeProfileCompleteness({
     nationality: profile.nationality,
     studyInstitutionPrivate: profile.study_institution_private,
@@ -96,6 +103,18 @@ export default async function StudentProfilePage() {
           />
         </div>
       </Card>
+
+      {!familyLink && (
+        <Card className="mt-4 p-5">
+          <h2 className="font-bold text-ink">¿Un familiar te va a ayudar?</h2>
+          <p className="mt-1 text-xs text-ink-faint">
+            Puede acompañar tu búsqueda, sugerir residencias y ayudarte con pagos y documentación. Vos seguís
+            decidiendo todo. Compartile la sección{" "}
+            <span className="font-semibold text-ink">Crear cuenta → Familiar</span> para que se registre — después
+            vas a tener que aprobar el vínculo vos, acá mismo.
+          </p>
+        </Card>
+      )}
     </div>
   );
 }

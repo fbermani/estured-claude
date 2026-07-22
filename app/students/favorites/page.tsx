@@ -6,6 +6,7 @@ import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 import { ResidenceCard } from "@/components/residences/ResidenceCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 
 export const metadata: Metadata = { title: "Favoritos" };
 export const dynamic = "force-dynamic";
@@ -136,8 +137,15 @@ export default async function StudentFavoritesPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
-      <h1 className="text-2xl font-bold text-ink">Favoritos</h1>
-      <p className="mt-1 text-sm text-ink-soft">Residencias guardadas para comparar antes de solicitar.</p>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-ink">Favoritos</h1>
+          <p className="mt-1 text-sm text-ink-soft">Residencias guardadas para comparar antes de solicitar.</p>
+        </div>
+        <Button href="/search" variant="outline" size="sm">
+          Explorar residencias
+        </Button>
+      </div>
 
       <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {rows.map((row) => {

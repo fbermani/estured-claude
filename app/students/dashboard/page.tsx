@@ -335,12 +335,9 @@ export default async function StudentDashboardPage() {
             Sos menor de edad: vas a necesitar un familiar vinculado
           </p>
           <p className="mt-1 text-sm text-warning-fg">
-            Para poder enviar solicitudes de reserva, un padre, madre o familiar debe crear su
-            cuenta en{" "}
-            <Link href="/register/family" className="underline">
-              /register/family
-            </Link>{" "}
-            y vos aprobar la vinculación acá. Mientras tanto podés explorar y guardar
+            Para poder enviar solicitudes de reserva, un padre, madre o familiar debe crear su cuenta en la
+            sección <span className="font-semibold">Crear cuenta → Familiar</span> y vos aprobar la vinculación
+            acá. Mientras tanto podés explorar y guardar
             residencias.
           </p>
         </div>
