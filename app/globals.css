@@ -197,6 +197,22 @@ p {
   animation: dropdown-in 160ms var(--ease-out-fresh);
 }
 
+/* ---- Motion: reveal-on-scroll (fresh-style.md §3 "Sitio público") ---- */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 550ms var(--ease-out-fresh), transform 550ms var(--ease-out-fresh);
+}
+.reveal.in {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-d1 { transition-delay: 90ms; }
+.reveal-d2 { transition-delay: 180ms; }
+.reveal-d3 { transition-delay: 270ms; }
+.reveal-d4 { transition-delay: 360ms; }
+.reveal-d5 { transition-delay: 450ms; }
+
 /* ---- Motion: respeta prefers-reduced-motion para cualquier animación decorativa infinita ---- */
 @media (prefers-reduced-motion: reduce) {
   *,

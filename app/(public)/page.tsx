@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Icon } from "@/components/ui/Icon";
+import { Reveal } from "@/components/ui/Reveal";
 import { ResidenceCard } from "@/components/residences/ResidenceCard";
 import { getCatalogResidences } from "@/lib/residences/catalog";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
@@ -143,7 +144,7 @@ export default async function HomePage() {
       {/* Hero */}
       <section className="overflow-hidden bg-sand-100">
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 pb-20 pt-14 sm:px-6 sm:pt-20 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
-          <div>
+          <Reveal>
             <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-line bg-white px-3.5 py-1.5 text-xs font-semibold text-forest-700 sm:text-sm">
               <span className="h-1.5 w-1.5 rounded-full bg-forest-600" aria-hidden />
               Primera etapa: Buenos Aires · Próximamente, Latinoamérica
@@ -169,13 +170,14 @@ export default async function HomePage() {
               La disponibilidad publicada es informativa. Toda reserva está
               sujeta a confirmación de la residencia.
             </p>
-          </div>
+          </Reveal>
 
-          {/* Composición de producto */}
+          {/* Composición de producto — la señal central de EstuRed (el
+              comprobante verificable) es lo primero que se asienta */}
           {heroResidence && (
-            <div className="relative mx-auto w-full max-w-sm lg:max-w-none">
+            <Reveal delay={2} className="relative mx-auto w-full max-w-sm lg:max-w-none">
               <ResidenceCard residence={heroResidence} arsPerUsd={rate.arsPerUsd} />
-              <div className="absolute -right-3 -top-5 hidden max-w-[240px] rotate-2 rounded-card bg-surface p-3.5 shadow-float ring-1 ring-sand-200 sm:block lg:-right-6">
+              <div className="absolute -right-3 -top-5 hidden max-w-[240px] rotate-2 rounded-card bg-surface p-3.5 shadow-float ring-1 ring-sand-200 transition-transform duration-300 ease-bounce hover:-translate-y-1 hover:rotate-0 sm:block lg:-right-6">
                 <p className="flex items-start gap-2 text-xs font-bold leading-snug text-ink">
                   <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-success-bg text-success-fg">
                     <Icon name="check" className="text-base" />
@@ -186,7 +188,7 @@ export default async function HomePage() {
                   ER-2027-0413
                 </p>
               </div>
-              <div className="absolute -bottom-4 -left-3 hidden -rotate-1 rounded-card bg-surface p-3.5 shadow-float ring-1 ring-sand-200 sm:block lg:-left-6">
+              <div className="absolute -bottom-4 -left-3 hidden -rotate-1 rounded-card bg-surface p-3.5 shadow-float ring-1 ring-sand-200 transition-transform duration-300 ease-bounce hover:-translate-y-1 hover:rotate-0 sm:block lg:-left-6">
                 <p className="text-xs font-bold text-ink">
                   Solicitud registrada
                 </p>
@@ -194,32 +196,42 @@ export default async function HomePage() {
                   Condiciones claras, sin idas y vueltas por chat
                 </p>
               </div>
-            </div>
+            </Reveal>
           )}
         </div>
       </section>
 
-      {/* Pilares de confianza */}
+      {/* Pilares de confianza — asimétrico: el primer pilar (verificación
+          presencial, la base de todo lo demás) se planta como declaración
+          editorial; los otros dos acompañan en una columna más liviana,
+          sin repetir el mismo contenedor tres veces. */}
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
         <SectionHeader
           eyebrow="Por qué EstuRed"
           title="La incertidumbre termina acá"
           description="Reservar a distancia solía ser un acto de fe. Con EstuRed es un proceso claro, verificado y registrado de punta a punta."
         />
-        <div className="grid gap-6 md:grid-cols-3">
-          {pillars.map((p) => (
-            <Card key={p.title} className="p-7">
-              <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-forest-tint text-forest-700">
-                <Icon name={p.icon} className="text-2xl" />
-              </span>
-              <h3 className="mt-5 text-lg font-bold text-ink">
-                {p.title}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-ink-soft">
-                {p.description}
-              </p>
-            </Card>
-          ))}
+        <div className="grid gap-8 lg:grid-cols-[1.3fr_1fr] lg:items-stretch">
+          <Reveal className="flex flex-col justify-center rounded-card border-2 border-forest-tint bg-forest-tint/40 p-8 sm:p-10">
+            <Icon name={pillars[0].icon} className="text-4xl text-forest-700" />
+            <h3 className="mt-6 font-display text-2xl font-bold text-ink sm:text-3xl">
+              {pillars[0].title}
+            </h3>
+            <p className="mt-3 max-w-md text-base leading-relaxed text-ink-soft">
+              {pillars[0].description}
+            </p>
+          </Reveal>
+          <div className="flex flex-col divide-y divide-line">
+            {pillars.slice(1).map((p, i) => (
+              <Reveal key={p.title} delay={(i + 1) as 1 | 2} className="flex gap-4 py-6 first:pt-0 last:pb-0">
+                <Icon name={p.icon} className="mt-0.5 shrink-0 text-2xl text-forest-700" />
+                <div>
+                  <h3 className="font-bold text-ink">{p.title}</h3>
+                  <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">{p.description}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -232,7 +244,7 @@ export default async function HomePage() {
             description="Instagram, WhatsApp y los referidos sirven para descubrir. Para decidir y reservar, necesitás respaldo."
           />
           <div className="grid gap-6 md:grid-cols-2">
-            <div className="rounded-card border-2 border-line-2 bg-forest-tint/50 p-7">
+            <Reveal className="rounded-card border-2 border-line-2 bg-forest-tint/50 p-7">
               <p className="flex items-center gap-2 font-display text-lg font-bold text-ink">
                 <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-forest text-sm text-white">
                   E
@@ -249,8 +261,8 @@ export default async function HomePage() {
                   </li>
                 ))}
               </ul>
-            </div>
-            <div className="rounded-card border border-sand-200 bg-sand-50 p-7">
+            </Reveal>
+            <Reveal delay={1} className="rounded-card border border-sand-200 bg-sand-50 p-7">
               <p className="font-display text-lg font-bold text-ink-soft">
                 Por fuera, a pulmón
               </p>
@@ -264,7 +276,7 @@ export default async function HomePage() {
                   </li>
                 ))}
               </ul>
-            </div>
+            </Reveal>
           </div>
         </div>
       </section>
@@ -278,8 +290,8 @@ export default async function HomePage() {
         />
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {steps.map((step, i) => (
-            <div key={step.title} className="relative">
-              <Card className="h-full p-6">
+            <Reveal key={step.title} delay={(i as 0 | 1 | 2 | 3)} className="relative">
+              <Card interactive className="h-full p-6">
                 <span className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-tint font-display text-lg font-extrabold text-orange-700">
                   {i + 1}
                 </span>
@@ -288,7 +300,7 @@ export default async function HomePage() {
                   {step.description}
                 </p>
               </Card>
-            </div>
+            </Reveal>
           ))}
         </div>
       </section>
@@ -303,8 +315,10 @@ export default async function HomePage() {
               description="Una muestra de cómo vas a ver cada residencia: verificación, disponibilidad, precios claros y universidades cercanas."
             />
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {featured.map((residence) => (
-                <ResidenceCard key={residence.slug} residence={residence} arsPerUsd={rate.arsPerUsd} />
+              {featured.map((residence, i) => (
+                <Reveal key={residence.slug} delay={(i as 0 | 1 | 2)}>
+                  <ResidenceCard residence={residence} arsPerUsd={rate.arsPerUsd} />
+                </Reveal>
               ))}
             </div>
             <div className="mt-10 text-center">
@@ -323,19 +337,21 @@ export default async function HomePage() {
           title="Una solución para cada uno"
         />
         <div className="grid gap-6 md:grid-cols-3">
-          {audiences.map((a) => (
-            <Card key={a.title} className="flex flex-col p-7">
-              <h3 className="text-lg font-bold text-ink">{a.title}</h3>
-              <p className="mt-2 flex-1 text-sm leading-relaxed text-ink-soft">
-                {a.description}
-              </p>
-              <Link
-                href={a.href}
-                className="mt-5 text-sm font-semibold text-forest-700 hover:text-forest-700"
-              >
-                {a.cta} →
-              </Link>
-            </Card>
+          {audiences.map((a, i) => (
+            <Reveal key={a.title} delay={(i as 0 | 1 | 2)}>
+              <Card interactive className="flex h-full flex-col p-7">
+                <h3 className="text-lg font-bold text-ink">{a.title}</h3>
+                <p className="mt-2 flex-1 text-sm leading-relaxed text-ink-soft">
+                  {a.description}
+                </p>
+                <Link
+                  href={a.href}
+                  className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-forest-700 transition-transform duration-200 ease-bounce hover:translate-x-1"
+                >
+                  {a.cta} <Icon name="arrow_forward" className="text-base" />
+                </Link>
+              </Card>
+            </Reveal>
           ))}
         </div>
       </section>
@@ -356,10 +372,11 @@ export default async function HomePage() {
             </p>
           </div>
           <div className="grid gap-6 md:grid-cols-3">
-            {upcoming.map((u) => (
-              <div
+            {upcoming.map((u, i) => (
+              <Reveal
                 key={u.title}
-                className="rounded-card border border-forest-600 bg-forest-600/40 p-6"
+                delay={(i as 0 | 1 | 2)}
+                className="rounded-card border border-forest-600 bg-forest-600/40 p-6 transition-all duration-300 ease-bounce hover:-translate-y-1 hover:border-orange/60 hover:bg-forest-600/60"
               >
                 <p className="inline-flex rounded-full bg-forest-ink/60 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-gold">
                   {u.stage}
@@ -368,7 +385,7 @@ export default async function HomePage() {
                 <p className="mt-2 text-sm leading-relaxed text-forest-tint">
                   {u.description}
                 </p>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -378,28 +395,27 @@ export default async function HomePage() {
       <section className="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-24">
         <SectionHeader eyebrow="Preguntas frecuentes" title="Dudas comunes" />
         <div className="space-y-4">
-          {faqs.map((faq) => (
-            <details
-              key={faq.q}
-              className="group rounded-card border border-sand-200 bg-surface p-5 open:shadow-card"
-            >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-ink marker:hidden">
-                {faq.q}
-                <span aria-hidden="true" className="text-forest-600 transition-transform group-open:rotate-45">
-                  +
-                </span>
-              </summary>
-              <p className="mt-3 text-sm leading-relaxed text-ink-soft">
-                {faq.a}
-              </p>
-            </details>
+          {faqs.map((faq, i) => (
+            <Reveal key={faq.q} delay={Math.min(i, 5) as 0 | 1 | 2 | 3 | 4 | 5}>
+              <details className="group rounded-card border border-sand-200 bg-surface p-5 transition-shadow open:shadow-card">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-ink marker:hidden">
+                  {faq.q}
+                  <span aria-hidden="true" className="text-forest-600 transition-transform group-open:rotate-45">
+                    +
+                  </span>
+                </summary>
+                <p className="mt-3 text-sm leading-relaxed text-ink-soft">
+                  {faq.a}
+                </p>
+              </details>
+            </Reveal>
           ))}
         </div>
       </section>
 
       {/* CTA final */}
       <section className="bg-mint">
-        <div className="mx-auto max-w-3xl px-4 py-20 text-center sm:px-6">
+        <Reveal className="mx-auto max-w-3xl px-4 py-20 text-center sm:px-6">
           <p className="font-display text-2xl font-extrabold text-ink sm:text-3xl">
             La convivencia también se elige.
           </p>
@@ -415,7 +431,7 @@ export default async function HomePage() {
               Crear cuenta
             </Button>
           </div>
-        </div>
+        </Reveal>
       </section>
     </>
   );
