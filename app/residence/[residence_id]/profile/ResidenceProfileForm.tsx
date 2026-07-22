@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Input, Select, Textarea } from "@/components/ui/Input";
+import { Icon } from "@/components/ui/Icon";
 import { formatArs, formatUsd, usdToArs } from "@/lib/mock/exchange";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import {
@@ -64,6 +65,7 @@ interface ProfileInitial {
   nearUniversities: string[];
   rulesSummary: string;
   rulesFileName: string | null;
+  faqItems: { question: string; answer: string }[];
   photos: { url: string; pending: boolean }[];
   roomTypes: RoomTypeDraft[];
   conditions: ConditionsDraft;
@@ -152,6 +154,9 @@ export function ResidenceProfileForm({
     new Set(initial.nearUniversities),
   );
   const [rulesSummary, setRulesSummary] = useState(initial.rulesSummary);
+  const [faqItems, setFaqItems] = useState<{ question: string; answer: string }[]>(
+    initial.faqItems.length > 0 ? initial.faqItems : [{ question: "", answer: "" }],
+  );
   const [roomTypes, setRoomTypes] = useState<RoomTypeDraft[]>(
     initial.roomTypes.length > 0 ? initial.roomTypes : [emptyRoomType()],
   );
@@ -171,6 +176,18 @@ export function ResidenceProfileForm({
 
   function updateRoomType(index: number, patch: Partial<RoomTypeDraft>) {
     setRoomTypes((prev) => prev.map((rt, i) => (i === index ? { ...rt, ...patch } : rt)));
+  }
+
+  function updateFaqItem(index: number, patch: Partial<{ question: string; answer: string }>) {
+    setFaqItems((prev) => prev.map((f, i) => (i === index ? { ...f, ...patch } : f)));
+  }
+
+  function addFaqItem() {
+    setFaqItems((prev) => (prev.length >= 5 ? prev : [...prev, { question: "", answer: "" }]));
+  }
+
+  function removeFaqItem(index: number) {
+    setFaqItems((prev) => (prev.length > 1 ? prev.filter((_, i) => i !== index) : prev));
   }
 
   function toggleRoomFeature(index: number, feature: string) {
@@ -242,6 +259,10 @@ export function ResidenceProfileForm({
           // submit (patrón HTML nativo) — leer el botón evita la carrera
           // de usar onClick + estado de React para decidirlo.
           fd.set("room_types_json", JSON.stringify(roomTypes));
+          fd.set(
+            "faq_json",
+            JSON.stringify(faqItems.filter((f) => f.question.trim() && f.answer.trim())),
+          );
           fd.set(
             "conditions_json",
             JSON.stringify({
@@ -352,14 +373,15 @@ export function ResidenceProfileForm({
               antes de ser público.
             </p>
             <Textarea
-              label="Resumen de normas de convivencia"
+              label="Reglas de convivencia (una por línea)"
+              hint="En tu ficha pública se muestran las primeras 5. Escribí una regla corta por renglón."
               id="rules_summary"
               name="rules_summary"
               value={rulesSummary}
               onChange={(e) => setRulesSummary(e.target.value)}
-              rows={3}
+              rows={5}
               className="mt-4"
-              placeholder="Ej: No se permiten fiestas ruidosas después de las 22hs. Prohibido fumar en interiores…"
+              placeholder={"No fiestas después de las 22hs\nProhibido fumar en interiores\nVisitas hasta las 20hs"}
             />
             <div className="mt-4">
               <label htmlFor="rules_file" className="text-sm font-medium text-ink">
@@ -376,6 +398,56 @@ export function ResidenceProfileForm({
                 <p className="mt-1 text-xs text-ink-faint">Actual: {initial.rulesFileName}</p>
               )}
             </div>
+          </Card>
+
+          {/* Preguntas frecuentes — hasta 5, se muestran públicamente en la ficha con acordeón */}
+          <Card className="p-6">
+            <h2 className="text-lg font-bold text-ink">Preguntas frecuentes</h2>
+            <p className="mt-1 text-sm text-ink-soft">
+              Hasta 5 preguntas que los estudiantes suelen hacer antes de reservar. Se muestran en tu ficha pública.
+            </p>
+            <div className="mt-4 space-y-4">
+              {faqItems.map((faq, i) => (
+                <div key={i} className="rounded-field border-[1.5px] border-line p-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <Input
+                      label={`Pregunta ${i + 1}`}
+                      value={faq.question}
+                      onChange={(e) => updateFaqItem(i, { question: e.target.value })}
+                      placeholder="Ej: ¿Se permiten mascotas?"
+                      className="flex-1"
+                    />
+                    {faqItems.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeFaqItem(i)}
+                        className="mt-7 shrink-0 rounded-field p-2 text-ink-faint transition-colors hover:bg-cream-2 hover:text-danger-fg"
+                        aria-label="Quitar pregunta"
+                      >
+                        <Icon name="close" className="text-lg" />
+                      </button>
+                    )}
+                  </div>
+                  <Textarea
+                    label="Respuesta"
+                    value={faq.answer}
+                    onChange={(e) => updateFaqItem(i, { answer: e.target.value })}
+                    rows={2}
+                    className="mt-3"
+                    placeholder="Respuesta breve y clara"
+                  />
+                </div>
+              ))}
+            </div>
+            {faqItems.length < 5 && (
+              <button
+                type="button"
+                onClick={addFaqItem}
+                className="mt-3 text-sm font-semibold text-forest-700 hover:underline"
+              >
+                + Agregar pregunta
+              </button>
+            )}
           </Card>
 
           {/* Universidades cercanas */}

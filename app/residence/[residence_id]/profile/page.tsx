@@ -86,6 +86,7 @@ export default async function ResidenceProfilePage({
         nearUniversities: (sectionMap.near_universities?.items as string[]) ?? [],
         rulesSummary: (sectionMap.rules?.summary as string) ?? "",
         rulesFileName: rulesFile?.filename ?? null,
+        faqItems: (sectionMap.faq?.items as { question: string; answer: string }[]) ?? [],
         photos: photoItems,
         pendingEditGroups,
         roomTypes: (roomTypes ?? []).map((rt) => ({

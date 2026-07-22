@@ -39,8 +39,8 @@ function Avatar({ card, index, size = "sm" }: { card: CommunityProfileCard; inde
       <div className={`flex items-center justify-center rounded-full font-bold ${style} ${sizing}`}>{initial}</div>
       {card.countryFlag && (
         <span
-          className={`absolute -bottom-0.5 -right-0.5 flex items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-line ${
-            size === "lg" ? "h-8 w-8 text-lg" : "h-4.5 w-4.5 px-0.5 text-[11px]"
+          className={`absolute -bottom-1 -right-1 flex items-center justify-center rounded-full bg-white shadow-sm ring-2 ring-paper ${
+            size === "lg" ? "h-9 w-9 text-xl" : "h-6 w-6 text-base"
           }`}
           aria-label={card.nationality ?? undefined}
         >
@@ -67,6 +67,8 @@ function ResidentCell({
   selected: boolean;
   onSelect: (id: string) => void;
 }) {
+  const [hovered, setHovered] = useState(false);
+
   if (card.kind === "placeholder") {
     return (
       <div className="flex items-center gap-3 rounded-field border border-line bg-cream-2 p-3">
@@ -80,24 +82,45 @@ function ResidentCell({
       </div>
     );
   }
+
   return (
-    <button
-      type="button"
-      onClick={() => onSelect(card.residentStayId)}
-      className={`flex cursor-pointer items-center gap-3 rounded-field border p-3 text-left transition-colors ${
-        selected
-          ? "border-[1.5px] border-forest bg-forest-tint/60 shadow-card"
-          : "border-line bg-paper hover:border-line-2 hover:bg-cream-2"
-      }`}
-      aria-pressed={selected}
-    >
-      <Avatar card={card} index={index} />
-      <div className="min-w-0 flex-1">
-        <p className={`truncate text-sm font-bold ${selected ? "text-forest-700" : "text-ink"}`}>{card.firstName}</p>
-        {subtitle(card) && <p className="truncate text-xs text-ink-soft">{subtitle(card)}</p>}
-      </div>
-      {selected && <Icon name="check_circle" className="shrink-0 text-lg text-forest-700" />}
-    </button>
+    <div className="relative" onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
+      <button
+        type="button"
+        onClick={() => onSelect(card.residentStayId)}
+        onFocus={() => setHovered(true)}
+        onBlur={() => setHovered(false)}
+        className={`flex w-full cursor-pointer items-center gap-3 rounded-field border p-3 text-left transition-colors ${
+          selected
+            ? "border-[1.5px] border-forest bg-forest-tint/60 shadow-card"
+            : "border-line bg-paper hover:border-line-2 hover:bg-cream-2"
+        }`}
+        aria-pressed={selected}
+      >
+        <Avatar card={card} index={index} />
+        <div className="min-w-0 flex-1">
+          <p className={`truncate text-sm font-bold ${selected ? "text-forest-700" : "text-ink"}`}>{card.firstName}</p>
+          {subtitle(card) && <p className="truncate text-xs text-ink-soft">{subtitle(card)}</p>}
+        </div>
+        {selected && <Icon name="check_circle" className="shrink-0 text-lg text-forest-700" />}
+      </button>
+
+      {/* Vistazo rápido al hover — sin ocupar espacio permanente en la
+          página; el click sigue abriendo el perfil completo en el panel. */}
+      {hovered && !selected && (card.age != null || card.career || card.originCity || card.nationality) && (
+        <div
+          role="tooltip"
+          className="benefit-fade-in pointer-events-none absolute left-1/2 top-full z-30 mt-2 w-56 -translate-x-1/2 rounded-field border-[1.5px] border-line bg-paper p-3 text-left shadow-float"
+        >
+          <p className="flex items-center gap-1.5 text-sm font-bold text-ink">
+            {card.countryFlag && <span className="text-base">{card.countryFlag}</span>}
+            {card.firstName}
+          </p>
+          {subtitle(card) && <p className="mt-0.5 text-xs text-ink-soft">{subtitle(card)}</p>}
+          {card.originCity && <p className="mt-0.5 text-xs text-ink-faint">De {card.originCity}</p>}
+        </div>
+      )}
+    </div>
   );
 }
 

@@ -5,16 +5,18 @@ import type { Metadata } from "next";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { Card } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { TrustBadge } from "@/components/residences/TrustBadge";
-import { formatArs, formatUsd, usdToArs } from "@/lib/mock/exchange";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
-import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import { Icon } from "@/components/ui/Icon";
 import { getCommunityVisibility } from "@/lib/residents/communityVisibility";
 import { getStudentProfileCompleteness } from "@/lib/students/profileCompleteness";
 import { CommunityBrowser } from "@/components/residences/CommunityBrowser";
+import { AmenityGrid } from "@/components/residences/AmenityGrid";
+import { RulesHighlight } from "@/components/residences/RulesHighlight";
+import { FaqAccordion } from "@/components/residences/FaqAccordion";
+import { CompactMap } from "@/components/residences/CompactMap";
+import { getServiceIcon, getCommonAreaIcon } from "@/lib/residences/amenityIcons";
 import { ApplyForm } from "@/app/(public)/residencias/[slug]/ApplyForm";
 import { ProposeForm } from "@/app/(public)/residencias/[slug]/ProposeForm";
 import { FavoriteButton } from "@/app/(public)/residencias/[slug]/FavoriteButton";
@@ -34,7 +36,7 @@ async function loadResidence(slug: string) {
     .maybeSingle();
   if (!residence) return null;
 
-  const [{ data: roomTypes }, { data: sections }, { data: photos }] = await Promise.all([
+  const [{ data: roomTypes }, { data: sections }, { data: photos }, { data: rulesFile }] = await Promise.all([
     admin
       .from("room_types")
       .select(
@@ -51,12 +53,36 @@ async function loadResidence(slug: string) {
       .eq("document_type", "residence_photo")
       .eq("status", "approved")
       .order("created_at", { ascending: true }),
+    // Reglamento en PDF: mismo mecanismo que las fotos (queda "approved"
+    // cuando no requiere revisión, o tras aprobarse) — se genera un signed
+    // URL de solo lectura, sin pasar por el flujo de "acceso justificado"
+    // (ese flujo es para documentación interna sensible tipo DNI; el
+    // reglamento es contenido público por diseño, mismo nivel de
+    // confianza que el resumen de reglas en texto, ya público hoy).
+    admin
+      .from("files")
+      .select("storage_path")
+      .eq("related_entity_type", "residences")
+      .eq("related_entity_id", residence.id)
+      .eq("document_type", "residence_rules_document")
+      .eq("status", "approved")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
   ]);
 
   const sectionMap = Object.fromEntries((sections ?? []).map((s) => [s.section_type, s.content]));
   const photoUrls = (photos ?? []).map(
     (p) => admin.storage.from("public-residence-media").getPublicUrl(p.storage_path).data.publicUrl,
   );
+
+  let rulesPdfUrl: string | null = null;
+  if (rulesFile?.storage_path) {
+    const { data: signed } = await admin.storage
+      .from("private-residence-documents")
+      .createSignedUrl(rulesFile.storage_path, 3600);
+    rulesPdfUrl = signed?.signedUrl ?? null;
+  }
 
   // profile_availability tiene unique(room_type_id) — PostgREST devuelve
   // un objeto singular en el embed, no un array (a diferencia de lo que
@@ -66,7 +92,7 @@ async function loadResidence(slug: string) {
     profile_availability: rt.profile_availability as unknown as { status: string; available_count: number | null } | null,
   }));
 
-  return { residence, roomTypes: normalizedRoomTypes, sectionMap, photoUrls };
+  return { residence, roomTypes: normalizedRoomTypes, sectionMap, photoUrls, rulesPdfUrl };
 }
 
 export async function generateMetadata({
@@ -91,7 +117,7 @@ export default async function RealResidenceDetailPage({
   const { room: preselectedRoomTypeId } = await searchParams;
   const data = await loadResidence(slug);
   if (!data) notFound();
-  const { residence, roomTypes, sectionMap, photoUrls } = data;
+  const { residence, roomTypes, sectionMap, photoUrls, rulesPdfUrl } = data;
   const rate = await getCurrentExchangeRate();
 
   const sessionUser = await getSessionUser();
@@ -99,13 +125,13 @@ export default async function RealResidenceDetailPage({
   const commonAreas = (sectionMap.common_areas?.items as string[]) ?? [];
   const nearUniversities = (sectionMap.near_universities?.items as string[]) ?? [];
   const rulesSummary = (sectionMap.rules?.summary as string) ?? "";
+  const faqItems = (sectionMap.faq?.items as { question: string; answer: string }[]) ?? [];
   const communityStatement = (sectionMap.community_statement?.quote as string) ?? "";
 
   const adminClient = getSupabaseAdmin();
   const community = adminClient
     ? await getCommunityVisibility(adminClient, residence.id, sessionUser ? "registered" : "guest")
     : null;
-  const communityProfiles = (community?.cards ?? []).filter((c) => c.kind === "profile");
 
   // Condiciones de reserva a nivel residencia (migración 0025).
   const conditions = {
@@ -172,9 +198,11 @@ export default async function RealResidenceDetailPage({
     }
   }
 
+  const showStudentFavoriteInHeader = sessionUser?.roles.includes("student") ?? false;
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
-      {/* Galería — ref search_3: 1 foto grande + grilla de 4 con "+N" */}
+      {/* Galería — 1 foto grande + grilla de 4 con "+N" */}
       {photoUrls.length === 0 && (
         <div className="mt-4 flex h-72 items-center justify-center rounded-card bg-sand-200 sm:h-96">
           <Icon name="apartment" className="text-6xl text-ink-faint" />
@@ -225,6 +253,10 @@ export default async function RealResidenceDetailPage({
             <div className="flex flex-wrap items-center gap-3">
               <h1 className="text-3xl font-bold text-ink sm:text-4xl">{residence.name}</h1>
               <TrustBadge status="verified_active" size="md" />
+              {/* Favorito — cerca del título, no compite con el panel de solicitud */}
+              {showStudentFavoriteInHeader && (
+                <FavoriteButton action={toggleStudentFavorite.bind(null, residence.id)} initialFavorited={studentFavorited} />
+              )}
             </div>
             <p className="mt-1 text-ink-soft">{residence.public_area}, CABA</p>
             {nearUniversities.length > 0 && (
@@ -234,8 +266,7 @@ export default async function RealResidenceDetailPage({
             )}
           </div>
 
-          {/* Comunidad y Convivencia — ref search_3: quote de la residencia
-              + avatares + contador + "Ver todos los perfiles →" */}
+          {/* Comunidad y Convivencia — quote + avatares + contador */}
           {(communityStatement || (community && community.totalResidents > 0)) && (
             <Card className="p-5">
               <p className="flex items-center gap-2 text-sm font-bold text-ink">
@@ -250,16 +281,19 @@ export default async function RealResidenceDetailPage({
                 <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <div className="flex -space-x-2">
-                      {communityProfiles.slice(0, 4).map((c, i) => (
-                        <span
-                          key={c.residentStayId}
-                          className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ring-2 ring-paper ${
-                            ["bg-forest-tint text-forest-700", "bg-orange-tint text-orange-700", "bg-mint text-forest-700", "bg-sand-100 text-ink-soft"][i % 4]
-                          }`}
-                        >
-                          {c.firstName?.[0]?.toUpperCase() ?? "?"}
-                        </span>
-                      ))}
+                      {community.cards
+                        .filter((c) => c.kind === "profile")
+                        .slice(0, 4)
+                        .map((c, i) => (
+                          <span
+                            key={c.residentStayId}
+                            className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ring-2 ring-paper ${
+                              ["bg-forest-tint text-forest-700", "bg-orange-tint text-orange-700", "bg-mint text-forest-700", "bg-sand-100 text-ink-soft"][i % 4]
+                            }`}
+                          >
+                            {c.firstName?.[0]?.toUpperCase() ?? "?"}
+                          </span>
+                        ))}
                       {community.totalResidents > 4 && (
                         <span className="flex h-8 w-8 items-center justify-center rounded-full bg-forest text-[11px] font-bold text-white ring-2 ring-paper">
                           +{community.totalResidents - 4}
@@ -286,189 +320,102 @@ export default async function RealResidenceDetailPage({
             </section>
           )}
 
-          {/* Disponibilidad de Habitaciones — ref search_3: cards por tipo
-              con compañeros de cuarto y CTA "Seleccionar este lugar" */}
-          <section id="disponibilidad" className="scroll-mt-24">
-            <h2 className="text-xl font-bold text-ink">Disponibilidad de habitaciones</h2>
-            <div className="mt-4 space-y-4">
-              {roomTypes.map((rt) => {
-                const isFull = rt.profile_availability?.status === "full";
-                const genderLabel =
-                  rt.gender_policy === "solo_mujeres"
-                    ? "Solo chicas"
-                    : rt.gender_policy === "solo_hombres"
-                      ? "Solo chicos"
-                      : null;
-                const roommates = communityProfiles.filter((c) => c.roomTypeId === rt.id && c.firstName);
-                const capacity = Math.max(1, rt.capacity_per_room ?? 1);
-                return (
-                  <div
-                    key={rt.id}
-                    className={`rounded-card border-[1.5px] p-5 ${isFull ? "border-line bg-cream-2/50" : "border-line bg-paper shadow-card"}`}
-                  >
-                    <div className="flex flex-wrap items-start justify-between gap-3">
-                      <div>
-                        <p className="flex items-center gap-2 font-bold text-ink">
-                          {rt.name}
-                          {genderLabel && (
-                            <span className="rounded-full bg-orange-tint px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-orange-700">
-                              {genderLabel}
-                            </span>
-                          )}
-                        </p>
-                        <p className="mt-0.5 flex items-center gap-1.5 text-xs text-ink-faint">
-                          <Icon name="bed" className="text-sm" />
-                          {capacity} {capacity === 1 ? "cama" : "camas"} por habitación
-                          {rt.bathroom_type && ` · Baño ${rt.bathroom_type}`}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-bold text-forest-700">
-                          {formatUsd(Number(rt.monthly_price_usd))}
-                          <span className="ml-1 text-xs font-normal text-ink-faint">/mes</span>
-                        </p>
-                        <p className="text-xs text-ink-faint">
-                          ≈ {formatArs(usdToArs(Number(rt.monthly_price_usd), rate.arsPerUsd))}
-                          <ExchangeRateNote />
-                        </p>
-                        {isFull ? (
-                          <Badge tone="neutral">Sin lugar</Badge>
-                        ) : (
-                          <Badge tone="sage">Con lugar informado</Badge>
-                        )}
-                      </div>
-                    </div>
-
-                    {roommates.length > 0 && (
-                      <div className="mt-4 rounded-field bg-cream-2 p-3">
-                        <p className="mb-2 text-[10px] font-extrabold uppercase tracking-widest text-muted">
-                          Tus futuros compañeros de cuarto
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          {roommates.slice(0, 4).map((c, i) => (
-                            <span
-                              key={c.residentStayId}
-                              className="inline-flex items-center gap-1.5 rounded-full border border-line bg-paper px-2.5 py-1 text-xs font-medium text-ink"
-                            >
-                              <span
-                                className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${
-                                  ["bg-forest-tint text-forest-700", "bg-orange-tint text-orange-700", "bg-mint text-forest-700", "bg-sand-100 text-ink-soft"][i % 4]
-                                }`}
-                              >
-                                {c.firstName?.[0]?.toUpperCase()}
-                              </span>
-                              {c.firstName}
-                              {c.age != null && `, ${c.age}`}
-                            </span>
-                          ))}
-                          {roommates.length > 4 && (
-                            <Link
-                              href={`/residencias/${slug}/comunidad`}
-                              className="inline-flex items-center rounded-full border border-line bg-paper px-2.5 py-1 text-xs font-semibold text-forest-700 hover:underline"
-                            >
-                              +{roommates.length - 4} más
-                            </Link>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {!isFull && (
-                      <Link
-                        href={`/residencias/${slug}?room=${rt.id}#solicitud`}
-                        className="mt-4 block w-full rounded-full bg-forest px-4 py-2.5 text-center text-sm font-bold text-white shadow-card transition-colors hover:bg-forest-600"
-                      >
-                        Seleccionar este lugar
-                      </Link>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-
+          {/* 1. Servicios incluidos */}
           {services.length > 0 && (
             <section>
               <h2 className="text-xl font-bold text-ink">Servicios incluidos</h2>
-              <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-                {services.map((s) => (
-                  <li key={s} className="flex items-center gap-2 text-sm text-ink-soft">
-                    <Icon name="check_circle" className="text-base text-forest-700" /> {s}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-
-          {commonAreas.length > 0 && (
-            <section>
-              <h2 className="text-xl font-bold text-ink">Áreas comunes</h2>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {commonAreas.map((area) => (
-                  <span
-                    key={area}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3.5 py-1.5 text-sm font-medium text-ink-soft"
-                  >
-                    <Icon name="chair" className="text-base text-forest-700" />
-                    {area}
-                  </span>
-                ))}
+              <div className="mt-4">
+                <AmenityGrid items={services.map((s) => ({ name: s, ...getServiceIcon(s) }))} />
               </div>
             </section>
           )}
 
-          {rulesSummary && (
+          {/* 2. Áreas comunes */}
+          {commonAreas.length > 0 && (
             <section>
-              <h2 className="text-xl font-bold text-ink">Reglas de convivencia</h2>
-              <p className="mt-3 rounded-card bg-sand-100 px-4 py-3 text-sm text-ink-soft">{rulesSummary}</p>
+              <h2 className="text-xl font-bold text-ink">Áreas comunes</h2>
+              <div className="mt-4">
+                <AmenityGrid items={commonAreas.map((a) => ({ name: a, ...getCommonAreaIcon(a) }))} />
+              </div>
             </section>
           )}
 
-          {/* Comunidad actual — ref search_3 embebe el módulo completo de
-              comunidad (ocupación + habitaciones) en la ficha */}
-          <section>
-            <h2 className="text-xl font-bold text-ink">Comunidad actual de la residencia</h2>
+          {/* 3. Reglas de convivencia — top 5 + PDF, no el reglamento completo en texto */}
+          {(rulesSummary || rulesPdfUrl) && (
+            <section>
+              <h2 className="text-xl font-bold text-ink">Reglas de convivencia</h2>
+              <div className="mt-4">
+                <RulesHighlight rulesSummary={rulesSummary} pdfUrl={rulesPdfUrl} />
+              </div>
+            </section>
+          )}
+
+          {/* 4. Preguntas frecuentes */}
+          {faqItems.length > 0 && (
+            <section>
+              <h2 className="text-xl font-bold text-ink">Preguntas frecuentes</h2>
+              <div className="mt-4">
+                <FaqAccordion items={faqItems} />
+              </div>
+            </section>
+          )}
+
+          {/* 5. Comunidad y Disponibilidad — unificadas: resumen por tipo +
+              exploración habitación por habitación (CommunityBrowser ya
+              incluye camas libres como CTA hacia la solicitud, a nivel de
+              tipo de habitación, sin exponer camas individuales al público). */}
+          <section id="disponibilidad" className="scroll-mt-24">
+            <h2 className="text-xl font-bold text-ink">Comunidad y disponibilidad</h2>
             <p className="mt-3 flex items-start gap-2 rounded-field bg-info-bg px-3.5 py-2.5 text-xs leading-relaxed text-info-fg">
               <Icon name="info" className="mt-0.5 shrink-0 text-sm" />
               La convivencia es dinámica: los perfiles mostrados son los actuales, pero pueden cambiar antes de tu
               ingreso. Cada estudiante decide qué mostrar.
             </p>
-            {community && community.totalResidents > 0 ? (
+            {community && (community.totalResidents > 0 || community.totalAvailable > 0) ? (
               <div className="mt-4">
                 <CommunityBrowser summary={community} slug={slug} isGuest={!sessionUser} />
               </div>
+            ) : roomTypes.length > 0 ? (
+              <div className="mt-4 space-y-3">
+                {roomTypes.map((rt) => {
+                  const isFull = rt.profile_availability?.status === "full";
+                  return (
+                    <div
+                      key={rt.id}
+                      className={`flex items-center justify-between gap-3 rounded-card border-[1.5px] p-4 ${
+                        isFull ? "border-line bg-cream-2/50" : "border-line bg-paper shadow-card"
+                      }`}
+                    >
+                      <p className="font-bold text-ink">{rt.name}</p>
+                      <Link
+                        href={`/residencias/${slug}?room=${rt.id}#solicitud`}
+                        className={`rounded-full px-4 py-2 text-xs font-bold ${
+                          isFull ? "bg-sand-100 text-ink-faint" : "bg-forest text-white hover:bg-forest-600"
+                        }`}
+                      >
+                        {isFull ? "Sin lugar" : "Seleccionar este lugar"}
+                      </Link>
+                    </div>
+                  );
+                })}
+              </div>
             ) : (
-              <p className="mt-3 text-sm text-ink-soft">
-                La residencia todavía no cargó su comunidad visible.
-              </p>
+              <p className="mt-3 text-sm text-ink-soft">La residencia todavía no cargó su comunidad visible.</p>
             )}
           </section>
 
-          {/* Ubicación — ref search_3 (sin mapa: no hay datos geo reales;
-              la dirección exacta es privada hasta confirmar la reserva) */}
+          {/* 6. Ubicación — mapa compacto con pin aproximado por barrio
+              (nunca la dirección exacta) + universidades cercanas */}
           <section>
             <h2 className="text-xl font-bold text-ink">Ubicación</h2>
-            <Card className="mt-4 flex items-start gap-3 p-5">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-forest-tint text-forest-700">
-                <Icon name="location_on" className="text-xl" />
-              </span>
-              <div>
-                <p className="font-bold text-ink">{residence.public_area}, Buenos Aires</p>
-                {nearUniversities.length > 0 && (
-                  <p className="mt-0.5 text-sm text-ink-soft">
-                    A minutos de {nearUniversities.join(" y ")}, con transporte directo.
-                  </p>
-                )}
-                <p className="mt-2 text-xs text-ink-faint">
-                  La dirección exacta se comparte una vez confirmada la reserva.
-                </p>
-              </div>
-            </Card>
+            <div className="mt-4">
+              <CompactMap residenceName={residence.name} zone={residence.public_area} nearUniversityNames={nearUniversities} />
+            </div>
           </section>
         </div>
 
         <aside id="solicitud" className="scroll-mt-24">
-          <Card className="sticky top-24 p-6">
+          <Card className="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto p-6">
             {!sessionUser ? (
               <>
                 <p className="text-sm text-ink-soft">
@@ -506,19 +453,14 @@ export default async function RealResidenceDetailPage({
                 Solo cuentas de estudiante o familiares vinculados pueden actuar acá.
               </p>
             ) : (
-              <>
-                <div className="mb-4">
-                  <FavoriteButton action={toggleStudentFavorite.bind(null, residence.id)} initialFavorited={studentFavorited} />
-                </div>
-                <ApplyForm
-                  residenceId={residence.id}
-                  roomTypes={roomTypes}
-                  conditions={conditions}
-                  arsPerUsd={rate.arsPerUsd}
-                  preselectedRoomTypeId={preselectedRoomTypeId}
-                  profileCompletenessPercent={profileCompletenessPercent}
-                />
-              </>
+              <ApplyForm
+                residenceId={residence.id}
+                roomTypes={roomTypes}
+                conditions={conditions}
+                arsPerUsd={rate.arsPerUsd}
+                preselectedRoomTypeId={preselectedRoomTypeId}
+                profileCompletenessPercent={profileCompletenessPercent}
+              />
             )}
             <p className="mt-4 text-xs text-ink-faint">
               Enviar una solicitud no garantiza tu lugar: la residencia la revisa y responde. Toda

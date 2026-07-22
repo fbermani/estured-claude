@@ -234,7 +234,7 @@ const norteDobleId = await addRoomType(norteId, { name: "Doble", usd: 220, ars: 
 await addRoomType(norteId, { name: "Triple", usd: 190, ars: 288800, count: 2 });
 await addSections(norteId, {
   services: ["WiFi de alta velocidad", "Limpieza semanal de áreas comunes", "Lavadero", "Cocina equipada"],
-  universities: ["Universidad de Palermo", "UBA Derecho"],
+  universities: ["Universidad de Palermo (UP)", "UBA - Facultad de Derecho"],
   rules: "Convivencia respetuosa, silencio después de las 23hs, visitas coordinadas con anticipación.",
 });
 console.log("✓ Residencia Norte:", norteId);
@@ -252,7 +252,7 @@ const rioplataEstudioId = await addRoomType(rioplataId, { name: "Individual", us
 await addRoomType(rioplataId, { name: "Cuádruple", usd: 170, ars: 258400, count: 2 });
 await addSections(rioplataId, {
   services: ["WiFi", "Aire acondicionado", "Seguridad 24hs"],
-  universities: ["UBA Medicina", "Universidad Católica Argentina"],
+  universities: ["UBA - Facultad de Medicina", "Universidad Católica Argentina (UCA)"],
   rules: "Sin mascotas. Horario de portería 7-23hs, timbre coordinado fuera de ese rango.",
 });
 console.log("✓ Residencia Río de la Plata:", rioplataId);
@@ -270,7 +270,7 @@ await addRoomType(almagroId, { name: "Triple", usd: 180, ars: 273500, count: 4 }
 await addRoomType(almagroId, { name: "Doble", usd: 210, ars: 319200, count: 2 });
 await addSections(almagroId, {
   services: ["WiFi", "Desayuno incluido"],
-  universities: ["UBA Sociales"],
+  universities: ["UBA - Facultad de Ciencias Sociales"],
   rules: "Tareas domésticas rotativas entre residentes.",
 });
 await admin.from("residence_verifications").insert({

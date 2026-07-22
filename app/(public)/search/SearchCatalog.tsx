@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Icon } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
 import { availabilityHelpText } from "@/components/ui/StatusTag";
+import { UNIVERSITY_NAMES } from "@/lib/data/buenosAiresUniversities";
 
 /**
  * Catálogo con filtros — layout a semejanza de la referencia
@@ -177,14 +178,20 @@ export function SearchCatalog({ residences, arsPerUsd }: { residences: Residence
         </label>
         <div className="relative">
           <Icon name="school" className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-xl text-ink-faint" />
-          <input
+          <select
             id="filter-university"
-            type="search"
             value={university}
             onChange={(e) => setUniversity(e.target.value)}
-            placeholder="Ej: UBA, UADE, Universidad de Palermo…"
-            className="w-full rounded-field border-[1.5px] border-line bg-cream py-2.5 pl-11 pr-4 text-sm text-ink placeholder:text-ink-faint focus:border-forest focus:outline-none"
-          />
+            className="w-full appearance-none rounded-field border-[1.5px] border-line bg-cream py-2.5 pl-11 pr-9 text-sm text-ink focus:border-forest focus:outline-none"
+          >
+            <option value="">Cualquier universidad</option>
+            {UNIVERSITY_NAMES.map((u) => (
+              <option key={u} value={u}>
+                {u}
+              </option>
+            ))}
+          </select>
+          <Icon name="expand_more" className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-xl text-ink-faint" />
         </div>
       </div>
 

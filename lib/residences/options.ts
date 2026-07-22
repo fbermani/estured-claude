@@ -1,4 +1,5 @@
 import type { RoomTypeName } from "@/types/domain";
+import { UNIVERSITY_NAMES } from "@/lib/data/buenosAiresUniversities";
 
 /**
  * Listas fijas del onboarding de residencias. Extraídas literalmente de
@@ -35,14 +36,13 @@ export const COMMON_AREA_OPTIONS = [
   "Balcón",
 ] as const;
 
-export const UNIVERSITY_OPTIONS = [
-  "Universidad de Palermo (UP)",
-  "Universidad Católica Argentina (UCA)",
-  "UBA - Ciudad Universitaria",
-  "Instituto Tecnológico de Buenos Aires (ITBA)",
-  "UADE",
-  "Universidad de Belgrano",
-] as const;
+/**
+ * Derivado de `lib/data/buenosAiresUniversities.ts` (fuente única con
+ * coordenadas) — antes era una lista de 6 universidades sin coordenadas;
+ * ahora comparte el mismo dataset que el mapa de la ficha y el filtro
+ * de `/search`.
+ */
+export const UNIVERSITY_OPTIONS = UNIVERSITY_NAMES;
 
 export const PROPERTY_TYPE_OPTIONS = [
   { value: "residencia_estudiantil", label: "Residencia Estudiantil" },
