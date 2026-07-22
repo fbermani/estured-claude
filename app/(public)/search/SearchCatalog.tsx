@@ -67,7 +67,7 @@ function FilterPill({
         <Icon name={open ? "expand_less" : "expand_more"} className="text-lg" />
       </button>
       {open && (
-        <div className="absolute left-0 top-full z-20 mt-2 min-w-56 rounded-card border-[1.5px] border-line bg-paper p-3 shadow-float">
+        <div className="animate-dropdown-in absolute left-0 top-full z-20 mt-2 min-w-56 rounded-card border-[1.5px] border-line bg-paper p-3 shadow-float">
           {children}
         </div>
       )}

@@ -166,6 +166,37 @@ p {
   font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
 }
 
+/* ---- Motion: entradas de modales/popovers/dropdowns (fresh-style.md §2 "Modales")
+   — transform + opacity únicamente, sin animar layout. Respeta
+   prefers-reduced-motion vía la regla global de abajo (cubre cualquier
+   animation-name declarado acá, no hace falta duplicar la condición). ---- */
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+@keyframes dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-modal-in {
+  animation: modal-in 220ms var(--ease-bounce);
+}
+.animate-dropdown-in {
+  animation: dropdown-in 160ms var(--ease-out-fresh);
+}
+
 /* ---- Motion: respeta prefers-reduced-motion para cualquier animación decorativa infinita ---- */
 @media (prefers-reduced-motion: reduce) {
   *,

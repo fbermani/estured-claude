@@ -277,7 +277,7 @@ function RoomModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-forest-ink/60" onClick={onClose} aria-hidden />
-      <div className="relative z-10 flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-card bg-paper shadow-float">
+      <div className="animate-modal-in relative z-10 flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-card bg-paper shadow-float">
         <div className="flex items-start justify-between border-b border-line px-6 py-4">
           <div>
             <h2 className="flex items-center gap-2 text-xl font-bold text-ink">
