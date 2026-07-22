@@ -18,22 +18,34 @@ export function Footer() {
           </p>
           <ul className="mt-3 space-y-2 text-sm text-white/80">
             <li>
-              <Link href="/search" className="hover:text-white">
+              <Link
+                href="/search"
+                className="rounded-sm transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              >
                 Buscar residencias
               </Link>
             </li>
             <li>
-              <Link href="/for-students" className="hover:text-white">
+              <Link
+                href="/for-students"
+                className="rounded-sm transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              >
                 Para estudiantes y familias
               </Link>
             </li>
             <li>
-              <Link href="/for-residences" className="hover:text-white">
+              <Link
+                href="/for-residences"
+                className="rounded-sm transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              >
                 Para residencias
               </Link>
             </li>
             <li>
-              <Link href="/register" className="hover:text-white">
+              <Link
+                href="/register"
+                className="rounded-sm transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              >
                 Crear cuenta
               </Link>
             </li>
@@ -56,11 +68,11 @@ export function Footer() {
             EstuRed actúa como plataforma intermediaria de búsqueda, solicitud,
             registro y comprobante. No presta directamente el alojamiento. Los
             precios en ARS son referenciales al dólar blue del día.{" "}
-            <Link href="/students/revocation" className="underline hover:text-white">
+            <Link href="/students/revocation" className="rounded-sm underline transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
               Botón de arrepentimiento
             </Link>
             {" · "}
-            <Link href="/privacy" className="underline hover:text-white">
+            <Link href="/privacy" className="rounded-sm underline transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
               Política de privacidad
             </Link>
             .

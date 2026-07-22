@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import { Icon } from "@/components/ui/Icon";
 
 const links = [
   { href: "/search", label: "Buscar residencias" },
@@ -41,7 +42,7 @@ export function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              className={`rounded-full px-3.5 py-2 text-sm font-bold transition-all duration-300 ease-bounce ${
+              className={`rounded-full px-3.5 py-2 text-sm font-bold transition-all duration-300 ease-bounce focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest ${
                 pathname === link.href
                   ? "bg-forest-tint text-forest-700"
                   : "text-ink-soft hover:bg-cream-2 hover:text-forest-700"
@@ -61,19 +62,13 @@ export function Navbar() {
         </div>
 
         <button
-          className="rounded-full p-2 text-ink-soft transition-colors hover:bg-cream-2 md:hidden"
+          className="rounded-full p-2 text-ink-soft transition-colors hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest md:hidden"
           onClick={() => setOpen(!open)}
           aria-expanded={open}
           aria-controls="mobile-menu"
           aria-label={open ? "Cerrar menú" : "Abrir menú"}
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-6 w-6">
-            {open ? (
-              <path strokeLinecap="round" d="M6 6l12 12M18 6L6 18" />
-            ) : (
-              <path strokeLinecap="round" d="M4 7h16M4 12h16M4 17h16" />
-            )}
-          </svg>
+          <Icon name={open ? "close" : "menu"} className="text-2xl" />
         </button>
       </nav>
 

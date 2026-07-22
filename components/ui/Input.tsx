@@ -1,7 +1,7 @@
 import type { ComponentPropsWithoutRef } from "react";
 
 const fieldClasses =
-  "w-full rounded-field border-[1.5px] border-line-2 bg-cream px-3.5 py-2.5 text-sm text-ink placeholder:text-muted focus:border-forest focus:outline-2 focus:outline-forest-tint disabled:bg-cream-2 disabled:text-muted";
+  "w-full rounded-field border-[1.5px] border-line-2 bg-cream px-3.5 py-2.5 text-sm text-ink placeholder:text-muted transition-colors duration-200 ease-fresh focus:border-forest focus:outline-2 focus:outline-forest-tint disabled:bg-cream-2 disabled:text-muted";
 
 interface FieldWrapperProps {
   label?: string;

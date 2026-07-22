@@ -27,6 +27,7 @@ export default async function SearchPage() {
       </div>
       {residences.length === 0 ? (
         <EmptyState
+          icon="apartment"
           title="Todavía no hay residencias verificadas"
           description="Estamos verificando las primeras residencias de la red. Volvé a pasar pronto."
         />

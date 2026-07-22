@@ -111,12 +111,13 @@ export default async function StudentFavoritesPage() {
         <h1 className="text-2xl font-bold text-ink">Favoritos</h1>
         <div className="mt-6">
           <EmptyState
+            icon="favorite_border"
             title="Sin favoritos"
             description="Guardá residencias desde su ficha para compararlas después."
             action={
-              <a href="/search" className="text-sm font-semibold text-forest-700 underline">
+              <Button href="/search" variant="outline" size="sm">
                 Buscar residencias
-              </a>
+              </Button>
             }
           />
         </div>

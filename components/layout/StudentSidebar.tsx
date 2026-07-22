@@ -105,7 +105,7 @@ export function StudentSidebar({ userEmail }: { userEmail: string }) {
                   onClick={() => setMobileOpen(false)}
                   title={item.label}
                   aria-label={item.label}
-                  className={`flex items-center gap-3 rounded-field px-3 py-2.5 text-sm font-semibold transition-colors ${
+                  className={`flex items-center gap-3 rounded-field px-3 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest ${
                     active ? "bg-forest-tint text-forest-700" : "text-ink-soft hover:bg-cream-2"
                   } ${collapsed ? "md:justify-center" : ""}`}
                 >
@@ -123,7 +123,7 @@ export function StudentSidebar({ userEmail }: { userEmail: string }) {
             href="/students/revocation"
             title="Botón de arrepentimiento"
             aria-label="Botón de arrepentimiento"
-            className={`mt-2 flex items-center gap-2 rounded-field px-3 py-2 text-sm font-medium text-ink-soft hover:bg-cream-2 ${collapsed ? "md:justify-center" : ""}`}
+            className={`mt-2 flex items-center gap-2 rounded-field px-3 py-2 text-sm font-medium text-ink-soft hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest ${collapsed ? "md:justify-center" : ""}`}
           >
             <Icon name="undo" className="shrink-0 text-lg" />
             <span className={collapsed ? "md:hidden" : ""}>Botón de arrepentimiento</span>
@@ -133,7 +133,7 @@ export function StudentSidebar({ userEmail }: { userEmail: string }) {
               type="submit"
               title="Salir"
               aria-label="Salir"
-              className={`mt-1 flex w-full items-center gap-2 rounded-field px-3 py-2 text-left text-sm font-medium text-ink-soft hover:bg-cream-2 ${collapsed ? "md:justify-center" : ""}`}
+              className={`mt-1 flex w-full items-center gap-2 rounded-field px-3 py-2 text-left text-sm font-medium text-ink-soft hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest ${collapsed ? "md:justify-center" : ""}`}
             >
               <Icon name="logout" className="shrink-0 text-lg" />
               <span className={collapsed ? "md:hidden" : ""}>Salir</span>
@@ -146,7 +146,7 @@ export function StudentSidebar({ userEmail }: { userEmail: string }) {
           onClick={toggleCollapsed}
           aria-label={collapsed ? "Expandir menú" : "Colapsar menú"}
           title={collapsed ? "Expandir menú" : "Colapsar menú"}
-          className="absolute -right-3 top-7 hidden h-6 w-6 items-center justify-center rounded-full border border-line bg-paper text-ink-soft shadow-sm md:flex"
+          className="absolute -right-3 top-7 hidden h-6 w-6 items-center justify-center rounded-full border border-line bg-paper text-ink-soft shadow-sm transition-colors hover:border-forest hover:text-forest-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest md:flex"
         >
           <Icon
             name="chevron_left"

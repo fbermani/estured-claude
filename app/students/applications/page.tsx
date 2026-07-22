@@ -90,6 +90,7 @@ export default async function StudentApplicationsPage() {
 
       {applications.length === 0 ? (
         <EmptyState
+          icon="inbox"
           title="Todavía no enviaste ninguna solicitud"
           description="Explorá el catálogo de residencias verificadas y enviá tu primera solicitud."
           action={

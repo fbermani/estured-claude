@@ -281,6 +281,7 @@ export function SearchCatalog({ residences, arsPerUsd }: { residences: Residence
         </div>
       ) : (
         <EmptyState
+          icon="search_off"
           title="No encontramos residencias con esos filtros"
           description="Probá ampliar la búsqueda: quitá algún filtro o aumentá el presupuesto. El catálogo crece semana a semana."
           action={
