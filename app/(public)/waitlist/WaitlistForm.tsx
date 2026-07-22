@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input, Select, Textarea } from "@/components/ui/Input";
+import { Icon } from "@/components/ui/Icon";
 import { submitWaitlist, type WaitlistState } from "@/app/(public)/waitlist/actions";
 
 const initialState: WaitlistState = { status: "idle" };
@@ -18,8 +19,8 @@ export function WaitlistForm() {
   if (state.status === "success") {
     return (
       <Card className="p-8 text-center">
-        <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-success-bg text-2xl">
-          ✓
+        <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-success-bg text-success-fg">
+          <Icon name="check" className="text-2xl" />
         </span>
         <h2 className="mt-4 text-xl font-bold text-ink">
           ¡Listo! Ya estás en la lista

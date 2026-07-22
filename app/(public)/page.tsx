@@ -178,7 +178,7 @@ export default async function HomePage() {
               <div className="absolute -right-3 -top-5 hidden max-w-[240px] rotate-2 rounded-card bg-surface p-3.5 shadow-float ring-1 ring-sand-200 sm:block lg:-right-6">
                 <p className="flex items-start gap-2 text-xs font-bold leading-snug text-ink">
                   <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-success-bg text-success-fg">
-                    ✓
+                    <Icon name="check" className="text-base" />
                   </span>
                   Comprobante de Reserva Confirmada
                 </p>
@@ -242,8 +242,8 @@ export default async function HomePage() {
               <ul className="mt-5 space-y-3.5">
                 {withEstuRed.map((item) => (
                   <li key={item} className="flex gap-3 text-sm text-ink">
-                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-success-bg text-xs font-bold text-success-fg">
-                      ✓
+                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-success-bg text-success-fg">
+                      <Icon name="check" className="text-sm" />
                     </span>
                     {item}
                   </li>

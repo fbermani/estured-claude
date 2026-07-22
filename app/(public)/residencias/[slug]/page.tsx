@@ -393,7 +393,7 @@ export default async function RealResidenceDetailPage({
               <ul className="mt-4 grid gap-2 sm:grid-cols-2">
                 {services.map((s) => (
                   <li key={s} className="flex items-center gap-2 text-sm text-ink-soft">
-                    <span className="text-forest-700">✓</span> {s}
+                    <Icon name="check_circle" className="text-base text-forest-700" /> {s}
                   </li>
                 ))}
               </ul>

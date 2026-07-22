@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { SectionHeader } from "@/components/ui/SectionHeader";
+import { Icon } from "@/components/ui/Icon";
 
 export const metadata: Metadata = {
   title: "Para residencias",
@@ -119,7 +120,7 @@ export default function ForResidencesPage() {
                   "Renovaciones",
                 ].map((f) => (
                   <li key={f} className="flex gap-2">
-                    <span className="text-forest-700">✓</span> {f}
+                    <Icon name="check_circle" className="mt-0.5 shrink-0 text-base text-forest-700" /> {f}
                   </li>
                 ))}
               </ul>
@@ -142,7 +143,7 @@ export default function ForResidencesPage() {
                   "Prioridad de visibilidad en el catálogo",
                 ].map((f) => (
                   <li key={f} className="flex gap-2">
-                    <span className="text-orange-600">✓</span> {f}
+                    <Icon name="check_circle" className="mt-0.5 shrink-0 text-base text-orange-600" /> {f}
                   </li>
                 ))}
               </ul>
