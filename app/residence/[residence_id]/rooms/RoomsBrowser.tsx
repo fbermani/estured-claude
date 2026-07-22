@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useActionState } from "react";
+import { useEffect, useMemo, useState, useActionState } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
 import { Card } from "@/components/ui/Card";
@@ -364,6 +364,16 @@ export function RoomsBrowser({
   const [search, setSearch] = useState("");
   const [onlyVacant, setOnlyVacant] = useState(false);
   const [openRoomId, setOpenRoomId] = useState<string | null>(null);
+
+  // Accesibilidad: el modal de gestión debe poder cerrarse con teclado, no solo clickeando afuera.
+  useEffect(() => {
+    if (!openRoomId) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpenRoomId(null);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [openRoomId]);
 
   const { groups, unassigned, kpis } = data;
 

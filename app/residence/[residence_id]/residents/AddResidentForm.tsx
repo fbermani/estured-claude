@@ -21,7 +21,7 @@ export function AddResidentForm({
     <form action={formAction} className="rounded-card border border-sand-200 bg-sand-50 p-4">
       <h3 className="font-bold text-ink">Cargar residente</h3>
       <p className="mt-1 text-xs text-ink-faint">
-        Docs/05 §15.1 — el residente activa su cuenta después con este mismo email; hasta entonces aparece como
+        El residente activa su cuenta después con este mismo email; hasta entonces aparece como
         &ldquo;pendiente de activar cuenta&rdquo; en la comunidad visible.
       </p>
       <div className="mt-4 grid gap-4 sm:grid-cols-2">

@@ -1108,9 +1108,21 @@ Pendiente explícito para un ciclo futuro (a pedido del dueño, no bloqueante): 
 - **Validación**: typecheck ✅ · lint ✅ (mismos warnings preexistentes) · build ✅ (`rm -rf .next`, servidor de dev parado antes) · **E2E en vivo**: capturas de landing confirmando los 3 íconos Material Symbols y el Roadmap sin la promesa de mensajería; captura de la ficha sin el badge "Catálogo real"; filtro de búsqueda abierto → `Escape` → confirmado `aria-expanded` pasa de `true` a `false`.
 - Con esto queda completa la etapa 1 (flujo principal) del pedido de auditoría UX del dueño.
 
+## Ciclo 35sexies. Auditoría UX senior — etapa 2: panel de residencia (2026-07-21)
+
+**Contexto**: continuación del pedido de auditoría UX del dueño ("sigamos", sin re-acotar alcance — la etapa 2 ya estaba anunciada en el cierre de la etapa 1: dashboard/habitaciones/residentes del panel de residencia, admin sigue deliberadamente afuera).
+
+- **Revisión de referencias**: `estured_residence_admin_dashboard`, `estured_admin_gesti_n_de_habitaciones`, `estured_admin_gesti_n_de_residentes` (Stitch, 4ta parte). La referencia de dashboard tiene Inbox/mensajería con residentes y "Convivencia" con reputación entre pares — **no aplicables**, chocan con "chat propio prohibido" (mismo criterio que la etapa 1) y con métricas que no existen en el modelo de datos real; descartadas sin construirlas.
+- **`/residence/dashboard`** (`OwnerResidenceGrid`/`OwnerResidenceCard`): revisado y **sin cambios** — ya documenta explícitamente por qué diverge de la referencia (docs/00 §25.3: "no habrá un dashboard agregado con métricas consolidadas de todas las residencias", cada card muestra solo la métrica de ESA residencia). Divergencia deliberada, no un gap.
+- **Bug real de copy encontrado y corregido**: `AddResidentForm.tsx` mostraba textualmente "Docs/05 §15.1 — el residente activa su cuenta..." en el texto de ayuda al dueño de residencia — una cita de documentación interna filtrada a copy de cara al usuario, sin ningún significado para él. Mismo patrón que "Catálogo real" y "Buscar residencia real" de la etapa 1 (jerga/referencias internas coladas en producción). Grep del patrón `docs/NN §` en todo `app/` confirmó que es el único caso real dentro del alcance de esta etapa (los otros matches son comentarios de código invisibles, o están en `/admin/activity`, fuera de alcance).
+- **Accesibilidad**: el modal de gestión de habitación (`RoomModal` en `RoomsBrowser.tsx`) solo se cerraba clickeando afuera — agregado el mismo listener de `Escape` ya usado en el fix de búsqueda de la etapa 1.
+- **Módulo de Residentes**: revisado (tabla con filas expandibles, KPIs, formulario de alta) — sin hallazgos, ya bien estructurado.
+- **Validación**: typecheck ✅ · lint ✅ (mismos warnings preexistentes) · build ✅ (`rm -rf .next`, sin servidor de dev corriendo) · **E2E en vivo** (Ricardo, dueño de residencia demo): modal de habitación abierto → `Escape` → confirmado que cierra; formulario "Cargar residente" confirmado sin la cita de docs.
+- Con esto queda completa la etapa 2 (panel de residencia) del pedido de auditoría UX del dueño.
+
 ## 14. Próxima tarea recomendada
 
-**Actualizado 2026-07-21 (Ciclo 35quinquies)**: etapa 1 completa de la auditoría UX del dueño (todo el flujo principal: landing, búsqueda, ficha, dashboard, perfil, favoritos, solicitudes). **Próximo paso**: si el dueño quiere seguir, las etapas pendientes del mismo pedido son residencia (dashboard, habitaciones, residentes) y una pasada de motion design dedicada — admin queda deliberadamente afuera (decisión ya tomada). Cada etapa nueva sigue requiriendo la misma consulta previa de alcance que ya se usó en las dos etapas anteriores. Si no, retomar el criterio general de "decidir y avanzar".
+**Actualizado 2026-07-21 (Ciclo 35sexies)**: etapas 1 y 2 completas de la auditoría UX del dueño (flujo principal de estudiante + panel de residencia). **Próximo paso**: si el dueño quiere seguir, la única etapa pendiente del pedido original es la pasada de motion design dedicada (transiciones/microinteracciones nuevas, pospuesta desde el inicio por ser la de mayor esfuerzo/riesgo de performance) — admin queda deliberadamente afuera (decisión ya tomada, no pendiente). Si no, retomar el criterio general de "decidir y avanzar".
 
 **Actualizado 2026-07-14**: la decisión "NO reemplazar `lib/mock/residences.ts`" del 2026-07-08 (línea de abajo, dejada como registro histórico) quedó **superada** — ver Ciclo 34undevicies arriba: el mock ya no existe, `/search` lee datos reales.
 
