@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { SectionHeader } from "@/components/ui/SectionHeader";
+import { Icon } from "@/components/ui/Icon";
 import { ResidenceCard } from "@/components/residences/ResidenceCard";
 import { getCatalogResidences } from "@/lib/residences/catalog";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
@@ -11,31 +12,19 @@ const pillars = [
     title: "Información verificada",
     description:
       "Cada residencia fue visitada presencialmente por el equipo de EstuRed. Fotos, servicios, reglas y precios chequeados antes de publicarse.",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-6 w-6">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
-      </svg>
-    ),
+    icon: "verified",
   },
   {
     title: "Solicitud registrada",
     description:
       "Tu solicitud, la respuesta de la residencia y cualquier ajuste de condiciones quedan registrados en la plataforma. Nada depende de un chat que se pierde.",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-6 w-6">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-      </svg>
-    ),
+    icon: "description",
   },
   {
     title: "Comprobante verificable",
     description:
       "Cuando tu reserva se confirma, EstuRed emite un Comprobante de Reserva Confirmada con código público. Respaldo real para vos y tu familia.",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-6 w-6">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-      </svg>
-    ),
+    icon: "receipt_long",
   },
 ];
 
@@ -107,7 +96,7 @@ const upcoming = [
     title: "Comunidad EstuRed",
     stage: "Ya arrancó",
     description:
-      "Hoy ya podés ver quién vive en cada residencia antes de aplicar: nombre, carrera, intereses. Estamos sumando mensajería directa y grupos previos a la llegada, para que te conectes con tus futuros compañeros antes del primer día.",
+      "Hoy ya podés ver quién vive en cada residencia antes de aplicar: nombre, carrera, intereses. Seguimos sumando más señales de cada residente para que conozcas mejor a tus futuros compañeros antes de mudarte.",
   },
   {
     title: "Señales de convivencia",
@@ -221,7 +210,7 @@ export default async function HomePage() {
           {pillars.map((p) => (
             <Card key={p.title} className="p-7">
               <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-forest-tint text-forest-700">
-                {p.icon}
+                <Icon name={p.icon} className="text-2xl" />
               </span>
               <h3 className="mt-5 text-lg font-bold text-ink">
                 {p.title}

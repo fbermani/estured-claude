@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Residence, RoomTypeName } from "@/types/domain";
 import { ResidenceCard } from "@/components/residences/ResidenceCard";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -154,6 +154,16 @@ export function SearchCatalog({ residences, arsPerUsd }: { residences: Residence
     setOpenPill(null);
   };
   const togglePill = (name: string) => setOpenPill((current) => (current === name ? null : name));
+
+  // Accesibilidad: los filtros deben poder cerrarse con teclado, no solo clickeando afuera.
+  useEffect(() => {
+    if (!openPill) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpenPill(null);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [openPill]);
 
   return (
     <div>

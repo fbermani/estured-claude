@@ -174,8 +174,6 @@ export default async function RealResidenceDetailPage({
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
-      <Badge tone="sage">Catálogo real</Badge>
-
       {/* Galería — ref search_3: 1 foto grande + grilla de 4 con "+N" */}
       {photoUrls.length === 0 && (
         <div className="mt-4 flex h-72 items-center justify-center rounded-card bg-sand-200 sm:h-96">
