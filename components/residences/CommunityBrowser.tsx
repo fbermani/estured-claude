@@ -2,21 +2,25 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
+import { useReservationSelection } from "@/components/residences/reservationSelection";
 import type { CommunityProfileCard, CommunityRoomTypeSummary, CommunitySummary } from "@/lib/residents/communityVisibility";
 
 /**
  * Explorador de comunidad — barra de ocupación con desglose por tipo,
- * secciones por tipo de habitación en grilla de 2 columnas (usa el
- * ancho completo, sin panel lateral fijo) y el perfil del residente
- * (Sobre mí / Intereses / Hábitos) como card flotante al pasar el
- * mouse sobre cada estudiante — pedido del dueño en Ciclo
- * 35septendecies para reducir el scroll y no ocupar una columna
- * permanente con un solo perfil a la vez. Se omiten a propósito:
- * "señales de convivencia" con estado positivo/negativo (feature
- * futura) y la selección de cama puntual (Gestión Operativa, no
- * wireada) — el CTA de lugar disponible lleva al formulario real de
- * solicitud.
+ * secciones por tipo de habitación en grilla tipo masonry (columnas
+ * CSS: cada card ocupa solo la altura de su propio contenido, sin
+ * panel lateral fijo) y el perfil del residente (Sobre mí / Intereses
+ * / Hábitos) como card flotante al pasar el mouse sobre cada
+ * estudiante. Elegir una plaza libre completa el tipo de habitación
+ * en "Tu solicitud de reserva" en tiempo real (sin recargar la
+ * página) vía `useReservationSelection` — pedido del dueño en Ciclo
+ * 35octodevicies. Se omiten a propósito: "señales de convivencia" con
+ * estado positivo/negativo (feature futura) y la selección de cama
+ * puntual a nivel de base de datos (Gestión Operativa, no wireada) —
+ * la plaza elegida solo se resalta visualmente, la reserva real sigue
+ * siendo a nivel de tipo de habitación.
  */
 
 const AVATAR_STYLES = [
@@ -174,20 +178,70 @@ function ResidentCell({ card, index, isGuest }: { card: CommunityProfileCard; in
   );
 }
 
-function FreeBedSlot({ slug, roomTypeId }: { slug: string; roomTypeId: string | null }) {
+function FreeBedSlot({ slug, roomTypeId, slotKey }: { slug: string; roomTypeId: string | null; slotKey: string }) {
+  const router = useRouter();
+  const { slotKey: selectedSlotKey, select } = useReservationSelection();
+  const isSelected = selectedSlotKey === slotKey;
+
+  // Solo la ficha de residencia tiene el panel "Tu solicitud de
+  // reserva" (#solicitud) en la misma página — desde acá (por ejemplo
+  // /residencias/[slug]/comunidad, sin ese panel) seleccionar navega a
+  // la ficha real en vez de solo actualizar estado que nadie mostraría.
+  const handleSelect = () => {
+    if (!roomTypeId) return;
+    if (document.getElementById("solicitud")) {
+      select(roomTypeId, slotKey);
+    } else {
+      router.push(`/residencias/${slug}?room=${roomTypeId}#solicitud`);
+    }
+  };
+
+  // Sin tipo de habitación resuelto (no debería pasar con datos reales)
+  // — se mantiene el fallback de navegación directa al formulario.
+  if (!roomTypeId) {
+    return (
+      <Link
+        href={`/residencias/${slug}#solicitud`}
+        className="group flex items-center gap-3 rounded-field border-2 border-dashed border-success-fg/40 bg-success-bg/40 p-3 transition-colors duration-300 hover:bg-success-bg"
+      >
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-success-bg text-success-fg transition-transform duration-300 group-hover:scale-110">
+          <Icon name="bed" className="text-xl" />
+        </div>
+        <div>
+          <p className="text-sm font-bold text-success-fg">Cama disponible</p>
+          <p className="text-xs text-success-fg/80">Enviar solicitud para este lugar</p>
+        </div>
+      </Link>
+    );
+  }
+
   return (
-    <Link
-      href={`/residencias/${slug}${roomTypeId ? `?room=${roomTypeId}` : ""}#solicitud`}
-      className="group flex items-center gap-3 rounded-field border-2 border-dashed border-success-fg/40 bg-success-bg/40 p-3 transition-colors hover:bg-success-bg"
+    <button
+      type="button"
+      onClick={handleSelect}
+      aria-pressed={isSelected}
+      className={`group flex w-full items-center gap-3 rounded-field border-2 p-3 text-left transition-all duration-300 ${
+        isSelected
+          ? "border-solid border-forest bg-forest-tint shadow-card"
+          : "border-dashed border-success-fg/40 bg-success-bg/40 hover:border-success-fg hover:bg-success-bg"
+      }`}
     >
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-success-bg text-success-fg transition-transform group-hover:scale-110">
-        <Icon name="bed" className="text-xl" />
+      <div
+        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-all duration-300 ${
+          isSelected ? "animate-select-pop bg-forest text-white" : "bg-success-bg text-success-fg group-hover:scale-110"
+        }`}
+      >
+        <Icon name={isSelected ? "check" : "bed"} className="text-xl" />
       </div>
       <div>
-        <p className="text-sm font-bold text-success-fg">Cama disponible</p>
-        <p className="text-xs text-success-fg/80">Enviar solicitud para este lugar</p>
+        <p className={`text-sm font-bold ${isSelected ? "text-forest-700" : "text-success-fg"}`}>
+          {isSelected ? "Plaza seleccionada" : "Cama disponible"}
+        </p>
+        <p className={`text-xs ${isSelected ? "text-forest-700/80" : "text-success-fg/80"}`}>
+          {isSelected ? "Completá tu solicitud a la derecha" : "Elegí este lugar para tu solicitud"}
+        </p>
       </div>
-    </Link>
+    </button>
   );
 }
 
@@ -205,15 +259,24 @@ function RoomTypeSection({
   startIndex: number;
 }) {
   const [open, setOpen] = useState(true);
-  const totalPlaces = roomType.availableCount != null ? roomType.occupiedCount + roomType.availableCount : null;
-  const occupancyLabel =
-    totalPlaces != null ? `${roomType.occupiedCount}/${totalPlaces} ocupadas` : `${roomType.occupiedCount} residentes`;
-  const hasAvailable = (roomType.availableCount ?? 0) > 0;
   const title = roomType.genderPolicyLabel ? `${roomType.roomTypeName} ${roomType.genderPolicyLabel}` : roomType.roomTypeName;
 
   const hasRooms = roomType.rooms.length > 0;
   const unassigned = cards.filter((c) => !c.roomId || !roomType.rooms.some((r) => r.roomId === c.roomId));
   const indexOf = (card: CommunityProfileCard) => startIndex + cards.indexOf(card);
+
+  // Disponibilidad de un vistazo en vez de "N habitaciones / X/Y
+  // ocupadas" — esa info ya está en el desglose por tipo de arriba
+  // (pedido del dueño en Ciclo 35octodevicies).
+  const freeBeds = hasRooms
+    ? roomType.rooms.reduce((sum, r) => sum + r.freeBeds, 0)
+    : (roomType.availableCount ?? 0);
+  const availability =
+    freeBeds === 0
+      ? { dot: "bg-danger-fg", classes: "bg-danger-bg text-danger-fg", label: "Sin disponibilidad" }
+      : freeBeds === 1
+        ? { dot: "bg-warning-fg", classes: "bg-warning-bg text-warning-fg", label: "1 cama libre" }
+        : { dot: "bg-success-fg", classes: "bg-success-bg text-success-fg", label: `${freeBeds} camas libres` };
 
   return (
     <div className="overflow-hidden rounded-card border-[1.5px] border-line bg-paper shadow-card">
@@ -226,82 +289,100 @@ function RoomTypeSection({
         <span className="flex items-center gap-3">
           <span className="h-5 w-1 rounded-full bg-forest" aria-hidden />
           <span className="font-bold text-ink">{title}</span>
-          {hasRooms && (
-            <span className="hidden text-xs font-medium text-ink-faint sm:inline">
-              {roomType.rooms.length} {roomType.rooms.length === 1 ? "habitación" : "habitaciones"}
-            </span>
-          )}
         </span>
         <span className="flex items-center gap-3">
-          <span
-            className={`rounded-field px-2 py-1 text-xs font-semibold ${
-              hasAvailable ? "bg-success-bg text-success-fg" : "bg-sand-100 text-ink-soft"
-            }`}
-          >
-            {occupancyLabel}
+          <span className={`inline-flex items-center gap-1.5 rounded-field px-2.5 py-1 text-xs font-semibold ${availability.classes}`}>
+            <span className={`h-2 w-2 shrink-0 rounded-full ${availability.dot}`} aria-hidden />
+            {availability.label}
           </span>
-          <Icon name={open ? "expand_less" : "expand_more"} className="text-xl text-forest-700" />
+          <Icon
+            name="expand_more"
+            className={`text-xl text-forest-700 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
+          />
         </span>
       </button>
 
-      {open && (
-        <div className="border-t border-line px-4 pb-4 pt-4">
-          {hasRooms ? (
-            <div className="grid gap-3 xl:grid-cols-2">
-              {/* Desglose por habitación física — quién vive en cada una
-                  y qué camas quedan libres (pedido del dueño 2026-07-15),
-                  en grilla para reducir el scroll (2026-07-22). */}
-              {roomType.rooms.map((room) => (
-                <div key={room.roomId} className="rounded-field border border-line bg-cream-2/60 p-3">
-                  <div className="mb-2.5 flex items-center justify-between gap-3 px-1">
-                    <p className="flex items-center gap-1.5 text-sm font-bold text-ink">
-                      <Icon name="meeting_room" className="text-base text-forest-700" />
-                      {room.label}
-                    </p>
-                    <span
-                      className={`text-xs font-semibold ${room.freeBeds > 0 ? "text-success-fg" : "text-ink-faint"}`}
-                    >
-                      {room.occupiedCount}/{room.capacityPerRoom}{" "}
-                      {room.capacityPerRoom === 1 ? "cama" : "camas"}
-                      {room.freeBeds > 0 && ` · ${room.freeBeds} libre${room.freeBeds > 1 ? "s" : ""}`}
-                    </span>
+      {/* Animación de altura vía grid-rows 0fr→1fr (contenido siempre
+          montado, sin saltos bruscos al expandir/colapsar). */}
+      <div
+        className={`grid transition-[grid-template-rows] duration-300 ease-[var(--ease-fresh)] ${
+          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+        }`}
+      >
+        <div className="overflow-hidden">
+          <div className="border-t border-line px-4 pb-4 pt-4">
+            {hasRooms ? (
+              <div className="columns-1 gap-3 xl:columns-2">
+                {/* Desglose por habitación física — quién vive en cada una
+                    y qué camas quedan libres, en grilla tipo masonry
+                    (columnas CSS) para que cada card ocupe solo la altura
+                    de su propio contenido, sin huecos grandes al lado de
+                    una habitación expandida (Ciclo 35octodevicies). */}
+                {roomType.rooms.map((room) => (
+                  <div
+                    key={room.roomId}
+                    className="mb-3 break-inside-avoid rounded-field border border-line bg-cream-2/60 p-3 transition-shadow duration-300 hover:shadow-card"
+                  >
+                    <div className="mb-2.5 flex items-center justify-between gap-3 px-1">
+                      <p className="flex items-center gap-1.5 text-sm font-bold text-ink">
+                        <Icon name="meeting_room" className="text-base text-forest-700" />
+                        {room.label}
+                      </p>
+                      <span
+                        className={`text-xs font-semibold ${room.freeBeds > 0 ? "text-success-fg" : "text-ink-faint"}`}
+                      >
+                        {room.occupiedCount}/{room.capacityPerRoom}{" "}
+                        {room.capacityPerRoom === 1 ? "cama" : "camas"}
+                        {room.freeBeds > 0 && ` · ${room.freeBeds} libre${room.freeBeds > 1 ? "s" : ""}`}
+                      </span>
+                    </div>
+                    <div className="grid gap-2.5">
+                      {cards
+                        .filter((c) => c.roomId === room.roomId)
+                        .map((card) => (
+                          <ResidentCell key={card.residentStayId} card={card} index={indexOf(card)} isGuest={isGuest} />
+                        ))}
+                      {Array.from({ length: room.freeBeds }, (_, i) => (
+                        <FreeBedSlot
+                          key={`slot-${room.roomId}-${i}`}
+                          slotKey={`${roomType.roomTypeId}-slot-${room.roomId}-${i}`}
+                          slug={slug}
+                          roomTypeId={roomType.roomTypeId}
+                        />
+                      ))}
+                    </div>
                   </div>
-                  <div className="grid gap-2.5">
-                    {cards
-                      .filter((c) => c.roomId === room.roomId)
-                      .map((card) => (
+                ))}
+                {unassigned.length > 0 && (
+                  <div className="mb-3 break-inside-avoid rounded-field border border-line bg-cream-2/60 p-3">
+                    <p className="mb-2.5 px-1 text-sm font-bold text-ink-soft">Sin habitación asignada</p>
+                    <div className="grid gap-2.5">
+                      {unassigned.map((card) => (
                         <ResidentCell key={card.residentStayId} card={card} index={indexOf(card)} isGuest={isGuest} />
                       ))}
-                    {Array.from({ length: room.freeBeds }, (_, i) => (
-                      <FreeBedSlot key={`slot-${room.roomId}-${i}`} slug={slug} roomTypeId={roomType.roomTypeId} />
-                    ))}
+                    </div>
                   </div>
-                </div>
-              ))}
-              {unassigned.length > 0 && (
-                <div className="rounded-field border border-line bg-cream-2/60 p-3">
-                  <p className="mb-2.5 px-1 text-sm font-bold text-ink-soft">Sin habitación asignada</p>
-                  <div className="grid gap-2.5">
-                    {unassigned.map((card) => (
-                      <ResidentCell key={card.residentStayId} card={card} index={indexOf(card)} isGuest={isGuest} />
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          ) : (
-            /* Fallback: la residencia no cargó habitaciones físicas todavía */
-            <div className="grid gap-3 sm:grid-cols-2">
-              {cards.map((card) => (
-                <ResidentCell key={card.residentStayId} card={card} index={indexOf(card)} isGuest={isGuest} />
-              ))}
-              {Array.from({ length: roomType.availableCount ?? 0 }, (_, i) => (
-                <FreeBedSlot key={`slot-${i}`} slug={slug} roomTypeId={roomType.roomTypeId} />
-              ))}
-            </div>
-          )}
+                )}
+              </div>
+            ) : (
+              /* Fallback: la residencia no cargó habitaciones físicas todavía */
+              <div className="grid gap-3 sm:grid-cols-2">
+                {cards.map((card) => (
+                  <ResidentCell key={card.residentStayId} card={card} index={indexOf(card)} isGuest={isGuest} />
+                ))}
+                {Array.from({ length: roomType.availableCount ?? 0 }, (_, i) => (
+                  <FreeBedSlot
+                    key={`slot-${i}`}
+                    slotKey={`${roomType.roomTypeId}-slot-${i}`}
+                    slug={slug}
+                    roomTypeId={roomType.roomTypeId}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
@@ -382,18 +463,20 @@ export function CommunityBrowser({
         )}
       </div>
 
-      {/* Secciones por tipo de habitación — grilla de 2 columnas ahora
-          que no hay panel lateral fijo, para reducir el scroll. */}
-      <div className="grid gap-4 lg:grid-cols-2">
+      {/* Secciones por tipo de habitación — grilla tipo masonry (columnas
+          CSS): cada card ocupa solo su propia altura, sin huecos grandes
+          al lado de una categoría expandida (Ciclo 35octodevicies). */}
+      <div className="columns-1 gap-4 lg:columns-2">
         {sections.map((rt, i) => (
-          <RoomTypeSection
-            key={rt.roomTypeId ?? "sin-tipo"}
-            roomType={rt}
-            cards={cardsByRoomType.get(rt.roomTypeId) ?? []}
-            slug={slug}
-            isGuest={isGuest}
-            startIndex={sectionStartIndex[i]}
-          />
+          <div key={rt.roomTypeId ?? "sin-tipo"} className="mb-4 break-inside-avoid">
+            <RoomTypeSection
+              roomType={rt}
+              cards={cardsByRoomType.get(rt.roomTypeId) ?? []}
+              slug={slug}
+              isGuest={isGuest}
+              startIndex={sectionStartIndex[i]}
+            />
+          </div>
         ))}
       </div>
 

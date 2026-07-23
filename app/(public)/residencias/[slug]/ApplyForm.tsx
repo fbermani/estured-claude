@@ -13,6 +13,7 @@ import {
   type CreateApplicationState,
 } from "@/app/students/applications/actions";
 import { JoinWaitlistForm } from "@/app/(public)/residencias/[slug]/JoinWaitlistForm";
+import { useReservationSelection } from "@/components/residences/reservationSelection";
 
 interface RoomTypeOption {
   id: string;
@@ -83,14 +84,12 @@ export function ApplyForm({
   roomTypes,
   conditions,
   arsPerUsd,
-  preselectedRoomTypeId,
   profileCompletenessPercent,
 }: {
   residenceId: string;
   roomTypes: RoomTypeOption[];
   conditions: ResidenceConditionsProp;
   arsPerUsd: number;
-  preselectedRoomTypeId?: string;
   /** Ciclo 35: nudge no bloqueante hacia /students/profile. `null` si ya está 100% completo. */
   profileCompletenessPercent?: number | null;
 }) {
@@ -98,10 +97,13 @@ export function ApplyForm({
   const [state, formAction, isPending] = useActionState(action, initialState);
 
   const availableTypes = roomTypes.filter((rt) => rt.profile_availability?.status !== "full");
-  const validPreselected = availableTypes.some((rt) => rt.id === preselectedRoomTypeId)
-    ? (preselectedRoomTypeId as string)
-    : "";
-  const [roomTypeId, setRoomTypeId] = useState(validPreselected);
+  // Tipo de habitación seedeada desde `?room=` en la primera carga por
+  // ReservationSelectionProvider (page.tsx) y luego controlada por el
+  // contexto compartido con CommunityBrowser — elegir una plaza libre
+  // ahí completa este campo en tiempo real, sin recargar la página
+  // (Ciclo 35octodevicies).
+  const { roomTypeId: contextRoomTypeId, setRoomTypeId } = useReservationSelection();
+  const roomTypeId = availableTypes.some((rt) => rt.id === contextRoomTypeId) ? (contextRoomTypeId as string) : "";
   const [duration, setDuration] = useState(6);
   const [startDate, setStartDate] = useState("");
   const [objectiveChoice, setObjectiveChoice] = useState("");

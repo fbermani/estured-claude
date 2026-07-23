@@ -21,6 +21,7 @@ import { ApplyForm } from "@/app/(public)/residencias/[slug]/ApplyForm";
 import { ProposeForm } from "@/app/(public)/residencias/[slug]/ProposeForm";
 import { FavoriteButton } from "@/app/(public)/residencias/[slug]/FavoriteButton";
 import { toggleStudentFavorite, toggleFamilyFavorite } from "@/app/students/favorites/actions";
+import { ReservationSelectionProvider } from "@/components/residences/reservationSelection";
 
 export const dynamic = "force-dynamic";
 
@@ -201,7 +202,8 @@ export default async function RealResidenceDetailPage({
   const showStudentFavoriteInHeader = sessionUser?.roles.includes("student") ?? false;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
+    <ReservationSelectionProvider initialRoomTypeId={preselectedRoomTypeId}>
+      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
       {/* Galería — 1 foto grande + grilla de 4 con "+N" */}
       {photoUrls.length === 0 && (
         <div className="mt-4 flex h-72 items-center justify-center rounded-card bg-sand-200 sm:h-96">
@@ -360,58 +362,6 @@ export default async function RealResidenceDetailPage({
             </section>
           )}
 
-          {/* 5. Comunidad y Disponibilidad — unificadas: resumen por tipo +
-              exploración habitación por habitación (CommunityBrowser ya
-              incluye camas libres como CTA hacia la solicitud, a nivel de
-              tipo de habitación, sin exponer camas individuales al público). */}
-          <section id="disponibilidad" className="scroll-mt-24">
-            <h2 className="text-xl font-bold text-ink">Comunidad y disponibilidad</h2>
-            <p className="mt-3 flex items-start gap-2 rounded-field bg-info-bg px-3.5 py-2.5 text-xs leading-relaxed text-info-fg">
-              <Icon name="info" className="mt-0.5 shrink-0 text-sm" />
-              La convivencia es dinámica: los perfiles mostrados son los actuales, pero pueden cambiar antes de tu
-              ingreso. Cada estudiante decide qué mostrar.
-            </p>
-            {community && (community.totalResidents > 0 || community.totalAvailable > 0) ? (
-              <div className="mt-4">
-                <CommunityBrowser summary={community} slug={slug} isGuest={!sessionUser} />
-              </div>
-            ) : roomTypes.length > 0 ? (
-              <div className="mt-4 space-y-3">
-                {roomTypes.map((rt) => {
-                  const isFull = rt.profile_availability?.status === "full";
-                  return (
-                    <div
-                      key={rt.id}
-                      className={`flex items-center justify-between gap-3 rounded-card border-[1.5px] p-4 ${
-                        isFull ? "border-line bg-cream-2/50" : "border-line bg-paper shadow-card"
-                      }`}
-                    >
-                      <p className="font-bold text-ink">{rt.name}</p>
-                      <Link
-                        href={`/residencias/${slug}?room=${rt.id}#solicitud`}
-                        className={`rounded-full px-4 py-2 text-xs font-bold ${
-                          isFull ? "bg-sand-100 text-ink-faint" : "bg-forest text-white hover:bg-forest-600"
-                        }`}
-                      >
-                        {isFull ? "Sin lugar" : "Seleccionar este lugar"}
-                      </Link>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <p className="mt-3 text-sm text-ink-soft">La residencia todavía no cargó su comunidad visible.</p>
-            )}
-          </section>
-
-          {/* 6. Ubicación — mapa compacto con pin aproximado por barrio
-              (nunca la dirección exacta) + universidades cercanas */}
-          <section>
-            <h2 className="text-xl font-bold text-ink">Ubicación</h2>
-            <div className="mt-4">
-              <CompactMap residenceName={residence.name} zone={residence.public_area} nearUniversityNames={nearUniversities} />
-            </div>
-          </section>
         </div>
 
         <aside id="solicitud" className="scroll-mt-24">
@@ -458,7 +408,6 @@ export default async function RealResidenceDetailPage({
                 roomTypes={roomTypes}
                 conditions={conditions}
                 arsPerUsd={rate.arsPerUsd}
-                preselectedRoomTypeId={preselectedRoomTypeId}
                 profileCompletenessPercent={profileCompletenessPercent}
               />
             )}
@@ -470,6 +419,66 @@ export default async function RealResidenceDetailPage({
         </aside>
       </div>
 
+      {/* 5. Comunidad y Disponibilidad — a propósito FUERA de la grilla de
+          2 columnas de arriba: usa el ancho completo de la página (más
+          lugar para las secciones por tipo de habitación) y hace que el
+          panel "Tu solicitud de reserva" (sticky solo dentro de esa
+          grilla) se libere y baje con el resto del contenido apenas se
+          llega acá, en vez de seguir clavado durante toda esta sección
+          — pedido explícito del dueño en Ciclo 35octodevicies. Elegir
+          una plaza libre sigue completando el formulario en tiempo real
+          vía ReservationSelectionProvider, sin depender de que el panel
+          esté a la vista. */}
+      <section id="disponibilidad" className="mt-10 scroll-mt-24">
+        <h2 className="text-xl font-bold text-ink">Comunidad y disponibilidad</h2>
+        <p className="mt-3 flex items-start gap-2 rounded-field bg-info-bg px-3.5 py-2.5 text-xs leading-relaxed text-info-fg">
+          <Icon name="info" className="mt-0.5 shrink-0 text-sm" />
+          La convivencia es dinámica: los perfiles mostrados son los actuales, pero pueden cambiar antes de tu
+          ingreso. Cada estudiante decide qué mostrar.
+        </p>
+        {community && (community.totalResidents > 0 || community.totalAvailable > 0) ? (
+          <div className="mt-4">
+            <CommunityBrowser summary={community} slug={slug} isGuest={!sessionUser} />
+          </div>
+        ) : roomTypes.length > 0 ? (
+          <div className="mt-4 space-y-3">
+            {roomTypes.map((rt) => {
+              const isFull = rt.profile_availability?.status === "full";
+              return (
+                <div
+                  key={rt.id}
+                  className={`flex items-center justify-between gap-3 rounded-card border-[1.5px] p-4 ${
+                    isFull ? "border-line bg-cream-2/50" : "border-line bg-paper shadow-card"
+                  }`}
+                >
+                  <p className="font-bold text-ink">{rt.name}</p>
+                  <Link
+                    href={`/residencias/${slug}?room=${rt.id}#solicitud`}
+                    className={`rounded-full px-4 py-2 text-xs font-bold ${
+                      isFull ? "bg-sand-100 text-ink-faint" : "bg-forest text-white hover:bg-forest-600"
+                    }`}
+                  >
+                    {isFull ? "Sin lugar" : "Seleccionar este lugar"}
+                  </Link>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="mt-3 text-sm text-ink-soft">La residencia todavía no cargó su comunidad visible.</p>
+        )}
+      </section>
+
+      {/* 6. Ubicación — mapa compacto con pin aproximado por barrio
+          (nunca la dirección exacta) + universidades cercanas. También
+          fuera de la grilla, mismo bloque de ancho completo. */}
+      <section className="mt-10">
+        <h2 className="text-xl font-bold text-ink">Ubicación</h2>
+        <div className="mt-4">
+          <CompactMap residenceName={residence.name} zone={residence.public_area} nearUniversityNames={nearUniversities} />
+        </div>
+      </section>
+
       <p className="mt-10 text-center text-xs text-ink-faint">
         ¿Buscás más opciones?{" "}
         <Link href="/search" className="text-forest-700 hover:underline">
@@ -478,5 +487,6 @@ export default async function RealResidenceDetailPage({
         .
       </p>
     </div>
+    </ReservationSelectionProvider>
   );
 }
