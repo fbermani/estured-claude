@@ -22,15 +22,13 @@ export function RulesHighlight({ rulesSummary, pdfUrl }: { rulesSummary: string;
   return (
     <div className="space-y-4">
       {rules.length > 0 && (
-        <ul className="grid gap-3 sm:grid-cols-2">
+        <ul className="grid gap-2 sm:grid-cols-2">
           {rules.map((rule, i) => (
             <li
               key={rule}
-              className="flex items-start gap-3 rounded-card border-[1.5px] border-line bg-paper p-4 shadow-card"
+              className="flex items-start gap-2.5 rounded-field border border-line bg-paper p-3"
             >
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-forest-tint text-forest-700">
-                <Icon name={RULE_ICONS[i % RULE_ICONS.length]} className="text-lg" />
-              </span>
+              <Icon name={RULE_ICONS[i % RULE_ICONS.length]} className="mt-0.5 shrink-0 text-base text-forest-700" />
               <p className="text-sm leading-relaxed text-ink-soft">{rule}</p>
             </li>
           ))}
@@ -41,9 +39,9 @@ export function RulesHighlight({ rulesSummary, pdfUrl }: { rulesSummary: string;
           href={pdfUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 rounded-full border-[1.5px] border-line-2 bg-paper px-4 py-2.5 text-sm font-semibold text-ink transition-colors hover:border-forest hover:bg-forest-tint hover:text-forest-700"
+          className="inline-flex items-center gap-2 rounded-full border-[1.5px] border-line-2 bg-paper px-4 py-2 text-sm font-semibold text-ink transition-colors hover:border-forest hover:bg-forest-tint hover:text-forest-700"
         >
-          <Icon name="picture_as_pdf" className="text-lg" />
+          <Icon name="picture_as_pdf" className="text-base" />
           Descargar reglamento completo (PDF)
         </a>
       )}

@@ -35,6 +35,11 @@ const CONTENT = {
     // Vocabulario fijo de COMMON_AREA_OPTIONS (lib/residences/options.ts) —
     // no inventar etiquetas nuevas, el formulario de perfil las pisa por checkbox.
     commonAreas: ["Terraza", "Sala de estudio", "Cocina", "Gimnasio"],
+    faq: [
+      { question: "¿Se permiten mascotas?", answer: "No, la residencia no admite mascotas por normas de convivencia con espacios compartidos." },
+      { question: "¿Hay horario de silencio?", answer: "Sí, de 23hs a 8hs pedimos silencio en los pasillos y habitaciones." },
+      { question: "¿Puedo tener visitas?", answer: "Sí, coordinando con anticipación con la administración. No se permiten visitas que pernocten." },
+    ],
   },
   "residencia-norte-demo": {
     label: "Residencia Norte",
@@ -43,6 +48,11 @@ const CONTENT = {
     communityStatement:
       "Somos una casa activa y social: acá se cocina en grupo, se estudia en el living y se arma plan de fin de semana. Buscamos estudiantes con buena onda que también respeten los horarios de descanso.",
     commonAreas: ["Terraza", "Cocina", "Sala de estudio", "Balcón"],
+    faq: [
+      { question: "¿La cocina está equipada?", answer: "Sí, con heladera, anafe, microondas y utensilios básicos compartidos." },
+      { question: "¿Hay estacionamiento?", answer: "No contamos con estacionamiento propio, pero hay opciones a metros de la residencia." },
+      { question: "¿Puedo cambiar de habitación una vez que ingreso?", answer: "Sujeto a disponibilidad — coordinalo directamente con la administración." },
+    ],
   },
   "casa-almagro-demo": {
     label: "Casa Compartida Almagro",
@@ -51,6 +61,11 @@ const CONTENT = {
     communityStatement:
       "Convivencia simple y de puertas abiertas: turnos de limpieza claros, mate compartido y respeto por el que estudia. La casa se cuida entre todos.",
     commonAreas: ["Terraza", "Cocina", "Sala de estudio"],
+    faq: [
+      { question: "¿Cuál es la forma de pago?", answer: "Transferencia bancaria mensual, coordinada directamente con la administración de la casa." },
+      { question: "¿Se puede fumar en el patio?", answer: "Sí, el patio es el único espacio habilitado para fumar." },
+      { question: "¿Hay wifi en todas las habitaciones?", answer: "Sí, la señal llega a toda la casa incluidas las habitaciones." },
+    ],
   },
 };
 
@@ -134,6 +149,7 @@ async function seedContent(residenceId, content) {
   for (const [sectionType, sectionContent] of [
     ["community_statement", { quote: content.communityStatement }],
     ["common_areas", { items: content.commonAreas }],
+    ["faq", { items: content.faq ?? [] }],
   ]) {
     const { error: sectionError } = await admin
       .from("residence_profile_sections")
@@ -143,7 +159,7 @@ async function seedContent(residenceId, content) {
       );
     if (sectionError) throw sectionError;
   }
-  console.log("  + descripción extensa + community_statement + common_areas");
+  console.log("  + descripción extensa + community_statement + common_areas + faq");
 }
 
 async function main() {

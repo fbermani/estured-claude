@@ -22,11 +22,16 @@ if (!url || !serviceRoleKey) {
 }
 const admin = createClient(url, serviceRoleKey, { auth: { persistSession: false } });
 
-const RESIDENCE_IDS = [
-  "b2a25202-b08e-4dd1-bfcb-6eb1a7267583",
-  "06addddb-349c-41ba-9a4c-3e40c7189042",
-  "063d9032-0684-44d2-90dd-6a73faa352d4",
-];
+// Resuelto por slug en runtime, no hardcodeado — un reseed de
+// seed-demo-data.mjs borra y recrea las residencias con UUIDs nuevos
+// (Ciclo 35sexdecies, mismo bug ya corregido en upload-residence-photos.mjs).
+const RESIDENCE_SLUGS = ["residencia-rio-de-la-plata-demo", "residencia-norte-demo", "casa-almagro-demo"];
+const { data: residenceRows, error: residenceLookupError } = await admin
+  .from("residences")
+  .select("id")
+  .in("slug", RESIDENCE_SLUGS);
+if (residenceLookupError) throw residenceLookupError;
+const RESIDENCE_IDS = (residenceRows ?? []).map((r) => r.id);
 
 const FLAG_BY_NATIONALITY = {
   Argentina: "🇦🇷",

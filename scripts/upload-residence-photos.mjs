@@ -6,6 +6,12 @@
  * Uso: node --env-file=.env.local scripts/upload-residence-photos.mjs
  * Idempotente: si una residencia ya tiene fotos vinculadas, no vuelve a
  * subir (evita duplicar en corridas repetidas).
+ *
+ * Las residencias se resuelven por `slug` en cada corrida (antes eran
+ * UUIDs hardcodeados — un `seed-demo-data.mjs` reseedea borrando y
+ * recreando las residencias con UUIDs nuevos, así que un ID fijo queda
+ * apuntando a una fila que ya no existe y las fotos "desaparecen" de la
+ * ficha sin que el script tire ningún error. Ciclo 35sexdecies).
  */
 import { createClient } from "@supabase/supabase-js";
 import { readdirSync, readFileSync, statSync } from "node:fs";
@@ -24,12 +30,11 @@ const PHOTOS_DIR = join(process.cwd(), "design-references", "Fotos Residencias")
 const MAX_BYTES = 5 * 1024 * 1024;
 const MIME_BY_EXT = { ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".png": "image/png" };
 
-const RESIDENCES = [
-  { id: "b2a25202-b08e-4dd1-bfcb-6eb1a7267583", label: "Residencia Río de la Plata" },
-  { id: "06addddb-349c-41ba-9a4c-3e40c7189042", label: "Residencia Norte" },
-  { id: "063d9032-0684-44d2-90dd-6a73faa352d4", label: "Casa Compartida Almagro" },
+const RESIDENCE_SLUGS = [
+  "residencia-rio-de-la-plata-demo",
+  "residencia-norte-demo",
+  "casa-almagro-demo",
 ];
-const OWNER_USER_ID = "a250db0d-2357-4328-8c7b-f106e4f576de";
 
 function extOf(filename) {
   const i = filename.lastIndexOf(".");
@@ -43,6 +48,21 @@ function sanitize(filename) {
 }
 
 async function main() {
+  const { data: rows, error: lookupError } = await admin
+    .from("residences")
+    .select("id, name, slug, created_by")
+    .in("slug", RESIDENCE_SLUGS);
+  if (lookupError) throw lookupError;
+
+  const RESIDENCES = RESIDENCE_SLUGS.map((slug) => {
+    const row = (rows ?? []).find((r) => r.slug === slug);
+    if (!row) {
+      console.log(`  x no se encontró ninguna residencia con slug "${slug}", se omite.`);
+      return null;
+    }
+    return { id: row.id, label: row.name, ownerUserId: row.created_by };
+  }).filter((r) => r !== null);
+
   const allFiles = readdirSync(PHOTOS_DIR).filter((f) => MIME_BY_EXT[extOf(f)]);
   console.log(`${allFiles.length} fotos encontradas en la carpeta.`);
 
@@ -85,7 +105,7 @@ async function main() {
       }
 
       const { error: insertError } = await admin.from("files").insert({
-        owner_user_id: OWNER_USER_ID,
+        owner_user_id: residence.ownerUserId,
         related_entity_type: "residences",
         related_entity_id: residence.id,
         bucket: "public-residence-media",
@@ -96,7 +116,7 @@ async function main() {
         visibility: "public",
         document_type: "residence_photo",
         status: "approved",
-        uploaded_by_user_id: OWNER_USER_ID,
+        uploaded_by_user_id: residence.ownerUserId,
       });
       if (insertError) {
         console.log(`  x ${filename} error en files: ${insertError.message}`);

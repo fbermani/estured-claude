@@ -11,29 +11,28 @@ import { UNIVERSITY_NAMES } from "@/lib/data/buenosAiresUniversities";
  * — nunca confiar en lo que mande el formulario sin este whitelist.
  */
 export const SERVICE_OPTIONS = [
-  "Wifi Alta Velocidad",
-  "Limpieza",
-  "Seguridad 24/7",
+  "Wifi",
+  "Cámaras 24 hs",
+  "Cocina",
+  "Gimnasio",
+  "Limpieza General",
+  "Limpieza de Habitación",
   "Lavandería",
-  "Cocina equipada",
-  "Asistencia Médica",
-  "Portero",
-  "CCTV",
-  "Acceso con Tarjeta",
-  "Ropa de Cama",
-  "Toallas",
-  "Clases de Idiomas",
+  "Área Protegida",
+  "Coordinador Presencial",
+  "Lockers Individuales",
+  "Parrilla",
+  "Dispenser de Agua",
 ] as const;
 
 export const COMMON_AREA_OPTIONS = [
-  "Gimnasio",
-  "Cocina",
-  "Sala de estudio",
+  "Sala de Estar",
+  "Sala de Estudio",
+  "Área de Estudio",
+  "Comedor",
+  "Patio",
   "Terraza",
-  "Coworking",
-  "Salón de Juegos",
-  "Sala de Cine",
-  "Balcón",
+  "Sala de Juegos",
 ] as const;
 
 /**

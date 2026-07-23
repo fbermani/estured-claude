@@ -6,16 +6,17 @@ import { Icon } from "@/components/ui/Icon";
 type AmenityItem = { name: string; icon: string; description: string };
 
 /**
- * Grilla de ícono + nombre con tooltip al hover — mismo componente para
+ * Fila de ícono + nombre con tooltip al hover — mismo componente para
  * "Servicios incluidos" y "Áreas comunes" (mismo estilo visual exacto,
- * pedido del dueño). Hover: eleva + escala sutil + resalta el ícono;
- * en mobile el tooltip se abre con tap (mismo mecanismo que InfoTip).
+ * pedido del dueño). Formato compacto tipo Airbnb: ícono chico en línea
+ * con el texto, sin card pesada — el hover resalta el fondo de la fila
+ * y el color del ícono, sutil, no una elevación dramática.
  */
 export function AmenityGrid({ items }: { items: AmenityItem[] }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+    <div className="grid grid-cols-1 gap-x-6 gap-y-1 sm:grid-cols-2">
       {items.map((item, i) => (
         <div
           key={item.name}
@@ -29,18 +30,19 @@ export function AmenityGrid({ items }: { items: AmenityItem[] }) {
             onFocus={() => setOpenIndex(i)}
             onBlur={() => setOpenIndex((v) => (v === i ? null : v))}
             aria-expanded={openIndex === i}
-            className="flex w-full flex-col items-center gap-2 rounded-field border-[1.5px] border-line bg-paper px-3 py-4 text-center transition-all duration-300 ease-bounce hover:-translate-y-1 hover:scale-[1.03] hover:border-forest-tint hover:shadow-card-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+            className="flex w-full items-center gap-3 rounded-field px-2.5 py-2 text-left transition-colors duration-200 ease-fresh hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
           >
-            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-forest-tint text-forest-700 transition-transform duration-300 ease-bounce group-hover:scale-110">
-              <Icon name={item.icon} className="text-xl" />
-            </span>
-            <span className="text-xs font-semibold leading-tight text-ink-soft">{item.name}</span>
+            <Icon
+              name={item.icon}
+              className="shrink-0 text-xl text-ink-soft transition-colors duration-200 ease-fresh group-hover:text-forest-700"
+            />
+            <span className="text-sm text-ink-soft transition-colors duration-200 ease-fresh group-hover:text-ink">{item.name}</span>
           </button>
 
           {openIndex === i && (
             <div
               role="tooltip"
-              className="benefit-fade-in absolute bottom-full left-1/2 z-20 mb-2 w-48 -translate-x-1/2 rounded-field border-[1.5px] border-line bg-paper p-2.5 text-center text-[11px] leading-relaxed text-ink-soft shadow-float"
+              className="benefit-fade-in absolute bottom-full left-3 z-20 mb-1.5 w-48 rounded-field border-[1.5px] border-line bg-paper p-2.5 text-left text-[11px] leading-relaxed text-ink-soft shadow-float"
             >
               {item.description}
             </div>
