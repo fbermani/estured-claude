@@ -52,13 +52,25 @@ const FLAG_BY_NATIONALITY = {
   Ecuador: "🇪🇨",
 };
 
+// Mismo vocabulario exacto que lib/students/profileOptions.ts
+// (INTEREST_OPTIONS/HABIT_OPTIONS) — un script .mjs no puede importar
+// ese archivo .ts directamente, así que se duplica a propósito, pero
+// las palabras tienen que coincidir letra por letra: si no coinciden,
+// el estudiante que edita su perfil real ve estos chips sin marcar
+// (la wording vieja no matchea ninguna opción del selector nuevo) y al
+// guardar el whitelist server-side descarta el valor legado en
+// silencio — encontrado en vivo en Ciclo 36 editando el perfil de
+// Lucía (ver MEMORY.md).
 const INTERESTS_POOL = [
-  "Lectura", "Música", "Cine", "Deportes", "Fotografía", "Cocina",
-  "Viajes", "Arte", "Videojuegos", "Yoga", "Voluntariado", "Idiomas",
+  "Deportes", "Música", "Cine", "Series", "Lectura", "Tecnología",
+  "Programación", "Gaming", "Viajes", "Idiomas", "Cocina", "Fotografía",
+  "Arte", "Naturaleza", "Emprendimiento", "Voluntariado",
 ];
 const HABITS_POOL = [
-  "Madruga", "Trasnocha", "Estudia en silencio", "Escucha música mientras estudia",
-  "Cocina seguido", "Hace ejercicio", "Ordenado/a", "Vida social activa",
+  "Madrugador", "Nocturno", "Ordenado", "Muy sociable", "Tranquilo",
+  "Me gusta cocinar", "Estudio en silencio", "Escucho música para estudiar",
+  "No fumo", "Fumador", "Hago deporte", "Trabajo mientras estudio",
+  "Recibo visitas ocasionalmente",
 ];
 
 async function main() {
@@ -110,19 +122,23 @@ async function main() {
       if (!flagError) fixedFlags += 1;
     }
 
-    const hasHabits = profile.habits && Object.keys(profile.habits).length > 0;
-    const hasInterests = profile.interests && Object.keys(profile.interests).length > 0;
-    if (!hasHabits || !hasInterests) {
-      const update = {};
-      if (!hasHabits) update.habits = { items: [HABITS_POOL[idx % HABITS_POOL.length]] };
-      if (!hasInterests) {
-        update.interests = {
+    // Siempre pisa con el vocabulario canónico vigente (no solo cuando
+    // está vacío): un student_profile con `{items: []}` (perfil real
+    // editado a través del formulario nuevo con chips que no matchean
+    // ninguna opción vieja) o con wording de un pool anterior nunca se
+    // habría corregido con un chequeo de "ya tiene algo" — este script
+    // es solo para perfiles de demo pensados para mostrarse, no hay
+    // edición manual real que este pisado pueda destruir.
+    const { error: signalsError } = await admin
+      .from("student_profiles")
+      .update({
+        habits: { items: [HABITS_POOL[idx % HABITS_POOL.length]] },
+        interests: {
           items: [INTERESTS_POOL[idx % INTERESTS_POOL.length], INTERESTS_POOL[(idx * 3 + 1) % INTERESTS_POOL.length]],
-        };
-      }
-      const { error: signalsError } = await admin.from("student_profiles").update(update).eq("id", profile.id);
-      if (!signalsError) fixedSignals += 1;
-    }
+        },
+      })
+      .eq("id", profile.id);
+    if (!signalsError) fixedSignals += 1;
   }
 
   console.log(

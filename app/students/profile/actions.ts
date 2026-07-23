@@ -5,6 +5,9 @@ import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { createAuditLog } from "@/lib/audit";
+import { LATAM_COUNTRY_NAMES, FLAG_BY_COUNTRY } from "@/lib/data/latamCountries";
+import { UNIVERSITY_NAMES } from "@/lib/data/buenosAiresUniversities";
+import { INTEREST_OPTIONS, HABIT_OPTIONS, UNIVERSITY_OTHER_VALUE, BIO_MAX_LENGTH } from "@/lib/students/profileOptions";
 
 export type UpdateProfileState = { status: "idle" | "error" | "saved"; message?: string };
 export type UploadDocumentState = { status: "idle" | "error" | "saved"; message?: string };
@@ -21,14 +24,37 @@ export async function updateStudentProfileDetails(
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento. Probá más tarde." };
 
-  const nationality = String(formData.get("nationality") ?? "").trim();
-  const institution = String(formData.get("study_institution") ?? "").trim();
+  // Nacionalidad y universidad son selects (no texto libre) desde
+  // Ciclo 36 — igual se revalida server-side contra el whitelist, no
+  // solo confiar en que el <select> del cliente no fue manipulado.
+  const rawNationality = String(formData.get("nationality") ?? "").trim();
+  const nationality = LATAM_COUNTRY_NAMES.includes(rawNationality) ? rawNationality : "";
+  const countryFlag = nationality ? (FLAG_BY_COUNTRY[nationality] ?? null) : null;
+
+  const universitySelect = String(formData.get("study_institution_select") ?? "").trim();
+  const universityOther = String(formData.get("study_institution_other") ?? "").trim();
+  const institution =
+    universitySelect === UNIVERSITY_OTHER_VALUE
+      ? universityOther
+      : UNIVERSITY_NAMES.includes(universitySelect)
+        ? universitySelect
+        : "";
+
   const originCity = String(formData.get("origin_city") ?? "").trim();
+  const bio = String(formData.get("bio") ?? "").trim();
+  const interests = String(formData.get("interests") ?? "")
+    .split(",")
+    .map((v) => v.trim())
+    .filter((v) => INTEREST_OPTIONS.includes(v as (typeof INTEREST_OPTIONS)[number]));
+  const habits = String(formData.get("habits") ?? "")
+    .split(",")
+    .map((v) => v.trim())
+    .filter((v) => HABIT_OPTIONS.includes(v as (typeof HABIT_OPTIONS)[number]));
   const profileVisible = formData.get("profile_visible") === "on";
 
-  if (nationality.length > 60) return { status: "error", message: "La nacionalidad es demasiado larga." };
   if (institution.length > 160) return { status: "error", message: "Ese campo es demasiado largo." };
   if (originCity.length > 120) return { status: "error", message: "La ciudad de origen es demasiado larga." };
+  if (bio.length > BIO_MAX_LENGTH) return { status: "error", message: "Tu descripción sobre vos es demasiado larga." };
 
   const { data: profile } = await admin
     .from("student_profiles")
@@ -41,8 +67,12 @@ export async function updateStudentProfileDetails(
     .from("student_profiles")
     .update({
       nationality: nationality || null,
+      country_flag: countryFlag,
       study_institution_private: institution || null,
       origin_city: originCity || null,
+      bio: bio || null,
+      interests: { items: interests },
+      habits: { items: habits },
     })
     .eq("id", profile.id);
   if (profileError) {
@@ -77,7 +107,14 @@ export async function updateStudentProfileDetails(
     action: "student_profile_updated",
     entityType: "student_profiles",
     entityId: profile.id,
-    newValue: { nationality: nationality || null, has_institution: !!institution, profile_visible: profileVisible },
+    newValue: {
+      nationality: nationality || null,
+      has_institution: !!institution,
+      has_bio: !!bio,
+      interests_count: interests.length,
+      habits_count: habits.length,
+      profile_visible: profileVisible,
+    },
     ipAddress: ip,
     userAgent,
   });

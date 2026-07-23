@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { Card } from "@/components/ui/Card";
-import { computeProfileCompleteness } from "@/lib/students/profileCompleteness";
 import { ProfileDetailsForm } from "@/app/students/profile/ProfileDetailsForm";
 import { DocumentUpload } from "@/app/students/profile/DocumentUpload";
 
@@ -17,7 +16,7 @@ export default async function StudentProfilePage() {
 
   const { data: profile } = await admin
     .from("student_profiles")
-    .select("id, nationality, study_institution_private, origin_city")
+    .select("id, nationality, study_institution_private, origin_city, bio, interests, habits")
     .eq("user_id", sessionUser.id)
     .maybeSingle();
   if (!profile) notFound();
@@ -43,13 +42,8 @@ export default async function StudentProfilePage() {
     .eq("status", "active")
     .maybeSingle();
 
-  const completeness = computeProfileCompleteness({
-    nationality: profile.nationality,
-    studyInstitutionPrivate: profile.study_institution_private,
-    originCity: profile.origin_city,
-    hasIdentityDocument: types.has("student_identity"),
-    hasAcademicProofDocument: types.has("student_academic_proof"),
-  });
+  const interestsItems = (profile.interests as { items?: unknown } | null)?.items;
+  const habitsItems = (profile.habits as { items?: unknown } | null)?.items;
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
@@ -59,31 +53,17 @@ export default async function StudentProfilePage() {
         estudiantes con perfil completo como solicitudes más serias.
       </p>
 
-      <Card className="mt-6 p-5">
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-semibold text-ink">Perfil completo</span>
-          <span className="text-sm font-bold text-forest-700">{completeness.percent}%</span>
-        </div>
-        <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-sand-200">
-          <div className="h-full rounded-full bg-forest transition-all" style={{ width: `${completeness.percent}%` }} />
-        </div>
-        {completeness.missing.length > 0 && (
-          <p className="mt-2 text-xs text-ink-faint">
-            Te falta: {completeness.missing.map((m) => m.label).join(", ")}.
-          </p>
-        )}
-      </Card>
-
-      <Card className="mt-4 p-5">
-        <h2 className="font-bold text-ink">Datos de tu perfil</h2>
-        <p className="mt-1 text-xs text-ink-faint">Privados — nunca se muestran públicamente.</p>
-        <ProfileDetailsForm
-          nationality={profile.nationality ?? ""}
-          studyInstitution={profile.study_institution_private ?? ""}
-          originCity={profile.origin_city ?? ""}
-          profileVisible={visibility?.is_individual_profile_visible ?? false}
-        />
-      </Card>
+      <ProfileDetailsForm
+        nationality={profile.nationality ?? ""}
+        studyInstitution={profile.study_institution_private ?? ""}
+        originCity={profile.origin_city ?? ""}
+        bio={profile.bio ?? ""}
+        interests={Array.isArray(interestsItems) ? (interestsItems as string[]) : []}
+        habits={Array.isArray(habitsItems) ? (habitsItems as string[]) : []}
+        profileVisible={visibility?.is_individual_profile_visible ?? false}
+        hasIdentityDocument={types.has("student_identity")}
+        hasAcademicProofDocument={types.has("student_academic_proof")}
+      />
 
       <Card className="mt-4 p-5">
         <h2 className="font-bold text-ink">Documentos</h2>
