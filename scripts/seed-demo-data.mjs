@@ -178,6 +178,14 @@ async function createResidence({ name, slug, publicArea, status, description, ta
 async function addOwner(residenceId, userId, role) {
   await admin.from("residence_users").insert({ residence_id: residenceId, user_id: userId, role, invitation_status: "accepted" });
 }
+// name -> personas por habitación. Sin esto, `capacity_per_room` cae al
+// default de la columna (1) para TODOS los tipos — encontrado en Ciclo
+// 35septendecies: Doble/Triple/Cuádruple quedaban con capacidad 1,
+// inflando la cantidad de habitaciones que seed-rooms-and-content.mjs
+// creaba para alojar a los residentes demo (ej. 10 habitaciones "Doble"
+// en vez de las 4 reales que hacen falta para 8 personas).
+const CAPACITY_BY_ROOM_NAME = { Individual: 1, Doble: 2, Triple: 3, Cuádruple: 4, Compartida: 4 };
+
 async function addRoomType(residenceId, { name, usd, ars, count }) {
   // `adjustment_policy` vivía en `room_types` hasta la migración 0025
   // (Ciclo 22, "Condiciones de Reserva a nivel residencia") — se movió a
@@ -187,7 +195,13 @@ async function addRoomType(residenceId, { name, usd, ars, count }) {
   // ejercitara (encontrado en Ciclo 34unodevicies-quinquies).
   const { data, error } = await admin
     .from("room_types")
-    .insert({ residence_id: residenceId, name, monthly_price_usd: usd, monthly_price_ars: ars })
+    .insert({
+      residence_id: residenceId,
+      name,
+      monthly_price_usd: usd,
+      monthly_price_ars: ars,
+      capacity_per_room: CAPACITY_BY_ROOM_NAME[name] ?? 1,
+    })
     .select("id")
     .single();
   if (error) throw error;
