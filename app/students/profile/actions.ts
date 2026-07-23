@@ -66,7 +66,6 @@ export async function updateStudentProfileDetails(
     .split(",")
     .map((v) => v.trim())
     .filter((v) => HABIT_OPTIONS.includes(v as (typeof HABIT_OPTIONS)[number]));
-  const profileVisible = formData.get("profile_visible") === "on";
 
   if (institution.length > 160) return { status: "error", message: "Ese campo es demasiado largo." };
   if (career.length > 100) return { status: "error", message: "El nombre de la carrera es demasiado largo." };
@@ -98,9 +97,13 @@ export async function updateStudentProfileDetails(
     return { status: "error", message: "No pudimos guardar los cambios. Intentá de nuevo." };
   }
 
+  // Por ahora el perfil de comunidad siempre es visible dentro del
+  // contexto correspondiente (pedido del dueño, Ciclo 37) — se sacó el
+  // checkbox del formulario, así que esto queda fijo en `true` en vez
+  // de leer un campo que ya no existe.
   const { error: visibilityError } = await admin
     .from("student_visibility_settings")
-    .update({ is_individual_profile_visible: profileVisible })
+    .update({ is_individual_profile_visible: true })
     .eq("student_profile_id", profile.id);
   if (visibilityError) {
     console.error("[students/profile] visibility update failed:", visibilityError);
@@ -116,7 +119,7 @@ export async function updateStudentProfileDetails(
     version: CONSENT_VERSION,
     ip_address: ip,
     user_agent: userAgent,
-    metadata: { is_individual_profile_visible: profileVisible },
+    metadata: { is_individual_profile_visible: true },
   });
 
   await createAuditLog(admin, {
@@ -132,7 +135,6 @@ export async function updateStudentProfileDetails(
       has_bio: !!bio,
       interests_count: interests.length,
       habits_count: habits.length,
-      profile_visible: profileVisible,
     },
     ipAddress: ip,
     userAgent,
@@ -148,13 +150,18 @@ const ALLOWED_DOCUMENT_TYPES = ["application/pdf", "image/jpeg", "image/png", "i
 
 /**
  * Subida de documentos propios del estudiante (DNI, comprobante de
- * inscripción) — mismo patrón que `uploadResidencePaymentProof`, bucket
- * privado propio (`student-documents`). `document_type` ya existía en
- * el enum desde la migración 0003 (`student_identity`,
- * `student_academic_proof`) sin ninguna pantalla que lo usara todavía.
+ * inscripción, otros documentos que pida una residencia puntual) —
+ * mismo patrón que `uploadResidencePaymentProof`, bucket privado
+ * propio (`student-documents`). `document_type` ya existía en el enum
+ * desde la migración 0003 (`student_identity`, `student_academic_proof`,
+ * `other`) sin ninguna pantalla que lo usara todavía — a diferencia de
+ * los otros dos, `"other"` no tiene "slot único": `files` no tiene
+ * constraint que limite a 1 fila por `(student, document_type)`, así
+ * que subir varias veces con `documentType: "other"` ya funciona sin
+ * cambios de esquema (Ciclo 37).
  */
 export async function uploadStudentDocument(
-  documentType: "student_identity" | "student_academic_proof",
+  documentType: "student_identity" | "student_academic_proof" | "other",
   _prev: UploadDocumentState,
   formData: FormData,
 ): Promise<UploadDocumentState> {

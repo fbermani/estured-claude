@@ -20,6 +20,18 @@ import {
 
 const initialState: UpdateProfileState = { status: "idle" };
 
+const BIO_EXAMPLES = [
+  "Soy bastante tranquilo, madrugador y me gusta cocinar los domingos. Busco un ambiente de estudio, pero también me copa compartir un mate de vez en cuando.",
+  "Estudiosa pero sociable, disfruto ver series con amigos y siempre tengo la heladera con algo casero. Valoro mucho el orden en los espacios comunes.",
+];
+
+function bioHint(length: number): string {
+  if (length === 0) return "Empezá contando cómo sos como compañero de residencia.";
+  if (length < 40) return "Vas bien — sumá algo de tu rutina o tu forma de ser.";
+  if (length < 120) return "¡Buen arranque! Un poco más y se siente más auténtico.";
+  return "¡Buen perfil! Así te conocen mejor tus futuros compañeros.";
+}
+
 /**
  * Grupo de chips seleccionables (multi-select) — mismo look que los
  * botones de objetivo académico de `ApplyForm.tsx`, generalizado para
@@ -46,10 +58,10 @@ function ChipToggleGroup({
             type="button"
             onClick={() => onToggle(option)}
             aria-pressed={isSelected}
-            className={`rounded-full border px-3.5 py-1.5 text-sm font-semibold transition-all duration-300 ${
+            className={`rounded-full border px-3.5 py-1.5 text-sm font-semibold transition-all duration-300 ease-fresh hover:scale-[1.04] ${
               isSelected
                 ? "animate-select-pop border-forest bg-forest text-white shadow-card"
-                : "border-line-2 bg-paper text-ink-soft hover:border-forest hover:text-forest-700"
+                : "border-line-2 bg-paper text-ink-soft hover:border-forest hover:bg-forest-tint/40 hover:text-forest-700 hover:shadow-sm"
             }`}
           >
             {option}
@@ -68,7 +80,6 @@ export function ProfileDetailsForm({
   bio,
   interests,
   habits,
-  profileVisible,
   hasIdentityDocument,
   hasAcademicProofDocument,
 }: {
@@ -79,7 +90,6 @@ export function ProfileDetailsForm({
   bio: string;
   interests: string[];
   habits: string[];
-  profileVisible: boolean;
   hasIdentityDocument: boolean;
   hasAcademicProofDocument: boolean;
 }) {
@@ -99,9 +109,9 @@ export function ProfileDetailsForm({
   const [careerOther, setCareerOther] = useState(isKnownCareer ? "" : career);
   const [originCityValue, setOriginCityValue] = useState(originCity);
   const [bioValue, setBioValue] = useState(bio);
+  const [showBioExamples, setShowBioExamples] = useState(false);
   const [interestsValue, setInterestsValue] = useState<string[]>(interests);
   const [habitsValue, setHabitsValue] = useState<string[]>(habits);
-  const [visibleValue, setVisibleValue] = useState(profileVisible);
 
   const effectiveInstitution =
     universitySelect === UNIVERSITY_OTHER_VALUE ? universityOther.trim() : universitySelect;
@@ -144,13 +154,10 @@ export function ProfileDetailsForm({
 
   return (
     <>
-      <Card className="mt-6 p-5">
+      <Card className="p-5">
         <div className="flex items-center justify-between">
           <span className="text-sm font-semibold text-ink">Perfil completo</span>
-          <span
-            key={completeness.percent}
-            className="animate-select-pop text-sm font-bold text-forest-700"
-          >
+          <span key={completeness.percent} className="animate-select-pop text-sm font-bold text-forest-700">
             {completeness.percent}%
           </span>
         </div>
@@ -166,7 +173,7 @@ export function ProfileDetailsForm({
             ¡Tu perfil está completo!
           </p>
         ) : (
-          <ul className="mt-3 space-y-1.5">
+          <ul className="mt-3 grid gap-1.5 sm:grid-cols-2">
             {completeness.missing.map((item) => (
               <li key={item.key} className="flex items-start gap-2 text-xs leading-relaxed text-ink-faint">
                 <Icon name="arrow_right_alt" className="mt-0.5 shrink-0 text-sm text-orange-700" />
@@ -180,8 +187,7 @@ export function ProfileDetailsForm({
       <form action={formAction}>
         <Card className="mt-4 p-5">
           <h2 className="font-bold text-ink">Datos de tu perfil</h2>
-          <p className="mt-1 text-xs text-ink-faint">Privados — nunca se muestran públicamente.</p>
-          <div className="mt-3 flex flex-col gap-4">
+          <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Select
               label="Nacionalidad"
               id="profile-nationality"
@@ -196,6 +202,16 @@ export function ProfileDetailsForm({
                 </option>
               ))}
             </Select>
+
+            <Input
+              label="Provincia o ciudad de origen (opcional)"
+              id="profile-origin-city"
+              name="origin_city"
+              placeholder="Ej: Córdoba, Mendoza, Lima…"
+              maxLength={120}
+              value={originCityValue}
+              onChange={(e) => setOriginCityValue(e.target.value)}
+            />
 
             <div>
               <Select
@@ -257,51 +273,77 @@ export function ProfileDetailsForm({
                 </div>
               )}
             </div>
-
-            <Input
-              label="Ciudad de origen (opcional)"
-              id="profile-origin-city"
-              name="origin_city"
-              placeholder="Ej: Córdoba, Mendoza, Lima…"
-              maxLength={120}
-              value={originCityValue}
-              onChange={(e) => setOriginCityValue(e.target.value)}
-            />
           </div>
         </Card>
 
         <Card className="mt-4 p-5">
           <h2 className="font-bold text-ink">Tu perfil de comunidad</h2>
-          <p className="mt-1 text-xs text-ink-faint">
-            Se muestra a otros estudiantes en tu residencia — solo si activás la visibilidad de abajo.
-          </p>
 
-          <div className="mt-4">
-            <label htmlFor="profile-bio" className="text-sm font-bold text-ink-soft">
-              Sobre mí (opcional)
-            </label>
-            <p className="mt-1 text-xs leading-relaxed text-ink-faint">
-              Contá un poco sobre vos, cómo sos como compañero de residencia, tus intereses o cualquier
-              información que ayude a conocerte mejor. Evitá repetir datos como tu universidad, carrera o
-              nacionalidad — ya se muestran arriba.
+          {/* "Sobre mí" — tratamiento destacado (Ciclo 37): jerarquía
+              visual propia, ayuda + ejemplos + sugerencia en vivo, no
+              un textarea suelto más. */}
+          <div className="mt-4 rounded-card border border-line-2 bg-gradient-to-br from-sand-100/70 to-paper p-4">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-forest-tint text-forest-700">
+                <Icon name="auto_awesome" className="text-lg" />
+              </span>
+              <div>
+                <label htmlFor="profile-bio" className="text-sm font-bold text-ink">
+                  Sobre mí
+                </label>
+                <p className="text-xs text-ink-faint">Lo primero que van a leer de vos</p>
+              </div>
+            </div>
+
+            <p className="mt-3 flex items-start gap-2 rounded-field border-l-[3px] border-forest bg-forest-tint/30 px-3 py-2.5 text-xs leading-relaxed text-ink-soft">
+              <Icon name="lightbulb" className="mt-0.5 shrink-0 text-sm text-forest-700" />
+              Contá cómo sos como compañero de residencia, qué te gusta hacer, cómo es tu rutina o cualquier
+              aspecto que ayude a conocerte mejor. Evitá repetir información como tu carrera o nacionalidad.
             </p>
+
             <Textarea
               id="profile-bio"
               name="bio"
               rows={3}
               maxLength={BIO_MAX_LENGTH}
-              placeholder="Ej: Soy bastante tranquilo/a y ordenado/a, me gusta cocinar los domingos y siempre tengo mate a mano. Busco un ambiente de estudio, pero también me copa compartir alguna previa de vez en cuando."
+              placeholder="Ej: Soy tranquilo, ordenado y me gusta cocinar los domingos. Busco un ambiente de estudio, pero también me copa compartir un mate de vez en cuando…"
               value={bioValue}
               onChange={(e) => setBioValue(e.target.value)}
-              className="mt-2"
+              className="mt-3 bg-paper"
             />
-            <p className="mt-1 text-right text-[11px] text-ink-faint">
-              {bioValue.length}/{BIO_MAX_LENGTH}
-            </p>
+            <div className="mt-1.5 flex items-center justify-between gap-3">
+              <p className="text-[11px] font-medium text-forest-700">{bioHint(bioValue.length)}</p>
+              <span className="shrink-0 text-[11px] text-ink-faint">
+                {bioValue.length}/{BIO_MAX_LENGTH}
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowBioExamples((v) => !v)}
+              className="mt-2 flex items-center gap-1 text-xs font-semibold text-forest-700 hover:underline"
+            >
+              <Icon name={showBioExamples ? "expand_less" : "expand_more"} className="text-sm" />
+              {showBioExamples ? "Ocultar ejemplos" : "Ver ejemplos"}
+            </button>
+            {showBioExamples && (
+              <div className="benefit-fade-in mt-2 space-y-2">
+                {BIO_EXAMPLES.map((example) => (
+                  <p key={example} className="rounded-field bg-cream-2 px-3 py-2 text-xs italic leading-relaxed text-ink-soft">
+                    &ldquo;{example}&rdquo;
+                  </p>
+                ))}
+              </div>
+            )}
           </div>
 
-          <div className="mt-4">
-            <span className="text-sm font-bold text-ink-soft">Intereses (opcional)</span>
+          <div className="mt-5">
+            <div className="flex items-center gap-1.5">
+              <Icon name="favorite" className="text-base text-forest-700" />
+              <span className="text-sm font-bold text-ink">
+                Intereses <span className="font-normal text-ink-faint">(opcional)</span>
+              </span>
+            </div>
             <p className="mt-1 text-xs text-ink-faint">
               Elegí los que te representen — ayuda a encontrar compañeros afines.
             </p>
@@ -311,8 +353,13 @@ export function ProfileDetailsForm({
             <input type="hidden" name="interests" value={interestsValue.join(",")} />
           </div>
 
-          <div className="mt-4">
-            <span className="text-sm font-bold text-ink-soft">Hábitos (opcional)</span>
+          <div className="mt-5">
+            <div className="flex items-center gap-1.5">
+              <Icon name="schedule" className="text-base text-forest-700" />
+              <span className="text-sm font-bold text-ink">
+                Hábitos <span className="font-normal text-ink-faint">(opcional)</span>
+              </span>
+            </div>
             <p className="mt-1 text-xs text-ink-faint">
               Ayuda a generar mejores convivencias con tus futuros compañeros de residencia.
             </p>
@@ -321,20 +368,6 @@ export function ProfileDetailsForm({
             </div>
             <input type="hidden" name="habits" value={habitsValue.join(",")} />
           </div>
-
-          <label className="mt-5 flex cursor-pointer items-start gap-2.5 border-t border-line pt-4 text-sm text-ink">
-            <input
-              type="checkbox"
-              name="profile_visible"
-              checked={visibleValue}
-              onChange={(e) => setVisibleValue(e.target.checked)}
-              className="mt-0.5 h-4 w-4 shrink-0 accent-forest"
-            />
-            <span>
-              Quiero que mi perfil de comunidad (nombre, inicial, intereses y hábitos) pueda verse en las
-              residencias donde viva. <span className="text-ink-faint">Opcional — podés cambiarlo cuando quieras.</span>
-            </span>
-          </label>
         </Card>
 
         {state.status === "error" && (
