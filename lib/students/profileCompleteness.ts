@@ -13,6 +13,7 @@ export interface ProfileCompletenessItem {
   key:
     | "nationality"
     | "study_institution"
+    | "career"
     | "origin_city"
     | "student_identity"
     | "student_academic_proof"
@@ -34,6 +35,7 @@ export interface ProfileCompleteness {
 export function computeProfileCompleteness(input: {
   nationality: string | null;
   studyInstitutionPrivate: string | null;
+  career: string | null;
   originCity: string | null;
   hasIdentityDocument: boolean;
   hasAcademicProofDocument: boolean;
@@ -53,6 +55,12 @@ export function computeProfileCompleteness(input: {
       label: "Dónde vas a estudiar",
       message: "Contanos dónde vas a estudiar — nos ayuda a mostrarte residencias bien ubicadas.",
       done: !!input.studyInstitutionPrivate,
+    },
+    {
+      key: "career",
+      label: "Carrera",
+      message: "Contanos qué carrera estudiás — ayuda a tus futuros compañeros a conocerte mejor.",
+      done: !!input.career,
     },
     {
       key: "origin_city",
@@ -106,7 +114,7 @@ export async function getStudentProfileCompleteness(
 ): Promise<ProfileCompleteness | null> {
   const { data: profile } = await admin
     .from("student_profiles")
-    .select("id, nationality, study_institution_private, origin_city, bio, interests, habits")
+    .select("id, nationality, study_institution_private, career, origin_city, bio, interests, habits")
     .eq("user_id", userId)
     .maybeSingle();
   if (!profile) return null;
@@ -125,6 +133,7 @@ export async function getStudentProfileCompleteness(
   return computeProfileCompleteness({
     nationality: profile.nationality,
     studyInstitutionPrivate: profile.study_institution_private,
+    career: profile.career,
     originCity: profile.origin_city,
     hasIdentityDocument: types.has("student_identity"),
     hasAcademicProofDocument: types.has("student_academic_proof"),

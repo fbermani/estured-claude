@@ -9,7 +9,14 @@ import { updateStudentProfileDetails, type UpdateProfileState } from "@/app/stud
 import { computeProfileCompleteness } from "@/lib/students/profileCompleteness";
 import { LATAM_COUNTRIES } from "@/lib/data/latamCountries";
 import { UNIVERSITY_NAMES } from "@/lib/data/buenosAiresUniversities";
-import { INTEREST_OPTIONS, HABIT_OPTIONS, UNIVERSITY_OTHER_VALUE, BIO_MAX_LENGTH } from "@/lib/students/profileOptions";
+import {
+  INTEREST_OPTIONS,
+  HABIT_OPTIONS,
+  CAREER_OPTIONS,
+  UNIVERSITY_OTHER_VALUE,
+  CAREER_OTHER_VALUE,
+  BIO_MAX_LENGTH,
+} from "@/lib/students/profileOptions";
 
 const initialState: UpdateProfileState = { status: "idle" };
 
@@ -56,6 +63,7 @@ function ChipToggleGroup({
 export function ProfileDetailsForm({
   nationality,
   studyInstitution,
+  career,
   originCity,
   bio,
   interests,
@@ -66,6 +74,7 @@ export function ProfileDetailsForm({
 }: {
   nationality: string;
   studyInstitution: string;
+  career: string;
   originCity: string;
   bio: string;
   interests: string[];
@@ -82,6 +91,12 @@ export function ProfileDetailsForm({
     !studyInstitution ? "" : isKnownUniversity ? studyInstitution : UNIVERSITY_OTHER_VALUE,
   );
   const [universityOther, setUniversityOther] = useState(isKnownUniversity ? "" : studyInstitution);
+
+  const isKnownCareer = (CAREER_OPTIONS as readonly string[]).includes(career);
+  const [careerSelect, setCareerSelect] = useState(
+    !career ? "" : isKnownCareer ? career : CAREER_OTHER_VALUE,
+  );
+  const [careerOther, setCareerOther] = useState(isKnownCareer ? "" : career);
   const [originCityValue, setOriginCityValue] = useState(originCity);
   const [bioValue, setBioValue] = useState(bio);
   const [interestsValue, setInterestsValue] = useState<string[]>(interests);
@@ -90,6 +105,7 @@ export function ProfileDetailsForm({
 
   const effectiveInstitution =
     universitySelect === UNIVERSITY_OTHER_VALUE ? universityOther.trim() : universitySelect;
+  const effectiveCareer = careerSelect === CAREER_OTHER_VALUE ? careerOther.trim() : careerSelect;
 
   // Recalculado en vivo con cada cambio (sin guardar todavía) — pedido
   // del dueño: "el progreso debe sentirse vivo y motivar al usuario".
@@ -98,6 +114,7 @@ export function ProfileDetailsForm({
       computeProfileCompleteness({
         nationality: nationalityValue || null,
         studyInstitutionPrivate: effectiveInstitution || null,
+        career: effectiveCareer || null,
         originCity: originCityValue || null,
         hasIdentityDocument,
         hasAcademicProofDocument,
@@ -108,6 +125,7 @@ export function ProfileDetailsForm({
     [
       nationalityValue,
       effectiveInstitution,
+      effectiveCareer,
       originCityValue,
       hasIdentityDocument,
       hasAcademicProofDocument,
@@ -210,6 +228,36 @@ export function ProfileDetailsForm({
               )}
             </div>
 
+            <div>
+              <Select
+                label="¿Qué carrera?"
+                id="profile-career"
+                name="career_select"
+                value={careerSelect}
+                onChange={(e) => setCareerSelect(e.target.value)}
+              >
+                <option value="">Elegí tu carrera</option>
+                {CAREER_OPTIONS.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+                <option value={CAREER_OTHER_VALUE}>Otra carrera…</option>
+              </Select>
+              {careerSelect === CAREER_OTHER_VALUE && (
+                <div className="benefit-fade-in mt-2.5">
+                  <Input
+                    id="profile-career-other"
+                    name="career_other"
+                    placeholder="Nombre de tu carrera"
+                    maxLength={100}
+                    value={careerOther}
+                    onChange={(e) => setCareerOther(e.target.value)}
+                  />
+                </div>
+              )}
+            </div>
+
             <Input
               label="Ciudad de origen (opcional)"
               id="profile-origin-city"
@@ -233,16 +281,16 @@ export function ProfileDetailsForm({
               Sobre mí (opcional)
             </label>
             <p className="mt-1 text-xs leading-relaxed text-ink-faint">
-              Contá un poco sobre vos, cómo sos como compañero de residencia, qué estudiás, tus intereses o
-              cualquier información que ayude a conocerte mejor. Evitá repetir datos como tu universidad o
-              nacionalidad.
+              Contá un poco sobre vos, cómo sos como compañero de residencia, tus intereses o cualquier
+              información que ayude a conocerte mejor. Evitá repetir datos como tu universidad, carrera o
+              nacionalidad — ya se muestran arriba.
             </p>
             <Textarea
               id="profile-bio"
               name="bio"
-              rows={4}
+              rows={3}
               maxLength={BIO_MAX_LENGTH}
-              placeholder="Ej: Estudio Ingeniería y soy bastante tranquilo/a, me gusta cocinar los domingos y siempre tengo mate a mano. Busco un ambiente de estudio, pero también me copa compartir alguna previa de vez en cuando."
+              placeholder="Ej: Soy bastante tranquilo/a y ordenado/a, me gusta cocinar los domingos y siempre tengo mate a mano. Busco un ambiente de estudio, pero también me copa compartir alguna previa de vez en cuando."
               value={bioValue}
               onChange={(e) => setBioValue(e.target.value)}
               className="mt-2"

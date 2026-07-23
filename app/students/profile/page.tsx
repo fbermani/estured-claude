@@ -16,7 +16,7 @@ export default async function StudentProfilePage() {
 
   const { data: profile } = await admin
     .from("student_profiles")
-    .select("id, nationality, study_institution_private, origin_city, bio, interests, habits")
+    .select("id, nationality, study_institution_private, career, origin_city, bio, interests, habits")
     .eq("user_id", sessionUser.id)
     .maybeSingle();
   if (!profile) notFound();
@@ -56,6 +56,7 @@ export default async function StudentProfilePage() {
       <ProfileDetailsForm
         nationality={profile.nationality ?? ""}
         studyInstitution={profile.study_institution_private ?? ""}
+        career={profile.career ?? ""}
         originCity={profile.origin_city ?? ""}
         bio={profile.bio ?? ""}
         interests={Array.isArray(interestsItems) ? (interestsItems as string[]) : []}

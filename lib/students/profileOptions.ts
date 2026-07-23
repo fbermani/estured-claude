@@ -42,7 +42,39 @@ export const HABIT_OPTIONS = [
   "Recibo visitas ocasionalmente",
 ] as const;
 
-/** Valor sentinela del <select> de universidad — nunca se guarda tal cual, dispara el campo de texto libre. */
-export const UNIVERSITY_OTHER_VALUE = "__otra__";
+/**
+ * Carreras más frecuentes entre estudiantes de la plataforma — mismo
+ * vocabulario EXACTO que `CAREERS` en `scripts/seed-residence-community.mjs`
+ * (duplicado a propósito, ver la lección de Ciclo 36 sobre por qué
+ * tienen que coincidir letra por letra). "Otra carrera…" dispara el
+ * campo de texto libre, mismo patrón que la universidad.
+ */
+export const CAREER_OPTIONS = [
+  "Medicina",
+  "Derecho",
+  "Ingeniería Industrial",
+  "Arquitectura",
+  "Psicología",
+  "Ciencias Políticas",
+  "Economía",
+  "Diseño Gráfico",
+  "Relaciones Internacionales",
+  "Contador Público",
+  "Comunicación Social",
+  "Ingeniería en Sistemas",
+  "Odontología",
+  "Veterinaria",
+  "Administración de Empresas",
+  "Biología",
+  "Letras",
+  "Nutrición",
+  "Kinesiología",
+  "Ciencias de la Educación",
+] as const;
 
-export const BIO_MAX_LENGTH = 500;
+/** Valores sentinela de los <select> de universidad/carrera — nunca se guardan tal cual, disparan el campo de texto libre. */
+export const UNIVERSITY_OTHER_VALUE = "__otra__";
+export const CAREER_OTHER_VALUE = "__otra__";
+
+/** Corto a propósito: este texto se muestra completo en la card flotante de Comunidad (sin truncar), 500 caracteres ahí es demasiado. */
+export const BIO_MAX_LENGTH = 240;

@@ -7,7 +7,14 @@ import { getSessionUser } from "@/lib/auth/session";
 import { createAuditLog } from "@/lib/audit";
 import { LATAM_COUNTRY_NAMES, FLAG_BY_COUNTRY } from "@/lib/data/latamCountries";
 import { UNIVERSITY_NAMES } from "@/lib/data/buenosAiresUniversities";
-import { INTEREST_OPTIONS, HABIT_OPTIONS, UNIVERSITY_OTHER_VALUE, BIO_MAX_LENGTH } from "@/lib/students/profileOptions";
+import {
+  INTEREST_OPTIONS,
+  HABIT_OPTIONS,
+  CAREER_OPTIONS,
+  UNIVERSITY_OTHER_VALUE,
+  CAREER_OTHER_VALUE,
+  BIO_MAX_LENGTH,
+} from "@/lib/students/profileOptions";
 
 export type UpdateProfileState = { status: "idle" | "error" | "saved"; message?: string };
 export type UploadDocumentState = { status: "idle" | "error" | "saved"; message?: string };
@@ -40,6 +47,15 @@ export async function updateStudentProfileDetails(
         ? universitySelect
         : "";
 
+  const careerSelect = String(formData.get("career_select") ?? "").trim();
+  const careerOther = String(formData.get("career_other") ?? "").trim();
+  const career =
+    careerSelect === CAREER_OTHER_VALUE
+      ? careerOther
+      : CAREER_OPTIONS.includes(careerSelect as (typeof CAREER_OPTIONS)[number])
+        ? careerSelect
+        : "";
+
   const originCity = String(formData.get("origin_city") ?? "").trim();
   const bio = String(formData.get("bio") ?? "").trim();
   const interests = String(formData.get("interests") ?? "")
@@ -53,6 +69,7 @@ export async function updateStudentProfileDetails(
   const profileVisible = formData.get("profile_visible") === "on";
 
   if (institution.length > 160) return { status: "error", message: "Ese campo es demasiado largo." };
+  if (career.length > 100) return { status: "error", message: "El nombre de la carrera es demasiado largo." };
   if (originCity.length > 120) return { status: "error", message: "La ciudad de origen es demasiado larga." };
   if (bio.length > BIO_MAX_LENGTH) return { status: "error", message: "Tu descripción sobre vos es demasiado larga." };
 
@@ -69,6 +86,7 @@ export async function updateStudentProfileDetails(
       nationality: nationality || null,
       country_flag: countryFlag,
       study_institution_private: institution || null,
+      career: career || null,
       origin_city: originCity || null,
       bio: bio || null,
       interests: { items: interests },
@@ -110,6 +128,7 @@ export async function updateStudentProfileDetails(
     newValue: {
       nationality: nationality || null,
       has_institution: !!institution,
+      has_career: !!career,
       has_bio: !!bio,
       interests_count: interests.length,
       habits_count: habits.length,
