@@ -15,6 +15,41 @@ import {
 const inviteInitial: FamilyInviteState = { status: "idle" };
 
 /**
+ * Formulario de invitación en su propio componente, con `useActionState`
+ * propio — así el padre lo puede remontar con un `key` que cambia al
+ * cancelar una invitación anterior. Sin esto, cancelar y volver al
+ * formulario vacío dejaba pegado el mensaje "Invitación enviada." de la
+ * invitación ya cancelada (el hook nunca se desmonta si solo cambia la
+ * rama del JSX que lo envuelve, encontrado verificando en vivo).
+ */
+function InviteForm() {
+  const [inviteState, inviteAction, isInviting] = useActionState(inviteFamilyMember, inviteInitial);
+  return (
+    <>
+      <form action={inviteAction} className="mt-3 flex flex-col gap-2">
+        <Input
+          id="family-invite-email"
+          name="email"
+          type="email"
+          required
+          placeholder="email@ejemplo.com"
+          maxLength={200}
+        />
+        <Button type="submit" variant="outline" size="sm" disabled={isInviting}>
+          {isInviting ? "Enviando…" : "Enviar invitación"}
+        </Button>
+      </form>
+      {inviteState.status === "error" && (
+        <p className="mt-1.5 text-xs font-medium text-danger-fg">{inviteState.message}</p>
+      )}
+      {inviteState.status === "sent" && (
+        <p className="benefit-fade-in mt-1.5 text-xs font-medium text-forest-700">Invitación enviada.</p>
+      )}
+    </>
+  );
+}
+
+/**
  * "Vinculación parental" en Mi perfil (Ciclo 37) — 3 estados posibles:
  * ya vinculado (con desvincular), invitación pendiente (con cancelar),
  * o el formulario para invitar por email. El estado intermedio
@@ -35,7 +70,7 @@ export function FamilyLinkCard({
   const [revokeError, setRevokeError] = useState<string | null>(null);
   const [isCancelling, startCancel] = useTransition();
   const [cancelError, setCancelError] = useState<string | null>(null);
-  const [inviteState, inviteAction, isInviting] = useActionState(inviteFamilyMember, inviteInitial);
+  const [formEpoch, setFormEpoch] = useState(0);
 
   function handleRevoke() {
     if (!activeLink) return;
@@ -52,6 +87,7 @@ export function FamilyLinkCard({
     startCancel(async () => {
       const result = await cancelFamilyInvitation(pendingInvitation.id);
       if (result.status === "error") setCancelError(result.message ?? "Ocurrió un error.");
+      else setFormEpoch((e) => e + 1);
     });
   }
 
@@ -116,25 +152,7 @@ export function FamilyLinkCard({
             Invitalo/a a EstuRed para que en el futuro pueda ver información de tus reservas, pagos y estadía cuando
             esa funcionalidad esté disponible.
           </p>
-          <form action={inviteAction} className="mt-3 flex flex-col gap-2">
-            <Input
-              id="family-invite-email"
-              name="email"
-              type="email"
-              required
-              placeholder="email@ejemplo.com"
-              maxLength={200}
-            />
-            <Button type="submit" variant="outline" size="sm" disabled={isInviting}>
-              {isInviting ? "Enviando…" : "Enviar invitación"}
-            </Button>
-          </form>
-          {inviteState.status === "error" && (
-            <p className="mt-1.5 text-xs font-medium text-danger-fg">{inviteState.message}</p>
-          )}
-          {inviteState.status === "sent" && (
-            <p className="benefit-fade-in mt-1.5 text-xs font-medium text-forest-700">Invitación enviada.</p>
-          )}
+          <InviteForm key={formEpoch} />
         </>
       )}
     </div>
