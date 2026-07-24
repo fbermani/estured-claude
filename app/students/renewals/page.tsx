@@ -5,7 +5,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ExpandableCard } from "@/components/ui/ExpandableCard";
-import { RequestRenewalForm } from "@/app/students/renewals/RequestRenewalForm";
+import { StartRenewalModal } from "@/app/students/renewals/StartRenewalModal";
 import { addMonthsDateOnly, daysRemaining } from "@/lib/students/stayDates";
 
 export const metadata: Metadata = { title: "Renovaciones" };
@@ -29,7 +29,9 @@ type ReservationRow = {
   start_date: string;
   initial_duration_months: number;
   status: string;
-  residences: { name: string; public_area: string } | null;
+  residences: { name: string; public_area: string; minimum_stay_months: number | null } | null;
+  room_types: { name: string } | null;
+  application_snapshots: { monthly_price_usd: number } | null;
 };
 
 export default async function StudentRenewalsPage() {
@@ -43,7 +45,9 @@ export default async function StudentRenewalsPage() {
   if (supabase && sessionUser) {
     const { data } = await supabase
       .from("reservations")
-      .select("id, start_date, initial_duration_months, status, residences (name, public_area)")
+      .select(
+        "id, start_date, initial_duration_months, status, residences (name, public_area, minimum_stay_months), room_types (name), application_snapshots (monthly_price_usd)",
+      )
       .eq("status", "confirmed");
     reservations = (data as unknown as ReservationRow[]) ?? [];
 
@@ -157,7 +161,14 @@ export default async function StudentRenewalsPage() {
                       Ya enviaste tu solicitud de renovación — esperando que la residencia responda.
                     </p>
                   ) : (
-                    <RequestRenewalForm reservationId={r.id} />
+                    <StartRenewalModal
+                      reservationId={r.id}
+                      roomTypeName={r.room_types?.name ?? null}
+                      currentEndDateLabel={addMonthsDateOnly(r.start_date, r.initial_duration_months)}
+                      monthlyPriceUsd={r.application_snapshots?.monthly_price_usd ?? null}
+                      minimumStayMonths={r.residences?.minimum_stay_months ?? null}
+                      triggerLabel="Iniciar renovación"
+                    />
                   )}
                 </div>
               </ExpandableCard>

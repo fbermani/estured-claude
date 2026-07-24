@@ -2,11 +2,7 @@
 
 import { useActionState } from "react";
 import { Button } from "@/components/ui/Button";
-import {
-  activateResidentStayAction,
-  setResidentVisibilityAction,
-  type ResidencyActionState,
-} from "@/app/students/residency/actions";
+import { activateResidentStayAction, type ResidencyActionState } from "@/app/students/residency/actions";
 
 const initialState: ResidencyActionState = { status: "idle" };
 
@@ -24,16 +20,8 @@ export function ActivateResidentStayButton({ residentStayId }: { residentStayId:
   );
 }
 
-export function ToggleResidentVisibilityButton({ residentStayId, hidden }: { residentStayId: string; hidden: boolean }) {
-  const action = setResidentVisibilityAction.bind(null, residentStayId, !hidden);
-  const [state, formAction, isPending] = useActionState(action, initialState);
-
-  return (
-    <form action={formAction} className="mt-2">
-      <Button type="submit" size="sm" variant="outline" disabled={isPending}>
-        {isPending ? "Guardando…" : hidden ? "Mostrarme en la comunidad" : "Ocultarme de la comunidad"}
-      </Button>
-      {state.status === "error" && <p className="mt-1 text-xs font-medium text-danger-fg">{state.message}</p>}
-    </form>
-  );
-}
+// El toggle "ocultarme de la comunidad" se retiró (decisión del dueño,
+// Ciclo 39): el perfil siempre es visible una vez activada la cuenta.
+// setResidentVisibilityAction/setResidentVisibility quedan intactos en
+// app/students/residency/actions.ts y lib/residents/ (con su test) por
+// si la regla se revierte, pero ya no tienen entry point de UI.

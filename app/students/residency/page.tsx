@@ -4,11 +4,11 @@ import { getSupabaseServer } from "@/lib/supabase/server";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { Card } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { ActivateResidentStayButton, ToggleResidentVisibilityButton } from "@/app/students/residency/ResidencyActions";
+import { ActivateResidentStayButton } from "@/app/students/residency/ResidencyActions";
+import { StartRenewalModal } from "@/app/students/renewals/StartRenewalModal";
 import { AmenityGrid } from "@/components/residences/AmenityGrid";
 import { RulesHighlight } from "@/components/residences/RulesHighlight";
 import { CommunityBrowser } from "@/components/residences/CommunityBrowser";
@@ -26,12 +26,6 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: isHoused ? "Mi residencia" : "Mi estadía" };
 }
 
-const STATUS_COPY: Record<string, { label: string; tone: "amber" | "sage" | "neutral" }> = {
-  active: { label: "Visible en la comunidad", tone: "sage" },
-  visibility_limited: { label: "Visible — visibilidad limitada", tone: "sage" },
-  hidden_by_user: { label: "Oculto de la comunidad", tone: "neutral" },
-};
-
 type StayRow = {
   id: string;
   status: string;
@@ -45,29 +39,36 @@ type ReservationRow = {
   start_date: string;
   initial_duration_months: number;
   booking_receipt_id: string | null;
-  residences: { id: string; name: string; public_area: string; slug: string; description: string | null } | null;
+  residences: {
+    id: string;
+    name: string;
+    public_area: string;
+    slug: string;
+    description: string | null;
+    minimum_stay_months: number | null;
+  } | null;
   room_types: { name: string } | null;
   application_snapshots: { monthly_price_usd: number } | null;
 };
 
 /**
- * Visibilidad en la comunidad (`resident_stays`, activación por
- * invitación de la residencia) — bloque intacto desde la versión
- * original de esta pantalla, ahora incrustado dentro del hub en vez de
- * ser toda la página. No tocar la lógica de queries/acciones acá
- * (docs/05 §15.1).
+ * Activación de residente pendiente (`resident_stays`, invitación de
+ * la residencia) — bloque intacto desde la versión original de esta
+ * pantalla, ahora incrustado dentro del hub. Ya no ofrece un toggle de
+ * "ocultarme de la comunidad" (decisión del dueño, Ciclo 39): el
+ * perfil siempre es visible una vez que la cuenta está activada, sin
+ * paso de visibilidad separado. No tocar la lógica de queries/acciones
+ * acá (docs/05 §15.1).
  */
-function VisibilityBlock({ pending, mine }: { pending: StayRow[]; mine: StayRow[] }) {
-  if (pending.length === 0 && mine.length === 0) return null;
+function PendingActivationBlock({ pending }: { pending: StayRow[] }) {
+  if (pending.length === 0) return null;
   return (
     <Card className="p-5">
       <div className="mb-3 flex items-center gap-2">
-        <Icon name="visibility" className="text-xl text-forest-700" />
-        <h2 className="font-bold text-ink">Tu visibilidad en la comunidad</h2>
+        <Icon name="how_to_reg" className="text-xl text-forest-700" />
+        <h2 className="font-bold text-ink">Activá tu cuenta de residente</h2>
       </div>
-      <p className="text-xs text-ink-soft">
-        Vos decidís si aparecer en la comunidad visible de tu residencia — podés ocultarte cuando quieras.
-      </p>
+      <p className="text-xs text-ink-soft">Tu residencia te cargó como residente — activá tu cuenta para sumarte a la comunidad visible.</p>
       <div className="mt-4 space-y-3">
         {pending.map((stay) => (
           <div key={stay.id} className="rounded-field border border-line-2 bg-forest-tint p-4">
@@ -76,18 +77,6 @@ function VisibilityBlock({ pending, mine }: { pending: StayRow[]; mine: StayRow[
             <ActivateResidentStayButton residentStayId={stay.id} />
           </div>
         ))}
-        {mine.map((stay) => {
-          const badge = STATUS_COPY[stay.status] ?? { label: stay.status, tone: "neutral" as const };
-          return (
-            <div key={stay.id} className="flex items-start justify-between gap-3 rounded-field border border-line p-4">
-              <div>
-                <p className="text-sm font-semibold text-ink">Estado</p>
-                <Badge tone={badge.tone}>{badge.label}</Badge>
-              </div>
-              <ToggleResidentVisibilityButton residentStayId={stay.id} hidden={stay.status === "hidden_by_user"} />
-            </div>
-          );
-        })}
       </div>
     </Card>
   );
@@ -133,7 +122,7 @@ export default async function StudentResidencyPage() {
     const { data } = await supabase
       .from("reservations")
       .select(
-        "id, start_date, initial_duration_months, booking_receipt_id, residences(id, name, public_area, slug, description), room_types(name), application_snapshots(monthly_price_usd)",
+        "id, start_date, initial_duration_months, booking_receipt_id, residences(id, name, public_area, slug, description, minimum_stay_months), room_types(name), application_snapshots(monthly_price_usd)",
       )
       .eq("status", "confirmed")
       .order("confirmed_at", { ascending: false })
@@ -150,21 +139,25 @@ export default async function StudentResidencyPage() {
       <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
         <h1 className="text-2xl font-bold text-ink">Mi estadía</h1>
         <p className="mt-2 text-sm text-ink-soft">
-          Si tu residencia te cargó como residente, activá tu cuenta para aparecer en la comunidad visible — vos
-          decidís si aparecer o no.
+          Si tu residencia te cargó como residente, activá tu cuenta para aparecer en la comunidad visible.
         </p>
 
-        {pending.length === 0 && mine.length === 0 ? (
+        {pending.length > 0 ? (
+          <div className="mt-6">
+            <PendingActivationBlock pending={pending} />
+          </div>
+        ) : mine.length > 0 ? (
+          <div className="mt-6 flex items-center gap-3 rounded-card border border-line-2 bg-forest-tint p-5">
+            <Icon name="verified_user" className="text-2xl text-forest-700" />
+            <p className="text-sm font-semibold text-ink">Ya estás activo en la comunidad de tu residencia.</p>
+          </div>
+        ) : (
           <div className="mt-6">
             <EmptyState
               icon="apartment"
               title="Sin estadías cargadas"
               description="Cuando la residencia donde vivís te cargue como residente, vas a poder activar tu cuenta acá."
             />
-          </div>
-        ) : (
-          <div className="mt-6">
-            <VisibilityBlock pending={pending} mine={mine} />
           </div>
         )}
       </div>
@@ -320,9 +313,21 @@ export default async function StudentResidencyPage() {
                 </p>
               </div>
             </div>
-            <Button href="/students/renewals" size="sm" variant={renewalStatus ? "primary" : "outline"} className="shrink-0">
-              Ver renovaciones
-            </Button>
+            {renewalStatus ? (
+              <Button href="/students/renewals" size="sm" variant="primary" className="shrink-0">
+                Ver renovaciones
+              </Button>
+            ) : (
+              <StartRenewalModal
+                reservationId={reservation.id}
+                roomTypeName={reservation.room_types?.name ?? null}
+                currentEndDateLabel={addMonthsDateOnly(reservation.start_date, reservation.initial_duration_months)}
+                monthlyPriceUsd={reservation.application_snapshots?.monthly_price_usd ?? null}
+                minimumStayMonths={residence?.minimum_stay_months ?? null}
+                triggerVariant="outline"
+                triggerClassName="shrink-0"
+              />
+            )}
           </Card>
 
           {residence?.description && (
@@ -359,21 +364,10 @@ export default async function StudentResidencyPage() {
             </section>
           )}
 
-          {community && (community.totalResidents > 0 || community.totalAvailable > 0) && residence && (
-            <section>
-              <h2 className="text-xl font-bold text-ink">Comunidad actual</h2>
-              <p className="mt-2 text-sm text-ink-soft">Tus compañeros de residencia — cada uno decide qué mostrar.</p>
-              <div className="mt-4">
-                <ReservationSelectionProvider>
-                  <CommunityBrowser summary={community} slug={residence.slug} isGuest={false} />
-                </ReservationSelectionProvider>
-              </div>
-            </section>
-          )}
         </div>
 
         <div className="flex flex-col gap-5 lg:col-span-1">
-          <VisibilityBlock pending={pending} mine={mine} />
+          <PendingActivationBlock pending={pending} />
 
           <Card className="p-5">
             <div className="mb-3 flex items-center justify-between">
@@ -404,6 +398,22 @@ export default async function StudentResidencyPage() {
           </Card>
         </div>
       </div>
+
+      {/* Ancho completo, fuera de la grilla de 2 columnas — CommunityBrowser
+          usa columnas CSS con breakpoints de viewport (lg:/xl:columns-2)
+          que rompen mal si el contenedor real es más angosto que el
+          viewport, como pasaba acá dentro de la columna principal. */}
+      {community && (community.totalResidents > 0 || community.totalAvailable > 0) && residence && (
+        <section className="mt-8">
+          <h2 className="text-xl font-bold text-ink">Comunidad actual</h2>
+          <p className="mt-2 text-sm text-ink-soft">Tus compañeros de residencia — cada uno decide qué mostrar.</p>
+          <div className="mt-4">
+            <ReservationSelectionProvider>
+              <CommunityBrowser summary={community} slug={residence.slug} isGuest={false} />
+            </ReservationSelectionProvider>
+          </div>
+        </section>
+      )}
     </div>
   );
 }

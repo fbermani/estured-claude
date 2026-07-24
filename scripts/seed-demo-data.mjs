@@ -912,44 +912,51 @@ await logAudit({
 });
 console.log("✓ Solicitud 6 — Camila @ Norte/Individual → RESERVA CONFIRMADA, comprobante reemitido:", reissuedReceiptNumber8, "(anterior:", originalReceiptNumber8 + ")");
 
-// Renovación de Camila sobre reservation8 — oferta ENVIADA, sin responder
-// todavía (para probar en vivo Aceptar/Rechazar como Camila).
-const renewal8Fee = feeEstimate(310, 6);
-const { data: renewalRequest8 } = await admin
-  .from("renewal_requests")
-  .insert({
-    reservation_id: reservation8.id,
-    student_profile_id: camila.profileId,
-    residence_id: norteId,
-    message: "Quisiera renovar por 6 meses más si es posible.",
-    desired_duration_months: 6,
-    status: "offer_received",
-  })
-  .select("id")
-  .single();
-const { data: renewalOffer8 } = await admin
-  .from("renewal_offers")
-  .insert({
-    reservation_id: reservation8.id,
-    renewal_request_id: renewalRequest8.id,
-    student_profile_id: camila.profileId,
-    residence_id: norteId,
-    status: "sent",
-    period_start_date: "2026-08-01",
-    period_end_date: "2027-02-01",
-    duration_months: 6,
-    monthly_price_usd: 310,
-    monthly_price_ars: usdToArs(310),
-    adjustment_policy: "quarterly",
-    fee_base_usd: renewal8Fee.feeBaseUsd,
-    fee_base_ars: renewal8Fee.feeBaseArs,
-    estimated_estured_fee_ars: renewal8Fee.estimatedFeeArs,
-    acceptance_deadline_at: new Date(Date.now() + 7 * 24 * 3_600_000).toISOString(),
-    sent_by_user_id: ricardoId,
-  })
-  .select("id")
-  .single();
-console.log("✓ Renovación 2 — Camila @ Norte/Individual → OFERTA ENVIADA, esperando respuesta:", renewalOffer8.id);
+// Renovación de Camila sobre reservation8 — DESACTIVADA a pedido del
+// dueño (Ciclo 39): quiere poder iniciar una renovación desde cero con
+// Camila para probar en vivo el modal "Iniciar renovación" del lado del
+// estudiante, así que esta reserva ya no arranca con una oferta
+// pendiente. Se deja el bloque comentado (no borrado) como referencia
+// de cómo sembrar una oferta ENVIADA para probar Aceptar/Rechazar más
+// adelante si hace falta.
+//
+// const renewal8Fee = feeEstimate(310, 6);
+// const { data: renewalRequest8 } = await admin
+//   .from("renewal_requests")
+//   .insert({
+//     reservation_id: reservation8.id,
+//     student_profile_id: camila.profileId,
+//     residence_id: norteId,
+//     message: "Quisiera renovar por 6 meses más si es posible.",
+//     desired_duration_months: 6,
+//     status: "offer_received",
+//   })
+//   .select("id")
+//   .single();
+// const { data: renewalOffer8 } = await admin
+//   .from("renewal_offers")
+//   .insert({
+//     reservation_id: reservation8.id,
+//     renewal_request_id: renewalRequest8.id,
+//     student_profile_id: camila.profileId,
+//     residence_id: norteId,
+//     status: "sent",
+//     period_start_date: "2026-08-01",
+//     period_end_date: "2027-02-01",
+//     duration_months: 6,
+//     monthly_price_usd: 310,
+//     monthly_price_ars: usdToArs(310),
+//     adjustment_policy: "quarterly",
+//     fee_base_usd: renewal8Fee.feeBaseUsd,
+//     fee_base_ars: renewal8Fee.feeBaseArs,
+//     estimated_estured_fee_ars: renewal8Fee.estimatedFeeArs,
+//     acceptance_deadline_at: new Date(Date.now() + 7 * 24 * 3_600_000).toISOString(),
+//     sent_by_user_id: ricardoId,
+//   })
+//   .select("id")
+//   .single();
+// console.log("✓ Renovación 2 — Camila @ Norte/Individual → OFERTA ENVIADA, esperando respuesta:", renewalOffer8.id);
+console.log("(renovación de Camila sobre reservation8 desactivada a propósito — ver comentario arriba)");
 
 // ==== 9. Camila @ Norte/Doble — 3ra reserva confirmada, fee pagado y luego
 // REVOCADA por la estudiante (botón de arrepentimiento, docs/10 §15.4) ====

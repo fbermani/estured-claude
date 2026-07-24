@@ -31,6 +31,7 @@ export async function requestRenewalAction(
   if (!result.ok) return { status: "error", message: result.error };
 
   revalidatePath("/students/renewals");
+  revalidatePath("/students/residency");
   return { status: "saved" };
 }
 
