@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
@@ -9,6 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { FamilyLinkActions } from "@/app/students/FamilyLinkActions";
 import { getStudentProfileCompleteness } from "@/lib/students/profileCompleteness";
+import { getCatalogResidences } from "@/lib/residences/catalog";
 
 export const metadata: Metadata = { title: "Tu espacio" };
 export const dynamic = "force-dynamic";
@@ -45,6 +47,12 @@ type ReservationRow = {
   room_types: { name: string } | null;
   application_snapshots: { monthly_price_usd: number } | null;
 };
+type FavoriteRow = {
+  id: string;
+  residence_id: string;
+  added_by_role: "student" | "family_member";
+};
+type FavoritePreview = { slug: string; name: string; zone: string; photo: string | null; addedByFamily: boolean };
 
 const PROPOSAL_STATUS_LABEL: Record<string, { label: string; tone: "amber" | "sage" | "neutral" }> = {
   pending_student_approval: { label: "Esperando respuesta", tone: "amber" },
@@ -83,6 +91,12 @@ function addMonthsDateOnly(dateStr: string, months: number): string {
   const [year, month, day] = dateStr.split("-").map(Number);
   const result = new Date(Date.UTC(year, month - 1 + months, day));
   return result.toLocaleDateString("es-AR", { timeZone: "UTC" });
+}
+
+function daysRemaining(startDateStr: string, months: number): number {
+  const [year, month, day] = startDateStr.split("-").map(Number);
+  const end = new Date(Date.UTC(year, month - 1 + months, day));
+  return Math.ceil((end.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
 }
 
 export default async function StudentDashboardPage() {
@@ -194,11 +208,14 @@ export default async function StudentDashboardPage() {
   let renewalStatus: { label: string; tone: "amber" | "sage" | "neutral" | "danger" } | null = null;
   let completenessPercent = 100;
   let completenessMissing: string[] = [];
+  let docsUploadedCount = 0;
+  let favoritesPreview: FavoritePreview[] = [];
+  let favoritesTotal = 0;
 
   if (supabase && sessionUser) {
     const { data: profile } = await supabase
       .from("student_profiles")
-      .select("first_name, is_minor")
+      .select("id, first_name, is_minor")
       .eq("user_id", sessionUser.id)
       .maybeSingle();
     firstName = profile?.first_name ?? null;
@@ -210,6 +227,48 @@ export default async function StudentDashboardPage() {
       if (completeness) {
         completenessPercent = completeness.percent;
         completenessMissing = completeness.missing.map((m) => m.label);
+      }
+
+      if (profile?.id) {
+        const { data: docFiles } = await admin
+          .from("files")
+          .select("document_type")
+          .eq("related_entity_type", "student_profiles")
+          .eq("related_entity_id", profile.id)
+          .in("document_type", ["student_identity", "student_academic_proof"]);
+        docsUploadedCount = new Set((docFiles ?? []).map((f) => f.document_type)).size;
+
+        const { data: favoriteRows, count } = await admin
+          .from("student_favorites")
+          .select("id, residence_id, added_by_role", { count: "exact" })
+          .eq("student_profile_id", profile.id)
+          .order("created_at", { ascending: false })
+          .limit(3);
+        favoritesTotal = count ?? 0;
+        const rows = (favoriteRows ?? []) as FavoriteRow[];
+        if (rows.length > 0) {
+          const allResidences = await getCatalogResidences();
+          const { data: slugRows } = await admin
+            .from("residences")
+            .select("id, slug")
+            .in("id", rows.map((r) => r.residence_id));
+          const slugById = new Map((slugRows ?? []).map((r) => [r.id, r.slug]));
+          const residenceBySlug = new Map(allResidences.map((r) => [r.slug, r]));
+          favoritesPreview = rows
+            .map((r): FavoritePreview | null => {
+              const slug = slugById.get(r.residence_id);
+              const residence = slug ? residenceBySlug.get(slug) : undefined;
+              if (!residence) return null;
+              return {
+                slug: residence.slug,
+                name: residence.name,
+                zone: residence.zone,
+                photo: residence.photos[0] ?? null,
+                addedByFamily: r.added_by_role === "family_member",
+              };
+            })
+            .filter((r): r is FavoritePreview => r !== null);
+        }
       }
     }
 
@@ -279,7 +338,7 @@ export default async function StudentDashboardPage() {
 
   const headerBanners = (
     <>
-      {completenessPercent < 100 && (
+      {isHoused && completenessPercent < 100 && (
         <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-card border border-line-2 bg-cream-2 p-5">
           <div>
             <p className="font-semibold text-ink">Tu perfil está {completenessPercent}% completo</p>
@@ -347,6 +406,25 @@ export default async function StudentDashboardPage() {
 
   const sidebar = (
     <div className="flex flex-col gap-5">
+      {isHoused && (
+        <Card className="p-5">
+          <div className="mb-3 flex items-center justify-between">
+            <p className="text-xs font-extrabold uppercase tracking-wider text-muted">Documentación de tu estadía</p>
+            <Icon name="folder_shared" className="text-lg text-muted" />
+          </div>
+          <p className="text-sm font-bold text-ink">{docsUploadedCount} de 2 documentos cargados</p>
+          <p className="mt-1 text-xs text-ink-soft">
+            {docsUploadedCount >= 2
+              ? "Documentación al día."
+              : "DNI/pasaporte y comprobante de estudio, para tu perfil ante la residencia."}
+          </p>
+          {docsUploadedCount < 2 && (
+            <Link href="/students/profile" className="mt-3 inline-block text-sm font-semibold text-forest-700 hover:underline">
+              Completar documentación →
+            </Link>
+          )}
+        </Card>
+      )}
       <Card className="p-5">
         <div className="mb-3 flex items-center justify-between">
           <p className="text-xs font-extrabold uppercase tracking-wider text-muted">Vinculación familiar</p>
@@ -401,6 +479,66 @@ export default async function StudentDashboardPage() {
 
       {headerBanners}
 
+      {!isHoused && (
+        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <Link
+            href="/students/profile"
+            className="group flex flex-col gap-3 rounded-card border-[1.5px] border-line bg-paper p-5 transition-colors hover:border-forest hover:bg-forest-tint"
+          >
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-extrabold uppercase tracking-wider text-muted">Tu perfil</p>
+              <div
+                className="relative flex size-11 shrink-0 items-center justify-center rounded-full text-xs font-bold text-forest-700"
+                style={{
+                  background: `conic-gradient(var(--color-forest-600) ${completenessPercent}%, var(--color-line-2) 0)`,
+                }}
+              >
+                <span className="flex size-8 items-center justify-center rounded-full bg-paper">
+                  {completenessPercent}%
+                </span>
+              </div>
+            </div>
+            <p className="text-sm font-semibold text-ink">
+              {completenessPercent >= 100 ? "Perfil completo" : "Completá tu perfil"}
+            </p>
+            <p className="text-xs text-ink-soft">
+              {completenessPercent >= 100
+                ? "Las residencias ven tu solicitud como más seria."
+                : `Falta: ${completenessMissing.slice(0, 2).join(", ")}${completenessMissing.length > 2 ? "…" : ""}`}
+            </p>
+          </Link>
+
+          <Link
+            href="/students/profile"
+            className="group flex flex-col gap-3 rounded-card border-[1.5px] border-line bg-paper p-5 transition-colors hover:border-forest hover:bg-forest-tint"
+          >
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-extrabold uppercase tracking-wider text-muted">Documentación</p>
+              <Icon
+                name={docsUploadedCount >= 2 ? "task_alt" : "folder_shared"}
+                className={`text-xl ${docsUploadedCount >= 2 ? "text-forest-700" : "text-ink-faint"}`}
+              />
+            </div>
+            <p className="text-sm font-semibold text-ink">{docsUploadedCount} de 2 documentos</p>
+            <p className="text-xs text-ink-soft">
+              {docsUploadedCount >= 2 ? "Documentación al día." : "DNI/pasaporte y comprobante de estudio."}
+            </p>
+          </Link>
+
+          <Link
+            href="/search"
+            className="group flex flex-col gap-3 rounded-card border-[1.5px] border-dashed border-line-2 bg-cream-2 p-5 transition-colors hover:border-forest hover:bg-forest-tint"
+          >
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-extrabold uppercase tracking-wider text-muted">Mi residencia</p>
+              <Icon name="apartment" className="text-xl text-ink-faint" />
+            </div>
+            <p className="text-sm font-semibold text-ink">Todavía no tenés residencia</p>
+            <p className="text-xs text-ink-soft">Acá vas a ver tu estadía en cuanto confirmes una reserva.</p>
+          </Link>
+        </div>
+      )}
+
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="flex flex-col gap-6 lg:col-span-2">
           {isHoused && reservation ? (
@@ -441,6 +579,15 @@ export default async function StudentDashboardPage() {
                         <p className="font-medium text-ink">
                           {addMonthsDateOnly(reservation.start_date, reservation.initial_duration_months)}
                         </p>
+                        {(() => {
+                          const remaining = daysRemaining(reservation.start_date, reservation.initial_duration_months);
+                          if (remaining <= 0) return null;
+                          return (
+                            <p className="mt-0.5 text-xs text-ink-faint">
+                              {remaining < 60 ? `Quedan ${remaining} días` : `Quedan ~${Math.round(remaining / 30)} meses`}
+                            </p>
+                          );
+                        })()}
                       </div>
                     </div>
                   </div>
@@ -518,20 +665,63 @@ export default async function StudentDashboardPage() {
             </section>
           )}
 
-          <Card className="flex flex-col items-start gap-3 p-6 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3">
-              <div className="rounded-full bg-forest-tint p-3">
-                <Icon name="search" className="text-2xl text-forest-700" />
+          {favoritesPreview.length > 0 && (
+            <section>
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-xl font-bold text-ink">Favoritos recientes</h2>
+                <Link href="/students/favorites" className="text-sm font-semibold text-forest-700 hover:underline">
+                  Ver los {favoritesTotal} →
+                </Link>
               </div>
-              <div>
-                <h2 className="font-bold text-ink">Buscar residencias</h2>
-                <p className="text-sm text-ink-soft">Catálogo de residencias en CABA, con reglas, servicios y precios claros.</p>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                {favoritesPreview.map((f) => (
+                  <Link
+                    key={f.slug}
+                    href={`/residencias/${f.slug}`}
+                    className="group overflow-hidden rounded-card border-[1.5px] border-line bg-paper transition-colors hover:border-forest"
+                  >
+                    <div className="relative h-28 w-full overflow-hidden bg-sand-200">
+                      {f.photo && (
+                        <Image
+                          src={f.photo}
+                          alt={`Foto de ${f.name}`}
+                          fill
+                          sizes="(max-width: 640px) 100vw, 33vw"
+                          className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                        />
+                      )}
+                      {f.addedByFamily && (
+                        <span className="absolute left-2 top-2 rounded-full bg-paper/95 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-700">
+                          Sugerido
+                        </span>
+                      )}
+                    </div>
+                    <div className="p-3">
+                      <p className="truncate text-sm font-bold text-ink">{f.name}</p>
+                      <p className="truncate text-xs text-ink-faint">{f.zone}</p>
+                    </div>
+                  </Link>
+                ))}
               </div>
-            </div>
-            <Button href="/search" size="sm" className="shrink-0">
-              Ver catálogo
-            </Button>
-          </Card>
+            </section>
+          )}
+
+          {!isHoused && (
+            <Card className="flex flex-col items-start gap-3 p-6 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-3">
+                <div className="rounded-full bg-forest-tint p-3">
+                  <Icon name="search" className="text-2xl text-forest-700" />
+                </div>
+                <div>
+                  <h2 className="font-bold text-ink">Buscar residencias</h2>
+                  <p className="text-sm text-ink-soft">Catálogo de residencias en CABA, con reglas, servicios y precios claros.</p>
+                </div>
+              </div>
+              <Button href="/search" size="sm" className="shrink-0">
+                Ver catálogo
+              </Button>
+            </Card>
+          )}
         </div>
 
         <div className="lg:col-span-1">{sidebar}</div>

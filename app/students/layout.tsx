@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getSessionUser, hasAnyRole, roleHome } from "@/lib/auth/session";
+import { getSupabaseServer } from "@/lib/supabase/server";
 import { StudentSidebar } from "@/components/layout/StudentSidebar";
 
 /**
@@ -22,9 +23,26 @@ export default async function StudentsLayout({
   if (!user) redirect("/login?next=/students/dashboard");
   if (!hasAnyRole(user, ["student", "family_member"])) redirect(roleHome(user));
 
+  // isHoused reordena/renombra el menú lateral según el estado real del
+  // estudiante (mismo criterio de app/students/dashboard/page.tsx: reserva
+  // confirmada = alojado, docs/04 §7). Solo aplica a estudiantes — el
+  // familiar acompaña la búsqueda de otra persona, no tiene estadía propia.
+  let isHoused = false;
+  if (hasAnyRole(user, ["student"])) {
+    const supabase = await getSupabaseServer();
+    if (supabase) {
+      const { data } = await supabase
+        .from("reservations")
+        .select("id")
+        .eq("status", "confirmed")
+        .maybeSingle();
+      isHoused = !!data;
+    }
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-cream md:flex-row">
-      <StudentSidebar userEmail={user.email} />
+      <StudentSidebar userEmail={user.email} isHoused={isHoused} />
       <main className="min-w-0 flex-1">{children}</main>
     </div>
   );

@@ -7,16 +7,53 @@ import { NotificationBell } from "@/components/layout/NotificationBell";
 import { signOut } from "@/app/(public)/login/actions";
 import { useSidebarCollapse } from "@/components/layout/useSidebarCollapse";
 
-const NAV = [
-  { href: "/students/dashboard", label: "Inicio", icon: "home" },
-  { href: "/students/profile", label: "Mi perfil", icon: "person" },
-  { href: "/students/favorites", label: "Favoritos", icon: "favorite" },
-  { href: "/students/applications", label: "Mis solicitudes", icon: "description" },
-  { href: "/students/waitlist", label: "Lista de espera", icon: "hourglass_top" },
-  { href: "/students/residency", label: "Mi estadía", icon: "apartment" },
-  { href: "/students/renewals", label: "Renovaciones", icon: "sync" },
-  { href: "/students/support", label: "Soporte", icon: "support_agent" },
-] as const;
+type NavItem = { href: string; label: string; icon: string };
+
+const NAV_BASE = {
+  home: { href: "/students/dashboard", label: "Inicio", icon: "home" },
+  search: { href: "/search", label: "Buscar residencias", icon: "search" },
+  profile: { href: "/students/profile", label: "Mi perfil", icon: "person" },
+  favorites: { href: "/students/favorites", label: "Favoritos", icon: "favorite" },
+  applications: { href: "/students/applications", label: "Mis solicitudes", icon: "description" },
+  waitlist: { href: "/students/waitlist", label: "Lista de espera", icon: "hourglass_top" },
+  residencySearching: { href: "/students/residency", label: "Mi estadía", icon: "apartment" },
+  residencyHoused: { href: "/students/residency", label: "Mi residencia", icon: "apartment" },
+  renewals: { href: "/students/renewals", label: "Renovaciones", icon: "sync" },
+  support: { href: "/students/support", label: "Soporte", icon: "support_agent" },
+} as const satisfies Record<string, NavItem>;
+
+/**
+ * Orden por estado (Ciclo 38): el estudiante en búsqueda prioriza buscar,
+ * favoritos, solicitudes y completar el perfil; el estudiante alojado
+ * prioriza su residencia y la renovación por sobre la búsqueda. "Mi
+ * estadía" pasa a llamarse "Mi residencia" una vez alojado. Renovaciones
+ * se oculta mientras el estudiante busca — sin reserva confirmada la
+ * pantalla no tiene nada que mostrar (ver app/students/renewals/page.tsx).
+ */
+function buildNav(isHoused: boolean): NavItem[] {
+  if (isHoused) {
+    return [
+      NAV_BASE.home,
+      NAV_BASE.residencyHoused,
+      NAV_BASE.renewals,
+      NAV_BASE.applications,
+      NAV_BASE.profile,
+      NAV_BASE.favorites,
+      NAV_BASE.waitlist,
+      NAV_BASE.support,
+    ];
+  }
+  return [
+    NAV_BASE.home,
+    NAV_BASE.search,
+    NAV_BASE.favorites,
+    NAV_BASE.applications,
+    NAV_BASE.waitlist,
+    NAV_BASE.profile,
+    NAV_BASE.residencySearching,
+    NAV_BASE.support,
+  ];
+}
 
 /**
  * Sidebar de navegación del área estudiante — a semejanza estructural de
@@ -29,10 +66,15 @@ const NAV = [
  * Colapsable en desktop (preferencia persistida en localStorage) y
  * drawer superpuesto en mobile — mismo mecanismo que `AdminSidebar` y
  * `ResidenceSidebar` vía `useSidebarCollapse`.
+ *
+ * `isHoused` (Ciclo 38) reordena y renombra el menú según el estado real
+ * del estudiante (docs/04 §7: reserva confirmada) — ver app/students/layout.tsx.
+ * Para familiares llega siempre en `false` (conservan el orden de búsqueda).
  */
-export function StudentSidebar({ userEmail }: { userEmail: string }) {
+export function StudentSidebar({ userEmail, isHoused }: { userEmail: string; isHoused: boolean }) {
   const pathname = usePathname();
   const { collapsed, toggleCollapsed, mobileOpen, setMobileOpen } = useSidebarCollapse();
+  const nav = buildNav(isHoused);
 
   return (
     <>
@@ -96,7 +138,7 @@ export function StudentSidebar({ userEmail }: { userEmail: string }) {
           </div>
 
           <nav className="mt-2 flex flex-col gap-1 px-3">
-            {NAV.map((item) => {
+            {nav.map((item) => {
               const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
               return (
                 <Link
