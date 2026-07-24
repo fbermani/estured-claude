@@ -11,6 +11,7 @@ import { Icon } from "@/components/ui/Icon";
 import { FamilyLinkActions } from "@/app/students/FamilyLinkActions";
 import { getStudentProfileCompleteness } from "@/lib/students/profileCompleteness";
 import { getCatalogResidences } from "@/lib/residences/catalog";
+import { addMonthsDateOnly, daysRemaining } from "@/lib/students/stayDates";
 
 export const metadata: Metadata = { title: "Tu espacio" };
 export const dynamic = "force-dynamic";
@@ -79,25 +80,6 @@ const RELATIONSHIP_LABEL: Record<string, string> = {
   tutor: "Tutor/a",
   familiar: "Familiar",
 };
-
-/**
- * `dateStr` es una columna `date` (sin hora) — parsear con `new Date(dateStr)`
- * la interpreta como medianoche UTC, y formatear después en un huso horario
- * negativo (Argentina) corre el día mostrado uno para atrás. Se arma y se
- * formatea todo en UTC para que el cálculo de fecha no dependa del huso del
- * usuario.
- */
-function addMonthsDateOnly(dateStr: string, months: number): string {
-  const [year, month, day] = dateStr.split("-").map(Number);
-  const result = new Date(Date.UTC(year, month - 1 + months, day));
-  return result.toLocaleDateString("es-AR", { timeZone: "UTC" });
-}
-
-function daysRemaining(startDateStr: string, months: number): number {
-  const [year, month, day] = startDateStr.split("-").map(Number);
-  const end = new Date(Date.UTC(year, month - 1 + months, day));
-  return Math.ceil((end.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-}
 
 export default async function StudentDashboardPage() {
   const sessionUser = await getSessionUser();

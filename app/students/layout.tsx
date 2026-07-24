@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getSessionUser, hasAnyRole, roleHome } from "@/lib/auth/session";
 import { getSupabaseServer } from "@/lib/supabase/server";
+import { getIsHoused } from "@/lib/students/isHoused";
 import { StudentSidebar } from "@/components/layout/StudentSidebar";
 
 /**
@@ -30,14 +31,7 @@ export default async function StudentsLayout({
   let isHoused = false;
   if (hasAnyRole(user, ["student"])) {
     const supabase = await getSupabaseServer();
-    if (supabase) {
-      const { data } = await supabase
-        .from("reservations")
-        .select("id")
-        .eq("status", "confirmed")
-        .maybeSingle();
-      isHoused = !!data;
-    }
+    if (supabase) isHoused = await getIsHoused(supabase);
   }
 
   return (
