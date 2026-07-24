@@ -292,7 +292,10 @@ export default async function StudentDashboardPage() {
         .maybeSingle();
       if (renewalOffer && ["sent", "viewed"].includes(renewalOffer.status)) {
         renewalStatus = { label: "La residencia te envió una oferta de renovación", tone: "amber" };
-      } else if (renewalRequest && renewalRequest.status === "notified_to_residence") {
+      } else if (
+        renewalRequest &&
+        (renewalRequest.status === "created_by_student" || renewalRequest.status === "notified_to_residence")
+      ) {
         renewalStatus = { label: "Tu solicitud de renovación está esperando respuesta", tone: "amber" };
       } else if (renewalOffer?.status === "confirmed" || renewalOffer?.status === "receipt_issued") {
         renewalStatus = { label: "Ya renovaste tu estadía", tone: "sage" };
