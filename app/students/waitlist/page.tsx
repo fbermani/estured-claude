@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth/session";
-import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { ExpandableCard } from "@/components/ui/ExpandableCard";
 import { WaitlistEntryCard } from "@/app/students/waitlist/WaitlistEntryCard";
 
 export const metadata: Metadata = { title: "Lista de espera" };
@@ -23,6 +23,7 @@ const STATUS_COPY: Record<string, { label: string; tone: "amber" | "sage" | "neu
 };
 
 const ACTIVE_STATUSES = new Set(["active", "availability_notification_sent", "retention_check_sent"]);
+const NEEDS_ACTION_STATUSES = new Set(["availability_notification_sent", "retention_check_sent"]);
 
 type WaitlistRow = {
   id: string;
@@ -66,40 +67,65 @@ export default async function StudentWaitlistPage() {
           />
         </div>
       ) : (
-        <div className="mt-6 space-y-6">
+        <div className="mt-6 space-y-4">
           {entries.map((entry) => {
             const badge = STATUS_COPY[entry.status] ?? { label: entry.status, tone: "neutral" as const };
             const isActive = ACTIVE_STATUSES.has(entry.status);
-            return (
-              <Card key={entry.id} className="p-6">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <Link
-                      href={`/residencias/${entry.residences?.slug}`}
-                      className="font-semibold text-ink hover:underline"
-                    >
-                      {entry.residences?.name}
-                    </Link>
-                    <p className="text-xs text-ink-faint">{entry.residences?.public_area}</p>
-                  </div>
-                  <Badge tone={badge.tone}>{badge.label}</Badge>
+            const needsAction = NEEDS_ACTION_STATUSES.has(entry.status);
+
+            const summary = (
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="truncate font-bold text-ink">{entry.residences?.name}</p>
+                  <p className="text-sm text-ink-soft">{entry.residences?.public_area}</p>
                 </div>
-                <p className="mt-2 text-xs text-ink-faint">
-                  {entry.room_types?.name ?? "Cualquier tipo de habitación"}
-                  {entry.desired_start_date && <> · Ingreso deseado {entry.desired_start_date}</>}
-                  {entry.desired_duration_months && <> · {entry.desired_duration_months} meses</>}
-                </p>
-                <p className="mt-1 text-xs text-ink-faint">
+                <Badge tone={badge.tone}>{badge.label}</Badge>
+              </div>
+            );
+
+            return (
+              <ExpandableCard
+                key={entry.id}
+                defaultOpen={needsAction}
+                className={needsAction ? "border-orange/40 bg-warning-bg" : ""}
+                summary={summary}
+              >
+                <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm sm:grid-cols-3">
+                  <div>
+                    <dt className="text-xs text-ink-faint">Habitación</dt>
+                    <dd className="font-semibold text-ink">{entry.room_types?.name ?? "Cualquier tipo"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-ink-faint">Ingreso deseado</dt>
+                    <dd className="font-semibold text-ink">{entry.desired_start_date ?? "Flexible"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-ink-faint">Duración</dt>
+                    <dd className="font-semibold text-ink">
+                      {entry.desired_duration_months ? `${entry.desired_duration_months} meses` : "Flexible"}
+                    </dd>
+                  </div>
+                </dl>
+                <p className="mt-3 text-xs text-ink-faint">
                   En lista desde {new Date(entry.joined_at).toLocaleDateString("es-AR")}
                 </p>
-                {isActive && (
-                  <WaitlistEntryCard
-                    entryId={entry.id}
-                    canActivate={entry.status === "availability_notification_sent"}
-                    showStay={entry.status !== "active"}
-                  />
-                )}
-              </Card>
+
+                <div className="mt-4 border-t border-line pt-4">
+                  <Link
+                    href={`/residencias/${entry.residences?.slug}`}
+                    className="inline-flex items-center gap-2 rounded-full border-[1.5px] border-line px-4 py-2 text-sm font-semibold text-ink hover:border-forest hover:bg-forest-tint"
+                  >
+                    Ver ficha de la residencia
+                  </Link>
+                  {isActive && (
+                    <WaitlistEntryCard
+                      entryId={entry.id}
+                      canActivate={entry.status === "availability_notification_sent"}
+                      showStay={entry.status !== "active"}
+                    />
+                  )}
+                </div>
+              </ExpandableCard>
             );
           })}
         </div>
