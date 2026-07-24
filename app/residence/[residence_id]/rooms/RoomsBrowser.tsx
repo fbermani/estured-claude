@@ -18,7 +18,14 @@ export type BedData = {
   letter: string;
   status: "active" | "out_of_service";
   reason: string | null;
-  occupant: { stayId: string; name: string; pending: boolean; until: string | null } | null;
+  occupant: {
+    stayId: string;
+    name: string;
+    pending: boolean;
+    until: string | null;
+    flag: string | null;
+    nationality: string | null;
+  } | null;
 };
 
 export type RoomData = { id: string; label: string; beds: BedData[] };
@@ -40,8 +47,6 @@ export type RoomsData = {
     occupiedCount: number;
     outOfServiceCount: number;
     vacantTotal: number;
-    vacantFem: number;
-    vacantMasc: number;
     upcomingArrivals: number;
     upcomingDepartures: number;
     activeRenewals: number;
@@ -65,11 +70,21 @@ function genderChip(policy: string | null): { label: string; className: string }
   return null;
 }
 
-function AvatarInitial({ name, index }: { name: string; index: number }) {
+function AvatarInitial({ name, index, flag }: { name: string; index: number; flag?: string | null }) {
   const styles = ["bg-forest-tint text-forest-700", "bg-orange-tint text-orange-700", "bg-mint text-forest-700", "bg-sand-100 text-ink-soft"];
   return (
-    <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${styles[index % styles.length]}`}>
-      {name[0]?.toUpperCase() ?? "?"}
+    <span className="relative shrink-0">
+      <span className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${styles[index % styles.length]}`}>
+        {name[0]?.toUpperCase() ?? "?"}
+      </span>
+      {flag && (
+        <span
+          className="absolute -bottom-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-paper text-[9px] leading-none shadow-sm ring-1 ring-paper"
+          aria-hidden
+        >
+          {flag}
+        </span>
+      )}
     </span>
   );
 }
@@ -398,6 +413,23 @@ export function RoomsBrowser({
   const openRoom = groups.flatMap((g) => g.rooms.map((room) => ({ room, group: g }))).find((r) => r.room.id === openRoomId);
   const occupancyPercent = kpis.bedsCount > 0 ? Math.round((kpis.occupiedCount / kpis.bedsCount) * 100) : 0;
 
+  // Desglose de vacantes por tipo de habitación (Ciclo 41) — dentro de
+  // cada tipo, por género según su gender_policy. El total agregado
+  // FEM/MASC de arriba mezclaba todos los tipos; esto muestra "dónde"
+  // hay lugar realmente.
+  const vacancyByType = useMemo(
+    () =>
+      groups
+        .map((g) => ({
+          id: g.id,
+          name: g.name,
+          chip: genderChip(g.genderPolicy),
+          vacant: g.rooms.flatMap((r) => r.beds).filter((b) => b.status === "active" && !b.occupant).length,
+        }))
+        .filter((t) => t.vacant > 0),
+    [groups],
+  );
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
       <div className="mb-6">
@@ -438,19 +470,22 @@ export function RoomsBrowser({
           <p className="mt-2 text-3xl font-extrabold text-ink">
             {kpis.vacantTotal} {kpis.vacantTotal === 1 ? "vacante" : "vacantes"}
           </p>
-          {(kpis.vacantFem > 0 || kpis.vacantMasc > 0) && (
-            <p className="mt-1 flex gap-1.5">
-              {kpis.vacantFem > 0 && (
-                <span className="rounded-full bg-orange-tint px-2 py-0.5 text-xs font-bold text-orange-700">
-                  {kpis.vacantFem} femenina{kpis.vacantFem > 1 ? "s" : ""}
-                </span>
-              )}
-              {kpis.vacantMasc > 0 && (
-                <span className="rounded-full bg-info-bg px-2 py-0.5 text-xs font-bold text-info-fg">
-                  {kpis.vacantMasc} masculina{kpis.vacantMasc > 1 ? "s" : ""}
-                </span>
-              )}
-            </p>
+          {vacancyByType.length > 0 && (
+            <ul className="mt-2 space-y-1">
+              {vacancyByType.map((t) => (
+                <li key={t.id} className="flex items-center justify-between gap-2 text-xs">
+                  <span className="flex items-center gap-1.5 truncate text-ink-soft">
+                    {t.name}
+                    {t.chip && (
+                      <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase ${t.chip.className}`}>
+                        {t.chip.label}
+                      </span>
+                    )}
+                  </span>
+                  <span className="shrink-0 font-bold text-ink">{t.vacant}</span>
+                </li>
+              ))}
+            </ul>
           )}
         </Card>
         <Card className="p-5">
@@ -641,9 +676,14 @@ export function RoomsBrowser({
                             .filter((b) => b.occupant)
                             .map((b, i) => (
                               <div key={b.id} className="flex items-center gap-2.5">
-                                <AvatarInitial name={b.occupant!.name} index={i} />
+                                <AvatarInitial name={b.occupant!.name} index={i} flag={b.occupant!.flag} />
                                 <div className="min-w-0">
-                                  <p className="truncate text-sm font-semibold text-ink">{b.occupant!.name}</p>
+                                  <p className="truncate text-sm font-semibold text-ink">
+                                    {b.occupant!.name}
+                                    {b.occupant!.nationality && (
+                                      <span className="font-normal text-ink-faint"> · {b.occupant!.nationality}</span>
+                                    )}
+                                  </p>
                                   <p className="text-xs text-ink-faint">
                                     {b.occupant!.pending
                                       ? "Pendiente de activación"

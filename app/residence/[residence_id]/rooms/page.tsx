@@ -47,7 +47,7 @@ export default async function ResidenceRoomsPage({
     admin
       .from("resident_stays")
       .select(
-        "id, status, room_id, bed_id, room_type_id, invite_email, start_date, expected_end_date, student_profiles(first_name, last_initial)",
+        "id, status, room_id, bed_id, room_type_id, invite_email, start_date, expected_end_date, student_profiles(first_name, last_initial, nationality, country_flag)",
       )
       .eq("residence_id", residenceId)
       .eq("is_current", true)
@@ -77,10 +77,18 @@ export default async function ResidenceRoomsPage({
   const stayName = (s: {
     invite_email: string | null;
     student_profiles: unknown;
-  }): { name: string; pending: boolean } => {
-    const profile = s.student_profiles as { first_name: string; last_initial: string } | null;
-    if (profile) return { name: `${profile.first_name} ${profile.last_initial}`, pending: false };
-    return { name: s.invite_email ?? "Residente", pending: true };
+  }): { name: string; pending: boolean; flag: string | null; nationality: string | null } => {
+    const profile = s.student_profiles as
+      | { first_name: string; last_initial: string; nationality: string | null; country_flag: string | null }
+      | null;
+    if (profile)
+      return {
+        name: `${profile.first_name} ${profile.last_initial}`,
+        pending: false,
+        flag: profile.country_flag,
+        nationality: profile.nationality,
+      };
+    return { name: s.invite_email ?? "Residente", pending: true, flag: null, nationality: null };
   };
 
   const staysByBed = new Map<string, (typeof stays extends (infer T)[] | null ? T : never)>();
@@ -139,11 +147,6 @@ export default async function ResidenceRoomsPage({
   const allBeds = beds ?? [];
   const activeBeds = allBeds.filter((b) => b.status === "active");
   const occupiedBeds = allBeds.filter((b) => staysByBed.has(b.id));
-  const genderOf = (roomId: string): string | null => {
-    const room = (rooms ?? []).find((r) => r.id === roomId);
-    const rt = (roomTypes ?? []).find((t) => t.id === room?.room_type_id);
-    return rt?.gender_policy ?? null;
-  };
   const freeActive = activeBeds.filter((b) => !staysByBed.has(b.id));
   const kpis: RoomsData["kpis"] = {
     roomsCount: (rooms ?? []).length,
@@ -151,8 +154,6 @@ export default async function ResidenceRoomsPage({
     occupiedCount: occupiedBeds.length,
     outOfServiceCount: allBeds.length - activeBeds.length,
     vacantTotal: freeActive.length,
-    vacantFem: freeActive.filter((b) => genderOf(b.room_id) === "solo_mujeres").length,
-    vacantMasc: freeActive.filter((b) => genderOf(b.room_id) === "solo_hombres").length,
     upcomingArrivals: (stays ?? []).filter((s) => s.start_date && s.start_date > todayStr).length,
     upcomingDepartures: (stays ?? []).filter(
       (s) => s.expected_end_date && s.expected_end_date >= todayStr && s.expected_end_date <= in30Str,
