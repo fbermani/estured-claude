@@ -8,10 +8,16 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
+import { ExpandableCard } from "@/components/ui/ExpandableCard";
 import { FamilyLinkActions } from "@/app/students/FamilyLinkActions";
+import { FamilyLinkCard } from "@/app/students/profile/FamilyLinkCard";
+import { StartRenewalModal } from "@/app/students/renewals/StartRenewalModal";
+import { ModuleCard } from "@/components/students/ModuleCard";
+import { PhotoCarousel } from "@/components/students/PhotoCarousel";
 import { getStudentProfileCompleteness } from "@/lib/students/profileCompleteness";
 import { getCatalogResidences } from "@/lib/residences/catalog";
 import { addMonthsDateOnly, daysRemaining } from "@/lib/students/stayDates";
+import { APPLICATION_STATUS_COPY, APPLICATION_ACTION_REQUIRED_STATUSES } from "@/lib/students/applicationStatus";
 
 export const metadata: Metadata = { title: "Tu espacio" };
 export const dynamic = "force-dynamic";
@@ -32,7 +38,7 @@ interface SentProposalRow {
   residences: { name: string } | null;
   student_profiles: { first_name: string; last_initial: string } | null;
 }
-type ActiveApplicationRow = {
+type ApplicationSummaryRow = {
   id: string;
   status: string;
   created_at: string;
@@ -44,7 +50,13 @@ type ReservationRow = {
   start_date: string;
   initial_duration_months: number;
   booking_receipt_id: string | null;
-  residences: { name: string; public_area: string; slug: string } | null;
+  residences: {
+    id: string;
+    name: string;
+    public_area: string;
+    slug: string;
+    minimum_stay_months: number | null;
+  } | null;
   room_types: { name: string } | null;
   application_snapshots: { monthly_price_usd: number } | null;
 };
@@ -62,24 +74,15 @@ const PROPOSAL_STATUS_LABEL: Record<string, { label: string; tone: "amber" | "sa
   expired: { label: "Vencida", tone: "neutral" },
 };
 
-const APPLICATION_STATUS_LABEL: Record<string, { label: string; tone: "amber" | "sage" | "neutral" | "petrol" }> = {
-  submitted: { label: "Enviada — esperando respuesta", tone: "amber" },
-  queued_for_place: { label: "En cola", tone: "neutral" },
-  under_review: { label: "En revisión", tone: "amber" },
-  contact_established: { label: "Contacto establecido", tone: "sage" },
-  offer_pending_student_acceptance: { label: "Te propusieron un ajuste", tone: "amber" },
-  conditions_accepted: { label: "Condiciones aceptadas", tone: "sage" },
-  residence_payment_pending: { label: "Pagá a la residencia", tone: "amber" },
-  residence_payment_reported: { label: "Pago informado", tone: "sage" },
-  paused_due_to_other_active_request: { label: "Pausada", tone: "neutral" },
-};
-
 const RELATIONSHIP_LABEL: Record<string, string> = {
   padre: "Padre",
   madre: "Madre",
   tutor: "Tutor/a",
   familiar: "Familiar",
 };
+
+/** Estados que ya no requieren seguimiento activo del estudiante en soporte. */
+const SUPPORT_CLOSED_STATUSES = ["resolved_by_agreement", "closed_no_action", "closed_unresolved", "admin_action_taken"];
 
 export default async function StudentDashboardPage() {
   const sessionUser = await getSessionUser();
@@ -180,19 +183,26 @@ export default async function StudentDashboardPage() {
   }
 
   // Vista de estudiante (default) — 2 estados reales: en búsqueda vs. alojado.
+  // Ciclo 40: el home deja de ser un resumen aislado y pasa a ser un hub —
+  // cada sección del sidebar tiene su tarjeta de acceso rápido acá.
   let firstName: string | null = null;
   let isMinor = false;
   let studentLinks: StudentLinkRow[] = [];
   let pendingProposalsCount = 0;
   let reservation: ReservationRow | null = null;
-  let latestApplication: ActiveApplicationRow | null = null;
-  let waitlistCount = 0;
   let renewalStatus: { label: string; tone: "amber" | "sage" | "neutral" | "danger" } | null = null;
   let completenessPercent = 100;
   let completenessMissing: string[] = [];
   let docsUploadedCount = 0;
   let favoritesPreview: FavoritePreview[] = [];
   let favoritesTotal = 0;
+  let applications: ApplicationSummaryRow[] = [];
+  let waitlistCount = 0;
+  let waitlistNeedsAction = false;
+  let openSupportCount = 0;
+  let familyActiveLink: { id: string; name: string; email: string | null } | null = null;
+  let familyPendingInvitation: { id: string; email: string } | null = null;
+  let residencePhotos: string[] = [];
 
   if (supabase && sessionUser) {
     const { data: profile } = await supabase
@@ -212,31 +222,57 @@ export default async function StudentDashboardPage() {
       }
 
       if (profile?.id) {
-        const { data: docFiles } = await admin
-          .from("files")
-          .select("document_type")
-          .eq("related_entity_type", "student_profiles")
-          .eq("related_entity_id", profile.id)
-          .in("document_type", ["student_identity", "student_academic_proof"]);
+        const [{ data: docFiles }, { data: favoriteRows, count: favCount }, { data: activeLinkRow }, { data: pendingInvitationRow }, { count: supportCount }] =
+          await Promise.all([
+            admin
+              .from("files")
+              .select("document_type")
+              .eq("related_entity_type", "student_profiles")
+              .eq("related_entity_id", profile.id)
+              .in("document_type", ["student_identity", "student_academic_proof"]),
+            admin
+              .from("student_favorites")
+              .select("id, residence_id, added_by_role", { count: "exact" })
+              .eq("student_profile_id", profile.id)
+              .order("created_at", { ascending: false })
+              .limit(3),
+            admin
+              .from("family_links")
+              .select("id, family_members(first_name, last_name, users(email))")
+              .eq("student_profile_id", profile.id)
+              .eq("status", "active")
+              .maybeSingle(),
+            // pendingApprovalCount de family_links NO se pide acá — ese estado ya
+            // tiene su propio banner con acciones reales (Aprobar/Rechazar) más
+            // abajo en headerBanners; pasarle otro count a FamilyLinkCard acá
+            // duplicaría el mensaje con un link circular "revisar en tu panel"
+            // apuntando al panel en el que ya está parado.
+            admin
+              .from("family_invitations")
+              .select("id, email")
+              .eq("student_profile_id", profile.id)
+              .eq("status", "pending")
+              .maybeSingle(),
+            admin
+              .from("support_cases")
+              .select("id", { count: "exact", head: true })
+              .eq("opened_by_user_id", sessionUser.id)
+              .not("status", "in", `(${SUPPORT_CLOSED_STATUSES.join(",")})`),
+          ]);
+
         docsUploadedCount = new Set((docFiles ?? []).map((f) => f.document_type)).size;
 
-        const { data: favoriteRows, count } = await admin
-          .from("student_favorites")
-          .select("id, residence_id, added_by_role", { count: "exact" })
-          .eq("student_profile_id", profile.id)
-          .order("created_at", { ascending: false })
-          .limit(3);
-        favoritesTotal = count ?? 0;
-        const rows = (favoriteRows ?? []) as FavoriteRow[];
-        if (rows.length > 0) {
+        favoritesTotal = favCount ?? 0;
+        const favRows = (favoriteRows ?? []) as FavoriteRow[];
+        if (favRows.length > 0) {
           const allResidences = await getCatalogResidences();
           const { data: slugRows } = await admin
             .from("residences")
             .select("id, slug")
-            .in("id", rows.map((r) => r.residence_id));
+            .in("id", favRows.map((r) => r.residence_id));
           const slugById = new Map((slugRows ?? []).map((r) => [r.id, r.slug]));
           const residenceBySlug = new Map(allResidences.map((r) => [r.slug, r]));
-          favoritesPreview = rows
+          favoritesPreview = favRows
             .map((r): FavoritePreview | null => {
               const slug = slugById.get(r.residence_id);
               const residence = slug ? residenceBySlug.get(slug) : undefined;
@@ -251,6 +287,23 @@ export default async function StudentDashboardPage() {
             })
             .filter((r): r is FavoritePreview => r !== null);
         }
+
+        const activeLinkFamily = (
+          activeLinkRow as unknown as {
+            id: string;
+            family_members: { first_name: string; last_name: string; users: { email: string } | null } | null;
+          } | null
+        )?.family_members;
+        familyActiveLink =
+          activeLinkRow && activeLinkFamily
+            ? {
+                id: (activeLinkRow as { id: string }).id,
+                name: `${activeLinkFamily.first_name} ${activeLinkFamily.last_name}`,
+                email: activeLinkFamily.users?.email ?? null,
+              }
+            : null;
+        familyPendingInvitation = familyActiveLink ? null : ((pendingInvitationRow as { id: string; email: string } | null) ?? null);
+        openSupportCount = supportCount ?? 0;
       }
     }
 
@@ -270,7 +323,7 @@ export default async function StudentDashboardPage() {
     const { data: reservationData } = await supabase
       .from("reservations")
       .select(
-        "id, start_date, initial_duration_months, booking_receipt_id, residences(name, public_area, slug), room_types(name), application_snapshots(monthly_price_usd)",
+        "id, start_date, initial_duration_months, booking_receipt_id, residences(id, name, public_area, slug, minimum_stay_months), room_types(name), application_snapshots(monthly_price_usd)",
       )
       .eq("status", "confirmed")
       .order("confirmed_at", { ascending: false })
@@ -300,43 +353,53 @@ export default async function StudentDashboardPage() {
       } else if (renewalOffer?.status === "confirmed" || renewalOffer?.status === "receipt_issued") {
         renewalStatus = { label: "Ya renovaste tu estadía", tone: "sage" };
       }
-    } else {
-      const { data: appData } = await supabase
-        .from("application_requests")
-        .select("id, status, created_at, residences(name), room_types(name)")
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      latestApplication = appData as unknown as ActiveApplicationRow | null;
+
+      const admin2 = getSupabaseAdmin();
+      if (admin2 && reservation.residences) {
+        const { data: photoRows } = await admin2
+          .from("files")
+          .select("storage_path")
+          .eq("related_entity_type", "residences")
+          .eq("related_entity_id", reservation.residences.id)
+          .eq("document_type", "residence_photo")
+          .eq("status", "approved")
+          .order("created_at", { ascending: true });
+        residencePhotos = (photoRows ?? []).map(
+          (p) => admin2.storage.from("public-residence-media").getPublicUrl(p.storage_path).data.publicUrl,
+        );
+      }
     }
 
-    const { count: waitlistActiveCount } = await supabase
+    const { data: appRows } = await supabase
+      .from("application_requests")
+      .select("id, status, created_at, residences(name), room_types(name)")
+      .order("created_at", { ascending: false });
+    applications = (appRows as unknown as ApplicationSummaryRow[]) ?? [];
+
+    const { data: waitlistRows } = await supabase
       .from("waitlist_entries")
-      .select("*", { count: "exact", head: true })
+      .select("id, status")
       .in("status", ["active", "availability_notification_sent", "retention_check_sent"]);
-    waitlistCount = waitlistActiveCount ?? 0;
+    waitlistCount = waitlistRows?.length ?? 0;
+    waitlistNeedsAction = (waitlistRows ?? []).some((w) => w.status !== "active");
   }
 
   const pendingLinks = studentLinks.filter((l) => l.status === "pending_student_approval");
   const activeLink = studentLinks.find((l) => l.status === "active");
   const isHoused = reservation !== null;
+  const residence = reservation?.residences ?? null;
+  const remaining = reservation ? daysRemaining(reservation.start_date, reservation.initial_duration_months) : 0;
+
+  const applicationsActionNeeded = applications.filter((a) => APPLICATION_ACTION_REQUIRED_STATUSES.has(a.status));
+  const primaryApplication = applicationsActionNeeded[0] ?? applications[0] ?? null;
+
+  const heroAlerts: { icon: string; label: string; href: string }[] = [];
+  if (renewalStatus) heroAlerts.push({ icon: "sync", label: renewalStatus.label, href: "/students/renewals" });
+  if (docsUploadedCount < 2)
+    heroAlerts.push({ icon: "folder_shared", label: "Documentación pendiente", href: "/students/profile" });
 
   const headerBanners = (
     <>
-      {isHoused && completenessPercent < 100 && (
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-card border border-line-2 bg-cream-2 p-5">
-          <div>
-            <p className="font-semibold text-ink">Tu perfil está {completenessPercent}% completo</p>
-            <p className="mt-1 text-sm text-ink-soft">
-              Completá {completenessMissing.join(", ")} para aumentar tus probabilidades de ser aceptado.
-            </p>
-          </div>
-          <Button href="/students/profile" size="sm" variant="outline">
-            Completar perfil
-          </Button>
-        </div>
-      )}
-
       {pendingProposalsCount > 0 && (
         <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-card border border-line-2 bg-forest-tint p-5">
           <div>
@@ -389,336 +452,296 @@ export default async function StudentDashboardPage() {
     </>
   );
 
-  const sidebar = (
-    <div className="flex flex-col gap-5">
-      {isHoused && (
-        <Card className="p-5">
-          <div className="mb-3 flex items-center justify-between">
-            <p className="text-xs font-extrabold uppercase tracking-wider text-muted">Documentación de tu estadía</p>
-            <Icon name="folder_shared" className="text-lg text-muted" />
-          </div>
-          <p className="text-sm font-bold text-ink">{docsUploadedCount} de 2 documentos cargados</p>
-          <p className="mt-1 text-xs text-ink-soft">
-            {docsUploadedCount >= 2
-              ? "Documentación al día."
-              : "DNI/pasaporte y comprobante de estudio, para tu perfil ante la residencia."}
-          </p>
-          {docsUploadedCount < 2 && (
-            <Link href="/students/profile" className="mt-3 inline-block text-sm font-semibold text-forest-700 hover:underline">
-              Completar documentación →
-            </Link>
-          )}
-        </Card>
-      )}
-      <Card className="p-5">
-        <div className="mb-3 flex items-center justify-between">
-          <p className="text-xs font-extrabold uppercase tracking-wider text-muted">Vinculación familiar</p>
-          <Icon name="link" className="text-lg text-muted" />
-        </div>
-        {activeLink ? (
-          <div className="flex items-center gap-3">
-            <div className="rounded-full bg-forest-tint p-2">
-              <Icon name="verified_user" className="text-lg text-forest-700" />
-            </div>
-            <div>
-              <p className="text-sm font-bold text-ink">Cuenta vinculada</p>
-              <p className="text-xs text-ink-faint">
-                {RELATIONSHIP_LABEL[activeLink.family_members?.relationship_type ?? "familiar"]}{" "}
-                {activeLink.family_members?.first_name}
-              </p>
-            </div>
-          </div>
-        ) : (
-          <p className="text-sm text-ink-soft">Sin familiar vinculado todavía.</p>
-        )}
-      </Card>
-      {waitlistCount > 0 && (
-        <Link
-          href="/students/waitlist"
-          className="flex items-center gap-3 rounded-card border-[1.5px] border-line bg-paper px-4 py-3 text-sm font-semibold text-ink-soft hover:bg-cream-2"
+  // Módulos comunes a ambos estados — orden y children varían apenas según isHoused.
+  const perfilCard = (
+    <ModuleCard
+      href="/students/profile"
+      icon="person"
+      title="Mi perfil"
+      cta={completenessPercent < 100 ? { label: "Completar perfil", href: "/students/profile" } : undefined}
+      animationDelayMs={40}
+    >
+      <div className="flex items-center gap-3">
+        <div
+          className="relative flex size-11 shrink-0 items-center justify-center rounded-full text-xs font-bold text-forest-700"
+          style={{ background: `conic-gradient(var(--color-forest-600) ${completenessPercent}%, var(--color-line-2) 0)` }}
         >
-          <Icon name="hourglass_top" className="text-lg text-orange-700" />
-          En {waitlistCount} lista{waitlistCount > 1 ? "s" : ""} de espera
-          <Icon name="chevron_right" className="ml-auto text-lg" />
-        </Link>
+          <span className="flex size-8 items-center justify-center rounded-full bg-paper">{completenessPercent}%</span>
+        </div>
+        <div className="min-w-0">
+          <p className="font-semibold text-ink">
+            {completenessPercent >= 100 ? "Perfil completo" : "Completá tu perfil"}
+          </p>
+          <p className="truncate text-xs text-ink-faint">
+            {completenessPercent >= 100
+              ? `${docsUploadedCount} de 2 documentos`
+              : `Falta: ${completenessMissing.slice(0, 2).join(", ")}${completenessMissing.length > 2 ? "…" : ""}`}
+          </p>
+        </div>
+      </div>
+    </ModuleCard>
+  );
+
+  const solicitudesCard = (
+    <ModuleCard
+      href="/students/applications"
+      icon="description"
+      title="Mis solicitudes"
+      badge={
+        applicationsActionNeeded.length > 0
+          ? { label: `${applicationsActionNeeded.length} pendiente${applicationsActionNeeded.length > 1 ? "s" : ""}`, tone: "amber" }
+          : undefined
+      }
+      cta={
+        applicationsActionNeeded.length > 0
+          ? { label: "Continuar proceso", href: "/students/applications" }
+          : applications.length === 0
+            ? { label: "Buscar residencias", href: "/search" }
+            : undefined
+      }
+      animationDelayMs={80}
+    >
+      {applications.length > 0 && primaryApplication ? (
+        <>
+          <p className="font-semibold text-ink">
+            {applications.length} solicitud{applications.length === 1 ? "" : "es"}
+          </p>
+          <p className="mt-1 truncate text-xs text-ink-faint">
+            {primaryApplication.residences?.name} —{" "}
+            {APPLICATION_STATUS_COPY[primaryApplication.status]?.label ?? primaryApplication.status}
+          </p>
+        </>
+      ) : (
+        <p>Explorá el catálogo y enviá tu primera solicitud para asegurar tu lugar.</p>
       )}
+    </ModuleCard>
+  );
+
+  const favoritosCard = (
+    <ModuleCard href="/students/favorites" icon="favorite" title="Favoritos" animationDelayMs={120}>
+      {favoritesTotal > 0 ? (
+        <div className="flex items-center gap-3">
+          <div className="flex -space-x-2">
+            {favoritesPreview.slice(0, 3).map((f) => (
+              <div key={f.slug} className="relative size-9 shrink-0 overflow-hidden rounded-full bg-sand-200 ring-2 ring-paper">
+                {f.photo && <Image src={f.photo} alt="" fill sizes="36px" className="object-cover" />}
+              </div>
+            ))}
+          </div>
+          <p className="font-semibold text-ink">
+            {favoritesTotal} guardad{favoritesTotal === 1 ? "a" : "as"}
+          </p>
+        </div>
+      ) : (
+        <p>Guardá residencias desde su ficha para compararlas después.</p>
+      )}
+    </ModuleCard>
+  );
+
+  const listaEsperaCard = (
+    <ModuleCard
+      href="/students/waitlist"
+      icon="hourglass_top"
+      title="Lista de espera"
+      badge={waitlistNeedsAction ? { label: "¡Hay lugar!", tone: "amber" } : undefined}
+      animationDelayMs={160}
+    >
+      {waitlistCount > 0 ? (
+        <p className="font-semibold text-ink">
+          En {waitlistCount} lista{waitlistCount > 1 ? "s" : ""} de espera
+        </p>
+      ) : (
+        <p>Cuando una residencia no tenga lugar, vas a poder sumarte desde su ficha.</p>
+      )}
+    </ModuleCard>
+  );
+
+  const vinculacionCard = (
+    <div className="benefit-fade-in" style={{ animationDelay: "200ms" }}>
+      <FamilyLinkCard activeLink={familyActiveLink} pendingApprovalCount={0} pendingInvitation={familyPendingInvitation} />
     </div>
+  );
+
+  const soporteCard = (
+    <ModuleCard
+      href="/students/support"
+      icon="support_agent"
+      title="Soporte"
+      badge={openSupportCount > 0 ? { label: `${openSupportCount} en curso`, tone: "amber" } : undefined}
+      cta={{ label: openSupportCount > 0 ? "Ver mis casos" : "Abrir un caso", href: "/students/support" }}
+      animationDelayMs={240}
+    >
+      <p>
+        {openSupportCount > 0
+          ? "Tenés casos en seguimiento con EstuRed."
+          : "¿Algo no salió como esperabas con una residencia? Estamos para ayudarte."}
+      </p>
+    </ModuleCard>
   );
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
       <div className="flex flex-col gap-1">
         <h1 className="flex items-center gap-2 text-2xl font-bold text-ink md:text-3xl">
-          {isHoused
-            ? "¡Ya estás alojado/a!"
-            : firstName
-              ? `¡Hola, ${firstName}!`
-              : "¡Hola!"}
+          {isHoused ? "¡Ya estás alojado/a!" : firstName ? `¡Hola, ${firstName}!` : "¡Hola!"}
         </h1>
         <p className="max-w-3xl text-ink-soft">
           {isHoused
-            ? "Acá vas a ver tu estadía y todo lo necesario para tu convivencia."
-            : "Tu cuenta está lista. Desde acá vas a seguir toda tu búsqueda."}
+            ? "Todo lo que necesitás sobre tu estadía y tu cuenta, en un solo lugar."
+            : "Tu centro de control en EstuRed — accedé rápido a cada sección de tu búsqueda."}
         </p>
       </div>
 
       {headerBanners}
 
-      {!isHoused && (
-        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <Link
-            href="/students/profile"
-            className="group flex flex-col gap-3 rounded-card border-[1.5px] border-line bg-paper p-5 transition-colors hover:border-forest hover:bg-forest-tint"
-          >
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-extrabold uppercase tracking-wider text-muted">Tu perfil</p>
-              <div
-                className="relative flex size-11 shrink-0 items-center justify-center rounded-full text-xs font-bold text-forest-700"
-                style={{
-                  background: `conic-gradient(var(--color-forest-600) ${completenessPercent}%, var(--color-line-2) 0)`,
-                }}
-              >
-                <span className="flex size-8 items-center justify-center rounded-full bg-paper">
-                  {completenessPercent}%
-                </span>
-              </div>
+      {isHoused && reservation && residence && (
+        <Card className="mt-8 overflow-hidden p-0">
+          <div className="grid grid-cols-1 lg:grid-cols-5">
+            <div className="relative h-64 lg:col-span-2 lg:h-auto">
+              <PhotoCarousel photos={residencePhotos} alt={residence.name} />
             </div>
-            <p className="text-sm font-semibold text-ink">
-              {completenessPercent >= 100 ? "Perfil completo" : "Completá tu perfil"}
-            </p>
-            <p className="text-xs text-ink-soft">
-              {completenessPercent >= 100
-                ? "Las residencias ven tu solicitud como más seria."
-                : `Falta: ${completenessMissing.slice(0, 2).join(", ")}${completenessMissing.length > 2 ? "…" : ""}`}
-            </p>
-          </Link>
-
-          <Link
-            href="/students/profile"
-            className="group flex flex-col gap-3 rounded-card border-[1.5px] border-line bg-paper p-5 transition-colors hover:border-forest hover:bg-forest-tint"
-          >
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-extrabold uppercase tracking-wider text-muted">Documentación</p>
-              <Icon
-                name={docsUploadedCount >= 2 ? "task_alt" : "folder_shared"}
-                className={`text-xl ${docsUploadedCount >= 2 ? "text-forest-700" : "text-ink-faint"}`}
-              />
-            </div>
-            <p className="text-sm font-semibold text-ink">{docsUploadedCount} de 2 documentos</p>
-            <p className="text-xs text-ink-soft">
-              {docsUploadedCount >= 2 ? "Documentación al día." : "DNI/pasaporte y comprobante de estudio."}
-            </p>
-          </Link>
-
-          <Link
-            href="/search"
-            className="group flex flex-col gap-3 rounded-card border-[1.5px] border-dashed border-line-2 bg-cream-2 p-5 transition-colors hover:border-forest hover:bg-forest-tint"
-          >
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-extrabold uppercase tracking-wider text-muted">Mi residencia</p>
-              <Icon name="apartment" className="text-xl text-ink-faint" />
-            </div>
-            <p className="text-sm font-semibold text-ink">Todavía no tenés residencia</p>
-            <p className="text-xs text-ink-soft">Acá vas a ver tu estadía en cuanto confirmes una reserva.</p>
-          </Link>
-        </div>
-      )}
-
-      <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3">
-        <div className="flex flex-col gap-6 lg:col-span-2">
-          {isHoused && reservation ? (
-            <>
-              <Card className="overflow-hidden p-0">
-                <div className="flex items-start justify-between border-b border-line p-6">
+            <div className="flex flex-col justify-between gap-5 p-6 lg:col-span-3">
+              <div>
+                <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <h2 className="text-xl font-bold text-ink">Mi residencia</h2>
+                    <h2 className="text-xl font-bold text-ink md:text-2xl">{residence.name}</h2>
                     <p className="mt-1 flex items-center gap-1 text-sm text-ink-soft">
                       <Icon name="location_on" className="text-base" />
-                      {reservation.residences?.name} · {reservation.residences?.public_area}
+                      {residence.public_area}, CABA
                     </p>
                   </div>
                   <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-forest-tint px-3 py-1 text-xs font-bold uppercase tracking-wide text-forest-700">
                     <span className="size-2 rounded-full bg-forest-600" /> Alojado
                   </span>
                 </div>
-                <div className="grid grid-cols-1 gap-6 p-6 sm:grid-cols-2">
-                  <div className="space-y-3">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-muted">Tu estadía</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-xs text-ink-faint">Tipo de habitación</p>
-                        <p className="font-bold text-ink">{reservation.room_types?.name ?? "—"}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-ink-faint">Valor mensual</p>
-                        <p className="font-bold text-ink">
-                          USD {reservation.application_snapshots?.monthly_price_usd ?? "—"}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-ink-faint">Fecha de ingreso</p>
-                        <p className="font-medium text-ink">{reservation.start_date}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-ink-faint">Fin estimado</p>
-                        <p className="font-medium text-ink">
-                          {addMonthsDateOnly(reservation.start_date, reservation.initial_duration_months)}
-                        </p>
-                        {(() => {
-                          const remaining = daysRemaining(reservation.start_date, reservation.initial_duration_months);
-                          if (remaining <= 0) return null;
-                          return (
-                            <p className="mt-0.5 text-xs text-ink-faint">
-                              {remaining < 60 ? `Quedan ${remaining} días` : `Quedan ~${Math.round(remaining / 30)} meses`}
-                            </p>
-                          );
-                        })()}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-3">
-                    {renewalStatus && (
-                      <div className="flex items-start gap-3 rounded-field border border-line-2 bg-orange-tint p-3">
-                        <Icon name="notifications_active" className="mt-0.5 text-lg text-orange-700" />
-                        <div>
-                          <p className="text-sm font-bold text-orange-700">{renewalStatus.label}</p>
-                          <Link href="/students/renewals" className="mt-0.5 text-xs font-semibold text-orange-700 underline">
-                            Ver renovaciones →
-                          </Link>
-                        </div>
-                      </div>
-                    )}
-                    <Link
-                      href={`/residencias/${reservation.residences?.slug}/comunidad`}
-                      className="flex items-center gap-3 rounded-field border border-line p-3 text-sm font-semibold text-ink hover:border-forest hover:bg-forest-tint"
-                    >
-                      <Icon name="groups" className="text-lg text-forest-700" /> Ver comunidad de la residencia
-                    </Link>
-                    {reservation.booking_receipt_id && (
-                      <Link
-                        href={`/students/receipts/${reservation.booking_receipt_id}`}
-                        className="flex items-center gap-3 rounded-field border border-line p-3 text-sm font-semibold text-ink hover:border-forest hover:bg-forest-tint"
-                      >
-                        <Icon name="receipt_long" className="text-lg text-forest-700" /> Ver comprobante de reserva
-                      </Link>
-                    )}
-                  </div>
-                </div>
-              </Card>
-              {!renewalStatus && (
-                <div className="rounded-card border border-dashed border-line-2 bg-cream-2 p-5 text-sm text-ink-soft">
-                  ¿Se acerca el fin de tu estadía?{" "}
-                  <Link href="/students/renewals" className="font-semibold text-forest-700 hover:underline">
-                    Solicitá tu renovación
-                  </Link>
-                  , sin plazos mínimos de anticipación.
-                </div>
-              )}
-            </>
-          ) : (
-            <section>
-              <h2 className="mb-4 text-xl font-bold text-ink">Solicitud activa</h2>
-              {latestApplication ? (
-                <Card className="flex flex-col gap-3 p-6 sm:flex-row sm:items-center sm:justify-between">
+                <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-4">
                   <div>
-                    <p className="font-bold text-ink">{latestApplication.residences?.name}</p>
-                    <p className="text-sm text-ink-soft">{latestApplication.room_types?.name}</p>
+                    <p className="text-xs text-ink-faint">Habitación</p>
+                    <p className="font-bold text-ink">{reservation.room_types?.name ?? "—"}</p>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Badge tone={APPLICATION_STATUS_LABEL[latestApplication.status]?.tone ?? "neutral"}>
-                      {APPLICATION_STATUS_LABEL[latestApplication.status]?.label ?? latestApplication.status}
-                    </Badge>
-                    <Button href="/students/applications" size="sm" variant="outline">
-                      Ver todas
-                    </Button>
+                  <div>
+                    <p className="text-xs text-ink-faint">Valor mensual</p>
+                    <p className="font-bold text-ink">USD {reservation.application_snapshots?.monthly_price_usd ?? "—"}</p>
                   </div>
-                </Card>
-              ) : (
-                <div className="flex flex-col items-center justify-center rounded-card border border-dashed border-line-2 bg-cream-2 p-8 text-center">
-                  <div className="mb-4 rounded-full bg-paper p-4 shadow-sm">
-                    <Icon name="travel_explore" className="text-4xl text-forest-700" />
+                  <div>
+                    <p className="text-xs text-ink-faint">Ingreso</p>
+                    <p className="font-medium text-ink">{reservation.start_date}</p>
                   </div>
-                  <h3 className="text-lg font-bold text-ink">No tenés solicitudes pendientes</h3>
-                  <p className="mt-2 max-w-md text-ink-soft">
-                    Explorá el catálogo y enviá tu primera solicitud para asegurar tu lugar.
-                  </p>
-                  <Button href="/search" size="md" className="mt-6">
-                    Buscar residencias ahora
-                  </Button>
+                  <div>
+                    <p className="text-xs text-ink-faint">Restante</p>
+                    <p className="font-medium text-ink">
+                      {remaining > 0 ? (remaining < 60 ? `${remaining} días` : `~${Math.round(remaining / 30)} meses`) : "—"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {heroAlerts.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {heroAlerts.map((a) => (
+                    <Link
+                      key={a.label}
+                      href={a.href}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-line-2 bg-cream-2 px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-forest hover:bg-forest-tint hover:text-forest-700"
+                    >
+                      <Icon name={a.icon} className="text-sm" />
+                      {a.label}
+                    </Link>
+                  ))}
                 </div>
               )}
-            </section>
-          )}
 
-          {favoritesPreview.length > 0 && (
-            <section>
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-xl font-bold text-ink">Favoritos recientes</h2>
-                <Link href="/students/favorites" className="text-sm font-semibold text-forest-700 hover:underline">
-                  Ver los {favoritesTotal} →
-                </Link>
+              <div className="flex flex-wrap gap-3">
+                <Button href="/students/residency" size="sm">
+                  Ver residencia
+                </Button>
+                <Button href="/students/residency#comunidad" size="sm" variant="outline">
+                  Ver comunidad
+                </Button>
               </div>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                {favoritesPreview.map((f) => (
-                  <Link
-                    key={f.slug}
-                    href={`/residencias/${f.slug}`}
-                    className="group overflow-hidden rounded-card border-[1.5px] border-line bg-paper transition-colors hover:border-forest"
+            </div>
+          </div>
+        </Card>
+      )}
+
+      <div className="mt-6 grid grid-cols-1 items-start gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {!isHoused && (
+          <ModuleCard
+            href="/search"
+            icon="search"
+            iconTone="amber"
+            title="Buscar residencias"
+            className="border-dashed"
+            cta={{ label: "Ver catálogo", href: "/search" }}
+            animationDelayMs={0}
+          >
+            <p>Catálogo de residencias en CABA, con reglas, servicios y precios claros.</p>
+          </ModuleCard>
+        )}
+
+        {isHoused && reservation && (
+          <div className="benefit-fade-in" style={{ animationDelay: "0ms" }}>
+            <ExpandableCard
+              defaultOpen={Boolean(renewalStatus)}
+              summary={
+                <div className="flex items-center gap-3">
+                  <span
+                    className={`flex size-10 shrink-0 items-center justify-center rounded-full ${
+                      renewalStatus ? "bg-orange-tint text-orange-700" : "bg-forest-tint text-forest-700"
+                    }`}
                   >
-                    <div className="relative h-28 w-full overflow-hidden bg-sand-200">
-                      {f.photo && (
-                        <Image
-                          src={f.photo}
-                          alt={`Foto de ${f.name}`}
-                          fill
-                          sizes="(max-width: 640px) 100vw, 33vw"
-                          className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                        />
-                      )}
-                      {f.addedByFamily && (
-                        <span className="absolute left-2 top-2 rounded-full bg-paper/95 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-700">
-                          Sugerido
-                        </span>
-                      )}
-                    </div>
-                    <div className="p-3">
-                      <p className="truncate text-sm font-bold text-ink">{f.name}</p>
-                      <p className="truncate text-xs text-ink-faint">{f.zone}</p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {!isHoused && (
-            <Card className="flex flex-col items-start gap-3 p-6 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-3">
-                <div className="rounded-full bg-forest-tint p-3">
-                  <Icon name="search" className="text-2xl text-forest-700" />
+                    <Icon name="sync" className="text-xl" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="font-bold text-ink">Renovaciones</p>
+                    <p className="truncate text-xs text-ink-faint">{renewalStatus ? renewalStatus.label : "Sin renovación en curso"}</p>
+                  </div>
+                </div>
+              }
+            >
+              <dl className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
+                <div>
+                  <dt className="text-xs text-ink-faint">Fin de contrato</dt>
+                  <dd className="font-semibold text-ink">
+                    {addMonthsDateOnly(reservation.start_date, reservation.initial_duration_months)}
+                  </dd>
                 </div>
                 <div>
-                  <h2 className="font-bold text-ink">Buscar residencias</h2>
-                  <p className="text-sm text-ink-soft">Catálogo de residencias en CABA, con reglas, servicios y precios claros.</p>
+                  <dt className="text-xs text-ink-faint">Restante</dt>
+                  <dd className="font-semibold text-ink">{remaining > 0 ? `${remaining} días` : "Vencido"}</dd>
                 </div>
+              </dl>
+              <div className="mt-4 border-t border-line pt-4">
+                {renewalStatus ? (
+                  <Link
+                    href="/students/renewals"
+                    className="inline-flex items-center gap-2 rounded-full border-[1.5px] border-line px-4 py-2 text-sm font-semibold text-ink hover:border-forest hover:bg-forest-tint"
+                  >
+                    Ver renovaciones
+                  </Link>
+                ) : (
+                  <StartRenewalModal
+                    reservationId={reservation.id}
+                    roomTypeName={reservation.room_types?.name ?? null}
+                    currentEndDateLabel={addMonthsDateOnly(reservation.start_date, reservation.initial_duration_months)}
+                    monthlyPriceUsd={reservation.application_snapshots?.monthly_price_usd ?? null}
+                    minimumStayMonths={reservation.residences?.minimum_stay_months ?? null}
+                    triggerLabel="Iniciar renovación"
+                    triggerVariant="outline"
+                  />
+                )}
               </div>
-              <Button href="/search" size="sm" className="shrink-0">
-                Ver catálogo
-              </Button>
-            </Card>
-          )}
-        </div>
+            </ExpandableCard>
+          </div>
+        )}
 
-        <div className="lg:col-span-1">{sidebar}</div>
+        {perfilCard}
+        {solicitudesCard}
+        {favoritosCard}
+        {listaEsperaCard}
+        {vinculacionCard}
+        {soporteCard}
       </div>
-
-      <p className="mt-8 text-xs text-ink-faint">
-        ¿Dudas o problemas con tu cuenta?{" "}
-        <Link href="/students/support" className="text-forest-700 hover:underline">
-          Escribinos
-        </Link>
-        .
-      </p>
     </div>
   );
 }

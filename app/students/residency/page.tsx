@@ -407,7 +407,7 @@ export default async function StudentResidencyPage() {
           que rompen mal si el contenedor real es más angosto que el
           viewport, como pasaba acá dentro de la columna principal. */}
       {community && (community.totalResidents > 0 || community.totalAvailable > 0) && residence && (
-        <section className="mt-8">
+        <section id="comunidad" className="mt-8 scroll-mt-24">
           <h2 className="text-xl font-bold text-ink">Comunidad actual</h2>
           <p className="mt-2 text-sm text-ink-soft">Tus compañeros de residencia — cada uno decide qué mostrar.</p>
           <div className="mt-4">
