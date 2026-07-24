@@ -2,6 +2,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { assertResidenceAccess } from "@/lib/residences/access";
+import { incrementAvailabilityOnRelease } from "@/lib/availability/incrementAvailabilityOnRelease";
 
 export type EndResidentStayResult = { ok: true } | { ok: false; error: string };
 
@@ -12,7 +13,7 @@ export async function endResidentStay(
 ): Promise<EndResidentStayResult> {
   const { data: stay } = await admin
     .from("resident_stays")
-    .select("id, residence_id, is_current")
+    .select("id, residence_id, is_current, room_type_id")
     .eq("id", params.residentStayId)
     .maybeSingle();
   if (!stay) return { ok: false, error: "No encontramos esa estadía." };
@@ -28,6 +29,12 @@ export async function endResidentStay(
   if (error) {
     console.error("[residents] endResidentStay update failed:", error);
     return { ok: false, error: "No pudimos cerrar la estadía. Intentá de nuevo." };
+  }
+
+  // La plaza que deja este residente vuelve a estar disponible (Ciclo 41 —
+  // antes no había ninguna reposición automática de profile_availability).
+  if (stay.room_type_id) {
+    await incrementAvailabilityOnRelease(admin, stay.room_type_id);
   }
 
   await createAuditLog(admin, {

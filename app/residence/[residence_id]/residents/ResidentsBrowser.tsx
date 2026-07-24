@@ -1,7 +1,8 @@
 "use client";
 
-import { Fragment, useMemo, useState, useActionState } from "react";
+import { Fragment, useMemo, useState, useEffect, useActionState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -335,7 +336,17 @@ export function ResidentsBrowser({
   const [filter, setFilter] = useState<StatusKey | "todos">("todos");
   const [search, setSearch] = useState("");
   const [showAdd, setShowAdd] = useState(false);
-  const [openStayId, setOpenStayId] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const [openStayId, setOpenStayId] = useState<string | null>(() => searchParams.get("stay"));
+
+  // Deep-link `?stay=<id>` (ej. desde "Próximos ingresos y salidas" del
+  // Panel, Ciclo 41) — abre y hace scroll a la fila correspondiente.
+  useEffect(() => {
+    const target = searchParams.get("stay");
+    if (!target) return;
+    setOpenStayId(target);
+    document.getElementById(`resident-row-${target}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [searchParams]);
 
   const today = new Date();
   const todayStr = today.toISOString().slice(0, 10);
@@ -465,7 +476,11 @@ export function ResidentsBrowser({
                   const effectiveRate = row.rateUsd ?? row.baseRateUsd;
                   return (
                     <Fragment key={row.stayId}>
-                      <tr className={open ? "bg-cream-2/60" : undefined} style={{ borderBottom: open ? undefined : "1px solid var(--color-line)" }}>
+                      <tr
+                        id={`resident-row-${row.stayId}`}
+                        className={open ? "bg-cream-2/60" : undefined}
+                        style={{ borderBottom: open ? undefined : "1px solid var(--color-line)" }}
+                      >
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2.5">
                             <span
