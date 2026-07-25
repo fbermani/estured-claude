@@ -12,6 +12,8 @@ import {
   assignStayToBedAction,
   type RoomsActionState,
 } from "@/app/residence/[residence_id]/rooms/actions";
+import { endResidentStayAction } from "@/app/residence/[residence_id]/residents/actions";
+import { AvailabilityForm } from "@/app/residence/[residence_id]/availability/AvailabilityForm";
 
 export type BedData = {
   id: string;
@@ -30,6 +32,13 @@ export type BedData = {
 
 export type RoomData = { id: string; label: string; beds: BedData[] };
 
+export type AvailabilityData = {
+  status: string;
+  availableCount: number | null;
+  availableFrom: string | null;
+  notesPublic: string | null;
+};
+
 export type RoomsData = {
   groups: {
     id: string;
@@ -39,6 +48,7 @@ export type RoomsData = {
     capacityPerRoom: number;
     priceUsd: number;
     rooms: RoomData[];
+    availability: AvailabilityData | null;
   }[];
   unassigned: { stayId: string; name: string; pending: boolean; roomTypeId: string | null }[];
   kpis: {
@@ -139,21 +149,55 @@ function BedRow({
   const [reactState, reactFormAction, reactPending] = useActionState(reactivateAction, initialState);
   const assignAction = assignStayToBedAction.bind(null, residenceId, bed.id);
   const [assignState, assignFormAction, assignPending] = useActionState(assignAction, initialState);
+  const endStayAction = bed.occupant
+    ? endResidentStayAction.bind(null, residenceId, bed.occupant.stayId)
+    : endResidentStayAction.bind(null, residenceId, "");
+  const [endState, endFormAction, endPending] = useActionState(endStayAction, initialState);
 
   if (bed.occupant) {
     return (
-      <div className="flex items-center gap-3 rounded-field border border-line bg-paper p-3">
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-field bg-forest-tint text-sm font-bold text-forest-700">
-          {bed.letter}
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-bold text-ink">{bed.occupant.name}</p>
-          <p className="text-xs text-ink-soft">
-            {bed.occupant.pending
-              ? "Pendiente de activar cuenta"
-              : (formatUntil(bed.occupant.until) ?? "Sin fecha de salida cargada")}
-          </p>
+      <div className="rounded-field border border-line bg-paper p-3">
+        <div className="flex items-center gap-3">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-field bg-forest-tint text-sm font-bold text-forest-700">
+            {bed.letter}
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-bold text-ink">{bed.occupant.name}</p>
+            <p className="text-xs text-ink-soft">
+              {bed.occupant.pending
+                ? "Pendiente de activar cuenta"
+                : (formatUntil(bed.occupant.until) ?? "Sin fecha de salida cargada")}
+            </p>
+          </div>
         </div>
+        <div className="mt-3 flex flex-wrap gap-2 border-t border-line pt-3">
+          <Link
+            href={`/residence/${residenceId}/residents?stay=${bed.occupant.stayId}`}
+            className="inline-flex cursor-pointer items-center gap-1 rounded-full border-[1.5px] border-line px-3 py-1.5 text-xs font-bold text-ink-soft hover:border-forest hover:text-forest-700"
+          >
+            Gestionar residente
+            <Icon name="arrow_forward" className="text-sm" />
+          </Link>
+          <form
+            action={endFormAction}
+            onSubmit={(e) => {
+              if (!confirm(`¿Liberar la plaza de ${bed.occupant!.name}? Esto cierra su estadía actual.`)) {
+                e.preventDefault();
+              }
+            }}
+          >
+            <button
+              type="submit"
+              disabled={endPending}
+              className="cursor-pointer rounded-full border-[1.5px] border-danger-fg/40 px-3 py-1.5 text-xs font-bold text-danger-fg hover:bg-danger-bg disabled:opacity-50"
+            >
+              {endPending ? "…" : "Liberar plaza"}
+            </button>
+          </form>
+        </div>
+        {endState.status === "error" && (
+          <p className="mt-1.5 text-xs font-medium text-danger-fg">{endState.message}</p>
+        )}
       </div>
     );
   }
@@ -273,19 +317,23 @@ function BedRow({
 function RoomModal({
   residenceId,
   room,
+  roomTypeId,
   typeName,
   capacity,
   priceUsd,
   arsPerUsd,
+  availability,
   unassigned,
   onClose,
 }: {
   residenceId: string;
   room: RoomData;
+  roomTypeId: string;
   typeName: string;
   capacity: number;
   priceUsd: number;
   arsPerUsd: number;
+  availability: AvailabilityData | null;
   unassigned: RoomsData["unassigned"];
   onClose: () => void;
 }) {
@@ -330,9 +378,24 @@ function RoomModal({
               </Link>
             </div>
             <p className="rounded-field bg-cream-2 px-3 py-2.5 text-xs leading-relaxed text-ink-soft">
-              Una cama fuera de servicio no se cuenta como lugar libre. La disponibilidad publicada en el
-              catálogo sigue siendo la informada por tipo de habitación.
+              Una cama fuera de servicio no se cuenta como lugar libre.
             </p>
+            <div>
+              <p className="text-sm font-bold text-ink">Disponibilidad publicada</p>
+              <p className="mt-0.5 text-xs text-ink-faint">Se aplica a todo el tipo &ldquo;{typeName}&rdquo;, no solo a esta habitación.</p>
+              {availability ? (
+                <AvailabilityForm
+                  residenceId={residenceId}
+                  roomTypeId={roomTypeId}
+                  currentStatus={availability.status}
+                  currentAvailableCount={availability.availableCount}
+                  currentAvailableFrom={availability.availableFrom}
+                  currentNotesPublic={availability.notesPublic}
+                />
+              ) : (
+                <p className="mt-2 text-xs text-ink-faint">Todavía no se cargó disponibilidad para este tipo.</p>
+              )}
+            </div>
           </div>
 
           <div>
@@ -726,10 +789,12 @@ export function RoomsBrowser({
           residenceId={residenceId}
           room={openRoom.room}
           typeName={openRoom.group.name}
+          roomTypeId={openRoom.group.id}
           capacity={openRoom.group.capacityPerRoom}
           priceUsd={openRoom.group.priceUsd}
           arsPerUsd={arsPerUsd}
           unassigned={unassigned}
+          availability={openRoom.group.availability}
           onClose={() => setOpenRoomId(null)}
         />
       )}

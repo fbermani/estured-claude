@@ -60,6 +60,17 @@ export default async function ResidenceRoomsPage({
     ? await admin.from("beds").select("id, room_id, letter, status, out_of_service_reason, sort_order").in("room_id", roomIds).order("sort_order", { ascending: true })
     : { data: [] };
 
+  // Disponibilidad declarada por tipo — para poder editarla desde el
+  // modal de la habitación (Ciclo 41), sin ir a /availability.
+  const typeIds = (roomTypes ?? []).map((t) => t.id);
+  const { data: availabilityRows } = typeIds.length
+    ? await admin
+        .from("profile_availability")
+        .select("room_type_id, status, available_count, available_from, notes_public")
+        .in("room_type_id", typeIds)
+    : { data: [] };
+  const availabilityByType = new Map((availabilityRows ?? []).map((a) => [a.room_type_id, a]));
+
   // Renovaciones activas (para "movimientos próximos").
   const [{ count: renewalRequests }, { count: renewalOffers }] = await Promise.all([
     admin
@@ -132,6 +143,7 @@ export default async function ResidenceRoomsPage({
               };
             }),
         }));
+      const availability = availabilityByType.get(rt.id) ?? null;
       return {
         id: rt.id,
         name: rt.name,
@@ -140,6 +152,14 @@ export default async function ResidenceRoomsPage({
         capacityPerRoom: Math.max(1, rt.capacity_per_room ?? 1),
         priceUsd: Number(rt.monthly_price_usd),
         rooms: typeRooms,
+        availability: availability
+          ? {
+              status: availability.status,
+              availableCount: availability.available_count,
+              availableFrom: availability.available_from,
+              notesPublic: availability.notes_public,
+            }
+          : null,
       };
     })
     .filter((g) => g.rooms.length > 0);
