@@ -5,6 +5,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { assertResidenceAccess } from "@/lib/residences/access";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { Icon } from "@/components/ui/Icon";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { WaitlistRowActions } from "@/app/residence/[residence_id]/waitlist/WaitlistRowActions";
 
@@ -18,7 +19,23 @@ const STATUS_COPY: Record<string, { label: string; tone: "amber" | "sage" | "neu
 };
 
 const ACTIVE_STATUSES = ["active", "availability_notification_sent", "retention_check_sent"];
+const NEEDS_RESPONSE_STATUSES = ["availability_notification_sent", "retention_check_sent"];
+const URGENT_WINDOW_DAYS = 14;
 
+function daysBetween(fromIso: string, toIso: string): number {
+  return Math.round((new Date(toIso).getTime() - new Date(fromIso).getTime()) / (24 * 3600 * 1000));
+}
+
+/**
+ * No hay columna de "prioridad" declarada en waitlist_entries (docs/06 §10.2
+ * documenta joined_at como único criterio de orden). El orden por
+ * "prioridad" que pide el dueño se deriva acá, sin persistir nada nuevo:
+ * primero quien está a mitad de un flujo con el estudiante (avisado /
+ * chequeo de retención — tiene una ventana de respuesta corriendo), luego
+ * por cercanía de la fecha de ingreso deseada, y por último por antigüedad
+ * (FIFO) como desempate. La numeración #1, #2… resultante es "quién debería
+ * recibir la próxima vacante" dentro de cada tipo de habitación.
+ */
 export default async function ResidenceWaitlistPage({
   params,
 }: {
@@ -36,7 +53,7 @@ export default async function ResidenceWaitlistPage({
   const { data: entries, error } = await admin
     .from("waitlist_entries")
     .select(
-      "id, status, desired_start_date, desired_duration_months, joined_at, student_profiles (first_name, last_initial), room_types (name)",
+      "id, status, room_type_id, desired_start_date, desired_duration_months, joined_at, student_profiles (first_name, last_initial), room_types (name)",
     )
     .eq("residence_id", residenceId)
     .in("status", ACTIVE_STATUSES)
@@ -47,6 +64,7 @@ export default async function ResidenceWaitlistPage({
     (entries as unknown as {
       id: string;
       status: string;
+      room_type_id: string | null;
       desired_start_date: string | null;
       desired_duration_months: number | null;
       joined_at: string;
@@ -54,41 +72,128 @@ export default async function ResidenceWaitlistPage({
       room_types: { name: string } | null;
     }[]) ?? [];
 
+  const nowIso = new Date().toISOString();
+
+  const enriched = rows.map((entry) => {
+    const waitingDays = daysBetween(entry.joined_at, nowIso);
+    const daysUntilDesired = entry.desired_start_date
+      ? daysBetween(nowIso, `${entry.desired_start_date}T00:00:00`)
+      : null;
+    return {
+      ...entry,
+      waitingDays,
+      daysUntilDesired,
+      needsResponse: NEEDS_RESPONSE_STATUSES.includes(entry.status),
+      urgent: daysUntilDesired !== null && daysUntilDesired <= URGENT_WINDOW_DAYS,
+    };
+  });
+
+  const groupsMap = new Map<string, { key: string; name: string; entries: typeof enriched }>();
+  for (const entry of enriched) {
+    const key = entry.room_type_id ?? "__any__";
+    const name = entry.room_types?.name ?? "Cualquier tipo de habitación";
+    if (!groupsMap.has(key)) groupsMap.set(key, { key, name, entries: [] });
+    groupsMap.get(key)!.entries.push(entry);
+  }
+
+  const groups = Array.from(groupsMap.values())
+    .map((g) => ({
+      ...g,
+      entries: [...g.entries].sort((a, b) => {
+        if (a.needsResponse !== b.needsResponse) return a.needsResponse ? -1 : 1;
+        const aUrgent = a.daysUntilDesired ?? Infinity;
+        const bUrgent = b.daysUntilDesired ?? Infinity;
+        if (aUrgent !== bUrgent) return aUrgent - bUrgent;
+        return b.waitingDays - a.waitingDays;
+      }),
+    }))
+    .sort((a, b) => (a.key === "__any__" ? 1 : b.key === "__any__" ? -1 : a.name.localeCompare(b.name)));
+
+  const totalCount = rows.length;
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
       <h1 className="text-2xl font-bold text-ink">Lista de espera</h1>
-      <p className="mt-1 text-sm text-ink-soft">Estudiantes esperando lugar en esta residencia.</p>
+      <p className="mt-1 text-sm text-ink-soft">
+        Agrupada por tipo de habitación y ordenada por quién debería recibir la próxima vacante primero.
+      </p>
 
-      {rows.length === 0 ? (
+      {totalCount === 0 ? (
         <div className="mt-6">
           <EmptyState icon="hourglass_top" title="Nadie en lista de espera" description="Cuando alguien se sume, va a aparecer acá." />
         </div>
       ) : (
-        <div className="mt-6 space-y-4">
-          {rows.map((entry) => {
-            const badge = STATUS_COPY[entry.status] ?? { label: entry.status, tone: "neutral" as const };
-            return (
-              <Card key={entry.id} className="p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="font-semibold text-ink">
-                      {entry.student_profiles?.first_name} {entry.student_profiles?.last_initial}.
-                    </p>
-                    <p className="text-xs text-ink-faint">
-                      {entry.room_types?.name ?? "Cualquier tipo de habitación"}
-                      {entry.desired_start_date && <> · Ingreso deseado {entry.desired_start_date}</>}
-                      {entry.desired_duration_months && <> · {entry.desired_duration_months} meses</>}
-                    </p>
-                    <p className="text-xs text-ink-faint">
-                      En lista desde {new Date(entry.joined_at).toLocaleDateString("es-AR")}
-                    </p>
-                  </div>
-                  <Badge tone={badge.tone}>{badge.label}</Badge>
-                </div>
-                <WaitlistRowActions residenceId={residenceId} entryId={entry.id} />
-              </Card>
-            );
-          })}
+        <div className="mt-6 space-y-8">
+          {groups.map((group) => (
+            <section key={group.key}>
+              <div className="mb-3 flex items-center gap-2">
+                <h2 className="text-sm font-extrabold uppercase tracking-widest text-muted">{group.name}</h2>
+                <span className="rounded-full bg-cream-2 px-2 py-0.5 text-xs font-bold text-ink-soft">
+                  {group.entries.length}
+                </span>
+              </div>
+              <div className="space-y-3">
+                {group.entries.map((entry, i) => {
+                  const badge = STATUS_COPY[entry.status] ?? { label: entry.status, tone: "neutral" as const };
+                  const position = i + 1;
+                  return (
+                    <Card key={entry.id} className={`p-5 ${entry.urgent ? "border-danger-fg/30" : ""}`}>
+                      <div className="flex items-start gap-3">
+                        <span
+                          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-extrabold ${
+                            position === 1 ? "bg-forest text-white" : "bg-cream-2 text-ink-soft"
+                          }`}
+                        >
+                          {position}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <p className="font-semibold text-ink">
+                              {entry.student_profiles?.first_name} {entry.student_profiles?.last_initial}.
+                            </p>
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              {entry.urgent && (
+                                <Badge tone="danger">
+                                  <Icon name="priority_high" className="text-xs" />
+                                  Urgente
+                                </Badge>
+                              )}
+                              <Badge tone={badge.tone}>{badge.label}</Badge>
+                            </div>
+                          </div>
+                          <p className="mt-0.5 text-xs text-ink-faint">
+                            {entry.desired_start_date && (
+                              <>
+                                Ingreso deseado {entry.desired_start_date}
+                                {entry.daysUntilDesired !== null && (
+                                  <>
+                                    {" "}
+                                    (
+                                    {entry.daysUntilDesired < 0
+                                      ? "fecha vencida"
+                                      : entry.daysUntilDesired === 0
+                                        ? "hoy"
+                                        : `en ${entry.daysUntilDesired} días`}
+                                    )
+                                  </>
+                                )}
+                              </>
+                            )}
+                            {entry.desired_duration_months && <> · {entry.desired_duration_months} meses</>}
+                          </p>
+                          <p className="text-xs text-ink-faint">
+                            En lista desde {new Date(entry.joined_at).toLocaleDateString("es-AR")} · {entry.waitingDays}{" "}
+                            {entry.waitingDays === 1 ? "día" : "días"} de antigüedad
+                          </p>
+                          <WaitlistRowActions residenceId={residenceId} entryId={entry.id} />
+                        </div>
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
+            </section>
+          ))}
         </div>
       )}
     </div>
