@@ -136,6 +136,6 @@ export async function sendNegotiationProposal(
     entityId: applicationId,
   });
 
-  revalidatePath(`/residence/${application.residence_id}/applications/${applicationId}`);
-  redirect(`/residence/${application.residence_id}/applications/${applicationId}`);
+  revalidatePath(`/residence/${application.residence_id}/applications`);
+  redirect(`/residence/${application.residence_id}/applications?app=${applicationId}`);
 }

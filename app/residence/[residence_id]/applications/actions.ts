@@ -191,7 +191,7 @@ export async function enableResidencePayment(applicationId: string): Promise<App
     entityId: applicationId,
   });
 
-  revalidatePath(`/residence/${result.application.residence_id}/applications/${applicationId}`);
+  revalidatePath(`/residence/${result.application.residence_id}/applications`);
   return { status: "saved" };
 }
 

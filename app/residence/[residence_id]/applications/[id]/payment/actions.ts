@@ -36,7 +36,7 @@ export async function markResidencePaymentReceived(
   });
   if (!result.ok) return { status: "error", message: result.error };
 
-  revalidatePath(`/residence/${result.residenceId}/applications/${applicationId}`);
+  revalidatePath(`/residence/${result.residenceId}/applications`);
   revalidatePath(`/students/applications/${applicationId}`);
   return { status: "saved" };
 }

@@ -1,39 +1,26 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { assertResidenceAccess } from "@/lib/residences/access";
-import { Card } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
-import { EmptyState } from "@/components/ui/EmptyState";
+import { buildWhatsappUrl } from "@/lib/applications/whatsapp";
+import { ACTIVE_APPLICATION_STATUSES } from "@/lib/applications/types";
+import { ApplicationsInbox, type FullApplication } from "@/app/residence/[residence_id]/applications/ApplicationsInbox";
 
 export const metadata: Metadata = { title: "Solicitudes recibidas" };
 export const dynamic = "force-dynamic";
 
-const STATUS_COPY: Record<string, { label: string; tone: "amber" | "sage" | "neutral" }> = {
-  submitted: { label: "Nueva", tone: "amber" },
-  queued_for_place: { label: "En cola", tone: "neutral" },
-  under_review: { label: "En revisión", tone: "amber" },
-  contact_established: { label: "Contacto establecido", tone: "sage" },
-  offer_pending_student_acceptance: { label: "Propuesta enviada", tone: "amber" },
-  conditions_accepted: { label: "Condiciones aceptadas", tone: "sage" },
-  residence_payment_pending: { label: "Esperando pago del estudiante", tone: "amber" },
-  residence_payment_reported: { label: "Pago recibido", tone: "sage" },
-  converted_to_reservation: { label: "Reserva creada", tone: "sage" },
-  paused_due_to_other_active_request: { label: "Pausada", tone: "neutral" },
-  rejected: { label: "Rechazada", tone: "neutral" },
-  expired_no_residence_response: { label: "Vencida", tone: "neutral" },
-  expired_offer_no_response: { label: "Vencida (propuesta)", tone: "neutral" },
-  cancelled_by_student: { label: "Cancelada", tone: "neutral" },
-};
+const WAITLIST_ACTIVE_STATUSES = ["active", "availability_notification_sent", "retention_check_sent"];
 
 export default async function ResidenceApplicationsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ residence_id: string }>;
+  searchParams: Promise<{ app?: string }>;
 }) {
   const { residence_id: residenceId } = await params;
+  const { app: selectedId } = await searchParams;
   const sessionUser = await getSessionUser();
   if (!sessionUser) notFound();
   const admin = getSupabaseAdmin();
@@ -42,49 +29,110 @@ export default async function ResidenceApplicationsPage({
   const hasAccess = await assertResidenceAccess(admin, sessionUser.id, residenceId);
   if (!hasAccess) notFound();
 
-  const { data: applications } = await admin
-    .from("application_requests")
-    .select(
-      "id, status, desired_start_date, created_at, room_types(name), student_profiles(first_name, last_initial)",
-    )
-    .eq("residence_id", residenceId)
-    .order("created_at", { ascending: false });
+  const [{ data: residence }, { data: applications }, { data: waitlistEntries }] = await Promise.all([
+    admin.from("residences").select("name").eq("id", residenceId).maybeSingle(),
+    admin
+      .from("application_requests")
+      .select(
+        "id, status, contact_target, desired_start_date, initial_duration_months, academic_objective, rejection_reason_code, family_link_id, created_by_user_id, snapshot_original_id, room_type_id, expires_at, payment_deadline_at, created_at, room_types(name), student_profiles(first_name, last_initial, nationality, origin_city)",
+      )
+      .eq("residence_id", residenceId)
+      .order("created_at", { ascending: false }),
+    admin.from("waitlist_entries").select("room_type_id").eq("residence_id", residenceId).in("status", WAITLIST_ACTIVE_STATUSES),
+  ]);
+
+  const rows = applications ?? [];
+
+  const waitlistCountByType = new Map<string, number>();
+  for (const w of waitlistEntries ?? []) {
+    if (!w.room_type_id) continue;
+    waitlistCountByType.set(w.room_type_id, (waitlistCountByType.get(w.room_type_id) ?? 0) + 1);
+  }
+
+  const snapshotIds = [...new Set(rows.map((a) => a.snapshot_original_id).filter(Boolean))];
+  const { data: snapshots } = snapshotIds.length
+    ? await admin
+        .from("application_snapshots")
+        .select("id, monthly_price_usd, reservation_payment_amount_usd")
+        .in("id", snapshotIds)
+    : { data: [] };
+  const snapshotById = new Map((snapshots ?? []).map((s) => [s.id, s]));
+
+  const convertedIds = rows.filter((a) => a.status === "converted_to_reservation").map((a) => a.id);
+  const { data: reservations } = convertedIds.length
+    ? await admin.from("reservations").select("application_request_id, status").in("application_request_id", convertedIds)
+    : { data: [] };
+  const reservationStatusByAppId = new Map((reservations ?? []).map((r) => [r.application_request_id, r.status]));
+
+  const familyLinkIds = [...new Set(rows.filter((a) => a.contact_target === "family_member" && a.family_link_id).map((a) => a.family_link_id!))];
+  const { data: familyLinks } = familyLinkIds.length
+    ? await admin.from("family_links").select("id, family_members(phone)").in("id", familyLinkIds)
+    : { data: [] };
+  const phoneByFamilyLinkId = new Map(
+    (familyLinks ?? []).map((l) => [l.id, (l.family_members as unknown as { phone: string | null } | null)?.phone ?? null]),
+  );
+
+  const userIds = [...new Set(rows.filter((a) => a.contact_target !== "family_member").map((a) => a.created_by_user_id))];
+  const { data: users } = userIds.length ? await admin.from("users").select("id, phone").in("id", userIds) : { data: [] };
+  const phoneByUserId = new Map((users ?? []).map((u) => [u.id, u.phone]));
+
+  const fullApplications: FullApplication[] = rows.map((a) => {
+    const student = a.student_profiles as unknown as {
+      first_name: string;
+      last_initial: string;
+      nationality: string;
+      origin_city: string;
+    } | null;
+    const roomType = a.room_types as unknown as { name: string } | null;
+    const snapshot = snapshotById.get(a.snapshot_original_id) ?? null;
+    const reservationStatus = a.status === "converted_to_reservation" ? (reservationStatusByAppId.get(a.id) ?? null) : null;
+
+    const contactPhone =
+      a.contact_target === "family_member" && a.family_link_id
+        ? (phoneByFamilyLinkId.get(a.family_link_id) ?? null)
+        : (phoneByUserId.get(a.created_by_user_id) ?? null);
+
+    const whatsappUrl =
+      contactPhone && student
+        ? buildWhatsappUrl({
+            phone: contactPhone,
+            studentName: `${student.first_name} ${student.last_initial}`,
+            residenceName: residence?.name ?? "",
+            roomTypeName: roomType?.name ?? "",
+            desiredStartDate: a.desired_start_date,
+            durationMonths: a.initial_duration_months,
+            reservationAmountUsd: Number(snapshot?.reservation_payment_amount_usd ?? snapshot?.monthly_price_usd ?? 0),
+          })
+        : null;
+
+    return {
+      id: a.id,
+      status: a.status,
+      contactTarget: a.contact_target,
+      desiredStartDate: a.desired_start_date,
+      initialDurationMonths: a.initial_duration_months,
+      academicObjective: a.academic_objective,
+      roomTypeId: a.room_type_id,
+      roomTypeName: roomType?.name ?? null,
+      studentName: student ? `${student.first_name} ${student.last_initial}` : "Estudiante",
+      studentNationality: student?.nationality ?? null,
+      studentOriginCity: student?.origin_city ?? null,
+      expiresAt: a.expires_at,
+      paymentDeadlineAt: a.payment_deadline_at,
+      createdAt: a.created_at,
+      priceUsd: snapshot ? Number(snapshot.monthly_price_usd) : null,
+      reservationStatus,
+      whatsappUrl,
+      waitlistRelatedCount: a.room_type_id ? (waitlistCountByType.get(a.room_type_id) ?? 0) : 0,
+      isActive: (ACTIVE_APPLICATION_STATUSES as readonly string[]).includes(a.status),
+    };
+  });
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-14">
-      <h1 className="text-3xl font-bold text-ink">Solicitudes recibidas</h1>
-      <p className="mt-1 text-ink-soft">Revisá y respondé las solicitudes de reserva.</p>
-
-      {!applications || applications.length === 0 ? (
-        <EmptyState
-          icon="inbox"
-          title="Todavía no recibiste solicitudes"
-          description="Cuando un estudiante envíe una solicitud a esta residencia, va a aparecer acá."
-        />
-      ) : (
-        <div className="mt-8 space-y-4">
-          {applications.map((a) => {
-            const student = a.student_profiles as unknown as { first_name: string; last_initial: string } | null;
-            const roomType = a.room_types as unknown as { name: string } | null;
-            const badge = STATUS_COPY[a.status] ?? { label: a.status, tone: "neutral" as const };
-            return (
-              <Link key={a.id} href={`/residence/${residenceId}/applications/${a.id}`}>
-                <Card interactive className="flex flex-wrap items-center justify-between gap-3 p-5">
-                  <div>
-                    <p className="font-bold text-ink">
-                      {student?.first_name} {student?.last_initial}
-                    </p>
-                    <p className="text-sm text-ink-soft">
-                      {roomType?.name} · Ingreso {a.desired_start_date}
-                    </p>
-                  </div>
-                  <Badge tone={badge.tone}>{badge.label}</Badge>
-                </Card>
-              </Link>
-            );
-          })}
-        </div>
-      )}
-    </div>
+    <ApplicationsInbox
+      residenceId={residenceId}
+      applications={fullApplications}
+      initialSelectedId={selectedId ?? null}
+    />
   );
 }

@@ -349,7 +349,7 @@ export default async function ResidenceOverviewPage({
                     return (
                       <tr key={app.id} className="hover:bg-cream-2">
                         <td className="px-6 py-4 font-bold text-ink">
-                          <Link href={`/residence/${residenceId}/applications/${app.id}`} className="hover:underline">
+                          <Link href={`/residence/${residenceId}/applications?app=${app.id}`} className="hover:underline">
                             {app.student_profiles?.first_name} {app.student_profiles?.last_initial}.
                           </Link>
                         </td>
