@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
+import { linkStayToReservationIfMissing } from "@/lib/residents/linkReservation";
 
 export type ActivateResidentStayResult = { ok: true } | { ok: false; error: string };
 
@@ -30,7 +31,7 @@ export async function activateResidentStay(
 
   const { data: stay } = await admin
     .from("resident_stays")
-    .select("id, invite_email, student_profile_id, status")
+    .select("id, invite_email, student_profile_id, status, residence_id")
     .eq("id", params.residentStayId)
     .maybeSingle();
   if (!stay) return { ok: false, error: "No encontramos esa invitación." };
@@ -47,6 +48,14 @@ export async function activateResidentStay(
     console.error("[residents] activateResidentStay update failed:", error);
     return { ok: false, error: "No pudimos activar tu estadía. Intentá de nuevo." };
   }
+
+  // Si la residencia lo dio de alta antes de que existiera la cuenta (o la
+  // reserva), este es el momento de completar el vínculo con la reserva.
+  await linkStayToReservationIfMissing(admin, {
+    residentStayId: params.residentStayId,
+    residenceId: stay.residence_id,
+    studentProfileId: studentProfile.id,
+  });
 
   await createAuditLog(admin, {
     actorUserId: params.actorUserId,

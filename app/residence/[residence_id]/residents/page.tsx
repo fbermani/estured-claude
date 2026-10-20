@@ -4,6 +4,10 @@ import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { assertResidenceAccess } from "@/lib/residences/access";
 import { ResidentsBrowser, type ResidentsData } from "@/app/residence/[residence_id]/residents/ResidentsBrowser";
+import { RESIDENCE_OFFER_STATUS_COPY } from "@/lib/renewals/statusCopy";
+
+const ACTIVE_OFFER_STATUSES = new Set(["draft", "sent", "viewed"]);
+const PENDING_REQUEST_STATUSES = new Set(["created_by_student", "notified_to_residence"]);
 
 export const metadata: Metadata = { title: "Residentes" };
 export const dynamic = "force-dynamic";
@@ -35,7 +39,7 @@ export default async function ResidenceResidentsPage({
     admin
       .from("resident_stays")
       .select(
-        "id, status, invite_email, start_date, expected_end_date, monthly_rate_usd, room_id, bed_id, room_types(id, name, monthly_price_usd), student_profiles(first_name, last_initial, country_flag)",
+        "id, status, invite_email, start_date, expected_end_date, monthly_rate_usd, room_id, bed_id, reservation_id, room_types(id, name, monthly_price_usd), student_profiles(first_name, last_initial, country_flag)",
       )
       .eq("residence_id", residenceId)
       .eq("is_current", true)
@@ -90,11 +94,48 @@ export default async function ResidenceResidentsPage({
       monthly_rate_usd: number | null;
       room_id: string | null;
       bed_id: string | null;
+      reservation_id: string | null;
       room_types: { id: string; name: string; monthly_price_usd: number } | null;
       student_profiles: { first_name: string; last_initial: string; country_flag: string | null } | null;
     }[]) ?? [];
 
+  // Renovación por estadía, vía `resident_stays.reservation_id` (Ciclo 42):
+  // renewal_requests/renewal_offers cuelgan de la reserva, no de la estadía.
+  const linkedReservationIds = [...new Set(rawStays.map((s) => s.reservation_id).filter((id): id is string => !!id))];
+  const [{ data: linkedReservations }, { data: linkedRequests }, { data: linkedOffers }] = linkedReservationIds.length
+    ? await Promise.all([
+        admin.from("reservations").select("id, status").in("id", linkedReservationIds),
+        admin.from("renewal_requests").select("reservation_id, status").in("reservation_id", linkedReservationIds),
+        admin
+          .from("renewal_offers")
+          .select("reservation_id, status, created_at")
+          .in("reservation_id", linkedReservationIds)
+          .order("created_at", { ascending: false }),
+      ])
+    : [{ data: [] }, { data: [] }, { data: [] }];
+  const reservationStatusById = new Map((linkedReservations ?? []).map((r) => [r.id, r.status as string]));
+  const pendingRequestReservationIds = new Set(
+    (linkedRequests ?? []).filter((r) => PENDING_REQUEST_STATUSES.has(r.status)).map((r) => r.reservation_id),
+  );
+  const latestOfferStatusByReservation = new Map<string, string>();
+  for (const o of linkedOffers ?? []) {
+    if (!latestOfferStatusByReservation.has(o.reservation_id)) latestOfferStatusByReservation.set(o.reservation_id, o.status);
+  }
+
   const rows: ResidentsData["rows"] = rawStays.map((s) => {
+    let renewal: ResidentsData["rows"][number]["renewal"] = null;
+    if (s.reservation_id) {
+      const offerStatus = latestOfferStatusByReservation.get(s.reservation_id);
+      const offerCopy = offerStatus ? RESIDENCE_OFFER_STATUS_COPY[offerStatus] : null;
+      renewal = {
+        reservationId: s.reservation_id,
+        reservationConfirmed: reservationStatusById.get(s.reservation_id) === "confirmed",
+        hasActiveOffer: offerStatus ? ACTIVE_OFFER_STATUSES.has(offerStatus) : false,
+        studentRequested: pendingRequestReservationIds.has(s.reservation_id),
+        statusLabel: offerCopy?.label ?? (offerStatus ?? null),
+        statusTone: offerCopy?.tone ?? "neutral",
+      };
+    }
     const room = s.room_id ? roomById.get(s.room_id) : null;
     const bed = s.bed_id ? bedById.get(s.bed_id) : null;
     const pending = !s.student_profiles;
@@ -114,6 +155,7 @@ export default async function ResidenceResidentsPage({
       expectedEndDate: s.expected_end_date,
       rateUsd: s.monthly_rate_usd != null ? Number(s.monthly_rate_usd) : null,
       baseRateUsd: s.room_types ? Number(s.room_types.monthly_price_usd) : null,
+      renewal,
     };
   });
 

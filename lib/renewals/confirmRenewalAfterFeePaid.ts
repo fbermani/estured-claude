@@ -62,8 +62,9 @@ export async function confirmRenewalAfterFeePaid(
   // espera al confirmar una reserva (renovación incluida). Nunca lanza.
   await removeWaitlistEntriesOnConfirmedReservation(admin, { studentProfileId: offer.student_profile_id });
 
-  // Docs/06 §14.2/§15.1: extiende resident_stays.end_date al fin del
-  // período renovado (deuda documentada desde el Ciclo 30). Nunca lanza.
+  // Docs/06 §14.2/§15.1: extiende el contrato de la estadía
+  // (resident_stays.expected_end_date) al fin del período renovado.
+  // Nunca lanza.
   await extendResidentStayOnRenewal(admin, { reservationId: offer.reservation_id, newEndDate: offer.period_end_date });
 
   const [{ data: student }, { data: residence }, { data: payerUser }, { data: fullFeePayment }] = await Promise.all([

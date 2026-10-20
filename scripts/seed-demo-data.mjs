@@ -1212,6 +1212,9 @@ const { data: luciaResidentStay } = await admin
     invite_email: (await admin.from("users").select("email").eq("id", lucia.userId).single()).data.email,
     status: "active",
     start_date: "2026-07-20",
+    // Contrato hasta el fin de su renovación confirmada (renewalOffer7),
+    // como lo dejaría extendResidentStayOnRenewal en el flujo real.
+    expected_end_date: "2027-07-15",
   })
   .select("id")
   .single();

@@ -5,6 +5,7 @@ import { activateResidentStay } from "@/lib/residents/activateResidentStay";
 import { setResidentVisibility } from "@/lib/residents/setResidentVisibility";
 import { endResidentStay } from "@/lib/residents/endResidentStay";
 import { extendResidentStayOnRenewal } from "@/lib/residents/extendResidentStayOnRenewal";
+import { findLinkableReservationId, linkStayToReservationIfMissing } from "@/lib/residents/linkReservation";
 
 /**
  * Docs/05 §15, docs/06 §15.1 — residentes + comunidad visible (Ciclo
@@ -172,6 +173,54 @@ describe.skipIf(!hasCreds)("resident_stays (integración)", () => {
     expect(stay!.student_profile_id).toBeNull();
   });
 
+  it("createResidentStay: no vincula reservas de OTRA residencia (el estudiante tiene reserva, pero no acá)", async () => {
+    const { data: stay } = await admin
+      .from("resident_stays")
+      .select("reservation_id")
+      .eq("id", residentStayIds[0])
+      .single();
+    expect(stay!.reservation_id).toBeNull();
+  });
+
+  it("findLinkableReservationId: devuelve null si el estudiante no tiene reservas confirmadas en esa residencia", async () => {
+    await expect(findLinkableReservationId(admin, { residenceId, studentProfileId })).resolves.toBeNull();
+  });
+
+  it("linkStayToReservationIfMissing: completa el vínculo con la reserva única confirmada y no pisa uno existente", async () => {
+    // Usa la estadía real del seed (Lucía @ Río de la Plata, vinculada a su
+    // reserva confirmada): se desvincula, se re-vincula y se restaura en
+    // `finally` pase lo que pase.
+    const { data: seeded } = await admin
+      .from("resident_stays")
+      .select("id, residence_id, student_profile_id, reservation_id")
+      .eq("student_profile_id", studentProfileId)
+      .eq("is_current", true)
+      .not("reservation_id", "is", null)
+      .limit(1)
+      .maybeSingle();
+    if (!seeded) return; // sin seed demo no hay fixture.
+
+    try {
+      await admin.from("resident_stays").update({ reservation_id: null }).eq("id", seeded.id);
+      const linked = await linkStayToReservationIfMissing(admin, {
+        residentStayId: seeded.id,
+        residenceId: seeded.residence_id,
+        studentProfileId,
+      });
+      expect(linked).toBe(seeded.reservation_id);
+
+      // Ya vinculada: no la pisa ni devuelve nada.
+      const again = await linkStayToReservationIfMissing(admin, {
+        residentStayId: seeded.id,
+        residenceId: seeded.residence_id,
+        studentProfileId,
+      });
+      expect(again).toBeNull();
+    } finally {
+      await admin.from("resident_stays").update({ reservation_id: seeded.reservation_id }).eq("id", seeded.id);
+    }
+  });
+
   it("createResidentStay: rechaza un duplicado activo para el mismo email", async () => {
     const result = await createResidentStay(admin, {
       actorUserId: ownerId,
@@ -264,7 +313,7 @@ describe.skipIf(!hasCreds)("resident_stays (integración)", () => {
     ).resolves.toBeUndefined();
   });
 
-  it("extendResidentStayOnRenewal: extiende end_date cuando hay match por reservation_id", async () => {
+  it("extendResidentStayOnRenewal: extiende expected_end_date (Contrato hasta) y no toca end_date (salida real)", async () => {
     if (!someRealReservationId) return; // sin reservas reales en el dataset, no se puede armar el fixture.
 
     const { data: stay } = await admin
@@ -275,6 +324,7 @@ describe.skipIf(!hasCreds)("resident_stays (integración)", () => {
         reservation_id: someRealReservationId,
         status: "created_by_residence",
         is_current: true,
+        expected_end_date: "2026-08-12",
       })
       .select("id")
       .single();
@@ -282,7 +332,17 @@ describe.skipIf(!hasCreds)("resident_stays (integración)", () => {
 
     await extendResidentStayOnRenewal(admin, { reservationId: someRealReservationId, newEndDate: "2027-06-30" });
 
-    const { data: updated } = await admin.from("resident_stays").select("end_date").eq("id", stay!.id).single();
-    expect(updated!.end_date).toBe("2027-06-30");
+    const { data: updated } = await admin
+      .from("resident_stays")
+      .select("expected_end_date, end_date")
+      .eq("id", stay!.id)
+      .single();
+    expect(updated!.expected_end_date).toBe("2027-06-30");
+    expect(updated!.end_date).toBeNull();
+
+    // Nunca acorta un contrato ya más largo.
+    await extendResidentStayOnRenewal(admin, { reservationId: someRealReservationId, newEndDate: "2027-01-01" });
+    const { data: again } = await admin.from("resident_stays").select("expected_end_date").eq("id", stay!.id).single();
+    expect(again!.expected_end_date).toBe("2027-06-30");
   });
 });

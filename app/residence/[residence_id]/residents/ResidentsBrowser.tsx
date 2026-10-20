@@ -31,6 +31,15 @@ export type ResidentRow = {
   expectedEndDate: string | null;
   rateUsd: number | null;
   baseRateUsd: number | null;
+  /** Renovación vía `resident_stays.reservation_id`; `null` = estadía sin reserva de EstuRed vinculada. */
+  renewal: {
+    reservationId: string;
+    reservationConfirmed: boolean;
+    hasActiveOffer: boolean;
+    studentRequested: boolean;
+    statusLabel: string | null;
+    statusTone: "amber" | "sage" | "neutral" | "danger";
+  } | null;
 };
 
 export type ResidentNote = {
@@ -276,15 +285,53 @@ function DetailPanel({
           <p className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest text-forest-700">
             <Icon name="autorenew" className="text-sm" /> Renovación
           </p>
-          <p className="mt-1.5 text-xs text-ink-soft">
-            Las ofertas de renovación se gestionan desde su propio módulo.
-          </p>
-          <Link
-            href={`/residence/${residenceId}/renewals`}
-            className="mt-2 inline-block text-sm font-bold text-forest-700 hover:underline"
-          >
-            Ir a renovaciones →
-          </Link>
+          {row.renewal ? (
+            <>
+              <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                {!row.renewal.reservationConfirmed ? null : row.renewal.statusLabel ? (
+                  <Badge tone={row.renewal.statusTone}>{row.renewal.statusLabel}</Badge>
+                ) : row.renewal.studentRequested ? (
+                  <Badge tone="amber">Solicitó renovación</Badge>
+                ) : (
+                  <Badge tone="neutral">Sin oferta</Badge>
+                )}
+              </div>
+              {row.renewal.reservationConfirmed ? (
+                <>
+                  <p className="mt-1.5 text-xs text-ink-soft">
+                    {row.renewal.studentRequested && !row.renewal.hasActiveOffer
+                      ? "El residente pidió renovar: armá la oferta con las condiciones nuevas."
+                      : row.renewal.hasActiveOffer
+                        ? "Hay una oferta en curso para esta estadía."
+                        : "Ofrecé una renovación sobre la reserva de esta estadía."}
+                  </p>
+                  <Link
+                    href={`/residence/${residenceId}/renewals/${row.renewal.reservationId}`}
+                    className="mt-2 inline-block rounded-full bg-forest px-4 py-1.5 text-sm font-bold text-white hover:bg-forest-600"
+                  >
+                    {row.renewal.hasActiveOffer ? "Ver oferta de renovación" : "Iniciar renovación"}
+                  </Link>
+                </>
+              ) : (
+                <p className="mt-1.5 text-xs text-ink-soft">
+                  La reserva vinculada ya no está confirmada, así que no se puede ofrecer una renovación.
+                </p>
+              )}
+            </>
+          ) : (
+            <>
+              <p className="mt-1.5 text-xs text-ink-soft">
+                Esta estadía no está vinculada a una reserva confirmada de EstuRed (alta manual o sin reserva única), por
+                eso no se puede iniciar una renovación desde acá.
+              </p>
+              <Link
+                href={`/residence/${residenceId}/renewals`}
+                className="mt-2 inline-block text-sm font-bold text-forest-700 hover:underline"
+              >
+                Ir a renovaciones →
+              </Link>
+            </>
+          )}
         </div>
         <div className="rounded-field border border-danger-fg/30 bg-danger-bg/50 p-4">
           <p className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest text-danger-fg">
