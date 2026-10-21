@@ -7,6 +7,9 @@ import { Icon } from "@/components/ui/Icon";
 import { ProfileDetailsForm } from "@/app/students/profile/ProfileDetailsForm";
 import { DocumentUpload } from "@/app/students/profile/DocumentUpload";
 import { OtherDocumentsUpload } from "@/app/students/profile/OtherDocumentsUpload";
+import { CommunityVisibilityCard } from "@/app/students/profile/CommunityVisibilityCard";
+import { isMinorByBirthDate } from "@/lib/students/isMinorByBirthDate";
+import { allHidden, VISIBILITY_FLAG_COLUMNS, type VisibilityValues } from "@/lib/students/communityVisibilitySettings";
 import { FamilyLinkCard } from "@/app/students/profile/FamilyLinkCard";
 
 export const metadata: Metadata = { title: "Mi perfil" };
@@ -19,7 +22,7 @@ export default async function StudentProfilePage() {
 
   const { data: profile } = await admin
     .from("student_profiles")
-    .select("id, is_minor, nationality, study_institution_private, career, origin_city, bio, interests, habits")
+    .select("id, is_minor, birth_date, first_name, display_age, country_flag, nationality, study_institution_private, career, origin_city, bio, interests, habits")
     .eq("user_id", sessionUser.id)
     .maybeSingle();
   if (!profile) notFound();
@@ -78,6 +81,13 @@ export default async function StudentProfilePage() {
     .eq("status", "confirmed");
   const hasConfirmedReservation = (confirmedReservations ?? 0) > 0;
 
+  const { data: visibilityRow } = await admin
+    .from("student_visibility_settings")
+    .select(`is_individual_profile_visible, ${VISIBILITY_FLAG_COLUMNS.join(", ")}`)
+    .eq("student_profile_id", profile.id)
+    .maybeSingle();
+  const visibility = (visibilityRow as unknown as VisibilityValues | null) ?? allHidden();
+
   const interestsItems = (profile.interests as { items?: unknown } | null)?.items;
   const habitsItems = (profile.habits as { items?: unknown } | null)?.items;
 
@@ -102,6 +112,21 @@ export default async function StudentProfilePage() {
             habits={Array.isArray(habitsItems) ? (habitsItems as string[]) : []}
             hasIdentityDocument={types.has("student_identity")}
             hasAcademicProofDocument={types.has("student_academic_proof")}
+          />
+          <CommunityVisibilityCard
+            isMinor={isMinorByBirthDate(profile.birth_date)}
+            initial={visibility}
+            data={{
+              firstName: profile.first_name,
+              age: profile.display_age,
+              nationality: profile.nationality,
+              countryFlag: profile.country_flag,
+              career: profile.career,
+              originCity: profile.origin_city,
+              bio: profile.bio,
+              habits: Array.isArray(habitsItems) ? (habitsItems as string[]) : [],
+              interests: Array.isArray(interestsItems) ? (interestsItems as string[]) : [],
+            }}
           />
         </div>
 

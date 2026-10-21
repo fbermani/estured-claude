@@ -286,7 +286,10 @@ export function ProfileDetailsForm({
         </Card>
 
         <Card className="mt-4 p-5">
-          <h2 className="font-bold text-ink">Tu perfil de comunidad</h2>
+          <h2 className="font-bold text-ink">Sobre vos y tu convivencia</h2>
+          <p className="mt-1 text-xs text-ink-faint">
+            Quién ve esto lo elegís vos más abajo, en «Tu perfil en la comunidad».
+          </p>
 
           {/* "Sobre mí" — tratamiento destacado (Ciclo 37): jerarquía
               visual propia, ayuda + ejemplos + sugerencia en vivo, no

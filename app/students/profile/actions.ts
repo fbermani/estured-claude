@@ -7,6 +7,13 @@ import { getSessionUser } from "@/lib/auth/session";
 import { createAuditLog } from "@/lib/audit";
 import { COUNTRY_NAMES, FLAG_BY_COUNTRY } from "@/lib/data/latamCountries";
 import { UNIVERSITY_NAMES } from "@/lib/data/buenosAiresUniversities";
+import { isMinorByBirthDate } from "@/lib/students/isMinorByBirthDate";
+import {
+  VISIBILITY_FLAG_COLUMNS,
+  allHidden,
+  resolveVisibilityUpdate,
+  type VisibilityValues,
+} from "@/lib/students/communityVisibilitySettings";
 import {
   INTEREST_OPTIONS,
   HABIT_OPTIONS,
@@ -17,6 +24,7 @@ import {
 } from "@/lib/students/profileOptions";
 
 export type UpdateProfileState = { status: "idle" | "error" | "saved"; message?: string };
+export type CommunityVisibilityState = { status: "idle" | "error" | "saved"; message?: string };
 export type UploadDocumentState = { status: "idle" | "error" | "saved"; message?: string };
 
 const CONSENT_VERSION = "v0.1-borrador";
@@ -97,30 +105,11 @@ export async function updateStudentProfileDetails(
     return { status: "error", message: "No pudimos guardar los cambios. Intentá de nuevo." };
   }
 
-  // Por ahora el perfil de comunidad siempre es visible dentro del
-  // contexto correspondiente (pedido del dueño, Ciclo 37) — se sacó el
-  // checkbox del formulario, así que esto queda fijo en `true` en vez
-  // de leer un campo que ya no existe.
-  const { error: visibilityError } = await admin
-    .from("student_visibility_settings")
-    .update({ is_individual_profile_visible: true })
-    .eq("student_profile_id", profile.id);
-  if (visibilityError) {
-    console.error("[students/profile] visibility update failed:", visibilityError);
-    return { status: "error", message: "No pudimos guardar los cambios. Intentá de nuevo." };
-  }
-
+  // H04: guardar el perfil NO toca la visibilidad en la comunidad. Eso se
+  // decide aparte, a conciencia, con `updateCommunityVisibility`.
   const headerStore = await headers();
   const ip = headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
   const userAgent = headerStore.get("user-agent");
-  await admin.from("consents").insert({
-    user_id: sessionUser.id,
-    consent_type: "student_visibility",
-    version: CONSENT_VERSION,
-    ip_address: ip,
-    user_agent: userAgent,
-    metadata: { is_individual_profile_visible: true },
-  });
 
   await createAuditLog(admin, {
     actorUserId: sessionUser.id,
@@ -143,6 +132,107 @@ export async function updateStudentProfileDetails(
   revalidatePath("/students/profile");
   revalidatePath("/students/dashboard");
   return { status: "saved" };
+}
+
+/**
+ * H04 (Ciclo 49) — control del estudiante sobre su perfil en la comunidad
+ * (docs/00 §18, docs/10 §7.6 y §9.2). Interruptor maestro + 4 grupos de
+ * datos. La regla de menores se aplica ACÁ, server-side: el cliente solo la
+ * refleja deshabilitando los controles.
+ */
+export async function updateCommunityVisibility(
+  _prev: CommunityVisibilityState,
+  formData: FormData,
+): Promise<CommunityVisibilityState> {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) return { status: "error", message: "Tu sesión expiró. Volvé a iniciar sesión." };
+  const admin = getSupabaseAdmin();
+  if (!admin) return { status: "error", message: "No disponible en este momento. Probá más tarde." };
+
+  const { data: profile } = await admin
+    .from("student_profiles")
+    .select("id, birth_date")
+    .eq("user_id", sessionUser.id)
+    .maybeSingle();
+  if (!profile) return { status: "error", message: "No encontramos tu perfil de estudiante." };
+
+  const { data: currentRow } = await admin
+    .from("student_visibility_settings")
+    .select(`is_individual_profile_visible, ${VISIBILITY_FLAG_COLUMNS.join(", ")}`)
+    .eq("student_profile_id", profile.id)
+    .maybeSingle();
+  const current = (currentRow as unknown as VisibilityValues | null) ?? null;
+
+  const checked = (name: string) => formData.get(name) === "on";
+  const input: VisibilityValues = {
+    ...allHidden(),
+    is_individual_profile_visible: checked("community_master"),
+    show_age_to_registered: checked("show_age"),
+    show_nationality_to_registered: checked("show_nationality"),
+    show_career_to_registered: checked("show_career_origin"),
+    show_origin_city_to_registered: checked("show_career_origin"),
+    show_habits_to_registered: checked("show_habits_interests"),
+    show_interests_to_registered: checked("show_habits_interests"),
+  };
+
+  const resolved = resolveVisibilityUpdate({ isMinor: isMinorByBirthDate(profile.birth_date), input, current });
+  if (!resolved.ok) return { status: "error", message: resolved.error };
+
+  const { error } = await admin
+    .from("student_visibility_settings")
+    .upsert({ student_profile_id: profile.id, ...resolved.values }, { onConflict: "student_profile_id" });
+  if (error) {
+    console.error("[students/profile] visibility update failed:", error);
+    return { status: "error", message: "No pudimos guardar los cambios. Intentá de nuevo." };
+  }
+
+  const headerStore = await headers();
+  const ip = headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
+  const userAgent = headerStore.get("user-agent");
+
+  // El consentimiento se versiona solo cuando el estudiante lo ACTIVA. Si no
+  // se puede registrar, la visibilidad no queda activada: se revierte a lo
+  // que había. Apagar no genera consentimiento: la revocación queda en el
+  // audit log (docs/10 §7.6 pide auditoría de cambios, no un registro de
+  // consentimiento).
+  const wasVisible = current?.is_individual_profile_visible === true;
+  if (resolved.values.is_individual_profile_visible && !wasVisible) {
+    const { error: consentError } = await admin.from("consents").insert({
+      user_id: sessionUser.id,
+      consent_type: "student_visibility",
+      version: CONSENT_VERSION,
+      ip_address: ip,
+      user_agent: userAgent,
+      metadata: { is_individual_profile_visible: true, source: "profile" },
+    });
+    if (consentError) {
+      console.error("[students/profile] visibility consent insert failed:", consentError);
+      const { error: revertError } = await admin
+        .from("student_visibility_settings")
+        .upsert({ student_profile_id: profile.id, ...(current ?? allHidden()) }, { onConflict: "student_profile_id" });
+      if (revertError) console.error("[students/profile] visibility revert failed:", revertError);
+      return {
+        status: "error",
+        message: "No pudimos registrar tu consentimiento, así que tu perfil sigue sin aparecer. Intentá de nuevo.",
+      };
+    }
+  }
+
+  await createAuditLog(admin, {
+    actorUserId: sessionUser.id,
+    actorRole: "student",
+    action: "student_visibility_updated",
+    entityType: "student_visibility_settings",
+    entityId: profile.id,
+    oldValue: current,
+    newValue: resolved.values,
+    ipAddress: ip,
+    userAgent,
+  });
+
+  revalidatePath("/students/profile");
+  revalidatePath("/students/residency");
+  return { status: "saved", message: resolved.values.is_individual_profile_visible ? "Listo, tu perfil ya aparece en la comunidad." : "Listo, tu perfil no aparece en la comunidad." };
 }
 
 const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024;

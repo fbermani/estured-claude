@@ -139,6 +139,31 @@ export function RegisterStudentForm() {
           </label>
         </div>
 
+        {showMinorNotice ? (
+          <p className="flex items-start gap-2 rounded-field bg-sand-100 px-3.5 py-3 text-xs leading-relaxed text-ink-soft">
+            <Icon name="shield_person" className="mt-0.5 shrink-0 text-base" />
+            <span>
+              Mientras seas menor, tu perfil no aparece en la comunidad de ninguna residencia. Cuando cumplas 18 vas
+              a poder activarlo.
+            </span>
+          </p>
+        ) : (
+          <label className="flex items-start gap-3 rounded-field border border-line-2 p-4 text-sm text-ink">
+            <input type="checkbox" name="community_opt_in" className="mt-0.5 h-4 w-4 accent-forest" />
+            <span>
+              <span className="font-semibold">
+                Quiero aparecer en la comunidad de mi residencia cuando me aloje{" "}
+                <span className="font-normal text-ink-faint">(opcional)</span>
+              </span>
+              <span className="mt-1 block text-xs leading-relaxed text-ink-faint">
+                Otros usuarios registrados van a ver tu nombre de pila y tu texto «Sobre mí». Qué datos más se
+                muestran lo elegís después en tu perfil, y podés cambiarlo cuando quieras. Si no la marcás, solo se
+                ve que hay una plaza ocupada.
+              </span>
+            </span>
+          </label>
+        )}
+
         {state.status === "error" && (
           <p
             role="alert"

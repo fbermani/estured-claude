@@ -635,8 +635,8 @@ export function ResidentsBrowser({
       )}
 
       <p className="mt-4 text-xs text-ink-faint">
-        El residente controla su propia visibilidad en la comunidad pública; acá solo gestionás la operación de tu
-        residencia.
+        Cada residente decide si aparece en la comunidad y qué datos muestra; la residencia no puede cambiarlo.
+        Quien no activó su perfil se ve como «Plaza ocupada». Acá solo gestionás la operación de tu residencia.
       </p>
     </div>
   );

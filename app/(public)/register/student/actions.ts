@@ -46,6 +46,8 @@ export async function registerStudent(
   const password = String(formData.get("password") ?? "");
   const acceptTerms = formData.get("accept_terms") === "on";
   const acceptPrivacy = formData.get("accept_privacy") === "on";
+  // H04: casilla opcional y no premarcada. Solo cuenta para adultos.
+  const wantsCommunity = formData.get("community_opt_in") === "on";
 
   // Validación server-side (docs/11 §5.2) — el cliente nunca es confiable.
   // Paso 1 del alta (Ciclo 35): solo identidad + contacto. Nacionalidad,
@@ -74,6 +76,8 @@ export async function registerStudent(
   if (age < 14 || age > 90)
     return { status: "error", message: "Revisá la fecha de nacimiento." };
   const isMinor = age < 18;
+  // Menores: perfil de comunidad oculto y no modificable (docs/10 §9.2).
+  const communityOptIn = wantsCommunity && !isMinor;
 
   const admin = getSupabaseAdmin();
   if (!admin)
@@ -146,13 +150,14 @@ export async function registerStudent(
       .single();
     if (profileError || !profile) throw profileError;
 
-    // Visibilidad de comunidad: default privado hasta que el estudiante
-    // la active explícitamente al completar su perfil (paso 2).
+    // Visibilidad de comunidad: default privado. Solo se activa si un adulto
+    // marcó la casilla de consentimiento opcional (H04); los datos sueltos
+    // (`show_*`) quedan en false hasta que los elija en su perfil.
     const { error: visibilityError } = await admin
       .from("student_visibility_settings")
       .insert({
         student_profile_id: profile.id,
-        is_individual_profile_visible: false,
+        is_individual_profile_visible: communityOptIn,
       });
     if (visibilityError) throw visibilityError;
 
@@ -165,6 +170,15 @@ export async function registerStudent(
     const { error: consentError } = await admin.from("consents").insert([
       { ...consentBase, consent_type: "terms", metadata: {} },
       { ...consentBase, consent_type: "privacy", metadata: {} },
+      ...(communityOptIn
+        ? [
+            {
+              ...consentBase,
+              consent_type: "student_visibility",
+              metadata: { is_individual_profile_visible: true, source: "registration" },
+            },
+          ]
+        : []),
     ]);
     if (consentError) throw consentError;
 
@@ -174,7 +188,7 @@ export async function registerStudent(
       action: "student_registered",
       entityType: "users",
       entityId: userId,
-      newValue: { is_minor: isMinor },
+      newValue: { is_minor: isMinor, community_opt_in: communityOptIn },
       ipAddress: ip,
       userAgent,
     });

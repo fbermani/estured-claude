@@ -1,5 +1,6 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { isMinorByBirthDate } from "@/lib/students/isMinorByBirthDate";
 
 /**
  * Docs/05 §15 — reglas de visibilidad de comunidad. `guest` = no
@@ -72,6 +73,7 @@ type RawStay = {
   room_types: { id: string; name: string } | null;
   student_profiles:
     | ({
+        birth_date: string | null;
         first_name: string;
         display_age: number | null;
         nationality: string;
@@ -104,7 +106,7 @@ export async function getCommunityVisibility(
     admin
       .from("resident_stays")
       .select(
-        "id, status, student_profile_id, room_id, room_types(id, name), student_profiles(first_name, display_age, nationality, country_flag, origin_city, career, bio, habits, interests, student_visibility_settings(show_age_to_registered, show_nationality_to_registered, show_career_to_registered, show_origin_city_to_registered, show_habits_to_registered, show_interests_to_registered, is_individual_profile_visible))",
+        "id, status, student_profile_id, room_id, room_types(id, name), student_profiles(birth_date, first_name, display_age, nationality, country_flag, origin_city, career, bio, habits, interests, student_visibility_settings(show_age_to_registered, show_nationality_to_registered, show_career_to_registered, show_origin_city_to_registered, show_habits_to_registered, show_interests_to_registered, is_individual_profile_visible))",
       )
       .eq("residence_id", residenceId)
       .eq("is_current", true)
@@ -201,7 +203,14 @@ export async function getCommunityVisibility(
     const roomTypeName = row.room_types?.name ?? null;
     const roomId = row.room_id ?? null;
     const settings = row.student_profiles?.student_visibility_settings ?? null;
-    const canShowProfile = row.status === "active" && row.student_profiles && settings?.is_individual_profile_visible;
+    // H04: un menor nunca muestra perfil individual (docs/10 §9.2), aunque
+    // la fila tenga el maestro en true (datos viejos o cargados a mano). La
+    // edad sale de `birth_date` (sin fecha = menor), no del flag `is_minor`.
+    const canShowProfile =
+      row.status === "active" &&
+      row.student_profiles &&
+      !isMinorByBirthDate(row.student_profiles.birth_date) &&
+      settings?.is_individual_profile_visible;
     if (!canShowProfile || !row.student_profiles || !settings) {
       return { residentStayId: row.id, kind: "placeholder", roomTypeId, roomTypeName, roomId };
     }
@@ -228,7 +237,9 @@ export async function getCommunityVisibility(
       originCity: settings.show_origin_city_to_registered ? profile.origin_city : null,
       // La bio la escribe el estudiante para mostrarse; queda detrás del
       // master toggle is_individual_profile_visible (supuesto reversible —
-      // docs/06 §6.2 no define toggle propio para bio).
+      // docs/06 §6.2 no define toggle propio para bio). Nunca la ve un
+      // registrado si el perfil es de un menor (H04): ya no llega acá
+      // porque `canShowProfile` lo descarta.
       bio: profile.bio,
       habits: settings.show_habits_to_registered ? profile.habits : null,
       interests: settings.show_interests_to_registered ? profile.interests : null,
