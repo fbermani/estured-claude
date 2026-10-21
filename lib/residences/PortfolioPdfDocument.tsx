@@ -1,3 +1,4 @@
+import { formatDate } from "@/lib/dates/format";
 import "server-only";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import type { OwnerResidenceCardData } from "@/lib/residences/ownerDashboard";
@@ -60,7 +61,7 @@ export function PortfolioPdfDocument({
         <Text style={styles.title}>Reporte de tus residencias</Text>
         <Text style={styles.subtitle}>
           {residences.length} residencia{residences.length === 1 ? "" : "s"} · generado el{" "}
-          {new Date(generatedAt).toLocaleDateString("es-AR")}
+          {formatDate(generatedAt)}
         </Text>
         <Text style={styles.ownerLine}>Cuenta: {ownerEmail}</Text>
 

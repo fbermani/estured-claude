@@ -1,5 +1,6 @@
 "use client";
 
+import { formatDateOnly } from "@/lib/dates/formatDateOnly";
 import { Fragment, useMemo, useState, useEffect, useActionState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -62,13 +63,7 @@ export type ResidentsData = {
 
 const initialState: ResidentsActionState = { status: "idle" };
 
-const MONTHS = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
-function formatDate(dateStr: string | null): string {
-  if (!dateStr) return "—";
-  const [y, m, d] = dateStr.split("-").map(Number);
-  if (!y || !m || !d) return "—";
-  return `${d} ${MONTHS[m - 1]} ${y}`;
-}
+const formatDate = formatDateOnly;
 
 function timeAgo(isoStr: string): string {
   const diffMs = Date.now() - new Date(isoStr).getTime();

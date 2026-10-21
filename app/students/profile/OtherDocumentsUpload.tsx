@@ -1,5 +1,6 @@
 "use client";
 
+import { formatDate } from "@/lib/dates/format";
 import { useActionState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
@@ -33,7 +34,7 @@ export function OtherDocumentsUpload({ files }: { files: { id: string; filename:
               <Icon name="description" className="shrink-0 text-sm text-forest-700" />
               <span className="min-w-0 flex-1 truncate">{f.filename}</span>
               <span className="shrink-0 text-ink-faint">
-                {new Date(f.createdAt).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" })}
+                {formatDate(f.createdAt)}
               </span>
             </li>
           ))}

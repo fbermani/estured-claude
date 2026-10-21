@@ -7,7 +7,7 @@ import { Icon } from "@/components/ui/Icon";
 import { Input, Select, Textarea } from "@/components/ui/Input";
 import { updateStudentProfileDetails, type UpdateProfileState } from "@/app/students/profile/actions";
 import { computeProfileCompleteness } from "@/lib/students/profileCompleteness";
-import { LATAM_COUNTRIES } from "@/lib/data/latamCountries";
+import { LATAM_COUNTRIES, OTHER_COUNTRIES } from "@/lib/data/latamCountries";
 import { UNIVERSITY_NAMES } from "@/lib/data/buenosAiresUniversities";
 import {
   INTEREST_OPTIONS,
@@ -196,11 +196,20 @@ export function ProfileDetailsForm({
               onChange={(e) => setNationalityValue(e.target.value)}
             >
               <option value="">Elegí un país</option>
-              {LATAM_COUNTRIES.map((c) => (
-                <option key={c.name} value={c.name}>
-                  {c.flag} {c.name}
-                </option>
-              ))}
+              <optgroup label="Latinoamérica">
+                {LATAM_COUNTRIES.map((c) => (
+                  <option key={c.name} value={c.name}>
+                    {c.flag} {c.name}
+                  </option>
+                ))}
+              </optgroup>
+              <optgroup label="Resto del mundo">
+                {OTHER_COUNTRIES.map((c) => (
+                  <option key={c.name} value={c.name}>
+                    {c.flag} {c.name}
+                  </option>
+                ))}
+              </optgroup>
             </Select>
 
             <Input

@@ -70,6 +70,14 @@ export default async function StudentProfilePage() {
     .eq("status", "pending")
     .maybeSingle();
 
+  // H21: a quien ya tiene una reserva confirmada no se le habla de "aumentar tus probabilidades de ser aceptado".
+  const { count: confirmedReservations } = await admin
+    .from("reservations")
+    .select("id", { count: "exact", head: true })
+    .eq("student_profile_id", profile.id)
+    .eq("status", "confirmed");
+  const hasConfirmedReservation = (confirmedReservations ?? 0) > 0;
+
   const interestsItems = (profile.interests as { items?: unknown } | null)?.items;
   const habitsItems = (profile.habits as { items?: unknown } | null)?.items;
 
@@ -77,8 +85,9 @@ export default async function StudentProfilePage() {
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
       <h1 className="text-2xl font-bold text-ink">Mi perfil</h1>
       <p className="mt-1 text-sm text-ink-soft">
-        Completá estos datos para aumentar tus probabilidades de ser aceptado — las residencias ven
-        estudiantes con perfil completo como solicitudes más serias.
+        {hasConfirmedReservation
+          ? "Ya tenés una reserva confirmada. Mantené tus datos y documentos al día para tu estadía y futuras renovaciones."
+          : "Completá estos datos para que las residencias conozcan mejor tu solicitud — un perfil completo se lee como una solicitud más seria."}
       </p>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3 lg:items-start">

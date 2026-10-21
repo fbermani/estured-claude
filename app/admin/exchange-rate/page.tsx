@@ -1,3 +1,4 @@
+import { formatDateTime } from "@/lib/dates/format";
 import type { Metadata } from "next";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { cmd } from "@/components/admin/ui/tokens";
@@ -82,7 +83,7 @@ export default async function ExchangeRatePage() {
             )}
             {current.fetched_at && (
               <p className="mt-2 text-xs" style={{ color: cmd.outline }}>
-                Última actualización automática: {new Date(current.fetched_at).toLocaleString("es-AR")}
+                Última actualización automática: {formatDateTime(current.fetched_at)}
               </p>
             )}
           </>

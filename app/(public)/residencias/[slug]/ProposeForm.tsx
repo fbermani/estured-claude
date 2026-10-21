@@ -1,5 +1,6 @@
 "use client";
 
+import { formatShortName } from "@/lib/format/shortName";
 import { useActionState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input, Select, Textarea } from "@/components/ui/Input";
@@ -65,7 +66,7 @@ export function ProposeForm({
           </option>
           {students.map((s) => (
             <option key={s.id} value={s.id}>
-              {s.first_name} {s.last_initial}
+              {formatShortName(s.first_name, s.last_initial)}
             </option>
           ))}
         </Select>

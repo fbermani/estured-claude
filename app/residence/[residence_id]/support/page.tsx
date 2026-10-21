@@ -1,3 +1,4 @@
+import { formatDate } from "@/lib/dates/format";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
@@ -71,7 +72,7 @@ export default async function ResidenceSupportPage({
                 <Card key={c.id} className="p-5">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <Badge tone={badge.tone}>{badge.label}</Badge>
-                    <p className="text-xs text-ink-faint">{new Date(c.created_at).toLocaleDateString("es-AR")}</p>
+                    <p className="text-xs text-ink-faint">{formatDate(c.created_at)}</p>
                   </div>
                   <p className="mt-2 text-sm text-ink-soft">{c.description}</p>
                   {c.resolution_notes && (

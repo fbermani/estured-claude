@@ -293,7 +293,7 @@ export default async function StudentResidencyPage() {
               </div>
               <div>
                 <p className="text-xs text-ink-faint">Ingreso</p>
-                <p className="font-medium text-ink">{reservation.start_date}</p>
+                <p className="font-medium text-ink">{formatDateOnly(reservation.start_date)}</p>
               </div>
               <div>
                 <p className="text-xs text-ink-faint">{contract?.renewedUntil ? "Renovada hasta" : "Fin de contrato"}</p>

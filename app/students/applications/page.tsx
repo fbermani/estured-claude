@@ -1,3 +1,5 @@
+import { formatDateOnly } from "@/lib/dates/formatDateOnly";
+import { formatDate } from "@/lib/dates/format";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getSupabaseServer } from "@/lib/supabase/server";
@@ -72,7 +74,7 @@ export default async function StudentApplicationsPage() {
         <div className="min-w-0">
           <p className="truncate font-bold text-ink">{a.residences?.name}</p>
           <p className="text-sm text-ink-soft">
-            {a.room_types?.name} · Ingreso {a.desired_start_date}
+            {a.room_types?.name} · Ingreso {formatDateOnly(a.desired_start_date)}
           </p>
         </div>
         <Badge tone={copy.tone}>{copy.label}</Badge>
@@ -105,7 +107,7 @@ export default async function StudentApplicationsPage() {
           </div>
           <div>
             <dt className="text-xs text-ink-faint">Enviada</dt>
-            <dd className="font-semibold text-ink">{new Date(a.created_at).toLocaleDateString("es-AR")}</dd>
+            <dd className="font-semibold text-ink">{formatDate(a.created_at)}</dd>
           </div>
         </dl>
 

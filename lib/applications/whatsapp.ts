@@ -1,3 +1,5 @@
+import { formatDateOnly } from "@/lib/dates/formatDateOnly";
+
 /**
  * Botón de WhatsApp pre-formateado (docs/07 §15.3, docs/00 y docs/11:
  * PROHIBIDA cualquier integración de la API de WhatsApp Business — esto
@@ -14,11 +16,11 @@ export function buildWhatsappUrl(params: {
 }): string {
   const digits = params.phone.replace(/[^0-9]/g, "");
   const message =
-    `Hola! Te escribo por la solicitud de reserva en EstuRed.\n` +
+    `Hola, te escribimos de ${params.residenceName} por tu solicitud de reserva en EstuRed.\n` +
     `Estudiante: ${params.studentName}\n` +
     `Residencia: ${params.residenceName}\n` +
     `Tipo de habitación: ${params.roomTypeName}\n` +
-    `Fecha de ingreso deseada: ${params.desiredStartDate}\n` +
+    `Fecha de ingreso deseada: ${formatDateOnly(params.desiredStartDate)}\n` +
     `Duración: ${params.durationMonths} meses\n` +
     `Monto para reservar: USD ${params.reservationAmountUsd}`;
   return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;

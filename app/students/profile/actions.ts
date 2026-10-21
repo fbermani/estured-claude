@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { createAuditLog } from "@/lib/audit";
-import { LATAM_COUNTRY_NAMES, FLAG_BY_COUNTRY } from "@/lib/data/latamCountries";
+import { COUNTRY_NAMES, FLAG_BY_COUNTRY } from "@/lib/data/latamCountries";
 import { UNIVERSITY_NAMES } from "@/lib/data/buenosAiresUniversities";
 import {
   INTEREST_OPTIONS,
@@ -35,7 +35,7 @@ export async function updateStudentProfileDetails(
   // Ciclo 36 — igual se revalida server-side contra el whitelist, no
   // solo confiar en que el <select> del cliente no fue manipulado.
   const rawNationality = String(formData.get("nationality") ?? "").trim();
-  const nationality = LATAM_COUNTRY_NAMES.includes(rawNationality) ? rawNationality : "";
+  const nationality = COUNTRY_NAMES.includes(rawNationality) ? rawNationality : "";
   const countryFlag = nationality ? (FLAG_BY_COUNTRY[nationality] ?? null) : null;
 
   const universitySelect = String(formData.get("study_institution_select") ?? "").trim();

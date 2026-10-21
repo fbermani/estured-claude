@@ -29,3 +29,12 @@ export function roundUsd(value: number): number {
 export function roundArs(value: number): number {
   return Math.round(value / 500) * 500;
 }
+
+/**
+ * Conversión USD → ARS PARA MOSTRAR (auditoría 2026-10-20, H28): redondeada a
+ * 500/000 como pide docs/00 §13.5. Es solo presentación; los montos que se
+ * guardan en snapshots y fees siguen saliendo de `usdToArs`.
+ */
+export function usdToArsRounded(usd: number, arsPerUsd: number): number {
+  return roundArs(usdToArs(usd, arsPerUsd));
+}

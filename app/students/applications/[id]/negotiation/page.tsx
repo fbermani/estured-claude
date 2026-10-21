@@ -1,3 +1,4 @@
+import { formatDateOnly } from "@/lib/dates/formatDateOnly";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
@@ -95,7 +96,7 @@ export default async function NegotiationResponsePage({
     row(
       "Fecha de ingreso",
       "Original de tu solicitud",
-      proposal.proposed_start_date ? new Date(proposal.proposed_start_date).toLocaleDateString("es-AR") : null,
+      proposal.proposed_start_date ? formatDateOnly(proposal.proposed_start_date) : null,
     ),
     row(
       "Monto para reservar",

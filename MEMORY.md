@@ -1,6 +1,6 @@
 # MEMORY.md — Memoria persistente de EstuRed
 
-**Última actualización:** 2026-10-21 (Ciclo 47 — Auditoría Fase 1, ronda 2: H07 snapshot/comprobante, H14 verificación por número, H20 notificaciones, H22 sumar residencia)
+**Última actualización:** 2026-10-21 (Ciclo 48 — Auditoría Fase 1, pulido de interfaz: H21, H23, H24, H25, H28, H29, H30)
 
 > Bitácora ejecutiva viva. NO reemplaza la documentación estratégica de `/docs`
 > (los 23 archivos `00`–`22` son la fuente de verdad de producto). Leer este
@@ -1491,7 +1491,23 @@ Pendiente explícito para un ciclo futuro (a pedido del dueño, no bloqueante): 
 
 **Diferidos (anotados, NO hechos)**: idempotencia del doble submit en `addResidenceForOwner`; revertir el optimismo de la campana si falla el server; alta de residencias para owners con residencias sancionadas (consultar docs/06 §8.2); que el staff vea el nombre del familiar pagador en el PDF (confirmar con el dueño); guard de seeds como allow-list en vez de block-list; límite en el borde (WAF de Vercel sobre `/verify`); `.limit(1)` pendientes (`submitApplication` / `family_links`).
 
+## Ciclo 48. Fase 1 de la auditoría, pulido de interfaz — H21, H23, H24, H25, H28, H29, H30 (2026-10-21)
+
+Agente `interfaz`. Solo UI/copy: sin migraciones, sin server actions nuevas, sin cambios de estados. Única excepción mínima: `app/students/profile/actions.ts` valida la nacionalidad contra `COUNTRY_NAMES` (antes solo Latinoamérica) para que el selector ampliado funcione.
+
+- **H21**: `lib/data/latamCountries.ts` suma `OTHER_COUNTRIES` (29) y `COUNTRY_NAMES`; el selector agrupa "Latinoamérica" / "Resto del mundo". El encabezado de `/students/profile` cambia si hay reserva confirmada (no habla de "ser aceptado").
+- **H23**: `lib/residences/staleAvailability.ts` (lee `profile_availability`: `not_updated` u oculto de búsquedas; sin lógica de plazos nueva). Aviso en el Panel, en la tarjeta de `/residence/dashboard`, métrica "Residencias con disponibilidad vencida" en `/admin/dashboard` (enlaza a `/admin/residences?filter=stale-availability`) y badge en la lista admin. Demo opt-in: `node --env-file=.env.local scripts/seed-demo-stale-availability.mjs [--restore]` (deja Norte con tipos vencidos; restaurado al terminar la verificación).
+- **H24**: inbox agrupa por estado real (Nuevas / En contacto y pago / Con reserva / Pausadas / Otras / Cerradas, con `getVisibleStatus().isClosed`); la urgencia es una marca por fila ("Vence en X h"). Acciones solo en `submitted`/`under_review`; pausadas explican el motivo; "Tarifa solicitada" hasta que hay snapshot final; WhatsApp arranca con "Hola, te escribimos de [Residencia]…".
+- **H25**: `lib/format/auditActionLabels.ts` (frases + actor + origen) en la actividad del dashboard y en Registros (con la clave técnica en chico); "Fee cobrado" con ARS; pestaña "Cobrados" en `/admin/payments` (`PaidFeesView`); nuevo `/admin/residences/[id]` (estado, verificación, ocupación, disponibilidad, reservas, Soporte; solo lectura); rutas en el copy convertidas en enlaces; etiquetas de IVA, medio de pago y estado de documentos; en la tabla de solicitudes Estado queda 3.ª columna.
+- **H28**: `usdToArsRounded` (display) + `ExchangeRateNote` en `ResidenceCard` (precio fuera del `<Link>`), `ApplyForm`, `OwnerResidenceCard`, `RoomsBrowser`, propuestas de familiar, renovaciones y `AgreedConditionsCard`. Los montos guardados siguen saliendo de `usdToArs`.
+- **H29**: un solo formato: `lib/dates/formatDateOnly.ts` (DD/MM/AAAA, null-safe; `contractEnd` lo re-exporta; test actualizado) y `lib/dates/format.ts` (`formatDate`/`formatDateTime` en hora de Buenos Aires, sin segundos). `lib/format/shortName.ts` normaliza "Camila R." (la inicial ya trae el punto). Quedan fuera: "Lucia" sin tilde y slugs "-demo" (datos de seed, `base-datos`).
+- **H30**: `app/not-found.tsx` con marca (navbar + footer); `/r/:slug` → `/residencias/:slug` (redirect en `next.config.ts`, ruta oficial de docs/08 §3.1). `/waitlist` NO se tocó (fuera del routing oficial; sigue diciendo "EstuRed está llegando a CABA"): decisión de producto pendiente.
+
+**Validación**: typecheck ✅ · lint ✅ (mismos 12 warnings) · build ✅ (dev parado, `.next` borrado antes y después) · unitarios de lo tocado ✅ (shortName, dates, staleAvailability, auditActionLabels, contractEnd, receiptView, visibleStatus). Navegador con admin, Ricardo, Camila y Lucía (desktop y 375 px, sin overflow). No verificado: staff (Sofía), pausadas en el inbox (no hay dato demo), `ApplyForm` enviado.
+
 ## 14. Próxima tarea recomendada
+
+**Actualizado 2026-10-21 (Ciclo 48)**: Fase 1 cerrada en UI (H21, H23, H24, H25, H28, H29, H30). Siguiente: Fase 2 según D1–D11; decidir qué hacer con `/waitlist` pública.
 
 **Actualizado 2026-10-21 (Ciclo 47)**: Fase 1 ronda 2 cerrada en código (H07, H14, H20, H22). Falta de la Fase 1 para `constructor`/`interfaz`: H24 (inbox: acciones válidas por estado), H21/H23/H28/H29/H30 (pulido) y H25 (admin); H16 parte técnica ya hecha. Después, Fase 2 según las decisiones D1–D11. **Acción manual del dueño: aplicar la migración 0036 en estured-dev y en producción.** En dev también: `node --env-file=.env.local scripts/seed-demo-notifications.mjs` (opcional, deja notificaciones demo con enlace).
 

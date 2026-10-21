@@ -1,3 +1,4 @@
+import { formatDate } from "@/lib/dates/format";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
@@ -109,7 +110,7 @@ export default async function AdminSupportCasesPage({
                     <div className="flex items-center justify-between">
                       <AdminBadge tone={badge.tone}>{badge.label}</AdminBadge>
                       <span className="text-xs" style={{ color: cmd.outline }}>
-                        {new Date(c.created_at).toLocaleDateString("es-AR")}
+                        {formatDate(c.created_at)}
                       </span>
                     </div>
                     <p className="mt-1.5 text-sm font-bold" style={{ color: cmd.onSurface }}>

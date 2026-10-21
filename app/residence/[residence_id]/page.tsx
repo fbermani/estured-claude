@@ -1,3 +1,6 @@
+import { formatDateOnly } from "@/lib/dates/formatDateOnly";
+import { formatDate } from "@/lib/dates/format";
+import { formatShortName } from "@/lib/format/shortName";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -7,6 +10,7 @@ import { assertResidenceAccess } from "@/lib/residences/access";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
+import { getStaleAvailabilityByResidence, staleAvailabilityMessage } from "@/lib/residences/staleAvailability";
 import { getVisibleStatus } from "@/lib/applications/visibleStatus";
 import { loadReservationInfoByApplication } from "@/lib/applications/loadReservationInfo";
 
@@ -94,6 +98,9 @@ export default async function ResidenceOverviewPage({
     admin,
     recentApplications.filter((a) => a.status === "converted_to_reservation").map((a) => a.id),
   );
+  // H23: aviso cuando hay tipos de habitación con disponibilidad vencida u ocultos de las búsquedas.
+  const staleAvailability = (await getStaleAvailabilityByResidence(admin, [residenceId])).get(residenceId);
+  const availabilityNotice = staleAvailabilityMessage(staleAvailability);
   const capacity = capacityCount ?? 0;
   const occupancyPct = capacity > 0 ? Math.min(100, Math.round(((occupiedCount ?? 0) / capacity) * 100)) : 0;
   const renewalsNeedingAttention = (pendingRenewalRequestsCount ?? 0) + (pendingRenewalOffersCount ?? 0);
@@ -130,7 +137,7 @@ export default async function ResidenceOverviewPage({
   ]);
 
   const movementName = (m: MovementRow) =>
-    m.student_profiles ? `${m.student_profiles.first_name} ${m.student_profiles.last_initial}.` : (m.invite_email ?? "Residente");
+    m.student_profiles ? `${formatShortName(m.student_profiles.first_name, m.student_profiles.last_initial)}` : (m.invite_email ?? "Residente");
 
   const movements = [
     ...((arrivalsData as unknown as MovementRow[]) ?? []).map((m) => ({
@@ -249,6 +256,20 @@ export default async function ResidenceOverviewPage({
         </div>
       </div>
 
+      {availabilityNotice && (
+        <Link
+          href={`/residence/${residenceId}/availability`}
+          role="alert"
+          className="mt-6 flex items-start gap-3 rounded-card border-[1.5px] border-warning-fg/30 bg-warning-bg p-4 text-sm text-warning-fg hover:border-warning-fg/60"
+        >
+          <Icon name="warning" className="mt-0.5 shrink-0 text-xl" />
+          <span>
+            <span className="font-bold">Tu disponibilidad necesita una actualización. </span>
+            {availabilityNotice} <span className="font-bold underline">Ir a disponibilidad</span>
+          </span>
+        </Link>
+      )}
+
       <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {kpis.map((kpi) => (
           <Card key={kpi.title} className="flex flex-col justify-between p-5">
@@ -301,7 +322,7 @@ export default async function ResidenceOverviewPage({
                     <p className="truncate font-bold text-ink">{m.name}</p>
                     <p className="truncate text-xs text-ink-faint">
                       {m.kind === "ingreso" ? "Ingreso" : "Egreso"} · {m.room ?? "Sin habitación"} ·{" "}
-                      {new Date(`${m.date}T00:00:00`).toLocaleDateString("es-AR", { timeZone: "UTC" })}
+                      {formatDateOnly(m.date)}
                     </p>
                   </div>
                   <Badge tone={m.confirmed ? "sage" : "amber"}>{m.confirmed ? "Confirmado" : "Pendiente"}</Badge>
@@ -344,11 +365,11 @@ export default async function ResidenceOverviewPage({
                       <tr key={app.id} className="hover:bg-cream-2">
                         <td className="px-6 py-4 font-bold text-ink">
                           <Link href={`/residence/${residenceId}/applications?app=${app.id}`} className="hover:underline">
-                            {app.student_profiles?.first_name} {app.student_profiles?.last_initial}.
+                            {formatShortName(app.student_profiles?.first_name, app.student_profiles?.last_initial)}
                           </Link>
                         </td>
                         <td className="px-6 py-4 text-ink-soft">{app.room_types?.name ?? "—"}</td>
-                        <td className="px-6 py-4 text-ink-soft">{new Date(app.created_at).toLocaleDateString("es-AR")}</td>
+                        <td className="px-6 py-4 text-ink-soft">{formatDate(app.created_at)}</td>
                         <td className="px-6 py-4">
                           <Badge tone={badge.tone}>{badge.label}</Badge>
                         </td>

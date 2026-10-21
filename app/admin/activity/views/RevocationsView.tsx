@@ -1,3 +1,5 @@
+import { formatDateTime } from "@/lib/dates/format";
+import { formatShortName } from "@/lib/format/shortName";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
@@ -95,11 +97,11 @@ export async function RevocationsView() {
               return (
                 <tr key={r.id} style={{ borderBottom: `1px solid ${cmd.border}` }}>
                   <td className="px-4 py-2.5 whitespace-nowrap text-xs" style={{ color: cmd.outline }}>
-                    {r.cancelled_at ? new Date(r.cancelled_at).toLocaleString("es-AR") : "—"}
+                    {r.cancelled_at ? formatDateTime(r.cancelled_at) : "—"}
                   </td>
                   <td className="px-4 py-2.5 font-medium" style={{ color: cmd.onSurface }}>
                     {r.student_profiles
-                      ? `${r.student_profiles.first_name} ${r.student_profiles.last_initial}.`
+                      ? `${formatShortName(r.student_profiles.first_name, r.student_profiles.last_initial)}`
                       : "—"}
                     {log && (
                       <span className="block text-xs font-normal" style={{ color: cmd.outline }}>

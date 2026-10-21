@@ -1,5 +1,6 @@
 "use client";
 
+import { formatDate } from "@/lib/dates/format";
 import Image from "next/image";
 import { useActionState, useMemo, useState } from "react";
 import { useFormStatus } from "react-dom";
@@ -8,7 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Input, Select, Textarea } from "@/components/ui/Input";
 import { Icon } from "@/components/ui/Icon";
-import { formatArs, formatUsd, usdToArs } from "@/lib/mock/exchange";
+import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import {
   SERVICE_OPTIONS,
@@ -245,7 +246,7 @@ export function ResidenceProfileForm({
               <li key={e.fieldGroup}>
                 <Badge tone="amber">
                   {FIELD_GROUP_LABELS[e.fieldGroup] ?? e.fieldGroup} · enviado el{" "}
-                  {new Date(e.createdAt).toLocaleDateString("es-AR")}
+                  {formatDate(e.createdAt)}
                 </Badge>
               </li>
             ))}
@@ -594,7 +595,7 @@ export function ResidenceProfileForm({
                       onChange={(e) => updateRoomType(i, { monthlyPriceUsd: Number(e.target.value) })}
                       hint={
                         <>
-                          ≈ {formatArs(usdToArs(rt.monthlyPriceUsd, arsPerUsd))} referencial
+                          ≈ {formatArs(usdToArsRounded(rt.monthlyPriceUsd, arsPerUsd))} referencial
                           <ExchangeRateNote />
                         </>
                       }

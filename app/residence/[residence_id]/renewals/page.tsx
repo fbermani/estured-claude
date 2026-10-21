@@ -1,3 +1,5 @@
+import { formatDateOnly } from "@/lib/dates/formatDateOnly";
+import { formatShortName } from "@/lib/format/shortName";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -86,10 +88,10 @@ export default async function ResidenceRenewalsPage({
                 <Card interactive className="flex flex-wrap items-center justify-between gap-3 p-5">
                   <div>
                     <p className="font-bold text-ink">
-                      {student?.first_name} {student?.last_initial}
+                      {formatShortName(student?.first_name, student?.last_initial)}
                     </p>
                     <p className="text-sm text-ink-soft">
-                      {roomType?.name} · Ingreso {r.start_date} · {r.initial_duration_months} meses
+                      {roomType?.name} · Ingreso {formatDateOnly(r.start_date)} · {r.initial_duration_months} meses
                     </p>
                   </div>
                   {latestOffer ? (

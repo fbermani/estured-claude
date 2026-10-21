@@ -3,7 +3,9 @@ import { notFound } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
-import { formatArs, formatUsd, usdToArs } from "@/lib/mock/exchange";
+import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
+import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
+import { formatDateOnly } from "@/lib/students/contractEnd";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { FamilyProposalActions } from "@/app/students/family-proposals/FamilyProposalActions";
@@ -88,7 +90,7 @@ export default async function FamilyProposalsPage() {
                 <dl className="mt-4 space-y-1.5 text-sm">
                   <div className="flex justify-between">
                     <dt className="text-ink-faint">Fecha de ingreso propuesta</dt>
-                    <dd className="font-medium text-ink">{p.desired_start_date}</dd>
+                    <dd className="font-medium text-ink">{formatDateOnly(p.desired_start_date)}</dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-ink-faint">Duración propuesta</dt>
@@ -97,7 +99,8 @@ export default async function FamilyProposalsPage() {
                   <div className="flex justify-between">
                     <dt className="text-ink-faint">Precio referencial</dt>
                     <dd className="font-medium text-ink">
-                      {formatUsd(monthlyUsd)} ≈ {formatArs(usdToArs(monthlyUsd, rate.arsPerUsd))}
+                      {formatUsd(monthlyUsd)} ≈ {formatArs(usdToArsRounded(monthlyUsd, rate.arsPerUsd))}
+                      <ExchangeRateNote />
                     </dd>
                   </div>
                   <div className="flex justify-between">

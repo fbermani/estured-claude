@@ -1,3 +1,6 @@
+import { formatDateOnly } from "@/lib/dates/formatDateOnly";
+import { formatDate, formatDateTime } from "@/lib/dates/format";
+import { formatShortName } from "@/lib/format/shortName";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
@@ -104,12 +107,11 @@ export default async function AdminFamilyProposalsPage({
                     <div className="flex items-center justify-between">
                       <AdminBadge tone={badge.tone}>{badge.label}</AdminBadge>
                       <span className="text-xs" style={{ color: cmd.outline }}>
-                        {new Date(p.created_at).toLocaleDateString("es-AR")}
+                        {formatDate(p.created_at)}
                       </span>
                     </div>
                     <p className="mt-1.5 text-sm font-bold" style={{ color: cmd.onSurface }}>
-                      {p.family_members?.first_name} {p.family_members?.last_name} → {p.student_profiles?.first_name}{" "}
-                      {p.student_profiles?.last_initial}
+                      {p.family_members?.first_name} {p.family_members?.last_name} → {formatShortName(p.student_profiles?.first_name, p.student_profiles?.last_initial)}
                     </p>
                     <p className="text-xs" style={{ color: cmd.outline }}>
                       {p.residences?.name}
@@ -140,7 +142,7 @@ export default async function AdminFamilyProposalsPage({
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold" style={{ color: cmd.onSurface }}>
                 {detail.family_members?.first_name} {detail.family_members?.last_name} →{" "}
-                {detail.student_profiles?.first_name} {detail.student_profiles?.last_initial}
+                {formatShortName(detail.student_profiles?.first_name, detail.student_profiles?.last_initial)}
               </h2>
               <AdminBadge tone={(STATUS_BADGE[detail.status] ?? STATUS_BADGE.pending_student_approval).tone}>
                 {(STATUS_BADGE[detail.status] ?? STATUS_BADGE.pending_student_approval).label}
@@ -159,7 +161,7 @@ export default async function AdminFamilyProposalsPage({
               </div>
               <div className="flex justify-between">
                 <dt style={{ color: cmd.outline }}>Fecha de ingreso propuesta</dt>
-                <dd style={{ color: cmd.onSurface }}>{detail.desired_start_date}</dd>
+                <dd style={{ color: cmd.onSurface }}>{formatDateOnly(detail.desired_start_date)}</dd>
               </div>
               <div className="flex justify-between">
                 <dt style={{ color: cmd.outline }}>Duración propuesta</dt>
@@ -167,7 +169,7 @@ export default async function AdminFamilyProposalsPage({
               </div>
               <div className="flex justify-between">
                 <dt style={{ color: cmd.outline }}>Enviada</dt>
-                <dd style={{ color: cmd.onSurface }}>{new Date(detail.created_at).toLocaleString("es-AR")}</dd>
+                <dd style={{ color: cmd.onSurface }}>{formatDateTime(detail.created_at)}</dd>
               </div>
               <div className="flex justify-between">
                 <dt style={{ color: cmd.outline }}>Tiempo de respuesta</dt>

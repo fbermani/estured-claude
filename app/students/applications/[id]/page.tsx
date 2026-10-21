@@ -1,3 +1,5 @@
+import { formatDateOnly } from "@/lib/dates/formatDateOnly";
+import { formatDate } from "@/lib/dates/format";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getSupabaseServer } from "@/lib/supabase/server";
@@ -142,7 +144,7 @@ export default async function StudentApplicationDetailPage({
         <dl className="mt-6 space-y-3 text-sm">
           <div className="flex justify-between border-b border-sand-200 pb-2">
             <dt className="text-ink-faint">Fecha de ingreso deseada</dt>
-            <dd className="font-medium text-ink">{application.desired_start_date}</dd>
+            <dd className="font-medium text-ink">{formatDateOnly(application.desired_start_date)}</dd>
           </div>
           <div className="flex justify-between border-b border-sand-200 pb-2">
             <dt className="text-ink-faint">Duración estimada</dt>
@@ -151,7 +153,7 @@ export default async function StudentApplicationDetailPage({
           <div className="flex justify-between border-b border-sand-200 pb-2">
             <dt className="text-ink-faint">Enviada</dt>
             <dd className="font-medium text-ink">
-              {new Date(application.created_at).toLocaleDateString("es-AR")}
+              {formatDate(application.created_at)}
             </dd>
           </div>
         </dl>

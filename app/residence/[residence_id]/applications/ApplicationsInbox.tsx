@@ -1,5 +1,6 @@
 "use client";
 
+import { formatDateOnly } from "@/lib/dates/formatDateOnly";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
@@ -26,6 +27,8 @@ export type FullApplication = {
   paymentDeadlineAt: string | null;
   createdAt: string;
   priceUsd: number | null;
+  /** `true` cuando ya hay condiciones acordadas (snapshot final); antes la tarifa es la solicitada. */
+  priceAgreed: boolean;
   /** Reserva asociada (H01): su estado manda sobre el de la solicitud. */
   reservation: ReservationStatusInput | null;
   whatsappUrl: string | null;
@@ -57,59 +60,91 @@ function hoursUntil(iso: string): number {
   return (new Date(iso).getTime() - Date.now()) / (3600 * 1000);
 }
 
+/** "Vence en 5 h" / "Vence en menos de 1 h" / "Plazo vencido", solo si falta poco (H24: es una marca, no un grupo). */
+function urgencyLabel(app: FullApplication): string | null {
+  if (!app.isActive) return null;
+  const deadline = deadlineFor(app);
+  if (!deadline) return null;
+  const hours = hoursUntil(deadline);
+  if (hours > URGENT_WINDOW_HOURS) return null;
+  if (hours <= 0) return "Plazo vencido";
+  if (hours < 1) return "Vence en menos de 1 h";
+  return `Vence en ${Math.round(hours)} h`;
+}
+
 type Group = { key: string; label: string; entries: FullApplication[] };
 
+/**
+ * Agrupa por el ESTADO REAL (H24), no por urgencia: antes un mismo
+ * `contact_established` caía en "Próximas a vencer" o en "En negociación"
+ * según las horas que le quedaran, y "Cerradas" mezclaba reservas abiertas
+ * con solicitudes terminales. La urgencia pasa a ser una marca en cada fila
+ * y ordena dentro del grupo. "Cerrada" sale de `getVisibleStatus().isClosed`.
+ */
 function groupApplications(applications: FullApplication[]): Group[] {
-  const urgent: FullApplication[] = [];
-  const fresh: FullApplication[] = [];
-  const negotiation: FullApplication[] = [];
-  const other: FullApplication[] = [];
-  const closed: FullApplication[] = [];
+  const buckets: Record<string, FullApplication[]> = {
+    fresh: [],
+    negotiation: [],
+    reservation: [],
+    paused: [],
+    other: [],
+    closed: [],
+  };
 
   for (const app of applications) {
-    if (!app.isActive) {
-      closed.push(app);
-      continue;
-    }
-    const deadline = deadlineFor(app);
-    if (deadline && hoursUntil(deadline) <= URGENT_WINDOW_HOURS) {
-      urgent.push(app);
-    } else if (NEW_STATUSES.includes(app.status)) {
-      fresh.push(app);
-    } else if (NEGOTIATION_STATUSES.includes(app.status)) {
-      negotiation.push(app);
-    } else {
-      other.push(app);
-    }
+    const visible = visibleOf(app);
+    if (visible.isClosed) buckets.closed.push(app);
+    else if (app.status === "converted_to_reservation") buckets.reservation.push(app);
+    else if (app.status === "paused_due_to_other_active_request") buckets.paused.push(app);
+    else if (NEW_STATUSES.includes(app.status)) buckets.fresh.push(app);
+    else if (NEGOTIATION_STATUSES.includes(app.status)) buckets.negotiation.push(app);
+    else buckets.other.push(app);
   }
 
-  urgent.sort((a, b) => hoursUntil(deadlineFor(a)!) - hoursUntil(deadlineFor(b)!));
-  fresh.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  negotiation.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  other.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  closed.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  const byDeadlineThenRecent = (a: FullApplication, b: FullApplication) => {
+    const da = deadlineFor(a);
+    const db = deadlineFor(b);
+    if (da && db && da !== db) return new Date(da).getTime() - new Date(db).getTime();
+    if (da && !db) return -1;
+    if (!da && db) return 1;
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  };
+  const byRecent = (a: FullApplication, b: FullApplication) =>
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  buckets.fresh.sort(byDeadlineThenRecent);
+  buckets.negotiation.sort(byDeadlineThenRecent);
+  buckets.reservation.sort(byRecent);
+  buckets.paused.sort(byRecent);
+  buckets.other.sort(byRecent);
+  buckets.closed.sort(byRecent);
 
-  const groups: Group[] = [];
-  if (urgent.length) groups.push({ key: "urgent", label: "Próximas a vencer", entries: urgent });
-  if (fresh.length) groups.push({ key: "fresh", label: "Nuevas", entries: fresh });
-  if (negotiation.length) groups.push({ key: "negotiation", label: "En negociación", entries: negotiation });
-  if (other.length) groups.push({ key: "other", label: "Pausadas / otras activas", entries: other });
-  if (closed.length) groups.push({ key: "closed", label: "Cerradas", entries: closed });
-  return groups;
+  const LABELS: [string, string][] = [
+    ["fresh", "Nuevas"],
+    ["negotiation", "En contacto y pago"],
+    ["reservation", "Con reserva"],
+    ["paused", "Pausadas"],
+    ["other", "Otras activas"],
+    ["closed", "Cerradas"],
+  ];
+  return LABELS.filter(([key]) => buckets[key].length > 0).map(([key, label]) => ({
+    key,
+    label,
+    entries: buckets[key],
+  }));
 }
 
 function ListRow({
   app,
   selected,
-  urgent,
   onClick,
 }: {
   app: FullApplication;
   selected: boolean;
-  urgent: boolean;
   onClick: () => void;
 }) {
   const visible = visibleOf(app);
+  const urgency = urgencyLabel(app);
+  const urgent = urgency !== null;
   return (
     <button
       type="button"
@@ -127,8 +162,14 @@ function ListRow({
         <Badge tone={visible.tone}>{visible.label}</Badge>
       </div>
       <p className="mt-0.5 truncate text-xs text-ink-faint">
-        {app.roomTypeName ?? "Cualquier tipo"} · Ingreso {app.desiredStartDate}
+        {app.roomTypeName ?? "Cualquier tipo"} · Ingreso {formatDateOnly(app.desiredStartDate)}
       </p>
+      {urgency && (
+        <p className="mt-1 flex items-center gap-1 text-xs font-bold text-danger-fg">
+          <Icon name="schedule" className="text-sm" />
+          {urgency}
+        </p>
+      )}
     </button>
   );
 }
@@ -181,7 +222,6 @@ export function ApplicationsInbox({
                 key={app.id}
                 app={app}
                 selected={app.id === selectedId}
-                urgent={group.key === "urgent"}
                 onClick={() => setSelectedId(app.id)}
               />
             ))}
@@ -250,14 +290,14 @@ function ApplicationDetail({ residenceId, app }: { residenceId: string; app: Ful
       <dl className="mt-6 grid gap-3 text-sm sm:grid-cols-2">
         <div className="flex justify-between border-b border-sand-200 pb-2 sm:col-span-1">
           <dt className="text-ink-faint">Fecha de ingreso deseada</dt>
-          <dd className="font-medium text-ink">{app.desiredStartDate}</dd>
+          <dd className="font-medium text-ink">{formatDateOnly(app.desiredStartDate)}</dd>
         </div>
         <div className="flex justify-between border-b border-sand-200 pb-2 sm:col-span-1">
           <dt className="text-ink-faint">Duración estimada</dt>
           <dd className="font-medium text-ink">{app.initialDurationMonths} meses</dd>
         </div>
         <div className="flex justify-between border-b border-sand-200 pb-2 sm:col-span-1">
-          <dt className="text-ink-faint">Tarifa acordada</dt>
+          <dt className="text-ink-faint">{app.priceAgreed ? "Tarifa acordada" : "Tarifa solicitada"}</dt>
           <dd className="font-medium text-ink">{app.priceUsd !== null ? formatUsd(app.priceUsd) : "—"}</dd>
         </div>
         <div className="flex justify-between border-b border-sand-200 pb-2 sm:col-span-1">

@@ -1,3 +1,4 @@
+import { formatShortName } from "@/lib/format/shortName";
 import type { Metadata } from "next";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { cmd } from "@/components/admin/ui/tokens";
@@ -88,7 +89,7 @@ export default async function AdminCommunityPage() {
                         {s.rooms?.label ?? s.room_types?.name ?? "—"}
                       </td>
                       <td className="whitespace-nowrap px-4 py-3" style={{ color: cmd.onSurfaceVariant }}>
-                        {s.student_profiles ? `${s.student_profiles.first_name} ${s.student_profiles.last_initial}.` : "—"}
+                        {s.student_profiles ? `${formatShortName(s.student_profiles.first_name, s.student_profiles.last_initial)}` : "—"}
                       </td>
                       <td className="whitespace-nowrap px-4 py-3">
                         <AdminBadge tone={status.tone}>{status.label}</AdminBadge>

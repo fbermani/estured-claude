@@ -139,7 +139,7 @@ export default async function StudentRenewalsPage() {
                 <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm sm:grid-cols-4">
                   <div>
                     <dt className="text-xs text-ink-faint">Ingreso</dt>
-                    <dd className="font-semibold text-ink">{r.start_date}</dd>
+                    <dd className="font-semibold text-ink">{formatDateOnly(r.start_date)}</dd>
                   </div>
                   <div>
                     <dt className="text-xs text-ink-faint">Duración inicial</dt>

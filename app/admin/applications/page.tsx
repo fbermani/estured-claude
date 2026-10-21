@@ -1,3 +1,6 @@
+import { formatDateOnly } from "@/lib/dates/formatDateOnly";
+import { formatDate } from "@/lib/dates/format";
+import { formatShortName } from "@/lib/format/shortName";
 import type { Metadata } from "next";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
@@ -70,7 +73,7 @@ export default async function AdminApplicationsPage() {
         <table className="w-full text-left text-sm">
           <thead style={{ backgroundColor: cmd.surfaceContainerLow, borderBottom: `1px solid ${cmd.border}` }}>
             <tr>
-              {["Fecha", "Estudiante", "Residencia", "Tipo", "Ingreso deseado", "Estado", ""].map((h) => (
+              {["Fecha", "Estudiante", "Estado", "Residencia", "Tipo", "Ingreso deseado", ""].map((h) => (
                 <th
                   key={h}
                   className="px-4 py-2.5 text-[11px] font-bold uppercase tracking-wide"
@@ -93,10 +96,13 @@ export default async function AdminApplicationsPage() {
               return (
                 <tr key={a.id} style={{ borderBottom: `1px solid ${cmd.border}` }}>
                   <td className="px-4 py-2.5 whitespace-nowrap text-xs" style={{ color: cmd.outline }}>
-                    {new Date(a.created_at).toLocaleDateString("es-AR")}
+                    {formatDate(a.created_at)}
                   </td>
                   <td className="px-4 py-2.5 font-medium" style={{ color: cmd.onSurface }}>
-                    {a.student_profiles ? `${a.student_profiles.first_name} ${a.student_profiles.last_initial}.` : "—"}
+                    {a.student_profiles ? `${formatShortName(a.student_profiles.first_name, a.student_profiles.last_initial)}` : "—"}
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <AdminBadge tone={badgeTone}>{visible.label}</AdminBadge>
                   </td>
                   <td className="px-4 py-2.5" style={{ color: cmd.onSurfaceVariant }}>
                     {a.residences?.name}
@@ -110,10 +116,7 @@ export default async function AdminApplicationsPage() {
                     {a.room_types?.name ?? "—"}
                   </td>
                   <td className="px-4 py-2.5 text-xs" style={{ color: cmd.outline }}>
-                    {a.desired_start_date}
-                  </td>
-                  <td className="px-4 py-2.5">
-                    <AdminBadge tone={badgeTone}>{visible.label}</AdminBadge>
+                    {formatDateOnly(a.desired_start_date)}
                   </td>
                   <td className="px-4 py-2.5">
                     {REOPENABLE_STATUSES.includes(a.status) && <ReopenApplicationControl applicationId={a.id} />}

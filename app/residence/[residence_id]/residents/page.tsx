@@ -1,3 +1,4 @@
+import { formatShortName } from "@/lib/format/shortName";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
@@ -154,7 +155,7 @@ export default async function ResidenceResidentsPage({
     return {
       stayId: s.id,
       name: s.student_profiles
-        ? `${s.student_profiles.first_name} ${s.student_profiles.last_initial}.`
+        ? `${formatShortName(s.student_profiles.first_name, s.student_profiles.last_initial)}`
         : (s.invite_email ?? "Residente"),
       flag: s.student_profiles?.country_flag ?? null,
       email: s.invite_email,

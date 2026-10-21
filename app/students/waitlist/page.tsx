@@ -1,3 +1,4 @@
+import { formatDate } from "@/lib/dates/format";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getSupabaseServer } from "@/lib/supabase/server";
@@ -107,7 +108,7 @@ export default async function StudentWaitlistPage() {
                   </div>
                 </dl>
                 <p className="mt-3 text-xs text-ink-faint">
-                  En lista desde {new Date(entry.joined_at).toLocaleDateString("es-AR")}
+                  En lista desde {formatDate(entry.joined_at)}
                 </p>
 
                 <div className="mt-4 border-t border-line pt-4">

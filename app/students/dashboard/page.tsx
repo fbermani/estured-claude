@@ -1,3 +1,4 @@
+import { formatShortName } from "@/lib/format/shortName";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -128,7 +129,7 @@ export default async function StudentDashboardPage() {
               <Card key={l.id} className="flex items-center justify-between p-6">
                 <div>
                   <p className="font-bold text-ink">
-                    {l.student_profiles?.first_name} {l.student_profiles?.last_initial}
+                    {formatShortName(l.student_profiles?.first_name, l.student_profiles?.last_initial)}
                   </p>
                   <p className="text-sm text-ink-soft">
                     {l.status === "pending_student_approval"
@@ -171,7 +172,7 @@ export default async function StudentDashboardPage() {
                     <div>
                       <p className="text-sm font-semibold text-ink">{p.residences?.name}</p>
                       <p className="text-xs text-ink-faint">
-                        Para {p.student_profiles?.first_name} {p.student_profiles?.last_initial}
+                        Para {formatShortName(p.student_profiles?.first_name, p.student_profiles?.last_initial)}
                       </p>
                     </div>
                     <Badge tone={status.tone}>{status.label}</Badge>
@@ -673,7 +674,7 @@ export default async function StudentDashboardPage() {
                   </div>
                   <div>
                     <p className="text-xs text-ink-faint">Ingreso</p>
-                    <p className="font-medium text-ink">{reservation.start_date}</p>
+                    <p className="font-medium text-ink">{formatDateOnly(reservation.start_date)}</p>
                   </div>
                   <div>
                     <p className="text-xs text-ink-faint">{contract?.renewedUntil ? "Renovada hasta" : "Fin de contrato"}</p>

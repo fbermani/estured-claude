@@ -1,5 +1,8 @@
 "use client";
 
+import { ivaConditionLabel, paymentChannelLabel } from "@/lib/format/payerLabels";
+import { formatDateOnly } from "@/lib/dates/formatDateOnly";
+import { formatShortName } from "@/lib/format/shortName";
 import { useActionState } from "react";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminButton } from "@/components/admin/ui/AdminButton";
@@ -36,7 +39,7 @@ export function PaymentDetail({ feePayment, proofFileId }: { feePayment: FeePaym
     <form action={formAction} className="max-w-2xl space-y-6">
       <AdminCard className="p-6">
         <h2 className="text-lg font-bold" style={{ color: cmd.onSurface }}>
-          {reservation?.student_profiles?.first_name} {reservation?.student_profiles?.last_initial} —{" "}
+          {formatShortName(reservation?.student_profiles?.first_name, reservation?.student_profiles?.last_initial)} —{" "}
           {reservation?.residences?.name}
         </h2>
         <dl className="mt-4 space-y-2 text-sm">
@@ -52,11 +55,11 @@ export function PaymentDetail({ feePayment, proofFileId }: { feePayment: FeePaym
           </div>
           <div className="flex justify-between">
             <dt style={{ color: cmd.outline }}>Fecha de ingreso</dt>
-            <dd style={{ color: cmd.onSurface }}>{reservation?.start_date}</dd>
+            <dd style={{ color: cmd.onSurface }}>{formatDateOnly(reservation?.start_date)}</dd>
           </div>
           <div className="flex justify-between">
             <dt style={{ color: cmd.outline }}>Medio informado</dt>
-            <dd style={{ color: cmd.onSurface }}>{feePayment.payment_channel ?? "—"}</dd>
+            <dd style={{ color: cmd.onSurface }}>{paymentChannelLabel(feePayment.payment_channel)}</dd>
           </div>
           <div className="flex justify-between">
             <dt style={{ color: cmd.outline }}>Facturar a</dt>
@@ -66,7 +69,7 @@ export function PaymentDetail({ feePayment, proofFileId }: { feePayment: FeePaym
           </div>
           <div className="flex justify-between">
             <dt style={{ color: cmd.outline }}>Condición IVA</dt>
-            <dd style={{ color: cmd.onSurface }}>{feePayment.payer_iva_condition}</dd>
+            <dd style={{ color: cmd.onSurface }}>{ivaConditionLabel(feePayment.payer_iva_condition)}</dd>
           </div>
         </dl>
         {proofFileId ? (

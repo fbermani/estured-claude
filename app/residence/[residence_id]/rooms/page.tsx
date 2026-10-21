@@ -1,3 +1,4 @@
+import { formatShortName } from "@/lib/format/shortName";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
@@ -94,7 +95,7 @@ export default async function ResidenceRoomsPage({
       | null;
     if (profile)
       return {
-        name: `${profile.first_name} ${profile.last_initial}`,
+        name: `${formatShortName(profile.first_name, profile.last_initial)}`,
         pending: false,
         flag: profile.country_flag,
         nationality: profile.nationality,

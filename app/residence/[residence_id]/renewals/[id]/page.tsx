@@ -1,3 +1,6 @@
+import { formatDateOnly } from "@/lib/dates/formatDateOnly";
+import { formatDate, formatDateTime } from "@/lib/dates/format";
+import { formatShortName } from "@/lib/format/shortName";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
@@ -5,7 +8,8 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { assertResidenceAccess } from "@/lib/residences/access";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { formatUsd, formatArs } from "@/lib/mock/exchange";
+import { formatUsd, formatArs, roundArs } from "@/lib/mock/exchange";
+import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import { CreateOfferForm } from "@/app/residence/[residence_id]/renewals/[id]/CreateOfferForm";
 import { SendOfferButton } from "@/app/residence/[residence_id]/renewals/[id]/SendOfferButton";
 import { MarkResidencePaymentReceivedForm } from "@/app/residence/[residence_id]/renewals/[id]/MarkResidencePaymentReceivedForm";
@@ -72,10 +76,10 @@ export default async function ResidenceRenewalDetailPage({
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
       <h1 className="text-2xl font-bold text-ink">
-        Renovación — {student?.first_name} {student?.last_initial}
+        Renovación — {formatShortName(student?.first_name, student?.last_initial)}
       </h1>
       <p className="mt-1 text-sm text-ink-soft">
-        {roomType?.name} · Ingreso original {reservation.start_date} · {reservation.initial_duration_months} meses
+        {roomType?.name} · Ingreso original {formatDateOnly(reservation.start_date)} · {reservation.initial_duration_months} meses
       </p>
 
       {request && (
@@ -85,7 +89,7 @@ export default async function ResidenceRenewalDetailPage({
             <p className="mt-1 text-sm text-ink-soft">Duración deseada: {request.desired_duration_months} meses</p>
           )}
           {request.message && <p className="mt-1 text-sm text-ink-soft">&ldquo;{request.message}&rdquo;</p>}
-          <p className="mt-1 text-xs text-ink-faint">{new Date(request.created_at).toLocaleDateString("es-AR")}</p>
+          <p className="mt-1 text-xs text-ink-faint">{formatDate(request.created_at)}</p>
         </Card>
       )}
 
@@ -97,7 +101,7 @@ export default async function ResidenceRenewalDetailPage({
               <Card key={o.id} className="p-5">
                 <div className="flex items-center justify-between">
                   <p className="font-semibold text-ink">
-                    {o.period_start_date} → {o.period_end_date} ({o.duration_months} meses)
+                    {formatDateOnly(o.period_start_date)} → {formatDateOnly(o.period_end_date)} ({o.duration_months} meses)
                   </p>
                   <Badge tone={badge.tone}>{badge.label}</Badge>
                 </div>
@@ -108,14 +112,17 @@ export default async function ResidenceRenewalDetailPage({
                   </div>
                   <div>
                     <dt className="text-ink-faint">Fee EstuRed estimado</dt>
-                    <dd className="font-medium text-ink">{formatArs(Number(o.estimated_estured_fee_ars))}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-ink-faint">Fecha límite para responder</dt>
                     <dd className="font-medium text-ink">
-                      {new Date(o.acceptance_deadline_at).toLocaleString("es-AR")}
+                      ≈ {formatArs(roundArs(Number(o.estimated_estured_fee_ars)))}
+                      <ExchangeRateNote />
                     </dd>
                   </div>
+                  {["draft", "sent", "viewed"].includes(o.status) && (
+                    <div>
+                      <dt className="text-ink-faint">Fecha límite para responder</dt>
+                      <dd className="font-medium text-ink">{formatDateTime(o.acceptance_deadline_at)}</dd>
+                    </div>
+                  )}
                 </dl>
                 {o.status === "draft" && (
                   <div className="mt-4">

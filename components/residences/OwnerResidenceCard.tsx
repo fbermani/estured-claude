@@ -4,7 +4,8 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
-import { formatArs, formatUsd, usdToArs } from "@/lib/mock/exchange";
+import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
+import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 
 type StatusTone = "neutral" | "amber" | "sage";
 
@@ -34,6 +35,7 @@ export function OwnerResidenceCard({
   renewalsPending,
   supportOpen,
   avgPriceUsd,
+  availabilityNotice,
   arsPerUsd,
 }: {
   residenceId: string;
@@ -49,6 +51,7 @@ export function OwnerResidenceCard({
   renewalsPending: number;
   supportOpen: number;
   avgPriceUsd: number | null;
+  availabilityNotice: string | null;
   arsPerUsd: number;
 }) {
   const occupancyPct = capacity > 0 ? Math.min(100, Math.round((occupied / capacity) * 100)) : 0;
@@ -89,6 +92,18 @@ export function OwnerResidenceCard({
           {zone}
         </p>
 
+        {availabilityNotice && (
+          <Link
+            href={`${href}/availability`}
+            className="mt-3 flex items-start gap-2 rounded-field border-[1.5px] border-warning-fg/30 bg-warning-bg px-3 py-2.5 text-xs font-semibold leading-snug text-warning-fg hover:border-warning-fg/60"
+          >
+            <Icon name="warning" className="mt-px shrink-0 text-base" />
+            <span>
+              {availabilityNotice} <span className="underline">Actualizar disponibilidad</span>
+            </span>
+          </Link>
+        )}
+
         <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
           <div>
             <p className="text-xs font-bold uppercase tracking-wide text-ink-faint">Ocupación</p>
@@ -120,7 +135,10 @@ export function OwnerResidenceCard({
             {avgPriceUsd ? (
               <>
                 <p className="font-bold text-ink">{formatUsd(avgPriceUsd)}</p>
-                <p className="text-xs text-ink-faint">≈ {formatArs(usdToArs(avgPriceUsd, arsPerUsd))}</p>
+                <p className="text-xs text-ink-faint">
+                  ≈ {formatArs(usdToArsRounded(avgPriceUsd, arsPerUsd))} referencial
+                  <ExchangeRateNote />
+                </p>
               </>
             ) : (
               <p className="text-sm text-ink-soft">Sin tipos cargados</p>

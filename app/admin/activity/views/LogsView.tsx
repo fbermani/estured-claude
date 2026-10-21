@@ -1,3 +1,5 @@
+import { auditActionPhrase, auditActorLabel, auditSourceLabel } from "@/lib/format/auditActionLabels";
+import { formatDateTime } from "@/lib/dates/format";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
@@ -143,13 +145,16 @@ export async function LogsView({
             {logs.map((log) => (
               <tr key={log.id} style={{ borderBottom: `1px solid ${cmd.border}` }}>
                 <td className="px-4 py-2.5 whitespace-nowrap text-xs" style={{ color: cmd.outline }}>
-                  {new Date(log.created_at).toLocaleString("es-AR")}
+                  {formatDateTime(log.created_at)}
                 </td>
                 <td className="px-4 py-2.5 font-medium" style={{ color: cmd.onSurface }}>
-                  {log.actor_role}
+                  {auditActorLabel(log.actor_role)}
                 </td>
                 <td className="px-4 py-2.5" style={{ color: cmd.onSurfaceVariant }}>
-                  {log.action}
+                  {auditActionPhrase(log.action)}
+                  <span className="block font-mono text-[11px]" style={{ color: cmd.outline }}>
+                    {log.action}
+                  </span>
                   {log.reason_text && (
                     <span className="block text-xs" style={{ color: cmd.outline }}>
                       {log.reason_text}
@@ -161,7 +166,7 @@ export async function LogsView({
                   {log.entity_id && `:${log.entity_id.slice(0, 8)}`}
                 </td>
                 <td className="px-4 py-2.5">
-                  <AdminBadge tone={SOURCE_TONE[log.source] ?? "neutral"}>{log.source}</AdminBadge>
+                  <AdminBadge tone={SOURCE_TONE[log.source] ?? "neutral"}>{auditSourceLabel(log.source)}</AdminBadge>
                 </td>
               </tr>
             ))}

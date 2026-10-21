@@ -1,3 +1,4 @@
+import { formatShortName } from "@/lib/format/shortName";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
@@ -35,7 +36,7 @@ export default async function ResidenceApplicationsPage({
     admin
       .from("application_requests")
       .select(
-        "id, status, contact_target, desired_start_date, initial_duration_months, academic_objective, rejection_reason_code, family_link_id, created_by_user_id, snapshot_original_id, room_type_id, expires_at, payment_deadline_at, created_at, room_types(name), student_profiles(first_name, last_initial, nationality, origin_city)",
+        "id, status, contact_target, desired_start_date, initial_duration_months, academic_objective, rejection_reason_code, family_link_id, created_by_user_id, snapshot_original_id, snapshot_final_id, room_type_id, expires_at, payment_deadline_at, created_at, room_types(name), student_profiles(first_name, last_initial, nationality, origin_city)",
       )
       .eq("residence_id", residenceId)
       .order("created_at", { ascending: false }),
@@ -50,7 +51,7 @@ export default async function ResidenceApplicationsPage({
     waitlistCountByType.set(w.room_type_id, (waitlistCountByType.get(w.room_type_id) ?? 0) + 1);
   }
 
-  const snapshotIds = [...new Set(rows.map((a) => a.snapshot_original_id).filter(Boolean))];
+  const snapshotIds = [...new Set(rows.flatMap((a) => [a.snapshot_original_id, a.snapshot_final_id]).filter(Boolean))];
   const { data: snapshots } = snapshotIds.length
     ? await admin
         .from("application_snapshots")
@@ -85,7 +86,8 @@ export default async function ResidenceApplicationsPage({
       origin_city: string;
     } | null;
     const roomType = a.room_types as unknown as { name: string } | null;
-    const snapshot = snapshotById.get(a.snapshot_original_id) ?? null;
+    // H24: la tarifa es "acordada" solo cuando hay snapshot final; antes es la solicitada.
+    const snapshot = snapshotById.get(a.snapshot_final_id ?? a.snapshot_original_id) ?? null;
     const reservationInfo = reservationInfoByAppId.get(a.id) ?? null;
 
     const contactPhone =
@@ -97,7 +99,7 @@ export default async function ResidenceApplicationsPage({
       contactPhone && student
         ? buildWhatsappUrl({
             phone: contactPhone,
-            studentName: `${student.first_name} ${student.last_initial}`,
+            studentName: `${formatShortName(student.first_name, student.last_initial)}`,
             residenceName: residence?.name ?? "",
             roomTypeName: roomType?.name ?? "",
             desiredStartDate: a.desired_start_date,
@@ -115,13 +117,14 @@ export default async function ResidenceApplicationsPage({
       academicObjective: a.academic_objective,
       roomTypeId: a.room_type_id,
       roomTypeName: roomType?.name ?? null,
-      studentName: student ? `${student.first_name} ${student.last_initial}` : "Estudiante",
+      studentName: student ? `${formatShortName(student.first_name, student.last_initial)}` : "Estudiante",
       studentNationality: student?.nationality ?? null,
       studentOriginCity: student?.origin_city ?? null,
       expiresAt: a.expires_at,
       paymentDeadlineAt: a.payment_deadline_at,
       createdAt: a.created_at,
       priceUsd: snapshot ? Number(snapshot.monthly_price_usd) : null,
+      priceAgreed: Boolean(a.snapshot_final_id),
       reservation: reservationInfo
         ? {
             status: reservationInfo.status,

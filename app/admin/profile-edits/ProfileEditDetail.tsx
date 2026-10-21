@@ -1,5 +1,6 @@
 "use client";
 
+import { formatDateTime } from "@/lib/dates/format";
 import Image from "next/image";
 import Link from "next/link";
 import { useActionState } from "react";
@@ -77,7 +78,7 @@ export function ProfileEditDetail({
           {residenceZone ?? "Zona sin definir"} · campo: <strong>{FIELD_GROUP_LABELS[fieldGroup] ?? fieldGroup}</strong>
         </p>
         <p className="mt-1 text-xs" style={{ color: cmd.outline }}>
-          Enviado por {submittedByEmail ?? "—"} el {new Date(createdAt).toLocaleString("es-AR")}
+          Enviado por {submittedByEmail ?? "—"} el {formatDateTime(createdAt)}
         </p>
       </AdminCard>
 

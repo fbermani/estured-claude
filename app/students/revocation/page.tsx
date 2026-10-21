@@ -1,3 +1,4 @@
+import { formatDate } from "@/lib/dates/format";
 import type { Metadata } from "next";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth/session";
@@ -82,7 +83,7 @@ export default async function RevocationPage() {
                   </Badge>
                 </div>
                 <p className="mt-1 text-xs text-ink-faint">
-                  Fee pagado el {paidAt.toLocaleDateString("es-AR")}.
+                  Fee pagado el {formatDate(paidAt)}.
                 </p>
 
                 {withinWindow ? (

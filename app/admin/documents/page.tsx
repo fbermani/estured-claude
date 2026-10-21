@@ -1,3 +1,4 @@
+import { formatDate } from "@/lib/dates/format";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
@@ -24,6 +25,15 @@ const DOCUMENT_TYPE_LABELS: Record<string, string> = {
   residence_photo: "Foto de residencia",
   residence_rules_document: "Reglamento de residencia",
   other: "Otro",
+};
+
+const DOCUMENT_STATUS_LABELS: Record<string, string> = {
+  uploaded: "Subido",
+  pending_review: "Pendiente de revisión",
+  approved: "Aprobado",
+  rejected: "Rechazado",
+  expired: "Vencido",
+  archived: "Archivado",
 };
 
 const SENSITIVE_TYPES = new Set(Object.keys(DOCUMENT_TYPE_LABELS).filter((t) => t !== "residence_photo"));
@@ -158,14 +168,14 @@ export default async function AdminDocumentsPage({
                       </td>
                       <td className="whitespace-nowrap px-4 py-3">
                         <AdminBadge tone={f.status === "approved" ? "emerald" : f.status === "rejected" ? "rose" : "amber"}>
-                          {f.status}
+                          {DOCUMENT_STATUS_LABELS[f.status] ?? "En revisión"}
                         </AdminBadge>
                       </td>
                       <td className="whitespace-nowrap px-4 py-3" style={{ color: cmd.outline }}>
                         {f.users?.email ?? "—"}
                       </td>
                       <td className="whitespace-nowrap px-4 py-3" style={{ color: cmd.outline }}>
-                        {new Date(f.created_at).toLocaleDateString("es-AR")}
+                        {formatDate(f.created_at)}
                       </td>
                       <td className="whitespace-nowrap px-4 py-3">
                         {isSensitive ? (

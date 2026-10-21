@@ -75,13 +75,8 @@ export function addMonthsIso(dateStr: string, months: number): string {
   return toIso(result.getUTCFullYear(), result.getUTCMonth() + 1, result.getUTCDate());
 }
 
-/** "20/1/2027" (es-AR, en UTC). Devuelve "—" si la fecha no es válida. */
-export function formatDateOnly(dateStr: string | null | undefined): string {
-  if (!dateStr) return "—";
-  const parsed = parseDateOnly(dateStr);
-  if (!parsed) return "—";
-  return new Date(Date.UTC(parsed.y, parsed.m - 1, parsed.d)).toLocaleDateString("es-AR", { timeZone: "UTC" });
-}
+/** "20/01/2027". Formato único de fechas date-only (H29): ver `lib/dates/formatDateOnly.ts`. */
+export { formatDateOnly } from "@/lib/dates/formatDateOnly";
 
 /**
  * Días de calendario que faltan hasta `dateStr`, contando "hoy" en

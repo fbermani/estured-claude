@@ -1,3 +1,6 @@
+import { formatDateOnly } from "@/lib/dates/formatDateOnly";
+import { formatDate } from "@/lib/dates/format";
+import { formatShortName } from "@/lib/format/shortName";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
@@ -103,10 +106,10 @@ export async function RenewalsView() {
               return (
                 <tr key={r.id} style={{ borderBottom: `1px solid ${cmd.border}` }}>
                   <td className="px-4 py-2.5 whitespace-nowrap text-xs" style={{ color: cmd.outline }}>
-                    {new Date(r.created_at).toLocaleDateString("es-AR")}
+                    {formatDate(r.created_at)}
                   </td>
                   <td className="px-4 py-2.5 font-medium" style={{ color: cmd.onSurface }}>
-                    {r.student_profiles ? `${r.student_profiles.first_name} ${r.student_profiles.last_initial}.` : "—"}
+                    {r.student_profiles ? `${formatShortName(r.student_profiles.first_name, r.student_profiles.last_initial)}` : "—"}
                   </td>
                   <td className="px-4 py-2.5" style={{ color: cmd.onSurfaceVariant }}>
                     {r.residences?.name}
@@ -156,10 +159,10 @@ export async function RenewalsView() {
               return (
                 <tr key={o.id} style={{ borderBottom: `1px solid ${cmd.border}` }}>
                   <td className="px-4 py-2.5 whitespace-nowrap text-xs" style={{ color: cmd.outline }}>
-                    {new Date(o.created_at).toLocaleDateString("es-AR")}
+                    {formatDate(o.created_at)}
                   </td>
                   <td className="px-4 py-2.5 font-medium" style={{ color: cmd.onSurface }}>
-                    {o.student_profiles ? `${o.student_profiles.first_name} ${o.student_profiles.last_initial}.` : "—"}
+                    {o.student_profiles ? `${formatShortName(o.student_profiles.first_name, o.student_profiles.last_initial)}` : "—"}
                   </td>
                   <td className="px-4 py-2.5" style={{ color: cmd.onSurfaceVariant }}>
                     {o.residences?.name}
@@ -170,7 +173,7 @@ export async function RenewalsView() {
                     )}
                   </td>
                   <td className="px-4 py-2.5 text-xs" style={{ color: cmd.outline }}>
-                    {o.period_start_date}
+                    {formatDateOnly(o.period_start_date)}
                   </td>
                   <td className="px-4 py-2.5" style={{ color: cmd.onSurfaceVariant }}>
                     {o.monthly_price_usd}

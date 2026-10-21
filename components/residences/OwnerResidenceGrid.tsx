@@ -20,6 +20,7 @@ type CardData = {
   renewalsPending: number;
   supportOpen: number;
   avgPriceUsd: number | null;
+  availabilityNotice: string | null;
 };
 
 /**

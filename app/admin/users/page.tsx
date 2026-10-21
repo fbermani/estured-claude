@@ -1,3 +1,4 @@
+import { formatDate } from "@/lib/dates/format";
 import type { Metadata } from "next";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
@@ -100,10 +101,10 @@ export default async function AdminUsersPage({
                   {ROLE_LABEL[u.primary_role] ?? u.primary_role}
                 </td>
                 <td className="px-4 py-2.5 text-xs" style={{ color: cmd.outline }}>
-                  {new Date(u.created_at).toLocaleDateString("es-AR")}
+                  {formatDate(u.created_at)}
                 </td>
                 <td className="px-4 py-2.5 text-xs" style={{ color: cmd.outline }}>
-                  {u.last_login_at ? new Date(u.last_login_at).toLocaleDateString("es-AR") : "Nunca"}
+                  {u.last_login_at ? formatDate(u.last_login_at) : "Nunca"}
                 </td>
                 <td className="px-4 py-2.5">
                   {u.is_blocked ? (

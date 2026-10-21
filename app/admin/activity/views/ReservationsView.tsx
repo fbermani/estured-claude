@@ -1,3 +1,6 @@
+import { formatDateOnly } from "@/lib/dates/formatDateOnly";
+import { formatDate } from "@/lib/dates/format";
+import { formatShortName } from "@/lib/format/shortName";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
@@ -82,10 +85,10 @@ export async function ReservationsView() {
               return (
                 <tr key={r.id} style={{ borderBottom: `1px solid ${cmd.border}` }}>
                   <td className="px-4 py-2.5 whitespace-nowrap text-xs" style={{ color: cmd.outline }}>
-                    {new Date(r.created_at).toLocaleDateString("es-AR")}
+                    {formatDate(r.created_at)}
                   </td>
                   <td className="px-4 py-2.5 font-medium" style={{ color: cmd.onSurface }}>
-                    {r.student_profiles ? `${r.student_profiles.first_name} ${r.student_profiles.last_initial}.` : "—"}
+                    {r.student_profiles ? `${formatShortName(r.student_profiles.first_name, r.student_profiles.last_initial)}` : "—"}
                   </td>
                   <td className="px-4 py-2.5" style={{ color: cmd.onSurfaceVariant }}>
                     {r.residences?.name}
@@ -99,10 +102,10 @@ export async function ReservationsView() {
                     {r.room_types?.name ?? "—"}
                   </td>
                   <td className="px-4 py-2.5 text-xs" style={{ color: cmd.outline }}>
-                    {r.start_date}
+                    {formatDateOnly(r.start_date)}
                   </td>
                   <td className="px-4 py-2.5 text-xs" style={{ color: cmd.outline }}>
-                    {r.confirmed_at ? new Date(r.confirmed_at).toLocaleDateString("es-AR") : "—"}
+                    {r.confirmed_at ? formatDate(r.confirmed_at) : "—"}
                   </td>
                   <td className="px-4 py-2.5">
                     <AdminBadge tone={badge.tone}>{badge.label}</AdminBadge>

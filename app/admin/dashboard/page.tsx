@@ -1,40 +1,14 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
 import { cmd } from "@/components/admin/ui/tokens";
+import { getStaleAvailabilityByResidence } from "@/lib/residences/staleAvailability";
+import { auditActionPhrase, auditActorLabel } from "@/lib/format/auditActionLabels";
 
 export const metadata: Metadata = { title: "Dashboard" };
 export const dynamic = "force-dynamic";
-
-const ACTION_LABELS: Record<string, string> = {
-  student_registered: "se registró como estudiante",
-  residence_registered: "registró una residencia",
-  residence_profile_submitted: "envió una residencia para revisión",
-  residence_profile_saved_draft: "guardó cambios en una residencia",
-  residence_verification_approved: "aprobó y publicó una residencia",
-  residence_verification_rejected: "rechazó una residencia",
-  residence_verification_needs_changes: "pidió cambios en una residencia",
-  residence_profile_edit_approved: "aprobó una edición de perfil",
-  residence_profile_edit_rejected: "rechazó una edición de perfil",
-  residence_profile_edit_correction_requested: "pidió corrección en una edición de perfil",
-  tariff_change_reviewed: "revisó un cambio de tarifa",
-  document_accessed: "accedió a un documento sensible",
-  resident_visibility_limited_by_admin: "limitó la visibilidad de un residente",
-  resident_visibility_restored_by_admin: "restauró la visibilidad de un residente",
-  resident_marked_inactive_by_admin: "marcó un residente como inactivo",
-  operational_access_granted: "otorgó acceso a Gestión Operativa",
-  operational_access_revoked: "revocó acceso a Gestión Operativa",
-  operational_access_expired: "venció un acceso a Gestión Operativa",
-  residence_visibility_warning_issued: "emitió una advertencia de calidad",
-  residence_visibility_reduced: "redujo la visibilidad de una residencia",
-  residence_visibility_restored: "restauró la visibilidad normal de una residencia",
-  residence_internal_note_added: "agregó una nota interna a una residencia",
-  residence_verification_expired: "venció la verificación anual de una residencia",
-  user_logged_out: "cerró sesión",
-  admin_user_created: "creó un usuario admin",
-  demo_user_seeded: "sembró un usuario demo",
-};
 
 function timeAgo(iso: string): string {
   const diffMs = Date.now() - new Date(iso).getTime();
@@ -58,6 +32,7 @@ export default async function AdminDashboardPage() {
     feeCollectedThisMonthArs: 0,
     pendingProfileEdits: 0,
     unreviewedTariffAlerts: 0,
+    staleAvailabilityResidences: 0,
   };
   let recentActivity: { id: string; action: string; created_at: string; actor_role: string }[] = [];
 
@@ -91,7 +66,9 @@ export default async function AdminDashboardPage() {
       admin.from("residence_profile_edits").select("*", { count: "exact", head: true }).eq("status", "pending_admin_review"),
       admin.from("tariff_change_logs").select("*", { count: "exact", head: true }).eq("alert_triggered", true).eq("admin_review_status", "new"),
     ]);
+    const staleAvailability = await getStaleAvailabilityByResidence(admin);
     stats = {
+      staleAvailabilityResidences: staleAvailability.size,
       activeResidences: active.count ?? 0,
       pendingValidations: pending.count ?? 0,
       totalUsers: users.count ?? 0,
@@ -107,12 +84,18 @@ export default async function AdminDashboardPage() {
     recentActivity = activity.data ?? [];
   }
 
-  const metrics = [
+  const metrics: { label: string; value: string | number; tone: "neutral" | "amber" | "emerald"; href?: string }[] = [
     { label: "Residencias activas", value: stats.activeResidences, tone: "neutral" as const },
     {
       label: "Validaciones pendientes",
       value: stats.pendingValidations,
       tone: stats.pendingValidations > 0 ? ("amber" as const) : ("emerald" as const),
+    },
+    {
+      label: "Residencias con disponibilidad vencida",
+      value: stats.staleAvailabilityResidences,
+      tone: stats.staleAvailabilityResidences > 0 ? ("amber" as const) : ("emerald" as const),
+      href: "/admin/residences?filter=stale-availability",
     },
     { label: "Usuarios registrados", value: stats.totalUsers, tone: "neutral" as const },
     {
@@ -129,8 +112,9 @@ export default async function AdminDashboardPage() {
     { label: "Reservas confirmadas (mes)", value: stats.reservationsThisMonth, tone: "neutral" as const },
     {
       label: "Fee cobrado (mes)",
-      value: `$${stats.feeCollectedThisMonthArs.toLocaleString("es-AR")}`,
+      value: `ARS ${stats.feeCollectedThisMonthArs.toLocaleString("es-AR")}`,
       tone: "neutral" as const,
+      href: "/admin/payments?tab=paid",
     },
   ];
 
@@ -156,7 +140,7 @@ export default async function AdminDashboardPage() {
         )}
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {metrics.map((m) => (
           <AdminCard key={m.label} className="p-5">
             <p className="text-[11px] font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
@@ -166,6 +150,15 @@ export default async function AdminDashboardPage() {
               {m.value}
             </p>
             {m.tone === "amber" && <AdminBadge tone="amber">Requiere acción</AdminBadge>}
+            {m.href && (
+              <Link
+                href={m.href}
+                className="mt-2 block text-xs font-bold hover:underline"
+                style={{ color: cmd.primary }}
+              >
+                Ver detalle →
+              </Link>
+            )}
           </AdminCard>
         ))}
       </div>
@@ -184,9 +177,9 @@ export default async function AdminDashboardPage() {
               <li key={a.id} className="flex items-center justify-between py-2.5">
                 <p className="text-sm" style={{ color: cmd.onSurfaceVariant }}>
                   <span className="font-semibold" style={{ color: cmd.onSurface }}>
-                    {a.actor_role}
+                    {auditActorLabel(a.actor_role)}
                   </span>{" "}
-                  {ACTION_LABELS[a.action] ?? a.action}
+                  {auditActionPhrase(a.action)}
                 </p>
                 <span className="text-xs" style={{ color: cmd.outline }}>
                   {timeAgo(a.created_at)}

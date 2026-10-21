@@ -1,3 +1,4 @@
+import { formatDate } from "@/lib/dates/format";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
@@ -153,7 +154,7 @@ export default async function PricingPage({
                         )}
                       </td>
                       <td className="whitespace-nowrap px-4 py-3" style={{ color: cmd.outline }}>
-                        {new Date(log.created_at).toLocaleDateString("es-AR")}
+                        {formatDate(log.created_at)}
                       </td>
                       <td className="whitespace-nowrap px-4 py-3" style={{ color: cmd.outline }}>
                         {log.users?.email ?? "—"}

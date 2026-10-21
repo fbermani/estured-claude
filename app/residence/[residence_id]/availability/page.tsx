@@ -1,3 +1,4 @@
+import { formatDate } from "@/lib/dates/format";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
@@ -83,7 +84,7 @@ export default async function ResidenceAvailabilityPage({
                   <p className="text-xs text-ink-faint">{formatUsd(Number(rt.monthly_price_usd))}/mes</p>
                   {availability && (
                     <p className="mt-1 text-xs text-ink-faint">
-                      Última actualización {new Date(availability.last_confirmed_at).toLocaleDateString("es-AR")}
+                      Última actualización {formatDate(availability.last_confirmed_at)}
                       {availability.hidden_from_search_at && " · oculta de las búsquedas"}
                     </p>
                   )}

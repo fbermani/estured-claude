@@ -1,3 +1,4 @@
+import { formatDate } from "@/lib/dates/format";
 import { Icon } from "@/components/ui/Icon";
 import type { TimelineStep } from "@/lib/applications/timeline";
 
@@ -12,10 +13,6 @@ const STATE_TEXT: Record<TimelineStep["state"], string> = {
   upcoming: "Pendiente",
   stopped: "Frenado",
 };
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("es-AR");
-}
 
 export function ApplicationTimeline({ steps }: { steps: TimelineStep[] }) {
   return (

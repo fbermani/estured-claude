@@ -1,5 +1,6 @@
 "use client";
 
+import { formatDate } from "@/lib/dates/format";
 import Image from "next/image";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
@@ -67,7 +68,7 @@ export function VerificationDetail({
         </h1>
         <p className="mt-1 text-sm" style={{ color: cmd.onSurfaceVariant }}>
           {residence.address_line} — {residence.public_area}, CABA · Registrada el{" "}
-          {new Date(residence.created_at).toLocaleDateString("es-AR")}
+          {formatDate(residence.created_at)}
         </p>
         <p className="mt-2 text-sm" style={{ color: cmd.onSurfaceVariant }}>
           Responsable: <strong>{residence.responsible_name}</strong> · {residence.responsible_contact}

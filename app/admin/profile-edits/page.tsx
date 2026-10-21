@@ -1,3 +1,4 @@
+import { formatDate } from "@/lib/dates/format";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
@@ -139,7 +140,7 @@ export default async function ProfileEditsPage({
                     <div className="flex items-center justify-between">
                       <AdminBadge tone="amber">{FIELD_GROUP_LABELS[r.field_group] ?? r.field_group}</AdminBadge>
                       <span className="text-[11px]" style={{ color: cmd.outline }}>
-                        {new Date(r.created_at).toLocaleDateString("es-AR")}
+                        {formatDate(r.created_at)}
                       </span>
                     </div>
                     <p className="mt-1.5 text-sm font-bold" style={{ color: cmd.onSurface }}>

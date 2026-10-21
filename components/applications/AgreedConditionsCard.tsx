@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/Card";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
-import { formatArs, formatUsd } from "@/lib/mock/exchange";
+import { formatArs, formatUsd, roundArs } from "@/lib/mock/exchange";
 import type { AgreedConditions } from "@/lib/applications/agreedConditions";
 import { formatDateOnly } from "@/lib/dates/formatDateOnly";
 
@@ -32,7 +32,7 @@ export function AgreedConditionsCard({
     usd === null ? "—" : (
       <>
         {formatUsd(usd)}
-        {ars !== null && <span className="text-ink-soft"> · {formatArs(ars)}</span>}
+        {ars !== null && <span className="text-ink-soft"> · ≈ {formatArs(roundArs(ars))}</span>}
       </>
     );
 

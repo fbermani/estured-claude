@@ -1,5 +1,6 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { getStaleAvailabilityByResidence, staleAvailabilityMessage } from "@/lib/residences/staleAvailability";
 
 const STATUS_COPY: Record<string, { label: string; tone: "neutral" | "amber" | "sage" }> = {
   draft: { label: "Borrador", tone: "neutral" },
@@ -45,6 +46,8 @@ export type OwnerResidenceCardData = {
   supportOpen: number;
   avgPriceUsd: number | null;
   photoUrl: string | null;
+  /** H23: aviso de disponibilidad vencida (tipos ocultos o por ocultarse), o `null`. */
+  availabilityNotice: string | null;
 };
 
 /**
@@ -65,6 +68,11 @@ export async function getOwnerResidenceCards(
       .eq("user_id", userId)
       .eq("is_active", true)
   ).data ?? [];
+
+  const staleByResidence = await getStaleAvailabilityByResidence(
+    admin,
+    residences.map((ru) => (ru.residences as unknown as ResidenceRow | null)?.id).filter((id): id is string => Boolean(id)),
+  );
 
   const cards = await Promise.all(
     residences.map(async (ru) => {
@@ -127,6 +135,7 @@ export async function getOwnerResidenceCards(
         supportOpen: supportOpen ?? 0,
         avgPriceUsd,
         photoUrl,
+        availabilityNotice: staleAvailabilityMessage(staleByResidence.get(r.id)),
       };
     }),
   );

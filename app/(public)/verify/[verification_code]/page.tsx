@@ -1,3 +1,4 @@
+import { formatDate } from "@/lib/dates/format";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { headers } from "next/headers";
@@ -161,7 +162,7 @@ export default async function VerifyReceiptPage({
               <div className="flex justify-between">
                 <dt className="text-ink-faint">Emitido</dt>
                 <dd className="font-medium text-ink">
-                  {result.issuedAt ? new Date(result.issuedAt).toLocaleDateString("es-AR") : "—"}
+                  {result.issuedAt ? formatDate(result.issuedAt) : "—"}
                 </dd>
               </div>
             </dl>

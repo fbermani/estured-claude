@@ -1,3 +1,6 @@
+import { formatDateOnly } from "@/lib/dates/formatDateOnly";
+import { formatDate } from "@/lib/dates/format";
+import { formatShortName } from "@/lib/format/shortName";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
@@ -77,7 +80,7 @@ export default async function ResidenceWaitlistPage({
   const enriched = rows.map((entry) => {
     const waitingDays = daysBetween(entry.joined_at, nowIso);
     const daysUntilDesired = entry.desired_start_date
-      ? daysBetween(nowIso, `${entry.desired_start_date}T00:00:00`)
+      ? daysBetween(nowIso, `${formatDateOnly(entry.desired_start_date)}T00:00:00`)
       : null;
     return {
       ...entry,
@@ -149,7 +152,7 @@ export default async function ResidenceWaitlistPage({
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center justify-between gap-2">
                             <p className="font-semibold text-ink">
-                              {entry.student_profiles?.first_name} {entry.student_profiles?.last_initial}.
+                              {formatShortName(entry.student_profiles?.first_name, entry.student_profiles?.last_initial)}
                             </p>
                             <div className="flex flex-wrap items-center gap-1.5">
                               {entry.urgent && (
@@ -164,7 +167,7 @@ export default async function ResidenceWaitlistPage({
                           <p className="mt-0.5 text-xs text-ink-faint">
                             {entry.desired_start_date && (
                               <>
-                                Ingreso deseado {entry.desired_start_date}
+                                Ingreso deseado {formatDateOnly(entry.desired_start_date)}
                                 {entry.daysUntilDesired !== null && (
                                   <>
                                     {" "}
@@ -182,7 +185,7 @@ export default async function ResidenceWaitlistPage({
                             {entry.desired_duration_months && <> · {entry.desired_duration_months} meses</>}
                           </p>
                           <p className="text-xs text-ink-faint">
-                            En lista desde {new Date(entry.joined_at).toLocaleDateString("es-AR")} · {entry.waitingDays}{" "}
+                            En lista desde {formatDate(entry.joined_at)} · {entry.waitingDays}{" "}
                             {entry.waitingDays === 1 ? "día" : "días"} de antigüedad
                           </p>
                           <WaitlistRowActions residenceId={residenceId} entryId={entry.id} />

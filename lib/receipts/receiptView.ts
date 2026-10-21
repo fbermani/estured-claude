@@ -1,3 +1,4 @@
+import { formatDate } from "@/lib/dates/format";
 import { ADJUSTMENT_POLICY_LABEL } from "@/lib/applications/agreedConditions";
 import { formatDateOnly } from "@/lib/dates/formatDateOnly";
 
@@ -133,7 +134,7 @@ export function buildReceiptRows(
     add("Fee EstuRed pagado", paidInUsd ? usd(feeUsd!) : feeArs !== null ? ars(feeArs) : usd(feeUsd!));
   }
   if (payload.estured_fee?.paid_at)
-    add("Fee pagado el", new Date(payload.estured_fee.paid_at).toLocaleDateString("es-AR"));
-  if (issuedAt) add("Emitido", new Date(issuedAt).toLocaleDateString("es-AR"));
+    add("Fee pagado el", formatDate(payload.estured_fee.paid_at));
+  if (issuedAt) add("Emitido", formatDate(issuedAt));
   return rows;
 }

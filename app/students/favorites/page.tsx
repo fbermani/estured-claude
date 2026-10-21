@@ -1,3 +1,4 @@
+import { formatShortName } from "@/lib/format/shortName";
 import type { Metadata } from "next";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
@@ -57,7 +58,7 @@ export default async function StudentFavoritesPage() {
       for (const l of (links ?? []) as unknown as { student_profiles: { id: string; first_name: string; last_initial: string } | null }[]) {
         if (l.student_profiles) {
           studentProfileIds.push(l.student_profiles.id);
-          studentNameById.set(l.student_profiles.id, `${l.student_profiles.first_name} ${l.student_profiles.last_initial}`);
+          studentNameById.set(l.student_profiles.id, `${formatShortName(l.student_profiles.first_name, l.student_profiles.last_initial)}`);
         }
       }
     }

@@ -1,5 +1,8 @@
 "use client";
 
+import { ivaConditionLabel, paymentChannelLabel } from "@/lib/format/payerLabels";
+import { formatDateOnly } from "@/lib/dates/formatDateOnly";
+import { formatShortName } from "@/lib/format/shortName";
 import { useActionState } from "react";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminButton } from "@/components/admin/ui/AdminButton";
@@ -44,7 +47,7 @@ export function RenewalPaymentDetail({
       <AdminCard className="p-6">
         <div className="flex items-center gap-2">
           <h2 className="text-lg font-bold" style={{ color: cmd.onSurface }}>
-            {offer?.student_profiles?.first_name} {offer?.student_profiles?.last_initial} — {offer?.residences?.name}
+            {formatShortName(offer?.student_profiles?.first_name, offer?.student_profiles?.last_initial)} — {offer?.residences?.name}
           </h2>
           <span
             className="rounded-[12px] px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide"
@@ -57,7 +60,7 @@ export function RenewalPaymentDetail({
           <div className="flex justify-between">
             <dt style={{ color: cmd.outline }}>Nuevo período</dt>
             <dd style={{ color: cmd.onSurface }}>
-              {offer?.period_start_date} → {offer?.period_end_date} ({offer?.duration_months} meses)
+              {formatDateOnly(offer?.period_start_date)} → {formatDateOnly(offer?.period_end_date)} ({offer?.duration_months} meses)
             </dd>
           </div>
           <div className="flex justify-between">
@@ -72,7 +75,7 @@ export function RenewalPaymentDetail({
           </div>
           <div className="flex justify-between">
             <dt style={{ color: cmd.outline }}>Medio informado</dt>
-            <dd style={{ color: cmd.onSurface }}>{feePayment.payment_channel ?? "—"}</dd>
+            <dd style={{ color: cmd.onSurface }}>{paymentChannelLabel(feePayment.payment_channel)}</dd>
           </div>
           <div className="flex justify-between">
             <dt style={{ color: cmd.outline }}>Facturar a</dt>
@@ -83,7 +86,7 @@ export function RenewalPaymentDetail({
           </div>
           <div className="flex justify-between">
             <dt style={{ color: cmd.outline }}>Condición IVA</dt>
-            <dd style={{ color: cmd.onSurface }}>{feePayment.payer_iva_condition}</dd>
+            <dd style={{ color: cmd.onSurface }}>{ivaConditionLabel(feePayment.payer_iva_condition)}</dd>
           </div>
         </dl>
         {proofFileId ? (

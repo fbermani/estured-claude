@@ -1,10 +1,13 @@
+import { formatDateOnly } from "@/lib/dates/formatDateOnly";
+import { formatDateTime } from "@/lib/dates/format";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth/session";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { formatUsd, formatArs } from "@/lib/mock/exchange";
+import { formatUsd, formatArs, roundArs } from "@/lib/mock/exchange";
+import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import { RespondOfferForm } from "@/app/students/renewals/[id]/RespondOfferForm";
 import { RenewalFeePaymentForm } from "@/app/students/renewals/[id]/RenewalFeePaymentForm";
 
@@ -81,7 +84,7 @@ export default async function StudentRenewalOfferDetailPage({
           <div>
             <dt className="text-ink-faint">Nuevo período</dt>
             <dd className="font-medium text-ink">
-              {offer.period_start_date} → {offer.period_end_date}
+              {formatDateOnly(offer.period_start_date)} → {formatDateOnly(offer.period_end_date)}
             </dd>
           </div>
           <div>
@@ -91,7 +94,8 @@ export default async function StudentRenewalOfferDetailPage({
           <div>
             <dt className="text-ink-faint">Tarifa mensual</dt>
             <dd className="font-medium text-ink">
-              {formatUsd(Number(offer.monthly_price_usd))} ({formatArs(Number(offer.monthly_price_ars))})
+              {formatUsd(Number(offer.monthly_price_usd))} (≈ {formatArs(roundArs(Number(offer.monthly_price_ars)))})
+              <ExchangeRateNote />
             </dd>
           </div>
           {offer.enrollment_or_renewal_fee_usd && (
@@ -112,12 +116,17 @@ export default async function StudentRenewalOfferDetailPage({
           </div>
           <div>
             <dt className="text-ink-faint">Fee EstuRed (misma lógica que tu reserva inicial)</dt>
-            <dd className="font-medium text-ink">{formatArs(Number(offer.estimated_estured_fee_ars))}</dd>
+            <dd className="font-medium text-ink">
+              ≈ {formatArs(roundArs(Number(offer.estimated_estured_fee_ars)))}
+              <ExchangeRateNote />
+            </dd>
           </div>
-          <div className="col-span-2">
-            <dt className="text-ink-faint">Fecha límite para responder</dt>
-            <dd className="font-medium text-ink">{new Date(offer.acceptance_deadline_at).toLocaleString("es-AR")}</dd>
-          </div>
+          {canRespond && (
+            <div className="col-span-2">
+              <dt className="text-ink-faint">Fecha límite para responder</dt>
+              <dd className="font-medium text-ink">{formatDateTime(offer.acceptance_deadline_at)}</dd>
+            </div>
+          )}
         </dl>
 
         {canRespond && withinDeadline && <RespondOfferForm offerId={offer.id} />}

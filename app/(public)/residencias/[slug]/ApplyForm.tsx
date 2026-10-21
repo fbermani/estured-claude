@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/Button";
 import { Input, Select, Textarea } from "@/components/ui/Input";
 import { Icon } from "@/components/ui/Icon";
 import { InfoTip } from "@/components/ui/InfoTip";
-import { formatArs, formatUsd, usdToArs } from "@/lib/mock/exchange";
+import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
+import { formatDateOnly } from "@/lib/dates/formatDateOnly";
+import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import { calculateFeeEstimate } from "@/lib/applications/fee";
 import { emptyMonthsChargeUsd, MAX_EMPTY_MONTHS } from "@/lib/applications/emptyMonths";
 import {
@@ -46,17 +48,12 @@ const MONTH_NAMES = [
   "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre",
 ];
 
-function formatDateOnly(dateStr: string): string {
-  const [y, m, d] = dateStr.split("-").map(Number);
-  return `${d} ${MONTH_NAMES[m - 1]?.slice(0, 3) ?? ""} ${y}`;
-}
-
 /** Salida = entrada + N meses − 1 día (ref: 1 Mar + 6 meses → 31 Ago). */
 function computeExitDate(entrada: string, months: number): string {
   const [y, m, d] = entrada.split("-").map(Number);
   const end = new Date(Date.UTC(y, m - 1 + months, d));
   end.setUTCDate(end.getUTCDate() - 1);
-  return `${end.getUTCDate()} ${MONTH_NAMES[end.getUTCMonth()].slice(0, 3)} ${end.getUTCFullYear()}`;
+  return formatDateOnly(end.toISOString().slice(0, 10));
 }
 
 /** Nombres de los primeros meses vacíos, para la etiqueta "Mes vacío (agosto…)". */
@@ -213,12 +210,15 @@ export function ApplyForm({
               Renta mensual (×{duration})
               <InfoTip label="Cómo se calcula la renta">
                 {formatUsd(monthlyUsd)} por mes durante {duration} {duration === 1 ? "mes" : "meses"} de estadía.
-                Se paga mes a mes directamente a la residencia. ≈ {formatArs(usdToArs(monthlyUsd, arsPerUsd))} por
-                mes al valor referencial de hoy.
+                Se paga mes a mes directamente a la residencia.
               </InfoTip>
             </span>
             <span className="font-bold text-ink">{formatUsd(rentTotalUsd)}</span>
           </div>
+          <p className="-mt-1 pb-1.5 text-xs text-ink-faint">
+            ≈ {formatArs(usdToArsRounded(monthlyUsd, arsPerUsd))} por mes, referencial
+            <ExchangeRateNote />
+          </p>
 
           {enrollmentUsd > 0 && (
             <div className="flex items-center justify-between border-t border-line py-1.5">
@@ -288,7 +288,10 @@ export function ApplyForm({
                 </span>
                 <span className="text-right font-extrabold text-warning-fg">
                   {formatUsd(feeUsd)}
-                  <span className="block text-[10px] font-normal">≈ {formatArs(fee.estimatedFeeArs)}</span>
+                  <span className="block text-[10px] font-normal">
+                    ≈ {formatArs(fee.estimatedFeeArs)}
+                    <ExchangeRateNote />
+                  </span>
                 </span>
               </div>
               <p className="mt-1 text-xs leading-snug text-warning-fg/90">

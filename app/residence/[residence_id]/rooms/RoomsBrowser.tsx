@@ -5,7 +5,8 @@ import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { formatArs, formatUsd, usdToArs } from "@/lib/mock/exchange";
+import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
+import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import {
   renameRoomAction,
   setBedStatusAction,
@@ -368,7 +369,10 @@ function RoomModal({
             <div>
               <p className="text-sm font-bold text-ink">Tarifa mensual</p>
               <p className="mt-0.5 text-sm text-ink-soft">
-                {formatUsd(priceUsd)} <span className="text-xs text-ink-faint">≈ {formatArs(usdToArs(priceUsd, arsPerUsd))}</span>
+                {formatUsd(priceUsd)} <span className="text-xs text-ink-faint">
+                  ≈ {formatArs(usdToArsRounded(priceUsd, arsPerUsd))}
+                  <ExchangeRateNote />
+                </span>
               </p>
               <Link
                 href={`/residence/${residenceId}/profile`}
@@ -660,7 +664,8 @@ export function RoomsBrowser({
                     <p className="font-bold text-ink">
                       {formatUsd(g.priceUsd)}
                       <span className="ml-1.5 text-xs font-normal text-ink-faint">
-                        ≈ {formatArs(usdToArs(g.priceUsd, arsPerUsd))}
+                        ≈ {formatArs(usdToArsRounded(g.priceUsd, arsPerUsd))}
+                        <ExchangeRateNote />
                       </span>
                     </p>
                   </div>

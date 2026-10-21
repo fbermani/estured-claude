@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
 import { StatusTag } from "@/components/ui/StatusTag";
 import { TrustBadge } from "@/components/residences/TrustBadge";
-import { formatArs, formatUsd, usdToArs } from "@/lib/mock/exchange";
+import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
+import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 
 /**
  * Card de residencia del catálogo — layout a semejanza de la referencia
@@ -92,20 +93,22 @@ export function ResidenceCard({
               {moreServices > 0 && ` · +${moreServices} servicios`}
             </p>
           )}
-
-          <div className="mt-auto border-t-[1.5px] border-line pt-3">
-            <p className="text-lg font-bold text-forest-700">
-              {formatUsd(residence.priceFromUsd)}
-              <span className="ml-1 text-xs font-normal text-ink-faint">/mes desde</span>
-            </p>
-            <p className="text-xs text-ink-faint">
-              ≈ {formatArs(usdToArs(residence.priceFromUsd, arsPerUsd))} referencial
-            </p>
-          </div>
         </div>
       </Link>
 
-      <div className="px-5 pb-5">
+      {/* El precio queda fuera del <Link> de la card: la nota de tipo de cambio es un botón y no puede ir dentro de un enlace. */}
+      <div className="mx-5 border-t-[1.5px] border-line pt-3">
+        <p className="text-lg font-bold text-forest-700">
+          {formatUsd(residence.priceFromUsd)}
+          <span className="ml-1 text-xs font-normal text-ink-faint">/mes desde</span>
+        </p>
+        <p className="text-xs text-ink-faint">
+          ≈ {formatArs(usdToArsRounded(residence.priceFromUsd, arsPerUsd))} referencial
+          <ExchangeRateNote />
+        </p>
+      </div>
+
+      <div className="px-5 pb-5 pt-3">
         <Link
           href={href}
           className="block w-full rounded-full bg-forest px-4 py-2.5 text-center text-sm font-bold text-white shadow-card transition-colors hover:bg-forest-600"

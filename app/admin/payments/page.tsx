@@ -1,11 +1,14 @@
+import { formatShortName } from "@/lib/format/shortName";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { formatArs } from "@/lib/mock/exchange";
 import { cmd } from "@/components/admin/ui/tokens";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { PaymentDetail } from "@/app/admin/payments/PaymentDetail";
 import { RenewalPaymentDetail } from "@/app/admin/payments/RenewalPaymentDetail";
+import { PaidFeesView, PaymentsTabs } from "@/app/admin/payments/PaidFeesView";
 
 export const metadata: Metadata = { title: "Pagos fee EstuRed" };
 export const dynamic = "force-dynamic";
@@ -20,9 +23,10 @@ const statusBadge: Record<string, { label: string; tone: "amber" | "violet" | "r
 export default async function AdminPaymentsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ id?: string }>;
+  searchParams: Promise<{ id?: string; tab?: string }>;
 }) {
-  const { id: selectedId } = await searchParams;
+  const { id: selectedId, tab } = await searchParams;
+  if (tab === "paid") return <PaidFeesView />;
   const admin = getSupabaseAdmin();
 
   // Embebe ambos lados (reservations y renewal_offers) — un
@@ -87,10 +91,8 @@ export default async function AdminPaymentsPage({
     <div className="flex h-full">
       <div className="w-96 shrink-0 overflow-y-auto border-r" style={{ borderColor: cmd.border }}>
         <div className="border-b p-4" style={{ borderColor: cmd.border }}>
-          <h1 className="text-lg font-bold" style={{ color: cmd.onSurface }}>
-            Pagos fee EstuRed
-          </h1>
-          <p className="text-xs" style={{ color: cmd.outline }}>
+          <PaymentsTabs active="pending" compact />
+          <p className="mt-2 text-xs" style={{ color: cmd.outline }}>
             {queue.length} pendientes de validación
           </p>
         </div>
@@ -125,11 +127,11 @@ export default async function AdminPaymentsPage({
                         {renewalOffer && <AdminBadge tone="violet">Renovación</AdminBadge>}
                       </div>
                       <span className="text-xs font-bold" style={{ color: cmd.onSurface }}>
-                        ARS {Number(p.fee_amount_ars).toLocaleString("es-AR")}
+                        {formatArs(Number(p.fee_amount_ars))}
                       </span>
                     </div>
                     <p className="mt-1.5 text-sm font-bold" style={{ color: cmd.onSurface }}>
-                      {target?.student_profiles?.first_name} {target?.student_profiles?.last_initial}
+                      {formatShortName(target?.student_profiles?.first_name, target?.student_profiles?.last_initial)}
                     </p>
                     <p className="text-xs" style={{ color: cmd.outline }}>
                       {target?.residences?.name}

@@ -28,8 +28,8 @@ describe("addMonthsIso", () => {
 
 describe("formatDateOnly", () => {
   it("formatea en es-AR sin correr el día por huso horario", () => {
-    expect(formatDateOnly("2027-01-20")).toBe("20/1/2027");
-    expect(formatDateOnly("2027-07-01")).toBe("1/7/2027");
+    expect(formatDateOnly("2027-01-20")).toBe("20/01/2027");
+    expect(formatDateOnly("2027-07-01")).toBe("01/07/2027");
   });
   it("vacío o inválido → guion", () => {
     expect(formatDateOnly(null)).toBe("—");

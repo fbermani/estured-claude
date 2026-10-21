@@ -64,8 +64,25 @@ export function ApplicationActions({
     });
   }
 
-  if (["rejected", "cancelled_by_student", "expired_no_residence_response", "expired_offer_no_response"].includes(status)) {
-    return <p className="text-sm text-ink-faint">Esta solicitud ya está cerrada.</p>;
+  // H24: "cerrada" sale del helper de estado visible (cubre también vencida por falta de pago, cancelada
+  // por la residencia, cerrada por otra reserva, etc.), no de una lista a mano.
+  const visibleStatus = getVisibleStatus({ applicationStatus: status, reservation, viewer: "residence" });
+  if (visibleStatus.isClosed && visibleStatus.source === "application") {
+    return (
+      <p className="text-sm text-ink-faint">
+        Esta solicitud ya está cerrada: {visibleStatus.label.charAt(0).toLowerCase()}
+        {visibleStatus.label.slice(1)}.
+      </p>
+    );
+  }
+
+  if (status === "paused_due_to_other_active_request") {
+    return (
+      <p className="text-sm text-ink-faint">
+        Esta solicitud está pausada porque el estudiante avanzó con otra residencia. No hace falta que hagas nada: si esa
+        otra solicitud se cancela o vence, esta vuelve a aparecer como nueva.
+      </p>
+    );
   }
 
   if (status === "queued_for_place") {
@@ -194,6 +211,17 @@ export function ApplicationActions({
       <p className={`text-sm font-medium ${visible.tone === "sage" ? "text-success-fg" : "text-ink-soft"}`}>
         {visible.helper ||
           (visible.source === "application" ? "Marcaste el pago como recibido. La reserva está en proceso." : visible.label)}
+      </p>
+    );
+  }
+
+  // Solo "Nueva" y "En revisión" admiten acciones de la residencia (docs/04 §5.4). Cualquier otro estado
+  // (en disputa, condiciones aceptadas, desconocido) se explica con texto en vez de ofrecer botones que el
+  // servidor rechazaría.
+  if (!["submitted", "under_review"].includes(status)) {
+    return (
+      <p className="text-sm text-ink-soft">
+        {visibleStatus.helper || "No hay acciones disponibles para esta solicitud en este momento."}
       </p>
     );
   }

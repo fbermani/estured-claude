@@ -1,4 +1,6 @@
+import { formatDate } from "@/lib/dates/format";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
@@ -69,7 +71,11 @@ export default async function AdminVisibilityPage() {
       </h1>
       <p className="text-sm" style={{ color: cmd.onSurfaceVariant }}>
         {flaggedCount > 0 ? `${flaggedCount} residencia(s) con advertencia o visibilidad reducida.` : "Ninguna residencia tiene penalizaciones activas."} Pausar,
-        suspender o remover de la red se hace desde <code>/admin/residences</code> — acá solo se gestiona la señal de calidad.
+        suspender o remover de la red se hace desde{" "}
+        <Link href="/admin/residences" className="font-bold underline" style={{ color: cmd.primary }}>
+          Residencias
+        </Link>{" "}
+        — acá solo se gestiona la señal de calidad.
       </p>
 
       <AdminCard className="mt-6 overflow-hidden">
@@ -106,7 +112,7 @@ export default async function AdminVisibilityPage() {
                           {notes.slice(0, 3).map((n) => (
                             <li key={n.id} className="text-xs">
                               <span className="font-semibold" style={{ color: cmd.onSurface }}>
-                                {new Date(n.created_at).toLocaleDateString("es-AR")}:
+                                {formatDate(n.created_at)}:
                               </span>{" "}
                               {n.reason_text}
                             </li>

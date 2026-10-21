@@ -1,3 +1,4 @@
+import { formatDate } from "@/lib/dates/format";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
@@ -65,7 +66,7 @@ export default async function ResidencePlanPage({
               <div className="flex justify-between">
                 <dt className="text-ink-faint">Otorgado el</dt>
                 <dd className="font-semibold text-ink">
-                  {new Date(residence.operational_access_granted_at).toLocaleDateString("es-AR")}
+                  {formatDate(residence.operational_access_granted_at)}
                 </dd>
               </div>
             )}
