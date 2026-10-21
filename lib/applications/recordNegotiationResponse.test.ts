@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { deleteResidenceCascade } from "@/lib/testing/deleteResidenceCascade";
 import { recordNegotiationResponse } from "@/lib/applications/recordNegotiationResponse";
 
 /**
@@ -76,13 +77,12 @@ describe.skipIf(!hasCreds)("recordNegotiationResponse (integración)", () => {
   });
 
   afterAll(async () => {
-    if (!admin) return;
+    if (!admin || !residenceId) return;
     // Red de seguridad: si algún test dejó una solicitud sin limpiar
     // (ej. una aserción falló antes de llegar a la limpieza), borrarla
     // acá para no dejar el `residences.delete()` bloqueado por FK.
     await admin.from("application_requests").delete().eq("residence_id", residenceId);
-    const { error } = await admin.from("residences").delete().eq("id", residenceId);
-    if (error) console.error("[test cleanup] delete residence failed:", error);
+    await deleteResidenceCascade(admin, residenceId);
   });
 
   async function createFixtureApplication() {

@@ -11,6 +11,10 @@
  * respeta el orden de borrado por FK circulares de seed-demo-data.mjs
  * (reservations ↔ estured_fee_payments/booking_receipts, renovaciones, etc.).
  * Se detiene ante el primer error.
+ *
+ * MANTENER SINCRONIZADO con lib/testing/deleteResidenceCascade.ts (mismo orden
+ * de borrado; es el helper que usan los afterAll de los tests de integración).
+ * Si se agrega una tabla con FK a residence_id sin cascade, tocar ambos.
  */
 import "./_assert-dev-project.mjs";
 import { createClient } from "@supabase/supabase-js";

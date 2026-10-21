@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { deleteResidenceCascade } from "@/lib/testing/deleteResidenceCascade";
 import { joinWaitlist } from "@/lib/waitlist-entries/joinWaitlist";
 import { leaveWaitlist } from "@/lib/waitlist-entries/leaveWaitlist";
 import { stayInWaitlist } from "@/lib/waitlist-entries/stayInWaitlist";
@@ -111,10 +112,9 @@ describe.skipIf(!hasCreds)("disponibilidad y lista de espera (integración)", ()
   });
 
   afterAll(async () => {
-    if (!admin) return;
+    if (!admin || !residenceId) return;
     await admin.from("waitlist_entries").delete().eq("residence_id", residenceId);
-    const { error } = await admin.from("residences").delete().eq("id", residenceId);
-    if (error) console.error("[test cleanup] delete residence failed:", error);
+    await deleteResidenceCascade(admin, residenceId);
   });
 
   it("joinWaitlist: el estudiante se suma y no puede duplicarse", async () => {

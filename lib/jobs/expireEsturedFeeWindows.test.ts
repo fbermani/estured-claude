@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { deleteResidenceCascade } from "@/lib/testing/deleteResidenceCascade";
 import { expireEsturedFeeWindows } from "@/lib/jobs/expireEsturedFeeWindows";
 
 const hasCreds = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
@@ -162,15 +163,14 @@ describe.skipIf(!hasCreds)("expireEsturedFeeWindows (integración)", () => {
   });
 
   afterAll(async () => {
-    if (!admin) return;
+    if (!admin || !residenceId) return;
     await admin.from("reservations").update({ estured_fee_payment_id: null }).eq("id", reservationId);
     await admin.from("estured_fee_payments").delete().eq("id", staleFeeId);
     await admin.from("external_residence_payments").update({ reservation_id: null }).eq("id", residencePaymentId);
     await admin.from("reservations").delete().eq("id", reservationId);
     await admin.from("external_residence_payments").delete().eq("id", residencePaymentId);
     await admin.from("application_requests").delete().eq("id", mainAppId);
-    const { error } = await admin.from("residences").delete().eq("id", residenceId);
-    if (error) console.error("[test cleanup] delete residence failed:", error);
+    await deleteResidenceCascade(admin, residenceId);
   });
 
   it("vence el fee pendiente y pasa la reserva a expired_fee_unpaid", async () => {

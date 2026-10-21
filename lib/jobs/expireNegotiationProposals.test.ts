@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { deleteResidenceCascade } from "@/lib/testing/deleteResidenceCascade";
 import { expireNegotiationProposals } from "@/lib/jobs/expireNegotiationProposals";
 
 const hasCreds = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
@@ -123,11 +124,10 @@ describe.skipIf(!hasCreds)("expireNegotiationProposals (integración)", () => {
   });
 
   afterAll(async () => {
-    if (!admin) return;
+    if (!admin || !residenceId) return;
     await admin.from("application_negotiation_proposals").delete().in("application_request_id", [staleAppId, freshAppId]);
     await admin.from("application_requests").delete().in("id", [staleAppId, freshAppId]);
-    const { error } = await admin.from("residences").delete().eq("id", residenceId);
-    if (error) console.error("[test cleanup] delete residence failed:", error);
+    await deleteResidenceCascade(admin, residenceId);
   });
 
   it("vence solo las solicitudes con propuesta de ajuste sin responder y ya vencida", async () => {

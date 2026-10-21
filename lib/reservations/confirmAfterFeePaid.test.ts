@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { deleteResidenceCascade } from "@/lib/testing/deleteResidenceCascade";
 import { confirmReservationAfterFeePaid } from "@/lib/reservations/confirmAfterFeePaid";
 
 /**
@@ -229,7 +230,7 @@ describe.skipIf(!hasCreds)("confirmReservationAfterFeePaid (integración)", () =
   });
 
   afterAll(async () => {
-    if (!admin) return;
+    if (!admin || !residenceId) return;
     await admin
       .from("reservations")
       .update({ estured_fee_payment_id: null, booking_receipt_id: null })
@@ -240,7 +241,7 @@ describe.skipIf(!hasCreds)("confirmReservationAfterFeePaid (integración)", () =
     await admin.from("reservations").delete().eq("id", reservationId);
     await admin.from("external_residence_payments").delete().eq("id", residencePaymentId);
     await admin.from("application_requests").delete().in("id", [mainAppId, siblingAppId]);
-    await admin.from("residences").delete().eq("id", residenceId);
+    await deleteResidenceCascade(admin, residenceId);
   });
 
   it("confirma la reserva, cierra la solicitud hermana, descuenta disponibilidad y emite comprobante", async () => {

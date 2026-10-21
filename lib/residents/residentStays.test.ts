@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { deleteResidenceCascade } from "@/lib/testing/deleteResidenceCascade";
 import { createResidentStay } from "@/lib/residents/createResidentStay";
 import { activateResidentStay } from "@/lib/residents/activateResidentStay";
 import { setResidentVisibility } from "@/lib/residents/setResidentVisibility";
@@ -117,11 +118,10 @@ describe.skipIf(!hasCreds)("resident_stays (integración)", () => {
   });
 
   afterAll(async () => {
-    if (!admin) return;
+    if (!admin || !residenceId) return;
     await admin.from("resident_stays").delete().eq("residence_id", residenceId);
     await admin.from("residence_users").delete().eq("residence_id", residenceId);
-    const { error } = await admin.from("residences").delete().eq("id", residenceId);
-    if (error) console.error("[test cleanup] delete residence failed:", error);
+    await deleteResidenceCascade(admin, residenceId);
   });
 
   it("createResidentStay: rechaza si el actor no tiene acceso a la residencia", async () => {

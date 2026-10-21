@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { deleteResidenceCascade } from "@/lib/testing/deleteResidenceCascade";
 import { reopenEsturedFeeWindow } from "@/lib/reservations/reopenEsturedFeeWindow";
 
 /**
@@ -158,7 +159,7 @@ describe.skipIf(!hasCreds)("reopenEsturedFeeWindow (integración)", () => {
   });
 
   afterAll(async () => {
-    if (!admin) return;
+    if (!admin || !residenceId) return;
     await admin.from("notifications").delete().eq("related_entity_id", reservationId);
     await admin.from("reservations").update({ estured_fee_payment_id: null, booking_receipt_id: null }).eq("id", reservationId);
     await admin.from("booking_receipts").delete().eq("reservation_id", reservationId);
@@ -167,7 +168,7 @@ describe.skipIf(!hasCreds)("reopenEsturedFeeWindow (integración)", () => {
     await admin.from("reservations").delete().eq("id", reservationId);
     await admin.from("external_residence_payments").delete().eq("id", residencePaymentId);
     await admin.from("application_requests").delete().eq("id", mainAppId);
-    await admin.from("residences").delete().eq("id", residenceId);
+    await deleteResidenceCascade(admin, residenceId);
   });
 
   it("rechaza sin motivo", async () => {

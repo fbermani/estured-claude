@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { deleteResidenceCascade } from "@/lib/testing/deleteResidenceCascade";
 import { reopenApplication } from "@/lib/applications/reopenApplication";
 
 /**
@@ -114,13 +115,12 @@ describe.skipIf(!hasCreds)("reopenApplication (integración)", () => {
   });
 
   afterAll(async () => {
-    if (!admin) return;
+    if (!admin || !residenceId) return;
     await admin.from("notifications").delete().eq("user_id", studentUserId).eq("related_entity_type", "application_requests");
     await admin.from("application_snapshots").delete().eq("room_type_id", roomTypeId);
     await admin.from("application_requests").delete().eq("residence_id", residenceId);
     await admin.from("residence_users").delete().eq("residence_id", residenceId);
-    const { error } = await admin.from("residences").delete().eq("id", residenceId);
-    if (error) console.error("[test cleanup] delete residence failed:", error);
+    await deleteResidenceCascade(admin, residenceId);
   });
 
   it("rechaza sin motivo", async () => {

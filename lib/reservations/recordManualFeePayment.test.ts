@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { deleteResidenceCascade } from "@/lib/testing/deleteResidenceCascade";
 import { recordManualFeePayment } from "@/lib/reservations/recordManualFeePayment";
 
 /**
@@ -204,7 +205,7 @@ describe.skipIf(!hasCreds)("recordManualFeePayment (integración)", () => {
   });
 
   afterAll(async () => {
-    if (!admin) return;
+    if (!admin || !residenceId) return;
     await admin
       .from("reservations")
       .update({ estured_fee_payment_id: null, booking_receipt_id: null })
@@ -215,7 +216,7 @@ describe.skipIf(!hasCreds)("recordManualFeePayment (integración)", () => {
     await admin.from("reservations").delete().eq("id", reservationId);
     await admin.from("external_residence_payments").delete().eq("id", residencePaymentId);
     await admin.from("application_requests").delete().eq("id", mainAppId);
-    await admin.from("residences").delete().eq("id", residenceId);
+    await deleteResidenceCascade(admin, residenceId);
   });
 
   it("rechaza un pago que ya no está pendiente de validación", async () => {

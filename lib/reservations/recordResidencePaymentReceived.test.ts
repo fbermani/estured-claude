@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { deleteResidenceCascade } from "@/lib/testing/deleteResidenceCascade";
 import { recordResidencePaymentReceived } from "@/lib/reservations/recordResidencePaymentReceived";
 
 /**
@@ -157,7 +158,7 @@ describe.skipIf(!hasCreds)("recordResidencePaymentReceived (integración)", () =
   });
 
   afterAll(async () => {
-    if (!admin) return;
+    if (!admin || !residenceId) return;
     if (reservationId) {
       await admin
         .from("reservations")
@@ -170,8 +171,7 @@ describe.skipIf(!hasCreds)("recordResidencePaymentReceived (integración)", () =
     await admin.from("external_residence_payments").delete().eq("id", residencePaymentId);
     await admin.from("application_requests").delete().eq("id", mainAppId);
     await admin.from("residence_users").delete().eq("residence_id", residenceId);
-    const { error } = await admin.from("residences").delete().eq("id", residenceId);
-    if (error) console.error("[test cleanup] delete residence failed:", error);
+    await deleteResidenceCascade(admin, residenceId);
   });
 
   it("rechaza si el actor no tiene acceso activo a esa residencia", async () => {

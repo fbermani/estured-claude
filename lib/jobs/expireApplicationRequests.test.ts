@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { deleteResidenceCascade } from "@/lib/testing/deleteResidenceCascade";
 import { expireApplicationRequests } from "@/lib/jobs/expireApplicationRequests";
 
 const hasCreds = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
@@ -137,11 +138,10 @@ describe.skipIf(!hasCreds)("expireApplicationRequests (integración)", () => {
   });
 
   afterAll(async () => {
-    if (!admin) return;
+    if (!admin || !residenceId) return;
     await admin.from("external_residence_payments").delete().eq("application_request_id", staleResidencePaymentId);
     await admin.from("application_requests").delete().in("id", [staleSubmittedId, staleResidencePaymentId, freshAppId]);
-    const { error } = await admin.from("residences").delete().eq("id", residenceId);
-    if (error) console.error("[test cleanup] delete residence failed:", error);
+    await deleteResidenceCascade(admin, residenceId);
   });
 
   it("vence solicitudes sin respuesta de la residencia y sin pago a la residencia, deja intacta la vigente", async () => {

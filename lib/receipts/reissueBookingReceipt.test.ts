@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { deleteResidenceCascade } from "@/lib/testing/deleteResidenceCascade";
 import { reissueBookingReceipt } from "@/lib/receipts/reissueBookingReceipt";
 
 /**
@@ -81,9 +82,8 @@ describe.skipIf(!hasCreds)("reissueBookingReceipt (integración)", () => {
   });
 
   afterAll(async () => {
-    if (!admin) return;
-    const { error } = await admin.from("residences").delete().eq("id", residenceId);
-    if (error) console.error("[test cleanup] delete residence failed:", error);
+    if (!admin || !residenceId) return;
+    await deleteResidenceCascade(admin, residenceId);
   });
 
   async function createConfirmedReservationWithReceipt() {

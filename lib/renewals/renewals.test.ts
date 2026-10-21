@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { deleteResidenceCascade } from "@/lib/testing/deleteResidenceCascade";
 import { createRenewalRequest } from "@/lib/renewals/createRenewalRequest";
 import { createRenewalOffer } from "@/lib/renewals/createRenewalOffer";
 import { sendRenewalOffer } from "@/lib/renewals/sendRenewalOffer";
@@ -116,7 +117,7 @@ describe.skipIf(!hasCreds)("módulo de renovaciones (integración)", () => {
   });
 
   afterAll(async () => {
-    if (!admin) return;
+    if (!admin || !residenceId) return;
     // Red de seguridad (Ciclo 33, gotcha #37): cada `it()` ya limpia su
     // propio fixture, pero si alguno falla a mitad de camino (assertion
     // antes de llegar al cleanup) deja residuos que bloquean el
@@ -161,8 +162,7 @@ describe.skipIf(!hasCreds)("módulo de renovaciones (integración)", () => {
     await admin.from("application_snapshots").delete().eq("residence_id", residenceId);
     await admin.from("residence_users").delete().eq("residence_id", residenceId);
 
-    const { error } = await admin.from("residences").delete().eq("id", residenceId);
-    if (error) console.error("[test cleanup] delete residence failed:", error);
+    await deleteResidenceCascade(admin, residenceId);
   });
 
   async function createConfirmedReservation() {
