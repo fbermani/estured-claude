@@ -469,23 +469,23 @@ export function ResidentsBrowser({
       )}
 
       {/* KPIs — ref gestión de residentes (sin "evaluaciones": feature pospuesta) */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="p-5">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        <Card className="p-4 sm:p-5">
           <p className="text-sm font-semibold text-ink-soft">Residentes activos</p>
           <p className="mt-1 text-3xl font-extrabold text-ink">{kpis.active}</p>
         </Card>
-        <Card className="p-5">
+        <Card className="p-4 sm:p-5">
           <p className="text-sm font-semibold text-ink-soft">Próximos ingresos</p>
           <p className="mt-1 text-3xl font-extrabold text-ink">{kpis.arrivals}</p>
         </Card>
-        <Card className="p-5">
+        <Card className="p-4 sm:p-5">
           <p className="text-sm font-semibold text-ink-soft">Salidas próximas</p>
           <p className="mt-1 flex items-baseline gap-2 text-3xl font-extrabold text-ink">
             {kpis.departures}
             <span className="text-xs font-semibold text-ink-faint">30 días</span>
           </p>
         </Card>
-        <Card className="p-5">
+        <Card className="p-4 sm:p-5">
           <p className="text-sm font-semibold text-ink-soft">Renovación en ventana</p>
           <p className={`mt-1 text-3xl font-extrabold ${kpis.renewals > 0 ? "text-orange-700" : "text-ink"}`}>
             {kpis.renewals}

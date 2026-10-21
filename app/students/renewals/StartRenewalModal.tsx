@@ -80,7 +80,7 @@ export function StartRenewalModal({
                 <h2 id="start-renewal-title" className="text-lg font-bold text-ink">
                   Iniciar renovación
                 </h2>
-                <p className="text-sm text-ink-soft">Renová con anticipación para asegurar tu lugar.</p>
+                <p className="text-sm text-ink-soft">Renová con tiempo y evitá apuros cerca del fin de tu contrato.</p>
               </div>
               <button
                 type="button"

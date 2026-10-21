@@ -26,8 +26,8 @@ const freePlanFeatures = [
     detail: "Los interesados se anotan solos cuando estás completa — vos avisás con un clic cuando hay lugar.",
   },
   {
-    label: "FAQ asistida",
-    detail: "Responde automáticamente las preguntas más comunes antes de que te escriban a vos.",
+    label: "Preguntas frecuentes",
+    detail: "Cargá hasta 5 preguntas y respuestas en tu ficha para que los interesados resuelvan dudas básicas antes de escribirte.",
   },
   {
     label: "Renovaciones",
@@ -69,11 +69,11 @@ const benefits: RotatingBenefit[] = [
     icon: "quiz",
     title: "Menos consultas repetidas",
     summary:
-      "Tu perfil verificado responde las preguntas de siempre: precios, servicios, reglas y disponibilidad. Una FAQ asistida responde por vos.",
+      "Tu perfil verificado responde las preguntas de siempre: precios, servicios, reglas y disponibilidad. Sumá preguntas frecuentes en tu ficha para resolver el resto.",
     problem:
       "Responder las mismas preguntas de precio, servicios y disponibilidad, una y otra vez por WhatsApp, te come el tiempo que deberías usar en gestionar tu residencia.",
     solution:
-      "Tu perfil verificado responde las preguntas de siempre: precios, servicios, reglas y disponibilidad. Una FAQ asistida responde por vos.",
+      "Tu perfil verificado responde las preguntas de siempre: precios, servicios, reglas y disponibilidad. Sumá preguntas frecuentes en tu ficha para resolver el resto.",
     conclusion: "Menos tiempo respondiendo lo mismo, más tiempo gestionando.",
   },
   {
@@ -192,8 +192,11 @@ export default function ForResidencesPage() {
               </div>
             </div>
             <div className="absolute -right-4 -top-5 hidden max-w-[190px] rotate-2 rounded-card bg-surface p-3.5 text-ink shadow-float ring-1 ring-sand-200 transition-transform duration-300 ease-bounce hover:-translate-y-1 hover:rotate-0 sm:block">
-              <p className="text-2xl font-extrabold text-forest-700">–70%</p>
-              <p className="text-xs text-ink-faint">menos consultas repetidas por WhatsApp</p>
+              <p className="flex items-center gap-2 text-sm font-extrabold leading-snug text-forest-700">
+                <Icon name="quiz" className="text-lg" />
+                Preguntas frecuentes en tu ficha
+              </p>
+              <p className="mt-1 text-xs text-ink-faint">Menos consultas repetidas por WhatsApp</p>
             </div>
             <div className="absolute -bottom-4 -left-4 hidden -rotate-1 rounded-card bg-surface p-3.5 text-ink shadow-float ring-1 ring-sand-200 transition-transform duration-300 ease-bounce hover:-translate-y-1 hover:rotate-0 sm:block">
               <p className="flex items-center gap-2 text-xs font-bold leading-snug text-ink">

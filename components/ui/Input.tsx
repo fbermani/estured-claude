@@ -1,4 +1,4 @@
-import type { ComponentPropsWithoutRef } from "react";
+import { useId, type ComponentPropsWithoutRef } from "react";
 
 const fieldClasses =
   "w-full rounded-field border-[1.5px] border-line-2 bg-cream px-3.5 py-2.5 text-sm text-ink placeholder:text-muted transition-colors duration-200 ease-fresh focus:border-forest focus:outline-2 focus:outline-forest-tint disabled:bg-cream-2 disabled:text-muted";
@@ -33,9 +33,12 @@ export function Input({
   hint,
   ...props
 }: ComponentPropsWithoutRef<"input"> & FieldWrapperProps) {
+  // Sin `id` explícito el <label> quedaba sin asociar al campo (H31): se genera uno.
+  const autoId = useId();
+  const id = props.id ?? autoId;
   return (
-    <FieldWrapper label={label} hint={hint} id={props.id}>
-      <input {...props} className={`${fieldClasses} ${props.className ?? ""}`} />
+    <FieldWrapper label={label} hint={hint} id={id}>
+      <input {...props} id={id} className={`${fieldClasses} ${props.className ?? ""}`} />
     </FieldWrapper>
   );
 }
@@ -45,11 +48,14 @@ export function Textarea({
   hint,
   ...props
 }: ComponentPropsWithoutRef<"textarea"> & FieldWrapperProps) {
+  const autoId = useId();
+  const id = props.id ?? autoId;
   return (
-    <FieldWrapper label={label} hint={hint} id={props.id}>
+    <FieldWrapper label={label} hint={hint} id={id}>
       <textarea
         rows={4}
         {...props}
+        id={id}
         className={`${fieldClasses} ${props.className ?? ""}`}
       />
     </FieldWrapper>
@@ -62,9 +68,11 @@ export function Select({
   children,
   ...props
 }: ComponentPropsWithoutRef<"select"> & FieldWrapperProps) {
+  const autoId = useId();
+  const id = props.id ?? autoId;
   return (
-    <FieldWrapper label={label} hint={hint} id={props.id}>
-      <select {...props} className={`${fieldClasses} ${props.className ?? ""}`}>
+    <FieldWrapper label={label} hint={hint} id={id}>
+      <select {...props} id={id} className={`${fieldClasses} ${props.className ?? ""}`}>
         {children}
       </select>
     </FieldWrapper>

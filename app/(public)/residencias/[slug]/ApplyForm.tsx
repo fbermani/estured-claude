@@ -300,9 +300,9 @@ export function ApplyForm({
       )}
 
       <div>
-        <span className="mb-1.5 block text-sm font-semibold text-ink">¿Cuál es tu objetivo académico?</span>
+        <span id="apply-objective-label" className="mb-1.5 block text-sm font-semibold text-ink">¿Cuál es tu objetivo académico?</span>
         <input type="hidden" name="academic_objective_choice" value={objectiveChoice} />
-        <div className="flex flex-wrap gap-2">
+        <div role="group" aria-labelledby="apply-objective-label" className="flex flex-wrap gap-2">
           {ACADEMIC_OBJECTIVE_OPTIONS.map((option) => (
             <button
               key={option}
@@ -323,6 +323,7 @@ export function ApplyForm({
           id="apply-objective-detail"
           name="academic_objective_detail"
           rows={2}
+          aria-label="Más detalle sobre tu objetivo académico (opcional)"
           placeholder="Agregá más detalle si querés (opcional)."
           hint="Se usa para tu comprobante de reserva."
           className="mt-2.5"

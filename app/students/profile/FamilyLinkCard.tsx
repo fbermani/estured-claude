@@ -61,10 +61,13 @@ export function FamilyLinkCard({
   activeLink,
   pendingApprovalCount,
   pendingInvitation,
+  isMinor = false,
 }: {
   activeLink: { id: string; name: string; email: string | null } | null;
   pendingApprovalCount: number;
   pendingInvitation: { id: string; email: string } | null;
+  /** Menor de 18: el familiar vinculado es obligatorio para enviar solicitudes (docs/10 §9.1). */
+  isMinor?: boolean;
 }) {
   const [isRevoking, startRevoke] = useTransition();
   const [revokeError, setRevokeError] = useState<string | null>(null);
@@ -149,8 +152,9 @@ export function FamilyLinkCard({
       ) : (
         <>
           <p className="mt-2 text-sm text-ink-soft">
-            Invitalo/a a EstuRed para que en el futuro pueda ver información de tus reservas, pagos y estadía cuando
-            esa funcionalidad esté disponible.
+            {isMinor
+              ? "Como sos menor de 18, necesitás un familiar vinculado para enviar solicitudes de reserva. Invitalo/a por email: cuando se registre, vos aprobás la vinculación."
+              : "Invitalo/a por email para que te acompañe: va a poder ver tu búsqueda, sugerir residencias y ayudarte con pagos y documentación. Vos seguís decidiendo todo."}
           </p>
           <InviteForm key={formEpoch} />
         </>

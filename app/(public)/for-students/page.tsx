@@ -19,12 +19,12 @@ const benefits: RotatingBenefit[] = [
     icon: "verified",
     title: "Residencias verificadas",
     summary:
-      "Cada residencia del catálogo fue visitada presencialmente por el equipo de EstuRed. Lo que ves publicado es real.",
+      "Identidad, ubicación y fotos revisadas por EstuRed mediante control presencial.",
     problem:
       "Elegir dónde vivir a distancia, sin conocer el lugar, es de las decisiones más riesgosas de mudarte a otra ciudad.",
     solution:
-      "Cada residencia del catálogo fue visitada presencialmente por el equipo de EstuRed. Lo que ves publicado es real, no una foto de stock ni una descripción exagerada.",
-    conclusion: "Elegís con información real, no con fe.",
+      "Identidad, ubicación y fotos revisadas por EstuRed mediante control presencial, no una foto de stock ni una descripción exagerada. El sello Residencia Verificada no reemplaza que consultes las condiciones de tu estadía.",
+    conclusion: "Elegís con información revisada, no con fe.",
   },
   {
     icon: "description",
@@ -85,7 +85,7 @@ const benefits: RotatingBenefit[] = [
 
 const steps = [
   {
-    text: "Creá tu cuenta y completá tu perfil básico: de dónde venís, qué buscás, tu presupuesto y tu fecha estimada de mudanza.",
+    text: "Creá tu cuenta y completá tu perfil: de dónde venís, dónde y qué estudiás, y contanos un poco sobre vos, tus intereses y tus hábitos.",
     detail: "Cuantos más datos completes, más rápido vas a poder aplicar cuando encuentres la residencia indicada.",
   },
   {

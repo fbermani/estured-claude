@@ -21,6 +21,8 @@ import { ApplyForm } from "@/app/(public)/residencias/[slug]/ApplyForm";
 import { ProposeForm } from "@/app/(public)/residencias/[slug]/ProposeForm";
 import { FavoriteButton } from "@/app/(public)/residencias/[slug]/FavoriteButton";
 import { toggleStudentFavorite, toggleFamilyFavorite } from "@/app/students/favorites/actions";
+import { MobileRequestBar } from "@/components/residences/MobileRequestBar";
+import { formatUsd } from "@/lib/mock/exchange";
 import { ReservationSelectionProvider } from "@/components/residences/reservationSelection";
 
 export const dynamic = "force-dynamic";
@@ -148,15 +150,35 @@ export default async function RealResidenceDetailPage({
   let profileCompletenessPercent: number | null = null;
   let studentProfileId: string | null = null;
   let studentFavorited = false;
+  let minorBlock: "no_family" | "no_phone" | null = null;
   if (sessionUser?.roles.includes("student") && adminClient) {
     const completeness = await getStudentProfileCompleteness(adminClient, sessionUser.id);
     profileCompletenessPercent = completeness?.percent ?? null;
     const { data: profileRow } = await adminClient
       .from("student_profiles")
-      .select("id")
+      .select("id, is_minor")
       .eq("user_id", sessionUser.id)
       .maybeSingle();
     studentProfileId = profileRow?.id ?? null;
+    // Menor sin familiar vinculado con teléfono (docs/10 §9.1 y §9.5): el servidor
+    // rechaza la solicitud al enviarla; acá se avisa antes de completar el formulario.
+    if (profileRow?.is_minor) {
+      const { data: link, error: linkError } = await adminClient
+        .from("family_links")
+        .select("family_members(phone)")
+        .eq("student_profile_id", profileRow.id)
+        .eq("status", "active")
+        .maybeSingle();
+      if (linkError) {
+        // Ante un error de lectura no se bloquea: decide `submitApplication` al enviar.
+        console.error("[ficha] no se pudo leer el familiar vinculado del menor:", linkError);
+      } else if (!link) {
+        minorBlock = "no_family";
+      } else {
+        const familyMember = link.family_members as unknown as { phone: string | null } | null;
+        if (!familyMember?.phone) minorBlock = "no_phone";
+      }
+    }
     if (studentProfileId) {
       const { data: fav } = await adminClient
         .from("student_favorites")
@@ -198,6 +220,16 @@ export default async function RealResidenceDetailPage({
       }
     }
   }
+
+  const prices = roomTypes.map((rt) => Number(rt.monthly_price_usd)).filter((n) => Number.isFinite(n) && n > 0);
+  const mobileBarPrice = prices.length > 0 ? formatUsd(Math.min(...prices)) : null;
+
+  // La barra fija solo tiene sentido donde el panel ofrece una acción: invitados (inicio de sesión),
+  // estudiantes con el formulario y familiares. No para admin/owner/staff ni con el bloqueo del menor.
+  const showMobileBar =
+    !sessionUser ||
+    sessionUser.roles.includes("family_member") ||
+    (sessionUser.roles.includes("student") && minorBlock === null);
 
   const showStudentFavoriteInHeader = sessionUser?.roles.includes("student") ?? false;
 
@@ -365,7 +397,7 @@ export default async function RealResidenceDetailPage({
         </div>
 
         <aside id="solicitud" className="scroll-mt-24">
-          <Card className="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto p-6">
+          <Card className="p-6 lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
             {!sessionUser ? (
               <>
                 <p className="text-sm text-ink-soft">
@@ -402,6 +434,36 @@ export default async function RealResidenceDetailPage({
               <p className="text-sm text-ink-soft">
                 Solo cuentas de estudiante o familiares vinculados pueden actuar acá.
               </p>
+            ) : minorBlock === "no_family" ? (
+              <>
+                <p className="flex items-center gap-2 font-bold text-ink">
+                  <Icon name="family_restroom" className="text-xl text-forest-700" />
+                  Primero, vinculá a un familiar
+                </p>
+                <p className="mt-2 text-sm leading-relaxed text-ink-soft">
+                  Como sos menor de 18, necesitás un familiar vinculado (con su teléfono cargado) para
+                  enviar solicitudes de reserva. Invitalo/a por email desde tu panel; cuando se registre, vos
+                  aprobás la vinculación. Mientras tanto podés seguir explorando.
+                </p>
+                <Button href="/students/dashboard#vinculacion" size="lg" className="mt-4 w-full">
+                  Invitar a un familiar
+                </Button>
+              </>
+            ) : minorBlock === "no_phone" ? (
+              <>
+                <p className="flex items-center gap-2 font-bold text-ink">
+                  <Icon name="phone_in_talk" className="text-xl text-forest-700" />
+                  Falta el teléfono de tu familiar
+                </p>
+                <p className="mt-2 text-sm leading-relaxed text-ink-soft">
+                  Tu familiar ya está vinculado, pero no tiene un teléfono de contacto cargado, y como sos
+                  menor de 18 la residencia lo contacta a él o ella. Hoy no podés completarlo desde tu cuenta:
+                  escribinos desde Soporte y lo resolvemos. Mientras tanto podés seguir explorando.
+                </p>
+                <Button href="/students/support" size="lg" className="mt-4 w-full">
+                  Ir a Soporte
+                </Button>
+              </>
             ) : (
               <ApplyForm
                 residenceId={residence.id}
@@ -486,7 +548,15 @@ export default async function RealResidenceDetailPage({
         </Link>
         .
       </p>
+      {/* Espacio para que la barra fija de mobile no tape el final de la página */}
+      <div className="h-[calc(5.5rem+env(safe-area-inset-bottom))] lg:hidden" aria-hidden="true" />
     </div>
+    {showMobileBar && (
+      <MobileRequestBar
+        priceLabel={mobileBarPrice}
+        ctaLabel={sessionUser?.roles.includes("family_member") ? "Proponer" : "Solicitar"}
+      />
+    )}
     </ReservationSelectionProvider>
   );
 }

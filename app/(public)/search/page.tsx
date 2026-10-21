@@ -15,7 +15,7 @@ export default async function SearchPage() {
   const [rate, residences] = await Promise.all([getCurrentExchangeRate(), getCatalogResidences()]);
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
-      <div className="mb-8 max-w-2xl">
+      <div className="mb-5 max-w-2xl sm:mb-8">
         <h1 className="text-3xl font-extrabold text-ink sm:text-4xl">
           Encontrá tu próximo hogar en Buenos Aires
         </h1>

@@ -19,7 +19,7 @@ export default async function StudentProfilePage() {
 
   const { data: profile } = await admin
     .from("student_profiles")
-    .select("id, nationality, study_institution_private, career, origin_city, bio, interests, habits")
+    .select("id, is_minor, nationality, study_institution_private, career, origin_city, bio, interests, habits")
     .eq("user_id", sessionUser.id)
     .maybeSingle();
   if (!profile) notFound();
@@ -124,6 +124,7 @@ export default async function StudentProfilePage() {
             activeLink={activeLink}
             pendingApprovalCount={pendingApprovalCount ?? 0}
             pendingInvitation={pendingInvitation}
+            isMinor={profile.is_minor ?? false}
           />
         </div>
       </div>

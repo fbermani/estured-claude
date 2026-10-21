@@ -16,12 +16,12 @@ const pillars: RotatingBenefit[] = [
     icon: "verified",
     title: "Información verificada",
     summary:
-      "Cada residencia fue visitada presencialmente por el equipo de EstuRed. Fotos, servicios, reglas y precios chequeados antes de publicarse.",
+      "Identidad, ubicación y fotos revisadas por EstuRed mediante control presencial antes de publicarse.",
     problem:
       "Buscar residencia a distancia significa confiar en fotos y descripciones que nadie garantiza. No sabés si lo que ves es real hasta que ya pagaste una seña.",
     solution:
-      "Cada residencia del catálogo fue visitada presencialmente por el equipo de EstuRed antes de publicarse: fotos, servicios, reglas y precios, todo chequeado.",
-    conclusion: "Lo que ves publicado es lo que vas a encontrar.",
+      "Identidad, ubicación y fotos revisadas por EstuRed mediante control presencial antes de publicarse. El sello Residencia Verificada no reemplaza que consultes las condiciones de tu estadía.",
+    conclusion: "Elegís con información revisada, no con fe.",
   },
   {
     icon: "description",

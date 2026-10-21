@@ -47,11 +47,11 @@ Regla de paralelismo: dos agentes que escriben nunca tocan los mismos archivos a
 | "Sumar otra residencia": implementar o quitar el CTA | H22 | `constructor` | S |
 | Familiar: arreglar el 404 de "Mi perfil" | H16 (parte) | `depurador` | S |
 | Notificaciones con enlace y estado "leída" | H20 | `constructor` | S |
-| Copy sin promesas ni datos no respaldados | H11 | `interfaz` | S |
-| Navbar pública consciente de la sesión | H15 | `interfaz` | S |
-| Menor: instrucciones y bloqueo coherentes | H17 | `interfaz` | S |
+| ✅ Copy sin promesas ni datos no respaldados (Ciclo 46) | H11 | `interfaz` | S |
+| ✅ Navbar pública consciente de la sesión (Ciclo 46) | H15 | `interfaz` | S |
+| ✅ Menor: instrucciones y bloqueo coherentes (Ciclo 46) | H17 | `interfaz` | S |
 | Inbox: acciones válidas por estado y rótulos correctos | H24 | `interfaz` (después de H01) | S |
-| Accesibilidad y mobile | H31 | `interfaz` | S |
+| ✅ Accesibilidad y mobile (Ciclo 46) | H31 | `interfaz` | S |
 | Pulido: nacionalidades, alertas de disponibilidad vencida, tipo de cambio, fechas, 404 | H21, H23, H28, H29, H30 | `interfaz` | S c/u |
 | Admin: estados legibles, histórico de cobros, detalle | H25 | `interfaz` | M |
 | ✅ Tests de regresión del helper de H01 y de H05 (Ciclo 45: `visibleStatus.test.ts` + `contractEnd.test.ts`, puros) | H01, H05 | `tester` | S |

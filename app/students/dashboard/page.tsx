@@ -472,11 +472,28 @@ export default async function StudentDashboardPage() {
             Sos menor de edad: vas a necesitar un familiar vinculado
           </p>
           <p className="mt-1 text-sm text-warning-fg">
-            Para poder enviar solicitudes de reserva, un padre, madre o familiar debe crear su cuenta en la
-            sección <span className="font-semibold">Crear cuenta → Familiar</span> y vos aprobar la vinculación
-            acá. Mientras tanto podés explorar y guardar
-            residencias.
+            {familyPendingInvitation ? (
+              <>
+                Ya invitaste a <span className="font-semibold">{familyPendingInvitation.email}</span>. Cuando se
+                registre, vas a aprobar la vinculación desde acá y vas a poder enviar solicitudes. Mientras tanto
+                podés explorar y guardar residencias.
+              </>
+            ) : (
+              <>
+                Invitá a tu padre, madre o tutor por email: cuando se registre, vos aprobás la vinculación y ya
+                podés enviar solicitudes. Mientras tanto podés explorar y guardar residencias.
+              </>
+            )}
           </p>
+          {!familyPendingInvitation && (
+            <a
+              href="#vinculacion"
+              className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-warning-fg underline underline-offset-2"
+            >
+              Invitar a un familiar
+              <Icon name="arrow_downward" className="text-sm" />
+            </a>
+          )}
         </div>
       )}
     </>
@@ -541,7 +558,7 @@ export default async function StudentDashboardPage() {
           </p>
         </>
       ) : (
-        <p>Explorá el catálogo y enviá tu primera solicitud para asegurar tu lugar.</p>
+        <p>Explorá el catálogo y dá el primer paso enviando tu primera solicitud.</p>
       )}
     </ModuleCard>
   );
@@ -586,8 +603,8 @@ export default async function StudentDashboardPage() {
   );
 
   const vinculacionCard = (
-    <div className="benefit-fade-in" style={{ animationDelay: "200ms" }}>
-      <FamilyLinkCard activeLink={familyActiveLink} pendingApprovalCount={0} pendingInvitation={familyPendingInvitation} />
+    <div id="vinculacion" className="benefit-fade-in scroll-mt-24" style={{ animationDelay: "200ms" }}>
+      <FamilyLinkCard activeLink={familyActiveLink} pendingApprovalCount={0} pendingInvitation={familyPendingInvitation} isMinor={isMinor} />
     </div>
   );
 

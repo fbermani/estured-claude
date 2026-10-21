@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
+import { Icon } from "@/components/ui/Icon";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -11,11 +12,23 @@ import {
 
 const initialState: RegisterState = { status: "idle" };
 
+/** Solo para anticipar el aviso en pantalla; la edad que vale la calcula el servidor. */
+function isUnder18(isoDate: string): boolean {
+  const birth = new Date(`${isoDate}T00:00:00`);
+  if (Number.isNaN(birth.getTime())) return false;
+  const limit = new Date();
+  limit.setFullYear(limit.getFullYear() - 18);
+  return birth > limit;
+}
+
 export function RegisterStudentForm() {
   const [state, formAction, isPending] = useActionState(
     registerStudent,
     initialState,
   );
+
+  const [birthDate, setBirthDate] = useState("");
+  const showMinorNotice = birthDate !== "" && isUnder18(birthDate);
 
   return (
     <Card className="p-8">
@@ -48,9 +61,23 @@ export function RegisterStudentForm() {
           id="reg-birth-date"
           name="birth_date"
           type="date"
-          hint="Privada. Si sos menor, vas a necesitar vincular un familiar."
+          hint="Privada. Si sos menor de 18, te vamos a pedir un familiar vinculado para enviar solicitudes."
+          value={birthDate}
+          onChange={(e) => setBirthDate(e.target.value)}
           required
         />
+        {showMinorNotice && (
+          <p
+            role="status"
+            className="-mt-2 flex items-start gap-2 rounded-field bg-info-bg px-3.5 py-3 text-sm leading-relaxed text-info-fg"
+          >
+            <Icon name="family_restroom" className="mt-0.5 shrink-0 text-lg" />
+            <span>
+              Podés crear tu cuenta y explorar residencias. Para enviar una solicitud de reserva necesitás un
+              familiar vinculado: apenas termines, lo invitás por email desde tu panel.
+            </span>
+          </p>
+        )}
         <div className="grid gap-5 sm:grid-cols-2">
           <Input
             label="Email"

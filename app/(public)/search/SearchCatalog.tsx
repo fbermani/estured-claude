@@ -122,6 +122,9 @@ export function SearchCatalog({ residences, arsPerUsd }: { residences: Residence
   const [availability, setAvailability] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [openPill, setOpenPill] = useState<string | null>(null);
+  // En mobile los filtros ocupaban casi toda la primera pantalla: arrancan
+  // plegados detrás de un botón "Filtros" (H31). En desktop siempre visibles.
+  const [filtersOpenMobile, setFiltersOpenMobile] = useState(false);
 
   const all = residences;
   const zones = useMemo(() => [...new Set(all.map((r) => r.zone))].sort(), [all]);
@@ -146,6 +149,8 @@ export function SearchCatalog({ residences, arsPerUsd }: { residences: Residence
   }, [all, university, zoneSet, roomTypeSet, availability, maxPrice]);
 
   const hasFilters = university.trim() !== "" || zoneSet.size > 0 || roomTypeSet.size > 0 || availability !== "" || maxPrice !== "";
+  const activeFilterCount =
+    (university.trim() !== "" ? 1 : 0) + zoneSet.size + roomTypeSet.size + (availability !== "" ? 1 : 0) + (maxPrice !== "" ? 1 : 0);
   const clearFilters = () => {
     setUniversity("");
     setZoneSet(new Set());
@@ -171,6 +176,43 @@ export function SearchCatalog({ residences, arsPerUsd }: { residences: Residence
       {/* Cerrar dropdowns al clickear afuera */}
       {openPill && <div className="fixed inset-0 z-10" onClick={() => setOpenPill(null)} aria-hidden />}
 
+      {/* Mobile: botón "Filtros" que despliega el buscador y los filtros rápidos */}
+      <div className="flex items-center justify-between gap-3 md:hidden">
+        <button
+          type="button"
+          onClick={() => {
+            setOpenPill(null);
+            setFiltersOpenMobile((v) => !v);
+          }}
+          aria-expanded={filtersOpenMobile}
+          aria-controls="catalog-filters"
+          className={`flex cursor-pointer items-center gap-2 rounded-full border-[1.5px] px-4 py-2.5 text-sm font-bold transition-colors ${
+            activeFilterCount > 0 || filtersOpenMobile
+              ? "border-forest bg-forest-tint text-forest-700"
+              : "border-line bg-paper text-ink-soft"
+          }`}
+        >
+          <Icon name="tune" className="text-lg" />
+          Filtros
+          {activeFilterCount > 0 && (
+            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-forest px-1 text-[11px] font-bold text-white">
+              {activeFilterCount}
+            </span>
+          )}
+          <Icon name={filtersOpenMobile ? "expand_less" : "expand_more"} className="text-lg" />
+        </button>
+        {hasFilters && (
+          <button
+            type="button"
+            onClick={clearFilters}
+            className="cursor-pointer text-sm font-semibold text-ink-soft underline-offset-2 hover:underline"
+          >
+            Limpiar filtros
+          </button>
+        )}
+      </div>
+
+      <div id="catalog-filters" className={`${filtersOpenMobile ? "mt-4 block" : "hidden"} md:mt-0 md:block`}>
       {/* Buscador por universidad — ref: campo "Universidad: Ej UBA, UADE, UCA" */}
       <div className="rounded-card border-[1.5px] border-line bg-paper p-4 shadow-card sm:p-5">
         <label htmlFor="filter-university" className="mb-1.5 block text-sm font-bold text-ink">
@@ -266,11 +308,12 @@ export function SearchCatalog({ residences, arsPerUsd }: { residences: Residence
           <button
             type="button"
             onClick={clearFilters}
-            className="cursor-pointer text-sm font-semibold text-ink-soft underline-offset-2 hover:underline"
+            className="hidden cursor-pointer text-sm font-semibold text-ink-soft underline-offset-2 hover:underline md:inline"
           >
             Limpiar filtros
           </button>
         )}
+      </div>
       </div>
 
       <div className="mb-5 mt-6 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
