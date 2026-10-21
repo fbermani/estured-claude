@@ -30,7 +30,15 @@ const NAV_BASE = {
  * se oculta mientras el estudiante busca — sin reserva confirmada la
  * pantalla no tiene nada que mostrar (ver app/students/renewals/page.tsx).
  */
-function buildNav(isHoused: boolean): NavItem[] {
+function buildNav(isHoused: boolean, hasProfile: boolean): NavItem[] {
+  const nav = buildNavByState(isHoused);
+  // "Mi perfil" (/students/profile) edita el `student_profiles` del propio
+  // usuario; el familiar no tiene uno, así que la ruta responde 404. Sin
+  // pantalla de perfil de familiar definida, el enlace no se muestra.
+  return hasProfile ? nav : nav.filter((item) => item !== NAV_BASE.profile);
+}
+
+function buildNavByState(isHoused: boolean): NavItem[] {
   if (isHoused) {
     return [
       NAV_BASE.home,
@@ -69,12 +77,22 @@ function buildNav(isHoused: boolean): NavItem[] {
  *
  * `isHoused` (Ciclo 38) reordena y renombra el menú según el estado real
  * del estudiante (docs/04 §7: reserva confirmada) — ver app/students/layout.tsx.
- * Para familiares llega siempre en `false` (conservan el orden de búsqueda).
+ * Para familiares llega siempre en `false` (conservan el orden de búsqueda)
+ * y `hasProfile` en `false` (sin ficha de estudiante → sin "Mi perfil").
  */
-export function StudentSidebar({ userEmail, isHoused }: { userEmail: string; isHoused: boolean }) {
+export function StudentSidebar({
+  userEmail,
+  isHoused,
+  hasProfile = true,
+}: {
+  userEmail: string;
+  isHoused: boolean;
+  /** `false` para el familiar: no tiene `student_profiles`, "Mi perfil" daría 404. */
+  hasProfile?: boolean;
+}) {
   const pathname = usePathname();
   const { collapsed, toggleCollapsed, mobileOpen, setMobileOpen } = useSidebarCollapse();
-  const nav = buildNav(isHoused);
+  const nav = buildNav(isHoused, hasProfile);
 
   return (
     <>

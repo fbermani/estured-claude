@@ -397,19 +397,23 @@ export default async function StudentResidencyPage() {
         <div className="flex flex-col gap-5 lg:col-span-1">
           <PendingActivationBlock pending={pending} />
 
-          <Card className="p-5">
-            <div className="mb-3 flex items-center justify-between">
-              <p className="text-xs font-extrabold uppercase tracking-wider text-muted">Documentación de tu estadía</p>
-              <Icon name="folder_shared" className="text-lg text-muted" />
-            </div>
-            <p className="text-sm font-bold text-ink">{docsUploadedCount} de 2 documentos cargados</p>
-            <p className="mt-1 text-xs text-ink-soft">DNI/pasaporte y comprobante de estudio.</p>
-            {docsUploadedCount < 2 && (
-              <Link href="/students/profile" className="mt-3 inline-block text-sm font-semibold text-forest-700 hover:underline">
-                Completar documentación →
-              </Link>
-            )}
-          </Card>
+          {/* La documentación vive en la ficha del estudiante (/students/profile); el
+              familiar no tiene una (la ruta da 404 y el conteo sería un falso "0 de 2"). */}
+          {sessionUser?.roles.includes("student") && (
+            <Card className="p-5">
+              <div className="mb-3 flex items-center justify-between">
+                <p className="text-xs font-extrabold uppercase tracking-wider text-muted">Documentación de tu estadía</p>
+                <Icon name="folder_shared" className="text-lg text-muted" />
+              </div>
+              <p className="text-sm font-bold text-ink">{docsUploadedCount} de 2 documentos cargados</p>
+              <p className="mt-1 text-xs text-ink-soft">DNI/pasaporte y comprobante de estudio.</p>
+              {docsUploadedCount < 2 && (
+                <Link href="/students/profile" className="mt-3 inline-block text-sm font-semibold text-forest-700 hover:underline">
+                  Completar documentación →
+                </Link>
+              )}
+            </Card>
+          )}
 
           <Card className="p-5">
             <div className="mb-3 flex items-center justify-between">

@@ -34,9 +34,13 @@ export default async function StudentsLayout({
     if (supabase) isHoused = await getIsHoused(supabase);
   }
 
+  // "Mi perfil" es la ficha del estudiante (`student_profiles`); el familiar
+  // no tiene una y la ruta daría 404 — se oculta el enlace para ese rol.
+  const hasProfile = hasAnyRole(user, ["student"]);
+
   return (
     <div className="flex min-h-screen flex-col bg-cream md:flex-row">
-      <StudentSidebar userEmail={user.email} isHoused={isHoused} />
+      <StudentSidebar userEmail={user.email} isHoused={isHoused} hasProfile={hasProfile} />
       <main className="min-w-0 flex-1">{children}</main>
     </div>
   );
