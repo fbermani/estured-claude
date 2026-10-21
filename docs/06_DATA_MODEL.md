@@ -519,7 +519,10 @@ Reglas:
 - verificación presencial obligatoria y anual;
 - `has_operational_management_access` controla el acceso a Gestión Operativa;
 - pioneras tienen `pioneer_free_access_until` = 1 año desde su ingreso;
-- cambio de `has_operational_management_access` queda auditado.
+- cambio de `has_operational_management_access` queda auditado;
+- **MVP: todo gratis (D8, 2026-10-20):** el flag y `operating_mode` se conservan pero no restringen funciones mientras no se monetice (ver `docs/00` §6.2).
+
+**Campo nuevo — pago inicial para reservar (decisión D7, 2026-10-20; supuesto reversible, `docs/13` §4).** El perfil de la residencia define cuánto debe pagar el estudiante a la residencia para reservar. Valor por defecto: **el primer mes** de la tarifa del tipo elegido. Se muestra con el mismo valor en la ficha, la solicitud, el mensaje de WhatsApp y el cálculo/pantalla del fee. Modelado propuesto (nombres provisionales, se fijan en la migración): `reservation_initial_payment_mode` (`first_month` por defecto | `manual`) y `reservation_initial_payment_usd` (numeric null, solo si `manual`). Es la fuente única de `reservation_payment_amount_usd/ars` que se copia al snapshot (§11.2); reemplaza como origen a `room_types.reservation_payment_amount_usd` (§9.1). Para revertir: volver a `room_types.reservation_payment_*` por tipo.
 
 ---
 
@@ -1161,7 +1164,7 @@ Reglas:
 - fee de renovación = misma lógica que reserva inicial: 5% sobre tarifa × duración + cargo no reembolsable si aplica, excluyendo depósito;
 - no hay excepciones para simplificar el código;
 - comprobante se llama "Comprobante de Renovación Confirmada";
-- **al confirmarse la renovación, el sistema extiende `resident_stays.end_date` al fin del período renovado y la plaza mantiene su estado de ocupación** — la renovación no crea una `reservation` nueva.
+- **al confirmarse la renovación, el sistema extiende `resident_stays.expected_end_date` ("contrato hasta") al fin del período renovado y la plaza mantiene su estado de ocupación** — la renovación no crea una `reservation` nueva. No toca `end_date`, que es la salida real (corrección Ciclo 43; ver §15.1).
 
 ---
 
@@ -1199,10 +1202,16 @@ Reglas:
 | `invite_email` | text null | Email para activar cuenta |
 | `status` | text | `created_by_residence`, `pending_activation`, `active`, `visibility_limited`, `hidden_by_user`, `inactive` |
 | `start_date` | date null | Ingreso |
-| `end_date` | date null | Salida |
+| `expected_end_date` | date null | **"Contrato hasta"**: fin esperado del contrato. Lo extienden las renovaciones confirmadas (Ciclo 43). Es la fecha que ven estudiante y residencia como fin de contrato |
+| `end_date` | date null | **Salida real**: solo la escriben "Registrar salida" y el cierre por admin; no la modifican las renovaciones |
+| `monthly_rate_usd` | numeric null | Tarifa vigente de la estadía (por defecto la del tipo; editable por la residencia) |
 | `is_current` | boolean | Actual |
 | `created_at` | timestamptz | Alta |
 | `updated_at` | timestamptz | Actualización |
+
+Regla de transparencia de tarifa (decisión D5, 2026-10-20): `monthly_rate_usd` **puede diferir** de la tarifa acordada en el snapshot de la reserva o de la renovación. El estudiante ve la tarifa vigente de la estadía con una nota que aclara que difiere de la acordada en la reserva (y cuál era); la residencia ve la diferencia contra el snapshot. El snapshot no se modifica nunca.
+
+Estadías vencidas (D11): al llegar `expected_end_date` el sistema alerta (a 30 días y al vencer) pero **no cierra** la estadía ni cambia `is_current`/`status` por sí solo.
 
 ---
 

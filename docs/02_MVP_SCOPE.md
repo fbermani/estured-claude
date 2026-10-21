@@ -575,6 +575,8 @@ Debe existir desde el MVP para residencias que lo usen (o que estén en período
 
 No es obligatorio para todas las residencias. El sistema debe soportarla con feature flags por residencia.
 
+> **MVP: todo gratis (decisión D8, 2026-10-20; `docs/00` §6.2 y §31).** Gestión Operativa **no se vende en el MVP**: todas las funciones de residencia son gratuitas. El modelo `operating_mode` y los feature flags se conservan para monetizar más adelante; la UI no vende un plan pago ni muestra "Sin acceso".
+
 Incluye como mínimo:
 
 - habitaciones y tipos de habitación;
@@ -610,6 +612,8 @@ El sistema responde solo con información cargada. No inventa respuestas, dispon
 Preguntas no respondidas quedan registradas para que la residencia las agregue.
 
 IA avanzada queda fuera del MVP.
+
+> **FAQ simple (decisión D9, 2026-10-20; `docs/00` §31).** En el MVP: la residencia carga preguntas y respuestas (listado predefinido y propias); el estudiante puede escribir una **pregunta libre** desde la ficha y **la residencia responde**. No hay respuesta automática a partir de archivos subidos. Siguen fuera del MVP: métricas, pantalla de facturas y settings globales (ver nota al final de §20).
 
 ---
 
@@ -829,6 +833,8 @@ Incluye: perfil completo verificado, dashboard de solicitudes, disponibilidad se
 
 ### 15.2 Modo Gestión Operativa — Plan pago
 
+> **MVP: todo gratis (D8, 2026-10-20).** Mientras no se monetice, estas funciones están disponibles sin costo para toda residencia verificada; ver nota en §7.21.
+
 Incluye todo lo del Perfil Verificado más: habitaciones, plazas/camas, residentes, disponibilidad real, ocupación, comunidad visible, métricas operativas.
 
 ### 15.3 Residencias pioneras de beta
@@ -920,6 +926,8 @@ El MVP se considera completo cuando permite:
 25. aplicar estados de disponibilidad y solicitud coherentes;
 26. gestionar feature flags de planes freemium por residencia;
 27. ejercer el derecho de revocación del fee desde el enlace del footer, con revisión admin.
+
+> **Diferido en el MVP (decisiones D8 y D9, 2026-10-20).** No bloquean la aceptación: métricas básicas de residencia (`/residence/[residence_id]/metrics`), pantalla de facturas (`/admin/invoices`) y emisión real de Factura C vía TusFacturas.app (criterio 15; hoy el fee deja `fiscal_invoice_status = pending_issue`), settings globales (`/residence/settings`, `/admin/settings`), y la UI admin para otorgar/revocar feature flags freemium (criterio 26: se conserva el modelo, no la pantalla). Sí entran: FAQ simple con pregunta libre (criterio 5) y el routing real descrito en `docs/08` §3.
 
 ---
 

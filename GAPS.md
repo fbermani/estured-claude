@@ -1,8 +1,49 @@
 # GAPS.md — Auditoría técnica honesta de EstuRed
 
-> Estado al 2026-07-06 (commit `cf89302`). Ordenado por severidad.
+> Estado al 2026-10-21 (Ciclo 48bis, `62b9871` + documentación D1–D11). Las entradas nuevas están arriba; el resto conserva su orden histórico. Ordenado por severidad dentro de cada bloque.
 > Contexto de arquitectura en [PROJECT.md](PROJECT.md); guía operativa en [CLAUDE.md](CLAUDE.md).
 > Nota de calibración: el proyecto tiene ~2 días de código y es pre-lanzamiento. Varios gaps son **etapa esperada**, no negligencia — se marcan igual, sin suavizar, porque el próximo agente necesita saber qué falta de verdad.
+
+---
+
+## [ABIERTO — decisiones D1–D11 documentadas, código pendiente] Fase 2 de la auditoría 2026-10-20
+
+**Qué es:** el dueño resolvió D1–D11 (`docs/00` §31; fuente `docs/audits/PLAN_ACCION_2026-10-20.md`) y los docs de producto ya reflejan cada una (protocolo `docs/13` §5: doc primero). Lo que **todavía no está implementado** (no confundir con "decidido"): D2 pantalla de pago con datos de transferencia + config admin de cobro (H02), D3 fuente única de disponibilidad por tipo de habitación (H03), D4 control de visibilidad del estudiante + consentimiento + menores ocultos (H04), D6 vencimiento de `contact_established` (H06), D7 campo "pago inicial para reservar" (H08, requiere migración), D8 quitar la frontera freemium de sidebar/"Tu plan"/`/for-residences` (H09), D9 FAQ simple con pregunta libre (H12), D10 reset de contraseña + `/terms` (H13/H19), D11 alertas de estadía vencida (H18). Cada ítem está en la tabla de Fase 2 del plan de acción; el estado vivo está en `MEMORY.md` §14.
+
+**En curso al cierre del Ciclo 48bis (archivos sin commitear en el árbol de trabajo, no verificados):** D4 (`CommunityVisibilityCard`, `communityVisibilitySettings`) y D6 (`expireContactEstablished`, `paymentDeadline`, `ContactDeadlineNote`); marcarlos [RESUELTO] cuando se cierren sus ciclos.
+
+**Ya resuelto de esas decisiones:** D1 (Ciclo 44), D5 (Ciclo 45: el estudiante ve la tarifa vigente con nota y la residencia ve la diferencia contra el snapshot).
+
+---
+
+## [ABIERTO] Divergencias entre `docs/00`–`22` y el código que no se resolvieron en el ciclo de documentación
+
+Reportadas sin tocar (cambiarlas es decisión del dueño, `docs/13` §5):
+1. `docs/06` §9.1 modela condiciones de reserva (matrícula, depósito, política de ajustes, estadía mínima, mes vacío, `reservation_payment_*`) por `room_types`; desde la migración 0025 viven en `residences` (con CHECK matrícula⊕depósito). Además `beds` y `resident_stays.bed_id`/`room_type_id` (migraciones 0019/0025) no están en `docs/06`. Ya conocido desde el Ciclo 33bis.
+2. `docs/04` §5.4 fila `contact_established → residence_payment_pending` dice actor "Sistema"; el código lo hace la residencia con "Continuar sin cambios (habilitar pago)". Se dejó un supuesto reversible en `docs/04` §5.8; falta que el dueño confirme si el paso debe ser automático.
+3. `docs/08` §7.5/§7.18/§8.2bis siguen describiendo pantallas de upsell y gestión de plan; `docs/08` §3.3 y `docs/00` §31 las neutralizan (D8) pero el texto de esas secciones no se reescribió.
+4. `docs/00` §20.2 describe una búsqueda automática en FAQ y archivos subidos; D9 (MVP) es pregunta libre que responde la residencia. `docs/00` §31 prevalece; §20 no se editó.
+5. `docs/06` §9.1/§17 (`residence_faq_items`, `bot_interactions`) vs. el FAQ real (hasta 5 pares en `residence_profile_sections`, sin tablas de FAQ).
+6. `docs/10` §9.1 y `/privacy` §4 dicen que el menor "no puede terminar el registro sin un familiar vinculado", pero el flujo real deja registrarse y bloquea la solicitud (Ciclo 46).
+7. `docs/07` (API) no se revisó en este ciclo: puede tener rutas/server actions desactualizadas respecto de las decisiones D1–D11.
+
+---
+
+## [RESUELTO — Ciclo 44, 2026-10-20] Los tests de integración y los seeds escribían en la base de producción (H26)
+
+**Qué era:** `.env.local` apuntaba al mismo proyecto Supabase que producción; los tests creaban y borraban filas reales y los seeds borraban/recreaban datos.
+
+**Fix aplicado (D1):** proyecto `estured-dev` separado (otra cuenta de Supabase); `.env.local` apunta a dev. Guards: `vitest.setup.ts` lanza error y `scripts/_assert-dev-project.mjs` hace `process.exit(1)` si la URL es un ref de `scripts/production-refs.json`. Limpieza de residuos: `scripts/cleanup-test-residences.mjs`. Ver `MEMORY.md` Ciclos 44–46a.
+
+**Sigue abierto (no bloqueante):** auditar qué dejaron los tests/seeds viejos en producción (agente `seguridad`, solo lectura); H27 (dataset demo con fechas relativas y fotos propias: las de `design-references/Fotos Residencias/` tienen marca de agua de terceros); confirmar que Vercel tiene las env vars de producción y no las de dev; arreglar el `afterAll` de `reissueBookingReceipt.test.ts` que deja residuo por FK.
+
+---
+
+## [RESUELTO — Ciclo 48bis, 2026-10-21] Documentación técnica desactualizada (`CLAUDE.md`/`AGENTS.md`/`README.md`, H32)
+
+**Qué era:** `CLAUDE.md`/`AGENTS.md` decían "No hay script `test`", "No hay deploy configurado", "datos mock en `lib/mock/`", "el tipo de cambio es un mock hardcodeado" y que `/waitlist` era el destino de las solicitudes; `README.md` seguía en "Ciclo Fundacional 0, sin base de datos". Todo falso desde hace muchos ciclos.
+
+**Fix aplicado:** corregidos con cambios puntuales (existe `npm test`/Vitest, deploy en Vercel, datos reales en Supabase, `ExchangeRateProvider`, routing real). `docs/00`–`10` actualizados con D1–D11 (`docs/00` §31). **Sigue desactualizado:** `PROJECT.md` (snapshot del Ciclo 3; ahora con aviso en la cabecera) y `docs/NEXT_STEPS.md` (parcialmente obsoleto).
 
 ---
 
@@ -74,7 +115,7 @@
 
 4 tests de integración nuevos (29/29 en total). Verificado en vivo: `401` sin auth, `401` con secret incorrecto, `200` con secret real contra el Supabase provisionado.
 
-**Pendiente real, no bloqueante**: la migración 0013 necesita que el dueño reemplace 2 placeholders (URL de producción, `CRON_SECRET`) antes de aplicarla, y configurar `CRON_SECRET` en Vercel — hasta entonces el código está listo pero el cron no corre en producción.
+**Pendiente real, no bloqueante**: la migración 0013 necesita que el dueño reemplace 2 placeholders (URL de producción, `CRON_SECRET`) antes de aplicarla, y configurar `CRON_SECRET` en Vercel — hasta entonces el código está listo pero el cron no corre en producción. **Ciclo 48bis: no se pudo verificar desde el repo si la 0013 ya está aplicada en producción** (la auditoría 2026-10-20 sugiere que el cron del tipo de cambio no corre: hueco del 15/8 al 20/10). En dev está comentada a propósito. **H06 abierto:** el job solo vence `residence_payment_pending`; D6 pide que también venza `contact_established`.
 
 ---
 
@@ -105,7 +146,7 @@ Es una tabla de PII expuesta a escritura pública indirecta. Spam masivo = base 
 - El `docs/10 §27.1` (retención) y `§9.6` (menores) siguen marcados "pendiente de revisión legal" en el propio documento fuente — la página de `/privacy` lo hereda y lo dice explícitamente, no es un vacío nuevo introducido acá.
 - `hola@estured.com` es un placeholder de contacto — el dueño confirmó usarlo así por ahora; reemplazar por el email real antes del lanzamiento público masivo.
 - Sin runbook formal de "cómo borrar el registro de una persona a pedido" documentado en `docs/` (la página promete gestión manual, pero no hay un doc interno con los pasos exactos/tablas a tocar).
-- El resto del producto (registro de estudiante/familiar/residencia) no tiene todavía su propio checkbox de consentimiento — este ciclo cerró específicamente la waitlist, que era el caso concreto de `GAPS.md`.
+- ~~El resto del producto (registro de estudiante/familiar/residencia) no tiene todavía su propio checkbox de consentimiento~~ — **superado (verificado en Ciclo 48bis):** los registros de estudiante y familiar insertan `consents` versionados (`v0.1-borrador`); falta la página `/terms` (D10, pendiente) y el consentimiento de visibilidad de comunidad (D4, pendiente).
 
 ---
 
@@ -217,12 +258,12 @@ Ninguna rompe nada hoy; todas son fuentes de fricción para quien entra nuevo.
 
 | Qué | Estado | Dónde retomarlo |
 |---|---|---|
-| Push a GitHub | Esperando que el dueño cree el repo | Instrucciones en la conversación del Ciclo 3 |
-| Supabase + `.env.local` | Esperando aprovisionamiento del dueño | `.env.example` + `db/migrations/0001` |
-| Auth + roles + RLS + audit log | Siguiente paso del Ciclo 3 tras credenciales | `docs/12` Fase 1, `docs/PRODUCT_IMPLEMENTATION_PLAN.md` Ciclo 1 |
-| Deploy a Vercel | Tras el push a GitHub | `docs/15` |
-| UI de admin `/admin/exchange-rate` | No construida — ver ítem resuelto arriba | `docs/09 §25` |
+| Push a GitHub | **[RESUELTO — Ciclo 3]** `origin` configurado | — |
+| Supabase + `.env.local` | **[RESUELTO — Ciclo 3; Ciclo 44: dev y prod separados]** | `.env.example`, `CLAUDE.md` |
+| Auth + roles + RLS + audit log | **[RESUELTO — Ciclos 3–5]** | `MEMORY.md` §1 |
+| Deploy a Vercel | **[RESUELTO]** https://estured.vercel.app | `docs/15` |
+| UI de admin `/admin/exchange-rate` | **[RESUELTO — Ciclo 17]** | `docs/09 §25` |
 
-Nota (2026-07-08): esta tabla y el resto de esta sección quedaron desactualizados como snapshot del Ciclo 0-1 — varios ítems (push a GitHub, Supabase, auth+RLS, deploy) ya están resueltos hace varios ciclos. `MEMORY.md` es la fuente de verdad viva; los ítems con encabezado `[RESUELTO — Ciclo N]` arriba en este archivo reflejan el estado real más reciente.
+Nota (2026-07-08, actualizada 2026-10-21): esta tabla era un snapshot del Ciclo 0-1 — todos sus ítems están hoy resueltos (marcados arriba). `MEMORY.md` es la fuente de verdad viva; los ítems con encabezado `[RESUELTO — Ciclo N]` arriba en este archivo reflejan el estado real más reciente.
 
 No hay TODOs/FIXMEs en el código (verificado por grep) — la deuda está documentada aquí y en `MEMORY.md`, no dispersa en comentarios.

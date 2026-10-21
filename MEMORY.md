@@ -1,6 +1,6 @@
 # MEMORY.md — Memoria persistente de EstuRed
 
-**Última actualización:** 2026-10-21 (Ciclo 48 — Auditoría Fase 1, pulido de interfaz: H21, H23, H24, H25, H28, H29, H30)
+**Última actualización:** 2026-10-21 (Ciclo 48bis — documentación: decisiones D1–D11 de la auditoría reflejadas en `docs/00`–`10`; sync de `CLAUDE.md`/`AGENTS.md`/`README.md`/`GAPS.md`)
 
 > Bitácora ejecutiva viva. NO reemplaza la documentación estratégica de `/docs`
 > (los 23 archivos `00`–`22` son la fuente de verdad de producto). Leer este
@@ -12,7 +12,7 @@
 
 EstuRed es una webapp responsive para conectar estudiantes y familias con residencias estudiantiles **verificadas presencialmente** en CABA. Plataforma híbrida de confianza: descubrimiento + solicitud + negociación estructurada + reserva con fee + comprobante verificable + gestión para residencias (freemium). Frase de marca: *"La convivencia también se elige."* La confianza es el producto.
 
-**Estado:** Ciclos 0, 2 y base del 3 completados. **Git con remoto en GitHub (`github.com/fbermani/estured-claude`, SSH configurada). Supabase aprovisionado y operativo** (proyecto `mrwooskdcnkbitkhcvbf`, región São Paulo): migración 0001 aplicada, formulario de waitlist verificado end-to-end (envío real → fila en DB → RLS bloquea lectura y escritura anónimas). **Deploy en producción: https://estured.vercel.app** (Vercel conectado al repo de GitHub — cada push a `main` deploya solo; env vars cargadas en el dashboard de Vercel salvo `NEXT_PUBLIC_APP_URL`, que hay que agregar como `https://estured.vercel.app` cuando auth la necesite). Waitlist verificada e2e también en producción (2026-07-07).
+**Estado (superado — este párrafo es del Ciclo 3; el estado vigente está en el Ciclo 48/48bis y en §14):** Ciclos 0, 2 y base del 3 completados. **Git con remoto en GitHub (`github.com/fbermani/estured-claude`, SSH configurada). Supabase aprovisionado y operativo** (proyecto `mrwooskdcnkbitkhcvbf`, región São Paulo): migración 0001 aplicada, formulario de waitlist verificado end-to-end (envío real → fila en DB → RLS bloquea lectura y escritura anónimas). **Deploy en producción: https://estured.vercel.app** (Vercel conectado al repo de GitHub — cada push a `main` deploya solo; env vars cargadas en el dashboard de Vercel salvo `NEXT_PUBLIC_APP_URL`, que hay que agregar como `https://estured.vercel.app` cuando auth la necesite). Waitlist verificada e2e también en producción (2026-07-07).
 
 **Auth operativo (migración 0002 aplicada, verificado e2e 2026-07-07):**
 - Tablas: `users`, `user_roles`, `consents`, `student_profiles`, `student_visibility_settings`, `audit_logs` — con RLS "solo lo propio" y auditoría append-only solo service role.
@@ -1505,7 +1505,33 @@ Agente `interfaz`. Solo UI/copy: sin migraciones, sin server actions nuevas, sin
 
 **Validación**: typecheck ✅ · lint ✅ (mismos 12 warnings) · build ✅ (dev parado, `.next` borrado antes y después) · unitarios de lo tocado ✅ (shortName, dates, staleAvailability, auditActionLabels, contractEnd, receiptView, visibleStatus). Navegador con admin, Ricardo, Camila y Lucía (desktop y 375 px, sin overflow). No verificado: staff (Sofía), pausadas en el inbox (no hay dato demo), `ApplyForm` enviado.
 
+## Ciclo 49 (H04). Control del estudiante sobre su perfil en la comunidad (2026-10-21)
+
+Decisión D4. Sin migraciones. `updateStudentProfileDetails` ya no fuerza `is_individual_profile_visible` ni inserta consentimiento. Nueva action `updateCommunityVisibility` (`app/students/profile/actions.ts`) + `CommunityVisibilityCard` en `/students/profile`: maestro + 4 interruptores (edad, nacionalidad, carrera y ciudad de origen, hábitos e intereses) y vista previa "así te ve otro registrado"; audita `student_visibility_updated` y versiona el consentimiento `student_visibility` solo al activar. Lógica pura y testeada en `lib/students/communityVisibilitySettings.ts` (9 tests). Menores: todo `false` y no editable (server-side + UI deshabilitada); `getCommunityVisibility` además los trata siempre como "Plaza ocupada" (la bio no se ve). Registro: casilla opcional no premarcada "Quiero aparecer en la comunidad…" (solo adultos, consentimiento versionado). Corregido el pie de `/residence/[id]/residents`. **Correcciones de seguridad (mismo ciclo)**: "menor" se calcula desde `student_profiles.birth_date` con el día calendario de Buenos Aires y sin fecha = menor (`lib/students/isMinorByBirthDate.ts`, usado en la action, la página y `getCommunityVisibility`; quien cumple 18 ya puede activar). Si falla el insert en `consents` al activar, se revierte la visibilidad y se devuelve error; al apagar solo audita (docs/10 §7.6 pide auditoría, no consentimiento). Tests: helper (7) y action con cliente falso (7). Pendiente: filas existentes con maestro `true` forzado antes del Ciclo 49 (en producción: `update student_visibility_settings set is_individual_profile_visible=false where student_profile_id in (select id from student_profiles where is_minor)`; decidir si se resetea también a los adultos).
+
+## Ciclo 49 (H06). `contact_established` vence a las 48 h (2026-10-21)
+
+Decisión D6 (`docs/04` §5.8). Sin migraciones ni cambios al endpoint del cron. `lib/jobs/expireApplicationRequests.ts` vence también `contact_established` con `payment_deadline_at` pasado → `expired_no_student_payment` (evento de estado + auditoría `application_expired_no_student_payment` con `oldValue`, sin notificación, igual que los otros vencimientos). Respaldo para filas sin plazo (las del seed lo tenían en `null`): 48 h desde `contact_established_at`. Efecto de docs/04 §5.4/§5.6: nuevo `lib/applications/reactivatePausedApplications.ts` devuelve a `submitted` las pausadas del estudiante si ya no le queda otra avanzada ni reserva vigente (supuesto reversible: reinicia `expires_at` a 48 h); se aplica a ambos vencimientos por falta de pago (antes ninguno reactivaba). UI: `lib/applications/paymentDeadline.ts` (`describePaymentDeadline`, `effectiveContactDeadline`) + `ContactDeadlineNote` en `/students/applications` y su detalle, y "Vence en N h" en la fila del inbox y aviso con fecha junto a "Continuar sin cambios (habilitar pago)" (botón sin cambios). `seed-demo-data.mjs` ahora escribe `payment_deadline_at`. Tests: `paymentDeadline.test.ts` (puros) y `expireContactEstablished.test.ts` (integración, residencia `residencia-test-*`). Verificación: typecheck, lint (mismos 12 warnings), build (dev parado), HTML renderizado como Ricardo y Lucía; sin navegador real ni 375 px. Pendiente: en producción, filas ya zombis expiran en la primera corrida del cron (Camila/Lucía de la auditoría), y sus pausadas se reactivan.
+
+## Ciclo 48bis. Documentación — decisiones D1–D11 de la auditoría, docs primero (2026-10-21)
+
+Agente `documentador`. **Solo documentación, sin código ni commit.** Por única vez el dueño autorizó editar `docs/00`–`10` (protocolo `docs/13` §5: doc primero, código después) con las decisiones D1–D11 de `docs/audits/PLAN_ACCION_2026-10-20.md`.
+
+**Docs de producto tocados** (cambios puntuales, sin reescribir secciones vecinas):
+- `docs/00` — §6.2 (D8: todo gratis en el MVP, `operating_mode` se conserva), §18 (D4), nueva **§31** con tabla D1–D11 (fecha 2026-10-20, referencia a la auditoría; prevalece sobre §5/§6.2/§6.3/§18/§19/§20/§29 donde contradigan), índice y fecha de cabecera.
+- `docs/02` — §7.21, §7.22, §15.2 y nota al final de §20 (D8, D9: FAQ simple sí; métricas, facturas, settings, flags UI diferidos).
+- `docs/04` — §5.8 (D6: pago a la residencia solo desde `contact_established`, que vence a 48 h con `expired_no_student_payment`; plazo visible; supuesto sobre la habilitación manual).
+- `docs/06` — §8.1 (D8 + **campo nuevo D7** "pago inicial para reservar", supuesto reversible con nombres provisionales), §14.2 y §15.1 (Ciclo 43: renovación extiende `expected_end_date`, no `end_date`; filas `expected_end_date`/`monthly_rate_usd`; D5 y D11).
+- `docs/08` — §2.6/§4.5 (D3), §3.1–§3.4 (routing real vs. diferido: `/residencias/[slug]`, `/verify`, `/privacy`, `/terms`, `/students/residency`, `/admin/activity`, `/admin/logs`, `/residence/settings/new`, `/residence/[id]/support`; diferidas las no construidas), §4.3, §4.5 (D9), §5.1/§5.3 (D10), §6.8 (D2), §7.12 (D8/D11).
+- `docs/10` — §7 (D4: control del estudiante, consentimiento en el registro) y §9.2 (menores ocultos por defecto).
+
+**Docs técnicos:** `CLAUDE.md` y `AGENTS.md` (existe `npm test`/Vitest; deploy en Vercel; datos reales; tipo de cambio real; `/waitlist` y `/r/[slug]`; componentes `use client`; gotcha de mocks obsoleto marcado "superado"; refs a `docs/audits/`), `README.md` (estado real), `GAPS.md` (entradas nuevas: Fase 2 abierta, divergencias doc↔código, H26 resuelto, doc técnica resuelta; tabla del final marcada), `PROJECT.md` (aviso de desactualizado en la cabecera).
+
+**Divergencias doc↔código NO resueltas:** listadas en `GAPS.md` ("Divergencias entre `docs/00`–`22` y el código"). **No verificado:** si la migración 0013 (cron) está aplicada en producción; si `/privacy`/registro de menores alinean con `docs/10` §9.1.
+
 ## 14. Próxima tarea recomendada
+
+**Actualizado 2026-10-21 (Ciclo 48bis)**: los docs de producto ya reflejan D1–D11 (`docs/00` §31), así que la **Fase 2** puede empezar (docs primero ya cumplido). Orden sugerido: (1) D8 en UI (sidebar, "Tu plan", `/for-residences`: dejar de vender plan pago); (2) D6 job de `contact_established` (`depurador`) + plazo visible en el inbox; (3) D4 visibilidad de comunidad con `seguridad`; (4) D7 migración + campo en el perfil; (5) D2 pantalla de pago + config de cobro admin; (6) D3, D9, D10, D11. Antes: el dueño confirma si la habilitación del pago a la residencia debe ser automática o seguir siendo un botón (`docs/04` §5.8). Sigue pendiente decidir qué hacer con `/waitlist`; **acción manual del dueño: aplicar la migración 0036 en estured-dev y en producción** (si no se hizo).
 
 **Actualizado 2026-10-21 (Ciclo 48)**: Fase 1 cerrada en UI (H21, H23, H24, H25, H28, H29, H30). Siguiente: Fase 2 según D1–D11; decidir qué hacer con `/waitlist` pública.
 

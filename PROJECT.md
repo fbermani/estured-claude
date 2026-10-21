@@ -4,6 +4,8 @@
 > Última actualización: 2026-07-06, tras el commit `cf89302` (Ciclo 3, paso 1).
 > Complementos: [GAPS.md](GAPS.md) (auditoría honesta de problemas) y [CLAUDE.md](CLAUDE.md) (guía operativa de sesión).
 
+> **Aviso (2026-10-21): este documento es un snapshot del Ciclo 3 y está en gran parte desactualizado** (hoy hay auth, 36 migraciones, loop de reserva completo, panel admin, tests con Vitest, deploy en Vercel, tipo de cambio real y dos proyectos Supabase). Para el estado real leer `MEMORY.md`; para comandos y gotchas vigentes, `CLAUDE.md`. Reescribirlo es trabajo pendiente (ver `GAPS.md`).
+
 ---
 
 ## 1. Descripción general

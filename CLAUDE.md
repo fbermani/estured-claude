@@ -20,20 +20,21 @@ npm run dev        # dev server en http://localhost:3000 (launch config "estured
 npm run build      # build de producción
 npm run lint       # ESLint 9 (flat config)
 npm run typecheck  # tsc --noEmit
+npm test           # vitest run (unitarios + integración contra estured-dev)
 ```
 
-- **No hay script `test`** — no existe framework de testing todavía (ver GAPS.md).
-- **No hay deploy configurado** — Vercel está decidido pero no conectado.
+- **`npm test` existe (Vitest, desde el Ciclo 12):** los `.test.ts` conviven junto al código. Los unitarios puros no necesitan Supabase; los de integración crean/borran filas reales y corren contra `estured-dev` (suite completa ~5–7 min, `fileParallelism: false`). `vitest.setup.ts` se niega a correr si `.env.local` apunta a producción. Si un test deja residuo: `node --env-file=.env.local scripts/cleanup-test-residences.mjs` (simula; `--apply` para borrar).
+- **Deploy:** Vercel conectado al repo — cada push a `main` deploya a https://estured.vercel.app (usa `estured-prod`; el selector de sesión demo, `DEMO_LOGIN_ENABLED`, jamás va a Vercel).
 - ⚠️ **No correr `npm run build` con el dev server levantado**: ambos escriben `.next/` y el dev server se corrompe (`Cannot find module './NNN.js'`). Fix: parar server → `rm -rf .next` → relanzar.
-- Migraciones: SQL manual en `db/migrations/` (numeradas `0001_...`), se aplican pegándolas en el SQL Editor del dashboard de Supabase. No hay supabase CLI instalada.
+- Migraciones: SQL manual en `db/migrations/` (numeradas `0001_...`), se aplican pegándolas en el SQL Editor del dashboard de Supabase (en dev y en producción, por separado: aplicar una en un proyecto no la aplica en el otro). No hay supabase CLI instalada. Hoy: 0001–0036 (`MEMORY.md` dice cuáles siguen pendientes de aplicar).
 
 ## Convenciones reales
 
 - **Idioma:** UI y copy en español rioplatense (voseo: "buscá", "sumate"). Docs y commits en español. Marca: **"EstuRed"** (nunca "EstuRED").
-- **Componentes:** PascalCase en `components/{ui,layout,residences}/`. Server Components por defecto; `"use client"` solo con interacción real (hoy: `Navbar`, `SearchCatalog`, `WaitlistForm`). Excepción de naming: `components/ui/Input.tsx` exporta `Input`, `Textarea` y `Select` (tres en un archivo).
+- **Componentes:** PascalCase en `components/{ui,layout,residences,applications,students,admin}/`. Server Components por defecto; `"use client"` solo con interacción real (hoy son unos 80 archivos: navegación, formularios, inbox/dashboards interactivos — no sumar uno por costumbre). Excepción de naming: `components/ui/Input.tsx` exporta `Input`, `Textarea` y `Select` (tres en un archivo).
 - **Estilos:** Tailwind v4 — los tokens viven en `app/globals.css` bajo `@theme` (NO existe `tailwind.config.js`). Paleta: `petrol-*` (primario), `sage-*` (comunidad), `sand-*` (fondos), `amber-soft-*` (acento). Semánticos: `ink*`, `success/warning/danger/info-*`. Radios `rounded-card`/`rounded-field`, sombras `shadow-card`/`shadow-card-hover`/`shadow-float`. `className` se concatena a mano (sin tailwind-merge): evitar pasar clases que colisionen con las del componente.
 - **Tipos de dominio:** `types/domain.ts`. Los strings de estado son los oficiales de `docs/04_STATE_MACHINES.md` — no inventar estados ni renombrarlos.
-- **Datos:** hoy mocks en `lib/mock/` (contrato `Residence` estable); Supabase vía `lib/supabase/admin.ts` (service role, solo server). Toda mutación va por server action con validación server-side — el cliente nunca escribe estados directamente (`docs/11 §5.2`).
+- **Datos:** reales, en Supabase (catálogo, solicitudes, reservas, comprobantes, residentes…) vía `lib/supabase/admin.ts` (service role, solo server) o el cliente del usuario (RLS). El mock de residencias ya no existe; en `lib/mock/` solo queda `exchange.ts` (constante de último recurso + helpers de formato/conversión USD↔ARS). Toda mutación va por server action con validación server-side — el cliente nunca escribe estados directamente (`docs/11 §5.2`).
 - **Errores de usuario:** mensajes en español, accionables, sin jerga técnica (ver `submitWaitlist`). Estados de UI: contemplar loading/empty/error siempre (`EmptyState` para vacíos).
 - **Commits:** mensaje en español con prefijo de ciclo ("Ciclo N: ..."), co-autoría de Claude al pie.
 - **Cierre de ciclo:** validar (`typecheck` + `lint` + `build`), actualizar `MEMORY.md` y `docs/NEXT_STEPS.md`.
@@ -41,11 +42,11 @@ npm run typecheck  # tsc --noEmit
 ## Gotchas
 
 - **`docs/00`–`22` son la fuente de verdad de producto, no el código.** Ante contradicción entre docs: jerarquía de `docs/13 §2` (`00_DECISION_LOG.md` manda). Cambios de reglas de negocio: protocolo de `docs/13 §5` (doc primero, código después).
-- **`/waitlist` no está en el routing oficial** (`docs/11 §7`): es pre-lanzamiento. Los CTAs "Enviar solicitud de reserva" siguen apuntando ahí porque el flujo de solicitud de reserva (`application_requests`) todavía no existe — no por falta de auth (auth sí existe desde el Ciclo 3).
-- **El tipo de cambio es un mock hardcodeado** (`lib/mock/exchange.ts`, 1480 ARS/USD). Todos los precios ARS del sitio salen de ahí. No es dato real.
+- **`/waitlist` no está en el routing oficial** (`docs/11 §7`): es la lista de espera pre-lanzamiento y sigue publicada (qué hacer con ella es una decisión de producto pendiente, auditoría H30). El flujo real de solicitud vive en `/residencias/[slug]` (`application_requests`); `/r/[slug]` redirige ahí y `/residencias` redirige a `/search`. Routing real vs. `docs/08 §3`: ver nota de `docs/08 §3` (D9).
+- **El tipo de cambio sale de `lib/exchange/rate.ts`** (monedapi.ar, dólar blue venta, caché diaria en `exchange_rates`; cascada: override manual del admin > fila del día > último valor conocido > constante de `lib/mock/exchange.ts` como último recurso). Los montos ARS **guardados** (snapshot, fee) usan `usdToArs`; la UI usa `usdToArsRounded` + `ExchangeRateNote`. La constante de 1480 ya no es la fuente de verdad.
 - **`waitlist_signups` tiene RLS sin policies a propósito**: solo el service role accede. No agregar policies "para que funcione" — abriría PII al público. Duplicado de email (`23505`) se trata como éxito, también a propósito.
 - **`getSupabaseAdmin()` devuelve `null` sin env vars** — degradación intencional mientras el dueño no aprovisione Supabase. No "arreglarlo" con throws.
-- **`published: false` en "Residencia Pendiente"** es un caso de prueba intencional del filtrado; el slug `residencia-alertas` ≠ nombre "Residencia del Parque" también es intencional (slug del seed oficial `docs/17`).
+- ~~`published: false` en "Residencia Pendiente" / slug `residencia-alertas`~~ — **superado:** eran del mock de residencias, que se retiró en el Ciclo 34undevicies; el filtrado de publicación hoy es `residences.status = 'verified_active'` (RLS pública).
 - **El copy de disponibilidad vive SOLO en `components/ui/StatusTag.tsx`** y es copy oficial de `docs/08 §4.5` — cambiarlo es decisión de producto.
 - **`Badge` vs `StatusTag`/`TrustBadge`:** `Badge` es genérico visual; los otros dos son semánticos y llevan reglas de producto. No reemplazar unos por otros.
 - **`design-references/`:** decisión del dueño (2026-07-15): las referencias Stitch están muy pensadas y cada pantalla es "casi perfecta" como base — **imitarlas con alta fidelidad** (layout, detalles, funciones, densidad) y mejorar sobre esa base, no tratarlas como inspiración laxa. El filtro de reglas de negocio sigue vigente: NO replicar copy prohibido ("reserva garantizada", "mediación", validación WhatsApp), features inexistentes (chat, favoritos) ni datos falsos — eso recorta contenido puntual, no la fidelidad del resto. En las carpetas viejas (mvp 1ra/2da parte) varios `screen.png` están corruptos: usar los `code.html`.
@@ -69,3 +70,4 @@ npm run typecheck  # tsc --noEmit
 - `GAPS.md` — deuda técnica, riesgos y fixes priorizados.
 - `MEMORY.md` — bitácora viva: estado actual y próxima tarea recomendada.
 - `docs/PRODUCT_IMPLEMENTATION_PLAN.md` — plan por ciclos mapeado a `docs/12_BUILD_PLAN.md`.
+- `docs/audits/AUDITORIA_2026-10-20.md` y `docs/audits/PLAN_ACCION_2026-10-20.md` — auditoría de producto (H01–H32), decisiones del dueño D1–D11 (registradas en `docs/00` §31) y plan por fases/agentes.

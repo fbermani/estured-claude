@@ -357,6 +357,8 @@ Ver la tabla canónica de plazos en `00_DECISION_LOG.md` §9.1. Resumen:
 - **Si el estudiante acepta la propuesta, el plazo de 48 horas para el pago a la residencia se reinicia nuevamente desde la aceptación.**
 - La residencia recibe recordatorios diarios sobre solicitudes nuevas o pendientes.
 
+> **Decisión D6 (2026-10-20, `docs/00` §31).** El pago a la residencia **solo se habilita desde `contact_established`** (nunca antes). Si no se habilita ni se envía una propuesta de ajuste, `contact_established` **vence a las 48 horas** con `expired_no_student_payment` (fila de transición de §5.4), igual que `residence_payment_pending`. El job de vencimiento debe cubrir ambos estados. El plazo restante es **visible** en el inbox de la residencia y en el detalle de la solicitud del estudiante. Supuesto reversible: la habilitación del pago sigue siendo la acción explícita de la residencia ("Continuar sin cambios (habilitar pago)"), no una transición automática del sistema como sugiere la fila de §5.4; el vencimiento de 48 h evita que la solicitud quede colgada.
+
 ---
 
 # 6. Máquina de estados: Pago a residencia

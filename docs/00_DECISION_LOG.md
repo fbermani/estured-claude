@@ -1,7 +1,7 @@
 # 00_DECISION_LOG.md
 # EstuRed — Registro de decisiones consolidadas
 
-Última actualización: 2026-07-05
+Última actualización: 2026-10-21 (§31: decisiones del dueño D1–D11 de la auditoría 2026-10-20)
 
 Este documento es la fuente de verdad del proyecto EstuRed.
 Registra todas las decisiones de producto, negocio, operación, experiencia y arquitectura técnica.
@@ -44,6 +44,7 @@ Si hay contradicción entre este documento y cualquier otro, este documento prev
 28. Decisiones técnicas de implementación — SECCIÓN NUEVA
 29. Pendientes no bloqueantes — ACTUALIZADO
 30. Reglas para Claude Code — ACTUALIZADO
+31. Decisiones del dueño — auditoría 2026-10-20 (D1–D11)
 
 ---
 
@@ -193,6 +194,8 @@ Incluye todo lo del Perfil Verificado más:
 - Disponibilidad real por plaza.
 - Comunidad visible.
 - Métricas operativas avanzadas.
+
+> **MVP — todo gratis (decisión D8, 2026-10-20; ver §31).** Gestión Operativa **no se vende en el MVP**: todas las funciones de residencia (incluidas habitaciones, plazas/camas y residentes) son gratuitas para toda residencia verificada. El modelo `operating_mode` y los feature flags se conservan sin cambios para monetizar más adelante; mientras tanto la UI no debe mostrar un plan pago ni mensajes de "Sin acceso".
 
 ### 6.3. Reglas del modelo freemium
 
@@ -644,6 +647,8 @@ Usuarios registrados y compañeros:
 
 La configuración de visibilidad se define durante el registro y puede modificarse en cualquier momento.
 
+> **Decisión D4 (2026-10-20; ver §31).** La visibilidad de la comunidad la controla el estudiante: en "Mi perfil" ve una vista previa de cómo lo ven los demás y dispone de 3–4 interruptores (con valores por defecto recomendados). El consentimiento se pide en el registro. Los menores de edad tienen el perfil individual **oculto por defecto** para usuarios registrados (`docs/10` §9.2). El sistema no puede dejar a un estudiante visible sin que haya consentido.
+
 Grupos sugeridos de visibilidad:
 
 - Invitados.
@@ -995,3 +1000,29 @@ Claude Code debe respetar siempre estas reglas al construir EstuRed:
 
 **Si Claude Code encuentra una ambigüedad bloqueante: debe detenerse y preguntar antes de asumir.**
 
+---
+
+## 31. Decisiones del dueño — auditoría 2026-10-20 (D1–D11)
+
+**Fecha:** 2026-10-20 (resueltas por el dueño; registradas el 2026-10-21).
+**Fuente:** `docs/audits/AUDITORIA_2026-10-20.md` (hallazgos H01–H32) y `docs/audits/PLAN_ACCION_2026-10-20.md` (tabla "Decisiones del dueño (resueltas)").
+**Alcance:** estas decisiones autorizan editar los docs de producto afectados (por única vez, protocolo `docs/13` §5: doc primero, código después). Donde contradigan texto anterior de este documento (§5, §6.2, §6.3, §18, §19, §20, §29), **prevalece esta sección**.
+
+| # | Hallazgo | Decisión | Docs actualizados |
+|---|---|---|---|
+| D1 | H26 | Segundo proyecto Supabase para desarrollo, tests y demos; el actual queda solo para producción. | (técnico: `CLAUDE.md`/`AGENTS.md`) |
+| D2 | H02 | Modo manual del fee = transferencia con datos en pantalla: CBU/alias/titular configurables por el admin, monto exacto en ARS, n.º de reserva como referencia, cuenta regresiva y botón "Tengo un problema con el pago". | `docs/08` §6.8 |
+| D3 | H03 | La disponibilidad que ve el estudiante la manda el **tipo de habitación**; el mapa de camas solo informa ocupación y no ofrece "Elegir" si el tipo no está disponible. | `docs/08` §2.6, §4.5 |
+| D4 | H04 | Visibilidad de comunidad controlada por el estudiante (vista previa + interruptores), consentimiento en el registro, menores ocultos por defecto. Revierte los Ciclos 37/39. | `docs/00` §18, `docs/10` §7, §9.2 |
+| D5 | H05 | La tarifa vigente de la estadía puede diferir de la acordada en la reserva: el estudiante ve la vigente con una nota; la residencia ve la diferencia contra el snapshot. | `docs/06` §15.1 |
+| D6 | H06 | El pago a la residencia se habilita solo desde `contact_established`, que vence a las 48 h (`expired_no_student_payment`); el plazo es visible en el inbox de la residencia. | `docs/04` §5.8 |
+| D7 | H08 | Campo "pago inicial para reservar" en el perfil de la residencia (por defecto, el primer mes), mostrado igual en ficha, solicitud, WhatsApp y fee. Supuesto reversible. | `docs/06` §8.1 |
+| D8 | H09 | **Todo gratis en el MVP.** Gestión Operativa no se vende; el modelo `operating_mode` se conserva para monetizar más adelante. Difiere de §6.2. | `docs/00` §6.2, `docs/02` §7.21, §15.2, `docs/08` §3.3 |
+| D9 | H12 | FAQ simple en el MVP (pregunta libre del estudiante → la residencia responde). Métricas, facturas y settings, diferidos. Routing real reflejado. | `docs/02` §7.22, §20, `docs/08` §3, §4.5 |
+| D10 | H13, H19 | Solo reset de contraseña y `/terms` (borrador desde `docs/21`, enlazado en registro y footer; revisión legal antes de operar). Sin canal directo con la residencia: todo pasa por Soporte. | `docs/08` §3.1, §5.1, §5.3 |
+| D11 | H18 | Estadías vencidas: alerta a 30 días y al vencer, con acciones "Renovar" / "Registrar salida"; nunca cierre automático. | `docs/08` §7.12 |
+
+Notas de interpretación:
+- **D8 vs §6.3:** el beneficio "pionera de beta: 1 año gratis" queda sin efecto práctico mientras todo sea gratuito; `is_pioneer`/`pioneer_free_access_until` se conservan en el modelo.
+- **D9 vs §20.2:** en el MVP no hay búsqueda automática en archivos subidos: la pregunta libre llega a la residencia y la responde una persona. Los límites de §20.3 siguen vigentes.
+- **Ciclo 43 (no es una decisión D, pero corrige un doc):** la renovación extiende `resident_stays.expected_end_date` ("contrato hasta"), no `end_date` (salida real). Ver `docs/06` §14.2 y §15.1.

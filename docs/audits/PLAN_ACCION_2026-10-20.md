@@ -62,8 +62,8 @@ Regla de paralelismo: dos agentes que escriben nunca tocan los mismos archivos a
 |---|---|---|---|---|
 | Pantalla de pago del fee con instrucciones, referencia y plazo; soporte con contexto | H02 | `constructor` | D2 | M |
 | Fuente única de disponibilidad y copy unificado con `StatusTag` | H03 | `constructor` (+ `base-datos` si cambia el modelo) | D3, D8 | L |
-| Control de visibilidad de comunidad + consentimiento + menores | H04 | `constructor` → `seguridad` | D4 | M |
-| `contact_established` con vencimiento | H06 | `base-datos` + `depurador` | D6 | M |
+| ✅ Control de visibilidad de comunidad + consentimiento + menores (Ciclo 49) | H04 | `constructor` → `seguridad` | D4 | M |
+| ✅ `contact_established` con vencimiento y plazo visible (Ciclo 49) | H06 | `base-datos` + `depurador` | D6 | M |
 | Pago inicial a la residencia | H08 | `base-datos` → `constructor` | D7 | M |
 | Frontera freemium en sidebar, "Tu plan" y landing | H09 | `interfaz` | D8 | M |
 | Ficha pública con tarifas y condiciones | H10 | `interfaz` | D7 | M |

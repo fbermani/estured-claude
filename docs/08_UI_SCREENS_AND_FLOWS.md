@@ -99,6 +99,8 @@ Modo Gestión Operativa, con disponibilidad actualizada por plaza/cama:
 
 Nunca usar lenguaje que prometa una reserva antes de que el proceso esté confirmado.
 
+> **Decisión D3 (2026-10-20, `docs/00` §31).** La disponibilidad que ve el estudiante (catálogo, ficha y formulario de solicitud) la manda el **tipo de habitación** (`profile_availability`), en ambos modos. El mapa de camas/plazas solo informa ocupación a la residencia y no ofrece "Elegir" una cama si su tipo de habitación no está disponible. El copy oficial de arriba no cambia.
+
 ### 2.7. La UI debe guardar contexto
 
 Cada pantalla vinculada a solicitudes, negociación, reservas, pagos y comprobantes debe mostrar el snapshot relevante: precio USD, precio ARS referencial, tipo de cambio, fecha/hora del snapshot, duración inicial, matrícula, depósito, política de ajustes, monto base del fee, fee EstuRed, condiciones aceptadas (originales o finales si hubo negociación).
@@ -133,13 +135,20 @@ La UI debe dejar claro que la conversación ocurre fuera de la plataforma, y que
 | `/for-students` | Landing estudiantes/familias | Público |
 | `/for-residences` | Landing residencias | Público |
 | `/search` | Búsqueda pública | Público con datos limitados |
-| `/r/[slug]` | Detalle público de residencia | Público/registrado con visibilidad diferenciada |
+| `/residencias/[slug]` | Detalle público de residencia (`/r/[slug]` redirige acá; `/residencias` redirige a `/search`) | Público/registrado con visibilidad diferenciada |
+| `/residencias/[slug]/comunidad` | Comunidad visible de la residencia | Público (invitados: solo nombre) / registrado según permisos del estudiante |
+| `/verify` | Entrada manual del n.º de comprobante (redirige a `/verify/[código]`) | Público |
 | `/verify/[verification_code]` | Verificación pública de comprobante | Público |
+| `/privacy` | Política de privacidad | Público |
+| `/terms` | Términos y condiciones (**borrador** desde `docs/21`, D10; enlazado en registro y footer; revisión legal antes de operar) | Público |
 | `/login` | Login | Público |
 | `/register` | Selector de rol | Público |
 | `/register/student` | Registro estudiante | Público |
 | `/register/family` | Registro familiar | Público |
 | `/register/residence` | Registro residencia | Público |
+| `/waitlist` | Lista de espera pre-lanzamiento (fuera del routing oficial; no es la lista de espera de residencias) | Público |
+
+> **Recuperar contraseña (D10):** el flujo de reset de contraseña es parte del MVP (ver §5.1); su ruta no está listada acá hasta que se implemente.
 
 ### 3.2. Rutas estudiante/familiar
 
@@ -160,10 +169,13 @@ Ruta base: `/students`
 | `/students/renewals` | Renovaciones | Estudiante/Familiar |
 | `/students/renewals/[id]` | Detalle de renovación | Estudiante/Familiar |
 | `/students/profile` | Perfil estudiante | Estudiante |
+| `/students/residency` | Mi residencia (estadía actual, contrato hasta, renovación) | Estudiante |
 | `/students/documents` | Documentos | Estudiante/Familiar con permisos |
 | `/students/family-link` | Familiar vinculado | Estudiante/Familiar |
 | `/students/settings` | Configuración | Estudiante/Familiar |
 | `/students/support` | Soporte / resolución de conflictos | Estudiante/Familiar |
+
+> **Routing real vs. diferido (D9, 2026-10-20).** Existen hoy: todas las rutas de la tabla **excepto** `/students/documents`, `/students/family-link` y `/students/settings`, que quedan **diferidas** (el vínculo familiar se gestiona desde `/students/dashboard`; los documentos y la configuración global no tienen pantalla propia en el MVP).
 
 ### 3.3. Rutas residencia
 
@@ -186,11 +198,16 @@ Ruta base: `/residence`
 | `/residence/[residence_id]/renewals` | Renovaciones | Owner/Staff con permiso |
 | `/residence/[residence_id]/renewals/[id]` | Detalle de renovación | Owner/Staff con permiso |
 | `/residence/[residence_id]/receipts` | Comprobantes | Owner/Staff con permiso |
-| `/residence/[residence_id]/faq` | FAQ asistida | Owner/Staff con permiso |
+| `/residence/[residence_id]/faq` | FAQ simple: preguntas libres de estudiantes que la residencia responde (D9) | Owner/Staff con permiso |
 | `/residence/[residence_id]/metrics` | Métricas básicas | Owner |
+| `/residence/[residence_id]/support` | Soporte / resolución de conflictos | Owner/Staff con permiso |
 | `/residence/[residence_id]/plan` | Plan freemium / Gestión Operativa | Owner |
 | `/residence/settings` | Configuración global, staff y residencias | Owner |
 | `/residence/settings/new` | Alta de nueva residencia (hasta 10) | Owner |
+
+> **MVP: todo gratis (D8, 2026-10-20, `docs/00` §6.2 y §31).** Gestión Operativa no se vende en el MVP: todas las funciones de residencia (habitaciones, plazas, residentes, plan) son gratuitas. Por lo tanto: (a) las rutas marcadas "(Gestión Operativa)" no se bloquean ni se ofrecen como plan pago; (b) no se muestran pantallas de upsell ("Sin acceso", "Solicitar acceso") en `/rooms`, `/residents` ni `/plan` (§7.5, §7.18); (c) la landing `/for-residences` no vende un plan pago (§4.3). El modelo `operating_mode` y los feature flags se conservan para monetizar más adelante.
+>
+> **Routing real vs. diferido (D9).** Existen hoy: `/residence/dashboard`, `/residence/settings/new` y, bajo `/residence/[residence_id]/`: `profile`, `availability`, `applications` (+ `[id]` y `[id]/negotiation`), `waitlist`, `residents`, `rooms`, `renewals` (+ `[id]`), `plan` y `support`. Quedan **diferidas**: `profile/preview`, `verification`, `reservations`, `receipts`, `metrics` y `/residence/settings` (solo existe `/new`). `faq` entra al MVP en su versión simple (D9) y está pendiente de implementar.
 
 ### 3.4. Rutas admin
 
@@ -201,7 +218,7 @@ Ruta base: `/admin`
 | `/admin/dashboard` | Admin dashboard | Admin/Superadmin |
 | `/admin/residences` | Residencias | Admin/Superadmin |
 | `/admin/residences/[id]` | Detalle admin de residencia | Admin/Superadmin |
-| `/admin/residences/[id]/plan` | Gestión de feature flags freemium | Admin/Superadmin |
+| `/admin/residences/[id]/plan` | Gestión de feature flags freemium (diferida, D8) | Admin/Superadmin |
 | `/admin/verifications` | Verificaciones | Admin/Superadmin |
 | `/admin/profile-edits` | Ediciones de perfil | Admin/Superadmin |
 | `/admin/pricing` | Tarifas y alertas | Admin/Superadmin |
@@ -210,15 +227,18 @@ Ruta base: `/admin`
 | `/admin/negotiations` | Negociaciones activas | Admin/Superadmin |
 | `/admin/reservations` | Reservas | Admin/Superadmin |
 | `/admin/payments` | Pagos fee EstuRed | Admin/Superadmin |
-| `/admin/invoices` | Facturas emitidas (TusFacturas.app) | Admin/Superadmin |
+| `/admin/invoices` | Facturas emitidas (TusFacturas.app) (diferida, D9) | Admin/Superadmin |
 | `/admin/receipts` | Comprobantes | Admin/Superadmin |
 | `/admin/users` | Usuarios | Admin/Superadmin |
 | `/admin/community` | Comunidad visible | Admin/Superadmin |
 | `/admin/support-cases` | Soporte y resolución de conflictos | Admin/Superadmin |
 | `/admin/visibility` | Penalizaciones y visibilidad | Admin/Superadmin |
-| `/admin/audit-log` | Auditoría | Admin/Superadmin |
+| `/admin/audit-log` | Auditoría (implementada como `/admin/logs`) | Admin/Superadmin |
+| `/admin/activity` | Actividad: pestañas de negociaciones, reservas, renovaciones, revocaciones, comprobantes, listas de espera y logs | Admin/Superadmin |
 | `/admin/exchange-rate` | Tipo de cambio | Admin/Superadmin |
-| `/admin/settings` | Configuración global | Superadmin |
+| `/admin/settings` | Configuración global (diferida, D9) | Superadmin |
+
+> **Routing real vs. diferido (D9).** `/admin/activity` consolida en pestañas lo que este documento lista como pantallas separadas: `/admin/negotiations`, `/admin/reservations`, `/admin/receipts`, `/admin/revocations`, `/admin/renewals`, `/admin/waitlists` y `/admin/logs` (las rutas viejas redirigen a `/admin/activity?tab=…`). Existe además `/admin/documents`. Quedan **diferidas**: `/admin/invoices`, `/admin/settings` y `/admin/residences/[id]/plan` (D8: el plan no se otorga mientras todo sea gratis). La config de cobro del fee (CBU/alias/titular, D2) la edita el admin; su ruta se define al implementarla.
 
 ---
 
@@ -261,7 +281,7 @@ Ruta base: `/admin`
 
 **Ruta:** `/for-residences`
 
-**Contenido mínimo:** menos consultas repetidas; gestión de solicitudes; posibilidad de proponer ajustes de condiciones antes de confirmar; lista de espera; renovaciones; comunidad visible; Residencia Verificada; Modo Perfil Verificado (gratuito); Modo Gestión Operativa (plan pago, gratis por 1 año para residencias pioneras); reglas de calidad.
+**Contenido mínimo:** menos consultas repetidas; gestión de solicitudes; posibilidad de proponer ajustes de condiciones antes de confirmar; lista de espera; renovaciones; comunidad visible; Residencia Verificada; Modo Perfil Verificado (gratuito); Modo Gestión Operativa (plan pago, gratis por 1 año para residencias pioneras) *[MVP: todo gratis, D8 — la landing no vende un plan pago; ver nota de §3.3]*; reglas de calidad.
 
 **CTA principal:** Quiero sumar mi residencia. **CTA secundario:** Ver cómo funciona para residencias.
 
@@ -285,7 +305,7 @@ Ruta base: `/admin`
 
 ### 4.5. Detalle público de residencia
 
-**Ruta:** `/r/[slug]`
+**Ruta:** `/residencias/[slug]` (`/r/[slug]` redirige acá)
 
 **Objetivo:** convertir interés en solicitud de reserva o lista de espera.
 
@@ -310,6 +330,10 @@ Ruta base: `/admin`
 - Gestión Operativa: "Disponibilidad asegurada."
 - Completa: "Residencia completa. Podés sumarte a la lista de espera."
 - Sin actualización: "Sin disponibilidad actualizada. Podés consultar o sumarte a lista de espera si está habilitada."
+
+> **Decisión D3 (2026-10-20).** El estado de disponibilidad de este bloque y el selector de tipo del formulario de solicitud salen del tipo de habitación; el mapa de camas solo informa ocupación (ver §2.6).
+>
+> **Decisión D9 (2026-10-20).** En el MVP el bloque FAQ es simple: preguntas y respuestas cargadas por la residencia más un campo de pregunta libre; la pregunta le llega a la residencia, que la responde (§7.16). No hay respuesta automática desde archivos subidos. Los límites de `docs/00` §20.3 siguen vigentes.
 
 **CTA principal:** Enviar solicitud de reserva. Debe exigir login y perfil mínimo.
 
@@ -342,7 +366,7 @@ Ruta base: `/admin`
 
 **Ruta:** `/login`
 
-**Opciones:** email/password, recuperar contraseña.
+**Opciones:** email/password, recuperar contraseña (reset por email; entra al MVP, D10).
 
 **Redirección:** estudiante/familiar → `/students/dashboard`; residencia → `/residence/dashboard`; admin → `/admin/dashboard`.
 
@@ -364,7 +388,7 @@ Ruta base: `/admin`
 
 **Campos obligatorios:** nombre, apellido, nacionalidad, fecha de nacimiento, dónde va a estudiar, email, teléfono, contraseña, aceptación de términos, aceptación de privacidad, configuración inicial de visibilidad.
 
-**Reglas:** apellido, fecha de nacimiento y universidad nunca son públicos. Si es menor, debe vincular familiar para finalizar registro.
+**Reglas:** apellido, fecha de nacimiento y universidad nunca son públicos. Si es menor, debe vincular familiar para finalizar registro. Los términos enlazan a `/terms` (borrador, D10). El consentimiento de visibilidad de la comunidad se pide en este paso; para menores el perfil individual queda oculto por defecto (D4, `docs/10` §7 y §9.2).
 
 ---
 
@@ -582,6 +606,13 @@ Ruta base: `/students`
 - Checkbox de aceptación.
 
 **Estados:** medio de pago pendiente; pago manual pendiente; cobro automático pendiente; procesando; pagado; fallido; vencido; reembolsado.
+
+**Modo manual del fee (decisión D2, 2026-10-20, `docs/00` §14.3 y §31).** Cuando el fee se paga por transferencia (modo manual), la pantalla muestra los datos para pagar en pantalla:
+- datos de cobro de EstuRed **configurables por el admin** (CBU, alias y titular de la cuenta);
+- **monto exacto en ARS** (calculado con el snapshot de tipo de cambio);
+- el **n.º de reserva como referencia** de la transferencia;
+- **cuenta regresiva** hasta el vencimiento de la ventana de pago (48 h);
+- botón **"Tengo un problema con el pago"** (abre un caso de Soporte con el contexto de la reserva).
 
 **Regla:** si falla el cobro, hasta 3 intentos dentro de 48 horas. Al pagar, se emite automáticamente la Factura C, que se envía por email al pagador y puede descargarse desde la pantalla del comprobante (`/students/receipts/[id]`). **No existe una pantalla separada "Mis facturas" en el MVP.**
 
@@ -859,7 +890,9 @@ Sin cambios de fondo.
 
 **Ruta:** `/residence/[residence_id]/residents`
 
-Solo visible con Gestión Operativa. Sin cambios de fondo respecto al original.
+Visible para toda residencia (MVP: todo gratis, D8). Sin cambios de fondo respecto al original.
+
+**Estadías vencidas (decisión D11, 2026-10-20).** El sistema **alerta, nunca cierra solo**: avisa a la residencia (y al estudiante) **30 días antes** del fin del contrato (`expected_end_date`) y **al vencer**, con las acciones "Renovar" y "Registrar salida". Una estadía vencida sin acción queda visible con la alerta; no pasa sola a `inactive` ni libera la plaza.
 
 ---
 

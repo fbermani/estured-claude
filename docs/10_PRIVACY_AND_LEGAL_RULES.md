@@ -235,6 +235,8 @@ El sistema debe evitar preguntas de onboarding que lleven a revelar datos sensib
 
 Durante el onboarding, el estudiante debe configurar visibilidad de perfil con opciones claras. Debe existir una configuración recomendada por defecto, con posibilidad de editar.
 
+> **Decisión D4 (2026-10-20, `docs/00` §18 y §31).** El control de visibilidad es **del estudiante**, no un valor fijo del sistema: en "Mi perfil" ve una **vista previa** de cómo lo ven los demás y dispone de **3–4 interruptores** (con defaults recomendados) para decidir qué datos de comunidad muestra a usuarios registrados. El **consentimiento** se pide en el registro (paso de visibilidad, §7.1). Sin consentimiento no se muestra el perfil individual. Esta decisión revierte lo hecho en los Ciclos 37/39 (visibilidad forzada).
+
 ### 7.2 Niveles de visibilidad
 
 1. Invitados/no registrados.
@@ -299,7 +301,7 @@ Si un estudiante es menor de 18 años: no puede finalizar registro completo sin 
 
 ### 9.2 Visibilidad de menores
 
-Más restrictiva por defecto. Recomendación: no mostrar foto real de menor a invitados; no mostrar hábitos completos a usuarios generales sin revisión; permitir visibilidad a residencias solo en contexto de solicitud; revisar legalmente el alcance.
+Más restrictiva por defecto. **Decisión D4 (2026-10-20): el perfil individual de un menor está oculto por defecto para usuarios registrados** (solo lo ven las residencias en contexto de solicitud). Quién puede habilitarlo y con qué consentimiento queda pendiente de revisión legal (§9.6). Recomendación: no mostrar foto real de menor a invitados; no mostrar hábitos completos a usuarios generales sin revisión; permitir visibilidad a residencias solo en contexto de solicitud; revisar legalmente el alcance.
 
 ### 9.3 Pagos de menores
 
