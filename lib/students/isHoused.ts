@@ -7,6 +7,12 @@ import type { SupabaseClient } from "@supabase/supabase-js";
  * estudiante porque la policy ya acota `reservations` al usuario actual.
  */
 export async function getIsHoused(supabase: SupabaseClient): Promise<boolean> {
-  const { data } = await supabase.from("reservations").select("id").eq("status", "confirmed").maybeSingle();
-  return !!data;
+  // count + head: tolera más de una reserva confirmada (p. ej. renovaciones de datos viejos o reservas
+  // visibles por vínculo familiar) sin caer en el PGRST116 de .maybeSingle().
+  const { count, error } = await supabase
+    .from("reservations")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "confirmed");
+  if (error) console.error("[students] getIsHoused failed:", error);
+  return (count ?? 0) > 0;
 }

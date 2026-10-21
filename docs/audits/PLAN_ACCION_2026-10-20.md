@@ -40,8 +40,8 @@ Regla de paralelismo: dos agentes que escriben nunca tocan los mismos archivos a
 
 | Ítem | Hallazgos | Agente | Esfuerzo |
 |---|---|---|---|
-| Helper único de estado visible (solicitud + reserva) en los 3 roles; ocultar la subida de comprobante cuando ya hay reserva | H01 | `constructor` | M |
-| Fin de contrato y tarifa del estudiante desde `resident_stays` (completa el fix del Ciclo 43) | H05 | `constructor` | S |
+| ✅ Helper único de estado visible (solicitud + reserva) en los 3 roles; ocultar la subida de comprobante cuando ya hay reserva (Ciclo 45) | H01 | `constructor` | M |
+| ✅ Fin de contrato y tarifa del estudiante desde `resident_stays` (completa el fix del Ciclo 43) (Ciclo 45) | H05 | `constructor` | S |
 | Detalle de solicitud y comprobante desde el snapshot + línea de tiempo; quitar texto de desarrollo de Factura C | H07 | `constructor` | M |
 | El n.º de comprobante impreso verifica en `/verify` | H14 | `constructor` + `tester` | S |
 | "Sumar otra residencia": implementar o quitar el CTA | H22 | `constructor` | S |
@@ -54,7 +54,7 @@ Regla de paralelismo: dos agentes que escriben nunca tocan los mismos archivos a
 | Accesibilidad y mobile | H31 | `interfaz` | S |
 | Pulido: nacionalidades, alertas de disponibilidad vencida, tipo de cambio, fechas, 404 | H21, H23, H28, H29, H30 | `interfaz` | S c/u |
 | Admin: estados legibles, histórico de cobros, detalle | H25 | `interfaz` | M |
-| Tests de regresión del helper de H01 y de H05 | H01, H05 | `tester` | S |
+| ✅ Tests de regresión del helper de H01 y de H05 (Ciclo 45: `visibleStatus.test.ts` + `contractEnd.test.ts`, puros) | H01, H05 | `tester` | S |
 
 ### Fase 2 — Lo que destraban las decisiones
 

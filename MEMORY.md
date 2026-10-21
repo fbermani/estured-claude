@@ -1,6 +1,6 @@
 # MEMORY.md — Memoria persistente de EstuRed
 
-**Última actualización:** 2026-07-24 (Ciclo 41–41quinquies — Dashboard de Residencias: panel operativo diario)
+**Última actualización:** 2026-10-21 (Ciclo 45 — Auditoría Fase 1: H01 estado visible + H05 contrato vigente)
 
 > Bitácora ejecutiva viva. NO reemplaza la documentación estratégica de `/docs`
 > (los 23 archivos `00`–`22` son la fuente de verdad de producto). Leer este
@@ -1412,7 +1412,41 @@ Pendiente explícito para un ciclo futuro (a pedido del dueño, no bloqueante): 
 
 **Pendiente de la Fase 0**: (a) auditar qué dejaron los tests/seeds viejos en producción (agente `seguridad`, solo lectura) y decidir si limpiar; (b) H27: dataset demo con fechas relativas y fotos propias; (c) confirmar que Vercel tiene env vars de producción (no las de dev) — no se tocó Vercel.
 
+## Ciclo 45. Fase 1 de la auditoría — H01 (estado visible solicitud+reserva) y H05 (contrato vigente) (2026-10-21)
+
+**Contexto**: plan de acción `docs/audits/PLAN_ACCION_2026-10-20.md`, Fase 1. Un solo ciclo porque ambos tocan las mismas pantallas del estudiante. Solo presentación + lectura: no cambia reglas de negocio ni transiciones.
+
+**H01 — un único estado visible**
+1. `lib/applications/visibleStatus.ts` (nuevo, puro): `getVisibleStatus({ applicationStatus, reservation, viewer })` → `{ label, tone, helper, nextAction, studentActionRequired, isClosed, key, source }`. Cuando existe reserva, `reservations.status` manda. Cubre los 19 estados de solicitud (docs/04 §5.2) y los 12 de reserva (§7.2) para `student` / `residence` / `admin`. Casos explícitos: `pending_estured_fee`, `expired_fee_unpaid` (copy sin culpar + Soporte), `cancelled_by_student`/`cancelled_by_residence`, `receipt_pending`/`receipt_issued` (antes caían en "fee pendiente"), `no_show`, `disputed`. `revoked` y `pending_manual_payment` **no son estados de reserva**: se derivan de `cancellation_reason_code = student_revocation_right` y de `estured_fee_payments.status = pending_manual_payment` (comprobante del fee ya enviado → "Fee en validación", no vuelve a pedir el pago).
+2. `lib/applications/loadReservationInfo.ts` (nuevo): 2 queries (reservas + estado del fee) para N solicitudes; sirve con el cliente del usuario (estudiante, RLS) o el admin client.
+3. Usado en: `/students/applications` (+ CTAs por `nextAction`), `/students/applications/[id]`, `/students/dashboard`, `/residence/[id]` (solicitudes recientes), `/residence/[id]/applications` (lista, detalle y bloque de acciones del inbox) y `/admin/applications`. Se borraron `lib/students/applicationStatus.ts` y `lib/students/stayDates.ts` (reemplazados).
+4. `PaymentProofUpload` ("Subir comprobante de pago" a la residencia) solo aparece con la solicitud en `residence_payment_pending`; "Ya podés pagar el fee" solo con reserva `pending_estured_fee`.
+5. Decisión: `estured_fee_failed` deriva a Soporte (la pantalla de fee redirige si la reserva no está en `pending_estured_fee`, así que ofrecer "reintentar" sería falso).
+
+**H05 — contrato vigente y tarifa (decisión D5)**
+1. `lib/students/contractEnd.ts` (nuevo, puro): `resolveContractEnd` = estadía vinculada (`resident_stays.expected_end_date`) → renovación `confirmed`/`receipt_issued` más lejana (`period_end_date`) → `start_date + initial_duration_months` (meses con recorte a fin de mes: 31/1 + 1 = 28/2). `renewedUntil` solo si hay renovación confirmada Y el fin vigente supera al original. `resolveStayRate`: tarifa vigente = `resident_stays.monthly_rate_usd` ?? snapshot; `differs` si la de la estadía difiere. `lib/students/loadStudentContracts.ts` arma el contrato por reserva con el cliente del usuario.
+2. Estudiante (`/students/dashboard`, `/students/residency`, `/students/renewals`): "Fin de contrato" / "Renovada hasta …", días restantes desde el contrato vigente, y `components/students/StayRateNote.tsx` ("Tu residencia actualizó tu tarifa mensual: antes USD X, ahora USD Y") cuando difiere.
+3. Residencia (`/residence/[id]/residents`): la tabla marca "difiere de lo acordado (USD X)" y el panel "Estadía y tarifa" muestra la tarifa acordada en la reserva con un aviso en vivo al tipear una distinta. No se bloquea la edición. Tarifa efectiva de estadías vinculadas = propia ?? snapshot (antes caía a la tarifa del tipo).
+4. **Limitación conocida**: la cadena de tarifa no incluye el precio de una renovación confirmada (pedido: estadía → snapshot). Si una renovación se acordó a otro precio y la residencia no carga la tarifa de la estadía, el estudiante ve el snapshot original.
+
+**Seed / dev**: `seed-demo-data.mjs`: renovación de Lucía ahora 2027-01-20 → 2027-07-20 (arranca donde termina el contrato original 2026-07-20 + 6 m) y `expected_end_date` 2027-07-20. Se parchó la base **dev en el lugar** (UUIDs intactos, sin re-seed): oferta, comprobante de renovación y estadía de Lucía. Nuevo `scripts/seed-expired-fee-reservation.mjs` (aditivo e idempotente, con guard): reserva de Camila con fee vencido (`expired_fee_unpaid`), el estado que faltaba en el dataset.
+
+**Tests**: `visibleStatus.test.ts` + `contractEnd.test.ts` (48 casos puros, sin Supabase): todas las ramas de estado/rol, no-promesas de copy, voseo, cadena estadía→renovación→reserva, recorte de meses, tarifa con/sin diferencia.
+
+**Validación**: typecheck ✅ · lint ✅ (mismos 12 warnings) · build ✅ · vitest completo 31 archivos / 159 tests ✅ (contra dev, ~7 min; la suite no dejó residuos nuevos). Verificado en navegador (dev) como Camila (lista, detalle y dashboard: vencida / revocada / confirmada / fee en validación / pagar fee), Ricardo (inbox desktop y 375px, panel, Residentes con diferencia de tarifa) y admin (desktop y 375px), sin overflow horizontal; capturas antes/después en el scratchpad de la sesión.
+
+**No verificado en pantalla**: las vistas del estudiante para Lucía (`Renovada hasta`, `StayRateNote`) — ver hallazgo 1.
+
+**Hallazgos laterales (sin tocar)**:
+1. **Residuo de tests en dev bloquea a Lucía**: el `afterAll` de `reissueBookingReceipt.test.ts` (y posiblemente otros) borra la residencia de prueba pero falla por FK (`reservations` sin cascade), dejando "Residencia Test Integración (Ciclo 29…)" con una 2ª reserva `confirmed` de Lucía. Con 2 reservas confirmadas, `.maybeSingle()` en `getIsHoused`, `/students/dashboard` y `/students/residency` devuelve error y Lucía aparece como "no alojada". Hay que limpiar el residuo, arreglar la limpieza de los tests y endurecer esas 3 consultas (`limit(1)` + preferir la reserva con estadía vinculada).
+2. El grupo "Cerradas" del inbox mezcla reservas que siguen abiertas (fee en validación, confirmadas) con terminales → H24.
+3. El pie de Residentes sigue diciendo "El residente controla su propia visibilidad" → H04.
+
+**Revisión del `revisor` (2026-10-21) — corregido antes del commit**: (1) `ApplicationActions` mostraba "La reserva está en proceso" a la residencia con reservas cerradas → el fallback ahora usa `visible.label` cuando `source === "reservation"`; (2) `.maybeSingle()` sobre `reservations` fallaba con más de una reserva confirmada (PGRST116 ignorado → "no alojado") en `getIsHoused`, `/students/dashboard` y `/students/residency` → `count`/`head` en el primero, `.limit(1)` + chequeo de `error` en los otros dos; (3) `daysUntilDate` comparaba contra medianoche UTC (1 día de menos entre 21:00 y 24:00 en Argentina) → ahora cuenta días de calendario en `America/Argentina/Buenos_Aires`; (6) `residents/page.tsx` loguea el `error` del lookup de reservas. Tests de regresión agregados (50 unitarios). **Diferido a un ciclo siguiente**: seed `seed-expired-fee-reservation.mjs` sin chequeo de `error` ni re-ejecutable a mitad de fallo; `loadReservationInfo` sin parámetro `residenceId` de defensa en profundidad (hoy seguro: los llamadores ya filtran por residencia/RLS); tipar `APPLICATION_STATUS`/`RESERVATION_STATUS` con uniones literales para exhaustividad en compilación; fechas "Ingreso" crudas junto a fechas es-AR; tests con cliente Supabase fake para `loadReservationInfo`/`loadStudentContracts`. **Residuo de tests en dev**: la "Residencia Test Integración (Ciclo 29…)" con una 2ª reserva `confirmed` de Lucía sigue en `estured-dev` (el `afterAll` de `reissueBookingReceipt.test.ts` no la borra por FK); pendiente limpiar con autorización del dueño y arreglar el `afterAll` (agente `tester`).
+
 ## 14. Próxima tarea recomendada
+
+**Actualizado 2026-10-21 (Ciclo 45)**: H01 y H05 cerrados en código. Siguiente de la Fase 1 del plan: H07 (detalle de solicitud/comprobante desde el snapshot) y H14 (n.º de comprobante verificable), y antes limpiar el residuo de tests en dev que deja a Lucía con 2 reservas confirmadas (hallazgo lateral 1 del Ciclo 45) para poder verificar sus pantallas (`Renovada hasta`, nota de tarifa).
 
 **Actualizado 2026-10-20 (Ciclo 43)**: el bug "Contrato hasta no se actualiza tras renovar" quedó corregido en código (ver Ciclo 43); el punto (2) del Ciclo 42 queda resuelto. **Migración 0035 aplicada por el dueño (2026-10-20)** y verificada por query: 2 estadías actuales vinculadas, 88 sin reserva (residentes cargados a mano, esperable), 0 renovaciones confirmadas sin reflejar en `expected_end_date`; Lucía @ Río de la Plata ya muestra contrato hasta 2027-07-15. Sigue pendiente (3) la decisión del selector manual.
 

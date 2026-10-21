@@ -16,8 +16,11 @@ import { ModuleCard } from "@/components/students/ModuleCard";
 import { PhotoCarousel } from "@/components/students/PhotoCarousel";
 import { getStudentProfileCompleteness } from "@/lib/students/profileCompleteness";
 import { getCatalogResidences } from "@/lib/residences/catalog";
-import { addMonthsDateOnly, daysRemaining } from "@/lib/students/stayDates";
-import { APPLICATION_STATUS_COPY, APPLICATION_ACTION_REQUIRED_STATUSES } from "@/lib/students/applicationStatus";
+import { formatDateOnly } from "@/lib/students/contractEnd";
+import { loadStudentContracts, type StudentContract } from "@/lib/students/loadStudentContracts";
+import { StayRateNote } from "@/components/students/StayRateNote";
+import { getVisibleStatus } from "@/lib/applications/visibleStatus";
+import { loadReservationInfoByApplication, type ReservationInfo } from "@/lib/applications/loadReservationInfo";
 
 export const metadata: Metadata = { title: "Tu espacio" };
 export const dynamic = "force-dynamic";
@@ -190,6 +193,7 @@ export default async function StudentDashboardPage() {
   let studentLinks: StudentLinkRow[] = [];
   let pendingProposalsCount = 0;
   let reservation: ReservationRow | null = null;
+  let contract: StudentContract | null = null;
   let renewalStatus: { label: string; tone: "amber" | "sage" | "neutral" | "danger" } | null = null;
   let completenessPercent = 100;
   let completenessMissing: string[] = [];
@@ -197,6 +201,7 @@ export default async function StudentDashboardPage() {
   let favoritesPreview: FavoritePreview[] = [];
   let favoritesTotal = 0;
   let applications: ApplicationSummaryRow[] = [];
+  let reservationInfoByAppId = new Map<string, ReservationInfo>();
   let waitlistCount = 0;
   let waitlistNeedsAction = false;
   let openSupportCount = 0;
@@ -320,17 +325,30 @@ export default async function StudentDashboardPage() {
       .gt("expires_at", new Date().toISOString());
     pendingProposalsCount = count ?? 0;
 
-    const { data: reservationData } = await supabase
+    const { data: reservationData, error: reservationError } = await supabase
       .from("reservations")
       .select(
         "id, start_date, initial_duration_months, booking_receipt_id, residences(id, name, public_area, slug, minimum_stay_months), room_types(name), application_snapshots(monthly_price_usd)",
       )
       .eq("status", "confirmed")
       .order("confirmed_at", { ascending: false })
+      .limit(1)
       .maybeSingle();
+    if (reservationError) console.error("[students/dashboard] reservation lookup failed:", reservationError);
     reservation = reservationData as unknown as ReservationRow | null;
 
     if (reservation) {
+      // H05: fin de contrato y tarifa vigentes (estadía → renovación → reserva).
+      const contracts = await loadStudentContracts(supabase, [
+        {
+          id: reservation.id,
+          start_date: reservation.start_date,
+          initial_duration_months: reservation.initial_duration_months,
+          snapshotRateUsd: reservation.application_snapshots?.monthly_price_usd ?? null,
+        },
+      ]);
+      contract = contracts.get(reservation.id) ?? null;
+
       const { data: renewalRequest } = await supabase
         .from("renewal_requests")
         .select("id, status")
@@ -375,6 +393,11 @@ export default async function StudentDashboardPage() {
       .select("id, status, created_at, residences(name), room_types(name)")
       .order("created_at", { ascending: false });
     applications = (appRows as unknown as ApplicationSummaryRow[]) ?? [];
+    // H01: estado visible = solicitud + reserva asociada (la reserva manda).
+    reservationInfoByAppId = await loadReservationInfoByApplication(
+      supabase,
+      applications.filter((a) => a.status === "converted_to_reservation").map((a) => a.id),
+    );
 
     const { data: waitlistRows } = await supabase
       .from("waitlist_entries")
@@ -388,9 +411,16 @@ export default async function StudentDashboardPage() {
   const activeLink = studentLinks.find((l) => l.status === "active");
   const isHoused = reservation !== null;
   const residence = reservation?.residences ?? null;
-  const remaining = reservation ? daysRemaining(reservation.start_date, reservation.initial_duration_months) : 0;
+  const remaining = contract?.daysRemaining ?? 0;
+  const contractEndLabel = contract ? formatDateOnly(contract.endDate) : "—";
 
-  const applicationsActionNeeded = applications.filter((a) => APPLICATION_ACTION_REQUIRED_STATUSES.has(a.status));
+  const visibleStatusOf = (a: ApplicationSummaryRow) =>
+    getVisibleStatus({
+      applicationStatus: a.status,
+      reservation: reservationInfoByAppId.get(a.id),
+      viewer: "student",
+    });
+  const applicationsActionNeeded = applications.filter((a) => visibleStatusOf(a).studentActionRequired);
   const primaryApplication = applicationsActionNeeded[0] ?? applications[0] ?? null;
 
   const heroAlerts: { icon: string; label: string; href: string }[] = [];
@@ -507,8 +537,7 @@ export default async function StudentDashboardPage() {
             {applications.length} solicitud{applications.length === 1 ? "" : "es"}
           </p>
           <p className="mt-1 truncate text-xs text-ink-faint">
-            {primaryApplication.residences?.name} —{" "}
-            {APPLICATION_STATUS_COPY[primaryApplication.status]?.label ?? primaryApplication.status}
+            {primaryApplication.residences?.name} — {visibleStatusOf(primaryApplication).label}
           </p>
         </>
       ) : (
@@ -621,19 +650,26 @@ export default async function StudentDashboardPage() {
                   </div>
                   <div>
                     <p className="text-xs text-ink-faint">Valor mensual</p>
-                    <p className="font-bold text-ink">USD {reservation.application_snapshots?.monthly_price_usd ?? "—"}</p>
+                    <p className="font-bold text-ink">
+                      USD {contract?.currentRateUsd ?? reservation.application_snapshots?.monthly_price_usd ?? "—"}
+                    </p>
                   </div>
                   <div>
                     <p className="text-xs text-ink-faint">Ingreso</p>
                     <p className="font-medium text-ink">{reservation.start_date}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-ink-faint">Restante</p>
-                    <p className="font-medium text-ink">
-                      {remaining > 0 ? (remaining < 60 ? `${remaining} días` : `~${Math.round(remaining / 30)} meses`) : "—"}
-                    </p>
+                    <p className="text-xs text-ink-faint">{contract?.renewedUntil ? "Renovada hasta" : "Fin de contrato"}</p>
+                    <p className="font-medium text-ink">{contractEndLabel}</p>
                   </div>
                 </div>
+                {contract?.differs && (
+                  <StayRateNote
+                    agreedRateUsd={contract.agreedRateUsd}
+                    currentRateUsd={contract.currentRateUsd}
+                    className="mt-4"
+                  />
+                )}
               </div>
 
               {heroAlerts.length > 0 && (
@@ -701,10 +737,8 @@ export default async function StudentDashboardPage() {
             >
               <dl className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
                 <div>
-                  <dt className="text-xs text-ink-faint">Fin de contrato</dt>
-                  <dd className="font-semibold text-ink">
-                    {addMonthsDateOnly(reservation.start_date, reservation.initial_duration_months)}
-                  </dd>
+                  <dt className="text-xs text-ink-faint">{contract?.renewedUntil ? "Renovada hasta" : "Fin de contrato"}</dt>
+                  <dd className="font-semibold text-ink">{contractEndLabel}</dd>
                 </div>
                 <div>
                   <dt className="text-xs text-ink-faint">Restante</dt>
@@ -723,8 +757,8 @@ export default async function StudentDashboardPage() {
                   <StartRenewalModal
                     reservationId={reservation.id}
                     roomTypeName={reservation.room_types?.name ?? null}
-                    currentEndDateLabel={addMonthsDateOnly(reservation.start_date, reservation.initial_duration_months)}
-                    monthlyPriceUsd={reservation.application_snapshots?.monthly_price_usd ?? null}
+                    currentEndDateLabel={contractEndLabel}
+                    monthlyPriceUsd={contract?.currentRateUsd ?? reservation.application_snapshots?.monthly_price_usd ?? null}
                     minimumStayMonths={reservation.residences?.minimum_stay_months ?? null}
                     triggerLabel="Iniciar renovación"
                     triggerVariant="outline"

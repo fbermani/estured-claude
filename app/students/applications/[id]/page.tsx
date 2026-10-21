@@ -5,7 +5,8 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { PaymentProofUpload } from "@/app/students/applications/[id]/payment/PaymentProofUpload";
-import { APPLICATION_STATUS_COPY } from "@/lib/students/applicationStatus";
+import { getVisibleStatus } from "@/lib/applications/visibleStatus";
+import { loadReservationInfoByApplication } from "@/lib/applications/loadReservationInfo";
 
 export const metadata: Metadata = { title: "Detalle de solicitud" };
 export const dynamic = "force-dynamic";
@@ -31,28 +32,12 @@ export default async function StudentApplicationDetailPage({
   const residence = application.residences as unknown as { name: string; public_area: string } | null;
   const roomType = application.room_types as unknown as { name: string } | null;
 
-  let reservation: { status: string; booking_receipt_id: string | null } | null = null;
-  if (application.status === "converted_to_reservation") {
-    const { data } = await supabase
-      .from("reservations")
-      .select("status, booking_receipt_id")
-      .eq("application_request_id", id)
-      .maybeSingle();
-    reservation = data;
-  }
-
-  const info =
-    application.status === "converted_to_reservation" && reservation?.status === "confirmed"
-      ? {
-          label: "Reserva confirmada",
-          tone: "sage" as const,
-          helper: "Ya pagaste el fee EstuRed — tu reserva está confirmada. Descargá tu comprobante abajo.",
-        }
-      : (APPLICATION_STATUS_COPY[application.status] ?? {
-          label: application.status,
-          tone: "neutral" as const,
-          helper: "",
-        });
+  // H01: estado visible = solicitud + reserva asociada (la reserva manda).
+  const reservation =
+    application.status === "converted_to_reservation"
+      ? ((await loadReservationInfoByApplication(supabase, [id])).get(id) ?? null)
+      : null;
+  const info = getVisibleStatus({ applicationStatus: application.status, reservation, viewer: "student" });
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
@@ -71,20 +56,29 @@ export default async function StudentApplicationDetailPage({
           <p className="mt-4 rounded-field bg-sand-100 px-4 py-3 text-sm text-ink-soft">{info.helper}</p>
         )}
 
-        {application.status === "offer_pending_student_acceptance" && (
+        {info.nextAction === "respond_offer" && (
           <Button href={`/students/applications/${id}/negotiation`} size="lg" className="mt-4 w-full">
             Ver propuesta de ajuste
           </Button>
         )}
-
-        {reservation?.status === "pending_estured_fee" && (
+        {info.nextAction === "pay_fee" && (
           <Button href={`/students/applications/${id}/fee`} size="lg" className="mt-4 w-full">
             Pagar fee EstuRed
           </Button>
         )}
-        {reservation?.status === "confirmed" && reservation.booking_receipt_id && (
-          <Button href={`/students/receipts/${reservation.booking_receipt_id}`} size="lg" className="mt-4 w-full">
+        {info.nextAction === "view_fee_status" && reservation?.status === "pending_estured_fee" && (
+          <Button href={`/students/applications/${id}/fee`} size="lg" variant="outline" className="mt-4 w-full">
+            Ver estado del fee
+          </Button>
+        )}
+        {info.nextAction === "view_receipt" && reservation?.bookingReceiptId && (
+          <Button href={`/students/receipts/${reservation.bookingReceiptId}`} size="lg" className="mt-4 w-full">
             Ver comprobante de reserva
+          </Button>
+        )}
+        {info.nextAction === "contact_support" && (
+          <Button href="/students/support" size="lg" variant="outline" className="mt-4 w-full">
+            Escribir a Soporte
           </Button>
         )}
 
@@ -111,8 +105,9 @@ export default async function StudentApplicationDetailPage({
         </p>
       </Card>
 
-      {["residence_payment_pending", "converted_to_reservation"].includes(application.status) &&
-        reservation?.status !== "confirmed" && <PaymentProofUpload applicationId={id} />}
+      {/* H01: el comprobante de pago a la residencia es del paso anterior — una vez
+          que existe la reserva ya no tiene sentido ofrecerlo. */}
+      {application.status === "residence_payment_pending" && <PaymentProofUpload applicationId={id} />}
     </div>
   );
 }

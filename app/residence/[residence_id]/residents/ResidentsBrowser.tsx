@@ -31,6 +31,8 @@ export type ResidentRow = {
   expectedEndDate: string | null;
   rateUsd: number | null;
   baseRateUsd: number | null;
+  /** Tarifa del snapshot aceptado en la reserva vinculada (`null` = estadía sin reserva de EstuRed). */
+  agreedRateUsd: number | null;
   /** Renovación vía `resident_stays.reservation_id`; `null` = estadía sin reserva de EstuRed vinculada. */
   renewal: {
     reservationId: string;
@@ -199,6 +201,11 @@ function DetailPanel({
   const endAction = endResidentStayAction.bind(null, residenceId, row.stayId);
   const [endState, endFormAction, endPending] = useActionState(endAction, initialState);
   const [confirmEnd, setConfirmEnd] = useState(false);
+  const [rateInput, setRateInput] = useState(row.rateUsd != null ? String(row.rateUsd) : "");
+  const typedRate = rateInput.trim() === "" ? null : Number(rateInput);
+  // Misma regla que el estudiante: una tarifa propia distinta de la acordada se le muestra (D5).
+  const rateDiffersFromAgreed =
+    typedRate !== null && !Number.isNaN(typedRate) && row.agreedRateUsd != null && typedRate !== row.agreedRateUsd;
 
   return (
     <div className="grid gap-5 border-t border-line bg-cream-2/60 p-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -225,11 +232,34 @@ function DetailPanel({
           type="number"
           min={0}
           name="monthly_rate_usd"
-          defaultValue={row.rateUsd ?? ""}
-          placeholder={row.baseRateUsd != null ? `${row.baseRateUsd} (tarifa del tipo)` : "Sin tarifa"}
+          value={rateInput}
+          onChange={(e) => setRateInput(e.target.value)}
+          placeholder={
+            row.agreedRateUsd != null
+              ? `${row.agreedRateUsd} (acordada en la reserva)`
+              : row.baseRateUsd != null
+                ? `${row.baseRateUsd} (tarifa del tipo)`
+                : "Sin tarifa"
+          }
           className="w-full rounded-field border-[1.5px] border-line bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none"
         />
-        <p className="mt-1 text-[11px] text-ink-faint">Vacío = rige la tarifa del tipo de habitación.</p>
+        <p className="mt-1 text-[11px] text-ink-faint">
+          {row.agreedRateUsd != null
+            ? "Vacío = rige la tarifa acordada en la reserva."
+            : "Vacío = rige la tarifa del tipo de habitación."}
+        </p>
+        {row.agreedRateUsd != null && (
+          <p
+            className={`mt-2 rounded-field px-2.5 py-1.5 text-[11px] ${
+              rateDiffersFromAgreed ? "bg-warning-bg font-medium text-warning-fg" : "bg-cream-2 text-ink-soft"
+            }`}
+          >
+            Tarifa acordada en la reserva: <span className="font-bold">{formatUsd(row.agreedRateUsd)}</span>.
+            {rateDiffersFromAgreed
+              ? " La tarifa que cargaste es distinta: el residente va a ver el cambio (antes y ahora) en su panel."
+              : " El residente ve la tarifa vigente de su estadía."}
+          </p>
+        )}
         <button
           type="submit"
           disabled={detailsPending}
@@ -520,7 +550,7 @@ export function ResidentsBrowser({
                   const st = statusOf(row, todayStr, in30Str);
                   const meta = STATUS_META[st];
                   const open = openStayId === row.stayId;
-                  const effectiveRate = row.rateUsd ?? row.baseRateUsd;
+                  const effectiveRate = row.rateUsd ?? row.agreedRateUsd ?? row.baseRateUsd;
                   return (
                     <Fragment key={row.stayId}>
                       <tr
@@ -566,8 +596,16 @@ export function ResidentsBrowser({
                         <td className="whitespace-nowrap px-4 py-3 text-ink-soft">{formatDate(row.expectedEndDate)}</td>
                         <td className="whitespace-nowrap px-4 py-3 font-bold text-ink">
                           {effectiveRate != null ? formatUsd(effectiveRate) : "—"}
-                          {row.rateUsd != null && row.baseRateUsd != null && row.rateUsd !== row.baseRateUsd && (
-                            <span className="block text-[10px] font-normal text-orange-700">personalizada</span>
+                          {row.rateUsd != null && row.agreedRateUsd != null && row.rateUsd !== row.agreedRateUsd ? (
+                            <span className="block text-[10px] font-normal text-orange-700">
+                              difiere de lo acordado ({formatUsd(row.agreedRateUsd)})
+                            </span>
+                          ) : (
+                            row.rateUsd != null &&
+                            row.baseRateUsd != null &&
+                            row.rateUsd !== row.baseRateUsd && (
+                              <span className="block text-[10px] font-normal text-orange-700">personalizada</span>
+                            )
                           )}
                         </td>
                         <td className="px-4 py-3 text-right">

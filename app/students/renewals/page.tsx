@@ -6,7 +6,9 @@ import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ExpandableCard } from "@/components/ui/ExpandableCard";
 import { StartRenewalModal } from "@/app/students/renewals/StartRenewalModal";
-import { addMonthsDateOnly, daysRemaining } from "@/lib/students/stayDates";
+import { formatDateOnly } from "@/lib/students/contractEnd";
+import { loadStudentContracts, type StudentContract } from "@/lib/students/loadStudentContracts";
+import { StayRateNote } from "@/components/students/StayRateNote";
 
 export const metadata: Metadata = { title: "Renovaciones" };
 export const dynamic = "force-dynamic";
@@ -41,6 +43,7 @@ export default async function StudentRenewalsPage() {
   let reservations: ReservationRow[] = [];
   const requestsByReservation = new Map<string, { id: string; status: string }>();
   const offersByReservation = new Map<string, { id: string; status: string }[]>();
+  let contracts = new Map<string, StudentContract>();
 
   if (supabase && sessionUser) {
     const { data } = await supabase
@@ -50,6 +53,17 @@ export default async function StudentRenewalsPage() {
       )
       .eq("status", "confirmed");
     reservations = (data as unknown as ReservationRow[]) ?? [];
+
+    // H05: fin de contrato y tarifa vigentes (estadía vinculada → renovación → reserva).
+    contracts = await loadStudentContracts(
+      supabase,
+      reservations.map((r) => ({
+        id: r.id,
+        start_date: r.start_date,
+        initial_duration_months: r.initial_duration_months,
+        snapshotRateUsd: r.application_snapshots?.monthly_price_usd ?? null,
+      })),
+    );
 
     const ids = reservations.map((r) => r.id);
     if (ids.length > 0) {
@@ -100,7 +114,9 @@ export default async function StudentRenewalsPage() {
             const activeRequest =
               request && (request.status === "created_by_student" || request.status === "notified_to_residence");
             const latestOffer = offers[0];
-            const remaining = daysRemaining(r.start_date, r.initial_duration_months);
+            const contract = contracts.get(r.id);
+            const remaining = contract?.daysRemaining ?? 0;
+            const contractEndLabel = contract ? formatDateOnly(contract.endDate) : "—";
 
             const summaryBadge = latestOffer
               ? (OFFER_STATUS_COPY[latestOffer.status] ?? { label: latestOffer.status, tone: "neutral" as const })
@@ -126,18 +142,26 @@ export default async function StudentRenewalsPage() {
                     <dd className="font-semibold text-ink">{r.start_date}</dd>
                   </div>
                   <div>
-                    <dt className="text-xs text-ink-faint">Duración actual</dt>
+                    <dt className="text-xs text-ink-faint">Duración inicial</dt>
                     <dd className="font-semibold text-ink">{r.initial_duration_months} meses</dd>
                   </div>
                   <div>
-                    <dt className="text-xs text-ink-faint">Fin del contrato</dt>
-                    <dd className="font-semibold text-ink">{addMonthsDateOnly(r.start_date, r.initial_duration_months)}</dd>
+                    <dt className="text-xs text-ink-faint">{contract?.renewedUntil ? "Renovada hasta" : "Fin del contrato"}</dt>
+                    <dd className="font-semibold text-ink">{contractEndLabel}</dd>
                   </div>
                   <div>
                     <dt className="text-xs text-ink-faint">Restante</dt>
                     <dd className="font-semibold text-ink">{remaining > 0 ? `${remaining} días` : "Vencido"}</dd>
                   </div>
                 </dl>
+                {contract?.renewedUntil && (
+                  <p className="mt-3 text-xs text-ink-faint">
+                    Tu contrato original terminaba el {formatDateOnly(contract.originalEndDate)}; lo renovaste.
+                  </p>
+                )}
+                {contract?.differs && (
+                  <StayRateNote agreedRateUsd={contract.agreedRateUsd} currentRateUsd={contract.currentRateUsd} className="mt-3" />
+                )}
 
                 <div className="mt-4 border-t border-line pt-4">
                   {offers.length > 0 ? (
@@ -164,8 +188,8 @@ export default async function StudentRenewalsPage() {
                     <StartRenewalModal
                       reservationId={r.id}
                       roomTypeName={r.room_types?.name ?? null}
-                      currentEndDateLabel={addMonthsDateOnly(r.start_date, r.initial_duration_months)}
-                      monthlyPriceUsd={r.application_snapshots?.monthly_price_usd ?? null}
+                      currentEndDateLabel={contractEndLabel}
+                      monthlyPriceUsd={contract?.currentRateUsd ?? r.application_snapshots?.monthly_price_usd ?? null}
                       minimumStayMonths={r.residences?.minimum_stay_months ?? null}
                       triggerLabel="Iniciar renovación"
                     />

@@ -16,7 +16,9 @@ import { ReservationSelectionProvider } from "@/components/residences/reservatio
 import { getServiceIcon, getCommonAreaIcon } from "@/lib/residences/amenityIcons";
 import { getCommunityVisibility } from "@/lib/residents/communityVisibility";
 import { getIsHoused } from "@/lib/students/isHoused";
-import { addMonthsDateOnly, daysRemaining } from "@/lib/students/stayDates";
+import { formatDateOnly } from "@/lib/students/contractEnd";
+import { loadStudentContracts } from "@/lib/students/loadStudentContracts";
+import { StayRateNote } from "@/components/students/StayRateNote";
 
 export const dynamic = "force-dynamic";
 
@@ -119,14 +121,16 @@ export default async function StudentResidencyPage() {
 
   let reservation: ReservationRow | null = null;
   if (supabase) {
-    const { data } = await supabase
+    const { data, error: reservationError } = await supabase
       .from("reservations")
       .select(
         "id, start_date, initial_duration_months, booking_receipt_id, residences(id, name, public_area, slug, description, minimum_stay_months), room_types(name), application_snapshots(monthly_price_usd)",
       )
       .eq("status", "confirmed")
       .order("confirmed_at", { ascending: false })
+      .limit(1)
       .maybeSingle();
+    if (reservationError) console.error("[students/residency] reservation lookup failed:", reservationError);
     reservation = data as unknown as ReservationRow | null;
   }
 
@@ -242,7 +246,22 @@ export default async function StudentResidencyPage() {
     community = await getCommunityVisibility(admin, residence.id, "registered");
   }
 
-  const remaining = daysRemaining(reservation.start_date, reservation.initial_duration_months);
+  // H05: fin de contrato y tarifa vigentes (estadía vinculada → renovación → reserva).
+  const contract = supabase
+    ? (
+        await loadStudentContracts(supabase, [
+          {
+            id: reservation.id,
+            start_date: reservation.start_date,
+            initial_duration_months: reservation.initial_duration_months,
+            snapshotRateUsd: reservation.application_snapshots?.monthly_price_usd ?? null,
+          },
+        ])
+      ).get(reservation.id)
+    : undefined;
+  const remaining = contract?.daysRemaining ?? 0;
+  const contractEndLabel = contract ? formatDateOnly(contract.endDate) : "—";
+  const monthlyRate = contract?.currentRateUsd ?? reservation.application_snapshots?.monthly_price_usd ?? null;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
@@ -270,23 +289,29 @@ export default async function StudentResidencyPage() {
               </div>
               <div>
                 <p className="text-xs text-ink-faint">Valor mensual</p>
-                <p className="font-bold text-ink">USD {reservation.application_snapshots?.monthly_price_usd ?? "—"}</p>
+                <p className="font-bold text-ink">USD {monthlyRate ?? "—"}</p>
               </div>
               <div>
                 <p className="text-xs text-ink-faint">Ingreso</p>
                 <p className="font-medium text-ink">{reservation.start_date}</p>
               </div>
               <div>
-                <p className="text-xs text-ink-faint">Fin estimado</p>
-                <p className="font-medium text-ink">
-                  {addMonthsDateOnly(reservation.start_date, reservation.initial_duration_months)}
-                </p>
+                <p className="text-xs text-ink-faint">{contract?.renewedUntil ? "Renovada hasta" : "Fin de contrato"}</p>
+                <p className="font-medium text-ink">{contractEndLabel}</p>
               </div>
             </div>
+            {contract?.renewedUntil && (
+              <p className="mt-2 text-xs text-ink-faint">
+                Tu contrato original terminaba el {formatDateOnly(contract.originalEndDate)}; lo renovaste.
+              </p>
+            )}
             {remaining > 0 && (
               <p className="mt-3 text-sm font-semibold text-forest-700">
                 {remaining < 60 ? `Quedan ${remaining} días de tu estadía actual` : `Quedan ~${Math.round(remaining / 30)} meses de tu estadía actual`}
               </p>
+            )}
+            {contract?.differs && (
+              <StayRateNote agreedRateUsd={contract.agreedRateUsd} currentRateUsd={contract.currentRateUsd} className="mt-3" />
             )}
             <div className="mt-4 flex flex-wrap gap-3 border-t border-line pt-4">
               {reservation.booking_receipt_id && (
@@ -324,8 +349,8 @@ export default async function StudentResidencyPage() {
               <StartRenewalModal
                 reservationId={reservation.id}
                 roomTypeName={reservation.room_types?.name ?? null}
-                currentEndDateLabel={addMonthsDateOnly(reservation.start_date, reservation.initial_duration_months)}
-                monthlyPriceUsd={reservation.application_snapshots?.monthly_price_usd ?? null}
+                currentEndDateLabel={contractEndLabel}
+                monthlyPriceUsd={monthlyRate}
                 minimumStayMonths={residence?.minimum_stay_months ?? null}
                 triggerVariant="outline"
                 triggerClassName="shrink-0"

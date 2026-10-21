@@ -8,6 +8,7 @@ import { Icon } from "@/components/ui/Icon";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatUsd } from "@/lib/mock/exchange";
 import { ApplicationActions } from "@/app/residence/[residence_id]/applications/[id]/ApplicationActions";
+import { getVisibleStatus, type ReservationStatusInput } from "@/lib/applications/visibleStatus";
 
 export type FullApplication = {
   id: string;
@@ -25,44 +26,16 @@ export type FullApplication = {
   paymentDeadlineAt: string | null;
   createdAt: string;
   priceUsd: number | null;
-  reservationStatus: string | null;
+  /** Reserva asociada (H01): su estado manda sobre el de la solicitud. */
+  reservation: ReservationStatusInput | null;
   whatsappUrl: string | null;
   waitlistRelatedCount: number;
   isActive: boolean;
 };
 
-const STATUS_LABEL: Record<string, string> = {
-  submitted: "Nueva",
-  queued_for_place: "En cola",
-  under_review: "En revisión",
-  contact_established: "Contacto establecido",
-  offer_pending_student_acceptance: "Propuesta enviada",
-  conditions_accepted: "Condiciones aceptadas",
-  residence_payment_pending: "Esperando pago del estudiante",
-  residence_payment_reported: "Pago recibido",
-  converted_to_reservation: "Reserva",
-  paused_due_to_other_active_request: "Pausada",
-  rejected: "Rechazada",
-  expired_no_residence_response: "Vencida",
-  expired_offer_no_response: "Vencida (propuesta)",
-  cancelled_by_student: "Cancelada",
-};
-const STATUS_TONE: Record<string, "amber" | "sage" | "neutral" | "danger"> = {
-  submitted: "amber",
-  queued_for_place: "neutral",
-  under_review: "amber",
-  contact_established: "sage",
-  offer_pending_student_acceptance: "amber",
-  conditions_accepted: "sage",
-  residence_payment_pending: "amber",
-  residence_payment_reported: "sage",
-  converted_to_reservation: "sage",
-  paused_due_to_other_active_request: "neutral",
-  rejected: "neutral",
-  expired_no_residence_response: "neutral",
-  expired_offer_no_response: "neutral",
-  cancelled_by_student: "neutral",
-};
+function visibleOf(app: FullApplication) {
+  return getVisibleStatus({ applicationStatus: app.status, reservation: app.reservation, viewer: "residence" });
+}
 
 const NEW_STATUSES = ["submitted", "queued_for_place", "under_review"];
 const NEGOTIATION_STATUSES = [
@@ -136,7 +109,7 @@ function ListRow({
   urgent: boolean;
   onClick: () => void;
 }) {
-  const badgeTone = STATUS_TONE[app.status] ?? "neutral";
+  const visible = visibleOf(app);
   return (
     <button
       type="button"
@@ -151,7 +124,7 @@ function ListRow({
     >
       <div className="flex items-center justify-between gap-2">
         <p className="truncate text-sm font-bold text-ink">{app.studentName}</p>
-        <Badge tone={badgeTone}>{STATUS_LABEL[app.status] ?? app.status}</Badge>
+        <Badge tone={visible.tone}>{visible.label}</Badge>
       </div>
       <p className="mt-0.5 truncate text-xs text-ink-faint">
         {app.roomTypeName ?? "Cualquier tipo"} · Ingreso {app.desiredStartDate}
@@ -260,12 +233,7 @@ export function ApplicationsInbox({
 }
 
 function ApplicationDetail({ residenceId, app }: { residenceId: string; app: FullApplication }) {
-  const statusLabel =
-    app.status === "converted_to_reservation"
-      ? app.reservationStatus === "confirmed"
-        ? "Reserva confirmada"
-        : "Reserva creada — fee pendiente"
-      : (STATUS_LABEL[app.status] ?? app.status);
+  const visible = visibleOf(app);
 
   return (
     <Card className="p-6 sm:p-8">
@@ -276,7 +244,7 @@ function ApplicationDetail({ residenceId, app }: { residenceId: string; app: Ful
             {[app.studentNationality, app.studentOriginCity, app.roomTypeName].filter(Boolean).join(" · ")}
           </p>
         </div>
-        <Badge tone="petrol">{statusLabel}</Badge>
+        <Badge tone={visible.tone}>{visible.label}</Badge>
       </div>
 
       <dl className="mt-6 grid gap-3 text-sm sm:grid-cols-2">
@@ -319,7 +287,7 @@ function ApplicationDetail({ residenceId, app }: { residenceId: string; app: Ful
           applicationId={app.id}
           residenceId={residenceId}
           status={app.status}
-          reservationStatus={app.reservationStatus}
+          reservation={app.reservation}
           whatsappUrl={app.whatsappUrl}
         />
       </div>

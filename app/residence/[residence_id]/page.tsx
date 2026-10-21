@@ -7,26 +7,11 @@ import { assertResidenceAccess } from "@/lib/residences/access";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
+import { getVisibleStatus } from "@/lib/applications/visibleStatus";
+import { loadReservationInfoByApplication } from "@/lib/applications/loadReservationInfo";
 
 export const metadata: Metadata = { title: "Panel de la residencia" };
 export const dynamic = "force-dynamic";
-
-const STATUS_COPY: Record<string, { label: string; tone: "amber" | "sage" | "neutral" }> = {
-  submitted: { label: "Nueva", tone: "amber" },
-  queued_for_place: { label: "En cola", tone: "neutral" },
-  under_review: { label: "En revisión", tone: "amber" },
-  contact_established: { label: "Contacto establecido", tone: "sage" },
-  offer_pending_student_acceptance: { label: "Propuesta enviada", tone: "amber" },
-  conditions_accepted: { label: "Condiciones aceptadas", tone: "sage" },
-  residence_payment_pending: { label: "Esperando pago", tone: "amber" },
-  residence_payment_reported: { label: "Pago recibido", tone: "sage" },
-  converted_to_reservation: { label: "Reserva creada", tone: "sage" },
-  paused_due_to_other_active_request: { label: "Pausada", tone: "neutral" },
-  rejected: { label: "Rechazada", tone: "neutral" },
-  expired_no_residence_response: { label: "Vencida", tone: "neutral" },
-  expired_offer_no_response: { label: "Vencida (propuesta)", tone: "neutral" },
-  cancelled_by_student: { label: "Cancelada", tone: "neutral" },
-};
 
 type RecentApplicationRow = {
   id: string;
@@ -104,6 +89,11 @@ export default async function ResidenceOverviewPage({
   ]);
 
   const recentApplications = (recentApplicationsData as unknown as RecentApplicationRow[]) ?? [];
+  // H01: estado visible = solicitud + reserva asociada (la reserva manda).
+  const recentReservations = await loadReservationInfoByApplication(
+    admin,
+    recentApplications.filter((a) => a.status === "converted_to_reservation").map((a) => a.id),
+  );
   const capacity = capacityCount ?? 0;
   const occupancyPct = capacity > 0 ? Math.min(100, Math.round(((occupiedCount ?? 0) / capacity) * 100)) : 0;
   const renewalsNeedingAttention = (pendingRenewalRequestsCount ?? 0) + (pendingRenewalOffersCount ?? 0);
@@ -345,7 +335,11 @@ export default async function ResidenceOverviewPage({
                 </thead>
                 <tbody className="divide-y divide-line">
                   {recentApplications.map((app) => {
-                    const badge = STATUS_COPY[app.status] ?? { label: app.status, tone: "neutral" as const };
+                    const badge = getVisibleStatus({
+                      applicationStatus: app.status,
+                      reservation: recentReservations.get(app.id),
+                      viewer: "residence",
+                    });
                     return (
                       <tr key={app.id} className="hover:bg-cream-2">
                         <td className="px-6 py-4 font-bold text-ink">

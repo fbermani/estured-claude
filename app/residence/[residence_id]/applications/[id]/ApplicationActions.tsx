@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Select, Textarea, Input } from "@/components/ui/Input";
 import { REJECTION_REASONS } from "@/lib/applications/types";
+import { getVisibleStatus, type ReservationStatusInput } from "@/lib/applications/visibleStatus";
 import {
   markUnderReview,
   establishContact,
@@ -32,13 +33,13 @@ export function ApplicationActions({
   applicationId,
   residenceId,
   status,
-  reservationStatus,
+  reservation,
   whatsappUrl,
 }: {
   applicationId: string;
   residenceId: string;
   status: string;
-  reservationStatus: string | null;
+  reservation: ReservationStatusInput | null;
   whatsappUrl: string | null;
 }) {
   const [isPending, startTransition] = useTransition();
@@ -186,11 +187,13 @@ export function ApplicationActions({
   }
 
   if (["residence_payment_reported", "converted_to_reservation"].includes(status)) {
+    // H01: el texto sale del estado REAL de la reserva (cancelada, vencida, confirmada…), no de un
+    // "fee pendiente" fijo.
+    const visible = getVisibleStatus({ applicationStatus: status, reservation, viewer: "residence" });
     return (
-      <p className="text-sm font-medium text-success-fg">
-        {reservationStatus === "confirmed"
-          ? "Reserva confirmada — el estudiante ya pagó el fee EstuRed."
-          : "Marcaste el pago como recibido. La reserva quedó creada y el fee EstuRed está pendiente de pago por parte del estudiante."}
+      <p className={`text-sm font-medium ${visible.tone === "sage" ? "text-success-fg" : "text-ink-soft"}`}>
+        {visible.helper ||
+          (visible.source === "application" ? "Marcaste el pago como recibido. La reserva está en proceso." : visible.label)}
       </p>
     );
   }

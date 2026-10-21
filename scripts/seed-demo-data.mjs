@@ -688,8 +688,10 @@ const { data: renewalOffer7 } = await admin
     student_profile_id: lucia.profileId,
     residence_id: rioplataId,
     status: "confirmed",
-    period_start_date: "2027-01-15",
-    period_end_date: "2027-07-15",
+    // H05: el período arranca justo donde termina el contrato original
+    // (reserva 4: 2026-07-20 + 6 meses = 2027-01-20), sin superposición.
+    period_start_date: "2027-01-20",
+    period_end_date: "2027-07-20",
     duration_months: 6,
     monthly_price_usd: 350,
     monthly_price_ars: usdToArs(350),
@@ -756,8 +758,8 @@ const { data: renewalReceipt7 } = await admin
       reservation_id: reservation4.id,
       student: { first_name: "Lucia", last_initial: "F." },
       residence: { name: "Residencia Río de la Plata", public_area: "Recoleta" },
-      period_start_date: "2027-01-15",
-      period_end_date: "2027-07-15",
+      period_start_date: "2027-01-20",
+      period_end_date: "2027-07-20",
       duration_months: 6,
       monthly_price_usd: 350,
       monthly_price_ars: usdToArs(350),
@@ -1215,7 +1217,7 @@ const { data: luciaResidentStay } = await admin
     start_date: "2026-07-20",
     // Contrato hasta el fin de su renovación confirmada (renewalOffer7),
     // como lo dejaría extendResidentStayOnRenewal en el flujo real.
-    expected_end_date: "2027-07-15",
+    expected_end_date: "2027-07-20",
   })
   .select("id")
   .single();

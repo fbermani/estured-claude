@@ -102,9 +102,12 @@ export default async function ResidenceResidentsPage({
   // Renovación por estadía, vía `resident_stays.reservation_id` (Ciclo 42):
   // renewal_requests/renewal_offers cuelgan de la reserva, no de la estadía.
   const linkedReservationIds = [...new Set(rawStays.map((s) => s.reservation_id).filter((id): id is string => !!id))];
-  const [{ data: linkedReservations }, { data: linkedRequests }, { data: linkedOffers }] = linkedReservationIds.length
+  const [{ data: linkedReservations, error: linkedReservationsError }, { data: linkedRequests }, { data: linkedOffers }] = linkedReservationIds.length
     ? await Promise.all([
-        admin.from("reservations").select("id, status").in("id", linkedReservationIds),
+        admin
+          .from("reservations")
+          .select("id, status, application_snapshots(monthly_price_usd)")
+          .in("id", linkedReservationIds),
         admin.from("renewal_requests").select("reservation_id, status").in("reservation_id", linkedReservationIds),
         admin
           .from("renewal_offers")
@@ -113,7 +116,16 @@ export default async function ResidenceResidentsPage({
           .order("created_at", { ascending: false }),
       ])
     : [{ data: [] }, { data: [] }, { data: [] }];
+  if (linkedReservationsError) console.error("[residence/residents] linked reservations lookup failed:", linkedReservationsError);
   const reservationStatusById = new Map((linkedReservations ?? []).map((r) => [r.id, r.status as string]));
+  // Tarifa del snapshot aceptado en la reserva (H05 / D5): la tarifa de la estadía puede diferir, pero la
+  // residencia ve la diferencia contra lo que el estudiante aceptó.
+  const agreedRateByReservationId = new Map(
+    (linkedReservations ?? []).map((r) => {
+      const snap = r.application_snapshots as unknown as { monthly_price_usd: number } | null;
+      return [r.id, snap?.monthly_price_usd != null ? Number(snap.monthly_price_usd) : null] as const;
+    }),
+  );
   const pendingRequestReservationIds = new Set(
     (linkedRequests ?? []).filter((r) => PENDING_REQUEST_STATUSES.has(r.status)).map((r) => r.reservation_id),
   );
@@ -155,6 +167,7 @@ export default async function ResidenceResidentsPage({
       expectedEndDate: s.expected_end_date,
       rateUsd: s.monthly_rate_usd != null ? Number(s.monthly_rate_usd) : null,
       baseRateUsd: s.room_types ? Number(s.room_types.monthly_price_usd) : null,
+      agreedRateUsd: s.reservation_id ? (agreedRateByReservationId.get(s.reservation_id) ?? null) : null,
       renewal,
     };
   });

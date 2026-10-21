@@ -7,7 +7,8 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { ExpandableCard } from "@/components/ui/ExpandableCard";
-import { APPLICATION_STATUS_COPY, APPLICATION_ACTION_REQUIRED_STATUSES } from "@/lib/students/applicationStatus";
+import { getVisibleStatus } from "@/lib/applications/visibleStatus";
+import { loadReservationInfoByApplication, type ReservationInfo } from "@/lib/applications/loadReservationInfo";
 
 export const metadata: Metadata = { title: "Mis solicitudes" };
 export const dynamic = "force-dynamic";
@@ -28,7 +29,7 @@ export default async function StudentApplicationsPage() {
   const supabase = await getSupabaseServer();
 
   let applications: ApplicationRow[] = [];
-  let reservationByAppId = new Map<string, { status: string; booking_receipt_id: string | null }>();
+  let reservationByAppId = new Map<string, ReservationInfo>();
 
   if (supabase && sessionUser) {
     const { data } = await supabase
@@ -40,22 +41,22 @@ export default async function StudentApplicationsPage() {
     applications = (data as unknown as ApplicationRow[]) ?? [];
 
     const convertedIds = applications.filter((a) => a.status === "converted_to_reservation").map((a) => a.id);
-    if (convertedIds.length > 0) {
-      const { data: reservations } = await supabase
-        .from("reservations")
-        .select("application_request_id, status, booking_receipt_id")
-        .in("application_request_id", convertedIds);
-      reservationByAppId = new Map((reservations ?? []).map((r) => [r.application_request_id as string, r]));
-    }
+    reservationByAppId = await loadReservationInfoByApplication(supabase, convertedIds);
   }
 
-  const actionNeeded = applications.filter((a) => APPLICATION_ACTION_REQUIRED_STATUSES.has(a.status));
-  const rest = applications.filter((a) => !APPLICATION_ACTION_REQUIRED_STATUSES.has(a.status));
+  // H01: el estado visible sale de solicitud + reserva (la reserva manda).
+  const visibleById = new Map(
+    applications.map((a) => [
+      a.id,
+      getVisibleStatus({ applicationStatus: a.status, reservation: reservationByAppId.get(a.id), viewer: "student" }),
+    ]),
+  );
+  const actionNeeded = applications.filter((a) => visibleById.get(a.id)?.studentActionRequired);
+  const rest = applications.filter((a) => !visibleById.get(a.id)?.studentActionRequired);
 
   const renderCard = (a: ApplicationRow, emphasized: boolean) => {
-    const copy = APPLICATION_STATUS_COPY[a.status] ?? { label: a.status, tone: "neutral" as const, helper: "" };
+    const copy = visibleById.get(a.id)!;
     const reservation = reservationByAppId.get(a.id);
-    const isConfirmed = a.status === "converted_to_reservation" && reservation?.status === "confirmed";
 
     const summary = (
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -65,7 +66,7 @@ export default async function StudentApplicationsPage() {
             {a.room_types?.name} · Ingreso {a.desired_start_date}
           </p>
         </div>
-        <Badge tone={isConfirmed ? "sage" : copy.tone}>{isConfirmed ? "Reserva confirmada" : copy.label}</Badge>
+        <Badge tone={copy.tone}>{copy.label}</Badge>
       </div>
     );
 
@@ -106,7 +107,7 @@ export default async function StudentApplicationsPage() {
         )}
 
         <div className="mt-4 flex flex-wrap gap-3 border-t border-line pt-4">
-          {a.status === "offer_pending_student_acceptance" && (
+          {copy.nextAction === "respond_offer" && (
             <Link
               href={`/students/applications/${a.id}/negotiation`}
               className="flex items-center gap-2 rounded-full bg-forest px-4 py-2 text-sm font-bold text-white hover:bg-forest-600"
@@ -114,7 +115,7 @@ export default async function StudentApplicationsPage() {
               <Icon name="handshake" className="text-base" /> Ver propuesta de ajuste
             </Link>
           )}
-          {reservation?.status === "pending_estured_fee" && (
+          {copy.nextAction === "pay_fee" && (
             <Link
               href={`/students/applications/${a.id}/fee`}
               className="flex items-center gap-2 rounded-full bg-forest px-4 py-2 text-sm font-bold text-white hover:bg-forest-600"
@@ -122,12 +123,28 @@ export default async function StudentApplicationsPage() {
               <Icon name="payments" className="text-base" /> Pagar fee EstuRed
             </Link>
           )}
-          {isConfirmed && reservation?.booking_receipt_id && (
+          {copy.nextAction === "view_fee_status" && reservation?.status === "pending_estured_fee" && (
             <Link
-              href={`/students/receipts/${reservation.booking_receipt_id}`}
+              href={`/students/applications/${a.id}/fee`}
+              className="flex items-center gap-2 rounded-full border-[1.5px] border-line px-4 py-2 text-sm font-semibold text-ink hover:border-forest hover:bg-forest-tint"
+            >
+              <Icon name="payments" className="text-base text-forest-700" /> Ver estado del fee
+            </Link>
+          )}
+          {copy.nextAction === "view_receipt" && reservation?.bookingReceiptId && (
+            <Link
+              href={`/students/receipts/${reservation.bookingReceiptId}`}
               className="flex items-center gap-2 rounded-full border-[1.5px] border-line px-4 py-2 text-sm font-semibold text-ink hover:border-forest hover:bg-forest-tint"
             >
               <Icon name="receipt_long" className="text-base text-forest-700" /> Ver comprobante
+            </Link>
+          )}
+          {copy.nextAction === "contact_support" && (
+            <Link
+              href="/students/support"
+              className="flex items-center gap-2 rounded-full border-[1.5px] border-line px-4 py-2 text-sm font-semibold text-ink hover:border-forest hover:bg-forest-tint"
+            >
+              <Icon name="support_agent" className="text-base text-forest-700" /> Escribir a Soporte
             </Link>
           )}
           <Link

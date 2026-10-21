@@ -5,6 +5,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { assertResidenceAccess } from "@/lib/residences/access";
 import { buildWhatsappUrl } from "@/lib/applications/whatsapp";
 import { ACTIVE_APPLICATION_STATUSES } from "@/lib/applications/types";
+import { loadReservationInfoByApplication } from "@/lib/applications/loadReservationInfo";
 import { ApplicationsInbox, type FullApplication } from "@/app/residence/[residence_id]/applications/ApplicationsInbox";
 
 export const metadata: Metadata = { title: "Solicitudes recibidas" };
@@ -58,11 +59,11 @@ export default async function ResidenceApplicationsPage({
     : { data: [] };
   const snapshotById = new Map((snapshots ?? []).map((s) => [s.id, s]));
 
-  const convertedIds = rows.filter((a) => a.status === "converted_to_reservation").map((a) => a.id);
-  const { data: reservations } = convertedIds.length
-    ? await admin.from("reservations").select("application_request_id, status").in("application_request_id", convertedIds)
-    : { data: [] };
-  const reservationStatusByAppId = new Map((reservations ?? []).map((r) => [r.application_request_id, r.status]));
+  // H01: estado visible = solicitud + reserva asociada (la reserva manda).
+  const reservationInfoByAppId = await loadReservationInfoByApplication(
+    admin,
+    rows.filter((a) => a.status === "converted_to_reservation").map((a) => a.id),
+  );
 
   const familyLinkIds = [...new Set(rows.filter((a) => a.contact_target === "family_member" && a.family_link_id).map((a) => a.family_link_id!))];
   const { data: familyLinks } = familyLinkIds.length
@@ -85,7 +86,7 @@ export default async function ResidenceApplicationsPage({
     } | null;
     const roomType = a.room_types as unknown as { name: string } | null;
     const snapshot = snapshotById.get(a.snapshot_original_id) ?? null;
-    const reservationStatus = a.status === "converted_to_reservation" ? (reservationStatusByAppId.get(a.id) ?? null) : null;
+    const reservationInfo = reservationInfoByAppId.get(a.id) ?? null;
 
     const contactPhone =
       a.contact_target === "family_member" && a.family_link_id
@@ -121,7 +122,14 @@ export default async function ResidenceApplicationsPage({
       paymentDeadlineAt: a.payment_deadline_at,
       createdAt: a.created_at,
       priceUsd: snapshot ? Number(snapshot.monthly_price_usd) : null,
-      reservationStatus,
+      reservation: reservationInfo
+        ? {
+            status: reservationInfo.status,
+            cancellationReasonCode: reservationInfo.cancellationReasonCode,
+            feePaymentStatus: reservationInfo.feePaymentStatus,
+            hasReceipt: reservationInfo.hasReceipt,
+          }
+        : null,
       whatsappUrl,
       waitlistRelatedCount: a.room_type_id ? (waitlistCountByType.get(a.room_type_id) ?? 0) : 0,
       isActive: (ACTIVE_APPLICATION_STATUSES as readonly string[]).includes(a.status),

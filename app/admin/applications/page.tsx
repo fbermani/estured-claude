@@ -4,26 +4,14 @@ import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
 import { cmd } from "@/components/admin/ui/tokens";
 import { ReopenApplicationControl } from "@/app/admin/applications/ReopenApplicationControl";
+import { getVisibleStatus } from "@/lib/applications/visibleStatus";
+import { loadReservationInfoByApplication } from "@/lib/applications/loadReservationInfo";
 
 export const metadata: Metadata = { title: "Solicitudes" };
 export const dynamic = "force-dynamic";
 
-const STATUS_BADGE: Record<string, { label: string; tone: "amber" | "emerald" | "neutral" | "rose" }> = {
-  submitted: { label: "Nueva", tone: "amber" },
-  queued_for_place: { label: "En cola", tone: "neutral" },
-  under_review: { label: "En revisión", tone: "amber" },
-  contact_established: { label: "Contacto establecido", tone: "emerald" },
-  offer_pending_student_acceptance: { label: "Propuesta enviada", tone: "amber" },
-  conditions_accepted: { label: "Condiciones aceptadas", tone: "emerald" },
-  residence_payment_pending: { label: "Esperando pago", tone: "amber" },
-  residence_payment_reported: { label: "Pago recibido", tone: "emerald" },
-  converted_to_reservation: { label: "Reserva creada", tone: "emerald" },
-  paused_due_to_other_active_request: { label: "Pausada", tone: "neutral" },
-  rejected: { label: "Rechazada", tone: "rose" },
-  expired_no_residence_response: { label: "Vencida", tone: "neutral" },
-  expired_offer_no_response: { label: "Vencida — propuesta sin respuesta", tone: "neutral" },
-  cancelled_by_student: { label: "Cancelada", tone: "neutral" },
-};
+/** Tono de `getVisibleStatus` (sage/danger) → tono del sistema de badges del admin (emerald/rose). */
+const ADMIN_TONE = { amber: "amber", sage: "emerald", neutral: "neutral", danger: "rose" } as const;
 
 const CLOSED_STATUSES = [
   "converted_to_reservation",
@@ -58,6 +46,13 @@ export default async function AdminApplicationsPage() {
     : { data: [], error: null };
   if (error) console.error("[admin/applications] query failed:", error);
   const applications = (data as unknown as ApplicationRow[]) ?? [];
+  // H01: estado visible = solicitud + reserva asociada (la reserva manda).
+  const reservationInfoByAppId = admin
+    ? await loadReservationInfoByApplication(
+        admin,
+        applications.filter((a) => a.status === "converted_to_reservation").map((a) => a.id),
+      )
+    : new Map();
   const activeCount = applications.filter((a) => !CLOSED_STATUSES.includes(a.status)).length;
 
   return (
@@ -88,7 +83,13 @@ export default async function AdminApplicationsPage() {
           </thead>
           <tbody>
             {applications.map((a) => {
-              const badge = STATUS_BADGE[a.status] ?? STATUS_BADGE.submitted;
+              const visible = getVisibleStatus({
+                applicationStatus: a.status,
+                reservation: reservationInfoByAppId.get(a.id),
+                viewer: "admin",
+              });
+              // La solicitud rechazada conserva el rojo que ya tenía en el admin.
+              const badgeTone = visible.key === "rejected" ? "rose" : ADMIN_TONE[visible.tone];
               return (
                 <tr key={a.id} style={{ borderBottom: `1px solid ${cmd.border}` }}>
                   <td className="px-4 py-2.5 whitespace-nowrap text-xs" style={{ color: cmd.outline }}>
@@ -112,7 +113,7 @@ export default async function AdminApplicationsPage() {
                     {a.desired_start_date}
                   </td>
                   <td className="px-4 py-2.5">
-                    <AdminBadge tone={badge.tone}>{badge.label}</AdminBadge>
+                    <AdminBadge tone={badgeTone}>{visible.label}</AdminBadge>
                   </td>
                   <td className="px-4 py-2.5">
                     {REOPENABLE_STATUSES.includes(a.status) && <ReopenApplicationControl applicationId={a.id} />}
