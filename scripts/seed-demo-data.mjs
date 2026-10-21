@@ -22,6 +22,7 @@
  * vinculado y sin solicitudes a propósito — es el escenario documentado
  * de "necesita vincular familiar antes de poder solicitar".
  */
+import "./_assert-dev-project.mjs";
 import { createClient } from "@supabase/supabase-js";
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

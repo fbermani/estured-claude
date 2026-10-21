@@ -8,6 +8,7 @@
  * asegura roles/perfil. Todos comparten DEMO_USERS_PASSWORD.
  * Mantener sincronizado con lib/dev/demo-users.ts.
  */
+import "./_assert-dev-project.mjs";
 import { createClient } from "@supabase/supabase-js";
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

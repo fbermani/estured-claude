@@ -1,0 +1,4 @@
+{
+  "_comment": "Project refs de Supabase que son PRODUCCIÓN. Los tests de integración y los seeds destructivos se niegan a correr contra ellos (Fase 0 de la auditoría 2026-10-20, H26). Para sumar uno: agregar el ref (subdominio de la URL de Supabase).",
+  "refs": ["mrwooskdcnkbitkhcvbf"]
+}

@@ -19,6 +19,7 @@
  * Uso: node --env-file=.env.local scripts/seed-beds-and-conditions.mjs
  * Idempotente.
  */
+import "./_assert-dev-project.mjs";
 import { createClient } from "@supabase/supabase-js";
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

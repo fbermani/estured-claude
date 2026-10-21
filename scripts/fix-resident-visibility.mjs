@@ -12,6 +12,7 @@
  * Uso: node --env-file=.env.local scripts/fix-resident-visibility.mjs
  * Idempotente (upsert).
  */
+import "./_assert-dev-project.mjs";
 import { createClient } from "@supabase/supabase-js";
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

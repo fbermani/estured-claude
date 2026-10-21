@@ -13,6 +13,7 @@
  * apuntando a una fila que ya no existe y las fotos "desaparecen" de la
  * ficha sin que el script tire ningún error. Ciclo 35sexdecies).
  */
+import "./_assert-dev-project.mjs";
 import { createClient } from "@supabase/supabase-js";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";

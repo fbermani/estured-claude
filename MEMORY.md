@@ -1400,9 +1400,21 @@ Pendiente explícito para un ciclo futuro (a pedido del dueño, no bloqueante): 
 
 **Validación**: typecheck ✅ · lint ✅ (mismos 12 warnings) · vitest 111/111 ✅ · build ✅. **No verificado en UI**: el cambio visible para datos existentes depende de aplicar la 0035.
 
+## Ciclo 44. Fase 0 de la auditoría — base de desarrollo separada (2026-10-20)
+
+**Contexto**: auditoría H26 — los tests de integración y los seeds escribían en el mismo proyecto Supabase que producción (`estured.vercel.app`). Decisión D1 del dueño: segundo proyecto.
+
+1. **Proyecto `estured-dev`** creado por el dueño en OTRA cuenta de Supabase (el plan Free permite 2 proyectos por cuenta). El actual se renombra `estured-prod` (cosmético: URL/claves/ref `mrwooskdcnkbitkhcvbf` no cambian). `.env.local` ahora apunta a dev; respaldo del anterior (producción) en `~/.estured-env.production.backup`, fuera del repo.
+2. **Bootstrap de dev**: las 35 migraciones se unieron en `db/_generated/dev_bootstrap.sql` (gitignored, regenerable) y el dueño lo corrió en el SQL Editor sin errores. El `cron.schedule` de la 0013 va comentado (tiene placeholders de dominio y secreto de producción).
+3. **Datos en dev**: `setup-storage` + `seed-demo-users` + `seed-demo-data` + `seed-residence-community` + `seed-rooms-and-content` + `seed-beds-and-conditions` + `fix-resident-visibility` (orden del Ciclo 35sexdecies). Resultado: 95 usuarios, 3 residencias, 112 camas, 90 estadías, 4 reservas. **No se subieron fotos** (`upload-residence-photos` queda para H27: las fotos de `design-references/Fotos Residencias/` tienen marca de agua de terceros). La tabla `exchange_rates` quedó vacía: el proveedor la llena al primer uso.
+4. **Guards**: `vitest.setup.ts` lanza error y `scripts/_assert-dev-project.mjs` hace `process.exit(1)` si `NEXT_PUBLIC_SUPABASE_URL` apunta a un ref de `scripts/production-refs.json`. Verificados contra el ref de producción (bloquea) y contra dev (pasa). `create-admin.mjs` y `setup-storage.mjs` NO llevan guard a propósito (son idempotentes y sirven para producción).
+5. **Timeouts**: `vitest.config.ts` sube `testTimeout` a 30 s y `hookTimeout` a 60 s — la base de dev tiene ~190 ms por query y 6 tests de `renewals.test.ts` superaban los 5 s por defecto. Suite completa: ~5 min.
+
+**Pendiente de la Fase 0**: (a) auditar qué dejaron los tests/seeds viejos en producción (agente `seguridad`, solo lectura) y decidir si limpiar; (b) H27: dataset demo con fechas relativas y fotos propias; (c) confirmar que Vercel tiene env vars de producción (no las de dev) — no se tocó Vercel.
+
 ## 14. Próxima tarea recomendada
 
-**Actualizado 2026-10-20 (Ciclo 43)**: el bug "Contrato hasta no se actualiza tras renovar" quedó corregido en código (ver Ciclo 43); el punto (2) del Ciclo 42 queda resuelto. Siguen pendientes (1) aplicar la 0035 (ahora con 2 pasos) y (3) la decisión del selector manual.
+**Actualizado 2026-10-20 (Ciclo 43)**: el bug "Contrato hasta no se actualiza tras renovar" quedó corregido en código (ver Ciclo 43); el punto (2) del Ciclo 42 queda resuelto. **Migración 0035 aplicada por el dueño (2026-10-20)** y verificada por query: 2 estadías actuales vinculadas, 88 sin reserva (residentes cargados a mano, esperable), 0 renovaciones confirmadas sin reflejar en `expected_end_date`; Lucía @ Río de la Plata ya muestra contrato hasta 2027-07-15. Sigue pendiente (3) la decisión del selector manual.
 
 **Actualizado 2026-07-24 (Ciclo 42)**: gap (b) cerrado en código — el vínculo `resident_stays.reservation_id` ya se puebla al crear/activar estadías y el DetailPanel de Residentes tiene "Iniciar renovación" con un click. **Pendiente**: (1) aplicar la migración 0035 (backfill) en el SQL Editor de Supabase y verificar con el `select` de verificación comentado al final; (2) ~~decidir si `extendResidentStayOnRenewal` debe actualizar también `expected_end_date`~~ resuelto en Ciclo 43; (3) producto: ¿selector manual "Vincular reserva" para estadías sin vínculo por ambigüedad (estudiante con 2 reservas confirmadas en la misma residencia)?
 

@@ -15,6 +15,7 @@
  * Uso: node --env-file=.env.local scripts/seed-rooms-and-content.mjs
  * Idempotente: no duplica habitaciones ni reasigna residentes ya asignados.
  */
+import "./_assert-dev-project.mjs";
 import { createClient } from "@supabase/supabase-js";
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

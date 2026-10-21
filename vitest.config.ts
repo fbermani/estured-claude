@@ -23,5 +23,9 @@ export default defineConfig({
     // activas" de un mismo estudiante). Ciclo 21: se detectó como test
     // flaky real, no como bug de la app. Ver MEMORY.md.
     fileParallelism: false,
+    // Los tests de integración hacen decenas de round-trips a Supabase; con la
+    // base de desarrollo en otra cuenta/región el default de 5s queda corto.
+    testTimeout: 30_000,
+    hookTimeout: 60_000,
   },
 });

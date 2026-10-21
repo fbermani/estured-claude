@@ -11,6 +11,7 @@
  * Idempotente: no duplica room_types por nombre ni residentes por email;
  * si ya hay >= target, no agrega de más.
  */
+import "./_assert-dev-project.mjs";
 import { createClient } from "@supabase/supabase-js";
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

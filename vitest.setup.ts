@@ -22,3 +22,21 @@ if (existsSync(envPath)) {
     if (!(key in process.env)) process.env[key] = value;
   }
 }
+
+/**
+ * Guard H26 (auditoría 2026-10-20): los tests de integración crean y borran
+ * filas reales. Nunca deben correr contra producción — hacen falta
+ * credenciales de un proyecto de desarrollo en .env.local. La lista de
+ * refs protegidos vive en scripts/production-refs.json.
+ */
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+const protectedRefs: string[] = JSON.parse(
+  readFileSync(resolve(process.cwd(), "scripts/production-refs.json"), "utf-8"),
+).refs;
+const currentRef = supabaseUrl ? new URL(supabaseUrl).hostname.split(".")[0] : "";
+if (currentRef && protectedRefs.includes(currentRef)) {
+  throw new Error(
+    `Los tests de integración se niegan a correr contra el proyecto de PRODUCCIÓN (${currentRef}). ` +
+      "Apuntá NEXT_PUBLIC_SUPABASE_URL y las claves de .env.local al proyecto estured-dev.",
+  );
+}

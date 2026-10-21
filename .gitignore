@@ -30,3 +30,6 @@ next-env.d.ts
 
 # claude local settings
 .claude/settings.local.json
+
+# Generado por el flujo dev/prod (Fase 0 auditoría) — no commitear
+db/_generated/
