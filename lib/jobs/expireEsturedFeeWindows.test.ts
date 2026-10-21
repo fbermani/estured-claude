@@ -13,6 +13,7 @@ describe.skipIf(!hasCreds)("expireEsturedFeeWindows (integración)", () => {
   let studentUserId: string;
   let studentProfileId: string;
   let mainAppId: string;
+  let pausedAppId: string;
   let residencePaymentId: string;
   let reservationId: string;
   let staleFeeId: string;
@@ -32,7 +33,7 @@ describe.skipIf(!hasCreds)("expireEsturedFeeWindows (integración)", () => {
     const { data: studentUser } = await admin
       .from("users")
       .select("id")
-      .eq("email", "lucia.fernandez@example.com")
+      .eq("email", "mateo.figueroa@estured.test")
       .single();
     studentUserId = studentUser!.id;
     const { data: studentProfile } = await admin
@@ -109,6 +110,25 @@ describe.skipIf(!hasCreds)("expireEsturedFeeWindows (integración)", () => {
       .select("id")
       .single();
     mainAppId = mainApp!.id;
+    // Otra solicitud del mismo estudiante que quedó pausada cuando esta avanzó (docs/04 §5.4).
+    const { data: pausedApp } = await admin
+      .from("application_requests")
+      .insert({
+        student_profile_id: studentProfileId,
+        initiated_by: "student",
+        contact_target: "student",
+        residence_id: residenceId,
+        room_type_id: roomTypeId,
+        status: "paused_due_to_other_active_request",
+        desired_start_date: "2026-08-15",
+        initial_duration_months: 6,
+        academic_objective: "Objetivo académico de prueba (test de integración).",
+        snapshot_original_id: snapshotId,
+        created_by_user_id: studentUserId,
+      })
+      .select("id")
+      .single();
+    pausedAppId = pausedApp!.id;
     await admin.from("application_snapshots").update({ application_request_id: mainAppId }).eq("id", snapshotId);
 
     const { data: residencePayment } = await admin
@@ -169,7 +189,7 @@ describe.skipIf(!hasCreds)("expireEsturedFeeWindows (integración)", () => {
     await admin.from("external_residence_payments").update({ reservation_id: null }).eq("id", residencePaymentId);
     await admin.from("reservations").delete().eq("id", reservationId);
     await admin.from("external_residence_payments").delete().eq("id", residencePaymentId);
-    await admin.from("application_requests").delete().eq("id", mainAppId);
+    await admin.from("application_requests").delete().in("id", [mainAppId, pausedAppId]);
     await deleteResidenceCascade(admin, residenceId);
   });
 
@@ -182,5 +202,9 @@ describe.skipIf(!hasCreds)("expireEsturedFeeWindows (integración)", () => {
 
     const { data: reservation } = await admin.from("reservations").select("status").eq("id", reservationId).single();
     expect(reservation!.status).toBe("expired_fee_unpaid");
+
+    // docs/04 §5.6: la reserva no se confirmó → la solicitud pausada del estudiante se reactiva.
+    const { data: paused } = await admin.from("application_requests").select("status").eq("id", pausedAppId).single();
+    expect(paused!.status).toBe("submitted");
   });
 });

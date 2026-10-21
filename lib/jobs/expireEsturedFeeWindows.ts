@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
+import { reactivatePausedApplications } from "@/lib/applications/reactivatePausedApplications";
 
 const PENDING_FEE_STATUSES = ["pending_payment_method", "pending_manual_payment", "pending_auto_charge", "processing"];
 
@@ -29,11 +30,20 @@ export async function expireEsturedFeeWindows(admin: SupabaseClient): Promise<{ 
   let expiredCount = 0;
   for (const fee of staleFees ?? []) {
     if (fee.reservation_id) {
-      await admin
+      const { data: expiredReservation, error: reservationError } = await admin
         .from("reservations")
         .update({ status: "expired_fee_unpaid" })
         .eq("id", fee.reservation_id)
-        .eq("status", "pending_estured_fee");
+        .eq("status", "pending_estured_fee")
+        .select("student_profile_id")
+        .maybeSingle();
+      if (reservationError) {
+        console.error("[jobs] expireEsturedFeeWindows reservation update failed:", reservationError);
+      }
+      // docs/04 §5.6: la reserva "no se confirmó" → las pausadas del estudiante se reactivan.
+      if (expiredReservation?.student_profile_id) {
+        await reactivatePausedApplications(admin, expiredReservation.student_profile_id);
+      }
     }
     await createAuditLog(admin, {
       actorUserId: null,

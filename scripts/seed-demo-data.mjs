@@ -369,6 +369,8 @@ async function createApplication({
       snapshot_original_id: snapshotId,
       created_by_user_id: student.userId,
       contact_established_at: contactEstablished ? new Date().toISOString() : null,
+      // Igual que `establishContact`: plazo de 48h (H06; sin esto el job de vencimiento no la ve).
+      payment_deadline_at: contactEstablished ? new Date(Date.now() + 48 * 3_600_000).toISOString() : null,
     })
     .select("id")
     .single();

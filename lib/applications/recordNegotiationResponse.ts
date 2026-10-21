@@ -4,6 +4,7 @@ import { createAuditLog } from "@/lib/audit";
 import { calculateFeeEstimate } from "@/lib/applications/fee";
 import { createPendingResidencePayment } from "@/lib/applications/residencePayment";
 import { promoteNextQueuedApplication } from "@/lib/applications/roomTypeQueue";
+import { reactivatePausedApplications } from "@/lib/applications/reactivatePausedApplications";
 
 export type RecordNegotiationResponseResult = { ok: true } | { ok: false; error: string };
 
@@ -196,8 +197,10 @@ export async function recordNegotiationResponse(
     entityId: applicationId,
   });
 
-  if (newStatus === "cancelled_by_student" && application.room_type_id) {
-    await promoteNextQueuedApplication(admin, application.room_type_id);
+  if (newStatus === "cancelled_by_student") {
+    if (application.room_type_id) await promoteNextQueuedApplication(admin, application.room_type_id);
+    // docs/04 §5.6: si la avanzada se cancela, las pausadas del estudiante se reactivan.
+    await reactivatePausedApplications(admin, application.student_profile_id);
   }
 
   return { ok: true };

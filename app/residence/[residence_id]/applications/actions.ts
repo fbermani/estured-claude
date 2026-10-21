@@ -8,8 +8,12 @@ import { createAuditLog } from "@/lib/audit";
 import { ACTIVE_APPLICATION_STATUSES, REJECTION_REASONS } from "@/lib/applications/types";
 import { createPendingResidencePayment } from "@/lib/applications/residencePayment";
 import { promoteNextQueuedApplication } from "@/lib/applications/roomTypeQueue";
+import { reactivatePausedApplications } from "@/lib/applications/reactivatePausedApplications";
 
 export type ApplicationActionState = { status: "idle" | "error" | "saved"; message?: string };
+
+/** Otro actor (o el job de vencimiento) movió la solicitud entre que se cargó la pantalla y se apretó el botón. */
+const STALE_STATE_MESSAGE = "La solicitud ya cambió de estado, actualizá la página.";
 
 const REASON_CODES = new Set(REJECTION_REASONS.map((r) => r.value));
 
@@ -40,11 +44,15 @@ export async function markUnderReview(applicationId: string): Promise<Applicatio
     return { status: "error", message: "Esa solicitud ya no está en estado 'nueva'." };
   }
 
-  const { error } = await admin
+  const { data: reviewRow, error } = await admin
     .from("application_requests")
     .update({ status: "under_review" })
-    .eq("id", applicationId);
+    .eq("id", applicationId)
+    .eq("status", "submitted")
+    .select("id")
+    .maybeSingle();
   if (error) return { status: "error", message: "No pudimos guardar el cambio." };
+  if (!reviewRow) return { status: "error", message: STALE_STATE_MESSAGE };
 
   await admin.from("application_status_events").insert({
     application_request_id: applicationId,
@@ -79,15 +87,19 @@ export async function establishContact(applicationId: string): Promise<Applicati
   const now = new Date();
   const paymentDeadline = new Date(now.getTime() + 48 * 60 * 60 * 1000);
 
-  const { error } = await admin
+  const { data: contactRow, error } = await admin
     .from("application_requests")
     .update({
       status: "contact_established",
       contact_established_at: now.toISOString(),
       payment_deadline_at: paymentDeadline.toISOString(),
     })
-    .eq("id", applicationId);
+    .eq("id", applicationId)
+    .eq("status", result.application.status)
+    .select("id")
+    .maybeSingle();
   if (error) return { status: "error", message: "No pudimos guardar el cambio." };
+  if (!contactRow) return { status: "error", message: STALE_STATE_MESSAGE };
 
   await admin.from("application_status_events").insert({
     application_request_id: applicationId,
@@ -158,15 +170,19 @@ export async function enableResidencePayment(applicationId: string): Promise<App
 
   const paymentDeadline = new Date(Date.now() + 48 * 60 * 60 * 1000);
 
-  const { error } = await admin
+  const { data: enabledRow, error } = await admin
     .from("application_requests")
     .update({
       status: "residence_payment_pending",
       snapshot_final_id: result.application.snapshot_original_id,
       payment_deadline_at: paymentDeadline.toISOString(),
     })
-    .eq("id", applicationId);
+    .eq("id", applicationId)
+    .eq("status", "contact_established")
+    .select("id")
+    .maybeSingle();
   if (error) return { status: "error", message: "No pudimos guardar el cambio." };
+  if (!enabledRow) return { status: "error", message: STALE_STATE_MESSAGE };
 
   await admin.from("application_status_events").insert({
     application_request_id: applicationId,
@@ -227,15 +243,19 @@ export async function rejectApplication(
     return { status: "error", message: "Si el motivo es \"Otro\", contanos brevemente por qué." };
   }
 
-  const { error } = await admin
+  const { data: rejectedRow, error } = await admin
     .from("application_requests")
     .update({
       status: "rejected",
       rejection_reason_code: reasonCode,
       rejection_reason_internal: reasonText || null,
     })
-    .eq("id", applicationId);
+    .eq("id", applicationId)
+    .eq("status", result.application.status)
+    .select("id")
+    .maybeSingle();
   if (error) return { status: "error", message: "No pudimos guardar el rechazo." };
+  if (!rejectedRow) return { status: "error", message: STALE_STATE_MESSAGE };
 
   await admin.from("application_status_events").insert({
     application_request_id: applicationId,
@@ -260,6 +280,8 @@ export async function rejectApplication(
   if (result.application.room_type_id) {
     await promoteNextQueuedApplication(admin, result.application.room_type_id);
   }
+  // docs/04 §5.6: si la solicitud rechazada era la avanzada, las pausadas del estudiante se reactivan.
+  await reactivatePausedApplications(admin, result.application.student_profile_id);
 
   revalidatePath(`/residence/${result.application.residence_id}/applications`);
   return { status: "saved" };

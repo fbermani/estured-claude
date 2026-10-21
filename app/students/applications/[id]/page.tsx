@@ -12,6 +12,8 @@ import { loadReservationInfoByApplication } from "@/lib/applications/loadReserva
 import { loadAgreedConditionsByApplication } from "@/lib/applications/loadApplicationSnapshots";
 import { buildApplicationTimeline } from "@/lib/applications/timeline";
 import { ApplicationTimeline } from "@/components/applications/ApplicationTimeline";
+import { effectiveContactDeadline } from "@/lib/applications/paymentDeadline";
+import { ContactDeadlineNote } from "@/components/applications/ContactDeadlineNote";
 import { AgreedConditionsCard } from "@/components/applications/AgreedConditionsCard";
 
 /** Estados en los que las condiciones ya fueron aceptadas (docs/04 §5.2). */
@@ -37,7 +39,7 @@ export default async function StudentApplicationDetailPage({
   const { data: application } = await supabase
     .from("application_requests")
     .select(
-      "id, status, desired_start_date, initial_duration_months, academic_objective, rejection_reason_code, created_at, contact_established_at, snapshot_original_id, snapshot_final_id, residences(name, public_area, responsible_contact), room_types(name)",
+      "id, status, desired_start_date, initial_duration_months, academic_objective, rejection_reason_code, created_at, contact_established_at, payment_deadline_at, snapshot_original_id, snapshot_final_id, residences(name, public_area, responsible_contact), room_types(name)",
     )
     .eq("id", id)
     .maybeSingle();
@@ -113,6 +115,10 @@ export default async function StudentApplicationDetailPage({
             <p className="text-xs font-bold uppercase tracking-wide text-ink-faint">Qué sigue</p>
             <p className="mt-1">{info.helper}</p>
           </div>
+        )}
+
+        {application.status === "contact_established" && (
+          <ContactDeadlineNote deadlineAt={effectiveContactDeadline(application.payment_deadline_at as string | null, application.contact_established_at as string | null)} className="mt-4" />
         )}
 
         {info.nextAction === "respond_offer" && (

@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/Button";
 import { Select, Textarea, Input } from "@/components/ui/Input";
 import { REJECTION_REASONS } from "@/lib/applications/types";
 import { getVisibleStatus, type ReservationStatusInput } from "@/lib/applications/visibleStatus";
+import { describePaymentDeadline } from "@/lib/applications/paymentDeadline";
+import { Icon } from "@/components/ui/Icon";
 import {
   markUnderReview,
   establishContact,
@@ -35,12 +37,15 @@ export function ApplicationActions({
   status,
   reservation,
   whatsappUrl,
+  paymentDeadlineAt = null,
 }: {
   applicationId: string;
   residenceId: string;
   status: string;
   reservation: ReservationStatusInput | null;
   whatsappUrl: string | null;
+  /** `application_requests.payment_deadline_at`: plazo de 48 h de `contact_established` (H06). */
+  paymentDeadlineAt?: string | null;
 }) {
   const [isPending, startTransition] = useTransition();
   const [simpleError, setSimpleError] = useState<string | null>(null);
@@ -103,6 +108,7 @@ export function ApplicationActions({
   }
 
   if (status === "contact_established") {
+    const contactDeadline = describePaymentDeadline(paymentDeadlineAt);
     return (
       <div className="space-y-4">
         {simpleError && (
@@ -111,6 +117,21 @@ export function ApplicationActions({
           </p>
         )}
         <p className="text-sm font-medium text-success-fg">Ya estableciste contacto con esta solicitud.</p>
+        {contactDeadline && (
+          <p
+            className={`flex items-start gap-2 rounded-field px-4 py-3 text-sm ${
+              contactDeadline.urgent ? "bg-danger-bg text-danger-fg" : "bg-sand-100 text-ink-soft"
+            }`}
+          >
+            <Icon name="schedule" className="mt-0.5 text-base" />
+            <span>
+              <span className="font-bold">
+                {contactDeadline.relative} ({contactDeadline.absolute})
+              </span>
+              . Si antes no habilitás el pago ni enviás una propuesta de ajuste, la solicitud vence y se cierra.
+            </span>
+          </p>
+        )}
         <div className="flex flex-wrap gap-3">
           {whatsappUrl && (
             <a

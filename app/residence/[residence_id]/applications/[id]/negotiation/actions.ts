@@ -86,7 +86,7 @@ export async function sendNegotiationProposal(
   const now = new Date();
   const expiresAt = new Date(now.getTime() + 48 * 60 * 60 * 1000);
 
-  const { error: proposalError } = await admin.from("application_negotiation_proposals").insert({
+  const { data: insertedProposal, error: proposalError } = await admin.from("application_negotiation_proposals").insert({
     application_request_id: applicationId,
     sent_by_user_id: sessionUser.id,
     residence_id: application.residence_id,
@@ -105,20 +105,41 @@ export async function sendNegotiationProposal(
     warning_shown_at: now.toISOString(),
     warning_accepted_at: now.toISOString(),
     expires_at: expiresAt.toISOString(),
-  });
-  if (proposalError) {
+  }).select("id").single();
+  if (proposalError || !insertedProposal) {
     console.error("[negotiation] insert failed:", proposalError);
     return { status: "error", message: "No pudimos enviar la propuesta. Intentá de nuevo." };
   }
 
-  await admin
+  // Primero la propuesta, después el cambio de estado condicionado a `contact_established`: si el
+  // proceso se corta entre ambos pasos queda una propuesta suelta (inofensiva), nunca una solicitud
+  // en `offer_pending_student_acceptance` sin propuesta. Si otro actor (job de vencimiento, otra
+  // pestaña, `enableResidencePayment`) movió la solicitud, se borra la propuesta recién insertada.
+  const { data: claimed, error: claimError } = await admin
     .from("application_requests")
     .update({
       status: "offer_pending_student_acceptance",
       proposal_count: 1,
       payment_deadline_at: expiresAt.toISOString(),
     })
-    .eq("id", applicationId);
+    .eq("id", applicationId)
+    .eq("status", "contact_established")
+    .select("id")
+    .maybeSingle();
+  if (claimError || !claimed) {
+    if (claimError) console.error("[negotiation] status update failed:", claimError);
+    const { error: cleanupError } = await admin
+      .from("application_negotiation_proposals")
+      .delete()
+      .eq("id", insertedProposal.id);
+    if (cleanupError) console.error("[negotiation] no se pudo borrar la propuesta huérfana:", cleanupError);
+    return {
+      status: "error",
+      message: claimError
+        ? "No pudimos enviar la propuesta. Intentá de nuevo."
+        : "La solicitud ya cambió de estado, actualizá la página.",
+    };
+  }
 
   await admin.from("application_status_events").insert({
     application_request_id: applicationId,

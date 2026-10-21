@@ -56,6 +56,7 @@ const ACTION_PHRASES: Record<string, string> = {
   application_rejected: "rechazó una solicitud",
   application_expired_no_residence_response: "venció una solicitud sin respuesta de la residencia",
   application_expired_no_student_payment: "venció una solicitud sin pago a la residencia",
+  application_reactivated_after_pause: "reactivó una solicitud que estaba pausada",
   application_reopened_by_admin: "reabrió una solicitud",
   residence_payment_enabled_without_negotiation: "habilitó el pago a la residencia sin cambios",
   negotiation_proposal_sent: "envió una propuesta de ajuste",

@@ -9,6 +9,8 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { ExpandableCard } from "@/components/ui/ExpandableCard";
+import { effectiveContactDeadline } from "@/lib/applications/paymentDeadline";
+import { ContactDeadlineNote } from "@/components/applications/ContactDeadlineNote";
 import { getVisibleStatus } from "@/lib/applications/visibleStatus";
 import { loadReservationInfoByApplication, type ReservationInfo } from "@/lib/applications/loadReservationInfo";
 import { loadAgreedConditionsByApplication } from "@/lib/applications/loadApplicationSnapshots";
@@ -24,6 +26,8 @@ type ApplicationRow = {
   initial_duration_months: number;
   academic_objective: string | null;
   created_at: string;
+  payment_deadline_at: string | null;
+  contact_established_at: string | null;
   residences: { name: string; public_area: string } | null;
   snapshot_original_id: string | null;
   snapshot_final_id: string | null;
@@ -42,7 +46,7 @@ export default async function StudentApplicationsPage() {
     const { data } = await supabase
       .from("application_requests")
       .select(
-        "id, status, desired_start_date, initial_duration_months, academic_objective, created_at, residences(name, public_area), snapshot_original_id, snapshot_final_id, room_types(name)",
+        "id, status, desired_start_date, initial_duration_months, academic_objective, created_at, payment_deadline_at, contact_established_at, residences(name, public_area), snapshot_original_id, snapshot_final_id, room_types(name)",
       )
       .order("created_at", { ascending: false });
     applications = (data as unknown as ApplicationRow[]) ?? [];
@@ -89,6 +93,7 @@ export default async function StudentApplicationsPage() {
         summary={summary}
       >
         {copy.helper && <p className="rounded-field bg-sand-100 px-4 py-3 text-sm text-ink-soft">{copy.helper}</p>}
+        {a.status === "contact_established" && <ContactDeadlineNote deadlineAt={effectiveContactDeadline(a.payment_deadline_at, a.contact_established_at)} className="mt-3" />}
 
         <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-sm sm:grid-cols-4">
           <div>

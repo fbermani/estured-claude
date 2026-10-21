@@ -2,6 +2,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { promoteNextQueuedApplication } from "@/lib/applications/roomTypeQueue";
+import { reactivatePausedApplications } from "@/lib/applications/reactivatePausedApplications";
 
 /**
  * Job `expire_negotiation_proposals` (docs/07 §15.6, §31) — cada hora.
@@ -15,7 +16,7 @@ import { promoteNextQueuedApplication } from "@/lib/applications/roomTypeQueue";
 export async function expireNegotiationProposals(admin: SupabaseClient): Promise<{ expiredCount: number }> {
   const { data: stale, error } = await admin
     .from("application_negotiation_proposals")
-    .select("id, application_request_id, application_requests(room_type_id)")
+    .select("id, application_request_id, application_requests(room_type_id, student_profile_id)")
     .is("student_response", null)
     .lt("expires_at", new Date().toISOString());
 
@@ -54,9 +55,16 @@ export async function expireNegotiationProposals(admin: SupabaseClient): Promise
       entityId: proposal.application_request_id,
       source: "system",
     });
-    const applicationRequest = proposal.application_requests as unknown as { room_type_id: string | null } | null;
+    const applicationRequest = proposal.application_requests as unknown as {
+      room_type_id: string | null;
+      student_profile_id: string | null;
+    } | null;
     if (applicationRequest?.room_type_id) {
       await promoteNextQueuedApplication(admin, applicationRequest.room_type_id);
+    }
+    // docs/04 §5.6: si la avanzada vence, las pausadas del estudiante se reactivan.
+    if (applicationRequest?.student_profile_id) {
+      await reactivatePausedApplications(admin, applicationRequest.student_profile_id);
     }
     expiredCount += 1;
   }

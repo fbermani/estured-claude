@@ -1,3 +1,4 @@
+import { effectiveContactDeadline } from "@/lib/applications/paymentDeadline";
 import { formatShortName } from "@/lib/format/shortName";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -36,7 +37,7 @@ export default async function ResidenceApplicationsPage({
     admin
       .from("application_requests")
       .select(
-        "id, status, contact_target, desired_start_date, initial_duration_months, academic_objective, rejection_reason_code, family_link_id, created_by_user_id, snapshot_original_id, snapshot_final_id, room_type_id, expires_at, payment_deadline_at, created_at, room_types(name), student_profiles(first_name, last_initial, nationality, origin_city)",
+        "id, status, contact_target, desired_start_date, initial_duration_months, academic_objective, rejection_reason_code, family_link_id, created_by_user_id, snapshot_original_id, snapshot_final_id, room_type_id, expires_at, payment_deadline_at, contact_established_at, created_at, room_types(name), student_profiles(first_name, last_initial, nationality, origin_city)",
       )
       .eq("residence_id", residenceId)
       .order("created_at", { ascending: false }),
@@ -121,7 +122,10 @@ export default async function ResidenceApplicationsPage({
       studentNationality: student?.nationality ?? null,
       studentOriginCity: student?.origin_city ?? null,
       expiresAt: a.expires_at,
-      paymentDeadlineAt: a.payment_deadline_at,
+      paymentDeadlineAt:
+        a.status === "contact_established"
+          ? effectiveContactDeadline(a.payment_deadline_at, a.contact_established_at)
+          : a.payment_deadline_at,
       createdAt: a.created_at,
       priceUsd: snapshot ? Number(snapshot.monthly_price_usd) : null,
       priceAgreed: Boolean(a.snapshot_final_id),

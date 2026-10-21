@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { formatUsd } from "@/lib/mock/exchange";
 import { ApplicationActions } from "@/app/residence/[residence_id]/applications/[id]/ApplicationActions";
 import { getVisibleStatus, type ReservationStatusInput } from "@/lib/applications/visibleStatus";
+import { describePaymentDeadline } from "@/lib/applications/paymentDeadline";
 
 export type FullApplication = {
   id: string;
@@ -145,6 +146,9 @@ function ListRow({
   const visible = visibleOf(app);
   const urgency = urgencyLabel(app);
   const urgent = urgency !== null;
+  // H06: en "Contacto establecido" el plazo se ve siempre (no solo cuando falta poco): si vence, la solicitud se cierra.
+  const contactDeadline =
+    app.status === "contact_established" && !urgent ? describePaymentDeadline(app.paymentDeadlineAt) : null;
   return (
     <button
       type="button"
@@ -168,6 +172,12 @@ function ListRow({
         <p className="mt-1 flex items-center gap-1 text-xs font-bold text-danger-fg">
           <Icon name="schedule" className="text-sm" />
           {urgency}
+        </p>
+      )}
+      {contactDeadline && (
+        <p className="mt-1 flex items-center gap-1 text-xs font-semibold text-ink-soft">
+          <Icon name="schedule" className="text-sm" />
+          {contactDeadline.relative}
         </p>
       )}
     </button>
@@ -329,6 +339,7 @@ function ApplicationDetail({ residenceId, app }: { residenceId: string; app: Ful
           status={app.status}
           reservation={app.reservation}
           whatsappUrl={app.whatsappUrl}
+          paymentDeadlineAt={app.paymentDeadlineAt}
         />
       </div>
     </Card>
