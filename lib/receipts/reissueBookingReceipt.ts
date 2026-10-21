@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
+import { insertReceiptWithRetry } from "@/lib/receipts/receiptNumber";
 
 export type ReissueBookingReceiptResult =
   | { ok: true; newReceiptId: string; newReceiptNumber: string }
@@ -38,28 +39,49 @@ export async function reissueBookingReceipt(
 
   const now = new Date();
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-  const verificationCode = crypto.randomUUID();
-  const receiptNumber = `ER-${now.getFullYear()}-${crypto.randomUUID().slice(0, 6).toUpperCase()}`;
 
-  const payload = { ...(oldReceipt.receipt_payload as Record<string, unknown>), issued_at: now.toISOString() };
+  const payload: Record<string, unknown> = {
+    ...(oldReceipt.receipt_payload as Record<string, unknown>),
+    issued_at: now.toISOString(),
+  };
+  // Comprobantes viejos pueden traer datos del pagador que ya no se guardan en el payload (migración 0036): no se copian.
+  const oldFee = payload.estured_fee as Record<string, unknown> | undefined;
+  if (oldFee) {
+    const {
+      payer_billing_cuit: _cuit,
+      payer_iva_condition: _iva,
+      payer_email: _email,
+      ...safeFee
+    } = oldFee;
+    void _cuit;
+    void _iva;
+    void _email;
+    payload.estured_fee = safeFee;
+  }
 
-  const { data: newReceipt, error: insertError } = await admin
-    .from("booking_receipts")
-    .insert({
-      reservation_id: oldReceipt.reservation_id,
-      student_profile_id: oldReceipt.student_profile_id,
-      payer_user_id: oldReceipt.payer_user_id,
-      residence_id: oldReceipt.residence_id,
-      status: "issued",
-      receipt_number: receiptNumber,
-      verification_code: verificationCode,
-      qr_code_value: `${appUrl}/verify/${verificationCode}`,
-      issued_at: now.toISOString(),
-      reissued_from_receipt_id: oldReceipt.id,
-      receipt_payload: payload,
-    })
-    .select("id")
-    .single();
+  const {
+    data: newReceipt,
+    error: insertError,
+    receiptNumber,
+  } = await insertReceiptWithRetry<{ id: string }>("booking", ({ receiptNumber, verificationCode }) =>
+    admin
+      .from("booking_receipts")
+      .insert({
+        reservation_id: oldReceipt.reservation_id,
+        student_profile_id: oldReceipt.student_profile_id,
+        payer_user_id: oldReceipt.payer_user_id,
+        residence_id: oldReceipt.residence_id,
+        status: "issued",
+        receipt_number: receiptNumber,
+        verification_code: verificationCode,
+        qr_code_value: `${appUrl}/verify/${verificationCode}`,
+        issued_at: now.toISOString(),
+        reissued_from_receipt_id: oldReceipt.id,
+        receipt_payload: payload,
+      })
+      .select("id")
+      .single(),
+  );
   if (insertError || !newReceipt) {
     console.error("[receipts] reissue insert failed:", insertError);
     return { ok: false, error: "No pudimos generar el nuevo comprobante. Intentá de nuevo." };

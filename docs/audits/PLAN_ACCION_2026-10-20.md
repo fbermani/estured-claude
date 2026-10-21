@@ -42,11 +42,11 @@ Regla de paralelismo: dos agentes que escriben nunca tocan los mismos archivos a
 |---|---|---|---|
 | ✅ Helper único de estado visible (solicitud + reserva) en los 3 roles; ocultar la subida de comprobante cuando ya hay reserva (Ciclo 45) | H01 | `constructor` | M |
 | ✅ Fin de contrato y tarifa del estudiante desde `resident_stays` (completa el fix del Ciclo 43) (Ciclo 45) | H05 | `constructor` | S |
-| Detalle de solicitud y comprobante desde el snapshot + línea de tiempo; quitar texto de desarrollo de Factura C | H07 | `constructor` | M |
-| El n.º de comprobante impreso verifica en `/verify` | H14 | `constructor` + `tester` | S |
-| "Sumar otra residencia": implementar o quitar el CTA | H22 | `constructor` | S |
+| ✅ Detalle de solicitud y comprobante desde el snapshot + línea de tiempo; quitar texto de desarrollo de Factura C (Ciclo 47) | H07 | `constructor` | M |
+| ✅ El n.º de comprobante impreso verifica en `/verify` (Ciclo 47) | H14 | `constructor` + `tester` | S |
+| ✅ "Sumar otra residencia": implementar o quitar el CTA (Ciclo 47: implementado en `/residence/settings/new`, oculto para staff) | H22 | `constructor` | S |
 | Familiar: arreglar el 404 de "Mi perfil" | H16 (parte) | `depurador` | S |
-| Notificaciones con enlace y estado "leída" | H20 | `constructor` | S |
+| ✅ Notificaciones con enlace y estado "leída" (Ciclo 47) | H20 | `constructor` | S |
 | ✅ Copy sin promesas ni datos no respaldados (Ciclo 46) | H11 | `interfaz` | S |
 | ✅ Navbar pública consciente de la sesión (Ciclo 46) | H15 | `interfaz` | S |
 | ✅ Menor: instrucciones y bloqueo coherentes (Ciclo 46) | H17 | `interfaz` | S |

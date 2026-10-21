@@ -9,6 +9,8 @@ import { Icon } from "@/components/ui/Icon";
 import { ExpandableCard } from "@/components/ui/ExpandableCard";
 import { getVisibleStatus } from "@/lib/applications/visibleStatus";
 import { loadReservationInfoByApplication, type ReservationInfo } from "@/lib/applications/loadReservationInfo";
+import { loadAgreedConditionsByApplication } from "@/lib/applications/loadApplicationSnapshots";
+import type { AgreedConditions } from "@/lib/applications/agreedConditions";
 
 export const metadata: Metadata = { title: "Mis solicitudes" };
 export const dynamic = "force-dynamic";
@@ -21,7 +23,9 @@ type ApplicationRow = {
   academic_objective: string | null;
   created_at: string;
   residences: { name: string; public_area: string } | null;
-  room_types: { name: string; monthly_price_usd: number } | null;
+  snapshot_original_id: string | null;
+  snapshot_final_id: string | null;
+  room_types: { name: string } | null;
 };
 
 export default async function StudentApplicationsPage() {
@@ -30,18 +34,23 @@ export default async function StudentApplicationsPage() {
 
   let applications: ApplicationRow[] = [];
   let reservationByAppId = new Map<string, ReservationInfo>();
+  let conditionsByAppId = new Map<string, AgreedConditions>();
 
   if (supabase && sessionUser) {
     const { data } = await supabase
       .from("application_requests")
       .select(
-        "id, status, desired_start_date, initial_duration_months, academic_objective, created_at, residences(name, public_area), room_types(name, monthly_price_usd)",
+        "id, status, desired_start_date, initial_duration_months, academic_objective, created_at, residences(name, public_area), snapshot_original_id, snapshot_final_id, room_types(name)",
       )
       .order("created_at", { ascending: false });
     applications = (data as unknown as ApplicationRow[]) ?? [];
 
     const convertedIds = applications.filter((a) => a.status === "converted_to_reservation").map((a) => a.id);
-    reservationByAppId = await loadReservationInfoByApplication(supabase, convertedIds);
+    [reservationByAppId, conditionsByAppId] = await Promise.all([
+      loadReservationInfoByApplication(supabase, convertedIds),
+      // H07: el importe sale del snapshot (final si existe, si no el original), no del precio vigente.
+      loadAgreedConditionsByApplication(supabase, applications),
+    ]);
   }
 
   // H01: el estado visible sale de solicitud + reserva (la reserva manda).
@@ -89,9 +98,9 @@ export default async function StudentApplicationsPage() {
             <dd className="font-semibold text-ink">{a.initial_duration_months} meses</dd>
           </div>
           <div>
-            <dt className="text-xs text-ink-faint">Importe estimado</dt>
+            <dt className="text-xs text-ink-faint">Tarifa mensual</dt>
             <dd className="font-semibold text-ink">
-              {a.room_types?.monthly_price_usd ? `USD ${a.room_types.monthly_price_usd}/mes` : "—"}
+              {conditionsByAppId.get(a.id)?.monthlyUsd ? `USD ${conditionsByAppId.get(a.id)!.monthlyUsd}/mes` : "—"}
             </dd>
           </div>
           <div>

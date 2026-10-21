@@ -1,18 +1,16 @@
 import "server-only";
 import { Document, Page, Text, View, Image, StyleSheet } from "@react-pdf/renderer";
 
-export type ReceiptPdfPayload = {
-  student?: { first_name?: string; last_initial?: string };
-  residence?: { name?: string; public_area?: string };
-  room_type?: string;
-  desired_start_date?: string;
-  initial_duration_months?: number;
-  academic_objective?: string;
-  final_conditions?: { monthly_price_usd?: number; enrollment_fee_usd?: number; deposit_usd?: number };
-  estured_fee?: { amount_ars?: number; currency?: string; paid_at?: string };
-  adjustment_policy?: string;
-  disclaimer?: string;
-};
+import {
+  FUTURE_PAYMENTS_NOTICE,
+  INVOICE_NOTICE,
+  buildReceiptRows,
+  type ReceiptPayload,
+  type ReceiptSupplement,
+} from "@/lib/receipts/receiptView";
+
+/** Mismo contenido que la pantalla del comprobante (`lib/receipts/receiptView.ts`). */
+export type ReceiptPdfPayload = ReceiptPayload;
 
 const styles = StyleSheet.create({
   page: { padding: 40, fontSize: 10, color: "#1a1a1a" },
@@ -41,16 +39,6 @@ const styles = StyleSheet.create({
   verificationText: { fontSize: 8, color: "#666666", maxWidth: 320 },
 });
 
-function formatUsd(value?: number) {
-  if (value === undefined || value === null) return "—";
-  return `USD ${value.toLocaleString("es-AR")}`;
-}
-
-function formatArs(value?: number) {
-  if (value === undefined || value === null) return "—";
-  return `ARS ${value.toLocaleString("es-AR")}`;
-}
-
 export function ReceiptPdfDocument({
   receiptNumber,
   status,
@@ -58,6 +46,7 @@ export function ReceiptPdfDocument({
   payload,
   qrDataUrl,
   verificationUrl,
+  supplement = {},
 }: {
   receiptNumber: string;
   status: string;
@@ -65,8 +54,18 @@ export function ReceiptPdfDocument({
   payload: ReceiptPdfPayload;
   qrDataUrl: string;
   verificationUrl: string;
+  supplement?: ReceiptSupplement;
 }) {
   const isVoided = status === "voided";
+  const isReissued = status === "reissued";
+  const rows = buildReceiptRows(payload, supplement, issuedAt);
+  // El número impreso también verifica a mano en /verify (H14).
+  let manualVerifyUrl = "";
+  try {
+    manualVerifyUrl = `${new URL(verificationUrl).origin}/verify`;
+  } catch {
+    manualVerifyUrl = "";
+  }
 
   return (
     <Document title={`Comprobante ${receiptNumber}`}>
@@ -74,7 +73,7 @@ export function ReceiptPdfDocument({
         <View style={styles.headerRow}>
           <Text style={styles.brand}>EstuRed</Text>
           <Text style={[styles.statusBadge, isVoided ? styles.statusVoided : styles.statusValid]}>
-            {isVoided ? "ANULADO" : "VÁLIDO"}
+            {isVoided ? "ANULADO" : isReissued ? "REEMITIDO" : "VÁLIDO"}
           </Text>
         </View>
 
@@ -82,45 +81,21 @@ export function ReceiptPdfDocument({
         <Text style={styles.receiptNumber}>N.º {receiptNumber}</Text>
 
         <View style={styles.card}>
-          <View style={styles.row}>
-            <Text style={styles.label}>Estudiante</Text>
-            <Text style={styles.value}>
-              {payload.student?.first_name} {payload.student?.last_initial}
-            </Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Residencia</Text>
-            <Text style={styles.value}>
-              {payload.residence?.name} · {payload.residence?.public_area}
-            </Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Tipo de habitación</Text>
-            <Text style={styles.value}>{payload.room_type}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Fecha de ingreso</Text>
-            <Text style={styles.value}>{payload.desired_start_date}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Duración inicial</Text>
-            <Text style={styles.value}>{payload.initial_duration_months} meses</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Tarifa mensual acordada</Text>
-            <Text style={styles.value}>{formatUsd(payload.final_conditions?.monthly_price_usd)}</Text>
-          </View>
-          <View style={styles.lastRow}>
-            <Text style={styles.label}>Fee EstuRed pagado</Text>
-            <Text style={styles.value}>{formatArs(payload.estured_fee?.amount_ars)}</Text>
-          </View>
+          {rows.map((row, i) => (
+            <View key={row.label} style={i === rows.length - 1 ? styles.lastRow : styles.row} wrap={false}>
+              <Text style={styles.label}>{row.label}</Text>
+              <Text style={styles.value}>{row.value}</Text>
+            </View>
+          ))}
 
           {payload.academic_objective ? (
             <Text style={styles.objective}>Objetivo académico: {payload.academic_objective}</Text>
           ) : null}
         </View>
 
-        <Text style={styles.disclaimer}>{payload.disclaimer}</Text>
+        <Text style={styles.disclaimer}>{FUTURE_PAYMENTS_NOTICE}</Text>
+        <Text style={[styles.disclaimer, { marginTop: 6 }]}>{payload.disclaimer}</Text>
+        <Text style={[styles.disclaimer, { marginTop: 6 }]}>{INVOICE_NOTICE}</Text>
 
         <View style={styles.footer}>
           <View>
@@ -128,9 +103,11 @@ export function ReceiptPdfDocument({
               Verificá este comprobante escaneando el código o visitando:
             </Text>
             <Text style={styles.verificationText}>{verificationUrl}</Text>
-            <Text style={[styles.verificationText, { marginTop: 6 }]}>
-              Emitido: {issuedAt ? new Date(issuedAt).toLocaleDateString("es-AR") : "—"}
-            </Text>
+            {manualVerifyUrl ? (
+              <Text style={[styles.verificationText, { marginTop: 6 }]}>
+                O ingresá el número {receiptNumber} en {manualVerifyUrl}
+              </Text>
+            ) : null}
           </View>
           {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf's Image has no `alt` prop, this isn't an HTML <img> */}
           <Image src={qrDataUrl} style={styles.qr} />

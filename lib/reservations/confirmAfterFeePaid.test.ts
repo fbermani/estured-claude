@@ -26,6 +26,7 @@ describe.skipIf(!hasCreds)("confirmReservationAfterFeePaid (integración)", () =
   let snapshotId: string;
   let residencePaymentId: string;
   let reservationId: string;
+  const reportedAt = new Date(Date.now() - 3_600_000).toISOString();
   let feePaymentId: string;
 
   beforeAll(async () => {
@@ -180,7 +181,9 @@ describe.skipIf(!hasCreds)("confirmReservationAfterFeePaid (integración)", () =
         student_profile_id: studentProfileId,
         status: "reported_received_by_residence",
         reported_received_by_user_id: ownerId,
-        reported_received_at: new Date().toISOString(),
+        reported_received_at: reportedAt,
+        amount_reported_usd: 350,
+        amount_reported_ars: 532000,
       })
       .select("id")
       .single();
@@ -220,6 +223,9 @@ describe.skipIf(!hasCreds)("confirmReservationAfterFeePaid (integración)", () =
         fee_amount_ars: 140500,
         payment_currency: "ARS",
         payment_provider: "manual",
+        payer_billing_name: "Lucía Fernández",
+        payer_billing_cuit: "20-12345678-9",
+        payer_iva_condition: "consumidor_final",
         paid_at: new Date().toISOString(),
         expires_at: new Date(Date.now() + 48 * 3_600_000).toISOString(),
       })
@@ -287,8 +293,27 @@ describe.skipIf(!hasCreds)("confirmReservationAfterFeePaid (integración)", () =
       .eq("id", result.receiptId)
       .single();
     expect(receipt!.status).toBe("issued");
-    expect(receipt!.receipt_number).toMatch(/^ER-\d{4}-[0-9A-F]{6}$/);
+    expect(receipt!.receipt_number).toMatch(/^ER-\d{4}-[0-9A-HJKMNP-TV-Z]{5}-[0-9A-HJKMNP-TV-Z]{5}$/);
     expect(receipt!.verification_code).toBe(result.verificationCode);
+
+    // H07 / docs/01 §14: el monto y la fecha que informó la residencia quedan congelados en el payload.
+    const { data: withPayload } = await admin
+      .from("booking_receipts")
+      .select("receipt_payload")
+      .eq("id", result.receiptId)
+      .single();
+    const payload = withPayload!.receipt_payload as {
+      residence_payment: { amount_usd: number; amount_ars: number; reported_at: string };
+      estured_fee: Record<string, unknown>;
+    };
+    expect(Number(payload.residence_payment.amount_usd)).toBe(350);
+    expect(Number(payload.residence_payment.amount_ars)).toBe(532000);
+    expect(new Date(payload.residence_payment.reported_at).toISOString()).toBe(reportedAt);
+    // Privacidad (migración 0036): CUIT, condición de IVA y email del pagador no van en el payload.
+    expect(payload.estured_fee.payer_billing_name).toBe("Lucía Fernández");
+    expect(payload.estured_fee).not.toHaveProperty("payer_billing_cuit");
+    expect(payload.estured_fee).not.toHaveProperty("payer_iva_condition");
+    expect(payload.estured_fee).not.toHaveProperty("payer_email");
 
     const { data: fee } = await admin
       .from("estured_fee_payments")

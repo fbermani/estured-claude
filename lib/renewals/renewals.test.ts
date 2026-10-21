@@ -688,7 +688,7 @@ describe.skipIf(!hasCreds)("módulo de renovaciones (integración)", () => {
         .eq("id", offerFinal!.renewal_receipt_id as string)
         .single();
       expect(receipt!.status).toBe("issued");
-      expect(receipt!.receipt_number).toMatch(/^ERR-/);
+      expect(receipt!.receipt_number).toMatch(/^ERR-\d{4}-[0-9A-HJKMNP-TV-Z]{5}-[0-9A-HJKMNP-TV-Z]{5}$/);
       expect((receipt!.receipt_payload as { residence_payment_confirmed: boolean }).residence_payment_confirmed).toBe(
         true,
       );

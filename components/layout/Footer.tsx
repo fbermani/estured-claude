@@ -72,6 +72,10 @@ export function Footer() {
               Botón de arrepentimiento
             </Link>
             {" · "}
+            <Link href="/verify" className="rounded-sm underline transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+              Verificar un comprobante
+            </Link>
+            {" · "}
             <Link href="/privacy" className="rounded-sm underline transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
               Política de privacidad
             </Link>

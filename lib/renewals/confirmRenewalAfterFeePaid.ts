@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { removeWaitlistEntriesOnConfirmedReservation } from "@/lib/waitlist-entries/removeWaitlistEntriesOnConfirmedReservation";
 import { extendResidentStayOnRenewal } from "@/lib/residents/extendResidentStayOnRenewal";
+import { insertReceiptWithRetry } from "@/lib/receipts/receiptNumber";
 
 type ConfirmRenewalResult =
   | { ok: true; renewalOfferId: string; receiptId: string; verificationCode: string }
@@ -67,26 +68,23 @@ export async function confirmRenewalAfterFeePaid(
   // Nunca lanza.
   await extendResidentStayOnRenewal(admin, { reservationId: offer.reservation_id, newEndDate: offer.period_end_date });
 
-  const [{ data: student }, { data: residence }, { data: payerUser }, { data: fullFeePayment }] = await Promise.all([
+  const [{ data: student }, { data: residence }, { data: fullFeePayment }] = await Promise.all([
     admin
       .from("student_profiles")
       .select("first_name, last_initial")
       .eq("id", offer.student_profile_id)
       .single(),
     admin.from("residences").select("name, public_area").eq("id", offer.residence_id).single(),
-    admin.from("users").select("email").eq("id", feePayment.payer_user_id).maybeSingle(),
     admin
       .from("estured_fee_payments")
       .select(
-        "fee_amount_ars, fee_amount_usd, payment_currency, payer_billing_name, payer_billing_cuit, payer_iva_condition, paid_at",
+        "fee_amount_ars, fee_amount_usd, payment_currency, payer_billing_name, paid_at",
       )
       .eq("id", feePayment.id)
       .single(),
   ]);
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-  const verificationCode = crypto.randomUUID();
-  const receiptNumber = `ERR-${now.getFullYear()}-${crypto.randomUUID().slice(0, 6).toUpperCase()}`;
 
   const receiptPayload = {
     renewal_offer_id: offer.id,
@@ -106,28 +104,34 @@ export async function confirmRenewalAfterFeePaid(
       amount_usd: fullFeePayment?.fee_amount_usd,
       currency: fullFeePayment?.payment_currency,
       paid_at: fullFeePayment?.paid_at,
+      // CUIT, condición de IVA y email del pagador NO van en el payload (ver confirmAfterFeePaid.ts).
       payer_billing_name: fullFeePayment?.payer_billing_name,
-      payer_billing_cuit: fullFeePayment?.payer_billing_cuit,
-      payer_iva_condition: fullFeePayment?.payer_iva_condition,
-      payer_email: payerUser?.email,
     },
     disclaimer:
       "EstuRed es una plataforma intermediaria de búsqueda, solicitud, registro y comprobante. No presta directamente el alojamiento ni garantiza la conducta de las partes.",
   };
 
-  const { data: receipt, error: receiptError } = await admin
-    .from("renewal_receipts")
-    .insert({
-      renewal_offer_id: offer.id,
-      status: "issued",
-      receipt_number: receiptNumber,
-      verification_code: verificationCode,
-      qr_code_value: `${appUrl}/verify/${verificationCode}`,
-      issued_at: now.toISOString(),
-      receipt_payload: receiptPayload,
-    })
-    .select("id")
-    .single();
+  // Número y código nuevos en cada intento; reintenta ante colisión del número (23505, hasta 3 veces).
+  const {
+    data: receipt,
+    error: receiptError,
+    verificationCode,
+    attempts: receiptAttempts,
+  } = await insertReceiptWithRetry<{ id: string }>("renewal", ({ receiptNumber, verificationCode }) =>
+    admin
+      .from("renewal_receipts")
+      .insert({
+        renewal_offer_id: offer.id,
+        status: "issued",
+        receipt_number: receiptNumber,
+        verification_code: verificationCode,
+        qr_code_value: `${appUrl}/verify/${verificationCode}`,
+        issued_at: now.toISOString(),
+        receipt_payload: receiptPayload,
+      })
+      .select("id")
+      .single(),
+  );
   if (receiptError || !receipt) {
     console.error("[renewals] renewal_receipts insert failed:", receiptError);
     // Docs/07 §19.1 (mismo criterio que la reserva inicial): si falla el
@@ -138,6 +142,7 @@ export async function confirmRenewalAfterFeePaid(
       action: "renewal_receipt_generation_failed",
       entityType: "renewal_offers",
       entityId: offer.id,
+      newValue: { attempts: receiptAttempts, error_code: receiptError?.code ?? null },
       source: "system",
     });
     return { ok: true, renewalOfferId: offer.id, receiptId: "", verificationCode: "" };

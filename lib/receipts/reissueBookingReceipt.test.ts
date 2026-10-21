@@ -172,7 +172,12 @@ describe.skipIf(!hasCreds)("reissueBookingReceipt (integración)", () => {
         verification_code: crypto.randomUUID(),
         qr_code_value: `http://localhost:3000/verify/${crypto.randomUUID()}`,
         issued_at: new Date().toISOString(),
-        receipt_payload: { student: { first_name: "Lucia" }, disclaimer: "Test payload" },
+        receipt_payload: {
+          student: { first_name: "Lucia" },
+          disclaimer: "Test payload",
+          // comprobante viejo con datos del pagador: la reemisión no debe copiarlos
+          estured_fee: { payer_billing_name: "Lucia", payer_billing_cuit: "20-12345678-9", payer_iva_condition: "consumidor_final", payer_email: "x@example.com" },
+        },
       })
       .select("id")
       .single();
@@ -250,7 +255,7 @@ describe.skipIf(!hasCreds)("reissueBookingReceipt (integración)", () => {
       expect(result.ok).toBe(true);
       if (!result.ok) return;
       extraIds.push(result.newReceiptId);
-      expect(result.newReceiptNumber).toMatch(/^ER-/);
+      expect(result.newReceiptNumber).toMatch(/^ER-\d{4}-[0-9A-HJKMNP-TV-Z]{5}-[0-9A-HJKMNP-TV-Z]{5}$/);
 
       const { data: oldReceipt } = await admin
         .from("booking_receipts")
@@ -269,6 +274,11 @@ describe.skipIf(!hasCreds)("reissueBookingReceipt (integración)", () => {
       expect((newReceipt!.receipt_payload as { student?: { first_name?: string } }).student?.first_name).toBe(
         "Lucia",
       );
+      const newFee = (newReceipt!.receipt_payload as { estured_fee: Record<string, unknown> }).estured_fee;
+      expect(newFee.payer_billing_name).toBe("Lucia");
+      expect(newFee).not.toHaveProperty("payer_billing_cuit");
+      expect(newFee).not.toHaveProperty("payer_iva_condition");
+      expect(newFee).not.toHaveProperty("payer_email");
 
       const { data: reservation } = await admin
         .from("reservations")

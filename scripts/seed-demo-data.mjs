@@ -25,6 +25,14 @@
 import "./_assert-dev-project.mjs";
 import { createClient } from "@supabase/supabase-js";
 
+// Mismo formato que lib/receipts/receiptNumber.ts: ER-AAAA-XXXXX-XXXXX, 10 caracteres Crockford base32.
+const CROCKFORD = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+function receiptNumber(prefix) {
+  const bytes = crypto.getRandomValues(new Uint8Array(10));
+  const body = Array.from(bytes, (b) => CROCKFORD[b % 32]).join("");
+  return `${prefix}-${new Date().getFullYear()}-${body.slice(0, 5)}-${body.slice(5)}`;
+}
+
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!url || !serviceRoleKey) {
@@ -517,7 +525,7 @@ const { data: feePayment4 } = await admin
   .single();
 await admin.from("reservations").update({ estured_fee_payment_id: feePayment4.id }).eq("id", reservation4.id);
 const verificationCode4 = crypto.randomUUID();
-const receiptNumber4 = `ER-${new Date().getFullYear()}-${crypto.randomUUID().slice(0, 6).toUpperCase()}`;
+const receiptNumber4 = receiptNumber("ER");
 const { data: receipt4 } = await admin
   .from("booking_receipts")
   .insert({
@@ -743,7 +751,7 @@ const { data: renewalFeePayment7 } = await admin
   .select("id")
   .single();
 const renewalVerificationCode7 = crypto.randomUUID();
-const renewalReceiptNumber7 = `ERR-${new Date().getFullYear()}-${crypto.randomUUID().slice(0, 6).toUpperCase()}`;
+const renewalReceiptNumber7 = receiptNumber("ERR");
 const { data: renewalReceipt7 } = await admin
   .from("renewal_receipts")
   .insert({
@@ -851,7 +859,7 @@ const { data: feePayment8 } = await admin
   .single();
 await admin.from("reservations").update({ estured_fee_payment_id: feePayment8.id }).eq("id", reservation8.id);
 const originalCode8 = crypto.randomUUID();
-const originalReceiptNumber8 = `ER-${new Date().getFullYear()}-${crypto.randomUUID().slice(0, 6).toUpperCase()}`;
+const originalReceiptNumber8 = receiptNumber("ER");
 const receiptPayload8 = {
   reservation_id: reservation8.id,
   student: { first_name: "Camila", last_initial: "R." },
@@ -883,7 +891,7 @@ const { data: originalReceipt8 } = await admin
   .select("id")
   .single();
 const reissuedCode8 = crypto.randomUUID();
-const reissuedReceiptNumber8 = `ER-${new Date().getFullYear()}-${crypto.randomUUID().slice(0, 6).toUpperCase()}`;
+const reissuedReceiptNumber8 = receiptNumber("ER");
 const { data: reissuedReceipt8 } = await admin
   .from("booking_receipts")
   .insert({
@@ -1030,7 +1038,7 @@ const { data: feePayment9 } = await admin
   .single();
 await admin.from("reservations").update({ estured_fee_payment_id: feePayment9.id }).eq("id", reservation9.id);
 const code9 = crypto.randomUUID();
-const receiptNumber9 = `ER-${new Date().getFullYear()}-${crypto.randomUUID().slice(0, 6).toUpperCase()}`;
+const receiptNumber9 = receiptNumber("ER");
 const { data: receipt9 } = await admin
   .from("booking_receipts")
   .insert({

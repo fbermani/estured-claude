@@ -38,4 +38,34 @@ describe("ReceiptPdfDocument", () => {
     expect(buffer.byteLength).toBeGreaterThan(1000);
     expect(buffer.subarray(0, 4).toString("latin1")).toBe("%PDF");
   });
+
+  it("renderiza también con los datos completos de docs/01 §14 (monto a la residencia, tipo de cambio, familiar pagador)", async () => {
+    const buffer = await renderToBuffer(
+      ReceiptPdfDocument({
+        receiptNumber: "ER-2026-ABC123",
+        status: "issued",
+        issuedAt: "2026-07-09T12:00:00.000Z",
+        payload: {
+          ...payload,
+          final_conditions: {
+            monthly_price_usd: 300,
+            monthly_price_ars: 456000,
+            enrollment_fee_usd: 50,
+            enrollment_fee_ars: 76000,
+            deposit_usd: 300,
+            deposit_ars: 456000,
+            exchange_rate_ars_per_usd: 1520,
+            exchange_rate_date: "2026-07-01",
+            adjustment_policy: "quarterly",
+          },
+          residence_payment: { amount_usd: 350, amount_ars: 532000 },
+        },
+        supplement: { familyPayerName: "Martín Fernández" },
+        qrDataUrl:
+          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
+        verificationUrl: "https://estured.vercel.app/verify/00000000-0000-0000-0000-000000000000",
+      }),
+    );
+    expect(buffer.subarray(0, 4).toString("latin1")).toBe("%PDF");
+  });
 });

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { getSessionUser } from "@/lib/auth/session";
+import { getSessionUser, hasAnyRole } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 import { getOwnerResidenceCards } from "@/lib/residences/ownerDashboard";
@@ -9,6 +9,7 @@ import { Icon } from "@/components/ui/Icon";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { AreaHeader } from "@/components/layout/AreaHeader";
 import { Footer } from "@/components/layout/Footer";
+import { MAX_RESIDENCES_PER_OWNER } from "@/lib/residences/addResidenceForOwner";
 import { OwnerResidenceGrid } from "@/components/residences/OwnerResidenceGrid";
 
 export const metadata: Metadata = { title: "Panel de residencia" };
@@ -32,6 +33,8 @@ export default async function ResidenceDashboardPage() {
     admin ? getCurrentExchangeRate() : Promise.resolve(null),
   ]);
   const arsPerUsd = rate?.arsPerUsd ?? 0;
+  // H22: solo el owner suma residencias (docs/11 §7.3), y hasta el tope de 10.
+  const canAddResidence = hasAnyRole(sessionUser, ["residence_owner"]) && validCards.length < MAX_RESIDENCES_PER_OWNER;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -49,9 +52,11 @@ export default async function ResidenceDashboardPage() {
                 Reporte PDF
               </Button>
             )}
-            <Button href="/register/residence" variant="outline" size="sm">
-              + Sumar otra residencia
-            </Button>
+            {canAddResidence && (
+              <Button href="/residence/settings/new" variant="outline" size="sm">
+                + Sumar otra residencia
+              </Button>
+            )}
           </div>
         </div>
 

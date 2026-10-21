@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog, alertAdminsOfAuditFailure } from "@/lib/audit";
 import { removeWaitlistEntriesOnConfirmedReservation } from "@/lib/waitlist-entries/removeWaitlistEntriesOnConfirmedReservation";
 import { promoteNextQueuedApplication } from "@/lib/applications/roomTypeQueue";
+import { insertReceiptWithRetry } from "@/lib/receipts/receiptNumber";
 
 type ConfirmResult =
   | { ok: true; reservationId: string; receiptId: string; verificationCode: string }
@@ -40,7 +41,7 @@ export async function confirmReservationAfterFeePaid(
 
   const { data: residencePayment } = await admin
     .from("external_residence_payments")
-    .select("status")
+    .select("status, amount_reported_usd, amount_reported_ars, reported_received_at")
     .eq("id", reservation.external_residence_payment_id)
     .single();
   if (residencePayment?.status !== "reported_received_by_residence") {
@@ -104,12 +105,12 @@ export async function confirmReservationAfterFeePaid(
   }
 
   // Datos para el comprobante (docs/06 §13.3 — congelados al momento de emitir).
-  const [{ data: snapshot }, { data: student }, { data: residence }, { data: roomType }, { data: payerUser }] =
+  const [{ data: snapshot }, { data: student }, { data: residence }, { data: roomType }] =
     await Promise.all([
       admin
         .from("application_snapshots")
         .select(
-          "monthly_price_usd, monthly_price_ars, enrollment_fee_usd, deposit_usd, initial_duration_months, adjustment_policy, exchange_rate_ars_per_usd",
+          "monthly_price_usd, monthly_price_ars, enrollment_fee_usd, enrollment_fee_ars, deposit_usd, deposit_ars, initial_duration_months, adjustment_policy, exchange_rate_ars_per_usd, exchange_rate_date",
         )
         .eq("id", reservation.snapshot_id)
         .single(),
@@ -120,7 +121,6 @@ export async function confirmReservationAfterFeePaid(
         .single(),
       admin.from("residences").select("name, public_area").eq("id", reservation.residence_id).single(),
       admin.from("room_types").select("name").eq("id", reservation.room_type_id).single(),
-      admin.from("users").select("email").eq("id", feePayment.payer_user_id).maybeSingle(),
     ]);
 
   const { data: application } = await admin
@@ -132,14 +132,12 @@ export async function confirmReservationAfterFeePaid(
   const { data: fullFeePayment } = await admin
     .from("estured_fee_payments")
     .select(
-      "fee_amount_ars, fee_amount_usd, payment_currency, payer_billing_name, payer_billing_cuit, payer_iva_condition, paid_at",
+      "fee_amount_ars, fee_amount_usd, payment_currency, payer_billing_name, paid_at",
     )
     .eq("id", feePayment.id)
     .single();
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-  const verificationCode = crypto.randomUUID();
-  const receiptNumber = `ER-${now.getFullYear()}-${crypto.randomUUID().slice(0, 6).toUpperCase()}`;
 
   const receiptPayload = {
     reservation_id: reservation.id,
@@ -152,37 +150,51 @@ export async function confirmReservationAfterFeePaid(
     academic_objective: application?.academic_objective ?? student?.academic_objective,
     final_conditions: snapshot,
     residence_payment_confirmed: true,
+    // H07 / docs/01 §14: monto que la residencia informó como recibido (congelado al emitir).
+    residence_payment: {
+      amount_usd: residencePayment?.amount_reported_usd ?? null,
+      amount_ars: residencePayment?.amount_reported_ars ?? null,
+      reported_at: residencePayment?.reported_received_at ?? null,
+    },
     estured_fee: {
       amount_ars: fullFeePayment?.fee_amount_ars,
       amount_usd: fullFeePayment?.fee_amount_usd,
       currency: fullFeePayment?.payment_currency,
       paid_at: fullFeePayment?.paid_at,
+      // Solo el nombre/razón social: CUIT, condición de IVA y email del pagador NO van en el payload
+      // (la policy de `booking_receipts` deja leer la fila completa a cualquier usuario activo de la
+      // residencia; esos datos viven en `estured_fee_payments`, que sí tiene su propia policy).
       payer_billing_name: fullFeePayment?.payer_billing_name,
-      payer_billing_cuit: fullFeePayment?.payer_billing_cuit,
-      payer_iva_condition: fullFeePayment?.payer_iva_condition,
-      payer_email: payerUser?.email,
     },
     adjustment_policy: snapshot?.adjustment_policy,
     disclaimer:
       "EstuRed es una plataforma intermediaria de búsqueda, solicitud, registro y comprobante. No presta directamente el alojamiento ni garantiza la conducta de las partes.",
   };
 
-  const { data: receipt, error: receiptError } = await admin
-    .from("booking_receipts")
-    .insert({
-      reservation_id: reservation.id,
-      student_profile_id: reservation.student_profile_id,
-      payer_user_id: feePayment.payer_user_id,
-      residence_id: reservation.residence_id,
-      status: "issued",
-      receipt_number: receiptNumber,
-      verification_code: verificationCode,
-      qr_code_value: `${appUrl}/verify/${verificationCode}`,
-      issued_at: now.toISOString(),
-      receipt_payload: receiptPayload,
-    })
-    .select("id")
-    .single();
+  // Número y código nuevos en cada intento; reintenta ante colisión del número (23505, hasta 3 veces).
+  const {
+    data: receipt,
+    error: receiptError,
+    verificationCode,
+    attempts: receiptAttempts,
+  } = await insertReceiptWithRetry<{ id: string }>("booking", ({ receiptNumber, verificationCode }) =>
+    admin
+      .from("booking_receipts")
+      .insert({
+        reservation_id: reservation.id,
+        student_profile_id: reservation.student_profile_id,
+        payer_user_id: feePayment.payer_user_id,
+        residence_id: reservation.residence_id,
+        status: "issued",
+        receipt_number: receiptNumber,
+        verification_code: verificationCode,
+        qr_code_value: `${appUrl}/verify/${verificationCode}`,
+        issued_at: now.toISOString(),
+        receipt_payload: receiptPayload,
+      })
+      .select("id")
+      .single(),
+  );
   if (receiptError || !receipt) {
     console.error("[fee] booking_receipts insert failed:", receiptError);
     // Docs/07 §19.1: si falla el comprobante, la reserva sigue confirmed — no revertimos.
@@ -192,6 +204,7 @@ export async function confirmReservationAfterFeePaid(
       action: "booking_receipt_generation_failed",
       entityType: "reservations",
       entityId: reservation.id,
+      newValue: { attempts: receiptAttempts, error_code: receiptError?.code ?? null },
       source: "system",
     });
     return { ok: true, reservationId: reservation.id, receiptId: "", verificationCode: "" };

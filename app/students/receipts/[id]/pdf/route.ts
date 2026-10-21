@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
 import QRCode from "qrcode";
 import { getSupabaseServer } from "@/lib/supabase/server";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { ReceiptPdfDocument, type ReceiptPdfPayload } from "@/lib/receipts/ReceiptPdfDocument";
+import { loadReceiptSupplement } from "@/lib/receipts/loadReceiptSupplement";
 
 export const runtime = "nodejs";
 
@@ -13,11 +15,12 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
 
   const { data: receipt } = await supabase
     .from("booking_receipts")
-    .select("status, receipt_number, verification_code, qr_code_value, issued_at, receipt_payload")
+    .select("status, receipt_number, verification_code, qr_code_value, issued_at, reservation_id, student_profile_id, payer_user_id, receipt_payload")
     .eq("id", id)
     .maybeSingle();
   if (!receipt) return NextResponse.json({ error: "Comprobante no encontrado." }, { status: 404 });
 
+  const supplement = await loadReceiptSupplement(supabase, getSupabaseAdmin(), receipt);
   const qrDataUrl = await QRCode.toDataURL(receipt.qr_code_value, { margin: 1, width: 240 });
 
   const buffer = await renderToBuffer(
@@ -28,6 +31,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       payload: receipt.receipt_payload as ReceiptPdfPayload,
       qrDataUrl,
       verificationUrl: receipt.qr_code_value,
+      supplement,
     }),
   );
 
