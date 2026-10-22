@@ -108,7 +108,8 @@ export function RegisterResidenceForm() {
               className="mt-0.5 h-4 w-4 accent-forest"
             />
             <span>
-              Acepto los términos y condiciones de EstuRed como residencia
+              Acepto los{" "}
+              <a href="/terms" target="_blank" rel="noopener noreferrer" className="font-semibold text-forest-700 underline">términos y condiciones</a> de EstuRed como residencia
               asociada.
             </span>
           </label>

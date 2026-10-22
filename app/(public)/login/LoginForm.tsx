@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -33,6 +34,14 @@ export function LoginForm({ next }: { next?: string }) {
           placeholder="Tu contraseña"
           required
         />
+        <p className="-mt-2 text-right text-sm">
+          <Link
+            href="/forgot-password"
+            className="font-semibold text-forest-700 underline-offset-2 hover:underline"
+          >
+            ¿Olvidaste tu contraseña?
+          </Link>
+        </p>
         {state.status === "error" && (
           <p
             role="alert"

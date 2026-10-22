@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { CONTACT_EMAIL } from "@/lib/constants/contact";
 
 export const metadata: Metadata = {
   title: "Política de privacidad",
   description: "Qué datos recolecta EstuRed, para qué los usa, y cómo ejercer tus derechos sobre ellos.",
 };
 
-const CONTACT_EMAIL = "hola@estured.com";
 
 const sections = [
   {

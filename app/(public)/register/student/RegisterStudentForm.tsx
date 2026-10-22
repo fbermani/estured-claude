@@ -119,7 +119,8 @@ export function RegisterStudentForm() {
               className="mt-0.5 h-4 w-4 accent-forest"
             />
             <span>
-              Acepto los términos y condiciones de EstuRed y entiendo que actúa
+              Acepto los{" "}
+              <a href="/terms" target="_blank" rel="noopener noreferrer" className="font-semibold text-forest-700 underline">términos y condiciones</a> de EstuRed y entiendo que actúa
               como plataforma intermediaria de solicitud, registro, soporte y
               comprobante.
             </span>
@@ -132,7 +133,8 @@ export function RegisterStudentForm() {
               className="mt-0.5 h-4 w-4 accent-forest"
             />
             <span>
-              Acepto la política de privacidad. Mis datos sensibles (apellido,
+              Acepto la{" "}
+              <a href="/privacy" target="_blank" rel="noopener noreferrer" className="font-semibold text-forest-700 underline">política de privacidad</a>. Mis datos sensibles (apellido,
               fecha de nacimiento, universidad, contacto) nunca se muestran
               públicamente.
             </span>

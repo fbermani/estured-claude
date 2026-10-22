@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CONTACT_EMAIL } from "@/lib/constants/contact";
 
 export function Footer() {
   return (
@@ -59,6 +60,15 @@ export function Footer() {
             <li>Residencias verificadas presencialmente</li>
             <li>Solicitudes registradas y auditables</li>
             <li>Comprobante de Reserva Confirmada</li>
+            <li className="pt-2">
+              Contacto:{" "}
+              <a
+                href={`mailto:${CONTACT_EMAIL}`}
+                className="rounded-sm underline transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              >
+                {CONTACT_EMAIL}
+              </a>
+            </li>
           </ul>
         </div>
       </div>
@@ -74,6 +84,10 @@ export function Footer() {
             {" · "}
             <Link href="/verify" className="rounded-sm underline transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
               Verificar un comprobante
+            </Link>
+            {" · "}
+            <Link href="/terms" className="rounded-sm underline transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+              Términos y condiciones
             </Link>
             {" · "}
             <Link href="/privacy" className="rounded-sm underline transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">

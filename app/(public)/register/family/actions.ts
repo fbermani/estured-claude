@@ -1,5 +1,6 @@
 "use server";
 
+import { validatePassword } from "@/lib/auth/password";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
@@ -47,8 +48,8 @@ export async function registerFamily(
     return { status: "error", message: "Revisá el teléfono: usá números, espacios o «+»." };
   if (!EMAIL_RE.test(email) || email.length > 254)
     return { status: "error", message: "Revisá tu email: no parece válido." };
-  if (password.length < 8)
-    return { status: "error", message: "La contraseña debe tener al menos 8 caracteres." };
+  const passwordError = validatePassword(password);
+  if (passwordError) return { status: "error", message: passwordError };
   if (!EMAIL_RE.test(studentEmail))
     return { status: "error", message: "Revisá el email del estudiante: no parece válido." };
   if (studentEmail === email)
