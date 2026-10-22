@@ -33,6 +33,7 @@ export function ResidenceSidebar({ residenceId, userEmail }: { residenceId: stri
     { href: `${base}/renewals`, label: "Renovaciones", icon: "sync_alt" },
     { href: `${base}/residents`, label: "Residentes", icon: "groups" },
     { href: `${base}/waitlist`, label: "Lista de espera", icon: "hourglass_top" },
+    { href: `${base}/faq`, label: "Preguntas", icon: "forum" },
     { href: `${base}/plan`, label: "Tu plan", icon: "workspace_premium" },
     { href: `${base}/support`, label: "Soporte", icon: "support_agent" },
   ];

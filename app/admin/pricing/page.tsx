@@ -6,6 +6,7 @@ import { cmd } from "@/components/admin/ui/tokens";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
 import { ReviewButton } from "@/app/admin/pricing/ReviewButton";
+import { requireAdmin } from "@/lib/auth/requireAdmin";
 
 export const metadata: Metadata = { title: "Administración de tarifas" };
 export const dynamic = "force-dynamic";
@@ -52,6 +53,7 @@ export default async function PricingPage({
 }: {
   searchParams: Promise<{ alert?: string }>;
 }) {
+  await requireAdmin();
   const { alert } = await searchParams;
   const onlyAlerts = alert === "1";
   const admin = getSupabaseAdmin();

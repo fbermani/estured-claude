@@ -1,9 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getSessionUser, hasAnyRole } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { reopenApplication } from "@/lib/applications/reopenApplication";
+import { getAdminSession } from "@/lib/auth/requireAdmin";
 
 export type ReopenApplicationActionState = { status: "idle" | "error" | "saved"; message?: string };
 
@@ -12,8 +12,8 @@ export async function reopenApplicationAction(
   _prev: ReopenApplicationActionState,
   formData: FormData,
 ): Promise<ReopenApplicationActionState> {
-  const sessionUser = await getSessionUser();
-  if (!sessionUser || !hasAnyRole(sessionUser, ["admin", "superadmin"])) {
+  const sessionUser = await getAdminSession();
+  if (!sessionUser) {
     return { status: "error", message: "Tu sesión expiró." };
   }
   const admin = getSupabaseAdmin();

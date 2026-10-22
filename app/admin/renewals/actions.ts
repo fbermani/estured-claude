@@ -1,10 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getSessionUser, hasAnyRole } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { reopenRenewalRequest } from "@/lib/renewals/reopenRenewalRequest";
 import { reopenRenewalOffer } from "@/lib/renewals/reopenRenewalOffer";
+import { getAdminSession } from "@/lib/auth/requireAdmin";
 
 export type RenewalReopenActionState = { status: "idle" | "error" | "saved"; message?: string };
 
@@ -13,8 +13,8 @@ export async function reopenRenewalRequestAction(
   _prev: RenewalReopenActionState,
   formData: FormData,
 ): Promise<RenewalReopenActionState> {
-  const sessionUser = await getSessionUser();
-  if (!sessionUser || !hasAnyRole(sessionUser, ["admin", "superadmin"])) {
+  const sessionUser = await getAdminSession();
+  if (!sessionUser) {
     return { status: "error", message: "Tu sesión expiró." };
   }
   const admin = getSupabaseAdmin();
@@ -38,8 +38,8 @@ export async function reopenRenewalOfferAction(
   _prev: RenewalReopenActionState,
   formData: FormData,
 ): Promise<RenewalReopenActionState> {
-  const sessionUser = await getSessionUser();
-  if (!sessionUser || !hasAnyRole(sessionUser, ["admin", "superadmin"])) {
+  const sessionUser = await getAdminSession();
+  if (!sessionUser) {
     return { status: "error", message: "Tu sesión expiró." };
   }
   const admin = getSupabaseAdmin();

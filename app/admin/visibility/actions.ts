@@ -1,8 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getSessionUser, hasAnyRole } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { getAdminSession } from "@/lib/auth/requireAdmin";
 import {
   setQualityVisibilityByAdmin,
   addResidenceInternalNote,
@@ -16,8 +16,8 @@ async function runStatusChange(
   newStatus: QualityVisibilityStatus,
   reason: string,
 ): Promise<VisibilityActionState> {
-  const sessionUser = await getSessionUser();
-  if (!sessionUser || !hasAnyRole(sessionUser, ["admin", "superadmin"])) {
+  const sessionUser = await getAdminSession();
+  if (!sessionUser) {
     return { status: "error", message: "Tu sesión expiró." };
   }
   const admin = getSupabaseAdmin();
@@ -65,8 +65,8 @@ export async function addInternalNoteAction(
   _prev: VisibilityActionState,
   formData: FormData,
 ): Promise<VisibilityActionState> {
-  const sessionUser = await getSessionUser();
-  if (!sessionUser || !hasAnyRole(sessionUser, ["admin", "superadmin"])) {
+  const sessionUser = await getAdminSession();
+  if (!sessionUser) {
     return { status: "error", message: "Tu sesión expiró." };
   }
   const admin = getSupabaseAdmin();

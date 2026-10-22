@@ -6,6 +6,9 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { loadFeeSupportContext } from "@/lib/support/openSupportCase";
+import { reservationReference } from "@/lib/payments/feeTransferPresentation";
+import { FeePaymentCaseForm } from "@/app/students/support/FeePaymentCaseForm";
 import { OpenCaseForm } from "@/app/students/support/OpenCaseForm";
 
 export const metadata: Metadata = { title: "Soporte" };
@@ -31,9 +34,19 @@ type CaseRow = {
   created_at: string;
   resolution_notes: string | null;
   residences: { name: string } | null;
+  /** Caso "problema con el pago del fee" (migración 0040): sin residencia, con la reserva como contexto. */
+  related_entity_type: string | null;
+  related_entity_id: string | null;
 };
 
-export default async function StudentSupportPage() {
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export default async function StudentSupportPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ motivo?: string; reserva?: string }>;
+}) {
+  const { motivo, reserva } = await searchParams;
   const sessionUser = await getSessionUser();
   if (!sessionUser) redirect("/login?next=/students/support");
 
@@ -51,7 +64,7 @@ export default async function StudentSupportPage() {
       admin.from("reservations").select("residences(id, name)").eq("student_profile_id", studentProfile.id),
       admin
         .from("support_cases")
-        .select("id, status, description, created_at, resolution_notes, residences(name)")
+        .select("id, status, description, created_at, resolution_notes, related_entity_type, related_entity_id, residences(name)")
         .eq("opened_by_user_id", sessionUser.id)
         .order("created_at", { ascending: false }),
     ]);
@@ -65,13 +78,26 @@ export default async function StudentSupportPage() {
     cases = (caseRows as unknown as CaseRow[]) ?? [];
   }
 
+  // "Tengo un problema con el pago": solo si la reserva es del usuario (pagador o estudiante beneficiario).
+  const feeContext =
+    admin && motivo === "pago-fee" && reserva && UUID_RE.test(reserva)
+      ? await loadFeeSupportContext(admin, sessionUser.id, reserva)
+      : null;
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
       <h1 className="text-3xl font-bold text-ink">Soporte</h1>
       <p className="mt-1 text-ink-soft">Abrí un caso si algo no salió como esperabas con una residencia.</p>
 
       <div className="mt-8">
-        {residences.length === 0 ? (
+        {feeContext ? (
+          <FeePaymentCaseForm
+            reservationId={feeContext.reservationId}
+            reference={reservationReference(feeContext.reservationId)}
+            residenceName={feeContext.residenceName}
+            defaultDescription={`Tengo un problema con el pago del fee EstuRed (referencia ${reservationReference(feeContext.reservationId)}). `}
+          />
+        ) : residences.length === 0 ? (
           <EmptyState
             icon="support_agent"
             title="Todavía no tenés residencias vinculadas"
@@ -91,7 +117,9 @@ export default async function StudentSupportPage() {
               return (
                 <Card key={c.id} className="p-5">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="font-bold text-ink">{c.residences?.name ?? "Residencia"}</p>
+                    <p className="font-bold text-ink">
+                      {c.residences?.name ?? (c.related_entity_type === "reservations" ? "Pago del fee EstuRed" : "Residencia")}
+                    </p>
                     <Badge tone={badge.tone}>{badge.label}</Badge>
                   </div>
                   <p className="mt-1 text-sm text-ink-soft">{c.description}</p>

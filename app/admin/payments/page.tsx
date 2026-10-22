@@ -2,6 +2,7 @@ import { formatShortName } from "@/lib/format/shortName";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { loadPaymentSettings } from "@/lib/payments/paymentSettings";
 import { formatArs } from "@/lib/mock/exchange";
 import { cmd } from "@/components/admin/ui/tokens";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
@@ -9,6 +10,7 @@ import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { PaymentDetail } from "@/app/admin/payments/PaymentDetail";
 import { RenewalPaymentDetail } from "@/app/admin/payments/RenewalPaymentDetail";
 import { PaidFeesView, PaymentsTabs } from "@/app/admin/payments/PaidFeesView";
+import { requireAdmin } from "@/lib/auth/requireAdmin";
 
 export const metadata: Metadata = { title: "Pagos fee EstuRed" };
 export const dynamic = "force-dynamic";
@@ -25,6 +27,7 @@ export default async function AdminPaymentsPage({
 }: {
   searchParams: Promise<{ id?: string; tab?: string }>;
 }) {
+  await requireAdmin();
   const { id: selectedId, tab } = await searchParams;
   if (tab === "paid") return <PaidFeesView />;
   const admin = getSupabaseAdmin();
@@ -45,6 +48,8 @@ export default async function AdminPaymentsPage({
     : { data: [], error: null };
   if (queueResult.error) console.error("[admin-payments] queue query failed:", queueResult.error);
   const queue = queueResult.data ?? [];
+
+  const paymentSettingsMissing = admin ? (await loadPaymentSettings(admin)) === null : false;
 
   const activeId = selectedId ?? queue[0]?.id ?? null;
 
@@ -145,6 +150,19 @@ export default async function AdminPaymentsPage({
       </div>
 
       <div className="flex-1 overflow-y-auto p-8">
+        {paymentSettingsMissing && (
+          <AdminCard className="mb-6 max-w-2xl p-4">
+            <p role="status" className="text-sm font-semibold" style={{ color: cmd.amber }}>
+              Faltan los datos de cobro del fee.
+            </p>
+            <p className="mt-1 text-sm" style={{ color: cmd.onSurfaceVariant }}>
+              Sin ellos, los estudiantes no ven a qué cuenta transferir.{" "}
+              <Link href="/admin/payment-settings" className="font-bold underline">
+                Cargarlos ahora
+              </Link>
+            </p>
+          </AdminCard>
+        )}
         {detail ? (
           <PaymentDetail {...detail} />
         ) : renewalDetail ? (

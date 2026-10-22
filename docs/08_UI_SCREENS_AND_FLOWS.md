@@ -141,14 +141,16 @@ La UI debe dejar claro que la conversación ocurre fuera de la plataforma, y que
 | `/verify/[verification_code]` | Verificación pública de comprobante | Público |
 | `/privacy` | Política de privacidad | Público |
 | `/terms` | Términos y condiciones (**borrador** desde `docs/21`, D10; enlazado en registro y footer; revisión legal antes de operar) | Público |
-| `/login` | Login | Público |
+| `/login` | Login (enlace «¿Olvidaste tu contraseña?») | Público |
+| `/forgot-password` | Pedir el enlace de recuperación de contraseña (respuesta siempre neutra) | Público |
+| `/reset-password` | Fijar la contraseña nueva desde el enlace del email; al terminar redirige a `/login?reset=ok` (Ciclo 50, D10) | Público (requiere enlace válido) |
 | `/register` | Selector de rol | Público |
 | `/register/student` | Registro estudiante | Público |
 | `/register/family` | Registro familiar | Público |
 | `/register/residence` | Registro residencia | Público |
 | `/waitlist` | Lista de espera pre-lanzamiento (fuera del routing oficial; no es la lista de espera de residencias) | Público |
 
-> **Recuperar contraseña (D10):** el flujo de reset de contraseña es parte del MVP (ver §5.1); su ruta no está listada acá hasta que se implemente.
+> **Recuperar contraseña (D10):** implementado en el Ciclo 50 (`/forgot-password` → email de Supabase → `/reset-password`). Las cuentas bloqueadas no pueden aplicar el cambio.
 
 ### 3.2. Rutas estudiante/familiar
 
@@ -207,7 +209,7 @@ Ruta base: `/residence`
 
 > **MVP: todo gratis (D8, 2026-10-20, `docs/00` §6.2 y §31).** Gestión Operativa no se vende en el MVP: todas las funciones de residencia (habitaciones, plazas, residentes, plan) son gratuitas. Por lo tanto: (a) las rutas marcadas "(Gestión Operativa)" no se bloquean ni se ofrecen como plan pago; (b) no se muestran pantallas de upsell ("Sin acceso", "Solicitar acceso") en `/rooms`, `/residents` ni `/plan` (§7.5, §7.18); (c) la landing `/for-residences` no vende un plan pago (§4.3). El modelo `operating_mode` y los feature flags se conservan para monetizar más adelante.
 >
-> **Routing real vs. diferido (D9).** Existen hoy: `/residence/dashboard`, `/residence/settings/new` y, bajo `/residence/[residence_id]/`: `profile`, `availability`, `applications` (+ `[id]` y `[id]/negotiation`), `waitlist`, `residents`, `rooms`, `renewals` (+ `[id]`), `plan` y `support`. Quedan **diferidas**: `profile/preview`, `verification`, `reservations`, `receipts`, `metrics` y `/residence/settings` (solo existe `/new`). `faq` entra al MVP en su versión simple (D9) y está pendiente de implementar.
+> **Routing real vs. diferido (D9).** Existen hoy: `/residence/dashboard`, `/residence/settings/new` y, bajo `/residence/[residence_id]/`: `profile`, `availability`, `applications` (+ `[id]` y `[id]/negotiation`), `waitlist`, `residents`, `rooms`, `renewals` (+ `[id]`), `plan` y `support`. Quedan **diferidas**: `profile/preview`, `verification`, `reservations`, `receipts`, `metrics` y `/residence/settings` (solo existe `/new`). `faq` entra al MVP en su versión simple (D9) y está implementado (Ciclo 50, H12; requiere la migración 0039).
 
 ### 3.4. Rutas admin
 
@@ -610,9 +612,12 @@ Ruta base: `/students`
 **Modo manual del fee (decisión D2, 2026-10-20, `docs/00` §14.3 y §31).** Cuando el fee se paga por transferencia (modo manual), la pantalla muestra los datos para pagar en pantalla:
 - datos de cobro de EstuRed **configurables por el admin** (CBU, alias y titular de la cuenta);
 - **monto exacto en ARS** (calculado con el snapshot de tipo de cambio);
-- el **n.º de reserva como referencia** de la transferencia;
+- el **n.º de reserva como referencia** de la transferencia (formato `EST-` + los primeros 8 caracteres del id de la reserva, en mayúsculas; el admin ve la misma referencia en `/admin/payments` para conciliar);
 - **cuenta regresiva** hasta el vencimiento de la ventana de pago (48 h);
 - botón **"Tengo un problema con el pago"** (abre un caso de Soporte con el contexto de la reserva).
+  El fee lo cobra EstuRed, no la residencia: este botón lleva a Soporte con un motivo propio **dirigido a EstuRed** (`/students/support?motivo=pago-fee&reserva=<id>`, copy "Escribile a EstuRed"), sin elegir residencia y sin el recordatorio de deslinde de los reclamos contra residencias; el caso queda con la reserva como contexto y la residencia no lo ve (`support_cases.topic = 'estured_fee_payment'`, migración 0040). Usa los mismos estados del caso.
+- Solo el **pagador designado** de la reserva ve los datos de cobro; si el pagador es otra persona, el estudiante ve "El pago lo hace quien está designado como pagador" con enlace a Soporte. Con el plazo vencido no se muestran datos de transferencia ni el formulario del comprobante.
+- Los datos de cobro **los edita solo un superadmin** (`/admin/payment-settings`); cada cambio se audita y avisa a todos los superadmin (in-app y email, sin datos de la cuenta). El admin común ve un resumen con el CBU enmascarado.
 
 **Regla:** si falla el cobro, hasta 3 intentos dentro de 48 horas. Al pagar, se emite automáticamente la Factura C, que se envía por email al pagador y puede descargarse desde la pantalla del comprobante (`/students/receipts/[id]`). **No existe una pantalla separada "Mis facturas" en el MVP.**
 

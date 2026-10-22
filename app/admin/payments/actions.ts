@@ -2,9 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { getSessionUser, hasAnyRole } from "@/lib/auth/session";
 import { recordManualFeePayment } from "@/lib/reservations/recordManualFeePayment";
 import { recordRenewalManualFeePayment } from "@/lib/renewals/recordRenewalManualFeePayment";
+import { getAdminSession } from "@/lib/auth/requireAdmin";
 
 export type MarkFeePaidState = { status: "idle" | "error" | "saved"; message?: string };
 
@@ -18,8 +18,8 @@ export async function markFeePaidManually(
   _prev: MarkFeePaidState,
   formData: FormData,
 ): Promise<MarkFeePaidState> {
-  const sessionUser = await getSessionUser();
-  if (!sessionUser || !hasAnyRole(sessionUser, ["admin", "superadmin"])) {
+  const sessionUser = await getAdminSession();
+  if (!sessionUser) {
     return { status: "error", message: "No tenés permiso para esta acción." };
   }
   const admin = getSupabaseAdmin();
@@ -51,8 +51,8 @@ export async function markRenewalFeePaidManually(
   _prev: MarkFeePaidState,
   formData: FormData,
 ): Promise<MarkFeePaidState> {
-  const sessionUser = await getSessionUser();
-  if (!sessionUser || !hasAnyRole(sessionUser, ["admin", "superadmin"])) {
+  const sessionUser = await getAdminSession();
+  if (!sessionUser) {
     return { status: "error", message: "No tenés permiso para esta acción." };
   }
   const admin = getSupabaseAdmin();

@@ -7,6 +7,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { cmd } from "@/components/admin/ui/tokens";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
+import { requireAdmin } from "@/lib/auth/requireAdmin";
 
 export const metadata: Metadata = { title: "Propuestas del familiar" };
 export const dynamic = "force-dynamic";
@@ -52,6 +53,7 @@ export default async function AdminFamilyProposalsPage({
 }: {
   searchParams: Promise<{ id?: string }>;
 }) {
+  await requireAdmin();
   const { id: selectedId } = await searchParams;
   const admin = getSupabaseAdmin();
 

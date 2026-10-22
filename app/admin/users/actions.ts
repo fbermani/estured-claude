@@ -1,15 +1,15 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getSessionUser, hasAnyRole } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { setUserBlockedStatus } from "@/lib/users/setUserBlockedStatus";
+import { getAdminSession } from "@/lib/auth/requireAdmin";
 
 export type UserBlockActionState = { status: "idle" | "error" | "saved"; message?: string };
 
 async function runToggle(targetUserId: string, blocked: boolean, reason: string): Promise<UserBlockActionState> {
-  const sessionUser = await getSessionUser();
-  if (!sessionUser || !hasAnyRole(sessionUser, ["admin", "superadmin"])) {
+  const sessionUser = await getAdminSession();
+  if (!sessionUser) {
     return { status: "error", message: "Tu sesión expiró." };
   }
   const admin = getSupabaseAdmin();

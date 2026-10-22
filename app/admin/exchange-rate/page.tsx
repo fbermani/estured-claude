@@ -5,6 +5,7 @@ import { cmd } from "@/components/admin/ui/tokens";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
 import { ExchangeRateActions } from "@/app/admin/exchange-rate/ExchangeRateActions";
+import { requireAdmin } from "@/lib/auth/requireAdmin";
 
 export const metadata: Metadata = { title: "Tipo de cambio" };
 export const dynamic = "force-dynamic";
@@ -26,6 +27,7 @@ function todayArDate(): string {
 }
 
 export default async function ExchangeRatePage() {
+  await requireAdmin();
   const admin = getSupabaseAdmin();
   const today = todayArDate();
 

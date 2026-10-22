@@ -7,6 +7,7 @@ import { AdminBadge } from "@/components/admin/ui/AdminBadge";
 import { cmd } from "@/components/admin/ui/tokens";
 import { VisibilityControl } from "@/app/admin/visibility/VisibilityControl";
 import type { QualityVisibilityStatus } from "@/lib/residences/setQualityVisibilityByAdmin";
+import { requireAdmin } from "@/lib/auth/requireAdmin";
 
 export const metadata: Metadata = { title: "Visibilidad y penalizaciones" };
 export const dynamic = "force-dynamic";
@@ -27,6 +28,7 @@ type ResidenceRow = {
 type NoteRow = { id: string; entity_id: string; reason_text: string | null; created_at: string; actor_role: string };
 
 export default async function AdminVisibilityPage() {
+  await requireAdmin();
   const admin = getSupabaseAdmin();
 
   let residences: ResidenceRow[] = [];

@@ -9,6 +9,7 @@ import { cmd } from "@/components/admin/ui/tokens";
 import { ReopenApplicationControl } from "@/app/admin/applications/ReopenApplicationControl";
 import { getVisibleStatus } from "@/lib/applications/visibleStatus";
 import { loadReservationInfoByApplication } from "@/lib/applications/loadReservationInfo";
+import { requireAdmin } from "@/lib/auth/requireAdmin";
 
 export const metadata: Metadata = { title: "Solicitudes" };
 export const dynamic = "force-dynamic";
@@ -36,6 +37,7 @@ type ApplicationRow = {
 };
 
 export default async function AdminApplicationsPage() {
+  await requireAdmin();
   const admin = getSupabaseAdmin();
 
   const { data, error } = admin

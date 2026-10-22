@@ -144,6 +144,7 @@ const NAV = [
   { href: "/admin/payments", label: "Pagos", Icon: PaymentsIcon },
   { href: "/admin/activity", label: "Actividad", Icon: ActivityIcon },
   { href: "/admin/support-cases", label: "Soporte", Icon: SupportCasesIcon },
+  { href: "/admin/faq", label: "Preguntas de fichas", Icon: SupportCasesIcon },
   { href: "/admin/exchange-rate", label: "Tipo de cambio", Icon: ExchangeIcon },
   { href: "/admin/users", label: "Usuarios", Icon: UsersIcon },
 ] as const;

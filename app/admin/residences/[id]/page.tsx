@@ -12,6 +12,7 @@ import { formatShortName } from "@/lib/format/shortName";
 import { formatUsd } from "@/lib/mock/exchange";
 import { getVisibleStatus } from "@/lib/applications/visibleStatus";
 import { getStaleAvailabilityByResidence, staleAvailabilityMessage } from "@/lib/residences/staleAvailability";
+import { requireAdmin } from "@/lib/auth/requireAdmin";
 
 export const metadata: Metadata = { title: "Detalle de residencia" };
 export const dynamic = "force-dynamic";
@@ -80,6 +81,7 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
  * de pausar y acceso operativo siguen en la lista de residencias).
  */
 export default async function AdminResidenceDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  await requireAdmin();
   const { id } = await params;
   const admin = getSupabaseAdmin();
   if (!admin) notFound();

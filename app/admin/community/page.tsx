@@ -5,6 +5,7 @@ import { cmd } from "@/components/admin/ui/tokens";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
 import { ResidentModerationActions } from "@/app/admin/community/ResidentModerationActions";
+import { requireAdmin } from "@/lib/auth/requireAdmin";
 
 export const metadata: Metadata = { title: "Administración de comunidad" };
 export const dynamic = "force-dynamic";
@@ -28,6 +29,7 @@ type StayRow = {
 };
 
 export default async function AdminCommunityPage() {
+  await requireAdmin();
   const admin = getSupabaseAdmin();
 
   let stays: StayRow[] = [];

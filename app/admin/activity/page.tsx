@@ -8,6 +8,7 @@ import { RevocationsView } from "@/app/admin/activity/views/RevocationsView";
 import { ReceiptsView } from "@/app/admin/activity/views/ReceiptsView";
 import { WaitlistsView } from "@/app/admin/activity/views/WaitlistsView";
 import { LogsView } from "@/app/admin/activity/views/LogsView";
+import { requireAdmin } from "@/lib/auth/requireAdmin";
 
 export const metadata: Metadata = { title: "Actividad" };
 export const dynamic = "force-dynamic";
@@ -36,6 +37,7 @@ export default async function AdminActivityPage({
 }: {
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
+  await requireAdmin();
   const params = await searchParams;
   const tab = (TABS.some((t) => t.key === params.tab) ? params.tab : "negotiations") as TabKey;
 

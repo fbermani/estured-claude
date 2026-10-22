@@ -4,6 +4,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { cmd } from "@/components/admin/ui/tokens";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
 import { VerificationDetail } from "@/app/admin/verifications/VerificationDetail";
+import { requireAdmin } from "@/lib/auth/requireAdmin";
 
 export const metadata: Metadata = { title: "Validación de residencias" };
 export const dynamic = "force-dynamic";
@@ -21,6 +22,7 @@ export default async function VerificationsPage({
 }: {
   searchParams: Promise<{ id?: string }>;
 }) {
+  await requireAdmin();
   const { id: selectedId } = await searchParams;
   const admin = getSupabaseAdmin();
 

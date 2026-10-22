@@ -36,9 +36,27 @@ describe("notificationHref", () => {
     expect(notificationHref({ entityType: "support_cases", entityId: ID, area: "residence" })).toBeNull();
   });
 
+  it("FAQ (D9): la residencia va a su pantalla de preguntas y el visitante a la ficha donde le respondieron", () => {
+    expect(
+      notificationHref(
+        { entityType: "residence_faq_questions", entityId: ID, area: "residence" },
+        { residenceIdByEntity: { [`residence_faq_questions:${ID}`]: OTHER } },
+      ),
+    ).toBe(`/residence/${OTHER}/faq`);
+    expect(notificationHref({ entityType: "residence_faq_questions", entityId: ID, area: "residence" })).toBeNull();
+    expect(
+      notificationHref(
+        { entityType: "residence_faq_questions", entityId: ID, area: "student" },
+        { residenceSlugByFaqQuestionId: { [ID]: "residencia-norte" } },
+      ),
+    ).toBe("/residencias/residencia-norte#preguntas");
+    expect(notificationHref({ entityType: "residence_faq_questions", entityId: ID, area: "student" })).toBeNull();
+  });
+
   it("admin: lista del módulo correspondiente", () => {
     expect(notificationHref({ entityType: "reservations", entityId: ID, area: "admin" })).toBe("/admin/reservations");
     expect(notificationHref({ entityType: "support_cases", entityId: ID, area: "admin" })).toBe("/admin/support-cases");
+    expect(notificationHref({ entityType: "payment_settings", entityId: ID, area: "admin" })).toBe("/admin/payment-settings");
   });
 
   it("tipos desconocidos o sin tipo no generan enlaces", () => {

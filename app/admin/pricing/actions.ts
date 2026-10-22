@@ -2,8 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { getSessionUser, hasAnyRole } from "@/lib/auth/session";
 import { createAuditLog } from "@/lib/audit";
+import { getAdminSession } from "@/lib/auth/requireAdmin";
 
 export type TariffReviewState = { status: "idle" | "error" | "saved"; message?: string };
 
@@ -13,8 +13,8 @@ export async function markTariffLogReviewed(
   _prev: TariffReviewState,
   formData: FormData,
 ): Promise<TariffReviewState> {
-  const sessionUser = await getSessionUser();
-  if (!sessionUser || !hasAnyRole(sessionUser, ["admin", "superadmin"])) {
+  const sessionUser = await getAdminSession();
+  if (!sessionUser) {
     return { status: "error", message: "No tenés permiso para esta acción." };
   }
 

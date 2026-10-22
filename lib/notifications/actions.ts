@@ -67,6 +67,17 @@ export async function getMyNotifications(): Promise<{ items: NotificationItem[];
         (reservations ?? []).map((r) => [r.id as string, r.application_request_id as string]),
       );
     }
+    const faqQuestionIds = idsOfType("residence_faq_questions");
+    if (faqQuestionIds.length) {
+      const { data: questions } = await admin
+        .from("residence_faq_questions")
+        .select("id, residences(slug)")
+        .in("id", faqQuestionIds);
+      context.residenceSlugByFaqQuestionId = {};
+      for (const q of (questions ?? []) as unknown as { id: string; residences: { slug: string } | null }[]) {
+        if (q.residences?.slug) context.residenceSlugByFaqQuestionId[q.id] = q.residences.slug;
+      }
+    }
   } else if (area === "residence") {
     context.residenceIdByEntity = {};
     for (const type of RESIDENCE_SCOPED_ENTITY_TYPES) {

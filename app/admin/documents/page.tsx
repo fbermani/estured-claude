@@ -6,6 +6,7 @@ import { cmd } from "@/components/admin/ui/tokens";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
 import { DocumentAccessButton } from "@/components/admin/ui/DocumentAccessButton";
+import { requireAdmin } from "@/lib/auth/requireAdmin";
 
 export const metadata: Metadata = { title: "Administración de documentos" };
 export const dynamic = "force-dynamic";
@@ -58,6 +59,7 @@ export default async function AdminDocumentsPage({
 }: {
   searchParams: Promise<{ q?: string; type?: string }>;
 }) {
+  await requireAdmin();
   const { q, type } = await searchParams;
   const admin = getSupabaseAdmin();
 

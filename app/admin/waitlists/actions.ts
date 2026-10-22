@@ -1,9 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getSessionUser, hasAnyRole } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { removeFromWaitlistByAdmin } from "@/lib/waitlist-entries/removeFromWaitlistByAdmin";
+import { getAdminSession } from "@/lib/auth/requireAdmin";
 
 export type RemoveWaitlistActionState = { status: "idle" | "error" | "saved"; message?: string };
 
@@ -12,8 +12,8 @@ export async function removeWaitlistEntryAction(
   _prev: RemoveWaitlistActionState,
   formData: FormData,
 ): Promise<RemoveWaitlistActionState> {
-  const sessionUser = await getSessionUser();
-  if (!sessionUser || !hasAnyRole(sessionUser, ["admin", "superadmin"])) {
+  const sessionUser = await getAdminSession();
+  if (!sessionUser) {
     return { status: "error", message: "Tu sesión expiró." };
   }
   const admin = getSupabaseAdmin();

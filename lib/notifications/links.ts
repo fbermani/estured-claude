@@ -17,12 +17,14 @@ export type NotificationLinkContext = {
   applicationIdByReservationId?: Record<string, string>;
   /** `${tipo}:${id}` → residence_id, para las pantallas `/residence/[residence_id]/...`. */
   residenceIdByEntity?: Record<string, string>;
+  /** faq_question_id → slug de la residencia, para llevar al visitante a la ficha donde le respondieron. */
+  residenceSlugByFaqQuestionId?: Record<string, string>;
 };
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** Tipos de entidad que, para el área residencia, necesitan saber de qué residencia son. */
-export const RESIDENCE_SCOPED_ENTITY_TYPES = ["support_cases", "application_requests"] as const;
+export const RESIDENCE_SCOPED_ENTITY_TYPES = ["support_cases", "application_requests", "residence_faq_questions"] as const;
 
 const ADMIN_LIST: Record<string, string> = {
   application_requests: "/admin/applications",
@@ -34,6 +36,7 @@ const ADMIN_LIST: Record<string, string> = {
   booking_receipts: "/admin/receipts",
   renewal_receipts: "/admin/receipts",
   estured_fee_payments: "/admin/payments",
+  payment_settings: "/admin/payment-settings",
   waitlist_entries: "/admin/waitlists",
   resident_stays: "/admin/community",
 };
@@ -67,6 +70,10 @@ export function notificationHref(
         return id ? `/students/renewals/${id}` : "/students/renewals";
       case "renewal_requests":
         return "/students/renewals";
+      case "residence_faq_questions": {
+        const slug = id ? context.residenceSlugByFaqQuestionId?.[id] : undefined;
+        return slug ? `/residencias/${encodeURIComponent(slug)}#preguntas` : null;
+      }
       default:
         return null;
     }
@@ -83,6 +90,10 @@ export function notificationHref(
     case "application_requests": {
       const residenceId = id ? context.residenceIdByEntity?.[`application_requests:${id}`] : undefined;
       return residenceId && id ? `/residence/${residenceId}/applications/${id}` : null;
+    }
+    case "residence_faq_questions": {
+      const residenceId = id ? context.residenceIdByEntity?.[`residence_faq_questions:${id}`] : undefined;
+      return residenceId ? `/residence/${residenceId}/faq` : null;
     }
     default:
       return null;

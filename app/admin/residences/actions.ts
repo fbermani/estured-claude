@@ -1,16 +1,16 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getSessionUser, hasAnyRole } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { setResidencePausedByAdmin } from "@/lib/residences/setResidencePausedByAdmin";
 import { setOperationalAccessByAdmin } from "@/lib/residences/setOperationalAccessByAdmin";
+import { getAdminSession } from "@/lib/auth/requireAdmin";
 
 export type PauseResidenceActionState = { status: "idle" | "error" | "saved"; message?: string };
 
 async function runToggle(residenceId: string, paused: boolean, reason: string): Promise<PauseResidenceActionState> {
-  const sessionUser = await getSessionUser();
-  if (!sessionUser || !hasAnyRole(sessionUser, ["admin", "superadmin"])) {
+  const sessionUser = await getAdminSession();
+  if (!sessionUser) {
     return { status: "error", message: "Tu sesión expiró." };
   }
   const admin = getSupabaseAdmin();
@@ -49,8 +49,8 @@ async function runOperationalAccessToggle(
   reason: string,
   expiresAt: string | null,
 ): Promise<OperationalAccessActionState> {
-  const sessionUser = await getSessionUser();
-  if (!sessionUser || !hasAnyRole(sessionUser, ["admin", "superadmin"])) {
+  const sessionUser = await getAdminSession();
+  if (!sessionUser) {
     return { status: "error", message: "Tu sesión expiró." };
   }
   const admin = getSupabaseAdmin();

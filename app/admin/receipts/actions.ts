@@ -2,8 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { getSessionUser } from "@/lib/auth/session";
 import { reissueBookingReceipt } from "@/lib/receipts/reissueBookingReceipt";
+import { getAdminSession } from "@/lib/auth/requireAdmin";
 
 export type ReissueReceiptState = { status: "idle" | "error" | "saved"; message?: string };
 
@@ -12,8 +12,8 @@ export async function reissueReceiptAction(
   _prev: ReissueReceiptState,
   formData: FormData,
 ): Promise<ReissueReceiptState> {
-  const sessionUser = await getSessionUser();
-  if (!sessionUser) return { status: "error", message: "Tu sesión expiró." };
+  const sessionUser = await getAdminSession();
+  if (!sessionUser) return { status: "error", message: "No tenés permiso para esta acción." };
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento." };
 

@@ -3,10 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { getSessionUser, hasAnyRole } from "@/lib/auth/session";
 import { createAuditLog } from "@/lib/audit";
 import { createNotification } from "@/lib/notifications/createNotification";
 import { applyApprovedEdit, discardRejectedFiles } from "@/lib/residences/profileEdits";
+import { getAdminSession } from "@/lib/auth/requireAdmin";
 
 export type ProfileEditReviewState = { status: "idle" | "error" | "saved"; message?: string };
 
@@ -30,8 +30,8 @@ export async function reviewProfileEdit(
   _prev: ProfileEditReviewState,
   formData: FormData,
 ): Promise<ProfileEditReviewState> {
-  const sessionUser = await getSessionUser();
-  if (!sessionUser || !hasAnyRole(sessionUser, ["admin", "superadmin"])) {
+  const sessionUser = await getAdminSession();
+  if (!sessionUser) {
     return { status: "error", message: "No tenés permiso para esta acción." };
   }
 

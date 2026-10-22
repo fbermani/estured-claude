@@ -6,6 +6,7 @@ import { AdminBadge } from "@/components/admin/ui/AdminBadge";
 import { cmd } from "@/components/admin/ui/tokens";
 import { getStaleAvailabilityByResidence } from "@/lib/residences/staleAvailability";
 import { auditActionPhrase, auditActorLabel } from "@/lib/format/auditActionLabels";
+import { requireAdmin } from "@/lib/auth/requireAdmin";
 
 export const metadata: Metadata = { title: "Dashboard" };
 export const dynamic = "force-dynamic";
@@ -21,6 +22,7 @@ function timeAgo(iso: string): string {
 }
 
 export default async function AdminDashboardPage() {
+  await requireAdmin();
   const admin = getSupabaseAdmin();
 
   let stats = {

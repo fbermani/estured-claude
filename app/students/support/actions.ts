@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { openSupportCase, type OpenSupportCaseResult } from "@/lib/support/openSupportCase";
+import { openFeePaymentSupportCase, openSupportCase, type OpenSupportCaseResult } from "@/lib/support/openSupportCase";
 
 export type OpenCaseState = { status: "idle" | "error" | "saved"; message?: string };
 
@@ -38,4 +38,33 @@ export async function openStudentSupportCase(_prev: OpenCaseState, formData: For
 
   revalidatePath("/students/support");
   return { status: "saved", message: "Caso abierto. Nuestro equipo lo va a revisar." };
+}
+
+/**
+ * "Tengo un problema con el pago" (D2 / H02): caso dirigido a EstuRed, que es
+ * quien cobra el fee. Sin residencia ni recordatorio de deslinde.
+ */
+export async function openFeePaymentCase(_prev: OpenCaseState, formData: FormData): Promise<OpenCaseState> {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) return { status: "error", message: "Tu sesión expiró." };
+  const admin = getSupabaseAdmin();
+  if (!admin) return { status: "error", message: "No disponible en este momento." };
+
+  let result: OpenSupportCaseResult;
+  try {
+    result = await openFeePaymentSupportCase(admin, {
+      actorUserId: sessionUser.id,
+      actorRole: sessionUser.primaryRole,
+      reservationId: String(formData.get("reservation_id") ?? ""),
+      description: String(formData.get("description") ?? ""),
+      evidenceFiles: formData.getAll("evidence").filter((f): f is File => f instanceof File && f.size > 0),
+    });
+  } catch (error) {
+    console.error("[support] openFeePaymentCase failed:", error);
+    return { status: "error", message: "No pudimos enviar tu consulta. Probá de nuevo." };
+  }
+  if (!result.ok) return { status: "error", message: result.error };
+
+  revalidatePath("/students/support");
+  return { status: "saved", message: "Listo, le escribiste a EstuRed. Te respondemos desde acá, en \"Tus casos\"." };
 }

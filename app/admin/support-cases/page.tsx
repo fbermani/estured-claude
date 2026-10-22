@@ -6,7 +6,9 @@ import { cmd } from "@/components/admin/ui/tokens";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
 import { DocumentAccessButton } from "@/components/admin/ui/DocumentAccessButton";
+import { reservationReference } from "@/lib/payments/feeTransferPresentation";
 import { UpdateCaseForm } from "@/app/admin/support-cases/UpdateCaseForm";
+import { requireAdmin } from "@/lib/auth/requireAdmin";
 
 export const metadata: Metadata = { title: "Casos de soporte" };
 export const dynamic = "force-dynamic";
@@ -32,6 +34,11 @@ const OPEN_STATUSES = [
   "in_progress",
 ];
 
+/** Caso "problema con el pago del fee" (migración 0040): dirigido a EstuRed, sin residencia. */
+function isFeePaymentCase(c: { residences: unknown; related_entity_type: string | null }): boolean {
+  return !c.residences && c.related_entity_type === "reservations";
+}
+
 interface CaseRow {
   id: string;
   status: string;
@@ -40,6 +47,8 @@ interface CaseRow {
   resolution_outcome: string | null;
   resolution_notes: string | null;
   opened_by_role: string;
+  related_entity_type: string | null;
+  related_entity_id: string | null;
   users: { email: string } | null;
   residences: { name: string; public_area: string } | null;
 }
@@ -49,6 +58,7 @@ export default async function AdminSupportCasesPage({
 }: {
   searchParams: Promise<{ id?: string }>;
 }) {
+  await requireAdmin();
   const { id: selectedId } = await searchParams;
   const admin = getSupabaseAdmin();
 
@@ -57,7 +67,7 @@ export default async function AdminSupportCasesPage({
         await admin
           .from("support_cases")
           .select(
-            "id, status, description, created_at, resolution_outcome, resolution_notes, opened_by_role, users!support_cases_opened_by_user_id_fkey(email), residences(name, public_area)",
+            "id, status, description, created_at, resolution_outcome, resolution_notes, opened_by_role, related_entity_type, related_entity_id, users!support_cases_opened_by_user_id_fkey(email), residences(name, public_area)",
           )
           .order("created_at", { ascending: false })
       ).data as unknown as CaseRow[]) ?? [])
@@ -114,7 +124,7 @@ export default async function AdminSupportCasesPage({
                       </span>
                     </div>
                     <p className="mt-1.5 text-sm font-bold" style={{ color: cmd.onSurface }}>
-                      {c.residences?.name}
+                      {isFeePaymentCase(c) ? "Pago del fee EstuRed" : c.residences?.name}
                     </p>
                     <p className="truncate text-xs" style={{ color: cmd.outline }}>
                       {c.users?.email}
@@ -133,7 +143,9 @@ export default async function AdminSupportCasesPage({
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
-                  {detail.residences?.name} · {detail.residences?.public_area}
+                  {isFeePaymentCase(detail) && detail.related_entity_id
+                    ? `Pago del fee EstuRed · referencia ${reservationReference(detail.related_entity_id)}`
+                    : `${detail.residences?.name} · ${detail.residences?.public_area}`}
                 </p>
                 <p className="text-sm" style={{ color: cmd.onSurfaceVariant }}>
                   Abierto por {detail.users?.email} ({detail.opened_by_role})

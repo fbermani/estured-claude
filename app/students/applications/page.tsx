@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { ExpandableCard } from "@/components/ui/ExpandableCard";
 import { effectiveContactDeadline } from "@/lib/applications/paymentDeadline";
+import { FeeDeadlineNote } from "@/components/applications/FeeDeadlineNote";
 import { ContactDeadlineNote } from "@/components/applications/ContactDeadlineNote";
 import { getVisibleStatus } from "@/lib/applications/visibleStatus";
 import { loadReservationInfoByApplication, type ReservationInfo } from "@/lib/applications/loadReservationInfo";
@@ -93,6 +94,9 @@ export default async function StudentApplicationsPage() {
         summary={summary}
       >
         {copy.helper && <p className="rounded-field bg-sand-100 px-4 py-3 text-sm text-ink-soft">{copy.helper}</p>}
+        {reservation?.status === "pending_estured_fee" && reservation.feePaymentStatus === "pending_payment_method" && (
+          <FeeDeadlineNote expiresAt={reservation.feeExpiresAt} className="mt-3" />
+        )}
         {a.status === "contact_established" && <ContactDeadlineNote deadlineAt={effectiveContactDeadline(a.payment_deadline_at, a.contact_established_at)} className="mt-3" />}
 
         <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-sm sm:grid-cols-4">

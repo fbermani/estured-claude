@@ -9,6 +9,7 @@ import { PauseResidenceControl } from "@/app/admin/residences/PauseResidenceCont
 import { OperationalAccessControl } from "@/app/admin/residences/OperationalAccessControl";
 import { RESIDENCE_STATUS_BADGE } from "@/app/admin/residences/statusBadge";
 import { getStaleAvailabilityByResidence } from "@/lib/residences/staleAvailability";
+import { requireAdmin } from "@/lib/auth/requireAdmin";
 
 export const metadata: Metadata = { title: "Residencias" };
 export const dynamic = "force-dynamic";
@@ -28,6 +29,7 @@ export default async function AdminResidencesPage({
 }: {
   searchParams: Promise<{ q?: string; filter?: string }>;
 }) {
+  await requireAdmin();
   const { q, filter } = await searchParams;
   const admin = getSupabaseAdmin();
 

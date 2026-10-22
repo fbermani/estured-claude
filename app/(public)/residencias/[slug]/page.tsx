@@ -15,6 +15,8 @@ import { CommunityBrowser } from "@/components/residences/CommunityBrowser";
 import { AmenityGrid } from "@/components/residences/AmenityGrid";
 import { RulesHighlight } from "@/components/residences/RulesHighlight";
 import { FaqAccordion } from "@/components/residences/FaqAccordion";
+import { getPublicAnsweredQuestions } from "@/lib/faq/getPublicAnsweredQuestions";
+import { AskQuestionForm } from "@/app/(public)/residencias/[slug]/AskQuestionForm";
 import { CompactMap } from "@/components/residences/CompactMap";
 import { getServiceIcon, getCommonAreaIcon } from "@/lib/residences/amenityIcons";
 import { ApplyForm } from "@/app/(public)/residencias/[slug]/ApplyForm";
@@ -128,10 +130,12 @@ export default async function RealResidenceDetailPage({
   const commonAreas = (sectionMap.common_areas?.items as string[]) ?? [];
   const nearUniversities = (sectionMap.near_universities?.items as string[]) ?? [];
   const rulesSummary = (sectionMap.rules?.summary as string) ?? "";
-  const faqItems = (sectionMap.faq?.items as { question: string; answer: string }[]) ?? [];
+  const staticFaqItems = (sectionMap.faq?.items as { question: string; answer: string }[]) ?? [];
   const communityStatement = (sectionMap.community_statement?.quote as string) ?? "";
 
   const adminClient = getSupabaseAdmin();
+  const answeredQuestions = adminClient ? await getPublicAnsweredQuestions(adminClient, residence.id) : [];
+  const faqItems = [...staticFaqItems, ...answeredQuestions.map((q) => ({ ...q, fromVisitor: true }))];
   const community = adminClient
     ? await getCommunityVisibility(adminClient, residence.id, sessionUser ? "registered" : "guest")
     : null;
@@ -385,14 +389,17 @@ export default async function RealResidenceDetailPage({
           )}
 
           {/* 4. Preguntas frecuentes */}
-          {faqItems.length > 0 && (
-            <section>
-              <h2 className="text-xl font-bold text-ink">Preguntas frecuentes</h2>
+          <section id="preguntas" className="scroll-mt-24">
+            <h2 className="text-xl font-bold text-ink">Preguntas frecuentes</h2>
+            {faqItems.length > 0 && (
               <div className="mt-4">
                 <FaqAccordion items={faqItems} />
               </div>
-            </section>
-          )}
+            )}
+            <div className="mt-4">
+              <AskQuestionForm residenceId={residence.id} signedIn={!!sessionUser} />
+            </div>
+          </section>
 
         </div>
 

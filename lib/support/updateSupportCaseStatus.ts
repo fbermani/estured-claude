@@ -65,7 +65,7 @@ export async function updateSupportCaseStatus(
 
   const { data: supportCase } = await admin
     .from("support_cases")
-    .select("id, status, opened_by_user_id, residences(name)")
+    .select("id, status, opened_by_user_id, related_entity_type, residences(name)")
     .eq("id", params.supportCaseId)
     .maybeSingle();
   if (!supportCase) return { status: "error", message: "Caso no encontrado." };
@@ -97,11 +97,16 @@ export async function updateSupportCaseStatus(
   });
 
   if (isClosing) {
-    const residenceName = (supportCase.residences as unknown as { name: string } | null)?.name ?? "tu caso";
+    const residenceName = (supportCase.residences as unknown as { name: string } | null)?.name;
+    const subject = residenceName
+      ? `sobre ${residenceName}`
+      : supportCase.related_entity_type === "reservations"
+        ? "sobre el pago del fee EstuRed"
+        : "";
     await createNotification(admin, {
       userId: supportCase.opened_by_user_id,
       title: "Tu caso de soporte se resolvió",
-      body: `El equipo de EstuRed cerró tu caso sobre ${residenceName}. ${notes}`,
+      body: `El equipo de EstuRed cerró tu caso${subject ? ` ${subject}` : ""}. ${notes}`,
       relatedEntityType: "support_cases",
       relatedEntityId: supportCase.id,
     });

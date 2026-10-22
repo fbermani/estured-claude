@@ -60,15 +60,15 @@ Regla de paralelismo: dos agentes que escriben nunca tocan los mismos archivos a
 
 | Ítem | Hallazgos | Agente | Depende de | Esfuerzo |
 |---|---|---|---|---|
-| Pantalla de pago del fee con instrucciones, referencia y plazo; soporte con contexto | H02 | `constructor` | D2 | M |
+| ✅ Pantalla de pago del fee con instrucciones, referencia y plazo; soporte con contexto (Ciclo 50; migraciones 0038 y 0040 pendientes de aplicar) | H02 | `constructor` | D2 | M |
 | Fuente única de disponibilidad y copy unificado con `StatusTag` | H03 | `constructor` (+ `base-datos` si cambia el modelo) | D3, D8 | L |
 | ✅ Control de visibilidad de comunidad + consentimiento + menores (Ciclo 49) | H04 | `constructor` → `seguridad` | D4 | M |
 | ✅ `contact_established` con vencimiento y plazo visible (Ciclo 49) | H06 | `base-datos` + `depurador` | D6 | M |
 | Pago inicial a la residencia | H08 | `base-datos` → `constructor` | D7 | M |
 | Frontera freemium en sidebar, "Tu plan" y landing | H09 | `interfaz` | D8 | M |
 | Ficha pública con tarifas y condiciones | H10 | `interfaz` | D7 | M |
-| FAQ asistida mínima | H12 | `constructor` | D9 | L |
-| Recuperación de contraseña + `/terms` + contacto | H13 | `constructor` | D10 | M |
+| ✅ FAQ asistida mínima: pregunta libre del visitante + panel de respuesta (Ciclo 50; migración 0039 pendiente de aplicar) | H12 | `constructor` | D9 | L |
+| ✅ Recuperación de contraseña + `/terms` + contacto (Ciclo 50; `/terms` es borrador, falta revisión legal; el email `hola@estured.com` sigue siendo placeholder) | H13 | `constructor` | D10 | M |
 | Familiar: experiencia completa | H16 | `constructor` + `interfaz` | — | L |
 | Estadías vencidas | H18 | `constructor` | D11 | M |
 | Contacto con la residencia | H19 | `interfaz` | D10 | S |

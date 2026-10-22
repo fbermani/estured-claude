@@ -706,6 +706,8 @@ Si se comprueba comportamiento inadecuado: advertencia; reducción de visibilida
 
 Cualquier usuario con contexto legítimo puede abrir un caso desde `Soporte` o desde la entidad relacionada: perfil; solicitud; propuesta del familiar; negociación de condiciones; reserva; renovación; comprobante; residencia; comunidad visible.
 
+**Excepción — problema con el pago del fee EstuRed (D2).** El fee lo cobra EstuRed, no la residencia. Un caso por el pago del fee es una consulta dirigida a EstuRed: no se elige residencia, no aplica el recordatorio de deslinde de §19.2 (que es propio de los reclamos sobre una residencia) y la residencia no ve el caso. Mismos estados y resultados posibles.
+
 ### 19.2 Reminder obligatorio
 
 Antes de proceder, el sistema debe mostrar: términos aplicables; alcance de la intervención de EstuRed; deslinde de responsabilidad; aclaración de que EstuRed puede no intervenir si el caso no amerita; posibilidad de pedir evidencia.

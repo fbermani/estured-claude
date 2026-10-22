@@ -1,11 +1,17 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { Card } from "@/components/ui/Card";
 import { formatUsd, formatArs } from "@/lib/mock/exchange";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
+import { Icon } from "@/components/ui/Icon";
 import { FeePaymentForm } from "@/app/students/applications/[id]/fee/FeePaymentForm";
+import { FeeCountdown } from "@/app/students/applications/[id]/fee/FeeCountdown";
+import { FeeTransferInstructions } from "@/app/students/applications/[id]/fee/FeeTransferInstructions";
+import { loadFeeInstructionsForPayer } from "@/lib/payments/paymentSettings";
+import { feeSupportHref, reservationReference } from "@/lib/payments/feeTransferPresentation";
 
 export const metadata: Metadata = { title: "Pago fee EstuRed" };
 export const dynamic = "force-dynamic";
@@ -41,7 +47,7 @@ export default async function FeePaymentPage({
 
   const { data: application } = await admin
     .from("application_requests")
-    .select("id, status, student_profile_id, snapshot_final_id, snapshot_original_id, residences(name)")
+    .select("id, status, residence_id, student_profile_id, snapshot_final_id, snapshot_original_id, residences(name)")
     .eq("id", id)
     .maybeSingle();
   if (!application || application.student_profile_id !== studentProfile?.id) notFound();
@@ -77,6 +83,48 @@ export default async function FeePaymentPage({
 
   const residence = application.residences as unknown as { name: string } | null;
   const alreadyRegistered = feePayment.status !== "pending_payment_method";
+  const reference = reservationReference(reservation.id);
+
+  // D2 / H02: los datos de cobro solo se leen si quien mira está pagando este fee.
+  const instructionsResult = alreadyRegistered
+    ? null
+    : await loadFeeInstructionsForPayer(admin, { userId: sessionUser.id, feePaymentId: feePayment.id });
+  const payerMismatch = instructionsResult?.status === "forbidden";
+  const supportHref = feeSupportHref(reservation.id);
+
+  const payBlock = (
+    <>
+      {instructionsResult?.status === "ready" && (
+        <FeeTransferInstructions
+          amountArs={Number(feePayment.fee_amount_ars)}
+          reference={reference}
+          instructions={instructionsResult.instructions}
+        />
+      )}
+      {instructionsResult?.status === "not_configured" && (
+        <p role="status" className="mt-6 rounded-field bg-warning-bg px-4 py-3 text-sm font-medium text-warning-fg">
+          Estamos preparando los datos de pago. Escribile a EstuRed desde{" "}
+          <Link href={supportHref} className="underline">
+            Soporte
+          </Link>{" "}
+          y te los pasamos; tu referencia es <span className="font-mono font-bold">{reference}</span>.
+        </p>
+      )}
+      <p className="mt-4 rounded-field bg-sand-100 px-4 py-3 text-xs text-ink-faint">
+        El cobro automático (MercadoPago / PayU Argentina) todavía no está activado: por ahora el fee se paga por
+        transferencia y lo validamos a mano.
+      </p>
+    </>
+  );
+
+  const supportLink = (
+    <Link
+      href={supportHref}
+      className="mt-4 inline-flex items-center gap-2 rounded-full border-[1.5px] border-line px-4 py-2 text-sm font-semibold text-ink hover:border-forest hover:bg-forest-tint"
+    >
+      <Icon name="support_agent" className="text-base text-forest-700" /> Tengo un problema con el pago
+    </Link>
+  );
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
@@ -122,23 +170,39 @@ export default async function FeePaymentPage({
         </dl>
       </Card>
 
-      <p className="mt-4 rounded-field bg-sand-100 px-4 py-3 text-xs text-ink-faint">
-        El cobro automático (MercadoPago / PayU Argentina) todavía no está activado. Mientras tanto,
-        coordiná el pago por transferencia con soporte y subí el comprobante acá — nuestro equipo lo
-        valida y confirma tu reserva.
-      </p>
-
-      {feePayment.status === "paid" ? (
+      {payerMismatch ? (
+        <p role="status" className="mt-6 rounded-field bg-sand-100 px-4 py-3 text-sm text-ink-soft">
+          El pago lo hace quien está designado como pagador de esta reserva. Si necesitás ayuda con el pago,{" "}
+          <Link href={supportHref} className="font-semibold text-forest-700 underline">
+            escribile a EstuRed desde Soporte
+          </Link>
+          .
+        </p>
+      ) : feePayment.status === "paid" ? (
         <p className="mt-6 rounded-field bg-success-bg px-4 py-3 text-sm font-medium text-success-fg">
           Fee pagado. Tu reserva está confirmada.
         </p>
       ) : alreadyRegistered ? (
-        <p className="mt-6 rounded-field bg-sand-100 px-4 py-3 text-sm text-ink-soft">
-          Ya registraste un comprobante para este pago — está esperando validación de EstuRed. Te
-          avisamos cuando se confirme.
-        </p>
+        <>
+          <p className="mt-6 rounded-field bg-sand-100 px-4 py-3 text-sm text-ink-soft">
+            Ya registraste un comprobante para este pago — está esperando validación de EstuRed. Te avisamos cuando
+            se confirme.
+          </p>
+          {supportLink}
+        </>
+      ) : feePayment.expires_at ? (
+        // El plazo manda: vencido, no se muestran datos de transferencia ni el formulario (ni siquiera sin recargar).
+        <FeeCountdown expiresAt={feePayment.expires_at} nowIso={new Date().toISOString()} supportHref={supportHref}>
+          {payBlock}
+          {supportLink}
+          <FeePaymentForm applicationId={id} />
+        </FeeCountdown>
       ) : (
-        <FeePaymentForm applicationId={id} />
+        <>
+          {payBlock}
+          {supportLink}
+          <FeePaymentForm applicationId={id} />
+        </>
       )}
 
       <p className="mt-4 text-xs text-ink-faint">

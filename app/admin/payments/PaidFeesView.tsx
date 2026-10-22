@@ -112,8 +112,8 @@ export async function PaidFeesView() {
   );
 }
 
-export function PaymentsTabs({ active, compact = false }: { active: "pending" | "paid"; compact?: boolean }) {
-  const tab = (key: "pending" | "paid", label: string, href: string) => (
+export function PaymentsTabs({ active, compact = false }: { active: "pending" | "paid" | "settings"; compact?: boolean }) {
+  const tab = (key: "pending" | "paid" | "settings", label: string, href: string) => (
     <Link
       key={key}
       href={href}
@@ -133,9 +133,10 @@ export function PaymentsTabs({ active, compact = false }: { active: "pending" | 
       <h1 className={compact ? "text-lg font-bold" : "text-[28px] font-bold tracking-tight"} style={{ color: cmd.onSurface }}>
         Pagos fee EstuRed
       </h1>
-      <div className="mt-3 flex gap-2">
+      <div className="mt-3 flex flex-wrap gap-2">
         {tab("pending", "Pendientes", "/admin/payments")}
         {tab("paid", "Cobrados", "/admin/payments?tab=paid")}
+        {tab("settings", "Datos de cobro", "/admin/payment-settings")}
       </div>
     </div>
   );

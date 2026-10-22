@@ -3,6 +3,7 @@
 import { ivaConditionLabel, paymentChannelLabel } from "@/lib/format/payerLabels";
 import { formatDateOnly } from "@/lib/dates/formatDateOnly";
 import { formatShortName } from "@/lib/format/shortName";
+import { reservationReference } from "@/lib/payments/feeTransferPresentation";
 import { useActionState } from "react";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminButton } from "@/components/admin/ui/AdminButton";
@@ -17,6 +18,7 @@ interface FeePayment {
   fee_base_usd: number;
   fee_base_ars: number;
   payment_channel: string | null;
+  reservation_id: string | null;
   payer_billing_name: string | null;
   payer_billing_cuit: string | null;
   payer_iva_condition: string;
@@ -43,6 +45,14 @@ export function PaymentDetail({ feePayment, proofFileId }: { feePayment: FeePaym
           {reservation?.residences?.name}
         </h2>
         <dl className="mt-4 space-y-2 text-sm">
+          {feePayment.reservation_id && (
+            <div className="flex justify-between">
+              <dt style={{ color: cmd.outline }}>Referencia de la transferencia</dt>
+              <dd className="font-mono font-bold" style={{ color: cmd.onSurface }}>
+                {reservationReference(feePayment.reservation_id)}
+              </dd>
+            </div>
+          )}
           <div className="flex justify-between">
             <dt style={{ color: cmd.outline }}>Fee base (USD)</dt>
             <dd style={{ color: cmd.onSurface }}>USD {feePayment.fee_base_usd}</dd>

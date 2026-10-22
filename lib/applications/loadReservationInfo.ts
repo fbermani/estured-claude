@@ -5,6 +5,8 @@ export type ReservationInfo = ReservationStatusInput & {
   reservationId: string;
   applicationRequestId: string;
   bookingReceiptId: string | null;
+  /** `estured_fee_payments.expires_at` del fee de la reserva (plazo de pago, H02). */
+  feeExpiresAt: string | null;
 };
 
 /**
@@ -37,10 +39,14 @@ export async function loadReservationInfoByApplication(
 
   const feeIds = (reservations ?? []).map((r) => r.estured_fee_payment_id).filter((id): id is string => !!id);
   const feeStatusById = new Map<string, string>();
+  const feeExpiresById = new Map<string, string>();
   if (feeIds.length > 0) {
-    const { data: fees, error: feeError } = await client.from("estured_fee_payments").select("id, status").in("id", feeIds);
+    const { data: fees, error: feeError } = await client.from("estured_fee_payments").select("id, status, expires_at").in("id", feeIds);
     if (feeError) console.error("[loadReservationInfo] estured_fee_payments query failed:", feeError);
-    for (const f of fees ?? []) feeStatusById.set(f.id as string, f.status as string);
+    for (const f of fees ?? []) {
+      feeStatusById.set(f.id as string, f.status as string);
+      if (f.expires_at) feeExpiresById.set(f.id as string, f.expires_at as string);
+    }
   }
 
   for (const r of reservations ?? []) {
@@ -52,6 +58,7 @@ export async function loadReservationInfoByApplication(
       feePaymentStatus: r.estured_fee_payment_id ? (feeStatusById.get(r.estured_fee_payment_id as string) ?? null) : null,
       hasReceipt: !!r.booking_receipt_id,
       bookingReceiptId: (r.booking_receipt_id as string | null) ?? null,
+      feeExpiresAt: r.estured_fee_payment_id ? (feeExpiresById.get(r.estured_fee_payment_id as string) ?? null) : null,
     });
   }
   return result;

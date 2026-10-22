@@ -2,15 +2,15 @@
 
 import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { getSessionUser, hasAnyRole } from "@/lib/auth/session";
 import { setResidentVisibilityByAdmin } from "@/lib/residents/setResidentVisibilityByAdmin";
 import { markResidentInactiveByAdmin } from "@/lib/residents/markResidentInactiveByAdmin";
+import { getAdminSession } from "@/lib/auth/requireAdmin";
 
 export type ModerationResult = { ok: true } | { ok: false; error: string };
 
 async function requireAdmin() {
-  const sessionUser = await getSessionUser();
-  if (!sessionUser || !hasAnyRole(sessionUser, ["admin", "superadmin"])) {
+  const sessionUser = await getAdminSession();
+  if (!sessionUser) {
     return { sessionUser: null, error: "No tenés permiso para esta acción." };
   }
   return { sessionUser, error: null };

@@ -2,9 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { getSessionUser } from "@/lib/auth/session";
 import { createAuditLog } from "@/lib/audit";
 import { MonedApiProvider } from "@/lib/exchange/provider";
+import { getAdminSession } from "@/lib/auth/requireAdmin";
 
 export type ExchangeRateActionState = { status: "idle" | "error" | "saved"; message?: string };
 
@@ -22,8 +22,8 @@ const provider = new MonedApiProvider();
  * `getCurrentExchangeRate()` (docs/06 §20.1).
  */
 export async function forceRefreshExchangeRate(): Promise<ExchangeRateActionState> {
-  const sessionUser = await getSessionUser();
-  if (!sessionUser) return { status: "error", message: "Tu sesión expiró." };
+  const sessionUser = await getAdminSession();
+  if (!sessionUser) return { status: "error", message: "No tenés permiso para esta acción." };
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento." };
 
@@ -83,8 +83,8 @@ export async function setExchangeRateOverride(
   _prev: ExchangeRateActionState,
   formData: FormData,
 ): Promise<ExchangeRateActionState> {
-  const sessionUser = await getSessionUser();
-  if (!sessionUser) return { status: "error", message: "Tu sesión expiró." };
+  const sessionUser = await getAdminSession();
+  if (!sessionUser) return { status: "error", message: "No tenés permiso para esta acción." };
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento." };
 
@@ -125,8 +125,8 @@ export async function setExchangeRateOverride(
 
 /** Docs/09 §25.3 — "Quitar override": vuelve a regir el valor automático del día. */
 export async function removeExchangeRateOverride(): Promise<ExchangeRateActionState> {
-  const sessionUser = await getSessionUser();
-  if (!sessionUser) return { status: "error", message: "Tu sesión expiró." };
+  const sessionUser = await getAdminSession();
+  if (!sessionUser) return { status: "error", message: "No tenés permiso para esta acción." };
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento." };
 

@@ -5,6 +5,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { cmd } from "@/components/admin/ui/tokens";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
 import { ProfileEditDetail } from "@/app/admin/profile-edits/ProfileEditDetail";
+import { requireAdmin } from "@/lib/auth/requireAdmin";
 
 export const metadata: Metadata = { title: "Ediciones de perfil" };
 export const dynamic = "force-dynamic";
@@ -31,6 +32,7 @@ export default async function ProfileEditsPage({
 }: {
   searchParams: Promise<{ id?: string }>;
 }) {
+  await requireAdmin();
   const { id: selectedId } = await searchParams;
   const admin = getSupabaseAdmin();
 

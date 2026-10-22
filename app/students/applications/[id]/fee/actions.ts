@@ -54,6 +54,16 @@ export async function registerManualFeePayment(
     return { status: "error", message: "El fee de esta reserva ya no está pendiente." };
   }
 
+  // El comprobante lo sube el pagador designado del fee (quien envió la solicitud).
+  const { data: designatedFee } = await admin
+    .from("estured_fee_payments")
+    .select("payer_user_id")
+    .eq("id", reservation.estured_fee_payment_id)
+    .maybeSingle();
+  if (designatedFee && designatedFee.payer_user_id !== sessionUser.id) {
+    return { status: "error", message: "El pago lo hace quien está designado como pagador de esta reserva." };
+  }
+
   const file = formData.get("file");
   if (!(file instanceof File) || file.size === 0) {
     return { status: "error", message: "Adjuntá un comprobante de la transferencia." };

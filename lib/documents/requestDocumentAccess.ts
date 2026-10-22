@@ -1,8 +1,8 @@
 "use server";
 
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { getSessionUser, hasAnyRole } from "@/lib/auth/session";
 import { createAuditLog } from "@/lib/audit";
+import { getAdminSession } from "@/lib/auth/requireAdmin";
 
 export type DocumentAccessResult = { ok: true; url: string } | { ok: false; error: string };
 
@@ -15,8 +15,8 @@ export type DocumentAccessResult = { ok: true; url: string } | { ok: false; erro
  * nueva solo si el motivo fue válido, no redirigir la página actual.
  */
 export async function requestDocumentAccess(fileId: string, reason: string): Promise<DocumentAccessResult> {
-  const sessionUser = await getSessionUser();
-  if (!sessionUser || !hasAnyRole(sessionUser, ["admin", "superadmin"])) {
+  const sessionUser = await getAdminSession();
+  if (!sessionUser) {
     return { ok: false, error: "No tenés permiso para esta acción." };
   }
 
