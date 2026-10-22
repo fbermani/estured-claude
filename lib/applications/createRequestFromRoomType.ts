@@ -6,6 +6,7 @@ import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 import { calculateFeeEstimate } from "@/lib/applications/fee";
 import { emptyMonthsChargeUsd } from "@/lib/applications/emptyMonths";
 import { getResidenceConditions, resolveEnrollmentFeeUsd } from "@/lib/residences/conditions";
+import { buildInitialPayment } from "@/lib/reservations/initialPayment";
 import { determineInitialApplicationStatus } from "@/lib/applications/roomTypeQueue";
 
 /**
@@ -15,7 +16,8 @@ import { determineInitialApplicationStatus } from "@/lib/applications/roomTypeQu
  * en el Ciclo 12 para no duplicar esta lógica entre ambos caminos.
  * Desde la migración 0025, matrícula/depósito/ajuste/mes vacío salen de
  * las condiciones de la RESIDENCIA (no del tipo) y quedan congeladas en
- * el snapshot como siempre.
+ * el snapshot como siempre. El pago inicial a la residencia
+ * (`reservation_payment_amount_*`) sale de `lib/reservations/initialPayment.ts`.
  */
 export async function createApplicationFromRoomType(
   admin: SupabaseClient,
@@ -52,6 +54,8 @@ export async function createApplicationFromRoomType(
   const monthlyPriceUsd = Number(params.roomType.monthly_price_usd);
   const enrollmentFeeUsd = resolveEnrollmentFeeUsd(conditions, monthlyPriceUsd);
   const depositUsd = conditions.depositUsd;
+  // D7/H08: pago inicial para reservar (a la residencia) — primer mes o monto fijo; queda congelado en el snapshot.
+  const initialPayment = buildInitialPayment(conditions.initialPayment, monthlyPriceUsd, rate.arsPerUsd);
   const emptyCharge = emptyMonthsChargeUsd({
     desiredStartDate: params.desiredStartDate,
     monthlyPriceUsd,
@@ -83,8 +87,8 @@ export async function createApplicationFromRoomType(
         deposit_usd: depositUsd,
         deposit_ars: depositUsd ? usdToArs(depositUsd, rate.arsPerUsd) : null,
         deposit_excluded_from_fee: true,
-        reservation_payment_amount_usd: enrollmentFeeUsd ?? monthlyPriceUsd,
-        reservation_payment_amount_ars: usdToArs(enrollmentFeeUsd ?? monthlyPriceUsd, rate.arsPerUsd),
+        reservation_payment_amount_usd: initialPayment.usd,
+        reservation_payment_amount_ars: initialPayment.arsSnapshot,
         adjustment_policy: conditions.adjustmentPolicy,
         fee_base_usd: fee.feeBaseUsd,
         fee_base_ars: fee.feeBaseArs,

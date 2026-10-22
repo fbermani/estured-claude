@@ -4,7 +4,9 @@ import { notFound, redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { Card } from "@/components/ui/Card";
-import { formatUsd, formatArs } from "@/lib/mock/exchange";
+import { formatUsd, formatArs, roundArs } from "@/lib/mock/exchange";
+import { InitialPaymentBreakdown } from "@/components/applications/InitialPaymentBreakdown";
+import { estimatedFeeUsd } from "@/lib/reservations/initialPayment";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import { Icon } from "@/components/ui/Icon";
 import { FeePaymentForm } from "@/app/students/applications/[id]/fee/FeePaymentForm";
@@ -76,12 +78,13 @@ export default async function FeePaymentPage({
   const snapshotId = application.snapshot_final_id ?? application.snapshot_original_id;
   const { data: snapshot } = await admin
     .from("application_snapshots")
-    .select("monthly_price_usd, initial_duration_months, enrollment_fee_usd, deposit_usd")
+    .select("monthly_price_usd, initial_duration_months, enrollment_fee_usd, deposit_usd, fee_base_usd, reservation_payment_amount_usd, reservation_payment_amount_ars")
     .eq("id", snapshotId)
     .single();
   if (!snapshot) notFound();
 
   const residence = application.residences as unknown as { name: string } | null;
+  const initialPaymentUsd = Number(snapshot.reservation_payment_amount_usd ?? 0);
   const alreadyRegistered = feePayment.status !== "pending_payment_method";
   const reference = reservationReference(reservation.id);
 
@@ -135,6 +138,17 @@ export default async function FeePaymentPage({
       </p>
 
       <Card className="mt-6 p-6">
+        {/* D7/H08: mismo desglose que en la solicitud — pago inicial a la residencia (ya informado) y fee a EstuRed. */}
+        {initialPaymentUsd > 0 && (
+          <InitialPaymentBreakdown
+            className="mb-5"
+            residenceUsd={initialPaymentUsd}
+            residenceArs={snapshot.reservation_payment_amount_ars != null ? roundArs(Number(snapshot.reservation_payment_amount_ars)) : null}
+            residencePaid
+            feeUsd={snapshot.fee_base_usd != null ? estimatedFeeUsd(Number(snapshot.fee_base_usd)) : null}
+            feeArs={Number(feePayment.fee_amount_ars)}
+          />
+        )}
         <dl className="space-y-3 text-sm">
           <div className="flex justify-between border-b border-sand-200 pb-2">
             <dt className="text-ink-faint">Tarifa mensual acordada</dt>

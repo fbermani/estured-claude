@@ -5,6 +5,8 @@ import { headers } from "next/headers";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { createAuditLog } from "@/lib/audit";
 import { getAdminSession } from "@/lib/auth/requireAdmin";
+import { countResidencePhotos } from "@/lib/residences/countResidencePhotos";
+import { publishPhotosError } from "@/lib/residences/photos";
 
 export type ReviewState = { status: "idle" | "error" | "saved"; message?: string };
 
@@ -47,6 +49,15 @@ export async function reviewResidence(
       message:
         "Antes de aprobar, marcá al menos: identidad del responsable, dirección verificada y fotos coinciden con la realidad.",
     };
+  }
+  if (action === "approve") {
+    // Ciclo 54 (D12): no se publica sin al menos 3 fotos propias aprobadas.
+    const photoCount = await countResidencePhotos(admin, residenceId);
+    if (photoCount === null) {
+      return { status: "error", message: "No pudimos comprobar las fotos de la residencia. Intentá de nuevo." };
+    }
+    const photosError = publishPhotosError(photoCount);
+    if (photosError) return { status: "error", message: photosError };
   }
   if ((action === "needs_changes" || action === "reject") && notesInternal.length < 5) {
     return { status: "error", message: "Escribí un motivo para que quede registrado." };

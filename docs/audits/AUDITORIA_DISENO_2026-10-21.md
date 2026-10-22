@@ -178,6 +178,7 @@ Formato: **ID · Título** — severidad · [Obj/Op] · ruta · agente · esfuer
 ### B. Imagen y primera impresión
 
 #### D12 · No hay estrategia de imagen: los placeholders vacíos dominan las pantallas
+- **RESUELTO (Ciclo 54, 2026-10-22), decisión del dueño:** placeholder de marca (`components/residences/ResidencePhoto.tsx`, fachada SVG propia, sin fotos stock) en card, ficha, paneles y landing; hero adaptable 0/1/2–4/5+ (`ResidenceGallery`); regla de 3 fotos propias para aprobar/publicar (`lib/residences/photos.ts`, validada en `reviewResidence`, aviso con contador en el perfil y en admin). Quedan fuera de uso las fotos de `design-references/Fotos Residencias/`. Pendiente del dueño: sesión de fotos o ilustración para las landings (punto 5).
 - **Severidad:** crítico · **[Obj]** (lo que se ve) **+ [Op]** (la dirección) · **Rutas:** card del hero `/`, hero de `/for-students`, cards de `/search` y de la landing, hero de la ficha, card de estadía en `/students/dashboard`, `/residence/dashboard`, vista previa de `/residence/[id]/profile` · **Agente:** `disenador` → `interfaz`, y `dueño` para fotos y operación · **Esfuerzo:** M
 - **Evidencia:**
   - Bloques beige planos con un ícono `apartment` de unos 16 px:

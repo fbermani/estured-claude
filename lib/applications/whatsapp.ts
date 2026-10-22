@@ -1,4 +1,7 @@
 import { formatDateOnly } from "@/lib/dates/formatDateOnly";
+import { formatDate } from "@/lib/dates/format";
+import { formatUsd } from "@/lib/mock/exchange";
+import { formatInitialPaymentLine } from "@/lib/reservations/initialPayment";
 
 /**
  * Botón de WhatsApp pre-formateado (docs/07 §15.3, docs/00 y docs/11:
@@ -12,7 +15,12 @@ export function buildWhatsappUrl(params: {
   roomTypeName: string;
   desiredStartDate: string;
   durationMonths: number;
+  /** Pago inicial para reservar a la residencia (snapshot, D7/H08). */
   reservationAmountUsd: number;
+  /** Fee EstuRed estimado en USD (opcional): se muestra aparte del pago a la residencia. */
+  feeUsd?: number | null;
+  /** Fecha límite del pago a la residencia (ISO), solo si ya fue habilitado. */
+  paymentDeadlineAt?: string | null;
 }): string {
   const digits = params.phone.replace(/[^0-9]/g, "");
   const message =
@@ -22,6 +30,11 @@ export function buildWhatsappUrl(params: {
     `Tipo de habitación: ${params.roomTypeName}\n` +
     `Fecha de ingreso deseada: ${formatDateOnly(params.desiredStartDate)}\n` +
     `Duración: ${params.durationMonths} meses\n` +
-    `Monto para reservar: USD ${params.reservationAmountUsd}`;
+    `Pago inicial para reservar: ${formatInitialPaymentLine({
+      residenceUsd: params.reservationAmountUsd,
+      deadlineLabel: params.paymentDeadlineAt ? formatDate(params.paymentDeadlineAt) : null,
+      feeUsd: params.feeUsd ?? null,
+      formatUsd,
+    })}`;
   return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
 }

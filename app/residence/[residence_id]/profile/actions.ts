@@ -17,6 +17,7 @@ import {
 } from "@/lib/residences/options";
 import { applyRoomTypesUpdate, hasStructuralRoomTypeChange, stageProfileEdit, type RoomTypeEditInput } from "@/lib/residences/profileEdits";
 import { logTariffChange } from "@/lib/residences/tariffLog";
+import { describeInitialPaymentForLog, initialPaymentConfigFromRow, parseInitialPaymentInput, type InitialPaymentConfig } from "@/lib/reservations/initialPayment";
 
 export type ProfileFormState = {
   status: "idle" | "error" | "saved" | "submitted" | "saved_pending_review";
@@ -61,6 +62,8 @@ function parseRoomTypes(raw: string): RoomTypeEditInput[] | null {
 interface ConditionsInput {
   minimumStayMonths: number | null;
   adjustmentPolicy: string;
+  /** Pago inicial para reservar (D7/H08): se valida con `parseInitialPaymentInput`. */
+  initialPayment: InitialPaymentConfig;
   enrollmentFeeMode: "one_month" | "manual" | null;
   enrollmentFeeUsd: number | null;
   enrollmentFeeFrequency: "once" | "annual";
@@ -68,9 +71,11 @@ interface ConditionsInput {
   emptyMonthChargePercent: number | null;
 }
 
-function parseConditions(raw: string): ConditionsInput | null {
+function parseConditions(raw: string): ConditionsInput | { error: string } | null {
   try {
     const c = JSON.parse(raw);
+    const initialPayment = parseInitialPaymentInput({ mode: c.initialPaymentMode, usd: c.initialPaymentUsd });
+    if (!initialPayment.ok) return { error: initialPayment.error };
     const mode = c.enrollmentFeeMode === "one_month" || c.enrollmentFeeMode === "manual" ? c.enrollmentFeeMode : null;
     return {
       minimumStayMonths:
@@ -78,6 +83,7 @@ function parseConditions(raw: string): ConditionsInput | null {
           ? Math.max(1, Math.min(24, Number(c.minimumStayMonths) || 1))
           : null,
       adjustmentPolicy: String(c.adjustmentPolicy ?? "quarterly"),
+      initialPayment: initialPayment.value,
       enrollmentFeeMode: mode,
       enrollmentFeeUsd:
         mode === "manual" && c.enrollmentFeeUsd != null ? Math.max(0, Number(c.enrollmentFeeUsd) || 0) : null,
@@ -135,7 +141,7 @@ export async function saveResidenceProfile(
 
   const { data: residenceRow } = await admin
     .from("residences")
-    .select("status, minimum_stay_months, adjustment_policy, enrollment_fee_usd, deposit_usd")
+    .select("*")
     .eq("id", residenceId)
     .single();
   const gateApplies = residenceRow?.status === "verified_active";
@@ -159,8 +165,10 @@ export async function saveResidenceProfile(
   if (!roomTypes) return { status: "error", message: "Hubo un problema con los tipos de habitación." };
 
   const conditionsRaw = String(formData.get("conditions_json") ?? "{}");
-  const conditions = parseConditions(conditionsRaw);
-  if (!conditions) return { status: "error", message: "Hubo un problema con las condiciones de reserva." };
+  const parsedConditions = parseConditions(conditionsRaw);
+  if (!parsedConditions) return { status: "error", message: "Hubo un problema con las condiciones de reserva." };
+  if ("error" in parsedConditions) return { status: "error", message: parsedConditions.error };
+  const conditions = parsedConditions;
   if (!ADJUSTMENT_POLICIES.has(conditions.adjustmentPolicy as never))
     return { status: "error", message: "Política de ajuste inválida." };
   if (conditions.depositUsd != null && conditions.enrollmentFeeMode != null)
@@ -205,6 +213,9 @@ export async function saveResidenceProfile(
         tagline: tagline || null,
         description: description || null,
         adjustment_policy: conditions.adjustmentPolicy,
+        reservation_initial_payment_mode: conditions.initialPayment.mode,
+        reservation_initial_payment_usd:
+          conditions.initialPayment.mode === "custom_usd" ? conditions.initialPayment.customUsd : null,
         enrollment_fee_mode: conditions.enrollmentFeeMode,
         enrollment_fee_usd: conditions.enrollmentFeeMode === "manual" ? conditions.enrollmentFeeUsd : null,
         enrollment_fee_frequency: conditions.enrollmentFeeFrequency,
@@ -219,7 +230,16 @@ export async function saveResidenceProfile(
     // — nunca bloquean el guardado (docs/09 §8.2 los deja fuera de la
     // aprobación previa).
     const newEnrollmentFeeUsd = conditions.enrollmentFeeMode === "manual" ? conditions.enrollmentFeeUsd : null;
+    // Pago inicial (D7/H08): se audita con texto legible ("Primer mes" / "Monto fijo USD 450"), incluido el cambio de modo.
+    const oldInitialPayment = initialPaymentConfigFromRow(residenceRow ?? {});
     await Promise.all([
+      logTariffChange(admin, {
+        residenceId,
+        changedByUserId: sessionUser.id,
+        fieldName: "initial_payment",
+        oldValue: describeInitialPaymentForLog(oldInitialPayment),
+        newValue: describeInitialPaymentForLog(conditions.initialPayment),
+      }),
       logTariffChange(admin, {
         residenceId,
         changedByUserId: sessionUser.id,

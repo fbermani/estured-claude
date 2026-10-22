@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -26,7 +25,9 @@ import { FavoriteButton } from "@/app/(public)/residencias/[slug]/FavoriteButton
 import { toggleStudentFavorite, toggleFamilyFavorite } from "@/app/students/favorites/actions";
 import { MobileRequestBar } from "@/components/residences/MobileRequestBar";
 import { formatUsd } from "@/lib/mock/exchange";
+import { initialPaymentConfigFromRow } from "@/lib/reservations/initialPayment";
 import { ReservationSelectionProvider } from "@/components/residences/reservationSelection";
+import { ResidenceGallery } from "@/components/residences/ResidenceGallery";
 
 export const dynamic = "force-dynamic";
 
@@ -153,6 +154,7 @@ export default async function RealResidenceDetailPage({
     depositUsd: residence.deposit_usd != null ? Number(residence.deposit_usd) : null,
     emptyMonthChargePercent:
       residence.empty_month_charge_percent != null ? Number(residence.empty_month_charge_percent) : null,
+    initialPayment: initialPaymentConfigFromRow(residence),
   };
 
   let profileCompletenessPercent: number | null = null;
@@ -244,50 +246,10 @@ export default async function RealResidenceDetailPage({
   return (
     <ReservationSelectionProvider initialRoomTypeId={preselectedRoomTypeId}>
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
-      {/* Galería — 1 foto grande + grilla de 4 con "+N" */}
-      {photoUrls.length === 0 && (
-        <div className="mt-4 flex h-72 items-center justify-center rounded-card bg-sand-200 sm:h-96">
-          <Icon name="apartment" className="text-6xl text-ink-faint" />
-        </div>
-      )}
-      {photoUrls.length === 1 && (
-        <div className="relative mt-4 h-72 overflow-hidden rounded-card bg-sand-200 sm:h-96">
-          <Image src={photoUrls[0]} alt={residence.name} fill className="object-cover" priority />
-        </div>
-      )}
-      {photoUrls.length > 1 && (
-        <div className="mt-4 grid h-72 grid-cols-2 grid-rows-2 gap-2 overflow-hidden rounded-card sm:h-[420px] sm:grid-cols-4">
-          <div className="relative col-span-2 row-span-2 bg-sand-200">
-            <Image
-              src={photoUrls[0]}
-              alt={residence.name}
-              fill
-              sizes="(max-width: 640px) 100vw, 50vw"
-              className="object-cover"
-              priority
-            />
-          </div>
-          {photoUrls.slice(1, 5).map((url, i) => {
-            const isLastTile = i === 3 && photoUrls.length > 5;
-            return (
-              <div key={url} className="relative hidden bg-sand-200 sm:block">
-                <Image
-                  src={url}
-                  alt={`Foto ${i + 2} de ${residence.name}`}
-                  fill
-                  sizes="25vw"
-                  className="object-cover"
-                />
-                {isLastTile && (
-                  <span className="absolute inset-0 flex items-center justify-center bg-forest-ink/50 text-xl font-bold text-white">
-                    +{photoUrls.length - 5}
-                  </span>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      )}
+      {/* Hero de fotos — se adapta a la cantidad (0 / 1 / 2–4 / 5+), Ciclo 54 (D12) */}
+      <div className="mt-4">
+        <ResidenceGallery photos={photoUrls} name={residence.name} zone={residence.public_area ?? ""} />
+      </div>
 
       <div className="mt-8 grid gap-10 lg:grid-cols-3">
         <div className="space-y-8 lg:col-span-2">

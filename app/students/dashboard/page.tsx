@@ -1,6 +1,5 @@
 import { formatShortName } from "@/lib/format/shortName";
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
@@ -15,6 +14,7 @@ import { FamilyLinkCard } from "@/app/students/profile/FamilyLinkCard";
 import { StartRenewalModal } from "@/app/students/renewals/StartRenewalModal";
 import { ModuleCard } from "@/components/students/ModuleCard";
 import { PhotoCarousel } from "@/components/students/PhotoCarousel";
+import { ResidencePhoto } from "@/components/residences/ResidencePhoto";
 import { getStudentProfileCompleteness } from "@/lib/students/profileCompleteness";
 import { getCatalogResidences } from "@/lib/residences/catalog";
 import { formatDateOnly } from "@/lib/students/contractEnd";
@@ -571,7 +571,7 @@ export default async function StudentDashboardPage() {
           <div className="flex -space-x-2">
             {favoritesPreview.slice(0, 3).map((f) => (
               <div key={f.slug} className="relative size-9 shrink-0 overflow-hidden rounded-full bg-sand-200 ring-2 ring-paper">
-                {f.photo && <Image src={f.photo} alt="" fill sizes="36px" className="object-cover" />}
+                <ResidencePhoto src={f.photo} name={f.name} zone={f.zone} alt="" sizes="36px" variant="thumb" />
               </div>
             ))}
           </div>
@@ -645,7 +645,7 @@ export default async function StudentDashboardPage() {
         <Card className="mt-8 overflow-hidden p-0">
           <div className="grid grid-cols-1 lg:grid-cols-5">
             <div className="relative h-64 lg:col-span-2 lg:h-auto">
-              <PhotoCarousel photos={residencePhotos} alt={residence.name} />
+              <PhotoCarousel photos={residencePhotos} alt={residence.name} zone={residence.public_area ?? undefined} />
             </div>
             <div className="flex flex-col justify-between gap-5 p-6 lg:col-span-3">
               <div>

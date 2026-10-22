@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { assertResidenceAccess } from "@/lib/residences/access";
+import { normalizeInitialPaymentMode } from "@/lib/reservations/initialPayment";
 import { NegotiationForm } from "@/app/residence/[residence_id]/applications/[id]/negotiation/NegotiationForm";
 
 export const metadata: Metadata = { title: "Enviar propuesta de ajuste" };
@@ -43,6 +44,9 @@ export default async function SendNegotiationPage({
     .single();
   if (!original) notFound();
 
+  const { data: residenceRow } = await admin.from("residences").select("*").eq("id", residenceId).maybeSingle();
+  const initialPaymentMode = normalizeInitialPaymentMode(residenceRow?.reservation_initial_payment_mode);
+
   const student = application.student_profiles as unknown as { first_name: string; last_initial: string } | null;
 
   return (
@@ -53,7 +57,7 @@ export default async function SendNegotiationPage({
       <p className="mt-1 text-sm text-ink-soft">
         Formalizá dentro de EstuRed los cambios que hayas acordado con el estudiante por WhatsApp.
       </p>
-      <NegotiationForm applicationId={id} residenceId={residenceId} original={original} />
+      <NegotiationForm applicationId={id} residenceId={residenceId} original={original} initialPaymentMode={initialPaymentMode} />
     </div>
   );
 }

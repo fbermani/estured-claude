@@ -183,6 +183,9 @@ export default async function StudentApplicationDetailPage({
           agreed={CONDITIONS_AGREED_STATUSES.has(application.status)}
           feeRealArs={feePayment ? Number(feePayment.fee_amount_ars) : null}
           feeIsPaid={feePayment?.status === "paid"}
+          residencePaymentDeadlineAt={
+            application.status === "residence_payment_pending" ? (application.payment_deadline_at as string | null) : null
+          }
           residencePaymentReported={
             residencePayment && (residencePayment.amount_reported_usd !== null || residencePayment.amount_reported_ars !== null)
               ? {

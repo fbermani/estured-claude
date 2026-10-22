@@ -1,11 +1,14 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { initialPaymentConfigFromRow, type InitialPaymentConfig } from "@/lib/reservations/initialPayment";
 
 /**
  * Condiciones de reserva a nivel residencia (migración 0025 — antes
  * vivían por tipo de habitación). La matrícula puede ser "equivalente
  * a 1 mes de renta" o un valor manual; depósito y matrícula son
- * excluyentes (constraint en DB).
+ * excluyentes (constraint en DB). El pago inicial para reservar (D7/H08,
+ * migración 0041) es otra condición general: primer mes por defecto o un
+ * monto fijo en USD.
  */
 export type ResidenceConditions = {
   minimumStayMonths: number | null;
@@ -15,6 +18,7 @@ export type ResidenceConditions = {
   enrollmentFeeFrequency: "once" | "annual";
   depositUsd: number | null;
   emptyMonthChargePercent: number | null;
+  initialPayment: InitialPaymentConfig;
 };
 
 export async function getResidenceConditions(
@@ -24,7 +28,7 @@ export async function getResidenceConditions(
   const { data, error } = await admin
     .from("residences")
     .select(
-      "minimum_stay_months, adjustment_policy, enrollment_fee_mode, enrollment_fee_usd, enrollment_fee_frequency, deposit_usd, empty_month_charge_percent",
+      "minimum_stay_months, adjustment_policy, enrollment_fee_mode, enrollment_fee_usd, enrollment_fee_frequency, deposit_usd, empty_month_charge_percent, reservation_initial_payment_mode, reservation_initial_payment_usd",
     )
     .eq("id", residenceId)
     .maybeSingle();
@@ -38,6 +42,7 @@ export async function getResidenceConditions(
     depositUsd: data.deposit_usd != null ? Number(data.deposit_usd) : null,
     emptyMonthChargePercent:
       data.empty_month_charge_percent != null ? Number(data.empty_month_charge_percent) : null,
+    initialPayment: initialPaymentConfigFromRow(data),
   };
 }
 

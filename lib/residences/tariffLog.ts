@@ -3,7 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 const ALERT_THRESHOLD_PERCENT = 15;
 
-export type TariffFieldName = "monthly_price" | "enrollment_fee" | "deposit" | "adjustment_policy";
+export type TariffFieldName = "monthly_price" | "enrollment_fee" | "deposit" | "adjustment_policy" | "initial_payment";
 
 /**
  * Log de auditoría de cambios de tarifa (docs/09 §9, migración 0028) —
@@ -29,7 +29,9 @@ export async function logTariffChange(
   if (oldValue === newValue) return;
   if ((oldValue === null || oldValue === undefined) && (newValue === null || newValue === undefined)) return;
 
-  const isNumeric = params.fieldName !== "adjustment_policy";
+  // `initial_payment` se guarda como texto legible ("Primer mes" / "Monto fijo USD 450", ver
+  // `describeInitialPaymentForLog`): un cambio de modo no tiene variación numérica, así que se audita sin %.
+  const isNumeric = params.fieldName !== "adjustment_policy" && params.fieldName !== "initial_payment";
   let variationPercent: number | null = null;
   let alertTriggered = false;
 
@@ -45,7 +47,7 @@ export async function logTariffChange(
       // variación (no hay base para calcular %).
       alertTriggered = false;
     }
-  } else {
+  } else if (params.fieldName === "adjustment_policy") {
     // Cambio de política de ajuste: docs/09 §9.2 lo marca como alerta
     // incondicional (no es un umbral de %).
     alertTriggered = true;

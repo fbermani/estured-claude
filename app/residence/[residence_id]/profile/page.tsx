@@ -4,6 +4,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { assertResidenceAccess } from "@/lib/residences/access";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
+import { initialPaymentConfigFromRow } from "@/lib/reservations/initialPayment";
 import { ResidenceProfileForm } from "@/app/residence/[residence_id]/profile/ResidenceProfileForm";
 
 export const metadata: Metadata = { title: "Configuración de residencia" };
@@ -62,6 +63,7 @@ export default async function ResidenceProfilePage({
   if (!residence) notFound();
 
   const rate = await getCurrentExchangeRate();
+  const initialPayment = initialPaymentConfigFromRow(residence);
   const sectionMap = Object.fromEntries((sections ?? []).map((s) => [s.section_type, s.content]));
   const photoItems = (photos ?? []).map((p) => ({
     url: admin.storage.from("public-residence-media").getPublicUrl(p.storage_path).data.publicUrl,
@@ -102,6 +104,8 @@ export default async function ResidenceProfilePage({
         conditions: {
           minimumStayMonths: residence.minimum_stay_months ?? "",
           adjustmentPolicy: residence.adjustment_policy ?? "quarterly",
+          initialPaymentMode: initialPayment.mode,
+          initialPaymentUsd: initialPayment.customUsd ?? "",
           enrollmentEnabled: residence.enrollment_fee_mode != null,
           enrollmentFeeMode: residence.enrollment_fee_mode === "manual" ? "manual" : "one_month",
           enrollmentFeeUsd: residence.enrollment_fee_usd != null ? Number(residence.enrollment_fee_usd) : "",

@@ -26,11 +26,14 @@ export type SnapshotRow = {
   fee_base_usd: number | string | null;
   fee_base_ars: number | string | null;
   estimated_estured_fee_ars: number | string | null;
+  /** Pago inicial para reservar a la residencia (D7/H08), congelado al crear el snapshot. */
+  reservation_payment_amount_usd?: number | string | null;
+  reservation_payment_amount_ars?: number | string | null;
 };
 
 /** Columnas que hay que pedir a `application_snapshots` para armar las condiciones. */
 export const SNAPSHOT_COLUMNS =
-  "id, snapshot_type, monthly_price_usd, monthly_price_ars, exchange_rate_ars_per_usd, exchange_rate_date, initial_duration_months, enrollment_fee_usd, enrollment_fee_ars, deposit_usd, deposit_ars, adjustment_policy, fee_base_usd, fee_base_ars, estimated_estured_fee_ars";
+  "id, snapshot_type, monthly_price_usd, monthly_price_ars, exchange_rate_ars_per_usd, exchange_rate_date, initial_duration_months, enrollment_fee_usd, enrollment_fee_ars, deposit_usd, deposit_ars, adjustment_policy, fee_base_usd, fee_base_ars, estimated_estured_fee_ars, reservation_payment_amount_usd, reservation_payment_amount_ars";
 
 export const ADJUSTMENT_POLICY_LABEL: Record<string, string> = {
   monthly: "Ajuste mensual",
@@ -70,12 +73,16 @@ export type AgreedConditions = {
   feeBaseArs: number | null;
   /** Fee estimado del snapshot; el fee real, una vez creado el pago, sale de `estured_fee_payments`. */
   estimatedFeeArs: number | null;
+  /** Pago inicial para reservar (USD/ARS) que se le hace a la residencia; distinto del fee y de la matrícula. */
+  initialPaymentUsd: number | null;
+  initialPaymentArs: number | null;
 };
 
 export function buildAgreedConditions(snapshot: SnapshotRow | null | undefined): AgreedConditions | null {
   if (!snapshot) return null;
   const enrollmentUsd = num(snapshot.enrollment_fee_usd);
   const depositUsd = num(snapshot.deposit_usd);
+  const initialPaymentUsd = num(snapshot.reservation_payment_amount_usd);
   return {
     isFinal: snapshot.snapshot_type === "final",
     monthlyUsd: num(snapshot.monthly_price_usd),
@@ -93,5 +100,7 @@ export function buildAgreedConditions(snapshot: SnapshotRow | null | undefined):
     feeBaseUsd: num(snapshot.fee_base_usd),
     feeBaseArs: num(snapshot.fee_base_ars),
     estimatedFeeArs: num(snapshot.estimated_estured_fee_ars),
+    initialPaymentUsd: initialPaymentUsd && initialPaymentUsd > 0 ? initialPaymentUsd : null,
+    initialPaymentArs: initialPaymentUsd && initialPaymentUsd > 0 ? num(snapshot.reservation_payment_amount_ars) : null,
   };
 }

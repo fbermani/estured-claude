@@ -2,6 +2,8 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { calculateFeeEstimate } from "@/lib/applications/fee";
+import { usdToArs } from "@/lib/mock/exchange";
+import { normalizeInitialPaymentMode, resolveNegotiatedInitialPaymentUsd } from "@/lib/reservations/initialPayment";
 import { createPendingResidencePayment } from "@/lib/applications/residencePayment";
 import { promoteNextQueuedApplication } from "@/lib/applications/roomTypeQueue";
 import { reactivatePausedApplications } from "@/lib/applications/reactivatePausedApplications";
@@ -77,6 +79,22 @@ export async function recordNegotiationResponse(
     const monthlyPriceUsd = proposal.proposed_monthly_price_usd ?? original.monthly_price_usd;
     const durationMonths = proposal.proposed_duration_months ?? original.initial_duration_months;
     const enrollmentFeeUsd = proposal.proposed_enrollment_fee_usd ?? original.enrollment_fee_usd;
+    // D7/H08: pago inicial del snapshot final (regla en `resolveNegotiatedInitialPaymentUsd`; docs/06 §8.1).
+    const { data: residenceRow } = await admin
+      .from("residences")
+      .select("*")
+      .eq("id", application.residence_id)
+      .maybeSingle();
+    const initialPaymentUsd = resolveNegotiatedInitialPaymentUsd({
+      proposedUsd:
+        proposal.proposed_reservation_payment_amount_usd != null
+          ? Number(proposal.proposed_reservation_payment_amount_usd)
+          : null,
+      originalInitialUsd: Number(original.reservation_payment_amount_usd ?? original.monthly_price_usd),
+      originalMonthlyUsd: Number(original.monthly_price_usd),
+      finalMonthlyUsd: Number(monthlyPriceUsd),
+      mode: normalizeInitialPaymentMode(residenceRow?.reservation_initial_payment_mode),
+    });
     const fee = calculateFeeEstimate({
       monthlyPriceUsd: Number(monthlyPriceUsd),
       durationMonths: Number(durationMonths),
@@ -105,9 +123,9 @@ export async function recordNegotiationResponse(
         deposit_usd: proposal.proposed_deposit_usd ?? original.deposit_usd,
         deposit_ars: proposal.proposed_deposit_ars ?? original.deposit_ars,
         deposit_excluded_from_fee: true,
-        reservation_payment_amount_usd:
-          proposal.proposed_reservation_payment_amount_usd ?? original.reservation_payment_amount_usd,
-        reservation_payment_amount_ars: original.reservation_payment_amount_ars,
+        reservation_payment_amount_usd: initialPaymentUsd,
+        // ARS recalculado con la cotización del original, para que nunca quede desfasado del USD.
+        reservation_payment_amount_ars: usdToArs(initialPaymentUsd, Number(original.exchange_rate_ars_per_usd)),
         adjustment_policy: proposal.proposed_adjustment_policy ?? original.adjustment_policy,
         fee_base_usd: fee.feeBaseUsd,
         fee_base_ars: fee.feeBaseArs,

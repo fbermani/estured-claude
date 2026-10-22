@@ -16,6 +16,7 @@ const FIELD_LABELS: Record<string, string> = {
   enrollment_fee: "Matrícula",
   deposit: "Depósito",
   adjustment_policy: "Política de ajuste",
+  initial_payment: "Pago inicial para reservar",
 };
 
 const REVIEW_LABELS: Record<string, { label: string; tone: "amber" | "emerald" | "neutral" | "rose" }> = {
@@ -43,6 +44,7 @@ type LogRow = {
 function formatValue(fieldName: string, value: string | null, currency: string | null) {
   if (value === null) return "—";
   if (fieldName === "adjustment_policy") return value;
+  if (fieldName === "initial_payment") return value;
   const num = Number(value);
   if (Number.isNaN(num)) return value;
   return `${currency ?? ""} ${num.toLocaleString("es-AR")}`.trim();

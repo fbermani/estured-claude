@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Input, Select, Textarea } from "@/components/ui/Input";
 import { ADJUSTMENT_POLICY_OPTIONS } from "@/lib/residences/options";
 import { formatUsd } from "@/lib/mock/exchange";
+import { resolveNegotiatedInitialPaymentUsd, type InitialPaymentMode } from "@/lib/reservations/initialPayment";
 import {
   sendNegotiationProposal,
   type SendProposalState,
@@ -27,10 +28,13 @@ export function NegotiationForm({
   applicationId,
   residenceId,
   original,
+  initialPaymentMode,
 }: {
   applicationId: string;
   residenceId: string;
   original: Original;
+  /** Modo del pago inicial de la residencia (D7/H08): define si sigue a la tarifa negociada. */
+  initialPaymentMode: InitialPaymentMode;
 }) {
   const action = sendNegotiationProposal.bind(null, applicationId);
   const [state, formAction, isPending] = useActionState(action, initialState);
@@ -44,6 +48,20 @@ export function NegotiationForm({
   const [duration, setDuration] = useState<string>("");
   const [reservationAmount, setReservationAmount] = useState<string>("");
   const [specialConditions, setSpecialConditions] = useState<string>("");
+
+  // Mismo cálculo que el snapshot final (`resolveNegotiatedInitialPaymentUsd`): sin pago inicial explícito y en
+  // modo "primer mes", acompaña la tarifa mensual propuesta.
+  const finalInitialPaymentUsd = resolveNegotiatedInitialPaymentUsd({
+    proposedUsd: reservationAmount ? Number(reservationAmount) : null,
+    originalInitialUsd: Number(original.reservation_payment_amount_usd),
+    originalMonthlyUsd: Number(original.monthly_price_usd),
+    finalMonthlyUsd: monthlyPrice ? Number(monthlyPrice) : Number(original.monthly_price_usd),
+    mode: initialPaymentMode,
+  });
+  const finalInitialPaymentLabel =
+    finalInitialPaymentUsd === Number(original.reservation_payment_amount_usd)
+      ? "Sin cambios"
+      : formatUsd(finalInitialPaymentUsd);
 
   const comparisonRows = useMemo(
     () => [
@@ -73,12 +91,12 @@ export function NegotiationForm({
         proposed: startDate || "Sin cambios",
       },
       {
-        label: "Monto para reservar",
+        label: "Pago inicial para reservar",
         original: formatUsd(original.reservation_payment_amount_usd),
-        proposed: reservationAmount ? formatUsd(Number(reservationAmount)) : "Sin cambios",
+        proposed: finalInitialPaymentLabel,
       },
     ],
-    [original, monthlyPrice, enrollmentFee, deposit, duration, startDate, reservationAmount],
+    [original, monthlyPrice, enrollmentFee, deposit, duration, startDate, finalInitialPaymentLabel],
   );
 
   if (!acknowledged) {
@@ -148,10 +166,11 @@ export function NegotiationForm({
             onChange={(e) => setDuration(e.target.value)}
           />
           <Input
-            label="Nuevo monto para reservar (USD)"
+            label="Nuevo pago inicial para reservar (USD)"
             name="proposed_reservation_payment_amount_usd"
             type="number"
             min={0}
+            hint="Lo que el estudiante te paga a vos para reservar. Si no lo cambiás y tu pago inicial es el primer mes, sigue la tarifa mensual que propongas."
             value={reservationAmount}
             onChange={(e) => setReservationAmount(e.target.value)}
           />

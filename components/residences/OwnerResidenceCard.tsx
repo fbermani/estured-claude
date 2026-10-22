@@ -1,9 +1,9 @@
-import Image from "next/image";
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
+import { ResidencePhoto } from "@/components/residences/ResidencePhoto";
 import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 
@@ -60,19 +60,14 @@ export function OwnerResidenceCard({
   return (
     <Card className="flex flex-col overflow-hidden">
       <div className="relative h-36 w-full overflow-hidden bg-sand-200">
-        {photoUrl ? (
-          <Image
-            src={photoUrl}
-            alt={`Foto de ${name}`}
-            fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="object-cover"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center">
-            <Icon name="apartment" className="text-4xl text-sand-400" />
-          </div>
-        )}
+        <ResidencePhoto
+          src={photoUrl}
+          name={name}
+          zone={zone}
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          label="Sin fotos cargadas"
+          labelPosition="bottom"
+        />
         <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
           <Badge tone={statusTone} className="bg-paper/90 shadow-sm backdrop-blur-sm">
             {statusLabel}

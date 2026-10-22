@@ -10,6 +10,8 @@ import { AdminButton } from "@/components/admin/ui/AdminButton";
 import { DocumentAccessButton } from "@/components/admin/ui/DocumentAccessButton";
 import { cmd } from "@/components/admin/ui/tokens";
 import { reviewResidence, type ReviewState } from "@/app/admin/verifications/actions";
+import { ResidencePhotoPlaceholder } from "@/components/residences/ResidencePhoto";
+import { MIN_PUBLISH_PHOTOS, hasEnoughPhotosToPublish } from "@/lib/residences/photos";
 
 interface Verification {
   status: string;
@@ -43,6 +45,7 @@ export function VerificationDetail({
   rulesSummary,
   roomTypes,
   photoUrls,
+  approvedPhotoCount,
   rulesFile,
 }: {
   residence: Residence;
@@ -52,6 +55,8 @@ export function VerificationDetail({
   rulesSummary: string;
   roomTypes: { name: string; priceUsd: number; availableCount: number }[];
   photoUrls: string[];
+  /** Fotos propias aprobadas: las que cuentan para el mínimo de publicación. */
+  approvedPhotoCount: number | null;
   rulesFile: { id: string; filename: string; sizeKb: number } | null;
 }) {
   const action = reviewResidence.bind(null, residence.id);
@@ -80,20 +85,43 @@ export function VerificationDetail({
         )}
       </AdminCard>
 
-      {photoUrls.length > 0 && (
-        <AdminCard className="p-6">
+      <AdminCard className="p-6">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-sm font-bold" style={{ color: cmd.onSurface }}>
             Galería de propiedad ({photoUrls.length})
           </h2>
+          <AdminBadge tone={approvedPhotoCount !== null && hasEnoughPhotosToPublish(approvedPhotoCount) ? "emerald" : "amber"}>
+            {approvedPhotoCount === null
+              ? "No pudimos contar las fotos"
+              : `Fotos propias: ${approvedPhotoCount} de ${MIN_PUBLISH_PHOTOS} necesarias`}
+          </AdminBadge>
+        </div>
+        {photoUrls.length > 0 ? (
           <div className="mt-3 grid grid-cols-3 gap-3">
             {photoUrls.map((url) => (
               <div key={url} className="relative aspect-video overflow-hidden rounded" style={{ border: `1px solid ${cmd.border}` }}>
-                <Image src={url} alt="Foto de la residencia" fill className="object-cover" />
+                <Image src={url} alt="Foto de la residencia" fill sizes="200px" className="object-cover" />
               </div>
             ))}
           </div>
-        </AdminCard>
-      )}
+        ) : (
+          <div className="mt-3 flex items-center gap-4">
+            <div className="relative h-24 w-40 shrink-0 overflow-hidden rounded" style={{ border: `1px solid ${cmd.border}` }}>
+              <ResidencePhotoPlaceholder name={residence.name} zone={residence.public_area ?? undefined} variant="card" />
+            </div>
+            <p className="text-sm" style={{ color: cmd.onSurfaceVariant }}>
+              {approvedPhotoCount === null
+                ? "No pudimos leer las fotos de la residencia. Recargá la página antes de decidir."
+                : `La residencia todavía no cargó fotos. No se puede aprobar hasta que tenga al menos ${MIN_PUBLISH_PHOTOS}.`}
+            </p>
+          </div>
+        )}
+        {photoUrls.length > 0 && approvedPhotoCount !== null && !hasEnoughPhotosToPublish(approvedPhotoCount) && (
+          <p className="mt-3 text-sm" style={{ color: cmd.amber }}>
+            Faltan fotos propias para poder aprobar: hacen falta al menos {MIN_PUBLISH_PHOTOS}.
+          </p>
+        )}
+      </AdminCard>
 
       <div className="grid grid-cols-2 gap-6">
         <AdminCard className="p-6">

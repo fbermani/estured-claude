@@ -280,6 +280,27 @@ await addSections(rioplataId, {
 });
 console.log("✓ Residencia Río de la Plata:", rioplataId);
 
+// D7/H08 (migración 0041): esta residencia demo usa un pago inicial FIJO para reservar (USD 450), así hay una
+// pantalla con monto fijo además del caso por defecto "primer mes" (el resto de las residencias demo). Si la
+// migración 0041 todavía no está aplicada en este proyecto, avisa y sigue (las solicitudes quedan con el primer mes).
+const RIOPLATA_INITIAL_PAYMENT_USD = 450;
+let rioplataCustomInitialPayment = false;
+{
+  const { error } = await admin
+    .from("residences")
+    .update({ reservation_initial_payment_mode: "custom_usd", reservation_initial_payment_usd: RIOPLATA_INITIAL_PAYMENT_USD })
+    .eq("id", rioplataId);
+  if (error) {
+    console.warn(
+      "⚠ No se pudo fijar el pago inicial de Río de la Plata (¿falta aplicar db/migrations/0041_initial_payment.sql?):",
+      error.message,
+    );
+  } else {
+    rioplataCustomInitialPayment = true;
+    console.log(`✓ Río de la Plata: pago inicial fijo USD ${RIOPLATA_INITIAL_PAYMENT_USD}`);
+  }
+}
+
 const almagroId = await createResidence({
   name: "Casa Compartida Almagro",
   slug: "casa-almagro-demo",
@@ -307,6 +328,9 @@ await admin.from("residence_verifications").insert({
 console.log("✓ Casa Compartida Almagro (pendiente de verificación):", almagroId);
 
 // ==== Helper: snapshot + application_requests ====
+function initialPaymentUsd(residenceId, monthlyUsd) {
+  return rioplataCustomInitialPayment && residenceId === rioplataId ? RIOPLATA_INITIAL_PAYMENT_USD : monthlyUsd;
+}
 async function createSnapshot({ residenceId, roomTypeId, usd, ars, months, enrollmentUsd = null }) {
   const fee = feeEstimate(usd, months, enrollmentUsd ?? 0);
   const { data, error } = await admin
@@ -324,8 +348,9 @@ async function createSnapshot({ residenceId, roomTypeId, usd, ars, months, enrol
       enrollment_fee_usd: enrollmentUsd,
       enrollment_fee_ars: enrollmentUsd ? usdToArs(enrollmentUsd) : null,
       deposit_excluded_from_fee: true,
-      reservation_payment_amount_usd: enrollmentUsd ?? usd,
-      reservation_payment_amount_ars: usdToArs(enrollmentUsd ?? usd),
+      // D7/H08: pago inicial a la residencia = primer mes, salvo residencias con monto fijo (ver Río de la Plata).
+      reservation_payment_amount_usd: initialPaymentUsd(residenceId, usd),
+      reservation_payment_amount_ars: usdToArs(initialPaymentUsd(residenceId, usd)),
       adjustment_policy: "quarterly",
       fee_base_usd: fee.feeBaseUsd,
       fee_base_ars: fee.feeBaseArs,

@@ -5,6 +5,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { assertResidenceAccess } from "@/lib/residences/access";
 import { buildWhatsappUrl } from "@/lib/applications/whatsapp";
+import { estimatedFeeUsd } from "@/lib/reservations/initialPayment";
 import { ACTIVE_APPLICATION_STATUSES } from "@/lib/applications/types";
 import { loadReservationInfoByApplication } from "@/lib/applications/loadReservationInfo";
 import { buildApplicantProfile, type ApplicantProfileSource } from "@/lib/applications/applicantProfile";
@@ -56,7 +57,7 @@ export default async function ResidenceApplicationsPage({
   const { data: snapshots } = snapshotIds.length
     ? await admin
         .from("application_snapshots")
-        .select("id, monthly_price_usd, reservation_payment_amount_usd")
+        .select("id, monthly_price_usd, reservation_payment_amount_usd, fee_base_usd")
         .in("id", snapshotIds)
     : { data: [] };
   const snapshotById = new Map((snapshots ?? []).map((s) => [s.id, s]));
@@ -107,6 +108,7 @@ export default async function ResidenceApplicationsPage({
             desiredStartDate: a.desired_start_date,
             durationMonths: a.initial_duration_months,
             reservationAmountUsd: Number(snapshot?.reservation_payment_amount_usd ?? snapshot?.monthly_price_usd ?? 0),
+            feeUsd: snapshot?.fee_base_usd != null ? estimatedFeeUsd(Number(snapshot.fee_base_usd)) : null,
           })
         : null;
 

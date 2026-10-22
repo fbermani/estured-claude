@@ -16,6 +16,8 @@ const original: SnapshotRow = {
   fee_base_usd: "1850.00",
   fee_base_ars: "2738000.00",
   estimated_estured_fee_ars: "137000.00",
+  reservation_payment_amount_usd: "450.00",
+  reservation_payment_amount_ars: "666000.00",
 };
 
 describe("pickSnapshot", () => {
@@ -37,6 +39,22 @@ describe("buildAgreedConditions", () => {
     expect(c.estimatedFeeArs).toBe(137000);
     expect(c.adjustmentPolicyLabel).toBe("Ajuste trimestral");
     expect(c.isFinal).toBe(false);
+  });
+
+  it("expone el pago inicial a la residencia desde el snapshot (D7/H08)", () => {
+    const c = buildAgreedConditions(original)!;
+    expect(c.initialPaymentUsd).toBe(450);
+    expect(c.initialPaymentArs).toBe(666000);
+  });
+
+  it("snapshots sin pago inicial (columna ausente o en 0) no lo muestran", () => {
+    const { reservation_payment_amount_usd: _usd, reservation_payment_amount_ars: _ars, ...legacy } = original;
+    void _usd;
+    void _ars;
+    const c = buildAgreedConditions(legacy)!;
+    expect(c.initialPaymentUsd).toBeNull();
+    expect(c.initialPaymentArs).toBeNull();
+    expect(buildAgreedConditions({ ...original, reservation_payment_amount_usd: 0 })!.initialPaymentUsd).toBeNull();
   });
 
   it("matrícula/depósito en 0 o ausentes quedan en null (no se muestran)", () => {

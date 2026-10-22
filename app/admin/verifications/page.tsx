@@ -40,7 +40,7 @@ export default async function VerificationsPage({
 
   let detail = null;
   if (admin && activeId) {
-    const [{ data: residence }, { data: verification }, { data: sections }, { data: roomTypes }, { data: photos }, { data: rulesFile }] =
+    const [{ data: residence }, { data: verification }, { data: sections }, { data: roomTypes }, { data: photos, error: photosError }, { data: rulesFile }] =
       await Promise.all([
         admin.from("residences").select("*").eq("id", activeId).single(),
         admin.from("residence_verifications").select("*").eq("residence_id", activeId).single(),
@@ -51,7 +51,7 @@ export default async function VerificationsPage({
           .eq("residence_id", activeId),
         admin
           .from("files")
-          .select("storage_path")
+          .select("storage_path, status")
           .eq("related_entity_type", "residences")
           .eq("related_entity_id", activeId)
           .eq("document_type", "residence_photo")
@@ -66,6 +66,8 @@ export default async function VerificationsPage({
           .limit(1)
           .maybeSingle(),
       ]);
+
+    if (photosError) console.error("[admin-verify] no se pudieron leer las fotos de la residencia:", photosError);
 
     if (residence && verification) {
       const sectionMap = Object.fromEntries((sections ?? []).map((s) => [s.section_type, s.content]));
@@ -82,6 +84,9 @@ export default async function VerificationsPage({
             (rt.profile_availability as unknown as { available_count: number | null } | null)
               ?.available_count ?? 0,
         })),
+        // Mismas fotos que cuentan para la regla de publicación (aprobadas): ver lib/residences/photos.ts.
+        // `null` si la lectura falló: el detalle avisa en vez de mostrar "0 de 3".
+        approvedPhotoCount: photosError ? null : (photos ?? []).filter((p) => p.status === "approved").length,
         photoUrls: (photos ?? []).map(
           (p) => admin.storage.from("public-residence-media").getPublicUrl(p.storage_path).data.publicUrl,
         ),

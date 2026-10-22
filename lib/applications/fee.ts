@@ -1,6 +1,6 @@
 import { usdToArs, roundArs } from "@/lib/mock/exchange";
 
-const FEE_PERCENT = 0.05; // docs/00 §12: 5% fijo
+export const FEE_PERCENT = 0.05; // docs/00 §12: 5% fijo
 
 /**
  * Base y estimado del fee EstuRed (docs/00 §12).

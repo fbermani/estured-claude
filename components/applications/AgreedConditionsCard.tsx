@@ -3,6 +3,8 @@ import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import { formatArs, formatUsd, roundArs } from "@/lib/mock/exchange";
 import type { AgreedConditions } from "@/lib/applications/agreedConditions";
 import { formatDateOnly } from "@/lib/dates/formatDateOnly";
+import { InitialPaymentBreakdown } from "@/components/applications/InitialPaymentBreakdown";
+import { estimatedFeeUsd } from "@/lib/reservations/initialPayment";
 
 type Row = { label: string; value: React.ReactNode; hint?: string };
 
@@ -18,6 +20,7 @@ export function AgreedConditionsCard({
   feeRealArs,
   feeIsPaid,
   residencePaymentReported,
+  residencePaymentDeadlineAt,
 }: {
   conditions: AgreedConditions;
   /** La solicitud ya pasó por la aceptación de condiciones (docs/04 §5.2). */
@@ -27,6 +30,8 @@ export function AgreedConditionsCard({
   feeIsPaid?: boolean;
   /** Monto que la residencia informó como recibido (`external_residence_payments`), si lo hay. */
   residencePaymentReported?: { usd: number | null; ars: number | null } | null;
+  /** Fecha límite del pago a la residencia (`payment_deadline_at`); solo en `residence_payment_pending`. */
+  residencePaymentDeadlineAt?: string | null;
 }) {
   const pair = (usd: number | null, ars: number | null) =>
     usd === null ? "—" : (
@@ -35,6 +40,9 @@ export function AgreedConditionsCard({
         {ars !== null && <span className="text-ink-soft"> · ≈ {formatArs(roundArs(ars))}</span>}
       </>
     );
+
+  const feeUsd = conditions.feeBaseUsd !== null ? estimatedFeeUsd(conditions.feeBaseUsd) : null;
+  const feeBreakdownArs = feeRealArs ?? conditions.estimatedFeeArs ?? null;
 
   const rows: Row[] = [
     { label: "Tarifa mensual", value: pair(conditions.monthlyUsd, conditions.monthlyArs) },
@@ -81,6 +89,19 @@ export function AgreedConditionsCard({
             ? "Son las condiciones con las que se envió la solicitud."
             : "Son las condiciones vigentes cuando se envió la solicitud. Si la residencia las cambia después, esta solicitud no se modifica."}
       </p>
+      {conditions.initialPaymentUsd !== null && (
+        <InitialPaymentBreakdown
+          className="mt-4"
+          residenceUsd={conditions.initialPaymentUsd}
+          residenceArs={
+            conditions.initialPaymentArs !== null ? roundArs(conditions.initialPaymentArs) : null
+          }
+          deadlineAt={residencePaymentDeadlineAt}
+          residencePaid={!!residencePaymentReported}
+          feeUsd={feeUsd}
+          feeArs={feeBreakdownArs}
+        />
+      )}
       <dl className="mt-4 space-y-3 text-sm">
         {rows.map((row) => (
           <div key={row.label} className="flex justify-between gap-4 border-b border-sand-200 pb-2 last:border-b-0 last:pb-0">

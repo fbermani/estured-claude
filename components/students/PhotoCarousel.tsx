@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { Icon } from "@/components/ui/Icon";
+import { ResidencePhotoPlaceholder } from "@/components/residences/ResidencePhoto";
 
 /**
  * Carrusel simple para la hero card de "Mi residencia" en el Dashboard
@@ -10,10 +11,15 @@ import { Icon } from "@/components/ui/Icon";
  * `flex` con `translateX` animado y flechas/dots controlando el índice.
  * Loop circular para no dejar botones deshabilitados en los extremos.
  */
-export function PhotoCarousel({ photos, alt }: { photos: string[]; alt: string }) {
+export function PhotoCarousel({ photos, alt, zone }: { photos: string[]; alt: string; zone?: string }) {
   const [index, setIndex] = useState(0);
 
-  if (photos.length === 0) return <div className="h-full w-full bg-sand-200" />;
+  if (photos.length === 0)
+    return (
+      <div className="relative h-full w-full overflow-hidden">
+        <ResidencePhotoPlaceholder name={alt} zone={zone} variant="hero" label="Fotos próximamente" />
+      </div>
+    );
 
   const go = (delta: number) => setIndex((i) => (i + delta + photos.length) % photos.length);
 

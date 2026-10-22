@@ -9,6 +9,7 @@ import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
 import { formatDateOnly } from "@/lib/dates/formatDateOnly";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import { calculateFeeEstimate } from "@/lib/applications/fee";
+import { buildInitialPayment, type InitialPaymentConfig } from "@/lib/reservations/initialPayment";
 import { emptyMonthsChargeUsd, MAX_EMPTY_MONTHS } from "@/lib/applications/emptyMonths";
 import {
   createApplicationRequest,
@@ -32,6 +33,8 @@ interface ResidenceConditionsProp {
   enrollmentFeeFrequency: "once" | "annual";
   depositUsd: number | null;
   emptyMonthChargePercent: number | null;
+  /** Pago inicial para reservar a la residencia (D7/H08): primer mes o monto fijo. */
+  initialPayment: InitialPaymentConfig;
 }
 
 const initialState: CreateApplicationState = { status: "idle" };
@@ -141,6 +144,7 @@ export function ApplyForm({
         })
       : null;
   const feeUsd = fee ? reservationTotalUsd * 0.05 : 0;
+  const initialPayment = buildInitialPayment(conditions.initialPayment, monthlyUsd, arsPerUsd);
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
@@ -276,11 +280,38 @@ export function ApplyForm({
             <span className="font-extrabold text-ink">{formatUsd(reservationTotalUsd)}</span>
           </div>
 
+          {/* D7/H08: qué se paga a la residencia para reservar (pago inicial) — distinto del fee y del total de la estadía. */}
+          <div className="mt-1 rounded-field border border-line bg-paper px-3 py-2.5">
+            <div className="flex items-start justify-between gap-3">
+              <span className="font-semibold text-ink">
+                A la residencia
+                <InfoTip label="Qué es el pago inicial">
+                  {initialPayment.mode === "custom_usd"
+                    ? "Monto fijo que define la residencia para reservar."
+                    : "La residencia pide el primer mes de renta para reservar."}{" "}
+                  Se paga directamente a la residencia, no a EstuRed, antes de la fecha límite: aparece en tu solicitud
+                  cuando la residencia habilita el pago.
+                </InfoTip>
+                <span className="block text-[11px] font-normal text-ink-faint">
+                  Pago inicial para reservar
+                  {initialPayment.mode === "one_month" ? " (primer mes)" : ""}
+                </span>
+              </span>
+              <span className="text-right font-extrabold text-ink">
+                {formatUsd(initialPayment.usd)}
+                <span className="block text-[10px] font-normal text-ink-faint">
+                  ≈ {formatArs(initialPayment.arsDisplay)}
+                  <ExchangeRateNote />
+                </span>
+              </span>
+            </div>
+          </div>
+
           {fee && (
-            <div className="mt-1 rounded-field border border-orange/40 bg-warning-bg px-3 py-2.5">
+            <div className="mt-2 rounded-field border border-orange/40 bg-warning-bg px-3 py-2.5">
               <div className="flex items-center justify-between">
                 <span className="font-semibold text-warning-fg">
-                  Fee EstuRed (5%)
+                  A EstuRed: fee (5%)
                   <InfoTip label="Cómo funciona el fee">
                     Único cobro de EstuRed: 5% del total de la reserva. Se abona únicamente si la residencia
                     confirma tu reserva — enviar la solicitud no cuesta nada.

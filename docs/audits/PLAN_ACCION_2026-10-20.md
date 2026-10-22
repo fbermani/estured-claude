@@ -64,7 +64,7 @@ Regla de paralelismo: dos agentes que escriben nunca tocan los mismos archivos a
 | Fuente única de disponibilidad y copy unificado con `StatusTag` | H03 | `constructor` (+ `base-datos` si cambia el modelo) | D3, D8 | L |
 | ✅ Control de visibilidad de comunidad + consentimiento + menores (Ciclo 49) | H04 | `constructor` → `seguridad` | D4 | M |
 | ✅ `contact_established` con vencimiento y plazo visible (Ciclo 49) | H06 | `base-datos` + `depurador` | D6 | M |
-| Pago inicial a la residencia | H08 | `base-datos` → `constructor` | D7 | M |
+| ✅ Pago inicial a la residencia: campo en el perfil + desglose "A la residencia / A EstuRed" en ficha, solicitud, WhatsApp y fee (Ciclo 53; migración 0041 pendiente de aplicar) | H08 | `base-datos` → `constructor` | D7 | M |
 | Frontera freemium en sidebar, "Tu plan" y landing | H09 | `interfaz` | D8 | M |
 | Ficha pública con tarifas y condiciones | H10 | `interfaz` | D7 | M |
 | ✅ FAQ asistida mínima: pregunta libre del visitante + panel de respuesta (Ciclo 50; migración 0039 pendiente de aplicar) | H12 | `constructor` | D9 | L |

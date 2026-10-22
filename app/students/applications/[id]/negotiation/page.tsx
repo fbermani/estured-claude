@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/Card";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import { formatUsd } from "@/lib/mock/exchange";
 import { calculateFeeEstimate } from "@/lib/applications/fee";
+import { normalizeInitialPaymentMode, resolveNegotiatedInitialPaymentUsd } from "@/lib/reservations/initialPayment";
 import { NegotiationResponse } from "@/app/students/applications/[id]/negotiation/NegotiationResponse";
 
 export const metadata: Metadata = { title: "Propuesta de ajuste recibida" };
@@ -35,7 +36,7 @@ export default async function NegotiationResponsePage({
 
   const { data: application } = await admin
     .from("application_requests")
-    .select("id, status, student_profile_id, snapshot_original_id, residences(name)")
+    .select("id, status, student_profile_id, snapshot_original_id, residence_id, residences(name)")
     .eq("id", id)
     .maybeSingle();
   if (!application || application.student_profile_id !== studentProfile?.id) notFound();
@@ -72,6 +73,19 @@ export default async function NegotiationResponsePage({
 
   const residence = application.residences as unknown as { name: string } | null;
 
+  // D7/H08: mismo cálculo que el snapshot final al aceptar (el pago inicial puede seguir la tarifa negociada).
+  const { data: residenceRow } = await admin.from("residences").select("*").eq("id", application.residence_id).maybeSingle();
+  const finalInitialPaymentUsd = resolveNegotiatedInitialPaymentUsd({
+    proposedUsd:
+      proposal.proposed_reservation_payment_amount_usd != null
+        ? Number(proposal.proposed_reservation_payment_amount_usd)
+        : null,
+    originalInitialUsd: Number(original.reservation_payment_amount_usd ?? original.monthly_price_usd),
+    originalMonthlyUsd: Number(original.monthly_price_usd),
+    finalMonthlyUsd: Number(finalMonthlyPrice),
+    mode: normalizeInitialPaymentMode(residenceRow?.reservation_initial_payment_mode),
+  });
+
   const rows = [
     row(
       "Tarifa mensual",
@@ -99,10 +113,10 @@ export default async function NegotiationResponsePage({
       proposal.proposed_start_date ? formatDateOnly(proposal.proposed_start_date) : null,
     ),
     row(
-      "Monto para reservar",
+      "Pago inicial para reservar",
       formatUsd(original.reservation_payment_amount_usd),
-      proposal.proposed_reservation_payment_amount_usd
-        ? formatUsd(proposal.proposed_reservation_payment_amount_usd)
+      finalInitialPaymentUsd !== Number(original.reservation_payment_amount_usd)
+        ? formatUsd(finalInitialPaymentUsd)
         : null,
     ),
     row("Fee EstuRed estimado", "—", `≈ ${fee.estimatedFeeArs.toLocaleString("es-AR")} ARS (recalculado)`),

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import { ResidencePhoto } from "@/components/residences/ResidencePhoto";
 import { Button } from "@/components/ui/Button";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Reveal } from "@/components/ui/Reveal";
@@ -148,25 +148,20 @@ export default async function ForStudentsPage() {
               hero de home, pero como foto editorial, no card de catálogo). */}
           <Reveal delay={2} className="relative mx-auto aspect-[4/5] w-full max-w-sm lg:max-w-none">
             <div className="relative h-full w-full overflow-hidden rounded-card bg-sand-200 shadow-float">
-              {heroPhoto ? (
-                <Image
-                  src={heroPhoto}
-                  alt={heroResidence ? `Residentes en ${heroResidence.name}` : "Residencia verificada"}
-                  fill
-                  sizes="(max-width: 1024px) 90vw, 45vw"
-                  className="object-cover"
-                  priority
-                />
-              ) : (
-                <div className="flex h-full items-center justify-center">
-                  <Icon name="apartment" className="text-6xl text-ink-faint" />
-                </div>
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-forest-ink/60 via-transparent to-transparent" />
+              <ResidencePhoto
+                src={heroPhoto}
+                name={heroResidence?.name ?? "Residencia verificada"}
+                zone={heroResidence?.zone}
+                alt={heroResidence ? `Residentes en ${heroResidence.name}` : "Residencia verificada"}
+                sizes="(max-width: 1024px) 90vw, 45vw"
+                variant="hero"
+                priority
+              />
+              {heroPhoto && <div className="absolute inset-0 bg-gradient-to-t from-forest-ink/60 via-transparent to-transparent" />}
               {heroResidence && (
-                <div className="absolute inset-x-0 bottom-0 p-5">
-                  <p className="text-sm font-bold text-white">{heroResidence.name}</p>
-                  <p className="text-xs text-white/80">{heroResidence.zone}, {heroResidence.city}</p>
+                <div className={`absolute inset-x-0 p-5 ${heroPhoto ? "bottom-0" : "top-0"}`}>
+                  <p className={`text-sm font-bold ${heroPhoto ? "text-white" : "text-ink"}`}>{heroResidence.name}</p>
+                  <p className={`text-xs ${heroPhoto ? "text-white/80" : "text-ink-soft"}`}>{heroResidence.zone}, {heroResidence.city}</p>
                 </div>
               )}
             </div>

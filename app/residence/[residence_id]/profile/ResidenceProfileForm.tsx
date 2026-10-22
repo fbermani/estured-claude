@@ -11,6 +11,8 @@ import { Input, Select, Textarea } from "@/components/ui/Input";
 import { Icon } from "@/components/ui/Icon";
 import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
+import { ResidencePhotoPlaceholder } from "@/components/residences/ResidencePhoto";
+import { MIN_PUBLISH_PHOTOS, hasEnoughPhotosToPublish } from "@/lib/residences/photos";
 import {
   SERVICE_OPTIONS,
   COMMON_AREA_OPTIONS,
@@ -42,6 +44,9 @@ interface RoomTypeDraft {
 interface ConditionsDraft {
   minimumStayMonths: number | "";
   adjustmentPolicy: string;
+  /** Pago inicial para reservar (D7/H08, migración 0041): primer mes o monto fijo en USD. */
+  initialPaymentMode: "one_month" | "custom_usd";
+  initialPaymentUsd: number | "";
   enrollmentEnabled: boolean;
   enrollmentFeeMode: "one_month" | "manual";
   enrollmentFeeUsd: number | "";
@@ -269,6 +274,8 @@ export function ResidenceProfileForm({
             JSON.stringify({
               minimumStayMonths: conditions.minimumStayMonths,
               adjustmentPolicy: conditions.adjustmentPolicy,
+              initialPaymentMode: conditions.initialPaymentMode,
+              initialPaymentUsd: conditions.initialPaymentMode === "custom_usd" ? conditions.initialPaymentUsd : null,
               enrollmentFeeMode: conditions.enrollmentEnabled ? conditions.enrollmentFeeMode : null,
               enrollmentFeeUsd: conditions.enrollmentFeeUsd,
               enrollmentFeeFrequency: conditions.enrollmentFeeFrequency,
@@ -475,6 +482,11 @@ export function ResidenceProfileForm({
           {/* Galería de fotos */}
           <Card className="p-6">
             <h2 className="text-lg font-bold text-ink">Galería de Fotos</h2>
+            {initial.status !== "verified_active" && (
+              <PhotosRequirementNotice
+                count={initial.photos.filter((p) => !p.pending).length + newPhotoCount}
+              />
+            )}
             {initial.photos.length > 0 && (
               <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4">
                 {initial.photos.map((photo) => (
@@ -679,6 +691,56 @@ export function ResidenceProfileForm({
               </Select>
             </div>
 
+            {/* Pago inicial para reservar (D7 / H08, migración 0041) */}
+            <div className="mt-5 rounded-card border border-sand-200 p-4">
+              <p className="font-semibold text-ink">Pago inicial para reservar</p>
+              <p className="text-xs text-ink-soft">
+                Lo que el estudiante te paga a vos, directamente, para reservar. Se muestra igual en tu ficha, en la
+                solicitud y en el mensaje de WhatsApp. El fee de EstuRed va aparte y no depende de este monto.
+              </p>
+              <div className="mt-3 flex flex-wrap items-center gap-4">
+                <label className="flex items-center gap-1.5 text-sm text-ink-soft">
+                  <input
+                    type="radio"
+                    name="initial_payment_mode"
+                    checked={conditions.initialPaymentMode === "one_month"}
+                    onChange={() => updateConditions({ initialPaymentMode: "one_month" })}
+                    className="h-4 w-4 accent-forest"
+                  />
+                  Primer mes de renta
+                </label>
+                <label className="flex items-center gap-1.5 text-sm text-ink-soft">
+                  <input
+                    type="radio"
+                    name="initial_payment_mode"
+                    checked={conditions.initialPaymentMode === "custom_usd"}
+                    onChange={() => updateConditions({ initialPaymentMode: "custom_usd" })}
+                    className="h-4 w-4 accent-forest"
+                  />
+                  Monto fijo
+                </label>
+                {conditions.initialPaymentMode === "custom_usd" && (
+                  <div className="w-36">
+                    <Input
+                      label="Monto (USD)"
+                      type="number"
+                      min={1}
+                      step="0.01"
+                      value={conditions.initialPaymentUsd}
+                      onChange={(e) =>
+                        updateConditions({ initialPaymentUsd: e.target.value ? Number(e.target.value) : "" })
+                      }
+                    />
+                  </div>
+                )}
+              </div>
+              <p className="mt-2 text-xs text-ink-faint">
+                {conditions.initialPaymentMode === "one_month"
+                  ? "Es la tarifa mensual del tipo de habitación que elija el estudiante. Es el valor por defecto."
+                  : "Es el mismo monto para todos los tipos de habitación. Las solicitudes ya enviadas conservan el monto con el que se crearon."}
+              </p>
+            </div>
+
             {/* Matrícula */}
             <div className="mt-5 rounded-card border border-sand-200 p-4">
               <div className="flex items-center justify-between gap-4">
@@ -867,13 +929,16 @@ export function ResidenceProfileForm({
               Vista previa
             </p>
             <div className="relative h-32 bg-sand-200">
-              {(initial.photos.find((p) => !p.pending) ?? initial.photos[0]) && (
+              {(initial.photos.find((p) => !p.pending) ?? initial.photos[0]) ? (
                 <Image
                   src={(initial.photos.find((p) => !p.pending) ?? initial.photos[0]).url}
                   alt=""
                   fill
+                  sizes="320px"
                   className="object-cover"
                 />
+              ) : (
+                <ResidencePhotoPlaceholder name={initial.name} zone={initial.zone} variant="card" label="Foto próximamente" />
               )}
             </div>
             <div className="p-4">
@@ -938,5 +1003,46 @@ function SubmitButton({
     <Button type="submit" name="intent" value={intent} variant={variant} disabled={pending}>
       {isThisPending ? pendingLabel : idleLabel}
     </Button>
+  );
+}
+
+/**
+ * Aviso de la regla de publicación (Ciclo 54, D12): hacen falta al menos 3
+ * fotos propias. `count` suma las ya cargadas más las elegidas en el
+ * selector de esta sesión. Solo se muestra mientras la residencia no está
+ * publicada.
+ */
+function PhotosRequirementNotice({ count }: { count: number }) {
+  const enough = hasEnoughPhotosToPublish(count);
+  const shown = Math.min(count, MIN_PUBLISH_PHOTOS);
+  return (
+    <div
+      role="status"
+      className={`mt-3 rounded-field border-[1.5px] px-4 py-3 ${
+        enough ? "border-forest/30 bg-forest-tint" : "border-warning-fg/30 bg-warning-bg"
+      }`}
+    >
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className={`flex items-center gap-2 text-sm font-bold ${enough ? "text-forest-700" : "text-warning-fg"}`}>
+          <Icon name={enough ? "check_circle" : "photo_camera"} className="text-lg" />
+          {enough ? "Ya tenés las fotos necesarias para publicar" : `Para publicar necesitás al menos ${MIN_PUBLISH_PHOTOS} fotos`}
+        </p>
+        <span className={`text-sm font-bold ${enough ? "text-forest-700" : "text-warning-fg"}`}>
+          {shown} de {MIN_PUBLISH_PHOTOS}
+        </span>
+      </div>
+      <div className="mt-2 flex gap-1.5" aria-hidden>
+        {Array.from({ length: MIN_PUBLISH_PHOTOS }, (_, i) => (
+          <span key={i} className={`h-1.5 flex-1 rounded-full ${i < shown ? (enough ? "bg-forest" : "bg-warning-fg") : "bg-line-2"}`} />
+        ))}
+      </div>
+      {!enough && (
+        <p className="mt-2 text-xs leading-relaxed text-ink-soft">
+          Tienen que ser fotos propias (luz natural, ambientes comunes y una por tipo de habitación). Las que elegís
+          ahora cuentan recién al guardar, y para publicar el equipo de EstuRed considera solo las fotos ya cargadas y
+          aprobadas. Mientras tanto, tu residencia se muestra con una ilustración.
+        </p>
+      )}
+    </div>
   );
 }

@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import type { Residence } from "@/types/domain";
 import { Card } from "@/components/ui/Card";
@@ -6,6 +5,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
 import { StatusTag } from "@/components/ui/StatusTag";
 import { TrustBadge } from "@/components/residences/TrustBadge";
+import { ResidencePhoto } from "@/components/residences/ResidencePhoto";
 import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 
@@ -35,15 +35,14 @@ export function ResidenceCard({
     <Card className="group flex flex-col overflow-hidden">
       <Link href={href} className="flex flex-1 flex-col" aria-label={`Ver ${residence.name}`}>
         <div className="relative h-48 w-full overflow-hidden bg-sand-200">
-          {residence.photos[0] && (
-            <Image
-              src={residence.photos[0]}
-              alt={`Foto de ${residence.name}`}
-              fill
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-            />
-          )}
+          <ResidencePhoto
+            src={residence.photos[0]}
+            name={residence.name}
+            zone={residence.zone}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            label="Foto próximamente"
+            imageClassName="transition-transform duration-500 group-hover:scale-[1.03]"
+          />
           <div className="absolute left-3 top-3">
             <TrustBadge status={residence.verificationStatus} />
           </div>
