@@ -358,7 +358,7 @@ Reglas:
 | `origin_city` | text | Ciudad de origen |
 | `origin_country` | text null | País de origen |
 | `career` | text | Carrera visible si el usuario lo permite |
-| `study_institution_private` | text | Dónde va a estudiar, privado |
+| `study_institution_private` | text | Dónde va a estudiar. Privado frente a la comunidad pública; visible para la residencia a la que se solicita (y para menores se mantiene la exclusión, ver `docs/10` §7.5) |
 | `academic_objective` | text | Objetivo académico declarado, obligatorio para comprobante |
 | `bio` | text null | Breve descripción |
 | `habits` | jsonb | Hábitos según configuración |

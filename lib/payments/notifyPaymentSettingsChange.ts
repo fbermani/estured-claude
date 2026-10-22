@@ -31,7 +31,7 @@ export function changedPaymentSettingsFields(
  */
 export async function notifySuperadminsOfPaymentSettingsChange(
   admin: SupabaseClient,
-  params: { settingsId: string | null; editorEmail: string; changedFields: string[]; isFirstLoad: boolean },
+  params: { settingsId: string | null; changedFields: string[]; isFirstLoad: boolean },
 ): Promise<void> {
   try {
     const { data: roleRows } = await admin
@@ -58,7 +58,7 @@ export async function notifySuperadminsOfPaymentSettingsChange(
         createNotification(admin, {
           userId: u.id,
           title: "Cambiaron los datos de cobro del fee",
-          body: `${params.editorEmail}: ${what}. Si no lo esperabas, revisalo en Pagos → Datos de cobro.`,
+          body: `Los datos de cobro ${what}. Si no lo esperabas, revisalo en Pagos → Datos de cobro.`,
           relatedEntityType: "payment_settings",
           relatedEntityId: params.settingsId ?? undefined,
         }),

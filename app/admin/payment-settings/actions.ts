@@ -113,7 +113,6 @@ export async function savePaymentSettings(
 
   await notifySuperadminsOfPaymentSettingsChange(admin, {
     settingsId: savedId,
-    editorEmail: sessionUser.email,
     isFirstLoad: !existing,
     changedFields: changedPaymentSettingsFields(
       existing

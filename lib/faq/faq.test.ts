@@ -6,6 +6,7 @@ import {
   answerResidenceQuestion,
   hideResidenceQuestion,
   hideResidenceQuestionByAdmin,
+  restoreResidenceQuestionByAdmin,
   restoreResidenceQuestion,
 } from "@/lib/faq/moderateResidenceQuestion";
 import { getPublicAnsweredQuestions } from "@/lib/faq/getPublicAnsweredQuestions";
@@ -149,6 +150,18 @@ describe.skipIf(!hasCreds)("residence_faq_questions (integración)", () => {
     ).toBe(true);
     expect(await getPublicAnsweredQuestions(admin, residenceId)).toEqual([]);
     expect((await restoreResidenceQuestion(admin, { actorUserId: ownerId, residenceId, questionId })).ok).toBe(false);
+
+    // EstuRed sí puede restaurarla, y queda auditado.
+    expect(
+      (await restoreResidenceQuestionByAdmin(admin, { actorUserId: strangerId, actorRole: "admin", questionId })).ok,
+    ).toBe(true);
+    expect(await getPublicAnsweredQuestions(admin, residenceId)).toHaveLength(1);
+    const { data: auditAfter } = await admin
+      .from("audit_logs")
+      .select("action")
+      .eq("entity_type", "residence_faq_questions")
+      .eq("entity_id", questionId);
+    expect(auditAfter?.map((a) => a.action)).toContain("residence_faq_restored_by_admin");
 
     await admin.from("audit_logs").delete().eq("entity_type", "residence_faq_questions").eq("entity_id", questionId);
   });

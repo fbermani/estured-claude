@@ -39,3 +39,21 @@ export function isMinorByBirthDate(birthDate: string | null | undefined, now: Da
   if (today.m < bm || (today.m === bm && today.d < bd)) age -= 1;
   return age < ADULT_AGE;
 }
+
+/**
+ * Edad en años cumplidos al día de hoy (calendario de Buenos Aires), o `null`
+ * si la fecha falta o es inválida. Misma convención que `isMinorByBirthDate`.
+ */
+export function ageByBirthDate(birthDate: string | null | undefined, now: Date = new Date()): number | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(birthDate ?? "");
+  if (!match) return null;
+  const by = Number(match[1]);
+  const bm = Number(match[2]);
+  const bd = Number(match[3]);
+  if (bm < 1 || bm > 12 || bd < 1 || bd > 31) return null;
+  const today = buenosAiresToday(now);
+  if (![today.y, today.m, today.d].every(Number.isFinite)) return null;
+  let age = today.y - by;
+  if (today.m < bm || (today.m === bm && today.d < bd)) age -= 1;
+  return age >= 0 && age < 120 ? age : null;
+}

@@ -1,5 +1,4 @@
 import { effectiveContactDeadline } from "@/lib/applications/paymentDeadline";
-import { formatShortName } from "@/lib/format/shortName";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
@@ -8,6 +7,7 @@ import { assertResidenceAccess } from "@/lib/residences/access";
 import { buildWhatsappUrl } from "@/lib/applications/whatsapp";
 import { ACTIVE_APPLICATION_STATUSES } from "@/lib/applications/types";
 import { loadReservationInfoByApplication } from "@/lib/applications/loadReservationInfo";
+import { buildApplicantProfile, type ApplicantProfileSource } from "@/lib/applications/applicantProfile";
 import { ApplicationsInbox, type FullApplication } from "@/app/residence/[residence_id]/applications/ApplicationsInbox";
 
 export const metadata: Metadata = { title: "Solicitudes recibidas" };
@@ -37,7 +37,7 @@ export default async function ResidenceApplicationsPage({
     admin
       .from("application_requests")
       .select(
-        "id, status, contact_target, desired_start_date, initial_duration_months, academic_objective, rejection_reason_code, family_link_id, created_by_user_id, snapshot_original_id, snapshot_final_id, room_type_id, expires_at, payment_deadline_at, contact_established_at, created_at, room_types(name), student_profiles(first_name, last_initial, nationality, origin_city)",
+        "id, status, contact_target, desired_start_date, initial_duration_months, academic_objective, rejection_reason_code, family_link_id, created_by_user_id, snapshot_original_id, snapshot_final_id, room_type_id, expires_at, payment_deadline_at, contact_established_at, created_at, room_types(name), student_profiles(first_name, last_initial, birth_date, display_age, is_minor, nationality, origin_city, origin_country, career, study_institution_private, bio, habits, interests, student_visibility_settings(is_individual_profile_visible, show_habits_to_registered, show_interests_to_registered))",
       )
       .eq("residence_id", residenceId)
       .order("created_at", { ascending: false }),
@@ -67,7 +67,9 @@ export default async function ResidenceApplicationsPage({
     rows.filter((a) => a.status === "converted_to_reservation").map((a) => a.id),
   );
 
-  const familyLinkIds = [...new Set(rows.filter((a) => a.contact_target === "family_member" && a.family_link_id).map((a) => a.family_link_id!))];
+  // El teléfono solo se consulta para solicitudes con contacto establecido (docs/10): antes no se lee ni se serializa.
+  const contactRows = rows.filter((a) => a.status === "contact_established");
+  const familyLinkIds = [...new Set(contactRows.filter((a) => a.contact_target === "family_member" && a.family_link_id).map((a) => a.family_link_id!))];
   const { data: familyLinks } = familyLinkIds.length
     ? await admin.from("family_links").select("id, family_members(phone)").in("id", familyLinkIds)
     : { data: [] };
@@ -75,17 +77,15 @@ export default async function ResidenceApplicationsPage({
     (familyLinks ?? []).map((l) => [l.id, (l.family_members as unknown as { phone: string | null } | null)?.phone ?? null]),
   );
 
-  const userIds = [...new Set(rows.filter((a) => a.contact_target !== "family_member").map((a) => a.created_by_user_id))];
+  const userIds = [...new Set(contactRows.filter((a) => a.contact_target !== "family_member").map((a) => a.created_by_user_id))];
   const { data: users } = userIds.length ? await admin.from("users").select("id, phone").in("id", userIds) : { data: [] };
   const phoneByUserId = new Map((users ?? []).map((u) => [u.id, u.phone]));
 
   const fullApplications: FullApplication[] = rows.map((a) => {
-    const student = a.student_profiles as unknown as {
-      first_name: string;
-      last_initial: string;
-      nationality: string;
-      origin_city: string;
-    } | null;
+    // Perfil crudo: SOLO se usa acá, en el servidor. Al cliente viaja `applicant`, ya filtrado
+    // por privacidad (menor / interruptores de visibilidad) y sin apellido, nacimiento ni contacto.
+    const student = a.student_profiles as unknown as ApplicantProfileSource | null;
+    const applicant = buildApplicantProfile(student, { contactTarget: a.contact_target });
     const roomType = a.room_types as unknown as { name: string } | null;
     // H24: la tarifa es "acordada" solo cuando hay snapshot final; antes es la solicitada.
     const snapshot = snapshotById.get(a.snapshot_final_id ?? a.snapshot_original_id) ?? null;
@@ -97,10 +97,11 @@ export default async function ResidenceApplicationsPage({
         : (phoneByUserId.get(a.created_by_user_id) ?? null);
 
     const whatsappUrl =
-      contactPhone && student
+      // El teléfono sale recién al establecer contacto (docs/10): es el único estado donde la UI muestra el botón.
+      a.status === "contact_established" && contactPhone && student
         ? buildWhatsappUrl({
             phone: contactPhone,
-            studentName: `${formatShortName(student.first_name, student.last_initial)}`,
+            studentName: applicant.displayName,
             residenceName: residence?.name ?? "",
             roomTypeName: roomType?.name ?? "",
             desiredStartDate: a.desired_start_date,
@@ -118,9 +119,8 @@ export default async function ResidenceApplicationsPage({
       academicObjective: a.academic_objective,
       roomTypeId: a.room_type_id,
       roomTypeName: roomType?.name ?? null,
-      studentName: student ? `${formatShortName(student.first_name, student.last_initial)}` : "Estudiante",
-      studentNationality: student?.nationality ?? null,
-      studentOriginCity: student?.origin_city ?? null,
+      studentName: applicant.displayName,
+      applicant,
       expiresAt: a.expires_at,
       paymentDeadlineAt:
         a.status === "contact_established"

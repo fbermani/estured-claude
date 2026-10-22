@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isMinorByBirthDate } from "@/lib/students/isMinorByBirthDate";
+import { ageByBirthDate, isMinorByBirthDate } from "@/lib/students/isMinorByBirthDate";
 
 // Instantes UTC; Buenos Aires = UTC-3.
 const at = (iso: string) => new Date(iso);
@@ -46,5 +46,18 @@ describe("isMinorByBirthDate (H04)", () => {
   it("adulto claro y menor claro", () => {
     expect(isMinorByBirthDate("1990-01-01", at("2026-10-21T12:00:00Z"))).toBe(false);
     expect(isMinorByBirthDate("2012-01-01", at("2026-10-21T12:00:00Z"))).toBe(true);
+  });
+});
+
+describe("ageByBirthDate", () => {
+  const now = new Date("2026-10-22T15:00:00Z");
+  it("cuenta años cumplidos según el calendario de Buenos Aires", () => {
+    expect(ageByBirthDate("2002-10-22", now)).toBe(24);
+    expect(ageByBirthDate("2002-10-23", now)).toBe(23);
+  });
+  it("devuelve null con fechas faltantes, inválidas o futuras", () => {
+    expect(ageByBirthDate(null, now)).toBeNull();
+    expect(ageByBirthDate("basura", now)).toBeNull();
+    expect(ageByBirthDate("2030-01-01", now)).toBeNull();
   });
 });

@@ -4,7 +4,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { cmd } from "@/components/admin/ui/tokens";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
-import { HideFaqButton } from "@/app/admin/faq/HideFaqButton";
+import { HideFaqButton, RestoreFaqButton } from "@/app/admin/faq/HideFaqButton";
 import { requireAdmin } from "@/lib/auth/requireAdmin";
 
 export const metadata: Metadata = { title: "Preguntas de fichas" };
@@ -14,29 +14,39 @@ interface Row {
   id: string;
   question: string;
   answer: string | null;
-  status: "pending" | "answered";
+  status: "pending" | "answered" | "hidden";
   created_at: string;
   residences: { name: string } | null;
 }
 
-/** Moderación mínima de la FAQ simple (D9): lista las preguntas visibles/pendientes y permite ocultarlas. */
+/** Moderación mínima de la FAQ simple (D9): lista las preguntas (visibles, pendientes y ocultas); permite ocultar y restaurar. */
 export default async function AdminFaqPage() {
   await requireAdmin();
   const admin = getSupabaseAdmin();
   let rows: Row[] = [];
   let failed = false;
   if (admin) {
-    const { data, error } = await admin
-      .from("residence_faq_questions")
-      .select("id, question, answer, status, created_at, residences(name)")
-      .in("status", ["pending", "answered"])
-      .order("created_at", { ascending: false })
-      .limit(100);
-    if (error) {
-      console.error("[admin/faq] query failed:", error);
+    // Dos consultas: las ocultas van al final y no desplazan a las pendientes ni a las respondidas.
+    const select = "id, question, answer, status, created_at, residences(name)";
+    const [visible, hidden] = await Promise.all([
+      admin
+        .from("residence_faq_questions")
+        .select(select)
+        .in("status", ["pending", "answered"])
+        .order("created_at", { ascending: false })
+        .limit(100),
+      admin
+        .from("residence_faq_questions")
+        .select(select)
+        .eq("status", "hidden")
+        .order("created_at", { ascending: false })
+        .limit(50),
+    ]);
+    if (visible.error || hidden.error) {
+      console.error("[admin/faq] query failed:", visible.error ?? hidden.error);
       failed = true;
     }
-    rows = (data as unknown as Row[]) ?? [];
+    rows = [...((visible.data as unknown as Row[]) ?? []), ...((hidden.data as unknown as Row[]) ?? [])];
   }
 
   return (
@@ -45,8 +55,8 @@ export default async function AdminFaqPage() {
         Preguntas de fichas
       </h1>
       <p className="text-xs" style={{ color: cmd.outline }}>
-        Preguntas libres de visitantes y respuestas de las residencias (últimas 100). Ocultá lo que incluya datos de
-        contacto, enlaces para contactar por fuera de EstuRed o contenido inapropiado.
+        Preguntas libres de visitantes y respuestas de las residencias (últimas 100; las ocultas al final). Ocultá lo que incluya datos de
+        contacto, enlaces para contactar por fuera de EstuRed o contenido inapropiado. Las ocultas se pueden restaurar.
       </p>
       {failed ? (
         <p className="mt-6 text-sm" style={{ color: cmd.rose }}>
@@ -64,8 +74,8 @@ export default async function AdminFaqPage() {
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <AdminBadge tone={r.status === "pending" ? "amber" : "emerald"}>
-                        {r.status === "pending" ? "Sin responder" : "Respondida"}
+                      <AdminBadge tone={r.status === "hidden" ? "neutral" : r.status === "pending" ? "amber" : "emerald"}>
+                        {r.status === "hidden" ? "Oculta" : r.status === "pending" ? "Sin responder" : "Respondida"}
                       </AdminBadge>
                       <span className="text-xs" style={{ color: cmd.outline }}>
                         {r.residences?.name} · {formatDate(r.created_at)}
@@ -83,7 +93,11 @@ export default async function AdminFaqPage() {
                       </p>
                     )}
                   </div>
-                  <HideFaqButton questionId={r.id} />
+                  {r.status === "hidden" ? (
+                    <RestoreFaqButton questionId={r.id} />
+                  ) : (
+                    <HideFaqButton questionId={r.id} />
+                  )}
                 </div>
               </AdminCard>
             </li>

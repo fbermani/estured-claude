@@ -581,7 +581,7 @@ Formato: **ID · Título** — severidad · [Obj/Op] · ruta · agente · esfuer
 |---|---|---|---|---|
 | 23 | Ficha de residencia | D17–D20, H10 | L | disenador (mockup + SPEC) → interfaz |
 | 24 | Comprobante (pantalla y PDF) | D30, H07 | M | disenador → interfaz (+ constructor para el PDF) |
-| 25 | Inbox de solicitudes de residencia | D32 | M | disenador → interfaz (+ constructor si se exponen campos del perfil) |
+| 25 | Inbox de solicitudes de residencia | D32 | M | disenador → interfaz (+ constructor si se exponen campos del perfil) — **Ciclo 51 (2026-10-22): hecho el bloque "Quién solicita" (perfil académico + intereses, menores restringidos); quedan filtros, orden por vencimiento, completitud/documentos y la nota de "Establecer contacto"** |
 | 26 | Inicio del estudiante y del familiar por etapa | D24, D29, H16 | L | disenador → constructor + interfaz |
 | 27 | Mis solicitudes (solicitud activa más historial) | D26 | M | disenador → interfaz |
 | 28 | Landing y landings de rol | D13 | L | disenador → interfaz |
@@ -593,7 +593,7 @@ Formato: **ID · Título** — severidad · [Obj/Op] · ruta · agente · esfuer
    - si se exige un mínimo de 3 fotos propias para publicar;
    - si se encarga una sesión de fotos o ilustración para las landings;
    - descartar las imágenes de terceros de `design-references/Fotos Residencias/`.
-3. **Qué datos del perfil ve la residencia en el inbox (D32)** y en qué paso: "Sobre mí", intereses y hábitos, completitud, documentos. Afecta docs/10 y a menores.
+3. **Qué datos del perfil ve la residencia en el inbox (D32)** y en qué paso: "Sobre mí", intereses y hábitos, completitud, documentos. Afecta docs/10 y a menores. — **Resuelta (2026-10-22, Ciclo 51; ver `docs/10` §7.5): perfil académico + intereses/hábitos compartidos, sin documentos ni contacto antes del contacto; menores restringidos.**
 4. **El placeholder de ubicación (D19):** mapa estático real con zona aproximada (proveedor de tiles, costo) o versión abstracta compacta.
 5. **Cáscara del owner (D31):** confirmar que "Todas mis residencias" pasa a vivir dentro del panel con selector, sin footer de marketing.
 

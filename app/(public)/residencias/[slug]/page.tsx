@@ -15,6 +15,7 @@ import { CommunityBrowser } from "@/components/residences/CommunityBrowser";
 import { AmenityGrid } from "@/components/residences/AmenityGrid";
 import { RulesHighlight } from "@/components/residences/RulesHighlight";
 import { FaqAccordion } from "@/components/residences/FaqAccordion";
+import { assertResidenceAccess } from "@/lib/residences/access";
 import { getPublicAnsweredQuestions } from "@/lib/faq/getPublicAnsweredQuestions";
 import { AskQuestionForm } from "@/app/(public)/residencias/[slug]/AskQuestionForm";
 import { CompactMap } from "@/components/residences/CompactMap";
@@ -135,6 +136,9 @@ export default async function RealResidenceDetailPage({
 
   const adminClient = getSupabaseAdmin();
   const answeredQuestions = adminClient ? await getPublicAnsweredQuestions(adminClient, residence.id) : [];
+  // El equipo de ESTA residencia no se pregunta a sí mismo: en vez del formulario ve un aviso (responde desde su panel).
+  const isOwnResidenceTeam =
+    !!sessionUser && !!adminClient && (await assertResidenceAccess(adminClient, sessionUser.id, residence.id));
   const faqItems = [...staticFaqItems, ...answeredQuestions.map((q) => ({ ...q, fromVisitor: true }))];
   const community = adminClient
     ? await getCommunityVisibility(adminClient, residence.id, sessionUser ? "registered" : "guest")
@@ -397,7 +401,17 @@ export default async function RealResidenceDetailPage({
               </div>
             )}
             <div className="mt-4">
-              <AskQuestionForm residenceId={residence.id} signedIn={!!sessionUser} />
+              {isOwnResidenceTeam ? (
+                <p className="rounded-card border-[1.5px] border-line bg-paper px-5 py-4 text-sm text-ink-soft">
+                  Las preguntas que reciba esta residencia las ves y respondés desde{" "}
+                  <Link href={`/residence/${residence.id}/faq`} className="font-bold text-forest-700 hover:underline">
+                    tu panel
+                  </Link>
+                  .
+                </p>
+              ) : (
+                <AskQuestionForm residenceId={residence.id} signedIn={!!sessionUser} />
+              )}
             </div>
           </section>
 

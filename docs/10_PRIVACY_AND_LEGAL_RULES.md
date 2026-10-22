@@ -261,6 +261,8 @@ Nombre + inicial; foto/avatar; edad; nacionalidad/bandera; carrera; ciudad de or
 
 Datos obligatorios de solicitud; perfil del estudiante; datos de convivencia/hábitos; documentos autorizados; familiar vinculado si corresponde (incluyendo si es el destinatario del contacto por haber iniciado la solicitud); comprobantes vinculados.
 
+> **Decisión del dueño (2026-10-22, Ciclo 51 — inbox de la residencia).** En el inbox y el detalle de la solicitud, **antes de establecer contacto**, la residencia ve el perfil académico y de intereses: nombre + inicial, edad, carrera, universidad, ciudad/país de origen, fechas deseadas y objetivo académico; y, **solo si el estudiante los eligió compartir** (interruptor maestro `is_individual_profile_visible` + `show_habits_to_registered` / `show_interests_to_registered`), la presentación, los hábitos y los intereses. **Nunca** se muestran apellido completo, fecha de nacimiento, DNI, documentos, teléfono ni email antes del contacto. **Menores:** solo nombre + inicial, edad, carrera, fechas y objetivo (sin universidad, origen, presentación, hábitos ni intereses), con aviso de que la solicitud la gestiona su familiar vinculado (§9.5). Implementación: `lib/applications/applicantProfile.ts`.
+
 ### 7.6 Cambios de visibilidad
 
 El estudiante puede cambiar visibilidad desde su perfil. Los cambios deben aplicarse hacia adelante; el sistema debe guardar auditoría de cambios relevantes; si el estudiante oculta su perfil, la residencia debe seguir viendo datos necesarios para operaciones activas; los documentos compartidos en una solicitud ya enviada pueden requerir conservación por trazabilidad, pero no deben quedar disponibles fuera de contexto.

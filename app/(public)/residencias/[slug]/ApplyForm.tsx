@@ -361,6 +361,9 @@ export function ApplyForm({
         {isPending ? "Enviando…" : "Enviar solicitud de reserva"}
       </Button>
       <p className="text-center text-xs text-ink-faint">
+        La residencia verá tu carrera y universidad.
+      </p>
+      <p className="text-center text-xs text-ink-faint">
         La residencia tiene 48 horas para responder. Si no lo hace, la solicitud vence automáticamente.
       </p>
     </form>

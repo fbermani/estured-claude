@@ -27,7 +27,7 @@ async function loadQuestion(
   const hasAccess = await assertResidenceAccess(admin, params.actorUserId, params.residenceId);
   if (!hasAccess) return { ok: false, error: "No tenés acceso a esta residencia." };
 
-  const [{ data: row }, { data: membership }] = await Promise.all([
+  const [{ data: row, error: rowError }, { data: membership, error: membershipError }] = await Promise.all([
     admin
       .from("residence_faq_questions")
       .select("id, residence_id, status, answer, asked_by_user_id, hidden_by_user_id")
@@ -41,6 +41,10 @@ async function loadQuestion(
       .eq("user_id", params.actorUserId)
       .maybeSingle(),
   ]);
+  if (rowError || membershipError) {
+    console.error("[faq] load failed:", (rowError ?? membershipError)?.code, (rowError ?? membershipError)?.message);
+    return { ok: false, error: "No pudimos cargar la pregunta. Intentá de nuevo." };
+  }
   if (!row) return NOT_FOUND;
   return {
     ok: true,
@@ -146,12 +150,16 @@ export async function restoreResidenceQuestion(
 
   // Si la ocultó el equipo de EstuRed (no alguien de esta residencia), la residencia no puede revertirlo.
   if (row.hidden_by_user_id && row.hidden_by_user_id !== params.actorUserId) {
-    const { data: hiddenByMember } = await admin
+    const { data: hiddenByMember, error: memberError } = await admin
       .from("residence_users")
       .select("id")
       .eq("residence_id", params.residenceId)
       .eq("user_id", row.hidden_by_user_id)
       .maybeSingle();
+    if (memberError) {
+      console.error("[faq] restore member lookup failed:", memberError.code, memberError.message);
+      return { ok: false, error: "No pudimos restaurar la pregunta. Intentá de nuevo." };
+    }
     if (!hiddenByMember) {
       return {
         ok: false,
@@ -195,11 +203,15 @@ export async function hideResidenceQuestionByAdmin(
   admin: SupabaseClient,
   params: { actorUserId: string; actorRole: string; questionId: string; reason?: string },
 ): Promise<ModerateResult> {
-  const { data: row } = await admin
+  const { data: row, error: loadError } = await admin
     .from("residence_faq_questions")
     .select("id, status")
     .eq("id", params.questionId)
     .maybeSingle();
+  if (loadError) {
+    console.error("[faq] admin load failed:", loadError.code, loadError.message);
+    return { ok: false, error: "No pudimos cargar la pregunta. Intentá de nuevo." };
+  }
   if (!row) return NOT_FOUND;
   if (row.status === "hidden") return { ok: true };
 
@@ -224,6 +236,54 @@ export async function hideResidenceQuestionByAdmin(
     oldValue: { status: row.status },
     newValue: { status: "hidden" },
     reasonText: params.reason?.trim() || undefined,
+    source: "admin",
+  });
+  return { ok: true };
+}
+
+/**
+ * Restaura una pregunta oculta (admin/superadmin). A diferencia de
+ * `restoreResidenceQuestion`, no depende de quién la ocultó: el equipo de
+ * EstuRed puede revertir tanto lo que ocultó él como lo que ocultó una
+ * residencia. El rol se valida en el server action; queda auditado.
+ */
+export async function restoreResidenceQuestionByAdmin(
+  admin: SupabaseClient,
+  params: { actorUserId: string; actorRole: string; questionId: string },
+): Promise<ModerateResult> {
+  const { data: row, error: loadError } = await admin
+    .from("residence_faq_questions")
+    .select("id, status, answer")
+    .eq("id", params.questionId)
+    .maybeSingle();
+  if (loadError) {
+    console.error("[faq] admin load failed:", loadError.code, loadError.message);
+    return { ok: false, error: "No pudimos cargar la pregunta. Intentá de nuevo." };
+  }
+  if (!row) return NOT_FOUND;
+  if (row.status !== "hidden") return { ok: true };
+
+  const target = row.answer ? "answered" : "pending";
+  const { data: updated, error } = await admin
+    .from("residence_faq_questions")
+    .update({ status: target, hidden_by_user_id: null, hidden_at: null })
+    .eq("id", row.id)
+    .eq("status", "hidden")
+    .select("id");
+  if (error) {
+    console.error("[faq] admin restore failed:", error.code, error.message);
+    return { ok: false, error: "No pudimos restaurar la pregunta. Intentá de nuevo." };
+  }
+  if (!updated?.length) return STALE;
+
+  await createAuditLog(admin, {
+    actorUserId: params.actorUserId,
+    actorRole: params.actorRole,
+    action: "residence_faq_restored_by_admin",
+    entityType: "residence_faq_questions",
+    entityId: row.id,
+    oldValue: { status: "hidden" },
+    newValue: { status: target },
     source: "admin",
   });
   return { ok: true };

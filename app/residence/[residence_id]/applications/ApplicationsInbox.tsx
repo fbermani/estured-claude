@@ -11,6 +11,8 @@ import { formatUsd } from "@/lib/mock/exchange";
 import { ApplicationActions } from "@/app/residence/[residence_id]/applications/[id]/ApplicationActions";
 import { getVisibleStatus, type ReservationStatusInput } from "@/lib/applications/visibleStatus";
 import { describePaymentDeadline } from "@/lib/applications/paymentDeadline";
+import type { ApplicantProfileView } from "@/lib/applications/applicantProfile";
+import { ApplicantAvatar, ApplicantProfileBlock } from "@/app/residence/[residence_id]/applications/ApplicantProfileBlock";
 
 export type FullApplication = {
   id: string;
@@ -22,8 +24,8 @@ export type FullApplication = {
   roomTypeId: string | null;
   roomTypeName: string | null;
   studentName: string;
-  studentNationality: string | null;
-  studentOriginCity: string | null;
+  /** Perfil visible para la residencia, ya filtrado en el servidor (menor / interruptores de visibilidad). */
+  applicant: ApplicantProfileView;
   expiresAt: string | null;
   paymentDeadlineAt: string | null;
   createdAt: string;
@@ -149,6 +151,9 @@ function ListRow({
   // H06: en "Contacto establecido" el plazo se ve siempre (no solo cuando falta poco): si vence, la solicitud se cierra.
   const contactDeadline =
     app.status === "contact_established" && !urgent ? describePaymentDeadline(app.paymentDeadlineAt) : null;
+  const basics = [app.applicant.age !== null ? `${app.applicant.age} años` : null, app.applicant.career]
+    .filter(Boolean)
+    .join(" · ");
   return (
     <button
       type="button"
@@ -161,25 +166,31 @@ function ListRow({
             : "border-line bg-paper hover:border-forest/40"
       }`}
     >
-      <div className="flex items-center justify-between gap-2">
-        <p className="truncate text-sm font-bold text-ink">{app.studentName}</p>
-        <Badge tone={visible.tone}>{visible.label}</Badge>
+      <div className="flex items-start gap-2.5">
+        <ApplicantAvatar initial={app.applicant.avatarInitial} className="h-9 w-9 text-sm" />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-2">
+            <p className="truncate text-sm font-bold text-ink">{app.studentName}</p>
+            <Badge tone={visible.tone}>{visible.label}</Badge>
+          </div>
+          {basics && <p className="mt-0.5 truncate text-xs text-ink-soft">{basics}</p>}
+          <p className="mt-0.5 truncate text-xs text-ink-faint">
+            {app.roomTypeName ?? "Cualquier tipo"} · Ingreso {formatDateOnly(app.desiredStartDate)}
+          </p>
+          {urgency && (
+            <p className="mt-1 flex items-center gap-1 text-xs font-bold text-danger-fg">
+              <Icon name="schedule" className="text-sm" />
+              {urgency}
+            </p>
+          )}
+          {contactDeadline && (
+            <p className="mt-1 flex items-center gap-1 text-xs font-semibold text-ink-soft">
+              <Icon name="schedule" className="text-sm" />
+              {contactDeadline.relative}
+            </p>
+          )}
+        </div>
       </div>
-      <p className="mt-0.5 truncate text-xs text-ink-faint">
-        {app.roomTypeName ?? "Cualquier tipo"} · Ingreso {formatDateOnly(app.desiredStartDate)}
-      </p>
-      {urgency && (
-        <p className="mt-1 flex items-center gap-1 text-xs font-bold text-danger-fg">
-          <Icon name="schedule" className="text-sm" />
-          {urgency}
-        </p>
-      )}
-      {contactDeadline && (
-        <p className="mt-1 flex items-center gap-1 text-xs font-semibold text-ink-soft">
-          <Icon name="schedule" className="text-sm" />
-          {contactDeadline.relative}
-        </p>
-      )}
     </button>
   );
 }
@@ -289,13 +300,13 @@ function ApplicationDetail({ residenceId, app }: { residenceId: string; app: Ful
     <Card className="p-6 sm:p-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-ink">{app.studentName}</h2>
-          <p className="text-sm text-ink-soft">
-            {[app.studentNationality, app.studentOriginCity, app.roomTypeName].filter(Boolean).join(" · ")}
-          </p>
+          <h2 className="text-xl font-bold text-ink">Solicitud de {app.studentName}</h2>
+          <p className="text-sm text-ink-soft">{app.roomTypeName ?? "Cualquier tipo de habitación"}</p>
         </div>
         <Badge tone={visible.tone}>{visible.label}</Badge>
       </div>
+
+      <ApplicantProfileBlock applicant={app.applicant} beforeContact={NEW_STATUSES.includes(app.status)} />
 
       <dl className="mt-6 grid gap-3 text-sm sm:grid-cols-2">
         <div className="flex justify-between border-b border-sand-200 pb-2 sm:col-span-1">

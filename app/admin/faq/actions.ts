@@ -2,8 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { hideResidenceQuestionByAdmin } from "@/lib/faq/moderateResidenceQuestion";
-import { getAdminSession } from "@/lib/auth/requireAdmin";
+import { hideResidenceQuestionByAdmin, restoreResidenceQuestionByAdmin } from "@/lib/faq/moderateResidenceQuestion";
+import { adminActorRole, getAdminSession } from "@/lib/auth/requireAdmin";
 
 export type AdminFaqActionState = { status: "idle" | "error" | "saved"; message?: string };
 
@@ -22,9 +22,34 @@ export async function hideFaqQuestionAsAdminAction(
 
   const result = await hideResidenceQuestionByAdmin(admin, {
     actorUserId: sessionUser.id,
-    actorRole: sessionUser.primaryRole,
+    actorRole: adminActorRole(sessionUser),
     questionId,
     reason: String(formData.get("reason") ?? "").slice(0, 300),
+  });
+  if (!result.ok) return { status: "error", message: result.error };
+
+  revalidatePath("/admin/faq");
+  revalidatePath("/residencias/[slug]", "page");
+  return { status: "saved" };
+}
+
+/** Restaurar una pregunta oculta (por EstuRed o por una residencia). Solo admin/superadmin; auditado. */
+export async function restoreFaqQuestionAsAdminAction(
+  questionId: string,
+  _prev: AdminFaqActionState,
+  _formData: FormData,
+): Promise<AdminFaqActionState> {
+  const sessionUser = await getAdminSession();
+  if (!sessionUser) {
+    return { status: "error", message: "Tu sesión expiró." };
+  }
+  const admin = getSupabaseAdmin();
+  if (!admin) return { status: "error", message: "No disponible en este momento." };
+
+  const result = await restoreResidenceQuestionByAdmin(admin, {
+    actorUserId: sessionUser.id,
+    actorRole: adminActorRole(sessionUser),
+    questionId,
   });
   if (!result.ok) return { status: "error", message: result.error };
 

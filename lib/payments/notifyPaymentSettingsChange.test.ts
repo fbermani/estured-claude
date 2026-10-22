@@ -54,7 +54,6 @@ describe("notifySuperadminsOfPaymentSettingsChange", () => {
   it("notifica in-app con enlace por tipo y manda email a cada superadmin activo (no a los bloqueados)", async () => {
     await notifySuperadminsOfPaymentSettingsChange(fakeAdmin(), {
       settingsId: "ps-1",
-      editorEmail: "super@example.com",
       changedFields: ["alias", "cbu"],
       isFirstLoad: false,
     });
@@ -70,20 +69,23 @@ describe("notifySuperadminsOfPaymentSettingsChange", () => {
   it("el email no lleva CBU, alias, titular ni quién editó; solo qué campos cambiaron", async () => {
     await notifySuperadminsOfPaymentSettingsChange(fakeAdmin(), {
       settingsId: "ps-1",
-      editorEmail: "super@example.com",
       changedFields: ["alias", "cbu"],
       isFirstLoad: false,
     });
     const { html, subject } = sendEmail.mock.calls[0][0];
     expect(html).toContain("alias, CBU");
     expect(html + subject).not.toContain("super@example.com");
+    // La notificación in-app tampoco lleva quién editó: solo qué campos cambiaron.
+    const body = createNotification.mock.calls[0][1].body as string;
+    expect(body).toContain("alias, CBU");
+    expect(body).not.toContain("@");
     expect(html).not.toMatch(/\d{10,}/);
   });
 
   it("nunca lanza aunque falle la lectura", async () => {
     const broken = { from: () => { throw new Error("boom"); } } as unknown as SupabaseClient;
     await expect(
-      notifySuperadminsOfPaymentSettingsChange(broken, { settingsId: null, editorEmail: "x@y.z", changedFields: [], isFirstLoad: true }),
+      notifySuperadminsOfPaymentSettingsChange(broken, { settingsId: null, changedFields: [], isFirstLoad: true }),
     ).resolves.toBeUndefined();
   });
 });
