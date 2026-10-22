@@ -67,6 +67,7 @@ Formato: **ID · Título** — severidad · [Obj/Op] · ruta · agente · esfuer
 ### A. Fundamentos del sistema (transversal)
 
 #### D01 · La tipografía de marca no se aplica en ninguna pantalla
+- **RESUELTO (Ciclo 52, 2026-10-22):** variables de `next/font` movidas a `<html>` en `app/layout.tsx`; verificado con `getComputedStyle` (h1 = Bricolage, body/p = Hanken). Sin overflow; solo el H1 de la ficha pasa a 2 líneas en 375 px.
 - **Severidad:** crítico · **[Obj]** · **Rutas:** todas · **Agente:** `interfaz` · **Esfuerzo:** S
 - **Evidencia:**
   - En `/` y en `/login`, `getComputedStyle(h1).fontFamily` y el `fontFamily` de `body` devuelven `ui-sans-serif, system-ui, sans-serif…`.
@@ -80,6 +81,7 @@ Formato: **ID · Título** — severidad · [Obj/Op] · ruta · agente · esfuer
 - **Recomendación:** mover `${hanken.variable} ${bricolage.variable}` al `className` de `<html>` en `app/layout.tsx`. La alternativa es declarar el bloque como `@theme inline`, pero eso toca `globals.css`, que es un archivo sensible. Después del fix hay que revisar los tamaños y el interlineado de los H1 y H2, porque Bricolage es más ancha que la fuente del sistema, y volver a capturar las pantallas clave.
 
 #### D02 · El CTA naranja no pasa contraste
+- **RESUELTO (Ciclo 52), decisión del dueño:** se mantiene texto blanco y se oscurece el fondo: `--color-orange` #ef8551 → #c0521d (blanco 2,58 → 4,70:1) y `--color-orange-600` (hover) → #a9461a (5,87:1). El naranja original queda como `--color-orange-light` solo para fondos oscuros (eyebrow del roadmap en `forest-ink`, 4,91:1).
 - **Severidad:** alto · **[Obj]** · **Rutas:** `/for-residences` (hero y CTA), toda variante `Button variant="secondary"` · **Agente:** `disenador` → `interfaz` · **Esfuerzo:** S
 - **Evidencia:** blanco sobre `orange` #ef8551 da **2,58:1**; sobre `orange-600` (hover) da 3,28:1. No llega ni al 3:1 de texto grande. [cap: para-residencias-chips-tapan-boton_1280]
 - **Recomendación:** hay dos opciones y la elige el dueño (afecta la marca).
@@ -87,6 +89,7 @@ Formato: **ID · Título** — severidad · [Obj/Op] · ruta · agente · esfuer
   - **(b)** Fondo `orange-700` #c4561f con texto blanco, que da 4,47:1 y solo vale para botones `lg` (≥18,66 px en bold).
 
 #### D03 · El texto terciario (`muted`/`ink-faint`) no pasa AA y se usa en textos que importan
+- **RESUELTO (Ciclo 52):** `--color-muted` y `--color-ink-faint` → #5f6c65 (crema 3,35 → 5,10; crema-2 3,07 → 4,68). Sincronizado `cmd.outline` en `components/admin/ui/tokens.ts`.
 - **Severidad:** alto · **[Obj]** · **Rutas:** todas · **Agente:** `interfaz` (token) · **Esfuerzo:** S
 - **Evidencia:**
   - `#7c8a82` da 3,35:1 sobre `cream`, 3,61:1 sobre `paper` y 3,07:1 sobre `cream-2`.
@@ -96,11 +99,13 @@ Formato: **ID · Título** — severidad · [Obj/Op] · ruta · agente · esfuer
 - **Recomendación:** oscurecer `--color-muted` y `--color-ink-faint` a **#5f6c65**, que da 5,1:1 sobre `cream` y 4,68:1 sobre `cream-2`. Prohibir texto por debajo de 12 px. Es un cambio en `globals.css` (archivo sensible): lo decide el dueño.
 
 #### D04 · Badges y avisos naranja o butter con texto de bajo contraste
+- **RESUELTO (Ciclo 52):** `--color-orange-700` → #9a4118 (sobre `orange-tint` 3,75 → 5,61), `--color-butter-fg` → #7a5f0c (3,51 → 5,22), `--color-sky-fg` → #2a6a91 (4,48 → 4,81). Sin tokens `orange-800` nuevos: se oscureció el existente. `cmd.amber`/`navActiveFg` sincronizados.
 - **Severidad:** medio · **[Obj]** · **Rutas:** `Badge tone="amber"`, banners naranja (menor de edad, "Necesitan tu acción"), `butter-fg` · **Agente:** `interfaz` · **Esfuerzo:** S
 - **Evidencia:** `orange-700` sobre `orange-tint` da 3,75:1, y en badges `text-xs`. `butter-fg` sobre `butter` da 3,51:1. [cap: inicio-estudiante-menor-launcher_1280]
 - **Recomendación:** un token de texto `orange-800` ≈ #a3461a (5,11:1 sobre el tint) y `butter-fg` ≈ #7a5f0c (5,22:1). Los dos son tokens nuevos y se justifican solo por accesibilidad.
 
 #### D05 · Los campos de formulario casi no se ven
+- **RESUELTO (Ciclo 52):** token nuevo `--color-field-border` #8f836c (3,46 sobre crema, 3,73 sobre blanco, 3,17 sobre crema-2) aplicado en `Input`/`Textarea`/`Select` y en los inputs sueltos de residentes, habitaciones, buscador y renovación. Pendiente: checkboxes/radios y el engrosado del foco (D09).
 - **Severidad:** alto · **[Obj]** · **Rutas:** `/register/student`, `/login`, perfiles, disponibilidad · **Agente:** `interfaz` · **Esfuerzo:** S
 - **Evidencia:** el borde `line-2` #ded4c2 sobre `cream` da 1,36:1. WCAG 1.4.11 pide 3:1 para el contorno que identifica un control. Además el input usa fondo `cream` dentro de una card `paper`, así que el contraste lo hace casi solo el tono del relleno. [cap: registro-estudiante-formulario_1280]
 - **Recomendación:** un borde de input propio (`--color-field-border` ≈ #9b8f78, 3,18:1 sobre `paper`), fondo `paper` dentro de las cards y foco con `border-forest` más un anillo `forest-tint` de 3 px. El foco ya existe en `Input.tsx`; conviene engrosarlo.

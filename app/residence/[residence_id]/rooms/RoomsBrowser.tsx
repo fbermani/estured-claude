@@ -117,7 +117,7 @@ function RenameForm({ residenceId, room }: { residenceId: string; room: RoomData
           defaultValue={room.label}
           maxLength={40}
           required
-          className="w-full rounded-field border-[1.5px] border-line bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none"
+          className="w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none"
         />
         <button
           type="submit"
@@ -267,7 +267,7 @@ function BedRow({
             name="resident_stay_id"
             required
             defaultValue=""
-            className="w-full rounded-field border-[1.5px] border-line bg-paper px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none"
+            className="w-full rounded-field border-[1.5px] border-field-border bg-paper px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none"
           >
             <option value="" disabled>
               Elegí un residente sin cama…
@@ -299,7 +299,7 @@ function BedRow({
           <input
             name="reason"
             placeholder="Razón (ej: mantenimiento aire acondicionado)"
-            className="w-full rounded-field border-[1.5px] border-line bg-paper px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none"
+            className="w-full rounded-field border-[1.5px] border-field-border bg-paper px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none"
           />
           <button
             type="submit"
@@ -591,7 +591,7 @@ export function RoomsBrowser({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar habitación o residente…"
-            className="w-full rounded-field border-[1.5px] border-line bg-cream py-2 pl-10 pr-3 text-sm text-ink placeholder:text-ink-faint focus:border-forest focus:outline-none"
+            className="w-full rounded-field border-[1.5px] border-field-border bg-cream py-2 pl-10 pr-3 text-sm text-ink placeholder:text-ink-faint focus:border-forest focus:outline-none"
           />
         </div>
         <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-ink-soft">

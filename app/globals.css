@@ -6,10 +6,11 @@
   /* ---- FRESH: neutros cálidos ---- */
   --color-ink: #1d2722; /* texto principal */
   --color-ink-soft: #44524b; /* texto secundario / body */
-  --color-ink-faint: #7c8a82; /* texto terciario, alias de --color-muted */
-  --color-muted: #7c8a82;
+  --color-ink-faint: #5f6c65; /* texto terciario, alias de --color-muted (AA: 4.68:1 sobre cream-2) */
+  --color-muted: #5f6c65;
   --color-line: #e8e0d2; /* bordes por defecto */
   --color-line-2: #ded4c2; /* bordes marcados (inputs, dividers fuertes) */
+  --color-field-border: #8f836c; /* borde de controles de formulario (WCAG 1.4.11, >=3:1 sobre cream, cream-2 y paper) */
   --color-cream: #fbf6ec; /* fondo base de página */
   --color-cream-2: #f4ecdc; /* fondo secundario, hover de filas */
   --color-paper: #ffffff; /* superficie de card/modal/tabla */
@@ -22,9 +23,10 @@
   --color-forest-ink: #0c3a2c; /* fondos oscuros (footer, toasts) */
   --color-forest-tint: #e2f1ea; /* fondo tenue chips/tiles forest */
 
-  --color-orange: #ef8551; /* acento, urgencia, foco de atención */
-  --color-orange-600: #e06d37; /* hover de orange */
-  --color-orange-700: #c4561f; /* texto/ícono orange sobre fondo claro */
+  --color-orange: #c0521d; /* acento, urgencia, foco de atención; texto blanco encima: 4.70:1 (AA) */
+  --color-orange-light: #ef8551; /* naranja original: solo sobre fondos oscuros (eyebrows en forest-ink) */
+  --color-orange-600: #a9461a; /* hover de orange */
+  --color-orange-700: #9a4118; /* texto/ícono orange sobre fondo claro (AA sobre orange-tint) */
   --color-orange-tint: #fde7da; /* fondo tenue chips/tiles orange */
 
   --color-gold: #e9b84b; /* uso puntual, nunca como color base */
@@ -32,12 +34,12 @@
   /* ---- FRESH: pasteles de categoría (tiles/tags decorativos) ---- */
   --color-peach: #fde1d2;
   --color-butter: #fbeec3;
-  --color-butter-fg: #9a7a14;
+  --color-butter-fg: #7a5f0c;
   --color-mint: #d7efe2;
   --color-lilac: #e7e2f8;
   --color-lilac-fg: #5b4ea8;
   --color-sky: #d9ebf5;
-  --color-sky-fg: #2d6f97;
+  --color-sky-fg: #2a6a91;
 
   /* ---- FRESH: extendida (panel admin) ---- */
   --color-red: #d15c4f; /* riesgo, expulsión, error */

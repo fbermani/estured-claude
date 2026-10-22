@@ -129,7 +129,7 @@ function NotesSection({
           placeholder="Escribí una nota sobre el residente…"
           required
           maxLength={2000}
-          className="w-full resize-none rounded-field border-[1.5px] border-line bg-cream px-3 py-2 text-sm text-ink placeholder:text-ink-faint focus:border-forest focus:outline-none"
+          className="w-full resize-none rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink placeholder:text-ink-faint focus:border-forest focus:outline-none"
         />
         <div className="mt-2 flex items-center justify-between gap-2">
           <div className="flex gap-3">
@@ -217,7 +217,7 @@ function DetailPanel({
           type="date"
           name="expected_end_date"
           defaultValue={row.expectedEndDate ?? ""}
-          className="w-full rounded-field border-[1.5px] border-line bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none"
+          className="w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none"
         />
         <label className="mb-1 mt-3 block text-xs font-bold text-ink" htmlFor={`rate-${row.stayId}`}>
           Tarifa del residente (USD)
@@ -236,7 +236,7 @@ function DetailPanel({
                 ? `${row.baseRateUsd} (tarifa del tipo)`
                 : "Sin tarifa"
           }
-          className="w-full rounded-field border-[1.5px] border-line bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none"
+          className="w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none"
         />
         <p className="mt-1 text-[11px] text-ink-faint">
           {row.agreedRateUsd != null
@@ -281,7 +281,7 @@ function DetailPanel({
             name="bed_id"
             required
             defaultValue=""
-            className="w-full rounded-field border-[1.5px] border-line bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none"
+            className="w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none"
           >
             <option value="" disabled>
               {freeBeds.length > 0 ? "Cambiar a…" : "Sin camas libres"}
@@ -497,7 +497,7 @@ export function ResidentsBrowser({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar por nombre, email o habitación…"
-            className="w-full rounded-field border-[1.5px] border-line bg-cream py-2.5 pl-10 pr-3 text-sm text-ink placeholder:text-ink-faint focus:border-forest focus:outline-none"
+            className="w-full rounded-field border-[1.5px] border-field-border bg-cream py-2.5 pl-10 pr-3 text-sm text-ink placeholder:text-ink-faint focus:border-forest focus:outline-none"
           />
         </div>
         <div className="mt-3 flex flex-wrap gap-2">

@@ -15,15 +15,15 @@ export const cmd = {
   // Ítem activo de nav = --orange-tint/--orange-700 (fresh-style.md §"Panel admin"),
   // no forest — es la única excepción documentada a "forest = acción principal".
   onPrimaryContainer: "#fde7da", // --color-orange-tint
-  navActiveFg: "#c4561f", // --color-orange-700
+  navActiveFg: "#9a4118", // --color-orange-700
   surface: "#fbf6ec", // --color-cream
   surfaceContainerLow: "#f4ecdc", // --color-cream-2
   surfaceContainer: "#f4ecdc", // --color-cream-2
   border: "#e8e0d2", // --color-line
   onSurface: "#1d2722", // --color-ink
   onSurfaceVariant: "#44524b", // --color-ink-soft
-  outline: "#7c8a82", // --color-muted / --color-ink-faint
-  amber: "#c4561f", // --color-orange-700
+  outline: "#5f6c65", // --color-muted / --color-ink-faint
+  amber: "#9a4118", // --color-orange-700
   amberBg: "#fde7da", // --color-orange-tint
   emerald: "#0f4d39", // --color-forest-700
   emeraldBg: "#e2f1ea", // --color-forest-tint

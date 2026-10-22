@@ -31,7 +31,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="es" suppressHydrationWarning>
+    <html lang="es" suppressHydrationWarning className={`${hanken.variable} ${bricolage.variable}`}>
       <head>
         {/* H15: si hay cookie de sesión de Supabase, marca <html> antes del primer pintado para que la
             navbar pública no muestre "Ingresar / Crear cuenta" a quien ya está logueado. La navbar
@@ -52,7 +52,7 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
         />
       </head>
-      <body className={`${hanken.variable} ${bricolage.variable} antialiased`}>
+      <body className="antialiased">
         {children}
         {process.env.DEMO_LOGIN_ENABLED === "true" && (
           // Suspense evita que la lectura de cookies() del switcher (solo

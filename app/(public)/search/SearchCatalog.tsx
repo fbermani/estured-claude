@@ -224,7 +224,7 @@ export function SearchCatalog({ residences, arsPerUsd }: { residences: Residence
             id="filter-university"
             value={university}
             onChange={(e) => setUniversity(e.target.value)}
-            className="w-full appearance-none rounded-field border-[1.5px] border-line bg-cream py-2.5 pl-11 pr-9 text-sm text-ink focus:border-forest focus:outline-none"
+            className="w-full appearance-none rounded-field border-[1.5px] border-field-border bg-cream py-2.5 pl-11 pr-9 text-sm text-ink focus:border-forest focus:outline-none"
           >
             <option value="">Cualquier universidad</option>
             {UNIVERSITY_NAMES.map((u) => (

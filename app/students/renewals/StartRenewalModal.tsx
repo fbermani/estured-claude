@@ -178,7 +178,7 @@ export function StartRenewalModal({
                         value={duration}
                         onChange={(e) => setDuration(Math.max(1, Number(e.target.value) || 1))}
                         aria-label="Duración personalizada en meses"
-                        className="w-28 rounded-field border-[1.5px] border-line-2 bg-cream px-3 py-2 text-sm text-ink"
+                        className="w-28 rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink"
                       />
                     )}
                     <input type="hidden" name="desired_duration_months" value={duration} />
