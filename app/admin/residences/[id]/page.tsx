@@ -13,6 +13,8 @@ import { formatUsd } from "@/lib/mock/exchange";
 import { getVisibleStatus } from "@/lib/applications/visibleStatus";
 import { getStaleAvailabilityByResidence, staleAvailabilityMessage } from "@/lib/residences/staleAvailability";
 import { requireAdmin } from "@/lib/auth/requireAdmin";
+import { getResidenceLocation } from "@/lib/residences/residenceLocation";
+import { ResidenceLocationForm } from "@/app/admin/residences/[id]/ResidenceLocationForm";
 
 export const metadata: Metadata = { title: "Detalle de residencia" };
 export const dynamic = "force-dynamic";
@@ -93,6 +95,18 @@ export default async function AdminResidenceDetailPage({ params }: { params: Pro
     .maybeSingle();
   if (residenceError) console.error("[admin/residences/[id]] residence lookup failed:", residenceError);
   if (!residence) notFound();
+
+  // Aparte del select principal: si la migración 0042 todavía no está aplicada, este select falla
+  // (columnas inexistentes) y la página igual tiene que abrir (la tarjeta de ubicación queda sin datos).
+  const { data: locationRow, error: locationError } = await admin
+    .from("residences")
+    .select("latitude, longitude")
+    .eq("id", id)
+    .maybeSingle();
+  const locationAvailable = !locationError;
+  const storedLat = locationRow?.latitude != null ? Number(locationRow.latitude) : null;
+  const storedLng = locationRow?.longitude != null ? Number(locationRow.longitude) : null;
+  const mapLocation = getResidenceLocation({ latitude: storedLat, longitude: storedLng, public_area: residence.public_area });
 
   const { data: activeRooms } = await admin.from("rooms").select("id").eq("residence_id", id).eq("is_active", true);
   const roomIds = (activeRooms ?? []).map((r) => r.id);
@@ -234,6 +248,31 @@ export default async function AdminResidenceDetailPage({ params }: { params: Pro
           </p>
         </AdminCard>
       </div>
+
+      <AdminCard className="mt-4 p-5">
+        <h2 className="text-sm font-bold" style={{ color: cmd.onSurface }}>
+          Ubicación en el mapa público
+        </h2>
+        <p className="mt-1 text-xs" style={{ color: cmd.outline }}>
+          Mapa de la ficha:{" "}
+          {mapLocation.source === "residence" ? (
+            <span className="font-semibold" style={{ color: cmd.onSurfaceVariant }}>
+              pin en {mapLocation.lat}, {mapLocation.lng}
+            </span>
+          ) : (
+            <span className="font-semibold" style={{ color: cmd.onSurfaceVariant }}>
+              sin coordenada cargada: se muestra la ubicación aproximada del barrio
+            </span>
+          )}
+        </p>
+        {locationAvailable ? (
+          <ResidenceLocationForm residenceId={residence.id} latitude={storedLat} longitude={storedLng} />
+        ) : (
+          <p className="mt-3 text-sm" style={{ color: cmd.amber }}>
+            Falta aplicar la migración 0042 (coordenadas de residencias) en esta base.
+          </p>
+        )}
+      </AdminCard>
 
       <AdminCard className="mt-4 overflow-hidden">
         <h2 className="px-5 pt-5 text-sm font-bold" style={{ color: cmd.onSurface }}>

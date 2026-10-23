@@ -6,6 +6,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { createAuditLog } from "@/lib/audit";
 import { recordFamilyProposalResponse } from "@/lib/applications/recordFamilyProposalResponse";
+import { requestBlockedMessage, typeAvailabilityState } from "@/lib/availability/typeAvailability";
 
 export type CreateFamilyProposalState = { status: "idle" | "error"; message?: string };
 export type RespondFamilyProposalState = { status: "idle" | "error"; message?: string };
@@ -81,8 +82,9 @@ export async function createFamilyProposal(
   if (!roomType || !roomType.is_active) {
     return { status: "error", message: "Ese tipo de habitación ya no está disponible." };
   }
-  if (availability?.status === "full") {
-    return { status: "error", message: "Esa habitación ya no tiene lugar. Probá otro tipo." };
+  const blockedMessage = requestBlockedMessage(typeAvailabilityState(availability?.status));
+  if (blockedMessage) {
+    return { status: "error", message: blockedMessage };
   }
 
   const { data: proposal, error } = await admin

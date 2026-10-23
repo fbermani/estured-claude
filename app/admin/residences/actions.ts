@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { setResidencePausedByAdmin } from "@/lib/residences/setResidencePausedByAdmin";
 import { setOperationalAccessByAdmin } from "@/lib/residences/setOperationalAccessByAdmin";
+import { setResidenceLocationByAdmin } from "@/lib/residences/setResidenceLocationByAdmin";
 import { getAdminSession } from "@/lib/auth/requireAdmin";
 
 export type PauseResidenceActionState = { status: "idle" | "error" | "saved"; message?: string };
@@ -85,4 +86,37 @@ export async function revokeOperationalAccessAction(
   formData: FormData,
 ): Promise<OperationalAccessActionState> {
   return runOperationalAccessToggle(residenceId, false, String(formData.get("reason") ?? ""), null);
+}
+
+export type ResidenceLocationActionState = { status: "idle" | "error" | "saved"; message?: string };
+
+/** Carga la coordenada de la residencia para el mapa público. Solo admin. */
+export async function updateResidenceLocationAction(
+  residenceId: string,
+  _prev: ResidenceLocationActionState,
+  formData: FormData,
+): Promise<ResidenceLocationActionState> {
+  const sessionUser = await getAdminSession();
+  if (!sessionUser) return { status: "error", message: "Tu sesión expiró." };
+  const admin = getSupabaseAdmin();
+  if (!admin) return { status: "error", message: "No disponible en este momento." };
+
+  const result = await setResidenceLocationByAdmin(admin, {
+    residenceId,
+    actorUserId: sessionUser.id,
+    actorRole: sessionUser.primaryRole,
+    latitude: formData.get("latitude"),
+    longitude: formData.get("longitude"),
+  });
+  if (result.status === "error") return { status: "error", message: result.message };
+
+  revalidatePath(`/admin/residences/${residenceId}`);
+  revalidatePath("/residencias", "layout");
+  return {
+    status: "saved",
+    message:
+      result.lat === null
+        ? "Quitamos la coordenada: el mapa muestra la ubicación aproximada del barrio."
+        : `Ubicación guardada: ${result.lat}, ${result.lng}.`,
+  };
 }

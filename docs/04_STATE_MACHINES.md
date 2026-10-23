@@ -684,7 +684,7 @@ Estados por residencia o tipo de habitación:
 | Estado técnico | Texto visible | Descripción |
 |---|---|---|
 | `available_to_confirm` | Disponibilidad informada por la residencia. Requiere confirmación al solicitar. | Hay disponibilidad declarada/semi-real. |
-| `full` | Residencia completa. | La residencia declara no tener cupos. |
+| `full` | Residencia completa. (Cuando aplica a **un tipo** de habitación: "{Tipo}: completa", ver `docs/08` §4.5.) | La residencia declara no tener cupos. |
 | `not_updated` | Sin disponibilidad actualizada. | No hubo actualización dentro del plazo requerido. |
 | `paused_by_residence` | Solicitudes pausadas por la residencia. | La residencia pausó temporalmente. |
 | `paused_by_admin` | Disponibilidad pausada por EstuRed. | Admin pausó por control, reclamo o incumplimiento. |

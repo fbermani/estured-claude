@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { ACTIVE_APPLICATION_STATUSES } from "@/lib/applications/types";
 import { createApplicationFromRoomType } from "@/lib/applications/createRequestFromRoomType";
+import { requestBlockedMessage, typeAvailabilityState } from "@/lib/availability/typeAvailability";
 
 export type RecordFamilyProposalResponseResult =
   | { ok: true; applicationId: string | null }
@@ -119,8 +120,9 @@ export async function recordFamilyProposalResponse(
   if (!roomType || !roomType.is_active) {
     return { ok: false, error: "Ese tipo de habitación ya no está disponible." };
   }
-  if (availability?.status === "full") {
-    return { ok: false, error: "Esa habitación ya no tiene lugar." };
+  const blockedMessage = requestBlockedMessage(typeAvailabilityState(availability?.status));
+  if (blockedMessage) {
+    return { ok: false, error: blockedMessage };
   }
 
   const result = await createApplicationFromRoomType(admin, {

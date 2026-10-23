@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { deleteResidenceCascade } from "@/lib/testing/deleteResidenceCascade";
 import { MAX_RESIDENCES_PER_OWNER, addResidenceForOwner } from "@/lib/residences/addResidenceForOwner";
+import { getResidencePrivateDetails } from "@/lib/residences/privateDetails";
 
 /**
  * H22: "Sumar otra residencia" para un owner ya logueado. Integración contra
@@ -39,7 +40,7 @@ describe("addResidenceForOwner: contacto del responsable (unitario)", () => {
     const admin = fakeAdmin(
       {
         residence_users: { data: [{ residence_id: "r1" }], error: null },
-        residences: { data: null, error: null },
+        residence_private_details: { data: null, error: null },
         users: { data: { phone: null }, error: null },
       },
       inserts,
@@ -68,11 +69,12 @@ describe("addResidenceForOwner: contacto del responsable (unitario)", () => {
             chain(
               table === "residence_users"
                 ? { data: [{ residence_id: "r1" }], error: null }
-                : table === "residences"
+                : table === "residence_private_details"
                   ? { data: { responsible_name: "Ricardo", responsible_contact: "+54 9 11 1" }, error: null }
                   : { data: { phone: "+54 9 11 1" }, error: null },
             ),
-          // la residencia se crea, falla user_roles y los deletes del rollback también fallan
+          // el upsert de los datos privados anda; la residencia se crea, falla user_roles y los deletes del rollback también fallan
+          upsert: () => chain({ data: null, error: null }),
           insert: () =>
             chain(
               table === "residences"
@@ -149,7 +151,7 @@ describe.skipIf(!hasCreds)("addResidenceForOwner (integración)", () => {
 
     const { data: residence } = await admin
       .from("residences")
-      .select("status, operating_mode, public_area, city, created_by, responsible_name, responsible_contact, slug")
+      .select("status, operating_mode, public_area, city, created_by, slug")
       .eq("id", id)
       .single();
     expect(residence).toMatchObject({
@@ -160,9 +162,10 @@ describe.skipIf(!hasCreds)("addResidenceForOwner (integración)", () => {
       created_by: ownerId,
     });
     expect(residence!.slug.startsWith("residencia-test-")).toBe(true);
-    // el contacto se hereda de la residencia existente del owner
-    expect(residence!.responsible_name).toBeTruthy();
-    expect(residence!.responsible_contact).toBeTruthy();
+    // Ciclo 56: el contacto del responsable es privado; se hereda de la residencia existente del owner
+    const privateDetails = await getResidencePrivateDetails(admin, id);
+    expect(privateDetails?.responsible_name).toBeTruthy();
+    expect(privateDetails?.responsible_contact).toBeTruthy();
 
     const { data: ru } = await admin.from("residence_users").select("role, is_active").eq("residence_id", id).eq("user_id", ownerId).single();
     expect(ru).toMatchObject({ role: "owner", is_active: true });

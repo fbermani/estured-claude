@@ -26,7 +26,10 @@ export type AvailabilityMode =
   | "real_by_place"
   | "by_room_type_to_confirm"
   | "full"
-  | "not_updated";
+  | "not_updated"
+  // Solo por tipo de habitación (docs/04 §10.2): bloquean la solicitud.
+  | "paused_by_residence"
+  | "paused_by_admin";
 
 export type RoomTypeName =
   | "Individual"

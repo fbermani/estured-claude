@@ -1,0 +1,25 @@
+{
+  "_comment": "Ciclo 56 (hallazgo de seguridad del Ciclo 55). Columnas y tablas que NO deben ser legibles con la anon key. Lo usan scripts/check-anon-exposure.mjs y lib/security/anonExposure.integration.test.ts. Si agregás una columna sensible a una tabla con policy pública, ponela en residence_private_details (service role) o agregala acá para que el guard falle si vuelve a quedar expuesta.",
+  "columns": {
+    "residences": [
+      "responsible_name",
+      "responsible_contact",
+      "quality_visibility_status",
+      "operational_access_granted_by",
+      "operational_access_granted_at",
+      "operational_access_reason",
+      "om_access_granted_by",
+      "om_access_granted_at"
+    ],
+    "profile_availability": ["notes_internal"]
+  },
+  "privateTables": [
+    "residence_private_details",
+    "files",
+    "residence_faq_questions",
+    "payment_settings",
+    "audit_logs",
+    "waitlist_signups",
+    "residence_verifications"
+  ]
+}

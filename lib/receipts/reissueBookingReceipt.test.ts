@@ -59,8 +59,6 @@ describe.skipIf(!hasCreds)("reissueBookingReceipt (integración)", () => {
         status: "verified_active",
         operating_mode: "verified_profile",
         public_area: "Palermo",
-        responsible_name: "Test",
-        responsible_contact: "+54 9 11 0000-0000",
         total_capacity: 5,
         created_by: ownerId,
       })

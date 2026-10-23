@@ -2,6 +2,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { PROPERTY_TYPE_OPTIONS, ZONE_OPTIONS } from "@/lib/residences/options";
+import { saveResidencePrivateDetails } from "@/lib/residences/privateDetails";
 
 /** Docs/06 §8.2 / docs/05: un owner gestiona hasta 10 residencias (también lo impone el trigger de la migración 0003). */
 export const MAX_RESIDENCES_PER_OWNER = 10;
@@ -83,10 +84,13 @@ export async function addResidenceForOwner(
 
   // Contacto del responsable: nombre y teléfono de su residencia más reciente (el teléfono, si falta, el de su usuario).
   const ownedIds = owned.map((o) => o.residence_id as string);
+  // Ciclo 56: el responsable vive en `residence_private_details` (privado, solo service role).
   const { data: latest } = await admin
-    .from("residences")
+    .from("residence_private_details")
     .select("responsible_name, responsible_contact")
-    .in("id", ownedIds)
+    .in("residence_id", ownedIds)
+    .not("responsible_name", "is", null)
+    .not("responsible_contact", "is", null)
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -116,8 +120,6 @@ export async function addResidenceForOwner(
         public_area: params.zone,
         address_line: addressLine,
         city: "CABA",
-        responsible_name: responsibleName,
-        responsible_contact: responsibleContact,
         status: "draft",
         operating_mode: "verified_profile",
         created_by: params.ownerUserId,
@@ -126,6 +128,13 @@ export async function addResidenceForOwner(
       .single();
     if (residenceError || !residence) throw residenceError ?? new Error("residence insert sin fila");
     residenceId = residence.id as string;
+
+    // Ciclo 56: el contacto del responsable es privado (`residence_private_details`, solo service role).
+    const privateError = await saveResidencePrivateDetails(admin, residenceId, {
+      responsible_name: responsibleName,
+      responsible_contact: responsibleContact,
+    });
+    if (privateError) throw new Error(privateError.message);
 
     const { error: roleError } = await admin.from("user_roles").insert({
       user_id: params.ownerUserId,

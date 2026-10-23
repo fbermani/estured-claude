@@ -1026,3 +1026,15 @@ Notas de interpretación:
 - **D8 vs §6.3:** el beneficio "pionera de beta: 1 año gratis" queda sin efecto práctico mientras todo sea gratuito; `is_pioneer`/`pioneer_free_access_until` se conservan en el modelo.
 - **D9 vs §20.2:** en el MVP no hay búsqueda automática en archivos subidos: la pregunta libre llega a la residencia y la responde una persona. Los límites de §20.3 siguen vigentes.
 - **Ciclo 43 (no es una decisión D, pero corrige un doc):** la renovación extiende `resident_stays.expected_end_date` ("contrato hasta"), no `end_date` (salida real). Ver `docs/06` §14.2 y §15.1.
+
+### Decisiones de la ficha pública `/residencias/[slug]` (2026-10-23, DF1–DF4)
+
+**Fuente:** `design-proposals/ficha-residencia/SPEC.md` (§11, decisiones 1–4). Autorización explícita del dueño para editar los docs afectados (protocolo `docs/13` §5: doc primero, código después).
+
+| # | Decisión | Docs actualizados |
+|---|---|---|
+| DF1 | Layout A: columna lateral sticky con tarjeta de precio y condiciones (selector por tipo con `StatusTag`, CTA por rol) + hoja lateral con el formulario de solicitud; "Qué pagás y a quién" visible para todos; el mapa de camas pasa a `/comunidad` y la ficha no muestra camas libres (solo disponibilidad por tipo, D3). | `docs/08` §4.5 |
+| DF2 | Variante "Completa" **por tipo** en `StatusTag` ("{Tipo}: completa"), sin afirmar que toda la residencia está completa; "Residencia completa" solo si todos los tipos lo están. | `docs/08` §4.5, `docs/04` §10.2 |
+| DF3 | ~~Mapa OSM con zona aproximada, centro redondeado del lado del servidor.~~ **Superada por DF5.** Se mantiene: universidades cercanas con distancia; teselas OSM directo en MVP y proveedor con clave antes del lanzamiento masivo. | `docs/08` §4.5, `docs/15` §23 |
+| DF4 | ~~La dirección exacta se muestra recién en `contact_established`.~~ **Superada por DF5.** Se mantiene: `enrollment_fee_mode = null` significa "no cobra matrícula", no "no informado". | `docs/06` §8.1 |
+| DF5 | **(2026-10-23, reemplaza DF3 y la parte de dirección de DF4)** La dirección y la ubicación de una residencia son información pública (cualquiera la encuentra online). El mapa de la ficha muestra el **pin exacto** y alrededor los puntos de interés (universidades cercanas con distancia). Sin zona aproximada, sin redondeo y sin dirección privada hasta `contact_established`. Coordenadas exactas `latitude`/`longitude` (`numeric(9,6)`) públicas; fallback al centro del barrio solo si faltan. Siguen privados: teléfono, email y contacto del responsable, documentos, notas internas y datos de verificación. | `docs/08` §4.5, §6.5, `docs/06` §8.1, `docs/10` §6.1–6.2 |

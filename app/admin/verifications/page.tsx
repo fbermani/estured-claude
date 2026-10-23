@@ -26,23 +26,34 @@ export default async function VerificationsPage({
   const { id: selectedId } = await searchParams;
   const admin = getSupabaseAdmin();
 
-  const queue = admin
+  const queueRows = admin
     ? (
         await admin
           .from("residences")
-          .select("id, name, public_area, status, responsible_name, created_at")
+          .select("id, name, public_area, status, created_at")
           .in("status", PENDING_STATUSES)
           .order("created_at", { ascending: true })
       ).data ?? []
     : [];
+  // Ciclo 56: el responsable es privado (`residence_private_details`, solo service role).
+  const queueResponsibles = new Map<string, string | null>();
+  if (admin && queueRows.length > 0) {
+    const { data: privateRows } = await admin
+      .from("residence_private_details")
+      .select("residence_id, responsible_name")
+      .in("residence_id", queueRows.map((r) => r.id));
+    for (const row of privateRows ?? []) queueResponsibles.set(row.residence_id as string, row.responsible_name as string | null);
+  }
+  const queue = queueRows.map((r) => ({ ...r, responsible_name: queueResponsibles.get(r.id) ?? null }));
 
   const activeId = selectedId ?? queue[0]?.id ?? null;
 
   let detail = null;
   if (admin && activeId) {
-    const [{ data: residence }, { data: verification }, { data: sections }, { data: roomTypes }, { data: photos, error: photosError }, { data: rulesFile }] =
+    const [{ data: residence }, { data: privateDetails }, { data: verification }, { data: sections }, { data: roomTypes }, { data: photos, error: photosError }, { data: rulesFile }] =
       await Promise.all([
         admin.from("residences").select("*").eq("id", activeId).single(),
+        admin.from("residence_private_details").select("responsible_name, responsible_contact").eq("residence_id", activeId).maybeSingle(),
         admin.from("residence_verifications").select("*").eq("residence_id", activeId).single(),
         admin.from("residence_profile_sections").select("section_type, content").eq("residence_id", activeId),
         admin
@@ -72,7 +83,11 @@ export default async function VerificationsPage({
     if (residence && verification) {
       const sectionMap = Object.fromEntries((sections ?? []).map((s) => [s.section_type, s.content]));
       detail = {
-        residence,
+        residence: {
+          ...residence,
+          responsible_name: (privateDetails?.responsible_name as string | null) ?? "",
+          responsible_contact: (privateDetails?.responsible_contact as string | null) ?? "",
+        },
         verification,
         services: (sectionMap.services?.items as string[]) ?? [],
         nearUniversities: (sectionMap.near_universities?.items as string[]) ?? [],
@@ -136,7 +151,7 @@ export default async function VerificationsPage({
                       {r.name}
                     </p>
                     <p className="text-xs" style={{ color: cmd.outline }}>
-                      {r.public_area ?? "Zona sin definir"} · {r.responsible_name}
+                      {r.public_area ?? "Zona sin definir"} · {r.responsible_name ?? "Responsable sin cargar"}
                     </p>
                   </Link>
                 </li>

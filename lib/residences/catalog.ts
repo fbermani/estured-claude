@@ -1,6 +1,11 @@
 import "server-only";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import type { AvailabilityMode, Residence, RoomTypeName } from "@/types/domain";
+import type { Residence, RoomTypeName } from "@/types/domain";
+import {
+  residenceAvailabilityMode,
+  startingPriceUsd,
+  typeAvailabilityState,
+} from "@/lib/availability/typeAvailability";
 
 const CANONICAL_ROOM_TYPES: readonly string[] = ["Individual", "Doble", "Triple", "Cuádruple", "Compartida"];
 
@@ -70,19 +75,19 @@ export async function getCatalogResidences(): Promise<Residence[]> {
     const services = (sectionMap.services?.items as string[]) ?? [];
     const nearUniversities = (sectionMap.near_universities?.items as string[]) ?? [];
 
-    const prices = rts.map((rt) => Number(rt.monthly_price_usd)).filter((p) => !Number.isNaN(p));
-    const priceFromUsd = prices.length > 0 ? Math.min(...prices) : 0;
-
-    const anyAvailable = rts.some((rt) => rt.profile_availability?.status === "available_to_confirm");
-    const allFull = rts.length > 0 && rts.every((rt) => rt.profile_availability?.status === "full");
-    const availabilityMode: AvailabilityMode = anyAvailable ? "by_room_type_to_confirm" : allFull ? "full" : "not_updated";
+    // D3/H03: la disponibilidad la manda el tipo de habitación (`profile_availability`),
+    // siempre vía el helper único. El precio "desde" excluye los tipos completos.
+    const typeStates = rts.map((rt) => typeAvailabilityState(rt.profile_availability?.status));
+    const priceFromUsd =
+      startingPriceUsd(rts.map((rt, i) => ({ priceUsd: Number(rt.monthly_price_usd), state: typeStates[i] }))) ?? 0;
+    const availabilityMode = residenceAvailabilityMode(typeStates);
 
     const roomTypeOffers = rts
       .filter((rt) => CANONICAL_ROOM_TYPES.includes(rt.name))
       .map((rt) => ({
         type: rt.name as RoomTypeName,
         priceUsd: Number(rt.monthly_price_usd),
-        available: rt.profile_availability?.status === "available_to_confirm",
+        available: typeAvailabilityState(rt.profile_availability?.status) === "available",
       }));
 
     return {

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { assertResidenceAccess } from "@/lib/residences/access";
+import { getResidencePrivateDetails } from "@/lib/residences/privateDetails";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
@@ -29,10 +30,13 @@ export default async function ResidencePlanPage({
 
   const { data: residence } = await admin
     .from("residences")
-    .select("name, has_operational_management_access, operational_access_granted_at, pioneer_free_access_until")
+    .select("name, has_operational_management_access, pioneer_free_access_until")
     .eq("id", residenceId)
     .maybeSingle();
   if (!residence) notFound();
+  // Ciclo 56: la fecha de otorgamiento sale de la tabla privada (auditoría interna del acceso).
+  const privateDetails = await getResidencePrivateDetails(admin, residenceId);
+  const operationalAccessGrantedAt = privateDetails?.operational_access_granted_at ?? null;
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
@@ -62,11 +66,11 @@ export default async function ResidencePlanPage({
 
         {residence.has_operational_management_access && (
           <dl className="mt-4 space-y-2 border-t border-line pt-4 text-sm">
-            {residence.operational_access_granted_at && (
+            {operationalAccessGrantedAt && (
               <div className="flex justify-between">
                 <dt className="text-ink-faint">Otorgado el</dt>
                 <dd className="font-semibold text-ink">
-                  {formatDate(residence.operational_access_granted_at)}
+                  {formatDate(operationalAccessGrantedAt)}
                 </dd>
               </div>
             )}

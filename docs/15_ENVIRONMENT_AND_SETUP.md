@@ -596,6 +596,8 @@ Ver `11_TECH_ARCHITECTURE.md` sección 39 y `12_BUILD_PLAN.md` secciones 25-26. 
 - Monitoreo y alertas (proveedor delegado a Claude Code).
 - Precio del plan pago de Gestión Operativa.
 
+**Pendiente de lanzamiento (DF3/DF5, 2026-10-23):** el mapa de la ficha usa teselas de OpenStreetMap servidas directo desde `tile.openstreetmap.org` solo para MVP/pruebas (con atribución y caché del navegador); su política de uso desaconseja el tráfico de producción intenso. **Antes del lanzamiento masivo** hay que pasar a un proveedor de teselas OSM con plan gratuito (MapTiler o Stadia Maps) con clave de API en variable de entorno (restringida por dominio) y agregarla a `.env.example` y a Vercel.
+
 ---
 
 # 24. Definition of Done del setup

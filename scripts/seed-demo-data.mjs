@@ -174,14 +174,18 @@ async function createResidence({ name, slug, publicArea, status, description, ta
       status,
       operating_mode: "verified_profile",
       public_area: publicArea,
-      responsible_name: "Ricardo Owner",
-      responsible_contact: "+54 9 11 5555-0105",
       total_capacity: 10,
       created_by: ricardoId,
     })
     .select("id")
     .single();
   if (error) throw error;
+  // Ciclo 56: el responsable es privado (migración 0043, `residence_private_details`, solo service role).
+  const { error: privateError } = await admin.from("residence_private_details").upsert(
+    { residence_id: data.id, responsible_name: "Ricardo Owner", responsible_contact: "+54 9 11 5555-0105" },
+    { onConflict: "residence_id" },
+  );
+  if (privateError) throw privateError;
   return data.id;
 }
 async function addOwner(residenceId, userId, role) {

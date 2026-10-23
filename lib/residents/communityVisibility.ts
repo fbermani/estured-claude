@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { isMinorByBirthDate } from "@/lib/students/isMinorByBirthDate";
+import { typeAvailabilityState, type TypeAvailabilityState } from "@/lib/availability/typeAvailability";
 
 /**
  * Docs/05 §15 — reglas de visibilidad de comunidad. `guest` = no
@@ -52,6 +53,11 @@ export type CommunityRoomTypeSummary = {
   occupiedCount: number;
   /** `profile_availability.available_count` — null si la residencia no lo informó. */
   availableCount: number | null;
+  /**
+   * Disponibilidad del TIPO (`profile_availability`, helper único D3/H03). Manda sobre las
+   * camas libres de `rooms`: solo con "available" se ofrece elegir un lugar. `null` = sin tipo.
+   */
+  availabilityState: TypeAvailabilityState | null;
   /** Habitaciones físicas del tipo (migración 0024) — vacío si no se cargaron. */
   rooms: CommunityRoom[];
 };
@@ -182,6 +188,7 @@ export async function getCommunityVisibility(
       genderPolicyLabel: GENDER_LABEL[rt.gender_policy ?? ""] ?? null,
       occupiedCount: occupiedByRoomType.get(rt.id) ?? 0,
       availableCount: availability?.status === "available_to_confirm" ? (availability.available_count ?? null) : availability ? 0 : null,
+      availabilityState: typeAvailabilityState(availability?.status),
       rooms: typeRooms,
     };
   });
@@ -193,6 +200,7 @@ export async function getCommunityVisibility(
       genderPolicyLabel: null,
       occupiedCount: occupiedByRoomType.get("sin-tipo") ?? 0,
       availableCount: null,
+      availabilityState: null,
       rooms: [],
     });
   }

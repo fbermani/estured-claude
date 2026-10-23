@@ -25,6 +25,8 @@ import { FavoriteButton } from "@/app/(public)/residencias/[slug]/FavoriteButton
 import { toggleStudentFavorite, toggleFamilyFavorite } from "@/app/students/favorites/actions";
 import { MobileRequestBar } from "@/components/residences/MobileRequestBar";
 import { formatUsd } from "@/lib/mock/exchange";
+import { getResidenceLocation } from "@/lib/residences/residenceLocation";
+import { startingPriceUsd, typeAvailabilityState } from "@/lib/availability/typeAvailability";
 import { initialPaymentConfigFromRow } from "@/lib/reservations/initialPayment";
 import { ReservationSelectionProvider } from "@/components/residences/reservationSelection";
 import { ResidenceGallery } from "@/components/residences/ResidenceGallery";
@@ -128,6 +130,8 @@ export default async function RealResidenceDetailPage({
   const rate = await getCurrentExchangeRate();
 
   const sessionUser = await getSessionUser();
+  // La ubicación y la dirección de la residencia son públicas (decisión del dueño, 2026-10-23): pin exacto.
+  const location = getResidenceLocation(residence);
   const services = (sectionMap.services?.items as string[]) ?? [];
   const commonAreas = (sectionMap.common_areas?.items as string[]) ?? [];
   const nearUniversities = (sectionMap.near_universities?.items as string[]) ?? [];
@@ -231,8 +235,14 @@ export default async function RealResidenceDetailPage({
     }
   }
 
-  const prices = roomTypes.map((rt) => Number(rt.monthly_price_usd)).filter((n) => Number.isFinite(n) && n > 0);
-  const mobileBarPrice = prices.length > 0 ? formatUsd(Math.min(...prices)) : null;
+  // "Desde" = mínimo de los tipos NO completos (D3/H03; si todos están completos, el mínimo de todos).
+  const fromPriceUsd = startingPriceUsd(
+    roomTypes.map((rt) => ({
+      priceUsd: Number(rt.monthly_price_usd),
+      state: typeAvailabilityState(rt.profile_availability?.status),
+    })),
+  );
+  const mobileBarPrice = fromPriceUsd != null ? formatUsd(fromPriceUsd) : null;
 
   // La barra fija solo tiene sentido donde el panel ofrece una acción: invitados (inicio de sesión),
   // estudiantes con el formulario y familiares. No para admin/owner/staff ni con el bloqueo del menor.
@@ -488,7 +498,7 @@ export default async function RealResidenceDetailPage({
         ) : roomTypes.length > 0 ? (
           <div className="mt-4 space-y-3">
             {roomTypes.map((rt) => {
-              const isFull = rt.profile_availability?.status === "full";
+              const isFull = typeAvailabilityState(rt.profile_availability?.status) === "full";
               return (
                 <div
                   key={rt.id}
@@ -520,7 +530,13 @@ export default async function RealResidenceDetailPage({
       <section className="mt-10">
         <h2 className="text-xl font-bold text-ink">Ubicación</h2>
         <div className="mt-4">
-          <CompactMap residenceName={residence.name} zone={residence.public_area} nearUniversityNames={nearUniversities} />
+          <CompactMap
+            residenceName={residence.name}
+            zone={residence.public_area}
+            nearUniversityNames={nearUniversities}
+            location={location}
+            address={residence.address_line as string | null}
+          />
         </div>
       </section>
 

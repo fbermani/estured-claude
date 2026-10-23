@@ -441,7 +441,7 @@ export default async function StudentResidencyPage() {
           <p className="mt-2 text-sm text-ink-soft">Tus compañeros de residencia — cada uno decide qué mostrar.</p>
           <div className="mt-4">
             <ReservationSelectionProvider>
-              <CommunityBrowser summary={community} slug={residence.slug} isGuest={false} />
+              <CommunityBrowser summary={community} slug={residence.slug} isGuest={false} allowSelection={false} />
             </ReservationSelectionProvider>
           </div>
         </section>

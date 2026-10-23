@@ -33,8 +33,6 @@ describe.skipIf(!hasCreds)("setQualityVisibilityByAdmin / addResidenceInternalNo
         status: "verified_active",
         operating_mode: "verified_profile",
         public_area: "Palermo",
-        responsible_name: "Test",
-        responsible_contact: "+54 9 11 0000-0000",
         total_capacity: 5,
         created_by: ownerId,
       })
@@ -80,7 +78,7 @@ describe.skipIf(!hasCreds)("setQualityVisibilityByAdmin / addResidenceInternalNo
     });
     expect(warning.status).toBe("ok");
 
-    const { data: afterWarning } = await admin.from("residences").select("quality_visibility_status").eq("id", residenceId).single();
+    const { data: afterWarning } = await admin.from("residence_private_details").select("quality_visibility_status").eq("residence_id", residenceId).single();
     expect(afterWarning?.quality_visibility_status).toBe("warning");
 
     const { data: warningLog } = await admin
@@ -101,7 +99,7 @@ describe.skipIf(!hasCreds)("setQualityVisibilityByAdmin / addResidenceInternalNo
     });
     expect(reduced.status).toBe("ok");
 
-    const { data: afterReduced } = await admin.from("residences").select("quality_visibility_status").eq("id", residenceId).single();
+    const { data: afterReduced } = await admin.from("residence_private_details").select("quality_visibility_status").eq("residence_id", residenceId).single();
     expect(afterReduced?.quality_visibility_status).toBe("reduced_visibility");
 
     const restored = await setQualityVisibilityByAdmin(admin, {
@@ -113,7 +111,7 @@ describe.skipIf(!hasCreds)("setQualityVisibilityByAdmin / addResidenceInternalNo
     });
     expect(restored.status).toBe("ok");
 
-    const { data: afterRestored } = await admin.from("residences").select("quality_visibility_status").eq("id", residenceId).single();
+    const { data: afterRestored } = await admin.from("residence_private_details").select("quality_visibility_status").eq("residence_id", residenceId).single();
     expect(afterRestored?.quality_visibility_status).toBe("normal_visibility");
 
     const { data: restoreNotification } = await admin
@@ -126,7 +124,7 @@ describe.skipIf(!hasCreds)("setQualityVisibilityByAdmin / addResidenceInternalNo
   });
 
   it("agrega una nota interna sin cambiar el estado ni notificar al dueño", async () => {
-    const { data: statusBefore } = await admin.from("residences").select("quality_visibility_status").eq("id", residenceId).single();
+    const { data: statusBefore } = await admin.from("residence_private_details").select("quality_visibility_status").eq("residence_id", residenceId).single();
 
     const note = await addResidenceInternalNote(admin, {
       residenceId,
@@ -136,7 +134,7 @@ describe.skipIf(!hasCreds)("setQualityVisibilityByAdmin / addResidenceInternalNo
     });
     expect(note.status).toBe("ok");
 
-    const { data: statusAfter } = await admin.from("residences").select("quality_visibility_status").eq("id", residenceId).single();
+    const { data: statusAfter } = await admin.from("residence_private_details").select("quality_visibility_status").eq("residence_id", residenceId).single();
     expect(statusAfter?.quality_visibility_status).toBe(statusBefore?.quality_visibility_status);
 
     const { data: noteLog } = await admin

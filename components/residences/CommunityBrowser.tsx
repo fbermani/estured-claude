@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
 import { useReservationSelection } from "@/components/residences/reservationSelection";
+import { StatusTag } from "@/components/ui/StatusTag";
+import { canOfferBedSelection, typeAvailabilityMode } from "@/lib/availability/typeAvailability";
 import type { CommunityProfileCard, CommunityRoomTypeSummary, CommunitySummary } from "@/lib/residents/communityVisibility";
 
 /**
@@ -21,6 +23,12 @@ import type { CommunityProfileCard, CommunityRoomTypeSummary, CommunitySummary }
  * puntual a nivel de base de datos (Gestión Operativa, no wireada) —
  * la plaza elegida solo se resalta visualmente, la reserva real sigue
  * siendo a nivel de tipo de habitación.
+ *
+ * D3/H03 (Ciclo 55): la disponibilidad la manda el TIPO de habitación
+ * (`availabilityState`, helper `lib/availability/typeAvailability.ts`). Las
+ * camas libres de las habitaciones son solo información: el slot libre
+ * ofrece "Elegí este lugar" únicamente si el tipo está disponible y la
+ * pantalla permite elegir (`allowSelection`; "Mi residencia" no).
  */
 
 const AVATAR_STYLES = [
@@ -178,6 +186,21 @@ function ResidentCell({ card, index, isGuest }: { card: CommunityProfileCard; in
   );
 }
 
+/** Plaza libre informativa: sin acción. El estado manda el tipo de habitación (D3). */
+function InfoFreeSlot({ typeAvailable }: { typeAvailable: boolean }) {
+  return (
+    <div className="flex items-center gap-3 rounded-field border border-dashed border-line bg-cream-2/50 p-3">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sand-100 text-ink-faint">
+        <Icon name="bed" className="text-xl" />
+      </div>
+      <div>
+        <p className="text-sm font-semibold text-ink-soft">Plaza libre</p>
+        {!typeAvailable && <p className="text-xs text-ink-faint">Sin disponibilidad informada</p>}
+      </div>
+    </div>
+  );
+}
+
 function FreeBedSlot({ slug, roomTypeId, slotKey }: { slug: string; roomTypeId: string | null; slotKey: string }) {
   const router = useRouter();
   const { slotKey: selectedSlotKey, select } = useReservationSelection();
@@ -251,12 +274,14 @@ function RoomTypeSection({
   slug,
   isGuest,
   startIndex,
+  allowSelection,
 }: {
   roomType: CommunityRoomTypeSummary;
   cards: CommunityProfileCard[];
   slug: string;
   isGuest: boolean;
   startIndex: number;
+  allowSelection: boolean;
 }) {
   const [open, setOpen] = useState(true);
   const title = roomType.genderPolicyLabel ? `${roomType.roomTypeName} ${roomType.genderPolicyLabel}` : roomType.roomTypeName;
@@ -265,18 +290,16 @@ function RoomTypeSection({
   const unassigned = cards.filter((c) => !c.roomId || !roomType.rooms.some((r) => r.roomId === c.roomId));
   const indexOf = (card: CommunityProfileCard) => startIndex + cards.indexOf(card);
 
-  // Disponibilidad de un vistazo en vez de "N habitaciones / X/Y
-  // ocupadas" — esa info ya está en el desglose por tipo de arriba
-  // (pedido del dueño en Ciclo 35octodevicies).
-  const freeBeds = hasRooms
-    ? roomType.rooms.reduce((sum, r) => sum + r.freeBeds, 0)
-    : (roomType.availableCount ?? 0);
-  const availability =
-    freeBeds === 0
-      ? { dot: "bg-danger-fg", classes: "bg-danger-bg text-danger-fg", label: "Sin disponibilidad" }
-      : freeBeds === 1
-        ? { dot: "bg-warning-fg", classes: "bg-warning-bg text-warning-fg", label: "1 cama libre" }
-        : { dot: "bg-success-fg", classes: "bg-success-bg text-success-fg", label: `${freeBeds} camas libres` };
+  // El estado que se muestra es el del TIPO (StatusTag, copy oficial); las camas
+  // libres por habitación quedan como información en cada card (D3/H03).
+  const typeState = roomType.availabilityState;
+  const offerSelection = allowSelection && canOfferBedSelection(typeState);
+  const renderFreeSlot = (key: string, slotKey: string) =>
+    offerSelection ? (
+      <FreeBedSlot key={key} slotKey={slotKey} slug={slug} roomTypeId={roomType.roomTypeId} />
+    ) : (
+      <InfoFreeSlot key={key} typeAvailable={typeState === "available"} />
+    );
 
   return (
     <div className="overflow-hidden rounded-card border-[1.5px] border-line bg-paper shadow-card">
@@ -291,10 +314,7 @@ function RoomTypeSection({
           <span className="font-bold text-ink">{title}</span>
         </span>
         <span className="flex items-center gap-3">
-          <span className={`inline-flex items-center gap-1.5 rounded-field px-2.5 py-1 text-xs font-semibold ${availability.classes}`}>
-            <span className={`h-2 w-2 shrink-0 rounded-full ${availability.dot}`} aria-hidden />
-            {availability.label}
-          </span>
+          {typeState && <StatusTag mode={typeAvailabilityMode(typeState)} roomTypeName={roomType.roomTypeName} />}
           <Icon
             name="expand_more"
             className={`text-xl text-forest-700 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
@@ -342,14 +362,9 @@ function RoomTypeSection({
                         .map((card) => (
                           <ResidentCell key={card.residentStayId} card={card} index={indexOf(card)} isGuest={isGuest} />
                         ))}
-                      {Array.from({ length: room.freeBeds }, (_, i) => (
-                        <FreeBedSlot
-                          key={`slot-${room.roomId}-${i}`}
-                          slotKey={`${roomType.roomTypeId}-slot-${room.roomId}-${i}`}
-                          slug={slug}
-                          roomTypeId={roomType.roomTypeId}
-                        />
-                      ))}
+                      {Array.from({ length: room.freeBeds }, (_, i) =>
+                        renderFreeSlot(`slot-${room.roomId}-${i}`, `${roomType.roomTypeId}-slot-${room.roomId}-${i}`),
+                      )}
                     </div>
                   </div>
                 ))}
@@ -370,14 +385,9 @@ function RoomTypeSection({
                 {cards.map((card) => (
                   <ResidentCell key={card.residentStayId} card={card} index={indexOf(card)} isGuest={isGuest} />
                 ))}
-                {Array.from({ length: roomType.availableCount ?? 0 }, (_, i) => (
-                  <FreeBedSlot
-                    key={`slot-${i}`}
-                    slotKey={`${roomType.roomTypeId}-slot-${i}`}
-                    slug={slug}
-                    roomTypeId={roomType.roomTypeId}
-                  />
-                ))}
+                {Array.from({ length: roomType.availableCount ?? 0 }, (_, i) =>
+                  renderFreeSlot(`slot-${i}`, `${roomType.roomTypeId}-slot-${i}`),
+                )}
               </div>
             )}
           </div>
@@ -391,10 +401,13 @@ export function CommunityBrowser({
   summary,
   slug,
   isGuest,
+  allowSelection = true,
 }: {
   summary: CommunitySummary;
   slug: string;
   isGuest: boolean;
+  /** `false` donde no se está buscando lugar (p. ej. "Mi residencia"): sin "Elegí este lugar" ni "Enviar solicitud". */
+  allowSelection?: boolean;
 }) {
   const cardsByRoomType = useMemo(() => {
     const map = new Map<string | null, CommunityProfileCard[]>();
@@ -475,13 +488,14 @@ export function CommunityBrowser({
               slug={slug}
               isGuest={isGuest}
               startIndex={sectionStartIndex[i]}
+              allowSelection={allowSelection}
             />
           </div>
         ))}
       </div>
 
       {/* Footer CTA — ref: "Podés seleccionar un lugar disponible..." */}
-      {summary.totalAvailable > 0 && (
+      {allowSelection && summary.totalAvailable > 0 && (
         <div className="flex flex-col items-center justify-between gap-4 rounded-card border border-line bg-cream-2 p-4 sm:flex-row">
           <p className="flex items-center gap-3 text-sm font-medium text-ink-soft">
             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-forest-tint text-forest-700">

@@ -199,11 +199,11 @@ Toda acción sensible debe quedar auditada: quién hizo la acción; cuándo; des
 
 ### 6.1 Datos públicos o semi-públicos de residencia
 
-Nombre comercial; zona aproximada o dirección según decisión de producto; fotos aprobadas; descripción; servicios; reglas principales; tipos de habitación; capacidad; precios en USD y ARS (con aviso de tipo de cambio referencial); matrícula; depósito; política de ajustes; disponibilidad informada; sello Residencia Verificada; estado completa/sin disponibilidad; comunidad agregada; FAQ.
+Nombre comercial; **dirección y ubicación exacta (coordenadas), públicas** (decisión DF5 de `docs/00` §31); fotos aprobadas; descripción; servicios; reglas principales; tipos de habitación; capacidad; precios en USD y ARS (con aviso de tipo de cambio referencial); matrícula; depósito; política de ajustes; disponibilidad informada; sello Residencia Verificada; estado completa/sin disponibilidad; comunidad agregada; FAQ.
 
 ### 6.2 Datos privados de residencia
 
-DNI del responsable; DNI del coordinador; documentación interna; checklist firmado; datos de contacto internos no publicados; notas admin; motivos internos de penalización; auditoría; documentos de verificación; casos de soporte; métricas internas no públicas; datos bancarios internos; **estado del feature flag freemium y su historial de otorgamiento**.
+teléfono, email y contacto del responsable (la dirección y las coordenadas de la residencia **ya no** son privadas, DF5); DNI del responsable; DNI del coordinador; documentación interna; checklist firmado; datos de contacto internos no publicados; notas admin; motivos internos de penalización; auditoría; documentos de verificación; casos de soporte; métricas internas no públicas; datos bancarios internos; **estado del feature flag freemium y su historial de otorgamiento**.
 
 ### 6.3 Datos visibles del estudiante según permisos
 

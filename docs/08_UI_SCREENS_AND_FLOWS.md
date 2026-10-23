@@ -318,8 +318,10 @@ Ruta base: `/admin`
 - Política de ajustes, matrícula, depósito, condiciones de reserva.
 - Servicios incluidos, áreas comunes, reglas principales.
 - Composición estructural de habitaciones.
-- Disponibilidad.
-- Comunidad visible individual y agregada según permisos.
+- Disponibilidad **por tipo de habitación**.
+- **"Qué pagás y a quién"** (pago inicial y renta a la residencia; fee a EstuRed): visible para todos, invitados incluidos.
+- Comunidad visible individual y agregada según permisos (en la ficha, solo el resumen por tipo; el detalle vive en `/residencias/[slug]/comunidad`).
+- Ubicación: dirección y mapa con el **pin exacto** de la residencia + universidades cercanas con distancia (ver "Bloque de ubicación").
 - **FAQ de la residencia** (preguntas predefinidas elegidas + respuestas + campo de pregunta libre).
 - CTA "Enviar solicitud de reserva".
 - CTA "Sumarme a lista de espera" si está completa o sin disponibilidad.
@@ -330,12 +332,21 @@ Ruta base: `/admin`
 **Bloque de disponibilidad:**
 - Perfil Verificado: "Disponibilidad informada por la residencia. Requiere confirmación al solicitar."
 - Gestión Operativa: "Disponibilidad asegurada."
-- Completa: "Residencia completa. Podés sumarte a la lista de espera."
+- Completa (**un tipo de habitación**): etiqueta "{Tipo}: completa" (p. ej. "Doble: completa") con el tip "No hay lugar informado en este tipo. Podés sumarte a la lista de espera." No afirma que toda la residencia esté completa.
+- Completa (**todos** los tipos): "Residencia completa. Podés sumarte a la lista de espera."
 - Sin actualización: "Sin disponibilidad actualizada. Podés consultar o sumarte a lista de espera si está habilitada."
 
 > **Decisión D3 (2026-10-20).** El estado de disponibilidad de este bloque y el selector de tipo del formulario de solicitud salen del tipo de habitación; el mapa de camas solo informa ocupación (ver §2.6).
 >
 > **Decisión D9 (2026-10-20).** En el MVP el bloque FAQ es simple: preguntas y respuestas cargadas por la residencia más un campo de pregunta libre; la pregunta le llega a la residencia, que la responde (§7.16). No hay respuesta automática desde archivos subidos. Los límites de `docs/00` §20.3 siguen vigentes.
+
+> **Decisión de la ficha, DF1 (2026-10-23, `docs/00` §31).** Layout "columna de decisión": la columna lateral es **sticky durante toda la página** y contiene una tarjeta de precio y condiciones con el selector de tipo de habitación (una fila por tipo con su `StatusTag`) y el CTA según el rol; el formulario de solicitud (`ApplyForm`/`ProposeForm`/lista de espera) se abre en una **hoja lateral** (en mobile, hoja inferior casi a pantalla completa). Elegir un tipo en la tabla de tarifas, en la tarjeta o con `?room=` es el mismo estado. "Qué pagás y a quién" es visible para todos los roles. **El mapa de camas sale de la ficha y queda solo en `/residencias/[slug]/comunidad`; la ficha no muestra camas libres ni "x de y plazas"**: la disponibilidad que ve el estudiante es solo por tipo de habitación (D3). El "Desde USD X" es el mínimo entre los tipos **no completos** (si todos están completos, el mínimo de todos). Propuesta de diseño: `design-proposals/ficha-residencia/SPEC.md`.
+>
+> **Decisión de la ficha, DF2 (2026-10-23).** La etiqueta de disponibilidad de un tipo completo es una variante **por tipo** de `StatusTag` ("{Tipo}: completa"), distinta de "Residencia completa" (que queda para cuando todos los tipos están completos). El copy oficial es el de "Bloque de disponibilidad" arriba; el cambio en `components/ui/StatusTag.tsx` lo hace el constructor después de este doc.
+>
+> **Bloque de ubicación (DF5, 2026-10-23; reemplaza DF3).** La dirección y la ubicación de la residencia son **información pública**. Mapa de OpenStreetMap con el **pin exacto** de la residencia (coordenadas `latitude`/`longitude`, públicas) y, alrededor, los puntos de interés: universidades cercanas con su distancia en línea recta desde el pin. Sin zona aproximada ni redondeo. Si faltan las coordenadas, el mapa cae al centro del barrio (sin pin) y se muestra solo el barrio. Sin JS de mapas ni interacción: teselas e imagen/SVG con la atribución "© colaboradores de OpenStreetMap". Si fallan las teselas, la dirección en texto y la lista de universidades siguen visibles. Teselas: ver `docs/15` §23 (pendiente de lanzamiento).
+>
+> **Dirección (DF5, 2026-10-23; reemplaza DF4 en este punto).** La dirección de la residencia (`residences.address_line`) es **pública**: se muestra en la ficha a todos los roles, invitados incluidos. Ya no existe "dirección privada hasta `contact_established`". Siguen privados: teléfono, email y contacto del responsable, documentos y notas internas.
 
 **CTA principal:** Enviar solicitud de reserva. Debe exigir login y perfil mínimo.
 
@@ -534,6 +545,7 @@ Ruta base: `/students`
 - Estado actual y timeline.
 - Indicador de quién inició la solicitud (estudiante o familiar) y a quién contactará la residencia (si el estudiante es menor de edad, siempre al familiar vinculado).
 - Residencia, tipo de habitación/plaza, fecha de ingreso, duración inicial.
+- Dirección de la residencia (pública desde la ficha, DF5, `docs/00` §31); sin gate por estado de la solicitud.
 - Precio USD/ARS referencial + tipo de cambio usado (con modal referencial).
 - Matrícula, depósito, política de ajustes.
 - Monto que debe pagarse a la residencia.

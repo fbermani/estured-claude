@@ -17,6 +17,7 @@ import {
 } from "@/app/students/applications/actions";
 import { JoinWaitlistForm } from "@/app/(public)/residencias/[slug]/JoinWaitlistForm";
 import { useReservationSelection } from "@/components/residences/reservationSelection";
+import { isTypePaused, isTypeRequestable, typeAvailabilityState } from "@/lib/availability/typeAvailability";
 
 interface RoomTypeOption {
   id: string;
@@ -96,7 +97,7 @@ export function ApplyForm({
   const action = createApplicationRequest.bind(null, residenceId);
   const [state, formAction, isPending] = useActionState(action, initialState);
 
-  const availableTypes = roomTypes.filter((rt) => rt.profile_availability?.status !== "full");
+  const availableTypes = roomTypes.filter((rt) => isTypeRequestable(typeAvailabilityState(rt.profile_availability?.status)));
   // Tipo de habitación seedeada desde `?room=` en la primera carga por
   // ReservationSelectionProvider (page.tsx) y luego controlada por el
   // contexto compartido con CommunityBrowser — elegir una plaza libre
@@ -112,6 +113,15 @@ export function ApplyForm({
     return <p className="text-sm text-ink-soft">Esta residencia todavía no cargó tipos de habitación.</p>;
   }
   if (availableTypes.length === 0) {
+    // Todos los tipos pausados (por la residencia o por EstuRed): no es "completa", así que no se ofrece lista de espera.
+    if (roomTypes.every((rt) => isTypePaused(typeAvailabilityState(rt.profile_availability?.status)))) {
+      return (
+        <p className="text-sm text-ink-soft">
+          Las solicitudes de esta residencia están pausadas por ahora. Volvé a mirar más adelante o explorá otras
+          residencias.
+        </p>
+      );
+    }
     return <JoinWaitlistForm residenceId={residenceId} roomTypes={roomTypes} />;
   }
 

@@ -36,16 +36,21 @@ export default async function StudentApplicationDetailPage({
   const supabase = await getSupabaseServer();
   if (!supabase) notFound();
 
-  const { data: application } = await supabase
+  const { data: application, error: applicationError } = await supabase
     .from("application_requests")
     .select(
-      "id, status, desired_start_date, initial_duration_months, academic_objective, rejection_reason_code, created_at, contact_established_at, payment_deadline_at, snapshot_original_id, snapshot_final_id, residences(name, public_area, responsible_contact), room_types(name)",
+      "id, status, desired_start_date, initial_duration_months, academic_objective, rejection_reason_code, created_at, contact_established_at, payment_deadline_at, snapshot_original_id, snapshot_final_id, residences(name, public_area, address_line), room_types(name)",
     )
     .eq("id", id)
     .maybeSingle();
+  if (applicationError) {
+    // Un fallo de la consulta (p. ej. columna inexistente) no debe verse como "no existe" (404 silencioso).
+    console.error("[student-application] query failed:", applicationError.message);
+    throw new Error("No pudimos cargar tu solicitud.");
+  }
   if (!application) notFound();
 
-  const residence = application.residences as unknown as { name: string; public_area: string } | null;
+  const residence = application.residences as unknown as { name: string; public_area: string; address_line: string | null } | null;
   const roomType = application.room_types as unknown as { name: string } | null;
 
   // H01: estado visible = solicitud + reserva asociada (la reserva manda).
@@ -148,6 +153,12 @@ export default async function StudentApplicationDetailPage({
         )}
 
         <dl className="mt-6 space-y-3 text-sm">
+          {residence?.address_line && (
+            <div className="flex justify-between gap-4 border-b border-sand-200 pb-2">
+              <dt className="text-ink-faint">Dirección de la residencia</dt>
+              <dd className="text-right font-medium text-ink">{residence.address_line}</dd>
+            </div>
+          )}
           <div className="flex justify-between border-b border-sand-200 pb-2">
             <dt className="text-ink-faint">Fecha de ingreso deseada</dt>
             <dd className="font-medium text-ink">{formatDateOnly(application.desired_start_date)}</dd>

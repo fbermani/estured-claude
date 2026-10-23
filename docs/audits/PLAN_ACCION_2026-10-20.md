@@ -61,7 +61,7 @@ Regla de paralelismo: dos agentes que escriben nunca tocan los mismos archivos a
 | Ítem | Hallazgos | Agente | Depende de | Esfuerzo |
 |---|---|---|---|---|
 | ✅ Pantalla de pago del fee con instrucciones, referencia y plazo; soporte con contexto (Ciclo 50; migraciones 0038 y 0040 pendientes de aplicar) | H02 | `constructor` | D2 | M |
-| Fuente única de disponibilidad y copy unificado con `StatusTag` | H03 | `constructor` (+ `base-datos` si cambia el modelo) | D3, D8 | L |
+| ✅ Fuente única de disponibilidad (`lib/availability/typeAvailability.ts`: catálogo, ficha, Mi residencia, comunidad) y copy unificado con `StatusTag` (variante "{Tipo}: completa") (Ciclo 55) | H03 | `constructor` (+ `base-datos` si cambia el modelo) | D3, D8 | L |
 | ✅ Control de visibilidad de comunidad + consentimiento + menores (Ciclo 49) | H04 | `constructor` → `seguridad` | D4 | M |
 | ✅ `contact_established` con vencimiento y plazo visible (Ciclo 49) | H06 | `base-datos` + `depurador` | D6 | M |
 | ✅ Pago inicial a la residencia: campo en el perfil + desglose "A la residencia / A EstuRed" en ficha, solicitud, WhatsApp y fee (Ciclo 53; migración 0041 pendiente de aplicar) | H08 | `base-datos` → `constructor` | D7 | M |

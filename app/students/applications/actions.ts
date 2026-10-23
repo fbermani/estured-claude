@@ -5,6 +5,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { ACTIVE_APPLICATION_STATUSES } from "@/lib/applications/types";
 import { createApplicationFromRoomType } from "@/lib/applications/createRequestFromRoomType";
+import { requestBlockedMessage, typeAvailabilityState } from "@/lib/availability/typeAvailability";
 
 export type CreateApplicationState = { status: "idle" | "error"; message?: string };
 
@@ -112,8 +113,9 @@ export async function createApplicationRequest(
   if (!roomType || !roomType.is_active) {
     return { status: "error", message: "Ese tipo de habitación ya no está disponible." };
   }
-  if (availability?.status === "full") {
-    return { status: "error", message: "Esa habitación ya no tiene lugar. Probá otro tipo." };
+  const blockedMessage = requestBlockedMessage(typeAvailabilityState(availability?.status));
+  if (blockedMessage) {
+    return { status: "error", message: blockedMessage };
   }
 
   const result = await createApplicationFromRoomType(admin, {

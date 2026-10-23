@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
+import { saveResidencePrivateDetails } from "@/lib/residences/privateDetails";
 import { createNotification } from "@/lib/notifications/createNotification";
 
 export type QualityVisibilityStatus = "normal_visibility" | "warning" | "reduced_visibility";
@@ -53,10 +54,10 @@ export async function setQualityVisibilityByAdmin(
   const { data: residence } = await admin.from("residences").select("id, name").eq("id", params.residenceId).maybeSingle();
   if (!residence) return { status: "error", message: "Residencia no encontrada." };
 
-  const { error } = await admin
-    .from("residences")
-    .update({ quality_visibility_status: params.newStatus })
-    .eq("id", params.residenceId);
+  // Ciclo 56: la señal de calidad es interna (no legible con la anon key): vive en `residence_private_details`.
+  const error = await saveResidencePrivateDetails(admin, params.residenceId, {
+    quality_visibility_status: params.newStatus,
+  });
   if (error) {
     console.error("[residences] setQualityVisibilityByAdmin update failed:", error);
     return { status: "error", message: "No pudimos guardar el cambio. Probá de nuevo." };

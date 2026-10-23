@@ -16,6 +16,12 @@
 
 ---
 
+## [ABIERTO — decisiones DF1–DF5 documentadas, código pendiente] Rediseño de la ficha pública (2026-10-23)
+
+**Qué es:** el dueño decidió el rediseño de `/residencias/[slug]` (`docs/00` §31 DF1–DF4, `docs/08` §4.5; propuesta en `design-proposals/ficha-residencia/SPEC.md`). **Todavía no está implementado:** layout de columna sticky + hoja de solicitud, variante "{Tipo}: completa" en `StatusTag.tsx`, mapa con el pin exacto y universidades cercanas (DF5), `/comunidad` sin "Elegir este lugar" si el tipo no está `available_to_confirm` (H03), "Desde" = mínimo de tipos no completos. **DF5 (2026-10-23) reemplaza DF3 y DF4 (dirección):** dirección y coordenadas exactas son públicas. Lo ya escrito bajo el supuesto anterior queda desalineado: la migración `0042_residence_coordinates.sql` (CHECK de máx. 3 decimales), `lib/residences/approximateLocation.ts` (centro redondeado + radio), `lib/applications/exactAddress.ts` (gate por `contact_established`), el texto "una vez confirmada la reserva" de `CompactMap.tsx` y el hallazgo de seguridad sobre `address_line` legible con la anon key (que con DF5 deja de ser un riesgo). `residences.lat`/`lng` de `docs/06` pasan a `latitude`/`longitude`. **Pendiente de lanzamiento:** pasar de teselas OSM directas a un proveedor con clave (`docs/15` §23).
+
+---
+
 ## [ABIERTO] Divergencias entre `docs/00`–`22` y el código que no se resolvieron en el ciclo de documentación
 
 Reportadas sin tocar (cambiarlas es decisión del dueño, `docs/13` §5):
@@ -267,3 +273,9 @@ Ninguna rompe nada hoy; todas son fuentes de fricción para quien entra nuevo.
 Nota (2026-07-08, actualizada 2026-10-21): esta tabla era un snapshot del Ciclo 0-1 — todos sus ítems están hoy resueltos (marcados arriba). `MEMORY.md` es la fuente de verdad viva; los ítems con encabezado `[RESUELTO — Ciclo N]` arriba en este archivo reflejan el estado real más reciente.
 
 No hay TODOs/FIXMEs en el código (verificado por grep) — la deuda está documentada aquí y en `MEMORY.md`, no dispersa en comentarios.
+
+## Ciclo 56 — Datos privados de residencia expuestos con la anon key (2026-10-23)
+
+- **[ABIERTO — requiere aplicar migraciones]** `residences` es legible con la anon key (RLS por fila): exponía contacto del responsable, señal de calidad y auditoría interna del acceso a GO; `profile_availability.notes_internal` también. Fix escrito, no aplicado: `0043_residence_private_details.sql` → deploy → `0043b_drop_residence_sensitive_columns.sql`. Guard: `scripts/check-anon-exposure.mjs`. Detalle en `MEMORY.md` (Ciclo 56).
+- **[RIESGO RESIDUAL]** flags comerciales (`has_operational_management_access`, `is_pioneer`, `pioneer_free_access_until`, `operating_mode`, `created_by`) siguen legibles con la anon key. Evaluar `GRANT SELECT (columnas)` por columna.
+- **[REGLA]** Toda columna nueva con dato privado va a `residence_private_details` (service role), nunca a `residences`; toda columna nueva de `profile_availability` legible por RLS necesita su `grant select (col)` (0043b).

@@ -7,6 +7,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { createAuditLog } from "@/lib/audit";
 import { PROPERTY_TYPE_OPTIONS, ZONE_OPTIONS } from "@/lib/residences/options";
+import { saveResidencePrivateDetails } from "@/lib/residences/privateDetails";
 
 export type RegisterResidenceState = { status: "idle" | "error"; message?: string };
 
@@ -130,14 +131,20 @@ export async function registerResidence(
         public_area: zone,
         address_line: addressLine,
         city: "CABA",
-        responsible_name: responsibleName,
-        responsible_contact: phone,
         created_by: userId,
       })
       .select("id")
       .single();
     if (residenceError || !residence) throw residenceError;
     residenceId = residence.id;
+
+    // Ciclo 56: el contacto del responsable es privado (`residence_private_details`, solo service role);
+    // `residences` es legible con la anon key.
+    const privateError = await saveResidencePrivateDetails(admin, residence.id, {
+      responsible_name: responsibleName,
+      responsible_contact: phone,
+    });
+    if (privateError) throw new Error(privateError.message);
 
     const { error: roleError } = await admin.from("user_roles").insert({
       user_id: userId,

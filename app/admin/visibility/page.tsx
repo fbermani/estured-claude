@@ -35,13 +35,20 @@ export default async function AdminVisibilityPage() {
   let notesByResidence = new Map<string, NoteRow[]>();
 
   if (admin) {
-    const { data, error } = await admin
-      .from("residences")
-      .select("id, name, status, quality_visibility_status")
-      .order("name")
-      .limit(200);
+    const { data, error } = await admin.from("residences").select("id, name, status").order("name").limit(200);
     if (error) console.error("[admin/visibility] residences query failed:", error);
-    residences = (data as unknown as ResidenceRow[]) ?? [];
+    // Ciclo 56: la señal de calidad es interna (`residence_private_details`, solo service role).
+    const { data: privateRows } = await admin
+      .from("residence_private_details")
+      .select("residence_id, quality_visibility_status")
+      .in("residence_id", (data ?? []).map((r) => r.id));
+    const qualityById = new Map<string, QualityVisibilityStatus>(
+      (privateRows ?? []).map((p) => [p.residence_id as string, p.quality_visibility_status as QualityVisibilityStatus]),
+    );
+    residences = ((data ?? []) as { id: string; name: string; status: string }[]).map((r) => ({
+      ...r,
+      quality_visibility_status: qualityById.get(r.id) ?? "normal_visibility",
+    }));
 
     if (residences.length > 0) {
       const { data: notes, error: notesError } = await admin

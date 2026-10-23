@@ -494,13 +494,13 @@ Reglas:
 | `status` | residence_status | Estado |
 | `operating_mode` | residence_operating_mode | Perfil Verificado o Gestión Operativa |
 | `visibility_status` | residence_visibility_status | Visibilidad/penalización |
-| `address_line` | text | Dirección privada/completa |
+| `address_line` | text | Dirección completa (pública desde DF5) |
 | `public_area` | text | Zona visible |
 | `city` | text | CABA inicial |
 | `province` | text | Buenos Aires/CABA |
 | `country` | text | Argentina |
-| `lat` | numeric null | Coordenada |
-| `lng` | numeric null | Coordenada |
+| `latitude` | numeric(9,6) null | Coordenada pública exacta (DF5; antes `lat`) |
+| `longitude` | numeric(9,6) null | Coordenada pública exacta (DF5; antes `lng`) |
 | `responsible_name` | text | Responsable principal, privado/admin |
 | `responsible_contact` | text | Contacto privado/admin |
 | `total_capacity` | integer | Capacidad total |
@@ -523,6 +523,12 @@ Reglas:
 - **MVP: todo gratis (D8, 2026-10-20):** el flag y `operating_mode` se conservan pero no restringen funciones mientras no se monetice (ver `docs/00` §6.2).
 
 **Campo nuevo — pago inicial para reservar (decisión D7, 2026-10-20; supuesto reversible, `docs/13` §4).** El perfil de la residencia define cuánto debe pagar el estudiante a la residencia para reservar. Valor por defecto: **el primer mes** de la tarifa del tipo elegido. Se muestra con el mismo valor en la ficha, la solicitud, el mensaje de WhatsApp y el cálculo/pantalla del fee. Modelado (fijado en la migración `0041`, Ciclo 53): `reservation_initial_payment_mode` (`one_month` por defecto = primer mes | `custom_usd` = monto fijo) y `reservation_initial_payment_usd` (numeric null; obligatorio > 0 si `custom_usd`, null si `one_month`, CHECK en DB). El monto efectivo se calcula al armar el snapshot (`lib/reservations/initialPayment.ts`) y queda congelado en `application_snapshots.reservation_payment_amount_usd/ars`: cambiar el campo no altera solicitudes ya creadas. El cambio se audita en `tariff_change_logs` (`field_name = 'initial_payment'`). **Regla al negociar (propuesta de ajuste aceptada):** el snapshot final usa el pago inicial que la propuesta fije explícitamente (`proposed_reservation_payment_amount_usd`); si no lo fija y la residencia está en `one_month` (y el original era el primer mes), el pago inicial sigue la tarifa mensual negociada; con `custom_usd` sin cambio explícito queda el monto fijo del original. El ARS del snapshot final se recalcula siempre con la cotización del original (`lib/reservations/initialPayment.ts › resolveNegotiatedInitialPaymentUsd`). Es la fuente única de `reservation_payment_amount_usd/ars` que se copia al snapshot (§11.2); reemplaza como origen a `room_types.reservation_payment_amount_usd` (§9.1). Para revertir: volver a `room_types.reservation_payment_*` por tipo.
+
+**Coordenadas públicas (decisión DF5, 2026-10-23; reemplaza DF3).** La ubicación de la residencia es pública. `residences` guarda sus coordenadas exactas en `latitude`/`longitude` (`numeric(9,6)`, nullable; sustituyen a `lat`/`lng` de la tabla de arriba, que no se usaban) y son legibles públicamente junto con `address_line` y `public_area`: la ficha dibuja el pin exacto y calcula en línea recta la distancia a las universidades cercanas. Si faltan, el mapa cae al centro del barrio (`public_area`) sin pin. Ya no hay columnas de coordenada "aproximada" ni redondeo del lado del servidor.
+
+**Dirección (decisión DF5, 2026-10-23; reemplaza DF4 en este punto).** `address_line` es **pública**: se muestra en la ficha sin condición de rol ni de estado de la solicitud. Siguen privados `responsible_name` y `responsible_contact`.
+
+**Matrícula: `enrollment_fee_mode = null` (decisión DF4, 2026-10-23).** En `residences` (migración `0025`, `docs/06` §9.1 todavía la modela por `room_types`) `enrollment_fee_mode` vale `one_month` | `manual` | `null`. **`null` significa "la residencia no cobra matrícula"**, no "no informado": la ficha muestra "No cobra" y, por la regla matrícula⊕depósito, la residencia puede cobrar depósito en su lugar. No existe estado "no informado": una residencia sin matrícula cargada se considera que no la cobra.
 
 ---
 

@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ficha de residencia — propuesta mobile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0..1,0&display=block" rel="stylesheet">
+<style>
+/* ===== Tokens copiados de app/globals.css (@theme) ===== */
+:root{
+  --ink:#1d2722;--ink-soft:#44524b;--ink-faint:#5f6c65;--muted:#5f6c65;
+  --line:#e8e0d2;--line-2:#ded4c2;--field-border:#8f836c;
+  --cream:#fbf6ec;--cream-2:#f4ecdc;--paper:#ffffff;
+  --forest:#1f7d5c;--forest-600:#166349;--forest-700:#0f4d39;--forest-ink:#0c3a2c;--forest-tint:#e2f1ea;
+  --orange:#c0521d;--orange-700:#9a4118;--orange-tint:#fde7da;
+  --mint:#d7efe2;--butter:#fbeec3;--sky:#d9ebf5;--sky-fg:#2a6a91;
+  --red-tint:#fbe5e2;--red-700:#9c392e;--blue-ink:#2d6f97;--blue-tint:#e3f0f9;
+  --success-bg:var(--forest-tint);--success-fg:var(--forest-700);--warning-bg:var(--orange-tint);--warning-fg:var(--orange-700);--info-bg:var(--blue-tint);--info-fg:var(--blue-ink);
+  --r-card:22px;--r-sm:16px;--r-field:12px;
+  --shadow-sm:0 1px 2px rgb(29 39 34/.06),0 2px 6px rgb(29 39 34/.05);
+  --shadow-card:0 1px 2px rgb(29 39 34/.05),0 4px 16px rgb(29 39 34/.07);
+  --shadow-float:0 4px 12px rgb(29 39 34/.08),0 12px 40px rgb(29 39 34/.16);
+  --shadow-forest:0 10px 24px rgb(31 125 92/.32);
+  --ease:cubic-bezier(.22,.61,.36,1);--ease-out:cubic-bezier(.16,1,.3,1);--bounce:cubic-bezier(.34,1.56,.64,1);
+  --font-sans:"Hanken Grotesk",ui-sans-serif,system-ui,sans-serif;
+  --font-display:"Bricolage Grotesque","Hanken Grotesk",ui-sans-serif,system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:108px}
+body{margin:0;background:var(--cream);color:var(--ink);font-family:var(--font-sans);-webkit-font-smoothing:antialiased;font-size:15px;line-height:1.5}
+/* En pantallas anchas el mockup se muestra en una columna de 390 px (simula el teléfono) */
+.device{max-width:390px;margin:0 auto;background:var(--cream);min-height:100vh;position:relative}
+@media (min-width:500px){body{background:#e9e1d1}.device{box-shadow:var(--shadow-float)}}
+h1,h2,h3{font-family:var(--font-display);font-weight:700;letter-spacing:-.02em;text-wrap:balance;margin:0}
+p{margin:0;text-wrap:pretty}
+a{color:inherit}button{font:inherit;color:inherit}
+.ms{font-family:"Material Symbols Outlined";font-weight:normal;font-style:normal;font-size:22px;line-height:1;display:inline-block;white-space:nowrap;font-feature-settings:"liga";font-variation-settings:"FILL" 0,"wght" 400,"GRAD" 0,"opsz" 24;vertical-align:middle}
+:focus-visible{outline:2px solid var(--forest);outline-offset:2px;border-radius:8px}
+.px{padding-left:16px;padding-right:16px}
+
+.nav{position:sticky;top:0;z-index:40;background:rgb(251 246 236/.92);backdrop-filter:blur(14px);border-bottom:1.5px solid var(--line);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px}
+.logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:17px;text-decoration:none}
+.logo-mark{width:30px;height:30px;border-radius:9px;background:var(--forest);color:#fff;display:grid;place-items:center;font-family:var(--font-display);font-weight:800}
+.iconbtn{width:44px;height:44px;border-radius:12px;border:0;background:transparent;display:grid;place-items:center;cursor:pointer}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:700;border-radius:999px;border:0;cursor:pointer;text-decoration:none;transition:transform .3s var(--bounce),box-shadow .3s var(--bounce),background-color .2s var(--ease);white-space:nowrap}
+.btn:active{transform:translateY(1px) scale(.98)}
+.btn-primary{background:var(--forest);color:#fff;box-shadow:var(--shadow-sm)}
+.btn-outline{background:var(--paper);color:var(--ink);border:1.5px solid var(--line-2)}
+.btn-ghost{background:transparent;color:var(--ink-soft)}
+.btn-sm{font-size:14px;padding:0 18px;height:44px}
+.btn-md{font-size:15px;padding:0 22px;height:48px}
+.btn-lg{font-size:16px;padding:0 24px;height:54px}
+.btn-block{width:100%}
+.btn[disabled]{opacity:.5;pointer-events:none}
+
+.status{display:inline-flex;align-items:center;gap:3px;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:600;white-space:nowrap}
+.st-info{background:var(--info-bg);color:var(--info-fg)}.st-warn{background:var(--warning-bg);color:var(--warning-fg)}.st-neutral{background:var(--cream-2);color:var(--ink-soft)}
+.tip{display:inline-grid;place-items:center;width:15px;height:15px;border-radius:50%;border:1px solid currentColor;font-size:10px;font-weight:800;margin-left:2px;background:none;padding:0;cursor:help;position:relative}
+.tip::after{content:"";position:absolute;inset:-14px}
+.trust{display:inline-flex;align-items:center;gap:4px;border-radius:999px;background:#fff;color:var(--forest-700);font-weight:700;font-size:13px;padding:4px 11px;box-shadow:var(--shadow-sm);outline:1.5px solid var(--forest-tint)}
+.trust .ms{font-size:16px;font-variation-settings:"FILL" 1}
+.eyebrow{font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.card{background:var(--paper);border:1.5px solid var(--line);border-radius:var(--r-card)}
+
+/* Hero */
+.hero{margin:12px 16px 0;border-radius:var(--r-card);overflow:hidden;position:relative}
+.hero-empty{height:150px;background:var(--mint);display:flex;align-items:flex-end;justify-content:center}
+.hero-empty svg{height:88%;color:rgb(15 77 57/.7);position:relative}
+.hero-label{position:absolute;right:10px;top:10px;background:rgb(255 255 255/.8);color:var(--ink-soft);font-size:11px;font-weight:600;border-radius:999px;padding:4px 10px}
+.car{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;height:240px;scrollbar-width:none}
+.car .ph{flex:0 0 100%;scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--forest-700);font-weight:700;font-size:12px}
+.car .ph .ms{font-size:34px;opacity:.55}
+.count{position:absolute;right:10px;bottom:10px;background:rgb(29 39 34/.72);color:#fff;font-size:12px;font-weight:700;border-radius:999px;padding:4px 10px}
+
+/* Encabezado */
+.head{padding:18px 16px 0}
+.head h1{font-size:30px;line-height:1.08;letter-spacing:-.03em}
+.head .row{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+.zone{color:var(--ink-soft);display:flex;align-items:center;gap:4px;font-size:14px}
+.zone .ms{font-size:18px;color:var(--orange-700)}
+.facts{display:flex;gap:8px;overflow-x:auto;padding:14px 16px 2px;margin:0 -16px;scrollbar-width:none}
+.fact{flex:none;display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:var(--paper);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;color:var(--ink-soft)}
+.fact .ms{font-size:17px;color:var(--forest-700)}.fact b{color:var(--ink)}
+.lead{margin-top:14px;color:var(--ink-soft);font-size:15px;line-height:1.6}
+.lead button{font-weight:700;color:var(--forest-700);background:none;border:0;padding:0;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+
+.subnav{position:sticky;top:56px;z-index:30;background:var(--cream);border-bottom:1.5px solid var(--line);margin-top:18px;display:flex;overflow-x:auto;scrollbar-width:none;padding:0 8px}
+.subnav a{flex:none;text-decoration:none;font-size:14px;font-weight:700;color:var(--ink-soft);padding:13px 10px 11px;border-bottom:3px solid transparent}
+.subnav a[aria-current="true"]{color:var(--forest-700);border-bottom-color:var(--forest)}
+
+section{padding:28px 16px 0}
+section>h2{font-size:22px}
+.sec-sub{color:var(--ink-soft);font-size:14px;margin-top:4px}
+
+/* Tarifas como tarjetas seleccionables */
+.types{display:grid;gap:8px;margin-top:14px}
+.type{display:grid;grid-template-columns:22px 1fr auto;gap:12px;align-items:start;background:var(--paper);border:1.5px solid var(--line);border-radius:var(--r-sm);padding:14px;cursor:pointer}
+.type input{appearance:none;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--field-border);margin:2px 0 0;background:var(--paper)}
+.type input:checked{border-color:var(--forest);background:radial-gradient(circle,var(--forest) 0 5px,var(--paper) 5.5px)}
+.type.sel{border-color:var(--forest);background:rgb(226 241 234/.5)}
+.type.off{background:#fcfaf5;cursor:default}
+.type.off input{opacity:.35}
+.type .nm{font-weight:800;font-size:16px}
+.type .cap{font-size:12.5px;color:var(--ink-faint)}
+.type .stw{margin-top:8px}
+.type .pr{text-align:right;font-family:var(--font-display);font-weight:800;font-size:18px;white-space:nowrap}
+.type .pr small{display:block;font-family:var(--font-sans);font-weight:500;font-size:12px;color:var(--ink-faint)}
+.type .wl{grid-column:2/4;justify-self:start;margin-top:-4px}
+.ratenote{font-size:12.5px;color:var(--ink-faint);margin-top:10px;display:flex;gap:6px;align-items:flex-start}
+.ratenote .ms{font-size:17px}
+.conds{margin-top:14px;overflow:hidden}
+.cond{display:flex;gap:12px;padding:12px 14px;border-top:1.5px solid var(--line);align-items:flex-start}
+.cond:first-child{border-top:0}
+.cond .ms{font-size:20px;color:var(--forest-700);margin-top:1px}
+.cond .k{font-size:13px;font-weight:700;color:var(--ink-soft)}
+.cond .v{font-weight:800;font-size:15.5px;margin-left:auto;text-align:right;white-space:nowrap}
+.cond .d{font-size:12.5px;color:var(--ink-faint);margin-top:1px}
+.who{margin-top:12px;overflow:hidden}
+.who>div{padding:14px}
+.who>div+div{border-top:1.5px solid var(--line)}
+.who h3{font-size:15px;display:flex;align-items:center;gap:8px}
+.who .tile{width:28px;height:28px;border-radius:9px;display:grid;place-items:center}.who .tile .ms{font-size:17px}
+.who p{font-size:13.5px;color:var(--ink-soft);margin-top:6px}
+.reqbox{margin-top:14px;padding:16px;box-shadow:var(--shadow-card)}
+.reqbox .sum{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.reqbox .p{font-family:var(--font-display);font-weight:800;font-size:24px}
+.legal{font-size:12px;color:var(--ink-faint);margin-top:10px;line-height:1.5}
+.notice{border-radius:var(--r-field);padding:12px;font-size:13.5px;line-height:1.5;display:flex;gap:10px;align-items:flex-start;margin-top:12px}
+.notice .ms{font-size:20px;flex:none}.notice b{display:block}
+.notice.neutral{background:var(--cream-2);color:var(--ink-soft)}.notice.warn{background:var(--warning-bg);color:var(--warning-fg)}
+.trustbox{display:flex;gap:12px;padding:14px;margin-top:14px}
+.trustbox .tile{width:40px;height:40px;border-radius:12px;background:var(--forest-tint);color:var(--forest-700);display:grid;place-items:center;flex:none}
+.trustbox .tile .ms{font-variation-settings:"FILL" 1}
+.trustbox h3{font-size:15px}.trustbox p{font-size:13.5px;color:var(--ink-soft);margin-top:3px}
+
+/* Comunidad */
+.quote{border-left:3px solid var(--forest);background:rgb(226 241 234/.45);border-radius:var(--r-field);padding:12px 14px;font-style:italic;color:var(--ink-soft);font-size:14px;margin-top:12px}
+.comm{margin-top:12px;overflow:hidden}
+.comm-top{display:flex;align-items:center;gap:10px;padding:14px}
+.comm-top b{font-family:var(--font-display);font-size:26px}
+.crow{display:flex;align-items:center;gap:10px;padding:11px 14px;border-top:1.5px solid var(--line)}
+.crow .t{font-weight:800;font-size:14.5px}.crow .n{font-size:12.5px;color:var(--ink-faint)}
+.crow .stack{margin-left:auto;display:flex}
+.av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;box-shadow:0 0 0 2px var(--paper);margin-left:-7px}
+.av:first-child{margin-left:0}
+.c1{background:var(--forest-tint);color:var(--forest-700)}.c2{background:var(--orange-tint);color:var(--orange-700)}.c3{background:var(--mint);color:var(--forest-700)}.c4{background:var(--sky);color:var(--sky-fg)}.more{background:var(--forest);color:#fff;font-size:11px}
+.cfoot{padding:11px 14px;border-top:1.5px solid var(--line);background:#fdfaf3;font-size:12.5px;color:var(--ink-faint)}
+.link{font-weight:700;color:var(--forest-700);text-decoration:none;display:inline-flex;align-items:center;gap:2px;font-size:14px;min-height:44px}
+.link .ms{font-size:18px}
+
+.amen{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.am{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;color:var(--ink-soft);background:var(--paper);border:1.5px solid var(--line);border-radius:var(--r-field);padding:10px}
+.am .ms{font-size:19px;color:var(--forest-700)}
+h3.sub{font-size:16px;margin-top:18px}
+
+.map{margin-top:12px;overflow:hidden}
+.map-canvas{position:relative;height:214px;overflow:hidden;background:#efe9dc}
+.map-tiles{position:absolute;left:-110px;top:-74px;width:1024px;display:grid;grid-template-columns:repeat(4,256px)}
+.map-tiles img{width:256px;height:256px;display:block;filter:saturate(.55) sepia(.12) brightness(1.02)}
+.map-svg{position:absolute;inset:0;width:100%;height:100%}
+.map-attr{position:absolute;right:6px;bottom:4px;font-size:10px;background:rgb(255 255 255/.85);padding:2px 5px;border-radius:6px;color:var(--ink-soft)}
+.uni{display:flex;align-items:center;gap:10px;padding:11px 14px;border-top:1.5px solid var(--line)}
+.uni .pin{width:26px;height:26px;border-radius:50%;background:var(--blue-tint);color:var(--blue-ink);display:grid;place-items:center;font-weight:800;font-size:12px;flex:none}
+.uni .nm{font-weight:700;font-size:14px;flex:1}.uni .km{font-weight:700;color:var(--ink-soft);font-size:13.5px}
+.mfoot{padding:10px 14px;border-top:1.5px solid var(--line);background:#fdfaf3;font-size:12.5px;color:var(--ink-faint)}
+
+.faq{margin-top:12px;overflow:hidden}
+.faq details{border-top:1.5px solid var(--line)}.faq details:first-child{border-top:0}
+.faq summary{list-style:none;cursor:pointer;padding:14px;font-weight:700;display:flex;justify-content:space-between;gap:10px;font-size:14.5px;min-height:48px;align-items:center}
+.faq summary::-webkit-details-marker{display:none}
+.faq .ans{padding:0 14px 14px;color:var(--ink-soft);font-size:14px}
+.visitor{display:block;font-size:10.5px;font-weight:800;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+textarea,.input{width:100%;font:inherit;font-size:16px;border:1.5px solid var(--field-border);background:var(--cream);border-radius:var(--r-field);padding:10px 12px;color:var(--ink)}
+label.fl{display:block;font-size:13px;font-weight:700;color:var(--ink-soft);margin:12px 0 6px}
+.hint{font-size:12px;color:var(--ink-faint);margin-top:6px}
+
+/* Barra inferior (MobileRequestBar) */
+.bar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:390px;z-index:35;background:rgb(255 255 255/.96);backdrop-filter:blur(8px);border-top:1.5px solid var(--line);box-shadow:var(--shadow-float);padding:10px 16px max(12px,env(safe-area-inset-bottom));display:flex;align-items:center;justify-content:space-between;gap:12px;transition:transform .3s var(--ease),visibility .3s}
+.bar.hidden{transform:translate(-50%,110%);visibility:hidden}
+.bar .l{line-height:1.2;min-width:0}
+.bar .l small{display:block;font-size:12px;font-weight:600;color:var(--ink-faint)}
+.bar .l b{font-family:var(--font-display);font-size:19px}
+.bar .l .u{font-size:12px;color:var(--ink-faint);font-weight:600}
+.spacer{height:96px}
+
+/* Hoja de solicitud a pantalla completa */
+.scrim{position:fixed;inset:0;background:rgb(18 30 24/.5);z-index:60;opacity:0;pointer-events:none;transition:opacity .25s var(--ease)}
+.sheet{position:fixed;left:50%;bottom:0;width:100%;max-width:390px;height:calc(100% - 24px);background:var(--paper);z-index:61;display:flex;flex-direction:column;transform:translate(-50%,104%);transition:transform .35s var(--ease-out);border-radius:24px 24px 0 0;box-shadow:var(--shadow-float)}
+body.sheet-open .scrim{opacity:1;pointer-events:auto}
+body.sheet-open .sheet{transform:translate(-50%,0)}
+.grab{width:40px;height:4px;border-radius:999px;background:var(--line-2);margin:8px auto 0}
+.sheet-h{padding:10px 16px 12px;border-bottom:1.5px solid var(--line);display:flex;gap:10px;align-items:flex-start}
+.sheet-h h2{font-size:20px}.sheet-h p{font-size:13px;color:var(--ink-soft);margin-top:2px}
+.x{width:44px;height:44px;border-radius:12px;background:var(--cream-2);border:0;display:grid;place-items:center;margin-left:auto;flex:none;cursor:pointer}
+.sheet-b{flex:1;overflow-y:auto;padding:14px 16px 20px}
+.step{font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.row2{display:grid;grid-template-columns:1.3fr 1fr;gap:10px}
+.dates{display:flex;align-items:center;justify-content:space-between;border:1.5px solid var(--line);border-radius:var(--r-field);padding:9px 12px;margin-top:12px}
+.dates small{display:block;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.break{background:var(--cream-2);border:1.5px solid var(--line);border-radius:var(--r-field);padding:10px 12px;margin-top:10px;font-size:13.5px}
+.bl{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-top:1.5px solid var(--line)}.bl:first-child{border-top:0}
+.bl span{color:var(--ink-soft)}.bl.tot span{color:var(--ink);font-weight:700}
+.pay{border-radius:var(--r-field);padding:10px 12px;margin-top:8px;display:flex;justify-content:space-between;gap:10px;font-size:13.5px}
+.pay small{display:block;font-size:11.5px;font-weight:500}
+.pay.res{border:1.5px solid var(--line)}
+.pay.est{background:var(--warning-bg);color:var(--warning-fg);border:1.5px solid rgb(192 82 29/.35)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chip{border:1.5px solid var(--line-2);background:var(--paper);border-radius:999px;padding:0 14px;min-height:40px;font-size:14px;font-weight:600;color:var(--ink-soft);cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--forest);background:var(--forest-tint);color:var(--forest-700)}
+.sheet-f{border-top:1.5px solid var(--line);padding:12px 16px max(14px,env(safe-area-inset-bottom));background:var(--paper)}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--ink-soft);cursor:pointer}
+.check input{width:20px;height:20px;margin-top:0;accent-color:var(--forest);flex:none}
+.sheet-f .btn{margin-top:10px}
+.err{display:none;background:var(--red-tint);color:var(--red-700);border-radius:var(--r-field);padding:10px 12px;font-size:13px;font-weight:600;margin-bottom:10px;gap:8px}
+body.sheet-error .err{display:flex}
+.success{display:none;padding:28px 20px;text-align:center;flex:1;flex-direction:column;align-items:center;justify-content:center}
+.success .ok{width:60px;height:60px;border-radius:50%;background:var(--forest-tint);color:var(--forest-700);display:grid;place-items:center;margin-bottom:12px}
+.success .ok .ms{font-size:32px}
+.success p{color:var(--ink-soft);margin-top:6px}
+.success ol{text-align:left;margin:16px 0 0;padding:12px 14px 12px 30px;background:var(--cream-2);border-radius:var(--r-field);font-size:13.5px;color:var(--ink-soft);display:grid;gap:6px}
+body.sheet-success .sheet-b,body.sheet-success .sheet-f{display:none}
+body.sheet-success .success{display:flex}
+
+.sk{display:none}
+body.loading .real{display:none}
+body.loading .sk{display:block}
+.skb{background:linear-gradient(90deg,var(--cream-2),#efe5d2,var(--cream-2));background-size:200% 100%;animation:sh 1.4s var(--ease) infinite;border-radius:12px}
+@keyframes sh{to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){.skb{animation:none}*{scroll-behavior:auto!important;transition:none!important}}
+
+.mk{position:fixed;right:8px;top:64px;z-index:80;background:var(--forest-ink);color:#fff;border-radius:14px;padding:8px 10px;font-size:11.5px;width:210px;box-shadow:var(--shadow-float)}
+.mk summary{cursor:pointer;font-weight:800}
+.mk label{display:block;margin-top:6px;font-weight:700;opacity:.85}
+.mk select{width:100%;font:inherit;border-radius:8px;border:0;padding:4px;color:var(--ink)}
+.mk .b{margin-top:6px;display:flex;flex-wrap:wrap;gap:5px}
+.mk button{border:0;border-radius:999px;padding:4px 9px;font-size:11px;font-weight:700;background:#fff;color:var(--forest-ink);cursor:pointer}
+.foot{margin-top:36px;background:var(--forest-ink);color:#d6e6de;padding:28px 16px;font-size:13px}
+</style>
+</head>
+<body data-role="student" data-avail="normal" data-photos="0">
+<details class="mk">
+  <summary>Estados del mockup</summary>
+  <label>Quién mira<select id="mk-role"><option value="guest">Invitado</option><option value="student" selected>Estudiante</option><option value="minor">Menor sin familiar</option><option value="family">Familiar vinculado</option></select></label>
+  <label>Disponibilidad<select id="mk-avail"><option value="normal">Por tipo (normal)</option><option value="full">Todo completo</option><option value="stale">Sin actualizar</option></select></label>
+  <label>Fotos<select id="mk-photos"><option value="0">0 fotos</option><option value="5">5 o más</option></select></label>
+  <div class="b"><button type="button" id="mk-open">Abrir solicitud</button><button type="button" id="mk-error">Error</button><button type="button" id="mk-success">Enviada</button><button type="button" id="mk-load">Carga</button></div>
+</details>
+
+<div class="device">
+<header class="nav">
+  <a class="logo" href="#"><span class="logo-mark">E</span>EstuRed</a>
+  <div style="display:flex;align-items:center;gap:4px"><a class="btn btn-ghost btn-sm js-guestonly" href="#" style="padding:0 10px">Ingresar</a><button class="iconbtn" type="button" aria-label="Abrir menú"><span class="ms">menu</span></button></div>
+</header>
+
+<div class="sk" aria-hidden="true" style="padding:12px 16px">
+  <div class="skb" style="height:150px;border-radius:22px"></div>
+  <div class="skb" style="height:30px;width:75%;margin-top:18px"></div>
+  <div class="skb" style="height:14px;width:40%;margin-top:10px"></div>
+  <div class="skb" style="height:32px;margin-top:16px;border-radius:999px"></div>
+  <div class="skb" style="height:260px;margin-top:28px;border-radius:22px"></div>
+</div>
+
+<main class="real">
+  <div class="hero hero-empty" data-ph="0" role="img" aria-label="Residencia Norte: foto próximamente">
+    <svg viewBox="0 0 220 180" fill="none" preserveAspectRatio="xMidYMax meet" aria-hidden="true" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8 168h204" opacity=".55"/><path d="M26 168v-34" opacity=".7"/><circle cx="26" cy="118" r="17" fill="#e2f1ea"/>
+      <rect x="164" y="92" width="44" height="76" rx="3" fill="#fff" opacity=".7"/><rect x="56" y="26" width="104" height="142" rx="4" fill="#fff"/><path d="M50 26h116" stroke-width="3"/>
+      <rect x="70" y="50" width="26" height="32" rx="2" fill="#e2f1ea"/><rect x="120" y="50" width="26" height="32" rx="2" fill="#e2f1ea"/><path d="M66 86h34M116 86h34"/>
+      <rect x="70" y="104" width="26" height="32" rx="2" fill="#e2f1ea"/><rect x="120" y="104" width="26" height="32" rx="2" fill="#e2f1ea"/>
+      <path d="M99 168v-38a9 9 0 0 1 9-9h0a9 9 0 0 1 9 9v38" fill="#fde7da"/><path d="M94 168h28"/>
+    </svg>
+    <span class="hero-label">Foto próximamente</span>
+  </div>
+  <div class="hero" data-ph="5">
+    <div class="car" aria-label="Fotos de la residencia" tabindex="0">
+      <div class="ph" style="background:var(--mint)"><span class="ms">photo_camera</span>Foto principal</div>
+      <div class="ph" style="background:var(--butter)"><span class="ms">bed</span>Habitación</div>
+      <div class="ph" style="background:var(--sky)"><span class="ms">kitchen</span>Cocina</div>
+    </div>
+    <span class="count">1 / 8</span>
+  </div>
+
+  <div class="head">
+    <h1>Residencia Norte</h1>
+    <div class="row"><span class="trust"><span class="ms">verified</span>Residencia Verificada</span><span class="zone"><span class="ms">location_on</span>Palermo, CABA</span></div>
+    <div class="facts">
+      <span class="fact"><span class="ms">payments</span>Desde <b>USD 190</b>/mes</span>
+      <span class="fact"><span class="ms">event</span>Mínimo <b>6 meses</b></span>
+      <span class="fact"><span class="ms">school</span>~1,8 km de la UP</span>
+      <span class="fact"><span class="ms">groups</span><b>30</b> residentes</span>
+    </div>
+    <p class="lead">Casa racionalista renovada en Palermo, a metros de Plaza Italia: patio con parrilla, cocina equipada y un living donde la comunidad estudia y cocina. <button type="button" aria-expanded="false">Leer más</button></p>
+  </div>
+
+  <nav class="subnav" aria-label="Secciones de la ficha">
+    <a href="#tarifas" aria-current="true">Tarifas</a><a href="#comunidad">Comunidad</a><a href="#residencia">La residencia</a><a href="#ubicacion">Ubicación</a><a href="#preguntas">Preguntas</a>
+  </nav>
+
+  <!-- Tarifas: en mobile esta sección ES el panel de solicitud (#solicitud) -->
+  <section id="tarifas" aria-labelledby="h-t">
+    <h2 id="h-t">Tarifas y condiciones</h2>
+    <p class="sec-sub">Precio mensual por tipo de habitación. La disponibilidad la informa la residencia.</p>
+    <div class="notice neutral js-stale"><span class="ms">update</span><span><b style="color:var(--ink)">Sin disponibilidad actualizada</b>Podés enviar la solicitud igual: la residencia te confirma si hay lugar.</span></div>
+    <div class="notice warn js-full"><span class="ms">event_busy</span><span><b>Residencia completa</b>Podés sumarte a la lista de espera.</span></div>
+    <div class="types" role="radiogroup" aria-label="Elegí un tipo de habitación" id="types"></div>
+    <p class="ratenote"><span class="ms">info</span><span>Pesos referenciales al dólar blue de hoy (ARS 1.570). <button class="tip" type="button" aria-label="Por qué el valor en pesos es referencial" title="El valor en pesos es referencial, calculado en base al dólar blue (valor venta) del día de hoy. El valor final en pesos será determinado en el momento en que realices el pago directamente a la residencia, según la cotización vigente en ese momento.">i</button></span></p>
+
+    <div class="card conds">
+      <div class="cond"><span class="ms">key</span><div><div class="k">Para reservar</div><div class="d">Pago inicial a la residencia</div></div><div class="v js-initial">Primer mes</div></div>
+      <div class="cond"><span class="ms">savings</span><div><div class="k">Depósito</div><div class="d">Reembolsable si no hay daños</div></div><div class="v">USD 300</div></div>
+      <div class="cond"><span class="ms">receipt</span><div><div class="k">Matrícula</div><div class="d">Cargo de ingreso</div></div><div class="v">No cobra</div></div>
+      <div class="cond"><span class="ms">event</span><div><div class="k">Estadía mínima</div></div><div class="v">6 meses</div></div>
+      <div class="cond"><span class="ms">trending_up</span><div><div class="k">Ajuste de la tarifa</div><div class="d">Puede actualizarse cada 3 meses</div></div><div class="v">Trimestral</div></div>
+      <div class="cond"><span class="ms">hourglass_top</span><div><div class="k">Reserva anticipada</div><div class="d">Por mes completo antes de tu ingreso (hasta 3)</div></div><div class="v">50%</div></div>
+    </div>
+
+    <div class="card who">
+      <div><h3><span class="tile" style="background:var(--forest-tint);color:var(--forest-700)"><span class="ms">apartment</span></span>A la residencia</h3><p>Pago inicial para reservar, renta mes a mes y depósito. Se paga directamente, recién cuando confirma tu reserva.</p></div>
+      <div><h3><span class="tile" style="background:var(--orange-tint);color:var(--orange-700)"><span class="ms">handshake</span></span>A EstuRed</h3><p>Fee del 5% sobre el total de la reserva, solo si la residencia la confirma. Enviar la solicitud es gratis.</p></div>
+    </div>
+
+    <div class="card reqbox" id="solicitud">
+      <div class="sum"><span><span class="eyebrow js-eyebrow">Desde</span><br><span class="p js-price">USD 190</span><span style="font-size:13px;color:var(--ink-faint)"> /mes</span></span><span style="font-size:12.5px;color:var(--ink-faint);text-align:right" class="js-ars">≈ ARS 298.500</span></div>
+      <div class="js-r-student"><button class="btn btn-primary btn-lg btn-block js-open js-cta" type="button" style="margin-top:12px">Solicitar lugar</button></div>
+      <div class="js-r-guest"><button class="btn btn-primary btn-lg btn-block js-cta" type="button" style="margin-top:12px">Solicitar lugar</button><p class="legal">Te pedimos que ingreses con tu cuenta de estudiante; volvés acá con tu elección guardada. <a class="link" style="font-size:12px;min-height:0" href="#">Crear cuenta</a></p></div>
+      <div class="js-r-family"><button class="btn btn-primary btn-lg btn-block" type="button" style="margin-top:12px">Proponer a Lucía</button><p class="legal">Una propuesta no es una solicitud: Lucía la ve en su panel y decide si la envía.</p></div>
+      <div class="js-r-minor"><div class="notice neutral"><span class="ms">family_restroom</span><span><b style="color:var(--ink)">Primero, vinculá a un familiar</b>Como sos menor de 18, necesitás un familiar vinculado para enviar solicitudes.</span></div><a class="btn btn-primary btn-md btn-block" href="#" style="margin-top:10px">Invitar a un familiar</a></div>
+      <div class="js-r-full"><button class="btn btn-primary btn-lg btn-block" type="button" style="margin-top:12px">Sumarme a la lista de espera</button><p class="legal">La lista de espera no es una solicitud ni reserva un lugar.</p></div>
+      <p class="legal js-legal">Enviar la solicitud es gratis. La residencia responde en hasta 48 horas. Toda reserva está sujeta a confirmación.</p>
+    </div>
+
+    <div class="card trustbox"><span class="tile"><span class="ms">verified</span></span><div><h3>Qué revisó EstuRed</h3><p>Identidad, ubicación y fotos revisadas por EstuRed mediante control presencial. El sello no reemplaza leer las condiciones.</p></div></div>
+  </section>
+
+  <section id="comunidad" aria-labelledby="h-c">
+    <h2 id="h-c">Comunidad y convivencia</h2>
+    <p class="quote">"Somos una casa activa y social: acá se cocina en grupo, se estudia en el living y se arma plan de fin de semana."</p>
+    <div class="card comm">
+      <div class="comm-top"><b>30</b><span style="color:var(--ink-soft);font-weight:600;font-size:14px">residentes actuales</span></div>
+      <div class="crow"><div><div class="t">Individual</div><div class="n">8 residentes</div></div><div class="stack" aria-hidden="true"><span class="av c1">E</span><span class="av c2">G</span><span class="av c3">I</span><span class="av more">+5</span></div></div>
+      <div class="crow"><div><div class="t">Doble</div><div class="n">8 residentes</div></div><div class="stack" aria-hidden="true"><span class="av c3">D</span><span class="av c1">G</span><span class="av c4">J</span><span class="av more">+5</span></div></div>
+      <div class="crow"><div><div class="t">Triple</div><div class="n">7 residentes</div></div><div class="stack" aria-hidden="true"><span class="av c2">F</span><span class="av c3">H</span><span class="av c1">J</span><span class="av more">+4</span></div></div>
+      <div class="crow"><div><div class="t">Cuádruple</div><div class="n">7 residentes</div></div><div class="stack" aria-hidden="true"><span class="av c4">E</span><span class="av c1">I</span><span class="av c2">M</span><span class="av more">+4</span></div></div>
+      <div class="cfoot">Los perfiles son los de hoy y pueden cambiar antes de tu ingreso. Cada estudiante decide qué mostrar.</div>
+    </div>
+    <a class="link" href="#">Ver comunidad<span class="ms">arrow_forward</span></a>
+  </section>
+
+  <section id="residencia" aria-labelledby="h-r">
+    <h2 id="h-r">La residencia</h2>
+    <h3 class="sub">Servicios incluidos</h3>
+    <div class="amen"><span class="am"><span class="ms">wifi</span>WiFi</span><span class="am"><span class="ms">mop</span>Limpieza semanal</span><span class="am"><span class="ms">local_laundry_service</span>Lavadero</span><span class="am"><span class="ms">kitchen</span>Cocina equipada</span></div>
+    <h3 class="sub">Áreas comunes</h3>
+    <div class="amen"><span class="am"><span class="ms">deck</span>Terraza</span><span class="am"><span class="ms">countertops</span>Cocina</span><span class="am"><span class="ms">menu_book</span>Sala de estudio</span><span class="am"><span class="ms">balcony</span>Balcón</span></div>
+    <h3 class="sub">Reglas de convivencia</h3>
+    <div class="card" style="padding:14px;margin-top:10px"><p style="font-size:14px;color:var(--ink-soft)">Convivencia respetuosa, silencio después de las 23 h y visitas coordinadas con anticipación.</p><a class="link" href="#" style="font-size:13.5px"><span class="ms">picture_as_pdf</span>Ver reglamento completo (PDF)</a></div>
+  </section>
+
+  <section id="ubicacion" aria-labelledby="h-u">
+    <h2 id="h-u">Ubicación</h2>
+    <p class="sec-sub">Zona aproximada. La dirección exacta te la comparte la residencia cuando confirma el contacto.</p>
+    <div class="card map">
+      <div class="map-canvas" role="img" aria-label="Mapa de Palermo con la zona aproximada de Residencia Norte y la Universidad de Palermo">
+        <div class="map-tiles" aria-hidden="true">
+          <img alt="" src="https://tile.openstreetmap.org/14/5532/9871.png"><img alt="" src="https://tile.openstreetmap.org/14/5533/9871.png"><img alt="" src="https://tile.openstreetmap.org/14/5534/9871.png"><img alt="" src="https://tile.openstreetmap.org/14/5535/9871.png">
+          <img alt="" src="https://tile.openstreetmap.org/14/5532/9872.png"><img alt="" src="https://tile.openstreetmap.org/14/5533/9872.png"><img alt="" src="https://tile.openstreetmap.org/14/5534/9872.png"><img alt="" src="https://tile.openstreetmap.org/14/5535/9872.png">
+        </div>
+        <!-- z14, tiles x5532–5535 y9871–9872, offset (-110,-74): zona (97,75), UP (288,193) -->
+        <svg class="map-svg" aria-hidden="true">
+          <circle cx="97" cy="75" r="62" fill="rgb(192 82 29 / .16)" stroke="#c0521d" stroke-width="2" stroke-dasharray="6 5"/>
+          <circle cx="97" cy="75" r="6" fill="#c0521d" stroke="#fff" stroke-width="3"/>
+          <circle cx="288" cy="193" r="12" fill="#2d6f97" stroke="#fff" stroke-width="3"/><text x="288" y="197.5" text-anchor="middle" font-size="11" font-weight="800" fill="#fff" font-family="Hanken Grotesk">1</text>
+        </svg>
+        <span class="map-attr">© colaboradores de OpenStreetMap</span>
+      </div>
+      <div class="uni"><span class="pin">1</span><span class="nm">Universidad de Palermo (UP)</span><span class="km">~1,8 km</span></div>
+      <div class="uni"><span class="pin">2</span><span class="nm">UBA · Facultad de Derecho</span><span class="km">~3,6 km</span></div>
+      <div class="mfoot">Distancias aproximadas en línea recta desde el centro de la zona.</div>
+    </div>
+  </section>
+
+  <section id="preguntas" aria-labelledby="h-f">
+    <h2 id="h-f">Preguntas frecuentes</h2>
+    <div class="card faq">
+      <details open><summary>¿La cocina está equipada?<span class="ms">expand_more</span></summary><div class="ans">Sí, con heladera, anafe, microondas y utensilios básicos compartidos.</div></details>
+      <details><summary>¿Hay estacionamiento?<span class="ms">expand_more</span></summary><div class="ans">No contamos con estacionamiento propio.</div></details>
+      <details><summary><span><span class="visitor">Pregunta de un visitante</span>¿Se puede cocinar en la habitación?</span><span class="ms">expand_more</span></summary><div class="ans">Solo en la cocina común, abierta de 7 a 23 h.</div></details>
+    </div>
+    <div class="card" style="padding:14px;margin-top:12px">
+      <h3 style="font-size:15px">¿Tenés otra pregunta?</h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-top:4px">Se la hacemos llegar a la residencia. No es una respuesta automática.</p>
+      <label class="fl" for="q">Tu pregunta</label><textarea id="q" rows="3" placeholder="Ej.: ¿Se pueden recibir visitas?"></textarea>
+      <p class="hint">No incluyas datos personales ni de contacto.</p>
+      <button class="btn btn-outline btn-sm" type="button" style="margin-top:10px">Enviar pregunta</button>
+    </div>
+  </section>
+  <div class="spacer" aria-hidden="true"></div>
+</main>
+<footer class="foot">EstuRed · footer actual sin cambios</footer>
+</div>
+
+<div class="bar" id="bar">
+  <div class="l"><small class="js-bar-k">Desde</small><b class="js-bar-p">USD 190</b><span class="u"> /mes</span></div>
+  <button class="btn btn-primary btn-md js-bar-cta" type="button">Solicitar</button>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sh-t" aria-hidden="true">
+  <div class="grab" aria-hidden="true"></div>
+  <div class="sheet-h"><div><p class="eyebrow">Residencia Norte</p><h2 id="sh-t">Tu solicitud de reserva</h2><p>Sujeta a confirmación de la residencia.</p></div><button class="x" type="button" id="close" aria-label="Cerrar"><span class="ms">close</span></button></div>
+  <div class="sheet-b">
+    <p class="step">1 · Tu estadía</p>
+    <label class="fl" for="f-type">Tipo de habitación</label><select class="input" id="f-type"></select>
+    <div class="row2"><div><label class="fl" for="f-d">Fecha de ingreso</label><input class="input" id="f-d" type="date" value="2027-03-01"></div><div><label class="fl" for="f-m">Meses</label><input class="input" id="f-m" type="number" value="6" min="6"></div></div>
+    <p class="hint">Estadía mínima: 6 meses.</p>
+    <div class="dates"><span><small>Entrada</small><b>1 mar 2027</b></span><span class="ms" style="color:var(--ink-faint)">arrow_forward</span><span style="text-align:right"><small>Salida</small><b>31 ago 2027</b></span></div>
+    <div class="break"><div class="bl"><span>Renta (×6)</span><b class="js-rent">USD 1.320</b></div><div class="bl"><span style="color:var(--orange-700)">Reserva anticipada (3 meses)</span><b style="color:var(--orange-700)" class="js-empty">USD 330</b></div><div class="bl tot"><span>Total de la reserva</span><b class="js-total">USD 1.650</b></div><div class="bl"><span>Depósito (aparte)</span><b>USD 300</b></div></div>
+    <div class="pay res"><span><b>A la residencia</b><small>Pago inicial (primer mes)</small></span><b style="text-align:right" class="js-init2">USD 220</b></div>
+    <div class="pay est"><span><b>A EstuRed: fee (5%)</b><small>Solo si la residencia confirma</small></span><b style="text-align:right" class="js-fee">USD 82,50</b></div>
+    <p class="step" style="margin-top:20px">2 · Sobre vos</p>
+    <p style="font-size:14px;font-weight:700;color:var(--ink-soft);margin-top:8px" id="ol">¿Cuál es tu objetivo académico?</p>
+    <div class="chips" role="group" aria-labelledby="ol"><button class="chip" type="button" aria-pressed="true">Empezar mi carrera</button><button class="chip" type="button" aria-pressed="false">Continuar mis estudios</button><button class="chip" type="button" aria-pressed="false">Intercambio académico</button><button class="chip" type="button" aria-pressed="false">Posgrado</button></div>
+    <textarea rows="2" style="margin-top:10px" aria-label="Más detalle sobre tu objetivo académico (opcional)" placeholder="Más detalle (opcional)"></textarea>
+    <p class="hint">Se usa para tu comprobante de reserva.</p>
+  </div>
+  <div class="sheet-f">
+    <div class="err" role="alert"><span class="ms" style="font-size:19px">error</span>No pudimos enviar tu solicitud. Probá de nuevo; no se perdió lo que cargaste.</div>
+    <label class="check"><input type="checkbox" checked>Leí y acepto las condiciones y el reglamento de convivencia.</label>
+    <button class="btn btn-primary btn-lg btn-block" id="send" type="button">Enviar solicitud de reserva</button>
+    <p class="legal" style="text-align:center;margin-top:8px">La residencia verá tu carrera y universidad y tiene 48 horas para responder.</p>
+  </div>
+  <div class="success" role="status"><span class="ok"><span class="ms">check</span></span><h2>Enviamos tu solicitud</h2><p>Residencia Norte · <span class="js-name">Doble</span></p><ol><li>La residencia responde en hasta 48 horas.</li><li>Si la acepta, coordinan el contacto y te comparte la dirección.</li><li>Tu reserva se confirma cuando registra el pago inicial.</li></ol><a class="btn btn-primary btn-md btn-block" href="#" style="margin-top:16px">Ver mis solicitudes</a><button class="btn btn-ghost btn-md btn-block" type="button" id="close2">Seguir explorando</button></div>
+</div>
+
+<script>
+const RATE=1570;
+const TYPES=[{n:"Individual",cap:"1 persona por habitación",usd:300,st:"info"},{n:"Doble",cap:"2 personas por habitación",usd:220,st:"info"},{n:"Triple",cap:"3 personas por habitación",usd:190,st:"info"},{n:"Cuádruple",cap:"4 personas · mixta · baño compartido",usd:160,st:"full"}];
+const STATUS={info:["st-info","Disponibilidad informada"],full:["st-warn","Completa"],stale:["st-neutral","Sin disponibilidad actualizada"]};
+const fmt=v=>"USD "+v.toLocaleString("es-AR",{maximumFractionDigits:2});
+const ars=v=>"ARS "+(Math.round(v*RATE/500)*500).toLocaleString("es-AR");
+const body=document.body;let sel=null;
+const stOf=t=>body.dataset.avail==="full"?"full":body.dataset.avail==="stale"?"stale":t.st;
+const show=(sel,on)=>document.querySelectorAll(sel).forEach(e=>e.style.display=on?"":"none");
+function render(){
+  const box=document.getElementById("types");box.innerHTML="";const f=document.getElementById("f-type");f.innerHTML="";
+  TYPES.forEach((t,i)=>{const s=stOf(t),off=s==="full",[c,l]=STATUS[s];
+    const el=document.createElement("label");el.className="type"+(off?" off":"")+(i===sel&&!off?" sel":"");
+    el.innerHTML=`<input type="radio" name="t" ${off?"disabled":""} ${i===sel&&!off?"checked":""} aria-label="${t.n}, ${fmt(t.usd)} por mes, ${l}"><span><span class="nm">${t.n}</span><span class="cap" style="display:block">${t.cap}</span><span class="stw" style="display:block"><span class="status ${c}">${l}</span></span></span><span class="pr">${fmt(t.usd)}<small>≈ ${ars(t.usd)}</small></span>${off?'<button class="btn btn-ghost btn-sm wl" type="button" style="padding:0 6px;color:var(--forest-700)">Sumarme a la lista de espera</button>':''}`;
+    if(!off)el.querySelector("input").onchange=()=>{sel=i;render()};box.appendChild(el);
+    if(!off){const o=document.createElement("option");o.value=i;o.textContent=`${t.n} — ${fmt(t.usd)}/mes`;o.selected=i===sel;f.appendChild(o)}});
+  const t0=sel===null?null:TYPES[sel],chosen=!!t0&&stOf(t0)!=="full",t=t0||TYPES[1];
+  const minA=Math.min(...TYPES.filter(x=>stOf(x)!=="full").map(x=>x.usd).concat(body.dataset.avail==="full"?TYPES.map(x=>x.usd):[]));
+  const p=chosen?t.usd:minA;
+  document.querySelector(".js-eyebrow").textContent=chosen?t.n:"Desde";
+  document.querySelector(".js-price").textContent=fmt(p);document.querySelector(".js-ars").textContent="≈ "+ars(p)+" /mes";
+  document.querySelector(".js-bar-k").textContent=chosen?t.n:"Desde";document.querySelector(".js-bar-p").textContent=fmt(p);
+  document.querySelectorAll(".js-cta").forEach(b=>{b.textContent=chosen?`Solicitar lugar en ${t.n}`:"Elegí un tipo para solicitar";b.disabled=!chosen});
+  document.querySelector(".js-initial").textContent=chosen?`Primer mes · ${fmt(t.usd)}`:"Primer mes";
+  document.querySelector(".js-init2").textContent=fmt(t.usd);document.querySelector(".js-name").textContent=t.n;
+  const rent=t.usd*6,emp=t.usd*.5*3,tot=rent+emp;
+  document.querySelector(".js-rent").textContent=fmt(rent);document.querySelector(".js-empty").textContent=fmt(emp);document.querySelector(".js-total").textContent=fmt(tot);document.querySelector(".js-fee").textContent=fmt(tot*.05);
+  const r=body.dataset.role,a=body.dataset.avail;
+  show(".js-r-student",r==="student"&&a!=="full");show(".js-r-guest",r==="guest"&&a!=="full");show(".js-r-family",r==="family"&&a!=="full");show(".js-r-minor",r==="minor");show(".js-r-full",a==="full"&&r!=="minor");
+  show(".js-legal",a!=="full"&&(r==="student"||r==="guest"));show(".js-stale",a==="stale");show(".js-full",a==="full");show(".js-guestonly",r==="guest");
+  show("[data-ph='0']",body.dataset.photos==="0");show("[data-ph='5']",body.dataset.photos==="5");
+  const bc=document.querySelector(".js-bar-cta");bc.textContent=r==="family"?"Proponer":a==="full"?"Lista de espera":"Solicitar";
+  document.getElementById("bar").style.display=r==="minor"?"none":"";
+}
+let last=null;
+function openSheet(){if(sel===null){sel=TYPES.findIndex(x=>stOf(x)!=="full");render()}last=document.activeElement;body.classList.add("sheet-open");body.classList.remove("sheet-success","sheet-error");document.getElementById("sheet").setAttribute("aria-hidden","false");document.getElementById("bar").classList.add("hidden")}
+function closeSheet(){body.classList.remove("sheet-open","sheet-success","sheet-error");document.getElementById("sheet").setAttribute("aria-hidden","true");document.getElementById("bar").classList.remove("hidden");last&&last.focus&&last.focus()}
+document.querySelectorAll(".js-open").forEach(b=>b.onclick=openSheet);
+// La barra: con tipo elegido abre la hoja; sin tipo, lleva a Tarifas para elegir.
+document.querySelector(".js-bar-cta").onclick=()=>{const t0=sel===null?null:TYPES[sel];if(body.dataset.role==="student"&&t0&&stOf(t0)!=="full")openSheet();else location.hash="#tarifas"};
+document.getElementById("close").onclick=closeSheet;document.getElementById("close2").onclick=closeSheet;document.getElementById("scrim").onclick=closeSheet;
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeSheet()});
+document.getElementById("f-type").onchange=e=>{sel=+e.target.value;render()};
+document.getElementById("send").onclick=()=>body.classList.add("sheet-success");
+document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{document.querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed","false"));c.setAttribute("aria-pressed","true")});
+// La barra se oculta cuando la tarjeta de solicitud o el footer están a la vista (igual que MobileRequestBar).
+const vis=new Set();const io=new IntersectionObserver(es=>{es.forEach(e=>e.isIntersecting?vis.add(e.target):vis.delete(e.target));if(!body.classList.contains("sheet-open"))document.getElementById("bar").classList.toggle("hidden",vis.size>0)},{threshold:.15});
+io.observe(document.getElementById("solicitud"));io.observe(document.querySelector(".foot"));
+const links=[...document.querySelectorAll(".subnav a")];
+const io2=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)links.forEach(l=>l.setAttribute("aria-current",l.getAttribute("href")==="#"+e.target.id?"true":"false"))}),{rootMargin:"-110px 0px -60% 0px"});
+["tarifas","comunidad","residencia","ubicacion","preguntas"].forEach(id=>io2.observe(document.getElementById(id)));
+const $=id=>document.getElementById(id);
+$("mk-role").onchange=e=>{body.dataset.role=e.target.value;render()};$("mk-avail").onchange=e=>{body.dataset.avail=e.target.value;render()};$("mk-photos").onchange=e=>{body.dataset.photos=e.target.value;render()};
+$("mk-open").onclick=()=>{body.dataset.role="student";$("mk-role").value="student";render();openSheet()};$("mk-error").onclick=()=>{openSheet();body.classList.add("sheet-error")};$("mk-success").onclick=()=>{openSheet();body.classList.add("sheet-success")};$("mk-load").onclick=()=>body.classList.toggle("loading");
+(function(){const h=new URLSearchParams(location.hash.slice(1));["role","avail","photos"].forEach(k=>{if(h.get(k)){body.dataset[k]=h.get(k);$("mk-"+k).value=h.get(k)}});if(h.get("sel"))sel=+h.get("sel");if(h.get("mk")==="0")document.querySelector(".mk").style.display="none";render();if(h.get("sheet")==="open")openSheet();if(h.get("sheet")==="error"){openSheet();body.classList.add("sheet-error")}if(h.get("sheet")==="success"){openSheet();body.classList.add("sheet-success")}if(h.get("load"))body.classList.add("loading")})();
+</script>
+</body>
+</html>

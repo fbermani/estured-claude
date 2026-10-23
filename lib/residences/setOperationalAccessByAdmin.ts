@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
+import { getResidencePrivateDetails, saveResidencePrivateDetails } from "@/lib/residences/privateDetails";
 import { createNotification } from "@/lib/notifications/createNotification";
 
 export type SetOperationalAccessResult = { status: "ok" } | { status: "error"; message: string };
@@ -30,18 +31,31 @@ export async function setOperationalAccessByAdmin(
   const { data: residence } = await admin.from("residences").select("id, name").eq("id", params.residenceId).maybeSingle();
   if (!residence) return { status: "error", message: "Residencia no encontrada." };
 
+  // Ciclo 56: la auditoría interna del acceso (quién, cuándo, motivo en texto libre) es privada. Se guarda PRIMERO:
+  // si falla el cambio del flag, queda un registro de más (inofensivo) y no un acceso otorgado sin registro.
+  const previous = await getResidencePrivateDetails(admin, params.residenceId);
+  const privateError = await saveResidencePrivateDetails(admin, params.residenceId, {
+    operational_access_granted_by: params.actorUserId,
+    operational_access_granted_at: new Date().toISOString(),
+    operational_access_reason: reason,
+  });
+  if (privateError) return { status: "error", message: "No pudimos guardar el cambio. Probá de nuevo." };
+
   const { error } = await admin
     .from("residences")
     .update({
       has_operational_management_access: params.granted,
-      operational_access_granted_by: params.actorUserId,
-      operational_access_granted_at: new Date().toISOString(),
-      operational_access_reason: reason,
       pioneer_free_access_until: params.granted ? params.expiresAt : null,
     })
     .eq("id", params.residenceId);
   if (error) {
     console.error("[residences] setOperationalAccessByAdmin update failed:", error);
+    // Mejor esfuerzo: volver al registro anterior para que no describa un cambio que no ocurrió.
+    await saveResidencePrivateDetails(admin, params.residenceId, {
+      operational_access_granted_by: previous?.operational_access_granted_by ?? null,
+      operational_access_granted_at: previous?.operational_access_granted_at ?? null,
+      operational_access_reason: previous?.operational_access_reason ?? null,
+    });
     return { status: "error", message: "No pudimos guardar el cambio. Probá de nuevo." };
   }
 

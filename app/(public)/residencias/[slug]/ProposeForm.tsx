@@ -9,6 +9,7 @@ import {
   createFamilyProposal,
   type CreateFamilyProposalState,
 } from "@/app/students/family-proposals/actions";
+import { isTypeRequestable, typeAvailabilityState } from "@/lib/availability/typeAvailability";
 
 interface RoomTypeOption {
   id: string;
@@ -36,7 +37,7 @@ export function ProposeForm({
   const action = createFamilyProposal.bind(null, residenceId);
   const [state, formAction, isPending] = useActionState(action, initialState);
 
-  const availableTypes = roomTypes.filter((rt) => rt.profile_availability?.status !== "full");
+  const availableTypes = roomTypes.filter((rt) => isTypeRequestable(typeAvailabilityState(rt.profile_availability?.status)));
 
   if (students.length === 0) {
     return (

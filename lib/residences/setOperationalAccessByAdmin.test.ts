@@ -35,8 +35,6 @@ describe.skipIf(!hasCreds)("setOperationalAccessByAdmin (integración)", () => {
         status: "verified_active",
         operating_mode: "verified_profile",
         public_area: "Palermo",
-        responsible_name: "Test",
-        responsible_contact: "+54 9 11 0000-0000",
         total_capacity: 5,
         created_by: ownerId,
       })
@@ -86,12 +84,19 @@ describe.skipIf(!hasCreds)("setOperationalAccessByAdmin (integración)", () => {
 
     const { data: granted } = await admin
       .from("residences")
-      .select("has_operational_management_access, pioneer_free_access_until, operational_access_reason")
+      .select("has_operational_management_access, pioneer_free_access_until")
       .eq("id", residenceId)
       .single();
     expect(granted?.has_operational_management_access).toBe(true);
     expect(granted?.pioneer_free_access_until).toBe("2027-12-31");
-    expect(granted?.operational_access_reason).toBe("Residencia pionera, prueba de integración.");
+    // Ciclo 56: el motivo/auditoría interna del acceso es privado (`residence_private_details`).
+    const { data: grantedPrivate } = await admin
+      .from("residence_private_details")
+      .select("operational_access_reason, operational_access_granted_by")
+      .eq("residence_id", residenceId)
+      .single();
+    expect(grantedPrivate?.operational_access_reason).toBe("Residencia pionera, prueba de integración.");
+    expect(grantedPrivate?.operational_access_granted_by).toBe(adminActorId);
 
     const { data: grantLog } = await admin
       .from("audit_logs")

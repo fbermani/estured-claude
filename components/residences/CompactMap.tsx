@@ -23,22 +23,31 @@ function project(
 
 /**
  * Mapa compacto e ilustrativo (SVG propio, sin dependencia de un
- * proveedor externo de mapas/API key): ubica la residencia con un pin
- * APROXIMADO por barrio (nunca la dirección exacta — sigue siendo
- * privada hasta confirmar la reserva) y las universidades cercanas ya
- * configuradas por la residencia, con distancia aproximada calculada
- * por Haversine sobre `lib/data/buenosAiresUniversities.ts`.
+ * proveedor externo de mapas/API key): ubica la residencia con su pin
+ * EXACTO (la dirección y la ubicación son públicas, decisión del dueño
+ * 2026-10-23) y las universidades cercanas ya configuradas por la
+ * residencia, con distancia en línea recta calculada por Haversine
+ * sobre `lib/data/buenosAiresUniversities.ts`. Si la residencia no
+ * tiene coordenada (`source: "neighborhood"`), se ubica en el centro
+ * del barrio y se dice que es aproximada.
  */
 export function CompactMap({
   residenceName,
   zone,
   nearUniversityNames,
+  location,
+  address,
 }: {
   residenceName: string;
   zone: string;
   nearUniversityNames: string[];
+  /** Salida de `getResidenceLocation` (servidor). Sin ella, centro del barrio. */
+  location?: { lat: number; lng: number; source: "residence" | "neighborhood" };
+  /** Dirección pública de la residencia (`address_line`), si está cargada. */
+  address?: string | null;
 }) {
-  const residenceCoord = getApproxZoneCoordinates(zone);
+  const residenceCoord = location ?? { ...getApproxZoneCoordinates(zone), source: "neighborhood" as const };
+  const isExact = residenceCoord.source === "residence";
   const universities = findUniversitiesByName(nearUniversityNames);
 
   const withDistance = universities
@@ -75,8 +84,9 @@ export function CompactMap({
       <div className="space-y-2.5 p-4">
         <p className="flex items-center gap-1.5 text-xs font-bold text-orange-700">
           <span className="h-2 w-2 rounded-full bg-orange" aria-hidden />
-          {residenceName} — ubicación aproximada ({zone})
+          {isExact ? residenceName : `${residenceName} — ubicación aproximada: barrio ${zone}`}
         </p>
+        {address && <p className="text-sm font-semibold text-ink">{address}, {zone}</p>}
         {withDistance.length > 0 ? (
           <ul className="space-y-1.5">
             {withDistance.map((u) => (
@@ -94,7 +104,9 @@ export function CompactMap({
         )}
         <p className="flex items-start gap-1.5 pt-1 text-[11px] leading-relaxed text-ink-faint">
           <Icon name="info" className="mt-0.5 shrink-0 text-sm" />
-          Ubicación referencial por barrio. La dirección exacta se comparte una vez confirmada la reserva.
+          {isExact
+            ? "Distancias aproximadas en línea recta desde la residencia."
+            : "La residencia todavía no cargó su ubicación exacta. Distancias aproximadas en línea recta desde el centro del barrio."}
         </p>
       </div>
     </div>
