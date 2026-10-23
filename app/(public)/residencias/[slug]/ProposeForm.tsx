@@ -9,6 +9,7 @@ import {
   createFamilyProposal,
   type CreateFamilyProposalState,
 } from "@/app/students/family-proposals/actions";
+import { useReservationSelection } from "@/components/residences/reservationSelection";
 import { isTypeRequestable, typeAvailabilityState } from "@/lib/availability/typeAvailability";
 
 interface RoomTypeOption {
@@ -38,24 +39,27 @@ export function ProposeForm({
   const [state, formAction, isPending] = useActionState(action, initialState);
 
   const availableTypes = roomTypes.filter((rt) => isTypeRequestable(typeAvailabilityState(rt.profile_availability?.status)));
+  // El tipo elegido en la tabla de tarifas / la card llega preseleccionado (mismo estado que `ApplyForm`).
+  const { roomTypeId: contextRoomTypeId, setRoomTypeId } = useReservationSelection();
+  const roomTypeId = availableTypes.some((rt) => rt.id === contextRoomTypeId) ? (contextRoomTypeId as string) : "";
 
   if (students.length === 0) {
     return (
-      <p className="text-sm text-ink-soft">
+      <p className="px-5 py-5 text-sm text-ink-soft sm:px-6">
         Necesitás tener al menos un estudiante vinculado activo para proponerle una residencia.
       </p>
     );
   }
   if (roomTypes.length === 0) {
-    return <p className="text-sm text-ink-soft">Esta residencia todavía no cargó tipos de habitación.</p>;
+    return <p className="px-5 py-5 text-sm text-ink-soft sm:px-6">Esta residencia todavía no cargó tipos de habitación.</p>;
   }
   if (availableTypes.length === 0) {
-    return <p className="text-sm text-ink-soft">No hay lugares disponibles en este momento.</p>;
+    return <p className="px-5 py-5 text-sm text-ink-soft sm:px-6">No hay lugares disponibles en este momento.</p>;
   }
 
   return (
-    <form action={formAction} className="flex flex-col gap-4">
-      <h3 className="font-bold text-ink">Proponer esta residencia</h3>
+    <form action={formAction} className="flex min-h-0 flex-1 flex-col">
+      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 py-5 sm:px-6">
       <p className="text-xs text-ink-faint">
         Le va a llegar como sugerencia a tu estudiante — recién se convierte en solicitud real si él o ella
         la aprueba, y en ese caso la residencia te va a contactar a vos.
@@ -73,7 +77,14 @@ export function ProposeForm({
         </Select>
       )}
       {students.length === 1 && <input type="hidden" name="student_profile_id" value={students[0].id} />}
-      <Select label="Tipo de habitación" id="propose-room-type" name="room_type_id" required defaultValue="">
+      <Select
+        label="Tipo de habitación"
+        id="propose-room-type"
+        name="room_type_id"
+        required
+        value={roomTypeId}
+        onChange={(e) => setRoomTypeId(e.target.value)}
+      >
         <option value="" disabled>
           Elegí una opción
         </option>
@@ -108,15 +119,18 @@ export function ProposeForm({
         placeholder="Ej: Vi esta residencia, está cerca de tu facultad y dentro del presupuesto."
       />
 
-      {state.status === "error" && (
-        <p role="alert" className="rounded-field bg-danger-bg px-4 py-3 text-sm font-medium text-danger-fg">
-          {state.message}
-        </p>
-      )}
+      </div>
 
-      <Button type="submit" size="lg" disabled={isPending}>
-        {isPending ? "Enviando…" : "Enviar propuesta al estudiante"}
-      </Button>
+      <div className="flex shrink-0 flex-col gap-3 border-t border-line bg-paper px-5 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 shadow-[0_-6px_16px_rgb(29_39_34/0.05)] sm:px-6">
+        {state.status === "error" && (
+          <p role="alert" className="rounded-field bg-danger-bg px-4 py-3 text-sm font-medium text-danger-fg">
+            {state.message}
+          </p>
+        )}
+        <Button type="submit" size="lg" disabled={isPending}>
+          {isPending ? "Enviando…" : "Enviar propuesta al estudiante"}
+        </Button>
+      </div>
     </form>
   );
 }

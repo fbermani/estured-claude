@@ -6,6 +6,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { ACTIVE_APPLICATION_STATUSES } from "@/lib/applications/types";
 import { createApplicationFromRoomType } from "@/lib/applications/createRequestFromRoomType";
 import { requestBlockedMessage, typeAvailabilityState } from "@/lib/availability/typeAvailability";
+import { checkReservationWindowOverlap } from "@/lib/students/reservationWindow";
 
 export type CreateApplicationState = { status: "idle" | "error"; message?: string };
 
@@ -91,6 +92,14 @@ export async function createApplicationRequest(
       message: "Ya tenés 2 solicitudes activas — es el máximo permitido. Cerrá una para poder enviar otra.",
     };
   }
+
+  // Ciclo 58: con una reserva vigente no se puede solicitar para fechas que se superpongan con ella.
+  const overlap = await checkReservationWindowOverlap(admin, {
+    studentProfileId: studentProfile.id,
+    desiredStartDate,
+    durationMonths,
+  });
+  if (!overlap.ok) return { status: "error", message: overlap.error };
 
   const { data: residence } = await admin
     .from("residences")

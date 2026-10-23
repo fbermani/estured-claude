@@ -1502,7 +1502,7 @@ Eventos mínimos:
 - factura emitida;
 - reserva confirmada / comprobante emitido;
 - renovación enviada / aceptada / confirmada;
-- lista de espera con disponibilidad / recordatorio 90 días;
+- lista de espera con disponibilidad / recordatorio 90 días / listas anuladas por reserva confirmada;
 - reclamo abierto / actualizado.
 
 ---
@@ -1783,7 +1783,9 @@ Evidencia de casos de soporte. Privado; acceso por partes del caso y admin.
 ### 27.8. Lista de espera
 - notificar disponibilidad;
 - notificar a los 90 días para confirmar permanencia;
-- remover de otras listas si confirma reserva en otra residencia.
+- al confirmarse una reserva del estudiante (`confirmed`), anular **todas** sus entradas de lista de espera activas (`removed_due_to_confirmed_reservation`, `removed_reason` con el motivo; DR2, 2026-10-23);
+- notificar al estudiante cuáles listas se anularon (residencia y tipo) y por qué;
+- agregar esas residencias a sus `favorites` si no estaban (solo favoritos: no se quitan ni se reanotan solas).
 
 ### 27.9. Métricas y visibilidad
 - calcular métricas diarias;

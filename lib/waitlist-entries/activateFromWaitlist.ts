@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { ACTIVE_APPLICATION_STATUSES } from "@/lib/applications/types";
 import { createApplicationFromRoomType } from "@/lib/applications/createRequestFromRoomType";
+import { checkReservationWindowOverlap } from "@/lib/students/reservationWindow";
 
 export type ActivateFromWaitlistResult = { ok: true; applicationId: string } | { ok: false; error: string };
 
@@ -53,6 +54,13 @@ export async function activateFromWaitlist(
   if ((activeCount ?? 0) >= 2) {
     return { ok: false, error: "Ya tenés 2 solicitudes activas — es el máximo permitido. Cerrá una antes de activar esta." };
   }
+
+  const overlap = await checkReservationWindowOverlap(admin, {
+    studentProfileId: studentProfile.id,
+    desiredStartDate: params.desiredStartDate,
+    durationMonths: params.durationMonths,
+  });
+  if (!overlap.ok) return { ok: false, error: overlap.error };
 
   const { data: roomType } = await admin
     .from("room_types")

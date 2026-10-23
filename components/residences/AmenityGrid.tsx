@@ -12,11 +12,11 @@ type AmenityItem = { name: string; icon: string; description: string };
  * con el texto, sin card pesada — el hover resalta el fondo de la fila
  * y el color del ícono, sutil, no una elevación dramática.
  */
-export function AmenityGrid({ items }: { items: AmenityItem[] }) {
+export function AmenityGrid({ items, columns = 2 }: { items: AmenityItem[]; columns?: 1 | 2 }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <div className="grid grid-cols-1 gap-x-6 gap-y-1 sm:grid-cols-2">
+    <div className={`grid grid-cols-1 gap-x-6 gap-y-1 ${columns === 2 ? "sm:grid-cols-2" : ""}`}>
       {items.map((item, i) => (
         <div
           key={item.name}

@@ -86,6 +86,7 @@ export function ApplyForm({
   conditions,
   arsPerUsd,
   profileCompletenessPercent,
+  minStartDate,
 }: {
   residenceId: string;
   roomTypes: RoomTypeOption[];
@@ -93,6 +94,8 @@ export function ApplyForm({
   arsPerUsd: number;
   /** Ciclo 35: nudge no bloqueante hacia /students/profile. `null` si ya está 100% completo. */
   profileCompletenessPercent?: number | null;
+  /** Reserva vigente (Ciclo 58): primera fecha de ingreso permitida ("YYYY-MM-DD"). Validación de UI; el servidor igual valida. */
+  minStartDate?: string | null;
 }) {
   const action = createApplicationRequest.bind(null, residenceId);
   const [state, formAction, isPending] = useActionState(action, initialState);
@@ -110,19 +113,19 @@ export function ApplyForm({
   const [objectiveChoice, setObjectiveChoice] = useState("");
 
   if (roomTypes.length === 0) {
-    return <p className="text-sm text-ink-soft">Esta residencia todavía no cargó tipos de habitación.</p>;
+    return <p className="px-5 py-5 text-sm text-ink-soft sm:px-6">Esta residencia todavía no cargó tipos de habitación.</p>;
   }
   if (availableTypes.length === 0) {
     // Todos los tipos pausados (por la residencia o por EstuRed): no es "completa", así que no se ofrece lista de espera.
     if (roomTypes.every((rt) => isTypePaused(typeAvailabilityState(rt.profile_availability?.status)))) {
       return (
-        <p className="text-sm text-ink-soft">
+        <p className="px-5 py-5 text-sm text-ink-soft sm:px-6">
           Las solicitudes de esta residencia están pausadas por ahora. Volvé a mirar más adelante o explorá otras
           residencias.
         </p>
       );
     }
-    return <JoinWaitlistForm residenceId={residenceId} roomTypes={roomTypes} />;
+    return <JoinWaitlistForm residenceId={residenceId} roomTypes={roomTypes} minStartDate={minStartDate} />;
   }
 
   const selected = availableTypes.find((rt) => rt.id === roomTypeId) ?? null;
@@ -157,8 +160,10 @@ export function ApplyForm({
   const initialPayment = buildInitialPayment(conditions.initialPayment, monthlyUsd, arsPerUsd);
 
   return (
-    <form action={formAction} className="flex flex-col gap-4">
-      <h3 className="font-bold text-ink">Tu solicitud de reserva</h3>
+    <form action={formAction} className="flex min-h-0 flex-1 flex-col">
+      {/* Cuerpo con scroll propio; el pie (aceptación + enviar) queda fijo y siempre visible (D20). */}
+      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 py-5 sm:px-6">
+      <p className="text-xs font-extrabold uppercase tracking-widest text-muted">1 · Tu estadía</p>
       <Select
         label="Tipo de habitación"
         id="apply-room-type"
@@ -182,8 +187,10 @@ export function ApplyForm({
         name="desired_start_date"
         type="date"
         required
+        min={minStartDate ?? undefined}
         value={startDate}
         onChange={(e) => setStartDate(e.target.value)}
+        hint={minStartDate ? `Podés pedir desde el ${formatDateOnly(minStartDate)}, cuando termina tu reserva actual.` : undefined}
       />
       <Input
         label="Duración estimada (meses)"
@@ -343,6 +350,7 @@ export function ApplyForm({
         </div>
       )}
 
+      <p className="mt-1 text-xs font-extrabold uppercase tracking-widest text-muted">2 · Sobre vos</p>
       <div>
         <span id="apply-objective-label" className="mb-1.5 block text-sm font-semibold text-ink">¿Cuál es tu objetivo académico?</span>
         <input type="hidden" name="academic_objective_choice" value={objectiveChoice} />
@@ -380,33 +388,32 @@ export function ApplyForm({
           className="flex items-center justify-between gap-3 rounded-field border border-line-2 bg-cream-2 px-3.5 py-2.5 text-xs text-ink-soft hover:border-forest"
         >
           <span>
-            Tu perfil está {profileCompletenessPercent}% completo — completarlo aumenta tus probabilidades de
-            ser aceptado.
+            Tu perfil está {profileCompletenessPercent}% completo. Completarlo ayuda a que la residencia te conozca.
           </span>
           <Icon name="chevron_right" className="shrink-0 text-base" />
         </a>
       )}
 
-      <label className="flex cursor-pointer items-start gap-2.5 text-xs text-ink-soft">
-        <input type="checkbox" required className="mt-0.5 h-4 w-4 shrink-0 rounded accent-[var(--color-forest)]" />
-        Leí y acepto las condiciones y el reglamento de convivencia de la residencia.
-      </label>
+      </div>
 
-      {state.status === "error" && (
-        <p role="alert" className="rounded-field bg-danger-bg px-4 py-3 text-sm font-medium text-danger-fg">
-          {state.message}
+      <div className="flex shrink-0 flex-col gap-3 border-t border-line bg-paper px-5 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 shadow-[0_-6px_16px_rgb(29_39_34/0.05)] sm:px-6">
+        {state.status === "error" && (
+          <p role="alert" className="rounded-field bg-danger-bg px-4 py-3 text-sm font-medium text-danger-fg">
+            {state.message}
+          </p>
+        )}
+        <label className="flex cursor-pointer items-start gap-2.5 text-sm text-ink-soft">
+          <input type="checkbox" required className="mt-0.5 h-4 w-4 shrink-0 rounded accent-[var(--color-forest)]" />
+          Leí y acepto las condiciones y el reglamento de convivencia de la residencia.
+        </label>
+        <Button type="submit" size="lg" disabled={isPending}>
+          {isPending ? "Enviando…" : "Enviar solicitud de reserva"}
+        </Button>
+        <p className="text-center text-xs text-ink-faint">
+          La residencia verá tu carrera y universidad y tiene 48 horas para responder; si no lo hace, la solicitud
+          vence.
         </p>
-      )}
-
-      <Button type="submit" size="lg" disabled={isPending}>
-        {isPending ? "Enviando…" : "Enviar solicitud de reserva"}
-      </Button>
-      <p className="text-center text-xs text-ink-faint">
-        La residencia verá tu carrera y universidad.
-      </p>
-      <p className="text-center text-xs text-ink-faint">
-        La residencia tiene 48 horas para responder. Si no lo hace, la solicitud vence automáticamente.
-      </p>
+      </div>
     </form>
   );
 }

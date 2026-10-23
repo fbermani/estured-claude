@@ -11,8 +11,13 @@ describe("describeEnrollmentFee (DF4: modo null = no cobra matrícula)", () => {
   it("manual con monto -> monto fijo", () => {
     expect(describeEnrollmentFee({ enrollmentFeeMode: "manual", enrollmentFeeUsd: 150 })).toEqual({ kind: "fixed", usd: 150 });
   });
-  it("manual sin monto válido -> no cobra (el perfil exige el monto, defensa)", () => {
-    expect(describeEnrollmentFee({ enrollmentFeeMode: "manual", enrollmentFeeUsd: null })).toEqual({ kind: "none" });
-    expect(describeEnrollmentFee({ enrollmentFeeMode: "manual", enrollmentFeeUsd: 0 })).toEqual({ kind: "none" });
+  it("manual sin monto válido -> desconocido (no se afirma 'No cobra')", () => {
+    expect(describeEnrollmentFee({ enrollmentFeeMode: "manual", enrollmentFeeUsd: null })).toEqual({ kind: "unknown" });
+    expect(describeEnrollmentFee({ enrollmentFeeMode: "manual", enrollmentFeeUsd: 0 })).toEqual({ kind: "unknown" });
+  });
+  it("un modo desconocido tampoco es 'no cobra'", () => {
+    expect(
+      describeEnrollmentFee({ enrollmentFeeMode: "otro" as unknown as "manual", enrollmentFeeUsd: null }),
+    ).toEqual({ kind: "unknown" });
   });
 });

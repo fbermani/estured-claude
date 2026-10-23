@@ -234,6 +234,7 @@ Formato: **ID · Título** — severidad · [Obj/Op] · ruta · agente · esfuer
 ### C. Catálogo y ficha de residencia
 
 #### D17 · Ficha: el invitado no ve precio en desktop, pero sí en mobile
+- **Estado: resuelto (Ciclo 57, 2026-10-23).** La ficha muestra a todos, invitados incluidos, la tabla "Tarifas y condiciones" y una card lateral de precio con `StatusTag` por tipo, ARS referencial y CTA "Ingresá para solicitar" (vuelve con el tipo elegido).
 - **Severidad:** alto · **[Obj]** · **Ruta:** `/residencias/[slug]` · **Agente:** `disenador` → `interfaz` · **Esfuerzo:** M · **Complementa:** H10
 - **Evidencia:** en desktop, el panel lateral del invitado solo dice "Necesitás una cuenta de estudiante…" con "Iniciar sesión / Crear cuenta". En 375 px, la barra fija sí muestra "Desde USD 160 /mes · Solicitar". [cap: ficha-placeholder-sin-precio-invitado_1280]
 - **Recomendación:** el panel lateral debe ser siempre una **card de precio y condiciones**, con:
@@ -245,6 +246,7 @@ Formato: **ID · Título** — severidad · [Obj/Op] · ruta · agente · esfuer
   El formulario aparece recién después de elegir el tipo. Esto unifica desktop y mobile.
 
 #### D18 · Ficha: la sección "Comunidad y disponibilidad" aplasta la página y expone un estado interno
+- **Estado: resuelto (Ciclo 57, 2026-10-23).** `CommunitySummary` reemplaza al mapa de camas en la ficha (residentes y avatares de iniciales por tipo + `StatusTag` del tipo, sin camas libres ni estados internos); el mapa completo queda en `/comunidad`. El avatar con bandera de Mi residencia sigue pendiente (D28).
 - **Severidad:** alto · **[Obj]** · **Rutas:** `/residencias/[slug]#disponibilidad`, `/students/residency` · **Agente:** `disenador` → `interfaz` · **Esfuerzo:** M · **Complementa:** H03
 - **Evidencia:**
   - Cuatro niveles anidados (sección › tipo › habitación › persona) ocupan unos 1.800 px en Norte.
@@ -260,11 +262,13 @@ Formato: **ID · Título** — severidad · [Obj/Op] · ruta · agente · esfuer
   - Bandera abajo a la derecha del avatar, fuera del glifo (avatar de 40 px y bandera de 14 px con anillo).
 
 #### D19 · Ficha: el "mapa" de ubicación parece roto
+- **Estado: resuelto (Ciclo 57, 2026-10-23).** `CompactMap` usa teselas de OpenStreetMap con el pin exacto (DF5), la dirección y las universidades numeradas con su distancia. Pendiente antes del lanzamiento masivo: proveedor de teselas con clave.
 - **Severidad:** medio · **[Obj]** · **Ruta:** `/residencias/[slug]` (`CompactMap`) · **Agente:** `disenador` → `interfaz` · **Esfuerzo:** S–M
 - **Evidencia:** un rectángulo beige de unos 650 px de alto, sin calles, con tres círculos unidos por líneas punteadas. [cap: ficha-mapa-abstracto_1280]
 - **Recomendación:** un mapa estático real del barrio con un círculo de zona aproximada (la dirección exacta se sigue ocultando). Si se mantiene el abstracto, que tenga menos de 220 px de alto, con el contorno del barrio y la lista de distancias como protagonista.
 
 #### D20 · Ficha logueada: el botón de enviar la solicitud queda cortado
+- **Estado: resuelto (Ciclo 57, 2026-10-23).** El panel ya no tiene scroll interno: la card es corta y el formulario va en una hoja lateral (inferior en mobile) con encabezado y pie fijos; el botón de enviar siempre se ve.
 - **Severidad:** alto · **[Obj]** · **Ruta:** `/residencias/[slug]` como estudiante · **Agente:** `interfaz` · **Esfuerzo:** S
 - **Evidencia:** el panel "Tu solicitud de reserva" es sticky con scroll interno. En 1280×860, el checkbox "Leí y acepto…" aparece cortado por el borde del card y el botón de envío no se ve sin scrollear dentro del panel (captura de Lucía en la ficha de Norte).
 - **Por qué importa:** es el paso de conversión principal y el usuario no ve cómo terminarlo.
@@ -585,7 +589,7 @@ Formato: **ID · Título** — severidad · [Obj/Op] · ruta · agente · esfuer
 
 | # | Ítem | Hallazgos | Esfuerzo | Agente |
 |---|---|---|---|---|
-| 23 | Ficha de residencia | D17–D20, H10 | L | disenador (mockup + SPEC) → interfaz |
+| 23 | Ficha de residencia | D17–D20, H10 | L | disenador (mockup + SPEC) → interfaz — **Ciclo 57 (2026-10-23): hecho** |
 | 24 | Comprobante (pantalla y PDF) | D30, H07 | M | disenador → interfaz (+ constructor para el PDF) |
 | 25 | Inbox de solicitudes de residencia | D32 | M | disenador → interfaz (+ constructor si se exponen campos del perfil) — **Ciclo 51 (2026-10-22): hecho el bloque "Quién solicita" (perfil académico + intereses, menores restringidos); quedan filtros, orden por vencimiento, completitud/documentos y la nota de "Establecer contacto"** |
 | 26 | Inicio del estudiante y del familiar por etapa | D24, D29, H16 | L | disenador → constructor + interfaz |

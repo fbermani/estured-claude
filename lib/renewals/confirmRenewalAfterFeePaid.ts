@@ -61,7 +61,7 @@ export async function confirmRenewalAfterFeePaid(
 
   // Docs/06 §27.8/§08 §6.10: sale automáticamente de otras listas de
   // espera al confirmar una reserva (renovación incluida). Nunca lanza.
-  await removeWaitlistEntriesOnConfirmedReservation(admin, { studentProfileId: offer.student_profile_id });
+  await removeWaitlistEntriesOnConfirmedReservation(admin, { studentProfileId: offer.student_profile_id, reason: "renewal" });
 
   // Docs/06 §14.2/§15.1: extiende el contrato de la estadía
   // (resident_stays.expected_end_date) al fin del período renovado.

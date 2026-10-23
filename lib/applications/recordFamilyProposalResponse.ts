@@ -4,6 +4,7 @@ import { createAuditLog } from "@/lib/audit";
 import { ACTIVE_APPLICATION_STATUSES } from "@/lib/applications/types";
 import { createApplicationFromRoomType } from "@/lib/applications/createRequestFromRoomType";
 import { requestBlockedMessage, typeAvailabilityState } from "@/lib/availability/typeAvailability";
+import { checkReservationWindowOverlap } from "@/lib/students/reservationWindow";
 
 export type RecordFamilyProposalResponseResult =
   | { ok: true; applicationId: string | null }
@@ -107,6 +108,14 @@ export async function recordFamilyProposalResponse(
       error: "Ya tenés 2 solicitudes activas — es el máximo permitido. Cerrá una antes de aprobar esta propuesta.",
     };
   }
+
+  // Ciclo 58: aprobar crea una solicitud real, así que rige la misma regla de superposición con reservas vigentes.
+  const overlap = await checkReservationWindowOverlap(admin, {
+    studentProfileId: studentProfile.id,
+    desiredStartDate: proposal.desired_start_date,
+    durationMonths: proposal.initial_duration_months,
+  });
+  if (!overlap.ok) return { ok: false, error: overlap.error };
 
   const { data: roomType } = await admin
     .from("room_types")

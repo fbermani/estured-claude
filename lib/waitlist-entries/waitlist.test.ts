@@ -46,7 +46,7 @@ describe.skipIf(!hasCreds)("disponibilidad y lista de espera (integración)", ()
     const { data: studentUser } = await admin
       .from("users")
       .select("id")
-      .eq("email", "lucia.fernandez@example.com")
+      .eq("email", "valentina.sosa@example.com")
       .single();
     studentUserId = studentUser!.id;
     const { data: studentProfile } = await admin
@@ -112,6 +112,8 @@ describe.skipIf(!hasCreds)("disponibilidad y lista de espera (integración)", ()
   afterAll(async () => {
     if (!admin || !residenceId) return;
     await admin.from("waitlist_entries").delete().eq("residence_id", residenceId);
+    // Ciclo 58: anular listas al confirmar deja un aviso in-app (tipo student_favorites) para la estudiante.
+    await admin.from("notifications").delete().eq("user_id", studentUserId).eq("related_entity_type", "student_favorites");
     await deleteResidenceCascade(admin, residenceId);
   });
 
@@ -126,10 +128,11 @@ describe.skipIf(!hasCreds)("disponibilidad y lista de espera (integración)", ()
     expect(first.ok).toBe(true);
     if (!first.ok) return;
 
+    // Mismo tipo de habitación: duplicado (el índice único de 0018 es por estudiante+residencia+TIPO).
     const second = await joinWaitlist(admin, {
       actorUserId: studentUserId,
       residenceId,
-      roomTypeId: null,
+      roomTypeId,
       desiredStartDate: null,
       desiredDurationMonths: null,
     });
@@ -248,8 +251,7 @@ describe.skipIf(!hasCreds)("disponibilidad y lista de espera (integración)", ()
   });
 
   it("activateFromWaitlist: crea una solicitud real cuando hay tipo de habitación elegido", async () => {
-    await admin.from("profile_availability").update({ status: "available_to_confirm" }).eq("room_type_id", roomTypeId);
-
+    // Se anota con el tipo completo y recién después se libera lugar (el flujo real de la lista de espera).
     const joined = await joinWaitlist(admin, {
       actorUserId: studentUserId,
       residenceId,
@@ -259,6 +261,7 @@ describe.skipIf(!hasCreds)("disponibilidad y lista de espera (integración)", ()
     });
     expect(joined.ok).toBe(true);
     if (!joined.ok) return;
+    await admin.from("profile_availability").update({ status: "available_to_confirm" }).eq("room_type_id", roomTypeId);
 
     const activated = await activateFromWaitlist(admin, {
       waitlistEntryId: joined.waitlistEntryId,

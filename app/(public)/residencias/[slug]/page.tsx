@@ -1,16 +1,15 @@
 import Link from "next/link";
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
-import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { TrustBadge } from "@/components/residences/TrustBadge";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 import { Icon } from "@/components/ui/Icon";
 import { getCommunityVisibility } from "@/lib/residents/communityVisibility";
-import { getStudentProfileCompleteness } from "@/lib/students/profileCompleteness";
-import { CommunityBrowser } from "@/components/residences/CommunityBrowser";
 import { AmenityGrid } from "@/components/residences/AmenityGrid";
 import { RulesHighlight } from "@/components/residences/RulesHighlight";
 import { FaqAccordion } from "@/components/residences/FaqAccordion";
@@ -23,29 +22,50 @@ import { ApplyForm } from "@/app/(public)/residencias/[slug]/ApplyForm";
 import { ProposeForm } from "@/app/(public)/residencias/[slug]/ProposeForm";
 import { FavoriteButton } from "@/app/(public)/residencias/[slug]/FavoriteButton";
 import { toggleStudentFavorite, toggleFamilyFavorite } from "@/app/students/favorites/actions";
+import { JoinWaitlistForm } from "@/app/(public)/residencias/[slug]/JoinWaitlistForm";
 import { MobileRequestBar } from "@/components/residences/MobileRequestBar";
-import { formatUsd } from "@/lib/mock/exchange";
+import { formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
 import { getResidenceLocation } from "@/lib/residences/residenceLocation";
 import { startingPriceUsd, typeAvailabilityState } from "@/lib/availability/typeAvailability";
 import { initialPaymentConfigFromRow } from "@/lib/reservations/initialPayment";
 import { ReservationSelectionProvider } from "@/components/residences/reservationSelection";
 import { ResidenceGallery } from "@/components/residences/ResidenceGallery";
+import { loadFamilyViewer, loadStudentViewer, type LinkedStudent, type StudentViewer } from "@/app/(public)/residencias/[slug]/loadViewerContext";
+import { findUniversitiesByName, haversineDistanceKm } from "@/lib/data/buenosAiresUniversities";
+import { describeInitialPayment, monthsLabel, roomTypeSubtitle } from "@/lib/residences/fichaConditions";
+import { isTypeRequestable } from "@/lib/availability/typeAvailability";
+import { modeOpensSheet, resolveRequestPanelMode } from "@/lib/residences/requestPanelMode";
+import type { FichaRoomType } from "@/components/residences/ficha/types";
+import { SectionNav, type SectionNavItem } from "@/components/residences/ficha/SectionNav";
+import { ReadMore } from "@/components/residences/ficha/ReadMore";
+import { RatesTable } from "@/components/residences/ficha/RatesTable";
+import { ReservationConditions } from "@/components/residences/ficha/ReservationConditions";
+import { WhoGetsPaid } from "@/components/residences/ficha/WhoGetsPaid";
+import { VerificationScope } from "@/components/residences/ficha/VerificationScope";
+import { CommunitySummary } from "@/components/residences/ficha/CommunitySummary";
+import { RequestPanel } from "@/components/residences/ficha/RequestPanel";
+import { RequestSheet } from "@/components/residences/ficha/RequestSheet";
 
 export const dynamic = "force-dynamic";
 
-async function loadResidence(slug: string) {
+/**
+ * Una sola lectura por request: `generateMetadata` y la página la llaman, y `cache` evita repetir las ~6 consultas.
+ * Cada consulta chequea su `error`: se registra y la ficha degrada (sin fotos, sin tipos, etc.) en vez de caerse.
+ */
+const loadResidence = cache(async (slug: string) => {
   const admin = getSupabaseAdmin();
   if (!admin) return null;
 
-  const { data: residence } = await admin
+  const { data: residence, error: residenceError } = await admin
     .from("residences")
     .select("*")
     .eq("slug", slug)
     .eq("status", "verified_active")
     .maybeSingle();
+  if (residenceError) console.error("[ficha] no se pudo leer la residencia:", residenceError);
   if (!residence) return null;
 
-  const [{ data: roomTypes }, { data: sections }, { data: photos }, { data: rulesFile }] = await Promise.all([
+  const [roomTypesRes, sectionsRes, photosRes, rulesFileRes] = await Promise.all([
     admin
       .from("room_types")
       .select(
@@ -79,30 +99,35 @@ async function loadResidence(slug: string) {
       .limit(1)
       .maybeSingle(),
   ]);
+  if (roomTypesRes.error) console.error("[ficha] no se pudieron leer los tipos de habitación:", roomTypesRes.error);
+  if (sectionsRes.error) console.error("[ficha] no se pudieron leer las secciones del perfil:", sectionsRes.error);
+  if (photosRes.error) console.error("[ficha] no se pudieron leer las fotos:", photosRes.error);
+  if (rulesFileRes.error) console.error("[ficha] no se pudo leer el reglamento:", rulesFileRes.error);
 
-  const sectionMap = Object.fromEntries((sections ?? []).map((s) => [s.section_type, s.content]));
-  const photoUrls = (photos ?? []).map(
+  const sectionMap = Object.fromEntries((sectionsRes.data ?? []).map((s) => [s.section_type, s.content]));
+  const photoUrls = (photosRes.data ?? []).map(
     (p) => admin.storage.from("public-residence-media").getPublicUrl(p.storage_path).data.publicUrl,
   );
 
   let rulesPdfUrl: string | null = null;
-  if (rulesFile?.storage_path) {
-    const { data: signed } = await admin.storage
+  if (rulesFileRes.data?.storage_path) {
+    const { data: signed, error: signedError } = await admin.storage
       .from("private-residence-documents")
-      .createSignedUrl(rulesFile.storage_path, 3600);
+      .createSignedUrl(rulesFileRes.data.storage_path, 3600);
+    if (signedError) console.error("[ficha] no se pudo firmar el reglamento:", signedError);
     rulesPdfUrl = signed?.signedUrl ?? null;
   }
 
   // profile_availability tiene unique(room_type_id) — PostgREST devuelve
   // un objeto singular en el embed, no un array (a diferencia de lo que
   // el tipo inferido por supabase-js sugiere sin un schema generado).
-  const normalizedRoomTypes = (roomTypes ?? []).map((rt) => ({
+  const normalizedRoomTypes = (roomTypesRes.data ?? []).map((rt) => ({
     ...rt,
     profile_availability: rt.profile_availability as unknown as { status: string; available_count: number | null } | null,
   }));
 
   return { residence, roomTypes: normalizedRoomTypes, sectionMap, photoUrls, rulesPdfUrl };
-}
+});
 
 export async function generateMetadata({
   params,
@@ -120,38 +145,45 @@ export default async function RealResidenceDetailPage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ room?: string }>;
+  searchParams: Promise<{ room?: string; solicitar?: string }>;
 }) {
   const { slug } = await params;
-  const { room: preselectedRoomTypeId } = await searchParams;
+  const { room: preselectedRoomTypeId, solicitar } = await searchParams;
   const data = await loadResidence(slug);
   if (!data) notFound();
   const { residence, roomTypes, sectionMap, photoUrls, rulesPdfUrl } = data;
-  const rate = await getCurrentExchangeRate();
 
-  const sessionUser = await getSessionUser();
+  // Lecturas independientes en paralelo: cotización, sesión y, con la sesión, todo lo que depende de quién mira.
+  const adminClient = getSupabaseAdmin();
+  const [rate, sessionUser] = await Promise.all([getCurrentExchangeRate(), getSessionUser()]);
+  const isStudent = sessionUser?.roles.includes("student") ?? false;
+  const isFamily = sessionUser?.roles.includes("family_member") ?? false;
+  const [answeredQuestions, isOwnResidenceTeam, community, studentViewer, familyViewer] = await Promise.all([
+    adminClient ? getPublicAnsweredQuestions(adminClient, residence.id) : Promise.resolve([]),
+    sessionUser && adminClient ? assertResidenceAccess(adminClient, sessionUser.id, residence.id) : Promise.resolve(false),
+    adminClient ? getCommunityVisibility(adminClient, residence.id, sessionUser ? "registered" : "guest") : Promise.resolve(null),
+    isStudent && sessionUser && adminClient ? loadStudentViewer(adminClient, sessionUser.id, residence.id) : Promise.resolve(null),
+    isFamily && sessionUser && adminClient
+      ? loadFamilyViewer(adminClient, sessionUser.id, residence.id)
+      : Promise.resolve(null),
+  ]);
+
   // La ubicación y la dirección de la residencia son públicas (decisión del dueño, 2026-10-23): pin exacto.
   const location = getResidenceLocation(residence);
+  const addressLine = (residence.address_line as string | null)?.trim() || null;
   const services = (sectionMap.services?.items as string[]) ?? [];
   const commonAreas = (sectionMap.common_areas?.items as string[]) ?? [];
   const nearUniversities = (sectionMap.near_universities?.items as string[]) ?? [];
   const rulesSummary = (sectionMap.rules?.summary as string) ?? "";
   const staticFaqItems = (sectionMap.faq?.items as { question: string; answer: string }[]) ?? [];
   const communityStatement = (sectionMap.community_statement?.quote as string) ?? "";
-
-  const adminClient = getSupabaseAdmin();
-  const answeredQuestions = adminClient ? await getPublicAnsweredQuestions(adminClient, residence.id) : [];
   // El equipo de ESTA residencia no se pregunta a sí mismo: en vez del formulario ve un aviso (responde desde su panel).
-  const isOwnResidenceTeam =
-    !!sessionUser && !!adminClient && (await assertResidenceAccess(adminClient, sessionUser.id, residence.id));
   const faqItems = [...staticFaqItems, ...answeredQuestions.map((q) => ({ ...q, fromVisitor: true }))];
-  const community = adminClient
-    ? await getCommunityVisibility(adminClient, residence.id, sessionUser ? "registered" : "guest")
-    : null;
 
   // Condiciones de reserva a nivel residencia (migración 0025).
   const conditions = {
     minimumStayMonths: residence.minimum_stay_months != null ? Number(residence.minimum_stay_months) : null,
+    adjustmentPolicy: (residence.adjustment_policy as string | null) ?? null,
     enrollmentFeeMode: (residence.enrollment_fee_mode as "one_month" | "manual" | null) ?? null,
     enrollmentFeeUsd: residence.enrollment_fee_usd != null ? Number(residence.enrollment_fee_usd) : null,
     enrollmentFeeFrequency: (residence.enrollment_fee_frequency as "once" | "annual") ?? "once",
@@ -161,212 +193,393 @@ export default async function RealResidenceDetailPage({
     initialPayment: initialPaymentConfigFromRow(residence),
   };
 
-  let profileCompletenessPercent: number | null = null;
-  let studentProfileId: string | null = null;
-  let studentFavorited = false;
-  let minorBlock: "no_family" | "no_phone" | null = null;
-  if (sessionUser?.roles.includes("student") && adminClient) {
-    const completeness = await getStudentProfileCompleteness(adminClient, sessionUser.id);
-    profileCompletenessPercent = completeness?.percent ?? null;
-    const { data: profileRow } = await adminClient
-      .from("student_profiles")
-      .select("id, is_minor")
-      .eq("user_id", sessionUser.id)
-      .maybeSingle();
-    studentProfileId = profileRow?.id ?? null;
-    // Menor sin familiar vinculado con teléfono (docs/10 §9.1 y §9.5): el servidor
-    // rechaza la solicitud al enviarla; acá se avisa antes de completar el formulario.
-    if (profileRow?.is_minor) {
-      const { data: link, error: linkError } = await adminClient
-        .from("family_links")
-        .select("family_members(phone)")
-        .eq("student_profile_id", profileRow.id)
-        .eq("status", "active")
-        .maybeSingle();
-      if (linkError) {
-        // Ante un error de lectura no se bloquea: decide `submitApplication` al enviar.
-        console.error("[ficha] no se pudo leer el familiar vinculado del menor:", linkError);
-      } else if (!link) {
-        minorBlock = "no_family";
-      } else {
-        const familyMember = link.family_members as unknown as { phone: string | null } | null;
-        if (!familyMember?.phone) minorBlock = "no_phone";
-      }
-    }
-    if (studentProfileId) {
-      const { data: fav } = await adminClient
-        .from("student_favorites")
-        .select("id")
-        .eq("student_profile_id", studentProfileId)
-        .eq("residence_id", residence.id)
-        .maybeSingle();
-      studentFavorited = !!fav;
-    }
-  }
+  const profileCompletenessPercent = (studentViewer as StudentViewer | null)?.profileCompletenessPercent ?? null;
+  const studentFavorited = studentViewer?.studentFavorited ?? false;
+  const minorBlock = studentViewer?.minorBlock ?? null;
+  const windowNotice = studentViewer?.windowNotice ?? null;
+  const linkedStudents: LinkedStudent[] = familyViewer?.linkedStudents ?? [];
+  const linkedStudentsFavorited = familyViewer?.favorited ?? new Set<string>();
 
-  let linkedStudents: { id: string; first_name: string; last_initial: string }[] = [];
-  let linkedStudentsFavorited = new Set<string>();
-  if (sessionUser?.roles.includes("family_member")) {
-    const admin = getSupabaseAdmin();
-    if (admin) {
-      const { data: familyMember } = await admin
-        .from("family_members")
-        .select("id")
-        .eq("user_id", sessionUser.id)
-        .maybeSingle();
-      if (familyMember) {
-        const { data: links } = await admin
-          .from("family_links")
-          .select("student_profiles(id, first_name, last_initial)")
-          .eq("family_member_id", familyMember.id)
-          .eq("status", "active");
-        linkedStudents = ((links ?? []) as unknown as { student_profiles: { id: string; first_name: string; last_initial: string } | null }[])
-          .map((l) => l.student_profiles)
-          .filter((s): s is { id: string; first_name: string; last_initial: string } => s !== null);
-        if (linkedStudents.length > 0) {
-          const { data: favs } = await admin
-            .from("student_favorites")
-            .select("student_profile_id")
-            .eq("residence_id", residence.id)
-            .in("student_profile_id", linkedStudents.map((s) => s.id));
-          linkedStudentsFavorited = new Set((favs ?? []).map((f) => f.student_profile_id));
-        }
-      }
-    }
-  }
+  const mode = resolveRequestPanelMode({
+    roles: sessionUser?.roles ?? null,
+    isOwnResidenceTeam,
+    minorBlock,
+    linkedStudentsCount: linkedStudents.length,
+  });
+
+  // Tipos de habitación listos para mostrar: la disponibilidad sale SOLO del tipo (D3/H03).
+  const fichaTypes: FichaRoomType[] = roomTypes.map((rt) => ({
+    id: rt.id,
+    name: rt.name,
+    priceUsd: Number(rt.monthly_price_usd),
+    arsRounded: usdToArsRounded(Number(rt.monthly_price_usd), rate.arsPerUsd),
+    subtitle: roomTypeSubtitle({
+      capacityPerRoom: rt.capacity_per_room,
+      genderPolicy: rt.gender_policy,
+      bathroomType: rt.bathroom_type,
+    }),
+    state: typeAvailabilityState(rt.profile_availability?.status),
+  }));
 
   // "Desde" = mínimo de los tipos NO completos (D3/H03; si todos están completos, el mínimo de todos).
-  const fromPriceUsd = startingPriceUsd(
-    roomTypes.map((rt) => ({
-      priceUsd: Number(rt.monthly_price_usd),
-      state: typeAvailabilityState(rt.profile_availability?.status),
-    })),
-  );
-  const mobileBarPrice = fromPriceUsd != null ? formatUsd(fromPriceUsd) : null;
+  const fromPriceUsd = startingPriceUsd(fichaTypes.map((t) => ({ priceUsd: t.priceUsd, state: t.state })));
+  const fromArsRounded = fromPriceUsd != null ? usdToArsRounded(fromPriceUsd, rate.arsPerUsd) : null;
 
-  // La barra fija solo tiene sentido donde el panel ofrece una acción: invitados (inicio de sesión),
-  // estudiantes con el formulario y familiares. No para admin/owner/staff ni con el bloqueo del menor.
-  const showMobileBar =
-    !sessionUser ||
-    sessionUser.roles.includes("family_member") ||
-    (sessionUser.roles.includes("student") && minorBlock === null);
+  const nearest = findUniversitiesByName(nearUniversities)
+    .map((u) => ({ name: u.name, km: haversineDistanceKm(location, u) }))
+    .sort((a, b) => a.km - b.km)[0];
+  const typeNames = fichaTypes.map((t) => t.name.toLowerCase());
+  const typesChip =
+    typeNames.length > 1
+      ? `${typeNames.slice(0, -1).join(", ")} y ${typeNames[typeNames.length - 1]}`
+      : (typeNames[0] ?? "");
+  const hasCommunity = !!communityStatement || (community?.totalResidents ?? 0) > 0;
+  const hasResidenceSection = services.length > 0 || commonAreas.length > 0 || !!rulesSummary || !!rulesPdfUrl;
 
-  const showStudentFavoriteInHeader = sessionUser?.roles.includes("student") ?? false;
+  const navItems: SectionNavItem[] = [
+    { id: "tarifas", label: "Tarifas y condiciones" },
+    ...(hasCommunity ? [{ id: "comunidad", label: "Comunidad" }] : []),
+    ...(hasResidenceSection ? [{ id: "residencia", label: "La residencia" }] : []),
+    { id: "ubicacion", label: "Ubicación" },
+    { id: "preguntas", label: "Preguntas" },
+  ];
+  // Cantidad de filas de la grilla de la columna principal (para que la card lateral sticky las abarque).
+  const mainRows = 2 + (hasCommunity ? 1 : 0) + (hasResidenceSection ? 1 : 0) + 2;
+
+  const showMobileBar = mode === "guest" || mode === "student" || mode === "family";
+  const showStudentFavoriteInHeader = isStudent;
+  const singleStudentName = linkedStudents.length === 1 ? linkedStudents[0].first_name : null;
+  // Lista de espera: solo tipos completos, y nunca el tipo en el que ya tiene una reserva vigente en ESTA residencia.
+  const ownTypeIds = new Set(studentViewer?.ownReservationTypeIds ?? []);
+  const waitlistTypeIds = fichaTypes.filter((t) => t.state === "full" && !ownTypeIds.has(t.id)).map((t) => t.id);
+  const waitlistRoomTypes = roomTypes.filter((rt) => !ownTypeIds.has(rt.id));
+  const anyRequestable = fichaTypes.some((t) => isTypeRequestable(t.state));
+  // Vuelta del login con `?solicitar=1`: abre la hoja que corresponde (solicitud con el tipo elegido, o lista de espera).
+  const preselectedType = fichaTypes.find((t) => t.id === preselectedRoomTypeId);
+  const initialSheet: "request" | "waitlist" | null =
+    solicitar !== "1"
+      ? null
+      : mode === "family"
+        ? "request"
+        : mode === "student"
+          ? preselectedType && isTypeRequestable(preselectedType.state)
+            ? "request"
+            : (preselectedType ? waitlistTypeIds.includes(preselectedType.id) : !anyRequestable) && waitlistTypeIds.length > 0
+              ? "waitlist"
+              : null
+          : null;
+
+  // Contenido del servidor para los modos sin acción interactiva (SPEC §5).
+  let panelSlot: React.ReactNode = null;
+  if (mode === "family") {
+    panelSlot =
+      linkedStudents.length > 0 ? (
+        <div className="flex flex-wrap gap-2">
+          {linkedStudents.map((s) => (
+            <FavoriteButton
+              key={s.id}
+              action={toggleFamilyFavorite.bind(null, residence.id, s.id)}
+              initialFavorited={linkedStudentsFavorited.has(s.id)}
+              label={linkedStudentsFavorited.has(s.id) ? `Sugerida a ${s.first_name}` : `Sugerir a ${s.first_name}`}
+            />
+          ))}
+        </div>
+      ) : null;
+  } else if (mode === "family_unlinked") {
+    panelSlot = (
+      <p className="text-sm leading-relaxed text-ink-soft">
+        Necesitás tener al menos un estudiante vinculado activo para proponerle una residencia.
+      </p>
+    );
+  } else if (mode === "minor_no_family") {
+    panelSlot = (
+      <>
+        <p className="flex items-center gap-2 font-bold text-ink">
+          <Icon name="family_restroom" className="text-xl text-forest-700" />
+          Primero, vinculá a un familiar
+        </p>
+        <p className="mt-2 text-sm leading-relaxed text-ink-soft">
+          Como sos menor de 18, necesitás un familiar vinculado (con su teléfono cargado) para enviar solicitudes de
+          reserva. Invitalo/a por email desde tu panel; cuando se registre, vos aprobás la vinculación. Mientras tanto
+          podés seguir explorando.
+        </p>
+        <Button href="/students/dashboard#vinculacion" size="lg" className="mt-4 w-full">
+          Invitar a un familiar
+        </Button>
+      </>
+    );
+  } else if (mode === "minor_no_phone") {
+    panelSlot = (
+      <>
+        <p className="flex items-center gap-2 font-bold text-ink">
+          <Icon name="phone_in_talk" className="text-xl text-forest-700" />
+          Falta el teléfono de tu familiar
+        </p>
+        <p className="mt-2 text-sm leading-relaxed text-ink-soft">
+          Tu familiar ya está vinculado, pero no tiene un teléfono de contacto cargado, y como sos menor de 18 la
+          residencia lo contacta a él o ella. Hoy no podés completarlo desde tu cuenta: escribinos desde Soporte y lo
+          resolvemos. Mientras tanto podés seguir explorando.
+        </p>
+        <Button href="/students/support" size="lg" className="mt-4 w-full">
+          Ir a Soporte
+        </Button>
+      </>
+    );
+  } else if (mode === "team") {
+    panelSlot = (
+      <>
+        <p className="flex items-center gap-2 font-bold text-ink">
+          <Icon name="visibility" className="text-xl text-forest-700" />
+          Vista previa
+        </p>
+        <p className="mt-1 text-sm leading-relaxed text-ink-soft">Así ven tu ficha los estudiantes.</p>
+        <Button href={`/residence/${residence.id}/profile`} size="lg" className="mt-4 w-full">
+          Editar perfil de la residencia
+        </Button>
+        <Button href={`/residence/${residence.id}/availability`} variant="outline" size="lg" className="mt-2 w-full">
+          Actualizar disponibilidad
+        </Button>
+      </>
+    );
+  } else if (mode === "other") {
+    panelSlot = (
+      <p className="text-sm leading-relaxed text-ink-soft">
+        Solo cuentas de estudiante o familiares vinculados pueden actuar acá.
+      </p>
+    );
+  }
+
+  const initialPaymentDisplay = describeInitialPayment(conditions.initialPayment);
+  const minimumStayLabel =
+    conditions.minimumStayMonths != null && conditions.minimumStayMonths > 0 ? monthsLabel(conditions.minimumStayMonths) : null;
+  const keyFacts = {
+    initialPaymentLabel: initialPaymentDisplay.kind === "fixed" ? formatUsd(initialPaymentDisplay.usd) : "Primer mes",
+    initialIsFirstMonth: initialPaymentDisplay.kind === "first_month",
+    depositLabel: conditions.depositUsd != null && conditions.depositUsd > 0 ? formatUsd(conditions.depositUsd) : null,
+    minimumStayLabel,
+  };
+
+  const chipClass =
+    "inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-line bg-paper px-3 py-1.5 text-sm text-ink-soft";
 
   return (
-    <ReservationSelectionProvider initialRoomTypeId={preselectedRoomTypeId}>
-      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
-      {/* Hero de fotos — se adapta a la cantidad (0 / 1 / 2–4 / 5+), Ciclo 54 (D12) */}
-      <div className="mt-4">
-        <ResidenceGallery photos={photoUrls} name={residence.name} zone={residence.public_area ?? ""} />
-      </div>
+    <ReservationSelectionProvider initialRoomTypeId={preselectedRoomTypeId} initialSheet={initialSheet}>
+      <div className="mx-auto max-w-6xl px-4 pb-10 pt-6 sm:px-6 sm:pb-14">
+        <nav aria-label="Ruta de navegación" className="mb-4 text-sm text-ink-faint">
+          <ol className="flex flex-wrap items-center gap-1.5">
+            <li>
+              <Link href="/search" className="hover:text-forest-700 hover:underline">
+                Residencias
+              </Link>
+            </li>
+            <li aria-hidden="true">›</li>
+            <li>{residence.public_area}</li>
+            <li aria-hidden="true">›</li>
+            <li aria-current="page" className="font-semibold text-ink-soft">
+              {residence.name}
+            </li>
+          </ol>
+        </nav>
 
-      <div className="mt-8 grid gap-10 lg:grid-cols-3">
-        <div className="space-y-8 lg:col-span-2">
-          <div>
-            <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-3xl font-bold text-ink sm:text-4xl">{residence.name}</h1>
-              <TrustBadge status="verified_active" size="md" />
-              {/* Favorito — cerca del título, no compite con el panel de solicitud */}
-              {showStudentFavoriteInHeader && (
-                <FavoriteButton action={toggleStudentFavorite.bind(null, residence.id)} initialFavorited={studentFavorited} />
-              )}
-            </div>
-            <p className="mt-1 text-ink-soft">{residence.public_area}, CABA</p>
-            {nearUniversities.length > 0 && (
-              <p className="mt-3 text-sm font-medium text-forest-700">
-                Cerca de {nearUniversities.join(" y ")}
-              </p>
+        {/* Hero de fotos — se adapta a la cantidad (0 / 1 / 2–4 / 5+), Ciclo 54 (D12) */}
+        <ResidenceGallery photos={photoUrls} name={residence.name} zone={residence.public_area ?? ""} />
+
+        <header className="mt-6">
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="text-3xl font-bold text-ink sm:text-4xl">{residence.name}</h1>
+            <TrustBadge status="verified_active" size="md" />
+            {/* Favorito — cerca del título, no compite con el panel de solicitud */}
+            {showStudentFavoriteInHeader && (
+              <FavoriteButton action={toggleStudentFavorite.bind(null, residence.id)} initialFavorited={studentFavorited} />
             )}
           </div>
+          <p className="mt-1.5 flex items-center gap-1.5 text-ink-soft">
+            <Icon name="location_on" className="text-lg text-orange-700" />
+            {addressLine ? `${addressLine}, ` : ""}
+            {residence.public_area}, CABA
+          </p>
 
-          {/* Comunidad y Convivencia — quote + avatares + contador */}
-          {(communityStatement || (community && community.totalResidents > 0)) && (
-            <Card className="p-5">
-              <p className="flex items-center gap-2 text-sm font-bold text-ink">
-                <Icon name="diversity_3" className="text-xl text-forest-700" /> Comunidad y Convivencia
-              </p>
-              {communityStatement && (
-                <p className="mt-3 rounded-field border-l-[3px] border-forest bg-forest-tint/40 px-4 py-3 text-sm italic leading-relaxed text-ink-soft">
-                  &ldquo;{communityStatement}&rdquo;
-                </p>
-              )}
-              {community && community.totalResidents > 0 && (
-                <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex -space-x-2">
-                      {community.cards
-                        .filter((c) => c.kind === "profile")
-                        .slice(0, 4)
-                        .map((c, i) => (
-                          <span
-                            key={c.residentStayId}
-                            className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ring-2 ring-paper ${
-                              ["bg-forest-tint text-forest-700", "bg-orange-tint text-orange-700", "bg-mint text-forest-700", "bg-sand-100 text-ink-soft"][i % 4]
-                            }`}
-                          >
-                            {c.firstName?.[0]?.toUpperCase() ?? "?"}
-                          </span>
-                        ))}
-                      {community.totalResidents > 4 && (
-                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-forest text-[11px] font-bold text-white ring-2 ring-paper">
-                          +{community.totalResidents - 4}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-sm font-semibold text-ink">{community.totalResidents} residentes actuales</p>
-                  </div>
-                  <Link
-                    href={`/residencias/${slug}/comunidad`}
-                    className="text-sm font-bold text-forest-700 hover:underline"
-                  >
-                    Ver todos los perfiles →
-                  </Link>
-                </div>
-              )}
-            </Card>
-          )}
+          <ul className="-mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {fromPriceUsd != null && (
+              <li className={chipClass}>
+                <Icon name="payments" className="text-lg text-forest-700" />
+                Desde <strong className="text-ink">{formatUsd(fromPriceUsd)}</strong> /mes
+              </li>
+            )}
+            {typesChip && (
+              <li className={chipClass}>
+                <Icon name="bed" className="text-lg text-forest-700" />
+                <span className="first-letter:uppercase">{typesChip}</span>
+              </li>
+            )}
+            {minimumStayLabel && (
+              <li className={chipClass}>
+                <Icon name="event_available" className="text-lg text-forest-700" />
+                Estadía mínima <strong className="text-ink">{minimumStayLabel}</strong>
+              </li>
+            )}
+            {nearest && (
+              <li className={chipClass}>
+                <Icon name="school" className="text-lg text-forest-700" />
+                ~{nearest.km.toFixed(1).replace(".", ",")} km de {nearest.name}
+              </li>
+            )}
+            {(community?.totalResidents ?? 0) > 0 && (
+              <li className={chipClass}>
+                <Icon name="groups" className="text-lg text-forest-700" />
+                {community?.totalResidents} residentes
+              </li>
+            )}
+          </ul>
 
           {residence.description && (
-            <section>
-              <h2 className="text-xl font-bold text-ink">Sobre la residencia</h2>
-              <p className="mt-3 leading-relaxed text-ink-soft">{residence.description}</p>
-            </section>
+            <div className="mt-4 max-w-3xl">
+              <ReadMore text={residence.description} />
+            </div>
           )}
+        </header>
 
-          {/* 1. Servicios incluidos */}
-          {services.length > 0 && (
-            <section>
-              <h2 className="text-xl font-bold text-ink">Servicios incluidos</h2>
-              <div className="mt-4">
-                <AmenityGrid items={services.map((s) => ({ name: s, ...getServiceIcon(s) }))} />
+        <div className="mt-5">
+          <SectionNav items={navItems} />
+        </div>
+
+        <div
+          className="mt-8 grid gap-y-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-x-10"
+          style={{ "--rows": mainRows } as React.CSSProperties}
+        >
+          {/* 1. Tarifas y condiciones — visible para TODOS (H10 / D17) */}
+          <section id="tarifas" className="scroll-mt-32 space-y-5 lg:col-start-1">
+            <div>
+              <h2 className="text-2xl font-bold text-ink">Tarifas y condiciones</h2>
+              <p className="mt-1 text-sm text-ink-soft">
+                Precios mensuales por tipo de habitación, visibles para todos. La disponibilidad la informa la
+                residencia por tipo.
+              </p>
+            </div>
+            {fichaTypes.length > 0 ? (
+              <RatesTable
+                roomTypes={fichaTypes}
+                arsPerUsd={rate.arsPerUsd}
+                waitlistTypeIds={mode === "student" ? waitlistTypeIds : []}
+              />
+            ) : (
+              <EmptyState
+                icon="request_quote"
+                title="La residencia todavía no publicó sus tarifas"
+                description="Podés hacerle una pregunta o seguir mirando otras residencias."
+                action={
+                  <div className="flex flex-wrap justify-center gap-2">
+                    <Button href="#preguntas" variant="outline" size="sm">
+                      Hacer una pregunta
+                    </Button>
+                    <Button href="/search" size="sm">
+                      Ver más residencias
+                    </Button>
+                  </div>
+                }
+              />
+            )}
+            <ReservationConditions conditions={conditions} arsPerUsd={rate.arsPerUsd} />
+            <WhoGetsPaid
+              initialPayment={conditions.initialPayment}
+              hasDeposit={keyFacts.depositLabel != null}
+              enrollment={{
+                mode: conditions.enrollmentFeeMode,
+                usd: conditions.enrollmentFeeUsd,
+                frequency: conditions.enrollmentFeeFrequency,
+              }}
+            />
+          </section>
+
+          {/* Columna lateral (desktop) / card de solicitud dentro de Tarifas (mobile) */}
+          <aside
+            id="solicitud"
+            className="scroll-mt-32 lg:col-start-2 lg:row-start-1 lg:self-start lg:sticky lg:top-32 lg:[grid-row:1_/_span_var(--rows)]"
+          >
+            <RequestPanel
+              slug={slug}
+              mode={mode}
+              roomTypes={fichaTypes}
+              fromPriceUsd={fromPriceUsd}
+              fromArsRounded={fromArsRounded}
+              keyFacts={keyFacts}
+              studentName={singleStudentName}
+              slot={panelSlot}
+              windowNotice={windowNotice}
+              waitlistTypeIds={mode === "student" ? waitlistTypeIds : []}
+            />
+          </aside>
+
+          <div className="lg:col-start-1">
+            <VerificationScope />
+          </div>
+
+          {/* 2. Comunidad y convivencia — resumen por tipo (D18); el mapa de camas vive en /comunidad */}
+          {hasCommunity && (
+            <section id="comunidad" className="scroll-mt-32 space-y-4 lg:col-start-1">
+              <div>
+                <h2 className="text-2xl font-bold text-ink">Comunidad y convivencia</h2>
+                <p className="mt-1 text-sm text-ink-soft">Quiénes viven hoy, por tipo de habitación.</p>
               </div>
+              <CommunitySummary slug={slug} community={community} statement={communityStatement} isGuest={!sessionUser} />
             </section>
           )}
 
-          {/* 2. Áreas comunes */}
-          {commonAreas.length > 0 && (
-            <section>
-              <h2 className="text-xl font-bold text-ink">Áreas comunes</h2>
-              <div className="mt-4">
-                <AmenityGrid items={commonAreas.map((a) => ({ name: a, ...getCommonAreaIcon(a) }))} />
-              </div>
+          {/* 3. La residencia */}
+          {hasResidenceSection && (
+            <section id="residencia" className="scroll-mt-32 space-y-6 lg:col-start-1">
+              <h2 className="text-2xl font-bold text-ink">La residencia</h2>
+              {(services.length > 0 || commonAreas.length > 0) && (
+                <div className="grid gap-6 md:grid-cols-2">
+                  {services.length > 0 && (
+                    <div>
+                      <h3 className="text-base font-bold text-ink">Servicios incluidos</h3>
+                      <div className="mt-3">
+                        <AmenityGrid columns={1} items={services.map((s) => ({ name: s, ...getServiceIcon(s) }))} />
+                      </div>
+                    </div>
+                  )}
+                  {commonAreas.length > 0 && (
+                    <div>
+                      <h3 className="text-base font-bold text-ink">Áreas comunes</h3>
+                      <div className="mt-3">
+                        <AmenityGrid columns={1} items={commonAreas.map((a) => ({ name: a, ...getCommonAreaIcon(a) }))} />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+              {(rulesSummary || rulesPdfUrl) && (
+                <div>
+                  <h3 className="text-base font-bold text-ink">Reglas de convivencia</h3>
+                  <div className="mt-3">
+                    <RulesHighlight rulesSummary={rulesSummary} pdfUrl={rulesPdfUrl} />
+                  </div>
+                </div>
+              )}
             </section>
           )}
 
-          {/* 3. Reglas de convivencia — top 5 + PDF, no el reglamento completo en texto */}
-          {(rulesSummary || rulesPdfUrl) && (
-            <section>
-              <h2 className="text-xl font-bold text-ink">Reglas de convivencia</h2>
-              <div className="mt-4">
-                <RulesHighlight rulesSummary={rulesSummary} pdfUrl={rulesPdfUrl} />
-              </div>
-            </section>
-          )}
+          {/* 4. Ubicación — pin exacto + dirección pública + universidades con distancia (DF5) */}
+          <section id="ubicacion" className="scroll-mt-32 space-y-4 lg:col-start-1">
+            <div>
+              <h2 className="text-2xl font-bold text-ink">Ubicación</h2>
+              <p className="mt-1 text-sm text-ink-soft">
+                {addressLine ? `${addressLine}, ${residence.public_area}, CABA.` : `${residence.public_area}, CABA.`}
+              </p>
+            </div>
+            <CompactMap
+              residenceName={residence.name}
+              zone={residence.public_area}
+              nearUniversityNames={nearUniversities}
+              location={location}
+              address={addressLine}
+            />
+          </section>
 
-          {/* 4. Preguntas frecuentes */}
-          <section id="preguntas" className="scroll-mt-24">
-            <h2 className="text-xl font-bold text-ink">Preguntas frecuentes</h2>
+          {/* 5. Preguntas frecuentes */}
+          <section id="preguntas" className="scroll-mt-32 lg:col-start-1">
+            <h2 className="text-2xl font-bold text-ink">Preguntas frecuentes</h2>
             {faqItems.length > 0 && (
               <div className="mt-4">
                 <FaqAccordion items={faqItems} />
@@ -386,176 +599,66 @@ export default async function RealResidenceDetailPage({
               )}
             </div>
           </section>
-
         </div>
 
-        <aside id="solicitud" className="scroll-mt-24">
-          <Card className="p-6 lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
-            {!sessionUser ? (
-              <>
-                <p className="text-sm text-ink-soft">
-                  Necesitás una cuenta de estudiante para enviar una solicitud de reserva.
-                </p>
-                <Button href={`/login?next=/residencias/${slug}`} size="lg" className="mt-4 w-full">
-                  Iniciar sesión
-                </Button>
-                <Button href="/register/student" variant="outline" size="lg" className="mt-2 w-full">
-                  Crear cuenta de estudiante
-                </Button>
-              </>
-            ) : sessionUser.roles.includes("family_member") ? (
-              <>
-                {linkedStudents.length > 0 && (
-                  <div className="mb-4 flex flex-wrap gap-2">
-                    {linkedStudents.map((s) => (
-                      <FavoriteButton
-                        key={s.id}
-                        action={toggleFamilyFavorite.bind(null, residence.id, s.id)}
-                        initialFavorited={linkedStudentsFavorited.has(s.id)}
-                        label={
-                          linkedStudentsFavorited.has(s.id)
-                            ? `Sugerida a ${s.first_name}`
-                            : `Sugerir a ${s.first_name}`
-                        }
-                      />
-                    ))}
-                  </div>
-                )}
-                <ProposeForm residenceId={residence.id} roomTypes={roomTypes} students={linkedStudents} />
-              </>
-            ) : !sessionUser.roles.includes("student") ? (
-              <p className="text-sm text-ink-soft">
-                Solo cuentas de estudiante o familiares vinculados pueden actuar acá.
-              </p>
-            ) : minorBlock === "no_family" ? (
-              <>
-                <p className="flex items-center gap-2 font-bold text-ink">
-                  <Icon name="family_restroom" className="text-xl text-forest-700" />
-                  Primero, vinculá a un familiar
-                </p>
-                <p className="mt-2 text-sm leading-relaxed text-ink-soft">
-                  Como sos menor de 18, necesitás un familiar vinculado (con su teléfono cargado) para
-                  enviar solicitudes de reserva. Invitalo/a por email desde tu panel; cuando se registre, vos
-                  aprobás la vinculación. Mientras tanto podés seguir explorando.
-                </p>
-                <Button href="/students/dashboard#vinculacion" size="lg" className="mt-4 w-full">
-                  Invitar a un familiar
-                </Button>
-              </>
-            ) : minorBlock === "no_phone" ? (
-              <>
-                <p className="flex items-center gap-2 font-bold text-ink">
-                  <Icon name="phone_in_talk" className="text-xl text-forest-700" />
-                  Falta el teléfono de tu familiar
-                </p>
-                <p className="mt-2 text-sm leading-relaxed text-ink-soft">
-                  Tu familiar ya está vinculado, pero no tiene un teléfono de contacto cargado, y como sos
-                  menor de 18 la residencia lo contacta a él o ella. Hoy no podés completarlo desde tu cuenta:
-                  escribinos desde Soporte y lo resolvemos. Mientras tanto podés seguir explorando.
-                </p>
-                <Button href="/students/support" size="lg" className="mt-4 w-full">
-                  Ir a Soporte
-                </Button>
-              </>
+        <p className="mt-10 text-center text-xs text-ink-faint">
+          ¿Buscás más opciones?{" "}
+          <Link href="/search" className="text-forest-700 hover:underline">
+            Mirá el catálogo completo
+          </Link>
+          .
+        </p>
+        {/* Espacio para que la barra fija de mobile no tape el final de la página */}
+        <div className="h-[calc(5.5rem+env(safe-area-inset-bottom))] lg:hidden" aria-hidden="true" />
+      </div>
+
+      {(mode === "student" || mode === "family") && (
+        <RequestSheet
+          residenceName={residence.name}
+          windowNotice={windowNotice}
+          variant={mode === "family" ? "propose" : "apply"}
+          requestContent={
+            mode === "family" ? (
+              <ProposeForm residenceId={residence.id} roomTypes={roomTypes} students={linkedStudents} />
             ) : (
               <ApplyForm
                 residenceId={residence.id}
                 roomTypes={roomTypes}
-                conditions={conditions}
+                conditions={{
+                  minimumStayMonths: conditions.minimumStayMonths,
+                  enrollmentFeeMode: conditions.enrollmentFeeMode,
+                  enrollmentFeeUsd: conditions.enrollmentFeeUsd,
+                  enrollmentFeeFrequency: conditions.enrollmentFeeFrequency,
+                  depositUsd: conditions.depositUsd,
+                  emptyMonthChargePercent: conditions.emptyMonthChargePercent,
+                  initialPayment: conditions.initialPayment,
+                }}
                 arsPerUsd={rate.arsPerUsd}
                 profileCompletenessPercent={profileCompletenessPercent}
+                minStartDate={windowNotice?.minRequestStartDate ?? null}
               />
-            )}
-            <p className="mt-4 text-xs text-ink-faint">
-              Enviar una solicitud no garantiza tu lugar: la residencia la revisa y responde. Toda
-              reserva está sujeta a confirmación.
-            </p>
-          </Card>
-        </aside>
-      </div>
+            )
+          }
+          waitlistContent={
+            mode === "student" && waitlistTypeIds.length > 0 ? (
+              <JoinWaitlistForm
+                residenceId={residence.id}
+                roomTypes={waitlistRoomTypes}
+                minStartDate={windowNotice?.minRequestStartDate ?? null}
+              />
+            ) : undefined
+          }
+        />
+      )}
 
-      {/* 5. Comunidad y Disponibilidad — a propósito FUERA de la grilla de
-          2 columnas de arriba: usa el ancho completo de la página (más
-          lugar para las secciones por tipo de habitación) y hace que el
-          panel "Tu solicitud de reserva" (sticky solo dentro de esa
-          grilla) se libere y baje con el resto del contenido apenas se
-          llega acá, en vez de seguir clavado durante toda esta sección
-          — pedido explícito del dueño en Ciclo 35octodevicies. Elegir
-          una plaza libre sigue completando el formulario en tiempo real
-          vía ReservationSelectionProvider, sin depender de que el panel
-          esté a la vista. */}
-      <section id="disponibilidad" className="mt-10 scroll-mt-24">
-        <h2 className="text-xl font-bold text-ink">Comunidad y disponibilidad</h2>
-        <p className="mt-3 flex items-start gap-2 rounded-field bg-info-bg px-3.5 py-2.5 text-xs leading-relaxed text-info-fg">
-          <Icon name="info" className="mt-0.5 shrink-0 text-sm" />
-          La convivencia es dinámica: los perfiles mostrados son los actuales, pero pueden cambiar antes de tu
-          ingreso. Cada estudiante decide qué mostrar.
-        </p>
-        {community && (community.totalResidents > 0 || community.totalAvailable > 0) ? (
-          <div className="mt-4">
-            <CommunityBrowser summary={community} slug={slug} isGuest={!sessionUser} />
-          </div>
-        ) : roomTypes.length > 0 ? (
-          <div className="mt-4 space-y-3">
-            {roomTypes.map((rt) => {
-              const isFull = typeAvailabilityState(rt.profile_availability?.status) === "full";
-              return (
-                <div
-                  key={rt.id}
-                  className={`flex items-center justify-between gap-3 rounded-card border-[1.5px] p-4 ${
-                    isFull ? "border-line bg-cream-2/50" : "border-line bg-paper shadow-card"
-                  }`}
-                >
-                  <p className="font-bold text-ink">{rt.name}</p>
-                  <Link
-                    href={`/residencias/${slug}?room=${rt.id}#solicitud`}
-                    className={`rounded-full px-4 py-2 text-xs font-bold ${
-                      isFull ? "bg-sand-100 text-ink-faint" : "bg-forest text-white hover:bg-forest-600"
-                    }`}
-                  >
-                    {isFull ? "Sin lugar" : "Seleccionar este lugar"}
-                  </Link>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <p className="mt-3 text-sm text-ink-soft">La residencia todavía no cargó su comunidad visible.</p>
-        )}
-      </section>
-
-      {/* 6. Ubicación — mapa compacto con pin aproximado por barrio
-          (nunca la dirección exacta) + universidades cercanas. También
-          fuera de la grilla, mismo bloque de ancho completo. */}
-      <section className="mt-10">
-        <h2 className="text-xl font-bold text-ink">Ubicación</h2>
-        <div className="mt-4">
-          <CompactMap
-            residenceName={residence.name}
-            zone={residence.public_area}
-            nearUniversityNames={nearUniversities}
-            location={location}
-            address={residence.address_line as string | null}
-          />
-        </div>
-      </section>
-
-      <p className="mt-10 text-center text-xs text-ink-faint">
-        ¿Buscás más opciones?{" "}
-        <Link href="/search" className="text-forest-700 hover:underline">
-          Mirá el catálogo completo
-        </Link>
-        .
-      </p>
-      {/* Espacio para que la barra fija de mobile no tape el final de la página */}
-      <div className="h-[calc(5.5rem+env(safe-area-inset-bottom))] lg:hidden" aria-hidden="true" />
-    </div>
-    {showMobileBar && (
-      <MobileRequestBar
-        priceLabel={mobileBarPrice}
-        ctaLabel={sessionUser?.roles.includes("family_member") ? "Proponer" : "Solicitar"}
-      />
-    )}
+      {showMobileBar && (
+        <MobileRequestBar
+          roomTypes={fichaTypes}
+          fromPriceUsd={fromPriceUsd}
+          opensSheet={modeOpensSheet(mode)}
+          ctaLabel={mode === "family" ? "Proponer" : "Solicitar"}
+        />
+      )}
     </ReservationSelectionProvider>
   );
 }

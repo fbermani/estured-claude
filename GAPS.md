@@ -16,6 +16,18 @@
 
 ---
 
+## [ABIERTO — decisiones DR1–DR2 documentadas, código pendiente] Reserva vigente vs. solicitudes y listas de espera (2026-10-23)
+
+**Qué es:** el dueño decidió (`docs/00` §31 DR1–DR2; `docs/04` §5.6bis, §11.3; `docs/08` §4.5, §6.2, §6.10) que un estudiante con reserva vigente o estadía en curso no puede crear solicitudes ni anotarse en listas de espera con fechas **superpuestas** a ese período (sí para fechas posteriores), y que al confirmarse una reserva se anulan sus listas de espera con aviso y las residencias quedan solo en favoritos. **Todavía no está implementado.**
+
+**Desalineado con el código actual:**
+- `lib/students/hasActiveStay.ts` (Ciclo 57) y su uso en la ficha pública implementan la regla simple anterior: no ofrece "Solicitar" a quien tiene una `resident_stays` con `status = 'active'`. DR1 la reemplaza: hay que mirar también `pending_activation` y las reservas vigentes (`LIVE_RESERVATION_STATUSES`) y comparar **fechas** (período deseado vs. `start_date`..fin de contrato), no un booleano.
+- Falta la validación **server-side** de superposición en las server actions de solicitud, propuesta del familiar y lista de espera, con mensaje accionable.
+- `lib/waitlist-entries/removeWaitlistEntriesOnConfirmedReservation.ts` (llamada desde `confirmAfterFeePaid` y `confirmRenewalAfterFeePaid`) ya anula las listas de espera activas, pero **no** guarda `removed_reason`, **no** notifica al estudiante cuáles se anularon y por qué, y **no** agrega esas residencias a `favorites`. Además corre también en renovaciones (DR2 habla de confirmar una reserva: confirmar con el dueño si la renovación debe seguir anulando listas).
+- Tests: casos superpuesto / posterior / sin fecha deseada / límite de 2 solicitudes / anulación de listas.
+
+---
+
 ## [ABIERTO — decisiones DF1–DF5 documentadas, código pendiente] Rediseño de la ficha pública (2026-10-23)
 
 **Qué es:** el dueño decidió el rediseño de `/residencias/[slug]` (`docs/00` §31 DF1–DF4, `docs/08` §4.5; propuesta en `design-proposals/ficha-residencia/SPEC.md`). **Todavía no está implementado:** layout de columna sticky + hoja de solicitud, variante "{Tipo}: completa" en `StatusTag.tsx`, mapa con el pin exacto y universidades cercanas (DF5), `/comunidad` sin "Elegir este lugar" si el tipo no está `available_to_confirm` (H03), "Desde" = mínimo de tipos no completos. **DF5 (2026-10-23) reemplaza DF3 y DF4 (dirección):** dirección y coordenadas exactas son públicas. Lo ya escrito bajo el supuesto anterior queda desalineado: la migración `0042_residence_coordinates.sql` (CHECK de máx. 3 decimales), `lib/residences/approximateLocation.ts` (centro redondeado + radio), `lib/applications/exactAddress.ts` (gate por `contact_established`), el texto "una vez confirmada la reserva" de `CompactMap.tsx` y el hallazgo de seguridad sobre `address_line` legible con la anon key (que con DF5 deja de ser un riesgo). `residences.lat`/`lng` de `docs/06` pasan a `latitude`/`longitude`. **Pendiente de lanzamiento:** pasar de teselas OSM directas a un proveedor con clave (`docs/15` §23).

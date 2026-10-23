@@ -16,7 +16,7 @@ export function ResidenceGallery({ photos, name, zone }: { photos: string[]; nam
 
   if (layout === "empty") {
     return (
-      <div className="relative h-56 overflow-hidden rounded-card sm:h-72">
+      <div className="relative h-[150px] overflow-hidden rounded-card sm:h-[200px]">
         <ResidencePhotoPlaceholder name={name} zone={zone} variant="hero" label="Foto próximamente" />
       </div>
     );

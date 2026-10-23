@@ -2,21 +2,36 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { formatUsd } from "@/lib/mock/exchange";
+import { isTypeRequestable } from "@/lib/availability/typeAvailability";
+import { useReservationSelection } from "@/components/residences/reservationSelection";
+import type { FichaRoomType } from "@/components/residences/ficha/types";
 
 /**
  * Barra fija inferior de la ficha para pantallas donde el panel de
  * solicitud queda debajo del contenido (< lg): "Desde USD X · Solicitar"
- * lleva a `#solicitud`. Se oculta sola cuando el panel ya está a la vista
- * (para no duplicar el CTA) o cuando aparece el footer (H31, auditoría 2026-10-20).
+ * o "{Tipo} USD X · Solicitar". Con un tipo elegido y un rol que puede
+ * solicitar (o proponer), el CTA abre la hoja de solicitud; si no, lleva a
+ * `#tarifas` para elegir un tipo (o iniciar sesión). Se oculta sola cuando
+ * el panel ya está a la vista (para no duplicar el CTA) o cuando aparece el
+ * footer (H31, auditoría 2026-10-20).
  */
 export function MobileRequestBar({
-  priceLabel,
+  roomTypes,
+  fromPriceUsd,
+  opensSheet,
   ctaLabel = "Solicitar",
 }: {
-  /** Precio ya formateado ("USD 320"), o null si no hay tipos con precio. */
-  priceLabel: string | null;
+  roomTypes: FichaRoomType[];
+  /** "Desde" ya calculado en el servidor (mínimo de los tipos que admiten solicitud); null si no hay precios. */
+  fromPriceUsd: number | null;
+  /** El rol actual puede abrir la hoja (estudiante o familiar). Invitados y demás van a `#tarifas`. */
+  opensSheet: boolean;
   ctaLabel?: string;
 }) {
+  const { roomTypeId, openSheet } = useReservationSelection();
+  const selected = roomTypes.find((rt) => rt.id === roomTypeId && isTypeRequestable(rt.state)) ?? null;
+  const priceUsd = selected?.priceUsd ?? fromPriceUsd;
   // Se oculta cuando el panel de solicitud o el footer ya están a la vista
   // (el footer tiene enlaces legales que la barra taparía).
   const [hidden, setHidden] = useState(false);
@@ -55,18 +70,24 @@ export function MobileRequestBar({
       aria-hidden={hidden}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
-        {priceLabel ? (
-          <p className="leading-tight">
-            <span className="block text-xs font-semibold text-ink-faint">Desde</span>
-            <span className="text-lg font-extrabold text-ink">{priceLabel}</span>
+        {priceUsd != null ? (
+          <p className="min-w-0 leading-tight">
+            <span className="block truncate text-xs font-semibold text-ink-faint">{selected ? selected.name : "Desde"}</span>
+            <span className="text-lg font-extrabold text-ink">{formatUsd(priceUsd)}</span>
             <span className="text-xs font-semibold text-ink-faint"> /mes</span>
           </p>
         ) : (
           <span />
         )}
-        <Button href="#solicitud" size="md">
-          {ctaLabel}
-        </Button>
+        {opensSheet && selected ? (
+          <Button type="button" size="md" onClick={() => openSheet("request")} className="shrink-0">
+            {ctaLabel}
+          </Button>
+        ) : (
+          <Button href="#tarifas" size="md" className="shrink-0">
+            {ctaLabel}
+          </Button>
+        )}
       </div>
     </div>
   );

@@ -331,6 +331,28 @@ Representa la intención formal del estudiante de reservar una plaza, habitació
 - La solicitud pausada no se cierra automáticamente.
 - La solicitud pausada se reactiva si la solicitud activa se cancela, vence o no se confirma.
 - La solicitud pausada se cierra definitivamente solo cuando otra reserva del estudiante queda confirmada.
+- **Un estudiante con reserva vigente o estadía en curso no puede crear solicitudes con fechas superpuestas** a ese período (ver §5.6bis).
+
+---
+
+## 5.6bis. Reserva vigente o estadía en curso: bloqueo por superposición de fechas
+
+*Decisión del dueño, 2026-10-23 (`docs/00` §31, DR1). Reemplaza la regla simple "un estudiante alojado no puede solicitar".*
+
+**Período vigente del estudiante** = desde el `start_date` hasta el fin de contrato vigente, para cada reserva vigente o estadía en curso:
+
+- **Reserva vigente:** `reservation` en cualquier estado de §7.2 salvo los no vigentes (`expired_fee_unpaid`, `cancelled_by_student`, `cancelled_by_residence`, `no_show`, `completed`); es decir, `pending_estured_fee`, `estured_fee_processing`, `estured_fee_failed`, `confirmed`, `receipt_pending`, `receipt_issued` y `disputed` (fuente única en código: `lib/reservations/reservationStatus.ts`, `LIVE_RESERVATION_STATUSES`). Una reserva `confirmed` cuya estadía ya terminó deja de contar. Fin de contrato = `start_date` + `initial_duration_months`.
+- **Estadía en curso:** `resident_stay` del estudiante en estado `pending_activation` o `active` (§16.2), sin salida real registrada (`end_date` nulo). Fin de contrato = `expected_end_date` ("contrato hasta"; lo extienden las renovaciones confirmadas). Si falta, el de la reserva asociada (`start_date` + duración).
+- Cuando coexisten reserva y estadía del mismo estudiante, el fin de contrato vigente es la fecha **más tardía** de las dos.
+
+**Regla:**
+
+- El estudiante **no puede** crear solicitudes (`application_request`) **ni** anotarse en listas de espera cuyo período deseado (`desired_start_date` hasta `desired_start_date` + duración deseada) **se superponga** con el período vigente.
+- **Sí puede** solicitar o anotarse para fechas **posteriores** al fin del período vigente (ingreso deseado posterior al fin de contrato).
+- Una lista de espera sin `desired_start_date` se considera superpuesta mientras haya período vigente. *(Supuesto reversible: sin fecha no se puede probar que no se superpone.)*
+- Se mantiene el máximo de **2 solicitudes activas** (§5.6); el bloqueo se suma, no lo reemplaza.
+- La validación es server-side al enviar; la UI explica el motivo y, si corresponde, ofrece elegir una fecha posterior al fin de contrato (mensaje accionable, sin jerga).
+- Aplica igual a las propuestas del familiar (§4): se valida al crearlas y de nuevo al aprobarlas. *(Supuesto reversible.)*
 
 ---
 
@@ -459,6 +481,7 @@ La reserva nace cuando la residencia marca `reported_received_by_residence` en e
 ## 7.4. Reglas
 
 - No hay reserva confirmada sin fee EstuRed pagado.
+- Una reserva vigente (§5.6bis) bloquea nuevas solicitudes y listas de espera con fechas superpuestas a su período. Al pasar a `confirmed`, se anulan todas las listas de espera del estudiante y se lo notifica (§11.3).
 - El estado `confirmed` es independiente de `receipt_issued` para manejar fallos técnicos del PDF/QR.
 - Si el comprobante falla, la reserva puede estar confirmada y el comprobante quedar pendiente.
 - Admin puede emitir o reemitir comprobante manualmente.
@@ -741,7 +764,7 @@ waitlist_entry
 | `removed_by_student` | El estudiante salió voluntariamente. |
 | `removed_by_residence` | La residencia eliminó manualmente al estudiante. |
 | `removed_by_admin` | Admin eliminó por control o soporte. |
-| `removed_due_to_confirmed_reservation` | El estudiante reservó en otra residencia. |
+| `removed_due_to_confirmed_reservation` | Se confirmó una reserva del estudiante (en cualquier residencia). Se anula la entrada y se lo notifica. |
 | `closed_by_residence` | La residencia cerró la lista de espera para ese tipo/plaza. |
 
 ---
@@ -749,8 +772,11 @@ waitlist_entry
 ## 11.3. Reglas
 
 - Estar en lista de espera no cuenta como solicitud activa.
-- Solo pueden permanecer estudiantes que no tengan reserva confirmada en EstuRed.
-- Si un estudiante confirma reserva en otra residencia, sale automáticamente de todas las listas de espera.
+- No puede anotarse en lista de espera con fechas superpuestas a una reserva vigente o estadía en curso (§5.6bis); sí para fechas posteriores al fin de ese período.
+- **Al confirmarse una reserva del estudiante (`confirmed`), el sistema anula automáticamente todas sus entradas de lista de espera** (`removed_due_to_confirmed_reservation`, `removed_reason` con el motivo), en la misma residencia o en otras. *(Decisión del dueño 2026-10-23, DR2.)*
+  - **Aviso al estudiante:** se lo notifica indicando **cuáles** listas se anularon (residencia y tipo de habitación) y **por qué** (confirmó una reserva).
+  - **Favoritos:** esas residencias quedan **solo en sus favoritos** (se agregan si no estaban). El estudiante decide si las mantiene o las quita de favoritos; el sistema no las vuelve a anotar ni las quita por su cuenta.
+  - Las anuladas dejan de contar para la residencia (sale de su lista de espera).
 - A los 90 días, el sistema envía recordatorio para que el estudiante confirme si quiere seguir.
 - La lista no vence automáticamente por tiempo.
 - Cuando aparece disponibilidad: los estudiantes reciben notificación especial. La residencia puede contactar. No se activa solicitud automáticamente.
@@ -1142,6 +1168,7 @@ notification_event
 - comprobante emitido;
 - disponibilidad nueva para lista de espera;
 - recordatorio de 90 días de lista de espera;
+- listas de espera anuladas por reserva confirmada (al estudiante, con cuáles y por qué);
 - oferta de renovación enviada;
 - renovación aceptada;
 - renovación confirmada;
@@ -1214,7 +1241,8 @@ No vence automáticamente por tiempo. `retention_check_sent` no es terminal.
 22. Residencia edita tarifa con variación mayor al 15% → alerta admin.
 23. Solicitud guarda snapshot → residencia edita tarifa → snapshot no cambia.
 24. Disponibilidad `not_updated` por más de 15 días → residencia desaparece de búsquedas.
-25. Estudiante con reserva confirmada sale automáticamente de todas las listas de espera.
+25. Estudiante con reserva confirmada sale automáticamente de todas las listas de espera → recibe una notificación con cuáles se anularon y por qué, y esas residencias quedan solo en sus favoritos (no se quitan ni se reanotan solas).
+25bis. Estudiante con reserva `confirmed` (o estadía `pending_activation`/`active`) intenta enviar una solicitud o anotarse en lista de espera con fechas que se superponen a su período → bloqueado con mensaje explicativo; para un ingreso posterior al fin de contrato → permitido (siempre dentro del máximo de 2 solicitudes activas).
 26. Estudiante menor sin familiar activo → estado `suspended_minor_no_family` → acciones sensibles bloqueadas, admin notificado.
 27. Owner accede a residencia 1 y residencia 2 → contexto activo visible en header → datos de residencia 2 no visibles al operar en residencia 1.
 28. Staff con acceso solo a residencia 1 intenta acceder a residencia 2 → bloqueado.
@@ -1286,6 +1314,7 @@ application_request.submitted (initiated_by=student)
 13. No hacer que el reclamo suspenda estados automáticamente.
 14. No permitir que la residencia confirme múltiples solicitudes para la misma plaza al mismo tiempo.
 15. No permitir que un estudiante tenga más de 2 solicitudes activas.
+15bis. No permitir solicitudes ni listas de espera con fechas superpuestas a una reserva vigente o estadía en curso del estudiante (§5.6bis).
 16. No permitir que la residencia envíe más de 1 propuesta de ajuste por solicitud.
 17. No permitir que el familiar envíe solicitudes directamente a la residencia sin aprobación del estudiante.
 18. No calcular el fee sobre los valores originales si hubo propuesta de ajuste aceptada. Usar siempre `snapshot_final`.

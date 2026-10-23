@@ -7,6 +7,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { createAuditLog } from "@/lib/audit";
 import { recordFamilyProposalResponse } from "@/lib/applications/recordFamilyProposalResponse";
 import { requestBlockedMessage, typeAvailabilityState } from "@/lib/availability/typeAvailability";
+import { checkReservationWindowOverlap } from "@/lib/students/reservationWindow";
 
 export type CreateFamilyProposalState = { status: "idle" | "error"; message?: string };
 export type RespondFamilyProposalState = { status: "idle" | "error"; message?: string };
@@ -60,6 +61,16 @@ export async function createFamilyProposal(
   if (permissions?.can_create_proposals === false) {
     return { status: "error", message: "No tenés permiso para crear propuestas para este estudiante." };
   }
+
+  // Ciclo 58: no se propone para fechas que se superpongan con una reserva vigente del estudiante (se vuelve a
+  // validar al aprobar, en `recordFamilyProposalResponse`).
+  const overlap = await checkReservationWindowOverlap(admin, {
+    studentProfileId,
+    desiredStartDate,
+    durationMonths,
+    audience: "family",
+  });
+  if (!overlap.ok) return { status: "error", message: overlap.error };
 
   const { data: residence } = await admin
     .from("residences")

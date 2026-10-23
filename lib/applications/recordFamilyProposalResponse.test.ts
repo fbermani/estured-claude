@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { loadReservationWindow } from "@/lib/students/reservationWindow";
 import { deleteResidenceCascade } from "@/lib/testing/deleteResidenceCascade";
 import { recordFamilyProposalResponse } from "@/lib/applications/recordFamilyProposalResponse";
 
@@ -21,6 +22,8 @@ describe.skipIf(!hasCreds)("recordFamilyProposalResponse (integración)", () => 
   let studentUserId: string;
   let studentProfileId: string;
   let familyLinkId: string;
+  // Primera fecha permitida para Lucía (fin de su reserva demo vigente; Ciclo 58).
+  let afterWindowDate = "2099-01-01";
 
   beforeAll(async () => {
     admin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
@@ -55,6 +58,8 @@ describe.skipIf(!hasCreds)("recordFamilyProposalResponse (integración)", () => 
       .eq("status", "active")
       .single();
     familyLinkId = link!.id;
+    const { window } = await loadReservationWindow(admin, studentProfileId);
+    if (window) afterWindowDate = window.endDate;
 
     const { data: residence } = await admin
       .from("residences")
@@ -96,7 +101,7 @@ describe.skipIf(!hasCreds)("recordFamilyProposalResponse (integración)", () => 
     await deleteResidenceCascade(admin, residenceId);
   });
 
-  async function createFixtureProposal() {
+  async function createFixtureProposal(desiredStartDate: string = afterWindowDate) {
     const { data: familyLink } = await admin
       .from("family_links")
       .select("family_member_id")
@@ -111,7 +116,8 @@ describe.skipIf(!hasCreds)("recordFamilyProposalResponse (integración)", () => 
         student_profile_id: studentProfileId,
         residence_id: residenceId,
         room_type_id: roomTypeId,
-        desired_start_date: "2026-08-15",
+        // Posterior al fin de la reserva confirmada demo de Lucía (20/01/2027), si no rige la regla de Ciclo 58.
+        desired_start_date: desiredStartDate,
         initial_duration_months: 6,
         message_to_student: "Te propongo esta, queda cerca de todo.",
       })
@@ -156,6 +162,26 @@ describe.skipIf(!hasCreds)("recordFamilyProposalResponse (integración)", () => 
     expect(proposal!.status).toBe("rejected_by_student");
     expect(proposal!.rejection_reason).toBe("Prefiero seguir buscando otras opciones.");
     expect(proposal!.converted_to_application_id).toBeNull();
+
+    await admin.from("family_application_proposals").delete().eq("id", proposalId);
+  });
+
+  it("Ciclo 58: no deja aprobar una propuesta cuyas fechas se superponen con la reserva vigente del estudiante", async () => {
+    // Lucía tiene una reserva confirmada demo: una fecha dentro de su período se bloquea.
+    const proposalId = await createFixtureProposal("2026-12-01");
+
+    const result = await recordFamilyProposalResponse(admin, {
+      proposalId,
+      decision: "approve",
+      actorUserId: studentUserId,
+      rejectionReason: null,
+      academicObjective: "Estudiar Ingeniería en la UTN, sede Buenos Aires.",
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error).toMatch(/^Ya tenés una reserva hasta \d{2}\/\d{2}\/\d{4}\. Podés solicitar para fechas posteriores\.$/);
+
+    const { data: unchanged } = await admin.from("family_application_proposals").select("status").eq("id", proposalId).single();
+    expect(unchanged!.status).toBe("pending_student_approval");
 
     await admin.from("family_application_proposals").delete().eq("id", proposalId);
   });

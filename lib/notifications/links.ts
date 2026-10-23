@@ -64,6 +64,9 @@ export function notificationHref(
         return "/students/residency";
       case "waitlist_entries":
         return "/students/waitlist";
+      case "student_favorites":
+        // Ciclo 58: aviso de listas de espera anuladas al confirmar una reserva; el id es opcional.
+        return "/students/favorites";
       case "support_cases":
         return "/students/support";
       case "renewal_offers":

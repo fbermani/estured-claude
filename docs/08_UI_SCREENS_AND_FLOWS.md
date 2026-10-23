@@ -327,6 +327,8 @@ Ruta base: `/admin`
 - CTA "Sumarme a lista de espera" si está completa o sin disponibilidad.
 - CTA "Crear cuenta para ver más" para invitados.
 
+**Estudiante con reserva vigente o estadía en curso (DR1, 2026-10-23, `docs/00` §31; regla en `docs/04` §5.6bis):** reemplaza la regla simple "un estudiante alojado no puede solicitar". La ficha **no oculta** los CTA: el estudiante puede elegir fechas, pero si el período deseado **se superpone** con el de su reserva/estadía (de `start_date` al fin de contrato: `expected_end_date` o `start_date` + duración) "Enviar solicitud de reserva" y "Sumarme a lista de espera" quedan bloqueados con un mensaje accionable (p. ej. "Ya tenés una reserva hasta el {fecha}. Podés solicitar para fechas posteriores."). Para fechas **posteriores** al fin de ese período, ambos CTA funcionan normalmente (siempre dentro del máximo de 2 solicitudes activas). La validación definitiva es server-side.
+
 **Bloque de FAQ:** el estudiante puede escribir una pregunta libre; el sistema responde solo con información cargada por la residencia (FAQ + archivos). Si no hay respuesta, se muestra: "No tenemos esa información todavía. Podés escribirle a la residencia una vez que envíes tu solicitud." La pregunta sin respuesta queda registrada para la residencia.
 
 **Bloque de disponibilidad:**
@@ -482,6 +484,8 @@ Ruta base: `/students`
 **Contenido:** residencias favoritas, estado de disponibilidad, precio USD/ARS referencial, CTA "Ver residencia", CTA "Enviar solicitud", indicador de completa.
 
 **Familiar vinculado:** puede sugerir favoritos. La UI diferencia entre favorito del estudiante y sugerido por familiar.
+
+**Residencias de listas de espera anuladas (DR2, 2026-10-23):** al confirmarse una reserva del estudiante, las residencias de las listas de espera que se anularon (§6.10) quedan **solo en favoritos**. El estudiante decide si las mantiene o las quita; el sistema no las quita ni las vuelve a anotar en lista de espera por su cuenta.
 
 ---
 
@@ -671,7 +675,9 @@ Ruta base: `/students`
 
 Sin cambios de fondo respecto al original. Contenido: residencia, tipo de habitación/plaza, fecha deseada, duración deseada, fecha de inscripción, estado, notificación de disponibilidad.
 
-**Reglas:** no cuenta como solicitud activa; no vence automáticamente; a los 90 días se notifica; sale automáticamente si confirma reserva en otra residencia.
+**Reglas:** no cuenta como solicitud activa; no vence automáticamente; a los 90 días se notifica; no se puede anotar con fechas superpuestas a una reserva vigente o estadía en curso (ver §4.5 y `docs/04` §5.6bis), sí para fechas posteriores al fin de ese período.
+
+**Al confirmarse una reserva (DR2, 2026-10-23):** todas las listas de espera del estudiante se **anulan automáticamente** (en cualquier residencia). Se le **notifica** cuáles se anularon (residencia y tipo de habitación) y por qué ("confirmaste una reserva"), y esas residencias quedan **solo en sus favoritos** (§6.2). Las entradas anuladas se ven con estado "Anulada: confirmaste una reserva" y el CTA "Ver en favoritos"; no hay acción "quedarme en lista" sobre ellas.
 
 **Acciones:** salir de lista, quedarme en lista, activar solicitud, ver residencia.
 
