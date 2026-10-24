@@ -61,7 +61,8 @@ export default async function FeePaymentPage({
   const isBeneficiary = application.student_profile_id === studentProfile?.id;
   if (!isBeneficiary) {
     const link = await loadActiveFamilyLink(admin, sessionUser.id, application.student_profile_id as string);
-    if (!link) notFound();
+    // Sin el permiso de pagar el fee no ve instrucciones ni formulario (la acción también lo bloquea).
+    if (!link || link.permissions.can_pay_estured_fee !== true) notFound();
   }
   if (application.status !== "converted_to_reservation") {
     redirect(`/students/applications/${id}`);
@@ -123,7 +124,7 @@ export default async function FeePaymentPage({
   const feeOpen =
     feePayment.status === "pending_payment_method" && (!feePayment.expires_at || new Date(feePayment.expires_at) > new Date());
   const designatableFamily = isBeneficiary && feeOpen ? await loadActiveFamilyOfStudent(admin, application.student_profile_id as string) : null;
-  const canPickFamily = !!designatableFamily && designatableFamily.permissions.can_pay_estured_fee !== false;
+  const canPickFamily = !!designatableFamily && designatableFamily.permissions.can_pay_estured_fee === true;
   // Siempre se puede volver a "pago yo" si el pagador designado no es el estudiante (aunque ya no haya familiar vinculado).
   const otherIsPayer = isBeneficiary && feePayment.payer_user_id !== sessionUser.id;
   const showPayerCard = isBeneficiary && feeOpen && (canPickFamily || otherIsPayer);

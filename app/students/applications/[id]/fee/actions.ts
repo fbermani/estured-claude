@@ -44,7 +44,7 @@ export async function registerManualFeePayment(
     // Se revalida EN EL MOMENTO DEL PAGO: vínculo activo y permiso de pagar (puede haberse revocado después de designarlo).
     const link = await loadActiveFamilyLink(admin, sessionUser.id, application.student_profile_id as string);
     if (!link) return { status: "error", message: "Esta solicitud no te pertenece." };
-    if (link.permissions.can_pay_estured_fee === false) {
+    if (link.permissions.can_pay_estured_fee !== true) {
       return { status: "error", message: "Ya no tenés permitido pagar el fee de esta reserva." };
     }
   }

@@ -5,7 +5,7 @@ import { InfoTip } from "@/components/ui/InfoTip";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
 import { formatDateOnly } from "@/lib/dates/formatDateOnly";
-import { calculateFeeEstimate } from "@/lib/applications/fee";
+import { calculateFeeEstimate, FEE_PERCENT } from "@/lib/applications/fee";
 import { buildInitialPayment, type InitialPaymentConfig } from "@/lib/reservations/initialPayment";
 import { emptyMonthsChargeUsd, MAX_EMPTY_MONTHS } from "@/lib/applications/emptyMonths";
 
@@ -88,7 +88,7 @@ export function CostBreakdown({
     emptyMonthsChargeUsd: emptyChargeUsd,
     arsPerUsd,
   });
-  const feeUsd = reservationTotalUsd * 0.05;
+  const feeUsd = reservationTotalUsd * FEE_PERCENT;
   const initialPayment = buildInitialPayment(conditions.initialPayment, monthlyUsd, arsPerUsd);
 
   return (
@@ -209,7 +209,7 @@ export function CostBreakdown({
       <div className="mt-2 rounded-field border border-orange/40 bg-warning-bg px-3 py-2.5">
         <div className="flex items-center justify-between">
           <span className="font-semibold text-warning-fg">
-            A EstuRed: fee (5%)
+            A EstuRed: fee ({Math.round(FEE_PERCENT * 100)}%)
             <InfoTip label="Cómo funciona el fee">
               Único cobro de EstuRed: 5% del total de la reserva. Se abona únicamente si la residencia confirma la
               reserva — enviar la {submitNoun} no cuesta nada.

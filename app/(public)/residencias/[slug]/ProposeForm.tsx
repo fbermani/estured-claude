@@ -52,7 +52,7 @@ export function ProposeForm({
   // El tipo elegido en la tabla de tarifas / la card llega preseleccionado (mismo estado que `ApplyForm`).
   const { roomTypeId: contextRoomTypeId, setRoomTypeId } = useReservationSelection();
   const roomTypeId = availableTypes.some((rt) => rt.id === contextRoomTypeId) ? (contextRoomTypeId as string) : "";
-  const [duration, setDuration] = useState(Math.max(6, conditions.minimumStayMonths ?? 1));
+  const [duration, setDuration] = useState(Math.min(24, Math.max(6, conditions.minimumStayMonths ?? 1)));
   const [startDate, setStartDate] = useState("");
 
   const selectedType = availableTypes.find((rt) => rt.id === roomTypeId) ?? null;

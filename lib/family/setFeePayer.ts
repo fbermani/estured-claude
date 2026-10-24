@@ -65,7 +65,7 @@ export async function setFeePayer(
   if (params.payer === "family") {
     family = await loadActiveFamilyOfStudent(admin, application.student_profile_id as string);
     if (!family) return { ok: false, error: "No tenés un familiar vinculado activo para designar como pagador." };
-    if (family.permissions.can_pay_estured_fee === false) {
+    if (family.permissions.can_pay_estured_fee !== true) {
       return { ok: false, error: "Tu familiar no tiene permitido pagar el fee." };
     }
     newPayerUserId = family.userId;
