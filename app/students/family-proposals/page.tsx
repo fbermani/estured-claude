@@ -1,3 +1,4 @@
+import { pluralize } from "@/lib/format/plural";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
@@ -119,7 +120,7 @@ export default async function FamilyProposalsPage() {
 
                 {isPending && !isExpired && (
                   <p className="mt-3 text-xs font-medium text-warning-fg">
-                    Te quedan {hoursLeft} horas para responder.
+                    {hoursLeft === 1 ? "Te queda" : "Te quedan"} {pluralize(hoursLeft, "hora", "horas")} para responder.
                   </p>
                 )}
 

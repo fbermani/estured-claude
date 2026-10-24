@@ -8,6 +8,12 @@
 
 ---
 
+## CICLO 67 (2026-10-24) — Estudiante y familiar: plata y plazo
+
+Ver `MEMORY.md` Ciclo 67. Sin migraciones. Pendiente: verificar en navegador el CTA del familiar pagador; decisión legal/de producto sobre reintegros (hoy el copy es neutro: "escribinos a Soporte"); aviso in-app al estudiante en hitos del fee.
+
+---
+
 ## CICLO 66 (2026-10-24) — Reenvío a revisión tras "pedir cambios" (DR5)
 
 Ver `MEMORY.md` Ciclo 66. ⚠ **Acción manual:** aplicar `db/migrations/0048_verification_changes_message.sql` en dev y producción (SQL Editor), en orden 0046, 0045, 0047, 0048. Luego `node --env-file=.env.local scripts/seed-needs-changes-demo.mjs` en dev para verificar el flujo completo y correr `MIGRATION_0048_APPLIED=1 npx vitest run lib/residences/verificationNotesRls`.

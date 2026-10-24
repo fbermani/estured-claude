@@ -1,5 +1,6 @@
 "use client";
 
+import { pluralize } from "@/lib/format/plural";
 import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -34,7 +35,7 @@ export function RevocationForm({
   if (!showForm) {
     return (
       <div className="mt-4">
-        <p className="text-xs text-ink-faint">Te quedan {daysRemaining} día(s) para ejercer este derecho.</p>
+        <p className="text-xs text-ink-faint">{daysRemaining === 1 ? "Te queda" : "Te quedan"} {pluralize(daysRemaining, "día", "días")} para ejercer este derecho.</p>
         <Button variant="outline" className="mt-2" onClick={() => setShowForm(true)}>
           Ejercer revocación
         </Button>

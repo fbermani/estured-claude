@@ -21,6 +21,7 @@ export function AgreedConditionsCard({
   feeIsPaid,
   residencePaymentReported,
   residencePaymentDeadlineAt,
+  terminal = false,
 }: {
   conditions: AgreedConditions;
   /** La solicitud ya pasó por la aceptación de condiciones (docs/04 §5.2). */
@@ -32,6 +33,8 @@ export function AgreedConditionsCard({
   residencePaymentReported?: { usd: number | null; ars: number | null } | null;
   /** Fecha límite del pago a la residencia (`payment_deadline_at`); solo en `residence_payment_pending`. */
   residencePaymentDeadlineAt?: string | null;
+  /** La solicitud terminó: sin estimaciones ni plazos de pago como si siguiera. */
+  terminal?: boolean;
 }) {
   const pair = (usd: number | null, ars: number | null) =>
     usd === null ? "—" : (
@@ -64,14 +67,15 @@ export function AgreedConditionsCard({
       label: "Pago informado por la residencia",
       value: pair(residencePaymentReported.usd, residencePaymentReported.ars),
     });
-  if (conditions.feeBaseUsd !== null)
+  if (conditions.feeBaseUsd !== null && !terminal)
     rows.push({
       label: "Base del fee EstuRed",
       value: pair(conditions.feeBaseUsd, conditions.feeBaseArs),
       hint: "Estadía inicial + matrícula. El depósito no entra.",
     });
   const feeArs = feeRealArs ?? conditions.estimatedFeeArs;
-  if (feeArs !== null && feeArs !== undefined)
+  const hasRealFee = feeRealArs !== null && feeRealArs !== undefined;
+  if (feeArs !== null && feeArs !== undefined && (!terminal || hasRealFee))
     rows.push({
       label: feeRealArs !== null && feeRealArs !== undefined ? (feeIsPaid ? "Fee EstuRed pagado (5%)" : "Fee EstuRed (5%)") : "Fee EstuRed estimado (5%)",
       value: formatArs(feeArs),
@@ -80,16 +84,18 @@ export function AgreedConditionsCard({
   return (
     <Card className="mt-6 p-6">
       <h2 className="text-base font-bold text-ink">
-        {agreed ? "Condiciones acordadas" : "Condiciones de la solicitud"}
+        {agreed && !terminal ? "Condiciones acordadas" : "Condiciones de la solicitud"}
       </h2>
       <p className="mt-1 text-xs text-ink-faint">
-        {conditions.isFinal
+        {terminal
+          ? "La solicitud terminó: estos montos quedan como referencia de lo que se había planteado."
+          : conditions.isFinal
           ? "Son las condiciones finales que se aceptaron después del ajuste propuesto."
           : agreed
             ? "Son las condiciones con las que se envió la solicitud."
             : "Son las condiciones vigentes cuando se envió la solicitud. Si la residencia las cambia después, esta solicitud no se modifica."}
       </p>
-      {conditions.initialPaymentUsd !== null && (
+      {conditions.initialPaymentUsd !== null && !terminal && (
         <InitialPaymentBreakdown
           className="mt-4"
           residenceUsd={conditions.initialPaymentUsd}

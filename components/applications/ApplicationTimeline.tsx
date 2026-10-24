@@ -9,9 +9,9 @@ import type { TimelineStep } from "@/lib/applications/timeline";
  */
 const STATE_TEXT: Record<TimelineStep["state"], string> = {
   done: "Listo",
-  current: "Sigue",
+  current: "Siguiente paso",
   upcoming: "Pendiente",
-  stopped: "Frenado",
+  stopped: "En pausa",
 };
 
 export function ApplicationTimeline({ steps }: { steps: TimelineStep[] }) {

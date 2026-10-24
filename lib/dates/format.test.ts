@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatDate, formatDateTime } from "./format";
+import { formatDate, formatDateTime, formatDayMonthTime } from "./format";
 import { formatDateOnly } from "./formatDateOnly";
 
 describe("formatDate / formatDateTime (hora de Buenos Aires)", () => {
@@ -26,5 +26,12 @@ describe("formatDateOnly", () => {
   it("formato único DD/MM/AAAA", () => {
     expect(formatDateOnly("2026-09-01")).toBe("01/09/2026");
     expect(formatDateOnly(undefined)).toBe("—");
+  });
+});
+
+describe("formatDayMonthTime", () => {
+  it("DD/MM HH:mm en hora de Buenos Aires", () => {
+    expect(formatDayMonthTime("2026-10-25T17:30:00Z")).toBe("25/10 14:30");
+    expect(formatDayMonthTime(null)).toBe("—");
   });
 });

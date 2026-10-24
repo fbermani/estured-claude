@@ -4,6 +4,7 @@ import { getVisibleStatus, type VisibleStatusTone } from "@/lib/applications/vis
 import { formatShortName } from "@/lib/format/shortName";
 import { familyStatusLabel } from "@/lib/family/familyStatusLabel";
 import { loadReservationInfoByApplication } from "@/lib/applications/loadReservationInfo";
+import { resolveFeePayerView, type FeePayerView } from "@/lib/payments/feeUrgentBanner";
 
 /**
  * Lo que el familiar vinculado SIGUE del estudiante (DR4, docs/00 §31): estado de sus solicitudes y reservas y la próxima
@@ -14,7 +15,7 @@ import { loadReservationInfoByApplication } from "@/lib/applications/loadReserva
 
 export type FamilyApplicationNextAction =
   | { kind: "pay_fee"; href: string; expiresAt: string | null }
-  | { kind: "waiting_fee_payment" }
+  | { kind: "waiting_fee_payment"; payerView: FeePayerView; expiresAt: string | null }
   | { kind: "view_receipt"; href: string }
   | null;
 
@@ -43,14 +44,15 @@ export type FamilyStudentOverview = {
 type LinkRow = {
   id: string;
   student_profile_id: string;
-  student_profiles: { first_name: string; last_initial: string | null } | null;
+  permissions: Record<string, unknown> | null;
+  student_profiles: { first_name: string; last_initial: string | null; user_id: string | null } | null;
   family_members: { user_id: string } | null;
 };
 
 export async function loadFamilyOverview(admin: SupabaseClient, familyUserId: string): Promise<FamilyStudentOverview[]> {
   const { data: linkData, error: linkError } = await admin
     .from("family_links")
-    .select("id, student_profile_id, student_profiles(first_name, last_initial), family_members!inner(user_id)")
+    .select("id, student_profile_id, permissions, student_profiles(first_name, last_initial, user_id), family_members!inner(user_id)")
     .eq("status", "active")
     .eq("family_members.user_id", familyUserId)
     .order("created_at", { ascending: false });
@@ -104,10 +106,16 @@ export async function loadFamilyOverview(admin: SupabaseClient, familyUserId: st
         const info = getVisibleStatus({ applicationStatus: a.status, reservation, viewer: "student" });
         let nextAction: FamilyApplicationNextAction = null;
         if (reservation?.status === "pending_estured_fee" && reservation.feePaymentStatus === "pending_payment_method") {
+          const payerView = resolveFeePayerView({
+            payerUserId: payerByReservation.get(reservation.reservationId),
+            viewerUserId: familyUserId,
+            studentUserId: l.student_profiles?.user_id,
+            viewerCanPay: l.permissions?.can_pay_estured_fee === true,
+          });
           nextAction =
-            payerByReservation.get(reservation.reservationId) === familyUserId
+            payerView === "viewer_pays"
               ? { kind: "pay_fee", href: `/students/applications/${a.id}/fee`, expiresAt: reservation.feeExpiresAt }
-              : { kind: "waiting_fee_payment" };
+              : { kind: "waiting_fee_payment", payerView, expiresAt: reservation.feeExpiresAt };
         } else if (info.nextAction === "view_receipt" && reservation?.bookingReceiptId) {
           nextAction = { kind: "view_receipt", href: `/students/receipts/${reservation.bookingReceiptId}` };
         }

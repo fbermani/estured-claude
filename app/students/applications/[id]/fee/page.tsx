@@ -10,7 +10,7 @@ import { estimatedFeeUsd } from "@/lib/reservations/initialPayment";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import { Icon } from "@/components/ui/Icon";
 import { FeePaymentForm } from "@/app/students/applications/[id]/fee/FeePaymentForm";
-import { FeeCountdown } from "@/app/students/applications/[id]/fee/FeeCountdown";
+import { FeeCountdown, FeeCountdownBanner } from "@/app/students/applications/[id]/fee/FeeCountdown";
 import { FeeTransferInstructions } from "@/app/students/applications/[id]/fee/FeeTransferInstructions";
 import { loadFeeInstructionsForPayer } from "@/lib/payments/paymentSettings";
 import { formatShortName } from "@/lib/format/shortName";
@@ -181,6 +181,11 @@ export default async function FeePaymentPage({
           ? `Estás designado/a para pagar este fee de la reserva de ${studentName}: es el 5% de la estadía inicial reservada y va aparte del pago que se hizo directamente a la residencia.`
           : "El fee EstuRed es el 5% de tu estadía inicial reservada. Va aparte del pago que le hiciste directamente a la residencia."}
       </p>
+
+      {/* El plazo va primero: antes de "¿Quién paga?" y del desglose (también en mobile). */}
+      {!alreadyRegistered && !payerMismatch && feePayment.expires_at && (
+        <FeeCountdownBanner expiresAt={feePayment.expires_at} nowIso={new Date().toISOString()} supportHref={supportHref} />
+      )}
 
       <Card className="mt-6 p-6">
         {/* D7/H08: mismo desglose que en la solicitud — pago inicial a la residencia (ya informado) y fee a EstuRed. */}

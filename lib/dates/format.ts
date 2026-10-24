@@ -33,3 +33,17 @@ export function formatDateTime(value: string | Date | null | undefined): string 
     hour12: false,
   });
 }
+
+/** "24/10 14:30": día/mes y hora (24 h) en Buenos Aires, para avisos de plazo corto (sin año). */
+export function formatDayMonthTime(value: string | Date | null | undefined): string {
+  const date = toDate(value);
+  if (!date) return "—";
+  return date.toLocaleString("es-AR", {
+    timeZone: TZ,
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).replace(",", "");
+}

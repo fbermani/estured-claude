@@ -20,6 +20,7 @@ import { effectiveContactDeadline } from "@/lib/applications/paymentDeadline";
 import { ContactDeadlineNote } from "@/components/applications/ContactDeadlineNote";
 import { AgreedConditionsCard } from "@/components/applications/AgreedConditionsCard";
 import { Icon } from "@/components/ui/Icon";
+import { buildTerminalSummary, isRevokedReservation, isTerminalVisibleStatus } from "@/lib/applications/terminalState";
 import { advanceGateMessage, stayChangeAdvanceAt } from "@/lib/stayChange/advanceGate";
 
 /** Estados en los que las condiciones ya fueron aceptadas (docs/04 §5.2). */
@@ -139,6 +140,20 @@ export default async function StudentApplicationDetailPage({
 
   const familyIsPayer = isFamilyViewer && feePayment?.payer_user_id === sessionUser?.id;
 
+  // Solicitud terminada (vencida, rechazada, cancelada, reserva vencida/revocada): no se dibuja el recorrido como si siguiera.
+  const terminal = isTerminalVisibleStatus(info);
+  const terminalSummary = terminal
+    ? buildTerminalSummary({
+        applicationStatus: application.status,
+        createdAt: application.created_at,
+        contactEstablishedAt: application.contact_established_at as string | null,
+        residencePaymentReportedAt: (residencePayment?.reported_received_at as string | null) ?? null,
+        feePaidAt: (feePayment?.paid_at as string | null) ?? null,
+        reservationStatus: reservation?.status ?? null,
+        revoked: isRevokedReservation(reservation),
+      })
+    : null;
+
   const timeline = buildApplicationTimeline({
     applicationStatus: application.status,
     createdAt: application.created_at,
@@ -176,7 +191,36 @@ export default async function StudentApplicationDetailPage({
           </div>
         )}
 
-        {info.helper && !isFamilyViewer && (
+        {terminal && (
+          <div className="mt-4 rounded-field border border-line bg-sand-100 px-4 py-3 text-sm text-ink-soft">
+            <p className="text-xs font-bold uppercase tracking-wide text-ink-faint">Terminó acá</p>
+            <p className="mt-1">
+              {isFamilyViewer ? `${familyStatusLabel(info.label)}.` : (info.helper || `${info.label}.`)}
+            </p>
+          </div>
+        )}
+
+        {terminal && !isFamilyViewer && terminalSummary && (terminalSummary.residencePaid || terminalSummary.feePaid) && (
+          <div className="mt-3 rounded-field border border-line px-4 py-3 text-sm text-ink-soft">
+            <p className="text-xs font-bold uppercase tracking-wide text-ink-faint">Qué pasa con lo que pagaste</p>
+            {terminalSummary.residencePaid && (
+              <p className="mt-1">
+                El pago a la residencia se acuerda con ella directamente; si necesitás ayuda, escribinos a Soporte.
+              </p>
+            )}
+            {terminalSummary.feePaid && (
+              <p className="mt-1">Sobre el fee de EstuRed, escribinos a Soporte.</p>
+            )}
+          </div>
+        )}
+
+        {terminal && !isFamilyViewer && (
+          <Button href="/students/support" size="lg" variant="outline" className="mt-4 w-full">
+            Escribir a Soporte
+          </Button>
+        )}
+
+        {info.helper && !isFamilyViewer && !terminal && (
           <div className="mt-4 rounded-field bg-sand-100 px-4 py-3 text-sm text-ink-soft">
             <p className="text-xs font-bold uppercase tracking-wide text-ink-faint">Qué sigue</p>
             <p className="mt-1">{info.helper}</p>
@@ -214,7 +258,7 @@ export default async function StudentApplicationDetailPage({
             Ver comprobante de reserva
           </Button>
         )}
-        {info.nextAction === "contact_support" && (
+        {info.nextAction === "contact_support" && !terminal && (
           <Button href="/students/support" size="lg" variant="outline" className="mt-4 w-full">
             Escribir a Soporte
           </Button>
@@ -252,15 +296,16 @@ export default async function StudentApplicationDetailPage({
       </Card>
 
       <Card className="mt-6 p-6">
-        <h2 className="text-base font-bold text-ink">Cómo viene la solicitud</h2>
+        <h2 className="text-base font-bold text-ink">{terminal ? "Lo que llegó a pasar" : "Cómo viene la solicitud"}</h2>
         <div className="mt-4">
-          <ApplicationTimeline steps={timeline} />
+          <ApplicationTimeline steps={terminalSummary ? terminalSummary.steps : timeline} />
         </div>
       </Card>
 
       {conditions ? (
         <AgreedConditionsCard
           conditions={conditions}
+          terminal={terminal}
           agreed={CONDITIONS_AGREED_STATUSES.has(application.status)}
           feeRealArs={feePayment ? Number(feePayment.fee_amount_ars) : null}
           feeIsPaid={feePayment?.status === "paid"}

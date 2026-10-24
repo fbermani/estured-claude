@@ -26,6 +26,9 @@ import { FamilyStayChangeBlock } from "@/components/students/FamilyStayChangeBlo
 import { loadFamilyStayChange, type StudentStayChangeView } from "@/lib/stayChange/load";
 import { getVisibleStatus } from "@/lib/applications/visibleStatus";
 import { loadReservationInfoByApplication, type ReservationInfo } from "@/lib/applications/loadReservationInfo";
+import { FeeUrgentBanner } from "@/components/applications/FeeUrgentBanner";
+import { sortPendingFees } from "@/lib/payments/feeUrgentBanner";
+import { pluralize } from "@/lib/format/plural";
 
 export const metadata: Metadata = { title: "Tu espacio" };
 export const dynamic = "force-dynamic";
@@ -156,6 +159,27 @@ export default async function StudentDashboardPage() {
       }
     }
 
+    // Fee EstuRed con plazo vigente de cualquier estudiante vinculado: el que vence antes, arriba de todo.
+    const familyFeeBanners = sortPendingFees(
+      links.flatMap((l) => {
+        const overview = overviewByLink.get(l.id);
+        if (!overview || l.status !== "active") return [];
+        return overview.applications.flatMap((a) =>
+          a.nextAction?.kind === "pay_fee" || a.nextAction?.kind === "waiting_fee_payment"
+            ? [
+                {
+                  applicationId: a.id,
+                  residenceName: a.residenceName,
+                  expiresAt: a.nextAction.expiresAt,
+                  studentName: overview.studentFirstName,
+                  payerView: a.nextAction.kind === "pay_fee" ? ("viewer_pays" as const) : a.nextAction.payerView,
+                },
+              ]
+            : [],
+        );
+      }),
+    );
+
     return (
       <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-14">
         <h1 className="text-3xl font-bold text-ink">Tu espacio de familiar</h1>
@@ -163,6 +187,18 @@ export default async function StudentDashboardPage() {
           Seguís cómo avanzan las solicitudes y reservas de quienes acompañás, les proponés residencias y, si te
           designan, pagás el fee EstuRed. Las decisiones y los documentos son de cada estudiante.
         </p>
+
+        {familyFeeBanners.map((b) => (
+          <FeeUrgentBanner
+            key={b.applicationId}
+            audience="family"
+            expiresAt={b.expiresAt}
+            residenceName={b.residenceName}
+            href={`/students/applications/${b.applicationId}/fee`}
+            studentName={b.studentName}
+            payerView={b.payerView}
+          />
+        ))}
 
         <div className="mt-8 space-y-4">
           {links.length === 0 ? (
@@ -511,8 +547,28 @@ export default async function StudentDashboardPage() {
   if (docsUploadedCount < 2)
     heroAlerts.push({ icon: "folder_shared", label: "Documentación pendiente", href: "/students/profile" });
 
+  // Fee EstuRed con plazo vigente (reserva en `pending_estured_fee`): se muestra arriba del hero, también para "alojado".
+  const studentFeeBanners = sortPendingFees(
+    applications.flatMap((a) => {
+      const info = reservationInfoByAppId.get(a.id);
+      return info?.status === "pending_estured_fee" && info.feePaymentStatus === "pending_payment_method"
+        ? [{ applicationId: a.id, residenceName: a.residences?.name ?? "la residencia", expiresAt: info.feeExpiresAt }]
+        : [];
+    }),
+  );
+
   const headerBanners = (
     <>
+      {studentFeeBanners.map((b) => (
+        <FeeUrgentBanner
+          key={b.applicationId}
+          audience="student"
+          expiresAt={b.expiresAt}
+          residenceName={b.residenceName}
+          href={`/students/applications/${b.applicationId}/fee`}
+        />
+      ))}
+
       {pendingProposalsCount > 0 && (
         <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-card border border-line-2 bg-forest-tint p-5">
           <div>
@@ -677,7 +733,7 @@ export default async function StudentDashboardPage() {
     >
       {waitlistCount > 0 ? (
         <p className="font-semibold text-ink">
-          En {waitlistCount} lista{waitlistCount > 1 ? "s" : ""} de espera
+          En {pluralize(waitlistCount, "lista", "listas")} de espera
         </p>
       ) : (
         <p>Cuando una residencia no tenga lugar, vas a poder sumarte desde su ficha.</p>

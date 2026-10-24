@@ -1,3 +1,4 @@
+import { formatDateOnly } from "@/lib/dates/formatDateOnly";
 import { formatDate } from "@/lib/dates/format";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -118,7 +119,7 @@ export default async function StudentWaitlistPage() {
                   </div>
                   <div>
                     <dt className="text-xs text-ink-faint">Ingreso deseado</dt>
-                    <dd className="font-semibold text-ink">{entry.desired_start_date ?? "Flexible"}</dd>
+                    <dd className="font-semibold text-ink">{entry.desired_start_date ? formatDateOnly(entry.desired_start_date) : "Flexible"}</dd>
                   </div>
                   <div>
                     <dt className="text-xs text-ink-faint">Duración</dt>

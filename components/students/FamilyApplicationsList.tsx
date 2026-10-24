@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
 import { FeeDeadlineNote } from "@/components/applications/FeeDeadlineNote";
 import { formatDateOnly } from "@/lib/dates/formatDateOnly";
+import { familyFeePayerNote } from "@/lib/payments/feeUrgentBanner";
 import type { FamilyApplicationView } from "@/lib/family/loadFamilyOverview";
 
 /**
@@ -63,8 +64,8 @@ export function FamilyApplicationsList({
           )}
           {a.nextAction?.kind === "waiting_fee_payment" && (
             <p className="mt-3 flex items-start gap-2 text-xs text-ink-soft">
-              <Icon name="hourglass_top" className="mt-0.5 text-sm" /> Falta el pago del fee EstuRed: lo registra quien está
-              designado como pagador.
+              <Icon name="hourglass_top" className="mt-0.5 text-sm" /> Falta el pago del fee EstuRed.{" "}
+              {familyFeePayerNote(a.nextAction.payerView, studentName)}
             </p>
           )}
 
