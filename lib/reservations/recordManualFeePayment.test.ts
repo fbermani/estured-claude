@@ -13,30 +13,40 @@ describe("recordManualFeePayment — validación server-side", () => {
   // Estas dos ramas devuelven antes de tocar `admin` — no requieren Supabase real.
   const dummyAdmin = {} as SupabaseClient;
 
+  const base = {
+    feePaymentId: "00000000-0000-0000-0000-000000000000",
+    reason: "Motivo válido de prueba.",
+    paymentCurrency: "ARS",
+    receivedAmount: "140500",
+    providerReference: null,
+    intent: "confirm",
+    confirmWithoutReceipt: false,
+    verified: true,
+    acceptAmountDifference: false,
+    seenReceiptFileId: null,
+    actorUserId: "00000000-0000-0000-0000-000000000000",
+    actorRole: "admin" as const,
+  };
+
   it("rechaza un motivo de menos de 5 caracteres sin tocar la DB", async () => {
-    const result = await recordManualFeePayment(dummyAdmin, {
-      feePaymentId: "00000000-0000-0000-0000-000000000000",
-      reason: "abc",
-      paymentCurrency: "ARS",
-      providerReference: null,
-      actorUserId: "00000000-0000-0000-0000-000000000000",
-      actorRole: "admin",
-    });
+    const result = await recordManualFeePayment(dummyAdmin, { ...base, reason: "abc" });
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error).toMatch(/motivo/i);
   });
 
   it("rechaza una moneda inválida sin tocar la DB", async () => {
-    const result = await recordManualFeePayment(dummyAdmin, {
-      feePaymentId: "00000000-0000-0000-0000-000000000000",
-      reason: "Motivo válido de prueba.",
-      paymentCurrency: "EUR",
-      providerReference: null,
-      actorUserId: "00000000-0000-0000-0000-000000000000",
-      actorRole: "admin",
-    });
+    const result = await recordManualFeePayment(dummyAdmin, { ...base, paymentCurrency: "EUR" });
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error).toMatch(/moneda/i);
+  });
+
+  it("rechaza sin monto recibido o sin 'Verifiqué el pago' sin tocar la DB (DR8)", async () => {
+    const noAmount = await recordManualFeePayment(dummyAdmin, { ...base, receivedAmount: "" });
+    expect(noAmount.ok).toBe(false);
+    if (!noAmount.ok) expect(noAmount.error).toMatch(/monto/i);
+    const notVerified = await recordManualFeePayment(dummyAdmin, { ...base, verified: false });
+    expect(notVerified.ok).toBe(false);
+    if (!notVerified.ok) expect(notVerified.error).toMatch(/verificaste/i);
   });
 });
 
@@ -217,33 +227,61 @@ describe.skipIf(!hasCreds)("recordManualFeePayment (integración)", () => {
     await deleteResidenceCascade(admin, residenceId);
   });
 
+  const validParams = () => ({
+    feePaymentId,
+    reason: "Soporte confirmó el movimiento en el banco.",
+    paymentCurrency: "ARS",
+    receivedAmount: "140500",
+    providerReference: null as string | null,
+    // El fixture no tiene comprobante cargado: se usa el override explícito de DR8 (no depende de la migración 0050).
+    intent: "confirm_without_receipt",
+    confirmWithoutReceipt: true,
+    verified: true,
+    acceptAmountDifference: false,
+    seenReceiptFileId: null,
+    actorUserId: ownerId,
+    actorRole: "admin" as const,
+  });
+
   it("rechaza un pago que ya no está pendiente de validación", async () => {
     // El fixture arranca en `pending_payment_method` — todavía no se llamó
     // a la función real, así que forzamos el estado inválido a mano.
     await admin.from("estured_fee_payments").update({ status: "paid" }).eq("id", feePaymentId);
 
-    const result = await recordManualFeePayment(admin, {
-      feePaymentId,
-      reason: "Motivo válido de prueba.",
-      paymentCurrency: "ARS",
-      providerReference: null,
-      actorUserId: ownerId,
-      actorRole: "admin",
-    });
+    const result = await recordManualFeePayment(admin, validParams());
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error).toMatch(/pendiente de validación/i);
 
     await admin.from("estured_fee_payments").update({ status: "pending_payment_method" }).eq("id", feePaymentId);
   });
 
-  it("marca el pago como pagado y confirma la reserva con comprobante", async () => {
+  it("sin comprobante y sin override no se marca pagado (DR8)", async () => {
+    const result = await recordManualFeePayment(admin, { ...validParams(), intent: "confirm", confirmWithoutReceipt: false });
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error).toMatch(/comprobante/i);
+    const { data: feePayment } = await admin.from("estured_fee_payments").select("status").eq("id", feePaymentId).single();
+    expect(feePayment!.status).toBe("pending_payment_method");
+  });
+
+  it("un fee con el plazo vencido no se marca pagado (DR8)", async () => {
+    const original = new Date(Date.now() + 48 * 3_600_000).toISOString();
+    await admin
+      .from("estured_fee_payments")
+      .update({ expires_at: new Date(Date.now() - 3_600_000).toISOString() })
+      .eq("id", feePaymentId);
+
+    const result = await recordManualFeePayment(admin, validParams());
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error).toMatch(/plazo/i);
+
+    await admin.from("estured_fee_payments").update({ expires_at: original }).eq("id", feePaymentId);
+  });
+
+  it("marca el pago como pagado y confirma la reserva (override sin comprobante)", async () => {
     const result = await recordManualFeePayment(admin, {
-      feePaymentId,
-      reason: "Comprobante de transferencia verificado por soporte.",
-      paymentCurrency: "ARS",
+      ...validParams(),
+      reason: "Confirmado sin comprobante: soporte vio la transferencia en el banco.",
       providerReference: "TRANSF-TEST-123",
-      actorUserId: ownerId,
-      actorRole: "admin",
     });
     expect(result.ok).toBe(true);
 
@@ -257,6 +295,18 @@ describe.skipIf(!hasCreds)("recordManualFeePayment (integración)", () => {
     expect(feePayment!.provider_payment_id).toBe("TRANSF-TEST-123");
     expect(feePayment!.paid_at).not.toBeNull();
 
+    // Columnas de la migración 0050: solo se verifican si ya está aplicada en esta base (el código degrada sin ellas).
+    const extra = await admin
+      .from("estured_fee_payments")
+      .select("received_amount, confirmed_without_receipt, validated_by_user_id")
+      .eq("id", feePaymentId)
+      .single();
+    if (!extra.error) {
+      expect(Number(extra.data!.received_amount)).toBe(140500);
+      expect(extra.data!.confirmed_without_receipt).toBe(true);
+      expect(extra.data!.validated_by_user_id).toBe(ownerId);
+    }
+
     const { data: reservation } = await admin
       .from("reservations")
       .select("status, booking_receipt_id")
@@ -264,5 +314,11 @@ describe.skipIf(!hasCreds)("recordManualFeePayment (integración)", () => {
       .single();
     expect(reservation!.status).toBe("confirmed");
     expect(reservation!.booking_receipt_id).not.toBeNull();
+  });
+
+  it("una segunda confirmación del mismo pago no hace nada (DR8)", async () => {
+    const result = await recordManualFeePayment(admin, validParams());
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error).toMatch(/pendiente de validación/i);
   });
 });

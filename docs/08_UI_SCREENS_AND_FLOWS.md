@@ -1172,6 +1172,8 @@ Sin cambios de fondo.
 
 **Acciones:** validar pago manual, reintentar, reembolsar, marcar chargeback, ver evidencia.
 
+**Validar pago manual (DR8, `docs/00` §31):** el detalle muestra el **plazo** de la ventana de pago (vence en / vencido), el **pagador** (estudiante o familiar), el **cálculo del fee** (base USD × porcentaje × tipo de cambio del snapshot, en ARS y USD) y el comprobante con su acceso auditado. El botón "Marcar pagado y confirmar reserva" **solo aparece con comprobante cargado y plazo vigente**; sin comprobante hay una acción separada y excepcional, "Confirmar sin comprobante", con motivo ≥ 10 caracteres. Se carga **monto recibido + moneda** (se muestra la diferencia contra el fee esperado) y, antes de ejecutar, un paso de confirmación con las consecuencias ("Se confirma la reserva, se emite el comprobante verificable y se dispara la factura") y el checkbox "Verifiqué el pago". Si el plazo venció, la pantalla indica reabrirlo desde Actividad → Reservas.
+
 ---
 
 

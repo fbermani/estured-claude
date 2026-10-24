@@ -1061,6 +1061,9 @@ Reglas:
 | `revocation_resolved_by` | uuid null | Admin que resolvió (`users.id`). Solo servidor *(0049)* |
 | `revocation_internal_reason` | text null | Motivo interno obligatorio (10–1000). **Nunca visible al estudiante.** Solo servidor *(0049)* |
 | `revocation_student_message` | text null | Mensaje opcional para el estudiante (≤1000). Solo servidor; la pantalla del estudiante lo lee con el service role tras verificar que la reserva es suya *(0049)* |
+| `received_amount` | numeric(14,2) null | Monto realmente recibido que cargó el admin al validar un pago manual, en `payment_currency` (DR8). Solo servidor *(migración 0050)* |
+| `confirmed_without_receipt` | boolean | `true` si el admin validó con el override "Confirmar sin comprobante" (DR8). Default `false`. Solo servidor *(0050)* |
+| `validated_by_user_id` | uuid null | Admin que validó el pago manual (`users.id`) (DR8). Solo servidor *(0050)* |
 | `fiscal_invoice_status` | fiscal_invoice_status | Estado de la Factura C. Default `not_required` *(nuevo)* |
 | `fiscal_invoice_id` | text null | ID de factura en TusFacturas.app *(nuevo)* |
 | `fiscal_invoice_number` | text null | Número legible de la Factura C *(nuevo)* |

@@ -67,6 +67,22 @@ export async function alertAdminsOfAuditFailure(
   admin: SupabaseClient,
   params: { action: string; entityType: string; entityId: string },
 ): Promise<void> {
+  await notifyAdmins(admin, {
+    title: "Falló un registro de auditoría de dinero",
+    body: `La acción "${params.action}" sobre ${params.entityType}:${params.entityId.slice(0, 8)} se completó, pero no se pudo auditar. Revisar manualmente.`,
+    entityType: params.entityType,
+    entityId: params.entityId,
+  });
+}
+
+/**
+ * Notificación genérica a todos los admin/superadmin (campana del panel). La usan las alertas de dinero que piden revisión humana
+ * (p. ej. fee cobrado cuya reserva no se pudo confirmar, Ciclo 71 DR8). Nunca lanza.
+ */
+export async function notifyAdmins(
+  admin: SupabaseClient,
+  params: { title: string; body: string; entityType: string; entityId: string },
+): Promise<void> {
   const { data: admins } = await admin
     .from("user_roles")
     .select("user_id")
@@ -76,8 +92,8 @@ export async function alertAdminsOfAuditFailure(
     adminUserIds.map((userId) =>
       createNotification(admin, {
         userId,
-        title: "Falló un registro de auditoría de dinero",
-        body: `La acción "${params.action}" sobre ${params.entityType}:${params.entityId.slice(0, 8)} se completó, pero no se pudo auditar. Revisar manualmente.`,
+        title: params.title,
+        body: params.body,
         relatedEntityType: params.entityType,
         relatedEntityId: params.entityId,
       }),

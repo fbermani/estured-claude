@@ -1431,11 +1431,16 @@ Body:
 {
   "reason": "string",
   "payment_currency": "ARS|USD",
-  "payment_provider_reference": "string|null"
+  "received_amount": 140500,
+  "payment_provider_reference": "string|null",
+  "verified": true,
+  "confirm_without_receipt": false,
+  "accept_amount_difference": false,
+  "receipt_file_id": "uuid|null"
 }
 ```
 
-Reglas: motivo obligatorio; marcar fee `paid`; confirmar reserva; disparar generación de comprobante; disparar emisión de Factura C en TusFacturas.app; auditar.
+Reglas (DR8, `docs/00` §31): motivo obligatorio (mín. 5; mín. 10 con override o con diferencia > 1 %); `verified` obligatorio; **comprobante cargado** (`manual_payment_file_id`) **o** `confirm_without_receipt = true` (override con motivo ≥ 10 y solo si no hay comprobante); `received_amount` > 0 comparado contra el fee esperado guardado (tolerancia 1 %; mayor diferencia exige `accept_amount_difference = true` y motivo ≥ 10; si lo recibido es < 90 % del esperado solo `superadmin`; `receipt_file_id` = comprobante visto, debe coincidir con el actual); fee no vencido (`expires_at`) y en `pending_manual_payment`/`pending_payment_method`, con UPDATE condicional (la doble confirmación no hace nada); reserva `pending_estured_fee` y pago a la residencia confirmado; marcar fee `paid`; confirmar reserva; disparar generación de comprobante; disparar emisión de Factura C en TusFacturas.app; auditar (quién, esperado vs. recibido, diferencia, override; sin datos de facturación).
 
 ---
 

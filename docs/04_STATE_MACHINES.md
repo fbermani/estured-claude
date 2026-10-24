@@ -6,7 +6,7 @@
 **Producto:** EstuRed
 **Mercado inicial:** CABA
 **Formato MVP:** webapp responsive
-**Última actualización:** 2026-10-23 (DR3/DR3b: §5.6bis, §12bis "Quiero cambiar")
+**Última actualización:** 2026-10-24 (DR3/DR3b: §5.6bis, §12bis "Quiero cambiar"; DR8: §8.10 validación manual del fee)
 
 ---
 
@@ -628,6 +628,25 @@ Reglas de la resolución:
 - **Denegar:** solo si la revocación se registró **fuera de los 10 días corridos** desde `paid_at` o hay una **causa justificada** marcada explícitamente por el admin. Denegar no restaura la reserva ni el comprobante.
 - "Dentro de los 10 días" se mide entre `paid_at` y el momento en que se registró la revocación (`reservations.cancelled_at`), no al resolver.
 - Al resolver se cierra el `support_case` asociado y se avisa in-app al estudiante y, si es otra persona, al pagador del fee.
+
+## 8.10. Validación manual del fee — `pending_manual_payment` → `paid` (DR8, `docs/00` §31)
+
+La transición `pending_manual_payment` → `paid` por validación del admin (y, solo como override, `pending_payment_method` → `paid`) es una **acción de dinero** con estas condiciones; sin ellas el servidor la rechaza y el fee no cambia:
+
+| Condición | Regla |
+|---|---|
+| Estado de partida | `pending_manual_payment` **con comprobante** (`manual_payment_file_id`). Sin comprobante solo por **override explícito** ("Confirmar sin comprobante"): motivo ≥ 10 caracteres + segunda confirmación; se marca `confirmed_without_receipt`. |
+| Plazo | `expires_at` no vencido. Un fee vencido (o ya `expired`) **no se puede marcar pagado**: primero se reabre el plazo (`expired` → `pending_payment_method`, 48 h, acción existente de Reservas). |
+| Monto | El admin carga **monto recibido + moneda**; se compara contra el fee esperado guardado. Hasta **1 %** de diferencia = redondeo (se audita igual); más de 1 % exige checkbox **"Acepto la diferencia"** + motivo ≥ 10 caracteres. Si lo recibido es **menos del 90 %** del esperado, **solo `superadmin`** puede confirmar. Montos ambiguos (`140.500`) se rechazan. |
+| Confirmación | Checkbox "Verifiqué el pago" obligatorio + paso de confirmación con las consecuencias. |
+| Reserva y pago a la residencia | La reserva está `pending_estured_fee` y el pago a la residencia está `reported_received_by_residence`. |
+| Atomicidad | UPDATE condicional por el estado leído, plazo vigente (o sin plazo) y el mismo comprobante (por id) con chequeo de filas afectadas: la segunda confirmación simultánea no hace nada. |
+
+Efectos de `paid` (sin cambios): se confirma la reserva (`pending_estured_fee` → `confirmed`), se emite el comprobante verificable y `fiscal_invoice_status` pasa a `pending_issue` (Factura C).
+
+**Fee `paid` con la reserva sin confirmar (revisión Ciclo 71):** si la confirmación de la reserva falla después de marcar `paid`, el fee **no vuelve atrás**: se audita `reservation_confirmation_failed_after_fee_paid`, se avisa a los admins y el caso aparece en `/admin/payments` con **"Reintentar confirmación"** (audita `reservation_confirmation_retried`). La confirmación es **idempotente**: requiere fee `paid`, usa un UPDATE condicional de la reserva (`pending_estured_fee` → `confirmed`) y, si la reserva ya estaba `confirmed`, no duplica comprobante, factura ni disponibilidad.
+
+> **Pendiente de decisión del dueño:** el comprobante verificable y la Factura C se emiten por el **fee esperado completo**, no por el monto realmente recibido.
 
 ---
 

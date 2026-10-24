@@ -3,7 +3,7 @@
 
 **Versión:** 0.2
 **Estado:** Documento actualizado para construcción
-**Última actualización:** 2026-06-27
+**Última actualización:** 2026-10-24 (DR8: §14.5 validación manual del fee)
 **Depende de:** `00_DECISION_LOG.md`, `03_BUSINESS_RULES.md`, `04_STATE_MACHINES.md`, `05_ROLES_AND_PERMISSIONS.md`, `06_DATA_MODEL.md`, `07_API_SPEC.md`, `08_UI_SCREENS_AND_FLOWS.md`
 
 ---
@@ -495,6 +495,8 @@ Si el cobro del fee falla, el sistema puede intentar hasta **3 reintentos dentro
 ### 14.5 Regla de pago manual
 
 Los pagos manuales del fee pueden aceptarse por transferencia u otro canal habilitado. La reserva no se confirma hasta que el fee se marca como `paid`. Al marcarlo `paid` (manual o automático), se dispara automáticamente la emisión de la factura fiscal.
+
+**Validación manual endurecida (DR8, `docs/00` §31):** marcar un fee como pagado a mano exige (1) comprobante cargado y visible o, como excepción, el override "Confirmar sin comprobante" (motivo ≥ 10 caracteres + segunda confirmación, marcado en la auditoría); (2) **monto recibido + moneda**, comparado con el fee esperado (tolerancia 1 %; con más diferencia, motivo ≥ 10 caracteres); (3) confirmación explícita con las consecuencias y el checkbox "Verifiqué el pago"; (4) plazo vigente (un fee vencido se reabre primero desde Reservas); (5) update condicional por estado, plazo y comprobante (sin doble confirmación); (6) fuera de la tolerancia, checkbox "Acepto la diferencia" y, si se recibió menos del 90 %, solo `superadmin`; (7) los fees `paid` cuya reserva no se confirmó se marcan en Cobrados con "Reintentar confirmación". La pantalla muestra plazo, pagador y cálculo del fee. Ver `docs/04` §8.10.
 
 ---
 

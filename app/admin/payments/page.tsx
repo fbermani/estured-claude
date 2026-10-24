@@ -7,10 +7,12 @@ import { formatArs } from "@/lib/mock/exchange";
 import { cmd } from "@/components/admin/ui/tokens";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
-import { PaymentDetail } from "@/app/admin/payments/PaymentDetail";
+import { PaymentDetail, type FeePayer } from "@/app/admin/payments/PaymentDetail";
+import { describeFeeCountdown } from "@/lib/payments/feeTransferPresentation";
 import { RenewalPaymentDetail } from "@/app/admin/payments/RenewalPaymentDetail";
 import { PaidFeesView, PaymentsTabs } from "@/app/admin/payments/PaidFeesView";
 import { requireAdmin } from "@/lib/auth/requireAdmin";
+import { loadUnconfirmedPaidFees } from "@/lib/payments/loadUnconfirmedPaidFees";
 
 export const metadata: Metadata = { title: "Pagos fee EstuRed" };
 export const dynamic = "force-dynamic";
@@ -27,7 +29,7 @@ export default async function AdminPaymentsPage({
 }: {
   searchParams: Promise<{ id?: string; tab?: string }>;
 }) {
-  await requireAdmin();
+  const adminUser = await requireAdmin();
   const { id: selectedId, tab } = await searchParams;
   if (tab === "paid") return <PaidFeesView />;
   const admin = getSupabaseAdmin();
@@ -49,6 +51,9 @@ export default async function AdminPaymentsPage({
   if (queueResult.error) console.error("[admin-payments] queue query failed:", queueResult.error);
   const queue = queueResult.data ?? [];
 
+  // Fees `paid` con la reserva sin confirmar (DR8): se resuelven desde "Cobrados"; acá solo el aviso para que no pasen desapercibidos.
+  const unconfirmedPaid = admin ? await loadUnconfirmedPaidFees(admin) : { items: [], failed: false };
+
   const paymentSettingsMissing = admin ? (await loadPaymentSettings(admin)) === null : false;
 
   const activeId = selectedId ?? queue[0]?.id ?? null;
@@ -59,7 +64,7 @@ export default async function AdminPaymentsPage({
     const { data: feePayment, error: feePaymentError } = await admin
       .from("estured_fee_payments")
       .select(
-        "id, status, fee_amount_ars, fee_base_usd, fee_base_ars, payment_channel, payer_billing_name, payer_billing_cuit, payer_iva_condition, manual_payment_file_id, reservation_id, renewal_offer_id, reservations!estured_fee_payments_reservation_id_fkey(residences(name), student_profiles(first_name, last_initial), start_date, initial_duration_months), renewal_offers!estured_fee_payments_renewal_offer_fk(residences(name), student_profiles(first_name, last_initial), period_start_date, period_end_date, duration_months)",
+        "id, status, fee_amount_ars, fee_amount_usd, fee_rate_percent, fee_base_usd, fee_base_ars, expires_at, payer_user_id, payment_channel, payer_billing_name, payer_billing_cuit, payer_iva_condition, manual_payment_file_id, reservation_id, renewal_offer_id, reservations!estured_fee_payments_reservation_id_fkey(residences(name), student_profiles(first_name, last_initial, user_id), start_date, initial_duration_months), renewal_offers!estured_fee_payments_renewal_offer_fk(residences(name), student_profiles(first_name, last_initial), period_start_date, period_end_date, duration_months)",
       )
       .eq("id", activeId)
       .maybeSingle();
@@ -83,23 +88,58 @@ export default async function AdminPaymentsPage({
       } else {
         const reservationDetail = feePayment.reservations as unknown as {
           residences: { name: string } | null;
-          student_profiles: { first_name: string; last_initial: string } | null;
+          student_profiles: { first_name: string; last_initial: string; user_id: string } | null;
           start_date: string;
           initial_duration_months: number;
         } | null;
-        detail = { feePayment: { ...feePayment, reservations: reservationDetail }, proofFileId };
+        // Pagador (DR8): el estudiante o su familiar vinculado. Solo nombre corto y rol, sin datos de contacto ni de facturación.
+        let payer: FeePayer = { name: null, role: "unknown" };
+        const payerUserId = (feePayment.payer_user_id as string | null) ?? null;
+        const student = reservationDetail?.student_profiles ?? null;
+        if (payerUserId && student && payerUserId === student.user_id) {
+          payer = { name: formatShortName(student.first_name, student.last_initial), role: "student" };
+        } else if (payerUserId) {
+          const { data: familyMember, error: familyMemberError } = await admin
+            .from("family_members")
+            .select("first_name, last_name")
+            .eq("user_id", payerUserId)
+            .maybeSingle();
+          if (familyMemberError) console.error("[admin-payments] payer family member query failed:", familyMemberError);
+          payer = {
+            name: familyMember ? formatShortName(familyMember.first_name as string, familyMember.last_name as string) || null : null,
+            role: "family",
+          };
+        }
+        detail = {
+          feePayment: { ...feePayment, reservations: reservationDetail },
+          proofFileId,
+          payer,
+          isSuperadmin: adminUser.roles.includes("superadmin"),
+          // Se calcula acá (servidor) y no en el cliente para que el texto relativo no desincronice la hidratación.
+          countdown: describeFeeCountdown((feePayment.expires_at as string | null) ?? null),
+        };
       }
     }
   }
 
   return (
-    <div className="flex h-full">
-      <div className="w-96 shrink-0 overflow-y-auto border-r" style={{ borderColor: cmd.border }}>
+    <div className="flex h-full flex-col md:flex-row">
+      <div className="w-full shrink-0 border-b md:w-96 md:overflow-y-auto md:border-b-0 md:border-r" style={{ borderColor: cmd.border }}>
         <div className="border-b p-4" style={{ borderColor: cmd.border }}>
           <PaymentsTabs active="pending" compact />
           <p className="mt-2 text-xs" style={{ color: cmd.outline }}>
             {queue.length} pendientes de validación
           </p>
+          {(unconfirmedPaid.items.length > 0 || unconfirmedPaid.failed) && (
+            <p role="alert" className="mt-2 text-xs font-semibold" style={{ color: cmd.rose }}>
+              {unconfirmedPaid.failed
+                ? "No pudimos revisar los pagos con la reserva sin confirmar. "
+                : `${unconfirmedPaid.items.length} pago(s) registrado(s) con la reserva sin confirmar. `}
+              <Link href="/admin/payments?tab=paid" className="underline">
+                Ver en Cobrados
+              </Link>
+            </p>
+          )}
         </div>
         {queue.length === 0 ? (
           <p className="p-4 text-sm" style={{ color: cmd.outline }}>
@@ -149,7 +189,7 @@ export default async function AdminPaymentsPage({
         )}
       </div>
 
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="min-w-0 flex-1 p-4 md:overflow-y-auto md:p-8">
         {paymentSettingsMissing && (
           <AdminCard className="mb-6 max-w-2xl p-4">
             <p role="status" className="text-sm font-semibold" style={{ color: cmd.amber }}>

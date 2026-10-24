@@ -20,6 +20,12 @@ type ConfirmResult =
  * queda pendiente de credenciales; acá solo se deja `fiscal_invoice_status
  * = pending_issue` para que un job/admin la reintente cuando exista la
  * integración.
+ *
+ * Ciclo 71 (DR8) — IDEMPOTENTE y seguro ante reintentos (lo llama `recordManualFeePayment` y el botón "Reintentar confirmación"):
+ *  - exige `estured_fee_payments.status = 'paid'` (nunca confirma una reserva por un fee que no está pagado);
+ *  - si la reserva ya está `confirmed` devuelve ok SIN tocar nada (ni comprobante, ni factura, ni disponibilidad, ni notificaciones);
+ *  - el UPDATE de la reserva es condicional (`status = 'pending_estured_fee'`) y se chequean las filas afectadas ANTES de seguir:
+ *    quien pierde la carrera no descuenta disponibilidad, ni cierra solicitudes hermanas, ni emite un segundo comprobante.
  */
 export async function confirmReservationAfterFeePaid(
   admin: SupabaseClient,
@@ -31,15 +37,23 @@ export async function confirmReservationAfterFeePaid(
     .eq("id", params.feePaymentId)
     .maybeSingle();
   if (!feePayment || !feePayment.reservation_id) return { ok: false, error: "No encontramos el pago del fee." };
+  if (feePayment.status !== "paid") return { ok: false, error: "El pago del fee todavía no está registrado como pagado." };
 
   const { data: reservation } = await admin
     .from("reservations")
     .select(
-      "id, application_request_id, student_profile_id, residence_id, room_type_id, snapshot_id, external_residence_payment_id, start_date",
+      "id, status, booking_receipt_id, application_request_id, student_profile_id, residence_id, room_type_id, snapshot_id, external_residence_payment_id, start_date",
     )
     .eq("id", feePayment.reservation_id)
-    .single();
+    .maybeSingle();
   if (!reservation) return { ok: false, error: "No encontramos la reserva asociada." };
+  // Ya confirmada (reintento, doble clic, otra pestaña): no hay nada que repetir ni duplicar.
+  if (reservation.status === "confirmed") {
+    return { ok: true, reservationId: reservation.id, receiptId: (reservation.booking_receipt_id as string | null) ?? "", verificationCode: "" };
+  }
+  if (reservation.status !== "pending_estured_fee") {
+    return { ok: false, error: "La reserva ya no está esperando el pago del fee." };
+  }
 
   const { data: residencePayment } = await admin
     .from("external_residence_payments")
@@ -52,11 +66,17 @@ export async function confirmReservationAfterFeePaid(
 
   const now = new Date();
 
-  const { error: reservationError } = await admin
+  // UPDATE condicional + chequeo de filas afectadas: solo sigue (disponibilidad, hermanas, comprobante) quien efectivamente la confirmó.
+  const { data: confirmedRows, error: reservationError } = await admin
     .from("reservations")
     .update({ status: "confirmed", confirmed_at: now.toISOString() })
-    .eq("id", reservation.id);
+    .eq("id", reservation.id)
+    .eq("status", "pending_estured_fee")
+    .select("id");
   if (reservationError) return { ok: false, error: "No pudimos confirmar la reserva." };
+  if (!confirmedRows || confirmedRows.length === 0) {
+    return { ok: false, error: "La reserva cambió de estado mientras se confirmaba. Recargá la pantalla para ver su estado actual." };
+  }
 
   // DR3 "Quiero cambiar": si tenía un aviso abierto y esta reserva es en otra residencia, se resuelve y la residencia
   // actual recibe SOLO la fecha de ingreso (sin nombrar la nueva). Nunca lanza ni cierra la estadía actual (D11).

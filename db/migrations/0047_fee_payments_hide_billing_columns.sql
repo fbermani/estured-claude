@@ -81,7 +81,7 @@ grant select (
 
 commit;
 
--- VERIFICACIÓN (SQL Editor, como postgres). Debe devolver exactamente 34 filas, ninguna con billing/iva, y 0 filas en la segunda query:
+-- VERIFICACIÓN (SQL Editor, como postgres). Debe devolver exactamente 31 filas, ninguna con billing/iva, y 0 filas en la segunda query:
 --   select column_name from information_schema.column_privileges
 --   where table_schema = 'public' and table_name = 'estured_fee_payments' and grantee = 'authenticated' and privilege_type = 'SELECT'
 --   order by column_name;

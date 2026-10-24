@@ -7,6 +7,8 @@ import { formatDate } from "@/lib/dates/format";
 import { formatShortName } from "@/lib/format/shortName";
 import { paymentChannelLabel } from "@/lib/format/payerLabels";
 import { formatArs } from "@/lib/mock/exchange";
+import { loadUnconfirmedPaidFees } from "@/lib/payments/loadUnconfirmedPaidFees";
+import { RetryConfirmationButton } from "@/app/admin/payments/RetryConfirmationButton";
 
 /**
  * Histórico de fees cobrados (auditoría 2026-10-20, H25): hasta ahora
@@ -46,6 +48,8 @@ export async function PaidFeesView() {
     : { data: [], error: null };
   if (error) console.error("[admin-payments] paid history query failed:", error);
   const rows = (data as unknown as PaidRow[]) ?? [];
+  const unconfirmed = admin ? await loadUnconfirmedPaidFees(admin) : { items: [], failed: false };
+  const unconfirmedIds = new Set(unconfirmed.items.map((item) => item.id));
   const totalPaid = rows.filter((r) => r.status === "paid").reduce((sum, r) => sum + Number(r.fee_amount_ars), 0);
 
   return (
@@ -55,6 +59,36 @@ export async function PaidFeesView() {
         {rows.length} fee(s) cobrados — {formatArs(totalPaid)} en total
         {rows.length >= LIMIT && ` (se muestran los últimos ${LIMIT})`}.
       </p>
+
+      {unconfirmed.failed && (
+        <p role="alert" className="mt-4 text-sm font-semibold" style={{ color: cmd.rose }}>
+          No pudimos revisar si hay pagos registrados con la reserva sin confirmar. Recargá la pantalla.
+        </p>
+      )}
+      {unconfirmed.items.length > 0 && (
+        <AdminCard className="mt-4 p-4 md:p-6">
+          <p role="alert" className="text-sm font-bold" style={{ color: cmd.rose }}>
+            Pago registrado pero la reserva no se confirmó ({unconfirmed.items.length})
+          </p>
+          <p className="mt-1 text-sm" style={{ color: cmd.onSurfaceVariant }}>
+            El fee figura como cobrado, pero la reserva sigue esperando el pago: el estudiante todavía no tiene su comprobante. Reintentá la
+            confirmación; si vuelve a fallar, queda registrado en la auditoría.
+          </p>
+          <ul className="mt-3 space-y-3">
+            {unconfirmed.items.map((item) => (
+              <li key={item.id} className="rounded-lg p-3 text-sm" style={{ backgroundColor: cmd.roseBg }}>
+                <p className="font-bold" style={{ color: cmd.onSurface }}>
+                  {formatShortName(item.studentFirstName, item.studentLastInitial) || "—"} — {item.residenceName ?? "—"}
+                </p>
+                <p style={{ color: cmd.onSurfaceVariant }}>
+                  {formatArs(item.feeAmountArs)} · cobrado el {formatDate(item.paidAt)}
+                </p>
+                <RetryConfirmationButton feePaymentId={item.id} />
+              </li>
+            ))}
+          </ul>
+        </AdminCard>
+      )}
 
       <AdminCard className="mt-4 overflow-hidden">
         <div className="overflow-x-auto">
@@ -92,9 +126,13 @@ export async function PaidFeesView() {
                       {paymentChannelLabel(r.payment_channel)}
                     </td>
                     <td className="px-4 py-2.5">
-                      <AdminBadge tone={r.status === "paid" ? "emerald" : "neutral"}>
-                        {r.status === "paid" ? "Cobrado" : "Reintegrado"}
-                      </AdminBadge>
+                      {unconfirmedIds.has(r.id) ? (
+                        <AdminBadge tone="rose">Reserva sin confirmar</AdminBadge>
+                      ) : (
+                        <AdminBadge tone={r.status === "paid" ? "emerald" : "neutral"}>
+                          {r.status === "paid" ? "Cobrado" : "Reintegrado"}
+                        </AdminBadge>
+                      )}
                     </td>
                   </tr>
                 );

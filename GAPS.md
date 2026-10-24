@@ -27,6 +27,10 @@ Textos legales para el asesor (suma de esta ronda): intro y consecuencias de `/s
 
 ---
 
+## [ABIERTO — decisión del dueño] Comprobante y Factura C salen por el fee esperado, no por el monto recibido (Ciclo 71, DR8)
+
+Con la validación manual del fee el admin carga el monto realmente recibido (se guarda y se audita), pero `confirmReservationAfterFeePaid` emite el comprobante verificable y deja `fiscal_invoice_status = pending_issue` usando `fee_amount_ars`/`fee_amount_usd` esperados. Si se aceptó una diferencia (checkbox, piso del 90 % para superadmin), comprobante y factura no reflejan lo cobrado. **Decidir:** emitir por el monto recibido, exigir regularizar la diferencia antes de confirmar, o dejarlo como está. Registrado en `docs/00` DR8 (7) y `docs/04` §8.10.
+
 ## [ABIERTO — decisiones D1–D11 documentadas, código pendiente] Fase 2 de la auditoría 2026-10-20
 
 **Qué es:** el dueño resolvió D1–D11 (`docs/00` §31; fuente `docs/audits/PLAN_ACCION_2026-10-20.md`) y los docs de producto ya reflejan cada una (protocolo `docs/13` §5: doc primero). Lo que **todavía no está implementado** (no confundir con "decidido"): D2 pantalla de pago con datos de transferencia + config admin de cobro (H02), D3 fuente única de disponibilidad por tipo de habitación (H03), D4 control de visibilidad del estudiante + consentimiento + menores ocultos (H04), D6 vencimiento de `contact_established` (H06), D7 campo "pago inicial para reservar" (H08, requiere migración), D8 quitar la frontera freemium de sidebar/"Tu plan"/`/for-residences` (H09), D9 FAQ simple con pregunta libre (H12), D10 reset de contraseña + `/terms` (H13/H19), D11 alertas de estadía vencida (H18). Cada ítem está en la tabla de Fase 2 del plan de acción; el estado vivo está en `MEMORY.md` §14.
