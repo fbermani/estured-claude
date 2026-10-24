@@ -203,8 +203,18 @@ describe.skipIf(!hasCreds)("reopenEsturedFeeWindow (integración)", () => {
       .from("notifications")
       .select("title")
       .eq("related_entity_id", reservationId)
+      .eq("user_id", studentUserId)
       .maybeSingle();
     expect(notification?.title).toBe("Te dieron otra chance para pagar el fee EstuRed");
+
+    // DR4: el familiar vinculado (Martín, de Lucía) también se entera del nuevo plazo, una sola vez.
+    const { data: familyNotifications } = await admin
+      .from("notifications")
+      .select("title, user_id")
+      .eq("related_entity_id", reservationId)
+      .neq("user_id", studentUserId);
+    expect(familyNotifications).toHaveLength(1);
+    expect(familyNotifications![0].title).toContain("Fee EstuRed a pagar");
 
     const secondAttempt = await reopenEsturedFeeWindow(admin, {
       feePaymentId,

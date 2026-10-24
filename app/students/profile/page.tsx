@@ -11,6 +11,8 @@ import { CommunityVisibilityCard } from "@/app/students/profile/CommunityVisibil
 import { isMinorByBirthDate } from "@/lib/students/isMinorByBirthDate";
 import { allHidden, VISIBILITY_FLAG_COLUMNS, type VisibilityValues } from "@/lib/students/communityVisibilitySettings";
 import { FamilyLinkCard } from "@/app/students/profile/FamilyLinkCard";
+import { FamilyProfileForm } from "@/app/students/profile/FamilyProfileForm";
+import { formatBillingTaxId, normalizeRelationship } from "@/lib/family/familyProfile";
 
 export const metadata: Metadata = { title: "Mi perfil" };
 export const dynamic = "force-dynamic";
@@ -19,6 +21,12 @@ export default async function StudentProfilePage() {
   const sessionUser = await getSessionUser();
   const admin = getSupabaseAdmin();
   if (!sessionUser || !admin) notFound();
+
+  // DR4: el familiar ve SU propio perfil en esta misma ruta (nunca el del estudiante). Un usuario con ambos roles
+  // conserva la vista de estudiante.
+  if (sessionUser.roles.includes("family_member") && !sessionUser.roles.includes("student")) {
+    return <FamilyProfileView userId={sessionUser.id} email={sessionUser.email} />;
+  }
 
   const { data: profile } = await admin
     .from("student_profiles")
@@ -161,6 +169,50 @@ export default async function StudentProfilePage() {
             isMinor={profile.is_minor ?? false}
           />
         </div>
+      </div>
+    </div>
+  );
+}
+
+/** Vista del familiar (DR4): su propio perfil + a quién acompaña. */
+async function FamilyProfileView({ userId, email }: { userId: string; email: string }) {
+  const admin = getSupabaseAdmin();
+  if (!admin) notFound();
+  // `billing_*` pertenecen a la migración 0045: si todavía no está aplicada, se lee sin ellas (la pantalla no se cae).
+  let row: Record<string, string | null> | null = null;
+  const full = await admin
+    .from("family_members")
+    .select("first_name, last_name, phone, relationship_type, billing_tax_id, billing_vat_condition")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (!full.error) {
+    row = full.data as Record<string, string | null> | null;
+  } else {
+    const basic = await admin
+      .from("family_members")
+      .select("first_name, last_name, phone, relationship_type")
+      .eq("user_id", userId)
+      .maybeSingle();
+    row = basic.data as Record<string, string | null> | null;
+  }
+  if (!row) notFound();
+
+  return (
+    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
+      <h1 className="text-2xl font-bold text-ink">Mi perfil</h1>
+      <p className="mt-1 text-sm text-ink-soft">
+        Tus datos como familiar. Los datos del estudiante que acompañás los edita solamente él o ella.
+      </p>
+      <div className="mt-6">
+        <FamilyProfileForm
+          firstName={row.first_name ?? ""}
+          lastName={row.last_name ?? ""}
+          phone={row.phone ?? ""}
+          email={email}
+          relationshipType={normalizeRelationship(row.relationship_type)}
+          billingTaxId={formatBillingTaxId(row.billing_tax_id)}
+          billingVatCondition={row.billing_vat_condition ?? ""}
+        />
       </div>
     </div>
   );

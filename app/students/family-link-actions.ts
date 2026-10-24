@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
+import { resetFeePayersOnLinkEnd } from "@/lib/family/setFeePayer";
 import { createAuditLog } from "@/lib/audit";
 import { sendEmail } from "@/lib/email/sendEmail";
 
@@ -90,7 +91,7 @@ export async function revokeFamilyLink(linkId: string): Promise<FamilyLinkDecisi
 
   const { data: link } = await admin
     .from("family_links")
-    .select("id, status, student_profile_id")
+    .select("id, status, student_profile_id, family_members(user_id)")
     .eq("id", linkId)
     .maybeSingle();
   if (!link || link.student_profile_id !== studentProfile.id) {
@@ -99,6 +100,7 @@ export async function revokeFamilyLink(linkId: string): Promise<FamilyLinkDecisi
   if (link.status !== "active") {
     return { status: "error", message: "Ese vínculo ya no está activo." };
   }
+  const revokedFamilyUserId = (link.family_members as unknown as { user_id: string } | null)?.user_id ?? null;
 
   const { error } = await admin
     .from("family_links")
@@ -107,6 +109,11 @@ export async function revokeFamilyLink(linkId: string): Promise<FamilyLinkDecisi
   if (error) {
     console.error("[family-link] revoke failed:", error);
     return { status: "error", message: "No pudimos desvincular. Intentá de nuevo." };
+  }
+
+  // DR4: si el ex familiar era el pagador de un fee pendiente, el pago vuelve al estudiante.
+  if (revokedFamilyUserId) {
+    await resetFeePayersOnLinkEnd(admin, { studentProfileId: studentProfile.id, studentUserId: sessionUser.id, familyUserId: revokedFamilyUserId });
   }
 
   const headerStore = await headers();

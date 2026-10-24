@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input, Select } from "@/components/ui/Input";
@@ -18,7 +19,14 @@ const IVA_OPTIONS = [
   { value: "exento", label: "Exento" },
 ];
 
-export function FeePaymentForm({ applicationId }: { applicationId: string }) {
+export function FeePaymentForm({
+  applicationId,
+  defaults,
+}: {
+  applicationId: string;
+  /** Datos de facturación guardados en el perfil del familiar pagador (DR4): se precargan y se pueden corregir. */
+  defaults?: { name: string; taxId: string; vatCondition: string };
+}) {
   const action = registerManualFeePayment.bind(null, applicationId);
   const [state, formAction, isPending] = useActionState(action, initialState);
   const [confirmed, setConfirmed] = useState(false);
@@ -39,10 +47,18 @@ export function FeePaymentForm({ applicationId }: { applicationId: string }) {
       <p className="mt-1 text-xs text-ink-faint">
         Datos para tu Factura C. Si no tenés CUIT/CUIL, dejalo en blanco.
       </p>
+      {defaults && (
+        <p className="mt-2 rounded-field bg-sand-100 px-3 py-2 text-xs text-ink-soft">
+          Precargamos los datos de facturación de tu perfil; podés corregirlos antes de pagar.{" "}
+          <Link href="/students/profile" className="font-semibold text-forest-700 underline">
+            Editar mi perfil
+          </Link>
+        </p>
+      )}
       <form action={formAction} className="mt-4 space-y-4">
-        <Input label="Nombre completo o razón social" name="payer_billing_name" required />
-        <Input label="CUIT/CUIL (opcional)" name="payer_billing_cuit" />
-        <Select label="Condición frente al IVA" name="payer_iva_condition" defaultValue="consumidor_final">
+        <Input label="Nombre completo o razón social" name="payer_billing_name" required defaultValue={defaults?.name} />
+        <Input label="CUIT/CUIL o DNI (opcional)" name="payer_billing_cuit" defaultValue={defaults?.taxId} />
+        <Select label="Condición frente al IVA" name="payer_iva_condition" defaultValue={defaults?.vatCondition || "consumidor_final"}>
           {IVA_OPTIONS.map((o) => (
             <option key={o.value} value={o.value}>
               {o.label}

@@ -15,6 +15,11 @@ describe("notificationHref", () => {
     expect(h("renewal_requests")).toBe("/students/renewals");
   });
 
+  it("propuestas del familiar (DR4): el estudiante va a sus propuestas y el familiar a su inicio", () => {
+    expect(notificationHref({ entityType: "family_application_proposals", entityId: ID, area: "student" })).toBe("/students/family-proposals");
+    expect(notificationHref({ entityType: "family_application_proposals", entityId: ID, area: "student", isFamily: true })).toBe("/students/dashboard");
+  });
+
   it("estudiante: una reserva lleva al detalle de su solicitud (resuelta), o al listado si no se pudo resolver", () => {
     expect(
       notificationHref(

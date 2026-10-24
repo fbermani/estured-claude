@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { assertResidenceAccess } from "@/lib/residences/access";
+import { notifyFamilyApplicationMilestone } from "@/lib/family/familyMilestones";
 import { createAuditLog } from "@/lib/audit";
 import { checkStayChangeAdvanceGate } from "@/lib/stayChange/advanceGate";
 import { ACTIVE_APPLICATION_STATUSES, REJECTION_REASONS } from "@/lib/applications/types";
@@ -138,6 +139,8 @@ export async function establishContact(applicationId: string): Promise<Applicati
     entityType: "application_requests",
     entityId: applicationId,
   });
+  // DR4: hito para el familiar vinculado (solicitud aceptada).
+  await notifyFamilyApplicationMilestone(admin, applicationId, "accepted");
 
   revalidatePath(`/residence/${result.application.residence_id}/applications`);
   return { status: "saved" };
@@ -211,6 +214,8 @@ export async function enableResidencePayment(applicationId: string): Promise<App
     entityType: "application_requests",
     entityId: applicationId,
   });
+  // DR4: hito para el familiar vinculado (pago a la residencia pedido).
+  await notifyFamilyApplicationMilestone(admin, applicationId, "payment_requested");
 
   revalidatePath(`/residence/${result.application.residence_id}/applications`);
   return { status: "saved" };

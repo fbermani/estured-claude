@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
+import { notifyFamilyReservationMilestone } from "@/lib/family/familyMilestones";
 import { reactivatePausedApplications } from "@/lib/applications/reactivatePausedApplications";
 
 const PENDING_FEE_STATUSES = ["pending_payment_method", "pending_manual_payment", "pending_auto_charge", "processing"];
@@ -54,6 +55,7 @@ export async function expireEsturedFeeWindows(admin: SupabaseClient): Promise<{ 
       newValue: { reservation_id: fee.reservation_id },
       source: "system",
     });
+    if (fee.reservation_id) await notifyFamilyReservationMilestone(admin, fee.reservation_id, "fee_expired");
     expiredCount += 1;
   }
 

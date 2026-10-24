@@ -4,6 +4,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth/session";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { loadFamilyOverview } from "@/lib/family/loadFamilyOverview";
+import { FamilyApplicationsList } from "@/components/students/FamilyApplicationsList";
+import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/Button";
@@ -37,6 +41,35 @@ type ApplicationRow = {
 
 export default async function StudentApplicationsPage() {
   const sessionUser = await getSessionUser();
+
+  // DR4: el familiar vinculado ve las solicitudes y reservas del estudiante en solo lectura (tercera persona).
+  if (sessionUser?.roles.includes("family_member") && !sessionUser.roles.includes("student")) {
+    const admin = getSupabaseAdmin();
+    const overview = admin ? await loadFamilyOverview(admin, sessionUser.id) : [];
+    return (
+      <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-14">
+        <h1 className="text-3xl font-bold text-ink">Solicitudes</h1>
+        <p className="mt-1 text-ink-soft">Seguimiento, en solo lectura, de las solicitudes y reservas de quien acompañás.</p>
+        <div className="mt-8 space-y-6">
+          {overview.length === 0 ? (
+            <EmptyState
+              icon="family_restroom"
+              title="Todavía no acompañás a ningún estudiante"
+              description="Cuando un estudiante apruebe tu vinculación, vas a ver acá sus solicitudes."
+            />
+          ) : (
+            overview.map((s) => (
+              <Card key={s.linkId} className="p-5 sm:p-6">
+                <h2 className="mb-4 font-bold text-ink">Solicitudes de {s.studentShortName}</h2>
+                <FamilyApplicationsList applications={s.applications} studentName={s.studentFirstName} />
+              </Card>
+            ))
+          )}
+        </div>
+      </div>
+    );
+  }
+
   const supabase = await getSupabaseServer();
 
   let applications: ApplicationRow[] = [];

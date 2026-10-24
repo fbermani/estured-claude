@@ -1,5 +1,6 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { notifyFamilyApplicationMilestone } from "@/lib/family/familyMilestones";
 import { createAuditLog } from "@/lib/audit";
 import { promoteNextQueuedApplication } from "@/lib/applications/roomTypeQueue";
 import { reactivatePausedApplications } from "@/lib/applications/reactivatePausedApplications";
@@ -60,6 +61,7 @@ export async function expireApplicationRequests(admin: SupabaseClient): Promise<
       source: "system",
     });
     if (row.room_type_id) await promoteNextQueuedApplication(admin, row.room_type_id);
+    await notifyFamilyApplicationMilestone(admin, row.id, "expired_no_response");
     expiredCount += 1;
   }
 
@@ -116,6 +118,7 @@ export async function expireApplicationRequests(admin: SupabaseClient): Promise<
       if (row.room_type_id) await promoteNextQueuedApplication(admin, row.room_type_id);
       // docs/04 §5.6: las solicitudes pausadas del estudiante se reactivan cuando la activa vence.
       if (row.student_profile_id) await reactivatePausedApplications(admin, row.student_profile_id);
+      await notifyFamilyApplicationMilestone(admin, row.id, "expired_no_payment");
       expiredCount += 1;
     }
   }

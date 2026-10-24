@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
+import { notifyFamilyReservationMilestone } from "@/lib/family/familyMilestones";
 import { createNotification } from "@/lib/notifications/createNotification";
 
 export type ReopenEsturedFeeWindowResult = { status: "ok" } | { status: "error"; message: string };
@@ -83,6 +84,8 @@ export async function reopenEsturedFeeWindow(
     relatedEntityType: "reservations",
     relatedEntityId: reservation.id,
   });
+  // DR4: el familiar vinculado también se entera del nuevo plazo (sin repetirle el aviso si él es el pagador).
+  await notifyFamilyReservationMilestone(admin, reservation.id, "fee_to_pay", { excludeUserIds: [feePayment.payer_user_id] });
 
   return { status: "ok" };
 }

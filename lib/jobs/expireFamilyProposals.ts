@@ -1,12 +1,12 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { notifyFamilyProposalOutcome } from "@/lib/family/familyMilestones";
 import { createAuditLog } from "@/lib/audit";
 
 /**
  * Job `expire_family_proposals` (docs/07 §9.4, §31) — cada hora.
  * Propuestas del familiar sin respuesta del estudiante dentro de 48h
- * pasan a `expired`. Sin notificación real (NotificationProvider
- * pendiente, docs/00 §29) — solo el cambio de estado y la auditoría.
+ * pasan a `expired`. Avisa al familiar autor (DR4).
  */
 export async function expireFamilyProposals(admin: SupabaseClient): Promise<{ expiredCount: number }> {
   const { data: expired, error } = await admin
@@ -30,6 +30,7 @@ export async function expireFamilyProposals(admin: SupabaseClient): Promise<{ ex
       entityId: row.id,
       source: "system",
     });
+    await notifyFamilyProposalOutcome(admin, row.id, "expired");
   }
 
   return { expiredCount: expired?.length ?? 0 };

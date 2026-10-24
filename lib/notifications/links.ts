@@ -45,10 +45,10 @@ const ADMIN_LIST: Record<string, string> = {
 };
 
 export function notificationHref(
-  input: { entityType: string | null; entityId: string | null; area: NotificationArea },
+  input: { entityType: string | null; entityId: string | null; area: NotificationArea; isFamily?: boolean },
   context: NotificationLinkContext = {},
 ): string | null {
-  const { entityType, entityId, area } = input;
+  const { entityType, entityId, area, isFamily } = input;
   if (!entityType) return null;
   // Defensa: nunca armar una ruta con un id que no sea un UUID.
   const id = entityId && UUID_RE.test(entityId) ? entityId : null;
@@ -81,6 +81,9 @@ export function notificationHref(
       case "stay_change_intents":
         // DR3 "Quiero cambiar": el bloque vive en Mi residencia (el familiar lo ve en solo lectura en la misma ruta).
         return "/students/residency#quiero-cambiar";
+      case "family_application_proposals":
+        // DR4: el estudiante responde en su pantalla de propuestas; el familiar ve el estado en su inicio.
+        return isFamily ? "/students/dashboard" : "/students/family-proposals";
       case "residence_faq_questions": {
         const slug = id ? context.residenceSlugByFaqQuestionId?.[id] : undefined;
         return slug ? `/residencias/${encodeURIComponent(slug)}#preguntas` : null;

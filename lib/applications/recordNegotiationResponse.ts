@@ -1,4 +1,5 @@
 import "server-only";
+import { notifyFamilyApplicationMilestone } from "@/lib/family/familyMilestones";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { checkStayChangeAdvanceGate } from "@/lib/stayChange/advanceGate";
@@ -203,6 +204,8 @@ export async function recordNegotiationResponse(
       residenceId: application.residence_id,
       studentProfileId: application.student_profile_id,
     });
+    // DR4: hito para el familiar vinculado (pago a la residencia pedido).
+    await notifyFamilyApplicationMilestone(admin, applicationId, "payment_requested");
   } else {
     await admin.from("application_status_events").insert({
       application_request_id: applicationId,

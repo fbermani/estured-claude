@@ -1,4 +1,5 @@
 import "server-only";
+import { notifyFamilyReservationMilestone } from "@/lib/family/familyMilestones";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog, alertAdminsOfAuditFailure } from "@/lib/audit";
 import { calculateFeeEstimate } from "@/lib/applications/fee";
@@ -249,6 +250,9 @@ export async function recordResidencePaymentReceived(
     if (application.room_type_id) {
       await promoteNextQueuedApplication(admin, application.room_type_id);
     }
+
+    // DR4: hito para el familiar vinculado (fee a pagar y su plazo). Nunca lanza.
+    await notifyFamilyReservationMilestone(admin, reservation.id, "fee_to_pay");
 
     return { ok: true, reservationId: reservation.id, residenceId: application.residence_id };
   } catch (error) {

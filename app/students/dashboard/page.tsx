@@ -20,6 +20,8 @@ import { getCatalogResidences } from "@/lib/residences/catalog";
 import { formatDateOnly } from "@/lib/students/contractEnd";
 import { loadStudentContracts, type StudentContract } from "@/lib/students/loadStudentContracts";
 import { StayRateNote } from "@/components/students/StayRateNote";
+import { loadFamilyOverview, type FamilyStudentOverview } from "@/lib/family/loadFamilyOverview";
+import { FamilyApplicationsList } from "@/components/students/FamilyApplicationsList";
 import { FamilyStayChangeBlock } from "@/components/students/FamilyStayChangeBlock";
 import { loadFamilyStayChange, type StudentStayChangeView } from "@/lib/stayChange/load";
 import { getVisibleStatus } from "@/lib/applications/visibleStatus";
@@ -86,6 +88,7 @@ const RELATIONSHIP_LABEL: Record<string, string> = {
   madre: "Madre",
   tutor: "Tutor/a",
   familiar: "Familiar",
+  otro: "Familiar",
 };
 
 /** Estados que ya no requieren seguimiento activo del estudiante en soporte. */
@@ -100,12 +103,25 @@ export default async function StudentDashboardPage() {
     let links: FamilyLinkRow[] = [];
     let sentProposals: SentProposalRow[] = [];
     const familyStayChanges = new Map<string, { view: StudentStayChangeView | null; residenceName: string | null }>();
+    const overviewByLink = new Map<string, FamilyStudentOverview>();
     if (supabase) {
       const { data } = await supabase
         .from("family_links")
-        .select("id, status, student_profile_id, student_profiles(first_name, last_initial)")
+        .select("id, status, student_profile_id")
         .order("created_at", { ascending: false });
-      links = (data as unknown as FamilyLinkRow[]) ?? [];
+      links = ((data ?? []) as unknown as Omit<FamilyLinkRow, "student_profiles">[]).map((l) => ({ ...l, student_profiles: null }));
+
+      // Con RLS (migración 0046) el familiar solo lee `student_profiles` con vínculo ACTIVO; el nombre de quien tiene el
+      // vínculo pendiente se lee por service role, acotado a los vínculos propios que devolvió la consulta de arriba.
+      const nameAdmin = getSupabaseAdmin();
+      if (nameAdmin && links.length > 0) {
+        const { data: names } = await nameAdmin
+          .from("student_profiles")
+          .select("id, first_name, last_initial")
+          .in("id", links.map((l) => l.student_profile_id));
+        const byId = new Map((names ?? []).map((n) => [n.id as string, { first_name: n.first_name as string, last_initial: n.last_initial as string }]));
+        links = links.map((l) => ({ ...l, student_profiles: byId.get(l.student_profile_id) ?? null }));
+      }
 
       const { data: proposalData } = await supabase
         .from("family_application_proposals")
@@ -117,14 +133,25 @@ export default async function StudentDashboardPage() {
       // "Quiero cambiar" (DR3): aviso de cada estudiante vinculado ACTIVO, en solo lectura y SIN su mensaje privado.
       const admin = getSupabaseAdmin();
       if (admin && sessionUser) {
+        // DR4: estado de las solicitudes/reserva de cada estudiante vinculado (solo lectura) y próxima acción del familiar.
+        // Degrada sin tumbar el inicio: si algo falla, el familiar ve igual sus vínculos.
+        try {
+          for (const o of await loadFamilyOverview(admin, sessionUser.id)) overviewByLink.set(o.linkId, o);
+        } catch (error) {
+          console.error("[dashboard-familiar] no se pudo cargar el seguimiento:", error);
+        }
         for (const l of links.filter((link) => link.status === "active")) {
-          const view = await loadFamilyStayChange(admin, { familyUserId: sessionUser.id, studentProfileId: l.student_profile_id });
-          let residenceName: string | null = null;
-          if (view) {
-            const { data: res } = await admin.from("residences").select("name").eq("id", view.currentResidenceId).maybeSingle();
-            residenceName = (res?.name as string | undefined) ?? null;
+          try {
+            const view = await loadFamilyStayChange(admin, { familyUserId: sessionUser.id, studentProfileId: l.student_profile_id });
+            let residenceName: string | null = null;
+            if (view) {
+              const { data: res } = await admin.from("residences").select("name").eq("id", view.currentResidenceId).maybeSingle();
+              residenceName = (res?.name as string | undefined) ?? null;
+            }
+            familyStayChanges.set(l.id, { view, residenceName });
+          } catch (error) {
+            console.error("[dashboard-familiar] no se pudo cargar el aviso de cambio:", error);
           }
-          familyStayChanges.set(l.id, { view, residenceName });
         }
       }
     }
@@ -133,8 +160,8 @@ export default async function StudentDashboardPage() {
       <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-14">
         <h1 className="text-3xl font-bold text-ink">Tu espacio de familiar</h1>
         <p className="mt-2 text-ink-soft">
-          Acompañás a estos estudiantes en EstuRed. Solo ellos pueden decidir sobre sus
-          solicitudes.
+          Seguís cómo avanzan las solicitudes y reservas de quienes acompañás, les proponés residencias y, si te
+          designan, pagás el fee EstuRed. Las decisiones y los documentos son de cada estudiante.
         </p>
 
         <div className="mt-8 space-y-4">
@@ -177,6 +204,28 @@ export default async function StudentDashboardPage() {
                       </Badge>
                     </div>
                   </div>
+                  {l.status === "active" && overviewByLink.get(l.id) && (
+                    <div className="mt-4 border-t border-line pt-4">
+                      <p className="mb-3 flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-muted">
+                        <Icon name="visibility" className="text-sm" /> Solicitudes y reserva · solo lectura
+                      </p>
+                      <FamilyApplicationsList
+                        applications={overviewByLink.get(l.id)!.applications}
+                        studentName={studentFirstName}
+                        limit={3}
+                      />
+                      {overviewByLink.get(l.id)!.pendingProposals.length > 0 && (
+                        <p className="mt-3 flex items-start gap-2 rounded-field bg-sand-100 px-4 py-3 text-xs text-ink-soft">
+                          <Icon name="hourglass_top" className="mt-0.5 text-sm" />
+                          <span>
+                            Esperando que {studentFirstName} responda{" "}
+                            {overviewByLink.get(l.id)!.pendingProposals.length === 1 ? "tu propuesta" : "tus propuestas"}:{" "}
+                            {overviewByLink.get(l.id)!.pendingProposals.map((p) => p.residenceName).join(", ")}.
+                          </span>
+                        </p>
+                      )}
+                    </div>
+                  )}
                   {change && <FamilyStayChangeBlock view={change.view} studentName={studentFirstName} residenceName={change.residenceName} />}
                 </Card>
               );

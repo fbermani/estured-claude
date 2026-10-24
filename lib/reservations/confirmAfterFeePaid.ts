@@ -1,4 +1,5 @@
 import "server-only";
+import { notifyFamilyReservationMilestone } from "@/lib/family/familyMilestones";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog, alertAdminsOfAuditFailure } from "@/lib/audit";
 import { removeWaitlistEntriesOnConfirmedReservation } from "@/lib/waitlist-entries/removeWaitlistEntriesOnConfirmedReservation";
@@ -240,6 +241,9 @@ export async function confirmReservationAfterFeePaid(
       entityId: reservation.id,
     });
   }
+
+  // DR4: hito para el familiar vinculado (reserva confirmada + comprobante). Nunca lanza.
+  await notifyFamilyReservationMilestone(admin, reservation.id, "confirmed");
 
   return { ok: true, reservationId: reservation.id, receiptId: receipt.id, verificationCode };
 }

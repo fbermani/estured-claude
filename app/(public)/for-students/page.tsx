@@ -8,6 +8,7 @@ import { RotatingBenefits, type RotatingBenefit } from "@/components/ui/Rotating
 import { StepsList } from "@/app/(public)/for-students/StepsList";
 import { getCatalogResidences } from "@/lib/residences/catalog";
 import { getSessionUser } from "@/lib/auth/session";
+import { FamilyHighlight } from "@/components/marketing/FamilyHighlight";
 import { StayChangeHighlight } from "@/components/marketing/StayChangeHighlight";
 
 export const metadata: Metadata = {
@@ -192,6 +193,8 @@ export default async function ForStudentsPage() {
         />
         <RotatingBenefits items={benefits} />
       </section>
+
+      <FamilyHighlight />
 
       <StayChangeHighlight variant="students" studentCta={sessionUser?.roles.includes("student") ? "residency" : "register"} />
 

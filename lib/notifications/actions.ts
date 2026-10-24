@@ -97,7 +97,7 @@ export async function getMyNotifications(): Promise<{ items: NotificationItem[];
     createdAt: n.created_at,
     readAt: n.read_at,
     href: notificationHref(
-      { entityType: n.related_entity_type, entityId: n.related_entity_id, area },
+      { entityType: n.related_entity_type, entityId: n.related_entity_id, area, isFamily: sessionUser.roles.includes("family_member") && !sessionUser.roles.includes("student") },
       context,
     ),
   }));

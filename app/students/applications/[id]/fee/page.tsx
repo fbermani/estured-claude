@@ -13,6 +13,10 @@ import { FeePaymentForm } from "@/app/students/applications/[id]/fee/FeePaymentF
 import { FeeCountdown } from "@/app/students/applications/[id]/fee/FeeCountdown";
 import { FeeTransferInstructions } from "@/app/students/applications/[id]/fee/FeeTransferInstructions";
 import { loadFeeInstructionsForPayer } from "@/lib/payments/paymentSettings";
+import { formatShortName } from "@/lib/format/shortName";
+import { loadActiveFamilyLink, loadActiveFamilyOfStudent, loadFamilyMember } from "@/lib/family/access";
+import { formatBillingTaxId } from "@/lib/family/familyProfile";
+import { FeePayerCard } from "@/app/students/applications/[id]/fee/FeePayerCard";
 import { feeSupportHref, reservationReference } from "@/lib/payments/feeTransferPresentation";
 
 export const metadata: Metadata = { title: "Pago fee EstuRed" };
@@ -52,7 +56,13 @@ export default async function FeePaymentPage({
     .select("id, status, residence_id, student_profile_id, snapshot_final_id, snapshot_original_id, residences(name)")
     .eq("id", id)
     .maybeSingle();
-  if (!application || application.student_profile_id !== studentProfile?.id) notFound();
+  if (!application) notFound();
+  // Acceso: el beneficiario, o el familiar con vínculo ACTIVO (DR4); a este último solo si es el pagador designado (abajo).
+  const isBeneficiary = application.student_profile_id === studentProfile?.id;
+  if (!isBeneficiary) {
+    const link = await loadActiveFamilyLink(admin, sessionUser.id, application.student_profile_id as string);
+    if (!link) notFound();
+  }
   if (application.status !== "converted_to_reservation") {
     redirect(`/students/applications/${id}`);
   }
@@ -74,6 +84,8 @@ export default async function FeePaymentPage({
     .eq("id", reservation.estured_fee_payment_id)
     .single();
   if (!feePayment) notFound();
+  if (!isBeneficiary && feePayment.payer_user_id !== sessionUser.id) notFound();
+  const isFamilyPayer = !isBeneficiary;
 
   const snapshotId = application.snapshot_final_id ?? application.snapshot_original_id;
   const { data: snapshot } = await admin
@@ -84,6 +96,37 @@ export default async function FeePaymentPage({
   if (!snapshot) notFound();
 
   const residence = application.residences as unknown as { name: string } | null;
+  const { data: beneficiary } = await admin
+    .from("student_profiles")
+    .select("first_name, last_initial")
+    .eq("id", application.student_profile_id as string)
+    .maybeSingle();
+  const studentName = beneficiary?.first_name ? formatShortName(beneficiary.first_name, beneficiary.last_initial) : "el estudiante";
+
+  // DR4: datos de facturación guardados del familiar pagador (columnas de la migración 0045: si faltan, el form va vacío).
+  let billingDefaults: { name: string; taxId: string; vatCondition: string } | undefined;
+  if (isFamilyPayer) {
+    const member = await loadFamilyMember(admin, sessionUser.id);
+    const { data: billing, error: billingError } = await admin
+      .from("family_members")
+      .select("billing_tax_id, billing_vat_condition")
+      .eq("user_id", sessionUser.id)
+      .maybeSingle();
+    billingDefaults = {
+      name: member ? `${member.first_name} ${member.last_name}`.trim() : "",
+      taxId: billingError ? "" : formatBillingTaxId(billing?.billing_tax_id as string | null),
+      vatCondition: billingError ? "" : ((billing?.billing_vat_condition as string | null) ?? ""),
+    };
+  }
+
+  // DR4: el beneficiario puede designar al familiar vinculado como pagador (mientras el fee espera el pago y no venció).
+  const feeOpen =
+    feePayment.status === "pending_payment_method" && (!feePayment.expires_at || new Date(feePayment.expires_at) > new Date());
+  const designatableFamily = isBeneficiary && feeOpen ? await loadActiveFamilyOfStudent(admin, application.student_profile_id as string) : null;
+  const canPickFamily = !!designatableFamily && designatableFamily.permissions.can_pay_estured_fee !== false;
+  // Siempre se puede volver a "pago yo" si el pagador designado no es el estudiante (aunque ya no haya familiar vinculado).
+  const otherIsPayer = isBeneficiary && feePayment.payer_user_id !== sessionUser.id;
+  const showPayerCard = isBeneficiary && feeOpen && (canPickFamily || otherIsPayer);
   const initialPaymentUsd = Number(snapshot.reservation_payment_amount_usd ?? 0);
   const alreadyRegistered = feePayment.status !== "pending_payment_method";
   const reference = reservationReference(reservation.id);
@@ -133,8 +176,9 @@ export default async function FeePaymentPage({
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
       <h1 className="text-2xl font-bold text-ink">Fee EstuRed — {residence?.name}</h1>
       <p className="mt-1 text-sm text-ink-soft">
-        El fee EstuRed es el 5% de tu estadía inicial reservada. Va aparte del pago que le hiciste
-        directamente a la residencia.
+        {isFamilyPayer
+          ? `Estás designado/a para pagar este fee de la reserva de ${studentName}: es el 5% de la estadía inicial reservada y va aparte del pago que se hizo directamente a la residencia.`
+          : "El fee EstuRed es el 5% de tu estadía inicial reservada. Va aparte del pago que le hiciste directamente a la residencia."}
       </p>
 
       <Card className="mt-6 p-6">
@@ -184,6 +228,15 @@ export default async function FeePaymentPage({
         </dl>
       </Card>
 
+      {showPayerCard && (
+        <FeePayerCard
+          applicationId={id}
+          familyName={designatableFamily?.name ?? null}
+          otherIsPayer={otherIsPayer}
+          payerIsLinkedFamily={!!designatableFamily && feePayment.payer_user_id === designatableFamily.userId}
+        />
+      )}
+
       {payerMismatch ? (
         <p role="status" className="mt-6 rounded-field bg-sand-100 px-4 py-3 text-sm text-ink-soft">
           El pago lo hace quien está designado como pagador de esta reserva. Si necesitás ayuda con el pago,{" "}
@@ -194,12 +247,12 @@ export default async function FeePaymentPage({
         </p>
       ) : feePayment.status === "paid" ? (
         <p className="mt-6 rounded-field bg-success-bg px-4 py-3 text-sm font-medium text-success-fg">
-          Fee pagado. Tu reserva está confirmada.
+          {isFamilyPayer ? `Fee pagado. La reserva de ${studentName} está confirmada.` : "Fee pagado. Tu reserva está confirmada."}
         </p>
       ) : alreadyRegistered ? (
         <>
           <p className="mt-6 rounded-field bg-sand-100 px-4 py-3 text-sm text-ink-soft">
-            Ya registraste un comprobante para este pago — está esperando validación de EstuRed. Te avisamos cuando
+            Ya hay un comprobante registrado para este pago — está esperando validación de EstuRed. Te avisamos cuando
             se confirme.
           </p>
           {supportLink}
@@ -209,13 +262,13 @@ export default async function FeePaymentPage({
         <FeeCountdown expiresAt={feePayment.expires_at} nowIso={new Date().toISOString()} supportHref={supportHref}>
           {payBlock}
           {supportLink}
-          <FeePaymentForm applicationId={id} />
+          <FeePaymentForm applicationId={id} defaults={billingDefaults} />
         </FeeCountdown>
       ) : (
         <>
           {payBlock}
           {supportLink}
-          <FeePaymentForm applicationId={id} />
+          <FeePaymentForm applicationId={id} defaults={billingDefaults} />
         </>
       )}
 

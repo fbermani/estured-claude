@@ -1,5 +1,6 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { notifyFamilyProposalOutcome } from "@/lib/family/familyMilestones";
 import { createAuditLog } from "@/lib/audit";
 import { ACTIVE_APPLICATION_STATUSES } from "@/lib/applications/types";
 import { createApplicationFromRoomType } from "@/lib/applications/createRequestFromRoomType";
@@ -74,6 +75,7 @@ export async function recordFamilyProposalResponse(
       entityId: params.proposalId,
       reasonText: params.rejectionReason ?? undefined,
     });
+    await notifyFamilyProposalOutcome(admin, params.proposalId, "rejected");
 
     return { ok: true, applicationId: null };
   }
@@ -171,6 +173,7 @@ export async function recordFamilyProposalResponse(
     entityId: params.proposalId,
     newValue: { converted_to_application_id: result.id },
   });
+  await notifyFamilyProposalOutcome(admin, params.proposalId, "approved");
 
   return { ok: true, applicationId: result.id };
 }

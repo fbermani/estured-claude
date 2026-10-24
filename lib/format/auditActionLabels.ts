@@ -71,6 +71,8 @@ const ACTION_PHRASES: Record<string, string> = {
   family_link_approved: "aprobó un vínculo familiar",
   family_link_rejected: "rechazó un vínculo familiar",
   family_link_revoked: "revocó un vínculo familiar",
+  family_profile_updated: "actualizó su perfil de familiar",
+  estured_fee_payer_changed: "cambió quién paga el fee EstuRed",
   favorite_added: "guardó una residencia en favoritos",
   favorite_removed: "quitó una residencia de favoritos",
   // Pagos, fee, reserva y comprobantes

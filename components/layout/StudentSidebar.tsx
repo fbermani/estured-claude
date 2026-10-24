@@ -30,14 +30,12 @@ const NAV_BASE = {
  * se oculta mientras el estudiante busca — sin reserva confirmada la
  * pantalla no tiene nada que mostrar (ver app/students/renewals/page.tsx).
  */
-function buildNav(isHoused: boolean, hasProfile: boolean, searchingChange: boolean): NavItem[] {
+function buildNav(isHoused: boolean, searchingChange: boolean): NavItem[] {
   const nav = buildNavByState(isHoused);
   // Con un aviso "Quiero cambiar" abierto, el alojado vuelve a ver "Buscar residencias" debajo de Mi residencia (DR3).
   if (isHoused && searchingChange) nav.splice(nav.indexOf(NAV_BASE.residencyHoused) + 1, 0, NAV_BASE.search);
-  // "Mi perfil" (/students/profile) edita el `student_profiles` del propio
-  // usuario; el familiar no tiene uno, así que la ruta responde 404. Sin
-  // pantalla de perfil de familiar definida, el enlace no se muestra.
-  return hasProfile ? nav : nav.filter((item) => item !== NAV_BASE.profile);
+  // "Mi perfil": el estudiante edita su ficha y el familiar (DR4) su propio perfil, en la misma ruta.
+  return nav;
 }
 
 function buildNavByState(isHoused: boolean): NavItem[] {
@@ -79,25 +77,21 @@ function buildNavByState(isHoused: boolean): NavItem[] {
  *
  * `isHoused` (Ciclo 38) reordena y renombra el menú según el estado real
  * del estudiante (docs/04 §7: reserva confirmada) — ver app/students/layout.tsx.
- * Para familiares llega siempre en `false` (conservan el orden de búsqueda)
- * y `hasProfile` en `false` (sin ficha de estudiante → sin "Mi perfil").
+ * Para familiares llega siempre en `false` (conservan el orden de búsqueda).
  */
 export function StudentSidebar({
   userEmail,
   isHoused,
-  hasProfile = true,
   searchingChange = false,
 }: {
   userEmail: string;
   isHoused: boolean;
   /** `true` si el alojado tiene un aviso "Quiero cambiar" abierto: vuelve el ítem "Buscar residencias". */
   searchingChange?: boolean;
-  /** `false` para el familiar: no tiene `student_profiles`, "Mi perfil" daría 404. */
-  hasProfile?: boolean;
 }) {
   const pathname = usePathname();
   const { collapsed, toggleCollapsed, mobileOpen, setMobileOpen } = useSidebarCollapse();
-  const nav = buildNav(isHoused, hasProfile, searchingChange);
+  const nav = buildNav(isHoused, searchingChange);
 
   return (
     <>

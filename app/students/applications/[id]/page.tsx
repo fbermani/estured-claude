@@ -3,6 +3,10 @@ import { formatDate } from "@/lib/dates/format";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getSupabaseServer } from "@/lib/supabase/server";
+import { familyStatusLabel } from "@/lib/family/familyStatusLabel";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { loadActiveFamilyLink } from "@/lib/family/access";
+import { getSessionUser } from "@/lib/auth/session";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -37,11 +41,15 @@ export default async function StudentApplicationDetailPage({
   const { id } = await params;
   const supabase = await getSupabaseServer();
   if (!supabase) notFound();
+  // DR4: el familiar vinculado SIGUE la solicitud en solo lectura (RLS `is_family_member_of_student`): sin respuestas a
+  // propuestas, sin comprobantes a la residencia y sin el texto en segunda persona del estudiante.
+  const sessionUser = await getSessionUser();
+  const isFamilyViewer = !!sessionUser && sessionUser.roles.includes("family_member") && !sessionUser.roles.includes("student");
 
   const { data: application, error: applicationError } = await supabase
     .from("application_requests")
     .select(
-      "id, status, desired_start_date, initial_duration_months, academic_objective, rejection_reason_code, created_at, contact_established_at, payment_deadline_at, snapshot_original_id, snapshot_final_id, residences(name, public_area, address_line), room_types(name)",
+      "id, status, student_profile_id, desired_start_date, initial_duration_months, academic_objective, rejection_reason_code, created_at, contact_established_at, payment_deadline_at, snapshot_original_id, snapshot_final_id, residences(name, public_area, address_line), room_types(name)",
     )
     .eq("id", id)
     .maybeSingle();
@@ -51,6 +59,13 @@ export default async function StudentApplicationDetailPage({
     throw new Error("No pudimos cargar tu solicitud.");
   }
   if (!application) notFound();
+
+  // Defensa en profundidad (además de RLS): el familiar solo ve la solicitud si su vínculo con el estudiante está ACTIVO.
+  if (isFamilyViewer) {
+    const linkAdmin = getSupabaseAdmin();
+    const link = linkAdmin && sessionUser ? await loadActiveFamilyLink(linkAdmin, sessionUser.id, application.student_profile_id as string) : null;
+    if (!link) notFound();
+  }
 
   const residence = application.residences as unknown as { name: string; public_area: string; address_line: string | null } | null;
   const roomType = application.room_types as unknown as { name: string } | null;
@@ -88,7 +103,7 @@ export default async function StudentApplicationDetailPage({
   const { data: feePayment } = reservationRow?.estured_fee_payment_id
     ? await supabase
         .from("estured_fee_payments")
-        .select("status, fee_amount_ars, paid_at")
+        .select("status, fee_amount_ars, paid_at, payer_user_id")
         .eq("id", reservationRow.estured_fee_payment_id as string)
         .maybeSingle()
     : { data: null };
@@ -122,6 +137,8 @@ export default async function StudentApplicationDetailPage({
     }
   }
 
+  const familyIsPayer = isFamilyViewer && feePayment?.payer_user_id === sessionUser?.id;
+
   const timeline = buildApplicationTimeline({
     applicationStatus: application.status,
     createdAt: application.created_at,
@@ -143,10 +160,10 @@ export default async function StudentApplicationDetailPage({
               {roomType?.name} · {residence?.public_area}, CABA
             </p>
           </div>
-          <Badge tone={info.tone}>{info.label}</Badge>
+          <Badge tone={info.tone}>{isFamilyViewer ? familyStatusLabel(info.label) : info.label}</Badge>
         </div>
 
-        {changeNote && (
+        {changeNote && !isFamilyViewer && (
           <div className="mt-4 flex items-start gap-2 rounded-field bg-orange-tint/60 px-4 py-3 text-sm text-ink-soft">
             <Icon name="swap_horiz" className="mt-0.5 shrink-0 text-lg text-orange-700" />
             <div>
@@ -159,28 +176,35 @@ export default async function StudentApplicationDetailPage({
           </div>
         )}
 
-        {info.helper && (
+        {info.helper && !isFamilyViewer && (
           <div className="mt-4 rounded-field bg-sand-100 px-4 py-3 text-sm text-ink-soft">
             <p className="text-xs font-bold uppercase tracking-wide text-ink-faint">Qué sigue</p>
             <p className="mt-1">{info.helper}</p>
           </div>
         )}
 
+        {isFamilyViewer && (
+          <p className="mt-4 flex items-start gap-2 rounded-field bg-sand-100 px-4 py-3 text-sm text-ink-soft">
+            <Icon name="visibility" className="mt-0.5 shrink-0 text-lg text-forest-700" />
+            Seguís esta solicitud en modo lectura. Las decisiones y los documentos son del estudiante.
+          </p>
+        )}
+
         {application.status === "contact_established" && (
           <ContactDeadlineNote deadlineAt={effectiveContactDeadline(application.payment_deadline_at as string | null, application.contact_established_at as string | null)} className="mt-4" />
         )}
 
-        {info.nextAction === "respond_offer" && (
+        {info.nextAction === "respond_offer" && !isFamilyViewer && (
           <Button href={`/students/applications/${id}/negotiation`} size="lg" className="mt-4 w-full">
             Ver propuesta de ajuste
           </Button>
         )}
-        {info.nextAction === "pay_fee" && (
+        {info.nextAction === "pay_fee" && (!isFamilyViewer || familyIsPayer) && (
           <Button href={`/students/applications/${id}/fee`} size="lg" className="mt-4 w-full">
             Pagar fee EstuRed
           </Button>
         )}
-        {info.nextAction === "view_fee_status" && reservation?.status === "pending_estured_fee" && (
+        {info.nextAction === "view_fee_status" && (!isFamilyViewer || familyIsPayer) && reservation?.status === "pending_estured_fee" && (
           <Button href={`/students/applications/${id}/fee`} size="lg" variant="outline" className="mt-4 w-full">
             Ver estado del fee
           </Button>
@@ -219,10 +243,12 @@ export default async function StudentApplicationDetailPage({
           </div>
         </dl>
 
-        <p className="mt-6 text-sm text-ink-soft">
-          <span className="font-semibold text-ink">Tu objetivo académico:</span>{" "}
-          {application.academic_objective}
-        </p>
+        {!isFamilyViewer && (
+          <p className="mt-6 text-sm text-ink-soft">
+            <span className="font-semibold text-ink">Tu objetivo académico:</span>{" "}
+            {application.academic_objective}
+          </p>
+        )}
       </Card>
 
       <Card className="mt-6 p-6">
@@ -258,7 +284,7 @@ export default async function StudentApplicationDetailPage({
 
       {/* H01: el comprobante de pago a la residencia es del paso anterior — una vez
           que existe la reserva ya no tiene sentido ofrecerlo. */}
-      {application.status === "residence_payment_pending" && <PaymentProofUpload applicationId={id} />}
+      {application.status === "residence_payment_pending" && !isFamilyViewer && <PaymentProofUpload applicationId={id} />}
     </div>
   );
 }
