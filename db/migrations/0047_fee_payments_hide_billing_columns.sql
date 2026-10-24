@@ -24,10 +24,8 @@
 --        fiscal_invoice_last_error, created_at, updated_at
 --   0011 (alter table add column, 4 columnas): payer_billing_name*, payer_billing_cuit*, payer_iva_condition*, payment_channel
 --   (* = las 3 columnas de facturación que quedan SIN grant)
---   Total: 37 columnas; el grant cubre 34.
---   Si en el futuro se agrega una columna a esta tabla, hay que concederla explícitamente (`-- Ciclo 62: tampoco se concede provider_payload, idempotency_key ni fiscal_invoice_last_error (datos internos;
--- ninguna pantalla con sesión de usuario los lee, solo el service role).
-grant select (nueva) ... to authenticated`)
+--   Total: 37 columnas; el grant cubre 31 (sin las 3 de facturación ni provider_payload, idempotency_key y fiscal_invoice_last_error).
+--   Si en el futuro se agrega una columna a esta tabla, hay que concederla explícitamente (`grant select (nueva) ... to authenticated`)
 --   o no será legible con el cliente del usuario; el service role la ve siempre.
 --
 -- VERIFICADO CON GREP (código al 2026-10-24): ninguna lectura con el cliente del USUARIO (`getSupabaseServer`) pide esas 3 columnas
@@ -45,6 +43,8 @@ begin;
 
 revoke select on public.estured_fee_payments from anon, authenticated;
 
+-- Ciclo 62: tampoco se concede provider_payload, idempotency_key ni fiscal_invoice_last_error (datos internos;
+-- ninguna pantalla con sesión de usuario los lee, solo el service role).
 grant select (
   id,
   reservation_id,
