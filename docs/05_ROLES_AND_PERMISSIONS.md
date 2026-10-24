@@ -624,7 +624,8 @@ Rol técnico para automatizaciones y jobs.
 | Abrir reclamo | ✗ | ✓ | ✓ vinculado | ✓ | Si tiene permiso | ✓ | ✓ |
 | Resolver reclamo | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✓ |
 | Suspender residencia | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✓ |
-| Bloquear usuario | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✓ |
+| Bloquear usuario (no administrativo: estudiante, familiar, residencia — DR9) | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✓ |
+| Bloquear/desbloquear a un admin o superadmin (DR9; nadie se auto-bloquea) | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ |
 | Ver audit log | ✗ | ✗ | ✗ | Limitado propio | Limitado si permiso | ✓ | ✓ |
 | Override tipo de cambio | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✓ |
 | Gestionar feature flags freemium | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✓ |

@@ -5,8 +5,8 @@
  * `family_proposal_expired`). En el dashboard del admin se muestran como
  * "<actor> <frase>", así que cada frase está en tercera persona y sin jerga
  * técnica. Las claves que no están en el mapa NO se muestran crudas: caen en
- * una frase genérica (el detalle técnico sigue disponible en Actividad →
- * Registros, que sí muestra la clave).
+ * una frase genérica. El log del admin muestra el código técnico solo como
+ * tooltip, y un test de cobertura exige una frase para cada acción del código.
  */
 const ACTION_PHRASES: Record<string, string> = {
   // Altas y perfiles
@@ -27,7 +27,7 @@ const ACTION_PHRASES: Record<string, string> = {
   residence_verification_rejected: "rechazó una residencia",
   residence_verification_needs_changes: "pidió cambios en una residencia",
   residence_verification_scheduled: "programó la visita de verificación de una residencia",
-  residence_verification_expiry_warned: "avisó que vence pronto la verificación de una residencia",
+  residence_verification_expiry_warned: "avisó que vence pronto la verificación de una residencia (30 días)",
   residence_verification_expired: "venció la verificación anual de una residencia",
   residence_profile_edit_approved: "aprobó una edición de perfil",
   residence_profile_edit_rejected: "rechazó una edición de perfil",
@@ -93,6 +93,41 @@ const ACTION_PHRASES: Record<string, string> = {
   exchange_rate_force_refresh: "actualizó el tipo de cambio",
   exchange_rate_override_set: "fijó un tipo de cambio manual",
   exchange_rate_override_removed: "quitó el tipo de cambio manual",
+  // Cambios de estadía ("Quiero cambiar", DR3) y salidas anticipadas
+  stay_change_intent_created: "avisó que quiere cambiar de residencia o plaza",
+  stay_change_intent_updated: "actualizó un aviso de cambio de residencia",
+  stay_change_intent_cancelled: "canceló un aviso de cambio de residencia",
+  stay_change_intent_extended: "extendió un aviso de cambio de residencia",
+  stay_change_intent_expired: "venció un aviso de cambio de residencia",
+  stay_change_intent_expired_stay_ended: "cerró un aviso de cambio porque terminó la estadía",
+  stay_change_intent_keep_alive_notified: "pidió confirmar que sigue vigente un aviso de cambio",
+  stay_change_intent_confirmed_by_family: "confirmó, como familiar, un aviso de cambio",
+  stay_change_intent_resolved: "resolvió un aviso de cambio de residencia",
+  stay_change_response_sent: "respondió a un aviso de cambio",
+  stay_change_response_edited: "editó su respuesta a un aviso de cambio",
+  application_cancelled_stay_change: "canceló una solicitud por un cambio de residencia",
+  waitlist_entry_removed_stay_change: "quitó a alguien de una lista de espera por un cambio de residencia",
+  resident_stay_early_exit_recorded: "registró una salida anticipada de un residente",
+  stay_early_exit_student_note_saved: "guardó la nota de una salida anticipada",
+  residence_early_exit_policy_updated: "actualizó la política de salida anticipada de una residencia",
+  // Cuenta, cobros y configuración
+  password_reset_completed: "restableció su contraseña",
+  password_reset_denied: "rechazó un intento de restablecer la contraseña",
+  payment_settings_updated: "actualizó los datos de cobro",
+  student_visibility_updated: "cambió su visibilidad en la comunidad",
+  residence_location_updated: "actualizó la ubicación de una residencia",
+  residence_profile_resubmitted: "reenvió a revisión una residencia tras pedido de cambios",
+  residence_faq_hidden: "ocultó una pregunta de su ficha",
+  residence_faq_hidden_by_admin: "ocultó una pregunta de una ficha",
+  residence_faq_restored: "volvió a mostrar una pregunta de su ficha",
+  residence_faq_restored_by_admin: "volvió a mostrar una pregunta de una ficha",
+  residence_faq_answered: "respondió una pregunta de la ficha",
+  residence_faq_answer_edited: "editó la respuesta a una pregunta de la ficha",
+  // Dinero: confirmación de reserva (DR8)
+  reservation_confirmation_failed_after_fee_paid: "no pudo confirmar una reserva con el fee ya cobrado",
+  reservation_confirmation_retried: "reintentó la confirmación de una reserva",
+  negotiation_rejected_chose_original: "rechazó una propuesta de ajuste y eligió las condiciones originales",
+  negotiation_rejected_closed: "rechazó una propuesta de ajuste y cerró la solicitud",
   // Renovaciones
   renewal_request_created: "pidió una renovación",
   renewal_request_closed_no_offer: "cerró un pedido de renovación sin oferta",
@@ -163,4 +198,60 @@ const SOURCE_LABELS: Record<string, string> = {
 
 export function auditSourceLabel(source: string): string {
   return SOURCE_LABELS[source] ?? "Sistema";
+}
+
+/** ¿Hay etiqueta humana para esta acción? (lo usa el test de cobertura y el filtro del log). */
+export function hasAuditActionLabel(action: string): boolean {
+  return action in ACTION_PHRASES;
+}
+
+/** Acciones con etiqueta, ordenadas por frase: opciones del filtro del log. */
+export function auditActionOptions(): { value: string; label: string }[] {
+  return Object.entries(ACTION_PHRASES)
+    .map(([value, label]) => ({ value, label }))
+    .sort((a, b) => a.label.localeCompare(b.label, "es"));
+}
+
+const ENTITY_LABELS: Record<string, string> = {
+  application_requests: "Solicitud",
+  beds: "Cama",
+  booking_receipts: "Comprobante de reserva",
+  estured_fee_payments: "Pago del fee EstuRed",
+  exchange_rates: "Tipo de cambio",
+  family_application_proposals: "Propuesta de familiar",
+  family_invitations: "Invitación de familiar",
+  family_links: "Vínculo familiar",
+  family_members: "Perfil de familiar",
+  fee_revocations: "Revocación del fee",
+  files: "Archivo",
+  payment_settings: "Datos de cobro",
+  profile_availability: "Disponibilidad",
+  renewal_offers: "Oferta de renovación",
+  renewal_requests: "Pedido de renovación",
+  reservations: "Reserva",
+  residence_faq_questions: "Pregunta de ficha",
+  residences: "Residencia",
+  resident_notes: "Nota de residente",
+  resident_stays: "Residente",
+  rooms: "Habitación",
+  stay_change_intents: "Aviso de cambio",
+  stay_early_exits: "Salida anticipada",
+  student_favorites: "Favorito",
+  student_profiles: "Perfil de estudiante",
+  student_visibility_settings: "Visibilidad de estudiante",
+  support_cases: "Caso de Soporte",
+  users: "Usuario",
+  waitlist_entries: "Lista de espera",
+};
+
+/** Tipo de entidad en español; un tipo desconocido cae en "Otro" (nunca el nombre de tabla crudo). */
+export function auditEntityLabel(entityType: string): string {
+  return ENTITY_LABELS[entityType] ?? "Otro";
+}
+
+/** Tipos de entidad con etiqueta: opciones del filtro del log. */
+export function auditEntityOptions(): { value: string; label: string }[] {
+  return Object.entries(ENTITY_LABELS)
+    .map(([value, label]) => ({ value, label }))
+    .sort((a, b) => a.label.localeCompare(b.label, "es"));
 }

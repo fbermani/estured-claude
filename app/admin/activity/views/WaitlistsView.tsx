@@ -53,8 +53,7 @@ export async function WaitlistsView() {
         Listas de espera
       </h1>
       <p className="text-sm" style={{ color: cmd.onSurfaceVariant }}>
-        {activeCount} en espera activa de {entries.length} registro(s) — docs/09 §19. Desde acá se puede sacar a
-        alguien de una lista activa.
+        {activeCount} en espera activa de {entries.length} registro(s). Desde acá se puede sacar a alguien de una lista activa.
       </p>
 
       <AdminCard className="mt-6 overflow-hidden">

@@ -572,6 +572,10 @@ Estado de cuenta; rol; perfil; relación familiar vinculada; relación con resid
 
 Ver usuario; suspender; restaurar; bloquear; resetear estado de cuenta; reenviar email de activación; revisar vínculo familiar; remover vínculo familiar si es legal u operativamente necesario; agregar nota interna.
 
+**Permisos de bloqueo (DR9, `docs/00` §31):** un `admin` solo bloquea/desbloquea usuarios no administrativos; bloquear a un `admin` o `superadmin` es solo del `superadmin`; nadie se bloquea a sí mismo. Se valida en el servidor (la interfaz solo oculta el botón y explica por qué).
+
+**Lista (DR9):** nombre (perfil de estudiante/familiar o residencia; si no hay, el email), rol(es) y estado como chips, filtros por rol y estado, búsqueda por email, total real y paginación de 25.
+
 Los admins no deben exponer ni descargar documentos sensibles salvo necesidad y autorización según rol (ver §18.2 — justificación obligatoria).
 
 ---
@@ -774,6 +778,8 @@ Creación de usuario; cambios de rol; cambios de vínculo familiar; **creación,
 ### 26.2 Campos del registro de auditoría
 
 ID; tipo de actor (usuario, admin, superadmin, sistema, webhook); ID del actor; tipo de entidad; ID de entidad; acción; valor anterior; valor nuevo; motivo; timestamp; IP/dispositivo cuando esté disponible; ID de solicitud relacionada si aplica.
+
+**Pantalla (DR9):** hoy vive en `/admin/activity?tab=logs`. Muestra el actor (email; "Sistema" para jobs), la entidad con nombre y enlace cuando hay detalle, una frase humana por acción (el código técnico solo en tooltip) y filtros por fecha, origen, acción, tipo de entidad y actor. Un test impide agregar una acción sin etiqueta.
 
 ### 26.3 Acciones admin
 

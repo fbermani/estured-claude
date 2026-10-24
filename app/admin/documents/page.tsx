@@ -1,3 +1,4 @@
+import { auditEntityLabel } from "@/lib/format/auditActionLabels";
 import { formatDate } from "@/lib/dates/format";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -156,7 +157,9 @@ export default async function AdminDocumentsPage({
                 {files.map((f) => {
                   const isSensitive = SENSITIVE_TYPES.has(f.document_type);
                   const entityLabel =
-                    f.related_entity_type === "residences" ? residenceNames.get(f.related_entity_id) ?? "Residencia" : f.related_entity_type;
+                    f.related_entity_type === "residences"
+                      ? residenceNames.get(f.related_entity_id) ?? "Residencia"
+                      : auditEntityLabel(f.related_entity_type);
                   return (
                     <tr key={f.id}>
                       <td className="whitespace-nowrap px-4 py-3 font-bold" style={{ color: cmd.onSurface }}>

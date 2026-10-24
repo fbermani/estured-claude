@@ -29,7 +29,7 @@ describe.skipIf(!hasCreds)("setUserBlockedStatus (integración)", () => {
   it("rechaza bloquear la propia cuenta", async () => {
     const result = await setUserBlockedStatus(admin, {
       actorUserId: adminActorId,
-      actorRole: "admin",
+      actorRoles: ["admin"],
       targetUserId: adminActorId,
       blocked: true,
       reason: "motivo de prueba",
@@ -37,10 +37,25 @@ describe.skipIf(!hasCreds)("setUserBlockedStatus (integración)", () => {
     expect(result.status).toBe("error");
   });
 
+  it("un admin no puede bloquear a un superadmin (DR9)", async () => {
+    const { data: sup } = await admin.from("user_roles").select("user_id").eq("role", "superadmin").limit(1).maybeSingle();
+    if (!sup) return; // el entorno no tiene superadmin: nada que probar
+    const result = await setUserBlockedStatus(admin, {
+      actorUserId: adminActorId,
+      actorRoles: ["admin"],
+      targetUserId: sup.user_id,
+      blocked: true,
+      reason: "motivo de prueba",
+    });
+    expect(result.status).toBe("error");
+    const { data: after } = await admin.from("users").select("is_blocked").eq("id", sup.user_id).single();
+    expect(after?.is_blocked).toBe(false);
+  });
+
   it("rechaza bloquear sin motivo", async () => {
     const result = await setUserBlockedStatus(admin, {
       actorUserId: adminActorId,
-      actorRole: "admin",
+      actorRoles: ["admin"],
       targetUserId,
       blocked: true,
       reason: "hi",
@@ -51,7 +66,7 @@ describe.skipIf(!hasCreds)("setUserBlockedStatus (integración)", () => {
   it("bloquea y luego desbloquea un usuario, auditando ambos pasos", async () => {
     const blockResult = await setUserBlockedStatus(admin, {
       actorUserId: adminActorId,
-      actorRole: "admin",
+      actorRoles: ["admin"],
       targetUserId,
       blocked: true,
       reason: "Prueba de integración — bloqueo temporal.",
@@ -64,7 +79,7 @@ describe.skipIf(!hasCreds)("setUserBlockedStatus (integración)", () => {
 
     const unblockResult = await setUserBlockedStatus(admin, {
       actorUserId: adminActorId,
-      actorRole: "admin",
+      actorRoles: ["admin"],
       targetUserId,
       blocked: false,
       reason: "",

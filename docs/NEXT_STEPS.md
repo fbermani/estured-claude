@@ -8,6 +8,12 @@
 
 ---
 
+## CICLO 72 (2026-10-24) — Trazabilidad y permisos del admin (DR9)
+
+Ver `MEMORY.md` Ciclo 72 y `docs/00` §31 (DR9). Log legible (actor, entidad, frases, filtros), permisos de bloqueo (solo `superadmin` bloquea admins), lista de usuarios con filtros y paginación, jerga fuera del menú. Sin migraciones. Pendiente: verificar como Superadmin, contador de Revocaciones en el sidebar (no hay patrón de contadores), gestión de roles de admins, reorganizar el menú (decisión de producto).
+
+---
+
 ## CICLO 71 (2026-10-24) — "Marcar pagado y confirmar reserva" endurecido (DR8)
 
 Ver `MEMORY.md` Ciclo 71 y `docs/00` §31 (DR8). El admin solo marca pagado con comprobante cargado o con el override "Confirmar sin comprobante" (motivo ≥ 10 + segunda confirmación), carga el monto realmente recibido (tolerancia 1 %), confirma con "Verifiqué el pago" y no puede hacerlo con el plazo vencido; update condicional contra la doble confirmación. ⚠ **Acción manual del dueño:** aplicar `db/migrations/0050_fee_payment_received_amount.sql` en dev y en producción (SQL Editor), en orden **0046, 0045, 0047, 0048, 0049, 0050** (aborta si falta la 0047). Hasta entonces todo funciona y el monto recibido/override quedan solo en el audit log. Luego en dev: sembrar un fee `pending_manual_payment` con comprobante cargado y probar el éxito de punta a punta (reserva confirmada, comprobante, factura) y el estado vencido + reapertura desde Actividad → Reservas.

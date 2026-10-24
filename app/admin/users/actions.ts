@@ -17,7 +17,7 @@ async function runToggle(targetUserId: string, blocked: boolean, reason: string)
 
   const result = await setUserBlockedStatus(admin, {
     actorUserId: sessionUser.id,
-    actorRole: sessionUser.primaryRole,
+    actorRoles: sessionUser.roles,
     targetUserId,
     blocked,
     reason,

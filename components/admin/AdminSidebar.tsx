@@ -197,8 +197,8 @@ export function AdminSidebar({ userEmail, roleLabel }: { userEmail: string; role
               <p className="text-lg font-extrabold tracking-tight" style={{ color: cmd.primary }}>
                 EstuRed Admin
               </p>
-              <p className="text-xs font-medium uppercase tracking-wide" style={{ color: cmd.outline }}>
-                System Controller
+              <p className="text-xs font-medium tracking-wide" style={{ color: cmd.outline }}>
+                Panel de administración
               </p>
             </div>
             <span
