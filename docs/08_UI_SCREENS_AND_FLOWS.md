@@ -665,23 +665,25 @@ Ruta base: `/students`
 
 ---
 
-### 6.9bis. Revocación del fee (pantalla nueva)
+### 6.9bis. Revocación del fee (pantalla nueva — actualizada por DR6)
 
 **Ruta:** `/students/revocation` — accesible desde el enlace "Botón de arrepentimiento" del footer.
 
-**Objetivo:** permitir que el estudiante o familiar pagador ejerza el derecho de revocación del fee dentro de los 10 días corridos desde el pago.
+**Objetivo:** permitir que el estudiante o familiar **pagador** ejerza el derecho de revocación del fee dentro de los 10 días corridos desde el pago, y ver en qué quedó.
 
 **Contenido:**
-- Reserva asociada (residencia, fecha de ingreso, fee pagado, fecha de pago).
-- Días restantes del plazo de 10 días corridos.
-- Consecuencias, explicadas antes de confirmar: la reserva se cancela; el comprobante se anula; **el fee no se reembolsa automáticamente** — EstuRed revisa el caso individualmente (pudiendo cotejar con la residencia) antes de resolver sobre el reembolso.
-- Aclaración de que la revocación no alcanza a los montos pagados directamente a la residencia.
+- Reserva asociada (residencia, fecha de pago del fee, días restantes del plazo de 10 días corridos).
+- Consecuencias, explicadas antes de confirmar: la reserva se cancela; el comprobante se anula; **EstuRed te reintegra el fee (el 5%) después de una revisión del equipo** (no es automático); lo que pagaste directamente a la residencia **no lo reintegra EstuRed**: se acuerda con la residencia.
 - Campo opcional de motivo.
-- Checkbox de aceptación de las consecuencias.
+- **Un solo checkbox** de entendimiento de esas consecuencias.
+- Estado de cada revocación ya ejercida: **en revisión**; **reintegrada** (con la fecha del reintegro); **denegada** (con el mensaje del equipo solo si el admin lo escribió; nunca el motivo interno).
+- Quien ve la reserva pero no puede revocarla (familiar vinculado que no es el pagador) no ve el botón: ve el aviso de que solo el estudiante o quien pagó el fee puede ejercer el derecho.
 
 **CTA:** "Ejercer revocación" — con confirmación explícita.
 
-**Estados:** sin reservas revocables; dentro de plazo; fuera de plazo (mensaje claro, sin botón); revocación registrada — en revisión por EstuRed.
+**Estados:** sin reservas revocables; dentro de plazo; fuera de plazo (mensaje claro, sin botón); revocación en revisión; reintegrada; denegada; sin permiso para revocar (solo lectura).
+
+> **Texto legal pendiente de revisión por un asesor legal** (DR6, lista en `docs/00` §31): el copy de esta pantalla es un borrador de producto; no se rotula como "borrador" en la UI, se registra en `LEGAL_REVIEW_PENDING` (`lib/revocations/copy.ts`).
 
 ### 6.10. Lista de espera
 
@@ -1172,6 +1174,21 @@ Sin cambios de fondo.
 
 ---
 
+
+### 8.10bis. Revocaciones del fee — "Resolver revocación" (admin, DR6)
+
+**Ruta:** `/admin/activity?tab=revocations` (`/admin/revocations` redirige). Contador "Revocaciones sin resolver" en el dashboard admin (con la antigüedad de la más vieja), que enlaza acá.
+
+**Lista:** estudiante (nombre corto y quién la pidió: estudiante o familiar), residencia, monto del fee (ARS, con referencia en USD), fecha de pago, fecha de revocación, **plazo de 10 días corridos** (día N de 10, dentro o fuera de plazo, hasta qué fecha corría), antigüedad sin resolver y estado: **Pendiente / Reintegrada / Denegada**.
+
+**Resolver (solo pendientes):** formulario con el cálculo de los 10 días a la vista, y dos acciones.
+- **Reintegrar fee:** motivo obligatorio, mensaje opcional para el estudiante, medio, referencia, fecha y una **confirmación explícita** ("Confirmo que reintegré ARS X"). Aclara que el reintegro se hace por fuera de EstuRed y acá solo se registra.
+- **Denegar revocación:** motivo obligatorio; si está dentro de los 10 días, además exige marcar "hay una causa justificada". Aclara que la reserva no se restaura.
+- Un error de validación no borra lo escrito. Ante doble clic o resolución simultánea, la segunda falla con un mensaje claro y no cambia nada.
+- Si la migración 0049 no está aplicada, la lista se ve en modo lectura con un aviso y sin formulario.
+
+**Estados:** sin revocaciones; pendiente; reintegrada; denegada; migración pendiente.
+
 ### 8.11. Facturas fiscales (pantalla nueva)
 
 **Ruta:** `/admin/invoices`
@@ -1306,7 +1323,7 @@ Texto exacto (ver sección 2.8).
 
 ### 9.10. Modal de revocación del fee (nuevo)
 
-Ver sección 6.9bis. Debe mostrar: consecuencias (cancelación de reserva, anulación de comprobante, sin reembolso automático — revisión admin), plazo restante, alcance limitado al fee EstuRed, checkbox de aceptación y confirmación explícita final.
+Ver sección 6.9bis. Debe mostrar: consecuencias (cancelación de reserva, anulación de comprobante, reintegro del fee previa revisión del equipo — nunca automático), plazo restante, alcance limitado al fee EstuRed (lo pagado a la residencia se acuerda con ella), un único checkbox de entendimiento y confirmación explícita final.
 
 ---
 

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CONTACT_EMAIL } from "@/lib/constants/contact";
+import { REVOCATION_TERMS_PARAGRAPHS } from "@/lib/revocations/copy";
 
 export const metadata: Metadata = {
   title: "Términos y condiciones",
@@ -237,17 +238,13 @@ const sections: Section[] = [
   {
     title: "17. Reembolso del fee y derecho de revocación",
     paras: [
-      "El fee EstuRed no es reembolsable si el estudiante cancela por decisión propia, no se presenta, decide no continuar o incumple los pasos necesarios para sostener la reserva.",
+      "El fee EstuRed no es reembolsable si el estudiante cancela por decisión propia, no se presenta, decide no continuar o incumple los pasos necesarios para sostener la reserva, salvo el derecho de revocación descripto más abajo.",
       "El fee puede ser evaluado para reintegro si la cancelación, el incumplimiento o la falta sustancial fuera atribuible a la residencia y luego de la revisión de EstuRed, sujeto a la normativa aplicable. EstuRed puede solicitar evidencia, contactar a las partes y evaluar el caso antes de resolver.",
       "EstuRed no reembolsa ni es responsable por montos que el estudiante o el familiar hayan pagado directamente a la residencia, bajo ninguna circunstancia.",
     ],
     sub: {
       title: "Derecho de revocación del fee EstuRed",
-      paras: [
-        "Podés ejercer tu derecho de revocación sobre el fee EstuRed dentro de los 10 días corridos posteriores a su pago, mediante el enlace «Botón de arrepentimiento» disponible en el pie de página de la plataforma.",
-        "Al ejercerlo, tu reserva queda cancelada y el comprobante emitido se anula. El fee EstuRed no se reembolsa automáticamente: EstuRed revisa tu caso individualmente, pudiendo cotejar con la residencia para evaluar situaciones de uso indebido, antes de resolver si corresponde un reembolso.",
-        "Este derecho aplica únicamente al fee EstuRed. No alcanza a los montos que hayas pagado directamente a la residencia.",
-      ],
+      paras: [...REVOCATION_TERMS_PARAGRAPHS],
     },
   },
   {

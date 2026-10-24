@@ -903,13 +903,15 @@ No bloquean la construcción de la estructura del panel admin, pero deben resolv
 
 Estas decisiones también están registradas en `00_DECISION_LOG.md` §28.1.
 
-## 35. Revocaciones del fee (admin) — sección nueva
+## 35. Revocaciones del fee (admin) — sección nueva (actualizada por DR6)
 
-Las revocaciones ejercidas desde el enlace del footer (`07_API_SPEC.md` §18.6) abren automáticamente un `support_case` interno de categoría revocación. El admin debe:
+Las revocaciones ejercidas desde el enlace del footer (`07_API_SPEC.md` §18.6) abren automáticamente un `support_case` interno (`topic = 'fee_revocation'`, sin residencia: la residencia nunca lo ve). El admin resuelve desde **Actividad → Revocaciones** (`/admin/activity?tab=revocations`; ver `08_UI_SCREENS_AND_FLOWS.md` §8.10bis). Debe poder:
 
-- ver las revocaciones pendientes de revisión (dashboard y `/admin/support-cases`);
+- ver las revocaciones pendientes de resolver (contador "Revocaciones sin resolver" del dashboard, con la antigüedad de la más vieja, y la pestaña; también el caso en `/admin/support-cases`);
+- ver el **plazo de 10 días corridos** (cálculo desde `paid_at` hasta el momento de la revocación) y la antigüedad del caso;
 - evaluar patrones de bypass (p. ej., revocar el fee tras usar el contacto para acordar por fuera);
 - poder cotejar con la residencia antes de resolver;
-- resolver manualmente el reembolso (o su denegación) con motivo obligatorio y auditoría, desde `/admin/payments`.
+- **resolver con motivo obligatorio y auditoría** (DR6, `docs/00` §31): **"Reintegrar fee"** (fee completo, el 5%; registra fecha, medio y referencia del reintegro) o **"Denegar revocación"** (solo fuera de los 10 días o con causa justificada marcada). El reintegro lo hace EstuRed manualmente por fuera de la plataforma (transferencia); acá solo se registra, no hay integración de pagos;
+- escribir, opcionalmente, un **mensaje para el estudiante** (campo aparte del motivo interno, que no se le muestra nunca).
 
-El fee permanece `paid` hasta la resolución; el reembolso nunca es automático.
+El fee permanece `paid` hasta la resolución; el reintegro nunca es automático. Al resolver se cierra el caso de Soporte y se avisa in-app al estudiante y al pagador. Lo pagado a la residencia queda fuera: EstuRed no lo reintegra.

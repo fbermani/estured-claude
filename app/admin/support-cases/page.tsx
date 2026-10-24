@@ -34,9 +34,14 @@ const OPEN_STATUSES = [
   "in_progress",
 ];
 
+/** Caso "revocación del fee" (migración 0049, DR6): se abre solo al revocar; se resuelve desde Actividad → Revocaciones. */
+function isRevocationCase(c: { topic?: string | null }): boolean {
+  return c.topic === "fee_revocation";
+}
+
 /** Caso "problema con el pago del fee" (migración 0040): dirigido a EstuRed, sin residencia. */
-function isFeePaymentCase(c: { residences: unknown; related_entity_type: string | null }): boolean {
-  return !c.residences && c.related_entity_type === "reservations";
+function isFeePaymentCase(c: { residences: unknown; related_entity_type: string | null; topic?: string | null }): boolean {
+  return !isRevocationCase(c) && !c.residences && c.related_entity_type === "reservations";
 }
 
 interface CaseRow {
@@ -49,6 +54,7 @@ interface CaseRow {
   opened_by_role: string;
   related_entity_type: string | null;
   related_entity_id: string | null;
+  topic?: string | null;
   users: { email: string } | null;
   residences: { name: string; public_area: string } | null;
 }
@@ -67,7 +73,7 @@ export default async function AdminSupportCasesPage({
         await admin
           .from("support_cases")
           .select(
-            "id, status, description, created_at, resolution_outcome, resolution_notes, opened_by_role, related_entity_type, related_entity_id, users!support_cases_opened_by_user_id_fkey(email), residences(name, public_area)",
+            "id, status, description, created_at, resolution_outcome, resolution_notes, opened_by_role, related_entity_type, related_entity_id, topic, users!support_cases_opened_by_user_id_fkey(email), residences(name, public_area)",
           )
           .order("created_at", { ascending: false })
       ).data as unknown as CaseRow[]) ?? [])
@@ -124,7 +130,7 @@ export default async function AdminSupportCasesPage({
                       </span>
                     </div>
                     <p className="mt-1.5 text-sm font-bold" style={{ color: cmd.onSurface }}>
-                      {isFeePaymentCase(c) ? "Pago del fee EstuRed" : c.residences?.name}
+                      {isRevocationCase(c) ? "Revocación del fee EstuRed" : isFeePaymentCase(c) ? "Pago del fee EstuRed" : c.residences?.name}
                     </p>
                     <p className="truncate text-xs" style={{ color: cmd.outline }}>
                       {c.users?.email}
@@ -143,9 +149,11 @@ export default async function AdminSupportCasesPage({
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
-                  {isFeePaymentCase(detail) && detail.related_entity_id
-                    ? `Pago del fee EstuRed · referencia ${reservationReference(detail.related_entity_id)}`
-                    : `${detail.residences?.name} · ${detail.residences?.public_area}`}
+                  {isRevocationCase(detail) && detail.related_entity_id
+                    ? `Revocación del fee EstuRed · referencia ${reservationReference(detail.related_entity_id)}`
+                    : isFeePaymentCase(detail) && detail.related_entity_id
+                      ? `Pago del fee EstuRed · referencia ${reservationReference(detail.related_entity_id)}`
+                      : `${detail.residences?.name} · ${detail.residences?.public_area}`}
                 </p>
                 <p className="text-sm" style={{ color: cmd.onSurfaceVariant }}>
                   Abierto por {detail.users?.email} ({detail.opened_by_role})
@@ -189,7 +197,16 @@ export default async function AdminSupportCasesPage({
               </div>
             )}
 
-            <UpdateCaseForm supportCaseId={detail.id} currentStatus={detail.status} />
+            {isRevocationCase(detail) && (
+              <p className="mt-4 rounded-lg p-3 text-sm" style={{ backgroundColor: cmd.surfaceContainerLow, color: cmd.onSurfaceVariant }}>
+                Este caso se cierra solo al resolver la revocación.{" "}
+                <Link href="/admin/activity?tab=revocations" className="font-bold hover:underline" style={{ color: cmd.primary }}>
+                  Ir a Revocaciones →
+                </Link>
+              </p>
+            )}
+
+            {!isRevocationCase(detail) && <UpdateCaseForm supportCaseId={detail.id} currentStatus={detail.status} />}
           </AdminCard>
         ) : (
           <p className="text-sm" style={{ color: cmd.outline }}>

@@ -8,6 +8,18 @@
 
 ---
 
+## CICLO 68 (2026-10-24) — "Resolver revocación" (DR6)
+
+Ver `MEMORY.md` Ciclo 68 y `docs/00` §31 (DR6). El admin reintegra el fee completo o deniega la revocación, siempre con motivo; el reintegro real es manual, por fuera de la plataforma. ⚠ **Acción manual del dueño:** aplicar `db/migrations/0049_revocation_resolution.sql` en dev y en producción (SQL Editor), en orden **0046, 0045, 0047, 0048, 0049** (la 0047 antes que la 0049). Luego en dev: `node --env-file=.env.local scripts/seed-revocation-states.mjs` y `MIGRATION_0049_APPLIED=1 npx vitest run lib/revocations/resolveFeeRevocationIntegration`, y probar en `/admin/activity?tab=revocations` (Admin operativo) la resolución de la revocación de Camila (restaurar o resembrar después).
+
+Ronda de revisión/seguridad aplicada (ver `MEMORY.md` Ciclo 68): la 0049 ahora aborta si la 0047 no está aplicada (aplicar siempre en orden), Soporte no permite cerrar a mano casos `fee_revocation`, revocar como familiar exige vínculo activo y avisa al estudiante, y fees en USD exigen reconocimiento. **Decisiones pendientes:** revocación del pagador sobre estudiante mayor de edad, plazo 240 h vs. día calendario, denegar con causa justificada, visibilidad del fee para la residencia, `refund_currency`.
+
+**Textos legales para el asesor** (borrador, en `lib/revocations/copy.ts` bajo `LEGAL_REVIEW_PENDING`): `/terms` §17; pantalla `/students/revocation`; nota y checkbox de la pantalla del fee y de renovaciones; avisos de resolución; helper "Reserva revocada por vos"; `docs/10` §15.1/§15.4; condiciones para denegar y plazo de resolución.
+
+Pendiente: decisión del dueño sobre el familiar pagador que puede revocar la reserva de una estudiante mayor (`GAPS.md`, para `seguridad`); aviso in-app a admins y a la residencia al revocar (no hay notificador genérico a admins); nota de crédito de la Factura C.
+
+---
+
 ## CICLO 67 (2026-10-24) — Estudiante y familiar: plata y plazo
 
 Ver `MEMORY.md` Ciclo 67. Sin migraciones. Pendiente: verificar en navegador el CTA del familiar pagador; decisión legal/de producto sobre reintegros (hoy el copy es neutro: "escribinos a Soporte"); aviso in-app al estudiante en hitos del fee.

@@ -15,6 +15,11 @@ describe("notificationHref", () => {
     expect(h("renewal_requests")).toBe("/students/renewals");
   });
 
+  it("revocación del fee (DR6): el estudiante va a su pantalla de revocación y el admin a la pestaña", () => {
+    expect(notificationHref({ entityType: "fee_revocations", entityId: ID, area: "student" })).toBe("/students/revocation");
+    expect(notificationHref({ entityType: "fee_revocations", entityId: ID, area: "admin" })).toBe("/admin/activity?tab=revocations");
+  });
+
   it("propuestas del familiar (DR4): el estudiante va a sus propuestas y el familiar a su inicio", () => {
     expect(notificationHref({ entityType: "family_application_proposals", entityId: ID, area: "student" })).toBe("/students/family-proposals");
     expect(notificationHref({ entityType: "family_application_proposals", entityId: ID, area: "student", isFamily: true })).toBe("/students/dashboard");

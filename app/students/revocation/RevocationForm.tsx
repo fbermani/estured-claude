@@ -5,6 +5,11 @@ import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { revokeEsturedFeeAction, type RevokeFeeState } from "@/app/students/revocation/actions";
+import {
+  REVOCATION_CONSEQUENCES,
+  REVOCATION_SUBMITTED_MESSAGE,
+  REVOCATION_UNDERSTANDING_LABEL,
+} from "@/lib/revocations/copy";
 
 const initialState: RevokeFeeState = { status: "idle" };
 
@@ -21,13 +26,13 @@ export function RevocationForm({
   const [state, formAction, isPending] = useActionState(action, initialState);
   const [confirmed, setConfirmed] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  // Controlado: ante un error de validación el formulario se reinicia y el motivo escrito no se pierde.
+  const [reason, setReason] = useState("");
 
   if (state.status === "saved") {
     return (
       <Card className="mt-4 border-line-2 bg-mint p-5">
-        <p className="text-sm font-medium text-forest-700">
-          Revocación registrada — en revisión por EstuRed. Te vamos a contactar sobre el estado del reembolso.
-        </p>
+        <p className="text-sm font-medium text-forest-700">{REVOCATION_SUBMITTED_MESSAGE}</p>
       </Card>
     );
   }
@@ -49,10 +54,9 @@ export function RevocationForm({
         Confirmá la revocación del fee de {residenceName}
       </p>
       <ul className="list-disc space-y-1 pl-5 text-xs text-ink-soft">
-        <li>La reserva se cancela.</li>
-        <li>El comprobante se anula.</li>
-        <li>El fee EstuRed <strong>no se reembolsa automáticamente</strong> — EstuRed revisa el caso individualmente.</li>
-        <li>Esto no alcanza a montos pagados directamente a la residencia.</li>
+        {REVOCATION_CONSEQUENCES.map((line) => (
+          <li key={line}>{line}</li>
+        ))}
       </ul>
 
       <div>
@@ -63,6 +67,9 @@ export function RevocationForm({
           id={`reason-${reservationId}`}
           name="reason"
           rows={2}
+          maxLength={1000}
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
           className="mt-1.5 w-full rounded-field border border-sand-300 bg-surface px-3 py-2 text-sm"
         />
       </div>
@@ -76,12 +83,12 @@ export function RevocationForm({
       <label className="flex items-start gap-3 text-sm text-ink">
         <input
           type="checkbox"
-          name="acknowledge_no_automatic_refund"
+          name="acknowledge_understanding"
           checked={confirmed}
           onChange={(e) => setConfirmed(e.target.checked)}
           className="mt-0.5 h-4 w-4 accent-forest"
         />
-        Entiendo las consecuencias y que el fee no se reembolsa automáticamente.
+        {REVOCATION_UNDERSTANDING_LABEL}
       </label>
 
       <div className="flex gap-3">

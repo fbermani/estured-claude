@@ -1538,28 +1538,52 @@ Body:
 ```json
 {
   "reason": "string|null",
-  "acknowledge_no_automatic_refund": true,
+  "acknowledge_understanding": true,
   "idempotency_key": "string"
 }
 ```
 
+(DR6: el campo era `acknowledge_no_automatic_refund`; el checkbox ahora confirma que el estudiante entiende qué pasa al revocar — reserva cancelada, comprobante anulado, reintegro del fee tras la revisión del equipo, lo pagado a la residencia se acuerda con ella.)
+
 Validaciones:
 - el fee de la reserva debe estar `paid`;
 - deben haber transcurrido **menos de 10 días corridos** desde `paid_at` (fuera de plazo → error `REVOCATION_WINDOW_EXPIRED`);
-- `acknowledge_no_automatic_refund = true` obligatorio.
+- `acknowledge_understanding = true` obligatorio.
 
 Transiciones:
 - `reservation.status = cancelled_by_student` con `cancellation_reason_code = student_revocation_right`;
 - `booking_receipt.status = voided`;
-- el fee **permanece `paid`** — no hay transición automática a `refunded`;
-- se abre un `support_case` interno (categoría revocación) para la revisión admin de posibles patrones de bypass.
+- el fee **permanece `paid`** — no hay transición automática a `refunded` (`docs/04` §8.9);
+- se abre un `support_case` interno (`topic = 'fee_revocation'`, sin residencia) para la revisión admin, en modo best-effort (si falla, la revocación igual queda registrada).
 
 Efectos secundarios:
-- notificar a la residencia y al admin;
-- registrar fecha/hora de la solicitud de revocación;
-- auditar la operación completa.
+- registrar fecha/hora de la solicitud de revocación (`reservations.cancelled_at`);
+- auditar la operación completa;
+- notificar a la residencia y al admin: **pendiente** (no existe un notificador genérico a admins; hoy el admin ve la revocación en el contador del dashboard, en Actividad → Revocaciones y en Soporte).
 
-El eventual reembolso es una decisión admin posterior (vía `/api/v1/admin/...` de pagos), nunca automática.
+El reintegro del fee es una decisión admin posterior (§18.6bis), nunca automática.
+
+### 18.6bis. Resolver una revocación del fee (admin) *(sección nueva, DR6)*
+
+**Server action** `resolveFeeRevocationAction` (panel Actividad → Revocaciones; no hay endpoint REST público).
+
+Roles: admin / superadmin.
+
+Entrada: `{ decision: "refunded" | "denied", internal_reason: string (10–1000), student_message?: string (≤1000), confirm_refund_amount_ars?: number, refund_method?: "bank_transfer" | "digital_wallet" | "other", refund_reference?: string (3–120), refunded_on?: date, justified_cause?: boolean }`.
+
+Validaciones (servidor, nunca solo en el cliente):
+- solo sobre una revocación pendiente (reserva `cancelled_by_student` + `student_revocation_right`, fee `paid`, sin resolución previa); la escritura es condicional por ese estado, así que una doble resolución o una carrera devuelve error y no cambia nada;
+- `refunded`: exige confirmar el monto exacto del fee en ARS, medio, referencia y fecha (no futura);
+- `denied`: si la revocación se registró **dentro de los 10 días corridos** de `paid_at`, exige `justified_cause = true`; fuera de plazo no.
+
+Transiciones:
+- `refunded`: `fee.status = refunded`, `refunded_at`, `refund_amount_ars`, `refund_method`, `refund_reference`, `revocation_resolution = refunded`;
+- `denied`: el fee sigue `paid`, `revocation_resolution = denied`;
+- en ambas: `revocation_resolved_at/by`, `revocation_internal_reason` (solo servidor) y `revocation_student_message` (visible para el estudiante); se cierra el `support_case` del tipo `fee_revocation` y se notifica in-app al estudiante y al pagador (sin el motivo interno).
+
+Auditoría: `estured_fee_refunded_after_revocation` / `estured_fee_revocation_denied`, con el motivo interno.
+
+El reintegro real (transferencia) se hace por fuera de la plataforma; esta acción solo lo registra.
 
 ---
 

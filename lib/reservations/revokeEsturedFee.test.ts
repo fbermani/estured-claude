@@ -210,17 +210,17 @@ describe.skipIf(!hasCreds)("revokeEsturedFee (integración)", () => {
     await admin.from("application_requests").delete().eq("id", fixture.applicationId);
   }
 
-  it("rechaza sin acknowledge_no_automatic_refund", async () => {
+  it("rechaza sin confirmar el entendimiento", async () => {
     const fixture = await createConfirmedReservationWithFee(new Date().toISOString());
     try {
       const result = await revokeEsturedFee(admin, {
         reservationId: fixture.reservationId,
         actorUserId: studentUserId,
         reason: null,
-        acknowledgeNoAutomaticRefund: false,
+        acknowledgeUnderstanding: false,
       });
       expect(result.ok).toBe(false);
-      if (!result.ok) expect(result.error).toMatch(/reembolso automático/i);
+      if (!result.ok) expect(result.error).toMatch(/entendiste/i);
     } finally {
       await cleanupFixture(fixture);
     }
@@ -233,7 +233,7 @@ describe.skipIf(!hasCreds)("revokeEsturedFee (integración)", () => {
         reservationId: fixture.reservationId,
         actorUserId: ownerId, // dueño de la residencia, no de la reserva
         reason: null,
-        acknowledgeNoAutomaticRefund: true,
+        acknowledgeUnderstanding: true,
       });
       expect(result.ok).toBe(false);
       if (!result.ok) expect(result.error).toMatch(/no te pertenece/i);
@@ -251,7 +251,7 @@ describe.skipIf(!hasCreds)("revokeEsturedFee (integración)", () => {
         reservationId: fixture.reservationId,
         actorUserId: studentUserId,
         reason: null,
-        acknowledgeNoAutomaticRefund: true,
+        acknowledgeUnderstanding: true,
       });
       expect(result.ok).toBe(false);
       if (!result.ok) expect(result.error).toMatch(/plazo de 10 días/i);
@@ -267,7 +267,7 @@ describe.skipIf(!hasCreds)("revokeEsturedFee (integración)", () => {
         reservationId: fixture.reservationId,
         actorUserId: studentUserId,
         reason: "Cambié de planes.",
-        acknowledgeNoAutomaticRefund: true,
+        acknowledgeUnderstanding: true,
       });
       expect(result.ok).toBe(true);
 

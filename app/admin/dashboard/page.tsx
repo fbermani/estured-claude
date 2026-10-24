@@ -5,6 +5,8 @@ import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
 import { cmd } from "@/components/admin/ui/tokens";
 import { getStaleAvailabilityByResidence } from "@/lib/residences/staleAvailability";
+import { loadRevocationRecords, summarizePendingRevocations } from "@/lib/revocations/loadRevocations";
+import { pluralize } from "@/lib/format/plural";
 import { auditActionPhrase, auditActorLabel } from "@/lib/format/auditActionLabels";
 import { requireAdmin } from "@/lib/auth/requireAdmin";
 
@@ -35,6 +37,8 @@ export default async function AdminDashboardPage() {
     pendingProfileEdits: 0,
     unreviewedTariffAlerts: 0,
     staleAvailabilityResidences: 0,
+    pendingRevocations: 0,
+    oldestRevocationAgeDays: null as number | null,
   };
   let recentActivity: { id: string; action: string; created_at: string; actor_role: string }[] = [];
 
@@ -69,7 +73,16 @@ export default async function AdminDashboardPage() {
       admin.from("tariff_change_logs").select("*", { count: "exact", head: true }).eq("alert_triggered", true).eq("admin_review_status", "new"),
     ]);
     const staleAvailability = await getStaleAvailabilityByResidence(admin);
+    // Revocaciones sin resolver (DR6): nunca rompe el dashboard si la lectura falla.
+    let revocationsSummary: { count: number; oldestAgeDays: number | null } = { count: 0, oldestAgeDays: null };
+    try {
+      revocationsSummary = summarizePendingRevocations((await loadRevocationRecords(admin)).records);
+    } catch (e) {
+      console.error("[admin-dashboard] revocations summary failed:", e);
+    }
     stats = {
+      pendingRevocations: revocationsSummary.count,
+      oldestRevocationAgeDays: revocationsSummary.oldestAgeDays,
       staleAvailabilityResidences: staleAvailability.size,
       activeResidences: active.count ?? 0,
       pendingValidations: pending.count ?? 0,
@@ -86,7 +99,7 @@ export default async function AdminDashboardPage() {
     recentActivity = activity.data ?? [];
   }
 
-  const metrics: { label: string; value: string | number; tone: "neutral" | "amber" | "emerald"; href?: string }[] = [
+  const metrics: { label: string; value: string | number; tone: "neutral" | "amber" | "emerald"; href?: string; note?: string }[] = [
     { label: "Residencias activas", value: stats.activeResidences, tone: "neutral" as const },
     {
       label: "Validaciones pendientes",
@@ -98,6 +111,16 @@ export default async function AdminDashboardPage() {
       value: stats.staleAvailabilityResidences,
       tone: stats.staleAvailabilityResidences > 0 ? ("amber" as const) : ("emerald" as const),
       href: "/admin/residences?filter=stale-availability",
+    },
+    {
+      label: "Revocaciones sin resolver",
+      value: stats.pendingRevocations,
+      tone: stats.pendingRevocations > 0 ? ("amber" as const) : ("emerald" as const),
+      href: "/admin/activity?tab=revocations",
+      note:
+        stats.oldestRevocationAgeDays !== null
+          ? `La más vieja espera hace ${pluralize(stats.oldestRevocationAgeDays, "día", "días")}.`
+          : undefined,
     },
     { label: "Usuarios registrados", value: stats.totalUsers, tone: "neutral" as const },
     {
@@ -151,6 +174,11 @@ export default async function AdminDashboardPage() {
             <p className="mt-2 text-[28px] font-bold" style={{ color: cmd.onSurface }}>
               {m.value}
             </p>
+            {m.note && (
+              <p className="mt-1 text-xs" style={{ color: cmd.outline }}>
+                {m.note}
+              </p>
+            )}
             {m.tone === "amber" && <AdminBadge tone="amber">Requiere acción</AdminBadge>}
             {m.href && (
               <Link

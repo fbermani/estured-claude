@@ -1014,7 +1014,7 @@ Si el proveedor informa un contracargo sobre un fee ya pagado:
 
 ### 13.11 Reembolso del fee
 
-El fee no es reembolsable si el estudiante se arrepiente, cancela por decisión propia, no se presenta o no continúa.
+El fee no es reembolsable si el estudiante cancela por decisión propia, no se presenta o no continúa. **Excepción (DR6, `docs/00` §31):** el derecho de revocación de 10 días corridos (§13.11bis), que sí da lugar a reintegro del fee completo.
 
 El fee puede ser evaluado para reintegro si: la cancelación es atribuible a la residencia, hay incumplimiento sustancial verificado por EstuRed, o corresponde según normativa aplicable.
 
@@ -1030,14 +1030,15 @@ Al ejercerse:
 
 - la reserva pasa a `cancelled_by_student` con `reason_code = student_revocation_right`;
 - el comprobante emitido se anula (`voided`);
-- el fee EstuRed **no se reembolsa automáticamente**;
-- se abre revisión admin obligatoria antes de cualquier reembolso;
-- admin evalúa el caso individualmente para detectar patrones de bypass (por ejemplo, revocar el fee después de haber usado el contacto para acordar directamente con la residencia);
-- admin puede cotejar con la residencia antes de resolver.
+- el fee EstuRed **no se reintegra automáticamente**: permanece `paid` hasta que el admin resuelva;
+- se abre un caso de Soporte interno (sin residencia) y una revisión admin obligatoria antes de cualquier reintegro;
+- **DR6 (`docs/00` §31): si la revocación se ejerció dentro de los 10 días corridos del pago, EstuRed reintegra el fee completo (el 5%)**, previa resolución del admin con **motivo obligatorio** (10 a 1000 caracteres) y auditoría;
+- el admin puede **denegar** solo si la revocación está fuera de los 10 días o hay una causa justificada (p. ej., uso del contacto para acordar por fuera de la plataforma), siempre con motivo; denegar no restaura la reserva;
+- el admin puede cotejar con la residencia antes de resolver.
 
-El reembolso del fee, si corresponde, es una decisión admin, no automática.
+El reintegro lo ejecuta EstuRed **manualmente, por fuera de la plataforma** (p. ej. transferencia): el admin registra fecha, medio y referencia. No hay integración de pagos automática. El estudiante ve el estado de su revocación (en revisión / reintegrada / denegada).
 
-Este mecanismo aplica exclusivamente al fee EstuRed. **EstuRed no reembolsa ni gestiona reembolsos de montos pagados directamente a la residencia** bajo ninguna circunstancia — esa relación y sus condiciones de devolución son responsabilidad exclusiva de la residencia y el estudiante/familiar.
+Este mecanismo aplica exclusivamente al fee EstuRed. **EstuRed no reembolsa ni gestiona reembolsos de montos pagados directamente a la residencia** bajo ninguna circunstancia — esa relación y sus condiciones de devolución son responsabilidad exclusiva de la residencia y el estudiante/familiar; se acuerdan con la residencia directamente.
 
 ### 13.12 Facturación del fee — DECISIÓN CONFIRMADA
 
@@ -1573,7 +1574,7 @@ Antes de lanzamiento, QA debe probar:
 - usuario cambia visibilidad de datos → cambio reflejado de inmediato;
 - solicitud iniciada por familiar → contacto de residencia va al familiar (no al estudiante);
 - estudiante menor de edad con solicitud iniciada por él mismo → contacto de la residencia va al familiar vinculado;
-- estudiante ejerce revocación dentro de los 10 días → reserva cancelada (`student_revocation_right`), comprobante anulado, fee queda `paid` pendiente de revisión admin;
+- estudiante ejerce revocación dentro de los 10 días → reserva cancelada (`student_revocation_right`), comprobante anulado, fee queda `paid` pendiente de revisión admin, caso de Soporte abierto; el admin reintegra el fee completo (`refunded`, con fecha/medio/referencia) o lo deniega con motivo (DR6);
 - estudiante intenta revocar fuera de los 10 días → bloqueado con mensaje claro;
 - fee con chargeback → alerta admin; reserva y comprobante no cambian automáticamente;
 - fee vence sin ningún intento de pago → reserva pasa a `expired_fee_unpaid`.
@@ -1584,7 +1585,7 @@ Antes de lanzamiento, QA debe probar:
 
 Los siguientes puntos no bloquean la construcción pero deben resolverse antes del lanzamiento público:
 
-1. Revisión legal de fee no reembolsable y botón de arrepentimiento (incluyendo la alternativa "reembolso por defecto salvo servicio sustancialmente prestado").
+1. Revisión legal de fee no reembolsable y botón de arrepentimiento. DR6 (`docs/00` §31) ya fijó el reintegro del fee completo dentro de los 10 días, previa revisión del admin: la revisión legal valida los textos visibles al estudiante (lista en DR6) y la suficiencia de las condiciones para denegar.
 2. Revisión legal de datos personales y menores de edad.
 3. Redacción final de términos y condiciones (con revisión profesional).
 4. Redacción final del acuerdo para residencias (con revisión profesional).

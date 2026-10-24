@@ -25,8 +25,8 @@ export async function revokeEsturedFeeAction(
   const result = await revokeEsturedFee(admin, {
     reservationId,
     actorUserId: sessionUser.id,
-    reason: String(formData.get("reason") ?? "").trim() || null,
-    acknowledgeNoAutomaticRefund: formData.get("acknowledge_no_automatic_refund") === "on",
+    reason: String(formData.get("reason") ?? "").trim().slice(0, 1000) || null,
+    acknowledgeUnderstanding: formData.get("acknowledge_understanding") === "on",
   });
   if (!result.ok) return { status: "error", message: result.error };
 

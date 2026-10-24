@@ -6,6 +6,25 @@
 
 ---
 
+## [ABIERTO — riesgo para `seguridad`, decisión del dueño pendiente] El familiar pagador puede revocar la reserva de una estudiante mayor de edad (2026-10-24, Ciclo 68)
+
+**Qué es:** `revokeEsturedFee` (`lib/reservations/revokeEsturedFee.ts`) acepta como actor al estudiante dueño de la reserva **o** al `payer_user_id` del fee (`docs/05` y `docs/07` §18.6: "estudiante dueño; familiar pagador"). Si el pagador es un familiar y la estudiante es mayor de edad, el familiar puede cancelar su reserva y anular su comprobante sin que ella lo decida (y el reintegro del fee vuelve a quien lo pagó). DR4 le da al familiar "seguir, proponer y pagar", no cancelar. **No se cambió** en el Ciclo 68 (decisión del dueño): solo se ocultó el botón para el familiar que no es pagador (el servidor ya lo rechazaba) y la acción quedó con UPDATE condicional.
+
+**Qué falta decidir:** (a) ¿puede el pagador revocar siempre, o solo si la estudiante es menor, o con aviso/confirmación de ella? (b) ¿se avisa al estudiante cuando un familiar revoca? Hoy no hay aviso. **Para el agente `seguridad`:** revisar este camino junto con `setFeePayer` y la policy de `reservations` para familiares.
+
+**Otros pendientes del mismo ciclo (no bloquean):** aviso in-app a admins y a la residencia al revocar (no existe un notificador genérico a admins; la visibilidad es el contador del dashboard y la pestaña Revocaciones); nota de crédito de la Factura C si el fee ya estaba facturado (se gestiona por fuera de la plataforma); denegar no restaura la reserva ni el comprobante; las revocaciones anteriores a la 0049 no tienen caso de Soporte (el seed `seed-revocation-states.mjs` lo crea en dev); textos legales al estudiante pendientes de un asesor legal (lista en `docs/00` §31, DR6).
+
+**Ciclo 68 — pendientes de decisión (ronda de revisión/seguridad):**
+(i) ¿Puede el familiar pagador revocar la reserva de una estudiante **mayor de edad**? Seguridad recomienda rechazarlo o exigir confirmación de la estudiante; `docs/05` dice "✓ pagador" y DR4 limita al familiar a seguir/proponer/pagar. Hoy el servidor exige además **vínculo `family_links.status='active'`** y avisa siempre al estudiante, pero NO restringe por edad.
+(ii) El plazo de 10 días como 240 h exactas desde `paid_at` vs. día calendario (art. 6 CCyC; Ley 24.240 art. 34): asesor legal.
+(iii) "Denegar dentro de plazo con causa justificada" vs. derecho irrenunciable: asesor legal.
+(iv) Que la residencia pueda ver `status`/`refunded_at` del fee (migración 0047): decisión de privacidad pendiente.
+(v) Falta `refund_currency`: un fee pagado en USD se reintegra registrado en ARS (la UI del admin advierte y exige un checkbox de reconocimiento; no hay moneda de reintegro en el modelo).
+Textos legales para el asesor (suma de esta ronda): intro y consecuencias de `/students/revocation` ahora dicen "salvo que la revisión detecte un uso indebido" (coherente con `/terms` §17); aviso in-app al estudiante cuando revoca un familiar ("{nombre} revocó el fee de tu reserva en {residencia}").
+
+
+---
+
 ## [ABIERTO — decisiones D1–D11 documentadas, código pendiente] Fase 2 de la auditoría 2026-10-20
 
 **Qué es:** el dueño resolvió D1–D11 (`docs/00` §31; fuente `docs/audits/PLAN_ACCION_2026-10-20.md`) y los docs de producto ya reflejan cada una (protocolo `docs/13` §5: doc primero). Lo que **todavía no está implementado** (no confundir con "decidido"): D2 pantalla de pago con datos de transferencia + config admin de cobro (H02), D3 fuente única de disponibilidad por tipo de habitación (H03), D4 control de visibilidad del estudiante + consentimiento + menores ocultos (H04), D6 vencimiento de `contact_established` (H06), D7 campo "pago inicial para reservar" (H08, requiere migración), D8 quitar la frontera freemium de sidebar/"Tu plan"/`/for-residences` (H09), D9 FAQ simple con pregunta libre (H12), D10 reset de contraseña + `/terms` (H13/H19), D11 alertas de estadía vencida (H18). Cada ítem está en la tabla de Fase 2 del plan de acción; el estado vivo está en `MEMORY.md` §14.

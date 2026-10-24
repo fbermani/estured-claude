@@ -609,6 +609,7 @@ Rol técnico para automatizaciones y jobs.
 | Marcar pago recibido residencia | ✗ | ✗ | ✗ | ✓ | Si tiene permiso | Excepcional | Excepcional |
 | Pagar fee EstuRed | ✗ | ✓ | ✓ | ✗ | ✗ | Manual | Manual |
 | Ejercer revocación del fee (10 días) | ✗ | ✓ | ✓ pagador | ✗ | ✗ | Gestiona revisión | Gestiona revisión |
+| Resolver una revocación (reintegrar fee / denegar, con motivo obligatorio — DR6) | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✓ |
 | Emitir comprobante | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✓ |
 | Descargar comprobante | ✗ | ✓ | ✓ | Vinculado | Si tiene permiso | ✓ | ✓ |
 | Crear residencia | ✗ | ✗ | ✗ | ✓ | ✗ | ✓ | ✓ |
@@ -1199,7 +1200,7 @@ Deben pedir confirmación explícita antes de ejecutarse:
 29. Admin suspende residencia → auditado con motivo.
 30. Estudiante menor queda sin familiar activo → acciones sensibles bloqueadas, admin notificado.
 31. Estudiante menor envía solicitud propia → el contacto de la residencia se dirige al familiar vinculado (`contact_target = family_member`).
-32. Estudiante o familiar pagador ejerce revocación dentro de los 10 días → reserva cancelada, comprobante anulado, fee queda `paid` pendiente de revisión admin.
+32. Estudiante o familiar pagador ejerce revocación dentro de los 10 días → reserva cancelada, comprobante anulado, fee queda `paid` pendiente de revisión admin; el admin reintegra el fee completo o lo deniega con motivo (DR6). Un familiar vinculado que no es el pagador no puede revocar (no ve el botón y el servidor lo rechaza).
 33. Familiar intenta cancelar una solicitud que originó → bloqueado (solo el estudiante o el admin cancelan).
 
 ---

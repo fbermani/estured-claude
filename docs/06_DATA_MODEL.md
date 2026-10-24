@@ -1052,7 +1052,15 @@ Reglas:
 | `paid_at` | timestamptz null | Pago aprobado |
 | `expires_at` | timestamptz | 48h después de requerido |
 | `refunded_at` | timestamptz null | Reembolso |
-| `refund_reason` | text null | Motivo |
+| `refund_reason` | text null | Motivo *(legible por el estudiante y la residencia vía RLS: no se usa para la revocación; ver columnas `revocation_*`)* |
+| `refund_amount_ars` | numeric(14,2) null | Monto reintegrado (fee completo en la revocación, DR6). Solo servidor *(migración 0049)* |
+| `refund_method` | text null | `bank_transfer`, `digital_wallet`, `other`. Solo servidor *(0049)* |
+| `refund_reference` | text null | Referencia de la operación de reintegro (hecha por fuera de la plataforma). Solo servidor *(0049)* |
+| `revocation_resolution` | text null | Resolución del admin sobre una revocación (`refunded` / `denied`); `null` = sin resolver. Solo servidor *(0049)* |
+| `revocation_resolved_at` | timestamptz null | Cuándo se resolvió. Solo servidor *(0049)* |
+| `revocation_resolved_by` | uuid null | Admin que resolvió (`users.id`). Solo servidor *(0049)* |
+| `revocation_internal_reason` | text null | Motivo interno obligatorio (10–1000). **Nunca visible al estudiante.** Solo servidor *(0049)* |
+| `revocation_student_message` | text null | Mensaje opcional para el estudiante (≤1000). Solo servidor; la pantalla del estudiante lo lee con el service role tras verificar que la reserva es suya *(0049)* |
 | `fiscal_invoice_status` | fiscal_invoice_status | Estado de la Factura C. Default `not_required` *(nuevo)* |
 | `fiscal_invoice_id` | text null | ID de factura en TusFacturas.app *(nuevo)* |
 | `fiscal_invoice_number` | text null | Número legible de la Factura C *(nuevo)* |
@@ -1437,6 +1445,7 @@ Preguntas configuradas por residencia (del listado predefinido o personalizadas)
 | `category` | text | `cancelacion`, `disponibilidad`, `discriminacion`, `informacion_falsa`, `otro` |
 | `description` | text | Descripción |
 | `terms_reminder_accepted_at` | timestamptz null | Aceptación alcance |
+| `topic` | text | `residence_claim` (default), `estured_fee_payment` (pago del fee, sin residencia, migración 0040) o `fee_revocation` (revocación del fee, sin residencia, migración 0049; el caso se abre solo al revocar y se cierra al resolver, DR6) *(nuevo)* |
 | `assigned_admin_id` | uuid null | Admin responsable |
 | `resolution_summary` | text null | Cierre |
 | `created_at` | timestamptz | Alta |

@@ -660,6 +660,8 @@ revocation_requested_at: hace 2 días (dentro del plazo de 10 días corridos)
 
 Debe probar: flujo completo de revocación; visibilidad del caso en el dashboard admin; que el fee no pasó a `refunded` automáticamente.
 
+Además (DR6): una revocación **reintegrada** (fee `refunded`, con fecha, medio y referencia) y una **denegada** (con mensaje para el estudiante), para ver los tres estados en la pantalla del estudiante y en Actividad → Revocaciones (`scripts/seed-revocation-states.mjs`, requiere la migración 0049).
+
 ## Lista de espera demo
 
 Sin cambios de fondo. Crear listas para Residencia Obelisco y Casa Universitaria Sur: `active`; `active` con recordatorio de 90 días (`notification_due: true`, sin vencer automáticamente); `removed_due_to_confirmed_reservation` (Tomas A.).
@@ -821,9 +823,9 @@ Debe probar: camino alternativo de rechazo total, distinto del "continuar con co
 1. Un estudiante con reserva confirmada y comprobante emitido entra por el enlace del footer.
 2. Ejerce la revocación dentro de los 10 días corridos.
 3. La reserva pasa a `cancelled_by_student` (`student_revocation_right`); el comprobante se anula; el fee queda `paid`.
-4. Se abre un caso de revisión; el admin lo ve en su dashboard, coteja con la residencia y resuelve manualmente el reembolso o su denegación.
+4. Se abre un caso de revisión; el admin lo ve en su dashboard, coteja con la residencia y resuelve manualmente el reintegro del fee completo o su denegación (con motivo obligatorio, DR6).
 
-Debe probar: pantalla de revocación; ventana de 10 días; anulación del comprobante; revisión admin sin reembolso automático.
+Debe probar: pantalla de revocación; ventana de 10 días; anulación del comprobante; revisión admin sin reintegro automático; resolución (reintegrar / denegar).
 
 ### Escenario 10: owner gestiona dos residencias (nuevo)
 

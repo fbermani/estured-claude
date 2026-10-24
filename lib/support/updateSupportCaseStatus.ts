@@ -65,10 +65,16 @@ export async function updateSupportCaseStatus(
 
   const { data: supportCase } = await admin
     .from("support_cases")
-    .select("id, status, opened_by_user_id, related_entity_type, residences(name)")
+    .select("id, status, topic, opened_by_user_id, related_entity_type, residences(name)")
     .eq("id", params.supportCaseId)
     .maybeSingle();
   if (!supportCase) return { status: "error", message: "Caso no encontrado." };
+  if (supportCase.topic === "fee_revocation") {
+    return {
+      status: "error",
+      message: "Este caso se cierra solo al resolver la revocación del fee, desde Actividad → Revocaciones.",
+    };
+  }
 
   const { error } = await admin
     .from("support_cases")

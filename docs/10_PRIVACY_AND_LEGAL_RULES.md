@@ -150,7 +150,7 @@ Este documento toma como referencia preliminar, no exhaustiva:
 Pendiente crítico:
 
 - Validar legalmente si el fee EstuRed puede ser tratado como no reembolsable en todos los casos deseados.
-- Validar alcance del botón de arrepentimiento para el fee de servicio EstuRed (se resolvió a nivel producto que se ubica en el footer; falta validar su suficiencia legal).
+- Validar alcance del botón de arrepentimiento para el fee de servicio EstuRed (se resolvió a nivel producto que se ubica en el footer y que se reintegra el fee completo dentro de los 10 días — DR6; falta validar su suficiencia legal y los textos).
 - Validar estructura contractual entre EstuRed, estudiante, familiar pagador y residencia, incluyendo el caso de solicitudes originadas por propuesta del familiar.
 - Validar requisitos fiscales de la Factura C a nombre del pagador ante AFIP/ARCA y los límites de facturación del monotributo.
 - Validar obligaciones de EstuRed como responsable de base de datos.
@@ -480,7 +480,9 @@ Si falla el cobro automático del fee: hasta 3 intentos dentro de 48 horas; noti
 
 > El fee EstuRed no es reembolsable salvo incumplimiento atribuible a la residencia, revisión de EstuRed y normativa aplicable.
 
-Copy sugerido: "El fee de servicio no será reembolsable si cancelás por decisión propia, no te presentás o no continuás con la residencia. Solo podrá evaluarse un reintegro si la cancelación o incumplimiento fuera atribuible a la residencia, luego de revisión de EstuRed y sujeto a normativa aplicable."
+> **Excepción (DR6, `docs/00` §31):** el derecho de revocación de 10 días corridos (§15.4) sí da lugar al reintegro del fee completo.
+
+Copy sugerido: "El fee de servicio no será reembolsable si cancelás por decisión propia, no te presentás o no continuás con la residencia, salvo que ejerzas tu derecho de revocación dentro de los 10 días corridos de pagado. Solo podrá evaluarse un reintegro fuera de ese caso si la cancelación o incumplimiento fuera atribuible a la residencia, luego de revisión de EstuRed y sujeto a normativa aplicable."
 
 ### 15.2 Pagos hechos a residencia
 
@@ -490,9 +492,9 @@ El reembolso de lo abonado a la residencia depende de: condiciones de la residen
 
 Si la residencia cancela o no honra la reserva: el estudiante puede abrir un caso de soporte; EstuRed analiza evidencia; si se confirma incumplimiento atribuible a la residencia, puede devolver el fee EstuRed; EstuRed puede ayudar a buscar alternativa; la residencia puede recibir penalización de visibilidad, pausa o suspensión; el reembolso de pagos a residencia depende de la residencia y normativa aplicable.
 
-### 15.4 Derecho de revocación del fee EstuRed — DECISIÓN CONFIRMADA
+### 15.4 Derecho de revocación del fee EstuRed — DECISIÓN CONFIRMADA (actualizada por DR6)
 
-**Mecanismo:** enlace visible en el footer de la plataforma.
+**Mecanismo:** enlace visible en el footer de la plataforma ("Botón de arrepentimiento").
 
 **Plazo:** 10 días corridos desde el pago del fee, alineado a la normativa de contratación a distancia (Ley 24.240 / Decreto 1798/94).
 
@@ -500,13 +502,18 @@ Si la residencia cancela o no honra la reserva: el estudiante puede abrir un cas
 
 - la reserva pasa a cancelada (`cancelled_by_student`, `reason_code = student_revocation_right`);
 - el comprobante emitido se anula (`voided`);
-- el fee EstuRed **no se reembolsa automáticamente** — queda pendiente de revisión manual de admin;
-- admin evalúa cada caso individualmente para detectar patrones de bypass (por ejemplo, revocar el fee después de haber usado el contacto establecido para acordar directamente con la residencia por fuera de la plataforma);
-- admin puede cotejar con la residencia antes de resolver sobre el reembolso.
+- se abre un caso de Soporte interno y la revisión del admin;
+- **EstuRed reintegra el fee completo (el 5%)** si la revocación se ejerció dentro de los 10 días corridos, **previa resolución del admin con motivo obligatorio** — no es automático: el fee permanece `paid` hasta esa resolución;
+- el admin evalúa cada caso para detectar patrones de bypass (por ejemplo, revocar el fee después de haber usado el contacto establecido para acordar directamente con la residencia por fuera de la plataforma) y puede cotejar con la residencia; solo puede **denegar** si la revocación está fuera de los 10 días o hay una causa justificada, siempre con motivo, y queda auditado;
+- el reintegro lo hace EstuRed manualmente, por fuera de la plataforma (p. ej. transferencia); el admin registra fecha, medio y referencia. No hay reintegros automáticos ni integración de pagos.
 
-**Alcance:** el derecho de revocación aplica únicamente al fee EstuRed. EstuRed está exenta de reembolsar cualquier monto pagado directamente a la residencia — esa relación y sus condiciones de devolución son responsabilidad exclusiva de la residencia y el estudiante/familiar.
+**Alcance:** el derecho de revocación aplica únicamente al fee EstuRed. EstuRed está exenta de reembolsar cualquier monto pagado directamente a la residencia — esa relación y sus condiciones de devolución son responsabilidad exclusiva de la residencia y el estudiante/familiar, y **se acuerdan con la residencia directamente**.
 
-El sistema debe registrar: fecha/hora de la solicitud de revocación; asociación al pago del fee correspondiente; estado admin para su gestión y resolución; auditoría completa del caso.
+El sistema debe registrar: fecha/hora de la solicitud de revocación; asociación al pago del fee correspondiente; estado admin para su gestión y resolución (pendiente / reintegrada / denegada); resolución con motivo, quién y cuándo; auditoría completa del caso.
+
+**Visibilidad para el estudiante:** ve el estado de su revocación (en revisión / reintegrada con fecha / denegada) y el **mensaje para el estudiante** que el admin haya escrito. **Nunca** ve el motivo interno del admin.
+
+**Texto legal marcado como borrador para revisión de un asesor legal:** todos los textos visibles al estudiante sobre este derecho (lista completa en `docs/00` §31, DR6) deben revisarse antes del lanzamiento público; en el código viven en `lib/revocations/copy.ts` bajo la constante `LEGAL_REVIEW_PENDING`.
 
 ---
 
@@ -997,7 +1004,7 @@ Reminder de términos aparece; evidencia se guarda privada; abrir caso no suspen
 3. Política de Privacidad.
 4. Política de Cookies si aplica.
 5. Política de Reembolsos y Cancelaciones.
-6. Suficiencia legal del botón de arrepentimiento ubicado en el footer (§15.4), incluyendo consultar la alternativa "reembolso por defecto dentro del plazo, salvo servicio sustancialmente prestado con consentimiento" — el esquema actual de revisión manual sin reembolso automático puede ser débil frente a la regla general de devolución de la Ley 24.240; el sistema debe poder soportar ambas políticas.
+6. Suficiencia legal del botón de arrepentimiento ubicado en el footer (§15.4). DR6 fijó el reintegro del fee completo dentro de los 10 días, previa revisión del admin: el asesor debe revisar los textos visibles al estudiante (lista en `docs/00` §31, DR6), la suficiencia del plazo de resolución y las condiciones para denegar (causa justificada), y el tratamiento de la Factura C ya emitida (nota de crédito, fuera de la plataforma).
 7. Validación fiscal del modelo de Factura C vía TusFacturas.app y monitoreo de límites del monotributo.
 8. Contrato o adhesión para residencias pioneras, incluyendo cláusula de acceso freemium a Gestión Operativa.
 9. Política de tratamiento de datos de menores (la decisión sobre propuestas ya está confirmada en §9.4 — decide el estudiante, incluso menor; la revisión legal debe validarla, junto con la regla de que el contacto con menores se dirige siempre al familiar vinculado).

@@ -37,6 +37,8 @@ type CaseRow = {
   /** Caso "problema con el pago del fee" (migración 0040): sin residencia, con la reserva como contexto. */
   related_entity_type: string | null;
   related_entity_id: string | null;
+  /** `fee_revocation` (migración 0049, DR6): caso que se abre solo al revocar el fee. */
+  topic: string | null;
 };
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -64,7 +66,7 @@ export default async function StudentSupportPage({
       admin.from("reservations").select("residences(id, name)").eq("student_profile_id", studentProfile.id),
       admin
         .from("support_cases")
-        .select("id, status, description, created_at, resolution_notes, related_entity_type, related_entity_id, residences(name)")
+        .select("id, status, description, created_at, resolution_notes, related_entity_type, related_entity_id, topic, residences(name)")
         .eq("opened_by_user_id", sessionUser.id)
         .order("created_at", { ascending: false }),
     ]);
@@ -118,7 +120,9 @@ export default async function StudentSupportPage({
                 <Card key={c.id} className="p-5">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <p className="font-bold text-ink">
-                      {c.residences?.name ?? (c.related_entity_type === "reservations" ? "Pago del fee EstuRed" : "Residencia")}
+                      {c.topic === "fee_revocation"
+                        ? "Revocación del fee EstuRed"
+                        : (c.residences?.name ?? (c.related_entity_type === "reservations" ? "Pago del fee EstuRed" : "Residencia"))}
                     </p>
                     <Badge tone={badge.tone}>{badge.label}</Badge>
                   </div>

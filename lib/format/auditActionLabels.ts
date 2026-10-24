@@ -82,6 +82,8 @@ const ACTION_PHRASES: Record<string, string> = {
   estured_fee_marked_paid_manually: "marcó un fee EstuRed como cobrado",
   estured_fee_expired: "venció el plazo de un fee EstuRed",
   estured_fee_revoked: "revocó un fee EstuRed",
+  estured_fee_refunded_after_revocation: "reintegró un fee EstuRed tras una revocación",
+  estured_fee_revocation_denied: "denegó la revocación de un fee EstuRed",
   estured_fee_window_reopened_by_admin: "reabrió el plazo de un fee EstuRed",
   reservation_confirmed: "confirmó una reserva",
   booking_receipt_reissued: "volvió a emitir un comprobante de reserva",

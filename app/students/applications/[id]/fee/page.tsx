@@ -18,6 +18,7 @@ import { loadActiveFamilyLink, loadActiveFamilyOfStudent, loadFamilyMember } fro
 import { formatBillingTaxId } from "@/lib/family/familyProfile";
 import { FeePayerCard } from "@/app/students/applications/[id]/fee/FeePayerCard";
 import { feeSupportHref, reservationReference } from "@/lib/payments/feeTransferPresentation";
+import { FEE_PAGE_REVOCATION_NOTE } from "@/lib/revocations/copy";
 
 export const metadata: Metadata = { title: "Pago fee EstuRed" };
 export const dynamic = "force-dynamic";
@@ -279,7 +280,7 @@ export default async function FeePaymentPage({
       )}
 
       <p className="mt-4 text-xs text-ink-faint">
-        El fee EstuRed no se reembolsa automáticamente ante cancelación — EstuRed revisa cada caso.
+        {FEE_PAGE_REVOCATION_NOTE}
       </p>
     </div>
   );

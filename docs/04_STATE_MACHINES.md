@@ -517,7 +517,7 @@ estured_fee_payment
 | `paid` | Fee pagado. |
 | `failed` | Cobro fallido. |
 | `expired` | No se pagó dentro del plazo de 48 horas. Estado terminal. |
-| `refunded` | Fee reintegrado por causa atribuible a residencia, revisión de EstuRed o normativa aplicable. |
+| `refunded` | Fee reintegrado: por causa atribuible a residencia, revisión de EstuRed, normativa aplicable o **revocación dentro de los 10 días corridos (DR6, §8.9)**. Estado terminal. |
 | `chargeback` | Contracargo o desconocimiento. |
 
 ---
@@ -600,15 +600,34 @@ El fee se calcula sobre la tarifa actual guardada en el `snapshot_final`. No rec
 - Sin fee pagado: no se confirma reserva, no se emite comprobante, la residencia puede liberar la plaza.
 - **El cobro debe ser idempotente.** Si el proveedor envía el webhook múltiples veces, no debe generarse un cobro duplicado ni un comprobante duplicado.
 
-## 8.9. Revocación del fee — DECISIÓN CONFIRMADA
+## 8.9. Revocación del fee — DECISIÓN CONFIRMADA (actualizada por DR6)
 
 Si el estudiante ejerce el derecho de revocación dentro de los **10 días corridos** posteriores al pago del fee:
 
 - la reserva pasa a `cancelled_by_student` con `reason_code = student_revocation_right`;
 - el comprobante pasa a `voided`;
-- el fee **permanece `paid`** hasta que admin resuelva manualmente si corresponde `refunded` — no hay transición automática a `refunded`;
-- debe abrirse un `support_case` interno para la evaluación de bypass, con posibilidad de cotejar con la residencia antes de resolver;
-- el derecho de revocación no alcanza a montos pagados directamente a la residencia.
+- el fee **permanece `paid`** hasta que el admin resuelva — no hay transición automática a `refunded`;
+- se abre automáticamente un `support_case` interno (`topic = 'fee_revocation'`, sin residencia) para la revisión y la evaluación de bypass, con posibilidad de cotejar con la residencia antes de resolver (best-effort: si falla abrirlo, la revocación igual queda registrada);
+- el derecho de revocación no alcanza a montos pagados directamente a la residencia (se acuerdan con ella).
+
+### Resolución de la revocación (DR6, `docs/00` §31)
+
+La revocación tiene una **resolución del admin** que se guarda en el pago del fee (`estured_fee_payments.revocation_resolution`) y **no agrega estados técnicos al fee**: los de §8.2 alcanzan.
+
+| Situación | `fee.status` | `revocation_resolution` | Quién |
+|---|---|---|---|
+| Revocada, a la espera del admin ("En revisión") | `paid` | `null` | Estudiante / sistema |
+| Admin **reintegra** el fee completo | `refunded` (con `refunded_at`, medio y referencia) | `refunded` | Admin / Superadmin |
+| Admin **deniega** la revocación | `paid` (no cambia) | `denied` | Admin / Superadmin |
+
+Reglas de la resolución:
+
+- Solo se resuelve una revocación **pendiente**: reserva `cancelled_by_student` con `student_revocation_right`, fee `paid` y sin resolución previa. La actualización es condicional por ese estado (evita doble resolución y carreras); una revocación resuelta no se reabre desde la plataforma.
+- **Motivo interno obligatorio** (10 a 1000 caracteres), auditado; nunca se muestra al estudiante. Opcionalmente, un **mensaje para el estudiante** (hasta 1000 caracteres), que es el único texto que ve.
+- **Reintegrar:** monto = fee completo (`fee_amount_ars`); el admin confirma explícitamente el monto, la fecha y registra **medio** (transferencia bancaria / billetera virtual / otro) y **referencia** de la operación. El reintegro se hace manualmente por fuera de la plataforma; la plataforma solo registra.
+- **Denegar:** solo si la revocación se registró **fuera de los 10 días corridos** desde `paid_at` o hay una **causa justificada** marcada explícitamente por el admin. Denegar no restaura la reserva ni el comprobante.
+- "Dentro de los 10 días" se mide entre `paid_at` y el momento en que se registró la revocación (`reservations.cancelled_at`), no al resolver.
+- Al resolver se cierra el `support_case` asociado y se avisa in-app al estudiante y, si es otra persona, al pagador del fee.
 
 ---
 

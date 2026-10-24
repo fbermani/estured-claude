@@ -403,7 +403,7 @@ Esperado: `/verify/[codigo]` muestra "anulado", no "válido".
 
 **REVOKE-001 — Revocación dentro del plazo**
 Pasos: estudiante o familiar pagador entra por el enlace del footer a `/students/revocation` dentro de los 10 días corridos del pago → acepta consecuencias → confirma.
-Esperado: reserva `cancelled_by_student` con `cancellation_reason_code = student_revocation_right`; comprobante `voided`; fee permanece `paid`; `support_case` de revisión abierto; residencia y admin notificados; todo auditado.
+Esperado: reserva `cancelled_by_student` con `cancellation_reason_code = student_revocation_right`; comprobante `voided`; fee permanece `paid`; `support_case` (`topic = 'fee_revocation'`) abierto; todo auditado; el estudiante ve "en revisión".
 
 **REVOKE-002 — Revocación fuera de plazo**
 Pasos: intentar revocar a los 11 días.
@@ -413,7 +413,20 @@ Esperado: bloqueado con `REVOCATION_WINDOW_EXPIRED`; mensaje claro; sin cambios 
 Esperado: `/verify/[codigo]` del comprobante revocado muestra "anulado".
 
 **REVOKE-004 — Reembolso posterior solo por admin**
-Esperado: no existe ninguna vía automática de `paid` → `refunded` tras la revocación; el reembolso requiere acción admin con motivo y auditoría.
+Esperado: no existe ninguna vía automática de `paid` → `refunded` tras la revocación; el reintegro requiere acción admin con motivo (10–1000) y auditoría.
+
+**REVOKE-006 — Resolver: reintegrar el fee (DR6)**
+Pasos: admin entra a Actividad → Revocaciones, abre una pendiente dentro de plazo, completa motivo, medio, referencia y fecha, confirma el monto.
+Esperado: fee `refunded` con `refunded_at`, `refund_amount_ars`, medio y referencia; `revocation_resolution = refunded`; caso de Soporte cerrado; aviso in-app al estudiante; auditoría `estured_fee_refunded_after_revocation`; el estudiante ve "reintegrada" con la fecha y nunca el motivo interno.
+
+**REVOKE-007 — Resolver: denegar (DR6)**
+Esperado: dentro de los 10 días exige marcar causa justificada además del motivo; fuera de plazo no. Fee sigue `paid`, `revocation_resolution = denied`, reserva sigue cancelada, el estudiante ve el mensaje solo si el admin lo escribió.
+
+**REVOKE-008 — Doble resolución y permisos (DR6)**
+Esperado: resolver dos veces (o dos admins a la vez) → la segunda falla sin cambios; un usuario no admin no puede ejecutar la acción; un motivo de menos de 10 o más de 1000 caracteres es rechazado en el servidor; el texto ingresado no se pierde ante un error de validación.
+
+**REVOKE-009 — Familiar no pagador (DR6)**
+Esperado: un familiar vinculado que no es el pagador no ve el botón de revocar; si fuerza la acción, el servidor responde "Esta reserva no te pertenece".
 
 **REVOKE-005 — Enlace visible en el footer**
 Esperado: el enlace "Botón de arrepentimiento" está presente en el footer de todas las áreas de la plataforma.

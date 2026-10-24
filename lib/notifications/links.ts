@@ -39,6 +39,7 @@ const ADMIN_LIST: Record<string, string> = {
   booking_receipts: "/admin/receipts",
   renewal_receipts: "/admin/receipts",
   estured_fee_payments: "/admin/payments",
+  fee_revocations: "/admin/activity?tab=revocations",
   payment_settings: "/admin/payment-settings",
   waitlist_entries: "/admin/waitlists",
   resident_stays: "/admin/community",
@@ -63,6 +64,9 @@ export function notificationHref(
         const applicationId = id ? context.applicationIdByReservationId?.[id] : undefined;
         return applicationId ? `/students/applications/${applicationId}` : "/students/applications";
       }
+      case "fee_revocations":
+        // DR6: resolución de la revocación del fee (el id es el de la reserva); la pantalla muestra el estado.
+        return "/students/revocation";
       case "resident_stays":
         return "/students/residency";
       case "waitlist_entries":
