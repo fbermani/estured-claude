@@ -1833,3 +1833,13 @@ Decisiones DF1–DF4 del dueño (layout de columna sticky + hoja de solicitud, "
 - **FAQ:** leyenda duplicada quitada del hint del campo.
 - **Footer:** "Crear cuenta" se oculta con sesión. "Botón de arrepentimiento" se mantiene para todos: docs/10 §15.4 pide el enlace en el footer de la plataforma.
 - Sin tests nuevos (cálculo inline, sin función pura). Sin verificación en navegador.
+
+## Ciclo 65. Residencias, Bloque 3 (onboarding de residencias nuevas) (2026-10-24)
+
+- **Banner de estado en el Panel** (`components/residences/OnboardingBanner.tsx`, copy y checklist en `lib/residences/onboardingStatus.ts`, puros y con test): según `residences.status` (draft, pending_verification, verification_scheduled, needs_changes, suspended); sin banner en `verified_active` y estados operativos. Dice qué pasa ahora, qué se puede hacer mientras tanto y un checklist con estado real (perfil completo, fotos N de 3, reglamento, verificación presencial desde `residence_verifications.status`/`scheduled_at`). Sin plazos: "te avisamos por mail y en la campana".
+- **Fortaleza del perfil** (`lib/residences/profileStrength.ts`, pura, con test): las fotos pesan 25 puntos proporcionales a las 3 mínimas (antes 1/8 todo-o-nada: con 0 fotos marcaba 88%, ahora 75%). La sugerencia nombra lo que falta de verdad.
+- **/profile:** texto de ayuda bajo "Guardar cambios"/"Enviar para revisión" según estado (borrador / enviada / publicada: lista los grupos que pasan por aprobación: fotos, servicios, reglas, mínimo de estadía, tipos de habitación). Subtítulo ya no dice "para poder publicarla" si fue enviada.
+- **Supuestos:** (1) el motivo de pedir cambios/rechazo vive en `notes_internal` ("Notas internas / motivo"), campo interno: NO se muestra a la residencia; el banner la deriva a Soporte. (2) Fotos del checklist = no rechazadas (incluye en revisión). (3) "Reglamento" = resumen de reglas o PDF.
+- **Hallazgo (no tocado):** `submit` solo pasa `draft` -> `pending_verification`; desde `needs_changes` no reenvía.
+- Verificado en navegador (Casa Compartida Almagro, 1280 y 375 px, sin overflow). No verificados los banners de draft/needs_changes/suspended (sin datos demo en esos estados).
+

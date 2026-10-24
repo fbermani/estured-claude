@@ -8,6 +8,12 @@
 
 ---
 
+## CICLO 65 (2026-10-24) — Residencias, Bloque 3 (onboarding de residencias nuevas)
+
+Ver `MEMORY.md` Ciclo 65. Sin migraciones. Pendiente: decidir si el motivo de "pedir cambios"/rechazo (hoy `notes_internal`, interno) se comunica a la residencia; que "Enviar para revisión" desde `needs_changes` reenvíe de verdad (hoy no cambia el estado).
+
+---
+
 ## CICLO 64 (2026-10-24) — Residencias, Bloque 2 (consistencia y copy)
 
 Ver `MEMORY.md` Ciclo 64. Sin migraciones. Pendiente: verificación visual en navegador y revisar copy de plan/Gestión Operativa en `for-residences` y en el aviso de `setOperationalAccessByAdmin` (D8).

@@ -12,6 +12,7 @@ import { Icon } from "@/components/ui/Icon";
 import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import { ResidencePhotoPlaceholder } from "@/components/residences/ResidencePhoto";
+import { computeProfileStrength, profileStrengthSuggestion } from "@/lib/residences/profileStrength";
 import { MIN_PUBLISH_PHOTOS, hasEnoughPhotosToPublish } from "@/lib/residences/photos";
 import {
   SERVICE_OPTIONS,
@@ -210,20 +211,21 @@ export function ResidenceProfileForm({
     );
   }
 
-  const strength = useMemo(() => {
-    const totalPhotos = initial.photos.length + newPhotoCount;
-    const checks = [
-      tagline.trim().length > 0,
-      description.trim().length > 20,
-      services.size > 0,
-      commonAreas.size > 0,
-      rulesSummary.trim().length > 0,
-      nearUniversities.size > 0,
-      totalPhotos >= 3,
-      roomTypes.length > 0 && roomTypes.every((rt) => rt.monthlyPriceUsd > 0),
-    ];
-    return Math.round((checks.filter(Boolean).length / checks.length) * 100);
-  }, [tagline, description, services, commonAreas, rulesSummary, nearUniversities, roomTypes, newPhotoCount, initial.photos.length]);
+  const strength = useMemo(
+    () =>
+      computeProfileStrength({
+        tagline,
+        description,
+        services: services.size,
+        commonAreas: commonAreas.size,
+        rulesSummary,
+        nearUniversities: nearUniversities.size,
+        photos: initial.photos.length + newPhotoCount,
+        roomTypesOk: roomTypes.length > 0 && roomTypes.every((rt) => rt.monthlyPriceUsd > 0),
+      }),
+    [tagline, description, services, commonAreas, rulesSummary, nearUniversities, roomTypes, newPhotoCount, initial.photos.length],
+  );
+  const strengthSuggestion = profileStrengthSuggestion(strength);
 
   const previewPrice = roomTypes.length > 0 ? Math.min(...roomTypes.map((r) => r.monthlyPriceUsd)) : null;
   const badge = statusCopy[initial.status] ?? statusCopy.draft;
@@ -234,8 +236,11 @@ export function ResidenceProfileForm({
         <div>
           <h1 className="text-3xl font-bold text-ink">Configuración de Residencia</h1>
           <p className="mt-1 text-sm text-ink-soft">
-            Completá la información de {initial.name} para poder publicarla. Guardá cuando quieras
-            como borrador.
+            {initial.status === "draft"
+              ? `Completá la información de ${initial.name} para poder publicarla. Guardá cuando quieras como borrador.`
+              : initial.status === "verified_active"
+                ? `Mantené al día la información de ${initial.name}.`
+                : `Mantené al día la información de ${initial.name} mientras el equipo de EstuRed la revisa.`}
           </p>
         </div>
         <Badge tone={badge.tone}>{badge.label}</Badge>
@@ -952,6 +957,13 @@ export function ResidenceProfileForm({
             <SubmitButton intent="draft" variant="outline" idleLabel="Guardar cambios" pendingLabel="Guardando…" />
             <SubmitButton intent="submit" variant="primary" idleLabel="Enviar para revisión" pendingLabel="Enviando…" />
           </div>
+          <p className="text-xs text-ink-soft sm:text-right">
+            {initial.status === "draft"
+              ? "Guardar cambios conserva tu avance como borrador y no la envía. Enviar para revisión la manda al equipo de EstuRed, que coordina la verificación presencial antes de publicarla."
+              : initial.status === "verified_active"
+                ? "Los cambios se guardan al instante, salvo fotos, servicios, reglas, mínimo de estadía y tipos de habitación: esos quedan pendientes de aprobación del equipo de EstuRed. No hace falta volver a enviarla."
+                : "Guardar cambios actualiza tu perfil. Tu residencia ya fue enviada: el equipo de EstuRed la ve con los cambios al revisarla."}
+          </p>
         </div>
 
         {/* Sidebar */}
@@ -959,14 +971,11 @@ export function ResidenceProfileForm({
           <Card className="sticky top-24 p-5">
             <h3 className="font-bold text-ink">Fortaleza del Perfil</h3>
             <div className="mt-2 h-2 overflow-hidden rounded-full bg-sand-200">
-              <div className="h-full rounded-full bg-forest transition-all" style={{ width: `${strength}%` }} />
+              <div className="h-full rounded-full bg-forest transition-all" style={{ width: `${strength.percent}%` }} />
             </div>
-            <p className="mt-1 text-right text-sm font-bold text-forest-700">{strength}%</p>
-            {strength < 100 && (
-              <p className="mt-2 rounded-field bg-sand-100 px-3 py-2 text-xs text-ink-soft">
-                Sugerencia: completá todas las secciones y sumá al menos 3 fotos para mejorar tu
-                posicionamiento.
-              </p>
+            <p className="mt-1 text-right text-sm font-bold text-forest-700">{strength.percent}%</p>
+            {strengthSuggestion && (
+              <p className="mt-2 rounded-field bg-sand-100 px-3 py-2 text-xs text-ink-soft">{strengthSuggestion}</p>
             )}
           </Card>
 

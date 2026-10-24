@@ -14,6 +14,9 @@ import { getStaleAvailabilityByResidence, staleAvailabilityMessage } from "@/lib
 import { getVisibleStatus } from "@/lib/applications/visibleStatus";
 import { loadReservationInfoByApplication } from "@/lib/applications/loadReservationInfo";
 import { countUnansweredStayChanges } from "@/lib/stayChange/load";
+import { OnboardingBanner } from "@/components/residences/OnboardingBanner";
+import { buildOnboardingChecklist, getOnboardingBanner } from "@/lib/residences/onboardingStatus";
+import { computeProfileStrength } from "@/lib/residences/profileStrength";
 
 export const metadata: Metadata = { title: "Panel de la residencia" };
 export const dynamic = "force-dynamic";
@@ -58,6 +61,55 @@ export default async function ResidenceOverviewPage({
     .eq("id", residenceId)
     .maybeSingle();
   if (!residence) notFound();
+
+  // Onboarding (Ciclo 65): banner + checklist solo si la residencia no está publicada.
+  const onboardingCopy = getOnboardingBanner(residence.status);
+  let onboardingChecklist: ReturnType<typeof buildOnboardingChecklist> = [];
+  if (onboardingCopy) {
+    const [{ data: full }, { data: sections }, { data: roomTypes }, { count: photoCount }, { data: rulesFile }, { data: verification }] =
+      await Promise.all([
+        admin.from("residences").select("tagline, description").eq("id", residenceId).maybeSingle(),
+        admin.from("residence_profile_sections").select("section_type, content").eq("residence_id", residenceId),
+        admin.from("room_types").select("monthly_price_usd").eq("residence_id", residenceId).eq("is_active", true),
+        admin
+          .from("files")
+          .select("id", { count: "exact", head: true })
+          .eq("related_entity_type", "residences")
+          .eq("related_entity_id", residenceId)
+          .eq("document_type", "residence_photo")
+          .neq("status", "rejected"),
+        admin
+          .from("files")
+          .select("id")
+          .eq("related_entity_type", "residences")
+          .eq("related_entity_id", residenceId)
+          .eq("document_type", "residence_rules_document")
+          .limit(1)
+          .maybeSingle(),
+        admin.from("residence_verifications").select("status, scheduled_at").eq("residence_id", residenceId).maybeSingle(),
+      ]);
+    const sectionMap = Object.fromEntries((sections ?? []).map((s) => [s.section_type, s.content as Record<string, unknown>]));
+    const itemsLen = (key: string) => (Array.isArray(sectionMap[key]?.items) ? (sectionMap[key].items as unknown[]).length : 0);
+    const rulesSummary = typeof sectionMap.rules?.summary === "string" ? (sectionMap.rules.summary as string) : "";
+    const strength = computeProfileStrength({
+      tagline: full?.tagline ?? "",
+      description: full?.description ?? "",
+      services: itemsLen("services"),
+      commonAreas: itemsLen("common_areas"),
+      rulesSummary,
+      nearUniversities: itemsLen("near_universities"),
+      photos: photoCount ?? 0,
+      roomTypesOk: (roomTypes ?? []).length > 0 && (roomTypes ?? []).every((rt) => Number(rt.monthly_price_usd) > 0),
+    });
+    onboardingChecklist = buildOnboardingChecklist({
+      profileGapsCount: strength.gaps.length,
+      photos: photoCount ?? 0,
+      hasRules: rulesSummary.trim().length > 0 || !!rulesFile,
+      verificationStatus: verification?.status ?? null,
+      scheduledAt: verification?.scheduled_at ?? null,
+      scheduledAtLabel: verification?.scheduled_at ? formatDate(verification.scheduled_at) : null,
+    });
+  }
 
   const { data: activeRooms } = await admin.from("rooms").select("id").eq("residence_id", residenceId).eq("is_active", true);
   const roomIds = (activeRooms ?? []).map((room) => room.id);
@@ -282,6 +334,10 @@ export default async function ResidenceOverviewPage({
           </Link>
         </div>
       </div>
+
+      {onboardingCopy && (
+        <OnboardingBanner copy={onboardingCopy} checklist={onboardingChecklist} residenceId={residenceId} />
+      )}
 
       {availabilityNotice && (
         <Link
