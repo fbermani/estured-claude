@@ -9,6 +9,8 @@ import { loadRevocationRecords, summarizePendingRevocations } from "@/lib/revoca
 import { pluralize } from "@/lib/format/plural";
 import { auditActionPhrase, auditActorLabel } from "@/lib/format/auditActionLabels";
 import { requireAdmin } from "@/lib/auth/requireAdmin";
+import { ACTIONABLE_STATUSES, EXPIRY_WARNING_DAYS, WAITING_STATUS } from "@/lib/residences/verificationReview";
+import { formatDate } from "@/lib/dates/format";
 
 export const metadata: Metadata = { title: "Dashboard" };
 export const dynamic = "force-dynamic";
@@ -30,6 +32,7 @@ export default async function AdminDashboardPage() {
   let stats = {
     activeResidences: 0,
     pendingValidations: 0,
+    waitingForResidence: 0,
     totalUsers: 0,
     waitlistLeads: 0,
     reservationsThisMonth: 0,
@@ -40,6 +43,7 @@ export default async function AdminDashboardPage() {
     pendingRevocations: 0,
     oldestRevocationAgeDays: null as number | null,
   };
+  let expiringVerifications: { residenceId: string; name: string; expiresAt: string }[] = [];
   let recentActivity: { id: string; action: string; created_at: string; actor_role: string }[] = [];
 
   if (admin) {
@@ -47,12 +51,23 @@ export default async function AdminDashboardPage() {
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
 
-    const [active, pending, users, waitlist, activity, reservationsMonth, feePaymentsMonth, pendingProfileEdits, unreviewedTariffAlerts] = await Promise.all([
+    const expiryLimit = new Date(Date.now() + EXPIRY_WARNING_DAYS * 24 * 60 * 60 * 1000).toISOString();
+    const [active, pending, waiting, expiring, users, waitlist, activity, reservationsMonth, feePaymentsMonth, pendingProfileEdits, unreviewedTariffAlerts] = await Promise.all([
       admin.from("residences").select("*", { count: "exact", head: true }).eq("status", "verified_active"),
       admin
         .from("residences")
         .select("*", { count: "exact", head: true })
-        .in("status", ["pending_verification", "verification_scheduled", "needs_changes"]),
+        .in("status", [...ACTIONABLE_STATUSES]),
+      admin.from("residences").select("*", { count: "exact", head: true }).eq("status", WAITING_STATUS),
+      admin
+        .from("residence_verifications")
+        .select("residence_id, expires_at, residences!inner(id, name, status)")
+        .eq("status", "approved")
+        .eq("residences.status", "verified_active")
+        .gt("expires_at", new Date().toISOString())
+        .lte("expires_at", expiryLimit)
+        .order("expires_at", { ascending: true })
+        .limit(10),
       admin.from("users").select("*", { count: "exact", head: true }),
       admin.from("waitlist_signups").select("*", { count: "exact", head: true }),
       admin
@@ -86,6 +101,7 @@ export default async function AdminDashboardPage() {
       staleAvailabilityResidences: staleAvailability.size,
       activeResidences: active.count ?? 0,
       pendingValidations: pending.count ?? 0,
+      waitingForResidence: waiting.count ?? 0,
       totalUsers: users.count ?? 0,
       waitlistLeads: waitlist.count ?? 0,
       pendingProfileEdits: pendingProfileEdits.count ?? 0,
@@ -97,14 +113,26 @@ export default async function AdminDashboardPage() {
       ),
     };
     recentActivity = activity.data ?? [];
+    expiringVerifications = (expiring.data ?? []).map((v) => {
+      const r = v.residences as unknown as { id: string; name: string };
+      return { residenceId: r.id, name: r.name, expiresAt: v.expires_at as string };
+    });
   }
 
   const metrics: { label: string; value: string | number; tone: "neutral" | "amber" | "emerald"; href?: string; note?: string }[] = [
     { label: "Residencias activas", value: stats.activeResidences, tone: "neutral" as const },
     {
-      label: "Validaciones pendientes",
+      label: "Verificaciones pendientes",
       value: stats.pendingValidations,
       tone: stats.pendingValidations > 0 ? ("amber" as const) : ("emerald" as const),
+      href: "/admin/verifications",
+    },
+    {
+      label: "Esperando a la residencia",
+      value: stats.waitingForResidence,
+      tone: "neutral" as const,
+      href: "/admin/verifications",
+      note: "Pedimos cambios y esperamos que las corrijan y reenvíen.",
     },
     {
       label: "Residencias con disponibilidad vencida",
@@ -160,7 +188,7 @@ export default async function AdminDashboardPage() {
             className="rounded px-4 py-2 text-sm font-bold text-white"
             style={{ backgroundColor: cmd.primary }}
           >
-            Revisar validaciones →
+            Revisar verificaciones →
           </a>
         )}
       </div>
@@ -192,6 +220,30 @@ export default async function AdminDashboardPage() {
           </AdminCard>
         ))}
       </div>
+
+      <AdminCard className="mt-6 p-5">
+        <h2 className="text-sm font-bold" style={{ color: cmd.onSurface }}>
+          Verificaciones que vencen en {EXPIRY_WARNING_DAYS} días
+        </h2>
+        {expiringVerifications.length === 0 ? (
+          <p className="mt-3 text-sm" style={{ color: cmd.outline }}>
+            Ninguna verificación vence en los próximos {EXPIRY_WARNING_DAYS} días.
+          </p>
+        ) : (
+          <ul className="mt-3 divide-y" style={{ borderColor: cmd.border }}>
+            {expiringVerifications.map((v) => (
+              <li key={v.residenceId} className="flex items-center justify-between py-2.5">
+                <Link href={`/admin/residences/${v.residenceId}`} className="text-sm font-semibold hover:underline" style={{ color: cmd.primary }}>
+                  {v.name}
+                </Link>
+                <span className="text-xs" style={{ color: cmd.outline }}>
+                  vence el {formatDate(v.expiresAt)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </AdminCard>
 
       <AdminCard className="mt-6 p-5">
         <h2 className="text-sm font-bold" style={{ color: cmd.onSurface }}>

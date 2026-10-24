@@ -40,6 +40,11 @@ describe.skipIf(!hasCreds)("fotos propias para publicar (integración)", () => {
       .single();
     if (error || !data) throw new Error(`No se pudo crear la residencia de prueba: ${error?.message}`);
     residenceIds.push(data.id);
+    // El alta real siempre crea la fila de verificación; aprobar sin ella es un error (no queda publicada sin vencimiento).
+    const { error: verificationError } = await admin
+      .from("residence_verifications")
+      .insert({ residence_id: data.id, status: "not_started" });
+    if (verificationError) throw new Error(`No se pudo crear la verificación de prueba: ${verificationError.message}`);
     return data.id as string;
   }
 
@@ -67,6 +72,8 @@ describe.skipIf(!hasCreds)("fotos propias para publicar (integración)", () => {
     const { reviewResidence } = await import("@/app/admin/verifications/actions");
     const fd = new FormData();
     fd.set("action", "approve");
+    fd.set("confirmed", "1"); // DR7: aprobar exige confirmación explícita
+    fd.set("visited_at", "2026-01-15"); // DR7: y la fecha de la visita presencial
     fd.set("responsible_identity_checked", "on");
     fd.set("address_checked", "on");
     fd.set("photos_match_reality", "on");

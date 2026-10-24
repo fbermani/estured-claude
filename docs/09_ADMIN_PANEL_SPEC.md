@@ -280,11 +280,15 @@ Información de residencia; usuario responsable; documentos cargados; fecha de v
 
 Programar visita; marcar visita completada; cargar checklist; aprobar verificación; rechazar verificación; pedir cambios; vencer verificación manualmente; suspender verificación; agregar notas internas.
 
+**DR7 (Ciclo 70):** "Programar visita" guarda `scheduled_at`; aprobar exige la fecha de la visita realizada (`visited_at`) y el checklist mínimo; aprobar y rechazar piden confirmación explícita; pedir cambios no guarda el checklist. En el dashboard, "Verificaciones pendientes" (esperan al admin) se separa de "Esperando a la residencia" (`needs_changes`).
+
 ### 7.5 Vencimiento de verificación
 
 Válida por un año. El sistema debe generar alertas: 60 días antes, 30 días antes, 7 días antes, y en la fecha de vencimiento.
 
 Si vence, el admin puede pausar la publicación hasta la re-verificación.
+
+**DR7 (Ciclo 70):** al vencer, la residencia pasa a `verification_expired`, entra a la cola de `/admin/verifications` con el chip "Vencida" y cuenta como pendiente del admin; el dueño puede reenviarla a revisión. Implementado: el aviso a 30 días del vencimiento (job horario existente) y la lista "vencen en 30 días" del dashboard; pendientes los avisos de 60 días, 7 días y el del día del vencimiento.
 
 ---
 

@@ -995,6 +995,8 @@ residence
 - Un owner puede tener hasta **10 residencias**, cada una con su propio estado.
 - El modo (Perfil Verificado / Gestión Operativa) se gestiona mediante feature flags por residencia.
 - **`needs_changes` → `pending_verification` (DR5, `docs/00` §31):** el admin pide cambios con un mensaje visible para la residencia; la residencia corrige y reenvía a revisión (el equipo vuelve a verla como pendiente). Desde `suspended` no se reenvía.
+- **`pending_verification` → `verification_scheduled` (DR7):** el admin programa la visita presencial (`scheduled_at`); no se puede aprobar sin la fecha de la visita realizada (`visited_at`). Aprobar → `verified_active`; rechazar → `suspended`; pedir cambios → `needs_changes`. Toda decisión es un update condicional por el estado actual (`pending_verification`, `verification_scheduled`, `verification_expired`; el rechazo también desde `needs_changes`).
+- **`verification_expired` → `pending_verification` (DR7):** el dueño reenvía la residencia a revisión con el mismo botón; la verificación interna `expired` vuelve a `documents_pending`. El admin la ve en su cola como "Vencida". Treinta días antes del vencimiento se avisa al equipo de la residencia.
 
 ---
 

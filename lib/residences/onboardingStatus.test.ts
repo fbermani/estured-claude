@@ -14,6 +14,9 @@ describe("getOnboardingBanner", () => {
     expect(getOnboardingBanner("draft")?.tone).toBe("info");
     expect(getOnboardingBanner("needs_changes")?.tone).toBe("warning");
     expect(getOnboardingBanner("suspended")?.tone).toBe("danger");
+    const expired = getOnboardingBanner("verification_expired");
+    expect(expired?.tone).toBe("warning");
+    expect(expired?.cta?.href).toBe("profile");
   });
 });
 

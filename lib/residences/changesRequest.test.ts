@@ -25,17 +25,18 @@ describe("validateChangesMessage", () => {
 });
 
 describe("transición de reenvío", () => {
-  it("solo draft y needs_changes pueden enviarse a revisión", () => {
-    expect([...SUBMITTABLE_RESIDENCE_STATUSES]).toEqual(["draft", "needs_changes"]);
+  it("solo draft, needs_changes y verification_expired pueden enviarse a revisión", () => {
+    expect([...SUBMITTABLE_RESIDENCE_STATUSES]).toEqual(["draft", "needs_changes", "verification_expired"]);
     for (const s of ["pending_verification", "verification_scheduled", "verified_active", "suspended", "paused_by_admin"]) {
       expect((SUBMITTABLE_RESIDENCE_STATUSES as readonly string[]).includes(s)).toBe(false);
     }
   });
-  it("la verificación solo vuelve a documents_pending desde not_started o needs_changes", () => {
-    expect([...VERIFICATION_STATUSES_RESET_ON_SUBMIT]).toEqual(["not_started", "needs_changes"]);
+  it("la verificación solo vuelve a documents_pending desde not_started, needs_changes o expired", () => {
+    expect([...VERIFICATION_STATUSES_RESET_ON_SUBMIT]).toEqual(["not_started", "needs_changes", "expired"]);
   });
   it("isResubmission distingue needs_changes", () => {
     expect(isResubmission("needs_changes")).toBe(true);
+    expect(isResubmission("verification_expired")).toBe(true);
     expect(isResubmission("draft")).toBe(false);
     expect(isResubmission(null)).toBe(false);
   });

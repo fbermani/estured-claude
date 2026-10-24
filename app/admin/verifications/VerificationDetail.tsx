@@ -2,7 +2,7 @@
 
 import { formatDate } from "@/lib/dates/format";
 import Image from "next/image";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
@@ -13,6 +13,7 @@ import { reviewResidence, type ReviewState } from "@/app/admin/verifications/act
 import { ResidencePhotoPlaceholder } from "@/components/residences/ResidencePhoto";
 import { MIN_PUBLISH_PHOTOS, hasEnoughPhotosToPublish } from "@/lib/residences/photos";
 import { CHANGES_MESSAGE_MAX, CHANGES_MESSAGE_MIN } from "@/lib/residences/changesRequest";
+import { isActionableStatus, type ReviewAction } from "@/lib/residences/verificationReview";
 
 interface Verification {
   status: string;
@@ -24,6 +25,7 @@ interface Verification {
   /** Migración 0048: mensaje que ve la residencia al pedirle cambios (puede faltar si la 0048 no está aplicada). */
   changes_requested_message?: string | null;
   visited_at: string | null;
+  scheduled_at: string | null;
 }
 
 interface Residence {
@@ -51,6 +53,7 @@ export function VerificationDetail({
   approvedPhotoCount,
   rulesFile,
   resubmittedAt,
+  residenceStatus,
 }: {
   residence: Residence;
   verification: Verification;
@@ -64,15 +67,44 @@ export function VerificationDetail({
   rulesFile: { id: string; filename: string; sizeKb: number } | null;
   /** Fecha en que la residencia reenvió el perfil tras pedirle cambios (audit log); null si no aplica. */
   resubmittedAt?: string | null;
+  /** Estado actual de la residencia: define si el admin todavía puede decidir (DR7). */
+  residenceStatus: string;
 }) {
   const action = reviewResidence.bind(null, residence.id);
   const [state, formAction] = useActionState(action, initialState);
 
+  // Campos controlados: si la acción devuelve un error de validación, lo escrito no se pierde (el form se resetea).
+  const [checks, setChecks] = useState({
+    responsible_identity_checked: verification.responsible_identity_checked,
+    coordinator_identity_checked: verification.coordinator_identity_checked,
+    address_checked: verification.address_checked,
+    photos_match_reality: verification.photos_match_reality,
+  });
+  const [visitedAt, setVisitedAt] = useState(verification.visited_at?.slice(0, 10) ?? "");
+  const [scheduledAt, setScheduledAt] = useState(verification.scheduled_at?.slice(0, 10) ?? "");
+  const [notes, setNotes] = useState(verification.notes_internal ?? "");
+  const [changesMessage, setChangesMessage] = useState(
+    verification.status === "needs_changes" ? (verification.changes_requested_message ?? "") : "",
+  );
+  // Confirmación de aprobar/rechazar: se muestra hasta que la acción devuelve un nuevo estado.
+  const [confirming, setConfirming] = useState<{ action: "approve" | "reject"; forState: ReviewState } | null>(null);
+  const confirmAction = confirming && confirming.forState === state ? confirming.action : null;
+  const canDecide = isActionableStatus(residenceStatus);
+  const isExpired = residenceStatus === "verification_expired";
+  const isWaiting = residenceStatus === "needs_changes";
+
   return (
-    <form action={formAction} className="max-w-4xl space-y-6">
+    <form
+      action={formAction}
+      className="max-w-4xl space-y-6"
+      // Enter en un campo de una línea no debe disparar una decisión (el primer botón de envío).
+      onKeyDown={(e) => {
+        if (e.key === "Enter" && e.target instanceof HTMLInputElement && e.target.type !== "checkbox") e.preventDefault();
+      }}
+    >
       <AdminCard className="p-6">
         <p className="text-xs font-bold uppercase tracking-wide" style={{ color: cmd.primary }}>
-          Residencias / Validación
+          Verificación de residencia
         </p>
         <h1 className="mt-1 text-2xl font-bold" style={{ color: cmd.onSurface }}>
           {residence.name}
@@ -86,7 +118,12 @@ export function VerificationDetail({
         </p>
         {resubmittedAt && (
           <p className="mt-3">
-            <AdminBadge tone="violet">Reenviada tras cambios pedidos · {formatDate(resubmittedAt)}</AdminBadge>
+            <AdminBadge tone="violet">Reenviada para revisión · {formatDate(resubmittedAt)}</AdminBadge>
+          </p>
+        )}
+        {isExpired && (
+          <p className="mt-3">
+            <AdminBadge tone="rose">Verificación vencida: hace falta una nueva visita</AdminBadge>
           </p>
         )}
         {residence.tagline && (
@@ -224,17 +261,20 @@ export function VerificationDetail({
         </p>
 
         <div className="mt-4 grid grid-cols-2 gap-3">
-          {[
-            { name: "responsible_identity_checked", label: "Identidad del responsable verificada (DNI)" },
-            { name: "coordinator_identity_checked", label: "Identidad del coordinador verificada (si aplica)" },
-            { name: "address_checked", label: "Dirección comprobada in situ" },
-            { name: "photos_match_reality", label: "Fotos coinciden con la realidad" },
-          ].map((c) => (
+          {(
+            [
+              { name: "responsible_identity_checked", label: "Identidad del responsable verificada (DNI)" },
+              { name: "coordinator_identity_checked", label: "Identidad del coordinador verificada (si aplica)" },
+              { name: "address_checked", label: "Dirección comprobada in situ" },
+              { name: "photos_match_reality", label: "Fotos coinciden con la realidad" },
+            ] as const
+          ).map((c) => (
             <label key={c.name} className="flex items-center gap-2 text-sm" style={{ color: cmd.onSurfaceVariant }}>
               <input
                 type="checkbox"
                 name={c.name}
-                defaultChecked={verification[c.name as keyof Verification] as boolean}
+                checked={checks[c.name]}
+                onChange={(e) => setChecks((prev) => ({ ...prev, [c.name]: e.target.checked }))}
                 className="h-4 w-4"
                 style={{ accentColor: cmd.primary }}
               />
@@ -245,27 +285,51 @@ export function VerificationDetail({
 
         <div className="mt-4 grid grid-cols-2 gap-4">
           <div>
-            <label className="text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
-              Fecha de visita
+            <label htmlFor="scheduled_at" className="text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
+              Visita programada para
             </label>
             <input
+              id="scheduled_at"
               type="date"
-              name="visited_at"
-              defaultValue={verification.visited_at?.slice(0, 10) ?? ""}
+              name="scheduled_at"
+              value={scheduledAt}
+              onChange={(e) => setScheduledAt(e.target.value)}
               className="mt-1 w-full rounded px-3 py-2 text-sm"
               style={{ border: `1px solid ${cmd.outline}` }}
             />
+            <p className="mt-1 text-xs" style={{ color: cmd.outline }}>
+              Solo para &ldquo;Programar visita&rdquo;. La residencia ve la fecha en su panel.
+            </p>
+          </div>
+          <div>
+            <label htmlFor="visited_at" className="text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
+              Fecha de la visita realizada
+            </label>
+            <input
+              id="visited_at"
+              type="date"
+              name="visited_at"
+              value={visitedAt}
+              onChange={(e) => setVisitedAt(e.target.value)}
+              className="mt-1 w-full rounded px-3 py-2 text-sm"
+              style={{ border: `1px solid ${cmd.outline}` }}
+            />
+            <p className="mt-1 text-xs" style={{ color: cmd.outline }}>
+              Obligatoria para aprobar: la verificación presencial no se puede saltear.
+            </p>
           </div>
         </div>
 
         <div className="mt-4">
-          <label className="text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
+          <label htmlFor="notes_internal" className="text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
             Notas internas / motivo
           </label>
           <textarea
+            id="notes_internal"
             name="notes_internal"
             rows={3}
-            defaultValue={verification.notes_internal ?? ""}
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
             placeholder="Obligatorio si rechazás. Es interno: la residencia no lo ve."
             className="mt-1 w-full rounded px-3 py-2 text-sm"
             style={{ border: `1px solid ${cmd.outline}` }}
@@ -281,32 +345,79 @@ export function VerificationDetail({
             name="changes_message"
             rows={4}
             maxLength={CHANGES_MESSAGE_MAX}
-            defaultValue={verification.status === "needs_changes" ? (verification.changes_requested_message ?? "") : ""}
+            value={changesMessage}
+            onChange={(e) => setChangesMessage(e.target.value)}
             placeholder={`Obligatorio al pedir cambios (${CHANGES_MESSAGE_MIN} a ${CHANGES_MESSAGE_MAX} caracteres). La residencia lo ve en su panel: decile qué corregir.`}
             className="mt-1 w-full rounded px-3 py-2 text-sm"
             style={{ border: `1px solid ${cmd.outline}` }}
           />
           <p className="mt-1 text-xs" style={{ color: cmd.outline }}>
-            Solo se usa al pedir cambios. No es una nota interna: la residencia lo lee.
+            Solo se usa al pedir cambios (y ahí no se guarda el checklist). No es una nota interna: la residencia lo lee.
           </p>
         </div>
 
         {state.status === "error" && (
-          <p className="mt-3 rounded px-3 py-2 text-sm font-medium" style={{ backgroundColor: cmd.roseBg, color: cmd.rose }}>
+          <p role="alert" className="mt-3 rounded px-3 py-2 text-sm font-medium" style={{ backgroundColor: cmd.roseBg, color: cmd.rose }}>
             {state.message}
           </p>
         )}
         {state.status === "saved" && (
-          <p className="mt-3 rounded px-3 py-2 text-sm font-medium" style={{ backgroundColor: cmd.emeraldBg, color: cmd.emerald }}>
+          <p role="status" className="mt-3 rounded px-3 py-2 text-sm font-medium" style={{ backgroundColor: cmd.emeraldBg, color: cmd.emerald }}>
             {state.message}
           </p>
         )}
 
-        <div className="mt-5 flex justify-end gap-3">
-          <ActionButton action="needs_changes" variant="secondary" label="Pedir cambios" />
-          <ActionButton action="reject" variant="danger" label="Rechazar" />
-          <ActionButton action="approve" variant="primary" label="Aprobar y publicar" />
-        </div>
+        {!canDecide ? (
+          <p className="mt-5 text-sm" style={{ color: cmd.outline }}>
+            Esta residencia ya no está pendiente de verificación: no se puede decidir desde acá.
+          </p>
+        ) : confirmAction ? (
+          <div
+            className="mt-5 rounded p-4"
+            style={{ border: `1px solid ${confirmAction === "approve" ? cmd.emerald : cmd.rose}`, backgroundColor: cmd.surface }}
+          >
+            <input type="hidden" name="confirmed" value="1" />
+            <p className="text-sm font-bold" style={{ color: cmd.onSurface }}>
+              {confirmAction === "approve" ? "¿Aprobar y publicar esta residencia?" : "¿Rechazar esta residencia?"}
+            </p>
+            <p className="mt-1 text-sm" style={{ color: cmd.onSurfaceVariant }}>
+              {confirmAction === "approve"
+                ? "Se publica la residencia en el catálogo y le avisamos al equipo de la residencia. Quedan registradas la fecha de la visita y el checklist."
+                : "Se suspende la residencia y no podrá reenviarla: va a tener que consultar por Soporte. Le avisamos al equipo de la residencia (sin el motivo, que es interno)."}
+            </p>
+            <div className="mt-4 flex justify-end gap-3">
+              <AdminButton type="button" variant="ghost" onClick={() => setConfirming(null)}>
+                Volver
+              </AdminButton>
+              {confirmAction === "approve" ? (
+                <ActionButton action="approve" variant="primary" label="Sí, aprobar y publicar" />
+              ) : (
+                <ActionButton action="reject" variant="danger" label="Sí, rechazar" />
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="mt-5 flex flex-wrap justify-end gap-3">
+            {isWaiting ? (
+              <p className="mr-auto self-center text-sm" style={{ color: cmd.outline }}>
+                Esperando que la residencia corrija y reenvíe. Mientras tanto solo podés rechazarla.
+              </p>
+            ) : (
+              <>
+                <ActionButton action="schedule" variant="secondary" label="Programar visita" />
+                <ActionButton action="needs_changes" variant="secondary" label="Pedir cambios" />
+              </>
+            )}
+            <AdminButton type="button" variant="danger" onClick={() => setConfirming({ action: "reject", forState: state })}>
+              Rechazar
+            </AdminButton>
+            {!isWaiting && (
+              <AdminButton type="button" variant="primary" onClick={() => setConfirming({ action: "approve", forState: state })}>
+                Aprobar y publicar
+              </AdminButton>
+            )}
+          </div>
+        )}
       </AdminCard>
     </form>
   );
@@ -317,7 +428,7 @@ function ActionButton({
   variant,
   label,
 }: {
-  action: "approve" | "needs_changes" | "reject";
+  action: ReviewAction;
   variant: "primary" | "secondary" | "danger";
   label: string;
 }) {

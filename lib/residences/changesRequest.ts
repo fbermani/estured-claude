@@ -18,14 +18,15 @@ export function validateChangesMessage(raw: unknown): { ok: true; value: string 
 }
 
 /** Estados de residencia desde los que "Enviar para revisión" la manda a `pending_verification`. */
-export const SUBMITTABLE_RESIDENCE_STATUSES = ["draft", "needs_changes"] as const;
+export const SUBMITTABLE_RESIDENCE_STATUSES = ["draft", "needs_changes", "verification_expired"] as const;
 
+/** Reenvío (no primer envío): tras pedir cambios (DR5) o tras vencer la verificación anual (DR7). */
 export function isResubmission(residenceStatus: string | null | undefined): boolean {
-  return residenceStatus === "needs_changes";
+  return residenceStatus === "needs_changes" || residenceStatus === "verification_expired";
 }
 
-/** Estado de `residence_verifications` al enviar: `needs_changes` vuelve a `documents_pending`; `not_started` también (ya existía). */
-export const VERIFICATION_STATUSES_RESET_ON_SUBMIT = ["not_started", "needs_changes"] as const;
+/** Estado de `residence_verifications` al enviar: `needs_changes` y `expired` (DR7) vuelven a `documents_pending`; `not_started` también (ya existía). */
+export const VERIFICATION_STATUSES_RESET_ON_SUBMIT = ["not_started", "needs_changes", "expired"] as const;
 
 /** `true` si el error de PostgREST/Postgres indica una columna inexistente (migración 0048 sin aplicar). */
 export function isMissingColumnError(error: { code?: string | null; message?: string | null } | null | undefined): boolean {

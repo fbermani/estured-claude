@@ -156,8 +156,10 @@ export async function saveResidenceProfile(
     .eq("id", residenceId)
     .single();
   const gateApplies = residenceRow?.status === "verified_active";
-  // Ciclo 66 (DR5): desde `needs_changes` el mismo "Enviar para revisión" reenvía la residencia.
+  // Ciclo 66 (DR5) y Ciclo 70 (DR7): desde `needs_changes` o `verification_expired` el mismo "Enviar para revisión"
+  // reenvía la residencia.
   const wasNeedsChanges = isResubmission(residenceRow?.status);
+  const previousResidenceStatus = (residenceRow?.status as string | undefined) ?? "needs_changes";
 
   const intent = String(formData.get("intent") ?? "draft");
   const tagline = String(formData.get("tagline") ?? "").trim();
@@ -608,16 +610,16 @@ export async function saveResidenceProfile(
 
       if (wasNeedsChanges && transitioned) {
         // El mensaje del admin se archiva en el audit log y se limpia de la fila (DR5). Tolera que la 0048 no esté aplicada.
+        // Solo aplica al reenvío tras "pedir cambios": el vencimiento (DR7) no tiene mensaje.
         let previousMessage: string | null = null;
-        const { data: vRow, error: vErr } = await admin
-          .from("residence_verifications")
-          .select("changes_requested_message")
-          .eq("residence_id", residenceId)
-          .maybeSingle();
+        const hadChangesMessage = previousResidenceStatus === "needs_changes";
+        const { data: vRow, error: vErr } = hadChangesMessage
+          ? await admin.from("residence_verifications").select("changes_requested_message").eq("residence_id", residenceId).maybeSingle()
+          : { data: null, error: null };
         if (!vErr) previousMessage = (vRow?.changes_requested_message as string | null | undefined) ?? null;
         else if (!isMissingColumnError(vErr)) console.error("[residence-profile] read changes message failed:", vErr);
 
-        if (!vErr) {
+        if (!vErr && hadChangesMessage) {
           const { error: clearErr } = await admin
             .from("residence_verifications")
             .update({ changes_requested_message: null })
@@ -631,7 +633,7 @@ export async function saveResidenceProfile(
           action: "residence_profile_resubmitted",
           entityType: "residences",
           entityId: residenceId,
-          oldValue: { residence_status: "needs_changes", changes_requested_message: previousMessage },
+          oldValue: { residence_status: previousResidenceStatus, changes_requested_message: previousMessage },
           newValue: { residence_status: "pending_verification", verification_status: "documents_pending", pending_review: pendingGroups },
           reasonText: previousMessage ?? undefined,
         });

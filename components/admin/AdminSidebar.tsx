@@ -133,7 +133,7 @@ function SupportCasesIcon() {
 const NAV = [
   { href: "/admin/dashboard", label: "Dashboard", Icon: DashboardIcon },
   { href: "/admin/residences", label: "Residencias", Icon: BuildingIcon },
-  { href: "/admin/verifications", label: "Validaciones", Icon: ValidationsIcon },
+  { href: "/admin/verifications", label: "Verificaciones", Icon: ValidationsIcon },
   { href: "/admin/profile-edits", label: "Ediciones de perfil", Icon: ProfileEditsIcon },
   { href: "/admin/pricing", label: "Administración de tarifas", Icon: PricingIcon },
   { href: "/admin/documents", label: "Documentos", Icon: DocumentsIcon },

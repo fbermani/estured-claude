@@ -136,6 +136,7 @@ const statusCopy: Record<string, { label: string; tone: "neutral" | "amber" | "s
   verification_scheduled: { label: "Visita programada", tone: "amber" },
   verified_active: { label: "Verificada y publicada", tone: "sage" },
   needs_changes: { label: "Requiere cambios", tone: "amber" },
+  verification_expired: { label: "Verificación vencida", tone: "amber" },
 };
 
 function emptyRoomType(): RoomTypeDraft {
@@ -245,6 +246,8 @@ export function ResidenceProfileForm({
                 ? `Mantené al día la información de ${initial.name}.`
                 : initial.status === "needs_changes"
                   ? `Corregí lo que pidió el equipo de EstuRed en ${initial.name} y reenviala para revisión.`
+                  : initial.status === "verification_expired"
+                    ? `La verificación anual de ${initial.name} venció. Revisá que el perfil esté al día y reenviala para revisión.`
                   : `Mantené al día la información de ${initial.name} mientras el equipo de EstuRed la revisa.`}
           </p>
         </div>
@@ -260,6 +263,15 @@ export function ResidenceProfileForm({
             <p className="mt-2 text-sm text-ink">{changesRequestedMessageOrFallback(null).text}</p>
           )}
           <p className="mt-2 text-xs text-ink-soft">Cuando termines de corregir, tocá &ldquo;Reenviar para revisión&rdquo; al final de la página.</p>
+        </section>
+      )}
+
+      {initial.status === "verification_expired" && (
+        <section role="alert" aria-label="Verificación vencida" className="mb-8 rounded-card border-[1.5px] border-warning-fg/30 bg-warning-bg p-5">
+          <p className="text-sm font-bold text-warning-fg">La verificación anual venció</p>
+          <p className="mt-2 text-sm text-ink">
+            Tu residencia dejó de estar publicada hasta que se vuelva a verificar. Cuando el perfil esté al día, tocá &ldquo;Reenviar para revisión&rdquo; al final de la página: el equipo de EstuRed coordina la nueva visita presencial.
+          </p>
         </section>
       )}
 
@@ -975,7 +987,7 @@ export function ResidenceProfileForm({
             <SubmitButton
               intent="submit"
               variant="primary"
-              idleLabel={initial.status === "needs_changes" ? "Reenviar para revisión" : "Enviar para revisión"}
+              idleLabel={initial.status === "needs_changes" || initial.status === "verification_expired" ? "Reenviar para revisión" : "Enviar para revisión"}
               pendingLabel="Enviando…"
             />
           </div>
@@ -986,6 +998,8 @@ export function ResidenceProfileForm({
                 ? "Los cambios se guardan al instante, salvo fotos, servicios, reglas, mínimo de estadía y tipos de habitación: esos quedan pendientes de aprobación del equipo de EstuRed. No hace falta volver a enviarla."
                 : initial.status === "needs_changes"
                   ? "Guardar cambios conserva tu avance sin enviarlo. Reenviar para revisión vuelve a mandar la residencia al equipo de EstuRed con tus correcciones."
+                  : initial.status === "verification_expired"
+                    ? "Guardar cambios conserva tu avance sin enviarlo. Reenviar para revisión manda la residencia al equipo de EstuRed, que coordina la nueva visita antes de volver a publicarla."
                   : "Guardar cambios actualiza tu perfil. Tu residencia ya fue enviada: el equipo de EstuRed la ve con los cambios al revisarla."}
           </p>
         </div>

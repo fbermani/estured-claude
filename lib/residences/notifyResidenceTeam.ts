@@ -10,7 +10,11 @@ import { sendEmail } from "@/lib/email/sendEmail";
  * El texto es deliberadamente genérico (sin nombre del estudiante ni datos personales: el email viaja por un tercero)
  * y no promete disponibilidad. El detalle se ve al entrar con el enlace.
  */
-export type ResidenceTeamEvent = "new_application" | "new_waitlist_entry" | "new_renewal_request" | "changes_requested";
+export type ResidenceTeamEvent = "new_application" | "new_waitlist_entry" | "new_renewal_request"
+  | "changes_requested"
+  | "verification_approved"
+  | "verification_rejected"
+  | "verification_expiring";
 
 const ENTITY_BY_EVENT: Record<ResidenceTeamEvent, string> = {
   new_application: "application_requests",
@@ -18,6 +22,9 @@ const ENTITY_BY_EVENT: Record<ResidenceTeamEvent, string> = {
   new_renewal_request: "renewal_requests",
   // Ciclo 66: el destino de la campana es el Panel (`notificationHref` área residencia, entidad `residences`).
   changes_requested: "residences",
+  verification_approved: "residences",
+  verification_rejected: "residences",
+  verification_expiring: "residences",
 };
 
 function pathFor(event: ResidenceTeamEvent, residenceId: string, entityId: string): string {
@@ -29,6 +36,9 @@ function pathFor(event: ResidenceTeamEvent, residenceId: string, entityId: strin
     case "new_renewal_request":
       return `/residence/${residenceId}/renewals`;
     case "changes_requested":
+    case "verification_approved":
+    case "verification_rejected":
+    case "verification_expiring":
       return `/residence/${residenceId}`;
   }
 }
@@ -74,6 +84,31 @@ export function buildResidenceTeamMessage(
         body: "Entrá a tu panel para ver qué corregir y reenviarlo.",
         subject: "EstuRed: pedimos cambios en tu perfil",
         intro: `Pedimos cambios en tu perfil de ${residenceName}. Entrá a tu panel para ver qué corregir y reenviarlo.`,
+        cta: "Ir a mi panel",
+      };
+    // Ciclo 70 (DR7): sin motivos ni datos sensibles (el email viaja por un tercero) y sin plazos inventados.
+    case "verification_approved":
+      return {
+        title: `Aprobamos la verificación de ${residenceName}`,
+        body: "Tu residencia ya está publicada en el catálogo de EstuRed. Entrá a tu panel para ver cómo sigue.",
+        subject: "EstuRed: aprobamos la verificación de tu residencia",
+        intro: `Aprobamos la verificación de ${residenceName}. Tu residencia ya está publicada en el catálogo de EstuRed.`,
+        cta: "Ir a mi panel",
+      };
+    case "verification_rejected":
+      return {
+        title: `La verificación de ${residenceName} no fue aprobada`,
+        body: "Tu residencia no está publicada. Para conocer el motivo y los pasos a seguir, escribinos por Soporte.",
+        subject: "EstuRed: la verificación de tu residencia no fue aprobada",
+        intro: `La verificación de ${residenceName} no fue aprobada y la residencia no está publicada. Para conocer el motivo y los pasos a seguir, escribinos por Soporte.`,
+        cta: "Ir a mi panel",
+      };
+    case "verification_expiring":
+      return {
+        title: `La verificación de ${residenceName} vence pronto`,
+        body: "Vence en menos de 30 días. Cuando venza vas a poder reenviarla para revisión desde tu panel y el equipo de EstuRed coordina la nueva visita.",
+        subject: "EstuRed: la verificación de tu residencia vence pronto",
+        intro: `La verificación de ${residenceName} vence en menos de 30 días. Cuando venza vas a poder reenviarla para revisión desde tu panel y el equipo de EstuRed coordina la nueva visita.`,
         cta: "Ir a mi panel",
       };
   }

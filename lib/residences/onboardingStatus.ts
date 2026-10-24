@@ -61,6 +61,15 @@ export function getOnboardingBanner(status: string, options: { changesMessage?: 
         cta: { label: "Corregir y reenviar", href: "profile" },
       };
     }
+    case "verification_expired":
+      return {
+        tone: "warning",
+        icon: "event_busy",
+        title: "La verificación anual venció",
+        now: "Tu residencia dejó de estar publicada hasta que se vuelva a verificar. Revisá que el perfil esté al día y reenviala para revisión.",
+        meanwhile: "El equipo de EstuRed coordina la nueva visita presencial y te avisa por mail y en la campana. Mientras tanto no recibís solicitudes de estudiantes.",
+        cta: { label: "Revisar y reenviar", href: "profile" },
+      };
     case "suspended":
       return {
         tone: "danger",
@@ -108,6 +117,8 @@ export function buildOnboardingChecklist(input: ChecklistInput): ChecklistItem[]
     visit = { key: "visit", label: "Verificación presencial", detail: "Realizada y aprobada.", state: "done", href: null };
   } else if (visited) {
     visit = { key: "visit", label: "Verificación presencial", detail: "Visita realizada; el equipo está revisando.", state: "in_progress", href: null };
+  } else if (v === "expired") {
+    visit = { key: "visit", label: "Verificación presencial", detail: "La verificación anual venció: hace falta una nueva visita.", state: "todo", href: null };
   } else if (scheduled) {
     visit = {
       key: "visit",

@@ -30,8 +30,15 @@ describe("buildResidenceTeamMessage", () => {
     expect(m.intro).toBe("Pedimos cambios en tu perfil de Casa Norte. Entrá a tu panel para ver qué corregir y reenviarlo.");
     expect(m.cta.length).toBeGreaterThan(0);
   });
-  it("cubre los cuatro eventos", () => {
-    for (const e of ["new_application", "new_waitlist_entry", "new_renewal_request", "changes_requested"] as const) {
+  it("aprobación y rechazo no vuelcan motivos ni prometen plazos; el rechazo remite a Soporte", () => {
+    const ok = buildResidenceTeamMessage("verification_approved", "Casa Norte");
+    expect(ok.title).toBe("Aprobamos la verificación de Casa Norte");
+    const no = buildResidenceTeamMessage("verification_rejected", "Casa Norte");
+    expect(no.body).toContain("Soporte");
+    for (const m of [ok, no]) expect(`${m.title} ${m.body} ${m.intro}`.toLowerCase()).not.toMatch(/mediaci|garantiz|\d+ (días|horas)/);
+  });
+  it("cubre todos los eventos", () => {
+    for (const e of ["new_application", "new_waitlist_entry", "new_renewal_request", "changes_requested", "verification_approved", "verification_rejected", "verification_expiring"] as const) {
       const m = buildResidenceTeamMessage(e, "X");
       expect(m.subject.startsWith("EstuRed")).toBe(true);
       expect(m.cta.length).toBeGreaterThan(0);

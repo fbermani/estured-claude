@@ -26,6 +26,8 @@ const ACTION_PHRASES: Record<string, string> = {
   residence_verification_approved: "aprobó y publicó una residencia",
   residence_verification_rejected: "rechazó una residencia",
   residence_verification_needs_changes: "pidió cambios en una residencia",
+  residence_verification_scheduled: "programó la visita de verificación de una residencia",
+  residence_verification_expiry_warned: "avisó que vence pronto la verificación de una residencia",
   residence_verification_expired: "venció la verificación anual de una residencia",
   residence_profile_edit_approved: "aprobó una edición de perfil",
   residence_profile_edit_rejected: "rechazó una edición de perfil",

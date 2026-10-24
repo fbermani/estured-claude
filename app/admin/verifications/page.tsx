@@ -5,17 +5,19 @@ import { cmd } from "@/components/admin/ui/tokens";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
 import { VerificationDetail } from "@/app/admin/verifications/VerificationDetail";
 import { requireAdmin } from "@/lib/auth/requireAdmin";
+import { pluralize } from "@/lib/format/plural";
+import {
+  QUEUE_CHIPS,
+  QUEUE_STATUSES,
+  REVIEW_EVENT_ACTIONS,
+  queueChipKey,
+  sortQueue,
+  summarizeQueue,
+  wasResubmitted,
+} from "@/lib/residences/verificationReview";
 
-export const metadata: Metadata = { title: "Validación de residencias" };
+export const metadata: Metadata = { title: "Verificación de residencias" };
 export const dynamic = "force-dynamic";
-
-const PENDING_STATUSES = ["pending_verification", "verification_scheduled", "needs_changes"];
-
-const statusBadge: Record<string, { label: string; tone: "amber" | "violet" | "rose" }> = {
-  pending_verification: { label: "Nueva", tone: "amber" },
-  verification_scheduled: { label: "Visita programada", tone: "violet" },
-  needs_changes: { label: "Cambios pedidos", tone: "rose" },
-};
 
 export default async function VerificationsPage({
   searchParams,
@@ -31,10 +33,25 @@ export default async function VerificationsPage({
         await admin
           .from("residences")
           .select("id, name, public_area, status, created_at")
-          .in("status", PENDING_STATUSES)
+          .in("status", [...QUEUE_STATUSES])
           .order("created_at", { ascending: true })
       ).data ?? []
     : [];
+  // Indicio de reenvío (DR5/DR7): el evento más reciente de cada residencia entre "pidió cambios" y "reenvió".
+  const latestEventByResidence = new Map<string, string>();
+  if (admin && queueRows.length > 0) {
+    const { data: events } = await admin
+      .from("audit_logs")
+      .select("entity_id, action, created_at")
+      .eq("entity_type", "residences")
+      .in("entity_id", queueRows.map((r) => r.id))
+      .in("action", [...REVIEW_EVENT_ACTIONS])
+      .order("created_at", { ascending: false });
+    for (const e of events ?? []) {
+      const id = e.entity_id as string;
+      if (!latestEventByResidence.has(id)) latestEventByResidence.set(id, e.action as string);
+    }
+  }
   // Ciclo 56: el responsable es privado (`residence_private_details`, solo service role).
   const queueResponsibles = new Map<string, string | null>();
   if (admin && queueRows.length > 0) {
@@ -44,7 +61,14 @@ export default async function VerificationsPage({
       .in("residence_id", queueRows.map((r) => r.id));
     for (const row of privateRows ?? []) queueResponsibles.set(row.residence_id as string, row.responsible_name as string | null);
   }
-  const queue = queueRows.map((r) => ({ ...r, responsible_name: queueResponsibles.get(r.id) ?? null }));
+  const queue = sortQueue(
+    queueRows.map((r) => ({
+      ...r,
+      responsible_name: queueResponsibles.get(r.id) ?? null,
+      resubmitted: wasResubmitted(r.status, latestEventByResidence.get(r.id)),
+    })),
+  );
+  const queueSummary = summarizeQueue(queue.map((r) => r.status));
 
   const activeId = selectedId ?? queue[0]?.id ?? null;
 
@@ -86,13 +110,13 @@ export default async function VerificationsPage({
       .select("action, created_at")
       .eq("entity_type", "residences")
       .eq("entity_id", activeId)
-      .in("action", ["residence_verification_needs_changes", "residence_profile_resubmitted"])
+      .in("action", [...REVIEW_EVENT_ACTIONS])
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
     const resubmittedAt =
-      residence?.status === "pending_verification" && lastReviewEvent?.action === "residence_profile_resubmitted"
-        ? (lastReviewEvent.created_at as string)
+      residence && wasResubmitted(residence.status as string, lastReviewEvent?.action as string | undefined)
+        ? (lastReviewEvent?.created_at as string)
         : null;
 
     if (residence && verification) {
@@ -104,6 +128,7 @@ export default async function VerificationsPage({
           responsible_contact: (privateDetails?.responsible_contact as string | null) ?? "",
         },
         verification,
+        residenceStatus: residence.status as string,
         resubmittedAt,
         services: (sectionMap.services?.items as string[]) ?? [],
         nearUniversities: (sectionMap.near_universities?.items as string[]) ?? [],
@@ -138,20 +163,21 @@ export default async function VerificationsPage({
       <div className="w-96 shrink-0 overflow-y-auto border-r" style={{ borderColor: cmd.border }}>
         <div className="border-b p-4" style={{ borderColor: cmd.border }}>
           <h1 className="text-lg font-bold" style={{ color: cmd.onSurface }}>
-            Validación de Residencias
+            Verificación de residencias
           </h1>
           <p className="text-xs" style={{ color: cmd.outline }}>
-            {queue.length} pendientes
+            {pluralize(queueSummary.toReview, "pendiente", "pendientes")}
+            {queueSummary.waitingForResidence > 0 && ` · ${queueSummary.waitingForResidence} esperando a la residencia`}
           </p>
         </div>
         {queue.length === 0 ? (
           <p className="p-4 text-sm" style={{ color: cmd.outline }}>
-            No hay residencias esperando validación.
+            No hay residencias esperando verificación.
           </p>
         ) : (
           <ul>
             {queue.map((r) => {
-              const badge = statusBadge[r.status] ?? statusBadge.pending_verification;
+              const badge = QUEUE_CHIPS[queueChipKey(r.status, r.resubmitted)];
               const active = r.id === activeId;
               return (
                 <li key={r.id} style={{ borderBottom: `1px solid ${cmd.border}` }}>

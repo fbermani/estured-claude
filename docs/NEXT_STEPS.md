@@ -8,6 +8,12 @@
 
 ---
 
+## CICLO 70 (2026-10-24) — Ciclo de vida de la verificación (DR7)
+
+Ver `MEMORY.md` Ciclo 70 y `docs/00` §31 (DR7). Sin migraciones. Pendiente: avisos de 60/7 días y del día del vencimiento (`docs/09` §7.5), aviso al programar visita, alinear el copy del job `expireResidenceVerifications` con el reenvío del dueño, y probar aprobar/rechazar de punta a punta con una residencia descartable.
+
+---
+
 ## CICLO 68 (2026-10-24) — "Resolver revocación" (DR6)
 
 Ver `MEMORY.md` Ciclo 68 y `docs/00` §31 (DR6). El admin reintegra el fee completo o deniega la revocación, siempre con motivo; el reintegro real es manual, por fuera de la plataforma. ⚠ **Acción manual del dueño:** aplicar `db/migrations/0049_revocation_resolution.sql` en dev y en producción (SQL Editor), en orden **0046, 0045, 0047, 0048, 0049** (la 0047 antes que la 0049). Luego en dev: `node --env-file=.env.local scripts/seed-revocation-states.mjs` y `MIGRATION_0049_APPLIED=1 npx vitest run lib/revocations/resolveFeeRevocationIntegration`, y probar en `/admin/activity?tab=revocations` (Admin operativo) la resolución de la revocación de Camila (restaurar o resembrar después).
