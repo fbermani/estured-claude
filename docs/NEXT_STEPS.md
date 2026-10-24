@@ -8,6 +8,12 @@
 
 ---
 
+## CICLO 63 (2026-10-24) — Residencias, Bloque 1
+
+Ver `MEMORY.md` Ciclo 63. Sin migraciones ni acciones manuales. Pendiente: aviso "por vencer 24 h" a la residencia (toca el cron), aviso al promover solicitudes de la cola, y verificación visual (Ricardo, owner de Residencia Norte).
+
+---
+
 ## CICLO 62 (2026-10-24) — DR4: desglose de costos y "Proponer a [nombre]" en la ficha
 
 Ver `MEMORY.md` Ciclo 62. Sin migraciones nuevas ni acciones manuales; siguen pendientes de aplicar la **0046 (urgente) y la 0045** del Ciclo 61. Siguiente: consentimiento `family_contact_disclosure` en las propuestas, decidir "subir comprobantes a la residencia" por el familiar y avisos in-app al estudiante.

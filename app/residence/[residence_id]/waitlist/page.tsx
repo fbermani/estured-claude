@@ -11,6 +11,7 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { daysUntilDesired as computeDaysUntilDesired, describeDaysUntilDesired } from "@/lib/waitlist-entries/daysUntilDesired";
 import { WaitlistRowActions } from "@/app/residence/[residence_id]/waitlist/WaitlistRowActions";
 
 export const metadata: Metadata = { title: "Lista de espera" };
@@ -90,9 +91,7 @@ export default async function ResidenceWaitlistPage({
 
   const enriched = rows.map((entry) => {
     const waitingDays = daysBetween(entry.joined_at, nowIso);
-    const daysUntilDesired = entry.desired_start_date
-      ? daysBetween(nowIso, `${formatDateOnly(entry.desired_start_date)}T00:00:00`)
-      : null;
+    const daysUntilDesired = computeDaysUntilDesired(entry.desired_start_date);
     return {
       ...entry,
       waitingDays,
@@ -185,17 +184,8 @@ export default async function ResidenceWaitlistPage({
                             {entry.desired_start_date && (
                               <>
                                 Ingreso deseado {formatDateOnly(entry.desired_start_date)}
-                                {entry.daysUntilDesired !== null && (
-                                  <>
-                                    {" "}
-                                    (
-                                    {entry.daysUntilDesired < 0
-                                      ? "fecha vencida"
-                                      : entry.daysUntilDesired === 0
-                                        ? "hoy"
-                                        : `en ${entry.daysUntilDesired} días`}
-                                    )
-                                  </>
+                                {describeDaysUntilDesired(entry.daysUntilDesired) && (
+                                  <> ({describeDaysUntilDesired(entry.daysUntilDesired)})</>
                                 )}
                               </>
                             )}

@@ -119,6 +119,27 @@ export default async function ResidenceApplicationsPage({
     }
   }
 
+  // Reserva confirmada: N.º y código verificable del comprobante (sin datos de facturación ni del pagador).
+  const receiptIds = [...reservationInfoByAppId.values()]
+    .filter((r) => r.status === "confirmed" && r.bookingReceiptId)
+    .map((r) => r.bookingReceiptId as string);
+  const receiptById = new Map<string, { receiptNumber: string; verificationCode: string }>();
+  if (receiptIds.length > 0) {
+    const { data: receipts, error: receiptsError } = await admin
+      .from("booking_receipts")
+      .select("id, receipt_number, verification_code, status")
+      .in("id", receiptIds)
+      .eq("residence_id", residenceId)
+      .in("status", ["issued", "reissued"]);
+    if (receiptsError) console.error("[residence/applications] booking_receipts query failed:", receiptsError);
+    for (const r of receipts ?? []) {
+      receiptById.set(r.id as string, {
+        receiptNumber: r.receipt_number as string,
+        verificationCode: r.verification_code as string,
+      });
+    }
+  }
+
   const fullApplications: FullApplication[] = rows.map((a) => {
     // Perfil crudo: SOLO se usa acá, en el servidor. Al cliente viaja `applicant`, ya filtrado
     // por privacidad (menor / interruptores de visibilidad) y sin apellido, nacimiento ni contacto.
@@ -176,6 +197,10 @@ export default async function ResidenceApplicationsPage({
             hasReceipt: reservationInfo.hasReceipt,
           }
         : null,
+      confirmedBooking:
+        reservationInfo?.status === "confirmed" && reservationInfo.bookingReceiptId
+          ? (receiptById.get(reservationInfo.bookingReceiptId) ?? null)
+          : null,
       whatsappUrl,
       waitlistRelatedCount: a.room_type_id ? (waitlistCountByType.get(a.room_type_id) ?? 0) : 0,
       isActive: (ACTIVE_APPLICATION_STATUSES as readonly string[]).includes(a.status),

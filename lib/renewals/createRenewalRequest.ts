@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
+import { notifyResidenceTeam } from "@/lib/residences/notifyResidenceTeam";
 
 export type CreateRenewalRequestResult = { ok: true; renewalRequestId: string } | { ok: false; error: string };
 
@@ -81,6 +82,12 @@ export async function createRenewalRequest(
     entityType: "renewal_requests",
     entityId: request.id,
     source: "user",
+  });
+
+  await notifyResidenceTeam(admin, {
+    residenceId: reservation.residence_id,
+    event: "new_renewal_request",
+    entityId: request.id,
   });
 
   return { ok: true, renewalRequestId: request.id };

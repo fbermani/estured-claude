@@ -34,6 +34,8 @@ export type FullApplication = {
   priceAgreed: boolean;
   /** Reserva asociada (H01): su estado manda sobre el de la solicitud. */
   reservation: ReservationStatusInput | null;
+  /** Reserva confirmada con comprobante emitido: solo N.º y código de verificación (sin facturación ni pagador). */
+  confirmedBooking: { receiptNumber: string; verificationCode: string } | null;
   whatsappUrl: string | null;
   waitlistRelatedCount: number;
   isActive: boolean;
@@ -370,6 +372,42 @@ function ApplicationDetail({ residenceId, app }: { residenceId: string; app: Ful
             ? "1 estudiante en lista de espera para este mismo tipo de habitación →"
             : `${app.waitlistRelatedCount} estudiantes en lista de espera para este mismo tipo de habitación →`}
         </Link>
+      )}
+
+      {app.confirmedBooking && (
+        <div className="mt-6 rounded-card border border-success-fg/30 bg-success-bg p-4">
+          <p className="flex items-center gap-2 text-sm font-bold text-success-fg">
+            <Icon name="verified" className="text-lg" />
+            Reserva confirmada
+          </p>
+          <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-ink-faint">Ingreso</p>
+          <p className="text-xl font-extrabold text-ink">{formatDateOnly(app.desiredStartDate)}</p>
+          <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
+            <div>
+              <dt className="text-ink-faint">Comprobante N.º</dt>
+              <dd className="font-mono font-semibold text-ink">{app.confirmedBooking.receiptNumber}</dd>
+            </div>
+            <div>
+              <dt className="text-ink-faint">Verificación pública</dt>
+              <dd>
+                <a
+                  href={`/verify/${app.confirmedBooking.verificationCode}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-semibold text-forest-700 underline"
+                >
+                  Verificar comprobante
+                </a>
+              </dd>
+            </div>
+          </dl>
+          <Link
+            href={`/residence/${residenceId}/residents`}
+            className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-forest-600 px-4 py-2 text-sm font-semibold text-white hover:bg-forest-700"
+          >
+            Ir a Residentes →
+          </Link>
+        </div>
       )}
 
       <div className="mt-8 border-t border-sand-200 pt-6">

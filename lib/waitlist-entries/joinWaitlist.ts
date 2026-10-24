@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
+import { notifyResidenceTeam } from "@/lib/residences/notifyResidenceTeam";
 import { typeAvailabilityState } from "@/lib/availability/typeAvailability";
 import { checkReservationWindowOverlap } from "@/lib/students/reservationWindow";
 
@@ -136,6 +137,8 @@ export async function joinWaitlist(
     entityId: entry.id,
     source: "user",
   });
+
+  await notifyResidenceTeam(admin, { residenceId: params.residenceId, event: "new_waitlist_entry", entityId: entry.id });
 
   return { ok: true, waitlistEntryId: entry.id };
 }

@@ -7,6 +7,7 @@ import { calculateFeeEstimate } from "@/lib/applications/fee";
 import { emptyMonthsChargeUsd } from "@/lib/applications/emptyMonths";
 import { getResidenceConditions, resolveEnrollmentFeeUsd } from "@/lib/residences/conditions";
 import { buildInitialPayment } from "@/lib/reservations/initialPayment";
+import { notifyResidenceTeam } from "@/lib/residences/notifyResidenceTeam";
 import { determineInitialApplicationStatus } from "@/lib/applications/roomTypeQueue";
 
 /**
@@ -145,6 +146,11 @@ export async function createApplicationFromRoomType(
       entityId: request.id,
       newValue: { residence_id: params.residenceId, room_type_id: params.roomTypeId, contact_target: params.contactTarget },
     });
+
+    // Aviso al equipo de la residencia (best-effort). Las solicitudes en cola aún no son visibles: no avisan.
+    if (initialStatus.status === "submitted") {
+      await notifyResidenceTeam(admin, { residenceId: params.residenceId, event: "new_application", entityId: request.id });
+    }
 
     return { id: request.id };
   } catch (error) {

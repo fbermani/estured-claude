@@ -255,6 +255,15 @@ export function ApplicationActions({
         </p>
       )}
 
+      <p className="flex items-start gap-2 rounded-field bg-sand-100 px-4 py-3 text-sm text-ink-soft">
+        <Icon name="info" className="mt-0.5 text-base" />
+        <span>
+          <span className="font-bold text-ink">Establecer contacto equivale a aceptar la solicitud.</span> Desde ahí
+          tenés 48 h para habilitar el pago o enviar una propuesta de ajuste; si no, la solicitud vence. Después: contacto
+          → ajuste opcional → habilitar pago → marcar pago recibido.
+        </span>
+      </p>
+
       <div className="flex flex-wrap gap-3">
         {status === "submitted" && (
           <Button

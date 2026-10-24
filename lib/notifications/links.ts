@@ -24,7 +24,7 @@ export type NotificationLinkContext = {
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** Tipos de entidad que, para el área residencia, necesitan saber de qué residencia son. */
-export const RESIDENCE_SCOPED_ENTITY_TYPES = ["support_cases", "application_requests", "residence_faq_questions", "stay_change_intents"] as const;
+export const RESIDENCE_SCOPED_ENTITY_TYPES = ["support_cases", "application_requests", "residence_faq_questions", "stay_change_intents", "waitlist_entries", "renewal_requests"] as const;
 
 /** Columna que dice de qué residencia es cada tipo de entidad (por defecto `residence_id`). */
 export const RESIDENCE_COLUMN_BY_ENTITY: Record<string, string> = { stay_change_intents: "current_residence_id" };
@@ -108,6 +108,14 @@ export function notificationHref(
     case "residence_faq_questions": {
       const residenceId = id ? context.residenceIdByEntity?.[`residence_faq_questions:${id}`] : undefined;
       return residenceId ? `/residence/${residenceId}/faq` : null;
+    }
+    case "waitlist_entries": {
+      const residenceId = id ? context.residenceIdByEntity?.[`waitlist_entries:${id}`] : undefined;
+      return residenceId ? `/residence/${residenceId}/waitlist` : null;
+    }
+    case "renewal_requests": {
+      const residenceId = id ? context.residenceIdByEntity?.[`renewal_requests:${id}`] : undefined;
+      return residenceId ? `/residence/${residenceId}/renewals` : null;
     }
     case "stay_change_intents": {
       const residenceId = id ? context.residenceIdByEntity?.[`stay_change_intents:${id}`] : undefined;
