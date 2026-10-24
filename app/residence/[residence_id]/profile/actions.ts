@@ -17,6 +17,7 @@ import {
 } from "@/lib/residences/options";
 import { applyRoomTypesUpdate, hasStructuralRoomTypeChange, stageProfileEdit, type RoomTypeEditInput } from "@/lib/residences/profileEdits";
 import { logTariffChange } from "@/lib/residences/tariffLog";
+import { SUBMITTABLE_RESIDENCE_STATUSES, VERIFICATION_STATUSES_RESET_ON_SUBMIT, isMissingColumnError, isResubmission } from "@/lib/residences/changesRequest";
 import { validateEarlyExitPolicy } from "@/lib/stayChange/validate";
 import { describeInitialPaymentForLog, initialPaymentConfigFromRow, parseInitialPaymentInput, type InitialPaymentConfig } from "@/lib/reservations/initialPayment";
 
@@ -155,6 +156,8 @@ export async function saveResidenceProfile(
     .eq("id", residenceId)
     .single();
   const gateApplies = residenceRow?.status === "verified_active";
+  // Ciclo 66 (DR5): desde `needs_changes` el mismo "Enviar para revisión" reenvía la residencia.
+  const wasNeedsChanges = isResubmission(residenceRow?.status);
 
   const intent = String(formData.get("intent") ?? "draft");
   const tagline = String(formData.get("tagline") ?? "").trim();
@@ -558,25 +561,83 @@ export async function saveResidenceProfile(
     await createAuditLog(admin, {
       actorUserId: sessionUser.id,
       actorRole: "residence_owner",
-      action: intent === "submit" ? "residence_profile_submitted" : "residence_profile_saved_draft",
+      // En un reenvío tras cambios pedidos, el evento propio es `residence_profile_resubmitted` (más abajo, ya confirmada la transición).
+      action: intent === "submit" && !wasNeedsChanges ? "residence_profile_submitted" : "residence_profile_saved_draft",
       entityType: "residences",
       entityId: residenceId,
       newValue: { services, common_areas: commonAreas, room_types_count: roomTypes.length, pending_review: pendingGroups },
     });
 
     if (intent === "submit") {
-      const { error: statusError } = await admin
+      // Update condicional + filas afectadas: no reabre si ya estaba en un estado posterior y evita la carrera con el admin.
+      const { data: moved, error: statusError } = await admin
         .from("residences")
         .update({ status: "pending_verification" })
         .eq("id", residenceId)
-        .eq("status", "draft"); // no reabrir si ya estaba en un estado posterior
+        .in("status", [...SUBMITTABLE_RESIDENCE_STATUSES])
+        .select("id");
       if (statusError) throw statusError;
+      const transitioned = (moved ?? []).length > 0;
 
-      await admin
-        .from("residence_verifications")
-        .update({ status: "documents_pending" })
-        .eq("residence_id", residenceId)
-        .eq("status", "not_started");
+      if (wasNeedsChanges && !transitioned) {
+        return {
+          status: "error",
+          message: "El estado de tu residencia cambió mientras editabas. Recargá la página para ver cómo sigue.",
+        };
+      }
+
+      // `not_started` (primer envío) y `needs_changes` (reenvío) vuelven a `documents_pending`; el resto no se pisa.
+      if (transitioned || !wasNeedsChanges) {
+        const { error: verificationError } = await admin
+          .from("residence_verifications")
+          .update({ status: "documents_pending" })
+          .eq("residence_id", residenceId)
+          .in("status", [...VERIFICATION_STATUSES_RESET_ON_SUBMIT]);
+        if (verificationError) {
+          // Sin esto la residencia queda en `pending_verification` con la verificación en otro estado: se deshace el cambio.
+          if (transitioned) {
+            await admin
+              .from("residences")
+              .update({ status: residenceRow?.status as string })
+              .eq("id", residenceId)
+              .eq("status", "pending_verification");
+          }
+          throw verificationError;
+        }
+      }
+
+      if (wasNeedsChanges && transitioned) {
+        // El mensaje del admin se archiva en el audit log y se limpia de la fila (DR5). Tolera que la 0048 no esté aplicada.
+        let previousMessage: string | null = null;
+        const { data: vRow, error: vErr } = await admin
+          .from("residence_verifications")
+          .select("changes_requested_message")
+          .eq("residence_id", residenceId)
+          .maybeSingle();
+        if (!vErr) previousMessage = (vRow?.changes_requested_message as string | null | undefined) ?? null;
+        else if (!isMissingColumnError(vErr)) console.error("[residence-profile] read changes message failed:", vErr);
+
+        if (!vErr) {
+          const { error: clearErr } = await admin
+            .from("residence_verifications")
+            .update({ changes_requested_message: null })
+            .eq("residence_id", residenceId);
+          if (clearErr && !isMissingColumnError(clearErr)) console.error("[residence-profile] clear changes message failed:", clearErr);
+        }
+
+        await createAuditLog(admin, {
+          actorUserId: sessionUser.id,
+          actorRole: "residence_owner",
+          action: "residence_profile_resubmitted",
+          entityType: "residences",
+          entityId: residenceId,
+          oldValue: { residence_status: "needs_changes", changes_requested_message: previousMessage },
+          newValue: { residence_status: "pending_verification", verification_status: "documents_pending", pending_review: pendingGroups },
+          reasonText: previousMessage ?? undefined,
+        });
+        revalidatePath("/admin/verifications");
+        revalidatePath("/admin/dashboard");
+      }
     }
   } catch (error) {
     console.error("[residence-profile] save failed:", error);
@@ -596,6 +657,13 @@ export async function saveResidenceProfile(
     return {
       status: "saved_pending_review",
       message: `Guardamos tus cambios. Como esta residencia ya está publicada, lo siguiente quedó pendiente de aprobación del equipo de EstuRed: ${labels}.${warningSuffix}`,
+    };
+  }
+
+  if (intent === "submit" && wasNeedsChanges) {
+    return {
+      status: "submitted",
+      message: "¡Reenviado! El equipo de EstuRed va a revisar los cambios y te avisa por mail y en la campana.",
     };
   }
 

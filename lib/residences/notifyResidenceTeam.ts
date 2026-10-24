@@ -10,12 +10,14 @@ import { sendEmail } from "@/lib/email/sendEmail";
  * El texto es deliberadamente genérico (sin nombre del estudiante ni datos personales: el email viaja por un tercero)
  * y no promete disponibilidad. El detalle se ve al entrar con el enlace.
  */
-export type ResidenceTeamEvent = "new_application" | "new_waitlist_entry" | "new_renewal_request";
+export type ResidenceTeamEvent = "new_application" | "new_waitlist_entry" | "new_renewal_request" | "changes_requested";
 
 const ENTITY_BY_EVENT: Record<ResidenceTeamEvent, string> = {
   new_application: "application_requests",
   new_waitlist_entry: "waitlist_entries",
   new_renewal_request: "renewal_requests",
+  // Ciclo 66: el destino de la campana es el Panel (`notificationHref` área residencia, entidad `residences`).
+  changes_requested: "residences",
 };
 
 function pathFor(event: ResidenceTeamEvent, residenceId: string, entityId: string): string {
@@ -26,6 +28,8 @@ function pathFor(event: ResidenceTeamEvent, residenceId: string, entityId: strin
       return `/residence/${residenceId}/waitlist`;
     case "new_renewal_request":
       return `/residence/${residenceId}/renewals`;
+    case "changes_requested":
+      return `/residence/${residenceId}`;
   }
 }
 
@@ -62,6 +66,15 @@ export function buildResidenceTeamMessage(
         subject: "EstuRed: nuevo pedido de renovación",
         intro: `Un residente pidió renovar su estadía en ${residenceName}.`,
         cta: "Ver renovaciones",
+      };
+    case "changes_requested":
+      // Ciclo 66 (DR5): sin el mensaje del admin (el email viaja por un tercero); el detalle se ve en el panel.
+      return {
+        title: `Pedimos cambios en tu perfil de ${residenceName}`,
+        body: "Entrá a tu panel para ver qué corregir y reenviarlo.",
+        subject: "EstuRed: pedimos cambios en tu perfil",
+        intro: `Pedimos cambios en tu perfil de ${residenceName}. Entrá a tu panel para ver qué corregir y reenviarlo.`,
+        cta: "Ir a mi panel",
       };
   }
 }

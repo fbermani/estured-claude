@@ -24,8 +24,14 @@ describe("buildResidenceTeamMessage", () => {
     expect(m.intro).toContain("Residencia Norte");
     expect(`${m.title} ${m.body} ${m.intro}`.toLowerCase()).not.toMatch(/garantiz|disponib(le|ilidad) asegurada/);
   });
-  it("cubre los tres eventos", () => {
-    for (const e of ["new_application", "new_waitlist_entry", "new_renewal_request"] as const) {
+  it("el aviso de cambios pedidos nombra la residencia y no vuelca texto del admin", () => {
+    const m = buildResidenceTeamMessage("changes_requested", "Casa Norte");
+    expect(m.title).toBe("Pedimos cambios en tu perfil de Casa Norte");
+    expect(m.intro).toBe("Pedimos cambios en tu perfil de Casa Norte. Entrá a tu panel para ver qué corregir y reenviarlo.");
+    expect(m.cta.length).toBeGreaterThan(0);
+  });
+  it("cubre los cuatro eventos", () => {
+    for (const e of ["new_application", "new_waitlist_entry", "new_renewal_request", "changes_requested"] as const) {
       const m = buildResidenceTeamMessage(e, "X");
       expect(m.subject.startsWith("EstuRed")).toBe(true);
       expect(m.cta.length).toBeGreaterThan(0);

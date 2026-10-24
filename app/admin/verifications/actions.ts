@@ -7,6 +7,8 @@ import { createAuditLog } from "@/lib/audit";
 import { getAdminSession } from "@/lib/auth/requireAdmin";
 import { countResidencePhotos } from "@/lib/residences/countResidencePhotos";
 import { publishPhotosError } from "@/lib/residences/photos";
+import { isMissingColumnError, validateChangesMessage } from "@/lib/residences/changesRequest";
+import { notifyResidenceTeam } from "@/lib/residences/notifyResidenceTeam";
 
 export type ReviewState = { status: "idle" | "error" | "saved"; message?: string };
 
@@ -39,6 +41,8 @@ export async function reviewResidence(
   const photosMatch = formData.get("photos_match_reality") === "on";
   const visitedAt = String(formData.get("visited_at") ?? "");
   const notesInternal = String(formData.get("notes_internal") ?? "").trim();
+  // Ciclo 66 (DR5): mensaje visible para la residencia, separado de las notas internas.
+  const changesMessageRaw = String(formData.get("changes_message") ?? "");
 
   if (!["approve", "needs_changes", "reject"].includes(action)) {
     return { status: "error", message: "Acción inválida." };
@@ -59,7 +63,13 @@ export async function reviewResidence(
     const photosError = publishPhotosError(photoCount);
     if (photosError) return { status: "error", message: photosError };
   }
-  if ((action === "needs_changes" || action === "reject") && notesInternal.length < 5) {
+  let changesMessage: string | null = null;
+  if (action === "needs_changes") {
+    const parsed = validateChangesMessage(changesMessageRaw);
+    if (!parsed.ok) return { status: "error", message: parsed.error };
+    changesMessage = parsed.value;
+  }
+  if (action === "reject" && notesInternal.length < 5) {
     return { status: "error", message: "Escribí un motivo para que quede registrado." };
   }
 
@@ -100,10 +110,24 @@ export async function reviewResidence(
     auditAction = "residence_verification_rejected";
   }
 
-  const { error: verificationError } = await admin
+  // Pedir cambios guarda el mensaje para la residencia (migración 0048). Si la columna todavía no existe (0048 sin
+  // aplicar), se pide igual los cambios pero el mensaje no se puede guardar: se le avisa al admin.
+  let messageSaved = true;
+  let { error: verificationError } = await admin
     .from("residence_verifications")
-    .update({ ...verificationUpdate, status: verificationStatus })
+    .update({
+      ...verificationUpdate,
+      status: verificationStatus,
+      ...(changesMessage ? { changes_requested_message: changesMessage, changes_requested_at: new Date().toISOString() } : {}),
+    })
     .eq("residence_id", residenceId);
+  if (verificationError && changesMessage && isMissingColumnError(verificationError)) {
+    messageSaved = false;
+    ({ error: verificationError } = await admin
+      .from("residence_verifications")
+      .update({ ...verificationUpdate, status: verificationStatus })
+      .eq("residence_id", residenceId));
+  }
   if (verificationError) {
     console.error("[admin-verify] update verification failed:", verificationError);
     return { status: "error", message: "No pudimos guardar la revisión. Intentá de nuevo." };
@@ -124,16 +148,32 @@ export async function reviewResidence(
     action: auditAction,
     entityType: "residences",
     entityId: residenceId,
-    reasonText: notesInternal || undefined,
+    // Pedir cambios: queda el mensaje enviado a la residencia (historial; la fila se limpia al reenviar).
+    reasonText: changesMessage ?? (notesInternal || undefined),
     newValue: { residence_status: residenceStatus, verification_status: verificationStatus },
     ipAddress: ip,
     userAgent,
     source: "admin",
   });
 
+  // Aviso in-app + email al equipo de la residencia (best-effort: no rompe la acción si falla).
+  if (action === "needs_changes") {
+    await notifyResidenceTeam(admin, { residenceId, event: "changes_requested", entityId: residenceId });
+  }
+
   revalidatePath("/admin/verifications");
   revalidatePath("/admin/dashboard");
   revalidatePath("/residence/dashboard");
+  revalidatePath(`/residence/${residenceId}`);
+  revalidatePath(`/residence/${residenceId}/profile`);
+
+  if (action === "needs_changes" && !messageSaved) {
+    return {
+      status: "saved",
+      message:
+        "Se pidieron cambios y se avisó a la residencia, pero el mensaje no se pudo guardar: falta aplicar la migración 0048 en esta base. La residencia verá el aviso genérico.",
+    };
+  }
 
   return {
     status: "saved",

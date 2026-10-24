@@ -14,6 +14,7 @@ import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import { ResidencePhotoPlaceholder } from "@/components/residences/ResidencePhoto";
 import { computeProfileStrength, profileStrengthSuggestion } from "@/lib/residences/profileStrength";
 import { MIN_PUBLISH_PHOTOS, hasEnoughPhotosToPublish } from "@/lib/residences/photos";
+import { changesRequestedMessageOrFallback } from "@/lib/residences/changesRequest";
 import {
   SERVICE_OPTIONS,
   COMMON_AREA_OPTIONS,
@@ -81,6 +82,8 @@ interface ProfileInitial {
   roomTypes: RoomTypeDraft[];
   conditions: ConditionsDraft;
   pendingEditGroups: { fieldGroup: string; createdAt: string }[];
+  /** Mensaje del admin al pedir cambios (DR5, migración 0048); null si no hay (cambios pedidos antes de la 0048). */
+  changesMessage: string | null;
 }
 
 const FIELD_GROUP_LABELS: Record<string, string> = {
@@ -240,11 +243,25 @@ export function ResidenceProfileForm({
               ? `Completá la información de ${initial.name} para poder publicarla. Guardá cuando quieras como borrador.`
               : initial.status === "verified_active"
                 ? `Mantené al día la información de ${initial.name}.`
-                : `Mantené al día la información de ${initial.name} mientras el equipo de EstuRed la revisa.`}
+                : initial.status === "needs_changes"
+                  ? `Corregí lo que pidió el equipo de EstuRed en ${initial.name} y reenviala para revisión.`
+                  : `Mantené al día la información de ${initial.name} mientras el equipo de EstuRed la revisa.`}
           </p>
         </div>
         <Badge tone={badge.tone}>{badge.label}</Badge>
       </div>
+
+      {initial.status === "needs_changes" && (
+        <section role="alert" aria-label="Cambios pedidos por EstuRed" className="mb-8 rounded-card border-[1.5px] border-warning-fg/30 bg-warning-bg p-5">
+          <p className="text-sm font-bold text-warning-fg">El equipo de EstuRed te pidió cambios</p>
+          {initial.changesMessage ? (
+            <p className="mt-2 whitespace-pre-line break-words text-sm text-ink">{initial.changesMessage}</p>
+          ) : (
+            <p className="mt-2 text-sm text-ink">{changesRequestedMessageOrFallback(null).text}</p>
+          )}
+          <p className="mt-2 text-xs text-ink-soft">Cuando termines de corregir, tocá &ldquo;Reenviar para revisión&rdquo; al final de la página.</p>
+        </section>
+      )}
 
       {initial.pendingEditGroups.length > 0 && (
         <Card className="mb-8 border-orange-tint bg-orange-tint/40 p-5">
@@ -948,21 +965,28 @@ export function ResidenceProfileForm({
           )}
           {state.status === "submitted" && (
             <p className="rounded-field bg-success-bg px-4 py-3 text-sm font-medium text-success-fg">
-              ¡Enviado! El equipo de EstuRed va a coordinar la verificación presencial antes de publicar
-              tu residencia.
+              {state.message ??
+                "¡Enviado! El equipo de EstuRed va a coordinar la verificación presencial antes de publicar tu residencia."}
             </p>
           )}
 
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
             <SubmitButton intent="draft" variant="outline" idleLabel="Guardar cambios" pendingLabel="Guardando…" />
-            <SubmitButton intent="submit" variant="primary" idleLabel="Enviar para revisión" pendingLabel="Enviando…" />
+            <SubmitButton
+              intent="submit"
+              variant="primary"
+              idleLabel={initial.status === "needs_changes" ? "Reenviar para revisión" : "Enviar para revisión"}
+              pendingLabel="Enviando…"
+            />
           </div>
           <p className="text-xs text-ink-soft sm:text-right">
             {initial.status === "draft"
               ? "Guardar cambios conserva tu avance como borrador y no la envía. Enviar para revisión la manda al equipo de EstuRed, que coordina la verificación presencial antes de publicarla."
               : initial.status === "verified_active"
                 ? "Los cambios se guardan al instante, salvo fotos, servicios, reglas, mínimo de estadía y tipos de habitación: esos quedan pendientes de aprobación del equipo de EstuRed. No hace falta volver a enviarla."
-                : "Guardar cambios actualiza tu perfil. Tu residencia ya fue enviada: el equipo de EstuRed la ve con los cambios al revisarla."}
+                : initial.status === "needs_changes"
+                  ? "Guardar cambios conserva tu avance sin enviarlo. Reenviar para revisión vuelve a mandar la residencia al equipo de EstuRed con tus correcciones."
+                  : "Guardar cambios actualiza tu perfil. Tu residencia ya fue enviada: el equipo de EstuRed la ve con los cambios al revisarla."}
           </p>
         </div>
 

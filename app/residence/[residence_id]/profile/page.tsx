@@ -4,6 +4,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { assertResidenceAccess } from "@/lib/residences/access";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
+import { loadChangesMessage } from "@/lib/residences/loadChangesMessage";
 import { initialPaymentConfigFromRow } from "@/lib/reservations/initialPayment";
 import { ResidenceProfileForm } from "@/app/residence/[residence_id]/profile/ResidenceProfileForm";
 
@@ -62,6 +63,7 @@ export default async function ResidenceProfilePage({
 
   if (!residence) notFound();
 
+  const changesMessage = residence.status === "needs_changes" ? await loadChangesMessage(admin, residenceId) : null;
   const rate = await getCurrentExchangeRate();
   const initialPayment = initialPaymentConfigFromRow(residence);
   const sectionMap = Object.fromEntries((sections ?? []).map((s) => [s.section_type, s.content]));
@@ -91,6 +93,7 @@ export default async function ResidenceProfilePage({
         faqItems: (sectionMap.faq?.items as { question: string; answer: string }[]) ?? [],
         photos: photoItems,
         pendingEditGroups,
+        changesMessage,
         roomTypes: (roomTypes ?? []).map((rt) => ({
           id: rt.id,
           name: rt.name,

@@ -8,9 +8,15 @@
 
 ---
 
+## CICLO 66 (2026-10-24) — Reenvío a revisión tras "pedir cambios" (DR5)
+
+Ver `MEMORY.md` Ciclo 66. ⚠ **Acción manual:** aplicar `db/migrations/0048_verification_changes_message.sql` en dev y producción (SQL Editor), en orden 0046, 0045, 0047, 0048. Luego `node --env-file=.env.local scripts/seed-needs-changes-demo.mjs` en dev para verificar el flujo completo y correr `MIGRATION_0048_APPLIED=1 npx vitest run lib/residences/verificationNotesRls`.
+
+---
+
 ## CICLO 65 (2026-10-24) — Residencias, Bloque 3 (onboarding de residencias nuevas)
 
-Ver `MEMORY.md` Ciclo 65. Sin migraciones. Pendiente: decidir si el motivo de "pedir cambios"/rechazo (hoy `notes_internal`, interno) se comunica a la residencia; que "Enviar para revisión" desde `needs_changes` reenvíe de verdad (hoy no cambia el estado).
+Ver `MEMORY.md` Ciclo 65. Sin migraciones. Lo pendiente sobre pedir cambios se resolvió en el Ciclo 66 (rechazo sigue por Soporte).
 
 ---
 

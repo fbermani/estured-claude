@@ -80,6 +80,21 @@ export default async function VerificationsPage({
 
     if (photosError) console.error("[admin-verify] no se pudieron leer las fotos de la residencia:", photosError);
 
+    // Ciclo 66 (DR5): indicio "Reenviada tras cambios pedidos" = lo último que pasó fue un reenvío (audit log).
+    const { data: lastReviewEvent } = await admin
+      .from("audit_logs")
+      .select("action, created_at")
+      .eq("entity_type", "residences")
+      .eq("entity_id", activeId)
+      .in("action", ["residence_verification_needs_changes", "residence_profile_resubmitted"])
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const resubmittedAt =
+      residence?.status === "pending_verification" && lastReviewEvent?.action === "residence_profile_resubmitted"
+        ? (lastReviewEvent.created_at as string)
+        : null;
+
     if (residence && verification) {
       const sectionMap = Object.fromEntries((sections ?? []).map((s) => [s.section_type, s.content]));
       detail = {
@@ -89,6 +104,7 @@ export default async function VerificationsPage({
           responsible_contact: (privateDetails?.responsible_contact as string | null) ?? "",
         },
         verification,
+        resubmittedAt,
         services: (sectionMap.services?.items as string[]) ?? [],
         nearUniversities: (sectionMap.near_universities?.items as string[]) ?? [],
         rulesSummary: (sectionMap.rules?.summary as string) ?? "",

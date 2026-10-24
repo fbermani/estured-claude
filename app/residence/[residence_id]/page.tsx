@@ -16,6 +16,7 @@ import { loadReservationInfoByApplication } from "@/lib/applications/loadReserva
 import { countUnansweredStayChanges } from "@/lib/stayChange/load";
 import { OnboardingBanner } from "@/components/residences/OnboardingBanner";
 import { buildOnboardingChecklist, getOnboardingBanner } from "@/lib/residences/onboardingStatus";
+import { loadChangesMessage } from "@/lib/residences/loadChangesMessage";
 import { computeProfileStrength } from "@/lib/residences/profileStrength";
 
 export const metadata: Metadata = { title: "Panel de la residencia" };
@@ -63,7 +64,8 @@ export default async function ResidenceOverviewPage({
   if (!residence) notFound();
 
   // Onboarding (Ciclo 65): banner + checklist solo si la residencia no está publicada.
-  const onboardingCopy = getOnboardingBanner(residence.status);
+  const changesMessage = residence.status === "needs_changes" ? await loadChangesMessage(admin, residenceId) : null;
+  const onboardingCopy = getOnboardingBanner(residence.status, { changesMessage });
   let onboardingChecklist: ReturnType<typeof buildOnboardingChecklist> = [];
   if (onboardingCopy) {
     const [{ data: full }, { data: sections }, { data: roomTypes }, { count: photoCount }, { data: rulesFile }, { data: verification }] =

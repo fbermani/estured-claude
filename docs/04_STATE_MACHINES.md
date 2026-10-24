@@ -975,6 +975,7 @@ residence
 - La residencia debe aceptar términos, condiciones, disclaimer y deslinde de responsabilidades.
 - Un owner puede tener hasta **10 residencias**, cada una con su propio estado.
 - El modo (Perfil Verificado / Gestión Operativa) se gestiona mediante feature flags por residencia.
+- **`needs_changes` → `pending_verification` (DR5, `docs/00` §31):** el admin pide cambios con un mensaje visible para la residencia; la residencia corrige y reenvía a revisión (el equipo vuelve a verla como pendiente). Desde `suspended` no se reenvía.
 
 ---
 

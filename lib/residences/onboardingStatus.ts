@@ -14,10 +14,14 @@ export interface OnboardingBannerCopy {
   title: string;
   now: string;
   meanwhile: string;
+  /** Mensaje del admin al pedir cambios (DR5): se muestra destacado en el banner. Solo en `needs_changes`. */
+  adminMessage?: string | null;
+  /** CTA opcional hacia el perfil ("Corregir y reenviar"). */
+  cta?: { label: string; href: "profile" };
 }
 
 /** `null` = sin banner (residencia verificada y publicada u otros estados operativos). */
-export function getOnboardingBanner(status: string): OnboardingBannerCopy | null {
+export function getOnboardingBanner(status: string, options: { changesMessage?: string | null } = {}): OnboardingBannerCopy | null {
   switch (status) {
     case "draft":
       return {
@@ -43,14 +47,20 @@ export function getOnboardingBanner(status: string): OnboardingBannerCopy | null
         now: "El equipo de EstuRed va a visitar la residencia para la verificación presencial. Después de la visita revisamos y publicamos.",
         meanwhile: "Dejá el perfil, las fotos y el reglamento al día para la visita.",
       };
-    case "needs_changes":
+    case "needs_changes": {
+      const message = options.changesMessage?.trim() || null;
       return {
         tone: "warning",
         icon: "edit_note",
         title: "El equipo de EstuRed te pidió cambios",
-        now: "Hay información del perfil para corregir antes de poder publicar la residencia.",
-        meanwhile: "Revisá el perfil y las fotos, guardá los cambios y escribinos por Soporte para avisarnos que está listo.",
+        now: message
+          ? "Esto es lo que tenés que corregir antes de poder publicar la residencia."
+          : "Hay información del perfil para corregir antes de poder publicar la residencia.",
+        meanwhile: "Corregí el perfil, las fotos o lo que haga falta y reenviá la residencia para revisión.",
+        adminMessage: message,
+        cta: { label: "Corregir y reenviar", href: "profile" },
       };
+    }
     case "suspended":
       return {
         tone: "danger",

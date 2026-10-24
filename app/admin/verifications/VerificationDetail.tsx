@@ -12,6 +12,7 @@ import { cmd } from "@/components/admin/ui/tokens";
 import { reviewResidence, type ReviewState } from "@/app/admin/verifications/actions";
 import { ResidencePhotoPlaceholder } from "@/components/residences/ResidencePhoto";
 import { MIN_PUBLISH_PHOTOS, hasEnoughPhotosToPublish } from "@/lib/residences/photos";
+import { CHANGES_MESSAGE_MAX, CHANGES_MESSAGE_MIN } from "@/lib/residences/changesRequest";
 
 interface Verification {
   status: string;
@@ -20,6 +21,8 @@ interface Verification {
   address_checked: boolean;
   photos_match_reality: boolean;
   notes_internal: string | null;
+  /** Migración 0048: mensaje que ve la residencia al pedirle cambios (puede faltar si la 0048 no está aplicada). */
+  changes_requested_message?: string | null;
   visited_at: string | null;
 }
 
@@ -47,6 +50,7 @@ export function VerificationDetail({
   photoUrls,
   approvedPhotoCount,
   rulesFile,
+  resubmittedAt,
 }: {
   residence: Residence;
   verification: Verification;
@@ -58,6 +62,8 @@ export function VerificationDetail({
   /** Fotos propias aprobadas: las que cuentan para el mínimo de publicación. */
   approvedPhotoCount: number | null;
   rulesFile: { id: string; filename: string; sizeKb: number } | null;
+  /** Fecha en que la residencia reenvió el perfil tras pedirle cambios (audit log); null si no aplica. */
+  resubmittedAt?: string | null;
 }) {
   const action = reviewResidence.bind(null, residence.id);
   const [state, formAction] = useActionState(action, initialState);
@@ -78,6 +84,11 @@ export function VerificationDetail({
         <p className="mt-2 text-sm" style={{ color: cmd.onSurfaceVariant }}>
           Responsable: <strong>{residence.responsible_name}</strong> · {residence.responsible_contact}
         </p>
+        {resubmittedAt && (
+          <p className="mt-3">
+            <AdminBadge tone="violet">Reenviada tras cambios pedidos · {formatDate(resubmittedAt)}</AdminBadge>
+          </p>
+        )}
         {residence.tagline && (
           <p className="mt-2 text-sm italic" style={{ color: cmd.outline }}>
             &ldquo;{residence.tagline}&rdquo;
@@ -255,10 +266,29 @@ export function VerificationDetail({
             name="notes_internal"
             rows={3}
             defaultValue={verification.notes_internal ?? ""}
-            placeholder="Obligatorio si pedís cambios o rechazás. Nunca es visible para el estudiante."
+            placeholder="Obligatorio si rechazás. Es interno: la residencia no lo ve."
             className="mt-1 w-full rounded px-3 py-2 text-sm"
             style={{ border: `1px solid ${cmd.outline}` }}
           />
+        </div>
+
+        <div className="mt-4">
+          <label htmlFor="changes_message" className="text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
+            Mensaje para la residencia
+          </label>
+          <textarea
+            id="changes_message"
+            name="changes_message"
+            rows={4}
+            maxLength={CHANGES_MESSAGE_MAX}
+            defaultValue={verification.status === "needs_changes" ? (verification.changes_requested_message ?? "") : ""}
+            placeholder={`Obligatorio al pedir cambios (${CHANGES_MESSAGE_MIN} a ${CHANGES_MESSAGE_MAX} caracteres). La residencia lo ve en su panel: decile qué corregir.`}
+            className="mt-1 w-full rounded px-3 py-2 text-sm"
+            style={{ border: `1px solid ${cmd.outline}` }}
+          />
+          <p className="mt-1 text-xs" style={{ color: cmd.outline }}>
+            Solo se usa al pedir cambios. No es una nota interna: la residencia lo lee.
+          </p>
         </div>
 
         {state.status === "error" && (
