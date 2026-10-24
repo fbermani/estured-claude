@@ -6,6 +6,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { assertResidenceAccess } from "@/lib/residences/access";
 import { ResidentsBrowser, type ResidentsData } from "@/app/residence/[residence_id]/residents/ResidentsBrowser";
 import { RESIDENCE_OFFER_STATUS_COPY } from "@/lib/renewals/statusCopy";
+import { loadResidenceStayChanges } from "@/lib/stayChange/load";
 
 const ACTIVE_OFFER_STATUSES = new Set(["draft", "sent", "viewed"]);
 const PENDING_REQUEST_STATUSES = new Set(["created_by_student", "notified_to_residence"]);
@@ -36,11 +37,11 @@ export default async function ResidenceResidentsPage({
   const hasAccess = await assertResidenceAccess(admin, sessionUser.id, residenceId);
   if (!hasAccess) notFound();
 
-  const [{ data: stays, error }, { data: roomTypes }, { data: rooms }, renewals, { data: notes }] = await Promise.all([
+  const [{ data: stays, error }, { data: roomTypes }, { data: rooms }, renewals, { data: notes }, stayChanges, { data: residenceRow }] = await Promise.all([
     admin
       .from("resident_stays")
       .select(
-        "id, status, invite_email, start_date, expected_end_date, monthly_rate_usd, room_id, bed_id, reservation_id, room_types(id, name, monthly_price_usd), student_profiles(first_name, last_initial, country_flag)",
+        "id, status, invite_email, start_date, expected_end_date, monthly_rate_usd, room_id, bed_id, reservation_id, student_profile_id, room_types(id, name, monthly_price_usd), student_profiles(first_name, last_initial, country_flag)",
       )
       .eq("residence_id", residenceId)
       .eq("is_current", true)
@@ -69,6 +70,9 @@ export default async function ResidenceResidentsPage({
       .select("id, resident_stay_id, category, body, created_at, users(email, primary_role)")
       .eq("residence_id", residenceId)
       .order("created_at", { ascending: false }),
+    // "Quiero cambiar" (DR3): avisos abiertos y resueltos recientes de ESTA residencia (degrada a [] si algo falla).
+    loadResidenceStayChanges(admin, residenceId),
+    admin.from("residences").select("name").eq("id", residenceId).maybeSingle(),
   ]);
   if (error) console.error("[residence/residents] query failed:", error);
 
@@ -96,6 +100,7 @@ export default async function ResidenceResidentsPage({
       room_id: string | null;
       bed_id: string | null;
       reservation_id: string | null;
+      student_profile_id: string | null;
       room_types: { id: string; name: string; monthly_price_usd: number } | null;
       student_profiles: { first_name: string; last_initial: string; country_flag: string | null } | null;
     }[]) ?? [];
@@ -107,7 +112,7 @@ export default async function ResidenceResidentsPage({
     ? await Promise.all([
         admin
           .from("reservations")
-          .select("id, status, application_snapshots(monthly_price_usd)")
+          .select("id, status, application_snapshots(monthly_price_usd, deposit_usd)")
           .in("id", linkedReservationIds),
         admin.from("renewal_requests").select("reservation_id, status").in("reservation_id", linkedReservationIds),
         admin
@@ -127,6 +132,15 @@ export default async function ResidenceResidentsPage({
       return [r.id, snap?.monthly_price_usd != null ? Number(snap.monthly_price_usd) : null] as const;
     }),
   );
+  // Depósito de la reserva (snapshot): decide qué opciones de devolución se ofrecen al registrar una salida anticipada.
+  const depositModeByReservationId = new Map(
+    (linkedReservations ?? []).map((r) => {
+      const snap = r.application_snapshots as unknown as { deposit_usd: number | null } | null;
+      const mode: "had" | "none" = snap?.deposit_usd != null && Number(snap.deposit_usd) > 0 ? "had" : "none";
+      return [r.id, mode] as const;
+    }),
+  );
+  const stayChangeByStudent = new Map(stayChanges.map((c) => [c.studentProfileId, c]));
   const pendingRequestReservationIds = new Set(
     (linkedRequests ?? []).filter((r) => PENDING_REQUEST_STATUSES.has(r.status)).map((r) => r.reservation_id),
   );
@@ -170,6 +184,22 @@ export default async function ResidenceResidentsPage({
       baseRateUsd: s.room_types ? Number(s.room_types.monthly_price_usd) : null,
       agreedRateUsd: s.reservation_id ? (agreedRateByReservationId.get(s.reservation_id) ?? null) : null,
       renewal,
+      studentProfileId: s.student_profile_id,
+      depositMode: s.reservation_id ? (depositModeByReservationId.get(s.reservation_id) ?? "unknown") : "unknown",
+      stayChange: (() => {
+        const change = s.student_profile_id ? stayChangeByStudent.get(s.student_profile_id) : undefined;
+        return change
+          ? {
+              intentId: change.id,
+              status: change.status,
+              createdAt: change.createdAt,
+              estimatedExitDate: change.estimatedExitDate,
+              resolvedNewStartDate: change.resolvedNewStartDate,
+              responded: !!change.response,
+              seen: !!change.response?.seenByStudentAt,
+            }
+          : null;
+      })(),
     };
   });
 
@@ -214,17 +244,20 @@ export default async function ResidenceResidentsPage({
       (s) => s.expected_end_date && s.expected_end_date >= todayStr && s.expected_end_date <= in30Str,
     ).length,
     renewals: (renewals[0].count ?? 0) + (renewals[1].count ?? 0),
+    seekingChange: stayChanges.filter((c) => c.status === "open").length,
   };
 
   return (
     <ResidentsBrowser
       residenceId={residenceId}
+      residenceName={(residenceRow?.name as string | undefined) ?? "tu residencia"}
       data={{
         rows,
         freeBeds,
         roomTypes: (roomTypes ?? []).map((t) => ({ id: t.id, name: t.name })),
         kpis,
         notesByStay,
+        stayChanges,
       }}
     />
   );

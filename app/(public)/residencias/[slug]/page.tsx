@@ -40,6 +40,7 @@ import { SectionNav, type SectionNavItem } from "@/components/residences/ficha/S
 import { ReadMore } from "@/components/residences/ficha/ReadMore";
 import { RatesTable } from "@/components/residences/ficha/RatesTable";
 import { ReservationConditions } from "@/components/residences/ficha/ReservationConditions";
+import { EarlyExitPolicy } from "@/components/residences/ficha/EarlyExitPolicy";
 import { WhoGetsPaid } from "@/components/residences/ficha/WhoGetsPaid";
 import { VerificationScope } from "@/components/residences/ficha/VerificationScope";
 import { CommunitySummary } from "@/components/residences/ficha/CommunitySummary";
@@ -484,6 +485,11 @@ export default async function RealResidenceDetailPage({
               />
             )}
             <ReservationConditions conditions={conditions} arsPerUsd={rate.arsPerUsd} />
+            <EarlyExitPolicy
+              depositClausesText={conditions.earlyExitDepositClausesText}
+              costsText={conditions.earlyExitCostsText}
+              conditionsText={conditions.earlyExitConditionsText}
+            />
             <WhoGetsPaid
               initialPayment={conditions.initialPayment}
               hasDeposit={keyFacts.depositLabel != null}
@@ -640,6 +646,11 @@ export default async function RealResidenceDetailPage({
                 arsPerUsd={rate.arsPerUsd}
                 profileCompletenessPercent={profileCompletenessPercent}
                 minStartDate={windowNotice?.minRequestStartDate ?? null}
+                stayChange={
+                  windowNotice?.stayChangeOpen
+                    ? { currentEndDate: windowNotice.endDateLabel.split("/").reverse().join("-"), currentEndLabel: windowNotice.endDateLabel }
+                    : null
+                }
               />
             )
           }

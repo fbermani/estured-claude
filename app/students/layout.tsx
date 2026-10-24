@@ -29,9 +29,18 @@ export default async function StudentsLayout({
   // confirmada = alojado, docs/04 §7). Solo aplica a estudiantes — el
   // familiar acompaña la búsqueda de otra persona, no tiene estadía propia.
   let isHoused = false;
+  let searchingChange = false;
   if (hasAnyRole(user, ["student"])) {
     const supabase = await getSupabaseServer();
-    if (supabase) isHoused = await getIsHoused(supabase);
+    if (supabase) {
+      isHoused = await getIsHoused(supabase);
+      // "Quiero cambiar" (DR3): con el aviso abierto el alojado vuelve a ver "Buscar residencias" (RLS "es mío").
+      if (isHoused) {
+        const { data, error } = await supabase.from("stay_change_intents").select("id").eq("status", "open").limit(1);
+        // Migración 0044 sin aplicar (tabla ausente): el menú queda como siempre.
+        if (!error) searchingChange = (data ?? []).length > 0;
+      }
+    }
   }
 
   // "Mi perfil" es la ficha del estudiante (`student_profiles`); el familiar
@@ -40,7 +49,7 @@ export default async function StudentsLayout({
 
   return (
     <div className="flex min-h-screen flex-col bg-cream md:flex-row">
-      <StudentSidebar userEmail={user.email} isHoused={isHoused} hasProfile={hasProfile} />
+      <StudentSidebar userEmail={user.email} isHoused={isHoused} hasProfile={hasProfile} searchingChange={searchingChange} />
       <main className="min-w-0 flex-1">{children}</main>
     </div>
   );

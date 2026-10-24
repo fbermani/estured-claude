@@ -20,18 +20,27 @@ import { useSidebarCollapse } from "@/components/layout/useSidebarCollapse";
  * drawer superpuesto en mobile — mismo mecanismo que `AdminSidebar` y
  * `StudentSidebar` vía `useSidebarCollapse`.
  */
-export function ResidenceSidebar({ residenceId, userEmail }: { residenceId: string; userEmail: string }) {
+export function ResidenceSidebar({
+  residenceId,
+  userEmail,
+  residentsBadge = 0,
+}: {
+  residenceId: string;
+  userEmail: string;
+  /** Avisos "Quiero cambiar" sin responder (DR3): contador naranja en "Residentes". */
+  residentsBadge?: number;
+}) {
   const pathname = usePathname();
   const base = `/residence/${residenceId}`;
   const { collapsed, toggleCollapsed, mobileOpen, setMobileOpen } = useSidebarCollapse();
 
-  const NAV: { href: string; label: string; icon: string; exact?: boolean }[] = [
+  const NAV: { href: string; label: string; icon: string; exact?: boolean; badge?: number }[] = [
     { href: base, label: "Panel", icon: "dashboard", exact: true },
     { href: `${base}/applications`, label: "Solicitudes", icon: "inbox" },
     { href: `${base}/rooms`, label: "Habitaciones", icon: "meeting_room" },
     { href: `${base}/availability`, label: "Disponibilidad", icon: "bed" },
     { href: `${base}/renewals`, label: "Renovaciones", icon: "sync_alt" },
-    { href: `${base}/residents`, label: "Residentes", icon: "groups" },
+    { href: `${base}/residents`, label: "Residentes", icon: "groups", badge: residentsBadge },
     { href: `${base}/waitlist`, label: "Lista de espera", icon: "hourglass_top" },
     { href: `${base}/faq`, label: "Preguntas", icon: "forum" },
     { href: `${base}/plan`, label: "Tu plan", icon: "workspace_premium" },
@@ -107,14 +116,22 @@ export function ResidenceSidebar({ residenceId, userEmail }: { residenceId: stri
                   key={item.href}
                   href={item.href}
                   onClick={() => setMobileOpen(false)}
-                  title={item.label}
-                  aria-label={item.label}
-                  className={`flex items-center gap-3 rounded-field px-3 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest ${
+                  title={item.badge ? `${item.label}: ${item.badge} sin responder` : item.label}
+                  aria-label={item.badge ? `${item.label}, ${item.badge} avisos de cambio sin responder` : item.label}
+                  className={`relative flex items-center gap-3 rounded-field px-3 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest ${
                     active ? "bg-forest-tint text-forest-700" : "text-ink-soft hover:bg-cream-2"
                   } ${collapsed ? "md:justify-center" : ""}`}
                 >
                   <Icon name={item.icon} className="shrink-0 text-xl" />
                   <span className={collapsed ? "md:hidden" : ""}>{item.label}</span>
+                  {item.badge ? (
+                    <span
+                      aria-hidden
+                      className={`ml-auto flex min-w-5 items-center justify-center rounded-full bg-orange px-1.5 text-[11px] font-extrabold leading-5 text-white ${collapsed ? "md:absolute md:right-1.5 md:top-1" : ""}`}
+                    >
+                      {item.badge}
+                    </span>
+                  ) : null}
                 </Link>
               );
             })}

@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { assertResidenceAccess } from "@/lib/residences/access";
+import { MOVING_SIGNAL_LABEL } from "@/lib/stayChange/copy";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
@@ -74,6 +75,16 @@ export default async function ResidenceWaitlistPage({
       student_profiles: { first_name: string; last_initial: string } | null;
       room_types: { name: string } | null;
     }[]) ?? [];
+
+  // DR3b: señal "En proceso de mudanza" en las listas de espera creadas bajo un aviso "Quiero cambiar" (lectura degradable).
+  const movingEntryIds = new Set<string>();
+  const { data: movingEntries, error: movingError } = await admin
+    .from("waitlist_entries")
+    .select("id")
+    .eq("residence_id", residenceId)
+    .in("status", ACTIVE_STATUSES)
+    .not("stay_change_intent_id", "is", null);
+  if (!movingError) for (const row of movingEntries ?? []) movingEntryIds.add(row.id as string);
 
   const nowIso = new Date().toISOString();
 
@@ -159,6 +170,12 @@ export default async function ResidenceWaitlistPage({
                                 <Badge tone="danger">
                                   <Icon name="priority_high" className="text-xs" />
                                   Urgente
+                                </Badge>
+                              )}
+                              {movingEntryIds.has(entry.id) && (
+                                <Badge tone="amber">
+                                  <Icon name="swap_horiz" className="text-xs" />
+                                  {MOVING_SIGNAL_LABEL}
                                 </Badge>
                               )}
                               <Badge tone={badge.tone}>{badge.label}</Badge>

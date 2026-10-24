@@ -18,6 +18,7 @@ import {
 import { JoinWaitlistForm } from "@/app/(public)/residencias/[slug]/JoinWaitlistForm";
 import { useReservationSelection } from "@/components/residences/reservationSelection";
 import { isTypePaused, isTypeRequestable, typeAvailabilityState } from "@/lib/availability/typeAvailability";
+import { MAX_MOVING_NOTE, MOVING_NOTE_HELP, MOVING_NOTE_LABEL } from "@/lib/stayChange/copy";
 
 interface RoomTypeOption {
   id: string;
@@ -87,6 +88,7 @@ export function ApplyForm({
   arsPerUsd,
   profileCompletenessPercent,
   minStartDate,
+  stayChange,
 }: {
   residenceId: string;
   roomTypes: RoomTypeOption[];
@@ -96,6 +98,8 @@ export function ApplyForm({
   profileCompletenessPercent?: number | null;
   /** Reserva vigente (Ciclo 58): primera fecha de ingreso permitida ("YYYY-MM-DD"). Validación de UI; el servidor igual valida. */
   minStartDate?: string | null;
+  /** Aviso "Quiero cambiar" abierto (DR3): la solicitud puede superponerse con su estadía. `currentEndDate` es el fin de contrato exclusivo ("YYYY-MM-DD"). */
+  stayChange?: { currentEndDate: string; currentEndLabel: string } | null;
 }) {
   const action = createApplicationRequest.bind(null, residenceId);
   const [state, formAction, isPending] = useActionState(action, initialState);
@@ -111,6 +115,7 @@ export function ApplyForm({
   const [duration, setDuration] = useState(6);
   const [startDate, setStartDate] = useState("");
   const [objectiveChoice, setObjectiveChoice] = useState("");
+  const [movingNote, setMovingNote] = useState("");
 
   if (roomTypes.length === 0) {
     return <p className="px-5 py-5 text-sm text-ink-soft sm:px-6">Esta residencia todavía no cargó tipos de habitación.</p>;
@@ -129,6 +134,7 @@ export function ApplyForm({
   }
 
   const selected = availableTypes.find((rt) => rt.id === roomTypeId) ?? null;
+  const overlapsStay = !!stayChange && !!startDate && startDate < stayChange.currentEndDate;
   const monthlyUsd = selected ? Number(selected.monthly_price_usd) : 0;
   const enrollmentUsd =
     conditions.enrollmentFeeMode === "one_month"
@@ -190,8 +196,25 @@ export function ApplyForm({
         min={minStartDate ?? undefined}
         value={startDate}
         onChange={(e) => setStartDate(e.target.value)}
+        aria-describedby={overlapsStay ? "apply-overlap-notice" : undefined}
         hint={minStartDate ? `Podés pedir desde el ${formatDateOnly(minStartDate)}, cuando termina tu reserva actual.` : undefined}
       />
+      {overlapsStay && stayChange && (
+        <p
+          id="apply-overlap-notice"
+          className="-mt-2 flex items-start gap-2 rounded-field bg-warning-bg px-3.5 py-2.5 text-xs leading-relaxed text-warning-fg"
+        >
+          <Icon name="swap_horiz" className="mt-0.5 shrink-0 text-base" />
+          <span>
+            Esta fecha se superpone con tu estadía actual (hasta el {stayChange.currentEndLabel}). Podés enviarla porque tenés abierto tu aviso de cambio. Si se
+            confirma, coordiná tu salida con tu residencia:{" "}
+            <a href="/students/residency#respuesta-residencia" className="font-bold underline underline-offset-2">
+              ver lo que te informó
+            </a>
+            .
+          </span>
+        </p>
+      )}
       <Input
         label="Duración estimada (meses)"
         id="apply-duration"
@@ -382,6 +405,30 @@ export function ApplyForm({
         />
       </div>
 
+      {stayChange && (
+        <div className="rounded-field border border-line-2 bg-cream-2/50 p-4">
+          <p className="text-xs font-extrabold uppercase tracking-widest text-muted">3 · Tu mudanza (opcional)</p>
+          <Textarea
+            id="apply-move-note"
+            name="move_context_note"
+            rows={3}
+            maxLength={MAX_MOVING_NOTE}
+            label={MOVING_NOTE_LABEL}
+            hint={MOVING_NOTE_HELP}
+            className="mt-2"
+            value={movingNote}
+            onChange={(e) => setMovingNote(e.target.value)}
+          />
+          <p className="mt-1 text-right text-xs text-ink-faint">
+            {movingNote.length}/{MAX_MOVING_NOTE}
+          </p>
+          <p className="mt-2 flex items-start gap-2 text-xs leading-relaxed text-ink-soft">
+            <Icon name="visibility_off" className="mt-0.5 shrink-0 text-base" />
+            Esta residencia ve que estás en proceso de mudanza, pero no desde qué residencia. Solo ve lo que escribas arriba.
+          </p>
+        </div>
+      )}
+
       {profileCompletenessPercent != null && profileCompletenessPercent < 100 && (
         <a
           href="/students/profile"
@@ -411,7 +458,7 @@ export function ApplyForm({
         </Button>
         <p className="text-center text-xs text-ink-faint">
           La residencia verá tu carrera y universidad y tiene 48 horas para responder; si no lo hace, la solicitud
-          vence.
+          vence. Solicitud sujeta a confirmación: enviarla no te asegura el lugar.
         </p>
       </div>
     </form>

@@ -13,6 +13,7 @@ import { Icon } from "@/components/ui/Icon";
 import { getStaleAvailabilityByResidence, staleAvailabilityMessage } from "@/lib/residences/staleAvailability";
 import { getVisibleStatus } from "@/lib/applications/visibleStatus";
 import { loadReservationInfoByApplication } from "@/lib/applications/loadReservationInfo";
+import { countUnansweredStayChanges } from "@/lib/stayChange/load";
 
 export const metadata: Metadata = { title: "Panel de la residencia" };
 export const dynamic = "force-dynamic";
@@ -90,6 +91,12 @@ export default async function ResidenceOverviewPage({
       .eq("residence_id", residenceId)
       .order("created_at", { ascending: false })
       .limit(5),
+  ]);
+
+  // "Quiero cambiar" (DR3): residentes que avisaron que buscan otro lugar (lecturas degradables: ante un error, la línea no aparece).
+  const [{ count: seekingChangeCount }, unansweredChangeCount] = await Promise.all([
+    admin.from("stay_change_intents").select("*", { count: "exact", head: true }).eq("current_residence_id", residenceId).eq("status", "open"),
+    countUnansweredStayChanges(admin, residenceId),
   ]);
 
   const recentApplications = (recentApplicationsData as unknown as RecentApplicationRow[]) ?? [];
@@ -218,6 +225,16 @@ export default async function ResidenceOverviewPage({
         <p className="text-sm text-ink-soft">
           <span className="font-bold text-ink">{totalResidentsCount ?? 0}</span> cargados ·{" "}
           <span className="font-bold text-ink">{waitlistCount ?? 0}</span> en lista de espera
+          {(seekingChangeCount ?? 0) > 0 && (
+            <Link
+              href={`/residence/${residenceId}/residents?filtro=buscan-cambiar`}
+              className="mt-2 flex items-center gap-1.5 rounded-field bg-orange-tint px-2.5 py-1.5 text-xs font-bold text-orange-700 hover:underline"
+            >
+              <Icon name="swap_horiz" className="text-base" />
+              {seekingChangeCount === 1 ? "1 residente busca cambiar" : `${seekingChangeCount} residentes buscan cambiar`}
+              {unansweredChangeCount > 0 ? ` · ${unansweredChangeCount} sin responder` : ""}
+            </Link>
+          )}
         </p>
       ),
     },

@@ -9,6 +9,8 @@ import { estimatedFeeUsd } from "@/lib/reservations/initialPayment";
 import { ACTIVE_APPLICATION_STATUSES } from "@/lib/applications/types";
 import { loadReservationInfoByApplication } from "@/lib/applications/loadReservationInfo";
 import { buildApplicantProfile, type ApplicantProfileSource } from "@/lib/applications/applicantProfile";
+import { movingSignalFor } from "@/lib/stayChange/copy";
+import { advanceGateMessage, stayChangeAdvanceAt } from "@/lib/stayChange/advanceGate";
 import { ApplicationsInbox, type FullApplication } from "@/app/residence/[residence_id]/applications/ApplicationsInbox";
 
 export const metadata: Metadata = { title: "Solicitudes recibidas" };
@@ -82,6 +84,41 @@ export default async function ResidenceApplicationsPage({
   const { data: users } = userIds.length ? await admin.from("users").select("id, phone").in("id", userIds) : { data: [] };
   const phoneByUserId = new Map((users ?? []).map((u) => [u.id, u.phone]));
 
+  // DR3b: señal "En proceso de mudanza" (+ nota voluntaria del estudiante) en las solicitudes creadas bajo un aviso "Quiero cambiar".
+  // Consulta aparte y degradable: sin la migración 0044 (o ante un error) la bandeja sigue funcionando sin la señal. La residencia
+  // NUNCA recibe el aviso ni la residencia de origen: solo la señal, la nota y, mientras corre el preaviso, desde cuándo puede avanzar.
+  const movingByAppId = new Map<string, { label: string; note: string | null; advanceNotice: string | null }>();
+  const { data: movingRows, error: movingError } = await admin
+    .from("application_requests")
+    .select("id, stay_change_intent_id, move_context_note")
+    .eq("residence_id", residenceId)
+    .not("stay_change_intent_id", "is", null);
+  if (movingError) {
+    if (movingError.code !== "42703" && movingError.code !== "PGRST204") console.error("[residence/applications] moving signal lookup failed:", movingError);
+  } else if (movingRows?.length) {
+    const intentIds = [...new Set(movingRows.map((m) => m.stay_change_intent_id as string))];
+    const { data: intents } = await admin
+      .from("stay_change_intents")
+      .select("id, status, created_at, guardian_confirmed_at, payment_unlocked_at")
+      .in("id", intentIds);
+    const intentById = new Map((intents ?? []).map((i) => [i.id as string, i]));
+    for (const m of movingRows) {
+      const signal = movingSignalFor({ stay_change_intent_id: m.stay_change_intent_id, move_context_note: m.move_context_note });
+      if (!signal) continue;
+      const intent = intentById.get(m.stay_change_intent_id as string);
+      let advanceNotice: string | null = null;
+      if (intent?.status === "open") {
+        const at = stayChangeAdvanceAt({
+          created_at: intent.created_at as string,
+          guardian_confirmed_at: (intent.guardian_confirmed_at as string | null) ?? null,
+          payment_unlocked_at: (intent.payment_unlocked_at as string | null) ?? null,
+        });
+        if (at.getTime() > Date.now()) advanceNotice = advanceGateMessage(at, "residence");
+      }
+      movingByAppId.set(m.id as string, { ...signal, advanceNotice });
+    }
+  }
+
   const fullApplications: FullApplication[] = rows.map((a) => {
     // Perfil crudo: SOLO se usa acá, en el servidor. Al cliente viaja `applicant`, ya filtrado
     // por privacidad (menor / interruptores de visibilidad) y sin apellido, nacimiento ni contacto.
@@ -142,6 +179,7 @@ export default async function ResidenceApplicationsPage({
       whatsappUrl,
       waitlistRelatedCount: a.room_type_id ? (waitlistCountByType.get(a.room_type_id) ?? 0) : 0,
       isActive: (ACTIVE_APPLICATION_STATUSES as readonly string[]).includes(a.status),
+      moving: movingByAppId.get(a.id) ?? null,
     };
   });
 

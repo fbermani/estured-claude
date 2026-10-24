@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth/session";
+import { Icon } from "@/components/ui/Icon";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ExpandableCard } from "@/components/ui/ExpandableCard";
@@ -52,6 +53,18 @@ export default async function StudentWaitlistPage() {
     entries = (data as unknown as WaitlistRow[]) ?? [];
   }
 
+  // "Quiero cambiar" (DR3): las entradas creadas bajo un aviso se etiquetan "Por tu cambio de residencia". Lectura aparte y
+  // degradable: sin la migración 0044 (o ante un error) la lista se ve igual, sin la etiqueta.
+  const changeEntryIds = new Set<string>();
+  if (supabase && sessionUser && entries.length > 0) {
+    const { data: linked, error: linkedError } = await supabase
+      .from("waitlist_entries")
+      .select("id")
+      .in("id", entries.map((e) => e.id))
+      .not("stay_change_intent_id", "is", null);
+    if (!linkedError) for (const row of linked ?? []) changeEntryIds.add(row.id as string);
+  }
+
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
       <h1 className="text-2xl font-bold text-ink">Lista de espera</h1>
@@ -80,7 +93,14 @@ export default async function StudentWaitlistPage() {
                   <p className="truncate font-bold text-ink">{entry.residences?.name}</p>
                   <p className="text-sm text-ink-soft">{entry.residences?.public_area}</p>
                 </div>
-                <Badge tone={badge.tone}>{badge.label}</Badge>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {changeEntryIds.has(entry.id) && (
+                    <Badge tone="amber">
+                      <Icon name="swap_horiz" className="text-sm" /> Por tu cambio de residencia
+                    </Badge>
+                  )}
+                  <Badge tone={badge.tone}>{badge.label}</Badge>
+                </div>
               </div>
             );
 

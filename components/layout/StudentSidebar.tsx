@@ -30,8 +30,10 @@ const NAV_BASE = {
  * se oculta mientras el estudiante busca — sin reserva confirmada la
  * pantalla no tiene nada que mostrar (ver app/students/renewals/page.tsx).
  */
-function buildNav(isHoused: boolean, hasProfile: boolean): NavItem[] {
+function buildNav(isHoused: boolean, hasProfile: boolean, searchingChange: boolean): NavItem[] {
   const nav = buildNavByState(isHoused);
+  // Con un aviso "Quiero cambiar" abierto, el alojado vuelve a ver "Buscar residencias" debajo de Mi residencia (DR3).
+  if (isHoused && searchingChange) nav.splice(nav.indexOf(NAV_BASE.residencyHoused) + 1, 0, NAV_BASE.search);
   // "Mi perfil" (/students/profile) edita el `student_profiles` del propio
   // usuario; el familiar no tiene uno, así que la ruta responde 404. Sin
   // pantalla de perfil de familiar definida, el enlace no se muestra.
@@ -84,15 +86,18 @@ export function StudentSidebar({
   userEmail,
   isHoused,
   hasProfile = true,
+  searchingChange = false,
 }: {
   userEmail: string;
   isHoused: boolean;
+  /** `true` si el alojado tiene un aviso "Quiero cambiar" abierto: vuelve el ítem "Buscar residencias". */
+  searchingChange?: boolean;
   /** `false` para el familiar: no tiene `student_profiles`, "Mi perfil" daría 404. */
   hasProfile?: boolean;
 }) {
   const pathname = usePathname();
   const { collapsed, toggleCollapsed, mobileOpen, setMobileOpen } = useSidebarCollapse();
-  const nav = buildNav(isHoused, hasProfile);
+  const nav = buildNav(isHoused, hasProfile, searchingChange);
 
   return (
     <>

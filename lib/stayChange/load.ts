@@ -3,7 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { INTENT_COLUMNS, type StayChangeIntentRow } from "@/lib/stayChange/common";
 import { loadIntentItems } from "@/lib/stayChange/closeItemsUnderIntent";
 import { loadActiveFamilyUserIds } from "@/lib/stayChange/recipients";
-import { ACTIVE_STAY_CHANGE_STATUSES, describeStayChangeState, type StayChangeUiState } from "@/lib/stayChange/status";
+import { ACTIVE_STAY_CHANGE_STATUSES, STAY_CHANGE_CREATE_COOLDOWN_HOURS, STAY_CHANGE_MAX_EDITS, describeStayChangeState, type StayChangeUiState } from "@/lib/stayChange/status";
 import type { StayChangeTemplateContext } from "@/lib/stayChange/templates";
 
 /**
@@ -45,9 +45,20 @@ export type StudentStayChangeView = {
   response: ResidenceResponseView | null;
   /** Solicitudes / listas de espera creadas bajo el aviso (vivas), para los atajos y el modal de cancelar. */
   linked: { applications: number; waitlist: number; blockingApplicationIds: string[] };
+  /** Ediciones ya hechas por el estudiante (auditoría) y tope, para deshabilitar "Editar aviso" con explicación. */
+  editCount: number;
+  maxEdits: number;
+  /** Desde cuándo puede volver a avisar (24 h desde el último aviso), si todavía rige el cooldown. */
+  canNoticeAgainAt: string | null;
 };
 
-function project(row: StayChangeIntentRow, linked: StudentStayChangeView["linked"], audience: "student" | "family", now: Date): StudentStayChangeView {
+function project(
+  row: StayChangeIntentRow,
+  linked: StudentStayChangeView["linked"],
+  audience: "student" | "family",
+  now: Date,
+  extras: { editCount: number; canNoticeAgainAt: string | null } = { editCount: 0, canNoticeAgainAt: null },
+): StudentStayChangeView {
   return {
     id: row.id,
     ui: describeStayChangeState({ status: row.status, residenceRespondedAt: row.residence_responded_at, expiresAt: row.expires_at }, now),
@@ -73,6 +84,9 @@ function project(row: StayChangeIntentRow, linked: StudentStayChangeView["linked
         }
       : null,
     linked,
+    editCount: extras.editCount,
+    maxEdits: STAY_CHANGE_MAX_EDITS,
+    canNoticeAgainAt: extras.canNoticeAgainAt,
   };
 }
 
@@ -106,7 +120,18 @@ async function loadLinked(admin: SupabaseClient, intent: StayChangeIntentRow): P
 export async function loadStudentStayChange(admin: SupabaseClient, studentProfileId: string, now: Date = new Date()): Promise<StudentStayChangeView | null> {
   const intent = await loadLatestIntent(admin, studentProfileId);
   if (!intent) return null;
-  return project(intent, await loadLinked(admin, intent), "student", now);
+  // Solo lectura: ediciones hechas (auditoría) y cooldown de 24 h desde el último aviso. La validación real sigue en el servidor.
+  const { count: edits } = await admin
+    .from("audit_logs")
+    .select("id", { count: "exact", head: true })
+    .eq("entity_type", "stay_change_intents")
+    .eq("entity_id", intent.id)
+    .eq("action", "stay_change_intent_updated");
+  const until = new Date(new Date(intent.created_at).getTime() + STAY_CHANGE_CREATE_COOLDOWN_HOURS * 3_600_000);
+  return project(intent, await loadLinked(admin, intent), "student", now, {
+    editCount: edits ?? 0,
+    canNoticeAgainAt: until.getTime() > now.getTime() ? until.toISOString() : null,
+  });
 }
 
 /** Para el familiar: el LLAMADOR ya verificó que es el familiar activo de `studentProfileId`; igual se re-verifica acá. */
@@ -195,7 +220,7 @@ export async function loadResidenceStayChanges(admin: SupabaseClient, residenceI
         id: r.id,
         status: r.status,
         studentProfileId: r.student_profile_id,
-        studentName: student?.first_name ? `${student.first_name}${student.last_initial ? ` ${student.last_initial}.` : ""}` : "Residente",
+        studentName: student?.first_name ? `${student.first_name}${student.last_initial ? ` ${student.last_initial.replace(/\.+$/, "")}.` : ""}` : "Residente",
         roomTypeName: stay?.room_types?.name ?? reservation?.room_types?.name ?? null,
         createdAt: r.created_at,
         estimatedExitDate: r.estimated_exit_date,

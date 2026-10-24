@@ -19,6 +19,12 @@ import { getIsHoused } from "@/lib/students/isHoused";
 import { formatDateOnly } from "@/lib/students/contractEnd";
 import { loadStudentContracts } from "@/lib/students/loadStudentContracts";
 import { StayRateNote } from "@/components/students/StayRateNote";
+import { StayChangeCard, StayChangeTopNotices } from "@/components/students/StayChangeCard";
+import { ExitStudentNoteForm } from "@/components/students/StayChangeInlineActions";
+import { loadStudentStayChange, type StudentStayChangeView } from "@/lib/stayChange/load";
+import { loadStayChangeEligibility } from "@/lib/stayChange/eligibility";
+import { STAY_CHANGE_ADVANCE_HOURS } from "@/lib/stayChange/advanceGate";
+import { DEPOSIT_STATUS_LABELS, UNPAID_DISCLAIMER, type DepositReturnStatus } from "@/lib/stayChange/copy";
 
 export const dynamic = "force-dynamic";
 
@@ -134,6 +140,32 @@ export default async function StudentResidencyPage() {
     reservation = data as unknown as ReservationRow | null;
   }
 
+  // Salida anticipada ya registrada por la residencia (DR3): el estudiante ve el estado del depósito y puede dejar su nota.
+  type EarlyExitRow = {
+    resident_stay_id: string;
+    exit_date: string;
+    deposit_status: DepositReturnStatus;
+    residence_note: string | null;
+    student_note: string | null;
+    residences: { name: string } | null;
+  };
+  let earlyExit: EarlyExitRow | null = null;
+  if (!reservation && admin && sessionUser?.roles.includes("student")) {
+    const { data: profile } = await admin.from("student_profiles").select("id").eq("user_id", sessionUser.id).maybeSingle();
+    if (profile?.id) {
+      const { data, error: exitError } = await admin
+        .from("stay_early_exits")
+        .select("resident_stay_id, exit_date, deposit_status, residence_note, student_note, residences(name)")
+        .eq("student_profile_id", profile.id)
+        .order("exit_date", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      // Tabla de la migración 0044: si todavía no existe, la pantalla sigue como siempre.
+      if (exitError && exitError.code !== "42P01" && exitError.code !== "PGRST205") console.error("[students/residency] early exit lookup failed:", exitError);
+      earlyExit = (data as unknown as EarlyExitRow | null) ?? null;
+    }
+  }
+
   // Estudiante sin reserva confirmada: la pantalla original, intacta —
   // activación de visibilidad o estado vacío. "Mi residencia" solo se
   // convierte en hub completo cuando hay una reserva confirmada
@@ -146,6 +178,37 @@ export default async function StudentResidencyPage() {
           Si tu residencia te cargó como residente, activá tu cuenta para aparecer en la comunidad visible.
         </p>
 
+        {earlyExit && (
+          <Card className="mt-6 p-5 sm:p-6">
+            <div className="flex items-center gap-2">
+              <Icon name="logout" className="text-xl text-forest-700" />
+              <h2 className="font-bold text-ink">Tu salida de {earlyExit.residences?.name ?? "tu residencia"}</h2>
+            </div>
+            <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+              <div>
+                <dt className="text-xs text-ink-faint">Fecha de salida</dt>
+                <dd className="font-bold text-ink">{formatDateOnly(earlyExit.exit_date)}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-ink-faint">Depósito</dt>
+                <dd className="font-bold text-ink">{DEPOSIT_STATUS_LABELS[earlyExit.deposit_status] ?? "—"}</dd>
+              </div>
+            </dl>
+            {earlyExit.residence_note && (
+              <blockquote className="mt-4 border-l-4 border-forest pl-4 text-sm leading-relaxed text-ink">
+                <span className="mb-1 block text-xs font-bold uppercase tracking-wider text-muted">Nota de la residencia</span>
+                {earlyExit.residence_note}
+              </blockquote>
+            )}
+            <div className="mt-5 border-t border-line pt-4">
+              <ExitStudentNoteForm residentStayId={earlyExit.resident_stay_id} initialNote={earlyExit.student_note} />
+            </div>
+            <p className="mt-4 text-xs leading-relaxed text-ink-faint">
+              Esta información la carga tu residencia y no modifica ningún contrato; ante dudas, escribí a Soporte. {UNPAID_DISCLAIMER}
+            </p>
+          </Card>
+        )}
+
         {pending.length > 0 ? (
           <div className="mt-6">
             <PendingActivationBlock pending={pending} />
@@ -155,7 +218,7 @@ export default async function StudentResidencyPage() {
             <Icon name="verified_user" className="text-2xl text-forest-700" />
             <p className="text-sm font-semibold text-ink">Ya estás activo en la comunidad de tu residencia.</p>
           </div>
-        ) : (
+        ) : earlyExit ? null : (
           <div className="mt-6">
             <EmptyState
               icon="apartment"
@@ -259,6 +322,44 @@ export default async function StudentResidencyPage() {
         ])
       ).get(reservation.id)
     : undefined;
+  // "Quiero cambiar" (DR3, Ciclo 60): solo el estudiante (el familiar lo ve en su Inicio). Lecturas degradables: si fallan,
+  // la pantalla sigue sin el bloque.
+  let stayChange: {
+    view: StudentStayChangeView | null;
+    familyName: string | null;
+    isMinor: boolean;
+    renewalLock: boolean;
+    advanceAtIso: string | null;
+  } | null = null;
+  if (admin && sessionUser?.roles.includes("student")) {
+    const { data: profile } = await admin.from("student_profiles").select("id, is_minor").eq("user_id", sessionUser.id).maybeSingle();
+    if (profile?.id) {
+      const [view, eligibility, familyLink] = await Promise.all([
+        loadStudentStayChange(admin, profile.id as string),
+        loadStayChangeEligibility(admin, profile.id as string),
+        admin
+          .from("family_links")
+          .select("family_members(first_name)")
+          .eq("student_profile_id", profile.id)
+          .eq("status", "active")
+          .maybeSingle(),
+      ]);
+      let advanceAtIso: string | null = null;
+      if (view && (view.ui.key === "open_no_response" || view.ui.key === "open_responded" || view.ui.key === "open_expiring")) {
+        const { data: intentRow } = await admin.from("stay_change_intents").select("payment_unlocked_at").eq("id", view.id).maybeSingle();
+        advanceAtIso = (intentRow?.payment_unlocked_at as string | null) ?? null;
+      }
+      stayChange = {
+        view,
+        familyName: (familyLink.data?.family_members as unknown as { first_name: string } | null)?.first_name ?? null,
+        isMinor: !!profile.is_minor,
+        renewalLock: !eligibility.ok && eligibility.reason === "renewal_in_progress",
+        advanceAtIso,
+      };
+    }
+  }
+  const searchingChange =
+    !!stayChange?.view && ["open_no_response", "open_responded", "open_expiring"].includes(stayChange.view.ui.key);
   const remaining = contract?.daysRemaining ?? 0;
   const contractEndLabel = contract ? formatDateOnly(contract.endDate) : "—";
   const monthlyRate = contract?.currentRateUsd ?? reservation.application_snapshots?.monthly_price_usd ?? null;
@@ -273,10 +374,23 @@ export default async function StudentResidencyPage() {
             {residence?.name} · {residence?.public_area}, CABA
           </p>
         </div>
-        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-forest-tint px-3 py-1 text-xs font-bold uppercase tracking-wide text-forest-700">
-          <span className="size-2 rounded-full bg-forest-600" /> Alojado
-        </span>
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-forest-tint px-3 py-1 text-xs font-bold uppercase tracking-wide text-forest-700">
+            <span className="size-2 rounded-full bg-forest-600" /> Alojado
+          </span>
+          {searchingChange && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-orange-tint px-3 py-1 text-xs font-bold uppercase tracking-wide text-orange-700">
+              <Icon name="swap_horiz" className="text-sm" /> Buscando un cambio
+            </span>
+          )}
+        </div>
       </div>
+
+      {stayChange && (
+        <div className="mt-6 empty:hidden">
+          <StayChangeTopNotices view={stayChange.view} residenceName={residence?.name ?? "tu residencia"} contractEndLabel={contractEndLabel} />
+        </div>
+      )}
 
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="flex min-w-0 flex-col gap-6 lg:col-span-2">
@@ -358,6 +472,22 @@ export default async function StudentResidencyPage() {
             )}
           </Card>
 
+          {stayChange && (
+            <StayChangeCard
+              view={stayChange.view}
+              residenceName={residence?.name ?? "tu residencia"}
+              contractEndLabel={contractEndLabel}
+              contractEndDate={contract?.endDate ?? null}
+              familyName={stayChange.familyName}
+              isMinor={stayChange.isMinor}
+              renewalLock={stayChange.renewalLock}
+              conditionsHref={reservation.booking_receipt_id ? `/students/receipts/${reservation.booking_receipt_id}` : "/students/applications"}
+              advanceAtIso={stayChange.advanceAtIso}
+              advanceHours={STAY_CHANGE_ADVANCE_HOURS}
+              now={new Date()}
+            />
+          )}
+
           {residence?.description && (
             <section>
               <h2 className="text-xl font-bold text-ink">Sobre tu residencia</h2>
@@ -412,6 +542,18 @@ export default async function StudentResidencyPage() {
                   Completar documentación →
                 </Link>
               )}
+            </Card>
+          )}
+
+          {searchingChange && stayChange?.familyName && (
+            <Card className="p-5">
+              <div className="mb-3 flex items-center justify-between">
+                <p className="text-xs font-extrabold uppercase tracking-wider text-muted">Tu familiar vinculado</p>
+                <Icon name="family_restroom" className="text-lg text-muted" />
+              </div>
+              <p className="text-sm leading-relaxed text-ink-soft">
+                {stayChange.familyName} ve que avisaste y la respuesta de tu residencia, y puede proponerte opciones. No ve tu mensaje. La decisión es tuya.
+              </p>
             </Card>
           )}
 

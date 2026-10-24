@@ -231,16 +231,40 @@ export function RequestPanel({
           </>
         )}
 
-        {mode === "student" && windowNotice && (
-          <p className="mb-3 flex items-start gap-2 rounded-field bg-info-bg px-3.5 py-2.5 text-xs leading-relaxed text-info-fg">
-            <Icon name="event_available" className="mt-0.5 shrink-0 text-base" />
-            <span>
-              {windowNotice.message}{" "}
-              <Link href="/students/residency" className="font-bold underline underline-offset-2">
-                Ir a Mi residencia
+        {mode === "student" && windowNotice && windowNotice.stayChangeOpen && (
+          <div className="mb-3 rounded-field border border-orange/30 bg-warning-bg px-3.5 py-3 text-xs leading-relaxed text-warning-fg">
+            <p className="flex items-start gap-2">
+              <Icon name="swap_horiz" className="mt-0.5 shrink-0 text-base" />
+              <span>
+                <strong>Estás buscando cambiar de residencia;</strong> tu residencia actual fue avisada. Podés solicitar para cualquier fecha, aunque se
+                superponga con tu estadía.
+              </span>
+            </p>
+            <Link href="/students/residency#quiero-cambiar" className="mt-1.5 inline-block font-bold underline underline-offset-2">
+              Ir a Mi residencia
+            </Link>
+          </div>
+        )}
+
+        {mode === "student" && windowNotice && !windowNotice.stayChangeOpen && (
+          <div className="mb-3 space-y-2">
+            <p className="flex items-start gap-2 rounded-field bg-info-bg px-3.5 py-2.5 text-xs leading-relaxed text-info-fg">
+              <Icon name="event_available" className="mt-0.5 shrink-0 text-base" />
+              <span>
+                {windowNotice.message}{" "}
+                <Link href="/students/residency" className="font-bold underline underline-offset-2">
+                  Ir a Mi residencia
+                </Link>
+              </span>
+            </p>
+            <p className="flex items-center gap-1.5 px-1 text-xs text-ink-soft">
+              <Icon name="swap_horiz" className="text-base text-orange-700" />
+              ¿Querés mudarte antes?{" "}
+              <Link href="/students/residency#quiero-cambiar" className="font-bold text-forest-700 hover:underline">
+                Quiero cambiar de residencia
               </Link>
-            </span>
-          </p>
+            </p>
+          </div>
         )}
 
         {mode === "student" &&

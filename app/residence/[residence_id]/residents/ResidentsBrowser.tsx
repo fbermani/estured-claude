@@ -10,6 +10,11 @@ import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatUsd } from "@/lib/mock/exchange";
 import { AddResidentForm } from "@/app/residence/[residence_id]/residents/AddResidentForm";
+import { StayChangeSection } from "@/app/residence/[residence_id]/residents/StayChangeSection";
+import { StayChangeResponseSheet } from "@/app/residence/[residence_id]/residents/StayChangeResponseSheet";
+import { EarlyExitForm } from "@/app/residence/[residence_id]/residents/EarlyExitForm";
+import type { ResidenceStayChangeItem } from "@/lib/stayChange/load";
+import { dayBefore } from "@/lib/stayChange/ui";
 import {
   updateStayDetailsAction,
   assignBedToStayAction,
@@ -43,6 +48,19 @@ export type ResidentRow = {
     statusLabel: string | null;
     statusTone: "amber" | "sage" | "neutral" | "danger";
   } | null;
+  studentProfileId: string | null;
+  /** Depósito de la reserva vinculada: define las opciones al registrar una salida anticipada. */
+  depositMode: "had" | "none" | "unknown";
+  /** Aviso "Quiero cambiar" abierto o resuelto de este residente (DR3). */
+  stayChange: {
+    intentId: string;
+    status: "open" | "resolved_new_reservation";
+    createdAt: string;
+    estimatedExitDate: string | null;
+    resolvedNewStartDate: string | null;
+    responded: boolean;
+    seen: boolean;
+  } | null;
 };
 
 export type ResidentNote = {
@@ -57,8 +75,9 @@ export type ResidentsData = {
   rows: ResidentRow[];
   freeBeds: { id: string; label: string }[];
   roomTypes: { id: string; name: string }[];
-  kpis: { active: number; arrivals: number; departures: number; renewals: number };
+  kpis: { active: number; arrivals: number; departures: number; renewals: number; seekingChange: number };
   notesByStay: Record<string, ResidentNote[]>;
+  stayChanges: ResidenceStayChangeItem[];
 };
 
 const initialState: ResidentsActionState = { status: "idle" };
@@ -80,6 +99,7 @@ function timeAgo(isoStr: string): string {
 const NOTE_CATEGORY_LABEL: Record<ResidentNote["category"], string> = { general: "General", pagos: "Pagos" };
 
 type StatusKey = "activo" | "por_ingresar" | "por_salir" | "pendiente";
+type FilterKey = StatusKey | "todos" | "busca_cambiar";
 
 function statusOf(row: ResidentRow, todayStr: string, in30Str: string): StatusKey {
   if (row.pending) return "pendiente";
@@ -95,11 +115,12 @@ const STATUS_META: Record<StatusKey, { label: string; tone: "sage" | "amber" | "
   pendiente: { label: "Pendiente de activación", tone: "neutral" },
 };
 
-const FILTER_PILLS: { key: StatusKey | "todos"; label: string }[] = [
+const FILTER_PILLS: { key: FilterKey; label: string }[] = [
   { key: "todos", label: "Todos" },
   { key: "activo", label: "Activos" },
   { key: "por_ingresar", label: "Por ingresar" },
   { key: "por_salir", label: "Por salir" },
+  { key: "busca_cambiar", label: "Buscan cambiar" },
   { key: "pendiente", label: "Pendientes" },
 ];
 
@@ -183,11 +204,14 @@ function DetailPanel({
   row,
   freeBeds,
   notes,
+  exitRequest,
 }: {
   residenceId: string;
   row: ResidentRow;
   freeBeds: { id: string; label: string }[];
   notes: ResidentNote[];
+  /** Pedido de "Registrar salida" desde la sección de avisos: abre el formulario con la fecha sugerida. */
+  exitRequest: { stayId: string; date: string | null; nonce: number } | null;
 }) {
   const detailsAction = updateStayDetailsAction.bind(null, residenceId, row.stayId);
   const [detailsState, detailsFormAction, detailsPending] = useActionState(detailsAction, initialState);
@@ -196,6 +220,18 @@ function DetailPanel({
   const endAction = endResidentStayAction.bind(null, residenceId, row.stayId);
   const [endState, endFormAction, endPending] = useActionState(endAction, initialState);
   const [confirmEnd, setConfirmEnd] = useState(false);
+  const [earlyExitOpen, setEarlyExitOpen] = useState(() => exitRequest?.stayId === row.stayId);
+  const [lastNonce, setLastNonce] = useState(exitRequest?.nonce ?? 0);
+  if (exitRequest && exitRequest.stayId === row.stayId && exitRequest.nonce !== lastNonce) {
+    setLastNonce(exitRequest.nonce);
+    setEarlyExitOpen(true);
+  }
+  const suggestedExitDate =
+    exitRequest?.stayId === row.stayId
+      ? exitRequest.date
+      : row.stayChange?.resolvedNewStartDate
+        ? dayBefore(row.stayChange.resolvedNewStartDate)
+        : (row.stayChange?.estimatedExitDate ?? null);
   const [rateInput, setRateInput] = useState(row.rateUsd != null ? String(row.rateUsd) : "");
   const typedRate = rateInput.trim() === "" ? null : Number(rateInput);
   // Misma regla que el estudiante: una tarifa propia distinta de la acordada se le muestra (D5).
@@ -204,6 +240,18 @@ function DetailPanel({
 
   return (
     <div className="grid gap-5 border-t border-line bg-cream-2/60 p-5 sm:grid-cols-2 lg:grid-cols-4">
+      {earlyExitOpen && (
+        <div className="sm:col-span-2 lg:col-span-4">
+          <EarlyExitForm
+            residenceId={residenceId}
+            stayId={row.stayId}
+            residentName={row.name}
+            depositMode={row.depositMode}
+            suggestedDate={suggestedExitDate}
+            onCancel={() => setEarlyExitOpen(false)}
+          />
+        </div>
+      )}
       {/* Salida exacta + tarifa — ref modal perfil del residente */}
       <form action={detailsFormAction} className="rounded-field border border-line bg-paper p-4">
         <p className="mb-3 flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest text-muted">
@@ -362,15 +410,32 @@ function DetailPanel({
           <p className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest text-danger-fg">
             <Icon name="warning" className="text-sm" /> Zona de riesgo
           </p>
-          {!confirmEnd ? (
+          {row.stayChange && (
+            <p className="mt-2 flex items-start gap-1.5 text-xs leading-relaxed text-ink-soft">
+              <Icon name="swap_horiz" className="mt-0.5 shrink-0 text-sm text-orange-700" />
+              {row.stayChange.status === "open"
+                ? "Este residente busca cambiar de residencia: cuando se vaya, registrá su salida anticipada."
+                : `Confirmó un alojamiento nuevo${row.stayChange.resolvedNewStartDate ? ` desde el ${formatDate(row.stayChange.resolvedNewStartDate)}` : ""}: registrá su salida cuando se retire.`}
+            </p>
+          )}
+          {!earlyExitOpen && !row.pending && (
+            <button
+              type="button"
+              onClick={() => setEarlyExitOpen(true)}
+              className="mt-2 mr-4 inline-block min-h-8 cursor-pointer text-sm font-bold text-danger-fg hover:underline"
+            >
+              Registrar salida anticipada…
+            </button>
+          )}
+          {!confirmEnd && !earlyExitOpen ? (
             <button
               type="button"
               onClick={() => setConfirmEnd(true)}
-              className="mt-2 cursor-pointer text-sm font-bold text-danger-fg hover:underline"
+              className="mt-2 inline-block min-h-8 cursor-pointer text-sm font-bold text-danger-fg hover:underline"
             >
               Finalizar estadía…
             </button>
-          ) : (
+          ) : earlyExitOpen ? null : (
             <form action={endFormAction} className="mt-2 flex items-center gap-2">
               <p className="text-xs text-danger-fg">¿Seguro? Sale de la comunidad visible.</p>
               <button
@@ -400,15 +465,22 @@ function DetailPanel({
 
 export function ResidentsBrowser({
   residenceId,
+  residenceName,
   data,
 }: {
   residenceId: string;
+  residenceName: string;
   data: ResidentsData;
 }) {
-  const [filter, setFilter] = useState<StatusKey | "todos">("todos");
+  const searchParams = useSearchParams();
+  // `?filtro=buscan-cambiar` (enlace del Panel): arranca filtrado por los residentes que buscan cambiar.
+  const [filter, setFilter] = useState<FilterKey>(() => (searchParams.get("filtro") === "buscan-cambiar" ? "busca_cambiar" : "todos"));
   const [search, setSearch] = useState("");
   const [showAdd, setShowAdd] = useState(false);
-  const searchParams = useSearchParams();
+  const [respondingId, setRespondingId] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+  const [exitRequest, setExitRequest] = useState<{ stayId: string; date: string | null; nonce: number } | null>(null);
+  const respondingItem = data.stayChanges.find((c) => c.id === respondingId) ?? null;
   const [openStayId, setOpenStayId] = useState<string | null>(() => searchParams.get("stay"));
 
   // Deep-link `?stay=<id>` (ej. desde "Próximos ingresos y salidas" del
@@ -428,7 +500,9 @@ export function ResidentsBrowser({
     const q = search.trim().toLowerCase();
     return data.rows.filter((row) => {
       const st = statusOf(row, todayStr, in30Str);
-      if (filter !== "todos" && st !== filter) return false;
+      if (filter === "busca_cambiar") {
+        if (row.stayChange?.status !== "open") return false;
+      } else if (filter !== "todos" && st !== filter) return false;
       if (!q) return true;
       return (
         row.name.toLowerCase().includes(q) ||
@@ -439,6 +513,20 @@ export function ResidentsBrowser({
   }, [data.rows, filter, search, todayStr, in30Str]);
 
   const { kpis } = data;
+
+  function registerExit(item: ResidenceStayChangeItem) {
+    const row = data.rows.find((r) => r.studentProfileId === item.studentProfileId);
+    if (!row) return;
+    setFilter("todos");
+    setSearch("");
+    setOpenStayId(row.stayId);
+    setExitRequest({
+      stayId: row.stayId,
+      date: item.resolvedNewStartDate ? dayBefore(item.resolvedNewStartDate) : item.estimatedExitDate,
+      nonce: (exitRequest?.nonce ?? 0) + 1,
+    });
+    requestAnimationFrame(() => document.getElementById(`resident-row-${row.stayId}`)?.scrollIntoView({ behavior: "smooth", block: "center" }));
+  }
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
@@ -464,7 +552,7 @@ export function ResidentsBrowser({
       )}
 
       {/* KPIs — ref gestión de residentes (sin "evaluaciones": feature pospuesta) */}
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
         <Card className="p-4 sm:p-5">
           <p className="text-sm font-semibold text-ink-soft">Residentes activos</p>
           <p className="mt-1 text-3xl font-extrabold text-ink">{kpis.active}</p>
@@ -486,7 +574,25 @@ export function ResidentsBrowser({
             {kpis.renewals}
           </p>
         </Card>
+        <Card className={`col-span-2 p-4 sm:p-5 lg:col-span-1 ${kpis.seekingChange > 0 ? "border-orange/50" : ""}`}>
+          <p className="text-sm font-semibold text-ink-soft">Buscan cambiar</p>
+          <p className={`mt-1 text-3xl font-extrabold ${kpis.seekingChange > 0 ? "text-orange-700" : "text-ink"}`}>{kpis.seekingChange}</p>
+        </Card>
       </div>
+
+      <StayChangeSection
+        residenceId={residenceId}
+        items={data.stayChanges}
+        onRespond={(item) => setRespondingId(item.id)}
+        onRegisterExit={registerExit}
+      />
+
+      {toast && (
+        <p role="status" className="mt-4 flex items-start gap-2 rounded-field bg-success-bg px-4 py-3 text-sm font-medium text-success-fg">
+          <Icon name="check_circle" className="mt-0.5 shrink-0 text-lg" />
+          {toast}
+        </p>
+      )}
 
       {/* Búsqueda + pills */}
       <div className="mt-6 rounded-card border-[1.5px] border-line bg-paper p-4 shadow-card">
@@ -513,6 +619,15 @@ export function ResidentsBrowser({
               }`}
             >
               {pill.label}
+              {pill.key === "busca_cambiar" && kpis.seekingChange > 0 && (
+                <span
+                  className={`ml-1.5 inline-flex min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-extrabold leading-5 ${
+                    filter === pill.key ? "bg-white text-orange-700" : "bg-orange text-white"
+                  }`}
+                >
+                  {kpis.seekingChange}
+                </span>
+              )}
             </button>
           ))}
         </div>
@@ -521,11 +636,19 @@ export function ResidentsBrowser({
       {/* Tabla */}
       {filtered.length === 0 ? (
         <div className="mt-6">
-          <EmptyState
-            icon="groups"
-            title="Sin residentes para mostrar"
-            description="Ajustá los filtros o cargá el primero con “Agregar residente”."
-          />
+          {filter === "busca_cambiar" && !search.trim() ? (
+            <EmptyState
+              icon="swap_horiz"
+              title="Nadie está buscando cambiar"
+              description="Cuando un residente avise que busca otro lugar, lo vas a ver acá y te va a llegar una notificación con su fecha estimada de salida. Así te enterás con tiempo, no el día que se va."
+            />
+          ) : (
+            <EmptyState
+              icon="groups"
+              title="Sin residentes para mostrar"
+              description="Ajustá los filtros o cargá el primero con “Agregar residente”."
+            />
+          )}
         </div>
       ) : (
         <div className="mt-6 overflow-hidden rounded-card border-[1.5px] border-line bg-paper shadow-card">
@@ -586,7 +709,14 @@ export function ResidentsBrowser({
                           {row.typeName && <span className="block text-xs font-normal text-ink-faint">{row.typeName}</span>}
                         </td>
                         <td className="px-4 py-3">
-                          <Badge tone={meta.tone}>{meta.label}</Badge>
+                          <div className="flex flex-wrap gap-1">
+                            <Badge tone={meta.tone}>{meta.label}</Badge>
+                            {row.stayChange?.status === "open" && (
+                              <Badge tone="amber">
+                                <Icon name="swap_horiz" className="text-sm" /> Busca cambiar
+                              </Badge>
+                            )}
+                          </div>
                         </td>
                         <td className="whitespace-nowrap px-4 py-3 text-ink-soft">{formatDate(row.expectedEndDate)}</td>
                         <td className="whitespace-nowrap px-4 py-3 font-bold text-ink">
@@ -621,6 +751,7 @@ export function ResidentsBrowser({
                               row={row}
                               freeBeds={data.freeBeds}
                               notes={data.notesByStay[row.stayId] ?? []}
+                              exitRequest={exitRequest}
                             />
                           </td>
                         </tr>
@@ -632,6 +763,16 @@ export function ResidentsBrowser({
             </table>
           </div>
         </div>
+      )}
+
+      {respondingItem && (
+        <StayChangeResponseSheet
+          residenceId={residenceId}
+          residenceName={residenceName}
+          item={respondingItem}
+          onClose={() => setRespondingId(null)}
+          onSaved={(message) => setToast(message)}
+        />
       )}
 
       <p className="mt-4 text-xs text-ink-faint">

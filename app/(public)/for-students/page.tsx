@@ -7,6 +7,8 @@ import { Icon } from "@/components/ui/Icon";
 import { RotatingBenefits, type RotatingBenefit } from "@/components/ui/RotatingBenefits";
 import { StepsList } from "@/app/(public)/for-students/StepsList";
 import { getCatalogResidences } from "@/lib/residences/catalog";
+import { getSessionUser } from "@/lib/auth/session";
+import { StayChangeHighlight } from "@/components/marketing/StayChangeHighlight";
 
 export const metadata: Metadata = {
   title: "Para estudiantes y familias",
@@ -113,6 +115,7 @@ const steps = [
 export const dynamic = "force-dynamic";
 
 export default async function ForStudentsPage() {
+  const sessionUser = await getSessionUser();
   const catalog = await getCatalogResidences();
   const heroResidence = catalog[0] ?? null;
   const heroPhoto = heroResidence?.photos[0] ?? null;
@@ -189,6 +192,8 @@ export default async function ForStudentsPage() {
         />
         <RotatingBenefits items={benefits} />
       </section>
+
+      <StayChangeHighlight variant="students" studentCta={sessionUser?.roles.includes("student") ? "residency" : "register"} />
 
       <section className="bg-surface border-y border-sand-200">
         <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-20">

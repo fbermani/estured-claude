@@ -15,6 +15,8 @@ import { ApplicationTimeline } from "@/components/applications/ApplicationTimeli
 import { effectiveContactDeadline } from "@/lib/applications/paymentDeadline";
 import { ContactDeadlineNote } from "@/components/applications/ContactDeadlineNote";
 import { AgreedConditionsCard } from "@/components/applications/AgreedConditionsCard";
+import { Icon } from "@/components/ui/Icon";
+import { advanceGateMessage, stayChangeAdvanceAt } from "@/lib/stayChange/advanceGate";
 
 /** Estados en los que las condiciones ya fueron aceptadas (docs/04 §5.2). */
 const CONDITIONS_AGREED_STATUSES = new Set([
@@ -91,6 +93,35 @@ export default async function StudentApplicationDetailPage({
         .maybeSingle()
     : { data: null };
 
+  // "Quiero cambiar" (DR3): si la solicitud nació bajo un aviso abierto, se explica el preaviso de 48 h antes de poder avanzar al pago.
+  // Lectura aparte y degradable (sin la migración 0044 o ante un error, la pantalla sigue como siempre).
+  let changeNote: { advanceMessage: string | null } | null = null;
+  {
+    const { data: linkRow, error: linkError } = await supabase
+      .from("application_requests")
+      .select("stay_change_intent_id")
+      .eq("id", id)
+      .maybeSingle();
+    const intentId = linkError ? null : (linkRow?.stay_change_intent_id as string | null | undefined);
+    if (intentId) {
+      const { data: intent } = await supabase
+        .from("stay_change_intents")
+        .select("status, created_at, guardian_confirmed_at, payment_unlocked_at")
+        .eq("id", intentId)
+        .maybeSingle();
+      if (intent?.status === "open") {
+        const at = stayChangeAdvanceAt({
+          created_at: intent.created_at as string,
+          guardian_confirmed_at: (intent.guardian_confirmed_at as string | null) ?? null,
+          payment_unlocked_at: (intent.payment_unlocked_at as string | null) ?? null,
+        });
+        changeNote = { advanceMessage: at.getTime() > Date.now() ? advanceGateMessage(at, "student") : null };
+      } else {
+        changeNote = { advanceMessage: null };
+      }
+    }
+  }
+
   const timeline = buildApplicationTimeline({
     applicationStatus: application.status,
     createdAt: application.created_at,
@@ -114,6 +145,19 @@ export default async function StudentApplicationDetailPage({
           </div>
           <Badge tone={info.tone}>{info.label}</Badge>
         </div>
+
+        {changeNote && (
+          <div className="mt-4 flex items-start gap-2 rounded-field bg-orange-tint/60 px-4 py-3 text-sm text-ink-soft">
+            <Icon name="swap_horiz" className="mt-0.5 shrink-0 text-lg text-orange-700" />
+            <div>
+              <p className="font-bold text-orange-700">Por tu cambio de residencia</p>
+              <p className="mt-0.5 text-xs leading-relaxed">
+                {changeNote.advanceMessage ??
+                  "Enviaste esta solicitud con tu aviso de cambio abierto. Si la reserva se confirma, coordiná tu salida con tu residencia actual."}
+              </p>
+            </div>
+          </div>
+        )}
 
         {info.helper && (
           <div className="mt-4 rounded-field bg-sand-100 px-4 py-3 text-sm text-ink-soft">

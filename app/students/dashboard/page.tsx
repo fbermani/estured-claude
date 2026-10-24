@@ -20,6 +20,8 @@ import { getCatalogResidences } from "@/lib/residences/catalog";
 import { formatDateOnly } from "@/lib/students/contractEnd";
 import { loadStudentContracts, type StudentContract } from "@/lib/students/loadStudentContracts";
 import { StayRateNote } from "@/components/students/StayRateNote";
+import { FamilyStayChangeBlock } from "@/components/students/FamilyStayChangeBlock";
+import { loadFamilyStayChange, type StudentStayChangeView } from "@/lib/stayChange/load";
 import { getVisibleStatus } from "@/lib/applications/visibleStatus";
 import { loadReservationInfoByApplication, type ReservationInfo } from "@/lib/applications/loadReservationInfo";
 
@@ -34,6 +36,7 @@ interface StudentLinkRow {
 interface FamilyLinkRow {
   id: string;
   status: string;
+  student_profile_id: string;
   student_profiles: { first_name: string; last_initial: string } | null;
 }
 interface SentProposalRow {
@@ -96,10 +99,11 @@ export default async function StudentDashboardPage() {
   if (isFamilyMember) {
     let links: FamilyLinkRow[] = [];
     let sentProposals: SentProposalRow[] = [];
+    const familyStayChanges = new Map<string, { view: StudentStayChangeView | null; residenceName: string | null }>();
     if (supabase) {
       const { data } = await supabase
         .from("family_links")
-        .select("id, status, student_profiles(first_name, last_initial)")
+        .select("id, status, student_profile_id, student_profiles(first_name, last_initial)")
         .order("created_at", { ascending: false });
       links = (data as unknown as FamilyLinkRow[]) ?? [];
 
@@ -109,6 +113,20 @@ export default async function StudentDashboardPage() {
         .order("created_at", { ascending: false })
         .limit(5);
       sentProposals = (proposalData as unknown as SentProposalRow[]) ?? [];
+
+      // "Quiero cambiar" (DR3): aviso de cada estudiante vinculado ACTIVO, en solo lectura y SIN su mensaje privado.
+      const admin = getSupabaseAdmin();
+      if (admin && sessionUser) {
+        for (const l of links.filter((link) => link.status === "active")) {
+          const view = await loadFamilyStayChange(admin, { familyUserId: sessionUser.id, studentProfileId: l.student_profile_id });
+          let residenceName: string | null = null;
+          if (view) {
+            const { data: res } = await admin.from("residences").select("name").eq("id", view.currentResidenceId).maybeSingle();
+            residenceName = (res?.name as string | undefined) ?? null;
+          }
+          familyStayChanges.set(l.id, { view, residenceName });
+        }
+      }
     }
 
     return (
@@ -125,29 +143,44 @@ export default async function StudentDashboardPage() {
               Todavía no tenés vínculos registrados.
             </Card>
           ) : (
-            links.map((l) => (
-              <Card key={l.id} className="flex items-center justify-between p-6">
-                <div>
-                  <p className="font-bold text-ink">
-                    {formatShortName(l.student_profiles?.first_name, l.student_profiles?.last_initial)}
-                  </p>
-                  <p className="text-sm text-ink-soft">
-                    {l.status === "pending_student_approval"
-                      ? "Esperando que apruebe la vinculación"
-                      : l.status === "active"
-                        ? "Vínculo activo"
-                        : "Vínculo no activo"}
-                  </p>
-                </div>
-                <Badge tone={l.status === "active" ? "sage" : "amber"}>
-                  {l.status === "pending_student_approval"
-                    ? "Pendiente"
-                    : l.status === "active"
-                      ? "Activo"
-                      : "Cerrado"}
-                </Badge>
-              </Card>
-            ))
+            links.map((l) => {
+              const change = familyStayChanges.get(l.id);
+              const studentFirstName = l.student_profiles?.first_name ?? "Tu familiar";
+              const searching = !!change?.view && ["open_no_response", "open_responded", "open_expiring"].includes(change.view.ui.key);
+              return (
+                <Card key={l.id} className="p-6">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="font-bold text-ink">
+                        {formatShortName(l.student_profiles?.first_name, l.student_profiles?.last_initial)}
+                      </p>
+                      <p className="text-sm text-ink-soft">
+                        {l.status === "pending_student_approval"
+                          ? "Esperando que apruebe la vinculación"
+                          : l.status === "active"
+                            ? "Vínculo activo"
+                            : "Vínculo no activo"}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap items-center justify-end gap-1.5">
+                      {searching && (
+                        <Badge tone="amber">
+                          <Icon name="swap_horiz" className="text-sm" /> Buscando un cambio
+                        </Badge>
+                      )}
+                      <Badge tone={l.status === "active" ? "sage" : "amber"}>
+                        {l.status === "pending_student_approval"
+                          ? "Pendiente"
+                          : l.status === "active"
+                            ? "Activo"
+                            : "Cerrado"}
+                      </Badge>
+                    </div>
+                  </div>
+                  {change && <FamilyStayChangeBlock view={change.view} studentName={studentFirstName} residenceName={change.residenceName} />}
+                </Card>
+              );
+            })
           )}
         </div>
 

@@ -7,6 +7,7 @@ import { Icon } from "@/components/ui/Icon";
 import { Reveal } from "@/components/ui/Reveal";
 import { RotatingBenefits, type RotatingBenefit } from "@/components/ui/RotatingBenefits";
 import { HoverFeatureList } from "@/components/ui/HoverFeatureList";
+import { StayChangeHighlight } from "@/components/marketing/StayChangeHighlight";
 
 const freePlanFeatures = [
   {
@@ -216,6 +217,8 @@ export default function ForResidencesPage() {
         />
         <RotatingBenefits items={benefits} />
       </section>
+
+      <StayChangeHighlight variant="residences" />
 
       <section className="bg-surface border-y border-sand-200">
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">

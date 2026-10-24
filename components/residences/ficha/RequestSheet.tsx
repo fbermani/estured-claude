@@ -132,8 +132,13 @@ export function RequestSheet({
           </button>
         </header>
         {windowNotice && variant === "apply" && (
-          <p className="shrink-0 border-b border-line bg-info-bg px-5 py-2.5 text-xs leading-relaxed text-info-fg sm:px-6">
-            {windowNotice.message}
+          <p
+            className={`flex shrink-0 items-start gap-2 border-b border-line px-5 py-2.5 text-xs leading-relaxed sm:px-6 ${
+              windowNotice.stayChangeOpen ? "bg-warning-bg text-warning-fg" : "bg-info-bg text-info-fg"
+            }`}
+          >
+            {windowNotice.stayChangeOpen && <Icon name="swap_horiz" className="mt-0.5 shrink-0 text-base" />}
+            <span>{windowNotice.message}</span>
           </p>
         )}
         <div ref={bodyRef} className="flex min-h-0 flex-1 flex-col">

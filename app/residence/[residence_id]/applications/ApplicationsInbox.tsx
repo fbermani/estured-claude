@@ -37,6 +37,8 @@ export type FullApplication = {
   whatsappUrl: string | null;
   waitlistRelatedCount: number;
   isActive: boolean;
+  /** DR3b: solicitud de un residente en proceso de mudanza. Nunca trae la residencia de origen ni el motivo (salvo la nota voluntaria). */
+  moving: { label: string; note: string | null; advanceNotice: string | null } | null;
 };
 
 function visibleOf(app: FullApplication) {
@@ -177,6 +179,12 @@ function ListRow({
           <p className="mt-0.5 truncate text-xs text-ink-faint">
             {app.roomTypeName ?? "Cualquier tipo"} · Ingreso {formatDateOnly(app.desiredStartDate)}
           </p>
+          {app.moving && (
+            <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-orange-tint px-2 py-0.5 text-[11px] font-bold text-orange-700">
+              <Icon name="swap_horiz" className="text-sm" />
+              {app.moving.label}
+            </p>
+          )}
           {urgency && (
             <p className="mt-1 flex items-center gap-1 text-xs font-bold text-danger-fg">
               <Icon name="schedule" className="text-sm" />
@@ -305,6 +313,27 @@ function ApplicationDetail({ residenceId, app }: { residenceId: string; app: Ful
         </div>
         <Badge tone={visible.tone}>{visible.label}</Badge>
       </div>
+
+      {app.moving && (
+        <div className="mt-4 rounded-field border border-orange/30 bg-orange-tint/50 p-4">
+          <p className="flex items-center gap-2 text-sm font-bold text-orange-700">
+            <Icon name="swap_horiz" className="text-lg" />
+            {app.moving.label}
+          </p>
+          <p className="mt-1 text-xs leading-relaxed text-ink-soft">
+            Este estudiante ya vive en una residencia y está buscando cambiarse. No vemos de cuál viene: solo lo que él decida contarte.
+          </p>
+          {app.moving.note && (
+            <blockquote className="mt-2 border-l-4 border-orange pl-3 text-sm leading-relaxed text-ink">{app.moving.note}</blockquote>
+          )}
+          {app.moving.advanceNotice && app.isActive && (
+            <p className="mt-2 flex items-start gap-1.5 text-xs font-semibold text-ink-soft">
+              <Icon name="schedule" className="mt-0.5 shrink-0 text-sm" />
+              {app.moving.advanceNotice}
+            </p>
+          )}
+        </div>
+      )}
 
       <ApplicantProfileBlock applicant={app.applicant} beforeContact={NEW_STATUSES.includes(app.status)} />
 

@@ -1,6 +1,9 @@
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { ResidenceSidebar } from "@/components/layout/ResidenceSidebar";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { assertResidenceAccess } from "@/lib/residences/access";
+import { countUnansweredStayChanges } from "@/lib/stayChange/load";
 
 /**
  * Sidebar de navegación de una residencia puntual (Ciclo 34sexdecies) —
@@ -20,9 +23,16 @@ export default async function ResidenceDetailLayout({
   const user = await getSessionUser();
   if (!user) redirect("/login?next=/residence/dashboard");
 
+  // Contador de avisos "Quiero cambiar" sin responder (DR3). Solo con acceso real a ESTA residencia; degrada a 0.
+  let residentsBadge = 0;
+  const admin = getSupabaseAdmin();
+  if (admin && (await assertResidenceAccess(admin, user.id, residenceId))) {
+    residentsBadge = await countUnansweredStayChanges(admin, residenceId);
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-cream md:flex-row">
-      <ResidenceSidebar residenceId={residenceId} userEmail={user.email} />
+      <ResidenceSidebar residenceId={residenceId} userEmail={user.email} residentsBadge={residentsBadge} />
       <main className="min-w-0 flex-1">{children}</main>
     </div>
   );
