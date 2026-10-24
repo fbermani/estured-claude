@@ -13,7 +13,10 @@ export function WhoGetsPaid({
   initialPayment,
   hasDeposit,
   enrollment,
+  forFamily = false,
 }: {
+  /** Vista del familiar vinculado (DR4): mismo desglose, copy en tercera persona y con "propuesta". */
+  forFamily?: boolean;
   initialPayment: InitialPaymentConfig;
   hasDeposit: boolean;
   enrollment: { mode: "one_month" | "manual" | null; usd: number | null; frequency: "once" | "annual" };
@@ -48,7 +51,7 @@ export function WhoGetsPaid({
             {hasDeposit && <li className="flex gap-2"><span aria-hidden="true">·</span>Depósito reembolsable</li>}
           </ul>
           <p className="mt-3 text-xs leading-relaxed text-ink-faint">
-            Se paga directamente a la residencia, recién cuando confirma tu reserva y habilita el pago.
+            Se paga directamente a la residencia, recién cuando confirma la reserva y habilita el pago.
           </p>
         </div>
         <div className="bg-orange-tint/50 p-5">
@@ -60,7 +63,9 @@ export function WhoGetsPaid({
             <li className="flex gap-2"><span aria-hidden="true">·</span>Solo si la residencia confirma tu reserva</li>
           </ul>
           <p className="mt-3 text-xs leading-relaxed text-ink-faint">
-            Enviar la solicitud es gratis. Te mostramos el detalle exacto antes de enviarla.
+            {forFamily
+              ? "Enviar una propuesta es gratis. Al armarla en «Proponer» ves el detalle exacto con los montos."
+              : "Enviar la solicitud es gratis. Te mostramos el detalle exacto antes de enviarla."}
           </p>
         </div>
       </div>

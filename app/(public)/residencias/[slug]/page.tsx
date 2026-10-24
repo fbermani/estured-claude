@@ -491,6 +491,7 @@ export default async function RealResidenceDetailPage({
               conditionsText={conditions.earlyExitConditionsText}
             />
             <WhoGetsPaid
+              forFamily={mode === "family"}
               initialPayment={conditions.initialPayment}
               hasDeposit={keyFacts.depositLabel != null}
               enrollment={{
@@ -629,7 +630,21 @@ export default async function RealResidenceDetailPage({
           variant={mode === "family" ? "propose" : "apply"}
           requestContent={
             mode === "family" ? (
-              <ProposeForm residenceId={residence.id} roomTypes={roomTypes} students={linkedStudents} />
+              <ProposeForm
+                residenceId={residence.id}
+                roomTypes={roomTypes}
+                students={linkedStudents}
+                conditions={{
+                  minimumStayMonths: conditions.minimumStayMonths,
+                  enrollmentFeeMode: conditions.enrollmentFeeMode,
+                  enrollmentFeeUsd: conditions.enrollmentFeeUsd,
+                  enrollmentFeeFrequency: conditions.enrollmentFeeFrequency,
+                  depositUsd: conditions.depositUsd,
+                  emptyMonthChargePercent: conditions.emptyMonthChargePercent,
+                  initialPayment: conditions.initialPayment,
+                }}
+                arsPerUsd={rate.arsPerUsd}
+              />
             ) : (
               <ApplyForm
                 residenceId={residence.id}
@@ -671,7 +686,7 @@ export default async function RealResidenceDetailPage({
           roomTypes={fichaTypes}
           fromPriceUsd={fromPriceUsd}
           opensSheet={modeOpensSheet(mode)}
-          ctaLabel={mode === "family" ? "Proponer" : "Solicitar"}
+          ctaLabel={mode === "family" ? (singleStudentName ? `Proponer a ${singleStudentName}` : "Proponer") : "Solicitar"}
         />
       )}
     </ReservationSelectionProvider>

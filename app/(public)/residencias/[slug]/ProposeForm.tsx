@@ -1,7 +1,7 @@
 "use client";
 
 import { formatShortName } from "@/lib/format/shortName";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input, Select, Textarea } from "@/components/ui/Input";
 import { formatUsd } from "@/lib/mock/exchange";
@@ -10,6 +10,7 @@ import {
   type CreateFamilyProposalState,
 } from "@/app/students/family-proposals/actions";
 import { useReservationSelection } from "@/components/residences/reservationSelection";
+import { CostBreakdown, type CostBreakdownConditions } from "@/components/residences/ficha/CostBreakdown";
 import { isTypeRequestable, typeAvailabilityState } from "@/lib/availability/typeAvailability";
 
 interface RoomTypeOption {
@@ -24,16 +25,25 @@ interface StudentOption {
   last_initial: string;
 }
 
+/** Condiciones de la residencia que alimentan el desglose de costos (DR4) y la estadía mínima. */
+interface ProposeConditions extends CostBreakdownConditions {
+  minimumStayMonths: number | null;
+}
+
 const initialState: CreateFamilyProposalState = { status: "idle" };
 
 export function ProposeForm({
   residenceId,
   roomTypes,
   students,
+  conditions,
+  arsPerUsd,
 }: {
   residenceId: string;
   roomTypes: RoomTypeOption[];
   students: StudentOption[];
+  conditions: ProposeConditions;
+  arsPerUsd: number;
 }) {
   const action = createFamilyProposal.bind(null, residenceId);
   const [state, formAction, isPending] = useActionState(action, initialState);
@@ -42,6 +52,10 @@ export function ProposeForm({
   // El tipo elegido en la tabla de tarifas / la card llega preseleccionado (mismo estado que `ApplyForm`).
   const { roomTypeId: contextRoomTypeId, setRoomTypeId } = useReservationSelection();
   const roomTypeId = availableTypes.some((rt) => rt.id === contextRoomTypeId) ? (contextRoomTypeId as string) : "";
+  const [duration, setDuration] = useState(Math.max(6, conditions.minimumStayMonths ?? 1));
+  const [startDate, setStartDate] = useState("");
+
+  const selectedType = availableTypes.find((rt) => rt.id === roomTypeId) ?? null;
 
   if (students.length === 0) {
     return (
@@ -100,17 +114,35 @@ export function ProposeForm({
         name="desired_start_date"
         type="date"
         required
+        value={startDate}
+        onChange={(e) => setStartDate(e.target.value)}
       />
       <Input
         label="Duración propuesta (meses)"
         id="propose-duration"
         name="initial_duration_months"
         type="number"
-        min={1}
+        min={conditions.minimumStayMonths ?? 1}
         max={24}
-        defaultValue={6}
+        value={duration}
+        onChange={(e) => setDuration(Number(e.target.value) || 0)}
         required
+        hint={
+          conditions.minimumStayMonths
+            ? `Esta residencia pide una estadía mínima de ${conditions.minimumStayMonths} meses.`
+            : undefined
+        }
       />
+      {selectedType && duration > 0 && (
+        <CostBreakdown
+          monthlyUsd={Number(selectedType.monthly_price_usd)}
+          duration={duration}
+          startDate={startDate}
+          conditions={conditions}
+          arsPerUsd={arsPerUsd}
+          submitNoun="propuesta"
+        />
+      )}
       <Textarea
         label="Mensaje para tu estudiante (opcional)"
         id="propose-message"
