@@ -9,6 +9,7 @@
  *   3. app/students/applications/[id]/fee/page.tsx — nota al pie del fee (FEE_PAGE_REVOCATION_NOTE) y su checkbox de "no reembolso" (sin cambios, a revisar).
  *   4. Avisos in-app de resolución (refundedNotification / deniedNotification) y el aviso al estudiante cuando revoca un familiar (revokeEsturedFee, "Se revocó el fee de tu reserva").
  *   5. lib/applications/visibleStatus.ts — helper "Reserva revocada por vos" (sin cambios, a revisar).
+ *   5bis. (Ciclo 69, DR6 (i)) REVOCATION_ADULT_STUDENT_ONLY_ERROR y revocationAdultStudentOnlyNote: familiar pagador de un estudiante mayor de edad.
  *   6. docs/10 §15.1 y §15.4 (copy sugerido) y checkbox de renovaciones (RenewalFeePaymentForm, sin cambios).
  * Sin promesas: el reintegro no es automático y no se garantiza antes de la revisión; lo pagado a la residencia queda fuera.
  */
@@ -34,6 +35,15 @@ export const REVOCATION_PENDING_HELPER =
 
 export const REVOCATION_NOT_ALLOWED_NOTE =
   "Solo el estudiante o quien pagó el fee puede ejercer este derecho.";
+
+/** DR6 (i): error al familiar pagador que intenta revocar la reserva de un estudiante mayor de edad (no revela datos). */
+export const REVOCATION_ADULT_STUDENT_ONLY_ERROR =
+  "La revocación la tiene que hacer la estudiante desde su cuenta. Si ella necesita ayuda, escribinos a Soporte.";
+
+/** DR6 (i): nota en tercera persona para el familiar pagador cuando el estudiante es mayor de edad (sin botón). */
+export function revocationAdultStudentOnlyNote(studentFirstName: string | null): string {
+  return `Solo ${studentFirstName?.trim() || "la estudiante"} puede revocar el fee de su reserva; si necesita ayuda, puede escribir a Soporte.`;
+}
 
 export const FEE_PAGE_REVOCATION_NOTE =
   "Una vez pagado, tenés 10 días corridos para arrepentirte desde «Botón de arrepentimiento»: EstuRed te reintegra el fee completo después de una revisión del equipo. Fuera de ese derecho, el fee no se reembolsa automáticamente ante una cancelación.";

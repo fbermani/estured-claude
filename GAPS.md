@@ -6,7 +6,9 @@
 
 ---
 
-## [ABIERTO — riesgo para `seguridad`, decisión del dueño pendiente] El familiar pagador puede revocar la reserva de una estudiante mayor de edad (2026-10-24, Ciclo 68)
+## [RESUELTO 2026-10-24, Ciclo 69] El familiar pagador puede revocar la reserva de una estudiante mayor de edad (Ciclo 68)
+
+> **Resuelto por decisión del dueño (DR6 (i), `docs/00` §31):** el familiar pagador solo puede revocar si la estudiante es menor de edad a la fecha de la revocación (`isMinorByBirthDate`); si es mayor, solo ella puede. Implementado en `revokeEsturedFee` + `/students/revocation`. El texto de abajo es el historial del riesgo.
 
 **Qué es:** `revokeEsturedFee` (`lib/reservations/revokeEsturedFee.ts`) acepta como actor al estudiante dueño de la reserva **o** al `payer_user_id` del fee (`docs/05` y `docs/07` §18.6: "estudiante dueño; familiar pagador"). Si el pagador es un familiar y la estudiante es mayor de edad, el familiar puede cancelar su reserva y anular su comprobante sin que ella lo decida (y el reintegro del fee vuelve a quien lo pagó). DR4 le da al familiar "seguir, proponer y pagar", no cancelar. **No se cambió** en el Ciclo 68 (decisión del dueño): solo se ocultó el botón para el familiar que no es pagador (el servidor ya lo rechazaba) y la acción quedó con UPDATE condicional.
 
@@ -15,7 +17,7 @@
 **Otros pendientes del mismo ciclo (no bloquean):** aviso in-app a admins y a la residencia al revocar (no existe un notificador genérico a admins; la visibilidad es el contador del dashboard y la pestaña Revocaciones); nota de crédito de la Factura C si el fee ya estaba facturado (se gestiona por fuera de la plataforma); denegar no restaura la reserva ni el comprobante; las revocaciones anteriores a la 0049 no tienen caso de Soporte (el seed `seed-revocation-states.mjs` lo crea en dev); textos legales al estudiante pendientes de un asesor legal (lista en `docs/00` §31, DR6).
 
 **Ciclo 68 — pendientes de decisión (ronda de revisión/seguridad):**
-(i) ¿Puede el familiar pagador revocar la reserva de una estudiante **mayor de edad**? Seguridad recomienda rechazarlo o exigir confirmación de la estudiante; `docs/05` dice "✓ pagador" y DR4 limita al familiar a seguir/proponer/pagar. Hoy el servidor exige además **vínculo `family_links.status='active'`** y avisa siempre al estudiante, pero NO restringe por edad.
+(i) **RESUELTO (Ciclo 69):** solo si la estudiante es menor. (Pregunta original: ¿puede el familiar pagador revocar la reserva de una estudiante **mayor de edad**?) Seguridad recomienda rechazarlo o exigir confirmación de la estudiante; `docs/05` dice "✓ pagador" y DR4 limita al familiar a seguir/proponer/pagar. Hoy el servidor exige además **vínculo `family_links.status='active'`** y avisa siempre al estudiante, pero NO restringe por edad.
 (ii) El plazo de 10 días como 240 h exactas desde `paid_at` vs. día calendario (art. 6 CCyC; Ley 24.240 art. 34): asesor legal.
 (iii) "Denegar dentro de plazo con causa justificada" vs. derecho irrenunciable: asesor legal.
 (iv) Que la residencia pueda ver `status`/`refunded_at` del fee (migración 0047): decisión de privacidad pendiente.

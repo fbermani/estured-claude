@@ -4,6 +4,8 @@ import { alertAdminsOfAuditFailure, createAuditLog } from "@/lib/audit";
 import { createNotification } from "@/lib/notifications/createNotification";
 import { REVOCATION_WINDOW_DAYS, daysBetween } from "@/lib/revocations/window";
 import { openFeeRevocationSupportCase } from "@/lib/revocations/openRevocationSupportCase";
+import { REVOCATION_ADULT_STUDENT_ONLY_ERROR } from "@/lib/revocations/copy";
+import { isMinorByBirthDate } from "@/lib/students/isMinorByBirthDate";
 
 export type RevokeEsturedFeeResult = { ok: true } | { ok: false; error: string };
 
@@ -35,6 +37,10 @@ export async function revokeEsturedFee(
     return { ok: false, error: "Tenés que confirmar que entendiste qué pasa al revocar el fee." };
   }
 
+  // Un solo instante para la edad, el chequeo de plazo y `cancelled_at`.
+  const nowDate = new Date();
+  const now = nowDate.toISOString();
+
   const { data: reservation } = await admin
     .from("reservations")
     .select("id, status, student_profile_id, estured_fee_payment_id, booking_receipt_id, residences(name)")
@@ -52,14 +58,14 @@ export async function revokeEsturedFee(
 
   const { data: studentProfile } = await admin
     .from("student_profiles")
-    .select("id, user_id")
+    .select("id, user_id, birth_date")
     .eq("id", reservation.student_profile_id)
     .maybeSingle();
   const isOwner = Boolean(studentProfile?.user_id) && studentProfile?.user_id === params.actorUserId;
 
-  // Quien NO es el estudiante beneficiario tiene que ser el pagador del fee Y tener hoy el vínculo familiar activo con ese estudiante
-  // (un familiar desvinculado o que pagó y se fue ya no puede revocar). Se anota para la restricción por edad del estudiante:
-  // decisión del dueño pendiente (MEMORY.md "Ciclo 68 — pendientes de decisión", GAPS.md).
+  // Quien NO es el estudiante beneficiario tiene que ser el pagador del fee, tener hoy el vínculo familiar activo con ese estudiante
+  // (un familiar desvinculado o que pagó y se fue ya no puede revocar) Y el estudiante tiene que ser menor de edad a la fecha de la
+  // revocación (DR6 (i), decisión del dueño 2026-10-24): si es mayor, solo ella/él puede revocar.
   let familyFirstName: string | null = null;
   if (!isOwner) {
     if (feePayment.payer_user_id !== params.actorUserId) return { ok: false, error: "Esta reserva no te pertenece." };
@@ -73,6 +79,10 @@ export async function revokeEsturedFee(
     if (!link) return { ok: false, error: "Esta reserva no te pertenece." };
     const member = link.family_members as unknown as { first_name: string } | { first_name: string }[] | null;
     familyFirstName = (Array.isArray(member) ? member[0]?.first_name : member?.first_name) ?? null;
+    // Mismo helper que el resto del proyecto (sin `birth_date` se trata como menor).
+    if (!isMinorByBirthDate(studentProfile?.birth_date as string | null | undefined, nowDate)) {
+      return { ok: false, error: REVOCATION_ADULT_STUDENT_ONLY_ERROR };
+    }
   }
 
   if (reservation.status !== "confirmed") {
@@ -85,9 +95,6 @@ export async function revokeEsturedFee(
     return { ok: false, error: "No pudimos determinar la fecha de pago del fee." };
   }
 
-  // Un solo instante para el chequeo de plazo y para `cancelled_at`.
-  const nowDate = new Date();
-  const now = nowDate.toISOString();
   const daysSincePaid = daysBetween(feePayment.paid_at, nowDate);
   if (daysSincePaid >= REVOCATION_WINDOW_DAYS) {
     return { ok: false, error: "El plazo de 10 días corridos para revocar el fee ya venció." };

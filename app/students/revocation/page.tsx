@@ -12,7 +12,9 @@ import {
   REVOCATION_NOT_ALLOWED_NOTE,
   REVOCATION_PAGE_INTRO,
   REVOCATION_PENDING_HELPER,
+  revocationAdultStudentOnlyNote,
 } from "@/lib/revocations/copy";
+import { isMinorByBirthDate } from "@/lib/students/isMinorByBirthDate";
 import { REVOCATION_WINDOW_DAYS, isRevocationWindowOpen, revocationDaysRemaining } from "@/lib/revocations/window";
 
 export const metadata: Metadata = { title: "Botón de arrepentimiento — Revocación del fee" };
@@ -64,6 +66,36 @@ export default async function RevocationPage() {
     Boolean(sessionUser) &&
     (r.student_profile_id === ownProfile?.id || r.estured_fee_payments?.payer_user_id === sessionUser?.id);
 
+  // DR6 (i): el familiar pagador solo revoca si el estudiante es menor de edad. Edad y nombre se leen con service role (el familiar
+  // no lee `student_profiles` por RLS) solo de las reservas confirmadas donde actúa como pagador y no como titular.
+  const familyStudents = new Map<string, { first_name: string | null; birth_date: string | null }>();
+  const admin = getSupabaseAdmin();
+  const familyStudentIds = [
+    ...new Set(
+      reservations
+        .filter((r) => r.status === "confirmed" && r.student_profile_id !== ownProfile?.id && canRevoke(r))
+        .map((r) => r.student_profile_id),
+    ),
+  ];
+  if (admin && familyStudentIds.length > 0) {
+    const { data: studentRows, error: studentRowsError } = await admin
+      .from("student_profiles")
+      .select("id, first_name, birth_date")
+      .in("id", familyStudentIds);
+    if (studentRowsError) console.error("[revocation] family student profiles query failed:", studentRowsError);
+    for (const row of studentRows ?? []) {
+      familyStudents.set(row.id as string, { first_name: row.first_name as string | null, birth_date: row.birth_date as string | null });
+    }
+  }
+  const nowForAge = new Date();
+  // Sin datos del estudiante (error de lectura o sin service role) no se ofrece el botón: el servidor igual decide.
+  const adultStudentNote = (r: ReservationRow): string | null => {
+    if (r.student_profile_id === ownProfile?.id) return null;
+    const student = familyStudents.get(r.student_profile_id);
+    if (!student) return revocationAdultStudentOnlyNote(null);
+    return isMinorByBirthDate(student.birth_date, nowForAge) ? null : revocationAdultStudentOnlyNote(student.first_name);
+  };
+
   const confirmed = reservations.filter(
     (r) => r.status === "confirmed" && r.estured_fee_payments?.status === "paid" && r.estured_fee_payments.paid_at,
   );
@@ -74,7 +106,6 @@ export default async function RevocationPage() {
   // La resolución del admin y su mensaje solo los lee el servidor (columnas sin grant, migración 0049), y solo de las revocaciones
   // que el usuario ya pudo ver por RLS y que le corresponden.
   const resolutions = new Map<string, ResolutionRow>();
-  const admin = getSupabaseAdmin();
   const feeIds = revoked.map((r) => r.estured_fee_payments?.id).filter((id): id is string => Boolean(id));
   if (admin && feeIds.length > 0) {
     let rows: ResolutionRow[] | null = null;
@@ -119,6 +150,7 @@ export default async function RevocationPage() {
             const daysRemaining = revocationDaysRemaining(paidAtIso);
             const withinWindow = isRevocationWindowOpen(paidAtIso);
             const allowed = canRevoke(r);
+            const adultNote = allowed ? adultStudentNote(r) : null;
 
             return (
               <Card key={r.id} className="p-6">
@@ -134,6 +166,8 @@ export default async function RevocationPage() {
 
                 {!allowed ? (
                   <p className="mt-4 rounded-field bg-cream-2 px-4 py-3 text-sm text-ink-soft">{REVOCATION_NOT_ALLOWED_NOTE}</p>
+                ) : adultNote ? (
+                  <p className="mt-4 rounded-field bg-cream-2 px-4 py-3 text-sm text-ink-soft">{adultNote}</p>
                 ) : withinWindow ? (
                   <RevocationForm
                     reservationId={r.id}

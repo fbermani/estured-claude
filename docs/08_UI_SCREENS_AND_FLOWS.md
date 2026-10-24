@@ -669,7 +669,7 @@ Ruta base: `/students`
 
 **Ruta:** `/students/revocation` — accesible desde el enlace "Botón de arrepentimiento" del footer.
 
-**Objetivo:** permitir que el estudiante o familiar **pagador** ejerza el derecho de revocación del fee dentro de los 10 días corridos desde el pago, y ver en qué quedó.
+**Objetivo:** permitir que el estudiante, o el familiar **pagador** solo si el estudiante es menor de edad (DR6 (i)), ejerza el derecho de revocación del fee dentro de los 10 días corridos desde el pago, y ver en qué quedó.
 
 **Contenido:**
 - Reserva asociada (residencia, fecha de pago del fee, días restantes del plazo de 10 días corridos).
@@ -677,7 +677,7 @@ Ruta base: `/students`
 - Campo opcional de motivo.
 - **Un solo checkbox** de entendimiento de esas consecuencias.
 - Estado de cada revocación ya ejercida: **en revisión**; **reintegrada** (con la fecha del reintegro); **denegada** (con el mensaje del equipo solo si el admin lo escribió; nunca el motivo interno).
-- Quien ve la reserva pero no puede revocarla (familiar vinculado que no es el pagador) no ve el botón: ve el aviso de que solo el estudiante o quien pagó el fee puede ejercer el derecho.
+- Quien ve la reserva pero no puede revocarla (familiar vinculado que no es el pagador, o familiar pagador de un estudiante mayor de edad) no ve el botón. Al familiar no pagador se le avisa que solo el estudiante o quien pagó el fee puede ejercer el derecho; al familiar pagador de un estudiante mayor, en tercera persona: «Solo {nombre} puede revocar el fee de su reserva; si necesita ayuda, puede escribir a Soporte.»
 
 **CTA:** "Ejercer revocación" — con confirmación explícita.
 

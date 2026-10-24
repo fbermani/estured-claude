@@ -498,6 +498,8 @@ Si la residencia cancela o no honra la reserva: el estudiante puede abrir un cas
 
 **Plazo:** 10 días corridos desde el pago del fee, alineado a la normativa de contratación a distancia (Ley 24.240 / Decreto 1798/94).
 
+**Quién puede ejercerlo (decisión del dueño 2026-10-24, DR6 (i)):** el estudiante titular de la reserva; el **familiar pagador** solo si tiene el vínculo activo con el estudiante **y el estudiante es menor de edad a la fecha de la revocación**. Si el estudiante es mayor de edad, solo ella/él puede revocar (el familiar puede seguir, proponer y pagar, pero no revocar). Si revoca un familiar, el estudiante recibe siempre un aviso.
+
 **Efecto al ejercerse:**
 
 - la reserva pasa a cancelada (`cancelled_by_student`, `reason_code = student_revocation_right`);
