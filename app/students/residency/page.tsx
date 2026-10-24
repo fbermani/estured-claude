@@ -421,8 +421,7 @@ export default async function StudentResidencyPage() {
               <Icon name="support_agent" className="text-lg text-muted" />
             </div>
             <p className="text-sm text-ink-soft">
-              Para cualquier consulta sobre tu estadía, contactate con soporte de EstuRed — coordinamos con la
-              residencia por vos.
+              Para cualquier consulta sobre tu estadía o tu cambio, escribinos a Soporte.
             </p>
             <Button href="/students/support" size="sm" variant="outline" className="mt-3">
               Ir a Soporte

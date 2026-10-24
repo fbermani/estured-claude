@@ -2,6 +2,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { createNotification } from "@/lib/notifications/createNotification";
+import { isMissingSchemaError } from "@/lib/stayChange/schema";
 
 export type RemovedWaitlistEntry = { id: string; residenceId: string; residenceName: string };
 
@@ -23,12 +24,21 @@ export async function removeWaitlistEntriesOnConfirmedReservation(
   admin: SupabaseClient,
   params: { studentProfileId: string; reason?: "reservation" | "renewal" },
 ): Promise<RemovedWaitlistEntry[]> {
-  const { data: entries, error } = await admin
-    .from("waitlist_entries")
-    .update({ status: "removed_due_to_confirmed_reservation", removed_at: new Date().toISOString() })
-    .eq("student_profile_id", params.studentProfileId)
-    .in("status", ["active", "availability_notification_sent", "retention_check_sent"])
-    .select("id, residence_id, residences(name)");
+  const buildRemoval = (preserveStayChange: boolean) => {
+    let removal = admin
+      .from("waitlist_entries")
+      .update({ status: "removed_due_to_confirmed_reservation", removed_at: new Date().toISOString() })
+      .eq("student_profile_id", params.studentProfileId)
+      .in("status", ["active", "availability_notification_sent", "retention_check_sent"]);
+    // DR3 (docs/04 §12bis.4, supuesto): confirmar una RENOVACIÓN no anula las listas creadas bajo el aviso "Quiero
+    // cambiar" (DR2 habla de confirmar una reserva). Una reserva nueva sí las anula todas.
+    if (preserveStayChange) removal = removal.is("stay_change_intent_id", null);
+    return removal.select("id, residence_id, residences(name)");
+  };
+  const preserve = (params.reason ?? "reservation") === "renewal";
+  let { data: entries, error } = await buildRemoval(preserve);
+  // Migración 0044 sin aplicar: la columna no existe, no hay nada que preservar.
+  if (preserve && isMissingSchemaError(error)) ({ data: entries, error } = await buildRemoval(false));
   if (error) {
     console.error("[waitlist] removeWaitlistEntriesOnConfirmedReservation failed:", error);
     return [];

@@ -59,6 +59,7 @@ export async function activateFromWaitlist(
     studentProfileId: studentProfile.id,
     desiredStartDate: params.desiredStartDate,
     durationMonths: params.durationMonths,
+    residenceId: entry.residence_id,
   });
   if (!overlap.ok) return { ok: false, error: overlap.error };
 
@@ -92,6 +93,7 @@ export async function activateFromWaitlist(
     familyProposalId: null,
     createdByUserId: params.actorUserId,
     actorRole: "student",
+    stayChangeIntentId: overlap.stayChangeIntentId,
   });
   if ("error" in result) return { ok: false, error: result.error };
 

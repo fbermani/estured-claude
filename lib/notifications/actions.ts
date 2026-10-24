@@ -3,6 +3,7 @@
 import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import {
+  RESIDENCE_COLUMN_BY_ENTITY,
   RESIDENCE_SCOPED_ENTITY_TYPES,
   notificationAreaForRoles,
   notificationHref,
@@ -83,8 +84,9 @@ export async function getMyNotifications(): Promise<{ items: NotificationItem[];
     for (const type of RESIDENCE_SCOPED_ENTITY_TYPES) {
       const ids = idsOfType(type);
       if (!ids.length) continue;
-      const { data: entities } = await admin.from(type).select("id, residence_id").in("id", ids);
-      for (const e of entities ?? []) context.residenceIdByEntity[`${type}:${e.id}`] = e.residence_id as string;
+      const column = RESIDENCE_COLUMN_BY_ENTITY[type] ?? "residence_id";
+      const { data: entities } = await admin.from(type).select(`id, ${column}`).in("id", ids);
+      for (const e of (entities ?? []) as unknown as Record<string, string>[]) context.residenceIdByEntity[`${type}:${e.id}`] = e[column];
     }
   }
 

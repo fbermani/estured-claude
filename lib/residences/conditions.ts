@@ -1,5 +1,6 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { isMissingSchemaError } from "@/lib/stayChange/schema";
 import { initialPaymentConfigFromRow, type InitialPaymentConfig } from "@/lib/reservations/initialPayment";
 
 /**
@@ -19,19 +20,27 @@ export type ResidenceConditions = {
   depositUsd: number | null;
   emptyMonthChargePercent: number | null;
   initialPayment: InitialPaymentConfig;
+  /** Política de salida anticipada (DR3, migración 0044): texto libre, informativo, público en la ficha. */
+  earlyExitDepositClausesText: string | null;
+  earlyExitCostsText: string | null;
+  earlyExitConditionsText: string | null;
 };
 
 export async function getResidenceConditions(
   admin: SupabaseClient,
   residenceId: string,
 ): Promise<ResidenceConditions | null> {
-  const { data, error } = await admin
-    .from("residences")
-    .select(
-      "minimum_stay_months, adjustment_policy, enrollment_fee_mode, enrollment_fee_usd, enrollment_fee_frequency, deposit_usd, empty_month_charge_percent, reservation_initial_payment_mode, reservation_initial_payment_usd",
-    )
-    .eq("id", residenceId)
-    .maybeSingle();
+  const BASE_COLUMNS =
+    "minimum_stay_months, adjustment_policy, enrollment_fee_mode, enrollment_fee_usd, enrollment_fee_frequency, deposit_usd, empty_month_charge_percent, reservation_initial_payment_mode, reservation_initial_payment_usd";
+  const query = async (columns: string) => {
+    const res = await admin.from("residences").select(columns).eq("id", residenceId).maybeSingle();
+    return { data: res.data as unknown as Record<string, any> | null, error: res.error }; // eslint-disable-line @typescript-eslint/no-explicit-any
+  };
+  let { data, error } = await query(
+    `${BASE_COLUMNS}, early_exit_deposit_clauses_text, early_exit_costs_text, early_exit_conditions_text`,
+  );
+  // Migración 0044 sin aplicar: se leen las condiciones sin la política de salida.
+  if (isMissingSchemaError(error)) ({ data, error } = await query(BASE_COLUMNS));
   if (error || !data) return null;
   return {
     minimumStayMonths: data.minimum_stay_months != null ? Number(data.minimum_stay_months) : null,
@@ -43,6 +52,9 @@ export async function getResidenceConditions(
     emptyMonthChargePercent:
       data.empty_month_charge_percent != null ? Number(data.empty_month_charge_percent) : null,
     initialPayment: initialPaymentConfigFromRow(data),
+    earlyExitDepositClausesText: (data.early_exit_deposit_clauses_text as string | null) ?? null,
+    earlyExitCostsText: (data.early_exit_costs_text as string | null) ?? null,
+    earlyExitConditionsText: (data.early_exit_conditions_text as string | null) ?? null,
   };
 }
 

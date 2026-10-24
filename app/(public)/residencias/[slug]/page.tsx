@@ -191,6 +191,10 @@ export default async function RealResidenceDetailPage({
     emptyMonthChargePercent:
       residence.empty_month_charge_percent != null ? Number(residence.empty_month_charge_percent) : null,
     initialPayment: initialPaymentConfigFromRow(residence),
+    // DR3: política de salida anticipada (dato listo para el bloque "Si te vas antes" de la ficha; lo dibuja `interfaz`).
+    earlyExitDepositClausesText: (residence.early_exit_deposit_clauses_text as string | null) ?? null,
+    earlyExitCostsText: (residence.early_exit_costs_text as string | null) ?? null,
+    earlyExitConditionsText: (residence.early_exit_conditions_text as string | null) ?? null,
   };
 
   const profileCompletenessPercent = (studentViewer as StudentViewer | null)?.profileCompletenessPercent ?? null;

@@ -8,6 +8,7 @@ import { endResidentStay } from "@/lib/residents/endResidentStay";
 import { updateStayDetails } from "@/lib/residents/updateStayDetails";
 import { assignStayToBed } from "@/lib/residences/roomManagement";
 import { addResidentNote } from "@/lib/residents/addResidentNote";
+import { UNPAID_DISCLAIMER } from "@/lib/stayChange/copy";
 
 export type ResidentsActionState = { status: "idle" | "error" | "saved"; message?: string };
 
@@ -110,6 +111,41 @@ export async function endResidentStayAction(
 
   revalidatePath(`/residence/${residenceId}/residents`);
   return { status: "saved" };
+}
+
+/**
+ * Salida anticipada (DR3): la residencia actual finaliza la estadía registrando fecha real, devolución del depósito
+ * (`returned` / `not_returned` / `no_deposit`) y una nota libre. Campos: `exit_date`, `deposit_status`, `residence_note`.
+ */
+export async function endResidentStayEarlyExitAction(
+  residenceId: string,
+  residentStayId: string,
+  _prev: ResidentsActionState,
+  formData: FormData,
+): Promise<ResidentsActionState> {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) return { status: "error", message: "Tu sesión expiró." };
+  const admin = getSupabaseAdmin();
+  if (!admin) return { status: "error", message: "No disponible en este momento." };
+
+  const result = await endResidentStay(admin, {
+    actorUserId: sessionUser.id,
+    residentStayId,
+    endDate: null,
+    earlyExit: {
+      exitDate: formData.get("exit_date"),
+      depositStatus: formData.get("deposit_status"),
+      residenceNote: formData.get("residence_note"),
+    },
+  });
+  if (!result.ok) return { status: "error", message: result.error };
+
+  revalidatePath(`/residence/${residenceId}/residents`);
+  revalidatePath(`/residence/${residenceId}/rooms`);
+  return {
+    status: "saved",
+    message: `${result.warning ?? "Registramos la salida."} ${UNPAID_DISCLAIMER}`,
+  };
 }
 
 export async function addResidentNoteAction(

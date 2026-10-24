@@ -37,6 +37,10 @@ export async function createApplicationFromRoomType(
     familyProposalId: string | null;
     createdByUserId: string;
     actorRole: "student" | "family_member";
+    /** Aviso "Quiero cambiar" bajo cuya excepción (DR3) se crea la solicitud, si aplica (`checkReservationWindowOverlap`). */
+    stayChangeIntentId?: string | null;
+    /** Nota voluntaria del estudiante a esta residencia ("desde dónde te mudás y por qué"); solo se guarda con `stayChangeIntentId`. */
+    movingContextNote?: string | null;
   },
 ): Promise<{ id: string } | { error: string }> {
   const initialStatus = await determineInitialApplicationStatus(admin, params.roomTypeId);
@@ -114,6 +118,10 @@ export async function createApplicationFromRoomType(
         academic_objective: params.academicObjective,
         snapshot_original_id: snapshot.id,
         created_by_user_id: params.createdByUserId,
+        // Solo con el aviso "Quiero cambiar" (DR3): sin él no se tocan estas columnas (migración 0044).
+        ...(params.stayChangeIntentId
+          ? { stay_change_intent_id: params.stayChangeIntentId, move_context_note: params.movingContextNote ?? null }
+          : {}),
       })
       .select("id")
       .single();

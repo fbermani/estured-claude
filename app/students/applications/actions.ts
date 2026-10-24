@@ -7,6 +7,7 @@ import { ACTIVE_APPLICATION_STATUSES } from "@/lib/applications/types";
 import { createApplicationFromRoomType } from "@/lib/applications/createRequestFromRoomType";
 import { requestBlockedMessage, typeAvailabilityState } from "@/lib/availability/typeAvailability";
 import { checkReservationWindowOverlap } from "@/lib/students/reservationWindow";
+import { validateMovingNote } from "@/lib/stayChange/validate";
 
 export type CreateApplicationState = { status: "idle" | "error"; message?: string };
 
@@ -40,6 +41,9 @@ export async function createApplicationRequest(
     return { status: "error", message: "La duración debe ser entre 1 y 24 meses." };
   if (!academicObjectiveChoice)
     return { status: "error", message: "Elegí una opción para tu objetivo académico." };
+  // DR3: nota voluntaria para la residencia nueva (solo se guarda si la solicitud se permitió por el aviso "Quiero cambiar").
+  const movingNote = validateMovingNote(formData.get("move_context_note"));
+  if (!movingNote.ok) return { status: "error", message: movingNote.error };
 
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento. Probá más tarde." };
@@ -98,6 +102,7 @@ export async function createApplicationRequest(
     studentProfileId: studentProfile.id,
     desiredStartDate,
     durationMonths,
+    residenceId,
   });
   if (!overlap.ok) return { status: "error", message: overlap.error };
 
@@ -141,6 +146,8 @@ export async function createApplicationRequest(
     familyProposalId: null,
     createdByUserId: sessionUser.id,
     actorRole: "student",
+    stayChangeIntentId: overlap.stayChangeIntentId,
+    movingContextNote: movingNote.value,
   });
   if ("error" in result) return { status: "error", message: result.error };
 

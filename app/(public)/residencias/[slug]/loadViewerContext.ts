@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { getStudentProfileCompleteness } from "@/lib/students/profileCompleteness";
 import { LIVE_RESERVATION_STATUSES } from "@/lib/reservations/reservationStatus";
+import { exceptionAppliesToResidence, findStayChangeException } from "@/lib/stayChange/exception";
 import {
   describeReservationWindow,
   loadReservationWindowForUser,
@@ -81,7 +82,13 @@ export async function loadStudentViewer(
     studentFavorited = !!favRes.data;
   }
 
-  const windowNotice = describeReservationWindow(windowRes.window);
+  // DR3 "Quiero cambiar": con el aviso abierto (y esta no es la residencia actual) puede pedir fechas superpuestas.
+  let stayChangeOpen = false;
+  if (profile && windowRes.window && sessionClient) {
+    const { exception } = await findStayChangeException(sessionClient, profile.id as string);
+    stayChangeOpen = exceptionAppliesToResidence(exception, residenceId);
+  }
+  const windowNotice = describeReservationWindow(windowRes.window, { stayChangeOpen });
   return {
     profileCompletenessPercent: completeness?.percent ?? null,
     studentFavorited,

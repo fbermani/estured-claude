@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { isMissingSchemaError } from "@/lib/stayChange/schema";
 
 /**
  * SOLO PARA TESTS de integración (no importar desde código de producción;
@@ -27,6 +28,10 @@ export async function deleteResidenceCascade(admin: SupabaseClient, residenceId:
     const { error } = await query;
     if (error) fail(label, error.message);
   };
+  const okIfTableExists = async (label: string, query: PromiseLike<{ error: { code?: string; message: string } | null }>) => {
+    const { error } = await query;
+    if (error && !isMissingSchemaError(error)) fail(label, error.message);
+  };
   const ids = async (
     label: string,
     query: PromiseLike<{ data: { id: string }[] | null; error: { message: string } | null }>,
@@ -45,6 +50,11 @@ export async function deleteResidenceCascade(admin: SupabaseClient, residenceId:
     fail("guard", `la residencia "${target.slug}" no es de test (slug sin prefijo residencia-test-); me niego a borrarla`);
   }
 
+  // DR3 (Ciclo 59): avisos "Quiero cambiar" y salidas anticipadas de esta residencia (las FK de solicitudes/listas
+  // hacia el aviso son ON DELETE SET NULL). Antes de estadías y reservas, que ellos referencian.
+  // (Si la migración 0044 todavía no se aplicó en esta base, las tablas no existen: se omite.)
+  await okIfTableExists("stay_early_exits", admin.from("stay_early_exits").delete().eq("residence_id", residenceId));
+  await okIfTableExists("stay_change_intents", admin.from("stay_change_intents").delete().eq("current_residence_id", residenceId));
   await ok("resident_stays", admin.from("resident_stays").delete().eq("residence_id", residenceId));
   await ok("support_cases", admin.from("support_cases").delete().eq("residence_id", residenceId));
 

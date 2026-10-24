@@ -17,6 +17,7 @@ import {
 } from "@/lib/residences/options";
 import { applyRoomTypesUpdate, hasStructuralRoomTypeChange, stageProfileEdit, type RoomTypeEditInput } from "@/lib/residences/profileEdits";
 import { logTariffChange } from "@/lib/residences/tariffLog";
+import { validateEarlyExitPolicy } from "@/lib/stayChange/validate";
 import { describeInitialPaymentForLog, initialPaymentConfigFromRow, parseInitialPaymentInput, type InitialPaymentConfig } from "@/lib/reservations/initialPayment";
 
 export type ProfileFormState = {
@@ -69,6 +70,10 @@ interface ConditionsInput {
   enrollmentFeeFrequency: "once" | "annual";
   depositUsd: number | null;
   emptyMonthChargePercent: number | null;
+  /** Política de salida anticipada (DR3): texto libre informativo, hasta 1000 caracteres cada uno. */
+  earlyExitDepositClausesText: string | null;
+  earlyExitCostsText: string | null;
+  earlyExitConditionsText: string | null;
 }
 
 function parseConditions(raw: string): ConditionsInput | { error: string } | null {
@@ -76,6 +81,8 @@ function parseConditions(raw: string): ConditionsInput | { error: string } | nul
     const c = JSON.parse(raw);
     const initialPayment = parseInitialPaymentInput({ mode: c.initialPaymentMode, usd: c.initialPaymentUsd });
     if (!initialPayment.ok) return { error: initialPayment.error };
+    const earlyExit = validateEarlyExitPolicy({ depositClausesText: c.earlyExitDepositClausesText, costsText: c.earlyExitCostsText, conditionsText: c.earlyExitConditionsText });
+    if (!earlyExit.ok) return { error: earlyExit.error };
     const mode = c.enrollmentFeeMode === "one_month" || c.enrollmentFeeMode === "manual" ? c.enrollmentFeeMode : null;
     return {
       minimumStayMonths:
@@ -93,6 +100,9 @@ function parseConditions(raw: string): ConditionsInput | { error: string } | nul
         c.emptyMonthChargePercent != null && c.emptyMonthChargePercent !== ""
           ? Math.min(100, Math.max(0, Number(c.emptyMonthChargePercent) || 0))
           : null,
+      earlyExitDepositClausesText: earlyExit.value.depositClausesText,
+      earlyExitCostsText: earlyExit.value.costsText,
+      earlyExitConditionsText: earlyExit.value.conditionsText,
     };
   } catch {
     return null;
@@ -221,9 +231,36 @@ export async function saveResidenceProfile(
         enrollment_fee_frequency: conditions.enrollmentFeeFrequency,
         deposit_usd: conditions.depositUsd,
         empty_month_charge_percent: conditions.emptyMonthChargePercent,
+        // Política de salida anticipada (migración 0044): solo si la columna existe (residenceRow viene de `select *`).
+        ...("early_exit_costs_text" in (residenceRow ?? {})
+          ? {
+              early_exit_deposit_clauses_text: conditions.earlyExitDepositClausesText,
+              early_exit_costs_text: conditions.earlyExitCostsText,
+              early_exit_conditions_text: conditions.earlyExitConditionsText,
+            }
+          : {}),
       })
       .eq("id", residenceId);
     if (residenceError) throw residenceError;
+
+    // Política de salida anticipada (DR3): se aplica al instante (es texto informativo, como la política de ajuste)
+    // y se audita siempre que cambia, con el valor anterior y el nuevo.
+    const oldEarlyExit = {
+      deposit_clauses: (residenceRow?.early_exit_deposit_clauses_text as string | null) ?? null,
+      costs: (residenceRow?.early_exit_costs_text as string | null) ?? null,
+      conditions: (residenceRow?.early_exit_conditions_text as string | null) ?? null,
+    };
+    if (oldEarlyExit.deposit_clauses !== conditions.earlyExitDepositClausesText || oldEarlyExit.costs !== conditions.earlyExitCostsText || oldEarlyExit.conditions !== conditions.earlyExitConditionsText) {
+      await createAuditLog(admin, {
+        actorUserId: sessionUser.id,
+        actorRole: "residence_owner",
+        action: "residence_early_exit_policy_updated",
+        entityType: "residences",
+        entityId: residenceId,
+        oldValue: oldEarlyExit,
+        newValue: { deposit_clauses: conditions.earlyExitDepositClausesText, costs: conditions.earlyExitCostsText, conditions: conditions.earlyExitConditionsText },
+      });
+    }
 
     // Administración de tarifas (docs/09 §9): matrícula/depósito/
     // política de ajuste se auditan siempre, se apliquen directo o no

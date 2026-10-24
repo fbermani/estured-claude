@@ -117,6 +117,9 @@ export default async function ResidenceProfilePage({
             residence.empty_month_charge_percent != null
               ? Math.max(0, Math.min(100, 100 - Number(residence.empty_month_charge_percent)))
               : 50,
+          earlyExitDepositClausesText: (residence.early_exit_deposit_clauses_text as string | null) ?? "",
+          earlyExitCostsText: (residence.early_exit_costs_text as string | null) ?? "",
+          earlyExitConditionsText: (residence.early_exit_conditions_text as string | null) ?? "",
         },
       }}
     />

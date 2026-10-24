@@ -1,0 +1,1246 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiero cambiar: propuesta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0..1,0&display=block" rel="stylesheet">
+<style>
+/* ===== Tokens copiados de app/globals.css (@theme) ===== */
+:root{
+  --ink:#1d2722;--ink-soft:#44524b;--ink-faint:#5f6c65;--muted:#5f6c65;
+  --line:#e8e0d2;--line-2:#ded4c2;--field-border:#8f836c;
+  --cream:#fbf6ec;--cream-2:#f4ecdc;--paper:#ffffff;
+  --forest:#1f7d5c;--forest-600:#166349;--forest-700:#0f4d39;--forest-ink:#0c3a2c;--forest-tint:#e2f1ea;
+  --orange:#c0521d;--orange-light:#ef8551;--orange-600:#a9461a;--orange-700:#9a4118;--orange-tint:#fde7da;
+  --mint:#d7efe2;--butter:#fbeec3;--butter-fg:#7a5f0c;--sky:#d9ebf5;--sky-fg:#2a6a91;--peach:#fde1d2;
+  --red-tint:#fbe5e2;--red-700:#9c392e;--blue-ink:#2d6f97;--blue-tint:#e3f0f9;
+  --success-bg:var(--forest-tint);--success-fg:var(--forest-700);
+  --warning-bg:var(--orange-tint);--warning-fg:var(--orange-700);
+  --danger-bg:var(--red-tint);--danger-fg:var(--red-700);
+  --info-bg:var(--blue-tint);--info-fg:var(--blue-ink);
+  --r-lg:30px;--r-card:22px;--r-sm:16px;--r-field:12px;
+  --shadow-sm:0 1px 2px rgb(29 39 34/.06),0 2px 6px rgb(29 39 34/.05);
+  --shadow-card:0 1px 2px rgb(29 39 34/.05),0 4px 16px rgb(29 39 34/.07);
+  --shadow-card-hover:0 2px 4px rgb(29 39 34/.06),0 8px 28px rgb(29 39 34/.12);
+  --shadow-float:0 4px 12px rgb(29 39 34/.08),0 12px 40px rgb(29 39 34/.16);
+  --shadow-forest:0 10px 24px rgb(31 125 92/.32);
+  --ease:cubic-bezier(.22,.61,.36,1);--bounce:cubic-bezier(.34,1.56,.64,1);
+  --font-sans:"Hanken Grotesk",ui-sans-serif,system-ui,sans-serif;
+  --font-display:"Bricolage Grotesque","Hanken Grotesk",ui-sans-serif,system-ui,sans-serif;
+  /* SOLO MOCKUP: marca de "decisión pendiente" (no es token de producto) */
+  --pend-bg:#efeafc;--pend-fg:#4f4396;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--cream);color:var(--ink);font-family:var(--font-sans);-webkit-font-smoothing:antialiased;font-size:16px;line-height:1.5}
+h1,h2,h3,h4{font-family:var(--font-display);font-weight:700;letter-spacing:-.02em;text-wrap:balance;margin:0}
+p{margin:0;text-wrap:pretty}
+a{color:inherit}
+button{font:inherit;color:inherit}
+ul{margin:0;padding:0;list-style:none}
+.ms{font-family:"Material Symbols Outlined";font-weight:normal;font-style:normal;font-size:22px;line-height:1;display:inline-block;white-space:nowrap;direction:ltr;font-feature-settings:"liga";-webkit-font-smoothing:antialiased;font-variation-settings:"FILL" 0,"wght" 400,"GRAD" 0,"opsz" 24;vertical-align:middle;flex:none}
+.fill{font-variation-settings:"FILL" 1,"wght" 400,"GRAD" 0,"opsz" 24}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:focus-visible{outline:2px solid var(--forest);outline-offset:2px;border-radius:8px}
+
+/* ===== Botones (components/ui/Button) ===== */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:700;border-radius:999px;border:0;cursor:pointer;text-decoration:none;transition:transform .3s var(--bounce),box-shadow .3s var(--bounce),background-color .2s var(--ease),border-color .2s var(--ease);white-space:nowrap;min-height:44px}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:translateY(1px) scale(.98)}
+.btn-primary{background:var(--forest);color:#fff;box-shadow:var(--shadow-sm)}
+.btn-primary:hover{background:var(--forest-600);box-shadow:var(--shadow-forest)}
+.btn-outline{background:var(--paper);color:var(--ink);border:1.5px solid var(--line-2)}
+.btn-outline:hover{border-color:var(--forest);background:var(--forest-tint)}
+.btn-ghost{background:transparent;color:var(--ink-soft)}
+.btn-ghost:hover{background:var(--cream-2)}
+.btn-danger-ghost{background:transparent;color:var(--danger-fg)}
+.btn-danger-ghost:hover{background:var(--danger-bg)}
+.btn-sm{font-size:14px;padding:0 18px;height:44px}
+.btn-md{font-size:15px;padding:0 24px;height:48px}
+.btn-lg{font-size:16px;padding:0 30px;height:54px}
+.btn-block{width:100%}
+.btn[disabled],.btn[aria-disabled="true"]{opacity:.5;pointer-events:none}
+.link{font-weight:700;color:var(--forest-700);text-decoration:underline;text-underline-offset:3px;background:none;border:0;padding:0;cursor:pointer}
+.spinner{width:16px;height:16px;border-radius:50%;border:2px solid rgb(255 255 255/.45);border-top-color:#fff;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ===== Chips ===== */
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 12px;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.chip .dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+.chip-ok{background:var(--forest-tint);color:var(--forest-700)}
+.chip-warn{background:var(--orange-tint);color:var(--orange-700)}
+.chip-neutral{background:var(--cream-2);color:var(--ink-soft)}
+.chip-info{background:var(--info-bg);color:var(--info-fg)}
+.badge{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;white-space:nowrap}
+.b-sage{background:var(--forest-tint);color:var(--forest-700)}
+.b-amber{background:var(--orange-tint);color:var(--orange-700)}
+.b-neutral{background:var(--cream-2);color:var(--ink-soft)}
+.b-info{background:var(--info-bg);color:var(--info-fg)}
+.b-change{background:var(--orange-tint);color:var(--orange-700);outline:1.5px solid rgb(192 82 29/.25)}
+.eyebrow{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.pend{display:inline-flex;align-items:center;gap:4px;border-radius:8px;border:1.5px dashed var(--pend-fg);background:var(--pend-bg);color:var(--pend-fg);font-size:11px;font-weight:800;padding:2px 8px;letter-spacing:.02em;vertical-align:middle;white-space:nowrap}
+.pend .ms{font-size:14px}
+.card{background:var(--paper);border:1.5px solid var(--line);border-radius:var(--r-card)}
+
+/* ===== Mockup control (no es producto) ===== */
+.mk{position:fixed;left:16px;bottom:16px;z-index:200;background:var(--forest-ink);color:#fff;border-radius:18px;box-shadow:var(--shadow-float);padding:12px;width:300px;font-size:13px}
+.mk h4{font-family:var(--font-sans);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#cfe6dc;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.mk select{width:100%;border-radius:10px;border:0;padding:8px 10px;font:inherit;margin-bottom:8px}
+.mk .sts{display:flex;flex-wrap:wrap;gap:6px}
+.mk .sts button{border:1px solid rgb(255 255 255/.25);background:transparent;color:#fff;border-radius:999px;padding:4px 10px;font-size:12px;cursor:pointer}
+.mk .sts button[aria-pressed="true"]{background:#fff;color:var(--forest-ink);font-weight:700}
+.mk .mk-min{background:none;border:0;color:#cfe6dc;cursor:pointer;font-size:12px}
+.mk.min .mk-body{display:none}
+.bare .mk{display:none}
+
+/* ===== App shell (sidebar como components/layout/StudentSidebar/ResidenceSidebar) ===== */
+.app{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100vh}
+.side{position:sticky;top:0;height:100vh;background:var(--paper);border-right:1.5px solid var(--line);padding:18px 12px;display:flex;flex-direction:column;gap:4px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;padding:0 8px 18px;text-decoration:none}
+.logo-mark{width:34px;height:34px;border-radius:10px;background:var(--forest);color:#fff;display:grid;place-items:center;font-family:var(--font-display);font-weight:800}
+.side a.nav{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;font-size:14px;font-weight:600;color:var(--ink-soft);text-decoration:none}
+.side a.nav:hover{background:var(--cream-2)}
+.side a.nav[aria-current="page"]{background:var(--forest-tint);color:var(--forest-700);font-weight:700}
+.side a.nav .ms{font-size:21px}
+.side .new{margin-left:auto;font-size:10px;font-weight:800;background:var(--orange-tint);color:var(--orange-700);border-radius:999px;padding:2px 7px}
+.side .count{margin-left:auto;font-size:11px;font-weight:800;background:var(--orange);color:#fff;border-radius:999px;padding:1px 7px}
+.side .res-name{font-size:12px;color:var(--ink-faint);padding:0 12px 10px;font-weight:600}
+.topbar{display:none}
+.main{padding:36px 40px 120px;max-width:1120px;width:100%}
+.page-h{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.page-h h1{font-size:34px}
+.loc{display:flex;align-items:center;gap:6px;color:var(--ink-soft);margin-top:6px;font-size:15px}
+.loc .ms{font-size:19px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px;margin-top:24px;align-items:start}
+.stack{display:flex;flex-direction:column;gap:20px}
+.bell{position:relative;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;border:1.5px solid var(--line);background:var(--paper);cursor:pointer}
+.bell .num{position:absolute;top:-4px;right:-4px;background:var(--orange);color:#fff;font-size:10px;font-weight:800;border-radius:999px;padding:1px 6px}
+
+/* ===== Mi residencia: estadía ===== */
+.stay{padding:22px 24px}
+.kv{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:12px}
+.kv dt{font-size:12px;color:var(--ink-faint)}
+.kv dd{margin:2px 0 0;font-weight:800;font-size:16px}
+.stay .left{color:var(--forest-700);font-weight:700;font-size:14px;margin-top:12px}
+.stay .acts{display:flex;gap:10px;flex-wrap:wrap;border-top:1.5px solid var(--line);margin-top:16px;padding-top:16px}
+.side-card{padding:18px 20px}
+.side-card p{font-size:14px;color:var(--ink-soft)}
+.side-card .t{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+
+/* ===== Quiero cambiar: tarjeta explicativa ===== */
+.qc{padding:26px;position:relative;overflow:hidden}
+.qc::before{content:"";position:absolute;right:-60px;top:-60px;width:200px;height:200px;border-radius:50%;background:var(--butter);opacity:.6}
+.qc>*{position:relative}
+.qc h2{font-size:24px;margin-top:6px}
+.qc .lead{color:var(--ink-soft);margin-top:8px;max-width:62ch}
+.how{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:20px}
+.how li{background:var(--cream);border:1.5px solid var(--line);border-radius:var(--r-sm);padding:14px}
+.how .ic{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;margin-bottom:10px}
+.how b{display:block;font-size:15px}
+.how p{font-size:13.5px;color:var(--ink-soft);margin-top:4px}
+.qc-foot{display:flex;align-items:center;gap:16px;margin-top:20px;flex-wrap:wrap}
+.qc-foot small{color:var(--ink-faint);font-size:13px;flex:1;min-width:220px}
+.faq{margin-top:18px;border-top:1.5px solid var(--line)}
+.faq details{border-bottom:1.5px solid var(--line)}
+.faq summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;padding:12px 0;font-weight:700;font-size:14.5px;min-height:44px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"expand_more";font-family:"Material Symbols Outlined";font-size:22px;color:var(--ink-faint);transition:transform .2s}
+.faq details[open] summary::after{transform:rotate(180deg)}
+.faq details p{font-size:14px;color:var(--ink-soft);padding:0 0 14px}
+.disabled-note{display:flex;gap:8px;align-items:flex-start;background:var(--cream-2);border-radius:var(--r-field);padding:10px 12px;font-size:13.5px;color:var(--ink-soft)}
+
+/* ===== Quiero cambiar: aviso abierto ===== */
+.open{border-color:rgb(192 82 29/.35);box-shadow:var(--shadow-card)}
+.open-h{background:linear-gradient(135deg,var(--orange-tint),#fff4ec);padding:22px 24px;border-radius:20px 20px 0 0;border-bottom:1.5px solid rgb(192 82 29/.18)}
+.open-h h2{font-size:24px;margin-top:8px}
+.open-h p{color:var(--ink-soft);margin-top:6px;font-size:15px}
+.open-b{padding:20px 24px 22px}
+.steps{display:flex;gap:0;margin:2px 0 18px;padding:0;list-style:none}
+.steps li{flex:1;position:relative;padding-top:30px;font-size:13px;color:var(--ink-faint);font-weight:600;padding-right:10px}
+.steps li::before{content:"";position:absolute;top:8px;left:0;width:20px;height:20px;border-radius:50%;border:2px solid var(--line-2);background:var(--paper);box-sizing:border-box}
+.steps li::after{content:"";position:absolute;top:17px;left:24px;right:4px;height:2px;background:var(--line)}
+.steps li:last-child::after{display:none}
+.steps li.done{color:var(--ink)}
+.steps li.done::before{background:var(--forest);border-color:var(--forest)}
+.steps li.now{color:var(--orange-700)}
+.steps li.now::before{border-color:var(--orange);box-shadow:0 0 0 4px var(--orange-tint)}
+.shortcuts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.sc{display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:var(--r-sm);border:1.5px solid var(--line);background:var(--paper);text-decoration:none;transition:border-color .2s,box-shadow .2s,transform .3s var(--bounce);min-height:108px}
+.sc:hover{border-color:var(--forest);box-shadow:var(--shadow-card-hover);transform:translateY(-2px)}
+.sc .ms{color:var(--forest-700)}
+.sc b{font-size:14.5px}
+.sc span.s{font-size:12.5px;color:var(--ink-soft)}
+.sc.hl{background:var(--forest-tint);border-color:rgb(31 125 92/.3)}
+.sc.alert{background:#fff7f1;border-color:rgb(192 82 29/.4)}
+.sc.alert .ms{color:var(--orange-700)}
+.open-foot{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:16px;padding-top:14px;border-top:1.5px solid var(--line);font-size:13.5px;color:var(--ink-faint)}
+.open-foot .sp{flex:1}
+.open-foot .ro{flex-basis:100%}
+.notice{display:flex;gap:10px;align-items:flex-start;border-radius:var(--r-field);padding:12px 14px;font-size:14px}
+.notice .ms{font-size:20px;margin-top:1px}
+.n-info{background:var(--info-bg);color:var(--info-fg)}
+.n-warn{background:var(--warning-bg);color:var(--warning-fg)}
+.n-ok{background:var(--success-bg);color:var(--success-fg)}
+.n-danger{background:var(--danger-bg);color:var(--danger-fg)}
+.n-neutral{background:var(--cream-2);color:var(--ink-soft)}
+.notice b{color:inherit}
+.notice .acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+
+/* ===== Respuesta de la residencia ===== */
+.reply{padding:0;overflow:hidden}
+.reply-h{display:flex;gap:12px;align-items:center;padding:18px 22px;border-bottom:1.5px solid var(--line)}
+.avatar{width:42px;height:42px;border-radius:12px;background:var(--mint);display:grid;place-items:center;color:var(--forest-700);font-weight:800;font-family:var(--font-display)}
+.reply-h h3{font-size:18px}
+.reply-h small{color:var(--ink-faint);font-size:13px}
+.reply-b{padding:18px 22px}
+.quote{background:var(--cream);border-radius:var(--r-sm);padding:14px 16px;font-size:15px;color:var(--ink);border-left:4px solid var(--forest)}
+.terms{display:grid;grid-template-columns:1fr;gap:10px;margin-top:14px}
+.term{border:1.5px solid var(--line);border-radius:var(--r-sm);padding:14px 16px;display:grid;grid-template-columns:170px minmax(0,1fr);gap:2px 18px;align-items:start}
+.term .eyebrow{grid-column:1}
+.term .amt{grid-column:1;margin-top:2px!important}
+.term p:not(.eyebrow):not(.amt){grid-column:2;grid-row:1/span 2;margin-top:0!important}
+.term .eyebrow{display:flex;align-items:center;gap:6px}
+.term .eyebrow .ms{font-size:17px}
+.term p{font-size:14px;color:var(--ink-soft);margin-top:6px}
+.term .amt{font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--ink);margin-top:6px}
+.term .amt small{font-family:var(--font-sans);font-size:12px;color:var(--ink-faint);font-weight:600}
+.term.cost{background:#fff9f4;border-color:rgb(192 82 29/.3)}
+.reply-foot{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:14px 22px;border-top:1.5px solid var(--line);background:var(--cream)}
+.reply-foot p{font-size:12.5px;color:var(--ink-faint);flex:1;min-width:240px}
+
+/* ===== Modal / hoja ===== */
+.scrim{position:fixed;inset:0;background:rgb(12 58 44/.45);z-index:100;display:grid;place-items:center;padding:24px}
+.modal{background:var(--paper);border-radius:var(--r-card);box-shadow:var(--shadow-float);width:min(600px,100%);max-height:calc(100vh - 48px);display:flex;flex-direction:column;overflow:hidden}
+.modal-h{padding:22px 24px 8px;display:flex;gap:12px;align-items:flex-start}
+.modal-h h2{font-size:23px}
+.modal-h p{color:var(--ink-soft);font-size:14.5px;margin-top:6px}
+.modal-h .x{margin-left:auto;width:44px;height:44px;border-radius:50%;border:0;background:var(--cream-2);cursor:pointer;display:grid;place-items:center;flex:none}
+.modal-b{padding:12px 24px 8px;overflow:auto}
+.modal-f{padding:16px 24px 20px;border-top:1.5px solid var(--line);display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;background:var(--paper)}
+.modal-f .fine{flex-basis:100%;font-size:12.5px;color:var(--ink-faint);margin-bottom:4px}
+.field{margin-top:16px}
+.field label.l,.field .l{display:block;font-weight:700;font-size:14.5px;margin-bottom:6px}
+.field .opt{font-weight:600;color:var(--ink-faint);font-size:13px}
+.help{font-size:13px;color:var(--ink-faint);margin-top:6px}
+body.lock{overflow:hidden}
+.input,.select,.textarea{width:100%;border:1.5px solid var(--field-border);border-radius:var(--r-field);background:var(--paper);padding:11px 14px;font:inherit;font-size:15px;color:var(--ink);min-height:46px}
+.textarea{min-height:96px;resize:vertical;line-height:1.5}
+.input:focus,.select:focus,.textarea:focus{outline:none;border-color:var(--forest);box-shadow:0 0 0 3px rgb(31 125 92/.18)}
+.input.err,.textarea.err{border-color:var(--danger-fg)}
+.ferr{color:var(--danger-fg);font-size:13px;font-weight:600;margin-top:6px;display:flex;gap:4px;align-items:center}
+.ferr .ms{font-size:16px}
+.counter{font-size:12px;color:var(--ink-faint);text-align:right;margin-top:4px}
+.sees{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+.sees>div{border-radius:var(--r-sm);padding:14px;font-size:13.5px}
+.sees .y{background:var(--forest-tint)}
+.sees .n{background:var(--cream-2)}
+.sees b{display:block;margin-bottom:6px;font-size:13px;text-transform:uppercase;letter-spacing:.05em}
+.sees li{display:flex;gap:6px;align-items:flex-start;margin-top:4px;color:var(--ink-soft)}
+.sees li .ms{font-size:17px;margin-top:1px}
+.sees .y li .ms{color:var(--forest-700)}
+.sees .n li .ms{color:var(--ink-faint)}
+.switch-row{display:flex;gap:12px;align-items:flex-start;margin-top:16px;border:1.5px solid var(--line);border-radius:var(--r-sm);padding:14px}
+.switch{appearance:none;width:44px;height:26px;border-radius:999px;background:var(--line-2);position:relative;cursor:pointer;flex:none;margin:0;transition:background .2s;border:1.5px solid var(--field-border)}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:19px;height:19px;border-radius:50%;background:#fff;box-shadow:var(--shadow-sm);transition:transform .3s var(--bounce)}
+.switch:checked{background:var(--forest);border-color:var(--forest)}
+.switch:checked::after{transform:translateX(18px)}
+.switch-row b{font-size:14.5px}
+.switch-row p{font-size:13px;color:var(--ink-soft);margin-top:2px}
+.check{display:flex;gap:10px;align-items:flex-start;margin-top:16px;font-size:14px;cursor:pointer}
+.check input{width:20px;height:20px;accent-color:var(--forest);margin:1px 0 0;flex:none}
+.list-x{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.list-x li{display:flex;gap:10px;align-items:center;border:1.5px solid var(--line);border-radius:var(--r-field);padding:10px 12px;font-size:14px}
+.list-x li small{display:block;color:var(--ink-faint);font-size:12.5px}
+.list-x li .badge{margin-left:auto}
+
+/* ===== Drawer (hoja lateral) ===== */
+.drawer-scrim{position:fixed;inset:0;background:rgb(12 58 44/.4);z-index:100}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(560px,100%);background:var(--paper);z-index:101;box-shadow:var(--shadow-float);display:flex;flex-direction:column}
+.drawer-h{padding:20px 24px 14px;border-bottom:1.5px solid var(--line);display:flex;gap:12px;align-items:flex-start}
+.drawer-h h2{font-size:22px}
+.drawer-h p{font-size:13.5px;color:var(--ink-soft);margin-top:2px}
+.drawer-b{padding:16px 24px 24px;overflow:auto;flex:1}
+.drawer-f{padding:14px 24px 18px;border-top:1.5px solid var(--line);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.drawer-f .fine{flex-basis:100%;font-size:12.5px;color:var(--ink-faint)}
+.ctx{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;background:var(--cream);border-radius:var(--r-sm);padding:14px 16px;font-size:13.5px}
+.ctx dt{color:var(--ink-faint);font-size:12px}
+.ctx dd{margin:0;font-weight:700}
+.ctx .full{grid-column:1/-1}
+.tpls{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.tpl{border:1.5px solid var(--line-2);background:var(--paper);border-radius:999px;padding:8px 14px;font-size:13.5px;font-weight:700;cursor:pointer;min-height:40px;display:inline-flex;align-items:center;gap:6px}
+.tpl:hover{border-color:var(--forest);background:var(--forest-tint)}
+.tpl[aria-pressed="true"]{background:var(--forest);color:#fff;border-color:var(--forest)}
+.money{display:flex;align-items:center;border:1.5px solid var(--field-border);border-radius:var(--r-field);overflow:hidden;max-width:220px;background:var(--paper)}
+.money span{padding:0 12px;font-weight:800;color:var(--ink-soft);background:var(--cream-2);align-self:stretch;display:grid;place-items:center;font-size:14px}
+.money input{border:0;padding:11px 12px;font:inherit;width:100%;min-height:44px}
+.tone{display:flex;gap:10px;background:var(--butter);color:var(--butter-fg);border-radius:var(--r-sm);padding:12px 14px;font-size:13.5px;margin-top:18px}
+.tone b{color:#5c4709}
+.sec-t{font-family:var(--font-display);font-size:16px;font-weight:700;margin-top:22px;display:flex;align-items:center;gap:8px}
+.sec-t .ms{font-size:20px;color:var(--forest-700)}
+
+/* ===== Residentes (residencia) ===== */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:22px}
+.kpis.k5{grid-template-columns:repeat(5,minmax(0,1fr))}
+.kpi{padding:16px 18px}
+.kpi p{font-size:14px;color:var(--ink-soft);font-weight:600}
+.kpi b{display:block;font-size:30px;font-weight:800;margin-top:2px}
+.kpi.hl{border-color:rgb(192 82 29/.4);background:#fffaf6}
+.kpi.hl b{color:var(--orange-700)}
+.change-sec{margin-top:22px;overflow:hidden}
+.change-h{display:flex;gap:14px;align-items:flex-start;padding:18px 22px;background:linear-gradient(135deg,var(--orange-tint),#fff6ef);border-bottom:1.5px solid rgb(192 82 29/.18)}
+.change-h .ic{width:42px;height:42px;border-radius:12px;background:#fff;display:grid;place-items:center;color:var(--orange-700);flex:none;box-shadow:var(--shadow-sm)}
+.change-h h2{font-size:20px}
+.change-h p{font-size:14px;color:var(--ink-soft);margin-top:2px;max-width:70ch}
+.change-h .why{margin-left:auto}
+.crow{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.1fr) auto;gap:14px;align-items:center;padding:14px 22px;border-top:1.5px solid var(--line)}
+.crow:first-of-type{border-top:0}
+.who{display:flex;gap:10px;align-items:center;min-width:0}
+.ini{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:13px;flex:none}
+.who b{display:block;font-size:15px}
+.who small{display:block;color:var(--ink-faint);font-size:12.5px}
+.cell small{display:block;color:var(--ink-faint);font-size:12px}
+.cell b{font-size:14.5px}
+.cell .sub{font-size:12px;color:var(--ink-soft)}
+.crow.resolved{background:#fbfaf7}
+.plan{display:flex;gap:10px;align-items:center;padding:12px 22px;background:var(--cream);border-top:1.5px solid var(--line);font-size:13.5px;color:var(--ink-soft);flex-wrap:wrap}
+.plan .ms{color:var(--forest-700)}
+.toolbar{margin-top:22px;padding:14px 16px}
+.search{position:relative}
+.search .ms{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--ink-faint);font-size:20px}
+.search input{padding-left:40px}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.pill{border-radius:999px;padding:8px 16px;font-size:14px;font-weight:600;border:1.5px solid var(--line);background:var(--paper);color:var(--ink-soft);cursor:pointer;min-height:40px;display:inline-flex;align-items:center;gap:6px}
+.pill.on{background:var(--forest);color:#fff;border-color:var(--forest)}
+.pill .n{background:var(--orange);color:#fff;border-radius:999px;font-size:11px;font-weight:800;padding:0 7px}
+.pill.on .n{background:#fff;color:var(--orange-700)}
+table.res{width:100%;border-collapse:collapse;font-size:14px;text-align:left}
+table.res th{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:var(--cream-2);padding:12px 16px}
+table.res td{padding:12px 16px;border-top:1px solid var(--line)}
+.tbl{margin-top:16px;overflow:hidden}
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;padding:40px 24px}
+.empty .ic{width:56px;height:56px;border-radius:18px;background:var(--forest-tint);color:var(--forest-700);display:grid;place-items:center;margin-bottom:12px}
+.empty h3{font-size:19px}
+.empty p{color:var(--ink-soft);font-size:14.5px;max-width:52ch;margin-top:6px}
+.skel{background:linear-gradient(90deg,var(--cream-2),#efe6d4,var(--cream-2));background-size:200% 100%;animation:sk 1.4s ease infinite;border-radius:10px}
+@keyframes sk{to{background-position:-200% 0}}
+.toast{position:fixed;right:24px;bottom:24px;z-index:150;background:var(--forest-ink);color:#fff;border-radius:16px;padding:14px 16px;display:flex;gap:10px;align-items:flex-start;box-shadow:var(--shadow-float);max-width:380px;font-size:14px}
+.toast .ms{color:#9fd8bf}
+.notif{position:absolute;right:0;top:54px;width:380px;z-index:60;padding:8px;box-shadow:var(--shadow-float)}
+.notif li{display:flex;gap:10px;padding:12px;border-radius:14px;font-size:14px}
+.notif li.unread{background:#fff7f1}
+.notif li .ms{color:var(--orange-700)}
+.notif li small{display:block;color:var(--ink-faint);font-size:12px;margin-top:2px}
+
+/* ===== Ficha pública ===== */
+.pnav{position:sticky;top:0;z-index:40;background:rgb(251 246 236/.92);backdrop-filter:blur(14px);border-bottom:1.5px solid var(--line)}
+.pnav-in{max-width:1152px;margin:0 auto;padding:0 24px;height:68px;display:flex;align-items:center;gap:28px}
+.pnav .links{display:flex;gap:22px;font-size:14px;font-weight:600;color:var(--ink-soft);margin-left:auto}
+.pnav .links a{text-decoration:none}
+.pnav-in>.btn{margin-left:auto}
+.pnav .links+.btn{margin-left:0}
+.wrap{max-width:1152px;margin:0 auto;padding:0 24px}
+.crumbs{font-size:13px;color:var(--ink-faint);padding:20px 0 12px}
+.fgrid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:40px;align-items:start;padding-bottom:120px}
+.fhead h1{font-size:38px;letter-spacing:-.03em}
+.trust{display:inline-flex;align-items:center;gap:4px;border-radius:999px;background:#fff;color:var(--forest-700);font-weight:700;font-size:14px;padding:4px 12px;box-shadow:var(--shadow-sm);outline:1.5px solid var(--forest-tint)}
+.trust .ms{font-size:17px}
+.rates{margin-top:24px;overflow:hidden}
+.rate{display:grid;grid-template-columns:minmax(0,1.4fr) 1fr 1.3fr;gap:12px;align-items:center;padding:16px 18px;border-top:1.5px solid var(--line)}
+.rate:first-child{border-top:0}
+.rate b{font-size:15.5px}
+.rate .p{font-weight:800}
+.status{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:600}
+.st-info{background:var(--info-bg);color:var(--info-fg)}
+.st-warn{background:var(--warning-bg);color:var(--warning-fg)}
+.panel{position:sticky;top:92px;padding:22px}
+.panel .price{font-family:var(--font-display);font-size:34px;font-weight:800;letter-spacing:-.02em}
+.panel .price small{font-family:var(--font-sans);font-size:15px;color:var(--ink-faint);font-weight:600}
+.opt-row{display:flex;gap:10px;align-items:center;border:1.5px solid var(--line);border-radius:var(--r-field);padding:10px 12px;margin-top:8px;font-size:14px;min-height:48px}
+.opt-row.sel{border-color:var(--forest);background:rgb(226 241 234/.55)}
+.opt-row input{accent-color:var(--forest);width:16px;height:16px}
+.opt-row .s{display:block;font-size:11px;font-weight:600;color:var(--info-fg)}
+.opt-row .pr{margin-left:auto;font-weight:800}
+.panel .fine{font-size:12px;color:var(--ink-faint);margin-top:14px;line-height:1.5}
+.sum{background:var(--cream);border-radius:var(--r-sm);padding:14px 16px;margin-top:16px;font-size:14px}
+.sum div{display:flex;justify-content:space-between;gap:10px;padding:3px 0}
+.sum div b{font-weight:800}
+
+/* ===== Familiar ===== */
+.stu{padding:0;overflow:hidden}
+.stu-h{display:flex;gap:14px;align-items:center;padding:20px 22px;border-bottom:1.5px solid var(--line)}
+.stu-h>div{flex:1;min-width:0}
+.stu-h .ini{width:48px;height:48px;font-size:18px;background:var(--mint);color:var(--forest-700)}
+.stu-h h2{font-size:21px}
+.stu-h p{font-size:14px;color:var(--ink-soft)}
+.stu-b{padding:20px 22px}
+.ro{font-size:12px;color:var(--ink-faint);display:inline-flex;gap:4px;align-items:center}
+.ro .ms{font-size:15px}
+.benefit{background:var(--mint);border-radius:var(--r-card);padding:22px 24px;display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start}
+.benefit .ic{width:48px;height:48px;border-radius:14px;background:#fff;display:grid;place-items:center;color:var(--forest-700)}
+.benefit h3{font-size:19px}
+.benefit p{color:var(--ink-soft);font-size:14.5px;margin-top:4px}
+.benefit ul{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.benefit li{background:#fff;border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700;color:var(--forest-700);display:inline-flex;gap:6px;align-items:center}
+.benefit li .ms{font-size:17px}
+
+/* ===== Landings ===== */
+.land{padding:88px 0}
+.land.dark{background:var(--forest-ink);color:#fff}
+.land-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
+.land h2{font-size:44px;line-height:1.05;letter-spacing:-.03em}
+.land .lead{font-size:18px;color:var(--ink-soft);margin-top:16px;max-width:52ch}
+.land.dark .lead{color:#cfe2d9}
+.land .eyb{display:inline-flex;border-radius:999px;padding:5px 14px;font-size:13px;font-weight:700;margin-bottom:16px}
+.lsteps{padding:0;list-style:none;margin-top:28px;display:flex;flex-direction:column;gap:14px}
+.lsteps li{display:grid;grid-template-columns:40px 1fr;gap:14px;align-items:start}
+.lsteps .n{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-family:var(--font-display);font-weight:800;font-size:18px;background:var(--forest);color:#fff}
+.lsteps b{font-size:17px;display:block}
+.lsteps p{color:var(--ink-soft);font-size:15px;margin-top:2px}
+.land.dark .lsteps p{color:#cfe2d9}
+.land.dark .lsteps .n{background:var(--orange-light);color:var(--forest-ink)}
+.land .fine{font-size:13px;color:var(--ink-faint);margin-top:22px;max-width:60ch}
+.land.dark .fine{color:#a9c6b9}
+.land .ctas{display:flex;gap:12px;margin-top:28px;flex-wrap:wrap}
+.comp{position:relative;padding:26px}
+.comp .card{box-shadow:var(--shadow-float)}
+.float{position:absolute;background:#fff;border-radius:16px;padding:12px 14px;box-shadow:var(--shadow-float);font-size:13px;font-weight:700;display:flex;gap:8px;align-items:center;color:var(--ink)}
+.float .ms{font-size:20px}
+.bgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:28px}
+.bitem{background:rgb(255 255 255/.06);border:1.5px solid rgb(255 255 255/.12);border-radius:var(--r-sm);padding:18px}
+.bitem .ms{color:var(--orange-light);font-size:26px}
+.bitem b{display:block;font-size:16.5px;margin-top:8px}
+.bitem p{font-size:14px;color:#cfe2d9;margin-top:4px}
+.fam-strip{margin-top:40px;background:var(--paper);border:1.5px solid var(--line);border-radius:var(--r-card);padding:22px 24px;display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center}
+.fam-strip .ic{width:48px;height:48px;border-radius:14px;background:var(--peach);color:var(--orange-700);display:grid;place-items:center}
+.fam-strip h3{font-size:19px}
+.fam-strip p{color:var(--ink-soft);font-size:14.5px;margin-top:2px}
+
+/* ===== Responsive (mobile, diseñado a 375 px) ===== */
+@media (max-width:1023px){
+  .cols{grid-template-columns:1fr}
+  .fgrid{grid-template-columns:1fr}
+  .panel{position:static}
+  .land-grid{grid-template-columns:1fr;gap:36px}
+  .shortcuts{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:899px){
+  .app{grid-template-columns:1fr}
+  .side{display:none}
+  .topbar{display:flex;position:sticky;top:0;z-index:40;height:56px;align-items:center;justify-content:space-between;padding:0 16px;background:var(--paper);border-bottom:1.5px solid var(--line)}
+  .topbar .brand{padding:0;font-size:17px}
+  .topbar .ib{width:44px;height:44px;display:grid;place-items:center;border:0;background:none;position:relative}
+  .main{padding:22px 16px 120px}
+  .page-h h1{font-size:28px}
+  .kv{grid-template-columns:1fr 1fr}
+  .how{grid-template-columns:1fr}
+  .term{grid-template-columns:1fr}
+  .term p:not(.eyebrow):not(.amt){grid-column:1;grid-row:auto;margin-top:6px!important}
+  .kpis,.kpis.k5{grid-template-columns:1fr 1fr}
+  .crow{grid-template-columns:1fr 1fr;padding:14px 16px}
+  .crow .who{grid-column:1/-1}
+  .crow .act{grid-column:1/-1}
+  .crow .act .btn{width:100%}
+  .change-h{padding:16px;flex-wrap:wrap}
+  .change-h .why{margin-left:0}
+  .plan{padding:12px 16px}
+  .tbl table{display:none}
+  .tbl .mlist{display:block}
+  .pnav .links{display:none}
+  .pnav-in{padding:0 16px;height:56px}
+  .wrap{padding:0 16px}
+  .fhead h1{font-size:30px}
+  .rate{grid-template-columns:1fr auto;padding:14px 16px}
+  .rate .stc{grid-column:1/-1}
+  .land{padding:56px 0}
+  .land h2{font-size:32px}
+  .land .lead{font-size:16px}
+  .bgrid{grid-template-columns:1fr}
+  .fam-strip{grid-template-columns:1fr}
+  .stu-h{flex-wrap:wrap;padding:16px}
+  .stu-h .chip{margin-left:62px!important}
+  .stu-b{padding:16px}
+  .notif{position:fixed;left:8px;right:8px;top:60px;width:auto}
+  .mk{width:calc(100% - 32px)}
+}
+.tbl .mlist{display:none}
+@media (max-width:640px){
+  .scrim{padding:0;place-items:end stretch}
+  .modal{width:100%;max-height:94vh;border-radius:24px 24px 0 0}
+  .modal-h{padding:18px 16px 6px}
+  .modal-b{padding:8px 16px}
+  .modal-f{padding:12px 16px 16px;position:sticky;bottom:0}
+  .modal-f .btn{flex:1 1 100%}
+  .modal-f .btn-ghost,.modal-f .btn-outline{flex:0 0 auto}
+  .sees{grid-template-columns:1fr}
+  .drawer-h,.drawer-b,.drawer-f{padding-left:16px;padding-right:16px}
+  .drawer-f .btn{flex:1 1 0}
+  .drawer-f .btn-outline,.drawer-f .btn-ghost{flex:0 0 auto;padding:0 16px}
+  .drawer-f .fine{font-size:12px}
+  .reply-h{flex-wrap:wrap;align-items:flex-start}
+  .reply-h>div:nth-child(2){flex:1;min-width:0}
+  .reply-h h3{font-size:16.5px}
+  .reply-h .badge{display:none}
+  .ctx{grid-template-columns:1fr 1fr}
+  .shortcuts{grid-template-columns:1fr 1fr}
+  .steps{flex-direction:column;gap:10px}
+  .steps li{padding:0 0 0 32px;font-size:14px;min-height:22px;display:flex;align-items:center}
+  .steps li::before{top:1px}
+  .steps li::after{left:9px;top:24px;width:2px;height:12px;right:auto}
+  .modal-f .btn-ghost{flex:0 0 auto}
+  .modal-f .btn-primary{flex:1 1 0}
+  .reply-h,.reply-b,.reply-foot{padding-left:16px;padding-right:16px}
+  .open-h,.open-b{padding-left:16px;padding-right:16px}
+  .qc{padding:20px 16px}
+  .stay{padding:18px 16px}
+  .open-foot .btn{flex:1 1 auto}
+  .toast{left:16px;right:16px;bottom:16px;max-width:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<!-- =========================================================
+     1 · MI RESIDENCIA (estudiante) — /students/residency
+     ========================================================= -->
+<section class="screen" data-screen="mi">
+<div class="app">
+  <aside class="side" aria-label="Navegación del estudiante">
+    <a class="brand" href="#"><span class="logo-mark">E</span>EstuRed</a>
+    <a class="nav" href="#"><span class="ms">home</span>Inicio</a>
+    <a class="nav" href="#" aria-current="page"><span class="ms">apartment</span>Mi residencia</a>
+    <a class="nav" href="#" data-st="open replied expiring cancel cancelblocked"><span class="ms">search</span>Buscar residencias</a>
+    <a class="nav" href="#"><span class="ms">sync</span>Renovaciones</a>
+    <a class="nav" href="#"><span class="ms">description</span>Mis solicitudes</a>
+    <a class="nav" href="#"><span class="ms">person</span>Mi perfil</a>
+    <a class="nav" href="#"><span class="ms">favorite</span>Favoritos</a>
+    <a class="nav" href="#"><span class="ms">hourglass_top</span>Lista de espera</a>
+    <a class="nav" href="#"><span class="ms">support_agent</span>Soporte</a>
+  </aside>
+  <div>
+    <div class="topbar"><button class="ib" aria-label="Abrir menú"><span class="ms">menu</span></button><a class="brand" href="#"><span class="logo-mark">E</span>EstuRed</a><button class="ib" aria-label="Notificaciones"><span class="ms">notifications</span></button></div>
+    <main class="main">
+
+      <!-- Cargando -->
+      <div data-st="loading" aria-busy="true" aria-live="polite">
+        <span class="sr-only">Cargando tu residencia…</span>
+        <div class="skel" style="height:36px;width:260px"></div>
+        <div class="skel" style="height:18px;width:320px;margin-top:10px"></div>
+        <div class="cols"><div class="stack"><div class="skel" style="height:190px;border-radius:22px"></div><div class="skel" style="height:260px;border-radius:22px"></div></div><div class="stack"><div class="skel" style="height:140px;border-radius:22px"></div></div></div>
+      </div>
+
+      <!-- Sin estadía -->
+      <div data-st="nostay">
+        <h1 style="font-size:34px">Mi estadía</h1>
+        <div class="card empty" style="margin-top:24px">
+          <div class="ic"><span class="ms">apartment</span></div>
+          <h3>Todavía no tenés una residencia activa en EstuRed</h3>
+          <p>Cuando tengas una reserva confirmada o tu residencia te sume como residente, la vas a ver acá. Desde acá también vas a poder avisar si querés cambiarte.</p>
+          <a class="btn btn-primary btn-md" href="#" style="margin-top:16px">Buscar residencias</a>
+        </div>
+      </div>
+
+      <div data-st="off renewlock modal sending error open replied cancel cancelblocked expiring resolved closed">
+      <div class="page-h">
+        <div>
+          <h1>Mi residencia</h1>
+          <p class="loc"><span class="ms">location_on</span>Residencia Río de la Plata · Recoleta, CABA</p>
+        </div>
+        <div class="chips">
+          <span class="chip chip-ok"><span class="dot"></span>Alojada</span>
+          <span class="chip chip-warn" data-st="open replied expiring cancel cancelblocked"><span class="ms" style="font-size:16px">swap_horiz</span>Buscando un cambio</span>
+        </div>
+      </div>
+
+      <div class="cols">
+        <div class="stack">
+
+          <!-- Resuelto -->
+          <div class="notice n-ok" data-st="resolved" role="status">
+            <span class="ms fill">check_circle</span>
+            <div><b>Confirmaste una reserva en otra residencia desde el 01/12/2026.</b>
+              <p style="margin-top:4px">Tu aviso de cambio quedó cerrado. Tus listas de espera se anularon y esas residencias quedaron en tus <a href="#">favoritos</a>. Residencia Río de la Plata ya sabe la fecha de tu ingreso y es quien registra tu salida: tené a mano lo que te informó sobre la salida.</p>
+              <div class="acts"><a class="btn btn-outline btn-sm" href="#">Ver lo que te informó la residencia</a><a class="btn btn-ghost btn-sm" href="#">Ir a mi nueva reserva</a></div>
+            </div>
+          </div>
+
+          <!-- Por vencer -->
+          <div class="notice n-warn" data-st="expiring" role="status">
+            <span class="ms">schedule</span>
+            <div><b>Tu aviso de cambio vence en 10 días. ¿Seguís buscando?</b>
+              <p style="margin-top:4px">Si no nos confirmás, el 21/01/2027 se cierra solo y vuelve a regir el límite de fechas de tu reserva.</p>
+              <div class="acts"><button class="btn btn-primary btn-sm" data-go="open">Seguir buscando</button><button class="btn btn-ghost btn-sm" data-go="cancel">Cancelar aviso</button></div>
+            </div>
+          </div>
+
+          <!-- Estadía actual (existente) -->
+          <div class="card stay">
+            <p class="eyebrow">Tu estadía</p>
+            <dl class="kv">
+              <div><dt>Habitación</dt><dd>Individual</dd></div>
+              <div><dt>Valor mensual</dt><dd>USD 350</dd></div>
+              <div><dt>Ingreso</dt><dd>20/07/2026</dd></div>
+              <div><dt>Renovada hasta</dt><dd>20/07/2027</dd></div>
+            </dl>
+            <p class="left">Quedan ~9 meses de tu estadía actual</p>
+            <div class="acts">
+              <a class="btn btn-outline btn-sm" href="#"><span class="ms">receipt_long</span>Comprobante de reserva</a>
+              <a class="btn btn-outline btn-sm" href="#"><span class="ms">description</span>Solicitudes relacionadas</a>
+            </div>
+          </div>
+
+          <!-- ===== Bloque Quiero cambiar: SIN AVISO ===== -->
+          <article class="card qc" id="quiero-cambiar" data-st="off renewlock modal sending error closed" aria-labelledby="qc-t">
+            <p class="eyebrow">¿Pensás en cambiarte?</p>
+            <h2 id="qc-t">Si querés cambiar de residencia, avisá con tiempo</h2>
+            <p class="lead">Con “Quiero cambiar” tu residencia se entera antes, te cuenta de antemano si hay costos para salir y vos podés buscar otro lugar aunque tu contrato siga vigente.</p>
+            <div class="notice n-neutral" data-st="closed" style="margin-top:14px"><span class="ms">history</span><div>Cancelaste tu aviso de cambio el 02/11/2026. Si volvés a buscar, podés avisar de nuevo.</div></div>
+            <ul class="how">
+              <li><div class="ic" style="background:var(--orange-tint);color:var(--orange-700)"><span class="ms">campaign</span></div><b>Tu residencia se entera</b><p>Le avisamos a Río de la Plata que estás buscando y desde cuándo te gustaría mudarte. No ve a qué residencias escribís.</p></li>
+              <li><div class="ic" style="background:var(--forest-tint);color:var(--forest-700)"><span class="ms">travel_explore</span></div><b>Buscás sin trabas de fechas</b><p>Podés enviar solicitudes y sumarte a listas de espera aunque se superpongan con tu estadía actual.</p></li>
+              <li><div class="ic" style="background:var(--sky);color:var(--sky-fg)"><span class="ms">request_quote</span></div><b>Sabés los costos antes</b><p>Tu residencia te puede informar por escrito costos y condiciones de salida, como el depósito si no cumplís la estadía mínima.</p></li>
+            </ul>
+            <div class="qc-foot">
+              <small>No cancela tu reserva ni libera tu lugar. Lo cancelás cuando quieras.</small>
+              <button class="btn btn-primary btn-md" data-go="modal" data-st="off modal sending error" aria-haspopup="dialog"><span class="ms">swap_horiz</span>Quiero cambiar</button>
+              <button class="btn btn-primary btn-md" data-go="modal" data-st="closed" aria-haspopup="dialog"><span class="ms">swap_horiz</span>Volver a avisar</button>
+            </div>
+            <div class="disabled-note" data-st="renewlock" style="margin-top:14px"><span class="ms">sync_lock</span><div><b>Primero resolvé tu renovación.</b> Aceptaste una renovación que está en pago. Cuando se confirme o se cierre, vas a poder avisar que querés cambiar. <a class="link" href="#">Ver renovación</a></div></div>
+            <div class="faq">
+              <details><summary>¿Pierdo mi lugar si aviso?</summary><p>No. Tu reserva y tu estadía siguen igual mientras buscás. Solo terminan cuando confirmás otra reserva y tu residencia registra tu salida.</p></details>
+              <details><summary>¿Qué pasa con lo que ya pagué?</summary><p>Se rige por las condiciones de tu reserva. Tu residencia te puede informar por escrito si hay costos de salida. EstuRed no fija ni cobra esos costos. <span class="pend"><span class="ms">help</span>Decisión pendiente: fee y depósito (GAPS DR3 #2)</span></p></details>
+              <details><summary>¿Las otras residencias saben que vivo en una?</summary><p>No, salvo que vos lo actives al avisar. Tu residencia actual tampoco ve a cuáles escribís.</p></details>
+            </div>
+          </article>
+
+          <!-- ===== Bloque Quiero cambiar: AVISO ABIERTO ===== -->
+          <article class="card open" data-st="open replied expiring cancel cancelblocked" aria-labelledby="open-t">
+            <div class="open-h">
+              <span class="chip chip-warn"><span class="dot"></span>Aviso abierto</span>
+              <h2 id="open-t">Estás buscando un cambio</h2>
+              <p>Le avisaste a Residencia Río de la Plata el 23/10/2026 · Salida estimada: <b>15/12/2026</b>. Ya podés solicitar y sumarte a listas de espera aunque las fechas se superpongan con tu estadía.</p>
+            </div>
+            <div class="open-b">
+              <ol class="steps" aria-label="Avance de tu cambio">
+                <li class="done">Avisaste a tu residencia</li>
+                <li class="now" data-st="open">Tu residencia responde</li>
+                <li class="done" data-st="replied expiring cancel cancelblocked">Tu residencia respondió</li>
+                <li class="now" data-st="replied expiring cancel cancelblocked">Buscás y solicitás</li>
+                <li data-st="open">Buscás y solicitás</li>
+                <li>Confirmás tu nuevo lugar</li>
+              </ol>
+              <div class="shortcuts">
+                <a class="sc hl" href="#" data-go-s="ficha" data-go="open"><span class="ms">search</span><b>Buscar residencias</b><span class="s">Solicitud sujeta a confirmación</span></a>
+                <a class="sc" href="#"><span class="ms">description</span><b>Mis solicitudes</b><span class="s">1 de 2 activas por tu cambio</span></a>
+                <a class="sc" href="#"><span class="ms">hourglass_top</span><b>Listas de espera</b><span class="s">1 por tu cambio · te avisamos si se libera lugar</span></a>
+                <a class="sc" href="#mensaje" data-st="open"><span class="ms">mark_email_unread</span><b>Mensaje de tu residencia</b><span class="s">Todavía no respondió</span></a>
+                <a class="sc alert" href="#mensaje" data-st="replied expiring cancel cancelblocked"><span class="ms fill">mark_email_unread</span><b>Mensaje de tu residencia</b><span class="s">Respondió el 24/10 · costos y condiciones</span></a>
+              </div>
+              <div class="open-foot">
+                <span class="ro"><span class="ms">visibility_off</span>Las residencias que consultás no ven dónde vivís.</span>
+                <span class="sp"></span>
+                <button class="btn btn-ghost btn-sm"><span class="ms">edit_calendar</span>Editar aviso</button>
+                <button class="btn btn-danger-ghost btn-sm" data-go="cancel" aria-haspopup="dialog">Cancelar aviso</button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Sin respuesta todavía -->
+          <div class="notice n-neutral" id="mensaje" data-st="open"><span class="ms">hourglass_empty</span><div><b>Tu residencia todavía no respondió.</b> Cuando te cuente costos y condiciones de salida, te avisamos y lo ves acá. Mientras tanto, podés seguir buscando.</div></div>
+
+          <!-- ===== Respuesta de la residencia ===== -->
+          <article class="card reply" data-st="replied expiring cancel cancelblocked resolved" aria-labelledby="reply-t">
+            <div class="reply-h">
+              <div class="avatar">RP</div>
+              <div><h3 id="reply-t">Lo que te informó Residencia Río de la Plata</h3><small>Respuesta del 24/10/2026 · Administración</small></div>
+              <span class="badge b-info" style="margin-left:auto">Informativo</span>
+            </div>
+            <div class="reply-b">
+              <p class="quote">Hola Lucía, gracias por avisarnos con tiempo. Te contamos cómo sería tu salida para que lo tengas en cuenta al decidir. Si lo que te pesa es la habitación, contanos: podemos ver si hay otra opción dentro de la residencia.</p>
+              <div class="terms">
+                <div class="term cost"><p class="eyebrow"><span class="ms">payments</span>Costos de salida</p><p class="amt">USD 350 <small>monto de referencia</small></p><p>Si salís antes del 20/01/2027 (estadía mínima de 6 meses), el depósito no se devuelve.</p></div>
+                <div class="term"><p class="eyebrow"><span class="ms">gavel</span>Condiciones</p><p>Preaviso de 30 días con la fecha exacta de salida. El mes en curso se paga completo: no hay prorrateo.</p></div>
+                <div class="term"><p class="eyebrow"><span class="ms">key</span>Detalles de la salida</p><p>Salida prevista: 15/12/2026. Entrega de la habitación con administración, de lunes a viernes de 9 a 18, con revisión de inventario.</p></div>
+              </div>
+            </div>
+            <div class="reply-foot">
+              <p>Esta información la carga tu residencia. No modifica tu contrato; ante dudas, escribí a Soporte.</p>
+              <a class="btn btn-outline btn-sm" href="#">Ver condiciones de mi reserva</a>
+              <a class="btn btn-ghost btn-sm" href="#"><span class="ms">support_agent</span>Escribir a Soporte</a>
+            </div>
+          </article>
+
+          <!-- Contenido existente que sigue debajo -->
+          <div class="card" style="padding:20px 24px" data-st="off renewlock modal sending error open replied expiring closed cancel cancelblocked">
+            <h3 style="font-size:20px">Sobre tu residencia</h3>
+            <p style="color:var(--ink-soft);margin-top:8px;font-size:15px">Contenido actual (descripción, servicios, áreas comunes, reglas y comunidad) sin cambios.</p>
+          </div>
+        </div>
+
+        <!-- Columna derecha (existente) -->
+        <aside class="stack">
+          <div class="card side-card"><div class="t"><p class="eyebrow">Documentación de tu estadía</p><span class="ms">folder_shared</span></div><p><b style="color:var(--ink)">0 de 2 documentos cargados</b><br>DNI/pasaporte y comprobante de estudio.</p><a class="link" style="display:inline-block;margin-top:8px;font-size:14px" href="#">Completar documentación</a></div>
+          <div class="card side-card" data-st="open replied expiring cancel cancelblocked"><div class="t"><p class="eyebrow">Tu familiar vinculado</p><span class="ms">diversity_1</span></div><p>Martín ve tu aviso y la respuesta de tu residencia, y puede proponerte residencias. La decisión es tuya.</p></div>
+          <div class="card side-card"><div class="t"><p class="eyebrow">Contacto y soporte</p><span class="ms">support_agent</span></div><p>Para cualquier consulta sobre tu estadía o tu cambio, escribinos a Soporte.</p><a class="btn btn-outline btn-sm" style="margin-top:12px" href="#">Ir a Soporte</a></div>
+        </aside>
+      </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ===== Modal: confirmar aviso ===== -->
+<div class="scrim" data-st="modal sending error">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="m-t" aria-describedby="m-d">
+    <div class="modal-h">
+      <div><h2 id="m-t">Avisale a tu residencia que buscás un cambio</h2><p id="m-d">Residencia Río de la Plata va a recibir este aviso. Tu reserva, tu lugar y tus pagos siguen igual.</p></div>
+      <button class="x" aria-label="Cerrar" data-go="off"><span class="ms">close</span></button>
+    </div>
+    <div class="modal-b">
+      <div class="notice n-danger" data-st="error" role="alert"><span class="ms">error</span><div><b>No pudimos avisar a tu residencia.</b> Tu aviso no se creó y no cambió nada. Probá de nuevo en unos minutos; si sigue pasando, escribinos a Soporte.</div></div>
+      <div class="field">
+        <label class="l" for="m-date">¿Cuándo te gustaría mudarte? <span class="opt">(opcional)</span></label>
+        <input class="input" id="m-date" type="date" value="2026-12-15" style="max-width:240px" aria-describedby="m-date-h">
+        <p class="help" id="m-date-h">Es una estimación para que la residencia se organice. La fecha exacta la acuerdan entre ustedes.</p>
+      </div>
+      <div class="field">
+        <label class="l" for="m-msg">Mensaje para tu residencia <span class="opt">(opcional)</span></label>
+        <textarea class="textarea" id="m-msg" maxlength="500" aria-describedby="m-msg-h" placeholder="Por ejemplo: “Me cambio de facultad y busco algo más cerca de Ciudad Universitaria.”"></textarea>
+        <p class="help" id="m-msg-h">Tu residencia lo lee. Contar el motivo la ayuda a entender y, si puede, a ofrecerte otra opción.</p>
+      </div>
+      <div class="sees">
+        <div class="y"><b>Tu residencia ve</b><ul><li><span class="ms">check</span>Que estás buscando un cambio</li><li><span class="ms">check</span>Tu fecha estimada de salida</li><li><span class="ms">check</span>Tu mensaje, si escribís uno</li></ul></div>
+        <div class="n"><b>Tu residencia no ve</b><ul><li><span class="ms">close</span>A qué residencias escribís</li><li><span class="ms">close</span>Tus solicitudes ni tus listas de espera</li></ul></div>
+      </div>
+      <label class="switch-row" for="m-share">
+        <input type="checkbox" class="switch" id="m-share" role="switch" aria-describedby="m-share-h">
+        <span><b>Avisarles a las residencias que consulto que ya tengo alojamiento</b><p id="m-share-h">Apagado: ven tu solicitud como cualquier otra. Encendido: ven “Ya tiene alojamiento, busca cambiar”, sin el nombre de tu residencia.</p></span>
+      </label>
+      <p class="help" style="margin-top:12px;display:flex;gap:6px;align-items:flex-start"><span class="ms" style="font-size:17px">diversity_1</span>Martín, tu familiar vinculado, también va a ver tu aviso y la respuesta de la residencia.</p>
+      <label class="check"><input type="checkbox" id="m-ok" aria-describedby="m-ok-h"><span>Entiendo que avisar <b>no cancela mi reserva</b>, no me asegura lugar en otra residencia y que los costos de salida los informa mi residencia, no EstuRed.</span></label>
+      <p class="help" id="m-ok-h" style="margin-left:30px">Marcalo para poder avisar.</p>
+    </div>
+    <div class="modal-f">
+      <button class="btn btn-ghost btn-md" data-go="off">Volver</button>
+      <button class="btn btn-primary btn-md" id="m-send" data-go="open" data-st="modal error" aria-disabled="true">Avisar a mi residencia</button>
+      <button class="btn btn-primary btn-md" aria-disabled="true" data-st="sending"><span class="spinner" aria-hidden="true"></span>Avisando a tu residencia…</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Modal: cancelar aviso ===== -->
+<div class="scrim" data-st="cancel cancelblocked">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="c-t">
+    <div class="modal-h">
+      <div><h2 id="c-t" data-st="cancel">¿Cancelás tu aviso de cambio?</h2><h2 data-st="cancelblocked">Todavía no podés cancelar tu aviso</h2>
+        <p data-st="cancel">Le avisamos a Residencia Río de la Plata que dejaste de buscar. Tu reserva sigue igual y vuelve el límite de fechas: solo vas a poder solicitar para después del 20/07/2027.</p>
+        <p data-st="cancelblocked">Tenés una solicitud en etapa de pago a la residencia que se envió por tu cambio. Cerrala primero para no quedar con dos reservas que se superponen.</p></div>
+      <button class="x" aria-label="Cerrar" data-go="replied"><span class="ms">close</span></button>
+    </div>
+    <div class="modal-b">
+      <p style="font-weight:700;font-size:14.5px" data-st="cancel">Esto se cierra al cancelar:</p>
+      <ul class="list-x" data-st="cancel">
+        <li><span class="ms">description</span><div>Residencia Norte · Individual<small>Solicitud enviada · ingreso 01/12/2026</small></div><span class="badge b-neutral">Se cancela</span></li>
+        <li><span class="ms">hourglass_top</span><div>Casa Almagro · Doble<small>Lista de espera · por tu cambio de residencia</small></div><span class="badge b-neutral">Salís de la lista</span></li>
+      </ul>
+      <ul class="list-x" data-st="cancelblocked">
+        <li><span class="ms">payments</span><div>Residencia Norte · Individual<small>Pago a la residencia pendiente · ingreso 01/12/2026</small></div><a class="btn btn-outline btn-sm" href="#" style="margin-left:auto">Ver solicitud</a></li>
+      </ul>
+      <p class="help" style="margin-top:12px">Si más adelante volvés a buscar, podés avisar de nuevo. <span class="pend"><span class="ms">help</span>Supuesto a confirmar (GAPS DR3 #10)</span></p>
+    </div>
+    <div class="modal-f">
+      <button class="btn btn-outline btn-md" data-go="replied" data-st="cancel">Seguir buscando</button>
+      <button class="btn btn-primary btn-md" data-go="closed" data-st="cancel" style="background:var(--danger-fg)">Cancelar aviso y cerrar 2</button>
+      <button class="btn btn-primary btn-md" data-go="replied" data-st="cancelblocked">Entendido</button>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- =========================================================
+     2 · FICHA PÚBLICA — /residencias/[slug] (estudiante alojada)
+     ========================================================= -->
+<section class="screen" data-screen="ficha" hidden>
+  <header class="pnav"><div class="pnav-in"><a class="brand" href="#" style="padding:0"><span class="logo-mark">E</span>EstuRed</a><nav class="links"><a href="#">Buscar residencias</a><a href="#">Para estudiantes</a><a href="#">Para residencias</a></nav><a class="btn btn-primary btn-sm" href="#">Mi panel</a></div></header>
+  <div class="wrap">
+    <p class="crumbs">Residencias › Palermo › Residencia Norte</p>
+    <div class="fgrid">
+      <div>
+        <div class="fhead">
+          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><h1>Residencia Norte</h1><span class="trust"><span class="ms fill">verified</span>Residencia Verificada</span></div>
+          <p class="loc"><span class="ms" style="color:var(--orange-700)">location_on</span>Av. Santa Fe 4120, Palermo, CABA</p>
+        </div>
+        <h2 style="font-size:24px;margin-top:32px">Tarifas y condiciones</h2>
+        <p style="color:var(--ink-soft);font-size:14px;margin-top:4px">Precios mensuales por tipo de habitación. La disponibilidad la informa la residencia por tipo.</p>
+        <div class="card rates">
+          <div class="rate"><b>Individual</b><span class="p">USD 300 /mes</span><span class="stc"><span class="status st-info">Disponibilidad informada</span></span></div>
+          <div class="rate"><b>Doble</b><span class="p">USD 240 /mes</span><span class="stc"><span class="status st-info">Disponibilidad informada</span></span></div>
+          <div class="rate"><b>Triple</b><span class="p">USD 220 /mes</span><span class="stc"><span class="status st-warn">Triple: completa</span></span></div>
+        </div>
+        <p style="color:var(--ink-faint);font-size:14px;margin-top:24px">(Resto de la ficha sin cambios: comunidad, la residencia, ubicación, preguntas.)</p>
+      </div>
+
+      <aside class="card panel" aria-label="Solicitar lugar">
+        <p class="eyebrow">Desde</p>
+        <p class="price">USD 220 <small>/mes</small></p>
+        <p style="font-weight:700;font-size:14px;margin-top:14px">Elegí tu tipo de habitación</p>
+        <label class="opt-row sel"><input type="radio" name="t" checked><span><b>Individual</b><span class="s">Disponibilidad informada</span></span><span class="pr">USD 300</span></label>
+        <label class="opt-row"><input type="radio" name="t"><span><b>Doble</b><span class="s">Disponibilidad informada</span></span><span class="pr">USD 240</span></label>
+        <div style="margin-top:16px">
+          <!-- Sin aviso: bloqueo por superposición + atajo -->
+          <div class="notice n-info" data-st="blocked" style="font-size:13px"><span class="ms">event_available</span><div>Ya tenés una reserva hasta el 20/07/2027. Podés solicitar para fechas posteriores.<p style="margin-top:6px"><b>¿Querés mudarte antes?</b> <a class="link" href="#" data-go-s="mi" data-go="off" style="color:inherit">Quiero cambiar de residencia</a></p></div></div>
+          <!-- Aviso abierto -->
+          <div class="notice n-warn" data-st="open sheet" style="font-size:13px"><span class="ms">swap_horiz</span><div><b>Estás buscando cambiar de residencia;</b> tu residencia actual fue avisada. Podés solicitar para cualquier fecha, aunque se superponga con tu estadía.</div></div>
+          <!-- Tope de 2 solicitudes -->
+          <div class="notice n-neutral" data-st="limit" style="font-size:13px"><span class="ms">block</span><div><b>Ya tenés 2 solicitudes activas.</b> Para enviar otra, esperá una respuesta o cancelá una en <a class="link" href="#" style="color:inherit">Mis solicitudes</a>.</div></div>
+          <button class="btn btn-primary btn-lg btn-block" style="margin-top:12px" data-go="sheet" data-st="blocked open sheet">Solicitar lugar en Individual</button>
+          <button class="btn btn-primary btn-lg btn-block" style="margin-top:12px" disabled data-st="limit">Solicitar lugar en Individual</button>
+        </div>
+        <p class="fine">Enviar la solicitud es gratis. La residencia la revisa y responde en hasta 48 horas. Toda reserva está sujeta a confirmación.</p>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Hoja de solicitud (RequestSheet) con fecha superpuesta -->
+  <div data-st="sheet">
+    <div class="drawer-scrim" data-go="open"></div>
+    <div class="drawer" role="dialog" aria-modal="true" aria-labelledby="sh-t">
+      <div class="drawer-h"><div><h2 id="sh-t">Solicitar lugar en Individual</h2><p>Residencia Norte · USD 300 /mes</p></div><button class="x" aria-label="Cerrar" data-go="open" style="margin-left:auto;width:44px;height:44px;border-radius:50%;border:0;background:var(--cream-2);display:grid;place-items:center;cursor:pointer"><span class="ms">close</span></button></div>
+      <div class="drawer-b">
+        <div class="field" style="margin-top:0">
+          <label class="l" for="sh-m">Mes de ingreso</label>
+          <select class="select" id="sh-m" aria-describedby="sh-ov"><option>Diciembre 2026</option><option>Enero 2027</option></select>
+          <div class="notice n-warn" id="sh-ov" style="margin-top:10px;font-size:13.5px"><span class="ms">swap_horiz</span><div>Esta fecha se superpone con tu estadía actual (hasta el 20/07/2027). Podés enviarla porque tenés abierto tu aviso de cambio. Si se confirma, coordiná tu salida con tu residencia: <a class="link" href="#" style="color:inherit">ver lo que te informó</a>.</div></div>
+        </div>
+        <div class="field"><label class="l" for="sh-d">Cantidad de meses</label><select class="select" id="sh-d"><option>6 meses (mínimo de la residencia)</option></select><p class="help">La fecha exacta de ingreso se acuerda con la residencia una vez hecha la reserva.</p></div>
+        <div class="sum"><div><span>Tarifa mensual</span><b>USD 300</b></div><div><span>Pago inicial a la residencia</span><b>USD 300</b></div><div><span>Solicitudes activas</span><b>1 de 2</b></div></div>
+        <p class="help" style="margin-top:12px;display:flex;gap:6px"><span class="ms" style="font-size:17px">visibility_off</span>Residencia Norte no ve dónde vivís hoy. Lo podés cambiar en tu aviso, en Mi residencia.</p>
+      </div>
+      <div class="drawer-f"><p class="fine">Solicitud sujeta a confirmación de la residencia. Enviarla no te asegura el lugar.</p><button class="btn btn-ghost btn-md" data-go="open">Volver</button><button class="btn btn-primary btn-md" style="flex:1">Enviar solicitud de reserva</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     3 · RESIDENCIA — /residence/[id]/residents
+     ========================================================= -->
+<section class="screen" data-screen="res" hidden>
+<div class="app">
+  <aside class="side" aria-label="Navegación de la residencia">
+    <a class="brand" href="#"><span class="logo-mark">E</span>EstuRed</a>
+    <p class="res-name">Residencia Río de la Plata</p>
+    <a class="nav" href="#"><span class="ms">dashboard</span>Panel</a>
+    <a class="nav" href="#"><span class="ms">inbox</span>Solicitudes</a>
+    <a class="nav" href="#"><span class="ms">meeting_room</span>Habitaciones</a>
+    <a class="nav" href="#"><span class="ms">bed</span>Disponibilidad</a>
+    <a class="nav" href="#"><span class="ms">sync_alt</span>Renovaciones</a>
+    <a class="nav" href="#" aria-current="page"><span class="ms">groups</span>Residentes<span class="count" data-st="list notif respond preview error sent resolved" aria-label="1 aviso sin responder">1</span></a>
+    <a class="nav" href="#"><span class="ms">hourglass_top</span>Lista de espera</a>
+    <a class="nav" href="#"><span class="ms">forum</span>Preguntas</a>
+    <a class="nav" href="#"><span class="ms">support_agent</span>Soporte</a>
+  </aside>
+  <div>
+    <div class="topbar"><button class="ib" aria-label="Abrir menú"><span class="ms">menu</span></button><a class="brand" href="#"><span class="logo-mark">E</span>EstuRed</a><button class="ib" aria-label="Notificaciones, 1 nueva" data-go="notif"><span class="ms">notifications</span></button></div>
+    <main class="main">
+      <div class="page-h">
+        <div><h1>Residentes</h1><p style="color:var(--ink-soft);margin-top:4px">Gestioná ingresos, estadías y renovaciones en un solo lugar.</p></div>
+        <div style="display:flex;gap:10px;align-items:center;position:relative">
+          <button class="bell" aria-label="Notificaciones, 1 nueva" data-go="notif"><span class="ms">notifications</span><span class="num">1</span></button>
+          <button class="btn btn-primary btn-sm"><span class="ms">person_add</span>Agregar residente</button>
+          <div class="card notif" data-st="notif" role="dialog" aria-label="Notificaciones">
+            <ul>
+              <li class="unread"><span class="ms fill">swap_horiz</span><div><b>Lucía M. avisó que busca cambiar de residencia.</b> Salida estimada: 15/12/2026. Respondele con los costos y condiciones de salida.<small>Hace 2 horas</small><button class="btn btn-primary btn-sm" style="margin-top:8px" data-go="respond">Responder</button></div></li>
+              <li><span class="ms">sync</span><div>Tomás R. vio tu respuesta sobre su salida.<small>Ayer</small></div></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="kpis k5" data-st="list notif respond preview error sent resolved empty">
+        <div class="card kpi"><p>Residentes activos</p><b>30</b></div>
+        <div class="card kpi"><p>Próximos ingresos</p><b>2</b></div>
+        <div class="card kpi"><p>Salidas próximas</p><b>1</b></div>
+        <div class="card kpi hl" data-st="list notif respond preview error sent resolved"><p>Buscan cambiar</p><b>2</b></div>
+        <div class="card kpi" data-st="empty"><p>Buscan cambiar</p><b>0</b></div>
+        <div class="card kpi"><p>Renovación en ventana</p><b>1</b></div>
+      </div>
+      <div class="kpis" data-st="loading" aria-busy="true"><div class="skel" style="height:92px;border-radius:22px"></div><div class="skel" style="height:92px;border-radius:22px"></div><div class="skel" style="height:92px;border-radius:22px"></div><div class="skel" style="height:92px;border-radius:22px"></div></div>
+
+      <!-- ===== Sección: residentes que buscan cambiar ===== -->
+      <section class="card change-sec" aria-labelledby="ch-t" data-st="list notif respond preview error sent resolved loading">
+        <div class="change-h">
+          <div class="ic"><span class="ms">swap_horiz</span></div>
+          <div><h2 id="ch-t">2 residentes buscan cambiar</h2><p>Te avisaron con tiempo que están buscando otro lugar. Respondé con los costos, las condiciones y los detalles de la salida: así deciden con información clara y vos planificás la plaza.</p></div>
+          <button class="link why" style="font-size:14px">¿Cómo funciona?</button>
+        </div>
+        <div data-st="loading" style="padding:16px 22px"><div class="skel" style="height:56px"></div><div class="skel" style="height:56px;margin-top:10px"></div></div>
+        <div data-st="list notif respond preview error sent resolved">
+          <div class="crow">
+            <div class="who"><span class="ini" style="background:var(--orange-tint);color:var(--orange-700)">L</span><div><b>Lucía M. 🇦🇷</b><small>Individual · Habitación 1</small></div></div>
+            <div class="cell"><small>Avisó</small><b>23/10/2026</b><span class="sub"> · hace 2 h</span></div>
+            <div class="cell"><small>Salida estimada</small><b>15/12/2026</b><span class="sub" style="display:block">Contrato hasta 20/07/2027</span></div>
+            <div class="cell"><span class="badge b-amber" data-st="list notif respond preview error"><span class="ms" style="font-size:15px">schedule</span>Sin responder</span><span class="badge b-sage" data-st="sent resolved"><span class="ms" style="font-size:15px">check</span>Respondiste hoy</span></div>
+            <div class="act"><button class="btn btn-primary btn-sm" data-go="respond" data-st="list notif respond preview error">Responder</button><button class="btn btn-outline btn-sm" data-go="respond" data-st="sent resolved">Editar respuesta</button></div>
+          </div>
+          <div class="crow" data-st="list notif respond preview error sent">
+            <div class="who"><span class="ini" style="background:var(--sky);color:var(--sky-fg)">T</span><div><b>Tomás R. 🇺🇸</b><small>Doble · Habitación 2 - B</small></div></div>
+            <div class="cell"><small>Avisó</small><b>18/10/2026</b></div>
+            <div class="cell"><small>Salida estimada</small><b>28/02/2027</b><span class="sub" style="display:block">Contrato hasta 15/03/2027</span></div>
+            <div class="cell"><span class="badge b-sage"><span class="ms" style="font-size:15px">done_all</span>Respondida · vista</span></div>
+            <div class="act"><button class="btn btn-outline btn-sm">Ver respuesta</button></div>
+          </div>
+          <div class="crow resolved" data-st="resolved">
+            <div class="who"><span class="ini" style="background:var(--cream-2);color:var(--ink-soft)">T</span><div><b>Tomás R. 🇺🇸</b><small>Doble · Habitación 2 - B</small></div></div>
+            <div class="cell" style="grid-column:span 2"><small>Confirmó un nuevo alojamiento</small><b>Ingresa allí el 01/03/2027</b><span class="sub" style="display:block">Contrato con vos hasta 15/03/2027</span></div>
+            <div class="cell"><span class="badge b-neutral">Aviso cerrado</span></div>
+            <div class="act"><button class="btn btn-primary btn-sm">Registrar salida</button></div>
+          </div>
+          <div class="plan"><span class="ms">event_upcoming</span><span>Si se van en las fechas estimadas, se libera <b>1 Individual</b> desde diciembre y <b>1 Doble</b> desde marzo.</span><a class="link" href="#" style="margin-left:auto">Revisar disponibilidad</a></div>
+        </div>
+      </section>
+
+      <div class="card toolbar" data-st="list notif respond preview error sent resolved empty">
+        <div class="search"><span class="ms">search</span><input class="input" type="search" placeholder="Buscar por nombre, email o habitación…" aria-label="Buscar residentes"></div>
+        <div class="pills" role="group" aria-label="Filtrar residentes">
+          <button class="pill" data-st="list notif respond preview error sent resolved">Todos</button>
+          <button class="pill" data-st="empty">Todos</button>
+          <button class="pill">Activos</button><button class="pill">Por ingresar</button><button class="pill">Por salir</button>
+          <button class="pill" data-st="list notif respond preview error sent resolved" aria-pressed="false">Buscan cambiar <span class="n">2</span></button>
+          <button class="pill on" data-st="empty" aria-pressed="true">Buscan cambiar</button>
+          <button class="pill">Pendientes</button>
+        </div>
+      </div>
+
+      <!-- Vacío con filtro "Buscan cambiar" -->
+      <div class="card empty" data-st="empty" style="margin-top:16px">
+        <div class="ic"><span class="ms">swap_horiz</span></div>
+        <h3>Nadie está buscando cambiar</h3>
+        <p>Cuando un residente avise que busca otro lugar, lo vas a ver acá y te va a llegar una notificación con su fecha estimada de salida. Así te enterás con tiempo, no el día que se va.</p>
+      </div>
+
+      <div class="card tbl" data-st="list notif respond preview error sent resolved">
+        <table class="res">
+          <thead><tr><th>Residente</th><th>Habitación / Cama</th><th>Estado</th><th>Contrato hasta</th><th>Tarifa mensual</th><th></th></tr></thead>
+          <tbody>
+            <tr><td><b>Lucía M. 🇦🇷</b></td><td>Habitación 1<br><small style="color:var(--ink-faint)">Individual</small></td><td><span class="badge b-sage">Activo</span> <span class="badge b-change">Busca cambiar</span></td><td>20/07/2027</td><td><b>USD 350</b></td><td style="text-align:right"><button class="btn btn-outline btn-sm">Gestionar</button></td></tr>
+            <tr><td><b>Martina 🇧🇷</b></td><td>Habitación 2<br><small style="color:var(--ink-faint)">Individual</small></td><td><span class="badge b-sage">Activo</span></td><td>30/06/2027</td><td><b>USD 350</b></td><td style="text-align:right"><button class="btn btn-outline btn-sm">Gestionar</button></td></tr>
+          </tbody>
+        </table>
+        <ul class="mlist">
+          <li style="padding:14px 16px;border-bottom:1px solid var(--line)"><b>Lucía M. 🇦🇷</b> · Habitación 1<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap"><span class="badge b-sage">Activo</span><span class="badge b-change">Busca cambiar</span></div></li>
+          <li style="padding:14px 16px"><b>Martina 🇧🇷</b> · Habitación 2<div style="margin-top:6px"><span class="badge b-sage">Activo</span></div></li>
+        </ul>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ===== Hoja lateral: responder aviso ===== -->
+<div data-st="respond preview error">
+  <div class="drawer-scrim" data-go="list"></div>
+  <div class="drawer" role="dialog" aria-modal="true" aria-labelledby="r-t">
+    <div class="drawer-h">
+      <div><h2 id="r-t">Responder a Lucía M.</h2><p>Aviso de cambio del 23/10/2026 · Individual, Habitación 1</p></div>
+      <button aria-label="Cerrar" data-go="list" style="margin-left:auto;width:44px;height:44px;border-radius:50%;border:0;background:var(--cream-2);display:grid;place-items:center;cursor:pointer;flex:none"><span class="ms">close</span></button>
+    </div>
+
+    <!-- Formulario -->
+    <div class="drawer-b" data-st="respond error">
+      <div class="notice n-danger" data-st="error" role="alert" style="margin-bottom:14px"><span class="ms">error</span><div><b>No pudimos enviar tu respuesta.</b> Revisá tu conexión y probá de nuevo. Lo que escribiste sigue acá.</div></div>
+      <dl class="ctx">
+        <div><dt>Ingreso</dt><dd>20/07/2026</dd></div>
+        <div><dt>Contrato hasta</dt><dd>20/07/2027</dd></div>
+        <div><dt>Estadía mínima</dt><dd>6 meses · cumple el 20/01/2027</dd></div>
+        <div><dt>Depósito de la reserva</dt><dd>USD 350</dd></div>
+        <div><dt>Salida estimada</dt><dd style="color:var(--orange-700)">15/12/2026</dd></div>
+        <div><dt>Renovación</dt><dd>Confirmada</dd></div>
+        <div class="full"><dt>Mensaje de Lucía</dt><dd style="font-weight:500;color:var(--ink-soft)">“Me cambio de facultad y busco algo más cerca de Ciudad Universitaria. Gracias por todo.”</dd></div>
+      </dl>
+
+      <p class="sec-t"><span class="ms">bolt</span>Empezá con una plantilla</p>
+      <div class="tpls" role="group" aria-label="Plantillas sugeridas">
+        <button class="tpl" data-tpl="min" aria-pressed="true">Estadía mínima no cumplida</button>
+        <button class="tpl" data-tpl="none" aria-pressed="false">Sin costos de salida</button>
+        <button class="tpl" data-tpl="notice" aria-pressed="false">Preaviso y entrega</button>
+        <button class="tpl" data-tpl="listen" aria-pressed="false">Queremos escucharte</button>
+      </div>
+      <p class="help" style="margin-top:6px">Completamos las fechas con los datos de la estadía. Revisá y editá antes de enviar.</p>
+
+      <div class="field">
+        <label class="l" for="r-msg">Mensaje para Lucía</label>
+        <textarea class="textarea" id="r-msg" aria-describedby="r-msg-e"></textarea>
+        <p class="ferr" id="r-msg-e" data-st="error"><span class="ms">error</span>Escribí un mensaje de al menos 20 caracteres.</p>
+      </div>
+      <p class="sec-t"><span class="ms">payments</span>Costos de salida anticipada</p>
+      <div class="field" style="margin-top:8px">
+        <label class="sr-only" for="r-cost">Costos de salida anticipada</label>
+        <textarea class="textarea" id="r-cost" style="min-height:72px"></textarea>
+      </div>
+      <div class="field">
+        <label class="l" for="r-amt">Monto de referencia <span class="opt">(opcional)</span></label>
+        <div class="money"><span>USD</span><input id="r-amt" inputmode="decimal" value="350" aria-describedby="r-amt-h"></div>
+        <p class="help" id="r-amt-h">Solo informativo: EstuRed no lo cobra ni lo convierte en un pago.</p>
+      </div>
+      <p class="sec-t"><span class="ms">gavel</span>Condiciones</p>
+      <div class="field" style="margin-top:8px"><label class="sr-only" for="r-cond">Condiciones</label><textarea class="textarea" id="r-cond" style="min-height:72px"></textarea></div>
+      <p class="sec-t"><span class="ms">key</span>Detalles de la salida</p>
+      <div class="field" style="margin-top:8px"><label class="sr-only" for="r-det">Detalles de la salida</label><textarea class="textarea" id="r-det" style="min-height:72px"></textarea></div>
+
+      <div class="tone"><span class="ms">lightbulb</span><div><b>Escribí información, no promesas.</b> Contá lo que aplica según lo que acordaron en la reserva. Evitá “te aseguramos”, “seguro hay lugar” o presiones para que se quede. Lucía y su familiar vinculado lo leen tal cual.</div></div>
+    </div>
+
+    <!-- Vista previa: así lo ve Lucía -->
+    <div class="drawer-b" data-st="preview">
+      <p class="help" style="margin:0 0 12px">Así lo va a ver Lucía en Mi residencia (y su familiar vinculado).</p>
+      <article class="card reply">
+        <div class="reply-h"><div class="avatar">RP</div><div><h3>Lo que te informó Residencia Río de la Plata</h3><small>Respuesta de hoy · Administración</small></div></div>
+        <div class="reply-b">
+          <p class="quote">Hola Lucía, gracias por avisarnos con tiempo. Te contamos cómo sería tu salida para que lo tengas en cuenta al decidir.</p>
+          <div class="terms">
+            <div class="term cost"><p class="eyebrow"><span class="ms">payments</span>Costos de salida</p><p class="amt">USD 350 <small>monto de referencia</small></p><p>Si salís antes del 20/01/2027 (estadía mínima de 6 meses), el depósito no se devuelve.</p></div>
+            <div class="term"><p class="eyebrow"><span class="ms">gavel</span>Condiciones</p><p>Preaviso de 30 días con la fecha exacta de salida. El mes en curso se paga completo: no hay prorrateo.</p></div>
+            <div class="term"><p class="eyebrow"><span class="ms">key</span>Detalles de la salida</p><p>Entrega de la habitación con administración, de lunes a viernes de 9 a 18.</p></div>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <div class="drawer-f">
+      <p class="fine">Tu respuesta es informativa: EstuRed no fija ni cobra estos costos y no reemplaza el contrato con tu residente. Podés editarla mientras el aviso siga abierto.</p>
+      <button class="btn btn-outline btn-md" data-go="preview" data-st="respond error"><span class="ms">visibility</span>Ver como Lucía</button>
+      <button class="btn btn-outline btn-md" data-go="respond" data-st="preview"><span class="ms">edit</span>Seguir editando</button>
+      <button class="btn btn-primary btn-md" style="flex:1" data-go="sent">Enviar respuesta</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" data-st="sent" role="status"><span class="ms fill">check_circle</span><div><b>Respuesta enviada a Lucía.</b><br>La ve en Mi residencia junto con su familiar vinculado. Podés editarla mientras el aviso siga abierto.</div></div>
+</section>
+
+<!-- =========================================================
+     4 · FAMILIAR — /students/dashboard (rol familiar)
+     ========================================================= -->
+<section class="screen" data-screen="fam" hidden>
+<div class="app">
+  <aside class="side" aria-label="Navegación del familiar">
+    <a class="brand" href="#"><span class="logo-mark">E</span>EstuRed</a>
+    <a class="nav" href="#" aria-current="page"><span class="ms">home</span>Inicio</a>
+    <a class="nav" href="#"><span class="ms">search</span>Buscar residencias</a>
+    <a class="nav" href="#"><span class="ms">send</span>Propuestas</a>
+    <a class="nav" href="#"><span class="ms">person</span>Mi perfil</a>
+    <a class="nav" href="#"><span class="ms">support_agent</span>Soporte</a>
+  </aside>
+  <div>
+    <div class="topbar"><button class="ib" aria-label="Abrir menú"><span class="ms">menu</span></button><a class="brand" href="#"><span class="logo-mark">E</span>EstuRed</a><button class="ib" aria-label="Notificaciones"><span class="ms">notifications</span></button></div>
+    <main class="main">
+      <div class="page-h"><div><h1>Hola, Martín</h1><p style="color:var(--ink-soft);margin-top:4px">Seguí la estadía de Lucía y acompañala en sus decisiones.</p></div></div>
+      <div class="cols">
+        <div class="stack">
+          <article class="card stu" aria-labelledby="f-t">
+            <div class="stu-h">
+              <span class="ini">L</span>
+              <div><h2 id="f-t">Lucía</h2><p>Residencia Río de la Plata · Individual · Contrato hasta 20/07/2027</p></div>
+              <span class="chip chip-ok" style="margin-left:auto" data-st="none">Alojada</span>
+              <span class="chip chip-warn" style="margin-left:auto" data-st="open replied"><span class="dot"></span>Buscando un cambio</span>
+              <span class="chip chip-ok" style="margin-left:auto" data-st="resolved">Nuevo lugar confirmado</span>
+            </div>
+            <div class="stu-b">
+              <!-- none -->
+              <div data-st="none">
+                <p class="eyebrow">Quiero cambiar</p>
+                <p style="margin-top:6px;color:var(--ink-soft);font-size:15px">Lucía no está buscando un cambio. Si decide hacerlo, ella avisa a su residencia desde su panel y vos lo ves acá: la fecha estimada de salida y lo que la residencia informe sobre costos de salida.</p>
+              </div>
+              <!-- open / replied -->
+              <div data-st="open replied">
+                <p style="font-size:15px">Lucía avisó a su residencia el <b>23/10/2026</b> que busca otro lugar. Salida estimada: <b>15/12/2026</b>. Su reserva actual sigue vigente.</p>
+                <div class="notice n-neutral" data-st="open" style="margin-top:14px"><span class="ms">hourglass_empty</span><div>La residencia todavía no informó costos ni condiciones de salida. Te avisamos cuando responda.</div></div>
+                <div data-st="replied" style="margin-top:16px">
+                  <p class="eyebrow" style="display:flex;justify-content:space-between">Lo que informó la residencia · 24/10/2026<span class="ro"><span class="ms">visibility</span>Solo lectura</span></p>
+                  <div class="terms" style="margin-top:8px">
+                    <div class="term cost"><p class="eyebrow"><span class="ms">payments</span>Costos</p><p class="amt">USD 350 <small>referencia</small></p><p>Depósito no devuelto si sale antes del 20/01/2027.</p></div>
+                    <div class="term"><p class="eyebrow"><span class="ms">gavel</span>Condiciones</p><p>Preaviso de 30 días. El mes en curso se paga completo.</p></div>
+                    <div class="term"><p class="eyebrow"><span class="ms">key</span>Salida</p><p>Entrega con administración, lunes a viernes de 9 a 18.</p></div>
+                  </div>
+                  <p class="help">Esta información la carga la residencia. No modifica el contrato; ante dudas, escribí a Soporte.</p>
+                </div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+                  <a class="btn btn-primary btn-sm" href="#"><span class="ms">send</span>Proponerle una residencia</a>
+                  <a class="btn btn-outline btn-sm" href="#">Buscar residencias</a>
+                </div>
+                <p class="help" style="margin-top:10px">La decisión es de Lucía: vos podés proponerle opciones y ella decide si envía la solicitud. Solo ella puede cancelar el aviso.</p>
+              </div>
+              <!-- resolved -->
+              <div data-st="resolved">
+                <p style="font-size:15px">Lucía confirmó una reserva en otra residencia desde el <b>01/12/2026</b>. Residencia Río de la Plata registra su salida. <a class="link" href="#">Ver comprobante</a></p>
+              </div>
+            </div>
+          </article>
+          <div class="benefit">
+            <div class="ic"><span class="ms">family_restroom</span></div>
+            <div><h3>Si Lucía quiere cambiarse, no te enterás a último momento</h3>
+              <p>Con “Quiero cambiar”, Lucía avisa a su residencia antes de irse, la residencia informa por escrito costos y condiciones de salida, y vos lo ves acá. Sin sorpresas con el depósito ni con las fechas.</p>
+              <ul><li><span class="ms">notifications</span>Te avisamos cada novedad</li><li><span class="ms">request_quote</span>Costos de salida por escrito</li><li><span class="ms">send</span>Podés proponerle residencias</li></ul>
+            </div>
+          </div>
+        </div>
+        <aside class="stack">
+          <div class="card side-card"><div class="t"><p class="eyebrow">Notificaciones</p><span class="ms">notifications</span></div>
+            <p data-st="none">Sin novedades.</p>
+            <p data-st="open replied"><b style="color:var(--ink)">Lucía avisó que busca cambiar de residencia.</b><br>23/10/2026</p>
+            <p data-st="replied" style="margin-top:10px"><b style="color:var(--ink)">Su residencia respondió con costos y condiciones.</b><br>24/10/2026</p>
+            <p data-st="resolved"><b style="color:var(--ink)">Lucía confirmó su nuevo lugar.</b></p>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+</div>
+</section>
+
+<!-- =========================================================
+     5 · LANDINGS — /for-students y /for-residences
+     ========================================================= -->
+<section class="screen" data-screen="land" hidden>
+  <header class="pnav"><div class="pnav-in"><a class="brand" href="#" style="padding:0"><span class="logo-mark">E</span>EstuRed</a><nav class="links"><a href="#">Buscar residencias</a><a href="#" data-st="students" style="color:var(--forest-700)">Para estudiantes</a><a href="#" data-st="residences">Para estudiantes</a><a href="#" data-st="residences" style="color:var(--forest-700)">Para residencias</a><a href="#" data-st="students">Para residencias</a></nav><a class="btn btn-primary btn-sm" href="#">Ingresar</a></div></header>
+
+  <!-- /for-students: nueva sección entre "Beneficios" y "Paso a paso" -->
+  <div data-st="students">
+    <p class="wrap" style="padding-top:16px;color:var(--ink-faint);font-size:13px">… Hero y “Beneficios” sin cambios …</p>
+    <section class="land" aria-labelledby="ls-t" style="background:var(--paper);border-block:1.5px solid var(--line);margin-top:16px">
+      <div class="wrap land-grid">
+        <div>
+          <span class="eyb" style="background:var(--orange-tint);color:var(--orange-700)">Si ya vivís en una residencia</span>
+          <h2 id="ls-t">Cambiarte de residencia, sin esconderte y sin sorpresas</h2>
+          <p class="lead">Si el lugar donde vivís ya no es para vos, avisale con un botón y buscá otro aunque tu contrato siga vigente. Antes de decidir, sabés qué costos tiene salir.</p>
+          <ol class="lsteps">
+            <li><span class="n">1</span><div><b>Avisás con un botón</b><p>Desde Mi residencia tocás “Quiero cambiar”. Tu residencia se entera con tiempo y tu reserva sigue igual.</p></div></li>
+            <li><span class="n">2</span><div><b>Buscás sin trabas de fechas</b><p>Solicitás y te sumás a listas de espera aunque se superpongan con tu estadía. Te avisamos si se libera lugar.</p></div></li>
+            <li><span class="n">3</span><div><b>Conocés los costos antes</b><p>Tu residencia te informa por escrito depósito, preaviso y entrega. Lo ves vos y tu familia.</p></div></li>
+          </ol>
+          <div class="ctas"><a class="btn btn-primary btn-lg" href="#">Ir a Mi residencia</a><a class="btn btn-outline btn-lg" href="#">Buscar residencias</a></div>
+          <p class="fine">Lo cancelás cuando quieras. Las otras residencias no ven que vivís en una, salvo que vos lo decidas. Los costos de salida los informa cada residencia: EstuRed no los fija ni los cobra. Toda solicitud está sujeta a confirmación.</p>
+        </div>
+        <div class="comp" aria-hidden="true">
+          <div class="card open" style="overflow:hidden">
+            <div class="open-h" style="padding:18px 20px"><span class="chip chip-warn"><span class="dot"></span>Aviso abierto</span><h2 style="font-size:21px">Estás buscando un cambio</h2><p style="font-size:14px">Salida estimada: 15/12/2026</p></div>
+            <div style="padding:16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <div class="sc hl" style="min-height:0"><span class="ms">search</span><b>Buscar residencias</b></div>
+              <div class="sc alert" style="min-height:0"><span class="ms fill">mark_email_unread</span><b>Tu residencia respondió</b></div>
+            </div>
+          </div>
+          <div class="float" style="right:-6px;bottom:-14px;transform:rotate(2deg)"><span class="ms" style="color:var(--orange-700)">request_quote</span>Costos de salida, por escrito</div>
+          <div class="float" style="left:-6px;top:-8px;transform:rotate(-2deg)"><span class="ms" style="color:var(--forest-700)">lock</span>Tu reserva sigue igual</div>
+        </div>
+      </div>
+      <div class="wrap">
+        <div class="fam-strip">
+          <div class="ic"><span class="ms">family_restroom</span></div>
+          <div><h3>Para familias: te enterás de todo</h3><p>Si tu hijo o hija avisa que quiere cambiarse, lo ves en tu panel junto con lo que informa la residencia sobre costos y fechas. Podés proponerle opciones; la decisión es suya.</p></div>
+          <a class="btn btn-outline btn-md" href="#">Vincularme como familiar</a>
+        </div>
+      </div>
+    </section>
+    <p class="wrap" style="padding:16px 24px 120px;color:var(--ink-faint);font-size:13px">… “Paso a paso” y cierre sin cambios …</p>
+  </div>
+
+  <!-- /for-residences: nueva sección después de "Beneficios" -->
+  <div data-st="residences">
+    <p class="wrap" style="padding-top:16px;color:var(--ink-faint);font-size:13px">… Hero y “Beneficios” sin cambios …</p>
+    <section class="land dark" aria-labelledby="lr-t" style="margin-top:16px">
+      <div class="wrap land-grid">
+        <div>
+          <span class="eyb" style="background:rgb(239 133 81/.18);color:var(--orange-light)">Previsibilidad</span>
+          <h2 id="lr-t">Enterate de una salida con tiempo, no el día que se van</h2>
+          <p class="lead">Muchos estudiantes se cambian sin avisar, y eso desordena tu ocupación, tu planificación y tus renovaciones. Con “Quiero cambiar”, el residente te avisa cuando empieza a buscar.</p>
+          <ul class="bgrid">
+            <li class="bitem"><span class="ms">event_upcoming</span><b>Anticipás la salida</b><p>Ves quién busca cambiar y su fecha estimada de salida, en Residentes y por notificación.</p></li>
+            <li class="bitem"><span class="ms">request_quote</span><b>Comunicás los costos antes</b><p>Respondés con plantillas: depósito, preaviso y entrega de la habitación. Queda por escrito y lo ve también su familia.</p></li>
+            <li class="bitem"><span class="ms">bed</span><b>Planificás la plaza</b><p>Sabés qué lugar se puede liberar y cuándo, para actualizar tu disponibilidad y tu lista de espera a tiempo.</p></li>
+            <li class="bitem"><span class="ms">forum</span><b>Tenés la oportunidad de escuchar</b><p>Si el residente cuenta el motivo, podés ofrecerle una alternativa dentro de tu residencia.</p></li>
+          </ul>
+          <p class="fine">Tu respuesta es informativa: no reemplaza el contrato ni el preaviso que acordaste con el residente. Las otras residencias no ven a tus residentes. EstuRed es una plataforma intermediaria y no fija ni cobra costos de salida.</p>
+        </div>
+        <div class="comp" aria-hidden="true">
+          <div class="card change-sec" style="color:var(--ink);margin:0">
+            <div class="change-h" style="padding:16px 18px"><div class="ic"><span class="ms">swap_horiz</span></div><div><h2 style="font-size:18px">2 residentes buscan cambiar</h2><p style="font-size:13px">Respondé con costos y condiciones.</p></div></div>
+            <div class="crow" style="grid-template-columns:1fr auto;padding:12px 18px"><div class="who"><span class="ini" style="background:var(--orange-tint);color:var(--orange-700)">L</span><div><b>Lucía M.</b><small>Salida estimada 15/12/2026</small></div></div><span class="btn btn-primary btn-sm">Responder</span></div>
+            <div class="crow" style="grid-template-columns:1fr auto;padding:12px 18px"><div class="who"><span class="ini" style="background:var(--sky);color:var(--sky-fg)">T</span><div><b>Tomás R.</b><small>Salida estimada 28/02/2027</small></div></div><span class="badge b-sage">Respondida</span></div>
+            <div class="plan" style="padding:10px 18px"><span class="ms">event_upcoming</span>Se libera 1 Individual desde diciembre</div>
+          </div>
+          <div class="float" style="right:-4px;top:-16px;transform:rotate(2deg)"><span class="ms fill" style="color:var(--orange-700)">notifications</span>Lucía M. avisó que busca cambiar</div>
+        </div>
+      </div>
+    </section>
+    <p class="wrap" style="padding:16px 24px 120px;color:var(--ink-faint);font-size:13px">… “Planes” y cierre sin cambios …</p>
+  </div>
+</section>
+
+<!-- ===== Control del mockup ===== -->
+<div class="mk" id="mk" role="region" aria-label="Estados del mockup">
+  <h4>Estados del mockup <button class="mk-min" id="mk-min">ocultar</button></h4>
+  <div class="mk-body">
+    <select id="mk-s" aria-label="Pantalla">
+      <option value="mi">1 · Mi residencia (estudiante)</option>
+      <option value="ficha">2 · Ficha pública (estudiante alojada)</option>
+      <option value="res">3 · Residencia · Residentes</option>
+      <option value="fam">4 · Familiar vinculado</option>
+      <option value="land">5 · Landings</option>
+    </select>
+    <div class="sts" id="mk-st"></div>
+  </div>
+</div>
+
+<script>
+const STATES={
+  mi:[["off","Sin aviso"],["modal","Modal: avisar"],["sending","Enviando"],["error","Error al avisar"],["open","Aviso abierto"],["replied","Residencia respondió"],["cancel","Cancelar aviso"],["cancelblocked","Cancelar bloqueado"],["expiring","Por vencer"],["resolved","Resuelto"],["closed","Cancelado (histórico)"],["renewlock","Renovación en curso"],["loading","Cargando"],["nostay","Sin estadía"]],
+  ficha:[["blocked","Sin aviso (bloqueo)"],["open","Aviso abierto"],["sheet","Hoja de solicitud"],["limit","Tope 2 solicitudes"]],
+  res:[["list","Lista"],["notif","Notificación"],["respond","Responder"],["preview","Vista previa"],["error","Error"],["sent","Enviada"],["resolved","Resuelto"],["empty","Vacío"],["loading","Cargando"]],
+  fam:[["none","Sin aviso"],["open","Aviso abierto"],["replied","Residencia respondió"],["resolved","Resuelto"]],
+  land:[["students","/for-students"],["residences","/for-residences"]]
+};
+const TPL={
+  min:{msg:"Hola Lucía, gracias por avisarnos con tiempo. Te contamos cómo sería tu salida para que lo tengas en cuenta al decidir.",cost:"Si salís antes del 20/01/2027 (estadía mínima de 6 meses), el depósito no se devuelve.",amt:"350",cond:"Preaviso de 30 días con la fecha exacta de salida. El mes en curso se paga completo: no hay prorrateo.",det:"Entrega de la habitación con administración, de lunes a viernes de 9 a 18."},
+  none:{msg:"Hola Lucía, gracias por avisarnos. Te contamos cómo sería tu salida.",cost:"No hay costos de salida anticipada.",amt:"",cond:"Avisanos la fecha exacta de salida con 15 días de anticipación.",det:"Coordinamos la entrega de la habitación con administración."},
+  notice:{msg:"Hola Lucía, gracias por avisarnos con tiempo. Para organizar tu salida necesitamos lo siguiente.",cost:"",amt:"",cond:"Preaviso de 30 días con la fecha exacta de salida.",det:"Salida prevista: 15/12/2026. Entrega de llaves y revisión de inventario con administración."},
+  listen:{msg:"Hola Lucía, gracias por avisarnos con tiempo. Si hay algo que podamos mejorar o un cambio de habitación que te sirva, contanos y lo vemos juntas.",cost:"",amt:"",cond:"",det:""}
+};
+function setTpl(k){const t=TPL[k];if(!t)return;
+  const g=id=>document.getElementById(id);
+  g("r-msg").value=t.msg;g("r-cost").value=t.cost;g("r-amt").value=t.amt;g("r-cond").value=t.cond;g("r-det").value=t.det;
+  document.querySelectorAll(".tpl").forEach(b=>b.setAttribute("aria-pressed",b.dataset.tpl===k?"true":"false"));}
+/* Estado en el hash (#s=…&st=…&bare=1); si el visor no soporta hash (vista previa estática), queda en memoria. */
+let CUR=null;
+function parse(){const raw=CUR||location.hash.slice(1);const h=new URLSearchParams(raw);return{s:h.get("s")||"mi",st:h.get("st"),bare:h.get("bare")==="1"};}
+function render(){
+  let {s,st,bare}=parse();
+  if(!STATES[s])s="mi";
+  if(!st||!STATES[s].some(x=>x[0]===st))st=STATES[s][0][0];
+  document.body.classList.toggle("bare",bare);
+  document.querySelectorAll("[data-screen]").forEach(e=>e.hidden=e.dataset.screen!==s);
+  document.querySelectorAll("[data-st]").forEach(e=>{const scr=e.closest("[data-screen]");if(!scr||scr.dataset.screen!==s)return;e.hidden=!e.dataset.st.split(" ").includes(st);});
+  document.getElementById("mk-s").value=s;
+  const box=document.getElementById("mk-st");box.innerHTML="";
+  STATES[s].forEach(([k,l])=>{const b=document.createElement("button");b.textContent=l;b.setAttribute("aria-pressed",k===st);b.onclick=()=>go(s,k);box.appendChild(b);});
+  document.body.classList.toggle("lock",!!document.querySelector(".scrim:not([hidden]),.drawer:not([hidden])"));
+}
+function go(s,st){const h=new URLSearchParams(CUR||location.hash.slice(1));h.set("s",s);h.set("st",st);CUR=h.toString();try{history.replaceState(null,"","#"+CUR);}catch(e){}render();window.scrollTo(0,0);}
+document.getElementById("mk-s").onchange=e=>go(e.target.value,STATES[e.target.value][0][0]);
+document.getElementById("mk-min").onclick=()=>{const m=document.getElementById("mk");m.classList.toggle("min");document.getElementById("mk-min").textContent=m.classList.contains("min")?"mostrar":"ocultar";};
+document.addEventListener("click",e=>{
+  const t=e.target.closest("[data-go]");
+  if(t){e.preventDefault();if(t.getAttribute("aria-disabled")==="true")return;const scr=t.dataset.goS||parse().s;go(scr,t.dataset.go);return;}
+  const tp=e.target.closest("[data-tpl]");if(tp)setTpl(tp.dataset.tpl);
+});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){const {s,st}=parse();const back={mi:{modal:"off",error:"off",cancel:"replied",cancelblocked:"replied"},ficha:{sheet:"open"},res:{respond:"list",preview:"list",error:"list",notif:"list"}};if(back[s]&&back[s][st])go(s,back[s][st]);}});
+window.addEventListener("hashchange",()=>{CUR=null;render();});
+document.getElementById("m-ok").addEventListener("change",e=>document.getElementById("m-send").setAttribute("aria-disabled",e.target.checked?"false":"true"));
+setTpl("min");render();
+</script>
+</body>
+</html>

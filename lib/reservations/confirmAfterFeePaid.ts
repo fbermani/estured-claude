@@ -4,6 +4,7 @@ import { createAuditLog, alertAdminsOfAuditFailure } from "@/lib/audit";
 import { removeWaitlistEntriesOnConfirmedReservation } from "@/lib/waitlist-entries/removeWaitlistEntriesOnConfirmedReservation";
 import { promoteNextQueuedApplication } from "@/lib/applications/roomTypeQueue";
 import { insertReceiptWithRetry } from "@/lib/receipts/receiptNumber";
+import { resolveStayChangeIntentOnReservation } from "@/lib/stayChange/resolveStayChangeIntent";
 
 type ConfirmResult =
   | { ok: true; reservationId: string; receiptId: string; verificationCode: string }
@@ -33,7 +34,7 @@ export async function confirmReservationAfterFeePaid(
   const { data: reservation } = await admin
     .from("reservations")
     .select(
-      "id, application_request_id, student_profile_id, residence_id, room_type_id, snapshot_id, external_residence_payment_id",
+      "id, application_request_id, student_profile_id, residence_id, room_type_id, snapshot_id, external_residence_payment_id, start_date",
     )
     .eq("id", feePayment.reservation_id)
     .single();
@@ -55,6 +56,16 @@ export async function confirmReservationAfterFeePaid(
     .update({ status: "confirmed", confirmed_at: now.toISOString() })
     .eq("id", reservation.id);
   if (reservationError) return { ok: false, error: "No pudimos confirmar la reserva." };
+
+  // DR3 "Quiero cambiar": si tenía un aviso abierto y esta reserva es en otra residencia, se resuelve y la residencia
+  // actual recibe SOLO la fecha de ingreso (sin nombrar la nueva). Nunca lanza ni cierra la estadía actual (D11).
+  await resolveStayChangeIntentOnReservation(admin, {
+    studentProfileId: reservation.student_profile_id,
+    newReservationId: reservation.id,
+    newResidenceId: reservation.residence_id,
+    newStartDate: (reservation.start_date as string | null) ?? null,
+    newApplicationId: reservation.application_request_id as string,
+  });
 
   // Docs/06 §27.8/§08 §6.10: sale automáticamente de otras listas de
   // espera al confirmar una reserva. Nunca lanza — no debe poder tumbar

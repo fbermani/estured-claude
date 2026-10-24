@@ -1,12 +1,12 @@
 # 04_STATE_MACHINES.md
 # EstuRed — Máquinas de estado del MVP
 
-**Versión:** 1.2
+**Versión:** 1.3
 **Estado:** Especificación actualizada para construcción
 **Producto:** EstuRed
 **Mercado inicial:** CABA
 **Formato MVP:** webapp responsive
-**Última actualización:** 2026-06-27
+**Última actualización:** 2026-10-23 (DR3/DR3b: §5.6bis, §12bis "Quiero cambiar")
 
 ---
 
@@ -51,6 +51,7 @@ No se debe usar un único estado global para representar todo el flujo. EstuRed 
 - disponibilidad;
 - lista de espera;
 - renovación;
+- aviso de cambio de residencia ("Quiero cambiar");
 - residencia;
 - verificación;
 - ediciones de perfil;
@@ -114,6 +115,7 @@ Eventos auditables mínimos:
 - cambio de disponibilidad;
 - entrada o salida de lista de espera;
 - creación, envío y aceptación de renovación;
+- creación, cancelación, respuesta de la residencia, resolución y vencimiento de un aviso "Quiero cambiar";
 - cambios de visibilidad de perfil;
 - apertura de reclamo;
 - acciones admin (toda intervención);
@@ -353,6 +355,7 @@ Representa la intención formal del estudiante de reservar una plaza, habitació
 - Se mantiene el máximo de **2 solicitudes activas** (§5.6); el bloqueo se suma, no lo reemplaza.
 - La validación es server-side al enviar; la UI explica el motivo y, si corresponde, ofrece elegir una fecha posterior al fin de contrato (mensaje accionable, sin jerga).
 - Aplica igual a las propuestas del familiar (§4): se valida al crearlas y de nuevo al aprobarlas. *(Supuesto reversible.)*
+- **Excepción (DR3, 2026-10-23, `docs/00` §31):** mientras el estudiante tenga un aviso **"Quiero cambiar"** en estado `open` sobre ese período (§12bis), el bloqueo por superposición **no aplica** a sus solicitudes, propuestas del familiar y listas de espera. El máximo de 2 solicitudes activas se mantiene. Si el aviso se cancela, vence o se resuelve, vuelve a regir esta sección completa (qué pasa con lo creado bajo la excepción: §12bis.4). Bajo la excepción rige además el preaviso de 48 h antes de avanzar al pago de una reserva nueva (§12bis.4).
 
 ---
 
@@ -848,6 +851,94 @@ Las renovaciones son Must Have del MVP. Se separan en dos entidades para evitar 
 
 ---
 
+# 12bis. Máquina de estados: Quiero cambiar (cambio de residencia de un estudiante alojado)
+
+*Decisión del dueño, 2026-10-23 (`docs/00` §31, DR3, DR3b). Entidad nueva y separada: no es una renovación, ni una solicitud, ni una reserva. Lo marcado como supuesto es reversible y está listado en `GAPS.md`.*
+
+## 12bis.1. Entidad
+
+```
+stay_change_intent
+```
+
+Es el aviso formal que un estudiante ya alojado le hace a su residencia actual: "estoy buscando otro lugar". Lo inicia **siempre el estudiante** (si es menor, con confirmación del familiar: §12bis.3). No cancela ni modifica la reserva o la estadía vigente, no libera la plaza y no cierra la estadía: **la salida la inicia siempre la residencia actual** (§12bis.4, "Salida anticipada").
+
+---
+
+## 12bis.2. Estados técnicos
+
+| Estado técnico | Descripción |
+|---|---|
+| `pending_guardian_confirmation` | Un estudiante **menor** inició el aviso; **no se envía** a la residencia ni habilita nada hasta que el familiar vinculado lo confirma. |
+| `open` | El aviso está enviado. La residencia actual fue notificada y puede responder. Rige la excepción a §5.6bis. |
+| `cancelled_by_student` | El estudiante canceló el aviso (decidió quedarse o dejó de buscar). Vuelve a regir §5.6bis. Terminal. |
+| `resolved_new_reservation` | Se confirmó una reserva (`confirmed`) del estudiante en **otra** residencia. Terminal. |
+| `expired` | El aviso venció sin resolverse (a los 90 días sin que el estudiante confirme que sigue buscando, o al registrarse la salida real de la estadía sin reserva nueva en EstuRed). Terminal. |
+
+---
+
+## 12bis.3. Transiciones permitidas
+
+| Desde | Hacia | Actor | Condición |
+|---|---|---|---|
+| (ninguno) | `open` | Estudiante mayor | Reserva vigente `confirmed`/`receipt_pending`/`receipt_issued` o estadía `pending_activation`/`active` sin salida real; sin otro aviso abierto o pendiente; cuenta activa; **checkbox obligatorio** de aceptación de las reglas del aviso. |
+| (ninguno) | `pending_guardian_confirmation` | Estudiante menor | Mismas condiciones; requiere familiar vinculado activo. |
+| `pending_guardian_confirmation` | `open` | Familiar vinculado | Confirma el aviso (`guardian_confirmed_at`). Recién ahí se notifica a la residencia. |
+| `pending_guardian_confirmation` | `cancelled_by_student` | Estudiante | Retira el aviso antes de la confirmación. |
+| `open` | `cancelled_by_student` | Estudiante | **Sin pago en curso** (§12bis.4, "Cancelar"). |
+| `open` | `resolved_new_reservation` | Sistema | Una reserva del estudiante pasa a `confirmed` en una residencia distinta a la del aviso. |
+| `open` | `expired` | Sistema | Pasaron 90 días sin confirmación del estudiante (se le avisa antes), o se registró la salida real de la estadía. |
+
+Una vez en estado terminal, para volver a avisar el estudiante crea un aviso nuevo. Nunca más de uno `pending_guardian_confirmation`/`open` por estudiante. *(Supuesto: un aviso pendiente de confirmación vence con el mismo plazo de 90 días desde su creación.)*
+
+---
+
+## 12bis.4. Reglas
+
+**Preaviso y plazos.** El preaviso **empieza al presionar "Quiero cambiar"** (`notice_started_at`; en menores, desde la confirmación del familiar). Desde el primer momento el estudiante puede enviar solicitudes y anotarse en listas de espera. **Hasta cumplirse 48 h** desde `notice_started_at` *(supuesto reversible)* no puede **avanzar al pago ni a la confirmación de una reserva nueva**: el sistema no habilita el pago a la residencia nueva (`contact_established` → `residence_payment_pending`), no se registra pago a residencia ni se cobra el fee EstuRed. El plazo de 48 h de pago a la residencia (D6) cuenta desde que el pago queda habilitado, no antes. El aviso vence a los **90 días** (recordatorio a los 80).
+
+**Vinculación (decisión del dueño, Ciclo 59).** Toda solicitud o lista de espera creada mientras el aviso está `open` hacia una residencia distinta de la actual queda vinculada al aviso (`stay_change_intent_id`), haya o no superposición de fechas: la residencia nueva ve "en proceso de mudanza", rige el preaviso de 48 h antes de pagar y se cierra si el aviso se cancela. Un aviso con una solicitud en pago en curso no vence por tiempo.
+
+**Qué habilita (excepción a DR1).** Mientras el aviso está `open`, el estudiante puede enviar solicitudes de reserva y anotarse en listas de espera de **otras** residencias con fechas que se superponen con su período vigente (§5.6bis). Siguen vigentes: máximo de 2 solicitudes activas (§5.6), pausa de la segunda al avanzar la primera, validaciones de cada flujo y la prohibición de prometer disponibilidad. Una lista de espera creada así avisa disponibilidad exactamente igual que una normal (§11.3). Solicitudes y listas de espera creadas bajo la excepción guardan el `stay_change_intent_id` (`docs/06` §14bis). **Quien confirma y paga una reserva nueva bajo el aviso debe mudarse**: la reserva nueva no es una opción de reserva a medias, y su cancelación se rige por las reglas vigentes (revocación del fee de 10 días, `docs/10` §15.4; condiciones de la residencia), sin reglas nuevas.
+
+**Quién ve qué.**
+- La **residencia actual** ve el aviso (estudiante, fecha estimada de salida, mensaje) y puede responderlo. **No** ve a qué residencias consulta ni en qué listas está; al confirmarse una reserva nueva ve **solo la fecha de ingreso** a la nueva, **no** su nombre.
+- La **residencia nueva** (la que recibe la solicitud o la lista de espera) ve una señal **"en proceso de mudanza"** sobre esa solicitud/lista. **No** ve de qué residencia viene ni el motivo del cambio. El estudiante puede, si quiere, contarlo en un **campo opcional** de la solicitud/lista nueva (`move_context_note`); EstuRed no lo completa ni lo exige. *(Esto reemplaza el supuesto previo de interruptor y de invisibilidad total entre residencias.)*
+- El **familiar vinculado** ve el aviso, la fecha estimada y la respuesta de la residencia, y recibe las notificaciones, pero **no ve el mensaje privado del estudiante** (`student_message`). Solo puede **confirmar** el aviso de un menor; no lo crea, no lo edita ni lo cancela (§15.3). Puede proponer solicitudes como siempre; la validación de §5.6bis considera el aviso abierto al crearlas y al aprobarlas.
+
+**Editar.** Mientras el aviso está `open`, el estudiante puede editar fecha estimada y mensaje; cada versión queda auditada y la residencia actual es notificada del cambio.
+
+**Política de salida anticipada de la residencia.** Cada residencia define **una sola vez en su perfil** el **depósito** (campo de condiciones ya existente) y las **cláusulas básicas** de sus derechos y obligaciones sobre el depósito y la salida anticipada (`early_exit_policy_text`). Esa política se **muestra en la ficha pública antes de reservar** y se **precarga** en el formulario de respuesta al aviso, que la residencia puede completar o ajustar para el caso.
+
+**Respuesta de la residencia.** La residencia actual puede responder con: mensaje, **costos** de salida anticipada (texto y, opcionalmente, un monto de referencia en USD), **condiciones** (p. ej. depósito, estadía mínima, preaviso) y **detalles de la salida** (fecha prevista, entrega de la habitación), precargados desde su política. Puede editarla mientras el aviso esté `open`; cada versión queda auditada. La respuesta es **informativa**: EstuRed no fija, cobra, garantiza ni media esos costos (plataforma intermediaria), y no reemplaza el contrato entre las partes. Cualquier disputa va por Soporte (§17), que no se suspende ni acelera por el aviso.
+
+**Cancelar.** El estudiante puede cancelar el aviso mientras **no haya un pago en curso** *(supuesto de alcance: una solicitud creada bajo el aviso en `residence_payment_pending` o posterior, o una reserva creada bajo el aviso en `pending_estured_fee`/`estured_fee_processing`/`estured_fee_failed`)*; con pago en curso, cancelar queda bloqueado y se resuelve con **Soporte**. Al cancelar, la UI pide confirmación y se **cierran todas las solicitudes y listas de espera creadas bajo ese aviso**: las listas quedan `removed_by_student` (`removed_reason = stay_change_cancelled`) y las solicitudes `cancelled_by_student`. **Se avisa a esas residencias** con la notificación estándar de cierre por el estudiante, sin mencionar el aviso de cambio. Vuelve a regir DR1. La residencia actual es notificada de la cancelación.
+
+**Resolver.** Al confirmarse la reserva nueva (`reservation.confirmed` en otra residencia, con pagos hechos y fee cobrado):
+- el aviso pasa a `resolved_new_reservation` y guarda `resolved_reservation_id`;
+- DR2 corre igual que siempre: se anulan **todas** sus listas de espera, se lo notifica cuáles y por qué, y esas residencias quedan solo en favoritos (§11.3);
+- las otras solicitudes activas se cierran como siempre (`closed_due_to_other_confirmed_reservation`);
+- se notifica a la residencia actual: **"Este estudiante tiene una reserva confirmada a partir de DD/MM/AAAA en otra residencia"** (solo la fecha de ingreso, sin nombrar la residencia);
+- **la estadía actual NO se cierra sola** (D11: nunca cierre automático): la residencia actual la finaliza como salida anticipada cuando el estudiante se retira (siguiente punto).
+
+**Salida anticipada.** Cuando el estudiante se retira, **la residencia actual finaliza la estadía** con "Registrar salida" marcada como **salida anticipada**, y debe indicar el **estado del depósito**: `returned` (devuelto), `not_returned` (no devuelto) o `no_deposit` (sin depósito), con una **nota libre de la residencia** y una **nota opcional del estudiante** (`docs/06` §14bis.3). **Si no hay depósito, la residencia es responsable de cobrar lo necesario antes de que el estudiante se retire.** **EstuRed no se responsabiliza por mensualidades impagas, incobrables ni morosos, bajo ninguna circunstancia** (copy obligatorio: `docs/10` §21bis). El tramo en que el estudiante tiene dos reservas vigentes (hasta la salida real) lo gestionan las partes; EstuRed no arbitra la renta doble.
+
+**Pagos.** No hay regla nueva de reembolso. Lo pagado a la residencia (nueva o actual) se rige por la política de cada residencia y el acuerdo con el estudiante; el fee EstuRed, por la revocación/reembolso vigente (`docs/10` §15.4). Ninguna pantalla ni copy del aviso promete devoluciones.
+
+**Interacción con renovaciones.**
+- No se puede crear el aviso si hay una `renewal_offer` del mismo período en `accepted_by_student` o posterior sin terminar (pago/fee en curso): primero se resuelve la renovación.
+- Con una oferta de renovación `sent`/`viewed` o un `renewal_request` abierto el aviso sí puede crearse; la residencia ve ambos y decide. El aviso no rechaza ni cancela la oferta (el estudiante la rechaza por su flujo si corresponde).
+- Si el estudiante **ya es renovante** (renovación confirmada, `expected_end_date` extendido), puede avisar igual: el período vigente que se excepciona es el extendido, y los costos que informe la residencia pueden reflejar ese compromiso.
+- La confirmación de una renovación del mismo estudiante **no** resuelve ni cancela el aviso, y *(supuesto reversible)* **no debe anular** las listas de espera creadas bajo el aviso (DR2 habla de confirmar una **reserva**).
+
+**Notificaciones.** Al enviarse el aviso (creación de un mayor o confirmación del familiar de un menor): a la residencia actual ("Un residente avisó que busca cambiar de residencia"), al estudiante y al familiar vinculado. Al pedir confirmación de un menor: al familiar. Al responder la residencia: al estudiante y al familiar. Al editar, cancelar, resolver o vencer: a la residencia actual, al estudiante y al familiar; al cancelar, además, a las residencias de las solicitudes/listas cerradas. A los 80 días: recordatorio al estudiante para confirmar que sigue buscando. WhatsApp: sin API, solo botón pre-formateado como en el resto del producto.
+
+**Auditoría.** Cada transición, cada edición del estudiante y cada versión de la respuesta de la residencia generan registro de auditoría (entidad `stay_change_intent`, estado anterior/nuevo, actor, rol, fuente).
+
+**Qué no hace.** No promete disponibilidad en otra residencia, no reserva lugar, no sustituye ni cancela la reserva/estadía vigente, no cierra la estadía, no genera cobros ni fee propios, no emite comprobantes y no modifica snapshots ni tarifas.
+
+---
+
 # 13. Máquina de estados: Residencia
 
 ## 13.1. Entidad
@@ -1169,6 +1260,7 @@ notification_event
 - disponibilidad nueva para lista de espera;
 - recordatorio de 90 días de lista de espera;
 - listas de espera anuladas por reserva confirmada (al estudiante, con cuáles y por qué);
+- aviso "Quiero cambiar" creado / respondido por la residencia / cancelado / resuelto / por vencer / vencido (a residencia actual, estudiante y familiar vinculado, según §12bis.4);
 - oferta de renovación enviada;
 - renovación aceptada;
 - renovación confirmada;
@@ -1213,6 +1305,10 @@ Terminales: `student_activated_request`, `removed_by_student`, `removed_by_resid
 
 No vence automáticamente por tiempo. `retention_check_sent` no es terminal.
 
+## 21.6. Aviso "Quiero cambiar" (stay_change_intent)
+
+Terminales: `cancelled_by_student`, `resolved_new_reservation`, `expired`. `open` no es terminal.
+
 ---
 
 # 22. Casos borde obligatorios para QA
@@ -1254,6 +1350,13 @@ No vence automáticamente por tiempo. `retention_check_sent` no es terminal.
 34. Estudiante menor de edad envía solicitud propia → `contact_target = family_member`; el botón de WhatsApp usa el número del familiar.
 35. Fee `paid` recibe chargeback → alerta admin; reserva y comprobante sin cambios automáticos.
 36. Estudiante ejerce revocación dentro de los 10 días → reserva `cancelled_by_student` (`reason_code = student_revocation_right`), comprobante `voided`, fee permanece `paid`, se abre `support_case` de revisión.
+37. Estudiante alojado presiona "Quiero cambiar" → aviso `open`, la residencia actual y el familiar son notificados; puede enviar solicitud o anotarse en lista de espera de otra residencia con fechas superpuestas (siempre dentro del máximo de 2 solicitudes activas).
+38. Estudiante con aviso `open` cancela → vuelve a regir §5.6bis; listas de espera superpuestas creadas bajo el aviso pasan a `removed_by_student`; si tiene una solicitud en `residence_payment_pending` o posterior, no puede cancelar hasta cerrarla.
+39. Estudiante con aviso `open` confirma reserva en otra residencia → aviso `resolved_new_reservation`; DR2 anula sus listas de espera y las deja en favoritos; la residencia actual es notificada con la fecha de ingreso, sin el nombre de la nueva residencia; la estadía actual no se cierra sola.
+40. Una residencia distinta a la actual consulta la solicitud de un estudiante con aviso `open` → no ve que está alojado ni el aviso (salvo que el estudiante haya activado el interruptor opcional).
+41. Estudiante con oferta de renovación en `accepted_by_student` o posterior intenta crear el aviso → bloqueado hasta resolver la renovación; con oferta `sent`/`viewed` → permitido.
+42. La residencia actual responde con costos y condiciones de salida → estudiante y familiar notificados; la respuesta es informativa y queda auditada; EstuRed no cobra ni media.
+43. Aviso `open` sin confirmación a los 90 días, o salida real registrada sin reserva nueva en EstuRed → `expired`.
 
 ---
 
@@ -1314,7 +1417,8 @@ application_request.submitted (initiated_by=student)
 13. No hacer que el reclamo suspenda estados automáticamente.
 14. No permitir que la residencia confirme múltiples solicitudes para la misma plaza al mismo tiempo.
 15. No permitir que un estudiante tenga más de 2 solicitudes activas.
-15bis. No permitir solicitudes ni listas de espera con fechas superpuestas a una reserva vigente o estadía en curso del estudiante (§5.6bis).
+15bis. No permitir solicitudes ni listas de espera con fechas superpuestas a una reserva vigente o estadía en curso del estudiante (§5.6bis), salvo que el estudiante tenga un aviso "Quiero cambiar" en `open` (§12bis).
+15ter. No fusionar el aviso "Quiero cambiar" con renovación, solicitud ni reserva; no cerrar automáticamente la estadía actual al resolverlo; no mostrar el aviso ni la condición de alojado a residencias que no sean la actual (salvo decisión del estudiante).
 16. No permitir que la residencia envíe más de 1 propuesta de ajuste por solicitud.
 17. No permitir que el familiar envíe solicitudes directamente a la residencia sin aprobación del estudiante.
 18. No calcular el fee sobre los valores originales si hubo propuesta de ajuste aceptada. Usar siempre `snapshot_final`.

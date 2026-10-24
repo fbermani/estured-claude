@@ -3,7 +3,7 @@
 
 Versión: 0.2
 Estado: Documento actualizado para construcción
-Última actualización: 2026-06-27
+Última actualización: 2026-10-23 (§14bis: aviso "Quiero cambiar", DR3/DR3b)
 Depende de: `00_DECISION_LOG.md`, `03_BUSINESS_RULES.md`, `04_STATE_MACHINES.md`
 
 ---
@@ -324,9 +324,9 @@ Debe registrarse y vincularse con un estudiante. El estudiante debe aprobar la v
 - ver favoritos del estudiante;
 - sugerir/agregar residencias a favoritos;
 - **crear propuestas de solicitud** para el estudiante (quedan en `pending_student_approval` hasta aprobación del estudiante — nunca van directamente a la residencia);
-- ver solicitudes del estudiante vinculado;
-- cargar documentación en nombre del estudiante;
+- **seguir** el estado de las solicitudes y reservas del estudiante vinculado, con textos en tercera persona (DR4);
 - subir comprobantes de pago a residencia para referencia;
+- **editar su propio perfil** (nombre, teléfono, relación con el estudiante, datos de facturación del pagador y consentimientos; DR4, `docs/00` §31);
 - pagar fee EstuRed (en ARS con MercadoPago o en USD con PayU);
 - pagar fee de renovación;
 - ver y descargar comprobantes;
@@ -338,6 +338,8 @@ Debe registrarse y vincularse con un estudiante. El estudiante debe aprobar la v
 **No puede:**
 
 - enviar solicitudes directamente a la residencia sin aprobación del estudiante;
+- **editar el perfil ni los documentos del estudiante, ni cargar documentación en su nombre** (DR4);
+- **ver los mensajes privados del estudiante** (p. ej. el mensaje del aviso "Quiero cambiar"; DR4);
 - decidir por el estudiante;
 - aceptar propuestas de ajuste de la residencia en nombre del estudiante;
 - modificar una propuesta de solicitud ya enviada al estudiante;
@@ -358,7 +360,9 @@ Debe registrarse y vincularse con un estudiante. El estudiante debe aprobar la v
 
 **Pagos hechos por familiar:**
 
-- La Factura C del fee EstuRed se emite a nombre del familiar pagador.
+- La Factura C del fee EstuRed se emite a nombre del familiar pagador, con los datos de facturación (CUIT/DNI y condición de IVA) guardados en su perfil (DR4).
+- El familiar pagador ve el desglose de costos y la pantalla de pago del fee (`docs/08` §6.8) para las reservas que el estudiante le asigna como pagador.
+- **Avisos que recibe el familiar (DR4):** hitos clave y todo lo relacionado con pagos (propuestas aprobadas/rechazadas, solicitud aceptada, pago a la residencia pedido, fee a pagar y su plazo, reserva confirmada, comprobante, vencimientos, aviso de "Quiero cambiar" de un menor para confirmar). No recibe mensajes privados ni cada movimiento menor.
 - El Comprobante de Reserva Confirmada se emite a nombre del estudiante.
 - El comprobante puede indicar al familiar como pagador o vinculado.
 
@@ -963,6 +967,23 @@ Residence owner o staff autorizado. Con confirmación explícita y auditoría.
 ### 14.5. Emitir Comprobante de Renovación Confirmada
 
 Sistema lo emite cuando la renovación está confirmada. Admin puede reemitir o anular con motivo.
+
+---
+
+## 14bis. Permisos sobre el aviso "Quiero cambiar" *(DR3/DR3b, 2026-10-23)*
+
+Reglas en `docs/04` §12bis.
+
+| Acción | Quién puede |
+|---|---|
+| Crear, editar y cancelar el aviso | Solo el estudiante alojado (cancelar se bloquea con pago en curso: Soporte). |
+| Confirmar el aviso de un menor | Solo el familiar vinculado activo. No crea, edita ni cancela. |
+| Ver el aviso | Estudiante; familiar vinculado (solo lectura, **sin el mensaje privado del estudiante**); residencia actual (owner/staff con acceso a residentes); admin. |
+| Responder el aviso (costos, condiciones, detalles) | residence_owner y residence_staff con acceso a residentes de la residencia actual; admin en caso excepcional. |
+| Definir la política de salida anticipada (perfil) | residence_owner o staff con permiso de edición del perfil. Es pública en la ficha. |
+| Finalizar la estadía con salida anticipada (depósito devuelto / no devuelto / sin depósito, nota) | **Solo la residencia actual** (owner o staff autorizado) o admin; nunca el estudiante, el aviso ni el sistema. |
+| Agregar nota de salida del estudiante | Solo el estudiante. |
+| Ver la señal "en proceso de mudanza" | La residencia que recibe la solicitud o lista de espera; sin acceso al aviso ni a la residencia de origen. |
 
 ---
 

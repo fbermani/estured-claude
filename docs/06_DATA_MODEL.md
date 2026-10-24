@@ -3,7 +3,7 @@
 
 **Versión:** 0.2
 **Estado:** Documento actualizado para construcción
-**Última actualización:** 2026-06-27
+**Última actualización:** 2026-10-23 (DR3/DR3b: §4.22, §14bis)
 **Depende de:** `00_DECISION_LOG.md`, `01_PRODUCT_BRIEF.md`, `02_MVP_SCOPE.md`, `03_BUSINESS_RULES.md`, `04_STATE_MACHINES.md`, `05_ROLES_AND_PERMISSIONS.md`
 
 ---
@@ -269,6 +269,11 @@ No usar `jsonb` para reemplazar relaciones centrales como usuarios, residencias,
 
 ---
 
+### 4.22. `stay_change_intent_status` *(nuevo, DR3 2026-10-23)*
+`open`, `cancelled_by_student`, `resolved_new_reservation`, `expired`
+
+---
+
 ## 5. Núcleo de usuarios e identidad
 
 ### 5.1. `users`
@@ -405,9 +410,11 @@ Reglas:
 | `user_id` | uuid | FK a `users.id` |
 | `first_name` | text | Nombre |
 | `last_name` | text | Apellido |
-| `relationship_type` | text | padre, madre, tutor, familiar |
+| `relationship_type` | text | padre, madre, tutor, otro (DR4; el valor `familiar` previo equivale a `otro`) |
 | `identity_document_number` | text null | Privado |
-| `phone` | text null | Privado, para contacto WhatsApp si es `contact_target` |
+| `phone` | text null | Privado, para contacto WhatsApp si es `contact_target`; editable por el familiar (DR4) |
+| `billing_tax_id` | text null | CUIT/DNI del pagador, guardado para el fee (DR4). Privado; nunca visible para la residencia |
+| `billing_vat_condition` | text null | Condición de IVA del pagador (DR4) |
 | `created_at` | timestamptz | Alta |
 | `updated_at` | timestamptz | Actualización |
 
@@ -790,7 +797,8 @@ Reglas:
 | `last_keep_alive_notified_at` | timestamptz null | Notificación 90 días |
 | `removed_at` | timestamptz null | Remoción |
 | `removed_by` | uuid null | Quién removió |
-| `removed_reason` | text null | Motivo |
+| `removed_reason` | text null | Motivo (p. ej. `stay_change_cancelled`, DR3) |
+| `stay_change_intent_id` | uuid null | FK `stay_change_intents` si se creó bajo la excepción "Quiero cambiar" (DR3, §14bis) |
 | `created_at` | timestamptz | Alta |
 | `updated_at` | timestamptz | Actualización |
 
@@ -824,6 +832,7 @@ Reglas:
 | `rejection_reason_code` | text null | Enum de motivo de rechazo |
 | `rejection_reason_internal` | text null | Motivo interno si `other` |
 | `cancelled_reason` | text null | Motivo cancelación |
+| `stay_change_intent_id` | uuid null | FK `stay_change_intents` si se envió bajo la excepción "Quiero cambiar" (DR3, §14bis) |
 | `expires_at` | timestamptz null | 48h desde envío de solicitud *(actualizado)* |
 | `created_by_user_id` | uuid | Estudiante/familiar autorizado |
 | `created_at` | timestamptz | Enviada |
@@ -1192,6 +1201,81 @@ Reglas:
 
 ---
 
+## 14bis. Aviso "Quiero cambiar" *(tabla nueva, DR3/DR3b 2026-10-23)*
+
+Entidad **separada** de renovaciones, solicitudes y reservas (`docs/04` §12bis). Supuesto reversible de modelado: una sola tabla con la respuesta de la residencia embebida; si el dueño quiere historial de versiones de la respuesta, se extrae a una tabla hija (hoy el historial vive en `audit_logs`). El estado `pending_guardian_confirmation` (`docs/04` §12bis.2) debe sumarse al enum de §4.22.
+
+### 14bis.1. `stay_change_intents`
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `id` | uuid | ID |
+| `student_profile_id` | uuid | Estudiante que avisa |
+| `resident_stay_id` | uuid null | Estadía actual (§15.1) |
+| `reservation_id` | uuid null | Reserva vigente (§13.1). CHECK: al menos una de `resident_stay_id` / `reservation_id` no nula |
+| `current_residence_id` | uuid | Residencia actual (la única que ve el aviso) |
+| `status` | stay_change_intent_status | Estado |
+| `estimated_exit_date` | date null | Fecha estimada de salida, opcional (editable mientras `open`) |
+| `student_message` | text null | Mensaje **privado** del estudiante a la residencia actual (editable mientras `open`); no lo ve el familiar |
+| `terms_accepted_at` | timestamptz | Checkbox obligatorio de aceptación de las reglas del aviso |
+| `created_by_minor` | boolean | `true` si el estudiante era menor al crearlo (exige confirmación del familiar) |
+| `guardian_confirmed_at` | timestamptz null | Cuándo el familiar vinculado confirmó (solo menores) |
+| `guardian_confirmed_by_user_id` | uuid null | Familiar que confirmó |
+| `notice_started_at` | timestamptz null | Inicio del preaviso: `created_at` (mayores) o `guardian_confirmed_at` (menores). Nulo mientras `pending_guardian_confirmation` |
+| `payment_unlocked_at` | timestamptz null | `notice_started_at` + 48 h (supuesto): antes de esta fecha no se avanza al pago ni a la confirmación de una reserva nueva |
+| `residence_response_message` | text null | Respuesta de la residencia |
+| `residence_exit_costs_text` | text null | Costos de salida anticipada informados (informativo), precargados desde la política de la residencia (§14bis.2) |
+| `residence_exit_costs_usd` | numeric null | Monto de referencia opcional en USD |
+| `residence_exit_conditions_text` | text null | Condiciones (p. ej. depósito, estadía mínima, preaviso) |
+| `residence_exit_details_text` | text null | Detalles de la salida (fecha prevista, entrega de habitación) |
+| `residence_responded_at` | timestamptz null | Última respuesta |
+| `residence_responded_by_user_id` | uuid null | Usuario de la residencia |
+| `response_seen_by_student_at` | timestamptz null | Cuándo la vio el estudiante |
+| `resolved_reservation_id` | uuid null | Reserva nueva que lo resolvió (`resolved_new_reservation`) |
+| `resolved_at` | timestamptz null | Fecha de resolución/cancelación/vencimiento |
+| `expires_at` | timestamptz null | `notice_started_at` + 90 días |
+| `last_keep_alive_notified_at` | timestamptz null | Recordatorio previo al vencimiento |
+| `created_by_user_id` | uuid | Estudiante (el familiar no crea, `docs/04` §12bis.4) |
+| `created_at` | timestamptz | Alta |
+| `updated_at` | timestamptz | Actualización |
+
+*(Se elimina el campo `share_with_other_residences` del borrador de DR3: la señal "en proceso de mudanza" es automática, §14bis.4.)*
+
+### 14bis.2. Política de salida anticipada en `residences` *(campos nuevos, DR3b)*
+
+La residencia define **una vez** su política; se muestra en la ficha pública **antes de reservar** y se precarga al responder el aviso. El depósito **no se duplica**: usa el campo de condiciones de reserva ya existente en `residences` (`deposit_usd`, §9.1 / migración 0025).
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `early_exit_policy_text` | text null | Cláusulas básicas: derechos y obligaciones sobre el depósito y la salida anticipada |
+| `early_exit_policy_updated_at` | timestamptz null | Última edición (cada cambio queda en `audit_logs`) |
+
+### 14bis.3. Salida anticipada en `resident_stays` *(campos nuevos, DR3b)*
+
+La estadía la finaliza **siempre la residencia actual** con "Registrar salida" (nunca el aviso ni el sistema).
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `exit_type` | text null | `early_exit` (salida anticipada) u otro valor que defina el cierre ordinario. Con aviso `resolved_new_reservation`, la residencia marca `early_exit` |
+| `deposit_return_status` | text null | `returned` (devuelto), `not_returned` (no devuelto) o `no_deposit` (sin depósito). Obligatorio si `exit_type = early_exit` |
+| `exit_residence_note` | text null | Nota libre de la residencia sobre la salida |
+| `exit_student_note` | text null | Nota opcional del estudiante (la carga una vez registrada la salida; auditada) |
+| `stay_change_intent_id` | uuid null | Aviso que originó la salida, si existe |
+
+### 14bis.4. Señal y contexto en solicitudes y listas de espera *(DR3b)*
+
+`application_requests.stay_change_intent_id` y `waitlist_entries.stay_change_intent_id` (ya definidos) alimentan la señal **"en proceso de mudanza"** que ve la residencia que recibe la solicitud o lista: es un indicador booleano derivado, que **no** expone el aviso, la residencia de origen ni el motivo. Se agrega en ambas tablas `move_context_note` (`text null`), campo opcional que el estudiante completa si quiere contar el contexto de su mudanza a esa residencia.
+
+### 14bis.5. Reglas
+
+- un solo aviso `pending_guardian_confirmation`/`open` por estudiante (índice único parcial, §24.9);
+- no tiene montos propios a cobrar ni toca snapshots, tarifas, fee ni comprobantes; los costos son **texto informativo** de la residencia;
+- visibilidad (RLS conceptual): lo lee el estudiante, el familiar vinculado activo (solo lectura, **sin `student_message`**), el staff de `current_residence_id` y el admin; **ninguna otra residencia**: la residencia nueva solo recibe la señal derivada de §14bis.4 en las solicitudes/listas de ese estudiante, y la residencia actual, al resolverse, la **fecha de ingreso** a la nueva (nunca su nombre);
+- la residencia actual **no** ve las solicitudes ni listas de espera del estudiante en otras residencias; la residencia nueva **no** ve la residencia de origen ni el motivo (salvo lo que el estudiante escriba en `move_context_note`);
+- `early_exit_policy_text` es público (ficha); `student_message`, `exit_student_note` y `move_context_note` son privados de su destinatario.
+
+---
+
 ## 15. Residentes y comunidad visible
 
 ### 15.1. `resident_stays`
@@ -1491,6 +1575,7 @@ Reglas:
 Eventos mínimos:
 - propuesta del familiar recibida (al estudiante);
 - propuesta del familiar aprobada/rechazada/expirada (al familiar);
+- hitos y pagos del estudiante vinculado (al familiar, DR4): solicitud aceptada, pago a la residencia pedido, fee a pagar y su plazo, reserva confirmada, comprobante, vencimientos. Sin mensajes privados ni movimientos menores;
 - solicitud enviada / recibida por residencia;
 - recordatorio diario a residencia;
 - contacto establecido;
@@ -1503,6 +1588,7 @@ Eventos mínimos:
 - reserva confirmada / comprobante emitido;
 - renovación enviada / aceptada / confirmada;
 - lista de espera con disponibilidad / recordatorio 90 días / listas anuladas por reserva confirmada;
+- aviso "Quiero cambiar" creado / respondido por la residencia / cancelado / resuelto / por vencer / vencido (residencia actual, estudiante y familiar vinculado; `notification_type` p. ej. `stay_change_opened`, `stay_change_response`, `stay_change_closed`);
 - reclamo abierto / actualizado.
 
 ---
@@ -1587,6 +1673,7 @@ Acciones obligatorias a auditar (ampliado):
 - `residences 1:N reservations`
 - `residences 1:N waitlist_entries`
 - `residences 1:N renewal_offers`
+- `residences 1:N stay_change_intents` (como `current_residence_id`)
 - `residences 1:N residence_verifications`
 - `residences 1:N residence_faq_items`
 
@@ -1613,6 +1700,15 @@ Acciones obligatorias a auditar (ampliado):
 - `renewal_offers 1:0..1 external_residence_payments`
 - `renewal_offers 1:1 estured_fee_payments`
 - `renewal_offers 1:0..1 renewal_receipts`
+
+---
+
+### 23.5bis. Aviso "Quiero cambiar"
+
+- `student_profiles 1:N stay_change_intents` (a lo sumo 1 `open`)
+- `resident_stays 1:N stay_change_intents`
+- `reservations 1:N stay_change_intents` (como reserva vigente origen) y `reservations 1:0..1 stay_change_intents` (como `resolved_reservation_id`)
+- `stay_change_intents 1:N application_requests` y `stay_change_intents 1:N waitlist_entries` (los creados bajo la excepción)
 
 ---
 
@@ -1687,6 +1783,13 @@ Acciones obligatorias a auditar (ampliado):
 
 - `place_application_queue(place_id, is_visible_to_residence)`;
 - `place_application_queue(room_type_id, is_visible_to_residence)` (Perfil Verificado).
+
+### 24.9. Aviso "Quiero cambiar"
+
+- unique parcial: un `stay_change_intents` con `status = open` por `student_profile_id`;
+- `stay_change_intents(current_residence_id, status)` (panel de Residentes);
+- `stay_change_intents(expires_at)` para el job de vencimiento;
+- `application_requests(stay_change_intent_id)` y `waitlist_entries(stay_change_intent_id)`.
 
 ---
 
@@ -1797,6 +1900,12 @@ Evidencia de casos de soporte. Privado; acceso por partes del caso y admin.
 - notificar 30 días antes de vencimiento;
 - pasar a `verification_expired` si vence sin renovar.
 
+### 27.11. Aviso "Quiero cambiar" (DR3)
+- detectar `stay_change_intents` con `status = open` y `expires_at` a 10 días: notificar al estudiante para confirmar que sigue buscando (extiende `expires_at` 90 días); sin confirmación, pasar a `expired` y notificar;
+- al registrarse la salida real de la estadía (`resident_stays.end_date`) sin reserva nueva: pasar a `expired`;
+- al confirmarse una reserva del estudiante en una residencia distinta a `current_residence_id`: pasar a `resolved_new_reservation` y notificar a la residencia actual con la fecha de ingreso, sin nombrar la nueva residencia (supuesto); DR2 corre aparte (§27.8);
+- **no** cerrar la estadía actual ni liberar la plaza automáticamente (D11).
+
 ---
 
 ## 28. Casos borde que el modelo debe soportar
@@ -1822,6 +1931,8 @@ Evidencia de casos de soporte. Privado; acceso por partes del caso y admin.
 19. Revocación dentro de los 10 días → `reservations.cancellation_reason_code = student_revocation_right`, comprobante `voided`, fee sigue `paid`.
 20. Chargeback sobre fee `paid` → alerta admin; reserva y comprobante sin cambios automáticos.
 21. Solicitud en Perfil Verificado → cola por `room_type_id`; en Gestión Operativa → cola por `place_id`.
+22. Estudiante alojado crea `stay_change_intents` → puede crear `application_requests`/`waitlist_entries` con fechas superpuestas (con `stay_change_intent_id`); una segunda fila `open` del mismo estudiante → bloqueada por índice único parcial.
+23. Reserva nueva `confirmed` en otra residencia con aviso `open` → aviso `resolved_new_reservation`, `waitlist_entries` anuladas (DR2), `resident_stays` de la residencia actual sin cambios hasta que la residencia registre la salida.
 
 ---
 

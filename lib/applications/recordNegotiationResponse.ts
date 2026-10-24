@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
+import { checkStayChangeAdvanceGate } from "@/lib/stayChange/advanceGate";
 import { calculateFeeEstimate } from "@/lib/applications/fee";
 import { usdToArs } from "@/lib/mock/exchange";
 import { normalizeInitialPaymentMode, resolveNegotiatedInitialPaymentUsd } from "@/lib/reservations/initialPayment";
@@ -62,6 +63,12 @@ export async function recordNegotiationResponse(
   if (!proposal) return { ok: false, error: "No encontramos la propuesta." };
   if (new Date(proposal.expires_at) < new Date()) {
     return { ok: false, error: "Esta propuesta ya venció." };
+  }
+
+  // DR3: una solicitud creada bajo el aviso "Quiero cambiar" no avanza a pago antes de 48 h (supuesto reversible).
+  if (params.response !== "rejected_closed") {
+    const gate = await checkStayChangeAdvanceGate(admin, { applicationId: params.applicationId, audience: "student" });
+    if (!gate.ok) return { ok: false, error: gate.error };
   }
 
   const { response, applicationId, actorUserId } = params;

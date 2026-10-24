@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiero cambiar: mobile</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=Hanken+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1d2722;--ink-soft:#44524b;--cream:#fbf6ec;--line:#e8e0d2;--forest-ink:#0c3a2c}
+body{margin:0;background:var(--cream);color:var(--ink);font-family:"Hanken Grotesk",system-ui,sans-serif}
+header{padding:28px 32px 8px}
+h1{font-family:"Bricolage Grotesque",sans-serif;font-size:28px;margin:0;letter-spacing:-.02em}
+header p{color:var(--ink-soft);margin:6px 0 0;max-width:80ch}
+.grid{display:flex;flex-wrap:wrap;gap:32px;padding:24px 32px 64px}
+figure{margin:0;display:flex;flex-direction:column;gap:10px}
+figcaption{font-weight:700;font-size:14px}
+figcaption small{display:block;font-weight:600;color:var(--ink-soft)}
+.phone{width:375px;height:812px;border-radius:36px;overflow:hidden;border:10px solid var(--forest-ink);box-shadow:0 12px 40px rgb(29 39 34/.16);background:#fff}
+iframe{width:375px;height:812px;border:0;display:block}
+</style>
+</head>
+<body>
+<header>
+  <h1>Quiero cambiar · vistas mobile (375 px)</h1>
+  <p>Cada teléfono carga <code>mockup-desktop.html</code> (es responsive) en el estado indicado. Tiene que estar en la misma carpeta. Para navegar todos los estados en mobile, abrí <code>mockup-desktop.html</code> con el ancho del navegador en 375 px.</p>
+</header>
+<div class="grid" id="grid"></div>
+<script>
+const V=[
+  ["mi","off","Mi residencia · sin aviso"],
+  ["mi","modal","Modal “Avisá a tu residencia” (hoja inferior)"],
+  ["mi","open","Aviso abierto, sin respuesta"],
+  ["mi","replied","La residencia respondió"],
+  ["mi","cancel","Cancelar aviso"],
+  ["ficha","blocked","Ficha · sin aviso (atajo)"],
+  ["ficha","sheet","Ficha · hoja con fecha superpuesta"],
+  ["res","list","Residencia · Residentes"],
+  ["res","respond","Residencia · responder"],
+  ["res","empty","Residencia · vacío"],
+  ["fam","replied","Familiar · residencia respondió"],
+  ["land","students","/for-students · bloque"],
+  ["land","residences","/for-residences · bloque"]
+];
+const g=document.getElementById("grid");
+V.forEach(([s,st,l])=>{const f=document.createElement("figure");f.innerHTML=`<figcaption>${l}<small>#s=${s}&st=${st}</small></figcaption><div class="phone"><iframe loading="lazy" title="${l}" src="mockup-desktop.html#s=${s}&st=${st}&bare=1"></iframe></div>`;g.appendChild(f);});
+</script>
+</body>
+</html>

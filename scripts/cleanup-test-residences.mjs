@@ -37,6 +37,20 @@ async function run(label, query) {
   console.log(`  ${apply ? "✓" : "·"} ${label}${typeof count === "number" ? ` (${count})` : ""}`);
 }
 
+// Tablas de la migración 0044 (Ciclo 59): si todavía no está aplicada en esta base, se omiten.
+async function runIfTableExists(label, query) {
+  const { error } = await query;
+  if (error && /could not find the table|does not exist/i.test(error.message)) {
+    console.log(`  - ${label}: tabla inexistente (migración 0044 sin aplicar), se omite`);
+    return;
+  }
+  if (error) {
+    console.error(`✗ ${label}: ${error.message}`);
+    process.exit(1);
+  }
+  console.log(`  ${apply ? "✓" : "·"} ${label}`);
+}
+
 const { data: residences, error: resError } = await admin
   .from("residences")
   .select("id, name, slug")
@@ -60,6 +74,9 @@ for (const residence of residences) {
   const id = residence.id;
   console.log(`\n# ${residence.slug}`);
 
+  // DR3 (Ciclo 59): salidas anticipadas y avisos "Quiero cambiar" antes de estadías y reservas.
+  await runIfTableExists("stay_early_exits", del("stay_early_exits", (q) => q.eq("residence_id", id)));
+  await runIfTableExists("stay_change_intents", del("stay_change_intents", (q) => q.eq("current_residence_id", id)));
   await run("resident_stays", del("resident_stays", (q) => q.eq("residence_id", id)));
   await run("support_cases", del("support_cases", (q) => q.eq("residence_id", id)));
 

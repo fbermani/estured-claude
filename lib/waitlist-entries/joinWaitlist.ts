@@ -79,6 +79,7 @@ export async function joinWaitlist(
     studentProfileId: studentProfile.id,
     desiredStartDate: params.desiredStartDate,
     durationMonths: params.desiredDurationMonths,
+    residenceId: params.residenceId,
   });
   if (!overlap.ok) return { ok: false, error: overlap.error };
 
@@ -113,6 +114,8 @@ export async function joinWaitlist(
       room_type_id: params.roomTypeId,
       desired_start_date: params.desiredStartDate,
       desired_duration_months: params.desiredDurationMonths,
+      // DR3: si se permitió por la excepción "Quiero cambiar", queda vinculada al aviso (se cierra si se cancela).
+      ...(overlap.stayChangeIntentId ? { stay_change_intent_id: overlap.stayChangeIntentId } : {}),
     })
     .select("id")
     .single();

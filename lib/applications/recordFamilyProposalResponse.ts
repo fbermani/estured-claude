@@ -114,6 +114,7 @@ export async function recordFamilyProposalResponse(
     studentProfileId: studentProfile.id,
     desiredStartDate: proposal.desired_start_date,
     durationMonths: proposal.initial_duration_months,
+    residenceId: proposal.residence_id,
   });
   if (!overlap.ok) return { ok: false, error: overlap.error };
 
@@ -148,6 +149,7 @@ export async function recordFamilyProposalResponse(
     familyProposalId: proposal.id,
     createdByUserId: params.actorUserId,
     actorRole: "student",
+    stayChangeIntentId: overlap.stayChangeIntentId,
   });
   if ("error" in result) return { ok: false, error: result.error };
 

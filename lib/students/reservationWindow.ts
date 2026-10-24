@@ -14,6 +14,10 @@
  * haya terminado (`resident_stays.status = 'inactive'`). Reservas con varios períodos (raro) se funden en uno
  * solo: desde el ingreso más temprano hasta el fin más tardío (criterio conservador).
  *
+ * EXCEPCIÓN (Ciclo 59, DR3 "Quiero cambiar"): con un aviso `open` del estudiante, la superposición con SU período
+ * vigente se permite hacia OTRAS residencias (no hacia la actual); la solicitud/lista creada queda vinculada al aviso
+ * (`stay_change_intent_id`) para poder cerrarla si el aviso se cancela. Ver `lib/stayChange/exception.ts`.
+ *
  * Las fechas son date-only ("YYYY-MM-DD") y se operan como strings/UTC: nunca `new Date("YYYY-MM-DD")` +
  * horario local (correría el día en Argentina). Sin `server-only` a propósito: las funciones puras sirven
  * también a componentes cliente y tests; el loader recibe el cliente de Supabase por parámetro.
@@ -22,6 +26,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { LIVE_RESERVATION_STATUSES } from "@/lib/reservations/reservationStatus";
 import { addMonthsIso, formatDateOnly } from "@/lib/students/contractEnd";
 import { loadStudentContracts } from "@/lib/students/loadStudentContracts";
+import { exceptionAppliesToResidence, findStayChangeException } from "@/lib/stayChange/exception";
 
 const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -34,12 +39,17 @@ export type ReservationWindow = {
 
 /** Qué mostrar en el panel de solicitud de la ficha cuando el estudiante tiene una ventana vigente. */
 export type ReservationWindowNotice = {
-  /** Primera fecha de ingreso permitida para solicitar (= fin del período). "YYYY-MM-DD". */
-  minRequestStartDate: string;
+  /**
+   * Primera fecha de ingreso permitida para solicitar (= fin del período). "YYYY-MM-DD". `null` con un aviso
+   * "Quiero cambiar" abierto (DR3): puede pedir cualquier fecha, aunque se superponga.
+   */
+  minRequestStartDate: string | null;
   /** "Ya tenés una reserva hasta 20/01/2027. Podés solicitar para fechas posteriores." */
   message: string;
   /** Fin formateado "DD/MM/AAAA". */
   endDateLabel: string;
+  /** `true` si rige la excepción DR3 hacia ESTA residencia (aviso `open` y esta no es la residencia actual). */
+  stayChangeOpen: boolean;
 };
 
 /** Hoy en America/Argentina/Buenos_Aires como "YYYY-MM-DD" (el `now` se inyecta para testear). */
@@ -82,12 +92,25 @@ export function reservationWindowMessage(window: ReservationWindow, audience: "s
  * Lo que consume el panel de la ficha: fecha mínima para solicitar + texto. `null` si no hay ventana vigente
  * (el panel se comporta como siempre).
  */
-export function describeReservationWindow(window: ReservationWindow | null): ReservationWindowNotice | null {
+export function describeReservationWindow(
+  window: ReservationWindow | null,
+  options: { stayChangeOpen?: boolean } = {},
+): ReservationWindowNotice | null {
   if (!window) return null;
+  if (options.stayChangeOpen) {
+    return {
+      minRequestStartDate: null,
+      message:
+        "Estás buscando cambiar de residencia; tu residencia actual fue avisada. Podés solicitar para cualquier fecha, aunque se superponga con tu estadía.",
+      endDateLabel: formatDateOnly(window.endDate),
+      stayChangeOpen: true,
+    };
+  }
   return {
     minRequestStartDate: window.endDate,
     message: reservationWindowMessage(window),
     endDateLabel: formatDateOnly(window.endDate),
+    stayChangeOpen: false,
   };
 }
 
@@ -185,7 +208,10 @@ export async function loadReservationWindowForUser(
   return loadReservationWindow(supabase, profile.id as string, now);
 }
 
-export type ReservationOverlapCheck = { ok: true } | { ok: false; error: string };
+export type ReservationOverlapCheck =
+  /** `stayChangeIntentId`: id del aviso "Quiero cambiar" si el pedido se permitió POR la excepción (se guarda en la solicitud/lista). */
+  | { ok: true; stayChangeIntentId: string | null }
+  | { ok: false; error: string };
 
 /**
  * Guarda server-side para solicitudes, listas de espera y propuestas del familiar. Falla CERRADO si no pudo
@@ -200,15 +226,22 @@ export async function checkReservationWindowOverlap(
     durationMonths: number | null | undefined;
     /** Quién ve el mensaje: el estudiante ("Ya tenés…") o el familiar que propone ("Este estudiante ya tiene…"). */
     audience?: "student" | "family";
+    /** Residencia a la que va el pedido: la excepción "Quiero cambiar" NO rige hacia la residencia actual. */
+    residenceId: string;
   },
   now: Date = new Date(),
 ): Promise<ReservationOverlapCheck> {
   const { window, failed } = await loadReservationWindow(supabase, params.studentProfileId, now);
   if (failed) return { ok: false, error: "No pudimos verificar tus reservas vigentes. Intentá de nuevo en unos minutos." };
-  if (!window) return { ok: true };
-  const start = params.desiredStartDate && DATE_ONLY.test(params.desiredStartDate) ? params.desiredStartDate : todayArIso(now);
-  if (overlapsReservationWindow(window, start, params.durationMonths)) {
-    return { ok: false, error: reservationWindowMessage(window, params.audience) };
+  // DR3 (decisión del dueño): con un aviso "Quiero cambiar" abierto, TODA solicitud/lista hacia otra residencia queda
+  // vinculada al aviso (haya o no superposición): señal "en proceso de mudanza", preaviso de 48 h y cierre al cancelar.
+  const { exception, failed: exceptionFailed } = await findStayChangeException(supabase, params.studentProfileId);
+  if (!exceptionFailed && exceptionAppliesToResidence(exception, params.residenceId)) {
+    return { ok: true, stayChangeIntentId: exception!.intentId };
   }
-  return { ok: true };
+  if (!window) return { ok: true, stayChangeIntentId: null };
+  const start = params.desiredStartDate && DATE_ONLY.test(params.desiredStartDate) ? params.desiredStartDate : todayArIso(now);
+  if (!overlapsReservationWindow(window, start, params.durationMonths)) return { ok: true, stayChangeIntentId: null };
+  if (exceptionFailed) return { ok: false, error: "No pudimos verificar tu aviso de cambio. Intentá de nuevo en unos minutos." };
+  return { ok: false, error: reservationWindowMessage(window, params.audience) };
 }

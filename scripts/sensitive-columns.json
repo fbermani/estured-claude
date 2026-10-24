@@ -20,6 +20,8 @@
     "payment_settings",
     "audit_logs",
     "waitlist_signups",
-    "residence_verifications"
+    "residence_verifications",
+    "stay_change_intents",
+    "stay_early_exits"
   ]
 }

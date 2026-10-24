@@ -3,7 +3,7 @@
 
 **Versión:** 0.2
 **Estado:** Documento actualizado para construcción
-**Última actualización:** 2026-06-27
+**Última actualización:** 2026-10-23 (DR3/DR3b: §6.16, §7.12 "Quiero cambiar")
 **Depende de:** `00_DECISION_LOG.md`, `01_PRODUCT_BRIEF.md`, `02_MVP_SCOPE.md`, `03_BUSINESS_RULES.md`, `04_STATE_MACHINES.md`, `05_ROLES_AND_PERMISSIONS.md`, `06_DATA_MODEL.md`, `07_API_SPEC.md`
 
 ---
@@ -170,8 +170,8 @@ Ruta base: `/students`
 | `/students/waitlist` | Lista de espera | Estudiante/Familiar |
 | `/students/renewals` | Renovaciones | Estudiante/Familiar |
 | `/students/renewals/[id]` | Detalle de renovación | Estudiante/Familiar |
-| `/students/profile` | Perfil estudiante | Estudiante |
-| `/students/residency` | Mi residencia (estadía actual, contrato hasta, renovación) | Estudiante |
+| `/students/profile` | Perfil estudiante; para el familiar (DR4), su propio perfil: nombre, teléfono, relación con el estudiante, datos de facturación del pagador y consentimientos | Estudiante / Familiar |
+| `/students/residency` | Mi residencia (estadía actual, contrato hasta, renovación y botón "Quiero cambiar", ver §6.16) | Estudiante (el familiar vinculado lo ve en solo lectura) |
 | `/students/documents` | Documentos | Estudiante/Familiar con permisos |
 | `/students/family-link` | Familiar vinculado | Estudiante/Familiar |
 | `/students/settings` | Configuración | Estudiante/Familiar |
@@ -275,7 +275,11 @@ Ruta base: `/admin`
 
 **Contenido mínimo:** mudarse a CABA con más confianza; residencias verificadas; solicitudes registradas; posibilidad de que un familiar proponga y acompañe; Comprobante de Reserva Confirmada; comunidad visible; disponibilidad sujeta a confirmación; pasos del proceso; FAQ.
 
-**CTA principal:** Buscar residencia en CABA. **CTA secundario:** Crear cuenta de estudiante.
+**Bloque destacado "Quiero cambiar" (DR3, 2026-10-23; ver §6.16):** sección propia, visible sin scroll excesivo, que explica que si ya vivís en una residencia y querés mudarte, avisás con un botón, tu residencia actual lo sabe con tiempo y podés consultar y anotarte en lista de espera de otras residencias sin esperar a terminar tu contrato. Beneficios a mostrar: cambiar con transparencia (la residencia te informa de antemano costos y condiciones de salida, p. ej. el depósito), sin que tengas que ocultar que buscás; avisos cuando se libere lugar; podés cancelarlo cuando quieras. Copy: lenguaje de solicitud, sin prometer disponibilidad ("solicitud sujeta a confirmación"); "Soporte", no "mediación".
+
+**Bloque "Para las familias" (DR4, 2026-10-23):** las familias son público clave. Se destaca que el familiar puede **seguir** cada paso (estado de solicitudes y reserva), **proponer** residencias (el estudiante decide), **pagar** el fee con sus propios datos de facturación guardados y recibir avisos de hitos y pagos; sin acceso a los mensajes privados ni a los documentos del estudiante. Copy: "solicitud sujeta a confirmación"; "Soporte", no "mediación".
+
+**CTA principal:** Buscar residencia en CABA. **CTA secundario:** Crear cuenta de estudiante. **CTA terciario (DR4):** Crear cuenta de familiar (`/register/family`).
 
 ---
 
@@ -288,6 +292,8 @@ Ruta base: `/admin`
 **CTA principal:** Quiero sumar mi residencia. **CTA secundario:** Ver cómo funciona para residencias.
 
 **Copy recomendado:** "EstuRed no reemplaza tu operación. La ordena, la hace más clara y te ayuda a convertir mejores solicitudes."
+
+**Bloque destacado "Quiero cambiar" (DR3, 2026-10-23; ver §6.16 y §7.12):** sección propia que presenta el beneficio para la residencia: **previsibilidad**. Hoy muchos estudiantes se cambian sin avisar y eso perjudica ocupación, planificación y renovaciones; con "Quiero cambiar" el residente avisa con anticipación, la residencia puede **anticipar la salida**, planificar la plaza y **comunicar de antemano los costos** (p. ej. pérdida del depósito si no se cumplió la estadía mínima) y cualquier detalle de la salida. Aclarar que la respuesta es informativa, que no obliga ni reemplaza el contrato, y que las otras residencias no ven que el estudiante está alojado en otra salvo que él lo decida.
 
 ---
 
@@ -324,10 +330,13 @@ Ruta base: `/admin`
 - Ubicación: dirección y mapa con el **pin exacto** de la residencia + universidades cercanas con distancia (ver "Bloque de ubicación").
 - **FAQ de la residencia** (preguntas predefinidas elegidas + respuestas + campo de pregunta libre).
 - CTA "Enviar solicitud de reserva".
+- **Vista del familiar vinculado (DR4):** ve la misma ficha con el desglose de costos ("Qué pagás y a quién") y, en lugar de "Enviar solicitud de reserva", el CTA **"Proponer a [nombre del estudiante]"** (flujo de propuestas del familiar, §6.3). No envía solicitudes en nombre del estudiante.
 - CTA "Sumarme a lista de espera" si está completa o sin disponibilidad.
 - CTA "Crear cuenta para ver más" para invitados.
 
 **Estudiante con reserva vigente o estadía en curso (DR1, 2026-10-23, `docs/00` §31; regla en `docs/04` §5.6bis):** reemplaza la regla simple "un estudiante alojado no puede solicitar". La ficha **no oculta** los CTA: el estudiante puede elegir fechas, pero si el período deseado **se superpone** con el de su reserva/estadía (de `start_date` al fin de contrato: `expected_end_date` o `start_date` + duración) "Enviar solicitud de reserva" y "Sumarme a lista de espera" quedan bloqueados con un mensaje accionable (p. ej. "Ya tenés una reserva hasta el {fecha}. Podés solicitar para fechas posteriores."). Para fechas **posteriores** al fin de ese período, ambos CTA funcionan normalmente (siempre dentro del máximo de 2 solicitudes activas). La validación definitiva es server-side.
+
+**Excepción "Quiero cambiar" (DR3, 2026-10-23; `docs/04` §12bis):** si el estudiante tiene un aviso `open`, el bloqueo anterior **no aplica**: puede enviar la solicitud o sumarse a la lista de espera aunque las fechas se superpongan con su período vigente. La UI lo indica en el formulario ("Estás buscando cambiar de residencia; tu residencia actual fue avisada"), sin mostrar a la residencia consultada datos de la residencia actual. Si no tiene el aviso abierto y las fechas se superponen, el mensaje bloqueante ofrece además el atajo "Quiero cambiar de residencia" que lleva a *Mi residencia* (§6.16).
 
 **Bloque de FAQ:** el estudiante puede escribir una pregunta libre; el sistema responde solo con información cargada por la residencia (FAQ + archivos). Si no hay respuesta, se muestra: "No tenemos esa información todavía. Podés escribirle a la residencia una vez que envíes tu solicitud." La pregunta sin respuesta queda registrada para la residencia.
 
@@ -428,9 +437,9 @@ Ruta base: `/admin`
 4. Estudiante aprueba.
 5. Vínculo queda activo.
 
-**Puede:** ver dashboard compartido, sugerir favoritos, cargar documentación, subir comprobantes, **crear propuestas de solicitud** (que el estudiante debe aprobar), pagar fee EstuRed (ARS o USD), ver comprobantes, recibir notificaciones.
+**Puede:** ver dashboard compartido, sugerir favoritos, subir comprobantes, **crear propuestas de solicitud** (que el estudiante debe aprobar), pagar fee EstuRed (ARS o USD), ver comprobantes, recibir notificaciones (hitos y pagos, DR4), editar su propio perfil (`/students/profile`).
 
-**No puede:** decidir por el estudiante, enviar solicitudes directamente a la residencia, aceptar propuestas de ajuste en nombre del estudiante, vincularse sin aprobación.
+**No puede:** editar el perfil ni los documentos del estudiante, ver sus mensajes privados, decidir por el estudiante, enviar solicitudes directamente a la residencia, aceptar propuestas de ajuste en nombre del estudiante, vincularse sin aprobación.
 
 ---
 
@@ -467,9 +476,12 @@ Ruta base: `/students`
 - Favoritos.
 - Lista de espera.
 - Renovaciones.
+- Mi residencia / "Quiero cambiar" (DR3): para estudiantes alojados, tarjeta destacada con el estado del aviso (sin avisar / abierto / respondido por la residencia con costos y condiciones) y el acceso a §6.16. Para el familiar vinculado, la misma tarjeta en solo lectura.
 - Documentación pendiente.
 - Perfil incompleto.
 - Familiar vinculado.
+
+**Vista del familiar vinculado (DR4):** el dashboard se centra en el estudiante: nombre, estado actual (buscando / solicitud en curso / reserva / alojado), próxima acción (p. ej. fee a pagar y su plazo), comprobante y renovación, siempre con textos en **tercera persona** ("La solicitud de Lucía…", no "tu solicitud") y el mismo nombre de sección que ve el estudiante. Muestra además sus propias propuestas (estado) y los pagos a su cargo. No muestra acciones de edición del perfil ni de los documentos del estudiante.
 
 **Acciones rápidas:** buscar residencia, completar perfil, ver solicitudes, revisar propuesta de ajuste, pagar fee, ver comprobante, ver renovación, subir documento, abrir soporte.
 
@@ -623,6 +635,8 @@ Ruta base: `/students`
 - Política de no reembolso.
 - Checkbox de aceptación.
 
+**Familiar pagador (DR4):** si el `payer_user_id` es el familiar vinculado, ve esta pantalla para las reservas del estudiante (hoy no existe: `loadFeeInstructionsForPayer` ya contempla `payer_user_id`). Los datos de facturación (CUIT/DNI y condición de IVA) se precargan desde su perfil (`/students/profile`) y se pueden confirmar o corregir antes de pagar; no se piden de cero en cada pago. Ve el desglose de costos (pago inicial a la residencia, renta y fee), el plazo y el comprobante. No ve los mensajes privados del estudiante.
+
 **Estados:** medio de pago pendiente; pago manual pendiente; cobro automático pendiente; procesando; pagado; fallido; vencido; reembolsado.
 
 **Modo manual del fee (decisión D2, 2026-10-20, `docs/00` §14.3 y §31).** Cuando el fee se paga por transferencia (modo manual), la pantalla muestra los datos para pagar en pantalla:
@@ -675,7 +689,7 @@ Ruta base: `/students`
 
 Sin cambios de fondo respecto al original. Contenido: residencia, tipo de habitación/plaza, fecha deseada, duración deseada, fecha de inscripción, estado, notificación de disponibilidad.
 
-**Reglas:** no cuenta como solicitud activa; no vence automáticamente; a los 90 días se notifica; no se puede anotar con fechas superpuestas a una reserva vigente o estadía en curso (ver §4.5 y `docs/04` §5.6bis), sí para fechas posteriores al fin de ese período.
+**Reglas:** no cuenta como solicitud activa; no vence automáticamente; a los 90 días se notifica; no se puede anotar con fechas superpuestas a una reserva vigente o estadía en curso (ver §4.5 y `docs/04` §5.6bis), sí para fechas posteriores al fin de ese período, **ni** con fechas superpuestas si tiene abierto un aviso "Quiero cambiar" (excepción DR3, §6.16): en ese caso las entradas se identifican con la etiqueta "Por tu cambio de residencia" y avisan disponibilidad como cualquier otra.
 
 **Al confirmarse una reserva (DR2, 2026-10-23):** todas las listas de espera del estudiante se **anulan automáticamente** (en cualquier residencia). Se le **notifica** cuáles se anularon (residencia y tipo de habitación) y por qué ("confirmaste una reserva"), y esas residencias quedan **solo en sus favoritos** (§6.2). Las entradas anuladas se ven con estado "Anulada: confirmaste una reserva" y el CTA "Ver en favoritos"; no hay acción "quedarme en lista" sobre ellas.
 
@@ -707,6 +721,8 @@ Contenido: oferta de residencia, período, tarifa actual, política de ajustes, 
 
 **Ruta:** `/students/profile`
 
+**Vista del familiar (DR4, 2026-10-23):** la misma ruta muestra al familiar **su propio** perfil (nombre, teléfono de contacto, relación con el estudiante: padre, madre, tutor u otro; datos de facturación del pagador: CUIT/DNI y condición de IVA; consentimiento `family_contact_disclosure`). Nunca el perfil del estudiante en modo edición. El enlace "Mi perfil" del familiar, hoy oculto por dar 404, se reactiva al implementarlo.
+
 **Secciones:** datos personales, datos académicos, objetivo académico, carrera, ciudad de origen, hábitos, intereses, foto/avatar, visibilidad, proveedor de pago preferido, familiar vinculado.
 
 **Datos nunca visibles:** apellido completo, email, teléfono, fecha de nacimiento, universidad, documentos.
@@ -729,9 +745,38 @@ Contenido: documentos cargados, estado, tipo, solicitudes donde fue compartido, 
 
 **Para estudiante:** aprobar vínculo, rechazar vínculo, revocar vínculo, ver permisos (incluyendo si puede crear propuestas), ver actividad del familiar.
 
-**Para familiar:** ver estudiante vinculado, crear propuestas de solicitud, pagar fee, cargar documentos, subir comprobantes, sugerir favoritos, ver comprobantes.
+**Para familiar (DR4):** seguir al estudiante vinculado (solo lectura de solicitudes y reservas), crear propuestas de solicitud, pagar fee, subir comprobantes, sugerir favoritos, ver comprobantes y editar su propio perfil. No edita el perfil ni los documentos del estudiante ni ve sus mensajes privados.
 
 **Reglas:** un estudiante puede tener solo un familiar vinculado; un familiar puede vincular varios estudiantes; menores requieren familiar vinculado.
+
+**Ficha del estudiante vinculado, vista del familiar (DR3, 2026-10-23):** si el estudiante está alojado, el familiar ve en la ficha una tarjeta "Mi residencia" con el contrato vigente y, destacado, el estado de "Quiero cambiar" (sin aviso / abierto / respuesta de la residencia con costos y condiciones de salida) y las notificaciones correspondientes. Explica el beneficio: avisar a tiempo y conocer los costos antes de decidir. El familiar **no** crea ni cancela el aviso (lo decide el estudiante); sí puede proponer solicitudes a otras residencias mientras el aviso esté abierto.
+
+---
+
+### 6.16. Mi residencia y "Quiero cambiar" (DR3, 2026-10-23)
+
+**Ruta:** `/students/residency` (existe; se amplía). Regla en `docs/04` §12bis; entidad en `docs/06` §14bis.
+
+**Contenido de Mi residencia:** residencia actual, tipo de habitación, ingreso, "contrato hasta" (`expected_end_date`), tarifa vigente, estado de renovación (§6.11) y, **destacado**, el bloque "Quiero cambiar". Visible solo con reserva vigente confirmada o estadía en curso.
+
+**Bloque "Quiero cambiar" — estados:**
+- **Sin aviso:** tarjeta explicativa con los beneficios ("Avisale a tu residencia con tiempo, conocé de antemano costos y condiciones de salida, y consultá otras residencias aunque tu contrato siga vigente"). Botón primario **"Quiero cambiar"**.
+- **Modal al presionar** (§2.4, advertencia antes de acción crítica): qué pasa (se avisa a tu residencia actual; podés consultar y anotarte en lista de espera de otras residencias con fechas superpuestas); qué **no** pasa (no cancela tu reserva ni tu estadía actual, no libera tu lugar, no garantiza disponibilidad en otra residencia; los costos de salida los informa tu residencia y EstuRed no los fija ni los cobra); campos opcionales: fecha estimada de salida y mensaje (privado, solo lo ve tu residencia); **checkbox obligatorio** de aceptación de las reglas del aviso. Se aclara también que las residencias que consultes verán que estás "en proceso de mudanza" pero no de cuál venís, que **quien confirma y paga una reserva nueva debe mudarse**, y que hasta pasadas **48 h** del aviso podés enviar solicitudes y anotarte en listas pero no avanzar al pago de una reserva nueva. **Menores:** el aviso queda "Pendiente de confirmación de tu familiar" y no se envía hasta que el familiar vinculado lo confirma (el familiar ve el aviso sin tu mensaje privado).
+- **Aviso abierto, sin respuesta:** "Tu residencia fue avisada el {fecha}. Todavía no respondió." Si faltan menos de 48 h: "Podrás avanzar al pago de una reserva nueva desde {fecha/hora}". Acciones: buscar residencias (lleva a `/search`), ver mis solicitudes y listas de espera creadas por este cambio, **Editar aviso** (fecha y mensaje; queda auditado), **Cancelar aviso**.
+- **Menor, pendiente de confirmación:** "Tu familiar tiene que confirmar el aviso para que se envíe a tu residencia." Acción: retirar el aviso. Al familiar se le muestra la misma tarjeta con **Confirmar aviso** (sin el mensaje privado del estudiante).
+- **Aviso abierto, con respuesta:** muestra el mensaje de la residencia, los **costos** de salida informados (texto y monto de referencia si lo hay), las **condiciones** (depósito, estadía mínima, preaviso; precargadas desde la política de salida anticipada que la residencia publica en su ficha) y los **detalles de salida**; marca como vista (`response_seen_by_student_at`). Nota: "Esta información la carga tu residencia. No modifica tu contrato; ante dudas, escribí a Soporte."
+- **Cancelar aviso:** modal que lista lo que se cierra (todas las listas de espera y solicitudes creadas bajo este aviso; se avisa a esas residencias) y avisa que vuelve a regir el bloqueo por fechas superpuestas; **bloqueado** con explicación si hay un pago en curso (pago a residencia o fee de una reserva nueva): "Escribí a Soporte para resolverlo".
+- **Por vencer (día 80):** "Tu aviso vence en 10 días. ¿Seguís buscando?" con acciones "Seguir buscando" / "Cancelar aviso".
+- **Resuelto:** "Confirmaste una reserva en otra residencia desde el {fecha}". Se indica que tus listas de espera se anularon y quedaron en favoritos (§6.2, §6.10), que tu residencia actual fue avisada de tu fecha de ingreso (sin el nombre de la nueva) y que **ella finaliza tu estadía como salida anticipada** cuando te retires; se muestra la fecha de salida prevista si la hay. Una vez registrada la salida, ves el estado del depósito (devuelto / no devuelto / sin depósito), la nota de la residencia y podés agregar una **nota opcional** propia.
+- **Cancelado / vencido:** estado histórico con opción "Volver a avisar".
+
+**Con renovación en curso** (§6.11): si hay una oferta aceptada en pago/fee, el botón queda deshabilitado con la explicación "Primero resolvé tu renovación". Con oferta enviada o sin responder, se permite y se muestra ambas cosas.
+
+**Estados:** cargando; sin estadía (EmptyState: "Todavía no tenés una residencia activa en EstuRed"); error al avisar (mensaje accionable, sin jerga).
+
+**En la solicitud o lista de espera nueva** (bajo el aviso) se muestra el campo opcional "Contale a la residencia por qué te mudás" (`move_context_note`); la residencia ve la señal "en proceso de mudanza" y ese texto solo si lo completás.
+
+**Reglas de copy:** nada de "garantizado", "mediación" ni promesas de disponibilidad ni de devoluciones; "Soporte", no "mediación"; "solicitud sujeta a confirmación" en las búsquedas posteriores. El pago a la residencia se rige por su política y el fee EstuRed por la revocación vigente (`docs/10` §15.4).
 
 ---
 
@@ -916,6 +961,14 @@ Sin cambios de fondo.
 Visible para toda residencia (MVP: todo gratis, D8). Sin cambios de fondo respecto al original.
 
 **Estadías vencidas (decisión D11, 2026-10-20).** El sistema **alerta, nunca cierra solo**: avisa a la residencia (y al estudiante) **30 días antes** del fin del contrato (`expected_end_date`) y **al vencer**, con las acciones "Renovar" y "Registrar salida". Una estadía vencida sin acción queda visible con la alerta; no pasa sola a `inactive` ni libera la plaza.
+
+**Residentes que quieren cambiar ("Quiero cambiar", DR3, 2026-10-23; `docs/04` §12bis).**
+- En la lista de residentes, los que tienen un aviso abierto muestran una etiqueta destacada "Busca cambiar de residencia" con la fecha del aviso y la fecha estimada de salida (si la informó). Un filtro "Buscan cambiar" y un contador en la cabecera ("N residentes buscan cambiar") permiten anticipar la ocupación; la misma señal aparece en la tarjeta de la residencia del dashboard (§7.1) y en el detalle de renovaciones del residente (§7.13).
+- **Política de salida anticipada (perfil de la residencia):** la residencia define **una sola vez** en su perfil el depósito y las cláusulas básicas de sus derechos y obligaciones sobre el depósito y la salida anticipada. Se muestra en la ficha pública antes de reservar y se precarga en el formulario "Responder".
+- Al abrir el aviso, la residencia ve el mensaje del estudiante y un formulario **"Responder"** (precargado con su política): mensaje, **costos** de salida anticipada (texto y monto de referencia opcional en USD), **condiciones** (p. ej. depósito, estadía mínima, preaviso), **detalles de la salida** (fecha prevista, entrega de habitación). Se puede editar mientras el aviso esté abierto; el estudiante y su familiar son notificados. Texto fijo debajo del formulario: "Tu respuesta es informativa: EstuRed no fija ni cobra estos costos y no reemplaza el contrato con tu residente. Podés editarla mientras el aviso siga abierto." Más el texto obligatorio sobre impagos (ver `lib/stayChange/copy.ts`, `UNPAID_DISCLAIMER`): "EstuRed no se responsabiliza por mensualidades impagas, incobrables o morosos, bajo ninguna circunstancia; la residencia es responsable de cobrar lo que corresponda antes de que el estudiante se retire."
+- **La salida siempre la inicia la residencia actual:** acción "Registrar salida" con fecha sugerida a partir del aviso; **no** hay cierre automático de la estadía. Al resolverse el aviso (reserva nueva confirmada), la residencia recibe "Este estudiante tiene una reserva confirmada a partir de DD/MM/AAAA en otra residencia" y registra la **salida anticipada** con: estado del depósito (**devuelto / no devuelto / sin depósito**, obligatorio), nota libre de la residencia y, si el estudiante la cargó, su nota opcional. Si no hay depósito, la residencia es responsable de cobrar lo necesario antes de que el estudiante se retire. Texto fijo: "EstuRed no se responsabiliza por mensualidades impagas, incobrables ni morosos bajo ninguna circunstancia."
+- La residencia **no** ve a qué residencias consulta el estudiante ni en qué listas está. Cuando el aviso se resuelve, ve la fecha de ingreso a la nueva residencia pero no su nombre. Las residencias que **reciben** una solicitud o lista de espera de un residente en proceso de cambio ven la etiqueta "En proceso de mudanza" (sin residencia de origen ni motivo; solo el texto opcional que el estudiante escriba).
+- Beneficio explicado en un bloque de ayuda: previsibilidad de ocupación, planificación de la plaza y de renovaciones.
 
 ---
 
@@ -1379,6 +1432,15 @@ Sin cambios de fondo.
 5. Se muestra al estudiante la comparación (tarifa anterior vs. actual) con el modal de tipo de cambio.
 6. Si hay disponibilidad y el estudiante confirma: se crea una nueva solicitud con parámetros actualizados.
 7. Si no hay disponibilidad: se ofrece la opción de entrar en lista de espera.
+
+### Flujo M — "Quiero cambiar" (cambio de residencia de un estudiante alojado) (nuevo, DR3)
+
+1. Estudiante alojado entra a *Mi residencia* (§6.16) y presiona "Quiero cambiar" (fecha estimada y mensaje opcionales).
+2. Se crea el aviso `open`; la residencia actual y el familiar vinculado son notificados.
+3. La residencia actual responde con costos, condiciones y detalles de salida (informativo); el estudiante y su familiar son notificados.
+4. Con el aviso abierto, el estudiante busca y envía solicitudes o se anota en listas de espera de otras residencias aunque las fechas se superpongan (Flujos A y E, con el máximo de 2 solicitudes activas).
+5a. Se confirma una reserva en otra residencia (Flujo B/B2): el aviso pasa a `resolved_new_reservation`, se anulan sus listas de espera (DR2) y la residencia actual registra la salida ("Registrar salida"); no hay cierre automático.
+5b. El estudiante cancela el aviso, o vence a los 90 días sin confirmación: vuelve a regir DR1.
 
 ---
 

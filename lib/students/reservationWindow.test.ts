@@ -65,6 +65,7 @@ describe("textos y fecha mínima (puro)", () => {
       minRequestStartDate: "2027-01-20",
       message: "Ya tenés una reserva hasta 20/01/2027. Podés solicitar para fechas posteriores.",
       endDateLabel: "20/01/2027",
+      stayChangeOpen: false,
     });
   });
   it("mergeReservationPeriods: descarta períodos terminados y funde el resto", () => {
@@ -244,7 +245,7 @@ describe.skipIf(!hasCreds)("reserva vigente: superposición, lista de espera y f
     expect(failed).toBe(false);
     expect(window).toBeNull();
     expect(
-      (await checkReservationWindowOverlap(admin, { studentProfileId, desiredStartDate: resStart, durationMonths: 6 })).ok,
+      (await checkReservationWindowOverlap(admin, { studentProfileId, residenceId, desiredStartDate: resStart, durationMonths: 6 })).ok,
     ).toBe(true);
   });
 
@@ -255,7 +256,7 @@ describe.skipIf(!hasCreds)("reserva vigente: superposición, lista de espera y f
     expect(window).toEqual({ startDate: resStart, endDate: resEnd });
 
     const blocked = await checkReservationWindowOverlap(admin, {
-      studentProfileId,
+      studentProfileId, residenceId,
       desiredStartDate: addMonthsIso(resStart, 2),
       durationMonths: 3,
     });
@@ -264,14 +265,14 @@ describe.skipIf(!hasCreds)("reserva vigente: superposición, lista de espera y f
 
     // El mismo día del fin del período ya se puede.
     expect(
-      (await checkReservationWindowOverlap(admin, { studentProfileId, desiredStartDate: resEnd, durationMonths: 6 })).ok,
+      (await checkReservationWindowOverlap(admin, { studentProfileId, residenceId, desiredStartDate: resEnd, durationMonths: 6 })).ok,
     ).toBe(true);
     expect(
-      (await checkReservationWindowOverlap(admin, { studentProfileId, desiredStartDate: afterEnd, durationMonths: 6 })).ok,
+      (await checkReservationWindowOverlap(admin, { studentProfileId, residenceId, desiredStartDate: afterEnd, durationMonths: 6 })).ok,
     ).toBe(true);
 
     const family = await checkReservationWindowOverlap(admin, {
-      studentProfileId,
+      studentProfileId, residenceId,
       desiredStartDate: resStart,
       durationMonths: 2,
       audience: "family",
@@ -307,7 +308,7 @@ describe.skipIf(!hasCreds)("reserva vigente: superposición, lista de espera y f
     const { window } = await loadReservationWindow(admin, studentProfileId);
     expect(window?.endDate).toBe(renewedEnd);
     expect(
-      (await checkReservationWindowOverlap(admin, { studentProfileId, desiredStartDate: afterEnd, durationMonths: 2 })).ok,
+      (await checkReservationWindowOverlap(admin, { studentProfileId, residenceId, desiredStartDate: afterEnd, durationMonths: 2 })).ok,
     ).toBe(false);
     await admin.from("renewal_offers").delete().eq("id", offer!.id);
   });

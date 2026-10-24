@@ -56,6 +56,10 @@ interface ConditionsDraft {
   emptyMonthsEnabled: boolean;
   /** Se muestra como "descuento"; se guarda como % cobrado (100 - descuento). */
   emptyMonthDiscountPercent: number;
+  /** Política de salida anticipada (DR3, migración 0044): se muestra en la ficha y precarga la respuesta a un aviso. */
+  earlyExitDepositClausesText: string;
+  earlyExitCostsText: string;
+  earlyExitConditionsText: string;
 }
 
 interface ProfileInitial {
@@ -283,6 +287,9 @@ export function ResidenceProfileForm({
               emptyMonthChargePercent: conditions.emptyMonthsEnabled
                 ? 100 - conditions.emptyMonthDiscountPercent
                 : null,
+              earlyExitDepositClausesText: conditions.earlyExitDepositClausesText,
+              earlyExitCostsText: conditions.earlyExitCostsText,
+              earlyExitConditionsText: conditions.earlyExitConditionsText,
             }),
           );
           formAction(fd);
@@ -877,6 +884,45 @@ export function ResidenceProfileForm({
                   </Select>
                 </div>
               )}
+            </div>
+
+            <div className="mt-4 rounded-card border border-sand-200 p-4">
+              <p className="font-semibold text-ink">Depósito y salida anticipada</p>
+              <p className="text-xs text-ink-soft">
+                Lo ve el estudiante en tu ficha antes de reservar y se precarga cuando respondés un aviso &quot;Quiero cambiar&quot;. Es
+                información tuya: EstuRed no la fija ni la cobra.
+                {conditions.depositEnabled
+                  ? " Tu reserva tiene depósito: contá sus cláusulas básicas."
+                  : " Tu reserva no tiene depósito: cobrá lo que corresponda antes de que el estudiante se retire."}
+              </p>
+              <div className="mt-4 space-y-4">
+                {conditions.depositEnabled && (
+                  <Textarea
+                    label="Cláusulas básicas del depósito"
+                    value={conditions.earlyExitDepositClausesText}
+                    onChange={(e) => updateConditions({ earlyExitDepositClausesText: e.target.value })}
+                    rows={3}
+                    maxLength={1000}
+                    hint="Derechos y obligaciones de las partes sobre el depósito (cuándo se devuelve, plazos)."
+                  />
+                )}
+                <Textarea
+                  label="Costos de salida anticipada"
+                  value={conditions.earlyExitCostsText}
+                  onChange={(e) => updateConditions({ earlyExitCostsText: e.target.value })}
+                  rows={3}
+                  maxLength={1000}
+                  hint="Por ejemplo: pérdida del depósito si no se cumple la estadía mínima."
+                />
+                <Textarea
+                  label="Condiciones de salida anticipada"
+                  value={conditions.earlyExitConditionsText}
+                  onChange={(e) => updateConditions({ earlyExitConditionsText: e.target.value })}
+                  rows={3}
+                  maxLength={1000}
+                  hint="Preaviso, entrega de la habitación y cualquier otro detalle."
+                />
+              </div>
             </div>
           </Card>
 

@@ -5,6 +5,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { assertResidenceAccess } from "@/lib/residences/access";
 import { createAuditLog } from "@/lib/audit";
+import { checkStayChangeAdvanceGate } from "@/lib/stayChange/advanceGate";
 import { ACTIVE_APPLICATION_STATUSES, REJECTION_REASONS } from "@/lib/applications/types";
 import { createPendingResidencePayment } from "@/lib/applications/residencePayment";
 import { promoteNextQueuedApplication } from "@/lib/applications/roomTypeQueue";
@@ -167,6 +168,10 @@ export async function enableResidencePayment(applicationId: string): Promise<App
       message: "Ya enviaste una propuesta de ajuste — el estudiante tiene que responderla primero.",
     };
   }
+
+  // DR3: una solicitud creada bajo el aviso "Quiero cambiar" no avanza a pago antes de 48 h (supuesto reversible).
+  const gate = await checkStayChangeAdvanceGate(admin, { applicationId, audience: "residence" });
+  if (!gate.ok) return { status: "error", message: gate.error };
 
   const paymentDeadline = new Date(Date.now() + 48 * 60 * 60 * 1000);
 

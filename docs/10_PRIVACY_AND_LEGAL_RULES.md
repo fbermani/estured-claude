@@ -3,7 +3,7 @@
 
 Versión: 0.2
 Estado: Documento actualizado para construcción; requiere revisión legal antes del lanzamiento público
-Última actualización: 2026-06-27
+Última actualización: 2026-10-23 (§21bis: aviso "Quiero cambiar", DR3/DR3b)
 Depende de: `00_DECISION_LOG.md`, `02_MVP_SCOPE.md`, `03_BUSINESS_RULES.md`, `04_STATE_MACHINES.md`, `05_ROLES_AND_PERMISSIONS.md`, `06_DATA_MODEL.md`, `07_API_SPEC.md`, `08_UI_SCREENS_AND_FLOWS.md`, `09_ADMIN_PANEL_SPEC.md`
 
 ---
@@ -120,11 +120,13 @@ El familiar vinculado puede:
 - acompañar el proceso;
 - sugerir favoritos;
 - **crear propuestas de solicitud dirigidas al estudiante**, que quedan pendientes de aprobación y nunca llegan a la residencia sin que el estudiante las apruebe;
-- cargar documentación;
 - subir comprobantes;
 - pagar el fee EstuRed;
+- editar su propio perfil y guardar sus datos de facturación como pagador (DR4, `docs/00` §31);
 - acceder a comprobantes;
 - asistir a estudiantes menores de edad.
+
+El familiar **no** edita el perfil ni los documentos del estudiante, no envía solicitudes en su nombre y no ve sus mensajes privados (DR4). Sus datos de facturación (CUIT/DNI, condición de IVA) son datos personales del familiar: se usan solo para emitir la Factura C del fee, no se comparten con la residencia y se pueden editar o borrar desde su perfil.
 
 El familiar no debe ser tratado como reemplazo del estudiante, salvo en casos de menor de edad según reglas específicas y revisión legal. El familiar **no puede** aceptar una propuesta de ajuste de la residencia en nombre del estudiante: esa decisión es exclusiva del estudiante.
 
@@ -769,6 +771,26 @@ Must Have del MVP. La renovación formal la emite la residencia. El estudiante p
 ### 21.3 Comprobante
 
 **Comprobante de Renovación Confirmada.** Debe mostrar: período renovado; tarifa actual; política de ajustes futuros; monto abonado a residencia informado por residencia; fee EstuRed; estado de pago; factura fiscal asociada; disclaimer.
+
+---
+
+## 21bis. Aviso "Quiero cambiar": privacidad y responsabilidad *(DR3/DR3b, 2026-10-23)*
+
+Reglas de producto en `docs/04` §12bis. Aquí solo lo que afecta privacidad, visibilidad y responsabilidad.
+
+### 21bis.1 Qué ve cada parte
+
+- **Residencia actual:** ve el aviso del estudiante (fecha estimada y mensaje privado). No ve a qué residencias consulta ni en qué listas está. Al confirmarse una reserva nueva ve solo la **fecha de ingreso** a la nueva residencia, nunca su nombre.
+- **Residencia nueva:** ve una señal "en proceso de mudanza" en la solicitud o lista de espera. No ve de qué residencia viene ni el motivo, salvo lo que el estudiante escriba en el campo opcional de esa solicitud.
+- **Familiar vinculado:** ve el aviso, la fecha estimada y la respuesta de la residencia, **sin el mensaje privado del estudiante**. En menores, confirma el aviso antes de que se envíe.
+- Los datos del aviso no se usan en comunidad visible ni en marketing.
+
+### 21bis.2 Responsabilidad de EstuRed
+
+- Los costos, el depósito y las condiciones de salida son informados por la residencia; EstuRed no los fija, no los cobra ni los garantiza, y no promete devoluciones.
+- Lo pagado a la residencia se rige por su política y el acuerdo con el estudiante; el fee EstuRed, por la revocación/reembolso vigente (§15.4).
+- **EstuRed no se responsabiliza por mensualidades impagas, incobrables ni morosos, bajo ninguna circunstancia.** Si no hay depósito, la residencia es responsable de cobrar lo necesario antes de que el estudiante se retire. Copy obligatorio en el formulario de salida de la residencia y en la respuesta al aviso. *(Requiere revisión legal antes del lanzamiento, como el resto del documento.)*
+- Los estados del depósito y las notas de salida son registros informativos de la residencia y del estudiante; las disputas van por Soporte (§19).
 
 ---
 

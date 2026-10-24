@@ -24,7 +24,10 @@ export type NotificationLinkContext = {
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** Tipos de entidad que, para el área residencia, necesitan saber de qué residencia son. */
-export const RESIDENCE_SCOPED_ENTITY_TYPES = ["support_cases", "application_requests", "residence_faq_questions"] as const;
+export const RESIDENCE_SCOPED_ENTITY_TYPES = ["support_cases", "application_requests", "residence_faq_questions", "stay_change_intents"] as const;
+
+/** Columna que dice de qué residencia es cada tipo de entidad (por defecto `residence_id`). */
+export const RESIDENCE_COLUMN_BY_ENTITY: Record<string, string> = { stay_change_intents: "current_residence_id" };
 
 const ADMIN_LIST: Record<string, string> = {
   application_requests: "/admin/applications",
@@ -73,6 +76,11 @@ export function notificationHref(
         return id ? `/students/renewals/${id}` : "/students/renewals";
       case "renewal_requests":
         return "/students/renewals";
+      case "stay_early_exits":
+        return "/students/residency";
+      case "stay_change_intents":
+        // DR3 "Quiero cambiar": el bloque vive en Mi residencia (el familiar lo ve en solo lectura en la misma ruta).
+        return "/students/residency#quiero-cambiar";
       case "residence_faq_questions": {
         const slug = id ? context.residenceSlugByFaqQuestionId?.[id] : undefined;
         return slug ? `/residencias/${encodeURIComponent(slug)}#preguntas` : null;
@@ -97,6 +105,10 @@ export function notificationHref(
     case "residence_faq_questions": {
       const residenceId = id ? context.residenceIdByEntity?.[`residence_faq_questions:${id}`] : undefined;
       return residenceId ? `/residence/${residenceId}/faq` : null;
+    }
+    case "stay_change_intents": {
+      const residenceId = id ? context.residenceIdByEntity?.[`stay_change_intents:${id}`] : undefined;
+      return residenceId ? `/residence/${residenceId}/residents?filtro=buscan-cambiar` : null;
     }
     default:
       return null;

@@ -69,6 +69,7 @@ export async function createFamilyProposal(
     desiredStartDate,
     durationMonths,
     audience: "family",
+    residenceId,
   });
   if (!overlap.ok) return { status: "error", message: overlap.error };
 
