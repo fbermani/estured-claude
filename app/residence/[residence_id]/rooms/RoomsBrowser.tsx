@@ -478,7 +478,8 @@ export function RoomsBrowser({
   }, [groups, typeFilter, search, onlyVacant]);
 
   const openRoom = groups.flatMap((g) => g.rooms.map((room) => ({ room, group: g }))).find((r) => r.room.id === openRoomId);
-  const occupancyPercent = kpis.bedsCount > 0 ? Math.round((kpis.occupiedCount / kpis.bedsCount) * 100) : 0;
+  const operativeBeds = kpis.bedsCount - kpis.outOfServiceCount;
+  const occupancyPercent = operativeBeds > 0 ? Math.min(100, Math.round((kpis.occupiedCount / operativeBeds) * 100)) : 0;
 
   // Desglose de vacantes por tipo de habitación (Ciclo 41) — dentro de
   // cada tipo, por género según su gender_policy. El total agregado
@@ -508,11 +509,16 @@ export function RoomsBrowser({
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="p-5">
           <p className="flex items-center justify-between text-sm font-semibold text-ink-soft">
-            Habitaciones / Plazas <Icon name="meeting_room" className="text-xl text-muted" />
+            Habitaciones y plazas <Icon name="meeting_room" className="text-xl text-muted" />
           </p>
           <p className="mt-2 text-3xl font-extrabold text-ink">
-            {kpis.roomsCount} <span className="text-lg font-bold text-ink-faint">/ {kpis.bedsCount}</span>
+            {kpis.roomsCount} <span className="text-lg font-bold text-ink-faint">{kpis.roomsCount === 1 ? "habitación" : "habitaciones"} · {kpis.bedsCount} {kpis.bedsCount === 1 ? "plaza" : "plazas"}</span>
           </p>
+          {kpis.outOfServiceCount > 0 && (
+            <p className="mt-1 text-xs text-ink-faint">
+              {operativeBeds} operativas ({kpis.outOfServiceCount} fuera de servicio)
+            </p>
+          )}
         </Card>
         <Card className="p-5">
           <p className="flex items-center justify-between text-sm font-semibold text-ink-soft">
@@ -527,7 +533,7 @@ export function RoomsBrowser({
             )}
           </p>
           <p className="mt-1 text-xs text-ink-faint">
-            {kpis.occupiedCount} de {kpis.bedsCount} plazas ocupadas
+            {kpis.occupiedCount} de {operativeBeds} plazas operativas ocupadas
           </p>
         </Card>
         <Card className="p-5">

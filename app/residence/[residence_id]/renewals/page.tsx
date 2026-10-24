@@ -66,15 +66,18 @@ export default async function ResidenceRenewalsPage({
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-14">
       <h1 className="text-3xl font-bold text-ink">Renovaciones</h1>
       <p className="mt-1 text-ink-soft">
-        Ofrecé renovación a estudiantes con reserva confirmada. El fee de renovación usa exactamente la misma
-        lógica que el fee de la reserva inicial.
+        Mirá a quiénes les puede interesar seguir y mandales una oferta de renovación. Cada estudiante la responde
+        desde su cuenta y vos ves acá el estado.
+      </p>
+      <p className="mt-2 rounded-field bg-amber-soft-100 px-3 py-2 text-xs font-semibold text-ink-soft">
+        Las renovaciones se gestionan para estudiantes que reservaron por EstuRed; para el resto, cargalos en Residentes.
       </p>
 
       {!reservations || reservations.length === 0 ? (
         <EmptyState
           icon="sync_alt"
           title="Todavía no hay reservas confirmadas"
-          description="Cuando tengas una reserva confirmada, vas a poder ofrecerle renovación desde acá."
+          description="Las renovaciones se gestionan para estudiantes que reservaron por EstuRed; para el resto, cargalos en Residentes."
         />
       ) : (
         <div className="mt-8 space-y-4">

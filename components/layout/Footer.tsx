@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { CONTACT_EMAIL } from "@/lib/constants/contact";
 
-export function Footer() {
+export function Footer({ hideSignup = false }: { hideSignup?: boolean } = {}) {
   return (
     <footer className="border-t border-line bg-forest-ink text-white">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-4">
@@ -42,6 +42,7 @@ export function Footer() {
                 Para residencias
               </Link>
             </li>
+            {!hideSignup && (
             <li>
               <Link
                 href="/register"
@@ -50,6 +51,7 @@ export function Footer() {
                 Crear cuenta
               </Link>
             </li>
+            )}
           </ul>
         </div>
         <div>

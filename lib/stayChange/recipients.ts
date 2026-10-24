@@ -1,3 +1,4 @@
+import { formatShortName } from "@/lib/format/shortName";
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -40,5 +41,5 @@ export async function loadResidenceUserIds(admin: SupabaseClient, residenceId: s
 /** "Lucía F." — nombre corto que ya ven las residencias en sus bandejas. */
 export function shortStudentName(profile: { first_name: string | null; last_initial: string | null } | null): string {
   if (!profile?.first_name) return "Un residente";
-  return profile.last_initial ? `${profile.first_name} ${profile.last_initial}.` : profile.first_name;
+  return formatShortName(profile.first_name, profile.last_initial);
 }

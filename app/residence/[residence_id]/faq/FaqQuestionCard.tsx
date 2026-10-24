@@ -60,7 +60,7 @@ export function FaqQuestionCard({
           value={answer}
           onChange={(e) => setAnswer(e.target.value)}
           placeholder="Respondé con información concreta y verificable. No confirmes disponibilidad ni precios por acá."
-          hint={`${answer.length}/${ANSWER_MAX} caracteres. Se publica en tu ficha apenas la guardás. No publiques teléfonos ni enlaces para contactar por fuera de EstuRed.`}
+          hint={`${answer.length}/${ANSWER_MAX} caracteres. Se publica en tu ficha apenas la guardás.`}
         />
       )}
 

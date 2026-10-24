@@ -170,7 +170,7 @@ export default async function ResidenceResidentsPage({
       stayId: s.id,
       name: s.student_profiles
         ? `${formatShortName(s.student_profiles.first_name, s.student_profiles.last_initial)}`
-        : (s.invite_email ?? "Residente"),
+        : "Residente sin activar",
       flag: s.student_profiles?.country_flag ?? null,
       email: s.invite_email,
       pending,

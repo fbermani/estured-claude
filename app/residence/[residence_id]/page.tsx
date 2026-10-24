@@ -67,6 +67,7 @@ export default async function ResidenceOverviewPage({
     { count: inProgressApplicationsCount },
     { count: capacityCount },
     { count: occupiedCount },
+    { count: outOfServiceBedsCount },
     { count: pendingRenewalRequestsCount },
     { count: pendingRenewalOffersCount },
     { count: totalResidentsCount },
@@ -80,6 +81,9 @@ export default async function ResidenceOverviewPage({
       ? admin.from("beds").select("*", { count: "exact", head: true }).in("room_id", roomIds).eq("status", "active")
       : Promise.resolve({ count: 0 }),
     admin.from("resident_stays").select("*", { count: "exact", head: true }).eq("residence_id", residenceId).eq("is_current", true).not("bed_id", "is", null),
+    roomIds.length > 0
+      ? admin.from("beds").select("*", { count: "exact", head: true }).in("room_id", roomIds).eq("status", "out_of_service")
+      : Promise.resolve({ count: 0 }),
     admin.from("renewal_requests").select("*", { count: "exact", head: true }).eq("residence_id", residenceId).eq("status", "notified_to_residence"),
     admin.from("renewal_offers").select("*", { count: "exact", head: true }).eq("residence_id", residenceId).in("status", ["sent", "viewed"]),
     admin.from("resident_stays").select("*", { count: "exact", head: true }).eq("residence_id", residenceId).eq("is_current", true),
@@ -109,6 +113,7 @@ export default async function ResidenceOverviewPage({
   const staleAvailability = (await getStaleAvailabilityByResidence(admin, [residenceId])).get(residenceId);
   const availabilityNotice = staleAvailabilityMessage(staleAvailability);
   const capacity = capacityCount ?? 0;
+  const outOfServiceCount = outOfServiceBedsCount ?? 0;
   const occupancyPct = capacity > 0 ? Math.min(100, Math.round(((occupiedCount ?? 0) / capacity) * 100)) : 0;
   const renewalsNeedingAttention = (pendingRenewalRequestsCount ?? 0) + (pendingRenewalOffersCount ?? 0);
 
@@ -144,7 +149,7 @@ export default async function ResidenceOverviewPage({
   ]);
 
   const movementName = (m: MovementRow) =>
-    m.student_profiles ? `${formatShortName(m.student_profiles.first_name, m.student_profiles.last_initial)}` : (m.invite_email ?? "Residente");
+    m.student_profiles ? `${formatShortName(m.student_profiles.first_name, m.student_profiles.last_initial)}` : "Residente sin activar";
 
   const movements = [
     ...((arrivalsData as unknown as MovementRow[]) ?? []).map((m) => ({
@@ -195,8 +200,13 @@ export default async function ResidenceOverviewPage({
         <div>
           <p className="text-sm text-ink-soft">
             <span className="text-2xl font-bold text-ink">{occupiedCount ?? 0}</span>
-            {capacity > 0 && <span> / {capacity} plazas</span>}
+            {capacity > 0 && <span> / {capacity} plazas operativas</span>}
           </p>
+          {outOfServiceCount > 0 && (
+            <p className="mt-1 text-xs text-ink-faint">
+              {capacity} operativas ({outOfServiceCount} fuera de servicio)
+            </p>
+          )}
           {capacity > 0 && (
             <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-cream-2">
               <div className="h-full rounded-full bg-forest" style={{ width: `${occupancyPct}%` }} />

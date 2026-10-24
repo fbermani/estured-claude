@@ -49,7 +49,6 @@ export function ResidenceSidebar({
     { href: `${base}/residents`, label: "Residentes", icon: "groups", badge: residentsBadge, badgeNoun: "avisos de cambio sin responder" },
     { href: `${base}/waitlist`, label: "Lista de espera", icon: "hourglass_top" },
     { href: `${base}/faq`, label: "Preguntas", icon: "forum", badge: faqBadge, badgeNoun: "preguntas sin responder" },
-    { href: `${base}/plan`, label: "Tu plan", icon: "workspace_premium" },
     { href: `${base}/support`, label: "Soporte", icon: "support_agent" },
   ];
 

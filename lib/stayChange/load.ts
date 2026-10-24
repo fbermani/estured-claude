@@ -1,3 +1,4 @@
+import { formatShortName } from "@/lib/format/shortName";
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { INTENT_COLUMNS, type StayChangeIntentRow } from "@/lib/stayChange/common";
@@ -220,7 +221,7 @@ export async function loadResidenceStayChanges(admin: SupabaseClient, residenceI
         id: r.id,
         status: r.status,
         studentProfileId: r.student_profile_id,
-        studentName: student?.first_name ? `${student.first_name}${student.last_initial ? ` ${student.last_initial.replace(/\.+$/, "")}.` : ""}` : "Residente",
+        studentName: student?.first_name ? formatShortName(student.first_name, student.last_initial) : "Residente",
         roomTypeName: stay?.room_types?.name ?? reservation?.room_types?.name ?? null,
         createdAt: r.created_at,
         estimatedExitDate: r.estimated_exit_date,

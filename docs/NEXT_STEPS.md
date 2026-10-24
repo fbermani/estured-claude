@@ -8,6 +8,12 @@
 
 ---
 
+## CICLO 64 (2026-10-24) — Residencias, Bloque 2 (consistencia y copy)
+
+Ver `MEMORY.md` Ciclo 64. Sin migraciones. Pendiente: verificación visual en navegador y revisar copy de plan/Gestión Operativa en `for-residences` y en el aviso de `setOperationalAccessByAdmin` (D8).
+
+---
+
 ## CICLO 63 (2026-10-24) — Residencias, Bloque 1
 
 Ver `MEMORY.md` Ciclo 63. Sin migraciones ni acciones manuales. Pendiente: aviso "por vencer 24 h" a la residencia (toca el cron), aviso al promover solicitudes de la cola, y verificación visual (Ricardo, owner de Residencia Norte).

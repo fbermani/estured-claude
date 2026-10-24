@@ -100,7 +100,7 @@ export default async function ResidenceRoomsPage({
         flag: profile.country_flag,
         nationality: profile.nationality,
       };
-    return { name: s.invite_email ?? "Residente", pending: true, flag: null, nationality: null };
+    return { name: "Residente sin activar", pending: true, flag: null, nationality: null };
   };
 
   const staysByBed = new Map<string, (typeof stays extends (infer T)[] | null ? T : never)>();

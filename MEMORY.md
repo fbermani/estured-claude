@@ -1822,3 +1822,14 @@ Decisiones DF1–DF4 del dueño (layout de columna sticky + hoja de solicitud, "
 - **Bloque "Reserva confirmada"** en el detalle (inbox): ingreso destacado, N.º de comprobante y enlace a `/verify/[code]`, CTA a Residentes. Solo comprobantes `issued`/`reissued` de esa residencia; sin facturación ni pagador.
 - **Supuestos (reversibles):** (1) solicitudes en cola (`queued_for_place`) no avisan al crearse, y tampoco cuando pasan a `submitted` al liberarse un lugar (pendiente); (2) la fecha de "Ingreso" del bloque es la `desired_start_date` de la solicitud (no hay fecha de ingreso en `reservations`); (3) el contador de Solicitudes cuenta solo `submitted` (no `under_review`); (4) el email usa `NEXT_PUBLIC_APP_URL` como el resto de los emails.
 - **Pendientes:** aviso "por vencer 24 h" (requiere tocar el cron/migraciones; no hecho); aviso al promover solicitudes de la cola; verificación visual en navegador no hecha (dev server apagado).
+
+## Ciclo 64. Residencias, Bloque 2 (consistencia y copy) (2026-10-24)
+
+- **D8:** `/residence/[id]/plan` ahora redirige al Panel; "Tu plan" salió del menú. Sin otros enlaces a esa ruta. Quedan sin tocar: mail/notificación de `setOperationalAccessByAdmin` ("acceso a Gestión Operativa") y el copy de `for-residences` si lo hay (no revisado a fondo).
+- **Plazas:** Panel y Habitaciones usan plazas operativas como denominador; nota "N operativas (M fuera de servicio)"; card "19 habitaciones · 36 plazas".
+- **Renovaciones:** subtítulo reescrito + aviso "se gestionan para estudiantes que reservaron por EstuRed; para el resto, cargalos en Residentes" (también en el vacío).
+- **Residentes sin activar:** se muestra "Residente sin activar" en vez del email (Panel, Habitaciones, Residentes; el email sigue como dato aparte en Residentes).
+- **Nombre corto:** `shortStudentName` (notificaciones) y `loadResidenceStayChanges` usan `formatShortName`.
+- **FAQ:** leyenda duplicada quitada del hint del campo.
+- **Footer:** "Crear cuenta" se oculta con sesión. "Botón de arrepentimiento" se mantiene para todos: docs/10 §15.4 pide el enlace en el footer de la plataforma.
+- Sin tests nuevos (cálculo inline, sin función pura). Sin verificación en navegador.
