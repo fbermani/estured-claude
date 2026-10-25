@@ -26,6 +26,7 @@ import {
 } from "@/lib/residences/profileEdits";
 import { logTariffChange } from "@/lib/residences/tariffLog";
 import { SUBMITTABLE_RESIDENCE_STATUSES, VERIFICATION_STATUSES_RESET_ON_SUBMIT, isMissingColumnError, isResubmission } from "@/lib/residences/changesRequest";
+import { validateAgeRange } from "@/lib/residences/age";
 import { validateEarlyExitPolicy } from "@/lib/stayChange/validate";
 import { describeInitialPaymentForLog, initialPaymentConfigFromRow, parseInitialPaymentInput, type InitialPaymentConfig } from "@/lib/reservations/initialPayment";
 
@@ -87,6 +88,8 @@ interface ConditionsInput {
   earlyExitDepositClausesText: string | null;
   earlyExitCostsText: string | null;
   earlyExitConditionsText: string | null;
+  /** Edad de residentes (DR14, migración 0052): la residencia decide sola, sin aprobación del admin. */
+  ageRange: { minResidentAge: number; maxResidentAge: number | null; acceptsMinors: boolean };
 }
 
 function parseConditions(raw: string): ConditionsInput | { error: string } | null {
@@ -96,6 +99,8 @@ function parseConditions(raw: string): ConditionsInput | { error: string } | nul
     if (!initialPayment.ok) return { error: initialPayment.error };
     const earlyExit = validateEarlyExitPolicy({ depositClausesText: c.earlyExitDepositClausesText, costsText: c.earlyExitCostsText, conditionsText: c.earlyExitConditionsText });
     if (!earlyExit.ok) return { error: earlyExit.error };
+    const ageRange = validateAgeRange({ minAge: c.minResidentAge, maxAge: c.maxResidentAge, acceptsMinors: c.acceptsMinors });
+    if (!ageRange.ok) return { error: ageRange.error };
     const mode = c.enrollmentFeeMode === "one_month" || c.enrollmentFeeMode === "manual" ? c.enrollmentFeeMode : null;
     return {
       minimumStayMonths:
@@ -116,6 +121,7 @@ function parseConditions(raw: string): ConditionsInput | { error: string } | nul
       earlyExitDepositClausesText: earlyExit.value.depositClausesText,
       earlyExitCostsText: earlyExit.value.costsText,
       earlyExitConditionsText: earlyExit.value.conditionsText,
+      ageRange: ageRange.value,
     };
   } catch {
     return null;
@@ -202,6 +208,12 @@ export async function saveResidenceProfile(
   if (!parsedConditions) return { status: "error", message: "Hubo un problema con las condiciones de reserva." };
   if ("error" in parsedConditions) return { status: "error", message: parsedConditions.error };
   const conditions = parsedConditions;
+  // DR14: sin la migración 0052 solo se puede guardar el default (18, sin tope, sin menores); se avisa antes de escribir nada.
+  if (!("min_resident_age" in (residenceRow ?? {}))) {
+    const a = conditions.ageRange;
+    if (a.minResidentAge !== 18 || a.maxResidentAge !== null || a.acceptsMinors)
+      return { status: "error", message: "Todavía no podemos guardar la edad de los residentes. Probá de nuevo en unos días." };
+  }
   if (!ADJUSTMENT_POLICIES.has(conditions.adjustmentPolicy as never))
     return { status: "error", message: "Política de ajuste inválida." };
   if (conditions.depositUsd != null && conditions.enrollmentFeeMode != null)
@@ -295,6 +307,30 @@ export async function saveResidenceProfile(
       })
       .eq("id", residenceId);
     if (residenceError) throw residenceError;
+
+    // Edad de residentes (DR14, migración 0052): se aplica al instante (sin aprobación del admin) y se audita con valor anterior y nuevo.
+    // Si la migración no está aplicada, solo se avisa cuando el valor enviado difiere del default.
+    const age = conditions.ageRange;
+    const ageColumnsExist = "min_resident_age" in (residenceRow ?? {});
+    const oldAge = {
+      min_resident_age: ageColumnsExist ? ((residenceRow?.min_resident_age as number | null) ?? 18) : 18,
+      max_resident_age: ageColumnsExist ? ((residenceRow?.max_resident_age as number | null) ?? null) : null,
+      accepts_minors: ageColumnsExist ? residenceRow?.accepts_minors === true : false,
+    };
+    const newAge = { min_resident_age: age.minResidentAge, max_resident_age: age.maxResidentAge, accepts_minors: age.acceptsMinors };
+    if (JSON.stringify(oldAge) !== JSON.stringify(newAge)) {
+      const { error: ageError } = await admin.from("residences").update(newAge).eq("id", residenceId);
+      if (ageError) throw ageError;
+      await createAuditLog(admin, {
+        actorUserId: sessionUser.id,
+        actorRole: accessCheck.actorRole,
+        action: "residence_age_range_updated",
+        entityType: "residences",
+        entityId: residenceId,
+        oldValue: oldAge,
+        newValue: newAge,
+      });
+    }
 
     // Política de salida anticipada (DR3): se aplica al instante (es texto informativo, como la política de ajuste)
     // y se audita siempre que cambia, con el valor anterior y el nuevo.

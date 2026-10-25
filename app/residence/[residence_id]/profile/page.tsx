@@ -130,6 +130,9 @@ export default async function ResidenceProfilePage({
           earlyExitDepositClausesText: (residence.early_exit_deposit_clauses_text as string | null) ?? "",
           earlyExitCostsText: (residence.early_exit_costs_text as string | null) ?? "",
           earlyExitConditionsText: (residence.early_exit_conditions_text as string | null) ?? "",
+          minResidentAge: (residence.min_resident_age as number | null) ?? 18,
+          maxResidentAge: (residence.max_resident_age as number | null) ?? "",
+          acceptsMinors: residence.accepts_minors === true,
         },
       }}
     />

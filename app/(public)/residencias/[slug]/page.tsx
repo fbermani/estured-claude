@@ -46,6 +46,7 @@ import { VerificationScope } from "@/components/residences/ficha/VerificationSco
 import { CommunitySummary } from "@/components/residences/ficha/CommunitySummary";
 import { RequestPanel } from "@/components/residences/ficha/RequestPanel";
 import { RequestSheet } from "@/components/residences/ficha/RequestSheet";
+import { describeAgeRange } from "@/lib/residences/age";
 
 export const dynamic = "force-dynamic";
 
@@ -569,6 +570,30 @@ export default async function RealResidenceDetailPage({
                 </div>
               )}
             </section>
+          )}
+
+          {/* Edad de los residentes (DR14): rango público y, si la residencia lo habilita, apartado para menores. Oculta si la migración 0052 no está aplicada. */}
+          {residence.min_resident_age !== undefined && (
+          <section id="edad" className="scroll-mt-32 space-y-3 lg:col-start-1">
+            <h2 className="text-2xl font-bold text-ink">Edad de los residentes</h2>
+            <p className="text-ink-soft">
+              {describeAgeRange({
+                minResidentAge: residence.min_resident_age as number | null | undefined,
+                maxResidentAge: residence.max_resident_age as number | null | undefined,
+                acceptsMinors: residence.accepts_minors as boolean | null | undefined,
+              })}
+              .
+            </p>
+            {residence.accepts_minors === true && (
+              <div className="rounded-card border border-line bg-paper p-5">
+                <h3 className="text-base font-bold text-ink">Para menores de 18</h3>
+                <p className="mt-2 text-sm text-ink-soft">
+                  Esta residencia admite residentes menores de 18. Consultá con la residencia las condiciones que aplican y, al solicitar,
+                  tu guardián deberá confirmar la solicitud. La solicitud queda sujeta a confirmación de la residencia.
+                </p>
+              </div>
+            )}
+          </section>
           )}
 
           {/* 4. Ubicación — pin exacto + dirección pública + universidades con distancia (DF5) */}

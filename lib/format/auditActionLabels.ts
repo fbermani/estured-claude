@@ -110,6 +110,7 @@ const ACTION_PHRASES: Record<string, string> = {
   resident_stay_early_exit_recorded: "registró una salida anticipada de un residente",
   stay_early_exit_student_note_saved: "guardó la nota de una salida anticipada",
   residence_early_exit_policy_updated: "actualizó la política de salida anticipada de una residencia",
+  residence_age_range_updated: "actualizó la edad de los residentes de una residencia",
   // Cuenta, cobros y configuración
   password_reset_completed: "restableció su contraseña",
   password_reset_denied: "rechazó un intento de restablecer la contraseña",

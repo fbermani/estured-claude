@@ -63,6 +63,10 @@ interface ConditionsDraft {
   earlyExitDepositClausesText: string;
   earlyExitCostsText: string;
   earlyExitConditionsText: string;
+  /** Edad de residentes (DR14, migración 0052). */
+  minResidentAge: number | "";
+  maxResidentAge: number | "";
+  acceptsMinors: boolean;
 }
 
 interface ProfileInitial {
@@ -352,6 +356,9 @@ export function ResidenceProfileForm({
               earlyExitDepositClausesText: conditions.earlyExitDepositClausesText,
               earlyExitCostsText: conditions.earlyExitCostsText,
               earlyExitConditionsText: conditions.earlyExitConditionsText,
+              minResidentAge: conditions.minResidentAge,
+              maxResidentAge: conditions.maxResidentAge,
+              acceptsMinors: conditions.acceptsMinors,
             }),
           );
           formAction(fd);
@@ -986,6 +993,61 @@ export function ResidenceProfileForm({
                 />
               </div>
             </div>
+          </Card>
+
+          <Card className="p-6">
+            <h2 className="text-lg font-bold text-ink">Edad de los residentes</h2>
+            <p className="mt-1 text-sm text-ink-soft">
+              Los estudiantes ven solo las residencias que aceptan su edad. Si no cargás nada, aceptás desde los 18 años y sin tope.
+            </p>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <Input
+                label="Edad mínima"
+                type="number"
+                min={conditions.acceptsMinors ? 10 : 18}
+                max={99}
+                disabled={readOnly}
+                value={conditions.minResidentAge}
+                onChange={(e) => updateConditions({ minResidentAge: e.target.value ? Number(e.target.value) : "" })}
+                hint="Mínimo 18, salvo que aceptes menores."
+              />
+              <Input
+                label="Edad máxima (opcional)"
+                type="number"
+                min={18}
+                max={99}
+                disabled={readOnly}
+                value={conditions.maxResidentAge}
+                onChange={(e) => updateConditions({ maxResidentAge: e.target.value ? Number(e.target.value) : "" })}
+                hint="Dejala vacía si no tenés tope."
+              />
+            </div>
+            <label className="mt-4 flex items-start gap-3 text-sm text-ink">
+              <input
+                type="checkbox"
+                className="mt-1 h-4 w-4"
+                disabled={readOnly}
+                checked={conditions.acceptsMinors}
+                onChange={(e) =>
+                  updateConditions({
+                    acceptsMinors: e.target.checked,
+                    ...(!e.target.checked && Number(conditions.minResidentAge) < 18 ? { minResidentAge: 18 } : {}),
+                  })
+                }
+              />
+              <span>
+                <span className="font-semibold">Acepto residentes menores de 18</span>
+                <span className="mt-0.5 block text-ink-soft">
+                  La decidís vos, sin aprobación de EstuRed. Con esta opción tu ficha pública suma el apartado «Para menores de 18», y cada
+                  solicitud de un menor debe confirmarla su guardián.
+                </span>
+              </span>
+            </label>
+            {conditions.acceptsMinors && (
+              <p className="mt-3 rounded-field bg-amber-soft-100 px-4 py-3 text-sm text-ink">
+                Al guardar, tu ficha mostrará el apartado para menores. Revisá tu reglamento y tus condiciones: aplican igual para ellos.
+              </p>
+            )}
           </Card>
 
           {!readOnly && (

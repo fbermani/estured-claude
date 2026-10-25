@@ -1019,7 +1019,7 @@ El FAQ/bot no puede: inventar disponibilidad, confirmar precios fuera de datos o
 **Reglamento.**
 - **Ver el reglamento completo:** cualquier visitante, invitados incluidos (está en la ficha, antes de solicitar).
 - **Aceptarlo:** solo el estudiante al enviar la solicitud (o el familiar vinculado si es menor, §7.2). La aceptación guardada es de solo lectura: nadie la edita ni la borra; la ven el estudiante, la residencia destinataria (staff con acceso a la solicitud) y admin/superadmin.
-- **Cargar o editar el reglamento propio, o adaptar el modelo:** dueño y staff con `profile.edit`. *(Supuesto: publicar una versión nueva requiere revisión del admin, como el resto del grupo «reglas»; mientras no se aprueba rige la versión anterior.)* Cada versión queda auditada.
+- **Cargar o editar el reglamento propio, o adaptar el modelo:** dueño y staff con `profile.edit`. **Sin aprobación del admin:** la residencia decide sola (decisión del dueño, 2026-10-25); la versión nueva rige apenas se publica. Cada versión queda auditada.
 - **Efecto:** una versión nueva rige para solicitudes nuevas; las ya aceptadas conservan la versión que aceptaron.
 
 **FAQ (catálogo único).**
@@ -1028,7 +1028,7 @@ El FAQ/bot no puede: inventar disponibilidad, confirmar precios fuera de datos o
 - Las restricciones de §16 se mantienen: la FAQ no inventa disponibilidad ni precios ni promete aceptación.
 
 **Edad de residentes.**
-- **Definir edad mínima, máxima y si acepta menores:** dueño y staff con `profile.edit`. *(Supuesto: habilitar menores lo aprueba el admin y exige que la residencia complete el apartado para menores.)*
+- **Definir edad mínima, máxima y si acepta menores:** dueño y staff con `profile.edit`. **Sin aprobación del admin** (decisión del dueño, 2026-10-25): la residencia habilita menores sola; al hacerlo debe completar el apartado para menores.
 - El filtro de edad lo aplica el sistema con la fecha de nacimiento del estudiante, que **sigue siendo privada**: la residencia nunca ve la fecha de nacimiento por el filtro, solo ve que su residencia le aparece (o no) al estudiante.
 
 **Seguimiento post-ingreso (`stay_followup`).**

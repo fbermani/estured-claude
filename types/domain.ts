@@ -73,4 +73,8 @@ export interface Residence {
   availabilityHint?: "waitlist" | "not_updated" | null;
   /** Residentes actuales visibles (comunidad) — opcional, lo llena el catálogo real. */
   residentsCount?: number;
+  /** Edad de residentes (DR14, migración 0052): ausentes si la migración no está aplicada. */
+  minResidentAge?: number;
+  maxResidentAge?: number | null;
+  acceptsMinors?: boolean;
 }

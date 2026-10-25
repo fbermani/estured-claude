@@ -1,5 +1,7 @@
 import "server-only";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { residenceAcceptsAge } from "@/lib/residences/age";
+import { isMissingColumnError } from "@/lib/residences/changesRequest";
 import type { Residence, RoomTypeName } from "@/types/domain";
 import {
   residenceAvailabilityMode,
@@ -16,16 +18,50 @@ const CANONICAL_ROOM_TYPES: readonly string[] = ["Individual", "Doble", "Triple"
  * existen residencias `verified_active` de verdad — antes de esto el
  * buscador principal del sitio mostraba datos inventados.
  */
-export async function getCatalogResidences(): Promise<Residence[]> {
-  const admin = getSupabaseAdmin();
-  if (!admin) return [];
+export async function getCatalogResidences(options: { studentAge?: number | null } = {}): Promise<Residence[]> {
+  return (await getCatalogResidencesWithTotal(options)).residences;
+}
 
-  const { data: residences } = await admin
+/** Igual que `getCatalogResidences`, pero además devuelve el total publicado antes del filtro por edad (una sola consulta). */
+export async function getCatalogResidencesWithTotal(
+  options: { studentAge?: number | null } = {},
+): Promise<{ residences: Residence[]; total: number }> {
+  const admin = getSupabaseAdmin();
+  if (!admin) return { residences: [], total: 0 };
+
+  // DR14 (migración 0052): las columnas de edad pueden no existir todavía; en ese caso se reintenta sin ellas (sin filtro por edad).
+  type CatalogRow = { id: string; slug: string; name: string; public_area: string | null; description: string | null; min_resident_age?: number | null; max_resident_age?: number | null; accepts_minors?: boolean | null };
+  let residences: CatalogRow[] | null = null;
+  const withAge = await admin
     .from("residences")
-    .select("id, slug, name, public_area, description")
+    .select("id, slug, name, public_area, description, min_resident_age, max_resident_age, accepts_minors")
     .eq("status", "verified_active")
     .order("created_at", { ascending: false });
-  if (!residences || residences.length === 0) return [];
+  if (!withAge.error) {
+    residences = withAge.data as CatalogRow[];
+  } else if (!isMissingColumnError(withAge.error)) {
+    console.error("[catalog] error al leer residencias:", withAge.error.message);
+    return { residences: [], total: 0 };
+  } else {
+    const legacy = await admin
+      .from("residences")
+      .select("id, slug, name, public_area, description")
+      .eq("status", "verified_active")
+      .order("created_at", { ascending: false });
+    if (legacy.error) {
+      console.error("[catalog] error al leer residencias (sin columnas de edad):", legacy.error.message);
+      return { residences: [], total: 0 };
+    }
+    residences = legacy.data as CatalogRow[] | null;
+  }
+  const total = residences?.length ?? 0;
+  if (residences && options.studentAge != null) {
+    const age = options.studentAge;
+    residences = residences.filter((r) =>
+      residenceAcceptsAge({ minResidentAge: r.min_resident_age, maxResidentAge: r.max_resident_age, acceptsMinors: r.accepts_minors }, age),
+    );
+  }
+  if (!residences || residences.length === 0) return { residences: [], total };
 
   const ids = residences.map((r) => r.id);
 
@@ -58,7 +94,7 @@ export async function getCatalogResidences(): Promise<Residence[]> {
     residentsCountById.set(stay.residence_id, (residentsCountById.get(stay.residence_id) ?? 0) + 1);
   }
 
-  return residences.map((r): Residence => {
+  const result = residences.map((r): Residence => {
     const rts = (roomTypes ?? [])
       .filter((rt) => rt.residence_id === r.id)
       .map((rt) => ({
@@ -106,6 +142,9 @@ export async function getCatalogResidences(): Promise<Residence[]> {
       roomTypes: roomTypeOffers,
       services,
       highlightedRules: [],
+      ...(r.min_resident_age != null
+        ? { minResidentAge: r.min_resident_age, maxResidentAge: r.max_resident_age ?? null, acceptsMinors: r.accepts_minors === true }
+        : {}),
       nearUniversities,
       idealFor: "",
       description: r.description ?? "",
@@ -115,4 +154,5 @@ export async function getCatalogResidences(): Promise<Residence[]> {
       residentsCount: residentsCountById.get(r.id) ?? 0,
     };
   });
+  return { residences: result, total };
 }

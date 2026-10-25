@@ -530,7 +530,7 @@ Reglas:
 | `om_access_granted_at` | timestamptz null | Cuándo se otorgó |
 | `min_resident_age` | smallint | Edad mínima de los residentes (DR14). Por defecto 18; no puede ser menor a 18 salvo que `accepts_minors = true` |
 | `max_resident_age` | smallint null | Edad máxima (DR14). Null = sin tope |
-| `accepts_minors` | boolean | Default `false`. Solo si la residencia lo habilita expresamente (DR14; supuesto: lo aprueba el admin) se admiten menores de 18 con apartado para guardián |
+| `accepts_minors` | boolean | Default `false`. Solo si la residencia lo habilita expresamente (DR14; lo decide la residencia sola, sin aprobación del admin) se admiten menores de 18 con apartado para guardián |
 | `current_regulation_version_id` | uuid null | FK `residence_regulation_versions` — versión **vigente** del reglamento (DR14, §8.7). Null = rige el modelo |
 | `created_at` | timestamptz | Alta |
 | `updated_at` | timestamptz | Actualización |
@@ -701,7 +701,7 @@ Inmutable una vez publicada:
 | `content` | jsonb | Artículos activos y valores elegidos (multiple choice), o el texto del reglamento propio |
 | `file_id` | uuid null | FK `files` (§16.1) si el reglamento propio es un archivo |
 | `content_hash` | text | SHA-256 del contenido canónico (identifica lo que se aceptó) |
-| `status` | text | `draft`, `pending_admin_review`, `published`, `superseded` (supuesto: sin revisión del admin no se publica) |
+| `status` | text | `draft`, `published`, `superseded` (sin revisión del admin: la residencia publica sola) |
 | `published_at` | timestamptz null | Publicación |
 | `created_by_user_id` | uuid | Autor |
 | `created_at` | timestamptz | Alta |
