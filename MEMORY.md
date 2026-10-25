@@ -2025,3 +2025,39 @@ Aplicados los hallazgos de la revisión y de la auditoría de seguridad. Docs: `
 - **Código:** `lib/faq/catalog.ts` (puro: temas, campos `{…}`, validación), `lib/faq/residenceCatalog.ts` (cargar, guardar con `faq.manage` + audit `residence_faq_catalog_item_saved`, lectura pública agrupada). Pantalla `/residence/[id]/faq` (catálogo por tema con «Mostrar» + respuesta editable; fijas sin edición; campos `{…}` obligatorios para mostrar) y ficha pública (catálogo por tema → fijas del perfil → libres respondidas; sin selección no hay bloque). Sin la 0054 degrada (aviso en el panel, ficha sin el bloque).
 - **Seed:** `scripts/seed-demo-faq-catalog.mjs` (Residencia Norte). **Tests:** `lib/faq/catalog.fake.test.ts`.
 - **Supuestos:** permiso `faq.manage` (docs/05 §16bis decía `profile.edit`; ajustado); FAQ-16/24/44 pasaron a `estured` (texto fijo, sin campos; hallazgo de seguridad); sin preguntas personalizadas ni «siempre visibles» todavía; el admin edita el catálogo por SQL (sin pantalla).
+
+
+---
+
+## Cierre de sesión 2026-10-25 — DR12 a DR16 y DR14 fases 1–3 (todo commiteado, sin push)
+
+Nota: los títulos «sin commitear» de DR14 fase 2a/2b de arriba quedaron **superados**: ya están commiteados (ver hashes abajo). `main` está 133 commits adelante de `origin/main` (verificado con git); no se hizo push.
+
+**Commits (orden cronológico, desde `ba16298`):**
+- Ciclos 73–74 (equipo y permisos del staff, DR10/DR11): `f372550`.
+- Plan de salida a producción + `scripts/build-bootstrap.mjs`: `eb8c551`.
+- Copy/guía de voz: `ebc579a` (entradas de riesgo bajo), `84a4547` (DR12), `3e4eaf8` (DR13), `b357dd9` (DR15), `2a78e61` (DR16).
+- DR14: docs `163d028`; fase 1 (0052 edad) `9adb9c8`; fase 2a (0053 reglamento) `88d1471`; fase 2b (0054 FAQ) `60a7333`; fase 3 (0055 seguimiento) `d9d1d91`.
+
+**Qué decidió el dueño (detalle en `docs/00` §31):**
+- **DR12:** planes en `/for-residences` «Hoy, todo sin costo» (Perfil Verificado + Plan Premium, «Residencias fundadoras» bonificadas el 1er año, sin precio, nunca «período de prueba»); se quita «Disponibilidad asegurada»; badge del catálogo en 3 casos; sin avisos de Gestión Operativa a la residencia mientras todo esté habilitado. Resuelve las 14 entradas D del inventario de copy.
+- **DR13:** «respaldo» pasa a «verificable/registro»; se publica «Si algo no coincide con lo publicado» (después DR15 lo deja solo en `/for-students`); «Si te arrepentís» NO va en la landing. Resuelve 19 entradas L, salvo revisión del asesor legal.
+- **DR14:** (1) reglamento con aceptación obligatoria al enviar la solicitud (versión/hash/fecha por solicitud); (2) catálogo único de FAQ que cada residencia elige y edita; (3) edad mín./máx. por residencia como filtro (piso 18; menores solo si la residencia lo habilita); (4) seguimiento a los 5 días del ingreso: aviso a la residencia + encuesta al estudiante (y guardián si es menor) que la residencia NO ve; (5) sin aprobación del admin para reglamento ni menores.
+- **DR15:** análisis de copy aplicado a las landings (home, `/for-students`, `/for-residences`); queda sin aplicar lo listado en `docs/00` §31 como «No aplicado».
+- **DR16:** en las residencias de EstuRed no se exige garantía propietaria; micro-copy en el hero de `/for-students` y FAQ «¿Necesito garantía propietaria?» en `/for-students` y home.
+
+**Migraciones DR14 (todas idempotentes, aditivas, degradan con gracia sin aplicar):**
+- `0052_residence_age_range.sql` (edad mín./máx., `accepts_minors`).
+- `0053_residence_regulations.sql` (versiones del reglamento inmutables, aceptaciones por solicitud, funciones atómicas de publicación; `application_requests.regulation_acceptance_pending` y gate en `lib/regulations/gate.ts`).
+- `0054_faq_catalog.sql` (49 FAQs del catálogo + selección por residencia).
+- `0055_stay_followups.sql` (seguimientos y respuestas; job en el cron existente; `/students/followup/[id]`, `/admin/followups` con «Comunicar a la residencia»; `no_response` a los 14 días).
+
+**Supuestos reversibles documentados:** aceptación distinta de `/terms`; en propuesta del familiar la acepta el estudiante al aprobar (o el guardián si es menor); permiso `faq.manage` para FAQ (docs/05 decía `profile.edit`); FAQ-16/24/44 fijas de EstuRed; una encuesta por estadía, día 5 desde `start_date` con estadía `active`; sin cuenta de estudiante solo se avisa a la residencia; sin fecha de nacimiento no se excluye por edad; sin reglamento propio se crea una versión `model` con el texto base.
+
+**Estado real de migraciones:**
+- **dev (`estured-dev`, ref `gyfbtsuibmecefwovdgh`):** aplicadas hasta la **0055** (según el dueño; no verificado desde el repo).
+- **prod:** solo hasta la **0035**. El dueño eligió proyecto Supabase **nuevo y limpio**: se usa `node scripts/build-bootstrap.mjs prod` → `db/_generated/prod_bootstrap.sql` (gitignored) con 0001–0055 más 0043b y la 0013 con placeholders. **Regenerar antes de usar** (el archivo generado puede ser anterior a 0052–0055). Ver `docs/PLAN_SALIDA_PRODUCCION.md`.
+
+**Qué NO está verificado:** pantallas nuevas de DR14 a mano en navegador; suite de integración completa y `check-anon-exposure` con 0052–0055; captura de «Por qué EstuRed» en desktop/mobile; auditoría final (`auditor`, `seguridad`) sobre DR14/DR15.
+
+**Próxima tarea recomendada:** ver `docs/NEXT_STEPS.md`, bloque «Traspaso (2026-10-25)» (auditoría final de DR14/DR15, suite completa, limpieza de residuo, prueba manual, plan de producción).

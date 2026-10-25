@@ -1,6 +1,6 @@
 # EstuRed — Runbook de salida a producción
 
-Estado de partida (verificado en el repo el 2026-10-23): producción = Supabase `estured-prod` (ref `mrwooskdcnkbitkhcvbf`, listado en `scripts/production-refs.json`) + Vercel (https://estured.vercel.app, deploya con push a `main`). Migraciones aplicadas en prod hasta la **0035**; faltan **0036–0051** (el repo tiene 52 archivos: 0001–0051 más 0043b; la 0043b va aparte en la Ruta A) y la **0013** (cron) con placeholders. No hay usuarios reales en prod. Este documento es un checklist: ningún paso se ejecuta solo.
+Estado de partida (verificado en el repo el 2026-10-23): producción = Supabase `estured-prod` (ref `mrwooskdcnkbitkhcvbf`, listado en `scripts/production-refs.json`) + Vercel (https://estured.vercel.app, deploya con push a `main`). Migraciones aplicadas en prod hasta la **0035**; faltan **0036–0055** (el repo tiene 56 archivos: 0001–0055 más 0043b; la 0043b va aparte en la Ruta A) y la **0013** (cron) con placeholders. No hay usuarios reales en prod. Este documento es un checklist: ningún paso se ejecuta solo.
 
 Convenciones: todos los SQL se pegan en Supabase Dashboard → SQL Editor del proyecto **estured-prod** (no hay supabase CLI). Antes de cada paso en prod, confirmá el ref en la URL del dashboard.
 
@@ -30,9 +30,9 @@ Convenciones: todos los SQL se pegan en Supabase Dashboard → SQL Editor del pr
 - Dos variantes:
   - **B1 (preferida): proyecto Supabase nuevo.** Más limpio y con rollback trivial (el viejo queda intacto). Costo: cambia URL, anon key y service role; hay que actualizar Vercel, agregar el ref nuevo a `scripts/production-refs.json` (conservando el viejo) y rehacer SMTP/Redirect URLs.
   - **B2: vaciar `estured-prod`.** Dashboard → Authentication → Users: borrar todos; Storage: vaciar y borrar los buckets; SQL Editor: `select cron.unschedule('expire-stale-records-hourly');` (si existe) y recrear el schema `public` (drop + create) **restituyendo los grants por defecto de Supabase** (`anon`, `authenticated`, `service_role` sobre el schema y default privileges). Riesgo: si los grants quedan mal, la API devuelve 42501 en todo. No verifiqué el SQL exacto de grants; si dudás, usá B1.
-- **Decisión del usuario: "Proyecto nuevo y limpio" (B1) para prod.** La ruta recomendada es el bootstrap: `node scripts/build-bootstrap.mjs prod` genera `db/_generated/prod_bootstrap.sql` (gitignored) con las 52 migraciones (0001–0051 más 0043b, en orden; el lexicográfico `0043_` → `0043b_` ya es el correcto) y la 0013 (cron) con los placeholders `REEMPLAZAR-CON-TU-DOMINIO` y `REEMPLAZAR-CON-TU-CRON-SECRET`. Como el proyecto nuevo no tiene código viejo desplegado, **la 0043b puede ir dentro del bootstrap** (no hace falta aplicarla después del deploy).
+- **Decisión del usuario: "Proyecto nuevo y limpio" (B1) para prod.** La ruta recomendada es el bootstrap: `node scripts/build-bootstrap.mjs prod` genera `db/_generated/prod_bootstrap.sql` (gitignored) con las 56 migraciones (0001–0055 más 0043b, en orden; el lexicográfico `0043_` → `0043b_` ya es el correcto) y la 0013 (cron) con los placeholders `REEMPLAZAR-CON-TU-DOMINIO` y `REEMPLAZAR-CON-TU-CRON-SECRET`. Como el proyecto nuevo no tiene código viejo desplegado, **la 0043b puede ir dentro del bootstrap** (no hace falta aplicarla después del deploy).
 - Armado del bootstrap completo de prod (`db/_generated/` está gitignored; el bootstrap de **dev** es otro archivo, con cron comentado):
-  - [ ] Correr `node scripts/build-bootstrap.mjs prod` (equivale a concatenar en orden `db/migrations/0001…0051` **incluyendo** `0043b`). Copiar el resultado a un archivo **fuera del repo** antes de editar los placeholders.
+  - [ ] Correr `node scripts/build-bootstrap.mjs prod` (equivale a concatenar en orden `db/migrations/0001…0055` **incluyendo** `0043b`). Copiar el resultado a un archivo **fuera del repo** antes de editar los placeholders.
   - [ ] En el tramo de la 0013, reemplazar `REEMPLAZAR-CON-TU-DOMINIO.vercel.app` (o el placeholder `REEMPLAZAR-CON-TU-DOMINIO` tal como lo deje el script) por el dominio real **sin** `https://` ni barra final (la URL ya lo lleva en la plantilla) y `REEMPLAZAR-CON-TU-CRON-SECRET` por el valor de `CRON_SECRET` (`openssl rand -hex 32`, el mismo que va en Vercel).
   - [ ] Pegar el archivo entero en el SQL Editor de prod y Run. La extensión `pg_cron`/`pg_net` debe poder habilitarse en el plan de Supabase de prod.
   - [ ] **Borrar el archivo con el secreto** al terminar; no commitearlo.
@@ -116,9 +116,10 @@ Análisis de dependencias (leído de los encabezados de cada archivo):
 - `0049`: **antes** del deploy (recomendado). Resolución de revocación del fee + caso de Soporte `fee_revocation` (DR6). El código degrada con gracia sin ella (Revocaciones en solo lectura), pero conviene tenerla desde el día uno.
 - `0050`: **antes** del deploy (recomendado; requiere 0047). Monto recibido, "confirmado sin comprobante" y admin que validó el pago (DR8). Sin ella "Marcar pagado" funciona y esos datos quedan solo en el audit log.
 - `0051`: **antes** del deploy (recomendado). Tabla `residence_team_invitations` y CHECK de `residence_users.permissions` (DR10/DR11). Independiente de 0045–0050; sin ella no se puede invitar/reenviar/cancelar staff.
-- Orden de aplicación manual (Ruta A): 0046, 0045, 0047, 0048, 0049, 0050, 0051 (lo que piden los encabezados), todas antes del deploy; 0043b después.
+- `0052`–`0055` (DR14): **antes** del deploy; el código nuevo las usa y degrada con gracia sin ellas. `0052` edad mín./máx. y menores; `0053` reglamento con aceptación por solicitud (flag `regulation_acceptance_pending`); `0054` catálogo de FAQ (49 preguntas); `0055` seguimiento a los 5 días (requiere `resident_stays`). Aditivas e idempotentes; con la 0053/0054 sin aplicar se pierde guardar la aceptación y el bloque de FAQ.
+- Orden de aplicación manual (Ruta A): 0046, 0045, 0047, 0048, 0049, 0050, 0051, 0052, 0053, 0054, 0055 (lo que piden los encabezados), todas antes del deploy; 0043b después.
 
-Ruta B (proyecto nuevo, elegida): la sección 3.1 se reemplaza por el bootstrap (que ya incluye 0001–0051 **y** 0043b); seguir en 3.2 y omitir el paso de 0043b de 3.3.
+Ruta B (proyecto nuevo, elegida): la sección 3.1 se reemplaza por el bootstrap (que ya incluye 0001–0055 **y** 0043b); seguir en 3.2 y omitir el paso de 0043b de 3.3.
 
 ### 3.1 Migraciones previas al deploy (Ruta A) — una por vez, en este orden
 - [ ] `0046_family_link_active_only.sql` (seguridad crítica; primero)
@@ -137,6 +138,10 @@ Ruta B (proyecto nuevo, elegida): la sección 3.1 se reemplaza por el bootstrap 
 - [ ] `0049_revocation_resolution.sql`
 - [ ] `0050_fee_payment_received_amount.sql` (requiere 0047)
 - [ ] `0051_residence_team_invitations.sql`
+- [ ] `0052_residence_age_range.sql`
+- [ ] `0053_residence_regulations.sql`
+- [ ] `0054_faq_catalog.sql`
+- [ ] `0055_stay_followups.sql`
 - [ ] **`0013_expiration_cron.sql`** (si prod no tiene el job, ver `cron.job`): editar los dos placeholders (dominio sin `https://`, secreto = `CRON_SECRET`) en una **copia fuera del repo**; nunca pegar la migración con placeholders. Si ya existía con valores malos: `select cron.unschedule('expire-stale-records-hourly');` y volver a correr el bloque.
 - Éxito de cada una: Run sin error en el SQL Editor. Cada archivo trae su sección ROLLBACK en el encabezado.
 - Confirmar al terminar: `select to_regclass('public.payment_settings'), to_regclass('public.residence_faq_questions'), to_regclass('public.residence_private_details'), to_regclass('public.stay_change_intents');` todas no nulas.
@@ -211,4 +216,4 @@ Ruta B (proyecto nuevo, elegida): la sección 3.1 se reemplaza por el bootstrap 
 - [ ] **Reglamento modelo y FAQ sugeridas** (`docs/IDEAS_DEL_DUENO_2026-10-23.md` §3 en adelante): son ideas pendientes de diseño, no reglas vigentes.
 - [ ] **`/waitlist`**: decidir si sigue publicada tras el lanzamiento (H30).
 - [ ] **Monitoreo:** alertas de errores (Vercel logs/Sentry), revisión periódica de `cron.job_run_details`, backups programados de Supabase (según plan).
-- [ ] **Actualizar docs tras el lanzamiento:** `MEMORY.md`, `docs/NEXT_STEPS.md`, y el conteo de migraciones de `CLAUDE.md` ("Hoy: 0001–0036" ya está desactualizado: el repo llega a 0051).
+- [ ] **Actualizar docs tras el lanzamiento:** `MEMORY.md`, `docs/NEXT_STEPS.md`, y el conteo de migraciones de `CLAUDE.md` ("Hoy: 0001–0036" ya está desactualizado: el repo llega a 0055).

@@ -8,6 +8,42 @@
 
 ---
 
+## Traspaso (2026-10-25)
+
+Sesión cortada por límite de uso; sigue otra sesión/perfil. Estado detallado en `MEMORY.md` («Cierre de sesión 2026-10-25»). Los bloques DR14 de abajo están parcialmente superados: fases 1–3 ya implementadas.
+
+### (a) Hecho y commiteado (sin push)
+- `main` está **133 commits adelante de `origin/main`** (verificado con `git rev-list --count origin/main..main`; recontar). Sin push.
+- Ciclos 73–74 `f372550`; plan de producción `eb8c551`; copy `ebc579a`, `84a4547` (DR12), `3e4eaf8` (DR13), `b357dd9` (DR15), `2a78e61` (DR16); DR14 docs `163d028`, fase 1 `9adb9c8` (0052), 2a `88d1471` (0053), 2b `60a7333` (0054), 3 `d9d1d91` (0055).
+- **Untracked a propósito, NO commitear:** `.claude/agents/`, `.codex/`, `AGENTS.md`, `design-proposals/`.
+
+### (b) Pendiente inmediato (en orden)
+1. Auditoría final con los agentes `auditor` y `seguridad` sobre DR14 (0052–0055) y DR15.
+2. Suite completa de integración: `npm test` (~5–7 min; el dev server vivo no molesta a vitest, pero **NO correr `npm run build` con el server vivo**) y `node --env-file=.env.local scripts/check-anon-exposure.mjs`.
+3. Limpiar residuo: `node --env-file=.env.local scripts/cleanup-test-residences.mjs` (simula) y luego con `--apply`.
+4. Probar a mano las pantallas nuevas: reglamento y aceptación, FAQ elegibles, edad mín./máx., seguimiento en `/admin/followups`; y captura de «Por qué EstuRed» en desktop y mobile.
+5. Actualizar `docs/PLAN_SALIDA_PRODUCCION.md` si cambia algo y **regenerar el bootstrap prod** (`node scripts/build-bootstrap.mjs prod`) con 0052–0055.
+
+### (c) Pendientes de producto
+- Entradas D (14, resueltas en DR12) y L (19, resueltas en DR13) del inventario: **falta la revisión del asesor legal** (textos de arrepentimiento, Soporte, devolución) y la de DR16 «sin garantía propietaria» (cómo se comunica y verifica a las residencias).
+- Mes vacío y sin prorrateo (`docs/IDEAS_DEL_DUENO_2026-10-23.md` §1–2).
+- Multiple choice del reglamento y archivo PDF; aceptación del guardián en menores (y en propuesta del familiar / lista de espera: hoy quedan con `regulation_acceptance_pending`); vista de la aceptación guardada.
+- Botón «Actualizar con mismos parámetros» (docs/06 §27.3); link de la encuesta en «Mi residencia»; pantalla admin del catálogo FAQ (hoy se edita por SQL).
+
+### (d) Producción
+- Proyecto Supabase nuevo (necesita cupo disponible); dominio real + `CRON_SECRET` para el bloque cron 0013; Resend/SMTP; redirect URLs de Auth; proveedor de tiles; WAF/rate limits; email de contacto real.
+- Crear admin/superadmin con `scripts/create-admin.mjs` (credenciales de prod solo en esa invocación); cargar payment settings en `/admin/payment-settings`; revisión legal de `/terms` y `/privacy`.
+
+### (e) Cómo trabaja el dueño
+- Decisiones **de a una**: pregunta + recomendación + botones. Respuestas breves.
+- Por cada migración: links al SQL Editor dev (https://supabase.com/dashboard/project/gyfbtsuibmecefwovdgh/sql/new) y prod, más el archivo a pegar. Dev ya tiene hasta 0055; prod se arma con el bootstrap.
+- Flujo: docs → agente → revisor/seguridad → fixes → `typecheck` + `lint` + `build` (server parado, `rm -rf .next`) → commit sin push.
+- Elegir modelo/esfuerzo por tarea (sonnet medium/low por defecto).
+- Co-autoría: `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>`.
+- Agentes en `.claude/agents`: constructor, revisor, seguridad, depurador, tester, interfaz, base-datos, documentador, auditor, disenador.
+
+---
+
 ## DR14 (2026-10-25) — decidida por el dueño y reflejada en docs; pendiente de implementar
 
 Detalle en `docs/IDEAS_DEL_DUENO_2026-10-23.md` §5–§7. Protocolo `docs/13` §5 (doc primero): DR14 **ya registrada en `docs/00` §31 y reflejada en `docs/04` §12ter, `05` §16bis, `06` (§4.23–4.24, §8.1, §8.7, §11.5, §15.3, §17, §27.12) y `08` (§4.4, §4.5, §6.17, §7.16, §8.18)**. Fase 1 (edad) hecha (0052). **Fase 2a (reglamento + aceptación) implementada, migración 0053 sin aplicar** (ver `MEMORY.md` «DR14 fase 2a»; acción del dueño: aplicarla en dev y prod y correr `scripts/seed-demo-regulation.mjs`). Falta: FAQ de catálogo, apartado de menores, seguimiento a los 5 días, multiple choice y aceptación en propuestas del familiar / lista de espera.
