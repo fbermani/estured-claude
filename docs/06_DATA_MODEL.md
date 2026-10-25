@@ -1520,39 +1520,35 @@ Reglas:
 
 ## 17. FAQ asistida por residencia
 
-### 17.1. `residence_faq_predefined_questions` *(tabla nueva)*
+### 17.1. `residence_faq_predefined_questions` *(migración 0054)*
 
-**Catálogo único** de preguntas disponibles para que las residencias elijan (DR14, 2026-10-25: lo administra el admin; semillas del dueño en `docs/propuestas/REGLAMENTO_MODELO_Y_FAQ.md`, Parte B).
+**Catálogo único** de preguntas disponibles para que las residencias elijan (DR14, 2026-10-25: lo administra el admin; semillas del dueño en `docs/propuestas/REGLAMENTO_MODELO_Y_FAQ.md`, Parte B: 49 preguntas cargadas por la migración). Lectura pública solo de las activas; escribe solo service role.
 
 | Campo | Tipo | Descripción |
 |---|---|---|
-| `id` | uuid | ID |
-| `question_text` | text | Texto de la pregunta predefinida |
-| `suggested_answer` | text null | Respuesta sugerida que la residencia puede editar (DR14) |
-| `category` | text | `precios`, `reglas`, `disponibilidad`, `convivencia`, `servicios`, `documentacion`, `otros` |
+| `id` | text | ID estable `FAQ-NN` (no uuid: las preguntas se citan por ese código) |
+| `category` | text | Tema: `antes_de_reservar`, `requisitos`, `costos_y_pagos`, `convivencia_y_reglas`, `visitas`, `que_llevar`, `estadia_y_salida`, `privacidad_y_seguridad` (los 8 temas de la Parte B) |
+| `question_text` | text | Texto de la pregunta |
+| `suggested_answer` | text | Respuesta sugerida, con campos `{…}` que la residencia completa (DR14) |
+| `owner` | text | `estured` (texto fijo de EstuRed, sin campos ni edición) o `residence` (la residencia completa los campos). No hay textos mixtos: ninguna parte fija es editable |
 | `display_order` | integer | Orden de presentación |
 | `is_active` | boolean | Disponible para elegir |
-| `created_at` | timestamptz | Alta |
+| `created_at`, `updated_at` | timestamptz | Alta / actualización |
 
 ---
 
 ### 17.2. `residence_faq_items`
 
-Preguntas configuradas por residencia: **selección + override** sobre el catálogo (§17.1) o personalizadas. La residencia elige cuáles mostrar y edita la respuesta; si no la edita, se muestra `suggested_answer` del catálogo (DR14). Una sola fila por `(residence_id, predefined_question_id)`.
+**Selección + override** por residencia sobre el catálogo (§17.1). La residencia elige cuáles mostrar y edita la respuesta; si no la edita, se muestra `suggested_answer` del catálogo (DR14). Una sola fila por `(residence_id, predefined_question_id)`. Lectura pública solo de las filas seleccionadas de residencias `verified_active`; escribe solo service role (permiso `faq.manage`). Una pregunta con campos `{…}` sin completar no puede mostrarse (validación server-side). Las preguntas personalizadas del texto original quedan fuera de esta fase.
 
 | Campo | Tipo | Descripción |
 |---|---|---|
 | `id` | uuid | ID |
 | `residence_id` | uuid | Residencia |
-| `predefined_question_id` | uuid null | FK si es del listado predefinido |
-| `question` | text | Pregunta (copiada del predefinido o personalizada) |
-| `answer` | text null | Respuesta editada por la residencia (override). Null = se usa la sugerida del catálogo (DR14) |
-| `category` | text | Categoría |
-| `is_active` | boolean | Activa |
-| `is_custom` | boolean | True si es personalizada |
-| `created_by_user_id` | uuid | Residencia/admin |
-| `created_at` | timestamptz | Alta |
-| `updated_at` | timestamptz | Actualización |
+| `predefined_question_id` | text | FK al catálogo |
+| `is_selected` | boolean | La residencia la muestra en su ficha |
+| `answer_override` | text null | Respuesta editada por la residencia. Null = se usa la sugerida del catálogo (DR14). Las `estured` nunca tienen override |
+| `created_at`, `updated_at` | timestamptz | Alta / actualización |
 
 ---
 

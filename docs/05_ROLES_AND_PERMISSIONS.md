@@ -1024,7 +1024,7 @@ El FAQ/bot no puede: inventar disponibilidad, confirmar precios fuera de datos o
 
 **FAQ (catálogo único).**
 - **Administrar el catálogo** (alta, baja, orden, respuesta sugerida): admin/superadmin.
-- **Elegir qué preguntas mostrar y editar la respuesta de su residencia:** dueño y staff con `profile.edit`. La FAQ libre del estudiante sigue moderada con `faq.manage` (DR11, D9).
+- **Elegir qué preguntas mostrar y editar la respuesta de su residencia:** dueño y staff con `faq.manage` *(supuesto reversible, 2026-10-25: es el mismo permiso de la FAQ libre del estudiante, DR11/D9; antes decía `profile.edit`)*.
 - Las restricciones de §16 se mantienen: la FAQ no inventa disponibilidad ni precios ni promete aceptación.
 
 **Edad de residentes.**

@@ -15,6 +15,7 @@ import { RulesHighlight } from "@/components/residences/RulesHighlight";
 import { FaqAccordion } from "@/components/residences/FaqAccordion";
 import { assertResidenceAccess } from "@/lib/residences/access";
 import { getPublicAnsweredQuestions } from "@/lib/faq/getPublicAnsweredQuestions";
+import { getPublicCatalogFaq } from "@/lib/faq/residenceCatalog";
 import { loadCurrentRegulation } from "@/lib/regulations/current";
 import { MODEL_LEGAL_NOTE } from "@/lib/regulations/modelTemplate";
 import { RegulationText } from "@/components/regulations/RegulationText";
@@ -164,8 +165,10 @@ export default async function RealResidenceDetailPage({
   const [rate, sessionUser] = await Promise.all([getCurrentExchangeRate(), getSessionUser()]);
   const isStudent = sessionUser?.roles.includes("student") ?? false;
   const isFamily = sessionUser?.roles.includes("family_member") ?? false;
-  const [answeredQuestions, isOwnResidenceTeam, community, studentViewer, familyViewer, regulationResult] = await Promise.all([
+  const [answeredQuestions, catalogFaq, isOwnResidenceTeam, community, studentViewer, familyViewer, regulationResult] = await Promise.all([
     adminClient ? getPublicAnsweredQuestions(adminClient, residence.id) : Promise.resolve([]),
+    // DR14: preguntas del catálogo que la residencia eligió mostrar (agrupadas por tema). Vacío si no eligió ninguna o si la 0054 no está aplicada.
+    adminClient ? getPublicCatalogFaq(adminClient, residence.id) : Promise.resolve([]),
     sessionUser && adminClient ? assertResidenceAccess(adminClient, sessionUser.id, residence.id) : Promise.resolve(false),
     adminClient ? getCommunityVisibility(adminClient, residence.id, sessionUser ? "registered" : "guest") : Promise.resolve(null),
     isStudent && sessionUser && adminClient ? loadStudentViewer(adminClient, sessionUser.id, residence.id) : Promise.resolve(null),
@@ -187,7 +190,13 @@ export default async function RealResidenceDetailPage({
   const staticFaqItems = (sectionMap.faq?.items as { question: string; answer: string }[]) ?? [];
   const communityStatement = (sectionMap.community_statement?.quote as string) ?? "";
   // El equipo de ESTA residencia no se pregunta a sí mismo: en vez del formulario ve un aviso (responde desde su panel).
-  const faqItems = [...staticFaqItems, ...answeredQuestions.map((q) => ({ ...q, fromVisitor: true }))];
+  // Orden (DR14): primero las del catálogo agrupadas por tema, después las fijas del perfil y al final las libres respondidas.
+  const otherFaqGroup = catalogFaq.length > 0 ? "Otras preguntas" : undefined;
+  const faqItems: { question: string; answer: string; fromVisitor?: boolean; group?: string }[] = [
+    ...catalogFaq.flatMap((g) => g.items.map((q) => ({ ...q, group: g.label }))),
+    ...staticFaqItems.map((q) => ({ ...q, group: otherFaqGroup })),
+    ...answeredQuestions.map((q) => ({ ...q, fromVisitor: true, group: otherFaqGroup })),
+  ];
 
   // Condiciones de reserva a nivel residencia (migración 0025).
   const conditions = {

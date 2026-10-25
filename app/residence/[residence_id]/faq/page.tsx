@@ -11,8 +11,11 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { FaqQuestionCard } from "@/app/residence/[residence_id]/faq/FaqQuestionCard";
+import { FaqCatalogItem } from "@/app/residence/[residence_id]/faq/FaqCatalogItem";
+import { loadCatalogForResidence } from "@/lib/faq/residenceCatalog";
+import { FAQ_CATEGORIES, effectiveAnswer } from "@/lib/faq/catalog";
 
-export const metadata: Metadata = { title: "Preguntas de visitantes" };
+export const metadata: Metadata = { title: "Preguntas frecuentes" };
 export const dynamic = "force-dynamic";
 
 type FaqRow = {
@@ -41,6 +44,8 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
   // DR11: sin `faq.manage` las acciones se ven deshabilitadas (solo presentación; el servidor valida cada acción).
   const canManage = can(membership, "faq.manage");
 
+  const catalog = await loadCatalogForResidence(admin, residenceId);
+
   const { data, error } = await admin
     .from("residence_faq_questions")
     .select("id, question, answer, status, created_at, answered_at")
@@ -58,7 +63,84 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
-      <h1 className="text-2xl font-bold text-ink">Preguntas de visitantes</h1>
+      <h1 className="text-2xl font-bold text-ink">Preguntas frecuentes</h1>
+      <p className="mt-1 text-sm text-ink-soft">
+        Elegí qué preguntas del catálogo de EstuRed mostrar en tu ficha y ajustá las respuestas con los datos de tu residencia. Abajo
+        respondés las preguntas libres de quienes miran tu ficha.
+      </p>
+
+      <section className="mt-8" aria-labelledby="faq-catalog-title">
+        <h2 id="faq-catalog-title" className="text-lg font-bold text-ink">
+          Catálogo de preguntas
+        </h2>
+        <p className="mt-1 text-sm text-ink-soft">
+          Cada pregunta trae una respuesta sugerida. Las que dicen «Texto fijo de EstuRed» no se editan; en el resto, completá los datos
+          entre llaves {"{…}"} antes de mostrarlas. Lo que escribas acá no confirma disponibilidad ni precios: eso se informa en la ficha y
+          en la solicitud.
+        </p>
+        {!catalog.ok ? (
+          <div className="mt-4">
+            <EmptyState
+              icon={catalog.reason === "schema_pending" ? "hourglass_top" : "error"}
+              title={
+                catalog.reason === "schema_pending"
+                  ? "El catálogo todavía no está disponible"
+                  : "No pudimos cargar el catálogo"
+              }
+              description={
+                catalog.reason === "schema_pending"
+                  ? "Lo estamos terminando de preparar en este entorno. Mientras tanto, tu ficha muestra solo tus preguntas fijas y las que respondés abajo."
+                  : "Probá de nuevo en unos minutos. Si sigue pasando, avisale a Soporte."
+              }
+            />
+          </div>
+        ) : catalog.entries.length === 0 ? (
+          <div className="mt-4">
+            <EmptyState icon="quiz" title="El catálogo está vacío" description="Cuando EstuRed cargue preguntas, las vas a ver acá para elegir." />
+          </div>
+        ) : (
+          <PermissionGate allowed={canManage} className="mt-4">
+            <div className="space-y-3">
+              {FAQ_CATEGORIES.map((category, index) => {
+                const entries = catalog.entries.filter((e) => e.category === category.key);
+                if (entries.length === 0) return null;
+                const selectedCount = entries.filter((e) => e.selection?.is_selected).length;
+                const anySelected = catalog.entries.some((e) => e.selection?.is_selected);
+                return (
+                  <details
+                    key={category.key}
+                    open={selectedCount > 0 || (!anySelected && index === 0)}
+                    className="group rounded-card border-[1.5px] border-line bg-cream-2/40"
+                  >
+                    <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-3">
+                      <span className="text-sm font-extrabold uppercase tracking-widest text-muted">{category.label}</span>
+                      <span className="rounded-full bg-cream-2 px-2 py-0.5 text-xs font-bold text-ink-soft">
+                        {selectedCount} de {entries.length} en tu ficha
+                      </span>
+                    </summary>
+                    <div className="space-y-3 px-3 pb-3">
+                      {entries.map((entry) => (
+                        <FaqCatalogItem
+                          key={entry.id}
+                          residenceId={residenceId}
+                          questionId={entry.id}
+                          question={entry.question_text}
+                          owner={entry.owner}
+                          suggestedAnswer={entry.suggested_answer}
+                          initialSelected={entry.selection?.is_selected ?? false}
+                          initialAnswer={effectiveAnswer(entry, entry.selection)}
+                        />
+                      ))}
+                    </div>
+                  </details>
+                );
+              })}
+            </div>
+          </PermissionGate>
+        )}
+      </section>
+
+      <h2 className="mt-12 text-lg font-bold text-ink">Preguntas de visitantes</h2>
       <p className="mt-1 text-sm text-ink-soft">
         Quienes miran tu ficha pueden hacerte una pregunta libre. Respondé cuando puedas: las respuestas se publican
         debajo de tus preguntas frecuentes. No hay respuestas automáticas.

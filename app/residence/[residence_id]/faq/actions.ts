@@ -8,6 +8,7 @@ import {
   hideResidenceQuestion,
   restoreResidenceQuestion,
 } from "@/lib/faq/moderateResidenceQuestion";
+import { saveCatalogItem } from "@/lib/faq/residenceCatalog";
 
 export type FaqModerationState = { status: "idle" | "saved" | "error"; message?: string };
 
@@ -41,4 +42,35 @@ export async function moderateFaqQuestionAction(
   revalidatePath(`/residence/${residenceId}/faq`);
   revalidatePath("/residencias/[slug]", "page");
   return { status: "saved" };
+}
+
+export type FaqCatalogState = { status: "idle" | "saved" | "error"; message?: string };
+
+/**
+ * Elegir mostrar / ocultar una pregunta del catálogo único y editar su respuesta (DR14). El permiso (`faq.manage`), la validación de los
+ * campos `{…}` y la auditoría viven en `lib/faq/residenceCatalog`. El interruptor «Mostrar» viaja como checkbox nativo del mismo formulario.
+ */
+export async function saveFaqCatalogItemAction(
+  residenceId: string,
+  questionId: string,
+  _prev: FaqCatalogState,
+  formData: FormData,
+): Promise<FaqCatalogState> {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) return { status: "error", message: "Tu sesión expiró. Volvé a iniciar sesión." };
+  const admin = getSupabaseAdmin();
+  if (!admin) return { status: "error", message: "No disponible en este momento." };
+
+  const result = await saveCatalogItem(admin, {
+    actorUserId: sessionUser.id,
+    residenceId,
+    questionId,
+    selected: formData.get("selected") === "on",
+    answer: formData.get("answer"),
+  });
+  if (!result.ok) return { status: "error", message: result.error };
+
+  revalidatePath(`/residence/${residenceId}/faq`);
+  revalidatePath("/residencias/[slug]", "page");
+  return { status: "saved", message: result.selected ? "Listo, la pregunta se muestra en tu ficha." : "Listo, la pregunta no se muestra en tu ficha." };
 }

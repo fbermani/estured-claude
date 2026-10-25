@@ -124,6 +124,10 @@ const ACTION_PHRASES: Record<string, string> = {
   residence_faq_restored_by_admin: "volvió a mostrar una pregunta de una ficha",
   residence_faq_answered: "respondió una pregunta de la ficha",
   residence_faq_answer_edited: "editó la respuesta a una pregunta de la ficha",
+  residence_regulation_published: "publicó una versión del reglamento",
+  application_regulation_accepted: "aceptó el reglamento al enviar la solicitud",
+  application_regulation_acceptance_failed: "no pudo registrar la aceptación del reglamento de una solicitud",
+  residence_faq_catalog_item_saved: "actualizó una pregunta frecuente del catálogo en su ficha",
   // Dinero: confirmación de reserva (DR8)
   reservation_confirmation_failed_after_fee_paid: "no pudo confirmar una reserva con el fee ya cobrado",
   reservation_confirmation_retried: "reintentó la confirmación de una reserva",
@@ -238,6 +242,7 @@ const ENTITY_LABELS: Record<string, string> = {
   renewal_requests: "Pedido de renovación",
   reservations: "Reserva",
   residence_faq_questions: "Pregunta de ficha",
+  residence_faq_items: "Pregunta frecuente del catálogo",
   residence_team_invitations: "Invitación al equipo",
   residence_users: "Miembro del equipo",
   residences: "Residencia",

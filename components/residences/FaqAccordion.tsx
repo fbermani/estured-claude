@@ -4,15 +4,21 @@ import { useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 
 /** Acordeón moderno, una sola pregunta abierta a la vez, apertura suave. */
-export function FaqAccordion({ items }: { items: { question: string; answer: string; fromVisitor?: boolean }[] }) {
+export function FaqAccordion({ items }: { items: { question: string; answer: string; fromVisitor?: boolean; group?: string }[] }) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
     <div className="space-y-3">
       {items.map((faq, i) => {
         const open = openIndex === i;
+        // Encabezado del tema (catálogo, DR14) cuando cambia el grupo respecto de la pregunta anterior.
+        const showGroup = faq.group && faq.group !== items[i - 1]?.group;
         return (
-          <div key={`${i}-${faq.question}`} className="overflow-hidden rounded-card border-[1.5px] border-line bg-paper">
+          <div key={`${i}-${faq.question}`} className="space-y-3">
+            {showGroup && (
+              <h3 className={`text-xs font-extrabold uppercase tracking-widest text-muted ${i > 0 ? "pt-3" : ""}`}>{faq.group}</h3>
+            )}
+          <div className="overflow-hidden rounded-card border-[1.5px] border-line bg-paper">
             <button
               type="button"
               onClick={() => setOpenIndex((v) => (v === i ? null : i))}
@@ -40,6 +46,7 @@ export function FaqAccordion({ items }: { items: { question: string; answer: str
                 <p className="whitespace-pre-line break-words px-5 pb-4 text-sm leading-relaxed text-ink-soft">{faq.answer}</p>
               </div>
             </div>
+          </div>
           </div>
         );
       })}
