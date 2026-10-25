@@ -1,7 +1,6 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
-import { createNotification } from "@/lib/notifications/createNotification";
 
 /**
  * Job de expiración del acceso freemium "de prueba para pioneras"
@@ -36,20 +35,8 @@ export async function expireOperationalAccess(admin: SupabaseClient): Promise<{ 
       source: "system",
     });
 
-    const { data: residenceUsers } = await admin
-      .from("residence_users")
-      .select("user_id")
-      .eq("residence_id", residence.id)
-      .eq("is_active", true);
-    for (const ru of residenceUsers ?? []) {
-      await createNotification(admin, {
-        userId: ru.user_id,
-        title: "Tu acceso a Gestión Operativa venció",
-        body: `El período de prueba de Gestión Operativa de ${residence.name} llegó a su fecha límite. Escribinos si querés renovarlo.`,
-        relatedEntityType: "residences",
-        relatedEntityId: residence.id,
-      });
-    }
+    // DR12/D8 (2026-10-25): sin pantallas de plan y con todo habilitado, NO se avisa a la residencia
+    // («Tu acceso a Gestión Operativa venció…»). Se retoma cuando haya precio.
     expiredCount += 1;
   }
 

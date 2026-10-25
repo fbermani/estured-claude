@@ -113,7 +113,8 @@ describe.skipIf(!hasCreds)("setOperationalAccessByAdmin (integración)", () => {
       .eq("related_entity_id", residenceId)
       .eq("title", "EstuRed activó tu acceso a Gestión Operativa")
       .maybeSingle();
-    expect(grantNotification).not.toBeNull();
+    // DR12/D8: ya no se notifica a la residencia.
+    expect(grantNotification).toBeNull();
 
     const revokeResult = await setOperationalAccessByAdmin(admin, {
       residenceId,
@@ -139,6 +140,15 @@ describe.skipIf(!hasCreds)("setOperationalAccessByAdmin (integración)", () => {
       .eq("related_entity_id", residenceId)
       .eq("title", "EstuRed revocó tu acceso a Gestión Operativa")
       .maybeSingle();
-    expect(revokeNotification).not.toBeNull();
+    expect(revokeNotification).toBeNull();
+
+    const { data: revokeLog } = await admin
+      .from("audit_logs")
+      .select("id")
+      .eq("entity_type", "residences")
+      .eq("entity_id", residenceId)
+      .eq("action", "operational_access_revoked")
+      .maybeSingle();
+    expect(revokeLog).not.toBeNull();
   });
 });

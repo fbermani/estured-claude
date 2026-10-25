@@ -92,6 +92,19 @@ export function residenceAvailabilityMode(states: readonly TypeAvailabilityState
   return "not_updated";
 }
 
+/** Pista de la card del catálogo cuando ningún tipo está disponible (K01). `null` = sin badge. */
+export type CatalogAvailabilityHint = "waitlist" | "not_updated" | null;
+
+/**
+ * Qué badge muestra la card cuando NO hay tipos disponibles: algún tipo completo y ninguno pausado ->
+ * "waitlist"; alguna pausa -> `null` (ya lo dice el StatusTag); resto -> "not_updated".
+ */
+export function catalogAvailabilityHint(states: readonly TypeAvailabilityState[]): CatalogAvailabilityHint {
+  if (states.some(isTypePaused)) return null;
+  if (states.some((s) => s === "full")) return "waitlist";
+  return "not_updated";
+}
+
 /**
  * Precio "desde" (USD) para mostrar: el mínimo entre los tipos que admiten solicitud (ni completos ni
  * pausados); si ninguno la admite, el mínimo de todos. Ignora precios no positivos o no finitos, así que

@@ -4,6 +4,7 @@ import {
   isTypeRequestable,
   requestBlockedMessage,
   residenceAvailabilityMode,
+  catalogAvailabilityHint,
   startingPriceUsd,
   typeAvailabilityMode,
   typeAvailabilityState,
@@ -142,5 +143,20 @@ describe("StatusTag: variante 'completa' por tipo", () => {
   it("los demás estados ignoran el nombre del tipo", () => {
     expect(availabilityLabel("by_room_type_to_confirm", "Doble")).toBe("Disponibilidad informada");
     expect(availabilityLabel("not_updated", "Doble")).toBe("Sin disponibilidad actualizada");
+  });
+});
+
+describe("catalogAvailabilityHint", () => {
+  it("algún tipo completo y ninguno pausado -> waitlist", () => {
+    expect(catalogAvailabilityHint(["full", "not_updated"])).toBe("waitlist");
+    expect(catalogAvailabilityHint(["full", "full"])).toBe("waitlist");
+  });
+  it("con alguna pausa -> sin badge", () => {
+    expect(catalogAvailabilityHint(["full", "paused_by_residence"])).toBeNull();
+    expect(catalogAvailabilityHint(["paused_by_admin"])).toBeNull();
+  });
+  it("sin actualizar o sin tipos -> not_updated", () => {
+    expect(catalogAvailabilityHint(["not_updated"])).toBe("not_updated");
+    expect(catalogAvailabilityHint([])).toBe("not_updated");
   });
 });

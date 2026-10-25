@@ -39,16 +39,20 @@ const freePlanFeatures = [
 
 const paidPlanFeatures = [
   {
-    label: "Disponibilidad real por plaza — \"Disponibilidad asegurada\"",
-    detail: "Cada cama tiene su propio estado, evitando reservas duplicadas o confusiones.",
+    label: "Habitaciones y plazas",
+    detail: "Cargás tus habitaciones y camas, y ves la ocupación de cada una.",
   },
   {
-    label: "Gestión de habitaciones, plazas y residentes",
-    detail: "Un panel único para administrar quién ocupa qué cama y por cuánto tiempo.",
+    label: "Residentes",
+    detail: "Registrás altas, salidas y notas, y respondés los avisos de «Quiero cambiar».",
   },
   {
-    label: "Solicitudes por plaza específica",
-    detail: "El estudiante elige la cama exacta, no solo el tipo de habitación.",
+    label: "Comunidad visible",
+    detail: "Los estudiantes conocen a quienes viven en tu residencia, según lo que cada residente elige mostrar.",
+  },
+  {
+    label: "Elección de plaza",
+    detail: "El estudiante puede indicar una plaza libre al solicitar; la residencia confirma.",
   },
 ];
 
@@ -140,12 +144,12 @@ export default function ForResidencesPage() {
               Para residencias estudiantiles
             </p>
             <h1 className="text-4xl font-extrabold sm:text-5xl">
-              Tu residencia llena, pero tu tiempo no debería estarlo.
+              Menos mensajes, más residencia
             </h1>
             <p className="mt-5 text-lg text-forest-tint">
               EstuRed no reemplaza tu operación: la ordena. Menos consultas
               repetidas, solicitudes completas, lista de espera y renovaciones
-              con un proceso claro — y un plan gratuito para empezar.
+              con un proceso claro. Hoy, sin costo para las residencias verificadas.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button href="/register/residence" size="lg" variant="secondary">
@@ -217,8 +221,8 @@ export default function ForResidencesPage() {
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
           <SectionHeader
             eyebrow="Planes"
-            title="Empezá gratis, crecé cuando lo necesites"
-            description="Dos modos pensados para acompañar distintos niveles de gestión."
+            title="Hoy, todo sin costo"
+            description="Mientras armamos la red, todas las herramientas son gratis para las residencias verificadas."
           />
           <div className="grid gap-6 md:grid-cols-2">
             <Reveal>
@@ -236,7 +240,10 @@ export default function ForResidencesPage() {
             </Reveal>
             <Reveal delay={1}>
             <Card interactive className="h-full border-forest p-8">
-              <Badge tone="amber">Plan pago — gratis 1 año para pioneras</Badge>
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge tone="amber">Plan Premium — Bonificado el 1er año</Badge>
+                <Badge tone="sage">Incluido hoy</Badge>
+              </div>
               <h3 className="mt-3 text-2xl font-bold text-ink">
                 Gestión Operativa
               </h3>
@@ -249,8 +256,9 @@ export default function ForResidencesPage() {
             </Reveal>
           </div>
           <p className="mt-6 text-center text-sm text-ink-faint">
-            Las residencias pioneras de la beta acceden a Gestión Operativa sin
-            costo durante 1 año.
+            Si te sumás como Residencia fundadora, tu primer año de Plan Premium
+            está bonificado. El plan todavía no tiene precio: te lo vamos a
+            informar con anticipación y nadie paga nada sin aceptarlo antes.
           </p>
         </div>
       </section>
@@ -265,9 +273,9 @@ export default function ForResidencesPage() {
             Sumate como Residencia fundadora
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-ink-soft">
-            Estamos seleccionando entre 5 y 10 residencias de CABA para la
-            primera etapa. Creá tu cuenta ahora — coordinamos la verificación
-            presencial una vez que completes tu perfil.
+            Estamos sumando las primeras residencias de CABA: las Residencias
+            fundadoras. Creá tu cuenta y, cuando completes tu perfil, coordinamos
+            la visita de verificación.
           </p>
           <div className="mt-6">
             <Button href="/register/residence" size="lg">

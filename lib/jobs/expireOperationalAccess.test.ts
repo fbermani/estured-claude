@@ -93,6 +93,7 @@ describe.skipIf(!hasCreds)("expireOperationalAccess (integración)", () => {
       .eq("related_entity_id", staleResidenceId)
       .eq("title", "Tu acceso a Gestión Operativa venció")
       .maybeSingle();
-    expect(notification).not.toBeNull();
+    // DR12/D8: ya no se notifica a la residencia (el audit log sí se crea).
+    expect(notification).toBeNull();
   });
 });

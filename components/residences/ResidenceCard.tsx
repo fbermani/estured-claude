@@ -81,9 +81,11 @@ export function ResidenceCard({
                   {rt.type}
                 </Badge>
               ))
-            ) : (
-              <Badge tone="neutral">Sin lugares informados</Badge>
-            )}
+            ) : residence.availabilityHint === "waitlist" ? (
+              <Badge tone="neutral">Lista de espera abierta</Badge>
+            ) : residence.availabilityHint === "not_updated" ? (
+              <Badge tone="neutral">Sin lugar informado por ahora</Badge>
+            ) : null}
           </div>
 
           {keyServices.length > 0 && (

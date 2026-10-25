@@ -3,6 +3,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import type { Residence, RoomTypeName } from "@/types/domain";
 import {
   residenceAvailabilityMode,
+  catalogAvailabilityHint,
   startingPriceUsd,
   typeAvailabilityState,
 } from "@/lib/availability/typeAvailability";
@@ -110,6 +111,7 @@ export async function getCatalogResidences(): Promise<Residence[]> {
       description: r.description ?? "",
       photos: photoUrls,
       hasWaitlist: availabilityMode === "full",
+      availabilityHint: catalogAvailabilityHint(typeStates),
       residentsCount: residentsCountById.get(r.id) ?? 0,
     };
   });

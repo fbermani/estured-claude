@@ -145,7 +145,7 @@ const audiences = [
   {
     title: "Residencias",
     description:
-      "Menos consultas repetidas, solicitudes completas y herramientas para profesionalizar tu gestión. Empezá gratis.",
+      "Menos consultas repetidas, solicitudes completas y herramientas para profesionalizar tu gestión. Hoy, sin costo para residencias verificadas.",
     href: "/for-residences",
     cta: "Sumar mi residencia",
   },
@@ -214,7 +214,7 @@ export default async function HomePage() {
           <Reveal>
             <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-line bg-white px-3.5 py-1.5 text-xs font-semibold text-forest-700 sm:text-sm">
               <span className="h-1.5 w-1.5 rounded-full bg-forest-600" aria-hidden />
-              Primera etapa: Buenos Aires · Próximamente, Latinoamérica
+              Primera etapa: Ciudad de Buenos Aires
             </p>
             <h1 className="text-4xl font-extrabold leading-[1.08] text-ink sm:text-5xl lg:text-[3.4rem]">
               No solo elijas dónde vivir,{" "}

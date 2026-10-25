@@ -2,7 +2,6 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { getResidencePrivateDetails, saveResidencePrivateDetails } from "@/lib/residences/privateDetails";
-import { createNotification } from "@/lib/notifications/createNotification";
 
 export type SetOperationalAccessResult = { status: "ok" } | { status: "error"; message: string };
 
@@ -70,24 +69,8 @@ export async function setOperationalAccessByAdmin(
     source: "admin",
   });
 
-  const { data: residenceUsers } = await admin
-    .from("residence_users")
-    .select("user_id")
-    .eq("residence_id", params.residenceId)
-    .eq("is_active", true);
-  const title = params.granted ? "EstuRed activó tu acceso a Gestión Operativa" : "EstuRed revocó tu acceso a Gestión Operativa";
-  const body = params.granted
-    ? `Tu residencia ${residence.name} ya tiene acceso a Gestión Operativa.${params.expiresAt ? ` Válido hasta el ${params.expiresAt}.` : ""} Motivo: ${reason}`
-    : `Tu residencia ${residence.name} ya no tiene acceso a Gestión Operativa. Motivo: ${reason}`;
-  for (const ru of residenceUsers ?? []) {
-    await createNotification(admin, {
-      userId: ru.user_id,
-      title,
-      body,
-      relatedEntityType: "residences",
-      relatedEntityId: params.residenceId,
-    });
-  }
+  // DR12/D8 (2026-10-25): sin pantallas de plan y con todo habilitado, NO se avisa a la residencia
+  // («EstuRed activó/revocó tu acceso…»). Se retoma cuando haya precio.
 
   return { status: "ok" };
 }

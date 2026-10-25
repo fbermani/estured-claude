@@ -69,6 +69,8 @@ export interface Residence {
   description: string;
   photos: string[]; // URLs placeholder en el ciclo fundacional
   hasWaitlist: boolean;
+  /** Badge de la card cuando no hay tipos disponibles (K01); `null`/ausente = sin badge. */
+  availabilityHint?: "waitlist" | "not_updated" | null;
   /** Residentes actuales visibles (comunidad) — opcional, lo llena el catálogo real. */
   residentsCount?: number;
 }

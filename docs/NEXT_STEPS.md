@@ -8,6 +8,16 @@
 
 ---
 
+## IDEAS PENDIENTES DEL DUEÑO (registradas 2026-10-25; detalle en `docs/IDEAS_DEL_DUENO_2026-10-23.md`)
+
+Sin decisión ni diseño todavía; no implementar sin pasar por `docs/13` §5.
+
+- **Edad mínima/máxima de la residencia** como filtro de búsqueda.
+- **Seguimiento automático una semana después del ingreso** del estudiante.
+- **Reglamento modelo + FAQ única seleccionable** para las residencias.
+
+---
+
 ## CICLO 74 (2026-10-24) — Permisos del staff elegidos por el dueño (DR11)
 
 Ver `MEMORY.md` Ciclo 74 y `docs/00` §31 (DR11, con la tabla acción → permiso). Reemplaza el "un solo nivel de staff" de DR10: el dueño elige, staff por staff, 10 permisos (`residence_users.permissions`, sin migración), con atajos, desde `/residence/[id]/team`; al invitar elige los permisos iniciales. El servidor valida cada acción con `assertResidencePermission`; el staff ve deshabilitado (con nota) lo que no puede y un resumen «Tus permisos» en el Panel. ⚠ **Migración 0051 (sin aplicar, editada):** ahora agrega la columna `permissions` a `residence_team_invitations` (más lo del Ciclo 73: `invited_by` nullable). **Acción manual del dueño:** aplicarla en dev y en producción (SQL Editor → pegar y Run), orden 0046, 0045, 0047, 0048, 0049, 0050, 0051; si una versión vieja de la 0051 ya estaba aplicada, volver a correr esta (es idempotente). Después en dev: `node --env-file=.env.local scripts/seed-demo-team.mjs [--staff-permissions]` y probar guardar permisos con Ricardo y ver a Sofía con permisos apagados. Pendiente: verificar guardar/invitar/aceptar con la 0051 aplicada y los estados deshabilitados de Habitaciones, Residentes, Renovaciones, Lista de espera y Preguntas en pantalla.
