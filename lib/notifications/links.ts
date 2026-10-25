@@ -43,6 +43,7 @@ const ADMIN_LIST: Record<string, string> = {
   payment_settings: "/admin/payment-settings",
   waitlist_entries: "/admin/waitlists",
   resident_stays: "/admin/community",
+  stay_followups: "/admin/followups",
 };
 
 export function notificationHref(
@@ -82,6 +83,9 @@ export function notificationHref(
         return "/students/renewals";
       case "stay_early_exits":
         return "/students/residency";
+      case "stay_followups":
+        // DR14: encuesta de seguimiento post-ingreso (la ve el estudiante, o el familiar vinculado si es menor).
+        return id ? `/students/followup/${id}` : null;
       case "stay_change_intents":
         // DR3 "Quiero cambiar": el bloque vive en Mi residencia (el familiar lo ve en solo lectura en la misma ruta).
         return "/students/residency#quiero-cambiar";

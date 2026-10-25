@@ -6,8 +6,9 @@ import { findPlaceholders } from "@/lib/regulations/modelTemplate";
  * El hash (SHA-256 hex del texto canónico) identifica EXACTAMENTE lo que aceptó cada estudiante.
  */
 
-export const MIN_REGULATION_LENGTH = 200;
-export const MAX_REGULATION_LENGTH = 40_000;
+import { MAX_REGULATION_LENGTH, MIN_REGULATION_LENGTH } from "@/lib/regulations/limits";
+
+export { MAX_REGULATION_LENGTH, MIN_REGULATION_LENGTH };
 
 /** Saltos de línea unificados, sin espacios al final de cada línea ni más de una línea en blanco seguida, sin blancos en los extremos. */
 export function normalizeRegulationText(raw: string): string {

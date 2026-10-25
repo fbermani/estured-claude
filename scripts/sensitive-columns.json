@@ -31,6 +31,8 @@
     "stay_early_exits",
     "residence_team_invitations",
     "residence_users",
-    "application_regulation_acceptances"
+    "application_regulation_acceptances",
+    "stay_followups",
+    "stay_followup_responses"
   ]
 }

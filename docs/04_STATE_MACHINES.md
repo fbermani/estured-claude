@@ -1017,6 +1017,7 @@ Es el seguimiento automático que se dispara **a los 5 días del ingreso** de un
 - **Qué hace EstuRed con la respuesta:** lo decide el admin caso por caso; puede no comunicar nada. Si comunica algo a la residencia, es por Soporte y con registro de auditoría. No hay penalización automática.
 - **Menores:** la encuesta también se envía al guardián vinculado; cada uno responde por separado (DR3b: el guardián no ve las respuestas del estudiante, y viceversa).
 - **Sin cuenta de estudiante** (estadía cargada por la residencia, `pending_activation`): se avisa solo a la residencia; no hay encuesta.
+- **Descubrimiento por fecha *(supuesto reversible, fase 3)*:** el job programa los seguimientos revisando `resident_stays` (no hay gancho en cada flujo que activa una estadía). Solo toma estadías con `start_date` en los últimos 14 días o a futuro, para no avisar por ingresos viejos al activar el job. Cuentan como vigentes `active`, `pending_activation`, `visibility_limited` y `hidden_by_user` (con `is_current` y sin `end_date` pasada). Si una estadía sin cuenta se vincula después, el seguimiento toma al estudiante y recibe la encuesta. Si la entrega falla, el seguimiento vuelve a `scheduled` y se reintenta.
 - **Copy:** no promete resolución ni garantías; «Soporte», no «mediación».
 - **Auditoría:** cada transición y la revisión del admin generan registro (entidad `stay_followup`).
 

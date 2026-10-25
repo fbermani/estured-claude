@@ -5,7 +5,7 @@ import { useFormStatus } from "react-dom";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Input";
 import { publishRegulationAction, type PublishRegulationState } from "@/app/residence/[residence_id]/regulation/actions";
-import { MAX_REGULATION_LENGTH } from "@/lib/regulations/text";
+import { MAX_REGULATION_LENGTH } from "@/lib/regulations/limits";
 
 const initialState: PublishRegulationState = { status: "idle" };
 
