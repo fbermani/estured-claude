@@ -12,6 +12,17 @@ Guía para sesiones de Claude Code (u otro agente) en este repo. Leer también:
 - **Los `docs/00`–`22` son una guía fuerte, no un dogma irrefutable.** Se espera análisis propio: si algo ahí parece mejorable, inconsistente o subóptimo, decirlo y proponer una alternativa concreta — no implementar en silencio algo que se considera un error solo porque "así dice el doc". Esto no reemplaza el protocolo de ambigüedades de `docs/13 §4` (seguir proponiendo supuestos reversibles documentados cuando falta información) ni la jerarquía de `docs/13 §2` para contradicciones *entre* docs — se suma a ambos como una tercera capa: además de resolver ambigüedades y contradicciones, cuestionar activamente si la regla documentada es la mejor decisión de producto.
 - **Antes de emprender un bloque de trabajo nuevo, evaluar qué skills de Claude Code ayudarían** (diseño de UI, revisión de código, verificación e2e, etc.) y decirlo explícitamente. Si una skill relevante no está instalada, pedirla antes de avanzar en vez de seguir sin ella.
 
+## Eficiencia de tokens (decisión del dueño, 2026-10-25)
+
+- **Modelo/esfuerzo por tarea:** sonnet con esfuerzo low/medium por defecto; subir (opus/high) solo para diseño de arquitectura, seguridad o bugs difíciles. Recomendarlo antes de cada tarea nueva.
+- **Delegar lecturas grandes** (auditorías, barridos de carpetas, docs largos) a agentes que devuelvan reportes de ≤10 líneas; no volcar archivos enteros al contexto principal.
+- **Tests acotados:** correr solo los tests de lo tocado; la suite completa (`npm test`, ~5–7 min) solo antes de commits grandes o cambios transversales.
+- **Un `npm run build` por commit**, con el dev server parado (y `rm -rf .next` si hubo cambios de componentes).
+- **No reabrir decisiones ya tomadas** en `docs/00` §31 (D1–D11, DR1–DR16): se implementan; si se cree que una es un error, proponer la alternativa una vez, sin releer todo el debate.
+- **Usar `codebase-memory` (search_graph, get_code_snippet, trace_path) antes de leer carpetas** o archivos enteros; `Read` con `offset`/`limit` para lo grande.
+- **`MEMORY.md` se mantiene corto** (≤250 líneas): por ciclo, 2–4 líneas; el histórico íntegro vive en `docs/archive/MEMORY_HISTORICO_2026-10-25.md` y se consulta a demanda con el índice de `MEMORY.md` §7.
+- **Avisar al dueño cuándo conviene `/compact` o una sesión nueva** (al cerrar un bloque, o cuando el contexto se llena de lecturas ya resueltas).
+
 ## Comandos
 
 ```bash
@@ -26,7 +37,7 @@ npm test           # vitest run (unitarios + integración contra estured-dev)
 - **`npm test` existe (Vitest, desde el Ciclo 12):** los `.test.ts` conviven junto al código. Los unitarios puros no necesitan Supabase; los de integración crean/borran filas reales y corren contra `estured-dev` (suite completa ~5–7 min, `fileParallelism: false`). `vitest.setup.ts` se niega a correr si `.env.local` apunta a producción. Si un test deja residuo: `node --env-file=.env.local scripts/cleanup-test-residences.mjs` (simula; `--apply` para borrar).
 - **Deploy:** Vercel conectado al repo — cada push a `main` deploya a https://estured.vercel.app (usa `estured-prod`; el selector de sesión demo, `DEMO_LOGIN_ENABLED`, jamás va a Vercel).
 - ⚠️ **No correr `npm run build` con el dev server levantado**: ambos escriben `.next/` y el dev server se corrompe (`Cannot find module './NNN.js'`). Fix: parar server → `rm -rf .next` → relanzar.
-- Migraciones: SQL manual en `db/migrations/` (numeradas `0001_...`), se aplican pegándolas en el SQL Editor del dashboard de Supabase (en dev y en producción, por separado: aplicar una en un proyecto no la aplica en el otro). No hay supabase CLI instalada. Hoy: 0001–0036 (`MEMORY.md` dice cuáles siguen pendientes de aplicar).
+- Migraciones: SQL manual en `db/migrations/` (numeradas `0001_...`), se aplican pegándolas en el SQL Editor del dashboard de Supabase (en dev y en producción, por separado: aplicar una en un proyecto no la aplica en el otro). No hay supabase CLI instalada. Hoy: 0001–0055 (dev aplicadas hasta 0055; prod se arma con `scripts/build-bootstrap.mjs`; estado real en `MEMORY.md` §3).
 
 ## Convenciones reales
 
