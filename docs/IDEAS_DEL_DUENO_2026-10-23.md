@@ -21,3 +21,17 @@ Fuente: mensaje del dueño. No son reglas vigentes todavía: cada punto pasa por
 - Un **catálogo de preguntas frecuentes comunes** a casi todas las residencias; cada residencia **elige cuáles mostrar** y completa o complementa la respuesta (cada pregunta trae una **respuesta sugerida** editable).
 - Objetivo: que el estudiante o la familia **no tengan dudas y casi nunca deban contactar a la residencia**.
 - Se suma a la FAQ simple ya implementada (D9: pregunta libre que responde la residencia). Ver `docs/08` §7.16 (catálogo de preguntas predefinidas, hoy fuera de alcance).
+
+## 5. Edad mínima y máxima de los residentes (2026-10-25)
+- Cada residencia elige la **edad mínima y máxima** de sus residentes.
+- Funciona como **filtro de búsqueda**: al estudiante solo le aparecen residencias compatibles con su edad.
+- A definir al diseñarlo: qué pasa con la edad de quien está dentro de un grupo familiar o con menores (guardián), y cómo se calcula la edad (a la fecha de ingreso).
+
+## 6. Seguimiento automático después del ingreso (2026-10-25)
+- Una semana después de cada ingreso: **recordatorio automático a la residencia** para que consulte cómo va la estadía, y/o **mensaje automático de la plataforma al estudiante** ("¿cómo va todo hasta ahora? ¿era lo que esperabas?").
+- A definir: plazo exacto, si el mensaje al estudiante registra respuesta, y qué ve la residencia de esa respuesta (privacidad).
+
+## 7. Reglamento modelo y FAQ (insumo recibido: "Reglamento 2026-1.pdf")
+- El dueño aportó su reglamento. Se arma un **reglamento modelo** (base o guía; las residencias lo adaptan o complementan).
+- Del reglamento y de preguntas comunes se arma **una única lista de preguntas frecuentes publicable**; cada residencia elige cuáles mostrar y edita la respuesta sugerida.
+- Preguntas semilla del dueño: ¿visita presencial o virtual? · ¿puede ingresar cualquiera? · ¿qué es la matrícula de ingreso? · ¿requisitos para ingresar? · ¿hay un responsable en la residencia? · ¿hay toque de queda? · ¿se permiten visitas? · ¿qué tengo que llevar?
