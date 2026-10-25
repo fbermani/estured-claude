@@ -200,6 +200,10 @@ const faqs = [
     a: "No. EstuRed es una plataforma que conecta estudiantes y familias con residencias estudiantiles verificadas. No alquilamos ni administramos alojamientos. Cobramos un fee por nuestro servicio una vez que la residencia confirma tu pago (mirá «¿Cuánto cuesta usar EstuRed?»).",
   },
   {
+    q: "¿Necesito garantía propietaria?",
+    a: "No. Las residencias de EstuRed no la piden. Los requisitos de ingreso los ves en la ficha y en el reglamento de cada residencia.",
+  },
+  {
     q: "¿Cuánto cuesta usar EstuRed?",
     a: "Enviar una solicitud es gratis. Si la reserva avanza, pagás a la residencia lo acordado y a EstuRed un fee del 5% sobre tu estadía inicial, sin contar el depósito. El monto exacto lo ves antes de pagar.",
   },

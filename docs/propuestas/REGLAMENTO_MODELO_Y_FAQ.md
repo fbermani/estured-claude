@@ -35,6 +35,8 @@ Respeto mutuo entre residentes y hacia el personal y las instalaciones; colabora
 **Art. 3. Requisitos de ingreso** [Obligatorio sugerido]
 Para ingresar se presenta: {documentos_requeridos} (por ejemplo, documento de identidad o pasaporte, constancia de alumno regular, otros). La residencia puede pedir documentación adicional con aviso previo. La admisión depende de la confirmación de la residencia.
 
+> Nota DR16 (2026-10-25): las residencias de EstuRed no pueden exigir garantía propietaria como requisito. Este artículo no debe pedirla; pendiente definir cómo se comunica/verifica y la revisión legal del asesor.
+
 **Art. 4. Matrícula de ingreso** [Opcional/Configurable]
 La residencia cobra una matrícula de {monto_matricula} {moneda_cobro}, con frecuencia {frecuencia_matricula} (única, anual u otra). Condición de devolución: {condicion_devolucion_matricula}. Se abona a la residencia, directamente.
 
@@ -304,6 +306,8 @@ Es una residencia que EstuRed visitó en persona antes de publicarla. Revisamos 
 
 **FAQ-11. ¿Cuáles son los requisitos para ingresar?** · *Residencia completa*
 Se pide {documentos_requeridos}. Además: {requisitos_adicionales} (por ejemplo, constancia de alumno regular, certificado de antecedentes, datos de contacto de un familiar). Se completan en tu perfil de EstuRed y al ingresar a la residencia.
+
+> Nota DR16: no incluir garantía propietaria entre los requisitos. FAQ pública: «¿Necesito garantía propietaria?» → «No. Las residencias de EstuRed no la piden. Los requisitos de ingreso los ves en la ficha y en el reglamento de cada residencia.»
 
 **FAQ-12. ¿Qué es la matrícula de ingreso?** · *Residencia completa*
 Es un pago {frecuencia_matricula: único / anual} de {monto_matricula} {moneda_cobro} que cubre {que_cubre_la_matricula}. Se paga a la residencia, no a EstuRed. Condiciones de devolución: {condicion_devolucion_matricula}. {si_no_cobra: Esta residencia no cobra matrícula.}

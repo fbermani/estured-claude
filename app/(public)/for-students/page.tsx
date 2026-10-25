@@ -117,6 +117,10 @@ const faqs = [
     a: "Enviar una solicitud es gratis. Si la reserva avanza, pagás a la residencia lo acordado y a EstuRed un fee del 5% sobre tu estadía inicial, sin contar el depósito. El monto exacto lo ves antes de pagar.",
   },
   {
+    q: "¿Necesito garantía propietaria?",
+    a: "No. Las residencias de EstuRed no la piden. Los requisitos de ingreso los ves en la ficha y en el reglamento de cada residencia.",
+  },
+  {
     q: "¿EstuRed verifica a los estudiantes?",
     a: "No. EstuRed verifica a las residencias, no a las personas. Vos elegís qué mostrás en tu perfil, y cada residencia revisa las solicitudes que recibe antes de confirmar.",
   },
@@ -149,6 +153,9 @@ export default async function ForStudentsPage() {
               Elegir dónde vivir es una de las decisiones más importantes de tu
               nueva etapa. EstuRed la hace clara: residencias verificadas,
               proceso registrado y un comprobante verificable de tu reserva.
+            </p>
+            <p className="mt-3 text-sm font-medium text-petrol-700">
+              Sin garantía propietaria: no la necesitás para solicitar un lugar en una residencia de EstuRed.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button href="/search" size="lg">
