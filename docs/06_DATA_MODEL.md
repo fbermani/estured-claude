@@ -274,6 +274,16 @@ No usar `jsonb` para reemplazar relaciones centrales como usuarios, residencias,
 
 ---
 
+### 4.23. `stay_followup_status` *(nuevo, DR14 2026-10-25)*
+`scheduled`, `sent`, `answered`, `no_response`, `reviewed`, `cancelled` (máquina de estados: `docs/04` §12ter)
+
+---
+
+### 4.24. `regulation_source` *(nuevo, DR14 2026-10-25)*
+`own` (reglamento propio de la residencia), `model` (modelo de EstuRed adaptado con multiple choice)
+
+---
+
 ## 5. Núcleo de usuarios e identidad
 
 ### 5.1. `users`
@@ -518,6 +528,10 @@ Reglas:
 | `has_operational_management_access` | boolean | Feature flag Gestión Operativa |
 | `om_access_granted_by` | uuid null | Admin que otorgó acceso |
 | `om_access_granted_at` | timestamptz null | Cuándo se otorgó |
+| `min_resident_age` | smallint | Edad mínima de los residentes (DR14). Por defecto 18; no puede ser menor a 18 salvo que `accepts_minors = true` |
+| `max_resident_age` | smallint null | Edad máxima (DR14). Null = sin tope |
+| `accepts_minors` | boolean | Default `false`. Solo si la residencia lo habilita expresamente (DR14; supuesto: lo aprueba el admin) se admiten menores de 18 con apartado para guardián |
+| `current_regulation_version_id` | uuid null | FK `residence_regulation_versions` — versión **vigente** del reglamento (DR14, §8.7). Null = rige el modelo |
 | `created_at` | timestamptz | Alta |
 | `updated_at` | timestamptz | Actualización |
 
@@ -528,6 +542,7 @@ Reglas:
 - pioneras tienen `pioneer_free_access_until` = 1 año desde su ingreso;
 - cambio de `has_operational_management_access` queda auditado;
 - **MVP: todo gratis (D8, 2026-10-20):** el flag y `operating_mode` se conservan pero no restringen funciones mientras no se monetice (ver `docs/00` §6.2).
+- **Edad (DR14, 2026-10-25):** `min_resident_age >= 18` salvo `accepts_minors = true`; `max_resident_age >= min_resident_age`. La edad del estudiante se calcula con `student_profiles.birth_date` **a la fecha de ingreso solicitada** (`desired_start_date`; en la búsqueda, a la fecha de ingreso indicada en el filtro o, si no hay, a hoy *(supuesto)*). **Sin `birth_date` cargada la residencia no se excluye** y se le pide al estudiante completar el perfil. La residencia nunca ve la fecha de nacimiento por este filtro.
 
 **Campo nuevo — pago inicial para reservar (decisión D7, 2026-10-20; supuesto reversible, `docs/13` §4).** El perfil de la residencia define cuánto debe pagar el estudiante a la residencia para reservar. Valor por defecto: **el primer mes** de la tarifa del tipo elegido. Se muestra con el mismo valor en la ficha, la solicitud, el mensaje de WhatsApp y el cálculo/pantalla del fee. Modelado (fijado en la migración `0041`, Ciclo 53): `reservation_initial_payment_mode` (`one_month` por defecto = primer mes | `custom_usd` = monto fijo) y `reservation_initial_payment_usd` (numeric null; obligatorio > 0 si `custom_usd`, null si `one_month`, CHECK en DB). El monto efectivo se calcula al armar el snapshot (`lib/reservations/initialPayment.ts`) y queda congelado en `application_snapshots.reservation_payment_amount_usd/ars`: cambiar el campo no altera solicitudes ya creadas. El cambio se audita en `tariff_change_logs` (`field_name = 'initial_payment'`). **Regla al negociar (propuesta de ajuste aceptada):** el snapshot final usa el pago inicial que la propuesta fije explícitamente (`proposed_reservation_payment_amount_usd`); si no lo fija y la residencia está en `one_month` (y el original era el primer mes), el pago inicial sigue la tarifa mensual negociada; con `custom_usd` sin cambio explícito queda el monto fijo del original. El ARS del snapshot final se recalcula siempre con la cotización del original (`lib/reservations/initialPayment.ts › resolveNegotiatedInitialPaymentUsd`). Es la fuente única de `reservation_payment_amount_usd/ars` que se copia al snapshot (§11.2); reemplaza como origen a `room_types.reservation_payment_amount_usd` (§9.1). Para revertir: volver a `room_types.reservation_payment_*` por tipo.
 
@@ -667,6 +682,36 @@ Información pública configurable del perfil (reglas, servicios, áreas comunes
 | `alert_triggered` | boolean | Si supera 15% |
 | `admin_review_status` | text null | `new`, `reviewed`, `ignored`, `flagged` |
 | `created_at` | timestamptz | Fecha |
+
+---
+
+### 8.7. `residence_regulation_versions` *(tabla nueva, DR14 2026-10-25)*
+
+Reglamento interno de la residencia, versionado (una fila por versión). Modelo de contenido y multiple choice: `docs/propuestas/REGLAMENTO_MODELO_Y_FAQ.md` (Parte A). Entidad **separada** de `residence_profile_sections` (`section_type = rules` queda como resumen de reglas principales de la ficha) y de los términos generales `/terms` (D10).
+
+Inmutable una vez publicada:
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `id` | uuid | ID |
+| `residence_id` | uuid | Residencia |
+| `version_number` | integer | Correlativo por residencia |
+| `source` | regulation_source | `own` o `model` |
+| `model_version` | text null | Versión del modelo de EstuRed usada como base (si `source = model`) |
+| `content` | jsonb | Artículos activos y valores elegidos (multiple choice), o el texto del reglamento propio |
+| `file_id` | uuid null | FK `files` (§16.1) si el reglamento propio es un archivo |
+| `content_hash` | text | SHA-256 del contenido canónico (identifica lo que se aceptó) |
+| `status` | text | `draft`, `pending_admin_review`, `published`, `superseded` (supuesto: sin revisión del admin no se publica) |
+| `published_at` | timestamptz null | Publicación |
+| `created_by_user_id` | uuid | Autor |
+| `created_at` | timestamptz | Alta |
+
+`residences.current_regulation_version_id` apunta a la `published` vigente; la anterior pasa a `superseded` y **se conserva**. Si es null, se muestra el modelo base (sin adaptar) y la aceptación referencia la versión del modelo.
+
+Reglas:
+- una versión `published` no se edita: cambiar el reglamento crea una versión nueva;
+- cada versión queda auditada (`audit_logs`);
+- **Supuesto reversible de modelado:** no hay tabla `residence_regulations` aparte; basta esta tabla + el puntero en `residences`.
 
 ---
 
@@ -981,6 +1026,30 @@ Historial de estados de solicitud.
 | `reason_text` | text null | Texto |
 | `metadata` | jsonb | Datos adicionales |
 | `created_at` | timestamptz | Fecha |
+
+---
+
+### 11.5. `application_regulation_acceptances` *(tabla nueva, DR14 2026-10-25)*
+
+Aceptación del reglamento de la residencia, **una por solicitud**, al enviarla. Entidad separada de `/terms` (D10, `consents`) y de cualquier contrato entre las partes.
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `id` | uuid | ID |
+| `application_request_id` | uuid unique | Solicitud en la que se aceptó |
+| `residence_id` | uuid | Residencia |
+| `regulation_version_id` | uuid | FK `residence_regulation_versions` — versión aceptada (o versión del modelo si la residencia no tiene reglamento propio) |
+| `content_hash` | text | Copia del hash de la versión aceptada (prueba de qué se aceptó) |
+| `accepted_at` | timestamptz | Fecha y hora de la aceptación |
+| `accepted_by_user_id` | uuid | Estudiante, o familiar vinculado si el estudiante es menor |
+| `accepted_by_role` | text | `student` o `guardian` |
+
+Reglas:
+- inmutable: sin UPDATE ni DELETE; una solicitud sin fila no puede pasar de `draft` a `submitted`;
+- si la residencia publica una versión nueva, las filas existentes **no cambian** (siguen apuntando a la versión aceptada);
+- una solicitud reenviada o «actualizada con mismos parámetros» (§27.3) vuelve a pedir la aceptación contra la versión **vigente** en ese momento *(supuesto reversible)*;
+- la lista de espera **no** pide aceptación (todavía no hay solicitud); se pide al activar la solicitud *(supuesto reversible)*;
+- visible para el estudiante, la residencia destinataria y admin/superadmin (`docs/05` §16bis).
 
 ---
 
@@ -1363,6 +1432,49 @@ Datos agregados de comunidad.
 
 ---
 
+### 15.3. `stay_followups` y `stay_followup_responses` *(tablas nuevas, DR14 2026-10-25)*
+
+Seguimiento a los 5 días del ingreso (máquina de estados: `docs/04` §12ter). **Acceso exclusivo de admin/superadmin** (la residencia no tiene policy de lectura sobre estas tablas, a propósito; policies que crucen tablas deben usar funciones `SECURITY DEFINER`).
+
+`stay_followups` (una por estadía):
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `id` | uuid | ID |
+| `resident_stay_id` | uuid unique | Estadía (§15.1) |
+| `residence_id` | uuid | Residencia |
+| `student_profile_id` | uuid null | Estudiante (null si la estadía no tiene cuenta) |
+| `status` | stay_followup_status | Estado |
+| `due_at` | timestamptz | `start_date` + 5 días |
+| `residence_reminder_sent_at` | timestamptz null | Cuándo se avisó a la residencia |
+| `survey_sent_at` | timestamptz null | Cuándo se envió la encuesta |
+| `reviewed_by_user_id` | uuid null | Admin que la revisó |
+| `reviewed_at` | timestamptz null | Revisión |
+| `admin_note` | text null | Nota interna (nunca visible a la residencia) |
+| `communicated_to_residence` | boolean | Si el admin decidió comunicar algo (por Soporte) |
+| `created_at` | timestamptz | Alta |
+| `updated_at` | timestamptz | Actualización |
+
+`stay_followup_responses` (una por respondente; dos si el estudiante es menor):
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `id` | uuid | ID |
+| `stay_followup_id` | uuid | Seguimiento |
+| `respondent_user_id` | uuid | Quien responde |
+| `respondent_role` | text | `student` o `guardian` |
+| `how_is_it_going` | text | Escala corta de 3 a 5 valores *(supuesto: textos finales a definir con copy)* |
+| `was_as_expected` | text | `yes`, `partly`, `no` |
+| `comment` | text null | Comentario libre, opcional |
+| `answered_at` | timestamptz | Respuesta |
+
+Reglas:
+- único `(stay_followup_id, respondent_role)`;
+- el contenido de las respuestas es **dato sensible interno**: no se expone en ninguna pantalla de la residencia, ni en métricas visibles (§19), ni en la ficha pública;
+- el recordatorio a la residencia viaja por `notifications` (§21) y **no incluye** estado ni contenido de la respuesta.
+
+---
+
 ## 16. Documentos y archivos
 
 ### 16.1. `files`
@@ -1409,12 +1521,13 @@ Datos agregados de comunidad.
 
 ### 17.1. `residence_faq_predefined_questions` *(tabla nueva)*
 
-Listado predefinido de preguntas disponibles para que las residencias elijan.
+**Catálogo único** de preguntas disponibles para que las residencias elijan (DR14, 2026-10-25: lo administra el admin; semillas del dueño en `docs/propuestas/REGLAMENTO_MODELO_Y_FAQ.md`, Parte B).
 
 | Campo | Tipo | Descripción |
 |---|---|---|
 | `id` | uuid | ID |
 | `question_text` | text | Texto de la pregunta predefinida |
+| `suggested_answer` | text null | Respuesta sugerida que la residencia puede editar (DR14) |
 | `category` | text | `precios`, `reglas`, `disponibilidad`, `convivencia`, `servicios`, `documentacion`, `otros` |
 | `display_order` | integer | Orden de presentación |
 | `is_active` | boolean | Disponible para elegir |
@@ -1424,7 +1537,7 @@ Listado predefinido de preguntas disponibles para que las residencias elijan.
 
 ### 17.2. `residence_faq_items`
 
-Preguntas configuradas por residencia (del listado predefinido o personalizadas).
+Preguntas configuradas por residencia: **selección + override** sobre el catálogo (§17.1) o personalizadas. La residencia elige cuáles mostrar y edita la respuesta; si no la edita, se muestra `suggested_answer` del catálogo (DR14). Una sola fila por `(residence_id, predefined_question_id)`.
 
 | Campo | Tipo | Descripción |
 |---|---|---|
@@ -1432,7 +1545,7 @@ Preguntas configuradas por residencia (del listado predefinido o personalizadas)
 | `residence_id` | uuid | Residencia |
 | `predefined_question_id` | uuid null | FK si es del listado predefinido |
 | `question` | text | Pregunta (copiada del predefinido o personalizada) |
-| `answer` | text | Respuesta cargada por la residencia |
+| `answer` | text null | Respuesta editada por la residencia (override). Null = se usa la sugerida del catálogo (DR14) |
 | `category` | text | Categoría |
 | `is_active` | boolean | Activa |
 | `is_custom` | boolean | True si es personalizada |
@@ -1833,6 +1946,17 @@ Acciones obligatorias a auditar (ampliado):
 
 ---
 
+### 24.10. Reglamento, edad y seguimiento (DR14)
+
+- `residence_regulation_versions(residence_id, version_number)` unique;
+- `application_regulation_acceptances(application_request_id)` unique;
+- `residence_faq_items(residence_id, predefined_question_id)` unique parcial (donde no es nulo);
+- `residences(min_resident_age, max_resident_age)` para el filtro de búsqueda (a evaluar si hace falta);
+- `stay_followups(resident_stay_id)` unique; `stay_followups(status, due_at)` para el job de §27.12;
+- `stay_followup_responses(stay_followup_id, respondent_role)` unique.
+
+---
+
 ## 25. Reglas de seguridad / RLS (conceptuales)
 
 ### 25.1. Invitado
@@ -1945,6 +2069,13 @@ Evidencia de casos de soporte. Privado; acceso por partes del caso y admin.
 - al registrarse la salida real de la estadía (`resident_stays.end_date`) sin reserva nueva: pasar a `expired`;
 - al confirmarse una reserva del estudiante en una residencia distinta a `current_residence_id`: pasar a `resolved_new_reservation` y notificar a la residencia actual con la fecha de ingreso, sin nombrar la nueva residencia (supuesto); DR2 corre aparte (§27.8);
 - **no** cerrar la estadía actual ni liberar la plaza automáticamente (D11).
+
+### 27.12. Seguimiento post-ingreso (DR14)
+- al pasar una estadía a `active` con `start_date`: crear `stay_followups` en `scheduled` con `due_at = start_date + 5 días`;
+- con `due_at <= now()` y estadía `active`: pasar a `sent`, notificar a la residencia (recordatorio, **sin** datos de respuesta) y enviar la encuesta al estudiante (y al guardián si es menor);
+- si la estadía se cierra antes de `due_at`: `cancelled`;
+- a los 14 días de `sent` sin respuesta: `no_response` *(plazo supuesto)*;
+- nunca penalizar automáticamente ni comunicar a la residencia: lo decide el admin (`docs/05` §16bis).
 
 ---
 

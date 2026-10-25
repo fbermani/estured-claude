@@ -173,6 +173,7 @@ Ruta base: `/students`
 | `/students/renewals/[id]` | Detalle de renovación | Estudiante/Familiar |
 | `/students/profile` | Perfil estudiante; para el familiar (DR4), su propio perfil: nombre, teléfono, relación con el estudiante, datos de facturación del pagador y consentimientos | Estudiante / Familiar |
 | `/students/residency` | Mi residencia (estadía actual, contrato hasta, renovación y botón "Quiero cambiar", ver §6.16) | Estudiante (el familiar vinculado lo ve en solo lectura) |
+| `/students/followup/[id]` | Encuesta de seguimiento post-ingreso (DR14, §6.17) | Estudiante / Familiar vinculado si es menor |
 | `/students/documents` | Documentos | Estudiante/Familiar con permisos |
 | `/students/family-link` | Familiar vinculado | Estudiante/Familiar |
 | `/students/settings` | Configuración | Estudiante/Familiar |
@@ -230,6 +231,7 @@ Ruta base: `/admin`
 | `/admin/family-proposals` | Propuestas del familiar | Admin/Superadmin |
 | `/admin/negotiations` | Negociaciones activas | Admin/Superadmin |
 | `/admin/reservations` | Reservas | Admin/Superadmin |
+| `/admin/followups` | Seguimiento post-ingreso (DR14, §8.18) | Admin/Superadmin |
 | `/admin/payments` | Pagos fee EstuRed | Admin/Superadmin |
 | `/admin/invoices` | Facturas emitidas (TusFacturas.app) (diferida, D9) | Admin/Superadmin |
 | `/admin/receipts` | Comprobantes | Admin/Superadmin |
@@ -305,7 +307,9 @@ Ruta base: `/admin`
 
 **Contenido:** lista de residencias, filtros, ordenamiento, cards, estado de disponibilidad, precio USD y ARS referencial, sello "Residencia Verificada", tags de tipo de habitación, acceso a lista de espera.
 
-**Filtros MVP:** zona/barrio, tipo de habitación/plaza, precio, disponibilidad, modo de residencia, completa/con lista de espera, servicios básicos.
+**Filtros MVP:** zona/barrio, tipo de habitación/plaza, precio, disponibilidad, modo de residencia, completa/con lista de espera, servicios básicos y **edad (DR14)**.
+
+**Filtro de edad (DR14, 2026-10-25):** con sesión de estudiante y fecha de nacimiento cargada, el catálogo muestra solo residencias cuya edad mínima/máxima incluye la edad del estudiante **a la fecha de ingreso** indicada (o a hoy si no hay fecha). Una residencia que no acepta menores no aparece para un menor. **Sin fecha de nacimiento (invitado o perfil incompleto) no se excluye ninguna** y se invita a completar el perfil; el estudiante no ve la edad como dato de la residencia salvo en la ficha. Estado vacío específico: «No hay residencias para tu edad con estos filtros» con acción de relajar filtros.
 
 **Card de residencia:** foto principal, nombre, zona, precio desde en USD y ARS referencial (con nota "al dólar blue de hoy"), tipo de habitación disponible, estado de disponibilidad, sello de verificación, CTA "Ver residencia".
 
@@ -330,8 +334,10 @@ Ruta base: `/admin`
 - **"Qué pagás y a quién"** (pago inicial y renta a la residencia; fee a EstuRed): visible para todos, invitados incluidos.
 - Comunidad visible individual y agregada según permisos (en la ficha, solo el resumen por tipo; el detalle vive en `/residencias/[slug]/comunidad`).
 - Ubicación: dirección y mapa con el **pin exacto** de la residencia + universidades cercanas con distancia (ver "Bloque de ubicación").
-- **FAQ de la residencia** (preguntas predefinidas elegidas + respuestas + campo de pregunta libre).
-- CTA "Enviar solicitud de reserva".
+- **FAQ de la residencia** (preguntas del catálogo único elegidas por la residencia, con su respuesta editada o la sugerida, + campo de pregunta libre; DR14).
+- **Reglamento completo de la residencia** (propio, o el modelo si no tiene; enlace «Leer el reglamento completo» visible antes de solicitar; DR14).
+- **Edad de residentes:** mínima y máxima de la residencia, y si admite menores (DR14).
+- CTA "Enviar solicitud de reserva". **Antes de enviar (DR14):** el paso final muestra el reglamento completo (propio o modelo) y un **checkbox obligatorio** «Leí el reglamento de la residencia y acepto sus términos»; sin aceptarlo no se envía. Se guarda la versión aceptada con fecha. Copy: la aceptación no garantiza plaza («solicitud sujeta a confirmación»). Si el estudiante es menor, lo acepta el familiar vinculado. Si la edad del estudiante a la fecha de ingreso queda fuera del rango de la residencia, el CTA se reemplaza por un aviso claro (sin promesas) y, para menores en residencias habilitadas, aparece el **apartado para menores** (datos del guardián).
 - **Vista del familiar vinculado (DR4):** ve la misma ficha con el desglose de costos ("Qué pagás y a quién") y, en lugar de "Enviar solicitud de reserva", el CTA **"Proponer a [nombre del estudiante]"** (flujo de propuestas del familiar, §6.3). No envía solicitudes en nombre del estudiante.
 - CTA "Sumarme a lista de espera" si está completa o sin disponibilidad.
 - CTA "Crear cuenta para ver más" para invitados.
@@ -784,6 +790,16 @@ Contenido: documentos cargados, estado, tipo, solicitudes donde fue compartido, 
 
 ---
 
+### 6.17. Encuesta de seguimiento post-ingreso (DR14, 2026-10-25)
+
+**Ruta:** `/students/followup/[id]` (llega por notificación y email a los 5 días del ingreso; también en «Mi residencia», §6.16, mientras esté `sent`).
+
+**Contenido:** encuesta corta (2 preguntas + comentario opcional): «¿Cómo va todo hasta ahora?» y «¿Era lo que esperabas?». Texto aclaratorio fijo: «Tu respuesta es privada: la residencia no la ve. Si necesitás ayuda con algo, escribile a Soporte.» Botones «Enviar» y «Ahora no» (permanece disponible hasta el plazo).
+
+**Reglas:** una por estadía; si el estudiante es menor, el familiar vinculado recibe la suya por separado y no ve la del estudiante. Estados de UI: cargando; ya respondida (agradecimiento, sin edición); vencida (`no_response`, mensaje neutro); error. No promete resolución ni garantías.
+
+---
+
 ## 7. Dashboard residencia (multi-residencia)
 
 Ruta base: `/residence`
@@ -1002,18 +1018,25 @@ Sin cambios de fondo. Incluye Factura C asociada visible/descargable si es relev
 
 ---
 
-### 7.16. FAQ asistida (actualizado — pasa a Must Have)
+### 7.16. FAQ asistida y reglamento (actualizado — DR14, 2026-10-25)
 
-**Ruta:** `/residence/[residence_id]/faq`
+**Ruta:** `/residence/[residence_id]/faq` (el reglamento se edita en una pestaña de esta misma pantalla; permiso `profile.edit`, `docs/05` §16bis).
 
-**Objetivo:** reducir consultas repetidas con respuestas configuradas por la residencia.
+**Objetivo:** reducir consultas repetidas con respuestas configuradas por la residencia y que el estudiante conozca las reglas antes de solicitar.
 
-**Contenido:**
-- **Listado de preguntas predefinidas por EstuRed** organizadas por categoría (precios, reglas, disponibilidad, convivencia, servicios, documentación, otros), con checkbox para elegir cuáles usar.
-- Editor de respuesta para cada pregunta elegida.
-- Posibilidad de agregar preguntas personalizadas no incluidas en el listado.
-- Carga de archivos (reglamento interno, normas de convivencia, información de servicios) que también alimentan las respuestas.
-- Listado de preguntas hechas por estudiantes que **no** obtuvieron respuesta, para que la residencia las revise y agregue.
+**Pestaña FAQ:**
+- **Catálogo único de preguntas de EstuRed**, por categoría (precios, reglas, disponibilidad, convivencia, servicios, documentación, otros), con interruptor «Mostrar en mi ficha». Reemplaza la nota anterior de «catálogo fuera de alcance» (D9 se mantiene para la pregunta libre).
+- Cada pregunta elegida trae la **respuesta sugerida** del catálogo; la residencia la **edita** (override) o la deja como está.
+- Posibilidad de agregar preguntas personalizadas no incluidas en el catálogo.
+- Listado de preguntas libres hechas por estudiantes que no obtuvieron respuesta (se moderan con `faq.manage`).
+
+**Pestaña Reglamento:**
+- Elegir **reglamento propio** (texto o archivo) o **adaptar el modelo** de EstuRed (artículos activos/inactivos y opciones multiple choice, `docs/propuestas/REGLAMENTO_MODELO_Y_FAQ.md` Parte A). Sin reglamento propio, la ficha muestra el modelo.
+- Vista previa de lo que verá el estudiante al solicitar.
+- **Versiones:** cada publicación crea una versión nueva (con revisión del admin, supuesto); historial visible. Aviso fijo: «Los cambios rigen para solicitudes nuevas; las solicitudes que ya aceptaron una versión anterior conservan esa versión.»
+- Aviso legal fijo: el modelo es orientativo, no asesoramiento legal; la residencia lo adapta a su realidad.
+
+**Edad de residentes:** en el perfil de la residencia (`/residence/[residence_id]/profile`) se cargan edad mínima, edad máxima y el interruptor «Admitimos menores de 18 años» (con aclaración de que se pedirá el apartado para guardián); las edades alimentan el filtro de §4.4.
 
 **Restricciones (mostradas como nota fija en la pantalla):** el sistema no inventa respuestas, no confirma disponibilidad ni precios que no estén cargados explícitamente, y no reemplaza la comunicación directa por WhatsApp.
 
@@ -1281,6 +1304,16 @@ Sin cambios de fondo. Debe auditar además: propuestas del familiar, propuestas 
 **Contenido:** tipo de cambio diario, **fuente: monedapi.ar (dólar blue, valor venta)**, última actualización, fallos, override manual (con motivo obligatorio), historial.
 
 **Reglas:** actualización diaria automática; snapshot por solicitud; admin puede corregir si falla la fuente; no se recalculan solicitudes ya enviadas.
+
+---
+
+### 8.18. Seguimiento post-ingreso (pantalla nueva, DR14)
+
+**Ruta:** `/admin/followups`
+
+**Contenido:** lista de `stay_followups` con filtros (programados, enviados, respondidos, sin respuesta, revisados, cancelados), residencia, fecha de ingreso. Detalle: respuestas del estudiante (y del guardián si es menor), nota interna del admin, botón «Marcar como revisada» y casilla «Comuniqué algo a la residencia» (por Soporte).
+
+**Reglas:** solo admin y superadmin; la residencia **no ve** esta pantalla ni sus datos (`docs/05` §16bis). Todo acceso y revisión queda auditado. EstuRed decide caso por caso si comunica algo; no hay penalización automática.
 
 ---
 

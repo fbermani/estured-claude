@@ -8,13 +8,14 @@
 
 ---
 
-## IDEAS PENDIENTES DEL DUEÑO (registradas 2026-10-25; detalle en `docs/IDEAS_DEL_DUENO_2026-10-23.md`)
+## DR14 (2026-10-25) — decidida por el dueño y reflejada en docs; pendiente de implementar
 
-Sin decisión ni diseño todavía; no implementar sin pasar por `docs/13` §5.
+Detalle en `docs/IDEAS_DEL_DUENO_2026-10-23.md` §5–§7. Protocolo `docs/13` §5 (doc primero): DR14 **ya registrada en `docs/00` §31 y reflejada en `docs/04` §12ter, `05` §16bis, `06` (§4.23–4.24, §8.1, §8.7, §11.5, §15.3, §17, §27.12) y `08` (§4.4, §4.5, §6.17, §7.16, §8.18)**. Falta implementar (migraciones + código). Sin migraciones escritas.
 
-- **Edad mínima/máxima de la residencia** como filtro de búsqueda.
-- **Seguimiento automático una semana después del ingreso** del estudiante.
-- **Reglamento modelo + FAQ única seleccionable** para las residencias.
+- **Reglamento:** aceptación obligatoria al enviar la solicitud, con versión/hash y fecha; reglamento propio o modelo (`docs/propuestas/REGLAMENTO_MODELO_Y_FAQ.md`).
+- **FAQ:** lista única; cada residencia elige cuáles mostrar y edita la respuesta.
+- **Edad mínima/máxima** de la residencia como filtro de búsqueda (mínima 18; menores solo si se habilita; edad a la fecha de ingreso).
+- **Seguimiento a los 5 días del ingreso:** recordatorio a la residencia + encuesta al estudiante que la residencia no ve; el admin decide qué comunicar.
 
 ---
 

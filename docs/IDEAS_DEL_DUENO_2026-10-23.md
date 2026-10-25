@@ -22,16 +22,19 @@ Fuente: mensaje del dueño. No son reglas vigentes todavía: cada punto pasa por
 - Objetivo: que el estudiante o la familia **no tengan dudas y casi nunca deban contactar a la residencia**.
 - Se suma a la FAQ simple ya implementada (D9: pregunta libre que responde la residencia). Ver `docs/08` §7.16 (catálogo de preguntas predefinidas, hoy fuera de alcance).
 
-## 5. Edad mínima y máxima de los residentes (2026-10-25)
+## 5. Edad mínima y máxima de los residentes (2026-10-25) — DECIDIDA (DR14, 2026-10-25; registrada en `docs/00` §31)
+- **Decisión:** mínima 18 años cumplidos; si la residencia habilita expresamente menores (supuesto reversible) aparece un apartado especial para menores (guardián, `docs/05`/DR3b). La edad se calcula a la fecha de ingreso solicitada (supuesto reversible). Sin fecha de nacimiento cargada el filtro no excluye y se pide completar el perfil.
 - Cada residencia elige la **edad mínima y máxima** de sus residentes.
 - Funciona como **filtro de búsqueda**: al estudiante solo le aparecen residencias compatibles con su edad.
 - A definir al diseñarlo: qué pasa con la edad de quien está dentro de un grupo familiar o con menores (guardián), y cómo se calcula la edad (a la fecha de ingreso).
 
-## 6. Seguimiento automático después del ingreso (2026-10-25)
+## 6. Seguimiento automático después del ingreso (2026-10-25) — DECIDIDA (DR14, 2026-10-25; registrada en `docs/00` §31)
+- **Decisión:** a los 5 días del ingreso (a) la residencia recibe un recordatorio para consultar por su cuenta; (b) EstuRed pregunta al estudiante cómo va todo y si era lo esperado; (c) la residencia NO ve la respuesta; (d) el admin decide después si comunica algo. Supuestos reversibles: «ingreso» = inicio efectivo en `resident_stays`; una encuesta por estadía; respuestas solo para admin/superadmin; si el estudiante es menor, también se pregunta al guardián.
 - Una semana después de cada ingreso: **recordatorio automático a la residencia** para que consulte cómo va la estadía, y/o **mensaje automático de la plataforma al estudiante** ("¿cómo va todo hasta ahora? ¿era lo que esperabas?").
 - A definir: plazo exacto, si el mensaje al estudiante registra respuesta, y qué ve la residencia de esa respuesta (privacidad).
 
-## 7. Reglamento modelo y FAQ (insumo recibido: "Reglamento 2026-1.pdf")
+## 7. Reglamento modelo y FAQ (insumo recibido: "Reglamento 2026-1.pdf") — DECIDIDA (DR14, 2026-10-25; registrada en `docs/00` §31)
+- **Decisión:** el estudiante accede al reglamento completo y ACEPTA los términos (reglamento) al enviar la solicitud. Cada residencia sube/edita su reglamento o parte del modelo (`docs/propuestas/REGLAMENTO_MODELO_Y_FAQ.md`, Parte A y multiple choice); el modelo es base para quien no tiene. Supuestos reversibles: se guarda la aceptación con versión/hash y fecha por solicitud; si la residencia cambia el reglamento, las solicitudes ya aceptadas conservan la versión aceptada; sin reglamento propio se muestra el modelo. FAQ: lista única (Parte B); cada residencia elige cuáles mostrar y edita la respuesta sugerida.
 - El dueño aportó su reglamento. Se arma un **reglamento modelo** (base o guía; las residencias lo adaptan o complementan).
 - Del reglamento y de preguntas comunes se arma **una única lista de preguntas frecuentes publicable**; cada residencia elige cuáles mostrar y edita la respuesta sugerida.
 - Preguntas semilla del dueño: ¿visita presencial o virtual? · ¿puede ingresar cualquiera? · ¿qué es la matrícula de ingreso? · ¿requisitos para ingresar? · ¿hay un responsable en la residencia? · ¿hay toque de queda? · ¿se permiten visitas? · ¿qué tengo que llevar?

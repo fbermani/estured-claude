@@ -725,6 +725,8 @@ Solo el estudiante (mayor de edad o menor con familiar vinculado activo).
 
 La propuesta aprobada del familiar se convierte en solicitud activa del estudiante.
 
+Para enviarla, el estudiante debe **aceptar el reglamento de la residencia** (propio o modelo, DR14; §16bis). Si el estudiante es menor, lo acepta el familiar vinculado en su nombre; en una solicitud nacida de una propuesta del familiar, la aceptación se pide al aprobar la propuesta *(supuesto reversible)*.
+
 ---
 
 ### 7.3. Ver solicitud
@@ -1007,6 +1009,33 @@ Residence owner puede: elegir preguntas del listado predefinido, cargar respuest
 Admin puede: revisar contenido, pausar respuestas incorrectas, auditar cambios, intervenir si hay información engañosa.
 
 El FAQ/bot no puede: inventar disponibilidad, confirmar precios fuera de datos oficiales, prometer aceptación, modificar condiciones, confirmar reservas.
+
+---
+
+## 16bis. Permisos sobre reglamento, edad de residentes y seguimiento post-ingreso *(DR14, 2026-10-25)*
+
+*Lo marcado como supuesto es reversible (`docs/13` §4).*
+
+**Reglamento.**
+- **Ver el reglamento completo:** cualquier visitante, invitados incluidos (está en la ficha, antes de solicitar).
+- **Aceptarlo:** solo el estudiante al enviar la solicitud (o el familiar vinculado si es menor, §7.2). La aceptación guardada es de solo lectura: nadie la edita ni la borra; la ven el estudiante, la residencia destinataria (staff con acceso a la solicitud) y admin/superadmin.
+- **Cargar o editar el reglamento propio, o adaptar el modelo:** dueño y staff con `profile.edit`. *(Supuesto: publicar una versión nueva requiere revisión del admin, como el resto del grupo «reglas»; mientras no se aprueba rige la versión anterior.)* Cada versión queda auditada.
+- **Efecto:** una versión nueva rige para solicitudes nuevas; las ya aceptadas conservan la versión que aceptaron.
+
+**FAQ (catálogo único).**
+- **Administrar el catálogo** (alta, baja, orden, respuesta sugerida): admin/superadmin.
+- **Elegir qué preguntas mostrar y editar la respuesta de su residencia:** dueño y staff con `profile.edit`. La FAQ libre del estudiante sigue moderada con `faq.manage` (DR11, D9).
+- Las restricciones de §16 se mantienen: la FAQ no inventa disponibilidad ni precios ni promete aceptación.
+
+**Edad de residentes.**
+- **Definir edad mínima, máxima y si acepta menores:** dueño y staff con `profile.edit`. *(Supuesto: habilitar menores lo aprueba el admin y exige que la residencia complete el apartado para menores.)*
+- El filtro de edad lo aplica el sistema con la fecha de nacimiento del estudiante, que **sigue siendo privada**: la residencia nunca ve la fecha de nacimiento por el filtro, solo ve que su residencia le aparece (o no) al estudiante.
+
+**Seguimiento post-ingreso (`stay_followup`).**
+- **Recibir el aviso de recordatorio:** todo staff activo y el dueño de la residencia (sin casillero).
+- **Ver respuestas de la encuesta, su estado y notas:** **solo admin y superadmin.** Residencia (dueño y staff), familiar vinculado de otro estudiante y cualquier otro rol: **no**.
+- **Responder la encuesta:** el estudiante, y el familiar vinculado si es menor, cada uno la suya.
+- **Marcar como revisada / decidir si comunicar algo a la residencia:** admin/superadmin; si lo comunica, por Soporte y con auditoría.
 
 ---
 

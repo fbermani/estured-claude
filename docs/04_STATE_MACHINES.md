@@ -977,6 +977,51 @@ Una vez en estado terminal, para volver a avisar el estudiante crea un aviso nue
 
 ---
 
+# 12ter. Máquina de estados: Seguimiento post-ingreso (DR14)
+
+*Decisión del dueño, 2026-10-25 (`docs/00` §31, DR14). Entidad nueva y separada: no es un reclamo, una renovación ni una calificación pública. Lo marcado como supuesto es reversible.*
+
+## 12ter.1. Entidad
+
+```
+stay_followup
+```
+
+Es el seguimiento automático que se dispara **a los 5 días del ingreso** de un residente (inicio efectivo en `resident_stays`): la residencia recibe un aviso para que consulte por su cuenta y EstuRed envía una encuesta corta al estudiante (y al guardián si es menor). **Una por estadía** *(supuesto)*.
+
+## 12ter.2. Estados técnicos
+
+| Estado técnico | Descripción |
+|---|---|
+| `scheduled` | Creado al pasar la estadía a `active` con `start_date`; `due_at` = `start_date` + 5 días. Aún no corrió. |
+| `sent` | Llegó el día: se avisó a la residencia y se envió la encuesta (si hay cuenta de estudiante). Espera respuesta. |
+| `answered` | El estudiante (o el guardián, si es menor) respondió. |
+| `no_response` | Pasaron 14 días desde `sent` sin respuesta *(supuesto de plazo)*. Terminal. |
+| `reviewed` | Admin/superadmin leyó la respuesta y registró qué decidió (comunicar algo o no). Terminal. |
+| `cancelled` | La estadía se cerró (`end_date`) o se canceló antes de `due_at`. Terminal. |
+
+## 12ter.3. Transiciones permitidas
+
+| Desde | Hacia | Actor | Condición |
+|---|---|---|---|
+| (ninguno) | `scheduled` | Sistema | Estadía `active` con `start_date` definida. |
+| `scheduled` | `sent` | Sistema (job) | `due_at <= now()` y la estadía sigue `active`. |
+| `scheduled` | `cancelled` | Sistema | La estadía se cierra antes de `due_at`. |
+| `sent` | `answered` | Estudiante / guardián | Responde la encuesta. |
+| `sent` | `no_response` | Sistema | 14 días sin respuesta. |
+| `answered` | `reviewed` | Admin/superadmin | Marca como revisada (con nota interna). |
+
+## 12ter.4. Reglas
+
+- **Privacidad:** la residencia **no ve** la respuesta, ni el estado `answered`/`no_response`, ni la nota del admin; solo recibe el aviso de recordatorio («consultale por tu cuenta cómo viene su estadía»). Ven la respuesta solo admin y superadmin.
+- **Qué hace EstuRed con la respuesta:** lo decide el admin caso por caso; puede no comunicar nada. Si comunica algo a la residencia, es por Soporte y con registro de auditoría. No hay penalización automática.
+- **Menores:** la encuesta también se envía al guardián vinculado; cada uno responde por separado (DR3b: el guardián no ve las respuestas del estudiante, y viceversa).
+- **Sin cuenta de estudiante** (estadía cargada por la residencia, `pending_activation`): se avisa solo a la residencia; no hay encuesta.
+- **Copy:** no promete resolución ni garantías; «Soporte», no «mediación».
+- **Auditoría:** cada transición y la revisión del admin generan registro (entidad `stay_followup`).
+
+---
+
 # 13. Máquina de estados: Residencia
 
 ## 13.1. Entidad
@@ -1301,6 +1346,7 @@ notification_event
 - disponibilidad nueva para lista de espera;
 - recordatorio de 90 días de lista de espera;
 - listas de espera anuladas por reserva confirmada (al estudiante, con cuáles y por qué);
+- seguimiento post-ingreso (DR14): recordatorio a la residencia al llegar el día 5; encuesta al estudiante y al guardián si es menor; respuesta recibida (solo a admin);
 - aviso "Quiero cambiar" creado / respondido por la residencia / cancelado / resuelto / por vencer / vencido (a residencia actual, estudiante y familiar vinculado, según §12bis.4);
 - oferta de renovación enviada;
 - renovación aceptada;
@@ -1349,6 +1395,10 @@ No vence automáticamente por tiempo. `retention_check_sent` no es terminal.
 ## 21.6. Aviso "Quiero cambiar" (stay_change_intent)
 
 Terminales: `cancelled_by_student`, `resolved_new_reservation`, `expired`. `open` no es terminal.
+
+## 21.7. Seguimiento post-ingreso (stay_followup)
+
+Terminales: `no_response`, `reviewed`, `cancelled`. `scheduled`, `sent` y `answered` no son terminales.
 
 ---
 
