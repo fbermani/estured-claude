@@ -11,11 +11,12 @@ import { getSessionUser } from "@/lib/auth/session";
 import { FamilyHighlight } from "@/components/marketing/FamilyHighlight";
 import { StayChangeHighlight } from "@/components/marketing/StayChangeHighlight";
 import { WhatYouPay } from "@/components/marketing/WhatYouPay";
+import { WhenSomethingDiffers } from "@/components/marketing/WhenSomethingDiffers";
 
 export const metadata: Metadata = {
   title: "Para estudiantes y familias",
   description:
-    "Mudarse a CABA con más confianza: residencias verificadas, solicitudes registradas y comprobante de reserva respaldado.",
+    "Mudarse a CABA con más confianza: residencias verificadas, solicitudes registradas y comprobante de reserva verificable.",
 };
 
 const benefits: RotatingBenefit[] = [
@@ -56,12 +57,12 @@ const benefits: RotatingBenefit[] = [
     icon: "receipt_long",
     title: "Comprobante de Reserva Confirmada",
     summary:
-      "Cuando tu reserva se confirma, recibís un comprobante verificable por cualquier persona. Respaldo real para vos y tu familia.",
+      "Cuando tu reserva se confirma, recibís un comprobante que cualquier persona puede verificar.",
     problem:
       "Pagar una matrícula o un depósito sin ningún papel te deja con dudas, a vos y a tu familia.",
     solution:
       "Cuando tu reserva se confirma, recibís un comprobante verificable por cualquier persona, con los datos de tu reserva.",
-    conclusion: "Respaldo real para vos y tu familia, no una promesa verbal.",
+    conclusion: "Un registro claro, no una promesa de palabra.",
   },
   {
     icon: "groups",
@@ -114,7 +115,7 @@ const steps = [
   },
   {
     text: "Tu reserva queda confirmada en EstuRed y recibís tu Comprobante de Reserva Confirmada.",
-    detail: "Ese comprobante es tu respaldo formal frente a cualquier duda futura sobre la reserva.",
+    detail: "Ese comprobante deja registrada tu reserva, con un código que cualquiera puede verificar.",
   },
 ];
 
@@ -126,6 +127,10 @@ const faqs = [
   {
     q: "¿EstuRed verifica a los estudiantes?",
     a: "No. EstuRed verifica a las residencias, no a las personas. Vos elegís qué mostrás en tu perfil, y cada residencia revisa las solicitudes que recibe antes de confirmar.",
+  },
+  {
+    q: "¿Qué pasa si algo no coincide con lo publicado?",
+    a: "Podés abrir un caso de Soporte desde tu reserva. Revisamos la evidencia y, según el caso, puede corresponder la devolución del fee EstuRed. Más detalle en «Si algo no coincide con lo publicado».",
   },
 ];
 
@@ -151,7 +156,7 @@ export default async function ForStudentsPage() {
             <p className="mt-5 text-lg text-ink-soft">
               Elegir dónde vivir es una de las decisiones más importantes de tu
               nueva etapa. EstuRed la hace clara: residencias verificadas,
-              proceso registrado y un comprobante que respalda tu reserva.
+              proceso registrado y un comprobante verificable de tu reserva.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button href="/search" size="lg">
@@ -229,6 +234,8 @@ export default async function ForStudentsPage() {
         <WhatYouPay />
       </div>
 
+      <WhenSomethingDiffers />
+
       <section className="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-20">
         <SectionHeader eyebrow="Preguntas frecuentes" title="Dudas comunes" />
         <div className="space-y-4">
@@ -251,7 +258,7 @@ export default async function ForStudentsPage() {
       <section className="bg-mint">
         <Reveal className="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6">
           <h2 className="text-3xl font-bold text-ink">
-            Empezá tu búsqueda con respaldo
+            Empezá tu búsqueda con todo a la vista
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-ink-soft">
             Buscá entre las residencias verificadas de CABA y enviá tu solicitud.

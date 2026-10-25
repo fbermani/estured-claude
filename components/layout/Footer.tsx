@@ -9,8 +9,8 @@ export function Footer({ hideSignup = false }: { hideSignup?: boolean } = {}) {
           <p className="font-display text-xl font-bold">EstuRed</p>
           <p className="mt-3 max-w-sm text-sm text-white/70">
             La convivencia también se elige. Residencias estudiantiles
-            verificadas en CABA, con solicitudes claras y comprobantes
-            respaldados.
+            verificadas en CABA, con solicitudes registradas y comprobantes
+            verificables.
           </p>
         </div>
         <div>

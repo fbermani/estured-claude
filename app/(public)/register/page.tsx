@@ -12,7 +12,7 @@ const options = [
     href: "/register/student",
     title: "Soy estudiante",
     description:
-      "Busco residencia en CABA. Quiero comparar opciones verificadas y enviar solicitudes con respaldo.",
+      "Busco residencia en CABA. Quiero comparar opciones verificadas y enviar solicitudes que quedan registradas.",
     available: true,
   },
   {

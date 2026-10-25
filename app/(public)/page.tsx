@@ -8,6 +8,7 @@ import { RotatingBenefits, type RotatingBenefit } from "@/components/ui/Rotating
 import { HoverFeatureList } from "@/components/ui/HoverFeatureList";
 import { HowItWorksSteps } from "@/app/(public)/HowItWorksSteps";
 import { WhatYouPay } from "@/components/marketing/WhatYouPay";
+import { WhenSomethingDiffers } from "@/components/marketing/WhenSomethingDiffers";
 import { ResidenceCard } from "@/components/residences/ResidenceCard";
 import { getCatalogResidences } from "@/lib/residences/catalog";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
@@ -39,12 +40,12 @@ const pillars: RotatingBenefit[] = [
     icon: "receipt_long",
     title: "Comprobante verificable",
     summary:
-      "Cuando tu reserva se confirma, EstuRed emite un Comprobante de Reserva Confirmada con código público. Respaldo real para vos y tu familia.",
+      "Cuando tu reserva se confirma, EstuRed emite un Comprobante de Reserva Confirmada con código público. Un registro claro para vos y tu familia.",
     problem:
       "Transferir una seña sin un comprobante formal deja dudas, para vos y para quien te ayuda a pagar.",
     solution:
       "Cuando tu reserva se confirma, EstuRed emite un Comprobante de Reserva Confirmada con un código que cualquier persona puede verificar públicamente.",
-    conclusion: "Un respaldo real, no una captura de pantalla de un chat.",
+    conclusion: "Un comprobante verificable, no una captura de un chat.",
   },
 ];
 
@@ -96,7 +97,7 @@ const withEstuRed = [
   },
   {
     label: "Comprobante de Reserva Confirmada con código verificable",
-    detail: "Cada reserva genera un comprobante único con respaldo dentro de la plataforma para ambas partes.",
+    detail: "Cada reserva confirmada tiene su comprobante, con un código verificable, para las dos partes.",
   },
   {
     label: "Soporte de EstuRed si algo se traba en el proceso",
@@ -118,8 +119,8 @@ const outside = [
     detail: "Sin registro, tu única prueba de lo acordado es tu propia memoria.",
   },
   {
-    label: "Señas transferidas sin comprobante ni respaldo",
-    detail: "Si algo sale mal, no tenés ningún documento formal que respalde que pagaste.",
+    label: "Señas transferidas sin comprobante ni registro",
+    detail: "Si algo sale mal, no tenés ningún documento formal que muestre que pagaste.",
   },
   {
     label: "Nadie a quien recurrir si algo sale mal",
@@ -138,7 +139,7 @@ const audiences = [
   {
     title: "Familias",
     description:
-      "Acompañá la decisión a la distancia: proponé opciones, seguí cada paso del proceso y quedate con un comprobante respaldado.",
+      "Acompañá la decisión a la distancia: proponé opciones, seguí cada paso del proceso y recibí el comprobante de la reserva.",
     href: "/for-students",
     cta: "Cómo acompañar",
   },
@@ -195,7 +196,11 @@ const faqs = [
   },
   {
     q: "¿Qué recibo cuando se confirma mi reserva?",
-    a: "Un Comprobante de Reserva Confirmada emitido por EstuRed, con un código que cualquier persona puede verificar públicamente. Es el respaldo de que tu reserva quedó registrada, para vos y tu familia.",
+    a: "Un Comprobante de Reserva Confirmada emitido por EstuRed, con un código que cualquier persona puede verificar públicamente. Sirve para mostrar que tu reserva quedó confirmada y registrada en EstuRed, a vos y a tu familia.",
+  },
+  {
+    q: "¿Qué pasa si algo no coincide con lo publicado?",
+    a: "Podés abrir un caso de Soporte desde tu reserva. Revisamos la evidencia y, según el caso, puede corresponder la devolución del fee EstuRed. Más detalle en «Si algo no coincide con lo publicado».",
   },
 ];
 
@@ -222,8 +227,8 @@ export default async function HomePage() {
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-soft">
               Residencias estudiantiles verificadas en CABA, cerca de tu
-              facultad, con información clara, solicitudes registradas y una
-              reserva con comprobante respaldado.
+              facultad, con información clara, solicitudes registradas y un
+              comprobante verificable cuando se confirma tu reserva.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button href="/search" size="lg">
@@ -284,7 +289,7 @@ export default async function HomePage() {
           <SectionHeader
             eyebrow="La diferencia"
             title="Reservar con EstuRed vs. reservar por fuera"
-            description="Instagram, WhatsApp y los referidos sirven para descubrir. Para decidir y reservar, necesitás respaldo."
+            description="Instagram, WhatsApp y los referidos sirven para descubrir. Para decidir y reservar, conviene que todo quede registrado."
           />
           <div className="grid gap-6 md:grid-cols-2">
             <Reveal className="rounded-card border-2 border-line-2 bg-forest-tint/50 p-7">
@@ -305,6 +310,9 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Si algo no coincide con lo publicado */}
+      <WhenSomethingDiffers />
 
       {/* Cómo funciona */}
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">

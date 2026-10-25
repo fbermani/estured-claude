@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     template: "%s | EstuRed",
   },
   description:
-    "EstuRed te ayuda a elegir con confianza dónde empieza tu nueva etapa: residencias estudiantiles verificadas en CABA, con solicitudes claras y comprobantes respaldados.",
+    "EstuRed te ayuda a elegir con confianza dónde empieza tu nueva etapa: residencias estudiantiles verificadas en CABA, con solicitudes registradas y comprobantes verificables.",
 };
 
 export default function RootLayout({
