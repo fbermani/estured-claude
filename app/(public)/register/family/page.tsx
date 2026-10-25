@@ -14,7 +14,7 @@ export default async function RegisterFamilyPage() {
     <div className="mx-auto max-w-xl px-4 py-14 sm:py-20">
       <div className="text-center">
         <h1 className="text-3xl font-bold text-ink">
-          Acompañá la búsqueda de tu hijo/a
+          Acompañá a tu estudiante en su búsqueda
         </h1>
         <p className="mt-2 text-sm text-ink-soft">
           Creá tu cuenta y solicitá vincularte. El estudiante tiene que aprobar el vínculo antes

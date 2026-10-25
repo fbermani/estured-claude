@@ -7,6 +7,7 @@ import { Reveal } from "@/components/ui/Reveal";
 import { RotatingBenefits, type RotatingBenefit } from "@/components/ui/RotatingBenefits";
 import { HoverFeatureList } from "@/components/ui/HoverFeatureList";
 import { HowItWorksSteps } from "@/app/(public)/HowItWorksSteps";
+import { WhatYouPay } from "@/components/marketing/WhatYouPay";
 import { ResidenceCard } from "@/components/residences/ResidenceCard";
 import { getCatalogResidences } from "@/lib/residences/catalog";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
@@ -49,28 +50,34 @@ const pillars: RotatingBenefit[] = [
 
 const steps = [
   {
-    title: "Buscá con contexto real",
+    title: "Buscás con contexto real",
     description:
       "Filtrá por barrio, tipo de habitación y presupuesto. Cada ficha muestra reglas, servicios, universidades cercanas y disponibilidad.",
     detail: "Ver reglas y disponibilidad antes de escribir evita perder tiempo con residencias que no son para vos.",
   },
   {
-    title: "Enviá tu solicitud",
+    title: "Enviás tu solicitud",
     description:
-      "Queda registrada en la plataforma. La residencia la revisa y te responde. Un familiar también puede proponer opciones para acompañarte.",
+      "Es gratis y queda registrada en la plataforma. La residencia revisa tu perfil y te responde. Un familiar también puede proponerte opciones.",
     detail: "Tu solicitud queda registrada y no depende de conversaciones por WhatsApp que puedan perderse.",
   },
   {
-    title: "Acordá las condiciones",
+    title: "Acordás las condiciones",
     description:
       "La residencia confirma tus condiciones o te propone un único ajuste antes de confirmar. Vos siempre tenés la última palabra.",
     detail: "Si te proponen un ajuste, sos vos quien decide aceptarlo o no — nunca queda forzado.",
   },
   {
-    title: "Reservá con comprobante",
+    title: "Pagás a la residencia",
     description:
-      "Confirmada la reserva, recibís tu Comprobante de Reserva Confirmada con código verificable por cualquier persona.",
-    detail: "Ese comprobante te respalda a vos y a tu familia si necesitás demostrar que la reserva es real.",
+      "Le pagás directamente lo acordado para reservar, por ejemplo el primer mes o la matrícula. La residencia confirma que lo recibió.",
+    detail: "EstuRed no cobra ese dinero: queda registrado que la residencia lo recibió.",
+  },
+  {
+    title: "Pagás el fee EstuRed y recibís tu comprobante",
+    description:
+      "Pagás a EstuRed un fee del 5% de tu estadía inicial, sin contar el depósito. Ves el monto exacto antes de pagar. Con el fee pago, tu reserva queda confirmada y recibís el Comprobante de Reserva Confirmada.",
+    detail: "El comprobante tiene un código que cualquier persona puede verificar.",
   },
 ];
 
@@ -168,7 +175,11 @@ const upcoming = [
 const faqs = [
   {
     q: "¿EstuRed es una inmobiliaria?",
-    a: "No. EstuRed es una plataforma que conecta estudiantes y familias con residencias estudiantiles verificadas. No alquilamos departamentos ni cobramos comisiones inmobiliarias: ayudamos a que elegir y reservar sea claro, registrado y confiable.",
+    a: "No. EstuRed es una plataforma que conecta estudiantes y familias con residencias estudiantiles verificadas. No alquilamos ni administramos alojamientos. Cobramos un fee por nuestro servicio una vez que la residencia confirma tu pago (mirá «¿Cuánto cuesta usar EstuRed?»).",
+  },
+  {
+    q: "¿Cuánto cuesta usar EstuRed?",
+    a: "Enviar una solicitud es gratis. Si la reserva avanza, pagás a la residencia lo acordado y a EstuRed un fee del 5% sobre tu estadía inicial, sin contar el depósito. El monto exacto lo ves antes de pagar.",
   },
   {
     q: "¿Qué significa que una residencia esté verificada?",
@@ -177,6 +188,10 @@ const faqs = [
   {
     q: "Si una residencia figura con lugar, ¿ya tengo mi lugar?",
     a: "Todavía no. La disponibilidad la informa cada residencia y puede cambiar. Enviás tu solicitud, la residencia revisa tu perfil y confirma si hay lugar. Tu lugar queda reservado cuando la reserva se confirma.",
+  },
+  {
+    q: "¿EstuRed verifica a los estudiantes?",
+    a: "No. EstuRed verifica a las residencias, no a las personas. Vos elegís qué mostrás en tu perfil, y cada residencia revisa las solicitudes que recibe antes de confirmar.",
   },
   {
     q: "¿Qué recibo cuando se confirma mi reserva?",
@@ -295,11 +310,16 @@ export default async function HomePage() {
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
         <SectionHeader
           eyebrow="El proceso"
-          title="De la búsqueda al comprobante, en cuatro pasos"
+          title="De la búsqueda al comprobante, en cinco pasos"
           description="Cada paso queda registrado, con las mismas reglas para estudiantes, familias y residencias."
         />
         <HowItWorksSteps steps={steps} />
       </section>
+
+      {/* Qué pagás y a quién */}
+      <div className="border-y border-sand-200 bg-surface">
+        <WhatYouPay />
+      </div>
 
       {/* Residencias destacadas */}
       {featured.length > 0 && (

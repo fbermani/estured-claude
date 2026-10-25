@@ -219,7 +219,7 @@ describe.skipIf(!hasCreds)("familiar pagador y avisos (integración)", () => {
     expect(await martinNotifications(reservationId)).toContain("Ya no sos el pagador del fee EstuRed");
     const overview = await loadFamilyOverview(admin, martinUserId);
     const view = overview.find((o) => o.studentProfileId === luciaProfileId)!.applications.find((a) => a.id === appId);
-    expect(view?.nextAction).toEqual({ kind: "waiting_fee_payment" });
+    expect(view?.nextAction).toMatchObject({ kind: "waiting_fee_payment", payerView: "student_pays" });
   });
 
   it("al revocarse el vínculo el pago vuelve al estudiante (y Lucía puede volver a 'pago yo' aunque no haya familiar)", async () => {

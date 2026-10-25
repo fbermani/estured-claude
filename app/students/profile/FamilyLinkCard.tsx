@@ -153,8 +153,8 @@ export function FamilyLinkCard({
         <>
           <p className="mt-2 text-sm text-ink-soft">
             {isMinor
-              ? "Como sos menor de 18, necesitás un familiar vinculado para enviar solicitudes de reserva. Invitalo/a por email: cuando se registre, vos aprobás la vinculación."
-              : "Invitalo/a por email para que te acompañe: va a poder ver tu búsqueda, sugerir residencias y ayudarte con pagos y documentación. Vos seguís decidiendo todo."}
+              ? "Como sos menor de 18, necesitás un familiar vinculado para enviar solicitudes de reserva. Invitá a tu familiar por email: cuando se registre, vos aprobás la vinculación."
+              : "Invitá a tu familiar por email para que te acompañe: va a poder ver tu búsqueda, sugerir residencias y ayudarte con pagos y documentación. Vos seguís decidiendo todo."}
           </p>
           <InviteForm key={formEpoch} />
         </>

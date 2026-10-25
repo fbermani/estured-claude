@@ -435,6 +435,7 @@ describe.skipIf(!hasCreds)("disponibilidad y lista de espera (integración)", ()
       .from("notifications")
       .select("title")
       .eq("related_entity_id", joined.waitlistEntryId)
+      .eq("user_id", studentUserId) // el equipo de la residencia también recibe un aviso de alta con el mismo related_entity_id
       .maybeSingle();
     expect(notification?.title).toBe("EstuRed te sacó de una lista de espera");
 

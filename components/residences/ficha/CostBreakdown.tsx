@@ -157,8 +157,8 @@ export function CostBreakdown({
           <span className="text-ink-soft">
             Depósito
             <InfoTip label="Qué es el depósito">
-              Garantía reembolsable que se devuelve al egreso si no hay daños. Se paga directamente a la residencia y NO
-              forma parte de la base del fee de EstuRed.
+              Monto que la residencia te devuelve al irte, según sus condiciones (por ejemplo, si no hay daños). Se paga directamente a la residencia y no
+              forma parte de la base del fee EstuRed.
             </InfoTip>
           </span>
           <span className="text-right font-bold text-ink">

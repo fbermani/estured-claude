@@ -8,7 +8,7 @@ import { isValidCuit } from "@/lib/payments/paymentSettingsValidation";
 export const FAMILY_RELATIONSHIPS = [
   { value: "padre", label: "Padre" },
   { value: "madre", label: "Madre" },
-  { value: "tutor", label: "Tutor/a" },
+  { value: "tutor", label: "Tutor o tutora" },
   { value: "otro", label: "Otro familiar" },
 ] as const;
 

@@ -14,7 +14,7 @@ const initialState: RegisterFamilyState = { status: "idle" };
 const RELATIONSHIP_OPTIONS = [
   { value: "madre", label: "Madre" },
   { value: "padre", label: "Padre" },
-  { value: "tutor", label: "Tutor/a" },
+  { value: "tutor", label: "Tutor o tutora" },
   { value: "familiar", label: "Otro familiar" },
 ];
 

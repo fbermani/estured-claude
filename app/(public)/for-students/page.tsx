@@ -10,6 +10,7 @@ import { getCatalogResidences } from "@/lib/residences/catalog";
 import { getSessionUser } from "@/lib/auth/session";
 import { FamilyHighlight } from "@/components/marketing/FamilyHighlight";
 import { StayChangeHighlight } from "@/components/marketing/StayChangeHighlight";
+import { WhatYouPay } from "@/components/marketing/WhatYouPay";
 
 export const metadata: Metadata = {
   title: "Para estudiantes y familias",
@@ -108,8 +109,23 @@ const steps = [
     detail: "La residencia confirma la recepción del pago, así que ese paso también queda con registro.",
   },
   {
+    text: "Pagás el fee EstuRed: el 5% de tu estadía inicial, sin contar el depósito. Ves el monto exacto antes de pagar, y lo podés pagar vos o el familiar que designes.",
+    detail: "Se paga una vez que la residencia confirma que recibió tu pago. La factura de EstuRed sale a nombre de quien paga.",
+  },
+  {
     text: "Tu reserva queda confirmada en EstuRed y recibís tu Comprobante de Reserva Confirmada.",
     detail: "Ese comprobante es tu respaldo formal frente a cualquier duda futura sobre la reserva.",
+  },
+];
+
+const faqs = [
+  {
+    q: "¿Cuánto cuesta usar EstuRed?",
+    a: "Enviar una solicitud es gratis. Si la reserva avanza, pagás a la residencia lo acordado y a EstuRed un fee del 5% sobre tu estadía inicial, sin contar el depósito. El monto exacto lo ves antes de pagar.",
+  },
+  {
+    q: "¿EstuRed verifica a los estudiantes?",
+    a: "No. EstuRed verifica a las residencias, no a las personas. Vos elegís qué mostrás en tu perfil, y cada residencia revisa las solicitudes que recibe antes de confirmar.",
   },
 ];
 
@@ -206,6 +222,29 @@ export default async function ForStudentsPage() {
             description="Enviar una solicitud es gratis. La residencia revisa tu perfil y confirma si hay lugar."
           />
           <StepsList steps={steps} />
+        </div>
+      </section>
+
+      <div className="border-b border-sand-200">
+        <WhatYouPay />
+      </div>
+
+      <section className="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-20">
+        <SectionHeader eyebrow="Preguntas frecuentes" title="Dudas comunes" />
+        <div className="space-y-4">
+          {faqs.map((faq, i) => (
+            <Reveal key={faq.q} delay={Math.min(i, 5) as 0 | 1 | 2 | 3 | 4 | 5}>
+              <details className="group rounded-card border border-sand-200 bg-surface p-5 transition-shadow open:shadow-card">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-ink marker:hidden">
+                  {faq.q}
+                  <span aria-hidden="true" className="text-forest-600 transition-transform group-open:rotate-45">
+                    +
+                  </span>
+                </summary>
+                <p className="mt-3 text-sm leading-relaxed text-ink-soft">{faq.a}</p>
+              </details>
+            </Reveal>
+          ))}
         </div>
       </section>
 

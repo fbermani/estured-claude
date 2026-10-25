@@ -827,7 +827,7 @@ export function ResidenceProfileForm({
                 />
               </div>
               {conditions.depositEnabled && (
-                <p className="mt-2 text-xs text-ink-faint">Excluyente con el depósito de garantía.</p>
+                <p className="mt-2 text-xs text-ink-faint">Excluyente con el depósito.</p>
               )}
               {conditions.enrollmentEnabled && (
                 <div className="mt-4 space-y-3 border-t border-sand-200 pt-4">
@@ -892,7 +892,7 @@ export function ResidenceProfileForm({
             <div className="mt-4 rounded-card border border-sand-200 p-4">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="font-semibold text-ink">Depósito de garantía</p>
+                  <p className="font-semibold text-ink">Depósito</p>
                   <p className="text-xs text-ink-soft">Reembolsable al egreso. Excluyente con la matrícula.</p>
                 </div>
                 <Switch

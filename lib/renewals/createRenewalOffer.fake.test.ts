@@ -23,7 +23,7 @@ function world(): Record<string, Row[]> {
     ],
     residence_users: [
       { id: "ru1", residence_id: RES_A, user_id: "owner-a", role: "owner", is_active: true },
-      { id: "ru2", residence_id: RES_A, user_id: "staff-a", role: "staff", is_active: true },
+      { id: "ru2", residence_id: RES_A, user_id: "staff-a", role: "staff", is_active: true, permissions: permissionsFromChecked(["renewals.manage"]) },
     ],
     renewal_requests: [
       { id: "rr-a", reservation_id: "rsv-a", residence_id: RES_A, status: "notified_to_residence" },

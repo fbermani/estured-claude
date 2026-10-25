@@ -89,7 +89,7 @@ const PROPOSAL_STATUS_LABEL: Record<string, { label: string; tone: "amber" | "sa
 const RELATIONSHIP_LABEL: Record<string, string> = {
   padre: "Padre",
   madre: "Madre",
-  tutor: "Tutor/a",
+  tutor: "Tutor o tutora",
   familiar: "Familiar",
   otro: "Familiar",
 };
@@ -768,7 +768,7 @@ export default async function StudentDashboardPage() {
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
       <div className="flex flex-col gap-1">
         <h1 className="flex items-center gap-2 text-2xl font-bold text-ink md:text-3xl">
-          {isHoused ? "¡Ya estás alojado/a!" : firstName ? `¡Hola, ${firstName}!` : "¡Hola!"}
+          {isHoused ? "¡Ya tenés tu lugar!" : firstName ? `¡Hola, ${firstName}!` : "¡Hola!"}
         </h1>
         <p className="max-w-3xl text-ink-soft">
           {isHoused

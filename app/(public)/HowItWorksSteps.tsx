@@ -8,9 +8,11 @@ type Step = { title: string; description: string; detail: string };
 /** Client component: ver nota en HoverFeatureList.tsx sobre el RSC boundary. */
 export function HowItWorksSteps({ steps }: { steps: Step[] }) {
   return (
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    <div
+      className={`grid gap-6 sm:grid-cols-2 ${steps.length === 5 ? "lg:grid-cols-5" : "lg:grid-cols-4"}`}
+    >
       {steps.map((step, i) => (
-        <Reveal key={step.title} delay={(i as 0 | 1 | 2 | 3)} className="relative">
+        <Reveal key={step.title} delay={(Math.min(i, 5) as 0 | 1 | 2 | 3 | 4 | 5)} className="relative">
           <HoverDetail
             detail={step.detail}
             className="h-full rounded-card border-[1.5px] border-line bg-paper p-6 shadow-card"

@@ -1,3 +1,4 @@
+import { WhatYouPay } from "@/components/marketing/WhatYouPay";
 import type { Metadata } from "next";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -24,7 +25,7 @@ const freePlanFeatures = [
   },
   {
     label: "Lista de espera",
-    detail: "Los interesados se anotan solos cuando estás completa — vos avisás con un clic cuando hay lugar.",
+    detail: "Cuando un tipo de habitación está completo, los interesados se anotan en tu lista. Si se libera un lugar, les avisás desde tu panel.",
   },
   {
     label: "Preguntas frecuentes",
@@ -48,14 +49,6 @@ const paidPlanFeatures = [
   {
     label: "Solicitudes por plaza específica",
     detail: "El estudiante elige la cama exacta, no solo el tipo de habitación.",
-  },
-  {
-    label: "Métricas de gestión y respuesta",
-    detail: "Vas a poder ver cuánto tardás en responder y cuántas solicitudes convertís.",
-  },
-  {
-    label: "Prioridad de visibilidad en el catálogo",
-    detail: "Aparecés antes en los resultados de búsqueda de los estudiantes.",
   },
 ];
 
@@ -81,11 +74,11 @@ const benefits: RotatingBenefit[] = [
     icon: "inbox",
     title: "Solicitudes ordenadas",
     summary:
-      "Recibís solicitudes completas, con el perfil del estudiante y sus preferencias. Decidís avanzar, rechazar o pedir más información.",
+      "Recibís solicitudes completas, con el perfil que cada estudiante elige compartir y sus preferencias. Decidís si avanzás, proponés un ajuste o rechazás.",
     problem:
       "Recibir consultas sueltas por distintos canales, sin el contexto del estudiante, hace difícil evaluar quién realmente encaja.",
     solution:
-      "Recibís solicitudes completas, con el perfil del estudiante y sus preferencias. Decidís avanzar, rechazar o pedir más información.",
+      "Recibís solicitudes completas, con el perfil que cada estudiante elige compartir y sus preferencias. Decidís si avanzás, proponés un ajuste o rechazás.",
     conclusion: "Toda la información que necesitás, en un solo lugar.",
   },
   {
@@ -101,14 +94,14 @@ const benefits: RotatingBenefit[] = [
   },
   {
     icon: "hourglass_top",
-    title: "Lista de espera automática",
+    title: "Lista de espera ordenada",
     summary:
       "Si estás completa, los interesados se anotan solos. Cuando se libera una plaza, avisás con un clic.",
     problem:
       "Cuando estás completa, seguir anotando manualmente a quién avisarle si se libera un lugar es trabajo extra que nadie tiene tiempo de hacer bien.",
     solution:
       "Si estás completa, los interesados se anotan solos. Cuando se libera una plaza, avisás con un clic.",
-    conclusion: "Ninguna oportunidad se pierde por no tener tiempo de anotarla.",
+    conclusion: "Sabés a quién avisarle cuando se libera un lugar.",
   },
   {
     icon: "sync_alt",
@@ -119,7 +112,7 @@ const benefits: RotatingBenefit[] = [
       "Perseguir a tus residentes actuales para confirmar si renuevan es una tarea manual, repetitiva y fácil de postergar.",
     solution:
       "Gestioná renovaciones de tus residentes actuales con ofertas y estados claros, sin perseguir confirmaciones.",
-    conclusion: "Renovaciones que se gestionan solas, no que hay que perseguir.",
+    conclusion: "Renovaciones con un proceso claro, sin perseguir a nadie.",
   },
   {
     icon: "verified",
@@ -127,7 +120,7 @@ const benefits: RotatingBenefit[] = [
     summary:
       "La verificación presencial te diferencia de las publicaciones informales y les da tranquilidad a estudiantes y familias.",
     problem:
-      "Compitiendo con publicaciones informales, es difícil demostrarle a un estudiante que tu residencia es seria y real, sin que lo tenga que confiar a ciegas.",
+      "Compitiendo con publicaciones informales, es difícil demostrarle a un estudiante que tu residencia es seria y real, sin pedirle que confíe a ciegas.",
     solution:
       "La verificación presencial te diferencia de las publicaciones informales y les da tranquilidad a estudiantes y familias.",
     conclusion: "Un sello que genera confianza antes de la primera consulta.",
@@ -156,7 +149,7 @@ export default function ForResidencesPage() {
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button href="/register/residence" size="lg" variant="secondary">
-                Quiero sumar mi residencia
+                Sumar mi residencia
               </Button>
               <Button
                 href="#como-funciona"
@@ -188,7 +181,7 @@ export default function ForResidencesPage() {
                 </div>
               </div>
               <div className="mt-4 flex gap-2">
-                <span className="flex-1 rounded-full bg-forest px-4 py-2 text-center text-xs font-bold text-white">Aceptar</span>
+                <span className="flex-1 rounded-full bg-forest px-4 py-2 text-center text-xs font-bold text-white">Establecer contacto</span>
                 <span className="flex-1 rounded-full border-[1.5px] border-line-2 px-4 py-2 text-center text-xs font-bold text-ink-soft">Ver perfil</span>
               </div>
             </div>
@@ -202,7 +195,7 @@ export default function ForResidencesPage() {
             <div className="absolute -bottom-4 -left-4 hidden -rotate-1 rounded-card bg-surface p-3.5 text-ink shadow-float ring-1 ring-sand-200 transition-transform duration-300 ease-bounce hover:-translate-y-1 hover:rotate-0 sm:block">
               <p className="flex items-center gap-2 text-xs font-bold leading-snug text-ink">
                 <Icon name="hourglass_top" className="text-lg text-orange-700" />
-                Lista de espera automática
+                Lista de espera ordenada
               </p>
             </div>
           </Reveal>
@@ -248,8 +241,8 @@ export default function ForResidencesPage() {
                 Gestión Operativa
               </h3>
               <p className="mt-2 text-sm text-ink-soft">
-                Todo lo del Perfil Verificado, más gestión en tiempo real de tus
-                habitaciones y plazas.
+                Todo lo del Perfil Verificado, más la gestión de tus habitaciones,
+                plazas y residentes.
               </p>
               <HoverFeatureList items={paidPlanFeatures} icon="check_circle" tone="orange" className="mt-6 text-sm" />
             </Card>
@@ -262,10 +255,14 @@ export default function ForResidencesPage() {
         </div>
       </section>
 
+      <div className="border-b border-sand-200">
+        <WhatYouPay variant="residence" />
+      </div>
+
       <section className="bg-mint">
         <Reveal className="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6">
           <h2 className="text-3xl font-bold text-ink">
-            Sé una residencia pionera
+            Sumate como Residencia fundadora
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-ink-soft">
             Estamos seleccionando entre 5 y 10 residencias de CABA para la
@@ -274,7 +271,7 @@ export default function ForResidencesPage() {
           </p>
           <div className="mt-6">
             <Button href="/register/residence" size="lg">
-              Quiero sumar mi residencia
+              Sumar mi residencia
             </Button>
           </div>
         </Reveal>

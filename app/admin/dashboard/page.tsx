@@ -179,7 +179,7 @@ export default async function AdminDashboardPage() {
             Dashboard operativo
           </h1>
           <p className="text-sm" style={{ color: cmd.onSurfaceVariant }}>
-            Estado general de EstuRed en tiempo real.
+            Estado general de EstuRed al abrir esta página.
           </p>
         </div>
         {stats.pendingValidations > 0 && (

@@ -179,7 +179,7 @@ export default async function FeePaymentPage({
       <h1 className="text-2xl font-bold text-ink">Fee EstuRed — {residence?.name}</h1>
       <p className="mt-1 text-sm text-ink-soft">
         {isFamilyPayer
-          ? `Estás designado/a para pagar este fee de la reserva de ${studentName}: es el 5% de la estadía inicial reservada y va aparte del pago que se hizo directamente a la residencia.`
+          ? `Te designaron para pagar el fee EstuRed de la reserva de ${studentName}: es el 5% de la estadía inicial reservada y va aparte del pago que se hizo directamente a la residencia.`
           : "El fee EstuRed es el 5% de tu estadía inicial reservada. Va aparte del pago que le hiciste directamente a la residencia."}
       </p>
 

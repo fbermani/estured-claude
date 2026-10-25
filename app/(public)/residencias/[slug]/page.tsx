@@ -305,7 +305,7 @@ export default async function RealResidenceDetailPage({
         </p>
         <p className="mt-2 text-sm leading-relaxed text-ink-soft">
           Como sos menor de 18, necesitás un familiar vinculado (con su teléfono cargado) para enviar solicitudes de
-          reserva. Invitalo/a por email desde tu panel; cuando se registre, vos aprobás la vinculación. Mientras tanto
+          reserva. Invitá a tu familiar por email desde tu panel; cuando se registre, vos aprobás la vinculación. Mientras tanto
           podés seguir explorando.
         </p>
         <Button href="/students/dashboard#vinculacion" size="lg" className="mt-4 w-full">

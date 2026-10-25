@@ -207,7 +207,7 @@ export async function saveResidenceProfile(
   if (conditions.depositUsd != null && conditions.enrollmentFeeMode != null)
     return {
       status: "error",
-      message: "El depósito de garantía es excluyente con la matrícula: elegí uno de los dos.",
+      message: "El depósito es excluyente con la matrícula: elegí uno de los dos.",
     };
   if (conditions.enrollmentFeeMode === "manual" && !conditions.enrollmentFeeUsd)
     return { status: "error", message: "Indicá el monto de la matrícula o cambiá a \"equivalente a 1 mes\"." };

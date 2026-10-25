@@ -56,7 +56,7 @@ export function OperationalAccessControl({
       {!hasAccess && (
         <div className="w-full">
           <label className="text-[10px] font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
-            Fecha límite (opcional, para pioneras)
+            Fecha límite (opcional, para Residencias fundadoras)
           </label>
           <input
             type="date"
