@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
-import { assertResidenceAccess } from "@/lib/residences/access";
+import { assertResidencePermission } from "@/lib/residences/access";
 import { createAuditLog } from "@/lib/audit";
 import { usdToArs } from "@/lib/mock/exchange";
 
@@ -37,6 +37,11 @@ export async function sendNegotiationProposal(
     .maybeSingle();
   if (!application) return { status: "error", message: "No encontramos esa solicitud." };
 
+  // DR11: la propuesta de ajuste de condiciones (precio, matrícula, depósito, fechas) requiere el permiso `applications.send_adjustment`
+  // (apagado por defecto para el staff; el dueño siempre puede). Se autoriza ANTES de leer nada más (ni el snapshot de la solicitud).
+  const access = await assertResidencePermission(admin, sessionUser.id, application.residence_id, "applications.send_adjustment");
+  if (!access.ok) return { status: "error", message: access.error };
+
   // Docs/06 §11.2: la ARS de la propuesta usa la cotización de la
   // solicitud original — nunca la del día en que se envía la propuesta.
   const { data: originalSnapshot } = await admin
@@ -47,8 +52,6 @@ export async function sendNegotiationProposal(
   if (!originalSnapshot) return { status: "error", message: "No encontramos el snapshot original." };
   const arsPerUsd = Number(originalSnapshot.exchange_rate_ars_per_usd);
 
-  const hasAccess = await assertResidenceAccess(admin, sessionUser.id, application.residence_id);
-  if (!hasAccess) return { status: "error", message: "No tenés acceso a esa residencia." };
   if (application.status !== "contact_established") {
     return { status: "error", message: "Solo podés proponer un ajuste después de establecer contacto." };
   }
@@ -146,12 +149,12 @@ export async function sendNegotiationProposal(
     from_status: "contact_established",
     to_status: "offer_pending_student_acceptance",
     changed_by_user_id: sessionUser.id,
-    changed_by_role: "residence_owner",
+    changed_by_role: access.actorRole,
   });
 
   await createAuditLog(admin, {
     actorUserId: sessionUser.id,
-    actorRole: "residence_owner",
+    actorRole: access.actorRole,
     action: "negotiation_proposal_sent",
     entityType: "application_requests",
     entityId: applicationId,

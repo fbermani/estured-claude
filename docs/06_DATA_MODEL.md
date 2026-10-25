@@ -549,7 +549,7 @@ Usuarios vinculados a una residencia (owner o staff).
 | `residence_id` | uuid | FK residencia |
 | `user_id` | uuid | FK usuario |
 | `role` | text | `owner` o `staff` |
-| `permissions` | jsonb | Permisos delegados por el owner |
+| `permissions` | jsonb | Permisos del staff que elige el dueño (DR11): mapa de las 10 claves booleanas; `{}` = valores iniciales. Para el dueño no se usa (siempre puede todo) |
 | `invited_by` | uuid null | Owner/admin |
 | `invitation_status` | text | `pending`, `accepted`, `revoked` |
 | `is_active` | boolean | Activo |
@@ -558,9 +558,37 @@ Usuarios vinculados a una residencia (owner o staff).
 
 Reglas:
 - un owner puede tener hasta 10 residencias (`residence_users` con role=owner); el límite se valida server-side en el alta (y opcionalmente con trigger);
-- un staff puede estar asignado a múltiples residencias del mismo owner;
+- un staff puede estar asignado a múltiples residencias (un vínculo por residencia, creado por el dueño de cada una al invitarlo: DR10);
+- **`role` es `owner` o `staff` y vale por residencia (DR10)**; el servidor lo lee de esta fila y nunca del formulario ni del rol global de la cuenta. **El dueño siempre puede todo; lo que puede hacer un staff lo decide `permissions` (DR11)**, por miembro y por residencia (la misma persona puede tener permisos distintos en dos residencias; no hace falta migración: la columna existe desde la 0003);
+- **uso de `permissions` (DR11):** objeto con las 10 claves `applications.review_contact`, `applications.reject`, `payments.residence`, `applications.send_adjustment`, `operations.rooms_availability`, `residents.manage`, `renewals.manage`, `waitlist.manage`, `faq.manage` y `profile.edit`, con valor `true` o `false`. Una clave **ausente** vale el valor inicial de la lista (los staff anteriores a DR11 tienen `{}` y conservan lo que ya hacían, salvo `applications.send_adjustment` y `profile.edit`, apagados); un valor que no sea booleano o una clave desconocida no habilita nada (falla cerrado). Se escribe completo (las 10 claves) al aceptar una invitación y cada vez que el dueño guarda los permisos; solo la escribe el servidor con el service role;
+- quitar acceso a un staff = `is_active = false` e `invitation_status = 'revoked'` (no se borra la fila); aceptar de nuevo una invitación reactiva el vínculo como `staff`;
+- una residencia siempre conserva al menos un `owner` activo (no se quita el acceso a un dueño desde la pantalla Equipo);
 - el staff solo ve datos de las residencias donde tiene `residence_users` activo;
 - el contexto activo se valida server-side en cada request.
+
+---
+
+### 8.2bis. `residence_team_invitations` *(DR10, migración 0051)*
+
+Invitación por email a un staff, antes de que tenga cuenta o vínculo. No crea `residence_users` hasta que se acepta. Se escribe solo con el service role (RLS habilitada sin policies para usuarios).
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `id` | uuid | ID |
+| `residence_id` | uuid | FK residencia (on delete cascade) |
+| `email` | text | Email invitado, en minúsculas |
+| `role` | text | Siempre `staff` (check): una invitación no puede crear un dueño |
+| `token_hash` | text | SHA-256 (hex) del token del enlace; el token en claro nunca se guarda. Único |
+| `status` | text | `pending`, `accepted`, `cancelled` (el vencimiento se deduce de `expires_at`; no es un estado guardado) |
+| `permissions` | jsonb | Permisos iniciales del staff elegidos por el dueño al invitar (DR11, mapa de las 10 claves; `{}` = valores iniciales). Al aceptar se copian a `residence_users.permissions` |
+| `invited_by` | uuid null | Dueño que invitó. Nullable con `on delete set null`: si se borra esa cuenta la invitación pendiente deja de poder aceptarse |
+| `expires_at` | timestamptz | A los 7 días del envío o del último reenvío |
+| `last_sent_at` / `send_count` | timestamptz / int | Último envío y cantidad de envíos (base de la espera de 10 minutos y del tope de 5 envíos por invitación; el límite por hora y por residencia se cuenta desde `audit_logs`) |
+| `accepted_at` / `accepted_by_user_id` | timestamptz / uuid null | Aceptación (`accepted_by_user_id` con `on delete set null`) |
+| `cancelled_at` | timestamptz | Cancelación |
+| `created_at` | timestamptz | Alta |
+
+Reglas: una sola invitación `pending` por (residencia, email); reenviar rota el token (el enlace anterior deja de valer); el token es de un solo uso; el aceptante debe usar el email invitado.
 
 ---
 

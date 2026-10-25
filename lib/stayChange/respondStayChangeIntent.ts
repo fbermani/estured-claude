@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { createNotification } from "@/lib/notifications/createNotification";
 import { GENERIC_ERROR, NOT_FOUND_ERROR, loadIntent } from "@/lib/stayChange/common";
+import { assertResidencePermission } from "@/lib/residences/access";
 import { loadActiveFamilyUserIds } from "@/lib/stayChange/recipients";
 import { UNPAID_DISCLAIMER } from "@/lib/stayChange/copy";
 import { validateResidenceResponse } from "@/lib/stayChange/validate";
@@ -14,7 +15,7 @@ export type RespondStayChangeIntentResult = { ok: true; edited: boolean } | { ok
  * salida (texto + monto de referencia opcional en USD), condiciones y detalles. Es INFORMATIVA: EstuRed no fija,
  * cobra, garantiza ni media esos costos. Cada versión queda auditada (valor anterior y nuevo). Notifica al estudiante
  * y a su familiar; una edición reinicia `response_seen_by_student_at` para que el estudiante vea el "nuevo".
- * Autorización: owner/staff ACTIVO de `current_residence_id` (aislamiento multi-residencia, docs/11 §7.3).
+ * Autorización: dueño o staff ACTIVO de `current_residence_id` con el permiso `residents.manage` (DR11; aislamiento multi-residencia, docs/11 §7.3).
  */
 export async function respondStayChangeIntent(
   admin: SupabaseClient,
@@ -31,19 +32,14 @@ export async function respondStayChangeIntent(
   const intent = await loadIntent(admin, params.intentId);
   if (!intent) return { ok: false, error: NOT_FOUND_ERROR };
 
-  const { data: membership, error: membershipError } = await admin
-    .from("residence_users")
-    .select("role")
-    .eq("residence_id", intent.current_residence_id)
-    .eq("user_id", params.actorUserId)
-    .eq("is_active", true)
-    .maybeSingle();
-  if (membershipError) {
-    console.error("[stayChange] respond membership read failed:", membershipError);
-    return { ok: false, error: GENERIC_ERROR };
-  }
-  // Mismo mensaje que "no existe": no revelar avisos de otras residencias.
-  if (!membership || intent.status === "pending_guardian_confirmation") return { ok: false, error: NOT_FOUND_ERROR };
+  // DR11: responder al aviso "Quiero cambiar" requiere el permiso de residentes (el dueño siempre puede). El rol y los permisos salen de
+  // `residence_users` por la residencia del aviso. Sin vínculo → mismo mensaje que "no existe": no revelar avisos de otras residencias.
+  // Orden pensado para no revelar existencia: primero el estado del aviso (uno que todavía espera al familiar no es visible para ninguna
+  // residencia) y recién después se distingue "sin permiso" de "sin vínculo". Así, quien no corresponde recibe siempre el mismo "no existe".
+  const access = await assertResidencePermission(admin, params.actorUserId, intent.current_residence_id, "residents.manage");
+  if (!access.ok && access.reason === "no_access") return { ok: false, error: NOT_FOUND_ERROR };
+  if (intent.status === "pending_guardian_confirmation") return { ok: false, error: NOT_FOUND_ERROR };
+  if (!access.ok) return { ok: false, error: access.error };
   if (intent.status !== "open") {
     return { ok: false, error: "Este aviso ya está cerrado: no se puede responder." };
   }
@@ -83,7 +79,7 @@ export async function respondStayChangeIntent(
 
   await createAuditLog(admin, {
     actorUserId: params.actorUserId,
-    actorRole: membership.role === "owner" ? "residence_owner" : "residence_staff",
+    actorRole: access.actorRole,
     action: edited ? "stay_change_response_edited" : "stay_change_response_sent",
     entityType: "stay_change_intents",
     entityId: intent.id,

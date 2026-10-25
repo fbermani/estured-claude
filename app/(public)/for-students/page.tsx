@@ -24,10 +24,10 @@ const benefits: RotatingBenefit[] = [
     summary:
       "Identidad, ubicación y fotos revisadas por EstuRed mediante control presencial.",
     problem:
-      "Elegir dónde vivir a distancia, sin conocer el lugar, es de las decisiones más riesgosas de mudarte a otra ciudad.",
+      "Elegir dónde vivir sin conocer el lugar es una de las decisiones más difíciles de mudarte a otra ciudad.",
     solution:
       "Identidad, ubicación y fotos revisadas por EstuRed mediante control presencial, no una foto de stock ni una descripción exagerada. El sello Residencia Verificada no reemplaza que consultes las condiciones de tu estadía.",
-    conclusion: "Elegís con información revisada, no con fe.",
+    conclusion: "Elegís con información revisada en persona.",
   },
   {
     icon: "description",
@@ -35,7 +35,7 @@ const benefits: RotatingBenefit[] = [
     summary:
       "Tu solicitud, las respuestas y cualquier ajuste de condiciones quedan registrados en la plataforma. Nada se pierde en un chat.",
     problem:
-      "Negociar condiciones por WhatsApp significa que todo depende de la memoria y la buena fe de la otra parte.",
+      "Negociar condiciones por WhatsApp significa que después cuesta saber qué quedó acordado.",
     solution:
       "Tu solicitud, las respuestas y cualquier ajuste de condiciones quedan registrados en la plataforma. Nada se pierde en un chat.",
     conclusion: "Un historial claro de todo lo que se acordó.",
@@ -46,10 +46,10 @@ const benefits: RotatingBenefit[] = [
     summary:
       "Un familiar vinculado puede proponerte opciones y seguir el proceso. Vos siempre tenés la última palabra sobre tu solicitud.",
     problem:
-      "Si tu familia está lejos, seguir cada paso de tu mudanza a la distancia es difícil — y vos tampoco querés decidir algo tan importante solo/a.",
+      "Si tu familia está lejos, seguir cada paso de tu mudanza a la distancia es difícil — y una decisión así se toma mejor en compañía.",
     solution:
       "Un familiar vinculado puede proponerte opciones y seguir el proceso paso a paso. Vos siempre tenés la última palabra sobre tu solicitud.",
-    conclusion: "Acompañado/a, sin perder el control de tu decisión.",
+    conclusion: "Con compañía, y la decisión sigue siendo tuya.",
   },
   {
     icon: "receipt_long",
@@ -57,7 +57,7 @@ const benefits: RotatingBenefit[] = [
     summary:
       "Cuando tu reserva se confirma, recibís un comprobante verificable por cualquier persona. Respaldo real para vos y tu familia.",
     problem:
-      "Pagar una matrícula o depósito sin ningún papel que lo respalde deja a vos y a tu familia sin nada concreto si algo sale mal.",
+      "Pagar una matrícula o un depósito sin ningún papel te deja con dudas, a vos y a tu familia.",
     solution:
       "Cuando tu reserva se confirma, recibís un comprobante verificable por cualquier persona, con los datos de tu reserva.",
     conclusion: "Respaldo real para vos y tu familia, no una promesa verbal.",
@@ -68,7 +68,7 @@ const benefits: RotatingBenefit[] = [
     summary:
       "Conocé cómo es la convivencia antes de decidir: quiénes viven en la residencia, según lo que cada residente elige compartir.",
     problem:
-      "Vas a convivir con gente que no elegiste, en un lugar que no conocés. No saber con quién vas a vivir genera mucha incertidumbre.",
+      "Vas a convivir con gente que no elegiste, en un lugar que no conocés. Saber con quién vas a vivir ayuda a decidir con más tranquilidad.",
     solution:
       "Conocé cómo es la convivencia antes de decidir: quiénes viven en la residencia, según lo que cada residente elige compartir.",
     conclusion: "Elegís tu lugar sabiendo también con quién vas a compartirlo.",
@@ -77,26 +77,26 @@ const benefits: RotatingBenefit[] = [
     icon: "sell",
     title: "Precios claros",
     summary:
-      "Tarifas en USD con equivalente referencial en pesos al dólar blue del día, matrícula y depósito explícitos, políticas de ajuste publicadas.",
+      "Tarifas en dólares con su equivalente referencial en pesos, actualizado a diario. Matrícula y depósito a la vista, y la política de ajustes publicada.",
     problem:
       "Los precios que cambian según a quién le preguntes, o que aparecen recién cuando ya avanzaste con una residencia, generan desconfianza.",
     solution:
-      "Tarifas en USD con equivalente referencial en pesos al dólar blue del día, matrícula y depósito explícitos, políticas de ajuste publicadas.",
-    conclusion: "Sabés cuánto vas a pagar antes de comprometerte.",
+      "Tarifas en dólares con su equivalente referencial en pesos, actualizado a diario. Matrícula y depósito a la vista, y la política de ajustes publicada.",
+    conclusion: "Sabés qué vas a pagar y a quién antes de comprometerte.",
   },
 ];
 
 const steps = [
   {
-    text: "Creá tu cuenta y completá tu perfil: de dónde venís, dónde y qué estudiás, y contanos un poco sobre vos, tus intereses y tus hábitos.",
-    detail: "Cuantos más datos completes, más rápido vas a poder aplicar cuando encuentres la residencia indicada.",
+    text: "Creá tu cuenta y completá tu perfil: de dónde venís, dónde y qué estudiás, y contanos un poco sobre vos, tus intereses y tus hábitos. Vos elegís qué mostrás; la residencia ve tu perfil cuando le enviás una solicitud.",
+    detail: "Cuantos más datos completes, más fácil vas a poder enviar solicitudes cuando encuentres la residencia indicada.",
   },
   {
     text: "Buscá y compará residencias verificadas. Guardá tus favoritas.",
     detail: "Comparar varias opciones a la vez te ayuda a decidir con más contexto, no solo por la primera que viste.",
   },
   {
-    text: "Enviá tu solicitud de reserva. Si la residencia está completa, sumate a su lista de espera.",
+    text: "Enviás tu solicitud de reserva, gratis. Si ese tipo de habitación está completo, te sumás a su lista de espera.",
     detail: "Tu solicitud queda registrada y no depende de conversaciones por WhatsApp que puedan perderse.",
   },
   {
@@ -104,7 +104,7 @@ const steps = [
     detail: "Si te proponen un ajuste, la decisión final siempre es tuya — nadie confirma nada sin tu aprobación.",
   },
   {
-    text: "Pagás a la residencia el concepto acordado (matrícula, seña o depósito) y la residencia confirma la recepción.",
+    text: "Le pagás a la residencia lo acordado para reservar (por ejemplo, el primer mes o la matrícula) y la residencia confirma que lo recibió.",
     detail: "La residencia confirma la recepción del pago, así que ese paso también queda con registro.",
   },
   {
@@ -203,7 +203,7 @@ export default async function ForStudentsPage() {
           <SectionHeader
             eyebrow="Paso a paso"
             title="Así funciona el proceso"
-            description="La disponibilidad publicada es informativa: toda reserva está sujeta a la confirmación de la residencia."
+            description="Enviar una solicitud es gratis. La residencia revisa tu perfil y confirma si hay lugar."
           />
           <StepsList steps={steps} />
         </div>
@@ -215,8 +215,8 @@ export default async function ForStudentsPage() {
             Empezá tu búsqueda con respaldo
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-ink-soft">
-            Sumate a la lista de espera y te avisamos cuando el catálogo de tu
-            zona esté activo.
+            Buscá entre las residencias verificadas de CABA y enviá tu solicitud.
+            Es gratis.
           </p>
           <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
             <Button href="/search" size="lg">

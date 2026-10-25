@@ -148,6 +148,7 @@ La UI debe dejar claro que la conversación ocurre fuera de la plataforma, y que
 | `/register/student` | Registro estudiante | Público |
 | `/register/family` | Registro familiar | Público |
 | `/register/residence` | Registro residencia | Público |
+| `/register/staff/[token]` | Aceptar la invitación al equipo de una residencia (DR10): enlace de un solo uso que llega por email al staff; el token nunca se muestra ni se guarda en claro | Público (requiere enlace válido) |
 | `/waitlist` | Lista de espera pre-lanzamiento (fuera del routing oficial; no es la lista de espera de residencias) | Público |
 
 > **Recuperar contraseña (D10):** implementado en el Ciclo 50 (`/forgot-password` → email de Supabase → `/reset-password`). Las cuentas bloqueadas no pueden aplicar el cambio.
@@ -186,30 +187,31 @@ Ruta base: `/residence`
 | Ruta | Pantalla | Acceso |
 |---|---|---|
 | `/residence/dashboard` | Inicio multi-residencia (scroll vertical + filtro) | Owner/Staff |
-| `/residence/[residence_id]/profile` | Perfil de residencia activa | Owner/Staff con permiso |
+| `/residence/[residence_id]/profile` | Perfil de residencia activa (lo edita el dueño o el staff con `profile.edit`; el resto, solo lectura, DR11) | Owner (edita) / Staff (según permiso) |
 | `/residence/[residence_id]/profile/preview` | Vista previa pública | Owner/Staff |
 | `/residence/[residence_id]/verification` | Verificación | Owner |
-| `/residence/[residence_id]/rooms` | Habitaciones y plazas (Gestión Operativa) | Owner/Staff con permiso |
-| `/residence/[residence_id]/availability` | Disponibilidad | Owner/Staff con permiso |
-| `/residence/[residence_id]/applications` | Solicitudes | Owner/Staff con permiso |
-| `/residence/[residence_id]/applications/[id]` | Detalle de solicitud | Owner/Staff con permiso |
-| `/residence/[residence_id]/applications/[id]/negotiation` | Enviar propuesta de ajuste | Owner/Staff con permiso |
-| `/residence/[residence_id]/reservations` | Reservas | Owner/Staff con permiso |
-| `/residence/[residence_id]/waitlist` | Lista de espera | Owner/Staff con permiso |
-| `/residence/[residence_id]/residents` | Residentes (Gestión Operativa) | Owner/Staff con permiso |
-| `/residence/[residence_id]/renewals` | Renovaciones | Owner/Staff con permiso |
-| `/residence/[residence_id]/renewals/[id]` | Detalle de renovación | Owner/Staff con permiso |
-| `/residence/[residence_id]/receipts` | Comprobantes | Owner/Staff con permiso |
-| `/residence/[residence_id]/faq` | FAQ simple: preguntas libres de estudiantes que la residencia responde (D9) | Owner/Staff con permiso |
+| `/residence/[residence_id]/rooms` | Habitaciones y plazas (Gestión Operativa) | Owner/Staff |
+| `/residence/[residence_id]/availability` | Disponibilidad | Owner/Staff |
+| `/residence/[residence_id]/applications` | Solicitudes | Owner/Staff |
+| `/residence/[residence_id]/applications/[id]` | Detalle de solicitud | Owner/Staff |
+| `/residence/[residence_id]/applications/[id]/negotiation` | Enviar propuesta de ajuste | Owner / Staff con `applications.send_adjustment` (DR11) |
+| `/residence/[residence_id]/reservations` | Reservas | Owner/Staff |
+| `/residence/[residence_id]/waitlist` | Lista de espera | Owner/Staff |
+| `/residence/[residence_id]/residents` | Residentes (Gestión Operativa) | Owner/Staff |
+| `/residence/[residence_id]/renewals` | Renovaciones | Owner/Staff |
+| `/residence/[residence_id]/renewals/[id]` | Detalle de renovación | Owner/Staff |
+| `/residence/[residence_id]/receipts` | Comprobantes | Owner/Staff |
+| `/residence/[residence_id]/faq` | FAQ simple: preguntas libres de estudiantes que la residencia responde (D9) | Owner/Staff |
+| `/residence/[residence_id]/team` | Equipo: miembros, permisos del staff, invitaciones y quitar acceso (§7.20, DR10/DR11) | Owner |
 | `/residence/[residence_id]/metrics` | Métricas básicas | Owner |
-| `/residence/[residence_id]/support` | Soporte / resolución de conflictos | Owner/Staff con permiso |
+| `/residence/[residence_id]/support` | Soporte / resolución de conflictos | Owner/Staff |
 | `/residence/[residence_id]/plan` | Plan freemium / Gestión Operativa | Owner |
 | `/residence/settings` | Configuración global, staff y residencias | Owner |
 | `/residence/settings/new` | Alta de nueva residencia (hasta 10) | Owner |
 
 > **MVP: todo gratis (D8, 2026-10-20, `docs/00` §6.2 y §31).** Gestión Operativa no se vende en el MVP: todas las funciones de residencia (habitaciones, plazas, residentes, plan) son gratuitas. Por lo tanto: (a) las rutas marcadas "(Gestión Operativa)" no se bloquean ni se ofrecen como plan pago; (b) no se muestran pantallas de upsell ("Sin acceso", "Solicitar acceso") en `/rooms`, `/residents` ni `/plan` (§7.5, §7.18); (c) la landing `/for-residences` no vende un plan pago (§4.3). El modelo `operating_mode` y los feature flags se conservan para monetizar más adelante.
 >
-> **Routing real vs. diferido (D9).** Existen hoy: `/residence/dashboard`, `/residence/settings/new` y, bajo `/residence/[residence_id]/`: `profile`, `availability`, `applications` (+ `[id]` y `[id]/negotiation`), `waitlist`, `residents`, `rooms`, `renewals` (+ `[id]`), `plan` y `support`. Quedan **diferidas**: `profile/preview`, `verification`, `reservations`, `receipts`, `metrics` y `/residence/settings` (solo existe `/new`). `faq` entra al MVP en su versión simple (D9) y está implementado (Ciclo 50, H12; requiere la migración 0039).
+> **Routing real vs. diferido (D9).** Existen hoy: `/residence/dashboard`, `/residence/settings/new` y, bajo `/residence/[residence_id]/`: `profile`, `availability`, `applications` (+ `[id]` y `[id]/negotiation`), `waitlist`, `residents`, `rooms`, `renewals` (+ `[id]`), `plan`, `support` y `team` (DR10). Quedan **diferidas**: `profile/preview`, `verification`, `reservations`, `receipts`, `metrics` y `/residence/settings` (solo existe `/new`). `faq` entra al MVP en su versión simple (D9) y está implementado (Ciclo 50, H12; requiere la migración 0039).
 
 ### 3.4. Rutas admin
 
@@ -829,6 +831,8 @@ Ruta base: `/residence`
 
 **Reglas:** tarifas, matrícula y depósito editables sin aprobación previa, auditadas, generan alerta si varían más de 15%. Campos críticos (fotos, dirección, reglas, servicios, condiciones de reserva, capacidad) requieren revisión admin.
 
+**Dueño vs. staff (DR10):** solo el dueño edita y envía a verificación. Al staff la pantalla se le muestra **en solo lectura**: campos deshabilitados, sin los botones "Guardar cambios" ni "Enviar para revisión" y con la nota «Solo el dueño puede editar esto.» Aunque alguien fuerce el envío, el servidor lo rechaza.
+
 **Nota de recomendación de moneda:** al configurar precios, mostrar sugerencia: "Recomendamos configurar tus tarifas en dólares. El sistema las convierte automáticamente a pesos al dólar blue del día, redondeadas para mayor comodidad."
 
 ---
@@ -1050,12 +1054,37 @@ Sin cambios de fondo. Incluye Factura C asociada visible/descargable si es relev
 
 **Secciones:**
 - **Mis residencias:** listado de hasta 10 residencias con estado de cada una. Botón "Agregar residencia" si no llegó al límite.
-- **Staff:** invitar staff, asignar permisos **por residencia específica o por múltiples residencias** (selector múltiple de residencias al invitar).
+- **Staff:** invitar staff por email, elegir sus permisos y quitar acceso, **por residencia** (§7.20, DR10/DR11). Sin selector múltiple de residencias por ahora: cada residencia tiene su propio equipo.
 - Editar datos de contacto del owner.
 - Configurar notificaciones.
 - Configurar medios de contacto.
 
 **Alta de nueva residencia:** `/residence/settings/new` — mismo formulario que `/register/residence`, pero accedido desde una cuenta owner ya existente.
+
+> **Staff (DR10):** hoy el equipo se gestiona **por residencia** desde §7.20 (no existe todavía `/residence/settings` global). Un dueño de varias residencias gestiona el equipo de cada una por separado.
+
+---
+
+### 7.20. Equipo *(nueva, DR10)*
+
+**Ruta:** `/residence/[residence_id]/team` — **solo dueño** (ítem "Equipo" en el menú lateral del dueño; el staff no lo ve y, si entra por la URL, ve un aviso «Esta sección es solo para el dueño de la residencia.»).
+
+**Objetivo:** que el dueño invite a su staff por email, **elija qué puede hacer cada persona**, vea quién tiene acceso y se lo quite cuando haga falta (`docs/05` §4.7, DR11).
+
+**Secciones:**
+- **Cómo funcionan los permisos** (nota breve y fija): el dueño elige, staff por staff, qué puede hacer; todo staff activo puede ver el panel y las pantallas en solo lectura, abrir Soporte y recibir avisos; gestionar el equipo y los permisos, enviar el perfil a verificación, sumar otra residencia y el PDF son solo del dueño.
+- **Miembros:** email, rol (Dueño / Staff), estado (Activo) y "desde" (fecha de alta). "Vos" marca tu fila. El dueño no tiene acciones sobre su propia fila ni sobre otro dueño. Cada **staff** tiene:
+  - un panel desplegable **«Permisos (N de 10 activos)»** con los 10 casilleros agrupados («Solicitudes y pagos», «Operación del día a día», «Perfil de la residencia»), cada uno con su etiqueta y una descripción corta; **tres atajos** («Solo lectura», «Atención de solicitudes», «Operación completa») que solo rellenan los casilleros sin enviar; y el botón **«Guardar permisos»** (submit nativo, deshabilitado mientras guarda). Lo tildado se conserva ante un error; el cambio rige de inmediato y le llega al staff un aviso genérico;
+  - **"Quitar acceso"** con confirmación («Va a perder el acceso a esta residencia ahora. Podés invitarlo de nuevo cuando quieras.»).
+- **Invitar:** campo de email + panel desplegable **«Permisos iniciales (N de 10 activos)»** (los casilleros con los valores por defecto y los mismos atajos) + botón "Enviar invitación". Siempre rol staff; los permisos elegidos se guardan en la invitación y se aplican al aceptar. Validaciones: email válido; no invitar a quien ya es miembro activo; no duplicar una invitación pendiente; tope de 10 staff (activos + pendientes); espera de 10 minutos y tope de 5 envíos por invitación; tope de 5 envíos por hora y por residencia; no se invita si la residencia está en borrador, rechazada, suspendida o archivada. Respuesta neutra: «Le enviamos la invitación a {email}.» exista o no una cuenta con ese email; si el email no sale: «Creamos la invitación pero no pudimos enviar el email. Podés reenviarla.»
+- **Invitaciones pendientes:** email, "enviada el", "vence el" (o chip "Vencida"), acciones **"Reenviar"** (token nuevo, 7 días más; si el email no sale no se cambia nada) y **"Cancelar"**.
+- **Estados:** vacío ("Todavía no invitaste a nadie"), cargando, error accionable; si la actualización de base de datos de invitaciones no está aplicada, aviso claro y el formulario de invitar deshabilitado (la lista de miembros, los permisos y quitar acceso siguen funcionando); si falta solo la columna de permisos iniciales, solo se puede invitar con los permisos por defecto.
+
+**Interfaz del staff (DR11).** El staff **no ve** la pantalla de gestión del equipo (ni el ítem del menú; si entra por la URL, un aviso). Lo que su dueño no le permite **se ve deshabilitado con la nota «Pedile este permiso al dueño.»** (botones y formularios de solicitudes, pago a la residencia, habitaciones y camas, disponibilidad, residentes, renovaciones, lista de espera, preguntas y perfil) en lugar de ocultarse; lo no delegable (Equipo, Sumar residencia, reporte PDF, enviar el perfil a verificación) sigue oculto. En el **Panel** el staff tiene un resumen discreto, colapsado, **«Tus permisos (N de 10 activos)»** con lo que puede y no puede hacer. Los controles deshabilitados son solo presentación: el servidor valida cada acción.
+
+**Aceptar la invitación:** `/register/staff/[token]` (público). Muestra la residencia y el email invitado. Si ya hay una sesión con ese email, un botón "Aceptar y entrar al equipo"; si no, un formulario de contraseña (cuenta existente: la de siempre; cuenta nueva: elegirla y repetirla) con aceptación de términos. Enlace inválido, vencido, ya usado o cancelado: un único mensaje neutro con la indicación de pedirle al dueño una invitación nueva. Al aceptar se entra al panel de esa residencia.
+
+**Mobile (375 px):** tarjetas apiladas en lugar de tabla, botones de ancho completo, sin desborde horizontal.
 
 ---
 

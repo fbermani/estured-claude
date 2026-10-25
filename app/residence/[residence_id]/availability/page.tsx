@@ -3,7 +3,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { assertResidenceAccess } from "@/lib/residences/access";
+import { getResidenceMembership } from "@/lib/residences/access";
+import { can } from "@/lib/residences/permissions";
+import { PermissionGate } from "@/components/residences/PermissionGate";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { formatUsd } from "@/lib/mock/exchange";
@@ -31,8 +33,10 @@ export default async function ResidenceAvailabilityPage({
   const admin = getSupabaseAdmin();
   if (!admin) notFound();
 
-  const hasAccess = await assertResidenceAccess(admin, sessionUser.id, residenceId);
-  if (!hasAccess) notFound();
+  const membership = await getResidenceMembership(admin, sessionUser.id, residenceId);
+  if (!membership) notFound();
+  // DR11: actualizar la disponibilidad requiere `operations.rooms_availability`; sin él se ve en solo lectura.
+  const canEdit = can(membership, "operations.rooms_availability");
 
   const { data: roomTypes, error } = await admin
     .from("room_types")
@@ -92,14 +96,16 @@ export default async function ResidenceAvailabilityPage({
                 <Badge tone={badge.tone}>{badge.label}</Badge>
               </div>
               {availability ? (
-                <AvailabilityForm
-                  residenceId={residenceId}
-                  roomTypeId={rt.id}
-                  currentStatus={availability.status === "not_updated" ? "available_to_confirm" : availability.status}
-                  currentAvailableCount={availability.available_count}
-                  currentAvailableFrom={availability.available_from}
-                  currentNotesPublic={availability.notes_public}
-                />
+                <PermissionGate allowed={canEdit} className="mt-4">
+                  <AvailabilityForm
+                    residenceId={residenceId}
+                    roomTypeId={rt.id}
+                    currentStatus={availability.status === "not_updated" ? "available_to_confirm" : availability.status}
+                    currentAvailableCount={availability.available_count}
+                    currentAvailableFrom={availability.available_from}
+                    currentNotesPublic={availability.notes_public}
+                  />
+                </PermissionGate>
               ) : (
                 <p className="mt-3 text-sm text-ink-faint">
                   Este tipo de habitación todavía no tiene disponibilidad cargada.

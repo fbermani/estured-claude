@@ -34,7 +34,9 @@ export default async function ResidenceDashboardPage() {
   ]);
   const arsPerUsd = rate?.arsPerUsd ?? 0;
   // H22: solo el owner suma residencias (docs/11 §7.3), y hasta el tope de 10.
-  const canAddResidence = hasAnyRole(sessionUser, ["residence_owner"]) && validCards.length < MAX_RESIDENCES_PER_OWNER;
+  // DR10: el reporte PDF y sumar residencias son solo del dueño. Se cuentan las residencias donde es dueño (no donde es staff).
+  const ownedCount = validCards.filter((c) => c.role === "owner").length;
+  const canAddResidence = hasAnyRole(sessionUser, ["residence_owner"]) && ownedCount < MAX_RESIDENCES_PER_OWNER;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -46,7 +48,7 @@ export default async function ResidenceDashboardPage() {
             <p className="mt-1 text-ink-soft">Gestioná el perfil y la publicación de cada una.</p>
           </div>
           <div className="flex gap-2">
-            {validCards.length > 0 && (
+            {ownedCount > 0 && (
               <Button href="/residence/dashboard/pdf" variant="outline" size="sm">
                 <Icon name="download" className="text-base" />
                 Reporte PDF

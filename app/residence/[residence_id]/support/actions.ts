@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { assertResidenceAccess } from "@/lib/residences/access";
+import { getResidenceMembership } from "@/lib/residences/access";
+import { residenceActorRole } from "@/lib/residences/permissions";
 import { openSupportCase, type OpenSupportCaseResult } from "@/lib/support/openSupportCase";
 
 export type OpenCaseState = { status: "idle" | "error" | "saved"; message?: string };
@@ -18,8 +19,8 @@ export async function openResidenceSupportCase(
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento." };
 
-  const hasAccess = await assertResidenceAccess(admin, sessionUser.id, residenceId);
-  if (!hasAccess) return { status: "error", message: "No tenés acceso a esta residencia." };
+  const membership = await getResidenceMembership(admin, sessionUser.id, residenceId);
+  if (!membership) return { status: "error", message: "No tenés acceso a esta residencia." };
 
   const description = String(formData.get("description") ?? "");
   const termsAccepted = formData.get("terms_accepted") === "on";
@@ -29,7 +30,8 @@ export async function openResidenceSupportCase(
   try {
     result = await openSupportCase(admin, {
       actorUserId: sessionUser.id,
-      actorRole: sessionUser.primaryRole,
+      // Rol de la membresía de ESTA residencia, no el rol global de la cuenta.
+      actorRole: residenceActorRole(membership),
       residenceId,
       description,
       termsReminderAccepted: termsAccepted,

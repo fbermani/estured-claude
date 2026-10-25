@@ -110,7 +110,9 @@ export async function endResidentStayAction(
   if (!result.ok) return { status: "error", message: result.error };
 
   revalidatePath(`/residence/${residenceId}/residents`);
-  return { status: "saved" };
+  revalidatePath(`/residence/${residenceId}/rooms`);
+  // Si la estadía se cerró pero no se repuso la disponibilidad (staff sin el permiso de disponibilidad), se le dice.
+  return result.warning ? { status: "saved", message: result.warning } : { status: "saved" };
 }
 
 /**

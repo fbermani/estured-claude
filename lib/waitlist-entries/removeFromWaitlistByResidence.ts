@@ -1,7 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
-import { assertResidenceAccess } from "@/lib/residences/access";
+import { assertResidencePermission } from "@/lib/residences/access";
 
 export type RemoveFromWaitlistResult = { ok: true } | { ok: false; error: string };
 
@@ -17,8 +17,9 @@ export async function removeFromWaitlistByResidence(
     .maybeSingle();
   if (!entry) return { ok: false, error: "No encontramos esa entrada de lista de espera." };
 
-  const hasAccess = await assertResidenceAccess(admin, params.actorUserId, entry.residence_id);
-  if (!hasAccess) return { ok: false, error: "No tenés acceso a esa residencia." };
+  const access = await assertResidencePermission(admin, params.actorUserId, entry.residence_id, "waitlist.manage");
+  if (!access.ok) return { ok: false, error: access.error };
+  const actorRole = access.actorRole;
   if (!["active", "availability_notification_sent", "retention_check_sent"].includes(entry.status)) {
     return { ok: false, error: "Esta entrada ya no está activa." };
   }
@@ -39,7 +40,7 @@ export async function removeFromWaitlistByResidence(
 
   await createAuditLog(admin, {
     actorUserId: params.actorUserId,
-    actorRole: "residence_owner",
+    actorRole,
     action: "waitlist_entry_removed_by_residence",
     entityType: "waitlist_entries",
     entityId: entry.id,

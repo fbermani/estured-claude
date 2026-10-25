@@ -3,6 +3,7 @@ import { renderToBuffer } from "@react-pdf/renderer";
 import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getOwnerResidenceCards } from "@/lib/residences/ownerDashboard";
+import { OWNER_ONLY_MESSAGE } from "@/lib/residences/permissions";
 import { PortfolioPdfDocument } from "@/lib/residences/PortfolioPdfDocument";
 
 export const runtime = "nodejs";
@@ -14,8 +15,25 @@ export async function GET() {
   const admin = getSupabaseAdmin();
   if (!admin) return NextResponse.json({ error: "No disponible en este momento." }, { status: 503 });
 
-  const residences = await getOwnerResidenceCards(admin, sessionUser.id);
-  if (residences.length === 0) return NextResponse.json({ error: "No tenés residencias cargadas." }, { status: 404 });
+  // DR10: el reporte es solo del dueño y solo incluye las residencias donde la persona es dueña (el staff recibe 403).
+  const residences = await getOwnerResidenceCards(admin, sessionUser.id, { ownerOnly: true });
+  if (residences.length === 0) {
+    // 403 si la cuenta tiene vínculos activos pero ninguno de dueño (es solo staff); 404 solo si no tiene ninguna residencia. Se decide
+    // por los vínculos reales de `residence_users`, no por el rol global de la cuenta.
+    const { count, error: countError } = await admin
+      .from("residence_users")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", sessionUser.id)
+      .eq("is_active", true);
+    // Si la lectura falla no se sabe si la cuenta es solo staff o no tiene residencias: se responde "no disponible", no un 404 engañoso.
+    if (countError) {
+      console.error("[portfolio-pdf] residence_users count failed:", countError.code, countError.message);
+      return NextResponse.json({ error: "No pudimos generar el reporte en este momento. Probá de nuevo en unos minutos." }, { status: 503 });
+    }
+    return (count ?? 0) > 0
+      ? NextResponse.json({ error: OWNER_ONLY_MESSAGE }, { status: 403 })
+      : NextResponse.json({ error: "No tenés residencias cargadas." }, { status: 404 });
+  }
 
   const buffer = await renderToBuffer(
     PortfolioPdfDocument({

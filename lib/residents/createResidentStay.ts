@@ -1,7 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
-import { assertResidenceAccess } from "@/lib/residences/access";
+import { assertResidencePermission } from "@/lib/residences/access";
 import { findLinkableReservationIdByEmail } from "@/lib/residents/linkReservation";
 
 export type CreateResidentStayResult = { ok: true; residentStayId: string } | { ok: false; error: string };
@@ -32,11 +32,41 @@ export async function createResidentStay(
     expectedEndDate?: string | null;
   },
 ): Promise<CreateResidentStayResult> {
-  const hasAccess = await assertResidenceAccess(admin, params.actorUserId, params.residenceId);
-  if (!hasAccess) return { ok: false, error: "No tenés acceso a esta residencia." };
+  const access = await assertResidencePermission(admin, params.actorUserId, params.residenceId, "residents.manage");
+  if (!access.ok) return { ok: false, error: access.error };
+  const actorRole = access.actorRole;
 
   const email = params.inviteEmail.trim().toLowerCase();
   if (!email || !email.includes("@")) return { ok: false, error: "Ingresá un email válido." };
+
+  // IDOR: `roomTypeId` y `reservationId` pueden venir de un formulario. Tienen que ser de ESTA residencia: un tipo de habitación ajeno
+  // dejaría una estadía "ficticia" apuntando a otra residencia (y, al cerrarla, tocaría su disponibilidad).
+  if (params.roomTypeId) {
+    const { data: ownType, error: typeError } = await admin
+      .from("room_types")
+      .select("id")
+      .eq("id", params.roomTypeId)
+      .eq("residence_id", params.residenceId)
+      .maybeSingle();
+    if (typeError) {
+      console.error("[residents] createResidentStay room type read failed:", typeError);
+      return { ok: false, error: "No pudimos cargar el residente. Intentá de nuevo." };
+    }
+    if (!ownType) return { ok: false, error: "Ese tipo de habitación no pertenece a esta residencia." };
+  }
+  if (params.reservationId) {
+    const { data: ownReservation, error: reservationError } = await admin
+      .from("reservations")
+      .select("id")
+      .eq("id", params.reservationId)
+      .eq("residence_id", params.residenceId)
+      .maybeSingle();
+    if (reservationError) {
+      console.error("[residents] createResidentStay reservation read failed:", reservationError);
+      return { ok: false, error: "No pudimos cargar el residente. Intentá de nuevo." };
+    }
+    if (!ownReservation) return { ok: false, error: "Esa reserva no pertenece a esta residencia." };
+  }
 
   const { data: existing } = await admin
     .from("resident_stays")
@@ -77,11 +107,11 @@ export async function createResidentStay(
 
   await createAuditLog(admin, {
     actorUserId: params.actorUserId,
-    actorRole: "residence_owner",
+    actorRole,
     action: "resident_stay_created",
     entityType: "resident_stays",
     entityId: stay.id,
-    newValue: { residence_id: params.residenceId, invite_email: email },
+    newValue: { permission: access.permission, residence_id: params.residenceId, invite_email: email },
   });
 
   return { ok: true, residentStayId: stay.id };

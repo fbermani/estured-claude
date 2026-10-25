@@ -6,7 +6,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { assertResidenceAccess } from "@/lib/residences/access";
+import { getResidenceMembership } from "@/lib/residences/access";
+import { can } from "@/lib/residences/permissions";
+import { StaffPermissionsSummary } from "@/components/residences/StaffPermissionsSummary";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
@@ -53,8 +55,11 @@ export default async function ResidenceOverviewPage({
   const admin = getSupabaseAdmin();
   if (!admin) notFound();
 
-  const hasAccess = await assertResidenceAccess(admin, sessionUser.id, residenceId);
-  if (!hasAccess) notFound();
+  const membership = await getResidenceMembership(admin, sessionUser.id, residenceId);
+  if (!membership) notFound();
+  // DR11: el staff ve el Panel completo; editar el perfil requiere `profile.edit` y la verificación la gestiona siempre el dueño.
+  const isOwner = membership.role === "owner";
+  const canEditProfile = can(membership, "profile.edit");
 
   const { data: residence } = await admin
     .from("residences")
@@ -332,13 +337,15 @@ export default async function ResidenceOverviewPage({
             href={`/residence/${residenceId}/profile`}
             className="rounded-full border-[1.5px] border-line-2 bg-paper px-4 py-2 text-sm font-bold text-ink hover:border-forest hover:bg-forest-tint"
           >
-            Editar perfil
+            {canEditProfile ? "Editar perfil" : "Ver perfil"}
           </Link>
         </div>
       </div>
 
+      {!isOwner && <StaffPermissionsSummary permissions={membership.permissions} />}
+
       {onboardingCopy && (
-        <OnboardingBanner copy={onboardingCopy} checklist={onboardingChecklist} residenceId={residenceId} />
+        <OnboardingBanner copy={onboardingCopy} checklist={onboardingChecklist} residenceId={residenceId} ownerOnlyNote={!isOwner} />
       )}
 
       {availabilityNotice && (

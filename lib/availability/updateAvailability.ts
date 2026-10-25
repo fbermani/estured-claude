@@ -1,7 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
-import { assertResidenceAccess } from "@/lib/residences/access";
+import { assertResidencePermission } from "@/lib/residences/access";
 
 export type UpdateAvailabilityResult = { ok: true } | { ok: false; error: string };
 
@@ -37,13 +37,15 @@ export async function updateAvailability(
     .maybeSingle();
   if (!roomType) return { ok: false, error: "No encontramos ese tipo de habitación." };
 
-  const hasAccess = await assertResidenceAccess(admin, params.actorUserId, roomType.residence_id);
-  if (!hasAccess) return { ok: false, error: "No tenés acceso a esa residencia." };
+  const access = await assertResidencePermission(admin, params.actorUserId, roomType.residence_id, "operations.rooms_availability");
+  if (!access.ok) return { ok: false, error: access.error };
+  const actorRole = access.actorRole;
 
   const { data: current } = await admin
     .from("profile_availability")
     .select("id, status")
     .eq("room_type_id", params.roomTypeId)
+    .eq("residence_id", roomType.residence_id)
     .maybeSingle();
   if (!current) return { ok: false, error: "No encontramos la disponibilidad de ese tipo de habitación." };
   if (current.status === "paused_by_admin") {
@@ -61,7 +63,8 @@ export async function updateAvailability(
       last_confirmed_at: new Date().toISOString(),
       hidden_from_search_at: null,
     })
-    .eq("id", current.id);
+    .eq("id", current.id)
+    .eq("residence_id", roomType.residence_id);
   if (error) {
     console.error("[availability] updateAvailability failed:", error);
     return { ok: false, error: "No pudimos actualizar la disponibilidad. Intentá de nuevo." };
@@ -69,11 +72,11 @@ export async function updateAvailability(
 
   await createAuditLog(admin, {
     actorUserId: params.actorUserId,
-    actorRole: "residence_owner",
+    actorRole,
     action: "availability_updated",
     entityType: "profile_availability",
     entityId: current.id,
-    newValue: { status: params.status, available_count: params.availableCount },
+    newValue: { permission: access.permission, status: params.status, available_count: params.availableCount },
   });
 
   return { ok: true };

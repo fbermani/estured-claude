@@ -3,7 +3,7 @@
 
 Versión: 0.2
 Estado: Documento actualizado para construcción
-Última actualización: 2026-10-23 (§14bis: aviso "Quiero cambiar", DR3/DR3b)
+Última actualización: 2026-10-24 (§4.7 y matriz: dueño y staff con permisos que elige el dueño, DR10 + DR11; §14bis: aviso "Quiero cambiar", DR3/DR3b)
 Depende de: `00_DECISION_LOG.md`, `03_BUSINESS_RULES.md`, `04_STATE_MACHINES.md`
 
 ---
@@ -97,7 +97,7 @@ Una cuenta de usuario puede tener distintos perfiles asociados:
 - una cuenta puede ser estudiante;
 - una cuenta puede ser familiar vinculado;
 - una cuenta puede ser owner de hasta 10 residencias;
-- una cuenta puede ser staff de una o más residencias (según permisos del owner);
+- una cuenta puede ser staff de una o más residencias (cada vínculo lo crea el dueño de esa residencia al invitarla por email);
 - un familiar puede estar vinculado a más de un estudiante;
 - un estudiante solo puede tener un familiar vinculado activo.
 
@@ -127,7 +127,7 @@ Un owner puede gestionar hasta **10 residencias** desde el mismo login.
 
 El sistema opera en el contexto de la residencia activa seleccionada.
 
-Un staff puede tener acceso a múltiples residencias del mismo owner si el owner lo habilita explícitamente mediante `residence_users`.
+Un staff puede tener acceso a múltiples residencias si el dueño de cada una lo invita explícitamente (un vínculo en `residence_users` por residencia).
 
 **Un staff no puede ver datos de una residencia a la que no fue asignado, aunque pertenezca al mismo owner.**
 
@@ -390,7 +390,7 @@ Usuario principal del lado oferta. Tiene control sobre sus residencias dentro de
 - marcar pago recibido (con confirmación explícita y aceptación de términos);
 - gestionar lista de espera;
 - contactar estudiantes de lista de espera sin activar solicitud automáticamente;
-- crear usuarios staff y asignar permisos (por residencia o múltiples residencias);
+- invitar por email a staff de cada una de sus residencias y quitarles el acceso (pantalla "Equipo", DR10, `docs/00` §31) y **elegir, staff por staff, qué acciones puede hacer** (10 permisos, DR11);
 - ver métricas básicas de sus residencias;
 - crear ofertas de renovación;
 - confirmar pagos de renovación;
@@ -427,51 +427,34 @@ Puede editar tarifas, matrícula, depósito, política de ajustes, moneda de pub
 
 ---
 
-### 4.7. Residence Staff / Staff de residencia
+### 4.7. Residence Staff / Staff de residencia *(redefinido por DR10 y DR11, 2026-10-24)*
 
-Usuario creado por el owner de una residencia.
+Usuario invitado por email por el **dueño** de una residencia (pantalla "Equipo", `docs/08` §7.20). Hay dos roles por residencia: dueño (`residence_users.role = owner`) y staff (`residence_users.role = staff`). El rol vale **por residencia**: una misma cuenta puede ser dueña de una y staff de otra, con **permisos distintos en cada una**, y un staff solo ve y toca las residencias donde tiene un vínculo activo en `residence_users` (nunca otra, aunque comparta dueño o email).
 
-Sus permisos dependen de lo que el owner le otorgue. **Un staff puede tener acceso a múltiples residencias del mismo owner** si el owner lo habilita, pero solo ve datos de las residencias a las que fue asignado.
+**Qué puede hacer el staff lo elige el dueño** (DR11, `docs/00` §31). Los permisos viven en `residence_users.permissions` (jsonb, por miembro y por residencia; no hace falta migración) y se eligen al invitar y después en cualquier momento desde la pantalla Equipo. El dueño siempre puede todo. Hay **10 permisos**, con su valor inicial:
 
-**Presets recomendados:**
+| # | Clave | Qué habilita | Inicial |
+|---|---|---|:---:|
+| 1 | `applications.review_contact` | Revisar solicitudes y establecer contacto | Sí |
+| 2 | `applications.reject` | Rechazar solicitudes | Sí |
+| 3 | `payments.residence` | Habilitar el pago a la residencia y marcar pago recibido | Sí |
+| 4 | `applications.send_adjustment` | Proponer un ajuste de condiciones (cambia precio o fechas) | **No** |
+| 5 | `operations.rooms_availability` | Habitaciones, camas y disponibilidad (incluye pausar solicitudes por tipo) | Sí |
+| 6 | `residents.manage` | Residentes: altas, salidas, notas, responder "Quiero cambiar" y salidas anticipadas | Sí |
+| 7 | `renewals.manage` | Renovaciones: crear y enviar ofertas, marcar el pago | Sí |
+| 8 | `waitlist.manage` | Lista de espera | Sí |
+| 9 | `faq.manage` | Preguntas de la ficha: responder, ocultar, restaurar | Sí |
+| 10 | `profile.edit` | Guardar el perfil, las tarifas y las condiciones de reserva (el envío a verificación sigue siendo del dueño) | **No** |
 
-1. `staff_viewer` — solo lectura.
-2. `staff_applications` — gestión de solicitudes (ver, revisar, contactar, rechazar, marcar pago recibido).
-3. `staff_operations` — disponibilidad, habitaciones y residentes.
-4. `staff_renewals` — renovaciones.
-5. `staff_manager` — casi todo excepto ownership, billing, staff permissions y acciones irreversibles.
+**Siempre disponible para todo staff activo, sin casillero:** ver el panel y las pantallas en solo lectura (incluido el perfil), abrir un caso de Soporte y recibir notificaciones del equipo.
 
-**Permisos posibles por módulo (otorgados por owner):**
+**Solo el dueño, no delegable** (el servidor lo rechaza aunque el staff tenga todos los permisos): gestionar el equipo y los permisos (invitar, reenviar o cancelar invitaciones, quitar acceso, cambiar permisos), sumar otra residencia, **enviar o reenviar el perfil a verificación** y ver el reporte PDF del portfolio.
 
-*Perfil:* ver perfil, editar perfil no crítico, solicitar edición crítica, ver historial de cambios.
+**Reglas del modelo.** Una clave **ausente** vale el valor inicial: los staff creados antes de DR11 (sin permisos guardados) conservan lo que ya hacían, salvo los permisos 4 y 10, que nunca tuvieron y quedan apagados. **Falla cerrado:** una clave desconocida, un valor que no sea booleano o un error de lectura no habilitan nada. El servidor decide con `assertResidencePermission` (el rol y los permisos salen siempre de la base, por residencia, nunca del formulario). Un cambio de permisos rige de inmediato. El dueño no puede editarse permisos a sí mismo ni a otro dueño (no aplica).
 
-*Solicitudes:* ver solicitudes, revisar solicitudes, pedir información adicional, establecer contacto, enviar propuesta de ajuste (si el owner se lo permite), rechazar solicitud, marcar pago recibido, ver documentación autorizada, gestionar cola por plaza.
+**Atajos** (solo rellenan los casilleros; reemplazan a los cuatro presets fijos que figuraban acá como evolución futura): «Solo lectura» (todo apagado), «Atención de solicitudes» (1, 2, 3, 8 y 9) y «Operación completa» (todo salvo 4 y 10).
 
-*Disponibilidad:* ver disponibilidad, editar disponibilidad, marcar completa, pausar disponibilidad, gestionar plazas/camas.
-
-*Habitaciones y plazas:* ver, crear, editar habitaciones, bloquear plazas, marcar mantenimiento, asignar residentes, liberar plazas.
-
-*Residentes:* ver residentes, crear residente pendiente, invitar residente, cambiar estado de residente, gestionar comunidad visible según reglas.
-
-*Renovaciones:* ver renovaciones, crear oferta, enviar oferta, cancelar oferta, marcar pago recibido, ver comprobantes de renovación.
-
-*Métricas:* ver métricas básicas, ver alertas de disponibilidad, ver rechazos por motivo, ver tiempo de respuesta.
-
-*Configuración:* editar FAQ, gestionar respuestas del FAQ, configurar notificaciones, editar preferencias operativas.
-
-**No puede por defecto:**
-
-- eliminar residencia;
-- transferir ownership;
-- ver datos fiscales sensibles de EstuRed;
-- cambiar permisos del owner;
-- borrar auditoría;
-- emitir comprobantes EstuRed;
-- procesar reembolsos;
-- suspender estudiantes;
-- modificar métricas;
-- cambiar reglas globales;
-- crear otros staff ni cambiar permisos, salvo que el owner otorgue permiso explícito.
+**El staff tampoco puede** (con ningún permiso): eliminar la residencia, transferir ownership, ver datos fiscales de EstuRed, emitir comprobantes, procesar reembolsos, suspender estudiantes, modificar métricas, cambiar reglas globales, borrar auditoría, ni invitarse a sí mismo como dueño (la invitación solo crea staff).
 
 ---
 
@@ -603,25 +586,27 @@ Rol técnico para automatizaciones y jobs.
 | Enviar solicitud | ✗ | ✓ | ✗ | ✗ | ✗ | Excepcional | Excepcional |
 | Aceptar/rechazar propuesta de ajuste | ✗ | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ |
 | Cancelar solicitud propia | ✗ | ✓ | ✗ | ✗ | ✗ | ✓ | ✓ |
-| Revisar solicitud | ✗ | Propia | Vinculada | ✓ | Si tiene permiso | ✓ | ✓ |
-| Establecer contacto | ✗ | ✗ | ✗ | ✓ | Si tiene permiso | Excepcional | Excepcional |
-| Enviar propuesta de ajuste (1 vez) | ✗ | ✗ | ✗ | ✓ | Si tiene permiso | ✗ | ✗ |
-| Marcar pago recibido residencia | ✗ | ✗ | ✗ | ✓ | Si tiene permiso | Excepcional | Excepcional |
+| Revisar solicitud | ✗ | Propia | Vinculada | ✓ | Con permiso `applications.review_contact` (DR11) | ✓ | ✓ |
+| Establecer contacto | ✗ | ✗ | ✗ | ✓ | Con permiso `applications.review_contact` (DR11) | Excepcional | Excepcional |
+| Enviar propuesta de ajuste (1 vez) | ✗ | ✗ | ✗ | ✓ | Con permiso `applications.send_adjustment` (apagado por defecto, DR11) | ✗ | ✗ |
+| Marcar pago recibido residencia | ✗ | ✗ | ✗ | ✓ | Con permiso `payments.residence` (DR11) | Excepcional | Excepcional |
 | Pagar fee EstuRed | ✗ | ✓ | ✓ | ✗ | ✗ | Manual | Manual |
 | Ejercer revocación del fee (10 días) | ✗ | ✓ | ✓ solo si es el pagador, tiene vínculo activo y el estudiante es menor de edad (DR6) | ✗ | ✗ | Gestiona revisión | Gestiona revisión |
 | Resolver una revocación (reintegrar fee / denegar, con motivo obligatorio — DR6) | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✓ |
 | Emitir comprobante | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✓ |
-| Descargar comprobante | ✗ | ✓ | ✓ | Vinculado | Si tiene permiso | ✓ | ✓ |
+| Descargar comprobante | ✗ | ✓ | ✓ | Vinculado | Vinculado | ✓ | ✓ |
 | Crear residencia | ✗ | ✗ | ✗ | ✓ | ✗ | ✓ | ✓ |
-| Editar residencia | ✗ | ✗ | ✗ | ✓ | Si tiene permiso | ✓ | ✓ |
+| Editar residencia (perfil, tarifas, condiciones, política de salida) | ✗ | ✗ | ✗ | ✓ | Con permiso `profile.edit` (apagado por defecto, DR11); si no, solo lectura | ✓ | ✓ |
+| Enviar o reenviar el perfil a verificación | ✗ | ✗ | ✗ | ✓ | ✗ (solo dueño, no delegable) | ✓ | ✓ |
 | Aprobar verificación | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✓ |
-| Gestionar staff | ✗ | ✗ | ✗ | ✓ | Solo si permiso | ✓ | ✓ |
-| Gestionar disponibilidad | ✗ | ✗ | ✗ | ✓ | Si tiene permiso | ✓ | ✓ |
-| Gestionar habitaciones | ✗ | ✗ | ✗ | ✓ (GO) | Si tiene permiso | ✓ | ✓ |
-| Gestionar residentes | ✗ | Propio | ✗ | ✓ (GO) | Si tiene permiso | ✓ | ✓ |
-| Crear oferta de renovación | ✗ | ✗ | ✗ | ✓ | Si tiene permiso | ✓ | ✓ |
+| Gestionar el equipo y sus permisos (invitar, quitar acceso, cambiar permisos — DR10/DR11) | ✗ | ✗ | ✗ | ✓ | ✗ | ✓ | ✓ |
+| Reporte PDF del portfolio | ✗ | ✗ | ✗ | ✓ | ✗ | ✗ | ✗ |
+| Gestionar disponibilidad | ✗ | ✗ | ✗ | ✓ | Con permiso `operations.rooms_availability` (DR11) | ✓ | ✓ |
+| Gestionar habitaciones | ✗ | ✗ | ✗ | ✓ (GO) | Con permiso `operations.rooms_availability` (GO, DR11) | ✓ | ✓ |
+| Gestionar residentes | ✗ | Propio | ✗ | ✓ (GO) | ✓ (GO) | ✓ | ✓ |
+| Crear oferta de renovación | ✗ | ✗ | ✗ | ✓ | ✓ | ✓ | ✓ |
 | Aceptar renovación | ✗ | ✓ | Puede pagar | ✗ | ✗ | Excepcional | Excepcional |
-| Abrir reclamo | ✗ | ✓ | ✓ vinculado | ✓ | Si tiene permiso | ✓ | ✓ |
+| Abrir reclamo | ✗ | ✓ | ✓ vinculado | ✓ | ✓ | ✓ | ✓ |
 | Resolver reclamo | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✓ |
 | Suspender residencia | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✓ |
 | Bloquear usuario (no administrativo: estudiante, familiar, residencia — DR9) | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✓ |
@@ -750,7 +735,7 @@ Pueden verla: estudiante solicitante, familiar vinculado, residencia destinatari
 
 ### 7.4. Establecer contacto
 
-Pueden hacerlo: residence_owner, residence_staff con permiso `applications.contact_establish`, admin en caso excepcional documentado.
+Pueden hacerlo: residence_owner, residence_staff con el permiso `applications.review_contact` o `payments.residence` según la acción (DR11), admin en caso excepcional documentado.
 
 El contacto se establece mediante botón WhatsApp pre-formateado. El sistema registra el timestamp como `contact_established`.
 
@@ -760,7 +745,7 @@ Si `contact_target = family_member`, el botón usa el número del familiar. Si e
 
 ### 7.5. Enviar propuesta de ajuste de condiciones
 
-Solo residence_owner o residence_staff con permiso explícito del owner.
+`residence_owner`, o `residence_staff` solo si el dueño le encendió el permiso `applications.send_adjustment` (DR11; apagado por defecto). Sin ese permiso el staff igual puede habilitar el pago con las condiciones originales (`payments.residence`) o rechazar (`applications.reject`).
 
 **Máximo 1 propuesta por solicitud.** El sistema bloquea un segundo intento con advertencia.
 
@@ -780,7 +765,7 @@ El familiar no puede aceptar ni rechazar en nombre del estudiante.
 
 ### 7.7. Rechazar solicitud
 
-Pueden hacerlo: residence_owner, residence_staff con permiso `applications.reject`, admin en caso excepcional.
+Pueden hacerlo: residence_owner, residence_staff con el permiso `applications.reject` (DR11), admin en caso excepcional.
 
 Debe registrar motivo interno (enum predefinido; si es `other`, requiere nota interna obligatoria).
 
@@ -830,7 +815,7 @@ Toda cancelación queda auditada.
 
 ### 8.4. No-show
 
-Residence owner o staff autorizado puede marcar no-show si el estudiante no se presenta dentro de las 24 horas posteriores a la fecha acordada.
+Residence owner o staff con el permiso `applications.review_contact` (DR11) puede marcar no-show si el estudiante no se presenta dentro de las 24 horas posteriores a la fecha acordada.
 
 Admin puede revisar y revertir si hubo error.
 
@@ -846,7 +831,7 @@ El estudiante paga por el medio indicado por la residencia. Puede subir comproba
 
 ### 9.2. Marcar pago recibido
 
-Pueden hacerlo: residence_owner, residence_staff con permiso `payments.residence.mark_received`, admin en caso excepcional.
+Pueden hacerlo: residence_owner, residence_staff con el permiso `payments.residence` (DR11), admin en caso excepcional.
 
 Esta acción requiere **confirmación explícita y aceptación de términos** antes de completarse. Queda auditada.
 
@@ -906,7 +891,7 @@ Solo admin o superadmin pueden aprobar o rechazar verificación. La visita prese
 
 ### 11.3. Ediciones de perfil
 
-Residence owner o staff con permiso pueden editar.
+Edita el perfil el **owner** y el staff con el permiso `profile.edit` (DR11, `docs/00` §31); el resto del staff lo ve en solo lectura. Incluye tarifas y condiciones de reserva y la política de salida anticipada. **Enviar o reenviar el perfil a verificación es solo del owner** (no delegable).
 
 Campos críticos que requieren aprobación admin antes de publicarse: fotos, dirección, nombre comercial, servicios incluidos, reglas principales, condiciones de reserva, capacidad total, tipos de habitación, documentación de residencia.
 
@@ -916,7 +901,7 @@ Campos tarifarios que no requieren aprobación previa: tarifas, matrícula, dep�
 
 ## 12. Permisos sobre disponibilidad
 
-Residence owner y staff autorizado pueden: editar disponibilidad, marcar completa, pausar solicitudes, gestionar disponibilidad por tipo y por plaza/cama (Gestión Operativa).
+Residence owner y staff con el permiso `operations.rooms_availability` (DR11) pueden: editar disponibilidad, marcar completa, pausar solicitudes, gestionar disponibilidad por tipo y por plaza/cama (Gestión Operativa).
 
 Admin puede: pausar disponibilidad, marcar información vencida, penalizar visibilidad, revisar rechazos por falta de disponibilidad, generar alertas.
 
@@ -934,7 +919,7 @@ El familiar **no puede** entrar en nombre del estudiante sin acción/autorizaci�
 
 ### 13.2. Gestionar lista de espera
 
-Residence owner y staff autorizado pueden: ver lista de espera, contactar interesados, eliminar estudiantes manualmente, notificar disponibilidad.
+Todo staff activo puede ver la lista de espera; contactar interesados, eliminar estudiantes manualmente y notificar disponibilidad requiere el permiso `waitlist.manage` (DR11) (el owner siempre puede).
 
 No pueden convertir lista de espera en solicitud activa sin acción del estudiante.
 
@@ -956,7 +941,7 @@ El familiar puede sugerir o consultar, pero no inicia solicitud de renovación f
 
 ### 14.2. Crear oferta formal de renovación
 
-Pueden hacerlo: residence_owner, residence_staff con permiso `renewals.create_offer`, admin en caso excepcional.
+Pueden hacerlo: residence_owner, residence_staff (DR10), admin en caso excepcional.
 
 ### 14.3. Aceptar o rechazar renovación
 
@@ -964,7 +949,7 @@ Solo el estudiante puede hacerlo. El familiar puede pagar el fee, pero no acepta
 
 ### 14.4. Confirmar pago recibido por renovación
 
-Residence owner o staff autorizado. Con confirmación explícita y auditoría.
+Residence owner o staff con el permiso `renewals.manage` (DR11). Con confirmación explícita y auditoría.
 
 ### 14.5. Emitir Comprobante de Renovación Confirmada
 
@@ -982,8 +967,8 @@ Reglas en `docs/04` §12bis.
 | Confirmar el aviso de un menor | Solo el familiar vinculado activo. No crea, edita ni cancela. |
 | Ver el aviso | Estudiante; familiar vinculado (solo lectura, **sin el mensaje privado del estudiante**); residencia actual (owner/staff con acceso a residentes); admin. |
 | Responder el aviso (costos, condiciones, detalles) | residence_owner y residence_staff con acceso a residentes de la residencia actual; admin en caso excepcional. |
-| Definir la política de salida anticipada (perfil) | residence_owner o staff con permiso de edición del perfil. Es pública en la ficha. |
-| Finalizar la estadía con salida anticipada (depósito devuelto / no devuelto / sin depósito, nota) | **Solo la residencia actual** (owner o staff autorizado) o admin; nunca el estudiante, el aviso ni el sistema. |
+| Definir la política de salida anticipada (perfil) | `residence_owner`, o staff con `profile.edit` (DR11). Es pública en la ficha. |
+| Finalizar la estadía con salida anticipada (depósito devuelto / no devuelto / sin depósito, nota) | **Solo la residencia actual** (owner o staff con `residents.manage` (DR11)) o admin; nunca el estudiante, el aviso ni el sistema. |
 | Agregar nota de salida del estudiante | Solo el estudiante. |
 | Ver la señal "en proceso de mudanza" | La residencia que recibe la solicitud o lista de espera; sin acceso al aviso ni a la residencia de origen. |
 
@@ -993,7 +978,7 @@ Reglas en `docs/04` §12bis.
 
 ### 15.1. Crear residente pendiente
 
-Residence owner o staff autorizado puede crear un residente pendiente con email.
+Residence owner o staff con `residents.manage` (DR11) puede crear un residente pendiente con email.
 
 El residente debe activar cuenta y completar registro para mostrar perfil ampliado.
 
@@ -1017,7 +1002,7 @@ Nunca se muestran: apellido completo, email, teléfono, fecha de nacimiento, uni
 
 ## 16. Permisos sobre FAQ
 
-Residence owner y staff autorizado pueden: elegir preguntas del listado predefinido, cargar respuestas, subir archivos (reglamento, normas), agregar preguntas personalizadas, ver preguntas no respondidas.
+Residence owner puede: elegir preguntas del listado predefinido, cargar respuestas, subir archivos (reglamento, normas), agregar preguntas personalizadas, ver preguntas no respondidas. El staff con `profile.edit` también edita las preguntas del perfil; con `faq.manage` (DR11) responde, oculta y restaura las preguntas libres de la ficha.
 
 Admin puede: revisar contenido, pausar respuestas incorrectas, auditar cambios, intervenir si hay información engañosa.
 
@@ -1029,7 +1014,7 @@ El FAQ/bot no puede: inventar disponibilidad, confirmar precios fuera de datos o
 
 ### 17.1. Abrir reclamo
 
-Pueden abrir reclamo: estudiante, familiar vinculado, residencia owner, staff autorizado, admin.
+Pueden abrir reclamo: estudiante, familiar vinculado, residencia owner, todo staff activo (sin casillero, DR11), admin.
 
 Debe mostrarse recordatorio de términos, alcance y deslinde de responsabilidad antes de confirmar.
 
@@ -1182,7 +1167,7 @@ Deben pedir confirmación explícita antes de ejecutarse:
 10. Estudiante acepta propuesta de ajuste → snapshot_final actualizado, fee recalculado.
 11. Estudiante rechaza propuesta de ajuste y elige continuar con condiciones originales → snapshot_final = snapshot_original.
 12. Familiar intenta aceptar propuesta de ajuste en nombre del estudiante → bloqueado.
-13. Residence staff sin permiso intenta marcar pago recibido → bloqueado.
+13. Residence staff intenta algo para lo que el dueño no le dio permiso (por ejemplo rechazar una solicitud sin `applications.reject` o proponer un ajuste sin `applications.send_adjustment`) → bloqueado en el servidor con «No tenés permiso para esta acción. Pedíselo al dueño de la residencia.» (DR11). Si intenta algo no delegable (gestionar el equipo y los permisos, enviar el perfil a verificación, ver el reporte PDF, sumar otra residencia) → bloqueado con «Esta acción la puede hacer solo el dueño de la residencia.»
 14. Residence staff intenta ver solicitudes de residencia a la que no fue asignado → bloqueado.
 15. Residence owner intenta publicar sin verificación → bloqueado.
 16. Residencia intenta editar foto crítica sin aprobación → queda en `pending_admin_review`.
@@ -1208,7 +1193,7 @@ Deben pedir confirmación explícita antes de ejecutarse:
 
 ## 22. Pendientes no bloqueantes
 
-- Permisos exactos de cada preset de residence_staff (se pueden ajustar según feedback de residencias beta).
+- Presets fijos de residence_staff por rol de negocio (`staff_viewer`, `staff_applications`, `staff_operations`, `staff_renewals`, `staff_manager`): **reemplazados por DR11** por 10 permisos que elige el dueño y 3 atajos que rellenan casilleros (§4.7). Siguen fuera de alcance los permisos finos por rol de negocio y los permisos sobre pantallas del admin.
 - Textos finales de confirmación por acción crítica.
 - Política legal final sobre menores de edad.
 - Política legal final sobre no reembolso.

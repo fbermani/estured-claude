@@ -1,7 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
-import { assertResidenceAccess } from "@/lib/residences/access";
+import { assertResidencePermission } from "@/lib/residences/access";
 
 export type NotifyWaitlistAvailabilityResult = { ok: true } | { ok: false; error: string };
 
@@ -23,8 +23,9 @@ export async function notifyWaitlistAvailability(
     .maybeSingle();
   if (!entry) return { ok: false, error: "No encontramos esa entrada de lista de espera." };
 
-  const hasAccess = await assertResidenceAccess(admin, params.actorUserId, entry.residence_id);
-  if (!hasAccess) return { ok: false, error: "No tenés acceso a esa residencia." };
+  const access = await assertResidencePermission(admin, params.actorUserId, entry.residence_id, "waitlist.manage");
+  if (!access.ok) return { ok: false, error: access.error };
+  const actorRole = access.actorRole;
   if (entry.status !== "active") return { ok: false, error: "Esta entrada no está activa." };
 
   const { error } = await admin
@@ -38,7 +39,7 @@ export async function notifyWaitlistAvailability(
 
   await createAuditLog(admin, {
     actorUserId: params.actorUserId,
-    actorRole: "residence_owner",
+    actorRole,
     action: "waitlist_availability_notified",
     entityType: "waitlist_entries",
     entityId: entry.id,

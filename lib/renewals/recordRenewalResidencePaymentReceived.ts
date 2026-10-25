@@ -1,7 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
-import { assertResidenceAccess } from "@/lib/residences/access";
+import { assertResidencePermission } from "@/lib/residences/access";
 
 export type RecordRenewalResidencePaymentReceivedResult =
   | { ok: true; residenceId: string }
@@ -53,8 +53,9 @@ export async function recordRenewalResidencePaymentReceived(
     .single();
   if (!studentUser) return { ok: false, error: "No encontramos al estudiante de esta renovación." };
 
-  const hasAccess = await assertResidenceAccess(admin, params.actorUserId, offer.residence_id);
-  if (!hasAccess) return { ok: false, error: "No tenés acceso a esa residencia." };
+  const access = await assertResidencePermission(admin, params.actorUserId, offer.residence_id, "renewals.manage");
+  if (!access.ok) return { ok: false, error: access.error };
+  const actorRole = access.actorRole;
   if (offer.status !== "residence_payment_pending") {
     return { ok: false, error: "Esta renovación no está esperando pago a la residencia." };
   }
@@ -155,11 +156,11 @@ export async function recordRenewalResidencePaymentReceived(
 
     await createAuditLog(admin, {
       actorUserId: params.actorUserId,
-      actorRole: "residence_owner",
+      actorRole,
       action: "renewal_residence_payment_marked_received",
       entityType: "renewal_offers",
       entityId: offer.id,
-      newValue: { estured_fee_payment_id: feePayment.id },
+      newValue: { permission: access.permission, estured_fee_payment_id: feePayment.id },
     });
 
     return { ok: true, residenceId: offer.residence_id };

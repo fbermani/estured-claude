@@ -73,6 +73,70 @@ export function hasStructuralRoomTypeChange(
   return false;
 }
 
+/** Mensaje cuando el formulario trae el id de un tipo de habitación que no es de esta residencia (o que ya no existe). */
+export const ROOM_TYPE_NOT_OWNED_MESSAGE =
+  "Uno de los tipos de habitación no pertenece a esta residencia. Recargá la página e intentá de nuevo.";
+
+/**
+ * IDOR: el formulario del perfil manda el `id` de cada tipo de habitación y ese dato viaja del cliente. Devuelve los ids entrantes que NO
+ * están entre los tipos de ESTA residencia (activos o no). Puro: quien llama le pasa los ids que leyó de la base filtrando por residencia.
+ */
+export function findForeignRoomTypeIds(ownIds: Iterable<string>, incoming: { id?: string }[]): string[] {
+  const own = new Set(ownIds);
+  return incoming.map((rt) => rt.id).filter((id): id is string => !!id && !own.has(id));
+}
+
+/**
+ * Valida (leyendo la base, filtrando por residencia) que todo `rt.id` entrante sea un tipo de habitación de ESTA residencia. Se llama ANTES
+ * de escribir nada: un id de otra residencia rechaza el guardado completo. Sin ids entrantes no consulta nada.
+ */
+export async function assertRoomTypesBelongToResidence(
+  admin: SupabaseClient,
+  residenceId: string,
+  roomTypes: { id?: string }[],
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const incomingIds = roomTypes.map((rt) => rt.id).filter((id): id is string => !!id);
+  if (incomingIds.length === 0) return { ok: true };
+  const { data, error } = await admin.from("room_types").select("id").eq("residence_id", residenceId).in("id", incomingIds);
+  if (error) {
+    console.error("[profile-edits] room types ownership read failed:", error);
+    return { ok: false, error: "No pudimos verificar los tipos de habitación. Intentá de nuevo en unos minutos." };
+  }
+  const own = (data ?? []).map((r) => r.id as string);
+  return findForeignRoomTypeIds(own, roomTypes).length > 0 ? { ok: false, error: ROOM_TYPE_NOT_OWNED_MESSAGE } : { ok: true };
+}
+
+interface ExistingRoomTypeRow {
+  id: string;
+  name: string;
+  is_active: boolean;
+  capacity_per_room: number | null;
+}
+
+/**
+ * DR11: ¿este guardado cambia la ESTRUCTURA de habitaciones y camas? Es lo que exige además `operations.rooms_availability` (no alcanza con
+ * `profile.edit`): agregar un tipo, quitar uno, reactivar uno desactivado, cambiar su nombre (es su identidad), la cantidad de habitaciones
+ * activas o las plazas por habitación. Género, baño, características y tarifa NO son estructura de habitaciones (son datos del perfil).
+ */
+export function changesRoomStructure(
+  existing: ExistingRoomTypeRow[],
+  activeRoomCountByType: Map<string, number>,
+  incoming: RoomTypeEditInput[],
+): boolean {
+  const byId = new Map(existing.map((t) => [t.id, t]));
+  const incomingIds = new Set(incoming.map((rt) => rt.id).filter(Boolean) as string[]);
+  if (existing.some((t) => t.is_active && !incomingIds.has(t.id))) return true;
+  for (const rt of incoming) {
+    if (!rt.id) return true;
+    const current = byId.get(rt.id);
+    if (!current || !current.is_active) return true;
+    if (current.name !== rt.name) return true;
+    if ((activeRoomCountByType.get(rt.id) ?? 0) !== rt.roomCount) return true;
+    if ((current.capacity_per_room ?? 1) !== rt.capacityPerRoom) return true;
+  }
+  return false;
+}
+
 /**
  * Reemplaza cualquier edición previa del mismo `field_group` que
  * siguiera pendiente (se supera por la nueva) y crea la fila nueva.
@@ -126,15 +190,27 @@ export async function applyRoomTypesUpdate(
   const { residenceId, sessionUserId, roomTypes, arsPerUsd } = params;
   const warnings: string[] = [];
 
-  const { data: existingTypes } = await admin
+  const { data: existingTypes, error: existingError } = await admin
     .from("room_types")
     .select("id, is_active, monthly_price_usd")
     .eq("residence_id", residenceId);
+  if (existingError) {
+    console.error("[profile-edits] room types read failed:", existingError);
+    return { ok: false, error: "No pudimos leer los tipos de habitación actuales." };
+  }
+  // IDOR: ningún id entrante puede ser de otra residencia. Se valida contra los tipos de ESTA residencia ANTES de escribir nada.
+  if (findForeignRoomTypeIds((existingTypes ?? []).map((t) => t.id as string), roomTypes).length > 0) {
+    return { ok: false, error: ROOM_TYPE_NOT_OWNED_MESSAGE };
+  }
   const priceById = new Map((existingTypes ?? []).map((t) => [t.id, Number(t.monthly_price_usd)]));
   const draftIds = new Set(roomTypes.map((rt) => rt.id).filter(Boolean));
   const removed = (existingTypes ?? []).filter((t) => t.is_active && !draftIds.has(t.id));
   if (removed.length > 0) {
-    const { error } = await admin.from("room_types").update({ is_active: false }).in("id", removed.map((t) => t.id));
+    const { error } = await admin
+      .from("room_types")
+      .update({ is_active: false })
+      .in("id", removed.map((t) => t.id))
+      .eq("residence_id", residenceId);
     if (error) return { ok: false, error: "No pudimos desactivar tipos de habitación quitados." };
     for (const t of removed) {
       const sync = await syncRoomsAndBeds(admin, { residenceId, roomTypeId: t.id, desiredRoomCount: 0, capacityPerRoom: 1 });
@@ -157,8 +233,14 @@ export async function applyRoomTypesUpdate(
 
     let roomTypeId = rt.id ?? null;
     if (roomTypeId) {
-      const { error } = await admin.from("room_types").update(baseFields).eq("id", roomTypeId);
-      if (error) return { ok: false, error: "No pudimos actualizar un tipo de habitación." };
+      // Filtrado también por residencia y con chequeo de filas: nunca toca un tipo que no sea de esta residencia.
+      const { data: updatedRows, error } = await admin
+        .from("room_types")
+        .update(baseFields)
+        .eq("id", roomTypeId)
+        .eq("residence_id", residenceId)
+        .select("id");
+      if (error || !updatedRows || updatedRows.length === 0) return { ok: false, error: "No pudimos actualizar un tipo de habitación." };
       const oldPrice = priceById.get(roomTypeId) ?? null;
       await logTariffChange(admin, {
         residenceId,

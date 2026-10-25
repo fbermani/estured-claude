@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatUsd } from "@/lib/mock/exchange";
-import { ApplicationActions } from "@/app/residence/[residence_id]/applications/[id]/ApplicationActions";
+import { ApplicationActions, type ApplicationAllowed } from "@/app/residence/[residence_id]/applications/[id]/ApplicationActions";
 import { getVisibleStatus, type ReservationStatusInput } from "@/lib/applications/visibleStatus";
 import { describePaymentDeadline } from "@/lib/applications/paymentDeadline";
 import type { ApplicantProfileView } from "@/lib/applications/applicantProfile";
@@ -209,10 +209,13 @@ export function ApplicationsInbox({
   residenceId,
   applications,
   initialSelectedId,
+  allowed,
 }: {
   residenceId: string;
   applications: FullApplication[];
   initialSelectedId: string | null;
+  /** DR11: permisos de quien mira, resueltos en el servidor (solo presentación; cada acción se valida en el servidor). */
+  allowed: ApplicationAllowed;
 }) {
   const groups = useMemo(() => groupApplications(applications), [applications]);
   const firstEntryId = groups[0]?.entries[0]?.id ?? null;
@@ -263,7 +266,7 @@ export function ApplicationsInbox({
   );
 
   const DetailColumn = selected ? (
-    <ApplicationDetail residenceId={residenceId} app={selected} />
+    <ApplicationDetail residenceId={residenceId} app={selected} allowed={allowed} />
   ) : (
     <div className="flex h-full items-center justify-center rounded-card border-[1.5px] border-dashed border-line p-8 text-center text-sm text-ink-faint">
       Elegí una solicitud de la lista para ver el detalle.
@@ -303,7 +306,7 @@ export function ApplicationsInbox({
   );
 }
 
-function ApplicationDetail({ residenceId, app }: { residenceId: string; app: FullApplication }) {
+function ApplicationDetail({ residenceId, app, allowed }: { residenceId: string; app: FullApplication; allowed: ApplicationAllowed }) {
   const visible = visibleOf(app);
 
   return (
@@ -418,6 +421,7 @@ function ApplicationDetail({ residenceId, app }: { residenceId: string; app: Ful
           reservation={app.reservation}
           whatsappUrl={app.whatsappUrl}
           paymentDeadlineAt={app.paymentDeadlineAt}
+          allowed={allowed}
         />
       </div>
     </Card>

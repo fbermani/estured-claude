@@ -32,11 +32,26 @@ export async function syncRoomsAndBeds(
   const capacity = Math.min(BED_LETTERS.length, Math.max(1, params.capacityPerRoom));
   const desired = Math.max(0, params.desiredRoomCount);
 
+  // IDOR: el tipo de habitación tiene que ser de ESTA residencia. Sin esto, un `roomTypeId` ajeno mezclaba habitaciones y camas de otra
+  // residencia (las lecturas eran solo por `room_type_id`). Todas las lecturas y escrituras de abajo filtran además por residencia.
+  const { data: ownType, error: ownTypeError } = await admin
+    .from("room_types")
+    .select("id")
+    .eq("id", params.roomTypeId)
+    .eq("residence_id", params.residenceId)
+    .maybeSingle();
+  if (ownTypeError) {
+    console.error("[rooms] sync type read failed:", ownTypeError);
+    return { ok: false, error: "No pudimos leer las habitaciones actuales." };
+  }
+  if (!ownType) return { ok: false, error: "Ese tipo de habitación no pertenece a esta residencia." };
+
   const [{ data: rooms, error: roomsError }, { data: stays }] = await Promise.all([
     admin
       .from("rooms")
       .select("id, label, sort_order, is_active")
       .eq("room_type_id", params.roomTypeId)
+      .eq("residence_id", params.residenceId)
       .order("sort_order", { ascending: true }),
     admin
       .from("resident_stays")
@@ -61,7 +76,8 @@ export async function syncRoomsAndBeds(
       const { error } = await admin
         .from("rooms")
         .update({ is_active: true })
-        .in("id", toReactivate.map((r) => r.id));
+        .in("id", toReactivate.map((r) => r.id))
+        .eq("residence_id", params.residenceId);
       if (error) return { ok: false, error: "No pudimos reactivar habitaciones." };
     }
     const stillMissing = desired - active.length - toReactivate.length;
@@ -92,7 +108,8 @@ export async function syncRoomsAndBeds(
       const { error } = await admin
         .from("rooms")
         .update({ is_active: false })
-        .in("id", removable.map((r) => r.id));
+        .in("id", removable.map((r) => r.id))
+        .eq("residence_id", params.residenceId);
       if (error) return { ok: false, error: "No pudimos dar de baja habitaciones." };
     }
   }
@@ -102,6 +119,7 @@ export async function syncRoomsAndBeds(
     .from("rooms")
     .select("id")
     .eq("room_type_id", params.roomTypeId)
+    .eq("residence_id", params.residenceId)
     .eq("is_active", true);
   const activeIds = (freshRooms ?? []).map((r) => r.id);
   if (activeIds.length === 0) return { ok: true, warnings };
@@ -141,7 +159,8 @@ export async function syncRoomsAndBeds(
       warnings.push("Alguna cama sobrante no se pudo quitar porque tiene un residente asignado.");
     }
     if (deletable.length > 0) {
-      await admin.from("beds").delete().in("id", deletable.map((b) => b.id));
+      // Solo camas de las habitaciones activas de esta residencia (`activeIds` sale de lecturas filtradas por residencia).
+      await admin.from("beds").delete().in("id", deletable.map((b) => b.id)).in("room_id", activeIds);
     }
   }
 

@@ -31,6 +31,16 @@ Textos legales para el asesor (suma de esta ronda): intro y consecuencias de `/s
 
 Con la validación manual del fee el admin carga el monto realmente recibido (se guarda y se audita), pero `confirmReservationAfterFeePaid` emite el comprobante verificable y deja `fiscal_invoice_status = pending_issue` usando `fee_amount_ars`/`fee_amount_usd` esperados. Si se aceptó una diferencia (checkbox, piso del 90 % para superadmin), comprobante y factura no reflejan lo cobrado. **Decidir:** emitir por el monto recibido, exigir regularizar la diferencia antes de confirmar, o dejarlo como está. Registrado en `docs/00` DR8 (7) y `docs/04` §8.10.
 
+## [RESUELTO] La auditoría del día a día marcaba `actor_role = residence_owner` aunque actuara un staff (Ciclo 73, DR10)
+
+Resuelto en la revisión del Ciclo 73: `residenceActorRole(membership)` (`lib/residences/permissions.ts`) en todas las acciones del día a día, `assertResidenceOwner`/`assertResidencePermission` devuelven el `actorRole`, y `lib/residences/actorRoleCoverage.test.ts` falla si vuelve a aparecer el literal. Los registros viejos conservan el rol que tenían.
+
+## [ABIERTO — decisiones del dueño] Equipo de la residencia (Ciclos 73–74, DR10/DR11)
+
+(a) ¿El staff puede crear ofertas de renovación con precio, depósito y matrícula mientras la propuesta de ajuste de una solicitud tiene su propio permiso (apagado por defecto)? Hoy `renewals.manage` las cubre (B9). (b) Control de edad (mayor de 18) al crear la cuenta de staff por invitación (B3). (c) Regla de WAF de Vercel para `POST /register/staff/*` y `/login` y un limitador persistente (el de aceptación es en memoria, por instancia) (B5). (d) Formato y dominio del remitente de email (el sandbox de Resend solo entrega al dueño de la cuenta Resend). Notas técnicas: `residence_users.invited_by` (0003) no tiene `on delete`: borrar la cuenta de un dueño que invitó staff falla; el límite de envíos por hora se cuenta desde `audit_logs` y depende de que la auditoría escriba; los avisos del equipo (nueva solicitud, renovaciones…) llegan a todo staff aunque no tenga el permiso de actuar.
+
+---
+
 ## [ABIERTO — decisiones D1–D11 documentadas, código pendiente] Fase 2 de la auditoría 2026-10-20
 
 **Qué es:** el dueño resolvió D1–D11 (`docs/00` §31; fuente `docs/audits/PLAN_ACCION_2026-10-20.md`) y los docs de producto ya reflejan cada una (protocolo `docs/13` §5: doc primero). Lo que **todavía no está implementado** (no confundir con "decidido"): D2 pantalla de pago con datos de transferencia + config admin de cobro (H02), D3 fuente única de disponibilidad por tipo de habitación (H03), D4 control de visibilidad del estudiante + consentimiento + menores ocultos (H04), D6 vencimiento de `contact_established` (H06), D7 campo "pago inicial para reservar" (H08, requiere migración), D8 quitar la frontera freemium de sidebar/"Tu plan"/`/for-residences` (H09), D9 FAQ simple con pregunta libre (H12), D10 reset de contraseña + `/terms` (H13/H19), D11 alertas de estadía vencida (H18). Cada ítem está en la tabla de Fase 2 del plan de acción; el estado vivo está en `MEMORY.md` §14.

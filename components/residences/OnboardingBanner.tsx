@@ -23,10 +23,13 @@ export function OnboardingBanner({
   copy,
   checklist,
   residenceId,
+  ownerOnlyNote = false,
 }: {
   copy: OnboardingBannerCopy;
   checklist: ChecklistItem[];
   residenceId: string;
+  /** DR10: para el staff el botón de completar/reenviar el perfil se reemplaza por una nota (solo presentación). */
+  ownerOnlyNote?: boolean;
 }) {
   return (
     <section
@@ -44,7 +47,10 @@ export function OnboardingBanner({
             </blockquote>
           )}
           <p className="mt-2 text-sm text-ink-soft">{copy.meanwhile}</p>
-          {copy.cta && (
+          {copy.cta && ownerOnlyNote && (
+            <p className="mt-3 text-sm font-semibold text-ink-soft">Esto lo completa y lo envía el dueño de la residencia.</p>
+          )}
+          {copy.cta && !ownerOnlyNote && (
             <Link
               href={`/residence/${residenceId}/${copy.cta.href}`}
               className="mt-3 inline-flex items-center gap-1.5 rounded-field bg-forest px-4 py-2 text-sm font-bold text-white hover:bg-forest-600"

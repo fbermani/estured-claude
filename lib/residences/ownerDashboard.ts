@@ -1,5 +1,6 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { normalizeResidenceRole } from "@/lib/residences/permissions";
 import { getStaleAvailabilityByResidence, staleAvailabilityMessage } from "@/lib/residences/staleAvailability";
 
 const STATUS_COPY: Record<string, { label: string; tone: "neutral" | "amber" | "sage" }> = {
@@ -34,6 +35,8 @@ type ResidenceRow = {
 
 export type OwnerResidenceCardData = {
   residenceId: string;
+  /** Rol de la persona en ESTA residencia (DR10): el staff ve la tarjeta pero no edita el perfil. */
+  role: "owner" | "staff";
   name: string;
   zone: string;
   statusLabel: string;
@@ -60,14 +63,17 @@ export type OwnerResidenceCardData = {
 export async function getOwnerResidenceCards(
   admin: SupabaseClient,
   userId: string,
+  options: { ownerOnly?: boolean } = {},
 ): Promise<OwnerResidenceCardData[]> {
-  const residences = (
+  const rows = (
     await admin
       .from("residence_users")
       .select("role, residences(id, name, public_area, status, tagline)")
       .eq("user_id", userId)
       .eq("is_active", true)
   ).data ?? [];
+  // DR10: el reporte PDF del portfolio es solo del dueño y solo incluye las residencias donde la persona es dueña.
+  const residences = options.ownerOnly ? rows.filter((ru) => ru.role === "owner") : rows;
 
   const staleByResidence = await getStaleAvailabilityByResidence(
     admin,
@@ -123,6 +129,7 @@ export async function getOwnerResidenceCards(
 
       return {
         residenceId: r.id,
+        role: normalizeResidenceRole(ru.role),
         name: r.name,
         zone: r.public_area ? `${r.public_area}, CABA` : "Zona sin definir",
         statusLabel: badge.label,

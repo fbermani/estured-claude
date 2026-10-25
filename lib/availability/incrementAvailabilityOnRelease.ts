@@ -17,16 +17,22 @@ import type { SupabaseClient } from "@supabase/supabase-js";
  * `updateAvailability.ts`), así que esto es un +1 simple, simétrico al
  * -1 existente, no un recálculo desde las camas reales.
  *
+ * Quien llama decide CUÁNDO reponer (solo si la estadía ocupaba una plaza: `endResidentStay`); acá solo se repone, siempre dentro de la
+ * residencia indicada.
+ *
  * Nunca lanza: liberar una plaza no debe poder tumbar la operación que
  * la originó por un problema de disponibilidad (mismo criterio que
  * `removeWaitlistEntriesOnConfirmedReservation.ts`).
  */
-export async function incrementAvailabilityOnRelease(admin: SupabaseClient, roomTypeId: string): Promise<void> {
+export async function incrementAvailabilityOnRelease(admin: SupabaseClient, roomTypeId: string, residenceId: string): Promise<void> {
   try {
+    // IDOR: se filtra TAMBIÉN por la residencia de la estadía que se cierra. Antes el `roomTypeId` (que podía venir cargado a mano en la
+    // estadía) bastaba para sumarle disponibilidad al tipo de habitación de OTRA residencia.
     const { data: availability } = await admin
       .from("profile_availability")
       .select("id, available_count, status")
       .eq("room_type_id", roomTypeId)
+      .eq("residence_id", residenceId)
       .maybeSingle();
     if (!availability) return;
 
@@ -36,7 +42,8 @@ export async function incrementAvailabilityOnRelease(admin: SupabaseClient, room
     await admin
       .from("profile_availability")
       .update({ available_count: nextCount, status: nextStatus })
-      .eq("id", availability.id);
+      .eq("id", availability.id)
+      .eq("residence_id", residenceId);
   } catch (error) {
     console.error("[availability] incrementAvailabilityOnRelease failed:", error);
   }

@@ -1,5 +1,6 @@
 import { formatShortName } from "@/lib/format/shortName";
 import "server-only";
+import { rowCan, type ResidencePermission } from "@/lib/residences/permissions";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 /**
@@ -24,18 +25,26 @@ export async function loadActiveFamilyUserIds(admin: SupabaseClient, studentProf
     .filter((id): id is string => !!id);
 }
 
-/** user_id de owner/staff activos de la residencia. */
-export async function loadResidenceUserIds(admin: SupabaseClient, residenceId: string): Promise<string[]> {
+/**
+ * user_id de los destinatarios de la residencia: el dueño siempre y el staff activo que tiene el permiso (DR11). Por defecto
+ * `residents.manage` (responde "Quiero cambiar" y las salidas anticipadas); sin `permissions` guardado el staff falla cerrado.
+ */
+export async function loadResidenceUserIds(
+  admin: SupabaseClient,
+  residenceId: string,
+  permission: ResidencePermission = "residents.manage",
+): Promise<string[]> {
   const { data, error } = await admin
     .from("residence_users")
-    .select("user_id")
+    .select("user_id, role, permissions")
     .eq("residence_id", residenceId)
     .eq("is_active", true);
   if (error) {
     console.error("[stayChange] no se pudo leer el equipo de la residencia:", error);
     return [];
   }
-  return [...new Set((data ?? []).map((row) => row.user_id as string))];
+  const rows = (data ?? []) as { user_id: string; role: string | null; permissions: unknown }[];
+  return [...new Set(rows.filter((row) => rowCan(row, permission)).map((row) => row.user_id))];
 }
 
 /** "Lucía F." — nombre corto que ya ven las residencias en sus bandejas. */

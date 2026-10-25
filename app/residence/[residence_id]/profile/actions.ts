@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
-import { assertResidenceAccess } from "@/lib/residences/access";
+import { assertResidenceOwner, assertResidencePermission } from "@/lib/residences/access";
 import { createAuditLog } from "@/lib/audit";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 import {
@@ -15,11 +15,23 @@ import {
   ADJUSTMENT_POLICY_OPTIONS,
   ROOM_FEATURE_OPTIONS,
 } from "@/lib/residences/options";
-import { applyRoomTypesUpdate, hasStructuralRoomTypeChange, stageProfileEdit, type RoomTypeEditInput } from "@/lib/residences/profileEdits";
+import {
+  applyRoomTypesUpdate,
+  changesRoomStructure,
+  findForeignRoomTypeIds,
+  hasStructuralRoomTypeChange,
+  ROOM_TYPE_NOT_OWNED_MESSAGE,
+  stageProfileEdit,
+  type RoomTypeEditInput,
+} from "@/lib/residences/profileEdits";
 import { logTariffChange } from "@/lib/residences/tariffLog";
 import { SUBMITTABLE_RESIDENCE_STATUSES, VERIFICATION_STATUSES_RESET_ON_SUBMIT, isMissingColumnError, isResubmission } from "@/lib/residences/changesRequest";
 import { validateEarlyExitPolicy } from "@/lib/stayChange/validate";
 import { describeInitialPaymentForLog, initialPaymentConfigFromRow, parseInitialPaymentInput, type InitialPaymentConfig } from "@/lib/reservations/initialPayment";
+
+/** Mensaje cuando un staff con `profile.edit` (sin `operations.rooms_availability`) intenta cambiar la estructura de habitaciones o plazas. */
+const ROOM_STRUCTURE_PERMISSION_MESSAGE =
+  "Cambiar la cantidad de habitaciones o plazas requiere el permiso de Habitaciones y disponibilidad. Pedíselo al dueño.";
 
 export type ProfileFormState = {
   status: "idle" | "error" | "saved" | "submitted" | "saved_pending_review";
@@ -147,8 +159,15 @@ export async function saveResidenceProfile(
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento. Probá más tarde." };
 
-  const hasAccess = await assertResidenceAccess(admin, sessionUser.id, residenceId);
-  if (!hasAccess) return { status: "error", message: "No tenés acceso a esta residencia." };
+  // DR11: guardar el perfil, las tarifas y las condiciones requiere el permiso `profile.edit` (apagado por defecto para el staff; el
+  // dueño siempre puede). Enviar o reenviar a verificación (`intent = "submit"`) sigue siendo SOLO del dueño, no delegable.
+  // El rol y los permisos salen de `residence_users` en el servidor, nunca del formulario.
+  const intent = String(formData.get("intent") ?? "draft");
+  const accessCheck =
+    intent === "submit"
+      ? await assertResidenceOwner(admin, sessionUser.id, residenceId)
+      : await assertResidencePermission(admin, sessionUser.id, residenceId, "profile.edit");
+  if (!accessCheck.ok) return { status: "error", message: accessCheck.error };
 
   const { data: residenceRow } = await admin
     .from("residences")
@@ -161,7 +180,6 @@ export async function saveResidenceProfile(
   const wasNeedsChanges = isResubmission(residenceRow?.status);
   const previousResidenceStatus = (residenceRow?.status as string | undefined) ?? "needs_changes";
 
-  const intent = String(formData.get("intent") ?? "draft");
   const tagline = String(formData.get("tagline") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const rulesSummary = String(formData.get("rules_summary") ?? "").trim();
@@ -215,6 +233,36 @@ export async function saveResidenceProfile(
       return { status: "error", message: "Agregá al menos un tipo de habitación antes de enviar." };
   }
 
+  // Tipos y habitaciones ACTUALES de esta residencia, leídos antes de escribir nada: sirven para (1) rechazar ids de tipos de habitación
+  // que no son de esta residencia (IDOR: el `id` de cada tipo viaja del cliente) y (2) decidir si el guardado cambia la estructura de
+  // habitaciones y camas (DR11).
+  const { data: existingTypesFull, error: existingTypesError } = await admin
+    .from("room_types")
+    .select("id, name, is_active, gender_policy, bathroom_type, features, capacity_per_room")
+    .eq("residence_id", residenceId);
+  const { data: existingRooms, error: existingRoomsError } = await admin
+    .from("rooms")
+    .select("id, room_type_id")
+    .eq("residence_id", residenceId)
+    .eq("is_active", true);
+  if (existingTypesError || existingRoomsError) {
+    console.error("[residence-profile] room structure read failed:", existingTypesError ?? existingRoomsError);
+    return { status: "error", message: "No pudimos leer los tipos de habitación actuales. Intentá de nuevo en unos minutos." };
+  }
+  if (findForeignRoomTypeIds((existingTypesFull ?? []).map((t) => t.id as string), roomTypes).length > 0) {
+    return { status: "error", message: ROOM_TYPE_NOT_OWNED_MESSAGE };
+  }
+  const roomCountByType = new Map<string, number>();
+  for (const r of existingRooms ?? []) {
+    roomCountByType.set(r.room_type_id, (roomCountByType.get(r.room_type_id) ?? 0) + 1);
+  }
+  // DR11: `profile.edit` no alcanza para cambiar cuántas habitaciones o plazas tiene la residencia (agregar o quitar tipos, reactivarlos,
+  // cambiar la cantidad de habitaciones o de plazas por habitación): además hace falta `operations.rooms_availability`. El dueño siempre puede.
+  if (changesRoomStructure(existingTypesFull ?? [], roomCountByType, roomTypes)) {
+    const rooms = await assertResidencePermission(admin, sessionUser.id, residenceId, "operations.rooms_availability");
+    if (!rooms.ok) return { status: "error", message: ROOM_STRUCTURE_PERMISSION_MESSAGE };
+  }
+
   const warnings: string[] = [];
   const pendingGroups: string[] = [];
 
@@ -258,7 +306,7 @@ export async function saveResidenceProfile(
     if (oldEarlyExit.deposit_clauses !== conditions.earlyExitDepositClausesText || oldEarlyExit.costs !== conditions.earlyExitCostsText || oldEarlyExit.conditions !== conditions.earlyExitConditionsText) {
       await createAuditLog(admin, {
         actorUserId: sessionUser.id,
-        actorRole: "residence_owner",
+        actorRole: accessCheck.actorRole,
         action: "residence_early_exit_policy_updated",
         entityType: "residences",
         entityId: residenceId,
@@ -501,19 +549,6 @@ export async function saveResidenceProfile(
     // el cambio es estructural (agrega/quita tipos, cambia cantidad de
     // habitaciones, género, baño o características). El precio solo NO
     // gatea (docs/09 §8.2: "Precios" se audita, no se aprueba antes).
-    const { data: existingTypesFull } = await admin
-      .from("room_types")
-      .select("id, name, is_active, gender_policy, bathroom_type, features, capacity_per_room")
-      .eq("residence_id", residenceId);
-    const { data: existingRooms } = await admin
-      .from("rooms")
-      .select("id, room_type_id")
-      .eq("residence_id", residenceId)
-      .eq("is_active", true);
-    const roomCountByType = new Map<string, number>();
-    for (const r of existingRooms ?? []) {
-      roomCountByType.set(r.room_type_id, (roomCountByType.get(r.room_type_id) ?? 0) + 1);
-    }
     const currentSnapshots = (existingTypesFull ?? [])
       .filter((t) => t.is_active)
       .map((t) => ({
@@ -543,10 +578,11 @@ export async function saveResidenceProfile(
       const draftIds = new Set(roomTypes.map((rt) => rt.id).filter(Boolean));
       const removed = (existingTypesFull ?? []).filter((t) => t.is_active && !draftIds.has(t.id));
       if (removed.length > 0) {
-        const { error } = await admin.from("room_types").update({ is_active: false }).in(
-          "id",
-          removed.map((t) => t.id),
-        );
+        const { error } = await admin
+          .from("room_types")
+          .update({ is_active: false })
+          .in("id", removed.map((t) => t.id))
+          .eq("residence_id", residenceId);
         if (error) throw error;
       }
       const rate = await getCurrentExchangeRate();
@@ -562,7 +598,7 @@ export async function saveResidenceProfile(
 
     await createAuditLog(admin, {
       actorUserId: sessionUser.id,
-      actorRole: "residence_owner",
+      actorRole: accessCheck.actorRole,
       // En un reenvío tras cambios pedidos, el evento propio es `residence_profile_resubmitted` (más abajo, ya confirmada la transición).
       action: intent === "submit" && !wasNeedsChanges ? "residence_profile_submitted" : "residence_profile_saved_draft",
       entityType: "residences",
@@ -629,7 +665,7 @@ export async function saveResidenceProfile(
 
         await createAuditLog(admin, {
           actorUserId: sessionUser.id,
-          actorRole: "residence_owner",
+          actorRole: accessCheck.actorRole,
           action: "residence_profile_resubmitted",
           entityType: "residences",
           entityId: residenceId,

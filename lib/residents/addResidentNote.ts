@@ -1,7 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
-import { assertResidenceAccess } from "@/lib/residences/access";
+import { assertResidencePermission } from "@/lib/residences/access";
 
 /**
  * Nota interna sobre un residente — sección "Notas Internas" de la
@@ -19,8 +19,9 @@ export async function addResidentNote(
     body: string;
   },
 ): Promise<{ ok: true; noteId: string } | { ok: false; error: string }> {
-  const hasAccess = await assertResidenceAccess(admin, params.actorUserId, params.residenceId);
-  if (!hasAccess) return { ok: false, error: "No tenés acceso a esta residencia." };
+  const access = await assertResidencePermission(admin, params.actorUserId, params.residenceId, "residents.manage");
+  if (!access.ok) return { ok: false, error: access.error };
+  const actorRole = access.actorRole;
 
   const body = params.body.trim();
   if (body.length === 0) return { ok: false, error: "Escribí algo antes de guardar la nota." };
@@ -49,11 +50,11 @@ export async function addResidentNote(
 
   await createAuditLog(admin, {
     actorUserId: params.actorUserId,
-    actorRole: "residence_owner",
+    actorRole,
     action: "resident_note_added",
     entityType: "resident_notes",
     entityId: note.id,
-    newValue: { resident_stay_id: params.residentStayId, category: params.category },
+    newValue: { permission: access.permission, resident_stay_id: params.residentStayId, category: params.category },
   });
   return { ok: true, noteId: note.id };
 }

@@ -111,7 +111,14 @@ export async function rollbackEarlyExitRecord(admin: SupabaseClient, residentSta
  */
 export async function finalizeEarlyExit(
   admin: SupabaseClient,
-  params: { stay: StayForExit & { student_profile_id: string | null }; actorUserId: string; prepared: PreparedEarlyExit; intentId: string | null },
+  params: {
+    stay: StayForExit & { student_profile_id: string | null };
+    actorUserId: string;
+    /** Rol real del vínculo con la residencia (dueño o staff), ya resuelto por quien validó el permiso. */
+    actorRole: string;
+    prepared: PreparedEarlyExit;
+    intentId: string | null;
+  },
 ): Promise<boolean> {
   try {
     const { stay, prepared } = params;
@@ -125,16 +132,9 @@ export async function finalizeEarlyExit(
         .in("status", ["confirmed", "receipt_pending", "receipt_issued"]);
     }
 
-    const { data: membership } = await admin
-      .from("residence_users")
-      .select("role")
-      .eq("residence_id", stay.residence_id)
-      .eq("user_id", params.actorUserId)
-      .eq("is_active", true)
-      .maybeSingle();
     await createAuditLog(admin, {
       actorUserId: params.actorUserId,
-      actorRole: membership?.role === "staff" ? "residence_staff" : "residence_owner",
+      actorRole: params.actorRole,
       action: "resident_stay_early_exit_recorded",
       entityType: "resident_stays",
       entityId: stay.id,

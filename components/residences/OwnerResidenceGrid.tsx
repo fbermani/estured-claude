@@ -8,6 +8,7 @@ type StatusTone = "neutral" | "amber" | "sage";
 
 type CardData = {
   residenceId: string;
+  role?: "owner" | "staff";
   name: string;
   zone: string;
   photoUrl: string | null;

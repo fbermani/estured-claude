@@ -2,7 +2,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { createNotification } from "@/lib/notifications/createNotification";
-import { assertResidenceAccess } from "@/lib/residences/access";
+import { assertResidencePermission } from "@/lib/residences/access";
 import { validateAnswer } from "@/lib/faq/validateFaq";
 
 export type ModerateResult = { ok: true } | { ok: false; error: string };
@@ -24,33 +24,22 @@ async function loadQuestion(
   admin: SupabaseClient,
   params: { actorUserId: string; residenceId: string; questionId: string },
 ): Promise<{ ok: true; row: QuestionRow; actorRole: string } | { ok: false; error: string }> {
-  const hasAccess = await assertResidenceAccess(admin, params.actorUserId, params.residenceId);
-  if (!hasAccess) return { ok: false, error: "No tenés acceso a esta residencia." };
+  // DR11: moderar las preguntas de la ficha requiere el permiso `faq.manage` (el dueño siempre puede).
+  const access = await assertResidencePermission(admin, params.actorUserId, params.residenceId, "faq.manage");
+  if (!access.ok) return { ok: false, error: access.error };
 
-  const [{ data: row, error: rowError }, { data: membership, error: membershipError }] = await Promise.all([
-    admin
-      .from("residence_faq_questions")
-      .select("id, residence_id, status, answer, asked_by_user_id, hidden_by_user_id")
-      .eq("id", params.questionId)
-      .eq("residence_id", params.residenceId)
-      .maybeSingle(),
-    admin
-      .from("residence_users")
-      .select("role")
-      .eq("residence_id", params.residenceId)
-      .eq("user_id", params.actorUserId)
-      .maybeSingle(),
-  ]);
-  if (rowError || membershipError) {
-    console.error("[faq] load failed:", (rowError ?? membershipError)?.code, (rowError ?? membershipError)?.message);
+  const { data: row, error: rowError } = await admin
+    .from("residence_faq_questions")
+    .select("id, residence_id, status, answer, asked_by_user_id, hidden_by_user_id")
+    .eq("id", params.questionId)
+    .eq("residence_id", params.residenceId)
+    .maybeSingle();
+  if (rowError) {
+    console.error("[faq] load failed:", rowError.code, rowError.message);
     return { ok: false, error: "No pudimos cargar la pregunta. Intentá de nuevo." };
   }
   if (!row) return NOT_FOUND;
-  return {
-    ok: true,
-    row: row as QuestionRow,
-    actorRole: membership?.role === "staff" ? "residence_staff" : "residence_owner",
-  };
+  return { ok: true, row: row as QuestionRow, actorRole: access.actorRole };
 }
 
 /** Responde (o corrige la respuesta de) una pregunta no oculta. */

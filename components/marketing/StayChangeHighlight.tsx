@@ -35,7 +35,7 @@ export function StayChangeHighlight({ variant, studentCta = "register" }: { vari
               <Icon name="swap_horiz" className="text-base" /> Si ya vivís en una residencia
             </p>
             <h2 id="quiero-cambiar-students-title" className="text-3xl font-bold text-ink sm:text-4xl">
-              Cambiarte de residencia, sin esconderte y sin sorpresas
+              Cambiarte de residencia, sin esconderte y con los costos claros
             </h2>
             <p className="mt-4 text-base text-ink-soft sm:text-lg">
               Si el lugar donde vivís ya no es para vos, avisale con un botón y buscá otro aunque tu contrato siga vigente. Antes de decidir, sabés qué costos
@@ -148,7 +148,7 @@ export function StayChangeHighlight({ variant, studentCta = "register" }: { vari
               Enterate de una salida con tiempo, no el día que se van
             </h2>
             <p className="mt-4 text-base text-white/85 sm:text-lg">
-              Muchos estudiantes se cambian sin avisar, y eso desordena tu ocupación, tu planificación y tus renovaciones. Con “Quiero cambiar”, el residente te
+              Cuando un residente se va sin avisar con tiempo, se desordenan tu ocupación, tu planificación y tus renovaciones. Con “Quiero cambiar”, el residente te
               avisa cuando empieza a buscar.
             </p>
             <ul className="mt-7 grid gap-4 sm:grid-cols-2">

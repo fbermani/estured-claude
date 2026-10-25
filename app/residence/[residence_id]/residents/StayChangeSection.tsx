@@ -19,9 +19,12 @@ export function StayChangeSection({
   items,
   onRespond,
   onRegisterExit,
+  canAct,
 }: {
   residenceId: string;
   items: ResidenceStayChangeItem[];
+  /** DR11: `residents.manage`. Sin el permiso los botones quedan deshabilitados (solo presentación; el servidor valida). */
+  canAct: boolean;
   onRespond: (item: ResidenceStayChangeItem) => void;
   onRegisterExit: (item: ResidenceStayChangeItem) => void;
 }) {
@@ -143,12 +146,12 @@ export function StayChangeSection({
                 {isResolved ? (
                   <>
                     <Badge tone="neutral">Aviso cerrado</Badge>
-                    <Button type="button" size="sm" variant="outline" onClick={() => onRegisterExit(item)}>
+                    <Button type="button" size="sm" variant="outline" disabled={!canAct} title={canAct ? undefined : "Pedile este permiso al dueño."} onClick={() => onRegisterExit(item)}>
                       Registrar salida
                     </Button>
                   </>
                 ) : (
-                  <Button type="button" size="sm" variant={item.response ? "outline" : "primary"} onClick={() => onRespond(item)}>
+                  <Button type="button" size="sm" variant={item.response ? "outline" : "primary"} disabled={!canAct} title={canAct ? undefined : "Pedile este permiso al dueño."} onClick={() => onRespond(item)}>
                     {item.response ? "Editar respuesta" : "Responder"}
                   </Button>
                 )}

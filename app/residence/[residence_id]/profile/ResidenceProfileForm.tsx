@@ -15,6 +15,7 @@ import { ResidencePhotoPlaceholder } from "@/components/residences/ResidencePhot
 import { computeProfileStrength, profileStrengthSuggestion } from "@/lib/residences/profileStrength";
 import { MIN_PUBLISH_PHOTOS, hasEnoughPhotosToPublish } from "@/lib/residences/photos";
 import { changesRequestedMessageOrFallback } from "@/lib/residences/changesRequest";
+import { NO_PERMISSION_NOTE } from "@/lib/residences/permissions";
 import {
   SERVICE_OPTIONS,
   COMMON_AREA_OPTIONS,
@@ -153,10 +154,16 @@ export function ResidenceProfileForm({
   residenceId,
   initial,
   arsPerUsd,
+  readOnly = false,
+  canSubmit = true,
 }: {
   residenceId: string;
   initial: ProfileInitial;
   arsPerUsd: number;
+  /** DR10: el staff ve el perfil sin poder editarlo (campos deshabilitados y sin botones de guardar/enviar). El servidor igual lo rechaza. */
+  readOnly?: boolean;
+  /** DR11: enviar o reenviar a verificación es solo del dueño, no delegable. Un staff con `profile.edit` guarda pero no envía. */
+  canSubmit?: boolean;
 }) {
   const action = saveResidenceProfile.bind(null, residenceId);
   const [state, formAction] = useActionState(action, initialState);
@@ -240,7 +247,9 @@ export function ResidenceProfileForm({
         <div>
           <h1 className="text-3xl font-bold text-ink">Configuración de Residencia</h1>
           <p className="mt-1 text-sm text-ink-soft">
-            {initial.status === "draft"
+            {readOnly
+              ? `Así está cargada la información de ${initial.name}.`
+              : initial.status === "draft"
               ? `Completá la información de ${initial.name} para poder publicarla. Guardá cuando quieras como borrador.`
               : initial.status === "verified_active"
                 ? `Mantené al día la información de ${initial.name}.`
@@ -254,7 +263,26 @@ export function ResidenceProfileForm({
         <Badge tone={badge.tone}>{badge.label}</Badge>
       </div>
 
-      {initial.status === "needs_changes" && (
+      {readOnly && (
+        <section
+          role="note"
+          aria-label="Perfil en solo lectura"
+          className="mb-8 flex items-start gap-3 rounded-card border-[1.5px] border-line-2 bg-cream-2 p-4 sm:p-5"
+        >
+          <Icon name="lock" className="mt-0.5 shrink-0 text-xl text-ink-soft" />
+          <div className="min-w-0">
+            <p className="text-sm font-bold text-ink">{NO_PERMISSION_NOTE}</p>
+            <p className="mt-1 text-sm text-ink-soft">
+              Podés ver cómo está el perfil, pero editar los datos, las tarifas y las condiciones de reserva requiere el permiso «Editar perfil, tarifas y condiciones», y el envío a verificación lo hace siempre el dueño de la residencia.
+              {initial.status === "needs_changes" || initial.status === "verification_expired"
+                ? " Hay cambios pendientes de corregir: el dueño tiene que reenviarlos para revisión."
+                : ""}
+            </p>
+          </div>
+        </section>
+      )}
+
+      {!readOnly && initial.status === "needs_changes" && (
         <section role="alert" aria-label="Cambios pedidos por EstuRed" className="mb-8 rounded-card border-[1.5px] border-warning-fg/30 bg-warning-bg p-5">
           <p className="text-sm font-bold text-warning-fg">El equipo de EstuRed te pidió cambios</p>
           {initial.changesMessage ? (
@@ -266,7 +294,7 @@ export function ResidenceProfileForm({
         </section>
       )}
 
-      {initial.status === "verification_expired" && (
+      {!readOnly && initial.status === "verification_expired" && (
         <section role="alert" aria-label="Verificación vencida" className="mb-8 rounded-card border-[1.5px] border-warning-fg/30 bg-warning-bg p-5">
           <p className="text-sm font-bold text-warning-fg">La verificación anual venció</p>
           <p className="mt-2 text-sm text-ink">
@@ -330,7 +358,7 @@ export function ResidenceProfileForm({
         }}
         className="grid gap-8 lg:grid-cols-[1fr_320px]"
       >
-        <div className="space-y-6">
+        <fieldset disabled={readOnly} className="m-0 min-w-0 space-y-6 border-0 p-0">
           {/* Datos básicos (algunos read-only: se fijan al registrarse) */}
           <Card className="p-6">
             <h2 className="text-lg font-bold text-ink">Datos Básicos</h2>
@@ -960,6 +988,8 @@ export function ResidenceProfileForm({
             </div>
           </Card>
 
+          {!readOnly && (
+            <>
           {state.status === "error" && (
             <p role="alert" className="rounded-field bg-danger-bg px-4 py-3 text-sm font-medium text-danger-fg">
               {state.message}
@@ -984,13 +1014,21 @@ export function ResidenceProfileForm({
 
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
             <SubmitButton intent="draft" variant="outline" idleLabel="Guardar cambios" pendingLabel="Guardando…" />
-            <SubmitButton
-              intent="submit"
-              variant="primary"
-              idleLabel={initial.status === "needs_changes" || initial.status === "verification_expired" ? "Reenviar para revisión" : "Enviar para revisión"}
-              pendingLabel="Enviando…"
-            />
+            {canSubmit && (
+              <SubmitButton
+                intent="submit"
+                variant="primary"
+                idleLabel={initial.status === "needs_changes" || initial.status === "verification_expired" ? "Reenviar para revisión" : "Enviar para revisión"}
+                pendingLabel="Enviando…"
+              />
+            )}
           </div>
+          {!canSubmit && (
+            <p className="flex items-start gap-1.5 text-xs text-ink-soft sm:justify-end">
+              <Icon name="lock" className="mt-px text-sm" />
+              Enviar el perfil a verificación lo hace solo el dueño.
+            </p>
+          )}
           <p className="text-xs text-ink-soft sm:text-right">
             {initial.status === "draft"
               ? "Guardar cambios conserva tu avance como borrador y no la envía. Enviar para revisión la manda al equipo de EstuRed, que coordina la verificación presencial antes de publicarla."
@@ -1002,7 +1040,9 @@ export function ResidenceProfileForm({
                     ? "Guardar cambios conserva tu avance sin enviarlo. Reenviar para revisión manda la residencia al equipo de EstuRed, que coordina la nueva visita antes de volver a publicarla."
                   : "Guardar cambios actualiza tu perfil. Tu residencia ya fue enviada: el equipo de EstuRed la ve con los cambios al revisarla."}
           </p>
-        </div>
+            </>
+          )}
+        </fieldset>
 
         {/* Sidebar */}
         <aside className="space-y-6">

@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { assertResidenceAccess } from "@/lib/residences/access";
+import { getResidenceMembership } from "@/lib/residences/access";
+import { can } from "@/lib/residences/permissions";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 import { loadChangesMessage } from "@/lib/residences/loadChangesMessage";
 import { initialPaymentConfigFromRow } from "@/lib/reservations/initialPayment";
@@ -23,8 +24,12 @@ export default async function ResidenceProfilePage({
   const admin = getSupabaseAdmin();
   if (!admin) notFound();
 
-  const hasAccess = await assertResidenceAccess(admin, sessionUser.id, residenceId);
-  if (!hasAccess) notFound();
+  // DR11: edita quien tenga `profile.edit` (el dueño siempre); el resto lo ve en solo lectura. Enviar a verificación es solo del dueño.
+  // Es solo presentación: el servidor rechaza cualquier envío sin el permiso correspondiente.
+  const membership = await getResidenceMembership(admin, sessionUser.id, residenceId);
+  if (!membership) notFound();
+  const readOnly = !can(membership, "profile.edit");
+  const canSubmit = membership.role === "owner";
 
   const [{ data: residence }, { data: sections }, { data: roomTypes }, { data: rooms }, { data: photos }, { data: rulesFile }, { data: pendingEdits }] =
     await Promise.all([
@@ -63,7 +68,7 @@ export default async function ResidenceProfilePage({
 
   if (!residence) notFound();
 
-  const changesMessage = residence.status === "needs_changes" ? await loadChangesMessage(admin, residenceId) : null;
+  const changesMessage = !readOnly && residence.status === "needs_changes" ? await loadChangesMessage(admin, residenceId) : null;
   const rate = await getCurrentExchangeRate();
   const initialPayment = initialPaymentConfigFromRow(residence);
   const sectionMap = Object.fromEntries((sections ?? []).map((s) => [s.section_type, s.content]));
@@ -77,6 +82,8 @@ export default async function ResidenceProfilePage({
     <ResidenceProfileForm
       residenceId={residenceId}
       arsPerUsd={rate.arsPerUsd}
+      readOnly={readOnly}
+      canSubmit={canSubmit}
       initial={{
         name: residence.name,
         tagline: residence.tagline ?? "",

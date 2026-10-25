@@ -154,7 +154,7 @@ export function StayChangeCard(props: StayChangeCardProps) {
             </h2>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-soft">
               Avisale a {residenceName} con un botón, conocé de antemano los costos y condiciones de salida y consultá otras residencias aunque tu contrato siga
-              vigente. Sin esconderte y sin sorpresas.
+              vigente. Sin esconderte y con los costos claros.
             </p>
             {closedLine && <p className="mt-3 rounded-field bg-cream-2 px-3.5 py-2 text-sm font-semibold text-ink-soft">{closedLine}</p>}
 

@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
-import { assertResidenceAccess } from "@/lib/residences/access";
+import { assertResidencePermission } from "@/lib/residences/access";
+import type { ResidencePermission } from "@/lib/residences/permissions";
 import { notifyFamilyApplicationMilestone } from "@/lib/family/familyMilestones";
 import { createAuditLog } from "@/lib/audit";
 import { checkStayChangeAdvanceGate } from "@/lib/stayChange/advanceGate";
@@ -19,7 +20,42 @@ const STALE_STATE_MESSAGE = "La solicitud ya cambió de estado, actualizá la p�
 
 const REASON_CODES = new Set(REJECTION_REASONS.map((r) => r.value));
 
-async function loadAndAuthorize(admin: ReturnType<typeof getSupabaseAdmin>, applicationId: string, userId: string) {
+/** Estados desde los que la residencia puede rechazar (docs/04 §5.4: `submitted → rejected` y `under_review → rejected`). */
+const REJECTABLE_APPLICATION_STATUSES: readonly string[] = ["submitted", "under_review"];
+
+const CLOSED_APPLICATION_STATUSES: readonly string[] = [
+  "rejected",
+  "cancelled_by_student",
+  "cancelled_by_residence",
+  "converted_to_reservation",
+  "expired_no_residence_response",
+  "expired_no_student_payment",
+  "expired_offer_no_response",
+  "closed_due_to_other_confirmed_reservation",
+];
+
+/** Motivo (en español, accionable) por el que una solicitud en este estado no se puede rechazar. */
+function rejectBlockedMessage(status: string): string {
+  if (CLOSED_APPLICATION_STATUSES.includes(status)) return "Esa solicitud ya está cerrada.";
+  if (status === "paused_due_to_other_active_request") {
+    return "Esta solicitud está pausada porque el estudiante avanzó con otra residencia. No hace falta que hagas nada.";
+  }
+  if (["contact_established", "offer_pending_student_acceptance", "conditions_accepted", "residence_payment_pending", "residence_payment_reported"].includes(status)) {
+    return "Esta solicitud ya avanzó (contacto, ajuste o pago) y no se puede rechazar desde acá. Si hay un problema, escribí a Soporte desde el panel de la residencia.";
+  }
+  return "Esta solicitud no está en un estado en el que se pueda rechazar. Si necesitás ayuda, escribí a Soporte.";
+}
+
+/**
+ * Carga la solicitud y exige el permiso delegable que corresponde a la acción (DR11) en la residencia de ESA solicitud: el rol y los
+ * permisos salen de `residence_users`, nunca del formulario ni del id de residencia de la URL.
+ */
+async function loadAndAuthorize(
+  admin: ReturnType<typeof getSupabaseAdmin>,
+  applicationId: string,
+  userId: string,
+  permission: ResidencePermission,
+) {
   const { data: application } = await admin!
     .from("application_requests")
     .select("id, status, residence_id, student_profile_id, proposal_count, snapshot_original_id, room_type_id")
@@ -27,10 +63,11 @@ async function loadAndAuthorize(admin: ReturnType<typeof getSupabaseAdmin>, appl
     .maybeSingle();
   if (!application) return { error: "No encontramos esa solicitud." as const };
 
-  const hasAccess = await assertResidenceAccess(admin!, userId, application.residence_id);
-  if (!hasAccess) return { error: "No tenés acceso a esa residencia." as const };
+  // El rol real del vínculo (dueño o staff) es el que queda en la auditoría.
+  const access = await assertResidencePermission(admin!, userId, application.residence_id, permission);
+  if (!access.ok) return { error: access.error };
 
-  return { application };
+  return { application, actorRole: access.actorRole };
 }
 
 /** Docs/07 §15.2 — marcar una solicitud recién llegada como en revisión. */
@@ -40,7 +77,7 @@ export async function markUnderReview(applicationId: string): Promise<Applicatio
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento." };
 
-  const result = await loadAndAuthorize(admin, applicationId, sessionUser.id);
+  const result = await loadAndAuthorize(admin, applicationId, sessionUser.id, "applications.review_contact");
   if ("error" in result) return { status: "error", message: result.error };
   if (result.application.status !== "submitted") {
     return { status: "error", message: "Esa solicitud ya no está en estado 'nueva'." };
@@ -61,7 +98,7 @@ export async function markUnderReview(applicationId: string): Promise<Applicatio
     from_status: "submitted",
     to_status: "under_review",
     changed_by_user_id: sessionUser.id,
-    changed_by_role: "residence_owner",
+    changed_by_role: result.actorRole,
   });
 
   revalidatePath(`/residence/${result.application.residence_id}/applications`);
@@ -80,7 +117,7 @@ export async function establishContact(applicationId: string): Promise<Applicati
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento." };
 
-  const result = await loadAndAuthorize(admin, applicationId, sessionUser.id);
+  const result = await loadAndAuthorize(admin, applicationId, sessionUser.id, "applications.review_contact");
   if ("error" in result) return { status: "error", message: result.error };
   if (!["submitted", "under_review"].includes(result.application.status)) {
     return { status: "error", message: "Esa solicitud no está en un estado válido para establecer contacto." };
@@ -108,7 +145,7 @@ export async function establishContact(applicationId: string): Promise<Applicati
     from_status: result.application.status,
     to_status: "contact_established",
     changed_by_user_id: sessionUser.id,
-    changed_by_role: "residence_owner",
+    changed_by_role: result.actorRole,
   });
 
   // Pausar otras solicitudes activas del mismo estudiante.
@@ -134,7 +171,7 @@ export async function establishContact(applicationId: string): Promise<Applicati
 
   await createAuditLog(admin, {
     actorUserId: sessionUser.id,
-    actorRole: "residence_owner",
+    actorRole: result.actorRole,
     action: "application_contact_established",
     entityType: "application_requests",
     entityId: applicationId,
@@ -160,7 +197,7 @@ export async function enableResidencePayment(applicationId: string): Promise<App
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento." };
 
-  const result = await loadAndAuthorize(admin, applicationId, sessionUser.id);
+  const result = await loadAndAuthorize(admin, applicationId, sessionUser.id, "payments.residence");
   if ("error" in result) return { status: "error", message: result.error };
   if (result.application.status !== "contact_established") {
     return { status: "error", message: "Esa solicitud no está en un estado válido para habilitar el pago." };
@@ -197,7 +234,7 @@ export async function enableResidencePayment(applicationId: string): Promise<App
     from_status: "contact_established",
     to_status: "residence_payment_pending",
     changed_by_user_id: sessionUser.id,
-    changed_by_role: "residence_owner",
+    changed_by_role: result.actorRole,
     reason_text: "Sin propuesta de ajuste — condiciones originales confirmadas.",
   });
 
@@ -209,7 +246,7 @@ export async function enableResidencePayment(applicationId: string): Promise<App
 
   await createAuditLog(admin, {
     actorUserId: sessionUser.id,
-    actorRole: "residence_owner",
+    actorRole: result.actorRole,
     action: "residence_payment_enabled_without_negotiation",
     entityType: "application_requests",
     entityId: applicationId,
@@ -232,16 +269,21 @@ export async function rejectApplication(
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento." };
 
-  const result = await loadAndAuthorize(admin, applicationId, sessionUser.id);
+  const result = await loadAndAuthorize(admin, applicationId, sessionUser.id, "applications.reject");
   if ("error" in result) return { status: "error", message: result.error };
-  if (["rejected", "cancelled_by_student", "converted_to_reservation"].includes(result.application.status)) {
-    return { status: "error", message: "Esa solicitud ya está cerrada." };
-  }
-  if (result.application.status === "queued_for_place") {
+  const currentStatus = result.application.status as string;
+  if (currentStatus === "queued_for_place") {
     return {
       status: "error",
       message: "Esta solicitud está en cola — todavía no es visible. Se vuelve rechazable cuando pase a \"Nueva\".",
     };
+  }
+  // Lista blanca (docs/04 §5.4): la residencia solo rechaza una solicitud "Nueva" (`submitted`) o "En revisión" (`under_review`).
+  // `contact_established` NO está permitido (no es una transición del doc ni lo ofrece la pantalla): después de establecer el contacto la
+  // solicitud ya "equivale a aceptada" y sigue por ajuste, pago y reserva. Rechazar en esas fases cortaría un pago en curso: lo no
+  // rechazable se deriva a Soporte con un mensaje claro, en vez de listar los estados prohibidos (una lista negra deja pasar los nuevos).
+  if (!REJECTABLE_APPLICATION_STATUSES.includes(currentStatus)) {
+    return { status: "error", message: rejectBlockedMessage(currentStatus) };
   }
 
   const reasonCode = String(formData.get("reason_code") ?? "");
@@ -272,14 +314,14 @@ export async function rejectApplication(
     from_status: result.application.status,
     to_status: "rejected",
     changed_by_user_id: sessionUser.id,
-    changed_by_role: "residence_owner",
+    changed_by_role: result.actorRole,
     reason_code: reasonCode,
     reason_text: reasonText || null,
   });
 
   await createAuditLog(admin, {
     actorUserId: sessionUser.id,
-    actorRole: "residence_owner",
+    actorRole: result.actorRole,
     action: "application_rejected",
     entityType: "application_requests",
     entityId: applicationId,

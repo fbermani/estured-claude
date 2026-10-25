@@ -37,6 +37,8 @@ describe("notificationHref", () => {
 
   it("residencia: panel de la residencia y pantallas que dependen de la residencia resuelta", () => {
     expect(notificationHref({ entityType: "residences", entityId: ID, area: "residence" })).toBe(`/residence/${ID}`);
+    expect(notificationHref({ entityType: "residence_team", entityId: ID, area: "residence" })).toBe(`/residence/${ID}/team`);
+    expect(notificationHref({ entityType: "residence_team", entityId: "x/y", area: "residence" })).toBe("/residence/dashboard");
     expect(
       notificationHref(
         { entityType: "support_cases", entityId: ID, area: "residence" },

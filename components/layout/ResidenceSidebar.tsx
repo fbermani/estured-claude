@@ -26,6 +26,8 @@ export function ResidenceSidebar({
   residentsBadge = 0,
   applicationsBadge = 0,
   faqBadge = 0,
+  isOwner = false,
+  canEditProfile = false,
 }: {
   residenceId: string;
   userEmail: string;
@@ -35,6 +37,10 @@ export function ResidenceSidebar({
   applicationsBadge?: number;
   /** Preguntas públicas sin responder: contador en "Preguntas". */
   faqBadge?: number;
+  /** DR10: el dueño ve "Equipo" y "Editar perfil"; el staff ve el perfil en solo lectura y no ve "Equipo". Solo presentación. */
+  isOwner?: boolean;
+  /** DR11: quien tiene `profile.edit` (el dueño siempre) ve "Editar perfil"; el resto "Ver perfil". Solo presentación. */
+  canEditProfile?: boolean;
 }) {
   const pathname = usePathname();
   const base = `/residence/${residenceId}`;
@@ -50,6 +56,7 @@ export function ResidenceSidebar({
     { href: `${base}/waitlist`, label: "Lista de espera", icon: "hourglass_top" },
     { href: `${base}/faq`, label: "Preguntas", icon: "forum", badge: faqBadge, badgeNoun: "preguntas sin responder" },
     { href: `${base}/support`, label: "Soporte", icon: "support_agent" },
+    ...(isOwner ? [{ href: `${base}/team`, label: "Equipo", icon: "supervisor_account" }] : []),
   ];
 
   return (
@@ -157,12 +164,12 @@ export function ResidenceSidebar({
           <p className={`truncate px-1 text-xs text-ink-faint ${collapsed ? "md:hidden" : ""}`}>{userEmail}</p>
           <Link
             href={`${base}/profile`}
-            title="Editar perfil"
-            aria-label="Editar perfil"
+            title={canEditProfile ? "Editar perfil" : "Ver perfil"}
+            aria-label={canEditProfile ? "Editar perfil" : "Ver perfil"}
             className={`mt-2 flex items-center gap-2 rounded-field px-3 py-2 text-sm font-medium text-ink-soft hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest ${collapsed ? "md:justify-center" : ""}`}
           >
-            <Icon name="edit" className="shrink-0 text-lg" />
-            <span className={collapsed ? "md:hidden" : ""}>Editar perfil</span>
+            <Icon name={canEditProfile ? "edit" : "visibility"} className="shrink-0 text-lg" />
+            <span className={collapsed ? "md:hidden" : ""}>{canEditProfile ? "Editar perfil" : "Ver perfil"}</span>
           </Link>
           <form action={signOut}>
             <button

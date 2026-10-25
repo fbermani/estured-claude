@@ -3,7 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { assertResidenceAccess } from "@/lib/residences/access";
+import { getResidenceMembership } from "@/lib/residences/access";
+import { can } from "@/lib/residences/permissions";
+import { PermissionGate } from "@/components/residences/PermissionGate";
 import { formatDate } from "@/lib/dates/format";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -34,7 +36,10 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
   if (!sessionUser) notFound();
   const admin = getSupabaseAdmin();
   if (!admin) notFound();
-  if (!(await assertResidenceAccess(admin, sessionUser.id, residenceId))) notFound();
+  const membership = await getResidenceMembership(admin, sessionUser.id, residenceId);
+  if (!membership) notFound();
+  // DR11: sin `faq.manage` las acciones se ven deshabilitadas (solo presentación; el servidor valida cada acción).
+  const canManage = can(membership, "faq.manage");
 
   const { data, error } = await admin
     .from("residence_faq_questions")
@@ -116,12 +121,14 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
                           Recibida el {formatDate(q.created_at)}
                           {q.answered_at && q.status !== "pending" ? ` · respondida el ${formatDate(q.answered_at)}` : ""}
                         </p>
-                        <FaqQuestionCard
-                          residenceId={residenceId}
-                          questionId={q.id}
-                          status={q.status}
-                          initialAnswer={q.answer ?? ""}
-                        />
+                        <PermissionGate allowed={canManage}>
+                          <FaqQuestionCard
+                            residenceId={residenceId}
+                            questionId={q.id}
+                            status={q.status}
+                            initialAnswer={q.answer ?? ""}
+                          />
+                        </PermissionGate>
                       </Card>
                     ))}
                   </div>

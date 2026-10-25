@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { assertResidenceAccess } from "@/lib/residences/access";
+import { getResidenceMembership } from "@/lib/residences/access";
+import { can } from "@/lib/residences/permissions";
 import { ResidentsBrowser, type ResidentsData } from "@/app/residence/[residence_id]/residents/ResidentsBrowser";
 import { RESIDENCE_OFFER_STATUS_COPY } from "@/lib/renewals/statusCopy";
 import { loadResidenceStayChanges } from "@/lib/stayChange/load";
@@ -34,8 +35,8 @@ export default async function ResidenceResidentsPage({
   const admin = getSupabaseAdmin();
   if (!admin) notFound();
 
-  const hasAccess = await assertResidenceAccess(admin, sessionUser.id, residenceId);
-  if (!hasAccess) notFound();
+  const membership = await getResidenceMembership(admin, sessionUser.id, residenceId);
+  if (!membership) notFound();
 
   const [{ data: stays, error }, { data: roomTypes }, { data: rooms }, renewals, { data: notes }, stayChanges, { data: residenceRow }] = await Promise.all([
     admin
@@ -251,6 +252,8 @@ export default async function ResidenceResidentsPage({
     <ResidentsBrowser
       residenceId={residenceId}
       residenceName={(residenceRow?.name as string | undefined) ?? "tu residencia"}
+      canManageResidents={can(membership, "residents.manage")}
+      canManageBeds={can(membership, "operations.rooms_availability")}
       data={{
         rows,
         freeBeds,

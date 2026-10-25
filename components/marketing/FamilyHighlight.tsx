@@ -18,12 +18,12 @@ const ABILITIES = [
   {
     icon: "lightbulb",
     title: "Proponés opciones",
-    text: "Le sugerís residencias que te gusten. Tu familiar las revisa y decide si avanza: vos acompañás, la decisión es suya.",
+    text: "Le sugerís residencias que te gusten. Tu estudiante las revisa y decide si avanza: vos acompañás, la decisión es suya.",
   },
   {
     icon: "payments",
     title: "Pagás el fee si te designa",
-    text: "Si tu familiar te elige como pagador, ves el monto, los datos de transferencia y el plazo, y los datos de facturación del pago quedan a tu nombre.",
+    text: "Si tu estudiante te elige para pagar el fee EstuRed, ves el monto, los datos de transferencia y el plazo, y los datos de facturación del pago quedan a tu nombre.",
   },
 ];
 
@@ -39,14 +39,14 @@ export function FamilyHighlight() {
             Acompañá la mudanza sin quedarte afuera
           </h2>
           <p className="mt-4 text-base text-ink-soft sm:text-lg">
-            Crean una cuenta de familiar y se vinculan con el estudiante, que aprueba la vinculación. Desde ahí acompañás el
+            Creás una cuenta de familiar y pedís vincularte con tu estudiante, que aprueba la vinculación. Desde ahí acompañás el
             proceso con la información que corresponde a tu rol.
           </p>
           <p className="mt-4 flex items-start gap-2 rounded-field bg-surface px-4 py-3 text-sm text-ink-soft">
             <Icon name="lock" className="mt-0.5 shrink-0 text-lg text-forest-700" />
             <span>
-              Tu familiar mantiene el control: sus documentos y mensajes privados son suyos, y solo él o ella envía las
-              solicitudes. Toda solicitud está sujeta a la confirmación de la residencia.
+              Tu estudiante mantiene el control: sus documentos y mensajes privados son suyos, y las solicitudes se envían
+              solo desde su cuenta. Toda solicitud está sujeta a la confirmación de la residencia.
             </span>
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">

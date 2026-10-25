@@ -18,10 +18,10 @@ const pillars: RotatingBenefit[] = [
     summary:
       "Identidad, ubicación y fotos revisadas por EstuRed mediante control presencial antes de publicarse.",
     problem:
-      "Buscar residencia a distancia significa confiar en fotos y descripciones que nadie garantiza. No sabés si lo que ves es real hasta que ya pagaste una seña.",
+      "Cuando buscás a distancia, solo tenés fotos y descripciones que nadie revisó. Es difícil saber si coinciden con el lugar antes de pagar una seña.",
     solution:
       "Identidad, ubicación y fotos revisadas por EstuRed mediante control presencial antes de publicarse. El sello Residencia Verificada no reemplaza que consultes las condiciones de tu estadía.",
-    conclusion: "Elegís con información revisada, no con fe.",
+    conclusion: "Elegís con información revisada en persona.",
   },
   {
     icon: "description",
@@ -29,7 +29,7 @@ const pillars: RotatingBenefit[] = [
     summary:
       "Tu solicitud, la respuesta de la residencia y cualquier ajuste de condiciones quedan registrados en la plataforma. Nada depende de un chat que se pierde.",
     problem:
-      "Un acuerdo por WhatsApp se puede perder, editar o simplemente negar. Si algo se traba, no tenés con qué respaldarte.",
+      "Un acuerdo por chat se puede perder o editar, y después cuesta saber qué quedó acordado.",
     solution:
       "Tu solicitud, la respuesta de la residencia y cualquier ajuste de condiciones quedan registrados en la plataforma, con fecha y estado siempre visibles.",
     conclusion: "Todo el proceso queda por escrito, no en un chat que se borra.",
@@ -40,7 +40,7 @@ const pillars: RotatingBenefit[] = [
     summary:
       "Cuando tu reserva se confirma, EstuRed emite un Comprobante de Reserva Confirmada con código público. Respaldo real para vos y tu familia.",
     problem:
-      "Transferir una seña sin ningún comprobante formal es un salto de fe — para vos y para quien te está bancando económicamente.",
+      "Transferir una seña sin un comprobante formal deja dudas, para vos y para quien te ayuda a pagar.",
     solution:
       "Cuando tu reserva se confirma, EstuRed emite un Comprobante de Reserva Confirmada con un código que cualquier persona puede verificar públicamente.",
     conclusion: "Un respaldo real, no una captura de pantalla de un chat.",
@@ -116,7 +116,7 @@ const outside = [
   },
   {
     label: "Nadie a quien recurrir si algo sale mal",
-    detail: "Estás solo/a frente a cualquier problema, sin ninguna instancia intermedia.",
+    detail: "Si surge un problema, lo resolvés por tu cuenta.",
   },
 ];
 
@@ -149,7 +149,7 @@ const upcoming = [
     title: "Comunidad EstuRed",
     stage: "Ya arrancó",
     description:
-      "Hoy ya podés ver quién vive en cada residencia antes de aplicar: nombre, carrera, intereses. Seguimos sumando más señales de cada residente para que conozcas mejor a tus futuros compañeros antes de mudarte.",
+      "Hoy ya podés conocer a quienes viven en cada residencia antes de solicitar, según lo que cada residente elige mostrar: nombre, carrera e intereses. Seguimos sumando más señales de cada residente para que conozcas mejor a tus futuros compañeros antes de mudarte.",
   },
   {
     title: "Señales de convivencia",
@@ -158,7 +158,7 @@ const upcoming = [
       "Una primera lectura del estilo de cada casa —ritmos, hábitos y ambiente— construida a partir de lo que ya compartís vos y tus futuros compañeros de cuarto, para elegir donde realmente encajás.",
   },
   {
-    title: "Reseñas verificadas",
+    title: "Reseñas de residentes",
     stage: "Depende de las primeras estadías",
     description:
       "Las habilitamos apenas las primeras reservas confirmadas completen su primera estadía real: opiniones de gente que efectivamente vivió ahí, no de cualquiera.",
@@ -175,8 +175,8 @@ const faqs = [
     a: "Que el equipo de EstuRed la visitó presencialmente, validó que existe, que es quien dice ser y que su información publicada es real. Solo las residencias verificadas aparecen en el catálogo.",
   },
   {
-    q: "¿Ver una residencia disponible garantiza mi lugar?",
-    a: "No. La disponibilidad publicada es informativa y toda reserva está sujeta a la confirmación de la residencia. Por eso hablamos siempre de solicitudes: enviás la tuya y la residencia la confirma.",
+    q: "Si una residencia figura con lugar, ¿ya tengo mi lugar?",
+    a: "Todavía no. La disponibilidad la informa cada residencia y puede cambiar. Enviás tu solicitud, la residencia revisa tu perfil y confirma si hay lugar. Tu lugar queda reservado cuando la reserva se confirma.",
   },
   {
     q: "¿Qué recibo cuando se confirma mi reserva?",
@@ -219,8 +219,8 @@ export default async function HomePage() {
               </Button>
             </div>
             <p className="mt-5 text-xs text-ink-faint">
-              La disponibilidad publicada es informativa. Toda reserva está
-              sujeta a confirmación de la residencia.
+              Enviar una solicitud es gratis. La residencia revisa tu perfil y
+              confirma si hay lugar.
             </p>
           </Reveal>
 
@@ -257,8 +257,8 @@ export default async function HomePage() {
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
         <SectionHeader
           eyebrow="Por qué EstuRed"
-          title="La incertidumbre termina acá"
-          description="Reservar a distancia solía ser un acto de fe. Con EstuRed es un proceso claro, verificado y registrado de punta a punta."
+          title="Elegir a distancia, con todo a la vista"
+          description="Reservar a distancia genera dudas. En EstuRed cada paso es claro, las residencias están verificadas y todo queda registrado."
         />
         <RotatingBenefits items={pillars} />
       </section>
@@ -283,7 +283,7 @@ export default async function HomePage() {
             </Reveal>
             <Reveal delay={1} className="rounded-card border border-sand-200 bg-sand-50 p-7">
               <p className="font-display text-lg font-bold text-ink-soft">
-                Por fuera, a pulmón
+                Por fuera de EstuRed
               </p>
               <HoverFeatureList items={outside} icon="remove" tone="neutral" className="mt-5" />
             </Reveal>
@@ -357,14 +357,14 @@ export default async function HomePage() {
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
           <div className="mx-auto mb-10 max-w-2xl text-center">
             <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-orange-light">
-              Roadmap
+              Lo que viene
             </p>
             <h2 className="text-3xl font-bold sm:text-4xl">
               Así seguimos construyendo EstuRed
             </h2>
             <p className="mt-3 text-forest-tint">
-              No es una lista de promesas: cada etapa se construye sobre datos
-              reales que ya estamos generando en la plataforma.
+              Cada etapa se construye con lo que ya pasa en la plataforma, por eso
+              no tienen fecha fija.
             </p>
           </div>
           <div className="grid gap-6 md:grid-cols-3">

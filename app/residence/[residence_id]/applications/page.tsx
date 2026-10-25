@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { assertResidenceAccess } from "@/lib/residences/access";
+import { getResidenceMembership } from "@/lib/residences/access";
+import { can } from "@/lib/residences/permissions";
 import { buildWhatsappUrl } from "@/lib/applications/whatsapp";
 import { estimatedFeeUsd } from "@/lib/reservations/initialPayment";
 import { ACTIVE_APPLICATION_STATUSES } from "@/lib/applications/types";
@@ -32,8 +33,8 @@ export default async function ResidenceApplicationsPage({
   const admin = getSupabaseAdmin();
   if (!admin) notFound();
 
-  const hasAccess = await assertResidenceAccess(admin, sessionUser.id, residenceId);
-  if (!hasAccess) notFound();
+  const membership = await getResidenceMembership(admin, sessionUser.id, residenceId);
+  if (!membership) notFound();
 
   const [{ data: residence }, { data: applications }, { data: waitlistEntries }] = await Promise.all([
     admin.from("residences").select("name").eq("id", residenceId).maybeSingle(),
@@ -213,6 +214,12 @@ export default async function ResidenceApplicationsPage({
       residenceId={residenceId}
       applications={fullApplications}
       initialSelectedId={selectedId ?? null}
+      allowed={{
+        reviewContact: can(membership, "applications.review_contact"),
+        reject: can(membership, "applications.reject"),
+        residencePayment: can(membership, "payments.residence"),
+        sendAdjustment: can(membership, "applications.send_adjustment"),
+      }}
     />
   );
 }

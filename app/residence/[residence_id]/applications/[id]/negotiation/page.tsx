@@ -3,7 +3,10 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { assertResidenceAccess } from "@/lib/residences/access";
+import { getResidenceMembership } from "@/lib/residences/access";
+import { can, PERMISSION_DENIED_MESSAGE } from "@/lib/residences/permissions";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { Button } from "@/components/ui/Button";
 import { normalizeInitialPaymentMode } from "@/lib/reservations/initialPayment";
 import { NegotiationForm } from "@/app/residence/[residence_id]/applications/[id]/negotiation/NegotiationForm";
 
@@ -21,8 +24,26 @@ export default async function SendNegotiationPage({
   const admin = getSupabaseAdmin();
   if (!admin) notFound();
 
-  const hasAccess = await assertResidenceAccess(admin, sessionUser.id, residenceId);
-  if (!hasAccess) notFound();
+  const membership = await getResidenceMembership(admin, sessionUser.id, residenceId);
+  if (!membership) notFound();
+  // DR11: la propuesta de ajuste requiere el permiso `applications.send_adjustment` (apagado por defecto para el staff); sin él vuelve a
+  // la solicitud con un aviso claro. Es solo presentación: el servidor lo vuelve a validar al enviar.
+  if (!can(membership, "applications.send_adjustment")) {
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
+        <EmptyState
+          icon="lock"
+          title="No tenés permiso para proponer ajustes"
+          description={`${PERMISSION_DENIED_MESSAGE} Mientras tanto podés habilitar el pago con las condiciones originales o rechazar la solicitud desde su detalle.`}
+          action={
+            <Button href={`/residence/${residenceId}/applications?app=${id}`} variant="outline" size="sm">
+              Volver a la solicitud
+            </Button>
+          }
+        />
+      </div>
+    );
+  }
 
   const { data: application } = await admin
     .from("application_requests")

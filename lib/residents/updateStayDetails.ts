@@ -1,7 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
-import { assertResidenceAccess } from "@/lib/residences/access";
+import { assertResidencePermission } from "@/lib/residences/access";
 
 /**
  * Actualiza los datos operativos de una estadía desde el panel del
@@ -20,8 +20,9 @@ export async function updateStayDetails(
     monthlyRateUsd: number | null;
   },
 ): Promise<{ ok: true } | { ok: false; error: string }> {
-  const hasAccess = await assertResidenceAccess(admin, params.actorUserId, params.residenceId);
-  if (!hasAccess) return { ok: false, error: "No tenés acceso a esta residencia." };
+  const access = await assertResidencePermission(admin, params.actorUserId, params.residenceId, "residents.manage");
+  if (!access.ok) return { ok: false, error: access.error };
+  const actorRole = access.actorRole;
 
   if (params.monthlyRateUsd != null && params.monthlyRateUsd < 0)
     return { ok: false, error: "La tarifa no puede ser negativa." };
@@ -41,11 +42,11 @@ export async function updateStayDetails(
 
   await createAuditLog(admin, {
     actorUserId: params.actorUserId,
-    actorRole: "residence_owner",
+    actorRole,
     action: "resident_stay_details_updated",
     entityType: "resident_stays",
     entityId: params.residentStayId,
-    newValue: {
+    newValue: { permission: access.permission,
       expected_end_date: params.expectedEndDate,
       monthly_rate_usd: params.monthlyRateUsd,
     },

@@ -14,6 +14,8 @@ function getClient(): Resend | null {
 
 /**
  * Proveedor de email (docs/00 §29, Resend — Ciclo 34unodevicies-quater).
+ * Devuelve `true` si el proveedor aceptó el envío y `false` si no salió (sin API key o error del proveedor): los call sites que no lo
+ * necesitan lo ignoran (compatibilidad hacia atrás); el equipo de la residencia lo usa para avisarle al dueño (DR10).
  * Nunca lanza, mismo criterio que `createNotification`/`createAuditLog`:
  * un email que falla no debe poder tumbar la acción de negocio que lo
  * generó — el in-app queda como respaldo mínimo garantizado.
@@ -25,11 +27,11 @@ function getClient(): Resend | null {
  * o similar) es lo único que hace falta cuando el dominio exista — no
  * hay que tocar los call sites.
  */
-export async function sendEmail(entry: { to: string; subject: string; html: string }): Promise<void> {
+export async function sendEmail(entry: { to: string; subject: string; html: string }): Promise<boolean> {
   const resend = getClient();
   if (!resend) {
     console.error("[email] RESEND_API_KEY no configurada — email no enviado:", entry.subject);
-    return;
+    return false;
   }
   const { error } = await resend.emails.send({
     from: FROM_ADDRESS,
@@ -39,5 +41,7 @@ export async function sendEmail(entry: { to: string; subject: string; html: stri
   });
   if (error) {
     console.error("[email] envío falló:", error.name, error.message, entry.subject);
+    return false;
   }
+  return true;
 }

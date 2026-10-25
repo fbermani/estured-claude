@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { assertResidenceAccess } from "@/lib/residences/access";
+import { getResidenceMembership } from "@/lib/residences/access";
+import { can } from "@/lib/residences/permissions";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 import { RoomsBrowser, type RoomsData } from "@/app/residence/[residence_id]/rooms/RoomsBrowser";
 
@@ -30,8 +31,8 @@ export default async function ResidenceRoomsPage({
 
   const admin = getSupabaseAdmin();
   if (!admin) notFound();
-  const hasAccess = await assertResidenceAccess(admin, sessionUser.id, residenceId);
-  if (!hasAccess) notFound();
+  const membership = await getResidenceMembership(admin, sessionUser.id, residenceId);
+  if (!membership) notFound();
 
   const [{ data: roomTypes }, { data: rooms }, { data: stays }, rate] = await Promise.all([
     admin
@@ -187,6 +188,8 @@ export default async function ResidenceRoomsPage({
       residenceId={residenceId}
       data={{ groups, unassigned, kpis }}
       arsPerUsd={rate.arsPerUsd}
+      canManageRooms={can(membership, "operations.rooms_availability")}
+      canManageResidents={can(membership, "residents.manage")}
     />
   );
 }

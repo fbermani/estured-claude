@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState, useActionState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, useActionState } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
+import { PermissionNote } from "@/components/residences/PermissionGate";
 import {
   renameRoomAction,
   setBedStatusAction,
@@ -65,6 +66,13 @@ export type RoomsData = {
 };
 
 const initialState: RoomsActionState = { status: "idle" };
+
+/**
+ * Permisos de quien mira (DR11), resueltos en el servidor: `rooms` = habitaciones, camas y disponibilidad; `residents` = liberar plaza
+ * (cerrar una estadía). Por defecto TODO apagado (falla cerrado). Solo presentación: el servidor valida cada acción por su cuenta.
+ */
+type RoomsPermissions = { rooms: boolean; residents: boolean };
+const RoomsPermissionsContext = createContext<RoomsPermissions>({ rooms: false, residents: false });
 
 const MONTHS = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
 function formatUntil(dateStr: string | null): string | null {
@@ -142,6 +150,7 @@ function BedRow({
   bed: BedData;
   unassigned: RoomsData["unassigned"];
 }) {
+  const perms = useContext(RoomsPermissionsContext);
   const [mode, setMode] = useState<"idle" | "assign" | "oos">("idle");
 
   const oosAction = setBedStatusAction.bind(null, residenceId, bed.id, "out_of_service");
@@ -189,7 +198,7 @@ function BedRow({
           >
             <button
               type="submit"
-              disabled={endPending}
+              disabled={endPending || !perms.residents}
               className="cursor-pointer rounded-full border-[1.5px] border-danger-fg/40 px-3 py-1.5 text-xs font-bold text-danger-fg hover:bg-danger-bg disabled:opacity-50"
             >
               {endPending ? "…" : "Liberar plaza"}
@@ -217,7 +226,7 @@ function BedRow({
           <form action={reactFormAction}>
             <button
               type="submit"
-              disabled={reactPending}
+              disabled={reactPending || !perms.rooms}
               className="cursor-pointer rounded-full border border-orange/50 px-3 py-1.5 text-xs font-bold text-warning-fg hover:bg-orange-tint"
             >
               {reactPending ? "…" : "Reactivar"}
@@ -245,16 +254,18 @@ function BedRow({
           <button
             type="button"
             onClick={() => setMode(mode === "assign" ? "idle" : "assign")}
+            disabled={!perms.rooms}
             title="Asignar residente"
-            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-forest text-white hover:bg-forest-600"
+            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-forest text-white hover:bg-forest-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Icon name="person_add" className="text-base" />
           </button>
           <button
             type="button"
             onClick={() => setMode(mode === "oos" ? "idle" : "oos")}
+            disabled={!perms.rooms}
             title="Marcar fuera de servicio"
-            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-orange-tint text-orange-700 hover:bg-orange/30"
+            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-orange-tint text-orange-700 hover:bg-orange/30 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Icon name="block" className="text-base" />
           </button>
@@ -338,6 +349,7 @@ function RoomModal({
   unassigned: RoomsData["unassigned"];
   onClose: () => void;
 }) {
+  const perms = useContext(RoomsPermissionsContext);
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-forest-ink/60" onClick={onClose} aria-hidden />
@@ -363,8 +375,9 @@ function RoomModal({
         </div>
 
         <div className="grid flex-1 gap-6 overflow-y-auto p-6 sm:grid-cols-[260px_1fr]">
-          <div className="space-y-5">
+          <fieldset disabled={!perms.rooms} className="m-0 min-w-0 space-y-5 border-0 p-0">
             <p className="text-[10px] font-extrabold uppercase tracking-widest text-muted">Configuración</p>
+            {!perms.rooms && <PermissionNote text="No tenés permiso para editar habitaciones, camas ni disponibilidad. Pedile este permiso al dueño." />}
             <RenameForm residenceId={residenceId} room={room} />
             <div>
               <p className="text-sm font-bold text-ink">Tarifa mensual</p>
@@ -400,7 +413,7 @@ function RoomModal({
                 <p className="mt-2 text-xs text-ink-faint">Todavía no se cargó disponibilidad para este tipo.</p>
               )}
             </div>
-          </div>
+          </fieldset>
 
           <div>
             <p className="mb-3 text-[10px] font-extrabold uppercase tracking-widest text-muted">Plazas (camas)</p>
@@ -437,10 +450,16 @@ export function RoomsBrowser({
   residenceId,
   data,
   arsPerUsd,
+  canManageRooms,
+  canManageResidents,
 }: {
   residenceId: string;
   data: RoomsData;
   arsPerUsd: number;
+  /** DR11: `operations.rooms_availability`. */
+  canManageRooms: boolean;
+  /** DR11: `residents.manage` (liberar una plaza cierra la estadía). */
+  canManageResidents: boolean;
 }) {
   const [typeFilter, setTypeFilter] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -796,6 +815,7 @@ export function RoomsBrowser({
       )}
 
       {openRoom && (
+        <RoomsPermissionsContext.Provider value={{ rooms: canManageRooms, residents: canManageResidents }}>
         <RoomModal
           residenceId={residenceId}
           room={openRoom.room}
@@ -808,6 +828,7 @@ export function RoomsBrowser({
           availability={openRoom.group.availability}
           onClose={() => setOpenRoomId(null)}
         />
+        </RoomsPermissionsContext.Provider>
       )}
     </div>
   );

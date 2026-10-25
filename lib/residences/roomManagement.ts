@@ -1,7 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
-import { assertResidenceAccess } from "@/lib/residences/access";
+import { assertResidencePermission } from "@/lib/residences/access";
 
 type Result = { ok: true } | { ok: false; error: string };
 
@@ -10,8 +10,9 @@ export async function renameRoom(
   admin: SupabaseClient,
   params: { actorUserId: string; residenceId: string; roomId: string; label: string },
 ): Promise<Result> {
-  const hasAccess = await assertResidenceAccess(admin, params.actorUserId, params.residenceId);
-  if (!hasAccess) return { ok: false, error: "No tenés acceso a esta residencia." };
+  const access = await assertResidencePermission(admin, params.actorUserId, params.residenceId, "operations.rooms_availability");
+  if (!access.ok) return { ok: false, error: access.error };
+  const actorRole = access.actorRole;
 
   const label = params.label.trim();
   if (label.length < 1 || label.length > 40)
@@ -28,11 +29,11 @@ export async function renameRoom(
 
   await createAuditLog(admin, {
     actorUserId: params.actorUserId,
-    actorRole: "residence_owner",
+    actorRole,
     action: "room_renamed",
     entityType: "rooms",
     entityId: params.roomId,
-    newValue: { label },
+    newValue: { permission: access.permission, label },
   });
   return { ok: true };
 }
@@ -52,14 +53,31 @@ export async function setBedStatus(
     reason: string | null;
   },
 ): Promise<Result> {
-  const hasAccess = await assertResidenceAccess(admin, params.actorUserId, params.residenceId);
-  if (!hasAccess) return { ok: false, error: "No tenés acceso a esta residencia." };
+  const access = await assertResidencePermission(admin, params.actorUserId, params.residenceId, "operations.rooms_availability");
+  if (!access.ok) return { ok: false, error: access.error };
+  const actorRole = access.actorRole;
+
+  // IDOR: primero se LEE la cama con su habitación y se valida que sea de ESTA residencia; recién entonces se escribe (antes se actualizaba
+  // por id y se miraba la residencia después, con la cama ajena ya modificada).
+  const { data: bed, error: bedError } = await admin
+    .from("beds")
+    .select("id, room_id, rooms(residence_id)")
+    .eq("id", params.bedId)
+    .maybeSingle();
+  if (bedError) {
+    console.error("[rooms] setBedStatus read failed:", bedError);
+    return { ok: false, error: "No pudimos actualizar la cama." };
+  }
+  const roomInfo = (bed?.rooms ?? null) as unknown as { residence_id: string } | { residence_id: string }[] | null;
+  const bedResidenceId = Array.isArray(roomInfo) ? roomInfo[0]?.residence_id : roomInfo?.residence_id;
+  if (!bed || bedResidenceId !== params.residenceId) return { ok: false, error: "Esa cama no pertenece a esta residencia." };
 
   if (params.status === "out_of_service") {
     const { data: occupant } = await admin
       .from("resident_stays")
       .select("id")
       .eq("bed_id", params.bedId)
+      .eq("residence_id", params.residenceId)
       .eq("is_current", true)
       .limit(1)
       .maybeSingle();
@@ -67,27 +85,26 @@ export async function setBedStatus(
       return { ok: false, error: "Esa cama tiene un residente asignado. Reubicalo antes de sacarla de servicio." };
   }
 
-  const { data: bed, error } = await admin
+  // Update condicionado también por la habitación (que ya sabemos que es de esta residencia) y con chequeo de filas.
+  const { data: updatedBed, error } = await admin
     .from("beds")
     .update({
       status: params.status,
       out_of_service_reason: params.status === "out_of_service" ? params.reason?.trim() || null : null,
     })
     .eq("id", params.bedId)
-    .select("id, rooms(residence_id)")
+    .eq("room_id", bed.room_id)
+    .select("id")
     .maybeSingle();
-  if (error || !bed) return { ok: false, error: "No pudimos actualizar la cama." };
-  const roomInfo = bed.rooms as unknown as { residence_id: string } | null;
-  if (roomInfo?.residence_id !== params.residenceId)
-    return { ok: false, error: "Esa cama no pertenece a esta residencia." };
+  if (error || !updatedBed) return { ok: false, error: "No pudimos actualizar la cama." };
 
   await createAuditLog(admin, {
     actorUserId: params.actorUserId,
-    actorRole: "residence_owner",
+    actorRole,
     action: params.status === "out_of_service" ? "bed_marked_out_of_service" : "bed_reactivated",
     entityType: "beds",
     entityId: params.bedId,
-    newValue: { reason: params.reason ?? null },
+    newValue: { permission: access.permission, reason: params.reason ?? null },
   });
   return { ok: true };
 }
@@ -101,8 +118,9 @@ export async function assignStayToBed(
   admin: SupabaseClient,
   params: { actorUserId: string; residenceId: string; residentStayId: string; bedId: string },
 ): Promise<Result> {
-  const hasAccess = await assertResidenceAccess(admin, params.actorUserId, params.residenceId);
-  if (!hasAccess) return { ok: false, error: "No tenés acceso a esta residencia." };
+  const access = await assertResidencePermission(admin, params.actorUserId, params.residenceId, "operations.rooms_availability");
+  if (!access.ok) return { ok: false, error: access.error };
+  const actorRole = access.actorRole;
 
   const [{ data: stay }, { data: bed }, { data: occupant }] = await Promise.all([
     admin
@@ -133,19 +151,22 @@ export async function assignStayToBed(
   if (occupant && occupant.id !== params.residentStayId)
     return { ok: false, error: "Esa cama ya está ocupada." };
 
-  const { error } = await admin
+  const { data: updated, error } = await admin
     .from("resident_stays")
     .update({ bed_id: params.bedId, room_id: bed.room_id, room_type_id: bedRoom.room_type_id })
-    .eq("id", params.residentStayId);
-  if (error) return { ok: false, error: "No pudimos asignar la cama." };
+    .eq("id", params.residentStayId)
+    .eq("residence_id", params.residenceId)
+    .eq("is_current", true)
+    .select("id");
+  if (error || !updated || updated.length === 0) return { ok: false, error: "No pudimos asignar la cama." };
 
   await createAuditLog(admin, {
     actorUserId: params.actorUserId,
-    actorRole: "residence_owner",
+    actorRole,
     action: "resident_stay_bed_assigned",
     entityType: "resident_stays",
     entityId: params.residentStayId,
-    newValue: { bed_id: params.bedId, room_id: bed.room_id },
+    newValue: { permission: access.permission, bed_id: params.bedId, room_id: bed.room_id },
   });
   return { ok: true };
 }

@@ -2,6 +2,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createNotification } from "@/lib/notifications/createNotification";
 import { sendEmail } from "@/lib/email/sendEmail";
+import { rowCan, type ResidencePermission } from "@/lib/residences/permissions";
 
 /**
  * Avisos al equipo de la residencia (owner + staff activos) en el loop central (Ciclo 63, docs/07: "notificar a la
@@ -14,7 +15,30 @@ export type ResidenceTeamEvent = "new_application" | "new_waitlist_entry" | "new
   | "changes_requested"
   | "verification_approved"
   | "verification_rejected"
-  | "verification_expiring";
+  | "verification_expiring"
+  | "team_member_joined";
+
+/**
+ * DR10: estos avisos van SOLO al dueño. El staff no puede actuar sobre ellos (la verificación y el equipo son del dueño),
+ * así que recibirlos solo le generaría ruido o expectativas que no puede cumplir. El resto va a todo el equipo activo.
+ */
+export const OWNER_ONLY_EVENTS: ReadonlySet<ResidenceTeamEvent> = new Set<ResidenceTeamEvent>([
+  "changes_requested",
+  "verification_approved",
+  "verification_rejected",
+  "verification_expiring",
+  "team_member_joined",
+]);
+
+/**
+ * DR11: los avisos del día a día van al dueño y al staff que tiene el permiso para actuar sobre ellos (el staff sin el permiso solo
+ * generaría ruido). Los eventos de `OWNER_ONLY_EVENTS` no figuran acá: van solo al dueño.
+ */
+export const PERMISSION_BY_EVENT: Partial<Record<ResidenceTeamEvent, ResidencePermission>> = {
+  new_application: "applications.review_contact",
+  new_waitlist_entry: "waitlist.manage",
+  new_renewal_request: "renewals.manage",
+};
 
 const ENTITY_BY_EVENT: Record<ResidenceTeamEvent, string> = {
   new_application: "application_requests",
@@ -25,6 +49,8 @@ const ENTITY_BY_EVENT: Record<ResidenceTeamEvent, string> = {
   verification_approved: "residences",
   verification_rejected: "residences",
   verification_expiring: "residences",
+  // Ciclo 73 (DR10): el destino de la campana es la pantalla Equipo (`notificationHref`, entidad `residence_team`, id = residencia).
+  team_member_joined: "residence_team",
 };
 
 function pathFor(event: ResidenceTeamEvent, residenceId: string, entityId: string): string {
@@ -40,6 +66,8 @@ function pathFor(event: ResidenceTeamEvent, residenceId: string, entityId: strin
     case "verification_rejected":
     case "verification_expiring":
       return `/residence/${residenceId}`;
+    case "team_member_joined":
+      return `/residence/${residenceId}/team`;
   }
 }
 
@@ -111,7 +139,27 @@ export function buildResidenceTeamMessage(
         intro: `La verificación de ${residenceName} vence en menos de 30 días. Cuando venza vas a poder reenviarla para revisión desde tu panel y el equipo de EstuRed coordina la nueva visita.`,
         cta: "Ir a mi panel",
       };
+    // Ciclo 73 (DR10): sin el email ni datos de la persona (el email viaja por un tercero); el detalle se ve en la pantalla Equipo.
+    case "team_member_joined":
+      return {
+        title: `Alguien aceptó tu invitación al equipo de ${residenceName}`,
+        body: "Ya puede trabajar en la residencia con acceso de staff. Mirá quién forma parte del equipo en la sección Equipo.",
+        subject: "EstuRed: aceptaron tu invitación al equipo",
+        intro: `Alguien aceptó tu invitación al equipo de ${residenceName} y ya tiene acceso de staff.`,
+        cta: "Ver el equipo",
+      };
   }
+}
+
+/**
+ * Quiénes reciben el evento según su rol y sus permisos en la residencia (DR10/DR11): los avisos del dueño no van al staff; los del día
+ * a día van al dueño y al staff con el permiso correspondiente (sin `permissions` guardado, falla cerrado: no recibe).
+ */
+export function filterTeamByEvent<T extends { user_id: string; role?: string | null; permissions?: unknown }>(event: ResidenceTeamEvent, rows: T[]): T[] {
+  if (OWNER_ONLY_EVENTS.has(event)) return rows.filter((r) => r.role === "owner");
+  const permission = PERMISSION_BY_EVENT[event];
+  if (!permission) return rows.filter((r) => r.role === "owner");
+  return rows.filter((r) => rowCan(r, permission));
 }
 
 /** Destinatarios: usuarios activos y no bloqueados, sin repetir. El email es opcional (solo se manda si existe). */
@@ -135,9 +183,10 @@ export async function notifyResidenceTeam(
   try {
     const [{ data: residence }, { data: teamRows }] = await Promise.all([
       admin.from("residences").select("name").eq("id", params.residenceId).maybeSingle(),
-      admin.from("residence_users").select("user_id").eq("residence_id", params.residenceId).eq("is_active", true),
+      admin.from("residence_users").select("user_id, role, permissions").eq("residence_id", params.residenceId).eq("is_active", true),
     ]);
-    const userIds = [...new Set((teamRows ?? []).map((r) => r.user_id as string))];
+    const targetRows = filterTeamByEvent(params.event, (teamRows ?? []) as { user_id: string; role: string | null; permissions: unknown }[]);
+    const userIds = [...new Set(targetRows.map((r) => r.user_id))];
     if (userIds.length === 0) return;
 
     const { data: users } = await admin.from("users").select("id, email, is_active, is_blocked").in("id", userIds);

@@ -101,6 +101,9 @@ export function notificationHref(
   switch (entityType) {
     case "residences":
       return id ? `/residence/${id}` : "/residence/dashboard";
+    case "residence_team":
+      // DR10: el id es el de la residencia; la pantalla Equipo valida que sea el dueño.
+      return id ? `/residence/${id}/team` : "/residence/dashboard";
     case "support_cases": {
       const residenceId = id ? context.residenceIdByEntity?.[`support_cases:${id}`] : undefined;
       return residenceId ? `/residence/${residenceId}/support` : null;

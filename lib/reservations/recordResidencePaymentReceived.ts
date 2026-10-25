@@ -3,7 +3,7 @@ import { notifyFamilyReservationMilestone } from "@/lib/family/familyMilestones"
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog, alertAdminsOfAuditFailure } from "@/lib/audit";
 import { calculateFeeEstimate } from "@/lib/applications/fee";
-import { assertResidenceAccess } from "@/lib/residences/access";
+import { assertResidencePermission } from "@/lib/residences/access";
 import { promoteNextQueuedApplication } from "@/lib/applications/roomTypeQueue";
 
 export type RecordResidencePaymentReceivedResult =
@@ -52,8 +52,9 @@ export async function recordResidencePaymentReceived(
     .maybeSingle();
   if (!application) return { ok: false, error: "No encontramos esa solicitud." };
 
-  const hasAccess = await assertResidenceAccess(admin, params.actorUserId, application.residence_id);
-  if (!hasAccess) return { ok: false, error: "No tenés acceso a esa residencia." };
+  const access = await assertResidencePermission(admin, params.actorUserId, application.residence_id, "payments.residence");
+  if (!access.ok) return { ok: false, error: access.error };
+  const actorRole = access.actorRole;
   if (application.status !== "residence_payment_pending") {
     return { ok: false, error: "Esa solicitud no está esperando pago a la residencia." };
   }
@@ -221,7 +222,7 @@ export async function recordResidencePaymentReceived(
       from_status: "residence_payment_pending",
       to_status: "residence_payment_reported",
       changed_by_user_id: params.actorUserId,
-      changed_by_role: "residence_owner",
+      changed_by_role: actorRole,
     });
     await admin.from("application_status_events").insert({
       application_request_id: params.applicationId,
@@ -233,11 +234,11 @@ export async function recordResidencePaymentReceived(
 
     const audited = await createAuditLog(admin, {
       actorUserId: params.actorUserId,
-      actorRole: "residence_owner",
+      actorRole,
       action: "residence_payment_marked_received",
       entityType: "application_requests",
       entityId: params.applicationId,
-      newValue: { reservation_id: reservation.id, estured_fee_payment_id: feePayment.id },
+      newValue: { permission: access.permission, reservation_id: reservation.id, estured_fee_payment_id: feePayment.id },
     });
     if (!audited) {
       await alertAdminsOfAuditFailure(admin, {

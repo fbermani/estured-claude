@@ -155,6 +155,13 @@ const ACTION_PHRASES: Record<string, string> = {
   resident_marked_inactive_by_admin: "marcó un residente como inactivo",
   resident_visibility_limited_by_admin: "limitó la visibilidad de un residente",
   resident_visibility_restored_by_admin: "restauró la visibilidad de un residente",
+  // Equipo de la residencia (DR10)
+  team_invitation_sent: "invitó a una persona al equipo de una residencia",
+  team_invitation_resent: "reenvió una invitación al equipo de una residencia",
+  team_invitation_cancelled: "canceló una invitación al equipo de una residencia",
+  team_invitation_accepted: "aceptó una invitación al equipo de una residencia",
+  team_member_removed: "quitó el acceso a una persona del equipo de una residencia",
+  team_permissions_changed: "cambió los permisos de una persona del equipo de una residencia",
   // Lista de espera y soporte
   waitlist_entry_joined: "se sumó a una lista de espera",
   waitlist_entry_left: "salió de una lista de espera",
@@ -230,6 +237,8 @@ const ENTITY_LABELS: Record<string, string> = {
   renewal_requests: "Pedido de renovación",
   reservations: "Reserva",
   residence_faq_questions: "Pregunta de ficha",
+  residence_team_invitations: "Invitación al equipo",
+  residence_users: "Miembro del equipo",
   residences: "Residencia",
   resident_notes: "Nota de residente",
   resident_stays: "Residente",

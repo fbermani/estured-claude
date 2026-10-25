@@ -5,7 +5,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { assertResidenceAccess } from "@/lib/residences/access";
+import { getResidenceMembership } from "@/lib/residences/access";
+import { can } from "@/lib/residences/permissions";
+import { PermissionGate } from "@/components/residences/PermissionGate";
 import { MOVING_SIGNAL_LABEL } from "@/lib/stayChange/copy";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -52,8 +54,10 @@ export default async function ResidenceWaitlistPage({
   const admin = getSupabaseAdmin();
   if (!admin) notFound();
 
-  const hasAccess = await assertResidenceAccess(admin, sessionUser.id, residenceId);
-  if (!hasAccess) notFound();
+  const membership = await getResidenceMembership(admin, sessionUser.id, residenceId);
+  if (!membership) notFound();
+  // DR11: sin el permiso las acciones se ven deshabilitadas (solo presentación; el servidor valida cada acción).
+  const canManage = can(membership, "waitlist.manage");
 
   const { data: entries, error } = await admin
     .from("waitlist_entries")
@@ -195,7 +199,9 @@ export default async function ResidenceWaitlistPage({
                             En lista desde {formatDate(entry.joined_at)} · {entry.waitingDays}{" "}
                             {entry.waitingDays === 1 ? "día" : "días"} de antigüedad
                           </p>
-                          <WaitlistRowActions residenceId={residenceId} entryId={entry.id} />
+                          <PermissionGate allowed={canManage}>
+                            <WaitlistRowActions residenceId={residenceId} entryId={entry.id} />
+                          </PermissionGate>
                         </div>
                       </div>
                     </Card>

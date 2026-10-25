@@ -1,5 +1,7 @@
 "use client";
 
+import { PermissionNote } from "@/components/residences/PermissionGate";
+import { STAFF_PERMISSIONS, type ResidencePermission } from "@/lib/residences/permissions";
 import { useState, useTransition } from "react";
 import { useActionState } from "react";
 import { Button } from "@/components/ui/Button";
@@ -20,6 +22,24 @@ import {
   type MarkReceivedState,
 } from "@/app/residence/[residence_id]/applications/[id]/payment/actions";
 
+/**
+ * Qué puede hacer la persona que mira (DR11), resuelto en el servidor desde sus permisos en ESTA residencia. Es solo presentación:
+ * lo apagado se muestra deshabilitado con una nota (no se oculta), pero el servidor valida cada acción por su cuenta.
+ */
+export type ApplicationAllowed = {
+  reviewContact: boolean;
+  reject: boolean;
+  residencePayment: boolean;
+  sendAdjustment: boolean;
+};
+
+/** Nota "Pedile al dueño el permiso: X" con el nombre de lo que falta (reutiliza `PermissionNote`). No renderiza nada si no falta nada. */
+function PermissionHint({ missing }: { missing: ResidencePermission[] }) {
+  if (missing.length === 0) return null;
+  const labels = missing.map((key) => STAFF_PERMISSIONS.find((p) => p.key === key)?.label ?? key);
+  return <PermissionNote text={`Pedile al dueño el permiso: ${labels.join(" / ")}.`} />;
+}
+
 const initialState: ApplicationActionState = { status: "idle" };
 const initialPaymentState: MarkReceivedState = { status: "idle" };
 
@@ -38,6 +58,7 @@ export function ApplicationActions({
   reservation,
   whatsappUrl,
   paymentDeadlineAt = null,
+  allowed,
 }: {
   applicationId: string;
   residenceId: string;
@@ -46,6 +67,8 @@ export function ApplicationActions({
   whatsappUrl: string | null;
   /** `application_requests.payment_deadline_at`: plazo de 48 h de `contact_established` (H06). */
   paymentDeadlineAt?: string | null;
+  /** DR11: permisos de quien mira. Solo presentación: el servidor rechaza lo que no esté permitido. */
+  allowed: ApplicationAllowed;
 }) {
   const [isPending, startTransition] = useTransition();
   const [simpleError, setSimpleError] = useState<string | null>(null);
@@ -143,17 +166,24 @@ export function ApplicationActions({
               Escribir por WhatsApp →
             </a>
           )}
-          <Button href={`/residence/${residenceId}/applications/${applicationId}/negotiation`} variant="outline">
-            Enviar propuesta de ajuste
-          </Button>
+          {allowed.sendAdjustment ? (
+            <Button href={`/residence/${residenceId}/applications/${applicationId}/negotiation`} variant="outline">
+              Enviar propuesta de ajuste
+            </Button>
+          ) : (
+            <Button variant="outline" disabled>
+              Enviar propuesta de ajuste
+            </Button>
+          )}
           <Button
             variant="outline"
-            disabled={isPending}
+            disabled={isPending || !allowed.residencePayment}
             onClick={() => runSimpleAction(() => enableResidencePayment(applicationId))}
           >
             Continuar sin cambios (habilitar pago)
           </Button>
         </div>
+        <PermissionHint missing={[...(allowed.sendAdjustment ? [] : ["applications.send_adjustment" as const]), ...(allowed.residencePayment ? [] : ["payments.residence" as const])]} />
       </div>
     );
   }
@@ -165,6 +195,7 @@ export function ApplicationActions({
           Esperando que el estudiante te pague directamente y confirmes acá que lo recibiste.
         </p>
         <form action={paymentFormAction} className="rounded-card border border-sand-200 bg-sand-50 p-4">
+         <fieldset disabled={!allowed.residencePayment} className="m-0 min-w-0 border-0 p-0">
           <h3 className="font-bold text-ink">Marcar pago recibido</h3>
           <p className="mt-1 text-xs text-ink-faint">
             Solo confirmá esto cuando el pago ya esté efectivamente en tu cuenta o en tu poder. Habilita la
@@ -216,9 +247,13 @@ export function ApplicationActions({
             fee EstuRed.
           </label>
 
-          <Button type="submit" disabled={!paymentConfirmed || isPaymentPending} className="mt-4">
+          <Button type="submit" disabled={!paymentConfirmed || isPaymentPending || !allowed.residencePayment} className="mt-4">
             {isPaymentPending ? "Confirmando…" : "Marcar pago recibido"}
           </Button>
+         </fieldset>
+         <div className="mt-3">
+           <PermissionHint missing={allowed.residencePayment ? [] : ["payments.residence"]} />
+         </div>
         </form>
       </div>
     );
@@ -268,21 +303,22 @@ export function ApplicationActions({
         {status === "submitted" && (
           <Button
             variant="outline"
-            disabled={isPending}
+            disabled={isPending || !allowed.reviewContact}
             onClick={() => runSimpleAction(() => markUnderReview(applicationId))}
           >
             Marcar en revisión
           </Button>
         )}
-        <Button disabled={isPending} onClick={() => runSimpleAction(() => establishContact(applicationId))}>
+        <Button disabled={isPending || !allowed.reviewContact} onClick={() => runSimpleAction(() => establishContact(applicationId))}>
           Establecer contacto
         </Button>
-        <Button variant="outline" disabled={isPending} onClick={() => setShowRejectForm((v) => !v)}>
+        <Button variant="outline" disabled={isPending || !allowed.reject} onClick={() => setShowRejectForm((v) => !v)}>
           Rechazar
         </Button>
       </div>
+      <PermissionHint missing={[...(allowed.reviewContact ? [] : ["applications.review_contact" as const]), ...(allowed.reject ? [] : ["applications.reject" as const])]} />
 
-      {showRejectForm && (
+      {showRejectForm && allowed.reject && (
         <form action={rejectFormAction} className="rounded-card border border-sand-200 bg-sand-50 p-4">
           <Select label="Motivo de rechazo" id="reject-reason" name="reason_code" required defaultValue="">
             <option value="" disabled>

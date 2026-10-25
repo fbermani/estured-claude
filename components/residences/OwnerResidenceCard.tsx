@@ -23,6 +23,7 @@ type StatusTone = "neutral" | "amber" | "sage";
  */
 export function OwnerResidenceCard({
   residenceId,
+  role = "owner",
   name,
   zone,
   photoUrl,
@@ -39,6 +40,8 @@ export function OwnerResidenceCard({
   arsPerUsd,
 }: {
   residenceId: string;
+  /** DR10: el staff ve la tarjeta con "Ver perfil" (solo lectura) y una marca "Staff". */
+  role?: "owner" | "staff";
   name: string;
   zone: string;
   photoUrl: string | null;
@@ -75,6 +78,11 @@ export function OwnerResidenceCard({
           {occupancyFull && (
             <Badge tone="petrol" className="bg-paper/90 shadow-sm backdrop-blur-sm">
               Ocupación completa
+            </Badge>
+          )}
+          {role === "staff" && (
+            <Badge tone="neutral" className="bg-paper/90 shadow-sm backdrop-blur-sm">
+              Staff
             </Badge>
           )}
         </div>
@@ -144,7 +152,7 @@ export function OwnerResidenceCard({
               Gestionar residencia
             </Button>
             <Link href={`${href}/profile`} className="text-xs font-semibold text-forest-700 hover:underline">
-              Editar perfil
+              {role === "owner" ? "Editar perfil" : "Ver perfil"}
             </Link>
           </div>
         </div>

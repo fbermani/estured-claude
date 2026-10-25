@@ -24,7 +24,10 @@ vi.mock("next/navigation", () => ({
   },
 }));
 vi.mock("@/lib/auth/session", () => ({ getSessionUser: async () => ({ id: "owner-1" }) }));
-vi.mock("@/lib/residences/access", () => ({ assertResidenceAccess: async () => true }));
+vi.mock("@/lib/residences/access", () => ({
+  assertResidencePermission: async () => ({ ok: true, actorRole: "residence_owner" }),
+  assertResidenceOwner: async () => ({ ok: true, actorRole: "residence_owner" }),
+}));
 vi.mock("@/lib/audit", () => ({ createAuditLog: async () => true }));
 vi.mock("@/lib/applications/roomTypeQueue", () => ({ promoteNextQueuedApplication: async () => undefined }));
 vi.mock("@/lib/applications/residencePayment", () => ({
@@ -160,18 +163,18 @@ describe("acciones de la residencia con el estado cambiado de por medio", () => 
   });
 
   it("rejectApplication: condicionado; si perdió la carrera no deja evento ni reactiva pausadas", async () => {
-    resetState("contact_established", "expired_no_student_payment");
+    resetState("under_review", "expired_no_student_payment");
     const form = new FormData();
     form.set("reason_code", "no_availability");
     const result = await rejectApplication("app-1", { status: "idle" }, form);
     expect(result).toEqual({ status: "error", message: STALE });
-    expect(state.updates[0].filters).toContainEqual(["status", "contact_established"]);
+    expect(state.updates[0].filters).toContainEqual(["status", "under_review"]);
     expect(state.inserts.filter((i) => i.table === "application_status_events")).toHaveLength(0);
     expect(state.reactivations).toBe(0);
   });
 
   it("rejectApplication: si el rechazo se guarda, reactiva las pausadas del estudiante", async () => {
-    resetState("contact_established", "contact_established");
+    resetState("under_review", "under_review");
     const form = new FormData();
     form.set("reason_code", "no_availability");
     const result = await rejectApplication("app-1", { status: "idle" }, form);

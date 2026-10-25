@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createNotification } from "@/lib/notifications/createNotification";
+import { rowCan } from "@/lib/residences/permissions";
 import {
   ANONYMOUS_QUESTIONS_PER_HOUR,
   MAX_PENDING_PER_RESIDENCE,
@@ -93,14 +94,16 @@ export async function submitResidenceQuestion(
     return { ok: false, error: "No pudimos guardar tu pregunta. Intentá de nuevo en unos minutos." };
   }
 
-  // Aviso in-app a quienes gestionan la residencia (owner y staff activos). Nunca rompe el envío.
+  // Aviso in-app a quienes gestionan la residencia (dueño y staff con permiso de preguntas). Nunca rompe el envío.
   const { data: members } = await admin
     .from("residence_users")
-    .select("user_id")
+    .select("user_id, role, permissions")
     .eq("residence_id", residence.id)
     .eq("is_active", true);
+  // DR11: el dueño siempre; el staff solo si puede responder preguntas (`faq.manage`).
+  const faqRecipients = ((members ?? []) as { user_id: string; role: string | null; permissions: unknown }[]).filter((m) => rowCan(m, "faq.manage"));
   await Promise.all(
-    (members ?? []).map((m) =>
+    faqRecipients.map((m) =>
       createNotification(admin, {
         userId: m.user_id as string,
         title: "Nueva pregunta en tu ficha",

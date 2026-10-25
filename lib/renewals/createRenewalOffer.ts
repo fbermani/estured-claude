@@ -1,11 +1,49 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
-import { assertResidenceAccess } from "@/lib/residences/access";
+import { assertResidencePermission } from "@/lib/residences/access";
+import { can } from "@/lib/residences/permissions";
 import { calculateFeeEstimate } from "@/lib/applications/fee";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 
 export type CreateRenewalOfferResult = { ok: true; renewalOfferId: string } | { ok: false; error: string };
+
+/**
+ * Estados de una `renewal_request` en los que todavía se le puede responder con una oferta (docs/06 §14.1, enum `renewal_request_status`
+ * de la 0016). Las demás (`offer_received`, `closed_no_offer`, `superseded_by_offer`) ya están resueltas.
+ */
+export const OFFERABLE_RENEWAL_REQUEST_STATUSES = ["created_by_student", "notified_to_residence"] as const;
+const RENEWAL_REQUEST_UNAVAILABLE = "Esa solicitud de renovación ya no está disponible. Actualizá la página.";
+
+/** Mensaje cuando quien ofrece la renovación solo tiene `renewals.manage` y cambia el precio, la matrícula o el depósito vigentes. */
+export const RENEWAL_CONDITIONS_PERMISSION_MESSAGE =
+  "Cambiar el precio, la matrícula o el depósito de la renovación requiere el permiso de Proponer un ajuste de condiciones. Pedíselo al dueño.";
+
+const sameUsd = (a: number, b: number) => Math.round(a * 100) === Math.round(b * 100);
+
+/**
+ * ¿La oferta cambia las condiciones vigentes de la reserva? Las vigentes son las del snapshot de la reserva (lo que se acordó al reservar:
+ * tarifa mensual, matrícula y depósito). El precio tiene que ser igual; la matrícula o el depósito, si la oferta trae un monto, también
+ * (no cobrar matrícula ni depósito en la renovación no es "fijar" nada, así que `null`/0 no cuentan como cambio). Si no se pueden leer las
+ * condiciones vigentes se asume que cambian (falla cerrado: solo pasa quien puede proponer ajustes).
+ */
+async function offerChangesCurrentConditions(
+  admin: SupabaseClient,
+  snapshotId: string | null,
+  offered: { monthlyPriceUsd: number; enrollmentOrRenewalFeeUsd: number | null; depositUsd: number | null },
+): Promise<boolean> {
+  if (!snapshotId) return true;
+  const { data: snapshot, error } = await admin
+    .from("application_snapshots")
+    .select("monthly_price_usd, enrollment_fee_usd, deposit_usd")
+    .eq("id", snapshotId)
+    .maybeSingle();
+  if (error || !snapshot) return true;
+  if (!sameUsd(offered.monthlyPriceUsd, Number(snapshot.monthly_price_usd))) return true;
+  const sameOrNone = (offeredUsd: number | null, currentUsd: unknown) =>
+    !offeredUsd || (currentUsd != null && sameUsd(offeredUsd, Number(currentUsd)));
+  return !sameOrNone(offered.enrollmentOrRenewalFeeUsd, snapshot.enrollment_fee_usd) || !sameOrNone(offered.depositUsd, snapshot.deposit_usd);
+}
 
 const ADJUSTMENT_POLICIES = new Set(["monthly", "quarterly", "semiannual", "annual", "none"]);
 
@@ -53,7 +91,7 @@ export async function createRenewalOffer(
 
   const { data: reservation } = await admin
     .from("reservations")
-    .select("id, status, student_profile_id, residence_id")
+    .select("id, status, student_profile_id, residence_id, snapshot_id")
     .eq("id", params.reservationId)
     .maybeSingle();
   if (!reservation) return { ok: false, error: "No encontramos esa reserva." };
@@ -61,8 +99,38 @@ export async function createRenewalOffer(
     return { ok: false, error: "Solo se puede ofrecer renovación de una reserva confirmada." };
   }
 
-  const hasAccess = await assertResidenceAccess(admin, params.actorUserId, reservation.residence_id);
-  if (!hasAccess) return { ok: false, error: "No tenés acceso a esta residencia." };
+  const access = await assertResidencePermission(admin, params.actorUserId, reservation.residence_id, "renewals.manage");
+  if (!access.ok) return { ok: false, error: access.error };
+  const actorRole = access.actorRole;
+
+  // `renewals.manage` crea ofertas que MANTIENEN las condiciones vigentes. Si el precio, la matrícula o el depósito cambian, es una propuesta
+  // de ajuste y exige además `applications.send_adjustment` (apagado por defecto para el staff; el dueño siempre puede, sin consultar nada).
+  const mayChangeConditions = can(access.membership, "applications.send_adjustment");
+  if (!mayChangeConditions) {
+    const changes = await offerChangesCurrentConditions(admin, (reservation.snapshot_id as string | null) ?? null, {
+      monthlyPriceUsd: params.monthlyPriceUsd,
+      enrollmentOrRenewalFeeUsd: params.enrollmentOrRenewalFeeUsd,
+      depositUsd: params.depositUsd,
+    });
+    if (changes) return { ok: false, error: RENEWAL_CONDITIONS_PERMISSION_MESSAGE };
+  }
+
+  // IDOR: `renewalRequestId` viaja del cliente. Tiene que ser una solicitud de ESTA reserva y estar todavía abierta; si no, se rechaza
+  // (no se acepta el id de una solicitud ajena, de otra reserva, ya resuelta o cancelada).
+  if (params.renewalRequestId) {
+    const { data: renewalRequest, error: requestError } = await admin
+      .from("renewal_requests")
+      .select("id")
+      .eq("id", params.renewalRequestId)
+      .eq("reservation_id", reservation.id)
+      .in("status", [...OFFERABLE_RENEWAL_REQUEST_STATUSES])
+      .maybeSingle();
+    if (requestError) {
+      console.error("[renewals] createRenewalOffer request read failed:", requestError);
+      return { ok: false, error: "No pudimos crear la oferta. Intentá de nuevo." };
+    }
+    if (!renewalRequest) return { ok: false, error: RENEWAL_REQUEST_UNAVAILABLE };
+  }
 
   const rate = await getCurrentExchangeRate();
   const monthlyPriceArs = params.monthlyPriceUsd * rate.arsPerUsd;
@@ -114,16 +182,29 @@ export async function createRenewalOffer(
   }
 
   if (params.renewalRequestId && params.sendNow) {
-    await admin.from("renewal_requests").update({ status: "offer_received" }).eq("id", params.renewalRequestId);
+    // Update condicional por reserva y estado, con chequeo de filas: si otro actor la movió entre el chequeo y acá, se deshace la oferta
+    // recién creada (todavía sin dependientes) en vez de dejar una oferta enviada contra una solicitud que ya no estaba abierta.
+    const { data: movedRows, error: moveError } = await admin
+      .from("renewal_requests")
+      .update({ status: "offer_received" })
+      .eq("id", params.renewalRequestId)
+      .eq("reservation_id", reservation.id)
+      .in("status", [...OFFERABLE_RENEWAL_REQUEST_STATUSES])
+      .select("id");
+    if (moveError || !movedRows || movedRows.length === 0) {
+      if (moveError) console.error("[renewals] createRenewalOffer request update failed:", moveError);
+      await admin.from("renewal_offers").delete().eq("id", offer.id).eq("status", status);
+      return { ok: false, error: moveError ? "No pudimos crear la oferta. Intentá de nuevo." : RENEWAL_REQUEST_UNAVAILABLE };
+    }
   }
 
   await createAuditLog(admin, {
     actorUserId: params.actorUserId,
-    actorRole: "residence_owner",
+    actorRole,
     action: params.sendNow ? "renewal_offer_sent" : "renewal_offer_draft_saved",
     entityType: "renewal_offers",
     entityId: offer.id,
-    newValue: { status, duration_months: params.durationMonths, monthly_price_usd: params.monthlyPriceUsd },
+    newValue: { permission: access.permission, status, duration_months: params.durationMonths, monthly_price_usd: params.monthlyPriceUsd },
     source: "user",
   });
 

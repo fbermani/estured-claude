@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatUsd } from "@/lib/mock/exchange";
 import { AddResidentForm } from "@/app/residence/[residence_id]/residents/AddResidentForm";
+import { PermissionGate, PermissionNote } from "@/components/residences/PermissionGate";
 import { StayChangeSection } from "@/app/residence/[residence_id]/residents/StayChangeSection";
 import { StayChangeResponseSheet } from "@/app/residence/[residence_id]/residents/StayChangeResponseSheet";
 import { EarlyExitForm } from "@/app/residence/[residence_id]/residents/EarlyExitForm";
@@ -205,7 +206,13 @@ function DetailPanel({
   freeBeds,
   notes,
   exitRequest,
+  canResidents,
+  canBeds,
 }: {
+  /** DR11: `residents.manage` (altas, estadías, salidas, notas). */
+  canResidents: boolean;
+  /** DR11: `operations.rooms_availability` (cambiar la cama de un residente). */
+  canBeds: boolean;
   residenceId: string;
   row: ResidentRow;
   freeBeds: { id: string; label: string }[];
@@ -240,19 +247,35 @@ function DetailPanel({
 
   return (
     <div className="grid gap-5 border-t border-line bg-cream-2/60 p-5 sm:grid-cols-2 lg:grid-cols-4">
-      {earlyExitOpen && (
+      {(!canResidents || !canBeds) && (
         <div className="sm:col-span-2 lg:col-span-4">
-          <EarlyExitForm
-            residenceId={residenceId}
-            stayId={row.stayId}
-            residentName={row.name}
-            depositMode={row.depositMode}
-            suggestedDate={suggestedExitDate}
-            onCancel={() => setEarlyExitOpen(false)}
+          <PermissionNote
+            text={
+              !canResidents && !canBeds
+                ? "No tenés permiso para modificar residentes ni camas. Pedile estos permisos al dueño."
+                : !canResidents
+                  ? "No tenés permiso para modificar residentes. Pedile este permiso al dueño."
+                  : "No tenés permiso para cambiar camas. Pedile este permiso al dueño."
+            }
           />
         </div>
       )}
+      {earlyExitOpen && (
+        <div className="sm:col-span-2 lg:col-span-4">
+          <PermissionGate bare allowed={canResidents}>
+            <EarlyExitForm
+              residenceId={residenceId}
+              stayId={row.stayId}
+              residentName={row.name}
+              depositMode={row.depositMode}
+              suggestedDate={suggestedExitDate}
+              onCancel={() => setEarlyExitOpen(false)}
+            />
+          </PermissionGate>
+        </div>
+      )}
       {/* Salida exacta + tarifa — ref modal perfil del residente */}
+      <PermissionGate bare allowed={canResidents}>
       <form action={detailsFormAction} className="rounded-field border border-line bg-paper p-4">
         <p className="mb-3 flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest text-muted">
           <Icon name="event" className="text-sm" /> Estadía y tarifa
@@ -315,8 +338,10 @@ function DetailPanel({
         )}
         {detailsState.status === "saved" && <p className="mt-2 text-xs font-medium text-success-fg">Guardado.</p>}
       </form>
+      </PermissionGate>
 
       {/* Habitación y cama */}
+      <PermissionGate bare allowed={canBeds}>
       <div className="rounded-field border border-line bg-paper p-4">
         <p className="mb-3 flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest text-muted">
           <Icon name="meeting_room" className="text-sm" /> Habitación y cama
@@ -351,6 +376,7 @@ function DetailPanel({
         {bedState.status === "error" && <p className="mt-2 text-xs font-medium text-danger-fg">{bedState.message}</p>}
         {bedState.status === "saved" && <p className="mt-2 text-xs font-medium text-success-fg">Reubicado.</p>}
       </div>
+      </PermissionGate>
 
       {/* Renovación + zona de riesgo */}
       <div className="flex flex-col gap-4">
@@ -406,6 +432,7 @@ function DetailPanel({
             </>
           )}
         </div>
+        <PermissionGate bare allowed={canResidents}>
         <div className="rounded-field border border-danger-fg/30 bg-danger-bg/50 p-4">
           <p className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest text-danger-fg">
             <Icon name="warning" className="text-sm" /> Zona de riesgo
@@ -456,9 +483,12 @@ function DetailPanel({
           )}
           {endState.status === "error" && <p className="mt-2 text-xs font-medium text-danger-fg">{endState.message}</p>}
         </div>
+        </PermissionGate>
       </div>
 
-      <NotesSection residenceId={residenceId} row={row} notes={notes} />
+      <PermissionGate bare allowed={canResidents}>
+        <NotesSection residenceId={residenceId} row={row} notes={notes} />
+      </PermissionGate>
     </div>
   );
 }
@@ -467,10 +497,16 @@ export function ResidentsBrowser({
   residenceId,
   residenceName,
   data,
+  canManageResidents,
+  canManageBeds,
 }: {
   residenceId: string;
   residenceName: string;
   data: ResidentsData;
+  /** DR11: `residents.manage`. Solo presentación; el servidor valida cada acción. */
+  canManageResidents: boolean;
+  /** DR11: `operations.rooms_availability` (cambiar la cama). */
+  canManageBeds: boolean;
 }) {
   const searchParams = useSearchParams();
   // `?filtro=buscan-cambiar` (enlace del Panel): arranca filtrado por los residentes que buscan cambiar.
@@ -538,7 +574,9 @@ export function ResidentsBrowser({
         <button
           type="button"
           onClick={() => setShowAdd((v) => !v)}
-          className="flex cursor-pointer items-center gap-1.5 rounded-full bg-forest px-5 py-2.5 text-sm font-bold text-white shadow-card hover:bg-forest-600"
+          disabled={!canManageResidents}
+          title={canManageResidents ? undefined : "Pedile este permiso al dueño."}
+          className="flex cursor-pointer items-center gap-1.5 rounded-full bg-forest px-5 py-2.5 text-sm font-bold text-white shadow-card hover:bg-forest-600 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Icon name={showAdd ? "close" : "person_add"} className="text-lg" />
           {showAdd ? "Cerrar" : "Agregar residente"}
@@ -585,6 +623,7 @@ export function ResidentsBrowser({
         items={data.stayChanges}
         onRespond={(item) => setRespondingId(item.id)}
         onRegisterExit={registerExit}
+        canAct={canManageResidents}
       />
 
       {toast && (
@@ -752,6 +791,8 @@ export function ResidentsBrowser({
                               freeBeds={data.freeBeds}
                               notes={data.notesByStay[row.stayId] ?? []}
                               exitRequest={exitRequest}
+                              canResidents={canManageResidents}
+                              canBeds={canManageBeds}
                             />
                           </td>
                         </tr>

@@ -391,10 +391,13 @@ Base: `/residence`
 - `/residence/[residence_id]/renewals/[id]`
 - `/residence/[residence_id]/receipts`
 - `/residence/[residence_id]/faq`
+- `/residence/[residence_id]/team` — Equipo (solo dueño, DR10)
 - `/residence/[residence_id]/metrics`
 - `/residence/[residence_id]/plan`
 
 **Nota de arquitectura:** todo endpoint bajo `/residence/[residence_id]/...` debe validar server-side que el usuario autenticado tiene `residence_users` activo para ese `residence_id` específico. No alcanza con validar que el usuario es `residence_owner` o `residence_staff` en general.
+
+**Dueño y permisos del staff (DR10/DR11):** además, cada acción de escritura del área valida server-side lo que corresponde. Las acciones **delegables** usan `assertResidencePermission(admin, userId, residenceId, permiso)` (`lib/residences/access.ts`): el dueño siempre pasa y el staff solo si el dueño le encendió ese permiso en `residence_users.permissions` (10 claves, ver `docs/05` §4.7). Lo **no delegable** (equipo y permisos, enviar o reenviar el perfil a verificación, reporte PDF, sumar residencia) usa `assertResidenceOwner`. Lo que no tiene casillero (ver el panel, Soporte, notificaciones) solo exige el vínculo activo (`getResidenceMembership` / `assertResidenceAccess`). La lógica pura (lista de permisos, `can`, atajos) está en `lib/residences/permissions.ts`. El rol y los permisos salen **siempre de la base, por residencia**, nunca del formulario ni del rol global de la cuenta, y fallan cerrado. La auditoría usa el rol real (`residenceActorRole`). Tests de cobertura: `lib/residences/permissionCoverage.test.ts` (toda escritura del área tiene su control documentado) y `lib/residences/actorRoleCoverage.test.ts`. Ruta pública de aceptación de invitaciones: `/register/staff/[token]`.
 
 ### 7.4. Área admin
 

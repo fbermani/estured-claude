@@ -5,7 +5,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { assertResidenceAccess } from "@/lib/residences/access";
+import { getResidenceMembership } from "@/lib/residences/access";
+import { can } from "@/lib/residences/permissions";
+import { PermissionGate } from "@/components/residences/PermissionGate";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { formatUsd, formatArs, roundArs } from "@/lib/mock/exchange";
@@ -31,8 +33,10 @@ export default async function ResidenceRenewalDetailPage({
   const admin = getSupabaseAdmin();
   if (!admin) notFound();
 
-  const hasAccess = await assertResidenceAccess(admin, sessionUser.id, residenceId);
-  if (!hasAccess) notFound();
+  const membership = await getResidenceMembership(admin, sessionUser.id, residenceId);
+  if (!membership) notFound();
+  // DR11: sin el permiso las acciones se ven deshabilitadas (solo presentación; el servidor valida cada acción).
+  const canManage = can(membership, "renewals.manage");
 
   const { data: reservation } = await admin
     .from("reservations")
@@ -125,18 +129,18 @@ export default async function ResidenceRenewalDetailPage({
                   )}
                 </dl>
                 {o.status === "draft" && (
-                  <div className="mt-4">
+                  <PermissionGate allowed={canManage} className="mt-4">
                     <SendOfferButton offerId={o.id} residenceId={residenceId} reservationId={reservationId} />
-                  </div>
+                  </PermissionGate>
                 )}
                 {o.status === "residence_payment_pending" && (
-                  <div className="mt-4">
+                  <PermissionGate allowed={canManage} className="mt-4">
                     <MarkResidencePaymentReceivedForm
                       offerId={o.id}
                       residenceId={residenceId}
                       reservationId={reservationId}
                     />
-                  </div>
+                  </PermissionGate>
                 )}
                 {o.status === "estured_fee_pending" && (
                   <p className="mt-4 rounded-field bg-sand-100 px-4 py-3 text-sm text-ink-faint">
@@ -156,13 +160,15 @@ export default async function ResidenceRenewalDetailPage({
       )}
 
       {canCreateOffer && snapshot && (
-        <CreateOfferForm
-          reservationId={reservationId}
-          residenceId={residenceId}
-          renewalRequestId={request?.status === "created_by_student" || request?.status === "notified_to_residence" ? request.id : null}
-          currentMonthlyPriceUsd={Number(snapshot.monthly_price_usd)}
-          currentDurationMonths={reservation.initial_duration_months}
-        />
+        <PermissionGate allowed={canManage} className="mt-6">
+          <CreateOfferForm
+            reservationId={reservationId}
+            residenceId={residenceId}
+            renewalRequestId={request?.status === "created_by_student" || request?.status === "notified_to_residence" ? request.id : null}
+            currentMonthlyPriceUsd={Number(snapshot.monthly_price_usd)}
+            currentDurationMonths={reservation.initial_duration_months}
+          />
+        </PermissionGate>
       )}
     </div>
   );

@@ -63,11 +63,11 @@ export function RotatingBenefits({
 
         <div className="mt-5 space-y-4">
           <div>
-            <p className="text-xs font-extrabold uppercase tracking-wide text-orange-700">El problema</p>
+            <p className="text-xs font-extrabold uppercase tracking-wide text-orange-700">Lo que suele pasar</p>
             <p className="mt-1 text-sm leading-relaxed text-ink-soft">{featured.problem}</p>
           </div>
           <div>
-            <p className="text-xs font-extrabold uppercase tracking-wide text-forest-700">Cómo lo resuelve EstuRed</p>
+            <p className="text-xs font-extrabold uppercase tracking-wide text-forest-700">Cómo es con EstuRed</p>
             <p className="mt-1 text-sm leading-relaxed text-ink-soft">{featured.solution}</p>
           </div>
         </div>

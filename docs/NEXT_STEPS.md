@@ -8,6 +8,20 @@
 
 ---
 
+## CICLO 74 (2026-10-24) — Permisos del staff elegidos por el dueño (DR11)
+
+Ver `MEMORY.md` Ciclo 74 y `docs/00` §31 (DR11, con la tabla acción → permiso). Reemplaza el "un solo nivel de staff" de DR10: el dueño elige, staff por staff, 10 permisos (`residence_users.permissions`, sin migración), con atajos, desde `/residence/[id]/team`; al invitar elige los permisos iniciales. El servidor valida cada acción con `assertResidencePermission`; el staff ve deshabilitado (con nota) lo que no puede y un resumen «Tus permisos» en el Panel. ⚠ **Migración 0051 (sin aplicar, editada):** ahora agrega la columna `permissions` a `residence_team_invitations` (más lo del Ciclo 73: `invited_by` nullable). **Acción manual del dueño:** aplicarla en dev y en producción (SQL Editor → pegar y Run), orden 0046, 0045, 0047, 0048, 0049, 0050, 0051; si una versión vieja de la 0051 ya estaba aplicada, volver a correr esta (es idempotente). Después en dev: `node --env-file=.env.local scripts/seed-demo-team.mjs [--staff-permissions]` y probar guardar permisos con Ricardo y ver a Sofía con permisos apagados. Pendiente: verificar guardar/invitar/aceptar con la 0051 aplicada y los estados deshabilitados de Habitaciones, Residentes, Renovaciones, Lista de espera y Preguntas en pantalla.
+
+**Revisión/seguridad del Ciclo 73 aplicada (ver `MEMORY.md` "Ciclo 73 — revisión y seguridad"):** auditoría con el rol real, IDOR de renovaciones, límites de invitación, revalidación al aceptar, email que informa si falló, PDF 403/404. **Decisiones pendientes del dueño:** ofertas de renovación del staff, mayoría de edad de la cuenta de staff, WAF/limitador de `/register/staff/*` y `/login`, remitente de email.
+
+---
+
+## CICLO 73 (2026-10-24) — Equipo de la residencia: dueño y staff (DR10)
+
+Ver `MEMORY.md` Ciclo 73 y `docs/00` §31 (DR10, con la tabla de acciones dueño/staff). Dos niveles por residencia (`residence_users.role`), autorización central (`lib/residences/access.ts` + `permissions.ts`), perfil en solo lectura para el staff, propuesta de ajuste y PDF solo del dueño, pantalla `/residence/[id]/team` (invitar por email con token hasheado de 7 días, reenviar, cancelar, quitar acceso) y aceptación en `/register/staff/[token]`. ⚠ **Acción manual del dueño:** aplicar `db/migrations/0051_residence_team_invitations.sql` en dev y en producción (SQL Editor → pegar y Run), en orden **0046, 0045, 0047, 0048, 0049, 0050, 0051** (la 0051 no depende de las otras). Hasta entonces Equipo muestra miembros y permite quitar acceso, pero no invitar (se avisa). Luego en dev: `node --env-file=.env.local scripts/seed-demo-team.mjs` y probar con Ricardo (invitar/reenviar/cancelar) y la aceptación con el enlace que imprime el seed. Pendiente: verificar de punta a punta con la 0051 aplicada, unificar `actor_role` en la auditoría del día a día (hoy dice `residence_owner` aunque actúe un staff), presets finos (evolución futura), dominio propio de email.
+
+---
+
 ## CICLO 72 (2026-10-24) — Trazabilidad y permisos del admin (DR9)
 
 Ver `MEMORY.md` Ciclo 72 y `docs/00` §31 (DR9). Log legible (actor, entidad, frases, filtros), permisos de bloqueo (solo `superadmin` bloquea admins), lista de usuarios con filtros y paginación, jerga fuera del menú. Sin migraciones. Pendiente: verificar como Superadmin, contador de Revocaciones en el sidebar (no hay patrón de contadores), gestión de roles de admins, reorganizar el menú (decisión de producto).
