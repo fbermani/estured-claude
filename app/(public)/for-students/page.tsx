@@ -28,7 +28,7 @@ const benefits: RotatingBenefit[] = [
     problem:
       "Elegir dónde vivir sin conocer el lugar es una de las decisiones más difíciles de mudarte a otra ciudad.",
     solution:
-      "Identidad, ubicación y fotos revisadas por EstuRed mediante control presencial, no una foto de stock ni una descripción exagerada. El sello Residencia Verificada no reemplaza que consultes las condiciones de tu estadía.",
+      "Identidad, ubicación y fotos revisadas por EstuRed mediante control presencial, no una foto de stock ni una descripción exagerada. Revisamos cada espacio en persona: fotos auténticas, servicios reales y reglas claras. El sello Residencia Verificada no reemplaza que consultes las condiciones de tu estadía.",
     conclusion: "Elegís con información revisada en persona.",
   },
   {
@@ -68,11 +68,11 @@ const benefits: RotatingBenefit[] = [
     icon: "groups",
     title: "Comunidad visible",
     summary:
-      "Conocé cómo es la convivencia antes de decidir: quiénes viven en la residencia, según lo que cada residente elige compartir.",
+      "Descubrí la comunidad de cada residencia antes de mudarte: quiénes viven ahí, qué estudian y qué intereses comparten, según lo que cada residente elige mostrar.",
     problem:
       "Vas a convivir con gente que no elegiste, en un lugar que no conocés. Saber con quién vas a vivir ayuda a decidir con más tranquilidad.",
     solution:
-      "Conocé cómo es la convivencia antes de decidir: quiénes viven en la residencia, según lo que cada residente elige compartir.",
+      "Descubrí la comunidad de cada residencia antes de mudarte: quiénes viven ahí, qué estudian y qué intereses comparten, según lo que cada residente elige mostrar.",
     conclusion: "Elegís tu lugar sabiendo también con quién vas a compartirlo.",
   },
   {
@@ -90,12 +90,8 @@ const benefits: RotatingBenefit[] = [
 
 const steps = [
   {
-    text: "Creá tu cuenta y completá tu perfil: de dónde venís, dónde y qué estudiás, y contanos un poco sobre vos, tus intereses y tus hábitos. Vos elegís qué mostrás; la residencia ve tu perfil cuando le enviás una solicitud.",
-    detail: "Cuantos más datos completes, más fácil vas a poder enviar solicitudes cuando encuentres la residencia indicada.",
-  },
-  {
-    text: "Buscá y compará residencias verificadas. Guardá tus favoritas.",
-    detail: "Comparar varias opciones a la vez te ayuda a decidir con más contexto, no solo por la primera que viste.",
+    text: "Creá tu cuenta, completá tu perfil y buscá residencias verificadas. Vos elegís qué mostrás; la residencia ve tu perfil cuando le enviás una solicitud.",
+    detail: "Cuantos más datos completes y más opciones compares, más fácil vas a poder decidir con contexto cuando encuentres la residencia indicada.",
   },
   {
     text: "Enviás tu solicitud de reserva, gratis. Si ese tipo de habitación está completo, te sumás a su lista de espera.",
@@ -110,12 +106,8 @@ const steps = [
     detail: "La residencia confirma la recepción del pago, así que ese paso también queda con registro.",
   },
   {
-    text: "Pagás el fee EstuRed: el 5% de tu estadía inicial, sin contar el depósito. Ves el monto exacto antes de pagar, y lo podés pagar vos o el familiar que designes.",
-    detail: "Se paga una vez que la residencia confirma que recibió tu pago. La factura de EstuRed sale a nombre de quien paga.",
-  },
-  {
-    text: "Tu reserva queda confirmada en EstuRed y recibís tu Comprobante de Reserva Confirmada.",
-    detail: "Ese comprobante deja registrada tu reserva, con un código que cualquiera puede verificar.",
+    text: "Pagás el fee EstuRed: el 5% de tu estadía inicial, sin contar el depósito. Ves el monto exacto antes de pagar, y lo podés pagar vos o el familiar que designes. Después, tu reserva queda confirmada y recibís tu Comprobante de Reserva Confirmada.",
+    detail: "El fee se paga una vez que la residencia confirma que recibió tu pago. La factura de EstuRed sale a nombre de quien paga, y el comprobante tiene un código que cualquiera puede verificar.",
   },
 ];
 
@@ -151,7 +143,7 @@ export default async function ForStudentsPage() {
               Para estudiantes y familias
             </p>
             <h1 className="text-4xl font-extrabold text-ink sm:text-5xl">
-              Mudarte a CABA con más confianza
+              Elegí tu residencia en Buenos Aires con todo verificado y por escrito
             </h1>
             <p className="mt-5 text-lg text-ink-soft">
               Elegir dónde vivir es una de las decisiones más importantes de tu
@@ -217,8 +209,6 @@ export default async function ForStudentsPage() {
 
       <FamilyHighlight />
 
-      <StayChangeHighlight variant="students" studentCta={sessionUser?.roles.includes("student") ? "residency" : "register"} />
-
       <section className="bg-surface border-y border-sand-200">
         <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-20">
           <SectionHeader
@@ -235,6 +225,8 @@ export default async function ForStudentsPage() {
       </div>
 
       <WhenSomethingDiffers />
+
+      <StayChangeHighlight variant="students" studentCta={sessionUser?.roles.includes("student") ? "residency" : "register"} />
 
       <section className="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-20">
         <SectionHeader eyebrow="Preguntas frecuentes" title="Dudas comunes" />

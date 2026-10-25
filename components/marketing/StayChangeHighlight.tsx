@@ -148,8 +148,7 @@ export function StayChangeHighlight({ variant, studentCta = "register" }: { vari
               Enterate de una salida con tiempo, no el día que se van
             </h2>
             <p className="mt-4 text-base text-white/85 sm:text-lg">
-              Cuando un residente se va sin avisar con tiempo, se desordenan tu ocupación, tu planificación y tus renovaciones. Con “Quiero cambiar”, el residente te
-              avisa cuando empieza a buscar.
+              Cuando un residente se va sin avisar con tiempo, se desordenan tu ocupación, tu planificación y tus renovaciones. Con “Quiero cambiar”, te enterás cuando un residente empieza a buscar otra residencia, para ordenar tu lista de espera con tiempo.
             </p>
             <ul className="mt-7 grid gap-4 sm:grid-cols-2">
               {RESIDENCE_BENEFITS.map((benefit) => (

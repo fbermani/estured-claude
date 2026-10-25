@@ -78,11 +78,11 @@ const benefits: RotatingBenefit[] = [
     icon: "inbox",
     title: "Solicitudes ordenadas",
     summary:
-      "Recibís solicitudes completas, con el perfil que cada estudiante elige compartir y sus preferencias. Decidís si avanzás, proponés un ajuste o rechazás.",
+      "Conectá con estudiantes afines a tu casa y cuidá el clima de convivencia. Recibís solicitudes completas, con el perfil que cada estudiante elige compartir; decidís si avanzás, proponés un ajuste o rechazás.",
     problem:
       "Recibir consultas sueltas por distintos canales, sin el contexto del estudiante, hace difícil evaluar quién realmente encaja.",
     solution:
-      "Recibís solicitudes completas, con el perfil que cada estudiante elige compartir y sus preferencias. Decidís si avanzás, proponés un ajuste o rechazás.",
+      "Conectá con estudiantes afines a tu casa y cuidá el clima de convivencia. Recibís solicitudes completas, con el perfil que cada estudiante elige compartir; decidís si avanzás, proponés un ajuste o rechazás.",
     conclusion: "Toda la información que necesitás, en un solo lugar.",
   },
   {
@@ -241,11 +241,11 @@ export default function ForResidencesPage() {
             <Reveal delay={1}>
             <Card interactive className="h-full border-forest p-8">
               <div className="flex flex-wrap items-center gap-2">
-                <Badge tone="amber">Plan Premium — Bonificado el 1er año</Badge>
+                <Badge tone="amber">Gestión Operativa</Badge>
                 <Badge tone="sage">Incluido hoy</Badge>
               </div>
               <h3 className="mt-3 text-2xl font-bold text-ink">
-                Gestión Operativa
+                Plan Premium bonificado el primer año para Residencias fundadoras
               </h3>
               <p className="mt-2 text-sm text-ink-soft">
                 Todo lo del Perfil Verificado, más la gestión de tus habitaciones,
@@ -255,7 +255,7 @@ export default function ForResidencesPage() {
             </Card>
             </Reveal>
           </div>
-          <p className="mt-6 text-center text-sm text-ink-faint">
+          <p className="mt-6 text-center text-xs text-ink-faint">
             Si te sumás como Residencia fundadora, tu primer año de Plan Premium
             está bonificado. El plan todavía no tiene precio: te lo vamos a
             informar con anticipación y nadie paga nada sin aceptarlo antes.

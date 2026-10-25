@@ -36,7 +36,7 @@ export function FamilyHighlight() {
             <Icon name="family_restroom" className="text-base" /> Para las familias
           </p>
           <h2 id="para-familias-title" className="text-3xl font-bold text-ink sm:text-4xl">
-            Acompañá la mudanza sin quedarte afuera
+            Seguridad para tu familia, autonomía para tu decisión
           </h2>
           <p className="mt-4 text-base text-ink-soft sm:text-lg">
             Creás una cuenta de familiar y pedís vincularte con tu estudiante, que aprueba la vinculación. Desde ahí acompañás el

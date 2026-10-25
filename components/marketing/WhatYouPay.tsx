@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { Reveal } from "@/components/ui/Reveal";
@@ -32,13 +33,30 @@ const studentItems = [
 ];
 
 const residenceLines = [
-  "Lo que el estudiante te paga es tuyo: se lo cobrás directamente y confirmás en EstuRed que lo recibiste. EstuRed no lo toca.",
-  "EstuRed cobra un fee del 5% al estudiante o a su familia, aparte de lo que te pagan a vos.",
+  "Cobro directo: el estudiante te paga a vos, sin comisión sobre tu tarifa. EstuRed cobra su fee aparte al estudiante y no toca lo que te paga.",
   "Hoy, publicar y gestionar tu residencia no tiene costo.",
 ];
 
 /** Bloque «Qué pagás y a quién» (INVENTARIO_COPY §7.1). Sin cifras de ejemplo. */
-export function WhatYouPay({ variant = "student" }: { variant?: "student" | "residence" }) {
+export function WhatYouPay({ variant = "student" }: { variant?: "student" | "residence" | "short" }) {
+  if (variant === "short") {
+    return (
+      <section id="que-pagas-resumen" className="mx-auto max-w-3xl px-4 py-12 text-center sm:px-6 sm:py-16">
+        <SectionHeader eyebrow="Costos" title="Qué pagás y a quién" />
+        <p className="text-base leading-relaxed text-ink-soft">
+          Enviar una solicitud es gratis. A la residencia le pagás directamente lo acordado y a EstuRed un fee del 5% de tu estadía
+          inicial, sin contar el depósito: el monto exacto lo ves antes de pagar.
+        </p>
+        <Link
+          href="/for-students#que-pagas"
+          className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-forest-700 transition-transform duration-200 ease-bounce hover:translate-x-1"
+        >
+          Ver el detalle de costos <Icon name="arrow_forward" className="text-base" />
+        </Link>
+      </section>
+    );
+  }
+
   if (variant === "residence") {
     return (
       <section id="que-cobra-estured" className="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-24">

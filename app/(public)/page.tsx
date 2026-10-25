@@ -8,7 +8,6 @@ import { RotatingBenefits, type RotatingBenefit } from "@/components/ui/Rotating
 import { HoverFeatureList } from "@/components/ui/HoverFeatureList";
 import { HowItWorksSteps } from "@/app/(public)/HowItWorksSteps";
 import { WhatYouPay } from "@/components/marketing/WhatYouPay";
-import { WhenSomethingDiffers } from "@/components/marketing/WhenSomethingDiffers";
 import { ResidenceCard } from "@/components/residences/ResidenceCard";
 import { getCatalogResidences } from "@/lib/residences/catalog";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
@@ -22,7 +21,7 @@ const pillars: RotatingBenefit[] = [
     problem:
       "Cuando buscás a distancia, solo tenés fotos y descripciones que nadie revisó. Es difícil saber si coinciden con el lugar antes de pagar una seña.",
     solution:
-      "Identidad, ubicación y fotos revisadas por EstuRed mediante control presencial antes de publicarse. El sello Residencia Verificada no reemplaza que consultes las condiciones de tu estadía.",
+      "Identidad, ubicación y fotos revisadas por EstuRed mediante control presencial antes de publicarse. Revisamos cada espacio en persona: fotos auténticas, servicios reales y reglas claras. El sello Residencia Verificada no reemplaza que consultes las condiciones de tu estadía.",
     conclusion: "Elegís con información revisada en persona.",
   },
   {
@@ -38,14 +37,36 @@ const pillars: RotatingBenefit[] = [
   },
   {
     icon: "receipt_long",
-    title: "Comprobante verificable",
+    title: "Registro verificable",
     summary:
-      "Cuando tu reserva se confirma, EstuRed emite un Comprobante de Reserva Confirmada con código público. Un registro claro para vos y tu familia.",
+      "Cuando tu reserva se confirma, EstuRed la registra con un código público. Un registro claro para vos y tu familia.",
     problem:
-      "Transferir una seña sin un comprobante formal deja dudas, para vos y para quien te ayuda a pagar.",
+      "Transferir una seña sin ningún registro deja dudas, para vos y para quien te ayuda a pagar.",
     solution:
-      "Cuando tu reserva se confirma, EstuRed emite un Comprobante de Reserva Confirmada con un código que cualquier persona puede verificar públicamente.",
-    conclusion: "Un comprobante verificable, no una captura de un chat.",
+      "Cuando tu reserva se confirma, EstuRed emite tu Comprobante de Reserva Confirmada, con un código que cualquier persona puede verificar públicamente.",
+    conclusion: "Un registro verificable, no una captura de un chat.",
+  },
+  {
+    icon: "sell",
+    title: "Costos a la vista",
+    summary:
+      "Ves el monto exacto del fee de EstuRed antes de pagar: el 5% de tu estadía inicial, sin contar el depósito.",
+    problem:
+      "Los costos que aparecen recién cuando ya avanzaste generan desconfianza, sobre todo si pagás a distancia.",
+    solution:
+      "Ves el monto exacto del fee de EstuRed antes de pagar: el 5% de tu estadía inicial, sin contar el depósito. A la residencia le pagás directamente lo acordado.",
+    conclusion: "Sabés cuánto vas a pagar y a quién, antes de pagar.",
+  },
+  {
+    icon: "support_agent",
+    title: "Soporte de EstuRed",
+    summary:
+      "Si algo no coincide con lo publicado, abrís un caso de Soporte desde tu reserva.",
+    problem:
+      "Si al llegar algo no coincide con lo que se publicó, resolverlo solo, a distancia, es difícil.",
+    solution:
+      "Si algo no coincide con lo publicado, abrís un caso de Soporte desde tu reserva. Revisamos la evidencia y, según el caso, puede corresponder la devolución del fee EstuRed.",
+    conclusion: "Tenés a quién recurrir si algo no coincide.",
   },
 ];
 
@@ -75,10 +96,10 @@ const steps = [
     detail: "EstuRed no cobra ese dinero: queda registrado que la residencia lo recibió.",
   },
   {
-    title: "Pagás el fee EstuRed y recibís tu comprobante",
+    title: "Pagás el fee EstuRed y se confirma tu reserva",
     description:
       "Pagás a EstuRed un fee del 5% de tu estadía inicial, sin contar el depósito. Ves el monto exacto antes de pagar. Con el fee pago, tu reserva queda confirmada y recibís el Comprobante de Reserva Confirmada.",
-    detail: "El comprobante tiene un código que cualquier persona puede verificar.",
+    detail: "Queda registrada con un código que cualquier persona puede verificar.",
   },
 ];
 
@@ -96,8 +117,8 @@ const withEstuRed = [
     detail: "Todo el proceso queda documentado, no depende de capturas de pantalla de un chat.",
   },
   {
-    label: "Comprobante de Reserva Confirmada con código verificable",
-    detail: "Cada reserva confirmada tiene su comprobante, con un código verificable, para las dos partes.",
+    label: "Reserva confirmada con código verificable",
+    detail: "Cada reserva confirmada queda registrada con un código verificable, para las dos partes.",
   },
   {
     label: "Soporte de EstuRed si algo se traba en el proceso",
@@ -119,8 +140,8 @@ const outside = [
     detail: "Sin registro, tu única prueba de lo acordado es tu propia memoria.",
   },
   {
-    label: "Señas transferidas sin comprobante ni registro",
-    detail: "Si algo sale mal, no tenés ningún documento formal que muestre que pagaste.",
+    label: "Señas transferidas sin ningún registro",
+    detail: "Si algo sale mal, no tenés ningún registro formal que muestre que pagaste.",
   },
   {
     label: "Nadie a quien recurrir si algo sale mal",
@@ -139,7 +160,7 @@ const audiences = [
   {
     title: "Familias",
     description:
-      "Acompañá la decisión a la distancia: proponé opciones, seguí cada paso del proceso y recibí el comprobante de la reserva.",
+      "Acompañá la decisión a la distancia: proponé opciones, seguí cada paso del proceso y la reserva confirmada queda con un código verificable.",
     href: "/for-students",
     cta: "Cómo acompañar",
   },
@@ -228,7 +249,7 @@ export default async function HomePage() {
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-soft">
               Residencias estudiantiles verificadas en CABA, cerca de tu
               facultad, con información clara, solicitudes registradas y un
-              comprobante verificable cuando se confirma tu reserva.
+              registro verificable cuando se confirma tu reserva.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button href="/search" size="lg">
@@ -311,14 +332,11 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Si algo no coincide con lo publicado */}
-      <WhenSomethingDiffers />
-
       {/* Cómo funciona */}
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
         <SectionHeader
           eyebrow="El proceso"
-          title="De la búsqueda al comprobante, en cinco pasos"
+          title="De la búsqueda a tu reserva confirmada, en cinco pasos"
           description="Cada paso queda registrado, con las mismas reglas para estudiantes, familias y residencias."
         />
         <HowItWorksSteps steps={steps} />
@@ -326,7 +344,7 @@ export default async function HomePage() {
 
       {/* Qué pagás y a quién */}
       <div className="border-y border-sand-200 bg-surface">
-        <WhatYouPay />
+        <WhatYouPay variant="short" />
       </div>
 
       {/* Residencias destacadas */}
