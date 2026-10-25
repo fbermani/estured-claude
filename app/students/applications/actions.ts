@@ -8,6 +8,8 @@ import { createApplicationFromRoomType } from "@/lib/applications/createRequestF
 import { requestBlockedMessage, typeAvailabilityState } from "@/lib/availability/typeAvailability";
 import { checkReservationWindowOverlap } from "@/lib/students/reservationWindow";
 import { validateMovingNote } from "@/lib/stayChange/validate";
+import { acceptRegulationForApplication, recordRegulationAcceptance, resolveRegulationToAccept } from "@/lib/regulations/acceptance";
+import { revalidatePath } from "next/cache";
 
 export type CreateApplicationState = { status: "idle" | "error"; message?: string };
 
@@ -115,6 +117,14 @@ export async function createApplicationRequest(
     return { status: "error", message: "Esta residencia ya no está disponible para solicitar." };
   }
 
+  // DR14: el reglamento se acepta al enviar (checkbox obligatorio) y contra la versión vigente que el estudiante vio. Nunca toca los estados.
+  const regulation = await resolveRegulationToAccept(admin, {
+    residenceId,
+    accepted: formData.get("accept_regulation") === "on",
+    seenHash: String(formData.get("regulation_hash") ?? "") || null,
+  });
+  if (!regulation.ok) return { status: "error", message: regulation.error };
+
   const { data: roomType } = await admin
     .from("room_types")
     .select("id, monthly_price_usd, is_active, profile_availability(status)")
@@ -148,8 +158,52 @@ export async function createApplicationRequest(
     actorRole: "student",
     stayChangeIntentId: overlap.stayChangeIntentId,
     movingContextNote: movingNote.value,
+    // DR14: nace marcada como pendiente de aceptación (la residencia no puede avanzarla) y se levanta al registrar la aceptación.
+    regulationPending: regulation.regulation.versionId !== null,
   });
   if ("error" in result) return { status: "error", message: result.error };
 
+  // Un estudiante MENOR no acepta por sí mismo (docs/06 §11.5): queda pendiente y lo acepta su familiar vinculado.
+  // Para un adulto: si no se pudo registrar tras el reintento, la solicitud queda pendiente (la residencia no la avanza) y se lo lleva a su
+  // solicitud, donde ve el aviso con el reglamento y el botón «Leí y acepto».
+  if (!studentProfile.is_minor) {
+    await recordRegulationAcceptance(admin, {
+      applicationRequestId: result.id,
+      residenceId,
+      regulation: regulation.regulation,
+      acceptedByUserId: sessionUser.id,
+      acceptedByRole: "student",
+    });
+  }
+
   redirect(`/students/applications/${result.id}`);
+}
+
+export type AcceptRegulationState = { status: "idle" | "saved" | "error"; message?: string };
+
+/**
+ * «Leí y acepto» sobre una solicitud que nació sin la aceptación del reglamento (propuesta del familiar, lista de espera, menor, o un
+ * fallo al registrarla; DR14, docs/06 §11.5). Valida en el servidor quién puede aceptar (estudiante mayor o, si es menor, su familiar
+ * vinculado) y que se acepte la versión vigente que se leyó. Al registrarla, la residencia puede avanzar la solicitud.
+ */
+export async function acceptRegulationAction(
+  applicationId: string,
+  _prev: AcceptRegulationState,
+  formData: FormData,
+): Promise<AcceptRegulationState> {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) return { status: "error", message: "Tu sesión expiró. Volvé a iniciar sesión." };
+  const admin = getSupabaseAdmin();
+  if (!admin) return { status: "error", message: "No disponible en este momento. Probá más tarde." };
+
+  const result = await acceptRegulationForApplication(admin, {
+    applicationId,
+    actorUserId: sessionUser.id,
+    accepted: formData.get("accept_regulation") === "on",
+    seenHash: String(formData.get("regulation_hash") ?? "") || null,
+  });
+  if (!result.ok) return { status: "error", message: result.error };
+
+  revalidatePath(`/students/applications/${applicationId}`);
+  return { status: "saved", message: "Listo, aceptaste el reglamento. La residencia ya puede avanzar con tu solicitud." };
 }

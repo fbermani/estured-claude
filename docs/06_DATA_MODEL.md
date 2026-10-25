@@ -1045,10 +1045,11 @@ Aceptación del reglamento de la residencia, **una por solicitud**, al enviarla.
 | `accepted_by_role` | text | `student` o `guardian` |
 
 Reglas:
-- inmutable: sin UPDATE ni DELETE; una solicitud sin fila no puede pasar de `draft` a `submitted`;
+- inmutable: sin UPDATE (DELETE solo por service role, para limpieza/cascada);
 - si la residencia publica una versión nueva, las filas existentes **no cambian** (siguen apuntando a la versión aceptada);
 - una solicitud reenviada o «actualizada con mismos parámetros» (§27.3) vuelve a pedir la aceptación contra la versión **vigente** en ese momento *(supuesto reversible)*;
 - la lista de espera **no** pide aceptación (todavía no hay solicitud); se pide al activar la solicitud *(supuesto reversible)*;
+- **Solicitudes que nacen sin aceptación (decisión del dueño, 2026-10-25).** Una solicitud puede crearse sin la fila de aceptación en estos casos: propuesta del familiar aprobada por el estudiante, activación desde la lista de espera, estudiante menor (lo acepta el familiar vinculado, `accepted_by_role = guardian`) o aceptación que no se pudo registrar al enviar. No se toca ningún estado de `application_requests` (`docs/04` no cambia): la solicitud queda **en pausa para la residencia** y se marca con `application_requests.regulation_acceptance_pending = true` (no es un estado; las solicitudes anteriores a DR14 quedan en false y no se bloquean). Mientras la marca esté en true **y no exista la fila**, las acciones de la residencia que avanzan la solicitud (revisar/contactar, proponer ajuste, habilitar o confirmar el pago) se rechazan con un mensaje claro; rechazar la solicitud no avanza y sigue permitido. El estudiante (o su familiar si es menor) ve en su solicitud el reglamento completo y un botón «Leí y acepto»; al registrarse la aceptación (misma validación de versión vigente y hash visto) la residencia puede avanzar. Reenviar o «actualizar con mismos parámetros» (§27.3) vuelve a pedir la aceptación contra la versión vigente;
 - visible para el estudiante, la residencia destinataria y admin/superadmin (`docs/05` §16bis).
 
 ---

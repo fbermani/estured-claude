@@ -22,6 +22,10 @@ import { AgreedConditionsCard } from "@/components/applications/AgreedConditions
 import { Icon } from "@/components/ui/Icon";
 import { buildTerminalSummary, isRevokedReservation, isTerminalVisibleStatus } from "@/lib/applications/terminalState";
 import { advanceGateMessage, stayChangeAdvanceAt } from "@/lib/stayChange/advanceGate";
+import { getRegulationGate } from "@/lib/regulations/gate";
+import { loadCurrentRegulation } from "@/lib/regulations/current";
+import { RegulationText } from "@/components/regulations/RegulationText";
+import { AcceptRegulationForm } from "@/app/students/applications/[id]/AcceptRegulationForm";
 
 /** Estados en los que las condiciones ya fueron aceptadas (docs/04 §5.2). */
 const CONDITIONS_AGREED_STATUSES = new Set([
@@ -50,7 +54,7 @@ export default async function StudentApplicationDetailPage({
   const { data: application, error: applicationError } = await supabase
     .from("application_requests")
     .select(
-      "id, status, student_profile_id, desired_start_date, initial_duration_months, academic_objective, rejection_reason_code, created_at, contact_established_at, payment_deadline_at, snapshot_original_id, snapshot_final_id, residences(name, public_area, address_line), room_types(name)",
+      "id, status, residence_id, student_profile_id, desired_start_date, initial_duration_months, academic_objective, rejection_reason_code, created_at, contact_established_at, payment_deadline_at, snapshot_original_id, snapshot_final_id, residences(name, public_area, address_line), room_types(name)",
     )
     .eq("id", id)
     .maybeSingle();
@@ -138,6 +142,29 @@ export default async function StudentApplicationDetailPage({
     }
   }
 
+  // DR14: solicitud sin aceptación del reglamento (propuesta del familiar, lista de espera, menor o fallo al registrarla): la residencia no puede
+  // avanzarla hasta que se acepte. Lectura degradable (sin la migración 0053 no hay aviso).
+  let regulationNotice: { canAccept: boolean; waitingFor: "student" | "guardian"; hash: string; text: string } | null = null;
+  {
+    const noticeAdmin = getSupabaseAdmin();
+    const gate = noticeAdmin ? await getRegulationGate(noticeAdmin, id) : null;
+    if (noticeAdmin && gate?.pending && !gate.checkFailed) {
+      const [current, { data: profileRow }] = await Promise.all([
+        loadCurrentRegulation(noticeAdmin, application.residence_id as string),
+        noticeAdmin.from("student_profiles").select("is_minor").eq("id", application.student_profile_id as string).maybeSingle(),
+      ]);
+      if (current.ok) {
+        const isMinor = profileRow?.is_minor === true;
+        regulationNotice = {
+          canAccept: isMinor ? isFamilyViewer : !isFamilyViewer,
+          waitingFor: isMinor ? "guardian" : "student",
+          hash: current.view.hash,
+          text: current.view.text,
+        };
+      }
+    }
+  }
+
   const familyIsPayer = isFamilyViewer && feePayment?.payer_user_id === sessionUser?.id;
 
   // Solicitud terminada (vencida, rechazada, cancelada, reserva vencida/revocada): no se dibuja el recorrido como si siguiera.
@@ -188,6 +215,36 @@ export default async function StudentApplicationDetailPage({
                   "Enviaste esta solicitud con tu aviso de cambio abierto. Si la reserva se confirma, coordiná tu salida con tu residencia actual."}
               </p>
             </div>
+          </div>
+        )}
+
+        {regulationNotice && !terminal && (
+          <div className="mt-4 rounded-field border border-line-2 bg-orange-tint/60 px-4 py-3 text-sm text-ink-soft">
+            <p className="flex items-center gap-2 font-bold text-orange-700">
+              <Icon name="gavel" className="text-lg" /> Falta aceptar el reglamento
+            </p>
+            {regulationNotice.canAccept ? (
+              <>
+                <p className="mt-1 text-xs leading-relaxed">
+                  {regulationNotice.waitingFor === "guardian"
+                    ? "Como el estudiante es menor, lo tiene que aceptar su familiar vinculado."
+                    : "Para que la residencia pueda avanzar con tu solicitud, leé el reglamento y aceptalo."}
+                </p>
+                <AcceptRegulationForm
+                  applicationId={id}
+                  hash={regulationNotice.hash}
+                  content={<RegulationText text={regulationNotice.text} className="max-h-72 overflow-y-auto pr-2" />}
+                />
+              </>
+            ) : (
+              <p className="mt-1 text-xs leading-relaxed">
+                {regulationNotice.waitingFor === "guardian"
+                  ? "Como sos menor de edad, lo tiene que aceptar tu familiar vinculado desde su cuenta. Hasta entonces la residencia no puede avanzar con la solicitud."
+                  : isFamilyViewer
+                    ? "Lo tiene que aceptar el estudiante desde su cuenta. Hasta entonces la residencia no puede avanzar con la solicitud."
+                    : "Hasta entonces la residencia no puede avanzar con la solicitud."}
+              </p>
+            )}
           </div>
         )}
 

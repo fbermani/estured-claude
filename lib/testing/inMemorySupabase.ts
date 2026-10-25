@@ -17,8 +17,10 @@ export type InMemoryOptions = {
   /** Columnas que "no existen" (migración sin aplicar) por tabla: leer o escribir una de ellas devuelve 42703. */
   missingColumns?: Record<string, string[]>;
   /** Error forzado en el próximo insert / update sobre esa tabla (una sola vez por entrada). */
-  failInsert?: Record<string, DbError>;
+  failInsert?: Record<string, DbError | { error: DbError; times: number }>;
   failUpdate?: Record<string, DbError>;
+  /** Funciones SQL (`client.rpc(nombre, args)`): cada test inyecta su emulación. Sin handler → error de "función inexistente" (PGRST202). */
+  rpc?: Record<string, (args: Record<string, unknown>, tables: Record<string, Row[]>) => { data: unknown; error: DbError | null }>;
 };
 
 const MISSING = (table: string): DbError => ({
@@ -139,6 +141,10 @@ export function createInMemorySupabase(initial: Record<string, Row[]>, options: 
       this.filters.push((r) => column(r, col) === value);
       return this;
     }
+    neq(col: string, value: unknown) {
+      this.filters.push((r) => column(r, col) !== value);
+      return this;
+    }
     gt(col: string, value: unknown) {
       this.filters.push((r) => String(r[col]) > String(value));
       return this;
@@ -236,8 +242,10 @@ export function createInMemorySupabase(initial: Record<string, Row[]>, options: 
       if (this.op === "insert") {
         const forced = failInsert[table];
         if (forced) {
-          delete failInsert[table];
-          return { data: null, error: forced, count: null };
+          const withTimes = "error" in forced ? forced : { error: forced, times: 1 };
+          if (withTimes.times <= 1) delete failInsert[table];
+          else failInsert[table] = { error: withTimes.error, times: withTimes.times - 1 };
+          return { data: null, error: withTimes.error, count: null };
         }
         const inserted: Row[] = [];
         for (const raw of Array.isArray(this.payload) ? this.payload : [this.payload as Row]) {
@@ -289,6 +297,13 @@ export function createInMemorySupabase(initial: Record<string, Row[]>, options: 
     }
   }
 
-  const client = { from: (table: string) => new Query(table) } as unknown as SupabaseClient;
+  const client = {
+    from: (table: string) => new Query(table),
+    rpc: async (name: string, args: Record<string, unknown> = {}) => {
+      const handler = options.rpc?.[name];
+      if (!handler) return { data: null, error: { code: "PGRST202", message: `Could not find the function public.${name} in the schema cache` } };
+      return handler(args, tables);
+    },
+  } as unknown as SupabaseClient;
   return { client, tables, log };
 }

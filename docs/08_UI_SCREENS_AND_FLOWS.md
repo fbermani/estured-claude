@@ -566,6 +566,7 @@ Ruta base: `/students`
 **Objetivo:** guiar paso a paso hasta reserva confirmada o cierre.
 
 **Contenido:**
+- **Aviso «Falta aceptar el reglamento» (DR14, docs/06 §11.5):** si la solicitud nació sin la aceptación (propuesta del familiar aprobada, lista de espera, estudiante menor o fallo al registrarla), el detalle muestra el reglamento completo y el botón «Leí y acepto» (lo acepta el estudiante, o su familiar vinculado si es menor; el resto de los viewers ve un texto explicativo). Hasta que se acepte, la residencia no puede avanzar la solicitud (sin cambiar su estado).
 - Estado actual y timeline.
 - Indicador de quién inició la solicitud (estudiante o familiar) y a quién contactará la residencia (si el estudiante es menor de edad, siempre al familiar vinculado).
 - Residencia, tipo de habitación/plaza, fecha de ingreso, duración inicial.
@@ -908,6 +909,7 @@ Sin cambios de fondo. Modo Perfil Verificado: disponibilidad por tipo, estado Co
 **Ruta:** `/residence/[residence_id]/applications/[id]`
 
 **Contenido:**
+- **Solicitud sin aceptación del reglamento (DR14, docs/06 §11.5):** las acciones que avanzan la solicitud (contactar, proponer ajuste, pago) se rechazan con el mensaje «El estudiante todavía no leyó y aceptó el reglamento…» hasta que exista la aceptación; rechazarla sigue permitido.
 - Perfil estudiante y datos visibles.
 - **Indicador de quién inició la solicitud** (estudiante o familiar) y a quién dirigirse en el contacto.
 - Documentos autorizados.

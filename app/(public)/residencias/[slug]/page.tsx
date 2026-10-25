@@ -15,6 +15,10 @@ import { RulesHighlight } from "@/components/residences/RulesHighlight";
 import { FaqAccordion } from "@/components/residences/FaqAccordion";
 import { assertResidenceAccess } from "@/lib/residences/access";
 import { getPublicAnsweredQuestions } from "@/lib/faq/getPublicAnsweredQuestions";
+import { loadCurrentRegulation } from "@/lib/regulations/current";
+import { MODEL_LEGAL_NOTE } from "@/lib/regulations/modelTemplate";
+import { RegulationText } from "@/components/regulations/RegulationText";
+import { formatDate } from "@/lib/dates/format";
 import { AskQuestionForm } from "@/app/(public)/residencias/[slug]/AskQuestionForm";
 import { CompactMap } from "@/components/residences/CompactMap";
 import { getServiceIcon, getCommonAreaIcon } from "@/lib/residences/amenityIcons";
@@ -160,7 +164,7 @@ export default async function RealResidenceDetailPage({
   const [rate, sessionUser] = await Promise.all([getCurrentExchangeRate(), getSessionUser()]);
   const isStudent = sessionUser?.roles.includes("student") ?? false;
   const isFamily = sessionUser?.roles.includes("family_member") ?? false;
-  const [answeredQuestions, isOwnResidenceTeam, community, studentViewer, familyViewer] = await Promise.all([
+  const [answeredQuestions, isOwnResidenceTeam, community, studentViewer, familyViewer, regulationResult] = await Promise.all([
     adminClient ? getPublicAnsweredQuestions(adminClient, residence.id) : Promise.resolve([]),
     sessionUser && adminClient ? assertResidenceAccess(adminClient, sessionUser.id, residence.id) : Promise.resolve(false),
     adminClient ? getCommunityVisibility(adminClient, residence.id, sessionUser ? "registered" : "guest") : Promise.resolve(null),
@@ -168,7 +172,10 @@ export default async function RealResidenceDetailPage({
     isFamily && sessionUser && adminClient
       ? loadFamilyViewer(adminClient, sessionUser.id, residence.id)
       : Promise.resolve(null),
+    // DR14: reglamento vigente (propio, o el modelo). `null`/`ok:false` = no se pudo leer: no se muestra ni se ofrece aceptarlo.
+    adminClient ? loadCurrentRegulation(adminClient, residence.id) : Promise.resolve(null),
   ]);
+  const regulation = regulationResult?.ok ? regulationResult.view : null;
 
   // La ubicación y la dirección de la residencia son públicas (decisión del dueño, 2026-10-23): pin exacto.
   const location = getResidenceLocation(residence);
@@ -246,6 +253,7 @@ export default async function RealResidenceDetailPage({
     { id: "tarifas", label: "Tarifas y condiciones" },
     ...(hasCommunity ? [{ id: "comunidad", label: "Comunidad" }] : []),
     ...(hasResidenceSection ? [{ id: "residencia", label: "La residencia" }] : []),
+    ...(regulation ? [{ id: "reglamento", label: "Reglamento" }] : []),
     { id: "ubicacion", label: "Ubicación" },
     { id: "preguntas", label: "Preguntas" },
   ];
@@ -596,6 +604,31 @@ export default async function RealResidenceDetailPage({
           </section>
           )}
 
+          {/* Reglamento completo (DR14): propio o, si no tiene, el modelo de EstuRed. Se acepta al enviar la solicitud. */}
+          {regulation && (
+            <section id="reglamento" className="scroll-mt-32 space-y-3 lg:col-start-1">
+              <h2 className="text-2xl font-bold text-ink">Reglamento</h2>
+              <p className="text-ink-soft">
+                {regulation.isBaseModel
+                  ? "Esta residencia todavía no cargó su propio reglamento: te mostramos el modelo de convivencia de EstuRed. Consultá con la residencia los puntos que quieras confirmar."
+                  : regulation.source === "model"
+                    ? "Reglamento de convivencia de la residencia, adaptado a partir del modelo de EstuRed."
+                    : "Reglamento de convivencia de la residencia."}{" "}
+                Lo aceptás al enviar tu solicitud; esa aceptación no asegura el lugar (solicitud sujeta a confirmación).
+              </p>
+              <details className="rounded-card border border-line bg-paper p-5">
+                <summary className="cursor-pointer text-sm font-bold text-forest-700">Leer el reglamento completo</summary>
+                <RegulationText text={regulation.text} className="mt-4 max-h-[32rem] overflow-y-auto pr-2" />
+                {regulation.isBaseModel && <p className="mt-4 text-xs text-ink-faint">{MODEL_LEGAL_NOTE}</p>}
+              </details>
+              {regulation.versionNumber != null && regulation.publishedAt && !regulation.isBaseModel && (
+                <p className="text-xs text-ink-faint">
+                  Versión {regulation.versionNumber}, publicada el {formatDate(regulation.publishedAt)}.
+                </p>
+              )}
+            </section>
+          )}
+
           {/* 4. Ubicación — pin exacto + dirección pública + universidades con distancia (DF5) */}
           <section id="ubicacion" className="scroll-mt-32 space-y-4 lg:col-start-1">
             <div>
@@ -673,6 +706,15 @@ export default async function RealResidenceDetailPage({
             ) : (
               <ApplyForm
                 residenceId={residence.id}
+                regulation={
+                  regulation
+                    ? {
+                        hash: regulation.hash,
+                        content: <RegulationText text={regulation.text} className="max-h-72 overflow-y-auto pr-2" />,
+                        isModel: regulation.isBaseModel,
+                      }
+                    : null
+                }
                 roomTypes={roomTypes}
                 conditions={{
                   minimumStayMonths: conditions.minimumStayMonths,

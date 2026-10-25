@@ -7,6 +7,7 @@ import { assertResidencePermission } from "@/lib/residences/access";
 import type { ResidencePermission } from "@/lib/residences/permissions";
 import { notifyFamilyApplicationMilestone } from "@/lib/family/familyMilestones";
 import { createAuditLog } from "@/lib/audit";
+import { assertRegulationAccepted } from "@/lib/regulations/gate";
 import { checkStayChangeAdvanceGate } from "@/lib/stayChange/advanceGate";
 import { ACTIVE_APPLICATION_STATUSES, REJECTION_REASONS } from "@/lib/applications/types";
 import { createPendingResidencePayment } from "@/lib/applications/residencePayment";
@@ -55,6 +56,8 @@ async function loadAndAuthorize(
   applicationId: string,
   userId: string,
   permission: ResidencePermission,
+  /** DR14: acciones que AVANZAN la solicitud exigen que el estudiante ya haya aceptado el reglamento (rechazar no avanza: no lo exige). */
+  options: { requireRegulation?: boolean } = {},
 ) {
   const { data: application } = await admin!
     .from("application_requests")
@@ -67,6 +70,11 @@ async function loadAndAuthorize(
   const access = await assertResidencePermission(admin!, userId, application.residence_id, permission);
   if (!access.ok) return { error: access.error };
 
+  if (options.requireRegulation) {
+    const accepted = await assertRegulationAccepted(admin!, applicationId);
+    if (!accepted.ok) return { error: accepted.error };
+  }
+
   return { application, actorRole: access.actorRole };
 }
 
@@ -77,7 +85,7 @@ export async function markUnderReview(applicationId: string): Promise<Applicatio
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento." };
 
-  const result = await loadAndAuthorize(admin, applicationId, sessionUser.id, "applications.review_contact");
+  const result = await loadAndAuthorize(admin, applicationId, sessionUser.id, "applications.review_contact", { requireRegulation: true });
   if ("error" in result) return { status: "error", message: result.error };
   if (result.application.status !== "submitted") {
     return { status: "error", message: "Esa solicitud ya no está en estado 'nueva'." };
@@ -117,7 +125,7 @@ export async function establishContact(applicationId: string): Promise<Applicati
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento." };
 
-  const result = await loadAndAuthorize(admin, applicationId, sessionUser.id, "applications.review_contact");
+  const result = await loadAndAuthorize(admin, applicationId, sessionUser.id, "applications.review_contact", { requireRegulation: true });
   if ("error" in result) return { status: "error", message: result.error };
   if (!["submitted", "under_review"].includes(result.application.status)) {
     return { status: "error", message: "Esa solicitud no está en un estado válido para establecer contacto." };
@@ -197,7 +205,7 @@ export async function enableResidencePayment(applicationId: string): Promise<App
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento." };
 
-  const result = await loadAndAuthorize(admin, applicationId, sessionUser.id, "payments.residence");
+  const result = await loadAndAuthorize(admin, applicationId, sessionUser.id, "payments.residence", { requireRegulation: true });
   if ("error" in result) return { status: "error", message: result.error };
   if (result.application.status !== "contact_established") {
     return { status: "error", message: "Esa solicitud no está en un estado válido para habilitar el pago." };

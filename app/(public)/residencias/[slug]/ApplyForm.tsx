@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useRef, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input, Select, Textarea } from "@/components/ui/Input";
 import { Icon } from "@/components/ui/Icon";
@@ -55,8 +55,11 @@ export function ApplyForm({
   profileCompletenessPercent,
   minStartDate,
   stayChange,
+  regulation,
 }: {
   residenceId: string;
+  /** Reglamento vigente (DR14) ya renderizado en el servidor + su hash; `null` si no se pudo leer (no se puede enviar). */
+  regulation: { hash: string; content: ReactNode; isModel: boolean } | null;
   roomTypes: RoomTypeOption[];
   conditions: ResidenceConditionsProp;
   arsPerUsd: number;
@@ -82,6 +85,7 @@ export function ApplyForm({
   const [startDate, setStartDate] = useState("");
   const [objectiveChoice, setObjectiveChoice] = useState("");
   const [movingNote, setMovingNote] = useState("");
+  const regulationRef = useRef<HTMLDetailsElement>(null);
 
   if (roomTypes.length === 0) {
     return <p className="px-5 py-5 text-sm text-ink-soft sm:px-6">Esta residencia todavía no cargó tipos de habitación.</p>;
@@ -236,6 +240,25 @@ export function ApplyForm({
         </div>
       )}
 
+      <div>
+        <p className="mt-1 text-xs font-extrabold uppercase tracking-widest text-muted">{stayChange ? "4" : "3"} · Reglamento</p>
+        {regulation ? (
+          <details ref={regulationRef} id="apply-regulation" className="mt-2 rounded-field border border-line-2 bg-cream-2/50 p-4">
+            <summary className="cursor-pointer text-sm font-bold text-forest-700">Leer el reglamento completo de la residencia</summary>
+            {regulation.isModel && (
+              <p className="mt-2 text-xs text-ink-faint">
+                La residencia todavía no cargó el suyo: este es el modelo de convivencia de EstuRed.
+              </p>
+            )}
+            <div className="mt-3">{regulation.content}</div>
+          </details>
+        ) : (
+          <p role="alert" className="mt-2 rounded-field bg-warning-bg px-3.5 py-2.5 text-xs leading-relaxed text-warning-fg">
+            No pudimos cargar el reglamento de la residencia. Recargá la página para poder enviar la solicitud.
+          </p>
+        )}
+      </div>
+
       {profileCompletenessPercent != null && profileCompletenessPercent < 100 && (
         <a
           href="/students/profile"
@@ -256,11 +279,33 @@ export function ApplyForm({
             {state.message}
           </p>
         )}
+        {regulation && <input type="hidden" name="regulation_hash" value={regulation.hash} />}
         <label className="flex cursor-pointer items-start gap-2.5 text-sm text-ink-soft">
-          <input type="checkbox" required className="mt-0.5 h-4 w-4 shrink-0 rounded accent-[var(--color-forest)]" />
-          Leí y acepto las condiciones y el reglamento de convivencia de la residencia.
+          <input
+            type="checkbox"
+            name="accept_regulation"
+            required
+            disabled={!regulation}
+            className="mt-0.5 h-4 w-4 shrink-0 rounded accent-[var(--color-forest)]"
+          />
+          <span>
+            Leí y acepto el reglamento de la residencia.{" "}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                if (regulationRef.current) {
+                  regulationRef.current.open = true;
+                  regulationRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+                }
+              }}
+              className="font-bold text-forest-700 underline underline-offset-2"
+            >
+              Leerlo completo
+            </button>
+          </span>
         </label>
-        <Button type="submit" size="lg" disabled={isPending}>
+        <Button type="submit" size="lg" disabled={isPending || !regulation}>
           {isPending ? "Enviando…" : "Enviar solicitud de reserva"}
         </Button>
         <p className="text-center text-xs text-ink-faint">

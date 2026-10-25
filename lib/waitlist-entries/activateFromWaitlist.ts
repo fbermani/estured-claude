@@ -1,4 +1,5 @@
 import "server-only";
+import { regulationAcceptanceEnabled } from "@/lib/regulations/acceptance";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { ACTIVE_APPLICATION_STATUSES } from "@/lib/applications/types";
@@ -94,6 +95,8 @@ export async function activateFromWaitlist(
     createdByUserId: params.actorUserId,
     actorRole: "student",
     stayChangeIntentId: overlap.stayChangeIntentId,
+    // DR14: la lista de espera no pide el reglamento; queda pendiente hasta que el estudiante lo lea y acepte.
+    regulationPending: await regulationAcceptanceEnabled(admin),
   });
   if ("error" in result) return { ok: false, error: result.error };
 

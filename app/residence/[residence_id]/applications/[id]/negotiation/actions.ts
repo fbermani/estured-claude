@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { assertResidencePermission } from "@/lib/residences/access";
+import { assertRegulationAccepted } from "@/lib/regulations/gate";
 import { createAuditLog } from "@/lib/audit";
 import { usdToArs } from "@/lib/mock/exchange";
 
@@ -41,6 +42,9 @@ export async function sendNegotiationProposal(
   // (apagado por defecto para el staff; el dueño siempre puede). Se autoriza ANTES de leer nada más (ni el snapshot de la solicitud).
   const access = await assertResidencePermission(admin, sessionUser.id, application.residence_id, "applications.send_adjustment");
   if (!access.ok) return { status: "error", message: access.error };
+  // DR14: sin la aceptación del reglamento por parte del estudiante la solicitud no avanza.
+  const regulationGate = await assertRegulationAccepted(admin, applicationId);
+  if (!regulationGate.ok) return { status: "error", message: regulationGate.error };
 
   // Docs/06 §11.2: la ARS de la propuesta usa la cotización de la
   // solicitud original — nunca la del día en que se envía la propuesta.

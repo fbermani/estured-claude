@@ -1,4 +1,5 @@
 import "server-only";
+import { regulationAcceptanceEnabled } from "@/lib/regulations/acceptance";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { notifyFamilyProposalOutcome } from "@/lib/family/familyMilestones";
 import { createAuditLog } from "@/lib/audit";
@@ -152,6 +153,8 @@ export async function recordFamilyProposalResponse(
     createdByUserId: params.actorUserId,
     actorRole: "student",
     stayChangeIntentId: overlap.stayChangeIntentId,
+    // DR14: queda en pausa para la residencia hasta que el estudiante (o su familiar si es menor) lea y acepte el reglamento.
+    regulationPending: await regulationAcceptanceEnabled(admin),
   });
   if ("error" in result) return { ok: false, error: result.error };
 

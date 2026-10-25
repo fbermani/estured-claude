@@ -42,6 +42,8 @@ export async function createApplicationFromRoomType(
     stayChangeIntentId?: string | null;
     /** Nota voluntaria del estudiante a esta residencia ("desde dónde te mudás y por qué"); solo se guarda con `stayChangeIntentId`. */
     movingContextNote?: string | null;
+    /** DR14: la solicitud nace SIN aceptación del reglamento (propuesta del familiar, lista de espera, menor, o ficha con aceptación a registrar): la residencia no puede avanzarla hasta que exista la fila de aceptación. Solo con la migración 0053 aplicada. */
+    regulationPending?: boolean;
   },
 ): Promise<{ id: string } | { error: string }> {
   const initialStatus = await determineInitialApplicationStatus(admin, params.roomTypeId);
@@ -123,6 +125,7 @@ export async function createApplicationFromRoomType(
         ...(params.stayChangeIntentId
           ? { stay_change_intent_id: params.stayChangeIntentId, move_context_note: params.movingContextNote ?? null }
           : {}),
+        ...(params.regulationPending ? { regulation_acceptance_pending: true } : {}),
       })
       .select("id")
       .single();

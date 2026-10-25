@@ -20,6 +20,8 @@ const GUARDED: Record<string, string[]> = {
   "lib/reservations/recordResidencePaymentReceived.ts": ["assertResidencePermission(", "payments.residence"],
   // Perfil: guardar es delegable; enviar a verificación, no
   "app/residence/[residence_id]/profile/actions.ts": ["assertResidencePermission(", "profile.edit", "assertResidenceOwner("],
+  // Reglamento (DR14): publicar versiones requiere `profile.edit`
+  "lib/regulations/publish.ts": ["assertResidencePermission(", "profile.edit"],
   // Operación
   "lib/residences/roomManagement.ts": ["assertResidencePermission(", "operations.rooms_availability"],
   "lib/availability/updateAvailability.ts": ["assertResidencePermission(", "operations.rooms_availability"],
@@ -53,6 +55,7 @@ const DELEGATING: Record<string, string[]> = {
   ],
   "app/residence/[residence_id]/residents/stayChangeActions.ts": ["@/lib/stayChange/respondStayChangeIntent"],
   "app/residence/[residence_id]/faq/actions.ts": ["@/lib/faq/moderateResidenceQuestion"],
+  "app/residence/[residence_id]/regulation/actions.ts": ["@/lib/regulations/publish"],
   "app/residence/[residence_id]/team/actions.ts": ["@/lib/team/teamInvitations"],
   "app/residence/[residence_id]/applications/[id]/payment/actions.ts": ["@/lib/reservations/recordResidencePaymentReceived"],
   "app/residence/[residence_id]/renewals/actions.ts": ["@/lib/renewals/createRenewalOffer", "@/lib/renewals/sendRenewalOffer", "@/lib/renewals/recordRenewalResidencePaymentReceived"],
@@ -66,6 +69,7 @@ const DELEGATING: Record<string, string[]> = {
  */
 const ALLOWLIST: Record<string, string> = {
   "app/residence/settings/new/actions.ts": "sumar otra residencia: solo dueño por rol global (sin residence_id) y tope de 10; el staff no tiene el rol residence_owner",
+  "app/residence/[residence_id]/regulation/RegulationEditor.tsx": "formulario cliente; publica solo vía publishRegulationAction (DELEGATING → publish, GUARDED)",
   "app/residence/[residence_id]/profile/ResidenceProfileForm.tsx": "formulario cliente; escribe solo vía saveResidenceProfile (GUARDED)",
   // Helpers que solo llaman acciones ya controladas
   "lib/residences/tariffLog.ts": "helper de saveResidenceProfile (GUARDED)",

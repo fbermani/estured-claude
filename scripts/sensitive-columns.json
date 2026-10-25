@@ -11,7 +11,13 @@
       "om_access_granted_by",
       "om_access_granted_at"
     ],
-    "profile_availability": ["notes_internal"]
+    "profile_availability": [
+      "notes_internal"
+    ],
+    "residence_regulation_versions": [
+      "created_by_user_id",
+      "file_id"
+    ]
   },
   "privateTables": [
     "residence_private_details",
@@ -24,6 +30,7 @@
     "stay_change_intents",
     "stay_early_exits",
     "residence_team_invitations",
-    "residence_users"
+    "residence_users",
+    "application_regulation_acceptances"
   ]
 }

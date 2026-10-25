@@ -4,6 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog, alertAdminsOfAuditFailure } from "@/lib/audit";
 import { calculateFeeEstimate } from "@/lib/applications/fee";
 import { assertResidencePermission } from "@/lib/residences/access";
+import { assertRegulationAccepted } from "@/lib/regulations/gate";
 import { promoteNextQueuedApplication } from "@/lib/applications/roomTypeQueue";
 
 export type RecordResidencePaymentReceivedResult =
@@ -55,6 +56,9 @@ export async function recordResidencePaymentReceived(
   const access = await assertResidencePermission(admin, params.actorUserId, application.residence_id, "payments.residence");
   if (!access.ok) return { ok: false, error: access.error };
   const actorRole = access.actorRole;
+  // DR14: sin la aceptación del reglamento por parte del estudiante la solicitud no avanza.
+  const regulationGate = await assertRegulationAccepted(admin, params.applicationId);
+  if (!regulationGate.ok) return { ok: false, error: regulationGate.error };
   if (application.status !== "residence_payment_pending") {
     return { ok: false, error: "Esa solicitud no está esperando pago a la residencia." };
   }
