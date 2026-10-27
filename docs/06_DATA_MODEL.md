@@ -101,6 +101,8 @@ Los clientes no deben actualizar estados críticos directamente. Las transicione
 
 El acceso a Gestión Operativa se controla mediante feature flags por residencia.
 
+Planes (DR17): Perfil Verificado = perfil público, disponibilidad por tipo, solicitudes, Lista de espera, Preguntas frecuentes, Reglamento y Soporte; Plan Premium (Gestión Operativa) = Habitaciones y plazas, Residentes, Comunidad visible, Elección de plaza y Renovaciones. Hoy el flag solo remarca visualmente (D8: sin bloqueo ni precio).
+
 Las residencias pioneras tienen acceso gratuito durante 1 año. El sistema debe soportar otorgar, revocar y extender acceso sin cambiar el rol de la residencia.
 
 ---

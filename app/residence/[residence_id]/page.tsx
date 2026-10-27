@@ -16,6 +16,9 @@ import { getStaleAvailabilityByResidence, staleAvailabilityMessage } from "@/lib
 import { getVisibleStatus } from "@/lib/applications/visibleStatus";
 import { loadReservationInfoByApplication } from "@/lib/applications/loadReservationInfo";
 import { countUnansweredStayChanges } from "@/lib/stayChange/load";
+import { PremiumTag } from "@/components/residences/PremiumLock";
+import { hasOperationalManagementAccess } from "@/lib/residences/operationalAccess";
+import { PREMIUM_FEATURES } from "@/lib/residences/planFeatures";
 import { OnboardingBanner } from "@/components/residences/OnboardingBanner";
 import { buildOnboardingChecklist, getOnboardingBanner } from "@/lib/residences/onboardingStatus";
 import { loadChangesMessage } from "@/lib/residences/loadChangesMessage";
@@ -67,6 +70,7 @@ export default async function ResidenceOverviewPage({
     .eq("id", residenceId)
     .maybeSingle();
   if (!residence) notFound();
+  const hasPremium = await hasOperationalManagementAccess(admin, residenceId);
 
   // Onboarding (Ciclo 65): banner + checklist solo si la residencia no está publicada.
   const changesMessage = residence.status === "needs_changes" ? await loadChangesMessage(admin, residenceId) : null;
@@ -237,6 +241,7 @@ export default async function ResidenceOverviewPage({
     {
       icon: "inbox",
       iconTone: "forest" as const,
+      premium: false,
       title: "Solicitudes",
       href: `/residence/${residenceId}/applications`,
       cta: "Revisar solicitudes",
@@ -251,6 +256,7 @@ export default async function ResidenceOverviewPage({
     {
       icon: "bed",
       iconTone: "orange" as const,
+      premium: false,
       title: "Ocupación",
       href: `/residence/${residenceId}/availability`,
       cta: "Ver disponibilidad",
@@ -277,6 +283,7 @@ export default async function ResidenceOverviewPage({
     {
       icon: "sync_alt",
       iconTone: "lilac" as const,
+      premium: true,
       title: "Renovaciones",
       href: `/residence/${residenceId}/renewals`,
       cta: "Ver renovaciones",
@@ -286,6 +293,7 @@ export default async function ResidenceOverviewPage({
     {
       icon: "groups",
       iconTone: "sky" as const,
+      premium: true,
       title: "Residentes",
       href: `/residence/${residenceId}/residents`,
       cta: "Ver residentes",
@@ -362,6 +370,36 @@ export default async function ResidenceOverviewPage({
         </Link>
       )}
 
+      {!hasPremium && (
+        <section className="mt-8 rounded-card border-[1.5px] border-orange/30 bg-orange-tint p-5">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="min-w-0 flex-1">
+              <p className="flex items-center gap-2 text-sm font-extrabold text-orange-700">
+                <Icon name="lock" className="text-lg" />
+                Esta función es del Plan Premium
+              </p>
+              <p className="mt-1 text-sm text-orange-700">
+                Tu residencia tiene el Perfil Verificado. La Gestión Operativa es parte del Plan Premium; por ahora podés usarla sin costo.
+              </p>
+              <ul className="mt-3 flex flex-wrap gap-2">
+                {PREMIUM_FEATURES.map((f) => (
+                  <li key={f.label} className="flex items-center gap-1.5 rounded-full bg-paper px-3 py-1 text-xs font-bold text-ink-soft">
+                    <Icon name="lock" className="text-sm text-orange-700" />
+                    {f.label}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <Link
+              href={`/residence/${residenceId}/plan`}
+              className="shrink-0 rounded-full bg-forest px-4 py-2 text-sm font-bold text-white hover:bg-forest-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+            >
+              Conocé el Plan Premium
+            </Link>
+          </div>
+        </section>
+      )}
+
       <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {kpis.map((kpi) => (
           <Card key={kpi.title} className="flex flex-col justify-between p-5">
@@ -370,7 +408,10 @@ export default async function ResidenceOverviewPage({
                 <div className={`rounded-field p-2 ${iconTiles[kpi.iconTone]}`}>
                   <Icon name={kpi.icon} className="text-xl" />
                 </div>
-                {kpi.badge && <Badge tone="amber">{kpi.badge}</Badge>}
+                <div className="flex flex-col items-end gap-1.5">
+                  {!hasPremium && kpi.premium && <PremiumTag />}
+                  {kpi.badge && <Badge tone="amber">{kpi.badge}</Badge>}
+                </div>
               </div>
               <h3 className="mb-1 text-lg font-bold text-ink">{kpi.title}</h3>
               {kpi.body}

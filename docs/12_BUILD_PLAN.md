@@ -538,6 +538,9 @@ Habilitar que un owner gestione hasta 10 residencias desde un mismo login, y act
 
 `/residence/[residence_id]/plan` (vista de la residencia); `/admin/residences/[id]/plan` (gestión admin del feature flag `has_operational_management_access`, con motivo obligatorio y fecha límite opcional para pioneras).
 
+
+**DR17 (demo visual, sin bloqueo real):** `/residence/[residence_id]/plan` muestra la comparación Perfil Verificado vs Plan Premium (sin precio) e indica el plan actual según `has_operational_management_access`; con el flag apagado, el panel remarca Habitaciones y plazas, Residentes, Comunidad visible, Elección de plaza y Renovaciones con «Premium». Nada se bloquea en servidor (D8). Los criterios de aceptación de bloqueo server-side quedan para cuando D8 se revierta.
+
 **La asignación de acceso freemium es una decisión operativa del equipo de EstuRed, no una decisión técnica — Claude Code construye el mecanismo, no decide a quién otorgarlo.**
 
 ### Criterios de aceptación

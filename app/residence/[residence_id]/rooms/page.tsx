@@ -5,6 +5,8 @@ import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getResidenceMembership } from "@/lib/residences/access";
 import { can } from "@/lib/residences/permissions";
+import { PremiumNotice } from "@/components/residences/PremiumLock";
+import { hasOperationalManagementAccess } from "@/lib/residences/operationalAccess";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 import { RoomsBrowser, type RoomsData } from "@/app/residence/[residence_id]/rooms/RoomsBrowser";
 
@@ -57,6 +59,7 @@ export default async function ResidenceRoomsPage({
     getCurrentExchangeRate(),
   ]);
 
+  const hasPremium = await hasOperationalManagementAccess(admin, residenceId);
   const roomIds = (rooms ?? []).map((r) => r.id);
   const { data: beds } = roomIds.length
     ? await admin.from("beds").select("id, room_id, letter, status, out_of_service_reason, sort_order").in("room_id", roomIds).order("sort_order", { ascending: true })
@@ -184,6 +187,12 @@ export default async function ResidenceRoomsPage({
   };
 
   return (
+    <>
+      {!hasPremium && (
+        <div className="mx-auto max-w-6xl px-4 pt-6 sm:px-6 sm:pt-8 -mb-4">
+          <PremiumNotice residenceId={residenceId} feature="Habitaciones y plazas" />
+        </div>
+      )}
     <RoomsBrowser
       residenceId={residenceId}
       data={{ groups, unassigned, kpis }}
@@ -191,5 +200,6 @@ export default async function ResidenceRoomsPage({
       canManageRooms={can(membership, "operations.rooms_availability")}
       canManageResidents={can(membership, "residents.manage")}
     />
+    </>
   );
 }

@@ -5,6 +5,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getResidenceMembership } from "@/lib/residences/access";
 import { can } from "@/lib/residences/permissions";
 import { countUnansweredStayChanges } from "@/lib/stayChange/load";
+import { hasOperationalManagementAccess } from "@/lib/residences/operationalAccess";
 import { countNewApplications, countPendingQuestions } from "@/lib/residences/sidebarCounts";
 
 /**
@@ -34,16 +35,20 @@ export default async function ResidenceDetailLayout({
   let faqBadge = 0;
   let isOwner = false;
   let canEditProfile = false;
+  let premiumLocked = false;
   const admin = getSupabaseAdmin();
   const membership = admin ? await getResidenceMembership(admin, user.id, residenceId) : null;
   if (admin && membership) {
     isOwner = membership.role === "owner";
     canEditProfile = can(membership, "profile.edit");
-    [residentsBadge, applicationsBadge, faqBadge] = await Promise.all([
+    let hasPremium = true;
+    [residentsBadge, applicationsBadge, faqBadge, hasPremium] = await Promise.all([
       countUnansweredStayChanges(admin, residenceId),
       countNewApplications(admin, residenceId),
       countPendingQuestions(admin, residenceId),
+      hasOperationalManagementAccess(admin, residenceId),
     ]);
+    premiumLocked = !hasPremium;
   }
 
   return (
@@ -56,6 +61,7 @@ export default async function ResidenceDetailLayout({
         faqBadge={faqBadge}
         isOwner={isOwner}
         canEditProfile={canEditProfile}
+        premiumLocked={premiumLocked}
       />
       <main className="min-w-0 flex-1">{children}</main>
     </div>

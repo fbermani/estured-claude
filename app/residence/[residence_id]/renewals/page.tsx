@@ -9,6 +9,8 @@ import { assertResidenceAccess } from "@/lib/residences/access";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { PremiumNotice } from "@/components/residences/PremiumLock";
+import { hasOperationalManagementAccess } from "@/lib/residences/operationalAccess";
 import { RESIDENCE_OFFER_STATUS_COPY } from "@/lib/renewals/statusCopy";
 
 export const metadata: Metadata = { title: "Renovaciones" };
@@ -27,6 +29,8 @@ export default async function ResidenceRenewalsPage({
 
   const hasAccess = await assertResidenceAccess(admin, sessionUser.id, residenceId);
   if (!hasAccess) notFound();
+
+  const hasPremium = await hasOperationalManagementAccess(admin, residenceId);
 
   const { data: reservations } = await admin
     .from("reservations")
@@ -64,6 +68,7 @@ export default async function ResidenceRenewalsPage({
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-14">
+      {!hasPremium && <PremiumNotice residenceId={residenceId} feature="Renovaciones" className="mb-6" />}
       <h1 className="text-3xl font-bold text-ink">Renovaciones</h1>
       <p className="mt-1 text-ink-soft">
         Mirá a quiénes les puede interesar seguir y mandales una oferta de renovación. Cada estudiante la responde

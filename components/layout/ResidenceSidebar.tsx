@@ -6,6 +6,7 @@ import { Icon } from "@/components/ui/Icon";
 import { NotificationBell } from "@/components/layout/NotificationBell";
 import { signOut } from "@/app/(public)/login/actions";
 import { useSidebarCollapse } from "@/components/layout/useSidebarCollapse";
+import { PremiumTag } from "@/components/residences/PremiumLock";
 
 /**
  * Sidebar de navegación de una residencia puntual — a semejanza
@@ -28,6 +29,7 @@ export function ResidenceSidebar({
   faqBadge = 0,
   isOwner = false,
   canEditProfile = false,
+  premiumLocked = false,
 }: {
   residenceId: string;
   userEmail: string;
@@ -41,22 +43,25 @@ export function ResidenceSidebar({
   isOwner?: boolean;
   /** DR11: quien tiene `profile.edit` (el dueño siempre) ve "Editar perfil"; el resto "Ver perfil". Solo presentación. */
   canEditProfile?: boolean;
+  /** DR17: la residencia no tiene Gestión Operativa (Plan Premium): remarca esas secciones. Solo presentación, nada se bloquea (D8). */
+  premiumLocked?: boolean;
 }) {
   const pathname = usePathname();
   const base = `/residence/${residenceId}`;
   const { collapsed, toggleCollapsed, mobileOpen, setMobileOpen } = useSidebarCollapse();
 
-  const NAV: { href: string; label: string; icon: string; exact?: boolean; badge?: number; badgeNoun?: string }[] = [
+  const NAV: { href: string; label: string; icon: string; exact?: boolean; badge?: number; badgeNoun?: string; premium?: boolean }[] = [
     { href: base, label: "Panel", icon: "dashboard", exact: true },
     { href: `${base}/applications`, label: "Solicitudes", icon: "inbox", badge: applicationsBadge, badgeNoun: "solicitudes nuevas sin revisar" },
-    { href: `${base}/rooms`, label: "Habitaciones", icon: "meeting_room" },
+    { href: `${base}/rooms`, label: "Habitaciones", icon: "meeting_room", premium: true },
     { href: `${base}/availability`, label: "Disponibilidad", icon: "bed" },
-    { href: `${base}/renewals`, label: "Renovaciones", icon: "sync_alt" },
-    { href: `${base}/residents`, label: "Residentes", icon: "groups", badge: residentsBadge, badgeNoun: "avisos de cambio sin responder" },
+    { href: `${base}/renewals`, label: "Renovaciones", icon: "sync_alt", premium: true },
+    { href: `${base}/residents`, label: "Residentes", icon: "groups", premium: true, badge: residentsBadge, badgeNoun: "avisos de cambio sin responder" },
     { href: `${base}/waitlist`, label: "Lista de espera", icon: "hourglass_top" },
     { href: `${base}/faq`, label: "Preguntas", icon: "forum", badge: faqBadge, badgeNoun: "preguntas sin responder" },
     { href: `${base}/regulation`, label: "Reglamento", icon: "gavel" },
     { href: `${base}/support`, label: "Soporte", icon: "support_agent" },
+    { href: `${base}/plan`, label: "Plan", icon: "workspace_premium" },
     ...(isOwner ? [{ href: `${base}/team`, label: "Equipo", icon: "supervisor_account" }] : []),
   ];
 
@@ -129,18 +134,21 @@ export function ResidenceSidebar({
                   key={item.href}
                   href={item.href}
                   onClick={() => setMobileOpen(false)}
-                  title={item.badge ? `${item.label}: ${item.badge} ${item.badgeNoun}` : item.label}
-                  aria-label={item.badge ? `${item.label}, ${item.badge} ${item.badgeNoun}` : item.label}
+                  title={item.badge ? `${item.label}: ${item.badge} ${item.badgeNoun}` : premiumLocked && item.premium ? `${item.label} (Plan Premium)` : item.label}
+                  aria-label={item.badge ? `${item.label}, ${item.badge} ${item.badgeNoun}` : premiumLocked && item.premium ? `${item.label}, función del Plan Premium` : item.label}
                   className={`relative flex items-center gap-3 rounded-field px-3 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest ${
                     active ? "bg-forest-tint text-forest-700" : "text-ink-soft hover:bg-cream-2"
                   } ${collapsed ? "md:justify-center" : ""}`}
                 >
                   <Icon name={item.icon} className="shrink-0 text-xl" />
                   <span className={collapsed ? "md:hidden" : ""}>{item.label}</span>
+                  {premiumLocked && item.premium ? (
+                    <PremiumTag className={`ml-auto ${collapsed ? "md:hidden" : ""}`} />
+                  ) : null}
                   {item.badge ? (
                     <span
                       aria-hidden
-                      className={`ml-auto flex min-w-5 items-center justify-center rounded-full bg-orange px-1.5 text-[11px] font-extrabold leading-5 text-white ${collapsed ? "md:absolute md:right-1.5 md:top-1" : ""}`}
+                      className={`${premiumLocked && item.premium ? "ml-1" : "ml-auto"} flex min-w-5 items-center justify-center rounded-full bg-orange px-1.5 text-[11px] font-extrabold leading-5 text-white ${collapsed ? "md:absolute md:right-1.5 md:top-1" : ""}`}
                     >
                       {item.badge}
                     </span>

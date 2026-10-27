@@ -5,6 +5,8 @@ import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getResidenceMembership } from "@/lib/residences/access";
 import { can } from "@/lib/residences/permissions";
+import { PremiumNotice } from "@/components/residences/PremiumLock";
+import { hasOperationalManagementAccess } from "@/lib/residences/operationalAccess";
 import { ResidentsBrowser, type ResidentsData } from "@/app/residence/[residence_id]/residents/ResidentsBrowser";
 import { RESIDENCE_OFFER_STATUS_COPY } from "@/lib/renewals/statusCopy";
 import { loadResidenceStayChanges } from "@/lib/stayChange/load";
@@ -38,6 +40,7 @@ export default async function ResidenceResidentsPage({
   const membership = await getResidenceMembership(admin, sessionUser.id, residenceId);
   if (!membership) notFound();
 
+  const hasPremium = await hasOperationalManagementAccess(admin, residenceId);
   const [{ data: stays, error }, { data: roomTypes }, { data: rooms }, renewals, { data: notes }, stayChanges, { data: residenceRow }] = await Promise.all([
     admin
       .from("resident_stays")
@@ -249,6 +252,12 @@ export default async function ResidenceResidentsPage({
   };
 
   return (
+    <>
+      {!hasPremium && (
+        <div className="mx-auto max-w-6xl px-4 pt-6 sm:px-6 sm:pt-8 -mb-4">
+          <PremiumNotice residenceId={residenceId} feature="Residentes" />
+        </div>
+      )}
     <ResidentsBrowser
       residenceId={residenceId}
       residenceName={(residenceRow?.name as string | undefined) ?? "tu residencia"}
@@ -263,5 +272,6 @@ export default async function ResidenceResidentsPage({
         stayChanges,
       }}
     />
+    </>
   );
 }

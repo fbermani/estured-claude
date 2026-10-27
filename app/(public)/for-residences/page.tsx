@@ -8,53 +8,9 @@ import { Icon } from "@/components/ui/Icon";
 import { Reveal } from "@/components/ui/Reveal";
 import { RotatingBenefits, type RotatingBenefit } from "@/components/ui/RotatingBenefits";
 import { HoverFeatureList } from "@/components/ui/HoverFeatureList";
+import { VERIFIED_FEATURES, PREMIUM_FEATURES, PLAN_PRICE_NOTE } from "@/lib/residences/planFeatures";
 import { StayChangeHighlight } from "@/components/marketing/StayChangeHighlight";
 
-const freePlanFeatures = [
-  {
-    label: "Perfil público verificado con fotos, servicios y reglas",
-    detail: "Es lo primero que ve un estudiante al buscar — reduce las consultas de gente que no tenía la información básica.",
-  },
-  {
-    label: "Disponibilidad informada por tipo de habitación",
-    detail: "Mostrás cupo por tipo de habitación sin necesidad de gestionar cada cama individualmente.",
-  },
-  {
-    label: "Solicitudes de reserva registradas",
-    detail: "Cada solicitud queda con fecha y estado, sin depender de tu memoria o de un chat.",
-  },
-  {
-    label: "Lista de espera",
-    detail: "Cuando un tipo de habitación está completo, los interesados se anotan en tu lista. Si se libera un lugar, les avisás desde tu panel.",
-  },
-  {
-    label: "Preguntas frecuentes",
-    detail: "Cargá hasta 5 preguntas y respuestas en tu ficha para que los interesados resuelvan dudas básicas antes de escribirte.",
-  },
-  {
-    label: "Renovaciones",
-    detail: "Gestioná renovaciones de tus residentes actuales sin tener que perseguir confirmaciones.",
-  },
-];
-
-const paidPlanFeatures = [
-  {
-    label: "Habitaciones y plazas",
-    detail: "Cargás tus habitaciones y camas, y ves la ocupación de cada una.",
-  },
-  {
-    label: "Residentes",
-    detail: "Registrás altas, salidas y notas, y respondés los avisos de «Quiero cambiar».",
-  },
-  {
-    label: "Comunidad visible",
-    detail: "Los estudiantes conocen a quienes viven en tu residencia, según lo que cada residente elige mostrar.",
-  },
-  {
-    label: "Elección de plaza",
-    detail: "El estudiante puede indicar una plaza libre al solicitar; la residencia confirma.",
-  },
-];
 
 export const metadata: Metadata = {
   title: "Para residencias",
@@ -235,7 +191,7 @@ export default function ForResidencesPage() {
                 Tu residencia en el catálogo, con el sello de verificación
                 presencial y gestión de solicitudes.
               </p>
-              <HoverFeatureList items={freePlanFeatures} icon="check_circle" tone="forest" className="mt-6 text-sm" />
+              <HoverFeatureList items={VERIFIED_FEATURES} icon="check_circle" tone="forest" className="mt-6 text-sm" />
             </Card>
             </Reveal>
             <Reveal delay={1}>
@@ -249,16 +205,15 @@ export default function ForResidencesPage() {
               </h3>
               <p className="mt-2 text-sm text-ink-soft">
                 Todo lo del Perfil Verificado, más la gestión de tus habitaciones,
-                plazas y residentes.
+                plazas, residentes, comunidad y renovaciones.
               </p>
-              <HoverFeatureList items={paidPlanFeatures} icon="check_circle" tone="orange" className="mt-6 text-sm" />
+              <HoverFeatureList items={PREMIUM_FEATURES} icon="check_circle" tone="orange" className="mt-6 text-sm" />
             </Card>
             </Reveal>
           </div>
           <p className="mt-6 text-center text-xs text-ink-faint">
             Si te sumás como Residencia fundadora, tu primer año de Plan Premium
-            está bonificado. El plan todavía no tiene precio: te lo vamos a
-            informar con anticipación y nadie paga nada sin aceptarlo antes.
+            está bonificado. {PLAN_PRICE_NOTE}
           </p>
         </div>
       </section>
