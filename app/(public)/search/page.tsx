@@ -6,18 +6,21 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { getSessionUser } from "@/lib/auth/session";
 import { getStudentAgeAt, parseIngresoParam } from "@/lib/residences/studentAge";
 import { todayIso } from "@/lib/residences/age";
+import { barriosWithResidences, filterByAmenities, parseAreaFilter, parseServiceFilter } from "@/lib/residences/searchFilters";
 
 export const metadata: Metadata = {
   title: "Buscar residencias en CABA",
   description:
-    "Explorá residencias estudiantiles verificadas en CABA. Filtrá por barrio, tipo de habitación y disponibilidad.",
+    "Explorá residencias estudiantiles verificadas en CABA. Filtrá por barrio, universidad, servicios y precio.",
 };
 export const dynamic = "force-dynamic";
 
-export default async function SearchPage({ searchParams }: { searchParams: Promise<{ ingreso?: string }> }) {
+export default async function SearchPage({ searchParams }: { searchParams: Promise<{ ingreso?: string; servicios?: string | string[]; areas?: string | string[] }> }) {
   // DR14: filtro por edad del estudiante autenticado, a la fecha de ingreso del filtro (`?ingreso=AAAA-MM-DD`) o a hoy.
   // Visitante o perfil sin fecha de nacimiento: no se excluye ninguna residencia.
-  const { ingreso } = await searchParams;
+  const { ingreso, servicios, areas } = await searchParams;
+  const selectedServices = parseServiceFilter(servicios);
+  const selectedAreas = parseAreaFilter(areas);
   const sessionUser = await getSessionUser();
   const studentAge = sessionUser?.roles.includes("student")
     ? await getStudentAgeAt(sessionUser.id, parseIngresoParam(ingreso) ?? todayIso())
@@ -51,7 +54,14 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
           description="Estamos verificando las primeras residencias de la red. Volvé a pasar pronto."
         />
       ) : (
-        <SearchCatalog residences={residences} arsPerUsd={rate.arsPerUsd} />
+        <SearchCatalog
+          residences={filterByAmenities(residences, selectedServices, selectedAreas)}
+          // El filtro de barrio lista solo barrios con al menos una residencia verificada y publicada (no depende de los demás filtros).
+          barrios={barriosWithResidences(residences)}
+          selectedServices={selectedServices}
+          selectedAreas={selectedAreas}
+          arsPerUsd={rate.arsPerUsd}
+        />
       )}
     </div>
   );

@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input, Select } from "@/components/ui/Input";
-import { PROPERTY_TYPE_OPTIONS, ZONE_OPTIONS } from "@/lib/residences/options";
+import { PROPERTY_TYPE_OPTIONS, BARRIO_OPTIONS } from "@/lib/residences/options";
 import {
   registerResidence,
   type RegisterResidenceState,
@@ -38,7 +38,7 @@ export function RegisterResidenceForm() {
           required
         />
         <div className="grid gap-5 sm:grid-cols-2">
-          <Select label="Tipo de propiedad" id="rr-property-type" name="property_type" required defaultValue="">
+          <Select label="Tipo de propiedad" id="rr-property-type" name="property_type" required defaultValue="residencia_estudiantil">
             <option value="" disabled>
               Elegí una opción
             </option>
@@ -48,11 +48,11 @@ export function RegisterResidenceForm() {
               </option>
             ))}
           </Select>
-          <Select label="Zona" id="rr-zone" name="zone" required defaultValue="">
+          <Select label="Barrio" id="rr-zone" name="zone" required defaultValue="">
             <option value="" disabled>
               Elegí una opción
             </option>
-            {ZONE_OPTIONS.map((z) => (
+            {BARRIO_OPTIONS.map((z) => (
               <option key={z} value={z}>
                 {z}
               </option>

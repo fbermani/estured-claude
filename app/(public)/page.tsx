@@ -7,7 +7,6 @@ import { Reveal } from "@/components/ui/Reveal";
 import { RotatingBenefits, type RotatingBenefit } from "@/components/ui/RotatingBenefits";
 import { HoverFeatureList } from "@/components/ui/HoverFeatureList";
 import { HowItWorksSteps } from "@/app/(public)/HowItWorksSteps";
-import { WhatYouPay } from "@/components/marketing/WhatYouPay";
 import { ResidenceCard } from "@/components/residences/ResidenceCard";
 import { getCatalogResidences } from "@/lib/residences/catalog";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
@@ -21,7 +20,7 @@ const pillars: RotatingBenefit[] = [
     problem:
       "Cuando buscás a distancia, solo tenés fotos y descripciones que nadie revisó. Es difícil saber si coinciden con el lugar antes de pagar una seña.",
     solution:
-      "Identidad, ubicación y fotos revisadas por EstuRed mediante control presencial antes de publicarse. Revisamos cada espacio en persona: fotos auténticas, servicios reales y reglas claras. El sello Residencia Verificada no reemplaza que consultes las condiciones de tu estadía.",
+      "Identidad, ubicación y fotos revisadas por EstuRed mediante control presencial antes de publicarse. Revisamos cada espacio en persona: fotos auténticas, servicios reales y reglas claras.",
     conclusion: "Elegís con información revisada en persona.",
   },
   {
@@ -50,31 +49,31 @@ const pillars: RotatingBenefit[] = [
     icon: "sell",
     title: "Costos a la vista",
     summary:
-      "Ves el monto exacto del fee de EstuRed antes de pagar: el 5% de tu estadía inicial, sin contar el depósito.",
+      "Cuentas claras desde el inicio: tarifas, depósito, matrícula y política de ajustes publicados, y el fee de EstuRed (5%) antes de pagar.",
     problem:
       "Los costos que aparecen recién cuando ya avanzaste generan desconfianza, sobre todo si pagás a distancia.",
     solution:
-      "Ves el monto exacto del fee de EstuRed antes de pagar: el 5% de tu estadía inicial, sin contar el depósito. A la residencia le pagás directamente lo acordado.",
+      "Cada residencia publica su tarifa, el depósito, la matrícula y bajo qué condiciones puede ajustar el precio. Ves el monto exacto del fee de EstuRed (5% de tu estadía inicial, sin contar el depósito) antes de pagar, y a la residencia le pagás directamente lo acordado.",
     conclusion: "Sabés cuánto vas a pagar y a quién, antes de pagar.",
   },
   {
     icon: "support_agent",
     title: "Soporte de EstuRed",
     summary:
-      "Si algo no coincide con lo publicado, abrís un caso de Soporte desde tu reserva.",
+      "Si algo no coincide con lo publicado, abrís un caso de Soporte desde tu reserva y te acompañamos.",
     problem:
       "Si al llegar algo no coincide con lo que se publicó, resolverlo solo, a distancia, es difícil.",
     solution:
-      "Si algo no coincide con lo publicado, abrís un caso de Soporte desde tu reserva. Revisamos la evidencia y, según el caso, puede corresponder la devolución del fee EstuRed.",
+      "Si algo no coincide con lo publicado, abrís un caso de Soporte desde tu reserva. Revisamos lo que pasó y te acompañamos para encontrar otra opción.",
     conclusion: "Tenés a quién recurrir si algo no coincide.",
   },
 ];
 
 const steps = [
   {
-    title: "Buscás con contexto real",
+    title: "Buscás tu residencia",
     description:
-      "Filtrá por barrio, tipo de habitación y presupuesto. Cada ficha muestra reglas, servicios, universidades cercanas y disponibilidad.",
+      "Desde donde estés, sin viajar a Buenos Aires: filtrá por barrio, tipo de habitación y presupuesto, y conocé reglas, servicios, compañeros y universidades cercanas de cada residencia.",
     detail: "Ver reglas y disponibilidad antes de escribir evita perder tiempo con residencias que no son para vos.",
   },
   {
@@ -84,21 +83,21 @@ const steps = [
     detail: "Tu solicitud queda registrada y no depende de conversaciones por WhatsApp que puedan perderse.",
   },
   {
-    title: "Acordás las condiciones",
+    title: "La residencia te responde",
     description:
-      "La residencia confirma tus condiciones o te propone un único ajuste antes de confirmar. Vos siempre tenés la última palabra.",
-    detail: "Si te proponen un ajuste, sos vos quien decide aceptarlo o no — nunca queda forzado.",
+      "La residencia acepta tu solicitud o te propone un único ajuste. Vos decidís si lo aceptás.",
+    detail: "Si te proponen un ajuste, sos vos quien decide aceptarlo o no.",
   },
   {
-    title: "Pagás a la residencia",
+    title: "Abonás tu reserva",
     description:
-      "Le pagás directamente lo acordado para reservar, por ejemplo el primer mes o la matrícula. La residencia confirma que lo recibió.",
+      "Pago directo a la residencia, bajo los términos acordados (por ejemplo, el primer mes o la matrícula). La residencia confirma que lo recibió.",
     detail: "EstuRed no cobra ese dinero: queda registrado que la residencia lo recibió.",
   },
   {
-    title: "Pagás el fee EstuRed y se confirma tu reserva",
+    title: "Confirmá tu reserva",
     description:
-      "Pagás a EstuRed un fee del 5% de tu estadía inicial, sin contar el depósito. Ves el monto exacto antes de pagar. Con el fee pago, tu reserva queda confirmada y recibís el Comprobante de Reserva Confirmada.",
+      "Abonás el fee de EstuRed (5% de tu estadía inicial, sin contar el depósito) y obtenés tu Comprobante de Reserva Confirmada. Ves el monto exacto antes de pagar.",
     detail: "Queda registrada con un código que cualquier persona puede verificar.",
   },
 ];
@@ -117,12 +116,12 @@ const withEstuRed = [
     detail: "Todo el proceso queda documentado, no depende de capturas de pantalla de un chat.",
   },
   {
-    label: "Reserva confirmada con código verificable",
-    detail: "Cada reserva confirmada queda registrada con un código verificable, para las dos partes.",
+    label: "Reserva confirmada con comprobante verificable",
+    detail: "Cuando la reserva se confirma, recibís un comprobante con un código que cualquiera puede verificar, y queda registrada para las dos partes.",
   },
   {
     label: "Soporte de EstuRed si algo se traba en el proceso",
-    detail: "Hay alguien a quien recurrir si la residencia no responde o algo no queda claro.",
+    detail: "Hay alguien a quien recurrir si la residencia no responde o algo no queda claro, y te acompañamos a encontrar otra opción.",
   },
 ];
 
@@ -153,14 +152,14 @@ const audiences = [
   {
     title: "Estudiantes",
     description:
-      "Elegí dónde y con quiénes vas a vivir con información real: convivencia, reglas, servicios y cercanía a tu facultad.",
+      "Conocé con quién vas a compartir, las reglas, los servicios y la cercanía a tu facultad, todo verificado.",
     href: "/for-students",
     cta: "Cómo funciona para vos",
   },
   {
     title: "Familias",
     description:
-      "Acompañá la decisión a la distancia: proponé opciones, seguí cada paso del proceso y la reserva confirmada queda con un código verificable.",
+      "Sin viajar, acompañá el proceso y sé parte de la decisión: proponé opciones, seguí cada paso y compartí la tranquilidad de una reserva con comprobante verificable.",
     href: "/for-students",
     cta: "Cómo acompañar",
   },
@@ -217,7 +216,7 @@ const faqs = [
   },
   {
     q: "¿EstuRed verifica a los estudiantes?",
-    a: "No. EstuRed verifica a las residencias, no a las personas. Vos elegís qué mostrás en tu perfil, y cada residencia revisa las solicitudes que recibe antes de confirmar.",
+    a: "No. EstuRed verifica a las residencias, no a las personas. Cada residencia evalúa las solicitudes entrantes y perfiles de forma independiente para asegurar afinidad y buena convivencia.",
   },
   {
     q: "¿Qué recibo cuando se confirma mi reserva?",
@@ -225,7 +224,7 @@ const faqs = [
   },
   {
     q: "¿Qué pasa si algo no coincide con lo publicado?",
-    a: "Podés abrir un caso de Soporte desde tu reserva. Revisamos la evidencia y, según el caso, puede corresponder la devolución del fee EstuRed. Más detalle en «Si algo no coincide con lo publicado».",
+    a: "Podés abrir un caso de Soporte desde tu reserva. Revisamos lo que pasó y te acompañamos para encontrar otra opción. Más detalle en «Si algo no coincide con lo publicado».",
   },
 ];
 
@@ -251,9 +250,8 @@ export default async function HomePage() {
               <span className="text-forest-700">sino cómo.</span>
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-soft">
-              Residencias estudiantiles verificadas en CABA, cerca de tu
-              facultad, con información clara, solicitudes registradas y un
-              registro verificable cuando se confirma tu reserva.
+              Encontrá tu residencia en Buenos Aires, verificada en persona y sin
+              viajar.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button href="/search" size="lg">
@@ -264,8 +262,7 @@ export default async function HomePage() {
               </Button>
             </div>
             <p className="mt-5 text-xs text-ink-faint">
-              Enviar una solicitud es gratis. La residencia revisa tu perfil y
-              confirma si hay lugar.
+              Explorá sin costo y olvidate de las garantías propietarias y los costos ocultos.
             </p>
           </Reveal>
 
@@ -341,15 +338,10 @@ export default async function HomePage() {
         <SectionHeader
           eyebrow="El proceso"
           title="De la búsqueda a tu reserva confirmada, en cinco pasos"
-          description="Cada paso queda registrado, con las mismas reglas para estudiantes, familias y residencias."
+          description="Todo desde donde estés, sin viajar a Buenos Aires, y con cada paso registrado en la plataforma."
         />
         <HowItWorksSteps steps={steps} />
       </section>
-
-      {/* Qué pagás y a quién */}
-      <div className="border-y border-sand-200 bg-surface">
-        <WhatYouPay variant="short" />
-      </div>
 
       {/* Residencias destacadas */}
       {featured.length > 0 && (
@@ -357,8 +349,8 @@ export default async function HomePage() {
           <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
             <SectionHeader
               eyebrow="Catálogo"
-              title="Explorá opciones con contexto real"
-              description="Una muestra de cómo vas a ver cada residencia: verificación, disponibilidad, precios claros y universidades cercanas."
+              title="Explorá residencias y conocé cómo es vivir en cada una"
+              description="Una muestra de cómo vas a ver cada residencia: compañeros, reglas, disponibilidad y precios claros."
             />
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {featured.map((residence, i) => (

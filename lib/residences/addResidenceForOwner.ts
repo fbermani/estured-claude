@@ -1,14 +1,14 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
-import { PROPERTY_TYPE_OPTIONS, ZONE_OPTIONS } from "@/lib/residences/options";
+import { PROPERTY_TYPE_OPTIONS, BARRIO_OPTIONS } from "@/lib/residences/options";
 import { saveResidencePrivateDetails } from "@/lib/residences/privateDetails";
 
 /** Docs/06 §8.2 / docs/05: un owner gestiona hasta 10 residencias (también lo impone el trigger de la migración 0003). */
 export const MAX_RESIDENCES_PER_OWNER = 10;
 const CONSENT_VERSION = "v0.1-borrador";
 const PROPERTY_TYPES = new Set<string>(PROPERTY_TYPE_OPTIONS.map((o) => o.value));
-const ZONES = new Set<string>(ZONE_OPTIONS);
+const BARRIOS = new Set<string>(BARRIO_OPTIONS);
 
 export type AddResidenceResult = { ok: true; residenceId: string } | { ok: false; error: string };
 
@@ -61,7 +61,7 @@ export async function addResidenceForOwner(
   if (!residenceName || residenceName.length > 160)
     return { ok: false, error: "Contanos el nombre de la residencia." };
   if (!PROPERTY_TYPES.has(params.propertyType)) return { ok: false, error: "Elegí un tipo de propiedad válido." };
-  if (!ZONES.has(params.zone)) return { ok: false, error: "Elegí una zona válida." };
+  if (!BARRIOS.has(params.zone)) return { ok: false, error: "Elegí un barrio de CABA válido." };
   if (!addressLine || addressLine.length > 200) return { ok: false, error: "Contanos la dirección completa." };
   if (!params.acceptResponsibility)
     return { ok: false, error: "Necesitamos que confirmes que sos responsable de la información que cargues." };

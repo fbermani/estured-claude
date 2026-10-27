@@ -67,3 +67,53 @@ Auditoría propia de home, /for-students, /for-residences y búsqueda (usuarios 
 1. Texto puro (home, /for-students, /for-residences, FAQ 5): `interfaz` o `constructor`, sonnet low, un solo bloque, revisión de reglas con `revisor`.
 2. Pasar el diseñador solo por lo estético: beneficios, «Qué cobra», «¿Para quién es?», tarjetas con servicios.
 3. Filtros de búsqueda (servicios/áreas comunes, aclaración 15 cuadras): lógica + UI, con tests acotados.
+
+---
+
+# AUDITORÍA DEL USUARIO OWNER — 2026-10-27
+
+Notas del dueño tal cual; ⚠️ = choca con una regla o necesita decisión antes de implementar. Nada implementado.
+
+## Alta y ficha de la propiedad
+1. Tipo de propiedad: por ahora solo «Residencia Estudiantil».
+2. «Zona» pasa a «Barrio», con todos los barrios de CABA. En los filtros de búsqueda solo aparecen barrios con al menos una residencia registrada.
+3. Descripción detallada y frase corta: ayudas de texto sobre qué escribir y qué no, para resaltar y no repetir información.
+4. La edad de los residentes (mín./máx./menores) va justo después de los datos básicos.
+5. Servicios y áreas comunes: opción «Otro» personalizado; ⚠️ requiere aprobación de EstuRed antes de listarse en esa residencia (cola de aprobación nueva en admin).
+6. «Gimnasio» pasa a «Gimnasio / Área para ejercitar»; «Área protegida» suma «(emergencias médicas)».
+7. Características de habitación: sumar «Velador» y «Ropero individual».
+
+## Proximidad a universidades
+8. Recomendar solo sedes a ≤15 cuadras (≈1,5 km). ⚠️ Alertar a EstuRed (admin) si se eligen sedes a más de 20 cuadras (≈2 km): alerta nueva; definir si bloquea o solo avisa.
+
+## Reglas y reglamento
+9. Reglas de convivencia: elegir las 5 más importantes/destacadas; el estudiante descarga o consulta el reglamento completo. Sin reglamento: ayudar a armarlo paso a paso con el modelo de EstuRed y luego descargarlo para compartir (extiende DR14).
+
+## Preguntas frecuentes (catálogo)
+10. Recomendar elegir como máximo 10, que son las que se ven en la ficha; una leyenda lleva a las demás (las respondidas por la residencia, además de las 10). Aclarar que cuanto más responda, más consultas tendrá. ⚠️ Decir «más solicitudes/consultas por EstuRed», no «consultas directas» (contacto por fuera).
+11. Sacar la FAQ sobre hacer visitas a la residencia. Sacar la FAQ sobre cómo funciona la comida.
+12. Agregar «¿Con quién voy a compartir?»: lo que se ve hoy no es necesariamente quienes le van a tocar; la asignación depende de múltiples factores. Agregar explicación detallada del mes vacío y por qué se cobra.
+
+## Ficha y tarjeta
+13. Mostrar ocupación y capacidad total de la residencia en ficha y tarjeta (hoy solo en comunidad). ⚠️ Solo tiene dato real con Residentes (Premium); en Verificado sería declarado. Decidir cómo se muestra para no prometer disponibilidad ni ocupación.
+14. Galería: fotos generales, por área y por tipo de habitación; funcional y amigable. En la tarjeta, pasar fotos con clic o rotación automática; en la ficha, elegir 5 fotos de la galería que roten. (Hoy hay una sola galería sin asociación.)
+
+## Tipos de habitación
+15. «Sin especificar» solo para individuales; las compartidas eligen masculino, femenino o mixto. Un mismo tipo puede tener habitaciones con distinto género (2 dobles: 1 masculina y 1 femenina). Editable después de crear las habitaciones. (Cierra la brecha «género por habitación» de Sin Fronteras.)
+
+## Dinero
+16. El pago inicial para reservar puede ser solo la matrícula. Descuentos sobre la matrícula (ej.: 50% a mitad de año, 100% ahora). ⚠️ El fee es 5% de la estadía inicial sin depósito: definir si el descuento cambia la base del fee.
+17. Depósito: ofrecer opciones de monto.
+18. Mes vacío: explicar bien qué es y aclarar que solo se cobra si la plaza queda vacía realmente, no en toda reserva diferida; sumar % manual. ⚠️ Decisión de negocio nueva (mes vacío + no prorrateo está en backlog).
+19. Promociones y descuentos sobre tarifas en cualquier momento del año, sin tocar la configuración general. ⚠️ Función nueva: define cómo se ve en la ficha («antes/ahora»), vigencia y efecto en el fee.
+
+## Residentes
+20. Mensaje guía: recomendar enviar un mensaje modelo (ver modelo) al grupo de WhatsApp o a cada residente para que se creen cuenta en EstuRed y se vinculen. Al agregar al residente con el mail/teléfono de su registro (ideal: enviar link de registro y vinculación directo por WhatsApp), la persona se registra y listo. La residencia solo los ordena en habitaciones y completa contratos/estadías. Si se carga solo con nombre y apellido: «residente sin activar» hasta activarlo o relacionar su perfil. ⚠️ El link por WhatsApp debe ser manual (botón/texto pre-formateado), nunca la API de WhatsApp (regla 2).
+
+## Decisiones del dueño sobre las advertencias del Owner (2026-10-27)
+1. «Otro» (servicios/áreas): queda pendiente y no se muestra en la ficha hasta que un admin de EstuRed lo aprueba o rechaza, con aviso a la residencia.
+2. Sede a más de 20 cuadras (≈2 km): solo alerta al admin; la residencia puede guardarla y se muestra.
+3. Ocupación en ficha y tarjeta: «capacidad · residentes» (ej.: «26 plazas · 24 residentes»), sin porcentaje ni «quedan N». Con Premium es dato real; en Verificado, solo capacidad declarada.
+4. Fee con matrícula bonificada o promoción: se calcula sobre lo que paga el estudiante (monto final).
+5. Mes vacío: se cobra solo si la plaza queda realmente vacía, nunca por toda reserva diferida; % elegible con presets + campo manual; explicado en ficha y en FAQ.
+6. Registro/vinculación de residentes: botón «Compartir por WhatsApp» que abre WhatsApp con mensaje y link pre-armados, enviado a mano; sin API de WhatsApp.

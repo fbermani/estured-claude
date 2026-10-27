@@ -4,7 +4,9 @@ import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { assertResidenceOwner, assertResidencePermission } from "@/lib/residences/access";
-import { createAuditLog } from "@/lib/audit";
+import { createAuditLog, notifyAdmins } from "@/lib/audit";
+import { getResidenceLocation } from "@/lib/residences/residenceLocation";
+import { findFarUniversities, newlyFarUniversities, RECOMMENDED_MAX_BLOCKS } from "@/lib/residences/farUniversities";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 import {
   SERVICE_OPTIONS,
@@ -427,6 +429,19 @@ export async function saveResidenceProfile(
       faqItems = [];
     }
 
+    // DR18: sedes a más de 20 cuadras (≈2 km) → solo alerta al admin; se guardan y se muestran igual.
+    // Se compara contra lo guardado antes para no repetir el aviso en cada guardado.
+    const { data: prevNearSection, error: prevNearError } = await admin
+      .from("residence_profile_sections")
+      .select("content")
+      .eq("residence_id", residenceId)
+      .eq("section_type", "near_universities")
+      .maybeSingle();
+    // Si no se pudo leer lo guardado, se toma lo nuevo como previo: mejor no alertar que alertar en cada guardado.
+    const previousNear = prevNearError
+      ? nearUniversities.map(String)
+      : ((prevNearSection?.content as { items?: string[] } | null)?.items ?? []).map(String);
+
     // Secciones no críticas: áreas comunes, universidades cercanas, FAQ —
     // siempre directo.
     for (const section of [
@@ -438,6 +453,34 @@ export async function saveResidenceProfile(
         .from("residence_profile_sections")
         .upsert({ residence_id: residenceId, ...section }, { onConflict: "residence_id,section_type" });
       if (error) throw error;
+    }
+
+    try {
+      const location = getResidenceLocation(residenceRow ?? {});
+      // Con el centro del barrio como fallback la distancia no es confiable: solo se alerta con coordenada propia.
+      if (location.source === "residence") {
+        const newlyFar = newlyFarUniversities(findFarUniversities(location, nearUniversities), findFarUniversities(location, previousNear));
+        if (newlyFar.length > 0) {
+          const detail = newlyFar.map((u) => `${u.name} (~${u.distanceKm.toFixed(1).replace(".", ",")} km)`).join(", ");
+          await createAuditLog(admin, {
+            actorUserId: sessionUser.id,
+            actorRole: accessCheck.actorRole,
+            action: "residence_far_university_selected",
+            entityType: "residences",
+            entityId: residenceId,
+            newValue: { universities: newlyFar, recommended_max_blocks: RECOMMENDED_MAX_BLOCKS },
+          });
+          await notifyAdmins(admin, {
+            title: "Residencia con sede lejana",
+            body: `«${String(residenceRow?.name ?? "Una residencia")}» eligió sedes a más de 20 cuadras (≈2 km): ${detail}. Revisá si corresponde.`,
+            entityType: "residences",
+            entityId: residenceId,
+          });
+        }
+      }
+    } catch (alertError) {
+      // Un aviso que falla no puede romper el guardado del perfil.
+      console.error("[profile] alerta de sede lejana falló:", alertError);
     }
 
     // Servicios: crítico (docs/09 §8.1) — gated si publicada.

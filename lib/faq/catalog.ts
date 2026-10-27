@@ -36,6 +36,9 @@ export function categoryLabel(key: string): string {
 /** Tope de la respuesta editada (el catálogo trae textos más largos que la FAQ libre). */
 export const CATALOG_ANSWER_MAX = 3000;
 
+/** Cantidad recomendada de preguntas del catálogo a elegir; la ficha pública muestra estas de entrada y el resto detrás de «Ver todas las preguntas» (DR18). */
+export const FICHA_FAQ_VISIBLE = 10;
+
 export type CatalogQuestion = {
   id: string;
   category: string;

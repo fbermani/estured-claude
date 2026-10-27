@@ -4,8 +4,18 @@ import { useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 
 /** Acordeón moderno, una sola pregunta abierta a la vez, apertura suave. */
-export function FaqAccordion({ items }: { items: { question: string; answer: string; fromVisitor?: boolean; group?: string }[] }) {
+export function FaqAccordion({
+  items: allItems,
+  visibleLimit,
+}: {
+  items: { question: string; answer: string; fromVisitor?: boolean; group?: string }[];
+  /** Si se pasa, muestra solo esa cantidad y un botón «Ver todas las preguntas» (DR18: la ficha muestra 10). */
+  visibleLimit?: number;
+}) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const [showAll, setShowAll] = useState(false);
+  const hasMore = visibleLimit !== undefined && allItems.length > visibleLimit;
+  const items = hasMore && !showAll ? allItems.slice(0, visibleLimit) : allItems;
 
   return (
     <div className="space-y-3">
@@ -50,6 +60,16 @@ export function FaqAccordion({ items }: { items: { question: string; answer: str
           </div>
         );
       })}
+      {hasMore && (
+        <button
+          type="button"
+          onClick={() => setShowAll((v) => !v)}
+          aria-expanded={showAll}
+          className="cursor-pointer text-sm font-bold text-forest-700 underline-offset-2 hover:underline"
+        >
+          {showAll ? "Ver menos preguntas" : `Ver todas las preguntas (${allItems.length})`}
+        </button>
+      )}
     </div>
   );
 }

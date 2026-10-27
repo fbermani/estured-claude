@@ -13,7 +13,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { FaqQuestionCard } from "@/app/residence/[residence_id]/faq/FaqQuestionCard";
 import { FaqCatalogItem } from "@/app/residence/[residence_id]/faq/FaqCatalogItem";
 import { loadCatalogForResidence } from "@/lib/faq/residenceCatalog";
-import { FAQ_CATEGORIES, effectiveAnswer } from "@/lib/faq/catalog";
+import { FAQ_CATEGORIES, FICHA_FAQ_VISIBLE, effectiveAnswer } from "@/lib/faq/catalog";
 
 export const metadata: Metadata = { title: "Preguntas frecuentes" };
 export const dynamic = "force-dynamic";
@@ -77,6 +77,16 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
           Cada pregunta trae una respuesta sugerida. Las que dicen «Texto fijo de EstuRed» no se editan; en el resto, completá los datos
           entre llaves {"{…}"} antes de mostrarlas. Lo que escribas acá no confirma disponibilidad ni precios: eso se informa en la ficha y
           en la solicitud.
+        </p>
+        <p className="mt-3 rounded-field bg-amber-soft-100 px-4 py-3 text-sm text-ink">
+          Te recomendamos elegir como máximo {FICHA_FAQ_VISIBLE} preguntas: son las que se ven de entrada en tu ficha. Las demás, y las que
+          respondas de los visitantes, quedan detrás de «Ver todas las preguntas». Cuanto más respondas, más consultas vas a recibir por
+          EstuRed.
+          {catalog.ok && (
+            <span className="mt-1 block font-semibold">
+              Elegiste {catalog.entries.filter((e) => e.selection?.is_selected).length} de {FICHA_FAQ_VISIBLE} recomendadas.
+            </span>
+          )}
         </p>
         {!catalog.ok ? (
           <div className="mt-4">

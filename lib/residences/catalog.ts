@@ -110,6 +110,7 @@ export async function getCatalogResidencesWithTotal(
       (sections ?? []).filter((s) => s.residence_id === r.id).map((s) => [s.section_type, s.content]),
     );
     const services = (sectionMap.services?.items as string[]) ?? [];
+    const commonAreas = (sectionMap.common_areas?.items as string[]) ?? [];
     const nearUniversities = (sectionMap.near_universities?.items as string[]) ?? [];
 
     // D3/H03: la disponibilidad la manda el tipo de habitación (`profile_availability`),
@@ -141,6 +142,7 @@ export async function getCatalogResidencesWithTotal(
       depositoUsd: null,
       roomTypes: roomTypeOffers,
       services,
+      commonAreas,
       highlightedRules: [],
       ...(r.min_resident_age != null
         ? { minResidentAge: r.min_resident_age, maxResidentAge: r.max_resident_age ?? null, acceptsMinors: r.accepts_minors === true }

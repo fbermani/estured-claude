@@ -1,5 +1,6 @@
 import type { RoomTypeName } from "@/types/domain";
 import { UNIVERSITY_NAMES } from "@/lib/data/buenosAiresUniversities";
+import { CABA_BARRIOS } from "@/lib/data/caBarrios";
 
 /**
  * Listas fijas del onboarding de residencias. Extraídas literalmente de
@@ -44,9 +45,8 @@ export const COMMON_AREA_OPTIONS = [
 export const UNIVERSITY_OPTIONS = UNIVERSITY_NAMES;
 
 export const PROPERTY_TYPE_OPTIONS = [
+  // Auditoría del Owner (DR18): por ahora solo «Residencia Estudiantil». Las filas viejas con otros valores no se tocan.
   { value: "residencia_estudiantil", label: "Residencia Estudiantil" },
-  { value: "departamento", label: "Departamento" },
-  { value: "casa_compartida", label: "Casa Compartida" },
 ] as const;
 
 export const ROOM_TYPE_NAMES: RoomTypeName[] = [
@@ -71,17 +71,20 @@ export const ADJUSTMENT_POLICY_OPTIONS = [
   { value: "none", label: "Sin ajuste" },
 ] as const;
 
-export const ROOM_FEATURE_OPTIONS = ["Ventana", "Balcón", "Escritorio"] as const;
+export const ROOM_FEATURE_OPTIONS = ["Ventana", "Balcón", "Escritorio", "Velador", "Ropero individual"] as const;
 
-export const ZONE_OPTIONS = [
-  "Palermo",
-  "Recoleta",
-  "Belgrano",
-  "San Telmo",
-  "Centro",
-  "Caballito",
-  "Almagro",
-  "Núñez",
-  "Villa Crespo",
-  "Otra",
-] as const;
+/** «Barrio» (antes «Zona»): los 48 barrios oficiales de CABA, guardados en `residences.public_area`. */
+export const BARRIO_OPTIONS = CABA_BARRIOS;
+
+/**
+ * Etiqueta a mostrar de un servicio guardado. El valor guardado NO cambia (datos existentes); solo el texto visible.
+ * Auditoría del Owner (DR18): «Gimnasio / Área para ejercitar» y «Área Protegida (emergencias médicas)».
+ */
+const SERVICE_DISPLAY_LABELS: Record<string, string> = {
+  Gimnasio: "Gimnasio / Área para ejercitar",
+  "Área Protegida": "Área Protegida (emergencias médicas)",
+};
+
+export function serviceLabel(value: string): string {
+  return SERVICE_DISPLAY_LABELS[value] ?? value;
+}

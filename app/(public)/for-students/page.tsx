@@ -28,7 +28,7 @@ const benefits: RotatingBenefit[] = [
     problem:
       "Elegir dónde vivir sin conocer el lugar es una de las decisiones más difíciles de mudarte a otra ciudad.",
     solution:
-      "Identidad, ubicación y fotos revisadas por EstuRed mediante control presencial, no una foto de stock ni una descripción exagerada. Revisamos cada espacio en persona: fotos auténticas, servicios reales y reglas claras. El sello Residencia Verificada no reemplaza que consultes las condiciones de tu estadía.",
+      "Identidad, ubicación y fotos revisadas por EstuRed mediante control presencial, no una foto de stock ni una descripción exagerada. Revisamos cada espacio en persona: fotos auténticas, servicios reales y reglas claras.",
     conclusion: "Elegís con información revisada en persona.",
   },
   {
@@ -70,7 +70,7 @@ const benefits: RotatingBenefit[] = [
     summary:
       "Descubrí la comunidad de cada residencia antes de mudarte: quiénes viven ahí, qué estudian y qué intereses comparten, según lo que cada residente elige mostrar.",
     problem:
-      "Vas a convivir con gente que no elegiste, en un lugar que no conocés. Saber con quién vas a vivir ayuda a decidir con más tranquilidad.",
+      "Muchas veces no sabés nada de con quién vas a vivir hasta que llegás. Conocerlos antes ayuda a decidir con más tranquilidad.",
     solution:
       "Descubrí la comunidad de cada residencia antes de mudarte: quiénes viven ahí, qué estudian y qué intereses comparten, según lo que cada residente elige mostrar.",
     conclusion: "Elegís tu lugar sabiendo también con quién vas a compartirlo.",
@@ -90,24 +90,24 @@ const benefits: RotatingBenefit[] = [
 
 const steps = [
   {
-    text: "Creá tu cuenta, completá tu perfil y buscá residencias verificadas. Vos elegís qué mostrás; la residencia ve tu perfil cuando le enviás una solicitud.",
-    detail: "Cuantos más datos completes y más opciones compares, más fácil vas a poder decidir con contexto cuando encuentres la residencia indicada.",
+    text: "Creá tu cuenta, completá tu perfil y buscá tu residencia.",
+    detail: "Completá tu perfil, usá los filtros y mirá reglas, disponibilidad y comunidad de cada residencia para decidir con más información.",
   },
   {
-    text: "Enviás tu solicitud de reserva, gratis. Si ese tipo de habitación está completo, te sumás a su lista de espera.",
+    text: "Enviá tu solicitud. Cuanto más completo tu perfil, mejor. Si ese tipo de habitación está completo, ponete en lista de espera y te avisamos automáticamente cuando haya disponibilidad.",
     detail: "Tu solicitud queda registrada y no depende de conversaciones por WhatsApp que puedan perderse.",
   },
   {
-    text: "La residencia te responde. Puede confirmar tus condiciones o proponerte un único ajuste, que podés aceptar o rechazar.",
-    detail: "Si te proponen un ajuste, la decisión final siempre es tuya — nadie confirma nada sin tu aprobación.",
+    text: "Si la residencia acepta, te envía la propuesta definitiva y los valores finales para abonar, sin costos ocultos, todo claro y registrado.",
+    detail: "Si te proponen un ajuste, la decisión final siempre es tuya.",
   },
   {
     text: "Le pagás a la residencia lo acordado para reservar (por ejemplo, el primer mes o la matrícula) y la residencia confirma que lo recibió.",
     detail: "La residencia confirma la recepción del pago, así que ese paso también queda con registro.",
   },
   {
-    text: "Pagás el fee EstuRed: el 5% de tu estadía inicial, sin contar el depósito. Ves el monto exacto antes de pagar, y lo podés pagar vos o el familiar que designes. Después, tu reserva queda confirmada y recibís tu Comprobante de Reserva Confirmada.",
-    detail: "El fee se paga una vez que la residencia confirma que recibió tu pago. La factura de EstuRed sale a nombre de quien paga, y el comprobante tiene un código que cualquiera puede verificar.",
+    text: "Confirmá tu reserva: abonás el fee de EstuRed (5% de tu estadía inicial, sin contar el depósito) y obtenés tu Comprobante de Reserva Confirmada.",
+    detail: "Ves el monto exacto antes de pagar, y lo podés pagar vos o el familiar que designes. La factura sale a nombre de quien paga y el comprobante tiene un código que cualquiera puede verificar.",
   },
 ];
 
@@ -117,8 +117,8 @@ const faqs = [
     a: "Enviar una solicitud es gratis. Si la reserva avanza, pagás a la residencia lo acordado y a EstuRed un fee del 5% sobre tu estadía inicial, sin contar el depósito. El monto exacto lo ves antes de pagar.",
   },
   {
-    q: "¿Necesito garantía propietaria?",
-    a: "No. Las residencias de EstuRed no la piden. Los requisitos de ingreso los ves en la ficha y en el reglamento de cada residencia.",
+    q: "¿Qué requisitos piden las residencias?",
+    a: "Los requisitos de ingreso los ves en la ficha y en el reglamento de cada residencia, antes de enviar tu solicitud.",
   },
   {
     q: "¿EstuRed verifica a los estudiantes?",
@@ -126,7 +126,7 @@ const faqs = [
   },
   {
     q: "¿Qué pasa si algo no coincide con lo publicado?",
-    a: "Podés abrir un caso de Soporte desde tu reserva. Revisamos la evidencia y, según el caso, puede corresponder la devolución del fee EstuRed. Más detalle en «Si algo no coincide con lo publicado».",
+    a: "Podés abrir un caso de Soporte desde tu reserva. Revisamos lo que pasó y te acompañamos para encontrar otra opción. Más detalle en «Si algo no coincide con lo publicado».",
   },
 ];
 
@@ -155,7 +155,7 @@ export default async function ForStudentsPage() {
               proceso registrado y un comprobante verificable de tu reserva.
             </p>
             <p className="mt-3 text-sm font-medium text-petrol-700">
-              Sin garantía propietaria: no la necesitás para solicitar un lugar en una residencia de EstuRed.
+              Conocé los requisitos y beneficios de cada residencia sin moverte de tu casa.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button href="/search" size="lg">

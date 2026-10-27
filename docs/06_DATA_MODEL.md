@@ -514,7 +514,7 @@ Reglas:
 | `operating_mode` | residence_operating_mode | Perfil Verificado o Gestión Operativa |
 | `visibility_status` | residence_visibility_status | Visibilidad/penalización |
 | `address_line` | text | Dirección completa (pública desde DF5) |
-| `public_area` | text | Zona visible |
+| `public_area` | text | Barrio visible (DR18: uno de los 48 barrios oficiales de CABA, validado server-side en el alta; las filas previas conservan su valor) |
 | `city` | text | CABA inicial |
 | `province` | text | Buenos Aires/CABA |
 | `country` | text | Argentina |
@@ -1523,6 +1523,8 @@ Reglas:
 ## 17. FAQ asistida por residencia
 
 ### 17.1. `residence_faq_predefined_questions` *(migración 0054)*
+
+> **DR18 (migración 0056):** se desactivan FAQ-01 (visitas a la residencia) y FAQ-38 (comida) y se agregan FAQ-50 «¿Con quién voy a compartir?» y FAQ-51 (mes vacío), ambas de texto fijo de EstuRed. Se recomienda elegir como máximo 10 preguntas; la ficha pública muestra 10 y «Ver todas las preguntas» despliega el resto (elegidas y respondidas).
 
 **Catálogo único** de preguntas disponibles para que las residencias elijan (DR14, 2026-10-25: lo administra el admin; semillas del dueño en `docs/propuestas/REGLAMENTO_MODELO_Y_FAQ.md`, Parte B: 49 preguntas cargadas por la migración). Lectura pública solo de las activas; escribe solo service role.
 

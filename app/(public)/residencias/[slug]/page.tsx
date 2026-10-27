@@ -23,6 +23,8 @@ import { formatDate } from "@/lib/dates/format";
 import { AskQuestionForm } from "@/app/(public)/residencias/[slug]/AskQuestionForm";
 import { CompactMap } from "@/components/residences/CompactMap";
 import { getServiceIcon, getCommonAreaIcon } from "@/lib/residences/amenityIcons";
+import { serviceLabel } from "@/lib/residences/options";
+import { FICHA_FAQ_VISIBLE } from "@/lib/faq/catalog";
 import { ApplyForm } from "@/app/(public)/residencias/[slug]/ApplyForm";
 import { ProposeForm } from "@/app/(public)/residencias/[slug]/ProposeForm";
 import { FavoriteButton } from "@/app/(public)/residencias/[slug]/FavoriteButton";
@@ -564,7 +566,7 @@ export default async function RealResidenceDetailPage({
                     <div>
                       <h3 className="text-base font-bold text-ink">Servicios incluidos</h3>
                       <div className="mt-3">
-                        <AmenityGrid columns={1} items={services.map((s) => ({ name: s, ...getServiceIcon(s) }))} />
+                        <AmenityGrid columns={1} items={services.map((s) => ({ name: serviceLabel(s), ...getServiceIcon(s) }))} />
                       </div>
                     </div>
                   )}
@@ -660,7 +662,7 @@ export default async function RealResidenceDetailPage({
             <h2 className="text-2xl font-bold text-ink">Preguntas frecuentes</h2>
             {faqItems.length > 0 && (
               <div className="mt-4">
-                <FaqAccordion items={faqItems} />
+                <FaqAccordion items={faqItems} visibleLimit={FICHA_FAQ_VISIBLE} />
               </div>
             )}
             <div className="mt-4">

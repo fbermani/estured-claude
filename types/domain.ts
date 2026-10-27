@@ -58,6 +58,8 @@ export interface Residence {
   depositoUsd: number | null;
   roomTypes: RoomTypeOffer[];
   services: string[];
+  /** Áreas comunes que declaró la residencia (filtro de /search, DR18). */
+  commonAreas?: string[];
   highlightedRules: string[];
   /**
    * Universidades cercanas — eje de comunicación confirmado por el dueño

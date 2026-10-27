@@ -24,6 +24,7 @@ import {
   GENDER_POLICY_OPTIONS,
   ADJUSTMENT_POLICY_OPTIONS,
   ROOM_FEATURE_OPTIONS,
+  serviceLabel,
 } from "@/lib/residences/options";
 import {
   saveResidenceProfile,
@@ -372,7 +373,7 @@ export function ResidenceProfileForm({
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <Input label="Nombre de la residencia" value={initial.name} disabled hint="Se fija al registrarse." />
               <Input
-                label="Zona"
+                label="Barrio"
                 value={initial.zone}
                 disabled
               />
@@ -392,7 +393,7 @@ export function ResidenceProfileForm({
               onChange={(e) => setTagline(e.target.value)}
               maxLength={80}
               placeholder="Tu lugar de casa"
-              hint={`Visible en resultados de búsqueda. ${tagline.length}/80 caracteres.`}
+              hint={`Visible en resultados de búsqueda. Una idea breve que te distinga (ej.: «A 10 cuadras de Ciudad Universitaria»); sin teléfonos, enlaces ni promesas. ${tagline.length}/80 caracteres.`}
               className="mt-4"
             />
             <Textarea
@@ -403,7 +404,64 @@ export function ResidenceProfileForm({
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
               className="mt-4"
+              hint="Contá lo que hace distinta a tu residencia: el ambiente, la convivencia, el barrio, qué tipo de estudiantes viven ahí. No repitas lo que ya figura en servicios, áreas comunes o precios, ni pongas teléfonos, enlaces externos o promesas (por ejemplo, «lugar asegurado»)."
             />
+          </Card>
+
+          {/* Edad de los residentes: va justo después de los datos básicos (auditoría del Owner, DR18) */}
+          <Card className="p-6">
+            <h2 className="text-lg font-bold text-ink">Edad de los residentes</h2>
+            <p className="mt-1 text-sm text-ink-soft">
+              Los estudiantes ven solo las residencias que aceptan su edad. Si no cargás nada, aceptás desde los 18 años y sin tope.
+            </p>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <Input
+                label="Edad mínima"
+                type="number"
+                min={conditions.acceptsMinors ? 10 : 18}
+                max={99}
+                disabled={readOnly}
+                value={conditions.minResidentAge}
+                onChange={(e) => updateConditions({ minResidentAge: e.target.value ? Number(e.target.value) : "" })}
+                hint="Mínimo 18, salvo que aceptes menores."
+              />
+              <Input
+                label="Edad máxima (opcional)"
+                type="number"
+                min={18}
+                max={99}
+                disabled={readOnly}
+                value={conditions.maxResidentAge}
+                onChange={(e) => updateConditions({ maxResidentAge: e.target.value ? Number(e.target.value) : "" })}
+                hint="Dejala vacía si no tenés tope."
+              />
+            </div>
+            <label className="mt-4 flex items-start gap-3 text-sm text-ink">
+              <input
+                type="checkbox"
+                className="mt-1 h-4 w-4"
+                disabled={readOnly}
+                checked={conditions.acceptsMinors}
+                onChange={(e) =>
+                  updateConditions({
+                    acceptsMinors: e.target.checked,
+                    ...(!e.target.checked && Number(conditions.minResidentAge) < 18 ? { minResidentAge: 18 } : {}),
+                  })
+                }
+              />
+              <span>
+                <span className="font-semibold">Acepto residentes menores de 18</span>
+                <span className="mt-0.5 block text-ink-soft">
+                  La decidís vos, sin aprobación de EstuRed. Con esta opción tu ficha pública suma el apartado «Para menores de 18», y cada
+                  solicitud de un menor debe confirmarla su guardián.
+                </span>
+              </span>
+            </label>
+            {conditions.acceptsMinors && (
+              <p className="mt-3 rounded-field bg-amber-soft-100 px-4 py-3 text-sm text-ink">
+                Al guardar, tu ficha mostrará el apartado para menores. Revisá tu reglamento y tus condiciones: aplican igual para ellos.
+              </p>
+            )}
           </Card>
 
           {/* Servicios */}
@@ -420,7 +478,7 @@ export function ResidenceProfileForm({
                     onChange={() => toggle(services, setServices, s)}
                     className="h-4 w-4 accent-forest"
                   />
-                  {s}
+                  {serviceLabel(s)}
                 </label>
               ))}
             </div>
@@ -537,7 +595,7 @@ export function ResidenceProfileForm({
           {/* Universidades cercanas */}
           <Card className="p-6">
             <h2 className="text-lg font-bold text-ink">Proximidad a Universidades</h2>
-            <p className="mt-1 text-sm text-ink-soft">Seleccioná las universidades cercanas a tu residencia.</p>
+            <p className="mt-1 text-sm text-ink-soft">Elegí solo las sedes a no más de 15 cuadras (≈1,5 km) de tu residencia: es lo que buscan los estudiantes al filtrar por universidad.</p>
             <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
               {UNIVERSITY_OPTIONS.map((u) => (
                 <label key={u} className="flex items-center gap-2 text-sm text-ink">
@@ -995,61 +1053,6 @@ export function ResidenceProfileForm({
             </div>
           </Card>
 
-          <Card className="p-6">
-            <h2 className="text-lg font-bold text-ink">Edad de los residentes</h2>
-            <p className="mt-1 text-sm text-ink-soft">
-              Los estudiantes ven solo las residencias que aceptan su edad. Si no cargás nada, aceptás desde los 18 años y sin tope.
-            </p>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <Input
-                label="Edad mínima"
-                type="number"
-                min={conditions.acceptsMinors ? 10 : 18}
-                max={99}
-                disabled={readOnly}
-                value={conditions.minResidentAge}
-                onChange={(e) => updateConditions({ minResidentAge: e.target.value ? Number(e.target.value) : "" })}
-                hint="Mínimo 18, salvo que aceptes menores."
-              />
-              <Input
-                label="Edad máxima (opcional)"
-                type="number"
-                min={18}
-                max={99}
-                disabled={readOnly}
-                value={conditions.maxResidentAge}
-                onChange={(e) => updateConditions({ maxResidentAge: e.target.value ? Number(e.target.value) : "" })}
-                hint="Dejala vacía si no tenés tope."
-              />
-            </div>
-            <label className="mt-4 flex items-start gap-3 text-sm text-ink">
-              <input
-                type="checkbox"
-                className="mt-1 h-4 w-4"
-                disabled={readOnly}
-                checked={conditions.acceptsMinors}
-                onChange={(e) =>
-                  updateConditions({
-                    acceptsMinors: e.target.checked,
-                    ...(!e.target.checked && Number(conditions.minResidentAge) < 18 ? { minResidentAge: 18 } : {}),
-                  })
-                }
-              />
-              <span>
-                <span className="font-semibold">Acepto residentes menores de 18</span>
-                <span className="mt-0.5 block text-ink-soft">
-                  La decidís vos, sin aprobación de EstuRed. Con esta opción tu ficha pública suma el apartado «Para menores de 18», y cada
-                  solicitud de un menor debe confirmarla su guardián.
-                </span>
-              </span>
-            </label>
-            {conditions.acceptsMinors && (
-              <p className="mt-3 rounded-field bg-amber-soft-100 px-4 py-3 text-sm text-ink">
-                Al guardar, tu ficha mostrará el apartado para menores. Revisá tu reglamento y tus condiciones: aplican igual para ellos.
-              </p>
-            )}
-          </Card>
-
           {!readOnly && (
             <>
           {state.status === "error" && (
@@ -1138,7 +1141,7 @@ export function ResidenceProfileForm({
             </div>
             <div className="p-4">
               <p className="font-bold text-ink">{initial.name}</p>
-              <p className="text-xs text-ink-soft">{initial.zone || "Zona sin definir"}, CABA</p>
+              <p className="text-xs text-ink-soft">{initial.zone || "Barrio sin definir"}, CABA</p>
               <div className="mt-2 flex flex-wrap gap-1">
                 {[...services].slice(0, 2).map((s) => (
                   <Badge key={s} tone="petrol">

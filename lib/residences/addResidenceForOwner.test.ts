@@ -190,7 +190,7 @@ describe.skipIf(!hasCreds)("addResidenceForOwner (integración)", () => {
       [{ residenceName: "  " }, "nombre"],
       [{ residenceName: "x".repeat(161) }, "nombre"],
       [{ propertyType: "castillo" }, "tipo de propiedad"],
-      [{ zone: "Marte" }, "zona"],
+      [{ zone: "Marte" }, "barrio"],
       [{ addressLine: "" }, "dirección"],
       [{ acceptResponsibility: false }, "responsable"],
     ];

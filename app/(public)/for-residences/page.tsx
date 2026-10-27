@@ -8,7 +8,7 @@ import { Icon } from "@/components/ui/Icon";
 import { Reveal } from "@/components/ui/Reveal";
 import { RotatingBenefits, type RotatingBenefit } from "@/components/ui/RotatingBenefits";
 import { HoverFeatureList } from "@/components/ui/HoverFeatureList";
-import { VERIFIED_FEATURES, PREMIUM_FEATURES, PLAN_PRICE_NOTE } from "@/lib/residences/planFeatures";
+import { VERIFIED_FEATURES, PREMIUM_FEATURES } from "@/lib/residences/planFeatures";
 import { StayChangeHighlight } from "@/components/marketing/StayChangeHighlight";
 
 
@@ -32,25 +32,25 @@ const benefits: RotatingBenefit[] = [
   },
   {
     icon: "inbox",
-    title: "Solicitudes ordenadas",
+    title: "Elegí qué solicitudes aceptar",
     summary:
-      "Conectá con estudiantes afines a tu casa y cuidá el clima de convivencia. Recibís solicitudes completas, con el perfil que cada estudiante elige compartir; decidís si avanzás, proponés un ajuste o rechazás.",
+      "Conocé el perfil y la afinidad de convivencia de cada estudiante antes de aceptar. Vos decidís si avanzás, proponés un ajuste o rechazás.",
     problem:
-      "Recibir consultas sueltas por distintos canales, sin el contexto del estudiante, hace difícil evaluar quién realmente encaja.",
+      "Recibir consultas sueltas por distintos canales, sin el contexto del estudiante, hace difícil evaluar quién realmente encaja con tu casa.",
     solution:
-      "Conectá con estudiantes afines a tu casa y cuidá el clima de convivencia. Recibís solicitudes completas, con el perfil que cada estudiante elige compartir; decidís si avanzás, proponés un ajuste o rechazás.",
-    conclusion: "Toda la información que necesitás, en un solo lugar.",
+      "Recibís solicitudes completas, con el perfil que cada estudiante elige compartir, y ves su afinidad de convivencia antes de aceptar. Vos decidís si avanzás, proponés un ajuste o rechazás.",
+    conclusion: "Toda la información para decidir, en un solo lugar.",
   },
   {
-    icon: "handshake",
-    title: "Condiciones negociables con reglas claras",
+    icon: "dashboard",
+    title: "Tu gestión en un solo lugar",
     summary:
-      "Antes de confirmar, podés proponer un ajuste de condiciones por solicitud. Todo registrado, sin idas y vueltas informales.",
+      "Solicitudes, renovaciones y lista de espera juntas, con estados claros y todo registrado.",
     problem:
-      "Negociar condiciones por chat, sin un proceso claro, genera confusión sobre qué quedó acordado y qué no.",
+      "Manejar solicitudes, renovaciones y lista de espera en chats, planillas y llamadas hace difícil saber en qué quedó cada cosa.",
     solution:
-      "Antes de confirmar, podés proponer un ajuste de condiciones por solicitud. Todo registrado, sin idas y vueltas informales.",
-    conclusion: "Un acuerdo claro, con historial, no un ida y vuelta que se pierde.",
+      "Solicitudes, renovaciones y lista de espera en un solo lugar, con estados claros y todo registrado en la plataforma.",
+    conclusion: "Menos cosas sueltas, más control sobre tu operación.",
   },
   {
     icon: "hourglass_top",
@@ -213,7 +213,7 @@ export default function ForResidencesPage() {
           </div>
           <p className="mt-6 text-center text-xs text-ink-faint">
             Si te sumás como Residencia fundadora, tu primer año de Plan Premium
-            está bonificado. {PLAN_PRICE_NOTE}
+            está bonificado.
           </p>
         </div>
       </section>

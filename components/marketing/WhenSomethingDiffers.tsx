@@ -4,9 +4,8 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 
 const steps = [
   "Abrís un caso desde tu reserva y nos contás qué pasó.",
-  "Revisamos la evidencia (fotos, mensajes, documentos) y hablamos con la residencia.",
-  "Según el caso, puede corresponder la devolución del fee EstuRed.",
-  "Te ayudamos a buscar otra residencia en EstuRed, aunque no siempre haya un lugar equivalente disponible.",
+  "Revisamos lo que pasó (fotos, mensajes, documentos) y hablamos con la residencia.",
+  "Te acompañamos para encontrar otra opción.",
 ];
 
 /** Bloque «Si algo no coincide con lo publicado» (INVENTARIO_COPY §7.4, DR13). Sin la palabra «garantía». */

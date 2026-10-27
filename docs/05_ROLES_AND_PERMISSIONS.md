@@ -1039,6 +1039,8 @@ El FAQ/bot no puede: inventar disponibilidad, confirmar precios fuera de datos o
 
 ---
 
+**DR18 (2026-10-27).** Sin permisos nuevos: quien tiene `profile.edit` guarda barrio, edad y sedes cercanas como hasta ahora; si guarda una sede a más de 20 cuadras (≈2 km) se registra una auditoría y se avisa a los admin/superadmin (no bloquea). La selección de preguntas de la FAQ sigue bajo `faq.manage`.
+
 ## 17. Permisos sobre resolución de conflictos
 
 ### 17.1. Abrir reclamo

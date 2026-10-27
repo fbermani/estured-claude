@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import type { Residence, RoomTypeName } from "@/types/domain";
 import { ResidenceCard } from "@/components/residences/ResidenceCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Icon } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
 import { availabilityHelpText } from "@/components/ui/StatusTag";
+import { COMMON_AREA_OPTIONS, SERVICE_OPTIONS, serviceLabel } from "@/lib/residences/options";
 import { UNIVERSITY_NAMES } from "@/lib/data/buenosAiresUniversities";
 
 /**
@@ -19,12 +21,6 @@ import { UNIVERSITY_NAMES } from "@/lib/data/buenosAiresUniversities";
  */
 
 const ROOM_TYPE_OPTIONS: RoomTypeName[] = ["Individual", "Doble", "Triple", "Cuádruple", "Compartida"];
-
-const AVAILABILITY_OPTIONS: { value: string; label: string }[] = [
-  { value: "", label: "Cualquiera" },
-  { value: "by_room_type_to_confirm", label: "Con lugar informado" },
-  { value: "full", label: "Completa (lista de espera)" },
-];
 
 const PRICE_OPTIONS: { value: string; label: string }[] = [
   { value: "", label: "Sin límite" },
@@ -115,11 +111,33 @@ function RadioOption({
   );
 }
 
-export function SearchCatalog({ residences, arsPerUsd }: { residences: Residence[]; arsPerUsd: number }) {
+export function SearchCatalog({
+  residences,
+  arsPerUsd,
+  barrios,
+  selectedServices,
+  selectedAreas,
+}: {
+  residences: Residence[];
+  arsPerUsd: number;
+  barrios: string[];
+  selectedServices: string[];
+  selectedAreas: string[];
+}) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  // Servicios y áreas comunes viajan como query params (`servicios`, `areas`): la página filtra en el servidor.
+  const toggleAmenityParam = (key: "servicios" | "areas", current: string[], value: string) => {
+    const next = current.includes(value) ? current.filter((v) => v !== value) : [...current, value];
+    const params = new URLSearchParams(searchParams.toString());
+    if (next.length > 0) params.set(key, next.join(","));
+    else params.delete(key);
+    const qs = params.toString();
+    router.replace(qs ? `/search?${qs}` : "/search", { scroll: false });
+  };
   const [university, setUniversity] = useState("");
   const [zoneSet, setZoneSet] = useState<Set<string>>(new Set());
   const [roomTypeSet, setRoomTypeSet] = useState<Set<string>>(new Set());
-  const [availability, setAvailability] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [openPill, setOpenPill] = useState<string | null>(null);
   // En mobile los filtros ocupaban casi toda la primera pantalla: arrancan
@@ -127,7 +145,7 @@ export function SearchCatalog({ residences, arsPerUsd }: { residences: Residence
   const [filtersOpenMobile, setFiltersOpenMobile] = useState(false);
 
   const all = residences;
-  const zones = useMemo(() => [...new Set(all.map((r) => r.zone))].sort(), [all]);
+  const zones = barrios;
 
   const toggleInSet = (set: Set<string>, value: string, apply: (next: Set<string>) => void) => {
     const next = new Set(set);
@@ -142,22 +160,27 @@ export function SearchCatalog({ residences, arsPerUsd }: { residences: Residence
       if (uni && !r.nearUniversities.some((u) => u.toLowerCase().includes(uni))) return false;
       if (zoneSet.size > 0 && !zoneSet.has(r.zone)) return false;
       if (roomTypeSet.size > 0 && !r.roomTypes.some((rt) => roomTypeSet.has(rt.type))) return false;
-      if (availability && r.availabilityMode !== availability) return false;
       if (maxPrice && r.priceFromUsd > Number(maxPrice)) return false;
       return true;
     });
-  }, [all, university, zoneSet, roomTypeSet, availability, maxPrice]);
+  }, [all, university, zoneSet, roomTypeSet, maxPrice]);
 
-  const hasFilters = university.trim() !== "" || zoneSet.size > 0 || roomTypeSet.size > 0 || availability !== "" || maxPrice !== "";
+  const hasFilters = university.trim() !== "" || zoneSet.size > 0 || roomTypeSet.size > 0 || maxPrice !== "" || selectedServices.length > 0 || selectedAreas.length > 0;
   const activeFilterCount =
-    (university.trim() !== "" ? 1 : 0) + zoneSet.size + roomTypeSet.size + (availability !== "" ? 1 : 0) + (maxPrice !== "" ? 1 : 0);
+    (university.trim() !== "" ? 1 : 0) + zoneSet.size + roomTypeSet.size + (maxPrice !== "" ? 1 : 0) + selectedServices.length + selectedAreas.length;
   const clearFilters = () => {
     setUniversity("");
     setZoneSet(new Set());
     setRoomTypeSet(new Set());
-    setAvailability("");
     setMaxPrice("");
     setOpenPill(null);
+    if (selectedServices.length > 0 || selectedAreas.length > 0) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("servicios");
+      params.delete("areas");
+      const qs = params.toString();
+      router.replace(qs ? `/search?${qs}` : "/search", { scroll: false });
+    }
   };
   const togglePill = (name: string) => setOpenPill((current) => (current === name ? null : name));
 
@@ -235,6 +258,9 @@ export function SearchCatalog({ residences, arsPerUsd }: { residences: Residence
           </select>
           <Icon name="expand_more" className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-xl text-ink-faint" />
         </div>
+        <p className="mt-2 text-xs text-ink-faint">
+          Solo aparecen residencias que eligieron esa sede como cercana; les recomendamos elegir sedes a no más de 15 cuadras.
+        </p>
       </div>
 
       {/* Filtros rápidos */}
@@ -286,20 +312,33 @@ export function SearchCatalog({ residences, arsPerUsd }: { residences: Residence
         </FilterPill>
 
         <FilterPill
-          label="Disponibilidad"
-          activeCount={availability ? 1 : 0}
-          open={openPill === "availability"}
-          onToggle={() => togglePill("availability")}
+          label="Servicios"
+          activeCount={selectedServices.length}
+          open={openPill === "services"}
+          onToggle={() => togglePill("services")}
         >
-          {AVAILABILITY_OPTIONS.map((o) => (
-            <RadioOption
-              key={o.value}
-              label={o.label}
-              checked={availability === o.value}
-              onChange={() => {
-                setAvailability(o.value);
-                setOpenPill(null);
-              }}
+          {SERVICE_OPTIONS.map((o) => (
+            <CheckOption
+              key={o}
+              label={serviceLabel(o)}
+              checked={selectedServices.includes(o)}
+              onChange={() => toggleAmenityParam("servicios", selectedServices, o)}
+            />
+          ))}
+        </FilterPill>
+
+        <FilterPill
+          label="Áreas comunes"
+          activeCount={selectedAreas.length}
+          open={openPill === "areas"}
+          onToggle={() => togglePill("areas")}
+        >
+          {COMMON_AREA_OPTIONS.map((o) => (
+            <CheckOption
+              key={o}
+              label={o}
+              checked={selectedAreas.includes(o)}
+              onChange={() => toggleAmenityParam("areas", selectedAreas, o)}
             />
           ))}
         </FilterPill>

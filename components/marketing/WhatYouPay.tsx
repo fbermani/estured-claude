@@ -10,7 +10,7 @@ const studentItems = [
     icon: "edit_note",
     label: "Enviar una solicitud",
     amount: "Gratis",
-    text: "No pagás nada por solicitar ni por sumarte a una lista de espera.",
+    text: "Buscar, conocer perfiles, anotarte en lista de espera y enviar solicitudes no tiene costo.",
   },
   {
     icon: "apartment",
@@ -22,13 +22,13 @@ const studentItems = [
     icon: "payments",
     label: "A EstuRed",
     amount: "Fee del 5%",
-    text: "Sobre el total de tu estadía inicial, sin contar el depósito. Se paga una sola vez, después de que la residencia confirma tu pago, y lo podés pagar vos o el familiar que designes. Ves el monto exacto antes de pagar y recibís la factura de EstuRed.",
+    text: "Verás todos los montos antes de enviar tu solicitud. Solo abonás por nuestro servicio una vez que la residencia confirma tu pago, y lo podés pagar vos o el familiar que designes.",
   },
   {
     icon: "receipt_long",
-    label: "No es un pago",
+    label: "Comprobante",
     amount: "Comprobante de Reserva Confirmada",
-    text: "Lo emite EstuRed cuando tu reserva se confirma, con un código que cualquier persona puede verificar.",
+    text: "Abonado el fee, obtenés tu comprobante y tu reserva queda confirmada. Tiene un código que cualquiera puede verificar.",
   },
 ];
 

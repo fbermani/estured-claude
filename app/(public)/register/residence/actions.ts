@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { createAuditLog } from "@/lib/audit";
-import { PROPERTY_TYPE_OPTIONS, ZONE_OPTIONS } from "@/lib/residences/options";
+import { PROPERTY_TYPE_OPTIONS, BARRIO_OPTIONS } from "@/lib/residences/options";
 import { saveResidencePrivateDetails } from "@/lib/residences/privateDetails";
 
 export type RegisterResidenceState = { status: "idle" | "error"; message?: string };
@@ -14,7 +14,7 @@ export type RegisterResidenceState = { status: "idle" | "error"; message?: strin
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const CONSENT_VERSION = "v0.1-borrador";
 const PROPERTY_TYPES = new Set(PROPERTY_TYPE_OPTIONS.map((o) => o.value));
-const ZONES = new Set<string>(ZONE_OPTIONS);
+const BARRIOS = new Set<string>(BARRIO_OPTIONS);
 
 function slugify(name: string): string {
   return name
@@ -59,8 +59,8 @@ export async function registerResidence(
     return { status: "error", message: "Contanos el nombre de la residencia." };
   if (!PROPERTY_TYPES.has(propertyType as (typeof PROPERTY_TYPE_OPTIONS)[number]["value"]))
     return { status: "error", message: "Elegí un tipo de propiedad válido." };
-  if (!ZONES.has(zone))
-    return { status: "error", message: "Elegí una zona válida." };
+  if (!BARRIOS.has(zone))
+    return { status: "error", message: "Elegí un barrio de CABA válido." };
   if (!addressLine || addressLine.length > 200)
     return { status: "error", message: "Contanos la dirección completa." };
   if (!EMAIL_RE.test(email) || email.length > 254)
