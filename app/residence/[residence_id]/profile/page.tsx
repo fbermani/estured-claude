@@ -10,6 +10,8 @@ import { initialPaymentConfigFromRow } from "@/lib/reservations/initialPayment";
 import { listCustomAmenities } from "@/lib/residences/customAmenitiesDb";
 import { loadCurrentRegulation } from "@/lib/regulations/current";
 import { loadPhotoMeta } from "@/lib/residences/photoMetaDb";
+import { loadResidencePromotions } from "@/lib/residences/promotions";
+import { isWithinWindow, normalizeDepositMode, todayIso } from "@/lib/applications/reservationMoney";
 import type { PhotoMetaItem } from "@/app/residence/[residence_id]/profile/PhotoMetaManager";
 import { ResidenceProfileForm } from "@/app/residence/[residence_id]/profile/ResidenceProfileForm";
 
@@ -73,11 +75,13 @@ export default async function ResidenceProfilePage({
   if (!residence) notFound();
 
   // DR18: ítems «Otro» (degrada a vacío sin la migración 0058) y si ya hay reglamento propio publicado (si no, se invita a armarlo).
-  const [customAmenitiesRes, regulationRes, photoMeta] = await Promise.all([
+  const [customAmenitiesRes, regulationRes, photoMeta, promotionsRes] = await Promise.all([
     listCustomAmenities(admin, residenceId),
     loadCurrentRegulation(admin, residenceId),
     loadPhotoMeta(admin, [residenceId]),
+    loadResidencePromotions(admin, residenceId),
   ]);
+  const today = todayIso();
 
   const changesMessage = !readOnly && residence.status === "needs_changes" ? await loadChangesMessage(admin, residenceId) : null;
   const rate = await getCurrentExchangeRate();
@@ -129,6 +133,18 @@ export default async function ResidenceProfilePage({
         photos: photoItems,
         photoRoomTypes: (roomTypes ?? []).map((rt) => ({ id: rt.id as string, name: rt.name as string })),
         photoMetaReady: photoMeta.schemaReady,
+        // DR18 t3 (0060): las opciones de dinero se habilitan cuando existe `deposit_mode` y la tabla de promociones.
+        moneyReady: promotionsRes.schemaReady && "deposit_mode" in residence,
+        promotions: promotionsRes.promotions.map((p) => ({
+          id: p.id,
+          label: p.label,
+          discountPercent: p.discountPercent,
+          roomTypeName: (roomTypes ?? []).find((rt) => rt.id === p.roomTypeId)?.name ?? null,
+          startsOn: p.startsOn,
+          endsOn: p.endsOn,
+          isActive: p.isActive,
+          current: p.isActive && isWithinWindow({ startsOn: p.startsOn, endsOn: p.endsOn }, today),
+        })),
         pendingEditGroups,
         changesMessage,
         roomTypes: (roomTypes ?? []).map((rt) => ({
@@ -150,13 +166,15 @@ export default async function ResidenceProfilePage({
           enrollmentFeeMode: residence.enrollment_fee_mode === "manual" ? "manual" : "one_month",
           enrollmentFeeUsd: residence.enrollment_fee_usd != null ? Number(residence.enrollment_fee_usd) : "",
           enrollmentFeeFrequency: residence.enrollment_fee_frequency === "annual" ? "annual" : "once",
-          depositEnabled: residence.deposit_usd != null,
+          enrollmentDiscountPercent:
+            residence.enrollment_discount_percent != null ? Number(residence.enrollment_discount_percent) : "",
+          enrollmentDiscountUntil: (residence.enrollment_discount_until as string | null) ?? "",
+          depositEnabled: residence.deposit_usd != null || normalizeDepositMode(residence.deposit_mode) !== null,
+          depositMode: normalizeDepositMode(residence.deposit_mode) ?? "",
           depositUsd: residence.deposit_usd != null ? Number(residence.deposit_usd) : "",
           emptyMonthsEnabled: residence.empty_month_charge_percent != null,
-          emptyMonthDiscountPercent:
-            residence.empty_month_charge_percent != null
-              ? Math.max(0, Math.min(100, 100 - Number(residence.empty_month_charge_percent)))
-              : 50,
+          emptyMonthChargePercent:
+            residence.empty_month_charge_percent != null ? Math.max(0, Math.min(100, Number(residence.empty_month_charge_percent))) : 50,
           earlyExitDepositClausesText: (residence.early_exit_deposit_clauses_text as string | null) ?? "",
           earlyExitCostsText: (residence.early_exit_costs_text as string | null) ?? "",
           earlyExitConditionsText: (residence.early_exit_conditions_text as string | null) ?? "",

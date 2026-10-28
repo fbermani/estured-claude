@@ -109,3 +109,26 @@ describe("describeInitialPayment / monthsLabel", () => {
     expect(monthsLabel(6)).toBe("6 meses");
   });
 });
+
+describe("buildConditionItems: dinero DR18 tanda 3", () => {
+  it("pago inicial solo matrícula", () => {
+    const items = byKey(buildConditionItems({ ...base, initialPayment: { mode: "enrollment_only", customUsd: null } }));
+    expect(items.initial_payment.value).toBe("Solo la matrícula");
+    expect(describeInitialPayment({ mode: "enrollment_only", customUsd: null })).toEqual({ kind: "enrollment_only" });
+  });
+  it("depósito en meses de renta (sin monto en USD)", () => {
+    const items = byKey(buildConditionItems({ ...base, depositUsd: null, depositMode: "two_months" }));
+    expect(items.deposit.value).toBe("2 meses de renta");
+    expect(items.deposit.arsFromUsd).toBeNull();
+  });
+  it("descuento de matrícula vigente se avisa; vencido no", () => {
+    const withMatricula = { ...base, enrollmentFeeMode: "one_month" as const, enrollmentDiscountPercent: 50, enrollmentDiscountUntil: "2026-12-31" };
+    expect(byKey(buildConditionItems(withMatricula, "2026-10-28")).enrollment.help).toContain("50% de descuento hasta el");
+    expect(byKey(buildConditionItems(withMatricula, "2027-01-02")).enrollment.help).not.toContain("descuento");
+    const free = { ...withMatricula, enrollmentDiscountPercent: 100, enrollmentDiscountUntil: null };
+    expect(byKey(buildConditionItems(free, "2026-10-28")).enrollment.help).toContain("bonificada");
+  });
+  it("mes vacío aclara que solo se cobra si la plaza queda vacía", () => {
+    expect(byKey(buildConditionItems(base)).advance_booking.help).toContain("realmente vacía");
+  });
+});

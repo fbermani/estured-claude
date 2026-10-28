@@ -33,6 +33,7 @@ import { syncCustomAmenities } from "@/lib/residences/customAmenitiesDb";
 import { splitRules, validateTopRules } from "@/lib/residences/topRules";
 import { validateAgeRange } from "@/lib/residences/age";
 import { validateEarlyExitPolicy } from "@/lib/stayChange/validate";
+import { parseMoneyConditionsInput, type DepositMode } from "@/lib/applications/reservationMoney";
 import { describeInitialPaymentForLog, initialPaymentConfigFromRow, parseInitialPaymentInput, type InitialPaymentConfig } from "@/lib/reservations/initialPayment";
 
 /** Mensaje cuando un staff con `profile.edit` (sin `operations.rooms_availability`) intenta cambiar la estructura de habitaciones o plazas. */
@@ -89,6 +90,10 @@ interface ConditionsInput {
   enrollmentFeeFrequency: "once" | "annual";
   depositUsd: number | null;
   emptyMonthChargePercent: number | null;
+  /** DR18 t3 (migración 0060): descuento de matrícula (null = sin descuento), su último día y depósito en meses de renta. */
+  enrollmentDiscountPercent: number | null;
+  enrollmentDiscountUntil: string | null;
+  depositMode: DepositMode | null;
   /** Política de salida anticipada (DR3): texto libre informativo, hasta 1000 caracteres cada uno. */
   earlyExitDepositClausesText: string | null;
   earlyExitCostsText: string | null;
@@ -107,6 +112,15 @@ function parseConditions(raw: string): ConditionsInput | { error: string } | nul
     const ageRange = validateAgeRange({ minAge: c.minResidentAge, maxAge: c.maxResidentAge, acceptsMinors: c.acceptsMinors });
     if (!ageRange.ok) return { error: ageRange.error };
     const mode = c.enrollmentFeeMode === "one_month" || c.enrollmentFeeMode === "manual" ? c.enrollmentFeeMode : null;
+    const depositUsd = c.depositUsd != null && c.depositUsd !== "" ? Math.max(0, Number(c.depositUsd) || 0) : null;
+    const money = parseMoneyConditionsInput({
+      enrollmentFeeMode: mode,
+      depositUsd,
+      enrollmentDiscountPercent: c.enrollmentDiscountPercent,
+      enrollmentDiscountUntil: c.enrollmentDiscountUntil,
+      depositMode: c.depositMode,
+    });
+    if (!money.ok) return { error: money.error };
     return {
       minimumStayMonths:
         c.minimumStayMonths != null && c.minimumStayMonths !== ""
@@ -118,11 +132,14 @@ function parseConditions(raw: string): ConditionsInput | { error: string } | nul
       enrollmentFeeUsd:
         mode === "manual" && c.enrollmentFeeUsd != null ? Math.max(0, Number(c.enrollmentFeeUsd) || 0) : null,
       enrollmentFeeFrequency: c.enrollmentFeeFrequency === "annual" ? "annual" : "once",
-      depositUsd: c.depositUsd != null && c.depositUsd !== "" ? Math.max(0, Number(c.depositUsd) || 0) : null,
+      depositUsd,
       emptyMonthChargePercent:
         c.emptyMonthChargePercent != null && c.emptyMonthChargePercent !== ""
           ? Math.min(100, Math.max(0, Number(c.emptyMonthChargePercent) || 0))
           : null,
+      enrollmentDiscountPercent: money.value.enrollmentDiscountPercent,
+      enrollmentDiscountUntil: money.value.enrollmentDiscountUntil,
+      depositMode: money.value.depositMode,
       earlyExitDepositClausesText: earlyExit.value.depositClausesText,
       earlyExitCostsText: earlyExit.value.costsText,
       earlyExitConditionsText: earlyExit.value.conditionsText,
@@ -257,6 +274,15 @@ export async function saveResidenceProfile(
     };
   if (conditions.enrollmentFeeMode === "manual" && !conditions.enrollmentFeeUsd)
     return { status: "error", message: "Indicá el monto de la matrícula o cambiá a \"equivalente a 1 mes\"." };
+  if (conditions.initialPayment.mode === "enrollment_only" && conditions.enrollmentFeeMode === null)
+    return { status: "error", message: "Para que el pago inicial sea solo la matrícula, primero tenés que cobrar matrícula." };
+  // DR18 t3: sin la migración 0060 solo se pueden guardar los valores de siempre; se avisa antes de escribir nada.
+  const moneyColumnsExist = "deposit_mode" in (residenceRow ?? {});
+  if (
+    !moneyColumnsExist &&
+    (conditions.depositMode !== null || conditions.enrollmentDiscountPercent !== null || conditions.initialPayment.mode === "enrollment_only")
+  )
+    return { status: "error", message: "Todavía no podemos guardar los descuentos de matrícula, el depósito en meses ni el pago inicial solo con matrícula. Probá de nuevo en unos días." };
 
   for (const rt of roomTypes) {
     if (!ROOM_NAMES.has(rt.name))
@@ -330,6 +356,14 @@ export async function saveResidenceProfile(
         enrollment_fee_frequency: conditions.enrollmentFeeFrequency,
         deposit_usd: conditions.depositUsd,
         empty_month_charge_percent: conditions.emptyMonthChargePercent,
+        // Dinero DR18 t3 (migración 0060): descuento de matrícula y depósito en meses. Se limpian junto con el resto para no violar las exclusiones.
+        ...(moneyColumnsExist
+          ? {
+              enrollment_discount_percent: conditions.enrollmentFeeMode ? conditions.enrollmentDiscountPercent : null,
+              enrollment_discount_until: conditions.enrollmentFeeMode ? conditions.enrollmentDiscountUntil : null,
+              deposit_mode: conditions.depositMode,
+            }
+          : {}),
         // Política de salida anticipada (migración 0044): solo si la columna existe (residenceRow viene de `select *`).
         ...("early_exit_costs_text" in (residenceRow ?? {})
           ? {
@@ -364,6 +398,31 @@ export async function saveResidenceProfile(
         oldValue: oldAge,
         newValue: newAge,
       });
+    }
+
+    // Dinero DR18 t3: descuento de matrícula y depósito en meses se aplican directo (términos comerciales, como la matrícula) y se auditan.
+    if (moneyColumnsExist) {
+      const oldMoney = {
+        enrollment_discount_percent: residenceRow?.enrollment_discount_percent != null ? Number(residenceRow.enrollment_discount_percent) : null,
+        enrollment_discount_until: (residenceRow?.enrollment_discount_until as string | null) ?? null,
+        deposit_mode: (residenceRow?.deposit_mode as string | null) ?? null,
+      };
+      const newMoney = {
+        enrollment_discount_percent: conditions.enrollmentFeeMode ? conditions.enrollmentDiscountPercent : null,
+        enrollment_discount_until: conditions.enrollmentFeeMode ? conditions.enrollmentDiscountUntil : null,
+        deposit_mode: conditions.depositMode,
+      };
+      if (JSON.stringify(oldMoney) !== JSON.stringify(newMoney)) {
+        await createAuditLog(admin, {
+          actorUserId: sessionUser.id,
+          actorRole: accessCheck.actorRole,
+          action: "residence_money_conditions_updated",
+          entityType: "residences",
+          entityId: residenceId,
+          oldValue: oldMoney,
+          newValue: newMoney,
+        });
+      }
     }
 
     // Política de salida anticipada (DR3): se aplica al instante (es texto informativo, como la política de ajuste)

@@ -20,6 +20,8 @@ interface RoomTypeOption {
   id: string;
   name: string;
   monthly_price_usd: number;
+  /** Promoción vigente (DR18 t3): % sobre la tarifa de lista; el servidor la vuelve a resolver al enviar. */
+  promotion_percent?: number | null;
   profile_availability: { status: string } | null;
 }
 
@@ -177,6 +179,7 @@ export function ApplyForm({
       {selected && duration > 0 && (
         <CostBreakdown
           monthlyUsd={monthlyUsd}
+          promotionPercent={selected.promotion_percent ?? null}
           duration={duration}
           startDate={startDate}
           conditions={conditions}

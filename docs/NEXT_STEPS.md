@@ -8,6 +8,11 @@
 
 ---
 
+## DR18 fase 2, tanda 3 (2026-10-28): dinero
+
+- Hecho en código (sin commit, sin build): migración `0060_money_conditions_promotions.sql` (**pendiente de aplicar en dev y prod**), módulo puro `lib/applications/reservationMoney.ts` (descuento de matrícula, depósito en meses, promociones, pago inicial «solo matrícula»; lo usan el snapshot y la previa `CostBreakdown`), tabla `residence_promotions` + `PromotionsManager`/`promotionActions.ts` en el perfil, «antes/ahora» en tarifas de la ficha, mes vacío contingente fuera de la base del fee. Seed: `scripts/seed-demo-money.mjs` (correr tras aplicar la 0060 en dev).
+- Pendiente: aplicar 0060; verificar con screenshots el formulario de condiciones, las promociones y el desglose de la solicitud; la tarjeta de `/search` aún muestra la tarifa de lista (sin promoción); renovaciones no aplican promoción; `build` y suite completa sin correr. Decisiones y supuestos: `docs/00`, «DR18 fase 2, tanda 3».
+
 ## DR18 fase 2, tanda 2 (2026-10-28): galería y ocupación/capacidad
 
 - Hecho en código (sin commit, sin build): migración `0059_residence_photo_meta.sql` (**pendiente de aplicar en dev y prod**), editor de clasificación de fotos en el perfil (`PhotoMetaManager`, action `photoMetaActions.ts`), tarjeta de `/search` con carrusel (`CardPhotoCarousel`, `useRotation`), hero de la ficha que rota las destacadas y visor agrupado, «N plazas · M residentes» en ficha y tarjeta (`lib/residences/occupancy.ts`). Seed: `scripts/seed-demo-photo-meta.mjs` (correr tras aplicar la 0059 en dev).

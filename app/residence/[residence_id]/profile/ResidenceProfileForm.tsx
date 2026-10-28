@@ -35,6 +35,13 @@ import {
 } from "@/lib/residences/customAmenities";
 import { MAX_TOP_RULES, TOP_RULE_MAX, splitRules } from "@/lib/residences/topRules";
 import { PhotoMetaManager, type PhotoMetaItem } from "@/app/residence/[residence_id]/profile/PhotoMetaManager";
+import { PromotionsManager, type PromotionItem } from "@/app/residence/[residence_id]/profile/PromotionsManager";
+import {
+  DEPOSIT_OPTIONS,
+  ENROLLMENT_DISCOUNT_PRESETS,
+  EMPTY_MONTH_PERCENT_PRESETS,
+  type DepositMode,
+} from "@/lib/applications/reservationMoney";
 import {
   saveResidenceProfile,
   type ProfileFormState,
@@ -57,18 +64,23 @@ interface RoomTypeDraft {
 interface ConditionsDraft {
   minimumStayMonths: number | "";
   adjustmentPolicy: string;
-  /** Pago inicial para reservar (D7/H08, migración 0041): primer mes o monto fijo en USD. */
-  initialPaymentMode: "one_month" | "custom_usd";
+  /** Pago inicial para reservar (D7/H08, migración 0041): primer mes, monto fijo en USD o solo la matrícula (DR18 t3). */
+  initialPaymentMode: "one_month" | "custom_usd" | "enrollment_only";
   initialPaymentUsd: number | "";
   enrollmentEnabled: boolean;
   enrollmentFeeMode: "one_month" | "manual";
   enrollmentFeeUsd: number | "";
   enrollmentFeeFrequency: "once" | "annual";
+  /** Descuento de matrícula (DR18 t3): % y último día (YYYY-MM-DD, opcional). */
+  enrollmentDiscountPercent: number | "";
+  enrollmentDiscountUntil: string;
   depositEnabled: boolean;
+  /** "" = monto fijo en USD (`depositUsd`); si no, meses de renta de lista (DR18 t3). */
+  depositMode: "" | DepositMode;
   depositUsd: number | "";
   emptyMonthsEnabled: boolean;
-  /** Se muestra como "descuento"; se guarda como % cobrado (100 - descuento). */
-  emptyMonthDiscountPercent: number;
+  /** % de la renta que se cobra por mes vacío, solo si la plaza queda realmente vacía (DR18 t3; presets + manual). */
+  emptyMonthChargePercent: number | "";
   /** Política de salida anticipada (DR3, migración 0044): se muestra en la ficha y precarga la respuesta a un aviso. */
   earlyExitDepositClausesText: string;
   earlyExitCostsText: string;
@@ -102,6 +114,9 @@ interface ProfileInitial {
   photos: PhotoMetaItem[];
   photoRoomTypes: { id: string; name: string }[];
   photoMetaReady: boolean;
+  /** DR18 t3 (migración 0060): promociones de tarifa y si las opciones nuevas de dinero ya se pueden guardar. */
+  promotions: PromotionItem[];
+  moneyReady: boolean;
   roomTypes: RoomTypeDraft[];
   conditions: ConditionsDraft;
   pendingEditGroups: { fieldGroup: string; createdAt: string }[];
@@ -127,7 +142,6 @@ const CAPACITY_BY_NAME: Record<string, number> = {
 };
 
 const MINIMUM_STAY_OPTIONS = [1, 3, 6, 9, 12];
-const EMPTY_MONTH_DISCOUNT_OPTIONS = [0, 25, 50, 75];
 
 function Switch({ checked, onChange, disabled, label }: { checked: boolean; onChange: (v: boolean) => void; disabled?: boolean; label: string }) {
   return (
@@ -442,10 +456,11 @@ export function ResidenceProfileForm({
               enrollmentFeeMode: conditions.enrollmentEnabled ? conditions.enrollmentFeeMode : null,
               enrollmentFeeUsd: conditions.enrollmentFeeUsd,
               enrollmentFeeFrequency: conditions.enrollmentFeeFrequency,
-              depositUsd: conditions.depositEnabled ? conditions.depositUsd : null,
-              emptyMonthChargePercent: conditions.emptyMonthsEnabled
-                ? 100 - conditions.emptyMonthDiscountPercent
-                : null,
+              enrollmentDiscountPercent: conditions.enrollmentEnabled ? conditions.enrollmentDiscountPercent : null,
+              enrollmentDiscountUntil: conditions.enrollmentEnabled ? conditions.enrollmentDiscountUntil : null,
+              depositUsd: conditions.depositEnabled && !conditions.depositMode ? conditions.depositUsd : null,
+              depositMode: conditions.depositEnabled && conditions.depositMode ? conditions.depositMode : null,
+              emptyMonthChargePercent: conditions.emptyMonthsEnabled ? conditions.emptyMonthChargePercent : null,
               earlyExitDepositClausesText: conditions.earlyExitDepositClausesText,
               earlyExitCostsText: conditions.earlyExitCostsText,
               earlyExitConditionsText: conditions.earlyExitConditionsText,
@@ -992,6 +1007,17 @@ export function ResidenceProfileForm({
                   />
                   Monto fijo
                 </label>
+                <label className="flex items-center gap-1.5 text-sm text-ink-soft">
+                  <input
+                    type="radio"
+                    name="initial_payment_mode"
+                    checked={conditions.initialPaymentMode === "enrollment_only"}
+                    disabled={!conditions.enrollmentEnabled || !initial.moneyReady}
+                    onChange={() => updateConditions({ initialPaymentMode: "enrollment_only" })}
+                    className="h-4 w-4 accent-forest"
+                  />
+                  Solo la matrícula
+                </label>
                 {conditions.initialPaymentMode === "custom_usd" && (
                   <div className="w-36">
                     <Input
@@ -1009,8 +1035,11 @@ export function ResidenceProfileForm({
               </div>
               <p className="mt-2 text-xs text-ink-faint">
                 {conditions.initialPaymentMode === "one_month"
-                  ? "Es la tarifa mensual del tipo de habitación que elija el estudiante. Es el valor por defecto."
-                  : "Es el mismo monto para todos los tipos de habitación. Las solicitudes ya enviadas conservan el monto con el que se crearon."}
+                  ? "Es la tarifa mensual del tipo de habitación que elija el estudiante (con la promoción vigente, si hay). Es el valor por defecto."
+                  : conditions.initialPaymentMode === "enrollment_only"
+                    ? "El estudiante te paga solo la matrícula (ya con su descuento) para reservar; la renta se paga mes a mes. Si la matrícula queda bonificada al 100%, el pago inicial pasa a ser el primer mes."
+                    : "Es el mismo monto para todos los tipos de habitación. Las solicitudes ya enviadas conservan el monto con el que se crearon."}
+                {!conditions.enrollmentEnabled && " «Solo la matrícula» requiere cobrar matrícula."}
               </p>
             </div>
 
@@ -1088,6 +1117,51 @@ export function ResidenceProfileForm({
                       </label>
                     ))}
                   </div>
+                  {/* Descuento de matrícula (DR18 t3): el fee se calcula sobre la matrícula ya descontada. */}
+                  <div className="space-y-2">
+                    <span className="text-xs font-bold uppercase tracking-wide text-muted">Descuento de matrícula (opcional)</span>
+                    <div className="flex flex-wrap items-end gap-3">
+                      <div className="flex flex-wrap items-center gap-2">
+                        {[...ENROLLMENT_DISCOUNT_PRESETS].map((p) => (
+                          <button
+                            key={p}
+                            type="button"
+                            disabled={!initial.moneyReady}
+                            aria-pressed={conditions.enrollmentDiscountPercent === p}
+                            onClick={() => updateConditions({ enrollmentDiscountPercent: conditions.enrollmentDiscountPercent === p ? "" : p })}
+                            className={`rounded-full border px-3 py-1 text-sm ${conditions.enrollmentDiscountPercent === p ? "border-forest bg-forest-tint font-semibold text-forest-700" : "border-sand-300 text-ink-soft"}`}
+                          >
+                            {p === 100 ? "100% (bonificada)" : `${p}%`}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="w-28">
+                        <Input
+                          label="Otro %"
+                          type="number"
+                          min={1}
+                          max={100}
+                          disabled={!initial.moneyReady}
+                          value={conditions.enrollmentDiscountPercent}
+                          onChange={(e) => updateConditions({ enrollmentDiscountPercent: e.target.value ? Number(e.target.value) : "" })}
+                        />
+                      </div>
+                      <div className="w-44">
+                        <Input
+                          label="Vigente hasta (opcional)"
+                          type="date"
+                          disabled={!initial.moneyReady || conditions.enrollmentDiscountPercent === ""}
+                          value={conditions.enrollmentDiscountUntil}
+                          onChange={(e) => updateConditions({ enrollmentDiscountUntil: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                    <p className="text-xs text-ink-faint">
+                      Ejemplo: 50% hasta mitad de año o 100% por ahora. Sin fecha, rige hasta que lo quites. EstuRed calcula su fee sobre lo que
+                      realmente paga el estudiante (la matrícula ya descontada).
+                      {!initial.moneyReady && " Muy pronto vas a poder usarlo."}
+                    </p>
+                  </div>
                 </div>
               )}
             </div>
@@ -1107,14 +1181,33 @@ export function ResidenceProfileForm({
                 />
               </div>
               {conditions.depositEnabled && (
-                <div className="mt-4 w-40 border-t border-sand-200 pt-4">
-                  <Input
-                    label="Monto (USD)"
-                    type="number"
-                    min={0}
-                    value={conditions.depositUsd}
-                    onChange={(e) => updateConditions({ depositUsd: e.target.value ? Number(e.target.value) : "" })}
-                  />
+                <div className="mt-4 space-y-3 border-t border-sand-200 pt-4">
+                  <Select
+                    label="Monto del depósito"
+                    value={conditions.depositMode}
+                    disabled={!initial.moneyReady && conditions.depositMode === ""}
+                    onChange={(e) => updateConditions({ depositMode: e.target.value as "" | DepositMode })}
+                    hint="En meses de renta se calcula sobre la tarifa de cada tipo de habitación. Siempre es reembolsable y no entra a la base del fee."
+                  >
+                    <option value="">Monto fijo en USD</option>
+                    {initial.moneyReady &&
+                      DEPOSIT_OPTIONS.map((o) => (
+                        <option key={o.mode} value={o.mode}>
+                          {o.label}
+                        </option>
+                      ))}
+                  </Select>
+                  {conditions.depositMode === "" && (
+                    <div className="w-40">
+                      <Input
+                        label="Monto (USD)"
+                        type="number"
+                        min={0}
+                        value={conditions.depositUsd}
+                        onChange={(e) => updateConditions({ depositUsd: e.target.value ? Number(e.target.value) : "" })}
+                      />
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -1125,31 +1218,70 @@ export function ResidenceProfileForm({
                 <div>
                   <p className="font-semibold text-ink">Meses vacíos (reserva anticipada)</p>
                   <p className="text-xs text-ink-soft">
-                    Al reservar un cupo futuro (máximo 3 meses), los meses no ocupados tienen un cargo mínimo.
+                    Al reservar un cupo futuro (máximo 3 meses), un mes en el que la plaza queda realmente vacía tiene un cargo mínimo.
                   </p>
                 </div>
                 <Switch
                   checked={conditions.emptyMonthsEnabled}
-                  onChange={(v) => updateConditions({ emptyMonthsEnabled: v })}
+                  onChange={(v) =>
+                    updateConditions({
+                      emptyMonthsEnabled: v,
+                      ...(v && conditions.emptyMonthChargePercent === "" ? { emptyMonthChargePercent: 50 } : {}),
+                    })
+                  }
                   label="Cobrar meses vacíos"
                 />
               </div>
               {conditions.emptyMonthsEnabled && (
-                <div className="mt-4 max-w-72 border-t border-sand-200 pt-4">
-                  <Select
-                    label="Descuento para meses no ocupados"
-                    value={conditions.emptyMonthDiscountPercent}
-                    onChange={(e) => updateConditions({ emptyMonthDiscountPercent: Number(e.target.value) })}
-                    hint={`El estudiante paga el ${100 - conditions.emptyMonthDiscountPercent}% de la renta por mes vacío.`}
-                  >
-                    {EMPTY_MONTH_DISCOUNT_OPTIONS.map((d) => (
-                      <option key={d} value={d}>
-                        {d}% de descuento
-                      </option>
-                    ))}
-                  </Select>
+                <div className="mt-4 space-y-3 border-t border-sand-200 pt-4">
+                  <p className="text-sm font-semibold text-ink">¿Qué porcentaje de la renta se cobra por cada mes vacío?</p>
+                  <div className="flex flex-wrap items-end gap-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      {[...EMPTY_MONTH_PERCENT_PRESETS].map((p) => (
+                        <button
+                          key={p}
+                          type="button"
+                          aria-pressed={conditions.emptyMonthChargePercent === p}
+                          onClick={() => updateConditions({ emptyMonthChargePercent: p })}
+                          className={`rounded-full border px-3 py-1 text-sm ${conditions.emptyMonthChargePercent === p ? "border-forest bg-forest-tint font-semibold text-forest-700" : "border-sand-300 text-ink-soft"}`}
+                        >
+                          {p}%
+                        </button>
+                      ))}
+                    </div>
+                    <div className="w-28">
+                      <Input
+                        label="Otro %"
+                        type="number"
+                        min={1}
+                        max={100}
+                        value={conditions.emptyMonthChargePercent}
+                        onChange={(e) => updateConditions({ emptyMonthChargePercent: e.target.value ? Number(e.target.value) : "" })}
+                      />
+                    </div>
+                  </div>
+                  <p className="text-xs text-ink-faint">
+                    El mes vacío es un mes completo entre la reserva y el ingreso en el que la plaza queda realmente sin ocupar (hasta 3). Se
+                    cobra solo en ese caso, nunca por toda reserva con ingreso diferido: el estudiante lo ve como un posible cargo y lo
+                    acuerda con vos. No forma parte de la base del fee de EstuRed mientras no se cobre.
+                  </p>
                 </div>
               )}
+            </div>
+
+            {/* Promociones de tarifa (DR18 t3) */}
+            <div className="mt-4 rounded-card border border-sand-200 p-4">
+              <p className="font-semibold text-ink">Promociones sobre la renta</p>
+              <p className="text-xs text-ink-soft">
+                Un descuento por tiempo limitado, en cualquier momento del año, sin tocar tus tarifas. En tu ficha se ve «antes / ahora».
+              </p>
+              <PromotionsManager
+                residenceId={residenceId}
+                initialItems={initial.promotions}
+                roomTypes={initial.photoRoomTypes}
+                schemaReady={initial.moneyReady}
+                readOnly={readOnly}
+              />
             </div>
 
             <div className="mt-4 rounded-card border border-sand-200 p-4">

@@ -102,6 +102,8 @@ export async function recordNegotiationResponse(
       originalMonthlyUsd: Number(original.monthly_price_usd),
       finalMonthlyUsd: Number(monthlyPriceUsd),
       mode: normalizeInitialPaymentMode(residenceRow?.reservation_initial_payment_mode),
+      originalEnrollmentUsd: Number(original.enrollment_fee_usd ?? 0),
+      finalEnrollmentUsd: Number(enrollmentFeeUsd ?? 0),
     });
     const fee = calculateFeeEstimate({
       monthlyPriceUsd: Number(monthlyPriceUsd),
@@ -138,6 +140,18 @@ export async function recordNegotiationResponse(
         fee_base_usd: fee.feeBaseUsd,
         fee_base_ars: fee.feeBaseArs,
         estimated_estured_fee_ars: fee.estimatedFeeArs,
+        // DR18 t3: «antes/ahora» heredado del original (solo las columnas con valor, así no depende de la migración 0060).
+        ...Object.fromEntries(
+          [
+            "list_monthly_price_usd",
+            "promotion_percent",
+            "promotion_id",
+            "enrollment_fee_list_usd",
+            "enrollment_fee_discount_percent",
+          ]
+            .filter((k) => (original as Record<string, unknown>)[k] != null)
+            .map((k) => [k, (original as Record<string, unknown>)[k]]),
+        ),
         raw_snapshot: { special_conditions: proposal.special_conditions },
       })
       .select("id")

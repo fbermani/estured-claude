@@ -20,6 +20,9 @@ const GUARDED: Record<string, string[]> = {
   "lib/reservations/recordResidencePaymentReceived.ts": ["assertResidencePermission(", "payments.residence"],
   // Perfil: guardar es delegable; enviar a verificación, no
   "app/residence/[residence_id]/profile/actions.ts": ["assertResidencePermission(", "profile.edit", "assertResidenceOwner("],
+  // Galería de fotos (DR18 t2) y promociones de tarifa (DR18 t3): ambas requieren `profile.edit`
+  "app/residence/[residence_id]/profile/photoMetaActions.ts": ["assertResidencePermission(", "profile.edit"],
+  "app/residence/[residence_id]/profile/promotionActions.ts": ["assertResidencePermission(", "profile.edit"],
   // Reglamento (DR14): publicar versiones requiere `profile.edit`
   "lib/regulations/publish.ts": ["assertResidencePermission(", "profile.edit"],
   // Operación
@@ -73,6 +76,7 @@ const ALLOWLIST: Record<string, string> = {
   "app/residence/[residence_id]/profile/ResidenceProfileForm.tsx": "formulario cliente; escribe solo vía saveResidenceProfile (GUARDED)",
   // Helpers que solo llaman acciones ya controladas
   "lib/residences/tariffLog.ts": "helper de saveResidenceProfile (GUARDED)",
+  "lib/residences/customAmenitiesDb.ts": "helper de saveResidenceProfile (GUARDED) y del panel admin (reviewCustomAmenity)",
   "lib/residences/syncRoomsAndBeds.ts": "helper de saveResidenceProfile (GUARDED)",
   "lib/residences/privateDetails.ts": "helper del perfil y del alta; no lo llama ninguna acción de equipo",
   "lib/residences/profileEdits.ts": "helper de saveResidenceProfile y del panel admin",

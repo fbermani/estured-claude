@@ -57,6 +57,8 @@ export function NegotiationForm({
     originalMonthlyUsd: Number(original.monthly_price_usd),
     finalMonthlyUsd: monthlyPrice ? Number(monthlyPrice) : Number(original.monthly_price_usd),
     mode: initialPaymentMode,
+    originalEnrollmentUsd: Number(original.enrollment_fee_usd ?? 0),
+    finalEnrollmentUsd: enrollmentFee ? Number(enrollmentFee) : Number(original.enrollment_fee_usd ?? 0),
   });
   const finalInitialPaymentLabel =
     finalInitialPaymentUsd === Number(original.reservation_payment_amount_usd)

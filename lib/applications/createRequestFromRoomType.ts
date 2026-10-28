@@ -4,9 +4,9 @@ import { createAuditLog } from "@/lib/audit";
 import { usdToArs } from "@/lib/mock/exchange";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 import { calculateFeeEstimate } from "@/lib/applications/fee";
-import { emptyMonthsChargeUsd } from "@/lib/applications/emptyMonths";
-import { getResidenceConditions, resolveEnrollmentFeeUsd } from "@/lib/residences/conditions";
-import { buildInitialPayment } from "@/lib/reservations/initialPayment";
+import { resolveReservationMoney, todayIso } from "@/lib/applications/reservationMoney";
+import { getResidenceConditions } from "@/lib/residences/conditions";
+import { getActivePromotionForType } from "@/lib/residences/promotions";
 import { notifyResidenceTeam } from "@/lib/residences/notifyResidenceTeam";
 import { determineInitialApplicationStatus } from "@/lib/applications/roomTypeQueue";
 
@@ -58,23 +58,46 @@ export async function createApplicationFromRoomType(
   }
 
   const rate = await getCurrentExchangeRate();
-  const monthlyPriceUsd = Number(params.roomType.monthly_price_usd);
-  const enrollmentFeeUsd = resolveEnrollmentFeeUsd(conditions, monthlyPriceUsd);
-  const depositUsd = conditions.depositUsd;
-  // D7/H08: pago inicial para reservar (a la residencia) — primer mes o monto fijo; queda congelado en el snapshot.
-  const initialPayment = buildInitialPayment(conditions.initialPayment, monthlyPriceUsd, rate.arsPerUsd);
-  const emptyCharge = emptyMonthsChargeUsd({
-    desiredStartDate: params.desiredStartDate,
-    monthlyPriceUsd,
-    chargePercent: conditions.emptyMonthChargePercent,
+  const listMonthlyUsd = Number(params.roomType.monthly_price_usd);
+  // DR18 t3: promoción vigente (la de mayor %), descuento de matrícula, depósito en meses y pago inicial «solo matrícula».
+  // Todo se resuelve en `resolveReservationMoney` (la misma función que usa la previa del cliente) y queda congelado en el snapshot.
+  const promotionResult = await getActivePromotionForType(admin, params.residenceId, params.roomTypeId);
+  if ("error" in promotionResult) return { error: promotionResult.error };
+  const promotion = promotionResult.promotion;
+  const money = resolveReservationMoney({
+    listMonthlyUsd,
+    promotionPercent: promotion?.discountPercent ?? null,
+    conditions,
+    arsPerUsd: rate.arsPerUsd,
+    today: todayIso(),
   });
+  const monthlyPriceUsd = money.monthlyUsd;
+  const enrollmentFeeUsd = money.enrollment.listUsd > 0 ? money.enrollment.netUsd : null;
+  const depositUsd = money.depositUsd;
+  const initialPayment = money.initialPayment;
+  // El mes vacío es contingente (solo se cobra si la plaza queda realmente vacía, docs/00 DR18 t3): NO entra a la base del fee.
+  // El fee se calcula sobre lo que paga el estudiante: renta con promoción + matrícula ya descontada.
   const fee = calculateFeeEstimate({
     monthlyPriceUsd,
     durationMonths: params.durationMonths,
     enrollmentFeeUsd,
-    emptyMonthsChargeUsd: emptyCharge.chargeUsd,
     arsPerUsd: rate.arsPerUsd,
   });
+  // Columnas de «antes/ahora» (migración 0060): solo si hay promoción o descuento, para no tocar el insert de siempre.
+  const beforeAfterColumns =
+    promotion || money.enrollment.discountPercent > 0
+      ? {
+          ...(promotion
+            ? { list_monthly_price_usd: listMonthlyUsd, promotion_percent: promotion.discountPercent, promotion_id: promotion.id }
+            : {}),
+          ...(money.enrollment.discountPercent > 0
+            ? {
+                enrollment_fee_list_usd: money.enrollment.listUsd,
+                enrollment_fee_discount_percent: money.enrollment.discountPercent,
+              }
+            : {}),
+        }
+      : {};
 
   try {
     const { data: snapshot, error: snapshotError } = await admin
@@ -100,6 +123,7 @@ export async function createApplicationFromRoomType(
         fee_base_usd: fee.feeBaseUsd,
         fee_base_ars: fee.feeBaseArs,
         estimated_estured_fee_ars: fee.estimatedFeeArs,
+        ...beforeAfterColumns,
       })
       .select("id")
       .single();

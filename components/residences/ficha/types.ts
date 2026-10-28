@@ -4,7 +4,11 @@ import type { TypeAvailabilityState } from "@/lib/availability/typeAvailability"
 export type FichaRoomType = {
   id: string;
   name: string;
+  /** Lo que paga el estudiante por mes: con la promoción vigente aplicada, si hay (DR18 t3). */
   priceUsd: number;
+  /** Tarifa de lista, solo si hay una promoción vigente (para mostrar «antes / ahora»). */
+  listPriceUsd?: number;
+  promotion?: { label: string; percent: number; endsOn: string | null };
   /** ARS redondeados (`usdToArsRounded`), solo para mostrar, siempre con `ExchangeRateNote`. */
   arsRounded: number;
   /** "2 personas por habitación · mixta · baño compartido" (solo lo cargado). */

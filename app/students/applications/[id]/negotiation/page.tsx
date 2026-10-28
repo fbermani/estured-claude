@@ -84,6 +84,8 @@ export default async function NegotiationResponsePage({
     originalMonthlyUsd: Number(original.monthly_price_usd),
     finalMonthlyUsd: Number(finalMonthlyPrice),
     mode: normalizeInitialPaymentMode(residenceRow?.reservation_initial_payment_mode),
+    originalEnrollmentUsd: Number(original.enrollment_fee_usd ?? 0),
+    finalEnrollmentUsd: Number(finalEnrollmentFee ?? 0),
   });
 
   const rows = [

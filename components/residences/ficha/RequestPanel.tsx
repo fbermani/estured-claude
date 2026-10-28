@@ -172,6 +172,12 @@ export function RequestPanel({
                         </span>
                       </span>
                       <span className={`text-sm font-extrabold ${canPick ? "text-ink" : "text-ink-soft"}`}>
+                        {rt.listPriceUsd != null && (
+                          <span className="mr-1 text-xs font-semibold text-ink-faint line-through">
+                            <span className="sr-only">Antes </span>
+                            {formatUsd(rt.listPriceUsd)}
+                          </span>
+                        )}
                         {formatUsd(rt.priceUsd)}
                       </span>
                     </label>

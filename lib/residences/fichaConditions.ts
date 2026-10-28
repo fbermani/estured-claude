@@ -2,6 +2,8 @@ import { describeEnrollmentFee } from "@/lib/residences/enrollmentFee";
 import { MAX_EMPTY_MONTHS } from "@/lib/applications/emptyMonths";
 import { formatUsd } from "@/lib/mock/exchange";
 import { resolveInitialPaymentUsd, type InitialPaymentConfig } from "@/lib/reservations/initialPayment";
+import { depositModeLabel, isWithinWindow, todayIso, type DepositMode } from "@/lib/applications/reservationMoney";
+import { formatDateOnly } from "@/lib/dates/formatDateOnly";
 
 /**
  * Condiciones que la ficha pública muestra a TODOS (Ciclo 57, H10): solo lectura y presentación.
@@ -34,6 +36,10 @@ export type FichaConditionsInput = {
   depositUsd: number | null;
   emptyMonthChargePercent: number | null;
   initialPayment: InitialPaymentConfig;
+  /** DR18 t3 (migración 0060); opcionales: sin la migración todo queda como antes. */
+  depositMode?: DepositMode | null;
+  enrollmentDiscountPercent?: number | null;
+  enrollmentDiscountUntil?: string | null;
 };
 
 export type ConditionItem = {
@@ -54,7 +60,7 @@ export function monthsLabel(months: number): string {
   return `${months} ${months === 1 ? "mes" : "meses"}`;
 }
 
-export type InitialPaymentDisplay = { kind: "first_month" } | { kind: "fixed"; usd: number };
+export type InitialPaymentDisplay = { kind: "first_month" } | { kind: "fixed"; usd: number } | { kind: "enrollment_only" };
 
 /**
  * Pago inicial para reservar tal como lo muestra la ficha: primer mes o monto fijo. Único punto de lectura de
@@ -63,17 +69,27 @@ export type InitialPaymentDisplay = { kind: "first_month" } | { kind: "fixed"; u
  */
 export function describeInitialPayment(config: InitialPaymentConfig): InitialPaymentDisplay {
   // Con una tarifa imposible (-1) `resolveInitialPaymentUsd` solo devuelve un valor > 0 si hay monto fijo válido.
+  if (config.mode === "enrollment_only") return { kind: "enrollment_only" };
   const fixed = resolveInitialPaymentUsd(config, -1);
   return fixed > 0 ? { kind: "fixed", usd: fixed } : { kind: "first_month" };
 }
 
-export function buildConditionItems(input: FichaConditionsInput): ConditionItem[] {
+export function buildConditionItems(input: FichaConditionsInput, today: string = todayIso()): ConditionItem[] {
   const items: ConditionItem[] = [];
 
   // Pago inicial para reservar (D7/H08): primer mes por defecto o monto fijo.
   const initial = describeInitialPayment(input.initialPayment);
   items.push(
-    initial.kind === "fixed"
+    initial.kind === "enrollment_only"
+      ? {
+          key: "initial_payment",
+          icon: "payments",
+          label: "Para reservar",
+          value: "Solo la matrícula",
+          help: "Pago inicial a la residencia: la matrícula. La renta se paga mes a mes.",
+          arsFromUsd: null,
+        }
+      : initial.kind === "fixed"
       ? {
           key: "initial_payment",
           icon: "payments",
@@ -92,7 +108,16 @@ export function buildConditionItems(input: FichaConditionsInput): ConditionItem[
         },
   );
 
-  if (input.depositUsd != null && input.depositUsd > 0) {
+  if (input.depositMode) {
+    items.push({
+      key: "deposit",
+      icon: "savings",
+      label: "Depósito",
+      value: depositModeLabel(input.depositMode),
+      help: "Reembolsable al irte si no hay daños.",
+      arsFromUsd: null,
+    });
+  } else if (input.depositUsd != null && input.depositUsd > 0) {
     items.push({
       key: "deposit",
       icon: "savings",
@@ -106,6 +131,14 @@ export function buildConditionItems(input: FichaConditionsInput): ConditionItem[
   // `enrollment_fee_mode = null` es "no cobra matrícula" (DF4). Un dato inconsistente (`unknown`) omite la fila.
   const enrollment = describeEnrollmentFee(input);
   const frequencyNote = input.enrollmentFeeFrequency === "annual" ? "anual" : "única vez";
+  // DR18 t3: descuento de matrícula vigente (con fecha de fin si la hay). Solo texto: el monto final lo calcula el desglose de la solicitud.
+  const discountPercent = input.enrollmentDiscountPercent ?? 0;
+  const discountActive = discountPercent > 0 && isWithinWindow({ endsOn: input.enrollmentDiscountUntil ?? null }, today);
+  const discountNote = discountActive
+    ? ` ${discountPercent >= 100 ? "Hoy está bonificada (sin costo)" : `Hoy tiene ${discountPercent}% de descuento`}${
+        input.enrollmentDiscountUntil ? ` hasta el ${formatDateOnly(input.enrollmentDiscountUntil)}` : ""
+      }.`
+    : "";
   if (enrollment.kind === "none") {
     items.push({
       key: "enrollment",
@@ -122,7 +155,7 @@ export function buildConditionItems(input: FichaConditionsInput): ConditionItem[
       label: "Matrícula",
       value: "1 mes de renta",
       valueNote: frequencyNote,
-      help: "Cargo administrativo de ingreso, igual a un mes del tipo que elijas.",
+      help: `Cargo administrativo de ingreso, igual a un mes del tipo que elijas.${discountNote}`,
       arsFromUsd: null,
     });
   } else if (enrollment.kind === "fixed") {
@@ -132,7 +165,7 @@ export function buildConditionItems(input: FichaConditionsInput): ConditionItem[
       label: "Matrícula",
       value: formatUsd(enrollment.usd),
       valueNote: frequencyNote,
-      help: "Cargo administrativo de ingreso.",
+      help: `Cargo administrativo de ingreso.${discountNote}`,
       arsFromUsd: enrollment.usd,
     });
   }
@@ -166,7 +199,7 @@ export function buildConditionItems(input: FichaConditionsInput): ConditionItem[
       icon: "hourglass_top",
       label: "Si reservás con anticipación",
       value: `${input.emptyMonthChargePercent}% por mes`,
-      help: `Por cada mes completo entre la reserva y tu ingreso (hasta ${MAX_EMPTY_MONTHS}).`,
+      help: `Solo si la plaza queda realmente vacía: un mes completo entre la reserva y tu ingreso (hasta ${MAX_EMPTY_MONTHS}). No se cobra por toda reserva con ingreso diferido.`,
       arsFromUsd: null,
     });
   }

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { StatusTag, availabilityLabel } from "@/components/ui/StatusTag";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import { formatArs, formatUsd } from "@/lib/mock/exchange";
+import { formatDateOnly } from "@/lib/dates/formatDateOnly";
 import {
   isTypeRequestable,
   typeAvailabilityMode,
@@ -80,9 +81,21 @@ export function RatesTable({
 
                   <div className="col-start-2 mt-2 sm:col-start-3 sm:mt-0">
                     <p className={`font-display text-lg font-extrabold leading-tight ${requestable ? "text-ink" : "text-ink-soft"}`}>
+                      {rt.listPriceUsd != null && (
+                        <span className="mr-1.5 text-sm font-semibold text-ink-faint line-through">
+                          <span className="sr-only">Antes </span>
+                          {formatUsd(rt.listPriceUsd)}
+                        </span>
+                      )}
                       {formatUsd(rt.priceUsd)}
                       <span className="text-xs font-semibold text-ink-faint"> /mes</span>
                     </p>
+                    {rt.promotion && (
+                      <p className="text-xs font-bold text-forest-700">
+                        {rt.promotion.label} · −{rt.promotion.percent}%
+                        {rt.promotion.endsOn ? ` hasta el ${formatDateOnly(rt.promotion.endsOn)}` : ""}
+                      </p>
+                    )}
                     <p className="text-xs text-ink-faint">≈ {formatArs(rt.arsRounded)}</p>
                   </div>
 

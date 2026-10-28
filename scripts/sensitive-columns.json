@@ -23,6 +23,7 @@
     "residence_private_details",
     "files",
     "residence_faq_questions",
+    "residence_promotions",
     "payment_settings",
     "audit_logs",
     "waitlist_signups",

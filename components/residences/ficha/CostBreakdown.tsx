@@ -6,8 +6,9 @@ import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
 import { formatDateOnly } from "@/lib/dates/formatDateOnly";
 import { calculateFeeEstimate, FEE_PERCENT } from "@/lib/applications/fee";
-import { buildInitialPayment, type InitialPaymentConfig } from "@/lib/reservations/initialPayment";
+import { type InitialPaymentConfig } from "@/lib/reservations/initialPayment";
 import { emptyMonthsChargeUsd, MAX_EMPTY_MONTHS } from "@/lib/applications/emptyMonths";
+import { resolveReservationMoney, todayIso, type DepositMode } from "@/lib/applications/reservationMoney";
 
 /** Condiciones de reserva a nivel residencia (migración 0025) que entran en el desglose. */
 export interface CostBreakdownConditions {
@@ -16,8 +17,12 @@ export interface CostBreakdownConditions {
   enrollmentFeeFrequency: "once" | "annual";
   depositUsd: number | null;
   emptyMonthChargePercent: number | null;
-  /** Pago inicial para reservar a la residencia (D7/H08): primer mes o monto fijo. */
+  /** Pago inicial para reservar a la residencia (D7/H08): primer mes, monto fijo o solo la matrícula (DR18 t3). */
   initialPayment: InitialPaymentConfig;
+  /** DR18 t3 (migración 0060); opcionales: sin ellos todo se calcula como antes. */
+  depositMode?: DepositMode | null;
+  enrollmentDiscountPercent?: number | null;
+  enrollmentDiscountUntil?: string | null;
 }
 
 const MONTH_NAMES = [
@@ -49,7 +54,8 @@ function emptyMonthNames(count: number): string[] {
  * familiar (`ProposeForm`, DR4). Es solo informativo: el servidor recalcula todo al enviar.
  */
 export function CostBreakdown({
-  monthlyUsd,
+  monthlyUsd: listMonthlyUsd,
+  promotionPercent = null,
   duration,
   startDate,
   conditions,
@@ -58,38 +64,45 @@ export function CostBreakdown({
 }: {
   /** Qué se envía (el estudiante envía una solicitud; el familiar, una propuesta): solo cambia el texto. */
   submitNoun?: "solicitud" | "propuesta";
+  /** Tarifa de lista del tipo elegido; la promoción vigente (si hay) se aplica acá, igual que en el servidor. */
   monthlyUsd: number;
+  promotionPercent?: number | null;
   duration: number;
   /** "YYYY-MM-DD" o vacío si todavía no se eligió. */
   startDate: string;
   conditions: CostBreakdownConditions;
   arsPerUsd: number;
 }) {
-  const enrollmentUsd =
-    conditions.enrollmentFeeMode === "one_month"
-      ? monthlyUsd
-      : conditions.enrollmentFeeMode === "manual"
-        ? (conditions.enrollmentFeeUsd ?? 0)
-        : 0;
-  const depositUsd = conditions.depositUsd ?? 0;
+  // Misma resolución que el snapshot del servidor (`resolveReservationMoney`): promoción, descuento de matrícula, depósito y pago inicial.
+  const money = resolveReservationMoney({
+    listMonthlyUsd,
+    promotionPercent,
+    conditions,
+    arsPerUsd,
+    today: todayIso(),
+  });
+  const monthlyUsd = money.monthlyUsd;
+  const enrollmentUsd = money.enrollment.netUsd;
+  const depositUsd = money.depositUsd ?? 0;
   const emptyPercent = conditions.emptyMonthChargePercent;
 
+  // Mes vacío (DR18 t3): solo se cobra si la plaza queda realmente vacía, así que es un POSIBLE cargo informativo: no suma al total
+  // ni a la base del fee.
   const empty = startDate
     ? emptyMonthsChargeUsd({ desiredStartDate: startDate, monthlyPriceUsd: monthlyUsd, chargePercent: emptyPercent })
     : { months: 0, chargeUsd: 0 };
   const emptyNames = emptyMonthNames(empty.months);
   const emptyChargeUsd = empty.chargeUsd;
   const rentTotalUsd = monthlyUsd * duration;
-  const reservationTotalUsd = rentTotalUsd + enrollmentUsd + emptyChargeUsd;
+  const reservationTotalUsd = rentTotalUsd + enrollmentUsd;
   const fee = calculateFeeEstimate({
     monthlyPriceUsd: monthlyUsd,
     durationMonths: duration,
     enrollmentFeeUsd: enrollmentUsd,
-    emptyMonthsChargeUsd: emptyChargeUsd,
     arsPerUsd,
   });
   const feeUsd = reservationTotalUsd * FEE_PERCENT;
-  const initialPayment = buildInitialPayment(conditions.initialPayment, monthlyUsd, arsPerUsd);
+  const initialPayment = money.initialPayment;
 
   return (
     <div className="rounded-field border border-line bg-cream-2 p-4 text-sm">
@@ -118,12 +131,18 @@ export function CostBreakdown({
         </span>
         <span className="font-bold text-ink">{formatUsd(rentTotalUsd)}</span>
       </div>
+      {money.promotionPercent > 0 && (
+        <p className="-mt-1 pb-1 text-xs font-semibold text-forest-700">
+          Promoción vigente: −{money.promotionPercent}% (antes{" "}
+          <span className="line-through">{formatUsd(listMonthlyUsd)}</span> por mes, ahora {formatUsd(monthlyUsd)}).
+        </p>
+      )}
       <p className="-mt-1 pb-1.5 text-xs text-ink-faint">
         ≈ {formatArs(usdToArsRounded(monthlyUsd, arsPerUsd))} por mes, referencial
         <ExchangeRateNote />
       </p>
 
-      {enrollmentUsd > 0 && (
+      {money.enrollment.listUsd > 0 && (
         <div className="flex items-center justify-between border-t border-line py-1.5">
           <span className="text-ink-soft">
             Matrícula {conditions.enrollmentFeeFrequency === "annual" ? "(anual)" : "(única vez)"}
@@ -134,21 +153,35 @@ export function CostBreakdown({
               {conditions.enrollmentFeeFrequency === "annual" && " Se renueva cada año de estadía."}
             </InfoTip>
           </span>
-          <span className="font-bold text-ink">{formatUsd(enrollmentUsd)}</span>
+          <span className="text-right font-bold text-ink">
+            {money.enrollment.discountPercent > 0 && (
+              <span className="mr-1.5 text-xs font-semibold text-ink-faint line-through">{formatUsd(money.enrollment.listUsd)}</span>
+            )}
+            {enrollmentUsd > 0 ? formatUsd(enrollmentUsd) : "Bonificada"}
+            {money.enrollment.discountPercent > 0 && (
+              <span className="block text-[10px] font-normal text-forest-700">
+                {money.enrollment.discountPercent >= 100 ? "Sin costo por ahora" : `${money.enrollment.discountPercent}% de descuento`}
+              </span>
+            )}
+          </span>
         </div>
       )}
 
       {emptyChargeUsd > 0 && (
         <div className="flex items-center justify-between border-t border-line py-1.5">
           <span className="text-orange-700">
-            Mes vacío {emptyNames.length > 0 && `(${emptyNames.join(" y ")}${empty.months > 2 ? "…" : ""})`}
+            Posible mes vacío {emptyNames.length > 0 && `(${emptyNames.join(" y ")}${empty.months > 2 ? "…" : ""})`}
             <InfoTip label="Qué es el mes vacío">
-              La residencia reserva el lugar durante {empty.months === 1 ? "el mes completo" : `los ${empty.months} meses completos`}{" "}
-              entre hoy y el ingreso (máximo {MAX_EMPTY_MONTHS}), al {emptyPercent}% de la renta mensual. Lo define cada
-              residencia en su configuración.
+              Si entre hoy y tu ingreso hay {empty.months === 1 ? "un mes completo" : `hasta ${empty.months} meses completos`} (máximo{" "}
+              {MAX_EMPTY_MONTHS}) en los que la plaza queda realmente vacía, la residencia puede cobrar el {emptyPercent}% de la renta por
+              cada uno. Solo se cobra en ese caso, nunca por toda reserva con ingreso diferido, y no suma al total ni al fee. Lo acordás con
+              la residencia.
             </InfoTip>
           </span>
-          <span className="font-bold text-orange-700">{formatUsd(emptyChargeUsd)}</span>
+          <span className="text-right font-bold text-orange-700">
+            hasta {formatUsd(emptyChargeUsd)}
+            <span className="block text-[10px] font-normal text-ink-faint">solo si queda vacía</span>
+          </span>
         </div>
       )}
 
@@ -172,8 +205,8 @@ export function CostBreakdown({
         <span className="font-bold text-ink">
           Total de la reserva
           <InfoTip label="Qué incluye el total">
-            Renta × meses + matrícula{emptyChargeUsd > 0 ? " + mes vacío" : ""}. No incluye el depósito (reembolsable). Es
-            el monto sobre el que se calcula el fee de EstuRed.
+            Renta × meses + matrícula{money.enrollment.discountPercent > 0 ? " (ya con su descuento)" : ""}. No incluye el depósito
+            (reembolsable) ni un posible mes vacío. Es el monto sobre el que se calcula el fee de EstuRed.
           </InfoTip>
         </span>
         <span className="font-extrabold text-ink">{formatUsd(reservationTotalUsd)}</span>
@@ -187,13 +220,15 @@ export function CostBreakdown({
             <InfoTip label="Qué es el pago inicial">
               {initialPayment.mode === "custom_usd"
                 ? "Monto fijo que define la residencia para reservar."
-                : "La residencia pide el primer mes de renta para reservar."}{" "}
+                : initialPayment.mode === "enrollment_only"
+                  ? "La residencia pide solo la matrícula para reservar."
+                  : "La residencia pide el primer mes de renta para reservar."}{" "}
               Se paga directamente a la residencia, no a EstuRed, antes de la fecha límite: aparece en la solicitud
               cuando la residencia habilita el pago.
             </InfoTip>
             <span className="block text-[11px] font-normal text-ink-faint">
               Pago inicial para reservar
-              {initialPayment.mode === "one_month" ? " (primer mes)" : ""}
+              {initialPayment.mode === "one_month" ? " (primer mes)" : initialPayment.mode === "enrollment_only" ? " (solo la matrícula)" : ""}
             </span>
           </span>
           <span className="text-right font-extrabold text-ink">

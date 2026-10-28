@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { todayIso } from "@/lib/applications/reservationMoney";
 
 vi.mock("@/lib/audit", () => ({ createAuditLog: vi.fn(async () => true) }));
 vi.mock("@/lib/exchange/rate", () => ({
@@ -12,7 +13,7 @@ vi.mock("@/lib/applications/roomTypeQueue", () => ({
 import { createApplicationFromRoomType } from "@/lib/applications/createRequestFromRoomType";
 
 /** Admin falso: devuelve la fila de `residences` configurada y captura el insert del snapshot. */
-function fakeAdmin(residenceRow: Record<string, unknown>) {
+function fakeAdmin(residenceRow: Record<string, unknown>, promotions: Record<string, unknown>[] = [], promotionsError: { code: string; message: string } | null = null) {
   const inserts: Record<string, Record<string, unknown>[]> = {};
   const admin = {
     from(table: string) {
@@ -26,7 +27,8 @@ function fakeAdmin(residenceRow: Record<string, unknown>) {
           return chain;
         },
         update: () => chain,
-        then: (resolve: (v: unknown) => void) => resolve({ data: null, error: null }),
+        then: (resolve: (v: unknown) => void) =>
+          resolve({ data: table === "residence_promotions" ? promotions : null, error: table === "residence_promotions" ? promotionsError : null }),
       };
       return chain;
     },
@@ -90,3 +92,75 @@ describe("createApplicationFromRoomType: pago inicial en el snapshot (D7/H08)", 
     expect(inserts.application_snapshots[0].reservation_payment_amount_usd).toBe(320);
   });
 });
+
+describe("createApplicationFromRoomType: dinero DR18 tanda 3", () => {
+  const iso = (offsetDays: number) =>
+    new Date(Date.parse(`${todayIso()}T00:00:00Z`) + offsetDays * 86_400_000).toISOString().slice(0, 10);
+  const promo = { id: "promo-1", label: "Invierno", discount_percent: 25, room_type_id: null, starts_on: iso(-1), ends_on: iso(30), is_active: true };
+
+  it("matrícula al 50% + pago inicial solo matrícula: el snapshot y el fee usan la matrícula neta", async () => {
+    const { admin, inserts } = fakeAdmin({
+      adjustment_policy: "quarterly",
+      enrollment_fee_mode: "manual",
+      enrollment_fee_usd: 200,
+      enrollment_discount_percent: 50,
+      reservation_initial_payment_mode: "enrollment_only",
+    });
+    await createApplicationFromRoomType(admin, params);
+    const s = inserts.application_snapshots[0];
+    expect(s.enrollment_fee_usd).toBe(100);
+    expect(s.enrollment_fee_list_usd).toBe(200);
+    expect(s.enrollment_fee_discount_percent).toBe(50);
+    expect(s.reservation_payment_amount_usd).toBe(100);
+    expect(s.fee_base_usd).toBe(320 * 6 + 100);
+  });
+
+  it("promoción vigente: monthly_price_usd es el precio final y la lista queda aparte; el fee sale del monto final", async () => {
+    const { admin, inserts } = fakeAdmin({ adjustment_policy: "quarterly", enrollment_fee_mode: null }, [promo]);
+    await createApplicationFromRoomType(admin, params);
+    const s = inserts.application_snapshots[0];
+    expect(s.monthly_price_usd).toBe(240);
+    expect(s.list_monthly_price_usd).toBe(320);
+    expect(s.promotion_percent).toBe(25);
+    expect(s.promotion_id).toBe("promo-1");
+    expect(s.reservation_payment_amount_usd).toBe(240);
+    expect(s.fee_base_usd).toBe(240 * 6);
+  });
+
+  it("si falla la lectura de promociones (no es migración faltante) devuelve error y no congela a precio de lista", async () => {
+    const { admin, inserts } = fakeAdmin({ adjustment_policy: "quarterly", enrollment_fee_mode: null }, [], { code: "XX000", message: "boom" });
+    const result = await createApplicationFromRoomType(admin, params);
+    expect("error" in result).toBe(true);
+    expect(inserts.application_snapshots).toBeUndefined();
+  });
+
+  it("promoción vencida o inactiva no aplica y no agrega columnas nuevas al snapshot", async () => {
+    const { admin, inserts } = fakeAdmin({ adjustment_policy: "quarterly", enrollment_fee_mode: null }, [
+      { ...promo, ends_on: iso(-2) },
+      { ...promo, id: "p2", is_active: false },
+    ]);
+    await createApplicationFromRoomType(admin, params);
+    const s = inserts.application_snapshots[0];
+    expect(s.monthly_price_usd).toBe(320);
+    expect("list_monthly_price_usd" in s).toBe(false);
+    expect("enrollment_fee_list_usd" in s).toBe(false);
+  });
+
+  it("sin la migración 0060 (tabla inexistente) sigue a precio de lista", async () => {
+    const { admin, inserts } = fakeAdmin({ adjustment_policy: "quarterly", enrollment_fee_mode: null }, [], { code: "42P01", message: "relation does not exist" });
+    await createApplicationFromRoomType(admin, params);
+    expect(inserts.application_snapshots[0].monthly_price_usd).toBe(320);
+  });
+
+  it("depósito en meses se resuelve sobre la tarifa de lista y no entra al fee; el mes vacío no suma a la base", async () => {
+    const { admin, inserts } = fakeAdmin(
+      { adjustment_policy: "quarterly", enrollment_fee_mode: null, deposit_mode: "two_months", empty_month_charge_percent: 50 },
+      [promo],
+    );
+    await createApplicationFromRoomType(admin, { ...params, desiredStartDate: iso(100) });
+    const s = inserts.application_snapshots[0];
+    expect(s.deposit_usd).toBe(640);
+    expect(s.fee_base_usd).toBe(240 * 6);
+  });
+});
+

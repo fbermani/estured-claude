@@ -40,6 +40,8 @@ import { initialPaymentConfigFromRow } from "@/lib/reservations/initialPayment";
 import { ReservationSelectionProvider } from "@/components/residences/reservationSelection";
 import { ResidenceGallery } from "@/components/residences/ResidenceGallery";
 import { buildGalleryPhotos, loadPhotoMeta } from "@/lib/residences/photoMetaDb";
+import { loadResidencePromotions } from "@/lib/residences/promotions";
+import { applyPromotion, depositModeLabel, normalizeDepositMode, pickActivePromotion, todayIso } from "@/lib/applications/reservationMoney";
 import { computeCapacity, formatOccupancy, residentsToDisplay } from "@/lib/residences/occupancy";
 import { loadFamilyViewer, loadStudentViewer, type LinkedStudent, type StudentViewer } from "@/app/(public)/residencias/[slug]/loadViewerContext";
 import { findUniversitiesByName, haversineDistanceKm } from "@/lib/data/buenosAiresUniversities";
@@ -78,7 +80,7 @@ const loadResidence = cache(async (slug: string) => {
   if (residenceError) console.error("[ficha] no se pudo leer la residencia:", residenceError);
   if (!residence) return null;
 
-  const [roomTypesRes, roomsRes, sectionsRes, photosRes, rulesFileRes, photoMeta, staysRes] = await Promise.all([
+  const [roomTypesRes, roomsRes, sectionsRes, photosRes, rulesFileRes, photoMeta, staysRes, promotionsRes] = await Promise.all([
     admin
       .from("room_types")
       .select(
@@ -122,6 +124,8 @@ const loadResidence = cache(async (slug: string) => {
       .eq("is_current", true)
       .neq("status", "hidden_by_user")
       .neq("status", "inactive"),
+    // DR18 (tanda 3): promociones de tarifa (degrada a «sin promociones» sin la 0060).
+    loadResidencePromotions(admin, residence.id),
   ]);
   if (roomTypesRes.error) console.error("[ficha] no se pudieron leer los tipos de habitación:", roomTypesRes.error);
   if (sectionsRes.error) console.error("[ficha] no se pudieron leer las secciones del perfil:", sectionsRes.error);
@@ -167,6 +171,8 @@ const loadResidence = cache(async (slug: string) => {
     return { rt, genders };
   }).map(({ rt, genders }) => ({
     ...rt,
+    // Promoción vigente de mayor % para este tipo (no se apilan); `monthly_price_usd` sigue siendo la tarifa de lista.
+    promotion: pickActivePromotion(promotionsRes.promotions, rt.id, todayIso()),
     genderSummary: new Set(genders).size > 1 ? summarizeTypeGenders(genders) : null,
     gender_policy: new Set(genders).size === 1 ? (policyFromGender(genders[0]) ?? rt.gender_policy) : rt.gender_policy,
     profile_availability: rt.profile_availability as unknown as { status: string; available_count: number | null } | null,
@@ -247,6 +253,10 @@ export default async function RealResidenceDetailPage({
     enrollmentFeeUsd: residence.enrollment_fee_usd != null ? Number(residence.enrollment_fee_usd) : null,
     enrollmentFeeFrequency: (residence.enrollment_fee_frequency as "once" | "annual") ?? "once",
     depositUsd: residence.deposit_usd != null ? Number(residence.deposit_usd) : null,
+    depositMode: normalizeDepositMode(residence.deposit_mode),
+    enrollmentDiscountPercent:
+      residence.enrollment_discount_percent != null ? Number(residence.enrollment_discount_percent) : null,
+    enrollmentDiscountUntil: (residence.enrollment_discount_until as string | null) ?? null,
     emptyMonthChargePercent:
       residence.empty_month_charge_percent != null ? Number(residence.empty_month_charge_percent) : null,
     initialPayment: initialPaymentConfigFromRow(residence),
@@ -274,8 +284,14 @@ export default async function RealResidenceDetailPage({
   const fichaTypes: FichaRoomType[] = roomTypes.map((rt) => ({
     id: rt.id,
     name: rt.name,
-    priceUsd: Number(rt.monthly_price_usd),
-    arsRounded: usdToArsRounded(Number(rt.monthly_price_usd), rate.arsPerUsd),
+    priceUsd: applyPromotion(Number(rt.monthly_price_usd), rt.promotion?.discountPercent),
+    ...(rt.promotion
+      ? {
+          listPriceUsd: Number(rt.monthly_price_usd),
+          promotion: { label: rt.promotion.label, percent: rt.promotion.discountPercent, endsOn: rt.promotion.endsOn },
+        }
+      : {}),
+    arsRounded: usdToArsRounded(applyPromotion(Number(rt.monthly_price_usd), rt.promotion?.discountPercent), rate.arsPerUsd),
     subtitle: roomTypeSubtitle({
       capacityPerRoom: rt.capacity_per_room,
       genderPolicy: rt.gender_policy,
@@ -418,9 +434,18 @@ export default async function RealResidenceDetailPage({
   const minimumStayLabel =
     conditions.minimumStayMonths != null && conditions.minimumStayMonths > 0 ? monthsLabel(conditions.minimumStayMonths) : null;
   const keyFacts = {
-    initialPaymentLabel: initialPaymentDisplay.kind === "fixed" ? formatUsd(initialPaymentDisplay.usd) : "Primer mes",
+    initialPaymentLabel:
+      initialPaymentDisplay.kind === "fixed"
+        ? formatUsd(initialPaymentDisplay.usd)
+        : initialPaymentDisplay.kind === "enrollment_only"
+          ? "Solo la matrícula"
+          : "Primer mes",
     initialIsFirstMonth: initialPaymentDisplay.kind === "first_month",
-    depositLabel: conditions.depositUsd != null && conditions.depositUsd > 0 ? formatUsd(conditions.depositUsd) : null,
+    depositLabel: conditions.depositMode
+      ? depositModeLabel(conditions.depositMode)
+      : conditions.depositUsd != null && conditions.depositUsd > 0
+        ? formatUsd(conditions.depositUsd)
+        : null,
     minimumStayLabel,
   };
 
@@ -749,7 +774,7 @@ export default async function RealResidenceDetailPage({
             mode === "family" ? (
               <ProposeForm
                 residenceId={residence.id}
-                roomTypes={roomTypes}
+                roomTypes={roomTypes.map((rt) => ({ ...rt, promotion_percent: rt.promotion?.discountPercent ?? null }))}
                 students={linkedStudents}
                 conditions={{
                   minimumStayMonths: conditions.minimumStayMonths,
@@ -757,6 +782,9 @@ export default async function RealResidenceDetailPage({
                   enrollmentFeeUsd: conditions.enrollmentFeeUsd,
                   enrollmentFeeFrequency: conditions.enrollmentFeeFrequency,
                   depositUsd: conditions.depositUsd,
+                  depositMode: conditions.depositMode,
+                  enrollmentDiscountPercent: conditions.enrollmentDiscountPercent,
+                  enrollmentDiscountUntil: conditions.enrollmentDiscountUntil,
                   emptyMonthChargePercent: conditions.emptyMonthChargePercent,
                   initialPayment: conditions.initialPayment,
                 }}
@@ -774,13 +802,16 @@ export default async function RealResidenceDetailPage({
                       }
                     : null
                 }
-                roomTypes={roomTypes}
+                roomTypes={roomTypes.map((rt) => ({ ...rt, promotion_percent: rt.promotion?.discountPercent ?? null }))}
                 conditions={{
                   minimumStayMonths: conditions.minimumStayMonths,
                   enrollmentFeeMode: conditions.enrollmentFeeMode,
                   enrollmentFeeUsd: conditions.enrollmentFeeUsd,
                   enrollmentFeeFrequency: conditions.enrollmentFeeFrequency,
                   depositUsd: conditions.depositUsd,
+                  depositMode: conditions.depositMode,
+                  enrollmentDiscountPercent: conditions.enrollmentDiscountPercent,
+                  enrollmentDiscountUntil: conditions.enrollmentDiscountUntil,
                   emptyMonthChargePercent: conditions.emptyMonthChargePercent,
                   initialPayment: conditions.initialPayment,
                 }}
