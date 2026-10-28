@@ -3,7 +3,7 @@ import { notifyFamilyApplicationMilestone } from "@/lib/family/familyMilestones"
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { checkStayChangeAdvanceGate } from "@/lib/stayChange/advanceGate";
-import { candidateMonthKeys, confirmedEmptyMonthsCharge } from "@/lib/applications/emptyMonths";
+import { confirmedEmptyMonthsCharge } from "@/lib/applications/emptyMonths";
 import { todayIso } from "@/lib/applications/reservationMoney";
 import { loadVacancyOutlooks } from "@/lib/residences/vacancy";
 import { calculateFeeEstimate } from "@/lib/applications/fee";
@@ -118,7 +118,7 @@ export async function recordNegotiationResponse(
     const emptyNeeded =
       finalStartDate !== "" &&
       (residenceRow?.empty_month_charge_percent ?? 0) > 0 &&
-      candidateMonthKeys(finalStartDate, emptyMonthsToday).length > 0;
+      finalStartDate > emptyMonthsToday;
     const emptyMonths = confirmedEmptyMonthsCharge({
       desiredStartDate: finalStartDate,
       monthlyPriceUsd: Number(monthlyPriceUsd),

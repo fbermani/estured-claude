@@ -5,7 +5,7 @@ import { usdToArs } from "@/lib/mock/exchange";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 import { calculateFeeEstimate } from "@/lib/applications/fee";
 import { resolveReservationMoney, todayIso } from "@/lib/applications/reservationMoney";
-import { candidateMonthKeys, confirmedEmptyMonthsCharge } from "@/lib/applications/emptyMonths";
+import { confirmedEmptyMonthsCharge } from "@/lib/applications/emptyMonths";
 import { loadVacancyOutlooks } from "@/lib/residences/vacancy";
 import { getResidenceConditions } from "@/lib/residences/conditions";
 import { getActivePromotionForType } from "@/lib/residences/promotions";
@@ -77,11 +77,11 @@ export async function createApplicationFromRoomType(
   const enrollmentFeeUsd = money.enrollment.listUsd > 0 ? money.enrollment.netUsd : null;
   const depositUsd = money.depositUsd;
   const initialPayment = money.initialPayment;
-  // Mes vacío CONFIRMADO (docs/00 DR18 t3, correcciones): solo si la reserva es diferida y el tipo realmente no tiene ocupación en los
-  // meses completos entre hoy y el ingreso. Sin dato confiable no se cobra (queda «a confirmar»). El cliente nunca manda el monto.
+  // Mes vacío CONFIRMADO (docs/00 DR18 t3, segunda corrección): tramo vacante entre el inicio de la disponibilidad publicada (menos los
+  // tramos ocupados) y el ingreso, con parciales. Sin disponibilidad publicada no se cobra («a confirmar»). El cliente nunca manda el monto.
   const today = todayIso();
   const needsVacancy =
-    (conditions.emptyMonthChargePercent ?? 0) > 0 && candidateMonthKeys(params.desiredStartDate, today).length > 0;
+    (conditions.emptyMonthChargePercent ?? 0) > 0 && params.desiredStartDate > today;
   const vacancy = needsVacancy ? ((await loadVacancyOutlooks(admin, params.residenceId, [params.roomTypeId], today))[params.roomTypeId] ?? null) : null;
   const emptyMonths = confirmedEmptyMonthsCharge({
     desiredStartDate: params.desiredStartDate,

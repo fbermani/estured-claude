@@ -165,74 +165,75 @@ describe("createApplicationFromRoomType: dinero DR18 tanda 3", () => {
     expect(s.fee_base_usd).toBe(240 * 6);
   });
 
-  // Mes vacío confirmado (correcciones del dueño): solo con ocupación real (Premium) y reserva diferida.
-  const emptyMonthResidence = {
-    adjustment_policy: "quarterly",
-    enrollment_fee_mode: null,
-    empty_month_charge_percent: 50,
-    has_operational_management_access: true,
-  };
-  const monthKeyAhead = (n: number) => {
-    const [y, m] = todayIso().split("-").map(Number);
-    const idx = m - 1 + n;
-    return `${y + Math.floor(idx / 12)}-${String((idx % 12) + 1).padStart(2, "0")}-01`;
-  };
-  const baseTables = (stayEnd: string | null) => ({
+  // Mes vacío (segunda corrección del dueño): disponibilidad publicada (Premium y no Premium) + ocupación real que descarta tramos.
+  const daysAhead = (n: number) => iso(n);
+  const emptyMonthResidence = { adjustment_policy: "quarterly", enrollment_fee_mode: null, empty_month_charge_percent: 50, has_operational_management_access: false };
+  const availability = (over: Record<string, unknown> = {}) => [
+    { room_type_id: "rt", status: "available_to_confirm", available_from: null, hidden_from_search_at: null, ...over },
+  ];
+  const occupancyTables = (stayEnd: string | null, reservations: unknown[] = []) => ({
     room_types: [{ id: "rt", capacity_per_room: 1 }],
     rooms: [{ room_type_id: "rt" }],
     resident_stays: [{ room_type_id: "rt", start_date: "2020-01-01", end_date: stayEnd, reservation_id: null }],
-    reservations: [],
+    reservations,
   });
 
-  it("ingreso diferido con la plaza libre en los meses intermedios: se cobra el mes vacío y entra a la base del fee", async () => {
-    // Un solo lugar, ocupado hasta antes del mes siguiente: los 2 meses completos entre hoy y el ingreso (a 3 meses) están libres.
-    const { admin, inserts } = fakeAdmin(emptyMonthResidence, [], null, baseTables("2020-12-31"));
-    await createApplicationFromRoomType(admin, { ...params, desiredStartDate: monthKeyAhead(3) });
+  it("no Premium con disponibilidad publicada e ingreso diferido: se cobra el tramo con parciales y entra a la base del fee", async () => {
+    const { admin, inserts } = fakeAdmin(emptyMonthResidence, [], null, { profile_availability: availability() });
+    await createApplicationFromRoomType(admin, { ...params, desiredStartDate: daysAhead(40) });
     const s = inserts.application_snapshots[0];
-    expect(s.empty_months_count).toBe(2);
-    expect(s.empty_months_charge_usd).toBe(2 * 320 * 0.5);
-    expect(s.fee_base_usd).toBe(320 * 6 + 320);
+    // 40 días desde hoy: 1 mes completo + el resto (9 a 12 días según el mes) → 1,5 meses.
+    expect(s.empty_months_count).toBe(1.5);
+    expect(s.empty_months_charge_usd).toBe(1.5 * 320 * 0.5);
+    expect(s.fee_base_usd).toBe(320 * 6 + 1.5 * 320 * 0.5);
   });
 
-  it("la plaza ocupada en los meses intermedios: no se cobra", async () => {
-    const { admin, inserts } = fakeAdmin(emptyMonthResidence, [], null, baseTables(null));
-    await createApplicationFromRoomType(admin, { ...params, desiredStartDate: monthKeyAhead(3) });
-    const s = inserts.application_snapshots[0];
-    expect("empty_months_charge_usd" in s).toBe(false);
-    expect(s.fee_base_usd).toBe(320 * 6);
-  });
-
-  it("reserva no diferida: no hay mes vacío aunque la plaza esté libre", async () => {
-    const { admin, inserts } = fakeAdmin(emptyMonthResidence, [], null, baseTables("2020-12-31"));
-    await createApplicationFromRoomType(admin, { ...params, desiredStartDate: monthKeyAhead(1) });
+  it("disponibilidad con available_from igual al ingreso: no hay mes vacío", async () => {
+    const start = daysAhead(40);
+    const { admin, inserts } = fakeAdmin(emptyMonthResidence, [], null, { profile_availability: availability({ available_from: start }) });
+    await createApplicationFromRoomType(admin, { ...params, desiredStartDate: start });
     expect("empty_months_charge_usd" in inserts.application_snapshots[0]).toBe(false);
   });
 
-  it("sin Gestión Operativa (sin ocupación confiable): no se cobra", async () => {
-    const { admin, inserts } = fakeAdmin({ ...emptyMonthResidence, has_operational_management_access: false }, [], null, baseTables("2020-12-31"));
-    await createApplicationFromRoomType(admin, { ...params, desiredStartDate: monthKeyAhead(3) });
+  it("Premium con la plaza ocupada hasta el ingreso: no se cobra", async () => {
+    const { admin, inserts } = fakeAdmin({ ...emptyMonthResidence, has_operational_management_access: true }, [], null, {
+      ...occupancyTables(null),
+      profile_availability: availability(),
+    });
+    await createApplicationFromRoomType(admin, { ...params, desiredStartDate: daysAhead(40) });
     expect("empty_months_charge_usd" in inserts.application_snapshots[0]).toBe(false);
   });
 
-  it("una reserva disputada ocupa plaza: el mes no se cobra (el filtro usa los estados vigentes)", async () => {
-    const { LIVE_RESERVATION_STATUSES } = await import("@/lib/reservations/reservationStatus");
-    expect(LIVE_RESERVATION_STATUSES).toContain("disputed");
-    expect(LIVE_RESERVATION_STATUSES).toContain("estured_fee_failed");
-    const tables = { ...baseTables("2020-12-31"), reservations: [{ id: "r1", room_type_id: "rt", start_date: "2020-01-01", initial_duration_months: 120 }] };
-    const { admin, inserts } = fakeAdmin(emptyMonthResidence, [], null, tables);
-    await createApplicationFromRoomType(admin, { ...params, desiredStartDate: monthKeyAhead(3) });
-    expect("empty_months_charge_usd" in inserts.application_snapshots[0]).toBe(false);
-  });
-
-  it("reserva sin start_date o sin duración: no se asume libre, no se cobra", async () => {
-    for (const bad of [
-      { id: "r1", room_type_id: "rt", start_date: null, initial_duration_months: 6 },
-      { id: "r2", room_type_id: "rt", start_date: "2026-12-01", initial_duration_months: null },
-    ]) {
-      const { admin, inserts } = fakeAdmin(emptyMonthResidence, [], null, { ...baseTables("2020-12-31"), reservations: [bad] });
-      await createApplicationFromRoomType(admin, { ...params, desiredStartDate: monthKeyAhead(3) });
+  it("sin disponibilidad publicada (o completa): no se cobra, queda a confirmar", async () => {
+    for (const tables of [{} as Record<string, unknown[]>, { profile_availability: availability({ status: "full" }) }, { profile_availability: availability({ hidden_from_search_at: "2026-10-01" }) }]) {
+      const { admin, inserts } = fakeAdmin(emptyMonthResidence, [], null, tables);
+      await createApplicationFromRoomType(admin, { ...params, desiredStartDate: daysAhead(40) });
       expect("empty_months_charge_usd" in inserts.application_snapshots[0]).toBe(false);
     }
   });
-});
 
+  it("reserva no diferida (ingreso hoy o antes): no hay mes vacío", async () => {
+    const { admin, inserts } = fakeAdmin(emptyMonthResidence, [], null, { profile_availability: availability() });
+    await createApplicationFromRoomType(admin, { ...params, desiredStartDate: todayIso() });
+    expect("empty_months_charge_usd" in inserts.application_snapshots[0]).toBe(false);
+  });
+
+  it("una reserva disputada ocupa plaza (estados vigentes) y una reserva sin fechas descarta la ocupación real", async () => {
+    const { LIVE_RESERVATION_STATUSES } = await import("@/lib/reservations/reservationStatus");
+    expect(LIVE_RESERVATION_STATUSES).toContain("disputed");
+    expect(LIVE_RESERVATION_STATUSES).toContain("estured_fee_failed");
+    const premium = { ...emptyMonthResidence, has_operational_management_access: true };
+    // Ocupada por una reserva larga (completa) → no cobra.
+    const full = occupancyTables("2020-12-31", [{ id: "r1", room_type_id: "rt", start_date: "2020-01-01", initial_duration_months: 120 }]);
+    const a = fakeAdmin(premium, [], null, { ...full, profile_availability: availability() });
+    await createApplicationFromRoomType(a.admin, { ...params, desiredStartDate: daysAhead(40) });
+    expect("empty_months_charge_usd" in a.inserts.application_snapshots[0]).toBe(false);
+    // Reserva sin duración: no se asume libre ni ocupada; rige la disponibilidad publicada.
+    const b = fakeAdmin(premium, [], null, {
+      ...occupancyTables(null, [{ id: "r2", room_type_id: "rt", start_date: null, initial_duration_months: null }]),
+      profile_availability: availability(),
+    });
+    await createApplicationFromRoomType(b.admin, { ...params, desiredStartDate: daysAhead(40) });
+    expect(b.inserts.application_snapshots[0].empty_months_count).toBe(1.5);
+  });
+});

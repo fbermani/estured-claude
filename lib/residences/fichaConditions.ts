@@ -209,7 +209,7 @@ export function buildConditionItems(input: FichaConditionsInput, today: string =
       icon: "hourglass_top",
       label: "Si reservás con anticipación",
       value: `${input.emptyMonthChargePercent}% por mes`,
-      help: `Solo si reservás con ingreso diferido y la plaza queda realmente vacía en los meses completos entre hoy y tu ingreso (hasta ${MAX_EMPTY_MONTHS}). Por ejemplo, si hoy es octubre y ingresás en enero, y la plaza está libre en noviembre y diciembre, pueden cobrarse esos meses. Si está ocupada, no.`,
+      help: `Solo si reservás con ingreso diferido y la plaza queda realmente vacía entre que está disponible y tu ingreso (hasta ${MAX_EMPTY_MONTHS} meses). Cada mes completo cuenta como uno; si sobran días, más de 15 cuentan como un mes y 15 o menos como medio mes. Si ingresás el primer día disponible, o la plaza está ocupada, no se cobra.`,
       arsFromUsd: null,
     });
   }

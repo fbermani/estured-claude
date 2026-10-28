@@ -7,7 +7,7 @@ import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
 import { formatDateOnly } from "@/lib/dates/formatDateOnly";
 import { calculateFeeEstimate, FEE_PERCENT } from "@/lib/applications/fee";
 import { type InitialPaymentConfig } from "@/lib/reservations/initialPayment";
-import { candidateMonthKeys, confirmedEmptyMonthsCharge, MAX_EMPTY_MONTHS, type VacancyOutlook } from "@/lib/applications/emptyMonths";
+import { confirmedEmptyMonthsCharge, MAX_EMPTY_MONTHS, type VacancyOutlook } from "@/lib/applications/emptyMonths";
 import { resolveReservationMoney, todayIso, type DepositMode } from "@/lib/applications/reservationMoney";
 
 /** Condiciones de reserva a nivel residencia (migración 0025) que entran en el desglose. */
@@ -24,11 +24,6 @@ export interface CostBreakdownConditions {
   enrollmentDiscountPercent?: number | null;
   enrollmentDiscountUntil?: string | null;
 }
-
-const MONTH_NAMES = [
-  "enero", "febrero", "marzo", "abril", "mayo", "junio",
-  "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre",
-];
 
 /** Salida = entrada + N meses − 1 día (ref: 1 Mar + 6 meses → 31 Ago). */
 function computeExitDate(entrada: string, months: number): string {
@@ -90,11 +85,7 @@ export function CostBreakdown({
     today,
   });
   const emptyChargeUsd = empty.chargeUsd;
-  const emptyNames = startDate
-    ? candidateMonthKeys(startDate, today)
-        .filter((k) => vacancy?.emptyMonthKeys.includes(k))
-        .map((k) => MONTH_NAMES[Number(k.slice(5)) - 1])
-    : [];
+  const emptyLabel = `${empty.months.toLocaleString("es-AR")} ${empty.months === 1 ? "mes" : "meses"}`;
   const rentTotalUsd = monthlyUsd * duration;
   const reservationTotalUsd = rentTotalUsd + enrollmentUsd + emptyChargeUsd;
   const fee = calculateFeeEstimate({
@@ -173,13 +164,13 @@ export function CostBreakdown({
       {empty.status === "charged" && (
         <div className="flex items-center justify-between border-t border-line py-1.5">
           <span className="text-orange-700">
-            Mes vacío {emptyNames.length > 0 && `(${emptyNames.join(" y ")})`}
+            Mes vacío ({emptyLabel})
             <InfoTip label="Qué es el mes vacío">
-              Reservás hoy para ingresar más adelante y, en {empty.months === 1 ? "el mes completo" : `los ${empty.months} meses completos`}{" "}
-              entre hoy y tu ingreso, esta habitación figura sin ocupación. Por eso la residencia cobra el {emptyPercent}% de la renta por
-              cada mes vacío (máximo {MAX_EMPTY_MONTHS}). Solo se cobra cuando se dan las dos cosas: ingreso diferido y plaza realmente
-              libre. Se confirma al enviar la solicitud, con la ocupación de ese momento. Se paga a la residencia y forma parte del total
-              sobre el que se calcula el fee.
+              Reservás hoy para ingresar más adelante y la habitación está disponible desde {empty.vacantFrom ? formatDateOnly(empty.vacantFrom) : "hoy"}:
+              el tiempo hasta tu ingreso en que la plaza queda vacía se cobra al {emptyPercent}% de la renta. Cada mes completo cuenta
+              como uno; si sobran días, más de 15 cuentan como un mes y 15 o menos como medio mes (máximo {MAX_EMPTY_MONTHS} meses). Se
+              confirma al enviar la solicitud, con la disponibilidad de ese momento. Se paga a la residencia y forma parte del total sobre
+              el que se calcula el fee.
             </InfoTip>
           </span>
           <span className="text-right font-bold text-orange-700">{formatUsd(emptyChargeUsd)}</span>
@@ -189,13 +180,13 @@ export function CostBreakdown({
         <div className="border-t border-line py-1.5 text-xs text-ink-soft">
           <span className="font-semibold text-orange-700">Mes vacío: a confirmar por la residencia.</span>{" "}
           Reservás con ingreso diferido y esta residencia cobra el {emptyPercent}% de la renta por cada mes en que la plaza queda realmente
-          vacía antes de tu ingreso (máximo {MAX_EMPTY_MONTHS}). Todavía no tenemos la ocupación de esos meses: la residencia lo confirma y
+          vacía antes de tu ingreso (máximo {MAX_EMPTY_MONTHS}). Todavía no tenemos la disponibilidad publicada para esas fechas: la residencia lo confirma y
           no se suma al total hasta entonces. Se confirma al enviar la solicitud.
         </div>
       )}
       {empty.status === "not_charged" && (
         <p className="border-t border-line py-1.5 text-xs text-ink-faint">
-          Mes vacío: no aplica, la plaza tiene ocupación en los meses previos a tu ingreso (se confirma al enviar la solicitud).
+          Mes vacío: no aplica, ingresás cuando la plaza empieza a estar disponible o antes estaba ocupada (se confirma al enviar la solicitud).
         </p>
       )}
 

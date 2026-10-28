@@ -1328,3 +1328,27 @@ Supuestos reversibles que el dueño no fijó: (a) **«cambiar la cama de un resi
 **C. Copy.** Configuración de la residencia (qué es y cuándo aplica, ejemplo octubre→diciembre/enero), ficha y desglose (InfoTip y proceso de reserva) y FAQ-51 (se actualiza por 0061). Voseo, sin garantías: «puede aplicar», «la residencia lo confirma», nunca «reserva garantizada».
 
 **Docs actualizados:** este registro; `docs/06` §8.1 (nota).
+
+### DR18 fase 2, tanda 3: segunda corrección del mes vacío (2026-10-28, migración 0062)
+
+**Reemplaza** la sección B de «correcciones del dueño» (mes vacío solo con ocupación Premium). Lo demás (pago inicial a elección, copy, estructura de snapshot) sigue.
+
+**Regla (igual para Premium y no Premium).**
+1. **La disponibilidad publicada manda.** Si el tipo de habitación tiene disponibilidad publicada (`profile_availability.status = 'available_to_confirm'` y no oculta de la búsqueda), la plaza se considera vacante desde `max(hoy, available_from)` (sin `available_from` = desde hoy). `profile_availability` deja de ser «solo informativa» para este cálculo.
+2. **Si hay ocupación real** (Premium: estadías vigentes y reservas vigentes sin estadía vinculada, contra la capacidad del tipo) se usa para **descartar tramos ocupados**: la vacancia empieza el día siguiente al último día en que el tipo estuvo completo antes del ingreso. Sin esos datos rige solo la disponibilidad publicada.
+3. **Sin disponibilidad publicada** (estado `full`, `not_updated`, pausas, fila ausente, oculta) o ante un error de lectura: **no se cobra** y el desglose dice «a confirmar por la residencia», aunque haya estadías cargadas (supuesto conservador: ocupación sin disponibilidad publicada no alcanza para cobrar).
+4. **Reserva diferida:** el cargo aplica solo si el ingreso (`start_date`) es posterior al inicio de la vacancia. Si el ingreso es el primer día disponible (o antes), no hay mes vacío.
+
+**Medición por tramo, con parciales.** El tramo vacío va desde el inicio de la vacancia hasta el día anterior al ingreso. Se cuentan los **meses completos** (1 c/u, contando desde el inicio de la vacancia, con el día ajustado al fin de mes si hace falta) y el **resto en días**: más de 15 días = 1 mes; de 1 a 15 días = 0,5 mes; 0 días = nada. Se aplica el % de la residencia (`empty_month_charge_percent`, presets 25/50/75/100 + manual) a cada unidad: cargo = unidades × renta mensual (con promoción) × %. Ejemplo: disponible desde hoy (28/10) e ingreso el 1/12 = 1 mes completo + 3 días = 1,5 meses; con el 50 % configurado y renta USD 400, USD 300. Si noviembre está ocupado (Premium), la vacancia empieza el 1/12 y no hay cargo.
+
+**Tope.** Se mantiene `MAX_EMPTY_MONTHS = 3` unidades de mes por reserva (el tope es una protección del estudiante y ya figuraba en la configuración: «hasta 3»). Con la medición por tramo desde hoy, 3 meses cubre ingresos diferidos hasta ~3 meses; sigue siendo decisión de producto si debe ser configurable por residencia o mayor (propuesta: dejarlo en 3 hasta ver uso real).
+
+**Horizonte de ocupación.** La ocupación real se evalúa hasta 400 días desde hoy; un ingreso más lejano queda «a confirmar» (no se estima).
+
+**Mismo cálculo en todos lados.** Servidor (`createApplicationFromRoomType`), previa (`CostBreakdown`), negociación (`recordNegotiationResponse`, recalculado con los datos finales) y pago a la residencia (`recordResidencePaymentReceived`, que reusa el cargo del snapshot ya congelado). El cliente nunca manda el monto. Snapshot: `empty_months_count` pasa a `numeric(3,1)` (admite 0,5) con la 0062; `empty_months_charge_usd` sin cambios.
+
+**Copy.** Formulario de condiciones, ficha/desglose y FAQ-51 (reescrita por 0062) explican la vacancia por tramo con el ejemplo de parciales; voseo, sin garantías.
+
+**Docs actualizados:** este registro; `docs/06` §8.1 (nota).
+
+**Aclaraciones del mes vacío (2026-10-28).** (1) Se mide solo el **tramo vacante inmediatamente anterior al ingreso**: un tramo libre anterior que después se ocupó no se suma (la regla es la vacancia previa al ingreso). Ej.: vacante días 0–19, ocupada 20–40, ingreso día 60 → se miden los días 41–59 (19 días = 1 mes). (2) Los meses se anclan siempre en el día de inicio del tramo, ajustado al fin de mes (31/1 + 1 mes = 28/2 o 29/2; 31/1 + 2 meses = 31/3), sin encadenar. (3) Una estadía vigente sin tipo de habitación deja la ocupación en duda: el mes vacío queda «a confirmar» (no se cobra). (4) La 0062 exige la 0061 completa y verifica que ninguna vista dependa de `empty_months_count`.

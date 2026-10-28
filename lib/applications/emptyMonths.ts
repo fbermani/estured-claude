@@ -1,77 +1,72 @@
-import { todayIso } from "@/lib/applications/reservationMoney";
-
 /**
- * Cálculo de "meses vacíos" (referencia de configuración, migración
- * 0025): meses calendario COMPLETOS entre la solicitud y la fecha de
- * ingreso, con tope de 3 (la referencia: "al reservar un cupo futuro
- * (máximo 3 meses)"). La residencia cobra `empty_month_charge_percent`
- * % de la renta por cada uno. Archivo sin "server-only" a propósito:
- * lo usan la previa del cliente (ApplyForm) y el snapshot del server.
+ * MES VACÍO (docs/00 «DR18 fase 2, tanda 3: segunda corrección del mes vacío», migración 0062). Archivo sin "server-only" a propósito:
+ * lo usan la previa del cliente (`CostBreakdown`) y el servidor (snapshot, negociación) con el MISMO cálculo; el cliente nunca manda el monto.
+ *
+ * Regla: si el tipo tiene disponibilidad publicada, la plaza está vacante desde `max(hoy, available_from)`; la ocupación real
+ * (estadías y reservas, Premium) solo descarta tramos ocupados. La reserva es diferida si el ingreso es posterior al inicio de la
+ * vacancia. El tramo vacío = desde el inicio de la vacancia hasta el día anterior al ingreso, medido en meses completos (1 c/u) más el
+ * resto en días (más de 15 días = 1 mes; 1 a 15 días = 0,5). Tope `MAX_EMPTY_MONTHS`. Sin disponibilidad publicada: «a confirmar».
  */
 export const MAX_EMPTY_MONTHS = 3;
+/** Días de ocupación futura que se evalúan; un ingreso más lejano queda «a confirmar» (no se estima). */
+export const VACANCY_HORIZON_DAYS = 400;
+/** Con más de estos días sobrantes el resto cuenta como un mes entero; con 15 o menos, medio mes. */
+export const PARTIAL_MONTH_THRESHOLD_DAYS = 15;
 
-export function computeEmptyMonths(desiredStartDate: string, from: Date = dateFromIso(todayIso())): number {
-  const [y, m] = desiredStartDate.split("-").map(Number);
-  if (!y || !m) return 0;
-  const raw = (y - from.getFullYear()) * 12 + (m - 1 - from.getMonth()) - 1;
-  return Math.min(MAX_EMPTY_MONTHS, Math.max(0, raw));
-}
-
-export function emptyMonthsChargeUsd(params: {
-  desiredStartDate: string;
-  monthlyPriceUsd: number;
-  chargePercent: number | null;
-  from?: Date;
-}): { months: number; chargeUsd: number } {
-  const months = computeEmptyMonths(params.desiredStartDate, params.from);
-  if (params.chargePercent == null || params.chargePercent <= 0 || months === 0) {
-    return { months, chargeUsd: 0 };
-  }
-  return { months, chargeUsd: months * params.monthlyPriceUsd * (params.chargePercent / 100) };
-}
-
-/** "YYYY-MM-DD" → Date local a medianoche (solo para el cálculo de meses calendario). */
-function dateFromIso(iso: string): Date {
-  const [y, m, d] = iso.split("-").map(Number);
-  return new Date(y, (m || 1) - 1, d || 1);
-}
-
-const monthKey = (y: number, monthIndex: number) => {
-  const yy = y + Math.floor(monthIndex / 12);
-  const mm = ((monthIndex % 12) + 12) % 12;
-  return `${yy}-${String(mm + 1).padStart(2, "0")}`;
-};
-
-/** Claves "YYYY-MM" de los meses completos entre hoy y el ingreso (los candidatos a «mes vacío», tope `MAX_EMPTY_MONTHS`). */
-export function candidateMonthKeys(desiredStartDate: string, today: string): string[] {
-  const n = computeEmptyMonths(desiredStartDate, dateFromIso(today));
-  const [ty, tm] = today.split("-").map(Number);
-  return Array.from({ length: n }, (_, i) => monthKey(ty, tm - 1 + i + 1));
-}
-
-/**
- * MES VACÍO CONFIRMADO (corrección del dueño, `docs/00` «DR18 fase 2, tanda 3: correcciones»). Se cobra SOLO si (1) la reserva es
- * diferida (hay meses completos entre hoy y el ingreso) y (2) el tipo de habitación realmente no tiene ocupación en esos meses.
- * El dato de ocupación (`VacancyOutlook`) lo arma el servidor con estadías y reservas reales; sin dato confiable no se cobra y el
- * estado queda `to_confirm` («a confirmar por la residencia»). El cliente nunca manda el monto.
- */
+/** Ocupación/vacancia de un tipo de habitación, independiente de la fecha de ingreso (así la previa del cliente puede recalcular). */
 export type VacancyOutlook = {
-  /** `false` = no hay ocupación futura confiable (residencia sin Gestión Operativa, sin capacidad o sin estadías cargadas). */
-  reliable: boolean;
-  /** Meses "YYYY-MM" (de los próximos `MAX_EMPTY_MONTHS`) en los que el tipo tiene menos plazas ocupadas que su capacidad. */
-  emptyMonthKeys: string[];
+  /** Disponibilidad publicada del tipo (`available_to_confirm`, no oculta): día desde el que la plaza está vacante (`available_from` o hoy). null = no publicada. */
+  availableFrom: string | null;
+  /** Hay ocupación real confiable (Premium con capacidad y estadías cargadas). */
+  hasOccupancyData: boolean;
+  /** Rangos "YYYY-MM-DD" (inclusive) en los que el tipo está completo, dentro del horizonte. Vacío sin ocupación real. */
+  fullRanges: { from: string; to: string }[];
+  /** Último día evaluado de ocupación; un ingreso posterior queda «a confirmar». null sin ocupación real. */
+  horizonEnd: string | null;
 };
 
 export type EmptyMonthsStatus = "none" | "charged" | "not_charged" | "to_confirm";
 
 export type ConfirmedEmptyMonths = {
   status: EmptyMonthsStatus;
-  /** Meses completos entre hoy y el ingreso (candidatos, tope 3). */
-  candidateMonths: number;
-  /** Meses efectivamente vacíos y cobrables (0 si no se cobra o está a confirmar). */
+  /** Unidades de mes cobradas (0,5 / 1 / 1,5 … hasta `MAX_EMPTY_MONTHS`); 0 si no se cobra. */
   months: number;
+  /** Primer día de la vacancia que se mide (null si no hay tramo). */
+  vacantFrom: string | null;
   chargeUsd: number;
 };
+
+const ISO = /^\d{4}-\d{2}-\d{2}$/;
+const toUtc = (iso: string) => {
+  const [y, m, d] = iso.split("-").map(Number);
+  return Date.UTC(y, m - 1, d);
+};
+const fromUtc = (ms: number) => new Date(ms).toISOString().slice(0, 10);
+const DAY = 86_400_000;
+const addDays = (iso: string, n: number) => fromUtc(toUtc(iso) + n * DAY);
+const daysBetween = (a: string, b: string) => Math.round((toUtc(b) - toUtc(a)) / DAY);
+
+/** a + n meses, con el día ajustado al fin de mes si no existe (31/1 + 1 mes = 28/2). */
+function addMonthsClamped(iso: string, n: number): string {
+  const [y, m, d] = iso.split("-").map(Number);
+  const lastDay = new Date(Date.UTC(y, m - 1 + n + 1, 0)).getUTCDate();
+  return fromUtc(Date.UTC(y, m - 1 + n, Math.min(d, lastDay)));
+}
+
+/**
+ * Unidades de mes de un tramo [from, to): meses completos + parcial (>15 días = 1; 1 a 15 = 0,5). 0 si el tramo es vacío.
+ * Criterio: el mes N se ancla SIEMPRE en el día de `from` con el día ajustado al fin del mes de destino (no se encadena): 31/1 + 1 mes =
+ * 28/2 (29/2 en bisiesto), 31/1 + 2 meses = 31/3. Un mes está completo si su ancla es menor o igual a `to`; el resto son los días entre
+ * la última ancla completa y `to`.
+ */
+export function measureVacantSpan(from: string, to: string): number {
+  if (to <= from) return 0;
+  let full = 0;
+  while (addMonthsClamped(from, full + 1) <= to) full++;
+  const rest = daysBetween(addMonthsClamped(from, full), to);
+  const partial = rest > PARTIAL_MONTH_THRESHOLD_DAYS ? 1 : rest > 0 ? 0.5 : 0;
+  return full + partial;
+}
 
 export function confirmedEmptyMonthsCharge(params: {
   desiredStartDate: string;
@@ -80,69 +75,76 @@ export function confirmedEmptyMonthsCharge(params: {
   vacancy: VacancyOutlook | null;
   today: string;
 }): ConfirmedEmptyMonths {
-  const candidates = params.desiredStartDate ? candidateMonthKeys(params.desiredStartDate, params.today) : [];
-  const none = { status: "none" as const, candidateMonths: candidates.length, months: 0, chargeUsd: 0 };
-  if (candidates.length === 0 || params.chargePercent == null || params.chargePercent <= 0) return none;
-  if (!params.vacancy || !params.vacancy.reliable) {
-    return { status: "to_confirm", candidateMonths: candidates.length, months: 0, chargeUsd: 0 };
+  const { desiredStartDate: start, today, vacancy } = params;
+  const none: ConfirmedEmptyMonths = { status: "none", months: 0, vacantFrom: null, chargeUsd: 0 };
+  if (params.chargePercent == null || params.chargePercent <= 0) return none;
+  if (!ISO.test(start) || start <= today) return none;
+  // Sin disponibilidad publicada (o sin lectura) no se estima: «a confirmar por la residencia».
+  if (!vacancy || !vacancy.availableFrom) return { ...none, status: "to_confirm" };
+  // Ocupación real más allá del horizonte evaluado: no se estima.
+  if (vacancy.hasOccupancyData && vacancy.horizonEnd && start > addDays(vacancy.horizonEnd, 1)) return { ...none, status: "to_confirm" };
+
+  // La regla del dueño es la vacancia PREVIA AL INGRESO: se mide solo el tramo libre inmediatamente anterior al ingreso, desde el último día
+  // completo antes del ingreso (o desde que la plaza está disponible). Un tramo libre anterior que después se ocupó NO se suma.
+  let vacantFrom = vacancy.availableFrom > today ? vacancy.availableFrom : today;
+  if (vacancy.hasOccupancyData) {
+    const lastDayBeforeStart = addDays(start, -1);
+    for (const r of vacancy.fullRanges) {
+      if (r.from > lastDayBeforeStart) continue;
+      // Completa hasta el ingreso (o más allá): no hay tramo vacío antes de ingresar.
+      const lastFullDay = r.to < lastDayBeforeStart ? r.to : lastDayBeforeStart;
+      if (addDays(lastFullDay, 1) > vacantFrom) vacantFrom = addDays(lastFullDay, 1);
+    }
   }
-  const empty = new Set(params.vacancy.emptyMonthKeys);
-  const months = candidates.filter((k) => empty.has(k)).length;
-  if (months === 0) return { status: "not_charged", candidateMonths: candidates.length, months: 0, chargeUsd: 0 };
-  const chargeUsd = Math.round(months * params.monthlyPriceUsd * (params.chargePercent / 100) * 100) / 100;
-  return { status: "charged", candidateMonths: candidates.length, months, chargeUsd };
-}
-
-const lastDayOf = (key: string) => {
-  const [y, m] = key.split("-").map(Number);
-  return `${key}-${String(new Date(Date.UTC(y, m, 0)).getUTCDate()).padStart(2, "0")}`;
-};
-
-/** start + N meses (exclusivo) como "YYYY-MM-DD". */
-function addMonthsIso(iso: string, months: number): string {
-  const [y, m, d] = iso.split("-").map(Number);
-  const dt = new Date(Date.UTC(y, m - 1 + months, d));
-  return dt.toISOString().slice(0, 10);
+  // Ingreso en el primer día disponible (o antes): no hay tramo vacío.
+  if (vacantFrom >= start) return { status: "not_charged", months: 0, vacantFrom: null, chargeUsd: 0 };
+  const units = Math.min(MAX_EMPTY_MONTHS, measureVacantSpan(vacantFrom, start));
+  if (units <= 0) return { status: "not_charged", months: 0, vacantFrom: null, chargeUsd: 0 };
+  const chargeUsd = Math.round(units * params.monthlyPriceUsd * (params.chargePercent / 100) * 100) / 100;
+  return { status: "charged", months: units, vacantFrom, chargeUsd };
 }
 
 /**
- * Ocupación futura de un tipo de habitación, mes a mes, para los próximos `MAX_EMPTY_MONTHS` meses (sin el actual). Un mes está vacío
- * si las plazas ocupadas son menos que la capacidad. Ocupan: estadías vigentes (sin fecha de fin = ocupan siempre, ante la duda) y
- * reservas en curso del tipo que todavía no tienen estadía vinculada (de su inicio a inicio + duración).
+ * Arma el `VacancyOutlook` de un tipo. La disponibilidad publicada (`availableFrom`) la decide quien llama; la ocupación real solo cuenta
+ * con Premium, capacidad > 0, al menos una estadía cargada en la residencia y reservas con fechas válidas (si no, `hasOccupancyData` = false).
+ * Ocupan: estadías vigentes (sin fecha de fin = siempre) y reservas vigentes sin estadía vinculada (inicio → inicio + duración). Un día está
+ * «completo» si las plazas ocupadas alcanzan la capacidad.
  */
 export function buildVacancyOutlook(params: {
   today: string;
-  /** Plazas declaradas del tipo (habitaciones activas × capacidad por habitación). */
+  availableFrom: string | null;
   capacity: number;
-  /** Solo con Gestión Operativa (Premium): único dato de ocupación confiable. */
   premium: boolean;
-  /** Estadías vigentes del tipo. */
   stays: { startDate: string | null; endDate: string | null }[];
-  /** Una reserva sin inicio o con duración inválida no se puede ubicar en el tiempo: el tipo deja de ser confiable (no se cobra). */
+  /** Una reserva sin inicio o con duración inválida no se puede ubicar en el tiempo: se descarta la ocupación real (no se asume libre). */
   reservations: { startDate: string | null; durationMonths: number | null }[];
-  /** Hay alguna estadía vigente de la residencia (aunque sea de otro tipo): sin ninguna cargada, la ocupación no es confiable. */
   residenceHasStays: boolean;
 }): VacancyOutlook {
   const validReservations = params.reservations.every(
-    (r) =>
-      !!r.startDate &&
-      /^\d{4}-\d{2}-\d{2}$/.test(r.startDate) &&
-      r.durationMonths != null &&
-      Number.isFinite(r.durationMonths) &&
-      r.durationMonths > 0,
+    (r) => !!r.startDate && ISO.test(r.startDate) && r.durationMonths != null && Number.isFinite(r.durationMonths) && r.durationMonths > 0,
   );
-  const reliable = params.premium && params.capacity > 0 && params.residenceHasStays && validReservations;
-  if (!reliable) return { reliable: false, emptyMonthKeys: [] };
-  const [ty, tm] = params.today.split("-").map(Number);
-  const keys = Array.from({ length: MAX_EMPTY_MONTHS }, (_, i) => monthKey(ty, tm - 1 + i + 1));
-  const emptyMonthKeys = keys.filter((key) => {
-    const mStart = `${key}-01`;
-    const mEnd = lastDayOf(key);
-    const staysIn = params.stays.filter((st) => (!st.startDate || st.startDate <= mEnd) && (!st.endDate || st.endDate >= mStart)).length;
-    const reservedIn = params.reservations.filter(
-      (r) => (r.startDate as string) <= mEnd && addMonthsIso(r.startDate as string, r.durationMonths as number) > mStart,
-    ).length;
-    return staysIn + reservedIn < params.capacity;
-  });
-  return { reliable: true, emptyMonthKeys };
+  const hasOccupancyData = params.premium && params.capacity > 0 && params.residenceHasStays && validReservations;
+  if (!hasOccupancyData) return { availableFrom: params.availableFrom, hasOccupancyData: false, fullRanges: [], horizonEnd: null };
+
+  const horizonEnd = addDays(params.today, VACANCY_HORIZON_DAYS);
+  const intervals: [string, string][] = [
+    ...params.stays.map((s) => [s.startDate ?? "0000-01-01", s.endDate ?? "9999-12-31"] as [string, string]),
+    ...params.reservations.map(
+      (r) => [r.startDate as string, addDays(addMonthsClamped(r.startDate as string, r.durationMonths as number), -1)] as [string, string],
+    ),
+  ];
+  const fullRanges: { from: string; to: string }[] = [];
+  let open: { from: string; to: string } | null = null;
+  for (let d = params.today, i = 0; i <= VACANCY_HORIZON_DAYS; i++, d = addDays(d, 1)) {
+    const occupied = intervals.filter(([a, b]) => a <= d && d <= b).length;
+    if (occupied >= params.capacity) {
+      if (open) open.to = d;
+      else open = { from: d, to: d };
+    } else if (open) {
+      fullRanges.push(open);
+      open = null;
+    }
+  }
+  if (open) fullRanges.push(open);
+  return { availableFrom: params.availableFrom, hasOccupancyData: true, fullRanges, horizonEnd };
 }

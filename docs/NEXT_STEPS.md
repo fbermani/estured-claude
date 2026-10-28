@@ -8,6 +8,11 @@
 
 ---
 
+## DR18 fase 2, tanda 3: segunda corrección del mes vacío (2026-10-28)
+
+- Hecho en código (sin commit, sin build): migración `0062_empty_month_partial_units_faq.sql` (**pendiente de aplicar en dev y prod**: `empty_months_count` a `numeric(3,1)` y FAQ-51). Mes vacío por tramo con parciales desde la disponibilidad publicada (Premium y no Premium); ocupación real solo descarta tramos; sin disponibilidad publicada → «a confirmar». Código: `lib/applications/emptyMonths.ts`, `lib/residences/vacancy.ts`.
+- Pendiente: aplicar 0062; verificar el desglose con screenshots; decidir si el tope de 3 meses es configurable; `agreedConditions`/comprobante aún no muestran el mes vacío; build y suite completa sin correr.
+
 ## DR18 fase 2, tanda 3: correcciones del dueño (2026-10-28)
 
 - Hecho en código (sin commit, sin build): migración `0061_initial_payment_deposit_only_faq_mes_vacio.sql` (**pendiente de aplicar en dev y prod**: CHECK de `deposit_only`, columnas `empty_months_charge_usd/count` en snapshots, texto de FAQ-51). Pago inicial a elección (primer mes / matrícula / depósito / monto fijo). Mes vacío vuelve al desglose, snapshot y base del fee solo como cargo confirmado (`lib/applications/emptyMonths.ts` + `lib/residences/vacancy.ts`: estadías y reservas reales vs capacidad, solo Premium; sin dato confiable no se cobra y queda «a confirmar por la residencia»).
