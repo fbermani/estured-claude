@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
+import { isMissingSchemaError } from "@/lib/stayChange/schema";
 import { linkStayToReservationIfMissing } from "@/lib/residents/linkReservation";
 
 export type ActivateResidentStayResult = { ok: true } | { ok: false; error: string };
@@ -40,10 +41,12 @@ export async function activateResidentStay(
     return { ok: false, error: "Esa invitación no corresponde a tu email." };
   }
 
-  const { error } = await admin
-    .from("resident_stays")
-    .update({ student_profile_id: studentProfile.id, status: "active" })
-    .eq("id", params.residentStayId);
+  const link = { student_profile_id: studentProfile.id, status: "active" };
+  // El teléfono (PII mínima, 0063) ya no se necesita al vincular la cuenta: se anula. Sin la columna (0063 sin aplicar) se vincula igual.
+  let { error } = await admin.from("resident_stays").update({ ...link, invite_phone: null }).eq("id", params.residentStayId);
+  if (error && isMissingSchemaError(error)) {
+    ({ error } = await admin.from("resident_stays").update(link).eq("id", params.residentStayId));
+  }
   if (error) {
     console.error("[residents] activateResidentStay update failed:", error);
     return { ok: false, error: "No pudimos activar tu estadía. Intentá de nuevo." };

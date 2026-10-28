@@ -13,6 +13,8 @@ export function buildResidentInviteMessage(params: { residenceName: string; regi
   ].join("\n\n");
 }
 
-export function buildResidentInviteWhatsappUrl(message: string): string {
-  return `https://wa.me/?text=${encodeURIComponent(message)}`;
+/** Con `phone` (solo dígitos, con código de país) abre el chat con esa persona; sin teléfono, el selector de WhatsApp. Siempre manual. */
+export function buildResidentInviteWhatsappUrl(message: string, phone?: string | null): string {
+  const digits = (phone ?? "").replace(/\D/g, "");
+  return `https://wa.me/${/^[0-9]{8,15}$/.test(digits) ? digits : ""}?text=${encodeURIComponent(message)}`;
 }

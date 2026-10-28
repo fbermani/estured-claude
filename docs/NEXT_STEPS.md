@@ -8,6 +8,14 @@
 
 ---
 
+## DR18 fase 2, tanda 4 (2026-10-28)
+
+- Hecho en código (sin commit, sin build): migración `0063_resident_without_email_faq_dedup.sql` (**pendiente de aplicar en dev y prod**: `resident_stays.invite_name/invite_phone`, FAQ-29/50 unificadas). Reglamento con asistente paso a paso + descarga; residente sin mail (nombre + teléfono, mail después); «Otro» aprobados en /search, filtros y vista del estudiante; mes vacío en acuerdo y comprobante; «antes/ahora» en la tarjeta de /search.
+- Datos dev: `node --env-file=.env.local scripts/seed-demo-sin-fronteras-datos.mjs` (género por habitación, Hab 1 Doble para llegar a 28 plazas).
+- Pendiente: aplicar 0063 y correr el script; verificar con screenshots; `typecheck`/`build`/suite completa sin correr; el asistente no guarda borrador en servidor.
+
+---
+
 ## DR18 fase 2, tanda 3: segunda corrección del mes vacío (2026-10-28)
 
 - Hecho en código (sin commit, sin build): migración `0062_empty_month_partial_units_faq.sql` (**pendiente de aplicar en dev y prod**: `empty_months_count` a `numeric(3,1)` y FAQ-51). Mes vacío por tramo con parciales desde la disponibilidad publicada (Premium y no Premium); ocupación real solo descarta tramos; sin disponibilidad publicada → «a confirmar». Código: `lib/applications/emptyMonths.ts`, `lib/residences/vacancy.ts`.

@@ -104,6 +104,12 @@ export function ResidenceCard({
       {/* El precio queda fuera del <Link> de la card: la nota de tipo de cambio es un botón y no puede ir dentro de un enlace. */}
       <div className="mx-5 border-t-[1.5px] border-line pt-3">
         <p className="text-lg font-bold text-forest-700">
+          {residence.priceFromListUsd != null && (
+            <span className="mr-1.5 text-sm font-semibold text-ink-faint line-through">
+              <span className="sr-only">Antes </span>
+              {formatUsd(residence.priceFromListUsd)}
+            </span>
+          )}
           {formatUsd(residence.priceFromUsd)}
           <span className="ml-1 text-xs font-normal text-ink-faint">/mes desde</span>
         </p>
@@ -111,6 +117,7 @@ export function ResidenceCard({
           ≈ {formatArs(usdToArsRounded(residence.priceFromUsd, arsPerUsd))} referencial
           <ExchangeRateNote />
         </p>
+        {residence.promotionPercent != null && <p className="text-xs font-bold text-forest-700">Promoción vigente · −{residence.promotionPercent}%</p>}
       </div>
 
       <div className="px-5 pb-5 pt-3">

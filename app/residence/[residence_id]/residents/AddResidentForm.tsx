@@ -21,11 +21,19 @@ export function AddResidentForm({
     <form action={formAction} className="rounded-card border border-sand-200 bg-sand-50 p-4">
       <h3 className="font-bold text-ink">Cargar residente</h3>
       <p className="mt-1 text-xs text-ink-faint">
-        El residente activa su cuenta después con este mismo email; hasta entonces aparece como
-        &ldquo;pendiente de activar cuenta&rdquo; en la comunidad visible.
+        Cargalo con su email: lo activa después con ese mismo email. Si todavía no lo tenés, cargalo con nombre y apellido
+        (y teléfono, si querés mandarle el mensaje de registro por WhatsApp): queda como &ldquo;residente sin activar&rdquo; hasta que le cargues el mail.
       </p>
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
-        <Input label="Email del residente" name="invite_email" type="email" required />
+        <Input label="Email del residente" name="invite_email" type="email" hint="Dejalo vacío si todavía no lo tenés." />
+        <Input label="Nombre y apellido (si no hay email)" name="invite_name" maxLength={80} />
+        <Input
+          label="Teléfono (opcional)"
+          name="invite_phone"
+          type="tel"
+          inputMode="tel"
+          hint="Con código de país, solo números (ej. 5491112345678). Solo se usa para armarte el mensaje de WhatsApp."
+        />
         <Select label="Tipo de habitación (opcional)" name="room_type_id" defaultValue="">
           <option value="">Sin especificar</option>
           {roomTypes.map((rt) => (

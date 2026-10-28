@@ -1,5 +1,6 @@
 import { formatDate } from "@/lib/dates/format";
 import { ADJUSTMENT_POLICY_LABEL } from "@/lib/applications/agreedConditions";
+import { formatEmptyMonthsCount } from "@/lib/applications/snapshotColumns";
 import { formatDateOnly } from "@/lib/dates/formatDateOnly";
 
 /**
@@ -28,6 +29,9 @@ export type ReceiptPayload = {
     enrollment_fee_ars?: number | string | null;
     deposit_usd?: number | string | null;
     deposit_ars?: number | string | null;
+    /** Mes vacío confirmado (DR18 t3): cargo en USD y cantidad de meses (admite 0,5). */
+    empty_months_charge_usd?: number | string | null;
+    empty_months_count?: number | string | null;
     exchange_rate_ars_per_usd?: number | string;
     exchange_rate_date?: string;
     adjustment_policy?: string;
@@ -112,6 +116,15 @@ export function buildReceiptRows(
   add("Tarifa mensual acordada", usdAndArs(num(fc.monthly_price_usd), num(fc.monthly_price_ars)));
   const enrollment = num(fc.enrollment_fee_usd);
   if (enrollment) add("Matrícula (no reembolsable)", usdAndArs(enrollment, num(fc.enrollment_fee_ars)));
+  const emptyCharge = num(fc.empty_months_charge_usd);
+  if (emptyCharge && emptyCharge > 0) {
+    const emptyCount = num(fc.empty_months_count);
+    const emptyRate = num(fc.exchange_rate_ars_per_usd);
+    add(
+      emptyCount && emptyCount > 0 ? `Mes vacío (${formatEmptyMonthsCount(emptyCount)})` : "Mes vacío",
+      usdAndArs(emptyCharge, emptyRate ? Math.round(emptyCharge * emptyRate) : null),
+    );
+  }
   const deposit = num(fc.deposit_usd);
   if (deposit) add("Depósito (reembolsable)", usdAndArs(deposit, num(fc.deposit_ars)));
   const policy = payload.adjustment_policy ?? fc.adjustment_policy;

@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatUsd } from "@/lib/mock/exchange";
 import { InviteResidentsCard } from "@/app/residence/[residence_id]/residents/InviteResidentsCard";
+import { NoEmailResidentBlock } from "@/app/residence/[residence_id]/residents/NoEmailResidentBlock";
 import { AddResidentForm } from "@/app/residence/[residence_id]/residents/AddResidentForm";
 import { PermissionGate, PermissionNote } from "@/components/residences/PermissionGate";
 import { StayChangeSection } from "@/app/residence/[residence_id]/residents/StayChangeSection";
@@ -31,6 +32,9 @@ export type ResidentRow = {
   flag: string | null;
   email: string | null;
   pending: boolean;
+  /** DR18 t4: cargado sin mail ni cuenta (nombre + teléfono opcional, 0063). */
+  noEmail?: boolean;
+  invitePhone?: string | null;
   hiddenFromCommunity: boolean;
   typeName: string | null;
   roomLabel: string | null;
@@ -203,6 +207,7 @@ function NotesSection({
 
 function DetailPanel({
   residenceId,
+  residenceName,
   row,
   freeBeds,
   notes,
@@ -215,6 +220,7 @@ function DetailPanel({
   /** DR11: `operations.rooms_availability` (cambiar la cama de un residente). */
   canBeds: boolean;
   residenceId: string;
+  residenceName: string;
   row: ResidentRow;
   freeBeds: { id: string; label: string }[];
   notes: ResidentNote[];
@@ -260,6 +266,9 @@ function DetailPanel({
             }
           />
         </div>
+      )}
+      {row.noEmail && canResidents && (
+        <NoEmailResidentBlock residenceId={residenceId} stayId={row.stayId} residenceName={residenceName} phone={row.invitePhone ?? null} />
       )}
       {earlyExitOpen && (
         <div className="sm:col-span-2 lg:col-span-4">
@@ -790,6 +799,7 @@ export function ResidentsBrowser({
                           <td colSpan={6} className="p-0">
                             <DetailPanel
                               residenceId={residenceId}
+                              residenceName={residenceName}
                               row={row}
                               freeBeds={data.freeBeds}
                               notes={data.notesByStay[row.stayId] ?? []}

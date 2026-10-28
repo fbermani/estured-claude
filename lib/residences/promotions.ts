@@ -46,3 +46,33 @@ export async function getActivePromotionForType(
   if (failed) return { error: "No pudimos leer las promociones vigentes de la residencia. Intentá de nuevo en unos minutos." };
   return { promotion: pickActivePromotion(promotions, roomTypeId, today) };
 }
+
+/** Promociones de varias residencias en una sola consulta (tarjetas de /search). Sin la 0060 o ante un error devuelve un mapa vacío: la tarjeta queda como antes. */
+export async function loadPromotionsByResidence(admin: SupabaseClient, residenceIds: string[]): Promise<Map<string, PromotionRow[]>> {
+  const out = new Map<string, PromotionRow[]>();
+  if (residenceIds.length === 0) return out;
+  const { data, error } = await admin
+    .from("residence_promotions")
+    .select("id, residence_id, label, discount_percent, room_type_id, starts_on, ends_on, is_active")
+    .in("residence_id", residenceIds)
+    .eq("is_active", true)
+    .limit(2000);
+  if (error) {
+    if (!isMissingSchemaError(error)) console.error("[promotions] lectura por lote fallida:", error.code, error.message);
+    return out;
+  }
+  for (const r of data ?? []) {
+    const list = out.get(r.residence_id as string) ?? [];
+    list.push({
+      id: r.id as string,
+      label: r.label as string,
+      discountPercent: Number(r.discount_percent),
+      roomTypeId: (r.room_type_id as string | null) ?? null,
+      startsOn: r.starts_on as string,
+      endsOn: (r.ends_on as string | null) ?? null,
+      isActive: true,
+    });
+    out.set(r.residence_id as string, list);
+  }
+  return out;
+}

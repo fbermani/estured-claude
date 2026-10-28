@@ -1,5 +1,6 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { withEmptyMonthColumns } from "@/lib/applications/snapshotColumns";
 import type { ReceiptPayload, ReceiptSupplement } from "@/lib/receipts/receiptView";
 
 /**
@@ -39,13 +40,15 @@ export async function loadReceiptSupplement(
 
     // Condiciones del snapshot (inmutable): completan lo que un comprobante viejo no guardó.
     if (reservation?.snapshot_id) {
-      const { data: snapshot, error: snapshotError } = await userClient
-        .from("application_snapshots")
-        .select(
-          "monthly_price_usd, monthly_price_ars, enrollment_fee_usd, enrollment_fee_ars, deposit_usd, deposit_ars, exchange_rate_ars_per_usd, exchange_rate_date, adjustment_policy",
-        )
-        .eq("id", reservation.snapshot_id as string)
-        .maybeSingle();
+      const { data: snapshot, error: snapshotError } = await withEmptyMonthColumns<Record<string, unknown>>(
+        "monthly_price_usd, monthly_price_ars, enrollment_fee_usd, enrollment_fee_ars, deposit_usd, deposit_ars, exchange_rate_ars_per_usd, exchange_rate_date, adjustment_policy",
+        (columns) =>
+          userClient
+            .from("application_snapshots")
+            .select(columns)
+            .eq("id", reservation.snapshot_id as string)
+            .maybeSingle() as unknown as PromiseLike<{ data: Record<string, unknown> | null; error: { code?: string | null; message?: string | null } | null }>,
+      );
       if (snapshotError) console.error("[receipt-supplement] application_snapshots query failed:", snapshotError.code, snapshotError.message);
       if (snapshot) supplement.snapshot = snapshot as ReceiptSupplement["snapshot"];
     }

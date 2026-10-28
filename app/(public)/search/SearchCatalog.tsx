@@ -115,12 +115,17 @@ export function SearchCatalog({
   residences,
   arsPerUsd,
   barrios,
+  extraServices = [],
+  extraAreas = [],
   selectedServices,
   selectedAreas,
 }: {
   residences: Residence[];
   arsPerUsd: number;
   barrios: string[];
+  /** Ítems «Otro» aprobados presentes en el catálogo (DR18 t4). */
+  extraServices?: string[];
+  extraAreas?: string[];
   selectedServices: string[];
   selectedAreas: string[];
 }) {
@@ -317,7 +322,7 @@ export function SearchCatalog({
           open={openPill === "services"}
           onToggle={() => togglePill("services")}
         >
-          {SERVICE_OPTIONS.map((o) => (
+          {[...SERVICE_OPTIONS, ...extraServices].map((o) => (
             <CheckOption
               key={o}
               label={serviceLabel(o)}
@@ -333,7 +338,7 @@ export function SearchCatalog({
           open={openPill === "areas"}
           onToggle={() => togglePill("areas")}
         >
-          {COMMON_AREA_OPTIONS.map((o) => (
+          {[...COMMON_AREA_OPTIONS, ...extraAreas].map((o) => (
             <CheckOption
               key={o}
               label={o}

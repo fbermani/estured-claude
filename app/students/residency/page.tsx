@@ -22,6 +22,7 @@ import { StayRateNote } from "@/components/students/StayRateNote";
 import { StayChangeCard, StayChangeTopNotices } from "@/components/students/StayChangeCard";
 import { ExitStudentNoteForm } from "@/components/students/StayChangeInlineActions";
 import { loadStudentStayChange, type StudentStayChangeView } from "@/lib/stayChange/load";
+import { getApprovedCustomAmenities } from "@/lib/residences/customAmenitiesDb";
 import { loadStayChangeEligibility } from "@/lib/stayChange/eligibility";
 import { STAY_CHANGE_ADVANCE_HOURS } from "@/lib/stayChange/advanceGate";
 import { DEPOSIT_STATUS_LABELS, UNPAID_DISCLAIMER, type DepositReturnStatus } from "@/lib/stayChange/copy";
@@ -278,8 +279,10 @@ export default async function StudentResidencyPage() {
     }
 
     const sectionMap = Object.fromEntries((sections ?? []).map((s) => [s.section_type, s.content]));
-    services = (sectionMap.services as { items?: string[] } | undefined)?.items ?? [];
-    commonAreas = (sectionMap.common_areas as { items?: string[] } | undefined)?.items ?? [];
+    // DR18 t4: se suman los ítems «Otro» aprobados por EstuRed (pendientes y rechazados nunca se muestran).
+    const approvedCustom = await getApprovedCustomAmenities(admin, residence.id);
+    services = [...((sectionMap.services as { items?: string[] } | undefined)?.items ?? []), ...approvedCustom.services];
+    commonAreas = [...((sectionMap.common_areas as { items?: string[] } | undefined)?.items ?? []), ...approvedCustom.areas];
     rulesSummary = (sectionMap.rules as { summary?: string } | undefined)?.summary ?? "";
 
     if (rulesFile?.storage_path) {

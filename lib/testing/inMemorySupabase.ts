@@ -145,6 +145,16 @@ export function createInMemorySupabase(initial: Record<string, Row[]>, options: 
       this.filters.push((r) => column(r, col) !== value);
       return this;
     }
+    is(col: string, value: unknown) {
+      this.filters.push((r) => (column(r, col) ?? null) === value);
+      return this;
+    }
+    ilike(col: string, pattern: string) {
+      // Solo el comodín «%» y el escape «\\» que usa el código (sin patrones parciales: se compara el texto entero, sin distinguir mayúsculas).
+      const text = pattern.replace(/\\(.)/g, "$1").toLowerCase();
+      this.filters.push((r) => String(column(r, col) ?? "").toLowerCase() === text);
+      return this;
+    }
     gt(col: string, value: unknown) {
       this.filters.push((r) => String(r[col]) > String(value));
       return this;

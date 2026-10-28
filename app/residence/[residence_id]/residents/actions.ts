@@ -7,6 +7,7 @@ import { createResidentStay } from "@/lib/residents/createResidentStay";
 import { endResidentStay } from "@/lib/residents/endResidentStay";
 import { updateStayDetails } from "@/lib/residents/updateStayDetails";
 import { assignStayToBed } from "@/lib/residences/roomManagement";
+import { setResidentEmail } from "@/lib/residents/setResidentEmail";
 import { addResidentNote } from "@/lib/residents/addResidentNote";
 import { UNPAID_DISCLAIMER } from "@/lib/stayChange/copy";
 
@@ -22,15 +23,18 @@ export async function createResidentStayAction(
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento." };
 
-  const inviteEmail = String(formData.get("invite_email") ?? "").trim();
+  const inviteEmail = String(formData.get("invite_email") ?? "").trim() || null;
+  const inviteName = String(formData.get("invite_name") ?? "").trim() || null;
+  const invitePhone = String(formData.get("invite_phone") ?? "").trim() || null;
   const roomTypeId = String(formData.get("room_type_id") ?? "") || null;
   const startDate = String(formData.get("start_date") ?? "") || null;
-  if (!inviteEmail) return { status: "error", message: "Ingresá el email del residente." };
 
   const result = await createResidentStay(admin, {
     actorUserId: sessionUser.id,
     residenceId,
     inviteEmail,
+    inviteName,
+    invitePhone,
     roomTypeId,
     reservationId: null,
     startDate,
@@ -168,6 +172,30 @@ export async function addResidentNoteAction(
     residentStayId,
     category: category === "pagos" ? "pagos" : "general",
     body: String(formData.get("body") ?? ""),
+  });
+  if (!result.ok) return { status: "error", message: result.error };
+
+  revalidatePath(`/residence/${residenceId}/residents`);
+  return { status: "saved" };
+}
+
+/** Cargar el mail de un residente que se había cargado sin mail (DR18 t4, punto 20). Validación y permiso en `setResidentEmail`. */
+export async function setResidentEmailAction(
+  residenceId: string,
+  residentStayId: string,
+  _prev: ResidentsActionState,
+  formData: FormData,
+): Promise<ResidentsActionState> {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) return { status: "error", message: "Tu sesión expiró." };
+  const admin = getSupabaseAdmin();
+  if (!admin) return { status: "error", message: "No disponible en este momento." };
+
+  const result = await setResidentEmail(admin, {
+    actorUserId: sessionUser.id,
+    residenceId,
+    residentStayId,
+    email: String(formData.get("email") ?? ""),
   });
   if (!result.ok) return { status: "error", message: result.error };
 

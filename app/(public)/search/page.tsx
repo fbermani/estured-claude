@@ -6,7 +6,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { getSessionUser } from "@/lib/auth/session";
 import { getStudentAgeAt, parseIngresoParam } from "@/lib/residences/studentAge";
 import { todayIso } from "@/lib/residences/age";
-import { barriosWithResidences, filterByAmenities, parseAreaFilter, parseServiceFilter } from "@/lib/residences/searchFilters";
+import { barriosWithResidences, customAmenityOptions, filterByAmenities, parseAreaFilter, parseServiceFilter } from "@/lib/residences/searchFilters";
 
 export const metadata: Metadata = {
   title: "Buscar residencias en CABA",
@@ -19,8 +19,6 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   // DR14: filtro por edad del estudiante autenticado, a la fecha de ingreso del filtro (`?ingreso=AAAA-MM-DD`) o a hoy.
   // Visitante o perfil sin fecha de nacimiento: no se excluye ninguna residencia.
   const { ingreso, servicios, areas } = await searchParams;
-  const selectedServices = parseServiceFilter(servicios);
-  const selectedAreas = parseAreaFilter(areas);
   const sessionUser = await getSessionUser();
   const studentAge = sessionUser?.roles.includes("student")
     ? await getStudentAgeAt(sessionUser.id, parseIngresoParam(ingreso) ?? todayIso())
@@ -29,6 +27,9 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
     getCurrentExchangeRate(),
     getCatalogResidencesWithTotal({ studentAge }),
   ]);
+  const custom = customAmenityOptions(residences);
+  const selectedServices = parseServiceFilter(servicios, custom.services);
+  const selectedAreas = parseAreaFilter(areas, custom.areas);
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
       <div className="mb-5 max-w-2xl sm:mb-8">
@@ -58,6 +59,8 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
           residences={filterByAmenities(residences, selectedServices, selectedAreas)}
           // El filtro de barrio lista solo barrios con al menos una residencia verificada y publicada (no depende de los demás filtros).
           barrios={barriosWithResidences(residences)}
+          extraServices={custom.services}
+          extraAreas={custom.areas}
           selectedServices={selectedServices}
           selectedAreas={selectedAreas}
           arsPerUsd={rate.arsPerUsd}

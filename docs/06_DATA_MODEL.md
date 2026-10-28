@@ -1407,6 +1407,8 @@ La estadía la finaliza **siempre la residencia actual** con "Registrar salida" 
 | `reservation_id` | uuid null | Reserva EstuRed si existe |
 | `created_by_residence_user_id` | uuid null | Si residencia cargó residente |
 | `invite_email` | text null | Email para activar cuenta |
+| `invite_name` | text null | DR18 t4 (0063): nombre de un residente cargado **sin mail** (2–80 caracteres). Solo lo ve la residencia; nunca se muestra en la comunidad. Índice único parcial: no hay dos estadías vigentes sin mail, sin cuenta y con el mismo nombre en la residencia |
+| `invite_phone` | text null | DR18 t4 (0063): teléfono opcional (solo dígitos, 8–15, con código de país) para armar el mensaje de registro por WhatsApp **manual** |
 | `status` | text | `created_by_residence`, `pending_activation`, `active`, `visibility_limited`, `hidden_by_user`, `inactive` |
 | `start_date` | date null | Ingreso |
 | `expected_end_date` | date null | **"Contrato hasta"**: fin esperado del contrato. Lo extienden las renovaciones confirmadas (Ciclo 43). Es la fecha que ven estudiante y residencia como fin de contrato |

@@ -150,6 +150,7 @@ const ACTION_PHRASES: Record<string, string> = {
   renewal_receipt_generation_failed: "no pudo generar un comprobante de renovación",
   // Residentes
   resident_stay_created: "cargó un residente",
+  resident_stay_email_set: "cargó el mail de un residente",
   resident_stay_activated: "activó un residente",
   resident_stay_bed_assigned: "asignó una cama a un residente",
   resident_stay_details_updated: "actualizó los datos de un residente",

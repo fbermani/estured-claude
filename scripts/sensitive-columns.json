@@ -17,6 +17,11 @@
     "residence_regulation_versions": [
       "created_by_user_id",
       "file_id"
+    ],
+    "resident_stays": [
+      "invite_name",
+      "invite_phone",
+      "invite_email"
     ]
   },
   "privateTables": [

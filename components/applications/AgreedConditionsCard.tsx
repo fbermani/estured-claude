@@ -4,6 +4,7 @@ import { formatArs, formatUsd, roundArs } from "@/lib/mock/exchange";
 import type { AgreedConditions } from "@/lib/applications/agreedConditions";
 import { formatDateOnly } from "@/lib/dates/formatDateOnly";
 import { InitialPaymentBreakdown } from "@/components/applications/InitialPaymentBreakdown";
+import { formatEmptyMonthsCount } from "@/lib/applications/snapshotColumns";
 import { estimatedFeeUsd } from "@/lib/reservations/initialPayment";
 
 type Row = { label: string; value: React.ReactNode; hint?: string };
@@ -61,6 +62,13 @@ export function AgreedConditionsCard({
     });
   if (conditions.depositUsd !== null)
     rows.push({ label: "Depósito (reembolsable)", value: pair(conditions.depositUsd, conditions.depositArs) });
+  // Mes vacío: solo si es cargo CONFIRMADO en el snapshot (DR18 t3). Es la misma cifra que entra en la base del fee.
+  if (conditions.emptyMonthsUsd !== null)
+    rows.push({
+      label: conditions.emptyMonthsCount !== null ? `Mes vacío (${formatEmptyMonthsCount(conditions.emptyMonthsCount)})` : "Mes vacío",
+      value: pair(conditions.emptyMonthsUsd, conditions.emptyMonthsArs),
+      hint: "Cargo por la plaza que queda sin ocupar hasta tu ingreso. Se paga a la residencia y no es reembolsable.",
+    });
   if (conditions.adjustmentPolicyLabel) rows.push({ label: "Política de ajustes", value: conditions.adjustmentPolicyLabel });
   if (residencePaymentReported && (residencePaymentReported.usd !== null || residencePaymentReported.ars !== null))
     rows.push({
@@ -71,7 +79,7 @@ export function AgreedConditionsCard({
     rows.push({
       label: "Base del fee EstuRed",
       value: pair(conditions.feeBaseUsd, conditions.feeBaseArs),
-      hint: "Estadía inicial + matrícula. El depósito no entra.",
+      hint: conditions.emptyMonthsUsd !== null ? "Estadía inicial + matrícula + mes vacío. El depósito no entra." : "Estadía inicial + matrícula. El depósito no entra.",
     });
   const feeArs = feeRealArs ?? conditions.estimatedFeeArs;
   const hasRealFee = feeRealArs !== null && feeRealArs !== undefined;

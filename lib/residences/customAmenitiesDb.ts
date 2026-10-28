@@ -52,6 +52,32 @@ export async function getApprovedCustomAmenities(
   };
 }
 
+/** Aprobados de varias residencias en una sola consulta (catálogo de /search). Cualquier falla devuelve un mapa vacío. */
+export async function getApprovedCustomAmenitiesByResidence(
+  admin: SupabaseClient,
+  residenceIds: string[],
+): Promise<Map<string, { services: string[]; areas: string[] }>> {
+  const out = new Map<string, { services: string[]; areas: string[] }>();
+  if (residenceIds.length === 0) return out;
+  const { data, error } = await admin
+    .from("residence_custom_amenities")
+    .select("residence_id, kind, label")
+    .in("residence_id", residenceIds)
+    .eq("status", "approved")
+    .order("created_at", { ascending: true })
+    .limit(2000);
+  if (error) {
+    if (!isMissingSchemaError(error)) console.error("[custom-amenities] approved batch read failed:", error.code, error.message);
+    return out;
+  }
+  for (const row of (data ?? []) as { residence_id: string; kind: string; label: string }[]) {
+    const entry = out.get(row.residence_id) ?? { services: [], areas: [] };
+    (row.kind === "service" ? entry.services : entry.areas).push(row.label);
+    out.set(row.residence_id, entry);
+  }
+  return out;
+}
+
 /**
  * Sincroniza los ítems «Otro» enviados por la residencia (el permiso `profile.edit` ya se validó afuera). Los nuevos entran `pending`;
  * los que cambiaron de texto se recrean pendientes; los que ya no están se borran. Avisa a los admins solo si hay ítems nuevos.

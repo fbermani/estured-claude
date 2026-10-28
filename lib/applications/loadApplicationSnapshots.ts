@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { withEmptyMonthColumns } from "@/lib/applications/snapshotColumns";
 import {
-  SNAPSHOT_COLUMNS,
+  SNAPSHOT_BASE_COLUMNS,
   buildAgreedConditions,
   pickSnapshot,
   type AgreedConditions,
@@ -30,7 +31,9 @@ export async function loadAgreedConditionsByApplication(
   ];
   if (snapshotIds.length === 0) return result;
 
-  const { data, error } = await client.from("application_snapshots").select(SNAPSHOT_COLUMNS).in("id", snapshotIds);
+  const { data, error } = await withEmptyMonthColumns<unknown[]>(SNAPSHOT_BASE_COLUMNS, (columns) =>
+    client.from("application_snapshots").select(columns).in("id", snapshotIds),
+  );
   if (error) {
     console.error("[loadApplicationSnapshots] query failed:", error);
     return result;

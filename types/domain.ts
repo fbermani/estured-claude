@@ -54,6 +54,9 @@ export interface Residence {
   availabilityMode: AvailabilityMode;
   published: boolean;
   priceFromUsd: number;
+  /** Promoción vigente en el tipo más barato (DR18 t4): tarifa de lista («antes») y %. Sin promoción no existen. */
+  priceFromListUsd?: number;
+  promotionPercent?: number;
   matriculaUsd: number | null;
   depositoUsd: number | null;
   roomTypes: RoomTypeOffer[];

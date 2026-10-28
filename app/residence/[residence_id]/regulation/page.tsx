@@ -36,6 +36,8 @@ export default async function ResidenceRegulationPage({ params }: { params: Prom
   const canEdit = can(membership, "profile.edit");
 
   const [current, history] = await Promise.all([loadCurrentRegulation(admin, residenceId), listRegulationVersions(admin, residenceId)]);
+  const { data: resRow } = await admin.from("residences").select("name").eq("id", residenceId).maybeSingle();
+  const residenceName = (resRow?.name as string | undefined) ?? "";
   const modelText = normalizeRegulationText(buildModelText());
 
   return (
@@ -71,6 +73,7 @@ export default async function ResidenceRegulationPage({ params }: { params: Prom
                 initialSource={current.view.source}
                 modelText={modelText}
                 canEdit={canEdit && current.view.schemaReady}
+                residenceName={residenceName}
               />
             </PermissionGate>
           </Card>

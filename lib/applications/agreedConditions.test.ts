@@ -72,3 +72,17 @@ describe("buildAgreedConditions", () => {
     expect(buildAgreedConditions(null)).toBeNull();
   });
 });
+
+describe("mes vacío confirmado (DR18 t4)", () => {
+  it("lo expone con cantidad (admite 0,5) y pesos del tipo de cambio congelado", () => {
+    const c = buildAgreedConditions({ ...original, empty_months_charge_usd: "150.00", empty_months_count: "1.5" })!;
+    expect(c.emptyMonthsUsd).toBe(150);
+    expect(c.emptyMonthsCount).toBe(1.5);
+    expect(c.emptyMonthsArs).toBe(222000);
+  });
+  it("sin cargo (null, 0 o columnas ausentes) no lo expone", () => {
+    expect(buildAgreedConditions(original)!.emptyMonthsUsd).toBeNull();
+    expect(buildAgreedConditions({ ...original, empty_months_charge_usd: "0", empty_months_count: null })!.emptyMonthsUsd).toBeNull();
+  });
+});
+

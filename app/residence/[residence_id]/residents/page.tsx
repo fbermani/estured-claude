@@ -41,6 +41,17 @@ export default async function ResidenceResidentsPage({
   if (!membership) notFound();
 
   const hasPremium = await hasOperationalManagementAccess(admin, residenceId);
+  // DR18 t4 (0063): nombre/teléfono de residentes cargados sin mail. Consulta aparte y tolerante: sin la migración, todo sigue como antes.
+  const { data: identityRows } = await admin
+    .from("resident_stays")
+    .select("id, invite_name, invite_phone")
+    .eq("residence_id", residenceId)
+    .eq("is_current", true)
+    .is("student_profile_id", null)
+    .is("invite_email", null);
+  const identityByStay = new Map(
+    ((identityRows ?? []) as { id: string; invite_name: string | null; invite_phone: string | null }[]).map((r) => [r.id, r]),
+  );
   const [{ data: stays, error }, { data: roomTypes }, { data: rooms }, renewals, { data: notes }, stayChanges, { data: residenceRow }] = await Promise.all([
     admin
       .from("resident_stays")
@@ -174,7 +185,9 @@ export default async function ResidenceResidentsPage({
       stayId: s.id,
       name: s.student_profiles
         ? `${formatShortName(s.student_profiles.first_name, s.student_profiles.last_initial)}`
-        : "Residente sin activar",
+        : (identityByStay.get(s.id)?.invite_name ?? "Residente sin activar"),
+      invitePhone: can(membership, "residents.manage") ? (identityByStay.get(s.id)?.invite_phone ?? null) : null,
+      noEmail: !s.student_profile_id && !s.invite_email,
       flag: s.student_profiles?.country_flag ?? null,
       email: s.invite_email,
       pending,

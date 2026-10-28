@@ -2,13 +2,16 @@ import "server-only";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { residenceAcceptsAge } from "@/lib/residences/age";
 import { isMissingColumnError } from "@/lib/residences/changesRequest";
+import { cardPriceFrom } from "@/lib/residences/cardPromotion";
+import { loadPromotionsByResidence } from "@/lib/residences/promotions";
+import { todayIso } from "@/lib/applications/reservationMoney";
+import { getApprovedCustomAmenitiesByResidence } from "@/lib/residences/customAmenitiesDb";
 import { buildGalleryPhotos, loadPhotoMeta, rotationUrls } from "@/lib/residences/photoMetaDb";
 import { computeCapacity, residentsToDisplay } from "@/lib/residences/occupancy";
 import type { Residence, RoomTypeName } from "@/types/domain";
 import {
   residenceAvailabilityMode,
   catalogAvailabilityHint,
-  startingPriceUsd,
   typeAvailabilityState,
 } from "@/lib/availability/typeAvailability";
 
@@ -67,7 +70,7 @@ export async function getCatalogResidencesWithTotal(
 
   const ids = residences.map((r) => r.id);
 
-  const [{ data: roomTypes }, { data: sections }, { data: photos }, { data: stays }, { data: rooms }, accessRes, photoMeta] = await Promise.all([
+  const [{ data: roomTypes }, { data: sections }, { data: photos }, { data: stays }, { data: rooms }, accessRes, photoMeta, customByResidence, promotionsByResidence] = await Promise.all([
     admin
       .from("room_types")
       .select("id, residence_id, name, monthly_price_usd, capacity_per_room, profile_availability(status, available_count)")
@@ -95,6 +98,10 @@ export async function getCatalogResidencesWithTotal(
     // Los residentes solo se muestran con Gestión Operativa (Premium); si no se puede leer el plan, no se muestran (fail-closed).
     admin.from("residences").select("id, has_operational_management_access").in("id", ids),
     loadPhotoMeta(admin, ids),
+    // DR18 t4: ítems «Otro» aprobados (pendientes y rechazados nunca llegan acá).
+    getApprovedCustomAmenitiesByResidence(admin, ids),
+    // DR18 t4: promociones vigentes por tipo para el «antes/ahora» de la tarjeta (sin la 0060 queda la tarifa de lista).
+    loadPromotionsByResidence(admin, ids),
   ]);
   if (accessRes.error) console.error("[catalog] no se pudo leer el plan de las residencias:", accessRes.error.message);
   const premiumById = new Map((accessRes.error ? [] : (accessRes.data ?? [])).map((a) => [a.id as string, a.has_operational_management_access as boolean | null]));
@@ -132,15 +139,20 @@ export async function getCatalogResidencesWithTotal(
     const sectionMap = Object.fromEntries(
       (sections ?? []).filter((s) => s.residence_id === r.id).map((s) => [s.section_type, s.content]),
     );
-    const services = (sectionMap.services?.items as string[]) ?? [];
-    const commonAreas = (sectionMap.common_areas?.items as string[]) ?? [];
+    const custom = customByResidence.get(r.id);
+    const services = [...new Set([...((sectionMap.services?.items as string[]) ?? []), ...(custom?.services ?? [])])];
+    const commonAreas = [...new Set([...((sectionMap.common_areas?.items as string[]) ?? []), ...(custom?.areas ?? [])])];
     const nearUniversities = (sectionMap.near_universities?.items as string[]) ?? [];
 
     // D3/H03: la disponibilidad la manda el tipo de habitación (`profile_availability`),
     // siempre vía el helper único. El precio "desde" excluye los tipos completos.
     const typeStates = rts.map((rt) => typeAvailabilityState(rt.profile_availability?.status));
-    const priceFromUsd =
-      startingPriceUsd(rts.map((rt, i) => ({ priceUsd: Number(rt.monthly_price_usd), state: typeStates[i] }))) ?? 0;
+    const cardPrice = cardPriceFrom(
+      rts.map((rt, i) => ({ id: rt.id as string, listUsd: Number(rt.monthly_price_usd), state: typeStates[i] })),
+      promotionsByResidence.get(r.id) ?? [],
+      todayIso(),
+    );
+    const priceFromUsd = cardPrice.fromUsd ?? 0;
     const availabilityMode = residenceAvailabilityMode(typeStates);
 
     const roomTypeOffers = rts
@@ -161,6 +173,9 @@ export async function getCatalogResidencesWithTotal(
       availabilityMode,
       published: true,
       priceFromUsd,
+      ...(cardPrice.listFromUsd != null && cardPrice.promotionPercent != null
+        ? { priceFromListUsd: cardPrice.listFromUsd, promotionPercent: cardPrice.promotionPercent }
+        : {}),
       matriculaUsd: null,
       depositoUsd: null,
       roomTypes: roomTypeOffers,

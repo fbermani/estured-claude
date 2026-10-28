@@ -4,6 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog, alertAdminsOfAuditFailure } from "@/lib/audit";
 import { removeWaitlistEntriesOnConfirmedReservation } from "@/lib/waitlist-entries/removeWaitlistEntriesOnConfirmedReservation";
 import { promoteNextQueuedApplication } from "@/lib/applications/roomTypeQueue";
+import { withEmptyMonthColumns } from "@/lib/applications/snapshotColumns";
 import { insertReceiptWithRetry } from "@/lib/receipts/receiptNumber";
 import { resolveStayChangeIntentOnReservation } from "@/lib/stayChange/resolveStayChangeIntent";
 
@@ -139,13 +140,16 @@ export async function confirmReservationAfterFeePaid(
   // Datos para el comprobante (docs/06 §13.3 — congelados al momento de emitir).
   const [{ data: snapshot }, { data: student }, { data: residence }, { data: roomType }] =
     await Promise.all([
-      admin
-        .from("application_snapshots")
-        .select(
-          "monthly_price_usd, monthly_price_ars, enrollment_fee_usd, enrollment_fee_ars, deposit_usd, deposit_ars, initial_duration_months, adjustment_policy, exchange_rate_ars_per_usd, exchange_rate_date",
-        )
-        .eq("id", reservation.snapshot_id)
-        .single(),
+      // DR18 t3/t4: el comprobante congela también el mes vacío confirmado (degrada sin las columnas si la 0061 no está aplicada).
+      withEmptyMonthColumns<Record<string, unknown>>(
+        "monthly_price_usd, monthly_price_ars, enrollment_fee_usd, enrollment_fee_ars, deposit_usd, deposit_ars, initial_duration_months, adjustment_policy, exchange_rate_ars_per_usd, exchange_rate_date",
+        (columns) =>
+          admin
+            .from("application_snapshots")
+            .select(columns)
+            .eq("id", reservation.snapshot_id)
+            .single() as unknown as PromiseLike<{ data: Record<string, unknown> | null; error: { code?: string | null; message?: string | null } | null }>,
+      ),
       admin
         .from("student_profiles")
         .select("first_name, last_initial, academic_objective")

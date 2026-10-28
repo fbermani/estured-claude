@@ -112,3 +112,19 @@ describe("buildReceiptRows con suplemento del snapshot (comprobantes viejos)", (
     expect(rows["Tarifa mensual acordada"]).toBe("USD 300");
   });
 });
+
+describe("buildReceiptRows con mes vacío (DR18 t4)", () => {
+  it("muestra el mes vacío confirmado con su cantidad", () => {
+    const rows = byLabel(
+      buildReceiptRows({
+        final_conditions: { monthly_price_usd: 400, empty_months_charge_usd: "300", empty_months_count: "1.5", exchange_rate_ars_per_usd: "1000" },
+      }),
+    );
+    expect(rows["Mes vacío (1,5 meses)"]).toBe("USD 300 · ARS 300.000");
+  });
+  it("sin cargo no agrega la fila", () => {
+    const rows = byLabel(buildReceiptRows({ final_conditions: { monthly_price_usd: 400, empty_months_charge_usd: null } }));
+    expect(Object.keys(rows).some((k) => k.startsWith("Mes vacío"))).toBe(false);
+  });
+});
+

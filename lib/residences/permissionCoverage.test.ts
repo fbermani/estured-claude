@@ -29,6 +29,7 @@ const GUARDED: Record<string, string[]> = {
   "lib/residences/roomManagement.ts": ["assertResidencePermission(", "operations.rooms_availability"],
   "lib/availability/updateAvailability.ts": ["assertResidencePermission(", "operations.rooms_availability"],
   "lib/residents/createResidentStay.ts": ["assertResidencePermission(", "residents.manage"],
+  "lib/residents/setResidentEmail.ts": ["assertResidencePermission(", "residents.manage"],
   "lib/residents/endResidentStay.ts": ["assertResidencePermission(", "residents.manage"],
   "lib/residents/updateStayDetails.ts": ["assertResidencePermission(", "residents.manage"],
   "lib/residents/addResidentNote.ts": ["assertResidencePermission(", "residents.manage"],
