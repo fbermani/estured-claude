@@ -7,6 +7,7 @@ import { getResidenceMembership } from "@/lib/residences/access";
 import { can } from "@/lib/residences/permissions";
 import { PremiumNotice } from "@/components/residences/PremiumLock";
 import { hasOperationalManagementAccess } from "@/lib/residences/operationalAccess";
+import { effectiveRoomGender } from "@/lib/residences/roomGender";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 import { RoomsBrowser, type RoomsData } from "@/app/residence/[residence_id]/rooms/RoomsBrowser";
 
@@ -44,7 +45,8 @@ export default async function ResidenceRoomsPage({
       .eq("is_active", true),
     admin
       .from("rooms")
-      .select("id, label, room_type_id, sort_order")
+      // "*": si la migración 0057 (columna gender) aún no está aplicada, no explota y degrada al género del tipo.
+      .select("*")
       .eq("residence_id", residenceId)
       .eq("is_active", true)
       .order("sort_order", { ascending: true }),
@@ -129,6 +131,11 @@ export default async function ResidenceRoomsPage({
         .map((room) => ({
           id: room.id,
           label: room.label,
+          gender: effectiveRoomGender({
+            roomGender: (room as { gender?: string | null }).gender,
+            typePolicy: rt.gender_policy,
+            capacityPerRoom: rt.capacity_per_room,
+          }),
           beds: (beds ?? [])
             .filter((b) => b.room_id === room.id)
             .map((b) => {

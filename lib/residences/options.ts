@@ -88,3 +88,15 @@ const SERVICE_DISPLAY_LABELS: Record<string, string> = {
 export function serviceLabel(value: string): string {
   return SERVICE_DISPLAY_LABELS[value] ?? value;
 }
+
+/** Reglas de convivencia típicas, solo como sugerencia al elegir las 5 destacadas (DR18): la residencia las puede editar o escribir las suyas. */
+export const RULE_SUGGESTIONS = [
+  "Respetar los horarios de silencio",
+  "Prohibido fumar en interiores",
+  "Visitas con aviso previo",
+  "Mantener limpios los espacios compartidos",
+  "Cuidar las instalaciones y los muebles",
+  "Avisar si te ausentás varios días",
+  "Usar auriculares en espacios comunes",
+  "Respetar las pertenencias de los demás",
+] as const;

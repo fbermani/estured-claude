@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { syncRoomsAndBeds } from "@/lib/residences/syncRoomsAndBeds";
 import { roundUsd, roundArs, usdToArs } from "@/lib/mock/exchange";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
+import { inheritedGenderChange } from "@/lib/residences/roomGender";
 import { logTariffChange } from "@/lib/residences/tariffLog";
 
 /**
@@ -192,7 +193,7 @@ export async function applyRoomTypesUpdate(
 
   const { data: existingTypes, error: existingError } = await admin
     .from("room_types")
-    .select("id, is_active, monthly_price_usd")
+    .select("id, is_active, monthly_price_usd, gender_policy, capacity_per_room")
     .eq("residence_id", residenceId);
   if (existingError) {
     console.error("[profile-edits] room types read failed:", existingError);
@@ -241,6 +242,25 @@ export async function applyRoomTypesUpdate(
         .eq("residence_id", residenceId)
         .select("id");
       if (error || !updatedRows || updatedRows.length === 0) return { ok: false, error: "No pudimos actualizar un tipo de habitación." };
+      // Género por habitación (0057): las habitaciones que seguían heredando el género del tipo lo acompañan;
+      // las que el dueño editó una por una (valor distinto del heredado) no se tocan.
+      const before = (existingTypes ?? []).find((t) => t.id === roomTypeId);
+      const genderChange = before
+        ? inheritedGenderChange(
+            { policy: before.gender_policy, capacity: before.capacity_per_room },
+            { policy: rt.genderPolicy || null, capacity: rt.capacityPerRoom },
+          )
+        : null;
+      if (genderChange) {
+        const { error: genderError } = await admin
+          .from("rooms")
+          .update({ gender: genderChange.to })
+          .eq("room_type_id", roomTypeId)
+          .eq("residence_id", residenceId)
+          .eq("gender", genderChange.from);
+        // Sin la migración 0057 la columna no existe: se ignora, la ficha degrada al género del tipo.
+        if (genderError) console.warn("[profile-edits] no se pudo propagar el género a las habitaciones:", genderError.message);
+      }
       const oldPrice = priceById.get(roomTypeId) ?? null;
       await logTariffChange(admin, {
         residenceId,

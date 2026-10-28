@@ -2,6 +2,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { assertResidencePermission } from "@/lib/residences/access";
+import { validateRoomGender } from "@/lib/residences/roomGender";
 
 type Result = { ok: true } | { ok: false; error: string };
 
@@ -34,6 +35,54 @@ export async function renameRoom(
     entityType: "rooms",
     entityId: params.roomId,
     newValue: { permission: access.permission, label },
+  });
+  return { ok: true };
+}
+
+/** Cambia el género de una habitación (DR18 punto 15). Compartida: no admite «sin especificar». */
+export async function setRoomGender(
+  admin: SupabaseClient,
+  params: { actorUserId: string; residenceId: string; roomId: string; gender: string },
+): Promise<Result> {
+  const access = await assertResidencePermission(admin, params.actorUserId, params.residenceId, "operations.rooms_availability");
+  if (!access.ok) return { ok: false, error: access.error };
+
+  const { data: room, error: readError } = await admin
+    .from("rooms")
+    .select("id, room_types(capacity_per_room)")
+    .eq("id", params.roomId)
+    .eq("residence_id", params.residenceId)
+    .maybeSingle();
+  if (readError) return { ok: false, error: "No pudimos leer la habitación. Probá de nuevo en unos minutos." };
+  if (!room) return { ok: false, error: "No encontramos esa habitación." };
+  const rt = room.room_types as unknown as { capacity_per_room: number | null } | { capacity_per_room: number | null }[] | null;
+  const capacity = Array.isArray(rt) ? rt[0]?.capacity_per_room : rt?.capacity_per_room;
+
+  const checked = validateRoomGender(params.gender, capacity);
+  if (!checked.ok) return { ok: false, error: checked.error };
+
+  const { error } = await admin
+    .from("rooms")
+    .update({ gender: checked.gender })
+    .eq("id", params.roomId)
+    .eq("residence_id", params.residenceId);
+  if (error) {
+    const missingColumn = /gender/i.test(error.message ?? "") && /column|schema/i.test(error.message ?? "");
+    return {
+      ok: false,
+      error: missingColumn
+        ? "El género por habitación todavía no está disponible. Probá de nuevo más tarde."
+        : "No pudimos guardar el género de la habitación.",
+    };
+  }
+
+  await createAuditLog(admin, {
+    actorUserId: params.actorUserId,
+    actorRole: access.actorRole,
+    action: "room_gender_updated",
+    entityType: "rooms",
+    entityId: params.roomId,
+    newValue: { permission: access.permission, gender: checked.gender },
   });
   return { ok: true };
 }

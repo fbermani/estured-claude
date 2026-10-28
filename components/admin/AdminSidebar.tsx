@@ -145,6 +145,7 @@ const NAV = [
   { href: "/admin/activity", label: "Actividad", Icon: ActivityIcon },
   { href: "/admin/support-cases", label: "Soporte", Icon: SupportCasesIcon },
   { href: "/admin/faq", label: "Preguntas de fichas", Icon: SupportCasesIcon },
+  { href: "/admin/custom-amenities", label: "Ítems «Otro» de fichas", Icon: ProfileEditsIcon },
   { href: "/admin/followups", label: "Seguimiento", Icon: SupportCasesIcon },
   { href: "/admin/exchange-rate", label: "Tipo de cambio", Icon: ExchangeIcon },
   { href: "/admin/users", label: "Usuarios", Icon: UsersIcon },

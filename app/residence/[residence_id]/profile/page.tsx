@@ -7,6 +7,8 @@ import { can } from "@/lib/residences/permissions";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 import { loadChangesMessage } from "@/lib/residences/loadChangesMessage";
 import { initialPaymentConfigFromRow } from "@/lib/reservations/initialPayment";
+import { listCustomAmenities } from "@/lib/residences/customAmenitiesDb";
+import { loadCurrentRegulation } from "@/lib/regulations/current";
 import { ResidenceProfileForm } from "@/app/residence/[residence_id]/profile/ResidenceProfileForm";
 
 export const metadata: Metadata = { title: "Configuración de residencia" };
@@ -68,6 +70,9 @@ export default async function ResidenceProfilePage({
 
   if (!residence) notFound();
 
+  // DR18: ítems «Otro» (degrada a vacío sin la migración 0058) y si ya hay reglamento propio publicado (si no, se invita a armarlo).
+  const [customAmenitiesRes, regulationRes] = await Promise.all([listCustomAmenities(admin, residenceId), loadCurrentRegulation(admin, residenceId)]);
+
   const changesMessage = !readOnly && residence.status === "needs_changes" ? await loadChangesMessage(admin, residenceId) : null;
   const rate = await getCurrentExchangeRate();
   const initialPayment = initialPaymentConfigFromRow(residence);
@@ -97,6 +102,15 @@ export default async function ResidenceProfilePage({
         nearUniversities: (sectionMap.near_universities?.items as string[]) ?? [],
         rulesSummary: (sectionMap.rules?.summary as string) ?? "",
         rulesFileName: rulesFile?.filename ?? null,
+        customAmenities: (customAmenitiesRes.ok ? customAmenitiesRes.items : []).map((i) => ({
+          id: i.id,
+          kind: i.kind,
+          label: i.label,
+          status: i.status,
+          rejectReason: i.reject_reason,
+        })),
+        customAmenitiesReady: customAmenitiesRes.ok && customAmenitiesRes.schemaReady,
+        hasOwnRegulation: regulationRes.ok ? !regulationRes.view.isBaseModel : true,
         faqItems: (sectionMap.faq?.items as { question: string; answer: string }[]) ?? [],
         photos: photoItems,
         pendingEditGroups,

@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatUsd } from "@/lib/mock/exchange";
+import { InviteResidentsCard } from "@/app/residence/[residence_id]/residents/InviteResidentsCard";
 import { AddResidentForm } from "@/app/residence/[residence_id]/residents/AddResidentForm";
 import { PermissionGate, PermissionNote } from "@/components/residences/PermissionGate";
 import { StayChangeSection } from "@/app/residence/[residence_id]/residents/StayChangeSection";
@@ -588,6 +589,8 @@ export function ResidentsBrowser({
           <AddResidentForm residenceId={residenceId} roomTypes={data.roomTypes} />
         </div>
       )}
+
+      {canManageResidents && <InviteResidentsCard residenceName={residenceName} />}
 
       {/* KPIs — ref gestión de residentes (sin "evaluaciones": feature pospuesta) */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">

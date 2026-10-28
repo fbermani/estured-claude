@@ -25,7 +25,15 @@ import {
   ADJUSTMENT_POLICY_OPTIONS,
   ROOM_FEATURE_OPTIONS,
   serviceLabel,
+  RULE_SUGGESTIONS,
 } from "@/lib/residences/options";
+import {
+  CUSTOM_AMENITY_MAX,
+  MAX_PENDING_CUSTOM_AMENITIES,
+  type CustomAmenityKind,
+  type CustomAmenityStatus,
+} from "@/lib/residences/customAmenities";
+import { MAX_TOP_RULES, TOP_RULE_MAX, splitRules } from "@/lib/residences/topRules";
 import {
   saveResidenceProfile,
   type ProfileFormState,
@@ -83,6 +91,11 @@ interface ProfileInitial {
   nearUniversities: string[];
   rulesSummary: string;
   rulesFileName: string | null;
+  /** DR18: ítems «Otro» ya cargados (con su estado) y si la migración 0058 está aplicada. */
+  customAmenities: { id: string; kind: CustomAmenityKind; label: string; status: CustomAmenityStatus; rejectReason: string | null }[];
+  customAmenitiesReady: boolean;
+  /** DR18: la residencia ya publicó un reglamento propio (si no, se la invita a armarlo con el modelo). */
+  hasOwnRegulation: boolean;
   faqItems: { question: string; answer: string }[];
   photos: { url: string; pending: boolean }[];
   roomTypes: RoomTypeDraft[];
@@ -180,7 +193,81 @@ export function ResidenceProfileForm({
   const [nearUniversities, setNearUniversities] = useState<Set<string>>(
     new Set(initial.nearUniversities),
   );
-  const [rulesSummary, setRulesSummary] = useState(initial.rulesSummary);
+  const [rulesList, setRulesList] = useState<string[]>(() => {
+    const existing = splitRules(initial.rulesSummary).slice(0, MAX_TOP_RULES);
+    return existing.length > 0 ? existing : [""];
+  });
+  const rulesSummary = rulesList.map((r) => r.trim()).filter(Boolean).join("\n");
+  const [customItems, setCustomItems] = useState<{ id?: string; kind: CustomAmenityKind; label: string; status: CustomAmenityStatus; rejectReason: string | null }[]>(
+    initial.customAmenities,
+  );
+  const [customDraft, setCustomDraft] = useState<Record<CustomAmenityKind, string>>({ service: "", area: "" });
+  const pendingCustomCount = customItems.filter((i) => i.status === "pending").length;
+
+  function addCustomItem(kind: CustomAmenityKind) {
+    const label = customDraft[kind].trim();
+    if (!label) return;
+    if (pendingCustomCount >= MAX_PENDING_CUSTOM_AMENITIES) return;
+    setCustomItems((prev) => [...prev, { kind, label, status: "pending", rejectReason: null }]);
+    setCustomDraft((prev) => ({ ...prev, [kind]: "" }));
+  }
+  function removeCustomItem(index: number) {
+    setCustomItems((prev) => prev.filter((_, i) => i !== index));
+  }
+  function renderCustomItems(kind: CustomAmenityKind) {
+    const rows = customItems.map((item, index) => ({ item, index })).filter((r) => r.item.kind === kind);
+    if (!initial.customAmenitiesReady) {
+      return <p className="mt-4 text-xs text-ink-faint">Sumar ítems propios todavía no está disponible. Probá de nuevo en unos días.</p>;
+    }
+    return (
+      <div className="mt-5 border-t border-line pt-4">
+        <p className="text-sm font-semibold text-ink">Otro</p>
+        <p className="mt-0.5 text-xs text-ink-soft">
+          Sumá un {kind === "service" ? "servicio" : "área común"} que no esté en la lista. Se muestra en tu ficha pública cuando el equipo de EstuRed lo aprueba.
+        </p>
+        {rows.length > 0 && (
+          <ul className="mt-3 space-y-2">
+            {rows.map(({ item, index }) => (
+              <li key={`${item.id ?? "new"}-${index}`} className="flex flex-wrap items-center gap-2 text-sm text-ink">
+                <span className="font-medium">{item.label}</span>
+                <Badge tone={item.status === "approved" ? "sage" : item.status === "rejected" ? "danger" : "amber"}>
+                  {item.status === "approved" ? "Aprobado" : item.status === "rejected" ? "No aprobado" : "Pendiente de revisión"}
+                </Badge>
+                <button type="button" onClick={() => removeCustomItem(index)} className="text-xs font-semibold text-ink-soft underline">
+                  Quitar
+                </button>
+                {item.status === "rejected" && item.rejectReason && (
+                  <span className="basis-full text-xs text-danger-fg">Motivo: {item.rejectReason}</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+        <div className="mt-3 flex gap-2">
+          <input
+            value={customDraft[kind]}
+            onChange={(e) => setCustomDraft((prev) => ({ ...prev, [kind]: e.target.value }))}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                addCustomItem(kind);
+              }
+            }}
+            maxLength={CUSTOM_AMENITY_MAX}
+            aria-label={`Otro ${kind === "service" ? "servicio" : "área común"}`}
+            placeholder={kind === "service" ? "Ej: Bicicletero" : "Ej: Huerta"}
+            className="min-w-0 flex-1 rounded-field border-[1.5px] border-line-2 bg-paper px-3 py-2 text-sm"
+          />
+          <Button type="button" variant="secondary" onClick={() => addCustomItem(kind)} disabled={pendingCustomCount >= MAX_PENDING_CUSTOM_AMENITIES}>
+            Agregar
+          </Button>
+        </div>
+        {pendingCustomCount >= MAX_PENDING_CUSTOM_AMENITIES && (
+          <p className="mt-1 text-xs text-ink-faint">Tenés {MAX_PENDING_CUSTOM_AMENITIES} ítems esperando revisión: esperá a que los revisemos para sumar más.</p>
+        )}
+      </div>
+    );
+  }
   const [faqItems, setFaqItems] = useState<{ question: string; answer: string }[]>(
     initial.faqItems.length > 0 ? initial.faqItems : [{ question: "", answer: "" }],
   );
@@ -336,6 +423,7 @@ export function ResidenceProfileForm({
           // submit (patrón HTML nativo) — leer el botón evita la carrera
           // de usar onClick + estado de React para decidirlo.
           fd.set("room_types_json", JSON.stringify(roomTypes));
+          fd.set("custom_amenities_json", JSON.stringify(customItems.map((i) => ({ id: i.id, kind: i.kind, label: i.label }))));
           fd.set(
             "faq_json",
             JSON.stringify(faqItems.filter((f) => f.question.trim() && f.answer.trim())),
@@ -404,7 +492,7 @@ export function ResidenceProfileForm({
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
               className="mt-4"
-              hint="Contá lo que hace distinta a tu residencia: el ambiente, la convivencia, el barrio, qué tipo de estudiantes viven ahí. No repitas lo que ya figura en servicios, áreas comunes o precios, ni pongas teléfonos, enlaces externos o promesas (por ejemplo, «lugar asegurado»)."
+              hint="Contá lo que hace distinta a tu residencia: el ambiente, la convivencia, el barrio, qué tipo de estudiantes viven ahí. No repitas lo que ya figura en servicios, áreas comunes o precios, ni pongas teléfonos, enlaces externos o promesas (por ejemplo, «siempre habrá lugar»)."
             />
           </Card>
 
@@ -482,6 +570,7 @@ export function ResidenceProfileForm({
                 </label>
               ))}
             </div>
+            {renderCustomItems("service")}
           </Card>
 
           {/* Áreas comunes */}
@@ -502,6 +591,7 @@ export function ResidenceProfileForm({
                 </label>
               ))}
             </div>
+            {renderCustomItems("area")}
           </Card>
 
           {/* Reglas y políticas */}
@@ -514,17 +604,69 @@ export function ResidenceProfileForm({
               Atención: cualquier cambio en esta sección requiere validación del equipo de EstuRed
               antes de ser público.
             </p>
-            <Textarea
-              label="Reglas de convivencia (una por línea)"
-              hint="En tu ficha pública se muestran las primeras 5. Escribí una regla corta por renglón."
-              id="rules_summary"
-              name="rules_summary"
-              value={rulesSummary}
-              onChange={(e) => setRulesSummary(e.target.value)}
-              rows={5}
-              className="mt-4"
-              placeholder={"No fiestas después de las 22hs\nProhibido fumar en interiores\nVisitas hasta las 20hs"}
-            />
+            <div className="mt-4">
+              <p className="text-sm font-medium text-ink">Reglas de convivencia destacadas</p>
+              <p className="mt-0.5 text-xs text-ink-soft">
+                Elegí las {MAX_TOP_RULES} reglas más importantes o que quieras destacar. Se muestran en tu ficha pública; el detalle completo va en el reglamento.
+              </p>
+              <input type="hidden" name="rules_summary" value={rulesSummary} />
+              <ul className="mt-3 space-y-2">
+                {rulesList.map((rule, i) => (
+                  <li key={i} className="flex gap-2">
+                    <input
+                      value={rule}
+                      maxLength={TOP_RULE_MAX}
+                      onChange={(e) => setRulesList((prev) => prev.map((r, j) => (j === i ? e.target.value : r)))}
+                      aria-label={`Regla destacada ${i + 1}`}
+                      placeholder={RULE_SUGGESTIONS[i % RULE_SUGGESTIONS.length]}
+                      className="min-w-0 flex-1 rounded-field border-[1.5px] border-line-2 bg-paper px-3 py-2 text-sm"
+                    />
+                    {rulesList.length > 1 && (
+                      <button type="button" onClick={() => setRulesList((prev) => prev.filter((_, j) => j !== i))} className="text-xs font-semibold text-ink-soft underline">
+                        Quitar
+                      </button>
+                    )}
+                  </li>
+                ))}
+              </ul>
+              {rulesList.length < MAX_TOP_RULES && (
+                <button type="button" onClick={() => setRulesList((prev) => [...prev, ""])} className="mt-2 text-sm font-semibold text-forest-700 underline">
+                  Agregar otra regla
+                </button>
+              )}
+              <div className="mt-3 flex flex-wrap gap-2" aria-label="Sugerencias de reglas">
+                {RULE_SUGGESTIONS.filter((sg) => !rulesList.includes(sg)).map((sg) => (
+                  <button
+                    key={sg}
+                    type="button"
+                    disabled={rulesList.filter((r) => r.trim()).length >= MAX_TOP_RULES && !rulesList.some((r) => !r.trim())}
+                    onClick={() =>
+                      setRulesList((prev) => {
+                        const emptyAt = prev.findIndex((r) => !r.trim());
+                        if (emptyAt >= 0) return prev.map((r, j) => (j === emptyAt ? sg : r));
+                        return prev.length < MAX_TOP_RULES ? [...prev, sg] : prev;
+                      })
+                    }
+                    className="rounded-full border border-line-2 bg-paper px-3 py-1 text-xs text-ink-soft hover:border-forest hover:text-forest-700 disabled:opacity-40"
+                  >
+                    + {sg}
+                  </button>
+                ))}
+              </div>
+              {splitRules(initial.rulesSummary).length > MAX_TOP_RULES && (
+                <p className="mt-2 text-xs text-warning-fg">
+                  Tenías más de {MAX_TOP_RULES} reglas cargadas: acá ves las primeras {MAX_TOP_RULES}. Al guardar, quedan solo esas.
+                </p>
+              )}
+            </div>
+            {!initial.hasOwnRegulation && (
+              <p className="mt-4 rounded-field bg-forest-tint px-4 py-3 text-sm text-ink">
+                Si no tenés reglamento, armalo con nuestro modelo.{" "}
+                <a href={`/residence/${residenceId}/regulation`} className="font-semibold text-forest-700 underline">
+                  Ir al reglamento
+                </a>
+              </p>
+            )}
             <div className="mt-4">
               <label htmlFor="rules_file" className="text-sm font-medium text-ink">
                 Reglamento completo (PDF, opcional)

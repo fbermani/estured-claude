@@ -11,6 +11,7 @@ import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 import { Icon } from "@/components/ui/Icon";
 import { getCommunityVisibility } from "@/lib/residents/communityVisibility";
 import { AmenityGrid } from "@/components/residences/AmenityGrid";
+import { getApprovedCustomAmenities } from "@/lib/residences/customAmenitiesDb";
 import { RulesHighlight } from "@/components/residences/RulesHighlight";
 import { FaqAccordion } from "@/components/residences/FaqAccordion";
 import { assertResidenceAccess } from "@/lib/residences/access";
@@ -33,6 +34,7 @@ import { JoinWaitlistForm } from "@/app/(public)/residencias/[slug]/JoinWaitlist
 import { MobileRequestBar } from "@/components/residences/MobileRequestBar";
 import { formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
 import { getResidenceLocation } from "@/lib/residences/residenceLocation";
+import { effectiveRoomGender, policyFromGender, summarizeTypeGenders } from "@/lib/residences/roomGender";
 import { startingPriceUsd, typeAvailabilityState } from "@/lib/availability/typeAvailability";
 import { initialPaymentConfigFromRow } from "@/lib/reservations/initialPayment";
 import { ReservationSelectionProvider } from "@/components/residences/reservationSelection";
@@ -74,7 +76,7 @@ const loadResidence = cache(async (slug: string) => {
   if (residenceError) console.error("[ficha] no se pudo leer la residencia:", residenceError);
   if (!residence) return null;
 
-  const [roomTypesRes, sectionsRes, photosRes, rulesFileRes] = await Promise.all([
+  const [roomTypesRes, roomsRes, sectionsRes, photosRes, rulesFileRes] = await Promise.all([
     admin
       .from("room_types")
       .select(
@@ -82,6 +84,8 @@ const loadResidence = cache(async (slug: string) => {
       )
       .eq("residence_id", residence.id)
       .eq("is_active", true),
+    // "*": degrada sin error si la migración 0057 (rooms.gender) aún no está aplicada.
+    admin.from("rooms").select("*").eq("residence_id", residence.id).eq("is_active", true),
     admin.from("residence_profile_sections").select("section_type, content").eq("residence_id", residence.id),
     admin
       .from("files")
@@ -130,8 +134,18 @@ const loadResidence = cache(async (slug: string) => {
   // profile_availability tiene unique(room_type_id) — PostgREST devuelve
   // un objeto singular en el embed, no un array (a diferencia de lo que
   // el tipo inferido por supabase-js sugiere sin un schema generado).
-  const normalizedRoomTypes = (roomTypesRes.data ?? []).map((rt) => ({
+  const normalizedRoomTypes = (roomTypesRes.data ?? []).map((rt) => {
+    // Género por habitación (0057). Sin la columna o sin habitaciones: queda el género del tipo.
+    const genders = ((roomsRes.data ?? []) as { room_type_id: string; gender?: string | null }[])
+      .filter((r) => r.room_type_id === rt.id)
+      .map((r) =>
+        effectiveRoomGender({ roomGender: r.gender, typePolicy: rt.gender_policy, capacityPerRoom: rt.capacity_per_room }),
+      );
+    return { rt, genders };
+  }).map(({ rt, genders }) => ({
     ...rt,
+    genderSummary: new Set(genders).size > 1 ? summarizeTypeGenders(genders) : null,
+    gender_policy: new Set(genders).size === 1 ? (policyFromGender(genders[0]) ?? rt.gender_policy) : rt.gender_policy,
     profile_availability: rt.profile_availability as unknown as { status: string; available_count: number | null } | null,
   }));
 
@@ -185,8 +199,10 @@ export default async function RealResidenceDetailPage({
   // La ubicación y la dirección de la residencia son públicas (decisión del dueño, 2026-10-23): pin exacto.
   const location = getResidenceLocation(residence);
   const addressLine = (residence.address_line as string | null)?.trim() || null;
-  const services = (sectionMap.services?.items as string[]) ?? [];
-  const commonAreas = (sectionMap.common_areas?.items as string[]) ?? [];
+  // DR18: los ítems «Otro» aprobados se suman a los fijos (los pendientes y rechazados nunca llegan acá; vacío si la 0058 no está aplicada).
+  const customAmenities = adminClient ? await getApprovedCustomAmenities(adminClient, residence.id) : { services: [], areas: [] };
+  const services = [...((sectionMap.services?.items as string[]) ?? []), ...customAmenities.services];
+  const commonAreas = [...((sectionMap.common_areas?.items as string[]) ?? []), ...customAmenities.areas];
   const nearUniversities = (sectionMap.near_universities?.items as string[]) ?? [];
   const rulesSummary = (sectionMap.rules?.summary as string) ?? "";
   const staticFaqItems = (sectionMap.faq?.items as { question: string; answer: string }[]) ?? [];
@@ -241,6 +257,7 @@ export default async function RealResidenceDetailPage({
       capacityPerRoom: rt.capacity_per_room,
       genderPolicy: rt.gender_policy,
       bathroomType: rt.bathroom_type,
+      genderSummary: rt.genderSummary,
     }),
     state: typeAvailabilityState(rt.profile_availability?.status),
   }));
@@ -584,7 +601,7 @@ export default async function RealResidenceDetailPage({
                 <div>
                   <h3 className="text-base font-bold text-ink">Reglas de convivencia</h3>
                   <div className="mt-3">
-                    <RulesHighlight rulesSummary={rulesSummary} pdfUrl={rulesPdfUrl} />
+                    <RulesHighlight rulesSummary={rulesSummary} pdfUrl={rulesPdfUrl} slug={slug} hasRegulation={!!regulation} />
                   </div>
                 </div>
               )}

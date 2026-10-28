@@ -16,7 +16,9 @@ export type ResidenceTeamEvent = "new_application" | "new_waitlist_entry" | "new
   | "verification_approved"
   | "verification_rejected"
   | "verification_expiring"
-  | "team_member_joined";
+  | "team_member_joined"
+  | "custom_amenity_approved"
+  | "custom_amenity_rejected";
 
 /**
  * DR10: estos avisos van SOLO al dueño. El staff no puede actuar sobre ellos (la verificación y el equipo son del dueño),
@@ -38,6 +40,9 @@ export const PERMISSION_BY_EVENT: Partial<Record<ResidenceTeamEvent, ResidencePe
   new_application: "applications.review_contact",
   new_waitlist_entry: "waitlist.manage",
   new_renewal_request: "renewals.manage",
+  // DR18: el staff que puede editar el perfil se entera de qué pasó con los ítems «Otro» que propuso.
+  custom_amenity_approved: "profile.edit",
+  custom_amenity_rejected: "profile.edit",
 };
 
 const ENTITY_BY_EVENT: Record<ResidenceTeamEvent, string> = {
@@ -51,6 +56,8 @@ const ENTITY_BY_EVENT: Record<ResidenceTeamEvent, string> = {
   verification_expiring: "residences",
   // Ciclo 73 (DR10): el destino de la campana es la pantalla Equipo (`notificationHref`, entidad `residence_team`, id = residencia).
   team_member_joined: "residence_team",
+  custom_amenity_approved: "residences",
+  custom_amenity_rejected: "residences",
 };
 
 function pathFor(event: ResidenceTeamEvent, residenceId: string, entityId: string): string {
@@ -68,6 +75,9 @@ function pathFor(event: ResidenceTeamEvent, residenceId: string, entityId: strin
       return `/residence/${residenceId}`;
     case "team_member_joined":
       return `/residence/${residenceId}/team`;
+    case "custom_amenity_approved":
+    case "custom_amenity_rejected":
+      return `/residence/${residenceId}/profile`;
   }
 }
 
@@ -147,6 +157,23 @@ export function buildResidenceTeamMessage(
         subject: "EstuRed: aceptaron tu invitación al equipo",
         intro: `Alguien aceptó tu invitación al equipo de ${residenceName} y ya tiene acceso de staff.`,
         cta: "Ver el equipo",
+      };
+    // DR18: sin el texto del ítem ni el motivo (el email viaja por un tercero); el detalle se ve en la ficha de la residencia.
+    case "custom_amenity_approved":
+      return {
+        title: `Aprobamos un ítem propio de ${residenceName}`,
+        body: "Ya se muestra en tu ficha pública junto a los servicios o áreas comunes de la lista.",
+        subject: "EstuRed: aprobamos un ítem de tu ficha",
+        intro: `Aprobamos un ítem propio que sumaste a la ficha de ${residenceName}. Ya se muestra en tu ficha pública.`,
+        cta: "Ver la ficha",
+      };
+    case "custom_amenity_rejected":
+      return {
+        title: `No pudimos aprobar un ítem propio de ${residenceName}`,
+        body: "Entrá a la configuración de tu residencia para ver el motivo y, si querés, corregirlo.",
+        subject: "EstuRed: no pudimos aprobar un ítem de tu ficha",
+        intro: `No pudimos aprobar un ítem propio que sumaste a la ficha de ${residenceName}. Entrá a la configuración para ver el motivo.`,
+        cta: "Ver el motivo",
       };
   }
 }

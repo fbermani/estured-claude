@@ -10,10 +10,12 @@ import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import { PermissionNote } from "@/components/residences/PermissionGate";
 import {
   renameRoomAction,
+  setRoomGenderAction,
   setBedStatusAction,
   assignStayToBedAction,
   type RoomsActionState,
 } from "@/app/residence/[residence_id]/rooms/actions";
+import { ROOM_GENDER_LABEL, policyFromGender, type RoomGender } from "@/lib/residences/roomGender";
 import { endResidentStayAction } from "@/app/residence/[residence_id]/residents/actions";
 import { AvailabilityForm } from "@/app/residence/[residence_id]/availability/AvailabilityForm";
 
@@ -32,7 +34,7 @@ export type BedData = {
   } | null;
 };
 
-export type RoomData = { id: string; label: string; beds: BedData[] };
+export type RoomData = { id: string; label: string; gender: RoomGender; beds: BedData[] };
 
 export type AvailabilityData = {
   status: string;
@@ -80,6 +82,10 @@ function formatUntil(dateStr: string | null): string | null {
   const [y, m] = dateStr.split("-").map(Number);
   if (!y || !m) return null;
   return `Hasta ${MONTHS[m - 1]} ${y}`;
+}
+
+function roomGenderChip(gender: RoomGender): { label: string; className: string } | null {
+  return genderChip(policyFromGender(gender));
 }
 
 function genderChip(policy: string | null): { label: string; className: string } | null {
@@ -137,6 +143,45 @@ function RenameForm({ residenceId, room }: { residenceId: string; room: RoomData
       </div>
       {state.status === "error" && <p className="mt-1.5 text-xs font-medium text-danger-fg">{state.message}</p>}
       {state.status === "saved" && <p className="mt-1.5 text-xs font-medium text-success-fg">Nombre actualizado.</p>}
+    </form>
+  );
+}
+
+function GenderForm({ residenceId, room, shared }: { residenceId: string; room: RoomData; shared: boolean }) {
+  const action = setRoomGenderAction.bind(null, residenceId, room.id);
+  const [state, formAction, isPending] = useActionState(action, initialState);
+  const options: RoomGender[] = shared ? ["masculino", "femenino", "mixto"] : ["sin_especificar", "masculino", "femenino", "mixto"];
+  return (
+    <form action={formAction}>
+      <label htmlFor={`room-gender-${room.id}`} className="mb-1.5 block text-sm font-bold text-ink">
+        Género de la habitación
+      </label>
+      <div className="flex gap-2">
+        <select
+          id={`room-gender-${room.id}`}
+          name="gender"
+          defaultValue={room.gender}
+          className="w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none"
+        >
+          {options.map((o) => (
+            <option key={o} value={o}>
+              {ROOM_GENDER_LABEL[o]}
+            </option>
+          ))}
+        </select>
+        <button
+          type="submit"
+          disabled={isPending}
+          className="shrink-0 cursor-pointer rounded-full border-[1.5px] border-line px-4 py-2 text-sm font-bold text-ink-soft hover:border-forest hover:text-forest-700"
+        >
+          {isPending ? "…" : "Guardar"}
+        </button>
+      </div>
+      <p className="mt-1.5 text-xs text-ink-faint">
+        {shared ? "Una habitación compartida es masculina, femenina o mixta." : "En las individuales podés dejarlo sin especificar."}
+      </p>
+      {state.status === "error" && <p className="mt-1.5 text-xs font-medium text-danger-fg">{state.message}</p>}
+      {state.status === "saved" && <p className="mt-1.5 text-xs font-medium text-success-fg">Género actualizado.</p>}
     </form>
   );
 }
@@ -379,6 +424,7 @@ function RoomModal({
             <p className="text-[10px] font-extrabold uppercase tracking-widest text-muted">Configuración</p>
             {!perms.rooms && <PermissionNote text="No tenés permiso para editar habitaciones, camas ni disponibilidad. Pedile este permiso al dueño." />}
             <RenameForm residenceId={residenceId} room={room} />
+            <GenderForm residenceId={residenceId} room={room} shared={capacity > 1} />
             <div>
               <p className="text-sm font-bold text-ink">Tarifa mensual</p>
               <p className="mt-0.5 text-sm text-ink-soft">
@@ -510,7 +556,10 @@ export function RoomsBrowser({
         .map((g) => ({
           id: g.id,
           name: g.name,
-          chip: genderChip(g.genderPolicy),
+          chip:
+            new Set(g.rooms.map((r) => r.gender)).size > 1
+              ? { label: "VARIOS", className: "bg-sand-100 text-ink-soft" }
+              : roomGenderChip(g.rooms[0]?.gender ?? "sin_especificar"),
           vacant: g.rooms.flatMap((r) => r.beds).filter((b) => b.status === "active" && !b.occupant).length,
         }))
         .filter((t) => t.vacant > 0),
@@ -709,7 +758,7 @@ export function RoomsBrowser({
                   const occupied = room.beds.filter((b) => b.occupant).length;
                   const free = room.beds.filter((b) => b.status === "active" && !b.occupant).length;
                   const inMaintenance = room.beds.length > 0 && activeBedCount === 0;
-                  const gChip = genderChip(g.genderPolicy);
+                  const gChip = roomGenderChip(room.gender);
                   const oosReason = room.beds.find((b) => b.reason)?.reason;
 
                   return (

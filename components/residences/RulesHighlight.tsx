@@ -10,7 +10,18 @@ const RULE_ICONS = ["rule", "schedule", "volume_off", "smoke_free", "groups"];
  * escribió un solo párrafo, se muestra como un único ítem (fallback
  * razonable, no rompe nada).
  */
-export function RulesHighlight({ rulesSummary, pdfUrl }: { rulesSummary: string; pdfUrl: string | null }) {
+export function RulesHighlight({
+  rulesSummary,
+  pdfUrl,
+  slug,
+  hasRegulation = false,
+}: {
+  rulesSummary: string;
+  pdfUrl: string | null;
+  slug?: string;
+  /** Hay reglamento vigente (propio o el modelo) para ver en la ficha y descargar como archivo de texto. */
+  hasRegulation?: boolean;
+}) {
   const rules = rulesSummary
     .split("\n")
     .map((r) => r.trim())
@@ -33,6 +44,25 @@ export function RulesHighlight({ rulesSummary, pdfUrl }: { rulesSummary: string;
             </li>
           ))}
         </ul>
+      )}
+      {hasRegulation && slug && (
+        <div className="flex flex-wrap gap-2">
+          <a
+            href="#reglamento"
+            className="inline-flex items-center gap-2 rounded-full border-[1.5px] border-line-2 bg-paper px-4 py-2 text-sm font-semibold text-ink transition-colors hover:border-forest hover:bg-forest-tint hover:text-forest-700"
+          >
+            <Icon name="article" className="text-base" />
+            Ver reglamento completo
+          </a>
+          <a
+            href={`/residencias/${slug}/reglamento`}
+            download
+            className="inline-flex items-center gap-2 rounded-full border-[1.5px] border-line-2 bg-paper px-4 py-2 text-sm font-semibold text-ink transition-colors hover:border-forest hover:bg-forest-tint hover:text-forest-700"
+          >
+            <Icon name="download" className="text-base" />
+            Descargar reglamento
+          </a>
+        </div>
       )}
       {pdfUrl && (
         <a

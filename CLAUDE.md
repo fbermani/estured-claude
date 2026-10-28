@@ -37,7 +37,7 @@ npm test           # vitest run (unitarios + integración contra estured-dev)
 - **`npm test` existe (Vitest, desde el Ciclo 12):** los `.test.ts` conviven junto al código. Los unitarios puros no necesitan Supabase; los de integración crean/borran filas reales y corren contra `estured-dev` (suite completa ~5–7 min, `fileParallelism: false`). `vitest.setup.ts` se niega a correr si `.env.local` apunta a producción. Si un test deja residuo: `node --env-file=.env.local scripts/cleanup-test-residences.mjs` (simula; `--apply` para borrar).
 - **Deploy:** Vercel conectado al repo — cada push a `main` deploya a https://estured.vercel.app (usa `estured-prod`; el selector de sesión demo, `DEMO_LOGIN_ENABLED`, jamás va a Vercel).
 - ⚠️ **No correr `npm run build` con el dev server levantado**: ambos escriben `.next/` y el dev server se corrompe (`Cannot find module './NNN.js'`). Fix: parar server → `rm -rf .next` → relanzar.
-- Migraciones: SQL manual en `db/migrations/` (numeradas `0001_...`), se aplican pegándolas en el SQL Editor del dashboard de Supabase (en dev y en producción, por separado: aplicar una en un proyecto no la aplica en el otro). No hay supabase CLI instalada. Hoy: 0001–0055 (dev aplicadas hasta 0055; prod se arma con `scripts/build-bootstrap.mjs`; estado real en `MEMORY.md` §3).
+- Migraciones: SQL manual en `db/migrations/` (numeradas `0001_...`), se aplican pegándolas en el SQL Editor del dashboard de Supabase (en dev y en producción, por separado: aplicar una en un proyecto no la aplica en el otro). No hay supabase CLI instalada. Hoy: 0001–0058 (dev aplicadas hasta 0055; 0056–0058 pendientes de aplicar; prod se arma con `scripts/build-bootstrap.mjs`; estado real en `MEMORY.md` §3).
 
 ## Convenciones reales
 

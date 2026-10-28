@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { isMinorByBirthDate } from "@/lib/students/isMinorByBirthDate";
+import { effectiveRoomGender, summarizeTypeGenders } from "@/lib/residences/roomGender";
 import { typeAvailabilityState, type TypeAvailabilityState } from "@/lib/availability/typeAvailability";
 
 /**
@@ -125,7 +126,7 @@ export async function getCommunityVisibility(
       .eq("is_active", true),
     admin
       .from("rooms")
-      .select("id, label, room_type_id, sort_order")
+      .select("*")
       .eq("residence_id", residenceId)
       .eq("is_active", true)
       .order("sort_order", { ascending: true }),
@@ -161,6 +162,10 @@ export async function getCommunityVisibility(
   }
 
   const GENDER_LABEL: Record<string, string> = { solo_mujeres: "Femenina", solo_hombres: "Masculina" };
+  const roomGendersOf = (rt: { id: string; gender_policy: string | null; capacity_per_room: number | null }) =>
+    ((rooms ?? []) as { room_type_id: string; gender?: string | null }[])
+      .filter((r) => r.room_type_id === rt.id)
+      .map((r) => effectiveRoomGender({ roomGender: r.gender, typePolicy: rt.gender_policy, capacityPerRoom: rt.capacity_per_room }));
   const byRoomType: CommunityRoomTypeSummary[] = (roomTypes ?? []).map((rt) => {
     // profile_availability tiene unique(room_type_id) — embed singular.
     const availability = rt.profile_availability as unknown as { status: string; available_count: number | null } | null;
@@ -185,7 +190,18 @@ export async function getCommunityVisibility(
     return {
       roomTypeId: rt.id,
       roomTypeName: rt.name,
-      genderPolicyLabel: GENDER_LABEL[rt.gender_policy ?? ""] ?? null,
+      genderPolicyLabel: (() => {
+        const genders = roomGendersOf(rt);
+        if (new Set(genders).size > 1) {
+          const t = summarizeTypeGenders(genders);
+          return t ? t.charAt(0).toUpperCase() + t.slice(1) : null;
+        }
+        const g = genders[0];
+        if (g === "femenino") return "Femenina";
+        if (g === "masculino") return "Masculina";
+        if (g) return null;
+        return GENDER_LABEL[rt.gender_policy ?? ""] ?? null;
+      })(),
       occupiedCount: occupiedByRoomType.get(rt.id) ?? 0,
       availableCount: availability?.status === "available_to_confirm" ? (availability.available_count ?? null) : availability ? 0 : null,
       availabilityState: typeAvailabilityState(availability?.status),

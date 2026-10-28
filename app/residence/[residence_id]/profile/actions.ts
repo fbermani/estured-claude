@@ -28,6 +28,9 @@ import {
 } from "@/lib/residences/profileEdits";
 import { logTariffChange } from "@/lib/residences/tariffLog";
 import { SUBMITTABLE_RESIDENCE_STATUSES, VERIFICATION_STATUSES_RESET_ON_SUBMIT, isMissingColumnError, isResubmission } from "@/lib/residences/changesRequest";
+import { parseCustomAmenityDrafts } from "@/lib/residences/customAmenities";
+import { syncCustomAmenities } from "@/lib/residences/customAmenitiesDb";
+import { splitRules, validateTopRules } from "@/lib/residences/topRules";
 import { validateAgeRange } from "@/lib/residences/age";
 import { validateEarlyExitPolicy } from "@/lib/stayChange/validate";
 import { describeInitialPaymentForLog, initialPaymentConfigFromRow, parseInitialPaymentInput, type InitialPaymentConfig } from "@/lib/reservations/initialPayment";
@@ -190,7 +193,9 @@ export async function saveResidenceProfile(
 
   const tagline = String(formData.get("tagline") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
-  const rulesSummary = String(formData.get("rules_summary") ?? "").trim();
+  const rulesSummaryRaw = String(formData.get("rules_summary") ?? "").trim();
+  const customAmenityDrafts = parseCustomAmenityDrafts(String(formData.get("custom_amenities_json") ?? "[]"));
+  if (!customAmenityDrafts) return { status: "error", message: "Hubo un problema con los ítems propios de servicios y áreas." };
   const services = formData.getAll("services").map(String).filter((s) => SERVICES.has(s));
   const commonAreas = formData.getAll("common_areas").map(String).filter((s) => COMMON_AREAS.has(s));
   const nearUniversities = formData
@@ -200,6 +205,33 @@ export async function saveResidenceProfile(
 
   if (tagline.length > 80)
     return { status: "error", message: "El eslogan no puede superar los 80 caracteres." };
+
+  // Reglas destacadas (DR18): hasta 5, validadas acá; lo que ya estaba guardado sin cambios no se re-valida (residencias existentes).
+  const { data: storedRulesSection } = await admin
+    .from("residence_profile_sections")
+    .select("content")
+    .eq("residence_id", residenceId)
+    .eq("section_type", "rules")
+    .maybeSingle();
+  const storedRulesRaw = ((storedRulesSection?.content as { summary?: string } | null)?.summary ?? "").trim();
+  let rulesSummary = rulesSummaryRaw;
+  if (splitRules(rulesSummaryRaw).join("\n") !== splitRules(storedRulesRaw).join("\n")) {
+    const rulesCheck = validateTopRules(rulesSummaryRaw);
+    if (!rulesCheck.ok) return { status: "error", message: rulesCheck.error };
+    rulesSummary = rulesCheck.items.join("\n");
+  } else {
+    rulesSummary = storedRulesRaw;
+  }
+  // Ítems «Otro»: se validan antes de escribir nada del perfil.
+  const amenitiesCheck = await syncCustomAmenities(admin, {
+    residenceId,
+    residenceName: String(residenceRow?.name ?? "Una residencia"),
+    actorUserId: sessionUser.id,
+    actorRole: accessCheck.actorRole,
+    drafts: customAmenityDrafts,
+    validateOnly: true,
+  });
+  if (!amenitiesCheck.ok) return { status: "error", message: amenitiesCheck.error };
 
   const roomTypesRaw = String(formData.get("room_types_json") ?? "[]");
   const roomTypes = parseRoomTypes(roomTypesRaw);
@@ -481,6 +513,19 @@ export async function saveResidenceProfile(
     } catch (alertError) {
       // Un aviso que falla no puede romper el guardado del perfil.
       console.error("[profile] alerta de sede lejana falló:", alertError);
+    }
+
+    // Ítems «Otro» (DR18): quedan pendientes de aprobación del admin; no se muestran en la ficha pública hasta entonces.
+    const amenitiesResult = await syncCustomAmenities(admin, {
+      residenceId,
+      residenceName: String(residenceRow?.name ?? "Una residencia"),
+      actorUserId: sessionUser.id,
+      actorRole: accessCheck.actorRole,
+      drafts: customAmenityDrafts,
+    });
+    // Éxito parcial: el resto del perfil se sigue guardando y el aviso sale al final (no dar a entender que nada se guardó).
+    if (!amenitiesResult.ok) {
+      warnings.push(`Guardamos tu perfil, pero no pudimos guardar tus ítems propios (${amenitiesResult.error}) Probá de nuevo.`);
     }
 
     // Servicios: crítico (docs/09 §8.1) — gated si publicada.

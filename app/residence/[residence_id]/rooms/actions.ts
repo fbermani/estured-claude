@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
-import { renameRoom, setBedStatus, assignStayToBed } from "@/lib/residences/roomManagement";
+import { renameRoom, setRoomGender, setBedStatus, assignStayToBed } from "@/lib/residences/roomManagement";
 
 export type RoomsActionState = { status: "idle" | "error" | "saved"; message?: string };
 
@@ -32,6 +32,27 @@ export async function renameRoomAction(
   });
   if (!result.ok) return { status: "error", message: result.error };
   revalidatePath(`/residence/${residenceId}/rooms`);
+  return { status: "saved" };
+}
+
+export async function setRoomGenderAction(
+  residenceId: string,
+  roomId: string,
+  _prev: RoomsActionState,
+  formData: FormData,
+): Promise<RoomsActionState> {
+  const ctx = await requireContext();
+  if ("error" in ctx) return { status: "error", message: ctx.error };
+
+  const result = await setRoomGender(ctx.admin, {
+    actorUserId: ctx.sessionUser.id,
+    residenceId,
+    roomId,
+    gender: String(formData.get("gender") ?? ""),
+  });
+  if (!result.ok) return { status: "error", message: result.error };
+  revalidatePath(`/residence/${residenceId}/rooms`);
+  revalidatePath("/residencias", "layout");
   return { status: "saved" };
 }
 

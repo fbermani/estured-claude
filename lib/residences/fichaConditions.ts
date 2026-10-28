@@ -182,13 +182,16 @@ export function roomTypeSubtitle(input: {
   capacityPerRoom: number | null | undefined;
   genderPolicy: string | null | undefined;
   bathroomType: string | null | undefined;
+  /** Resumen por habitación («1 masculina, 1 femenina»): si viene, reemplaza al género del tipo. */
+  genderSummary?: string | null;
 }): string {
   const parts: string[] = [];
   const capacity = input.capacityPerRoom != null ? Number(input.capacityPerRoom) : null;
   if (capacity != null && Number.isFinite(capacity) && capacity > 0) {
     parts.push(`${capacity} ${capacity === 1 ? "persona" : "personas"} por habitación`);
   }
-  if (input.genderPolicy && GENDER_LABEL[input.genderPolicy]) parts.push(GENDER_LABEL[input.genderPolicy]);
+  if (input.genderSummary) parts.push(input.genderSummary);
+  else if (input.genderPolicy && GENDER_LABEL[input.genderPolicy]) parts.push(GENDER_LABEL[input.genderPolicy]);
   if (input.bathroomType && BATHROOM_LABEL[input.bathroomType]) parts.push(BATHROOM_LABEL[input.bathroomType]);
   return parts.join(" · ");
 }
