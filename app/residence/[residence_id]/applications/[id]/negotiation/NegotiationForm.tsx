@@ -59,6 +59,8 @@ export function NegotiationForm({
     mode: initialPaymentMode,
     originalEnrollmentUsd: Number(original.enrollment_fee_usd ?? 0),
     finalEnrollmentUsd: enrollmentFee ? Number(enrollmentFee) : Number(original.enrollment_fee_usd ?? 0),
+    originalDepositUsd: Number(original.deposit_usd ?? 0),
+    finalDepositUsd: deposit ? Number(deposit) : Number(original.deposit_usd ?? 0),
   });
   const finalInitialPaymentLabel =
     finalInitialPaymentUsd === Number(original.reservation_payment_amount_usd)

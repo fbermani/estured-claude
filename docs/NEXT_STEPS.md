@@ -8,6 +8,11 @@
 
 ---
 
+## DR18 fase 2, tanda 3: correcciones del dueño (2026-10-28)
+
+- Hecho en código (sin commit, sin build): migración `0061_initial_payment_deposit_only_faq_mes_vacio.sql` (**pendiente de aplicar en dev y prod**: CHECK de `deposit_only`, columnas `empty_months_charge_usd/count` en snapshots, texto de FAQ-51). Pago inicial a elección (primer mes / matrícula / depósito / monto fijo). Mes vacío vuelve al desglose, snapshot y base del fee solo como cargo confirmado (`lib/applications/emptyMonths.ts` + `lib/residences/vacancy.ts`: estadías y reservas reales vs capacidad, solo Premium; sin dato confiable no se cobra y queda «a confirmar por la residencia»).
+- Pendiente: aplicar 0061; verificar con screenshots el formulario (copy del mes vacío, radios de pago inicial) y el desglose en sus tres estados (cobrado / a confirmar / no aplica); `agreedConditions` y el comprobante todavía no muestran el mes vacío; build y suite completa sin correr. Decisiones: `docs/00`, «DR18 fase 2, tanda 3: correcciones del dueño».
+
 ## DR18 fase 2, tanda 3 (2026-10-28): dinero
 
 - Hecho en código (sin commit, sin build): migración `0060_money_conditions_promotions.sql` (**pendiente de aplicar en dev y prod**), módulo puro `lib/applications/reservationMoney.ts` (descuento de matrícula, depósito en meses, promociones, pago inicial «solo matrícula»; lo usan el snapshot y la previa `CostBreakdown`), tabla `residence_promotions` + `PromotionsManager`/`promotionActions.ts` en el perfil, «antes/ahora» en tarifas de la ficha, mes vacío contingente fuera de la base del fee. Seed: `scripts/seed-demo-money.mjs` (correr tras aplicar la 0060 en dev).

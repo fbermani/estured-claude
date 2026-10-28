@@ -5,6 +5,8 @@ import { usdToArs } from "@/lib/mock/exchange";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 import { calculateFeeEstimate } from "@/lib/applications/fee";
 import { resolveReservationMoney, todayIso } from "@/lib/applications/reservationMoney";
+import { candidateMonthKeys, confirmedEmptyMonthsCharge } from "@/lib/applications/emptyMonths";
+import { loadVacancyOutlooks } from "@/lib/residences/vacancy";
 import { getResidenceConditions } from "@/lib/residences/conditions";
 import { getActivePromotionForType } from "@/lib/residences/promotions";
 import { notifyResidenceTeam } from "@/lib/residences/notifyResidenceTeam";
@@ -75,12 +77,25 @@ export async function createApplicationFromRoomType(
   const enrollmentFeeUsd = money.enrollment.listUsd > 0 ? money.enrollment.netUsd : null;
   const depositUsd = money.depositUsd;
   const initialPayment = money.initialPayment;
-  // El mes vacío es contingente (solo se cobra si la plaza queda realmente vacía, docs/00 DR18 t3): NO entra a la base del fee.
-  // El fee se calcula sobre lo que paga el estudiante: renta con promoción + matrícula ya descontada.
+  // Mes vacío CONFIRMADO (docs/00 DR18 t3, correcciones): solo si la reserva es diferida y el tipo realmente no tiene ocupación en los
+  // meses completos entre hoy y el ingreso. Sin dato confiable no se cobra (queda «a confirmar»). El cliente nunca manda el monto.
+  const today = todayIso();
+  const needsVacancy =
+    (conditions.emptyMonthChargePercent ?? 0) > 0 && candidateMonthKeys(params.desiredStartDate, today).length > 0;
+  const vacancy = needsVacancy ? ((await loadVacancyOutlooks(admin, params.residenceId, [params.roomTypeId], today))[params.roomTypeId] ?? null) : null;
+  const emptyMonths = confirmedEmptyMonthsCharge({
+    desiredStartDate: params.desiredStartDate,
+    monthlyPriceUsd,
+    chargePercent: conditions.emptyMonthChargePercent,
+    vacancy,
+    today,
+  });
+  // El fee se calcula sobre lo que paga el estudiante: renta con promoción + matrícula ya descontada + mes vacío confirmado.
   const fee = calculateFeeEstimate({
     monthlyPriceUsd,
     durationMonths: params.durationMonths,
     enrollmentFeeUsd,
+    emptyMonthsChargeUsd: emptyMonths.chargeUsd,
     arsPerUsd: rate.arsPerUsd,
   });
   // Columnas de «antes/ahora» (migración 0060): solo si hay promoción o descuento, para no tocar el insert de siempre.
@@ -124,6 +139,9 @@ export async function createApplicationFromRoomType(
         fee_base_ars: fee.feeBaseArs,
         estimated_estured_fee_ars: fee.estimatedFeeArs,
         ...beforeAfterColumns,
+        ...(emptyMonths.chargeUsd > 0
+          ? { empty_months_charge_usd: emptyMonths.chargeUsd, empty_months_count: emptyMonths.months }
+          : {}),
       })
       .select("id")
       .single();

@@ -48,7 +48,7 @@ export default async function NegotiationResponsePage({
     admin
       .from("application_snapshots")
       .select(
-        "monthly_price_usd, enrollment_fee_usd, deposit_usd, initial_duration_months, reservation_payment_amount_usd, exchange_rate_ars_per_usd",
+        "*",
       )
       .eq("id", application.snapshot_original_id)
       .single(),
@@ -68,6 +68,7 @@ export default async function NegotiationResponsePage({
     monthlyPriceUsd: Number(finalMonthlyPrice),
     durationMonths: Number(finalDuration),
     enrollmentFeeUsd: finalEnrollmentFee ? Number(finalEnrollmentFee) : null,
+    emptyMonthsChargeUsd: original.empty_months_charge_usd ? Number(original.empty_months_charge_usd) : null,
     arsPerUsd: Number(original.exchange_rate_ars_per_usd),
   });
 
@@ -86,6 +87,8 @@ export default async function NegotiationResponsePage({
     mode: normalizeInitialPaymentMode(residenceRow?.reservation_initial_payment_mode),
     originalEnrollmentUsd: Number(original.enrollment_fee_usd ?? 0),
     finalEnrollmentUsd: Number(finalEnrollmentFee ?? 0),
+    originalDepositUsd: Number(original.deposit_usd ?? 0),
+    finalDepositUsd: Number(proposal.proposed_deposit_usd ?? original.deposit_usd ?? 0),
   });
 
   const rows = [

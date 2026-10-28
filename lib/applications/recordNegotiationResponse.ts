@@ -3,6 +3,9 @@ import { notifyFamilyApplicationMilestone } from "@/lib/family/familyMilestones"
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { checkStayChangeAdvanceGate } from "@/lib/stayChange/advanceGate";
+import { candidateMonthKeys, confirmedEmptyMonthsCharge } from "@/lib/applications/emptyMonths";
+import { todayIso } from "@/lib/applications/reservationMoney";
+import { loadVacancyOutlooks } from "@/lib/residences/vacancy";
 import { calculateFeeEstimate } from "@/lib/applications/fee";
 import { usdToArs } from "@/lib/mock/exchange";
 import { normalizeInitialPaymentMode, resolveNegotiatedInitialPaymentUsd } from "@/lib/reservations/initialPayment";
@@ -39,7 +42,7 @@ export async function recordNegotiationResponse(
 ): Promise<RecordNegotiationResponseResult> {
   const { data: application } = await admin
     .from("application_requests")
-    .select("id, status, student_profile_id, snapshot_original_id, residence_id, room_type_id")
+    .select("id, status, student_profile_id, snapshot_original_id, residence_id, room_type_id, desired_start_date")
     .eq("id", params.applicationId)
     .maybeSingle();
   if (!application) return { ok: false, error: "No encontramos esa solicitud." };
@@ -104,11 +107,32 @@ export async function recordNegotiationResponse(
       mode: normalizeInitialPaymentMode(residenceRow?.reservation_initial_payment_mode),
       originalEnrollmentUsd: Number(original.enrollment_fee_usd ?? 0),
       finalEnrollmentUsd: Number(enrollmentFeeUsd ?? 0),
+      originalDepositUsd: Number(original.deposit_usd ?? 0),
+      finalDepositUsd: Number(proposal.proposed_deposit_usd ?? original.deposit_usd ?? 0),
+    });
+    // Mes vacío: NO se hereda del original; se recalcula con la ocupación vigente y los datos finales (ingreso, tipo y tarifa
+    // acordados). Si cambió el ingreso o el tipo, el resultado puede ser distinto (incluso 0).
+    const finalStartDate = (proposal.proposed_start_date as string | null) ?? (application.desired_start_date as string | null) ?? "";
+    const finalRoomTypeId = (proposal.proposed_room_type_id as string | null) ?? (application.room_type_id as string);
+    const emptyMonthsToday = todayIso();
+    const emptyNeeded =
+      finalStartDate !== "" &&
+      (residenceRow?.empty_month_charge_percent ?? 0) > 0 &&
+      candidateMonthKeys(finalStartDate, emptyMonthsToday).length > 0;
+    const emptyMonths = confirmedEmptyMonthsCharge({
+      desiredStartDate: finalStartDate,
+      monthlyPriceUsd: Number(monthlyPriceUsd),
+      chargePercent: residenceRow?.empty_month_charge_percent != null ? Number(residenceRow.empty_month_charge_percent) : null,
+      vacancy: emptyNeeded
+        ? ((await loadVacancyOutlooks(admin, application.residence_id, [finalRoomTypeId], emptyMonthsToday))[finalRoomTypeId] ?? null)
+        : null,
+      today: emptyMonthsToday,
     });
     const fee = calculateFeeEstimate({
       monthlyPriceUsd: Number(monthlyPriceUsd),
       durationMonths: Number(durationMonths),
       enrollmentFeeUsd: enrollmentFeeUsd ? Number(enrollmentFeeUsd) : null,
+      emptyMonthsChargeUsd: emptyMonths.chargeUsd,
       arsPerUsd: Number(original.exchange_rate_ars_per_usd),
     });
 
@@ -152,6 +176,9 @@ export async function recordNegotiationResponse(
             .filter((k) => (original as Record<string, unknown>)[k] != null)
             .map((k) => [k, (original as Record<string, unknown>)[k]]),
         ),
+        ...(emptyMonths.chargeUsd > 0
+          ? { empty_months_charge_usd: emptyMonths.chargeUsd, empty_months_count: emptyMonths.months }
+          : {}),
         raw_snapshot: { special_conditions: proposal.special_conditions },
       })
       .select("id")

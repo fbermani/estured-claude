@@ -13,13 +13,15 @@ vi.mock("@/lib/applications/roomTypeQueue", () => ({
 import { createApplicationFromRoomType } from "@/lib/applications/createRequestFromRoomType";
 
 /** Admin falso: devuelve la fila de `residences` configurada y captura el insert del snapshot. */
-function fakeAdmin(residenceRow: Record<string, unknown>, promotions: Record<string, unknown>[] = [], promotionsError: { code: string; message: string } | null = null) {
+function fakeAdmin(residenceRow: Record<string, unknown>, promotions: Record<string, unknown>[] = [], promotionsError: { code: string; message: string } | null = null, tables: Record<string, unknown[]> = {}) {
   const inserts: Record<string, Record<string, unknown>[]> = {};
   const admin = {
     from(table: string) {
       const chain: Record<string, unknown> = {
         select: () => chain,
         eq: () => chain,
+        in: () => chain,
+        neq: () => chain,
         maybeSingle: async () => ({ data: table === "residences" ? residenceRow : null, error: null }),
         single: async () => ({ data: { id: `${table}-id` }, error: null }),
         insert: (row: Record<string, unknown>) => {
@@ -28,7 +30,7 @@ function fakeAdmin(residenceRow: Record<string, unknown>, promotions: Record<str
         },
         update: () => chain,
         then: (resolve: (v: unknown) => void) =>
-          resolve({ data: table === "residence_promotions" ? promotions : null, error: table === "residence_promotions" ? promotionsError : null }),
+          resolve({ data: table === "residence_promotions" ? promotions : (tables[table] ?? null), error: table === "residence_promotions" ? promotionsError : null }),
       };
       return chain;
     },
@@ -152,7 +154,7 @@ describe("createApplicationFromRoomType: dinero DR18 tanda 3", () => {
     expect(inserts.application_snapshots[0].monthly_price_usd).toBe(320);
   });
 
-  it("depósito en meses se resuelve sobre la tarifa de lista y no entra al fee; el mes vacío no suma a la base", async () => {
+  it("depósito en meses se resuelve sobre la tarifa de lista y no entra al fee; mes vacío sin ocupación confiable: a confirmar, no suma", async () => {
     const { admin, inserts } = fakeAdmin(
       { adjustment_policy: "quarterly", enrollment_fee_mode: null, deposit_mode: "two_months", empty_month_charge_percent: 50 },
       [promo],
@@ -161,6 +163,76 @@ describe("createApplicationFromRoomType: dinero DR18 tanda 3", () => {
     const s = inserts.application_snapshots[0];
     expect(s.deposit_usd).toBe(640);
     expect(s.fee_base_usd).toBe(240 * 6);
+  });
+
+  // Mes vacío confirmado (correcciones del dueño): solo con ocupación real (Premium) y reserva diferida.
+  const emptyMonthResidence = {
+    adjustment_policy: "quarterly",
+    enrollment_fee_mode: null,
+    empty_month_charge_percent: 50,
+    has_operational_management_access: true,
+  };
+  const monthKeyAhead = (n: number) => {
+    const [y, m] = todayIso().split("-").map(Number);
+    const idx = m - 1 + n;
+    return `${y + Math.floor(idx / 12)}-${String((idx % 12) + 1).padStart(2, "0")}-01`;
+  };
+  const baseTables = (stayEnd: string | null) => ({
+    room_types: [{ id: "rt", capacity_per_room: 1 }],
+    rooms: [{ room_type_id: "rt" }],
+    resident_stays: [{ room_type_id: "rt", start_date: "2020-01-01", end_date: stayEnd, reservation_id: null }],
+    reservations: [],
+  });
+
+  it("ingreso diferido con la plaza libre en los meses intermedios: se cobra el mes vacío y entra a la base del fee", async () => {
+    // Un solo lugar, ocupado hasta antes del mes siguiente: los 2 meses completos entre hoy y el ingreso (a 3 meses) están libres.
+    const { admin, inserts } = fakeAdmin(emptyMonthResidence, [], null, baseTables("2020-12-31"));
+    await createApplicationFromRoomType(admin, { ...params, desiredStartDate: monthKeyAhead(3) });
+    const s = inserts.application_snapshots[0];
+    expect(s.empty_months_count).toBe(2);
+    expect(s.empty_months_charge_usd).toBe(2 * 320 * 0.5);
+    expect(s.fee_base_usd).toBe(320 * 6 + 320);
+  });
+
+  it("la plaza ocupada en los meses intermedios: no se cobra", async () => {
+    const { admin, inserts } = fakeAdmin(emptyMonthResidence, [], null, baseTables(null));
+    await createApplicationFromRoomType(admin, { ...params, desiredStartDate: monthKeyAhead(3) });
+    const s = inserts.application_snapshots[0];
+    expect("empty_months_charge_usd" in s).toBe(false);
+    expect(s.fee_base_usd).toBe(320 * 6);
+  });
+
+  it("reserva no diferida: no hay mes vacío aunque la plaza esté libre", async () => {
+    const { admin, inserts } = fakeAdmin(emptyMonthResidence, [], null, baseTables("2020-12-31"));
+    await createApplicationFromRoomType(admin, { ...params, desiredStartDate: monthKeyAhead(1) });
+    expect("empty_months_charge_usd" in inserts.application_snapshots[0]).toBe(false);
+  });
+
+  it("sin Gestión Operativa (sin ocupación confiable): no se cobra", async () => {
+    const { admin, inserts } = fakeAdmin({ ...emptyMonthResidence, has_operational_management_access: false }, [], null, baseTables("2020-12-31"));
+    await createApplicationFromRoomType(admin, { ...params, desiredStartDate: monthKeyAhead(3) });
+    expect("empty_months_charge_usd" in inserts.application_snapshots[0]).toBe(false);
+  });
+
+  it("una reserva disputada ocupa plaza: el mes no se cobra (el filtro usa los estados vigentes)", async () => {
+    const { LIVE_RESERVATION_STATUSES } = await import("@/lib/reservations/reservationStatus");
+    expect(LIVE_RESERVATION_STATUSES).toContain("disputed");
+    expect(LIVE_RESERVATION_STATUSES).toContain("estured_fee_failed");
+    const tables = { ...baseTables("2020-12-31"), reservations: [{ id: "r1", room_type_id: "rt", start_date: "2020-01-01", initial_duration_months: 120 }] };
+    const { admin, inserts } = fakeAdmin(emptyMonthResidence, [], null, tables);
+    await createApplicationFromRoomType(admin, { ...params, desiredStartDate: monthKeyAhead(3) });
+    expect("empty_months_charge_usd" in inserts.application_snapshots[0]).toBe(false);
+  });
+
+  it("reserva sin start_date o sin duración: no se asume libre, no se cobra", async () => {
+    for (const bad of [
+      { id: "r1", room_type_id: "rt", start_date: null, initial_duration_months: 6 },
+      { id: "r2", room_type_id: "rt", start_date: "2026-12-01", initial_duration_months: null },
+    ]) {
+      const { admin, inserts } = fakeAdmin(emptyMonthResidence, [], null, { ...baseTables("2020-12-31"), reservations: [bad] });
+      await createApplicationFromRoomType(admin, { ...params, desiredStartDate: monthKeyAhead(3) });
+      expect("empty_months_charge_usd" in inserts.application_snapshots[0]).toBe(false);
+    }
   });
 });
 

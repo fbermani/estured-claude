@@ -217,6 +217,43 @@ describe("pago inicial enrollment_only (initialPayment.ts)", () => {
   });
 });
 
+describe("pago inicial deposit_only", () => {
+  const DEPOSIT_ONLY = { mode: "deposit_only", customUsd: null } as const;
+  it("usa el depósito resuelto del tipo; sin depósito cae al primer mes con promoción", () => {
+    const withDeposit = resolveReservationMoney({
+      listMonthlyUsd: 400,
+      promotionPercent: 25,
+      conditions: { enrollmentFeeMode: null, enrollmentFeeUsd: null, depositUsd: null, depositMode: "one_month", initialPayment: DEPOSIT_ONLY },
+      arsPerUsd: 1000,
+      today: TODAY,
+    });
+    expect(withDeposit.initialPayment).toMatchObject({ usd: 400, mode: "deposit_only" });
+    const half = resolveReservationMoney({
+      listMonthlyUsd: 400,
+      conditions: { enrollmentFeeMode: null, enrollmentFeeUsd: null, depositUsd: null, depositMode: "half_month", initialPayment: DEPOSIT_ONLY },
+      arsPerUsd: 1000,
+      today: TODAY,
+    });
+    expect(half.initialPayment.usd).toBe(200);
+    const none = resolveReservationMoney({
+      listMonthlyUsd: 400,
+      promotionPercent: 25,
+      conditions: { enrollmentFeeMode: null, enrollmentFeeUsd: null, depositUsd: null, initialPayment: DEPOSIT_ONLY },
+      arsPerUsd: 1000,
+      today: TODAY,
+    });
+    expect(none.initialPayment).toMatchObject({ usd: 300, mode: "one_month" });
+  });
+  it("buildInitialPayment, parse y negociación", () => {
+    expect(buildInitialPayment(DEPOSIT_ONLY, 400, 1000, null, 0).usd).toBe(400);
+    expect(buildInitialPayment(DEPOSIT_ONLY, 400, 1000, null, 250).usd).toBe(250);
+    expect(parseInitialPaymentInput({ mode: "deposit_only", usd: 5 })).toEqual({ ok: true, value: { mode: "deposit_only", customUsd: null } });
+    const common = { proposedUsd: null, originalInitialUsd: 250, originalMonthlyUsd: 400, finalMonthlyUsd: 380, mode: "deposit_only" as const };
+    expect(resolveNegotiatedInitialPaymentUsd({ ...common, originalDepositUsd: 250, finalDepositUsd: 300 })).toBe(300);
+    expect(resolveNegotiatedInitialPaymentUsd({ ...common, originalDepositUsd: 250, finalDepositUsd: 0 })).toBe(380);
+  });
+});
+
 describe("parseMoneyConditionsInput", () => {
   const ok = (r: ReturnType<typeof parseMoneyConditionsInput>) => (r.ok ? r.value : null);
   it("descuento válido con matrícula y fecha", () => {

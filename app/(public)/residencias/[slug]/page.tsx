@@ -41,6 +41,7 @@ import { ReservationSelectionProvider } from "@/components/residences/reservatio
 import { ResidenceGallery } from "@/components/residences/ResidenceGallery";
 import { buildGalleryPhotos, loadPhotoMeta } from "@/lib/residences/photoMetaDb";
 import { loadResidencePromotions } from "@/lib/residences/promotions";
+import { loadVacancyOutlooks } from "@/lib/residences/vacancy";
 import { applyPromotion, depositModeLabel, normalizeDepositMode, pickActivePromotion, todayIso } from "@/lib/applications/reservationMoney";
 import { computeCapacity, formatOccupancy, residentsToDisplay } from "@/lib/residences/occupancy";
 import { loadFamilyViewer, loadStudentViewer, type LinkedStudent, type StudentViewer } from "@/app/(public)/residencias/[slug]/loadViewerContext";
@@ -128,6 +129,11 @@ const loadResidence = cache(async (slug: string) => {
     loadResidencePromotions(admin, residence.id),
   ]);
   if (roomTypesRes.error) console.error("[ficha] no se pudieron leer los tipos de habitación:", roomTypesRes.error);
+  // Mes vacío confirmado: la ocupación futura por tipo solo se lee si la residencia configuró un % de mes vacío.
+  const vacancyByType =
+    Number(residence.empty_month_charge_percent) > 0
+      ? await loadVacancyOutlooks(admin, residence.id, (roomTypesRes.data ?? []).map((rt) => rt.id as string), todayIso())
+      : {};
   if (sectionsRes.error) console.error("[ficha] no se pudieron leer las secciones del perfil:", sectionsRes.error);
   if (photosRes.error) console.error("[ficha] no se pudieron leer las fotos:", photosRes.error);
   if (rulesFileRes.error) console.error("[ficha] no se pudo leer el reglamento:", rulesFileRes.error);
@@ -173,6 +179,7 @@ const loadResidence = cache(async (slug: string) => {
     ...rt,
     // Promoción vigente de mayor % para este tipo (no se apilan); `monthly_price_usd` sigue siendo la tarifa de lista.
     promotion: pickActivePromotion(promotionsRes.promotions, rt.id, todayIso()),
+    vacancy: vacancyByType[rt.id as string] ?? null,
     genderSummary: new Set(genders).size > 1 ? summarizeTypeGenders(genders) : null,
     gender_policy: new Set(genders).size === 1 ? (policyFromGender(genders[0]) ?? rt.gender_policy) : rt.gender_policy,
     profile_availability: rt.profile_availability as unknown as { status: string; available_count: number | null } | null,
@@ -438,8 +445,10 @@ export default async function RealResidenceDetailPage({
       initialPaymentDisplay.kind === "fixed"
         ? formatUsd(initialPaymentDisplay.usd)
         : initialPaymentDisplay.kind === "enrollment_only"
-          ? "Solo la matrícula"
-          : "Primer mes",
+          ? "Matrícula"
+          : initialPaymentDisplay.kind === "deposit_only"
+            ? "Depósito"
+            : "Primer mes",
     initialIsFirstMonth: initialPaymentDisplay.kind === "first_month",
     depositLabel: conditions.depositMode
       ? depositModeLabel(conditions.depositMode)
@@ -774,7 +783,7 @@ export default async function RealResidenceDetailPage({
             mode === "family" ? (
               <ProposeForm
                 residenceId={residence.id}
-                roomTypes={roomTypes.map((rt) => ({ ...rt, promotion_percent: rt.promotion?.discountPercent ?? null }))}
+                roomTypes={roomTypes.map((rt) => ({ ...rt, promotion_percent: rt.promotion?.discountPercent ?? null, vacancy: rt.vacancy }))}
                 students={linkedStudents}
                 conditions={{
                   minimumStayMonths: conditions.minimumStayMonths,
@@ -802,7 +811,7 @@ export default async function RealResidenceDetailPage({
                       }
                     : null
                 }
-                roomTypes={roomTypes.map((rt) => ({ ...rt, promotion_percent: rt.promotion?.discountPercent ?? null }))}
+                roomTypes={roomTypes.map((rt) => ({ ...rt, promotion_percent: rt.promotion?.discountPercent ?? null, vacancy: rt.vacancy }))}
                 conditions={{
                   minimumStayMonths: conditions.minimumStayMonths,
                   enrollmentFeeMode: conditions.enrollmentFeeMode,

@@ -113,8 +113,12 @@ describe("describeInitialPayment / monthsLabel", () => {
 describe("buildConditionItems: dinero DR18 tanda 3", () => {
   it("pago inicial solo matrícula", () => {
     const items = byKey(buildConditionItems({ ...base, initialPayment: { mode: "enrollment_only", customUsd: null } }));
-    expect(items.initial_payment.value).toBe("Solo la matrícula");
+    expect(items.initial_payment.value).toBe("Matrícula");
     expect(describeInitialPayment({ mode: "enrollment_only", customUsd: null })).toEqual({ kind: "enrollment_only" });
+  });
+  it("pago inicial depósito", () => {
+    const items = byKey(buildConditionItems({ ...base, initialPayment: { mode: "deposit_only", customUsd: null } }));
+    expect(items.initial_payment.value).toBe("Depósito");
   });
   it("depósito en meses de renta (sin monto en USD)", () => {
     const items = byKey(buildConditionItems({ ...base, depositUsd: null, depositMode: "two_months" }));

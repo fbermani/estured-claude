@@ -122,7 +122,9 @@ export async function recordResidencePaymentReceived(
   const { data: snapshot } = await admin
     .from("application_snapshots")
     .select(
-      "monthly_price_usd, enrollment_fee_usd, initial_duration_months, exchange_rate_ars_per_usd, place_id, estimated_estured_fee_ars, fee_base_usd, fee_base_ars",
+      // TRANSITORIO: "*" degrada sin error mientras la migración 0061 (`empty_months_charge_usd`) no esté aplicada en todos los
+      // entornos. Una vez aplicada en dev y prod, pasar a columnas explícitas (incluida `empty_months_charge_usd`).
+      "*",
     )
     .eq("id", snapshotId)
     .single();
@@ -190,6 +192,7 @@ export async function recordResidencePaymentReceived(
       monthlyPriceUsd: Number(snapshot.monthly_price_usd),
       durationMonths: Number(snapshot.initial_duration_months),
       enrollmentFeeUsd: snapshot.enrollment_fee_usd ? Number(snapshot.enrollment_fee_usd) : null,
+      emptyMonthsChargeUsd: snapshot.empty_months_charge_usd ? Number(snapshot.empty_months_charge_usd) : null,
       arsPerUsd: Number(snapshot.exchange_rate_ars_per_usd),
     });
 

@@ -6,6 +6,7 @@ import { Input, Select, Textarea } from "@/components/ui/Input";
 import { Icon } from "@/components/ui/Icon";
 import { formatUsd } from "@/lib/mock/exchange";
 import { formatDateOnly } from "@/lib/dates/formatDateOnly";
+import type { VacancyOutlook } from "@/lib/applications/emptyMonths";
 import { CostBreakdown, type CostBreakdownConditions } from "@/components/residences/ficha/CostBreakdown";
 import {
   createApplicationRequest,
@@ -22,6 +23,8 @@ interface RoomTypeOption {
   monthly_price_usd: number;
   /** Promoción vigente (DR18 t3): % sobre la tarifa de lista; el servidor la vuelve a resolver al enviar. */
   promotion_percent?: number | null;
+  /** Ocupación futura del tipo (la arma el servidor); null/ausente = «a confirmar». */
+  vacancy?: VacancyOutlook | null;
   profile_availability: { status: string } | null;
 }
 
@@ -180,6 +183,7 @@ export function ApplyForm({
         <CostBreakdown
           monthlyUsd={monthlyUsd}
           promotionPercent={selected.promotion_percent ?? null}
+          vacancy={selected.vacancy ?? null}
           duration={duration}
           startDate={startDate}
           conditions={conditions}

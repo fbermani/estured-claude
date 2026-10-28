@@ -60,7 +60,7 @@ export function monthsLabel(months: number): string {
   return `${months} ${months === 1 ? "mes" : "meses"}`;
 }
 
-export type InitialPaymentDisplay = { kind: "first_month" } | { kind: "fixed"; usd: number } | { kind: "enrollment_only" };
+export type InitialPaymentDisplay = { kind: "first_month" } | { kind: "fixed"; usd: number } | { kind: "enrollment_only" } | { kind: "deposit_only" };
 
 /**
  * Pago inicial para reservar tal como lo muestra la ficha: primer mes o monto fijo. Único punto de lectura de
@@ -70,6 +70,7 @@ export type InitialPaymentDisplay = { kind: "first_month" } | { kind: "fixed"; u
 export function describeInitialPayment(config: InitialPaymentConfig): InitialPaymentDisplay {
   // Con una tarifa imposible (-1) `resolveInitialPaymentUsd` solo devuelve un valor > 0 si hay monto fijo válido.
   if (config.mode === "enrollment_only") return { kind: "enrollment_only" };
+  if (config.mode === "deposit_only") return { kind: "deposit_only" };
   const fixed = resolveInitialPaymentUsd(config, -1);
   return fixed > 0 ? { kind: "fixed", usd: fixed } : { kind: "first_month" };
 }
@@ -85,8 +86,17 @@ export function buildConditionItems(input: FichaConditionsInput, today: string =
           key: "initial_payment",
           icon: "payments",
           label: "Para reservar",
-          value: "Solo la matrícula",
+          value: "Matrícula",
           help: "Pago inicial a la residencia: la matrícula. La renta se paga mes a mes.",
+          arsFromUsd: null,
+        }
+      : initial.kind === "deposit_only"
+      ? {
+          key: "initial_payment",
+          icon: "payments",
+          label: "Para reservar",
+          value: "Depósito",
+          help: "Pago inicial a la residencia: el depósito (reembolsable). La renta se paga mes a mes.",
           arsFromUsd: null,
         }
       : initial.kind === "fixed"
@@ -199,7 +209,7 @@ export function buildConditionItems(input: FichaConditionsInput, today: string =
       icon: "hourglass_top",
       label: "Si reservás con anticipación",
       value: `${input.emptyMonthChargePercent}% por mes`,
-      help: `Solo si la plaza queda realmente vacía: un mes completo entre la reserva y tu ingreso (hasta ${MAX_EMPTY_MONTHS}). No se cobra por toda reserva con ingreso diferido.`,
+      help: `Solo si reservás con ingreso diferido y la plaza queda realmente vacía en los meses completos entre hoy y tu ingreso (hasta ${MAX_EMPTY_MONTHS}). Por ejemplo, si hoy es octubre y ingresás en enero, y la plaza está libre en noviembre y diciembre, pueden cobrarse esos meses. Si está ocupada, no.`,
       arsFromUsd: null,
     });
   }

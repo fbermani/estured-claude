@@ -163,7 +163,7 @@ export function resolveReservationMoney(params: {
   const monthlyUsd = applyPromotion(listMonthlyUsd, promotionPercent);
   const enrollment = resolveEnrollment(conditions, listMonthlyUsd, params.today);
   const depositUsd = resolveDepositUsd(conditions, listMonthlyUsd);
-  const initialPayment = buildInitialPayment(conditions.initialPayment, monthlyUsd, params.arsPerUsd, enrollment.netUsd);
+  const initialPayment = buildInitialPayment(conditions.initialPayment, monthlyUsd, params.arsPerUsd, enrollment.netUsd, depositUsd);
   return { listMonthlyUsd, monthlyUsd, promotionPercent, enrollment, depositUsd, initialPayment };
 }
 

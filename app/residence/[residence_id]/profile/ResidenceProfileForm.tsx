@@ -65,7 +65,7 @@ interface ConditionsDraft {
   minimumStayMonths: number | "";
   adjustmentPolicy: string;
   /** Pago inicial para reservar (D7/H08, migración 0041): primer mes, monto fijo en USD o solo la matrícula (DR18 t3). */
-  initialPaymentMode: "one_month" | "custom_usd" | "enrollment_only";
+  initialPaymentMode: "one_month" | "custom_usd" | "enrollment_only" | "deposit_only";
   initialPaymentUsd: number | "";
   enrollmentEnabled: boolean;
   enrollmentFeeMode: "one_month" | "manual";
@@ -981,7 +981,7 @@ export function ResidenceProfileForm({
 
             {/* Pago inicial para reservar (D7 / H08, migración 0041) */}
             <div className="mt-5 rounded-card border border-sand-200 p-4">
-              <p className="font-semibold text-ink">Pago inicial para reservar</p>
+              <p className="font-semibold text-ink">Pago inicial para confirmar la reserva</p>
               <p className="text-xs text-ink-soft">
                 Lo que el estudiante te paga a vos, directamente, para reservar. Se muestra igual en tu ficha, en la
                 solicitud y en el mensaje de WhatsApp. El fee de EstuRed va aparte y no depende de este monto.
@@ -1001,22 +1001,33 @@ export function ResidenceProfileForm({
                   <input
                     type="radio"
                     name="initial_payment_mode"
-                    checked={conditions.initialPaymentMode === "custom_usd"}
-                    onChange={() => updateConditions({ initialPaymentMode: "custom_usd" })}
-                    className="h-4 w-4 accent-forest"
-                  />
-                  Monto fijo
-                </label>
-                <label className="flex items-center gap-1.5 text-sm text-ink-soft">
-                  <input
-                    type="radio"
-                    name="initial_payment_mode"
                     checked={conditions.initialPaymentMode === "enrollment_only"}
                     disabled={!conditions.enrollmentEnabled || !initial.moneyReady}
                     onChange={() => updateConditions({ initialPaymentMode: "enrollment_only" })}
                     className="h-4 w-4 accent-forest"
                   />
-                  Solo la matrícula
+                  Matrícula
+                </label>
+                <label className="flex items-center gap-1.5 text-sm text-ink-soft">
+                  <input
+                    type="radio"
+                    name="initial_payment_mode"
+                    checked={conditions.initialPaymentMode === "deposit_only"}
+                    disabled={!conditions.depositEnabled || !initial.moneyReady}
+                    onChange={() => updateConditions({ initialPaymentMode: "deposit_only" })}
+                    className="h-4 w-4 accent-forest"
+                  />
+                  Depósito
+                </label>
+                <label className="flex items-center gap-1.5 text-sm text-ink-soft">
+                  <input
+                    type="radio"
+                    name="initial_payment_mode"
+                    checked={conditions.initialPaymentMode === "custom_usd"}
+                    onChange={() => updateConditions({ initialPaymentMode: "custom_usd" })}
+                    className="h-4 w-4 accent-forest"
+                  />
+                  Monto fijo
                 </label>
                 {conditions.initialPaymentMode === "custom_usd" && (
                   <div className="w-36">
@@ -1037,9 +1048,12 @@ export function ResidenceProfileForm({
                 {conditions.initialPaymentMode === "one_month"
                   ? "Es la tarifa mensual del tipo de habitación que elija el estudiante (con la promoción vigente, si hay). Es el valor por defecto."
                   : conditions.initialPaymentMode === "enrollment_only"
-                    ? "El estudiante te paga solo la matrícula (ya con su descuento) para reservar; la renta se paga mes a mes. Si la matrícula queda bonificada al 100%, el pago inicial pasa a ser el primer mes."
-                    : "Es el mismo monto para todos los tipos de habitación. Las solicitudes ya enviadas conservan el monto con el que se crearon."}
-                {!conditions.enrollmentEnabled && " «Solo la matrícula» requiere cobrar matrícula."}
+                    ? "El estudiante te paga la matrícula (ya con su descuento) para confirmar la reserva; la renta se paga mes a mes. Si la matrícula queda bonificada al 100%, el pago inicial pasa a ser el primer mes."
+                    : conditions.initialPaymentMode === "deposit_only"
+                      ? "El estudiante te paga el depósito del tipo que elija (reembolsable) para confirmar la reserva; la renta se paga mes a mes. Si no pedís depósito, el pago inicial pasa a ser el primer mes."
+                      : "Es el mismo monto para todos los tipos de habitación. Las solicitudes ya enviadas conservan el monto con el que se crearon."}
+                {(!conditions.enrollmentEnabled || !conditions.depositEnabled) &&
+                  " «Matrícula» y «Depósito» se habilitan cuando activás cobrar matrícula o pedir depósito (son excluyentes entre sí)."}
               </p>
             </div>
 
@@ -1218,7 +1232,8 @@ export function ResidenceProfileForm({
                 <div>
                   <p className="font-semibold text-ink">Meses vacíos (reserva anticipada)</p>
                   <p className="text-xs text-ink-soft">
-                    Al reservar un cupo futuro (máximo 3 meses), un mes en el que la plaza queda realmente vacía tiene un cargo mínimo.
+                    Cuando un estudiante reserva hoy para ingresar más adelante, podés cobrar un porcentaje de la renta por cada mes completo
+                    (hasta 3) en el que la plaza queda realmente vacía antes de su ingreso.
                   </p>
                 </div>
                 <Switch
@@ -1260,11 +1275,26 @@ export function ResidenceProfileForm({
                       />
                     </div>
                   </div>
-                  <p className="text-xs text-ink-faint">
-                    El mes vacío es un mes completo entre la reserva y el ingreso en el que la plaza queda realmente sin ocupar (hasta 3). Se
-                    cobra solo en ese caso, nunca por toda reserva con ingreso diferido: el estudiante lo ve como un posible cargo y lo
-                    acuerda con vos. No forma parte de la base del fee de EstuRed mientras no se cobre.
-                  </p>
+                  <div className="space-y-1.5 rounded-field bg-sand-50 p-3 text-xs leading-relaxed text-ink-soft">
+                    <p>
+                      <strong className="text-ink">Cuándo se cobra:</strong> solo si se dan las dos cosas: la reserva es con ingreso diferido y
+                      la plaza realmente no tiene ocupación en los meses completos entre hoy y la fecha de ingreso. Nunca se cobra por toda
+                      reserva diferida.
+                    </p>
+                    <p>
+                      <strong className="text-ink">Ejemplo 1:</strong> hoy es octubre y el estudiante busca para diciembre. Si en noviembre la
+                      plaza está ocupada, no se cobra.
+                    </p>
+                    <p>
+                      <strong className="text-ink">Ejemplo 2:</strong> hoy es octubre y busca para enero. Si la plaza está libre en noviembre y
+                      diciembre, se cobran esos dos meses al porcentaje que elijas arriba.
+                    </p>
+                    <p>
+                      EstuRed calcula la ocupación con las estadías y reservas que tengas cargadas en Residentes (Gestión Operativa). Si todavía
+                      no tenés esa información cargada, el estudiante ve el mes vacío como «a confirmar por la residencia» y no se suma al
+                      total. El cargo confirmado se paga a la residencia y entra en la base del fee de EstuRed, igual que la matrícula.
+                    </p>
+                  </div>
                 </div>
               )}
             </div>

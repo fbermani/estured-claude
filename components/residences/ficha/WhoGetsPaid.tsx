@@ -27,8 +27,10 @@ export function WhoGetsPaid({
     initial.kind === "fixed"
       ? `Pago inicial para reservar (${formatUsd(initial.usd)})`
       : initial.kind === "enrollment_only"
-        ? "Pago inicial para reservar (solo la matrícula)"
-        : "Pago inicial para reservar (primer mes)";
+        ? "Pago inicial para reservar (matrícula)"
+        : initial.kind === "deposit_only"
+          ? "Pago inicial para reservar (depósito)"
+          : "Pago inicial para reservar (primer mes)";
   // La matrícula la cobra la residencia (cargo de ingreso) y entra a la base del fee; el depósito no.
   const enrollmentInfo = describeEnrollmentFee({ enrollmentFeeMode: enrollment.mode, enrollmentFeeUsd: enrollment.usd });
   const hasEnrollment = enrollmentInfo.kind === "one_month" || enrollmentInfo.kind === "fixed";

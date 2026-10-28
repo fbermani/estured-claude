@@ -274,8 +274,10 @@ export async function saveResidenceProfile(
     };
   if (conditions.enrollmentFeeMode === "manual" && !conditions.enrollmentFeeUsd)
     return { status: "error", message: "Indicá el monto de la matrícula o cambiá a \"equivalente a 1 mes\"." };
+  if (conditions.initialPayment.mode === "deposit_only" && conditions.depositUsd == null && conditions.depositMode === null)
+    return { status: "error", message: "Para que el pago inicial sea el depósito, primero tenés que pedir depósito." };
   if (conditions.initialPayment.mode === "enrollment_only" && conditions.enrollmentFeeMode === null)
-    return { status: "error", message: "Para que el pago inicial sea solo la matrícula, primero tenés que cobrar matrícula." };
+    return { status: "error", message: "Para que el pago inicial sea la matrícula, primero tenés que cobrar matrícula." };
   // DR18 t3: sin la migración 0060 solo se pueden guardar los valores de siempre; se avisa antes de escribir nada.
   const moneyColumnsExist = "deposit_mode" in (residenceRow ?? {});
   if (

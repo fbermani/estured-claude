@@ -21,7 +21,11 @@ import { FEE_PERCENT } from "@/lib/applications/fee";
  * `enrollment_only` (DR18 t3, migración 0060): el pago inicial es solo la matrícula vigente (ya con descuento). Sin matrícula
  * (o bonificada al 100 %) cae al primer mes, igual que un monto fijo inválido.
  */
-export type InitialPaymentMode = "one_month" | "custom_usd" | "enrollment_only";
+/**
+ * `deposit_only` (corrección del dueño, migración 0061): el pago inicial es el depósito del tipo elegido (monto fijo o en meses de
+ * renta). Sin depósito (o en 0) cae al primer mes, con el mismo patrón que `enrollment_only`.
+ */
+export type InitialPaymentMode = "one_month" | "custom_usd" | "enrollment_only" | "deposit_only";
 
 export const INITIAL_PAYMENT_MAX_USD = 100_000;
 
@@ -35,6 +39,7 @@ export type InitialPaymentConfig = {
 export function normalizeInitialPaymentMode(value: unknown): InitialPaymentMode {
   if (value === "custom_usd") return "custom_usd";
   if (value === "enrollment_only") return "enrollment_only";
+  if (value === "deposit_only") return "deposit_only";
   return "one_month";
 }
 
@@ -59,12 +64,17 @@ export function resolveInitialPaymentUsd(
   monthlyPriceUsd: number,
   /** Matrícula vigente NETA (con descuento) en USD; solo cuenta en el modo `enrollment_only`. */
   enrollmentNetUsd?: number | null,
+  /** Depósito resuelto en USD para el tipo elegido; solo cuenta en el modo `deposit_only`. */
+  depositUsd?: number | null,
 ): number {
   if (config.mode === "custom_usd" && config.customUsd !== null && config.customUsd > 0) {
     return config.customUsd;
   }
   if (config.mode === "enrollment_only" && enrollmentNetUsd != null && enrollmentNetUsd > 0) {
     return enrollmentNetUsd;
+  }
+  if (config.mode === "deposit_only" && depositUsd != null && depositUsd > 0) {
+    return depositUsd;
   }
   return monthlyPriceUsd;
 }
@@ -85,14 +95,17 @@ export function buildInitialPayment(
   monthlyPriceUsd: number,
   arsPerUsd: number,
   enrollmentNetUsd?: number | null,
+  depositUsd?: number | null,
 ): InitialPayment {
-  const usd = resolveInitialPaymentUsd(config, monthlyPriceUsd, enrollmentNetUsd);
+  const usd = resolveInitialPaymentUsd(config, monthlyPriceUsd, enrollmentNetUsd, depositUsd);
   const mode: InitialPaymentMode =
     config.mode === "custom_usd" && config.customUsd !== null && config.customUsd > 0
       ? "custom_usd"
       : config.mode === "enrollment_only" && enrollmentNetUsd != null && enrollmentNetUsd > 0
         ? "enrollment_only"
-        : "one_month";
+        : config.mode === "deposit_only" && depositUsd != null && depositUsd > 0
+          ? "deposit_only"
+          : "one_month";
   return { mode, usd, arsSnapshot: usdToArs(usd, arsPerUsd), arsDisplay: usdToArsRounded(usd, arsPerUsd) };
 }
 
@@ -103,7 +116,8 @@ export function estimatedFeeUsd(feeBaseUsd: number): number {
 
 /** Texto legible para el log de auditoría de tarifas (`tariff_change_logs`): deja claro el cambio de modo. */
 export function describeInitialPaymentForLog(config: InitialPaymentConfig): string {
-  if (config.mode === "enrollment_only") return "Solo la matrícula";
+  if (config.mode === "enrollment_only") return "Matrícula";
+  if (config.mode === "deposit_only") return "Depósito";
   return config.mode === "custom_usd" && config.customUsd !== null
     ? `Monto fijo USD ${config.customUsd.toLocaleString("es-AR")}`
     : "Primer mes";
@@ -120,11 +134,11 @@ export type InitialPaymentInputResult =
  * monto se descarta (la DB lo exige en null).
  */
 export function parseInitialPaymentInput(raw: { mode?: unknown; usd?: unknown }): InitialPaymentInputResult {
-  if (raw.mode !== undefined && raw.mode !== null && raw.mode !== "one_month" && raw.mode !== "custom_usd" && raw.mode !== "enrollment_only") {
+  if (raw.mode !== undefined && raw.mode !== null && raw.mode !== "one_month" && raw.mode !== "custom_usd" && raw.mode !== "enrollment_only" && raw.mode !== "deposit_only") {
     return { ok: false, error: "El pago inicial para reservar no es válido." };
   }
   const mode = normalizeInitialPaymentMode(raw.mode);
-  if (mode === "one_month" || mode === "enrollment_only") return { ok: true, value: { mode, customUsd: null } };
+  if (mode === "one_month" || mode === "enrollment_only" || mode === "deposit_only") return { ok: true, value: { mode, customUsd: null } };
 
   const text = typeof raw.usd === "string" ? raw.usd.trim() : raw.usd;
   const parsed = text === null || text === undefined || text === "" ? NaN : Number(text);
@@ -164,12 +178,21 @@ export function resolveNegotiatedInitialPaymentUsd(params: {
   /** Matrícula del snapshot original y la acordada (USD, neta); solo para el modo `enrollment_only`. */
   originalEnrollmentUsd?: number | null;
   finalEnrollmentUsd?: number | null;
+  /** Depósito del snapshot original y el acordado (USD); solo para el modo `deposit_only`. */
+  originalDepositUsd?: number | null;
+  finalDepositUsd?: number | null;
 }): number {
   if (params.proposedUsd !== null && params.proposedUsd > 0) return params.proposedUsd;
   if (params.mode === "enrollment_only") {
     const original = params.originalEnrollmentUsd ?? 0;
     const final = params.finalEnrollmentUsd ?? 0;
     // Era la matrícula: acompaña la matrícula negociada; si se negoció a 0, cae al primer mes (nunca un pago inicial de 0).
+    if (original > 0 && params.originalInitialUsd === original) return final > 0 ? final : params.finalMonthlyUsd;
+    return params.originalInitialUsd;
+  }
+  if (params.mode === "deposit_only") {
+    const original = params.originalDepositUsd ?? 0;
+    const final = params.finalDepositUsd ?? 0;
     if (original > 0 && params.originalInitialUsd === original) return final > 0 ? final : params.finalMonthlyUsd;
     return params.originalInitialUsd;
   }
