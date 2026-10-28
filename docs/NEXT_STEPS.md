@@ -8,6 +8,11 @@
 
 ---
 
+## DR18 fase 2, tanda 2 (2026-10-28): galería y ocupación/capacidad
+
+- Hecho en código (sin commit, sin build): migración `0059_residence_photo_meta.sql` (**pendiente de aplicar en dev y prod**), editor de clasificación de fotos en el perfil (`PhotoMetaManager`, action `photoMetaActions.ts`), tarjeta de `/search` con carrusel (`CardPhotoCarousel`, `useRotation`), hero de la ficha que rota las destacadas y visor agrupado, «N plazas · M residentes» en ficha y tarjeta (`lib/residences/occupancy.ts`). Seed: `scripts/seed-demo-photo-meta.mjs` (correr tras aplicar la 0059 en dev).
+- Pendiente: aplicar 0059; verificar a mano carrusel de la tarjeta y hero (hover/foco/reduced-motion) y el editor con screenshots; `typecheck`/`lint` ya en verde, falta `build` y la suite completa. Decisiones y supuestos: `docs/00` §31, «DR18 fase 2, tanda 2».
+
 ## Traspaso (2026-10-25)
 
 Sesión cortada por límite de uso; sigue otra sesión/perfil. Estado detallado en `MEMORY.md` («Cierre de sesión 2026-10-25»). Los bloques DR14 de abajo están parcialmente superados: fases 1–3 ya implementadas.

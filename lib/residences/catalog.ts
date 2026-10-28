@@ -2,6 +2,8 @@ import "server-only";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { residenceAcceptsAge } from "@/lib/residences/age";
 import { isMissingColumnError } from "@/lib/residences/changesRequest";
+import { buildGalleryPhotos, loadPhotoMeta, rotationUrls } from "@/lib/residences/photoMetaDb";
+import { computeCapacity, residentsToDisplay } from "@/lib/residences/occupancy";
 import type { Residence, RoomTypeName } from "@/types/domain";
 import {
   residenceAvailabilityMode,
@@ -65,16 +67,16 @@ export async function getCatalogResidencesWithTotal(
 
   const ids = residences.map((r) => r.id);
 
-  const [{ data: roomTypes }, { data: sections }, { data: photos }, { data: stays }] = await Promise.all([
+  const [{ data: roomTypes }, { data: sections }, { data: photos }, { data: stays }, { data: rooms }, accessRes, photoMeta] = await Promise.all([
     admin
       .from("room_types")
-      .select("residence_id, name, monthly_price_usd, profile_availability(status, available_count)")
+      .select("id, residence_id, name, monthly_price_usd, capacity_per_room, profile_availability(status, available_count)")
       .in("residence_id", ids)
       .eq("is_active", true),
     admin.from("residence_profile_sections").select("residence_id, section_type, content").in("residence_id", ids),
     admin
       .from("files")
-      .select("related_entity_id, storage_path")
+      .select("id, related_entity_id, storage_path")
       .eq("related_entity_type", "residences")
       .in("related_entity_id", ids)
       .eq("document_type", "residence_photo")
@@ -87,7 +89,15 @@ export async function getCatalogResidencesWithTotal(
       .eq("is_current", true)
       .neq("status", "hidden_by_user")
       .neq("status", "inactive"),
+    // DR18 (tanda 2): capacidad declarada = habitaciones activas × plazas por habitación.
+    // Ojo: PostgREST corta en 1000 filas por defecto; alcanza para el catálogo actual (habitaciones activas de todas las residencias publicadas).
+    admin.from("rooms").select("residence_id, room_type_id").in("residence_id", ids).eq("is_active", true).limit(1000),
+    // Los residentes solo se muestran con Gestión Operativa (Premium); si no se puede leer el plan, no se muestran (fail-closed).
+    admin.from("residences").select("id, has_operational_management_access").in("id", ids),
+    loadPhotoMeta(admin, ids),
   ]);
+  if (accessRes.error) console.error("[catalog] no se pudo leer el plan de las residencias:", accessRes.error.message);
+  const premiumById = new Map((accessRes.error ? [] : (accessRes.data ?? [])).map((a) => [a.id as string, a.has_operational_management_access as boolean | null]));
 
   const residentsCountById = new Map<string, number>();
   for (const stay of stays ?? []) {
@@ -102,9 +112,22 @@ export async function getCatalogResidencesWithTotal(
         profile_availability: rt.profile_availability as unknown as { status: string; available_count: number | null } | null,
       }));
 
-    const photoUrls = (photos ?? [])
-      .filter((p) => p.related_entity_id === r.id)
-      .map((p) => admin.storage.from("public-residence-media").getPublicUrl(p.storage_path).data.publicUrl);
+    // DR18 (tanda 2): la tarjeta rota las fotos destacadas (o las primeras 5); la portada es la primera de ellas.
+    const typeNames = new Map(rts.map((rt) => [rt.id as string, rt.name as string]));
+    const photoUrls = rotationUrls(
+      buildGalleryPhotos(
+        (photos ?? []).filter((p) => p.related_entity_id === r.id).map((p) => ({ id: p.id as string, storage_path: p.storage_path as string })),
+        photoMeta.byFileId,
+        (path) => admin.storage.from("public-residence-media").getPublicUrl(path).data.publicUrl,
+        typeNames,
+      ),
+    );
+    const capacityPlaces = computeCapacity(
+      rts.map((rt) => ({ id: rt.id as string, capacity_per_room: rt.capacity_per_room as number | null })),
+      (rooms ?? []).filter((rm) => rm.residence_id === r.id).map((rm) => ({ room_type_id: rm.room_type_id as string })),
+    );
+    const residentsRaw = residentsCountById.get(r.id) ?? 0;
+    const residentsVisible = residentsToDisplay(premiumById.get(r.id), residentsRaw) ?? 0;
 
     const sectionMap = Object.fromEntries(
       (sections ?? []).filter((s) => s.residence_id === r.id).map((s) => [s.section_type, s.content]),
@@ -153,7 +176,8 @@ export async function getCatalogResidencesWithTotal(
       photos: photoUrls,
       hasWaitlist: availabilityMode === "full",
       availabilityHint: catalogAvailabilityHint(typeStates),
-      residentsCount: residentsCountById.get(r.id) ?? 0,
+      residentsCount: residentsVisible,
+      capacityPlaces: capacityPlaces > 0 ? capacityPlaces : undefined,
     };
   });
   return { residences: result, total };

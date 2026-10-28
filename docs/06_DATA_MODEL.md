@@ -1500,6 +1500,8 @@ Reglas:
 | `created_at` | timestamptz | Alta |
 | `updated_at` | timestamptz | Actualización |
 
+**`residence_photo_meta` (DR18 fase 2, migración 0059):** clasifica las fotos de residencia (`files.document_type = 'residence_photo'`). `file_id` (PK, FK `files`), `residence_id`, `category` (`general` | `area` | `room_type`), `area` (solo si `area`), `room_type_id` (solo si `room_type`), `is_featured` (hasta 5 por residencia, validado en servidor). RLS sin policies (solo service role). Sin fila = «general».
+
 ---
 
 ### 16.2. `document_shares`

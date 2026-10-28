@@ -39,6 +39,8 @@ import { startingPriceUsd, typeAvailabilityState } from "@/lib/availability/type
 import { initialPaymentConfigFromRow } from "@/lib/reservations/initialPayment";
 import { ReservationSelectionProvider } from "@/components/residences/reservationSelection";
 import { ResidenceGallery } from "@/components/residences/ResidenceGallery";
+import { buildGalleryPhotos, loadPhotoMeta } from "@/lib/residences/photoMetaDb";
+import { computeCapacity, formatOccupancy, residentsToDisplay } from "@/lib/residences/occupancy";
 import { loadFamilyViewer, loadStudentViewer, type LinkedStudent, type StudentViewer } from "@/app/(public)/residencias/[slug]/loadViewerContext";
 import { findUniversitiesByName, haversineDistanceKm } from "@/lib/data/buenosAiresUniversities";
 import { describeInitialPayment, monthsLabel, roomTypeSubtitle } from "@/lib/residences/fichaConditions";
@@ -76,7 +78,7 @@ const loadResidence = cache(async (slug: string) => {
   if (residenceError) console.error("[ficha] no se pudo leer la residencia:", residenceError);
   if (!residence) return null;
 
-  const [roomTypesRes, roomsRes, sectionsRes, photosRes, rulesFileRes] = await Promise.all([
+  const [roomTypesRes, roomsRes, sectionsRes, photosRes, rulesFileRes, photoMeta, staysRes] = await Promise.all([
     admin
       .from("room_types")
       .select(
@@ -89,7 +91,7 @@ const loadResidence = cache(async (slug: string) => {
     admin.from("residence_profile_sections").select("section_type, content").eq("residence_id", residence.id),
     admin
       .from("files")
-      .select("storage_path")
+      .select("id, storage_path")
       .eq("related_entity_type", "residences")
       .eq("related_entity_id", residence.id)
       .eq("document_type", "residence_photo")
@@ -111,6 +113,15 @@ const loadResidence = cache(async (slug: string) => {
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle(),
+    // DR18 (tanda 2): clasificación de fotos (degrada a «todo general» sin la 0059) y residentes vigentes para «plazas · residentes».
+    loadPhotoMeta(admin, [residence.id]),
+    admin
+      .from("resident_stays")
+      .select("id", { count: "exact", head: true })
+      .eq("residence_id", residence.id)
+      .eq("is_current", true)
+      .neq("status", "hidden_by_user")
+      .neq("status", "inactive"),
   ]);
   if (roomTypesRes.error) console.error("[ficha] no se pudieron leer los tipos de habitación:", roomTypesRes.error);
   if (sectionsRes.error) console.error("[ficha] no se pudieron leer las secciones del perfil:", sectionsRes.error);
@@ -118,9 +129,21 @@ const loadResidence = cache(async (slug: string) => {
   if (rulesFileRes.error) console.error("[ficha] no se pudo leer el reglamento:", rulesFileRes.error);
 
   const sectionMap = Object.fromEntries((sectionsRes.data ?? []).map((s) => [s.section_type, s.content]));
-  const photoUrls = (photosRes.data ?? []).map(
-    (p) => admin.storage.from("public-residence-media").getPublicUrl(p.storage_path).data.publicUrl,
+  const typeNames = new Map((roomTypesRes.data ?? []).map((rt) => [rt.id as string, rt.name as string]));
+  const photos = buildGalleryPhotos(
+    (photosRes.data ?? []) as { id: string; storage_path: string }[],
+    photoMeta.byFileId,
+    (path) => admin.storage.from("public-residence-media").getPublicUrl(path).data.publicUrl,
+    typeNames,
   );
+  // Plazas declaradas (Verificado) y residentes reales (solo Gestión Operativa, con estadías vigentes): sin porcentaje ni «quedan N».
+  const capacityPlaces = computeCapacity(
+    (roomTypesRes.data ?? []).map((rt) => ({ id: rt.id as string, capacity_per_room: rt.capacity_per_room as number | null })),
+    ((roomsRes.data ?? []) as { room_type_id: string }[]).map((r) => ({ room_type_id: r.room_type_id })),
+  );
+  const stayCount = staysRes.error ? 0 : (staysRes.count ?? 0);
+  const residentsCount = residentsToDisplay(residence.has_operational_management_access as boolean | null | undefined, stayCount);
+  const occupancyLabel = formatOccupancy(capacityPlaces, residentsCount);
 
   let rulesPdfUrl: string | null = null;
   if (rulesFileRes.data?.storage_path) {
@@ -149,7 +172,7 @@ const loadResidence = cache(async (slug: string) => {
     profile_availability: rt.profile_availability as unknown as { status: string; available_count: number | null } | null,
   }));
 
-  return { residence, roomTypes: normalizedRoomTypes, sectionMap, photoUrls, rulesPdfUrl };
+  return { residence, roomTypes: normalizedRoomTypes, sectionMap, photos, rulesPdfUrl, occupancyLabel };
 });
 
 export async function generateMetadata({
@@ -174,7 +197,7 @@ export default async function RealResidenceDetailPage({
   const { room: preselectedRoomTypeId, solicitar } = await searchParams;
   const data = await loadResidence(slug);
   if (!data) notFound();
-  const { residence, roomTypes, sectionMap, photoUrls, rulesPdfUrl } = data;
+  const { residence, roomTypes, sectionMap, photos, rulesPdfUrl, occupancyLabel } = data;
 
   // Lecturas independientes en paralelo: cotización, sesión y, con la sesión, todo lo que depende de quién mira.
   const adminClient = getSupabaseAdmin();
@@ -424,7 +447,7 @@ export default async function RealResidenceDetailPage({
         </nav>
 
         {/* Hero de fotos — se adapta a la cantidad (0 / 1 / 2–4 / 5+), Ciclo 54 (D12) */}
-        <ResidenceGallery photos={photoUrls} name={residence.name} zone={residence.public_area ?? ""} />
+        <ResidenceGallery photos={photos} name={residence.name} zone={residence.public_area ?? ""} />
 
         <header className="mt-6">
           <div className="flex flex-wrap items-center gap-3">
@@ -466,11 +489,19 @@ export default async function RealResidenceDetailPage({
                 ~{nearest.km.toFixed(1).replace(".", ",")} km de {nearest.name}
               </li>
             )}
-            {(community?.totalResidents ?? 0) > 0 && (
+            {/* DR18: «plazas · residentes», sin porcentaje ni «quedan N». Sin plazas declaradas queda el conteo de la comunidad. */}
+            {occupancyLabel ? (
               <li className={chipClass}>
                 <Icon name="groups" className="text-lg text-forest-700" />
-                {community?.totalResidents} residentes
+                <strong className="font-semibold text-ink">{occupancyLabel}</strong>
               </li>
+            ) : (
+              (community?.totalResidents ?? 0) > 0 && (
+                <li className={chipClass}>
+                  <Icon name="groups" className="text-lg text-forest-700" />
+                  {community?.totalResidents} residentes
+                </li>
+              )
             )}
           </ul>
 

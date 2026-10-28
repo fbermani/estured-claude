@@ -34,6 +34,7 @@ import {
   type CustomAmenityStatus,
 } from "@/lib/residences/customAmenities";
 import { MAX_TOP_RULES, TOP_RULE_MAX, splitRules } from "@/lib/residences/topRules";
+import { PhotoMetaManager, type PhotoMetaItem } from "@/app/residence/[residence_id]/profile/PhotoMetaManager";
 import {
   saveResidenceProfile,
   type ProfileFormState,
@@ -97,7 +98,10 @@ interface ProfileInitial {
   /** DR18: la residencia ya publicó un reglamento propio (si no, se la invita a armarlo con el modelo). */
   hasOwnRegulation: boolean;
   faqItems: { question: string; answer: string }[];
-  photos: { url: string; pending: boolean }[];
+  /** DR18 (tanda 2): fotos con su clasificación (0059) y los tipos de habitación a los que se pueden asociar. */
+  photos: PhotoMetaItem[];
+  photoRoomTypes: { id: string; name: string }[];
+  photoMetaReady: boolean;
   roomTypes: RoomTypeDraft[];
   conditions: ConditionsDraft;
   pendingEditGroups: { fieldGroup: string; createdAt: string }[];
@@ -763,20 +767,13 @@ export function ResidenceProfileForm({
                 count={initial.photos.filter((p) => !p.pending).length + newPhotoCount}
               />
             )}
-            {initial.photos.length > 0 && (
-              <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4">
-                {initial.photos.map((photo) => (
-                  <div key={photo.url} className="relative aspect-square overflow-hidden rounded-field bg-sand-200">
-                    <Image src={photo.url} alt="Foto de la residencia" fill className="object-cover" />
-                    {photo.pending && (
-                      <div className="absolute bottom-1 left-1">
-                        <Badge tone="amber">Pendiente</Badge>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
+            <PhotoMetaManager
+              residenceId={residenceId}
+              initialItems={initial.photos}
+              roomTypes={initial.photoRoomTypes}
+              schemaReady={initial.photoMetaReady}
+              readOnly={readOnly}
+            />
             <label
               htmlFor="photos"
               className="mt-4 flex cursor-pointer flex-col items-center justify-center gap-1 rounded-field border-2 border-dashed border-sand-300 bg-sand-50 px-4 py-8 text-center hover:border-forest"

@@ -69,12 +69,14 @@ export interface Residence {
   nearUniversities: string[];
   idealFor: string;
   description: string;
-  photos: string[]; // URLs placeholder en el ciclo fundacional
+  photos: string[]; // URLs que rotan en la tarjeta: destacadas o primeras 5 (DR18)
   hasWaitlist: boolean;
   /** Badge de la card cuando no hay tipos disponibles (K01); `null`/ausente = sin badge. */
   availabilityHint?: "waitlist" | "not_updated" | null;
   /** Residentes actuales visibles (comunidad) — opcional, lo llena el catálogo real. */
   residentsCount?: number;
+  /** Plazas declaradas (habitaciones activas × plazas por habitación; DR18). Ausente si no hay habitaciones cargadas. */
+  capacityPlaces?: number;
   /** Edad de residentes (DR14, migración 0052): ausentes si la migración no está aplicada. */
   minResidentAge?: number;
   maxResidentAge?: number | null;

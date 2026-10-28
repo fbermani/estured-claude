@@ -1273,3 +1273,21 @@ Supuestos reversibles que el dueño no fijó: (a) **«cambiar la cama de un resi
 **Dudas abiertas:** FAQ-29 («¿Con quién voy a compartir habitación?», texto de la residencia) convive con FAQ-50; decidir si se desactiva FAQ-29.
 
 **Docs actualizados:** `docs/06` §8.1, §17.1; `docs/05` §16bis.
+
+### DR18 fase 2, tanda 2: galería de fotos y ocupación/capacidad (2026-10-28)
+
+**Alcance:** puntos 13 y 14 de la auditoría del Owner. Protocolo `docs/13` §5: doc primero, código después. No cambia estados, permisos ni la regla de entidades separadas; el copy no promete disponibilidad.
+
+**Galería (punto 14).** Las fotos siguen siendo filas de `files` (`document_type = 'residence_photo'`, bucket `public-residence-media`, mismo flujo de aprobación). La clasificación vive en una tabla nueva `residence_photo_meta` (migración 0059, 1 fila por foto, RLS sin policies: solo service role, igual que `files`). Una foto sin fila de metadatos es «general» y no destacada (las residencias existentes siguen funcionando igual).
+- Categoría: `general` · `area` (con área: cocina, baño, patio, terraza, comedor, living/sala común, lavadero, gimnasio/ejercicio, estudio, entrada/fachada, otra) · `room_type` (asociada a un `room_types.id` de la residencia).
+- **Destacadas (hasta 5):** la residencia elige hasta 5 fotos de su galería; esas rotan en el hero de la ficha y, junto con el resto, en la tarjeta. Sin destacadas, el hero usa las primeras 5 aprobadas.
+- Tarjeta de `/search`: fotos con flechas/puntos accesibles y rotación automática suave; se pausa con hover/foco y se desactiva con `prefers-reduced-motion`. La tarjeta rota las destacadas (o las primeras 5).
+- Ficha: el hero rota las destacadas; el visor «Ver todas» agrupa por General / por área / por tipo de habitación.
+- Editar categoría, área, tipo y destacada **no pasa por la cola de revisión** (no cambia qué fotos son públicas, solo cómo se ordenan/rotulan; subir fotos nuevas sigue gateado como hoy). Requiere permiso `profile.edit`, validado en el servidor.
+- Degradación: si la 0059 no está aplicada, todo se lee como «general, sin destacadas» y el editor avisa que no está disponible.
+
+**Supuestos reversibles:** (a) tope de 5 destacadas = «5 fotos que rotan» del Owner; (b) la edición de metadatos no se gatea; (c) lista de áreas cerrada (la residencia no inventa áreas; el «Otro» personalizado es de servicios y áreas comunes, no de fotos).
+
+**Ocupación y capacidad (punto 13, decisión 3).** Texto «N plazas · M residentes» (singular: «1 plaza · 1 residente»), sin porcentaje ni «quedan N». Plazas = suma, sobre las habitaciones activas, de la capacidad por habitación del tipo (dato declarado, disponible en Verificado). Residentes = estadías vigentes (no inactivas), solo con Premium (`has_operational_management_access`) y solo si hay al menos una cargada (un «0 residentes» sería engañoso mientras la residencia no cargó a nadie); en Verificado o sin dato se muestra solo «N plazas», y sin habitaciones cargadas no se muestra nada. Es una cifra informativa de la residencia, no una promesa de lugar (la disponibilidad sigue viviendo solo en `StatusTag`).
+
+**Docs actualizados:** este registro; `docs/06` (nota de `residence_photo_meta`).

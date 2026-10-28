@@ -9,6 +9,8 @@ import { loadChangesMessage } from "@/lib/residences/loadChangesMessage";
 import { initialPaymentConfigFromRow } from "@/lib/reservations/initialPayment";
 import { listCustomAmenities } from "@/lib/residences/customAmenitiesDb";
 import { loadCurrentRegulation } from "@/lib/regulations/current";
+import { loadPhotoMeta } from "@/lib/residences/photoMetaDb";
+import type { PhotoMetaItem } from "@/app/residence/[residence_id]/profile/PhotoMetaManager";
 import { ResidenceProfileForm } from "@/app/residence/[residence_id]/profile/ResidenceProfileForm";
 
 export const metadata: Metadata = { title: "Configuración de residencia" };
@@ -71,16 +73,28 @@ export default async function ResidenceProfilePage({
   if (!residence) notFound();
 
   // DR18: ítems «Otro» (degrada a vacío sin la migración 0058) y si ya hay reglamento propio publicado (si no, se invita a armarlo).
-  const [customAmenitiesRes, regulationRes] = await Promise.all([listCustomAmenities(admin, residenceId), loadCurrentRegulation(admin, residenceId)]);
+  const [customAmenitiesRes, regulationRes, photoMeta] = await Promise.all([
+    listCustomAmenities(admin, residenceId),
+    loadCurrentRegulation(admin, residenceId),
+    loadPhotoMeta(admin, [residenceId]),
+  ]);
 
   const changesMessage = !readOnly && residence.status === "needs_changes" ? await loadChangesMessage(admin, residenceId) : null;
   const rate = await getCurrentExchangeRate();
   const initialPayment = initialPaymentConfigFromRow(residence);
   const sectionMap = Object.fromEntries((sections ?? []).map((s) => [s.section_type, s.content]));
-  const photoItems = (photos ?? []).map((p) => ({
-    url: admin.storage.from("public-residence-media").getPublicUrl(p.storage_path).data.publicUrl,
-    pending: p.status === "pending_review",
-  }));
+  const photoItems = (photos ?? []).map((p) => {
+    const m = photoMeta.byFileId.get(p.id);
+    return {
+      id: p.id as string,
+      url: admin.storage.from("public-residence-media").getPublicUrl(p.storage_path).data.publicUrl,
+      pending: p.status === "pending_review",
+      category: m?.category ?? ("general" as const),
+      area: (m?.area ?? null) as PhotoMetaItem["area"],
+      roomTypeId: m?.room_type_id ?? null,
+      featured: m?.is_featured === true,
+    };
+  });
   const pendingEditGroups = (pendingEdits ?? []).map((e) => ({ fieldGroup: e.field_group, createdAt: e.created_at }));
 
   return (
@@ -113,6 +127,8 @@ export default async function ResidenceProfilePage({
         hasOwnRegulation: regulationRes.ok ? !regulationRes.view.isBaseModel : true,
         faqItems: (sectionMap.faq?.items as { question: string; answer: string }[]) ?? [],
         photos: photoItems,
+        photoRoomTypes: (roomTypes ?? []).map((rt) => ({ id: rt.id as string, name: rt.name as string })),
+        photoMetaReady: photoMeta.schemaReady,
         pendingEditGroups,
         changesMessage,
         roomTypes: (roomTypes ?? []).map((rt) => ({

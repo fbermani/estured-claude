@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
 import { StatusTag } from "@/components/ui/StatusTag";
 import { TrustBadge } from "@/components/residences/TrustBadge";
-import { ResidencePhoto } from "@/components/residences/ResidencePhoto";
+import { CardPhotoCarousel } from "@/components/residences/CardPhotoCarousel";
+import { formatOccupancy } from "@/lib/residences/occupancy";
 import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 
@@ -30,27 +31,30 @@ export function ResidenceCard({
   const keyServices = residence.services.slice(0, 2);
   const moreServices = residence.services.length - keyServices.length;
   const href = `/residencias/${residence.slug}`;
+  // DR18: «capacidad · residentes» (sin porcentaje ni «quedan N»). Sin plazas declaradas, queda el conteo de residentes de siempre.
+  const residents = (residence.residentsCount ?? 0) > 0 ? residence.residentsCount : null;
+  const occupancy =
+    formatOccupancy(residence.capacityPlaces, residents) ??
+    (residents ? `${residents} ${residents === 1 ? "residente" : "residentes"}` : null);
 
   return (
     <Card className="group flex flex-col overflow-hidden">
-      <Link href={href} className="flex flex-1 flex-col" aria-label={`Ver ${residence.name}`}>
-        <div className="relative h-48 w-full overflow-hidden bg-sand-200">
-          <ResidencePhoto
-            src={residence.photos[0]}
-            name={residence.name}
-            zone={residence.zone}
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            label="Foto próximamente"
-            imageClassName="transition-transform duration-500 group-hover:scale-[1.03]"
-          />
-          <div className="absolute left-3 top-3">
-            <TrustBadge status={residence.verificationStatus} />
-          </div>
-          <div className="absolute bottom-3 left-3">
-            <StatusTag mode={residence.availabilityMode} elevated />
-          </div>
+      <CardPhotoCarousel
+        photos={residence.photos}
+        name={residence.name}
+        zone={residence.zone}
+        href={href}
+        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+      >
+        <div className="absolute left-3 top-3">
+          <TrustBadge status={residence.verificationStatus} />
         </div>
+        <div className="absolute bottom-3 left-3">
+          <StatusTag mode={residence.availabilityMode} elevated />
+        </div>
+      </CardPhotoCarousel>
 
+      <Link href={href} className="flex flex-1 flex-col" aria-label={`Ver ${residence.name}`}>
         <div className="flex flex-1 flex-col gap-2.5 p-5">
           <div>
             <h3 className="text-lg font-bold leading-snug text-ink">{residence.name}</h3>
@@ -67,10 +71,10 @@ export function ResidenceCard({
             </p>
           )}
 
-          {(residence.residentsCount ?? 0) > 0 && (
+          {occupancy && (
             <p className="flex items-center gap-1.5 text-sm font-semibold text-forest-700">
               <Icon name="groups" className="text-lg" />
-              {residence.residentsCount} residentes
+              {occupancy}
             </p>
           )}
 
