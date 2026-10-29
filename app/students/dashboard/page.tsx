@@ -13,6 +13,9 @@ import { FamilyLinkActions } from "@/app/students/FamilyLinkActions";
 import { FamilyLinkCard } from "@/app/students/profile/FamilyLinkCard";
 import { StartRenewalModal } from "@/app/students/renewals/StartRenewalModal";
 import { ModuleCard } from "@/components/students/ModuleCard";
+import { StudentGreeting } from "@/components/students/StudentGreeting";
+import { NextStepCard } from "@/components/students/NextStepCard";
+import { getNextStep } from "@/lib/students/journeyStage";
 import { PhotoCarousel } from "@/components/students/PhotoCarousel";
 import { ResidencePhoto } from "@/components/residences/ResidencePhoto";
 import { getStudentProfileCompleteness } from "@/lib/students/profileCompleteness";
@@ -327,6 +330,8 @@ export default async function StudentDashboardPage() {
   let familyActiveLink: { id: string; name: string; email: string | null } | null = null;
   let familyPendingInvitation: { id: string; email: string } | null = null;
   let residencePhotos: string[] = [];
+  // Se pide en paralelo con el resto de las lecturas (favoritos y «residencias para mirar» lo reutilizan).
+  const catalogPromise = getCatalogResidences();
 
   if (supabase && sessionUser) {
     const { data: profile } = await supabase
@@ -389,7 +394,7 @@ export default async function StudentDashboardPage() {
         favoritesTotal = favCount ?? 0;
         const favRows = (favoriteRows ?? []) as FavoriteRow[];
         if (favRows.length > 0) {
-          const allResidences = await getCatalogResidences();
+          const allResidences = await catalogPromise;
           const { data: slugRows } = await admin
             .from("residences")
             .select("id, slug")
@@ -541,6 +546,27 @@ export default async function StudentDashboardPage() {
     });
   const applicationsActionNeeded = applications.filter((a) => visibleStatusOf(a).studentActionRequired);
   const primaryApplication = applicationsActionNeeded[0] ?? applications[0] ?? null;
+
+  // «Tu próximo paso»: la solicitud vigente más relevante (con acción pendiente primero); las cerradas no cuentan.
+  const activeApplication = applicationsActionNeeded[0] ?? applications.find((a) => !visibleStatusOf(a).isClosed) ?? null;
+  const activeVisible = activeApplication ? visibleStatusOf(activeApplication) : null;
+  const nextStep = getNextStep({
+    profilePercent: completenessPercent,
+    application:
+      activeApplication && activeVisible
+        ? {
+            id: activeApplication.id,
+            residenceName: activeApplication.residences?.name ?? "la residencia",
+            statusKey: activeVisible.key,
+            label: activeVisible.label,
+            helper: activeVisible.helper,
+            studentActionRequired: activeVisible.studentActionRequired,
+          }
+        : null,
+    hadPreviousApplications: applications.length > 0,
+  });
+  // Residencias para mirar (solo mientras busca): primeras del catálogo real.
+  const suggestedResidences = isHoused ? [] : (await catalogPromise).slice(0, 3);
 
   const heroAlerts: { icon: string; label: string; href: string }[] = [];
   if (renewalStatus) heroAlerts.push({ icon: "sync", label: renewalStatus.label, href: "/students/renewals" });
@@ -766,18 +792,24 @@ export default async function StudentDashboardPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
-      <div className="flex flex-col gap-1">
-        <h1 className="flex items-center gap-2 text-2xl font-bold text-ink md:text-3xl">
-          {isHoused ? "¡Ya tenés tu lugar!" : firstName ? `¡Hola, ${firstName}!` : "¡Hola!"}
-        </h1>
-        <p className="max-w-3xl text-ink-soft">
-          {isHoused
+      <StudentGreeting
+        title={isHoused ? "¡Ya tenés tu lugar!" : firstName ? `¡Hola, ${firstName}!` : "¡Hola!"}
+        subtitle={
+          isHoused
             ? "Todo lo que necesitás sobre tu estadía y tu cuenta, en un solo lugar."
-            : "Tu centro de control en EstuRed — accedé rápido a cada sección de tu búsqueda."}
-        </p>
-      </div>
+            : activeApplication
+              ? "Tu solicitud sigue su camino. Esto es lo que sigue."
+              : "Te damos la bienvenida a EstuRed. Armemos tu camino a la residencia."
+        }
+      />
 
       {headerBanners}
+
+      {!isHoused && (
+        <div className="mt-6">
+          <NextStepCard step={nextStep} />
+        </div>
+      )}
 
       {isHoused && reservation && residence && (
         <Card className="mt-8 overflow-hidden p-0">
@@ -856,7 +888,8 @@ export default async function StudentDashboardPage() {
         </Card>
       )}
 
-      <div className="mt-6 grid grid-cols-1 items-start gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <h2 className="mt-8 font-display text-lg font-bold text-ink">Tu espacio</h2>
+      <div className="mt-3 grid grid-cols-1 items-start gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {!isHoused && (
           <ModuleCard
             href="/search"
@@ -932,6 +965,44 @@ export default async function StudentDashboardPage() {
         {vinculacionCard}
         {soporteCard}
       </div>
+
+      {suggestedResidences.length > 0 && (
+        <section className="mt-10" aria-labelledby="residencias-para-mirar">
+          <div className="mb-3 flex items-baseline justify-between gap-3">
+            <h2 id="residencias-para-mirar" className="font-display text-lg font-bold text-ink">
+              Residencias verificadas para mirar
+            </h2>
+            <Link href="/search" className="text-sm font-bold text-forest-700 hover:underline">
+              Ver todas
+            </Link>
+          </div>
+          <ul className="grid gap-3 sm:grid-cols-3">
+            {suggestedResidences.map((r) => (
+              <li key={r.slug}>
+                <Link
+                  href={`/residencias/${r.slug}`}
+                  className="group relative grid overflow-hidden rounded-card border-[1.5px] border-line bg-paper shadow-card transition-transform duration-300 ease-bounce hover:-translate-y-[3px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+                >
+                  <span className="relative block h-32 bg-sand-200">
+                    <ResidencePhoto src={r.photos[0]} name={r.name} zone={r.zone} alt="" sizes="(max-width: 640px) 90vw, 30vw" variant="card" />
+                    <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-forest-tint px-2.5 py-1 text-xs font-semibold text-forest-700">
+                      <Icon name="verified" className="text-sm" />
+                      Verificada
+                    </span>
+                  </span>
+                  <span className="grid px-3.5 pb-3 pt-2.5">
+                    <b className="font-display text-[15px] font-bold text-ink">{r.name}</b>
+                    <span className="text-[13px] text-ink-faint">
+                      {r.zone}
+                      {r.roomTypes.length > 0 && ` · ${Array.from(new Set(r.roomTypes.map((t) => t.type))).join(" · ")}`}
+                    </span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </div>
   );
 }

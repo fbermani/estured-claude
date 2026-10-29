@@ -1,19 +1,23 @@
 import Link from "next/link";
-import { StatusTag } from "@/components/ui/StatusTag";
-import { typeAvailabilityMode } from "@/lib/availability/typeAvailability";
 import type { CommunitySummary as CommunityData } from "@/lib/residents/communityVisibility";
+import { computeCommunityStats } from "@/lib/residents/communityStats";
+import { Icon } from "@/components/ui/Icon";
+import {
+  CommunityProfilesPreview,
+  type PreviewProfile,
+  type PreviewSlot,
+} from "@/components/residences/ficha/CommunityProfilesPreview";
 
-const AVATAR_TINTS = [
-  "bg-forest-tint text-forest-700",
-  "bg-orange-tint text-orange-700",
-  "bg-mint text-forest-700",
-  "bg-sky text-sky-fg",
-];
+const SM_COLS: Record<number, string> = { 2: "sm:grid-cols-2", 3: "sm:grid-cols-3", 4: "sm:grid-cols-4" };
 
 /**
- * Resumen de comunidad de la ficha (D18): una fila por tipo con residentes, pila de avatares de iniciales y la
- * disponibilidad DEL TIPO (misma fuente que Tarifas). Sin camas libres, sin "plazas ocupadas", sin estados internos
- * (como "pendiente de activar cuenta"). El mapa de camas completo vive solo en `/residencias/[slug]/comunidad`.
+ * Comunidad de la ficha (propuesta C + cifras de A): frase de la residencia, cifras agregadas (solo con 3 o más
+ * perfiles visibles), vista previa de perfiles con filtro por tipo de habitación y aviso de privacidad. La
+ * disponibilidad por tipo vive solo en Tarifas (misma fuente), por eso acá no aparece. El mapa de camas completo
+ * vive en `/residencias/[slug]/comunidad`.
+ *
+ * Privacidad: se arma en el servidor con lo que `getCommunityVisibility` ya devuelve para este viewer. Al cliente
+ * llega solo lo mínimo de cada tarjeta; el visitante no recibe ningún dato individual (solo cuántos lugares hay).
  */
 export function CommunitySummary({
   slug,
@@ -26,8 +30,43 @@ export function CommunitySummary({
   statement: string;
   isGuest: boolean;
 }) {
-  const types = (community?.byRoomType ?? []).filter((t) => t.roomTypeId);
   const total = community?.totalResidents ?? 0;
+  const cards = community?.cards ?? [];
+  const visible = cards.filter((c) => c.kind === "profile");
+
+  const profiles: PreviewProfile[] = isGuest
+    ? []
+    : visible.flatMap((c) =>
+        c.firstName
+          ? [
+              {
+                id: c.residentStayId,
+                roomTypeName: c.roomTypeName,
+                firstName: c.firstName,
+                age: c.age ?? null,
+                flag: c.countryFlag ?? null,
+                nationality: c.nationality ?? null,
+                career: c.career ?? null,
+                originCity: c.originCity ?? null,
+              },
+            ]
+          : [],
+      );
+  const slots: PreviewSlot[] = isGuest ? visible.map((c) => ({ id: c.residentStayId, roomTypeName: c.roomTypeName })) : [];
+  const shownCount = isGuest ? slots.length : profiles.length;
+
+  // Para el visitante `cards` no trae edad, país ni carrera, así que las cifras dan null.
+  const stats = computeCommunityStats(cards);
+  const tiles = [
+    { value: String(total), label: total === 1 ? "residente hoy" : "residentes hoy" },
+    stats?.countries != null && { value: String(stats.countries), label: stats.countries === 1 ? "país de origen" : "países de origen" },
+    stats?.ageRange && {
+      value: stats.ageRange.min === stats.ageRange.max ? String(stats.ageRange.min) : `${stats.ageRange.min}–${stats.ageRange.max}`,
+      label: "años",
+    },
+    stats?.careers != null && { value: String(stats.careers), label: stats.careers === 1 ? "carrera" : "carreras" },
+  ].filter((t): t is { value: string; label: string } => Boolean(t));
+
   return (
     <div className="space-y-4">
       {statement && (
@@ -38,68 +77,50 @@ export function CommunitySummary({
       )}
 
       {total > 0 && (
-        <div className="overflow-hidden rounded-card border-[1.5px] border-line bg-paper shadow-card">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-5 py-4">
-            <p className="font-display text-2xl font-extrabold text-ink">
-              {total} <span className="text-base font-bold text-ink-soft">{total === 1 ? "residente actual" : "residentes actuales"}</span>
-            </p>
-            <span className="rounded-full bg-cream-2 px-3 py-1 text-xs font-semibold text-ink-soft">
-              Cada estudiante decide qué mostrar
-            </span>
-          </div>
-          <ul className="divide-y divide-line">
-            {types.map((t) => {
-              const initials = (community?.cards ?? [])
-                .filter((c) => c.kind === "profile" && c.roomTypeId === t.roomTypeId && c.firstName)
-                .slice(0, 4);
-              const extra = Math.max(0, t.occupiedCount - initials.length);
-              return (
-                <li key={t.roomTypeId} className="flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3.5">
-                  <div className="min-w-[8rem] flex-1">
-                    <p className="font-bold text-ink">{t.roomTypeName}</p>
-                    <p className="text-xs text-ink-faint">
-                      {t.occupiedCount} {t.occupiedCount === 1 ? "residente" : "residentes"}
-                    </p>
-                  </div>
-                  <div className="flex -space-x-2" aria-hidden="true">
-                    {initials.map((c, i) => (
-                      <span
-                        key={c.residentStayId}
-                        className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ring-2 ring-paper ${AVATAR_TINTS[i % AVATAR_TINTS.length]}`}
-                      >
-                        {c.firstName?.[0]?.toUpperCase()}
-                      </span>
-                    ))}
-                    {extra > 0 && (
-                      <span className="flex h-8 min-w-8 items-center justify-center rounded-full bg-forest px-1.5 text-[11px] font-bold text-white ring-2 ring-paper">
-                        +{extra}
-                      </span>
-                    )}
-                  </div>
-                  {t.availabilityState && (
-                    <StatusTag
-                      mode={typeAvailabilityMode(t.availabilityState)}
-                      roomTypeName={t.availabilityState === "full" ? t.roomTypeName : null}
-                    />
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-          <p className="border-t border-line bg-cream-2/60 px-5 py-3 text-xs leading-relaxed text-ink-faint">
-            La convivencia es dinámica: los perfiles son los de hoy y pueden cambiar antes de tu ingreso.
-            {isGuest && " Creá tu cuenta para ver nombres, carreras e intereses de quienes eligen mostrarlos."}
-          </p>
-        </div>
-      )}
+        <>
+          {stats && tiles.length > 1 && (
+            <dl
+              className={`grid grid-cols-2 gap-px overflow-hidden rounded-card border border-line bg-line shadow-card ${SM_COLS[tiles.length] ?? "sm:grid-cols-4"}`}
+              aria-label="Cifras de la comunidad"
+            >
+              {tiles.map((t, i) => (
+                <div
+                  key={t.label}
+                  className={`grid bg-paper px-[18px] py-4 ${tiles.length % 2 === 1 && i === tiles.length - 1 ? "col-span-2 sm:col-span-1" : ""}`}
+                >
+                  <dt className="order-2 text-[12.5px] text-ink-faint">{t.label}</dt>
+                  <dd className="order-1 font-display text-[28px] font-extrabold text-forest-700">{t.value}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
 
-      {total > 0 && (
-        <Link
-          href={`/residencias/${slug}/comunidad`}
-          className="inline-flex text-sm font-bold text-forest-700 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
-        >
-          Ver comunidad →
-        </Link>
+          {shownCount > 0 ? (
+            <CommunityProfilesPreview
+              slug={slug}
+              isGuest={isGuest}
+              profiles={profiles}
+              slots={slots}
+              totalProfiles={shownCount}
+            />
+          ) : (
+            <p className="rounded-card border border-line bg-paper px-5 py-4 text-sm text-ink-soft shadow-card">
+              Hoy viven {total} {total === 1 ? "residente" : "residentes"} y todavía nadie eligió mostrar su perfil.
+            </p>
+          )}
+
+          <p className="flex items-start gap-1.5 text-[12.5px] leading-relaxed text-ink-faint">
+            <Icon name="info" className="text-base" />
+            <span>
+              Se muestran solo los perfiles que cada estudiante eligió compartir. Pueden cambiar antes de tu ingreso. La
+              disponibilidad por habitación está en{" "}
+              <Link href="#tarifas" className="font-semibold text-forest-700 hover:underline">
+                Tarifas
+              </Link>
+              .
+            </span>
+          </p>
+        </>
       )}
     </div>
   );

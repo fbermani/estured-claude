@@ -1,0 +1,92 @@
+/* Movimiento decorativo de los heros (home y /for-students) y del dashboard.
+   Solo CSS. Con prefers-reduced-motion todo queda quieto y visible. */
+
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.hero-rise {
+  animation: hero-rise 0.8s var(--ease-out-fresh) both;
+  animation-delay: var(--d, 0s);
+}
+
+@keyframes hero-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--r, 0deg));
+  }
+  50% {
+    transform: translateY(-9px) rotate(var(--r, 0deg));
+  }
+}
+.hero-float {
+  transform: rotate(var(--r, 0deg));
+  animation: hero-float 6.5s ease-in-out infinite;
+  animation-delay: var(--fd, 0s);
+}
+
+@keyframes hero-drift {
+  to {
+    transform: translate3d(var(--dx, 20px), var(--dy, -16px), 0) scale(1.06);
+  }
+}
+.hero-drift {
+  animation: hero-drift 14s ease-in-out infinite alternate;
+}
+
+@keyframes hero-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.hero-marquee {
+  animation: hero-marquee var(--dur, 46s) linear infinite;
+}
+.hero-marquee-wrap:hover .hero-marquee,
+.hero-marquee-wrap:focus-within .hero-marquee {
+  animation-play-state: paused;
+}
+
+@keyframes hero-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgb(31 125 92 / 0.45);
+  }
+  100% {
+    box-shadow: 0 0 0 12px rgb(31 125 92 / 0);
+  }
+}
+.hero-pulse {
+  animation: hero-pulse 2s infinite;
+}
+
+@keyframes hero-pulse-orange {
+  0% {
+    box-shadow: 0 0 0 0 rgb(192 82 29 / 0.4);
+  }
+  100% {
+    box-shadow: 0 0 0 11px rgb(192 82 29 / 0);
+  }
+}
+.hero-pulse-orange {
+  animation: hero-pulse-orange 2s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-rise,
+  .hero-float,
+  .hero-drift,
+  .hero-marquee,
+  .hero-pulse,
+  .hero-pulse-orange {
+    animation: none;
+  }
+  .hero-marquee-wrap {
+    overflow-x: auto;
+  }
+}

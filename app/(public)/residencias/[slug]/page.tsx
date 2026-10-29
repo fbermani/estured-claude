@@ -632,7 +632,7 @@ export default async function RealResidenceDetailPage({
             <section id="comunidad" className="scroll-mt-32 space-y-4 lg:col-start-1">
               <div>
                 <h2 className="text-2xl font-bold text-ink">Comunidad y convivencia</h2>
-                <p className="mt-1 text-sm text-ink-soft">Quiénes viven hoy, por tipo de habitación.</p>
+                <p className="mt-1 text-sm text-ink-soft">Quiénes viven hoy en la residencia.</p>
               </div>
               <CommunitySummary slug={slug} community={community} statement={communityStatement} isGuest={!sessionUser} />
             </section>

@@ -8,6 +8,7 @@ import { BenefitBento, HOME_BENEFITS } from "@/components/marketing/BenefitBento
 import { HoverFeatureList } from "@/components/ui/HoverFeatureList";
 import { HowItWorksSteps } from "@/app/(public)/HowItWorksSteps";
 import { ResidenceCard } from "@/components/residences/ResidenceCard";
+import { HomeHero } from "@/components/marketing/HomeHero";
 import { getCatalogResidences } from "@/lib/residences/catalog";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 
@@ -179,68 +180,12 @@ export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const [rate, catalog] = await Promise.all([getCurrentExchangeRate(), getCatalogResidences()]);
-  const heroResidence = catalog[0] ?? null;
   const featured = catalog.slice(0, 3);
 
   return (
     <>
-      {/* Hero */}
-      <section className="overflow-hidden bg-sand-100">
-        <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 pb-20 pt-14 sm:px-6 sm:pt-20 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
-          <Reveal>
-            <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-line bg-white px-3.5 py-1.5 text-xs font-semibold text-forest-700 sm:text-sm">
-              <span className="h-1.5 w-1.5 rounded-full bg-forest-600" aria-hidden />
-              Primera etapa: Ciudad de Buenos Aires
-            </p>
-            <h1 className="text-4xl font-extrabold leading-[1.08] text-ink sm:text-5xl lg:text-[3.4rem]">
-              No solo elijas dónde vivir,{" "}
-              <span className="text-forest-700">sino cómo.</span>
-            </h1>
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-soft">
-              Encontrá tu residencia en Buenos Aires, verificada en persona y sin
-              viajar.
-            </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Button href="/search" size="lg">
-                Buscar residencia en CABA
-              </Button>
-              <Button href="/for-residences" variant="outline" size="lg">
-                Sumar mi residencia
-              </Button>
-            </div>
-            <p className="mt-5 text-xs text-ink-faint">
-              Explorá sin costo y olvidate de las garantías propietarias y los costos ocultos.
-            </p>
-          </Reveal>
-
-          {/* Composición de producto — la señal central de EstuRed (el
-              comprobante verificable) es lo primero que se asienta */}
-          {heroResidence && (
-            <Reveal delay={2} className="relative mx-auto w-full max-w-sm lg:max-w-none">
-              <ResidenceCard residence={heroResidence} arsPerUsd={rate.arsPerUsd} />
-              <div className="absolute -right-3 -top-5 hidden max-w-[240px] rotate-2 rounded-card bg-surface p-3.5 shadow-float ring-1 ring-sand-200 transition-transform duration-300 ease-bounce hover:-translate-y-1 hover:rotate-0 sm:block lg:-right-6">
-                <p className="flex items-start gap-2 text-xs font-bold leading-snug text-ink">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-success-bg text-success-fg">
-                    <Icon name="check" className="text-base" />
-                  </span>
-                  Comprobante de Reserva Confirmada
-                </p>
-                <p className="mt-1 pl-8 font-mono text-[11px] text-ink-faint">
-                  ER-2027-0413
-                </p>
-              </div>
-              <div className="absolute -bottom-4 -left-3 hidden -rotate-1 rounded-card bg-surface p-3.5 shadow-float ring-1 ring-sand-200 transition-transform duration-300 ease-bounce hover:-translate-y-1 hover:rotate-0 sm:block lg:-left-6">
-                <p className="text-xs font-bold text-ink">
-                  Solicitud registrada
-                </p>
-                <p className="mt-0.5 text-[11px] text-ink-faint">
-                  Condiciones claras, sin idas y vueltas por chat
-                </p>
-              </div>
-            </Reveal>
-          )}
-        </div>
-      </section>
+      {/* Hero (propuesta B: buscador mock + cinta de residencias reales) */}
+      <HomeHero residences={catalog} />
 
       {/* Por qué EstuRed — bento; en mobile, mazo con swipe */}
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">

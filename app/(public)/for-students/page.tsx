@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import { ResidencePhoto } from "@/components/residences/ResidencePhoto";
+import { StudentsHero } from "@/components/marketing/StudentsHero";
 import { Button } from "@/components/ui/Button";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Reveal } from "@/components/ui/Reveal";
-import { Icon } from "@/components/ui/Icon";
 import { BenefitBento, STUDENT_BENEFITS } from "@/components/marketing/BenefitBento";
 import { CommunityPreview } from "@/components/marketing/CommunityPreview";
 import { StepsList } from "@/app/(public)/for-students/StepsList";
@@ -66,75 +65,10 @@ export const dynamic = "force-dynamic";
 export default async function ForStudentsPage() {
   const sessionUser = await getSessionUser();
   const catalog = await getCatalogResidences();
-  const heroResidence = catalog[0] ?? null;
-  const heroPhoto = heroResidence?.photos[0] ?? null;
 
   return (
     <>
-      <section className="overflow-hidden bg-sand-100">
-        <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[1.05fr_0.95fr]">
-          <Reveal>
-            <p className="mb-4 inline-flex rounded-full bg-mint px-3 py-1 text-sm font-semibold text-forest-700">
-              Para estudiantes y familias
-            </p>
-            <h1 className="text-4xl font-extrabold text-ink sm:text-5xl">
-              Elegí tu residencia en Buenos Aires con todo verificado y por escrito
-            </h1>
-            <p className="mt-5 text-lg text-ink-soft">
-              Elegir dónde vivir es una de las decisiones más importantes de tu
-              nueva etapa. EstuRed la hace clara: residencias verificadas,
-              proceso registrado y un comprobante verificable de tu reserva.
-            </p>
-            <p className="mt-3 text-sm font-medium text-petrol-700">
-              Conocé los requisitos y beneficios de cada residencia sin moverte de tu casa.
-            </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Button href="/search" size="lg">
-                Buscar residencia en CABA
-              </Button>
-              <Button href="/register" variant="outline" size="lg">
-                Crear cuenta de estudiante
-              </Button>
-            </div>
-          </Reveal>
-
-          {/* Composición visual — foto real de una residencia verificada,
-              con señales de confianza flotantes (mismo lenguaje que el
-              hero de home, pero como foto editorial, no card de catálogo). */}
-          <Reveal delay={2} className="relative mx-auto aspect-[4/5] w-full max-w-sm lg:max-w-none">
-            <div className="relative h-full w-full overflow-hidden rounded-card bg-sand-200 shadow-float">
-              <ResidencePhoto
-                src={heroPhoto}
-                name={heroResidence?.name ?? "Residencia verificada"}
-                zone={heroResidence?.zone}
-                alt={heroResidence ? `Residentes en ${heroResidence.name}` : "Residencia verificada"}
-                sizes="(max-width: 1024px) 90vw, 45vw"
-                variant="hero"
-                priority
-              />
-              {heroPhoto && <div className="absolute inset-0 bg-gradient-to-t from-forest-ink/60 via-transparent to-transparent" />}
-              {heroResidence && (
-                <div className={`absolute inset-x-0 p-5 ${heroPhoto ? "bottom-0" : "top-0"}`}>
-                  <p className={`text-sm font-bold ${heroPhoto ? "text-white" : "text-ink"}`}>{heroResidence.name}</p>
-                  <p className={`text-xs ${heroPhoto ? "text-white/80" : "text-ink-soft"}`}>{heroResidence.zone}, {heroResidence.city}</p>
-                </div>
-              )}
-            </div>
-            <div className="absolute -right-4 -top-5 hidden max-w-[210px] rotate-2 rounded-card bg-surface p-3.5 shadow-float ring-1 ring-sand-200 transition-transform duration-300 ease-bounce hover:-translate-y-1 hover:rotate-0 sm:block">
-              <p className="flex items-center gap-2 text-xs font-bold leading-snug text-ink">
-                <Icon name="verified" className="text-lg text-forest-700" />
-                Verificada presencialmente
-              </p>
-            </div>
-            <div className="absolute -bottom-4 -left-4 hidden -rotate-1 rounded-card bg-surface p-3.5 shadow-float ring-1 ring-sand-200 transition-transform duration-300 ease-bounce hover:-translate-y-1 hover:rotate-0 sm:block">
-              <p className="flex items-center gap-2 text-xs font-bold leading-snug text-ink">
-                <Icon name="diversity_3" className="text-lg text-orange-700" />
-                Comunidad visible antes de mudarte
-              </p>
-            </div>
-          </Reveal>
-        </div>
-      </section>
+      <StudentsHero residences={catalog} />
 
       {/* Beneficios — bento; en mobile, mazo con swipe */}
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
