@@ -7,6 +7,8 @@ import { loadPromotionsByResidence } from "@/lib/residences/promotions";
 import { todayIso } from "@/lib/applications/reservationMoney";
 import { getApprovedCustomAmenitiesByResidence } from "@/lib/residences/customAmenitiesDb";
 import { buildGalleryPhotos, loadPhotoMeta, rotationUrls } from "@/lib/residences/photoMetaDb";
+import { nearestUniversityNames } from "@/lib/residences/nearestUniversities";
+import { getResidenceLocation } from "@/lib/residences/residenceLocation";
 import { computeCapacity, residentsToDisplay } from "@/lib/residences/occupancy";
 import type { Residence, RoomTypeName } from "@/types/domain";
 import {
@@ -35,11 +37,11 @@ export async function getCatalogResidencesWithTotal(
   if (!admin) return { residences: [], total: 0 };
 
   // DR14 (migración 0052): las columnas de edad pueden no existir todavía; en ese caso se reintenta sin ellas (sin filtro por edad).
-  type CatalogRow = { id: string; slug: string; name: string; public_area: string | null; description: string | null; min_resident_age?: number | null; max_resident_age?: number | null; accepts_minors?: boolean | null };
+  type CatalogRow = { id: string; slug: string; name: string; public_area: string | null; description: string | null; min_resident_age?: number | null; max_resident_age?: number | null; accepts_minors?: boolean | null; latitude?: number | string | null; longitude?: number | string | null };
   let residences: CatalogRow[] | null = null;
   const withAge = await admin
     .from("residences")
-    .select("id, slug, name, public_area, description, min_resident_age, max_resident_age, accepts_minors")
+    .select("id, slug, name, public_area, description, min_resident_age, max_resident_age, accepts_minors, latitude, longitude")
     .eq("status", "verified_active")
     .order("created_at", { ascending: false });
   if (!withAge.error) {
@@ -143,6 +145,8 @@ export async function getCatalogResidencesWithTotal(
     const services = [...new Set([...((sectionMap.services?.items as string[]) ?? []), ...(custom?.services ?? [])])];
     const commonAreas = [...new Set([...((sectionMap.common_areas?.items as string[]) ?? []), ...(custom?.areas ?? [])])];
     const nearUniversities = (sectionMap.near_universities?.items as string[]) ?? [];
+    // La tarjeta muestra solo las 3 sedes más cercanas; la ficha las lista todas (y el filtro usa la lista completa).
+    const cardUniversities = nearestUniversityNames(nearUniversities, getResidenceLocation(r));
 
     // D3/H03: la disponibilidad la manda el tipo de habitación (`profile_availability`),
     // siempre vía el helper único. El precio "desde" excluye los tipos completos.
@@ -186,6 +190,7 @@ export async function getCatalogResidencesWithTotal(
         ? { minResidentAge: r.min_resident_age, maxResidentAge: r.max_resident_age ?? null, acceptsMinors: r.accepts_minors === true }
         : {}),
       nearUniversities,
+      cardUniversities,
       idealFor: "",
       description: r.description ?? "",
       photos: photoUrls,

@@ -4,6 +4,7 @@ import { Icon } from "@/components/ui/Icon";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
+import { MoneyFlow } from "@/components/marketing/MoneyFlow";
 
 const studentItems = [
   {
@@ -32,11 +33,6 @@ const studentItems = [
   },
 ];
 
-const residenceLines = [
-  "Cobro directo: el estudiante te paga a vos, sin comisión sobre tu tarifa. EstuRed cobra su fee aparte al estudiante y no toca lo que te paga.",
-  "Hoy, publicar y gestionar tu residencia no tiene costo.",
-];
-
 /** Bloque «Qué pagás y a quién» (INVENTARIO_COPY §7.1). Sin cifras de ejemplo. */
 export function WhatYouPay({ variant = "student" }: { variant?: "student" | "residence" | "short" }) {
   if (variant === "short") {
@@ -57,20 +53,7 @@ export function WhatYouPay({ variant = "student" }: { variant?: "student" | "res
     );
   }
 
-  if (variant === "residence") {
-    return (
-      <section id="que-cobra-estured" className="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-24">
-        <SectionHeader eyebrow="Costos" title="Qué cobra EstuRed" />
-        <Card className="space-y-3 p-7">
-          {residenceLines.map((line) => (
-            <p key={line} className="text-sm leading-relaxed text-ink-soft">
-              {line}
-            </p>
-          ))}
-        </Card>
-      </section>
-    );
-  }
+  if (variant === "residence") return <MoneyFlow />;
 
   return (
     <section id="que-pagas" className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">

@@ -70,6 +70,8 @@ export interface Residence {
    * parte del MVP (docs/08 §4.4 filtra por zona/barrio).
    */
   nearUniversities: string[];
+  /** Las 3 sedes más cercanas, solo para la tarjeta del catálogo (la ficha lista todas). */
+  cardUniversities?: string[];
   idealFor: string;
   description: string;
   photos: string[]; // URLs que rotan en la tarjeta: destacadas o primeras 5 (DR18)

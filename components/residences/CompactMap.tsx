@@ -1,3 +1,4 @@
+import { formatBlocks } from "@/lib/residences/distance";
 import { Icon } from "@/components/ui/Icon";
 import {
   findUniversitiesByName,
@@ -144,20 +145,30 @@ export function CompactMap({
         </p>
 
         {withDistance.length > 0 ? (
-          <ul className="divide-y divide-line rounded-field border border-line">
-            {withDistance.map((u, i) => (
-              <li key={u.name} className="flex items-center gap-3 px-3 py-2.5 text-sm text-ink">
-                <span
-                  aria-hidden="true"
-                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-tint text-[11px] font-extrabold text-blue-ink"
-                >
-                  {i + 1}
-                </span>
-                <span className="min-w-0 flex-1">{u.name}</span>
-                <span className="shrink-0 font-semibold text-ink-soft">~{u.distanceKm.toFixed(1).replace(".", ",")} km</span>
-              </li>
-            ))}
-          </ul>
+          <div>
+            <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.08em] text-ink-faint">Universidades cercanas</p>
+            <ul className="grid gap-2 sm:grid-cols-2">
+              {withDistance.map((u, i) => (
+                <li key={u.name} className="flex items-center gap-3 rounded-field border border-line bg-cream px-3 py-2.5 text-sm text-ink">
+                  <span
+                    aria-hidden="true"
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-tint text-[11px] font-extrabold text-blue-ink"
+                  >
+                    {i + 1}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-semibold leading-snug">{u.name}</span>
+                    {/* Sin el pin de la residencia no se puede medir: se muestran solo los nombres. */}
+                    {isExact && (
+                      <span className="block text-xs text-ink-soft">
+                        {formatBlocks(u.distanceKm)} · {u.distanceKm.toFixed(1).replace(".", ",")} km
+                      </span>
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
         ) : (
           <p className="text-xs text-ink-faint">Esta residencia todavía no cargó universidades cercanas.</p>
         )}
@@ -166,8 +177,8 @@ export function CompactMap({
           <Icon name="info" className="mt-0.5 shrink-0 text-sm" />
           <span>
             {isExact
-              ? "Distancias aproximadas en línea recta desde la residencia. "
-              : "La residencia todavía no cargó su ubicación exacta. Distancias aproximadas en línea recta desde el centro del barrio. "}
+              ? "Distancias aproximadas en línea recta desde la residencia (una cuadra son unos 100 m). "
+              : "La residencia todavía no cargó su ubicación exacta, por eso no mostramos distancias. "}
             <a
               href={osmLink(residenceCoord)}
               target="_blank"

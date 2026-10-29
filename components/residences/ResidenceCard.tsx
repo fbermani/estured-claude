@@ -6,6 +6,8 @@ import { Icon } from "@/components/ui/Icon";
 import { StatusTag } from "@/components/ui/StatusTag";
 import { TrustBadge } from "@/components/residences/TrustBadge";
 import { CardPhotoCarousel } from "@/components/residences/CardPhotoCarousel";
+import { AmenityIconRow } from "@/components/residences/AmenityIconRow";
+import { getCommonAreaIcon, getServiceIcon } from "@/lib/residences/amenityIcons";
 import { formatOccupancy } from "@/lib/residences/occupancy";
 import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
@@ -28,8 +30,14 @@ export function ResidenceCard({
   arsPerUsd: number;
 }) {
   const availableTypes = residence.roomTypes.filter((rt) => rt.available);
-  const keyServices = residence.services.slice(0, 2);
-  const moreServices = residence.services.length - keyServices.length;
+  const cardUniversities = (residence.cardUniversities ?? residence.nearUniversities).slice(0, 3);
+  // Íconos en dos filas separadas (servicios / áreas comunes). Los que no entran se resumen en «+N» que lleva a la ficha.
+  const MAX_ICONS = 5;
+  const serviceItems = residence.services.slice(0, MAX_ICONS).map((name) => ({ name, ...getServiceIcon(name) }));
+  const moreServices = Math.max(0, residence.services.length - MAX_ICONS);
+  const areaNames = residence.commonAreas ?? [];
+  const areaItems = areaNames.slice(0, MAX_ICONS).map((name) => ({ name, ...getCommonAreaIcon(name) }));
+  const moreAreas = Math.max(0, areaNames.length - MAX_ICONS);
   const href = `/residencias/${residence.slug}`;
   // DR18: «capacidad · residentes» (sin porcentaje ni «quedan N»). Sin plazas declaradas, queda el conteo de residentes de siempre.
   const residents = (residence.residentsCount ?? 0) > 0 ? residence.residentsCount : null;
@@ -64,10 +72,10 @@ export function ResidenceCard({
             </p>
           </div>
 
-          {residence.nearUniversities.length > 0 && (
+          {cardUniversities.length > 0 && (
             <p className="flex items-center gap-1.5 text-xs font-bold text-forest-700">
               <Icon name="school" className="text-base" />
-              Cerca de {residence.nearUniversities.join(" y ")}
+              Cerca de {cardUniversities.length > 1 ? `${cardUniversities.slice(0, -1).join(", ")} y ${cardUniversities[cardUniversities.length - 1]}` : cardUniversities[0]}
             </p>
           )}
 
@@ -91,15 +99,16 @@ export function ResidenceCard({
               <Badge tone="neutral">Sin lugar informado por ahora</Badge>
             ) : null}
           </div>
-
-          {keyServices.length > 0 && (
-            <p className="text-xs text-ink-faint">
-              {keyServices.join(" · ")}
-              {moreServices > 0 && ` · +${moreServices} servicios`}
-            </p>
-          )}
         </div>
       </Link>
+
+      {/* Íconos de servicios y áreas comunes: botones con tooltip, por eso van fuera del <Link> de la card. */}
+      {(serviceItems.length > 0 || areaItems.length > 0) && (
+        <div data-amenity-card className="grid gap-3 px-5 pb-4">
+          <AmenityIconRow label="Servicios" kind="service" items={serviceItems} extra={moreServices} moreHref={`${href}#residencia`} moreLabel={`Ver ${moreServices} servicios más en la ficha`} />
+          <AmenityIconRow label="Áreas comunes" kind="area" items={areaItems} extra={moreAreas} moreHref={`${href}#residencia`} moreLabel={`Ver ${moreAreas} áreas comunes más en la ficha`} />
+        </div>
+      )}
 
       {/* El precio queda fuera del <Link> de la card: la nota de tipo de cambio es un botón y no puede ir dentro de un enlace. */}
       <div className="mx-5 border-t-[1.5px] border-line pt-3">

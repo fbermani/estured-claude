@@ -4,89 +4,20 @@ import { Button } from "@/components/ui/Button";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Reveal } from "@/components/ui/Reveal";
 import { Icon } from "@/components/ui/Icon";
-import { RotatingBenefits, type RotatingBenefit } from "@/components/ui/RotatingBenefits";
+import { BenefitBento, STUDENT_BENEFITS } from "@/components/marketing/BenefitBento";
+import { CommunityPreview } from "@/components/marketing/CommunityPreview";
 import { StepsList } from "@/app/(public)/for-students/StepsList";
 import { getCatalogResidences } from "@/lib/residences/catalog";
 import { getSessionUser } from "@/lib/auth/session";
 import { FamilyHighlight } from "@/components/marketing/FamilyHighlight";
 import { StayChangeHighlight } from "@/components/marketing/StayChangeHighlight";
 import { WhatYouPay } from "@/components/marketing/WhatYouPay";
-import { WhenSomethingDiffers } from "@/components/marketing/WhenSomethingDiffers";
 
 export const metadata: Metadata = {
   title: "Para estudiantes y familias",
   description:
     "Mudarse a CABA con más confianza: residencias verificadas, solicitudes registradas y comprobante de reserva verificable.",
 };
-
-const benefits: RotatingBenefit[] = [
-  {
-    icon: "verified",
-    title: "Residencias verificadas",
-    summary:
-      "Identidad, ubicación y fotos revisadas por EstuRed mediante control presencial.",
-    problem:
-      "Elegir dónde vivir sin conocer el lugar es una de las decisiones más difíciles de mudarte a otra ciudad.",
-    solution:
-      "Identidad, ubicación y fotos revisadas por EstuRed mediante control presencial, no una foto de stock ni una descripción exagerada. Revisamos cada espacio en persona: fotos auténticas, servicios reales y reglas claras.",
-    conclusion: "Elegís con información revisada en persona.",
-  },
-  {
-    icon: "description",
-    title: "Solicitudes registradas",
-    summary:
-      "Tu solicitud, las respuestas y cualquier ajuste de condiciones quedan registrados en la plataforma. Nada se pierde en un chat.",
-    problem:
-      "Negociar condiciones por WhatsApp significa que después cuesta saber qué quedó acordado.",
-    solution:
-      "Tu solicitud, las respuestas y cualquier ajuste de condiciones quedan registrados en la plataforma. Nada se pierde en un chat.",
-    conclusion: "Un historial claro de todo lo que se acordó.",
-  },
-  {
-    icon: "diversity_1",
-    title: "Tu familia puede acompañarte",
-    summary:
-      "Un familiar vinculado puede proponerte opciones y seguir el proceso. Vos siempre tenés la última palabra sobre tu solicitud.",
-    problem:
-      "Si tu familia está lejos, seguir cada paso de tu mudanza a la distancia es difícil — y una decisión así se toma mejor en compañía.",
-    solution:
-      "Un familiar vinculado puede proponerte opciones y seguir el proceso paso a paso. Vos siempre tenés la última palabra sobre tu solicitud.",
-    conclusion: "Con compañía, y la decisión sigue siendo tuya.",
-  },
-  {
-    icon: "receipt_long",
-    title: "Comprobante de Reserva Confirmada",
-    summary:
-      "Cuando tu reserva se confirma, recibís un comprobante que cualquier persona puede verificar.",
-    problem:
-      "Pagar una matrícula o un depósito sin ningún papel te deja con dudas, a vos y a tu familia.",
-    solution:
-      "Cuando tu reserva se confirma, recibís un comprobante verificable por cualquier persona, con los datos de tu reserva.",
-    conclusion: "Un registro claro, no una promesa de palabra.",
-  },
-  {
-    icon: "groups",
-    title: "Comunidad visible",
-    summary:
-      "Descubrí la comunidad de cada residencia antes de mudarte: quiénes viven ahí, qué estudian y qué intereses comparten, según lo que cada residente elige mostrar.",
-    problem:
-      "Muchas veces no sabés nada de con quién vas a vivir hasta que llegás. Conocerlos antes ayuda a decidir con más tranquilidad.",
-    solution:
-      "Descubrí la comunidad de cada residencia antes de mudarte: quiénes viven ahí, qué estudian y qué intereses comparten, según lo que cada residente elige mostrar.",
-    conclusion: "Elegís tu lugar sabiendo también con quién vas a compartirlo.",
-  },
-  {
-    icon: "sell",
-    title: "Precios claros",
-    summary:
-      "Tarifas en dólares con su equivalente referencial en pesos, actualizado a diario. Matrícula y depósito a la vista, y la política de ajustes publicada.",
-    problem:
-      "Los precios que cambian según a quién le preguntes, o que aparecen recién cuando ya avanzaste con una residencia, generan desconfianza.",
-    solution:
-      "Tarifas en dólares con su equivalente referencial en pesos, actualizado a diario. Matrícula y depósito a la vista, y la política de ajustes publicada.",
-    conclusion: "Sabés qué vas a pagar y a quién antes de comprometerte.",
-  },
-];
 
 const steps = [
   {
@@ -126,7 +57,7 @@ const faqs = [
   },
   {
     q: "¿Qué pasa si algo no coincide con lo publicado?",
-    a: "Podés abrir un caso de Soporte desde tu reserva. Revisamos lo que pasó y te acompañamos para encontrar otra opción. Más detalle en «Si algo no coincide con lo publicado».",
+    a: "Abrís un caso de Soporte desde tu reserva. Revisamos lo que pasó, hablamos con la residencia y, si hace falta, te acompañamos para encontrar otra opción. Aplica a diferencias importantes y comprobables; lo que pagaste a la residencia se resuelve con ella, según sus condiciones.",
   },
 ];
 
@@ -205,14 +136,17 @@ export default async function ForStudentsPage() {
         </div>
       </section>
 
-      {/* Beneficios — interactivo, rota solo y se puede explorar con clicks */}
+      {/* Beneficios — bento; en mobile, mazo con swipe */}
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
         <SectionHeader
           eyebrow="Beneficios"
           title="Lo que cambia cuando buscás con EstuRed"
+          description="Conocé los requisitos y beneficios de cada residencia sin moverte de tu casa."
         />
-        <RotatingBenefits items={benefits} />
+        <BenefitBento items={STUDENT_BENEFITS} label="Beneficios para estudiantes" />
       </section>
+
+      <CommunityPreview variant="students" />
 
       <FamilyHighlight />
 
@@ -231,11 +165,9 @@ export default async function ForStudentsPage() {
         <WhatYouPay />
       </div>
 
-      <WhenSomethingDiffers />
-
       <StayChangeHighlight variant="students" studentCta={sessionUser?.roles.includes("student") ? "residency" : "register"} />
 
-      <section className="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-20">
+      <section id="preguntas-frecuentes" className="mx-auto max-w-3xl scroll-mt-20 px-4 py-16 sm:px-6 sm:py-20">
         <SectionHeader eyebrow="Preguntas frecuentes" title="Dudas comunes" />
         <div className="space-y-4">
           {faqs.map((faq, i) => (

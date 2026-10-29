@@ -1,40 +1,257 @@
 "use client";
 
-import { Reveal } from "@/components/ui/Reveal";
-import { HoverDetail } from "@/components/ui/HoverDetail";
+import Image from "next/image";
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
+import { Icon } from "@/components/ui/Icon";
 
-type Step = { title: string; description: string; detail: string };
+type Step = { slogan: string; title: string; description: string; img: string; alt: string };
 
-/** Client component: ver nota en HoverFeatureList.tsx sobre el RSC boundary. */
+const DUR = 7000;
+
+/** Posición de cada tarjeta en el mazo (desktop): 0 = frente. */
+const DECK: Record<number, { t: string; o: number; z: number }> = {
+  0: { t: "none", o: 1, z: 5 },
+  1: { t: "translate(18px,14px) rotate(3deg) scale(.96)", o: 0.92, z: 4 },
+  2: { t: "translate(-14px,26px) rotate(-2.5deg) scale(.92)", o: 0.75, z: 3 },
+  3: { t: "translate(0,34px) scale(.88)", o: 0, z: 2 },
+  4: { t: "translate(-70%,-10px) rotate(-9deg)", o: 0, z: 6 },
+};
+
+/**
+ * «El proceso» de la home: a la izquierda un slogan corto por paso (desktop), a la derecha un mazo de tarjetas con
+ * captura real de la app y la explicación. Rota solo cada 7 s (pausa con hover/foco/botón y respeta
+ * prefers-reduced-motion). En mobile: una tarjeta a ancho completo con swipe, flechas y puntos.
+ * Client component: ver nota en HoverFeatureList.tsx sobre el RSC boundary (solo recibe datos serializables).
+ */
 export function HowItWorksSteps({ steps }: { steps: Step[] }) {
+  const n = steps.length;
+  const [active, setActive] = useState(0);
+  const [playing, setPlaying] = useState(true);
+  const [hover, setHover] = useState(false);
+  const [wide, setWide] = useState(false);
+  const [drag, setDrag] = useState(0);
+  const x0 = useRef<number | null>(null);
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  useEffect(() => {
+    const mqWide = window.matchMedia("(min-width: 1024px)");
+    const mqMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setWide(mqWide.matches);
+    sync();
+    if (mqMotion.matches) setPlaying(false);
+    mqWide.addEventListener("change", sync);
+    return () => mqWide.removeEventListener("change", sync);
+  }, []);
+
+  const running = playing && wide && !hover;
+  useEffect(() => {
+    if (!running) return;
+    const id = setTimeout(() => setActive((a) => (a + 1) % n), DUR);
+    return () => clearTimeout(id);
+  }, [running, active, n]);
+
+  const goMobile = useCallback((i: number) => setActive(Math.max(0, Math.min(n - 1, i))), [n]);
+
+  function onKeyTab(e: React.KeyboardEvent, i: number) {
+    if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+    e.preventDefault();
+    const next = (i + (e.key === "ArrowDown" ? 1 : -1) + n) % n;
+    setPlaying(false);
+    setActive(next);
+    tabRefs.current[next]?.focus();
+  }
+
   return (
     <div
-      className={`grid gap-6 sm:grid-cols-2 ${steps.length === 5 ? "lg:grid-cols-5" : "lg:grid-cols-4"}`}
+      className="grid gap-7 lg:grid-cols-[0.8fr_1.2fr] lg:items-center lg:gap-14"
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
     >
-      {steps.map((step, i) => (
-        <Reveal key={step.title} delay={(Math.min(i, 5) as 0 | 1 | 2 | 3 | 4 | 5)} className="relative">
-          <HoverDetail
-            detail={step.detail}
-            className="h-full rounded-card border-[1.5px] border-line bg-paper p-6 shadow-card"
-          >
-            {(open) => (
-              <>
+      {/* Slogans (solo desktop) */}
+      <div className="hidden lg:block">
+        <div role="tablist" aria-label="Pasos del proceso" aria-orientation="vertical" className="grid gap-1">
+          {steps.map((s, i) => {
+            const selected = i === active;
+            return (
+              <button
+                key={s.slogan}
+                ref={(el) => {
+                  tabRefs.current[i] = el;
+                }}
+                type="button"
+                role="tab"
+                id={`proc-tab-${i}`}
+                aria-selected={selected}
+                aria-controls={`proc-card-${i}`}
+                tabIndex={selected ? 0 : -1}
+                onClick={() => {
+                  setPlaying(false);
+                  setActive(i);
+                }}
+                onKeyDown={(e) => onKeyTab(e, i)}
+                className="relative grid w-full grid-cols-[44px_1fr] items-center gap-3.5 rounded-field px-4 py-3 text-left transition-colors duration-200 hover:bg-cream-2 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest"
+              >
                 <span
-                  className={`flex h-10 w-10 items-center justify-center rounded-full font-display text-lg font-extrabold transition-colors duration-300 ${
-                    open ? "bg-orange text-white" : "bg-orange-tint text-orange-700"
+                  className={`flex h-11 w-11 items-center justify-center rounded-full border-[1.5px] font-display text-[17px] font-bold transition-all duration-300 ease-bounce ${
+                    selected ? "scale-110 border-forest bg-forest text-white" : "border-line-2 bg-paper text-ink-faint"
                   }`}
                 >
                   {i + 1}
                 </span>
-                <h3 className={`mt-4 text-ink transition-all duration-300 ${open ? "font-extrabold" : "font-bold"}`}>
-                  {step.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-ink-soft">{step.description}</p>
-              </>
-            )}
-          </HoverDetail>
-        </Reveal>
-      ))}
+                <span
+                  className={`font-display text-[22px] font-bold leading-tight tracking-tight transition-all duration-300 ${
+                    selected ? "translate-x-1 text-ink" : "text-ink-faint"
+                  }`}
+                >
+                  {s.slogan}
+                </span>
+                <span aria-hidden className="absolute bottom-1 left-[74px] right-4 h-[3px] overflow-hidden rounded-full bg-cream-2 opacity-0 data-[on=true]:opacity-100" data-on={selected}>
+                  <i
+                    className="block h-full bg-forest"
+                    style={{ width: selected && running ? "100%" : "0%", transition: selected && running ? `width ${DUR}ms linear` : "none" }}
+                  />
+                </span>
+              </button>
+            );
+          })}
+        </div>
+        <div className="mt-2.5 flex items-center gap-2.5 pl-4">
+          <button
+            type="button"
+            onClick={() => setPlaying((p) => !p)}
+            aria-label={playing ? "Pausar la rotación" : "Reanudar la rotación"}
+            className="inline-flex items-center gap-1 rounded-full px-2.5 py-2 text-[13px] font-semibold text-forest-700 hover:bg-forest-tint focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-forest"
+          >
+            <Icon name={playing ? "pause" : "play_arrow"} className="text-lg" />
+            {playing ? "Pausar" : "Reanudar"}
+          </button>
+          <span className="text-xs text-ink-faint" aria-live="polite">
+            {playing ? "" : "Rotación en pausa"}
+          </span>
+        </div>
+      </div>
+
+      {/* Mazo (desktop) / carrusel (mobile) */}
+      <div className="min-w-0">
+        <div
+          className="relative max-lg:overflow-hidden max-lg:rounded-card max-lg:[touch-action:pan-y] lg:h-[520px] lg:[perspective:1200px]"
+          role="group"
+          aria-roledescription="carrusel"
+          aria-label="Pasos del proceso"
+          onPointerDown={(e) => {
+            if (wide) return;
+            x0.current = e.clientX;
+            setDrag(0);
+          }}
+          onPointerMove={(e) => {
+            if (x0.current === null) return;
+            setDrag(e.clientX - x0.current);
+          }}
+          onPointerUp={() => {
+            if (x0.current === null) return;
+            x0.current = null;
+            if (drag < -50) goMobile(active + 1);
+            else if (drag > 50) goMobile(active - 1);
+            setDrag(0);
+          }}
+          onPointerCancel={() => {
+            x0.current = null;
+            setDrag(0);
+          }}
+          onKeyDown={(e) => {
+            if (wide) return;
+            if (e.key === "ArrowRight") goMobile(active + 1);
+            if (e.key === "ArrowLeft") goMobile(active - 1);
+          }}
+        >
+          <div
+            className={`flex max-lg:translate-x-[var(--tx)] lg:contents ${drag ? "" : "max-lg:transition-transform max-lg:duration-500"}`}
+            style={{ "--tx": `calc(${-100 * active}% + ${drag}px)` } as CSSProperties}
+          >
+            {steps.map((s, i) => {
+              const pos = (i - active + n) % n;
+              const d = DECK[Math.min(pos, 4)] ?? DECK[4];
+              const front = i === active;
+              return (
+                <article
+                  key={s.slogan}
+                  id={`proc-card-${i}`}
+                  role="tabpanel"
+                  aria-labelledby={`proc-tab-${i}`}
+                  aria-roledescription="paso"
+                  aria-label={`Paso ${i + 1} de ${n}`}
+                  inert={!front}
+                  className="flex flex-none basis-full flex-col overflow-hidden rounded-card border border-line bg-paper shadow-card lg:absolute lg:inset-0 lg:basis-auto lg:rounded-[30px] lg:[transform-origin:50%_90%] lg:[transform:var(--t)] lg:[opacity:var(--o)] lg:[z-index:var(--z)] lg:transition-[transform,opacity] lg:duration-700 lg:ease-out-fresh"
+                  style={{ "--t": d.t, "--o": d.o, "--z": d.z, pointerEvents: front || !wide ? undefined : "none" } as CSSProperties}
+                >
+                  <div className="relative aspect-video overflow-hidden border-b border-line bg-cream">
+                    <span aria-hidden className="absolute inset-x-0 top-0 z-10 flex h-[26px] items-center gap-[5px] border-b border-line bg-cream-2 px-3">
+                      <i className="h-2 w-2 rounded-full bg-line-2" />
+                      <i className="h-2 w-2 rounded-full bg-line-2" />
+                      <i className="h-2 w-2 rounded-full bg-line-2" />
+                    </span>
+                    <div className="absolute inset-x-0 bottom-0 top-[26px]">
+                      <Image
+                        src={s.img}
+                        alt={s.alt}
+                        fill
+                        sizes="(min-width: 1024px) 640px, 100vw"
+                        className="object-cover object-left-top"
+                        draggable={false}
+                        priority={i === 0}
+                      />
+                    </div>
+                  </div>
+                  <div className={`grid gap-2 p-[18px] pb-5 lg:px-6 lg:pb-6 lg:pt-[22px] ${front ? "" : "lg:invisible"}`}>
+                    <span className="text-xs font-bold uppercase tracking-[0.08em] text-forest-700">
+                      Paso {i + 1} · {s.slogan}
+                    </span>
+                    <h3 className="text-xl text-ink lg:text-[22px]">{s.title}</h3>
+                    <p className="text-[15px] leading-relaxed text-ink-soft">{s.description}</p>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Navegación mobile */}
+        <div className="mt-3.5 flex items-center justify-between gap-2 lg:hidden">
+          <button
+            type="button"
+            aria-label="Paso anterior"
+            disabled={active === 0}
+            onClick={() => goMobile(active - 1)}
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-line-2 bg-paper text-forest-700 disabled:opacity-35"
+          >
+            <Icon name="arrow_back" />
+          </button>
+          <div className="flex gap-0.5">
+            {steps.map((s, i) => (
+              <button
+                key={s.slogan}
+                type="button"
+                aria-label={`Paso ${i + 1}: ${s.title}`}
+                aria-current={i === active}
+                onClick={() => goMobile(i)}
+                className="flex h-11 w-6 items-center justify-center"
+              >
+                <i className={`h-2 rounded-full transition-all duration-300 ease-bounce ${i === active ? "w-[22px] bg-forest" : "w-2 bg-line-2"}`} />
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            aria-label="Paso siguiente"
+            disabled={active === n - 1}
+            onClick={() => goMobile(active + 1)}
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-line-2 bg-paper text-forest-700 disabled:opacity-35"
+          >
+            <Icon name="arrow_forward" />
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

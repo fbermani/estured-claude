@@ -1,11 +1,12 @@
 import Link from "next/link";
+import { Icon } from "@/components/ui/Icon";
 import { CONTACT_EMAIL } from "@/lib/constants/contact";
 
 export function Footer({ hideSignup = false }: { hideSignup?: boolean } = {}) {
   return (
     <footer className="border-t border-line bg-forest-ink text-white">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-4">
-        <div className="md:col-span-2">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.3fr_1fr_1fr_1fr]">
+        <div>
           <p className="font-display text-xl font-bold">EstuRed</p>
           <p className="mt-3 max-w-sm text-sm text-white/70">
             La convivencia también se elige. Residencias estudiantiles
@@ -52,6 +53,41 @@ export function Footer({ hideSignup = false }: { hideSignup?: boolean } = {}) {
               </Link>
             </li>
             )}
+          </ul>
+        </div>
+        <div>
+          <p className="text-sm font-extrabold uppercase tracking-wide text-white/60">
+            Ayuda
+          </p>
+          <ul className="mt-3 space-y-2 text-sm text-white/80">
+            <li>
+              <Link
+                href="/students/support"
+                className="inline-flex items-center gap-1.5 rounded-sm font-semibold text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              >
+                <Icon name="support_agent" className="text-lg text-amber-soft-300" />
+                Soporte
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/for-students#preguntas-frecuentes"
+                className="rounded-sm transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              >
+                Preguntas frecuentes
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/#el-proceso"
+                className="rounded-sm transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              >
+                Cómo funciona
+              </Link>
+            </li>
+            <li className="pt-2 text-xs text-white/60">
+              ¿Tenés una reserva y algo no coincide? Abrí un caso desde tu panel.
+            </li>
           </ul>
         </div>
         <div>

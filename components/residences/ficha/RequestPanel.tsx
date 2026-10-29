@@ -311,6 +311,19 @@ export function RequestPanel({
           a confirmación.
         </p>
       )}
+      {(mode === "guest" || mode === "student") && !noneRequestable && (
+        <div className="mt-3 grid grid-cols-[36px_1fr] gap-2.5 rounded-[14px] bg-cream p-3 text-[13px] text-ink-soft">
+          <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-lilac text-lilac-fg">
+            <Icon name="support_agent" className="text-xl" />
+          </span>
+          <p>
+            Si después algo no coincide con lo publicado, <b className="text-ink">Soporte de EstuRed</b> te acompaña.{" "}
+            <Link href="/for-students#preguntas-frecuentes" className="font-semibold text-forest-700 hover:underline">
+              Cómo funciona
+            </Link>
+          </p>
+        </div>
+      )}
       {mode === "family" && (
         <p className="mt-4 text-xs leading-relaxed text-ink-faint">
           Una propuesta no es una solicitud: {studentName ?? "tu estudiante"} la ve en su panel y decide si la envía.

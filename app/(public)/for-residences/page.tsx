@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/Badge";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Icon } from "@/components/ui/Icon";
 import { Reveal } from "@/components/ui/Reveal";
-import { RotatingBenefits, type RotatingBenefit } from "@/components/ui/RotatingBenefits";
+import { SwipeStack } from "@/components/ui/SwipeStack";
+import { CommunityPreview } from "@/components/marketing/CommunityPreview";
 import { HoverFeatureList } from "@/components/ui/HoverFeatureList";
 import { VERIFIED_FEATURES, PREMIUM_FEATURES } from "@/lib/residences/planFeatures";
 import { StayChangeHighlight } from "@/components/marketing/StayChangeHighlight";
@@ -18,72 +19,30 @@ export const metadata: Metadata = {
     "EstuRed no reemplaza tu operación. La ordena, la hace más clara y te ayuda a convertir mejores solicitudes.",
 };
 
-const benefits: RotatingBenefit[] = [
+const pains = [
+  {
+    icon: "diversity_3",
+    title: "Afinidad de convivencia antes de aceptar",
+    quote: "«Una mala convivencia y se te vacía media habitación.»",
+    text: "Ves intereses y hábitos de cada estudiante antes de decir que sí. Elegís pensando en quién ya vive en esa habitación.",
+  },
+  {
+    icon: "fact_check",
+    title: "Reservas y pagos con registro",
+    quote: "«La seña quedó en un chat y nadie se acuerda qué se acordó.»",
+    text: "Lo acordado y lo cobrado quedan por escrito, para vos y para el estudiante. Sin discusiones de memoria.",
+  },
   {
     icon: "quiz",
     title: "Menos consultas repetidas",
-    summary:
-      "Tu perfil verificado responde las preguntas de siempre: precios, servicios, reglas y disponibilidad. Sumá preguntas frecuentes en tu ficha para resolver el resto.",
-    problem:
-      "Responder las mismas preguntas de precio, servicios y disponibilidad, una y otra vez por WhatsApp, te come el tiempo que deberías usar en gestionar tu residencia.",
-    solution:
-      "Tu perfil verificado responde las preguntas de siempre: precios, servicios, reglas y disponibilidad. Sumá preguntas frecuentes en tu ficha para resolver el resto.",
-    conclusion: "Menos tiempo respondiendo lo mismo, más tiempo gestionando.",
+    quote: "«Respondo precio y reglas veinte veces por semana.»",
+    text: "Tu ficha responde lo de siempre. Te escriben quienes ya leyeron todo.",
   },
   {
-    icon: "inbox",
-    title: "Elegí qué solicitudes aceptar",
-    summary:
-      "Conocé el perfil y la afinidad de convivencia de cada estudiante antes de aceptar. Vos decidís si avanzás, proponés un ajuste o rechazás.",
-    problem:
-      "Recibir consultas sueltas por distintos canales, sin el contexto del estudiante, hace difícil evaluar quién realmente encaja con tu casa.",
-    solution:
-      "Recibís solicitudes completas, con el perfil que cada estudiante elige compartir, y ves su afinidad de convivencia antes de aceptar. Vos decidís si avanzás, proponés un ajuste o rechazás.",
-    conclusion: "Toda la información para decidir, en un solo lugar.",
-  },
-  {
-    icon: "dashboard",
-    title: "Tu gestión en un solo lugar",
-    summary:
-      "Solicitudes, renovaciones y lista de espera juntas, con estados claros y todo registrado.",
-    problem:
-      "Manejar solicitudes, renovaciones y lista de espera en chats, planillas y llamadas hace difícil saber en qué quedó cada cosa.",
-    solution:
-      "Solicitudes, renovaciones y lista de espera en un solo lugar, con estados claros y todo registrado en la plataforma.",
-    conclusion: "Menos cosas sueltas, más control sobre tu operación.",
-  },
-  {
-    icon: "hourglass_top",
-    title: "Lista de espera ordenada",
-    summary:
-      "Si estás completa, los interesados se anotan solos. Cuando se libera una plaza, avisás con un clic.",
-    problem:
-      "Cuando estás completa, seguir anotando manualmente a quién avisarle si se libera un lugar es trabajo extra que nadie tiene tiempo de hacer bien.",
-    solution:
-      "Si estás completa, los interesados se anotan solos. Cuando se libera una plaza, avisás con un clic.",
-    conclusion: "Sabés a quién avisarle cuando se libera un lugar.",
-  },
-  {
-    icon: "sync_alt",
-    title: "Renovaciones sin fricción",
-    summary:
-      "Gestioná renovaciones de tus residentes actuales con ofertas y estados claros, sin perseguir confirmaciones.",
-    problem:
-      "Perseguir a tus residentes actuales para confirmar si renuevan es una tarea manual, repetitiva y fácil de postergar.",
-    solution:
-      "Gestioná renovaciones de tus residentes actuales con ofertas y estados claros, sin perseguir confirmaciones.",
-    conclusion: "Renovaciones con un proceso claro, sin perseguir a nadie.",
-  },
-  {
-    icon: "verified",
-    title: "Sello de Residencia Verificada",
-    summary:
-      "La verificación presencial te diferencia de las publicaciones informales y les da tranquilidad a estudiantes y familias.",
-    problem:
-      "Compitiendo con publicaciones informales, es difícil demostrarle a un estudiante que tu residencia es seria y real, sin pedirle que confíe a ciegas.",
-    solution:
-      "La verificación presencial te diferencia de las publicaciones informales y les da tranquilidad a estudiantes y familias.",
-    conclusion: "Un sello que genera confianza antes de la primera consulta.",
+    icon: "event_repeat",
+    title: "Renovaciones y lista de espera juntas",
+    quote: "«Me entero tarde de quién renueva y quién se va.»",
+    text: "Sabés quién sigue y a quién avisarle cuando se libera una plaza, en un mismo lugar.",
   },
 ];
 
@@ -162,16 +121,35 @@ export default function ForResidencesPage() {
         </div>
       </section>
 
-      {/* Beneficios — interactivo, rota solo y se puede explorar con clicks */}
+      {/* Beneficios: dolores y cómo se resuelven; en mobile, mazo con swipe */}
       <section id="como-funciona" className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
         <SectionHeader
           eyebrow="Beneficios"
-          title="Profesionalizá tu gestión sin cambiar tu forma de trabajar"
+          title="Herramientas para el día a día de tu residencia"
+          description="Lo que hoy resolvés entre chats, planillas y memoria, en un solo lugar."
         />
-        <RotatingBenefits items={benefits} />
+        <SwipeStack label="Beneficios para residencias" className="grid gap-4 md:grid-cols-2 md:gap-5">
+          {pains.map((p) => (
+            <article
+              key={p.title}
+              className="grid grid-cols-[44px_1fr] gap-3 rounded-card border border-line bg-paper p-6 shadow-card transition-all duration-300 ease-bounce md:hover:-translate-y-[3px] md:hover:shadow-card-hover"
+            >
+              <span className="flex h-11 w-11 items-center justify-center rounded-field bg-petrol-50 text-petrol-600">
+                <Icon name={p.icon} className="text-2xl" />
+              </span>
+              <div className="grid content-start gap-2">
+                <h3 className="text-[19px] text-ink">{p.title}</h3>
+                <p className="text-[13.5px] italic text-ink-faint">{p.quote}</p>
+                <p className="text-[15px] text-ink-soft">{p.text}</p>
+              </div>
+            </article>
+          ))}
+        </SwipeStack>
       </section>
 
       <StayChangeHighlight variant="residences" />
+
+      <CommunityPreview variant="residences" />
 
       <section className="bg-surface border-y border-sand-200">
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">

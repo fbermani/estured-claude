@@ -19,10 +19,17 @@ const STUDENT_STEPS = [
 ];
 
 const RESIDENCE_BENEFITS = [
-  { icon: "event_upcoming", title: "Anticipás la salida", text: "Sabés quién busca otro lugar y para cuándo, en vez de enterarte el día que se va." },
-  { icon: "request_quote", title: "Comunicás los costos antes", text: "Informás depósito, preaviso y condiciones por escrito, con plantillas listas para completar." },
-  { icon: "calendar_month", title: "Planificás la plaza", text: "Ves cuántas plazas se liberarían y desde qué mes, para ordenar tu ocupación y tus renovaciones." },
-  { icon: "hearing", title: "Tenés la oportunidad de escuchar", text: "Si el motivo es algo que podés mejorar, lo sabés a tiempo y podés ofrecer una alternativa." },
+  { icon: "event_upcoming", title: "Anticipás la salida", text: "Sabés quién busca otro lugar y desde qué mes." },
+  { icon: "request_quote", title: "Comunicás los costos", text: "Depósito, preaviso y condiciones por escrito, con plantillas." },
+  { icon: "calendar_month", title: "Planificás la plaza", text: "Ves cuántas plazas se liberarían y cuándo." },
+  { icon: "hearing", title: "Escuchás el motivo", text: "Si es algo que podés mejorar, lo sabés a tiempo." },
+];
+
+const TIMELINE = [
+  { label: "Hoy", text: "Lucía avisa", on: true },
+  { label: "Esta semana", text: "Respondés", on: true },
+  { label: "Octubre", text: "Avisás a tu lista", on: false },
+  { label: "Diciembre", text: "Se libera", on: false },
 ];
 
 export function StayChangeHighlight({ variant, studentCta = "register" }: { variant: "students" | "residences"; studentCta?: "register" | "residency" }) {
@@ -141,45 +148,44 @@ export function StayChangeHighlight({ variant, studentCta = "register" }: { vari
   return (
     <section id="quiero-cambiar" aria-labelledby="quiero-cambiar-residences-title" className="scroll-mt-24 bg-forest-ink text-white">
       <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-        <div className="grid items-start gap-12 lg:grid-cols-[1.05fr_0.95fr]">
+        <div className="grid items-stretch gap-8 lg:grid-cols-2 lg:gap-12">
           <Reveal>
             <p className="text-sm font-extrabold uppercase tracking-wide text-orange-light">Previsibilidad</p>
-            <h2 id="quiero-cambiar-residences-title" className="mt-2 text-3xl font-bold sm:text-4xl">
+            <h2 id="quiero-cambiar-residences-title" className="mt-2.5 text-[28px] font-bold leading-[1.15] sm:text-4xl">
               Enterate de una salida con tiempo, no el día que se van
             </h2>
-            <p className="mt-4 text-base text-white/85 sm:text-lg">
-              Cuando un residente se va sin avisar con tiempo, se desordenan tu ocupación, tu planificación y tus renovaciones. Con “Quiero cambiar”, te enterás cuando un residente empieza a buscar otra residencia, para ordenar tu lista de espera con tiempo.
+            <p className="mt-3 text-base text-white/85 sm:text-lg">
+              Con “Quiero cambiar”, te enterás cuando un residente empieza a buscar otra residencia y para cuándo. Así ordenás tu lista de espera y tus renovaciones con margen.
             </p>
-            <ul className="mt-7 grid gap-4 sm:grid-cols-2">
+            <ul className="mt-6 grid gap-3.5 sm:grid-cols-2">
               {RESIDENCE_BENEFITS.map((benefit) => (
-                <li key={benefit.title} className="rounded-card bg-white/[0.06] p-4 ring-1 ring-white/10">
-                  <span aria-hidden className="flex size-9 items-center justify-center rounded-full bg-white/10 text-orange-light">
+                <li key={benefit.title} className="grid grid-cols-[36px_1fr] gap-2.5">
+                  <span aria-hidden className="flex size-9 items-center justify-center rounded-[10px] bg-white/10 text-amber-soft-300">
                     <Icon name={benefit.icon} className="text-xl" />
                   </span>
-                  <p className="mt-3 font-bold">{benefit.title}</p>
-                  <p className="mt-1 text-sm leading-relaxed text-white/80">{benefit.text}</p>
+                  <div>
+                    <p className="text-[15px] font-bold text-white">{benefit.title}</p>
+                    <p className="text-[13.5px] text-white/75">{benefit.text}</p>
+                  </div>
                 </li>
               ))}
             </ul>
-            <p className="mt-6 text-xs leading-relaxed text-white/70">
-              Tu respuesta es informativa: no reemplaza el contrato ni el preaviso que acordaste con el residente. Las otras residencias no ven a tus residentes.
-              EstuRed es una plataforma intermediaria y no fija ni cobra costos de salida.
-            </p>
           </Reveal>
 
-          <Reveal delay={2} className="relative mx-auto w-full max-w-md lg:max-w-none">
-            <div aria-hidden className="overflow-hidden rounded-card bg-paper text-ink shadow-float">
-              <div className="bg-gradient-to-br from-orange-tint to-paper px-5 py-4">
-                <p className="font-display text-lg font-extrabold">2 residentes buscan cambiar</p>
-                <p className="mt-0.5 text-xs text-ink-soft">Respondé con los costos, las condiciones y los detalles de la salida.</p>
+          <Reveal delay={2} className="flex">
+            <div role="img" aria-label="Ejemplo del panel de la residencia, datos ficticios" className="flex w-full flex-col gap-3 rounded-card bg-paper p-5 text-ink shadow-float">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="text-lg">2 residentes buscan cambiar</h3>
+                <span className="rounded-full bg-orange-tint px-2.5 py-0.5 text-xs font-semibold text-orange-700">1 sin responder</span>
               </div>
+              <p className="text-[13px] text-ink-faint">Respondé con los costos, las condiciones y los detalles de la salida.</p>
               {[
-                { name: "Lucía F.", detail: "Salida estimada · diciembre", badge: "Sin responder", warm: true },
-                { name: "Tomás R.", detail: "Salida estimada · marzo", badge: "Respondida · vista", warm: false },
+                { name: "Lucía F.", initials: "LF", detail: "Salida estimada · diciembre", badge: "Sin responder", warm: true, av: "bg-sage-100 text-sage-700" },
+                { name: "Tomás R.", initials: "TR", detail: "Salida estimada · marzo", badge: "Respondida", warm: false, av: "bg-petrol-50 text-petrol-600" },
               ].map((row) => (
-                <div key={row.name} className="flex items-center gap-3 border-t border-line px-5 py-3.5">
-                  <span className="flex size-8 items-center justify-center rounded-full bg-orange-tint text-sm font-bold text-orange-700">{row.name[0]}</span>
-                  <div className="min-w-0 flex-1">
+                <div key={row.name} className="grid grid-cols-[40px_1fr_auto] items-center gap-2.5 rounded-[14px] border border-line p-3">
+                  <span className={`flex size-10 items-center justify-center rounded-full text-sm font-bold ${row.av}`}>{row.initials}</span>
+                  <div className="min-w-0">
                     <p className="text-sm font-bold">{row.name}</p>
                     <p className="text-xs text-ink-faint">{row.detail}</p>
                   </div>
@@ -188,15 +194,32 @@ export function StayChangeHighlight({ variant, studentCta = "register" }: { vari
                   </span>
                 </div>
               ))}
-            </div>
-            <div aria-hidden className="absolute -bottom-5 -right-2 hidden max-w-[230px] rotate-1 rounded-card bg-paper p-3.5 text-ink shadow-float sm:block">
-              <p className="flex items-start gap-2 text-xs font-bold leading-snug">
-                <Icon name="notifications_active" className="text-lg text-orange-700" />
-                Lucía avisó que busca cambiar de residencia. Respondele con los costos y condiciones.
-              </p>
+              <div className="flex items-start gap-2.5 rounded-[14px] bg-amber-soft-100 p-3 text-[13.5px] text-amber-soft-700">
+                <Icon name="notifications_active" className="text-xl" />
+                <span>
+                  <b className="text-ink">Lucía avisó que busca cambiar.</b> Respondele con los costos y las condiciones de salida.
+                </span>
+              </div>
+              <div className="mt-auto border-t border-line pt-3.5">
+                <span className="text-xs font-bold">Cómo te da tiempo</span>
+                <ol className="relative mt-2.5 grid grid-cols-4">
+                  <span aria-hidden className="absolute left-[12%] right-[12%] top-[9px] h-0.5 bg-line-2" />
+                  {TIMELINE.map((t) => (
+                    <li key={t.label} className="relative grid justify-items-center gap-1.5 text-center text-xs text-ink-faint">
+                      <i className={`size-5 rounded-full border-2 ${t.on ? "border-forest bg-forest" : "border-line-2 bg-paper"}`} />
+                      <b className="text-[12.5px] text-ink">{t.label}</b>
+                      {t.text}
+                    </li>
+                  ))}
+                </ol>
+              </div>
             </div>
           </Reveal>
         </div>
+        <p className="mt-8 border-t border-white/10 pt-4 text-xs leading-relaxed text-white/70">
+          Tu respuesta es informativa: no reemplaza el contrato ni el preaviso que acordaste con el residente. Las otras residencias no ven a tus residentes.
+          EstuRed es una plataforma intermediaria y no fija ni cobra costos de salida.
+        </p>
       </div>
     </section>
   );

@@ -4,101 +4,48 @@ import { Card } from "@/components/ui/Card";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Icon } from "@/components/ui/Icon";
 import { Reveal } from "@/components/ui/Reveal";
-import { RotatingBenefits, type RotatingBenefit } from "@/components/ui/RotatingBenefits";
+import { BenefitBento, HOME_BENEFITS } from "@/components/marketing/BenefitBento";
 import { HoverFeatureList } from "@/components/ui/HoverFeatureList";
 import { HowItWorksSteps } from "@/app/(public)/HowItWorksSteps";
 import { ResidenceCard } from "@/components/residences/ResidenceCard";
 import { getCatalogResidences } from "@/lib/residences/catalog";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 
-const pillars: RotatingBenefit[] = [
-  {
-    icon: "verified",
-    title: "Información verificada",
-    summary:
-      "Identidad, ubicación y fotos revisadas por EstuRed mediante control presencial antes de publicarse.",
-    problem:
-      "Cuando buscás a distancia, solo tenés fotos y descripciones que nadie revisó. Es difícil saber si coinciden con el lugar antes de pagar una seña.",
-    solution:
-      "Identidad, ubicación y fotos revisadas por EstuRed mediante control presencial antes de publicarse. Revisamos cada espacio en persona: fotos auténticas, servicios reales y reglas claras.",
-    conclusion: "Elegís con información revisada en persona.",
-  },
-  {
-    icon: "description",
-    title: "Solicitud registrada",
-    summary:
-      "Tu solicitud, la respuesta de la residencia y cualquier ajuste de condiciones quedan registrados en la plataforma. Nada depende de un chat que se pierde.",
-    problem:
-      "Un acuerdo por chat se puede perder o editar, y después cuesta saber qué quedó acordado.",
-    solution:
-      "Tu solicitud, la respuesta de la residencia y cualquier ajuste de condiciones quedan registrados en la plataforma, con fecha y estado siempre visibles.",
-    conclusion: "Todo el proceso queda por escrito, no en un chat que se borra.",
-  },
-  {
-    icon: "receipt_long",
-    title: "Registro verificable",
-    summary:
-      "Cuando tu reserva se confirma, EstuRed la registra con un código público. Un registro claro para vos y tu familia.",
-    problem:
-      "Transferir una seña sin ningún registro deja dudas, para vos y para quien te ayuda a pagar.",
-    solution:
-      "Cuando tu reserva se confirma, EstuRed emite tu Comprobante de Reserva Confirmada, con un código que cualquier persona puede verificar públicamente.",
-    conclusion: "Un registro verificable, no una captura de un chat.",
-  },
-  {
-    icon: "sell",
-    title: "Costos a la vista",
-    summary:
-      "Cuentas claras desde el inicio: tarifas, depósito, matrícula y política de ajustes publicados, y el fee de EstuRed (5%) antes de pagar.",
-    problem:
-      "Los costos que aparecen recién cuando ya avanzaste generan desconfianza, sobre todo si pagás a distancia.",
-    solution:
-      "Cada residencia publica su tarifa, el depósito, la matrícula y bajo qué condiciones puede ajustar el precio. Ves el monto exacto del fee de EstuRed (5% de tu estadía inicial, sin contar el depósito) antes de pagar, y a la residencia le pagás directamente lo acordado.",
-    conclusion: "Sabés cuánto vas a pagar y a quién, antes de pagar.",
-  },
-  {
-    icon: "support_agent",
-    title: "Soporte de EstuRed",
-    summary:
-      "Si algo no coincide con lo publicado, abrís un caso de Soporte desde tu reserva y te acompañamos.",
-    problem:
-      "Si al llegar algo no coincide con lo que se publicó, resolverlo solo, a distancia, es difícil.",
-    solution:
-      "Si algo no coincide con lo publicado, abrís un caso de Soporte desde tu reserva. Revisamos lo que pasó y te acompañamos para encontrar otra opción.",
-    conclusion: "Tenés a quién recurrir si algo no coincide.",
-  },
-];
-
 const steps = [
   {
+    slogan: "Buscá sin viajar",
     title: "Buscás tu residencia",
-    description:
-      "Desde donde estés, sin viajar a Buenos Aires: filtrá por barrio, tipo de habitación y presupuesto, y conocé reglas, servicios, compañeros y universidades cercanas de cada residencia.",
-    detail: "Ver reglas y disponibilidad antes de escribir evita perder tiempo con residencias que no son para vos.",
+    description: "Filtrá por universidad, barrio y precio. Mirá reglas, servicios, disponibilidad y quiénes viven ahí.",
+    img: "/landing/proceso-1-busqueda.webp",
+    alt: "Búsqueda de EstuRed con filtros y tarjetas de residencias verificadas",
   },
   {
+    slogan: "Solicitá gratis",
     title: "Enviás tu solicitud",
-    description:
-      "Es gratis y queda registrada en la plataforma. La residencia revisa tu perfil y te responde. Un familiar también puede proponerte opciones.",
-    detail: "Tu solicitud queda registrada y no depende de conversaciones por WhatsApp que puedan perderse.",
+    description: "Elegís el tipo de habitación y enviás tu solicitud sin costo. Tu familia puede acompañarte.",
+    img: "/landing/proceso-2-solicitud.webp",
+    alt: "Ficha de residencia con tarifas por tipo de habitación y selector para solicitar",
   },
   {
+    slogan: "Vos decidís",
     title: "La residencia te responde",
-    description:
-      "La residencia acepta tu solicitud o te propone un único ajuste. Vos decidís si lo aceptás.",
-    detail: "Si te proponen un ajuste, sos vos quien decide aceptarlo o no.",
+    description: "Acepta tu solicitud o te propone un ajuste. Seguís cada paso y decidís si avanzás.",
+    img: "/landing/proceso-3-respuesta.webp",
+    alt: "Seguimiento de la solicitud con los pasos completados",
   },
   {
+    slogan: "Pago directo",
     title: "Abonás tu reserva",
-    description:
-      "Pago directo a la residencia, bajo los términos acordados (por ejemplo, el primer mes o la matrícula). La residencia confirma que lo recibió.",
-    detail: "EstuRed no cobra ese dinero: queda registrado que la residencia lo recibió.",
+    description: "Pagás directo a la residencia lo acordado. Ella confirma que lo recibió.",
+    img: "/landing/proceso-4-pago.webp",
+    alt: "Detalle de qué pagás y a quién: a la residencia y el fee EstuRed",
   },
   {
-    title: "Confirmá tu reserva",
-    description:
-      "Abonás el fee de EstuRed (5% de tu estadía inicial, sin contar el depósito) y obtenés tu Comprobante de Reserva Confirmada. Ves el monto exacto antes de pagar.",
-    detail: "Queda registrada con un código que cualquier persona puede verificar.",
+    slogan: "Comprobante verificable",
+    title: "Confirmás tu reserva",
+    description: "Abonás el fee EstuRed (5%) y obtenés tu Comprobante de Reserva Confirmada.",
+    img: "/landing/proceso-5-comprobante.webp",
+    alt: "Comprobante de Reserva Confirmada con número verificable",
   },
 ];
 
@@ -224,7 +171,7 @@ const faqs = [
   },
   {
     q: "¿Qué pasa si algo no coincide con lo publicado?",
-    a: "Podés abrir un caso de Soporte desde tu reserva. Revisamos lo que pasó y te acompañamos para encontrar otra opción. Más detalle en «Si algo no coincide con lo publicado».",
+    a: "Abrís un caso de Soporte desde tu reserva. Revisamos lo que pasó, hablamos con la residencia y, si hace falta, te acompañamos para encontrar otra opción. Aplica a diferencias importantes y comprobables; lo que pagaste a la residencia se resuelve con ella, según sus condiciones.",
   },
 ];
 
@@ -295,14 +242,14 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Por qué EstuRed — interactivo, rota solo y se puede explorar con clicks */}
+      {/* Por qué EstuRed — bento; en mobile, mazo con swipe */}
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
         <SectionHeader
           eyebrow="Por qué EstuRed"
           title="Elegir a distancia, con todo a la vista"
-          description="Reservar a distancia genera dudas. En EstuRed cada paso es claro, las residencias están verificadas y todo queda registrado."
+          description="Residencias verificadas, costos claros y cada paso registrado."
         />
-        <RotatingBenefits items={pillars} />
+        <BenefitBento items={HOME_BENEFITS} label="Por qué EstuRed" />
       </section>
 
       {/* Comparación */}
@@ -334,12 +281,17 @@ export default async function HomePage() {
       </section>
 
       {/* Cómo funciona */}
-      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
+      <section id="el-proceso" className="mx-auto max-w-6xl scroll-mt-20 overflow-x-clip px-4 py-16 sm:px-6 sm:py-24">
         <SectionHeader
           eyebrow="El proceso"
-          title="De la búsqueda a tu reserva confirmada, en cinco pasos"
-          description="Todo desde donde estés, sin viajar a Buenos Aires, y con cada paso registrado en la plataforma."
+          title="De la búsqueda a tu reserva confirmada, sin viajar a Buenos Aires"
+          description="Cinco pasos desde donde estés. Cada uno queda registrado."
         />
+        <p className="-mt-4 mb-8 text-center">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-soft-100 px-3 py-1.5 text-[13px] font-bold text-amber-soft-700">
+            <Icon name="home_pin" className="text-lg" /> Todo a distancia
+          </span>
+        </p>
         <HowItWorksSteps steps={steps} />
       </section>
 
