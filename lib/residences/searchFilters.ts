@@ -1,37 +1,86 @@
 import type { AvailabilityMode, Residence, RoomTypeName } from "@/types/domain";
 import { COMMON_AREA_OPTIONS, SERVICE_OPTIONS } from "@/lib/residences/options";
+import { amenityKey, dedupeAmenities } from "@/lib/residences/amenityKeys";
 
 /**
  * Filtros de /search por servicios y áreas comunes (DR18): query params `servicios` y `areas` (valores separados por coma).
  * Se filtra en el servidor; los valores se validan contra las listas que elige la residencia en su ficha (lo demás se descarta).
  */
-const SERVICES = new Set<string>(SERVICE_OPTIONS);
-const AREAS = new Set<string>(COMMON_AREA_OPTIONS);
+const SERVICE_KEYS = new Set<string>(SERVICE_OPTIONS.map(amenityKey));
+const AREA_KEYS = new Set<string>(COMMON_AREA_OPTIONS.map(amenityKey));
 
-function parseList(raw: string | string[] | undefined, allowed: Set<string>, extra: readonly string[]): string[] {
+/**
+ * Valida una lista contra las opciones fijas de la ficha + los «Otro» aprobados del catálogo (`extra`), comparando por clave
+ * (sin mayúsculas ni tildes). Devuelve la etiqueta canónica de cada opción, sin repetidos.
+ */
+function parseList(raw: string | string[] | undefined, fixed: readonly string[], fixedKeys: Set<string>, extra: readonly string[]): string[] {
   const text = Array.isArray(raw) ? raw.join(",") : (raw ?? "");
-  return [...new Set(text.split(",").map((v) => v.trim()).filter((v) => allowed.has(v) || extra.includes(v)))];
+  const canonical = new Map<string, string>();
+  for (const label of [...fixed, ...extra]) if (!canonical.has(amenityKey(label))) canonical.set(amenityKey(label), label);
+  const extraKeys = new Set(extra.map(amenityKey));
+  const picked = text
+    .split(",")
+    .map((v) => v.trim())
+    .filter((v) => v && (fixedKeys.has(amenityKey(v)) || extraKeys.has(amenityKey(v))))
+    .map((v) => canonical.get(amenityKey(v)) as string);
+  return [...new Set(picked)];
 }
 
 /** `extra` = ítems «Otro» aprobados que hoy tiene el catálogo (ver `customAmenityOptions`): también se pueden filtrar. */
 export function parseServiceFilter(raw: string | string[] | undefined, extra: readonly string[] = []): string[] {
-  return parseList(raw, SERVICES, extra);
+  return parseList(raw, SERVICE_OPTIONS, SERVICE_KEYS, extra);
 }
 
 export function parseAreaFilter(raw: string | string[] | undefined, extra: readonly string[] = []): string[] {
-  return parseList(raw, AREAS, extra);
+  // Lo que `areaFilterOptions` oculta (ítems que ya son servicio) tampoco se acepta por URL.
+  return parseList(raw, COMMON_AREA_OPTIONS, AREA_KEYS, extra).filter((l) => !SERVICE_KEYS.has(amenityKey(l)));
 }
 
 /**
  * Ítems «Otro» ya aprobados que hay en el catálogo (DR18 t4): servicios y áreas que no están en las listas fijas, ordenados.
  * Como el catálogo solo trae ítems aprobados, un pendiente o rechazado nunca aparece como opción de filtro.
+ * Se deduplican por clave (minúsculas, sin tildes, equivalencias de `amenityKey`) y entre grupos: un ítem que ya es una opción
+ * fija («Cocina», «Gimnasio») no se repite, y uno que aparece en ambos grupos queda en el que más lo usa (empate: servicios).
  */
 export function customAmenityOptions(residences: Pick<Residence, "services" | "commonAreas">[]): { services: string[]; areas: string[] } {
-  const uniq = (list: string[]) => [...new Set(list)].sort((a, b) => a.localeCompare(b, "es"));
-  return {
-    services: uniq(residences.flatMap((r) => r.services).filter((v) => !SERVICES.has(v))),
-    areas: uniq(residences.flatMap((r) => r.commonAreas ?? []).filter((v) => !AREAS.has(v))),
+  const fixed = new Set([...SERVICE_KEYS, ...AREA_KEYS]);
+  type Entry = { service: number; area: number; labels: Map<string, number> };
+  const byKey = new Map<string, Entry>();
+  const add = (label: string, group: "service" | "area") => {
+    const k = amenityKey(label);
+    if (fixed.has(k)) return;
+    const e = byKey.get(k) ?? { service: 0, area: 0, labels: new Map() };
+    e[group] += 1;
+    e.labels.set(label.trim(), (e.labels.get(label.trim()) ?? 0) + 1);
+    byKey.set(k, e);
   };
+  for (const r of residences) {
+    r.services.forEach((v) => add(v, "service"));
+    (r.commonAreas ?? []).forEach((v) => add(v, "area"));
+  }
+  const out = { services: [] as string[], areas: [] as string[] };
+  for (const e of byKey.values()) {
+    // Etiqueta: la variante más usada; empate, la primera que apareció en el catálogo.
+    const label = [...e.labels.entries()].sort((a, b) => b[1] - a[1])[0][0];
+    (e.area > e.service ? out.areas : out.services).push(label);
+  }
+  const byName = (a: string, b: string) => a.localeCompare(b, "es");
+  return { services: out.services.sort(byName), areas: out.areas.sort(byName) };
+}
+
+/** Opciones del grupo «Servicios»: las fijas + los «Otro» aprobados, sin repetidos. */
+export function serviceFilterOptions(extra: readonly string[]): string[] {
+  return dedupeAmenities([...SERVICE_OPTIONS, ...extra]);
+}
+
+/** Opciones del grupo «Áreas comunes»: sin repetidos y sin lo que ya vive en «Servicios». */
+export function areaFilterOptions(extra: readonly string[]): string[] {
+  return dedupeAmenities([...COMMON_AREA_OPTIONS, ...extra]).filter((l) => !SERVICE_KEYS.has(amenityKey(l)));
+}
+
+/** Claves de todo lo que ofrece una residencia (servicios + áreas): un ítem se encuentra esté donde esté cargado. */
+function offeredKeys(r: Pick<Residence, "services" | "commonAreas">): Set<string> {
+  return new Set([...r.services, ...(r.commonAreas ?? [])].map(amenityKey));
 }
 
 /** Barrios con al menos una residencia publicada (verified_active), ordenados; para el filtro de /search. */
@@ -42,8 +91,8 @@ export function barriosWithResidences(residences: Pick<Residence, "zone">[]): st
 /* ------------------------------------------------------------------------------------------------
  * Filtros de /search estilo Booking (rediseño 2026-10-29, propuesta B). Todo vive en query params
  * (URL compartible) y se resuelve en el servidor; los contadores se calculan sobre el catálogo real.
- * Supuestos reversibles: solo hay filtros con dato real hoy. No existen en `Residence` el tipo de
- * convivencia (género) ni coordenadas, así que no hay filtro de género ni mapa.
+ * Género (`genero`): sale de `Residence.genderPolicy`; las residencias que no la declaran no
+ * coinciden con ningún género. La vista (`vista`) y el mapa usan las coordenadas públicas de la residencia.
  * ---------------------------------------------------------------------------------------------- */
 
 
@@ -51,6 +100,10 @@ export const ROOM_TYPE_FILTER_OPTIONS: RoomTypeName[] = ["Individual", "Doble", 
 /** Modos de disponibilidad filtrables (los pausados son por tipo de habitación, no por residencia). */
 export const STATUS_FILTER_OPTIONS: AvailabilityMode[] = ["real_by_place", "by_room_type_to_confirm", "not_updated", "full"];
 export type SortKey = "rec" | "pa" | "pd";
+export type ViewMode = "lista" | "grilla" | "mapa";
+export type GenderPolicy = NonNullable<Residence["genderPolicy"]>;
+export const GENDER_FILTER_OPTIONS: GenderPolicy[] = ["mixto", "solo_mujeres", "solo_hombres"];
+export const GENDER_LABELS: Record<GenderPolicy, string> = { mixto: "Mixto", solo_mujeres: "Solo mujeres", solo_hombres: "Solo hombres" };
 
 export type SearchFilters = {
   barrio: string[];
@@ -59,16 +112,18 @@ export type SearchFilters = {
   services: string[];
   areas: string[];
   status: string[];
+  gender: string[];
   promo: boolean;
   minor: boolean;
   /** Presupuesto en USD sobre el precio «desde» mostrado; `null` = sin extremo. */
   pmin: number | null;
   pmax: number | null;
   sort: SortKey;
+  view: ViewMode;
 };
 
 export type SearchParamsInput = Record<string, string | string[] | undefined>;
-export type FilterGroupKey = "barrio" | "uni" | "room" | "services" | "areas" | "status";
+export type FilterGroupKey = "barrio" | "uni" | "room" | "services" | "areas" | "gender" | "status";
 /** Nombre del query param de cada grupo. */
 export const PARAM_NAMES: Record<FilterGroupKey, string> = {
   barrio: "barrio",
@@ -76,6 +131,7 @@ export const PARAM_NAMES: Record<FilterGroupKey, string> = {
   room: "hab",
   services: "servicios",
   areas: "areas",
+  gender: "genero",
   status: "estado",
 };
 
@@ -112,6 +168,7 @@ export function parseSearchFilters(params: SearchParamsInput, universe: FilterUn
   let pmax = toPrice(params.max);
   if (pmin !== null && pmax !== null && pmin > pmax) [pmin, pmax] = [pmax, pmin];
   const sortRaw = Array.isArray(params.orden) ? params.orden[0] : params.orden;
+  const viewRaw = Array.isArray(params.vista) ? params.vista[0] : params.vista;
   return {
     barrio: only("barrio", universe.barrios),
     uni: only("uni", universe.unis),
@@ -119,25 +176,33 @@ export function parseSearchFilters(params: SearchParamsInput, universe: FilterUn
     services: parseServiceFilter(params.servicios, universe.extraServices),
     areas: parseAreaFilter(params.areas, universe.extraAreas),
     status: only("status", STATUS_FILTER_OPTIONS),
+    gender: only("gender", GENDER_FILTER_OPTIONS),
     promo: params.promo === "1",
     minor: params.menores === "1",
     pmin,
     pmax,
     sort: sortRaw === "pa" || sortRaw === "pd" ? sortRaw : "rec",
+    view: viewRaw === "lista" || viewRaw === "mapa" ? viewRaw : "grilla",
   };
 }
 
-type Matchable = Pick<Residence, "zone" | "nearUniversities" | "roomTypes" | "services" | "commonAreas" | "availabilityMode" | "priceFromUsd" | "promotionPercent" | "acceptsMinors">;
+type Matchable = Pick<Residence, "zone" | "nearUniversities" | "roomTypes" | "services" | "commonAreas" | "availabilityMode" | "priceFromUsd" | "promotionPercent" | "acceptsMinors" | "genderPolicy" | "genderPolicies">;
 
 /** `skip` ignora un grupo (para contadores y para el rango de precios). Dentro de un grupo: «alguno»; servicios y áreas: «todos». */
 export function matchesFilters(r: Matchable, f: SearchFilters, skip?: FilterGroupKey | "price" | "promo" | "minor"): boolean {
   const any = (sel: string[], test: (v: string) => boolean) => sel.length === 0 || sel.some(test);
+  const hasAll = (sel: string[]) => {
+    if (sel.length === 0) return true;
+    const keys = offeredKeys(r);
+    return sel.every((v) => keys.has(amenityKey(v)));
+  };
   return (
     (skip === "barrio" || any(f.barrio, (v) => r.zone === v)) &&
     (skip === "uni" || any(f.uni, (v) => r.nearUniversities.includes(v))) &&
     (skip === "room" || any(f.room, (v) => r.roomTypes.some((rt) => rt.type === v))) &&
-    (skip === "services" || f.services.every((v) => r.services.includes(v))) &&
-    (skip === "areas" || f.areas.every((v) => (r.commonAreas ?? []).includes(v))) &&
+    (skip === "services" || hasAll(f.services)) &&
+    (skip === "areas" || hasAll(f.areas)) &&
+    (skip === "gender" || any(f.gender, (v) => (r.genderPolicies ?? (r.genderPolicy ? [r.genderPolicy] : [])).includes(v as GenderPolicy))) &&
     (skip === "status" || any(f.status, (v) => r.availabilityMode === v)) &&
     (skip === "promo" || !f.promo || (r.promotionPercent ?? 0) > 0) &&
     (skip === "minor" || !f.minor || r.acceptsMinors === true) &&
@@ -182,6 +247,47 @@ export function priceBounds(list: Pick<Residence, "priceFromUsd">[]): { min: num
   return { min: Math.floor(Math.min(...prices) / 10) * 10, max: Math.ceil(Math.max(...prices) / 10) * 10 };
 }
 
+/** Histograma del control de presupuesto: cuántas residencias caen en cada tramo, con todos los filtros salvo el precio. */
+export function priceHistogram(list: Matchable[], f: SearchFilters, bounds: { min: number; max: number }, bins = 15): number[] {
+  const counts = Array.from({ length: bins }, () => 0);
+  const span = bounds.max - bounds.min;
+  if (span <= 0) return counts;
+  for (const r of list) {
+    if (!matchesFilters(r, f, "price")) continue;
+    const i = Math.min(bins - 1, Math.max(0, Math.floor(((r.priceFromUsd - bounds.min) / span) * bins)));
+    counts[i] += 1;
+  }
+  return counts;
+}
+
 export function countActiveFilters(f: SearchFilters): number {
-  return f.barrio.length + f.uni.length + f.room.length + f.services.length + f.areas.length + f.status.length + (f.promo ? 1 : 0) + (f.minor ? 1 : 0) + (f.pmin !== null || f.pmax !== null ? 1 : 0);
+  return f.barrio.length + f.uni.length + f.room.length + f.services.length + f.areas.length + f.status.length + f.gender.length + (f.promo ? 1 : 0) + (f.minor ? 1 : 0) + (f.pmin !== null || f.pmax !== null ? 1 : 0);
+}
+
+/**
+ * Serializa los filtros a query string (mismos nombres que lee `parseSearchFilters`). Sirve para armar enlaces del
+ * servidor, p. ej. las sugerencias del estado «sin resultados». Los valores por defecto no se escriben.
+ */
+export function filtersToQuery(f: SearchFilters): string {
+  const p = new URLSearchParams();
+  for (const key of Object.keys(PARAM_NAMES) as FilterGroupKey[]) if (f[key].length > 0) p.set(PARAM_NAMES[key], f[key].join(","));
+  if (f.promo) p.set("promo", "1");
+  if (f.minor) p.set("menores", "1");
+  if (f.pmin !== null) p.set("min", String(f.pmin));
+  if (f.pmax !== null) p.set("max", String(f.pmax));
+  if (f.sort !== "rec") p.set("orden", f.sort);
+  if (f.view !== "grilla") p.set("vista", f.view);
+  return p.toString();
+}
+
+/** Cada filtro activo como una pieza que se puede quitar: devuelve los filtros sin ella. */
+export function removableFilters(f: SearchFilters): { key: string; group: FilterGroupKey | "promo" | "minor" | "price"; value?: string; without: SearchFilters }[] {
+  const out: ReturnType<typeof removableFilters> = [];
+  for (const group of Object.keys(PARAM_NAMES) as FilterGroupKey[]) {
+    for (const value of f[group]) out.push({ key: `${group}:${value}`, group, value, without: { ...f, [group]: f[group].filter((v) => v !== value) } });
+  }
+  if (f.promo) out.push({ key: "promo", group: "promo", without: { ...f, promo: false } });
+  if (f.minor) out.push({ key: "minor", group: "minor", without: { ...f, minor: false } });
+  if (f.pmin !== null || f.pmax !== null) out.push({ key: "price", group: "price", without: { ...f, pmin: null, pmax: null } });
+  return out;
 }

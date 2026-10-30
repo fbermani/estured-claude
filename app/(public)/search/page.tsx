@@ -2,16 +2,29 @@ import type { Metadata } from "next";
 import { SearchShell, type FilterGroup } from "@/app/(public)/search/SearchShell";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 import { getCatalogResidencesWithTotal } from "@/lib/residences/catalog";
-import { ResidenceCard } from "@/components/residences/ResidenceCard";
+import Link from "next/link";
+import { SearchResultCard } from "@/components/residences/SearchResultCard";
+import { SearchMap } from "@/components/residences/SearchMap";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Icon } from "@/components/ui/Icon";
 import { availabilityHelpText, availabilityLabel } from "@/components/ui/StatusTag";
 import { getSessionUser } from "@/lib/auth/session";
 import { getStudentAgeAt, parseIngresoParam } from "@/lib/residences/studentAge";
 import { todayIso } from "@/lib/residences/age";
-import { COMMON_AREA_OPTIONS, SERVICE_OPTIONS, serviceLabel } from "@/lib/residences/options";
+import { serviceLabel } from "@/lib/residences/options";
+import { getCommonAreaIcon, getServiceIcon } from "@/lib/residences/amenityIcons";
+import { toMapPoints } from "@/lib/residences/mapPoints";
 import {
+  GENDER_FILTER_OPTIONS,
+  GENDER_LABELS,
   ROOM_TYPE_FILTER_OPTIONS,
   STATUS_FILTER_OPTIONS,
+  areaFilterOptions,
+  filtersToQuery,
+  priceHistogram,
+  removableFilters,
+  serviceFilterOptions,
+  type GenderPolicy,
   applySearchFilters,
   buildCounts,
   buildUniverse,
@@ -43,9 +56,10 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   ]);
 
   const head = (
-    <div className="mb-5 max-w-2xl sm:mb-8">
-      <h1 className="text-3xl font-extrabold text-ink sm:text-4xl">Encontrá tu próximo hogar en Buenos Aires</h1>
-      <p className="mt-2 text-ink-soft">
+    <div className="mb-3 max-w-2xl sm:mb-4">
+      <p className="mb-1.5 text-[13px] text-ink-faint">Inicio › Buscar residencias</p>
+      <h1 className="text-[26px] leading-[1.15] font-extrabold text-ink min-[900px]:text-[34px]">Encontrá tu próximo hogar en Buenos Aires</h1>
+      <p className="mt-1.5 max-w-[42.5rem] text-[14.5px] text-ink-soft">
         Todas las residencias del catálogo fueron verificadas presencialmente. La disponibilidad es informativa y toda
         reserva está sujeta a confirmación.
       </p>
@@ -54,7 +68,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
 
   if (residences.length === 0) {
     return (
-      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
+      <div className="mx-auto max-w-[80rem] px-4 py-6 sm:px-6 sm:py-8">
         {head}
         {total > 0 ? (
           <EmptyState
@@ -81,14 +95,15 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
     barrio: universe.barrios,
     uni: universe.unis,
     room: [...ROOM_TYPE_FILTER_OPTIONS],
-    services: [...SERVICE_OPTIONS, ...universe.extraServices],
-    areas: [...COMMON_AREA_OPTIONS, ...universe.extraAreas],
+    services: serviceFilterOptions(universe.extraServices),
+    areas: areaFilterOptions(universe.extraAreas),
+    gender: [...GENDER_FILTER_OPTIONS],
     status: statusOptions,
   };
   const { counts, promo, minor } = buildCounts(residences, filters, options);
   // Dentro de cada grupo, primero las opciones con más resultados (los barrios y universidades); servicios/áreas/tipos mantienen el orden de la ficha.
-  const opt = (key: keyof typeof options, label: (v: string) => string, sort = false) => {
-    const list = options[key].map((value) => ({ value, label: label(value), count: counts[key][value] ?? 0 }));
+  const opt = (key: keyof typeof options, label: (v: string) => string, sort = false, icon?: (v: string) => string) => {
+    const list = options[key].map((value) => ({ value, label: label(value), count: counts[key][value] ?? 0, icon: icon?.(value) }));
     return sort ? list.sort((a, b) => b.count - a.count || a.label.localeCompare(b.label, "es")) : list;
   };
   const same = (v: string) => v;
@@ -96,8 +111,9 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
     { key: "barrio", title: "Barrio", options: opt("barrio", same, true), show: 6 },
     { key: "uni", title: "Universidad cercana", options: opt("uni", same, true), show: 5 },
     { key: "room", title: "Tipo de habitación", options: opt("room", same), show: 5 },
-    { key: "services", title: "Servicios", hint: "Se muestran las que ofrecen todos los que elijas.", options: opt("services", serviceLabel), show: 6 },
-    { key: "areas", title: "Áreas comunes", hint: "Se muestran las que ofrecen todas las que elijas.", options: opt("areas", same), show: 4 },
+    { key: "services", title: "Servicios", hint: "Se muestran las que ofrecen todos los que elijas.", options: opt("services", serviceLabel, false, (v) => getServiceIcon(v).icon), show: 6 },
+    { key: "areas", title: "Áreas comunes", hint: "Se muestran las que ofrecen todas las que elijas.", options: opt("areas", same, false, (v) => getCommonAreaIcon(v).icon), show: 4 },
+    { key: "gender", title: "Quiénes viven en la residencia", options: opt("gender", (v) => GENDER_LABELS[v as GenderPolicy]), show: 3 },
     {
       key: "status",
       title: "Disponibilidad",
@@ -106,34 +122,85 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
       show: 4,
     },
   ];
+  const bounds = priceBounds(residences);
+  const histogram = priceHistogram(residences, filters, bounds);
+  const labelOf = (group: string, value?: string) => {
+    if (group === "promo") return "Con promoción";
+    if (group === "minor") return "Admite menores de 18";
+    if (group === "price") return "el presupuesto";
+    const o = groups.find((g) => g.key === group)?.options.find((x) => x.value === value);
+    return o?.label ?? value ?? "";
+  };
+  // Estado «sin resultados»: las 3 mejores formas de ampliar la búsqueda (qué filtro quitar y cuántas residencias aparecerían).
+  const suggestions =
+    results.length === 0
+      ? removableFilters(filters)
+          .map((t) => ({ key: t.key, label: labelOf(t.group, t.value), count: applySearchFilters(residences, t.without).length, qs: filtersToQuery(t.without) }))
+          .filter((t) => t.count > 0)
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 3)
+      : [];
+  const clearQs = filtersToQuery({ ...filters, barrio: [], uni: [], room: [], services: [], areas: [], gender: [], status: [], promo: false, minor: false, pmin: null, pmax: null });
+  const hrefFor = (qs: string) => (qs ? `/search?${qs}` : "/search");
+  const mapData = filters.view === "mapa" ? toMapPoints(results) : null;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
+    <div className="mx-auto max-w-[80rem] px-4 py-6 sm:px-6 sm:py-8">
       {head}
       <SearchShell
         groups={groups}
         filters={filters}
-        bounds={priceBounds(residences)}
+        bounds={bounds}
+        histogram={histogram}
         promoCount={promo}
         minorCount={minor}
         activeCount={countActiveFilters(filters)}
         resultCount={results.length}
       >
-        {results.length > 0 ? (
-          <>
-            <p className="mb-4 text-xs text-ink-faint">{availabilityHelpText("by_room_type_to_confirm")}</p>
-            <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-              {results.map((r) => (
-                <ResidenceCard key={r.slug} residence={r} arsPerUsd={rate.arsPerUsd} />
-              ))}
-            </div>
-          </>
-        ) : (
+        {results.length === 0 ? (
           <EmptyState
             icon="search_off"
-            title="No encontramos residencias con esos filtros"
-            description="Probá ampliar la búsqueda: quitá algún filtro o ajustá el presupuesto. El catálogo crece semana a semana."
+            title="No encontramos residencias con estos filtros"
+            description="Probá sacando alguno. El catálogo se va ampliando: si todavía no hay una residencia para lo que buscás, volvé a pasar pronto."
+            action={
+              <div className="mt-1 flex flex-col items-center gap-3">
+                {suggestions.length > 0 && (
+                  <ul className="flex flex-wrap justify-center gap-2">
+                    {suggestions.map((t) => (
+                      <li key={t.key}>
+                        <Link
+                          href={hrefFor(t.qs)}
+                          className="inline-flex min-h-[34px] items-center gap-1 rounded-full border border-sage-200 bg-forest-tint py-0 pl-3 pr-2 text-[13px] font-semibold text-forest-700 hover:bg-sage-100 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest"
+                        >
+                          Quitar «{t.label}» · {t.count} {t.count === 1 ? "resultado" : "resultados"}
+                          <Icon name="close" className="text-base" />
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <Link
+                  href={hrefFor(clearQs)}
+                  className="flex min-h-[42px] items-center rounded-full bg-forest px-5 text-sm font-bold text-white hover:bg-forest-600 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest"
+                >
+                  Borrar todos los filtros
+                </Link>
+              </div>
+            }
           />
+        ) : mapData ? (
+          <SearchMap points={mapData.points} withoutLocation={mapData.withoutLocation} />
+        ) : (
+          <>
+            <p className="mb-3 text-xs text-ink-faint">{availabilityHelpText("by_room_type_to_confirm")}</p>
+            <div className="@container/res">
+              <div className={filters.view === "lista" ? "grid gap-4" : "grid grid-cols-[repeat(auto-fill,minmax(17rem,1fr))] gap-4"}>
+                {results.map((r) => (
+                  <SearchResultCard key={r.slug} residence={r} arsPerUsd={rate.arsPerUsd} layout={filters.view === "lista" ? "list" : "grid"} />
+                ))}
+              </div>
+            </div>
+          </>
         )}
       </SearchShell>
     </div>

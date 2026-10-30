@@ -1,25 +1,38 @@
-/** Skeleton de /search: columna de filtros + grilla de tarjetas. Sin pulso con `prefers-reduced-motion`. */
+/** Skeleton de /search: cabecera, columna de filtros y tarjetas. Sin pulso con `prefers-reduced-motion`. */
 function Bar({ className = "" }: { className?: string }) {
   return <div className={`rounded-full bg-line motion-safe:animate-pulse ${className}`} />;
 }
 
 export default function LoadingSearch() {
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14" role="status" aria-live="polite">
+    <div className="mx-auto max-w-[80rem] px-4 py-6 sm:px-6 sm:py-8" role="status" aria-live="polite">
       <span className="sr-only">Cargando residencias…</span>
-      <Bar className="h-9 w-3/4 max-w-lg" />
+      <Bar className="h-3.5 w-40" />
+      <Bar className="mt-3 h-9 w-3/4 max-w-lg" />
       <Bar className="mt-3 h-4 w-full max-w-xl" />
-      <div className="mt-8 lg:grid lg:grid-cols-[17.5rem_minmax(0,1fr)] lg:gap-8">
-        <div className="hidden space-y-3 rounded-card border-[1.5px] border-line p-5 lg:block">
-          {Array.from({ length: 9 }, (_, i) => (
+      <div className="mt-6 min-[900px]:grid min-[900px]:grid-cols-[18rem_minmax(0,1fr)] min-[900px]:gap-6">
+        <div className="hidden space-y-3 rounded-card border-[1.5px] border-line bg-paper p-5 min-[900px]:block">
+          {Array.from({ length: 10 }, (_, i) => (
             <Bar key={i} className={`h-4 ${i % 3 === 0 ? "w-1/2" : "w-5/6"}`} />
           ))}
         </div>
         <div>
-          <Bar className="h-6 w-56" />
-          <div className="mt-5 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          <Bar className="h-[42px] w-full min-[900px]:hidden" />
+          <div className="mt-3 flex items-center justify-between gap-3">
+            <Bar className="h-6 w-56" />
+            <Bar className="hidden h-9 w-52 sm:block" />
+          </div>
+          <div className="mt-4 grid grid-cols-[repeat(auto-fill,minmax(17rem,1fr))] gap-4">
             {[0, 1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="h-80 rounded-card bg-line motion-safe:animate-pulse" />
+              <div key={i} className="overflow-hidden rounded-card border-[1.5px] border-line bg-paper">
+                <div className="aspect-[16/10] bg-line motion-safe:animate-pulse" />
+                <div className="space-y-3 p-4">
+                  <Bar className="h-5 w-3/4" />
+                  <Bar className="h-3.5 w-full" />
+                  <Bar className="h-3.5 w-2/3" />
+                  <Bar className="h-10 w-full" />
+                </div>
+              </div>
             ))}
           </div>
         </div>

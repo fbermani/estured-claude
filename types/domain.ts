@@ -86,4 +86,11 @@ export interface Residence {
   minResidentAge?: number;
   maxResidentAge?: number | null;
   acceptsMinors?: boolean;
+  /** Coordenada aproximada pública (migración 0042); null/ausente si la residencia no la cargó. */
+  latitude?: number | null;
+  longitude?: number | null;
+  /** Política de género derivada de los tipos de habitación; ausente si ningún tipo la declara. */
+  genderPolicy?: "mixto" | "solo_mujeres" | "solo_hombres";
+  /** Todos los valores distintos declarados por sus tipos de habitación (puede haber varios). */
+  genderPolicies?: Array<"mixto" | "solo_mujeres" | "solo_hombres">;
 }

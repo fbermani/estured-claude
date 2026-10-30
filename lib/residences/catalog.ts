@@ -29,6 +29,20 @@ export async function getCatalogResidences(options: { studentAge?: number | null
   return (await getCatalogResidencesWithTotal(options)).residences;
 }
 
+function toCoordinate(value: number | string | null | undefined): number | null {
+  if (value == null || value === "") return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+/** Género de la residencia según sus tipos: `genderPolicies` = todos los valores distintos declarados; `genderPolicy` (compat) = el único valor, o "mixto" si hay varios. */
+function deriveGenderPolicy(policies: (string | null)[]): { genderPolicy?: "mixto" | "solo_mujeres" | "solo_hombres"; genderPolicies?: ("mixto" | "solo_mujeres" | "solo_hombres")[] } {
+  const set = new Set(policies.filter((p): p is "mixto" | "solo_mujeres" | "solo_hombres" => p === "mixto" || p === "solo_mujeres" || p === "solo_hombres"));
+  if (set.size === 0) return {};
+  const all = [...set];
+  return { genderPolicy: all.length === 1 ? all[0] : "mixto", genderPolicies: all };
+}
+
 /** Igual que `getCatalogResidences`, pero además devuelve el total publicado antes del filtro por edad (una sola consulta). */
 export async function getCatalogResidencesWithTotal(
   options: { studentAge?: number | null } = {},
@@ -75,7 +89,7 @@ export async function getCatalogResidencesWithTotal(
   const [{ data: roomTypes }, { data: sections }, { data: photos }, { data: stays }, { data: rooms }, accessRes, photoMeta, customByResidence, promotionsByResidence] = await Promise.all([
     admin
       .from("room_types")
-      .select("id, residence_id, name, monthly_price_usd, capacity_per_room, profile_availability(status, available_count)")
+      .select("id, residence_id, name, gender_policy, monthly_price_usd, capacity_per_room, profile_availability(status, available_count)")
       .in("residence_id", ids)
       .eq("is_active", true),
     admin.from("residence_profile_sections").select("residence_id, section_type, content").in("residence_id", ids),
@@ -198,6 +212,9 @@ export async function getCatalogResidencesWithTotal(
       availabilityHint: catalogAvailabilityHint(typeStates),
       residentsCount: residentsVisible,
       capacityPlaces: capacityPlaces > 0 ? capacityPlaces : undefined,
+      latitude: toCoordinate(r.latitude),
+      longitude: toCoordinate(r.longitude),
+      ...deriveGenderPolicy(rts.map((rt) => rt.gender_policy as string | null)),
     };
   });
   return { residences: result, total };

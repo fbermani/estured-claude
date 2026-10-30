@@ -18,6 +18,7 @@ export function CardPhotoCarousel({
   zone,
   href,
   sizes,
+  className = "h-48",
   children,
 }: {
   photos: string[];
@@ -25,6 +26,8 @@ export function CardPhotoCarousel({
   zone: string;
   href: string;
   sizes: string;
+  /** Tamaño del contenedor de la foto (por defecto `h-48`; /search usa proporción 16/10). */
+  className?: string;
   children?: ReactNode;
 }) {
   const [paused, setPaused] = useState(false);
@@ -50,7 +53,7 @@ export function CardPhotoCarousel({
       onBlur={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setPaused(false);
       }}
-      className="group/photo relative h-48 w-full overflow-hidden bg-sand-200"
+      className={`group/photo relative w-full overflow-hidden bg-sand-200 ${className}`}
     >
       {photos.length === 0 ? (
         <ResidencePhoto src={null} name={name} zone={zone} sizes={sizes} label="Foto próximamente" />

@@ -8,7 +8,7 @@ import { TILE_SIZE, type PositionedTile } from "@/lib/maps/osmTiles";
  * respecto del centro del mapa. Si fallan la mitad o más de las teselas pedidas (sin red, bloqueo, el proveedor
  * caído), se muestra un aviso sobre el fondo liso: la dirección y las distancias siguen disponibles en texto.
  */
-export function MapTiles({ tiles }: { tiles: PositionedTile[] }) {
+export function MapTiles({ tiles, unavailableMessage = "El mapa no está disponible; la dirección está arriba." }: { tiles: PositionedTile[]; unavailableMessage?: string }) {
   const [failed, setFailed] = useState<Set<string>>(new Set());
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -50,7 +50,7 @@ export function MapTiles({ tiles }: { tiles: PositionedTile[] }) {
           role="status"
           className="absolute inset-x-3 top-3 z-20 rounded-field bg-paper/95 px-3 py-2 text-center text-xs font-semibold text-ink-soft shadow-card"
         >
-          El mapa no está disponible; la dirección está arriba.
+          {unavailableMessage}
         </p>
       )}
     </>
