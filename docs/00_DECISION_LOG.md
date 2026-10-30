@@ -1398,3 +1398,11 @@ Supuestos reversibles que el dueño no fijó: (a) **«cambiar la cama de un resi
 **Supuestos reversibles:** TTL de 14 días, OTP de 6 dígitos / 10 min / 5 intentos / 60 s, tope de 3 solicitudes pendientes, alfabeto del código de casa, y que `reply-to` solo se usa si el contacto de la residencia es un mail.
 
 **Docs actualizados:** este registro; `docs/05` §15.1 (y nuevos §15.1bis–15.1ter); `docs/06` (tablas nuevas); `GAPS.md`; `docs/NEXT_STEPS.md`.
+
+### DR20: captación comercial de residencias y nombre «EstuResi» (2026-10-30)
+
+**Decisión del dueño.** (F1) En el contacto con una residencia, EstuRed se nombra **cuando pregunten o, como tarde, en el minuto 2 de la reunión**; nunca se oculta ni se dice «no quiero venderte nada» (lo verdadero es «hoy no te cobramos»). El que contacta se presenta como dueño de Sin Fronteras, y lo dice de entrada (es competencia). (F2) **EstuResi** es el **nombre comercial del módulo de gestión** (habitaciones, residentes, renovaciones) **dentro de EstuRed Premium** (DR17); no es una marca ni un producto aparte, no tiene precio propio (D8) y no se vende como «PMS» ni como «más demanda». (F3) Se **contacta ya**, antes de tener producción, sin prometer fecha de publicación, ocupación ni disponibilidad; producción pasa a ser meta de unas 3 semanas (dominio y mail verificado siguen siendo bloqueantes, GAPS).
+
+**Reglas del contacto.** WhatsApp solo manual desde un número de negocio (app Business, nunca la API); máx. 6 chats nuevos por día; un mensaje por número y por grupo (no escribir a dos sedes por separado); seguimiento a los 3 y 7 días hábiles, luego «Frío» y reintento en abril. Promesas permitidas hoy: perfil verificado en persona, solicitudes ordenadas, comprobante. Contactos con celular personal (p. ej. ficha de Wanna) solo con presentación del conocido.
+
+**Descartado por ahora (no es regla de producto):** niveles de compromiso 1/2/3 (ya existen Verificado/Premium, DR17), tarifa «consultar» (contradice DR4; «desde» sí), señales de convivencia públicas con mínimo 3 y badges de conversión (requieren volumen). **Material:** CRM de 80 fichas CABA (exportado el 2026-10-30) y plan de 30 días fuera del repo.
