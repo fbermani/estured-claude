@@ -10,6 +10,8 @@ import { hasOperationalManagementAccess } from "@/lib/residences/operationalAcce
 import { ResidentsBrowser, type ResidentsData } from "@/app/residence/[residence_id]/residents/ResidentsBrowser";
 import { RESIDENCE_OFFER_STATUS_COPY } from "@/lib/renewals/statusCopy";
 import { loadResidenceStayChanges } from "@/lib/stayChange/load";
+import { loadInviteStatusByStay } from "@/lib/residents/residentInvitations";
+import { loadPendingLinkRequests } from "@/lib/residents/linkRequestsResidence";
 
 const ACTIVE_OFFER_STATUSES = new Set(["draft", "sent", "viewed"]);
 const PENDING_REQUEST_STATUSES = new Set(["created_by_student", "notified_to_residence"]);
@@ -122,6 +124,19 @@ export default async function ResidenceResidentsPage({
 
   // Renovación por estadía, vía `resident_stays.reservation_id` (Ciclo 42):
   // renewal_requests/renewal_offers cuelgan de la reserva, no de la estadía.
+  // DR19: invitaciones personales, solicitudes de vínculo y código de casa (consultas tolerantes: sin la 0064 todo queda vacío).
+  const canManage = can(membership, "residents.manage");
+  const pendingStayIds = rawStays.filter((s) => !s.student_profile_id).map((s) => s.id);
+  const [inviteByStay, linkRequests, housePrivate] = await Promise.all([
+    loadInviteStatusByStay(admin, pendingStayIds),
+    canManage ? loadPendingLinkRequests(admin, residenceId) : Promise.resolve([]),
+    canManage ? admin.from("residence_private_details").select("house_code").eq("residence_id", residenceId).maybeSingle() : Promise.resolve({ data: null }),
+  ]);
+  const houseCode = ((housePrivate.data as { house_code?: string | null } | null)?.house_code as string | null | undefined) ?? null;
+  const unlinkedStays = rawStays
+    .filter((s) => !s.student_profile_id)
+    .map((s) => ({ id: s.id, label: identityByStay.get(s.id)?.invite_name ?? s.invite_email ?? "Residente sin activar" }));
+
   const linkedReservationIds = [...new Set(rawStays.map((s) => s.reservation_id).filter((id): id is string => !!id))];
   const [{ data: linkedReservations, error: linkedReservationsError }, { data: linkedRequests }, { data: linkedOffers }] = linkedReservationIds.length
     ? await Promise.all([
@@ -188,6 +203,8 @@ export default async function ResidenceResidentsPage({
         : (identityByStay.get(s.id)?.invite_name ?? "Residente sin activar"),
       invitePhone: can(membership, "residents.manage") ? (identityByStay.get(s.id)?.invite_phone ?? null) : null,
       noEmail: !s.student_profile_id && !s.invite_email,
+      inviteState: inviteByStay.get(s.id)?.state ?? "none",
+      inviteChannel: inviteByStay.get(s.id)?.channel ?? null,
       flag: s.student_profiles?.country_flag ?? null,
       email: s.invite_email,
       pending,
@@ -283,6 +300,9 @@ export default async function ResidenceResidentsPage({
         kpis,
         notesByStay,
         stayChanges,
+        linkRequests: canManage ? linkRequests : [],
+        unlinkedStays,
+        houseCode,
       }}
     />
     </>

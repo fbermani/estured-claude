@@ -40,7 +40,8 @@ export async function middleware(request: NextRequest) {
   if (!user) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/login";
-    loginUrl.search = `?next=${encodeURIComponent(request.nextUrl.pathname)}`;
+    // Se conserva la query (p. ej. `?invite=` del enlace personal de una residencia, DR19).
+    loginUrl.search = `?next=${encodeURIComponent(request.nextUrl.pathname + request.nextUrl.search)}`;
     return NextResponse.redirect(loginUrl);
   }
 

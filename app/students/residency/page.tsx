@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { LinkRequestSection, type MyLinkRequest } from "@/components/students/LinkRequestSection";
 import { ActivateResidentStayButton } from "@/app/students/residency/ResidencyActions";
 import { StartRenewalModal } from "@/app/students/renewals/StartRenewalModal";
 import { AmenityGrid } from "@/components/residences/AmenityGrid";
@@ -91,7 +92,8 @@ function PendingActivationBlock({ pending }: { pending: StayRow[] }) {
   );
 }
 
-export default async function StudentResidencyPage() {
+export default async function StudentResidencyPage({ searchParams }: { searchParams?: Promise<{ pendiente?: string }> }) {
+  const pendingNotice = (await searchParams)?.pendiente === "1";
   const sessionUser = await getSessionUser();
   const supabase = await getSupabaseServer();
   const admin = getSupabaseAdmin();
@@ -167,6 +169,33 @@ export default async function StudentResidencyPage() {
     }
   }
 
+  // DR19: estudiante sin estadía que se registró solo — residencias donde pedir el vínculo y sus solicitudes (tolerante a la 0064 sin aplicar).
+  let linkResidences: { id: string; name: string; area: string | null }[] = [];
+  let myLinkRequests: MyLinkRequest[] = [];
+  const canRequestLink = !reservation && mine.length === 0 && !earlyExit && !!sessionUser?.roles.includes("student");
+  if (canRequestLink && admin && sessionUser) {
+    const [{ data: residenceRows }, { data: profileRow }] = await Promise.all([
+      admin.from("residences").select("id, name, public_area").eq("status", "verified_active").order("name", { ascending: true }),
+      admin.from("student_profiles").select("id").eq("user_id", sessionUser.id).maybeSingle(),
+    ]);
+    linkResidences = ((residenceRows ?? []) as { id: string; name: string; public_area: string | null }[]).map((r) => ({ id: r.id, name: r.name, area: r.public_area }));
+    if (profileRow?.id) {
+      const { data: requestRows, error: requestError } = await admin
+        .from("resident_link_requests")
+        .select("id, status, created_at, residences(name)")
+        .eq("student_profile_id", profileRow.id)
+        .order("created_at", { ascending: false })
+        .limit(10);
+      if (requestError && requestError.code !== "42P01" && requestError.code !== "PGRST205") console.error("[students/residency] link requests lookup failed:", requestError);
+      myLinkRequests = ((requestRows ?? []) as unknown as { id: string; status: MyLinkRequest["status"]; created_at: string; residences: { name: string } | null }[]).map((r) => ({
+        id: r.id,
+        status: r.status,
+        createdAt: r.created_at,
+        residenceName: r.residences?.name ?? "Residencia",
+      }));
+    }
+  }
+
   // Estudiante sin reserva confirmada: la pantalla original, intacta —
   // activación de visibilidad o estado vacío. "Mi residencia" solo se
   // convierte en hub completo cuando hay una reserva confirmada
@@ -176,8 +205,14 @@ export default async function StudentResidencyPage() {
       <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
         <h1 className="text-2xl font-bold text-ink">Mi estadía</h1>
         <p className="mt-2 text-sm text-ink-soft">
-          Si tu residencia te cargó como residente, activá tu cuenta para aparecer en la comunidad visible.
+          Si tu residencia te cargó como residente, activá tu cuenta con el enlace personal que te mandó o con un código a tu mail.
         </p>
+
+        {pendingNotice && (
+          <p role="status" className="mt-6 rounded-field bg-info-bg px-4 py-3 text-sm font-medium text-info-fg">
+            Verificamos tu código. Tu residencia tiene que confirmar que sos vos: te avisamos apenas lo haga.
+          </p>
+        )}
 
         {earlyExit && (
           <Card className="mt-6 p-5 sm:p-6">
@@ -219,7 +254,11 @@ export default async function StudentResidencyPage() {
             <Icon name="verified_user" className="text-2xl text-forest-700" />
             <p className="text-sm font-semibold text-ink">Ya estás activo en la comunidad de tu residencia.</p>
           </div>
-        ) : earlyExit ? null : (
+        ) : earlyExit ? null : canRequestLink ? (
+          <div className="mt-6">
+            <LinkRequestSection residences={linkResidences} requests={myLinkRequests} />
+          </div>
+        ) : (
           <div className="mt-6">
             <EmptyState
               icon="apartment"

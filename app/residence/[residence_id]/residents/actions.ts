@@ -9,9 +9,11 @@ import { updateStayDetails } from "@/lib/residents/updateStayDetails";
 import { assignStayToBed } from "@/lib/residences/roomManagement";
 import { setResidentEmail } from "@/lib/residents/setResidentEmail";
 import { addResidentNote } from "@/lib/residents/addResidentNote";
+import { issueResidentInvite } from "@/lib/residents/residentInvitations";
+import { regenerateHouseCode, resolveLinkRequest } from "@/lib/residents/linkRequestsResidence";
 import { UNPAID_DISCLAIMER } from "@/lib/stayChange/copy";
 
-export type ResidentsActionState = { status: "idle" | "error" | "saved"; message?: string };
+export type ResidentsActionState = { status: "idle" | "error" | "saved"; message?: string; waUrl?: string };
 
 export async function createResidentStayAction(
   residenceId: string,
@@ -42,9 +44,21 @@ export async function createResidentStayAction(
   });
   if (!result.ok) return { status: "error", message: result.error };
 
+  // DR19: al cargar un residente con mail le sale la invitación personal («Residencia X te invita, vía EstuRed»).
+  let message: string | undefined;
+  if (inviteEmail) {
+    const invite = await issueResidentInvite(admin, {
+      actorUserId: sessionUser.id,
+      residenceId,
+      residentStayId: result.residentStayId,
+      channel: "email",
+    });
+    message = invite.ok && invite.emailSent ? `Le mandamos la invitación a ${inviteEmail}.` : "Cargamos al residente, pero no pudimos mandarle el mail. Reenviá la invitación desde su ficha.";
+  }
+
   revalidatePath(`/residence/${residenceId}/residents`);
   revalidatePath(`/residence/${residenceId}/rooms`);
-  return { status: "saved" };
+  return { status: "saved", ...(message ? { message } : {}) };
 }
 
 export async function updateStayDetailsAction(
@@ -179,6 +193,71 @@ export async function addResidentNoteAction(
   return { status: "saved" };
 }
 
+/** Reenviar la invitación por mail: genera un enlace nuevo y el anterior deja de servir. */
+export async function resendInvitationAction(residenceId: string, residentStayId: string, _prev: ResidentsActionState): Promise<ResidentsActionState> {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) return { status: "error", message: "Tu sesión expiró." };
+  const admin = getSupabaseAdmin();
+  if (!admin) return { status: "error", message: "No disponible en este momento." };
+  const result = await issueResidentInvite(admin, { actorUserId: sessionUser.id, residenceId, residentStayId, channel: "email" });
+  if (!result.ok) return { status: "error", message: result.error };
+  revalidatePath(`/residence/${residenceId}/residents`);
+  return result.emailSent
+    ? { status: "saved", message: "Reenviamos la invitación. El enlace anterior ya no sirve." }
+    : { status: "error", message: "No pudimos enviar el mail. Probá de nuevo en unos minutos o compartí el enlace por WhatsApp." };
+}
+
+/** Enlace personal para compartir por WhatsApp (MANUAL: se abre wa.me con el mensaje armado; nunca la API). Invalida el enlace anterior. */
+export async function generateWhatsappInviteAction(residenceId: string, residentStayId: string, _prev: ResidentsActionState): Promise<ResidentsActionState> {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) return { status: "error", message: "Tu sesión expiró." };
+  const admin = getSupabaseAdmin();
+  if (!admin) return { status: "error", message: "No disponible en este momento." };
+  const result = await issueResidentInvite(admin, { actorUserId: sessionUser.id, residenceId, residentStayId, channel: "whatsapp" });
+  if (!result.ok) return { status: "error", message: result.error };
+  revalidatePath(`/residence/${residenceId}/residents`);
+  return { status: "saved", waUrl: result.whatsappUrl ?? undefined, message: "Armamos el mensaje con su enlace personal. Los enlaces anteriores dejaron de servir." };
+}
+
+/** Aprobar o rechazar una solicitud de vínculo (DR19). Campos: `decision` (approve/reject), opcionales `stay_id` (unir a una estadía sin cuenta) y `note`. */
+export async function resolveLinkRequestAction(
+  residenceId: string,
+  requestId: string,
+  _prev: ResidentsActionState,
+  formData: FormData,
+): Promise<ResidentsActionState> {
+  // Dos botones nativos con name/value en el mismo formulario (sin onClick + setState): la decisión llega en el FormData.
+  const decision = formData.get("decision") === "approve" ? "approve" : "reject";
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) return { status: "error", message: "Tu sesión expiró." };
+  const admin = getSupabaseAdmin();
+  if (!admin) return { status: "error", message: "No disponible en este momento." };
+  const result = await resolveLinkRequest(admin, {
+    actorUserId: sessionUser.id,
+    residenceId,
+    requestId,
+    decision,
+    stayId: String(formData.get("stay_id") ?? "") || null,
+    note: String(formData.get("note") ?? ""),
+  });
+  if (!result.ok) return { status: "error", message: result.error };
+  revalidatePath(`/residence/${residenceId}/residents`);
+  revalidatePath(`/residence/${residenceId}/rooms`);
+  return { status: "saved", message: decision === "approve" ? "Vinculado. Ya figura como residente." : "Rechazaste la solicitud." };
+}
+
+/** Código de casa: genera uno nuevo (el anterior deja de servir). */
+export async function regenerateHouseCodeAction(residenceId: string, _prev: ResidentsActionState): Promise<ResidentsActionState> {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) return { status: "error", message: "Tu sesión expiró." };
+  const admin = getSupabaseAdmin();
+  if (!admin) return { status: "error", message: "No disponible en este momento." };
+  const result = await regenerateHouseCode(admin, { actorUserId: sessionUser.id, residenceId });
+  if (!result.ok) return { status: "error", message: result.error };
+  revalidatePath(`/residence/${residenceId}/residents`);
+  return { status: "saved", message: result.code };
+}
+
 /** Cargar el mail de un residente que se había cargado sin mail (DR18 t4, punto 20). Validación y permiso en `setResidentEmail`. */
 export async function setResidentEmailAction(
   residenceId: string,
@@ -200,5 +279,8 @@ export async function setResidentEmailAction(
   if (!result.ok) return { status: "error", message: result.error };
 
   revalidatePath(`/residence/${residenceId}/residents`);
-  return { status: "saved" };
+  return {
+    status: "saved",
+    message: result.emailSent ? "Guardamos el mail y mandamos una invitación nueva (la anterior ya no sirve)." : "Guardamos el mail, pero no pudimos mandar la invitación. Reenviala desde la ficha.",
+  };
 }

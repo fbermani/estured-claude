@@ -1181,6 +1181,12 @@ community_visibility_settings
 - Datos nunca visibles: apellido completo, mail, teléfono, fecha de nacimiento, universidad, documentos.
 - Datos visibles según permiso: nombre + inicial, foto o avatar, edad, nacionalidad/bandera, carrera, ciudad de origen, hábitos, intereses.
 
+## 16.4. Vinculación estudiante ↔ estadía *(DR19)*
+
+- **Invitación personal** (`resident_stay_invitations`): `abierta → usada` (activó) · `→ rechazada` (el estudiante dijo «no soy yo») · `→ revocada` (la residencia mandó otra o corrigió el mail) · `→ vencida` (14 días). Una sola abierta por estadía. Al usarse, la estadía pasa de `pending_activation` a `active`.
+- **Solicitud de vínculo** (`resident_link_requests`): `pending → approved` (la residencia une a una estadía sin cuenta o crea una `active`) · `pending → rejected`. Nunca se aprueba sola; el estudiante puede retirarla mientras está `pending`.
+- El vínculo exige prueba de identidad (enlace personal, código al mail o aprobación de la residencia), una sola estadía vigente por estudiante y, si es menor, familiar/tutor con vínculo activo.
+
 ---
 
 # 17. Máquina de estados: Soporte / resolución de conflictos

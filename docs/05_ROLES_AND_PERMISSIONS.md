@@ -984,6 +984,16 @@ Residence owner o staff con `residents.manage` (DR11) puede crear un residente p
 
 El residente debe activar cuenta y completar registro para mostrar perfil ampliado.
 
+**Prueba de identidad (DR19).** La activación nunca se apoya solo en que el mail de la cuenta coincida con el cargado: se activa con el **enlace personal con token** (un solo uso, 14 días; si llegó por WhatsApp, además un código al mail), con un **código enviado al mail** (OTP) o por **aprobación de la residencia** (§15.1bis). Reenviar la invitación, regenerar el enlace y corregir el mail de una estadía sin cuenta son acciones de `residents.manage`. Activar a un menor exige familiar/tutor vinculado.
+
+### 15.1bis. Solicitud de vínculo del estudiante alojado *(DR19)*
+
+El estudiante que se registra solo elige su residencia (`verified_active`) o ingresa el **código de casa** y manda una solicitud (máx. 3 pendientes, 1 por residencia). Solo el equipo de esa residencia con `residents.manage` la ve y la aprueba o rechaza; el estudiante ve las suyas. Nunca se aprueba sola. «Mi residencia no está» lo recibe el admin.
+
+### 15.1ter. Código de casa *(DR19)*
+
+Lo genera y regenera el owner o el staff con `residents.manage`; no es legible con la anon key.
+
 ### 15.2. Visibilidad de residente
 
 El estudiante/residente controla su visibilidad. La configuración se obtiene durante el registro.

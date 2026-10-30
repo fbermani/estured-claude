@@ -10,7 +10,8 @@ import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatUsd } from "@/lib/mock/exchange";
 import { InviteResidentsCard } from "@/app/residence/[residence_id]/residents/InviteResidentsCard";
-import { NoEmailResidentBlock } from "@/app/residence/[residence_id]/residents/NoEmailResidentBlock";
+import { PendingInviteBlock } from "@/app/residence/[residence_id]/residents/PendingInviteBlock";
+import { HouseCodeCard, LinkRequestsCard, type LinkRequestItem, type UnlinkedStay } from "@/app/residence/[residence_id]/residents/LinkRequestsCard";
 import { AddResidentForm } from "@/app/residence/[residence_id]/residents/AddResidentForm";
 import { PermissionGate, PermissionNote } from "@/components/residences/PermissionGate";
 import { StayChangeSection } from "@/app/residence/[residence_id]/residents/StayChangeSection";
@@ -35,6 +36,9 @@ export type ResidentRow = {
   /** DR18 t4: cargado sin mail ni cuenta (nombre + teléfono opcional, 0063). */
   noEmail?: boolean;
   invitePhone?: string | null;
+  /** DR19: estado de la última invitación personal (`none` si no hay) y su canal. Solo para estadías sin cuenta vinculada. */
+  inviteState?: string;
+  inviteChannel?: string | null;
   hiddenFromCommunity: boolean;
   typeName: string | null;
   roomLabel: string | null;
@@ -84,6 +88,10 @@ export type ResidentsData = {
   kpis: { active: number; arrivals: number; departures: number; renewals: number; seekingChange: number };
   notesByStay: Record<string, ResidentNote[]>;
   stayChanges: ResidenceStayChangeItem[];
+  /** DR19 */
+  linkRequests: LinkRequestItem[];
+  unlinkedStays: UnlinkedStay[];
+  houseCode: string | null;
 };
 
 const initialState: ResidentsActionState = { status: "idle" };
@@ -207,7 +215,6 @@ function NotesSection({
 
 function DetailPanel({
   residenceId,
-  residenceName,
   row,
   freeBeds,
   notes,
@@ -267,8 +274,14 @@ function DetailPanel({
           />
         </div>
       )}
-      {row.noEmail && canResidents && (
-        <NoEmailResidentBlock residenceId={residenceId} stayId={row.stayId} residenceName={residenceName} phone={row.invitePhone ?? null} />
+      {row.pending && !row.studentProfileId && canResidents && (
+        <PendingInviteBlock
+          residenceId={residenceId}
+          stayId={row.stayId}
+          email={row.email}
+          inviteState={row.inviteState ?? "none"}
+          inviteChannel={row.inviteChannel ?? null}
+        />
       )}
       {earlyExitOpen && (
         <div className="sm:col-span-2 lg:col-span-4">
@@ -599,7 +612,9 @@ export function ResidentsBrowser({
         </div>
       )}
 
+      {canManageResidents && <LinkRequestsCard residenceId={residenceId} requests={data.linkRequests} stays={data.unlinkedStays} />}
       {canManageResidents && <InviteResidentsCard residenceName={residenceName} />}
+      {canManageResidents && <HouseCodeCard residenceId={residenceId} code={data.houseCode} />}
 
       {/* KPIs — ref gestión de residentes (sin "evaluaciones": feature pospuesta) */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">

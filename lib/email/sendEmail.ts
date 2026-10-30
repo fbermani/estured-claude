@@ -1,7 +1,9 @@
 import "server-only";
 import { Resend } from "resend";
 
-const FROM_ADDRESS = "EstuRed <onboarding@resend.dev>";
+/** TODO de producción (GAPS.md): dominio verificado. Hasta entonces Resend sandbox solo entrega al dueño de la cuenta. */
+const FROM_EMAIL = "onboarding@resend.dev";
+const FROM_ADDRESS = `EstuRed <${FROM_EMAIL}>`;
 
 let client: Resend | null = null;
 function getClient(): Resend | null {
@@ -27,15 +29,37 @@ function getClient(): Resend | null {
  * o similar) es lo único que hace falta cuando el dominio exista — no
  * hay que tocar los call sites.
  */
-export async function sendEmail(entry: { to: string; subject: string; html: string }): Promise<boolean> {
+const SAFE_ADDRESS = /^[^\s@<>,;"\\\u0000-\u001f]+@[^\s@<>,;"\\\u0000-\u001f]+\.[^\s@<>,;"\\\u0000-\u001f]+$/;
+/** Dirección simple (sin nombre, listas ni caracteres de control): evita inyección de encabezados y envíos a varios destinatarios. */
+export function sanitizeAddress(value: string | undefined | null): string | null {
+  const v = (value ?? "").trim();
+  return v.length > 0 && v.length <= 254 && SAFE_ADDRESS.test(v) ? v : null;
+}
+
+export async function sendEmail(entry: {
+  to: string;
+  subject: string;
+  html: string;
+  /** Nombre visible del remitente (p. ej. «Residencia X te invita, vía EstuRed»). La dirección SIEMPRE es la de EstuRed, nunca la de un tercero. */
+  fromName?: string;
+  /** Dirección a la que llegan las respuestas (p. ej. el contacto de la residencia). */
+  replyTo?: string;
+}): Promise<boolean> {
+  const to = sanitizeAddress(entry.to);
+  if (!to) {
+    console.error("[email] destinatario inválido — email no enviado:", entry.subject);
+    return false;
+  }
+  const replyTo = entry.replyTo ? sanitizeAddress(entry.replyTo) : null;
   const resend = getClient();
   if (!resend) {
     console.error("[email] RESEND_API_KEY no configurada — email no enviado:", entry.subject);
     return false;
   }
   const { error } = await resend.emails.send({
-    from: FROM_ADDRESS,
-    to: entry.to,
+    from: entry.fromName ? `${entry.fromName.replace(/[<>"\r\n]/g, " ")} <${FROM_EMAIL}>` : FROM_ADDRESS,
+    ...(replyTo ? { replyTo } : {}),
+    to,
     subject: entry.subject,
     html: entry.html,
   });

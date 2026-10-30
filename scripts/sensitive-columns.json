@@ -35,6 +35,9 @@
     "application_regulation_acceptances",
     "stay_followups",
     "stay_followup_responses",
-    "resident_stays"
+    "resident_stays",
+    "resident_stay_invitations",
+    "resident_link_requests",
+    "missing_residence_requests"
   ]
 }

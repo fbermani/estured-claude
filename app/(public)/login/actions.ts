@@ -1,5 +1,6 @@
 "use server";
 
+import { safeInternalPath } from "@/lib/auth/safeNext";
 import { redirect } from "next/navigation";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
@@ -62,7 +63,7 @@ export async function signIn(
   }
 
   // Solo rutas internas como destino post-login.
-  const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : null;
+  const safeNext = safeInternalPath(next);
   redirect(safeNext ?? roleHome(sessionUser));
 }
 

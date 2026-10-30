@@ -18,7 +18,8 @@ export type ResidenceTeamEvent = "new_application" | "new_waitlist_entry" | "new
   | "verification_expiring"
   | "team_member_joined"
   | "custom_amenity_approved"
-  | "custom_amenity_rejected";
+  | "custom_amenity_rejected"
+  | "new_resident_link_request";
 
 /**
  * DR10: estos avisos van SOLO al dueño. El staff no puede actuar sobre ellos (la verificación y el equipo son del dueño),
@@ -43,6 +44,8 @@ export const PERMISSION_BY_EVENT: Partial<Record<ResidenceTeamEvent, ResidencePe
   // DR18: el staff que puede editar el perfil se entera de qué pasó con los ítems «Otro» que propuso.
   custom_amenity_approved: "profile.edit",
   custom_amenity_rejected: "profile.edit",
+  // DR19: un estudiante alojado pide vincularse a la residencia; lo resuelve quien tiene `residents.manage`.
+  new_resident_link_request: "residents.manage",
 };
 
 const ENTITY_BY_EVENT: Record<ResidenceTeamEvent, string> = {
@@ -58,6 +61,7 @@ const ENTITY_BY_EVENT: Record<ResidenceTeamEvent, string> = {
   team_member_joined: "residence_team",
   custom_amenity_approved: "residences",
   custom_amenity_rejected: "residences",
+  new_resident_link_request: "residences",
 };
 
 function pathFor(event: ResidenceTeamEvent, residenceId: string, entityId: string): string {
@@ -78,6 +82,8 @@ function pathFor(event: ResidenceTeamEvent, residenceId: string, entityId: strin
     case "custom_amenity_approved":
     case "custom_amenity_rejected":
       return `/residence/${residenceId}/profile`;
+    case "new_resident_link_request":
+      return `/residence/${residenceId}/residents`;
   }
 }
 
@@ -114,6 +120,14 @@ export function buildResidenceTeamMessage(
         subject: "EstuRed: nuevo pedido de renovación",
         intro: `Un residente pidió renovar su estadía en ${residenceName}.`,
         cta: "Ver renovaciones",
+      };
+    case "new_resident_link_request":
+      return {
+        title: `Un estudiante pidió vincularse a ${residenceName}`,
+        body: "Revisá la solicitud en Residentes: nada se vincula hasta que la apruebes.",
+        subject: "EstuRed: solicitud de vínculo de un residente",
+        intro: `Alguien dice vivir en ${residenceName} y pidió vincular su cuenta. Nada se vincula hasta que lo apruebes.`,
+        cta: "Ver solicitudes de vínculo",
       };
     case "changes_requested":
       // Ciclo 66 (DR5): sin el mensaje del admin (el email viaja por un tercero); el detalle se ve en el panel.

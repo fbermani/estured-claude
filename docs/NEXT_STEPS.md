@@ -8,6 +8,14 @@
 
 ---
 
+## DR19: vinculación de residentes con prueba de identidad (2026-10-30)
+
+- Hecho en código (sin commit, sin build): migración `0064_resident_linking.sql` (**pendiente de aplicar en dev y prod**: `resident_stay_invitations`, `resident_link_requests`, `residence_private_details.house_code`, `missing_residence_requests`). Invitación personal (token 14 días, solo hash; mail automático + «Reenviar»; WhatsApp manual `wa.me` con enlace; OTP al mail si llegó por WhatsApp o sin token), corrección de mail, «no soy yo», menores con tutor; estudiante alojado: solicitud de vínculo (código de casa, cola en `/residence/[id]/residents`) y «Mi residencia no está».
+- Datos dev: tras aplicar 0064, `node --env-file=.env.local scripts/seed-demo-resident-linking.mjs` (imprime los enlaces personales una vez).
+- Pendiente: aplicar 0064 y correr el seed; verificar en pantalla (registro con enlace, activación con sesión, cola de la residencia); **dominio verificado de email** (bloqueante de producción, GAPS.md); aviso/consentimiento al tutor de un menor; pantalla de admin para «Mi residencia no está»; `build` y suite completa sin correr.
+
+---
+
 ## DR18 fase 2, tanda 4 (2026-10-28)
 
 - Hecho en código (sin commit, sin build): migración `0063_resident_without_email_faq_dedup.sql` (**pendiente de aplicar en dev y prod**: `resident_stays.invite_name/invite_phone`, FAQ-29/50 unificadas). Reglamento con asistente paso a paso + descarga; residente sin mail (nombre + teléfono, mail después); «Otro» aprobados en /search, filtros y vista del estudiante; mes vacío en acuerdo y comprobante; «antes/ahora» en la tarjeta de /search.

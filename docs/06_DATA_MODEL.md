@@ -1424,6 +1424,15 @@ Estadías vencidas (D11): al llegar `expected_end_date` el sistema alerta (a 30 
 
 ---
 
+### 15.1bis. Vinculación estudiante ↔ estadía *(DR19, migración 0064)*
+
+Todas son de uso interno: RLS sin policies para `anon`/`authenticated` (salvo la lectura propia de `resident_link_requests`); lee y escribe solo el service role.
+
+- **`resident_stay_invitations`**: `resident_stay_id`, `residence_id`, `token_hash` (SHA-256 hex, único, nulo si `channel = 'manual'`), `channel` (`email` / `whatsapp` / `manual`), `expires_at` (14 días), `sent_at`, `send_count`, `used_at`, `used_by_user_id`, `revoked_at`, `revoke_reason`, `declined_at`, `otp_hash`, `otp_expires_at`, `otp_sent_at`, `otp_attempts`, `otp_verified_at`, `created_by`. Una sola abierta por estadía (índice único parcial).
+- **`resident_link_requests`**: `student_profile_id`, `residence_id`, `status` (`pending` / `approved` / `rejected`), `matched_stay_id`, `message`, `via_house_code`, `resolved_by`, `resolved_at`, `resolution_note`. Único `pending` por (estudiante, residencia). El estudiante lee las suyas por RLS.
+- **`residence_private_details.house_code`**: código de casa (único, no legible con anon).
+- **`missing_residence_requests`**: `student_profile_id`, `residence_name`, `contact`.
+
 ### 15.2. `community_visibility_snapshots`
 
 Datos agregados de comunidad.

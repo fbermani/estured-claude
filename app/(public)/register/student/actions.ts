@@ -6,6 +6,9 @@ import { redirect } from "next/navigation";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { createAuditLog } from "@/lib/audit";
+import { activateResidentStay } from "@/lib/residents/activateResidentStay";
+import { otpRequiredFor, resolveInviteByToken } from "@/lib/residents/inviteVerification";
+import { INVITE_TOO_MANY_ATTEMPTS, inviteAttemptAllowed } from "@/lib/residents/inviteThrottle";
 
 export type RegisterState = { status: "idle" | "error"; message?: string };
 
@@ -37,10 +40,11 @@ export async function registerStudent(
   _prev: RegisterState,
   formData: FormData,
 ): Promise<RegisterState> {
+  const inviteToken = String(formData.get("invite") ?? "").trim();
   const firstName = String(formData.get("first_name") ?? "").trim();
   const lastName = String(formData.get("last_name") ?? "").trim();
   const birthDateRaw = String(formData.get("birth_date") ?? "").trim();
-  const email = String(formData.get("email") ?? "")
+  let email = String(formData.get("email") ?? "")
     .trim()
     .toLowerCase();
   const phone = String(formData.get("phone") ?? "").trim();
@@ -49,6 +53,22 @@ export async function registerStudent(
   const acceptPrivacy = formData.get("accept_privacy") === "on";
   // H04: casilla opcional y no premarcada. Solo cuenta para adultos.
   const wantsCommunity = formData.get("community_opt_in") === "on";
+
+  // Invitación personal (DR19): el mail NO sale del formulario sino de la invitación (el enlace es la prueba). Si llegó por WhatsApp o la
+  // residencia no cargó mail, el mail tiene que estar verificado con el código antes de crear la cuenta.
+  if (inviteToken) {
+    const headerStore = await headers();
+    if (!inviteAttemptAllowed(headerStore, inviteToken)) return { status: "error", message: INVITE_TOO_MANY_ATTEMPTS };
+    const inviteAdmin = getSupabaseAdmin();
+    if (!inviteAdmin) return { status: "error", message: "El registro no está disponible en este momento. Probá más tarde." };
+    const resolved = await resolveInviteByToken(inviteAdmin, inviteToken);
+    if (!resolved.ok) return { status: "error", message: resolved.message };
+    const needsCode = otpRequiredFor(resolved.invite.channel, !!resolved.stay.invite_email);
+    if (needsCode && !resolved.invite.otp_verified_at) {
+      return { status: "error", message: "Primero verificá tu mail con el código que te mandamos." };
+    }
+    email = (needsCode ? (resolved.invite.otp_email ?? "") : (resolved.stay.invite_email ?? "")).trim().toLowerCase();
+  }
 
   // Validación server-side (docs/11 §5.2) — el cliente nunca es confiable.
   // Paso 1 del alta (Ciclo 35): solo identidad + contacto. Nacionalidad,
@@ -100,7 +120,9 @@ export async function registerStudent(
     if (createError?.code === "email_exists") {
       return {
         status: "error",
-        message: "Ya existe una cuenta con ese email. Podés iniciar sesión.",
+        message: inviteToken
+          ? "Ese mail ya tiene cuenta en EstuRed. Iniciá sesión y activamos tu estadía con este mismo enlace."
+          : "Ya existe una cuenta con ese email. Podés iniciar sesión.",
       };
     }
     console.error("[register] createUser failed:", createError?.message);
@@ -206,6 +228,11 @@ export async function registerStudent(
   const supabase = await getSupabaseServer();
   if (supabase) {
     await supabase.auth.signInWithPassword({ email, password });
+  }
+  if (inviteToken) {
+    // Con enlace válido la estadía queda activa sin pasos extra. Si no se puede todavía (p. ej. menor sin tutor), la pantalla del enlace explica por qué.
+    const activation = await activateResidentStay(admin, { actorUserId: userId, rawToken: inviteToken });
+    redirect(activation.ok ? (activation.pendingConfirmation ? "/students/residency?pendiente=1" : "/students/residency") : `/students/residency/invite?invite=${encodeURIComponent(inviteToken)}`);
   }
   redirect("/students/dashboard");
 }

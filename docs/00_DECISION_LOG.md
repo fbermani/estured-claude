@@ -1371,3 +1371,30 @@ Supuestos reversibles que el dueño no fijó: (a) **«cambiar la cama de un resi
 
 **Docs actualizados:** este registro; `docs/06` (columnas de `resident_stays`); `docs/NEXT_STEPS.md`.
 
+
+### DR19: vinculación estudiante ↔ estadía con prueba de identidad (2026-10-30, migración 0064)
+
+**Decisión del dueño.** El vínculo entre un estudiante y una estadía de residente (`resident_stays`) se apoya SIEMPRE en una prueba de identidad: (a) un **enlace personal con token** que la residencia le manda, o (b) la **aprobación de la residencia**. Nunca alcanza con que el mail de la cuenta coincida con el `invite_email` cargado. Protocolo `docs/13` §5: doc primero. No cambia estados de `resident_stays` ni permisos (se usa `residents.manage`, DR11); la invitación, la solicitud de vínculo, la solicitud de reserva, el pago, el fee y el comprobante siguen siendo entidades separadas.
+
+**A. Invitación personal (residencia invita a un residente ya cargado).**
+1. **Token de un solo uso**, 32 bytes aleatorios (base64url), vence a los **14 días**, regenerable. Se guarda solo el **SHA-256**; el token en claro viaja únicamente en el enlace (patrón de `lib/team/invitationToken.ts`). Vive en una tabla **aparte** (`resident_stay_invitations`, RLS sin policies, sin acceso para `anon`/`authenticated`): no en columnas de `resident_stays`, porque el propio estudiante y su familiar vinculado leen esa fila por RLS. Una sola invitación abierta por estadía; regenerar invalida la anterior.
+2. **Enlace** `/register/student?invite=<token>`: muestra solo el nombre de la residencia y el nombre de pila; el mail aparece **enmascarado y bloqueado** (el servidor usa siempre el de la invitación, nunca el del formulario). Si la persona ya tiene cuenta, la pantalla ofrece iniciar sesión y vuelve a `/students/residency/invite?invite=<token>`, que activa con un clic (no se muestra «ya existe una cuenta»). Al terminar el registro/inicio de sesión con token válido, la estadía queda **activa** sin pasos extra.
+3. **Canal.** `email`: el clic en el enlace prueba el mail; alcanza. `whatsapp`: el token prueba el teléfono, no el mail; antes de registrar o activar se exige un **código de 6 dígitos enviado al mail** (hash, vence a los 10 minutos, 5 intentos, reenvío cada 60 s). `manual` (sin token): la persona entró por su cuenta; para activar una estadía cargada con su mail se exige el mismo código al mail (**verificación de mail por OTP**); el registro común no cambia.
+4. **Mail automático** al cargar un residente con mail (remitente «Residencia X te invita, vía EstuRed», `reply-to` = contacto de la residencia si es un mail; nunca se envía desde el mail de la residencia) y botón **Reenviar** en la lista (regenera el token). **TODO de producción:** el remitente sigue siendo el sandbox de Resend; un dominio verificado es bloqueante (GAPS.md).
+5. **WhatsApp:** solo **botón manual** `wa.me` con mensaje pre-armado que incluye el enlace personal (nunca la API de WhatsApp Business). Un botón por persona: al `invite_phone` para quien no tiene mail; el generado en la lista de residentes. Cada generación invalida el enlace anterior.
+6. **Corrección de mail.** La residencia puede cambiar el mail de una estadía **sin cuenta vinculada** (hoy solo se cargaba si era nulo): invalida el token anterior y reenvía.
+7. **«No vivo ahí / no soy yo».** Desde el enlace la persona puede responderlo sin iniciar sesión; se revoca la invitación y la residencia lo ve en la lista («Dijo que no vive ahí»); puede corregir el mail o regenerar el enlace.
+8. **Menores.** Activar la estadía de un menor exige un **familiar/tutor con vínculo activo** (`docs/00` §17); si no hay, se bloquea con un mensaje claro y la invitación no se consume. *Pendiente:* aviso al tutor y flujo de consentimiento específico para la invitación a un menor.
+9. **Frenos.** Límites por IP y por token en los intentos (en memoria por instancia, como `verifyRateLimit`; el límite real va en el WAF); mensajes de error accionables que no confirman si un mail existe.
+
+**B. Estudiante alojado que se registra solo («Ya vivo en una residencia»).**
+1. En `/students/residency` elige una residencia (solo `verified_active`) y manda una **solicitud de vínculo** (`resident_link_requests`: `pending` / `approved` / `rejected`, con `matched_stay_id`, mensaje corto y marca de si usó el código de casa). Frenos anti-spam: **máximo 3 pendientes por estudiante y 1 por residencia**; no se puede pedir con una estadía vigente.
+2. **Código de casa:** código corto por residencia (6 caracteres sin ambiguos) que genera/regenera la residencia (`residence_private_details.house_code`, no legible con anon). El estudiante lo ingresa para ir directo a esa residencia; **igual pasa por aprobación**.
+3. La residencia ve la cola **«Solicitudes de vínculo»** en `/residence/[id]/residents` y **aprueba** (la une a una estadía `pending_activation` sin cuenta si la elige, o crea la estadía `active`) o **rechaza**. **Nunca se aprueba sola.** Server action con permiso `residents.manage`, auditoría y aviso in-app al estudiante.
+4. **«Mi residencia no está»:** campo simple (nombre + contacto opcional) que se guarda en `missing_residence_requests` y avisa a los admins; sin PII innecesaria (máx. 3 por estudiante).
+
+**C. Invariantes.** Una sola estadía vigente por estudiante (se valida al activar y al aprobar); hash de tokens y de códigos; todo server-side con service role; `getSafeUser` sin cambios; las tablas nuevas de uso interno van a `scripts/sensitive-columns.json`.
+
+**Supuestos reversibles:** TTL de 14 días, OTP de 6 dígitos / 10 min / 5 intentos / 60 s, tope de 3 solicitudes pendientes, alfabeto del código de casa, y que `reply-to` solo se usa si el contacto de la residencia es un mail.
+
+**Docs actualizados:** este registro; `docs/05` §15.1 (y nuevos §15.1bis–15.1ter); `docs/06` (tablas nuevas); `GAPS.md`; `docs/NEXT_STEPS.md`.

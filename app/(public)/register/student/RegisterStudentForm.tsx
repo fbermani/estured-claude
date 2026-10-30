@@ -21,7 +21,8 @@ function isUnder18(isoDate: string): boolean {
   return birth > limit;
 }
 
-export function RegisterStudentForm() {
+/** `invite`: registro desde el enlace personal de una residencia (DR19). El mail sale de la invitación (el servidor lo ignora del formulario). */
+export function RegisterStudentForm({ invite }: { invite?: { token: string; maskedEmail: string } } = {}) {
   const [state, formAction, isPending] = useActionState(
     registerStudent,
     initialState,
@@ -33,6 +34,7 @@ export function RegisterStudentForm() {
   return (
     <Card className="p-8">
       <form action={formAction} className="flex flex-col gap-5">
+        {invite && <input type="hidden" name="invite" value={invite.token} />}
         <p className="text-sm text-ink-soft">
           Paso 1 de 2 — lo justo para crear tu cuenta. El resto de tu perfil (universidad, nacionalidad,
           documentos) lo completás después, sin apuro.
@@ -79,15 +81,27 @@ export function RegisterStudentForm() {
           </p>
         )}
         <div className="grid gap-5 sm:grid-cols-2">
-          <Input
-            label="Email"
-            id="reg-email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            placeholder="tu@email.com"
-            required
-          />
+          {invite ? (
+            <Input
+              label="Email"
+              id="reg-email"
+              type="text"
+              value={invite.maskedEmail}
+              readOnly
+              disabled
+              hint="Es el mail de tu invitación: no se puede cambiar."
+            />
+          ) : (
+            <Input
+              label="Email"
+              id="reg-email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              placeholder="tu@email.com"
+              required
+            />
+          )}
           <Input
             label="Teléfono / WhatsApp"
             id="reg-phone"

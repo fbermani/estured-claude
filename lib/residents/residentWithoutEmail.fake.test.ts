@@ -65,13 +65,16 @@ describe("setResidentEmail", () => {
     const db = client(world([{ ...stay }]));
     expect((await setResidentEmail(db as never, { actorUserId: "owner", residenceId: R, residentStayId: "s1", email: "Ana@B.com" })).ok).toBe(true);
     expect(db.tables.resident_stays[0].invite_email).toBe("ana@b.com");
-    expect(audits[audits.length - 1].newValue).toEqual(expect.objectContaining({ has_email: true }));
-    expect(JSON.stringify(audits[audits.length - 1].newValue)).not.toContain("ana@b.com");
+    const emailAudit = audits.find((a) => a.action === "resident_stay_email_set")!;
+    expect(emailAudit.newValue).toEqual(expect.objectContaining({ has_email: true }));
+    expect(JSON.stringify(audits.map((a) => a.newValue))).not.toContain("ana@b.com");
   });
   it("rechaza mail duplicado, estadías con cuenta/mail y de otra residencia", async () => {
     const db = client(world([{ ...stay }, { id: "s2", residence_id: R, is_current: true, invite_email: "x@y.com", student_profile_id: null }]));
     expect((await setResidentEmail(db as never, { actorUserId: "owner", residenceId: R, residentStayId: "s1", email: "x@y.com" })).ok).toBe(false);
-    expect((await setResidentEmail(db as never, { actorUserId: "owner", residenceId: R, residentStayId: "s2", email: "z@y.com" })).ok).toBe(false);
+    // DR19: con mail pero sin cuenta vinculada SÍ se puede corregir; con cuenta vinculada no.
+    const linked = client(world([{ ...stay, invite_email: "q@y.com", student_profile_id: "sp-1" }]));
+    expect((await setResidentEmail(linked as never, { actorUserId: "owner", residenceId: R, residentStayId: "s1", email: "z@y.com" })).ok).toBe(false);
     expect((await setResidentEmail(db as never, { actorUserId: "owner", residenceId: R, residentStayId: "nope", email: "z@y.com" })).ok).toBe(false);
   });
 });

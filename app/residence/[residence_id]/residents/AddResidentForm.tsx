@@ -21,8 +21,8 @@ export function AddResidentForm({
     <form action={formAction} className="rounded-card border border-sand-200 bg-sand-50 p-4">
       <h3 className="font-bold text-ink">Cargar residente</h3>
       <p className="mt-1 text-xs text-ink-faint">
-        Cargalo con su email: lo activa después con ese mismo email. Si todavía no lo tenés, cargalo con nombre y apellido
-        (y teléfono, si querés mandarle el mensaje de registro por WhatsApp): queda como &ldquo;residente sin activar&rdquo; hasta que le cargues el mail.
+        Cargalo con su email: le mandamos una invitación personal con un enlace de un solo uso (vale 14 días) para crear su cuenta o activar la que ya tiene. Si todavía no lo tenés, cargalo con nombre y apellido
+        (y teléfono, si querés mandarle su enlace personal por WhatsApp): queda como &ldquo;residente sin activar&rdquo; hasta que le cargues el mail.
       </p>
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         <Input label="Email del residente" name="invite_email" type="email" hint="Dejalo vacío si todavía no lo tenés." />
@@ -56,7 +56,7 @@ export function AddResidentForm({
           {state.message}
         </p>
       )}
-      {state.status === "saved" && <p className="mt-3 text-sm font-medium text-forest-700">Residente cargado.</p>}
+      {state.status === "saved" && <p className="mt-3 text-sm font-medium text-forest-700">Residente cargado. {state.message}</p>}
 
       <Button type="submit" size="sm" className="mt-4" disabled={isPending}>
         {isPending ? "Cargando…" : "Cargar residente"}

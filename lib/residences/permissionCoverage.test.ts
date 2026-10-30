@@ -30,6 +30,9 @@ const GUARDED: Record<string, string[]> = {
   "lib/availability/updateAvailability.ts": ["assertResidencePermission(", "operations.rooms_availability"],
   "lib/residents/createResidentStay.ts": ["assertResidencePermission(", "residents.manage"],
   "lib/residents/setResidentEmail.ts": ["assertResidencePermission(", "residents.manage"],
+  // Vinculación de residentes (DR19): invitación personal, código de casa y cola de solicitudes de vínculo
+  "lib/residents/residentInvitations.ts": ["assertResidencePermission(", "residents.manage"],
+  "lib/residents/linkRequestsResidence.ts": ["assertResidencePermission(", "residents.manage"],
   "lib/residents/endResidentStay.ts": ["assertResidencePermission(", "residents.manage"],
   "lib/residents/updateStayDetails.ts": ["assertResidencePermission(", "residents.manage"],
   "lib/residents/addResidentNote.ts": ["assertResidencePermission(", "residents.manage"],
@@ -55,6 +58,8 @@ const DELEGATING: Record<string, string[]> = {
     "@/lib/residents/endResidentStay",
     "@/lib/residents/updateStayDetails",
     "@/lib/residents/addResidentNote",
+    "@/lib/residents/residentInvitations",
+    "@/lib/residents/linkRequestsResidence",
     "@/lib/residences/roomManagement",
   ],
   "app/residence/[residence_id]/residents/stayChangeActions.ts": ["@/lib/stayChange/respondStayChangeIntent"],
@@ -75,6 +80,8 @@ const ALLOWLIST: Record<string, string> = {
   "app/residence/settings/new/actions.ts": "sumar otra residencia: solo dueño por rol global (sin residence_id) y tope de 10; el staff no tiene el rol residence_owner",
   "app/residence/[residence_id]/regulation/RegulationEditor.tsx": "formulario cliente; publica solo vía publishRegulationAction (DELEGATING → publish, GUARDED)",
   "app/residence/[residence_id]/profile/ResidenceProfileForm.tsx": "formulario cliente; escribe solo vía saveResidenceProfile (GUARDED)",
+  "lib/residents/inviteRules.ts": "funciones puras (hash/OTP/estados): el `.update(` es de createHash, no escribe en la base (DR19)",
+  "lib/residents/inviteThrottle.ts": "limitadores en memoria: el `.update(` es de createHash, no escribe en la base (DR19)",
   // Helpers que solo llaman acciones ya controladas
   "lib/residences/tariffLog.ts": "helper de saveResidenceProfile (GUARDED)",
   "lib/residences/customAmenitiesDb.ts": "helper de saveResidenceProfile (GUARDED) y del panel admin (reviewCustomAmenity)",
@@ -100,6 +107,8 @@ const ALLOWLIST: Record<string, string> = {
   // Estudiante / familiar
   "lib/residents/setResidentVisibility.ts": "acción del estudiante sobre su propia estadía",
   "lib/residents/activateResidentStay.ts": "acción del estudiante / sistema al activar su cuenta",
+  "lib/residents/inviteVerification.ts": "pasos del estudiante o de quien tiene el enlace personal (el token es la prueba); la residencia emite la invitación en residentInvitations (GUARDED)",
+  "lib/residents/linkRequestsStudent.ts": "acción del estudiante (pide el vínculo; la residencia lo resuelve en linkRequestsResidence, GUARDED)",
   "lib/renewals/createRenewalRequest.ts": "acción del estudiante",
   "lib/renewals/respondRenewalOffer.ts": "acción del estudiante",
   "lib/renewals/registerRenewalManualFeePayment.ts": "acción del estudiante / familiar",

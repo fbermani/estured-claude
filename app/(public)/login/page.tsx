@@ -5,7 +5,8 @@ import { getSessionUser, roleHome } from "@/lib/auth/session";
 import { CONTACT_EMAIL } from "@/lib/constants/contact";
 import { LoginForm } from "@/app/(public)/login/LoginForm";
 
-export const metadata: Metadata = { title: "Iniciar sesión" };
+// La query de `next` puede llevar `?invite=<token>` de un enlace personal: no viaja en el Referer.
+export const metadata: Metadata = { title: "Iniciar sesión", referrer: "no-referrer" };
 
 export default async function LoginPage({
   searchParams,
