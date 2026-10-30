@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { deleteResidenceCascade } from "@/lib/testing/deleteResidenceCascade";
+import { createTestStudent, deleteTestStudent, type TestStudent } from "@/lib/testing/testStudent";
 import { expireApplicationRequests } from "@/lib/jobs/expireApplicationRequests";
 import { expireNegotiationProposals } from "@/lib/jobs/expireNegotiationProposals";
 import { reactivatePausedApplications } from "@/lib/applications/reactivatePausedApplications";
@@ -11,7 +12,7 @@ import { LIVE_RESERVATION_STATUSES } from "@/lib/reservations/reservationStatus"
  * (docs/04 l.303) y, al vencer, las solicitudes pausadas del estudiante vuelven a `submitted`
  * (docs/04 §5.6). Fixtures en una residencia `residencia-test-*` que se borra por completo.
  * Estudiantes `*@estured.test` sin solicitudes en el seed cubren la reactivación (Valentina:
- * vencimiento por contacto/pago; Ana: propuesta de ajuste vencida; Mateo: reservas vigentes);
+ * vencimiento por contacto/pago; Ana: propuesta de ajuste vencida; un estudiante descartable creado y borrado por el test: reservas vigentes);
  * Lucía, el vencimiento sin efecto colateral (ya tiene una solicitud avanzada real del seed).
  */
 const hasCreds = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
@@ -25,7 +26,7 @@ describe.skipIf(!hasCreds)("vencimiento de contact_established (integración)", 
   let ownerId: string;
   let valentina: { userId: string; profileId: string };
   let ana: { userId: string; profileId: string };
-  let mateo: { userId: string; profileId: string };
+  let mateo: TestStudent;
   let lucia: { userId: string; profileId: string };
   const appIds: string[] = [];
 
@@ -90,7 +91,7 @@ describe.skipIf(!hasCreds)("vencimiento de contact_established (integración)", 
     ownerId = owner!.id;
     valentina = await findStudent("valentina.maidana@estured.test");
     ana = await findStudent("ana.jara@estured.test");
-    mateo = await findStudent("mateo.figueroa@estured.test");
+    mateo = await createTestStudent(admin, "expire-contact");
     lucia = await findStudent("lucia.fernandez@example.com");
 
     const { data: residence } = await admin
@@ -126,6 +127,7 @@ describe.skipIf(!hasCreds)("vencimiento de contact_established (integración)", 
       await admin.from("application_requests").delete().in("id", appIds);
     }
     await deleteResidenceCascade(admin, residenceId);
+    await deleteTestStudent(admin, mateo);
   });
 
   it("vence contact_established con plazo pasado, deja intactas las vigentes y reactiva la pausada del estudiante", async () => {

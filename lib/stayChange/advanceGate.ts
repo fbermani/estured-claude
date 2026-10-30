@@ -41,7 +41,8 @@ export function formatAdvanceAt(date: Date): string {
     hour12: false,
   }).formatToParts(date);
   const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
-  return `${get("day")}/${get("month")} ${get("hour")}:${get("minute")}`;
+  const pad = (v: string) => v.padStart(2, "0"); // algunas versiones de ICU ignoran "2-digit" en es-AR
+  return `${pad(get("day"))}/${pad(get("month"))} ${pad(get("hour"))}:${pad(get("minute"))}`;
 }
 
 export function advanceGateMessage(date: Date, audience: "student" | "residence"): string {

@@ -372,3 +372,8 @@ No hay TODOs/FIXMEs en el código (verificado por grep) — la deuda está docum
 - **[ABIERTO — requiere aplicar migraciones]** `residences` es legible con la anon key (RLS por fila): exponía contacto del responsable, señal de calidad y auditoría interna del acceso a GO; `profile_availability.notes_internal` también. Fix escrito, no aplicado: `0043_residence_private_details.sql` → deploy → `0043b_drop_residence_sensitive_columns.sql`. Guard: `scripts/check-anon-exposure.mjs`. Detalle en `MEMORY.md` (Ciclo 56).
 - **[RIESGO RESIDUAL]** flags comerciales (`has_operational_management_access`, `is_pioneer`, `pioneer_free_access_until`, `operating_mode`, `created_by`) siguen legibles con la anon key. Evaluar `GRANT SELECT (columnas)` por columna.
 - **[REGLA]** Toda columna nueva con dato privado va a `residence_private_details` (service role), nunca a `residences`; toda columna nueva de `profile_availability` legible por RLS necesita su `grant select (col)` (0043b).
+
+## `resident_stays.invite_phone` legible por el equipo de la residencia (2026-10-30)
+
+- **[ACEPTADO, riesgo bajo]** `invite_name`/`invite_phone` (0063) se alcanzan con JWT por las policies de fila de `resident_stays`: solo el equipo activo de esa residencia (quien los cargó). La UI los limita a `residents.manage`; `activateResidentStay` borra el teléfono al activar. anon y estudiantes no los ven (`check-anon-exposure` OK). Si se quiere restringir por permiso también vía API: mover ambos campos a una tabla aparte con RLS `residents.manage`.
+- Coordenadas del mapa de `/search`: se publican exactas a propósito (la dirección es pública, DF5); no redondear.

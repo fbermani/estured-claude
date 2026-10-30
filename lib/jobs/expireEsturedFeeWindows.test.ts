@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { deleteResidenceCascade } from "@/lib/testing/deleteResidenceCascade";
+import { createTestStudent, deleteTestStudent, type TestStudent } from "@/lib/testing/testStudent";
 import { expireEsturedFeeWindows } from "@/lib/jobs/expireEsturedFeeWindows";
 
 const hasCreds = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
@@ -10,6 +11,7 @@ describe.skipIf(!hasCreds)("expireEsturedFeeWindows (integración)", () => {
   let residenceId: string;
   let roomTypeId: string;
   let ownerId: string;
+  let student: TestStudent;
   let studentUserId: string;
   let studentProfileId: string;
   let mainAppId: string;
@@ -30,18 +32,9 @@ describe.skipIf(!hasCreds)("expireEsturedFeeWindows (integración)", () => {
       .single();
     ownerId = owner!.id;
 
-    const { data: studentUser } = await admin
-      .from("users")
-      .select("id")
-      .eq("email", "mateo.figueroa@estured.test")
-      .single();
-    studentUserId = studentUser!.id;
-    const { data: studentProfile } = await admin
-      .from("student_profiles")
-      .select("id")
-      .eq("user_id", studentUserId)
-      .single();
-    studentProfileId = studentProfile!.id;
+    student = await createTestStudent(admin, "expire-fee");
+    studentUserId = student.userId;
+    studentProfileId = student.profileId;
 
     const { data: residence } = await admin
       .from("residences")
@@ -189,6 +182,7 @@ describe.skipIf(!hasCreds)("expireEsturedFeeWindows (integración)", () => {
     await admin.from("external_residence_payments").delete().eq("id", residencePaymentId);
     await admin.from("application_requests").delete().in("id", [mainAppId, pausedAppId]);
     await deleteResidenceCascade(admin, residenceId);
+    await deleteTestStudent(admin, student);
   });
 
   it("vence el fee pendiente y pasa la reserva a expired_fee_unpaid", async () => {

@@ -322,6 +322,7 @@ describe.skipIf(!hasCreds)("resident_stays (integración)", () => {
         reservation_id: someRealReservationId,
         status: "created_by_residence",
         is_current: true,
+        invite_name: "Residente de prueba (test de integración)",
         expected_end_date: "2026-08-12",
       })
       .select("id")

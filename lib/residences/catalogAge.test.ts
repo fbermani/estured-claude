@@ -11,7 +11,7 @@ function builder(table: string, cols?: string) {
     const key = table === "residences" ? `residences:${cols?.includes("min_resident_age") ? "age" : "legacy"}` : table;
     return Promise.resolve(responses[key]?.shift() ?? { data: [], error: null });
   };
-  for (const m of ["eq", "neq", "in", "order"]) b[m] = () => b;
+  for (const m of ["eq", "neq", "in", "order", "limit"]) b[m] = () => b;
   b.then = (ok: (v: unknown) => unknown, ko: (e: unknown) => unknown) => done().then(ok, ko);
   return b;
 }
