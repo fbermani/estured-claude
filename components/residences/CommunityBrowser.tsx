@@ -6,6 +6,9 @@ import { useRouter } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
 import { useReservationSelection } from "@/components/residences/reservationSelection";
 import { StatusTag } from "@/components/ui/StatusTag";
+import { FilterChips } from "@/components/ui/FilterChips";
+import { MetricCard } from "@/components/ui/MetricCard";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { canOfferBedSelection, typeAvailabilityMode } from "@/lib/availability/typeAvailability";
 import type { CommunityProfileCard, CommunityRoomTypeSummary, CommunitySummary } from "@/lib/residents/communityVisibility";
 
@@ -74,7 +77,7 @@ function ResidentCell({ card, index, isGuest }: { card: CommunityProfileCard; in
 
   if (card.kind === "placeholder") {
     return (
-      <div className="flex items-center gap-3 rounded-field border border-line bg-cream-2 p-3">
+      <div className="flex min-h-14 items-center gap-3 rounded-2xl border border-line bg-cream-2 p-2.5">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sand-100 text-ink-faint">
           <Icon name="person" className="text-xl" />
         </div>
@@ -96,7 +99,7 @@ function ResidentCell({ card, index, isGuest }: { card: CommunityProfileCard; in
         onClick={() => setOpen((o) => !o)}
         onFocus={() => setOpen(true)}
         onBlur={() => setOpen(false)}
-        className="flex w-full cursor-pointer items-center gap-3 rounded-field border border-line bg-paper p-3 text-left transition-colors hover:border-line-2 hover:bg-cream-2"
+        className="flex min-h-14 w-full cursor-pointer items-center gap-3 rounded-2xl border border-line bg-paper p-2.5 text-left transition-all duration-300 ease-bounce hover:-translate-y-px hover:border-(--tone) hover:shadow-card focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-(--tone)"
         aria-expanded={open}
       >
         <Avatar card={card} index={index} />
@@ -113,7 +116,7 @@ function ResidentCell({ card, index, isGuest }: { card: CommunityProfileCard; in
       {open && (
         <div
           role="dialog"
-          className="benefit-fade-in absolute left-1/2 top-full z-30 mt-2 w-72 -translate-x-1/2 rounded-card border-[1.5px] border-line bg-paper p-5 text-left shadow-float"
+          className="benefit-fade-in relative z-30 mt-2 w-full rounded-card sm:absolute sm:left-1/2 sm:top-full sm:w-72 sm:-translate-x-1/2 rounded-card border-[1.5px] border-line bg-paper p-5 text-left shadow-float"
         >
           <div className="flex items-center gap-3">
             <Avatar card={card} index={index} size="lg" />
@@ -189,7 +192,7 @@ function ResidentCell({ card, index, isGuest }: { card: CommunityProfileCard; in
 /** Plaza libre informativa: sin acción. El estado manda el tipo de habitación (D3). */
 function InfoFreeSlot({ typeAvailable }: { typeAvailable: boolean }) {
   return (
-    <div className="flex items-center gap-3 rounded-field border border-dashed border-line bg-cream-2/50 p-3">
+    <div className="flex min-h-14 items-center gap-3 rounded-2xl border border-dashed border-line-2 bg-paper p-2.5">
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sand-100 text-ink-faint">
         <Icon name="bed" className="text-xl" />
       </div>
@@ -225,7 +228,7 @@ function FreeBedSlot({ slug, roomTypeId, slotKey }: { slug: string; roomTypeId: 
     return (
       <Link
         href={`/residencias/${slug}#solicitud`}
-        className="group flex items-center gap-3 rounded-field border-2 border-dashed border-success-fg/40 bg-success-bg/40 p-3 transition-colors duration-300 hover:bg-success-bg"
+        className="group flex items-center gap-3 rounded-2xl border-2 border-dashed border-success-fg/40 bg-success-bg/40 p-2.5 transition-colors duration-300 hover:bg-success-bg"
       >
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-success-bg text-success-fg transition-transform duration-300 group-hover:scale-110">
           <Icon name="bed" className="text-xl" />
@@ -243,7 +246,7 @@ function FreeBedSlot({ slug, roomTypeId, slotKey }: { slug: string; roomTypeId: 
       type="button"
       onClick={handleSelect}
       aria-pressed={isSelected}
-      className={`group flex w-full items-center gap-3 rounded-field border-2 p-3 text-left transition-all duration-300 ${
+      className={`group flex min-h-14 w-full items-center gap-3 rounded-2xl border-2 p-2.5 text-left transition-all duration-300 ${
         isSelected
           ? "border-solid border-forest bg-forest-tint shadow-card"
           : "border-dashed border-success-fg/40 bg-success-bg/40 hover:border-success-fg hover:bg-success-bg"
@@ -275,6 +278,7 @@ function RoomTypeSection({
   isGuest,
   startIndex,
   allowSelection,
+  defaultOpen,
 }: {
   roomType: CommunityRoomTypeSummary;
   cards: CommunityProfileCard[];
@@ -282,8 +286,9 @@ function RoomTypeSection({
   isGuest: boolean;
   startIndex: number;
   allowSelection: boolean;
+  defaultOpen: boolean;
 }) {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(defaultOpen);
   const title = roomType.genderPolicyLabel ? `${roomType.roomTypeName} ${roomType.genderPolicyLabel}` : roomType.roomTypeName;
 
   const hasRooms = roomType.rooms.length > 0;
@@ -302,22 +307,25 @@ function RoomTypeSection({
     );
 
   return (
-    <div className="overflow-hidden rounded-card border-[1.5px] border-line bg-paper shadow-card">
+    <section className="overflow-hidden rounded-card border-[1.5px] border-line border-l-[5px] border-l-(--tone) bg-paper shadow-card">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full cursor-pointer items-center justify-between gap-3 px-5 py-4 text-left"
+        className="flex min-h-16 w-full cursor-pointer items-center justify-between gap-3 px-5 py-3 text-left focus-visible:outline-[3px] focus-visible:outline-offset-[-3px] focus-visible:outline-(--tone)"
         aria-expanded={open}
       >
-        <span className="flex items-center gap-3">
-          <span className="h-5 w-1 rounded-full bg-forest" aria-hidden />
-          <span className="font-bold text-ink">{title}</span>
+        <span className="min-w-0">
+          <span className="block font-display text-[17px] font-bold leading-tight text-ink">{title}</span>
+          <span className="block text-[13px] text-ink-faint">
+            {roomType.occupiedCount} {roomType.occupiedCount === 1 ? "residente" : "residentes"}
+            {(roomType.availableCount ?? 0) > 0 && ` · ${roomType.availableCount} ${roomType.availableCount === 1 ? "cama libre" : "camas libres"}`}
+          </span>
         </span>
-        <span className="flex items-center gap-3">
+        <span className="flex shrink-0 items-center gap-3">
           {typeState && <StatusTag mode={typeAvailabilityMode(typeState)} roomTypeName={roomType.roomTypeName} />}
           <Icon
             name="expand_more"
-            className={`text-xl text-forest-700 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
+            className={`text-2xl text-(--tone-700) transition-transform duration-300 ${open ? "rotate-180" : ""}`}
           />
         </span>
       </button>
@@ -330,9 +338,9 @@ function RoomTypeSection({
         }`}
       >
         <div className="overflow-hidden">
-          <div className="border-t border-line px-4 pb-4 pt-4">
+          <div className="border-t border-line px-4 pb-4 pt-4 sm:px-5">
             {hasRooms ? (
-              <div className="columns-1 gap-3 xl:columns-2">
+              <div className="grid items-start gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 {/* Desglose por habitación física — quién vive en cada una
                     y qué camas quedan libres, en grilla tipo masonry
                     (columnas CSS) para que cada card ocupe solo la altura
@@ -341,11 +349,11 @@ function RoomTypeSection({
                 {roomType.rooms.map((room) => (
                   <div
                     key={room.roomId}
-                    className="mb-3 break-inside-avoid rounded-field border border-line bg-cream-2/60 p-3 transition-shadow duration-300 hover:shadow-card"
+                    className="h-full rounded-[18px] border border-line bg-cream/70 p-3 transition-shadow duration-300 hover:shadow-card"
                   >
                     <div className="mb-2.5 flex items-center justify-between gap-3 px-1">
                       <p className="flex items-center gap-1.5 text-sm font-bold text-ink">
-                        <Icon name="meeting_room" className="text-base text-forest-700" />
+                        <Icon name="meeting_room" className="text-base text-(--tone-700)" />
                         {room.label}
                       </p>
                       <span
@@ -369,7 +377,7 @@ function RoomTypeSection({
                   </div>
                 ))}
                 {unassigned.length > 0 && (
-                  <div className="mb-3 break-inside-avoid rounded-field border border-line bg-cream-2/60 p-3">
+                  <div className="rounded-[18px] border border-line bg-cream/70 p-3">
                     <p className="mb-2.5 px-1 text-sm font-bold text-ink-soft">Sin habitación asignada</p>
                     <div className="grid gap-2.5">
                       {unassigned.map((card) => (
@@ -381,7 +389,7 @@ function RoomTypeSection({
               </div>
             ) : (
               /* Fallback: la residencia no cargó habitaciones físicas todavía */
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 {cards.map((card) => (
                   <ResidentCell key={card.residentStayId} card={card} index={indexOf(card)} isGuest={isGuest} />
                 ))}
@@ -393,7 +401,7 @@ function RoomTypeSection({
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -432,67 +440,82 @@ export function CommunityBrowser({
     return start;
   });
 
+  const [typeFilter, setTypeFilter] = useState<string>("all");
+  const typeKey = (rt: CommunityRoomTypeSummary) => rt.roomTypeId ?? "sin-tipo";
+  const shownSections = sections.filter((rt) => typeFilter === "all" || typeKey(rt) === typeFilter);
+
   return (
-    <div className="min-w-0 space-y-4">
-      {/* Barra de ocupación — ref: TOTAL / DESGLOSE POR TIPO / OCUPACIÓN */}
-      <div className="flex flex-col gap-5 rounded-card border-[1.5px] border-line bg-paper p-5 shadow-card sm:flex-row sm:items-center sm:justify-between">
-        <div className="shrink-0">
-          <p className="text-[10px] font-extrabold uppercase tracking-widest text-muted">Residentes</p>
-          <p className="mt-1 flex items-baseline gap-1">
-            <span className="text-3xl font-extrabold text-ink">{summary.totalResidents}</span>
-            <span className="text-sm text-ink-soft">actuales</span>
-          </p>
-        </div>
-        <div className="hidden h-12 w-px bg-line sm:block" aria-hidden />
-        <div className="min-w-0 flex-1">
-          <p className="mb-2 text-[10px] font-extrabold uppercase tracking-widest text-muted">Desglose por tipo</p>
-          <div className="flex flex-wrap gap-2">
-            {sections.map((rt) => (
-              <span
-                key={rt.roomTypeId ?? "sin-tipo"}
-                className="inline-flex items-center rounded-field border border-line bg-cream-2 px-2.5 py-1 text-xs font-medium text-ink-soft"
-              >
-                {rt.genderPolicyLabel ? `${rt.roomTypeName} ${rt.genderPolicyLabel}` : rt.roomTypeName}
-                <span className="ml-1.5 font-bold text-ink">{rt.occupiedCount}</span>
-              </span>
-            ))}
-          </div>
-        </div>
+    <div className="min-w-0 space-y-5">
+      {/* Resumen: agregados de la casa (sin datos individuales) */}
+      <div className="grid grid-cols-2 gap-3 sm:gap-3.5 lg:grid-cols-3">
+        <MetricCard
+          icon="groups"
+          label="Residentes"
+          value={summary.totalResidents}
+          unit="actuales"
+          hint="Cada uno decide qué mostrar."
+        />
         {summary.totalAvailable > 0 && (
-          <>
-            <div className="hidden h-12 w-px bg-line sm:block" aria-hidden />
-            <div className="shrink-0 sm:text-right">
-              <p className="text-[10px] font-extrabold uppercase tracking-widest text-muted">Ocupación</p>
-              <p className="mt-1 flex items-center gap-2 sm:justify-end">
-                <span className="rounded-full bg-success-bg px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-success-fg">
-                  Con lugar
-                </span>
-                <span className="text-xl font-extrabold text-ink">
-                  {summary.totalResidents}/{totalPlaces}
-                </span>
-              </p>
-            </div>
-          </>
+          <MetricCard
+            icon="bed"
+            label="Camas libres"
+            value={summary.totalAvailable}
+            hint="Informadas por la residencia."
+            progress={{
+              label: `${summary.totalResidents} ocupadas de ${totalPlaces}`,
+              parts: [
+                { pct: (summary.totalResidents / totalPlaces) * 100, kind: "main" },
+                { pct: (summary.totalAvailable / totalPlaces) * 100, kind: "rest" },
+              ],
+            }}
+          />
         )}
+        <MetricCard
+          className="col-span-2 lg:col-span-1"
+          icon="category"
+          label="Tipos de habitación"
+          value={sections.length}
+          hint={sections.map((rt) => rt.roomTypeName).slice(0, 3).join(" · ")}
+        />
       </div>
 
-      {/* Secciones por tipo de habitación — grilla tipo masonry (columnas
-          CSS): cada card ocupa solo su propia altura, sin huecos grandes
-          al lado de una categoría expandida (Ciclo 35octodevicies). */}
-      <div className="columns-1 gap-4 lg:columns-2">
-        {sections.map((rt, i) => (
-          <div key={rt.roomTypeId ?? "sin-tipo"} className="mb-4 break-inside-avoid">
-            <RoomTypeSection
-              roomType={rt}
-              cards={cardsByRoomType.get(rt.roomTypeId) ?? []}
-              slug={slug}
-              isGuest={isGuest}
-              startIndex={sectionStartIndex[i]}
-              allowSelection={allowSelection}
-            />
-          </div>
-        ))}
-      </div>
+      {sections.length > 1 && (
+        <FilterChips
+          label="Filtrar por tipo de habitación"
+          value={typeFilter}
+          onChange={setTypeFilter}
+          options={[
+            { value: "all", label: "Todos", count: summary.totalResidents },
+            ...sections.map((rt) => ({
+              value: typeKey(rt),
+              label: rt.genderPolicyLabel ? `${rt.roomTypeName} ${rt.genderPolicyLabel}` : rt.roomTypeName,
+              count: rt.occupiedCount,
+            })),
+          ]}
+        />
+      )}
+
+      {sections.length === 0 ? (
+        <EmptyState icon="groups" title="Todavía no hay comunidad para mostrar" description="Cuando haya residentes con perfil visible, los vas a ver acá." />
+      ) : (
+        <div className="grid gap-4">
+          {shownSections.map((rt) => {
+            const i = sections.indexOf(rt);
+            return (
+              <RoomTypeSection
+                key={typeKey(rt)}
+                roomType={rt}
+                cards={cardsByRoomType.get(rt.roomTypeId) ?? []}
+                slug={slug}
+                isGuest={isGuest}
+                startIndex={sectionStartIndex[i]}
+                allowSelection={allowSelection}
+                defaultOpen={i === 0 || typeFilter !== "all" || sections.length <= 2}
+              />
+            );
+          })}
+        </div>
+      )}
 
       {/* Footer CTA — ref: "Podés seleccionar un lugar disponible..." */}
       {allowSelection && summary.totalAvailable > 0 && (

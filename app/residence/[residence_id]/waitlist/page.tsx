@@ -12,6 +12,7 @@ import { MOVING_SIGNAL_LABEL } from "@/lib/stayChange/copy";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
+import { PageHero } from "@/components/ui/PageHero";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { daysUntilDesired as computeDaysUntilDesired, describeDaysUntilDesired } from "@/lib/waitlist-entries/daysUntilDesired";
 import { WaitlistRowActions } from "@/app/residence/[residence_id]/waitlist/WaitlistRowActions";
@@ -129,15 +130,19 @@ export default async function ResidenceWaitlistPage({
   const totalCount = rows.length;
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
-      <h1 className="text-2xl font-bold text-ink">Lista de espera</h1>
-      <p className="mt-1 text-sm text-ink-soft">
-        Agrupada por tipo de habitación y ordenada por quién debería recibir la próxima vacante primero.
-      </p>
+    <div className="tone-residence mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
+      <PageHero
+        tone="residence"
+        eyebrow="Lista de espera"
+        eyebrowIcon="hourglass_top"
+        title="Lista de espera"
+        subtitle="Por tipo de habitación, ordenada por quién debería recibir la próxima vacante."
+        glyph="hourglass_top"
+      />
 
       {totalCount === 0 ? (
         <div className="mt-6">
-          <EmptyState icon="hourglass_top" title="Nadie en lista de espera" description="Cuando alguien se sume, va a aparecer acá." />
+          <EmptyState tone="residence" icon="hourglass_top" title="Nadie en lista de espera" description="Cuando alguien se sume, va a aparecer acá." />
         </div>
       ) : (
         <div className="mt-6 space-y-8">

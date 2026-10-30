@@ -12,8 +12,12 @@ import { ExpandableCard } from "@/components/ui/ExpandableCard";
 import { FamilyLinkActions } from "@/app/students/FamilyLinkActions";
 import { FamilyLinkCard } from "@/app/students/profile/FamilyLinkCard";
 import { StartRenewalModal } from "@/app/students/renewals/StartRenewalModal";
-import { ModuleCard } from "@/components/students/ModuleCard";
-import { StudentGreeting } from "@/components/students/StudentGreeting";
+import { ModuleCard } from "@/components/ui/ModuleCard";
+import { PageHero } from "@/components/ui/PageHero";
+import { MetricCard } from "@/components/ui/MetricCard";
+import { ListRow } from "@/components/ui/ListRow";
+import { Reveal } from "@/components/ui/Reveal";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { NextStepCard } from "@/components/students/NextStepCard";
 import { getNextStep } from "@/lib/students/journeyStage";
 import { PhotoCarousel } from "@/components/students/PhotoCarousel";
@@ -183,13 +187,34 @@ export default async function StudentDashboardPage() {
       }),
     );
 
+    const activeLinksCount = links.filter((l) => l.status === "active").length;
+    const proposalsWaiting = sentProposals.filter((p) => p.status === "pending_student_approval").length;
+
     return (
-      <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-14">
-        <h1 className="text-3xl font-bold text-ink">Tu espacio de familiar</h1>
-        <p className="mt-2 text-ink-soft">
-          Seguís cómo avanzan las solicitudes y reservas de quienes acompañás, les proponés residencias y, si te
-          designan, pagás el fee EstuRed. Las decisiones y los documentos son de cada estudiante.
-        </p>
+      <div className="tone-family mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
+        <PageHero
+          tone="family"
+          eyebrow="Familia"
+          eyebrowIcon="family_restroom"
+          title="Tu espacio de familiar"
+          subtitle="Acompañás, proponés residencias y seguís cómo avanza cada solicitud. Decide cada estudiante."
+          glyph="family_restroom"
+          status={
+            <>
+              <Badge tone={activeLinksCount > 0 ? "sage" : "neutral"}>
+                <Icon name="link" className="text-sm" />
+                {activeLinksCount === 0 ? "Sin vínculos activos" : pluralize(activeLinksCount, "vínculo activo", "vínculos activos")}
+              </Badge>
+              {proposalsWaiting > 0 && (
+                <Badge tone="amber">
+                  <Icon name="mail" className="text-sm" />
+                  {pluralize(proposalsWaiting, "propuesta esperando respuesta", "propuestas esperando respuesta")}
+                </Badge>
+              )}
+            </>
+          }
+          cta={{ label: "Proponer una residencia", href: "/search", note: "Es una propuesta, no una reserva" }}
+        />
 
         {familyFeeBanners.map((b) => (
           <FeeUrgentBanner
@@ -205,28 +230,39 @@ export default async function StudentDashboardPage() {
 
         <div className="mt-8 space-y-4">
           {links.length === 0 ? (
-            <Card className="p-6 text-sm text-ink-soft">
-              Todavía no tenés vínculos registrados.
-            </Card>
+            <Reveal>
+              <EmptyState
+                tone="family"
+                icon="group_add"
+                title="Todavía no tenés vínculos"
+                description="Cuando un estudiante te invite y apruebe la vinculación, vas a verlo acá."
+              />
+            </Reveal>
           ) : (
-            links.map((l) => {
+            links.map((l, idx) => {
               const change = familyStayChanges.get(l.id);
               const studentFirstName = l.student_profiles?.first_name ?? "Tu familiar";
               const searching = !!change?.view && ["open_no_response", "open_responded", "open_expiring"].includes(change.view.ui.key);
               return (
-                <Card key={l.id} className="p-6">
+                <Reveal key={l.id} delay={Math.min(idx, 5) as 0 | 1 | 2 | 3 | 4 | 5}>
+                <Card className="border-l-[5px] border-l-(--tone) p-5 sm:p-6">
                   <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <p className="font-bold text-ink">
-                        {formatShortName(l.student_profiles?.first_name, l.student_profiles?.last_initial)}
-                      </p>
-                      <p className="text-sm text-ink-soft">
-                        {l.status === "pending_student_approval"
-                          ? "Esperando que apruebe la vinculación"
-                          : l.status === "active"
-                            ? "Vínculo activo"
-                            : "Vínculo no activo"}
-                      </p>
+                    <div className="flex min-w-0 items-center gap-3">
+                      <span className="flex size-[42px] shrink-0 items-center justify-center rounded-full bg-(--tone-tint) font-display text-[15px] font-bold text-(--tone-700)">
+                        {(l.student_profiles?.first_name ?? "?").charAt(0).toUpperCase()}
+                      </span>
+                      <div className="min-w-0">
+                        <p className="truncate font-bold text-ink">
+                          {formatShortName(l.student_profiles?.first_name, l.student_profiles?.last_initial)}
+                        </p>
+                        <p className="text-sm text-ink-soft">
+                          {l.status === "pending_student_approval"
+                            ? "Esperando que apruebe la vinculación"
+                            : l.status === "active"
+                              ? "Vínculo activo"
+                              : "Vínculo no activo"}
+                        </p>
+                      </div>
                     </div>
                     <div className="flex flex-wrap items-center justify-end gap-1.5">
                       {searching && (
@@ -267,41 +303,49 @@ export default async function StudentDashboardPage() {
                   )}
                   {change && <FamilyStayChangeBlock view={change.view} studentName={studentFirstName} residenceName={change.residenceName} />}
                 </Card>
+                </Reveal>
               );
             })
           )}
         </div>
 
-        <Card className="mt-8 flex flex-col p-6">
-          <h2 className="font-bold text-ink">Explorar residencias</h2>
-          <p className="mt-2 flex-1 text-sm text-ink-soft">
-            Podés proponerle opciones al estudiante que acompañás — él o ella decide si aprobarlas.
-          </p>
-          <Button href="/search" size="sm" className="mt-4 self-start">
-            Buscar residencia
-          </Button>
-        </Card>
+        <div className="mt-8">
+          <Reveal>
+            <ModuleCard
+              href="/search"
+              icon="search"
+              title="Explorar residencias"
+              cta={{ label: "Buscar residencia", href: "/search" }}
+            >
+              <p>Proponele opciones al estudiante que acompañás: él o ella decide si aprobarlas.</p>
+            </ModuleCard>
+          </Reveal>
+        </div>
 
         {sentProposals.length > 0 && (
-          <Card className="mt-6 p-6">
-            <h2 className="font-bold text-ink">Propuestas que enviaste</h2>
-            <div className="mt-4 space-y-3">
-              {sentProposals.map((p) => {
-                const status = PROPOSAL_STATUS_LABEL[p.status] ?? PROPOSAL_STATUS_LABEL.pending_student_approval;
-                return (
-                  <div key={p.id} className="flex items-center justify-between border-b border-line pb-3 last:border-0 last:pb-0">
-                    <div>
-                      <p className="text-sm font-semibold text-ink">{p.residences?.name}</p>
-                      <p className="text-xs text-ink-faint">
-                        Para {formatShortName(p.student_profiles?.first_name, p.student_profiles?.last_initial)}
-                      </p>
-                    </div>
-                    <Badge tone={status.tone}>{status.label}</Badge>
-                  </div>
-                );
-              })}
-            </div>
-          </Card>
+          <Reveal className="mt-6">
+            <section aria-labelledby="propuestas-enviadas">
+              <h2 id="propuestas-enviadas" className="mb-2 font-display text-lg font-bold text-ink">
+                Propuestas que enviaste
+              </h2>
+              <Card className="p-1.5">
+                <ul>
+                  {sentProposals.map((p) => {
+                    const status = PROPOSAL_STATUS_LABEL[p.status] ?? PROPOSAL_STATUS_LABEL.pending_student_approval;
+                    return (
+                      <ListRow
+                        key={p.id}
+                        avatar={(p.residences?.name ?? "?").charAt(0).toUpperCase()}
+                        title={p.residences?.name ?? "Residencia"}
+                        meta={`Para ${formatShortName(p.student_profiles?.first_name, p.student_profiles?.last_initial)}`}
+                        status={<Badge tone={status.tone}>{status.label}</Badge>}
+                      />
+                    );
+                  })}
+                </ul>
+              </Card>
+            </section>
+          </Reveal>
         )}
       </div>
     );
@@ -596,14 +640,19 @@ export default async function StudentDashboardPage() {
       ))}
 
       {pendingProposalsCount > 0 && (
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-card border border-line-2 bg-forest-tint p-5">
-          <div>
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-card border-[1.5px] border-orange bg-gradient-to-b from-orange-tint to-paper to-80% p-5">
+          <div className="flex items-start gap-3">
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-[14px] bg-paper text-orange-700">
+              <Icon name="mail" className="text-2xl" />
+            </span>
+            <div>
             <p className="font-semibold text-ink">
               {pendingProposalsCount === 1
                 ? "Tu familiar te sugirió una residencia"
                 : `Tu familiar te sugirió ${pendingProposalsCount} residencias`}
             </p>
             <p className="mt-1 text-sm text-ink-soft">Tenés 48 horas para aprobar o rechazar cada propuesta.</p>
+            </div>
           </div>
           <Button href="/students/family-proposals" size="sm">
             Ver propuestas
@@ -614,9 +663,13 @@ export default async function StudentDashboardPage() {
       {pendingLinks.map((link) => (
         <div
           key={link.id}
-          className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-card border border-line-2 bg-forest-tint p-5"
+          className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-card border-[1.5px] border-orange bg-gradient-to-b from-orange-tint to-paper to-80% p-5"
         >
-          <div>
+          <div className="flex items-start gap-3">
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-[14px] bg-paper text-orange-700">
+              <Icon name="family_restroom" className="text-2xl" />
+            </span>
+            <div>
             <p className="font-semibold text-ink">
               {RELATIONSHIP_LABEL[link.family_members?.relationship_type ?? "familiar"]}{" "}
               {link.family_members?.first_name} {link.family_members?.last_name} quiere
@@ -626,6 +679,7 @@ export default async function StudentDashboardPage() {
               Va a poder ver tu búsqueda, sugerir residencias y ayudarte con pagos y
               documentación. Vos seguís decidiendo todo.
             </p>
+            </div>
           </div>
           <FamilyLinkActions linkId={link.id} />
         </div>
@@ -670,8 +724,9 @@ export default async function StudentDashboardPage() {
       href="/students/profile"
       icon="person"
       title="Mi perfil"
+      attention={completenessPercent < 100}
+      badge={completenessPercent < 100 ? { label: `Falta ${100 - completenessPercent} %`, tone: "amber" } : undefined}
       cta={completenessPercent < 100 ? { label: "Completar perfil", href: "/students/profile" } : undefined}
-      animationDelayMs={40}
     >
       <div className="flex items-center gap-3">
         <div
@@ -699,6 +754,7 @@ export default async function StudentDashboardPage() {
       href="/students/applications"
       icon="description"
       title="Mis solicitudes"
+      attention={applicationsActionNeeded.length > 0}
       badge={
         applicationsActionNeeded.length > 0
           ? { label: `${applicationsActionNeeded.length} pendiente${applicationsActionNeeded.length > 1 ? "s" : ""}`, tone: "amber" }
@@ -711,7 +767,6 @@ export default async function StudentDashboardPage() {
             ? { label: "Buscar residencias", href: "/search" }
             : undefined
       }
-      animationDelayMs={80}
     >
       {applications.length > 0 && primaryApplication ? (
         <>
@@ -729,7 +784,7 @@ export default async function StudentDashboardPage() {
   );
 
   const favoritosCard = (
-    <ModuleCard href="/students/favorites" icon="favorite" title="Favoritos" animationDelayMs={120}>
+    <ModuleCard href="/students/favorites" icon="favorite" title="Favoritos">
       {favoritesTotal > 0 ? (
         <div className="flex items-center gap-3">
           <div className="flex -space-x-2">
@@ -754,8 +809,8 @@ export default async function StudentDashboardPage() {
       href="/students/waitlist"
       icon="hourglass_top"
       title="Lista de espera"
+      attention={waitlistNeedsAction}
       badge={waitlistNeedsAction ? { label: "¡Hay lugar!", tone: "amber" } : undefined}
-      animationDelayMs={160}
     >
       {waitlistCount > 0 ? (
         <p className="font-semibold text-ink">
@@ -768,7 +823,7 @@ export default async function StudentDashboardPage() {
   );
 
   const vinculacionCard = (
-    <div id="vinculacion" className="benefit-fade-in scroll-mt-24" style={{ animationDelay: "200ms" }}>
+    <div id="vinculacion" className="h-full scroll-mt-24">
       <FamilyLinkCard activeLink={familyActiveLink} pendingApprovalCount={0} pendingInvitation={familyPendingInvitation} isMinor={isMinor} />
     </div>
   );
@@ -780,7 +835,6 @@ export default async function StudentDashboardPage() {
       title="Soporte"
       badge={openSupportCount > 0 ? { label: `${openSupportCount} en curso`, tone: "amber" } : undefined}
       cta={{ label: openSupportCount > 0 ? "Ver mis casos" : "Abrir un caso", href: "/students/support" }}
-      animationDelayMs={240}
     >
       <p>
         {openSupportCount > 0
@@ -790,135 +844,186 @@ export default async function StudentDashboardPage() {
     </ModuleCard>
   );
 
+  const greetName = firstName ? `Hola, ${firstName}.` : "Hola.";
+  const heroTitle = isHoused
+    ? `${greetName} Ya tenés tu lugar.`
+    : activeApplication
+      ? activeVisible?.studentActionRequired
+        ? `${greetName} Tenés un paso por hacer.`
+        : `${greetName} Tu solicitud sigue su camino.`
+      : `${greetName} Armemos tu camino a la residencia.`;
+  const heroSubtitle = isHoused
+    ? "Tu estadía, tu comunidad y tus renovaciones, en un solo lugar."
+    : activeApplication
+      ? "Acá ves cómo va y qué sigue."
+      : "Con el perfil completo, las residencias te conocen mejor.";
+
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
-      <StudentGreeting
-        title={isHoused ? "¡Ya tenés tu lugar!" : firstName ? `¡Hola, ${firstName}!` : "¡Hola!"}
-        subtitle={
+    <div className="tone-student mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
+      <PageHero
+        tone="student"
+        eyebrow={isHoused ? "Tu casa" : "Tu camino"}
+        eyebrowIcon="backpack"
+        title={heroTitle}
+        subtitle={heroSubtitle}
+        glyph={isHoused ? "home_work" : activeApplication ? "hourglass_top" : "travel_explore"}
+        status={
+          isHoused ? (
+            <>
+              <Badge tone="sage">
+                <Icon name="check_circle" className="text-sm" /> Estadía activa
+              </Badge>
+              {contract && <Badge tone="neutral">Hasta {contractEndLabel}</Badge>}
+            </>
+          ) : activeApplication && activeVisible ? (
+            <Badge tone={activeVisible.tone}>
+              <Icon name={activeVisible.studentActionRequired ? "priority_high" : "schedule"} className="text-sm" /> {activeVisible.label}
+            </Badge>
+          ) : (
+            <Badge tone={completenessPercent >= 100 ? "sage" : "amber"}>
+              <Icon name={completenessPercent >= 100 ? "check_circle" : "edit_note"} className="text-sm" />
+              {completenessPercent >= 100 ? "Perfil completo" : `Perfil al ${completenessPercent} %`}
+            </Badge>
+          )
+        }
+        cta={
           isHoused
-            ? "Todo lo que necesitás sobre tu estadía y tu cuenta, en un solo lugar."
-            : activeApplication
-              ? "Tu solicitud sigue su camino. Esto es lo que sigue."
-              : "Te damos la bienvenida a EstuRed. Armemos tu camino a la residencia."
+            ? { label: "Ir a mi residencia", href: "/students/residency" }
+            : { ...nextStep.primary, note: activeApplication ? "Sujeta a confirmación" : "Sin compromiso" }
         }
       />
 
       {headerBanners}
 
       {!isHoused && (
-        <div className="mt-6">
+        <Reveal delay={1} className="mt-6">
           <NextStepCard step={nextStep} />
-        </div>
+        </Reveal>
       )}
 
       {isHoused && reservation && residence && (
-        <Card className="mt-8 overflow-hidden p-0">
-          <div className="grid grid-cols-1 lg:grid-cols-5">
-            <div className="relative h-64 lg:col-span-2 lg:h-auto">
-              <PhotoCarousel photos={residencePhotos} alt={residence.name} zone={residence.public_area ?? undefined} />
-            </div>
-            <div className="flex flex-col justify-between gap-5 p-6 lg:col-span-3">
-              <div>
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <h2 className="text-xl font-bold text-ink md:text-2xl">{residence.name}</h2>
-                    <p className="mt-1 flex items-center gap-1 text-sm text-ink-soft">
-                      <Icon name="location_on" className="text-base" />
-                      {residence.public_area}, CABA
-                    </p>
-                  </div>
-                  <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-forest-tint px-3 py-1 text-xs font-bold uppercase tracking-wide text-forest-700">
-                    <span className="size-2 rounded-full bg-forest-600" /> Alojado
-                  </span>
-                </div>
-                <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-4">
-                  <div>
-                    <p className="text-xs text-ink-faint">Habitación</p>
-                    <p className="font-bold text-ink">{reservation.room_types?.name ?? "—"}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-ink-faint">Valor mensual</p>
-                    <p className="font-bold text-ink">
-                      USD {contract?.currentRateUsd ?? reservation.application_snapshots?.monthly_price_usd ?? "—"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-ink-faint">Ingreso</p>
-                    <p className="font-medium text-ink">{formatDateOnly(reservation.start_date)}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-ink-faint">{contract?.renewedUntil ? "Renovada hasta" : "Fin de contrato"}</p>
-                    <p className="font-medium text-ink">{contractEndLabel}</p>
-                  </div>
-                </div>
-                {contract?.differs && (
-                  <StayRateNote
-                    agreedRateUsd={contract.agreedRateUsd}
-                    currentRateUsd={contract.currentRateUsd}
-                    className="mt-4"
-                  />
-                )}
-              </div>
-
-              {heroAlerts.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {heroAlerts.map((a) => (
-                    <Link
-                      key={a.label}
-                      href={a.href}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-line-2 bg-cream-2 px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-forest hover:bg-forest-tint hover:text-forest-700"
-                    >
-                      <Icon name={a.icon} className="text-sm" />
-                      {a.label}
-                    </Link>
-                  ))}
-                </div>
-              )}
-
-              <div className="flex flex-wrap gap-3">
-                <Button href="/students/residency" size="sm">
-                  Ver residencia
-                </Button>
-                <Button href="/students/residency#comunidad" size="sm" variant="outline">
-                  Ver comunidad
-                </Button>
-              </div>
-            </div>
+        <>
+          <div className="mt-6 grid grid-cols-1 gap-3.5 sm:grid-cols-3">
+            <Reveal delay={1} className="h-full">
+              <MetricCard
+                icon="event"
+                label="Ingreso"
+                value={formatDateOnly(reservation.start_date)}
+                hint={reservation.room_types?.name ?? undefined}
+                className="h-full"
+              />
+            </Reveal>
+            <Reveal delay={2} className="h-full">
+              <MetricCard
+                icon="hourglass_bottom"
+                label={contract?.renewedUntil ? "Renovada hasta" : "Fin de contrato"}
+                value={contractEndLabel}
+                hint={remaining > 0 ? `Faltan ${remaining} días` : "Contrato vencido"}
+                className="h-full"
+              />
+            </Reveal>
+            <Reveal delay={3} className="h-full">
+              <MetricCard
+                icon="payments"
+                label="Valor mensual"
+                value={`USD ${contract?.currentRateUsd ?? reservation.application_snapshots?.monthly_price_usd ?? "—"}`}
+                hint="Se paga a la residencia"
+                className="h-full"
+              />
+            </Reveal>
           </div>
-        </Card>
+
+          <Reveal delay={2} className="mt-6">
+            <Card className="overflow-hidden p-0">
+              <div className="grid grid-cols-1 lg:grid-cols-5">
+                <div className="relative h-56 lg:col-span-2 lg:h-auto">
+                  <PhotoCarousel photos={residencePhotos} alt={residence.name} zone={residence.public_area ?? undefined} />
+                </div>
+                <div className="flex flex-col justify-between gap-5 p-6 lg:col-span-3">
+                  <div>
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <h2 className="font-display text-xl font-bold text-ink md:text-2xl">{residence.name}</h2>
+                        <p className="mt-1 flex items-center gap-1 text-sm text-ink-soft">
+                          <Icon name="location_on" className="text-base" />
+                          {residence.public_area}, CABA
+                        </p>
+                      </div>
+                      <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-forest-tint px-3 py-1 text-xs font-bold uppercase tracking-wide text-forest-700">
+                        <span className="size-2 rounded-full bg-forest-600" /> Alojado
+                      </span>
+                    </div>
+                    {contract?.differs && (
+                      <StayRateNote
+                        agreedRateUsd={contract.agreedRateUsd}
+                        currentRateUsd={contract.currentRateUsd}
+                        className="mt-4"
+                      />
+                    )}
+                  </div>
+
+                  {heroAlerts.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {heroAlerts.map((a) => (
+                        <Link
+                          key={a.label}
+                          href={a.href}
+                          className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-orange bg-orange-tint px-3 py-1.5 text-xs font-semibold text-orange-700 transition-colors hover:bg-paper focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange"
+                        >
+                          <Icon name={a.icon} className="text-sm" />
+                          {a.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex flex-wrap gap-3">
+                    <Button href="/students/residency" size="sm">
+                      Ver residencia
+                    </Button>
+                    <Button href="/students/residency#comunidad" size="sm" variant="outline">
+                      Ver comunidad
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </Reveal>
+        </>
       )}
 
-      <h2 className="mt-8 font-display text-lg font-bold text-ink">Tu espacio</h2>
-      <div className="mt-3 grid grid-cols-1 items-start gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <h2 className="mt-8 font-display text-lg font-bold text-ink">{isHoused ? "Tu espacio" : "Qué podés hacer ahora"}</h2>
+      <div className="mt-3 grid grid-cols-1 items-stretch gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
         {!isHoused && (
-          <ModuleCard
-            href="/search"
-            icon="search"
-            iconTone="amber"
-            title="Buscar residencias"
-            className="border-dashed"
-            cta={{ label: "Ver catálogo", href: "/search" }}
-            animationDelayMs={0}
-          >
-            <p>Catálogo de residencias en CABA, con reglas, servicios y precios claros.</p>
-          </ModuleCard>
+          <Reveal delay={0} className="h-full">
+            <ModuleCard
+              href="/search"
+              icon="search"
+              title="Buscar residencias"
+              cta={{ label: "Ver catálogo", href: "/search" }}
+            >
+              <p>Catálogo en CABA, con reglas, servicios y precios claros.</p>
+            </ModuleCard>
+          </Reveal>
         )}
 
         {isHoused && reservation && (
-          <div className="benefit-fade-in" style={{ animationDelay: "0ms" }}>
+          <Reveal delay={0} className="h-full">
             <ExpandableCard
+              tone="student"
+              className="h-full"
               defaultOpen={Boolean(renewalStatus)}
               summary={
                 <div className="flex items-center gap-3">
                   <span
-                    className={`flex size-10 shrink-0 items-center justify-center rounded-full ${
+                    className={`flex size-11 shrink-0 items-center justify-center rounded-[14px] ${
                       renewalStatus ? "bg-orange-tint text-orange-700" : "bg-forest-tint text-forest-700"
                     }`}
                   >
-                    <Icon name="sync" className="text-xl" />
+                    <Icon name="sync" className="text-2xl" />
                   </span>
                   <div className="min-w-0">
-                    <p className="font-bold text-ink">Renovaciones</p>
+                    <p className="font-display font-bold text-ink">Renovaciones</p>
                     <p className="truncate text-xs text-ink-faint">{renewalStatus ? renewalStatus.label : "Sin renovación en curso"}</p>
                   </div>
                 </div>
@@ -955,15 +1060,15 @@ export default async function StudentDashboardPage() {
                 )}
               </div>
             </ExpandableCard>
-          </div>
+          </Reveal>
         )}
 
-        {perfilCard}
-        {solicitudesCard}
-        {favoritosCard}
-        {listaEsperaCard}
-        {vinculacionCard}
-        {soporteCard}
+        <Reveal delay={1} className="h-full">{perfilCard}</Reveal>
+        <Reveal delay={2} className="h-full">{solicitudesCard}</Reveal>
+        <Reveal delay={3} className="h-full">{favoritosCard}</Reveal>
+        <Reveal delay={4} className="h-full">{listaEsperaCard}</Reveal>
+        <Reveal delay={5} className="h-full">{vinculacionCard}</Reveal>
+        <Reveal delay={5} className="h-full">{soporteCard}</Reveal>
       </div>
 
       {suggestedResidences.length > 0 && (
@@ -972,32 +1077,34 @@ export default async function StudentDashboardPage() {
             <h2 id="residencias-para-mirar" className="font-display text-lg font-bold text-ink">
               Residencias verificadas para mirar
             </h2>
-            <Link href="/search" className="text-sm font-bold text-forest-700 hover:underline">
+            <Link href="/search" className="inline-flex min-h-11 items-center text-sm font-bold text-forest-700 hover:underline">
               Ver todas
             </Link>
           </div>
-          <ul className="grid gap-3 sm:grid-cols-3">
-            {suggestedResidences.map((r) => (
+          <ul className="grid gap-3.5 sm:grid-cols-3">
+            {suggestedResidences.map((r, i) => (
               <li key={r.slug}>
-                <Link
-                  href={`/residencias/${r.slug}`}
-                  className="group relative grid overflow-hidden rounded-card border-[1.5px] border-line bg-paper shadow-card transition-transform duration-300 ease-bounce hover:-translate-y-[3px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
-                >
-                  <span className="relative block h-32 bg-sand-200">
-                    <ResidencePhoto src={r.photos[0]} name={r.name} zone={r.zone} alt="" sizes="(max-width: 640px) 90vw, 30vw" variant="card" />
-                    <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-forest-tint px-2.5 py-1 text-xs font-semibold text-forest-700">
-                      <Icon name="verified" className="text-sm" />
-                      Verificada
+                <Reveal delay={Math.min(i, 5) as 0 | 1 | 2 | 3 | 4 | 5} className="h-full">
+                  <Link
+                    href={`/residencias/${r.slug}`}
+                    className="group relative grid h-full overflow-hidden rounded-card border-[1.5px] border-line bg-paper shadow-card transition-all duration-300 ease-bounce hover:-translate-y-1 hover:shadow-card-hover focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest"
+                  >
+                    <span className="relative block h-32 bg-sand-200">
+                      <ResidencePhoto src={r.photos[0]} name={r.name} zone={r.zone} alt="" sizes="(max-width: 640px) 90vw, 30vw" variant="card" />
+                      <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-forest-tint px-2.5 py-1 text-xs font-semibold text-forest-700">
+                        <Icon name="verified" className="text-sm" />
+                        Verificada
+                      </span>
                     </span>
-                  </span>
-                  <span className="grid px-3.5 pb-3 pt-2.5">
-                    <b className="font-display text-[15px] font-bold text-ink">{r.name}</b>
-                    <span className="text-[13px] text-ink-faint">
-                      {r.zone}
-                      {r.roomTypes.length > 0 && ` · ${Array.from(new Set(r.roomTypes.map((t) => t.type))).join(" · ")}`}
+                    <span className="grid px-3.5 pb-3 pt-2.5">
+                      <b className="font-display text-[15px] font-bold text-ink">{r.name}</b>
+                      <span className="text-[13px] text-ink-faint">
+                        {r.zone}
+                        {r.roomTypes.length > 0 && ` · ${Array.from(new Set(r.roomTypes.map((t) => t.type))).join(" · ")}`}
+                      </span>
                     </span>
-                  </span>
-                </Link>
+                  </Link>
+                </Reveal>
               </li>
             ))}
           </ul>

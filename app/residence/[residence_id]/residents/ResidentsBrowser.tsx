@@ -6,6 +6,9 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
 import { Card } from "@/components/ui/Card";
+import { PageHero } from "@/components/ui/PageHero";
+import { MetricCard } from "@/components/ui/MetricCard";
+import { FilterChips } from "@/components/ui/FilterChips";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatUsd } from "@/lib/mock/exchange";
@@ -588,23 +591,35 @@ export function ResidentsBrowser({
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-ink">Residentes</h1>
-          <p className="mt-1 text-ink-soft">Gestioná ingresos, estadías y renovaciones en un solo lugar.</p>
-        </div>
-        <button
-          type="button"
-          onClick={() => setShowAdd((v) => !v)}
-          disabled={!canManageResidents}
-          title={canManageResidents ? undefined : "Pedile este permiso al dueño."}
-          className="flex cursor-pointer items-center gap-1.5 rounded-full bg-forest px-5 py-2.5 text-sm font-bold text-white shadow-card hover:bg-forest-600 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <Icon name={showAdd ? "close" : "person_add"} className="text-lg" />
-          {showAdd ? "Cerrar" : "Agregar residente"}
-        </button>
-      </div>
+    <div className="tone-residence mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
+      <PageHero
+        tone="residence"
+        eyebrow={residenceName}
+        eyebrowIcon="apartment"
+        title="Residentes"
+        subtitle="Ingresos, estadías y renovaciones en un solo lugar."
+        glyph="groups"
+        className="mb-6"
+        status={
+          data.linkRequests.length > 0 && canManageResidents ? (
+            <Badge tone="amber">
+              <Icon name="link" className="text-sm" /> {data.linkRequests.length} {data.linkRequests.length === 1 ? "vínculo por revisar" : "vínculos por revisar"}
+            </Badge>
+          ) : undefined
+        }
+        actions={
+          <button
+            type="button"
+            onClick={() => setShowAdd((v) => !v)}
+            disabled={!canManageResidents}
+            title={canManageResidents ? undefined : "Pedile este permiso al dueño."}
+            className="inline-flex min-h-[46px] cursor-pointer items-center justify-center gap-1.5 rounded-full bg-(--tone) px-6 text-[15px] font-semibold text-white transition-all duration-300 ease-bounce hover:-translate-y-px hover:bg-(--tone-600) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Icon name={showAdd ? "close" : "person_add"} className="text-xl" />
+            {showAdd ? "Cerrar" : "Agregar residente"}
+          </button>
+        }
+      />
 
       {showAdd && (
         <div className="mb-6">
@@ -617,32 +632,12 @@ export function ResidentsBrowser({
       {canManageResidents && <HouseCodeCard residenceId={residenceId} code={data.houseCode} />}
 
       {/* KPIs — ref gestión de residentes (sin "evaluaciones": feature pospuesta) */}
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
-        <Card className="p-4 sm:p-5">
-          <p className="text-sm font-semibold text-ink-soft">Residentes activos</p>
-          <p className="mt-1 text-3xl font-extrabold text-ink">{kpis.active}</p>
-        </Card>
-        <Card className="p-4 sm:p-5">
-          <p className="text-sm font-semibold text-ink-soft">Próximos ingresos</p>
-          <p className="mt-1 text-3xl font-extrabold text-ink">{kpis.arrivals}</p>
-        </Card>
-        <Card className="p-4 sm:p-5">
-          <p className="text-sm font-semibold text-ink-soft">Salidas próximas</p>
-          <p className="mt-1 flex items-baseline gap-2 text-3xl font-extrabold text-ink">
-            {kpis.departures}
-            <span className="text-xs font-semibold text-ink-faint">30 días</span>
-          </p>
-        </Card>
-        <Card className="p-4 sm:p-5">
-          <p className="text-sm font-semibold text-ink-soft">Renovación en ventana</p>
-          <p className={`mt-1 text-3xl font-extrabold ${kpis.renewals > 0 ? "text-orange-700" : "text-ink"}`}>
-            {kpis.renewals}
-          </p>
-        </Card>
-        <Card className={`col-span-2 p-4 sm:p-5 lg:col-span-1 ${kpis.seekingChange > 0 ? "border-orange/50" : ""}`}>
-          <p className="text-sm font-semibold text-ink-soft">Buscan cambiar</p>
-          <p className={`mt-1 text-3xl font-extrabold ${kpis.seekingChange > 0 ? "text-orange-700" : "text-ink"}`}>{kpis.seekingChange}</p>
-        </Card>
+      <div className="grid grid-cols-2 gap-3 sm:gap-3.5 lg:grid-cols-5">
+        <MetricCard icon="groups" label="Activos" value={kpis.active} />
+        <MetricCard icon="flight_land" label="Por ingresar" value={kpis.arrivals} />
+        <MetricCard icon="flight_takeoff" label="Salidas" value={kpis.departures} hint="Próximos 30 días" />
+        <MetricCard icon="autorenew" label="Renovación" value={kpis.renewals} hint="En ventana" />
+        <MetricCard icon="swap_horiz" label="Buscan cambiar" value={kpis.seekingChange} className={`col-span-2 lg:col-span-1 ${kpis.seekingChange > 0 ? "border-orange/50" : ""}`} />
       </div>
 
       <StayChangeSection
@@ -672,31 +667,18 @@ export function ResidentsBrowser({
             className="w-full rounded-field border-[1.5px] border-field-border bg-cream py-2.5 pl-10 pr-3 text-sm text-ink placeholder:text-ink-faint focus:border-forest focus:outline-none"
           />
         </div>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {FILTER_PILLS.map((pill) => (
-            <button
-              key={pill.key}
-              type="button"
-              onClick={() => setFilter(pill.key)}
-              className={`cursor-pointer rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
-                filter === pill.key
-                  ? "bg-forest text-white"
-                  : "border-[1.5px] border-line bg-paper text-ink-soft hover:border-line-2"
-              }`}
-            >
-              {pill.label}
-              {pill.key === "busca_cambiar" && kpis.seekingChange > 0 && (
-                <span
-                  className={`ml-1.5 inline-flex min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-extrabold leading-5 ${
-                    filter === pill.key ? "bg-white text-orange-700" : "bg-orange text-white"
-                  }`}
-                >
-                  {kpis.seekingChange}
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
+        <FilterChips
+          className="mt-3"
+          label="Filtrar por estado"
+          value={filter}
+          onChange={setFilter}
+          options={FILTER_PILLS.map((p) => ({
+            value: p.key,
+            label: p.label,
+            count: p.key === "busca_cambiar" && kpis.seekingChange > 0 ? kpis.seekingChange : undefined,
+            attention: true,
+          }))}
+        />
       </div>
 
       {/* Tabla */}
@@ -704,12 +686,14 @@ export function ResidentsBrowser({
         <div className="mt-6">
           {filter === "busca_cambiar" && !search.trim() ? (
             <EmptyState
+              tone="residence"
               icon="swap_horiz"
               title="Nadie está buscando cambiar"
               description="Cuando un residente avise que busca otro lugar, lo vas a ver acá y te va a llegar una notificación con su fecha estimada de salida. Así te enterás con tiempo, no el día que se va."
             />
           ) : (
             <EmptyState
+              tone="residence"
               icon="groups"
               title="Sin residentes para mostrar"
               description="Ajustá los filtros o cargá el primero con “Agregar residente”."

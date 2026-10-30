@@ -265,3 +265,63 @@ p {
     scroll-behavior: auto !important;
   }
 }
+
+/* ---- Kit de la zona logueada: tono por rol (design-proposals/kit-logueado-2026-10-30) ----
+   Solo utilidades sobre tokens existentes. El tono pinta ACENTO (CTA, ícono, barra, foco);
+   los colores de estado (ok/espera/error/info) son semánticos y no cambian con el rol.
+   Los componentes del kit leen estas variables; sin clase de tono heredan el de estudiante. */
+:root,
+.tone-student {
+  --tone: var(--color-forest);
+  --tone-600: var(--color-forest-600);
+  --tone-700: var(--color-forest-700);
+  --tone-tint: var(--color-forest-tint);
+  --tone-soft: var(--color-sage-100);
+  --tone-ink: var(--color-forest-ink);
+  --tone-glow: rgb(31 125 92 / 0.35);
+}
+.tone-family {
+  --tone: var(--color-orange);
+  --tone-600: var(--color-orange-600);
+  --tone-700: var(--color-orange-700);
+  --tone-tint: var(--color-orange-tint);
+  --tone-soft: var(--color-amber-soft-100);
+  --tone-ink: #5c2a0e;
+  --tone-glow: rgb(192 82 29 / 0.35);
+}
+.tone-residence {
+  --tone: var(--color-petrol-600);
+  --tone-600: var(--color-petrol-700);
+  --tone-700: var(--color-petrol-700);
+  --tone-tint: var(--color-petrol-50);
+  --tone-soft: var(--color-petrol-100);
+  --tone-ink: var(--color-petrol-800);
+  --tone-glow: rgb(15 92 122 / 0.35);
+}
+.tone-admin {
+  --tone: #2f3b35;
+  --tone-600: #1d2722;
+  --tone-700: #1d2722;
+  --tone-tint: #ecebe3;
+  --tone-soft: var(--color-cream-2);
+  --tone-ink: #1d2722;
+  --tone-glow: rgb(29 39 34 / 0.25);
+}
+
+/* Kit: pulso del paso actual, shimmer de carga y entrada de detalle. */
+@keyframes kit-pulse {
+  0% { box-shadow: 0 0 0 0 var(--tone-glow); }
+  100% { box-shadow: 0 0 0 11px transparent; }
+}
+@keyframes kit-shimmer {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+.kit-skel {
+  background: linear-gradient(90deg, var(--color-cream-2) 25%, #fff 50%, var(--color-cream-2) 75%);
+  background-size: 200% 100%;
+  animation: kit-shimmer 1.4s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .kit-skel { animation: none; }
+}

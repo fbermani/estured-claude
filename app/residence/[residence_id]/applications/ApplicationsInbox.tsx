@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
+import { PageHero } from "@/components/ui/PageHero";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatUsd } from "@/lib/mock/exchange";
 import { ApplicationActions, type ApplicationAllowed } from "@/app/residence/[residence_id]/applications/[id]/ApplicationActions";
@@ -226,11 +227,11 @@ export function ApplicationsInbox({
 
   if (applications.length === 0) {
     return (
-      <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-14">
-        <h1 className="text-3xl font-bold text-ink">Solicitudes recibidas</h1>
-        <p className="mt-1 text-ink-soft">Revisá y respondé las solicitudes de reserva.</p>
+      <div className="tone-residence mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
+        <PageHero tone="residence" eyebrow="Solicitudes" eyebrowIcon="inbox" title="Solicitudes recibidas" subtitle="Revisá y respondé las solicitudes de reserva." glyph="inbox" />
         <div className="mt-8">
           <EmptyState
+            tone="residence"
             icon="inbox"
             title="Todavía no recibiste solicitudes"
             description="Cuando un estudiante envíe una solicitud a esta residencia, va a aparecer acá."
@@ -274,18 +275,25 @@ export function ApplicationsInbox({
   );
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
-      <h1 className="text-3xl font-bold text-ink">Solicitudes recibidas</h1>
-      <p className="mt-1 text-ink-soft">Revisá y respondé las solicitudes de reserva.</p>
+    <div className="tone-residence mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
+      <PageHero
+        tone="residence"
+        eyebrow="Solicitudes"
+        eyebrowIcon="inbox"
+        title="Solicitudes recibidas"
+        subtitle="Revisá y respondé las solicitudes de reserva."
+        glyph="inbox"
+        status={<span className="inline-flex items-center rounded-full bg-paper px-2.5 py-1 text-xs font-bold text-(--tone-700)">{applications.length === 1 ? "1 solicitud" : `${applications.length} solicitudes`}</span>}
+      />
 
       {/* Desktop: 2 columnas — lista + detalle (el resumen vive dentro del detalle). */}
-      <div className="mt-8 hidden gap-6 lg:grid lg:grid-cols-[340px_1fr]">
+      <div className="mt-6 hidden gap-6 lg:grid lg:grid-cols-[340px_1fr]">
         <div className="sticky top-8 max-h-[calc(100vh-6rem)] overflow-y-auto pr-1">{ListColumn}</div>
         <div>{DetailColumn}</div>
       </div>
 
       {/* Mobile/tablet: lista sola, o detalle con botón de volver. */}
-      <div className="mt-8 lg:hidden">
+      <div className="mt-6 lg:hidden">
         {selected ? (
           <div>
             <button

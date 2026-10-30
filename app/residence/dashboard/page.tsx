@@ -7,6 +7,8 @@ import { getOwnerResidenceCards } from "@/lib/residences/ownerDashboard";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { PageHero } from "@/components/ui/PageHero";
+import { Badge } from "@/components/ui/Badge";
 import { AreaHeader } from "@/components/layout/AreaHeader";
 import { Footer } from "@/components/layout/Footer";
 import { MAX_RESIDENCES_PER_OWNER } from "@/lib/residences/addResidenceForOwner";
@@ -40,30 +42,43 @@ export default async function ResidenceDashboardPage() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <AreaHeader areaLabel="Residencias" userEmail={sessionUser.email} />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 sm:px-6 sm:py-14">
-        <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-ink">Tus residencias</h1>
-            <p className="mt-1 text-ink-soft">Gestioná el perfil y la publicación de cada una.</p>
-          </div>
-          <div className="flex gap-2">
-            {ownedCount > 0 && (
-              <Button href="/residence/dashboard/pdf" variant="outline" size="sm">
-                <Icon name="download" className="text-base" />
-                Reporte PDF
-              </Button>
-            )}
-            {canAddResidence && (
-              <Button href="/residence/settings/new" variant="outline" size="sm">
-                + Sumar otra residencia
-              </Button>
-            )}
-          </div>
-        </div>
+      <AreaHeader areaLabel="Residencias" userEmail={sessionUser.email} tone="residence" />
+      <main className="tone-residence mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6 sm:py-12">
+        <PageHero
+          tone="residence"
+          eyebrow="Residencias"
+          eyebrowIcon="apartment"
+          title="Tus residencias"
+          subtitle="Gestioná el perfil y la publicación de cada una."
+          glyph="apartment"
+          className="mb-8"
+          status={
+            validCards.length > 0 ? (
+              <Badge tone="neutral">{validCards.length === 1 ? "1 residencia" : `${validCards.length} residencias`}</Badge>
+            ) : undefined
+          }
+          actions={
+            ownedCount > 0 || canAddResidence ? (
+              <div className="flex flex-wrap gap-2">
+                {ownedCount > 0 && (
+                  <Button href="/residence/dashboard/pdf" variant="outline" size="sm">
+                    <Icon name="download" className="text-base" />
+                    Reporte PDF
+                  </Button>
+                )}
+                {canAddResidence && (
+                  <Button href="/residence/settings/new" variant="outline" size="sm">
+                    + Sumar otra residencia
+                  </Button>
+                )}
+              </div>
+            ) : undefined
+          }
+        />
 
         {validCards.length === 0 ? (
           <EmptyState
+            tone="residence"
             icon="apartment"
             title="Todavía no tenés residencias cargadas"
             description="Si acabás de registrarte, puede que falte completar el alta."

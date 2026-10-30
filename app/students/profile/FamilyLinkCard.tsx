@@ -95,10 +95,12 @@ export function FamilyLinkCard({
   }
 
   return (
-    <div className="rounded-card border-[1.5px] border-line bg-gradient-to-br from-forest-tint/40 to-paper p-5 shadow-card">
-      <div className="flex items-center gap-2">
-        <Icon name="family_restroom" className="text-xl text-forest-700" />
-        <h3 className="font-bold text-ink">Padre, madre o tutor</h3>
+    <div className="flex h-full flex-col rounded-card border-[1.5px] border-line bg-paper p-[18px] shadow-card transition-all duration-300 ease-bounce hover:-translate-y-1 hover:shadow-card-hover focus-within:-translate-y-1">
+      <div className="flex items-center gap-3">
+        <span className="flex size-11 shrink-0 items-center justify-center rounded-[14px] bg-(--tone-tint) text-(--tone-700)">
+          <Icon name="family_restroom" className="text-2xl" />
+        </span>
+        <h3 className="font-display text-[16.5px] font-bold leading-tight text-ink">Padre, madre o tutor</h3>
       </div>
 
       {pendingApprovalCount > 0 ? (
@@ -127,7 +129,7 @@ export function FamilyLinkCard({
             type="button"
             onClick={handleRevoke}
             disabled={isRevoking}
-            className="mt-3 text-xs font-semibold text-danger-fg hover:underline disabled:opacity-50"
+            className="mt-1 inline-flex min-h-11 items-center self-start text-xs font-semibold text-danger-fg hover:underline disabled:opacity-50"
           >
             {isRevoking ? "Desvinculando…" : "Desvincular"}
           </button>
@@ -143,7 +145,7 @@ export function FamilyLinkCard({
             type="button"
             onClick={handleCancelInvitation}
             disabled={isCancelling}
-            className="mt-3 text-xs font-semibold text-ink-faint hover:text-danger-fg hover:underline disabled:opacity-50"
+            className="mt-1 inline-flex min-h-11 items-center self-start text-xs font-semibold text-ink-faint hover:text-danger-fg hover:underline disabled:opacity-50"
           >
             {isCancelling ? "Cancelando…" : "Cancelar invitación"}
           </button>
@@ -153,10 +155,19 @@ export function FamilyLinkCard({
         <>
           <p className="mt-2 text-sm text-ink-soft">
             {isMinor
-              ? "Como sos menor de 18, necesitás un familiar vinculado para enviar solicitudes de reserva. Invitá a tu familiar por email: cuando se registre, vos aprobás la vinculación."
-              : "Invitá a tu familiar por email para que te acompañe: va a poder ver tu búsqueda, sugerir residencias y ayudarte con pagos y documentación. Vos seguís decidiendo todo."}
+              ? "Siendo menor de 18, necesitás un familiar vinculado para enviar solicitudes. Vos aprobás la vinculación."
+              : "Invitá a tu familiar por email para que te acompañe. Vos seguís decidiendo todo."}
           </p>
           <InviteForm key={formEpoch} />
+          {!isMinor && (
+            <details className="group mt-1">
+              <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-1 text-[13px] font-semibold text-(--tone-700) marker:hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) [&::-webkit-details-marker]:hidden">
+                Qué puede hacer
+                <Icon name="expand_more" className="text-lg transition-transform duration-300 group-open:rotate-180" />
+              </summary>
+              <p className="benefit-fade-in text-xs text-ink-soft">Va a poder ver tu búsqueda, sugerir residencias y ayudarte con pagos y documentación.</p>
+            </details>
+          )}
         </>
       )}
     </div>

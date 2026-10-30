@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { PageHero } from "@/components/ui/PageHero";
+import { MetricCard } from "@/components/ui/MetricCard";
+import { Badge } from "@/components/ui/Badge";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
 import { cmd } from "@/components/admin/ui/tokens";
@@ -173,51 +176,47 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="p-8">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-[28px] font-bold tracking-tight" style={{ color: cmd.onSurface }}>
-            Dashboard operativo
-          </h1>
-          <p className="text-sm" style={{ color: cmd.onSurfaceVariant }}>
-            Estado general de EstuRed al abrir esta página.
-          </p>
-        </div>
-        {stats.pendingValidations > 0 && (
-          <a
-            href="/admin/verifications"
-            className="rounded px-4 py-2 text-sm font-bold text-white"
-            style={{ backgroundColor: cmd.primary }}
-          >
-            Revisar verificaciones →
-          </a>
-        )}
-      </div>
+      <PageHero
+        tone="admin"
+        eyebrow="Admin"
+        eyebrowIcon="admin_panel_settings"
+        title="Dashboard operativo"
+        subtitle="Estado general de EstuRed al abrir esta página."
+        glyph="admin_panel_settings"
+        className="mb-6"
+        status={
+          stats.pendingValidations > 0 ? (
+            <Badge tone="amber">{pluralize(stats.pendingValidations, "verificación pendiente", "verificaciones pendientes")}</Badge>
+          ) : undefined
+        }
+        cta={stats.pendingValidations > 0 ? { label: "Revisar verificaciones", href: "/admin/verifications" } : undefined}
+      />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
         {metrics.map((m) => (
-          <AdminCard key={m.label} className="p-5">
-            <p className="text-[11px] font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
-              {m.label}
-            </p>
-            <p className="mt-2 text-[28px] font-bold" style={{ color: cmd.onSurface }}>
-              {m.value}
-            </p>
-            {m.note && (
-              <p className="mt-1 text-xs" style={{ color: cmd.outline }}>
+          <MetricCard
+            key={m.label}
+            tone="admin"
+            icon={m.tone === "amber" ? "priority_high" : "insights"}
+            label={m.label}
+            value={m.value}
+            className={m.tone === "amber" ? "border-orange/50" : ""}
+            hint={
+              <>
                 {m.note}
-              </p>
-            )}
-            {m.tone === "amber" && <AdminBadge tone="amber">Requiere acción</AdminBadge>}
-            {m.href && (
-              <Link
-                href={m.href}
-                className="mt-2 block text-xs font-bold hover:underline"
-                style={{ color: cmd.primary }}
-              >
-                Ver detalle →
-              </Link>
-            )}
-          </AdminCard>
+                {m.tone === "amber" && (
+                  <span className="mt-1 block">
+                    <AdminBadge tone="amber">Requiere acción</AdminBadge>
+                  </span>
+                )}
+                {m.href && (
+                  <Link href={m.href} className="mt-1 inline-flex min-h-6 items-center font-bold text-(--tone-700) hover:underline">
+                    Ver detalle →
+                  </Link>
+                )}
+              </>
+            }
+          />
         ))}
       </div>
 

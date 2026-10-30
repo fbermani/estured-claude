@@ -52,7 +52,7 @@ export default async function ResidenceDetailLayout({
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-cream md:flex-row">
+    <div className="tone-residence flex min-h-screen flex-col bg-cream md:flex-row">
       <ResidenceSidebar
         residenceId={residenceId}
         userEmail={user.email}

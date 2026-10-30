@@ -27,8 +27,8 @@ function DecisionButton({ value, tone, children }: { value: "approve" | "reject"
       disabled={pending}
       className={
         tone === "primary"
-          ? "inline-flex cursor-pointer items-center rounded-full bg-forest px-4 py-2 text-sm font-bold text-white hover:bg-forest-600 disabled:opacity-50"
-          : "inline-flex cursor-pointer items-center rounded-full border-[1.5px] border-line px-4 py-2 text-sm font-bold text-ink-soft hover:border-danger-fg hover:text-danger-fg disabled:opacity-50"
+          ? "inline-flex min-h-11 cursor-pointer items-center rounded-full bg-(--tone) px-4 text-sm font-bold text-white transition-all duration-300 ease-bounce hover:-translate-y-px hover:bg-(--tone-600) focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-(--tone) disabled:opacity-50"
+          : "inline-flex min-h-11 cursor-pointer items-center rounded-full border-[1.5px] border-line-2 bg-paper px-4 text-sm font-bold text-ink-soft hover:border-danger-fg hover:text-danger-fg focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-(--tone) disabled:opacity-50"
       }
     >
       {children}
@@ -39,8 +39,11 @@ function DecisionButton({ value, tone, children }: { value: "approve" | "reject"
 function RequestRow({ residenceId, item, stays }: { residenceId: string; item: LinkRequestItem; stays: UnlinkedStay[] }) {
   const [state, action] = useActionState(resolveLinkRequestAction.bind(null, residenceId, item.id), initialState);
   return (
-    <li className="rounded-field border border-line bg-paper p-4">
-      <div className="flex flex-wrap items-center gap-2">
+    <li className="rounded-[18px] border border-line bg-paper p-4 shadow-card transition-shadow hover:shadow-card-hover">
+      <div className="flex flex-wrap items-center gap-2.5">
+        <span aria-hidden="true" className="flex size-[42px] shrink-0 items-center justify-center rounded-full bg-(--tone-tint) font-display text-[15px] font-bold text-(--tone-700)">
+          {item.studentName.charAt(0).toUpperCase()}
+        </span>
         <p className="font-bold text-ink">{item.studentName}</p>
         <span className="rounded-full bg-cream-2 px-2.5 py-0.5 text-xs font-bold text-ink-soft">
           {item.matchedStayId ? "Llegó con el enlace de un residente cargado sin mail" : item.viaHouseCode ? "Usó el código de casa" : "Eligió tu residencia"}
@@ -87,22 +90,21 @@ function RequestRow({ residenceId, item, stays }: { residenceId: string; item: L
 export function LinkRequestsCard({ residenceId, requests, stays }: { residenceId: string; requests: LinkRequestItem[]; stays: UnlinkedStay[] }) {
   if (requests.length === 0) return null;
   return (
-    <Card className="mb-6 border-2 border-amber-soft-300 p-5">
-      <div className="flex items-start gap-3">
-        <Icon name="how_to_reg" className="mt-0.5 text-2xl text-forest-700" />
-        <div className="min-w-0 flex-1">
-          <h2 className="font-bold text-ink">
-            Solicitudes de vínculo <span className="ml-1 rounded-full bg-forest px-2 py-0.5 text-xs text-white">{requests.length}</span>
-          </h2>
-          <p className="mt-1 text-sm text-ink-soft">Dicen vivir en tu residencia. Aprobá solo si los reconocés: al aprobar figuran como residentes.</p>
-          <ul className="mt-4 space-y-3">
-            {requests.map((r) => (
-              <RequestRow key={r.id} residenceId={residenceId} item={r} stays={stays} />
-            ))}
-          </ul>
-        </div>
+    <section aria-labelledby="vinculos-por-revisar" className="mb-6 grid gap-3 rounded-[30px] border-[1.5px] border-amber-soft-300 bg-gradient-to-b from-amber-soft-100 to-paper to-60% p-4 sm:p-5">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 id="vinculos-por-revisar" className="flex items-center gap-2 font-display text-lg font-bold text-ink">
+          <Icon name="link" className="text-2xl text-amber-soft-700" />
+          Solicitudes de vínculo
+        </h2>
+        <span className="rounded-full bg-butter px-2.5 py-1 text-xs font-bold text-butter-fg">{requests.length} por revisar</span>
       </div>
-    </Card>
+      <p className="-mt-1 text-sm text-ink-soft">Dicen vivir en tu residencia. Aprobá solo si los reconocés.</p>
+      <ul className="grid gap-2.5">
+        {requests.map((r) => (
+          <RequestRow key={r.id} residenceId={residenceId} item={r} stays={stays} />
+        ))}
+      </ul>
+    </section>
   );
 }
 
@@ -113,10 +115,10 @@ export function HouseCodeCard({ residenceId, code }: { residenceId: string; code
   return (
     <Card className="mb-6 p-5">
       <div className="flex flex-wrap items-center gap-4">
-        <Icon name="pin" className="text-2xl text-forest-700" />
+        <span className="flex size-11 items-center justify-center rounded-[14px] bg-(--tone-tint) text-(--tone-700)"><Icon name="pin" className="text-2xl" /></span>
         <div className="min-w-0 flex-1">
           <h2 className="font-bold text-ink">Código de casa</h2>
-          <p className="mt-0.5 text-sm text-ink-soft">Para residentes que se registran solos: con este código llegan directo a tu residencia. Igual tenés que aprobarlos.</p>
+          <p className="mt-0.5 text-sm text-ink-soft">Con este código, quien se registra solo llega directo a tu residencia.</p>
         </div>
         {current ? (
           <div className="flex items-center gap-2">
@@ -125,12 +127,12 @@ export function HouseCodeCard({ residenceId, code }: { residenceId: string; code
           </div>
         ) : null}
         <form action={action}>
-          <button type="submit" disabled={pending} className="inline-flex cursor-pointer items-center rounded-full border-[1.5px] border-line px-4 py-2 text-sm font-bold text-ink-soft hover:border-forest hover:text-forest-700 disabled:opacity-50">
+          <button type="submit" disabled={pending} className="inline-flex min-h-11 cursor-pointer items-center rounded-full border-[1.5px] border-line-2 px-4 text-sm font-bold text-ink-soft hover:border-(--tone) hover:text-(--tone-700) focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-(--tone) disabled:opacity-50">
             {pending ? "Generando…" : current ? "Generar uno nuevo" : "Generar código"}
           </button>
         </form>
       </div>
-      {current && <p className="mt-2 text-xs text-ink-faint">Si lo cambiás, el anterior deja de funcionar.</p>}
+      {current && <p className="mt-2 text-xs text-ink-faint">Igual tenés que aprobar cada vínculo. Si lo cambiás, el anterior deja de funcionar.</p>}
       {state.status === "error" && (
         <p role="alert" className="mt-2 text-sm font-medium text-danger-fg">
           {state.message}

@@ -25,28 +25,29 @@ export function InviteResidentsCard({ residenceName }: { residenceName: string }
   }
 
   const btn =
-    "inline-flex cursor-pointer items-center gap-1.5 rounded-full border-[1.5px] border-line px-4 py-2 text-sm font-bold text-ink-soft hover:border-forest hover:text-forest-700";
+    "inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-full border-[1.5px] border-line-2 px-4 text-sm font-bold text-ink-soft hover:border-(--tone) hover:text-(--tone-700) focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-(--tone)";
 
   return (
     <Card className="mb-6 p-5">
       <div className="flex items-start gap-3">
-        <Icon name="forum" className="mt-0.5 text-2xl text-forest-700" />
+        <span className="flex size-11 shrink-0 items-center justify-center rounded-[14px] bg-(--tone-tint) text-(--tone-700)"><Icon name="forum" className="text-2xl" /></span>
         <div className="min-w-0 flex-1">
           <h2 className="font-bold text-ink">Invitá a tus residentes a crear su cuenta</h2>
-          <p className="mt-1 text-sm text-ink-soft">
-            Lo más simple es mandar un mensaje al grupo de WhatsApp de la residencia, o a cada residente, para que se
-            registren en EstuRed con el mismo email con el que los cargues. Así su perfil se vincula solo a su estadía y
-            vos solo ordenás las habitaciones y completás contratos y estadías.
-          </p>
-          <p className="mt-2 text-xs text-ink-faint">
-            Si cargás a alguien solo con nombre y apellido, queda como «residente sin activar» hasta que active su cuenta
-            o relacionemos su perfil. El envío lo hacés vos, a mano: EstuRed no manda mensajes por WhatsApp.
-          </p>
+          <p className="mt-1 text-sm text-ink-soft">Mandá el mensaje al grupo o a cada uno, así se registran con el mismo mail con el que los cargues.</p>
+          <details className="group mt-1">
+            <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-1 text-[13px] font-semibold text-(--tone-700) marker:hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) [&::-webkit-details-marker]:hidden">
+              Más detalle
+              <Icon name="expand_more" className="text-lg transition-transform duration-300 group-open:rotate-180" />
+            </summary>
+            <p className="benefit-fade-in text-xs text-ink-faint">
+              Así su perfil se vincula solo a su estadía y vos solo ordenás habitaciones y completás contratos. Si cargás a alguien solo con nombre y apellido, queda como «residente sin activar» hasta que active su cuenta o relacionemos su perfil. El envío lo hacés vos, a mano: EstuRed no manda mensajes por WhatsApp.
+            </p>
+          </details>
           <div className="mt-3 flex flex-wrap gap-2">
             <button
               type="button"
               onClick={() => window.open(buildResidentInviteWhatsappUrl(message()), "_blank", "noopener,noreferrer")}
-              className="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-forest px-4 py-2 text-sm font-bold text-white hover:bg-forest-600"
+              className="inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-full bg-(--tone) px-4 text-sm font-bold text-white transition-all duration-300 ease-bounce hover:-translate-y-px hover:bg-(--tone-600) focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-(--tone)"
             >
               <Icon name="send" className="text-base" /> Compartir por WhatsApp
             </button>

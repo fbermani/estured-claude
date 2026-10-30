@@ -6,7 +6,9 @@ import { getSessionUser } from "@/lib/auth/session";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
+import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { PageHero } from "@/components/ui/PageHero";
 import { LinkRequestSection, type MyLinkRequest } from "@/components/students/LinkRequestSection";
 import { ActivateResidentStayButton } from "@/app/students/residency/ResidencyActions";
 import { StartRenewalModal } from "@/app/students/renewals/StartRenewalModal";
@@ -202,11 +204,15 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
   // (docs/04 §7) de la que colgar dirección, servicios y comunidad real.
   if (!reservation) {
     return (
-      <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
-        <h1 className="text-2xl font-bold text-ink">Mi estadía</h1>
-        <p className="mt-2 text-sm text-ink-soft">
-          Si tu residencia te cargó como residente, activá tu cuenta con el enlace personal que te mandó o con un código a tu mail.
-        </p>
+      <div className="tone-student mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-12">
+        <PageHero
+          tone="student"
+          eyebrow="Tu estadía"
+          eyebrowIcon="home_work"
+          title="Mi estadía"
+          subtitle="Si tu residencia te cargó como residente, activá tu cuenta con el enlace personal que te mandó o con un código a tu mail."
+          glyph="home_work"
+        />
 
         {pendingNotice && (
           <p role="status" className="mt-6 rounded-field bg-info-bg px-4 py-3 text-sm font-medium text-info-fg">
@@ -261,6 +267,7 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
         ) : (
           <div className="mt-6">
             <EmptyState
+              tone="student"
               icon="apartment"
               title="Sin estadías cargadas"
               description="Cuando la residencia donde vivís te cargue como residente, vas a poder activar tu cuenta acá."
@@ -407,26 +414,27 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
   const monthlyRate = contract?.currentRateUsd ?? reservation.application_snapshots?.monthly_price_usd ?? null;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-ink md:text-3xl">Mi residencia</h1>
-          <p className="mt-1 flex items-center gap-1 text-ink-soft">
-            <Icon name="location_on" className="text-base" />
-            {residence?.name} · {residence?.public_area}, CABA
-          </p>
-        </div>
-        <div className="flex shrink-0 flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-forest-tint px-3 py-1 text-xs font-bold uppercase tracking-wide text-forest-700">
-            <span className="size-2 rounded-full bg-forest-600" /> Alojado
-          </span>
-          {searchingChange && (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-orange-tint px-3 py-1 text-xs font-bold uppercase tracking-wide text-orange-700">
-              <Icon name="swap_horiz" className="text-sm" /> Buscando un cambio
-            </span>
-          )}
-        </div>
-      </div>
+    <div className="tone-student mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
+      <PageHero
+        tone="student"
+        eyebrow="Tu casa"
+        eyebrowIcon="home_work"
+        title="Mi residencia"
+        subtitle={`${residence?.name ?? ""} · ${residence?.public_area ?? ""}, CABA`}
+        glyph="home_work"
+        status={
+          <>
+            <Badge tone="sage">
+              <Icon name="check_circle" className="text-sm" /> Alojado
+            </Badge>
+            {searchingChange && (
+              <Badge tone="amber">
+                <Icon name="swap_horiz" className="text-sm" /> Buscando un cambio
+              </Badge>
+            )}
+          </>
+        }
+      />
 
       {stayChange && (
         <div className="mt-6 empty:hidden">

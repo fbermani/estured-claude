@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useMemo, useState, useActionState
 import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
 import { Card } from "@/components/ui/Card";
+import { PageHero } from "@/components/ui/PageHero";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
@@ -567,11 +568,8 @@ export function RoomsBrowser({
   );
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-ink">Habitaciones</h1>
-        <p className="mt-1 text-ink-soft">Disponibilidad y tarifas, en un pantallazo.</p>
-      </div>
+    <div className="tone-residence mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
+      <PageHero tone="residence" eyebrow="Habitaciones" eyebrowIcon="meeting_room" title="Habitaciones" subtitle="Disponibilidad y tarifas, en un pantallazo." glyph="bed" className="mb-6" />
 
       {/* KPIs — ref: Habitaciones/Plazas · Ocupación · Vacantes · Movimientos */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -707,6 +705,7 @@ export function RoomsBrowser({
       {filteredGroups.length === 0 ? (
         <div className="mt-8">
           <EmptyState
+          tone="residence"
             icon="meeting_room"
             title="Sin habitaciones para mostrar"
             description="Ajustá los filtros, o definí la cantidad de habitaciones por tipo en la configuración."

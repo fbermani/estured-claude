@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import { Icon } from "@/components/ui/Icon";
+import { toneClass, type RoleTone } from "@/lib/ui/tone";
 
 /**
  * Card resumen + detalle expandible — misma técnica de animación que
@@ -17,21 +18,24 @@ export function ExpandableCard({
   children,
   defaultOpen = false,
   className = "",
+  tone,
 }: {
   summary: ReactNode;
   children: ReactNode;
   defaultOpen?: boolean;
   className?: string;
+  /** Tono del rol (kit logueado): borde izquierdo, apertura y foco. Sin tono se ve como siempre (forest). */
+  tone?: RoleTone;
 }) {
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <div className={`overflow-hidden rounded-card border-[1.5px] border-line bg-paper transition-colors ${open ? "border-forest/40" : ""} ${className}`}>
+    <div className={`${toneClass(tone)} overflow-hidden rounded-card border-[1.5px] border-line bg-paper transition-all duration-300 hover:shadow-card-hover ${tone ? "border-l-[5px] border-l-(--tone)" : ""} ${open ? "border-(--tone)/40" : ""} ${className}`}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="flex w-full items-center justify-between gap-3 p-5 text-left transition-colors hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+        className="flex w-full items-center justify-between gap-3 p-5 text-left transition-colors hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone)"
       >
         <div className="min-w-0 flex-1">{summary}</div>
         <Icon

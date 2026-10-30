@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { signOut } from "@/app/(public)/login/actions";
+import { toneClass, type RoleTone } from "@/lib/ui/tone";
 import { NotificationBell } from "@/components/layout/NotificationBell";
 
 /**
@@ -9,12 +10,15 @@ import { NotificationBell } from "@/components/layout/NotificationBell";
 export function AreaHeader({
   areaLabel,
   userEmail,
+  tone = "student",
 }: {
   areaLabel: string;
   userEmail: string;
+  /** Tono del rol (kit logueado): pill de área y barra inferior. Por defecto, estudiante (verde, como antes). */
+  tone?: RoleTone;
 }) {
   return (
-    <header className="sticky top-0 z-40 border-b border-sand-200 bg-surface/90 backdrop-blur">
+    <header className={`${toneClass(tone)} sticky top-0 z-40 border-b border-sand-200 bg-surface/90 backdrop-blur after:absolute after:inset-x-0 after:-bottom-px after:h-[3px] after:bg-(--tone) after:opacity-90`}>
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2" aria-label="EstuRed, inicio">
@@ -25,7 +29,7 @@ export function AreaHeader({
               EstuRed
             </span>
           </Link>
-          <span className="rounded-full bg-forest-tint px-3 py-1 text-xs font-semibold text-forest-700">
+          <span className="rounded-full bg-(--tone-tint) px-3 py-1 text-xs font-semibold text-(--tone-700)">
             {areaLabel}
           </span>
         </div>
@@ -35,7 +39,7 @@ export function AreaHeader({
           <form action={signOut}>
             <button
               type="submit"
-              className="rounded-full border border-sand-300 px-4 py-1.5 text-sm font-semibold text-ink-soft transition-colors hover:border-forest hover:text-forest-700"
+              className="rounded-full border border-sand-300 px-4 py-1.5 text-sm font-semibold text-ink-soft transition-colors hover:border-(--tone) hover:text-(--tone-700)"
             >
               Salir
             </button>

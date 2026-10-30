@@ -136,8 +136,8 @@ export function ResidenceSidebar({
                   onClick={() => setMobileOpen(false)}
                   title={item.badge ? `${item.label}: ${item.badge} ${item.badgeNoun}` : premiumLocked && item.premium ? `${item.label} (Plan Premium)` : item.label}
                   aria-label={item.badge ? `${item.label}, ${item.badge} ${item.badgeNoun}` : premiumLocked && item.premium ? `${item.label}, función del Plan Premium` : item.label}
-                  className={`relative flex items-center gap-3 rounded-field px-3 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest ${
-                    active ? "bg-forest-tint text-forest-700" : "text-ink-soft hover:bg-cream-2"
+                  className={`relative flex items-center gap-3 rounded-field px-3 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) ${
+                    active ? "bg-(--tone-tint) text-(--tone-700)" : "text-ink-soft hover:bg-cream-2"
                   } ${collapsed ? "md:justify-center" : ""}`}
                 >
                   <Icon name={item.icon} className="shrink-0 text-xl" />
@@ -162,7 +162,7 @@ export function ResidenceSidebar({
             href="/residence/dashboard"
             title="Todas mis residencias"
             aria-label="Todas mis residencias"
-            className={`mx-3 mt-4 flex items-center gap-2 rounded-field border border-line-2 px-3 py-2 text-xs font-semibold text-ink-soft hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest ${collapsed ? "md:justify-center" : ""}`}
+            className={`mx-3 mt-4 flex items-center gap-2 rounded-field border border-line-2 px-3 py-2 text-xs font-semibold text-ink-soft hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) ${collapsed ? "md:justify-center" : ""}`}
           >
             <Icon name="apartment" className="shrink-0 text-base" />
             <span className={collapsed ? "md:hidden" : ""}>Todas mis residencias</span>
@@ -175,7 +175,7 @@ export function ResidenceSidebar({
             href={`${base}/profile`}
             title={canEditProfile ? "Editar perfil" : "Ver perfil"}
             aria-label={canEditProfile ? "Editar perfil" : "Ver perfil"}
-            className={`mt-2 flex items-center gap-2 rounded-field px-3 py-2 text-sm font-medium text-ink-soft hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest ${collapsed ? "md:justify-center" : ""}`}
+            className={`mt-2 flex items-center gap-2 rounded-field px-3 py-2 text-sm font-medium text-ink-soft hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) ${collapsed ? "md:justify-center" : ""}`}
           >
             <Icon name={canEditProfile ? "edit" : "visibility"} className="shrink-0 text-lg" />
             <span className={collapsed ? "md:hidden" : ""}>{canEditProfile ? "Editar perfil" : "Ver perfil"}</span>
@@ -185,7 +185,7 @@ export function ResidenceSidebar({
               type="submit"
               title="Salir"
               aria-label="Salir"
-              className={`mt-1 flex w-full items-center gap-2 rounded-field px-3 py-2 text-left text-sm font-medium text-ink-soft hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest ${collapsed ? "md:justify-center" : ""}`}
+              className={`mt-1 flex w-full items-center gap-2 rounded-field px-3 py-2 text-left text-sm font-medium text-ink-soft hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) ${collapsed ? "md:justify-center" : ""}`}
             >
               <Icon name="logout" className="shrink-0 text-lg" />
               <span className={collapsed ? "md:hidden" : ""}>Salir</span>
@@ -198,7 +198,7 @@ export function ResidenceSidebar({
           onClick={toggleCollapsed}
           aria-label={collapsed ? "Expandir menú" : "Colapsar menú"}
           title={collapsed ? "Expandir menú" : "Colapsar menú"}
-          className="absolute -right-3 top-7 hidden h-6 w-6 items-center justify-center rounded-full border border-line bg-paper text-ink-soft shadow-sm transition-colors hover:border-forest hover:text-forest-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest md:flex"
+          className="absolute -right-3 top-7 hidden h-6 w-6 items-center justify-center rounded-full border border-line bg-paper text-ink-soft shadow-sm transition-colors hover:border-(--tone) hover:text-(--tone-700) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) md:flex"
         >
           <Icon
             name="chevron_left"

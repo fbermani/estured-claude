@@ -48,34 +48,48 @@ export function JourneyStepper({ stage }: { stage: number }) {
   );
 }
 
-/** «Tu próximo paso» (propuesta A): el paso protagonista del dashboard, con CTA y las 6 etapas. */
+/**
+ * «Tu camino a la reserva» (kit logueado): gancho = título corto + las 6 etapas con la actual pulsando; el detalle
+ * (explicación, link a todas las solicitudes y la aclaración de que una solicitud no es una reserva) queda bajo
+ * «Más detalle» (`<details>` nativo, accesible por teclado). El CTA principal vive en el `PageHero` del dashboard.
+ */
 export function NextStepCard({ step }: { step: NextStep }) {
   return (
     <section
       aria-labelledby="proximo-paso"
-      className="overflow-hidden rounded-card border-[1.5px] border-l-[6px] border-line border-l-orange bg-paper shadow-card"
+      className="grid gap-4 overflow-hidden rounded-card border-[1.5px] border-line bg-paper p-5 shadow-card md:p-6"
     >
-      <div className="grid gap-2.5 p-5 md:p-7">
-        <span className="text-[11px] font-bold uppercase tracking-wider text-ink-faint">Tu próximo paso</span>
-        <h2 id="proximo-paso" className="text-2xl font-bold leading-tight text-ink">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 id="proximo-paso" className="font-display text-xl font-bold leading-tight text-ink">
           {step.title}
         </h2>
-        <p className="max-w-2xl text-ink-soft">{step.description}</p>
-        <div className="mt-1.5 flex flex-wrap gap-2.5">
-          <Button href={step.primary.href}>
-            {step.primary.label}
-            <Icon name="arrow_forward" className="text-xl" />
-          </Button>
+        <span className="inline-flex items-center rounded-full bg-info-bg px-2.5 py-1 text-xs font-bold text-info-fg">
+          Paso {step.stage} de {JOURNEY_STEPS.length}
+        </span>
+      </div>
+      <JourneyStepper stage={step.stage} />
+      <details className="group">
+        <summary className="inline-flex min-h-[44px] cursor-pointer list-none items-center gap-1 text-[13.5px] font-semibold text-forest-700 marker:hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest [&::-webkit-details-marker]:hidden">
+          Más detalle
+          <Icon name="expand_more" className="text-lg transition-transform duration-300 group-open:rotate-180" />
+        </summary>
+        <div className="benefit-fade-in grid gap-3 text-sm text-ink-soft">
+          <p className="max-w-2xl">{step.description}</p>
+          {step.stage >= 3 && (
+            <p className="flex gap-2 rounded-xl bg-cream px-3 py-2 text-[12.5px]">
+              <Icon name="info" className="text-lg text-forest-700" />
+              Una solicitud no es una reserva: queda sujeta a confirmación de la residencia.
+            </p>
+          )}
           {step.secondary && (
-            <Button href={step.secondary.href} variant="outline">
-              {step.secondary.label}
-            </Button>
+            <div>
+              <Button href={step.secondary.href} variant="outline" size="sm">
+                {step.secondary.label}
+              </Button>
+            </div>
           )}
         </div>
-      </div>
-      <div className="px-3 pb-6 pt-1 md:px-7">
-        <JourneyStepper stage={step.stage} />
-      </div>
+      </details>
     </section>
   );
 }

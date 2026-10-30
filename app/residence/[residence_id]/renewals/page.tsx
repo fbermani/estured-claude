@@ -8,6 +8,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { assertResidenceAccess } from "@/lib/residences/access";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { PageHero } from "@/components/ui/PageHero";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PremiumNotice } from "@/components/residences/PremiumLock";
 import { hasOperationalManagementAccess } from "@/lib/residences/operationalAccess";
@@ -67,19 +68,23 @@ export default async function ResidenceRenewalsPage({
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-14">
+    <div className="tone-residence mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
       {!hasPremium && <PremiumNotice residenceId={residenceId} feature="Renovaciones" className="mb-6" />}
-      <h1 className="text-3xl font-bold text-ink">Renovaciones</h1>
-      <p className="mt-1 text-ink-soft">
-        Mirá a quiénes les puede interesar seguir y mandales una oferta de renovación. Cada estudiante la responde
-        desde su cuenta y vos ves acá el estado.
-      </p>
-      <p className="mt-2 rounded-field bg-amber-soft-100 px-3 py-2 text-xs font-semibold text-ink-soft">
-        Las renovaciones se gestionan para estudiantes que reservaron por EstuRed; para el resto, cargalos en Residentes.
+      <PageHero
+        tone="residence"
+        eyebrow="Renovaciones"
+        eyebrowIcon="autorenew"
+        title="Renovaciones"
+        subtitle="Mandá una oferta a quien quiera seguir; cada estudiante la responde desde su cuenta."
+        glyph="autorenew"
+      />
+      <p className="mt-3 rounded-field bg-amber-soft-100 px-3 py-2 text-xs font-semibold text-ink-soft">
+        Solo para estudiantes que reservaron por EstuRed; para el resto, cargalos en Residentes.
       </p>
 
       {!reservations || reservations.length === 0 ? (
         <EmptyState
+          tone="residence"
           icon="sync_alt"
           title="Todavía no hay reservas confirmadas"
           description="Las renovaciones se gestionan para estudiantes que reservaron por EstuRed; para el resto, cargalos en Residentes."
