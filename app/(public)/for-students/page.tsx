@@ -20,24 +20,54 @@ export const metadata: Metadata = {
 
 const steps = [
   {
-    text: "Creá tu cuenta, completá tu perfil y buscá tu residencia.",
-    detail: "Completá tu perfil, usá los filtros y mirá reglas, disponibilidad y comunidad de cada residencia para decidir con más información.",
+    icon: "search",
+    title: "Creá tu cuenta y buscá",
+    hook: "Filtrá y compará residencias con reglas y comunidad a la vista.",
+    detail: [
+      "Creá tu cuenta, completá tu perfil y buscá tu residencia.",
+      "Completá tu perfil, usá los filtros y mirá reglas, disponibilidad y comunidad de cada residencia para decidir con más información.",
+    ],
+    shot: { src: "/landing/proceso-1-busqueda.webp", alt: "Ejemplo de la búsqueda de residencias con filtros", w: 2280, h: 1480 },
   },
   {
-    text: "Enviá tu solicitud. Cuanto más completo tu perfil, mejor. Si ese tipo de habitación está completo, ponete en lista de espera y te avisamos automáticamente cuando haya disponibilidad.",
-    detail: "Tu solicitud queda registrada y no depende de conversaciones por WhatsApp que puedan perderse.",
+    icon: "edit_note",
+    title: "Enviá tu solicitud",
+    hook: "Gratis y registrada. Si no hay lugar, lista de espera automática.",
+    detail: [
+      "Enviá tu solicitud. Cuanto más completo tu perfil, mejor. Si ese tipo de habitación está completo, ponete en lista de espera y te avisamos automáticamente cuando haya disponibilidad.",
+      "Tu solicitud queda registrada y no depende de conversaciones por WhatsApp que puedan perderse.",
+    ],
+    shot: { src: "/landing/proceso-2-solicitud.webp", alt: "Ejemplo del formulario de solicitud", w: 2240, h: 904 },
   },
   {
-    text: "Si la residencia acepta, te envía la propuesta definitiva y los valores finales para abonar, sin costos ocultos, todo claro y registrado.",
-    detail: "Si te proponen un ajuste, la decisión final siempre es tuya.",
+    icon: "mark_email_read",
+    title: "La residencia te responde",
+    hook: "Propuesta con valores finales, sin costos ocultos.",
+    detail: [
+      "Si la residencia acepta, te envía la propuesta definitiva y los valores finales para abonar, sin costos ocultos, todo claro y registrado.",
+      "Si te proponen un ajuste, la decisión final siempre es tuya.",
+    ],
+    shot: { src: "/landing/proceso-3-respuesta.webp", alt: "Ejemplo de la propuesta de una residencia", w: 1248, h: 584 },
   },
   {
-    text: "Le pagás a la residencia lo acordado para reservar (por ejemplo, el primer mes o la matrícula) y la residencia confirma que lo recibió.",
-    detail: "La residencia confirma la recepción del pago, así que ese paso también queda con registro.",
+    icon: "apartment",
+    title: "Le pagás a la residencia",
+    hook: "Lo acordado para reservar; ella confirma que lo recibió.",
+    detail: [
+      "Le pagás a la residencia lo acordado para reservar (por ejemplo, el primer mes o la matrícula) y la residencia confirma que lo recibió.",
+      "La residencia confirma la recepción del pago, así que ese paso también queda con registro.",
+    ],
+    shot: { src: "/landing/proceso-4-pago.webp", alt: "Ejemplo del paso de pago a la residencia", w: 1248, h: 820 },
   },
   {
-    text: "Confirmá tu reserva: abonás el fee de EstuRed (5% de tu estadía inicial, sin contar el depósito) y obtenés tu Comprobante de Reserva Confirmada.",
-    detail: "Ves el monto exacto antes de pagar, y lo podés pagar vos o el familiar que designes. La factura sale a nombre de quien paga y el comprobante tiene un código que cualquiera puede verificar.",
+    icon: "verified",
+    title: "Confirmás y recibís tu comprobante",
+    hook: "Fee de EstuRed del 5%, aparte. Ves el monto exacto antes de pagar.",
+    detail: [
+      "Confirmá tu reserva: abonás el fee de EstuRed (5% de tu estadía inicial, sin contar el depósito) y obtenés tu Comprobante de Reserva Confirmada.",
+      "Ves el monto exacto antes de pagar, y lo podés pagar vos o el familiar que designes. La factura sale a nombre de quien paga y el comprobante tiene un código que cualquiera puede verificar.",
+    ],
+    shot: { src: "/landing/proceso-5-comprobante.webp", alt: "Ejemplo del Comprobante de Reserva Confirmada", w: 1312, h: 960 },
   },
 ];
 
