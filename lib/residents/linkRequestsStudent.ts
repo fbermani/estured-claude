@@ -6,6 +6,7 @@ import { isMissingSchemaError } from "@/lib/stayChange/schema";
 import {
   checkCanRequestLink,
   cleanShortText,
+  sanitizeResidenceName,
   LINK_REQUEST_MESSAGE_MAX,
   MAX_MISSING_RESIDENCE_REQUESTS,
   normalizeHouseCode,
@@ -143,9 +144,9 @@ export async function submitMissingResidence(
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const studentProfileId = await studentProfileOf(admin, params.actorUserId);
   if (!studentProfileId) return { ok: false, error: "Solo las cuentas de estudiante pueden dejar este aviso." };
-  const name = cleanShortText(params.residenceName, 120);
-  if (!name || name.length < 2) return { ok: false, error: "Contanos el nombre de tu residencia." };
-  const contact = cleanShortText(params.contact, 120);
+  const name = sanitizeResidenceName(params.residenceName);
+  if (!name) return { ok: false, error: "Contanos el nombre de tu residencia." };
+  const contact = cleanShortText(String(params.contact ?? "").replace(/[<>]/g, " "), 120);
 
   const { count, error: countError } = await admin
     .from("missing_residence_requests")

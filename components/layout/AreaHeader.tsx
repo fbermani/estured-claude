@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandMark } from "@/components/ui/BrandMark";
 import { signOut } from "@/app/(public)/login/actions";
 import { toneClass, type RoleTone } from "@/lib/ui/tone";
 import { NotificationBell } from "@/components/layout/NotificationBell";
@@ -22,12 +23,7 @@ export function AreaHeader({
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2" aria-label="EstuRed, inicio">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-forest font-display text-lg font-extrabold text-white">
-              E
-            </span>
-            <span className="hidden font-display text-xl font-extrabold tracking-tight text-ink sm:inline">
-              EstuRed
-            </span>
+            <BrandMark size={34} hideTextOnMobile />
           </Link>
           <span className="rounded-full bg-(--tone-tint) px-3 py-1 text-xs font-semibold text-(--tone-700)">
             {areaLabel}

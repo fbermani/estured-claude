@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandMark } from "@/components/ui/BrandMark";
 import { Icon } from "@/components/ui/Icon";
 import { CONTACT_EMAIL } from "@/lib/constants/contact";
 
@@ -7,7 +8,8 @@ export function Footer({ hideSignup = false }: { hideSignup?: boolean } = {}) {
     <footer className="border-t border-line bg-forest-ink text-white">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.3fr_1fr_1fr_1fr]">
         <div>
-          <p className="font-display text-xl font-bold">EstuRed</p>
+          <BrandMark size={36} tone="dark" />
+          <span className="sr-only">EstuRed</span>
           <p className="mt-3 max-w-sm text-sm text-white/70">
             La convivencia también se elige. Residencias estudiantiles
             verificadas en CABA, con solicitudes registradas y comprobantes

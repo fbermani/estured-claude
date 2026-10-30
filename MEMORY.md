@@ -34,6 +34,8 @@ Demo: selector "Simular usuario" (solo con `DEMO_LOGIN_ENABLED=true` en `.env.lo
 - Estado git: todo commiteado, sin push (`main` ~133 commits adelante de `origin/main`; recontar con `git rev-list --count origin/main..main`). Último commit al escribir esto: `066a7c8`.
 - Última validación conocida (Ciclo 74): typecheck, lint (0 errores, ~22 warnings `_prev` previos), build, `vitest run lib app` con Supabase vacío 921 pasan (`submitWaitlistSignup.test.ts` falla a nivel suite con env vacío: esperado). La suite de integración completa con 0052–0055 NO está verificada.
 
+- **DR21 / Ciclo 76** (sin commit): «Crear cuenta» opción A (`/register` = PageHero + RolePicker con el form del rol); bloque «Ya vivo en una residencia» en el alta de estudiante (lista `verified_active` → solicitud DR19, o nombre libre → `missing_residence_requests`); admin `/admin/residencias-pedidas` (agrupa, «Marcar contactada», contacto manual mailto/wa.me). **Migración 0065 por aplicar en dev y prod.** Falta verificación visual.
+
 ## 3. Migraciones (estado real)
 
 - Archivos: `db/migrations/0001`–`0056` (0056 pendiente en dev). **dev (`estured-dev`, ref `gyfbtsuibmecefwovdgh`): aplicadas hasta 0055** (dicho por el dueño; no verificable desde el repo). La 0013 (cron) NO va en dev (el bootstrap de dev la deja comentada).

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
+import { BrandMark } from "@/components/ui/BrandMark";
 import { NotificationBell } from "@/components/layout/NotificationBell";
 import { signOut } from "@/app/(public)/login/actions";
 import { useSidebarCollapse } from "@/components/layout/useSidebarCollapse";
@@ -104,12 +105,7 @@ export function StudentSidebar({
         >
           <Icon name="menu" className="text-xl" />
         </button>
-        <span className="flex items-center gap-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-[9px] bg-forest font-display text-sm font-extrabold text-white">
-            E
-          </span>
-          <span className="font-display text-base font-extrabold tracking-tight text-ink">EstuRed</span>
-        </span>
+        <BrandMark size={30} />
         <NotificationBell />
       </div>
 
@@ -129,17 +125,14 @@ export function StudentSidebar({
               className={`flex items-center gap-2 ${collapsed ? "md:hidden" : ""}`}
               aria-label="EstuRed, inicio"
             >
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[11px] bg-forest font-display text-lg font-extrabold text-white">
-                E
-              </span>
-              <span className="font-display text-lg font-extrabold tracking-tight text-ink">EstuRed</span>
+              <BrandMark size={34} />
             </Link>
             <Link
               href="/"
               aria-label="EstuRed, inicio"
-              className={`hidden h-8 w-8 shrink-0 items-center justify-center rounded-[11px] bg-forest font-display text-lg font-extrabold text-white ${collapsed ? "md:flex" : "md:hidden"}`}
+              className={`hidden shrink-0 items-center justify-center ${collapsed ? "md:flex" : "md:hidden"}`}
             >
-              E
+              <BrandMark variant="symbol" size={34} />
             </Link>
             <div className={collapsed ? "md:hidden" : ""}>
               <NotificationBell />

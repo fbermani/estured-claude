@@ -94,8 +94,10 @@ function PendingActivationBlock({ pending }: { pending: StayRow[] }) {
   );
 }
 
-export default async function StudentResidencyPage({ searchParams }: { searchParams?: Promise<{ pendiente?: string }> }) {
-  const pendingNotice = (await searchParams)?.pendiente === "1";
+export default async function StudentResidencyPage({ searchParams }: { searchParams?: Promise<{ pendiente?: string; aviso?: string }> }) {
+  const sp = await searchParams;
+  const pendingNotice = sp?.pendiente === "1";
+  const registerNoticeFailed = sp?.aviso === "error";
   const sessionUser = await getSessionUser();
   const supabase = await getSupabaseServer();
   const admin = getSupabaseAdmin();
@@ -213,6 +215,12 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
           subtitle="Si tu residencia te cargó como residente, activá tu cuenta con el enlace personal que te mandó o con un código a tu mail."
           glyph="home_work"
         />
+
+        {registerNoticeFailed && (
+          <p role="alert" className="mt-6 rounded-field bg-warning-bg px-4 py-3 text-sm font-medium text-warning-fg">
+            Tu cuenta está creada, pero no pudimos registrar tu residencia. Podés hacerlo desde acá, en «¿Ya vivís en una residencia?».
+          </p>
+        )}
 
         {pendingNotice && (
           <p role="status" className="mt-6 rounded-field bg-info-bg px-4 py-3 text-sm font-medium text-info-fg">

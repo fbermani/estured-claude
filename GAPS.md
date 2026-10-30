@@ -6,6 +6,10 @@
 
 ---
 
+## [ABIERTO — bajo, molestia] «Mi residencia no está» desde el alta (DR21)
+
+El tope de 3 avisos por perfil (`MAX_MISSING_RESIDENCE_REQUESTS`) se cuenta con un `select` previo, sin atomicidad: dos envíos en paralelo podrían superarlo. Tampoco hay rate limit por IP en el alta de estudiante (el límite existente es por usuario). El texto libre y el contacto son datos no verificados cargados por estudiantes; el admin los ve marcados así. Fix sugerido si molesta: función SQL con conteo atómico y límite por IP en el registro.
+
 ## [RESUELTO 2026-10-24, Ciclo 69] El familiar pagador puede revocar la reserva de una estudiante mayor de edad (Ciclo 68)
 
 > **Resuelto por decisión del dueño (DR6 (i), `docs/00` §31):** el familiar pagador solo puede revocar si la estudiante es menor de edad a la fecha de la revocación (`isMinorByBirthDate`); si es mayor, solo ella puede. Implementado en `revokeEsturedFee` + `/students/revocation`. El texto de abajo es el historial del riesgo.

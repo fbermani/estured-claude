@@ -4,7 +4,7 @@ import { useActionState, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
+import { Input, Select } from "@/components/ui/Input";
 import {
   registerStudent,
   type RegisterState,
@@ -22,7 +22,10 @@ function isUnder18(isoDate: string): boolean {
 }
 
 /** `invite`: registro desde el enlace personal de una residencia (DR19). El mail sale de la invitación (el servidor lo ignora del formulario). */
-export function RegisterStudentForm({ invite }: { invite?: { token: string; maskedEmail: string } } = {}) {
+export function RegisterStudentForm({
+  invite,
+  residences = [],
+}: { invite?: { token: string; maskedEmail: string }; residences?: { id: string; name: string; area: string | null }[] } = {}) {
   const [state, formAction, isPending] = useActionState(
     registerStudent,
     initialState,
@@ -178,6 +181,45 @@ export function RegisterStudentForm({ invite }: { invite?: { token: string; mask
               </span>
             </span>
           </label>
+        )}
+
+
+        {!invite && (
+          <details className="group rounded-field border border-line-2 p-4">
+            <summary className="flex min-h-11 cursor-pointer items-center gap-2 text-sm font-semibold text-ink">
+              <Icon name="apartment" className="text-xl text-forest-700" />
+              Ya vivo en una residencia <span className="font-normal text-ink-faint">(opcional)</span>
+            </summary>
+            <div className="mt-3 flex flex-col gap-4">
+              {residences.length > 0 && (
+                <Select label="Mi residencia" id="reg-link-residence" name="link_residence_id" defaultValue="">
+                  <option value="">Elegí una…</option>
+                  {residences.map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {r.name}
+                      {r.area ? ` · ${r.area}` : ""}
+                    </option>
+                  ))}
+                </Select>
+              )}
+              <details>
+                <summary className="min-h-11 cursor-pointer text-sm font-semibold text-ink-soft hover:text-ink">Mi residencia no está en la lista</summary>
+                <div className="mt-2">
+                  <Input
+                    label="Nombre de tu residencia"
+                    id="reg-missing-name"
+                    name="missing_residence_name"
+                    maxLength={120}
+                    hint="Si no la elegiste arriba. Lo registramos para que el equipo de EstuRed pueda invitarla."
+                  />
+                </div>
+              </details>
+              <p className="flex items-start gap-2 text-xs leading-relaxed text-ink-faint">
+                <Icon name="verified_user" className="mt-0.5 shrink-0 text-base" />
+                <span>Tu residencia tiene que aprobar el vínculo. Hasta entonces no ves ni aparecés en ninguna comunidad.</span>
+              </p>
+            </div>
+          </details>
         )}
 
         {state.status === "error" && (

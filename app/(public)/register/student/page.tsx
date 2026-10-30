@@ -7,6 +7,7 @@ import { peekResidentInvitation } from "@/lib/residents/inviteVerification";
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { DeclineInvite, InviteCodeStep } from "@/components/residents/InviteSteps";
+import { listActiveResidencesForPicker } from "@/lib/residents/activeResidences";
 import { RegisterStudentForm } from "@/app/(public)/register/student/RegisterStudentForm";
 
 // El enlace personal lleva un token de un solo uso: no se indexa ni viaja en el Referer.
@@ -24,6 +25,7 @@ export default async function RegisterStudentPage({ searchParams }: { searchPara
   }
 
   if (sessionUser) redirect(roleHome(sessionUser));
+  const residences = await listActiveResidencesForPicker();
 
   return (
     <div className="mx-auto max-w-xl px-4 py-14 sm:py-20">
@@ -37,7 +39,7 @@ export default async function RegisterStudentPage({ searchParams }: { searchPara
         </p>
       </div>
       <div className="mt-8">
-        <RegisterStudentForm />
+        <RegisterStudentForm residences={residences} />
       </div>
       <p className="mt-6 text-center text-sm text-ink-soft">
         ¿Ya tenés cuenta?{" "}
@@ -46,12 +48,6 @@ export default async function RegisterStudentPage({ searchParams }: { searchPara
           className="font-semibold text-forest-700 hover:text-forest-700"
         >
           Iniciar sesión
-        </Link>
-      </p>
-      <p className="mt-3 text-center text-sm text-ink-soft">
-        ¿Ya vivís en una residencia?{" "}
-        <Link href="/students/residency" className="font-semibold text-forest-700 hover:underline">
-          Creá tu cuenta y pedí que te vinculen desde «Mi residencia»
         </Link>
       </p>
     </div>

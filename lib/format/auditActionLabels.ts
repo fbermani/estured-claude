@@ -173,6 +173,7 @@ const ACTION_PHRASES: Record<string, string> = {
   resident_link_approved: "aprobó un pedido de vínculo de un residente",
   resident_link_rejected: "rechazó un pedido de vínculo de un residente",
   missing_residence_reported: "avisó que su residencia no está en EstuRed",
+  missing_residence_contacted: "marcó como contactada una residencia pedida por estudiantes",
   residence_house_code_regenerated: "generó un código de casa nuevo",
   resident_stay_activated: "activó un residente",
   resident_stay_bed_assigned: "asignó una cama a un residente",

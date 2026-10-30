@@ -8,6 +8,7 @@ import { getSupabaseServer } from "@/lib/supabase/server";
 import { createAuditLog } from "@/lib/audit";
 import { activateResidentStay } from "@/lib/residents/activateResidentStay";
 import { otpRequiredFor, resolveInviteByToken } from "@/lib/residents/inviteVerification";
+import { submitLinkRequest, submitMissingResidence } from "@/lib/residents/linkRequestsStudent";
 import { INVITE_TOO_MANY_ATTEMPTS, inviteAttemptAllowed } from "@/lib/residents/inviteThrottle";
 
 export type RegisterState = { status: "idle" | "error"; message?: string };
@@ -69,6 +70,12 @@ export async function registerStudent(
     }
     email = (needsCode ? (resolved.invite.otp_email ?? "") : (resolved.stay.invite_email ?? "")).trim().toLowerCase();
   }
+
+  // DR21: «Ya vivo en una residencia» (solo sin invitación). Elegir de la lista y escribir un nombre a la vez es ambiguo: se pide una sola.
+  const linkResidenceId = inviteToken ? "" : String(formData.get("link_residence_id") ?? "").trim();
+  const missingName = inviteToken ? "" : String(formData.get("missing_residence_name") ?? "").trim();
+  if (linkResidenceId && missingName)
+    return { status: "error", message: "Elegí tu residencia de la lista o escribí su nombre, pero no las dos cosas." };
 
   // Validación server-side (docs/11 §5.2) — el cliente nunca es confiable.
   // Paso 1 del alta (Ciclo 35): solo identidad + contacto. Nacionalidad,
@@ -233,6 +240,23 @@ export async function registerStudent(
     // Con enlace válido la estadía queda activa sin pasos extra. Si no se puede todavía (p. ej. menor sin tutor), la pantalla del enlace explica por qué.
     const activation = await activateResidentStay(admin, { actorUserId: userId, rawToken: inviteToken });
     redirect(activation.ok ? (activation.pendingConfirmation ? "/students/residency?pendiente=1" : "/students/residency") : `/students/residency/invite?invite=${encodeURIComponent(inviteToken)}`);
+  }
+
+  // DR21: «Ya vivo en una residencia» sin invitación. Mejor esfuerzo: si falla, la cuenta ya está creada y se repite desde «Mi residencia».
+  // Nada se vincula acá: la residencia tiene que aprobar la solicitud (DR19).
+  let residenceNoticeSent = false;
+  if (linkResidenceId || missingName) {
+    try {
+      const outcome = linkResidenceId
+        ? await submitLinkRequest(admin, { actorUserId: userId, residenceId: linkResidenceId })
+        : await submitMissingResidence(admin, { actorUserId: userId, residenceName: missingName });
+      residenceNoticeSent = outcome.ok;
+    } catch (error) {
+      console.error("[register] aviso de residencia falló:", error);
+    }
+    // Falló: la cuenta ya existe; se avisa en el destino para repetirlo desde «Mi residencia».
+    if (!residenceNoticeSent) redirect("/students/residency?aviso=error");
+    redirect("/students/residency");
   }
   redirect("/students/dashboard");
 }

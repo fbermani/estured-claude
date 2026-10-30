@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
+import { BrandMark } from "@/components/ui/BrandMark";
 
 const links = [
   { href: "/search", label: "Buscar residencias" },
@@ -92,12 +93,7 @@ export function Navbar() {
     <header className="sticky top-0 z-40 border-b border-line bg-cream/86 backdrop-blur-md backdrop-saturate-150">
       <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
         <Link href="/" className="flex items-center gap-2" aria-label="EstuRed, inicio">
-          <span className="flex h-8 w-8 items-center justify-center rounded-[11px] bg-forest font-display text-lg font-extrabold text-white">
-            E
-          </span>
-          <span className="font-display text-xl font-extrabold tracking-tight text-ink">
-            EstuRed
-          </span>
+          <BrandMark size={34} />
         </Link>
 
         <div className="hidden items-center gap-1 md:flex">
