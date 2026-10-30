@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { Reveal } from "@/components/ui/Reveal";
+import { DetailRow } from "@/components/marketing/DetailRow";
 
 /**
  * Bloque "Para las familias" de `/for-students` (DR4, `docs/00` §31; `docs/08` §3.2): las familias son público clave.
@@ -13,16 +14,19 @@ const ABILITIES = [
   {
     icon: "visibility",
     title: "Seguís cada paso",
+    hook: "Estado de solicitudes y reserva, con avisos",
     text: "Ves en qué estado están las solicitudes y la reserva, y te avisamos de los hitos importantes: solicitud aceptada, pago, plazos y reserva confirmada.",
   },
   {
     icon: "lightbulb",
     title: "Proponés opciones",
+    hook: "Sugerís residencias; decide tu estudiante",
     text: "Le sugerís residencias que te gusten. Tu estudiante las revisa y decide si avanza: vos acompañás, la decisión es suya.",
   },
   {
     icon: "payments",
     title: "Pagás el fee si te designa",
+    hook: "Solo si tu estudiante te elige",
     text: "Si tu estudiante te elige para pagar el fee EstuRed, ves el monto, los datos de transferencia y el plazo, y los datos de facturación del pago quedan a tu nombre.",
   },
 ];
@@ -60,16 +64,12 @@ export function FamilyHighlight() {
         </Reveal>
 
         <Reveal delay={2}>
-          <ul className="space-y-4">
+          <ul className="space-y-3">
             {ABILITIES.map((item) => (
-              <li key={item.title} className="flex gap-4 rounded-card bg-surface p-5 shadow-card ring-1 ring-sand-200">
-                <span aria-hidden className="flex size-11 shrink-0 items-center justify-center rounded-field bg-forest-tint text-forest-700">
-                  <Icon name={item.icon} className="text-2xl" />
-                </span>
-                <div>
-                  <p className="font-bold text-ink">{item.title}</p>
-                  <p className="mt-1 text-sm leading-relaxed text-ink-soft">{item.text}</p>
-                </div>
+              <li key={item.title}>
+                <DetailRow icon={item.icon} title={item.title} hook={item.hook}>
+                  {item.text}
+                </DetailRow>
               </li>
             ))}
           </ul>

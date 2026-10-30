@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { Reveal } from "@/components/ui/Reveal";
+import { DetailRow } from "@/components/marketing/DetailRow";
 
 /**
  * Bloque destacado del flujo "Quiero cambiar" para las landings (DR3; SPEC §7). Variante `students` para
@@ -10,12 +11,13 @@ import { Reveal } from "@/components/ui/Reveal";
  */
 
 const STUDENT_STEPS = [
-  { title: "Avisás con un botón", text: "Desde Mi residencia tocás “Quiero cambiar”. Tu residencia se entera con tiempo y tu reserva sigue igual." },
+  { title: "Avisás con un botón", hook: "Tu reserva sigue igual", text: "Desde Mi residencia tocás “Quiero cambiar”. Tu residencia se entera con tiempo y tu reserva sigue igual." },
   {
     title: "Buscás sin trabas de fechas",
+    hook: "Solicitás y te sumás a listas de espera",
     text: "Solicitás y te sumás a listas de espera aunque se superpongan con tu estadía. Te avisamos si se libera lugar.",
   },
-  { title: "Conocés los costos antes", text: "Tu residencia te informa por escrito depósito, preaviso y entrega. Lo ves vos y tu familia." },
+  { title: "Conocés los costos antes", hook: "Por escrito, antes de decidir", text: "Tu residencia te informa por escrito depósito, preaviso y entrega. Lo ves vos y tu familia." },
 ];
 
 const RESIDENCE_BENEFITS = [
@@ -49,16 +51,12 @@ export function StayChangeHighlight({ variant, studentCta = "register" }: { vari
               tiene salir.
             </p>
 
-            <ol className="mt-7 space-y-4">
+            <ol className="mt-7 space-y-3">
               {STUDENT_STEPS.map((step, index) => (
-                <li key={step.title} className="flex gap-4">
-                  <span aria-hidden className="flex size-9 shrink-0 items-center justify-center rounded-full bg-forest-tint font-display text-base font-extrabold text-forest-700">
-                    {index + 1}
-                  </span>
-                  <div>
-                    <p className="font-bold text-ink">{step.title}</p>
-                    <p className="mt-0.5 text-sm leading-relaxed text-ink-soft">{step.text}</p>
-                  </div>
+                <li key={step.title}>
+                  <DetailRow badge={String(index + 1)} title={step.title} hook={step.hook}>
+                    {step.text}
+                  </DetailRow>
                 </li>
               ))}
             </ol>
