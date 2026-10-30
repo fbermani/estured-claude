@@ -1,6 +1,6 @@
-import Link from "next/link";
+import type { ComponentProps } from "react";
+import { AudiencePanel, StudentMini, FamilyMini, ResidenceMini } from "@/components/ui/AudiencePanel";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Icon } from "@/components/ui/Icon";
 import { Reveal } from "@/components/ui/Reveal";
@@ -96,29 +96,58 @@ const outside = [
   },
 ];
 
-const audiences = [
+const audiences: Array<
+  Omit<ComponentProps<typeof AudiencePanel>, "mini"> & { miniKey: "student" | "family" | "residence" }
+> = [
   {
-    title: "Estudiantes",
-    description:
-      "Conocé con quién vas a compartir, las reglas, los servicios y la cercanía a tu facultad, todo verificado.",
+    tone: "student",
+    miniKey: "student",
+    icon: "backpack",
+    who: "Estudiantes",
+    promise: "Sabé con quién y cómo vas a vivir, antes de mudarte.",
+    perks: [
+      { icon: "groups", title: "Conocé a tus futuros compañeros", text: "Perfiles que cada residente decide mostrar." },
+      { icon: "rule", title: "Reglas y servicios, sin sorpresas", text: "Lo principal en la ficha y el reglamento completo." },
+      { icon: "verified", title: "Verificada en persona", text: "Visitamos cada residencia antes de publicarla." },
+    ],
     href: "/for-students",
-    cta: "Cómo funciona para vos",
+    cta: "Ver cómo funciona para vos",
+    note: "Explorar es gratis",
   },
   {
-    title: "Familias",
-    description:
-      "Sin viajar, acompañá el proceso y sé parte de la decisión: proponé opciones, seguí cada paso y compartí la tranquilidad de una reserva con comprobante verificable.",
-    href: "/for-students",
-    cta: "Cómo acompañar",
+    tone: "family",
+    miniKey: "family",
+    icon: "family_restroom",
+    who: "Familias",
+    promise: "Acompañá sin viajar. Ser parte, con tranquilidad.",
+    perks: [
+      { icon: "home_pin", title: "Todo a distancia", text: "Sin viajar a Buenos Aires." },
+      { icon: "add_comment", title: "Proponé opciones", text: "Vos sugerís, tu estudiante decide." },
+      { icon: "verified_user", title: "Comprobante que cualquiera puede verificar", text: "Queda todo registrado." },
+    ],
+    href: "/for-students#para-familias",
+    cta: "Ver cómo acompañar",
+    note: "Toda solicitud queda sujeta a confirmación de la residencia",
   },
   {
-    title: "Residencias",
-    description:
-      "Menos consultas repetidas, solicitudes completas y herramientas para profesionalizar tu gestión. Hoy, sin costo para residencias verificadas.",
+    tone: "residence",
+    miniKey: "residence",
+    icon: "apartment",
+    who: "Residencias",
+    promise: "Recibí solicitudes completas, no consultas repetidas.",
+    badge: "Hoy, sin costo para residencias verificadas",
+    perks: [
+      { icon: "inbox", title: "Menos preguntas de siempre", text: "La ficha responde por vos." },
+      { icon: "how_to_reg", title: "Vos decidís a quién aceptar", text: "Con el perfil a la vista." },
+      { icon: "dashboard", title: "Herramientas para ordenar tu gestión", text: "Habitaciones, plazas y solicitudes en un lugar." },
+    ],
     href: "/for-residences",
     cta: "Sumar mi residencia",
+    note: "Primero verificamos tu residencia en persona",
   },
 ];
+
+const MINIS = { student: <StudentMini />, family: <FamilyMini />, residence: <ResidenceMini /> };
 
 const upcoming = [
   {
@@ -269,23 +298,17 @@ export default async function HomePage() {
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
         <SectionHeader
           eyebrow="Para quién es"
-          title="Una solución para cada uno"
+          title="Cada uno con su lugar en el proceso"
+          description="Quien estudia elige. La familia acompaña. La residencia recibe solicitudes completas."
         />
-        <div className="grid gap-6 md:grid-cols-3">
-          {audiences.map((a, i) => (
-            <Reveal key={a.title} delay={(i as 0 | 1 | 2)}>
-              <Card interactive className="flex h-full flex-col p-7">
-                <h3 className="text-lg font-bold text-ink">{a.title}</h3>
-                <p className="mt-2 flex-1 text-sm leading-relaxed text-ink-soft">
-                  {a.description}
-                </p>
-                <Link
-                  href={a.href}
-                  className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-forest-700 transition-transform duration-200 ease-bounce hover:translate-x-1"
-                >
-                  {a.cta} <Icon name="arrow_forward" className="text-base" />
-                </Link>
-              </Card>
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {audiences.map(({ miniKey, ...a }, i) => (
+            <Reveal
+              key={a.who}
+              delay={i as 0 | 1 | 2}
+              className={`h-full ${i === 2 ? "md:col-span-2 lg:col-span-1" : ""}`}
+            >
+              <AudiencePanel {...a} mini={MINIS[miniKey]} />
             </Reveal>
           ))}
         </div>
