@@ -11,7 +11,7 @@ const MIN_CARDS_PER_SET = 8;
 const delay = (s: number) => ({ "--d": `${s}s` }) as CSSProperties;
 
 const MINI_POINTS = [
-  { icon: "verified", label: "Verificadas en persona" },
+  { icon: "verified", label: "Verificadas por EstuRed" },
   { icon: "flight_takeoff", label: "Sin viajar" },
   { icon: "receipt_long", label: "Comprobante verificable" },
 ];
@@ -83,26 +83,25 @@ export function HomeHero({ residences }: { residences: Residence[] }) {
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(rgb(255_255_255/.09)_1px,transparent_1.2px)] [background-size:22px_22px] [mask-image:linear-gradient(#000,transparent_80%)]"
       />
 
-      <div className="relative mx-auto max-w-[900px] px-4 pb-7 pt-12 text-center sm:px-6 md:pb-9 md:pt-20">
+      <div className="relative mx-auto max-w-[900px] px-4 pb-6 pt-8 text-center sm:px-6 md:pb-9 md:pt-20">
         <p className="hero-rise mb-3.5 text-xs font-bold uppercase tracking-widest text-orange-light" style={delay(0.08)}>
-          Primera etapa: Ciudad de Buenos Aires
+          Ciudad de Buenos Aires
         </p>
         <h1
-          className="hero-rise text-[2.375rem] font-extrabold leading-[1.05] tracking-tight text-white md:text-6xl"
+          className="hero-rise text-[1.875rem] font-extrabold leading-[1.1] tracking-tight text-white sm:text-[2.375rem] md:text-6xl"
           style={delay(0.18)}
         >
-          No solo elijas dónde vivir, <span className="text-amber-soft-300">sino cómo.</span>
+          Elegí tu residencia a distancia, <span className="text-amber-soft-300">sin adivinar.</span>
         </h1>
-        <p className="hero-rise mx-auto mt-4 max-w-[600px] text-[17px] text-forest-tint md:text-xl" style={delay(0.3)}>
-          Encontrá tu residencia en Buenos Aires, verificada en persona. Pedila, reservala y pagá, todo a
-          distancia.
+        <p className="hero-rise mx-auto mt-4 max-w-[600px] text-base text-forest-tint sm:text-[17px] md:text-xl" style={delay(0.3)}>
+          Residencias en Buenos Aires, verificadas por EstuRed. Reservá y pagá desde donde estés, sin viajar.
         </p>
 
         {/* Buscador: mock visual. Lleva a /search; los campos no son controles. */}
         <Link
           href="/search"
           aria-label="Buscar residencias en Buenos Aires"
-          className="hero-rise group mx-auto mt-7 grid gap-1 rounded-[26px] bg-white p-2.5 text-ink shadow-float focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white md:grid-cols-[1.1fr_1fr_1fr_auto] md:items-center md:rounded-full md:py-2 md:pl-3.5 md:pr-2 md:gap-0"
+          className="hero-rise group mx-auto mt-5 grid gap-1 rounded-[26px] bg-white p-2.5 text-ink shadow-float focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white md:grid-cols-[1.1fr_1fr_1fr_auto] md:items-center md:rounded-full md:py-2 md:pl-3.5 md:pr-2 md:gap-0"
           style={delay(0.42)}
         >
           <FakeField label="¿Dónde?" value="Todos los barrios" />

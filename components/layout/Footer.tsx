@@ -101,7 +101,7 @@ export function Footer({ hideSignup = false }: { hideSignup?: boolean } = {}) {
             <li>Solicitudes registradas en la plataforma</li>
             <li>Comprobante de Reserva Confirmada</li>
             <li>
-              <Link href="/#que-pagas" className="rounded-sm underline transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+              <Link href="/for-students#que-pagas" className="rounded-sm underline transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
                 Qué pagás y a quién
               </Link>
             </li>

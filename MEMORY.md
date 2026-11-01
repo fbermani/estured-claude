@@ -36,6 +36,8 @@ Demo: selector "Simular usuario" (solo con `DEMO_LOGIN_ENABLED=true` en `.env.lo
 
 - **DR21 / Ciclo 76** (sin commit): «Crear cuenta» opción A (`/register` = PageHero + RolePicker con el form del rol); bloque «Ya vivo en una residencia» en el alta de estudiante (lista `verified_active` → solicitud DR19, o nombre libre → `missing_residence_requests`); admin `/admin/residencias-pedidas` (agrupa, «Marcar contactada», contacto manual mailto/wa.me). **Migración 0065 por aplicar en dev y prod.** Falta verificación visual.
 
+- **DR22 (2026-10-31, solo doc, sin código):** home sin selector por rol, nuevo orden (hero → Por qué+Diferencia con tabla «Con EstuRed vs. por fuera» → catálogo → proceso → Para quién → FAQ corta; sin «Lo que viene»); residencias: solicitud de alta + visita del equipo antes de entregar cuenta. Pendiente definir campos/estados/plazos (`docs/00` DR22 §E).
+
 ## 3. Migraciones (estado real)
 
 - Archivos: `db/migrations/0001`–`0056` (0056 pendiente en dev). **dev (`estured-dev`, ref `gyfbtsuibmecefwovdgh`): aplicadas hasta 0055** (dicho por el dueño; no verificable desde el repo). La 0013 (cron) NO va en dev (el bootstrap de dev la deja comentada).

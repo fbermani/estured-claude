@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode, type KeyboardEvent } from "react";
+import { useId, useState, type ReactNode, type KeyboardEvent } from "react";
 
 /**
  * Envoltorio interactivo reutilizable para filas/tarjetas de listas
@@ -21,6 +21,7 @@ export function HoverDetail({
   className?: string;
 }) {
   const [open, setOpen] = useState(false);
+  const detailId = useId();
 
   function toggle() {
     setOpen((o) => !o);
@@ -38,10 +39,9 @@ export function HoverDetail({
       role="button"
       tabIndex={0}
       aria-expanded={open}
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-      onFocus={() => setOpen(true)}
-      onBlur={() => setOpen(false)}
+      aria-controls={detailId}
+      onPointerEnter={(e) => e.pointerType === "mouse" && setOpen(true)}
+      onPointerLeave={(e) => e.pointerType === "mouse" && setOpen(false)}
       onClick={toggle}
       onKeyDown={onKeyDown}
       className={`cursor-pointer rounded-field transition-all duration-300 ease-fresh focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest ${
@@ -50,6 +50,9 @@ export function HoverDetail({
     >
       {children(open)}
       <div
+        id={detailId}
+        aria-hidden={!open}
+        inert={!open}
         className="grid transition-[grid-template-rows,opacity] duration-300 ease-fresh"
         style={{ gridTemplateRows: open ? "1fr" : "0fr", opacity: open ? 1 : 0 }}
       >

@@ -1414,3 +1414,30 @@ Supuestos reversibles que el dueño no fijó: (a) **«cambiar la cama de un resi
 **Límites.** (a) La vinculación y el acceso a la comunidad siguen sujetos a la **aprobación de la residencia** (o código de casa + aprobación), igual que DR19: elegir o escribir una residencia no da acceso a nada. (b) Privacidad: se guarda solo el **nombre de la residencia en texto** (2–120 caracteres, espacios colapsados, sin caracteres de control ni `<>`), un contacto institucional opcional (mail/teléfono de la residencia, ≤120) y el id del perfil del estudiante; ningún dato de otros residentes. Tope de 3 avisos por estudiante y límite de intentos por usuario ya existentes. (c) Tabla solo service role (RLS sin policies). (d) Si el aviso falla, **no bloquea el alta**: la cuenta se crea igual y el estudiante puede repetirlo en «Mi residencia».
 
 **Lo que hace EstuRed.** El admin ve en `/admin/residencias-pedidas` las residencias nombradas agrupadas por nombre (cantidad de estudiantes, primera fecha, contacto indicado, estado) y marca «Contactada» tras escribirles **manualmente** (mail o WhatsApp por `wa.me` desde su propio celular) para avisar que ya tienen comunidad activa. **Nunca** API de WhatsApp Business ni envío automático; el texto sugerido no promete disponibilidad ni fechas. El copy usa «Soporte», no «mediación».
+
+### DR22: rediseño de home y registro de residencias en dos pasos (2026-10-31)
+
+**Contexto.** El dueño comparó el rediseño externo `estured-rediseno-standalone.html` con el producto actual y decidió qué se adopta. Protocolo `docs/13` §5: doc primero, código después (nada de esto está implementado).
+
+**A. Home (`/`).**
+1. Se mantiene el **hero actual** (buscador + carrusel de ≥5 residencias distintas). Se reescriben **título y subtítulo** para presentar EstuRed y el principal beneficio/dolor que resuelve (**textos a definir con el dueño**). **No** se agrega selector/pestañas por rol («Estudiantes y familias / Residencias») en la home.
+2. **Nuevo orden:** hero → «Por qué EstuRed» + «La diferencia» **fusionadas en una sola sección**, con la tabla «Con EstuRed vs. por fuera» (la de la propuesta) → catálogo con tarjetas reales algo más reducidas → proceso (el actual) → «Para quién es» (el actual) → FAQ más corta.
+3. Se **quita** de la home la sección «Lo que viene» (MVP).
+4. **FAQ:** se mantienen todas las preguntas con respuestas más breves, y se saca la de «garantía propietaria». DR16 sigue vigente; solo deja de estar en la FAQ de la home.
+5. **Textos del hero elegidos por el dueño (2026-10-31, opción 1 adaptada):** sobretítulo «Ciudad de Buenos Aires»; H1 «Elegí tu residencia a distancia, sin adivinar.»; subtítulo «Residencias en Buenos Aires, verificadas por EstuRed. Reservá y pagá desde donde estés, sin viajar.»
+6. **No se afirma «visitada en persona»** (ni en el hero, ni en los chips, ni en la tabla «Con EstuRed vs. por fuera» ni en la FAQ de la home): se usa «verificada por EstuRed» y el detalle «Revisamos responsable, ubicación y fotos antes de publicar». Sin contadores fijos ni promesas de plazo de respuesta.
+
+**B. Otras pantallas.** `/for-students`, `/for-residences` y la ficha de residencia **se mantienen como están construidas**; se descartan las propuestas del rediseño para ellas. Solo se pulirán textos.
+
+**C. Criterio transversal de copy.** Lectura rápida y cómoda; destacar beneficios y la ventaja de hacerlo por EstuRed y no por fuera (evitar bypass); en mobile, comodidad visual y menos scroll vertical. Siguen vigentes las reglas de copy (sin promesas de disponibilidad ni garantías, «Soporte» y no «mediación»; DR12, DR13, DR20).
+
+**D. Registro de residencias: paso intermedio (cambio de reglas de negocio autorizado por el dueño).**
+1. En el MVP la residencia **no crea cuenta sola**: deja sus **datos principales** (solicitud de alta).
+2. El **equipo de EstuRed** investiga la residencia, **puede armar un borrador de ficha**, coordina una **visita** y **recién ahí entrega la cuenta** y ayuda con el onboarding inicial.
+3. Alineación: **DR20** (contacto previo, EstuRed se nombra como tarde en el minuto 2; el contacto manual por WhatsApp/mail sigue igual; este flujo es el camino de entrada para quienes ya fueron contactadas o llegan por la web) y **DR19** (las invitaciones de residentes y el código de casa siguen para residencias ya activas; no cambian).
+4. **Decisiones/flujos afectados:** el alta autogestionada actual (`/register/residence`, `/register/staff`) y los CTA «Sumar mi residencia» (home, hero, comunidad, `/for-residences`); la invitación de staff por enlace (DR10/DR11) queda para residencias ya con cuenta; el ciclo de verificación (DR7: programar visita, aprobar/rechazar, vencimiento) y DR5 (pedir cambios) deben encajar con la visita previa a la entrega de cuenta; DR12 («Residencias fundadoras») y el onboarding de residencias nuevas (ciclos 63–65); `/admin/residencias-pedidas` (DR21) puede compartir cola con las solicitudes de alta.
+5. **Contador/copy de verificación:** el cambio de copy y del contador de verificación asociado a este flujo también es un cambio de reglas de negocio ya autorizado por el dueño; su redacción exacta está **a definir con el dueño**.
+
+**E. A definir con el dueño (no inventado).** Campos del formulario de solicitud de alta; estados de la solicitud (y su relación con los estados oficiales de `docs/04`); quién del equipo contacta; plazo de respuesta/visita; si el borrador de ficha es visible para la residencia; cómo se entrega la cuenta (invitación por enlace de un uso vs. creación por el admin); textos de hero y de la tabla «Con EstuRed vs. por fuera».
+
+**Docs a actualizar al implementar:** `docs/04` (si hay estados nuevos), `docs/05`/`docs/06` (tabla de solicitudes de alta), `docs/08` §3 (rutas), `docs/09`/`docs/11` (flujo y copy), `PROJECT.md`, `GAPS.md`.

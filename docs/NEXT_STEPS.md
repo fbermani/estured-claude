@@ -8,6 +8,13 @@
 
 ---
 
+## DR22: rediseño de home y alta de residencias en dos pasos (2026-10-31)
+
+- Hecho: solo documentación (`docs/00` DR22). Sin código, build ni commit.
+- Pendiente: definir con el dueño textos de hero y tabla, y campos/estados/quién contacta/plazo del alta de residencias; luego implementar (home, `/register/residence`, CTA «Sumar mi residencia», admin).
+
+---
+
 ## DR19: vinculación de residentes con prueba de identidad (2026-10-30)
 
 - Hecho en código (sin commit, sin build): migración `0064_resident_linking.sql` (**pendiente de aplicar en dev y prod**: `resident_stay_invitations`, `resident_link_requests`, `residence_private_details.house_code`, `missing_residence_requests`). Invitación personal (token 14 días, solo hash; mail automático + «Reenviar»; WhatsApp manual `wa.me` con enlace; OTP al mail si llegó por WhatsApp o sin token), corrección de mail, «no soy yo», menores con tutor; estudiante alojado: solicitud de vínculo (código de casa, cola en `/residence/[id]/residents`) y «Mi residencia no está».
