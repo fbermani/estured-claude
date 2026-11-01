@@ -16,6 +16,8 @@ Demo: selector "Simular usuario" (solo con `DEMO_LOGIN_ENABLED=true` en `.env.lo
 
 ## 2. Últimos ciclos (62–74) y DR12–DR16
 
+- **DR22 D/E implementado (2026-11-01, sin commit/build):** `/register/residence` ahora es solicitud de alta (sin cuenta; honeypot + límite por IP); cola `/admin/solicitudes-alta` (estados `docs/04` §21.8, invitación de 7 días solo-hash); canje en `/register/residence/invitacion/[token]`. **Migración 0066 pendiente de aplicar en dev y prod**; sin ella la cola muestra aviso y el formulario falla con error. Código en `lib/residenceSignup/`.
+
 - **62** DR4: desglose de costos (`CostBreakdown`) y CTA "Proponer a [nombre]" en la ficha. Auditoría: 0047 oculta columnas de facturación de `estured_fee_payments`.
 - **63–65** Residencias: avisos al equipo (`notifyResidenceTeam`), contadores del sidebar, bloque "Reserva confirmada", fix "en NaN días"; consistencia/copy (D8: `/plan` redirige al Panel); onboarding de residencias nuevas (banner de estado, fortaleza del perfil).
 - **66** DR5: el admin pide cambios con "Mensaje para la residencia" y la residencia reenvía (`needs_changes` → `pending_verification`); 0048 (RLS `notes_internal`).

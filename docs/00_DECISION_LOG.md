@@ -1440,6 +1440,22 @@ Supuestos reversibles que el dueño no fijó: (a) **«cambiar la cama de un resi
 
 **E. A definir con el dueño (no inventado).** Campos del formulario de solicitud de alta; estados de la solicitud (y su relación con los estados oficiales de `docs/04`); quién del equipo contacta; plazo de respuesta/visita; si el borrador de ficha es visible para la residencia; cómo se entrega la cuenta (invitación por enlace de un uso vs. creación por el admin); textos de hero y de la tabla «Con EstuRed vs. por fuera».
 
+**E1. Campos del formulario de alta (decidido por el dueño, 2026-11-01).** Obligatorios: nombre de la residencia, barrio, nombre del responsable, email, teléfono/WhatsApp. Opcionales: Instagram o web, cantidad aproximada de camas. Sin dirección exacta, precios ni fotos en este paso (se completan en la visita/onboarding).
+
+**E2. Estados de la solicitud de alta (decidido por el dueño, 2026-11-01).** Propios de la solicitud, separados de los estados de residencia (`docs/04`) y del ciclo de verificación DR7: Recibida → En contacto → Visita coordinada → Cuenta entregada, más Descartada. Nombres de implementación a fijar al documentar `docs/04`.
+
+**E3. Entrega de la cuenta (decidido por el dueño, 2026-11-01).** Invitación por enlace personal de un solo uso con vencimiento, generada por el admin tras la visita; la residencia crea su propia contraseña y queda vinculada a su ficha. El equipo nunca conoce ni asigna contraseñas.
+
+**E4. Borrador de ficha (decidido por el dueño, 2026-11-01).** Es interno del equipo; la residencia lo ve recién en la visita y lo edita con su cuenta. No hay vista previa por enlace.
+
+**E5. Alta autogestionada actual (decidido por el dueño, 2026-11-01).** `/register/residence` se reemplaza por el formulario de solicitud de alta (no crea cuenta, sin flag). `/register/staff` se mantiene solo por invitación de una residencia ya activa (DR10/DR11).
+
+**E6. Plazo (decidido por el dueño, 2026-11-01).** Sin plazo declarado: tras enviar, «Recibimos tu solicitud. Te escribimos por mail o WhatsApp para coordinar». Internamente la cola se ordena por antigüedad. Quién del equipo contacta: el administrador/equipo EstuRed (sin asignación por persona en el MVP).
+
+**E7. Contador de verificación (decidido por el dueño, 2026-11-01).** No se muestra en el MVP. Si más adelante se agrega, se calcula desde la base (solo `verified_active`) y se documenta antes.
+
+**DR22 E queda cerrado.** Falta implementar: formulario de solicitud de alta, cola en admin (compartible con `/admin/residencias-pedidas`), invitación de un uso y ajuste de CTAs «Sumar mi residencia».
+
 **Docs a actualizar al implementar:** `docs/04` (si hay estados nuevos), `docs/05`/`docs/06` (tabla de solicitudes de alta), `docs/08` §3 (rutas), `docs/09`/`docs/11` (flujo y copy), `PROJECT.md`, `GAPS.md`.
 
 ### DR23: nomenclatura de planes de residencias (2026-11-01)

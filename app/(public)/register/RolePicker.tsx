@@ -33,15 +33,15 @@ const ROLES: { id: Role; tone: RoleTone; icon: string; title: string; sub: strin
     tone: "residence",
     icon: "apartment",
     title: "Soy residencia",
-    sub: "Quiero sumar mi residencia",
-    includes: ["Tu perfil lo revisa el equipo de EstuRed", "Recibís solicitudes ordenadas", "Perfil Verificado gratuito"],
+    sub: "Quiero solicitar sumar mi residencia",
+    includes: ["Primero te contacta el equipo de EstuRed", "Tu perfil se revisa antes de publicarse", "Perfil Verificado gratuito"],
   },
 ];
 
 const HERO: Record<Role, { eyebrow: string; glyph: string; subtitle: string }> = {
   student: { eyebrow: "Bienvenida", glyph: "school", subtitle: "Elegí cómo vas a usar EstuRed. Después podés sumar otros vínculos." },
   family: { eyebrow: "Acompañá", glyph: "family_restroom", subtitle: "Creá tu cuenta y pedí vincularte. El estudiante aprueba antes de que veas nada." },
-  residence: { eyebrow: "Sumá tu residencia", glyph: "apartment", subtitle: "Creá la cuenta del equipo. Tu perfil pasa por una verificación del equipo de EstuRed." },
+  residence: { eyebrow: "Sumá tu residencia", glyph: "apartment", subtitle: "Dejanos los datos principales de tu residencia. El equipo de EstuRed te contacta para coordinar; la cuenta se entrega después." },
 };
 
 /** Selector de rol (opción A de «Crear cuenta»): elegís quién sos y abajo aparece el formulario correspondiente, sin cambiar de pantalla. */

@@ -147,7 +147,8 @@ La UI debe dejar claro que la conversación ocurre fuera de la plataforma, y que
 | `/register` | Selector de rol | Público |
 | `/register/student` | Registro estudiante | Público |
 | `/register/family` | Registro familiar | Público |
-| `/register/residence` | Registro residencia | Público |
+| `/register/residence` | Solicitud de alta de residencia (DR22 E1–E5): deja los datos principales, **no crea cuenta** | Público |
+| `/register/residence/invitacion/[token]` | Canje de la invitación de un solo uso (7 días): la residencia crea su contraseña y queda vinculada a su ficha (DR22 E3) | Público (requiere enlace válido) |
 | `/register/staff/[token]` | Aceptar la invitación al equipo de una residencia (DR10): enlace de un solo uso que llega por email al staff; el token nunca se muestra ni se guarda en claro | Público (requiere enlace válido) |
 | `/waitlist` | Lista de espera pre-lanzamiento (fuera del routing oficial; no es la lista de espera de residencias) | Público |
 
@@ -224,6 +225,7 @@ Ruta base: `/admin`
 | `/admin/residences` | Residencias | Admin/Superadmin |
 | `/admin/residences/[id]` | Detalle admin de residencia | Admin/Superadmin |
 | `/admin/residences/[id]/plan` | Gestión de feature flags freemium (diferida, D8) | Admin/Superadmin |
+| `/admin/solicitudes-alta` | Cola de solicitudes de alta de residencias (DR22): estados, notas, visita, generar invitación | Admin/Superadmin |
 | `/admin/verifications` | Verificaciones | Admin/Superadmin |
 | `/admin/profile-edits` | Ediciones de perfil | Admin/Superadmin |
 | `/admin/pricing` | Tarifas y alertas | Admin/Superadmin |
@@ -453,7 +455,9 @@ Ruta base: `/admin`
 
 ### 5.6. Registro residencia
 
-**Ruta:** `/register/residence`
+**Ruta:** `/register/residence` (DR22: reemplazado por la **solicitud de alta**; la descripción de campos de abajo es la histórica del alta autogestionada).
+
+**Hoy:** obligatorios nombre de la residencia, barrio, responsable, email y teléfono/WhatsApp; opcionales Instagram o web y camas aproximadas. Éxito: «Recibimos tu solicitud. Te escribimos por mail o WhatsApp para coordinar» (sin plazos). La cuenta se entrega por enlace personal en `/register/residence/invitacion/[token]`; `/register/staff/[token]` sigue solo por invitación.
 
 **Campos:** nombre comercial, responsable, DNI responsable, coordinador (si existe), dirección, contacto, email owner, teléfono, modo elegido (Perfil Verificado o Gestión Operativa — sujeto a disponibilidad de plan), aceptación de términos, aceptación de responsabilidad, aceptación de reglas de EstuRed.
 

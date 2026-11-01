@@ -1534,3 +1534,20 @@ application_request.submitted (initiated_by=student)
 - Criterios detallados de penalización cuando haya datos suficientes.
 - Diseño final de colores, iconos y microcopy por estado.
 - Precio del plan pago de Gestión Operativa.
+
+---
+
+## 21.8. Solicitud de alta de residencia (`residence_signup_requests`, DR22 E2)
+
+Estados propios de la solicitud; **no** son los de `residences` (§4) ni los del ciclo de verificación DR7. Migración `0066`.
+
+| Estado | Significado |
+|---|---|
+| `received` | Recibida (formulario público). |
+| `in_contact` | El equipo ya contactó a la residencia (a mano, mail o WhatsApp). |
+| `visit_scheduled` | Visita coordinada. Habilita «Generar invitación». |
+| `account_delivered` | La residencia canjeó su enlace y creó su cuenta (solo lo alcanza el canje; el admin no lo fija a mano). |
+| `discarded` | Descartada (invalida cualquier enlace pendiente). |
+
+Transiciones manuales del admin: `received → in_contact → visit_scheduled`; cualquier estado activo `→ discarded`. `account_delivered` y `discarded` son terminales. **`email_confirmed_at`:** el email del formulario no está verificado y el canje crea la cuenta con email confirmado, así que el admin debe marcar «Confirmé el email con la residencia» (requiere admin; se resetea si edita el email) antes de generar la invitación. Invitación: token aleatorio (solo se guarda su SHA-256), 7 días, un solo uso, solo en `visit_scheduled` con `email_confirmed_at` no nulo; generar otra invalida la anterior. El sistema no envía el enlace: lo entrega el admin a mano.
+

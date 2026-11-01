@@ -68,7 +68,7 @@ export default function ForResidencesPage() {
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button href="/register/residence" size="lg" variant="secondary">
-                Sumar mi residencia
+                Solicitar sumar mi residencia
               </Button>
               <Button
                 href="#como-funciona"
@@ -206,12 +206,12 @@ export default function ForResidencesPage() {
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-ink-soft">
             Estamos sumando las primeras residencias de CABA: las Residencias
-            fundadoras. Creá tu cuenta y, cuando completes tu perfil, coordinamos
-            la visita de verificación.
+            fundadoras. Dejanos tus datos y el equipo de EstuRed te contacta para
+            conocer tu residencia y coordinar la visita.
           </p>
           <div className="mt-6">
             <Button href="/register/residence" size="lg">
-              Sumar mi residencia
+              Solicitar sumar mi residencia
             </Button>
           </div>
         </Reveal>

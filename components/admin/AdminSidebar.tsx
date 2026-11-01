@@ -147,6 +147,7 @@ const NAV = [
   { href: "/admin/faq", label: "Preguntas de fichas", Icon: SupportCasesIcon },
   { href: "/admin/custom-amenities", label: "Ítems «Otro» de fichas", Icon: ProfileEditsIcon },
   { href: "/admin/followups", label: "Seguimiento", Icon: SupportCasesIcon },
+  { href: "/admin/solicitudes-alta", label: "Solicitudes de alta", Icon: BuildingIcon },
   { href: "/admin/residencias-pedidas", label: "Residencias pedidas", Icon: BuildingIcon },
   { href: "/admin/exchange-rate", label: "Tipo de cambio", Icon: ExchangeIcon },
   { href: "/admin/users", label: "Usuarios", Icon: UsersIcon },

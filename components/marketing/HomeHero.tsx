@@ -115,8 +115,8 @@ export function HomeHero({ residences }: { residences: Residence[] }) {
 
         <p className="hero-rise mt-3.5 text-[13px] text-forest-tint" style={delay(0.6)}>
           Explorar es gratis. Toda solicitud queda sujeta a confirmación de la residencia.{" "}
-          <Link href="/for-residences" className="font-bold text-white underline-offset-2 hover:underline">
-            Sumar mi residencia
+          <Link href="/register/residence" className="font-bold text-white underline-offset-2 hover:underline">
+            Solicitar sumar mi residencia
           </Link>
         </p>
         <ul

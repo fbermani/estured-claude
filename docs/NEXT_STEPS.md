@@ -8,6 +8,13 @@
 
 ---
 
+## DR22 D/E: alta de residencias en dos pasos, implementado (2026-11-01)
+
+- Hecho en código (sin commit ni build): formulario `/register/residence`, cola `/admin/solicitudes-alta`, canje `/register/residence/invitacion/[token]`, CTAs «Solicitar sumar mi residencia». Tests: `lib/residenceSignup/rules.test.ts`.
+- Pendiente: aplicar `0066` en dev y prod; probar a mano el flujo completo; decidir si `account_delivered` se puede fijar a mano; `build` sin correr.
+
+---
+
 ## DR22: rediseño de home y alta de residencias en dos pasos (2026-10-31)
 
 - Hecho: solo documentación (`docs/00` DR22). Sin código, build ni commit.

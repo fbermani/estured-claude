@@ -30,7 +30,7 @@ const COPY = {
       { icon: "diversity_3", title: "Afinidad desde el primer contacto", text: "Quien solicita ya sabe qué estudian y qué les gusta a tus residentes." },
       { icon: "tune", title: "Vos y tus residentes controlan qué se ve", text: "Cada residente elige qué mostrar. Quienes son menores no aparecen." },
     ],
-    cta: { href: "/register/residence", label: "Sumar mi residencia" },
+    cta: { href: "/register/residence", label: "Solicitar sumar mi residencia" },
   },
 } as const;
 

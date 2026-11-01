@@ -1,6 +1,6 @@
 /** Estado compartido de los formularios de registro: error global + errores por campo + valores no sensibles para repoblar. */
 export type RegisterFormState = {
-  status: "idle" | "error";
+  status: "idle" | "error" | "success";
   message?: string;
   /** name del campo -> mensaje. Solo cuando la validación puede identificar el campo. */
   fieldErrors?: Record<string, string>;

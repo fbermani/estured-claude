@@ -14,11 +14,11 @@ export default async function RegisterResidencePage() {
     <div className="mx-auto max-w-xl px-4 py-14 sm:py-20">
       <div className="text-center">
         <h1 className="text-3xl font-bold text-ink">
-          Sumá tu residencia a EstuRed
+          Solicitá sumar tu residencia
         </h1>
         <p className="mt-2 text-sm text-ink-soft">
-          Creá tu cuenta ahora. Después vas a completar el perfil completo:
-          servicios, fotos, habitaciones y tarifas.
+          Dejanos los datos principales. El equipo de EstuRed te contacta para
+          conocer tu residencia; la cuenta se entrega después.
         </p>
       </div>
       <div className="mt-8">
