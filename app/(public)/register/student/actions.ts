@@ -6,12 +6,13 @@ import { redirect } from "next/navigation";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { createAuditLog } from "@/lib/audit";
+import { formError, type RegisterFormState } from "@/app/(public)/register/formState";
 import { activateResidentStay } from "@/lib/residents/activateResidentStay";
 import { otpRequiredFor, resolveInviteByToken } from "@/lib/residents/inviteVerification";
 import { submitLinkRequest, submitMissingResidence } from "@/lib/residents/linkRequestsStudent";
 import { INVITE_TOO_MANY_ATTEMPTS, inviteAttemptAllowed } from "@/lib/residents/inviteThrottle";
 
-export type RegisterState = { status: "idle" | "error"; message?: string };
+export type RegisterState = RegisterFormState;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 /** Versión de los textos legales aceptados. Borrador: docs/10 y docs/21
@@ -59,14 +60,14 @@ export async function registerStudent(
   // residencia no cargó mail, el mail tiene que estar verificado con el código antes de crear la cuenta.
   if (inviteToken) {
     const headerStore = await headers();
-    if (!inviteAttemptAllowed(headerStore, inviteToken)) return { status: "error", message: INVITE_TOO_MANY_ATTEMPTS };
+    if (!inviteAttemptAllowed(headerStore, inviteToken)) return formError(formData, INVITE_TOO_MANY_ATTEMPTS);
     const inviteAdmin = getSupabaseAdmin();
-    if (!inviteAdmin) return { status: "error", message: "El registro no está disponible en este momento. Probá más tarde." };
+    if (!inviteAdmin) return formError(formData, "El registro no está disponible en este momento. Probá más tarde.");
     const resolved = await resolveInviteByToken(inviteAdmin, inviteToken);
-    if (!resolved.ok) return { status: "error", message: resolved.message };
+    if (!resolved.ok) return formError(formData, resolved.message);
     const needsCode = otpRequiredFor(resolved.invite.channel, !!resolved.stay.invite_email);
     if (needsCode && !resolved.invite.otp_verified_at) {
-      return { status: "error", message: "Primero verificá tu mail con el código que te mandamos." };
+      return formError(formData, "Primero verificá tu mail con el código que te mandamos.");
     }
     email = (needsCode ? (resolved.invite.otp_email ?? "") : (resolved.stay.invite_email ?? "")).trim().toLowerCase();
   }
@@ -75,44 +76,38 @@ export async function registerStudent(
   const linkResidenceId = inviteToken ? "" : String(formData.get("link_residence_id") ?? "").trim();
   const missingName = inviteToken ? "" : String(formData.get("missing_residence_name") ?? "").trim();
   if (linkResidenceId && missingName)
-    return { status: "error", message: "Elegí tu residencia de la lista o escribí su nombre, pero no las dos cosas." };
+    return formError(formData, "Elegí tu residencia de la lista o escribí su nombre, pero no las dos cosas.", "missing_residence_name");
 
   // Validación server-side (docs/11 §5.2) — el cliente nunca es confiable.
   // Paso 1 del alta (Ciclo 35): solo identidad + contacto. Nacionalidad,
   // universidad, ciudad de origen y visibilidad de comunidad se completan
   // después en /students/profile, sin bloquear la cuenta.
   if (!firstName || firstName.length > 80)
-    return { status: "error", message: "Contanos tu nombre." };
+    return formError(formData, "Contanos tu nombre.", "first_name");
   if (!lastName || lastName.length > 80)
-    return { status: "error", message: "Contanos tu apellido (nunca se muestra público)." };
+    return formError(formData, "Contanos tu apellido (nunca se muestra público).", "last_name");
   if (!EMAIL_RE.test(email) || email.length > 254)
-    return { status: "error", message: "Revisá el email: no parece válido." };
+    return formError(formData, "Revisá el email: no parece válido.", "email");
   if (!/^[+0-9()\-\s]{6,25}$/.test(phone))
-    return { status: "error", message: "Revisá el teléfono: usá números, espacios o «+»." };
+    return formError(formData, "Revisá el teléfono: usá números, espacios o «+».", "phone");
   const passwordError = validatePassword(password);
-  if (passwordError) return { status: "error", message: passwordError };
+  if (passwordError) return formError(formData, passwordError, "password");
   if (!acceptTerms || !acceptPrivacy)
-    return {
-      status: "error",
-      message: "Necesitamos que aceptes los términos y la política de privacidad.",
-    };
+    return formError(formData, "Necesitamos que aceptes los términos y la política de privacidad.");
 
   const birthDate = new Date(`${birthDateRaw}T00:00:00`);
   if (Number.isNaN(birthDate.getTime()))
-    return { status: "error", message: "Revisá la fecha de nacimiento." };
+    return formError(formData, "Revisá la fecha de nacimiento.", "birth_date");
   const age = ageFrom(birthDate);
   if (age < 14 || age > 90)
-    return { status: "error", message: "Revisá la fecha de nacimiento." };
+    return formError(formData, "Revisá la fecha de nacimiento.", "birth_date");
   const isMinor = age < 18;
   // Menores: perfil de comunidad oculto y no modificable (docs/10 §9.2).
   const communityOptIn = wantsCommunity && !isMinor;
 
   const admin = getSupabaseAdmin();
   if (!admin)
-    return {
-      status: "error",
-      message: "El registro no está disponible en este momento. Probá más tarde.",
-    };
+    return formError(formData, "El registro no está disponible en este momento. Probá más tarde.");
 
   // 1. Usuario de auth, pre-confirmado.
   const { data: created, error: createError } =
@@ -125,18 +120,16 @@ export async function registerStudent(
 
   if (createError || !created.user) {
     if (createError?.code === "email_exists") {
-      return {
-        status: "error",
-        message: inviteToken
+      return formError(
+        formData,
+        inviteToken
           ? "Ese mail ya tiene cuenta en EstuRed. Iniciá sesión y activamos tu estadía con este mismo enlace."
           : "Ya existe una cuenta con ese email. Podés iniciar sesión.",
-      };
+        inviteToken ? undefined : "email",
+      );
     }
     console.error("[register] createUser failed:", createError?.message);
-    return {
-      status: "error",
-      message: "No pudimos crear tu cuenta. Intentá de nuevo en unos minutos.",
-    };
+    return formError(formData, "No pudimos crear tu cuenta. Intentá de nuevo en unos minutos.");
   }
 
   const userId = created.user.id;
@@ -225,10 +218,7 @@ export async function registerStudent(
   } catch (error) {
     console.error("[register] rollback, insert failed:", error);
     await admin.auth.admin.deleteUser(userId).catch(() => {});
-    return {
-      status: "error",
-      message: "No pudimos completar el registro. Intentá de nuevo en unos minutos.",
-    };
+    return formError(formData, "No pudimos completar el registro. Intentá de nuevo en unos minutos.");
   }
 
   // 3. Iniciar sesión y entrar al área de estudiante.

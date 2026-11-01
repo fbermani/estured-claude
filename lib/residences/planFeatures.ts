@@ -1,7 +1,7 @@
 /**
  * División de funciones entre Perfil Verificado y Plan Premium (Gestión Operativa) — DR17 (docs/00 §31).
  * Fuente única para la landing /for-residences, la página de planes del panel y el remarcado Premium.
- * Es solo comunicación: ninguna función se bloquea (D8, todo gratis en el MVP).
+ * Es solo comunicación: ninguna función se bloquea (D8). Nomenclatura: DR23 (Plan Gratuito = Perfil Verificado; Plan Premium = Gestión Operativa).
  */
 export type PlanFeature = { label: string; detail: string; icon: string };
 

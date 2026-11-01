@@ -34,11 +34,19 @@ import {
   type SearchParamsInput,
 } from "@/lib/residences/searchFilters";
 
-export const metadata: Metadata = {
-  title: "Buscar residencias en CABA",
-  description:
-    "Explorá residencias estudiantiles verificadas en CABA. Filtrá por barrio, universidad, servicios y precio.",
-};
+const SEARCH_DESCRIPTION = "Explorá residencias estudiantiles verificadas en CABA. Filtrá por barrio, universidad, servicios y precio.";
+
+export async function generateMetadata({ searchParams }: { searchParams: Promise<SearchParamsInput> }): Promise<Metadata> {
+  const params = await searchParams;
+  // Cualquier query param (filtros, orden, vista, paginado, ingreso) = variante no indexable; el canonical apunta a /search.
+  const hasParams = Object.values(params).some((v) => (Array.isArray(v) ? v.length > 0 : v !== undefined && v !== ""));
+  return {
+    title: "Buscar residencias en CABA",
+    description: SEARCH_DESCRIPTION,
+    alternates: { canonical: "/search" },
+    ...(hasParams ? { robots: { index: false, follow: true } } : {}),
+  };
+}
 export const dynamic = "force-dynamic";
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<SearchParamsInput> }) {

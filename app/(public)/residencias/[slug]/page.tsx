@@ -61,6 +61,7 @@ import { CommunitySummary } from "@/components/residences/ficha/CommunitySummary
 import { RequestPanel } from "@/components/residences/ficha/RequestPanel";
 import { RequestSheet } from "@/components/residences/ficha/RequestSheet";
 import { describeAgeRange } from "@/lib/residences/age";
+import { SITE_URL } from "@/lib/siteUrl";
 
 export const dynamic = "force-dynamic";
 
@@ -195,8 +196,28 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const data = await loadResidence(slug);
-  if (!data) return { title: "Residencia no encontrada" };
-  return { title: data.residence.name };
+  if (!data) return { title: "Residencia no encontrada", robots: { index: false, follow: false } };
+  const { residence, photos } = data;
+  const zone = (residence.public_area as string | null)?.trim();
+  const description = zone
+    ? `${residence.name}: residencia estudiantil verificada en ${zone}, CABA. Mirá fotos, servicios y reglas, y enviá tu solicitud.`
+    : `${residence.name}: residencia estudiantil verificada en CABA. Mirá fotos, servicios y reglas, y enviá tu solicitud.`;
+  const path = `/residencias/${slug}`;
+  const image = photos[0]?.url;
+  return {
+    title: residence.name,
+    description,
+    alternates: { canonical: path },
+    openGraph: {
+      type: "website",
+      siteName: "EstuRed",
+      locale: "es_AR",
+      url: path,
+      title: residence.name,
+      description,
+      ...(image ? { images: [{ url: image }] } : {}),
+    },
+  };
 }
 
 export default async function RealResidenceDetailPage({
@@ -463,6 +484,25 @@ export default async function RealResidenceDetailPage({
 
   return (
     <ReservationSelectionProvider initialRoomTypeId={preselectedRoomTypeId} initialSheet={initialSheet}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "LodgingBusiness",
+            name: residence.name,
+            url: `${SITE_URL}/residencias/${slug}`,
+            address: {
+              "@type": "PostalAddress",
+              ...(addressLine ? { streetAddress: addressLine } : {}),
+              addressLocality: residence.public_area || "Ciudad Autónoma de Buenos Aires",
+              addressRegion: "CABA",
+              addressCountry: "AR",
+            },
+            ...(photos[0]?.url ? { image: photos[0].url } : {}),
+          }).replace(/</g, "\\u003c"),
+        }}
+      />
       <div className="mx-auto max-w-6xl px-4 pb-10 pt-6 sm:px-6 sm:pb-14">
         <nav aria-label="Ruta de navegación" className="mb-4 text-sm text-ink-faint">
           <ol className="flex flex-wrap items-center gap-1.5">

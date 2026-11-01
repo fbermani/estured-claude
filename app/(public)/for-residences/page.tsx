@@ -64,7 +64,7 @@ export default function ForResidencesPage() {
             <p className="mt-5 text-lg text-forest-tint">
               EstuRed no reemplaza tu operación: la ordena. Menos consultas
               repetidas, solicitudes completas, lista de espera y renovaciones
-              con un proceso claro. Hoy, sin costo para las residencias verificadas.
+              con un proceso claro. Perfil Verificado gratuito.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button href="/register/residence" size="lg" variant="secondary">
@@ -155,8 +155,8 @@ export default function ForResidencesPage() {
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
           <SectionHeader
             eyebrow="Planes"
-            title="Hoy, todo sin costo"
-            description="Mientras armamos la red, todas las herramientas son gratis para las residencias verificadas."
+            title="Dos planes, uno para empezar"
+            description="Perfil Verificado es gratuito. Plan Premium, bonificado el primer año para Residencias fundadoras."
           />
           <div className="grid gap-6 md:grid-cols-2">
             <Reveal>
@@ -175,14 +175,14 @@ export default function ForResidencesPage() {
             <Reveal delay={1}>
             <Card interactive className="h-full border-forest p-8">
               <div className="flex flex-wrap items-center gap-2">
-                <Badge tone="amber">Gestión Operativa</Badge>
-                <Badge tone="sage">Incluido hoy</Badge>
+                <Badge tone="amber">Plan Premium</Badge>
+                <Badge tone="sage">Bonificado el 1er año</Badge>
               </div>
               <h3 className="mt-3 text-2xl font-bold text-ink">
-                Plan Premium bonificado el primer año para Residencias fundadoras
+                Plan Premium
               </h3>
               <p className="mt-2 text-sm text-ink-soft">
-                Todo lo del Perfil Verificado, más la gestión de tus habitaciones,
+                Todo lo del Perfil Verificado, más la Gestión Operativa: habitaciones,
                 plazas, residentes, comunidad y renovaciones.
               </p>
               <HoverFeatureList items={PREMIUM_FEATURES} icon="check_circle" tone="orange" className="mt-6 text-sm" />
@@ -190,8 +190,7 @@ export default function ForResidencesPage() {
             </Reveal>
           </div>
           <p className="mt-6 text-center text-xs text-ink-faint">
-            Si te sumás como Residencia fundadora, tu primer año de Plan Premium
-            está bonificado.
+            Plan Premium bonificado el primer año para Residencias fundadoras.
           </p>
         </div>
       </section>

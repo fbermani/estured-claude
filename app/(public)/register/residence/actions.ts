@@ -6,10 +6,11 @@ import { redirect } from "next/navigation";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { createAuditLog } from "@/lib/audit";
+import { formError, type RegisterFormState } from "@/app/(public)/register/formState";
 import { PROPERTY_TYPE_OPTIONS, BARRIO_OPTIONS } from "@/lib/residences/options";
 import { saveResidencePrivateDetails } from "@/lib/residences/privateDetails";
 
-export type RegisterResidenceState = { status: "idle" | "error"; message?: string };
+export type RegisterResidenceState = RegisterFormState;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const CONSENT_VERSION = "v0.1-borrador";
@@ -54,33 +55,27 @@ export async function registerResidence(
   const acceptResponsibility = formData.get("accept_responsibility") === "on";
 
   if (!responsibleName || responsibleName.length > 120)
-    return { status: "error", message: "Contanos el nombre del responsable." };
+    return formError(formData, "Contanos el nombre del responsable.", "responsible_name");
   if (!residenceName || residenceName.length > 160)
-    return { status: "error", message: "Contanos el nombre de la residencia." };
+    return formError(formData, "Contanos el nombre de la residencia.", "residence_name");
   if (!PROPERTY_TYPES.has(propertyType as (typeof PROPERTY_TYPE_OPTIONS)[number]["value"]))
-    return { status: "error", message: "Elegí un tipo de propiedad válido." };
+    return formError(formData, "Elegí un tipo de propiedad válido.", "property_type");
   if (!BARRIOS.has(zone))
-    return { status: "error", message: "Elegí un barrio de CABA válido." };
+    return formError(formData, "Elegí un barrio de CABA válido.", "zone");
   if (!addressLine || addressLine.length > 200)
-    return { status: "error", message: "Contanos la dirección completa." };
+    return formError(formData, "Contanos la dirección completa.", "address_line");
   if (!EMAIL_RE.test(email) || email.length > 254)
-    return { status: "error", message: "Revisá el email: no parece válido." };
+    return formError(formData, "Revisá el email: no parece válido.", "email");
   if (!/^[+0-9()\-\s]{6,25}$/.test(phone))
-    return { status: "error", message: "Revisá el teléfono: usá números, espacios o «+»." };
+    return formError(formData, "Revisá el teléfono: usá números, espacios o «+».", "phone");
   const passwordError = validatePassword(password);
-  if (passwordError) return { status: "error", message: passwordError };
+  if (passwordError) return formError(formData, passwordError, "password");
   if (!acceptTerms || !acceptResponsibility)
-    return {
-      status: "error",
-      message: "Necesitamos que aceptes los términos y la responsabilidad como residencia.",
-    };
+    return formError(formData, "Necesitamos que aceptes los términos y la responsabilidad como residencia.");
 
   const admin = getSupabaseAdmin();
   if (!admin)
-    return {
-      status: "error",
-      message: "El registro no está disponible en este momento. Probá más tarde.",
-    };
+    return formError(formData, "El registro no está disponible en este momento. Probá más tarde.");
 
   const { data: created, error: createError } = await admin.auth.admin.createUser({
     email,
@@ -91,16 +86,10 @@ export async function registerResidence(
 
   if (createError || !created.user) {
     if (createError?.code === "email_exists") {
-      return {
-        status: "error",
-        message: "Ya existe una cuenta con ese email. Podés iniciar sesión.",
-      };
+      return formError(formData, "Ya existe una cuenta con ese email. Podés iniciar sesión.", "email");
     }
     console.error("[register-residence] createUser failed:", createError?.message);
-    return {
-      status: "error",
-      message: "No pudimos crear tu cuenta. Intentá de nuevo en unos minutos.",
-    };
+    return formError(formData, "No pudimos crear tu cuenta. Intentá de nuevo en unos minutos.");
   }
 
   const userId = created.user.id;
@@ -193,10 +182,7 @@ export async function registerResidence(
   } catch (error) {
     console.error("[register-residence] rollback, insert failed:", error);
     await admin.auth.admin.deleteUser(userId).catch(() => {});
-    return {
-      status: "error",
-      message: "No pudimos completar el registro. Intentá de nuevo en unos minutos.",
-    };
+    return formError(formData, "No pudimos completar el registro. Intentá de nuevo en unos minutos.");
   }
 
   const supabase = await getSupabaseServer();

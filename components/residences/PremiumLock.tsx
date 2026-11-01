@@ -18,7 +18,7 @@ export function PremiumTag({ className = "", compact = false }: { className?: st
   );
 }
 
-/** Aviso «Esta función es del Plan Premium» con CTA al comparador de planes. */
+/** Aviso «Función Premium · hoy bonificada» con CTA al comparador de planes. */
 export function PremiumNotice({
   residenceId,
   feature,
@@ -38,16 +38,16 @@ export function PremiumNotice({
         <Icon name="lock" className="text-xl" />
       </span>
       <div className="min-w-0 flex-1 text-sm text-orange-700">
-        <p className="font-extrabold">Esta función es del Plan Premium</p>
+        <p className="font-extrabold">Función Premium · hoy bonificada</p>
         <p className="mt-0.5">
-          {feature} forma parte de la Gestión Operativa. Por ahora podés usarla sin costo; te mostramos qué incluye cada plan.
+          {feature} es parte de la Gestión Operativa del Plan Premium.
         </p>
       </div>
       <Link
         href={`/residence/${residenceId}/plan`}
         className="shrink-0 rounded-full bg-forest px-4 py-2 text-sm font-bold text-white hover:bg-forest-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
       >
-        Conocé el Plan Premium
+        Ver planes
       </Link>
     </div>
   );

@@ -7,7 +7,7 @@ import { PARAM_NAMES, type FilterGroupKey, type SearchFilters, type SortKey, typ
 
 /**
  * Filtros estilo Booking de /search (propuesta B, 2026-10-29): columna a la izquierda en desktop y hoja a pantalla
- * completa en mobile. Cada cambio actualiza los query params (`router.replace`, sin scroll, dentro de una transición) y
+ * completa en mobile. Cada cambio actualiza los query params (`router.push` para que Atrás/Adelante recorra los pasos, sin scroll, dentro de una transición) y
  * el servidor vuelve a calcular resultados y contadores; no hay botón «aplicar». El presupuesto se aplica al soltar el
  * control. Los resultados llegan como `children` (Server Components).
  */
@@ -60,7 +60,7 @@ export function SearchShell({ groups, filters, bounds, histogram, promoCount, mi
     mutate(p);
     const qs = p.toString();
     pendingQs.current = qs;
-    startTransition(() => router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false }));
+    startTransition(() => router.push(qs ? `${pathname}?${qs}` : pathname, { scroll: false }));
   };
   const setList = (p: URLSearchParams, key: FilterGroupKey, list: string[]) => {
     if (list.length > 0) p.set(PARAM_NAMES[key], list.join(","));

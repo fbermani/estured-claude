@@ -70,10 +70,15 @@ export default async function ResidenceOverviewPage({
     .eq("id", residenceId)
     .maybeSingle();
   if (!residence) notFound();
-  const hasPremium = await hasOperationalManagementAccess(admin, residenceId);
+  // Lecturas independientes entre sí: en paralelo.
+  const [hasPremium, changesMessage, { data: activeRooms }, staleAvailabilityMap] = await Promise.all([
+    hasOperationalManagementAccess(admin, residenceId),
+    residence.status === "needs_changes" ? loadChangesMessage(admin, residenceId) : Promise.resolve(null),
+    admin.from("rooms").select("id").eq("residence_id", residenceId).eq("is_active", true),
+    getStaleAvailabilityByResidence(admin, [residenceId]),
+  ]);
 
   // Onboarding (Ciclo 65): banner + checklist solo si la residencia no está publicada.
-  const changesMessage = residence.status === "needs_changes" ? await loadChangesMessage(admin, residenceId) : null;
   const onboardingCopy = getOnboardingBanner(residence.status, { changesMessage });
   let onboardingChecklist: ReturnType<typeof buildOnboardingChecklist> = [];
   if (onboardingCopy) {
@@ -122,7 +127,6 @@ export default async function ResidenceOverviewPage({
     });
   }
 
-  const { data: activeRooms } = await admin.from("rooms").select("id").eq("residence_id", residenceId).eq("is_active", true);
   const roomIds = (activeRooms ?? []).map((room) => room.id);
 
   const [
@@ -173,7 +177,7 @@ export default async function ResidenceOverviewPage({
     recentApplications.filter((a) => a.status === "converted_to_reservation").map((a) => a.id),
   );
   // H23: aviso cuando hay tipos de habitación con disponibilidad vencida u ocultos de las búsquedas.
-  const staleAvailability = (await getStaleAvailabilityByResidence(admin, [residenceId])).get(residenceId);
+  const staleAvailability = staleAvailabilityMap.get(residenceId);
   const availabilityNotice = staleAvailabilityMessage(staleAvailability);
   const capacity = capacityCount ?? 0;
   const outOfServiceCount = outOfServiceBedsCount ?? 0;
@@ -376,10 +380,10 @@ export default async function ResidenceOverviewPage({
             <div className="min-w-0 flex-1">
               <p className="flex items-center gap-2 text-sm font-extrabold text-orange-700">
                 <Icon name="lock" className="text-lg" />
-                Esta función es del Plan Premium
+                Función Premium · hoy bonificada
               </p>
               <p className="mt-1 text-sm text-orange-700">
-                Tu residencia tiene el Perfil Verificado. La Gestión Operativa es parte del Plan Premium; por ahora podés usarla sin costo.
+                Tu residencia tiene el Perfil Verificado (gratuito). La Gestión Operativa es parte del Plan Premium.
               </p>
               <ul className="mt-3 flex flex-wrap gap-2">
                 {PREMIUM_FEATURES.map((f) => (
@@ -394,7 +398,7 @@ export default async function ResidenceOverviewPage({
               href={`/residence/${residenceId}/plan`}
               className="shrink-0 rounded-full bg-forest px-4 py-2 text-sm font-bold text-white hover:bg-forest-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
             >
-              Conocé el Plan Premium
+              Ver planes
             </Link>
           </div>
         </section>

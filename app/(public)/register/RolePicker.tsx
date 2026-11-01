@@ -34,7 +34,7 @@ const ROLES: { id: Role; tone: RoleTone; icon: string; title: string; sub: strin
     icon: "apartment",
     title: "Soy residencia",
     sub: "Quiero sumar mi residencia",
-    includes: ["Tu perfil lo verifica el equipo de EstuRed en persona", "Recibís solicitudes ordenadas", "Hoy, todo sin costo"],
+    includes: ["Tu perfil lo revisa el equipo de EstuRed", "Recibís solicitudes ordenadas", "Perfil Verificado gratuito"],
   },
 ];
 

@@ -103,7 +103,7 @@ export function MoneyFlow() {
               <span className="min-w-[72px] font-display text-[28px] font-extrabold text-forest-700">USD 0</span>
               <p className="text-[14.5px] text-ink-soft">
                 <b className="block text-ink">Publicar y gestionar, hoy</b>
-                Perfil Verificado y Gestión Operativa, sin costo para residencias verificadas.
+                Perfil Verificado (gratuito) y Plan Premium (bonificado el primer año para Residencias fundadoras).
               </p>
             </div>
             <div className="grid grid-cols-[auto_1fr] items-center gap-3.5 rounded-field border border-line bg-paper px-[18px] py-4">

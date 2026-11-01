@@ -6,8 +6,9 @@ import { redirect } from "next/navigation";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { createAuditLog } from "@/lib/audit";
+import { formError, type RegisterFormState } from "@/app/(public)/register/formState";
 
-export type RegisterFamilyState = { status: "idle" | "error"; message?: string };
+export type RegisterFamilyState = RegisterFormState;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const CONSENT_VERSION = "v0.1-borrador";
@@ -39,33 +40,27 @@ export async function registerFamily(
   const acceptPrivacy = formData.get("accept_privacy") === "on";
 
   if (!firstName || firstName.length > 80)
-    return { status: "error", message: "Contanos tu nombre." };
+    return formError(formData, "Contanos tu nombre.", "first_name");
   if (!lastName || lastName.length > 80)
-    return { status: "error", message: "Contanos tu apellido." };
+    return formError(formData, "Contanos tu apellido.", "last_name");
   if (!RELATIONSHIPS.has(relationship))
-    return { status: "error", message: "Elegí tu relación con el estudiante." };
+    return formError(formData, "Elegí tu relación con el estudiante.", "relationship_type");
   if (!/^[+0-9()\-\s]{6,25}$/.test(phone))
-    return { status: "error", message: "Revisá el teléfono: usá números, espacios o «+»." };
+    return formError(formData, "Revisá el teléfono: usá números, espacios o «+».", "phone");
   if (!EMAIL_RE.test(email) || email.length > 254)
-    return { status: "error", message: "Revisá tu email: no parece válido." };
+    return formError(formData, "Revisá tu email: no parece válido.", "email");
   const passwordError = validatePassword(password);
-  if (passwordError) return { status: "error", message: passwordError };
+  if (passwordError) return formError(formData, passwordError, "password");
   if (!EMAIL_RE.test(studentEmail))
-    return { status: "error", message: "Revisá el email del estudiante: no parece válido." };
+    return formError(formData, "Revisá el email del estudiante: no parece válido.", "student_email");
   if (studentEmail === email)
-    return { status: "error", message: "El email del estudiante no puede ser el mismo que el tuyo." };
+    return formError(formData, "El email del estudiante no puede ser el mismo que el tuyo.", "student_email");
   if (!acceptTerms || !acceptPrivacy)
-    return {
-      status: "error",
-      message: "Necesitamos que aceptes los términos y la política de privacidad.",
-    };
+    return formError(formData, "Necesitamos que aceptes los términos y la política de privacidad.");
 
   const admin = getSupabaseAdmin();
   if (!admin)
-    return {
-      status: "error",
-      message: "El registro no está disponible en este momento. Probá más tarde.",
-    };
+    return formError(formData, "El registro no está disponible en este momento. Probá más tarde.");
 
   // Buscar al estudiante ANTES de crear la cuenta del familiar — evita
   // dejar cuentas huérfanas si el email no corresponde a un estudiante.
@@ -75,11 +70,7 @@ export async function registerFamily(
     .eq("email", studentEmail)
     .maybeSingle();
   if (!studentUser) {
-    return {
-      status: "error",
-      message:
-        "No encontramos una cuenta de estudiante con ese email. Pedile que se registre primero en EstuRed.",
-    };
+    return formError(formData, "No encontramos una cuenta de estudiante con ese email. Pedile que se registre primero en EstuRed.", "student_email");
   }
   const { data: studentProfile } = await admin
     .from("student_profiles")
@@ -87,7 +78,7 @@ export async function registerFamily(
     .eq("user_id", studentUser.id)
     .maybeSingle();
   if (!studentProfile) {
-    return { status: "error", message: "Esa cuenta no tiene un perfil de estudiante válido." };
+    return formError(formData, "Esa cuenta no tiene un perfil de estudiante válido.", "student_email");
   }
   const { data: activeLink } = await admin
     .from("family_links")
@@ -96,10 +87,7 @@ export async function registerFamily(
     .eq("status", "active")
     .maybeSingle();
   if (activeLink) {
-    return {
-      status: "error",
-      message: "Ese estudiante ya tiene un familiar vinculado activo.",
-    };
+    return formError(formData, "Ese estudiante ya tiene un familiar vinculado activo.", "student_email");
   }
 
   const { data: created, error: createError } = await admin.auth.admin.createUser({
@@ -111,16 +99,10 @@ export async function registerFamily(
 
   if (createError || !created.user) {
     if (createError?.code === "email_exists") {
-      return {
-        status: "error",
-        message: "Ya existe una cuenta con ese email. Podés iniciar sesión.",
-      };
+      return formError(formData, "Ya existe una cuenta con ese email. Podés iniciar sesión.", "email");
     }
     console.error("[register-family] createUser failed:", createError?.message);
-    return {
-      status: "error",
-      message: "No pudimos crear tu cuenta. Intentá de nuevo en unos minutos.",
-    };
+    return formError(formData, "No pudimos crear tu cuenta. Intentá de nuevo en unos minutos.");
   }
 
   const userId = created.user.id;
@@ -190,10 +172,7 @@ export async function registerFamily(
   } catch (error) {
     console.error("[register-family] rollback, insert failed:", error);
     await admin.auth.admin.deleteUser(userId).catch(() => {});
-    return {
-      status: "error",
-      message: "No pudimos completar el registro. Intentá de nuevo en unos minutos.",
-    };
+    return formError(formData, "No pudimos completar el registro. Intentá de nuevo en unos minutos.");
   }
 
   const supabase = await getSupabaseServer();

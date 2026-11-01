@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input, Select } from "@/components/ui/Input";
+import { fieldHint, fieldProps, useFocusOnError } from "@/app/(public)/register/useRegisterFormErrors";
 import {
   registerFamily,
   type RegisterFamilyState,
@@ -20,15 +21,16 @@ const RELATIONSHIP_OPTIONS = [
 
 export function RegisterFamilyForm() {
   const [state, formAction, isPending] = useActionState(registerFamily, initialState);
+  const { formRef, alertRef } = useFocusOnError(state);
 
   return (
     <Card className="p-8">
-      <form action={formAction} className="flex flex-col gap-5">
+      <form ref={formRef} action={formAction} className="flex flex-col gap-5">
         <div className="grid gap-5 sm:grid-cols-2">
-          <Input label="Nombre" id="rf-first-name" name="first_name" autoComplete="given-name" maxLength={80} required />
-          <Input label="Apellido" id="rf-last-name" name="last_name" autoComplete="family-name" maxLength={80} required />
+          <Input label="Nombre" id="rf-first-name" name="first_name" autoComplete="given-name" maxLength={80} required {...fieldProps(state, "first_name", "rf")} hint={fieldHint(state, "first_name", "rf", undefined)} />
+          <Input label="Apellido" id="rf-last-name" name="last_name" autoComplete="family-name" maxLength={80} required {...fieldProps(state, "last_name", "rf")} hint={fieldHint(state, "last_name", "rf", undefined)} />
         </div>
-        <Select label="Tu relación con el estudiante" id="rf-relationship" name="relationship_type" required defaultValue="">
+        <Select label="Tu relación con el estudiante" id="rf-relationship" name="relationship_type" required {...fieldProps(state, "relationship_type", "rf")} hint={fieldHint(state, "relationship_type", "rf", undefined)} >
           <option value="" disabled>
             Elegí una opción
           </option>
@@ -39,8 +41,8 @@ export function RegisterFamilyForm() {
           ))}
         </Select>
         <div className="grid gap-5 sm:grid-cols-2">
-          <Input label="Tu email" id="rf-email" name="email" type="email" autoComplete="email" required />
-          <Input label="Tu teléfono" id="rf-phone" name="phone" type="tel" autoComplete="tel" required />
+          <Input label="Tu email" id="rf-email" name="email" type="email" autoComplete="email" required {...fieldProps(state, "email", "rf")} hint={fieldHint(state, "email", "rf", undefined)} />
+          <Input label="Tu teléfono" id="rf-phone" name="phone" type="tel" autoComplete="tel" required {...fieldProps(state, "phone", "rf")} hint={fieldHint(state, "phone", "rf", undefined)} />
         </div>
         <Input
           label="Contraseña"
@@ -49,9 +51,7 @@ export function RegisterFamilyForm() {
           type="password"
           autoComplete="new-password"
           minLength={8}
-          hint="Mínimo 8 caracteres."
-          required
-        />
+          required {...fieldProps(state, "password", "rf", undefined, false)} hint={fieldHint(state, "password", "rf", "Mínimo 8 caracteres.")} />
 
         <div className="rounded-field bg-sand-100 p-4">
           <Input
@@ -60,9 +60,7 @@ export function RegisterFamilyForm() {
             name="student_email"
             type="email"
             placeholder="El email con el que se registró en EstuRed"
-            hint="Tiene que tener una cuenta creada. Le vamos a pedir que apruebe el vínculo antes de que puedas ver nada."
-            required
-          />
+            required {...fieldProps(state, "student_email", "rf")} hint={fieldHint(state, "student_email", "rf", "Tiene que tener una cuenta creada. Le vamos a pedir que apruebe el vínculo antes de que puedas ver nada.")} />
         </div>
 
         <div className="flex flex-col gap-3 rounded-field bg-sand-100 p-4">
@@ -84,7 +82,7 @@ export function RegisterFamilyForm() {
         </div>
 
         {state.status === "error" && (
-          <p role="alert" className="rounded-field bg-danger-bg px-4 py-3 text-sm font-medium text-danger-fg">
+          <p role="alert" ref={alertRef} tabIndex={-1} className="rounded-field bg-danger-bg px-4 py-3 text-sm font-medium text-danger-fg focus:outline-2 focus:outline-danger-fg">
             {state.message}
           </p>
         )}

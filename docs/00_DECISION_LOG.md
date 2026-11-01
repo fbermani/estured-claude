@@ -1441,3 +1441,12 @@ Supuestos reversibles que el dueño no fijó: (a) **«cambiar la cama de un resi
 **E. A definir con el dueño (no inventado).** Campos del formulario de solicitud de alta; estados de la solicitud (y su relación con los estados oficiales de `docs/04`); quién del equipo contacta; plazo de respuesta/visita; si el borrador de ficha es visible para la residencia; cómo se entrega la cuenta (invitación por enlace de un uso vs. creación por el admin); textos de hero y de la tabla «Con EstuRed vs. por fuera».
 
 **Docs a actualizar al implementar:** `docs/04` (si hay estados nuevos), `docs/05`/`docs/06` (tabla de solicitudes de alta), `docs/08` §3 (rutas), `docs/09`/`docs/11` (flujo y copy), `PROJECT.md`, `GAPS.md`.
+
+### DR23: nomenclatura de planes de residencias (2026-11-01)
+
+Decisión del dueño. Se unifica el nombre de los planes en toda la UI y los docs:
+- **Plan Gratuito = Perfil Verificado.**
+- **Plan Premium = Gestión Operativa**, bonificado el primer año para las Residencias fundadoras (DR12).
+- «Gestión Operativa» queda **solo como nombre de las funciones** (habitaciones, plazas, residentes, comunidad, renovaciones), nunca como nombre de plan.
+- Banners y candados: «Función Premium · hoy bonificada». No se menciona precio futuro, fecha de fin ni renovación; el primer año se dice como en DR12 / `PLAN_PRICE_NOTE`.
+- No cambia la lógica de acceso Premium (D8/DR17).

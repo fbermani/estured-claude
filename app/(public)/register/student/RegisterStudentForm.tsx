@@ -5,6 +5,7 @@ import { Icon } from "@/components/ui/Icon";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input, Select } from "@/components/ui/Input";
+import { fieldHint, fieldProps, useFocusOnError } from "@/app/(public)/register/useRegisterFormErrors";
 import {
   registerStudent,
   type RegisterState,
@@ -30,13 +31,14 @@ export function RegisterStudentForm({
     registerStudent,
     initialState,
   );
+  const { formRef, alertRef } = useFocusOnError(state);
 
   const [birthDate, setBirthDate] = useState("");
   const showMinorNotice = birthDate !== "" && isUnder18(birthDate);
 
   return (
     <Card className="p-8">
-      <form action={formAction} className="flex flex-col gap-5">
+      <form ref={formRef} action={formAction} className="flex flex-col gap-5">
         {invite && <input type="hidden" name="invite" value={invite.token} />}
         <p className="text-sm text-ink-soft">
           Paso 1 de 2 — lo justo para crear tu cuenta. El resto de tu perfil (universidad, nacionalidad,
@@ -49,27 +51,25 @@ export function RegisterStudentForm({
             name="first_name"
             autoComplete="given-name"
             maxLength={80}
-            required
-          />
+            required {...fieldProps(state, "first_name", "reg")} hint={fieldHint(state, "first_name", "reg", undefined)} />
           <Input
             label="Apellido"
             id="reg-last-name"
             name="last_name"
             autoComplete="family-name"
             maxLength={80}
-            hint="Privado — solo se muestra tu inicial."
-            required
-          />
+            required {...fieldProps(state, "last_name", "reg")} hint={fieldHint(state, "last_name", "reg", "Privado — solo se muestra tu inicial.")} />
         </div>
         <Input
           label="Fecha de nacimiento"
           id="reg-birth-date"
           name="birth_date"
           type="date"
-          hint="Privada. Si sos menor de 18, te vamos a pedir un familiar vinculado para enviar solicitudes."
           value={birthDate}
           onChange={(e) => setBirthDate(e.target.value)}
           required
+          {...fieldProps(state, "birth_date", "reg", undefined, false)}
+          hint={fieldHint(state, "birth_date", "reg", "Privada. Si sos menor de 18, te vamos a pedir un familiar vinculado para enviar solicitudes.")}
         />
         {showMinorNotice && (
           <p
@@ -102,8 +102,7 @@ export function RegisterStudentForm({
               type="email"
               autoComplete="email"
               placeholder="tu@email.com"
-              required
-            />
+              required {...fieldProps(state, "email", "reg")} hint={fieldHint(state, "email", "reg", undefined)} />
           )}
           <Input
             label="Teléfono / WhatsApp"
@@ -112,9 +111,7 @@ export function RegisterStudentForm({
             type="tel"
             autoComplete="tel"
             placeholder="+54 9 11 ..."
-            hint="Privado. Necesario para coordinar tu solicitud."
-            required
-          />
+            required {...fieldProps(state, "phone", "reg")} hint={fieldHint(state, "phone", "reg", "Privado. Necesario para coordinar tu solicitud.")} />
         </div>
         <Input
           label="Contraseña"
@@ -123,9 +120,7 @@ export function RegisterStudentForm({
           type="password"
           autoComplete="new-password"
           minLength={8}
-          hint="Mínimo 8 caracteres."
-          required
-        />
+          required {...fieldProps(state, "password", "reg", undefined, false)} hint={fieldHint(state, "password", "reg", "Mínimo 8 caracteres.")} />
 
         <div className="flex flex-col gap-3 rounded-field bg-sand-100 p-4">
           <label className="flex items-start gap-3 text-sm text-ink">
@@ -185,14 +180,14 @@ export function RegisterStudentForm({
 
 
         {!invite && (
-          <details className="group rounded-field border border-line-2 p-4">
+          <details className="group rounded-field border border-line-2 p-4" open={!!(state.values?.link_residence_id || state.values?.missing_residence_name) || undefined}>
             <summary className="flex min-h-11 cursor-pointer items-center gap-2 text-sm font-semibold text-ink">
               <Icon name="apartment" className="text-xl text-forest-700" />
               Ya vivo en una residencia <span className="font-normal text-ink-faint">(opcional)</span>
             </summary>
             <div className="mt-3 flex flex-col gap-4">
               {residences.length > 0 && (
-                <Select label="Mi residencia" id="reg-link-residence" name="link_residence_id" defaultValue="">
+                <Select label="Mi residencia" id="reg-link-residence" name="link_residence_id" {...fieldProps(state, "link_residence_id", "reg")} hint={fieldHint(state, "link_residence_id", "reg", undefined)} >
                   <option value="">Elegí una…</option>
                   {residences.map((r) => (
                     <option key={r.id} value={r.id}>
@@ -202,16 +197,14 @@ export function RegisterStudentForm({
                   ))}
                 </Select>
               )}
-              <details>
+              <details open={!!state.values?.missing_residence_name || undefined}>
                 <summary className="min-h-11 cursor-pointer text-sm font-semibold text-ink-soft hover:text-ink">Mi residencia no está en la lista</summary>
                 <div className="mt-2">
                   <Input
                     label="Nombre de tu residencia"
                     id="reg-missing-name"
                     name="missing_residence_name"
-                    maxLength={120}
-                    hint="Si no la elegiste arriba. Lo registramos para que el equipo de EstuRed pueda invitarla."
-                  />
+                    maxLength={120} {...fieldProps(state, "missing_residence_name", "reg")} hint={fieldHint(state, "missing_residence_name", "reg", "Si no la elegiste arriba. Lo registramos para que el equipo de EstuRed pueda invitarla.")} />
                 </div>
               </details>
               <p className="flex items-start gap-2 text-xs leading-relaxed text-ink-faint">
@@ -225,7 +218,9 @@ export function RegisterStudentForm({
         {state.status === "error" && (
           <p
             role="alert"
-            className="rounded-field bg-danger-bg px-4 py-3 text-sm font-medium text-danger-fg"
+            ref={alertRef}
+            tabIndex={-1}
+            className="rounded-field bg-danger-bg px-4 py-3 text-sm font-medium text-danger-fg focus:outline-2 focus:outline-danger-fg"
           >
             {state.message}
           </p>

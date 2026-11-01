@@ -89,7 +89,7 @@ const audiences: Array<
     icon: "apartment",
     who: "Residencias",
     promise: "Recibí solicitudes completas, no consultas repetidas.",
-    badge: "Hoy, sin costo para residencias verificadas",
+    badge: "Perfil Verificado gratuito",
     perks: [
       { icon: "inbox", title: "Menos preguntas de siempre", text: "La ficha responde por vos." },
       { icon: "how_to_reg", title: "Vos decidís a quién aceptar", text: "Con el perfil a la vista." },
@@ -149,6 +149,16 @@ export default async function HomePage() {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: faqs.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+          }).replace(/</g, "\\u003c"),
+        }}
+      />
       {/* Hero (propuesta B: buscador mock + cinta de residencias reales) */}
       <HomeHero residences={catalog} />
 

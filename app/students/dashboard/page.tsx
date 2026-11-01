@@ -480,28 +480,43 @@ export default async function StudentDashboardPage() {
       }
     }
 
-    const { data } = await supabase
-      .from("family_links")
-      .select("id, status, family_members(first_name, last_name, relationship_type)")
-      .order("created_at", { ascending: false });
+    // Lecturas independientes entre sí: en paralelo.
+    const [
+      { data },
+      { count },
+      { data: reservationData, error: reservationError },
+      { data: appRows },
+      { data: waitlistRows },
+    ] = await Promise.all([
+      supabase
+        .from("family_links")
+        .select("id, status, family_members(first_name, last_name, relationship_type)")
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("family_application_proposals")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "pending_student_approval")
+        .gt("expires_at", new Date().toISOString()),
+      supabase
+        .from("reservations")
+        .select(
+          "id, start_date, initial_duration_months, booking_receipt_id, residences(id, name, public_area, slug, minimum_stay_months), room_types(name), application_snapshots(monthly_price_usd)",
+        )
+        .eq("status", "confirmed")
+        .order("confirmed_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      supabase
+        .from("application_requests")
+        .select("id, status, created_at, residences(name), room_types(name)")
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("waitlist_entries")
+        .select("id, status")
+        .in("status", ["active", "availability_notification_sent", "retention_check_sent"]),
+    ]);
     studentLinks = (data as unknown as StudentLinkRow[]) ?? [];
-
-    const { count } = await supabase
-      .from("family_application_proposals")
-      .select("*", { count: "exact", head: true })
-      .eq("status", "pending_student_approval")
-      .gt("expires_at", new Date().toISOString());
     pendingProposalsCount = count ?? 0;
-
-    const { data: reservationData, error: reservationError } = await supabase
-      .from("reservations")
-      .select(
-        "id, start_date, initial_duration_months, booking_receipt_id, residences(id, name, public_area, slug, minimum_stay_months), room_types(name), application_snapshots(monthly_price_usd)",
-      )
-      .eq("status", "confirmed")
-      .order("confirmed_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
     if (reservationError) console.error("[students/dashboard] reservation lookup failed:", reservationError);
     reservation = reservationData as unknown as ReservationRow | null;
 
@@ -517,18 +532,20 @@ export default async function StudentDashboardPage() {
       ]);
       contract = contracts.get(reservation.id) ?? null;
 
-      const { data: renewalRequest } = await supabase
-        .from("renewal_requests")
-        .select("id, status")
-        .eq("reservation_id", reservation.id)
-        .order("created_at", { ascending: false })
-        .maybeSingle();
-      const { data: renewalOffer } = await supabase
-        .from("renewal_offers")
-        .select("id, status")
-        .eq("reservation_id", reservation.id)
-        .order("created_at", { ascending: false })
-        .maybeSingle();
+      const [{ data: renewalRequest }, { data: renewalOffer }] = await Promise.all([
+        supabase
+          .from("renewal_requests")
+          .select("id, status")
+          .eq("reservation_id", reservation.id)
+          .order("created_at", { ascending: false })
+          .maybeSingle(),
+        supabase
+          .from("renewal_offers")
+          .select("id, status")
+          .eq("reservation_id", reservation.id)
+          .order("created_at", { ascending: false })
+          .maybeSingle(),
+      ]);
       if (renewalOffer && ["sent", "viewed"].includes(renewalOffer.status)) {
         renewalStatus = { label: "La residencia te envió una oferta de renovación", tone: "amber" };
       } else if (
@@ -556,10 +573,6 @@ export default async function StudentDashboardPage() {
       }
     }
 
-    const { data: appRows } = await supabase
-      .from("application_requests")
-      .select("id, status, created_at, residences(name), room_types(name)")
-      .order("created_at", { ascending: false });
     applications = (appRows as unknown as ApplicationSummaryRow[]) ?? [];
     // H01: estado visible = solicitud + reserva asociada (la reserva manda).
     reservationInfoByAppId = await loadReservationInfoByApplication(
@@ -567,10 +580,6 @@ export default async function StudentDashboardPage() {
       applications.filter((a) => a.status === "converted_to_reservation").map((a) => a.id),
     );
 
-    const { data: waitlistRows } = await supabase
-      .from("waitlist_entries")
-      .select("id, status")
-      .in("status", ["active", "availability_notification_sent", "retention_check_sent"]);
     waitlistCount = waitlistRows?.length ?? 0;
     waitlistNeedsAction = (waitlistRows ?? []).some((w) => w.status !== "active");
   }
@@ -1024,17 +1033,17 @@ export default async function StudentDashboardPage() {
                   </span>
                   <div className="min-w-0">
                     <p className="font-display font-bold text-ink">Renovaciones</p>
-                    <p className="truncate text-xs text-ink-faint">{renewalStatus ? renewalStatus.label : "Sin renovación en curso"}</p>
+                    <p className="break-words text-xs text-ink-faint">{renewalStatus ? renewalStatus.label : "Sin renovación en curso"}</p>
                   </div>
                 </div>
               }
             >
               <dl className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
-                <div>
+                <div className="min-w-0">
                   <dt className="text-xs text-ink-faint">{contract?.renewedUntil ? "Renovada hasta" : "Fin de contrato"}</dt>
-                  <dd className="font-semibold text-ink">{contractEndLabel}</dd>
+                  <dd className="break-words font-semibold text-ink">{contractEndLabel}</dd>
                 </div>
-                <div>
+                <div className="min-w-0">
                   <dt className="text-xs text-ink-faint">Restante</dt>
                   <dd className="font-semibold text-ink">{remaining > 0 ? `${remaining} días` : "Vencido"}</dd>
                 </div>
@@ -1043,7 +1052,7 @@ export default async function StudentDashboardPage() {
                 {renewalStatus ? (
                   <Link
                     href="/students/renewals"
-                    className="inline-flex items-center gap-2 rounded-full border-[1.5px] border-line px-4 py-2 text-sm font-semibold text-ink hover:border-forest hover:bg-forest-tint"
+                    className="inline-flex max-w-full flex-wrap items-center gap-2 rounded-full border-[1.5px] border-line px-4 py-2 text-center text-sm font-semibold text-ink hover:border-forest hover:bg-forest-tint"
                   >
                     Ver renovaciones
                   </Link>

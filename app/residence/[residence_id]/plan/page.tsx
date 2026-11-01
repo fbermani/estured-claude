@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
 
 /**
  * Planes de la residencia (DR17, docs/00 §31): comparación Perfil Verificado vs Plan Premium (Gestión Operativa).
- * Es una demostración visual: no hay precios ni cobro y nada se bloquea (D8: todo gratis en el MVP).
+ * Es una demostración visual: no hay precios ni cobro y nada se bloquea (D8, DR23).
  */
 export default async function ResidencePlanPage({
   params,
@@ -40,7 +40,7 @@ export default async function ResidencePlanPage({
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
       <h1 className="text-3xl font-bold text-ink">Planes</h1>
       <p className="mt-1 text-ink-soft">
-        Mirá qué incluye cada plan. Hoy todas las funciones se pueden usar sin costo mientras armamos la red.
+        Mirá qué incluye cada plan. Perfil Verificado es gratuito; Plan Premium está bonificado el primer año para Residencias fundadoras.
       </p>
 
       <div className="mt-8 grid gap-6 md:grid-cols-2">
@@ -70,14 +70,14 @@ export default async function ResidencePlanPage({
 
         <Card className={`flex h-full flex-col p-8 ${isPremium ? "border-forest" : ""}`}>
           <div className="flex flex-wrap items-center gap-2">
-            <Badge tone="amber">Gestión Operativa</Badge>
+            <Badge tone="amber">Plan Premium</Badge>
             {isPremium && <Badge tone="petrol">Tu plan actual</Badge>}
           </div>
           <h2 className="mt-3 text-2xl font-bold text-ink">
-            Plan Premium bonificado el primer año para Residencias fundadoras
+            Plan Premium
           </h2>
           <p className="mt-2 text-sm text-ink-soft">
-            Todo lo del Perfil Verificado, más la gestión de tus habitaciones, plazas, residentes, comunidad y renovaciones.
+            Todo lo del Perfil Verificado, más la Gestión Operativa: habitaciones, plazas, residentes, comunidad y renovaciones.
           </p>
           <ul className="mt-6 space-y-3 text-sm">
             {PREMIUM_FEATURES.map((f) => (
@@ -96,17 +96,17 @@ export default async function ResidencePlanPage({
       </div>
 
       <p className="mt-6 text-center text-xs text-ink-faint">
-        Si te sumás como Residencia fundadora, tu primer año de Plan Premium está bonificado. {PLAN_PRICE_NOTE}
+        Plan Premium bonificado el primer año para Residencias fundadoras. {PLAN_PRICE_NOTE}
       </p>
 
       <Card className="mt-8 flex flex-wrap items-center justify-between gap-4 p-6">
         <div className="min-w-0 flex-1">
           <h3 className="text-lg font-bold text-ink">
-            {isPremium ? "Tenés el Plan Premium" : "¿Querés sumar la Gestión Operativa?"}
+            {isPremium ? "Tenés el Plan Premium" : "¿Querés el Plan Premium?"}
           </h3>
           <p className="mt-1 text-sm text-ink-soft">
             {isPremium
-              ? "Tu residencia tiene la Gestión Operativa activa. Si tenés dudas sobre el plan, escribinos."
+              ? "Tu residencia tiene el Plan Premium activo. Si tenés dudas sobre el plan, escribinos."
               : "Escribinos y te contamos cómo sumarla a tu residencia. No pagás nada sin aceptarlo antes."}
           </p>
         </div>
