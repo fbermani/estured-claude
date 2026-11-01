@@ -91,8 +91,8 @@ export function RequestPanel({
               </p>
               {priceArs != null && (
                 <p className="mt-1.5 text-xs text-ink-faint">
-                  ≈ {formatArs(priceArs)} por mes, referencial
-                  <ExchangeRateNote />
+                  ≈ {formatArs(priceArs)} por mes
+                  <ExchangeRateNote showNote />
                 </p>
               )}
             </div>

@@ -161,8 +161,8 @@ export function SearchResultCard({
             </span>
           </p>
           <p className="text-[12.5px] text-ink-faint">
-            ≈ {formatArs(usdToArsRounded(residence.priceFromUsd, arsPerUsd))} referencial
-            <ExchangeRateNote />
+            ≈ {formatArs(usdToArsRounded(residence.priceFromUsd, arsPerUsd))}
+            <ExchangeRateNote showNote />
           </p>
         </div>
         <Link

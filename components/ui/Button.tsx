@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
-type Variant = "primary" | "secondary" | "outline" | "ghost";
+type Variant = "primary" | "secondary" | "outline" | "outline-forest" | "ghost";
 type Size = "sm" | "md" | "lg";
 
 /**
@@ -22,6 +22,9 @@ const variants: Record<Variant, string> = {
   // btn-ghost con borde — secundario.
   outline:
     "border-[1.5px] border-line-2 text-ink hover:border-forest hover:bg-forest-tint bg-paper",
+  // outline con borde forest — secundario junto a un primario (ej. «Crear cuenta» en el header).
+  "outline-forest":
+    "border-[1.5px] border-forest text-forest-700 hover:bg-forest-tint bg-paper",
   // btn-ghost sin borde — terciario.
   ghost: "text-ink-soft hover:bg-cream-2 bg-transparent",
 };

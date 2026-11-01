@@ -7,11 +7,12 @@ import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { BrandMark } from "@/components/ui/BrandMark";
 
+const SEARCH_LINK = { href: "/search", label: "Buscar residencias" };
 const links = [
-  { href: "/search", label: "Buscar residencias" },
   { href: "/for-students", label: "Para estudiantes" },
   { href: "/for-residences", label: "Para residencias" },
 ];
+const mobileLinks = [SEARCH_LINK, ...links];
 
 type SessionHint =
   | { status: "guest" }
@@ -96,7 +97,7 @@ export function Navbar() {
           <BrandMark size={34} />
         </Link>
 
-        <div className="hidden items-center gap-1 md:flex">
+        <div className="hidden items-center gap-1 lg:flex">
           {links.map((link) => (
             <Link
               key={link.href}
@@ -111,20 +112,27 @@ export function Navbar() {
             </Link>
           ))}
           <div
-            className="ml-3 flex min-h-[46px] min-w-[14.5rem] items-center justify-end gap-2 [html[data-session-hint]_&]:invisible"
+            className="ml-3 flex min-h-[46px] min-w-[22rem] items-center justify-end gap-2 [html[data-session-hint]_&]:invisible"
           >
             {session.status === "guest" && (
               <>
                 <Button href="/login" variant="ghost" size="sm">
                   Ingresar
                 </Button>
-                <Button href="/register" size="sm">
+                <Button href="/register" variant="outline-forest" size="sm">
                   Crear cuenta
+                </Button>
+                <Button href="/search" size="sm">
+                  <Icon name="search" className="text-lg" />
+                  Buscar residencias
                 </Button>
               </>
             )}
             {session.status === "signedIn" && (
               <>
+                <Button href="/search" variant="ghost" size="sm">
+                  Buscar residencias
+                </Button>
                 <span
                   aria-hidden="true"
                   className="flex h-9 w-9 items-center justify-center rounded-full bg-forest-tint text-sm font-extrabold text-forest-700"
@@ -139,8 +147,12 @@ export function Navbar() {
           </div>
         </div>
 
+        <div className="flex items-center gap-2 lg:hidden">
+        <Button href="/search" size="sm" className="!h-10 !px-4">
+          Buscar
+        </Button>
         <button
-          className="rounded-full p-2 text-ink-soft transition-colors hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest md:hidden"
+          className="rounded-full p-2 text-ink-soft transition-colors hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
           onClick={() => setOpen(!open)}
           aria-expanded={open}
           aria-controls="mobile-menu"
@@ -148,12 +160,13 @@ export function Navbar() {
         >
           <Icon name={open ? "close" : "menu"} className="text-2xl" />
         </button>
+        </div>
       </nav>
 
       {open && (
-        <div id="mobile-menu" className="border-t border-line bg-paper px-4 py-4 md:hidden">
+        <div id="mobile-menu" className="border-t border-line bg-paper px-4 py-4 lg:hidden">
           <div className="flex flex-col gap-1">
-            {links.map((link) => (
+            {mobileLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -176,7 +189,7 @@ export function Navbar() {
                 >
                   Ingresar
                 </Link>
-                <Button href="/register" size="md" className="mt-3 w-full">
+                <Button href="/register" variant="outline-forest" size="md" className="mt-3 w-full">
                   Crear cuenta
                 </Button>
               </>

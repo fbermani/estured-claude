@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Icon } from "@/components/ui/Icon";
 import { ResidencePhoto } from "@/components/residences/ResidencePhoto";
 import { useRotation } from "@/components/residences/useRotation";
+import { RotationToggle } from "@/components/residences/RotationToggle";
 
 /**
  * Foto de la tarjeta del catálogo (DR18, tanda 2): con 2+ fotos rota sola y se puede pasar con flechas.
@@ -31,7 +32,7 @@ export function CardPhotoCarousel({
   children?: ReactNode;
 }) {
   const [paused, setPaused] = useState(false);
-  const { index, go, setIndex, ref } = useRotation(photos.length, { paused });
+  const { index, go, setIndex, ref, playing, toggle } = useRotation(photos.length, { paused });
   // Solo se montan las fotos ya vistas: crossfade sin bajar las 5 de entrada.
   const [seen, setSeen] = useState<Set<number>>(() => new Set([0]));
   const [lastIndex, setLastIndex] = useState(0);
@@ -95,6 +96,7 @@ export function CardPhotoCarousel({
               <Icon name={b.icon} className="text-xl" />
             </button>
           ))}
+          <RotationToggle playing={playing} onToggle={toggle} className="absolute bottom-0 left-0.5 z-30" />
           <div className="absolute bottom-1.5 right-2 z-30 flex items-center rounded-full bg-forest-ink/45 px-0.5">
             {photos.map((_, i) => (
               <button

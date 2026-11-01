@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 
 /** Acordeón moderno, una sola pregunta abierta a la vez, apertura suave. */
@@ -14,6 +14,7 @@ export function FaqAccordion({
 }) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
   const [showAll, setShowAll] = useState(false);
+  const baseId = useId();
   const hasMore = visibleLimit !== undefined && allItems.length > visibleLimit;
   const items = hasMore && !showAll ? allItems.slice(0, visibleLimit) : allItems;
 
@@ -21,6 +22,8 @@ export function FaqAccordion({
     <div className="space-y-3">
       {items.map((faq, i) => {
         const open = openIndex === i;
+        const panelId = `${baseId}-panel-${i}`;
+        const buttonId = `${baseId}-btn-${i}`;
         // Encabezado del tema (catálogo, DR14) cuando cambia el grupo respecto de la pregunta anterior.
         const showGroup = faq.group && faq.group !== items[i - 1]?.group;
         return (
@@ -32,7 +35,9 @@ export function FaqAccordion({
             <button
               type="button"
               onClick={() => setOpenIndex((v) => (v === i ? null : i))}
+              id={buttonId}
               aria-expanded={open}
+              aria-controls={panelId}
               className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition-colors hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
             >
               <span className="min-w-0">
@@ -49,8 +54,11 @@ export function FaqAccordion({
               />
             </button>
             <div
-              className="grid transition-[grid-template-rows,opacity] duration-300 ease-fresh"
-              style={{ gridTemplateRows: open ? "1fr" : "0fr", opacity: open ? 1 : 0 }}
+              id={panelId}
+              aria-labelledby={buttonId}
+              inert={!open}
+              className="grid transition-[grid-template-rows,opacity,visibility] duration-300 ease-fresh"
+              style={{ gridTemplateRows: open ? "1fr" : "0fr", opacity: open ? 1 : 0, visibility: open ? "visible" : "hidden" }}
             >
               <div className="overflow-hidden">
                 <p className="whitespace-pre-line break-words px-5 pb-4 text-sm leading-relaxed text-ink-soft">{faq.answer}</p>

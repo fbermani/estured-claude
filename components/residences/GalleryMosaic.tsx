@@ -63,7 +63,7 @@ export function GalleryMosaic({
   const [paused, setPaused] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   // La rotación se pausa con hover/foco y mientras el visor está abierto.
-  const { index: heroIndex, go: heroGo, ref: heroRef } = useRotation(rotation.length, { paused: paused || dialogOpen });
+  const { index: heroIndex, go: heroGo, ref: heroRef, playing: heroPlaying, toggle: heroToggle } = useRotation(rotation.length, { paused: paused || dialogOpen });
   const [seen, setSeen] = useState<Set<number>>(() => new Set([0]));
   const [lastHero, setLastHero] = useState(0);
   if (heroIndex !== lastHero) {
@@ -180,6 +180,14 @@ export function GalleryMosaic({
               className="flex size-8 items-center justify-center rounded-full hover:bg-forest-tint focus-visible:outline focus-visible:outline-2 focus-visible:outline-forest"
             >
               <Icon name="chevron_right" className="text-xl" />
+            </button>
+            <button
+              type="button"
+              onClick={heroToggle}
+              aria-label={heroPlaying ? "Pausar fotos destacadas" : "Reproducir fotos destacadas"}
+              className="flex size-11 items-center justify-center rounded-full hover:bg-forest-tint focus-visible:outline focus-visible:outline-2 focus-visible:outline-forest"
+            >
+              <Icon name={heroPlaying ? "pause" : "play_arrow"} className="text-xl" />
             </button>
           </div>
         )}

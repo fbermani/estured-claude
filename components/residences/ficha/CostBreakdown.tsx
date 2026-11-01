@@ -132,8 +132,8 @@ export function CostBreakdown({
         </p>
       )}
       <p className="-mt-1 pb-1.5 text-xs text-ink-faint">
-        ≈ {formatArs(usdToArsRounded(monthlyUsd, arsPerUsd))} por mes, referencial
-        <ExchangeRateNote />
+        ≈ {formatArs(usdToArsRounded(monthlyUsd, arsPerUsd))} por mes
+        <ExchangeRateNote showNote />
       </p>
 
       {money.enrollment.listUsd > 0 && (
