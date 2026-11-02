@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { BrandMark } from "@/components/ui/BrandMark";
 
-const SEARCH_LINK = { href: "/search", label: "Buscar residencias" };
-const links = [
-  { href: "/for-students", label: "Para estudiantes" },
+type NavLink = { href: string; label: string; extra?: string };
+const SEARCH_LINK: NavLink = { href: "/search", label: "Buscar residencias" };
+const links: NavLink[] = [
+  { href: "/for-students", label: "Para estudiantes", extra: "y familias" },
   { href: "/for-residences", label: "Para residencias" },
 ];
 const mobileLinks = [SEARCH_LINK, ...links];
@@ -109,6 +110,7 @@ export function Navbar() {
               }`}
             >
               {link.label}
+              {link.extra && <span className="ml-1 text-xs font-semibold opacity-75">{link.extra}</span>}
             </Link>
           ))}
           <div
@@ -178,6 +180,7 @@ export function Navbar() {
                 }`}
               >
                 {link.label}
+                {link.extra && <span className="ml-1 text-xs font-semibold opacity-75">{link.extra}</span>}
               </Link>
             ))}
             {session.status === "guest" && (
