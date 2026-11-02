@@ -7,7 +7,7 @@ category: alojamiento
 audience:
 - estudiantes
 - familias
-status: borrador-editorial
+status: published
 order: 1
 featured: true
 related_guides:

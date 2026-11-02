@@ -6,7 +6,7 @@ description: Cómo elegir una residencia para un hijo o hija y acompañar su nue
 category: familias
 audience:
 - familias
-status: borrador-editorial
+status: published
 order: 5
 featured: false
 related_guides:

@@ -6,7 +6,7 @@ description: Consejos para estudiar, organizar tus horarios y convivir con respe
 category: convivencia
 audience:
 - estudiantes
-status: borrador-editorial
+status: published
 order: 4
 featured: false
 related_guides:

@@ -6,7 +6,7 @@ description: Recomendaciones para administrar residencias estudiantiles, acompaÃ
 category: gestion-residencias
 audience:
 - residencias
-status: borrador-editorial
+status: published
 order: 6
 featured: false
 related_guides:

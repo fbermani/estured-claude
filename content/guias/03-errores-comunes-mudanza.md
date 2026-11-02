@@ -7,7 +7,7 @@ category: mudanza
 audience:
 - estudiantes
 - familias
-status: borrador-editorial
+status: published
 order: 3
 featured: false
 related_guides:

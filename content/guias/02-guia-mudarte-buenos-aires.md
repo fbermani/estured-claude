@@ -6,7 +6,7 @@ description: 'Prepará tu mudanza a Buenos Aires para estudiar: documentación, 
 category: mudanza
 audience:
 - estudiantes
-status: borrador-editorial
+status: published
 order: 2
 featured: true
 related_guides:
