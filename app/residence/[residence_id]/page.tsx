@@ -1,3 +1,4 @@
+import { ScrollTable } from "@/components/ui/ScrollTable";
 import { formatDateOnly } from "@/lib/dates/formatDateOnly";
 import { formatDate } from "@/lib/dates/format";
 import { formatShortName } from "@/lib/format/shortName";
@@ -482,7 +483,36 @@ export default async function ResidenceOverviewPage({
           {recentApplications.length === 0 ? (
             <p className="p-6 text-sm text-ink-soft">Todavía no llegó ninguna solicitud.</p>
           ) : (
-            <div className="overflow-x-auto">
+            <>
+              <ul className="divide-y divide-line md:hidden" aria-label="Solicitudes recientes">
+                {recentApplications.map((app) => {
+                  const badge = getVisibleStatus({
+                    applicationStatus: app.status,
+                    reservation: recentReservations.get(app.id),
+                    viewer: "residence",
+                  });
+                  return (
+                    <li key={app.id} className="flex items-start justify-between gap-3 px-4 py-3">
+                      <div className="min-w-0">
+                        <Link
+                          href={`/residence/${residenceId}/applications?app=${app.id}`}
+                          className="inline-flex min-h-11 items-center font-bold text-ink hover:underline"
+                        >
+                          {formatShortName(app.student_profiles?.first_name, app.student_profiles?.last_initial)}
+                        </Link>
+                        <p className="-mt-2 text-sm text-ink-soft">
+                          {app.room_types?.name ?? "—"} · {formatDate(app.created_at)}
+                        </p>
+                      </div>
+                      <span className="mt-2.5 shrink-0">
+                        <Badge tone={badge.tone}>{badge.label}</Badge>
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+              <div className="hidden md:block">
+                <ScrollTable label="Solicitudes recientes">
               <table className="w-full text-left text-sm">
                 <thead className="bg-cream-2 text-muted">
                   <tr>
@@ -516,7 +546,9 @@ export default async function ResidenceOverviewPage({
                   })}
                 </tbody>
               </table>
-            </div>
+                </ScrollTable>
+              </div>
+            </>
           )}
         </Card>
       </div>

@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/Card";
 import { PageHero } from "@/components/ui/PageHero";
 import { MetricCard } from "@/components/ui/MetricCard";
 import { FilterChips } from "@/components/ui/FilterChips";
+import { ScrollTable } from "@/components/ui/ScrollTable";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatUsd } from "@/lib/mock/exchange";
@@ -543,6 +544,15 @@ export function ResidentsBrowser({
   const [toast, setToast] = useState<string | null>(null);
   const [exitRequest, setExitRequest] = useState<{ stayId: string; date: string | null; nonce: number } | null>(null);
   const respondingItem = data.stayChanges.find((c) => c.id === respondingId) ?? null;
+  // Un solo layout montado (tarjetas < md, tabla >= md): evita DetailPanel e ids duplicados.
+  const [isMd, setIsMd] = useState(true);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const update = () => setIsMd(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
   const [openStayId, setOpenStayId] = useState<string | null>(() => searchParams.get("stay"));
 
   // Deep-link `?stay=<id>` (ej. desde "Próximos ingresos y salidas" del
@@ -551,7 +561,7 @@ export function ResidentsBrowser({
     const target = searchParams.get("stay");
     if (!target) return;
     setOpenStayId(target);
-    document.getElementById(`resident-row-${target}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    document.getElementById(`resident-${window.matchMedia("(min-width: 768px)").matches ? "row" : "card"}-${target}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
   }, [searchParams]);
 
   const today = new Date();
@@ -587,7 +597,7 @@ export function ResidentsBrowser({
       date: item.resolvedNewStartDate ? dayBefore(item.resolvedNewStartDate) : item.estimatedExitDate,
       nonce: (exitRequest?.nonce ?? 0) + 1,
     });
-    requestAnimationFrame(() => document.getElementById(`resident-row-${row.stayId}`)?.scrollIntoView({ behavior: "smooth", block: "center" }));
+    requestAnimationFrame(() => document.getElementById(`resident-${isMd ? "row" : "card"}-${row.stayId}`)?.scrollIntoView({ behavior: "smooth", block: "center" }));
   }
 
   return (
@@ -702,7 +712,85 @@ export function ResidentsBrowser({
         </div>
       ) : (
         <div className="mt-6 overflow-hidden rounded-card border-[1.5px] border-line bg-paper shadow-card">
-          <div className="overflow-x-auto">
+          {!isMd && (
+          <ul className="divide-y divide-line" aria-label="Residentes">
+            {filtered.map((row, i) => {
+              const st = statusOf(row, todayStr, in30Str);
+              const meta = STATUS_META[st];
+              const open = openStayId === row.stayId;
+              const effectiveRate = row.rateUsd ?? row.agreedRateUsd ?? row.baseRateUsd;
+              return (
+                <li key={row.stayId} id={`resident-card-${row.stayId}`} className={open ? "bg-cream-2/60" : undefined}>
+                  <div className="grid grid-cols-[32px_minmax(0,1fr)] gap-x-3 gap-y-2 p-4">
+                    <span
+                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                        ["bg-forest-tint text-forest-700", "bg-orange-tint text-orange-700", "bg-mint text-forest-700", "bg-sand-100 text-ink-soft"][i % 4]
+                      }`}
+                    >
+                      {row.name[0]?.toUpperCase()}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="flex items-center gap-1.5 font-bold text-ink">
+                        <span className="truncate">{row.name}</span>
+                        {row.flag && <span aria-hidden>{row.flag}</span>}
+                        {row.hiddenFromCommunity && <Icon name="visibility_off" className="text-sm text-ink-faint" />}
+                      </p>
+                      <p className="text-sm text-ink-soft">
+                        {row.roomLabel ? (
+                          <>
+                            {row.roomLabel}
+                            {row.bedLetter && ` - ${row.bedLetter}`}
+                          </>
+                        ) : (
+                          "Sin asignar"
+                        )}
+                        {row.typeName && ` · ${row.typeName}`}
+                      </p>
+                      {row.email && <p className="truncate text-xs text-ink-faint">{row.email}</p>}
+                    </div>
+                    <div className="col-start-2 flex flex-wrap gap-1">
+                      <Badge tone={meta.tone}>{meta.label}</Badge>
+                      {row.stayChange?.status === "open" && (
+                        <Badge tone="amber">
+                          <Icon name="swap_horiz" className="text-sm" /> Busca cambiar
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="col-start-2 flex items-center justify-between gap-3">
+                      <span className="text-sm text-ink-soft">
+                        Hasta {formatDate(row.expectedEndDate)} · <b className="text-ink">{effectiveRate != null ? formatUsd(effectiveRate) : "—"}</b>
+                      </span>
+                      <button
+                        type="button"
+                        aria-expanded={open}
+                        aria-label={`${open ? "Cerrar" : "Gestionar"} ${row.name}`}
+                        onClick={() => setOpenStayId(open ? null : row.stayId)}
+                        className="min-h-11 shrink-0 cursor-pointer rounded-full border-[1.5px] border-line px-4 text-sm font-bold text-ink-soft hover:border-forest hover:text-forest-700"
+                      >
+                        {open ? "Cerrar" : "Gestionar"}
+                      </button>
+                    </div>
+                  </div>
+                  {open && (
+                    <DetailPanel
+                      residenceId={residenceId}
+                      residenceName={residenceName}
+                      row={row}
+                      freeBeds={data.freeBeds}
+                      notes={data.notesByStay[row.stayId] ?? []}
+                      exitRequest={exitRequest}
+                      canResidents={canManageResidents}
+                      canBeds={canManageBeds}
+                    />
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+          )}
+          {isMd && (
+          <div>
+            <ScrollTable label="Residentes">
             <table className="w-full text-left text-sm">
               <thead className="border-b border-line bg-cream-2">
                 <tr>
@@ -814,7 +902,9 @@ export function ResidentsBrowser({
                 })}
               </tbody>
             </table>
+            </ScrollTable>
           </div>
+          )}
         </div>
       )}
 

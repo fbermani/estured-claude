@@ -74,8 +74,9 @@ export function OwnerResidenceGrid({ cards, arsPerUsd }: { cards: CardData[]; ar
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
+            aria-pressed={statusFilter === null}
             onClick={() => setStatusFilter(null)}
-            className={`rounded-full px-4 py-2 text-xs font-bold transition-colors ${
+            className={`inline-flex min-h-11 items-center rounded-full px-4 text-xs font-bold transition-colors ${
               statusFilter === null ? "bg-forest text-white" : "bg-cream-2 text-ink-soft hover:bg-sand-200"
             }`}
           >
@@ -85,8 +86,9 @@ export function OwnerResidenceGrid({ cards, arsPerUsd }: { cards: CardData[]; ar
             <button
               key={label}
               type="button"
+              aria-pressed={statusFilter === label}
               onClick={() => setStatusFilter(label)}
-              className={`rounded-full px-4 py-2 text-xs font-bold transition-colors ${
+              className={`inline-flex min-h-11 items-center rounded-full px-4 text-xs font-bold transition-colors ${
                 statusFilter === label ? "bg-forest text-white" : "bg-cream-2 text-ink-soft hover:bg-sand-200"
               }`}
             >
