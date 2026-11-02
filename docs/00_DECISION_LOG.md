@@ -1425,7 +1425,7 @@ Supuestos reversibles que el dueño no fijó: (a) **«cambiar la cama de un resi
 3. Se **quita** de la home la sección «Lo que viene» (MVP).
 4. **FAQ:** se mantienen todas las preguntas con respuestas más breves, y se saca la de «garantía propietaria». DR16 sigue vigente; solo deja de estar en la FAQ de la home.
 5. **Textos del hero elegidos por el dueño (2026-10-31, opción 1 adaptada):** sobretítulo «Ciudad de Buenos Aires»; H1 «Elegí tu residencia a distancia, sin adivinar.»; subtítulo «Residencias en Buenos Aires, verificadas por EstuRed. Reservá y pagá desde donde estés, sin viajar.»
-6. **No se afirma «visitada en persona»** (ni en el hero, ni en los chips, ni en la tabla «Con EstuRed vs. por fuera» ni en la FAQ de la home): se usa «verificada por EstuRed» y el detalle «Revisamos responsable, ubicación y fotos antes de publicar». Sin contadores fijos ni promesas de plazo de respuesta.
+6. ~~No se afirma «visitada en persona»~~ **Superado el 2026-11-01 por el dueño:** toda residencia publicada se verifica en persona (visita con fecha cargada, DR7), por lo que «verificada en persona» / «visitada en persona» **se puede usar en cualquier texto** que lo necesite (hero, chips, tabla, FAQ, términos, fichas). Sigue vigente: «verificada por EstuRed» como fórmula general, el detalle «Revisamos responsable, ubicación y fotos», y la regla de no afirmar nada de una residencia que aún no pasó la visita. Sin contadores fijos ni promesas de plazo de respuesta.
 
 **B. Otras pantallas.** `/for-students`, `/for-residences` y la ficha de residencia **se mantienen como están construidas**; se descartan las propuestas del rediseño para ellas. Solo se pulirán textos.
 

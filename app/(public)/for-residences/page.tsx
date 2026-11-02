@@ -69,7 +69,7 @@ const faqs = [
   },
   {
     q: "¿Cómo es la verificación?",
-    a: "Revisamos responsable, ubicación y fotos antes de publicar tu residencia.",
+    a: "Visitamos tu residencia en persona y revisamos responsable, ubicación y fotos antes de publicarla.",
     more: "Solo las residencias verificadas aparecen en el catálogo.",
   },
   {
@@ -209,8 +209,8 @@ export default function ForResidencesPage() {
                 Perfil Verificado
               </h3>
               <p className="mt-2 text-sm text-ink-soft">
-                Tu residencia en el catálogo, con el sello de verificación
-                de EstuRed y gestión de solicitudes.
+                Tu residencia en el catálogo, con el sello de verificación en persona
+                y gestión de solicitudes.
               </p>
               <HoverFeatureList items={VERIFIED_FEATURES} icon="check_circle" tone="forest" className="mt-6 text-sm" />
             </Card>

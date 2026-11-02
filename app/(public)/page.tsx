@@ -63,7 +63,7 @@ const audiences: Array<
     perks: [
       { icon: "groups", title: "Conocé a tus futuros compañeros", text: "Perfiles que cada residente decide mostrar." },
       { icon: "rule", title: "Reglas y servicios, sin sorpresas", text: "Lo principal en la ficha y el reglamento completo." },
-      { icon: "verified", title: "Verificada por EstuRed", text: "Revisamos responsable, ubicación y fotos." },
+      { icon: "verified", title: "Verificada en persona", text: "Visitamos cada residencia antes de publicarla." },
     ],
     href: "/for-students",
     cta: "Ver cómo funciona para vos",
@@ -98,7 +98,7 @@ const audiences: Array<
     ],
     href: "/for-residences",
     cta: "Solicitar sumar mi residencia",
-    note: "Primero revisamos tu residencia y su responsable",
+    note: "Primero verificamos tu residencia en persona",
   },
 ];
 
@@ -117,8 +117,8 @@ const faqs = [
   },
   {
     q: "¿Qué significa que una residencia esté verificada?",
-    a: "Que EstuRed chequeó que existe, quién la gestiona y que lo publicado es real.",
-    more: "Revisamos responsable, ubicación y fotos antes de publicar. Solo las residencias verificadas aparecen en el catálogo.",
+    a: "Que EstuRed la visitó en persona y chequeó que existe, quién la gestiona y que lo publicado es real.",
+    more: "Solo las residencias verificadas aparecen en el catálogo.",
   },
   {
     q: "Si una residencia figura con lugar, ¿ya tengo mi lugar?",

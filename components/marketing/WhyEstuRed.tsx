@@ -5,13 +5,13 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 /**
  * Home · «Por qué EstuRed» (DR22): fusiona «Por qué» y «La diferencia».
  * Chips con detalle al hover/foco/tap (HoverDetail), tabla «Con EstuRed vs. por fuera»
- * y checklist «Qué revisamos». No se afirma «visitada en persona»: se dice «verificada por EstuRed».
+ * y checklist «Qué revisamos».
  */
 const CHIPS = [
   {
     icon: "verified",
-    label: "Verificadas por EstuRed",
-    detail: "Revisamos responsable, ubicación y fotos antes de publicar.",
+    label: "Visitadas en persona",
+    detail: "Chequeamos que la residencia existe, quién la gestiona y que lo publicado es real.",
   },
   {
     icon: "receipt",
@@ -26,7 +26,7 @@ const CHIPS = [
 ];
 
 const ROWS = [
-  { what: "La residencia", withUs: "Verificada por EstuRed antes de publicarse", outside: "La chequeás por tu cuenta" },
+  { what: "La residencia", withUs: "Verificada en persona por EstuRed", outside: "La chequeás por tu cuenta" },
   { what: "Precio y costos", withUs: "Publicados, con el fee a la vista", outside: "Los consultás uno por uno" },
   { what: "Acuerdos", withUs: "Registrados en tu cuenta", outside: "Quedan en chats sueltos" },
   { what: "Reserva confirmada", withUs: "Comprobante con código verificable", outside: "Depende de cada residencia" },
