@@ -131,6 +131,8 @@ export function ProposeForm({
         id="propose-duration"
         name="initial_duration_months"
         type="number"
+        inputMode="numeric"
+        enterKeyHint="done"
         min={conditions.minimumStayMonths ?? 1}
         max={24}
         value={duration}

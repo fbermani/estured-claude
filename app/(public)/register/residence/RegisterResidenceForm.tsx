@@ -33,7 +33,7 @@ export function RegisterResidenceForm() {
   return (
     <Card className="p-8">
       <form ref={formRef} action={formAction} className="flex flex-col gap-5">
-        <Input label="Nombre de la residencia" id="rr-residence-name" name="residence_name" placeholder="Ej: Residencia Los Andes" maxLength={120} required {...fieldProps(state, "residence_name", "rr")} hint={fieldHint(state, "residence_name", "rr", undefined)} />
+        <Input label="Nombre de la residencia" id="rr-residence-name" name="residence_name" enterKeyHint="next" placeholder="Ej: Residencia Los Andes" maxLength={120} required {...fieldProps(state, "residence_name", "rr")} hint={fieldHint(state, "residence_name", "rr", undefined)} />
         <Select label="Barrio" id="rr-neighborhood" name="neighborhood" required {...fieldProps(state, "neighborhood", "rr")} hint={fieldHint(state, "neighborhood", "rr", undefined)}>
           <option value="" disabled>
             Elegí una opción
@@ -44,14 +44,14 @@ export function RegisterResidenceForm() {
             </option>
           ))}
         </Select>
-        <Input label="Nombre del responsable" id="rr-contact-name" name="contact_name" autoComplete="name" maxLength={120} required {...fieldProps(state, "contact_name", "rr")} hint={fieldHint(state, "contact_name", "rr", undefined)} />
+        <Input label="Nombre del responsable" id="rr-contact-name" name="contact_name" autoComplete="name" enterKeyHint="next" maxLength={120} required {...fieldProps(state, "contact_name", "rr")} hint={fieldHint(state, "contact_name", "rr", undefined)} />
         <div className="grid gap-5 sm:grid-cols-2">
-          <Input label="Email" id="rr-email" name="email" type="email" autoComplete="email" placeholder="tu@email.com" required {...fieldProps(state, "email", "rr")} hint={fieldHint(state, "email", "rr", undefined)} />
-          <Input label="Teléfono / WhatsApp" id="rr-phone" name="phone" type="tel" autoComplete="tel" placeholder="+54 9 11 ..." required {...fieldProps(state, "phone", "rr")} hint={fieldHint(state, "phone", "rr", undefined)} />
+          <Input label="Email" id="rr-email" name="email" type="email" inputMode="email" autoComplete="email" autoCapitalize="none" spellCheck={false} enterKeyHint="next" placeholder="tu@email.com" required {...fieldProps(state, "email", "rr")} hint={fieldHint(state, "email", "rr", undefined)} />
+          <Input label="Teléfono / WhatsApp" id="rr-phone" name="phone" type="tel" inputMode="tel" autoComplete="tel" enterKeyHint="next" placeholder="+54 9 11 ..." required {...fieldProps(state, "phone", "rr")} hint={fieldHint(state, "phone", "rr", undefined)} />
         </div>
         <div className="grid gap-5 sm:grid-cols-2">
-          <Input label="Instagram o web (opcional)" id="rr-social" name="instagram_or_web" maxLength={200} {...fieldProps(state, "instagram_or_web", "rr")} hint={fieldHint(state, "instagram_or_web", "rr", undefined)} />
-          <Input label="Camas aproximadas (opcional)" id="rr-beds" name="approx_beds" type="number" inputMode="numeric" min={1} max={2000} {...fieldProps(state, "approx_beds", "rr")} hint={fieldHint(state, "approx_beds", "rr", undefined)} />
+          <Input label="Instagram o web (opcional)" id="rr-social" name="instagram_or_web" autoCapitalize="none" spellCheck={false} enterKeyHint="next" maxLength={200} {...fieldProps(state, "instagram_or_web", "rr")} hint={fieldHint(state, "instagram_or_web", "rr", undefined)} />
+          <Input label="Camas aproximadas (opcional)" id="rr-beds" name="approx_beds" type="number" inputMode="numeric" enterKeyHint="done" min={1} max={2000} {...fieldProps(state, "approx_beds", "rr")} hint={fieldHint(state, "approx_beds", "rr", undefined)} />
         </div>
         {/* Honeypot: fuera de la vista y del orden de tabulación. */}
         <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">

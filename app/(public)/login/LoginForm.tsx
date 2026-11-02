@@ -21,7 +21,11 @@ export function LoginForm({ next }: { next?: string }) {
           id="login-email"
           name="email"
           type="email"
+          inputMode="email"
           autoComplete="email"
+          autoCapitalize="none"
+          spellCheck={false}
+          enterKeyHint="next"
           placeholder="tu@email.com"
           required
         />
@@ -31,6 +35,7 @@ export function LoginForm({ next }: { next?: string }) {
           name="password"
           type="password"
           autoComplete="current-password"
+          enterKeyHint="go"
           placeholder="Tu contraseña"
           required
         />

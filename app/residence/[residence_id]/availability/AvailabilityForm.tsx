@@ -36,6 +36,8 @@ export function AvailabilityForm({
         label="Lugares disponibles (opcional)"
         name="available_count"
         type="number"
+        inputMode="numeric"
+        enterKeyHint="next"
         min={0}
         defaultValue={currentAvailableCount ?? undefined}
       />

@@ -42,6 +42,9 @@ export default async function VerifyEntryPage({
             autoComplete="off"
             autoCapitalize="characters"
             spellCheck={false}
+            autoCorrect="off"
+            enterKeyHint="go"
+            className="uppercase"
             maxLength={40}
             required
             hint="Empieza con ER- (reserva) o ERR- (renovación)."
