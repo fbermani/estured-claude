@@ -114,7 +114,7 @@ export default async function NegotiationResponsePage({
     ),
     row(
       "Fecha de ingreso",
-      "Original de tu solicitud",
+      "La que pediste",
       proposal.proposed_start_date ? formatDateOnly(proposal.proposed_start_date) : null,
     ),
     row(
