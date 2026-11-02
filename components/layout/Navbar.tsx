@@ -109,8 +109,14 @@ export function Navbar() {
                   : "text-ink-soft hover:bg-cream-2 hover:text-forest-700"
               }`}
             >
-              {link.label}
-              {link.extra && <span className="ml-1 text-xs font-semibold opacity-75">{link.extra}</span>}
+              {link.extra ? (
+                <span className="flex flex-col items-center leading-tight">
+                  {link.label}
+                  <span className="text-[11px] font-semibold opacity-75">{link.extra}</span>
+                </span>
+              ) : (
+                link.label
+              )}
             </Link>
           ))}
           <div
