@@ -1,3 +1,4 @@
+import { GuidePicks } from "@/components/guides/GuidePicks";
 import { WhatYouPay } from "@/components/marketing/WhatYouPay";
 import type { Metadata } from "next";
 import { Button } from "@/components/ui/Button";
@@ -265,6 +266,7 @@ export default function ForResidencesPage() {
             </Reveal>
           ))}
         </div>
+        <GuidePicks keys={["R01"]} variant="link" label="Para tu equipo, leé" className="mt-8 text-center" />
       </section>
 
       <section className="bg-mint">

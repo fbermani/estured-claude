@@ -26,6 +26,8 @@ import { CompactMap } from "@/components/residences/CompactMap";
 import { getServiceIcon, getCommonAreaIcon } from "@/lib/residences/amenityIcons";
 import { serviceLabel } from "@/lib/residences/options";
 import { FICHA_FAQ_VISIBLE } from "@/lib/faq/catalog";
+import { GuidePicks } from "@/components/guides/GuidePicks";
+import { MoveInGuideNote } from "@/components/guides/MoveInGuideNote";
 import { ApplyForm } from "@/app/(public)/residencias/[slug]/ApplyForm";
 import { ProposeForm } from "@/app/(public)/residencias/[slug]/ProposeForm";
 import { FavoriteButton } from "@/app/(public)/residencias/[slug]/FavoriteButton";
@@ -779,6 +781,11 @@ export default async function RealResidenceDetailPage({
             />
           </section>
 
+          {/* Lectura previa: guías generales de EstuRed, separadas del reglamento propio de la residencia. */}
+          <div className="lg:col-start-1">
+            <GuidePicks keys={["01", "03"]} variant="strip" label="Antes de reservar, leé:" />
+          </div>
+
           {/* 5. Preguntas frecuentes */}
           <section id="preguntas" className="scroll-mt-32 lg:col-start-1">
             <h2 className="text-2xl font-bold text-ink">Preguntas frecuentes</h2>
@@ -825,6 +832,7 @@ export default async function RealResidenceDetailPage({
                 residenceId={residence.id}
                 roomTypes={roomTypes.map((rt) => ({ ...rt, promotion_percent: rt.promotion?.discountPercent ?? null, vacancy: rt.vacancy }))}
                 students={linkedStudents}
+                moveInNotice={<MoveInGuideNote />}
                 conditions={{
                   minimumStayMonths: conditions.minimumStayMonths,
                   enrollmentFeeMode: conditions.enrollmentFeeMode,
@@ -842,6 +850,7 @@ export default async function RealResidenceDetailPage({
             ) : (
               <ApplyForm
                 residenceId={residence.id}
+                moveInNotice={<MoveInGuideNote />}
                 regulation={
                   regulation
                     ? {

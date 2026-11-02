@@ -5,6 +5,9 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Icon } from "@/components/ui/Icon";
 import { Reveal } from "@/components/ui/Reveal";
+import { GuideCard } from "@/components/guides/GuideCard";
+import { getFeaturedGuides } from "@/lib/guides/picks";
+import Link from "next/link";
 import { WhyEstuRed } from "@/components/marketing/WhyEstuRed";
 import { HowItWorksSteps } from "@/app/(public)/HowItWorksSteps";
 import { ResidenceCardCompact } from "@/components/residences/ResidenceCardCompact";
@@ -145,6 +148,7 @@ const faqs = [
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
+  const featuredGuides = getFeaturedGuides(3);
   const [rate, rawCatalog] = await Promise.all([getCurrentExchangeRate(), getCatalogResidences()]);
   const catalog = sortRecommended(rawCatalog); // DR24
   const featured = catalog.slice(0, 4);
@@ -233,6 +237,27 @@ export default async function HomePage() {
           ))}
         </div>
       </section>
+
+      {/* Centro de Guías: 3 destacadas, entre «Para quién es» y las preguntas frecuentes */}
+      {featuredGuides.length > 0 && (
+        <section aria-label="Centro de Guías" className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
+          <SectionHeader
+            eyebrow="Centro de Guías"
+            title="Antes de decidir, informate"
+            description="Guías simples para elegir residencia y prepararte para mudarte a Buenos Aires."
+          />
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {featuredGuides.map((g) => (
+              <GuideCard key={g.id} guide={g} />
+            ))}
+          </div>
+          <p className="mt-6 text-center">
+            <Link href="/guias" className="text-sm font-bold text-forest-700 hover:underline">
+              Ver todas las guías
+            </Link>
+          </p>
+        </section>
+      )}
 
       {/* FAQ */}
       <section className="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-24">

@@ -10,6 +10,7 @@ import { getCatalogResidences } from "@/lib/residences/catalog";
 import { getSessionUser } from "@/lib/auth/session";
 import { FamilyHighlight } from "@/components/marketing/FamilyHighlight";
 import { StayChangeHighlight } from "@/components/marketing/StayChangeHighlight";
+import { GuidePicks } from "@/components/guides/GuidePicks";
 import { WhatYouPay } from "@/components/marketing/WhatYouPay";
 
 export const metadata: Metadata = {
@@ -148,6 +149,7 @@ export default async function ForStudentsPage() {
             </Reveal>
           ))}
         </div>
+        <GuidePicks keys={["05"]} variant="link" label="¿Sos familiar? Leé" className="mt-8 text-center" />
       </section>
 
       <section className="bg-mint">

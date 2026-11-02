@@ -61,10 +61,13 @@ export function ApplyForm({
   minStartDate,
   stayChange,
   regulation,
+  moveInNotice,
 }: {
   residenceId: string;
   /** Reglamento vigente (DR14) ya renderizado en el servidor + su hash; `null` si no se pudo leer (no se puede enviar). */
   regulation: { hash: string; content: ReactNode; isModel: boolean } | null;
+  /** Aviso de lectura (guía de mudanza) que se muestra antes de la fecha de ingreso; lo arma el servidor. */
+  moveInNotice?: ReactNode;
   roomTypes: RoomTypeOption[];
   conditions: ResidenceConditionsProp;
   arsPerUsd: number;
@@ -134,6 +137,7 @@ export function ApplyForm({
           </option>
         ))}
       </Select>
+      {moveInNotice}
       <Input
         label="Fecha de ingreso deseada"
         id="apply-start-date"

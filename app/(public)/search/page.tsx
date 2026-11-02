@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { GuidePicks } from "@/components/guides/GuidePicks";
 import { SearchShell, type FilterGroup } from "@/app/(public)/search/SearchShell";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 import { getCatalogResidencesWithTotal } from "@/lib/residences/catalog";
@@ -71,6 +72,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
         Todas las residencias del catálogo fueron verificadas presencialmente. La disponibilidad es informativa y toda
         reserva está sujeta a confirmación.
       </p>
+      <GuidePicks keys={["01", "02"]} variant="strip" label="Antes de elegir:" className="mt-3" />
     </div>
   );
 

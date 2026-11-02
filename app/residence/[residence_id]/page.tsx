@@ -12,6 +12,7 @@ import { StaffPermissionsSummary } from "@/components/residences/StaffPermission
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
+import { GuidePicks } from "@/components/guides/GuidePicks";
 import { getStaleAvailabilityByResidence, staleAvailabilityMessage } from "@/lib/residences/staleAvailability";
 import { getVisibleStatus } from "@/lib/applications/visibleStatus";
 import { loadReservationInfoByApplication } from "@/lib/applications/loadReservationInfo";
@@ -519,6 +520,8 @@ export default async function ResidenceOverviewPage({
           )}
         </Card>
       </div>
+
+      <GuidePicks keys={["R01", "04"]} variant="panel" title="Guías para tu equipo" className="mt-8" />
     </div>
   );
 }

@@ -26,6 +26,8 @@ import { getStudentProfileCompleteness } from "@/lib/students/profileCompletenes
 import { getCatalogResidences } from "@/lib/residences/catalog";
 import { formatDateOnly } from "@/lib/students/contractEnd";
 import { loadStudentContracts, type StudentContract } from "@/lib/students/loadStudentContracts";
+import { GuidePicks } from "@/components/guides/GuidePicks";
+import { todayIso } from "@/lib/applications/reservationMoney";
 import { StayRateNote } from "@/components/students/StayRateNote";
 import { loadFamilyOverview, type FamilyStudentOverview } from "@/lib/family/loadFamilyOverview";
 import { FamilyApplicationsList } from "@/components/students/FamilyApplicationsList";
@@ -347,6 +349,8 @@ export default async function StudentDashboardPage() {
             </section>
           </Reveal>
         )}
+
+        <GuidePicks keys={["05", "03"]} variant="panel" title="Para leer con calma" className="mt-8" />
       </div>
     );
   }
@@ -1119,6 +1123,14 @@ export default async function StudentDashboardPage() {
           </ul>
         </section>
       )}
+
+      {/* Lectura (Centro de Guías): solo enlaces, según etapa. «Aún no comenzó» = ingreso posterior a hoy. */}
+      <GuidePicks
+        keys={!isHoused ? ["01", "02"] : reservation && reservation.start_date > todayIso() ? ["02", "04"] : ["04", "03"]}
+        variant="panel"
+        title={!isHoused ? "Para ir preparándote" : "Para leer con calma"}
+        className="mt-10"
+      />
     </div>
   );
 }

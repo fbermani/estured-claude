@@ -1,7 +1,7 @@
 "use client";
 
 import { formatShortName } from "@/lib/format/shortName";
-import { useActionState, useState } from "react";
+import { useActionState, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input, Select, Textarea } from "@/components/ui/Input";
 import { formatUsd } from "@/lib/mock/exchange";
@@ -43,8 +43,11 @@ export function ProposeForm({
   students,
   conditions,
   arsPerUsd,
+  moveInNotice,
 }: {
   residenceId: string;
+  /** Aviso de lectura (guía de mudanza) antes de la fecha; lo arma el servidor. */
+  moveInNotice?: ReactNode;
   roomTypes: RoomTypeOption[];
   students: StudentOption[];
   conditions: ProposeConditions;
@@ -113,6 +116,7 @@ export function ProposeForm({
           </option>
         ))}
       </Select>
+      {moveInNotice}
       <Input
         label="Fecha de ingreso propuesta"
         id="propose-start-date"
