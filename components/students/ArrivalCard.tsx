@@ -156,6 +156,11 @@ export function ArrivalCard({
       <p id={`${headingId}-locked`} className="sr-only">
         {readOnly ? "Solo lectura: el checklist lo completa el estudiante." : !persistent ? "Todavía no se pueden guardar los tildes." : ""}
       </p>
+      {readOnly && (
+        <p className="border-t border-line bg-cream-2 px-5 py-2.5 text-xs text-ink-soft md:px-6">
+          Solo lectura: el checklist lo completa el estudiante y los ítems están escritos para él o ella.
+        </p>
+      )}
       {!persistent && !readOnly && (
         <p className="border-t border-line bg-cream-2 px-5 py-2.5 text-xs text-ink-soft md:px-6">
           Guardar tus tildes todavía no está disponible: el checklist se muestra solo para leer.
