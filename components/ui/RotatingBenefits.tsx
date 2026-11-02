@@ -30,7 +30,9 @@ export function RotatingBenefits({
   intervalMs?: number;
 }) {
   const [active, setActive] = useState(0);
-  const [paused, setPaused] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const paused = hovered || focused;
   const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
@@ -51,8 +53,12 @@ export function RotatingBenefits({
   return (
     <div
       className="grid gap-6 lg:grid-cols-[1.3fr_1fr] lg:items-stretch"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
+      onPointerEnter={(e) => e.pointerType === "mouse" && setHovered(true)}
+      onPointerLeave={(e) => e.pointerType === "mouse" && setHovered(false)}
+      onFocusCapture={(e) => e.target instanceof HTMLElement && e.target.matches(":focus-visible") && setFocused(true)}
+      onBlurCapture={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocused(false);
+      }}
     >
       <div
         key={active}

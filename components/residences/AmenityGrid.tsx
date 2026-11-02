@@ -21,13 +21,14 @@ export function AmenityGrid({ items, columns = 2 }: { items: AmenityItem[]; colu
         <div
           key={item.name}
           className="group relative"
-          onMouseEnter={() => setOpenIndex(i)}
-          onMouseLeave={() => setOpenIndex((v) => (v === i ? null : v))}
+          onKeyDown={(e) => e.key === "Escape" && setOpenIndex(null)}
+          onPointerEnter={(e) => e.pointerType === "mouse" && setOpenIndex(i)}
+          onPointerLeave={(e) => e.pointerType === "mouse" && setOpenIndex((v) => (v === i ? null : v))}
         >
           <button
             type="button"
             onClick={() => setOpenIndex((v) => (v === i ? null : i))}
-            onFocus={() => setOpenIndex(i)}
+            onFocus={(e) => e.currentTarget.matches(":focus-visible") && setOpenIndex(i)}
             onBlur={() => setOpenIndex((v) => (v === i ? null : v))}
             aria-expanded={openIndex === i}
             className="flex w-full items-center gap-3 rounded-field px-2.5 py-2 text-left transition-colors duration-200 ease-fresh hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"

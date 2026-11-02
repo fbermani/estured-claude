@@ -15,37 +15,46 @@ export function InfoTip({ label, children }: { label: string; children: React.Re
 
   useEffect(() => {
     if (!open) return;
-    function onClickOutside(event: MouseEvent) {
+    function onClickOutside(event: PointerEvent) {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setOpen(false);
       }
     }
-    document.addEventListener("mousedown", onClickOutside);
-    return () => document.removeEventListener("mousedown", onClickOutside);
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("pointerdown", onClickOutside);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onClickOutside);
+      document.removeEventListener("keydown", onKey);
+    };
   }, [open]);
 
   return (
     <span
       ref={containerRef}
       className="relative inline-flex align-middle"
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
+      onPointerEnter={(e) => e.pointerType === "mouse" && setOpen(true)}
+      onPointerLeave={(e) => e.pointerType === "mouse" && setOpen(false)}
     >
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        onFocus={() => setOpen(true)}
+        onFocus={(e) => e.currentTarget.matches(":focus-visible") && setOpen(true)}
         onBlur={() => setOpen(false)}
         aria-expanded={open}
         aria-label={label}
-        className="ml-1 inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border border-muted text-[9px] font-bold leading-none text-muted hover:border-forest hover:text-forest"
+        className="relative -ml-[11px] -mr-[15px] inline-flex size-11 items-center justify-center align-middle -my-4 text-muted hover:text-forest focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-forest rounded-full"
       >
-        i
+        <span aria-hidden className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border border-current text-[9px] font-bold leading-none">
+          i
+        </span>
       </button>
       {open && (
         <span
           role="tooltip"
-          className="absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 rounded-field border-[1.5px] border-line bg-paper p-3 text-left text-xs font-normal leading-relaxed text-ink-soft shadow-float"
+          className="absolute bottom-full left-[calc(50%+2px)] z-20 mb-2 w-64 max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-field border-[1.5px] border-line bg-paper p-3 text-left text-xs font-normal leading-relaxed text-ink-soft shadow-float"
         >
           {children}
         </span>

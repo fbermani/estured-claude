@@ -93,11 +93,11 @@ function ResidentCell({ card, index, isGuest }: { card: CommunityProfileCard; in
   const habits = items(card.habits);
 
   return (
-    <div className="relative" onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
+    <div className="relative" onKeyDown={(e) => e.key === "Escape" && setOpen(false)} onPointerEnter={(e) => e.pointerType === "mouse" && setOpen(true)} onPointerLeave={(e) => e.pointerType === "mouse" && setOpen(false)}>
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        onFocus={() => setOpen(true)}
+        onFocus={(e) => e.currentTarget.matches(":focus-visible") && setOpen(true)}
         onBlur={() => setOpen(false)}
         className="flex min-h-14 w-full cursor-pointer items-center gap-3 rounded-2xl border border-line bg-paper p-2.5 text-left transition-all duration-300 ease-bounce hover:-translate-y-px hover:border-(--tone) hover:shadow-card focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-(--tone)"
         aria-expanded={open}

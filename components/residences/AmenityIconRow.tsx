@@ -81,11 +81,18 @@ export function AmenityIconRow({
             <span
               key={item.name}
               className="relative"
-              onMouseEnter={(e) => {
+              onPointerEnter={(e) => {
+                if (e.pointerType !== "mouse") return;
                 setPinned(false);
                 show(i, e.currentTarget);
               }}
-              onMouseLeave={() => !pinned && setOpen((v) => (v === i ? null : v))}
+              onPointerLeave={(e) => e.pointerType === "mouse" && !pinned && setOpen((v) => (v === i ? null : v))}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                  setOpen(null);
+                  setPinned(false);
+                }
+              }}
             >
               <button
                 type="button"
@@ -101,7 +108,7 @@ export function AmenityIconRow({
                     setPinned(true);
                   }
                 }}
-                onFocus={(e) => show(i, e.currentTarget)}
+                onFocus={(e) => e.currentTarget.matches(":focus-visible") && show(i, e.currentTarget)}
                 onBlur={() => {
                   setOpen((v) => (v === i ? null : v));
                   setPinned(false);

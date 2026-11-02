@@ -65,8 +65,8 @@ export function HowItWorksSteps({ steps }: { steps: Step[] }) {
   return (
     <div
       className="grid gap-7 lg:grid-cols-[0.8fr_1.2fr] lg:items-center lg:gap-14"
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
+      onPointerEnter={(e) => e.pointerType === "mouse" && setHover(true)}
+      onPointerLeave={(e) => e.pointerType === "mouse" && setHover(false)}
     >
       {/* Slogans (solo desktop) */}
       <div className="hidden lg:block">
@@ -235,7 +235,7 @@ export function HowItWorksSteps({ steps }: { steps: Step[] }) {
                 aria-label={`Paso ${i + 1}: ${s.title}`}
                 aria-current={i === active}
                 onClick={() => goMobile(i)}
-                className="flex h-11 w-6 items-center justify-center"
+                className="relative flex h-11 w-6 items-center justify-center before:absolute before:-inset-x-2.5 before:inset-y-0 before:content-['']"
               >
                 <i className={`h-2 rounded-full transition-all duration-300 ease-bounce ${i === active ? "w-[22px] bg-forest" : "w-2 bg-line-2"}`} />
               </button>
