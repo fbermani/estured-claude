@@ -1479,3 +1479,7 @@ Decisión del dueño. El orden «Recomendado» pasa a «disponibles primero»:
 ### DR25: microcopy «a quién se paga y cuándo» en el panel de solicitud (2026-11-01)
 
 Decisión del dueño (variante «pasos visuales»). Bajo el botón de enviar solicitud de la ficha (`RequestPanel`), tres pasos cortos: **1. Enviás la solicitud (gratis)** → **2. Si la residencia avanza, le pagás a ella** (matrícula, seña o depósito) → **3. Pagás a EstuRed el 5% de servicio**. Se mantiene «Toda reserva está sujeta a confirmación». No promete disponibilidad ni plazo de pago; el detalle sigue en «Qué pagás y a quién» (`WhoGetsPaid`). Respeta la regla 3 (pago a residencia y fee son entidades distintas).
+
+### DR26: Google SSO fuera del MVP (2026-11-01)
+
+Decisión del dueño. El registro e ingreso siguen con email y contraseña (mínimo 8 caracteres, sin endurecer). Google SSO queda como idea futura: exigiría un callback que asigne el rol (estudiante/familiar) y registre los consentimientos de términos y privacidad antes de crear la cuenta; las residencias y el staff siguen entrando solo por invitación. Se retoma después del lanzamiento si la fricción del registro lo justifica.
