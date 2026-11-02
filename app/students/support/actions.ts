@@ -20,6 +20,21 @@ export async function openStudentSupportCase(_prev: OpenCaseState, formData: For
 
   if (!residenceId) return { status: "error", message: "Elegí a qué residencia corresponde el reclamo." };
 
+  // Misma regla que la lista del formulario: solo residencias con las que el estudiante tiene una solicitud o reserva.
+  const { data: studentProfile } = await admin
+    .from("student_profiles")
+    .select("id")
+    .eq("user_id", sessionUser.id)
+    .maybeSingle();
+  if (!studentProfile) return { status: "error", message: "Completá tu perfil de estudiante para abrir un caso." };
+  const [{ data: apps }, { data: reservations }] = await Promise.all([
+    admin.from("application_requests").select("id").eq("student_profile_id", studentProfile.id).eq("residence_id", residenceId).limit(1),
+    admin.from("reservations").select("id").eq("student_profile_id", studentProfile.id).eq("residence_id", residenceId).limit(1),
+  ]);
+  if (!apps?.length && !reservations?.length) {
+    return { status: "error", message: "Solo podés abrir un caso sobre una residencia con la que tengas una solicitud o reserva." };
+  }
+
   let result: OpenSupportCaseResult;
   try {
     result = await openSupportCase(admin, {
