@@ -47,13 +47,13 @@ export async function sendEmail(entry: {
 }): Promise<boolean> {
   const to = sanitizeAddress(entry.to);
   if (!to) {
-    console.error("[email] destinatario inválido — email no enviado:", entry.subject);
+    console.error("[email] destinatario inválido — email no enviado");
     return false;
   }
   const replyTo = entry.replyTo ? sanitizeAddress(entry.replyTo) : null;
   const resend = getClient();
   if (!resend) {
-    console.error("[email] RESEND_API_KEY no configurada — email no enviado:", entry.subject);
+    console.error("[email] RESEND_API_KEY no configurada — email no enviado");
     return false;
   }
   const { error } = await resend.emails.send({
@@ -64,7 +64,7 @@ export async function sendEmail(entry: {
     html: entry.html,
   });
   if (error) {
-    console.error("[email] envío falló:", error.name, error.message, entry.subject);
+    console.error("[email] envío falló:", error.name, error.message);
     return false;
   }
   return true;

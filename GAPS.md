@@ -391,3 +391,9 @@ No hay TODOs/FIXMEs en el código (verificado por grep) — la deuda está docum
 - **[PREEXISTENTE, riesgo]** El registro común de estudiante crea la cuenta con `email_confirm: true` sin verificar el mail: un tercero puede registrar el mail ajeno antes que su dueño. DR19 no lo cambia (el vínculo con una estadía exige enlace + código o aprobación), pero conviene verificar el mail en el alta.
 - **[RIESGO ACEPTADO]** El código de casa es un oráculo de existencia (dice si un código corresponde a una residencia publicada) y, en estadías sin mail, un enlace + OTP permite disparar códigos a un mail arbitrario. Mitigaciones: tope de intentos/envíos de OTP por invitación persistido en la base (`consume_invite_otp_attempt` / `register_invite_otp_send`, 0064), 15 intentos acumulados y 6 códigos por invitación, y la estadía sin mail solo genera una solicitud que la residencia confirma.
 - **[LÍMITE FIRME PENDIENTE]** Los throttles por IP / usuario / token (`lib/residents/inviteThrottle.ts`, `verifyRateLimit`) son en memoria por instancia: el límite firme va en el WAF de Vercel o en un store compartido (Redis/Upstash) sobre `/register/student`, `/students/residency/invite` y `/login`.
+
+## Avisos de llegada, DR29 lote 2B (2026-11-02)
+
+- **[PENDIENTE DE ACCIÓN]** Migración 0069 (`arrival_reminder_sends`) sin aplicar en dev ni prod; hasta entonces el job `notifyArrivalReminders` no envía nada (degrada sin romper el cron).
+- **[BLOQUEANTE PARA EL MAIL]** El mail de los avisos solo sale con `EMAIL_DOMAIN_VERIFIED=true`; sin dominio verificado en Resend (ver DR19 arriba) queda solo in-app. `NEXT_PUBLIC_SITE_URL` arma los enlaces del mail (por defecto estured.vercel.app).
+- **[RIESGO ACEPTADO]** El envío se registra antes de mandar: si el mail o la notificación fallan después, ese aviso no se reintenta. Un aviso perdido es preferible a duplicarlo.

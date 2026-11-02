@@ -95,3 +95,11 @@ describe("notificationAreaForRoles", () => {
     expect(notificationAreaForRoles([])).toBe("student");
   });
 });
+
+describe("notificationHref · arrival_reminders (DR29 2B)", () => {
+  it("lleva al inicio del estudiante y del familiar", () => {
+    const id = "11111111-1111-4111-8111-111111111111";
+    expect(notificationHref({ entityType: "arrival_reminders", entityId: id, area: "student" })).toBe("/students/dashboard");
+    expect(notificationHref({ entityType: "arrival_reminders", entityId: id, area: "student", isFamily: true })).toBe("/students/dashboard");
+  });
+});

@@ -86,6 +86,9 @@ export function notificationHref(
       case "stay_followups":
         // DR14: encuesta de seguimiento post-ingreso (la ve el estudiante, o el familiar vinculado si es menor).
         return id ? `/students/followup/${id}` : null;
+      case "arrival_reminders":
+        // DR29 2B: aviso de llegada; la tarjeta «Tu llegada» vive en el inicio (estudiante y familiar).
+        return "/students/dashboard";
       case "stay_change_intents":
         // DR3 "Quiero cambiar": el bloque vive en Mi residencia (el familiar lo ve en solo lectura en la misma ruta).
         return "/students/residency#quiero-cambiar";
