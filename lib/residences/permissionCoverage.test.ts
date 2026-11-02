@@ -94,6 +94,7 @@ const ALLOWLIST: Record<string, string> = {
   // Alta de residencia: la hace el dueño al registrarse / sumar otra
   "lib/residences/addResidenceForOwner.ts": "solo dueño por rol global; lo llama settings/new (ALLOWLIST)",
   // Admin
+  "lib/residents/missingResidencesAdmin.ts": "solo admin (requireAdmin en app/admin/residencias-pedidas/actions.ts, service role): pedidos de residencias que aún no existen",
   "lib/residences/setResidencePausedByAdmin.ts": "solo admin (requireAdmin en la acción)",
   "lib/residences/setResidenceLocationByAdmin.ts": "solo admin",
   "lib/residences/setOperationalAccessByAdmin.ts": "solo admin",

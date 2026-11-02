@@ -8,11 +8,11 @@ import { describe, expect, it } from "vitest";
  *
  * Falla si aparece `actorRole: "residence_owner"` o `changed_by_role: "residence_owner"` hardcodeado en `lib/**` o `app/residence/**`.
  * Excepciones legítimas (la acción solo la hace el dueño, por construcción): `lib/team` (invitar/cancelar/quitar acceso: solo dueño,
- * `assertResidenceOwner`) y `addResidenceForOwner` (sumar una residencia es solo del dueño). Los tests no cuentan.
+ * `assertResidenceOwner`) `addResidenceForOwner` (sumar una residencia es solo del dueño) y `residenceSignup/signupRequests` (el alta por invitación crea al dueño: no hay vínculo previo del que leer el rol). Los tests no cuentan.
  */
 const ROOT = process.cwd();
 const SCAN_DIRS = ["lib", join("app", "residence")];
-const EXCLUDED = [join("lib", "team") + sep, join("lib", "residences", "addResidenceForOwner.ts")];
+const EXCLUDED = [join("lib", "team") + sep, join("lib", "residences", "addResidenceForOwner.ts"), join("lib", "residenceSignup", "signupRequests.ts")];
 const HARDCODED = /\b(?:actorRole|actor_role|changed_by_role)\s*:\s*["']residence_owner["']/;
 
 function walk(dir: string, out: string[] = []): string[] {

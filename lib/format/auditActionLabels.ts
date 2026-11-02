@@ -12,6 +12,10 @@ const ACTION_PHRASES: Record<string, string> = {
   // Altas y perfiles
   student_registered: "se registró como estudiante",
   residence_registered: "registró una residencia",
+  residence_signup_status_changed: "cambió el estado de una solicitud de alta de residencia",
+  residence_signup_email_confirmed: "confirmó el email de una solicitud de alta de residencia",
+  residence_signup_invite_generated: "generó el enlace de invitación para el alta de una residencia",
+  residence_signup_account_delivered: "completó el alta de una residencia y creó su cuenta",
   family_registered_and_link_requested: "se registró como familiar y pidió vincularse",
   student_profile_updated: "actualizó su perfil",
   student_document_uploaded: "subió un documento de estudiante",
