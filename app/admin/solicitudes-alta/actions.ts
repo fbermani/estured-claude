@@ -11,7 +11,7 @@ export type AdminActionState = { status: "idle" | "ok" | "error"; message?: stri
 const NO_ACCESS: AdminActionState = { status: "error", message: "No tenés permiso o el servicio no está disponible." };
 const result = (r: { ok: true } | { ok: false; error: string }): AdminActionState => (r.ok ? { status: "ok" } : { status: "error", message: r.error });
 
-/** Cambio de estado: `<button name="to" value="in_contact">` nativo. Rol admin y transición se validan en el servidor. */
+/** Cambio de estado: `<input type="hidden" name="to">` en un form por botón. Rol admin y transición se validan en el servidor. */
 export async function changeStatusAction(_prev: AdminActionState, formData: FormData): Promise<AdminActionState> {
   const user = await getAdminSession();
   const admin = getSupabaseAdmin();

@@ -112,7 +112,8 @@ export default async function AdminSignupRequestsPage({ searchParams }: { search
                     {nextStates.map((s) => (
                       <ActionForm key={s} action={changeStatusAction}>
                         <input type="hidden" name="id" value={r.id} />
-                        <button type="submit" name="to" value={s} className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-bold" style={s === "discarded" ? { border: `1.5px solid ${cmd.border}`, color: cmd.onSurface } : { backgroundColor: cmd.onSurface, color: "#fff" }}>
+                        <input type="hidden" name="to" value={s} />
+                        <button type="submit" className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-bold" style={s === "discarded" ? { border: `1.5px solid ${cmd.border}`, color: cmd.onSurface } : { backgroundColor: cmd.onSurface, color: "#fff" }}>
                           {s === "discarded" ? "Descartar" : `Pasar a «${SIGNUP_STATUS_LABEL[s]}»`}
                         </button>
                       </ActionForm>
