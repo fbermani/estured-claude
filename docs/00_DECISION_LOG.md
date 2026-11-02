@@ -1475,3 +1475,7 @@ Decisión del dueño. El orden «Recomendado» pasa a «disponibles primero»:
 - **Grupo 3:** completas o en pausa (`full`, `paused_by_residence`, `paused_by_admin`).
 - Dentro de cada grupo, más recientes primero (`created_at` desc). No se oculta ninguna residencia.
 - No se infieren cupos: solo se usa el estado ya calculado que muestra `StatusTag`. Aplica a `/search` y a la home/hero. Los órdenes por precio no cambian.
+
+### DR25: microcopy «a quién se paga y cuándo» en el panel de solicitud (2026-11-01)
+
+Decisión del dueño (variante «pasos visuales»). Bajo el botón de enviar solicitud de la ficha (`RequestPanel`), tres pasos cortos: **1. Enviás la solicitud (gratis)** → **2. Si la residencia avanza, le pagás a ella** (matrícula, seña o depósito) → **3. Pagás a EstuRed el 5% de servicio**. Se mantiene «Toda reserva está sujeta a confirmación». No promete disponibilidad ni plazo de pago; el detalle sigue en «Qué pagás y a quién» (`WhoGetsPaid`). Respeta la regla 3 (pago a residencia y fee son entidades distintas).
