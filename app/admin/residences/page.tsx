@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
+import { ScrollTable } from "@/components/ui/ScrollTable";
 import { cmd } from "@/components/admin/ui/tokens";
 import { PauseResidenceControl } from "@/app/admin/residences/PauseResidenceControl";
 import { OperationalAccessControl } from "@/app/admin/residences/OperationalAccessControl";
@@ -53,7 +54,7 @@ export default async function AdminResidencesPage({
   const pausedCount = allResidences.filter((r) => r.status === "paused_by_admin").length;
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-8">
       <h1 className="text-[28px] font-bold tracking-tight" style={{ color: cmd.onSurface }}>
         Residencias
       </h1>
@@ -81,13 +82,49 @@ export default async function AdminResidencesPage({
           name="q"
           defaultValue={q ?? ""}
           placeholder="Buscar por nombre…"
-          className="w-72 rounded-full px-4 py-2 text-sm"
+          className="w-full rounded-full px-4 py-2 text-sm sm:w-72"
           style={{ border: `1.5px solid ${cmd.border}`, backgroundColor: cmd.surface, color: cmd.onSurface }}
         />
       </form>
 
       <AdminCard className="mt-6 overflow-hidden">
-        <div className="overflow-x-auto">
+        <ul className="divide-y md:hidden" style={{ borderColor: cmd.border }} aria-label="Residencias">
+          {residences.map((r) => {
+            const badge = RESIDENCE_STATUS_BADGE[r.status] ?? { label: r.status, tone: "neutral" as const };
+            const canToggle = r.status === "verified_active" || r.status === "paused_by_admin";
+            return (
+              <li key={r.id} className="p-4 [&_button]:min-h-11 [&_button]:px-4">
+                <Link
+                  href={`/admin/residences/${r.id}`}
+                  className="inline-flex min-h-11 items-center font-bold hover:underline"
+                  style={{ color: cmd.primary }}
+                >
+                  {r.name}
+                </Link>
+                <p className="text-xs" style={{ color: cmd.outline }}>
+                  {r.public_area ?? "—"} · Alta {formatDate(r.created_at)}
+                </p>
+                <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                  <AdminBadge tone={badge.tone}>{badge.label}</AdminBadge>
+                  {staleByResidence.has(r.id) && <AdminBadge tone="amber">Disponibilidad vencida</AdminBadge>}
+                  <AdminBadge tone={r.has_operational_management_access ? "emerald" : "neutral"}>
+                    {r.has_operational_management_access ? "Gestión con acceso" : "Gestión sin acceso"}
+                  </AdminBadge>
+                </div>
+                <div className="mt-3 flex flex-col items-stretch gap-2">
+                  {canToggle && <PauseResidenceControl residenceId={r.id} isPaused={r.status === "paused_by_admin"} />}
+                  <OperationalAccessControl
+                    residenceId={r.id}
+                    hasAccess={r.has_operational_management_access}
+                    expiresUntil={r.pioneer_free_access_until}
+                  />
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+        <div className="hidden md:block">
+          <ScrollTable label="Residencias">
         <table className="w-full text-left text-sm">
           <thead style={{ backgroundColor: cmd.surfaceContainerLow, borderBottom: `1px solid ${cmd.border}` }}>
             <tr>
@@ -141,6 +178,7 @@ export default async function AdminResidencesPage({
             })}
           </tbody>
         </table>
+          </ScrollTable>
         </div>
         {residences.length === 0 && (
           <p className="p-6 text-sm" style={{ color: cmd.outline }}>

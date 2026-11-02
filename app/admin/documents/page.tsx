@@ -3,6 +3,8 @@ import { formatDate } from "@/lib/dates/format";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { ScrollTable } from "@/components/ui/ScrollTable";
+import { Select } from "@/components/ui/Input";
 import { cmd } from "@/components/admin/ui/tokens";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
@@ -90,7 +92,7 @@ export default async function AdminDocumentsPage({
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-8">
       <div className="mb-6">
         <h1 className="text-[28px] font-bold tracking-tight" style={{ color: cmd.onSurface }}>
           Administración de Documentos
@@ -100,7 +102,30 @@ export default async function AdminDocumentsPage({
         </p>
       </div>
 
-      <div className="mb-4 flex flex-wrap items-center gap-3">
+      {/* < md: búsqueda + Select de tipo (sin 15 chips) */}
+      <form method="get" className="mb-4 flex flex-col gap-3 md:hidden">
+        <input
+          type="text"
+          name="q"
+          defaultValue={q ?? ""}
+          placeholder="Buscar por nombre de archivo…"
+          aria-label="Buscar por nombre de archivo"
+          className="min-h-11 w-full rounded px-3 py-2 text-base"
+          style={{ border: `1px solid ${cmd.outline}` }}
+        />
+        <Select label="Tipo de documento" name="type" defaultValue={type ?? ""}>
+          <option value="">Todos</option>
+          {Object.entries(DOCUMENT_TYPE_LABELS).map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </Select>
+        <button type="submit" className="min-h-11 rounded px-4 py-2 text-sm font-bold text-white" style={{ backgroundColor: cmd.primary }}>
+          Filtrar
+        </button>
+      </form>
+      <div className="mb-4 hidden flex-wrap items-center gap-3 md:flex">
         <form className="flex items-center gap-2">
           <input
             type="text"
@@ -142,7 +167,53 @@ export default async function AdminDocumentsPage({
             No hay documentos que coincidan con la búsqueda.
           </p>
         ) : (
-          <div className="overflow-x-auto">
+          <>
+          <ul className="divide-y md:hidden" style={{ borderColor: cmd.border }} aria-label="Documentos">
+            {files.map((f) => {
+              const isSensitive = SENSITIVE_TYPES.has(f.document_type);
+              const entityLabel =
+                f.related_entity_type === "residences"
+                  ? residenceNames.get(f.related_entity_id) ?? "Residencia"
+                  : auditEntityLabel(f.related_entity_type);
+              return (
+                <li key={f.id} className="p-4 [&_button]:min-h-11">
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="min-w-0 break-all font-bold" style={{ color: cmd.onSurface }}>
+                      {f.filename}
+                    </p>
+                    <div className="shrink-0">
+                      <AdminBadge tone={f.status === "approved" ? "emerald" : f.status === "rejected" ? "rose" : "amber"}>
+                        {DOCUMENT_STATUS_LABELS[f.status] ?? "En revisión"}
+                      </AdminBadge>
+                    </div>
+                  </div>
+                  <p className="mt-1 text-sm" style={{ color: cmd.onSurfaceVariant }}>
+                    {DOCUMENT_TYPE_LABELS[f.document_type] ?? f.document_type} · {entityLabel}
+                  </p>
+                  <p className="mt-1 break-all text-xs" style={{ color: cmd.outline }}>
+                    {f.users?.email ?? "—"} · {formatDate(f.created_at)}
+                  </p>
+                  <div className="mt-2">
+                    {isSensitive ? (
+                      <DocumentAccessButton fileId={f.id} label="Ver →" />
+                    ) : (
+                      <a
+                        href={admin!.storage.from(f.bucket).getPublicUrl(f.storage_path).data.publicUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex min-h-11 items-center text-xs font-bold underline"
+                        style={{ color: cmd.primary }}
+                      >
+                        Ver (público) →
+                      </a>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+          <div className="hidden md:block">
+          <ScrollTable label="Documentos">
             <table className="w-full text-left text-sm">
               <thead style={{ backgroundColor: cmd.surfaceContainer }}>
                 <tr>
@@ -202,7 +273,9 @@ export default async function AdminDocumentsPage({
                 })}
               </tbody>
             </table>
+          </ScrollTable>
           </div>
+          </>
         )}
       </AdminCard>
     </div>

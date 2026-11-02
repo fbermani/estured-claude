@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
+import { ScrollTable } from "@/components/ui/ScrollTable";
 import { cmd } from "@/components/admin/ui/tokens";
 import { ReopenApplicationControl } from "@/app/admin/applications/ReopenApplicationControl";
 import { getVisibleStatus } from "@/lib/applications/visibleStatus";
@@ -61,7 +62,7 @@ export default async function AdminApplicationsPage() {
   const activeCount = applications.filter((a) => !CLOSED_STATUSES.includes(a.status)).length;
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-8">
       <h1 className="text-[28px] font-bold tracking-tight" style={{ color: cmd.onSurface }}>
         Solicitudes
       </h1>
@@ -71,7 +72,46 @@ export default async function AdminApplicationsPage() {
       </p>
 
       <AdminCard className="mt-6 overflow-hidden">
-        <div className="overflow-x-auto">
+        <ul className="divide-y md:hidden" style={{ borderColor: cmd.border }} aria-label="Solicitudes">
+          {applications.map((a) => {
+            const visible = getVisibleStatus({
+              applicationStatus: a.status,
+              reservation: reservationInfoByAppId.get(a.id),
+              viewer: "admin",
+            });
+            const badgeTone = visible.key === "rejected" ? "rose" : ADMIN_TONE[visible.tone];
+            return (
+              <li key={a.id} className="p-4 [&_button]:min-h-11 [&_button]:px-4">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="min-w-0 font-medium" style={{ color: cmd.onSurface }}>
+                    {a.student_profiles ? formatShortName(a.student_profiles.first_name, a.student_profiles.last_initial) : "—"}
+                  </p>
+                  <div className="shrink-0">
+                    <AdminBadge tone={badgeTone}>{visible.label}</AdminBadge>
+                  </div>
+                </div>
+                <p className="mt-1 text-sm" style={{ color: cmd.onSurfaceVariant }}>
+                  {a.residences?.name}
+                  {a.residences?.public_area && (
+                    <span className="block text-xs" style={{ color: cmd.outline }}>
+                      {a.residences.public_area}
+                    </span>
+                  )}
+                </p>
+                <p className="mt-2 text-xs" style={{ color: cmd.outline }}>
+                  {a.room_types?.name ?? "—"} · Ingreso {formatDateOnly(a.desired_start_date)} · Enviada {formatDate(a.created_at)}
+                </p>
+                {REOPENABLE_STATUSES.includes(a.status) && (
+                  <div className="mt-3 flex justify-end">
+                    <ReopenApplicationControl applicationId={a.id} />
+                  </div>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+        <div className="hidden md:block">
+          <ScrollTable label="Solicitudes">
         <table className="w-full text-left text-sm">
           <thead style={{ backgroundColor: cmd.surfaceContainerLow, borderBottom: `1px solid ${cmd.border}` }}>
             <tr>
@@ -128,6 +168,7 @@ export default async function AdminApplicationsPage() {
             })}
           </tbody>
         </table>
+          </ScrollTable>
         </div>
         {applications.length === 0 && (
           <p className="p-6 text-sm" style={{ color: cmd.outline }}>
