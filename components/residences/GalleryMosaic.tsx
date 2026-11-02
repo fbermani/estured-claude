@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Icon } from "@/components/ui/Icon";
 import type { GalleryLayout } from "@/lib/residences/photos";
 import { groupGalleryPhotos, pickRotationPhotos, type GalleryPhoto } from "@/lib/residences/photoMeta";
-import { useRotation } from "@/components/residences/useRotation";
+import { useRotation, useSwipe } from "@/components/residences/useRotation";
 
 /**
  * Mosaico del hero de la ficha (2+ fotos) con visor de todas las fotos en
@@ -71,6 +71,7 @@ export function GalleryMosaic({
     if (!seen.has(heroIndex)) setSeen(new Set(seen).add(heroIndex));
   }
   const rotates = rotation.length > 1;
+  const swipe = useSwipe(heroGo);
   // La foto activa del hero no se repite en los tiles vecinos: estos se arman con el resto (destacadas primero, luego las demás).
   const activeHero = rotation[heroIndex] ?? photos[0];
   const neighbors = [...rotation, ...photos.filter((p) => !rotation.includes(p))].filter((p) => p !== activeHero);
@@ -100,6 +101,7 @@ export function GalleryMosaic({
     <>
       <div
         ref={heroRef}
+        {...(rotates ? swipe : {})}
         role="group"
         aria-roledescription={rotates ? "carrusel" : undefined}
         aria-label={rotates ? `Fotos destacadas de ${name}` : undefined}
@@ -109,7 +111,7 @@ export function GalleryMosaic({
         onBlur={(e) => {
           if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setPaused(false);
         }}
-        className="relative"
+        className={`relative ${rotates ? "touch-pan-y" : ""}`}
       >
         <div className="grid h-72 grid-cols-1 gap-2 overflow-hidden rounded-card sm:h-[420px] sm:grid-cols-4 sm:grid-rows-2">
           {visible.map((photo, i) => {
@@ -166,7 +168,7 @@ export function GalleryMosaic({
               type="button"
               onClick={() => heroGo(-1)}
               aria-label="Foto destacada anterior"
-              className="flex size-8 items-center justify-center rounded-full hover:bg-forest-tint focus-visible:outline focus-visible:outline-2 focus-visible:outline-forest"
+              className="flex size-11 items-center justify-center rounded-full hover:bg-forest-tint focus-visible:outline focus-visible:outline-2 focus-visible:outline-forest max-sm:pointer-events-none max-sm:opacity-0 max-sm:focus-visible:pointer-events-auto max-sm:focus-visible:opacity-100"
             >
               <Icon name="chevron_left" className="text-xl" />
             </button>
@@ -177,7 +179,7 @@ export function GalleryMosaic({
               type="button"
               onClick={() => heroGo(1)}
               aria-label="Foto destacada siguiente"
-              className="flex size-8 items-center justify-center rounded-full hover:bg-forest-tint focus-visible:outline focus-visible:outline-2 focus-visible:outline-forest"
+              className="flex size-11 items-center justify-center rounded-full hover:bg-forest-tint focus-visible:outline focus-visible:outline-2 focus-visible:outline-forest max-sm:pointer-events-none max-sm:opacity-0 max-sm:focus-visible:pointer-events-auto max-sm:focus-visible:opacity-100"
             >
               <Icon name="chevron_right" className="text-xl" />
             </button>

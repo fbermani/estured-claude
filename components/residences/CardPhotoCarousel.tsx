@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Icon } from "@/components/ui/Icon";
 import { ResidencePhoto } from "@/components/residences/ResidencePhoto";
-import { useRotation } from "@/components/residences/useRotation";
+import { useRotation, useSwipe } from "@/components/residences/useRotation";
 import { RotationToggle } from "@/components/residences/RotationToggle";
 
 /**
@@ -41,6 +41,7 @@ export function CardPhotoCarousel({
     if (!seen.has(index)) setSeen(new Set(seen).add(index));
   }
   const multiple = photos.length > 1;
+  const swipe = useSwipe(go);
 
   return (
     <div
@@ -48,13 +49,14 @@ export function CardPhotoCarousel({
       role="group"
       aria-roledescription={multiple ? "carrusel" : undefined}
       aria-label={multiple ? `Fotos de ${name}` : undefined}
+      {...(multiple ? swipe : {})}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
       onBlur={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setPaused(false);
       }}
-      className={`group/photo relative w-full overflow-hidden bg-sand-200 ${className}`}
+      className={`group/photo relative w-full ${multiple ? "touch-pan-y" : ""} overflow-hidden bg-sand-200 ${className}`}
     >
       {photos.length === 0 ? (
         <ResidencePhoto src={null} name={name} zone={zone} sizes={sizes} label="Foto próximamente" />
@@ -82,8 +84,8 @@ export function CardPhotoCarousel({
         <>
           {(
             [
-              { delta: -1, icon: "chevron_left", label: "Foto anterior", side: "left-2" },
-              { delta: 1, icon: "chevron_right", label: "Foto siguiente", side: "right-2" },
+              { delta: -1, icon: "chevron_left", label: "Foto anterior", side: "left-0.5" },
+              { delta: 1, icon: "chevron_right", label: "Foto siguiente", side: "right-0.5" },
             ] as const
           ).map((b) => (
             <button
@@ -91,9 +93,11 @@ export function CardPhotoCarousel({
               type="button"
               onClick={() => go(b.delta)}
               aria-label={`${b.label} de ${name}`}
-              className={`absolute top-1/2 z-30 flex size-8 -translate-y-1/2 items-center justify-center rounded-full bg-paper/90 text-ink shadow-card transition-opacity hover:bg-paper focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-forest [@media(hover:hover)]:opacity-0 group-hover/photo:opacity-100 ${b.side}`}
+              className={`absolute top-1/2 z-30 flex size-11 -translate-y-1/2 items-center justify-center rounded-full focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-forest max-sm:pointer-events-none max-sm:opacity-0 max-sm:focus-visible:pointer-events-auto max-sm:focus-visible:opacity-100 [@media(hover:hover)]:opacity-0 group-hover/photo:opacity-100 ${b.side}`}
             >
-              <Icon name={b.icon} className="text-xl" />
+              <span className="flex size-8 items-center justify-center rounded-full bg-paper/90 text-ink shadow-card transition-colors hover:bg-paper">
+                <Icon name={b.icon} className="text-xl" />
+              </span>
             </button>
           ))}
           <RotationToggle playing={playing} onToggle={toggle} className="absolute bottom-0 left-0.5 z-30" />

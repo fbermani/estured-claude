@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { Icon } from "@/components/ui/Icon";
+import { useSwipe } from "@/components/residences/useRotation";
 import { ResidencePhotoPlaceholder } from "@/components/residences/ResidencePhoto";
 
 /**
@@ -13,6 +14,8 @@ import { ResidencePhotoPlaceholder } from "@/components/residences/ResidencePhot
  */
 export function PhotoCarousel({ photos, alt, zone }: { photos: string[]; alt: string; zone?: string }) {
   const [index, setIndex] = useState(0);
+  const count = photos.length;
+  const swipe = useSwipe((d) => setIndex((i) => (i + d + count) % Math.max(count, 1)));
 
   if (photos.length === 0)
     return (
@@ -24,7 +27,7 @@ export function PhotoCarousel({ photos, alt, zone }: { photos: string[]; alt: st
   const go = (delta: number) => setIndex((i) => (i + delta + photos.length) % photos.length);
 
   return (
-    <div className="group/carousel relative h-full w-full overflow-hidden">
+    <div {...(count > 1 ? swipe : {})} className={`group/carousel relative h-full w-full overflow-hidden ${count > 1 ? "touch-pan-y" : ""}`}>
       <div
         className="flex h-full transition-transform duration-500 ease-fresh"
         style={{ transform: `translateX(-${index * 100}%)` }}
@@ -53,7 +56,7 @@ export function PhotoCarousel({ photos, alt, zone }: { photos: string[]; alt: st
               go(-1);
             }}
             aria-label="Foto anterior"
-            className="absolute left-3 top-1/2 z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full bg-paper/90 text-ink opacity-0 shadow-sm transition-opacity duration-300 ease-fresh hover:bg-paper group-hover/carousel:opacity-100"
+            className="absolute left-3 top-1/2 z-10 flex size-11 -translate-y-1/2 items-center justify-center rounded-full bg-paper/90 text-ink opacity-0 shadow-sm transition-opacity duration-300 ease-fresh hover:bg-paper focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-forest group-hover/carousel:opacity-100 max-sm:pointer-events-none max-sm:opacity-0 max-sm:focus-visible:pointer-events-auto max-sm:focus-visible:opacity-100"
           >
             <Icon name="chevron_left" className="text-xl" />
           </button>
@@ -65,7 +68,7 @@ export function PhotoCarousel({ photos, alt, zone }: { photos: string[]; alt: st
               go(1);
             }}
             aria-label="Foto siguiente"
-            className="absolute right-3 top-1/2 z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full bg-paper/90 text-ink opacity-0 shadow-sm transition-opacity duration-300 ease-fresh hover:bg-paper group-hover/carousel:opacity-100"
+            className="absolute right-3 top-1/2 z-10 flex size-11 -translate-y-1/2 items-center justify-center rounded-full bg-paper/90 text-ink opacity-0 shadow-sm transition-opacity duration-300 ease-fresh hover:bg-paper focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-forest group-hover/carousel:opacity-100 max-sm:pointer-events-none max-sm:opacity-0 max-sm:focus-visible:pointer-events-auto max-sm:focus-visible:opacity-100"
           >
             <Icon name="chevron_right" className="text-xl" />
           </button>
