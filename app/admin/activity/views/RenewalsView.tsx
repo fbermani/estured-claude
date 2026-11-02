@@ -4,6 +4,7 @@ import { formatShortName } from "@/lib/format/shortName";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
+import { ScrollTable } from "@/components/ui/ScrollTable";
 import { cmd } from "@/components/admin/ui/tokens";
 import { RESIDENCE_OFFER_STATUS_COPY } from "@/lib/renewals/statusCopy";
 import { ReopenRenewalControl } from "@/app/admin/renewals/ReopenRenewalControl";
@@ -89,7 +90,7 @@ export async function RenewalsView() {
         Solicitudes de renovación
       </h2>
       <AdminCard className="mt-2 overflow-hidden">
-        <div className="overflow-x-auto">
+        <ScrollTable label="Renovaciones">
         <table className="w-full text-left text-sm">
           <thead style={{ backgroundColor: cmd.surfaceContainerLow, borderBottom: `1px solid ${cmd.border}` }}>
             <tr>
@@ -130,7 +131,7 @@ export async function RenewalsView() {
             })}
           </tbody>
         </table>
-        </div>
+        </ScrollTable>
         {requests.length === 0 && (
           <p className="p-6 text-sm" style={{ color: cmd.outline }}>
             Todavía no hay solicitudes de renovación.
@@ -142,7 +143,7 @@ export async function RenewalsView() {
         Ofertas de renovación
       </h2>
       <AdminCard className="mt-2 overflow-hidden">
-        <div className="overflow-x-auto">
+        <ScrollTable label="Ofertas de renovación">
         <table className="w-full text-left text-sm">
           <thead style={{ backgroundColor: cmd.surfaceContainerLow, borderBottom: `1px solid ${cmd.border}` }}>
             <tr>
@@ -189,7 +190,7 @@ export async function RenewalsView() {
             })}
           </tbody>
         </table>
-        </div>
+        </ScrollTable>
         {offers.length === 0 && (
           <p className="p-6 text-sm" style={{ color: cmd.outline }}>
             Todavía no hay ofertas de renovación.

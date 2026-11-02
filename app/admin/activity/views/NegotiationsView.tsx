@@ -3,6 +3,7 @@ import { formatShortName } from "@/lib/format/shortName";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
+import { ScrollTable } from "@/components/ui/ScrollTable";
 import { cmd } from "@/components/admin/ui/tokens";
 
 
@@ -55,7 +56,7 @@ export async function NegotiationsView() {
       </p>
 
       <AdminCard className="mt-6 overflow-hidden">
-        <div className="overflow-x-auto">
+        <ScrollTable label="Negociaciones">
         <table className="w-full text-left text-sm">
           <thead style={{ backgroundColor: cmd.surfaceContainerLow, borderBottom: `1px solid ${cmd.border}` }}>
             <tr>
@@ -104,7 +105,7 @@ export async function NegotiationsView() {
             })}
           </tbody>
         </table>
-        </div>
+        </ScrollTable>
         {proposals.length === 0 && (
           <p className="p-6 text-sm" style={{ color: cmd.outline }}>
             Todavía no hay propuestas de negociación en el sistema.

@@ -11,6 +11,7 @@ import { formatDateTime } from "@/lib/dates/format";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
+import { ScrollTable } from "@/components/ui/ScrollTable";
 import { cmd } from "@/components/admin/ui/tokens";
 
 
@@ -268,7 +269,7 @@ export async function LogsView({
       </AdminCard>
 
       <AdminCard className="mt-4 overflow-hidden">
-        <div className="overflow-x-auto">
+        <ScrollTable label="Registro de actividad">
         <table className="w-full text-left text-sm">
           <thead style={{ backgroundColor: cmd.surfaceContainerLow, borderBottom: `1px solid ${cmd.border}` }}>
             <tr>
@@ -332,7 +333,7 @@ export async function LogsView({
             ))}
           </tbody>
         </table>
-        </div>
+        </ScrollTable>
         {logs.length === 0 && (
           <p className="p-6 text-sm" style={{ color: cmd.outline }}>
             No hay eventos que coincidan con los filtros.

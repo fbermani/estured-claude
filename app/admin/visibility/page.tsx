@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
+import { ScrollTable } from "@/components/ui/ScrollTable";
 import { cmd } from "@/components/admin/ui/tokens";
 import { VisibilityControl } from "@/app/admin/visibility/VisibilityControl";
 import type { QualityVisibilityStatus } from "@/lib/residences/setQualityVisibilityByAdmin";
@@ -88,7 +89,7 @@ export default async function AdminVisibilityPage() {
       </p>
 
       <AdminCard className="mt-6 overflow-hidden">
-        <div className="overflow-x-auto">
+        <ScrollTable label="Visibilidad de residencias">
           <table className="w-full text-left text-sm">
             <thead style={{ backgroundColor: cmd.surfaceContainerLow, borderBottom: `1px solid ${cmd.border}` }}>
               <tr>
@@ -142,7 +143,7 @@ export default async function AdminVisibilityPage() {
               })}
             </tbody>
           </table>
-        </div>
+        </ScrollTable>
         {residences.length === 0 && (
           <p className="p-6 text-sm" style={{ color: cmd.outline }}>
             Todavía no hay residencias registradas.

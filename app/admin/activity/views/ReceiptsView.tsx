@@ -3,6 +3,7 @@ import { formatShortName } from "@/lib/format/shortName";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
+import { ScrollTable } from "@/components/ui/ScrollTable";
 import { cmd } from "@/components/admin/ui/tokens";
 import { ReissueForm } from "@/app/admin/receipts/ReissueForm";
 
@@ -50,7 +51,7 @@ export async function ReceiptsView() {
       </p>
 
       <AdminCard className="mt-6 overflow-hidden">
-        <div className="overflow-x-auto">
+        <ScrollTable label="Comprobantes">
         <table className="w-full text-left text-sm">
           <thead style={{ backgroundColor: cmd.surfaceContainerLow, borderBottom: `1px solid ${cmd.border}` }}>
             <tr>
@@ -106,7 +107,7 @@ export async function ReceiptsView() {
             })}
           </tbody>
         </table>
-        </div>
+        </ScrollTable>
         {receipts.length === 0 && (
           <p className="p-6 text-sm" style={{ color: cmd.outline }}>
             Todavía no hay comprobantes emitidos.

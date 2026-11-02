@@ -3,6 +3,7 @@ import { formatShortName } from "@/lib/format/shortName";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
+import { ScrollTable } from "@/components/ui/ScrollTable";
 import { cmd } from "@/components/admin/ui/tokens";
 import { RemoveWaitlistEntryControl } from "@/app/admin/waitlists/RemoveWaitlistEntryControl";
 
@@ -57,7 +58,7 @@ export async function WaitlistsView() {
       </p>
 
       <AdminCard className="mt-6 overflow-hidden">
-        <div className="overflow-x-auto">
+        <ScrollTable label="Listas de espera">
         <table className="w-full text-left text-sm">
           <thead style={{ backgroundColor: cmd.surfaceContainerLow, borderBottom: `1px solid ${cmd.border}` }}>
             <tr>
@@ -108,7 +109,7 @@ export async function WaitlistsView() {
             })}
           </tbody>
         </table>
-        </div>
+        </ScrollTable>
         {entries.length === 0 && (
           <p className="p-6 text-sm" style={{ color: cmd.outline }}>
             Todavía no hay entradas en ninguna lista de espera.

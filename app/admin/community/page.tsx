@@ -1,6 +1,7 @@
 import { formatShortName } from "@/lib/format/shortName";
 import type { Metadata } from "next";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { ScrollTable } from "@/components/ui/ScrollTable";
 import { cmd } from "@/components/admin/ui/tokens";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
@@ -65,7 +66,7 @@ export default async function AdminCommunityPage() {
             No hay residentes cargados todavía.
           </p>
         ) : (
-          <div className="overflow-x-auto">
+          <ScrollTable label="Residentes de la comunidad">
             <table className="w-full text-left text-sm">
               <thead style={{ backgroundColor: cmd.surfaceContainer }}>
                 <tr>
@@ -110,7 +111,7 @@ export default async function AdminCommunityPage() {
                 })}
               </tbody>
             </table>
-          </div>
+          </ScrollTable>
         )}
       </AdminCard>
     </div>
