@@ -37,7 +37,31 @@ export type PhotoMetaInput = {
   area: PhotoArea | null;
   roomTypeId: string | null;
   featured: boolean;
+  /** Sección con nombre (DR30, migración 0070); null = sugerida por área / tipo o «Fotos adicionales». */
+  section: string | null;
+  sortOrder: number;
 };
+
+export const MAX_SECTION_LENGTH = 40;
+export const DEFAULT_SECTION = "Fotos adicionales";
+export const SECTION_SUGGESTIONS = [
+  "Living",
+  "Cocina completa",
+  "Comedor",
+  "Dormitorio 1",
+  "Dormitorio 2",
+  "Baño completo",
+  "Exterior",
+  "Pileta",
+  DEFAULT_SECTION,
+] as const;
+
+/** Normaliza el nombre de una sección: trim y espacios colapsados. Vacío → null. */
+export function normalizeSection(raw: unknown): string | null {
+  if (typeof raw !== "string") return null;
+  const t = raw.replace(/\s+/g, " ").trim();
+  return t === "" ? null : t;
+}
 
 export type PhotoMetaValidation =
   | { ok: true; items: PhotoMetaInput[] }
@@ -75,7 +99,12 @@ export function validatePhotoMeta(
         return { ok: false, error: "Elegí el tipo de habitación de las fotos marcadas como «Por tipo de habitación»." };
       roomTypeId = e.roomTypeId;
     }
-    items.push({ fileId, category, area, roomTypeId, featured: e.featured === true });
+    const section = normalizeSection(e.section);
+    if (section && section.length > MAX_SECTION_LENGTH)
+      return { ok: false, error: `El nombre de la sección puede tener hasta ${MAX_SECTION_LENGTH} caracteres.` };
+    const sortOrder =
+      typeof e.sortOrder === "number" && Number.isInteger(e.sortOrder) && e.sortOrder >= 0 && e.sortOrder <= 9999 ? e.sortOrder : 0;
+    items.push({ fileId, category, area, roomTypeId, featured: e.featured === true, section, sortOrder });
   }
   const featuredCount = items.filter((i) => i.featured).length;
   if (featuredCount > MAX_FEATURED_PHOTOS)
@@ -90,7 +119,39 @@ export type GalleryPhoto = {
   area: string | null;
   roomTypeName: string | null;
   featured: boolean;
+  /** Sección con nombre elegida por la residencia (DR30). */
+  section?: string | null;
+  sortOrder?: number;
 };
+
+/** Sección efectiva: la elegida, o el área / tipo de habitación, o «Fotos adicionales». */
+export function effectiveSection(p: Pick<GalleryPhoto, "section" | "category" | "area" | "roomTypeName">): string {
+  const own = normalizeSection(p.section);
+  if (own) return own;
+  if (p.category === "area") return areaLabel(p.area);
+  if (p.category === "room_type" && p.roomTypeName) return p.roomTypeName;
+  return DEFAULT_SECTION;
+}
+
+/**
+ * Agrupa por sección efectiva para el visor «Ver todas»: las fotos se ordenan por `sortOrder` (estable) y las secciones salen por
+ * orden de primera aparición, con «Fotos adicionales» siempre al final. Sección = comparación sin distinguir mayúsculas.
+ */
+export function groupPhotosBySections<T extends Pick<GalleryPhoto, "section" | "category" | "area" | "roomTypeName" | "sortOrder">>(
+  photos: T[],
+): { key: string; title: string; photos: T[] }[] {
+  const sorted = photos.map((p, i) => ({ p, i })).sort((a, b) => (a.p.sortOrder ?? 0) - (b.p.sortOrder ?? 0) || a.i - b.i);
+  const groups = new Map<string, { key: string; title: string; photos: T[] }>();
+  for (const { p } of sorted) {
+    const title = effectiveSection(p);
+    const key = title.toLowerCase();
+    const g = groups.get(key) ?? { key, title, photos: [] };
+    g.photos.push(p);
+    groups.set(key, g);
+  }
+  const extra = DEFAULT_SECTION.toLowerCase();
+  return [...groups.values()].sort((a, b) => Number(a.key === extra) - Number(b.key === extra));
+}
 
 /** Las fotos que rotan: las destacadas (hasta 5) o, si no hay, las primeras 5. */
 export function pickRotationPhotos<T extends { featured: boolean }>(photos: T[]): T[] {

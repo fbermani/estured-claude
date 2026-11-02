@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import Image from "next/image";
 import { Icon } from "@/components/ui/Icon";
 import type { GalleryLayout } from "@/lib/residences/photos";
-import { groupGalleryPhotos, pickRotationPhotos, type GalleryPhoto } from "@/lib/residences/photoMeta";
+import { groupPhotosBySections, pickRotationPhotos, type GalleryPhoto } from "@/lib/residences/photoMeta";
 import { useRotation, useSwipe } from "@/components/residences/useRotation";
 
 /**
@@ -40,6 +40,8 @@ export function GalleryMosaic({
   layout: Exclude<GalleryLayout, "empty" | "single">;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const uid = useId();
   const bodyOverflowRef = useRef<string | null>(null);
 
   function lockScroll() {
@@ -57,8 +59,8 @@ export function GalleryMosaic({
   const place = zone ? ` en ${zone}` : "";
   // DR18: el hero rota las destacadas (hasta 5); si hay menos de 5, los tiles se completan con el resto de la galería.
   const rotation = pickRotationPhotos(photos);
-  // Orden del visor: agrupado por General / área / tipo de habitación.
-  const groups = groupGalleryPhotos(photos);
+  // Orden del visor (DR30): agrupado por sección con nombre (o área / tipo sugeridos), «Fotos adicionales» al final.
+  const groups = groupPhotosBySections(photos);
   const ordered = groups.flatMap((g) => g.photos);
   const [paused, setPaused] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -78,6 +80,12 @@ export function GalleryMosaic({
   const visible = [activeHero, ...neighbors].slice(0, Math.min(total, 5));
   const spans = TILE_SPANS[visible.length] ?? TILE_SPANS[5];
   const showAll = layout === "mosaic-more";
+
+  function scrollToSection(index: number) {
+    const el = scrollRef.current?.querySelector<HTMLElement>(`[data-section-index="${index}"]`);
+    el?.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    el?.querySelector<HTMLElement>("h3")?.focus?.();
+  }
 
   function openPhoto(photo: GalleryPhoto) {
     openAt(Math.max(0, ordered.indexOf(photo)));
@@ -229,30 +237,64 @@ export function GalleryMosaic({
             Cerrar
           </button>
         </div>
-        <div className="max-h-[calc(92vh-56px)] space-y-5 overflow-y-auto p-3 sm:p-4">
-          {groups.map((group) => (
-            <section key={group.key} aria-label={group.title} className="space-y-3">
-              {groups.length > 1 && <h3 className="text-sm font-bold text-ink">{group.title}</h3>}
-              {group.photos.map((photo) => {
-                const i = ordered.indexOf(photo);
-                return (
-                  <div
-                    key={photo.url}
-                    data-photo-index={i}
-                    className="relative aspect-[4/3] w-full scroll-mt-2 overflow-hidden rounded-field bg-sand-200"
-                  >
-                    <Image
-                      src={photo.url}
-                      alt={`${group.title}: foto ${i + 1} de ${total} de ${name}${place}`}
-                      fill
-                      sizes="(max-width: 1024px) 94vw, 920px"
-                      className="object-cover"
-                    />
-                  </div>
-                );
-              })}
-            </section>
-          ))}
+        <div ref={scrollRef} className="max-h-[calc(92vh-56px)] overflow-y-auto p-3 sm:p-5">
+          {groups.length > 1 && (
+            <nav aria-label="Recorrido fotográfico" className="mb-6">
+              <h2 className="mb-3 text-lg font-bold text-ink">Recorrido fotográfico</h2>
+              <ul className="flex gap-3 overflow-x-auto pb-2">
+                {groups.map((group, gi) => (
+                  <li key={group.key} className="w-28 shrink-0 sm:w-36">
+                    <button
+                      type="button"
+                      onClick={() => scrollToSection(gi)}
+                      className="block w-full text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+                    >
+                      <span className="relative block aspect-[4/3] w-full overflow-hidden rounded-field bg-sand-200">
+                        <Image src={group.photos[0].url} alt="" fill sizes="144px" className="object-cover" />
+                      </span>
+                      <span className="mt-1.5 block truncate text-sm font-semibold text-ink">{group.title}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          )}
+          <div className="space-y-8">
+            {groups.map((group, gi) => (
+              <section
+                key={group.key}
+                data-section-index={gi}
+                aria-labelledby={`${uid}-sec-${gi}`}
+                className="scroll-mt-2 grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,2.4fr)] sm:gap-6"
+              >
+                <h3 id={`${uid}-sec-${gi}`} tabIndex={-1} className="text-base font-bold text-ink sm:text-lg">
+                  {group.title}
+                </h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {group.photos.map((photo, pi) => {
+                    const i = ordered.indexOf(photo);
+                    // Una foto sola, o la impar final, ocupa el ancho de las dos columnas (como Airbnb).
+                    const wide = group.photos.length % 2 === 1 && pi === group.photos.length - 1;
+                    return (
+                      <div
+                        key={photo.url}
+                        data-photo-index={i}
+                        className={`relative aspect-[4/3] w-full scroll-mt-2 overflow-hidden rounded-field bg-sand-200 ${wide ? "col-span-2" : ""}`}
+                      >
+                        <Image
+                          src={photo.url}
+                          alt={`${group.title}: foto ${i + 1} de ${total} de ${name}${place}`}
+                          fill
+                          sizes="(max-width: 640px) 47vw, 520px"
+                          className="object-cover"
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            ))}
+          </div>
         </div>
       </dialog>
     </>

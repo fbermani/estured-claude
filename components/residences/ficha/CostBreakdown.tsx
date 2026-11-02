@@ -98,8 +98,66 @@ export function CostBreakdown({
   const feeUsd = reservationTotalUsd * FEE_PERCENT;
   const initialPayment = money.initialPayment;
 
+  const totalArs = usdToArsRounded(reservationTotalUsd, arsPerUsd);
+  const initialLabel =
+    initialPayment.mode === "one_month"
+      ? "primer mes"
+      : initialPayment.mode === "enrollment_only"
+        ? "matrícula"
+        : initialPayment.mode === "deposit_only"
+          ? "depósito"
+          : null;
+
   return (
-    <div className="rounded-field border border-line bg-cream-2 p-4 text-sm">
+    <div className="space-y-3 text-sm">
+      {/* (a) DR30 §6: lo primero que se muestra del dinero es lo que se paga a la residencia para reservar. */}
+      <section aria-label="Pago inicial a la residencia" className="rounded-field border-[1.5px] border-forest/30 bg-forest-tint/40 p-4">
+        <p className="text-[11px] font-extrabold uppercase tracking-widest text-forest-700">
+          Pago inicial a la residencia para reservar{initialLabel ? ` (${initialLabel})` : ""}
+          <InfoTip label="Qué es el pago inicial">
+            {initialPayment.mode === "custom_usd"
+              ? "Monto fijo que define la residencia para reservar."
+              : initialPayment.mode === "enrollment_only"
+                ? "La residencia pide la matrícula para reservar."
+                : initialPayment.mode === "deposit_only"
+                  ? "La residencia pide el depósito (reembolsable) para reservar."
+                  : "La residencia pide el primer mes de renta para reservar."}{" "}
+            Se paga directamente a la residencia, no a EstuRed, antes de la fecha límite: aparece en la solicitud
+            cuando la residencia habilita el pago.
+          </InfoTip>
+        </p>
+        <p className="mt-1.5 font-display text-3xl font-extrabold leading-none text-ink">
+          {formatArs(initialPayment.arsDisplay)}
+        </p>
+        <p className="mt-1 text-xs font-semibold text-ink-soft">
+          {formatUsd(initialPayment.usd)} ·{" "}
+          <ExchangeRateNote showNote />
+        </p>
+        <p className="mt-2 text-xs leading-snug text-ink-soft">Se abona a la residencia una vez aprobada tu solicitud.</p>
+      </section>
+
+      {/* (b) Total de la reserva con detalle desplegable. */}
+      <details className="group rounded-field border border-line bg-cream-2 px-4 py-1">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 py-2.5 [&::-webkit-details-marker]:hidden">
+          <span className="font-bold text-ink">
+            Total de la reserva
+            <InfoTip label="Qué incluye el total">
+              Renta × meses + matrícula{money.enrollment.discountPercent > 0 ? " (ya con su descuento)" : ""}
+              {emptyChargeUsd > 0 ? " + mes vacío" : ""}. No incluye el depósito (reembolsable). Es el monto sobre el que se calcula el fee
+              de EstuRed.
+            </InfoTip>
+            <span className="block text-xs font-semibold text-forest-700 underline-offset-2 group-open:hidden">Ver detalle</span>
+            <span className="hidden text-xs font-semibold text-forest-700 underline-offset-2 group-open:block">Ocultar detalle</span>
+          </span>
+          <span className="flex items-center gap-1.5 text-right">
+            <span>
+              <span className="block font-extrabold text-ink">{formatUsd(reservationTotalUsd)}</span>
+              <span className="block text-[10px] font-normal text-ink-faint">≈ {formatArs(totalArs)}</span>
+            </span>
+            <Icon name="expand_more" className="text-xl text-ink-faint transition-transform group-open:rotate-180" />
+          </span>
+        </summary>
+        <div className="border-t border-line pb-2 pt-3">
       {/* Entrada → salida, como la referencia */}
       {startDate && (
         <div className="mb-3 flex items-center justify-between rounded-field border border-line bg-paper px-3 py-2.5">
@@ -190,66 +248,11 @@ export function CostBreakdown({
         </p>
       )}
 
-      {depositUsd > 0 && (
-        <div className="flex items-center justify-between border-t border-line py-1.5">
-          <span className="text-ink-soft">
-            Depósito
-            <InfoTip label="Qué es el depósito">
-              Monto que la residencia te devuelve al irte, según sus condiciones (por ejemplo, si no hay daños). Se paga directamente a la residencia y no
-              forma parte de la base del fee EstuRed.
-            </InfoTip>
-          </span>
-          <span className="text-right font-bold text-ink">
-            {formatUsd(depositUsd)}
-            <span className="block text-[10px] font-normal text-ink-faint">reembolsable</span>
-          </span>
         </div>
-      )}
+      </details>
 
-      <div className="flex items-center justify-between border-t-[1.5px] border-line-2 py-2">
-        <span className="font-bold text-ink">
-          Total de la reserva
-          <InfoTip label="Qué incluye el total">
-            Renta × meses + matrícula{money.enrollment.discountPercent > 0 ? " (ya con su descuento)" : ""}
-            {emptyChargeUsd > 0 ? " + mes vacío" : ""}. No incluye el depósito (reembolsable). Es el monto sobre el que se calcula el fee
-            de EstuRed.
-          </InfoTip>
-        </span>
-        <span className="font-extrabold text-ink">{formatUsd(reservationTotalUsd)}</span>
-      </div>
-
-      {/* D7/H08: qué se paga a la residencia para reservar (pago inicial) — distinto del fee y del total de la estadía. */}
-      <div className="mt-1 rounded-field border border-line bg-paper px-3 py-2.5">
-        <div className="flex items-start justify-between gap-3">
-          <span className="font-semibold text-ink">
-            A la residencia
-            <InfoTip label="Qué es el pago inicial">
-              {initialPayment.mode === "custom_usd"
-                ? "Monto fijo que define la residencia para reservar."
-                : initialPayment.mode === "enrollment_only"
-                  ? "La residencia pide la matrícula para reservar."
-                  : initialPayment.mode === "deposit_only"
-                    ? "La residencia pide el depósito (reembolsable) para reservar."
-                    : "La residencia pide el primer mes de renta para reservar."}{" "}
-              Se paga directamente a la residencia, no a EstuRed, antes de la fecha límite: aparece en la solicitud
-              cuando la residencia habilita el pago.
-            </InfoTip>
-            <span className="block text-[11px] font-normal text-ink-faint">
-              Pago inicial para reservar
-              {initialPayment.mode === "one_month" ? " (primer mes)" : initialPayment.mode === "enrollment_only" ? " (matrícula)" : initialPayment.mode === "deposit_only" ? " (depósito)" : ""}
-            </span>
-          </span>
-          <span className="text-right font-extrabold text-ink">
-            {formatUsd(initialPayment.usd)}
-            <span className="block text-[10px] font-normal text-ink-faint">
-              ≈ {formatArs(initialPayment.arsDisplay)}
-              <ExchangeRateNote />
-            </span>
-          </span>
-        </div>
-      </div>
-
-      <div className="mt-2 rounded-field border border-orange/40 bg-warning-bg px-3 py-2.5">
+      {/* (c) Fee de EstuRed (5 % al estudiante). */}
+      <div className="rounded-field border border-orange/40 bg-warning-bg px-3 py-2.5">
         <div className="flex items-center justify-between">
           <span className="font-semibold text-warning-fg">
             A EstuRed: fee ({Math.round(FEE_PERCENT * 100)}%)
@@ -270,6 +273,26 @@ export function CostBreakdown({
           Se abona solo al confirmarse la reserva. Enviar la {submitNoun} es gratis.
         </p>
       </div>
+
+      {/* (d) Depósito, si hay: se abona al ingresar. */}
+      {depositUsd > 0 && (
+        <div className="rounded-field border border-line bg-paper px-3 py-2.5">
+          <div className="flex items-start justify-between gap-3">
+            <span className="text-ink-soft">
+              <span className="font-semibold text-ink">Depósito</span>
+              <InfoTip label="Qué es el depósito">
+                Monto que la residencia te devuelve al irte, según sus condiciones (por ejemplo, si no hay daños). Se paga directamente a la residencia y no
+                forma parte de la base del fee EstuRed.
+              </InfoTip>
+              <span className="block text-xs text-ink-faint">Se abona al ingresar a la residencia.</span>
+            </span>
+            <span className="text-right font-bold text-ink">
+              {formatUsd(depositUsd)}
+              <span className="block text-[10px] font-normal text-ink-faint">reembolsable</span>
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

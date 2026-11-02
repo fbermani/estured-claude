@@ -11,7 +11,7 @@ import { MAX_FEATURED_PHOTOS, validatePhotoMeta } from "@/lib/residences/photoMe
 export type PhotoMetaState = { status: "idle" | "success" | "error"; message?: string };
 
 /**
- * Guarda la clasificación de las fotos (DR18 fase 2, migración 0059): categoría, área, tipo de habitación y destacadas (hasta 5).
+ * Guarda la clasificación de las fotos (DR18 fase 2, migración 0059; DR30, 0070): categoría, área, tipo de habitación, sección con nombre, orden y destacadas (hasta 5).
  * No pasa por la cola de revisión: no cambia qué fotos son públicas, solo cómo se agrupan y cuáles rotan. Requiere `profile.edit`;
  * las fotos y los tipos se validan contra los de ESTA residencia (nunca se confía en los ids del cliente).
  */
@@ -65,9 +65,18 @@ export async function savePhotoMeta(residenceId: string, items: unknown): Promis
     area: i.area,
     room_type_id: i.roomTypeId,
     is_featured: i.featured,
+    section: i.section,
+    sort_order: i.sortOrder,
   }));
   if (rows.length > 0) {
-    const { error } = await admin.from("residence_photo_meta").upsert(rows, { onConflict: "file_id" });
+    let { error } = await admin.from("residence_photo_meta").upsert(rows, { onConflict: "file_id" });
+    // Sin la migración 0070 (section / sort_order) se guarda solo lo de 0059.
+    if (error && isMissingSchemaError(error)) {
+      if (checked.items.some((i) => i.section || i.sortOrder))
+        return { status: "error", message: "Las secciones de fotos todavía no están disponibles. Probá más tarde." };
+      const legacy = rows.map((r) => ({ file_id: r.file_id, residence_id: r.residence_id, category: r.category, area: r.area, room_type_id: r.room_type_id, is_featured: r.is_featured }));
+      ({ error } = await admin.from("residence_photo_meta").upsert(legacy, { onConflict: "file_id" }));
+    }
     if (error) {
       if (isMissingSchemaError(error))
         return { status: "error", message: "La clasificación de fotos todavía no está disponible. Probá más tarde." };

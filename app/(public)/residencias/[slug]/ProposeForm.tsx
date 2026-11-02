@@ -99,24 +99,7 @@ export function ProposeForm({
         </Select>
       )}
       {students.length === 1 && <input type="hidden" name="student_profile_id" value={students[0].id} />}
-      <Select
-        label="Tipo de habitación"
-        id="propose-room-type"
-        name="room_type_id"
-        required
-        value={roomTypeId}
-        onChange={(e) => setRoomTypeId(e.target.value)}
-      >
-        <option value="" disabled>
-          Elegí una opción
-        </option>
-        {availableTypes.map((rt) => (
-          <option key={rt.id} value={rt.id}>
-            {rt.name} — {formatUsd(Number(rt.monthly_price_usd))}/mes
-          </option>
-        ))}
-      </Select>
-      {moveInNotice}
+      <div className="grid gap-4 sm:grid-cols-2">
       <Input
         label="Fecha de ingreso propuesta"
         id="propose-start-date"
@@ -144,6 +127,25 @@ export function ProposeForm({
             : undefined
         }
       />
+      </div>
+      {moveInNotice}
+      <Select
+        label="Tipo de habitación"
+        id="propose-room-type"
+        name="room_type_id"
+        required
+        value={roomTypeId}
+        onChange={(e) => setRoomTypeId(e.target.value)}
+      >
+        <option value="" disabled>
+          Elegí una opción
+        </option>
+        {availableTypes.map((rt) => (
+          <option key={rt.id} value={rt.id}>
+            {rt.name} — {formatUsd(Number(rt.monthly_price_usd))}/mes
+          </option>
+        ))}
+      </Select>
       {selectedType && duration > 0 && (
         <CostBreakdown
           monthlyUsd={Number(selectedType.monthly_price_usd)}

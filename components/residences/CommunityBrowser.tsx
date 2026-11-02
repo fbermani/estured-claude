@@ -206,19 +206,19 @@ function InfoFreeSlot({ typeAvailable }: { typeAvailable: boolean }) {
 
 function FreeBedSlot({ slug, roomTypeId, slotKey }: { slug: string; roomTypeId: string | null; slotKey: string }) {
   const router = useRouter();
-  const { slotKey: selectedSlotKey, select } = useReservationSelection();
+  const { slotKey: selectedSlotKey, select, hasSheet } = useReservationSelection();
   const isSelected = selectedSlotKey === slotKey;
 
-  // Solo la ficha de residencia tiene el panel "Tu solicitud de
-  // reserva" (#solicitud) en la misma página — desde acá (por ejemplo
-  // /residencias/[slug]/comunidad, sin ese panel) seleccionar navega a
-  // la ficha real en vez de solo actualizar estado que nadie mostraría.
+  // Solo la ficha de residencia tiene el modal de solicitud en la misma
+  // página — desde acá (por ejemplo /residencias/[slug]/comunidad, sin
+  // modal) seleccionar navega a la ficha real en vez de solo actualizar
+  // estado que nadie mostraría.
   const handleSelect = () => {
     if (!roomTypeId) return;
-    if (document.getElementById("solicitud")) {
+    if (hasSheet) {
       select(roomTypeId, slotKey);
     } else {
-      router.push(`/residencias/${slug}?room=${roomTypeId}#solicitud`);
+      router.push(`/residencias/${slug}?room=${roomTypeId}&solicitar=1#tarifas`);
     }
   };
 
@@ -227,7 +227,7 @@ function FreeBedSlot({ slug, roomTypeId, slotKey }: { slug: string; roomTypeId: 
   if (!roomTypeId) {
     return (
       <Link
-        href={`/residencias/${slug}#solicitud`}
+        href={`/residencias/${slug}#tarifas`}
         className="group flex items-center gap-3 rounded-2xl border-2 border-dashed border-success-fg/40 bg-success-bg/40 p-2.5 transition-colors duration-300 hover:bg-success-bg"
       >
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-success-bg text-success-fg transition-transform duration-300 group-hover:scale-110">
@@ -264,7 +264,7 @@ function FreeBedSlot({ slug, roomTypeId, slotKey }: { slug: string; roomTypeId: 
           {isSelected ? "Plaza seleccionada" : "Cama disponible"}
         </p>
         <p className={`text-xs ${isSelected ? "text-forest-700/80" : "text-success-fg/80"}`}>
-          {isSelected ? "Completá tu solicitud a la derecha" : "Elegí este lugar para tu solicitud"}
+          {isSelected ? "Completá tu solicitud" : "Elegí este lugar para tu solicitud"}
         </p>
       </div>
     </button>
@@ -527,7 +527,7 @@ export function CommunityBrowser({
             Hay lugares informados como libres. Toda solicitud está sujeta a confirmación de la residencia.
           </p>
           <Link
-            href={`/residencias/${slug}#solicitud`}
+            href={`/residencias/${slug}#tarifas`}
             className="w-full shrink-0 rounded-full bg-forest px-6 py-2.5 text-center text-sm font-bold text-white shadow-card transition-colors hover:bg-forest-600 sm:w-auto"
           >
             Enviar solicitud

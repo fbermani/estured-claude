@@ -13,5 +13,9 @@ export type FichaRoomType = {
   arsRounded: number;
   /** "2 personas por habitación · mixta · baño compartido" (solo lo cargado). */
   subtitle: string;
+  /** Datos estructurados para íconos (solo lo cargado). */
+  capacity?: number;
+  genderLabel?: string;
+  bathroom?: "privado" | "compartido";
   state: TypeAvailabilityState;
 };

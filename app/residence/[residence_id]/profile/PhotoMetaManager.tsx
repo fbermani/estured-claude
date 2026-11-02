@@ -5,7 +5,16 @@ import Image from "next/image";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Input";
-import { MAX_FEATURED_PHOTOS, PHOTO_AREAS, type PhotoArea, type PhotoCategory } from "@/lib/residences/photoMeta";
+import {
+    MAX_FEATURED_PHOTOS,
+  MAX_SECTION_LENGTH,
+  PHOTO_AREAS,
+  SECTION_SUGGESTIONS,
+  effectiveSection,
+  groupPhotosBySections,
+  type PhotoArea,
+  type PhotoCategory,
+} from "@/lib/residences/photoMeta";
 import { savePhotoMeta } from "@/app/residence/[residence_id]/profile/photoMetaActions";
 
 export type PhotoMetaItem = {
@@ -16,6 +25,8 @@ export type PhotoMetaItem = {
   area: PhotoArea | null;
   roomTypeId: string | null;
   featured: boolean;
+  section: string | null;
+  sortOrder: number;
 };
 
 /**
@@ -28,12 +39,14 @@ export function PhotoMetaManager({
   initialItems,
   roomTypes,
   schemaReady,
+  sectionsReady,
   readOnly,
 }: {
   residenceId: string;
   initialItems: PhotoMetaItem[];
   roomTypes: { id: string; name: string }[];
   schemaReady: boolean;
+  sectionsReady: boolean;
   readOnly: boolean;
 }) {
   const [items, setItems] = useState(initialItems);
@@ -50,9 +63,19 @@ export function PhotoMetaManager({
 
   function save() {
     startSave(async () => {
+      // El orden guardado es el de la vista agrupada por sección («Fotos adicionales» al final).
+      const order = new Map(groupPhotosBySections(items.map((i) => ({ ...i, roomTypeName: roomTypes.find((r) => r.id === i.roomTypeId)?.name ?? null }))).flatMap((g) => g.photos).map((p, n) => [p.id, n]));
       const result = await savePhotoMeta(
         residenceId,
-        items.map((i) => ({ fileId: i.id, category: i.category, area: i.area, roomTypeId: i.roomTypeId, featured: i.featured })),
+        items.map((i) => ({
+          fileId: i.id,
+          category: i.category,
+          area: i.area,
+          roomTypeId: i.roomTypeId,
+          featured: i.featured,
+          section: i.section,
+          sortOrder: order.get(i.id) ?? 0,
+        })),
       );
       setFeedback({ ok: result.status === "success", text: result.message ?? "" });
       if (result.status === "success") setDirty(false);
@@ -60,6 +83,9 @@ export function PhotoMetaManager({
   }
 
   if (items.length === 0) return null;
+  const groups = groupPhotosBySections(
+    items.map((i) => ({ ...i, roomTypeName: roomTypes.find((r) => r.id === i.roomTypeId)?.name ?? null })),
+  );
 
   if (!schemaReady)
     return (
@@ -77,8 +103,23 @@ export function PhotoMetaManager({
           Destacadas: {featuredCount} de {MAX_FEATURED_PHOTOS}
         </strong>
       </p>
+      {sectionsReady && (
+        <datalist id="photo-section-suggestions">
+          {SECTION_SUGGESTIONS.map((n) => (
+            <option key={n} value={n} />
+          ))}
+        </datalist>
+      )}
+      {groups.map((group) => (
+      <section key={group.key} aria-label={`Sección ${group.title}`} className="space-y-2">
+        {sectionsReady && (
+          <h4 className="text-sm font-bold text-ink">
+            {group.title} <span className="font-normal text-ink-faint">({group.photos.length})</span>
+          </h4>
+        )}
       <ul className="grid gap-3 sm:grid-cols-2">
-        {items.map((photo, idx) => {
+        {group.photos.map((photo) => {
+          const idx = items.findIndex((i) => i.id === photo.id);
           const canFeature = photo.featured || featuredCount < MAX_FEATURED_PHOTOS;
           return (
             <li key={photo.id} className="flex gap-3 rounded-card border border-sand-200 p-3">
@@ -91,6 +132,24 @@ export function PhotoMetaManager({
                 )}
               </div>
               <div className="min-w-0 flex-1 space-y-2">
+                {sectionsReady && (
+                  <div>
+                    <label htmlFor={`section-${photo.id}`} className="mb-1 block text-sm font-medium text-ink">
+                      Sección
+                    </label>
+                    <input
+                      id={`section-${photo.id}`}
+                      type="text"
+                      list="photo-section-suggestions"
+                      maxLength={MAX_SECTION_LENGTH}
+                      value={photo.section ?? ""}
+                      placeholder={effectiveSection({ ...photo, roomTypeName: roomTypes.find((r) => r.id === photo.roomTypeId)?.name ?? null })}
+                      disabled={readOnly}
+                      onChange={(e) => patch(photo.id, { section: e.target.value === "" ? null : e.target.value })}
+                      className="w-full rounded-field border border-sand-300 bg-white px-3 py-2 text-sm text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-forest"
+                    />
+                  </div>
+                )}
                 <Select
                   label="¿Qué muestra?"
                   value={photo.category}
@@ -151,6 +210,8 @@ export function PhotoMetaManager({
           );
         })}
       </ul>
+      </section>
+      ))}
       {!readOnly && (
         <div className="flex flex-wrap items-center gap-3">
           <Button type="button" variant="outline" size="sm" onClick={save} disabled={saving || !dirty}>

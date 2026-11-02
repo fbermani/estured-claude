@@ -1,6 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/Button";
+import { modeOpensSheet, type RequestPanelMode } from "@/lib/residences/requestPanelMode";
+import { Icon } from "@/components/ui/Icon";
 import { StatusTag, availabilityLabel } from "@/components/ui/StatusTag";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import { formatArs, formatUsd } from "@/lib/mock/exchange";
@@ -12,135 +14,164 @@ import {
 import { useReservationSelection } from "@/components/residences/reservationSelection";
 import type { FichaRoomType } from "@/components/residences/ficha/types";
 
+/** Si el nombre ya dice cuántas personas son («Individual», «Doble»…), no se repite la capacidad. */
+const NAME_IMPLIES_CAPACITY = /individual|simple|doble|triple|cu[aá]druple|cuadruple|compartid/i;
+
+function Chip({ icon, children }: { icon: string; children: React.ReactNode }) {
+  return (
+    <span className="inline-flex items-center gap-1 text-xs text-ink-soft">
+      <Icon name={icon} className="text-base text-forest-700" />
+      {children}
+    </span>
+  );
+}
+
 /**
- * "Tarifas y condiciones" — tarifas por tipo, visibles para TODOS (H10 / D17). Es un `radiogroup`:
- * elegir un tipo acá, en la card lateral o con `?room=` es el mismo estado (`ReservationSelectionProvider`).
- * La disponibilidad sale solo del tipo (`StatusTag` con su copy oficial); no hay cantidades de lugares (D3/H03).
+ * "Tarifas" — una línea por tipo, visible para TODOS (H10 / D17, DR30 §4). «Elegir» abre el modal de solicitud
+ * (DR30 §6) para estudiantes y familiares; invitados van a ingresar conservando la elección; el resto no ve el botón.
+ * Elegir un tipo acá o con `?room=` es el mismo estado (`ReservationSelectionProvider`). La disponibilidad sale solo
+ * del tipo (`StatusTag` con su copy oficial); no hay cantidades de lugares (D3/H03).
  */
 export function RatesTable({
   roomTypes,
   arsPerUsd,
   waitlistTypeIds,
+  mode,
+  slug,
 }: {
   roomTypes: FichaRoomType[];
+  /** Quién mira: define qué hace «Elegir» (abrir el modal, ir a ingresar o no mostrarse). */
+  mode: RequestPanelMode;
+  slug: string;
   arsPerUsd: number;
   /** Tipos completos en los que el estudiante puede sumarse a la lista de espera (vacío = no se ofrece). */
   waitlistTypeIds: string[];
 }) {
   const { roomTypeId, setRoomTypeId, openSheet } = useReservationSelection();
+  const opensModal = modeOpensSheet(mode);
+  const loginHrefFor = (typeId: string) =>
+    `/login?next=${encodeURIComponent(`/residencias/${slug}?room=${typeId}&solicitar=1`)}`;
   const selectedId = roomTypes.find((rt) => rt.id === roomTypeId && isTypeRequestable(rt.state))?.id ?? null;
 
   return (
-    <fieldset className="min-w-0">
-      <legend className="sr-only">Elegí un tipo de habitación</legend>
-      <div className="overflow-hidden rounded-card border-[1.5px] border-line bg-paper shadow-card">
-        <div
-          aria-hidden="true"
-          className="hidden grid-cols-[2.5rem_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1.3fr)_7.5rem] gap-x-3 border-b border-line bg-cream-2 px-4 py-2.5 text-[11px] font-extrabold uppercase tracking-widest text-muted sm:grid"
-        >
-          <span />
-          <span>Tipo de habitación</span>
-          <span>Por mes</span>
-          <span>Disponibilidad</span>
-          <span />
-        </div>
-        <ul className="divide-y divide-line">
-          {roomTypes.map((rt) => {
-            const requestable = isTypeRequestable(rt.state);
-            const isSelected = rt.id === selectedId;
-            const mode = typeAvailabilityMode(rt.state);
-            const stateText = availabilityLabel(mode, rt.state === "full" ? rt.name : null);
-            const inputId = `tarifa-${rt.id}`;
-            return (
-              <li
-                key={rt.id}
-                className={`relative transition-colors duration-200 ease-fresh ${
-                  isSelected ? "bg-forest-tint/55" : requestable ? "hover:bg-cream-2/60" : "bg-cream-2/40"
-                }`}
-              >
-                {isSelected && <span aria-hidden="true" className="absolute inset-y-0 left-0 w-[3px] bg-forest" />}
-                <div className="grid grid-cols-[2.5rem_minmax(0,1fr)] items-start gap-x-3 px-4 py-4 sm:grid-cols-[2.5rem_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1.3fr)_7.5rem] sm:items-center">
-                  <input
-                    id={inputId}
-                    type="radio"
-                    name="tipo-tarifas"
-                    value={rt.id}
-                    checked={isSelected}
-                    disabled={!requestable}
-                    onChange={() => setRoomTypeId(rt.id)}
-                    aria-label={`${rt.name}, ${formatUsd(rt.priceUsd)} por mes, ${stateText}`}
-                    className="mt-1 h-5 w-5 cursor-pointer accent-[var(--color-forest)] disabled:cursor-not-allowed sm:mt-0"
-                  />
-                  <label
-                    htmlFor={inputId}
-                    className={`min-w-0 ${requestable ? "cursor-pointer" : "cursor-default"} sm:col-start-2`}
-                  >
-                    <span className={`block font-bold ${requestable ? "text-ink" : "text-ink-soft"}`}>{rt.name}</span>
-                    {rt.subtitle && <span className="mt-0.5 block text-sm text-ink-soft">{rt.subtitle}</span>}
-                  </label>
-
-                  <div className="col-start-2 mt-2 sm:col-start-3 sm:mt-0">
-                    <p className={`font-display text-lg font-extrabold leading-tight ${requestable ? "text-ink" : "text-ink-soft"}`}>
-                      {rt.listPriceUsd != null && (
-                        <span className="mr-1.5 text-sm font-semibold text-ink-faint line-through">
-                          <span className="sr-only">Antes </span>
-                          {formatUsd(rt.listPriceUsd)}
-                        </span>
-                      )}
-                      {formatUsd(rt.priceUsd)}
-                      <span className="text-xs font-semibold text-ink-faint"> /mes</span>
-                    </p>
-                    {rt.promotion && (
-                      <p className="text-xs font-bold text-forest-700">
-                        {rt.promotion.label} · −{rt.promotion.percent}%
-                        {rt.promotion.endsOn ? ` hasta el ${formatDateOnly(rt.promotion.endsOn)}` : ""}
-                      </p>
+    <div className="overflow-hidden rounded-card border-[1.5px] border-line bg-paper shadow-card">
+      <ul className="divide-y divide-line">
+        {roomTypes.map((rt) => {
+          const requestable = isTypeRequestable(rt.state);
+          const isSelected = rt.id === selectedId;
+          const availMode = typeAvailabilityMode(rt.state);
+          const stateText = availabilityLabel(availMode, rt.state === "full" ? rt.name : null);
+          const impliesCapacity = NAME_IMPLIES_CAPACITY.test(rt.name);
+          const nameIcon = rt.capacity === 1 ? "person" : "group";
+          return (
+            <li
+              key={rt.id}
+              aria-label={`${rt.name}, ${formatUsd(rt.priceUsd)} por mes, ${stateText}`}
+              className={`relative px-4 py-3 transition-colors duration-200 ease-fresh ${
+                isSelected ? "bg-forest-tint/55" : requestable ? "" : "bg-cream-2/40"
+              }`}
+            >
+              {isSelected && <span aria-hidden="true" className="absolute inset-y-0 left-0 w-[3px] bg-forest" />}
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:flex-nowrap">
+                <div className="min-w-0 flex-1 basis-full sm:basis-0">
+                  <p className={`flex items-center gap-1.5 font-bold ${requestable ? "text-ink" : "text-ink-soft"}`}>
+                    <Icon name={nameIcon} className="text-lg text-forest-700" />
+                    <span className="min-w-0 truncate">{rt.name}</span>
+                  </p>
+                  <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5">
+                    {rt.capacity != null && !impliesCapacity && (
+                      <Chip icon="group">
+                        {rt.capacity} {rt.capacity === 1 ? "persona" : "personas"}
+                      </Chip>
                     )}
-                    <p className="text-xs text-ink-faint">≈ {formatArs(rt.arsRounded)}</p>
-                  </div>
-
-                  <div className="col-start-2 mt-2.5 sm:col-start-4 sm:mt-0">
-                    <StatusTag mode={mode} roomTypeName={rt.state === "full" ? rt.name : null} withTip />
-                  </div>
-
-                  <div className="col-start-2 mt-3 sm:col-start-5 sm:mt-0 sm:justify-self-end">
-                    {requestable ? (
-                      <Button
-                        type="button"
-                        variant={isSelected ? "primary" : "outline"}
-                        size="sm"
-                        onClick={() => setRoomTypeId(rt.id)}
-                        aria-pressed={isSelected}
-                        aria-label={`${isSelected ? "Elegido" : "Elegir"}: ${rt.name}`}
-                        className="sm:!h-9 sm:!px-4 sm:text-xs hover:!translate-y-0"
-                      >
-                        {isSelected ? "Elegido" : "Elegir"}
-                      </Button>
-                    ) : waitlistTypeIds.includes(rt.id) ? (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setRoomTypeId(rt.id);
-                          openSheet("waitlist");
-                        }}
-                        className="!px-4 sm:!h-9 sm:!px-3 sm:text-xs"
-                      >
-                        Lista de espera
-                      </Button>
-                    ) : null}
+                    {rt.genderLabel && <Chip icon="wc">{rt.genderLabel}</Chip>}
+                    {rt.bathroom && (
+                      <Chip icon={rt.bathroom === "privado" ? "shower" : "bathroom"}>
+                        Baño {rt.bathroom}
+                      </Chip>
+                    )}
                   </div>
                 </div>
-              </li>
-            );
-          })}
-        </ul>
-        <p className="border-t border-line bg-cream-2/60 px-4 py-2.5 text-xs text-ink-faint">
-          Los pesos son referenciales, según la cotización de referencia de hoy (ARS {Math.round(arsPerUsd).toLocaleString("es-AR")}).
-          <ExchangeRateNote />
-        </p>
-      </div>
-    </fieldset>
+
+                <div className="min-w-0 sm:w-44 sm:text-right">
+                  <p className={`font-display text-lg font-extrabold leading-tight ${requestable ? "text-ink" : "text-ink-soft"}`}>
+                    {rt.listPriceUsd != null && (
+                      <span className="mr-1.5 text-sm font-semibold text-ink-faint line-through">
+                        <span className="sr-only">Antes </span>
+                        {formatUsd(rt.listPriceUsd)}
+                      </span>
+                    )}
+                    {formatUsd(rt.priceUsd)}
+                    <span className="text-xs font-semibold text-ink-faint"> /mes</span>
+                  </p>
+                  <p className="text-xs text-ink-faint">≈ {formatArs(rt.arsRounded)}</p>
+                  {rt.promotion && (
+                    <p className="text-xs font-bold text-forest-700">
+                      {rt.promotion.label} · −{rt.promotion.percent}%
+                      {rt.promotion.endsOn ? ` hasta el ${formatDateOnly(rt.promotion.endsOn)}` : ""}
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:flex-col sm:items-end">
+                  <StatusTag mode={availMode} roomTypeName={rt.state === "full" ? rt.name : null} withTip />
+                  {requestable && opensModal ? (
+                    <Button
+                      type="button"
+                      variant={isSelected ? "primary" : "outline"}
+                      size="sm"
+                      onClick={() => {
+                        setRoomTypeId(rt.id);
+                        openSheet("request");
+                      }}
+                      aria-haspopup="dialog"
+                      aria-label={`Elegir: ${rt.name}`}
+                      className="sm:!h-9 sm:!px-4 sm:text-xs hover:!translate-y-0"
+                    >
+                      Elegir
+                    </Button>
+                  ) : requestable && mode === "guest" ? (
+                    <Button
+                      href={loginHrefFor(rt.id)}
+                      variant="outline"
+                      size="sm"
+                      className="sm:!h-9 sm:!px-4 sm:text-xs hover:!translate-y-0"
+                    >
+                      Elegir
+                    </Button>
+                  ) : !requestable && mode === "student" && waitlistTypeIds.includes(rt.id) ? (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setRoomTypeId(rt.id);
+                        openSheet("waitlist");
+                      }}
+                      className="!px-4 sm:!h-9 sm:!px-3 sm:text-xs"
+                    >
+                      Lista de espera
+                    </Button>
+                  ) : !requestable && mode === "guest" && rt.state === "full" ? (
+                    <Button
+                      href={loginHrefFor(rt.id)}
+                      variant="ghost"
+                      size="sm"
+                      className="!px-4 sm:!h-9 sm:!px-3 sm:text-xs"
+                    >
+                      Lista de espera
+                    </Button>
+                  ) : null}
+                </div>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+      <p className="border-t border-line bg-cream-2/60 px-4 py-2.5 text-xs text-ink-faint">
+        Los pesos son referenciales, según la cotización de referencia de hoy (ARS {Math.round(arsPerUsd).toLocaleString("es-AR")}).
+        <ExchangeRateNote />
+      </p>
+    </div>
   );
 }

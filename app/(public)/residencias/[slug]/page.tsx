@@ -18,6 +18,7 @@ import { assertResidenceAccess } from "@/lib/residences/access";
 import { getPublicAnsweredQuestions } from "@/lib/faq/getPublicAnsweredQuestions";
 import { getPublicCatalogFaq } from "@/lib/faq/residenceCatalog";
 import { loadCurrentRegulation } from "@/lib/regulations/current";
+import { RegulationModal } from "@/components/residences/ficha/RegulationModal";
 import { MODEL_LEGAL_NOTE } from "@/lib/regulations/modelTemplate";
 import { RegulationText } from "@/components/regulations/RegulationText";
 import { formatDate } from "@/lib/dates/format";
@@ -33,7 +34,6 @@ import { ProposeForm } from "@/app/(public)/residencias/[slug]/ProposeForm";
 import { FavoriteButton } from "@/app/(public)/residencias/[slug]/FavoriteButton";
 import { toggleStudentFavorite, toggleFamilyFavorite } from "@/app/students/favorites/actions";
 import { JoinWaitlistForm } from "@/app/(public)/residencias/[slug]/JoinWaitlistForm";
-import { MobileRequestBar } from "@/components/residences/MobileRequestBar";
 import { formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
 import { getResidenceLocation } from "@/lib/residences/residenceLocation";
 import { effectiveRoomGender, policyFromGender, summarizeTypeGenders } from "@/lib/residences/roomGender";
@@ -44,13 +44,13 @@ import { ResidenceGallery } from "@/components/residences/ResidenceGallery";
 import { buildGalleryPhotos, loadPhotoMeta } from "@/lib/residences/photoMetaDb";
 import { loadResidencePromotions } from "@/lib/residences/promotions";
 import { loadVacancyOutlooks } from "@/lib/residences/vacancy";
-import { applyPromotion, depositModeLabel, normalizeDepositMode, pickActivePromotion, todayIso } from "@/lib/applications/reservationMoney";
+import { applyPromotion, normalizeDepositMode, pickActivePromotion, todayIso } from "@/lib/applications/reservationMoney";
 import { computeCapacity, formatOccupancy, residentsToDisplay } from "@/lib/residences/occupancy";
 import { loadFamilyViewer, loadStudentViewer, type LinkedStudent, type StudentViewer } from "@/app/(public)/residencias/[slug]/loadViewerContext";
 import { findUniversitiesByName, haversineDistanceKm } from "@/lib/data/buenosAiresUniversities";
-import { describeInitialPayment, monthsLabel, roomTypeSubtitle } from "@/lib/residences/fichaConditions";
+import { monthsLabel, roomTypeSubtitle } from "@/lib/residences/fichaConditions";
 import { isTypeRequestable } from "@/lib/availability/typeAvailability";
-import { modeOpensSheet, resolveRequestPanelMode } from "@/lib/residences/requestPanelMode";
+import { resolveRequestPanelMode } from "@/lib/residences/requestPanelMode";
 import type { FichaRoomType } from "@/components/residences/ficha/types";
 import { SectionNav, type SectionNavItem } from "@/components/residences/ficha/SectionNav";
 import { ReadMore } from "@/components/residences/ficha/ReadMore";
@@ -60,10 +60,12 @@ import { EarlyExitPolicy } from "@/components/residences/ficha/EarlyExitPolicy";
 import { WhoGetsPaid } from "@/components/residences/ficha/WhoGetsPaid";
 import { VerificationScope } from "@/components/residences/ficha/VerificationScope";
 import { CommunitySummary } from "@/components/residences/ficha/CommunitySummary";
-import { RequestPanel } from "@/components/residences/ficha/RequestPanel";
+import { RequestHowItWorks, RequestNotices } from "@/components/residences/ficha/RequestNotices";
 import { RequestSheet } from "@/components/residences/ficha/RequestSheet";
 import { describeAgeRange } from "@/lib/residences/age";
 import { SITE_URL } from "@/lib/siteUrl";
+
+const FICHA_GENDER_LABEL: Record<string, string> = { mixto: "Mixta", solo_hombres: "Solo hombres", solo_mujeres: "Solo mujeres" };
 
 export const dynamic = "force-dynamic";
 
@@ -328,12 +330,16 @@ export default async function RealResidenceDetailPage({
       bathroomType: rt.bathroom_type,
       genderSummary: rt.genderSummary,
     }),
+    ...(Number(rt.capacity_per_room) > 0 ? { capacity: Number(rt.capacity_per_room) } : {}),
+    ...(rt.genderSummary || (rt.gender_policy && FICHA_GENDER_LABEL[rt.gender_policy])
+      ? { genderLabel: rt.genderSummary || FICHA_GENDER_LABEL[rt.gender_policy as string] }
+      : {}),
+    ...(rt.bathroom_type === "privado" || rt.bathroom_type === "compartido" ? { bathroom: rt.bathroom_type } : {}),
     state: typeAvailabilityState(rt.profile_availability?.status),
   }));
 
   // "Desde" = mínimo de los tipos NO completos (D3/H03; si todos están completos, el mínimo de todos).
   const fromPriceUsd = startingPriceUsd(fichaTypes.map((t) => ({ priceUsd: t.priceUsd, state: t.state })));
-  const fromArsRounded = fromPriceUsd != null ? usdToArsRounded(fromPriceUsd, rate.arsPerUsd) : null;
 
   const nearest = findUniversitiesByName(nearUniversities)
     .map((u) => ({ name: u.name, km: haversineDistanceKm(location, u) }))
@@ -344,20 +350,21 @@ export default async function RealResidenceDetailPage({
       ? `${typeNames.slice(0, -1).join(", ")} y ${typeNames[typeNames.length - 1]}`
       : (typeNames[0] ?? "");
   const hasCommunity = !!communityStatement || (community?.totalResidents ?? 0) > 0;
-  const hasResidenceSection = services.length > 0 || commonAreas.length > 0 || !!rulesSummary || !!rulesPdfUrl;
 
+  const hasServices = services.length > 0 || commonAreas.length > 0;
+  const hasAge = residence.min_resident_age !== undefined;
+  const hasRules = !!rulesSummary || !!rulesPdfUrl || !!regulation;
   const navItems: SectionNavItem[] = [
-    { id: "tarifas", label: "Tarifas y condiciones" },
+    ...(hasServices ? [{ id: "servicios", label: "Servicios" }] : []),
+    ...(hasAge ? [{ id: "edad", label: "Edad" }] : []),
+    ...(hasRules ? [{ id: "convivencia", label: "Convivencia" }] : []),
     ...(hasCommunity ? [{ id: "comunidad", label: "Comunidad" }] : []),
-    ...(hasResidenceSection ? [{ id: "residencia", label: "La residencia" }] : []),
-    ...(regulation ? [{ id: "reglamento", label: "Reglamento" }] : []),
+    { id: "tarifas", label: "Tarifas y condiciones" },
+    { id: "pagos", label: "Qué pagás" },
+    { id: "verificacion", label: "Qué revisamos" },
     { id: "ubicacion", label: "Ubicación" },
     { id: "preguntas", label: "Preguntas" },
   ];
-  // Cantidad de filas de la grilla de la columna principal (para que la card lateral sticky las abarque).
-  const mainRows = 2 + (hasCommunity ? 1 : 0) + (hasResidenceSection ? 1 : 0) + 2;
-
-  const showMobileBar = mode === "guest" || mode === "student" || mode === "family";
   const showStudentFavoriteInHeader = isStudent;
   const singleStudentName = linkedStudents.length === 1 ? linkedStudents[0].first_name : null;
   // Lista de espera: solo tipos completos, y nunca el tipo en el que ya tiene una reserva vigente en ESTA residencia.
@@ -460,26 +467,10 @@ export default async function RealResidenceDetailPage({
     );
   }
 
-  const initialPaymentDisplay = describeInitialPayment(conditions.initialPayment);
   const minimumStayLabel =
     conditions.minimumStayMonths != null && conditions.minimumStayMonths > 0 ? monthsLabel(conditions.minimumStayMonths) : null;
-  const keyFacts = {
-    initialPaymentLabel:
-      initialPaymentDisplay.kind === "fixed"
-        ? formatUsd(initialPaymentDisplay.usd)
-        : initialPaymentDisplay.kind === "enrollment_only"
-          ? "Matrícula"
-          : initialPaymentDisplay.kind === "deposit_only"
-            ? "Depósito"
-            : "Primer mes",
-    initialIsFirstMonth: initialPaymentDisplay.kind === "first_month",
-    depositLabel: conditions.depositMode
-      ? depositModeLabel(conditions.depositMode)
-      : conditions.depositUsd != null && conditions.depositUsd > 0
-        ? formatUsd(conditions.depositUsd)
-        : null,
-    minimumStayLabel,
-  };
+  const hasDeposit =
+    !!conditions.depositMode || (conditions.depositUsd != null && conditions.depositUsd > 0);
 
   const chipClass =
     "inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-line bg-paper px-3 py-1.5 text-sm text-ink-soft";
@@ -592,12 +583,102 @@ export default async function RealResidenceDetailPage({
           <SectionNav items={navItems} />
         </div>
 
-        <div
-          className="mt-8 grid gap-y-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-x-10"
-          style={{ "--rows": mainRows } as React.CSSProperties}
-        >
-          {/* 1. Tarifas y condiciones — visible para TODOS (H10 / D17) */}
-          <section id="tarifas" className="scroll-mt-32 space-y-5 lg:col-start-1">
+        <div className="mt-8 grid gap-y-8">
+          {/* DR30 §3 (1) Servicios y áreas comunes — horizontal, con íconos */}
+          {(services.length > 0 || commonAreas.length > 0) && (
+            <section id="servicios" className="scroll-mt-32 space-y-4">
+              <h2 className="text-2xl font-bold text-ink">Servicios y áreas comunes</h2>
+              {services.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-bold uppercase tracking-wide text-ink-faint">Servicios incluidos</h3>
+                  <div className="mt-2">
+                    <AmenityGrid layout="chips" items={services.map((s) => ({ name: serviceLabel(s), ...getServiceIcon(s) }))} />
+                  </div>
+                </div>
+              )}
+              {commonAreas.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-bold uppercase tracking-wide text-ink-faint">Áreas comunes</h3>
+                  <div className="mt-2">
+                    <AmenityGrid layout="chips" items={commonAreas.map((a) => ({ name: a, ...getCommonAreaIcon(a) }))} />
+                  </div>
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* (2) Edad de los residentes (DR14): oculta si la migración 0052 no está aplicada. */}
+          {residence.min_resident_age !== undefined && (
+            <section id="edad" className="scroll-mt-32 space-y-3">
+              <h2 className="text-2xl font-bold text-ink">Edad de los residentes</h2>
+              <p className="text-ink-soft">
+                {describeAgeRange({
+                  minResidentAge: residence.min_resident_age as number | null | undefined,
+                  maxResidentAge: residence.max_resident_age as number | null | undefined,
+                  acceptsMinors: residence.accepts_minors as boolean | null | undefined,
+                })}
+                .
+              </p>
+              {residence.accepts_minors === true && (
+                <div className="rounded-card border border-line bg-paper p-5">
+                  <h3 className="text-base font-bold text-ink">Para menores de 18</h3>
+                  <p className="mt-2 text-sm text-ink-soft">
+                    Esta residencia admite residentes menores de 18. Consultá con la residencia las condiciones que aplican y, al solicitar,
+                    tu guardián deberá confirmar la solicitud. La solicitud queda sujeta a confirmación de la residencia.
+                  </p>
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* (3) Reglas de convivencia (top 5) + reglamento para leer (modal) y descargar. Se acepta al enviar la solicitud. */}
+          {(rulesSummary || rulesPdfUrl || regulation) && (
+            <section id="convivencia" className="scroll-mt-32 space-y-3">
+              <h2 className="text-2xl font-bold text-ink">Reglas de convivencia</h2>
+              <RulesHighlight
+                rulesSummary={rulesSummary}
+                pdfUrl={rulesPdfUrl}
+                slug={slug}
+                hasRegulation={!!regulation}
+                regulationActions={
+                  regulation ? (
+                    <RegulationModal
+                      title="Reglamento de convivencia"
+                      intro={`${
+                        regulation.isBaseModel
+                          ? "Esta residencia todavía no cargó su propio reglamento: te mostramos el modelo de convivencia de EstuRed. Consultá con la residencia los puntos que quieras confirmar."
+                          : regulation.source === "model"
+                            ? "Reglamento de convivencia de la residencia, adaptado a partir del modelo de EstuRed."
+                            : "Reglamento de convivencia de la residencia."
+                      } Lo aceptás al enviar tu solicitud; esa aceptación no asegura el lugar (solicitud sujeta a confirmación).${
+                        regulation.versionNumber != null && regulation.publishedAt && !regulation.isBaseModel
+                          ? ` Versión ${regulation.versionNumber}, publicada el ${formatDate(regulation.publishedAt)}.`
+                          : ""
+                      }`}
+                      footnote={regulation.isBaseModel ? MODEL_LEGAL_NOTE : null}
+                      downloadHref={`/residencias/${slug}/reglamento`}
+                    >
+                      <RegulationText text={regulation.text} />
+                    </RegulationModal>
+                  ) : undefined
+                }
+              />
+            </section>
+          )}
+
+          {/* (4) Comunidad y convivencia — resumen por tipo (D18); el mapa de camas vive en /comunidad */}
+          {hasCommunity && (
+            <section id="comunidad" className="scroll-mt-32 space-y-4">
+              <div>
+                <h2 className="text-2xl font-bold text-ink">Comunidad y convivencia</h2>
+                <p className="mt-1 text-sm text-ink-soft">Quiénes viven hoy en la residencia.</p>
+              </div>
+              <CommunitySummary slug={slug} community={community} statement={communityStatement} isGuest={!sessionUser} />
+            </section>
+          )}
+
+          {/* (5) Tarifas + condiciones + salida anticipada — visible para TODOS (H10 / D17) */}
+          <section id="tarifas" className="scroll-mt-32 space-y-5">
             <div>
               <h2 className="text-2xl font-bold text-ink">Tarifas y condiciones</h2>
               <p className="mt-1 text-sm text-ink-soft">
@@ -605,11 +686,20 @@ export default async function RealResidenceDetailPage({
                 residencia por tipo.
               </p>
             </div>
+            <RequestNotices
+              mode={mode}
+              roomTypes={fichaTypes}
+              slot={panelSlot}
+              windowNotice={windowNotice}
+              studentName={singleStudentName}
+            />
             {fichaTypes.length > 0 ? (
               <RatesTable
                 roomTypes={fichaTypes}
                 arsPerUsd={rate.arsPerUsd}
                 waitlistTypeIds={mode === "student" ? waitlistTypeIds : []}
+                mode={mode}
+                slug={slug}
               />
             ) : (
               <EmptyState
@@ -628,144 +718,36 @@ export default async function RealResidenceDetailPage({
                 }
               />
             )}
+            {(mode === "guest" || mode === "student") && anyRequestable && <RequestHowItWorks />}
             <ReservationConditions conditions={conditions} arsPerUsd={rate.arsPerUsd} />
             <EarlyExitPolicy
               depositClausesText={conditions.earlyExitDepositClausesText}
               costsText={conditions.earlyExitCostsText}
               conditionsText={conditions.earlyExitConditionsText}
             />
+          </section>
+
+          {/* (6) Qué pagás y a quién */}
+          <div id="pagos" className="scroll-mt-32">
             <WhoGetsPaid
               forFamily={mode === "family"}
               initialPayment={conditions.initialPayment}
-              hasDeposit={keyFacts.depositLabel != null}
+              hasDeposit={hasDeposit}
               enrollment={{
                 mode: conditions.enrollmentFeeMode,
                 usd: conditions.enrollmentFeeUsd,
                 frequency: conditions.enrollmentFeeFrequency,
               }}
             />
-          </section>
+          </div>
 
-          {/* Columna lateral (desktop) / card de solicitud dentro de Tarifas (mobile) */}
-          <aside
-            id="solicitud"
-            className="scroll-mt-32 lg:col-start-2 lg:row-start-1 lg:self-start lg:sticky lg:top-32 lg:[grid-row:1_/_span_var(--rows)]"
-          >
-            <RequestPanel
-              slug={slug}
-              mode={mode}
-              roomTypes={fichaTypes}
-              fromPriceUsd={fromPriceUsd}
-              fromArsRounded={fromArsRounded}
-              keyFacts={keyFacts}
-              studentName={singleStudentName}
-              slot={panelSlot}
-              windowNotice={windowNotice}
-              waitlistTypeIds={mode === "student" ? waitlistTypeIds : []}
-            />
-          </aside>
-
-          <div className="lg:col-start-1">
+          {/* (7) Qué revisó EstuRed */}
+          <div id="verificacion" className="scroll-mt-32">
             <VerificationScope />
           </div>
 
-          {/* 2. Comunidad y convivencia — resumen por tipo (D18); el mapa de camas vive en /comunidad */}
-          {hasCommunity && (
-            <section id="comunidad" className="scroll-mt-32 space-y-4 lg:col-start-1">
-              <div>
-                <h2 className="text-2xl font-bold text-ink">Comunidad y convivencia</h2>
-                <p className="mt-1 text-sm text-ink-soft">Quiénes viven hoy en la residencia.</p>
-              </div>
-              <CommunitySummary slug={slug} community={community} statement={communityStatement} isGuest={!sessionUser} />
-            </section>
-          )}
-
-          {/* 3. La residencia */}
-          {hasResidenceSection && (
-            <section id="residencia" className="scroll-mt-32 space-y-6 lg:col-start-1">
-              <h2 className="text-2xl font-bold text-ink">La residencia</h2>
-              {(services.length > 0 || commonAreas.length > 0) && (
-                <div className="grid gap-6 md:grid-cols-2">
-                  {services.length > 0 && (
-                    <div>
-                      <h3 className="text-base font-bold text-ink">Servicios incluidos</h3>
-                      <div className="mt-3">
-                        <AmenityGrid columns={1} items={services.map((s) => ({ name: serviceLabel(s), ...getServiceIcon(s) }))} />
-                      </div>
-                    </div>
-                  )}
-                  {commonAreas.length > 0 && (
-                    <div>
-                      <h3 className="text-base font-bold text-ink">Áreas comunes</h3>
-                      <div className="mt-3">
-                        <AmenityGrid columns={1} items={commonAreas.map((a) => ({ name: a, ...getCommonAreaIcon(a) }))} />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-              {(rulesSummary || rulesPdfUrl) && (
-                <div>
-                  <h3 className="text-base font-bold text-ink">Reglas de convivencia</h3>
-                  <div className="mt-3">
-                    <RulesHighlight rulesSummary={rulesSummary} pdfUrl={rulesPdfUrl} slug={slug} hasRegulation={!!regulation} />
-                  </div>
-                </div>
-              )}
-            </section>
-          )}
-
-          {/* Edad de los residentes (DR14): rango público y, si la residencia lo habilita, apartado para menores. Oculta si la migración 0052 no está aplicada. */}
-          {residence.min_resident_age !== undefined && (
-          <section id="edad" className="scroll-mt-32 space-y-3 lg:col-start-1">
-            <h2 className="text-2xl font-bold text-ink">Edad de los residentes</h2>
-            <p className="text-ink-soft">
-              {describeAgeRange({
-                minResidentAge: residence.min_resident_age as number | null | undefined,
-                maxResidentAge: residence.max_resident_age as number | null | undefined,
-                acceptsMinors: residence.accepts_minors as boolean | null | undefined,
-              })}
-              .
-            </p>
-            {residence.accepts_minors === true && (
-              <div className="rounded-card border border-line bg-paper p-5">
-                <h3 className="text-base font-bold text-ink">Para menores de 18</h3>
-                <p className="mt-2 text-sm text-ink-soft">
-                  Esta residencia admite residentes menores de 18. Consultá con la residencia las condiciones que aplican y, al solicitar,
-                  tu guardián deberá confirmar la solicitud. La solicitud queda sujeta a confirmación de la residencia.
-                </p>
-              </div>
-            )}
-          </section>
-          )}
-
-          {/* Reglamento completo (DR14): propio o, si no tiene, el modelo de EstuRed. Se acepta al enviar la solicitud. */}
-          {regulation && (
-            <section id="reglamento" className="scroll-mt-32 space-y-3 lg:col-start-1">
-              <h2 className="text-2xl font-bold text-ink">Reglamento</h2>
-              <p className="text-ink-soft">
-                {regulation.isBaseModel
-                  ? "Esta residencia todavía no cargó su propio reglamento: te mostramos el modelo de convivencia de EstuRed. Consultá con la residencia los puntos que quieras confirmar."
-                  : regulation.source === "model"
-                    ? "Reglamento de convivencia de la residencia, adaptado a partir del modelo de EstuRed."
-                    : "Reglamento de convivencia de la residencia."}{" "}
-                Lo aceptás al enviar tu solicitud; esa aceptación no asegura el lugar (solicitud sujeta a confirmación).
-              </p>
-              <details className="rounded-card border border-line bg-paper p-5">
-                <summary className="cursor-pointer text-sm font-bold text-forest-700">Leer el reglamento completo</summary>
-                <RegulationText text={regulation.text} className="mt-4 max-h-[32rem] overflow-y-auto pr-2" />
-                {regulation.isBaseModel && <p className="mt-4 text-xs text-ink-faint">{MODEL_LEGAL_NOTE}</p>}
-              </details>
-              {regulation.versionNumber != null && regulation.publishedAt && !regulation.isBaseModel && (
-                <p className="text-xs text-ink-faint">
-                  Versión {regulation.versionNumber}, publicada el {formatDate(regulation.publishedAt)}.
-                </p>
-              )}
-            </section>
-          )}
-
-          {/* 4. Ubicación — pin exacto + dirección pública + universidades con distancia (DF5) */}
-          <section id="ubicacion" className="scroll-mt-32 space-y-4 lg:col-start-1">
+          {/* (8) Ubicación — pin exacto + dirección pública + universidades con distancia (DF5) */}
+          <section id="ubicacion" className="scroll-mt-32 space-y-4">
             <div>
               <h2 className="text-2xl font-bold text-ink">Ubicación</h2>
               <p className="mt-1 text-sm text-ink-soft">
@@ -786,8 +768,8 @@ export default async function RealResidenceDetailPage({
             <GuidePicks keys={["01", "03"]} variant="strip" label="Antes de reservar, leé:" />
           </div>
 
-          {/* 5. Preguntas frecuentes */}
-          <section id="preguntas" className="scroll-mt-32 lg:col-start-1">
+          {/* (9) Preguntas frecuentes */}
+          <section id="preguntas" className="scroll-mt-32">
             <h2 className="text-2xl font-bold text-ink">Preguntas frecuentes</h2>
             {faqItems.length > 0 && (
               <div className="mt-4">
@@ -817,8 +799,6 @@ export default async function RealResidenceDetailPage({
           </Link>
           .
         </p>
-        {/* Espacio para que la barra fija de mobile no tape el final de la página */}
-        <div className="h-[calc(5.5rem+env(safe-area-inset-bottom))] lg:hidden" aria-hidden="true" />
       </div>
 
       {(mode === "student" || mode === "family") && (
@@ -896,14 +876,6 @@ export default async function RealResidenceDetailPage({
         />
       )}
 
-      {showMobileBar && (
-        <MobileRequestBar
-          roomTypes={fichaTypes}
-          fromPriceUsd={fromPriceUsd}
-          opensSheet={modeOpensSheet(mode)}
-          ctaLabel={mode === "family" ? (singleStudentName ? `Proponer a ${singleStudentName}` : "Proponer") : "Solicitar"}
-        />
-      )}
     </ReservationSelectionProvider>
   );
 }

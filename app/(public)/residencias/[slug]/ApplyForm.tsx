@@ -120,24 +120,7 @@ export function ApplyForm({
       {/* Cuerpo con scroll propio; el pie (aceptación + enviar) queda fijo y siempre visible (D20). */}
       <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 py-5 sm:px-6">
       <p className="text-xs font-extrabold uppercase tracking-widest text-muted">1 · Tu estadía</p>
-      <Select
-        label="Tipo de habitación"
-        id="apply-room-type"
-        name="room_type_id"
-        required
-        value={roomTypeId}
-        onChange={(e) => setRoomTypeId(e.target.value)}
-      >
-        <option value="" disabled>
-          Elegí una opción
-        </option>
-        {availableTypes.map((rt) => (
-          <option key={rt.id} value={rt.id}>
-            {rt.name} — {formatUsd(Number(rt.monthly_price_usd))}/mes
-          </option>
-        ))}
-      </Select>
-      {moveInNotice}
+      <div className="grid gap-4 sm:grid-cols-2">
       <Input
         label="Fecha de ingreso deseada"
         id="apply-start-date"
@@ -150,22 +133,6 @@ export function ApplyForm({
         aria-describedby={overlapsStay ? "apply-overlap-notice" : undefined}
         hint={minStartDate ? `Podés pedir desde el ${formatDateOnly(minStartDate)}, cuando termina tu reserva actual.` : undefined}
       />
-      {overlapsStay && stayChange && (
-        <p
-          id="apply-overlap-notice"
-          className="-mt-2 flex items-start gap-2 rounded-field bg-warning-bg px-3.5 py-2.5 text-xs leading-relaxed text-warning-fg"
-        >
-          <Icon name="swap_horiz" className="mt-0.5 shrink-0 text-base" />
-          <span>
-            Esta fecha se superpone con tu estadía actual (hasta el {stayChange.currentEndLabel}). Podés enviarla porque tenés abierto tu aviso de cambio. Si se
-            confirma, coordiná tu salida con tu residencia:{" "}
-            <a href="/students/residency#respuesta-residencia" className="font-bold underline underline-offset-2">
-              ver lo que te informó
-            </a>
-            .
-          </span>
-        </p>
-      )}
       <Input
         label="Duración estimada (meses)"
         id="apply-duration"
@@ -185,6 +152,41 @@ export function ApplyForm({
         }
       />
 
+      </div>
+      {overlapsStay && stayChange && (
+        <p
+          id="apply-overlap-notice"
+          className="-mt-2 flex items-start gap-2 rounded-field bg-warning-bg px-3.5 py-2.5 text-xs leading-relaxed text-warning-fg"
+        >
+          <Icon name="swap_horiz" className="mt-0.5 shrink-0 text-base" />
+          <span>
+            Esta fecha se superpone con tu estadía actual (hasta el {stayChange.currentEndLabel}). Podés enviarla porque tenés abierto tu aviso de cambio. Si se
+            confirma, coordiná tu salida con tu residencia:{" "}
+            <a href="/students/residency#respuesta-residencia" className="font-bold underline underline-offset-2">
+              ver lo que te informó
+            </a>
+            .
+          </span>
+        </p>
+      )}
+      {moveInNotice}
+      <Select
+        label="Tipo de habitación"
+        id="apply-room-type"
+        name="room_type_id"
+        required
+        value={roomTypeId}
+        onChange={(e) => setRoomTypeId(e.target.value)}
+      >
+        <option value="" disabled>
+          Elegí una opción
+        </option>
+        {availableTypes.map((rt) => (
+          <option key={rt.id} value={rt.id}>
+            {rt.name} — {formatUsd(Number(rt.monthly_price_usd))}/mes
+          </option>
+        ))}
+      </Select>
       {selected && duration > 0 && (
         <CostBreakdown
           monthlyUsd={monthlyUsd}

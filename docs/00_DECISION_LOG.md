@@ -1,7 +1,7 @@
 # 00_DECISION_LOG.md
 # EstuRed — Registro de decisiones consolidadas
 
-Última actualización: 2026-11-02 (DR29: Fase 2 de Guías, llegada y checklist; DR28: Centro de Guías público en /guias; DR27 costos sin «sin depósito» y comprobante en la home; DR22–DR26 y anteriores en §31)
+Última actualización: 2026-11-02 (DR30: ficha y solicitud en modal; DR29: Fase 2 de Guías, llegada y checklist; DR28: Centro de Guías público en /guias; DR27 costos sin «sin depósito» y comprobante en la home; DR22–DR26 y anteriores en §31)
 
 Este documento es la fuente de verdad del proyecto EstuRed.
 Registra todas las decisiones de producto, negocio, operación, experiencia y arquitectura técnica.
@@ -1479,6 +1479,25 @@ Decisión del dueño. El orden «Recomendado» pasa a «disponibles primero»:
 ### DR25: microcopy «a quién se paga y cuándo» en el panel de solicitud (2026-11-01)
 
 Decisión del dueño (variante «pasos visuales»). Bajo el botón de enviar solicitud de la ficha (`RequestPanel`), tres pasos cortos: **1. Enviás la solicitud (gratis)** → **2. Si la residencia avanza, le pagás a ella** (matrícula, seña o depósito) → **3. Pagás a EstuRed el 5% de servicio**. Se mantiene «Toda reserva está sujeta a confirmación». No promete disponibilidad ni plazo de pago; el detalle sigue en «Qué pagás y a quién» (`WhoGetsPaid`). Respeta la regla 3 (pago a residencia y fee son entidades distintas).
+
+### DR30: rediseño de la ficha pública y del flujo de solicitud en modal (2026-11-02)
+
+Decisión del dueño (pedido con referencia de la galería «Ver todas» de Airbnb). Protocolo `docs/13` §5: doc primero, código después. No cambia estados ni permisos; mantiene separadas propuesta del familiar, solicitud, negociación, pago a la residencia, fee, reserva, factura y comprobante. Extiende DR18 (fotos, reglas top 5, mes vacío) y reemplaza el panel lateral de DR25/DR4 por un modal.
+
+**1. Fotos por secciones.** La residencia sube y clasifica las fotos **por sección con nombre** (Living, Cocina completa, Comedor, Dormitorio 1, Dormitorio 2, Baño completo, Exterior, Pileta, «Fotos adicionales»…). Modelo: columnas nuevas en `residence_photo_meta` (migración 0070): `section` (texto 1–40, libre con sugerencias; null = «Fotos adicionales») y `sort_order`. `category/area/room_type` de DR18 siguen valiendo para filtros y como sugerencia de sección cuando `section` es null. Editar sección sigue sin pasar por la cola de revisión (no cambia qué fotos son públicas); subir fotos nuevas sigue gateado. «Ver todas»: arriba «Recorrido fotográfico» con una miniatura por sección (nombre debajo, ancla a la sección) y debajo cada sección con sus fotos en grilla de 2 columnas (1 en móvil angosto si hace falta). Sin la 0070 degrada a la agrupación de DR18.
+
+**2.** Nombre, dirección y todo lo posterior a las fotos hasta «Comunidad» se mantiene.
+
+**3. Orden de la ficha (presentar antes de cobrar).** Fotos → nombre/dirección → **Servicios y áreas comunes en formato horizontal con íconos** → **edad de los residentes** → **reglas de convivencia (las 5 que elige la residencia)** + reglamento para leer y descargar (modal) → «Comunidad» si está activa → **Tarifas** → **Condiciones de admisión** → «Qué pagás y a quién» → «Qué revisó EstuRed» → mapa → FAQ.
+
+**4. Tarifas y condiciones.** Tabla de tarifas compacta (una línea por tipo, hasta 5–6 tipos, sin repetir información —no «Individual» y además «1 persona»— y con íconos descriptivos), con botón «Elegir» que abre el modal de solicitud. Condiciones de admisión: **seis tarjetas fijas, del mismo tamaño y las mismas en todas las residencias** —Para reservar, Matrícula, Depósito, Ajuste de tarifa, Mes vacío, Documentos para admisión—; cada una muestra el dato breve que corresponde (o «No aplica / No cobra») y la explicación detallada al dorso (se toca para voltear/expandir). **Mes vacío:** cobrarlo o no es elección de cada residencia (`empty_month_charge_percent` null = no cobra); la configuración de la residencia lo deja explícito («Cobro mes vacío: sí/no») y la tarjeta dice una de las dos cosas. Explicación (al dorso): «Si reservás con ingreso a futuro y la plaza queda realmente vacía antes de que entres, la residencia puede cobrarte esos meses al % que fijó. Solo aplica si la residencia lo cobra y lo confirma; para el detalle, mirá la pregunta frecuente sobre mes vacío.» Sin promesas de disponibilidad.
+
+**5.** Luego «Qué pagás y a quién» y «Qué revisó EstuRed», el mapa y, al final, las FAQ.
+
+**6. Solicitud en modal.** Se elimina el cuadro lateral sticky. «Elegir» en la tabla abre un modal (en móvil, hoja a pantalla completa): primero **fecha de ingreso y cantidad de meses**; luego, en este orden: (a) **pago inicial a la residencia para reservar** («se abona una vez aprobada la solicitud»; importe final en pesos según el tipo de cambio que aplica la residencia); (b) **total de la reserva** con desplegable de detalle; (c) **fee de EstuRed** (5 % al estudiante); (d) si hay depósito, **depósito** con la leyenda «se abona al ingresar a la residencia». Después «Sobre vos» y el resto del formulario como está. Los cálculos siguen siendo los de servidor (`CostBreakdown`); el cliente no manda montos.
+
+**Supuestos reversibles:** (a) `section` libre con sugerencias, sin catálogo cerrado; (b) las seis tarjetas se muestran siempre aunque no apliquen; (c) el tipo de cambio mostrado es el vigente de `lib/exchange/rate.ts`.
+**Docs actualizados:** este registro.
 
 ### DR26: Google SSO fuera del MVP (2026-11-01)
 

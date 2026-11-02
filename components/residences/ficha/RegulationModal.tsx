@@ -1,0 +1,66 @@
+"use client";
+
+import { useState, type ReactNode } from "react";
+import { Dialog } from "@/components/ui/Dialog";
+import { Icon } from "@/components/ui/Icon";
+
+/**
+ * DR30 §3: el reglamento completo se lee en un modal (y se descarga) en vez de ocupar una sección de la ficha.
+ * El texto llega ya renderizado desde el servidor (`children`); acá solo vive el estado abierto/cerrado.
+ */
+export function RegulationModal({
+  title,
+  intro,
+  footnote,
+  downloadHref,
+  children,
+}: {
+  title: string;
+  intro: string;
+  footnote?: string | null;
+  downloadHref: string;
+  children: ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  const btn =
+    "inline-flex items-center gap-2 rounded-full border-[1.5px] border-line-2 bg-paper px-4 py-2 text-sm font-semibold text-ink transition-colors hover:border-forest hover:bg-forest-tint hover:text-forest-700";
+  return (
+    <>
+      <button type="button" onClick={() => setOpen(true)} className={btn}>
+        <Icon name="article" className="text-base" />
+        Leer reglamento
+      </button>
+      <a href={downloadHref} download className={btn}>
+        <Icon name="download" className="text-base" />
+        Descargar reglamento
+      </a>
+      <Dialog open={open} onClose={() => setOpen(false)} labelledBy="reglamento-title" maxWidthClass="sm:max-w-2xl">
+        <div className="flex items-start justify-between gap-3 border-b border-line px-5 py-4">
+          <h2 id="reglamento-title" className="text-lg font-bold text-ink">
+            {title}
+          </h2>
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            aria-label="Cerrar"
+            data-autofocus
+            className="rounded-full p-1 text-ink-soft hover:bg-cream-2"
+          >
+            <Icon name="close" className="text-xl" />
+          </button>
+        </div>
+        <div className="overflow-y-auto px-5 py-4">
+          <p className="mb-4 text-sm text-ink-soft">{intro}</p>
+          {children}
+          {footnote && <p className="mt-4 text-xs text-ink-faint">{footnote}</p>}
+        </div>
+        <div className="border-t border-line px-5 py-3">
+          <a href={downloadHref} download className={btn}>
+            <Icon name="download" className="text-base" />
+            Descargar
+          </a>
+        </div>
+      </Dialog>
+    </>
+  );
+}

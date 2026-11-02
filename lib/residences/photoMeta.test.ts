@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { groupGalleryPhotos, pickRotationPhotos, validatePhotoMeta, type GalleryPhoto } from "./photoMeta";
+import { effectiveSection, groupGalleryPhotos, groupPhotosBySections, pickRotationPhotos, validatePhotoMeta, type GalleryPhoto } from "./photoMeta";
 
 const ctx = { validFileIds: new Set(["f1", "f2", "f3"]), validRoomTypeIds: new Set(["rt1"]) };
 
@@ -46,5 +46,43 @@ describe("rotación y agrupado", () => {
   it("agrupa General, áreas y tipos", () => {
     const g = groupGalleryPhotos([p("1", false, "room_type", null, "Doble"), p("2", false, "area", "cocina"), p("3")]);
     expect(g.map((x) => x.title)).toEqual(["General", "Cocina", "Habitación: Doble"]);
+  });
+});
+
+describe("secciones (DR30)", () => {
+  const base = { category: "general" as const, area: null, roomTypeName: null };
+  it("valida y normaliza section / sortOrder", () => {
+    const r = validatePhotoMeta([{ fileId: "f1", category: "general", section: "  Cocina   completa ", sortOrder: 3 }, { fileId: "f2", category: "general", section: "   ", sortOrder: -1 }], ctx);
+    expect(r.ok).toBe(true);
+    if (r.ok) {
+      expect(r.items[0]).toMatchObject({ section: "Cocina completa", sortOrder: 3 });
+      expect(r.items[1]).toMatchObject({ section: null, sortOrder: 0 });
+    }
+    expect(validatePhotoMeta([{ fileId: "f1", category: "general", section: "x".repeat(41) }], ctx).ok).toBe(false);
+  });
+  it("sección efectiva: section > área / tipo > Fotos adicionales", () => {
+    expect(effectiveSection({ ...base, section: "Pileta" })).toBe("Pileta");
+    expect(effectiveSection({ category: "area", area: "cocina", roomTypeName: null })).toBe("Cocina");
+    expect(effectiveSection({ category: "room_type", area: null, roomTypeName: "Doble" })).toBe("Doble");
+    expect(effectiveSection(base)).toBe("Fotos adicionales");
+  });
+  it("agrupa por orden de aparición con «Fotos adicionales» al final", () => {
+    const g = groupPhotosBySections([
+      { ...base, section: null, sortOrder: 0, id: "a" },
+      { ...base, section: "Living", sortOrder: 1, id: "b" },
+      { ...base, section: "Cocina", sortOrder: 2, id: "c" },
+      { ...base, section: "living", sortOrder: 3, id: "d" },
+    ]);
+    expect(g.map((x) => x.title)).toEqual(["Living", "Cocina", "Fotos adicionales"]);
+    expect(g[0].photos.map((x) => x.id)).toEqual(["b", "d"]);
+  });
+  it("respeta sortOrder y es estable con empates", () => {
+    const g = groupPhotosBySections([
+      { ...base, section: "B", sortOrder: 5, id: "1" },
+      { ...base, section: "A", sortOrder: 1, id: "2" },
+      { ...base, section: "A", sortOrder: 1, id: "3" },
+    ]);
+    expect(g.map((x) => x.title)).toEqual(["A", "B"]);
+    expect(g[0].photos.map((x) => x.id)).toEqual(["2", "3"]);
   });
 });

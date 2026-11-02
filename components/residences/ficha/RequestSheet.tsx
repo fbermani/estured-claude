@@ -9,7 +9,7 @@ const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 /**
- * Hoja de solicitud (SPEC §4.3): lateral de 500 px en desktop, inferior a casi pantalla completa en mobile.
+ * Modal de solicitud (DR30 §6, reemplaza el panel lateral): diálogo centrado ancho en desktop, hoja a pantalla completa en mobile.
  * Envuelve `ApplyForm` / `ProposeForm` (modo `request`) o `JoinWaitlistForm` (modo `waitlist`). El encabezado y
  * el pie del formulario quedan fijos y solo el cuerpo scrollea, así el botón de enviar nunca queda cortado (D20).
  *
@@ -31,13 +31,15 @@ export function RequestSheet({
   requestContent: ReactNode;
   waitlistContent?: ReactNode;
 }) {
-  const { sheet, closeSheet } = useReservationSelection();
+  const { sheet, closeSheet, registerSheet } = useReservationSelection();
   const open = sheet !== null;
   const titleId = useId();
   const descId = useId();
   const dialogRef = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
   const returnFocusTo = useRef<HTMLElement | null>(null);
+
+  useEffect(() => registerSheet(), [registerSheet]);
 
   useEffect(() => {
     if (!open) return;
@@ -89,7 +91,7 @@ export function RequestSheet({
 
   return (
     <div
-      className={`fixed inset-0 z-[60] ${open ? "" : "pointer-events-none"}`}
+      className={`fixed inset-0 z-[60] flex sm:items-center sm:justify-center sm:p-6 ${open ? "" : "pointer-events-none"}`}
       aria-hidden={!open}
       inert={!open}
     >
@@ -106,12 +108,11 @@ export function RequestSheet({
         aria-labelledby={titleId}
         aria-describedby={descId}
         onKeyDown={onKeyDown}
-        className={`absolute bottom-0 right-0 top-3 flex w-full flex-col overflow-hidden rounded-t-[24px] bg-paper shadow-float transition-transform duration-300 ease-[var(--ease-out-fresh)] motion-reduce:transition-none sm:top-0 sm:w-[500px] sm:rounded-l-[24px] sm:rounded-tr-none ${
-          open ? "translate-x-0 translate-y-0" : "translate-y-full sm:translate-x-full sm:translate-y-0"
+        className={`relative flex h-full w-full flex-col overflow-hidden bg-paper shadow-float transition-[transform,opacity] duration-300 ease-[var(--ease-out-fresh)] motion-reduce:transition-none sm:h-auto sm:max-h-[min(92vh,900px)] sm:max-w-[760px] sm:rounded-[24px] ${
+          open ? "translate-y-0 opacity-100" : "translate-y-full opacity-0 sm:translate-y-4"
         }`}
       >
-        <div aria-hidden="true" className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-full bg-line-2 sm:hidden" />
-        <header className="flex shrink-0 items-start justify-between gap-3 border-b border-line px-5 pb-4 pt-4 sm:px-6 sm:pt-6">
+        <header className="flex shrink-0 items-start justify-between gap-3 border-b border-line px-5 pb-4 pt-[max(1rem,env(safe-area-inset-top))] sm:px-6 sm:pt-6">
           <div className="min-w-0">
             <p className="text-xs font-extrabold uppercase tracking-widest text-muted">{residenceName}</p>
             <h2 id={titleId} className="mt-1 text-xl font-bold text-ink">

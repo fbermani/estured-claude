@@ -97,8 +97,11 @@ export default async function ResidenceProfilePage({
       area: (m?.area ?? null) as PhotoMetaItem["area"],
       roomTypeId: m?.room_type_id ?? null,
       featured: m?.is_featured === true,
+      section: m?.section ?? null,
+      sortOrder: m?.sort_order ?? 0,
     };
   });
+  photoItems.sort((a, b) => a.sortOrder - b.sortOrder); // estable: a igual orden, la antigüedad
   const pendingEditGroups = (pendingEdits ?? []).map((e) => ({ fieldGroup: e.field_group, createdAt: e.created_at }));
 
   return (
@@ -133,6 +136,7 @@ export default async function ResidenceProfilePage({
         photos: photoItems,
         photoRoomTypes: (roomTypes ?? []).map((rt) => ({ id: rt.id as string, name: rt.name as string })),
         photoMetaReady: photoMeta.schemaReady,
+        photoSectionsReady: photoMeta.sectionsReady,
         // DR18 t3 (0060): las opciones de dinero se habilitan cuando existe `deposit_mode` y la tabla de promociones.
         moneyReady: promotionsRes.schemaReady && "deposit_mode" in residence,
         promotions: promotionsRes.promotions.map((p) => ({

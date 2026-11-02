@@ -115,6 +115,7 @@ interface ProfileInitial {
   photos: PhotoMetaItem[];
   photoRoomTypes: { id: string; name: string }[];
   photoMetaReady: boolean;
+  photoSectionsReady: boolean;
   /** DR18 t3 (migración 0060): promociones de tarifa y si las opciones nuevas de dinero ya se pueden guardar. */
   promotions: PromotionItem[];
   moneyReady: boolean;
@@ -827,6 +828,7 @@ export function ResidenceProfileForm({
               initialItems={initial.photos}
               roomTypes={initial.photoRoomTypes}
               schemaReady={initial.photoMetaReady}
+              sectionsReady={initial.photoSectionsReady}
               readOnly={readOnly}
             />
             <label
@@ -1270,8 +1272,16 @@ export function ResidenceProfileForm({
             <div className="mt-4 rounded-card border border-sand-200 p-4">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="font-semibold text-ink">Meses vacíos (reserva anticipada)</p>
-                  <p className="text-xs text-ink-soft">
+                  <p className="font-semibold text-ink">
+                    Cobro de mes vacío:{" "}
+                    <span className={conditions.emptyMonthsEnabled ? "text-forest-700" : "text-ink-soft"}>
+                      {conditions.emptyMonthsEnabled ? "sí" : "no"}
+                    </span>
+                  </p>
+                  <p className="text-xs font-semibold text-ink-soft">
+                    Es una elección de tu residencia. Se muestra a los estudiantes en la tarjeta «Mes vacío» de la ficha.
+                  </p>
+                  <p className="mt-1 text-xs text-ink-soft">
                     Cuando un estudiante reserva hoy para ingresar más adelante, podés cobrar un porcentaje de la renta por cada mes completo
                     (hasta 3) en el que la plaza queda realmente vacía antes de su ingreso.
                   </p>

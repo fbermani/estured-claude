@@ -12,11 +12,26 @@ type AmenityItem = { name: string; icon: string; description: string };
  * con el texto, sin card pesada — el hover resalta el fondo de la fila
  * y el color del ícono, sutil, no una elevación dramática.
  */
-export function AmenityGrid({ items, columns = 2 }: { items: AmenityItem[]; columns?: 1 | 2 }) {
+export function AmenityGrid({
+  items,
+  columns = 2,
+  layout = "list",
+}: {
+  items: AmenityItem[];
+  columns?: 1 | 2;
+  /** `chips` (DR30): píldoras horizontales con ícono, en fila con wrap. */
+  layout?: "list" | "chips";
+}) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <div className={`grid grid-cols-1 gap-x-6 gap-y-1 ${columns === 2 ? "sm:grid-cols-2" : ""}`}>
+    <div
+      className={
+        layout === "chips"
+          ? "flex flex-wrap gap-2"
+          : `grid grid-cols-1 gap-x-6 gap-y-1 ${columns === 2 ? "sm:grid-cols-2" : ""}`
+      }
+    >
       {items.map((item, i) => (
         <div
           key={item.name}
@@ -31,11 +46,13 @@ export function AmenityGrid({ items, columns = 2 }: { items: AmenityItem[]; colu
             onFocus={(e) => e.currentTarget.matches(":focus-visible") && setOpenIndex(i)}
             onBlur={() => setOpenIndex((v) => (v === i ? null : v))}
             aria-expanded={openIndex === i}
-            className="flex w-full items-center gap-3 rounded-field px-2.5 py-2 text-left transition-colors duration-200 ease-fresh hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+            className={`flex items-center text-left ${
+              layout === "chips" ? "gap-2 rounded-full border border-line bg-paper px-3 py-1.5" : "w-full gap-3 rounded-field px-2.5 py-2"
+            }  transition-colors duration-200 ease-fresh hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest`}
           >
             <Icon
               name={item.icon}
-              className="shrink-0 text-xl text-ink-soft transition-colors duration-200 ease-fresh group-hover:text-forest-700"
+              className={`shrink-0 ${layout === "chips" ? "text-lg" : "text-xl"} text-ink-soft transition-colors duration-200 ease-fresh group-hover:text-forest-700`}
             />
             <span className="text-sm text-ink-soft transition-colors duration-200 ease-fresh group-hover:text-ink">{item.name}</span>
           </button>

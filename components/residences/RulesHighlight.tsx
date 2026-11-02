@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Icon } from "@/components/ui/Icon";
 
 const RULE_ICONS = ["rule", "schedule", "volume_off", "smoke_free", "groups"];
@@ -15,12 +16,15 @@ export function RulesHighlight({
   pdfUrl,
   slug,
   hasRegulation = false,
+  regulationActions,
 }: {
   rulesSummary: string;
   pdfUrl: string | null;
   slug?: string;
   /** Hay reglamento vigente (propio o el modelo) para ver en la ficha y descargar como archivo de texto. */
   hasRegulation?: boolean;
+  /** DR30: botones «Leer / Descargar reglamento» (modal) que reemplazan los enlaces a la sección. */
+  regulationActions?: ReactNode;
 }) {
   const rules = rulesSummary
     .split("\n")
@@ -28,7 +32,7 @@ export function RulesHighlight({
     .filter(Boolean)
     .slice(0, 5);
 
-  if (rules.length === 0 && !pdfUrl) return null;
+  if (rules.length === 0 && !pdfUrl && !regulationActions) return null;
 
   return (
     <div className="space-y-4">
@@ -45,24 +49,22 @@ export function RulesHighlight({
           ))}
         </ul>
       )}
-      {hasRegulation && slug && (
-        <div className="flex flex-wrap gap-2">
-          <a
-            href="#reglamento"
-            className="inline-flex items-center gap-2 rounded-full border-[1.5px] border-line-2 bg-paper px-4 py-2 text-sm font-semibold text-ink transition-colors hover:border-forest hover:bg-forest-tint hover:text-forest-700"
-          >
-            <Icon name="article" className="text-base" />
-            Ver reglamento completo
-          </a>
-          <a
-            href={`/residencias/${slug}/reglamento`}
-            download
-            className="inline-flex items-center gap-2 rounded-full border-[1.5px] border-line-2 bg-paper px-4 py-2 text-sm font-semibold text-ink transition-colors hover:border-forest hover:bg-forest-tint hover:text-forest-700"
-          >
-            <Icon name="download" className="text-base" />
-            Descargar reglamento
-          </a>
-        </div>
+      {regulationActions ? (
+        <div className="flex flex-wrap gap-2">{regulationActions}</div>
+      ) : (
+        hasRegulation &&
+        slug && (
+          <div className="flex flex-wrap gap-2">
+            <a
+              href={`/residencias/${slug}/reglamento`}
+              download
+              className="inline-flex items-center gap-2 rounded-full border-[1.5px] border-line-2 bg-paper px-4 py-2 text-sm font-semibold text-ink transition-colors hover:border-forest hover:bg-forest-tint hover:text-forest-700"
+            >
+              <Icon name="download" className="text-base" />
+              Descargar reglamento
+            </a>
+          </div>
+        )
       )}
       {pdfUrl && (
         <a
