@@ -5,6 +5,9 @@ import { formatShortName } from "@/lib/format/shortName";
 import { familyStatusLabel } from "@/lib/family/familyStatusLabel";
 import { loadReservationInfoByApplication } from "@/lib/applications/loadReservationInfo";
 import { resolveFeePayerView, type FeePayerView } from "@/lib/payments/feeUrgentBanner";
+import { todayIso } from "@/lib/applications/reservationMoney";
+import { daysUntil } from "@/lib/arrival/countdown";
+import { loadCheckedItems } from "@/lib/arrival/loadChecklist";
 
 /**
  * Lo que el familiar vinculado SIGUE del estudiante (DR4, docs/00 §31): estado de sus solicitudes y reservas y la próxima
@@ -31,12 +34,25 @@ export type FamilyApplicationView = {
   nextAction: FamilyApplicationNextAction;
 };
 
+/** Llegada futura de un estudiante vinculado activo (DR29): cuenta regresiva + checklist en solo lectura. */
+export type FamilyArrivalView = {
+  reservationId: string;
+  residenceName: string;
+  startDate: string;
+  daysLeft: number;
+  checkedKeys: string[];
+  /** false = migración 0068 sin aplicar: sin tildes persistentes. */
+  persistent: boolean;
+};
+
 export type FamilyStudentOverview = {
   linkId: string;
   studentProfileId: string;
   studentFirstName: string;
   studentShortName: string;
   applications: FamilyApplicationView[];
+  /** Reservas con ingreso futuro (DR29, amplía DR4): solo para vínculos activos. */
+  arrivals: FamilyArrivalView[];
   /** Propuestas del familiar a este estudiante que esperan su respuesta (el estudiante decide). */
   pendingProposals: { id: string; residenceName: string }[];
 };
@@ -96,6 +112,39 @@ export async function loadFamilyOverview(admin: SupabaseClient, familyUserId: st
     .in("student_profile_id", studentIds);
   const proposals = (proposalData ?? []) as unknown as { id: string; student_profile_id: string; residences: { name: string } | null }[];
 
+  // DR29: llegadas futuras (reservas confirmadas o con comprobante) de los estudiantes vinculados activos.
+  const today = todayIso();
+  const arrivalsByStudent = new Map<string, FamilyArrivalView[]>();
+  const { data: resData, error: resError } = await admin
+    .from("reservations")
+    .select("id, student_profile_id, start_date, residences(name)")
+    .in("student_profile_id", studentIds)
+    .in("status", ["confirmed", "receipt_pending", "receipt_issued"])
+    .gt("start_date", today)
+    .order("start_date", { ascending: true });
+  if (resError) console.error("[family] overview: no se pudieron leer las llegadas:", resError);
+  const futureReservations = (resData ?? []) as unknown as {
+    id: string;
+    student_profile_id: string;
+    start_date: string;
+    residences: { name: string } | null;
+  }[];
+  const checked = await loadCheckedItems(admin, futureReservations.map((r) => r.id));
+  for (const r of futureReservations) {
+    const daysLeft = daysUntil(r.start_date, today);
+    if (daysLeft === null) continue;
+    const list = arrivalsByStudent.get(r.student_profile_id) ?? [];
+    list.push({
+      reservationId: r.id,
+      residenceName: r.residences?.name ?? "Residencia",
+      startDate: r.start_date,
+      daysLeft,
+      checkedKeys: checked.byReservation.get(r.id) ?? [],
+      persistent: checked.persistent,
+    });
+    arrivalsByStudent.set(r.student_profile_id, list);
+  }
+
   return links.map((l) => {
     const first = l.student_profiles?.first_name ?? "Tu familiar";
     const initial = l.student_profiles?.last_initial;
@@ -137,6 +186,7 @@ export async function loadFamilyOverview(admin: SupabaseClient, familyUserId: st
       studentFirstName: first,
       studentShortName: formatShortName(first, initial),
       applications,
+      arrivals: arrivalsByStudent.get(l.student_profile_id) ?? [],
       pendingProposals: proposals
         .filter((p) => p.student_profile_id === l.student_profile_id)
         .map((p) => ({ id: p.id, residenceName: p.residences?.name ?? "una residencia" })),

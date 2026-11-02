@@ -1,7 +1,7 @@
 # 00_DECISION_LOG.md
 # EstuRed — Registro de decisiones consolidadas
 
-Última actualización: 2026-11-02 (DR28: Centro de Guías público en /guias; DR27 costos sin «sin depósito» y comprobante en la home; DR22–DR26 y anteriores en §31)
+Última actualización: 2026-11-02 (DR29: Fase 2 de Guías, llegada y checklist; DR28: Centro de Guías público en /guias; DR27 costos sin «sin depósito» y comprobante en la home; DR22–DR26 y anteriores en §31)
 
 Este documento es la fuente de verdad del proyecto EstuRed.
 Registra todas las decisiones de producto, negocio, operación, experiencia y arquitectura técnica.
@@ -1495,4 +1495,14 @@ Decisión del dueño.
 - **Contenido:** archivos Markdown con frontmatter en `content/guias/` (soltar un `.md` nuevo publica una guía, sin tocar componentes). Texto editorial neutral y multi-residencia: no habla en nombre de ninguna residencia, sin testimonios, cifras ni fechas de revisión no verificadas, sin «mediación» (se dice «Soporte»).
 - **CTAs:** solo a rutas que existen (`/search`, `/for-residences`, `/for-students`, `/register`, otras guías); si la ruta no existe, el CTA se oculta.
 - **Fase 1:** contenido + SEO (metadata, canonical, JSON-LD `Article` y `BreadcrumbList`, sitemap) + enlaces contextuales desde home, buscador, fichas y dashboards.
-- **Fase 2 (pendiente, con su propia DR):** cuenta regresiva, checklist y alertas por mail/notificación al estudiante y al familiar vinculado (WhatsApp solo como botón manual, nunca la API).
+- **Fase 2:** ver DR29 (cuenta regresiva y checklist en el lote 2A; alertas por mail/notificación en el lote 2B, pendiente de confirmación). WhatsApp solo como botón manual, nunca la API.
+
+### DR29: Fase 2 del Centro de Guías — llegada, cuenta regresiva, checklist compartido y alertas (2026-11-02)
+
+Decisión del dueño. Amplía DR4 (qué ve el familiar vinculado) y completa la Fase 2 de DR28.
+- **Lote 2A (implementado):**
+  - **Cuenta regresiva «Tu llegada»:** el estudiante con reserva confirmada y fecha de ingreso futura ve los días que faltan (en días enteros, con «Mañana» y «Hoy»), la residencia y la fecha. El familiar con vínculo ACTIVO aprobado ve lo mismo de su familiar (nombre corto, residencia, fecha de ingreso). Esto amplía DR4: el familiar activo ve la llegada, y recibirá los avisos t7/t2 (lote 2B).
+  - **Checklist de llegada con casillas, persistido en DB** (tabla `arrival_checklist_items`, migración 0068, una fila por reserva e ítem tildado). Lo tilda solo el estudiante dueño de la reserva; el familiar vinculado activo lo ve en **solo lectura** (progreso) y tiene acceso a las guías. El catálogo de ítems es estático en código (`lib/arrival/checklist.ts`), genérico y sin datos de trámites, horarios ni teléfonos; no promete disponibilidad. Es más completo que la checklist de la guía y el dueño lo irá puliendo.
+  - **WhatsApp:** solo botón manual «Copiar mensaje» / «Abrir WhatsApp» (`wa.me` con texto pre-armado). Nunca la API de WhatsApp Business.
+  - Hasta que se aplique la migración 0068 la UI degrada: muestra el checklist en solo lectura, sin tildes persistentes.
+- **Lote 2B (PENDIENTE de 2 confirmaciones del dueño: ¿se permite opt-out de los avisos? ¿es esta la cadencia?):** alertas in-app y por mail a 14/7/2/0 días del ingreso para el estudiante y a 7/2 días para el familiar activo; las manda el cron horario existente; migración aparte con tabla de envíos con unicidad por reserva + destinatario + aviso + canal; no se envía antes de las 9:00 (hora de Argentina); solo para reservas `confirmed`/`receipt_pending`/`receipt_issued`; el mail real depende de que el dominio de Resend esté verificado. No se implementa hasta resolver las dos confirmaciones.

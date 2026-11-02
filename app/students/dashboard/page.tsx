@@ -28,6 +28,10 @@ import { formatDateOnly } from "@/lib/students/contractEnd";
 import { loadStudentContracts, type StudentContract } from "@/lib/students/loadStudentContracts";
 import { GuidePicks } from "@/components/guides/GuidePicks";
 import { todayIso } from "@/lib/applications/reservationMoney";
+import { ArrivalCard } from "@/components/students/ArrivalCard";
+import { daysUntil } from "@/lib/arrival/countdown";
+import { loadCheckedItems } from "@/lib/arrival/loadChecklist";
+import { resolveArrivalGuides } from "@/lib/arrival/guideLinks";
 import { StayRateNote } from "@/components/students/StayRateNote";
 import { loadFamilyOverview, type FamilyStudentOverview } from "@/lib/family/loadFamilyOverview";
 import { FamilyApplicationsList } from "@/components/students/FamilyApplicationsList";
@@ -112,6 +116,7 @@ export default async function StudentDashboardPage() {
   const isFamilyMember = sessionUser?.roles.includes("family_member") ?? false;
 
   if (isFamilyMember) {
+    const familyArrivalGuides = resolveArrivalGuides();
     let links: FamilyLinkRow[] = [];
     let sentProposals: SentProposalRow[] = [];
     const familyStayChanges = new Map<string, { view: StudentStayChangeView | null; residenceName: string | null }>();
@@ -291,6 +296,21 @@ export default async function StudentDashboardPage() {
                         studentName={studentFirstName}
                         limit={3}
                       />
+                      {overviewByLink.get(l.id)!.arrivals.map((a) => (
+                        <div key={a.reservationId} className="mt-4">
+                          <ArrivalCard
+                            reservationId={a.reservationId}
+                            residenceName={a.residenceName}
+                            startDateLabel={formatDateOnly(a.startDate)}
+                            daysLeft={a.daysLeft}
+                            initialChecked={a.checkedKeys}
+                            persistent={a.persistent}
+                            readOnly
+                            ownerName={studentFirstName}
+                            {...familyArrivalGuides}
+                          />
+                        </div>
+                      ))}
                       {overviewByLink.get(l.id)!.pendingProposals.length > 0 && (
                         <p className="mt-3 flex items-start gap-2 rounded-field bg-sand-100 px-4 py-3 text-xs text-ink-soft">
                           <Icon name="hourglass_top" className="mt-0.5 text-sm" />
@@ -592,6 +612,26 @@ export default async function StudentDashboardPage() {
   const activeLink = studentLinks.find((l) => l.status === "active");
   const isHoused = reservation !== null;
   const residence = reservation?.residences ?? null;
+  // DR29: «Tu llegada» con consulta aparte (no altera la reserva `confirmed` que alimenta el resto del panel): ingreso futuro y
+  // estado confirmed / receipt_pending / receipt_issued, igual que el familiar y la action.
+  let arrival: { id: string; start_date: string; residenceName: string } | null = null;
+  if (supabase) {
+    const { data: arrData } = await supabase
+      .from("reservations")
+      .select("id, start_date, residences(name)")
+      .in("status", ["confirmed", "receipt_pending", "receipt_issued"])
+      .gt("start_date", todayIso())
+      .order("start_date", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    const row = arrData as unknown as { id: string; start_date: string; residences: { name: string } | null } | null;
+    if (row) arrival = { id: row.id, start_date: row.start_date, residenceName: row.residences?.name ?? "Residencia" };
+  }
+  const arrivalDays = arrival ? daysUntil(arrival.start_date, todayIso()) : null;
+  const showArrival = arrival !== null && arrivalDays !== null;
+  const arrivalChecked =
+    showArrival && arrival && supabase ? await loadCheckedItems(supabase, [arrival.id]) : { persistent: false, byReservation: new Map<string, string[]>() };
+  const arrivalGuides = showArrival ? resolveArrivalGuides() : null;
   const remaining = contract?.daysRemaining ?? 0;
   const contractEndLabel = contract ? formatDateOnly(contract.endDate) : "—";
 
@@ -914,6 +954,20 @@ export default async function StudentDashboardPage() {
         </Reveal>
       )}
 
+      {showArrival && arrival && arrivalDays !== null && arrivalGuides && (
+        <Reveal delay={1} className="mt-6">
+          <ArrivalCard
+            reservationId={arrival.id}
+            residenceName={arrival.residenceName}
+            startDateLabel={formatDateOnly(arrival.start_date)}
+            daysLeft={arrivalDays}
+            initialChecked={arrivalChecked.byReservation.get(arrival.id) ?? []}
+            persistent={arrivalChecked.persistent}
+            {...arrivalGuides}
+          />
+        </Reveal>
+      )}
+
       {isHoused && reservation && residence && (
         <>
           <div className="mt-6 grid grid-cols-1 gap-3.5 sm:grid-cols-3">
@@ -1124,9 +1178,9 @@ export default async function StudentDashboardPage() {
         </section>
       )}
 
-      {/* Lectura (Centro de Guías): solo enlaces, según etapa. «Aún no comenzó» = ingreso posterior a hoy. */}
+      {/* Lectura (Centro de Guías): solo enlaces, según etapa. Con ingreso futuro la guía 02 ya va en «Tu llegada» (sin duplicar). */}
       <GuidePicks
-        keys={!isHoused ? ["01", "02"] : reservation && reservation.start_date > todayIso() ? ["02", "04"] : ["04", "03"]}
+        keys={!isHoused ? ["01", "02"] : ["04", "03"]}
         variant="panel"
         title={!isHoused ? "Para ir preparándote" : "Para leer con calma"}
         className="mt-10"
