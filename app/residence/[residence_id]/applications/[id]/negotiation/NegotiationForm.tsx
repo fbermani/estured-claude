@@ -212,20 +212,20 @@ export function NegotiationForm({
         <p className="border-b border-sand-200 px-5 py-3 text-sm font-bold text-ink">
           Vista previa — así lo va a ver {""}el estudiante
         </p>
-        <table className="w-full text-sm">
-          <thead className="bg-sand-100 text-left text-ink-soft">
-            <tr>
-              <th className="px-4 py-2 font-medium">Condición</th>
-              <th className="px-4 py-2 font-medium">Original</th>
-              <th className="px-4 py-2 font-medium">Propuesta</th>
+        <table role="table" className="block w-full text-sm sm:table">
+          <thead role="rowgroup" className="sr-only bg-sand-100 text-left text-ink-soft sm:not-sr-only sm:table-header-group">
+            <tr role="row">
+              <th role="columnheader" className="px-4 py-2 font-medium">Condición</th>
+              <th role="columnheader" className="px-4 py-2 font-medium">Original</th>
+              <th role="columnheader" className="px-4 py-2 font-medium">Propuesta</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-sand-200">
+          <tbody role="rowgroup" className="block divide-y divide-sand-200 sm:table-row-group">
             {comparisonRows.map((row) => (
-              <tr key={row.label}>
-                <td className="px-4 py-2 text-ink-soft">{row.label}</td>
-                <td className="px-4 py-2 text-ink">{row.original}</td>
-                <td className="px-4 py-2 font-medium text-forest-700">{row.proposed}</td>
+              <tr role="row" key={row.label} className="grid gap-0.5 px-4 py-3 sm:table-row sm:p-0">
+                <td role="cell" className="font-semibold text-ink sm:px-4 sm:py-2 sm:font-normal sm:text-ink-soft">{row.label}</td>
+                <td role="cell" className="text-ink sm:px-4 sm:py-2"><span aria-hidden="true" className="text-ink-faint sm:hidden">Original: </span>{row.original}</td>
+                <td role="cell" className="font-medium text-forest-700 sm:px-4 sm:py-2"><span aria-hidden="true" className="font-normal text-ink-faint sm:hidden">Propuesta: </span>{row.proposed}</td>
               </tr>
             ))}
           </tbody>

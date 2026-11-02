@@ -143,20 +143,20 @@ export default async function NegotiationResponsePage({
       )}
 
       <Card className="mt-6 overflow-hidden p-0">
-        <table className="w-full text-sm">
-          <thead className="bg-sand-100 text-left text-ink-soft">
-            <tr>
-              <th className="px-4 py-3 font-medium">Condición</th>
-              <th className="px-4 py-3 font-medium">Original</th>
-              <th className="px-4 py-3 font-medium">Propuesta</th>
+        <table role="table" className="block w-full text-sm sm:table">
+          <thead role="rowgroup" className="sr-only bg-sand-100 text-left text-ink-soft sm:not-sr-only sm:table-header-group">
+            <tr role="row">
+              <th role="columnheader" className="px-4 py-3 font-medium">Condición</th>
+              <th role="columnheader" className="px-4 py-3 font-medium">Original</th>
+              <th role="columnheader" className="px-4 py-3 font-medium">Propuesta</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-sand-200">
+          <tbody role="rowgroup" className="block divide-y divide-sand-200 sm:table-row-group">
             {rows.map((r) => (
-              <tr key={r.label}>
-                <td className="px-4 py-3 text-ink-soft">{r.label}</td>
-                <td className="px-4 py-3 text-ink">{r.original}</td>
-                <td className="px-4 py-3 font-medium text-forest-700">{r.proposed}</td>
+              <tr role="row" key={r.label} className="grid gap-0.5 px-4 py-3 sm:table-row sm:p-0">
+                <td role="cell" className="font-semibold text-ink sm:px-4 sm:py-3 sm:font-normal sm:text-ink-soft">{r.label}</td>
+                <td role="cell" className="text-ink sm:px-4 sm:py-3"><span aria-hidden="true" className="text-ink-faint sm:hidden">Original: </span>{r.original}</td>
+                <td role="cell" className="font-medium text-forest-700 sm:px-4 sm:py-3"><span aria-hidden="true" className="font-normal text-ink-faint sm:hidden">Propuesta: </span>{r.proposed}</td>
               </tr>
             ))}
           </tbody>

@@ -71,7 +71,7 @@ export function AudiencePanel({
 }) {
   const t = TONES[tone];
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-[30px] border border-line bg-paper shadow-card transition-all duration-300 ease-bounce focus-within:shadow-card-hover hover:shadow-card-hover motion-safe:focus-within:-translate-y-1 motion-safe:hover:-translate-y-1">
+    <article className="group flex h-full flex-col overflow-hidden rounded-[30px] border border-line bg-paper shadow-card transition-all duration-300 ease-bounce focus-within:shadow-card-hover hover:shadow-card-hover motion-safe:focus-within:-translate-y-1 motion-safe:hover:-translate-y-1 motion-safe:active:scale-[0.99]">
       <div className={`relative overflow-hidden px-6 pb-20 pt-6 ${t.top}`}>
         <span
           aria-hidden="true"
@@ -113,10 +113,10 @@ export function AudiencePanel({
       <div className="mt-auto grid gap-2 px-6 pb-6 pt-5">
         <Link
           href={href}
-          className={`group/btn inline-flex h-14 w-full items-center justify-center gap-2 rounded-full text-base font-bold text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 ${t.btn}`}
+          className={`group/btn inline-flex h-14 w-full items-center justify-center gap-2 rounded-full text-base font-bold text-white transition-all focus-visible:outline-2 focus-visible:outline-offset-2 motion-safe:active:scale-[0.98] active:brightness-90 ${t.btn}`}
         >
           {cta}
-          <Icon name="arrow_forward" className="text-xl transition-transform duration-300 ease-bounce group-hover/btn:translate-x-1" />
+          <Icon name="arrow_forward" className="text-xl transition-transform duration-300 ease-bounce group-hover/btn:translate-x-1 group-active/btn:translate-x-1" />
         </Link>
         <small className="text-center text-[12.5px] text-ink-faint">{note}</small>
       </div>
