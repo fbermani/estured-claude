@@ -22,6 +22,7 @@ const steps = [
     title: "Buscás tu residencia",
     description: "Filtrá por universidad, barrio y precio. Mirá reglas, servicios, disponibilidad y quiénes viven ahí.",
     img: "/landing/proceso-1-busqueda.webp",
+    imgMobile: "/landing/proceso-1-busqueda-movil.webp",
     alt: "Búsqueda de EstuRed con filtros y tarjetas de residencias verificadas",
   },
   {
@@ -29,6 +30,7 @@ const steps = [
     title: "Enviás tu solicitud",
     description: "Elegís el tipo de habitación y enviás tu solicitud sin costo. Tu familia puede acompañarte.",
     img: "/landing/proceso-2-solicitud.webp",
+    imgMobile: "/landing/proceso-2-solicitud-movil.webp",
     alt: "Ficha de residencia con tarifas por tipo de habitación y selector para solicitar",
   },
   {
@@ -36,6 +38,7 @@ const steps = [
     title: "La residencia te responde",
     description: "Acepta tu solicitud o te propone un ajuste. Seguís cada paso y decidís si avanzás.",
     img: "/landing/proceso-3-respuesta.webp",
+    imgMobile: "/landing/proceso-3-respuesta-movil.webp",
     alt: "Seguimiento de la solicitud con los pasos completados",
   },
   {
@@ -43,6 +46,7 @@ const steps = [
     title: "Abonás tu reserva",
     description: "Pagás directo a la residencia lo acordado. Ella confirma que lo recibió.",
     img: "/landing/proceso-4-pago.webp",
+    imgMobile: "/landing/proceso-4-pago-movil.webp",
     alt: "Detalle de qué pagás y a quién: a la residencia y el fee EstuRed",
   },
   {
@@ -50,6 +54,7 @@ const steps = [
     title: "Confirmás tu reserva",
     description: "Abonás el fee EstuRed (5%) y obtenés tu Comprobante de Reserva Confirmada.",
     img: "/landing/proceso-5-comprobante.webp",
+    imgMobile: "/landing/proceso-5-comprobante-movil.webp",
     alt: "Comprobante de Reserva Confirmada con número verificable",
   },
 ];

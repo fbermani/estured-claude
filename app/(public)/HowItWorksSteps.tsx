@@ -1,13 +1,18 @@
 "use client";
 
-import Image from "next/image";
+import { getImageProps } from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { Icon } from "@/components/ui/Icon";
 
-type Step = { slogan: string; title: string; description: string; img: string; alt: string };
+type Step = { slogan: string; title: string; description: string; img: string; imgMobile: string; alt: string };
 
 const DUR = 7000;
+
+/** Props optimizadas (srcSet/src) de next/image para usarlas dentro de <picture>. */
+function shotProps(src: string, sizes: string) {
+  return getImageProps({ src, alt: "", width: 780, height: 650, sizes }).props;
+}
 
 /** Posición de cada tarjeta en el mazo (desktop): 0 = frente. */
 const DECK: Record<number, { t: string; o: number; z: number }> = {
@@ -185,23 +190,18 @@ export function HowItWorksSteps({ steps }: { steps: Step[] }) {
                   className="flex flex-none basis-full flex-col overflow-hidden rounded-card border border-line bg-paper shadow-card lg:absolute lg:inset-0 lg:basis-auto lg:rounded-[30px] lg:[transform-origin:50%_90%] lg:[transform:var(--t)] lg:[opacity:var(--o)] lg:[z-index:var(--z)] lg:transition-[transform,opacity] lg:duration-700 lg:ease-out-fresh"
                   style={{ "--t": d.t, "--o": d.o, "--z": d.z, pointerEvents: front || !wide ? undefined : "none" } as CSSProperties}
                 >
-                  <div className="relative aspect-[4/3] overflow-hidden border-b lg:aspect-video border-line bg-cream">
-                    <span aria-hidden className="absolute inset-y-0 right-0 z-10 w-10 bg-gradient-to-l from-cream to-transparent lg:hidden" />
-                    <span aria-hidden className="absolute inset-x-0 top-0 z-10 flex h-[26px] items-center gap-[5px] border-b border-line bg-cream-2 px-3">
+                  {/* <picture>: el navegador descarga una sola captura (móvil propia bajo lg, escritorio desde lg) */}
+                  <div className="relative aspect-[6/5] overflow-hidden border-b border-line bg-cream lg:aspect-video">
+                    <span aria-hidden className="absolute inset-x-0 top-0 z-10 hidden h-[26px] items-center gap-[5px] border-b border-line bg-cream-2 px-3 lg:flex">
                       <i className="h-2 w-2 rounded-full bg-line-2" />
                       <i className="h-2 w-2 rounded-full bg-line-2" />
                       <i className="h-2 w-2 rounded-full bg-line-2" />
                     </span>
-                    <div className="absolute bottom-0 left-0 right-0 top-[26px] max-lg:right-auto max-lg:w-[190%]">
-                      <Image
-                        src={s.img}
-                        alt={s.alt}
-                        fill
-                        sizes="(min-width: 1024px) 640px, 190vw"
-                        className="object-cover object-left-top"
-                        draggable={false}
-                        loading="lazy"
-                      />
+                    <div className="absolute inset-x-0 bottom-0 top-0 lg:top-[26px]">
+                      <picture>
+                        <source media="(min-width: 1024px)" srcSet={shotProps(s.img, "640px").srcSet} sizes="640px" />
+                        <img {...shotProps(s.imgMobile, "100vw")} alt={s.alt} className="h-full w-full object-cover object-top lg:object-left-top" draggable={false} loading="lazy" />
+                      </picture>
                     </div>
                   </div>
                   <div className={`grid gap-2 p-[18px] pb-5 lg:px-6 lg:pb-6 lg:pt-[22px] ${front ? "" : "lg:invisible"}`}>
