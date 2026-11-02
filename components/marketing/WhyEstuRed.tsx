@@ -1,11 +1,12 @@
 import { Icon } from "@/components/ui/Icon";
 import { WhyChip } from "@/components/marketing/WhyChip";
 import { SectionHeader } from "@/components/ui/SectionHeader";
+import { ReceiptMiniature } from "@/components/marketing/ReceiptMiniature";
 
 /**
  * Home · «Por qué EstuRed» (DR22): fusiona «Por qué» y «La diferencia».
  * Chips con detalle al hover/foco/tap (HoverDetail), tabla «Con EstuRed vs. por fuera»
- * y checklist «Qué revisamos».
+ * y miniatura del comprobante de reserva.
  */
 const CHIPS = [
   {
@@ -16,7 +17,7 @@ const CHIPS = [
   {
     icon: "receipt",
     label: "Costos a la vista",
-    detail: "Pagás a la residencia lo acordado y, aparte, a EstuRed el 5% de la estadía inicial, sin depósito.",
+    detail: "Pagás a la residencia lo acordado y, aparte, a EstuRed el 5% de la estadía inicial.",
   },
   {
     icon: "task_alt",
@@ -32,21 +33,6 @@ const ROWS = [
   { what: "Reserva confirmada", withUs: "Comprobante con código verificable", outside: "Depende de cada residencia" },
   { what: "Si algo no coincide", withUs: "Abrís un caso de Soporte", outside: "Lo resolvés directo con la residencia" },
 ];
-
-const CHECKLIST = ["Responsable identificado", "Ubicación revisada", "Fotos revisadas"];
-
-function Checklist() {
-  return (
-    <ul className="mt-3 space-y-2 text-sm text-ink-soft">
-      {CHECKLIST.map((c) => (
-        <li key={c} className="flex items-center gap-2">
-          <Icon name="check_circle" className="text-lg text-forest" />
-          {c}
-        </li>
-      ))}
-    </ul>
-  );
-}
 
 export function WhyEstuRed() {
   return (
@@ -131,20 +117,8 @@ export function WhyEstuRed() {
             ))}
           </ul>
 
-          {/* Checklist: tarjeta en desktop, acordeón cerrado en mobile */}
-          <aside className="hidden rounded-card border border-sand-200 bg-sand-50 p-5 lg:block">
-            <p className="font-display text-base font-bold text-ink">Qué revisamos</p>
-            <Checklist />
-          </aside>
-          <details className="group rounded-card border border-sand-200 bg-sand-50 px-4 py-3 lg:hidden">
-            <summary className="flex min-h-8 cursor-pointer list-none items-center justify-between font-semibold text-ink marker:hidden">
-              Qué revisamos
-              <span aria-hidden="true" className="text-forest-600 transition-transform group-open:rotate-45">
-                +
-              </span>
-            </summary>
-            <Checklist />
-          </details>
+          {/* Miniatura del comprobante: en mobile queda debajo de la tabla */}
+          <ReceiptMiniature />
         </div>
       </div>
     </section>

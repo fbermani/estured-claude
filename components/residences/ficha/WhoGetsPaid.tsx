@@ -63,7 +63,7 @@ export function WhoGetsPaid({
             <Icon name="verified_user" className="text-xl" />A EstuRed
           </p>
           <ul className="mt-3 space-y-1.5 text-sm text-ink-soft">
-            <li className="flex gap-2"><span aria-hidden="true">·</span>Fee del {feePercent}% sobre meses × tarifa + matrícula, sin el depósito</li>
+            <li className="flex gap-2"><span aria-hidden="true">·</span>Fee del {feePercent}% sobre meses × tarifa + matrícula</li>
             <li className="flex gap-2"><span aria-hidden="true">·</span>Solo si la residencia confirma {forFamily ? "la" : "tu"} reserva</li>
           </ul>
           <p className="mt-3 text-xs leading-relaxed text-ink-faint">

@@ -1483,3 +1483,7 @@ Decisión del dueño (variante «pasos visuales»). Bajo el botón de enviar sol
 ### DR26: Google SSO fuera del MVP (2026-11-01)
 
 Decisión del dueño. El registro e ingreso siguen con email y contraseña (mínimo 8 caracteres, sin endurecer). Google SSO queda como idea futura: exigiría un callback que asigne el rol (estudiante/familiar) y registre los consentimientos de términos y privacidad antes de crear la cuenta; las residencias y el staff siguen entrando solo por invitación. Se retoma después del lanzamiento si la fricción del registro lo justifica.
+
+### DR27: costos sin la aclaración «sin depósito» + comprobante en «Por qué EstuRed» (2026-11-02)
+
+Decisión del dueño. (1) En el copy de costos de landings y ficha no se aclara «sin depósito» / «sin contar el depósito» / «nunca sobre el depósito»; la aclaración vive solo en las FAQ y en los términos (`/terms`). El cálculo no cambia: el fee es 5% de la estadía inicial y nunca incluye el depósito reembolsable. (2) En la home, «Por qué EstuRed» reemplaza la tarjeta «Qué revisamos» (repetía «Visitadas en persona») por una miniatura del Comprobante de Reserva Confirmada, armada con las mismas filas que la pantalla y el PDF reales, con datos de ejemplo rotulados.

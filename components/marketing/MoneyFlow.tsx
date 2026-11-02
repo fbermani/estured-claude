@@ -82,7 +82,7 @@ export function MoneyFlow() {
                 <li className="flex items-start gap-1.5">
                   <Icon name="block" className="mt-px text-lg text-red-600" />
                   <span>
-                    <b className="text-ink">Nunca sobre el depósito.</b> Tampoco se descuenta de lo que cobrás.
+                    <b className="text-ink">No se descuenta</b> de lo que cobrás.
                   </span>
                 </li>
               </ul>

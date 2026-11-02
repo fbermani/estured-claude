@@ -51,7 +51,7 @@ export function WhatYouPay({ variant = "student" }: { variant?: "student" | "res
         <SectionHeader eyebrow="Costos" title="Qué pagás y a quién" />
         <p className="text-base leading-relaxed text-ink-soft">
           Enviar una solicitud es gratis. A la residencia le pagás directamente lo acordado y a EstuRed un fee del 5% de tu estadía
-          inicial, sin contar el depósito: el monto exacto lo ves antes de pagar.
+          inicial: el monto exacto lo ves antes de pagar.
         </p>
         <Link
           href="/for-students#que-pagas"

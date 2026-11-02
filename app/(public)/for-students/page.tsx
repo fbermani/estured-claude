@@ -64,7 +64,7 @@ const steps = [
     title: "Confirmás y recibís tu comprobante",
     hook: "Fee de EstuRed del 5%, aparte. Ves el monto exacto antes de pagar.",
     detail: [
-      "Confirmá tu reserva: abonás el fee de EstuRed (5% de tu estadía inicial, sin contar el depósito) y obtenés tu Comprobante de Reserva Confirmada.",
+      "Confirmá tu reserva: abonás el fee de EstuRed (5% de tu estadía inicial) y obtenés tu Comprobante de Reserva Confirmada.",
       "Ves el monto exacto antes de pagar, y lo podés pagar vos o el familiar que designes. La factura sale a nombre de quien paga y el comprobante tiene un código que cualquiera puede verificar.",
     ],
     shot: { src: "/landing/proceso-5-comprobante.webp", alt: "Ejemplo del Comprobante de Reserva Confirmada", w: 1312, h: 960 },
