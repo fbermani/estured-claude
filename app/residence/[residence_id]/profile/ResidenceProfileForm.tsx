@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Input, Select, Textarea } from "@/components/ui/Input";
 import { Icon } from "@/components/ui/Icon";
+import { SectionNav } from "@/components/residences/ficha/SectionNav";
 import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import { ResidencePhotoPlaceholder } from "@/components/residences/ResidencePhoto";
@@ -185,6 +186,20 @@ function emptyRoomType(): RoomTypeDraft {
     monthlyPriceUsd: 300,
   };
 }
+
+/** Secciones del índice móvil (L9); los ids están en los `Card` de cada sección. */
+const PROFILE_SECTIONS = [
+  { id: "perfil-datos", label: "Datos" },
+  { id: "perfil-edad", label: "Edad" },
+  { id: "perfil-servicios", label: "Servicios" },
+  { id: "perfil-areas", label: "Áreas comunes" },
+  { id: "perfil-reglas", label: "Reglas" },
+  { id: "perfil-faq", label: "Preguntas" },
+  { id: "perfil-universidades", label: "Universidades" },
+  { id: "perfil-fotos", label: "Fotos" },
+  { id: "perfil-habitaciones", label: "Habitaciones" },
+  { id: "perfil-condiciones", label: "Condiciones" },
+];
 
 export function ResidenceProfileForm({
   residenceId,
@@ -435,6 +450,31 @@ export function ResidenceProfileForm({
         </Card>
       )}
 
+      {/* Bajo lg: Fortaleza compacta + índice de secciones fijo (L9). Desde lg manda la columna lateral. */}
+      <div className="mb-4 rounded-card border-[1.5px] border-line bg-paper px-4 py-3 lg:hidden">
+        <div className="flex items-center gap-3">
+          <p className="text-sm font-bold text-ink">Fortaleza del Perfil</p>
+          <div
+            role="progressbar"
+            aria-label="Fortaleza del Perfil"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={strength.percent}
+            className="h-2 flex-1 overflow-hidden rounded-full bg-sand-200"
+          >
+            <div className="h-full rounded-full bg-forest transition-all" style={{ width: `${strength.percent}%` }} />
+          </div>
+          <p className="text-sm font-bold text-forest-700">{strength.percent}%</p>
+        </div>
+        {strengthSuggestion && <p className="mt-1.5 text-xs text-ink-soft">{strengthSuggestion}</p>}
+      </div>
+      <SectionNav
+        label="Secciones del perfil"
+        className="sticky top-0 z-30 mb-6 lg:hidden"
+        rootMargin="-60px 0px -60% 0px"
+        items={PROFILE_SECTIONS}
+      />
+
       <form
         action={(fd) => {
           // El intent viaja como name/value del <button> que disparó el
@@ -471,11 +511,11 @@ export function ResidenceProfileForm({
           );
           formAction(fd);
         }}
-        className="grid gap-8 lg:grid-cols-[1fr_320px]"
+        className={`grid gap-8 lg:grid-cols-[1fr_320px] ${readOnly ? "" : "max-md:pb-40 md:max-lg:pb-4"}`}
       >
         <fieldset disabled={readOnly} className="m-0 min-w-0 space-y-6 border-0 p-0">
           {/* Datos básicos (algunos read-only: se fijan al registrarse) */}
-          <Card className="p-6">
+          <Card id="perfil-datos" className="p-6 max-lg:scroll-mt-14">
             <h2 className="text-lg font-bold text-ink">Datos Básicos</h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <Input label="Nombre de la residencia" value={initial.name} disabled hint="Se fija al registrarse." />
@@ -516,7 +556,7 @@ export function ResidenceProfileForm({
           </Card>
 
           {/* Edad de los residentes: va justo después de los datos básicos (auditoría del Owner, DR18) */}
-          <Card className="p-6">
+          <Card id="perfil-edad" className="p-6 max-lg:scroll-mt-14">
             <h2 className="text-lg font-bold text-ink">Edad de los residentes</h2>
             <p className="mt-1 text-sm text-ink-soft">
               Los estudiantes ven solo las residencias que aceptan su edad. Si no cargás nada, aceptás desde los 18 años y sin tope.
@@ -543,10 +583,10 @@ export function ResidenceProfileForm({
                 hint="Dejala vacía si no tenés tope."
               />
             </div>
-            <label className="mt-4 flex items-start gap-3 text-sm text-ink">
+            <label className="max-lg:min-h-11 mt-4 flex items-start gap-3 text-sm text-ink">
               <input
                 type="checkbox"
-                className="mt-1 h-4 w-4"
+                className="mt-1 h-4 w-4 max-lg:size-5!"
                 disabled={readOnly}
                 checked={conditions.acceptsMinors}
                 onChange={(e) =>
@@ -572,18 +612,18 @@ export function ResidenceProfileForm({
           </Card>
 
           {/* Servicios */}
-          <Card className="p-6">
+          <Card id="perfil-servicios" className="p-6 max-lg:scroll-mt-14">
             <h2 className="text-lg font-bold text-ink">Servicios Incluidos</h2>
             <div className="mt-4 grid gap-2.5 sm:grid-cols-3">
               {SERVICE_OPTIONS.map((s) => (
-                <label key={s} className="flex items-center gap-2 text-sm text-ink">
+                <label key={s} className="max-lg:min-h-11 flex items-center gap-2 text-sm text-ink">
                   <input
                     type="checkbox"
                     name="services"
                     value={s}
                     checked={services.has(s)}
                     onChange={() => toggle(services, setServices, s)}
-                    className="h-4 w-4 accent-forest"
+                    className="h-4 w-4 max-lg:size-5! accent-forest"
                   />
                   {serviceLabel(s)}
                 </label>
@@ -593,18 +633,18 @@ export function ResidenceProfileForm({
           </Card>
 
           {/* Áreas comunes */}
-          <Card className="p-6">
+          <Card id="perfil-areas" className="p-6 max-lg:scroll-mt-14">
             <h2 className="text-lg font-bold text-ink">Áreas Comunes</h2>
             <div className="mt-4 grid gap-2.5 sm:grid-cols-3">
               {COMMON_AREA_OPTIONS.map((a) => (
-                <label key={a} className="flex items-center gap-2 text-sm text-ink">
+                <label key={a} className="max-lg:min-h-11 flex items-center gap-2 text-sm text-ink">
                   <input
                     type="checkbox"
                     name="common_areas"
                     value={a}
                     checked={commonAreas.has(a)}
                     onChange={() => toggle(commonAreas, setCommonAreas, a)}
-                    className="h-4 w-4 accent-forest"
+                    className="h-4 w-4 max-lg:size-5! accent-forest"
                   />
                   {a}
                 </label>
@@ -614,7 +654,7 @@ export function ResidenceProfileForm({
           </Card>
 
           {/* Reglas y políticas */}
-          <Card className="p-6">
+          <Card id="perfil-reglas" className="p-6 max-lg:scroll-mt-14">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold text-ink">Reglas y Políticas</h2>
               <Badge tone="amber">Datos sensibles</Badge>
@@ -704,7 +744,7 @@ export function ResidenceProfileForm({
           </Card>
 
           {/* Preguntas frecuentes — hasta 5, se muestran públicamente en la ficha con acordeón */}
-          <Card className="p-6">
+          <Card id="perfil-faq" className="p-6 max-lg:scroll-mt-14">
             <h2 className="text-lg font-bold text-ink">Preguntas frecuentes</h2>
             <p className="mt-1 text-sm text-ink-soft">
               Hasta 5 preguntas que los estudiantes suelen hacer antes de reservar. Se muestran en tu ficha pública.
@@ -754,19 +794,19 @@ export function ResidenceProfileForm({
           </Card>
 
           {/* Universidades cercanas */}
-          <Card className="p-6">
+          <Card id="perfil-universidades" className="p-6 max-lg:scroll-mt-14">
             <h2 className="text-lg font-bold text-ink">Proximidad a Universidades</h2>
             <p className="mt-1 text-sm text-ink-soft">Elegí solo las sedes a no más de 15 cuadras (≈1,5 km) de tu residencia: es lo que buscan los estudiantes al filtrar por universidad.</p>
             <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
               {UNIVERSITY_OPTIONS.map((u) => (
-                <label key={u} className="flex items-center gap-2 text-sm text-ink">
+                <label key={u} className="max-lg:min-h-11 flex items-center gap-2 text-sm text-ink">
                   <input
                     type="checkbox"
                     name="near_universities"
                     value={u}
                     checked={nearUniversities.has(u)}
                     onChange={() => toggle(nearUniversities, setNearUniversities, u)}
-                    className="h-4 w-4 accent-forest"
+                    className="h-4 w-4 max-lg:size-5! accent-forest"
                   />
                   {u}
                 </label>
@@ -775,7 +815,7 @@ export function ResidenceProfileForm({
           </Card>
 
           {/* Galería de fotos */}
-          <Card className="p-6">
+          <Card id="perfil-fotos" className="p-6 max-lg:scroll-mt-14">
             <h2 className="text-lg font-bold text-ink">Galería de Fotos</h2>
             {initial.status !== "verified_active" && (
               <PhotosRequirementNotice
@@ -813,7 +853,7 @@ export function ResidenceProfileForm({
           </Card>
 
           {/* Tipos de habitación */}
-          <Card className="p-6">
+          <Card id="perfil-habitaciones" className="p-6 max-lg:scroll-mt-14">
             <h2 className="text-lg font-bold text-ink">Tipos de Habitaciones</h2>
             <div className="mt-4 space-y-4">
               {roomTypes.map((rt, i) => (
@@ -863,12 +903,12 @@ export function ResidenceProfileForm({
                   <div className="mt-3 flex flex-wrap items-center gap-4">
                     <span className="text-sm font-medium text-ink">Baño</span>
                     {["privado", "compartido"].map((b) => (
-                      <label key={b} className="flex items-center gap-1.5 text-sm capitalize text-ink-soft">
+                      <label key={b} className="max-lg:min-h-11 flex items-center gap-1.5 text-sm capitalize text-ink-soft">
                         <input
                           type="radio"
                           checked={rt.bathroomType === b}
                           onChange={() => updateRoomType(i, { bathroomType: b })}
-                          className="h-4 w-4 accent-forest"
+                          className="h-4 w-4 max-lg:size-5! accent-forest"
                         />
                         {b}
                       </label>
@@ -916,12 +956,12 @@ export function ResidenceProfileForm({
                   <div className="mt-3 flex flex-wrap gap-4">
                     <span className="text-sm font-medium text-ink">Características</span>
                     {ROOM_FEATURE_OPTIONS.map((f) => (
-                      <label key={f} className="flex items-center gap-1.5 text-sm text-ink-soft">
+                      <label key={f} className="max-lg:min-h-11 flex items-center gap-1.5 text-sm text-ink-soft">
                         <input
                           type="checkbox"
                           checked={rt.features.includes(f)}
                           onChange={() => toggleRoomFeature(i, f)}
-                          className="h-4 w-4 accent-forest"
+                          className="h-4 w-4 max-lg:size-5! accent-forest"
                         />
                         {f}
                       </label>
@@ -941,7 +981,7 @@ export function ResidenceProfileForm({
 
           {/* Condiciones de Reserva — generales a todos los tipos (ref
               de configuración; migración 0025) */}
-          <Card className="p-6">
+          <Card id="perfil-condiciones" className="p-6 max-lg:scroll-mt-14">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold text-ink">Condiciones de Reserva</h2>
               <Badge tone="amber">Datos sensibles</Badge>
@@ -987,45 +1027,45 @@ export function ResidenceProfileForm({
                 solicitud y en el mensaje de WhatsApp. El fee de EstuRed va aparte y no depende de este monto.
               </p>
               <div className="mt-3 flex flex-wrap items-center gap-4">
-                <label className="flex items-center gap-1.5 text-sm text-ink-soft">
+                <label className="max-lg:min-h-11 flex items-center gap-1.5 text-sm text-ink-soft">
                   <input
                     type="radio"
                     name="initial_payment_mode"
                     checked={conditions.initialPaymentMode === "one_month"}
                     onChange={() => updateConditions({ initialPaymentMode: "one_month" })}
-                    className="h-4 w-4 accent-forest"
+                    className="h-4 w-4 max-lg:size-5! accent-forest"
                   />
                   Primer mes de renta
                 </label>
-                <label className="flex items-center gap-1.5 text-sm text-ink-soft">
+                <label className="max-lg:min-h-11 flex items-center gap-1.5 text-sm text-ink-soft">
                   <input
                     type="radio"
                     name="initial_payment_mode"
                     checked={conditions.initialPaymentMode === "enrollment_only"}
                     disabled={!conditions.enrollmentEnabled || !initial.moneyReady}
                     onChange={() => updateConditions({ initialPaymentMode: "enrollment_only" })}
-                    className="h-4 w-4 accent-forest"
+                    className="h-4 w-4 max-lg:size-5! accent-forest"
                   />
                   Matrícula
                 </label>
-                <label className="flex items-center gap-1.5 text-sm text-ink-soft">
+                <label className="max-lg:min-h-11 flex items-center gap-1.5 text-sm text-ink-soft">
                   <input
                     type="radio"
                     name="initial_payment_mode"
                     checked={conditions.initialPaymentMode === "deposit_only"}
                     disabled={!conditions.depositEnabled || !initial.moneyReady}
                     onChange={() => updateConditions({ initialPaymentMode: "deposit_only" })}
-                    className="h-4 w-4 accent-forest"
+                    className="h-4 w-4 max-lg:size-5! accent-forest"
                   />
                   Depósito
                 </label>
-                <label className="flex items-center gap-1.5 text-sm text-ink-soft">
+                <label className="max-lg:min-h-11 flex items-center gap-1.5 text-sm text-ink-soft">
                   <input
                     type="radio"
                     name="initial_payment_mode"
                     checked={conditions.initialPaymentMode === "custom_usd"}
                     onChange={() => updateConditions({ initialPaymentMode: "custom_usd" })}
-                    className="h-4 w-4 accent-forest"
+                    className="h-4 w-4 max-lg:size-5! accent-forest"
                   />
                   Monto fijo
                 </label>
@@ -1080,21 +1120,21 @@ export function ResidenceProfileForm({
                 <div className="mt-4 space-y-3 border-t border-sand-200 pt-4">
                   <div className="flex flex-wrap items-center gap-4">
                     <span className="text-xs font-bold uppercase tracking-wide text-muted">Equivalente a</span>
-                    <label className="flex items-center gap-1.5 text-sm text-ink-soft">
+                    <label className="max-lg:min-h-11 flex items-center gap-1.5 text-sm text-ink-soft">
                       <input
                         type="radio"
                         checked={conditions.enrollmentFeeMode === "one_month"}
                         onChange={() => updateConditions({ enrollmentFeeMode: "one_month" })}
-                        className="h-4 w-4 accent-forest"
+                        className="h-4 w-4 max-lg:size-5! accent-forest"
                       />
                       1 mes de renta
                     </label>
-                    <label className="flex items-center gap-1.5 text-sm text-ink-soft">
+                    <label className="max-lg:min-h-11 flex items-center gap-1.5 text-sm text-ink-soft">
                       <input
                         type="radio"
                         checked={conditions.enrollmentFeeMode === "manual"}
                         onChange={() => updateConditions({ enrollmentFeeMode: "manual" })}
-                        className="h-4 w-4 accent-forest"
+                        className="h-4 w-4 max-lg:size-5! accent-forest"
                       />
                       Valor manual
                     </label>
@@ -1120,12 +1160,12 @@ export function ResidenceProfileForm({
                         { value: "annual", label: "Anual" },
                       ] as const
                     ).map((f) => (
-                      <label key={f.value} className="flex items-center gap-1.5 text-sm text-ink-soft">
+                      <label key={f.value} className="max-lg:min-h-11 flex items-center gap-1.5 text-sm text-ink-soft">
                         <input
                           type="radio"
                           checked={conditions.enrollmentFeeFrequency === f.value}
                           onChange={() => updateConditions({ enrollmentFeeFrequency: f.value })}
-                          className="h-4 w-4 accent-forest"
+                          className="h-4 w-4 max-lg:size-5! accent-forest"
                         />
                         {f.label}
                       </label>
@@ -1359,6 +1399,9 @@ export function ResidenceProfileForm({
 
           {!readOnly && (
             <>
+          {/* Bajo md: barra fija sobre la tab bar. Los 61px = alto de MobileTabBar sin safe-area (1 borde + 4 pt + 56 min-h-14): si cambia ese alto, cambiar acá. De md a lg: sticky en el main (no pisa la sidebar). Desde lg, en el flujo. */}
+          <div className="max-md:fixed max-md:inset-x-0 max-md:bottom-[calc(61px+max(0.25rem,env(safe-area-inset-bottom)))] max-lg:mb-0! max-lg:z-30 md:max-lg:sticky md:max-lg:bottom-0 md:max-lg:-mx-4 sm:md:max-lg:-mx-6 max-lg:border-t max-lg:border-line max-lg:bg-paper/95 max-lg:px-4 max-lg:py-2 max-lg:backdrop-blur md:max-lg:pb-[max(0.5rem,env(safe-area-inset-bottom))] lg:contents">
+          <div className="space-y-2 max-lg:mb-2 max-lg:max-h-24 max-lg:overflow-y-auto max-lg:empty:hidden max-lg:[&>p]:py-2 max-lg:[&>p]:text-xs lg:contents">
           {state.status === "error" && (
             <p role="alert" className="rounded-field bg-danger-bg px-4 py-3 text-sm font-medium text-danger-fg">
               {state.message}
@@ -1381,7 +1424,9 @@ export function ResidenceProfileForm({
             </p>
           )}
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+          </div>
+
+          <div className="flex gap-3 sm:justify-end max-lg:[&>*]:flex-1 max-sm:[&>*:first-child]:flex-[0_0_38%]">
             <SubmitButton intent="draft" variant="outline" idleLabel="Guardar cambios" pendingLabel="Guardando…" />
             {canSubmit && (
               <SubmitButton
@@ -1391,6 +1436,7 @@ export function ResidenceProfileForm({
                 pendingLabel="Enviando…"
               />
             )}
+          </div>
           </div>
           {!canSubmit && (
             <p className="flex items-start gap-1.5 text-xs text-ink-soft sm:justify-end">
@@ -1415,7 +1461,7 @@ export function ResidenceProfileForm({
 
         {/* Sidebar */}
         <aside className="space-y-6">
-          <Card className="sticky top-24 p-5">
+          <Card className="sticky top-24 p-5 max-lg:hidden">
             <h3 className="font-bold text-ink">Fortaleza del Perfil</h3>
             <div className="mt-2 h-2 overflow-hidden rounded-full bg-sand-200">
               <div className="h-full rounded-full bg-forest transition-all" style={{ width: `${strength.percent}%` }} />
@@ -1502,7 +1548,7 @@ function SubmitButton({
   const { pending, data } = useFormStatus();
   const isThisPending = pending && data?.get("intent") === intent;
   return (
-    <Button type="submit" name="intent" value={intent} variant={variant} disabled={pending}>
+    <Button type="submit" name="intent" value={intent} variant={variant} disabled={pending} className="whitespace-nowrap max-lg:px-2 max-sm:text-[13px]">
       {isThisPending ? pendingLabel : idleLabel}
     </Button>
   );

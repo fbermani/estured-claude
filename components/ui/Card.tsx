@@ -5,14 +5,17 @@ export function Card({
   className = "",
   interactive = false,
   style,
+  id,
 }: {
   children: ReactNode;
   className?: string;
   interactive?: boolean;
   style?: React.CSSProperties;
+  id?: string;
 }) {
   return (
     <div
+      id={id}
       style={style}
       className={`bg-paper rounded-card shadow-card border-[1.5px] border-line ${
         interactive

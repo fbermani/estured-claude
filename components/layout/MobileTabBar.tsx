@@ -83,6 +83,7 @@ export function MobileTabBar({
 
   return (
     <>
+      {/* Alto total ≈ 61px + safe-area: la barra de guardado de ResidenceProfileForm se apoya en este valor (bottom-[calc(61px+…)]). */}
       <nav
         aria-label="Navegación principal"
         className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-line bg-paper/95 px-1 pt-1 pb-[max(0.25rem,env(safe-area-inset-bottom))] backdrop-blur md:hidden"

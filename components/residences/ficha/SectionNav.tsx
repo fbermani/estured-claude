@@ -8,7 +8,19 @@ export type SectionNavItem = { id: string; label: string };
  * Subnav sticky de la ficha (SPEC §3): anclas a las secciones con scrollspy. Debajo de la navbar (h-16).
  * Sin JS de scroll propio: `IntersectionObserver` marca la sección activa y los links son anclas nativas.
  */
-export function SectionNav({ items }: { items: SectionNavItem[] }) {
+export function SectionNav({
+  items,
+  label = "Secciones de la ficha",
+  className = "sticky top-16 z-30",
+  rootMargin = "-130px 0px -55% 0px",
+}: {
+  items: SectionNavItem[];
+  /** Nombre accesible del `<nav>` (también ubica la pestaña activa). */
+  label?: string;
+  /** Posición/visibilidad del contenedor (por defecto, debajo de la navbar h-16). */
+  className?: string;
+  rootMargin?: string;
+}) {
   const [active, setActive] = useState(items[0]?.id ?? "");
 
   useEffect(() => {
@@ -26,27 +38,27 @@ export function SectionNav({ items }: { items: SectionNavItem[] }) {
         if (first) setActive(first.id);
       },
       // Banda de lectura: desde debajo de la navbar + subnav hasta ~45% de la ventana.
-      { rootMargin: "-130px 0px -55% 0px", threshold: 0 },
+      { rootMargin, threshold: 0 },
     );
     targets.forEach((t) => observer.observe(t));
     return () => observer.disconnect();
-  }, [items]);
+  }, [items, rootMargin]);
 
   // Mantiene visible la pestaña activa dentro de la tira con scroll horizontal (sin mover la página).
   useEffect(() => {
-    const el = document.querySelector<HTMLElement>(`nav[aria-label="Secciones de la ficha"] a[href="#${active}"]`);
+    const el = document.querySelector<HTMLElement>(`nav[aria-label="${label}"] a[href="#${active}"]`);
     const list = el?.closest("ul");
     if (!el || !list) return;
     const a = el.getBoundingClientRect();
     const l = list.getBoundingClientRect();
     const target = list.scrollLeft + (a.left - l.left) - (l.width - a.width) / 2;
     list.scrollTo({ left: target, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
-  }, [active]);
+  }, [active, label]);
 
   return (
     <nav
-      aria-label="Secciones de la ficha"
-      className="sticky top-16 z-30 -mx-4 border-b border-line bg-cream/95 px-4 backdrop-blur sm:-mx-6 sm:px-6"
+      aria-label={label}
+      className={`${className} -mx-4 border-b border-line bg-cream/95 px-4 backdrop-blur sm:-mx-6 sm:px-6`}
     >
       <ul className="flex gap-1 overflow-x-auto [mask-image:linear-gradient(90deg,#000_90%,transparent)] [scrollbar-width:none] lg:[mask-image:none] [&::-webkit-scrollbar]:hidden">
         {items.map((item) => {
