@@ -114,9 +114,9 @@ export default async function AdminFollowupsPage({ searchParams }: { searchParam
           <h1 className="text-lg font-bold" style={{ color: cmd.onSurface }}>Seguimiento post-ingreso</h1>
           <p className="text-xs" style={{ color: cmd.outline }}>A los 5 días del ingreso. La residencia no ve esta pantalla.</p>
           <div className="mt-3 flex flex-wrap gap-1.5">
-            <Link href="/admin/followups" className="rounded-full px-2.5 py-1 text-xs font-bold" style={{ border: `1.5px solid ${cmd.border}`, color: filter ? cmd.outline : cmd.onSurface }}>Todos</Link>
+            <Link href="/admin/followups" className="inline-flex min-h-11 items-center rounded-full px-3 py-1 text-xs font-bold xl:min-h-0" style={{ border: `1.5px solid ${cmd.border}`, color: filter ? cmd.outline : cmd.onSurface }}>Todos</Link>
             {FILTERS.map((f) => (
-              <Link key={f} href={`/admin/followups?estado=${f}`} className="rounded-full px-2.5 py-1 text-xs font-bold" style={{ border: `1.5px solid ${cmd.border}`, color: filter === f ? cmd.onSurface : cmd.outline }}>
+              <Link key={f} href={`/admin/followups?estado=${f}`} className="inline-flex min-h-11 items-center rounded-full px-3 py-1 text-xs font-bold xl:min-h-0" style={{ border: `1.5px solid ${cmd.border}`, color: filter === f ? cmd.onSurface : cmd.outline }}>
                 {FOLLOWUP_STATUS_LABELS[f]}
               </Link>
             ))}
