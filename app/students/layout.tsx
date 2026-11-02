@@ -44,9 +44,9 @@ export default async function StudentsLayout({
   }
 
   return (
-    <div className={`${hasAnyRole(user, ["student"]) ? "tone-student" : "tone-family"} flex min-h-screen flex-col bg-cream md:flex-row`}>
+    <div id="area-shell" className={`${hasAnyRole(user, ["student"]) ? "tone-student" : "tone-family"} flex min-h-screen flex-col bg-cream md:flex-row`}>
       <StudentSidebar userEmail={user.email} isHoused={isHoused} searchingChange={searchingChange} />
-      <main className="min-w-0 flex-1">{children}</main>
+      <main className="min-w-0 flex-1 pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-0">{children}</main>
     </div>
   );
 }

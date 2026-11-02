@@ -7,6 +7,7 @@ import { BrandMark } from "@/components/ui/BrandMark";
 import { NotificationBell } from "@/components/layout/NotificationBell";
 import { signOut } from "@/app/(public)/login/actions";
 import { useSidebarCollapse } from "@/components/layout/useSidebarCollapse";
+import { MobileTabBar, type TabItem } from "@/components/layout/MobileTabBar";
 
 type NavItem = { href: string; label: string; icon: string };
 
@@ -91,17 +92,41 @@ export function StudentSidebar({
   searchingChange?: boolean;
 }) {
   const pathname = usePathname();
-  const { collapsed, toggleCollapsed, mobileOpen, setMobileOpen } = useSidebarCollapse();
+  const { collapsed, toggleCollapsed, mobileOpen, setMobileOpen, drawerInert, menuButtonRef, closeButtonRef, drawerRef } =
+    useSidebarCollapse();
   const nav = buildNav(isHoused, searchingChange);
+
+  // Tab bar móvil (L7): 4 destinos fijos según el estado + «Más» con el resto, el botón de arrepentimiento y «Salir».
+  const tabItems: TabItem[] = isHoused
+    ? [
+        NAV_BASE.home,
+        { ...NAV_BASE.residencyHoused, tabLabel: "Residencia" },
+        { ...NAV_BASE.renewals, tabLabel: "Renovar" },
+        { ...NAV_BASE.applications, tabLabel: "Solicitudes" },
+      ]
+    : [
+        NAV_BASE.home,
+        { ...NAV_BASE.search, tabLabel: "Buscar" },
+        NAV_BASE.favorites,
+        { ...NAV_BASE.applications, tabLabel: "Solicitudes" },
+      ];
+  const tabHrefs = new Set(tabItems.map((t) => t.href));
+  const moreItems: TabItem[] = [
+    ...nav.filter((n) => !tabHrefs.has(n.href)),
+    { href: "/students/revocation", label: "Botón de arrepentimiento", icon: "undo" },
+  ];
 
   return (
     <>
       <div className="flex items-center justify-between border-b border-line bg-paper px-4 py-3 md:hidden">
         <button
+          ref={menuButtonRef}
           type="button"
           onClick={() => setMobileOpen(true)}
           aria-label="Abrir menú"
-          className="flex h-9 w-9 items-center justify-center rounded-field text-ink-soft"
+          aria-expanded={mobileOpen}
+          aria-controls="area-nav"
+          className="flex size-12 items-center justify-center rounded-field text-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone)"
         >
           <Icon name="menu" className="text-xl" />
         </button>
@@ -114,7 +139,13 @@ export function StudentSidebar({
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex shrink-0 flex-col justify-between border-r border-line bg-paper transition-transform duration-200 md:relative md:translate-x-0 md:transition-[width] ${
+        id="area-nav"
+        ref={drawerRef}
+        inert={drawerInert}
+        role={mobileOpen ? "dialog" : undefined}
+        aria-modal={mobileOpen ? true : undefined}
+        aria-label={mobileOpen ? "Menú de navegación" : undefined}
+        className={`fixed inset-y-0 left-0 z-50 flex max-md:overflow-y-auto shrink-0 flex-col justify-between border-r border-line bg-paper transition-transform duration-200 md:relative md:translate-x-0 md:transition-[width] ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         } ${collapsed ? "w-64 md:w-[76px]" : "w-64"}`}
       >
@@ -138,10 +169,11 @@ export function StudentSidebar({
               <NotificationBell />
             </div>
             <button
+              ref={closeButtonRef}
               type="button"
               onClick={() => setMobileOpen(false)}
               aria-label="Cerrar menú"
-              className="rounded-field p-1 text-ink-soft md:hidden"
+              className="flex size-11 items-center justify-center rounded-field text-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) md:hidden"
             >
               <Icon name="close" className="text-xl" />
             </button>
@@ -206,6 +238,8 @@ export function StudentSidebar({
           />
         </button>
       </aside>
+
+      <MobileTabBar tabs={tabItems} groups={[{ items: moreItems }]} userEmail={userEmail} />
     </>
   );
 }

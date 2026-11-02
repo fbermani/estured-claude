@@ -19,7 +19,7 @@ export function DevUserSwitcher({ currentEmail }: { currentEmail: string | null 
   const active = DEMO_USERS.find((u) => u.email === currentEmail);
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2 font-sans">
+    <div className="fixed bottom-20 right-4 z-50 md:bottom-4 flex flex-col items-end gap-2 font-sans">
       {open && (
         <div className="w-80 overflow-hidden rounded-card border border-line-2 bg-surface shadow-float">
           <p className="border-b border-sand-200 bg-forest-ink px-4 py-2.5 text-xs font-bold uppercase tracking-wide text-white">

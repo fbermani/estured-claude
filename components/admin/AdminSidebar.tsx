@@ -130,32 +130,58 @@ function SupportCasesIcon() {
     </svg>
   );
 }
-const NAV = [
-  { href: "/admin/dashboard", label: "Dashboard", Icon: DashboardIcon },
-  { href: "/admin/residences", label: "Residencias", Icon: BuildingIcon },
-  { href: "/admin/verifications", label: "Verificaciones", Icon: ValidationsIcon },
-  { href: "/admin/profile-edits", label: "Ediciones de perfil", Icon: ProfileEditsIcon },
-  { href: "/admin/pricing", label: "Administración de tarifas", Icon: PricingIcon },
-  { href: "/admin/documents", label: "Documentos", Icon: DocumentsIcon },
-  { href: "/admin/community", label: "Comunidad", Icon: CommunityIcon },
-  { href: "/admin/visibility", label: "Visibilidad y penalizaciones", Icon: VisibilityIcon },
-  { href: "/admin/applications", label: "Solicitudes", Icon: ClockIcon },
-  { href: "/admin/family-proposals", label: "Propuestas familiar", Icon: FamilyProposalsIcon },
-  { href: "/admin/payments", label: "Pagos", Icon: PaymentsIcon },
-  { href: "/admin/activity", label: "Actividad", Icon: ActivityIcon },
-  { href: "/admin/support-cases", label: "Soporte", Icon: SupportCasesIcon },
-  { href: "/admin/faq", label: "Preguntas de fichas", Icon: SupportCasesIcon },
-  { href: "/admin/custom-amenities", label: "Ítems «Otro» de fichas", Icon: ProfileEditsIcon },
-  { href: "/admin/followups", label: "Seguimiento", Icon: SupportCasesIcon },
-  { href: "/admin/solicitudes-alta", label: "Solicitudes de alta", Icon: BuildingIcon },
-  { href: "/admin/residencias-pedidas", label: "Residencias pedidas", Icon: BuildingIcon },
-  { href: "/admin/exchange-rate", label: "Tipo de cambio", Icon: ExchangeIcon },
-  { href: "/admin/users", label: "Usuarios", Icon: UsersIcon },
+const NAV_GROUPS = [
+  {
+    title: null,
+    items: [
+    { href: "/admin/dashboard", label: "Dashboard", Icon: DashboardIcon },
+    ],
+  },
+  {
+    title: "Residencias",
+    items: [
+    { href: "/admin/residences", label: "Residencias", Icon: BuildingIcon },
+    { href: "/admin/verifications", label: "Verificaciones", Icon: ValidationsIcon },
+    { href: "/admin/profile-edits", label: "Ediciones de perfil", Icon: ProfileEditsIcon },
+    { href: "/admin/solicitudes-alta", label: "Solicitudes de alta", Icon: BuildingIcon },
+    { href: "/admin/residencias-pedidas", label: "Residencias pedidas", Icon: BuildingIcon },
+    { href: "/admin/faq", label: "Preguntas de fichas", Icon: SupportCasesIcon },
+    { href: "/admin/custom-amenities", label: "Ítems «Otro» de fichas", Icon: ProfileEditsIcon },
+    ],
+  },
+  {
+    title: "Operación",
+    items: [
+    { href: "/admin/applications", label: "Solicitudes", Icon: ClockIcon },
+    { href: "/admin/family-proposals", label: "Propuestas familiar", Icon: FamilyProposalsIcon },
+    { href: "/admin/payments", label: "Pagos", Icon: PaymentsIcon },
+    { href: "/admin/activity", label: "Actividad", Icon: ActivityIcon },
+    { href: "/admin/followups", label: "Seguimiento", Icon: SupportCasesIcon },
+    ],
+  },
+  {
+    title: "Plataforma",
+    items: [
+    { href: "/admin/community", label: "Comunidad", Icon: CommunityIcon },
+    { href: "/admin/visibility", label: "Visibilidad y penalizaciones", Icon: VisibilityIcon },
+    { href: "/admin/pricing", label: "Administración de tarifas", Icon: PricingIcon },
+    { href: "/admin/documents", label: "Documentos", Icon: DocumentsIcon },
+    { href: "/admin/exchange-rate", label: "Tipo de cambio", Icon: ExchangeIcon },
+    { href: "/admin/users", label: "Usuarios", Icon: UsersIcon },
+    ],
+  },
+  {
+    title: "Soporte",
+    items: [
+    { href: "/admin/support-cases", label: "Soporte", Icon: SupportCasesIcon },
+    ],
+  },
 ] as const;
 
 export function AdminSidebar({ userEmail, roleLabel }: { userEmail: string; roleLabel: string }) {
   const pathname = usePathname();
-  const { collapsed, toggleCollapsed, mobileOpen, setMobileOpen } = useSidebarCollapse();
+  const { collapsed, toggleCollapsed, mobileOpen, setMobileOpen, drawerInert, menuButtonRef, closeButtonRef, drawerRef } =
+    useSidebarCollapse();
 
   return (
     <>
@@ -165,10 +191,13 @@ export function AdminSidebar({ userEmail, roleLabel }: { userEmail: string; role
         style={{ borderColor: cmd.border }}
       >
         <button
+          ref={menuButtonRef}
           type="button"
           onClick={() => setMobileOpen(true)}
           aria-label="Abrir menú"
-          className="flex h-9 w-9 items-center justify-center rounded-lg"
+          aria-expanded={mobileOpen}
+          aria-controls="area-nav"
+          className="flex size-12 items-center justify-center rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2"
           style={{ color: cmd.onSurfaceVariant }}
         >
           <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-5 w-5">
@@ -190,7 +219,13 @@ export function AdminSidebar({ userEmail, roleLabel }: { userEmail: string; role
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex shrink-0 flex-col justify-between border-r bg-white transition-transform duration-200 md:static md:relative md:translate-x-0 md:transition-[width] ${
+        id="area-nav"
+        ref={drawerRef}
+        inert={drawerInert}
+        role={mobileOpen ? "dialog" : undefined}
+        aria-modal={mobileOpen ? true : undefined}
+        aria-label={mobileOpen ? "Menú de navegación" : undefined}
+        className={`fixed inset-y-0 left-0 z-50 flex max-md:overflow-y-auto shrink-0 flex-col justify-between border-r bg-white transition-transform duration-200 md:static md:relative md:translate-x-0 md:transition-[width] ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         } ${collapsed ? "w-[260px] md:w-[76px]" : "w-[260px]"}`}
         style={{ borderColor: cmd.border }}
@@ -216,10 +251,11 @@ export function AdminSidebar({ userEmail, roleLabel }: { userEmail: string; role
               <NotificationBell />
             </div>
             <button
+              ref={closeButtonRef}
               type="button"
               onClick={() => setMobileOpen(false)}
               aria-label="Cerrar menú"
-              className="rounded-lg p-1 md:hidden"
+              className="flex size-11 items-center justify-center rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 md:hidden"
               style={{ color: cmd.onSurfaceVariant }}
             >
               <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-5 w-5">
@@ -227,29 +263,42 @@ export function AdminSidebar({ userEmail, roleLabel }: { userEmail: string; role
               </svg>
             </button>
           </div>
-          <nav className="flex flex-col gap-0.5 px-3">
-            {NAV.map((item) => {
-              const active = pathname.startsWith(item.href);
-              const Icon = item.Icon;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setMobileOpen(false)}
-                  title={item.label}
-                  aria-label={item.label}
-                  className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors ${collapsed ? "md:justify-center" : ""}`}
-                  style={
-                    active
-                      ? { backgroundColor: cmd.onPrimaryContainer, color: cmd.navActiveFg }
-                      : { color: cmd.onSurfaceVariant }
-                  }
-                >
-                  <Icon />
-                  <span className={collapsed ? "md:hidden" : ""}>{item.label}</span>
-                </Link>
-              );
-            })}
+          <nav aria-label="Administración" className="flex flex-col gap-0.5 px-3 pb-2">
+            {NAV_GROUPS.map((group, gi) => (
+              <div key={group.title ?? gi} className={group.title ? "mt-3" : ""}>
+                {group.title ? (
+                  <p
+                    className={`px-3 pb-1 text-[11px] font-bold uppercase tracking-wide ${collapsed ? "md:hidden" : ""}`}
+                    style={{ color: cmd.outline }}
+                  >
+                    {group.title}
+                  </p>
+                ) : null}
+                {group.items.map((item) => {
+                  const active = pathname.startsWith(item.href);
+                  const Icon = item.Icon;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setMobileOpen(false)}
+                      title={item.label}
+                      aria-label={item.label}
+                      aria-current={active ? "page" : undefined}
+                      className={`flex min-h-12 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] md:min-h-0 ${collapsed ? "md:justify-center" : ""}`}
+                      style={
+                        active
+                          ? { backgroundColor: cmd.onPrimaryContainer, color: cmd.navActiveFg }
+                          : { color: cmd.onSurfaceVariant }
+                      }
+                    >
+                      <Icon />
+                      <span className={collapsed ? "md:hidden" : ""}>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            ))}
           </nav>
         </div>
         <div className="border-t p-4" style={{ borderColor: cmd.border }}>
@@ -274,7 +323,7 @@ export function AdminSidebar({ userEmail, roleLabel }: { userEmail: string; role
           <form action={signOut} className={collapsed ? "md:hidden" : ""}>
             <button
               type="submit"
-              className="mt-2 w-full rounded px-3 py-1.5 text-left text-xs font-semibold"
+              className="mt-2 min-h-11 w-full rounded px-3 py-1.5 text-left text-xs font-semibold md:min-h-0"
               style={{ color: cmd.rose }}
             >
               Cerrar sesión

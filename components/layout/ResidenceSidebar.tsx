@@ -7,6 +7,7 @@ import { BrandMark } from "@/components/ui/BrandMark";
 import { NotificationBell } from "@/components/layout/NotificationBell";
 import { signOut } from "@/app/(public)/login/actions";
 import { useSidebarCollapse } from "@/components/layout/useSidebarCollapse";
+import { MobileTabBar, type TabItem } from "@/components/layout/MobileTabBar";
 import { PremiumTag } from "@/components/residences/PremiumLock";
 
 /**
@@ -49,7 +50,8 @@ export function ResidenceSidebar({
 }) {
   const pathname = usePathname();
   const base = `/residence/${residenceId}`;
-  const { collapsed, toggleCollapsed, mobileOpen, setMobileOpen } = useSidebarCollapse();
+  const { collapsed, toggleCollapsed, mobileOpen, setMobileOpen, drawerInert, menuButtonRef, closeButtonRef, drawerRef } =
+    useSidebarCollapse();
 
   const NAV: { href: string; label: string; icon: string; exact?: boolean; badge?: number; badgeNoun?: string; premium?: boolean }[] = [
     { href: base, label: "Panel", icon: "dashboard", exact: true },
@@ -66,14 +68,57 @@ export function ResidenceSidebar({
     ...(isOwner ? [{ href: `${base}/team`, label: "Equipo", icon: "supervisor_account" }] : []),
   ];
 
+  // Tab bar móvil (L7): Panel · Solicitudes · Disponibilidad · Residentes + «Más» agrupado.
+  const item = (href: string) => NAV.find((n) => n.href === href)!;
+  const withTag = (n: (typeof NAV)[number]): TabItem => ({
+    ...n,
+    trailing: premiumLocked && n.premium ? <PremiumTag /> : undefined,
+  });
+  const tabItems: TabItem[] = [
+    { ...item(base), exact: true },
+    item(`${base}/applications`),
+    { ...item(`${base}/availability`), tabLabel: "Camas" },
+    item(`${base}/residents`),
+  ];
+  const moreGroups = [
+    {
+      title: "Operación",
+      items: [`${base}/rooms`, `${base}/renewals`, `${base}/waitlist`].map((h) => withTag(item(h))),
+    },
+    {
+      title: "Ficha pública",
+      items: [
+        {
+          href: `${base}/profile`,
+          label: canEditProfile ? "Editar perfil" : "Ver perfil",
+          icon: canEditProfile ? "edit" : "visibility",
+        },
+        item(`${base}/faq`),
+        item(`${base}/regulation`),
+      ],
+    },
+    {
+      title: "Cuenta",
+      items: [
+        item(`${base}/support`),
+        item(`${base}/plan`),
+        ...(isOwner ? [item(`${base}/team`)] : []),
+        { href: "/residence/dashboard", label: "Todas mis residencias", icon: "apartment" },
+      ],
+    },
+  ];
+
   return (
     <>
       <div className="flex items-center justify-between border-b border-line bg-paper px-4 py-3 md:hidden">
         <button
+          ref={menuButtonRef}
           type="button"
           onClick={() => setMobileOpen(true)}
           aria-label="Abrir menú"
-          className="flex h-9 w-9 items-center justify-center rounded-field text-ink-soft"
+          aria-expanded={mobileOpen}
+          aria-controls="area-nav"
+          className="flex size-12 items-center justify-center rounded-field text-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone)"
         >
           <Icon name="menu" className="text-xl" />
         </button>
@@ -86,7 +131,13 @@ export function ResidenceSidebar({
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex shrink-0 flex-col justify-between border-r border-line bg-paper transition-transform duration-200 md:relative md:translate-x-0 md:transition-[width] ${
+        id="area-nav"
+        ref={drawerRef}
+        inert={drawerInert}
+        role={mobileOpen ? "dialog" : undefined}
+        aria-modal={mobileOpen ? true : undefined}
+        aria-label={mobileOpen ? "Menú de navegación" : undefined}
+        className={`fixed inset-y-0 left-0 z-50 flex max-md:overflow-y-auto shrink-0 flex-col justify-between border-r border-line bg-paper transition-transform duration-200 md:relative md:translate-x-0 md:transition-[width] ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         } ${collapsed ? "w-64 md:w-[76px]" : "w-64"}`}
       >
@@ -110,10 +161,11 @@ export function ResidenceSidebar({
               <NotificationBell />
             </div>
             <button
+              ref={closeButtonRef}
               type="button"
               onClick={() => setMobileOpen(false)}
               aria-label="Cerrar menú"
-              className="rounded-field p-1 text-ink-soft md:hidden"
+              className="flex size-11 items-center justify-center rounded-field text-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) md:hidden"
             >
               <Icon name="close" className="text-xl" />
             </button>
@@ -199,6 +251,8 @@ export function ResidenceSidebar({
           />
         </button>
       </aside>
+
+      <MobileTabBar tabs={tabItems} groups={moreGroups} userEmail={userEmail} />
     </>
   );
 }

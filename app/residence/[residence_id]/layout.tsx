@@ -52,7 +52,7 @@ export default async function ResidenceDetailLayout({
   }
 
   return (
-    <div className="tone-residence flex min-h-screen flex-col bg-cream md:flex-row">
+    <div id="area-shell" className="tone-residence flex min-h-screen flex-col bg-cream md:flex-row">
       <ResidenceSidebar
         residenceId={residenceId}
         userEmail={user.email}
@@ -63,7 +63,7 @@ export default async function ResidenceDetailLayout({
         canEditProfile={canEditProfile}
         premiumLocked={premiumLocked}
       />
-      <main className="min-w-0 flex-1">{children}</main>
+      <main className="min-w-0 flex-1 pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-0">{children}</main>
     </div>
   );
 }
