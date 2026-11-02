@@ -197,8 +197,7 @@ export default async function HomePage() {
           <EmptyState
             icon="apartment"
             title="Estamos sumando residencias"
-            description="Volvé pronto o dejanos tu mail."
-            action={<Button href="/waitlist" variant="outline">Dejar mi mail</Button>}
+            description="Volvé pronto: estamos verificando las primeras."
           />
         )}
       </section>

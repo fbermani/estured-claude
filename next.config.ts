@@ -10,7 +10,11 @@ const nextConfig: NextConfig = {
   // docs/08 §3.1: la ruta oficial del detalle público es `/r/[slug]`; la ficha
   // real vive en `/residencias/[slug]` (auditoría 2026-10-20, H30).
   async redirects() {
-    return [{ source: "/r/:slug", destination: "/residencias/:slug", permanent: false }];
+    return [
+      { source: "/r/:slug", destination: "/residencias/:slug", permanent: false },
+      // Lista de espera de pre-lanzamiento retirada (H30): la página y los datos guardados siguen en el repo; para revertir, quitar esta línea.
+      { source: "/waitlist", destination: "/search", permanent: false },
+    ];
   },
   images: {
     remotePatterns: [
