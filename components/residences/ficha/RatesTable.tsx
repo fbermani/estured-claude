@@ -112,7 +112,7 @@ export function RatesTable({
                         onClick={() => setRoomTypeId(rt.id)}
                         aria-pressed={isSelected}
                         aria-label={`${isSelected ? "Elegido" : "Elegir"}: ${rt.name}`}
-                        className="!h-9 !px-4 text-xs hover:!translate-y-0"
+                        className="sm:!h-9 sm:!px-4 sm:text-xs hover:!translate-y-0"
                       >
                         {isSelected ? "Elegido" : "Elegir"}
                       </Button>
@@ -125,7 +125,7 @@ export function RatesTable({
                           setRoomTypeId(rt.id);
                           openSheet("waitlist");
                         }}
-                        className="!h-9 !px-3 text-xs"
+                        className="!px-4 sm:!h-9 sm:!px-3 sm:text-xs"
                       >
                         Lista de espera
                       </Button>

@@ -16,6 +16,21 @@
   animation-delay: var(--d, 0s);
 }
 
+/* Variante para el contenido principal (H1, buscador): solo desliza, nunca parte de opacidad 0,
+   así el texto está visible en el primer frame (LCP) y sin saltos de layout. */
+@keyframes hero-rise-t {
+  from {
+    transform: translateY(10px);
+  }
+  to {
+    transform: none;
+  }
+}
+.hero-rise-t {
+  animation: hero-rise-t 0.6s var(--ease-out-fresh) both;
+  animation-delay: var(--d, 0s);
+}
+
 @keyframes hero-float {
   0%,
   100% {
@@ -79,6 +94,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .hero-rise,
+  .hero-rise-t,
   .hero-float,
   .hero-drift,
   .hero-marquee,

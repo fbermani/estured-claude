@@ -20,11 +20,11 @@ export function Footer({ hideSignup = false }: { hideSignup?: boolean } = {}) {
           <p className="text-sm font-extrabold uppercase tracking-wide text-white/60">
             Explorar
           </p>
-          <ul className="mt-3 space-y-2 text-sm text-white/80">
+          <ul className="mt-3 space-y-1 text-sm text-white/80 md:space-y-2">
             <li>
               <Link
                 href="/search"
-                className="rounded-sm transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                className="inline-flex min-h-11 items-center md:min-h-0 rounded-sm transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
                 Buscar residencias
               </Link>
@@ -32,7 +32,7 @@ export function Footer({ hideSignup = false }: { hideSignup?: boolean } = {}) {
             <li>
               <Link
                 href="/for-students"
-                className="rounded-sm transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                className="inline-flex min-h-11 items-center md:min-h-0 rounded-sm transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
                 Para estudiantes y familias
               </Link>
@@ -40,7 +40,7 @@ export function Footer({ hideSignup = false }: { hideSignup?: boolean } = {}) {
             <li>
               <Link
                 href="/for-residences"
-                className="rounded-sm transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                className="inline-flex min-h-11 items-center md:min-h-0 rounded-sm transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
                 Para residencias
               </Link>
@@ -48,7 +48,7 @@ export function Footer({ hideSignup = false }: { hideSignup?: boolean } = {}) {
             <li>
               <Link
                 href="/guias"
-                className="rounded-sm transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                className="inline-flex min-h-11 items-center md:min-h-0 rounded-sm transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
                 Guías
               </Link>
@@ -57,7 +57,7 @@ export function Footer({ hideSignup = false }: { hideSignup?: boolean } = {}) {
             <li>
               <Link
                 href="/register"
-                className="rounded-sm transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                className="inline-flex min-h-11 items-center md:min-h-0 rounded-sm transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
                 Crear cuenta
               </Link>
@@ -69,11 +69,11 @@ export function Footer({ hideSignup = false }: { hideSignup?: boolean } = {}) {
           <p className="text-sm font-extrabold uppercase tracking-wide text-white/60">
             Ayuda
           </p>
-          <ul className="mt-3 space-y-2 text-sm text-white/80">
+          <ul className="mt-3 space-y-1 text-sm text-white/80 md:space-y-2">
             <li>
               <Link
                 href="/students/support"
-                className="inline-flex items-center gap-1.5 rounded-sm font-semibold text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                className="inline-flex min-h-11 items-center gap-1.5 rounded-sm md:min-h-0 font-semibold text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
                 <Icon name="support_agent" className="text-lg text-amber-soft-300" />
                 Soporte
@@ -82,7 +82,7 @@ export function Footer({ hideSignup = false }: { hideSignup?: boolean } = {}) {
             <li>
               <Link
                 href="/for-students#preguntas-frecuentes"
-                className="rounded-sm transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                className="inline-flex min-h-11 items-center md:min-h-0 rounded-sm transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
                 Preguntas frecuentes
               </Link>
@@ -90,7 +90,7 @@ export function Footer({ hideSignup = false }: { hideSignup?: boolean } = {}) {
             <li>
               <Link
                 href="/#el-proceso"
-                className="rounded-sm transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                className="inline-flex min-h-11 items-center md:min-h-0 rounded-sm transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
                 Cómo funciona
               </Link>
@@ -104,16 +104,16 @@ export function Footer({ hideSignup = false }: { hideSignup?: boolean } = {}) {
           <p className="text-sm font-extrabold uppercase tracking-wide text-white/60">
             Confianza
           </p>
-          <ul className="mt-3 space-y-2 text-sm text-white/80">
+          <ul className="mt-3 space-y-1 text-sm text-white/80 md:space-y-2">
             <li>Residencias verificadas presencialmente</li>
             <li>Solicitudes registradas en la plataforma</li>
             <li>Comprobante de Reserva Confirmada</li>
             <li>
-              <Link href="/for-students#que-pagas" className="rounded-sm underline transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+              <Link href="/for-students#que-pagas" className="inline-flex min-h-11 items-center md:min-h-0 rounded-sm underline transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
                 Qué pagás y a quién
               </Link>
             </li>
-            <li className="pt-2">
+            <li className="py-2">
               Contacto:{" "}
               <a
                 href={`mailto:${CONTACT_EMAIL}`}
@@ -127,7 +127,7 @@ export function Footer({ hideSignup = false }: { hideSignup?: boolean } = {}) {
       </div>
       <div className="border-t border-white/10">
         <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <p className="text-xs text-white/60">
+          <p className="py-2 text-xs text-white/60">
             EstuRed actúa como plataforma intermediaria de búsqueda, solicitud,
             registro y comprobante. No presta directamente el alojamiento. Los
             precios en ARS son referenciales al dólar blue del día.{" "}

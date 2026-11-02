@@ -84,16 +84,16 @@ export function HomeHero({ residences }: { residences: Residence[] }) {
       />
 
       <div className="relative mx-auto max-w-[900px] px-4 pb-6 pt-8 text-center sm:px-6 md:pb-9 md:pt-20">
-        <p className="hero-rise mb-3.5 text-xs font-bold uppercase tracking-widest text-orange-light" style={delay(0.08)}>
+        <p className="hero-rise-t mb-3.5 text-xs font-bold uppercase tracking-widest text-orange-light" style={delay(0.08)}>
           Ciudad de Buenos Aires
         </p>
         <h1
-          className="hero-rise text-[1.875rem] font-extrabold leading-[1.1] tracking-tight text-white sm:text-[2.375rem] md:text-6xl"
+          className="hero-rise-t text-[1.875rem] font-extrabold leading-[1.1] tracking-tight text-white sm:text-[2.375rem] md:text-6xl"
           style={delay(0.18)}
         >
           Elegí tu residencia a distancia, <span className="text-amber-soft-300">sin adivinar.</span>
         </h1>
-        <p className="hero-rise mx-auto mt-4 max-w-[600px] text-base text-forest-tint sm:text-[17px] md:text-xl" style={delay(0.3)}>
+        <p className="hero-rise-t mx-auto mt-4 max-w-[600px] text-base text-forest-tint sm:text-[17px] md:text-xl" style={delay(0.3)}>
           Residencias en Buenos Aires, verificadas por EstuRed. Reservá y pagá desde donde estés, sin viajar.
         </p>
 
@@ -101,7 +101,7 @@ export function HomeHero({ residences }: { residences: Residence[] }) {
         <Link
           href="/search"
           aria-label="Buscar residencias en Buenos Aires"
-          className="hero-rise group mx-auto mt-5 grid gap-1 rounded-[26px] bg-white p-2.5 text-ink shadow-float focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white md:grid-cols-[1.1fr_1fr_1fr_auto] md:items-center md:rounded-full md:py-2 md:pl-3.5 md:pr-2 md:gap-0"
+          className="hero-rise-t group mx-auto mt-5 grid gap-1 rounded-[26px] bg-white p-2.5 text-ink shadow-float focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white md:grid-cols-[1.1fr_1fr_1fr_auto] md:items-center md:rounded-full md:py-2 md:pl-3.5 md:pr-2 md:gap-0"
           style={delay(0.42)}
         >
           <FakeField label="¿Dónde?" value="Todos los barrios" />

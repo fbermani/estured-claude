@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
@@ -83,13 +83,65 @@ export function Navbar() {
     if (resolved) document.documentElement.removeAttribute("data-session-hint");
   }, [resolved]);
 
+  const menuRef = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const restoreFocus = useRef(false);
+
+  // Cierra al navegar (el menú es una hoja encima del contenido).
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  // Hoja abierta: Esc cierra, scroll de fondo bloqueado, foco atrapado y devuelto al botón, resto de la página inerte.
   useEffect(() => {
     if (!open) return;
+    const toggle = toggleRef.current;
+    const main = document.getElementById("main-content") ?? document.querySelector("main");
+    const footer = document.querySelector("body > footer, footer");
+    const prevOverflow = document.documentElement.style.overflow;
+    document.documentElement.style.overflow = "hidden";
+    main?.setAttribute("inert", "");
+    footer?.setAttribute("inert", "");
+    const focusables = () =>
+      Array.from(
+        [toggle, ...(menuRef.current?.querySelectorAll<HTMLElement>("a[href], button") ?? [])].filter(
+          (el): el is HTMLElement => !!el,
+        ),
+      );
     function onKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") {
+        restoreFocus.current = true;
+        setOpen(false);
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const items = focusables();
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     }
     document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
+    // Desde lg el menú no existe: si se agranda la ventana, se cierra.
+    const mq = window.matchMedia("(min-width:1024px)");
+    const onMq = () => mq.matches && setOpen(false);
+    mq.addEventListener("change", onMq);
+    menuRef.current?.querySelector<HTMLElement>("a[href]")?.focus();
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      mq.removeEventListener("change", onMq);
+      document.documentElement.style.overflow = prevOverflow;
+      main?.removeAttribute("inert");
+      footer?.removeAttribute("inert");
+      if (restoreFocus.current) toggle?.focus();
+      restoreFocus.current = false;
+    };
   }, [open]);
 
   return (
@@ -157,12 +209,16 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-2 lg:hidden">
-        <Button href="/search" size="sm" className="!h-10 !px-4">
+        <Button href="/search" size="sm" className="!px-4">
           Buscar
         </Button>
         <button
-          className="rounded-full p-2 text-ink-soft transition-colors hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
-          onClick={() => setOpen(!open)}
+          ref={toggleRef}
+          className="flex size-12 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+          onClick={() => {
+            restoreFocus.current = true;
+            setOpen(!open);
+          }}
           aria-expanded={open}
           aria-controls="mobile-menu"
           aria-label={open ? "Cerrar menú" : "Abrir menú"}
@@ -173,14 +229,18 @@ export function Navbar() {
       </nav>
 
       {open && (
-        <div id="mobile-menu" className="border-t border-line bg-paper px-4 py-4 lg:hidden">
+        <div
+          id="mobile-menu"
+          ref={menuRef}
+          className="absolute inset-x-0 top-full h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain border-t border-line bg-paper px-4 py-4 lg:hidden"
+        >
           <div className="flex flex-col gap-1">
             {mobileLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setOpen(false)}
-                className={`rounded-field px-3 py-2.5 text-sm font-bold ${
+                className={`flex min-h-12 items-center rounded-field px-3 text-base font-bold ${
                   pathname === link.href
                     ? "bg-forest-tint text-forest-700"
                     : "text-ink-soft"
@@ -195,7 +255,7 @@ export function Navbar() {
                 <Link
                   href="/login"
                   onClick={() => setOpen(false)}
-                  className="rounded-field px-3 py-2.5 text-sm font-bold text-ink-soft"
+                  className="flex min-h-12 items-center rounded-field px-3 text-base font-bold text-ink-soft"
                 >
                   Ingresar
                 </Link>

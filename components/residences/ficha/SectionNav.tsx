@@ -32,12 +32,23 @@ export function SectionNav({ items }: { items: SectionNavItem[] }) {
     return () => observer.disconnect();
   }, [items]);
 
+  // Mantiene visible la pestaña activa dentro de la tira con scroll horizontal (sin mover la página).
+  useEffect(() => {
+    const el = document.querySelector<HTMLElement>(`nav[aria-label="Secciones de la ficha"] a[href="#${active}"]`);
+    const list = el?.closest("ul");
+    if (!el || !list) return;
+    const a = el.getBoundingClientRect();
+    const l = list.getBoundingClientRect();
+    const target = list.scrollLeft + (a.left - l.left) - (l.width - a.width) / 2;
+    list.scrollTo({ left: target, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  }, [active]);
+
   return (
     <nav
       aria-label="Secciones de la ficha"
       className="sticky top-16 z-30 -mx-4 border-b border-line bg-cream/95 px-4 backdrop-blur sm:-mx-6 sm:px-6"
     >
-      <ul className="flex gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <ul className="flex gap-1 overflow-x-auto [mask-image:linear-gradient(90deg,#000_90%,transparent)] [scrollbar-width:none] lg:[mask-image:none] [&::-webkit-scrollbar]:hidden">
         {items.map((item) => {
           const isActive = item.id === active;
           return (

@@ -20,7 +20,7 @@ export function ReadMore({ text, lines = 3 }: { text: string; lines?: number }) 
           type="button"
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
-          className="mt-1 text-sm font-bold text-forest-700 underline underline-offset-2 hover:text-forest focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+          className="-ml-1 mt-1 inline-flex min-h-11 items-center rounded-sm px-1 text-sm font-bold text-forest-700 underline underline-offset-2 hover:text-forest focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
         >
           {open ? "Leer menos" : "Leer más"}
         </button>
