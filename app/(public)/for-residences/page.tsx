@@ -46,9 +46,52 @@ const pains = [
   },
 ];
 
+const faqs = [
+  {
+    q: "¿Qué implica sumar mi residencia a EstuRed?",
+    a: "Dejás una solicitud de alta y el equipo te contacta. Coordinan la visita y recién ahí recibís tu cuenta.",
+    more: "Primero conocemos tu residencia y a su responsable. Nada se publica antes de eso.",
+  },
+  {
+    q: "¿Qué es gratis y qué está bonificado?",
+    a: "El Plan Gratuito (Perfil Verificado) no tiene costo. El Plan Premium (Gestión Operativa) está bonificado el primer año para Residencias fundadoras.",
+    more: "Todavía no hay precio publicado para el Plan Premium.",
+  },
+  {
+    q: "¿Quién define precios, condiciones y acepta reservas?",
+    a: "Vos. La residencia define sus precios y condiciones, y decide qué solicitudes acepta.",
+    more: "EstuRed no fija tarifas ni decide por vos.",
+  },
+  {
+    q: "¿Quién cobra matrícula, seña o depósito?",
+    a: "Vos, directo al estudiante y según lo que acordaron. EstuRed no interviene en ese cobro.",
+    more: "EstuRed cobra aparte, al estudiante, un fee del 5% sobre la estadía inicial. Nunca sobre el depósito ni se descuenta de lo que te pagan a vos.",
+  },
+  {
+    q: "¿Cómo es la verificación?",
+    a: "Revisamos responsable, ubicación y fotos antes de publicar tu residencia.",
+    more: "Solo las residencias verificadas aparecen en el catálogo.",
+  },
+  {
+    q: "¿Cómo empiezo y gestiono solicitudes y disponibilidad?",
+    a: "Empezás con la solicitud de alta; después recibís tu cuenta. Desde el panel ves las solicitudes y informás tu disponibilidad.",
+    more: "La disponibilidad la informás vos y puede cambiar. Si necesitás ayuda, escribile a Soporte.",
+  },
+];
+
 export default function ForResidencesPage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: faqs.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+          }).replace(/</g, "\\u003c"),
+        }}
+      />
       <section className="relative overflow-hidden bg-forest-ink text-white">
         {/* Resplandor decorativo — le da profundidad al fondo oscuro en vez de un verde plano */}
         <div className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-orange/20 blur-3xl" aria-hidden />
@@ -198,6 +241,31 @@ export default function ForResidencesPage() {
       <div className="border-b border-sand-200">
         <WhatYouPay variant="residence" />
       </div>
+
+      <section className="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-20">
+        <SectionHeader eyebrow="Preguntas frecuentes" title="Dudas de las residencias" />
+        <div className="space-y-4">
+          {faqs.map((faq, i) => (
+            <Reveal key={faq.q} delay={Math.min(i, 5) as 0 | 1 | 2 | 3 | 4 | 5}>
+              <details className="group rounded-card border border-sand-200 bg-surface p-5 transition-shadow open:shadow-card">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-ink marker:hidden">
+                  {faq.q}
+                  <span aria-hidden="true" className="text-forest-600 transition-transform group-open:rotate-45">
+                    +
+                  </span>
+                </summary>
+                <p className="mt-3 text-sm leading-relaxed text-ink-soft">{faq.a}</p>
+                <details className="mt-2">
+                  <summary className="inline-flex min-h-8 cursor-pointer list-none items-center text-sm font-semibold text-forest-700 marker:hidden hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest">
+                    Ver más
+                  </summary>
+                  <p className="mt-1 text-sm leading-relaxed text-ink-soft">{faq.more}</p>
+                </details>
+              </details>
+            </Reveal>
+          ))}
+        </div>
+      </section>
 
       <section className="bg-mint">
         <Reveal className="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6">
