@@ -57,9 +57,6 @@ export function FamilyHighlight() {
             <Button href="/register/family" size="lg">
               Crear cuenta de familiar
             </Button>
-            <Button href="/search" variant="outline" size="lg">
-              Explorar residencias
-            </Button>
           </div>
         </Reveal>
 

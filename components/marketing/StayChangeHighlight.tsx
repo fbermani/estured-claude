@@ -61,20 +61,14 @@ export function StayChangeHighlight({ variant, studentCta = "register" }: { vari
               ))}
             </ol>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              {studentCta === "residency" ? (
+            {/* Con sesión de estudiante: acceso directo. Para visitantes el registro vive en el hero y en el cierre de la página. */}
+            {studentCta === "residency" && (
+              <div className="mt-8">
                 <Button href="/students/residency#quiero-cambiar" size="lg">
                   Ir a Mi residencia
                 </Button>
-              ) : (
-                <Button href="/register/student" size="lg">
-                  Crear cuenta de estudiante
-                </Button>
-              )}
-              <Button href="/search" variant="outline" size="lg">
-                Buscar residencias
-              </Button>
-            </div>
+              </div>
+            )}
             <p className="mt-4 text-xs leading-relaxed text-ink-faint">
               Lo cancelás cuando quieras. Las otras residencias solo ven que estás en proceso de mudanza, no de cuál venís. Los costos de salida los informa cada
               residencia: EstuRed no los fija ni los cobra. Toda solicitud está sujeta a confirmación.
