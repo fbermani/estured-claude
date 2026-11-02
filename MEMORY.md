@@ -1,6 +1,6 @@
 # MEMORY.md — Memoria viva de EstuRed
 
-**Última actualización:** 2026-10-25 (optimización: el histórico íntegro de ~2060 líneas pasó a `docs/archive/MEMORY_HISTORICO_2026-10-25.md`).
+**Última actualización:** 2026-11-02 (sync docs; optimización 2026-10-25: el histórico íntegro de ~2060 líneas pasó a `docs/archive/MEMORY_HISTORICO_2026-10-25.md`).
 
 > Bitácora ejecutiva CORTA (se lee al inicio de cada sesión). NO reemplaza `/docs` (`00`–`22` = fuente de verdad de producto; decisiones del dueño en `docs/00` §31). El detalle de cada ciclo vive en el histórico: consultarlo a demanda con el índice de §7 (`Read` con `offset`/`limit`, no entero). Al cerrar un ciclo: agregar 2–4 líneas acá (no párrafos) y el detalle largo, si hace falta, a `docs/NEXT_STEPS.md` o al histórico.
 
@@ -15,6 +15,12 @@ Implementado de punta a punta (ver histórico por ciclo): auth y roles (estudian
 Demo: selector "Simular usuario" (solo con `DEMO_LOGIN_ENABLED=true` en `.env.local`, nunca en Vercel) con 8 usuarios (Lucía/Camila/Valentina estudiantes —Valentina menor—, Martín familiar, Ricardo owner, Sofía staff, admin, superadmin). Verificar e2e con ese selector, sin tipear contraseñas.
 
 ## 2. Últimos ciclos (62–74) y DR12–DR16
+
+- **DR25–DR28 (2026-11-01/02, en `docs/00` §31):** DR25 microcopy «a quién se paga y cuándo» en `RequestPanel`; DR26 Google SSO fuera del MVP; DR27 costos sin «sin depósito» + miniatura del comprobante en «Por qué EstuRed»; DR28 Centro de Guías.
+- **Centro de Guías fase 1 (commits `f64be6c`, `9b171f7`):** hub `/guias` + `/guias/[slug]`, 6 guías en `content/guias/*.md` (01–05 y R01) con parser propio `lib/guides`, SEO (metadata, canonical, JSON-LD Article/BreadcrumbList, sitemap), enlaces contextuales (home, buscador, ficha, dashboards) y aviso «llegar 2–3 semanas antes». Todas en `borrador-editorial`; **guías 05 y R01 con tono a revisar por el dueño** (`design-proposals/guias-2026-11-02/reporte-editorial.md`). **Fase 2 pendiente** (DR28): cuenta regresiva, checklist, alertas mail/in-app a estudiante y familiar vinculado; WhatsApp solo botón manual.
+- **Programa móvil L1–L12 commiteado** (`38f914a` L1, `8c71695` L2, `a7fae3f` L5, `0376594` L7, `ad41edf` L4, `bb97a63` L6, `1ec82c1` L8, `82738e7` L9, `660ade3` L3, `06e737e`/`03eb5e1` L10, `4eeb717` L11, `a1948e0` L12). Informe: `design-proposals/movil-2026-11-02/informe.md` (untracked, no commitear). Decisiones: tab bar inferior en estudiante/familia/residencia; «Arrepentimiento» en «Más» y en el sidebar de escritorio; sin abreviaturas con punto; «Camas» como label de pestaña; rail colapsado 768–1023; sin assets móviles nuevos por ahora. **NO verificado:** pantalla de negociación en navegador, táctil en dispositivo real, 1280 px en varios lotes.
+- **Suite completa tras estos cambios:** `npm test` → 3 fallos de cobertura arreglados en `6360878`; 1487 tests OK.
+- Estado git (2026-11-02): todo commiteado, **nada pusheado**. DB dev con migraciones aplicadas hasta **0067**.
 
 - **DR22 D/E implementado (2026-11-01, sin commit/build):** `/register/residence` ahora es solicitud de alta (sin cuenta; honeypot + límite por IP); cola `/admin/solicitudes-alta` (estados `docs/04` §21.8, invitación de 7 días solo-hash); canje en `/register/residence/invitacion/[token]`. **Migración 0066 pendiente de aplicar en dev y prod**; sin ella la cola muestra aviso y el formulario falla con error. Código en `lib/residenceSignup/`.
 
@@ -42,18 +48,18 @@ Demo: selector "Simular usuario" (solo con `DEMO_LOGIN_ENABLED=true` en `.env.lo
 
 ## 3. Migraciones (estado real)
 
-- Archivos: `db/migrations/0001`–`0056` (0056 pendiente en dev). **dev (`estured-dev`, ref `gyfbtsuibmecefwovdgh`): aplicadas hasta 0055** (dicho por el dueño; no verificable desde el repo). La 0013 (cron) NO va en dev (el bootstrap de dev la deja comentada).
-- **prod: solo hasta 0035** (proyecto viejo, ref `mrwooskdcnkbitkhcvbf`). El dueño eligió un proyecto Supabase **nuevo y limpio**: `node scripts/build-bootstrap.mjs prod` → `db/_generated/prod_bootstrap.sql` (gitignored; 0001–0055 + 0043b + 0013 con placeholders). **Regenerar antes de usar** (el generado puede ser anterior a 0052–0055). Plan: `docs/PLAN_SALIDA_PRODUCCION.md`.
+- Archivos: `db/migrations/0001`–`0067`. **dev (`estured-dev`, ref `gyfbtsuibmecefwovdgh`): aplicadas hasta 0067** (dicho por el dueño, 2026-11-02; no verificable desde el repo). Las menciones de «pendiente de aplicar en dev» de 0056/0064/0065/0066 arriba quedaron superadas para dev; siguen pendientes en prod. La 0013 (cron) NO va en dev (el bootstrap de dev la deja comentada).
+- **prod: solo hasta 0035** (proyecto viejo, ref `mrwooskdcnkbitkhcvbf`). El dueño eligió un proyecto Supabase **nuevo y limpio**: `node scripts/build-bootstrap.mjs prod` → `db/_generated/prod_bootstrap.sql` (gitignored; debe cubrir hasta 0067 + 0043b + 0013 con placeholders). **Regenerar antes de usar** (el generado es anterior a 0056–0067). Plan: `docs/PLAN_SALIDA_PRODUCCION.md`.
 - Orden histórico de las pendientes del proyecto viejo: 0036–0051 (0046, 0045, 0047, 0048, 0049, 0050, 0051 con dependencias: 0047 antes de 0049 y 0050; ver cabeceras de cada archivo). Con bootstrap nuevo no aplica.
 - Toda migración es idempotente y degrada con gracia si falta (el código chequea `isMissing*`).
 - Links SQL Editor: dev https://supabase.com/dashboard/project/gyfbtsuibmecefwovdgh/sql/new · prod (proyecto viejo) https://supabase.com/dashboard/project/mrwooskdcnkbitkhcvbf/sql/new (si se crea el proyecto nuevo, el link cambia). **Cada vez que haya una migración por aplicar: dar ambos links + el archivo a pegar** (también si hay script de Storage, ej. `scripts/setup-storage.mjs`).
 
 ## 4. Próxima tarea recomendada
 
-1. **Auditoría final** con los agentes `auditor` y `seguridad` sobre DR14 (0052–0055) y DR15.
-2. **`npm test` completo una vez** (~5–7 min; el dev server vivo no molesta a vitest) + `node --env-file=.env.local scripts/check-anon-exposure.mjs`; después `node --env-file=.env.local scripts/cleanup-test-residences.mjs` (simula) y `--apply`.
+1. **Auditoría final** con los agentes `auditor` y `seguridad` (DR14 0052–0055, DR19–DR22, Guías, programa móvil).
+2. **`npm test`**: la suite completa pasó el 2026-11-02 (1487 OK). Antes de commits grandes repetir (~5–7 min) + `node --env-file=.env.local scripts/check-anon-exposure.mjs`; después `node --env-file=.env.local scripts/cleanup-test-residences.mjs` (simula) y `--apply`.
 3. **Probar a mano las pantallas nuevas:** reglamento y aceptación, FAQ elegibles, edad mín./máx., seguimiento en `/admin/followups`, captura de "Por qué EstuRed" en desktop y mobile.
-4. **Producción:** regenerar el bootstrap prod con 0052–0055; proyecto Supabase nuevo (necesita cupo); dominio real + `CRON_SECRET` (bloque cron 0013); Resend/SMTP; Redirect URLs de Auth (`/reset-password` en dev y prod); proveedor de teselas con clave (hoy OSM directo); WAF/rate limits en Vercel (`/verify`, `/forgot-password`, `POST /register/staff/*`, `/login`); email de contacto real (hoy `hola@estured.com`, placeholder en `lib/constants/contact.ts`, y remitente de Resend); crear admin/superadmin con `scripts/create-admin.mjs` (credenciales de prod solo en esa invocación); cargar datos de cobro en `/admin/payment-settings` (solo superadmin); `NEXT_PUBLIC_APP_URL` en Vercel; confirmar que Vercel usa env vars de producción.
+4. **Producción:** proyecto Supabase prod nuevo + bootstrap regenerado con 0056–0067 (necesita cupo); `NEXT_PUBLIC_SITE_URL` en `.env.local` (y Vercel); regla WAF en Vercel; dominio verificado en Resend; `CRON_SECRET`; aviso a tutores de menores; logo final; decidir `/waitlist` (H30); revisión del dueño de guías 05 y R01; verificar en navegador/táctil lo marcado «NO verificado» del programa móvil; dominio real + `CRON_SECRET` (bloque cron 0013); Resend/SMTP; Redirect URLs de Auth (`/reset-password` en dev y prod); proveedor de teselas con clave (hoy OSM directo); WAF/rate limits en Vercel (`/verify`, `/forgot-password`, `POST /register/staff/*`, `/login`); email de contacto real (hoy `hola@estured.com`, placeholder en `lib/constants/contact.ts`, y remitente de Resend); crear admin/superadmin con `scripts/create-admin.mjs` (credenciales de prod solo en esa invocación); cargar datos de cobro en `/admin/payment-settings` (solo superadmin); `NEXT_PUBLIC_APP_URL` en Vercel; confirmar que Vercel usa env vars de producción.
 5. Seguimiento detallado: `docs/NEXT_STEPS.md` ("Traspaso 2026-10-25").
 
 ## 5. Pendientes vigentes (no derivables del git)
