@@ -117,7 +117,7 @@ export function PhotoMetaManager({
             {group.title} <span className="font-normal text-ink-faint">({group.photos.length})</span>
           </h4>
         )}
-      <ul className="grid gap-3 sm:grid-cols-2">
+      <ul className="grid gap-3 min-[1500px]:grid-cols-2">
         {group.photos.map((photo) => {
           const idx = items.findIndex((i) => i.id === photo.id);
           const canFeature = photo.featured || featuredCount < MAX_FEATURED_PHOTOS;
