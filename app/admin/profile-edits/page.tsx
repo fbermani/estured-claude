@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { cmd } from "@/components/admin/ui/tokens";
+import { QueueLayout } from "@/components/admin/ui/QueueLayout";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
 import { ProfileEditDetail } from "@/app/admin/profile-edits/ProfileEditDetail";
 import { requireAdmin } from "@/lib/auth/requireAdmin";
@@ -113,9 +114,11 @@ export default async function ProfileEditsPage({
   }
 
   return (
-    <div className="flex h-full">
-      {/* Cola */}
-      <div className="w-96 shrink-0 overflow-y-auto border-r" style={{ borderColor: cmd.border }}>
+    <QueueLayout
+      explicit={Boolean(selectedId)}
+      backHref={"/admin/profile-edits"}
+      queue={
+        <>
         <div className="border-b p-4" style={{ borderColor: cmd.border }}>
           <h1 className="text-lg font-bold" style={{ color: cmd.onSurface }}>
             Ediciones de Perfil
@@ -157,10 +160,10 @@ export default async function ProfileEditsPage({
             })}
           </ul>
         )}
-      </div>
-
-      {/* Detalle */}
-      <div className="flex-1 overflow-y-auto p-8">
+        </>
+      }
+      detail={
+        <>
         {detail ? (
           <ProfileEditDetail key={detail.id} {...detail} />
         ) : (
@@ -168,7 +171,8 @@ export default async function ProfileEditsPage({
             Seleccioná una edición de la lista para revisarla.
           </p>
         )}
-      </div>
-    </div>
+        </>
+      }
+    />
   );
 }

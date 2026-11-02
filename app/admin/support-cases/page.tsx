@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { cmd } from "@/components/admin/ui/tokens";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
+import { QueueLayout } from "@/components/admin/ui/QueueLayout";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
 import { DocumentAccessButton } from "@/components/admin/ui/DocumentAccessButton";
 import { reservationReference } from "@/lib/payments/feeTransferPresentation";
@@ -97,8 +98,11 @@ export default async function AdminSupportCasesPage({
   }
 
   return (
-    <div className="flex h-full">
-      <div className="w-96 shrink-0 overflow-y-auto border-r" style={{ borderColor: cmd.border }}>
+    <QueueLayout
+      explicit={Boolean(selectedId)}
+      backHref={"/admin/support-cases"}
+      queue={
+        <>
         <div className="border-b p-4" style={{ borderColor: cmd.border }}>
           <h1 className="text-lg font-bold" style={{ color: cmd.onSurface }}>
             Casos de soporte
@@ -141,9 +145,10 @@ export default async function AdminSupportCasesPage({
             })}
           </ul>
         )}
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-8">
+        </>
+      }
+      detail={
+        <>
         {detail ? (
           <AdminCard className="max-w-2xl p-6">
             <div className="flex items-center justify-between">
@@ -213,7 +218,8 @@ export default async function AdminSupportCasesPage({
             Elegí un caso de la lista.
           </p>
         )}
-      </div>
-    </div>
+        </>
+      }
+    />
   );
 }

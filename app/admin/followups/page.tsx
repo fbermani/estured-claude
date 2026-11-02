@@ -3,6 +3,7 @@ import Link from "next/link";
 import { requireAdmin } from "@/lib/auth/requireAdmin";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { cmd } from "@/components/admin/ui/tokens";
+import { QueueLayout } from "@/components/admin/ui/QueueLayout";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { createAuditLog } from "@/lib/audit";
@@ -103,8 +104,12 @@ export default async function AdminFollowupsPage({ searchParams }: { searchParam
   }
 
   return (
-    <div className="flex h-full">
-      <div className="w-96 shrink-0 overflow-y-auto border-r" style={{ borderColor: cmd.border }}>
+    <QueueLayout
+      explicit={Boolean(id)}
+      detailClassName="p-4 sm:p-5 xl:p-6"
+      backHref={`/admin/followups${filter ? `?estado=${filter}` : ""}`}
+      queue={
+        <>
         <div className="border-b p-4" style={{ borderColor: cmd.border }}>
           <h1 className="text-lg font-bold" style={{ color: cmd.onSurface }}>Seguimiento post-ingreso</h1>
           <p className="text-xs" style={{ color: cmd.outline }}>A los 5 días del ingreso. La residencia no ve esta pantalla.</p>
@@ -138,9 +143,10 @@ export default async function AdminFollowupsPage({ searchParams }: { searchParam
             ))}
           </ul>
         )}
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-6">
+        </>
+      }
+      detail={
+        <>
         {!detail ? (
           <p className="text-sm" style={{ color: cmd.outline }}>Elegí un seguimiento para ver las respuestas.</p>
         ) : (
@@ -183,7 +189,8 @@ export default async function AdminFollowupsPage({ searchParams }: { searchParam
             )}
           </div>
         )}
-      </div>
-    </div>
+        </>
+      }
+    />
   );
 }

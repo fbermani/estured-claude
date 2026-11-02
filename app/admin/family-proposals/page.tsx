@@ -6,6 +6,7 @@ import Link from "next/link";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { cmd } from "@/components/admin/ui/tokens";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
+import { QueueLayout } from "@/components/admin/ui/QueueLayout";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
 import { requireAdmin } from "@/lib/auth/requireAdmin";
 
@@ -80,8 +81,11 @@ export default async function AdminFamilyProposalsPage({
   }
 
   return (
-    <div className="flex h-full">
-      <div className="w-96 shrink-0 overflow-y-auto border-r" style={{ borderColor: cmd.border }}>
+    <QueueLayout
+      explicit={Boolean(selectedId)}
+      backHref={"/admin/family-proposals"}
+      queue={
+        <>
         <div className="border-b p-4" style={{ borderColor: cmd.border }}>
           <h1 className="text-lg font-bold" style={{ color: cmd.onSurface }}>
             Propuestas del familiar
@@ -124,9 +128,10 @@ export default async function AdminFamilyProposalsPage({
             })}
           </ul>
         )}
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-8">
+        </>
+      }
+      detail={
+        <>
         {[...rejectedByFamily.entries()].some(([, count]) => count >= 2) && (
           <div className="mb-6 rounded-lg bg-white p-4" style={{ border: `1px solid ${cmd.rose}` }}>
             <p className="text-sm font-semibold" style={{ color: cmd.rose }}>
@@ -196,7 +201,8 @@ export default async function AdminFamilyProposalsPage({
             </p>
           </AdminCard>
         )}
-      </div>
-    </div>
+        </>
+      }
+    />
   );
 }
