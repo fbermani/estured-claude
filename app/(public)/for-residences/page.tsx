@@ -210,7 +210,7 @@ export default function ForResidencesPage() {
               </h3>
               <p className="mt-2 text-sm text-ink-soft">
                 Tu residencia en el catálogo, con el sello de verificación
-                presencial y gestión de solicitudes.
+                de EstuRed y gestión de solicitudes.
               </p>
               <HoverFeatureList items={VERIFIED_FEATURES} icon="check_circle" tone="forest" className="mt-6 text-sm" />
             </Card>

@@ -51,7 +51,7 @@ export default async function ResidencePlanPage({
           </div>
           <h2 className="mt-3 text-2xl font-bold text-ink">Perfil Verificado</h2>
           <p className="mt-2 text-sm text-ink-soft">
-            Tu residencia en el catálogo, con el sello de verificación presencial y gestión de solicitudes.
+            Tu residencia en el catálogo, con el sello de verificación de EstuRed y gestión de solicitudes.
           </p>
           <ul className="mt-6 space-y-3 text-sm">
             {VERIFIED_FEATURES.map((f) => (
