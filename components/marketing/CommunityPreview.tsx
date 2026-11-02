@@ -84,15 +84,17 @@ export function CommunityPreview({ variant }: { variant: "students" | "residence
                 width={2240}
                 height={1360}
                 sizes="(min-width: 1024px) 620px, 100vw"
+                loading="lazy"
                 className="hidden h-auto w-full md:block"
               />
-              <div className="max-h-[560px] overflow-hidden md:hidden">
+              <div className="relative max-h-[560px] overflow-hidden after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-16 after:bg-gradient-to-t after:from-paper after:to-transparent md:hidden">
                 <Image
                   src="/landing/comunidad-mobile.webp"
                   alt="La misma sección Comunidad vista en un teléfono."
                   width={780}
                   height={2400}
                   sizes="100vw"
+                  loading="lazy"
                   className="h-auto w-full"
                 />
               </div>

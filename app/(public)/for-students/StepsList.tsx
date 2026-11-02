@@ -54,14 +54,19 @@ export function StepsList({ steps }: { steps: Step[] }) {
                 </div>
                 {step.shot && (
                   <figure className="relative overflow-hidden rounded-field border border-line bg-cream">
-                    <Image
-                      src={step.shot.src}
-                      alt={step.shot.alt}
-                      width={step.shot.w}
-                      height={step.shot.h}
-                      sizes="(min-width: 768px) 300px, 90vw"
-                      className="h-auto w-full"
-                    />
+                    {/* Móvil: la captura es de desktop, así que se muestra al doble de ancho y se desliza (legible a 375). */}
+                    <div className="max-md:overflow-x-auto max-md:[scrollbar-width:thin]" tabIndex={0} role="group" aria-label={`Captura de ejemplo: ${step.shot.alt}`}>
+                      <Image
+                        src={step.shot.src}
+                        alt={step.shot.alt}
+                        width={step.shot.w}
+                        height={step.shot.h}
+                        loading="lazy"
+                        sizes="(min-width: 768px) 300px, 180vw"
+                        className="h-auto w-full max-md:w-[200%] max-md:max-w-none"
+                      />
+                    </div>
+                    <span aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-cream to-transparent md:hidden" />
                     <figcaption className="absolute left-2 top-2 rounded-full bg-ink/80 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-white">
                       Ejemplo
                     </figcaption>

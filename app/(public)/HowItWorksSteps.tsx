@@ -185,21 +185,22 @@ export function HowItWorksSteps({ steps }: { steps: Step[] }) {
                   className="flex flex-none basis-full flex-col overflow-hidden rounded-card border border-line bg-paper shadow-card lg:absolute lg:inset-0 lg:basis-auto lg:rounded-[30px] lg:[transform-origin:50%_90%] lg:[transform:var(--t)] lg:[opacity:var(--o)] lg:[z-index:var(--z)] lg:transition-[transform,opacity] lg:duration-700 lg:ease-out-fresh"
                   style={{ "--t": d.t, "--o": d.o, "--z": d.z, pointerEvents: front || !wide ? undefined : "none" } as CSSProperties}
                 >
-                  <div className="relative aspect-video overflow-hidden border-b border-line bg-cream">
+                  <div className="relative aspect-[4/3] overflow-hidden border-b lg:aspect-video border-line bg-cream">
+                    <span aria-hidden className="absolute inset-y-0 right-0 z-10 w-10 bg-gradient-to-l from-cream to-transparent lg:hidden" />
                     <span aria-hidden className="absolute inset-x-0 top-0 z-10 flex h-[26px] items-center gap-[5px] border-b border-line bg-cream-2 px-3">
                       <i className="h-2 w-2 rounded-full bg-line-2" />
                       <i className="h-2 w-2 rounded-full bg-line-2" />
                       <i className="h-2 w-2 rounded-full bg-line-2" />
                     </span>
-                    <div className="absolute inset-x-0 bottom-0 top-[26px]">
+                    <div className="absolute bottom-0 left-0 right-0 top-[26px] max-lg:right-auto max-lg:w-[190%]">
                       <Image
                         src={s.img}
                         alt={s.alt}
                         fill
-                        sizes="(min-width: 1024px) 640px, 100vw"
+                        sizes="(min-width: 1024px) 640px, 190vw"
                         className="object-cover object-left-top"
                         draggable={false}
-                        priority={i === 0}
+                        loading="lazy"
                       />
                     </div>
                   </div>
