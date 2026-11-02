@@ -12,6 +12,7 @@ const SEARCH_LINK: NavLink = { href: "/search", label: "Buscar residencias" };
 const links: NavLink[] = [
   { href: "/for-students", label: "Para estudiantes", extra: "y familias" },
   { href: "/for-residences", label: "Para residencias" },
+  { href: "/guias", label: "Guías" },
 ];
 const mobileLinks = [SEARCH_LINK, ...links];
 

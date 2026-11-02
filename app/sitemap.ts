@@ -1,11 +1,13 @@
 import type { MetadataRoute } from "next";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { SITE_URL } from "@/lib/siteUrl";
+import { getAllGuides } from "@/lib/guides/load";
 
 export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const entries: MetadataRoute.Sitemap = ["", "/for-students", "/for-residences", "/search"].map((p) => ({ url: `${SITE_URL}${p}` }));
+  const entries: MetadataRoute.Sitemap = ["", "/for-students", "/for-residences", "/search", "/guias"].map((p) => ({ url: `${SITE_URL}${p}` }));
+  for (const g of getAllGuides()) entries.push({ url: `${SITE_URL}/guias/${g.slug}` });
   try {
     const admin = getSupabaseAdmin();
     if (!admin) return entries;

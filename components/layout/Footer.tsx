@@ -45,6 +45,14 @@ export function Footer({ hideSignup = false }: { hideSignup?: boolean } = {}) {
                 Para residencias
               </Link>
             </li>
+            <li>
+              <Link
+                href="/guias"
+                className="rounded-sm transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              >
+                Guías
+              </Link>
+            </li>
             {!hideSignup && (
             <li>
               <Link

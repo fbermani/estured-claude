@@ -1,7 +1,7 @@
 # 00_DECISION_LOG.md
 # EstuRed — Registro de decisiones consolidadas
 
-Última actualización: 2026-10-25 (§31: DR14 reglamento/FAQ/edad/seguimiento; decisiones del dueño D1–D11 de la auditoría 2026-10-20; DF1–DF5, DR1–DR2, DR3 y DR3b "Quiero cambiar"; DR6–DR7; DR8 validación manual del fee; revisión Ciclo 71: checkbox + piso 90 %, reintento de confirmación; DR9 trazabilidad y permisos del admin)
+Última actualización: 2026-11-02 (DR28: Centro de Guías público en /guias; DR27 costos sin «sin depósito» y comprobante en la home; DR22–DR26 y anteriores en §31)
 
 Este documento es la fuente de verdad del proyecto EstuRed.
 Registra todas las decisiones de producto, negocio, operación, experiencia y arquitectura técnica.
@@ -1487,3 +1487,12 @@ Decisión del dueño. El registro e ingreso siguen con email y contraseña (mín
 ### DR27: costos sin la aclaración «sin depósito» + comprobante en «Por qué EstuRed» (2026-11-02)
 
 Decisión del dueño. (1) En el copy de costos de landings y ficha no se aclara «sin depósito» / «sin contar el depósito» / «nunca sobre el depósito»; la aclaración vive solo en las FAQ y en los términos (`/terms`). El cálculo no cambia: el fee es 5% de la estadía inicial y nunca incluye el depósito reembolsable. (2) En la home, «Por qué EstuRed» reemplaza la tarjeta «Qué revisamos» (repetía «Visitadas en persona») por una miniatura del Comprobante de Reserva Confirmada, armada con las mismas filas que la pantalla y el PDF reales, con datos de ejemplo rotulados.
+
+### DR28: Centro de Guías público (2026-11-02)
+
+Decisión del dueño.
+- **Qué es:** guías editoriales públicas (sin login) en `/guias` (hub) y `/guias/[slug]`. Seis guías iniciales: elegir residencia, mudarte a Buenos Aires, errores comunes, estudiar y convivir, familias y operadores de residencias.
+- **Contenido:** archivos Markdown con frontmatter en `content/guias/` (soltar un `.md` nuevo publica una guía, sin tocar componentes). Texto editorial neutral y multi-residencia: no habla en nombre de ninguna residencia, sin testimonios, cifras ni fechas de revisión no verificadas, sin «mediación» (se dice «Soporte»).
+- **CTAs:** solo a rutas que existen (`/search`, `/for-residences`, `/for-students`, `/register`, otras guías); si la ruta no existe, el CTA se oculta.
+- **Fase 1:** contenido + SEO (metadata, canonical, JSON-LD `Article` y `BreadcrumbList`, sitemap) + enlaces contextuales desde home, buscador, fichas y dashboards.
+- **Fase 2 (pendiente, con su propia DR):** cuenta regresiva, checklist y alertas por mail/notificación al estudiante y al familiar vinculado (WhatsApp solo como botón manual, nunca la API).
