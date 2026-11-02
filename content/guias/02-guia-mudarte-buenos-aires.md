@@ -31,9 +31,13 @@ Si tus posibilidades lo permiten, llegar dos o tres semanas antes del comienzo d
 
 Prepará documento de identidad o pasaporte, constancia de inscripción, antecedentes académicos y la documentación que requiera tu institución. Si llegás del extranjero, los requisitos migratorios, de residencia y DNI varían según nacionalidad y situación particular: verificá siempre en la Dirección Nacional de Migraciones y RENAPER. No todos los estudiantes necesitan los mismos certificados, ni un contrato de alojamiento reemplaza automáticamente la certificación exigida para un trámite específico.
 
+Si tenés alguna condición de salud, llevá también el certificado médico que corresponda a tu caso, para presentarlo ante cualquier emergencia en un sanatorio o clínica.
+
 ## Alojamiento: asegurá lo esencial antes de viajar
 
 Confirmá dirección, fecha y horario de ingreso, persona de contacto, habitación/plaza, inventario básico, medios de pago y reglas. Preguntá qué debés llevar: ropa de cama, toallas, utensilios o candado pueden estar incluidos o no. Guardá los documentos y comprobantes en un lugar accesible.
+
+Viajá liviano. En general, las residencias tienen poco espacio, así que conviene ser prudente al empacar y no llevar todo de entrada: frazadas, almohadas, mucha ropa de abrigo o muchos pares de zapatos pueden ir sumándose con el tiempo, a medida que sepas qué necesitás. Además, tu familia puede traerte cosas cuando te visite.
 
 ## Movilidad: probá el trayecto antes de necesitarlo
 

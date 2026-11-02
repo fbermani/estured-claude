@@ -57,7 +57,7 @@ export const ARRIVAL_CHECKLIST: ChecklistCategory[] = [
       { key: "res.direccion", label: "Dirección exacta de la residencia guardada en el celular", hint: "Fijate también cómo llegar en transporte." },
       { key: "res.fecha-hora", label: "Fecha y horario de ingreso confirmados con la residencia", hint: "Escribile y pedí confirmación por escrito." },
       { key: "res.contacto", label: "Persona de contacto para el día de la llegada", hint: "Nombre y un medio de contacto que puedas usar al llegar." },
-      { key: "res.habitacion", label: "Revisé qué habitación o plaza figura en mi solicitud" },
+      { key: "res.habitacion", label: "Confirmé con la residencia qué habitación o plaza me corresponde", hint: "Puede variar respecto de lo que figura en tu solicitud: consultalo antes de viajar." },
       { key: "res.llevar", label: "Pregunté qué tengo que llevar", hint: "Ropa de cama, toallas, utensilios o candado pueden estar incluidos o no." },
       { key: "res.reglas", label: "Conozco las normas de convivencia, visitas y espacios comunes", guide: "04" },
       { key: "res.ingreso-egreso", label: "Entiendo el proceso de ingreso y de egreso", hint: "Y qué pasa si cambian mis planes." },
@@ -70,9 +70,8 @@ export const ARRIVAL_CHECKLIST: ChecklistCategory[] = [
     items: [
       { key: "viaje.pasajes", label: "Pasajes comprados con margen antes del inicio de clases", hint: "Llegar dos o tres semanas antes ayuda a adaptarte, si tus posibilidades lo permiten.", guide: "02" },
       { key: "viaje.traslado", label: "Resolví cómo ir de la terminal o el aeropuerto a la residencia", hint: "Taxi, remís, aplicaciones o transporte público: elegí con anticipación." },
-      { key: "viaje.horario-llegada", label: "Compartí mi horario de llegada con la residencia y mi familia" },
-      { key: "viaje.plan-b", label: "Tengo un plan B si el viaje se demora", hint: "Un contacto y un lugar donde esperar." },
-      { key: "viaje.equipaje", label: "Equipaje armado y pesado según las reglas de mi transporte" },
+      { key: "viaje.horario-llegada", label: "Compartí mi horario de llegada con la residencia y mi familia", hint: "Y avisales si algo se demora." },
+      { key: "viaje.equipaje", label: "Armé un equipaje liviano, dentro de las reglas de mi transporte", hint: "En las residencias suele haber poco espacio: no viajes con todo. Frazadas, almohadas, ropa de abrigo de más o muchos pares de zapatos los podés ir sumando con el tiempo, y tu familia puede traerte cosas cuando te visite.", guide: "02" },
     ],
   },
   {
@@ -84,19 +83,8 @@ export const ARRIVAL_CHECKLIST: ChecklistCategory[] = [
       { key: "llevar.cama-bano", label: "Ropa de cama y toallas, si la residencia no las incluye" },
       { key: "llevar.estudio", label: "Elementos de estudio: notebook, cargadores, apuntes" },
       { key: "llevar.higiene", label: "Artículos de higiene personal para los primeros días" },
-      { key: "llevar.medicacion", label: "Medicación habitual y recetas, si corresponde", hint: "Llevá cantidad suficiente para el comienzo." },
+      { key: "llevar.medicacion", label: "Medicación habitual, recetas y certificados médicos, si corresponde", hint: "Llevá un certificado médico según tu condición, para presentarlo ante una emergencia en un sanatorio o clínica, y medicación suficiente para el comienzo." },
       { key: "llevar.adaptador", label: "Adaptador de enchufe, si venís de otro país" },
-    ],
-  },
-  {
-    id: "conectividad",
-    title: "Conectividad",
-    icon: "wifi",
-    items: [
-      { key: "conex.linea", label: "Plan de datos o línea que funcione en Argentina", hint: "Confirmá con tu operadora o averiguá opciones locales." },
-      { key: "conex.wifi", label: "Pregunté cómo funciona el wifi en la residencia" },
-      { key: "conex.apps", label: "Descargué las apps que voy a usar: mapas, transporte, mensajería" },
-      { key: "conex.contactos", label: "Números importantes guardados y anotados también en papel" },
     ],
   },
   {
@@ -108,7 +96,6 @@ export const ARRIVAL_CHECKLIST: ChecklistCategory[] = [
       { key: "salud.emergencia", label: "Contacto de emergencia compartido con quien corresponda", hint: "Según tus preferencias y necesidades.", guide: "02" },
       { key: "salud.centro", label: "Ubiqué una farmacia y un centro de salud cerca de la residencia" },
       { key: "salud.fichas", label: "Datos médicos relevantes anotados", hint: "Alergias, condiciones o tratamientos que convenga que alguien conozca." },
-      { key: "salud.cuidados", label: "Hábitos de cuidado personal pensados para la ciudad", hint: "Pertenencias a la vista, trayectos de noche y avisar adónde vas." },
     ],
   },
   {
@@ -133,19 +120,8 @@ export const ARRIVAL_CHECKLIST: ChecklistCategory[] = [
       { key: "dias.compras", label: "Hice las compras básicas" },
       { key: "dias.convivencia", label: "Hablé con mis compañeros sobre silencio, limpieza y visitas", hint: "Un miniacuerdo de convivencia evita conflictos.", guide: "04" },
       { key: "dias.actividades", label: "Busqué actividades culturales o gratuitas para sumarme" },
+      { key: "dias.comunicacion", label: "Hablé por teléfono con mi familia para contarles cómo estoy", hint: "Acuerden cada cuánto se comunican: un llamado corto alcanza." },
       { key: "dias.descanso", label: "Reservé tiempo para descansar y adaptarme", guide: "03" },
-    ],
-  },
-  {
-    id: "familia",
-    title: "Familia y contactos",
-    icon: "diversity_3",
-    items: [
-      { key: "fam.plan", label: "Armamos juntos un plan de llegada: documentos, traslado y presupuesto", guide: "05" },
-      { key: "fam.vinculo", label: "Vinculé a mi familiar en EstuRed, si quiero que siga mi llegada", hint: "Verá tu progreso en solo lectura." },
-      { key: "fam.frecuencia", label: "Acordamos cada cuánto nos comunicamos", hint: "Acuerdos, no vigilancia." },
-      { key: "fam.avisar-llegada", label: "Avisé a mi familia cuando llegué" },
-      { key: "fam.emergencias", label: "Sabemos a quién llamar si surge un problema" },
     ],
   },
 ];

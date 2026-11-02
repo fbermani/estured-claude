@@ -10,7 +10,7 @@
 
 ## DR29: Centro de Guías fase 2, lotes 2A y 2B (2026-11-02)
 
-- **Lote 2A (`7b670ab`, migración 0068):** tarjeta «Tu llegada» con cuenta regresiva y checklist de 57 ítems (`lib/arrival/*`, `components/students/ArrivalCard.tsx`). Tildes persistidas en `arrival_checklist_items` (una fila por reserva e ítem); lo tilda solo el estudiante dueño de la reserva; el familiar vinculado activo lo ve en solo lectura.
+- **Lote 2A (`7b670ab`, migración 0068):** tarjeta «Tu llegada» con cuenta regresiva y checklist de 47 ítems (`lib/arrival/*`, `components/students/ArrivalCard.tsx`). Tildes persistidas en `arrival_checklist_items` (una fila por reserva e ítem); lo tilda solo el estudiante dueño de la reserva; el familiar vinculado activo lo ve en solo lectura.
 - **Lote 2B (`9ff0dd0`, migración 0069):** avisos de llegada. Estudiante a 14/7/2/0 días; familiar vinculado activo a 7/2. Nunca antes de las 9:00 (Argentina). In-app siempre; mail solo con `EMAIL_DOMAIN_VERIFIED=true`. El estudiante no puede desactivarlos. Sin catch-up: si el cron falla un día, ese aviso no se recupera. Código: `lib/jobs/notifyArrivalReminders.ts`, `lib/arrival/reminderPlan.ts`, `lib/arrival/reminderCopy.ts`; tabla `arrival_reminder_sends`.
 - **Migraciones:** 0068 y 0069 aplicadas en **dev** (dicho por el dueño). **Pendientes en prod**: el bootstrap de prod debe incluirlas.
 - **Verificado en navegador a 375 px:** tarjeta, tildado persistente y vista del familiar en solo lectura. Demo: `scripts/seed-arrival-demo.mjs` (usuarios Lucía y Martín).
