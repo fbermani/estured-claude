@@ -71,10 +71,10 @@ export function StartRenewalModal({
       </Button>
 
       {open && (
-        <div role="dialog" aria-modal="true" aria-labelledby="start-renewal-title" className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6">
+        <div role="dialog" aria-modal="true" aria-labelledby="start-renewal-title" className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center sm:p-6">
           <div className="fixed inset-0 bg-forest-ink/40 backdrop-blur-sm" onClick={() => setOpen(false)} aria-hidden />
 
-          <div className="relative flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-card bg-paper shadow-float">
+          <div className="relative flex max-h-[100dvh] w-full max-w-lg flex-col overflow-hidden rounded-t-[24px] sm:max-h-[90vh] sm:rounded-card bg-paper shadow-float">
             <div className="flex items-start justify-between border-b border-line px-6 py-4">
               <div>
                 <h2 id="start-renewal-title" className="text-lg font-bold text-ink">
@@ -173,6 +173,8 @@ export function StartRenewalModal({
                     {customDuration && (
                       <input
                         type="number"
+                        inputMode="numeric"
+                        enterKeyHint="done"
                         min={1}
                         max={24}
                         value={duration}
@@ -214,7 +216,7 @@ export function StartRenewalModal({
                   )}
                 </div>
 
-                <div className="flex items-center justify-end gap-3 border-t border-line bg-cream-2 px-6 py-4">
+                <div className="flex items-center justify-end gap-3 border-t border-line bg-cream-2 px-6 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
                   <Button type="button" size="sm" variant="outline" onClick={() => setOpen(false)}>
                     Cancelar
                   </Button>

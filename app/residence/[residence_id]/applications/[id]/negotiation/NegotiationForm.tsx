@@ -133,6 +133,8 @@ export function NegotiationForm({
             label="Nueva tarifa mensual (USD)"
             name="proposed_monthly_price_usd"
             type="number"
+            inputMode="decimal"
+            enterKeyHint="next"
             min={0}
             value={monthlyPrice}
             onChange={(e) => setMonthlyPrice(e.target.value)}
@@ -141,6 +143,8 @@ export function NegotiationForm({
             label="Nueva matrícula (USD)"
             name="proposed_enrollment_fee_usd"
             type="number"
+            inputMode="decimal"
+            enterKeyHint="next"
             min={0}
             value={enrollmentFee}
             onChange={(e) => setEnrollmentFee(e.target.value)}
@@ -149,6 +153,8 @@ export function NegotiationForm({
             label="Nuevo depósito (USD)"
             name="proposed_deposit_usd"
             type="number"
+            inputMode="decimal"
+            enterKeyHint="next"
             min={0}
             value={deposit}
             onChange={(e) => setDeposit(e.target.value)}
@@ -164,6 +170,8 @@ export function NegotiationForm({
             label="Nueva duración (meses)"
             name="proposed_duration_months"
             type="number"
+            inputMode="numeric"
+            enterKeyHint="next"
             min={1}
             max={24}
             value={duration}
@@ -173,6 +181,8 @@ export function NegotiationForm({
             label="Nuevo pago inicial para reservar (USD)"
             name="proposed_reservation_payment_amount_usd"
             type="number"
+            inputMode="decimal"
+            enterKeyHint="next"
             min={0}
             hint="Lo que el estudiante te paga a vos para reservar. Si no lo cambiás y tu pago inicial es el primer mes, sigue la tarifa mensual que propongas."
             value={reservationAmount}

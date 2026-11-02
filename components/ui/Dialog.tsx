@@ -82,7 +82,7 @@ export function Dialog({
   const panelClasses =
     placement === "side"
       ? `absolute bottom-0 right-0 top-3 flex w-full flex-col overflow-hidden rounded-t-[24px] bg-paper shadow-float sm:top-0 ${sideWidthClass} sm:rounded-l-[24px] sm:rounded-tr-none`
-      : `relative mt-auto flex max-h-[94vh] w-full flex-col overflow-hidden rounded-t-[24px] bg-paper shadow-float sm:mb-auto sm:max-h-[90vh] sm:rounded-card ${maxWidthClass}`;
+      : `relative mt-auto flex max-h-[94dvh] w-full flex-col overflow-hidden rounded-t-[24px] bg-paper shadow-float sm:mb-auto sm:max-h-[90vh] sm:rounded-card ${maxWidthClass}`;
 
   return createPortal(
     <div

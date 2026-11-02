@@ -40,6 +40,8 @@ export function CreateOfferForm({
           label="Duración (meses)"
           name="duration_months"
           type="number"
+          inputMode="numeric"
+          enterKeyHint="next"
           min={1}
           max={24}
           defaultValue={currentDurationMonths}
@@ -49,6 +51,8 @@ export function CreateOfferForm({
           label="Nueva tarifa mensual (USD)"
           name="monthly_price_usd"
           type="number"
+          inputMode="decimal"
+          enterKeyHint="next"
           min={0}
           step="0.01"
           defaultValue={currentMonthlyPriceUsd}
@@ -58,10 +62,12 @@ export function CreateOfferForm({
           label="Matrícula o cargo de renovación (USD, opcional)"
           name="enrollment_or_renewal_fee_usd"
           type="number"
+          inputMode="decimal"
+          enterKeyHint="next"
           min={0}
           step="0.01"
         />
-        <Input label="Depósito (USD, opcional)" name="deposit_usd" type="number" min={0} step="0.01" />
+        <Input label="Depósito (USD, opcional)" name="deposit_usd" type="number" inputMode="decimal" enterKeyHint="next" min={0} step="0.01" />
         <Select label="Política de ajustes" name="adjustment_policy" defaultValue="quarterly" required>
           {ADJUSTMENT_POLICY_OPTIONS.map((a) => (
             <option key={a.value} value={a.value}>
@@ -73,6 +79,8 @@ export function CreateOfferForm({
           label="Días para que el estudiante responda"
           name="acceptance_deadline_days"
           type="number"
+          inputMode="numeric"
+          enterKeyHint="done"
           min={1}
           max={30}
           defaultValue={7}
