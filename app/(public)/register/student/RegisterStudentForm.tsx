@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -34,6 +34,10 @@ export function RegisterStudentForm({
   const { formRef, alertRef } = useFocusOnError(state);
 
   const [birthDate, setBirthDate] = useState("");
+  // React 19 resetea el formulario tras la acción: se repone la fecha que devolvió el servidor.
+  useEffect(() => {
+    if (state?.values?.birth_date) setBirthDate(state.values.birth_date);
+  }, [state]);
   const showMinorNotice = birthDate !== "" && isUnder18(birthDate);
 
   return (
