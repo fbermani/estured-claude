@@ -10,6 +10,7 @@ import { HowItWorksSteps } from "@/app/(public)/HowItWorksSteps";
 import { ResidenceCardCompact } from "@/components/residences/ResidenceCardCompact";
 import { HomeHero } from "@/components/marketing/HomeHero";
 import { getCatalogResidences } from "@/lib/residences/catalog";
+import { sortRecommended } from "@/lib/residences/searchFilters";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 
 const steps = [
@@ -144,7 +145,8 @@ const faqs = [
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const [rate, catalog] = await Promise.all([getCurrentExchangeRate(), getCatalogResidences()]);
+  const [rate, rawCatalog] = await Promise.all([getCurrentExchangeRate(), getCatalogResidences()]);
+  const catalog = sortRecommended(rawCatalog); // DR24
   const featured = catalog.slice(0, 4);
 
   return (

@@ -210,11 +210,29 @@ export function matchesFilters(r: Matchable, f: SearchFilters, skip?: FilterGrou
   );
 }
 
+/**
+ * DR24: grupo del orden «Recomendado». Usa solo el `availabilityMode` ya calculado
+ * (el mismo que muestra StatusTag); no infiere cupos.
+ */
+export function recommendedGroup(mode: AvailabilityMode): 1 | 2 | 3 {
+  if (mode === "real_by_place" || mode === "by_room_type_to_confirm") return 1;
+  if (mode === "not_updated") return 2;
+  return 3; // full, paused_by_residence, paused_by_admin
+}
+
+/**
+ * DR24: «disponibles primero». Orden estable: dentro de cada grupo se conserva el orden
+ * de entrada, que el catálogo entrega por created_at desc (más recientes primero). No oculta nada.
+ */
+export function sortRecommended<T extends { availabilityMode: AvailabilityMode }>(list: T[]): T[] {
+  return [...list].sort((a, b) => recommendedGroup(a.availabilityMode) - recommendedGroup(b.availabilityMode));
+}
+
 export function applySearchFilters<T extends Matchable>(list: T[], f: SearchFilters): T[] {
   const out = list.filter((r) => matchesFilters(r, f));
   if (f.sort === "pa") return out.sort((a, b) => a.priceFromUsd - b.priceFromUsd);
   if (f.sort === "pd") return out.sort((a, b) => b.priceFromUsd - a.priceFromUsd);
-  return out;
+  return sortRecommended(out);
 }
 
 /** Contador de una opción: cuántas residencias quedarían con SOLO esa opción en su grupo y el resto de filtros activos. */

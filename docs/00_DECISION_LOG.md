@@ -1466,3 +1466,12 @@ Decisión del dueño. Se unifica el nombre de los planes en toda la UI y los doc
 - «Gestión Operativa» queda **solo como nombre de las funciones** (habitaciones, plazas, residentes, comunidad, renovaciones), nunca como nombre de plan.
 - Banners y candados: «Función Premium · hoy bonificada». No se menciona precio futuro, fecha de fin ni renovación; el primer año se dice como en DR12 / `PLAN_PRICE_NOTE`.
 - No cambia la lógica de acceso Premium (D8/DR17).
+
+### DR24: orden por defecto del catálogo (2026-11-01)
+
+Decisión del dueño. El orden «Recomendado» pasa a «disponibles primero»:
+- **Grupo 1:** residencias con disponibilidad informada o asegurada (`by_room_type_to_confirm`, `real_by_place`).
+- **Grupo 2:** sin disponibilidad actualizada (`not_updated`).
+- **Grupo 3:** completas o en pausa (`full`, `paused_by_residence`, `paused_by_admin`).
+- Dentro de cada grupo, más recientes primero (`created_at` desc). No se oculta ninguna residencia.
+- No se infieren cupos: solo se usa el estado ya calculado que muestra `StatusTag`. Aplica a `/search` y a la home/hero. Los órdenes por precio no cambian.
