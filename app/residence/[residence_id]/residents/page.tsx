@@ -12,6 +12,7 @@ import { RESIDENCE_OFFER_STATUS_COPY } from "@/lib/renewals/statusCopy";
 import { loadResidenceStayChanges } from "@/lib/stayChange/load";
 import { loadInviteStatusByStay } from "@/lib/residents/residentInvitations";
 import { loadPendingLinkRequests } from "@/lib/residents/linkRequestsResidence";
+import { loadResidenceRoomChange } from "@/lib/roomChange/load";
 
 const ACTIVE_OFFER_STATUSES = new Set(["draft", "sent", "viewed"]);
 const PENDING_REQUEST_STATUSES = new Set(["created_by_student", "notified_to_residence"]);
@@ -127,6 +128,9 @@ export default async function ResidenceResidentsPage({
   // DR19: invitaciones personales, solicitudes de vínculo y código de casa (consultas tolerantes: sin la 0064 todo queda vacío).
   const canManage = can(membership, "residents.manage");
   const pendingStayIds = rawStays.filter((s) => !s.student_profile_id).map((s) => s.id);
+  // DR34: pedidos de cambio de habitación y plazas liberadas por decidir (tolerante: sin la 0076, todo queda vacío).
+  const roomChange = await loadResidenceRoomChange(admin, residenceId);
+  const roomChangeByStay = new Map(roomChange.requests.map((r) => [r.residentStayId, r]));
   const [inviteByStay, linkRequests, housePrivate] = await Promise.all([
     loadInviteStatusByStay(admin, pendingStayIds),
     canManage ? loadPendingLinkRequests(admin, residenceId) : Promise.resolve([]),
@@ -219,6 +223,7 @@ export default async function ResidenceResidentsPage({
       agreedRateUsd: s.reservation_id ? (agreedRateByReservationId.get(s.reservation_id) ?? null) : null,
       renewal,
       studentProfileId: s.student_profile_id,
+      roomChange: roomChangeByStay.get(s.id) ?? null,
       depositMode: s.reservation_id ? (depositModeByReservationId.get(s.reservation_id) ?? "unknown") : "unknown",
       stayChange: (() => {
         const change = s.student_profile_id ? stayChangeByStudent.get(s.student_profile_id) : undefined;
@@ -300,6 +305,7 @@ export default async function ResidenceResidentsPage({
         kpis,
         notesByStay,
         stayChanges,
+        placeAlerts: roomChange.alerts,
         linkRequests: canManage ? linkRequests : [],
         unlinkedStays,
         houseCode,

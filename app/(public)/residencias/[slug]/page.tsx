@@ -1,3 +1,6 @@
+import { genderOfferLabel, genderOffers } from "@/lib/availability/genderAvailability";
+import { loadGenderAvailability } from "@/lib/availability/genderAvailabilityDb";
+import { amenityDisplayName, normalizeAmenityLists, parseAmenityDetails } from "@/lib/residences/amenityDetails";
 import Link from "next/link";
 import { cache } from "react";
 import { notFound } from "next/navigation";
@@ -25,7 +28,6 @@ import { formatDate } from "@/lib/dates/format";
 import { AskQuestionForm } from "@/app/(public)/residencias/[slug]/AskQuestionForm";
 import { CompactMap } from "@/components/residences/CompactMap";
 import { getServiceIcon, getCommonAreaIcon } from "@/lib/residences/amenityIcons";
-import { serviceLabel } from "@/lib/residences/options";
 import { FICHA_FAQ_VISIBLE } from "@/lib/faq/catalog";
 import { GuidePicks } from "@/components/guides/GuidePicks";
 import { MoveInGuideNote } from "@/components/guides/MoveInGuideNote";
@@ -172,6 +174,11 @@ const loadResidence = cache(async (slug: string) => {
   // profile_availability tiene unique(room_type_id) — PostgREST devuelve
   // un objeto singular en el embed, no un array (a diferencia de lo que
   // el tipo inferido por supabase-js sugiere sin un schema generado).
+  // Disponibilidad por género (migración 0075): sin ella no hay detalle por género (queda por tipo).
+  const genderAvailability = await loadGenderAvailability(
+    admin,
+    (roomTypesRes.data ?? []).map((rt) => rt.id as string),
+  );
   const normalizedRoomTypes = (roomTypesRes.data ?? []).map((rt) => {
     // Género por habitación (0057). Sin la columna o sin habitaciones: queda el género del tipo.
     const genders = ((roomsRes.data ?? []) as { room_type_id: string; gender?: string | null }[])
@@ -188,6 +195,7 @@ const loadResidence = cache(async (slug: string) => {
     genderSummary: new Set(genders).size > 1 ? summarizeTypeGenders(genders) : null,
     gender_policy: new Set(genders).size === 1 ? (policyFromGender(genders[0]) ?? rt.gender_policy) : rt.gender_policy,
     profile_availability: rt.profile_availability as unknown as { status: string; available_count: number | null } | null,
+    genderRows: genderAvailability.byType.get(rt.id as string) ?? [],
   }));
 
   return { residence, roomTypes: normalizedRoomTypes, sectionMap, photos, rulesPdfUrl, occupancyLabel };
@@ -262,8 +270,11 @@ export default async function RealResidenceDetailPage({
   const addressLine = (residence.address_line as string | null)?.trim() || null;
   // DR18: los ítems «Otro» aprobados se suman a los fijos (los pendientes y rechazados nunca llegan acá; vacío si la 0058 no está aplicada).
   const customAmenities = adminClient ? await getApprovedCustomAmenities(adminClient, residence.id) : { services: [], areas: [] };
-  const services = [...((sectionMap.services?.items as string[]) ?? []), ...customAmenities.services];
-  const commonAreas = [...((sectionMap.common_areas?.items as string[]) ?? []), ...customAmenities.areas];
+  const { services, commonAreas } = normalizeAmenityLists({
+    services: [...((sectionMap.services?.items as string[]) ?? []), ...customAmenities.services],
+    commonAreas: [...((sectionMap.common_areas?.items as string[]) ?? []), ...customAmenities.areas],
+  });
+  const amenityDetails = parseAmenityDetails((residence as { amenity_details?: unknown }).amenity_details);
   const nearUniversities = (sectionMap.near_universities?.items as string[]) ?? [];
   const rulesSummary = (sectionMap.rules?.summary as string) ?? "";
   const staticFaqItems = (sectionMap.faq?.items as { question: string; answer: string }[]) ?? [];
@@ -336,6 +347,13 @@ export default async function RealResidenceDetailPage({
       : {}),
     ...(rt.bathroom_type === "privado" || rt.bathroom_type === "compartido" ? { bathroom: rt.bathroom_type } : {}),
     state: typeAvailabilityState(rt.profile_availability?.status),
+    // Por género solo si el tipo se ofrece en más de uno (con uno solo, el género ya figura en la línea del tipo).
+    ...(() => {
+      const offers = genderOffers(rt.profile_availability?.status, rt.genderRows);
+      return offers.length > 1
+        ? { genderOffers: offers.map((o) => ({ gender: o.gender, label: genderOfferLabel(rt.name, o.gender), state: o.state, note: o.note })) }
+        : {};
+    })(),
   }));
 
   // "Desde" = mínimo de los tipos NO completos (D3/H03; si todos están completos, el mínimo de todos).
@@ -592,7 +610,7 @@ export default async function RealResidenceDetailPage({
                 <div>
                   <h3 className="text-sm font-bold uppercase tracking-wide text-ink-faint">Servicios incluidos</h3>
                   <div className="mt-2">
-                    <AmenityGrid layout="chips" items={services.map((s) => ({ name: serviceLabel(s), ...getServiceIcon(s) }))} />
+                    <AmenityGrid layout="chips" items={services.map((s) => ({ name: amenityDisplayName(s, amenityDetails), ...getServiceIcon(s) }))} />
                   </div>
                 </div>
               )}
@@ -600,7 +618,7 @@ export default async function RealResidenceDetailPage({
                 <div>
                   <h3 className="text-sm font-bold uppercase tracking-wide text-ink-faint">Áreas comunes</h3>
                   <div className="mt-2">
-                    <AmenityGrid layout="chips" items={commonAreas.map((a) => ({ name: a, ...getCommonAreaIcon(a) }))} />
+                    <AmenityGrid layout="chips" items={commonAreas.map((a) => ({ name: amenityDisplayName(a, amenityDetails), ...getCommonAreaIcon(a) }))} />
                   </div>
                 </div>
               )}

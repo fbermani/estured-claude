@@ -1550,3 +1550,37 @@ Decisión del dueño. Amplía DR4 (qué ve el familiar vinculado) y completa la 
 **Supuestos reversibles (docs/13 §4):** 7 días de plazo, recordatorio a los 3, la residencia no se entera del rechazo ni del vencimiento, la invitación sigue abierta tras rechazo/vencimiento.
 
 **Docs actualizados:** este registro; `docs/04` §16.4; `docs/06` (tablas nuevas); `docs/10` §9.1bis; `GAPS.md`.
+
+### DR33: disponibilidad por tipo y género, gestionada solo desde Disponibilidad (2026-11-03, migración 0075)
+
+**Decisión del dueño.** La disponibilidad se informa **por tipo de habitación y género** («Dobles masculinas / femeninas / mixtas»), calculada desde las habitaciones y camas ya cargadas (con su género); la residencia solo confirma o ajusta.
+
+**Reglas.**
+1. **Un solo lugar:** la disponibilidad se gestiona **solo** en la pantalla Disponibilidad (permiso `operations.rooms_availability`). Habitaciones queda para cada habitación en particular (nombre, género, camas) y ya no edita disponibilidad ni contadores.
+2. **Por fila (tipo + género):** estado (disponible / completa / pausada), cantidad, «disponible desde» y nota pública. El valor inicial se sugiere con las camas libres activas del género; la residencia lo ajusta. Las habitaciones sin género se muestran aparte, con aviso para definirlo en Habitaciones.
+3. **Resumen por tipo:** `profile_availability` sigue siendo una fila por tipo y se recalcula al guardar (algún género disponible → disponible; todos completos → completa; todos pausados → pausada). Lo que hacen solicitudes, reservas, lista de espera y vencimientos **no cambia** (siguen por tipo). El estado del tipo manda cuando es más restrictivo.
+4. **Cara al estudiante:** la ficha muestra cada género con su estado (copy solo de `StatusTag`) cuando el tipo tiene más de uno, y el catálogo ofrece «Doble femenina» / «Doble masculina» por separado. La solicitud sigue siendo por tipo (el género del estudiante no se pide: **supuesto reversible**, sin cambios de flujo).
+5. **Contadores automáticos:** una reserva confirmada o la salida de un residente ajustan el contador del TIPO (no saben el género); la pantalla avisa cuando el total del tipo se movió y hay que revisar cada género.
+
+**Docs actualizados:** este registro; `docs/06` §9.4.
+
+---
+
+### DR34: cambio de habitación dentro de la residencia (2026-11-03, migración 0076)
+
+**Decisión del dueño.** Un residente puede pedir cambiar de habitación **dentro de su misma residencia**, y la residencia puede anotar ese pedido por él. La preferencia (tipo, género, piso / nota libre) sirve de **filtro** para encontrar luego a esos residentes. Cuando se libera una plaza que coincide con un pedido pendiente, la residencia se entera **antes** de que se publique como disponible y elige qué hacer. Siempre sujeto a disponibilidad y a los costos que correspondan.
+
+**Reglas.**
+1. **Entidad propia (`room_change_requests`):** no es una solicitud, ni una renovación, ni «Quiero cambiar» (cambio de residencia), ni genera pago, fee, reserva ni factura. EstuRed **no cobra nada** en este flujo: solo queda **constancia del texto de costos** que el estudiante reconoció («asumo los costos que correspondan, que me informa y acuerda la residencia»). El copy no promete disponibilidad ni garantías.
+2. **Estados:** `pendiente` → `en gestión` (la residencia lo está viendo o ya ofreció una plaza) → `resuelta` o `cancelada`. La residencia mueve pendiente ⇄ en gestión y cierra; el estudiante puede **cancelar** mientras siga abierto. Un solo pedido abierto por estadía. Al terminar la estadía el pedido abierto se cancela solo.
+3. **Desde la residencia (Residentes → ficha → «Habitación y cama»):** opción «Solicita cambio de habitación» + preferencia (tipo, género, piso / nota, motivo). Pill de filtro «Piden otra habitación» (con sub-filtros por tipo y género; quien no pidió un tipo o género puntual aparece igual, «me da igual») y búsqueda por la nota. Permiso: `residents.manage` (DR11), sin permiso nuevo.
+4. **Desde el estudiante (Mi residencia → «Cambio de habitación»):** botón «Pedir cambio de habitación» con preferencia, motivo y la confirmación del texto de costos. Solo para **su propia estadía activa** (la lee el servidor, no el formulario). El pedido llega a la residencia y aparece en la misma lista y filtro.
+5. **Plaza liberada por decidir (`room_change_place_alerts`):** si una plaza se libera (salida de un residente, cambio de cama —queda libre la cama que dejó—, cama o habitación que vuelve a estar en servicio) y coincide con algún pedido **pendiente**, se crea un aviso por decidir y se notifica al equipo con `residents.manage` (campana y mail genérico, sin datos del residente). Mientras está abierto, **la plaza no se publica sola**: en una salida, el +1 automático de disponibilidad del tipo (DR33 pto 5) queda **diferido**. Sin coincidencia, todo sigue como antes. La residencia elige: **ofrecérsela** a un residente que coincide (su pedido pasa a «en gestión» con la plaza y se le avisa; si después se lo reubica en esa cama, el pedido queda resuelto), **ignorar** (cierra el aviso, no publica ni avisa a nadie; la plaza se puede cargar desde Disponibilidad) o **publicar como disponible** (repone el +1 diferido; exige `operations.rooms_availability`, porque toca la disponibilidad).
+6. **Coincidencia:** preferencia nula = cualquiera; si pidió género, la plaza tiene que tener ese género (una plaza sin género definido no avisa); no se avisa a quien dejó la plaza ni por pedidos ya en gestión. Una nota libre sola no se puede comparar: se trata como «me da igual» y la residencia la lee en la ficha.
+7. **Menores (DR32):** necesitan un familiar vinculado activo para pedir (misma regla que «Quiero cambiar»); el familiar recibe aviso de cada paso. **Supuesto reversible:** no se pide confirmación formal del tutor porque el pedido es dentro de la misma residencia y no cambia contrato ni reserva.
+8. **Datos:** auditoría (`room_change_requested`, `room_change_updated`, `room_change_status_changed`, `room_change_cancelled_by_student`, `room_change_place_offered` / `_ignored` / `_published`), RLS fail-closed con lectura por columna, solo service role escribe. El código degrada si falta la migración (sin bloque ni opción; las salidas siguen reponiendo la disponibilidad como antes).
+
+**Interpretaciones a confirmar (reversibles).** «Fuera de servicio» como punto de liberación se interpreta como la **reactivación** de una cama o habitación (hoy no se puede sacar de servicio con residentes). «Ignorar» no publica la plaza (el desvío entre camas libres y el contador se ve en Disponibilidad, DR33). Nunca se publica ni se ofrece una plaza sin que la residencia lo decida.
+
+**Docs actualizados:** este registro; `docs/06` §15.1ter.
+

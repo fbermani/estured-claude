@@ -5,6 +5,7 @@ import { assertResidencePermission } from "@/lib/residences/access";
 import { can } from "@/lib/residences/permissions";
 import { incrementAvailabilityOnRelease } from "@/lib/availability/incrementAvailabilityOnRelease";
 import { expireStayChangeIntentsOnStayEnded } from "@/lib/jobs/expireStayChangeIntents";
+import { closeRequestsOnStayEnded, registerFreedPlace } from "@/lib/roomChange/freedPlace";
 import { finalizeEarlyExit, prepareEarlyExit, rollbackEarlyExitRecord, saveEarlyExitRecord, type EarlyExitInput, type PreparedEarlyExit } from "@/lib/stayChange/recordEarlyExit";
 
 export type EndResidentStayResult = { ok: true; warning?: string } | { ok: false; error: string };
@@ -32,7 +33,7 @@ export async function endResidentStay(
 ): Promise<EndResidentStayResult> {
   const { data: stay } = await admin
     .from("resident_stays")
-    .select("id, residence_id, is_current, room_type_id, student_profile_id, reservation_id, status")
+    .select("id, residence_id, is_current, room_type_id, room_id, bed_id, student_profile_id, reservation_id, status")
     .eq("id", params.residentStayId)
     .maybeSingle();
   if (!stay) return { ok: false, error: "No encontramos esa estadía." };
@@ -83,8 +84,22 @@ export async function endResidentStay(
   // disponibilidad» (DR11): quien cierra solo con `residents.manage` cierra la estadía (supuesto DR11 (b): «Liberar plaza» exige residentes)
   // pero NO modifica la disponibilidad, y se le avisa.
   let warning: string | undefined;
+  // DR34: su pedido de cambio de habitación (si tenía) se cierra solo.
+  await closeRequestsOnStayEnded(admin, { residenceId: stay.residence_id, residentStayId: stay.id });
   if (stay.room_type_id && OCCUPYING_STAY_STATUSES.includes(String(stay.status))) {
-    if (can(access.membership, "operations.rooms_availability")) {
+    // DR34: si la plaza que queda libre coincide con el pedido pendiente de otro residente, la residencia decide ANTES de que se publique como
+    // disponible (ofrecérsela a ese residente, ignorar o publicarla): el +1 queda diferido hasta esa decisión. Sin coincidencia, todo sigue igual.
+    const held = await registerFreedPlace(admin, {
+      residenceId: stay.residence_id,
+      source: "stay_ended",
+      bedId: (stay.bed_id as string | null) ?? null,
+      roomTypeId: stay.room_type_id as string,
+      freedByStayId: stay.id,
+      deferredIncrement: true,
+    });
+    if (held.held) {
+      // Nada que reponer todavía: la decisión (y el +1, si se publica) la toma la residencia desde Residentes.
+    } else if (can(access.membership, "operations.rooms_availability")) {
       await incrementAvailabilityOnRelease(admin, stay.room_type_id, stay.residence_id);
     } else {
       warning = AVAILABILITY_NOT_UPDATED_WARNING;

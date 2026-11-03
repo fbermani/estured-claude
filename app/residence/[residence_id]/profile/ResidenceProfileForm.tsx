@@ -1,5 +1,6 @@
 "use client";
 
+import { CLEANING_PER_WEEK_MAX, CLEANING_SERVICE, KITCHENS_MAX, KITCHEN_AREA, amenityDisplayName, type AmenityDetails } from "@/lib/residences/amenityDetails";
 import { formatDate } from "@/lib/dates/format";
 import Image from "next/image";
 import { useActionState, useMemo, useState } from "react";
@@ -102,6 +103,8 @@ interface ProfileInitial {
   status: string;
   services: string[];
   commonAreas: string[];
+  /** 0073: cantidad de cocinas compartidas y frecuencia de la limpieza general (vacío si no hay o falta la columna). */
+  amenityDetails: AmenityDetails;
   nearUniversities: string[];
   rulesSummary: string;
   rulesFileName: string | null;
@@ -116,6 +119,8 @@ interface ProfileInitial {
   photoRoomTypes: { id: string; name: string }[];
   photoMetaReady: boolean;
   photoSectionsReady: boolean;
+  /** Migración 0074 (orden de portada). */
+  photoCoverReady: boolean;
   /** DR18 t3 (migración 0060): promociones de tarifa y si las opciones nuevas de dinero ya se pueden guardar. */
   promotions: PromotionItem[];
   moneyReady: boolean;
@@ -197,8 +202,8 @@ const PROFILE_SECTIONS = [
   { id: "perfil-reglas", label: "Reglas" },
   { id: "perfil-faq", label: "Preguntas" },
   { id: "perfil-universidades", label: "Universidades" },
-  { id: "perfil-fotos", label: "Fotos" },
   { id: "perfil-habitaciones", label: "Habitaciones" },
+  { id: "perfil-fotos", label: "Fotos" },
   { id: "perfil-condiciones", label: "Condiciones" },
 ];
 
@@ -224,6 +229,11 @@ export function ResidenceProfileForm({
   const [description, setDescription] = useState(initial.description);
   const [services, setServices] = useState<Set<string>>(new Set(initial.services));
   const [commonAreas, setCommonAreas] = useState<Set<string>>(new Set(initial.commonAreas));
+  const [kitchens, setKitchens] = useState<number>(initial.amenityDetails.kitchens ?? 1);
+  const [cleaningMode, setCleaningMode] = useState<"daily" | "weekly">(initial.amenityDetails.cleaningGeneral?.mode ?? "daily");
+  const [cleaningPerWeek, setCleaningPerWeek] = useState<number>(
+    initial.amenityDetails.cleaningGeneral?.mode === "weekly" ? initial.amenityDetails.cleaningGeneral.perWeek : 3,
+  );
   const [nearUniversities, setNearUniversities] = useState<Set<string>>(
     new Set(initial.nearUniversities),
   );
@@ -236,6 +246,10 @@ export function ResidenceProfileForm({
     initial.customAmenities,
   );
   const [customDraft, setCustomDraft] = useState<Record<CustomAmenityKind, string>>({ service: "", area: "" });
+  const previewDetails: AmenityDetails = {
+    kitchens,
+    cleaningGeneral: cleaningMode === "daily" ? { mode: "daily" } : { mode: "weekly", perWeek: cleaningPerWeek },
+  };
   const pendingCustomCount = customItems.filter((i) => i.status === "pending").length;
 
   function addCustomItem(kind: CustomAmenityKind) {
@@ -309,7 +323,8 @@ export function ResidenceProfileForm({
     initial.roomTypes.length > 0 ? initial.roomTypes : [emptyRoomType()],
   );
   const [conditions, setConditions] = useState<ConditionsDraft>(initial.conditions);
-  const [newPhotoCount, setNewPhotoCount] = useState(0);
+  // Fotos del editor de la galería (se suben y se aprueban por su cuenta, no con el guardado del perfil).
+  const [photoCounts, setPhotoCounts] = useState({ total: initial.photos.length, approved: initial.photos.filter((p) => !p.pending).length });
 
   function updateConditions(patch: Partial<ConditionsDraft>) {
     setConditions((prev) => ({ ...prev, ...patch }));
@@ -357,10 +372,10 @@ export function ResidenceProfileForm({
         commonAreas: commonAreas.size,
         rulesSummary,
         nearUniversities: nearUniversities.size,
-        photos: initial.photos.length + newPhotoCount,
+        photos: photoCounts.total,
         roomTypesOk: roomTypes.length > 0 && roomTypes.every((rt) => rt.monthlyPriceUsd > 0),
       }),
-    [tagline, description, services, commonAreas, rulesSummary, nearUniversities, roomTypes, newPhotoCount, initial.photos.length],
+    [tagline, description, services, commonAreas, rulesSummary, nearUniversities, roomTypes, photoCounts.total],
   );
   const strengthSuggestion = profileStrengthSuggestion(strength);
 
@@ -630,6 +645,33 @@ export function ResidenceProfileForm({
                 </label>
               ))}
             </div>
+            {services.has(CLEANING_SERVICE) && (
+              <fieldset className="mt-4 rounded-field border border-sand-200 bg-sand-50 p-3">
+                <legend className="px-1 text-xs font-semibold text-ink-soft">Frecuencia de la limpieza general</legend>
+                <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-ink">
+                  <label className="max-lg:min-h-11 flex items-center gap-2">
+                    <input type="radio" name="amenity_cleaning_mode" value="daily" checked={cleaningMode === "daily"} onChange={() => setCleaningMode("daily")} className="h-4 w-4 max-lg:size-5! accent-forest" />
+                    Todos los días
+                  </label>
+                  <label className="max-lg:min-h-11 flex items-center gap-2">
+                    <input type="radio" name="amenity_cleaning_mode" value="weekly" checked={cleaningMode === "weekly"} onChange={() => setCleaningMode("weekly")} className="h-4 w-4 max-lg:size-5! accent-forest" />
+                    <select
+                      name="amenity_cleaning_per_week"
+                      aria-label="Veces por semana"
+                      value={cleaningPerWeek}
+                      disabled={cleaningMode !== "weekly"}
+                      onChange={(e) => { setCleaningPerWeek(Number(e.target.value)); setCleaningMode("weekly"); }}
+                      className="rounded-field border border-sand-300 bg-white px-2 py-1 text-sm"
+                    >
+                      {Array.from({ length: CLEANING_PER_WEEK_MAX }, (_, i) => i + 1).map((n) => (
+                        <option key={n} value={n}>{n}</option>
+                      ))}
+                    </select>
+                    veces por semana
+                  </label>
+                </div>
+              </fieldset>
+            )}
             {renderCustomItems("service")}
           </Card>
 
@@ -647,10 +689,26 @@ export function ResidenceProfileForm({
                     onChange={() => toggle(commonAreas, setCommonAreas, a)}
                     className="h-4 w-4 max-lg:size-5! accent-forest"
                   />
-                  {a}
+                  {serviceLabel(a)}
                 </label>
               ))}
             </div>
+            {commonAreas.has(KITCHEN_AREA) && (
+              <div className="mt-4 flex flex-wrap items-center gap-2 rounded-field border border-sand-200 bg-sand-50 p-3 text-sm text-ink">
+                <label htmlFor="amenity_kitchens" className="font-semibold">Cantidad de cocinas compartidas</label>
+                <select
+                  id="amenity_kitchens"
+                  name="amenity_kitchens"
+                  value={kitchens}
+                  onChange={(e) => setKitchens(Number(e.target.value))}
+                  className="rounded-field border border-sand-300 bg-white px-2 py-1 text-sm"
+                >
+                  {Array.from({ length: KITCHENS_MAX }, (_, i) => i + 1).map((n) => (
+                    <option key={n} value={n}>{n}</option>
+                  ))}
+                </select>
+              </div>
+            )}
             {renderCustomItems("area")}
           </Card>
 
@@ -815,45 +873,6 @@ export function ResidenceProfileForm({
             </div>
           </Card>
 
-          {/* Galería de fotos */}
-          <Card id="perfil-fotos" className="p-6 max-lg:scroll-mt-14">
-            <h2 className="text-lg font-bold text-ink">Galería de Fotos</h2>
-            {initial.status !== "verified_active" && (
-              <PhotosRequirementNotice
-                count={initial.photos.filter((p) => !p.pending).length + newPhotoCount}
-              />
-            )}
-            <PhotoMetaManager
-              residenceId={residenceId}
-              initialItems={initial.photos}
-              roomTypes={initial.photoRoomTypes}
-              schemaReady={initial.photoMetaReady}
-              sectionsReady={initial.photoSectionsReady}
-              readOnly={readOnly}
-            />
-            <label
-              htmlFor="photos"
-              className="mt-4 flex cursor-pointer flex-col items-center justify-center gap-1 rounded-field border-2 border-dashed border-sand-300 bg-sand-50 px-4 py-8 text-center hover:border-forest"
-            >
-              <span className="text-sm font-semibold text-forest-700">
-                Arrastrá tus fotos aquí o hacé clic para subir
-              </span>
-              <span className="text-xs text-ink-faint">Soporta JPG, PNG, WebP. Máx 5MB por imagen.</span>
-              <input
-                id="photos"
-                name="photos"
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                multiple
-                className="hidden"
-                onChange={(e) => setNewPhotoCount(e.target.files?.length ?? 0)}
-              />
-            </label>
-            {newPhotoCount > 0 && (
-              <p className="mt-2 text-xs text-forest-700">{newPhotoCount} foto(s) lista(s) para subir.</p>
-            )}
-          </Card>
-
           {/* Tipos de habitación */}
           <Card id="perfil-habitaciones" className="p-6 max-lg:scroll-mt-14">
             <h2 className="text-lg font-bold text-ink">Tipos de Habitaciones</h2>
@@ -979,6 +998,26 @@ export function ResidenceProfileForm({
             >
               + Agregar tipo de habitación
             </button>
+          </Card>
+
+          {/* Galería de fotos: va después de los tipos de habitación porque sus secciones salen de las áreas comunes y de esos tipos */}
+          <Card id="perfil-fotos" className="p-6 max-lg:scroll-mt-14">
+            <h2 className="text-lg font-bold text-ink">Galería de Fotos</h2>
+            {initial.status !== "verified_active" && <PhotosRequirementNotice count={photoCounts.approved} />}
+            <PhotoMetaManager
+              residenceId={residenceId}
+              initialItems={initial.photos}
+              roomTypes={initial.photoRoomTypes}
+              unsavedRoomTypeNames={roomTypes
+                .filter((rt) => !rt.id && !initial.photoRoomTypes.some((p) => p.name === rt.name))
+                .map((rt) => rt.name)}
+              commonAreas={COMMON_AREA_OPTIONS.filter((a) => commonAreas.has(a))}
+              schemaReady={initial.photoMetaReady}
+              sectionsReady={initial.photoSectionsReady}
+              coverReady={initial.photoCoverReady}
+              readOnly={readOnly}
+              onCountsChange={setPhotoCounts}
+            />
           </Card>
 
           {/* Condiciones de Reserva — generales a todos los tipos (ref
@@ -1505,7 +1544,7 @@ export function ResidenceProfileForm({
               <div className="mt-2 flex flex-wrap gap-1">
                 {[...services].slice(0, 2).map((s) => (
                   <Badge key={s} tone="petrol">
-                    {s}
+                    {amenityDisplayName(s, previewDetails)}
                   </Badge>
                 ))}
                 {services.size > 2 && <Badge tone="neutral">+{services.size - 2}</Badge>}
@@ -1596,9 +1635,9 @@ function PhotosRequirementNotice({ count }: { count: number }) {
       </div>
       {!enough && (
         <p className="mt-2 text-xs leading-relaxed text-ink-soft">
-          Tienen que ser fotos propias (luz natural, ambientes comunes y una por tipo de habitación). Las que elegís
-          ahora cuentan recién al guardar, y para publicar el equipo de EstuRed considera solo las fotos ya cargadas y
-          aprobadas. Mientras tanto, tu residencia se muestra con una ilustración.
+          Tienen que ser fotos propias (luz natural, ambientes comunes y una por tipo de habitación). Para publicar el
+          equipo de EstuRed considera solo las fotos ya cargadas y aprobadas. Mientras tanto, tu residencia se muestra
+          con una ilustración.
         </p>
       )}
     </div>

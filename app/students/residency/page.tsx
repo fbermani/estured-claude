@@ -1,3 +1,4 @@
+import { amenityDisplayName, normalizeAmenityLists, parseAmenityDetails } from "@/lib/residences/amenityDetails";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getSupabaseServer } from "@/lib/supabase/server";
@@ -28,6 +29,8 @@ import { ExitStudentNoteForm } from "@/components/students/StayChangeInlineActio
 import { loadStudentStayChange, type StudentStayChangeView } from "@/lib/stayChange/load";
 import { getApprovedCustomAmenities } from "@/lib/residences/customAmenitiesDb";
 import { loadStayChangeEligibility } from "@/lib/stayChange/eligibility";
+import { RoomChangeCard } from "@/components/students/RoomChangeCard";
+import { loadStudentRoomChange, type StudentRoomChangeView } from "@/lib/roomChange/load";
 import { STAY_CHANGE_ADVANCE_HOURS } from "@/lib/stayChange/advanceGate";
 import { DEPOSIT_STATUS_LABELS, UNPAID_DISCLAIMER, type DepositReturnStatus } from "@/lib/stayChange/copy";
 
@@ -317,6 +320,7 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
   let renewalStatus: { label: string; tone: "amber" | "sage" | "neutral" | "danger" } | null = null;
   let services: string[] = [];
   let commonAreas: string[] = [];
+  let amenityDetails: ReturnType<typeof parseAmenityDetails> = {};
   let rulesSummary = "";
   let rulesPdfUrl: string | null = null;
   let community: Awaited<ReturnType<typeof getCommunityVisibility>> | null = null;
@@ -361,8 +365,13 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
     const sectionMap = Object.fromEntries((sections ?? []).map((s) => [s.section_type, s.content]));
     // DR18 t4: se suman los ítems «Otro» aprobados por EstuRed (pendientes y rechazados nunca se muestran).
     const approvedCustom = await getApprovedCustomAmenities(admin, residence.id);
-    services = [...((sectionMap.services as { items?: string[] } | undefined)?.items ?? []), ...approvedCustom.services];
-    commonAreas = [...((sectionMap.common_areas as { items?: string[] } | undefined)?.items ?? []), ...approvedCustom.areas];
+    ({ services, commonAreas } = normalizeAmenityLists({
+      services: [...((sectionMap.services as { items?: string[] } | undefined)?.items ?? []), ...approvedCustom.services],
+      commonAreas: [...((sectionMap.common_areas as { items?: string[] } | undefined)?.items ?? []), ...approvedCustom.areas],
+    }));
+    // 0073: si la columna aún no existe la consulta devuelve error y se muestra sin detalles.
+    const { data: detailsRow } = await admin.from("residences").select("amenity_details").eq("id", residence.id).maybeSingle();
+    amenityDetails = parseAmenityDetails((detailsRow as { amenity_details?: unknown } | null)?.amenity_details);
     rulesSummary = (sectionMap.rules as { summary?: string } | undefined)?.summary ?? "";
 
     if (rulesFile?.storage_path) {
@@ -440,6 +449,12 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
         advanceAtIso,
       };
     }
+  }
+  // Cambio de habitación (DR34): solo el estudiante, con estadía activa. Degrada a `null` (sin bloque) si falta la migración 0076.
+  let roomChange: StudentRoomChangeView | null = null;
+  if (admin && sessionUser?.roles.includes("student")) {
+    const { data: profile } = await admin.from("student_profiles").select("id").eq("user_id", sessionUser.id).maybeSingle();
+    if (profile?.id) roomChange = await loadStudentRoomChange(admin, profile.id as string);
   }
   const searchingChange =
     !!stayChange?.view && ["open_no_response", "open_responded", "open_expiring"].includes(stayChange.view.ui.key);
@@ -572,6 +587,8 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
             />
           )}
 
+          {roomChange && <RoomChangeCard view={roomChange} />}
+
           {residence?.description && (
             <section>
               <h2 className="text-xl font-bold text-ink">Sobre tu residencia</h2>
@@ -583,7 +600,7 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
             <section>
               <h2 className="text-xl font-bold text-ink">Servicios incluidos</h2>
               <div className="mt-4">
-                <AmenityGrid items={services.map((s) => ({ name: s, ...getServiceIcon(s) }))} />
+                <AmenityGrid items={services.map((s) => ({ name: amenityDisplayName(s, amenityDetails), ...getServiceIcon(s) }))} />
               </div>
             </section>
           )}
@@ -592,7 +609,7 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
             <section>
               <h2 className="text-xl font-bold text-ink">Áreas comunes</h2>
               <div className="mt-4">
-                <AmenityGrid items={commonAreas.map((a) => ({ name: a, ...getCommonAreaIcon(a) }))} />
+                <AmenityGrid items={commonAreas.map((a) => ({ name: amenityDisplayName(a, amenityDetails), ...getCommonAreaIcon(a) }))} />
               </div>
             </section>
           )}

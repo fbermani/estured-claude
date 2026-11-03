@@ -21,6 +21,10 @@ import { PermissionGate, PermissionNote } from "@/components/residences/Permissi
 import { StayChangeSection } from "@/app/residence/[residence_id]/residents/StayChangeSection";
 import { StayChangeResponseSheet } from "@/app/residence/[residence_id]/residents/StayChangeResponseSheet";
 import { EarlyExitForm } from "@/app/residence/[residence_id]/residents/EarlyExitForm";
+import { RoomChangeBlock } from "@/app/residence/[residence_id]/residents/RoomChangeBlock";
+import { RoomChangeAlertsCard } from "@/app/residence/[residence_id]/residents/RoomChangeAlertsCard";
+import type { PlaceAlertItem, ResidenceRoomChangeItem } from "@/lib/roomChange/load";
+import { describePreference, isOpenRoomChangeStatus, ROOM_CHANGE_GENDERS, ROOM_CHANGE_GENDER_LABEL } from "@/lib/roomChange/rules";
 import type { ResidenceStayChangeItem } from "@/lib/stayChange/load";
 import { dayBefore } from "@/lib/stayChange/ui";
 import {
@@ -65,6 +69,8 @@ export type ResidentRow = {
   studentProfileId: string | null;
   /** Depósito de la reserva vinculada: define las opciones al registrar una salida anticipada. */
   depositMode: "had" | "none" | "unknown";
+  /** Pedido de cambio de habitación dentro de la residencia (DR34): el abierto o, si no hay, el último cerrado. */
+  roomChange: ResidenceRoomChangeItem | null;
   /** Aviso "Quiero cambiar" abierto o resuelto de este residente (DR3). */
   stayChange: {
     intentId: string;
@@ -92,6 +98,8 @@ export type ResidentsData = {
   kpis: { active: number; arrivals: number; departures: number; renewals: number; seekingChange: number };
   notesByStay: Record<string, ResidentNote[]>;
   stayChanges: ResidenceStayChangeItem[];
+  /** DR34: plazas liberadas que coinciden con un pedido de cambio de habitación, por decidir. */
+  placeAlerts: PlaceAlertItem[];
   /** DR19 */
   linkRequests: LinkRequestItem[];
   unlinkedStays: UnlinkedStay[];
@@ -117,7 +125,7 @@ function timeAgo(isoStr: string): string {
 const NOTE_CATEGORY_LABEL: Record<ResidentNote["category"], string> = { general: "General", pagos: "Pagos" };
 
 type StatusKey = "activo" | "por_ingresar" | "por_salir" | "pendiente";
-type FilterKey = StatusKey | "todos" | "busca_cambiar";
+type FilterKey = StatusKey | "todos" | "busca_cambiar" | "cambio_habitacion";
 
 function statusOf(row: ResidentRow, todayStr: string, in30Str: string): StatusKey {
   if (row.pending) return "pendiente";
@@ -139,6 +147,7 @@ const FILTER_PILLS: { key: FilterKey; label: string }[] = [
   { key: "por_ingresar", label: "Por ingresar" },
   { key: "por_salir", label: "Por salir" },
   { key: "busca_cambiar", label: "Buscan cambiar" },
+  { key: "cambio_habitacion", label: "Piden otra habitación" },
   { key: "pendiente", label: "Pendientes" },
 ];
 
@@ -225,7 +234,10 @@ function DetailPanel({
   exitRequest,
   canResidents,
   canBeds,
+  roomTypes,
 }: {
+  /** Tipos de habitación de la residencia (para la preferencia del cambio de habitación, DR34). */
+  roomTypes: { id: string; name: string }[];
   /** DR11: `residents.manage` (altas, estadías, salidas, notas). */
   canResidents: boolean;
   /** DR11: `operations.rooms_availability` (cambiar la cama de un residente). */
@@ -367,8 +379,7 @@ function DetailPanel({
       </form>
       </PermissionGate>
 
-      {/* Habitación y cama */}
-      <PermissionGate bare allowed={canBeds}>
+      {/* Habitación y cama (+ cambio de habitación, DR34) */}
       <div className="rounded-field border border-line bg-paper p-4">
         <p className="mb-3 flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest text-muted">
           <Icon name="meeting_room" className="text-sm" /> Habitación y cama
@@ -376,6 +387,7 @@ function DetailPanel({
         <p className="text-sm font-semibold text-ink">
           {row.roomLabel ? `${row.roomLabel}${row.bedLetter ? ` · Cama ${row.bedLetter}` : ""}` : "Sin cama asignada"}
         </p>
+        <PermissionGate bare allowed={canBeds}>
         <form action={bedFormAction} className="mt-3">
           <select
             name="bed_id"
@@ -402,8 +414,11 @@ function DetailPanel({
         </form>
         {bedState.status === "error" && <p className="mt-2 text-xs font-medium text-danger-fg">{bedState.message}</p>}
         {bedState.status === "saved" && <p className="mt-2 text-xs font-medium text-success-fg">Reubicado.</p>}
+        </PermissionGate>
+        <PermissionGate bare allowed={canResidents}>
+          <RoomChangeBlock residenceId={residenceId} stayId={row.stayId} request={row.roomChange} roomTypes={roomTypes} />
+        </PermissionGate>
       </div>
-      </PermissionGate>
 
       {/* Renovación + zona de riesgo */}
       <div className="flex flex-col gap-4">
@@ -537,8 +552,14 @@ export function ResidentsBrowser({
 }) {
   const searchParams = useSearchParams();
   // `?filtro=buscan-cambiar` (enlace del Panel): arranca filtrado por los residentes que buscan cambiar.
-  const [filter, setFilter] = useState<FilterKey>(() => (searchParams.get("filtro") === "buscan-cambiar" ? "busca_cambiar" : "todos"));
+  const [filter, setFilter] = useState<FilterKey>(() => {
+    const param = searchParams.get("filtro");
+    return param === "buscan-cambiar" ? "busca_cambiar" : param === "cambio-habitacion" ? "cambio_habitacion" : "todos";
+  });
   const [search, setSearch] = useState("");
+  // Sub-filtros de «Piden otra habitación» (DR34): una preferencia vacía es «me da igual», así que también aparece cuando se filtra por un tipo o género.
+  const [changeType, setChangeType] = useState("");
+  const [changeGender, setChangeGender] = useState("");
   const [showAdd, setShowAdd] = useState(false);
   const [respondingId, setRespondingId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -574,15 +595,36 @@ export function ResidentsBrowser({
       const st = statusOf(row, todayStr, in30Str);
       if (filter === "busca_cambiar") {
         if (row.stayChange?.status !== "open") return false;
+      } else if (filter === "cambio_habitacion") {
+        const rc = row.roomChange;
+        if (!rc || !isOpenRoomChangeStatus(rc.status)) return false;
+        if (changeType && rc.roomTypeId && rc.roomTypeId !== changeType) return false;
+        if (changeGender && rc.gender && rc.gender !== changeGender) return false;
       } else if (filter !== "todos" && st !== filter) return false;
       if (!q) return true;
       return (
         row.name.toLowerCase().includes(q) ||
         (row.email ?? "").toLowerCase().includes(q) ||
-        (row.roomLabel ?? "").toLowerCase().includes(q)
+        (row.roomLabel ?? "").toLowerCase().includes(q) ||
+        (row.roomChange?.note ?? "").toLowerCase().includes(q)
       );
     });
-  }, [data.rows, filter, search, todayStr, in30Str]);
+  }, [data.rows, filter, search, changeType, changeGender, todayStr, in30Str]);
+
+  const openRoomChangeCount = useMemo(() => data.rows.filter((r) => r.roomChange && isOpenRoomChangeStatus(r.roomChange.status)).length, [data.rows]);
+  // Residentes con un pedido pendiente, para mostrar a quién se le puede ofrecer cada plaza liberada.
+  const alertResidents = useMemo(
+    () =>
+      data.rows
+        .filter((r) => r.roomChange && isOpenRoomChangeStatus(r.roomChange.status))
+        .map((r) => ({
+          requestId: r.roomChange!.id,
+          stayId: r.stayId,
+          name: r.name,
+          preference: describePreference({ typeName: r.roomChange!.roomTypeName, gender: r.roomChange!.gender, note: r.roomChange!.note }),
+        })),
+    [data.rows],
+  );
 
   const { kpis } = data;
 
@@ -650,6 +692,15 @@ export function ResidentsBrowser({
         <MetricCard icon="swap_horiz" label="Buscan cambiar" value={kpis.seekingChange} className={`col-span-2 lg:col-span-1 ${kpis.seekingChange > 0 ? "border-orange/50" : ""}`} />
       </div>
 
+      <RoomChangeAlertsCard
+        residenceId={residenceId}
+        alerts={data.placeAlerts}
+        residents={alertResidents}
+        canDecide={canManageResidents}
+        canPublish={canManageBeds}
+        onMessage={setToast}
+      />
+
       <StayChangeSection
         residenceId={residenceId}
         items={data.stayChanges}
@@ -685,10 +736,50 @@ export function ResidentsBrowser({
           options={FILTER_PILLS.map((p) => ({
             value: p.key,
             label: p.label,
-            count: p.key === "busca_cambiar" && kpis.seekingChange > 0 ? kpis.seekingChange : undefined,
+            count:
+              p.key === "busca_cambiar" && kpis.seekingChange > 0
+                ? kpis.seekingChange
+                : p.key === "cambio_habitacion" && openRoomChangeCount > 0
+                  ? openRoomChangeCount
+                  : undefined,
             attention: true,
           }))}
         />
+        {filter === "cambio_habitacion" && (
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <label className="block text-xs font-semibold text-ink-soft">
+              Tipo de habitación que buscan
+              <select
+                value={changeType}
+                onChange={(e) => setChangeType(e.target.value)}
+                className="mt-1 w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none"
+              >
+                <option value="">Todos</option>
+                {data.roomTypes.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="block text-xs font-semibold text-ink-soft">
+              Género de la habitación
+              <select
+                value={changeGender}
+                onChange={(e) => setChangeGender(e.target.value)}
+                className="mt-1 w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none"
+              >
+                <option value="">Todos</option>
+                {ROOM_CHANGE_GENDERS.map((g) => (
+                  <option key={g} value={g}>
+                    {ROOM_CHANGE_GENDER_LABEL[g]}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <p className="text-xs text-ink-faint sm:col-span-2">Incluye a quienes no pidieron un tipo o género puntual (les da igual). También podés buscar por piso o nota en el buscador.</p>
+          </div>
+        )}
       </div>
 
       {/* Tabla */}
@@ -700,6 +791,13 @@ export function ResidentsBrowser({
               icon="swap_horiz"
               title="Nadie está buscando cambiar"
               description="Cuando un residente avise que busca otro lugar, lo vas a ver acá y te va a llegar una notificación con su fecha estimada de salida. Así te enterás con tiempo, no el día que se va."
+            />
+          ) : filter === "cambio_habitacion" && !search.trim() && !changeType && !changeGender ? (
+            <EmptyState
+              tone="residence"
+              icon="swap_horiz"
+              title="Nadie pidió otra habitación"
+              description="Cuando un residente pida cambiar de habitación, o lo anotes vos desde su ficha en «Habitación y cama», lo vas a ver acá. Si se libera una plaza que coincide, te avisamos antes de publicarla."
             />
           ) : (
             <EmptyState
@@ -755,6 +853,16 @@ export function ResidentsBrowser({
                           <Icon name="swap_horiz" className="text-sm" /> Busca cambiar
                         </Badge>
                       )}
+                      {row.roomChange && isOpenRoomChangeStatus(row.roomChange.status) && (
+                        <Badge tone="sage">
+                          <Icon name="meeting_room" className="text-sm" /> Pide otra habitación
+                        </Badge>
+                      )}
+                      {filter === "cambio_habitacion" && row.roomChange && (
+                        <p className="basis-full text-xs text-ink-soft">
+                          Busca: {describePreference({ typeName: row.roomChange.roomTypeName, gender: row.roomChange.gender, note: row.roomChange.note })}
+                        </p>
+                      )}
                     </div>
                     <div className="col-start-2 flex items-center justify-between gap-3">
                       <span className="text-sm text-ink-soft">
@@ -781,6 +889,7 @@ export function ResidentsBrowser({
                       exitRequest={exitRequest}
                       canResidents={canManageResidents}
                       canBeds={canManageBeds}
+                      roomTypes={data.roomTypes}
                     />
                   )}
                 </li>
@@ -854,6 +963,16 @@ export function ResidentsBrowser({
                                 <Icon name="swap_horiz" className="text-sm" /> Busca cambiar
                               </Badge>
                             )}
+                            {row.roomChange && isOpenRoomChangeStatus(row.roomChange.status) && (
+                              <Badge tone="sage">
+                                <Icon name="meeting_room" className="text-sm" /> Pide otra habitación
+                              </Badge>
+                            )}
+                            {filter === "cambio_habitacion" && row.roomChange && (
+                              <p className="basis-full text-xs text-ink-soft">
+                                Busca: {describePreference({ typeName: row.roomChange.roomTypeName, gender: row.roomChange.gender, note: row.roomChange.note })}
+                              </p>
+                            )}
                           </div>
                         </td>
                         <td className="whitespace-nowrap px-4 py-3 text-ink-soft">{formatDate(row.expectedEndDate)}</td>
@@ -893,6 +1012,7 @@ export function ResidentsBrowser({
                               exitRequest={exitRequest}
                               canResidents={canManageResidents}
                               canBeds={canManageBeds}
+                              roomTypes={data.roomTypes}
                             />
                           </td>
                         </tr>

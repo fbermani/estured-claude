@@ -1,3 +1,4 @@
+import { policyOfferLabel } from "@/lib/availability/genderAvailability";
 import Link from "next/link";
 import type { Residence } from "@/types/domain";
 import { Card } from "@/components/ui/Card";
@@ -89,8 +90,8 @@ export function ResidenceCard({
           <div className="flex flex-wrap items-center gap-1.5">
             {availableTypes.length > 0 ? (
               availableTypes.map((rt) => (
-                <Badge key={rt.type} tone="petrol">
-                  {rt.type}
+                <Badge key={`${rt.type}-${rt.gender ?? "todos"}`} tone="petrol">
+                  {policyOfferLabel(rt.type, rt.gender)}
                 </Badge>
               ))
             ) : residence.availabilityHint === "waitlist" ? (

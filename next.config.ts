@@ -16,6 +16,8 @@ const nextConfig: NextConfig = {
       { source: "/waitlist", destination: "/search", permanent: false },
     ];
   },
+  // Galería de fotos del perfil de residencia: cada foto (hasta 5 MB) viaja en una server action; el límite por defecto (1 MB) la cortaría.
+  experimental: { serverActions: { bodySizeLimit: "6mb" } },
   images: {
     remotePatterns: [
       {

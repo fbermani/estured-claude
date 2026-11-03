@@ -7,6 +7,7 @@ import { can } from "@/lib/residences/permissions";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 import { loadChangesMessage } from "@/lib/residences/loadChangesMessage";
 import { initialPaymentConfigFromRow } from "@/lib/reservations/initialPayment";
+import { normalizeAmenityLists, parseAmenityDetails } from "@/lib/residences/amenityDetails";
 import { listCustomAmenities } from "@/lib/residences/customAmenitiesDb";
 import { loadCurrentRegulation } from "@/lib/regulations/current";
 import { loadPhotoMeta } from "@/lib/residences/photoMetaDb";
@@ -99,6 +100,7 @@ export default async function ResidenceProfilePage({
       featured: m?.is_featured === true,
       section: m?.section ?? null,
       sortOrder: m?.sort_order ?? 0,
+      coverOrder: m?.cover_order ?? null,
     };
   });
   photoItems.sort((a, b) => a.sortOrder - b.sortOrder); // estable: a igual orden, la antigüedad
@@ -118,8 +120,11 @@ export default async function ResidenceProfilePage({
         zone: residence.public_area ?? "",
         description: residence.description ?? "",
         status: residence.status,
-        services: (sectionMap.services?.items as string[]) ?? [],
-        commonAreas: (sectionMap.common_areas?.items as string[]) ?? [],
+        ...normalizeAmenityLists({
+          services: (sectionMap.services?.items as string[]) ?? [],
+          commonAreas: (sectionMap.common_areas?.items as string[]) ?? [],
+        }),
+        amenityDetails: parseAmenityDetails((residence as { amenity_details?: unknown }).amenity_details),
         nearUniversities: (sectionMap.near_universities?.items as string[]) ?? [],
         rulesSummary: (sectionMap.rules?.summary as string) ?? "",
         rulesFileName: rulesFile?.filename ?? null,
@@ -137,6 +142,7 @@ export default async function ResidenceProfilePage({
         photoRoomTypes: (roomTypes ?? []).map((rt) => ({ id: rt.id as string, name: rt.name as string })),
         photoMetaReady: photoMeta.schemaReady,
         photoSectionsReady: photoMeta.sectionsReady,
+        photoCoverReady: photoMeta.coverReady,
         // DR18 t3 (0060): las opciones de dinero se habilitan cuando existe `deposit_mode` y la tabla de promociones.
         moneyReady: promotionsRes.schemaReady && "deposit_mode" in residence,
         promotions: promotionsRes.promotions.map((p) => ({

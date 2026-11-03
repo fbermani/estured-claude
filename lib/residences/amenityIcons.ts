@@ -39,7 +39,7 @@ const COMMON_AREA_RULES: { keywords: string[]; icon: string; description: string
   { keywords: ["cine"], icon: "theaters", description: "Sala de cine para residentes." },
   { keywords: ["balcón", "balcon"], icon: "balcony", description: "Balcón de uso compartido." },
   { keywords: ["gimnasio", "gym"], icon: "fitness_center", description: "Gimnasio disponible dentro de la residencia." },
-  { keywords: ["cocina"], icon: "kitchen", description: "Cocina equipada disponible para residentes." },
+  { keywords: ["cocina"], icon: "kitchen", description: "Cocina compartida disponible para residentes." },
 ];
 
 function resolve(name: string, rules: { keywords: string[]; icon: string; description: string }[], fallbackIcon: string): AmenityMeta {

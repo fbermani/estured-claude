@@ -19,7 +19,9 @@ export type ResidenceTeamEvent = "new_application" | "new_waitlist_entry" | "new
   | "team_member_joined"
   | "custom_amenity_approved"
   | "custom_amenity_rejected"
-  | "new_resident_link_request";
+  | "new_resident_link_request"
+  | "new_room_change_request"
+  | "room_change_place_matched";
 
 /**
  * DR10: estos avisos van SOLO al dueño. El staff no puede actuar sobre ellos (la verificación y el equipo son del dueño),
@@ -46,6 +48,9 @@ export const PERMISSION_BY_EVENT: Partial<Record<ResidenceTeamEvent, ResidencePe
   custom_amenity_rejected: "profile.edit",
   // DR19: un estudiante alojado pide vincularse a la residencia; lo resuelve quien tiene `residents.manage`.
   new_resident_link_request: "residents.manage",
+  // DR34: pedidos de cambio de habitación y plazas liberadas que coinciden con uno; los resuelve quien tiene `residents.manage`.
+  new_room_change_request: "residents.manage",
+  room_change_place_matched: "residents.manage",
 };
 
 const ENTITY_BY_EVENT: Record<ResidenceTeamEvent, string> = {
@@ -62,6 +67,8 @@ const ENTITY_BY_EVENT: Record<ResidenceTeamEvent, string> = {
   custom_amenity_approved: "residences",
   custom_amenity_rejected: "residences",
   new_resident_link_request: "residences",
+  new_room_change_request: "room_change_requests",
+  room_change_place_matched: "room_change_place_alerts",
 };
 
 function pathFor(event: ResidenceTeamEvent, residenceId: string, entityId: string): string {
@@ -84,6 +91,9 @@ function pathFor(event: ResidenceTeamEvent, residenceId: string, entityId: strin
       return `/residence/${residenceId}/profile`;
     case "new_resident_link_request":
       return `/residence/${residenceId}/residents`;
+    case "new_room_change_request":
+    case "room_change_place_matched":
+      return `/residence/${residenceId}/residents?filtro=cambio-habitacion`;
   }
 }
 
@@ -128,6 +138,23 @@ export function buildResidenceTeamMessage(
         subject: "EstuRed: solicitud de vínculo de un residente",
         intro: `Alguien dice vivir en ${residenceName} y pidió vincular su cuenta. Nada se vincula hasta que lo apruebes.`,
         cta: "Ver solicitudes de vínculo",
+      };
+    // DR34: sin nombre ni preferencia del residente (el email viaja por un tercero); el detalle se ve en Residentes. No promete disponibilidad.
+    case "new_room_change_request":
+      return {
+        title: `Un residente pidió cambiar de habitación en ${residenceName}`,
+        body: "Revisá el pedido en Residentes. Queda sujeto a la disponibilidad de la residencia.",
+        subject: "EstuRed: un residente pidió cambiar de habitación",
+        intro: `Un residente de ${residenceName} pidió cambiar de habitación. Quedó anotado en Residentes, sujeto a la disponibilidad de la residencia.`,
+        cta: "Ver el pedido",
+      };
+    case "room_change_place_matched":
+      return {
+        title: `Se liberó una plaza que busca un residente de ${residenceName}`,
+        body: "Todavía no la publicamos como disponible. Elegí si se la ofrecés a ese residente, la ignorás o la publicás.",
+        subject: "EstuRed: se liberó una plaza que busca un residente",
+        intro: `Se liberó una plaza de ${residenceName} que coincide con el pedido de un residente. Todavía no la publicamos como disponible: elegí qué hacer desde Residentes.`,
+        cta: "Decidir qué hacer",
       };
     case "changes_requested":
       // Ciclo 66 (DR5): sin el mensaje del admin (el email viaja por un tercero); el detalle se ve en el panel.

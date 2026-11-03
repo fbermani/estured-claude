@@ -14,11 +14,12 @@ import {
   setRoomGenderAction,
   setBedStatusAction,
   assignStayToBedAction,
+  setRoomsGenderBulkAction,
+  setRoomOutOfServiceAction,
   type RoomsActionState,
 } from "@/app/residence/[residence_id]/rooms/actions";
 import { ROOM_GENDER_LABEL, policyFromGender, type RoomGender } from "@/lib/residences/roomGender";
 import { endResidentStayAction } from "@/app/residence/[residence_id]/residents/actions";
-import { AvailabilityForm } from "@/app/residence/[residence_id]/availability/AvailabilityForm";
 
 export type BedData = {
   id: string;
@@ -37,13 +38,6 @@ export type BedData = {
 
 export type RoomData = { id: string; label: string; gender: RoomGender; beds: BedData[] };
 
-export type AvailabilityData = {
-  status: string;
-  availableCount: number | null;
-  availableFrom: string | null;
-  notesPublic: string | null;
-};
-
 export type RoomsData = {
   groups: {
     id: string;
@@ -53,7 +47,6 @@ export type RoomsData = {
     capacityPerRoom: number;
     priceUsd: number;
     rooms: RoomData[];
-    availability: AvailabilityData | null;
   }[];
   unassigned: { stayId: string; name: string; pending: boolean; roomTypeId: string | null }[];
   kpis: {
@@ -71,7 +64,7 @@ export type RoomsData = {
 const initialState: RoomsActionState = { status: "idle" };
 
 /**
- * Permisos de quien mira (DR11), resueltos en el servidor: `rooms` = habitaciones, camas y disponibilidad; `residents` = liberar plaza
+ * Permisos de quien mira (DR11), resueltos en el servidor: `rooms` = habitaciones y camas (la disponibilidad se gestiona en su propia pantalla); `residents` = liberar plaza
  * (cerrar una estadía). Por defecto TODO apagado (falla cerrado). Solo presentación: el servidor valida cada acción por su cuenta.
  */
 type RoomsPermissions = { rooms: boolean; residents: boolean };
@@ -372,26 +365,127 @@ function BedRow({
   );
 }
 
+/** Saca de servicio (o reactiva) la habitación entera: todas sus camas, con una razón. No toca la disponibilidad publicada. */
+function RoomOutOfServiceForm({ residenceId, room }: { residenceId: string; room: RoomData }) {
+  const allOut = room.beds.length > 0 && room.beds.every((b) => b.status === "out_of_service");
+  const action = setRoomOutOfServiceAction.bind(null, residenceId, room.id, !allOut);
+  const [state, formAction, isPending] = useActionState(action, initialState);
+  if (room.beds.length === 0) return null;
+  return (
+    <form action={formAction}>
+      <p className="text-sm font-bold text-ink">{allOut ? "Habitación fuera de servicio" : "Sacar de servicio"}</p>
+      {allOut ? (
+        <p className="mt-0.5 text-xs text-ink-faint">{room.beds.find((b) => b.reason)?.reason ?? "Todas sus camas están fuera de servicio."}</p>
+      ) : (
+        <>
+          <p className="mt-0.5 text-xs text-ink-faint">Marca todas las camas como fuera de servicio (no cuentan como lugar libre).</p>
+          <input
+            name="reason"
+            maxLength={200}
+            placeholder="Razón (ej. Mantenimiento)"
+            aria-label="Razón de la baja de servicio"
+            className="mt-2 w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none"
+          />
+        </>
+      )}
+      <button
+        type="submit"
+        disabled={isPending}
+        className="mt-2 cursor-pointer rounded-full border-[1.5px] border-line px-4 py-2 text-sm font-bold text-ink-soft hover:border-forest hover:text-forest-700"
+      >
+        {isPending ? "…" : allOut ? "Reactivar habitación" : "Sacar de servicio"}
+      </button>
+      {state.status === "error" && <p className="mt-1.5 text-xs font-medium text-danger-fg">{state.message}</p>}
+    </form>
+  );
+}
+
+/** Barra de edición en lote: mismo género para las habitaciones elegidas. */
+function BulkGenderBar({
+  residenceId,
+  selectedIds,
+  anyShared,
+  onDone,
+  onCancel,
+}: {
+  residenceId: string;
+  selectedIds: string[];
+  anyShared: boolean;
+  onDone: () => void;
+  onCancel: () => void;
+}) {
+  const action = setRoomsGenderBulkAction.bind(null, residenceId);
+  const [state, formAction, isPending] = useActionState(action, initialState);
+  const options: RoomGender[] = anyShared ? ["masculino", "femenino", "mixto"] : ["masculino", "femenino", "mixto", "sin_especificar"];
+  useEffect(() => {
+    if (state.status === "saved") onDone();
+    // `onDone` cambia en cada render del padre: solo importa el resultado de la acción.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state]);
+  return (
+    <form
+      action={formAction}
+      className="sticky bottom-3 z-30 mt-4 flex flex-wrap items-center gap-3 rounded-card border-[1.5px] border-forest bg-paper p-3 shadow-float"
+    >
+      {selectedIds.map((id) => (
+        <input key={id} type="hidden" name="room_id" value={id} />
+      ))}
+      <p className="text-sm font-bold text-ink">
+        {selectedIds.length} {selectedIds.length === 1 ? "habitación elegida" : "habitaciones elegidas"}
+      </p>
+      <label className="flex items-center gap-2 text-sm text-ink-soft">
+        Género
+        <select
+          name="gender"
+          defaultValue="mixto"
+          className="rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none"
+        >
+          {options.map((o) => (
+            <option key={o} value={o}>
+              {ROOM_GENDER_LABEL[o]}
+            </option>
+          ))}
+        </select>
+      </label>
+      <button
+        type="submit"
+        disabled={isPending || selectedIds.length === 0}
+        className="cursor-pointer rounded-full bg-forest px-5 py-2 text-sm font-bold text-white hover:bg-forest-600 disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {isPending ? "Aplicando…" : "Aplicar género"}
+      </button>
+      <button
+        type="button"
+        onClick={onCancel}
+        className="cursor-pointer rounded-full border-[1.5px] border-line px-4 py-2 text-sm font-bold text-ink-soft hover:border-forest hover:text-forest-700"
+      >
+        Cancelar
+      </button>
+      {state.status === "error" && (
+        <p role="alert" className="basis-full text-xs font-medium text-danger-fg">
+          {state.message}
+        </p>
+      )}
+    </form>
+  );
+}
+
 function RoomModal({
   residenceId,
   room,
-  roomTypeId,
   typeName,
   capacity,
   priceUsd,
   arsPerUsd,
-  availability,
   unassigned,
   onClose,
 }: {
   residenceId: string;
   room: RoomData;
-  roomTypeId: string;
   typeName: string;
   capacity: number;
   priceUsd: number;
   arsPerUsd: number;
-  availability: AvailabilityData | null;
   unassigned: RoomsData["unassigned"];
   onClose: () => void;
 }) {
@@ -423,7 +517,7 @@ function RoomModal({
         <div className="grid flex-1 gap-6 overflow-y-auto p-6 sm:grid-cols-[260px_1fr]">
           <fieldset disabled={!perms.rooms} className="m-0 min-w-0 space-y-5 border-0 p-0">
             <p className="text-[10px] font-extrabold uppercase tracking-widest text-muted">Configuración</p>
-            {!perms.rooms && <PermissionNote text="No tenés permiso para editar habitaciones, camas ni disponibilidad. Pedile este permiso al dueño." />}
+            {!perms.rooms && <PermissionNote text="No tenés permiso para editar habitaciones ni camas. Pedile este permiso al dueño." />}
             <RenameForm residenceId={residenceId} room={room} />
             <GenderForm residenceId={residenceId} room={room} shared={capacity > 1} />
             <div>
@@ -444,22 +538,14 @@ function RoomModal({
             <p className="rounded-field bg-cream-2 px-3 py-2.5 text-xs leading-relaxed text-ink-soft">
               Una cama fuera de servicio no se cuenta como lugar libre.
             </p>
-            <div>
-              <p className="text-sm font-bold text-ink">Disponibilidad publicada</p>
-              <p className="mt-0.5 text-xs text-ink-faint">Se aplica a todo el tipo &ldquo;{typeName}&rdquo;, no solo a esta habitación.</p>
-              {availability ? (
-                <AvailabilityForm
-                  residenceId={residenceId}
-                  roomTypeId={roomTypeId}
-                  currentStatus={availability.status}
-                  currentAvailableCount={availability.availableCount}
-                  currentAvailableFrom={availability.availableFrom}
-                  currentNotesPublic={availability.notesPublic}
-                />
-              ) : (
-                <p className="mt-2 text-xs text-ink-faint">Todavía no se cargó disponibilidad para este tipo.</p>
-              )}
-            </div>
+            <RoomOutOfServiceForm residenceId={residenceId} room={room} />
+            <p className="text-xs leading-relaxed text-ink-faint">
+              Lo que se ofrece a los estudiantes (cuántos lugares, desde cuándo, por género) se informa en{" "}
+              <Link href={`/residence/${residenceId}/availability`} className="font-semibold text-forest-700 hover:underline">
+                Disponibilidad
+              </Link>
+              .
+            </p>
           </fieldset>
 
           <div>
@@ -512,6 +598,15 @@ export function RoomsBrowser({
   const [search, setSearch] = useState("");
   const [onlyVacant, setOnlyVacant] = useState(false);
   const [openRoomId, setOpenRoomId] = useState<string | null>(null);
+  // Edición en lote del género: se eligen habitaciones con casillas y se aplica el mismo género a todas.
+  const [bulkMode, setBulkMode] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const toggleSelected = (ids: string[], on: boolean) =>
+    setSelected((prev) => (on ? new Set([...prev, ...ids]) : new Set([...prev].filter((id) => !ids.includes(id)))));
+  const stopBulk = () => {
+    setBulkMode(false);
+    setSelected(new Set());
+  };
 
   // Accesibilidad: el modal de gestión debe poder cerrarse con teclado, no solo clickeando afuera.
   useEffect(() => {
@@ -569,7 +664,7 @@ export function RoomsBrowser({
 
   return (
     <div className="tone-residence mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
-      <PageHero tone="residence" eyebrow="Habitaciones" eyebrowIcon="meeting_room" title="Habitaciones" subtitle="Disponibilidad y tarifas, en un pantallazo." glyph="bed" className="mb-6" />
+      <PageHero tone="residence" eyebrow="Habitaciones" eyebrowIcon="meeting_room" title="Habitaciones" subtitle="Tus habitaciones, camas y ocupación, en un pantallazo." glyph="bed" className="mb-6" />
 
       {/* KPIs — ref: Habitaciones/Plazas · Ocupación · Vacantes · Movimientos */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -675,6 +770,19 @@ export function RoomsBrowser({
           />
           Solo vacantes
         </label>
+        {canManageRooms && (
+          <button
+            type="button"
+            onClick={() => (bulkMode ? stopBulk() : setBulkMode(true))}
+            aria-pressed={bulkMode}
+            className={`flex cursor-pointer items-center gap-1.5 rounded-full border-[1.5px] px-4 py-2 text-sm font-bold transition-colors ${
+              bulkMode ? "border-forest bg-forest-tint text-forest-700" : "border-line text-ink-soft hover:border-forest hover:text-forest-700"
+            }`}
+          >
+            <Icon name="checklist" className="text-base" />
+            Cambiar género en lote
+          </button>
+        )}
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
@@ -732,6 +840,18 @@ export function RoomsBrowser({
                   )}
                 </div>
                 <div className="flex items-center gap-4">
+                  {bulkMode && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const ids = g.rooms.map((r) => r.id);
+                        toggleSelected(ids, !ids.every((id) => selected.has(id)));
+                      }}
+                      className="cursor-pointer rounded-full border-[1.5px] border-line px-3 py-1.5 text-xs font-bold text-ink-soft hover:border-forest hover:text-forest-700"
+                    >
+                      {g.rooms.every((r) => selected.has(r.id)) ? "Quitar todas" : "Elegir todas"}
+                    </button>
+                  )}
                   <div className="text-right">
                     <p className="text-[10px] font-extrabold uppercase tracking-widest text-muted">Tarifa base</p>
                     <p className="font-bold text-ink">
@@ -768,7 +888,18 @@ export function RoomsBrowser({
                       }`}
                     >
                       <div className="flex items-center justify-between gap-2">
-                        <h3 className="font-bold text-ink">{room.label}</h3>
+                        <h3 className="flex min-w-0 items-center gap-2 font-bold text-ink">
+                          {bulkMode && (
+                            <input
+                              type="checkbox"
+                              checked={selected.has(room.id)}
+                              onChange={(e) => toggleSelected([room.id], e.target.checked)}
+                              aria-label={`Elegir ${room.label}`}
+                              className="h-4 w-4 shrink-0 cursor-pointer accent-[var(--color-forest)]"
+                            />
+                          )}
+                          <span className="truncate">{room.label}</span>
+                        </h3>
                         <div className="flex gap-1.5">
                           {inMaintenance ? (
                             <span className="rounded-full bg-orange-tint px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-orange-700">
@@ -862,18 +993,26 @@ export function RoomsBrowser({
         })
       )}
 
+      {bulkMode && (
+        <BulkGenderBar
+          residenceId={residenceId}
+          selectedIds={[...selected]}
+          anyShared={groups.some((g) => g.capacityPerRoom > 1 && g.rooms.some((r) => selected.has(r.id)))}
+          onDone={stopBulk}
+          onCancel={stopBulk}
+        />
+      )}
+
       {openRoom && (
         <RoomsPermissionsContext.Provider value={{ rooms: canManageRooms, residents: canManageResidents }}>
         <RoomModal
           residenceId={residenceId}
           room={openRoom.room}
           typeName={openRoom.group.name}
-          roomTypeId={openRoom.group.id}
           capacity={openRoom.group.capacityPerRoom}
           priceUsd={openRoom.group.priceUsd}
           arsPerUsd={arsPerUsd}
           unassigned={unassigned}
-          availability={openRoom.group.availability}
           onClose={() => setOpenRoomId(null)}
         />
         </RoomsPermissionsContext.Provider>

@@ -23,7 +23,7 @@ const r = (zone: string, services: string[], commonAreas: string[]) => ({ zone, 
 
 describe("searchFilters", () => {
   it("descarta valores que no están en las listas de la ficha", () => {
-    expect(parseServiceFilter("Wifi,Hackeo,Cocina,Wifi")).toEqual(["Wifi", "Cocina"]);
+    expect(parseServiceFilter("Wifi,Hackeo,Cocina,Wifi")).toEqual(["Wifi"]);
     expect(parseAreaFilter(["Patio", "Mazmorra"])).toEqual(["Patio"]);
     expect(parseServiceFilter(undefined)).toEqual([]);
   });
@@ -175,17 +175,19 @@ describe("servicios y áreas sin opciones repetidas", () => {
     expect(keys(services).filter((k) => keys(areas).includes(k))).toEqual([]);
     expect(areas).not.toContain("Área de Estudio");
     expect(areas).toContain("Sala de Estudio");
-    expect(services).toContain("Cocina");
-    expect(areas).not.toContain("Cocina");
-    expect(parseAreaFilter("Cocina,Gimnasio,Patio")).toEqual(["Patio"]);
+    // 0073: «Cocina compartida» y «Gimnasio» son áreas comunes, no servicios.
+    expect(services).not.toContain("Cocina");
+    expect(areas).toContain("Cocina compartida");
+    expect(areas).toContain("Gimnasio");
+    expect(parseAreaFilter("Cocina,Gimnasio,Patio")).toEqual(["Cocina compartida", "Gimnasio", "Patio"]);
   });
 
-  it("filtrar por «Cocina» encuentra la residencia aunque la haya cargado como área o como «Cocina equipada»", () => {
+  it("filtrar por «Cocina compartida» encuentra la residencia aunque la haya cargado como servicio o como «Cocina equipada»", () => {
     const universe = buildUniverse(catalog);
-    const f = parseSearchFilters({ servicios: "Cocina,wifi" }, universe);
-    expect(f.services).toEqual(["Cocina", "Wifi"]);
+    const f = parseSearchFilters({ areas: "Cocina,Sala de estudio", servicios: "wifi" }, universe);
+    expect(f.services).toEqual(["Wifi"]);
+    expect(f.areas).toEqual(["Cocina compartida", "Sala de Estudio"]);
     const rows = catalog.map((x) => ({ ...full({}), ...x }));
     expect(applySearchFilters(rows, f)).toHaveLength(1);
-    expect(parseSearchFilters({ areas: "Cocina,Sala de estudio" }, universe).areas).toEqual(["Sala de Estudio"]);
   });
 });

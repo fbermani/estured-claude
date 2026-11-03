@@ -38,6 +38,8 @@
     "resident_stays",
     "resident_stay_invitations",
     "resident_link_requests",
-    "missing_residence_requests"
+    "missing_residence_requests",
+    "room_change_requests",
+    "room_change_place_alerts"
   ]
 }

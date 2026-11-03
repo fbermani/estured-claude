@@ -17,7 +17,9 @@ export function normalizeLabel(label: string): string {
 const ALIASES: Record<string, string> = {
   "wifi de alta velocidad": "wifi",
   internet: "wifi",
-  "cocina equipada": "cocina",
+  // 0073: «Cocina» pasó a ser el área común «Cocina compartida»; las variantes viejas se funden en esa opción.
+  cocina: "cocina compartida",
+  "cocina equipada": "cocina compartida",
   lavadero: "lavanderia",
   "area de estudio": "sala de estudio",
   "limpieza semanal de areas comunes": "limpieza general",

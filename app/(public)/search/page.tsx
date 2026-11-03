@@ -122,7 +122,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
     { key: "uni", title: "Universidad cercana", options: opt("uni", same, true), show: 5 },
     { key: "room", title: "Tipo de habitación", options: opt("room", same), show: 5 },
     { key: "services", title: "Servicios", hint: "Se muestran las que ofrecen todos los que elijas.", options: opt("services", serviceLabel, false, (v) => getServiceIcon(v).icon), show: 6 },
-    { key: "areas", title: "Áreas comunes", hint: "Se muestran las que ofrecen todas las que elijas.", options: opt("areas", same, false, (v) => getCommonAreaIcon(v).icon), show: 4 },
+    { key: "areas", title: "Áreas comunes", hint: "Se muestran las que ofrecen todas las que elijas.", options: opt("areas", serviceLabel, false, (v) => getCommonAreaIcon(v).icon), show: 4 },
     { key: "gender", title: "Quiénes viven en la residencia", options: opt("gender", (v) => GENDER_LABELS[v as GenderPolicy]), show: 3 },
     {
       key: "status",

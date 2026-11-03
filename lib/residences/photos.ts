@@ -11,6 +11,9 @@
 /** Mínimo de fotos propias (aprobadas) para poder publicar una residencia. */
 export const MIN_PUBLISH_PHOTOS = 3;
 
+/** Tope de fotos por residencia (sin las rechazadas): protege el almacenamiento y el guardado de la clasificación (máx. 200 por envío). */
+export const MAX_RESIDENCE_PHOTOS = 60;
+
 /** Cuántas fotos faltan para llegar al mínimo (0 si ya alcanza). */
 export function photosMissingForPublish(count: number): number {
   const safe = Number.isFinite(count) ? Math.max(0, Math.floor(count)) : 0;

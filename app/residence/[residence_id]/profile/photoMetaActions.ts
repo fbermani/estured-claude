@@ -7,6 +7,9 @@ import { assertResidencePermission } from "@/lib/residences/access";
 import { createAuditLog } from "@/lib/audit";
 import { isMissingSchemaError } from "@/lib/stayChange/schema";
 import { MAX_FEATURED_PHOTOS, validatePhotoMeta } from "@/lib/residences/photoMeta";
+import { MAX_RESIDENCE_PHOTOS } from "@/lib/residences/photos";
+import { stageProfileEdit } from "@/lib/residences/profileEdits";
+import type { PhotoMetaItem } from "@/lib/residences/photoSections";
 
 export type PhotoMetaState = { status: "idle" | "success" | "error"; message?: string };
 
@@ -56,7 +59,7 @@ export async function savePhotoMeta(residenceId: string, items: unknown): Promis
   }
   const unsentFeatured = (existing ?? []).filter((e) => !sentIds.includes(e.file_id as string)).length;
   if (checked.items.filter((i) => i.featured).length + unsentFeatured > MAX_FEATURED_PHOTOS)
-    return { status: "error", message: `Podés destacar hasta ${MAX_FEATURED_PHOTOS} fotos. Recargá la página para ver cuáles ya están destacadas.` };
+    return { status: "error", message: `Podés elegir hasta ${MAX_FEATURED_PHOTOS} fotos de portada. Recargá la página para ver cuáles ya lo son.` };
 
   const rows = checked.items.map((i) => ({
     file_id: i.fileId,
@@ -67,9 +70,15 @@ export async function savePhotoMeta(residenceId: string, items: unknown): Promis
     is_featured: i.featured,
     section: i.section,
     sort_order: i.sortOrder,
+    cover_order: i.coverOrder,
   }));
   if (rows.length > 0) {
     let { error } = await admin.from("residence_photo_meta").upsert(rows, { onConflict: "file_id" });
+    // Sin la migración 0074 (cover_order) se guarda sin el orden de portada: rotan según el orden de la galería.
+    if (error && isMissingSchemaError(error)) {
+      const withoutCover = rows.map((r) => ({ file_id: r.file_id, residence_id: r.residence_id, category: r.category, area: r.area, room_type_id: r.room_type_id, is_featured: r.is_featured, section: r.section, sort_order: r.sort_order }));
+      ({ error } = await admin.from("residence_photo_meta").upsert(withoutCover, { onConflict: "file_id" }));
+    }
     // Sin la migración 0070 (section / sort_order) se guarda solo lo de 0059.
     if (error && isMissingSchemaError(error)) {
       if (checked.items.some((i) => i.section || i.sortOrder))
@@ -94,5 +103,164 @@ export async function savePhotoMeta(residenceId: string, items: unknown): Promis
     newValue: { photos: rows.length, featured: checked.items.filter((i) => i.featured).length },
   });
   revalidatePath(`/residence/${residenceId}/profile`);
-  return { status: "success", message: "Listo, guardamos cómo se muestran tus fotos." };
+  return { status: "success", message: "Guardado." };
+}
+
+export type PhotoUploadState = { status: "success"; photo: PhotoMetaItem } | { status: "error"; message: string };
+
+const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+const PHOTO_MIME = ["image/jpeg", "image/png", "image/webp"];
+
+/**
+ * Sube UNA foto de la galería (el editor las manda de a una, para mostrar el avance y reintentar solo la que falló) y, si viene con destino,
+ * la deja clasificada (`category` / `area` / `roomTypeId` / `section`). Mismas reglas que el guardado del perfil: JPG/PNG/WebP de hasta 5 MB;
+ * si la residencia ya está publicada la foto entra `pending_review` y se encola la revisión del admin (nunca se muestra al público antes);
+ * si no, entra aprobada. Requiere `profile.edit`; el destino se valida contra los tipos de habitación de ESTA residencia.
+ */
+export async function uploadResidencePhoto(residenceId: string, formData: FormData): Promise<PhotoUploadState> {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) return { status: "error", message: "Tu sesión expiró. Volvé a iniciar sesión." };
+  const admin = getSupabaseAdmin();
+  if (!admin) return { status: "error", message: "No disponible en este momento. Probá más tarde." };
+
+  const access = await assertResidencePermission(admin, sessionUser.id, residenceId, "profile.edit");
+  if (!access.ok) return { status: "error", message: access.error };
+
+  const photo = formData.get("photo");
+  if (!(photo instanceof File) || photo.size === 0) return { status: "error", message: "No pudimos leer la foto. Probá de nuevo." };
+  if (photo.size > MAX_PHOTO_BYTES) return { status: "error", message: `"${photo.name}" pesa más de 5 MB.` };
+  if (!PHOTO_MIME.includes(photo.type)) return { status: "error", message: `"${photo.name}" tiene que ser JPG, PNG o WebP.` };
+
+  const [{ data: residence }, { count }, { data: types }] = await Promise.all([
+    admin.from("residences").select("status").eq("id", residenceId).single(),
+    admin
+      .from("files")
+      .select("id", { count: "exact", head: true })
+      .eq("related_entity_type", "residences")
+      .eq("related_entity_id", residenceId)
+      .eq("document_type", "residence_photo")
+      .neq("status", "rejected"),
+    admin.from("room_types").select("id").eq("residence_id", residenceId).eq("is_active", true),
+  ]);
+  if (!residence) return { status: "error", message: "No encontramos la residencia." };
+  if ((count ?? 0) >= MAX_RESIDENCE_PHOTOS)
+    return { status: "error", message: `Llegaste al máximo de ${MAX_RESIDENCE_PHOTOS} fotos. Para sumar otra, primero pedile a Soporte que quite alguna.` };
+
+  // El destino (opcional) se valida antes de subir nada.
+  const hasTarget = typeof formData.get("category") === "string";
+  let target: ReturnType<typeof validatePhotoMeta> | null = null;
+  if (hasTarget) {
+    target = validatePhotoMeta(
+      [
+        {
+          fileId: "new",
+          category: formData.get("category"),
+          area: formData.get("area") || null,
+          roomTypeId: formData.get("roomTypeId") || null,
+          section: formData.get("section") || null,
+          featured: false,
+          sortOrder: 0,
+        },
+      ],
+      { validFileIds: new Set(["new"]), validRoomTypeIds: new Set((types ?? []).map((t) => t.id as string)) },
+    );
+    if (!target.ok) return { status: "error", message: target.error };
+  }
+
+  const gateApplies = residence.status === "verified_active";
+  const ext = photo.type === "image/png" ? "png" : photo.type === "image/webp" ? "webp" : "jpg";
+  const path = `${residenceId}/${crypto.randomUUID()}.${ext}`;
+  const { error: uploadError } = await admin.storage.from("public-residence-media").upload(path, photo, { contentType: photo.type });
+  if (uploadError) {
+    console.error("[photo-upload] storage fallido:", uploadError.message);
+    return { status: "error", message: `No pudimos subir "${photo.name}". Probá de nuevo.` };
+  }
+  const { data: inserted, error: insertError } = await admin
+    .from("files")
+    .insert({
+      owner_user_id: sessionUser.id,
+      related_entity_type: "residences",
+      related_entity_id: residenceId,
+      bucket: "public-residence-media",
+      storage_path: path,
+      filename: photo.name,
+      mime_type: photo.type,
+      size_bytes: photo.size,
+      visibility: "public",
+      document_type: "residence_photo",
+      status: gateApplies ? "pending_review" : "approved",
+      uploaded_by_user_id: sessionUser.id,
+    })
+    .select("id")
+    .single();
+  if (insertError || !inserted) {
+    console.error("[photo-upload] insert fallido:", insertError?.message);
+    await admin.storage.from("public-residence-media").remove([path]);
+    return { status: "error", message: `No pudimos guardar "${photo.name}". Probá de nuevo.` };
+  }
+  const fileId = inserted.id as string;
+
+  // Publicada: la foto espera la aprobación del admin. Se suman a la revisión pendiente las que ya estaban (stageProfileEdit reemplaza la anterior).
+  if (gateApplies) {
+    const { data: pendingEdit } = await admin
+      .from("residence_profile_edits")
+      .select("new_value")
+      .eq("residence_id", residenceId)
+      .eq("field_group", "photos")
+      .eq("status", "pending_admin_review")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const previousIds = ((pendingEdit?.new_value as { fileIds?: string[] } | null)?.fileIds ?? []).filter((id) => typeof id === "string");
+    const stage = await stageProfileEdit(admin, {
+      residenceId,
+      fieldGroup: "photos",
+      oldValue: null,
+      newValue: { fileIds: [...previousIds, fileId] },
+      submittedByUserId: sessionUser.id,
+    });
+    if (!stage.ok) {
+      await admin.from("files").update({ status: "rejected" }).eq("id", fileId);
+      return { status: "error", message: stage.error };
+    }
+  }
+
+  let placed: Pick<PhotoMetaItem, "category" | "area" | "roomTypeId" | "section"> = { category: "general", area: null, roomTypeId: null, section: null };
+  if (target?.ok) {
+    const t = target.items[0];
+    const row = { file_id: fileId, residence_id: residenceId, category: t.category, area: t.area, room_type_id: t.roomTypeId, section: t.section, sort_order: 0 };
+    let { error: metaError } = await admin.from("residence_photo_meta").insert(row);
+    // Sin la migración 0070 se guarda solo lo de 0059; sin 0059 la foto queda sin clasificar (se ve igual).
+    if (metaError && isMissingSchemaError(metaError)) {
+      const legacy = { file_id: row.file_id, residence_id: row.residence_id, category: row.category, area: row.area, room_type_id: row.room_type_id };
+      ({ error: metaError } = await admin.from("residence_photo_meta").insert(legacy));
+    }
+    if (!metaError) placed = { category: t.category, area: t.area, roomTypeId: t.roomTypeId, section: t.section };
+    else if (!isMissingSchemaError(metaError)) console.error("[photo-upload] meta fallida:", metaError.code, metaError.message);
+  }
+
+  await createAuditLog(admin, {
+    actorUserId: sessionUser.id,
+    actorRole: access.actorRole,
+    action: "residence_photo_uploaded",
+    entityType: "residences",
+    entityId: residenceId,
+    newValue: { file_id: fileId, pending_review: gateApplies },
+  });
+  revalidatePath(`/residence/${residenceId}/profile`);
+  return {
+    status: "success",
+    photo: {
+      id: fileId,
+      url: admin.storage.from("public-residence-media").getPublicUrl(path).data.publicUrl,
+      pending: gateApplies,
+      category: placed.category,
+      area: placed.area,
+      roomTypeId: placed.roomTypeId,
+      section: placed.section,
+      featured: false,
+      sortOrder: 0,
+      coverOrder: null,
+    },
+  };
 }

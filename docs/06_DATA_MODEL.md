@@ -821,6 +821,8 @@ Reglas:
 - si `not_updated` por más de 30 días: recordatorios;
 - si `not_updated` persiste más de 15 días: `hidden_from_search_at` se registra y la residencia desaparece de búsquedas activas.
 
+**Detalle por género (DR33, migración 0075).** `profile_availability` sigue siendo UNA fila por tipo (`unique(room_type_id)`): es el **resumen** del tipo que leen solicitudes, reservas, lista de espera, mes vacío y los jobs de vencimiento. El detalle vive en `profile_availability_genders` (único por `room_type_id` + `gender`; `gender` = `masculino | femenino | mixto | sin_especificar`, como `rooms.gender`): `status` (`available_to_confirm | full | paused_by_residence`), `available_count`, `available_from`, `notes_public`, `last_confirmed_by/at`. El servidor recalcula el resumen del tipo cada vez que la residencia guarda el detalle. Sin policies de escritura (solo service role).
+
 ---
 
 ### 9.5. `place_application_queue`
@@ -1434,6 +1436,15 @@ Todas son de uso interno: RLS sin policies para `anon`/`authenticated` (salvo la
 - **`family_email_verifications`** *(DR32 addendum, 0072)*: `user_id` (PK), `code_hash`, `expires_at`, `attempts`, `sent_at`, `verified_at`. Solo service role (RLS sin policies).
 - **`residence_private_details.house_code`**: código de casa (único, no legible con anon).
 - **`missing_residence_requests`**: `student_profile_id`, `residence_name`, `contact`.
+
+### 15.1ter. Cambio de habitación dentro de la residencia *(DR34, migración 0076)*
+
+Dos tablas internas, **sin cobro** y separadas de solicitud, renovación y «Quiero cambiar» (cambio de residencia). RLS: lee el equipo activo de la residencia (`is_residence_team_member`, sin recursión) y, en los pedidos, el estudiante dueño; sin policies de escritura (solo service role) y grants de lectura por columna (sin `*_by_user_id`).
+
+- **`room_change_requests`**: una fila por pedido; **un solo pedido abierto por estadía** (índice único parcial sobre `pending`/`offered`). `residence_id`, `resident_stay_id`, `student_profile_id` (nulo si la residencia lo anota para un residente sin cuenta), `origin` (`student` / `residence`), `status` (`pending` = pendiente, `offered` = en gestión / plaza ofrecida, `resolved`, `cancelled`), preferencia (`preferred_room_type_id`, `preferred_gender` = `masculino | femenino | mixto`, `preference_note` ≤ 300; nulo = «me da igual», al menos una la valida el servidor), `reason` ≤ 500, constancia de costos (`costs_notice_text`, `costs_acknowledged_at`), plaza ofrecida (`offered_bed_id`, `offered_label`, `offered_at`, `offered_by_user_id`) y cierre (`closed_reason`: `moved` / `resolved_by_residence` / `cancelled_by_student` / `cancelled_by_residence` / `stay_ended`, `resolved_at`, `resolved_by_user_id`).
+- **`room_change_place_alerts`**: «plaza liberada por decidir». Solo se crea cuando la plaza liberada coincide con algún pedido **pendiente**: `residence_id`, `bed_id` (nulo si se liberó por tipo), `room_type_id`, `place_label`, `gender`, `source` (`stay_ended` / `bed_move` / `bed_reactivated` / `room_reactivated`), `status` (`pending`, `offered`, `published`, `ignored`, `resolved`), `deferred_increment` (el +1 automático de la salida quedó diferido), `freed_by_stay_id`, `offered_request_id`. Una sola alerta abierta por cama.
+
+Coincidencia (lógica pura, `lib/roomChange/rules.ts`): preferencia nula = cualquiera; si pidió género, la plaza tiene que tener ese género (una plaza sin género definido no avisa); nunca avisa a quien dejó la plaza ni por pedidos ya en gestión.
 
 ### 15.2. `community_visibility_snapshots`
 

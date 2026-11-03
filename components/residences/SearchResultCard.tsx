@@ -1,3 +1,4 @@
+import { policyOfferLabel } from "@/lib/availability/genderAvailability";
 import Link from "next/link";
 import type { Residence } from "@/types/domain";
 import { Badge } from "@/components/ui/Badge";
@@ -40,7 +41,8 @@ export function SearchResultCard({
   const serviceItems = services.slice(0, maxIcons).map((name) => ({ name, ...getServiceIcon(name) }));
   const areaItems = areas.slice(0, maxIcons).map((name) => ({ name, ...getCommonAreaIcon(name) }));
 
-  const roomTypes = [...new Set(residence.roomTypes.map((rt) => rt.type))];
+  // Un tipo con varios géneros se ofrece por separado («Doble femenina», «Doble masculina»).
+  const roomTypes = [...new Set(residence.roomTypes.map((rt) => policyOfferLabel(rt.type, rt.gender)))];
   const hasAvailable = residence.roomTypes.some((rt) => rt.available);
 
   const names = (residence.cardUniversities ?? residence.nearUniversities).slice(0, 3);

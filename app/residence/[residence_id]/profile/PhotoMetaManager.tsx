@@ -1,229 +1,693 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { Select } from "@/components/ui/Input";
+import { Icon } from "@/components/ui/Icon";
+import { MAX_FEATURED_PHOTOS } from "@/lib/residences/photoMeta";
+import { MIN_PUBLISH_PHOTOS } from "@/lib/residences/photos";
 import {
-    MAX_FEATURED_PHOTOS,
-  MAX_SECTION_LENGTH,
-  PHOTO_AREAS,
-  SECTION_SUGGESTIONS,
-  effectiveSection,
-  groupPhotosBySections,
-  type PhotoArea,
-  type PhotoCategory,
-} from "@/lib/residences/photoMeta";
-import { savePhotoMeta } from "@/app/residence/[residence_id]/profile/photoMetaActions";
+  UNSORTED_KEY,
+  appendPhotos,
+  assignmentFor,
+  buildPhotoSections,
+  coverPhotos,
+  galleryOrder,
+  moveCover,
+  movePhotoToSection,
+  normalizeCover,
+  sectionKeyOf,
+  toggleCover,
+  type PhotoAssignment,
+  type PhotoMetaItem,
+  type PhotoSectionDef,
+} from "@/lib/residences/photoSections";
+import { savePhotoMeta, uploadResidencePhoto } from "@/app/residence/[residence_id]/profile/photoMetaActions";
 
-export type PhotoMetaItem = {
+export type { PhotoMetaItem } from "@/lib/residences/photoSections";
+
+const MAX_BYTES = 5 * 1024 * 1024;
+const ACCEPT = "image/jpeg,image/png,image/webp";
+const SAVE_DEBOUNCE_MS = 700;
+
+type Upload = {
   id: string;
-  url: string;
-  pending: boolean;
-  category: PhotoCategory;
-  area: PhotoArea | null;
-  roomTypeId: string | null;
-  featured: boolean;
-  section: string | null;
-  sortOrder: number;
+  name: string;
+  /** Sección de destino (`UNSORTED_KEY` para el pozo). */
+  key: string;
+  status: "uploading" | "error";
+  message?: string;
+  file: File;
 };
+type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 /**
- * Editor de la galería (DR18, tanda 2): a cada foto se le asigna categoría (general / por área / por tipo de habitación) y se eligen
- * hasta 5 destacadas, que son las que rotan en la ficha y la tarjeta. Guarda por su cuenta (no depende del botón del perfil) y el
- * servidor valida todo. Vive dentro del <form> del perfil, por eso todos sus botones son type="button" y sus campos no tienen `name`.
+ * Galería de fotos del perfil (rediseño 2026-11-03). Las secciones se arman solas (Fachada / Exterior, las áreas comunes elegidas, los tipos de
+ * habitación guardados y «Otras»). Dos formas de cargar: todas juntas a «Sin clasificar» y de ahí arrastrar cada miniatura a su sección
+ * (en táctil: «Mover a…»), o subir directo dentro de una sección. Hasta 5 fotos de portada con orden (las que rotan en la ficha y la búsqueda).
+ * Cada cambio se guarda solo (con debounce); las fotos se suben de a una por server action. Las reglas de moderación son las de siempre:
+ * en una residencia publicada la foto nueva queda «Pendiente» hasta que el equipo la apruebe. Vive dentro del <form> del perfil: todos sus
+ * botones son type="button" y sus campos no tienen `name`, así que no viajan en el guardado del perfil.
  */
 export function PhotoMetaManager({
   residenceId,
   initialItems,
   roomTypes,
+  unsavedRoomTypeNames,
+  commonAreas,
   schemaReady,
   sectionsReady,
+  coverReady,
   readOnly,
+  onCountsChange,
 }: {
   residenceId: string;
   initialItems: PhotoMetaItem[];
+  /** Tipos de habitación ya guardados (solo esos pueden tener fotos). */
   roomTypes: { id: string; name: string }[];
+  /** Nombres de tipos de habitación todavía sin guardar: se avisa que se habilitan al guardar. */
+  unsavedRoomTypeNames: string[];
+  /** Áreas comunes elegidas en el formulario (texto de `COMMON_AREA_OPTIONS`). */
+  commonAreas: string[];
   schemaReady: boolean;
   sectionsReady: boolean;
+  coverReady: boolean;
   readOnly: boolean;
+  onCountsChange?: (counts: { total: number; approved: number }) => void;
 }) {
-  const [items, setItems] = useState(initialItems);
-  const [dirty, setDirty] = useState(false);
-  const [feedback, setFeedback] = useState<{ ok: boolean; text: string } | null>(null);
-  const [saving, startSave] = useTransition();
-  const featuredCount = items.filter((i) => i.featured).length;
+  const [items, setItems] = useState<PhotoMetaItem[]>(() => normalizeCover(initialItems));
+  const itemsRef = useRef(items);
+  const [uploads, setUploads] = useState<Upload[]>([]);
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [overKey, setOverKey] = useState<string | null>(null);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const saving = useRef(false);
+  const again = useRef(false);
+  const dirty = useRef(false);
+  const queue = useRef<Promise<void>>(Promise.resolve());
 
-  function patch(id: string, change: Partial<PhotoMetaItem>) {
-    setItems((prev) => prev.map((i) => (i.id === id ? { ...i, ...change } : i)));
-    setDirty(true);
-    setFeedback(null);
+  const defs = useMemo<PhotoSectionDef[]>(
+    () =>
+      schemaReady
+        ? buildPhotoSections({ commonAreas, roomTypes, existing: initialItems, sectionNamesReady: sectionsReady })
+        : [],
+    // `initialItems` solo aporta áreas ya usadas por fotos viejas: alcanza con las del primer render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [schemaReady, sectionsReady, commonAreas.join("|"), roomTypes.map((r) => r.id).join("|")],
+  );
+  const editable = !readOnly;
+  const defsRef = useRef(defs);
+  useEffect(() => {
+    defsRef.current = defs;
+  }, [defs]);
+
+  useEffect(() => {
+    onCountsChange?.({ total: items.length, approved: items.filter((i) => !i.pending).length });
+  }, [items, onCountsChange]);
+
+  // ---- Guardado automático ----
+  async function flush() {
+    if (saving.current) {
+      again.current = true;
+      return;
+    }
+    saving.current = true;
+    dirty.current = false;
+    setSaveStatus("saving");
+    setSaveError(null);
+    const snapshot = itemsRef.current;
+    const order = galleryOrder(snapshot, defsRef.current);
+    const result = await savePhotoMeta(
+      residenceId,
+      snapshot.map((i) => ({
+        fileId: i.id,
+        category: i.category,
+        area: i.area,
+        roomTypeId: i.roomTypeId,
+        featured: i.featured,
+        section: i.section,
+        sortOrder: order.get(i.id) ?? 0,
+        coverOrder: i.coverOrder,
+      })),
+    );
+    saving.current = false;
+    if (result.status === "success") {
+      if (again.current || dirty.current) {
+        again.current = false;
+        void flush();
+        return;
+      }
+      setSaveStatus("saved");
+    } else {
+      again.current = false;
+      dirty.current = true;
+      setSaveStatus("error");
+      setSaveError(result.message ?? "No pudimos guardar los cambios.");
+    }
   }
 
-  function save() {
-    startSave(async () => {
-      // El orden guardado es el de la vista agrupada por sección («Fotos adicionales» al final).
-      const order = new Map(groupPhotosBySections(items.map((i) => ({ ...i, roomTypeName: roomTypes.find((r) => r.id === i.roomTypeId)?.name ?? null }))).flatMap((g) => g.photos).map((p, n) => [p.id, n]));
-      const result = await savePhotoMeta(
-        residenceId,
-        items.map((i) => ({
-          fileId: i.id,
-          category: i.category,
-          area: i.area,
-          roomTypeId: i.roomTypeId,
-          featured: i.featured,
-          section: i.section,
-          sortOrder: order.get(i.id) ?? 0,
-        })),
-      );
-      setFeedback({ ok: result.status === "success", text: result.message ?? "" });
-      if (result.status === "success") setDirty(false);
-    });
+  function scheduleSave() {
+    dirty.current = true;
+    setSaveStatus("saving");
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(() => void flush(), SAVE_DEBOUNCE_MS);
   }
 
-  if (items.length === 0) return null;
-  const groups = groupPhotosBySections(
-    items.map((i) => ({ ...i, roomTypeName: roomTypes.find((r) => r.id === i.roomTypeId)?.name ?? null })),
+  // Si se sale de la página con un cambio sin guardar, se guarda igual.
+  useEffect(
+    () => () => {
+      if (timer.current) clearTimeout(timer.current);
+      if (dirty.current && !saving.current) void flush();
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
   );
 
-  if (!schemaReady)
-    return (
-      <p className="mt-4 rounded-field bg-sand-50 p-3 text-sm text-ink-soft">
-        Muy pronto vas a poder ordenar tus fotos por área y por tipo de habitación, y elegir cuáles rotan en tu ficha.
-      </p>
-    );
+  function commit(update: (prev: PhotoMetaItem[]) => PhotoMetaItem[]) {
+    const next = update(itemsRef.current);
+    if (next === itemsRef.current) return;
+    itemsRef.current = next;
+    setItems(next);
+    scheduleSave();
+  }
+
+  // ---- Acciones ----
+  const moveTo = (id: string, key: string) => commit((prev) => movePhotoToSection(prev, id, key, defsRef.current));
+  const toggleStar = (id: string) => commit((prev) => toggleCover(prev, id));
+  const shiftCover = (id: string, dir: -1 | 1) => commit((prev) => moveCover(prev, id, dir));
+
+  function startUploads(files: File[], key: string) {
+    if (!editable || files.length === 0) return;
+    const entries: Upload[] = files.map((file) => {
+      const id = crypto.randomUUID();
+      const tooBig = file.size > MAX_BYTES;
+      const badType = !ACCEPT.split(",").includes(file.type);
+      return {
+        id,
+        name: file.name,
+        key,
+        file,
+        status: tooBig || badType ? "error" : "uploading",
+        message: badType ? "Tiene que ser JPG, PNG o WebP." : tooBig ? "Pesa más de 5 MB." : undefined,
+      };
+    });
+    setUploads((prev) => [...prev, ...entries]);
+    for (const entry of entries) if (entry.status === "uploading") enqueue(entry);
+  }
+
+  function enqueue(entry: Upload) {
+    queue.current = queue.current.then(() => runUpload(entry));
+  }
+
+  async function runUpload(entry: Upload) {
+    const assign: PhotoAssignment | null = assignmentFor(entry.key, defsRef.current);
+    const fd = new FormData();
+    fd.set("photo", entry.file);
+    if (assign) {
+      fd.set("category", assign.category);
+      if (assign.area) fd.set("area", assign.area);
+      if (assign.roomTypeId) fd.set("roomTypeId", assign.roomTypeId);
+      if (assign.section) fd.set("section", assign.section);
+    }
+    let message = "No pudimos subir la foto. Probá de nuevo.";
+    try {
+      const result = await uploadResidencePhoto(residenceId, fd);
+      if (result.status === "success") {
+        setUploads((prev) => prev.filter((u) => u.id !== entry.id));
+        commit((prev) => appendPhotos(prev, [result.photo]));
+        return;
+      }
+      message = result.message;
+    } catch {
+      message = "Se cortó la conexión mientras subíamos la foto. Probá de nuevo.";
+    }
+    setUploads((prev) => prev.map((u) => (u.id === entry.id ? { ...u, status: "error", message } : u)));
+  }
+
+  function retry(id: string) {
+    const entry = uploads.find((u) => u.id === id);
+    if (!entry || entry.file.size > MAX_BYTES || !ACCEPT.split(",").includes(entry.file.type)) return;
+    const next = { ...entry, status: "uploading" as const, message: undefined };
+    setUploads((prev) => prev.map((u) => (u.id === id ? next : u)));
+    enqueue(next);
+  }
+
+  const dismiss = (id: string) => setUploads((prev) => prev.filter((u) => u.id !== id));
+
+  // ---- Drag & drop (HTML5 nativo: mover miniaturas y soltar archivos del escritorio) ----
+  const hasFiles = (e: React.DragEvent) => Array.from(e.dataTransfer?.types ?? []).includes("Files");
+  function dropProps(key: string) {
+    if (!editable) return {};
+    return {
+      onDragOver: (e: React.DragEvent) => {
+        if (!dragId && !hasFiles(e)) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = dragId ? "move" : "copy";
+        if (overKey !== key) setOverKey(key);
+      },
+      onDragLeave: (e: React.DragEvent) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setOverKey((k) => (k === key ? null : k));
+      },
+      onDrop: (e: React.DragEvent) => {
+        e.preventDefault();
+        setOverKey(null);
+        if (dragId) {
+          moveTo(dragId, key);
+          setDragId(null);
+        } else if (hasFiles(e)) {
+          startUploads(Array.from(e.dataTransfer.files), key);
+        }
+      },
+    };
+  }
+
+  // ---- Derivados ----
+  const cover = coverPhotos(items);
+  const approvedCount = items.filter((i) => !i.pending).length;
+  const unsortedItems = items.filter((i) => sectionKeyOf(i, defs) === UNSORTED_KEY);
+  const unsortedUploads = uploads.filter((u) => u.key === UNSORTED_KEY);
+  const byKey = (key: string) => items.filter((i) => sectionKeyOf(i, defs) === key);
+  const optionsFor = (current: string) => [
+    ...(current !== UNSORTED_KEY ? [{ key: UNSORTED_KEY, title: "Sin clasificar" }] : []),
+    ...defs.filter((d) => d.key !== current).map((d) => ({ key: d.key, title: d.title })),
+  ];
+
+  const statusLine =
+    saveStatus === "saving" ? (
+      <span className="inline-flex items-center gap-1.5 text-ink-soft">
+        <Icon name="progress_activity" className="animate-spin text-base" /> Guardando…
+      </span>
+    ) : saveStatus === "saved" ? (
+      <span className="inline-flex items-center gap-1.5 text-forest-700">
+        <Icon name="check_circle" className="text-base" /> Cambios guardados
+      </span>
+    ) : null;
 
   return (
-    <div className="mt-4 space-y-4">
-      <p className="text-sm text-ink-soft">
-        Indicá qué muestra cada foto y destacá hasta {MAX_FEATURED_PHOTOS}: esas rotan en tu ficha y en la tarjeta de búsqueda. Si no
-        destacás ninguna, rotan las primeras {MAX_FEATURED_PHOTOS}.{" "}
-        <strong className="text-ink">
-          Destacadas: {featuredCount} de {MAX_FEATURED_PHOTOS}
-        </strong>
-      </p>
-      {sectionsReady && (
-        <datalist id="photo-section-suggestions">
-          {SECTION_SUGGESTIONS.map((n) => (
-            <option key={n} value={n} />
-          ))}
-        </datalist>
+    <div className="mt-4 space-y-5">
+      {!schemaReady && (
+        <p className="rounded-field bg-cream-2 p-3 text-sm text-ink-soft">
+          Muy pronto vas a poder ordenar tus fotos por sección y elegir las de portada. Por ahora podés subirlas igual.
+        </p>
       )}
-      {groups.map((group) => (
-      <section key={group.key} aria-label={`Sección ${group.title}`} className="space-y-2">
-        {sectionsReady && (
-          <h4 className="text-sm font-bold text-ink">
-            {group.title} <span className="font-normal text-ink-faint">({group.photos.length})</span>
-          </h4>
-        )}
-      <ul className="grid gap-3 min-[1500px]:grid-cols-2">
-        {group.photos.map((photo) => {
-          const idx = items.findIndex((i) => i.id === photo.id);
-          const canFeature = photo.featured || featuredCount < MAX_FEATURED_PHOTOS;
-          return (
-            <li key={photo.id} className="flex gap-3 rounded-card border border-sand-200 p-3">
-              <div className="relative size-24 shrink-0 overflow-hidden rounded-field bg-sand-200">
-                <Image src={photo.url} alt={`Foto ${idx + 1} de tu galería`} fill sizes="96px" className="object-cover" />
-                {photo.pending && (
-                  <div className="absolute bottom-1 left-1">
-                    <Badge tone="amber">Pendiente</Badge>
-                  </div>
+
+      {schemaReady && (
+        <CoverStrip
+          cover={cover}
+          editable={editable}
+          coverReady={coverReady}
+          onToggle={toggleStar}
+          onShift={shiftCover}
+        />
+      )}
+
+      {editable && (
+        <UploadDropzone
+          highlight={overKey === UNSORTED_KEY && !dragId}
+          dropProps={dropProps(UNSORTED_KEY)}
+          onFiles={(files) => startUploads(files, UNSORTED_KEY)}
+          empty={items.length === 0 && uploads.length === 0}
+        />
+      )}
+
+      {/* Pozo «Sin clasificar» */}
+      {schemaReady && (unsortedItems.length > 0 || unsortedUploads.length > 0) && (
+        <section
+          aria-label="Sin clasificar"
+          {...dropProps(UNSORTED_KEY)}
+          className={`rounded-card border-[1.5px] border-dashed p-3 sm:p-4 ${
+            overKey === UNSORTED_KEY && dragId ? "border-forest bg-forest-tint" : "border-orange/40 bg-orange-tint/40"
+          }`}
+        >
+          <SectionHeader icon="inventory_2" title="Sin clasificar" count={unsortedItems.length + unsortedUploads.length} />
+          {editable && <p className="mt-1 text-xs text-ink-soft">Arrastrá cada foto a su sección o elegí «Mover a…».</p>}
+          <PhotoGrid items={unsortedItems} uploads={unsortedUploads} sectionKey={UNSORTED_KEY} {...gridCommon()} />
+        </section>
+      )}
+
+      {/* Sin schema de clasificación: lista simple */}
+      {!schemaReady && (items.length > 0 || uploads.length > 0) && (
+        <PhotoGrid items={items} uploads={uploads} sectionKey={UNSORTED_KEY} {...gridCommon()} />
+      )}
+
+      {/* Secciones */}
+      {schemaReady && (
+        <div className="space-y-3">
+          {defs.map((d) => {
+            const sectionItems = byKey(d.key);
+            const sectionUploads = uploads.filter((u) => u.key === d.key);
+            const total = sectionItems.length + sectionUploads.length;
+            const isOver = overKey === d.key;
+            return (
+              <section
+                key={d.key}
+                aria-label={d.title}
+                {...dropProps(d.key)}
+                className={`rounded-card border-[1.5px] p-3 transition-colors sm:p-4 ${
+                  isOver ? "border-forest bg-forest-tint" : total === 0 ? "border-dashed border-line-2 bg-cream" : "border-line bg-paper"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <SectionHeader icon={d.icon} title={d.title} count={total} />
+                  {editable && (
+                    <PickButton label="Subir" ariaLabel={`Subir fotos a ${d.title}`} onFiles={(files) => startUploads(files, d.key)} />
+                  )}
+                </div>
+                {total === 0 ? (
+                  <p className="mt-2 text-sm text-ink-faint">{editable ? "Arrastrá fotos acá o tocá «Subir»." : "Sin fotos todavía."}</p>
+                ) : (
+                  <PhotoGrid items={sectionItems} uploads={sectionUploads} sectionKey={d.key} {...gridCommon()} />
                 )}
-              </div>
-              <div className="min-w-0 flex-1 space-y-2">
-                {sectionsReady && (
-                  <div>
-                    <label htmlFor={`section-${photo.id}`} className="mb-1 block text-sm font-medium text-ink">
-                      Sección
-                    </label>
-                    <input
-                      id={`section-${photo.id}`}
-                      type="text"
-                      list="photo-section-suggestions"
-                      maxLength={MAX_SECTION_LENGTH}
-                      value={photo.section ?? ""}
-                      placeholder={effectiveSection({ ...photo, roomTypeName: roomTypes.find((r) => r.id === photo.roomTypeId)?.name ?? null })}
-                      disabled={readOnly}
-                      onChange={(e) => patch(photo.id, { section: e.target.value === "" ? null : e.target.value })}
-                      className="w-full rounded-field border border-sand-300 bg-white px-3 py-2 text-sm text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-forest"
-                    />
-                  </div>
-                )}
-                <Select
-                  label="¿Qué muestra?"
-                  value={photo.category}
-                  disabled={readOnly}
-                  onChange={(e) => {
-                    const category = e.target.value as PhotoCategory;
-                    patch(photo.id, {
-                      category,
-                      area: category === "area" ? (photo.area ?? "cocina") : null,
-                      roomTypeId: category === "room_type" ? (photo.roomTypeId ?? roomTypes[0]?.id ?? null) : null,
-                    });
-                  }}
-                >
-                  <option value="general">General</option>
-                  <option value="area">Un área (cocina, patio…)</option>
-                  {roomTypes.length > 0 && <option value="room_type">Un tipo de habitación</option>}
-                </Select>
-                {photo.category === "area" && (
-                  <Select
-                    label="Área"
-                    value={photo.area ?? "cocina"}
-                    disabled={readOnly}
-                    onChange={(e) => patch(photo.id, { area: e.target.value as PhotoArea })}
-                  >
-                    {PHOTO_AREAS.map((a) => (
-                      <option key={a.value} value={a.value}>
-                        {a.label}
-                      </option>
-                    ))}
-                  </Select>
-                )}
-                {photo.category === "room_type" && (
-                  <Select
-                    label="Tipo de habitación"
-                    value={photo.roomTypeId ?? ""}
-                    disabled={readOnly}
-                    onChange={(e) => patch(photo.id, { roomTypeId: e.target.value || null })}
-                  >
-                    {roomTypes.map((rt) => (
-                      <option key={rt.id} value={rt.id}>
-                        {rt.name}
-                      </option>
-                    ))}
-                  </Select>
-                )}
-                <label className={`flex items-center gap-2 text-sm ${canFeature && !readOnly ? "text-ink" : "text-ink-faint"}`}>
-                  <input
-                    type="checkbox"
-                    checked={photo.featured}
-                    disabled={readOnly || !canFeature}
-                    onChange={(e) => patch(photo.id, { featured: e.target.checked })}
-                    className="h-4 w-4 accent-forest"
-                  />
-                  Destacada (rota en la ficha)
-                </label>
-              </div>
-            </li>
-          );
-        })}
-      </ul>
-      </section>
-      ))}
-      {!readOnly && (
-        <div className="flex flex-wrap items-center gap-3">
-          <Button type="button" variant="outline" size="sm" onClick={save} disabled={saving || !dirty}>
-            {saving ? "Guardando…" : "Guardar clasificación de fotos"}
-          </Button>
-          {feedback && (
-            <p role="status" className={`text-sm ${feedback.ok ? "text-forest-700" : "text-danger"}`}>
-              {feedback.text}
+              </section>
+            );
+          })}
+          {unsavedRoomTypeNames.length > 0 && (
+            <p className="flex items-start gap-2 rounded-field bg-cream-2 p-3 text-sm text-ink-soft">
+              <Icon name="info" className="mt-0.5 text-base" />
+              <span>
+                Guardá el perfil para sumar fotos de: <strong className="text-ink">{unsavedRoomTypeNames.join(", ")}</strong>. La sección aparece al guardar.
+              </span>
             </p>
           )}
         </div>
       )}
+
+      {/* Estado del guardado */}
+      <div className="min-h-6 text-sm" aria-live="polite">
+        {saveStatus === "error" ? (
+          <p role="alert" className="flex flex-wrap items-center gap-2 text-danger-fg">
+            <Icon name="error" className="text-base" />
+            <span>{saveError}</span>
+            <button type="button" onClick={() => void flush()} className="font-bold underline">
+              Reintentar
+            </button>
+          </p>
+        ) : (
+          statusLine
+        )}
+      </div>
+      {approvedCount < MIN_PUBLISH_PHOTOS && items.length > 0 && (
+        <p className="sr-only">Hacen falta al menos {MIN_PUBLISH_PHOTOS} fotos aprobadas para publicar.</p>
+      )}
     </div>
+  );
+
+  function gridCommon() {
+    return {
+      editable,
+      sectionsEnabled: schemaReady,
+      options: optionsFor,
+      sectionKeyOf: (i: PhotoMetaItem) => sectionKeyOf(i, defs),
+      dragId,
+      coverFull: cover.length >= MAX_FEATURED_PHOTOS,
+      onDragStart: setDragId,
+      onDragEnd: () => {
+        setDragId(null);
+        setOverKey(null);
+      },
+      onMove: moveTo,
+      onStar: toggleStar,
+      onRetry: retry,
+      onDismiss: dismiss,
+    };
+  }
+}
+
+function SectionHeader({ icon, title, count }: { icon: string; title: string; count: number }) {
+  return (
+    <h4 className="flex items-center gap-2 text-sm font-bold text-ink">
+      <span className="grid size-8 shrink-0 place-items-center rounded-full bg-forest-tint text-forest-700">
+        <Icon name={icon} className="text-lg" />
+      </span>
+      {title}
+      <span className="rounded-full bg-cream-2 px-2 py-0.5 text-xs font-bold text-ink-soft">{count}</span>
+    </h4>
+  );
+}
+
+/** Botón «Subir» de una sección: un <label> con el input adentro (accesible con teclado y táctil). */
+function PickButton({ label, ariaLabel, onFiles }: { label: string; ariaLabel: string; onFiles: (files: File[]) => void }) {
+  return (
+    <label className="inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-full border-[1.5px] border-line-2 bg-paper px-4 text-sm font-bold text-ink hover:border-forest hover:bg-forest-tint focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-forest">
+      <Icon name="add_photo_alternate" className="text-lg" />
+      {label}
+      <input
+        type="file"
+        accept={ACCEPT}
+        multiple
+        aria-label={ariaLabel}
+        className="sr-only"
+        onChange={(e) => {
+          onFiles(Array.from(e.target.files ?? []));
+          e.target.value = "";
+        }}
+      />
+    </label>
+  );
+}
+
+function UploadDropzone({
+  onFiles,
+  dropProps,
+  highlight,
+  empty,
+}: {
+  onFiles: (files: File[]) => void;
+  dropProps: object;
+  highlight: boolean;
+  empty: boolean;
+}) {
+  return (
+    <label
+      {...dropProps}
+      className={`flex cursor-pointer flex-col items-center justify-center gap-1 rounded-card border-2 border-dashed px-4 text-center transition-colors focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-forest ${
+        empty ? "py-12" : "py-6"
+      } ${highlight ? "border-forest bg-forest-tint" : "border-line-2 bg-cream hover:border-forest"}`}
+    >
+      <Icon name="cloud_upload" className="text-4xl text-forest-700" />
+      <span className="text-sm font-bold text-forest-700">
+        {empty ? "Subí tus fotos" : "Sumá más fotos"}: tocá acá o arrastralas
+      </span>
+      <span className="text-xs text-ink-faint">
+        {empty ? `Necesitás al menos ${MIN_PUBLISH_PHOTOS} para publicar. ` : ""}JPG, PNG o WebP · hasta 5 MB cada una · después las acomodás por sección
+      </span>
+      <input
+        type="file"
+        accept={ACCEPT}
+        multiple
+        aria-label="Subir fotos"
+        className="sr-only"
+        onChange={(e) => {
+          onFiles(Array.from(e.target.files ?? []));
+          e.target.value = "";
+        }}
+      />
+    </label>
+  );
+}
+
+/** Tira de portada: hasta 5 lugares numerados; el 1 es la foto principal. */
+function CoverStrip({
+  cover,
+  editable,
+  coverReady,
+  onToggle,
+  onShift,
+}: {
+  cover: PhotoMetaItem[];
+  editable: boolean;
+  coverReady: boolean;
+  onToggle: (id: string) => void;
+  onShift: (id: string, dir: -1 | 1) => void;
+}) {
+  return (
+    <section aria-label="Fotos de portada" className="rounded-card border-[1.5px] border-line bg-paper p-3 sm:p-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h4 className="flex items-center gap-2 text-sm font-bold text-ink">
+          <span className="grid size-8 place-items-center rounded-full bg-orange-tint text-orange-700">
+            <Icon name="star" className="text-lg" />
+          </span>
+          Portada
+        </h4>
+        <span
+          className={`rounded-full px-3 py-1 text-sm font-bold ${cover.length === MAX_FEATURED_PHOTOS ? "bg-forest-tint text-forest-700" : "bg-cream-2 text-ink-soft"}`}
+          aria-label={`${cover.length} de ${MAX_FEATURED_PHOTOS} fotos de portada`}
+        >
+          {cover.length} de {MAX_FEATURED_PHOTOS}
+        </span>
+      </div>
+      <p className="mt-1 text-xs text-ink-soft">
+        {editable ? "Marcá con la estrella las fotos que rotan en tu ficha y en la búsqueda." : "Estas son las fotos que rotan en tu ficha y en la búsqueda."}{" "}
+        {cover.length === 0 && `Si no elegís, rotan las primeras ${MAX_FEATURED_PHOTOS}.`}
+      </p>
+      <ol className="mt-3 grid grid-cols-5 gap-2 sm:gap-3">
+        {Array.from({ length: MAX_FEATURED_PHOTOS }, (_, i) => {
+          const photo = cover[i];
+          if (!photo)
+            return (
+              <li key={`empty-${i}`} className="grid aspect-[4/3] place-items-center rounded-field border-[1.5px] border-dashed border-line-2 text-xs font-bold text-ink-faint">
+                {i + 1}
+              </li>
+            );
+          return (
+            <li key={photo.id} className="relative aspect-[4/3] overflow-hidden rounded-field bg-cream-2">
+              <Image src={photo.url} alt={`Portada ${i + 1}`} fill sizes="(min-width: 640px) 120px, 20vw" draggable={false} className="object-cover" />
+              <span className="absolute left-1 top-1 grid size-6 place-items-center rounded-full bg-forest-ink/85 text-xs font-bold text-white">{i + 1}</span>
+              {editable && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => onToggle(photo.id)}
+                    aria-label={`Sacar la portada ${i + 1}`}
+                    className="absolute right-0.5 top-0.5 grid size-8 place-items-center rounded-full bg-paper/90 text-ink hover:bg-paper focus-visible:outline-2 focus-visible:outline-forest"
+                  >
+                    <Icon name="close" className="text-base" />
+                  </button>
+                  {coverReady && (
+                    <div className="absolute inset-x-0 bottom-0 flex justify-between p-0.5">
+                      <button
+                        type="button"
+                        disabled={i === 0}
+                        onClick={() => onShift(photo.id, -1)}
+                        aria-label={`Mover la portada ${i + 1} hacia adelante`}
+                        className="grid size-8 place-items-center rounded-full bg-paper/90 text-ink hover:bg-paper disabled:opacity-0 focus-visible:outline-2 focus-visible:outline-forest"
+                      >
+                        <Icon name="chevron_left" className="text-lg" />
+                      </button>
+                      <button
+                        type="button"
+                        disabled={i === cover.length - 1}
+                        onClick={() => onShift(photo.id, 1)}
+                        aria-label={`Mover la portada ${i + 1} hacia atrás`}
+                        className="grid size-8 place-items-center rounded-full bg-paper/90 text-ink hover:bg-paper disabled:opacity-0 focus-visible:outline-2 focus-visible:outline-forest"
+                      >
+                        <Icon name="chevron_right" className="text-lg" />
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+    </section>
+  );
+}
+
+type GridProps = {
+  items: PhotoMetaItem[];
+  uploads: Upload[];
+  sectionKey: string;
+  editable: boolean;
+  sectionsEnabled: boolean;
+  options: (current: string) => { key: string; title: string }[];
+  sectionKeyOf: (i: PhotoMetaItem) => string;
+  dragId: string | null;
+  coverFull: boolean;
+  onDragStart: (id: string) => void;
+  onDragEnd: () => void;
+  onMove: (id: string, key: string) => void;
+  onStar: (id: string) => void;
+  onRetry: (id: string) => void;
+  onDismiss: (id: string) => void;
+};
+
+function PhotoGrid(props: GridProps) {
+  const { items, uploads, editable, sectionsEnabled, dragId, coverFull } = props;
+  return (
+    <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+      {items.map((photo, n) => (
+        <li
+          key={photo.id}
+          draggable={editable && sectionsEnabled}
+          onDragStart={(e) => {
+            e.dataTransfer.setData("text/plain", photo.id);
+            e.dataTransfer.effectAllowed = "move";
+            props.onDragStart(photo.id);
+          }}
+          onDragEnd={props.onDragEnd}
+          className={`group relative overflow-hidden rounded-field border border-line bg-paper ${editable && sectionsEnabled ? "cursor-grab active:cursor-grabbing" : ""} ${dragId === photo.id ? "opacity-40" : ""}`}
+        >
+          <div className="relative aspect-[4/3] bg-cream-2">
+            <Image
+              src={photo.url}
+              alt={`Foto ${n + 1}${photo.pending ? " (pendiente de aprobación)" : ""}`}
+              fill
+              sizes="(min-width: 1024px) 240px, (min-width: 640px) 33vw, 50vw"
+              draggable={false}
+              className="object-cover"
+            />
+            {photo.pending && (
+              <span className="absolute bottom-1 left-1 rounded-full bg-orange-tint px-2 py-0.5 text-xs font-bold text-orange-700">Pendiente</span>
+            )}
+            {sectionsEnabled && editable && (
+              <button
+                type="button"
+                onClick={() => props.onStar(photo.id)}
+                disabled={!photo.featured && coverFull}
+                aria-pressed={photo.featured}
+                aria-label={photo.featured ? "Sacar de la portada" : coverFull ? "Ya elegiste 5: sacá una portada para elegir otra" : "Poner en la portada"}
+                title={photo.featured ? "Sacar de la portada" : coverFull ? "Ya elegiste 5: sacá una para elegir otra" : "Poner en la portada"}
+                className={`absolute right-1 top-1 grid size-11 place-items-center rounded-full shadow-sm focus-visible:outline-2 focus-visible:outline-forest disabled:opacity-40 ${
+                  photo.featured ? "bg-orange text-white" : "bg-paper/90 text-ink hover:bg-paper"
+                }`}
+              >
+                <Icon name="star" className="text-xl" style={{ fontVariationSettings: `'FILL' ${photo.featured ? 1 : 0}` }} />
+              </button>
+            )}
+            {sectionsEnabled && !editable && photo.featured && (
+              <span className="absolute right-1 top-1 grid size-8 place-items-center rounded-full bg-orange text-white" title="En la portada">
+                <Icon name="star" className="text-base" />
+              </span>
+            )}
+          </div>
+          {sectionsEnabled && editable && (
+            <select
+              aria-label={`Mover la foto ${n + 1} a…`}
+              value=""
+              onChange={(e) => e.target.value && props.onMove(photo.id, e.target.value)}
+              className="min-h-11 w-full border-t border-line bg-paper px-2 text-sm text-ink-soft focus-visible:outline-2 focus-visible:outline-forest"
+            >
+              <option value="">Mover a…</option>
+              {props.options(props.sectionKeyOf(photo)).map((o) => (
+                <option key={o.key} value={o.key}>
+                  {o.title}
+                </option>
+              ))}
+            </select>
+          )}
+        </li>
+      ))}
+      {uploads.map((u) => (
+        <li key={u.id} className="overflow-hidden rounded-field border border-line bg-paper">
+          <div className="grid aspect-[4/3] place-items-center bg-cream-2 p-2 text-center">
+            {u.status === "uploading" ? (
+              <div role="status" className="flex flex-col items-center gap-1 text-xs text-ink-soft">
+                <Icon name="progress_activity" className="animate-spin text-2xl text-forest-700" />
+                <span className="line-clamp-1 max-w-full">Subiendo {u.name}</span>
+              </div>
+            ) : (
+              <div role="alert" className="flex flex-col items-center gap-1 text-xs text-danger-fg">
+                <Icon name="error" className="text-2xl" />
+                <span className="line-clamp-1 max-w-full font-bold">{u.name}</span>
+                <span>{u.message}</span>
+              </div>
+            )}
+          </div>
+          {u.status === "error" && (
+            <div className="flex border-t border-line">
+              <button type="button" onClick={() => props.onRetry(u.id)} className="min-h-11 flex-1 text-sm font-bold text-forest-700 hover:bg-forest-tint">
+                Reintentar
+              </button>
+              <button type="button" onClick={() => props.onDismiss(u.id)} className="min-h-11 flex-1 border-l border-line text-sm font-bold text-ink-soft hover:bg-cream-2">
+                Quitar
+              </button>
+            </div>
+          )}
+        </li>
+      ))}
+    </ul>
   );
 }

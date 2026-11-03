@@ -18,4 +18,9 @@ export type FichaRoomType = {
   genderLabel?: string;
   bathroom?: "privado" | "compartido";
   state: TypeAvailabilityState;
+  /**
+   * Disponibilidad por género (migración 0075), solo cuando el tipo se ofrece en más de un género. Cada género con su propio estado;
+   * el copy sale de `StatusTag`. La solicitud sigue siendo por tipo.
+   */
+  genderOffers?: { gender: string; label: string; state: TypeAvailabilityState; note: string | null }[];
 };

@@ -22,6 +22,7 @@ const VISIBLE_STAY_STATUSES = ["created_by_residence", "pending_activation", "ac
  * tipo, grupos con tarifa base y cards por habitación con ocupantes y
  * camas libres; el modal de gestión replica
  * `estured_admin_gesti_n_de_habitaciones` (plazas A/B/C… con estado).
+ * La disponibilidad que se ofrece a los estudiantes NO se edita acá: vive en `/availability` (por tipo y género).
  */
 export default async function ResidenceRoomsPage({
   params,
@@ -66,17 +67,6 @@ export default async function ResidenceRoomsPage({
   const { data: beds } = roomIds.length
     ? await admin.from("beds").select("id, room_id, letter, status, out_of_service_reason, sort_order").in("room_id", roomIds).order("sort_order", { ascending: true })
     : { data: [] };
-
-  // Disponibilidad declarada por tipo — para poder editarla desde el
-  // modal de la habitación (Ciclo 41), sin ir a /availability.
-  const typeIds = (roomTypes ?? []).map((t) => t.id);
-  const { data: availabilityRows } = typeIds.length
-    ? await admin
-        .from("profile_availability")
-        .select("room_type_id, status, available_count, available_from, notes_public")
-        .in("room_type_id", typeIds)
-    : { data: [] };
-  const availabilityByType = new Map((availabilityRows ?? []).map((a) => [a.room_type_id, a]));
 
   // Renovaciones activas (para "movimientos próximos").
   const [{ count: renewalRequests }, { count: renewalOffers }] = await Promise.all([
@@ -155,7 +145,6 @@ export default async function ResidenceRoomsPage({
               };
             }),
         }));
-      const availability = availabilityByType.get(rt.id) ?? null;
       return {
         id: rt.id,
         name: rt.name,
@@ -164,14 +153,6 @@ export default async function ResidenceRoomsPage({
         capacityPerRoom: Math.max(1, rt.capacity_per_room ?? 1),
         priceUsd: Number(rt.monthly_price_usd),
         rooms: typeRooms,
-        availability: availability
-          ? {
-              status: availability.status,
-              availableCount: availability.available_count,
-              availableFrom: availability.available_from,
-              notesPublic: availability.notes_public,
-            }
-          : null,
       };
     })
     .filter((g) => g.rooms.length > 0);

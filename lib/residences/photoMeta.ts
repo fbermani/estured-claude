@@ -40,6 +40,8 @@ export type PhotoMetaInput = {
   /** Sección con nombre (DR30, migración 0070); null = sugerida por área / tipo o «Fotos adicionales». */
   section: string | null;
   sortOrder: number;
+  /** Posición (1..5) entre las de portada (migración 0074); null si no es destacada o no tiene orden elegido. */
+  coverOrder: number | null;
 };
 
 export const MAX_SECTION_LENGTH = 40;
@@ -104,11 +106,21 @@ export function validatePhotoMeta(
       return { ok: false, error: `El nombre de la sección puede tener hasta ${MAX_SECTION_LENGTH} caracteres.` };
     const sortOrder =
       typeof e.sortOrder === "number" && Number.isInteger(e.sortOrder) && e.sortOrder >= 0 && e.sortOrder <= 9999 ? e.sortOrder : 0;
-    items.push({ fileId, category, area, roomTypeId, featured: e.featured === true, section, sortOrder });
+    const coverOrder =
+      typeof e.coverOrder === "number" && Number.isInteger(e.coverOrder) && e.coverOrder >= 1 && e.coverOrder <= 99 ? e.coverOrder : null;
+    items.push({ fileId, category, area, roomTypeId, featured: e.featured === true, section, sortOrder, coverOrder });
   }
-  const featuredCount = items.filter((i) => i.featured).length;
-  if (featuredCount > MAX_FEATURED_PHOTOS)
-    return { ok: false, error: `Podés destacar hasta ${MAX_FEATURED_PHOTOS} fotos (las que rotan en tu ficha). Ahora tenés ${featuredCount}.` };
+  const featured = items.filter((i) => i.featured);
+  if (featured.length > MAX_FEATURED_PHOTOS)
+    return { ok: false, error: `Podés elegir hasta ${MAX_FEATURED_PHOTOS} fotos de portada (las que rotan en tu ficha). Ahora tenés ${featured.length}.` };
+  // El orden de portada se normaliza: 1..N sin repetidos (los sin orden van al final, en el orden recibido); las que no son de portada, null.
+  featured
+    .map((it, n) => ({ it, n }))
+    .sort((a, b) => (a.it.coverOrder ?? 99) - (b.it.coverOrder ?? 99) || a.n - b.n)
+    .forEach(({ it }, pos) => {
+      it.coverOrder = pos + 1;
+    });
+  for (const it of items) if (!it.featured) it.coverOrder = null;
   return { ok: true, items };
 }
 
@@ -122,6 +134,8 @@ export type GalleryPhoto = {
   /** Sección con nombre elegida por la residencia (DR30). */
   section?: string | null;
   sortOrder?: number;
+  /** Orden entre las de portada (migración 0074). */
+  coverOrder?: number | null;
 };
 
 /** Sección efectiva: la elegida, o el área / tipo de habitación, o «Fotos adicionales». */
@@ -153,9 +167,17 @@ export function groupPhotosBySections<T extends Pick<GalleryPhoto, "section" | "
   return [...groups.values()].sort((a, b) => Number(a.key === extra) - Number(b.key === extra));
 }
 
-/** Las fotos que rotan: las destacadas (hasta 5) o, si no hay, las primeras 5. */
-export function pickRotationPhotos<T extends { featured: boolean }>(photos: T[]): T[] {
-  const featured = photos.filter((p) => p.featured).slice(0, MAX_FEATURED_PHOTOS);
+/**
+ * Las fotos que rotan: las de portada (hasta 5) o, si no hay, las primeras 5. Las de portada salen en el orden elegido por el owner
+ * (`coverOrder`); sin orden, según el de la galería (`sortOrder`) y, a igualdad, el de llegada (orden estable).
+ */
+export function pickRotationPhotos<T extends { featured: boolean; coverOrder?: number | null; sortOrder?: number }>(photos: T[]): T[] {
+  const featured = photos
+    .map((p, i) => ({ p, i }))
+    .filter(({ p }) => p.featured)
+    .sort((a, b) => (a.p.coverOrder ?? 99) - (b.p.coverOrder ?? 99) || (a.p.sortOrder ?? 0) - (b.p.sortOrder ?? 0) || a.i - b.i)
+    .slice(0, MAX_FEATURED_PHOTOS)
+    .map(({ p }) => p);
   return featured.length > 0 ? featured : photos.slice(0, MAX_FEATURED_PHOTOS);
 }
 

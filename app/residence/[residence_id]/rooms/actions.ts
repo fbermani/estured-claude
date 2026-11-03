@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
-import { renameRoom, setRoomGender, setBedStatus, assignStayToBed } from "@/lib/residences/roomManagement";
+import { renameRoom, setRoomGender, setRoomsGenderBulk, setRoomOutOfService, setBedStatus, assignStayToBed } from "@/lib/residences/roomManagement";
 
 export type RoomsActionState = { status: "idle" | "error" | "saved"; message?: string };
 
@@ -53,6 +53,52 @@ export async function setRoomGenderAction(
   if (!result.ok) return { status: "error", message: result.error };
   revalidatePath(`/residence/${residenceId}/rooms`);
   revalidatePath("/residencias", "layout");
+  return { status: "saved" };
+}
+
+/** Edición en lote: mismo género para varias habitaciones (los ids llegan como varios `room_id`). */
+export async function setRoomsGenderBulkAction(
+  residenceId: string,
+  _prev: RoomsActionState,
+  formData: FormData,
+): Promise<RoomsActionState> {
+  const ctx = await requireContext();
+  if ("error" in ctx) return { status: "error", message: ctx.error };
+
+  const result = await setRoomsGenderBulk(ctx.admin, {
+    actorUserId: ctx.sessionUser.id,
+    residenceId,
+    roomIds: formData.getAll("room_id").map(String),
+    gender: String(formData.get("gender") ?? ""),
+  });
+  if (!result.ok) return { status: "error", message: result.error };
+  revalidatePath(`/residence/${residenceId}/rooms`);
+  revalidatePath(`/residence/${residenceId}/availability`);
+  revalidatePath("/residencias", "layout");
+  return { status: "saved", message: `Género actualizado en ${result.changed ?? 0} ${result.changed === 1 ? "habitación" : "habitaciones"}.` };
+}
+
+/** Saca de servicio (todas las camas) una habitación, o la reactiva. */
+export async function setRoomOutOfServiceAction(
+  residenceId: string,
+  roomId: string,
+  outOfService: boolean,
+  _prev: RoomsActionState,
+  formData: FormData,
+): Promise<RoomsActionState> {
+  const ctx = await requireContext();
+  if ("error" in ctx) return { status: "error", message: ctx.error };
+
+  const result = await setRoomOutOfService(ctx.admin, {
+    actorUserId: ctx.sessionUser.id,
+    residenceId,
+    roomId,
+    outOfService,
+    reason: String(formData.get("reason") ?? "") || null,
+  });
+  if (!result.ok) return { status: "error", message: result.error };
+  revalidatePath(`/residence/${residenceId}/rooms`);
+  revalidatePath(`/residence/${residenceId}/availability`);
   return { status: "saved" };
 }
 

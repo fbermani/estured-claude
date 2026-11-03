@@ -8,6 +8,10 @@
 
 ---
 
+## Actualización 2026-11-03: config de residencia (DR33–DR34)
+
+Hecho y sin pushear: amenidades (0073), galería por secciones (0074), disponibilidad por tipo+género (0075), cambio de habitación (0076). Dev aplicado hasta 0076; prod vía bootstrap nuevo (regenerar). Próximo: explicación del cobro de mes vacío; verificar el lado estudiante del cambio de habitación (necesita un usuario con estadía activa); investigar `stayChange.test.ts`.
+
 ## TRASPASO a otro perfil (2026-11-02, al cierre de la sesión principal)
 
 **Leer primero:** este bloque, `MEMORY.md` y `CLAUDE.md`. Todo lo hecho está commiteado en `main`, **nada pusheado** (no pushear salvo pedido del dueño).

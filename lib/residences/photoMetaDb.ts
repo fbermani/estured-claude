@@ -13,29 +13,38 @@ export type PhotoMetaRow = {
   /** Migración 0070: ausentes si todavía no está aplicada. */
   section?: string | null;
   sort_order?: number;
+  /** Migración 0074: ausente si todavía no está aplicada. */
+  cover_order?: number | null;
 };
 
 /** Metadatos de fotos por `file_id`. Sin la migración 0059 (o ante un error) devuelve `schemaReady: false` y vacío: todo queda «general». */
 export async function loadPhotoMeta(
   admin: SupabaseClient,
   residenceIds: string[],
-): Promise<{ byFileId: Map<string, PhotoMetaRow>; schemaReady: boolean; sectionsReady: boolean }> {
+): Promise<{ byFileId: Map<string, PhotoMetaRow>; schemaReady: boolean; sectionsReady: boolean; coverReady: boolean }> {
   const byFileId = new Map<string, PhotoMetaRow>();
-  if (residenceIds.length === 0) return { byFileId, schemaReady: true, sectionsReady: true };
+  if (residenceIds.length === 0) return { byFileId, schemaReady: true, sectionsReady: true, coverReady: true };
   const base = "file_id, residence_id, category, area, room_type_id, is_featured";
-  let { data, error }: { data: unknown[] | null; error: { code?: string | null; message?: string | null } | null } = await admin.from("residence_photo_meta").select(`${base}, section, sort_order`).in("residence_id", residenceIds);
-  // Sin la migración 0070 (columnas section / sort_order) se degrada a lo de 0059.
-  let sectionsReady = true;
-  if (error && isMissingSchemaError(error)) {
-    sectionsReady = false;
-    ({ data, error } = await admin.from("residence_photo_meta").select(base).in("residence_id", residenceIds));
+  // Se prueba con todas las columnas y se va degradando: 0074 (cover_order) → 0070 (section / sort_order) → 0059.
+  const tiers = [
+    { cols: `${base}, section, sort_order, cover_order`, sectionsReady: true, coverReady: true },
+    { cols: `${base}, section, sort_order`, sectionsReady: true, coverReady: false },
+    { cols: base, sectionsReady: false, coverReady: false },
+  ];
+  let data: unknown[] | null = null;
+  let error: { code?: string | null; message?: string | null } | null = null;
+  let tier = tiers[0];
+  for (const t of tiers) {
+    tier = t;
+    ({ data, error } = await admin.from("residence_photo_meta").select(t.cols).in("residence_id", residenceIds));
+    if (!error || !isMissingSchemaError(error)) break;
   }
   if (error) {
     if (!isMissingSchemaError(error)) console.error("[photo-meta] lectura fallida:", error.code, error.message);
-    return { byFileId, schemaReady: false, sectionsReady: false };
+    return { byFileId, schemaReady: false, sectionsReady: false, coverReady: false };
   }
   for (const row of (data ?? []) as PhotoMetaRow[]) byFileId.set(row.file_id, row);
-  return { byFileId, schemaReady: true, sectionsReady };
+  return { byFileId, schemaReady: true, sectionsReady: tier.sectionsReady, coverReady: tier.coverReady };
 }
 
 /** Une fotos aprobadas con sus metadatos (el orden es la antigüedad, que ya trae la consulta; el editor no reordena). */
@@ -55,6 +64,7 @@ export function buildGalleryPhotos(
       featured: m?.is_featured === true,
       section: m?.section ?? null,
       sortOrder: m?.sort_order ?? 0,
+      coverOrder: m?.cover_order ?? null,
     };
   });
 }

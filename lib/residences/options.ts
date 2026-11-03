@@ -14,8 +14,6 @@ import { CABA_BARRIOS } from "@/lib/data/caBarrios";
 export const SERVICE_OPTIONS = [
   "Wifi",
   "Cámaras 24 hs",
-  "Cocina",
-  "Gimnasio",
   "Limpieza General",
   "Limpieza de Habitación",
   "Lavandería",
@@ -34,6 +32,9 @@ export const COMMON_AREA_OPTIONS = [
   "Patio",
   "Terraza",
   "Sala de Juegos",
+  // 0073: «Gimnasio» (antes servicio) y «Cocina compartida» (antes servicio «Cocina», con cantidad de 1 a 5) viven en áreas comunes.
+  "Gimnasio",
+  "Cocina compartida",
 ] as const;
 
 /**

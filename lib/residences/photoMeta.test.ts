@@ -43,9 +43,31 @@ describe("rotación y agrupado", () => {
     expect(pickRotationPhotos([p("a"), p("b", true), p("c", true)]).map((x) => x.url)).toEqual(["b", "c"]);
     expect(pickRotationPhotos(["a", "b", "c", "d", "e", "f", "g"].map((u) => p(u))).map((x) => x.url)).toEqual(["a", "b", "c", "d", "e"]);
   });
+  it("las de portada salen en el orden elegido (coverOrder) y, sin él, según el de la galería", () => {
+    const f = (url: string, coverOrder: number | null, sortOrder = 0) => ({ ...p(url, true), coverOrder, sortOrder });
+    expect(pickRotationPhotos([f("a", 2), f("b", 1), f("c", null, 0)]).map((x) => x.url)).toEqual(["b", "a", "c"]);
+    expect(pickRotationPhotos([f("a", null, 5), f("b", null, 1)]).map((x) => x.url)).toEqual(["b", "a"]);
+  });
   it("agrupa General, áreas y tipos", () => {
     const g = groupGalleryPhotos([p("1", false, "room_type", null, "Doble"), p("2", false, "area", "cocina"), p("3")]);
     expect(g.map((x) => x.title)).toEqual(["General", "Cocina", "Habitación: Doble"]);
+  });
+});
+
+describe("orden de portada (0074)", () => {
+  const big = { validFileIds: new Set(["1", "2", "3", "4"]), validRoomTypeIds: new Set<string>() };
+  it("normaliza coverOrder a 1..N para las destacadas y null para el resto", () => {
+    const r = validatePhotoMeta(
+      [
+        { fileId: "1", category: "general", featured: true, coverOrder: 4 },
+        { fileId: "2", category: "general", featured: true },
+        { fileId: "3", category: "general", featured: true, coverOrder: 4 },
+        { fileId: "4", category: "general", featured: false, coverOrder: 2 },
+      ],
+      big,
+    );
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.items.map((i) => i.coverOrder)).toEqual([1, 3, 2, null]);
   });
 });
 

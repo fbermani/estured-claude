@@ -42,6 +42,8 @@ export interface RoomTypeOffer {
   type: RoomTypeName;
   priceUsd: number;
   available: boolean;
+  /** Solo cuando el tipo se ofrece en varios géneros (disponibilidad por género, migración 0075): una oferta por género. */
+  gender?: "mixto" | "solo_mujeres" | "solo_hombres";
 }
 
 export interface Residence {

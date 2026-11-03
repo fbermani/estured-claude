@@ -27,6 +27,7 @@ import {
   type RoomTypeEditInput,
 } from "@/lib/residences/profileEdits";
 import { logTariffChange } from "@/lib/residences/tariffLog";
+import { amenityDetailsFromForm, normalizeAmenityLists } from "@/lib/residences/amenityDetails";
 import { SUBMITTABLE_RESIDENCE_STATUSES, VERIFICATION_STATUSES_RESET_ON_SUBMIT, isMissingColumnError, isResubmission } from "@/lib/residences/changesRequest";
 import { parseCustomAmenityDrafts } from "@/lib/residences/customAmenities";
 import { syncCustomAmenities } from "@/lib/residences/customAmenitiesDb";
@@ -215,6 +216,9 @@ export async function saveResidenceProfile(
   if (!customAmenityDrafts) return { status: "error", message: "Hubo un problema con los ítems propios de servicios y áreas." };
   const services = formData.getAll("services").map(String).filter((s) => SERVICES.has(s));
   const commonAreas = formData.getAll("common_areas").map(String).filter((s) => COMMON_AREAS.has(s));
+  // 0073: cantidad de cocinas compartidas y frecuencia de la limpieza general (validadas por whitelist y rango).
+  const amenityDetails = amenityDetailsFromForm(formData, { services, commonAreas });
+  if (amenityDetails.error) return { status: "error", message: amenityDetails.error };
   const nearUniversities = formData
     .getAll("near_universities")
     .map(String)
@@ -535,6 +539,15 @@ export async function saveResidenceProfile(
       ? nearUniversities.map(String)
       : ((prevNearSection?.content as { items?: string[] } | null)?.items ?? []).map(String);
 
+    // 0073: detalles (cocinas / frecuencia de limpieza). Si la columna aún no existe se avisa y el resto se guarda igual.
+    {
+      const { error: detailsError } = await admin.from("residences").update({ amenity_details: amenityDetails.value }).eq("id", residenceId);
+      if (detailsError) {
+        if (!isMissingColumnError(detailsError)) throw detailsError;
+        if (Object.keys(amenityDetails.value).length > 0) warnings.push("Guardamos tu perfil, pero todavía no pudimos guardar la cantidad de cocinas ni la frecuencia de limpieza.");
+      }
+    }
+
     // Secciones no críticas: áreas comunes, universidades cercanas, FAQ —
     // siempre directo.
     for (const section of [
@@ -595,7 +608,11 @@ export async function saveResidenceProfile(
       .select("section_type, content")
       .eq("residence_id", residenceId)
       .in("section_type", ["services", "rules"]);
-    const currentServices = ((existingSections ?? []).find((s) => s.section_type === "services")?.content as { items?: string[] } | undefined)?.items ?? [];
+    // Filas anteriores a la 0073 guardan «Gimnasio»/«Cocina» como servicio: se normalizan para no contarlas como un cambio.
+    const currentServices = normalizeAmenityLists({
+      services: ((existingSections ?? []).find((s) => s.section_type === "services")?.content as { items?: string[] } | undefined)?.items ?? [],
+      commonAreas: [],
+    }).services;
     const currentRulesSummary = ((existingSections ?? []).find((s) => s.section_type === "rules")?.content as { summary?: string } | undefined)?.summary ?? "";
 
     const servicesChanged = [...currentServices].sort().join(",") !== [...services].sort().join(",");

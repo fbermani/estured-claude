@@ -164,6 +164,21 @@ export function RatesTable({
                   ) : null}
                 </div>
               </div>
+
+              {rt.genderOffers && rt.genderOffers.length > 1 && (
+                <ul aria-label={`${rt.name}, por género`} className="mt-3 space-y-1.5 border-t border-line/70 pt-2.5">
+                  {rt.genderOffers.map((o) => (
+                    <li key={o.gender} className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+                      <span className="flex items-center gap-1.5 text-sm font-semibold text-ink-soft">
+                        <Icon name="wc" className="text-base text-forest-700" />
+                        {o.label}
+                      </span>
+                      <StatusTag mode={typeAvailabilityMode(o.state)} roomTypeName={o.state === "full" ? o.label : null} />
+                      {o.note && <p className="basis-full text-xs text-ink-faint">{o.note}</p>}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </li>
           );
         })}

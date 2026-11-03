@@ -24,7 +24,7 @@ export type NotificationLinkContext = {
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** Tipos de entidad que, para el área residencia, necesitan saber de qué residencia son. */
-export const RESIDENCE_SCOPED_ENTITY_TYPES = ["support_cases", "application_requests", "residence_faq_questions", "stay_change_intents", "waitlist_entries", "renewal_requests"] as const;
+export const RESIDENCE_SCOPED_ENTITY_TYPES = ["support_cases", "application_requests", "residence_faq_questions", "stay_change_intents", "waitlist_entries", "renewal_requests", "room_change_requests", "room_change_place_alerts"] as const;
 
 /** Columna que dice de qué residencia es cada tipo de entidad (por defecto `residence_id`). */
 export const RESIDENCE_COLUMN_BY_ENTITY: Record<string, string> = { stay_change_intents: "current_residence_id" };
@@ -95,6 +95,9 @@ export function notificationHref(
       case "stay_change_intents":
         // DR3 "Quiero cambiar": el bloque vive en Mi residencia (el familiar lo ve en solo lectura en la misma ruta).
         return "/students/residency#quiero-cambiar";
+      case "room_change_requests":
+        // DR34: el pedido de cambio de habitación vive en Mi residencia.
+        return "/students/residency#cambio-habitacion";
       case "family_application_proposals":
         // DR4: el estudiante responde en su pantalla de propuestas; el familiar ve el estado en su inicio.
         return isFamily ? "/students/dashboard" : "/students/family-proposals";
@@ -137,6 +140,12 @@ export function notificationHref(
     case "stay_change_intents": {
       const residenceId = id ? context.residenceIdByEntity?.[`stay_change_intents:${id}`] : undefined;
       return residenceId ? `/residence/${residenceId}/residents?filtro=buscan-cambiar` : null;
+    }
+    case "room_change_requests":
+    case "room_change_place_alerts": {
+      // DR34: pedidos de cambio de habitación y plazas liberadas por decidir viven en Residentes.
+      const residenceId = id ? context.residenceIdByEntity?.[`${entityType}:${id}`] : undefined;
+      return residenceId ? `/residence/${residenceId}/residents?filtro=cambio-habitacion` : null;
     }
     default:
       return null;

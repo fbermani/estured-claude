@@ -28,6 +28,7 @@ const GUARDED: Record<string, string[]> = {
   // Operación
   "lib/residences/roomManagement.ts": ["assertResidencePermission(", "operations.rooms_availability"],
   "lib/availability/updateAvailability.ts": ["assertResidencePermission(", "operations.rooms_availability"],
+  "lib/availability/updateGenderAvailability.ts": ["assertResidencePermission(", "operations.rooms_availability"],
   "lib/residents/createResidentStay.ts": ["assertResidencePermission(", "residents.manage"],
   "lib/residents/setResidentEmail.ts": ["assertResidencePermission(", "residents.manage"],
   // Vinculación de residentes (DR19): invitación personal, código de casa y cola de solicitudes de vínculo
@@ -37,6 +38,8 @@ const GUARDED: Record<string, string[]> = {
   "lib/residents/updateStayDetails.ts": ["assertResidencePermission(", "residents.manage"],
   "lib/residents/addResidentNote.ts": ["assertResidencePermission(", "residents.manage"],
   "lib/stayChange/respondStayChangeIntent.ts": ["assertResidencePermission(", "residents.manage"],
+  // Cambio de habitación (DR34): pedidos y plazas liberadas son de `residents.manage`; publicar la plaza toca la disponibilidad
+  "lib/roomChange/manage.ts": ["assertResidencePermission(", "residents.manage", "operations.rooms_availability"],
   "lib/renewals/createRenewalOffer.ts": ["assertResidencePermission(", "renewals.manage"],
   "lib/renewals/sendRenewalOffer.ts": ["assertResidencePermission(", "renewals.manage"],
   "lib/renewals/recordRenewalResidencePaymentReceived.ts": ["assertResidencePermission(", "renewals.manage"],
@@ -63,12 +66,13 @@ const DELEGATING: Record<string, string[]> = {
     "@/lib/residences/roomManagement",
   ],
   "app/residence/[residence_id]/residents/stayChangeActions.ts": ["@/lib/stayChange/respondStayChangeIntent"],
+  "app/residence/[residence_id]/residents/roomChangeActions.ts": ["@/lib/roomChange/manage"],
   "app/residence/[residence_id]/faq/actions.ts": ["@/lib/faq/moderateResidenceQuestion"],
   "app/residence/[residence_id]/regulation/actions.ts": ["@/lib/regulations/publish"],
   "app/residence/[residence_id]/team/actions.ts": ["@/lib/team/teamInvitations"],
   "app/residence/[residence_id]/applications/[id]/payment/actions.ts": ["@/lib/reservations/recordResidencePaymentReceived"],
   "app/residence/[residence_id]/renewals/actions.ts": ["@/lib/renewals/createRenewalOffer", "@/lib/renewals/sendRenewalOffer", "@/lib/renewals/recordRenewalResidencePaymentReceived"],
-  "app/residence/[residence_id]/availability/actions.ts": ["@/lib/availability/updateAvailability"],
+  "app/residence/[residence_id]/availability/actions.ts": ["@/lib/availability/updateAvailability", "@/lib/availability/updateGenderAvailability"],
   "app/residence/[residence_id]/rooms/actions.ts": ["@/lib/residences/roomManagement"],
 };
 
@@ -109,6 +113,8 @@ const ALLOWLIST: Record<string, string> = {
   "lib/residents/setResidentVisibility.ts": "acción del estudiante sobre su propia estadía",
   "lib/residents/activateResidentStay.ts": "acción del estudiante / sistema al activar su cuenta",
   "lib/residents/inviteVerification.ts": "pasos del estudiante o de quien tiene el enlace personal (el token es la prueba); la residencia emite la invitación en residentInvitations (GUARDED)",
+  "lib/residents/finalizeStayActivation.ts": "paso final de la activación del estudiante / confirmación del tutor (DR32): lo llaman activateResidentStay y guardianConfirmation, no una acción de equipo",
+  "lib/residents/guardianConfirmation.ts": "confirmación del tutor/familiar de un menor (DR32): acciones del familiar vinculado y jobs; la residencia solo dispara el pedido desde linkRequestsResidence (GUARDED)",
   "lib/residents/linkRequestsStudent.ts": "acción del estudiante (pide el vínculo; la residencia lo resuelve en linkRequestsResidence, GUARDED)",
   "lib/renewals/createRenewalRequest.ts": "acción del estudiante",
   "lib/renewals/respondRenewalOffer.ts": "acción del estudiante",

@@ -1,3 +1,4 @@
+import { normalizeAmenityLists } from "@/lib/residences/amenityDetails";
 import "server-only";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { residenceAcceptsAge } from "@/lib/residences/age";
@@ -10,12 +11,15 @@ import { buildGalleryPhotos, loadPhotoMeta, rotationUrls } from "@/lib/residence
 import { nearestUniversityNames } from "@/lib/residences/nearestUniversities";
 import { getResidenceLocation } from "@/lib/residences/residenceLocation";
 import { computeCapacity, residentsToDisplay } from "@/lib/residences/occupancy";
-import type { Residence, RoomTypeName } from "@/types/domain";
+import type { Residence, RoomTypeName, RoomTypeOffer } from "@/types/domain";
 import {
   residenceAvailabilityMode,
   catalogAvailabilityHint,
   typeAvailabilityState,
 } from "@/lib/availability/typeAvailability";
+import { genderOffers, offerPolicies } from "@/lib/availability/genderAvailability";
+import { loadGenderAvailability } from "@/lib/availability/genderAvailabilityDb";
+import { policyFromGender } from "@/lib/residences/roomGender";
 
 const CANONICAL_ROOM_TYPES: readonly string[] = ["Individual", "Doble", "Triple", "Cuádruple", "Compartida"];
 
@@ -119,6 +123,11 @@ export async function getCatalogResidencesWithTotal(
     // DR18 t4: promociones vigentes por tipo para el «antes/ahora» de la tarjeta (sin la 0060 queda la tarifa de lista).
     loadPromotionsByResidence(admin, ids),
   ]);
+  // Disponibilidad por género (migración 0075): sin ella queda el detalle por tipo de siempre.
+  const genderRows = await loadGenderAvailability(
+    admin,
+    (roomTypes ?? []).map((rt) => rt.id as string),
+  );
   if (accessRes.error) console.error("[catalog] no se pudo leer el plan de las residencias:", accessRes.error.message);
   const premiumById = new Map((accessRes.error ? [] : (accessRes.data ?? [])).map((a) => [a.id as string, a.has_operational_management_access as boolean | null]));
 
@@ -156,8 +165,10 @@ export async function getCatalogResidencesWithTotal(
       (sections ?? []).filter((s) => s.residence_id === r.id).map((s) => [s.section_type, s.content]),
     );
     const custom = customByResidence.get(r.id);
-    const services = [...new Set([...((sectionMap.services?.items as string[]) ?? []), ...(custom?.services ?? [])])];
-    const commonAreas = [...new Set([...((sectionMap.common_areas?.items as string[]) ?? []), ...(custom?.areas ?? [])])];
+    const { services, commonAreas } = normalizeAmenityLists({
+      services: [...new Set([...((sectionMap.services?.items as string[]) ?? []), ...(custom?.services ?? [])])],
+      commonAreas: [...new Set([...((sectionMap.common_areas?.items as string[]) ?? []), ...(custom?.areas ?? [])])],
+    });
     const nearUniversities = (sectionMap.near_universities?.items as string[]) ?? [];
     // La tarjeta muestra solo las 3 sedes más cercanas; la ficha las lista todas (y el filtro usa la lista completa).
     const cardUniversities = nearestUniversityNames(nearUniversities, getResidenceLocation(r));
@@ -173,13 +184,30 @@ export async function getCatalogResidencesWithTotal(
     const priceFromUsd = cardPrice.fromUsd ?? 0;
     const availabilityMode = residenceAvailabilityMode(typeStates);
 
-    const roomTypeOffers = rts
+    // Una oferta por tipo; si el tipo tiene VARIOS géneros declarados (0075), una por género («Doble femenina» / «Doble masculina»),
+    // cada una con su propio estado. El estado del tipo manda cuando es más restrictivo (`effectiveGenderState`).
+    const offersByType = new Map(rts.map((rt) => [rt.id as string, genderOffers(rt.profile_availability?.status, genderRows.byType.get(rt.id as string) ?? [])]));
+    const roomTypeOffers: RoomTypeOffer[] = rts
       .filter((rt) => CANONICAL_ROOM_TYPES.includes(rt.name))
-      .map((rt) => ({
-        type: rt.name as RoomTypeName,
-        priceUsd: Number(rt.monthly_price_usd),
-        available: typeAvailabilityState(rt.profile_availability?.status) === "available",
-      }));
+      .flatMap((rt): RoomTypeOffer[] => {
+        const base = { type: rt.name as RoomTypeName, priceUsd: Number(rt.monthly_price_usd) };
+        const offers = offersByType.get(rt.id as string) ?? [];
+        const specified = offers.filter((o) => o.gender !== "sin_especificar");
+        if (specified.length < 2) return [{ ...base, available: typeAvailabilityState(rt.profile_availability?.status) === "available" }];
+        return offers.map((o) => {
+          const policy = policyFromGender(o.gender);
+          return {
+            ...base,
+            available: o.state === "available",
+            ...(policy ? { gender: policy as NonNullable<RoomTypeOffer["gender"]> } : {}),
+          };
+        });
+      });
+    // Género de la residencia: si el tipo declara géneros por habitación (0075) se usan esos; si no, el `gender_policy` del tipo.
+    const genderSources = rts.flatMap((rt) => {
+      const fromOffers = offerPolicies(offersByType.get(rt.id as string) ?? []);
+      return fromOffers.length > 0 ? fromOffers : [rt.gender_policy as string | null];
+    });
 
     return {
       slug: r.slug,
@@ -214,7 +242,7 @@ export async function getCatalogResidencesWithTotal(
       capacityPlaces: capacityPlaces > 0 ? capacityPlaces : undefined,
       latitude: toCoordinate(r.latitude),
       longitude: toCoordinate(r.longitude),
-      ...deriveGenderPolicy(rts.map((rt) => rt.gender_policy as string | null)),
+      ...deriveGenderPolicy(genderSources),
     };
   });
   return { residences: result, total };
