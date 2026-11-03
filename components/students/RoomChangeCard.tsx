@@ -192,10 +192,7 @@ export function RoomChangeCard({ view }: { view: StudentRoomChangeView }) {
           ) : (
             <RequestForm
               view={view}
-              onDone={() => {
-                setShowForm(false);
-                setSent(true);
-              }}
+              onDone={() => setSent(true)}
             />
           )}
         </div>
