@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { startTransition, useActionState, useState, type FormEvent } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -28,6 +28,8 @@ const STATUS_HINT: Record<string, string> = {
   offered: "Tu residencia lo está gestionando. Coordiná con ella los pasos y los costos.",
 };
 
+const COSTS_CHECKBOX_REQUIRED = "Marcá la casilla para poder enviar el pedido.";
+
 function RequestForm({ view, onDone }: { view: StudentRoomChangeView; onDone: () => void }) {
   const action = async (prev: StudentRoomChangeState, formData: FormData) => {
     const result = await createRoomChangeRequestAction(prev, formData);
@@ -35,12 +37,24 @@ function RequestForm({ view, onDone }: { view: StudentRoomChangeView; onDone: ()
     return result;
   };
   const [state, formAction, pending] = useActionState(action, initialState);
+  // Se envía con onSubmit (y no con `action={formAction}`): React 19 resetea el formulario al terminar la acción y, si el server devuelve un error,
+  // se perdería lo escrito (y la casilla controlada se desincroniza). Los campos son controlados por el mismo motivo.
+  function onSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    startTransition(() => formAction(formData));
+  }
+  const [roomTypeId, setRoomTypeId] = useState("");
+  const [gender, setGender] = useState("");
+  const [note, setNote] = useState("");
+  const [reason, setReason] = useState("");
+  const [confirmCosts, setConfirmCosts] = useState(false);
   return (
-    <form action={formAction} className="mt-4 space-y-3">
+    <form onSubmit={onSubmit} className="mt-4 space-y-3">
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="block text-xs font-semibold text-ink-soft">
           Tipo de habitación
-          <select name="room_type_id" defaultValue="" className={`mt-1 ${fieldClass}`}>
+          <select name="room_type_id" value={roomTypeId} onChange={(e) => setRoomTypeId(e.target.value)} className={`mt-1 ${fieldClass}`}>
             <option value="">Cualquiera</option>
             {view.roomTypes.map((t) => (
               <option key={t.id} value={t.id}>
@@ -52,7 +66,7 @@ function RequestForm({ view, onDone }: { view: StudentRoomChangeView; onDone: ()
         </label>
         <label className="block text-xs font-semibold text-ink-soft">
           Género de la habitación
-          <select name="gender" defaultValue="" className={`mt-1 ${fieldClass}`}>
+          <select name="gender" value={gender} onChange={(e) => setGender(e.target.value)} className={`mt-1 ${fieldClass}`}>
             <option value="">Cualquiera</option>
             {ROOM_CHANGE_GENDERS.map((g) => (
               <option key={g} value={g}>
@@ -64,18 +78,29 @@ function RequestForm({ view, onDone }: { view: StudentRoomChangeView; onDone: ()
       </div>
       <label className="block text-xs font-semibold text-ink-soft">
         Piso o nota (opcional)
-        <input name="note" type="text" maxLength={ROOM_CHANGE_NOTE_MAX} placeholder="Ej.: un piso más alto, lejos de la calle" className={`mt-1 ${fieldClass}`} />
+        <input name="note" type="text" value={note} onChange={(e) => setNote(e.target.value)} maxLength={ROOM_CHANGE_NOTE_MAX} placeholder="Ej.: un piso más alto, lejos de la calle" className={`mt-1 ${fieldClass}`} />
       </label>
       <label className="block text-xs font-semibold text-ink-soft">
         Motivo (opcional)
-        <textarea name="reason" rows={3} maxLength={ROOM_CHANGE_REASON_MAX} placeholder="Contale a tu residencia por qué querés el cambio" className={`mt-1 ${fieldClass}`} />
+        <textarea name="reason" rows={3} value={reason} onChange={(e) => setReason(e.target.value)} maxLength={ROOM_CHANGE_REASON_MAX} placeholder="Contale a tu residencia por qué querés el cambio" className={`mt-1 ${fieldClass}`} />
       </label>
-      <p className="text-xs text-ink-faint">Con una sola preferencia alcanza: lo que dejes vacío te da igual.</p>
+      <p className="text-xs text-ink-faint">Elegí al menos un tipo de habitación, un género o una nota: el motivo solo no alcanza. Lo que dejes vacío te da igual.</p>
       <label className="flex items-start gap-2.5 rounded-field bg-warning-bg px-3.5 py-3 text-sm text-ink-soft">
-        <input type="checkbox" name="confirm_costs" required className="mt-0.5 h-4 w-4 shrink-0 accent-forest" />
+        <input
+          type="checkbox"
+          name="confirm_costs"
+          required
+          checked={confirmCosts}
+          onChange={(e) => {
+            e.currentTarget.setCustomValidity("");
+            setConfirmCosts(e.target.checked);
+          }}
+          onInvalid={(e) => e.currentTarget.setCustomValidity(COSTS_CHECKBOX_REQUIRED)}
+          className="mt-0.5 h-4 w-4 shrink-0 accent-forest"
+        />
         <span>{ROOM_CHANGE_COSTS_NOTICE}</span>
       </label>
-      {state.status === "error" && <p role="alert" className="rounded-field bg-danger-bg px-3.5 py-2.5 text-sm font-medium text-danger-fg">{state.message}</p>}
+      {state.status === "error" && !pending && <p role="alert" className="rounded-field bg-danger-bg px-3.5 py-2.5 text-sm font-medium text-danger-fg">{state.message}</p>}
       <button
         type="submit"
         disabled={pending}
@@ -87,9 +112,14 @@ function RequestForm({ view, onDone }: { view: StudentRoomChangeView; onDone: ()
   );
 }
 
-function CancelRequest({ requestId }: { requestId: string }) {
+function CancelRequest({ requestId, onDone }: { requestId: string; onDone: () => void }) {
   const [confirming, setConfirming] = useState(false);
-  const [state, formAction, pending] = useActionState(cancelRoomChangeRequestAction.bind(null, requestId), initialState);
+  const action = async (prev: StudentRoomChangeState) => {
+    const result = await cancelRoomChangeRequestAction(requestId, prev);
+    if (result.status === "saved") onDone();
+    return result;
+  };
+  const [state, formAction, pending] = useActionState(action, initialState);
   if (!confirming) {
     return (
       <button
@@ -146,6 +176,11 @@ export function RoomChangeCard({ view }: { view: StudentRoomChangeView }) {
 
       {request && open ? (
         <div className="mt-4">
+          {sent && (
+            <p role="status" className="mb-3 flex items-start gap-2 rounded-field bg-success-bg px-3.5 py-2.5 text-sm font-medium text-success-fg">
+              <Icon name="check_circle" className="mt-0.5 text-lg" /> Le mandamos tu pedido a tu residencia. Queda sujeto a disponibilidad.
+            </p>
+          )}
           <p className="text-sm font-semibold text-ink">
             Buscás: {describePreference({ typeName: request.roomTypeName, gender: request.gender, note: request.note })}
           </p>
@@ -160,19 +195,14 @@ export function RoomChangeCard({ view }: { view: StudentRoomChangeView }) {
           )}
           <p className="mt-3 text-xs text-ink-faint">{STATUS_HINT[request.status]} Sujeto a disponibilidad y a los costos que correspondan.</p>
           <div className="mt-4">
-            <CancelRequest requestId={request.id} />
+            <CancelRequest requestId={request.id} onDone={() => setSent(false)} />
           </div>
         </div>
       ) : (
         <div className="mt-4">
-          {sent && (
-            <p role="status" className="mb-3 flex items-start gap-2 rounded-field bg-success-bg px-3.5 py-2.5 text-sm font-medium text-success-fg">
-              <Icon name="check_circle" className="mt-0.5 text-lg" /> Le mandamos tu pedido a tu residencia. Queda sujeto a disponibilidad.
-            </p>
-          )}
           {request && (
             <p className="mb-3 text-xs text-ink-faint">
-              Tu último pedido quedó {ROOM_CHANGE_STATUS_LABEL[request.status].toLowerCase()}
+              Tu último pedido está {request.status === "resolved" ? "resuelto" : "cancelado"}
               {request.closedReason === "moved" ? ": ya te cambiaron de habitación" : ""}.
             </p>
           )}

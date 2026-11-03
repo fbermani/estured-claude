@@ -498,7 +498,8 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
             <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
               <div>
                 <p className="text-xs text-ink-faint">Habitación</p>
-                <p className="font-bold text-ink">{reservation.room_types?.name ?? "—"}</p>
+                {/* La estadía vigente manda: asignar una cama o resolver un cambio de habitación actualiza `resident_stays`, no la reserva. */}
+                <p className="font-bold text-ink">{roomChange?.currentTypeName ?? reservation.room_types?.name ?? "—"}</p>
               </div>
               <div>
                 <p className="text-xs text-ink-faint">Valor mensual</p>
