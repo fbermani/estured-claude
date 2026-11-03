@@ -225,8 +225,8 @@ export function CostBreakdown({
             Mes vacío ({emptyLabel})
             <InfoTip label="Qué es el mes vacío">
               Reservás hoy para ingresar más adelante y la habitación está disponible desde {empty.vacantFrom ? formatDateOnly(empty.vacantFrom) : "hoy"}:
-              el tiempo hasta tu ingreso en que la plaza queda vacía se cobra al {emptyPercent}% de la renta. Cada mes completo cuenta
-              como uno; si sobran días, más de 15 cuentan como un mes y 15 o menos como medio mes (máximo {MAX_EMPTY_MONTHS} meses). Se
+              la residencia te guarda la plaza y ese tiempo hasta tu ingreso, en que queda vacía, se cobra al {emptyPercent}% de la renta.
+              Se cuenta en proporción a los días: más de 15 días extra cuentan como un mes y 15 o menos como medio mes (máximo {MAX_EMPTY_MONTHS} meses). Se
               confirma al enviar la solicitud, con la disponibilidad de ese momento. Se paga a la residencia y forma parte del total sobre
               el que se calcula el fee.
             </InfoTip>

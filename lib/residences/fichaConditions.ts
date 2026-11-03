@@ -209,7 +209,7 @@ export function buildConditionItems(input: FichaConditionsInput, today: string =
       icon: "hourglass_top",
       label: "Si reservás con anticipación",
       value: `${input.emptyMonthChargePercent}% por mes`,
-      help: `Solo si reservás con ingreso diferido y la plaza queda realmente vacía entre que está disponible y tu ingreso (hasta ${MAX_EMPTY_MONTHS} meses). Cada mes completo cuenta como uno; si sobran días, más de 15 cuentan como un mes y 15 o menos como medio mes. Si ingresás el primer día disponible, o la plaza está ocupada, no se cobra.`,
+      help: `Solo si reservás con ingreso diferido y la plaza queda realmente vacía entre que está disponible y tu ingreso (hasta ${MAX_EMPTY_MONTHS} meses). La residencia te guarda la plaza y ese tiempo se cobra en proporción a los días: más de 15 días extra cuentan como un mes y 15 o menos como medio mes. Si ingresás el primer día disponible, o la plaza está ocupada, no se cobra.`,
       arsFromUsd: null,
     });
   }

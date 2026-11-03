@@ -1321,8 +1321,8 @@ export function ResidenceProfileForm({
                     Es una elección de tu residencia. Se muestra a los estudiantes en la tarjeta «Mes vacío» de la ficha.
                   </p>
                   <p className="mt-1 text-xs text-ink-soft">
-                    Cuando un estudiante reserva hoy para ingresar más adelante, podés cobrar un porcentaje de la renta por cada mes completo
-                    (hasta 3) en el que la plaza queda realmente vacía antes de su ingreso.
+                    Cuando un estudiante reserva hoy para ingresar más adelante, podés cobrar un porcentaje de la renta por el tiempo
+                    (hasta 3 meses) en que la plaza queda guardada y vacía para él.
                   </p>
                 </div>
                 <Switch
@@ -1364,28 +1364,27 @@ export function ResidenceProfileForm({
                       />
                     </div>
                   </div>
-                  <div className="space-y-1.5 rounded-field bg-sand-50 p-3 text-xs leading-relaxed text-ink-soft">
-                    <p>
-                      <strong className="text-ink">Cuándo se cobra:</strong> solo si la reserva es con ingreso diferido y la plaza queda
-                      realmente vacía antes del ingreso. La vacancia empieza cuando la habitación está disponible según tu disponibilidad
-                      publicada (desde hoy, o desde la fecha que cargues) y termina el día anterior al ingreso. Si no tenés disponibilidad
-                      publicada para el tipo, el estudiante lo ve como «a confirmar por la residencia» y no se suma al total.
-                    </p>
-                    <p>
-                      <strong className="text-ink">Cómo se mide:</strong> cada mes completo cuenta como un mes. Si sobran días, más de 15
-                      días cuentan como un mes y 15 días o menos como medio mes. Se aplica el porcentaje que elegiste arriba a cada uno,
-                      con un máximo de 3 meses por reserva.
-                    </p>
-                    <p>
-                      <strong className="text-ink">Ejemplo:</strong> hoy es 28 de octubre, la habitación está disponible desde hoy y el
-                      estudiante ingresa el 1 de diciembre: son 1 mes y 3 días, o sea 1 mes y medio. Si ingresa el 20 de diciembre, son 2
-                      meses. Si ingresa el mismo día en que empieza a estar disponible, no hay mes vacío.
-                    </p>
-                    <p>
-                      Si tenés estadías y reservas cargadas en Residentes (Gestión Operativa), EstuRed las usa para descartar los tramos en que
-                      la plaza está ocupada: si noviembre está ocupado y el ingreso es en diciembre, no se cobra. El cargo confirmado se paga a
-                      la residencia y entra en la base del fee de EstuRed, igual que la matrícula.
-                    </p>
+                  <div className="space-y-3 rounded-field bg-sand-50 p-3 text-sm leading-relaxed text-ink-soft">
+                    <div>
+                      <p className="font-semibold text-ink">¿Qué es?</p>
+                      <p>
+                        Si un estudiante reserva hoy pero ingresa más adelante, la plaza queda guardada para él y sin ocupar. Esos meses de
+                        espera, sin él y sin otro estudiante, se pierden. Con el mes vacío cobrás una parte de la renta por ese tiempo.
+                      </p>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-ink">¿Cuándo se cobra?</p>
+                      <p>
+                        Solo si el ingreso es diferido y la plaza estuvo realmente libre hasta que llega. Se cuenta desde que la habitación está
+                        disponible hasta el día anterior al ingreso, en proporción a los días: más de 15 días extra cuentan como un mes y 15 o
+                        menos como medio mes. Hasta 3 meses por reserva. Si ese tiempo estaba ocupado por otro residente, no se cobra.
+                      </p>
+                      <p className="mt-1.5 text-xs">
+                        Ejemplo: disponible desde hoy (28/10) e ingresa el 1/12 → 1 mes y medio vacío. Ingresa el 20/12 → 2 meses. Si no hay
+                        disponibilidad publicada, el estudiante ve «a confirmar por la residencia» y no se suma al total. Lo cobrado se paga a
+                        la residencia y entra en la base del fee de EstuRed, igual que la matrícula.
+                      </p>
+                    </div>
                   </div>
                 </div>
               )}
