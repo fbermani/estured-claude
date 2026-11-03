@@ -7,7 +7,7 @@ import { assertResidencePermission } from "@/lib/residences/access";
 import { createAuditLog } from "@/lib/audit";
 import { isMissingSchemaError } from "@/lib/stayChange/schema";
 import { MAX_FEATURED_PHOTOS, validatePhotoMeta } from "@/lib/residences/photoMeta";
-import { MAX_RESIDENCE_PHOTOS } from "@/lib/residences/photos";
+import { MAX_RESIDENCE_PHOTOS, photoDeleteBlockedMessage } from "@/lib/residences/photos";
 import { imageExtension, sniffImageType } from "@/lib/residences/imageSniff";
 import { stageProfileEdit } from "@/lib/residences/profileEdits";
 import type { PhotoMetaItem } from "@/lib/residences/photoSections";
@@ -268,4 +268,96 @@ export async function uploadResidencePhoto(residenceId: string, formData: FormDa
       coverOrder: null,
     },
   };
+}
+
+export type PhotoDeleteState = { status: "success" } | { status: "error"; message: string };
+
+/**
+ * El dueño (o staff con `profile.edit`) borra una foto SUYA de la galería (DR36). No pasa por el admin: borrar nunca muestra contenido sin
+ * revisar. Piso: en una residencia publicada no se puede dejar menos de 3 fotos aprobadas (`photoDeleteBlockedMessage`). La fila de `files`
+ * queda `rejected` (todo el sistema ya excluye ese estado) como registro, se borra su clasificación y el archivo del bucket público, y se
+ * la saca de la revisión pendiente del admin (para que no se «apruebe» una foto sin archivo).
+ */
+export async function deleteResidencePhoto(residenceId: string, fileId: string): Promise<PhotoDeleteState> {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) return { status: "error", message: "Tu sesión expiró. Volvé a iniciar sesión." };
+  const admin = getSupabaseAdmin();
+  if (!admin) return { status: "error", message: "No disponible en este momento. Probá más tarde." };
+
+  const access = await assertResidencePermission(admin, sessionUser.id, residenceId, "profile.edit");
+  if (!access.ok) return { status: "error", message: access.error };
+  if (typeof fileId !== "string" || !fileId) return { status: "error", message: "No encontramos esa foto." };
+
+  // La foto tiene que ser de ESTA residencia (nunca se confía en el id del cliente).
+  const { data: file } = await admin
+    .from("files")
+    .select("id, status, storage_path, bucket")
+    .eq("id", fileId)
+    .eq("related_entity_type", "residences")
+    .eq("related_entity_id", residenceId)
+    .eq("document_type", "residence_photo")
+    .neq("status", "rejected")
+    .maybeSingle();
+  if (!file) return { status: "error", message: "No encontramos esa foto. Puede que ya la hayas borrado." };
+
+  const [{ data: residence }, { count: approvedCount }] = await Promise.all([
+    admin.from("residences").select("status").eq("id", residenceId).single(),
+    admin
+      .from("files")
+      .select("id", { count: "exact", head: true })
+      .eq("related_entity_type", "residences")
+      .eq("related_entity_id", residenceId)
+      .eq("document_type", "residence_photo")
+      .eq("status", "approved"),
+  ]);
+  if (!residence) return { status: "error", message: "No encontramos la residencia." };
+  const blocked = photoDeleteBlockedMessage({
+    published: residence.status === "verified_active",
+    photoStatus: file.status as string,
+    approvedCount: approvedCount ?? 0,
+  });
+  if (blocked) return { status: "error", message: blocked };
+
+  const { error: updateError } = await admin.from("files").update({ status: "rejected" }).eq("id", fileId).eq("status", file.status as string);
+  if (updateError) {
+    console.error("[photo-delete] update fallido:", updateError.message);
+    return { status: "error", message: "No pudimos borrar la foto. Probá de nuevo." };
+  }
+  const { error: metaError } = await admin.from("residence_photo_meta").delete().eq("file_id", fileId);
+  if (metaError && !isMissingSchemaError(metaError)) console.error("[photo-delete] meta fallida:", metaError.code, metaError.message);
+  if (file.bucket === "public-residence-media" && file.storage_path) {
+    const { error: removeError } = await admin.storage.from("public-residence-media").remove([file.storage_path as string]);
+    if (removeError) console.error("[photo-delete] storage fallido:", removeError.message);
+  }
+
+  // Si estaba en una revisión de fotos pendiente, se la saca; si no queda ninguna, la revisión se cancela.
+  const { data: pendingEdit } = await admin
+    .from("residence_profile_edits")
+    .select("id, new_value")
+    .eq("residence_id", residenceId)
+    .eq("field_group", "photos")
+    .eq("status", "pending_admin_review")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const pendingIds = ((pendingEdit?.new_value as { fileIds?: string[] } | null)?.fileIds ?? []).filter((id) => typeof id === "string");
+  if (pendingEdit && pendingIds.includes(fileId)) {
+    const remaining = pendingIds.filter((id) => id !== fileId);
+    const { error: editError } = await admin
+      .from("residence_profile_edits")
+      .update(remaining.length > 0 ? { new_value: { fileIds: remaining } } : { status: "cancelled_by_residence" })
+      .eq("id", pendingEdit.id as string);
+    if (editError) console.error("[photo-delete] revisión pendiente:", editError.message);
+  }
+
+  await createAuditLog(admin, {
+    actorUserId: sessionUser.id,
+    actorRole: access.actorRole,
+    action: "residence_photo_deleted",
+    entityType: "residences",
+    entityId: residenceId,
+    newValue: { file_id: fileId, was_status: file.status },
+  });
+  revalidatePath(`/residence/${residenceId}/profile`);
+  return { status: "success" };
 }

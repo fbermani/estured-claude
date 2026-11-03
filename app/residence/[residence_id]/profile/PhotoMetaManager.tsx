@@ -21,7 +21,7 @@ import {
   type PhotoMetaItem,
   type PhotoSectionDef,
 } from "@/lib/residences/photoSections";
-import { savePhotoMeta, uploadResidencePhoto } from "@/app/residence/[residence_id]/profile/photoMetaActions";
+import { deleteResidencePhoto, savePhotoMeta, uploadResidencePhoto } from "@/app/residence/[residence_id]/profile/photoMetaActions";
 
 export type { PhotoMetaItem } from "@/lib/residences/photoSections";
 
@@ -83,6 +83,9 @@ export function PhotoMetaManager({
   const [saveError, setSaveError] = useState<string | null>(null);
   const [dragId, setDragId] = useState<string | null>(null);
   const [overKey, setOverKey] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const saving = useRef(false);
   const again = useRef(false);
@@ -178,6 +181,28 @@ export function PhotoMetaManager({
   const moveTo = (id: string, key: string) => commit((prev) => movePhotoToSection(prev, id, key, defsRef.current));
   const toggleStar = (id: string) => commit((prev) => toggleCover(prev, id));
   const shiftCover = (id: string, dir: -1 | 1) => commit((prev) => moveCover(prev, id, dir));
+
+  // Borrar una foto propia (DR36): primero se guarda lo pendiente, después se borra en el servidor y recién ahí sale de la grilla.
+  async function removePhoto(id: string) {
+    setDeleteError(null);
+    setDeletingId(id);
+    if (timer.current) {
+      clearTimeout(timer.current);
+      timer.current = null;
+    }
+    if (dirty.current && !saving.current) await flush();
+    let message: string | null = null;
+    try {
+      const result = await deleteResidencePhoto(residenceId, id);
+      if (result.status === "success") commit((prev) => normalizeCover(prev.filter((i) => i.id !== id)));
+      else message = result.message;
+    } catch {
+      message = "No pudimos borrar la foto. Probá de nuevo.";
+    }
+    setDeletingId(null);
+    setConfirmDeleteId(null);
+    setDeleteError(message);
+  }
 
   function startUploads(files: File[], key: string) {
     if (!editable || files.length === 0) return;
@@ -392,6 +417,13 @@ export function PhotoMetaManager({
         </div>
       )}
 
+      {deleteError && (
+        <p role="alert" className="flex items-start gap-2 rounded-field bg-danger-bg px-3.5 py-2.5 text-sm font-medium text-danger-fg">
+          <Icon name="error" className="mt-0.5 text-base" />
+          <span>{deleteError}</span>
+        </p>
+      )}
+
       {/* Estado del guardado */}
       <div className="min-h-6 text-sm" aria-live="polite">
         {saveStatus === "error" ? (
@@ -429,6 +461,14 @@ export function PhotoMetaManager({
       onStar: toggleStar,
       onRetry: retry,
       onDismiss: dismiss,
+      confirmDeleteId,
+      deletingId,
+      onAskDelete: (id: string) => {
+        setDeleteError(null);
+        setConfirmDeleteId(id);
+      },
+      onCancelDelete: () => setConfirmDeleteId(null),
+      onConfirmDelete: (id: string) => void removePhoto(id),
     };
   }
 }
@@ -613,6 +653,11 @@ type GridProps = {
   onStar: (id: string) => void;
   onRetry: (id: string) => void;
   onDismiss: (id: string) => void;
+  confirmDeleteId: string | null;
+  deletingId: string | null;
+  onAskDelete: (id: string) => void;
+  onCancelDelete: () => void;
+  onConfirmDelete: (id: string) => void;
 };
 
 function PhotoGrid(props: GridProps) {
@@ -679,6 +724,33 @@ function PhotoGrid(props: GridProps) {
               ))}
             </select>
           )}
+          {editable &&
+            (props.confirmDeleteId === photo.id ? (
+              <div role="group" aria-label={`Confirmar el borrado de la foto ${n + 1} de ${props.sectionTitle}`} className="flex flex-wrap items-center gap-1 border-t border-line bg-danger-bg px-2 py-1.5">
+                <span className="flex-1 text-xs font-semibold text-danger-fg">¿Borrar esta foto?</span>
+                <button
+                  type="button"
+                  disabled={props.deletingId === photo.id}
+                  onClick={() => props.onConfirmDelete(photo.id)}
+                  className="min-h-11 rounded-full bg-danger-fg px-3 text-xs font-bold text-white hover:opacity-90 disabled:opacity-50"
+                >
+                  {props.deletingId === photo.id ? "Borrando…" : "Sí, borrar"}
+                </button>
+                <button type="button" disabled={props.deletingId === photo.id} onClick={props.onCancelDelete} className="min-h-11 px-2 text-xs font-semibold text-ink-soft hover:text-ink">
+                  No
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => props.onAskDelete(photo.id)}
+                aria-label={`Borrar la foto ${n + 1} de ${props.sectionTitle}`}
+                className="flex min-h-11 w-full items-center justify-center gap-1.5 border-t border-line text-sm font-semibold text-ink-soft hover:bg-danger-bg hover:text-danger-fg focus-visible:outline-2 focus-visible:outline-forest"
+              >
+                <Icon name="delete" className="text-lg" />
+                Borrar
+              </button>
+            ))}
         </li>
       ))}
       {uploads.map((u) => (

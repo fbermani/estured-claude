@@ -1,7 +1,7 @@
 # 00_DECISION_LOG.md
 # EstuRed — Registro de decisiones consolidadas
 
-Última actualización: 2026-11-03 (DR35: checklist de llegada con esenciales; DR33–DR34 config de residencia; DR30: ficha y solicitud en modal; DR29: Fase 2 de Guías, llegada y checklist; DR28: Centro de Guías público en /guias; DR27 costos sin «sin depósito» y comprobante en la home; DR22–DR26 y anteriores en §31)
+Última actualización: 2026-11-03 (DR36: el dueño borra sus fotos; DR35: checklist de llegada con esenciales; DR33–DR34 config de residencia; DR30: ficha y solicitud en modal; DR29: Fase 2 de Guías, llegada y checklist; DR28: Centro de Guías público en /guias; DR27 costos sin «sin depósito» y comprobante en la home; DR22–DR26 y anteriores en §31)
 
 Este documento es la fuente de verdad del proyecto EstuRed.
 Registra todas las decisiones de producto, negocio, operación, experiencia y arquitectura técnica.
@@ -1597,3 +1597,17 @@ Decisión del dueño. Amplía DR4 (qué ve el familiar vinculado) y completa la 
 **Supuestos reversibles.** Cuáles son los 10 esenciales (se eligen por criticidad antes de viajar, no por frecuencia); que los esenciales no cuenten todavía para los avisos; que el estudiante vea el mismo catálogo que el familiar (solo lectura). Si más adelante los avisos pasan a depender de los esenciales, se decide acá primero.
 
 **Docs actualizados:** este registro; `MEMORY.md`; `docs/NEXT_STEPS.md`.
+
+### DR36: el dueño puede borrar sus propias fotos, con piso de 3 aprobadas (2026-11-03, sin migración)
+
+**Decisión del dueño.** El dueño (o staff con `profile.edit`) borra fotos de su galería sin pasar por Soporte ni por el admin. Hasta ahora solo podía pedirlo.
+
+**Reglas.**
+1. **Sin aprobación del admin:** borrar nunca muestra contenido sin revisar; la moderación (DR8/docs/09 §8.1) sigue aplicando a lo que se **agrega**.
+2. **Piso:** en una residencia **publicada** (`verified_active`) no se puede borrar una foto **aprobada** si después quedan menos de 3 aprobadas (mismo mínimo que para publicar, `MIN_PUBLISH_PHOTOS`). Una foto **pendiente** se borra siempre; en una residencia sin publicar no hay piso. Mensaje: «Tu residencia está publicada y necesita al menos 3 fotos aprobadas. Subí otra y, cuando el equipo la apruebe, vas a poder borrar esta.».
+3. **Qué pasa al borrar:** la fila de `files` queda `rejected` (registro; todo el sistema ya excluye ese estado), se borra su clasificación y el archivo del bucket público, y se la saca de la revisión de fotos pendiente (si no queda ninguna foto, la revisión se cancela). Una foto borrada no se puede volver a aprobar (la aprobación solo toca fotos `pending_review`). Auditoría: `residence_photo_deleted`.
+4. **UI:** botón «Borrar» en cada foto de la galería con confirmación en línea («¿Borrar esta foto?»). El mensaje del tope de 60 («pedile a Soporte») sigue igual: Soporte ya no hace falta para borrar, pero el copy del tope no se tocó.
+
+**Supuesto reversible.** El piso solo rige en residencias publicadas. Se usa `rejected` y no `archived` para no tocar los filtros existentes (`neq rejected`).
+
+**Seguridad de la subida (mismo día, auditoría `seguridad`):** el tipo de la imagen sale de su firma real (JPEG/PNG/WebP), no del MIME del cliente; la ruta vieja del formulario aplica el tope de 60; las fotos rechazadas por el admin se borran del bucket público.

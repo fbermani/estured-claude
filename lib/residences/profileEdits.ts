@@ -323,7 +323,8 @@ export async function applyApprovedEdit(
     case "photos": {
       const fileIds = (newValue.fileIds as string[]) ?? [];
       if (fileIds.length === 0) return { ok: true };
-      const { error } = await admin.from("files").update({ status: "approved" }).in("id", fileIds);
+      // Solo las pendientes: una foto que el dueño borró (rechazada, sin archivo) no se vuelve a aprobar.
+      const { error } = await admin.from("files").update({ status: "approved" }).in("id", fileIds).eq("status", "pending_review");
       if (error) return { ok: false, error: "No pudimos aprobar las fotos." };
       return { ok: true };
     }

@@ -3,6 +3,7 @@ import {
   MIN_PUBLISH_PHOTOS,
   getGalleryLayout,
   hasEnoughPhotosToPublish,
+  photoDeleteBlockedMessage,
   photosMissingForPublish,
   publishPhotosError,
 } from "./photos";
@@ -59,5 +60,23 @@ describe("getGalleryLayout (cantidad de fotos → variante del hero)", () => {
   it("5 o más → mosaico con 'Ver todas'", () => {
     expect(getGalleryLayout(5)).toBe("mosaic-more");
     expect(getGalleryLayout(30)).toBe("mosaic-more");
+  });
+});
+
+describe("photoDeleteBlockedMessage (borrar fotos propias, piso de 3 aprobadas)", () => {
+  it("una foto pendiente se borra siempre, aunque la residencia esté publicada", () => {
+    expect(photoDeleteBlockedMessage({ published: true, photoStatus: "pending_review", approvedCount: 3 })).toBeNull();
+  });
+  it("sin publicar no hay piso", () => {
+    expect(photoDeleteBlockedMessage({ published: false, photoStatus: "approved", approvedCount: 1 })).toBeNull();
+  });
+  it("publicada: una aprobada se borra si después quedan 3 o más", () => {
+    expect(photoDeleteBlockedMessage({ published: true, photoStatus: "approved", approvedCount: 4 })).toBeNull();
+    expect(photoDeleteBlockedMessage({ published: true, photoStatus: "approved", approvedCount: 10 })).toBeNull();
+  });
+  it("publicada: no se puede borrar si quedarían menos de 3 aprobadas", () => {
+    const msg = photoDeleteBlockedMessage({ published: true, photoStatus: "approved", approvedCount: 3 });
+    expect(msg).toContain("al menos 3 fotos aprobadas");
+    expect(photoDeleteBlockedMessage({ published: true, photoStatus: "approved", approvedCount: 1 })).not.toBeNull();
   });
 });

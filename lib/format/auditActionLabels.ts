@@ -62,6 +62,7 @@ const ACTION_PHRASES: Record<string, string> = {
   residence_far_university_selected: "eligió una universidad lejana en el perfil de una residencia",
   residence_money_conditions_updated: "actualizó las condiciones económicas de una residencia",
   residence_photo_uploaded: "subió una foto de una residencia",
+  residence_photo_deleted: "borró una foto de una residencia",
   residence_photo_meta_updated: "actualizó las etiquetas de las fotos de una residencia",
   residence_promotion_created: "creó una promoción en una residencia",
   residence_promotion_ended: "terminó una promoción de una residencia",

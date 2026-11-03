@@ -36,6 +36,17 @@ export function publishPhotosError(count: number): string | null {
   return `No se puede publicar: la residencia tiene ${safe} ${safe === 1 ? "foto propia" : "fotos propias"} y hacen falta al menos ${MIN_PUBLISH_PHOTOS}. Pedile que cargue ${missing === 1 ? "la que falta" : `las ${missing} que faltan`} desde su perfil y volvé a aprobarla.`;
 }
 
+/**
+ * ¿Puede el dueño borrar una foto suya? (DR36). Una foto pendiente o de una residencia sin publicar se borra siempre: nunca fue pública o no
+ * hay mínimo que cuidar. Una foto APROBADA de una residencia publicada solo se borra si después quedan al menos `MIN_PUBLISH_PHOTOS`
+ * aprobadas. Devuelve el mensaje de error (voseo) o `null` si se puede.
+ */
+export function photoDeleteBlockedMessage(params: { published: boolean; photoStatus: string; approvedCount: number }): string | null {
+  if (!params.published || params.photoStatus !== "approved") return null;
+  if (params.approvedCount - 1 >= MIN_PUBLISH_PHOTOS) return null;
+  return `Tu residencia está publicada y necesita al menos ${MIN_PUBLISH_PHOTOS} fotos aprobadas. Subí otra y, cuando el equipo la apruebe, vas a poder borrar esta.`;
+}
+
 /** Variante del hero de la ficha según la cantidad de fotos. */
 export type GalleryLayout = "empty" | "single" | "mosaic" | "mosaic-more";
 
