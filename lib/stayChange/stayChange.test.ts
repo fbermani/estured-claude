@@ -316,6 +316,7 @@ describe.skipIf(!hasCreds)("Quiero cambiar (integración)", () => {
     return data ?? [];
   }
 
+  let demoLinksBackup: Record<string, unknown>[] = [];
   beforeAll(async () => {
     admin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, { auth: { persistSession: false } });
     // Si la migración 0044 todavía no está aplicada, el bloque entero se saltea (y lo avisa).
@@ -334,6 +335,10 @@ describe.skipIf(!hasCreds)("Quiero cambiar (integración)", () => {
     studentUserId = await emailId("valentina.sosa@example.com");
     studentProfileId = (await admin.from("student_profiles").select("id").eq("user_id", studentUserId).single()).data!.id as string;
     familyMemberId = (await admin.from("family_members").select("id").eq("user_id", familyUserId).single()).data!.id as string;
+    // El seed demo (DR32) deja a Valentina con un vínculo activo con Martín: se aparta durante el test y se restaura al final.
+    const { data: demoLinks } = await admin.from("family_links").select("*").eq("student_profile_id", studentProfileId);
+    demoLinksBackup = demoLinks ?? [];
+    if (demoLinksBackup.length > 0) await admin.from("family_links").delete().eq("student_profile_id", studentProfileId);
 
     const a = await insertResidence("actual", "available_to_confirm");
     const b = await insertResidence("destino", "full");
@@ -347,6 +352,7 @@ describe.skipIf(!hasCreds)("Quiero cambiar (integración)", () => {
   afterAll(async () => {
     if (!admin || !ready) return;
     if (linkId) await admin.from("family_links").delete().eq("id", linkId);
+    if (demoLinksBackup.length > 0) await admin.from("family_links").upsert(demoLinksBackup);
     for (const userId of [ownerId, studentUserId, familyUserId]) {
       await admin
         .from("notifications")
