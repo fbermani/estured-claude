@@ -12,6 +12,7 @@ import { getCommonAreaIcon, getServiceIcon } from "@/lib/residences/amenityIcons
 import { formatOccupancy } from "@/lib/residences/occupancy";
 import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
+import { joinUniversityNames } from "@/lib/residences/universityLabel";
 
 /**
  * Card de residencia del catálogo — layout a semejanza de la referencia
@@ -76,7 +77,7 @@ export function ResidenceCard({
           {cardUniversities.length > 0 && (
             <p className="flex items-center gap-1.5 text-xs font-bold text-forest-700">
               <Icon name="school" className="text-base" />
-              Cerca de {cardUniversities.length > 1 ? `${cardUniversities.slice(0, -1).join(", ")} y ${cardUniversities[cardUniversities.length - 1]}` : cardUniversities[0]}
+              Cerca de {joinUniversityNames(cardUniversities)}
             </p>
           )}
 

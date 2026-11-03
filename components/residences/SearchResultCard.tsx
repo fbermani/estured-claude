@@ -14,6 +14,7 @@ import { findUniversitiesByName, haversineDistanceKm } from "@/lib/data/buenosAi
 import { kmToBlocks } from "@/lib/residences/distance";
 import { formatOccupancy } from "@/lib/residences/occupancy";
 import { GENDER_LABELS } from "@/lib/residences/searchFilters";
+import { abbreviateUniversity } from "@/lib/residences/universityLabel";
 import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
 
 /**
@@ -113,7 +114,7 @@ export function SearchResultCard({
               <li key={u.name} className="inline-flex max-w-full items-center gap-1 rounded-2xl bg-petrol-50 px-2.5 py-[3px] text-[12.5px] leading-tight text-petrol-700">
                 <Icon name="school" className="text-sm" />
                 <span className="min-w-0">
-                  {u.name}
+                  {abbreviateUniversity(u.name)}
                   {u.blocks !== null && (
                     <>
                       {" · "}

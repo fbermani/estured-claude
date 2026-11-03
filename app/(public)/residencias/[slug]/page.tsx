@@ -59,13 +59,13 @@ import { ReadMore } from "@/components/residences/ficha/ReadMore";
 import { RatesTable } from "@/components/residences/ficha/RatesTable";
 import { ReservationConditions } from "@/components/residences/ficha/ReservationConditions";
 import { EarlyExitPolicy } from "@/components/residences/ficha/EarlyExitPolicy";
-import { WhoGetsPaid } from "@/components/residences/ficha/WhoGetsPaid";
-import { VerificationScope } from "@/components/residences/ficha/VerificationScope";
 import { CommunitySummary } from "@/components/residences/ficha/CommunitySummary";
 import { RequestHowItWorks, RequestNotices } from "@/components/residences/ficha/RequestNotices";
 import { RequestSheet } from "@/components/residences/ficha/RequestSheet";
 import { describeAgeRange } from "@/lib/residences/age";
+import { abbreviateUniversity } from "@/lib/residences/universityLabel";
 import { SITE_URL } from "@/lib/siteUrl";
+import { loadAverageResidentAge } from "@/lib/residents/averageAge";
 
 const FICHA_GENDER_LABEL: Record<string, string> = { mixto: "Mixta", solo_hombres: "Solo hombres", solo_mujeres: "Solo mujeres" };
 
@@ -250,7 +250,7 @@ export default async function RealResidenceDetailPage({
   const [rate, sessionUser] = await Promise.all([getCurrentExchangeRate(), getSessionUser()]);
   const isStudent = sessionUser?.roles.includes("student") ?? false;
   const isFamily = sessionUser?.roles.includes("family_member") ?? false;
-  const [answeredQuestions, catalogFaq, isOwnResidenceTeam, community, studentViewer, familyViewer, regulationResult] = await Promise.all([
+  const [answeredQuestions, catalogFaq, isOwnResidenceTeam, community, studentViewer, familyViewer, regulationResult, averageAge] = await Promise.all([
     adminClient ? getPublicAnsweredQuestions(adminClient, residence.id) : Promise.resolve([]),
     // DR14: preguntas del catálogo que la residencia eligió mostrar (agrupadas por tema). Vacío si no eligió ninguna o si la 0054 no está aplicada.
     adminClient ? getPublicCatalogFaq(adminClient, residence.id) : Promise.resolve([]),
@@ -262,6 +262,8 @@ export default async function RealResidenceDetailPage({
       : Promise.resolve(null),
     // DR14: reglamento vigente (propio, o el modelo). `null`/`ok:false` = no se pudo leer: no se muestra ni se ofrece aceptarlo.
     adminClient ? loadCurrentRegulation(adminClient, residence.id) : Promise.resolve(null),
+    // Edad promedio de la comunidad vigente: solo con comunidad activa y más de 10 residentes (privacidad).
+    adminClient ? loadAverageResidentAge(adminClient, residence.id, residence.has_operational_management_access as boolean | null) : Promise.resolve(null),
   ]);
   const regulation = regulationResult?.ok ? regulationResult.view : null;
 
@@ -370,16 +372,10 @@ export default async function RealResidenceDetailPage({
   const hasCommunity = !!communityStatement || (community?.totalResidents ?? 0) > 0;
 
   const hasServices = services.length > 0 || commonAreas.length > 0;
-  const hasAge = residence.min_resident_age !== undefined;
-  const hasRules = !!rulesSummary || !!rulesPdfUrl || !!regulation;
   const navItems: SectionNavItem[] = [
     ...(hasServices ? [{ id: "servicios", label: "Servicios" }] : []),
-    ...(hasAge ? [{ id: "edad", label: "Edad" }] : []),
-    ...(hasRules ? [{ id: "convivencia", label: "Convivencia" }] : []),
     ...(hasCommunity ? [{ id: "comunidad", label: "Comunidad" }] : []),
     { id: "tarifas", label: "Tarifas y condiciones" },
-    { id: "pagos", label: "Qué pagás" },
-    { id: "verificacion", label: "Qué revisamos" },
     { id: "ubicacion", label: "Ubicación" },
     { id: "preguntas", label: "Preguntas" },
   ];
@@ -487,8 +483,6 @@ export default async function RealResidenceDetailPage({
 
   const minimumStayLabel =
     conditions.minimumStayMonths != null && conditions.minimumStayMonths > 0 ? monthsLabel(conditions.minimumStayMonths) : null;
-  const hasDeposit =
-    !!conditions.depositMode || (conditions.depositUsd != null && conditions.depositUsd > 0);
 
   const chipClass =
     "inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-line bg-paper px-3 py-1.5 text-sm text-ink-soft";
@@ -571,7 +565,7 @@ export default async function RealResidenceDetailPage({
             {nearest && (
               <li className={chipClass}>
                 <Icon name="school" className="text-lg text-forest-700" />
-                ~{nearest.km.toFixed(1).replace(".", ",")} km de {nearest.name}
+                ~{nearest.km.toFixed(1).replace(".", ",")} km de {abbreviateUniversity(nearest.name)}
               </li>
             )}
             {/* DR18: «plazas · residentes», sin porcentaje ni «quedan N». Sin plazas declaradas queda el conteo de la comunidad. */}
@@ -637,6 +631,13 @@ export default async function RealResidenceDetailPage({
                 })}
                 .
               </p>
+              {averageAge && (
+                <p className="inline-flex items-center gap-2 rounded-full border border-line bg-paper px-4 py-2 text-sm text-ink-soft">
+                  <Icon name="cake" className="text-lg text-forest-700" />
+                  Edad promedio hoy: <strong className="text-ink">{averageAge.years} años</strong>
+                  <span className="text-ink-faint">· entre {averageAge.residents} residentes</span>
+                </p>
+              )}
               {residence.accepts_minors === true && (
                 <div className="rounded-card border border-line bg-paper p-5">
                   <h3 className="text-base font-bold text-ink">Para menores de 18</h3>
@@ -744,25 +745,6 @@ export default async function RealResidenceDetailPage({
               conditionsText={conditions.earlyExitConditionsText}
             />
           </section>
-
-          {/* (6) Qué pagás y a quién */}
-          <div id="pagos" className="scroll-mt-32">
-            <WhoGetsPaid
-              forFamily={mode === "family"}
-              initialPayment={conditions.initialPayment}
-              hasDeposit={hasDeposit}
-              enrollment={{
-                mode: conditions.enrollmentFeeMode,
-                usd: conditions.enrollmentFeeUsd,
-                frequency: conditions.enrollmentFeeFrequency,
-              }}
-            />
-          </div>
-
-          {/* (7) Qué revisó EstuRed */}
-          <div id="verificacion" className="scroll-mt-32">
-            <VerificationScope />
-          </div>
 
           {/* (8) Ubicación — pin exacto + dirección pública + universidades con distancia (DF5) */}
           <section id="ubicacion" className="scroll-mt-32 space-y-4">

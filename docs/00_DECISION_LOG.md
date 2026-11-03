@@ -1,7 +1,7 @@
 # 00_DECISION_LOG.md
 # EstuRed — Registro de decisiones consolidadas
 
-Última actualización: 2026-11-03 (DR36: el dueño borra sus fotos; DR35: checklist de llegada con esenciales; DR33–DR34 config de residencia; DR30: ficha y solicitud en modal; DR29: Fase 2 de Guías, llegada y checklist; DR28: Centro de Guías público en /guias; DR27 costos sin «sin depósito» y comprobante en la home; DR22–DR26 y anteriores en §31)
+Última actualización: 2026-11-03 (DR37: ficha más corta y con la comunidad al frente; DR36: el dueño borra sus fotos; DR35: checklist de llegada con esenciales; DR33–DR34 config de residencia; DR30: ficha y solicitud en modal; DR29: Fase 2 de Guías, llegada y checklist; DR28: Centro de Guías público en /guias; DR27 costos sin «sin depósito» y comprobante en la home; DR22–DR26 y anteriores en §31)
 
 Este documento es la fuente de verdad del proyecto EstuRed.
 Registra todas las decisiones de producto, negocio, operación, experiencia y arquitectura técnica.
@@ -1611,3 +1611,20 @@ Decisión del dueño. Amplía DR4 (qué ve el familiar vinculado) y completa la 
 **Supuesto reversible.** El piso solo rige en residencias publicadas. Se usa `rejected` y no `archived` para no tocar los filtros existentes (`neq rejected`).
 
 **Seguridad de la subida (mismo día, auditoría `seguridad`):** el tipo de la imagen sale de su firma real (JPEG/PNG/WebP), no del MIME del cliente; la ruta vieja del formulario aplica el tope de 60; las fotos rechazadas por el admin se borran del bucket público.
+
+### DR37: ficha de residencia más corta y con la comunidad al frente (2026-11-03, sin migración)
+
+**Decisión del dueño (relevamiento, lote 2).** La ficha pública se achica y destaca lo que más pesa para elegir.
+
+**Reglas.**
+1. **Menú de la ficha:** solo Servicios, Comunidad, Tarifas y condiciones, Ubicación y Preguntas (las secciones Edad y Convivencia siguen en la página, sin entrada propia).
+2. **Se quitan de la ficha** «Qué pagás y a quién» y «Qué revisó EstuRed»: ya están explicados en la landing, en el flujo de solicitud y en las preguntas frecuentes (componentes `WhoGetsPaid` y `VerificationScope` eliminados).
+3. **Edad promedio actual** en «Edad de los residentes»: solo con comunidad activa (Gestión Operativa) y **más de 10 residentes** con fecha de nacimiento válida; promedio de toda la comunidad vigente, redondeado a años enteros, sin mostrar nunca una edad individual (`lib/residents/averageAge.ts`).
+4. **«Ver los N perfiles»** pasa a ser un banner verde con avatares y flecha (es la función central de la ficha), no un enlace de texto.
+5. **Condiciones de admisión:** las 6 tarjetas son más chicas (alto fijo) y al tocarlas **giran** (volteo 3D) para mostrar el texto explicativo.
+6. **Reglamento descargable en PDF** (A4, formato básico: título, versión o aviso de modelo, artículos con títulos y viñetas, pie con página) en lugar de .txt. El borrador del editor del dueño sigue en .txt.
+7. **Nombres cortos de universidades** en tarjetas y ficha (solo presentación; el dato guardado y los filtros no cambian): UBA + especialidad sin «Facultad de» (`UBA Derecho`, `UBA FADU`), sigla cuando la hay (`UCA`, `UTN FRBA`), y «U.», «Fac.», «Nac.» en el resto (`lib/residences/universityLabel.ts`).
+8. **Preguntas:** «¿Tenés otra pregunta?» pide revisar que la respuesta no esté ya en la ficha o en las preguntas frecuentes antes de enviarla.
+9. **Fotos por área y tipo:** las secciones de la galería salen solo de las áreas comunes elegidas (incluidos los «Otro», con marca «Pendiente» hasta aprobarse), los tipos de habitación activos y «Fachada / Exterior»; una foto cuya sección ya no existe pasa a «Sin clasificar» en el editor y a «Fotos adicionales» en la ficha, sin perderse ni guardarse el cambio.
+
+**Supuesto reversible.** El mínimo de 10 residentes para el promedio es de privacidad; subirlo es seguro, bajarlo no.

@@ -4,10 +4,10 @@ import { useState, type ReactNode } from "react";
 import { Icon } from "@/components/ui/Icon";
 
 /**
- * Tarjeta de condición de admisión (DR30 §4): frente con dato breve, dorso con la explicación. Ambas caras
- * ocupan la misma celda de grilla (la tarjeta mide lo que mide la cara más alta, igual en todas las de la
- * fila). Se voltea con un botón (`aria-expanded`), sin depender de hover; el cambio es un fundido que se
- * apaga con `prefers-reduced-motion`.
+ * Tarjeta de condición de admisión (DR30 §4): frente con el dato breve, dorso con la explicación. Es chica y de
+ * alto fijo; al tocarla gira (volteo 3D sobre el eje vertical) y muestra el texto explicativo, que se desplaza
+ * dentro de la cara si es largo. Funciona con clic o teclado (el frente es un botón con `aria-expanded`), sin
+ * depender de hover. La cara que no se ve queda `inert`; con `prefers-reduced-motion` el giro es instantáneo.
  */
 export function ConditionCard({
   icon,
@@ -25,48 +25,49 @@ export function ConditionCard({
   detail: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
-  const face = "col-start-1 row-start-1 motion-safe:transition-opacity motion-safe:duration-200";
+  const face =
+    "absolute inset-0 flex flex-col rounded-card border-[1.5px] border-line bg-paper p-3 text-left shadow-card [backface-visibility:hidden] sm:p-3.5";
   return (
-    <li className="grid rounded-card border-[1.5px] border-line bg-paper shadow-card">
-      <div className={`${face} ${open ? "invisible opacity-0" : "opacity-100"}`} aria-hidden={open || undefined}>
-        <div className="relative flex h-full flex-col items-start p-3.5 text-left sm:p-4">
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            aria-expanded={open}
-            aria-label={`Ver detalle: ${title}`}
-            tabIndex={open ? -1 : 0}
-            className="absolute inset-0 rounded-card"
-          />
+    <li className="h-[9rem] [perspective:900px] sm:h-[8.75rem]">
+      <div
+        className={`relative h-full w-full [transform-style:preserve-3d] motion-safe:transition-transform motion-safe:duration-500 motion-safe:ease-in-out ${
+          open ? "[transform:rotateY(180deg)]" : ""
+        }`}
+      >
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-expanded={open}
+          aria-label={`Ver detalle: ${title}`}
+          inert={open}
+          className={`${face} items-start transition-shadow hover:shadow-card-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest`}
+        >
           <span className="flex items-center gap-1 text-[11px] font-extrabold uppercase tracking-wide text-muted sm:gap-1.5 sm:text-xs">
             <Icon name={icon} className="text-lg text-forest-700" />
             {title}
           </span>
-          <span className="mt-2 font-display text-base font-extrabold sm:text-xl leading-tight text-ink">{value}</span>
-          {note && <span className="relative z-10 mt-0.5 text-xs text-ink-faint">{note}</span>}
-          <span aria-hidden="true" className="mt-auto inline-flex items-center gap-0.5 pt-3 text-xs font-bold text-forest-700">
-            Ver detalle <Icon name="expand_more" className="text-base" />
+          <span className="mt-1.5 font-display text-[15px] font-extrabold leading-tight text-ink sm:text-lg">{value}</span>
+          {note && <span className="mt-0.5 text-xs text-ink-faint">{note}</span>}
+          <span aria-hidden="true" className="mt-auto inline-flex items-center gap-0.5 text-xs font-bold text-forest-700">
+            Ver detalle <Icon name="autorenew" className="text-base" />
           </span>
-        </div>
-      </div>
-      <div
-        className={`${face} flex flex-col p-3.5 sm:p-4 ${open ? "opacity-100" : "invisible opacity-0"}`}
-        aria-hidden={!open || undefined}
-      >
-        <p className="flex items-center gap-1 text-[11px] font-extrabold uppercase tracking-wide text-muted sm:gap-1.5 sm:text-xs">
-          <Icon name={icon} className="text-lg text-forest-700" />
-          {title}
-        </p>
-        <div className="mt-2 text-xs leading-relaxed text-ink-soft sm:text-sm">{detail}</div>
-        <button
-          type="button"
-          onClick={() => setOpen(false)}
-          aria-expanded={open}
-          tabIndex={open ? 0 : -1}
-          className="mt-auto inline-flex items-center gap-0.5 self-start pt-3 text-xs font-bold text-forest-700"
-        >
-          Volver <Icon name="expand_less" className="text-base" />
         </button>
+
+        <div className={`${face} [transform:rotateY(180deg)] bg-cream`} inert={!open}>
+          <p className="flex shrink-0 items-center gap-1 text-[11px] font-extrabold uppercase tracking-wide text-muted sm:gap-1.5 sm:text-xs">
+            <Icon name={icon} className="text-lg text-forest-700" />
+            {title}
+          </p>
+          <div className="mt-1.5 min-h-0 flex-1 overflow-y-auto pr-1 text-[11.5px] leading-snug text-ink-soft sm:text-[13px]">{detail}</div>
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            aria-expanded={open}
+            className="mt-1 inline-flex shrink-0 items-center gap-0.5 self-start text-xs font-bold text-forest-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+          >
+            Volver <Icon name="autorenew" className="text-base" />
+          </button>
+        </div>
       </div>
     </li>
   );

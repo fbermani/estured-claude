@@ -46,7 +46,8 @@ export default async function ResidenceProfilePage({
         .from("room_types")
         .select("id, name, gender_policy, bathroom_type, features, capacity_per_room, monthly_price_usd")
         .eq("residence_id", residenceId)
-        .eq("is_active", true),
+        .eq("is_active", true)
+        .order("created_at", { ascending: true }),
       admin.from("rooms").select("id, room_type_id").eq("residence_id", residenceId).eq("is_active", true),
       admin
         .from("files")
@@ -79,7 +80,7 @@ export default async function ResidenceProfilePage({
   const [customAmenitiesRes, regulationRes, photoMeta, promotionsRes] = await Promise.all([
     listCustomAmenities(admin, residenceId),
     loadCurrentRegulation(admin, residenceId),
-    loadPhotoMeta(admin, [residenceId]),
+    loadPhotoMeta(admin, [residenceId], { reconcile: false }),
     loadResidencePromotions(admin, residenceId),
   ]);
   const today = todayIso();

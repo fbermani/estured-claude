@@ -117,7 +117,7 @@ export async function getCatalogResidencesWithTotal(
     admin.from("rooms").select("residence_id, room_type_id").in("residence_id", ids).eq("is_active", true).limit(1000),
     // Los residentes solo se muestran con Gestión Operativa (Premium); si no se puede leer el plan, no se muestran (fail-closed).
     admin.from("residences").select("id, has_operational_management_access").in("id", ids),
-    loadPhotoMeta(admin, ids),
+    loadPhotoMeta(admin, ids, { reconcile: false }),
     // DR18 t4: ítems «Otro» aprobados (pendientes y rechazados nunca llegan acá).
     getApprovedCustomAmenitiesByResidence(admin, ids),
     // DR18 t4: promociones vigentes por tipo para el «antes/ahora» de la tarjeta (sin la 0060 queda la tarifa de lista).

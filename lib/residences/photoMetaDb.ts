@@ -1,7 +1,10 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { isMissingSchemaError } from "@/lib/stayChange/schema";
-import { pickRotationPhotos, type GalleryPhoto, type PhotoCategory } from "@/lib/residences/photoMeta";
+import { pickRotationPhotos, type GalleryPhoto, type PhotoArea, type PhotoCategory } from "@/lib/residences/photoMeta";
+import { buildPhotoSections, reconcileAssignment, type PhotoSectionDef } from "@/lib/residences/photoSections";
+import { normalizeAmenityLists } from "@/lib/residences/amenityDetails";
+import { COMMON_AREA_OPTIONS } from "@/lib/residences/options";
 
 export type PhotoMetaRow = {
   file_id: string;
@@ -17,10 +20,76 @@ export type PhotoMetaRow = {
   cover_order?: number | null;
 };
 
-/** Metadatos de fotos por `file_id`. Sin la migración 0059 (o ante un error) devuelve `schemaReady: false` y vacío: todo queda «general». */
+/**
+ * Ajusta la clasificación de una fila a las secciones vigentes de su residencia (áreas comunes elegidas, «Otro» aprobados, tipos activos):
+ * lo que ya no tiene sección pasa a «general» sin nombre (en la ficha, «Fotos adicionales») y los nombres de sección se unifican con los actuales.
+ * No toca portada ni orden. Sin la 0070 (`sectionsReady: false`) no se escribe `section`.
+ */
+export function reconcileMetaRow(row: PhotoMetaRow, defs: PhotoSectionDef[], sectionsReady: boolean): PhotoMetaRow {
+  const next = reconcileAssignment(
+    { category: row.category, area: (row.area ?? null) as PhotoArea | null, roomTypeId: row.room_type_id, section: row.section ?? null },
+    defs,
+  );
+  return {
+    ...row,
+    category: next.category,
+    area: next.area,
+    room_type_id: next.roomTypeId,
+    ...(sectionsReady ? { section: next.section } : {}),
+  };
+}
+
+type SectionRow = { residence_id: string; section_type: string; content: { items?: unknown } | null };
+
+/** Secciones de fotos vigentes por residencia (solo lo público: «Otro» aprobados y tipos activos). `null` si algo falla: se muestra la clasificación guardada. */
+async function loadSectionDefsByResidence(admin: SupabaseClient, residenceIds: string[], sectionsReady: boolean): Promise<Map<string, PhotoSectionDef[]> | null> {
+  const [sectionsRes, typesRes, customRes] = await Promise.all([
+    admin.from("residence_profile_sections").select("residence_id, section_type, content").in("residence_id", residenceIds).in("section_type", ["common_areas", "services"]),
+    admin.from("room_types").select("id, residence_id, name").in("residence_id", residenceIds).eq("is_active", true).order("created_at", { ascending: true }),
+    admin.from("residence_custom_amenities").select("residence_id, label").in("residence_id", residenceIds).eq("kind", "area").eq("status", "approved").order("created_at", { ascending: true }),
+  ]);
+  if (sectionsRes.error || typesRes.error) {
+    console.error("[photo-meta] no se pudieron leer las secciones vigentes:", sectionsRes.error?.message ?? typesRes.error?.message);
+    return null;
+  }
+  // Sin la 0058 no hay ítems «Otro»: es lo esperado, no un error.
+  if (customRes.error && !isMissingSchemaError(customRes.error)) {
+    console.error("[photo-meta] no se pudieron leer los «Otro» aprobados:", customRes.error.message);
+    return null;
+  }
+  const items = (r: SectionRow) => (Array.isArray(r.content?.items) ? (r.content.items as unknown[]).filter((x): x is string => typeof x === "string") : []);
+  const out = new Map<string, PhotoSectionDef[]>();
+  for (const id of residenceIds) {
+    const rows = ((sectionsRes.data ?? []) as SectionRow[]).filter((r) => r.residence_id === id);
+    const { commonAreas } = normalizeAmenityLists({
+      services: rows.filter((r) => r.section_type === "services").flatMap(items),
+      commonAreas: rows.filter((r) => r.section_type === "common_areas").flatMap(items),
+    });
+    out.set(
+      id,
+      buildPhotoSections({
+        commonAreas: COMMON_AREA_OPTIONS.filter((a) => commonAreas.includes(a)),
+        customAreas: ((customRes.data ?? []) as { residence_id: string; label: string }[])
+          .filter((c) => c.residence_id === id)
+          .map((c) => ({ label: c.label, status: "approved" as const })),
+        roomTypes: ((typesRes.data ?? []) as { id: string; residence_id: string; name: string }[]).filter((t) => t.residence_id === id),
+        sectionNamesReady: sectionsReady,
+      }),
+    );
+  }
+  return out;
+}
+
+/**
+ * Metadatos de fotos por `file_id`. Sin la migración 0059 (o ante un error) devuelve `schemaReady: false` y vacío: todo queda «general».
+ * Por defecto la clasificación sale ajustada a lo que la residencia tiene hoy (`reconcileMetaRow`), que es lo que ve el público: un área
+ * destildada, un tipo desactivado o un «Otro» sin aprobar no generan sección. El editor del dueño y el catálogo piden `reconcile: false`
+ * (el editor ajusta con sus propias secciones, que incluyen lo que todavía no se guardó; el catálogo solo usa portada y orden).
+ */
 export async function loadPhotoMeta(
   admin: SupabaseClient,
   residenceIds: string[],
+  opts: { reconcile?: boolean } = {},
 ): Promise<{ byFileId: Map<string, PhotoMetaRow>; schemaReady: boolean; sectionsReady: boolean; coverReady: boolean }> {
   const byFileId = new Map<string, PhotoMetaRow>();
   if (residenceIds.length === 0) return { byFileId, schemaReady: true, sectionsReady: true, coverReady: true };
@@ -43,7 +112,16 @@ export async function loadPhotoMeta(
     if (!isMissingSchemaError(error)) console.error("[photo-meta] lectura fallida:", error.code, error.message);
     return { byFileId, schemaReady: false, sectionsReady: false, coverReady: false };
   }
-  for (const row of (data ?? []) as PhotoMetaRow[]) byFileId.set(row.file_id, row);
+  const rows = (data ?? []) as PhotoMetaRow[];
+  const withClassification = rows.some((r) => r.category !== "general" || r.section);
+  const defsByResidence =
+    opts.reconcile !== false && withClassification
+      ? await loadSectionDefsByResidence(admin, [...new Set(rows.map((r) => r.residence_id))], tier.sectionsReady)
+      : null;
+  for (const row of rows) {
+    const defs = defsByResidence?.get(row.residence_id);
+    byFileId.set(row.file_id, defs ? reconcileMetaRow(row, defs, tier.sectionsReady) : row);
+  }
   return { byFileId, schemaReady: true, sectionsReady: tier.sectionsReady, coverReady: tier.coverReady };
 }
 

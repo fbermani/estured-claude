@@ -4,7 +4,7 @@ import { formatArs, usdToArsRounded } from "@/lib/mock/exchange";
 import { buildConditionItems, type ConditionItem, type FichaConditionsInput } from "@/lib/residences/fichaConditions";
 
 const MES_VACIO_BACK =
-  "Si reservás con ingreso a futuro y la plaza queda realmente vacía antes de que entres, la residencia puede cobrarte esos meses al porcentaje que fijó. Solo aplica si la residencia lo cobra y lo confirma. Para más detalle, mirá la ";
+  "Si la plaza queda vacía antes de tu ingreso, la residencia puede cobrarte esos meses al porcentaje que fijó. Más en la ";
 
 const COORDINAR = "A coordinar con la residencia";
 
@@ -38,7 +38,7 @@ export function ReservationConditions({
   const chargesEmpty = percent != null && percent > 0;
 
   return (
-    <ul className="grid grid-cols-2 sm:auto-rows-fr gap-2.5 sm:gap-3 lg:grid-cols-3">
+    <ul className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-3">
       <ConditionCard
         icon="payments"
         title="Para reservar"

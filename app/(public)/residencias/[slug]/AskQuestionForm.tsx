@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { Icon } from "@/components/ui/Icon";
 import { Textarea } from "@/components/ui/Input";
 import { askResidenceQuestionAction, type AskQuestionState } from "@/app/(public)/residencias/[slug]/faq-actions";
 import { QUESTION_MAX } from "@/lib/faq/validateFaq";
@@ -35,6 +36,11 @@ export function AskQuestionForm({ residenceId, signedIn }: { residenceId: string
       <p className="mt-1 text-sm text-ink-soft">
         Escribila acá y se la hacemos llegar a la residencia. La residencia responde cuando puede; no es una respuesta
         automática. No hace falta que dejes tus datos.
+      </p>
+
+      <p className="mt-3 flex items-start gap-2 rounded-field bg-amber-soft-100 px-3.5 py-2.5 text-[13px] font-semibold leading-snug text-amber-soft-700">
+        <Icon name="fact_check" className="text-lg" />
+        <span>Asegurate de que la respuesta no esté ya en esta ficha ni en las preguntas frecuentes antes de enviarla.</span>
       </p>
 
       {/* Honeypot: invisible para personas. */}

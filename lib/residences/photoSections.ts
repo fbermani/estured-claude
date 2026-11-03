@@ -3,17 +3,17 @@
  * (cliente) y los tests. No hay schema propio: cada sección se guarda con los campos de `residence_photo_meta` (migraciones 0059 / 0070 / 0074):
  *   - «Sin clasificar» = foto general sin sección (lo que ya era cualquier foto recién subida).
  *   - «Fachada / Exterior» = category `area`, área `entrada`.
- *   - Áreas comunes elegidas = category `area` con el área que corresponda; «Sala de Juegos» (sin área propia en el modelo) = área `otra` + nombre de sección.
- *   - Tipos de habitación creados = category `room_type` + `room_type_id`.
- *   - «Otras» = category `area`, área `otra` (y lo que quedó huérfano: p. ej. un área común que ya no está elegida).
+ *   - Áreas comunes elegidas = category `area` con el área que corresponda; «Sala de Juegos» y los ítems «Otro» (sin área propia en el modelo) = área `otra` + nombre de sección.
+ *   - Tipos de habitación activos = category `room_type` + `room_type_id`.
+ * Las secciones salen SOLO de lo que la residencia tiene hoy (fachada + áreas comunes + «Otro» + tipos activos). Una foto clasificada en algo que ya no existe
+ * (área destacada, tipo desactivado o borrado, «Otro» no aprobado) no se pierde: cae en «Sin clasificar» en el editor y en «Fotos adicionales» en la ficha.
  */
-import { MAX_FEATURED_PHOTOS, areaLabel, normalizeSection, type PhotoArea, type PhotoCategory } from "@/lib/residences/photoMeta";
+import { MAX_FEATURED_PHOTOS, normalizeSection, type PhotoArea, type PhotoCategory } from "@/lib/residences/photoMeta";
 
 export const UNSORTED_KEY = "unsorted";
 export const FACADE_TITLE = "Fachada / Exterior";
-export const OTHER_TITLE = "Otras";
 
-export type PhotoSectionKind = "facade" | "area" | "room_type" | "other";
+export type PhotoSectionKind = "facade" | "area" | "room_type";
 
 export type PhotoAssignment = {
   category: PhotoCategory;
@@ -29,6 +29,8 @@ export type PhotoSectionDef = {
   /** Nombre del ícono Material Symbols. */
   icon: string;
   assign: PhotoAssignment;
+  /** Ítem «Otro» todavía sin aprobar: el dueño ya puede subirle fotos, pero la ficha pública no las muestra ahí hasta que se apruebe. */
+  pending?: boolean;
 };
 
 /** Área común (texto de `COMMON_AREA_OPTIONS`) → cómo se guarda la foto. `custom`: sin área propia en el modelo, se distingue por nombre de sección. */
@@ -44,18 +46,6 @@ const COMMON_AREA_PHOTO: Record<string, { area: PhotoArea; icon: string; custom?
   "Cocina compartida": { area: "cocina", icon: "kitchen" },
 };
 
-const AREA_ICON: Partial<Record<PhotoArea, string>> = {
-  cocina: "kitchen",
-  bano: "bathtub",
-  patio: "yard",
-  terraza: "deck",
-  comedor: "restaurant",
-  living: "weekend",
-  lavadero: "local_laundry_service",
-  gimnasio: "fitness_center",
-  estudio: "menu_book",
-};
-
 /** Lo mínimo que se necesita de una foto para ubicarla. */
 export type SectionedPhoto = PhotoAssignment & { id: string };
 
@@ -69,57 +59,77 @@ export type PhotoMetaItem = SectionedPhoto & {
   coverOrder: number | null;
 };
 
+/** Ítem «Otro» de tipo área común (`residence_custom_amenities`, kind `area`). */
+export type CustomAreaInput = { label: string; status: "pending" | "approved" | "rejected" };
+
 /**
- * Secciones del editor, en el orden en que se muestran: Fachada / Exterior, las áreas comunes elegidas, los tipos de habitación y «Otras».
- * `existing` = fotos ya cargadas: si alguna está clasificada en un área que ya no está elegida (p. ej. «Baño», «Lavadero»), esa área se mantiene como sección.
- * Sin `sectionNamesReady` (migración 0070) no se puede guardar el nombre de sección: «Sala de Juegos» no se ofrece y queda dentro de «Otras».
+ * Secciones, en el orden en que se muestran: Fachada / Exterior, las áreas comunes elegidas (en el orden de la lista fija), los ítems «Otro» de área
+ * (aprobados y, para el editor, pendientes), y los tipos de habitación activos (en el orden recibido; si dos se llaman igual, se numeran).
+ * Sin `sectionNamesReady` (migración 0070) no se puede guardar el nombre de sección: «Sala de Juegos» y los «Otro» no se ofrecen.
  */
 export function buildPhotoSections(params: {
   commonAreas: string[];
+  customAreas?: CustomAreaInput[];
   roomTypes: { id: string; name: string }[];
-  existing?: PhotoAssignment[];
   sectionNamesReady: boolean;
 }): PhotoSectionDef[] {
-  const { commonAreas, roomTypes, existing = [], sectionNamesReady } = params;
+  const { commonAreas, customAreas = [], roomTypes, sectionNamesReady } = params;
   const named = (title: string) => (sectionNamesReady ? title : null);
   const defs: PhotoSectionDef[] = [
     { key: "facade", title: FACADE_TITLE, kind: "facade", icon: "home_work", assign: { category: "area", area: "entrada", roomTypeId: null, section: named(FACADE_TITLE) } },
   ];
   const usedAreas = new Set<PhotoArea>(["entrada"]);
+  const usedTitles = new Set<string>([FACADE_TITLE.toLowerCase()]);
   for (const a of commonAreas) {
     const m = COMMON_AREA_PHOTO[a];
     if (!m) continue;
     if (m.custom) {
-      if (!sectionNamesReady) continue;
+      if (!sectionNamesReady || usedTitles.has(a.toLowerCase())) continue;
+      usedTitles.add(a.toLowerCase());
       defs.push({ key: `custom:${a.toLowerCase()}`, title: a, kind: "area", icon: m.icon, assign: { category: "area", area: m.area, roomTypeId: null, section: a } });
       continue;
     }
     if (usedAreas.has(m.area)) continue; // «Sala de Estudio» y «Área de Estudio» comparten sección
     usedAreas.add(m.area);
+    usedTitles.add(a.toLowerCase());
     defs.push({ key: `area:${m.area}`, title: a, kind: "area", icon: m.icon, assign: { category: "area", area: m.area, roomTypeId: null, section: named(a) } });
   }
-  for (const e of existing) {
-    if (e.category !== "area" || !e.area || e.area === "otra" || usedAreas.has(e.area)) continue;
-    usedAreas.add(e.area);
-    const title = areaLabel(e.area);
-    defs.push({ key: `area:${e.area}`, title, kind: "area", icon: AREA_ICON[e.area] ?? "photo_library", assign: { category: "area", area: e.area, roomTypeId: null, section: named(title) } });
+  if (sectionNamesReady) {
+    for (const c of customAreas) {
+      const label = normalizeSection(c.label);
+      if (!label || c.status === "rejected" || usedTitles.has(label.toLowerCase())) continue;
+      usedTitles.add(label.toLowerCase());
+      defs.push({
+        key: `custom:${label.toLowerCase()}`,
+        title: label,
+        kind: "area",
+        icon: "add_photo_alternate",
+        pending: c.status !== "approved",
+        assign: { category: "area", area: "otra", roomTypeId: null, section: label },
+      });
+    }
   }
+  const nameCount = new Map<string, number>();
+  for (const rt of roomTypes) nameCount.set(rt.name.trim().toLowerCase(), (nameCount.get(rt.name.trim().toLowerCase()) ?? 0) + 1);
+  const seenName = new Map<string, number>();
   for (const rt of roomTypes) {
-    const title = `Habitación ${rt.name}`;
+    const k = rt.name.trim().toLowerCase();
+    const n = (seenName.get(k) ?? 0) + 1;
+    seenName.set(k, n);
+    const title = `Habitación ${rt.name.trim()}${(nameCount.get(k) ?? 0) > 1 ? ` (${n})` : ""}`;
     defs.push({ key: `rt:${rt.id}`, title, kind: "room_type", icon: "bed", assign: { category: "room_type", area: null, roomTypeId: rt.id, section: named(title) } });
   }
-  defs.push({ key: "other", title: OTHER_TITLE, kind: "other", icon: "photo_library", assign: { category: "area", area: "otra", roomTypeId: null, section: named(OTHER_TITLE) } });
   return defs;
 }
 
-/** En qué sección está una foto (`UNSORTED_KEY` si es general y sin sección). Lo clasificado que ya no tiene sección propia cae en «Otras». */
+/** En qué sección está una foto (`UNSORTED_KEY` si es general y sin sección, o si la clasificación que tenía ya no tiene sección: área o tipo que se sacó). */
 export function sectionKeyOf(photo: PhotoAssignment, defs: PhotoSectionDef[]): string {
   const name = normalizeSection(photo.section)?.toLowerCase() ?? null;
-  if (photo.category === "room_type") return defs.find((d) => d.kind === "room_type" && d.assign.roomTypeId === photo.roomTypeId)?.key ?? "other";
+  if (photo.category === "room_type") return defs.find((d) => d.kind === "room_type" && d.assign.roomTypeId === photo.roomTypeId)?.key ?? UNSORTED_KEY;
   if (photo.category === "area") {
     if (photo.area === "entrada") return "facade";
-    if (photo.area === "otra") return defs.find((d) => d.key.startsWith("custom:") && d.title.toLowerCase() === name)?.key ?? "other";
-    return defs.find((d) => d.kind === "area" && d.assign.area === photo.area && !d.key.startsWith("custom:"))?.key ?? "other";
+    if (photo.area === "otra") return defs.find((d) => d.key.startsWith("custom:") && d.title.toLowerCase() === name)?.key ?? UNSORTED_KEY;
+    return defs.find((d) => d.kind === "area" && d.assign.area === photo.area && !d.key.startsWith("custom:"))?.key ?? UNSORTED_KEY;
   }
   // General: si el nombre de sección coincide con una sección actual, va ahí; si no, queda sin clasificar.
   if (name) {
@@ -129,10 +139,25 @@ export function sectionKeyOf(photo: PhotoAssignment, defs: PhotoSectionDef[]): s
   return UNSORTED_KEY;
 }
 
+/** ¿Tenía una clasificación que ya no tiene sección? (hoy está en «Sin clasificar» solo por eso). */
+export function isOrphaned(photo: PhotoAssignment, defs: PhotoSectionDef[]): boolean {
+  const classified = photo.category !== "general" || normalizeSection(photo.section) !== null;
+  return classified && sectionKeyOf(photo, defs) === UNSORTED_KEY;
+}
+
 /** Lo que se guarda al mover una foto a una sección (o de vuelta a «Sin clasificar»). */
 export function assignmentFor(key: string, defs: PhotoSectionDef[]): PhotoAssignment | null {
   if (key === UNSORTED_KEY) return { category: "general", area: null, roomTypeId: null, section: null };
   return defs.find((d) => d.key === key)?.assign ?? null;
+}
+
+/**
+ * Clasificación vigente de una foto: la de la sección donde está hoy (con el nombre actual de la sección, así un tipo renombrado no queda con el viejo),
+ * o «general» sin sección si ya no hay dónde ponerla. Es lo que usa la ficha pública; no se guarda (si el dueño vuelve a tildar el área, la foto vuelve).
+ */
+export function reconcileAssignment<T extends PhotoAssignment>(photo: T, defs: PhotoSectionDef[]): T {
+  const a = assignmentFor(sectionKeyOf(photo, defs), defs);
+  return a ? { ...photo, ...a } : photo;
 }
 
 /** Mueve una foto a otra sección: cambia su clasificación y la deja al final de la sección. */

@@ -7,6 +7,7 @@ import {
 } from "@/lib/data/buenosAiresUniversities";
 import { getApproxZoneCoordinates } from "@/lib/data/caBarrioCentroids";
 import { MapTiles } from "@/components/residences/MapTiles";
+import { abbreviateUniversity } from "@/lib/residences/universityLabel";
 import {
   boundsCenterPixel,
   chooseZoom,
@@ -157,7 +158,7 @@ export function CompactMap({
                     {i + 1}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block font-semibold leading-snug">{u.name}</span>
+                    <span className="block font-semibold leading-snug">{abbreviateUniversity(u.name)}</span>
                     {/* Sin el pin de la residencia no se puede medir: se muestran solo los nombres. */}
                     {isExact && (
                       <span className="block text-xs text-ink-soft">

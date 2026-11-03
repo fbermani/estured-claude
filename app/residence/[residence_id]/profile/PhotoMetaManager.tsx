@@ -12,11 +12,13 @@ import {
   buildPhotoSections,
   coverPhotos,
   galleryOrder,
+  isOrphaned,
   moveCover,
   movePhotoToSection,
   normalizeCover,
   sectionKeyOf,
   toggleCover,
+  type CustomAreaInput,
   type PhotoAssignment,
   type PhotoMetaItem,
   type PhotoSectionDef,
@@ -43,8 +45,8 @@ type Upload = {
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 /**
- * Galería de fotos del perfil (rediseño 2026-11-03). Las secciones se arman solas (Fachada / Exterior, las áreas comunes elegidas, los tipos de
- * habitación guardados y «Otras»). Dos formas de cargar: todas juntas a «Sin clasificar» y de ahí arrastrar cada miniatura a su sección
+ * Galería de fotos del perfil (rediseño 2026-11-03). Las secciones se arman solas y son exactamente: Fachada / Exterior, las áreas comunes elegidas
+ * (incluidas las «Otro»), y los tipos de habitación guardados y activos; lo que ya no tiene sección queda en «Sin clasificar». Dos formas de cargar: todas juntas a «Sin clasificar» y de ahí arrastrar cada miniatura a su sección
  * (en táctil: «Mover a…»), o subir directo dentro de una sección. Hasta 5 fotos de portada con orden (las que rotan en la ficha y la búsqueda).
  * Cada cambio se guarda solo (con debounce); las fotos se suben de a una por server action. Las reglas de moderación son las de siempre:
  * en una residencia publicada la foto nueva queda «Pendiente» hasta que el equipo la apruebe. Vive dentro del <form> del perfil: todos sus
@@ -56,6 +58,7 @@ export function PhotoMetaManager({
   roomTypes,
   unsavedRoomTypeNames,
   commonAreas,
+  customAreas,
   schemaReady,
   sectionsReady,
   coverReady,
@@ -70,6 +73,8 @@ export function PhotoMetaManager({
   unsavedRoomTypeNames: string[];
   /** Áreas comunes elegidas en el formulario (texto de `COMMON_AREA_OPTIONS`). */
   commonAreas: string[];
+  /** Ítems «Otro» de área común (aprobados o pendientes; los no aprobados se ven marcados «Pendiente» y no se publican hasta que el equipo los apruebe). */
+  customAreas: CustomAreaInput[];
   schemaReady: boolean;
   sectionsReady: boolean;
   coverReady: boolean;
@@ -95,11 +100,11 @@ export function PhotoMetaManager({
   const defs = useMemo<PhotoSectionDef[]>(
     () =>
       schemaReady
-        ? buildPhotoSections({ commonAreas, roomTypes, existing: initialItems, sectionNamesReady: sectionsReady })
+        ? buildPhotoSections({ commonAreas, customAreas, roomTypes, sectionNamesReady: sectionsReady })
         : [],
-    // `initialItems` solo aporta áreas ya usadas por fotos viejas: alcanza con las del primer render.
+    // Las dependencias son las claves de lo que cambia (los arreglos llegan nuevos en cada render).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [schemaReady, sectionsReady, commonAreas.join("|"), roomTypes.map((r) => r.id).join("|")],
+    [schemaReady, sectionsReady, commonAreas.join("|"), customAreas.map((c) => `${c.label}:${c.status}`).join("|"), roomTypes.map((r) => `${r.id}:${r.name}`).join("|")],
   );
   const editable = !readOnly;
   const defsRef = useRef(defs);
@@ -301,6 +306,7 @@ export function PhotoMetaManager({
   const cover = coverPhotos(items);
   const approvedCount = items.filter((i) => !i.pending).length;
   const unsortedItems = items.filter((i) => sectionKeyOf(i, defs) === UNSORTED_KEY);
+  const orphanedCount = unsortedItems.filter((i) => isOrphaned(i, defs)).length;
   const unsortedUploads = uploads.filter((u) => u.key === UNSORTED_KEY);
   const unsortedActive = unsortedUploads.filter((u) => u.status === "uploading").length;
   const byKey = (key: string) => items.filter((i) => sectionKeyOf(i, defs) === key);
@@ -365,6 +371,11 @@ export function PhotoMetaManager({
         >
           <SectionHeader icon="inventory_2" title="Sin clasificar" count={unsortedItems.length + unsortedActive} />
           {editable && <p className="mt-1 text-xs text-ink-soft">Arrastrá cada foto a su sección o elegí «Mover a…».</p>}
+          {orphanedCount > 0 && (
+            <p className="mt-1 text-xs text-ink-soft">
+              {orphanedCount === 1 ? "Una foto estaba" : `${orphanedCount} fotos estaban`} en un área o tipo de habitación que ya no está en tu perfil. En la ficha se ven como «Fotos adicionales»; si volvés a tildar esa área, vuelven a su sección.
+            </p>
+          )}
           <PhotoGrid items={unsortedItems} uploads={unsortedUploads} sectionKey={UNSORTED_KEY} sectionTitle="Sin clasificar" {...gridCommon()} />
         </section>
       )}
@@ -393,7 +404,7 @@ export function PhotoMetaManager({
                 }`}
               >
                 <div className="flex items-center justify-between gap-3">
-                  <SectionHeader icon={d.icon} title={d.title} count={counted} />
+                  <SectionHeader icon={d.icon} title={d.title} count={counted} pending={d.pending} />
                   {editable && (
                     <PickButton label="Subir" ariaLabel={`Subir fotos a ${d.title}`} onFiles={(files) => startUploads(files, d.key)} />
                   )}
@@ -473,7 +484,7 @@ export function PhotoMetaManager({
   }
 }
 
-function SectionHeader({ icon, title, count }: { icon: string; title: string; count: number }) {
+function SectionHeader({ icon, title, count, pending }: { icon: string; title: string; count: number; pending?: boolean }) {
   return (
     <h4 className="flex items-center gap-2 text-sm font-bold text-ink">
       <span className="grid size-8 shrink-0 place-items-center rounded-full bg-forest-tint text-forest-700">
@@ -481,6 +492,11 @@ function SectionHeader({ icon, title, count }: { icon: string; title: string; co
       </span>
       {title}
       <span className="rounded-full bg-cream-2 px-2 py-0.5 text-xs font-bold text-ink-soft">{count}</span>
+      {pending && (
+        <span className="rounded-full bg-orange-tint px-2 py-0.5 text-xs font-bold text-orange-700" title="Se muestra en la ficha cuando el equipo apruebe esta área">
+          Pendiente
+        </span>
+      )}
     </h4>
   );
 }

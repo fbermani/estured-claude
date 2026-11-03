@@ -6,9 +6,11 @@ import {
   buildPhotoSections,
   coverPhotos,
   galleryOrder,
+  isOrphaned,
   moveCover,
   movePhotoToSection,
   normalizeCover,
+  reconcileAssignment,
   sectionKeyOf,
   toggleCover,
   type PhotoMetaItem,
@@ -24,7 +26,7 @@ const defs = buildPhotoSections({
 });
 
 describe("buildPhotoSections", () => {
-  it("arma Fachada, áreas elegidas (estudio sin repetir), tipos y Otras, en ese orden", () => {
+  it("arma Fachada, áreas elegidas (estudio sin repetir) y tipos, en ese orden; nada más", () => {
     expect(defs.map((d) => d.title)).toEqual([
       "Fachada / Exterior",
       "Sala de Estar",
@@ -33,25 +35,45 @@ describe("buildPhotoSections", () => {
       "Gimnasio",
       "Cocina compartida",
       "Habitación Doble",
-      "Otras",
     ]);
   });
   it("sin nombres de sección (0070) no ofrece «Sala de Juegos» y no guarda `section`", () => {
     const d = buildPhotoSections({ commonAreas: ["Sala de Juegos", "Patio"], roomTypes: [], sectionNamesReady: false });
-    expect(d.map((x) => x.title)).toEqual(["Fachada / Exterior", "Patio", "Otras"]);
+    expect(d.map((x) => x.title)).toEqual(["Fachada / Exterior", "Patio"]);
     expect(d.every((x) => x.assign.section === null)).toBe(true);
   });
-  it("mantiene como sección un área vieja con fotos aunque ya no esté elegida", () => {
+  it("una sección por cada «Otro» de área (aprobado o pendiente, marcado), sin rechazados ni repetidos", () => {
     const d = buildPhotoSections({
-      commonAreas: [],
+      commonAreas: ["Patio"],
+      customAreas: [
+        { label: " Huerta ", status: "approved" },
+        { label: "Pileta", status: "pending" },
+        { label: "Spa", status: "rejected" },
+        { label: "huerta", status: "approved" },
+        { label: "Patio", status: "approved" },
+      ],
       roomTypes: [],
-      existing: [{ category: "area", area: "bano", roomTypeId: null, section: null }],
       sectionNamesReady: true,
     });
-    expect(d.map((x) => x.title)).toContain("Baño");
+    expect(d.map((x) => x.title)).toEqual(["Fachada / Exterior", "Patio", "Huerta", "Pileta"]);
+    expect(d.map((x) => !!x.pending)).toEqual([false, false, false, true]);
+    expect(d[2].assign).toMatchObject({ category: "area", area: "otra", section: "Huerta" });
+  });
+  it("un área que ya no está elegida no deja sección aunque haya fotos viejas", () => {
+    const d = buildPhotoSections({ commonAreas: [], roomTypes: [], sectionNamesReady: true });
+    expect(d.map((x) => x.title)).toEqual(["Fachada / Exterior"]);
+  });
+  it("tipos de habitación con el mismo nombre se numeran y mantienen el orden recibido", () => {
+    const d = buildPhotoSections({
+      commonAreas: [],
+      roomTypes: [{ id: "a", name: "Doble" }, { id: "b", name: "Individual" }, { id: "c", name: "doble " }],
+      sectionNamesReady: true,
+    });
+    expect(d.slice(1).map((x) => x.title)).toEqual(["Habitación Doble (1)", "Habitación Individual", "Habitación doble (2)"]);
+    expect(new Set(d.map((x) => x.key)).size).toBe(d.length);
   });
   it("ignora áreas desconocidas", () => {
-    expect(buildPhotoSections({ commonAreas: ["Inventada"], roomTypes: [], sectionNamesReady: true }).map((d) => d.title)).toEqual(["Fachada / Exterior", "Otras"]);
+    expect(buildPhotoSections({ commonAreas: ["Inventada"], roomTypes: [], sectionNamesReady: true }).map((d) => d.title)).toEqual(["Fachada / Exterior"]);
   });
 });
 
@@ -66,10 +88,34 @@ describe("sectionKeyOf / assignmentFor", () => {
     }
     expect(sectionKeyOf(assignmentFor(UNSORTED_KEY, defs)!, defs)).toBe(UNSORTED_KEY);
   });
-  it("lo clasificado sin sección propia cae en Otras (tipo borrado, área no elegida)", () => {
-    expect(sectionKeyOf({ category: "room_type", area: null, roomTypeId: "gone", section: null }, defs)).toBe("other");
-    expect(sectionKeyOf({ category: "area", area: "lavadero", roomTypeId: null, section: null }, defs)).toBe("other");
-    expect(sectionKeyOf({ category: "area", area: "otra", roomTypeId: null, section: "Pileta" }, defs)).toBe("other");
+  it("lo clasificado sin sección propia (tipo borrado o desactivado, área no elegida, «Otro» no aprobado) queda sin clasificar, no se pierde", () => {
+    const orphans = [
+      { category: "room_type" as const, area: null, roomTypeId: "gone", section: null },
+      { category: "area" as const, area: "lavadero" as const, roomTypeId: null, section: null },
+      { category: "area" as const, area: "otra" as const, roomTypeId: null, section: "Pileta" },
+      { category: "general" as const, area: null, roomTypeId: null, section: "Dormitorio 1" },
+    ];
+    for (const o of orphans) {
+      expect(sectionKeyOf(o, defs)).toBe(UNSORTED_KEY);
+      expect(isOrphaned(o, defs)).toBe(true);
+    }
+    expect(isOrphaned(photo("a"), defs)).toBe(false); // general sin sección: nunca estuvo clasificada
+  });
+  it("reconcileAssignment: lo huérfano pasa a general sin nombre, lo vigente toma el nombre actual de su sección", () => {
+    const renamed = buildPhotoSections({ commonAreas: [], roomTypes: [{ id: "rt1", name: "Triple" }], sectionNamesReady: true });
+    expect(reconcileAssignment({ category: "room_type", area: null, roomTypeId: "rt1", section: "Habitación Doble" }, renamed)).toEqual({
+      category: "room_type",
+      area: null,
+      roomTypeId: "rt1",
+      section: "Habitación Triple",
+    });
+    expect(reconcileAssignment({ category: "area", area: "cocina", roomTypeId: null, section: "Cocina compartida" }, renamed)).toEqual({
+      category: "general",
+      area: null,
+      roomTypeId: null,
+      section: null,
+    });
+    expect(reconcileAssignment({ category: "room_type", area: null, roomTypeId: "gone", section: "Habitación X" }, renamed)).toMatchObject({ category: "general", roomTypeId: null, section: null });
   });
   it("una foto general con el nombre de una sección actual se ubica ahí", () => {
     expect(sectionKeyOf({ category: "general", area: null, roomTypeId: null, section: " gimnasio " }, defs)).toBe("area:gimnasio");

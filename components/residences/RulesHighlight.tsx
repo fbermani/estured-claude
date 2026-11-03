@@ -21,7 +21,7 @@ export function RulesHighlight({
   rulesSummary: string;
   pdfUrl: string | null;
   slug?: string;
-  /** Hay reglamento vigente (propio o el modelo) para ver en la ficha y descargar como archivo de texto. */
+  /** Hay reglamento vigente (propio o el modelo) para ver en la ficha y descargar en PDF. */
   hasRegulation?: boolean;
   /** DR30: botones «Leer / Descargar reglamento» (modal) que reemplazan los enlaces a la sección. */
   regulationActions?: ReactNode;

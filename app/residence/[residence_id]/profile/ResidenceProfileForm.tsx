@@ -1013,6 +1013,7 @@ export function ResidenceProfileForm({
                 .filter((rt) => !rt.id && !initial.photoRoomTypes.some((p) => p.name === rt.name))
                 .map((rt) => rt.name)}
               commonAreas={COMMON_AREA_OPTIONS.filter((a) => commonAreas.has(a))}
+              customAreas={customItems.filter((i) => i.kind === "area" && i.status !== "rejected")}
               schemaReady={initial.photoMetaReady}
               sectionsReady={initial.photoSectionsReady}
               coverReady={initial.photoCoverReady}

@@ -160,11 +160,33 @@ export function CommunityProfilesPreview({
               <ProfileCard key={p.id} profile={p} index={i} />
             ))}
           </ul>
+          {/* La función más valiosa de la ficha: es un llamado a la acción, no un enlace de texto. */}
           <Link
             href={`/residencias/${slug}/comunidad`}
-            className="inline-flex min-h-11 items-center gap-1.5 text-sm font-bold text-forest-700 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+            className="group/cta flex items-center gap-4 rounded-card bg-forest px-5 py-4 text-white shadow-forest transition-all duration-300 ease-bounce hover:-translate-y-0.5 hover:bg-forest-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-safe:active:scale-[0.99]"
           >
-            Ver los {totalProfiles} {totalProfiles === 1 ? "perfil" : "perfiles"} →
+            <span aria-hidden="true" className="flex -space-x-2.5">
+              {profiles.slice(0, 3).map((p, i) => (
+                <span
+                  key={p.id}
+                  className={`flex size-11 items-center justify-center rounded-full border-2 border-forest text-base font-bold ${TINTS[i % TINTS.length]}`}
+                >
+                  {p.firstName[0]?.toUpperCase()}
+                </span>
+              ))}
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block font-display text-lg font-extrabold leading-tight sm:text-xl">
+                Ver los {totalProfiles} {totalProfiles === 1 ? "perfil" : "perfiles"}
+              </span>
+              <span className="block text-[13px] text-white/85">Conocé con quién vas a vivir antes de reservar</span>
+            </span>
+            <span
+              aria-hidden="true"
+              className="grid size-11 shrink-0 place-items-center rounded-full bg-white text-forest-700 transition-transform duration-300 ease-bounce group-hover/cta:translate-x-1"
+            >
+              <Icon name="arrow_forward" className="text-2xl" />
+            </span>
           </Link>
         </>
       )}
