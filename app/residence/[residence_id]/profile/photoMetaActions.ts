@@ -8,6 +8,7 @@ import { createAuditLog } from "@/lib/audit";
 import { isMissingSchemaError } from "@/lib/stayChange/schema";
 import { MAX_FEATURED_PHOTOS, validatePhotoMeta } from "@/lib/residences/photoMeta";
 import { MAX_RESIDENCE_PHOTOS } from "@/lib/residences/photos";
+import { imageExtension, sniffImageType } from "@/lib/residences/imageSniff";
 import { stageProfileEdit } from "@/lib/residences/profileEdits";
 import type { PhotoMetaItem } from "@/lib/residences/photoSections";
 
@@ -130,6 +131,10 @@ export async function uploadResidencePhoto(residenceId: string, formData: FormDa
   if (!(photo instanceof File) || photo.size === 0) return { status: "error", message: "No pudimos leer la foto. Probá de nuevo." };
   if (photo.size > MAX_PHOTO_BYTES) return { status: "error", message: `"${photo.name}" pesa más de 5 MB.` };
   if (!PHOTO_MIME.includes(photo.type)) return { status: "error", message: `"${photo.name}" tiene que ser JPG, PNG o WebP.` };
+  // El MIME lo declara el cliente: el tipo (y la extensión) que se guardan salen de la firma real del archivo.
+  const photoBytes = new Uint8Array(await photo.arrayBuffer());
+  const realType = sniffImageType(photoBytes);
+  if (!realType) return { status: "error", message: `"${photo.name}" no es una imagen JPG, PNG o WebP válida.` };
 
   const [{ data: residence }, { count }, { data: types }] = await Promise.all([
     admin.from("residences").select("status").eq("id", residenceId).single(),
@@ -168,9 +173,8 @@ export async function uploadResidencePhoto(residenceId: string, formData: FormDa
   }
 
   const gateApplies = residence.status === "verified_active";
-  const ext = photo.type === "image/png" ? "png" : photo.type === "image/webp" ? "webp" : "jpg";
-  const path = `${residenceId}/${crypto.randomUUID()}.${ext}`;
-  const { error: uploadError } = await admin.storage.from("public-residence-media").upload(path, photo, { contentType: photo.type });
+  const path = `${residenceId}/${crypto.randomUUID()}.${imageExtension(realType)}`;
+  const { error: uploadError } = await admin.storage.from("public-residence-media").upload(path, photoBytes, { contentType: realType });
   if (uploadError) {
     console.error("[photo-upload] storage fallido:", uploadError.message);
     return { status: "error", message: `No pudimos subir "${photo.name}". Probá de nuevo.` };
@@ -184,7 +188,7 @@ export async function uploadResidencePhoto(residenceId: string, formData: FormDa
       bucket: "public-residence-media",
       storage_path: path,
       filename: photo.name,
-      mime_type: photo.type,
+      mime_type: realType,
       size_bytes: photo.size,
       visibility: "public",
       document_type: "residence_photo",
@@ -221,6 +225,7 @@ export async function uploadResidencePhoto(residenceId: string, formData: FormDa
     });
     if (!stage.ok) {
       await admin.from("files").update({ status: "rejected" }).eq("id", fileId);
+      await admin.storage.from("public-residence-media").remove([path]);
       return { status: "error", message: stage.error };
     }
   }

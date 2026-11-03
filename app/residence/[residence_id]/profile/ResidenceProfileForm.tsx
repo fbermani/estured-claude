@@ -372,10 +372,11 @@ export function ResidenceProfileForm({
         commonAreas: commonAreas.size,
         rulesSummary,
         nearUniversities: nearUniversities.size,
-        photos: photoCounts.total,
+        // Solo cuentan las aprobadas: las pendientes todavía no las ve el público.
+        photos: photoCounts.approved,
         roomTypesOk: roomTypes.length > 0 && roomTypes.every((rt) => rt.monthlyPriceUsd > 0),
       }),
-    [tagline, description, services, commonAreas, rulesSummary, nearUniversities, roomTypes, photoCounts.total],
+    [tagline, description, services, commonAreas, rulesSummary, nearUniversities, roomTypes, photoCounts.approved],
   );
   const strengthSuggestion = profileStrengthSuggestion(strength);
 
@@ -1525,9 +1526,9 @@ export function ResidenceProfileForm({
               Vista previa
             </p>
             <div className="relative h-32 bg-sand-200">
-              {(initial.photos.find((p) => !p.pending) ?? initial.photos[0]) ? (
+              {initial.photos.find((p) => !p.pending) ? (
                 <Image
-                  src={(initial.photos.find((p) => !p.pending) ?? initial.photos[0]).url}
+                  src={initial.photos.find((p) => !p.pending)!.url}
                   alt=""
                   fill
                   sizes="320px"

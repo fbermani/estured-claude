@@ -33,6 +33,8 @@ import { parseCustomAmenityDrafts } from "@/lib/residences/customAmenities";
 import { syncCustomAmenities } from "@/lib/residences/customAmenitiesDb";
 import { splitRules, validateTopRules } from "@/lib/residences/topRules";
 import { validateAgeRange } from "@/lib/residences/age";
+import { MAX_RESIDENCE_PHOTOS } from "@/lib/residences/photos";
+import { imageExtension, sniffImageType } from "@/lib/residences/imageSniff";
 import { validateEarlyExitPolicy } from "@/lib/stayChange/validate";
 import { parseMoneyConditionsInput, type DepositMode } from "@/lib/applications/reservationMoney";
 import { describeInitialPaymentForLog, initialPaymentConfigFromRow, parseInitialPaymentInput, type InitialPaymentConfig } from "@/lib/reservations/initialPayment";
@@ -703,16 +705,31 @@ export async function saveResidenceProfile(
     // no se muestra públicamente hasta que un admin lo apruebe.
     const photos = formData.getAll("photos").filter((f): f is File => f instanceof File && f.size > 0);
     const uploadedPhotoIds: string[] = [];
+    // Mismo tope que el editor de la galería (`uploadResidencePhoto`): sin contar las rechazadas.
+    if (photos.length > 0) {
+      const { count: currentPhotos } = await admin
+        .from("files")
+        .select("id", { count: "exact", head: true })
+        .eq("related_entity_type", "residences")
+        .eq("related_entity_id", residenceId)
+        .eq("document_type", "residence_photo")
+        .neq("status", "rejected");
+      if ((currentPhotos ?? 0) + photos.length > MAX_RESIDENCE_PHOTOS)
+        return { status: "error", message: `Llegaste al máximo de ${MAX_RESIDENCE_PHOTOS} fotos. Para sumar otra, primero pedile a Soporte que quite alguna.` };
+    }
     for (const photo of photos) {
       if (photo.size > MAX_PHOTO_BYTES)
         return { status: "error", message: `"${photo.name}" supera los 5MB.` };
       if (!["image/jpeg", "image/png", "image/webp"].includes(photo.type))
         return { status: "error", message: `"${photo.name}" debe ser JPG, PNG o WebP.` };
-      const ext = photo.type === "image/png" ? "png" : photo.type === "image/webp" ? "webp" : "jpg";
-      const path = `${residenceId}/${crypto.randomUUID()}.${ext}`;
+      // El MIME lo declara el cliente: el tipo y la extensión salen de la firma real del archivo.
+      const photoBytes = new Uint8Array(await photo.arrayBuffer());
+      const realType = sniffImageType(photoBytes);
+      if (!realType) return { status: "error", message: `"${photo.name}" no es una imagen JPG, PNG o WebP válida.` };
+      const path = `${residenceId}/${crypto.randomUUID()}.${imageExtension(realType)}`;
       const { error: uploadError } = await admin.storage
         .from("public-residence-media")
-        .upload(path, photo, { contentType: photo.type });
+        .upload(path, photoBytes, { contentType: realType });
       if (uploadError) throw uploadError;
       const { data: insertedPhoto, error: photoInsertError } = await admin
         .from("files")
@@ -723,7 +740,7 @@ export async function saveResidenceProfile(
           bucket: "public-residence-media",
           storage_path: path,
           filename: photo.name,
-          mime_type: photo.type,
+          mime_type: realType,
           size_bytes: photo.size,
           visibility: "public",
           document_type: "residence_photo",

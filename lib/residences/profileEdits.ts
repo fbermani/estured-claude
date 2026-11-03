@@ -385,7 +385,9 @@ export async function applyApprovedEdit(
  * Al rechazar una edición de fotos/reglamento, las marca `rejected` en
  * `files` para que dejen de contar como "pendientes" en la galería del
  * dueño (nunca llegaron a mostrarse públicamente — `status` nunca fue
- * `approved`).
+ * `approved`). Las FOTOS rechazadas además se borran del bucket público:
+ * el archivo estaba en una URL pública aunque la ficha no lo mostrara, y una
+ * foto rechazada (inapropiada, con datos de terceros) no tiene que seguir viva.
  */
 export async function discardRejectedFiles(admin: SupabaseClient, edit: PendingEdit): Promise<void> {
   const newValue = edit.new_value as Record<string, unknown>;
@@ -398,4 +400,18 @@ export async function discardRejectedFiles(admin: SupabaseClient, edit: PendingE
   if (fileIds.length === 0) return;
   const { error } = await admin.from("files").update({ status: "rejected" }).in("id", fileIds);
   if (error) console.error("[profile-edits] discard rejected files failed:", error);
+  if (edit.field_group !== "photos" || error) return;
+
+  // Solo el bucket público de fotos; la fila de `files` queda como registro (rejected). Un fallo acá no revierte el rechazo.
+  const { data: photoFiles } = await admin
+    .from("files")
+    .select("storage_path")
+    .in("id", fileIds)
+    .eq("document_type", "residence_photo")
+    .eq("bucket", "public-residence-media")
+    .eq("status", "rejected");
+  const paths = ((photoFiles ?? []) as { storage_path: string }[]).map((f) => f.storage_path).filter(Boolean);
+  if (paths.length === 0) return;
+  const { error: removeError } = await admin.storage.from("public-residence-media").remove(paths);
+  if (removeError) console.error("[profile-edits] remove rejected photo objects failed:", removeError.message);
 }

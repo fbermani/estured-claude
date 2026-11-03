@@ -36,6 +36,8 @@ type Upload = {
   key: string;
   status: "uploading" | "error";
   message?: string;
+  /** Falso cuando reintentar no sirve (archivo rechazado por peso o formato): se oculta «Reintentar». */
+  retryable?: boolean;
   file: File;
 };
 type SaveStatus = "idle" | "saving" | "saved" | "error";
@@ -190,6 +192,7 @@ export function PhotoMetaManager({
         file,
         status: tooBig || badType ? "error" : "uploading",
         message: badType ? "Tiene que ser JPG, PNG o WebP." : tooBig ? "Pesa más de 5 MB." : undefined,
+        retryable: !(tooBig || badType),
       };
     });
     setUploads((prev) => [...prev, ...entries]);
@@ -211,6 +214,7 @@ export function PhotoMetaManager({
       if (assign.section) fd.set("section", assign.section);
     }
     let message = "No pudimos subir la foto. Probá de nuevo.";
+    let retryable = true;
     try {
       const result = await uploadResidencePhoto(residenceId, fd);
       if (result.status === "success") {
@@ -219,15 +223,21 @@ export function PhotoMetaManager({
         return;
       }
       message = result.message;
-    } catch {
-      message = "Se cortó la conexión mientras subíamos la foto. Probá de nuevo.";
+    } catch (err) {
+      const raw = err instanceof Error ? err.message : "";
+      if (entry.file.size > MAX_BYTES || /body exceeded|too large|payload|413|limit/i.test(raw)) {
+        message = "La foto pesa demasiado; el máximo es 5 MB.";
+        retryable = false;
+      } else {
+        message = "Se cortó la conexión mientras subíamos la foto. Probá de nuevo.";
+      }
     }
-    setUploads((prev) => prev.map((u) => (u.id === entry.id ? { ...u, status: "error", message } : u)));
+    setUploads((prev) => prev.map((u) => (u.id === entry.id ? { ...u, status: "error", message, retryable } : u)));
   }
 
   function retry(id: string) {
     const entry = uploads.find((u) => u.id === id);
-    if (!entry || entry.file.size > MAX_BYTES || !ACCEPT.split(",").includes(entry.file.type)) return;
+    if (!entry || entry.retryable === false || entry.file.size > MAX_BYTES || !ACCEPT.split(",").includes(entry.file.type)) return;
     const next = { ...entry, status: "uploading" as const, message: undefined };
     setUploads((prev) => prev.map((u) => (u.id === id ? next : u)));
     enqueue(next);
@@ -267,6 +277,7 @@ export function PhotoMetaManager({
   const approvedCount = items.filter((i) => !i.pending).length;
   const unsortedItems = items.filter((i) => sectionKeyOf(i, defs) === UNSORTED_KEY);
   const unsortedUploads = uploads.filter((u) => u.key === UNSORTED_KEY);
+  const unsortedActive = unsortedUploads.filter((u) => u.status === "uploading").length;
   const byKey = (key: string) => items.filter((i) => sectionKeyOf(i, defs) === key);
   const optionsFor = (current: string) => [
     ...(current !== UNSORTED_KEY ? [{ key: UNSORTED_KEY, title: "Sin clasificar" }] : []),
@@ -311,6 +322,13 @@ export function PhotoMetaManager({
         />
       )}
 
+      {items.some((i) => i.pending) && (
+        <p className="flex items-start gap-2 rounded-field bg-orange-tint/60 p-3 text-sm text-ink-soft">
+          <Icon name="schedule" className="mt-0.5 text-base" />
+          <span>Las fotos marcadas «Pendiente» las revisa el equipo de EstuRed. Hasta que las aprueben, el público no las ve.</span>
+        </p>
+      )}
+
       {/* Pozo «Sin clasificar» */}
       {schemaReady && (unsortedItems.length > 0 || unsortedUploads.length > 0) && (
         <section
@@ -320,15 +338,15 @@ export function PhotoMetaManager({
             overKey === UNSORTED_KEY && dragId ? "border-forest bg-forest-tint" : "border-orange/40 bg-orange-tint/40"
           }`}
         >
-          <SectionHeader icon="inventory_2" title="Sin clasificar" count={unsortedItems.length + unsortedUploads.length} />
+          <SectionHeader icon="inventory_2" title="Sin clasificar" count={unsortedItems.length + unsortedActive} />
           {editable && <p className="mt-1 text-xs text-ink-soft">Arrastrá cada foto a su sección o elegí «Mover a…».</p>}
-          <PhotoGrid items={unsortedItems} uploads={unsortedUploads} sectionKey={UNSORTED_KEY} {...gridCommon()} />
+          <PhotoGrid items={unsortedItems} uploads={unsortedUploads} sectionKey={UNSORTED_KEY} sectionTitle="Sin clasificar" {...gridCommon()} />
         </section>
       )}
 
       {/* Sin schema de clasificación: lista simple */}
       {!schemaReady && (items.length > 0 || uploads.length > 0) && (
-        <PhotoGrid items={items} uploads={uploads} sectionKey={UNSORTED_KEY} {...gridCommon()} />
+        <PhotoGrid items={items} uploads={uploads} sectionKey={UNSORTED_KEY} sectionTitle="Fotos" {...gridCommon()} />
       )}
 
       {/* Secciones */}
@@ -338,6 +356,7 @@ export function PhotoMetaManager({
             const sectionItems = byKey(d.key);
             const sectionUploads = uploads.filter((u) => u.key === d.key);
             const total = sectionItems.length + sectionUploads.length;
+            const counted = sectionItems.length + sectionUploads.filter((u) => u.status === "uploading").length;
             const isOver = overKey === d.key;
             return (
               <section
@@ -349,7 +368,7 @@ export function PhotoMetaManager({
                 }`}
               >
                 <div className="flex items-center justify-between gap-3">
-                  <SectionHeader icon={d.icon} title={d.title} count={total} />
+                  <SectionHeader icon={d.icon} title={d.title} count={counted} />
                   {editable && (
                     <PickButton label="Subir" ariaLabel={`Subir fotos a ${d.title}`} onFiles={(files) => startUploads(files, d.key)} />
                   )}
@@ -357,7 +376,7 @@ export function PhotoMetaManager({
                 {total === 0 ? (
                   <p className="mt-2 text-sm text-ink-faint">{editable ? "Arrastrá fotos acá o tocá «Subir»." : "Sin fotos todavía."}</p>
                 ) : (
-                  <PhotoGrid items={sectionItems} uploads={sectionUploads} sectionKey={d.key} {...gridCommon()} />
+                  <PhotoGrid items={sectionItems} uploads={sectionUploads} sectionKey={d.key} sectionTitle={d.title} {...gridCommon()} />
                 )}
               </section>
             );
@@ -521,7 +540,7 @@ function CoverStrip({
         {editable ? "Marcá con la estrella las fotos que rotan en tu ficha y en la búsqueda." : "Estas son las fotos que rotan en tu ficha y en la búsqueda."}{" "}
         {cover.length === 0 && `Si no elegís, rotan las primeras ${MAX_FEATURED_PHOTOS}.`}
       </p>
-      <ol className="mt-3 grid grid-cols-5 gap-2 sm:gap-3">
+      <ol className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5 sm:gap-3">
         {Array.from({ length: MAX_FEATURED_PHOTOS }, (_, i) => {
           const photo = cover[i];
           if (!photo)
@@ -532,7 +551,7 @@ function CoverStrip({
             );
           return (
             <li key={photo.id} className="relative aspect-[4/3] overflow-hidden rounded-field bg-cream-2">
-              <Image src={photo.url} alt={`Portada ${i + 1}`} fill sizes="(min-width: 640px) 120px, 20vw" draggable={false} className="object-cover" />
+              <Image src={photo.url} alt={`Portada ${i + 1}`} fill sizes="(min-width: 640px) 120px, 45vw" draggable={false} className="object-cover" />
               <span className="absolute left-1 top-1 grid size-6 place-items-center rounded-full bg-forest-ink/85 text-xs font-bold text-white">{i + 1}</span>
               {editable && (
                 <>
@@ -580,6 +599,8 @@ type GridProps = {
   items: PhotoMetaItem[];
   uploads: Upload[];
   sectionKey: string;
+  /** Título de la sección, para que los `aria-label` no se repitan entre secciones. */
+  sectionTitle: string;
   editable: boolean;
   sectionsEnabled: boolean;
   options: (current: string) => { key: string; title: string }[];
@@ -645,7 +666,7 @@ function PhotoGrid(props: GridProps) {
           </div>
           {sectionsEnabled && editable && (
             <select
-              aria-label={`Mover la foto ${n + 1} a…`}
+              aria-label={`Mover la foto ${n + 1} de ${props.sectionTitle} a…`}
               value=""
               onChange={(e) => e.target.value && props.onMove(photo.id, e.target.value)}
               className="min-h-11 w-full border-t border-line bg-paper px-2 text-sm text-ink-soft focus-visible:outline-2 focus-visible:outline-forest"
@@ -678,10 +699,16 @@ function PhotoGrid(props: GridProps) {
           </div>
           {u.status === "error" && (
             <div className="flex border-t border-line">
-              <button type="button" onClick={() => props.onRetry(u.id)} className="min-h-11 flex-1 text-sm font-bold text-forest-700 hover:bg-forest-tint">
-                Reintentar
-              </button>
-              <button type="button" onClick={() => props.onDismiss(u.id)} className="min-h-11 flex-1 border-l border-line text-sm font-bold text-ink-soft hover:bg-cream-2">
+              {u.retryable !== false && (
+                <button type="button" onClick={() => props.onRetry(u.id)} className="min-h-11 flex-1 text-sm font-bold text-forest-700 hover:bg-forest-tint">
+                  Reintentar
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => props.onDismiss(u.id)}
+                className={`min-h-11 flex-1 text-sm font-bold text-ink-soft hover:bg-cream-2 ${u.retryable !== false ? "border-l border-line" : ""}`}
+              >
                 Quitar
               </button>
             </div>
