@@ -4,6 +4,8 @@
 
 > Bitácora ejecutiva CORTA (se lee al inicio de cada sesión). NO reemplaza `/docs` (`00`–`22` = fuente de verdad de producto; decisiones del dueño en `docs/00` §31). El detalle de cada ciclo vive en el histórico: consultarlo a demanda con el índice de §7 (`Read` con `offset`/`limit`, no entero). Al cerrar un ciclo: agregar 2–4 líneas acá (no párrafos) y el detalle largo, si hace falta, a `docs/NEXT_STEPS.md` o al histórico.
 
+> **TRASPASO (2026-11-02):** para continuar desde otro perfil leer primero el bloque «TRASPASO a otro perfil» al inicio de `docs/NEXT_STEPS.md` (estado git, migraciones pendientes, decisión abierta DR32, preferencias del dueño).
+
 ---
 
 ## 1. Qué es y qué existe

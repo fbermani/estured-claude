@@ -8,6 +8,28 @@
 
 ---
 
+## TRASPASO a otro perfil (2026-11-02, al cierre de la sesión principal)
+
+**Leer primero:** este bloque, `MEMORY.md` y `CLAUDE.md`. Todo lo hecho está commiteado en `main`, **nada pusheado** (no pushear salvo pedido del dueño).
+
+**Estado git:** últimos commits locales: `54d59fe` y `d8c359e` (DR32 tutor, migración 0071), `1ddd76b` (guías published), `895aa67`, `bf5ade2`, `db8c15e`, `ca59ae0`/`a0d6b01` (DR30 ficha). Sesión de la ficha: terminada. Sesión del tutor (DR32): puede tener cambios **sin commitear** (verificación del mail del familiar, ver abajo): revisar `git status` y `git diff` antes de seguir; no commitear nada sin pasar `revisor` + `seguridad`.
+
+**Migraciones:** dev aplicado hasta 0070 (0071 pendiente en dev salvo que el dueño diga que sí; el seed demo del tutor ya se corrió en dev, así que probablemente está aplicada: confirmarlo). **Prod: pendientes 0068–0071** y deben entrar al bootstrap (`node scripts/build-bootstrap.mjs prod`). Siempre dar al dueño los links del SQL Editor (dev https://supabase.com/dashboard/project/gyfbtsuibmecefwovdgh/sql/new , prod https://supabase.com/dashboard/project/mrwooskdcnkbitkhcvbf/sql/new) + el archivo a pegar.
+
+**Decisión abierta (DR32, hueco de seguridad):** un menor puede registrar un «familiar» con mail inventado, aprobar el vínculo y confirmarse solo. Se evaluó verificar el mail con OTP: cierra el mail inventado/inexistente pero NO prueba que sea adulto ni tutor (mismo nivel que acepta DR19). Anotado en `GAPS.md` y DR32. Retomar: leer la última respuesta de la sesión del tutor y decidir con el dueño (de a una, con recomendación). Sin cooldown de reintentos tras rechazo del tutor (anotado).
+
+**Pendientes del dueño (no del código):** aplicar migraciones en prod; `NEXT_PUBLIC_SITE_URL` real en Vercel (local queda); dominio Resend verificado + `EMAIL_DOMAIN_VERIFIED=true` + clave Resend en Vercel (aún no hay dominio); regla WAF en Vercel; `CRON_SECRET`; proyecto Supabase prod; logo final; revisar ~11 expresiones dudosas en `design-proposals/guias-2026-11-02/reporte-editorial.md` (opcional).
+
+**Candidatos para seguir (en este orden):** (1) resolver el hueco DR32; (2) regenerar el prototipo HTML compartible (solo datos ficticios; la ficha cambió con DR30); (3) fixes admin menores (enlace «Ir a Revocaciones →» de 18 px, botón de ediciones de perfil que se parte en dos líneas, primera fila resaltada sin `?id`); (4) probar en dispositivo táctil real; (5) auditoría final con el agente `auditor` (siempre última). Opcional: limpiar datos demo (`[DEMO-NEG]`, `[demo:seed-profile-edits]`; los seeds tienen `--delete`).
+
+**Flujo de trabajo vigente:** docs primero para reglas de negocio → agente (`constructor`/`interfaz`/`base-datos`) → `revisor` (+ `seguridad` si toca seguridad) → parar dev server (pestaña de Terminal), matar :3000, `rm -rf .next`, typecheck + lint + UN build → commit local con trailer `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>` → relanzar `npm run dev`. Agentes en paralelo nunca buildean ni tocan el dev server. Tests acotados a lo tocado.
+
+**Preferencias del dueño (no están en el repo; el otro perfil no tiene mi memoria):** respuestas cortas y ahorro de tokens; decisiones de a una (pregunta + recomendación + botones); UI escaneable con poco texto; HTML compartible solo con datos ficticios; usar DeepSeek (`~/.local/bin/opencode run -m opencode/deepseek-v4.1-flash-free`) para tareas de bajo riesgo (borradores de copy, resúmenes, listas), nunca con secretos/PII/código sensible; nunca correr seeds ni tests contra prod; no contactar residencias; sin API de WhatsApp; español rioplatense (voseo), marca «EstuRed».
+
+**Nunca commitear:** `design-proposals/**`, `.claude/agents`, `.codex`, `AGENTS.md`, `scripts/_oneoff-*`.
+
+---
+
 ## DR29: Centro de Guías fase 2, lotes 2A y 2B (2026-11-02)
 
 - **Lote 2A (`7b670ab`, migración 0068):** tarjeta «Tu llegada» con cuenta regresiva y checklist de 47 ítems (`lib/arrival/*`, `components/students/ArrivalCard.tsx`). Tildes persistidas en `arrival_checklist_items` (una fila por reserva e ítem); lo tilda solo el estudiante dueño de la reserva; el familiar vinculado activo lo ve en solo lectura.
