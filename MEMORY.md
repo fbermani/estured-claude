@@ -16,7 +16,7 @@ Implementado de punta a punta (ver histórico por ciclo): auth y roles (estudian
 
 Demo: selector "Simular usuario" (solo con `DEMO_LOGIN_ENABLED=true` en `.env.local`, nunca en Vercel) con 8 usuarios (Lucía/Camila/Valentina estudiantes —Valentina menor—, Martín familiar, Ricardo owner, Sofía staff, admin, superadmin). Verificar e2e con ese selector, sin tipear contraseñas.
 
-## 2. Últimos ciclos (62–74) y DR12–DR16
+## 2. Últimos ciclos (62–82) y DR12–DR36
 
 - **DR36 / seguridad de fotos (2026-11-03, sin pushear):** el dueño borra sus fotos con piso de 3 aprobadas si la residencia está publicada (`deleteResidencePhoto`, botón «Borrar» con confirmación; la foto queda `rejected`, sin archivo ni clasificación, y sale de la revisión pendiente). Seguridad de subida: tipo por firma real (`lib/residences/imageSniff.ts`), tope de 60 en la ruta vieja, borrado en Storage al rechazar. Verificado en navegador (Norte): subida PNG real y borrado. Pendiente: carrera del tope de 60 y nombre de archivo sin sanitizar (bajos).
 
@@ -66,7 +66,9 @@ Demo: selector "Simular usuario" (solo con `DEMO_LOGIN_ENABLED=true` en `.env.lo
 
 ## 4. Próxima tarea recomendada
 
-1. **DR29 (Guías fase 2) pendiente:** (a) pulir catálogo del checklist (dueño, `lib/arrival/checklist.ts`); (b) verificar mail real de avisos cuando haya dominio Resend (`EMAIL_DOMAIN_VERIFIED=true`; hoy el mail no sale); (c) probar escritorio 1280 px. Lo de 375 px ya está verificado.
+**Plan del dueño (2026-11-03), en este orden:** (0) **relevamiento manual y visual del dueño** → lista de detalles a corregir (se atienden de a lotes); (1) **auditoría final** con `auditor` y `seguridad` (DR14 0052–0055, DR19–DR22, Guías, programa móvil, DR33–DR36, subida de fotos); (2) **depuración de código** para optimizar y subir la seguridad (pendientes bajos: carrera del tope de 60 fotos, nombre de archivo sin sanitizar; `npm run build` + suite completa con el dev server parado; `check-anon-exposure`); (3) **producción** (proyecto Supabase nuevo + bootstrap hasta 0076, dominio, Resend, `CRON_SECRET`, email de contacto, WAF).
+
+1. **DR29 (Guías fase 2) pendiente:** (a) el catálogo del checklist ya se fusionó y tiene 10 esenciales (DR35; los 10 elegidos son reversibles, el dueño puede ajustarlos); (b) verificar mail real de avisos cuando haya dominio Resend (`EMAIL_DOMAIN_VERIFIED=true`; hoy el mail no sale); (c) probar escritorio 1280 px. Lo de 375 px ya está verificado.
 2. **Auditoría final** con los agentes `auditor` y `seguridad` (DR14 0052–0055, DR19–DR22, Guías, programa móvil).
 2. **`npm test`**: la suite completa pasó el 2026-11-02 (1487 OK). Antes de commits grandes repetir (~5–7 min) + `node --env-file=.env.local scripts/check-anon-exposure.mjs`; después `node --env-file=.env.local scripts/cleanup-test-residences.mjs` (simula) y `--apply`.
 3. **Probar a mano las pantallas nuevas:** reglamento y aceptación, FAQ elegibles, edad mín./máx., seguimiento en `/admin/followups`, captura de "Por qué EstuRed" en desktop y mobile.
