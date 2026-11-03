@@ -97,7 +97,7 @@ const audiences: Array<
     miniKey: "residence",
     icon: "apartment",
     who: "Residencias",
-    promise: "Recibí solicitudes completas, no consultas repetidas.",
+    promise: "¡Menos consultas, mejores reservas!",
     badge: "Perfil Verificado gratuito",
     perks: [
       { icon: "inbox", title: "Menos preguntas de siempre", text: "La ficha responde por vos." },
@@ -229,12 +229,12 @@ export default async function HomePage() {
           title="Cada uno con su lugar en el proceso"
           description="Quien estudia elige. La familia acompaña. La residencia recibe solicitudes completas."
         />
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 lg:gap-y-0">
           {audiences.map(({ miniKey, ...a }, i) => (
             <Reveal
               key={a.who}
               delay={i as 0 | 1 | 2}
-              className={`h-full ${i === 2 ? "md:col-span-2 lg:col-span-1" : ""}`}
+              className={`h-full lg:row-span-4 lg:grid lg:grid-rows-subgrid ${i === 2 ? "md:col-span-2 lg:col-span-1" : ""}`}
             >
               <AudiencePanel {...a} mini={MINIS[miniKey]} />
             </Reveal>

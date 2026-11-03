@@ -49,7 +49,7 @@ Hecho y sin pushear: amenidades (0073), galería por secciones (0074), disponibi
 ## Traspaso 2026-11-02: Guías (DR28) y programa móvil L1–L12
 
 - Hecho y commiteado (sin push): Centro de Guías fase 1 (`f64be6c`, `9b171f7`; hub `/guias`, 6 guías `content/guias/*.md`, `lib/guides`, SEO/JSON-LD, enlaces contextuales, aviso «llegar 2–3 semanas antes»); programa móvil L1–L12 (tab bar inferior, tablas como tarjetas, carruseles con swipe, hojas/modales, teclado móvil; informe en `design-proposals/movil-2026-11-02/informe.md`, untracked). `npm test` completo: 1487 OK tras `6360878`. Dev con migraciones hasta 0067.
-- Pendiente Guías: las guías están en `borrador-editorial`; el dueño revisa el tono de 05 y R01 (`design-proposals/guias-2026-11-02/reporte-editorial.md`). Fase 2 (DR28): **hecha, ver DR29 arriba**. WhatsApp sigue solo como botón manual.
+- Pendiente Guías: las guías están en `borrador-editorial`; la revisión de tono de 05 y R01 se cerró (el dueño la descartó, 2026-11-03). Fase 2 (DR28): **hecha, ver DR29 arriba**. WhatsApp sigue solo como botón manual.
 - Pendiente móvil: verificar negociación en navegador, táctil en dispositivo real y 1280 px en varios lotes.
 - Pendiente producción: `NEXT_PUBLIC_SITE_URL` en `.env.local`, regla WAF en Vercel, proyecto Supabase prod + bootstrap 0056–0069, dominio Resend, `CRON_SECRET`, auditoría final, aviso a tutores de menores, logo final, decisión sobre `/waitlist` (H30). Los «pendiente de aplicar 0063–0066 en dev» de abajo ya están aplicados en dev; siguen pendientes en prod.
 

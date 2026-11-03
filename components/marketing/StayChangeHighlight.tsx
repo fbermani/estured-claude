@@ -38,7 +38,8 @@ export function StayChangeHighlight({ variant, studentCta = "register" }: { vari
   if (variant === "students") {
     return (
       <section id="quiero-cambiar" aria-labelledby="quiero-cambiar-students-title" className="scroll-mt-24 border-y border-line bg-paper">
-        <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[1.05fr_0.95fr]">
+        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+        <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
           <Reveal>
             <p className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-orange-tint px-3 py-1 text-sm font-semibold text-orange-700">
               <Icon name="swap_horiz" className="text-base" /> Si ya vivís en una residencia
@@ -74,18 +75,6 @@ export function StayChangeHighlight({ variant, studentCta = "register" }: { vari
               residencia: EstuRed no los fija ni los cobra. Toda solicitud está sujeta a confirmación.
             </p>
 
-            <div className="mt-8 flex flex-col gap-3 rounded-card bg-mint p-5 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="font-bold text-forest-700">Para familias: te enterás de todo</p>
-                <p className="mt-1 text-sm leading-relaxed text-ink-soft">
-                  Si estás vinculado como familiar, ves el aviso, la fecha estimada de salida y los costos que informe la residencia. Podés proponer opciones; la decisión
-                  es de tu estudiante.
-                </p>
-              </div>
-              <Button href="/register/family" variant="outline" size="sm" className="shrink-0">
-                Vincularme como familiar
-              </Button>
-            </div>
           </Reveal>
 
           {/* Réplica estática de la tarjeta de estado de Mi residencia (decorativa). */}
@@ -132,6 +121,28 @@ export function StayChangeHighlight({ variant, studentCta = "register" }: { vari
               </p>
             </div>
           </Reveal>
+        </div>
+
+        {/* Para familias: franja a todo el ancho, debajo de las dos columnas, para que la sección quede pareja. */}
+        <Reveal className="mt-12">
+          <div className="flex flex-col gap-5 rounded-card bg-mint p-6 sm:p-8 md:flex-row md:items-center md:justify-between md:gap-8">
+            <div className="flex items-start gap-4">
+              <span aria-hidden className="grid size-12 shrink-0 place-items-center rounded-2xl bg-paper text-forest-700 shadow-card">
+                <Icon name="family_restroom" className="text-[26px]" />
+              </span>
+              <div>
+                <p className="text-lg font-bold text-forest-700">Para familias: te enterás de todo</p>
+                <p className="mt-1 max-w-2xl text-sm leading-relaxed text-ink-soft sm:text-base">
+                  Si estás vinculado como familiar, ves el aviso, la fecha estimada de salida y los costos que informe la residencia. Podés proponer opciones; la decisión
+                  es de tu estudiante.
+                </p>
+              </div>
+            </div>
+            <Button href="/register/family" variant="outline" className="shrink-0">
+              Vincularme como familiar
+            </Button>
+          </div>
+        </Reveal>
         </div>
       </section>
     );
