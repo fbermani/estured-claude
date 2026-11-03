@@ -1,6 +1,7 @@
 "use client";
 
 import { formatDateOnly } from "@/lib/dates/formatDateOnly";
+import { formatDate as formatTimestampDate } from "@/lib/dates/format";
 import { Fragment, useMemo, useState, useEffect, useActionState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -67,6 +68,8 @@ export type ResidentRow = {
     statusTone: "amber" | "sage" | "neutral" | "danger";
   } | null;
   studentProfileId: string | null;
+  /** DR38: documentación que pide la residencia y su estado en este residente (solo estado, nunca el archivo). `null` = sin cuenta de estudiante vinculada. */
+  documents: { label: string; delivered: boolean; deliveredAt: string | null }[] | null;
   /** Depósito de la reserva vinculada: define las opciones al registrar una salida anticipada. */
   depositMode: "had" | "none" | "unknown";
   /** Pedido de cambio de habitación dentro de la residencia (DR34): el abierto o, si no hay, el último cerrado. */
@@ -104,6 +107,8 @@ export type ResidentsData = {
   linkRequests: LinkRequestItem[];
   unlinkedStays: UnlinkedStay[];
   houseCode: string | null;
+  /** DR38: falta la migración 0077, así que solo se muestran identidad y certificado de estudios. */
+  stayDocumentsLimited: boolean;
 };
 
 const initialState: ResidentsActionState = { status: "idle" };
@@ -226,6 +231,50 @@ function NotesSection({
   );
 }
 
+/** DR38: documentación que pide la residencia y su estado en este residente. Solo estado: nunca el archivo ni un enlace. */
+function StayDocumentsBlock({ row, limited }: { row: ResidentRow; limited: boolean }) {
+  const docs = row.documents;
+  const missing = docs ? docs.filter((d) => !d.delivered).length : 0;
+  return (
+    <div className="rounded-field border border-line bg-paper p-4 sm:col-span-2 lg:col-span-4">
+      <p className="mb-3 flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest text-muted">
+        <Icon name="folder_shared" className="text-sm" /> Documentación
+        {docs && docs.length > 0 && (
+          <span className="ml-1 font-semibold normal-case tracking-normal text-ink-faint">
+            {missing === 0 ? "Completa" : `Faltan ${missing} de ${docs.length}`}
+          </span>
+        )}
+      </p>
+      {docs === null ? (
+        <p className="text-sm text-ink-soft">Sin cuenta: no podemos ver su documentación.</p>
+      ) : docs.length === 0 ? (
+        <p className="text-sm text-ink-soft">Tu residencia no pide documentos. Podés elegirlos en Configuración, en «Documentos que pedís a tus residentes».</p>
+      ) : (
+        <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {docs.map((d) => (
+            <li key={d.label} className="flex items-center justify-between gap-2 rounded-field bg-cream-2 px-3 py-2 text-sm">
+              <span className="min-w-0 truncate font-medium text-ink">{d.label}</span>
+              {d.delivered ? (
+                <span className="flex shrink-0 items-center gap-1 text-xs font-semibold text-forest-700">
+                  <Icon name="check_circle" className="text-base" /> Entregado{d.deliveredAt ? ` · ${formatTimestampDate(d.deliveredAt)}` : ""}
+                </span>
+              ) : (
+                <Badge tone="amber">Falta</Badge>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+      {docs !== null && (
+        <p className="mt-2 text-[11px] leading-relaxed text-ink-faint">
+          Solo ves si lo entregó. Los documentos son privados y no se muestran.
+          {limited ? " Antecedentes penales y los documentos propios se van a poder ver cuando se actualice el sistema." : ""}
+        </p>
+      )}
+    </div>
+  );
+}
+
 function DetailPanel({
   residenceId,
   row,
@@ -235,7 +284,10 @@ function DetailPanel({
   canResidents,
   canBeds,
   roomTypes,
+  documentsLimited,
 }: {
+  /** DR38: falta la migración 0077 (solo se ven identidad y estudios). */
+  documentsLimited: boolean;
   /** Tipos de habitación de la residencia (para la preferencia del cambio de habitación, DR34). */
   roomTypes: { id: string; name: string }[];
   /** DR11: `residents.manage` (altas, estadías, salidas, notas). */
@@ -531,6 +583,8 @@ function DetailPanel({
       <PermissionGate bare allowed={canResidents}>
         <NotesSection residenceId={residenceId} row={row} notes={notes} />
       </PermissionGate>
+
+      <StayDocumentsBlock row={row} limited={documentsLimited} />
     </div>
   );
 }
@@ -890,6 +944,7 @@ export function ResidentsBrowser({
                       canResidents={canManageResidents}
                       canBeds={canManageBeds}
                       roomTypes={data.roomTypes}
+                      documentsLimited={data.stayDocumentsLimited}
                     />
                   )}
                 </li>
@@ -1013,6 +1068,7 @@ export function ResidentsBrowser({
                               canResidents={canManageResidents}
                               canBeds={canManageBeds}
                               roomTypes={data.roomTypes}
+                              documentsLimited={data.stayDocumentsLimited}
                             />
                           </td>
                         </tr>

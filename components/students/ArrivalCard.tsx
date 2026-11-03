@@ -184,7 +184,24 @@ export function ArrivalCard({
         </p>
       )}
 
-      <div className="border-t border-line">
+      <details className="group/list border-t border-line">
+        <summary className="flex min-h-[64px] cursor-pointer list-none items-center gap-3 px-5 py-3 marker:hidden hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-forest md:px-6 [&::-webkit-details-marker]:hidden">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-forest-tint text-forest-700">
+            <Icon name="checklist" className="text-[22px]!" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-sm font-extrabold text-ink">Checklist para antes de viajar</span>
+            <span className="block text-xs leading-snug text-ink-soft">
+              {SECTIONS.length} categorías con todo lo que conviene tener listo antes de llegar. {done} de {CHECKLIST_TOTAL} hechos.
+            </span>
+          </span>
+          <span className="flex shrink-0 items-center gap-1 rounded-full bg-forest px-3 py-1.5 text-[13px] font-bold text-white">
+            <span className="group-open/list:hidden">Abrir</span>
+            <span className="hidden group-open/list:inline">Cerrar</span>
+            <Icon name="expand_more" className="text-[20px]! transition-transform group-open/list:rotate-180" />
+          </span>
+        </summary>
+        <div className="border-t border-line">
         {SECTIONS.map((cat, idx) => {
           const catDone = cat.items.filter((i) => checked.has(i.key)).length;
           return (
@@ -234,7 +251,8 @@ export function ArrivalCard({
             </details>
           );
         })}
-      </div>
+        </div>
+      </details>
     </section>
   );
 }

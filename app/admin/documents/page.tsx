@@ -17,6 +17,7 @@ export const dynamic = "force-dynamic";
 const DOCUMENT_TYPE_LABELS: Record<string, string> = {
   student_identity: "Identidad estudiante",
   student_academic_proof: "Comprobante académico",
+  student_criminal_record: "Antecedentes penales",
   student_family_authorization: "Autorización familiar",
   student_payment_proof_to_residence: "Comprobante de pago a residencia",
   family_identity: "Identidad familiar",

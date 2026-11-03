@@ -10,6 +10,7 @@ import { initialPaymentConfigFromRow } from "@/lib/reservations/initialPayment";
 import { normalizeAmenityLists, parseAmenityDetails } from "@/lib/residences/amenityDetails";
 import { listCustomAmenities } from "@/lib/residences/customAmenitiesDb";
 import { loadCurrentRegulation } from "@/lib/regulations/current";
+import { parseStayDocumentsContent } from "@/lib/residences/stayDocuments";
 import { loadPhotoMeta } from "@/lib/residences/photoMetaDb";
 import { loadResidencePromotions } from "@/lib/residences/promotions";
 import { isWithinWindow, normalizeDepositMode, todayIso } from "@/lib/applications/reservationMoney";
@@ -127,6 +128,7 @@ export default async function ResidenceProfilePage({
         }),
         amenityDetails: parseAmenityDetails((residence as { amenity_details?: unknown }).amenity_details),
         nearUniversities: (sectionMap.near_universities?.items as string[]) ?? [],
+        stayDocuments: parseStayDocumentsContent(sectionMap.stay_documents),
         rulesSummary: (sectionMap.rules?.summary as string) ?? "",
         rulesFileName: rulesFile?.filename ?? null,
         customAmenities: (customAmenitiesRes.ok ? customAmenitiesRes.items : []).map((i) => ({

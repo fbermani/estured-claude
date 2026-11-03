@@ -10,8 +10,10 @@ import { OtherDocumentsUpload } from "@/app/students/profile/OtherDocumentsUploa
 import { CommunityVisibilityCard } from "@/app/students/profile/CommunityVisibilityCard";
 import { isMinorByBirthDate } from "@/lib/students/isMinorByBirthDate";
 import { allHidden, VISIBILITY_FLAG_COLUMNS, type VisibilityValues } from "@/lib/students/communityVisibilitySettings";
+import { LiveProfileProvider } from "@/app/students/profile/LiveProfile";
 import { FamilyLinkCard } from "@/app/students/profile/FamilyLinkCard";
 import { FamilyProfileForm } from "@/app/students/profile/FamilyProfileForm";
+import { loadStudentDocumentFiles } from "@/lib/residences/stayDocumentsDb";
 import { formatBillingTaxId, normalizeRelationship } from "@/lib/family/familyProfile";
 
 export const metadata: Metadata = { title: "Mi perfil" };
@@ -35,16 +37,12 @@ export default async function StudentProfilePage() {
     .maybeSingle();
   if (!profile) notFound();
 
-  const { data: files } = await admin
-    .from("files")
-    .select("id, filename, created_at, document_type")
-    .eq("related_entity_type", "student_profiles")
-    .eq("related_entity_id", profile.id)
-    .in("document_type", ["student_identity", "student_academic_proof", "other"]);
-  const types = new Set((files ?? []).map((f) => f.document_type));
-  const otherFiles = (files ?? [])
+  // DR38: identidad, estudios, antecedentes penales (0077) y «otros»; sin la migración devuelve solo lo de siempre.
+  const { files: docFiles, schemaReady: docsSchemaReady } = await loadStudentDocumentFiles(admin, [profile.id]);
+  const types = new Set(docFiles.map((f) => f.document_type));
+  const otherFiles = docFiles
     .filter((f) => f.document_type === "other")
-    .map((f) => ({ id: f.id, filename: f.filename, createdAt: f.created_at }))
+    .map((f) => ({ id: f.id, filename: f.filename, createdAt: f.created_at, label: f.requirement_label ?? null }))
     .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
 
   const { data: activeLinkRow } = await admin
@@ -105,9 +103,15 @@ export default async function StudentProfilePage() {
       <p className="mt-1 text-sm text-ink-soft">
         {hasConfirmedReservation
           ? "Ya tenés una reserva confirmada. Mantené tus datos y documentos al día para tu estadía y futuras renovaciones."
-          : "Completá estos datos para que las residencias conozcan mejor tu solicitud — un perfil completo se lee como una solicitud más seria."}
+          : "Completá estos datos para que las residencias conozcan mejor tu solicitud. Los perfiles más completos tienen mejores chances de ser aceptados."}
       </p>
 
+      <p className="mt-2 flex items-start gap-1.5 text-xs leading-relaxed text-ink-faint">
+        <Icon name="lock" className="mt-px shrink-0 text-sm text-forest-700" />
+        <span>Tus documentos y tus datos personales están protegidos: son privados, solo acceden quienes corresponde y cada acceso queda registrado.</span>
+      </p>
+
+      <LiveProfileProvider>
       <div className="mt-6 grid gap-6 lg:grid-cols-3 lg:items-start">
         <div className="min-w-0 lg:col-span-2">
           <ProfileDetailsForm
@@ -145,7 +149,7 @@ export default async function StudentProfilePage() {
               <h2 className="font-bold text-ink">Documentos</h2>
             </div>
             <p className="mt-1 text-xs text-ink-faint">
-              Privados — ayudan a las residencias a confiar en tu solicitud. El acceso queda auditado.
+              Protegidos y privados: no se muestran a otros usuarios y cada acceso queda registrado. Ayudan a que confíen en tu solicitud.
             </p>
             <div className="mt-3 space-y-3">
               <DocumentUpload
@@ -158,6 +162,13 @@ export default async function StudentProfilePage() {
                 label="Comprobante de estudio (constancia de alumno regular, aceptación)"
                 done={types.has("student_academic_proof")}
               />
+              {docsSchemaReady && (
+                <DocumentUpload
+                  documentType="student_criminal_record"
+                  label="Antecedentes penales (certificado de antecedentes)"
+                  done={types.has("student_criminal_record")}
+                />
+              )}
               <OtherDocumentsUpload files={otherFiles} />
             </div>
           </Card>
@@ -170,6 +181,7 @@ export default async function StudentProfilePage() {
           />
         </div>
       </div>
+      </LiveProfileProvider>
     </div>
   );
 }

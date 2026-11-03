@@ -1,4 +1,3 @@
-import { policyOfferLabel } from "@/lib/availability/genderAvailability";
 import Link from "next/link";
 import type { Residence } from "@/types/domain";
 import { Badge } from "@/components/ui/Badge";
@@ -12,14 +11,18 @@ import { getCommonAreaIcon, getServiceIcon } from "@/lib/residences/amenityIcons
 import { dedupeAmenities } from "@/lib/residences/amenityKeys";
 import { findUniversitiesByName, haversineDistanceKm } from "@/lib/data/buenosAiresUniversities";
 import { kmToBlocks } from "@/lib/residences/distance";
-import { formatOccupancy } from "@/lib/residences/occupancy";
+import { serviceLabel } from "@/lib/residences/options";
+import { RoomTypeIcons } from "@/components/residences/RoomTypeIcons";
 import { GENDER_LABELS } from "@/lib/residences/searchFilters";
 import { abbreviateUniversity } from "@/lib/residences/universityLabel";
 import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
 
+const GENDER_ICONS = { mixto: "wc", solo_mujeres: "woman", solo_hombres: "man" } as const;
+
 /**
  * Tarjeta de resultados de /search (propuesta B, 2026-10-29): foto con sello «Residencia Verificada», nombre, barrio,
- * plazas y género, tipos de habitación, universidades cercanas con cuadras, íconos de servicios y áreas comunes,
+ * plazas totales con sello de género (Mixta / Solo hombres / Solo mujeres), tipos de habitación como íconos de personas,
+ * las 2 universidades más cercanas con cuadras, una línea de servicios y otra de áreas comunes (el «+N» lista el resto),
  * disponibilidad (solo vía `StatusTag`), promoción y precio «desde». Dos disposiciones: `grid` (vertical) y `list`
  * (horizontal cuando el contenedor `res` mide 620 px o más; si no, se apila igual que la grilla).
  * El precio y los íconos van fuera del `<Link>` del nombre: la nota de cambio y los tooltips son botones.
@@ -35,18 +38,17 @@ export function SearchResultCard({
 }) {
   const list = layout === "list";
   const href = `/residencias/${residence.slug}`;
-  const maxIcons = list ? 7 : 5;
+  const maxIcons = list ? 6 : 5;
 
   const services = dedupeAmenities(residence.services);
   const areas = dedupeAmenities(residence.commonAreas ?? []);
   const serviceItems = services.slice(0, maxIcons).map((name) => ({ name, ...getServiceIcon(name) }));
   const areaItems = areas.slice(0, maxIcons).map((name) => ({ name, ...getCommonAreaIcon(name) }));
 
-  // Un tipo con varios géneros se ofrece por separado («Doble femenina», «Doble masculina»).
-  const roomTypes = [...new Set(residence.roomTypes.map((rt) => policyOfferLabel(rt.type, rt.gender)))];
   const hasAvailable = residence.roomTypes.some((rt) => rt.available);
 
-  const names = (residence.cardUniversities ?? residence.nearUniversities).slice(0, 3);
+  // Solo las 2 universidades más cercanas (`cardUniversities` ya viene ordenada por cercanía); la ficha lista todas.
+  const names = (residence.cardUniversities ?? residence.nearUniversities).slice(0, 2);
   const here = typeof residence.latitude === "number" && typeof residence.longitude === "number" ? { lat: residence.latitude, lng: residence.longitude } : null;
   const coords = new Map(findUniversitiesByName(names).map((u) => [u.name, u]));
   const universities = names.map((name) => {
@@ -54,11 +56,9 @@ export function SearchResultCard({
     return { name, blocks: here && u ? kmToBlocks(haversineDistanceKm(here, u)) : null };
   });
 
-  const residents = (residence.residentsCount ?? 0) > 0 ? residence.residentsCount : null;
-  const occupancy =
-    formatOccupancy(residence.capacityPlaces, residents) ??
-    (residents ? `${residents} ${residents === 1 ? "residente" : "residentes"}` : null);
-  const people = [occupancy, (residence.genderPolicies ?? (residence.genderPolicy ? [residence.genderPolicy] : [])).map((g) => GENDER_LABELS[g]).join(" · ") || null].filter(Boolean).join(" · ");
+  // Plazas totales de la residencia (sin separar hombres y mujeres) + sello de quiénes pueden vivir.
+  const places = residence.capacityPlaces != null && residence.capacityPlaces > 0 ? Math.floor(residence.capacityPlaces) : null;
+  const policies = residence.genderPolicies ?? (residence.genderPolicy ? [residence.genderPolicy] : []);
 
   return (
     <article
@@ -87,24 +87,34 @@ export function SearchResultCard({
           </Link>
         </h3>
 
-        <ul className="flex flex-wrap gap-x-3.5 gap-y-0.5 text-[13.5px] text-ink-soft">
-          <li className="flex items-center gap-1">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[13.5px] text-ink-soft">
+          <p className="flex items-center gap-1">
             <Icon name="location_on" className="text-[17px] text-ink-faint" />
             {residence.zone}, {residence.city}
-          </li>
-          {people && (
-            <li className="flex items-center gap-1">
-              <Icon name="groups" className="text-[17px] text-ink-faint" />
-              {people}
-            </li>
-          )}
-          {roomTypes.length > 0 && (
-            <li className="flex items-center gap-1">
-              <Icon name="bed" className="text-[17px] text-ink-faint" />
-              {roomTypes.join(", ")}
-            </li>
-          )}
-        </ul>
+          </p>
+        </div>
+
+        {(places || policies.length > 0) && (
+          <div className="flex flex-wrap items-center gap-1.5 text-[13.5px] text-ink-soft">
+            {places && (
+              <span className="flex items-center gap-1">
+                <Icon name="bed" className="text-[17px] text-ink-faint" />
+                <b className="font-semibold text-ink">{places}</b> {places === 1 ? "plaza" : "plazas"}
+              </span>
+            )}
+            {policies.map((g) => (
+              <span
+                key={g}
+                className="inline-flex items-center gap-1 rounded-full bg-sage-50 px-2.5 py-[3px] text-[12.5px] font-semibold text-sage-700"
+              >
+                <Icon name={GENDER_ICONS[g]} className="text-[15px]" />
+                {g === "mixto" ? "Mixta" : GENDER_LABELS[g]}
+              </span>
+            ))}
+          </div>
+        )}
+
+        <RoomTypeIcons roomTypes={residence.roomTypes} />
 
         {!hasAvailable && residence.availabilityHint === "waitlist" && <Badge tone="neutral">Lista de espera abierta</Badge>}
 
@@ -129,8 +139,8 @@ export function SearchResultCard({
 
         {(serviceItems.length > 0 || areaItems.length > 0) && (
           <div data-amenity-card className="mt-0.5 grid gap-2.5">
-            <AmenityIconRow label="Servicios" kind="service" items={serviceItems} extra={Math.max(0, services.length - maxIcons)} moreHref={`${href}#residencia`} moreLabel={`Ver ${services.length - maxIcons} servicios más en la ficha`} />
-            <AmenityIconRow label="Áreas comunes" kind="area" items={areaItems} extra={Math.max(0, areas.length - maxIcons)} moreHref={`${href}#residencia`} moreLabel={`Ver ${areas.length - maxIcons} áreas comunes más en la ficha`} />
+            <AmenityIconRow label="Servicios" kind="service" items={serviceItems} extra={Math.max(0, services.length - maxIcons)} extraNames={services.slice(maxIcons).map(serviceLabel)} moreHref={`${href}#residencia`} moreLabel={`Ver ${services.length - maxIcons} servicios más en la ficha`} />
+            <AmenityIconRow label="Áreas comunes" kind="area" items={areaItems} extra={Math.max(0, areas.length - maxIcons)} extraNames={areas.slice(maxIcons).map(serviceLabel)} moreHref={`${href}#residencia`} moreLabel={`Ver ${areas.length - maxIcons} áreas comunes más en la ficha`} />
           </div>
         )}
       </div>

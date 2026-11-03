@@ -36,6 +36,14 @@ import {
   type CustomAmenityStatus,
 } from "@/lib/residences/customAmenities";
 import { MAX_TOP_RULES, TOP_RULE_MAX, splitRules } from "@/lib/residences/topRules";
+import {
+  MAX_OTHER_STAY_DOCUMENTS,
+  MAX_OTHER_STAY_DOCUMENT_LENGTH,
+  STAY_DOCUMENT_CATALOG,
+  sanitizeStayDocumentLabel,
+  normalizeRequirementLabel,
+  type StayDocumentKey,
+} from "@/lib/residences/stayDocuments";
 import { PhotoMetaManager, type PhotoMetaItem } from "@/app/residence/[residence_id]/profile/PhotoMetaManager";
 import { PromotionsManager, type PromotionItem } from "@/app/residence/[residence_id]/profile/PromotionsManager";
 import {
@@ -106,6 +114,8 @@ interface ProfileInitial {
   /** 0073: cantidad de cocinas compartidas y frecuencia de la limpieza general (vacío si no hay o falta la columna). */
   amenityDetails: AmenityDetails;
   nearUniversities: string[];
+  /** DR38: documentos que la residencia le pide a sus residentes (claves del catálogo + «Otro»). */
+  stayDocuments: { items: StayDocumentKey[]; other: string[] };
   rulesSummary: string;
   rulesFileName: string | null;
   /** DR18: ítems «Otro» ya cargados (con su estado) y si la migración 0058 está aplicada. */
@@ -202,6 +212,7 @@ const PROFILE_SECTIONS = [
   { id: "perfil-reglas", label: "Reglas" },
   { id: "perfil-faq", label: "Preguntas" },
   { id: "perfil-universidades", label: "Universidades" },
+  { id: "perfil-documentos", label: "Documentos" },
   { id: "perfil-habitaciones", label: "Habitaciones" },
   { id: "perfil-fotos", label: "Fotos" },
   { id: "perfil-condiciones", label: "Condiciones" },
@@ -237,6 +248,27 @@ export function ResidenceProfileForm({
   const [nearUniversities, setNearUniversities] = useState<Set<string>>(
     new Set(initial.nearUniversities),
   );
+  // DR38: solo el dueño define los documentos; el resto del equipo los ve en solo lectura.
+  const [stayDocKeys, setStayDocKeys] = useState<Set<string>>(new Set(initial.stayDocuments.items));
+  const [stayDocOther, setStayDocOther] = useState<string[]>(initial.stayDocuments.other);
+  const [stayDocDraft, setStayDocDraft] = useState("");
+  const [stayDocDraftError, setStayDocDraftError] = useState<string | null>(null);
+  function addStayDocOther() {
+    const label = sanitizeStayDocumentLabel(stayDocDraft);
+    if (!label) return;
+    if (label.length > MAX_OTHER_STAY_DOCUMENT_LENGTH) {
+      setStayDocDraftError(`Hasta ${MAX_OTHER_STAY_DOCUMENT_LENGTH} caracteres.`);
+      return;
+    }
+    if (stayDocOther.some((l) => normalizeRequirementLabel(l) === normalizeRequirementLabel(label))) {
+      setStayDocDraftError("Ya lo agregaste.");
+      return;
+    }
+    if (stayDocOther.length >= MAX_OTHER_STAY_DOCUMENTS) return;
+    setStayDocOther((prev) => [...prev, label]);
+    setStayDocDraft("");
+    setStayDocDraftError(null);
+  }
   const [rulesList, setRulesList] = useState<string[]>(() => {
     const existing = splitRules(initial.rulesSummary).slice(0, MAX_TOP_RULES);
     return existing.length > 0 ? existing : [""];
@@ -498,6 +530,7 @@ export function ResidenceProfileForm({
           // submit (patrón HTML nativo) — leer el botón evita la carrera
           // de usar onClick + estado de React para decidirlo.
           fd.set("room_types_json", JSON.stringify(roomTypes));
+          fd.set("stay_documents_other_json", JSON.stringify(stayDocOther));
           fd.set("custom_amenities_json", JSON.stringify(customItems.map((i) => ({ id: i.id, kind: i.kind, label: i.label }))));
           fd.set(
             "faq_json",
@@ -872,6 +905,89 @@ export function ResidenceProfileForm({
                 </label>
               ))}
             </div>
+          </Card>
+
+          {/* DR38: documentos que se le piden al residente. Solo el dueño los edita; no es contenido público. */}
+          <Card id="perfil-documentos" className="p-6 max-lg:scroll-mt-14">
+            <h2 className="text-lg font-bold text-ink">Documentos que pedís a tus residentes</h2>
+            <p className="mt-1 text-sm text-ink-soft">
+              Elegí qué documentos tiene que presentar quien se aloja. A cada estudiante solo le pedimos los que todavía no tiene cargados en su perfil, y
+              vos ves en Residentes si lo entregó. Es privado: no se muestra en tu ficha.
+            </p>
+            <fieldset disabled={readOnly || !canSubmit} className="m-0 mt-4 min-w-0 border-0 p-0">
+              <input type="hidden" name="stay_documents_present" value="1" />
+              <div className="grid gap-2.5 sm:grid-cols-2">
+                {STAY_DOCUMENT_CATALOG.map((d) => (
+                  <label key={d.key} className="max-lg:min-h-11 flex items-center gap-2 text-sm text-ink">
+                    <input
+                      type="checkbox"
+                      name="stay_documents"
+                      value={d.key}
+                      checked={stayDocKeys.has(d.key)}
+                      onChange={() => toggle(stayDocKeys, setStayDocKeys, d.key)}
+                      className="h-4 w-4 max-lg:size-5! accent-forest"
+                    />
+                    {d.label}
+                  </label>
+                ))}
+              </div>
+
+              <p className="mt-5 text-sm font-semibold text-ink">Otro documento</p>
+              <p className="mt-0.5 text-xs text-ink-faint">
+                Si pedís algo más (por ejemplo, un seguro médico o una carta de aceptación). Hasta {MAX_OTHER_STAY_DOCUMENTS}.
+              </p>
+              {stayDocOther.length > 0 && (
+                <ul className="mt-2.5 flex flex-wrap gap-2">
+                  {stayDocOther.map((label) => (
+                    <li key={label} className="flex items-center gap-1 rounded-full border border-line bg-cream-2 py-1 pl-3 pr-1.5 text-sm text-ink">
+                      {label}
+                      <button
+                        type="button"
+                        onClick={() => setStayDocOther((prev) => prev.filter((l) => l !== label))}
+                        className="rounded-full p-1 text-ink-faint hover:text-danger-fg"
+                        aria-label={`Quitar ${label}`}
+                      >
+                        <Icon name="close" className="text-base" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {stayDocOther.length < MAX_OTHER_STAY_DOCUMENTS && (
+                <div className="mt-2.5 flex flex-wrap items-start gap-2">
+                  <div className="min-w-0 flex-1">
+                    <Input
+                      label="Nombre del documento"
+                      value={stayDocDraft}
+                      maxLength={MAX_OTHER_STAY_DOCUMENT_LENGTH}
+                      onChange={(e) => {
+                        setStayDocDraft(e.target.value);
+                        setStayDocDraftError(null);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          addStayDocOther();
+                        }
+                      }}
+                      hint={stayDocDraftError ? <span role="alert" className="font-medium text-danger-fg">{stayDocDraftError}</span> : undefined}
+                      placeholder="Ej: Seguro médico"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={addStayDocOther}
+                    disabled={!stayDocDraft.trim()}
+                    className="mt-7 shrink-0 rounded-full border-[1.5px] border-line px-4 py-2 text-sm font-bold text-ink-soft hover:border-forest hover:text-forest-700 disabled:opacity-50"
+                  >
+                    Agregar
+                  </button>
+                </div>
+              )}
+              {!canSubmit && !readOnly && (
+                <p className="mt-3 text-xs text-ink-faint">Esta lista la define el dueño de la residencia.</p>
+              )}
+            </fieldset>
           </Card>
 
           {/* Tipos de habitación */}

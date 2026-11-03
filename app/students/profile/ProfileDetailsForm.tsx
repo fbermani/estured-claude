@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useEffect, useMemo, useState } from "react";
+import { useLiveProfile } from "@/app/students/profile/LiveProfile";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
@@ -144,6 +145,20 @@ export function ProfileDetailsForm({
       habitsValue,
     ],
   );
+
+  // La vista previa de «Tu perfil en la comunidad» (más abajo) se actualiza con lo que se escribe, sin esperar al guardado.
+  const liveProfile = useLiveProfile();
+  const setLive = liveProfile?.setLive;
+  useEffect(() => {
+    setLive?.({
+      nationality: nationalityValue || null,
+      career: effectiveCareer || null,
+      originCity: originCityValue.trim() || null,
+      bio: bioValue.trim() || null,
+      habits: habitsValue,
+      interests: interestsValue,
+    });
+  }, [setLive, nationalityValue, effectiveCareer, originCityValue, bioValue, habitsValue, interestsValue]);
 
   function toggleInterest(value: string) {
     setInterestsValue((prev) => (prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]));

@@ -1,7 +1,7 @@
 # 00_DECISION_LOG.md
 # EstuRed — Registro de decisiones consolidadas
 
-Última actualización: 2026-11-03 (DR37: ficha más corta y con la comunidad al frente; DR36: el dueño borra sus fotos; DR35: checklist de llegada con esenciales; DR33–DR34 config de residencia; DR30: ficha y solicitud en modal; DR29: Fase 2 de Guías, llegada y checklist; DR28: Centro de Guías público en /guias; DR27 costos sin «sin depósito» y comprobante en la home; DR22–DR26 y anteriores en §31)
+Última actualización: 2026-11-03 (DR39: relevamiento lote 3; DR38: documentación de la estadía configurable por residencia; DR37: ficha más corta y con la comunidad al frente; DR36: el dueño borra sus fotos; DR35: checklist de llegada con esenciales; DR33–DR34 config de residencia; DR30: ficha y solicitud en modal; DR29: Fase 2 de Guías, llegada y checklist; DR28: Centro de Guías público en /guias; DR27 costos sin «sin depósito» y comprobante en la home; DR22–DR26 y anteriores en §31)
 
 Este documento es la fuente de verdad del proyecto EstuRed.
 Registra todas las decisiones de producto, negocio, operación, experiencia y arquitectura técnica.
@@ -1628,3 +1628,30 @@ Decisión del dueño. Amplía DR4 (qué ve el familiar vinculado) y completa la 
 9. **Fotos por área y tipo:** las secciones de la galería salen solo de las áreas comunes elegidas (incluidos los «Otro», con marca «Pendiente» hasta aprobarse), los tipos de habitación activos y «Fachada / Exterior»; una foto cuya sección ya no existe pasa a «Sin clasificar» en el editor y a «Fotos adicionales» en la ficha, sin perderse ni guardarse el cambio.
 
 **Supuesto reversible.** El mínimo de 10 residentes para el promedio es de privacidad; subirlo es seguro, bajarlo no.
+
+### DR38: documentación de la estadía configurable por residencia (2026-11-03, migración 0077)
+
+**Decisión del dueño.** La tarjeta «Documentación de tu estadía» solo pide los documentos que el estudiante **no tiene ya cargados en su perfil**. Cada residencia elige, al configurarse, qué documentos le pide a sus residentes, y su equipo ve en la gestión de cada residente si lo entregó.
+
+**Reglas.**
+1. **Catálogo estándar** (casillas en el perfil de la residencia): Documento de identidad o pasaporte, Certificado de estudios y Antecedentes penales. Más hasta **5** documentos propios («Otro»), de hasta 80 caracteres cada uno, sin HTML ni saltos de línea.
+2. **Default** de una residencia que nunca configuró nada: identidad + certificado de estudios (lo que se pedía hasta ahora). Una residencia puede quedarse sin pedir ninguno.
+3. **Quién edita:** solo el dueño; el staff lo ve en solo lectura (como el resto del perfil, DR10). Cambiarlo **no requiere aprobación del admin**: no es contenido público (no se muestra en la ficha) ni cambia condiciones económicas.
+4. **Estudiante:** ve «Ya tenés N de M en tu perfil» y, de lo que falta, solo lo que le corresponde subir; los ya cargados aparecen atenuados con ✓. Si no falta nada: «Documentación completa». Un documento del perfil vale para todas las residencias; los «Otro» se reconocen por su nombre (sin distinguir mayúsculas ni espacios).
+5. **Residencia:** en cada residente ve cada requisito con «Entregado» (y la fecha de carga) o «Falta». **Solo estado: nunca el archivo ni un enlace.** Los documentos sensibles siguen viéndose únicamente con justificación registrada (más arriba en este documento). Sin cuenta de estudiante vinculada: «Sin cuenta: no podemos ver su documentación».
+6. **Dónde se guarda:** `residence_profile_sections` con `section_type = 'stay_documents'` y `content = { items: [claves estándar], other: [etiquetas] }` (sin tocar `residences`). Claves: `identity`, `academic_proof`, `criminal_record`. Los archivos: `student_identity`, `student_academic_proof`, `student_criminal_record` (valor nuevo del enum `document_type`) y `other` con `files.requirement_label` (columna nueva) para saber a qué requisito «Otro» responde.
+7. **Sin la migración 0077** todo degrada al comportamiento anterior: se piden solo identidad y certificado de estudios, no se ofrece «Antecedentes penales» ni los «Otro» (el dueño igual puede guardar su lista: queda lista para cuando se aplique).
+
+**Supuesto reversible.** Cambiar la lista no avisa a los residentes actuales ni los obliga a nada: solo ajusta lo que ven como faltante.
+
+### DR39: relevamiento lote 3 — búsqueda, panel del estudiante y Mi residencia (2026-11-03, sin migración)
+
+Decisiones del dueño tras revisar flujos y dashboards:
+
+1. **Nombres cortos:** «UBA Ciencias Económicas» se muestra «UBA Económicas» (también Exactas, Sociales, Veterinarias, Agrarias). Solo presentación.
+2. **`/search`:** el encabezado suma a la derecha un panel con datos reales del catálogo (cantidad de residencias, barrios y precio desde). La tarjeta de resultado queda compacta: nombre, barrio, **plazas totales** con sello de género (Mixta / Solo hombres / Solo mujeres), tipos de habitación como **íconos de personas** (1 = individual, 2 = doble…) con el nombre al pasar el mouse, **solo las 2 universidades más cercanas**, una línea de servicios y otra de áreas comunes (el «+N» lista el resto al pasar el mouse).
+3. **Checklist de llegada:** cerrado por defecto detrás de «Checklist para antes de viajar». **Solo para la reserva inicial**: una reserva nacida de un cambio de residencia (`stay_change_intents.resolved_reservation_id`) no lo lleva y la cuenta regresiva se muestra en la tarjeta «Tu casa». Las renovaciones no crean reserva nueva. Mismo criterio en la vista del familiar.
+4. **Mi perfil:** el subtítulo aclara que los perfiles más completos tienen mejores chances; aviso de que documentos y datos están protegidos; la vista previa de «Tu perfil en la comunidad» se actualiza en vivo con lo que se escribe (sin guardar) y separa hábitos de intereses.
+5. **Comunidad:** la ficha flotante de cada residente va en un portal con posición fija: no la recortan los contenedores ni la tapan las tarjetas vecinas.
+6. **Mi residencia:** el encabezado es una presentación (foto, servicios, áreas comunes); después «Sobre tu residencia» con las reglas y el reglamento descargable en PDF.
+7. **Documentación de la estadía:** ver DR38.

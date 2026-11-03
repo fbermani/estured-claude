@@ -17,6 +17,7 @@ export function AmenityIconRow({
   kind,
   items,
   extra = 0,
+  extraNames = [],
   moreHref,
   moreLabel,
 }: {
@@ -24,6 +25,8 @@ export function AmenityIconRow({
   kind: "service" | "area";
   items: AmenityIconItem[];
   extra?: number;
+  /** Nombres de los que no entran en la fila: se listan al pasar el mouse (o enfocar) sobre el «+N». */
+  extraNames?: string[];
   moreHref?: string;
   moreLabel?: string;
 }) {
@@ -73,7 +76,7 @@ export function AmenityIconRow({
   return (
     <div ref={rootRef} className="grid gap-2">
       <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-ink-faint">{label}</p>
-      <div className="flex flex-wrap items-center gap-1.5">
+      <div className="flex flex-nowrap items-center gap-1.5">
         {items.map((item, i) => {
           const id = `${baseId}-${i}`;
           const isOpen = open === i;
@@ -113,7 +116,7 @@ export function AmenityIconRow({
                   setOpen((v) => (v === i ? null : v));
                   setPinned(false);
                 }}
-                className={`flex h-11 w-11 items-center justify-center rounded-[14px] border transition-all duration-300 ease-bounce hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest ${tone} ${isOpen ? "-translate-y-0.5 bg-forest-tint text-forest-700" : ""}`}
+                className={`flex h-11 w-11 min-w-9 shrink items-center justify-center rounded-[14px] border transition-all duration-300 ease-bounce hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest ${tone} ${isOpen ? "-translate-y-0.5 bg-forest-tint text-forest-700" : ""}`}
               >
                 <Icon name={item.icon} className="text-2xl" />
               </button>
@@ -136,13 +139,30 @@ export function AmenityIconRow({
           );
         })}
         {extra > 0 && moreHref && (
-          <Link
-            href={moreHref}
-            aria-label={moreLabel ?? `Ver ${extra} más en la ficha`}
-            className="flex h-11 items-center justify-center rounded-[14px] border-[1.5px] border-dashed border-line-2 bg-paper px-3 text-[13px] font-bold text-forest-700 hover:bg-cream-2 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-forest"
-          >
-            +{extra}
-          </Link>
+          <span className="group/tip relative shrink-0">
+            <Link
+              href={moreHref}
+              aria-label={moreLabel ?? `Ver ${extra} más en la ficha`}
+              className="flex h-11 items-center justify-center rounded-[14px] border-[1.5px] border-dashed border-line-2 bg-paper px-3 text-[13px] font-bold text-forest-700 hover:bg-cream-2 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-forest"
+            >
+              +{extra}
+            </Link>
+            {extraNames.length > 0 && (
+              <span
+                role="tooltip"
+                className="pointer-events-none absolute bottom-[calc(100%+10px)] right-0 z-20 hidden w-[220px] rounded-[14px] bg-forest-ink px-3 py-2.5 text-left text-[13px] leading-snug text-white shadow-float group-focus-within/tip:block group-hover/tip:block"
+              >
+                <span className="mb-0.5 block text-[10.5px] font-bold uppercase tracking-[0.08em] text-amber-soft-300">
+                  {kind === "area" ? "Más áreas comunes" : "Más servicios"}
+                </span>
+                {extraNames.map((n) => (
+                  <b key={n} className="block text-[13px] font-semibold">
+                    {n}
+                  </b>
+                ))}
+              </span>
+            )}
+          </span>
         )}
       </div>
     </div>

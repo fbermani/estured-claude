@@ -24,6 +24,7 @@ export function abbreviateUniversity(name: string): string {
     const rest = trimmed
       .replace(UBA_PREFIX, "")
       .replace(/^Facultad\s+de(?:l|\s+la)?\s+/i, "")
+      .replace(/^Ciencias\s+(Económicas|Exactas|Sociales|Veterinarias|Agrarias)\b/i, "$1")
       .trim();
     return rest ? `UBA ${rest}` : "UBA";
   }

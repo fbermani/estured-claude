@@ -34,6 +34,12 @@ import { syncCustomAmenities } from "@/lib/residences/customAmenitiesDb";
 import { splitRules, validateTopRules } from "@/lib/residences/topRules";
 import { validateAgeRange } from "@/lib/residences/age";
 import { MAX_RESIDENCE_PHOTOS } from "@/lib/residences/photos";
+import {
+  STAY_DOCUMENTS_SECTION,
+  normalizeStayDocumentsInput,
+  parseStayDocumentsContent,
+  type StayDocumentsConfig,
+} from "@/lib/residences/stayDocuments";
 import { imageExtension, sniffImageType } from "@/lib/residences/imageSniff";
 import { validateEarlyExitPolicy } from "@/lib/stayChange/validate";
 import { parseMoneyConditionsInput, type DepositMode } from "@/lib/applications/reservationMoney";
@@ -228,6 +234,24 @@ export async function saveResidenceProfile(
 
   if (tagline.length > 80)
     return { status: "error", message: "El eslogan no puede superar los 80 caracteres." };
+
+  // DR38: documentos que la residencia le pide a sus residentes. Solo el dueño los define (el servidor lo comprueba; al staff el
+  // formulario ni siquiera se los manda). Sin aprobación del admin: no es contenido público. Se valida antes de escribir nada.
+  let stayDocuments: StayDocumentsConfig | null = null;
+  if (accessCheck.actorRole === "residence_owner" && formData.get("stay_documents_present") === "1") {
+    let otherRaw: unknown[];
+    try {
+      const parsed = JSON.parse(String(formData.get("stay_documents_other_json") ?? "[]"));
+      if (!Array.isArray(parsed)) throw new Error("not an array");
+      otherRaw = parsed;
+    } catch {
+      return { status: "error", message: "Hubo un problema con los documentos que pedís a tus residentes." };
+    }
+    const docsCheck = normalizeStayDocumentsInput(formData.getAll("stay_documents"), otherRaw);
+    if (!docsCheck.ok) return { status: "error", message: docsCheck.error };
+    stayDocuments = docsCheck.value;
+  }
+
 
   // Reglas destacadas (DR18): hasta 5, validadas acá; lo que ya estaba guardado sin cambios no se re-valida (residencias existentes).
   const { data: storedRulesSection } = await admin
@@ -561,6 +585,34 @@ export async function saveResidenceProfile(
         .from("residence_profile_sections")
         .upsert({ residence_id: residenceId, ...section }, { onConflict: "residence_id,section_type" });
       if (error) throw error;
+    }
+
+    if (stayDocuments) {
+      const { data: prevDocsSection } = await admin
+        .from("residence_profile_sections")
+        .select("content")
+        .eq("residence_id", residenceId)
+        .eq("section_type", STAY_DOCUMENTS_SECTION)
+        .maybeSingle();
+      const previousDocs = parseStayDocumentsContent(prevDocsSection?.content);
+      const { error: docsError } = await admin
+        .from("residence_profile_sections")
+        .upsert(
+          { residence_id: residenceId, section_type: STAY_DOCUMENTS_SECTION, content: stayDocuments },
+          { onConflict: "residence_id,section_type" },
+        );
+      if (docsError) throw docsError;
+      if (JSON.stringify(previousDocs) !== JSON.stringify(stayDocuments)) {
+        await createAuditLog(admin, {
+          actorUserId: sessionUser.id,
+          actorRole: accessCheck.actorRole,
+          action: "residence_stay_documents_updated",
+          entityType: "residences",
+          entityId: residenceId,
+          oldValue: previousDocs,
+          newValue: stayDocuments,
+        });
+      }
     }
 
     try {

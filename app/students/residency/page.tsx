@@ -1,5 +1,6 @@
 import { amenityDisplayName, normalizeAmenityLists, parseAmenityDetails } from "@/lib/residences/amenityDetails";
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
@@ -31,6 +32,9 @@ import { getApprovedCustomAmenities } from "@/lib/residences/customAmenitiesDb";
 import { loadStayChangeEligibility } from "@/lib/stayChange/eligibility";
 import { RoomChangeCard } from "@/components/students/RoomChangeCard";
 import { loadStudentRoomChange, type StudentRoomChangeView } from "@/lib/roomChange/load";
+import { StayDocumentsCard, type StayDocumentItem } from "@/components/students/StayDocumentsCard";
+import { computeRequirementStatuses, parseStayDocumentsContent, STAY_DOCUMENTS_SECTION } from "@/lib/residences/stayDocuments";
+import { effectiveRequirements, loadStudentDocumentFiles } from "@/lib/residences/stayDocumentsDb";
 import { STAY_CHANGE_ADVANCE_HOURS } from "@/lib/stayChange/advanceGate";
 import { DEPOSIT_STATUS_LABELS, UNPAID_DISCLAIMER, type DepositReturnStatus } from "@/lib/stayChange/copy";
 
@@ -316,17 +320,18 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
   }
 
   const residence = reservation.residences;
-  let docsUploadedCount = 0;
+  // DR38: documentos que pide la residencia vs. lo que el estudiante ya tiene en su perfil (null = no aplica / no se pudo leer).
+  let stayDocItems: StayDocumentItem[] | null = null;
   let renewalStatus: { label: string; tone: "amber" | "sage" | "neutral" | "danger" } | null = null;
   let services: string[] = [];
   let commonAreas: string[] = [];
   let amenityDetails: ReturnType<typeof parseAmenityDetails> = {};
   let rulesSummary = "";
-  let rulesPdfUrl: string | null = null;
+  let coverUrl: string | null = null;
   let community: Awaited<ReturnType<typeof getCommunityVisibility>> | null = null;
 
   if (admin && residence) {
-    const [{ data: renewalRequest }, { data: renewalOffer }, { data: sections }, { data: rulesFile }] = await Promise.all([
+    const [{ data: renewalRequest }, { data: renewalOffer }, { data: sections }, { data: coverFile }] = await Promise.all([
       admin
         .from("renewal_requests")
         .select("id, status")
@@ -345,9 +350,9 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
         .select("storage_path")
         .eq("related_entity_type", "residences")
         .eq("related_entity_id", residence.id)
-        .eq("document_type", "residence_rules_document")
+        .eq("document_type", "residence_photo")
         .eq("status", "approved")
-        .order("created_at", { ascending: false })
+        .order("created_at", { ascending: true })
         .limit(1)
         .maybeSingle(),
     ]);
@@ -374,11 +379,9 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
     amenityDetails = parseAmenityDetails((detailsRow as { amenity_details?: unknown } | null)?.amenity_details);
     rulesSummary = (sectionMap.rules as { summary?: string } | undefined)?.summary ?? "";
 
-    if (rulesFile?.storage_path) {
-      const { data: signed } = await admin.storage
-        .from("private-residence-documents")
-        .createSignedUrl(rulesFile.storage_path, 3600);
-      rulesPdfUrl = signed?.signedUrl ?? null;
+    // Portada de la presentación: la primera foto aprobada (el bucket de fotos es público).
+    if (coverFile?.storage_path) {
+      coverUrl = admin.storage.from("public-residence-media").getPublicUrl(coverFile.storage_path as string).data.publicUrl;
     }
 
     if (sessionUser) {
@@ -388,13 +391,15 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
         .eq("user_id", sessionUser.id)
         .maybeSingle();
       if (profile?.id) {
-        const { data: docFiles } = await admin
-          .from("files")
-          .select("document_type")
-          .eq("related_entity_type", "student_profiles")
-          .eq("related_entity_id", profile.id)
-          .in("document_type", ["student_identity", "student_academic_proof"]);
-        docsUploadedCount = new Set((docFiles ?? []).map((f) => f.document_type)).size;
+        const { files: docFiles, schemaReady: docsSchemaReady } = await loadStudentDocumentFiles(admin, [profile.id]);
+        const requirements = effectiveRequirements(parseStayDocumentsContent(sectionMap[STAY_DOCUMENTS_SECTION]), docsSchemaReady);
+        stayDocItems = computeRequirementStatuses(requirements, docFiles).map((st) => ({
+          id: st.requirement.id,
+          label: st.requirement.label,
+          documentType: st.requirement.documentType,
+          requirementLabel: st.requirement.requirementLabel,
+          delivered: st.delivered,
+        }));
       }
     }
 
@@ -489,6 +494,41 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
         <div className="mt-6 empty:hidden">
           <StayChangeTopNotices view={stayChange.view} residenceName={residence?.name ?? "tu residencia"} contractEndLabel={contractEndLabel} />
         </div>
+      )}
+
+      {residence && (
+        <section aria-label={`Presentación de ${residence.name}`} className="mt-6 overflow-hidden rounded-card border-[1.5px] border-line bg-paper shadow-card md:grid md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+          <div className={`relative bg-cream-2 md:aspect-auto md:min-h-64 ${coverUrl ? "aspect-[16/9]" : "h-24"}`}>
+            {coverUrl ? (
+              <Image src={coverUrl} alt={`Foto de ${residence.name}`} fill sizes="(max-width: 768px) 100vw, 40vw" className="object-cover" priority />
+            ) : (
+              <div className="flex h-full items-center justify-center text-forest-700/40">
+                <Icon name="apartment" className="text-[72px]!" />
+              </div>
+            )}
+          </div>
+          <div className="grid content-start gap-4 p-5 md:p-6">
+            <div>
+              <h2 className="font-display text-xl font-extrabold leading-tight text-ink">{residence.name}</h2>
+              <p className="mt-0.5 flex items-center gap-1 text-sm text-ink-soft">
+                <Icon name="location_on" className="text-[17px] text-ink-faint" />
+                {residence.public_area}, CABA
+              </p>
+            </div>
+            {services.length > 0 && (
+              <div>
+                <h3 className="mb-2 text-[11px] font-bold uppercase tracking-[0.08em] text-ink-faint">Servicios incluidos</h3>
+                <AmenityGrid layout="chips" items={services.map((s) => ({ name: amenityDisplayName(s, amenityDetails), ...getServiceIcon(s) }))} />
+              </div>
+            )}
+            {commonAreas.length > 0 && (
+              <div>
+                <h3 className="mb-2 text-[11px] font-bold uppercase tracking-[0.08em] text-ink-faint">Áreas comunes</h3>
+                <AmenityGrid layout="chips" items={commonAreas.map((a) => ({ name: amenityDisplayName(a, amenityDetails), ...getCommonAreaIcon(a) }))} />
+              </div>
+            )}
+          </div>
+        </section>
       )}
 
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3">
@@ -590,36 +630,15 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
 
           {roomChange && <RoomChangeCard view={roomChange} />}
 
-          {residence?.description && (
+          {residence && (
             <section>
               <h2 className="text-xl font-bold text-ink">Sobre tu residencia</h2>
-              <p className="mt-3 leading-relaxed text-ink-soft">{residence.description}</p>
-            </section>
-          )}
-
-          {services.length > 0 && (
-            <section>
-              <h2 className="text-xl font-bold text-ink">Servicios incluidos</h2>
-              <div className="mt-4">
-                <AmenityGrid items={services.map((s) => ({ name: amenityDisplayName(s, amenityDetails), ...getServiceIcon(s) }))} />
-              </div>
-            </section>
-          )}
-
-          {commonAreas.length > 0 && (
-            <section>
-              <h2 className="text-xl font-bold text-ink">Áreas comunes</h2>
-              <div className="mt-4">
-                <AmenityGrid items={commonAreas.map((a) => ({ name: amenityDisplayName(a, amenityDetails), ...getCommonAreaIcon(a) }))} />
-              </div>
-            </section>
-          )}
-
-          {(rulesSummary || rulesPdfUrl) && (
-            <section>
-              <h2 className="text-xl font-bold text-ink">Reglas de convivencia</h2>
-              <div className="mt-4">
-                <RulesHighlight rulesSummary={rulesSummary} pdfUrl={rulesPdfUrl} />
+              {residence.description && <p className="mt-3 leading-relaxed text-ink-soft">{residence.description}</p>}
+              <div className="mt-5">
+                <h3 className="text-sm font-extrabold uppercase tracking-wider text-muted">Reglas de convivencia</h3>
+                <div className="mt-3">
+                  <RulesHighlight rulesSummary={rulesSummary} pdfUrl={null} slug={residence.slug} hasRegulation />
+                </div>
               </div>
             </section>
           )}
@@ -629,23 +648,8 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
         <div className="flex flex-col gap-5 lg:col-span-1">
           <PendingActivationBlock pending={pending} />
 
-          {/* La documentación vive en la ficha del estudiante (/students/profile); el
-              familiar no tiene una (la ruta da 404 y el conteo sería un falso "0 de 2"). */}
-          {sessionUser?.roles.includes("student") && (
-            <Card className="p-5">
-              <div className="mb-3 flex items-center justify-between">
-                <p className="text-xs font-extrabold uppercase tracking-wider text-muted">Documentación de tu estadía</p>
-                <Icon name="folder_shared" className="text-lg text-muted" />
-              </div>
-              <p className="text-sm font-bold text-ink">{docsUploadedCount} de 2 documentos cargados</p>
-              <p className="mt-1 text-xs text-ink-soft">DNI/pasaporte y comprobante de estudio.</p>
-              {docsUploadedCount < 2 && (
-                <Link href="/students/profile" className="mt-3 inline-block text-sm font-semibold text-forest-700 hover:underline">
-                  Completar documentación →
-                </Link>
-              )}
-            </Card>
-          )}
+          {/* DR38: lo que la residencia pide vs. lo que ya está en el perfil. El familiar no tiene perfil de estudiante (la ruta da 404). */}
+          {sessionUser?.roles.includes("student") && stayDocItems && <StayDocumentsCard items={stayDocItems} />}
 
           {searchingChange && stayChange?.familyName && (
             <Card className="p-5">

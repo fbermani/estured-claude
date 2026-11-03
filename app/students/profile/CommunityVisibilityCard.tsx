@@ -4,6 +4,8 @@ import { startTransition, useActionState, useState, type FormEvent } from "react
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
+import { useLiveProfile } from "@/app/students/profile/LiveProfile";
+import { FLAG_BY_COUNTRY } from "@/lib/data/latamCountries";
 import { updateCommunityVisibility, type CommunityVisibilityState } from "@/app/students/profile/actions";
 import {
   MINOR_VISIBILITY_MESSAGE,
@@ -103,14 +105,26 @@ function Preview({ isMinor, values, data }: { isMinor: boolean; values: Visibili
                 .join(" · ") || "Solo tu nombre"}
             </p>
             {preview.bio && <p className="mt-2 text-xs italic leading-relaxed text-ink-soft">&ldquo;{preview.bio}&rdquo;</p>}
-            {(preview.interests.length > 0 || preview.habits.length > 0) && (
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {[...preview.interests, ...preview.habits].map((t) => (
-                  <span key={t} className="rounded-full bg-paper px-2.5 py-0.5 text-[11px] font-semibold text-ink-soft">
-                    {t}
-                  </span>
-                ))}
-              </div>
+            {([
+              { label: "Hábitos", icon: "schedule", items: preview.habits },
+              { label: "Intereses", icon: "interests", items: preview.interests },
+            ] as const).map(
+              (group) =>
+                group.items.length > 0 && (
+                  <div key={group.label} className="mt-2.5">
+                    <p className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wide text-ink-faint">
+                      <Icon name={group.icon} className="text-sm" />
+                      {group.label}
+                    </p>
+                    <div className="mt-1 flex flex-wrap gap-1.5">
+                      {group.items.map((t) => (
+                        <span key={t} className="rounded-full bg-paper px-2.5 py-0.5 text-[11px] font-semibold text-ink-soft">
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ),
             )}
           </div>
         </div>
@@ -129,6 +143,11 @@ export function CommunityVisibilityCard({
   data: CommunityPreviewData;
 }) {
   const [state, formAction, isPending] = useActionState(updateCommunityVisibility, initialState);
+  // Vista previa en vivo: lo que se está escribiendo arriba pisa lo guardado (la bandera sale del país elegido).
+  const liveValues = useLiveProfile()?.live ?? null;
+  const previewData: CommunityPreviewData = liveValues
+    ? { ...data, ...liveValues, countryFlag: liveValues.nationality ? (FLAG_BY_COUNTRY[liveValues.nationality] ?? null) : null }
+    : data;
   const initialMaster = initial.is_individual_profile_visible && !isMinor;
   const initialFields = {
     show_age: initial.show_age_to_registered,
@@ -220,9 +239,9 @@ export function CommunityVisibilityCard({
         </div>
 
         <div className="space-y-3">
-          <Preview isMinor={isMinor} values={live} data={data} />
+          <Preview isMinor={isMinor} values={live} data={previewData} />
           <p className="text-[11px] leading-relaxed text-ink-faint">
-            La vista previa usa los datos de tu perfil ya guardados. Si cambiaste algo arriba, guardalo primero.
+            La vista previa se actualiza en vivo con lo que cargás arriba. Para que quede así en tu perfil, guardá los cambios de arriba.
           </p>
         </div>
 

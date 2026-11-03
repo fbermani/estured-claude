@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
@@ -72,8 +73,75 @@ function subtitle(card: CommunityProfileCard): string {
   return parts.join(" · ");
 }
 
+const POPUP_WIDTH = 288;
+const POPUP_MARGIN = 8;
+
 function ResidentCell({ card, index, isGuest }: { card: CommunityProfileCard; index: number; isGuest: boolean }) {
   const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState<{ left: number; top: number; width: number } | null>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const cancelClose = useCallback(() => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    closeTimer.current = null;
+  }, []);
+  const close = useCallback(() => {
+    cancelClose();
+    setOpen(false);
+  }, [cancelClose]);
+  // El mouse pasa del botón a la tarjeta flotante: una pequeña demora evita que se cierre en el trayecto.
+  const closeSoon = useCallback(() => {
+    cancelClose();
+    closeTimer.current = setTimeout(() => setOpen(false), 140);
+  }, [cancelClose]);
+  const show = useCallback(() => {
+    cancelClose();
+    setOpen(true);
+  }, [cancelClose]);
+
+  // La tarjeta flotante va en un portal con posición fija: así no la recortan los `overflow-hidden` del acordeón ni la tapan las
+  // tarjetas vecinas. Se ubica debajo del residente (o arriba si no entra) y siempre dentro de la ventana.
+  useLayoutEffect(() => {
+    if (!open || !buttonRef.current) {
+      setPos(null);
+      return;
+    }
+    const r = buttonRef.current.getBoundingClientRect();
+    const width = Math.min(POPUP_WIDTH, window.innerWidth - POPUP_MARGIN * 2);
+    const left = Math.min(Math.max(r.left + r.width / 2 - width / 2, POPUP_MARGIN), window.innerWidth - width - POPUP_MARGIN);
+    const height = popupRef.current?.offsetHeight ?? 0;
+    const below = r.bottom + POPUP_MARGIN;
+    let top = below;
+    if (height && below + height > window.innerHeight - POPUP_MARGIN) {
+      const above = r.top - POPUP_MARGIN - height;
+      top = above >= POPUP_MARGIN ? above : Math.max(POPUP_MARGIN, window.innerHeight - height - POPUP_MARGIN);
+    }
+    setPos({ left, top, width });
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: PointerEvent) => {
+      const t = e.target as Node;
+      if (!wrapperRef.current?.contains(t) && !popupRef.current?.contains(t)) close();
+    };
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
+    document.addEventListener("pointerdown", onDown);
+    document.addEventListener("keydown", onKey);
+    window.addEventListener("scroll", close, { passive: true, capture: true });
+    window.addEventListener("resize", close);
+    return () => {
+      document.removeEventListener("pointerdown", onDown);
+      document.removeEventListener("keydown", onKey);
+      window.removeEventListener("scroll", close, true);
+      window.removeEventListener("resize", close);
+    };
+  }, [open, close]);
+
+  useEffect(() => cancelClose, [cancelClose]);
 
   if (card.kind === "placeholder") {
     return (
@@ -93,13 +161,24 @@ function ResidentCell({ card, index, isGuest }: { card: CommunityProfileCard; in
   const habits = items(card.habits);
 
   return (
-    <div className="relative" onKeyDown={(e) => e.key === "Escape" && setOpen(false)} onPointerEnter={(e) => e.pointerType === "mouse" && setOpen(true)} onPointerLeave={(e) => e.pointerType === "mouse" && setOpen(false)}>
+    <div
+      ref={wrapperRef}
+      className="relative"
+      onKeyDown={(e) => e.key === "Escape" && close()}
+      onPointerEnter={(e) => e.pointerType === "mouse" && show()}
+      onPointerLeave={(e) => e.pointerType === "mouse" && closeSoon()}
+      onBlur={(e) => {
+        const next = e.relatedTarget as Node | null;
+        if (next && (wrapperRef.current?.contains(next) || popupRef.current?.contains(next))) return;
+        if (next) close();
+      }}
+    >
       <button
+        ref={buttonRef}
         type="button"
-        onClick={() => setOpen((o) => !o)}
-        onFocus={(e) => e.currentTarget.matches(":focus-visible") && setOpen(true)}
-        onBlur={() => setOpen(false)}
-        className="flex min-h-14 w-full cursor-pointer items-center gap-3 rounded-2xl border border-line bg-paper p-2.5 text-left transition-all duration-300 ease-bounce hover:-translate-y-px hover:border-(--tone) hover:shadow-card focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-(--tone)"
+        onClick={() => (open ? close() : show())}
+        onFocus={(e) => e.currentTarget.matches(":focus-visible") && show()}
+        className="flex min-h-14 w-full cursor-pointer items-center gap-3 rounded-2xl border border-line bg-paper p-2.5 text-left transition-all duration-300 ease-bounce hover:border-(--tone) hover:shadow-card focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-(--tone)"
         aria-expanded={open}
       >
         <Avatar card={card} index={index} />
@@ -113,10 +192,16 @@ function ResidentCell({ card, index, isGuest }: { card: CommunityProfileCard; in
       {/* Perfil completo flotante al hover/click — reemplaza el panel
           lateral fijo (pedido del dueño: no ocupar una columna con un
           solo perfil, mostrarlo como card flotante por estudiante). */}
-      {open && (
+      {open &&
+        createPortal(
         <div
+          ref={popupRef}
           role="dialog"
-          className="benefit-fade-in relative z-30 mt-2 w-full rounded-card sm:absolute sm:left-1/2 sm:top-full sm:w-72 sm:-translate-x-1/2 rounded-card border-[1.5px] border-line bg-paper p-5 text-left shadow-float"
+          aria-label={`Perfil de ${card.firstName}`}
+          onPointerEnter={(e) => e.pointerType === "mouse" && show()}
+          onPointerLeave={(e) => e.pointerType === "mouse" && closeSoon()}
+          style={{ position: "fixed", left: pos?.left ?? 0, top: pos?.top ?? 0, width: pos?.width ?? POPUP_WIDTH, visibility: pos ? "visible" : "hidden" }}
+          className="z-[80] max-h-[calc(100vh-16px)] overflow-y-auto rounded-card border-[1.5px] border-line bg-paper p-5 text-left shadow-float"
         >
           <div className="flex items-center gap-3">
             <Avatar card={card} index={index} size="lg" />
@@ -183,7 +268,8 @@ function ResidentCell({ card, index, isGuest }: { card: CommunityProfileCard; in
               )}
             </>
           )}
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );

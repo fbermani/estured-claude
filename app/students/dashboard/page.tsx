@@ -31,6 +31,8 @@ import { todayIso } from "@/lib/applications/reservationMoney";
 import { ArrivalCard } from "@/components/students/ArrivalCard";
 import { daysUntil } from "@/lib/arrival/countdown";
 import { loadCheckedItems } from "@/lib/arrival/loadChecklist";
+import { loadStayChangeReservationIds } from "@/lib/arrival/initialReservation";
+import { countdownLabel } from "@/lib/arrival/countdown";
 import { resolveArrivalGuides } from "@/lib/arrival/guideLinks";
 import { StayRateNote } from "@/components/students/StayRateNote";
 import { FamilyEmailVerifyCard } from "@/components/family/FamilyEmailVerifyCard";
@@ -652,7 +654,10 @@ export default async function StudentDashboardPage() {
     if (row) arrival = { id: row.id, start_date: row.start_date, residenceName: row.residences?.name ?? "Residencia" };
   }
   const arrivalDays = arrival ? daysUntil(arrival.start_date, todayIso()) : null;
-  const showArrival = arrival !== null && arrivalDays !== null;
+  const hasArrival = arrival !== null && arrivalDays !== null;
+  // El checklist es solo para la reserva inicial; si el ingreso viene de un cambio de residencia, solo queda la cuenta regresiva en «Tu casa».
+  const arrivalIsStayChange = hasArrival && arrival && supabase ? (await loadStayChangeReservationIds(supabase, [arrival.id])).has(arrival.id) : false;
+  const showArrival = hasArrival && !arrivalIsStayChange;
   const arrivalChecked =
     showArrival && arrival && supabase ? await loadCheckedItems(supabase, [arrival.id]) : { persistent: false, byReservation: new Map<string, string[]>() };
   const arrivalGuides = showArrival ? resolveArrivalGuides() : null;
@@ -951,6 +956,11 @@ export default async function StudentDashboardPage() {
                 <Icon name="check_circle" className="text-sm" /> Estadía activa
               </Badge>
               {contract && <Badge tone="neutral">Hasta {contractEndLabel}</Badge>}
+              {arrivalIsStayChange && arrivalDays !== null && (
+                <Badge tone="amber">
+                  <Icon name="flight_land" className="text-sm" /> Nuevo ingreso · {countdownLabel(arrivalDays)}
+                </Badge>
+              )}
             </>
           ) : activeApplication && activeVisible ? (
             <Badge tone={activeVisible.tone}>

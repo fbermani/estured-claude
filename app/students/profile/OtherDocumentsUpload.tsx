@@ -17,7 +17,12 @@ const action = uploadStudentDocument.bind(null, "other");
  * carta de aceptación, etc. que puntualmente pida una residencia. El
  * formulario de subida sigue visible después de cada envío exitoso.
  */
-export function OtherDocumentsUpload({ files }: { files: { id: string; filename: string; createdAt: string }[] }) {
+export function OtherDocumentsUpload({
+  files,
+}: {
+  /** `label`: DR38, nombre del documento que pidió una residencia al que respondió el archivo (si lo hubo). */
+  files: { id: string; filename: string; createdAt: string; label?: string | null }[];
+}) {
   const [state, formAction, isPending] = useActionState(action, initialState);
 
   return (
@@ -32,7 +37,10 @@ export function OtherDocumentsUpload({ files }: { files: { id: string; filename:
           {files.map((f) => (
             <li key={f.id} className="flex items-center gap-2 rounded-field bg-cream-2 px-2.5 py-1.5 text-xs text-ink-soft">
               <Icon name="description" className="shrink-0 text-sm text-forest-700" />
-              <span className="min-w-0 flex-1 truncate">{f.filename}</span>
+              <span className="min-w-0 flex-1 truncate">
+                {f.filename}
+                {f.label ? <span className="text-ink-faint"> · {f.label}</span> : null}
+              </span>
               <span className="shrink-0 text-ink-faint">
                 {formatDate(f.createdAt)}
               </span>

@@ -8,6 +8,7 @@ import { resolveFeePayerView, type FeePayerView } from "@/lib/payments/feeUrgent
 import { todayIso } from "@/lib/applications/reservationMoney";
 import { daysUntil } from "@/lib/arrival/countdown";
 import { loadCheckedItems } from "@/lib/arrival/loadChecklist";
+import { loadStayChangeReservationIds } from "@/lib/arrival/initialReservation";
 
 /**
  * Lo que el familiar vinculado SIGUE del estudiante (DR4, docs/00 §31): estado de sus solicitudes y reservas y la próxima
@@ -123,12 +124,15 @@ export async function loadFamilyOverview(admin: SupabaseClient, familyUserId: st
     .gt("start_date", today)
     .order("start_date", { ascending: true });
   if (resError) console.error("[family] overview: no se pudieron leer las llegadas:", resError);
-  const futureReservations = (resData ?? []) as unknown as {
+  const allFuture = (resData ?? []) as unknown as {
     id: string;
     student_profile_id: string;
     start_date: string;
     residences: { name: string } | null;
   }[];
+  // El checklist es solo para la reserva inicial: las que nacen de un cambio de residencia no lo llevan.
+  const stayChangeIds = await loadStayChangeReservationIds(admin, allFuture.map((r) => r.id));
+  const futureReservations = allFuture.filter((r) => !stayChangeIds.has(r.id));
   const checked = await loadCheckedItems(admin, futureReservations.map((r) => r.id));
   for (const r of futureReservations) {
     const daysLeft = daysUntil(r.start_date, today);

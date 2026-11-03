@@ -11,10 +11,13 @@ export function DocumentUpload({
   documentType,
   label,
   done,
+  requirementLabel,
 }: {
-  documentType: "student_identity" | "student_academic_proof";
+  documentType: "student_identity" | "student_academic_proof" | "student_criminal_record" | "other";
   label: string;
   done: boolean;
+  /** DR38: con `other`, el nombre del documento «Otro» que pide la residencia (se guarda para reconocerlo después). */
+  requirementLabel?: string;
 }) {
   const action = uploadStudentDocument.bind(null, documentType);
   const [state, formAction, isPending] = useActionState(action, initialState);
@@ -32,6 +35,7 @@ export function DocumentUpload({
       </div>
       {!uploaded && (
         <form action={formAction} className="mt-2 flex flex-wrap items-center gap-2">
+          {requirementLabel && <input type="hidden" name="requirement_label" value={requirementLabel} />}
           <input
             name="file"
             type="file"

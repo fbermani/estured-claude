@@ -64,15 +64,46 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
     getCatalogResidencesWithTotal({ studentAge }),
   ]);
 
+  // Panel de la derecha del encabezado: datos reales del catálogo (cuántas residencias, en cuántos barrios y desde cuánto).
+  const barriosCount = new Set(residences.map((r) => r.zone)).size;
+  const minPrice = residences.length > 0 ? Math.min(...residences.map((r) => r.priceFromUsd)) : null;
+  const stats = [
+    { icon: "apartment", value: String(residences.length), label: residences.length === 1 ? "residencia" : "residencias" },
+    { icon: "location_on", value: String(barriosCount), label: barriosCount === 1 ? "barrio" : "barrios" },
+    ...(minPrice != null ? [{ icon: "payments", value: `USD ${minPrice}`, label: "precio desde" }] : []),
+  ];
+
   const head = (
-    <div className="mb-3 max-w-2xl sm:mb-4">
-      <p className="mb-1.5 text-[13px] text-ink-faint">Inicio › Buscar residencias</p>
-      <h1 className="text-[26px] leading-[1.15] font-extrabold text-ink min-[900px]:text-[34px]">Encontrá tu próximo hogar en Buenos Aires</h1>
-      <p className="mt-1.5 max-w-[42.5rem] text-[14.5px] text-ink-soft">
-        Todas las residencias del catálogo fueron verificadas presencialmente. La disponibilidad es informativa y toda
-        reserva está sujeta a confirmación.
-      </p>
-      <GuidePicks keys={["01", "02"]} variant="strip" label="Antes de elegir:" className="mt-3" />
+    <div className="mb-3 grid gap-4 sm:mb-4 md:grid-cols-[minmax(0,1fr)_21rem] md:items-start md:gap-8">
+      <div className="max-w-2xl">
+        <p className="mb-1.5 text-[13px] text-ink-faint">Inicio › Buscar residencias</p>
+        <h1 className="text-[26px] leading-[1.15] font-extrabold text-ink min-[900px]:text-[34px]">Encontrá tu próximo hogar en Buenos Aires</h1>
+        <p className="mt-1.5 max-w-[42.5rem] text-[14.5px] text-ink-soft">
+          Todas las residencias del catálogo fueron verificadas presencialmente. La disponibilidad es informativa y toda
+          reserva está sujeta a confirmación.
+        </p>
+        <GuidePicks keys={["01", "02"]} variant="strip" label="Antes de elegir:" className="mt-3" />
+      </div>
+      {residences.length > 0 && (
+        <aside aria-label="Resumen del catálogo" className="hidden rounded-card border-[1.5px] border-line bg-paper p-4 shadow-card md:block">
+          <p className="flex items-center gap-1.5 text-[13px] font-bold text-forest-700">
+            <Icon name="verified" className="text-xl" />
+            Catálogo verificado en persona
+          </p>
+          <ul className="mt-3 grid grid-cols-3 gap-2">
+            {stats.map((st) => (
+              <li key={st.label} className="rounded-field bg-cream px-2 py-2.5 text-center">
+                <Icon name={st.icon} className="text-xl text-forest-700" />
+                <p className="mt-0.5 font-display text-lg font-extrabold leading-tight text-ink">{st.value}</p>
+                <p className="text-[11.5px] leading-tight text-ink-faint">{st.label}</p>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-3 text-[12.5px] leading-snug text-ink-soft">
+            Las visitamos una por una antes de publicarlas. Filtrá por barrio, universidad, servicios y precio.
+          </p>
+        </aside>
+      )}
     </div>
   );
 

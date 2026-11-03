@@ -32,7 +32,7 @@ export function RulesHighlight({
     .filter(Boolean)
     .slice(0, 5);
 
-  if (rules.length === 0 && !pdfUrl && !regulationActions) return null;
+  if (rules.length === 0 && !pdfUrl && !regulationActions && !(hasRegulation && slug)) return null;
 
   return (
     <div className="space-y-4">

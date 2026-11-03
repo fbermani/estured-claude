@@ -8,6 +8,7 @@ import { createAuditLog } from "@/lib/audit";
 import { COUNTRY_NAMES, FLAG_BY_COUNTRY } from "@/lib/data/latamCountries";
 import { UNIVERSITY_NAMES } from "@/lib/data/buenosAiresUniversities";
 import { isMinorByBirthDate } from "@/lib/students/isMinorByBirthDate";
+import { MAX_OTHER_STAY_DOCUMENT_LENGTH, sanitizeStayDocumentLabel } from "@/lib/residences/stayDocuments";
 import {
   VISIBILITY_FLAG_COLUMNS,
   allHidden,
@@ -249,9 +250,12 @@ const ALLOWED_DOCUMENT_TYPES = ["application/pdf", "image/jpeg", "image/png", "i
  * constraint que limite a 1 fila por `(student, document_type)`, así
  * que subir varias veces con `documentType: "other"` ya funciona sin
  * cambios de esquema (Ciclo 37).
+ *
+ * DR38: también acepta `student_criminal_record` (antecedentes penales, migración 0077) y, con `other`, un campo opcional
+ * `requirement_label` en el formulario: el nombre del documento «Otro» que pide una residencia, para reconocerlo después.
  */
 export async function uploadStudentDocument(
-  documentType: "student_identity" | "student_academic_proof" | "other",
+  documentType: "student_identity" | "student_academic_proof" | "student_criminal_record" | "other",
   _prev: UploadDocumentState,
   formData: FormData,
 ): Promise<UploadDocumentState> {
@@ -276,6 +280,14 @@ export async function uploadStudentDocument(
     return { status: "error", message: "El archivo debe ser PDF, JPG, PNG o WebP." };
   }
 
+  // DR38: la etiqueta del requisito «Otro» se sanitiza y acota acá; en el resto de los tipos se ignora.
+  let requirementLabel: string | null = null;
+  if (documentType === "other") {
+    const label = sanitizeStayDocumentLabel(formData.get("requirement_label"));
+    if (label.length > MAX_OTHER_STAY_DOCUMENT_LENGTH) return { status: "error", message: "El nombre del documento es demasiado largo." };
+    requirementLabel = label || null;
+  }
+
   const ext = file.type === "application/pdf" ? "pdf" : file.type.split("/")[1];
   const path = `${profile.id}/${documentType}-${crypto.randomUUID()}.${ext}`;
   const { error: uploadError } = await admin.storage
@@ -297,11 +309,15 @@ export async function uploadStudentDocument(
     size_bytes: file.size,
     visibility: "private",
     document_type: documentType,
+    // Solo se manda cuando hay etiqueta: así, sin la migración 0077, las subidas de siempre no cambian.
+    ...(requirementLabel ? { requirement_label: requirementLabel } : {}),
     status: "uploaded",
     uploaded_by_user_id: sessionUser.id,
   });
   if (fileError) {
     console.error("[students/profile] file row failed:", fileError);
+    // No dejar un archivo huérfano en el bucket si no se pudo registrar.
+    await admin.storage.from("student-documents").remove([path]);
     return { status: "error", message: "No pudimos registrar el archivo. Intentá de nuevo." };
   }
 
@@ -311,10 +327,11 @@ export async function uploadStudentDocument(
     action: "student_document_uploaded",
     entityType: "student_profiles",
     entityId: profile.id,
-    newValue: { document_type: documentType },
+    newValue: { document_type: documentType, ...(requirementLabel ? { requirement_label: requirementLabel } : {}) },
   });
 
   revalidatePath("/students/profile");
   revalidatePath("/students/dashboard");
+  revalidatePath("/students/residency");
   return { status: "saved" };
 }

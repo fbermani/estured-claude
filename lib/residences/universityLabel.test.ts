@@ -5,7 +5,7 @@ import { abbreviateUniversity, joinUniversityNames } from "./universityLabel";
 describe("abbreviateUniversity", () => {
   it("las sedes de la UBA quedan como «UBA» + especialidad, sin «Facultad de»", () => {
     expect(abbreviateUniversity("UBA - Facultad de Derecho")).toBe("UBA Derecho");
-    expect(abbreviateUniversity("UBA - Facultad de Ciencias Económicas")).toBe("UBA Ciencias Económicas");
+    expect(abbreviateUniversity("UBA - Facultad de Ciencias Económicas")).toBe("UBA Económicas");
     expect(abbreviateUniversity("UBA - Facultad de Filosofía y Letras")).toBe("UBA Filosofía y Letras");
     expect(abbreviateUniversity("UBA - Ciudad Universitaria")).toBe("UBA Ciudad Universitaria");
   });

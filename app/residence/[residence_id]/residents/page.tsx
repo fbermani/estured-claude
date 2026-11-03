@@ -13,6 +13,8 @@ import { loadResidenceStayChanges } from "@/lib/stayChange/load";
 import { loadInviteStatusByStay } from "@/lib/residents/residentInvitations";
 import { loadPendingLinkRequests } from "@/lib/residents/linkRequestsResidence";
 import { loadResidenceRoomChange } from "@/lib/roomChange/load";
+import { computeRequirementStatuses } from "@/lib/residences/stayDocuments";
+import { effectiveRequirements, loadStayDocumentsConfig, loadStudentDocumentFiles } from "@/lib/residences/stayDocumentsDb";
 
 const ACTIVE_OFFER_STATUSES = new Set(["draft", "sent", "viewed"]);
 const PENDING_REQUEST_STATUSES = new Set(["created_by_student", "notified_to_residence"]);
@@ -183,6 +185,15 @@ export default async function ResidenceResidentsPage({
     if (!latestOfferStatusByReservation.has(o.reservation_id)) latestOfferStatusByReservation.set(o.reservation_id, o.status);
   }
 
+  // DR38: documentación de cada residente contra lo que pide ESTA residencia. Solo estado (entregado / falta): nunca el archivo ni su
+  // enlace. La membresía ya se verificó arriba y las estadías son solo las de esta residencia. Tolerante: sin la 0077 se muestran los de siempre.
+  const stayDocsConfig = await loadStayDocumentsConfig(admin, residenceId);
+  const linkedProfileIds = [...new Set(rawStays.map((s) => s.student_profile_id).filter((id): id is string => !!id))];
+  const { files: studentDocFiles, schemaReady: docsSchemaReady } = await loadStudentDocumentFiles(admin, linkedProfileIds);
+  const stayRequirements = effectiveRequirements(stayDocsConfig, docsSchemaReady);
+  const docFilesByProfile = new Map<string, typeof studentDocFiles>();
+  for (const f of studentDocFiles) docFilesByProfile.set(f.student_profile_id, [...(docFilesByProfile.get(f.student_profile_id) ?? []), f]);
+
   const rows: ResidentsData["rows"] = rawStays.map((s) => {
     let renewal: ResidentsData["rows"][number]["renewal"] = null;
     if (s.reservation_id) {
@@ -223,6 +234,13 @@ export default async function ResidenceResidentsPage({
       agreedRateUsd: s.reservation_id ? (agreedRateByReservationId.get(s.reservation_id) ?? null) : null,
       renewal,
       studentProfileId: s.student_profile_id,
+      documents: s.student_profile_id
+        ? computeRequirementStatuses(stayRequirements, docFilesByProfile.get(s.student_profile_id) ?? []).map((st) => ({
+            label: st.requirement.label,
+            delivered: st.delivered,
+            deliveredAt: st.deliveredAt,
+          }))
+        : null,
       roomChange: roomChangeByStay.get(s.id) ?? null,
       depositMode: s.reservation_id ? (depositModeByReservationId.get(s.reservation_id) ?? "unknown") : "unknown",
       stayChange: (() => {
@@ -309,6 +327,7 @@ export default async function ResidenceResidentsPage({
         linkRequests: canManage ? linkRequests : [],
         unlinkedStays,
         houseCode,
+        stayDocumentsLimited: !docsSchemaReady,
       }}
     />
     </>
