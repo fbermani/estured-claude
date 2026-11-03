@@ -8,6 +8,7 @@ import { randomInt } from "node:crypto";
 import { cleanShortText, HOUSE_CODE_ALPHABET, HOUSE_CODE_LENGTH } from "@/lib/residents/linkRequestRules";
 import { linkStayToReservationIfMissing } from "@/lib/residents/linkReservation";
 import { checkStudentCanLink } from "@/lib/residents/studentLinkGuards";
+import { requestGuardianConfirmation } from "@/lib/residents/guardianConfirmation";
 
 /**
  * Cola «Solicitudes de vínculo» y código de casa (DR19, lado residencia). Permiso `residents.manage`, validado acá en el servidor.
@@ -131,8 +132,10 @@ export async function resolveLinkRequest(
   const req = request as { id: string; student_profile_id: string; status: string; matched_stay_id: string | null };
   if (req.status !== "pending") return { ok: false, error: "Esa solicitud ya fue resuelta." };
 
+  let isMinor = false;
   if (params.decision === "approve") {
     const guard = await checkStudentCanLink(admin, req.student_profile_id);
+    if (guard.ok) isMinor = guard.isMinor;
     if (!guard.ok) return { ok: false, error: guard.error.replace(/^Ya tenés/, "Esta persona ya tiene").replace(/^Para vincular tu estadía necesitás/, "Esta persona es menor de 18 y necesita antes") };
   }
 
@@ -161,6 +164,34 @@ export async function resolveLinkRequest(
       .eq("id", req.id);
     if (error) console.error("[residents] resolveLinkRequest revert failed:", error);
   };
+
+  // DR32: la estadía de un menor no se vincula todavía; queda pendiente de la confirmación de su tutor (la solicitud ya figura aprobada).
+  if (params.decision === "approve" && isMinor) {
+    const { data: studentRow } = await admin.from("student_profiles").select("user_id").eq("id", req.student_profile_id).maybeSingle();
+    const pending = await requestGuardianConfirmation(admin, {
+      origin: "residence_approval",
+      studentProfileId: req.student_profile_id,
+      studentUserId: (studentRow as { user_id?: string } | null)?.user_id ?? null,
+      residenceId: params.residenceId,
+      residentStayId: params.stayId || req.matched_stay_id || null,
+      linkRequestId: req.id,
+      residenceActorUserId: params.actorUserId,
+      now: params.now,
+    });
+    if (!pending.ok) {
+      await revertClaim();
+      return { ok: false, error: pending.error };
+    }
+    await createAuditLog(admin, {
+      actorUserId: params.actorUserId,
+      actorRole: access.actorRole,
+      action: "resident_link_approved",
+      entityType: "resident_link_requests",
+      entityId: req.id,
+      newValue: { permission: access.permission, residence_id: params.residenceId, pending_guardian_confirmation: true },
+    });
+    return { ok: true };
+  }
 
   // 2) Vincular o crear la estadía; si algo falla, se deshace todo y la solicitud vuelve a `pending`.
   let matchedStayId: string | null = null;

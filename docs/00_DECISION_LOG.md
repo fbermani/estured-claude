@@ -1528,3 +1528,25 @@ Decisión del dueño. Amplía DR4 (qué ve el familiar vinculado) y completa la 
 - **Lote 2B (implementado, migración 0069 aplicada en dev, pendiente en prod):** el estudiante NO puede desactivar los avisos (sin preferencias); cadencia estudiante 14/7/2/0 y familiar activo solo 7/2; nunca antes de las 9:00 de Argentina; in-app siempre y mail solo con `EMAIL_DOMAIN_VERIFIED=true` (Resend con dominio verificado). **Sin catch-up** (cadencia cerrada: si un día falla el cron, ese aviso no se recupera). **La 0069 hay que aplicarla en dev y en prod.** Código: `lib/jobs/notifyArrivalReminders.ts`, `lib/arrival/reminderPlan.ts`, `lib/arrival/reminderCopy.ts`; tabla `arrival_reminder_sends` (unique por reserva + destinatario + aviso + canal).
 
 - **DR31 (2026-11-02) — `/waitlist` retirada (resuelve H30):** la lista de espera de pre-lanzamiento redirige a `/search` (redirect temporal en `next.config.ts`). La página, la acción y los datos de `waitlist_signups` siguen intactos; se revierte quitando la línea del redirect. El estado vacío de la home ya no ofrece «dejar mi mail».
+
+### DR32: confirmación del tutor para la estadía de un menor (2026-11-02, migración 0071)
+
+**Decisión del dueño.** Cuando se vincula la estadía de un estudiante **menor de 18** (flujo DR19, punto A.8, o aprobación de la residencia, punto B.3), la estadía queda **pendiente de confirmación** hasta que el familiar/tutor con vínculo **activo** la confirme desde su inicio (`/students/dashboard`, vista familiar). Completa el «Pendiente» de DR19 A.8. No cambia estados de `resident_stays` ni permisos de la residencia (DR11); el consentimiento del tutor es una entidad aparte (`guardian_stay_confirmations`), separada de invitación, solicitud de vínculo, reserva, pago y fee.
+
+**Reglas.**
+1. **Cuándo.** Solo si `student_profiles.is_minor` y hay tutor con vínculo `active` (sin tutor sigue bloqueado, DR19 A.8). El menor pasa la prueba de identidad de DR19 (enlace/OTP) y recién ahí se crea la confirmación; la invitación **no se consume** mientras tanto. Una sola confirmación pendiente por estudiante.
+2. **Mientras está pendiente la estadía NO existe:** no se vincula `student_profile_id`, no hay comunidad, ni seguimiento post-ingreso, ni la residencia ve al menor como residente. La residencia sigue viendo la estadía como «pendiente de activación» (o la solicitud ya resuelta); **no ve al tutor ni su decisión**. El menor ve «Esperando la confirmación de tu familiar» y puede seguir usando EstuRed como siempre (solicitudes, propuestas) — la confirmación solo gobierna la estadía.
+3. **Confirmar** (solo el tutor con vínculo `active` en ese momento, validado server-side; no el menor, no un familiar con vínculo revocado/pendiente): ejecuta el vínculo (estadía `active`, invitación usada, vínculo a reserva si falta, auditoría) con las mismas condiciones de DR19 revalidadas (una estadía vigente por estudiante, estadía aún libre, invitación no revocada ni rechazada). Si algo cambió, se cancela con aviso claro.
+4. **Rechazar** («No es correcto»): no se vincula nada; la invitación sigue abierta (hasta su vencimiento) y el menor puede pedirla de nuevo; se avisa al menor («Tu familiar no confirmó la estadía») sin motivos. La residencia no recibe aviso.
+5. **Vencimiento a los 7 días** *(confirmado por el dueño)*: pasa a `expired`, no se activa nada solo, se avisa al menor y al tutor; recordatorio al tutor a los 3 días. El menor puede repetir el pedido.
+6. **Aviso al tutor:** in-app siempre y mail solo si `EMAIL_DOMAIN_VERIFIED=true` (remitente sandbox de Resend, DR19 A.4). El mail y la notificación dicen solo «[Nombre I.] pidió vincular su estadía en [residencia]. Confirmala o decí que no es correcta» + enlace al inicio; sin datos de contacto ni fechas de nacimiento.
+7. **Copy:** cero promesas de disponibilidad ni garantías; «Soporte», nunca «mediación».
+8. **Privacidad (DR4/DR29/docs/10 §9):** el tutor ve nombre corto + residencia y nada más de la estadía antes de confirmar; la tabla la leen por RLS solo el estudiante y su familiar activo; escribe solo el servidor.
+
+**Solicitud de vínculo de la residencia:** si el pedido viene de una aprobación (B.3) y el tutor rechaza, vence o se cancela, la solicitud pasa a `rejected` (nota «El familiar no confirmó la estadía.») para que el menor pueda volver a pedirla.
+
+**Riesgo abierto (auditoría de seguridad, pendiente de decisión del dueño):** hoy un menor puede registrar una cuenta «familiar» con un mail inventado (`email_confirm: true`, sin verificar), aprobar él mismo el vínculo y confirmarse solo; esto ya debilitaba el bloqueo «menor sin tutor» de DR19. Remedio sugerido: verificar el mail del familiar (OTP/enlace) antes de activar el vínculo. Registrado en `GAPS.md`.
+
+**Supuestos reversibles (docs/13 §4):** 7 días de plazo, recordatorio a los 3, la residencia no se entera del rechazo ni del vencimiento, la invitación sigue abierta tras rechazo/vencimiento.
+
+**Docs actualizados:** este registro; `docs/04` §16.4; `docs/06` (tabla nueva); `docs/10` §9.1bis; `GAPS.md`.

@@ -14,6 +14,7 @@ import { notifyExpiringVerifications } from "@/lib/jobs/notifyExpiringVerificati
 import { expireStayChangeIntents } from "@/lib/jobs/expireStayChangeIntents";
 import { runStayFollowups } from "@/lib/jobs/runStayFollowups";
 import { notifyArrivalReminders } from "@/lib/jobs/notifyArrivalReminders";
+import { runGuardianConfirmationJob } from "@/lib/residents/guardianConfirmation";
 
 /**
  * Orquesta los jobs periódicos del proyecto, invocado por
@@ -41,6 +42,7 @@ export async function runExpirationJobs(admin: SupabaseClient) {
     expiringVerifications,
     stayFollowups,
     arrivalReminders,
+    guardianConfirmations,
   ] = await Promise.all([
     expireFamilyProposals(admin),
     expireNegotiationProposals(admin),
@@ -56,6 +58,7 @@ export async function runExpirationJobs(admin: SupabaseClient) {
     notifyExpiringVerifications(admin),
     runStayFollowups(admin),
     notifyArrivalReminders(admin),
+    runGuardianConfirmationJob(admin),
   ]);
 
   return {
@@ -73,5 +76,6 @@ export async function runExpirationJobs(admin: SupabaseClient) {
     expiringVerifications,
     stayFollowups,
     arrivalReminders,
+    guardianConfirmations,
   };
 }

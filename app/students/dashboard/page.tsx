@@ -33,6 +33,8 @@ import { daysUntil } from "@/lib/arrival/countdown";
 import { loadCheckedItems } from "@/lib/arrival/loadChecklist";
 import { resolveArrivalGuides } from "@/lib/arrival/guideLinks";
 import { StayRateNote } from "@/components/students/StayRateNote";
+import { GuardianConfirmCard } from "@/components/family/GuardianConfirmCard";
+import { loadPendingForGuardian, type GuardianPendingCard } from "@/lib/residents/guardianConfirmation";
 import { loadFamilyOverview, type FamilyStudentOverview } from "@/lib/family/loadFamilyOverview";
 import { FamilyApplicationsList } from "@/components/students/FamilyApplicationsList";
 import { FamilyStayChangeBlock } from "@/components/students/FamilyStayChangeBlock";
@@ -121,6 +123,7 @@ export default async function StudentDashboardPage() {
     let sentProposals: SentProposalRow[] = [];
     const familyStayChanges = new Map<string, { view: StudentStayChangeView | null; residenceName: string | null }>();
     const overviewByLink = new Map<string, FamilyStudentOverview>();
+    let guardianPending: GuardianPendingCard[] = [];
     if (supabase) {
       const { data } = await supabase
         .from("family_links")
@@ -150,6 +153,8 @@ export default async function StudentDashboardPage() {
       // "Quiero cambiar" (DR3): aviso de cada estudiante vinculado ACTIVO, en solo lectura y SIN su mensaje privado.
       const admin = getSupabaseAdmin();
       if (admin && sessionUser) {
+        // DR32: pedidos de confirmación de estadía de un menor (solo estudiantes con vínculo ACTIVO).
+        guardianPending = await loadPendingForGuardian(admin, sessionUser.id);
         // DR4: estado de las solicitudes/reserva de cada estudiante vinculado (solo lectura) y próxima acción del familiar.
         // Degrada sin tumbar el inicio: si algo falla, el familiar ve igual sus vínculos.
         try {
@@ -222,6 +227,14 @@ export default async function StudentDashboardPage() {
           }
           cta={{ label: "Proponer una residencia", href: "/search", note: "Es una propuesta, no una reserva" }}
         />
+
+        {guardianPending.length > 0 && (
+          <div className="mt-6 space-y-3">
+            {guardianPending.map((g) => (
+              <GuardianConfirmCard key={g.id} id={g.id} studentName={g.studentName} residenceName={g.residenceName} expiresLabel={formatDateOnly(g.expiresAt.slice(0, 10))} />
+            ))}
+          </div>
+        )}
 
         {familyFeeBanners.map((b) => (
           <FeeUrgentBanner

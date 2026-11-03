@@ -18,6 +18,7 @@ import { CommunityBrowser } from "@/components/residences/CommunityBrowser";
 import { ReservationSelectionProvider } from "@/components/residences/reservationSelection";
 import { getServiceIcon, getCommonAreaIcon } from "@/lib/residences/amenityIcons";
 import { getCommunityVisibility } from "@/lib/residents/communityVisibility";
+import { loadPendingConfirmationOfStudent } from "@/lib/residents/guardianConfirmation";
 import { getIsHoused } from "@/lib/students/isHoused";
 import { formatDateOnly } from "@/lib/students/contractEnd";
 import { loadStudentContracts } from "@/lib/students/loadStudentContracts";
@@ -104,6 +105,8 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
 
   let pending: StayRow[] = [];
   let mine: StayRow[] = [];
+  // DR32: el menor ve que su estadía espera a su tutor (no se vincula hasta que confirme).
+  let awaitingGuardian: { residenceName: string; expiresAt: string } | null = null;
 
   if (sessionUser && admin) {
     // Docs/05 §15.1: la invitación pendiente todavía no tiene
@@ -119,6 +122,15 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
         .is("student_profile_id", null)
         .eq("is_current", true);
       pending = (data as unknown as StayRow[]) ?? [];
+    }
+  }
+
+  if (sessionUser && admin) {
+    const { data: profile } = await admin.from("student_profiles").select("id").eq("user_id", sessionUser.id).maybeSingle();
+    const waiting = profile ? await loadPendingConfirmationOfStudent(admin, (profile as { id: string }).id) : null;
+    if (waiting && new Date(waiting.expires_at).getTime() > Date.now()) {
+      const { data: res } = await admin.from("residences").select("name").eq("id", waiting.residence_id).maybeSingle();
+      awaitingGuardian = { residenceName: (res as { name?: string } | null)?.name ?? "tu residencia", expiresAt: waiting.expires_at };
     }
   }
 
@@ -226,6 +238,20 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
           <p role="status" className="mt-6 rounded-field bg-info-bg px-4 py-3 text-sm font-medium text-info-fg">
             Verificamos tu código. Tu residencia tiene que confirmar que sos vos: te avisamos apenas lo haga.
           </p>
+        )}
+
+        {awaitingGuardian && (
+          <Card className="mt-6 flex items-start gap-3 p-4 sm:p-5">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-soft-100 text-amber-soft-700">
+              <Icon name="hourglass_top" className="text-xl" />
+            </span>
+            <div className="min-w-0">
+              <h2 className="font-bold text-ink">Esperando la confirmación de tu familiar</h2>
+              <p className="mt-1 text-sm text-ink-soft">
+                Tu estadía en {awaitingGuardian.residenceName} se vincula apenas la confirme. Tiene hasta el {formatDateOnly(awaitingGuardian.expiresAt.slice(0, 10))}.
+              </p>
+            </div>
+          </Card>
         )}
 
         {earlyExit && (

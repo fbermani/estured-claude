@@ -45,6 +45,7 @@ export async function activateWithCodeAction(
   if (!result.ok) return { status: "error", message: result.error };
 
   revalidatePath("/students/residency");
+  if (result.pendingGuardian) return { status: "saved", message: "Listo. Le avisamos a tu familiar: tu estadía queda activa apenas la confirme." };
   return { status: "saved", message: "Listo, tu estadía quedó activa." };
 }
 

@@ -83,6 +83,9 @@ export function notificationHref(
         return "/students/renewals";
       case "stay_early_exits":
         return "/students/residency";
+      case "guardian_stay_confirmations":
+        // DR32: el tutor confirma desde su inicio.
+        return "/students/dashboard";
       case "stay_followups":
         // DR14: encuesta de seguimiento post-ingreso (la ve el estudiante, o el familiar vinculado si es menor).
         return id ? `/students/followup/${id}` : null;

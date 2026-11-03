@@ -6,7 +6,8 @@ export const MINOR_NEEDS_GUARDIAN_MESSAGE =
   "Para vincular tu estadía necesitás un familiar o tutor vinculado, porque sos menor de 18. Invitalo desde tu panel y volvé a abrir este enlace: sigue valiendo.";
 export const ALREADY_HAS_STAY_MESSAGE = "Ya tenés una estadía vigente vinculada a tu cuenta. Si cambiaste de residencia, avisá a Soporte.";
 
-export type StudentLinkGuard = { ok: true } | { ok: false; error: string };
+/** `isMinor`: la estadía de un menor no se vincula directo; queda pendiente de la confirmación del tutor (DR32). */
+export type StudentLinkGuard = { ok: true; isMinor: boolean } | { ok: false; error: string };
 
 /**
  * Condiciones para vincular a un estudiante a una estadía (DR19, punto C): una sola estadía vigente por estudiante y, si es menor
@@ -38,8 +39,9 @@ export async function checkStudentCanLink(admin: SupabaseClient, studentProfileI
   if ((profile as { is_minor?: boolean }).is_minor) {
     const family = await loadActiveFamilyOfStudent(admin, studentProfileId);
     if (!family) return { ok: false, error: MINOR_NEEDS_GUARDIAN_MESSAGE };
+    return { ok: true, isMinor: true };
   }
-  return { ok: true };
+  return { ok: true, isMinor: false };
 }
 
 /** ¿El mail corresponde a una cuenta de estudiante menor sin tutor vinculado? (la residencia no conoce la edad: se chequea al invitar si ya hay cuenta). */

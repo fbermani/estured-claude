@@ -303,6 +303,10 @@ No se deben generar agregados que permitan identificar a una persona en grupos m
 
 Si un estudiante es menor de 18 años: no puede finalizar registro completo sin familiar vinculado; debe requerirse aprobación/vinculación de padre, madre o responsable; el familiar vinculado se vuelve obligatorio; las acciones críticas deben requerir aceptación del familiar cuando corresponda.
 
+### 9.1bis Confirmación del tutor para la estadía *(DR32)*
+
+La estadía de un menor no se vincula hasta que su familiar/tutor con vínculo activo la confirme. El tutor ve solo nombre corto + residencia antes de confirmar; la residencia no ve al tutor ni su decisión; la tabla `guardian_stay_confirmations` solo la leen el estudiante y su familiar activo y la escribe únicamente el servidor. Vence a los 7 días sin activar nada. Alcance legal del consentimiento: sigue pendiente de revisión (§9.6).
+
 ### 9.2 Visibilidad de menores
 
 Más restrictiva por defecto. **Decisión D4 (2026-10-20): el perfil individual de un menor está oculto por defecto para usuarios registrados** (solo lo ven las residencias en contexto de solicitud). Quién puede habilitarlo y con qué consentimiento queda pendiente de revisión legal (§9.6). Recomendación: no mostrar foto real de menor a invitados; no mostrar hábitos completos a usuarios generales sin revisión; permitir visibilidad a residencias solo en contexto de solicitud; revisar legalmente el alcance.

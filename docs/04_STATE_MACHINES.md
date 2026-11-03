@@ -1185,6 +1185,7 @@ community_visibility_settings
 
 - **Invitación personal** (`resident_stay_invitations`): `abierta → usada` (activó) · `→ rechazada` (el estudiante dijo «no soy yo») · `→ revocada` (la residencia mandó otra o corrigió el mail) · `→ vencida` (14 días). Una sola abierta por estadía. Al usarse, la estadía pasa de `pending_activation` a `active`.
 - **Solicitud de vínculo** (`resident_link_requests`): `pending → approved` (la residencia une a una estadía sin cuenta o crea una `active`) · `pending → rejected`. Nunca se aprueba sola; el estudiante puede retirarla mientras está `pending`.
+- **Confirmación del tutor** (`guardian_stay_confirmations`, DR32; solo estudiante menor): `pending → confirmed` (el familiar con vínculo activo confirma; recién ahí la estadía pasa a `active`) · `→ rejected` (el tutor dice «no es correcta») · `→ expired` (7 días sin respuesta) · `→ cancelled` (la estadía o la invitación cambiaron mientras tanto). Una `pending` por estudiante. Mientras está `pending` la estadía no se vincula.
 - El vínculo exige prueba de identidad (enlace personal, código al mail o aprobación de la residencia), una sola estadía vigente por estudiante y, si es menor, familiar/tutor con vínculo activo.
 
 ---

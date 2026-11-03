@@ -24,6 +24,7 @@ const families = vi.hoisted(() => ({} as Record<string, unknown>));
 vi.mock("@/lib/family/access", () => ({ loadActiveFamilyOfStudent: async (_a: unknown, id: string) => families[id] ?? null }));
 vi.mock("@/lib/residences/notifyResidenceTeam", () => ({ notifyResidenceTeam: async () => undefined }));
 vi.mock("@/lib/notifications/createNotification", () => ({ createNotification: async () => undefined }));
+vi.mock("@/lib/stayChange/recipients", () => ({ loadActiveFamilyUserIds: async () => [] }));
 
 import { createInMemorySupabase, type Row } from "@/lib/testing/inMemorySupabase";
 import { issueResidentInvite, loadInviteStatusByStay } from "@/lib/residents/residentInvitations";
@@ -58,6 +59,7 @@ function world(extra: Partial<Record<string, Row[]>> = {}): Record<string, Row[]
     ],
     resident_stay_invitations: [],
     resident_link_requests: [],
+    guardian_stay_confirmations: [],
     missing_residence_requests: [],
     ...extra,
   } as Record<string, Row[]>;
@@ -203,7 +205,7 @@ describe("activación con enlace personal", () => {
     const fake = await peekResidentInvitation(db as never, "x".repeat(43));
     expect(fake.ok).toBe(false);
   });
-  it("menor sin tutor vinculado: se bloquea y la invitación NO se consume; con tutor, activa", async () => {
+  it("menor sin tutor vinculado: se bloquea y la invitación NO se consume; con tutor, queda pendiente de su confirmación (DR32)", async () => {
     const t = world();
     Object.assign(t.student_profiles[0], { is_minor: true });
     // La invitación se emite antes de que exista la cuenta del menor (la residencia no sabe la edad): la cuenta aparece después.
@@ -215,7 +217,10 @@ describe("activación con enlace personal", () => {
     expect(blocked.ok === false && blocked.error).toMatch(/familiar o tutor/i);
     expect(db.tables.resident_stay_invitations[0].used_at).toBeFalsy();
     families[STUDENT] = { userId: "fam", name: "Madre", permissions: {} };
-    expect((await activateResidentStay(db as never, { actorUserId: STUDENT_USER, rawToken: token })).ok).toBe(true);
+    const pending = await activateResidentStay(db as never, { actorUserId: STUDENT_USER, rawToken: token });
+    expect(pending.ok && pending.pendingGuardian).toBe(true);
+    expect(db.tables.resident_stays[0].student_profile_id).toBeNull();
+    expect(db.tables.resident_stay_invitations[0].used_at).toBeFalsy();
   });
   it("una sola estadía vigente por estudiante", async () => {
     const t = world();
