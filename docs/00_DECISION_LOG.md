@@ -1,7 +1,7 @@
 # 00_DECISION_LOG.md
 # EstuRed — Registro de decisiones consolidadas
 
-Última actualización: 2026-11-02 (DR30: ficha y solicitud en modal; DR29: Fase 2 de Guías, llegada y checklist; DR28: Centro de Guías público en /guias; DR27 costos sin «sin depósito» y comprobante en la home; DR22–DR26 y anteriores en §31)
+Última actualización: 2026-11-03 (DR35: checklist de llegada con esenciales; DR33–DR34 config de residencia; DR30: ficha y solicitud en modal; DR29: Fase 2 de Guías, llegada y checklist; DR28: Centro de Guías público en /guias; DR27 costos sin «sin depósito» y comprobante en la home; DR22–DR26 y anteriores en §31)
 
 Este documento es la fuente de verdad del proyecto EstuRed.
 Registra todas las decisiones de producto, negocio, operación, experiencia y arquitectura técnica.
@@ -1584,3 +1584,16 @@ Decisión del dueño. Amplía DR4 (qué ve el familiar vinculado) y completa la 
 
 **Docs actualizados:** este registro; `docs/06` §15.1ter.
 
+
+### DR35: checklist de llegada — sin solapados y con «Lo esencial antes de viajar» (2026-11-03, sin migración)
+
+**Decisión del dueño.** El catálogo del checklist de llegada (DR29) pasa de 47 a 44 ítems fusionando los que se repetían, y se marcan 10 **esenciales** que se muestran arriba, aparte de las categorías.
+
+**Reglas.**
+1. **Fusiones:** `dinero.comprobantes` se funde en `doc.comprobante` («Comprobante de tu reserva y de tus pagos a mano»); `viaje.horario-llegada` en `res.fecha-hora` (confirmar el ingreso con la residencia y compartir el horario con la familia); `llevar.cama-bano` en `res.llevar` («Pregunté qué tengo que llevar»). Las claves retiradas dejan de contar; los tildes guardados de esas claves se ignoran (no se migran).
+2. **Esenciales (`essential: true` en `lib/arrival/checklist.ts`):** documento de identidad, constancia de inscripción, comprobante, contrato y reglamento, qué le pago a la residencia y cuándo, fecha y horario de ingreso, persona de contacto, pasajes, traslado a la residencia y cobertura de salud. Se muestran en una sección propia («Lo esencial antes de viajar», abierta por defecto) y los ítems no se repiten en las categorías. La tarjeta suma «Esenciales: X de 10» al progreso general (X de 44).
+3. **Sin cambios en los avisos:** los recordatorios de 14, 7, 2 y 0 días (DR29, lote 2B) **no** usan los esenciales.
+
+**Supuestos reversibles.** Cuáles son los 10 esenciales (se eligen por criticidad antes de viajar, no por frecuencia); que los esenciales no cuenten todavía para los avisos; que el estudiante vea el mismo catálogo que el familiar (solo lectura). Si más adelante los avisos pasan a depender de los esenciales, se decide acá primero.
+
+**Docs actualizados:** este registro; `MEMORY.md`; `docs/NEXT_STEPS.md`.

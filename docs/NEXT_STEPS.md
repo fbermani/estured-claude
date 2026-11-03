@@ -11,6 +11,7 @@
 ## Actualización 2026-11-03: config de residencia (DR33–DR34)
 
 Hecho y sin pushear: amenidades (0073), galería por secciones (0074), disponibilidad por tipo+género (0075), cambio de habitación (0076). Dev aplicado hasta 0076; prod vía bootstrap nuevo (regenerar). Próximo: explicación del cobro de mes vacío; verificar el lado estudiante del cambio de habitación (necesita un usuario con estadía activa); investigar `stayChange.test.ts`.
+**Sin commit (2026-11-03):** cambio de habitación del estudiante verificado (Camila); galería verificada con subida real (Norte) y pendientes de seguridad de la subida; checklist de llegada 44 ítems con 10 esenciales (DR35). Detalle en `MEMORY.md` §2.
 
 ## TRASPASO a otro perfil (2026-11-02, al cierre de la sesión principal)
 

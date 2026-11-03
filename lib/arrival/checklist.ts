@@ -11,6 +11,8 @@ export type ChecklistItem = {
   hint?: string;
   /** Clave corta, id o slug de una guía (se resuelve con `resolveGuides`; si no existe, se omite). */
   guide?: string;
+  /** «Lo esencial antes de viajar»: se muestra aparte, arriba de las categorías (DR29). Con ~10 alcanza: si todo es esencial, nada lo es. */
+  essential?: boolean;
 };
 
 export type ChecklistCategory = {
@@ -26,13 +28,13 @@ export const ARRIVAL_CHECKLIST: ChecklistCategory[] = [
     title: "Documentación",
     icon: "badge",
     items: [
-      { key: "doc.identidad", label: "Documento de identidad o pasaporte vigente", hint: "Revisá la fecha de vencimiento y llevá también una copia.", guide: "02" },
-      { key: "doc.constancia", label: "Constancia de inscripción en tu institución", hint: "Guardala impresa y en el celular." },
+      { key: "doc.identidad", label: "Documento de identidad o pasaporte vigente", hint: "Revisá la fecha de vencimiento.", guide: "02", essential: true },
+      { key: "doc.constancia", label: "Constancia de inscripción en tu institución", hint: "Guardala impresa y en el celular.", essential: true },
       { key: "doc.antecedentes", label: "Antecedentes académicos y lo que pida tu institución", hint: "No todas piden lo mismo: confirmalo con la tuya." },
       { key: "doc.migratorio", label: "Requisitos migratorios y de residencia, si venís del exterior", hint: "Varían según nacionalidad y situación: verificalos en los organismos oficiales." },
       { key: "doc.copias", label: "Copias de tus documentos, en papel y en la nube", hint: "Un respaldo digital te evita sustos si algo se pierde." },
-      { key: "doc.comprobante", label: "Comprobante de tu reserva en EstuRed a mano", hint: "Lo encontrás en tu panel; guardalo también fuera de línea." },
-      { key: "doc.contrato", label: "Contrato y reglamento de la residencia, leídos", hint: "Si algo no te queda claro, consultalo antes de viajar.", guide: "01" },
+      { key: "doc.comprobante", label: "Comprobante de tu reserva y de tus pagos a mano", hint: "Lo encontrás en tu panel; guardalos también fuera de línea.", essential: true },
+      { key: "doc.contrato", label: "Contrato y reglamento de la residencia, leídos", hint: "Si algo no te queda claro, consultalo antes de viajar.", guide: "01", essential: true },
       { key: "doc.autorizaciones", label: "Autorizaciones o permisos, si sos menor de edad", hint: "Hablalo con tu familia y con la residencia." },
     ],
   },
@@ -42,11 +44,10 @@ export const ARRIVAL_CHECKLIST: ChecklistCategory[] = [
     icon: "payments",
     items: [
       { key: "dinero.presupuesto", label: "Presupuesto del primer mes armado", hint: "Separá gastos únicos de recurrentes y sumá un margen para imprevistos.", guide: "02" },
-      { key: "dinero.pagos-residencia", label: "Tengo claro qué le pago a la residencia, cuánto y cuándo", hint: "Revisá tu contrato y tu comprobante." },
+      { key: "dinero.pagos-residencia", label: "Tengo claro qué le pago a la residencia, cuánto y cuándo", hint: "Revisá tu contrato y tu comprobante.", essential: true },
       { key: "dinero.medios", label: "Medios de pago listos para los primeros días", hint: "Efectivo, tarjeta o transferencia: confirmá qué te sirve en tu caso." },
       { key: "dinero.banco", label: "Avisé a mi banco o tarjeta que voy a estar en otra ciudad o país", hint: "Evita bloqueos por consumos desconocidos." },
       { key: "dinero.reserva-emergencia", label: "Reservé un monto para imprevistos", hint: "Algo que puedas usar sin depender de nadie el primer mes." },
-      { key: "dinero.comprobantes", label: "Guardé los comprobantes de pagos ya hechos", hint: "Cuentan para cualquier consulta posterior." },
     ],
   },
   {
@@ -55,8 +56,8 @@ export const ARRIVAL_CHECKLIST: ChecklistCategory[] = [
     icon: "apartment",
     items: [
       { key: "res.direccion", label: "Dirección exacta de la residencia guardada en el celular", hint: "Fijate también cómo llegar en transporte." },
-      { key: "res.fecha-hora", label: "Fecha y horario de ingreso confirmados con la residencia", hint: "Escribile y pedí confirmación por escrito." },
-      { key: "res.contacto", label: "Persona de contacto para el día de la llegada", hint: "Nombre y un medio de contacto que puedas usar al llegar." },
+      { key: "res.fecha-hora", label: "Fecha y horario de ingreso confirmados con la residencia", hint: "Escribile y pedí confirmación por escrito. Compartí tu horario de llegada con tu familia y avisales si algo se demora.", essential: true },
+      { key: "res.contacto", label: "Persona de contacto para el día de la llegada", hint: "Nombre y un medio de contacto que puedas usar al llegar.", essential: true },
       { key: "res.habitacion", label: "Confirmé con la residencia qué habitación o plaza me corresponde", hint: "Puede variar respecto de lo que figura en tu solicitud: consultalo antes de viajar." },
       { key: "res.llevar", label: "Pregunté qué tengo que llevar", hint: "Ropa de cama, toallas, utensilios o candado pueden estar incluidos o no." },
       { key: "res.reglas", label: "Conozco las normas de convivencia, visitas y espacios comunes", guide: "04" },
@@ -68,9 +69,8 @@ export const ARRIVAL_CHECKLIST: ChecklistCategory[] = [
     title: "Viaje y traslado",
     icon: "flight_takeoff",
     items: [
-      { key: "viaje.pasajes", label: "Pasajes comprados con margen antes del inicio de clases", hint: "Llegar dos o tres semanas antes ayuda a adaptarte, si tus posibilidades lo permiten.", guide: "02" },
-      { key: "viaje.traslado", label: "Resolví cómo ir de la terminal o el aeropuerto a la residencia", hint: "Taxi, remís, aplicaciones o transporte público: elegí con anticipación." },
-      { key: "viaje.horario-llegada", label: "Compartí mi horario de llegada con la residencia y mi familia", hint: "Y avisales si algo se demora." },
+      { key: "viaje.pasajes", label: "Pasajes comprados con margen antes del inicio de clases", hint: "Llegar dos o tres semanas antes ayuda a adaptarte, si tus posibilidades lo permiten.", guide: "02", essential: true },
+      { key: "viaje.traslado", label: "Resolví cómo ir de la terminal o el aeropuerto a la residencia", hint: "Taxi, remís, aplicaciones o transporte público: elegí con anticipación.", essential: true },
       { key: "viaje.equipaje", label: "Armé un equipaje liviano, dentro de las reglas de mi transporte", hint: "En las residencias suele haber poco espacio: no viajes con todo. Frazadas, almohadas, ropa de abrigo de más o muchos pares de zapatos los podés ir sumando con el tiempo, y tu familia puede traerte cosas cuando te visite.", guide: "02" },
     ],
   },
@@ -80,7 +80,6 @@ export const ARRIVAL_CHECKLIST: ChecklistCategory[] = [
     icon: "luggage",
     items: [
       { key: "llevar.ropa", label: "Ropa para la temporada en que llegás", hint: "Consultá el clima de Buenos Aires para esas fechas." },
-      { key: "llevar.cama-bano", label: "Ropa de cama y toallas, si la residencia no las incluye" },
       { key: "llevar.estudio", label: "Elementos de estudio: notebook, cargadores, apuntes" },
       { key: "llevar.higiene", label: "Artículos de higiene personal para los primeros días" },
       { key: "llevar.medicacion", label: "Medicación habitual, recetas y certificados médicos, si corresponde", hint: "Llevá un certificado médico según tu condición, para presentarlo ante una emergencia en un sanatorio o clínica, y medicación suficiente para el comienzo." },
@@ -92,7 +91,7 @@ export const ARRIVAL_CHECKLIST: ChecklistCategory[] = [
     title: "Salud y seguridad",
     icon: "health_and_safety",
     items: [
-      { key: "salud.cobertura", label: "Cobertura de salud definida", hint: "Obra social, prepaga o seguro de viaje: confirmá qué cubre en la ciudad." },
+      { key: "salud.cobertura", label: "Cobertura de salud definida", hint: "Obra social, prepaga o seguro de viaje: confirmá qué cubre en la ciudad.", essential: true },
       { key: "salud.emergencia", label: "Contacto de emergencia compartido con quien corresponda", hint: "Según tus preferencias y necesidades.", guide: "02" },
       { key: "salud.centro", label: "Ubiqué una farmacia y un centro de salud cerca de la residencia" },
       { key: "salud.fichas", label: "Datos médicos relevantes anotados", hint: "Alergias, condiciones o tratamientos que convenga que alguien conozca." },
@@ -125,6 +124,24 @@ export const ARRIVAL_CHECKLIST: ChecklistCategory[] = [
     ],
   },
 ];
+
+/** Los ítems esenciales, en el orden del catálogo. */
+export const ESSENTIAL_ITEMS: ChecklistItem[] = ARRIVAL_CHECKLIST.flatMap((c) => c.items.filter((i) => i.essential));
+
+/** Las categorías sin los esenciales (que se muestran aparte); se descartan las que quedan vacías. */
+export const REST_CHECKLIST: ChecklistCategory[] = ARRIVAL_CHECKLIST.map((c) => ({ ...c, items: c.items.filter((i) => !i.essential) })).filter(
+  (c) => c.items.length > 0,
+);
+
+export const ESSENTIAL_TOTAL = ESSENTIAL_ITEMS.length;
+const ESSENTIAL_KEY_SET: ReadonlySet<string> = new Set(ESSENTIAL_ITEMS.map((i) => i.key));
+
+/** Cantidad de esenciales tildados (ignora duplicados y claves que no son esenciales). */
+export function countEssentialChecked(checked: Iterable<string>): number {
+  let n = 0;
+  for (const k of new Set(checked)) if (ESSENTIAL_KEY_SET.has(k)) n += 1;
+  return n;
+}
 
 export const ALL_CHECKLIST_KEYS: string[] = ARRIVAL_CHECKLIST.flatMap((c) => c.items.map((i) => i.key));
 const KEY_SET: ReadonlySet<string> = new Set(ALL_CHECKLIST_KEYS);

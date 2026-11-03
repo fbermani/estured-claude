@@ -3,12 +3,18 @@
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import { Icon } from "@/components/ui/Icon";
-import { ARRIVAL_CHECKLIST, CHECKLIST_TOTAL, countChecked } from "@/lib/arrival/checklist";
+import { CHECKLIST_TOTAL, countChecked, countEssentialChecked, ESSENTIAL_ITEMS, ESSENTIAL_TOTAL, REST_CHECKLIST, type ChecklistCategory } from "@/lib/arrival/checklist";
 import { countdownLabel } from "@/lib/arrival/countdown";
 import { buildArrivalMessage, buildWhatsAppUrl } from "@/lib/arrival/whatsappMessage";
 import { toggleChecklistItemAction } from "@/app/students/dashboard/arrivalActions";
 
 export type ArrivalGuideLink = { slug: string; title: string };
+
+/** Primero «Lo esencial antes de viajar» (abierto), después el resto agrupado por categoría. */
+const SECTIONS: ChecklistCategory[] = [
+  ...(ESSENTIAL_TOTAL > 0 ? [{ id: "esenciales", title: "Lo esencial antes de viajar", icon: "priority_high", items: ESSENTIAL_ITEMS }] : []),
+  ...REST_CHECKLIST,
+];
 
 /**
  * «Tu llegada» (DR29, lote 2A): cuenta regresiva + checklist con casillas agrupado por categoría. El estudiante tilda (se guarda en DB,
@@ -47,6 +53,7 @@ export function ArrivalCard({
   const [, startTransition] = useTransition();
   const locked = readOnly || !persistent;
   const done = countChecked(checked);
+  const essentialDone = countEssentialChecked(checked);
   const percent = Math.round((done / CHECKLIST_TOTAL) * 100);
   const headingId = `arrival-${reservationId}`;
   const message = buildArrivalMessage({ residenceName, startDateLabel, daysLeft });
@@ -116,6 +123,11 @@ export function ArrivalCard({
                 {done} de {CHECKLIST_TOTAL}
               </span>
             </div>
+            {ESSENTIAL_TOTAL > 0 && (
+              <p className={`mt-0.5 text-xs font-semibold ${essentialDone === ESSENTIAL_TOTAL ? "text-forest-700" : "text-ink-faint"}`}>
+                Esenciales: {essentialDone} de {ESSENTIAL_TOTAL}
+              </p>
+            )}
             <div
               role="progressbar"
               aria-valuemin={0}
@@ -173,7 +185,7 @@ export function ArrivalCard({
       )}
 
       <div className="border-t border-line">
-        {ARRIVAL_CHECKLIST.map((cat, idx) => {
+        {SECTIONS.map((cat, idx) => {
           const catDone = cat.items.filter((i) => checked.has(i.key)).length;
           return (
             <details key={cat.id} open={idx === 0} className="group border-b border-line last:border-b-0">
