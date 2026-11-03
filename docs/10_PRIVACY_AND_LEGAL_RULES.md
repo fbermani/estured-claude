@@ -305,7 +305,7 @@ Si un estudiante es menor de 18 años: no puede finalizar registro completo sin 
 
 ### 9.1bis Confirmación del tutor para la estadía *(DR32)*
 
-La estadía de un menor no se vincula hasta que su familiar/tutor con vínculo activo la confirme. El tutor ve solo nombre corto + residencia antes de confirmar; la residencia no ve al tutor ni su decisión; la tabla `guardian_stay_confirmations` solo la leen el estudiante y su familiar activo y la escribe únicamente el servidor. Vence a los 7 días sin activar nada. Alcance legal del consentimiento: sigue pendiente de revisión (§9.6).
+La estadía de un menor no se vincula hasta que su familiar/tutor con vínculo activo la confirme. El tutor ve solo nombre corto + residencia antes de confirmar; la residencia no ve al tutor ni su decisión; la tabla `guardian_stay_confirmations` solo la leen el estudiante y su familiar activo y la escribe únicamente el servidor. Vence a los 7 días sin activar nada. El mail del familiar se verifica con un código antes de que el estudiante apruebe el vínculo; la condición de adulto/tutor es **responsabilidad declarada** de quien se registra. Alcance legal del consentimiento: sigue pendiente de revisión (§9.6).
 
 ### 9.2 Visibilidad de menores
 

@@ -1,5 +1,6 @@
 "use server";
 
+import { sendFamilyEmailCode } from "@/lib/family/emailVerification";
 import { validatePassword } from "@/lib/auth/password";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -174,6 +175,9 @@ export async function registerFamily(
     await admin.auth.admin.deleteUser(userId).catch(() => {});
     return formError(formData, "No pudimos completar el registro. Intentá de nuevo en unos minutos.");
   }
+
+  // DR32 addendum: el estudiante no puede aprobar el vínculo hasta que el familiar verifique su mail con este código.
+  await sendFamilyEmailCode(admin, userId);
 
   const supabase = await getSupabaseServer();
   if (supabase) {

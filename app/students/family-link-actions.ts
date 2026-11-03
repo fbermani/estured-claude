@@ -7,6 +7,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { resetFeePayersOnLinkEnd } from "@/lib/family/setFeePayer";
 import { createAuditLog } from "@/lib/audit";
 import { sendEmail } from "@/lib/email/sendEmail";
+import { isFamilyEmailVerified } from "@/lib/family/emailVerification";
 
 export type FamilyLinkDecisionState = { status: "idle" | "error"; message?: string };
 export type FamilyInviteState = { status: "idle" | "error" | "sent"; message?: string };
@@ -36,7 +37,7 @@ export async function respondFamilyLink(
 
   const { data: link } = await admin
     .from("family_links")
-    .select("id, status, student_profile_id")
+    .select("id, status, student_profile_id, family_members(user_id)")
     .eq("id", linkId)
     .maybeSingle();
   if (!link || link.student_profile_id !== studentProfile.id) {
@@ -44,6 +45,13 @@ export async function respondFamilyLink(
   }
   if (link.status !== "pending_student_approval") {
     return { status: "error", message: "Esa solicitud ya fue resuelta." };
+  }
+  // DR32 addendum: solo se aprueba un vínculo si el familiar verificó su mail (rechazar siempre se puede).
+  if (decision === "approve") {
+    const familyUserId = (link.family_members as unknown as { user_id: string } | null)?.user_id;
+    if (!familyUserId || !(await isFamilyEmailVerified(admin, familyUserId))) {
+      return { status: "error", message: "Tu familiar todavía no verificó su mail. Pedile que ingrese el código que le mandamos y volvé a intentar." };
+    }
   }
 
   const newStatus = decision === "approve" ? "active" : "rejected_by_student";

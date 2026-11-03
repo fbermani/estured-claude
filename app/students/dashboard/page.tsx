@@ -33,6 +33,8 @@ import { daysUntil } from "@/lib/arrival/countdown";
 import { loadCheckedItems } from "@/lib/arrival/loadChecklist";
 import { resolveArrivalGuides } from "@/lib/arrival/guideLinks";
 import { StayRateNote } from "@/components/students/StayRateNote";
+import { FamilyEmailVerifyCard } from "@/components/family/FamilyEmailVerifyCard";
+import { isFamilyEmailVerified } from "@/lib/family/emailVerification";
 import { GuardianConfirmCard } from "@/components/family/GuardianConfirmCard";
 import { loadPendingForGuardian, type GuardianPendingCard } from "@/lib/residents/guardianConfirmation";
 import { loadFamilyOverview, type FamilyStudentOverview } from "@/lib/family/loadFamilyOverview";
@@ -124,6 +126,7 @@ export default async function StudentDashboardPage() {
     const familyStayChanges = new Map<string, { view: StudentStayChangeView | null; residenceName: string | null }>();
     const overviewByLink = new Map<string, FamilyStudentOverview>();
     let guardianPending: GuardianPendingCard[] = [];
+    let needsEmailVerification = false;
     if (supabase) {
       const { data } = await supabase
         .from("family_links")
@@ -155,6 +158,8 @@ export default async function StudentDashboardPage() {
       if (admin && sessionUser) {
         // DR32: pedidos de confirmación de estadía de un menor (solo estudiantes con vínculo ACTIVO).
         guardianPending = await loadPendingForGuardian(admin, sessionUser.id);
+        // DR32 addendum: con un vínculo esperando aprobación, el familiar tiene que verificar su mail.
+        if (links.some((l) => l.status === "pending_student_approval")) needsEmailVerification = !(await isFamilyEmailVerified(admin, sessionUser.id));
         // DR4: estado de las solicitudes/reserva de cada estudiante vinculado (solo lectura) y próxima acción del familiar.
         // Degrada sin tumbar el inicio: si algo falla, el familiar ve igual sus vínculos.
         try {
@@ -227,6 +232,12 @@ export default async function StudentDashboardPage() {
           }
           cta={{ label: "Proponer una residencia", href: "/search", note: "Es una propuesta, no una reserva" }}
         />
+
+        {needsEmailVerification && (
+          <div className="mt-6">
+            <FamilyEmailVerifyCard />
+          </div>
+        )}
 
         {guardianPending.length > 0 && (
           <div className="mt-6 space-y-3">
