@@ -31,9 +31,22 @@ if (!profile?.is_minor || !ru) {
   console.error("✗ No encontré a Valentina (menor) o a Residencia Norte. Corré antes los seeds de usuarios y datos demo.");
   process.exit(1);
 }
-const { data: link } = await admin.from("family_links").select("id").eq("student_profile_id", profile.id).eq("status", "active").maybeSingle();
+// Valentina no tiene familiar en el demo base: se crea (si falta) un vínculo ACTIVO demo con Martín (padre.lucia@example.com). Fila nueva, no toca otras.
+const { data: martin } = await admin.from("users").select("id").eq("email", "padre.lucia@example.com").maybeSingle();
+const { data: fm } = martin ? await admin.from("family_members").select("id").eq("user_id", martin.id).maybeSingle() : { data: null };
+if (!fm) {
+  console.error("✗ No encontré al familiar demo Martín (padre.lucia@example.com). Corré antes el seed de usuarios.");
+  process.exit(1);
+}
+const { data: link } = await admin.from("family_links").select("id, status").eq("student_profile_id", profile.id).eq("family_member_id", fm.id).maybeSingle();
 if (!link) {
-  console.error("✗ Valentina no tiene un familiar con vínculo activo: sin él no hay a quién pedirle la confirmación.");
+  const { error: linkError } = await admin.from("family_links").insert({ student_profile_id: profile.id, family_member_id: fm.id, status: "active", requested_by_user_id: martin.id, approved_at: new Date().toISOString() });
+  if (linkError) {
+    console.error("✗ No pude crear el vínculo demo:", linkError.message);
+    process.exit(1);
+  }
+} else if (link.status !== "active") {
+  console.error("✗ Ya hay un vínculo Martín ↔ Valentina que no está activo; no lo reactivo sin que lo decidas.");
   process.exit(1);
 }
 const { data: current } = await admin.from("resident_stays").select("id").eq("student_profile_id", profile.id).eq("is_current", true).limit(1);
