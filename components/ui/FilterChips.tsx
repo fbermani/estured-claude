@@ -40,7 +40,7 @@ export function FilterChips<T extends string>({
             type="button"
             aria-pressed={pressed}
             onClick={() => onChange(o.value)}
-            className={`inline-flex min-h-11 flex-none cursor-pointer items-center gap-1.5 rounded-full border-[1.5px] px-3.5 text-[13.5px] font-semibold transition-all duration-300 ease-bounce hover:-translate-y-px focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-(--tone) ${
+            className={`inline-flex min-h-11 flex-none cursor-pointer items-center gap-1.5 rounded-full border-[1.5px] px-3.5 text-[13.5px] font-semibold transition duration-200 ease-out-fresh motion-safe:active:scale-[0.97] motion-safe:hover:-translate-y-px focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-(--tone) ${
               pressed ? "border-(--tone) bg-(--tone) text-white" : "border-line-2 bg-paper text-ink-soft hover:bg-cream-2"
             }`}
           >

@@ -72,9 +72,9 @@ export function StartRenewalModal({
 
       {open && (
         <div role="dialog" aria-modal="true" aria-labelledby="start-renewal-title" className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center sm:p-6">
-          <div className="fixed inset-0 bg-forest-ink/40 backdrop-blur-sm" onClick={() => setOpen(false)} aria-hidden />
+          <div className="animate-dialog-backdrop fixed inset-0 bg-forest-ink/40 backdrop-blur-sm" onClick={() => setOpen(false)} aria-hidden />
 
-          <div className="relative flex max-h-[100dvh] w-full max-w-lg flex-col overflow-hidden rounded-t-[24px] sm:max-h-[90vh] sm:rounded-card bg-paper shadow-float">
+          <div className="animate-dialog-center relative flex max-h-[100dvh] w-full max-w-lg flex-col overflow-hidden rounded-t-[24px] sm:max-h-[90vh] sm:rounded-card bg-paper shadow-float">
             <div className="flex items-start justify-between border-b border-line px-6 py-4">
               <div>
                 <h2 id="start-renewal-title" className="text-lg font-bold text-ink">

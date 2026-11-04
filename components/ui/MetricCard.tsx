@@ -41,7 +41,7 @@ export function MetricCard({
 }) {
   return (
     <div
-      className={`${toneClass(tone)} grid gap-1.5 rounded-card border border-line bg-paper p-4 shadow-card transition-all duration-300 ease-bounce hover:-translate-y-[3px] hover:shadow-card-hover ${className}`}
+      className={`${toneClass(tone)} grid gap-1.5 rounded-card border border-line bg-paper p-4 shadow-card transition duration-200 ease-out-fresh hover:-translate-y-0.5 hover:shadow-card-hover ${className}`}
     >
       <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.05em] text-ink-faint">
         <Icon name={icon} className="text-lg text-(--tone)" />

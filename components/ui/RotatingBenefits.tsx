@@ -105,7 +105,7 @@ export function RotatingBenefits({
             key={item.title}
             type="button"
             onClick={() => setActive(i)}
-            className="flex items-start gap-3 rounded-field p-4 text-left transition-all duration-200 ease-bounce hover:-translate-y-0.5 hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+            className="flex items-start gap-3 rounded-field p-4 text-left transition duration-200 ease-out-fresh hover:-translate-y-0.5 hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
           >
             <Icon name={item.icon} className="mt-0.5 shrink-0 text-xl text-forest-700" />
             <div>

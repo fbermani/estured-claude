@@ -46,7 +46,7 @@ export function HoverFeatureList({
                 >
                   <Icon name={icon} className="text-sm" />
                 </span>
-                <span className={`transition-all duration-300 ${open ? "font-semibold text-ink" : "text-ink-soft"}`}>
+                <span className={`transition-colors duration-300 ${open ? "font-semibold text-ink" : "text-ink-soft"}`}>
                   {item.label}
                 </span>
               </div>

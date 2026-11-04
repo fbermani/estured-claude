@@ -6,13 +6,13 @@ type Size = "sm" | "md" | "lg";
 
 /**
  * Sistema FRESH (design-references/fresh-style.md §2 "Botones"): pill,
- * font-weight 700, hover translateY(-3px) + sombra de color con
- * --ease-bounce, active translateY(1px) scale(.98). Los nombres de
+ * font-weight 700, hover translateY(-2px) + sombra de color con
+ * --ease-out-fresh (200ms), active translateY(1px) scale(.98). Los nombres de
  * variant/size se mantienen (usados en ~50 páginas) — lo que cambia es
  * qué clases renderiza cada uno.
  */
 const base =
-  "inline-flex items-center justify-center gap-2 font-bold rounded-full transition-all duration-300 ease-bounce focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest disabled:opacity-50 disabled:pointer-events-none hover:-translate-y-[3px] active:translate-y-px active:scale-[0.98]";
+  "inline-flex items-center justify-center gap-2 font-bold rounded-full transition duration-200 ease-out-fresh focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest disabled:opacity-50 disabled:pointer-events-none motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-px motion-safe:active:scale-[0.98]";
 
 const variants: Record<Variant, string> = {
   // btn-forest — acción principal de gestión/guardar.

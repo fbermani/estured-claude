@@ -70,7 +70,7 @@ export function CardPhotoCarousel({
               aria-hidden={i === index ? undefined : true}
               fill
               sizes={sizes}
-              className={`object-cover transition-opacity duration-700 motion-reduce:transition-none ${i === index ? "opacity-100" : "opacity-0"}`}
+              className={`object-cover [transition:opacity_700ms_ease,transform_300ms_var(--ease-out-fresh)] motion-safe:group-hover/card:scale-[1.045] motion-safe:group-focus-within/card:scale-[1.045] ${i === index ? "opacity-100" : "opacity-0"}`}
             />
           ) : null,
         )

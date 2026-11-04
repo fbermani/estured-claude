@@ -31,6 +31,17 @@
   animation-delay: var(--d, 0s);
 }
 
+/* Secuencia del hero de la home (identidad-profundidad, paquete B): título → bajada → buscador,
+   520ms con stagger de 60ms (los delays los pone el componente); chips 420ms con stagger de 40ms. */
+.hero-seq {
+  animation: hero-rise-t 0.52s var(--ease-out-fresh) both;
+  animation-delay: var(--d, 0s);
+}
+.hero-chip {
+  animation: hero-rise 0.42s var(--ease-out-fresh) both;
+  animation-delay: var(--d, 0s);
+}
+
 @keyframes hero-float {
   0%,
   100% {
@@ -93,8 +104,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-rise,
   .hero-rise-t,
+  .hero-seq,
   .hero-float,
   .hero-drift,
   .hero-marquee,

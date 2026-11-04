@@ -147,7 +147,7 @@ export function GuidesHub({
                   type="button"
                   aria-pressed={active}
                   onClick={() => pickCategory(c)}
-                  className={`flex h-full min-h-11 w-full cursor-pointer flex-col items-start gap-2 rounded-card border-[1.5px] p-4 text-left transition-all duration-300 ease-bounce hover:-translate-y-1 hover:shadow-card-hover focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest motion-reduce:transition-none motion-reduce:hover:translate-y-0 ${
+                  className={`flex h-full min-h-11 w-full cursor-pointer flex-col items-start gap-2 rounded-card border-[1.5px] p-4 text-left transition duration-200 ease-out-fresh hover:-translate-y-1 hover:shadow-card-hover focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest motion-reduce:transition-none motion-reduce:hover:translate-y-0 ${
                     active ? "border-forest bg-forest-tint" : "border-line bg-paper shadow-card"
                   }`}
                 >

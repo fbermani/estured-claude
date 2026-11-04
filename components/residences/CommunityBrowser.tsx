@@ -178,7 +178,7 @@ function ResidentCell({ card, index, isGuest }: { card: CommunityProfileCard; in
         type="button"
         onClick={() => (open ? close() : show())}
         onFocus={(e) => e.currentTarget.matches(":focus-visible") && show()}
-        className="flex min-h-14 w-full cursor-pointer items-center gap-3 rounded-2xl border border-line bg-paper p-2.5 text-left transition-all duration-300 ease-bounce hover:border-(--tone) hover:shadow-card focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-(--tone)"
+        className="flex min-h-14 w-full cursor-pointer items-center gap-3 rounded-2xl border border-line bg-paper p-2.5 text-left transition duration-200 ease-out-fresh hover:border-(--tone) hover:shadow-card focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-(--tone)"
         aria-expanded={open}
       >
         <Avatar card={card} index={index} />
@@ -332,14 +332,14 @@ function FreeBedSlot({ slug, roomTypeId, slotKey }: { slug: string; roomTypeId: 
       type="button"
       onClick={handleSelect}
       aria-pressed={isSelected}
-      className={`group flex min-h-14 w-full items-center gap-3 rounded-2xl border-2 p-2.5 text-left transition-all duration-300 ${
+      className={`group flex min-h-14 w-full items-center gap-3 rounded-2xl border-2 p-2.5 text-left transition-[background-color,border-color,box-shadow] duration-200 ease-out-fresh ${
         isSelected
           ? "border-solid border-forest bg-forest-tint shadow-card"
           : "border-dashed border-success-fg/40 bg-success-bg/40 hover:border-success-fg hover:bg-success-bg"
       }`}
     >
       <div
-        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-all duration-300 ${
+        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-[transform,background-color,color] duration-200 ease-out-fresh ${
           isSelected ? "animate-select-pop bg-forest text-white" : "bg-success-bg text-success-fg group-hover:scale-110"
         }`}
       >

@@ -47,7 +47,7 @@ export function InviteResidentsCard({ residenceName }: { residenceName: string }
             <button
               type="button"
               onClick={() => window.open(buildResidentInviteWhatsappUrl(message()), "_blank", "noopener,noreferrer")}
-              className="inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-full bg-(--tone) px-4 text-sm font-bold text-white transition-all duration-300 ease-bounce hover:-translate-y-px hover:bg-(--tone-600) focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-(--tone)"
+              className="inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-full bg-(--tone) px-4 text-sm font-bold text-white transition duration-200 ease-out-fresh motion-safe:active:scale-[0.97] hover:-translate-y-px hover:bg-(--tone-600) focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-(--tone)"
             >
               <Icon name="send" className="text-base" /> Compartir por WhatsApp
             </button>

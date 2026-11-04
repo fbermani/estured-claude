@@ -156,7 +156,7 @@ export function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              className={`rounded-full px-3.5 py-2 text-sm font-bold transition-all duration-300 ease-bounce focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest ${
+              className={`rounded-full px-3.5 py-2 text-sm font-bold transition duration-200 ease-out-fresh focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest ${
                 pathname === link.href
                   ? "bg-forest-tint text-forest-700"
                   : "text-ink-soft hover:bg-cream-2 hover:text-forest-700"

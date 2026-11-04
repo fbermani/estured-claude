@@ -84,7 +84,7 @@ export function PhotoCarousel({ photos, alt, zone }: { photos: string[]; alt: st
                 }}
                 aria-label={`Ir a la foto ${i + 1}`}
                 aria-current={i === index}
-                className={`h-1.5 rounded-full transition-all duration-300 ease-fresh ${
+                className={`h-1.5 rounded-full transition-[width,background-color] duration-200 ease-out-fresh ${
                   i === index ? "w-5 bg-paper" : "w-1.5 bg-paper/60 hover:bg-paper/80"
                 }`}
               />

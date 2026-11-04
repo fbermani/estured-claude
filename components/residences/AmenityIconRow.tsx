@@ -76,14 +76,14 @@ export function AmenityIconRow({
   return (
     <div ref={rootRef} className="grid gap-2">
       <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-ink-faint">{label}</p>
-      <div className="flex flex-nowrap items-center gap-1.5">
+      <div className="flex min-w-0 flex-nowrap items-center gap-1.5">
         {items.map((item, i) => {
           const id = `${baseId}-${i}`;
           const isOpen = open === i;
           return (
             <span
               key={item.name}
-              className="relative"
+              className="relative min-w-8 max-w-11 flex-1 basis-9"
               onPointerEnter={(e) => {
                 if (e.pointerType !== "mouse") return;
                 setPinned(false);
@@ -116,7 +116,7 @@ export function AmenityIconRow({
                   setOpen((v) => (v === i ? null : v));
                   setPinned(false);
                 }}
-                className={`flex h-11 w-11 min-w-9 shrink items-center justify-center rounded-[14px] border transition-all duration-300 ease-bounce hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest ${tone} ${isOpen ? "-translate-y-0.5 bg-forest-tint text-forest-700" : ""}`}
+                className={`flex h-11 w-full items-center justify-center rounded-[14px] border transition duration-200 ease-out-fresh hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest ${tone} ${isOpen ? "-translate-y-0.5 bg-forest-tint text-forest-700" : ""}`}
               >
                 <Icon name={item.icon} className="text-2xl" />
               </button>
@@ -143,7 +143,7 @@ export function AmenityIconRow({
             <Link
               href={moreHref}
               aria-label={moreLabel ?? `Ver ${extra} más en la ficha`}
-              className="flex h-11 items-center justify-center rounded-[14px] border-[1.5px] border-dashed border-line-2 bg-paper px-3 text-[13px] font-bold text-forest-700 hover:bg-cream-2 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-forest"
+              className="flex h-11 items-center justify-center rounded-[14px] border-[1.5px] border-dashed border-line-2 bg-paper px-2.5 text-[13px] font-bold text-forest-700 hover:bg-cream-2 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-forest"
             >
               +{extra}
             </Link>

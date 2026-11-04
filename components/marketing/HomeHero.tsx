@@ -84,16 +84,16 @@ export function HomeHero({ residences }: { residences: Residence[] }) {
       />
 
       <div className="relative mx-auto max-w-[900px] px-4 pb-6 pt-8 text-center sm:px-6 md:pb-9 md:pt-20">
-        <p className="hero-rise-t mb-3.5 text-xs font-bold uppercase tracking-widest text-orange-light" style={delay(0.08)}>
+        <p className="hero-seq mb-3.5 text-xs font-bold uppercase tracking-widest text-orange-light" style={delay(0.06)}>
           Ciudad de Buenos Aires
         </p>
         <h1
-          className="hero-rise-t text-[1.875rem] font-extrabold leading-[1.1] tracking-tight text-white sm:text-[2.375rem] md:text-6xl"
-          style={delay(0.18)}
+          className="hero-seq text-[1.875rem] font-extrabold leading-[1.1] tracking-tight text-white sm:text-[2.375rem] md:text-6xl"
+          style={delay(0.12)}
         >
           Elegí tu residencia a distancia, <span className="text-amber-soft-300">sin adivinar.</span>
         </h1>
-        <p className="hero-rise-t mx-auto mt-4 max-w-[600px] text-base text-forest-tint sm:text-[17px] md:text-xl" style={delay(0.3)}>
+        <p className="hero-seq mx-auto mt-4 max-w-[600px] text-base text-forest-tint sm:text-[17px] md:text-xl" style={delay(0.18)}>
           Residencias en Buenos Aires, verificadas por EstuRed. Reservá y pagá desde donde estés, sin viajar.
         </p>
 
@@ -101,30 +101,29 @@ export function HomeHero({ residences }: { residences: Residence[] }) {
         <Link
           href="/search"
           aria-label="Buscar residencias en Buenos Aires"
-          className="hero-rise-t group mx-auto mt-5 grid gap-1 rounded-[26px] bg-white p-2.5 text-ink shadow-float focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white md:grid-cols-[1.1fr_1fr_1fr_auto] md:items-center md:rounded-full md:py-2 md:pl-3.5 md:pr-2 md:gap-0"
-          style={delay(0.42)}
+          className="hero-seq group mx-auto mt-5 grid gap-1 rounded-[26px] bg-white p-2.5 text-ink shadow-float focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white md:grid-cols-[1.1fr_1fr_1fr_auto] md:items-center md:rounded-full md:py-2 md:pl-3.5 md:pr-2 md:gap-0"
+          style={delay(0.24)}
         >
           <FakeField label="¿Dónde?" value="Todos los barrios" />
           <FakeField label="¿Qué estudiás?" value="Todas" />
           <FakeField label="¿Cuándo entrás?" value="Cuando quieras" />
-          <span className="mt-1 inline-flex h-14 items-center justify-center gap-2 rounded-full bg-orange px-8 text-base font-bold text-white shadow-sm transition-all duration-300 ease-bounce group-hover:-translate-y-[3px] group-hover:bg-orange-600 group-hover:shadow-orange md:mt-0">
+          <span className="mt-1 inline-flex h-14 items-center justify-center gap-2 rounded-full bg-orange px-8 text-base font-bold text-white shadow-sm transition duration-200 ease-out-fresh group-hover:-translate-y-0.5 group-hover:bg-orange-600 group-hover:shadow-orange md:mt-0">
             <Icon name="search" className="text-xl" />
             Buscar residencias
           </span>
         </Link>
 
-        <p className="hero-rise mt-3.5 text-[13px] text-forest-tint" style={delay(0.6)}>
+        <p className="hero-rise mt-3.5 text-[13px] text-forest-tint" style={delay(0.32)}>
           Explorar es gratis. Toda solicitud queda sujeta a confirmación de la residencia.{" "}
           <Link href="/register/residence" className="font-bold text-white underline-offset-2 hover:underline">
             Solicitar sumar mi residencia
           </Link>
         </p>
         <ul
-          className="hero-rise mt-4 flex flex-wrap justify-center gap-x-[18px] gap-y-2 text-[13px] font-semibold text-forest-tint"
-          style={delay(0.6)}
+          className="mt-4 flex flex-wrap justify-center gap-x-[18px] gap-y-2 text-[13px] font-semibold text-forest-tint"
         >
-          {MINI_POINTS.map((p) => (
-            <li key={p.label} className="inline-flex items-center gap-1.5">
+          {MINI_POINTS.map((p, i) => (
+            <li key={p.label} className="hero-chip inline-flex items-center gap-1.5" style={delay(0.36 + i * 0.04)}>
               <Icon name={p.icon} className="text-lg text-orange-light" />
               {p.label}
             </li>

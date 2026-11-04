@@ -13,7 +13,7 @@ export function GuideCard({ guide, size = "default" }: { guide: GuideSummary; si
   const cat = CATEGORY_META[guide.category];
   const featured = size === "featured";
   return (
-    <article className="group/card relative flex h-full flex-col overflow-hidden rounded-card border-[1.5px] border-line bg-paper shadow-card transition-all duration-300 ease-bounce hover:-translate-y-1.5 hover:shadow-card-hover has-[:focus-visible]:outline-[3px] has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-forest motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+    <article className="group/card relative flex h-full flex-col overflow-hidden rounded-card border-[1.5px] border-line bg-paper shadow-card transition duration-200 ease-out-fresh hover:-translate-y-1.5 hover:shadow-card-hover has-[:focus-visible]:outline-[3px] has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-forest motion-reduce:transition-none motion-reduce:hover:translate-y-0">
       <div
         className={`relative flex items-center justify-center overflow-hidden bg-gradient-to-br ${cat.gradient} ${featured ? "h-36 sm:h-44" : "h-28"}`}
       >

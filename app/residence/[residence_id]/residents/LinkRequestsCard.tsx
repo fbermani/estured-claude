@@ -27,7 +27,7 @@ function DecisionButton({ value, tone, children }: { value: "approve" | "reject"
       disabled={pending}
       className={
         tone === "primary"
-          ? "inline-flex min-h-11 cursor-pointer items-center rounded-full bg-(--tone) px-4 text-sm font-bold text-white transition-all duration-300 ease-bounce hover:-translate-y-px hover:bg-(--tone-600) focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-(--tone) disabled:opacity-50"
+          ? "inline-flex min-h-11 cursor-pointer items-center rounded-full bg-(--tone) px-4 text-sm font-bold text-white transition duration-200 ease-out-fresh motion-safe:active:scale-[0.97] hover:-translate-y-px hover:bg-(--tone-600) focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-(--tone) disabled:opacity-50"
           : "inline-flex min-h-11 cursor-pointer items-center rounded-full border-[1.5px] border-line-2 bg-paper px-4 text-sm font-bold text-ink-soft hover:border-danger-fg hover:text-danger-fg focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-(--tone) disabled:opacity-50"
       }
     >

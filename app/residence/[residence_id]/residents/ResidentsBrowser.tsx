@@ -719,7 +719,7 @@ export function ResidentsBrowser({
             onClick={() => setShowAdd((v) => !v)}
             disabled={!canManageResidents}
             title={canManageResidents ? undefined : "Pedile este permiso al dueño."}
-            className="inline-flex min-h-[46px] cursor-pointer items-center justify-center gap-1.5 rounded-full bg-(--tone) px-6 text-[15px] font-semibold text-white transition-all duration-300 ease-bounce hover:-translate-y-px hover:bg-(--tone-600) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex min-h-[46px] cursor-pointer items-center justify-center gap-1.5 rounded-full bg-(--tone) px-6 text-[15px] font-semibold text-white transition duration-200 ease-out-fresh motion-safe:active:scale-[0.97] hover:-translate-y-px hover:bg-(--tone-600) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Icon name={showAdd ? "close" : "person_add"} className="text-xl" />
             {showAdd ? "Cerrar" : "Agregar residente"}

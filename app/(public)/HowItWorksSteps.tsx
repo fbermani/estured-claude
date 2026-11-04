@@ -98,14 +98,14 @@ export function HowItWorksSteps({ steps }: { steps: Step[] }) {
                 className="relative grid w-full grid-cols-[44px_1fr] items-center gap-3.5 rounded-field px-4 py-3 text-left transition-colors duration-200 hover:bg-cream-2 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest"
               >
                 <span
-                  className={`flex h-11 w-11 items-center justify-center rounded-full border-[1.5px] font-display text-[17px] font-bold transition-all duration-300 ease-bounce ${
-                    selected ? "scale-110 border-forest bg-forest text-white" : "border-line-2 bg-paper text-ink-faint"
+                  className={`flex h-11 w-11 items-center justify-center rounded-full border-[1.5px] font-display text-[17px] font-bold transition-[background-color,border-color,color,transform] duration-300 ease-bounce ${
+                    selected ? "step-halo scale-110 border-forest bg-forest text-white" : "border-line-2 bg-paper text-ink-faint"
                   }`}
                 >
                   {i + 1}
                 </span>
                 <span
-                  className={`font-display text-[22px] font-bold leading-tight tracking-tight transition-all duration-300 ${
+                  className={`font-display text-[22px] font-bold leading-tight tracking-tight transition-[color,transform] duration-300 ${
                     selected ? "translate-x-1 text-ink" : "text-ink-faint"
                   }`}
                 >
@@ -113,8 +113,8 @@ export function HowItWorksSteps({ steps }: { steps: Step[] }) {
                 </span>
                 <span aria-hidden className="absolute bottom-1 left-[74px] right-4 h-[3px] overflow-hidden rounded-full bg-cream-2 opacity-0 data-[on=true]:opacity-100" data-on={selected}>
                   <i
-                    className="block h-full bg-forest"
-                    style={{ width: selected && running ? "100%" : "0%", transition: selected && running ? `width ${DUR}ms linear` : "none" }}
+                    className="block h-full origin-left bg-forest"
+                    style={{ transform: `scaleX(${selected && running ? 1 : 0})`, transition: selected && running ? `transform ${DUR}ms linear` : "none" }}
                   />
                 </span>
               </button>
@@ -238,7 +238,7 @@ export function HowItWorksSteps({ steps }: { steps: Step[] }) {
                 onClick={() => goMobile(i)}
                 className="relative flex h-11 w-6 items-center justify-center before:absolute before:-inset-x-2.5 before:inset-y-0 before:content-['']"
               >
-                <i className={`h-2 rounded-full transition-all duration-300 ease-bounce ${i === active ? "w-[22px] bg-forest" : "w-2 bg-line-2"}`} />
+                <i className={`h-2 rounded-full transition-[width,background-color] duration-300 ease-bounce ${i === active ? "w-[22px] bg-forest" : "w-2 bg-line-2"}`} />
               </button>
             ))}
           </div>

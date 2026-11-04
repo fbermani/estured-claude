@@ -19,7 +19,7 @@ export function Card({
       style={style}
       className={`bg-paper rounded-card shadow-card border-[1.5px] border-line ${
         interactive
-          ? "transition-all duration-300 ease-bounce hover:-translate-y-[7px] hover:border-transparent hover:shadow-lg"
+          ? "transition duration-200 ease-out-fresh motion-safe:active:scale-[0.98] hover:-translate-y-1 hover:border-transparent hover:shadow-lg"
           : ""
       } ${className}`}
     >

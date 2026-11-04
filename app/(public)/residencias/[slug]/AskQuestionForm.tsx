@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { DrawCheck } from "@/components/ui/DrawCheck";
 import { Icon } from "@/components/ui/Icon";
 import { Textarea } from "@/components/ui/Input";
 import { askResidenceQuestionAction, type AskQuestionState } from "@/app/(public)/residencias/[slug]/faq-actions";
@@ -18,14 +19,17 @@ export function AskQuestionForm({ residenceId, signedIn }: { residenceId: string
 
   if (state.status === "sent") {
     return (
-      <div role="status" className="rounded-card border-[1.5px] border-line bg-mint px-5 py-4 text-sm text-forest-700">
-        <p className="font-semibold">Registramos tu pregunta.</p>
-        <p className="mt-1">
-          La residencia responde cuando puede; no es una respuesta automática.
-          {signedIn
-            ? " Si la responden, te avisamos en la app y la vas a ver acá."
-            : " Si la responden, la vas a ver publicada acá."}
-        </p>
+      <div role="status" className="flex items-center gap-4 rounded-card border-[1.5px] border-line bg-mint px-5 py-4 text-sm text-forest-700">
+        <DrawCheck className="size-12" />
+        <div className="dc-rise">
+          <p className="font-semibold">Registramos tu pregunta.</p>
+          <p className="mt-1">
+            La residencia responde cuando puede; no es una respuesta automática.
+            {signedIn
+              ? " Si la responden, te avisamos en la app y la vas a ver acá."
+              : " Si la responden, la vas a ver publicada acá."}
+          </p>
+        </div>
       </div>
     );
   }

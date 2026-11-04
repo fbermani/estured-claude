@@ -17,6 +17,10 @@ import type { FichaRoomType } from "@/components/residences/ficha/types";
 /** Si el nombre ya dice cuántas personas son («Individual», «Doble»…), no se repite la capacidad. */
 const NAME_IMPLIES_CAPACITY = /individual|simple|doble|triple|cu[aá]druple|cuadruple|compartid/i;
 
+/** Columnas fijas en pantallas ≥ sm: tipo | precio | disponibilidad | acción. Así precio, estado y botón quedan alineados en todas las filas. */
+const ROW_GRID = "sm:grid sm:grid-cols-[minmax(0,1fr)_10rem_13.5rem_8.5rem] sm:items-center sm:gap-x-4";
+const GENDER_ICON: Record<string, string> = { masculino: "man", femenino: "woman" };
+
 function Chip({ icon, children }: { icon: string; children: React.ReactNode }) {
   return (
     <span className="inline-flex items-center gap-1 text-xs text-ink-soft">
@@ -72,8 +76,8 @@ export function RatesTable({
               }`}
             >
               {isSelected && <span aria-hidden="true" className="absolute inset-y-0 left-0 w-[3px] bg-forest" />}
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:flex-nowrap">
-                <div className="min-w-0 flex-1 basis-full sm:basis-0">
+              <div className={`grid gap-y-2 ${ROW_GRID}`}>
+                <div className="min-w-0">
                   <p className={`flex items-center gap-1.5 font-bold ${requestable ? "text-ink" : "text-ink-soft"}`}>
                     <Icon name={nameIcon} className="text-lg text-forest-700" />
                     <span className="min-w-0 truncate">{rt.name}</span>
@@ -93,7 +97,7 @@ export function RatesTable({
                   </div>
                 </div>
 
-                <div className="min-w-0 sm:w-44 sm:text-right">
+                <div className="min-w-0 sm:text-right">
                   <p className={`font-display text-lg font-extrabold leading-tight ${requestable ? "text-ink" : "text-ink-soft"}`}>
                     {rt.listPriceUsd != null && (
                       <span className="mr-1.5 text-sm font-semibold text-ink-faint line-through">
@@ -113,8 +117,11 @@ export function RatesTable({
                   )}
                 </div>
 
-                <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:flex-col sm:items-end">
-                  <StatusTag mode={availMode} roomTypeName={rt.state === "full" ? rt.name : null} withTip />
+                <div className="flex items-center justify-between gap-2 sm:contents">
+                  <div className="sm:justify-self-start">
+                    <StatusTag mode={availMode} roomTypeName={rt.state === "full" ? rt.name : null} withTip />
+                  </div>
+                  <div className="sm:w-full">
                   {requestable && opensModal ? (
                     <Button
                       type="button"
@@ -126,7 +133,7 @@ export function RatesTable({
                       }}
                       aria-haspopup="dialog"
                       aria-label={`Elegir: ${rt.name}`}
-                      className="sm:!h-9 sm:!px-4 sm:text-xs hover:!translate-y-0"
+                      className="sm:!h-9 sm:!w-full sm:!px-4 sm:text-xs hover:!translate-y-0"
                     >
                       Elegir
                     </Button>
@@ -135,46 +142,49 @@ export function RatesTable({
                       href={loginHrefFor(rt.id)}
                       variant="outline"
                       size="sm"
-                      className="sm:!h-9 sm:!px-4 sm:text-xs hover:!translate-y-0"
+                      className="sm:!h-9 sm:!w-full sm:!px-4 sm:text-xs hover:!translate-y-0"
                     >
                       Elegir
                     </Button>
                   ) : !requestable && mode === "student" && waitlistTypeIds.includes(rt.id) ? (
                     <Button
                       type="button"
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
                       onClick={() => {
                         setRoomTypeId(rt.id);
                         openSheet("waitlist");
                       }}
-                      className="!px-4 sm:!h-9 sm:!px-3 sm:text-xs"
+                      className="!px-4 sm:!h-9 sm:!w-full sm:!px-3 sm:text-xs"
                     >
                       Lista de espera
                     </Button>
                   ) : !requestable && mode === "guest" && rt.state === "full" ? (
                     <Button
                       href={loginHrefFor(rt.id)}
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
-                      className="!px-4 sm:!h-9 sm:!px-3 sm:text-xs"
+                      className="!px-4 sm:!h-9 sm:!w-full sm:!px-3 sm:text-xs"
                     >
                       Lista de espera
                     </Button>
                   ) : null}
+                  </div>
                 </div>
               </div>
 
               {rt.genderOffers && rt.genderOffers.length > 1 && (
-                <ul aria-label={`${rt.name}, por género`} className="mt-3 space-y-1.5 border-t border-line/70 pt-2.5">
+                <ul aria-label={`${rt.name}, por género`} className="mt-3 space-y-2 border-t border-line/70 pt-3">
                   {rt.genderOffers.map((o) => (
-                    <li key={o.gender} className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-                      <span className="flex items-center gap-1.5 text-sm font-semibold text-ink-soft">
-                        <Icon name="wc" className="text-base text-forest-700" />
+                    <li key={o.gender} className={`flex flex-wrap items-center justify-between gap-x-3 gap-y-1 ${ROW_GRID}`}>
+                      <span className="flex min-w-0 items-center gap-1.5 pl-1 text-sm font-semibold text-ink-soft sm:col-span-2">
+                        <Icon name={GENDER_ICON[o.gender] ?? "wc"} className="text-base text-forest-700" />
                         {o.label}
                       </span>
-                      <StatusTag mode={typeAvailabilityMode(o.state)} roomTypeName={o.state === "full" ? o.label : null} />
-                      {o.note && <p className="basis-full text-xs text-ink-faint">{o.note}</p>}
+                      <span className="sm:justify-self-start">
+                        <StatusTag mode={typeAvailabilityMode(o.state)} roomTypeName={o.state === "full" ? o.label : null} />
+                      </span>
+                      {o.note && <p className="basis-full text-xs text-ink-faint sm:col-span-4">{o.note}</p>}
                     </li>
                   ))}
                 </ul>

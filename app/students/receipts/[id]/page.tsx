@@ -114,7 +114,7 @@ export default async function ReceiptPage({
         </div>
         <a
           href={`/students/receipts/${id}/pdf`}
-          className="inline-flex items-center justify-center gap-2 rounded-full bg-forest px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-forest-600 hover:shadow"
+          className="inline-flex items-center justify-center gap-2 rounded-full bg-forest px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition duration-200 ease-out-fresh hover:bg-forest-600 hover:shadow"
         >
           Descargar PDF
         </a>

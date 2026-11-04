@@ -177,7 +177,8 @@ export default async function HomePage() {
       <WhyEstuRed />
 
       {/* Catálogo (tarjetas reducidas) */}
-      <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-20">
+      <div className="band">
+<section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-20">
         <SectionHeader
           eyebrow="Catálogo"
           title="Residencias verificadas en CABA"
@@ -206,9 +207,11 @@ export default async function HomePage() {
           />
         )}
       </section>
+</div>
 
       {/* Cómo funciona */}
-      <section id="el-proceso" className="mx-auto max-w-6xl scroll-mt-20 overflow-x-clip px-4 py-16 sm:px-6 sm:py-24">
+      <div className="bg-paper">
+<section id="el-proceso" className="mx-auto max-w-6xl scroll-mt-20 overflow-x-clip px-4 py-16 sm:px-6 sm:py-24">
         <SectionHeader
           eyebrow="El proceso"
           title="De la búsqueda a tu reserva confirmada, sin viajar a Buenos Aires"
@@ -221,9 +224,11 @@ export default async function HomePage() {
         </p>
         <HowItWorksSteps steps={steps} />
       </section>
+</div>
 
       {/* Audiencias */}
-      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
+      <div className="surface-glow surface-grain">
+<section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
         <SectionHeader
           eyebrow="Para quién es"
           title="Cada uno con su lugar en el proceso"
@@ -241,6 +246,7 @@ export default async function HomePage() {
           ))}
         </div>
       </section>
+</div>
 
       {/* Centro de Guías: 3 destacadas, entre «Para quién es» y las preguntas frecuentes */}
       {featuredGuides.length > 0 && (

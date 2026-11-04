@@ -113,6 +113,8 @@
   --shadow-card-hover: 0 2px 4px rgb(29 39 34 / 0.06),
     0 8px 28px rgb(29 39 34 / 0.12);
   --shadow-float: 0 4px 12px rgb(29 39 34 / 0.08), 0 12px 40px rgb(29 39 34 / 0.16);
+  --shadow-anchor: 0 1px 0 rgb(29 39 34 / 0.04), 0 1px 2px rgb(29 39 34 / 0.06),
+    0 6px 18px -6px rgb(29 39 34 / 0.14), inset 0 1px 0 rgb(255 255 255 / 0.9); /* tarjeta "anclada" sobre fondo cream */
   --shadow-orange: 0 10px 24px rgb(239 133 81 / 0.35);
   --shadow-forest: 0 10px 24px rgb(31 125 92 / 0.32);
 
@@ -199,21 +201,154 @@ p {
   animation: dropdown-in 160ms var(--ease-out-fresh);
 }
 
-/* ---- Motion: reveal-on-scroll (fresh-style.md §3 "Sitio público") ---- */
+/* ---- Motion: entrada de Dialog (components/ui/Dialog.tsx) — transform + opacity.
+   Mobile: hoja que sube desde abajo (curva tipo drawer). Desktop: modal centrado
+   escala 0.96→1; hoja lateral entra desde la derecha. Solo entrada (sin salida). ---- */
+@keyframes dialog-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes dialog-sheet-in {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+@keyframes dialog-center-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes dialog-side-in {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+.animate-dialog-backdrop {
+  animation: dialog-backdrop-in 150ms var(--ease-out-fresh);
+}
+.animate-dialog-center {
+  animation: dialog-sheet-in 250ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.animate-dialog-side {
+  animation: dialog-sheet-in 250ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+@media (min-width: 40rem) {
+  .animate-dialog-center {
+    animation: dialog-center-in 200ms var(--ease-out-fresh);
+  }
+  .animate-dialog-side {
+    animation: dialog-side-in 250ms cubic-bezier(0.32, 0.72, 0, 1);
+  }
+}
+
+/* ---- Motion: reveal-on-scroll (fresh-style.md §3 "Sitio público") — 400ms / 16px, stagger corto ---- */
 .reveal {
   opacity: 0;
-  transform: translateY(28px);
-  transition: opacity 550ms var(--ease-out-fresh), transform 550ms var(--ease-out-fresh);
+  transform: translateY(16px);
+  transition: opacity 400ms var(--ease-out-fresh), transform 400ms var(--ease-out-fresh);
 }
 .reveal.in {
   opacity: 1;
   transform: translateY(0);
 }
-.reveal-d1 { transition-delay: 90ms; }
-.reveal-d2 { transition-delay: 180ms; }
-.reveal-d3 { transition-delay: 270ms; }
-.reveal-d4 { transition-delay: 360ms; }
-.reveal-d5 { transition-delay: 450ms; }
+.reveal-d1 { transition-delay: 60ms; }
+.reveal-d2 { transition-delay: 120ms; }
+.reveal-d3 { transition-delay: 180ms; }
+.reveal-d4 { transition-delay: 240ms; }
+.reveal-d5 { transition-delay: 300ms; }
+
+/* ---- Profundidad de fondo (design-proposals/identidad-profundidad-2026-11-03, paquete A).
+   Solo gradientes y grano ESTÁTICOS (nada se anima), derivados de tokens existentes. ----
+   .surface-glow: brillo radial forest 11% arriba a la derecha + orange 8% abajo a la izquierda sobre cream.
+   .surface-glow-forest: solo el brillo forest (listados).  .surface-grain: grano SVG inline (opacity .06).
+   .band: franja cream-2 con borde y sombra interior superior (separa secciones sin color nuevo). */
+.surface-glow {
+  background:
+    radial-gradient(900px 420px at 88% -12%, rgb(31 125 92 / 0.11), transparent 62%),
+    radial-gradient(700px 360px at -6% 108%, rgb(192 82 29 / 0.08), transparent 60%),
+    var(--color-cream);
+}
+.surface-glow-forest {
+  background:
+    radial-gradient(900px 420px at 88% -12%, rgb(31 125 92 / 0.11), transparent 62%),
+    var(--color-cream);
+}
+.surface-grain {
+  position: relative;
+  isolation: isolate;
+}
+/* .grain-layer: versión sin isolation (hijo decorativo absoluto) para páginas con elementos fixed/sticky. */
+.surface-grain::before,
+.grain-layer {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.06;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .11 0 0 0 0 .15 0 0 0 0 .13 0 0 0 .6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.surface-grain::before {
+  z-index: -1;
+}
+.band {
+  background: var(--color-cream-2);
+  border-top: 1.5px solid var(--color-line);
+  border-bottom: 1.5px solid var(--color-line);
+  box-shadow: inset 0 10px 18px -14px rgb(29 39 34 / 0.18);
+}
+
+/* ---- Coreografía (paquete B): sello que se estampa + entrada del hero ---- */
+@keyframes stamp-in {
+  0% { opacity: 0; transform: scale(1.5) rotate(-10deg); }
+  60% { opacity: 1; transform: scale(0.94) rotate(-2deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+.stamp-in {
+  animation: stamp-in 320ms var(--ease-bounce) 120ms both;
+}
+
+/* ---- Micro-momentos (paquete C) ---- */
+@keyframes dc-ring { to { stroke-dashoffset: 0; opacity: 1; } }
+@keyframes dc-draw { to { stroke-dashoffset: 0; } }
+@keyframes dc-rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.dc-ring {
+  stroke-dasharray: 164;
+  stroke-dashoffset: 164;
+  opacity: 0;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: dc-ring 420ms var(--ease-out-fresh) forwards;
+}
+.dc-tick {
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+  animation: dc-draw 360ms var(--ease-out-fresh) 300ms forwards;
+}
+.dc-rise {
+  opacity: 0;
+  animation: dc-rise 360ms var(--ease-out-fresh) 420ms forwards;
+}
+.pb-fill {
+  transform-origin: left;
+  transform: scaleX(var(--p, 0));
+  transition: transform 600ms var(--ease-out-fresh);
+}
+@keyframes step-halo {
+  0% { opacity: 0.5; transform: scale(0.85); }
+  100% { opacity: 0; transform: scale(1.25); }
+}
+.step-halo {
+  position: relative;
+}
+.step-halo::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 9999px;
+  border: 2px solid var(--color-orange);
+  opacity: 0;
+  pointer-events: none;
+  animation: step-halo 900ms var(--ease-out-fresh) 1;
+}
 
 /* ---- Motion: RotatingBenefits (components/ui/RotatingBenefits.tsx) ---- */
 @keyframes benefit-fade-in {
@@ -254,15 +389,51 @@ p {
   animation: select-pop 320ms var(--ease-bounce);
 }
 
-/* ---- Motion: respeta prefers-reduced-motion para cualquier animación decorativa infinita ---- */
+/* ---- Motion: prefers-reduced-motion "gentil": se quita el MOVIMIENTO (translate/scale/rotate,
+   keyframes infinitos) pero se conservan los fundidos de opacidad/color de ~200ms. ---- */
+@keyframes rm-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
+    /* Keyframes: sin movimiento ni bucles (se reencuadran abajo si necesitan fundido). */
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    /* Transiciones: solo opacidad/color/sombra, 200ms; transform y layout quedan instantáneos. */
+    transition-property: opacity, color, background-color, border-color, box-shadow, text-decoration-color, fill, stroke !important;
+    transition-duration: 200ms !important;
+    transition-delay: 0ms !important;
     scroll-behavior: auto !important;
+  }
+  /* Entradas con fundido de 200ms (sin translate/scale). */
+  .animate-modal-in,
+  .animate-dropdown-in,
+  .animate-dialog-backdrop,
+  .animate-dialog-center,
+  .animate-dialog-side,
+  .stamp-in,
+  .hero-rise,
+  .hero-chip,
+  .dc-rise {
+    animation-name: rm-fade !important;
+    animation-duration: 200ms !important;
+    animation-timing-function: linear !important;
+    animation-fill-mode: both !important;
+  }
+  .dc-ring,
+  .dc-tick {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  .reveal {
+    transform: none;
+  }
+  .step-halo::after {
+    display: none;
   }
 }
 

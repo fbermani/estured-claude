@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
+import { ProgressBar } from "@/components/ui/ProgressBar";
 import { DocumentUpload } from "@/app/students/profile/DocumentUpload";
 
 export type StayDocumentItem = {
@@ -35,15 +36,8 @@ export function StayDocumentsCard({ items }: { items: StayDocumentItem[] }) {
           <p className="text-sm font-bold text-ink">
             Ya tenés {done.length} de {total} en tu perfil
           </p>
-          <div
-            role="progressbar"
-            aria-label="Documentos ya cargados"
-            aria-valuemin={0}
-            aria-valuemax={total}
-            aria-valuenow={done.length}
-            className="mt-2 h-1.5 overflow-hidden rounded-full bg-sand-200"
-          >
-            <div className="h-full rounded-full bg-forest transition-all" style={{ width: `${Math.round((done.length / total) * 100)}%` }} />
+          <div className="mt-2">
+            <ProgressBar value={(done.length / total) * 100} label="Documentos ya cargados" className="h-1.5" trackClassName="bg-sand-200" />
           </div>
 
           {missing.length === 0 ? (

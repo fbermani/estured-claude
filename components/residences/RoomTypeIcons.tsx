@@ -22,7 +22,7 @@ export function RoomTypeIcons({ roomTypes }: { roomTypes: RoomTypeOffer[] }) {
   if (types.length === 0) return null;
 
   return (
-    <ul aria-label="Tipos de habitación" className="flex flex-wrap items-center gap-1.5">
+    <ul aria-label="Tipos de habitación" className="flex flex-wrap items-center gap-1">
       {types.map((type) => {
         const persons = PERSONS[type] ?? null;
         const labels = [...(byType.get(type) ?? [])];
@@ -33,12 +33,12 @@ export function RoomTypeIcons({ roomTypes }: { roomTypes: RoomTypeOffer[] }) {
               tabIndex={0}
               role="img"
               aria-label={persons ? `${text} (${persons} ${persons === 1 ? "persona" : "personas"})` : text}
-              className="inline-flex h-8 items-center rounded-full border border-line bg-cream px-2 text-ink-soft transition-colors hover:border-sage-200 hover:bg-forest-tint hover:text-forest-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+              className="inline-flex h-7 items-center rounded-full border border-line bg-cream px-1.5 text-ink-soft transition-colors hover:border-sage-200 hover:bg-forest-tint hover:text-forest-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
             >
               {persons ? (
-                Array.from({ length: persons }).map((_, i) => <Icon key={i} name="person" className="-mx-px text-[19px]" />)
+                Array.from({ length: persons }).map((_, i) => <Icon key={i} name="person" className="-mx-px text-[17px]" />)
               ) : (
-                <Icon name="groups" className="text-[21px]" />
+                <Icon name="groups" className="text-[19px]" />
               )}
             </span>
             <span

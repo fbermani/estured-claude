@@ -174,8 +174,8 @@ function Switch({ checked, onChange, disabled, label }: { checked: boolean; onCh
       } ${disabled ? "cursor-not-allowed opacity-40" : "cursor-pointer"}`}
     >
       <span
-        className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-all ${
-          checked ? "left-[22px]" : "left-0.5"
+        className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ease-out-fresh ${
+          checked ? "translate-x-5" : ""
         }`}
       />
     </button>
@@ -511,7 +511,7 @@ export function ResidenceProfileForm({
             aria-valuenow={strength.percent}
             className="h-2 flex-1 overflow-hidden rounded-full bg-sand-200"
           >
-            <div className="h-full rounded-full bg-forest transition-all" style={{ width: `${strength.percent}%` }} />
+            <div className="h-full w-full origin-left rounded-full bg-forest transition-transform duration-300 ease-out-fresh" style={{ transform: `scaleX(${strength.percent / 100})` }} />
           </div>
           <p className="text-sm font-bold text-forest-700">{strength.percent}%</p>
         </div>
@@ -1630,7 +1630,7 @@ export function ResidenceProfileForm({
           <Card className="sticky top-24 p-5 max-lg:hidden">
             <h3 className="font-bold text-ink">Fortaleza del Perfil</h3>
             <div className="mt-2 h-2 overflow-hidden rounded-full bg-sand-200">
-              <div className="h-full rounded-full bg-forest transition-all" style={{ width: `${strength.percent}%` }} />
+              <div className="h-full w-full origin-left rounded-full bg-forest transition-transform duration-300 ease-out-fresh" style={{ transform: `scaleX(${strength.percent / 100})` }} />
             </div>
             <p className="mt-1 text-right text-sm font-bold text-forest-700">{strength.percent}%</p>
             {strengthSuggestion && (

@@ -59,7 +59,7 @@ function ChipToggleGroup({
             type="button"
             onClick={() => onToggle(option)}
             aria-pressed={isSelected}
-            className={`rounded-full border px-3.5 py-1.5 text-sm font-semibold transition-all duration-300 ease-fresh hover:scale-[1.04] ${
+            className={`rounded-full border px-3.5 py-1.5 text-sm font-semibold transition-[transform,background-color,border-color,color,box-shadow] duration-200 ease-out-fresh hover:scale-[1.04] ${
               isSelected
                 ? "animate-select-pop border-forest bg-forest text-white shadow-card"
                 : "border-line-2 bg-paper text-ink-soft hover:border-forest hover:bg-forest-tint/40 hover:text-forest-700 hover:shadow-sm"
@@ -178,8 +178,8 @@ export function ProfileDetailsForm({
         </div>
         <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-sand-200">
           <div
-            className="h-full rounded-full bg-forest transition-all duration-500 ease-fresh"
-            style={{ width: `${completeness.percent}%` }}
+            className="h-full w-full origin-left rounded-full bg-forest transition-transform duration-300 ease-out-fresh"
+            style={{ transform: `scaleX(${completeness.percent / 100})` }}
           />
         </div>
         {completeness.percent === 100 ? (

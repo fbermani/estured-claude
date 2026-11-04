@@ -12,7 +12,7 @@ import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
 export function ResidenceCardCompact({ residence, arsPerUsd }: { residence: Residence; arsPerUsd: number }) {
   const href = `/residencias/${residence.slug}`;
   return (
-    <Card className="group relative flex h-full flex-col overflow-hidden transition-all duration-200 motion-safe:active:scale-[0.985] active:shadow-card-hover">
+    <Card className="group relative border-line-2! shadow-anchor! flex h-full flex-col overflow-hidden transition duration-200 ease-out-fresh motion-safe:active:scale-[0.985] active:shadow-card-hover">
       <div>
         <div className="relative aspect-[16/10] overflow-hidden bg-sand-100">
           <ResidencePhoto

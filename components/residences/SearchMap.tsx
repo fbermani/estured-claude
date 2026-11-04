@@ -91,7 +91,7 @@ export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; wit
                     setOpenId(openId === p.id ? null : p.id);
                   }}
                   style={{ left: pos.x, top: pos.y }}
-                  className={`absolute z-10 min-h-8 -translate-x-1/2 -translate-y-full cursor-pointer whitespace-nowrap rounded-full border-[1.5px] px-2.5 py-1 text-[12.5px] font-bold shadow-[0_2px_8px_rgb(29_39_34/0.28)] motion-safe:transition-[transform,background-color,color] hover:z-20 hover:scale-110 focus-visible:z-20 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest after:absolute after:left-1/2 after:top-full after:size-[9px] after:-translate-x-1/2 after:-translate-y-[3px] after:rotate-45 after:border-b-[1.5px] after:border-r-[1.5px] after:border-inherit after:bg-inherit after:content-[''] ${
+                  className={`absolute z-10 min-h-8 -translate-x-1/2 -translate-y-full cursor-pointer whitespace-nowrap rounded-full border-[1.5px] px-2.5 py-1 text-[12.5px] font-bold shadow-[0_2px_8px_rgb(29_39_34/0.28)] motion-safe:transition-[transform,background-color,color] hover:z-20 hover:scale-110 focus-visible:z-20 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest after:absolute after:left-1/2 after:top-full after:size-[9px] after:-translate-x-1/2 after:-translate-y-0.5 after:rotate-45 after:border-b-[1.5px] after:border-r-[1.5px] after:border-inherit after:bg-inherit after:content-[''] ${
                     openId === p.id ? "z-20 scale-110 border-forest bg-forest text-white" : "border-paper bg-paper text-ink hover:border-forest hover:bg-forest hover:text-white"
                   }`}
                 >

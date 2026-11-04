@@ -89,7 +89,7 @@ export function Dialog({
       className={`fixed inset-0 z-[70] ${placement === "center" ? "flex items-stretch justify-center sm:items-center sm:p-6" : ""}`}
     >
       <div
-        className="absolute inset-0 bg-forest-ink/40 backdrop-blur-sm"
+        className="animate-dialog-backdrop absolute inset-0 bg-forest-ink/40 backdrop-blur-sm"
         onClick={dismissible ? onClose : undefined}
         aria-hidden
       />
@@ -100,7 +100,7 @@ export function Dialog({
         aria-labelledby={labelledBy}
         aria-describedby={describedBy}
         onKeyDown={onKeyDown}
-        className={`${panelClasses} ${placement === "center" ? "sm:my-auto" : ""}`}
+        className={`${panelClasses} ${placement === "center" ? "animate-dialog-center sm:my-auto" : "animate-dialog-side"}`}
       >
         {children}
       </div>

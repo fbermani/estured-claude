@@ -531,7 +531,7 @@ export default async function RealResidenceDetailPage({
         <header className="mt-6">
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="text-3xl font-bold text-ink sm:text-4xl">{residence.name}</h1>
-            <TrustBadge status="verified_active" size="md" />
+            <TrustBadge status="verified_active" size="md" stamp />
             {/* Favorito — cerca del título, no compite con el panel de solicitud */}
             {showStudentFavoriteInHeader && (
               <FavoriteButton action={toggleStudentFavorite.bind(null, residence.id)} initialFavorited={studentFavorited} />

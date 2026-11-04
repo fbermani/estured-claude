@@ -186,7 +186,9 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   const mapData = filters.view === "mapa" ? toMapPoints(results) : null;
 
   return (
-    <div className="mx-auto max-w-[80rem] px-4 py-6 sm:px-6 sm:py-8">
+    <div className="surface-glow-forest relative">
+      <div aria-hidden="true" className="grain-layer" />
+      <div className="relative mx-auto max-w-[80rem] px-4 py-6 sm:px-6 sm:py-8">
       {head}
       <SearchShell
         groups={groups}
@@ -244,6 +246,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
           </>
         )}
       </SearchShell>
+      </div>
     </div>
   );
 }

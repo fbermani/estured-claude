@@ -45,7 +45,7 @@ const typeRank = (name: string) => {
 function ProfileCard({ profile, index }: { profile: PreviewProfile; index: number }) {
   const origin = [profile.flag, profile.originCity ?? profile.nationality].filter(Boolean).join(" ");
   return (
-    <li className="flex items-center gap-3 rounded-[18px] border border-line bg-paper p-3 shadow-card transition-transform duration-300 ease-bounce hover:-translate-y-0.5">
+    <li className="flex items-center gap-3 rounded-[18px] border border-line bg-paper p-3 shadow-card transition-transform duration-200 ease-out-fresh hover:-translate-y-0.5">
       <span
         aria-hidden="true"
         className={`flex size-11 shrink-0 items-center justify-center rounded-full text-[17px] font-bold ${TINTS[index % TINTS.length]}`}
@@ -141,7 +141,7 @@ export function CommunityProfilesPreview({
             </p>
             <Link
               href="/register/student"
-              className="mt-2 inline-flex h-12 items-center justify-center rounded-full bg-forest px-6 text-sm font-bold text-white shadow-sm transition-all duration-300 ease-bounce hover:-translate-y-[3px] hover:bg-forest-600 hover:shadow-forest focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+              className="mt-2 inline-flex h-12 items-center justify-center rounded-full bg-forest px-6 text-sm font-bold text-white shadow-sm transition duration-200 ease-out-fresh motion-safe:active:scale-[0.97] hover:-translate-y-0.5 hover:bg-forest-600 hover:shadow-forest focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
             >
               Crear mi cuenta
             </Link>
@@ -163,7 +163,7 @@ export function CommunityProfilesPreview({
           {/* La función más valiosa de la ficha: es un llamado a la acción, no un enlace de texto. */}
           <Link
             href={`/residencias/${slug}/comunidad`}
-            className="group/cta flex items-center gap-4 rounded-card bg-forest px-5 py-4 text-white shadow-forest transition-all duration-300 ease-bounce hover:-translate-y-0.5 hover:bg-forest-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-safe:active:scale-[0.99]"
+            className="group/cta flex items-center gap-4 rounded-card bg-forest px-5 py-4 text-white shadow-forest transition duration-200 ease-out-fresh hover:-translate-y-0.5 hover:bg-forest-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest motion-safe:active:scale-[0.99]"
           >
             <span aria-hidden="true" className="flex -space-x-2.5">
               {profiles.slice(0, 3).map((p, i) => (
@@ -183,7 +183,7 @@ export function CommunityProfilesPreview({
             </span>
             <span
               aria-hidden="true"
-              className="grid size-11 shrink-0 place-items-center rounded-full bg-white text-forest-700 transition-transform duration-300 ease-bounce group-hover/cta:translate-x-1"
+              className="grid size-11 shrink-0 place-items-center rounded-full bg-white text-forest-700 transition-transform duration-200 ease-out-fresh group-hover/cta:translate-x-1"
             >
               <Icon name="arrow_forward" className="text-2xl" />
             </span>

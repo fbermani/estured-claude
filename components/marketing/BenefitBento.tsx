@@ -62,7 +62,7 @@ export function BenefitBento({ items, label }: { items: BentoItem[]; label: stri
       {items.map((it) => (
         <article
           key={it.title}
-          className={`flex flex-col gap-3.5 rounded-card border border-line bg-paper p-6 shadow-card transition-all duration-300 ease-bounce md:hover:-translate-y-[3px] md:hover:shadow-card-hover ${
+          className={`flex flex-col gap-3.5 rounded-card border border-line bg-paper p-6 shadow-card transition duration-200 ease-out-fresh md:hover:-translate-y-0.5 md:hover:shadow-card-hover ${
             it.size === "wide" ? "md:col-span-3" : "md:col-span-2"
           }`}
         >

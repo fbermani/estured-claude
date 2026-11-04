@@ -59,44 +59,44 @@ export function StudentsHero({ residences }: { residences: Residence[] }) {
   ];
 
   return (
-    <section className="relative overflow-hidden bg-cream bg-[radial-gradient(55%_60%_at_90%_0%,var(--color-orange-tint)_0,transparent_65%),radial-gradient(50%_60%_at_0%_100%,var(--color-forest-tint)_0,transparent_65%)]">
+    <section className="relative overflow-hidden bg-gradient-to-br from-forest-ink via-forest-700 to-forest-600 text-white">
       <i
         aria-hidden="true"
-        className="hero-drift pointer-events-none absolute -left-16 top-10 size-[260px] rounded-full bg-sage-200 opacity-45 blur-[50px]"
+        className="hero-drift pointer-events-none absolute -right-32 -top-44 size-[520px] rounded-full bg-[radial-gradient(circle,rgb(239_133_81/.35),transparent_65%)]"
+        style={style({ "--dx": "-30px" })}
       />
       <i
         aria-hidden="true"
-        className="hero-drift pointer-events-none absolute -right-20 -top-16 size-[300px] rounded-full bg-amber-soft-300 opacity-45 blur-[50px]"
-        style={style({ "--dx": "-30px" })}
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(rgb(255_255_255/.09)_1px,transparent_1.2px)] [background-size:22px_22px] [mask-image:linear-gradient(#000,transparent_80%)]"
       />
 
       <div className="relative mx-auto grid max-w-6xl items-center gap-7 px-4 pb-5 pt-9 sm:px-6 md:grid-cols-[1.02fr_0.98fr] md:gap-12 md:pb-7 md:pt-[72px]">
         <div>
           <p
-            className="hero-rise mb-[18px] inline-flex items-center gap-2 rounded-full border border-line bg-white px-3.5 py-1.5 text-[13px] font-semibold text-forest-700"
+            className="hero-rise mb-[18px] inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3.5 py-1.5 text-[13px] font-semibold text-white"
             style={style({ "--d": "0.08s" })}
           >
-            <span className="hero-pulse size-2 rounded-full bg-forest" aria-hidden="true" />
+            <span className="hero-pulse size-2 rounded-full bg-orange-light" aria-hidden="true" />
             Para estudiantes y familias
           </p>
           <h1
-            className="hero-rise text-[2.5rem] font-extrabold leading-[1.05] tracking-tight text-ink md:text-6xl"
+            className="hero-rise text-[2.5rem] font-extrabold leading-[1.05] tracking-tight text-white md:text-6xl"
             style={style({ "--d": "0.18s" })}
           >
             Elegí tu residencia en Buenos Aires{" "}
-            <span className="bg-[linear-gradient(transparent_64%,var(--color-amber-soft-300)_64%)] px-[0.1em] text-forest-700">
+            <span className="text-orange-light">
               con todo verificado y por escrito.
             </span>
           </h1>
-          <p className="hero-rise mt-[18px] max-w-[520px] text-lg text-ink-soft md:text-xl" style={style({ "--d": "0.3s" })}>
+          <p className="hero-rise mt-[18px] max-w-[520px] text-lg text-white/85 md:text-xl" style={style({ "--d": "0.3s" })}>
             Residencias verificadas, un proceso registrado paso a paso y un comprobante de reserva que cualquiera puede
             verificar. Sin viajar.
           </p>
-          <p className="hero-rise mt-3 text-sm font-medium text-petrol-700" style={style({ "--d": "0.3s" })}>
+          <p className="hero-rise mt-3 text-sm font-medium text-white/70" style={style({ "--d": "0.3s" })}>
             Conocé los requisitos y beneficios de cada residencia sin moverte de tu casa.
           </p>
           <div className="hero-rise mt-6 flex flex-col gap-2.5 sm:flex-row sm:flex-wrap" style={style({ "--d": "0.42s" })}>
-            <Button href="/search" size="lg" className="whitespace-nowrap">
+            <Button href="/search" size="lg" variant="secondary" className="whitespace-nowrap">
               Buscar residencia en CABA
               <Icon name="arrow_forward" className="text-xl" />
             </Button>
@@ -104,7 +104,7 @@ export function StudentsHero({ residences }: { residences: Residence[] }) {
               Crear cuenta de estudiante
             </Button>
           </div>
-          <p className="hero-rise mt-3.5 text-[13px] text-ink-faint" style={style({ "--d": "0.6s" })}>
+          <p className="hero-rise mt-3.5 text-[13px] text-white/75" style={style({ "--d": "0.6s" })}>
             Explorar es gratis. Toda solicitud queda sujeta a confirmación de la residencia.
           </p>
         </div>

@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Identidad y profundidad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* =========================================================
+   Tokens copiados de app/globals.css (@theme). Sin colores nuevos.
+   ========================================================= */
+:root{
+  --ink:#1d2722; --ink-soft:#44524b; --ink-faint:#5f6c65;
+  --line:#e8e0d2; --line-2:#ded4c2;
+  --cream:#fbf6ec; --cream-2:#f4ecdc; --paper:#ffffff;
+  --forest:#1f7d5c; --forest-600:#166349; --forest-700:#0f4d39; --forest-ink:#0c3a2c; --forest-tint:#e2f1ea;
+  --orange:#c0521d; --orange-600:#a9461a; --orange-700:#9a4118; --orange-tint:#fde7da; --orange-light:#ef8551;
+  --sage-100:#ddefe5; --sage-200:#bcdfca; --sage-400:#7cb89c;
+  --butter:#fbeec3; --mint:#d7efe2; --peach:#fde1d2;
+  --r-lg:30px; --r-md:22px; --r-sm:16px; --r-field:12px;
+  --shadow-sm:0 1px 2px rgb(29 39 34/.06),0 2px 6px rgb(29 39 34/.05);
+  --shadow-md:0 2px 4px rgb(29 39 34/.06),0 8px 20px rgb(29 39 34/.09);
+  --shadow-lg:0 12px 32px rgb(29 39 34/.16),0 4px 10px rgb(29 39 34/.08);
+  --shadow-card:0 1px 2px rgb(29 39 34/.05),0 4px 16px rgb(29 39 34/.07);
+  --shadow-card-hover:0 2px 4px rgb(29 39 34/.06),0 8px 28px rgb(29 39 34/.12);
+  --shadow-float:0 4px 12px rgb(29 39 34/.08),0 12px 40px rgb(29 39 34/.16);
+  --ease-fresh:cubic-bezier(.22,.61,.36,1);
+  --ease-out-fresh:cubic-bezier(.16,1,.3,1);
+  --ease-bounce:cubic-bezier(.34,1.56,.64,1);
+  --font-display:"Bricolage Grotesque","Hanken Grotesk",ui-sans-serif,system-ui,sans-serif;
+  --font-sans:"Hanken Grotesk",ui-sans-serif,system-ui,sans-serif;
+
+  /* ---- Propuesta A: solo utilidades nuevas, derivadas de tokens existentes ---- */
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .11 0 0 0 0 .15 0 0 0 0 .13 0 0 0 .6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --glow-forest:radial-gradient(900px 420px at 88% -12%, rgb(31 125 92/.11), transparent 62%);
+  --glow-orange:radial-gradient(700px 360px at -6% 108%, rgb(192 82 29/.08), transparent 60%);
+  --shadow-anchor:0 1px 0 rgb(29 39 34/.04),0 1px 2px rgb(29 39 34/.06),0 6px 18px -6px rgb(29 39 34/.14),inset 0 1px 0 rgb(255 255 255/.9);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--cream-2);color:var(--ink);font-family:var(--font-sans);-webkit-font-smoothing:antialiased;line-height:1.5}
+h1,h2,h3,h4{font-family:var(--font-display);font-weight:700;letter-spacing:-.02em;text-wrap:balance;margin:0}
+p{margin:0;text-wrap:pretty}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--forest);outline-offset:2px;border-radius:8px}
+.ms{font-family:system-ui;font-style:normal}
+
+/* ---------- Chrome del documento de propuesta ---------- */
+.doc-top{position:sticky;top:0;z-index:50;background:rgb(251 246 236/.92);backdrop-filter:blur(8px);border-bottom:1.5px solid var(--line)}
+.doc-top .in{max-width:1180px;margin:0 auto;padding:10px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.brand{font-family:var(--font-display);font-weight:800;font-size:1.1rem;color:var(--forest-700)}
+.brand small{font-family:var(--font-sans);font-weight:600;color:var(--ink-faint);font-size:.8rem;margin-left:6px}
+.doc-nav{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
+.doc-nav a{font-weight:700;font-size:.85rem;color:var(--ink-soft);text-decoration:none;padding:6px 12px;border-radius:999px;border:1.5px solid var(--line);background:var(--paper)}
+.doc-nav a:hover{border-color:var(--line-2);color:var(--ink)}
+.rm-switch{display:flex;align-items:center;gap:8px;font-size:.8rem;font-weight:700;color:var(--ink-soft)}
+.rm-switch input{width:18px;height:18px;accent-color:var(--forest)}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 16px 80px}
+.intro{display:grid;grid-template-columns:1.2fr 1fr;gap:24px;align-items:end;margin-bottom:28px}
+.intro h1{font-size:clamp(1.8rem,3.4vw,2.6rem)}
+.intro p{color:var(--ink-soft);margin-top:8px}
+.order{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.order span{font-size:.78rem;font-weight:800;padding:6px 10px;border-radius:999px;background:var(--paper);border:1.5px solid var(--line)}
+.order b{color:var(--orange-700)}
+
+.pkg{background:var(--paper);border:1.5px solid var(--line);border-radius:var(--r-lg);padding:22px;margin-bottom:28px;scroll-margin-top:70px}
+.pkg-head{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.pkg-letter{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;font-family:var(--font-display);font-weight:800;font-size:1.4rem;flex:none}
+.pkg-letter.a{background:var(--forest-tint);color:var(--forest-700)}
+.pkg-letter.b{background:var(--orange-tint);color:var(--orange-700)}
+.pkg-letter.c{background:var(--butter);color:#7a5f0c}
+.pkg-title{flex:1;min-width:220px}
+.pkg-title h2{font-size:1.45rem}
+.pkg-title p{color:var(--ink-soft);font-size:.95rem;margin-top:2px}
+.seg{display:inline-flex;background:var(--cream-2);border-radius:999px;padding:4px;gap:2px}
+.seg button{border:0;background:transparent;font-weight:800;font-size:.85rem;padding:8px 16px;border-radius:999px;color:var(--ink-faint);min-height:40px;transition:background-color .2s var(--ease-fresh),color .2s var(--ease-fresh)}
+.seg button[aria-pressed="true"]{background:var(--paper);color:var(--ink);box-shadow:var(--shadow-sm)}
+.ficha{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0 18px}
+.ficha > div{background:var(--cream);border:1.5px solid var(--line);border-radius:var(--r-sm);padding:12px 14px;font-size:.84rem;color:var(--ink-soft)}
+.ficha h4{font-family:var(--font-sans);font-size:.7rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:6px}
+.ficha ul{margin:0;padding-left:16px}
+.ficha li{margin:2px 0}
+.ficha code{font-size:.78rem;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:0 4px;color:var(--ink)}
+.cost{display:inline-block;font-weight:800;font-size:.72rem;padding:2px 8px;border-radius:999px;background:var(--forest-tint);color:var(--forest-700);margin-bottom:4px}
+.frame-label{font-size:.72rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-faint);margin:18px 0 8px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.mini-btn{border:1.5px solid var(--line-2);background:var(--paper);border-radius:999px;padding:6px 12px;font-weight:800;font-size:.75rem;color:var(--ink-soft);text-transform:none;letter-spacing:0;min-height:34px}
+.mini-btn:hover{border-color:var(--ink-faint);color:var(--ink)}
+.browser{border:1.5px solid var(--line-2);border-radius:18px;overflow:hidden;background:var(--cream)}
+.browser .bar{height:30px;background:var(--cream-2);border-bottom:1.5px solid var(--line);display:flex;align-items:center;gap:6px;padding:0 12px;font-size:.7rem;color:var(--ink-faint);font-weight:700}
+.browser .bar i{width:9px;height:9px;border-radius:50%;background:var(--line-2);display:inline-block}
+.browser .bar span{margin-left:10px}
+.example-note{font-size:.72rem;color:var(--ink-faint);margin-top:6px}
+
+/* ---------- Piezas de la app (comunes a Hoy y Propuesta) ---------- */
+.app-nav{display:flex;align-items:center;gap:18px;padding:12px 22px;font-size:.85rem;font-weight:700;color:var(--ink-soft)}
+.app-nav .logo{font-family:var(--font-display);font-weight:800;color:var(--forest-700);font-size:1.05rem;margin-right:auto}
+.app-nav .cta{background:var(--orange);color:#fff;padding:7px 14px;border-radius:999px}
+.hero{position:relative;padding:44px 22px 40px;text-align:center;isolation:isolate}
+.eyebrow{display:inline-flex;gap:6px;align-items:center;font-size:.75rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--forest-700);background:var(--forest-tint);padding:5px 12px;border-radius:999px}
+.hero h3{font-size:clamp(1.9rem,4.4vw,3rem);line-height:1.05;margin:14px auto 10px;max-width:16ch}
+.hero .sub{color:var(--ink-soft);max-width:44ch;margin:0 auto}
+.searchbar{margin:22px auto 0;max-width:640px;display:flex;align-items:center;gap:6px;background:var(--paper);border:1.5px solid var(--line);border-radius:999px;padding:6px 6px 6px 18px;text-align:left}
+.searchbar .f{flex:1;min-width:0;padding:4px 10px;border-right:1.5px solid var(--line)}
+.searchbar .f:last-of-type{border-right:0}
+.searchbar small{display:block;font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-faint)}
+.searchbar span{font-size:.88rem;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.searchbar .go{background:var(--orange);color:#fff;border:0;border-radius:999px;font-weight:800;padding:12px 20px;flex:none}
+.chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.chip{font-size:.8rem;font-weight:700;padding:6px 12px;border-radius:999px;background:var(--paper);border:1.5px solid var(--line);color:var(--ink-soft)}
+.section{padding:30px 22px;position:relative}
+.section h4{font-size:1.2rem;margin-bottom:4px}
+.section .lead{font-size:.88rem;color:var(--ink-faint);margin-bottom:16px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.rcard{background:var(--paper);border:1.5px solid var(--line);border-radius:var(--r-md);overflow:hidden;box-shadow:var(--shadow-card);transition:box-shadow .2s var(--ease-fresh)}
+.rcard:hover{box-shadow:var(--shadow-card-hover)}
+.photo{position:relative;aspect-ratio:4/3;overflow:hidden;background:var(--cream-2)}
+.photo .ph{position:absolute;inset:0;background:
+  linear-gradient(180deg,transparent 55%,rgb(29 39 34/.18)),
+  radial-gradient(120% 90% at 30% 20%,var(--mint),transparent 60%),
+  radial-gradient(90% 80% at 85% 90%,var(--peach),transparent 60%),var(--cream-2)}
+.photo .ph::after{content:"";position:absolute;left:24%;right:24%;bottom:0;height:56%;border-radius:12px 12px 0 0;background:
+  radial-gradient(circle,rgb(255 255 255/.75) 0 4px,transparent 4.5px) 6px 8px/22px 24px,
+  rgb(15 77 57/.13)}
+.photo .ph.v2{background:linear-gradient(180deg,transparent 55%,rgb(29 39 34/.18)),radial-gradient(110% 90% at 70% 15%,var(--butter),transparent 60%),radial-gradient(90% 80% at 10% 90%,var(--sage-100),transparent 60%),var(--cream-2)}
+.photo .ph.v3{background:linear-gradient(180deg,transparent 55%,rgb(29 39 34/.18)),radial-gradient(110% 90% at 20% 80%,var(--orange-tint),transparent 60%),radial-gradient(90% 80% at 90% 10%,var(--mint),transparent 60%),var(--cream-2)}
+.trust{position:absolute;top:10px;left:10px;display:inline-flex;align-items:center;gap:4px;background:rgb(255 255 255/.95);color:var(--forest-700);font-weight:800;font-size:.72rem;padding:4px 10px;border-radius:999px;box-shadow:var(--shadow-sm);outline:1.5px solid var(--forest-tint)}
+.trust svg{width:14px;height:14px}
+.rbody{padding:12px 14px 14px}
+.rbody b{display:block;font-family:var(--font-display);font-size:1rem}
+.rbody .meta{font-size:.8rem;color:var(--ink-faint)}
+.rbody .price{margin-top:8px;font-size:.85rem;color:var(--ink-soft)}
+.rbody .price strong{font-family:var(--font-display);font-size:1.05rem;color:var(--ink)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.step{background:var(--paper);border:1.5px solid var(--line);border-radius:var(--r-md);padding:14px}
+.step .n{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;font-weight:800;font-size:.85rem;background:var(--orange-tint);color:var(--orange-700)}
+.step b{display:block;margin:10px 0 2px;font-family:var(--font-display)}
+.step p{font-size:.82rem;color:var(--ink-faint)}
+.step img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;object-position:top;border-radius:12px;margin-top:10px;border:1.5px solid var(--line);background:var(--cream-2)}
+
+.search-layout{display:grid;grid-template-columns:230px 1fr;min-height:420px}
+.filters{padding:18px;font-size:.84rem}
+.filters h5{font-family:var(--font-display);font-size:.95rem;margin:0 0 10px}
+.fgroup{margin-bottom:14px}
+.fgroup small{display:block;font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-faint);margin-bottom:6px}
+.fbox{background:var(--cream);border:1.5px solid var(--line);border-radius:var(--r-field);padding:9px 12px;color:var(--ink-soft)}
+.fcheck{display:flex;gap:8px;align-items:center;margin:5px 0;color:var(--ink-soft)}
+.fcheck i{width:16px;height:16px;border-radius:5px;border:1.5px solid #8f836c;display:inline-block;background:var(--paper)}
+.fcheck i.on{background:var(--forest);border-color:var(--forest)}
+.results{padding:18px}
+.results-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.results-head b{font-family:var(--font-display)}
+.results-head span{font-size:.8rem;color:var(--ink-faint)}
+.rgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+
+/* =========================================================
+   PAQUETE A — Profundidad de fondo (solo en data-mode="prop")
+   ========================================================= */
+[data-mode="prop"] .A-hero{background:var(--glow-forest),var(--glow-orange),var(--cream)}
+[data-mode="prop"] .A-hero::before{content:"";position:absolute;inset:0;z-index:-1;background-image:var(--grain);opacity:.07;mix-blend-mode:multiply;pointer-events:none}
+[data-mode="prop"] .A-hero .searchbar{border-color:var(--line-2);box-shadow:var(--shadow-float)}
+[data-mode="prop"] .A-band{background:var(--cream-2);border-top:1.5px solid var(--line);border-bottom:1.5px solid var(--line);box-shadow:inset 0 10px 18px -14px rgb(29 39 34/.18)}
+[data-mode="prop"] .A-band .rcard,[data-mode="prop"] .A-search .rcard{border-color:var(--line-2);box-shadow:var(--shadow-anchor)}
+[data-mode="prop"] .A-paper{background:var(--paper)}
+[data-mode="prop"] .A-paper .step{background:var(--cream);border-color:var(--line)}
+[data-mode="prop"] .A-paper .steps{position:relative}
+[data-mode="prop"] .A-paper .steps::before{content:"";position:absolute;left:8%;right:8%;top:29px;border-top:2px dashed var(--line-2);z-index:0}
+[data-mode="prop"] .A-paper .step{position:relative;z-index:1}
+[data-mode="prop"] .A-paper .step .n{background:var(--orange);color:#fff;box-shadow:0 0 0 4px var(--paper)}
+[data-mode="prop"] .A-nav{background:rgb(251 246 236/.7);border-bottom:1.5px solid var(--line)}
+[data-mode="prop"] .A-search .filters{background:var(--cream-2);border-right:1.5px solid var(--line)}
+[data-mode="prop"] .A-search .filters .fbox{background:var(--paper);border-color:var(--line-2)}
+[data-mode="prop"] .A-search .results{background:var(--glow-forest),var(--cream);position:relative;isolation:isolate}
+[data-mode="prop"] .A-search .results::before{content:"";position:absolute;inset:0;z-index:-1;background-image:var(--grain);opacity:.05;mix-blend-mode:multiply;pointer-events:none}
+[data-mode="prop"] .A-search .results-head{padding-bottom:10px;border-bottom:1.5px solid var(--line)}
+
+/* =========================================================
+   PAQUETE B — Coreografía (solo transform/opacity)
+   ========================================================= */
+/* Hoy: el hero aparece completo; reveal actual = 550ms / 28px */
+[data-mode="hoy"] .rv{opacity:0;transform:translateY(28px);transition:opacity 550ms var(--ease-out-fresh),transform 550ms var(--ease-out-fresh)}
+[data-mode="hoy"] .rv.in{opacity:1;transform:none}
+
+/* Propuesta: entrada del hero con stagger 60ms */
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+[data-mode="prop"] .B-hero.play .seq{opacity:0;animation:rise 520ms var(--ease-out-fresh) forwards;animation-delay:calc(var(--i) * 60ms + 80ms)}
+[data-mode="prop"] .B-hero.play .chips .chip{opacity:0;animation:rise 420ms var(--ease-out-fresh) forwards;animation-delay:calc(260ms + var(--c) * 40ms)}
+
+/* Reveal al scroll: 400ms, 16px, stagger 60ms por tarjeta */
+[data-mode="prop"] .rv{opacity:0;transform:translateY(16px);transition:opacity 400ms var(--ease-out-fresh),transform 400ms var(--ease-out-fresh);transition-delay:calc(var(--i,0) * 60ms)}
+[data-mode="prop"] .rv.in{opacity:1;transform:none}
+
+/* Hover de tarjeta /search: elevación + zoom contenido de foto */
+[data-mode="prop"] .B-card{transition:transform 320ms var(--ease-out-fresh),box-shadow 320ms var(--ease-out-fresh),opacity 400ms var(--ease-out-fresh)}
+[data-mode="prop"] .B-card .ph{transition:transform 600ms var(--ease-out-fresh)}
+[data-mode="prop"] .B-card:hover,[data-mode="prop"] .B-card:focus-within{transform:translateY(-4px);box-shadow:var(--shadow-card-hover)}
+[data-mode="prop"] .B-card:hover .ph,[data-mode="prop"] .B-card:focus-within .ph{transform:scale(1.045)}
+[data-mode="prop"] .B-card:active{transform:translateY(-1px) scale(.99);transition-duration:120ms}
+
+/* Sello que se estampa: aparece 180ms después de la tarjeta */
+@keyframes stamp{0%{opacity:0;transform:scale(1.5) rotate(-10deg)}60%{opacity:1;transform:scale(.94) rotate(-2deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+[data-mode="prop"] .rv .trust{opacity:0}
+[data-mode="prop"] .rv.in .trust{animation:stamp 420ms var(--ease-bounce) forwards;animation-delay:calc(var(--i,0) * 60ms + 180ms)}
+
+/* Movimiento reducido "gentil": sin desplazamientos ni escalas, fundidos de 200ms */
+.rm [data-mode="prop"] .B-hero.play .seq,.rm [data-mode="prop"] .B-hero.play .chips .chip{animation:fade 200ms linear forwards;animation-delay:0ms}
+.rm [data-mode="prop"] .rv{transform:none;transition:opacity 200ms linear;transition-delay:0ms}
+.rm [data-mode="prop"] .rv.in .trust{animation:fade 200ms linear forwards}
+.rm [data-mode="prop"] .B-card:hover,.rm [data-mode="prop"] .B-card:focus-within{transform:none;box-shadow:var(--shadow-card-hover)}
+.rm [data-mode="prop"] .B-card:hover .ph{transform:none}
+@media (prefers-reduced-motion:reduce){
+  [data-mode="prop"] .B-hero.play .seq,[data-mode="prop"] .B-hero.play .chips .chip{animation:fade 200ms linear forwards;animation-delay:0ms}
+  [data-mode="prop"] .rv{transform:none;transition:opacity 200ms linear;transition-delay:0ms}
+  [data-mode="prop"] .rv.in .trust{animation:fade 200ms linear forwards}
+  [data-mode="prop"] .B-card:hover,[data-mode="prop"] .B-card:focus-within{transform:none}
+  [data-mode="prop"] .B-card:hover .ph{transform:none}
+}
+
+/* =========================================================
+   PAQUETE C — Micro-momentos
+   ========================================================= */
+.moments{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;padding:18px}
+.moment{background:var(--paper);border:1.5px solid var(--line);border-radius:var(--r-md);padding:18px;min-height:220px;display:flex;flex-direction:column}
+.moment > small{font-size:.68rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-faint)}
+.moment .body{flex:1;display:flex;flex-direction:column;justify-content:center}
+.btn{border:0;border-radius:999px;font-weight:800;padding:11px 18px;min-height:44px}
+.btn-orange{background:var(--orange);color:#fff}
+.btn-orange:hover{background:var(--orange-600)}
+.btn-ghost{background:var(--paper);border:1.5px solid var(--line-2);color:var(--ink-soft)}
+
+/* C1 — Solicitud enviada */
+.sent{display:flex;gap:14px;align-items:center}
+.sent svg{width:56px;height:56px;flex:none}
+.sent .ring{fill:var(--forest-tint);stroke:var(--forest);stroke-width:3}
+.sent .tick{fill:none;stroke:var(--forest-700);stroke-width:4.5;stroke-linecap:round;stroke-linejoin:round}
+.sent b{font-family:var(--font-display);font-size:1.1rem;display:block}
+.sent p{font-size:.84rem;color:var(--ink-faint)}
+[data-mode="prop"] .sent .ring{stroke-dasharray:164;stroke-dashoffset:164;transform:rotate(-90deg);transform-origin:center;opacity:0}
+[data-mode="prop"] .sent .tick{stroke-dasharray:40;stroke-dashoffset:40}
+[data-mode="prop"] .sent .txt{opacity:0;transform:translateY(6px)}
+[data-mode="prop"] .sent.go .ring{animation:ring 420ms var(--ease-out-fresh) forwards}
+[data-mode="prop"] .sent.go .tick{animation:draw 360ms var(--ease-out-fresh) 300ms forwards}
+[data-mode="prop"] .sent.go .txt{animation:rise 360ms var(--ease-out-fresh) 420ms forwards}
+@keyframes ring{to{stroke-dashoffset:0;opacity:1}}
+@keyframes draw{to{stroke-dashoffset:0}}
+
+/* C2 — Barra del checklist */
+.track{height:10px;border-radius:999px;background:var(--cream-2);overflow:hidden;margin:10px 0 12px;border:1px solid var(--line)}
+.fill{height:100%;background:var(--forest);border-radius:999px;transform-origin:left;transform:scaleX(var(--p,0))}
+[data-mode="prop"] .fill{transition:transform 600ms var(--ease-out-fresh);background:linear-gradient(90deg,var(--forest),var(--sage-400))}
+.cl-head{display:flex;justify-content:space-between;align-items:baseline}
+.cl-head b{font-family:var(--font-display)}
+.cl-head span{font-size:.82rem;font-weight:800;color:var(--forest-700)}
+.cl-list{display:grid;gap:6px}
+.cl-item{display:flex;gap:10px;align-items:center;text-align:left;border:1.5px solid var(--line);background:var(--cream);border-radius:12px;padding:8px 10px;font-size:.85rem;color:var(--ink-soft);min-height:40px}
+.cl-item .box{width:20px;height:20px;border-radius:6px;border:1.5px solid #8f836c;display:grid;place-items:center;flex:none;background:var(--paper)}
+.cl-item .box svg{width:14px;height:14px;opacity:0}
+.cl-item[aria-checked="true"]{color:var(--ink-faint);text-decoration:line-through}
+.cl-item[aria-checked="true"] .box{background:var(--forest);border-color:var(--forest)}
+.cl-item[aria-checked="true"] .box svg{opacity:1}
+[data-mode="prop"] .cl-item .box svg{transform:scale(.4);transition:opacity 160ms,transform 260ms var(--ease-bounce)}
+[data-mode="prop"] .cl-item[aria-checked="true"] .box svg{transform:none}
+
+/* C3 — Contador */
+.count{display:flex;align-items:center;gap:14px}
+.count .num{display:flex;font-family:var(--font-display);font-weight:800;font-size:3.2rem;line-height:1;color:var(--orange-700);background:var(--orange-tint);border-radius:18px;padding:8px 14px}
+.digit{height:1em;overflow:hidden;display:inline-block}
+.digit .col{display:flex;flex-direction:column}
+.digit .col span{height:1em}
+[data-mode="prop"] .digit .col{transition:transform 900ms var(--ease-out-fresh)}
+.count b{font-family:var(--font-display);font-size:1.1rem;display:block}
+.count p{font-size:.84rem;color:var(--ink-faint)}
+
+/* C4 — Paso activo */
+.stepper{position:relative;display:grid;grid-template-columns:repeat(5,1fr);margin:6px 0 14px}
+.stepper::before{content:"";position:absolute;left:10%;right:10%;top:15px;height:3px;background:var(--cream-2);border-radius:3px}
+.stepper .prog{position:absolute;left:10%;top:15px;height:3px;width:80%;background:var(--forest);border-radius:3px;transform-origin:left;transform:scaleX(var(--sp,0))}
+[data-mode="prop"] .stepper .prog{transition:transform 500ms var(--ease-out-fresh)}
+.st{position:relative;text-align:center;font-size:.72rem;font-weight:700;color:var(--ink-faint)}
+.st .dot{width:32px;height:32px;margin:0 auto 6px;border-radius:50%;display:grid;place-items:center;background:var(--paper);border:2px solid var(--line-2);font-weight:800;font-size:.8rem;color:var(--ink-faint);position:relative}
+.st.done .dot{background:var(--forest);border-color:var(--forest);color:#fff}
+.st.active .dot{border-color:var(--orange);color:var(--orange-700);background:var(--orange-tint)}
+.st.active{color:var(--ink)}
+[data-mode="prop"] .st .dot{transition:background-color 300ms var(--ease-fresh),border-color 300ms var(--ease-fresh),transform 300ms var(--ease-bounce)}
+[data-mode="prop"] .st.active .dot{transform:scale(1.12)}
+[data-mode="prop"] .st.active .dot::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--orange);opacity:0;animation:halo 1.8s var(--ease-out-fresh) 2}
+@keyframes halo{0%{opacity:.5;transform:scale(.85)}100%{opacity:0;transform:scale(1.25)}}
+.st-ctrl{display:flex;gap:8px}
+
+.rm [data-mode="prop"] .sent.go .ring,.rm [data-mode="prop"] .sent.go .tick{animation-duration:1ms;animation-delay:0ms}
+.rm [data-mode="prop"] .sent.go .txt{animation:fade 200ms linear forwards}
+.rm [data-mode="prop"] .fill,.rm [data-mode="prop"] .stepper .prog{transition:transform 200ms linear}
+.rm [data-mode="prop"] .digit .col{transition:none}
+.rm [data-mode="prop"] .st.active .dot{transform:none}
+.rm [data-mode="prop"] .st.active .dot::after{animation:none}
+@media (prefers-reduced-motion:reduce){
+  [data-mode="prop"] .sent.go .ring,[data-mode="prop"] .sent.go .tick{animation-duration:1ms;animation-delay:0ms}
+  [data-mode="prop"] .sent.go .txt{animation:fade 200ms linear forwards}
+  [data-mode="prop"] .fill,[data-mode="prop"] .stepper .prog{transition:transform 200ms linear}
+  [data-mode="prop"] .digit .col{transition:none}
+  [data-mode="prop"] .st.active .dot{transform:none}
+  [data-mode="prop"] .st.active .dot::after{animation:none}
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width:820px){
+  .intro{grid-template-columns:1fr}.order{justify-content:flex-start}
+  .ficha{grid-template-columns:minmax(0,1fr)}
+  .ficha code{overflow-wrap:anywhere}
+  .doc-top{position:static}
+  .stepper .st{font-size:.62rem}
+  .cards,.steps{grid-template-columns:1fr}
+  [data-mode="prop"] .A-paper .steps::before{display:none}
+  .search-layout{grid-template-columns:1fr}
+  .filters{display:flex;gap:8px;overflow-x:auto;padding:12px 16px}
+  .filters h5,.fgroup small{display:none}
+  .fgroup{margin:0;flex:none}
+  .fgroup .fcheck{display:none}
+  .fbox{white-space:nowrap;border-radius:999px;padding:7px 12px}
+  [data-mode="prop"] .A-search .filters{border-right:0;border-bottom:1.5px solid var(--line)}
+  .rgrid,.moments{grid-template-columns:1fr}
+  .searchbar{flex-direction:column;align-items:stretch;border-radius:22px;padding:10px}
+  .searchbar .f{border-right:0;border-bottom:1.5px solid var(--line);padding:8px 6px}
+  .app-nav .lk{display:none}
+  .hero{padding:32px 16px}
+  .section,.results,.moments{padding-left:16px;padding-right:16px}
+  .pkg{padding:16px}
+}
+</style>
+</head>
+<body>
+<header class="doc-top"><div class="in">
+  <div class="brand">EstuRed <small>Identidad y profundidad · propuesta 03/11</small></div>
+  <nav class="doc-nav" aria-label="Paquetes">
+    <a href="#A">A · Profundidad</a><a href="#B">B · Coreografía</a><a href="#C">C · Micro-momentos</a>
+  </nav>
+  <label class="rm-switch"><input type="checkbox" id="rm"> Simular movimiento reducido</label>
+</div></header>
+
+<main class="wrap">
+  <section class="intro">
+    <div>
+      <h1>Que nada flote: capas, recorrido y momentos propios</h1>
+      <p>Tres paquetes independientes. En cada bloque, alterná <b>Hoy</b> / <b>Propuesta</b>. Misma paleta, mismos tokens.</p>
+    </div>
+    <div class="order" aria-label="Orden recomendado">
+      <span><b>1</b> A · Profundidad</span><span><b>2</b> B · Coreografía</span><span><b>3</b> C · Micro-momentos</span>
+    </div>
+  </section>
+
+  <!-- ================= PAQUETE A ================= -->
+  <section class="pkg" id="A">
+    <div class="pkg-head">
+      <div class="pkg-letter a">A</div>
+      <div class="pkg-title">
+        <h2>Profundidad de fondo</h2>
+        <p>Hoy todo es cream liso: las tarjetas no tienen dónde apoyarse. Propuesta: el fondo se vuelve un terreno de capas.</p>
+      </div>
+      <div class="seg" role="group" aria-label="Comparar paquete A" data-for="stageA">
+        <button aria-pressed="false" data-m="hoy">Hoy</button><button aria-pressed="true" data-m="prop">Propuesta</button>
+      </div>
+    </div>
+    <div class="ficha">
+      <div><h4>Valores</h4><ul>
+        <li>Ritmo: hero <code>cream</code> + brillo → tarjetas en franja <code>cream-2</code> → pasos en <code>paper</code></li>
+        <li>Brillo: radial forest 11% (88% −12%) + orange 8% (−6% 108%)</li>
+        <li>Grano: SVG <code>feTurbulence</code> 160px, opacity .07 hero / .05 resultados, <code>multiply</code></li>
+        <li>Ancla: borde <code>line-2</code> + <code>--shadow-anchor</code> (sombra de contacto + luz interna)</li>
+        <li>Franja: borde <code>line</code> arriba/abajo + sombra interior 10px</li>
+      </ul></div>
+      <div><h4>Costo</h4><span class="cost">Bajo</span><ul>
+        <li>Gradientes y grano estáticos: se pintan una vez, sin JS</li>
+        <li>Grano ≈ 0,4 KB inline, sin request</li>
+        <li><code>mix-blend-mode</code> solo en 2 capas grandes, nunca en tarjetas</li>
+      </ul></div>
+      <div><h4>Archivos (no tocados)</h4><ul>
+        <li><code>app/globals.css</code>: 4 utilidades (<code>.surface-glow</code>, <code>.surface-grain</code>, <code>.band</code>, <code>--shadow-anchor</code>) — sensible, decide el dueño</li>
+        <li><code>components/marketing/HomeHero.tsx</code>, <code>app/(public)/page.tsx</code></li>
+        <li><code>app/(public)/search/SearchShell.tsx</code>, <code>components/residences/SearchResultCard.tsx</code></li>
+        <li><code>app/(public)/HowItWorksSteps.tsx</code></li>
+      </ul></div>
+    </div>
+
+    <div id="stageA" data-mode="prop">
+      <div class="frame-label">Home · hero + tarjetas + pasos</div>
+      <div class="browser">
+        <div class="bar"><i></i><i></i><i></i><span>estured.vercel.app</span></div>
+        <div class="app-nav A-nav"><span class="logo">EstuRed</span><span class="lk">Residencias</span><span class="lk">Para residencias</span><span class="lk">Guías</span><span class="cta">Ingresar</span></div>
+        <div class="hero A-hero">
+          <span class="eyebrow">Residencias verificadas en CABA</span>
+          <h3>La convivencia también se elige.</h3>
+          <p class="sub">Compará residencias visitadas en persona y mandá tu solicitud.</p>
+          <div class="searchbar"><div class="f"><small>Zona o universidad</small><span>Palermo, Recoleta, UBA…</span></div><div class="f"><small>Ingreso</small><span>Marzo</span></div><button class="go">Buscar</button></div>
+          <div class="chips"><span class="chip">Baño privado</span><span class="chip">Cerca de UBA</span><span class="chip">Habitación individual</span><span class="chip">Con comidas</span></div>
+        </div>
+        <div class="section A-band">
+          <h4>Residencias para empezar</h4><p class="lead">Todas verificadas en persona por el equipo.</p>
+          <div class="cards">
+            <article class="rcard"><div class="photo"><div class="ph"></div><span class="trust"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 2.1 3.2-.3.9 3.1 2.8 1.6-1.2 3 1.2 3-2.8 1.6-.9 3.1-3.2-.3L12 22l-2.4-2.1-3.2.3-.9-3.1L2.7 15.5l1.2-3-1.2-3 2.8-1.6.9-3.1 3.2.3z"/><path d="M8.5 12.2l2.3 2.3 4.7-4.8" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg>Residencia Verificada</span></div><div class="rbody"><b>Residencia ejemplo 1</b><span class="meta">Palermo · 8 min a la facultad</span><p class="price">Desde <strong>USD 000</strong> /mes</p></div></article>
+            <article class="rcard"><div class="photo"><div class="ph v2"></div><span class="trust"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 2.1 3.2-.3.9 3.1 2.8 1.6-1.2 3 1.2 3-2.8 1.6-.9 3.1-3.2-.3L12 22l-2.4-2.1-3.2.3-.9-3.1L2.7 15.5l1.2-3-1.2-3 2.8-1.6.9-3.1 3.2.3z"/><path d="M8.5 12.2l2.3 2.3 4.7-4.8" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg>Residencia Verificada</span></div><div class="rbody"><b>Residencia ejemplo 2</b><span class="meta">Recoleta · 12 min a la facultad</span><p class="price">Desde <strong>USD 000</strong> /mes</p></div></article>
+            <article class="rcard"><div class="photo"><div class="ph v3"></div><span class="trust"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 2.1 3.2-.3.9 3.1 2.8 1.6-1.2 3 1.2 3-2.8 1.6-.9 3.1-3.2-.3L12 22l-2.4-2.1-3.2.3-.9-3.1L2.7 15.5l1.2-3-1.2-3 2.8-1.6.9-3.1 3.2.3z"/><path d="M8.5 12.2l2.3 2.3 4.7-4.8" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg>Residencia Verificada</span></div><div class="rbody"><b>Residencia ejemplo 3</b><span class="meta">Almagro · 10 min a la facultad</span><p class="price">Desde <strong>USD 000</strong> /mes</p></div></article>
+          </div>
+        </div>
+        <div class="section A-paper">
+          <h4>Cómo funciona</h4><p class="lead">Tres pasos, sin vueltas.</p>
+          <div class="steps">
+            <div class="step"><span class="n">1</span><b>Buscá</b><p>Filtrá por zona y presupuesto.</p><img src="../../public/landing/proceso-1-busqueda.webp" alt="Pantalla de búsqueda de EstuRed" loading="lazy"></div>
+            <div class="step"><span class="n">2</span><b>Solicitá</b><p>Sujeta a confirmación de la residencia.</p><img src="../../public/landing/proceso-2-solicitud.webp" alt="Pantalla de solicitud" loading="lazy"></div>
+            <div class="step"><span class="n">3</span><b>Recibí respuesta</b><p>Te avisamos cuando responda.</p><img src="../../public/landing/proceso-3-respuesta.webp" alt="Pantalla de respuesta" loading="lazy"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="frame-label">/search · filtros + tarjetas</div>
+      <div class="browser A-search">
+        <div class="bar"><i></i><i></i><i></i><span>estured.vercel.app/search</span></div>
+        <div class="search-layout">
+          <aside class="filters">
+            <h5>Filtros</h5>
+            <div class="fgroup"><small>Zona</small><div class="fbox">Palermo</div></div>
+            <div class="fgroup"><small>Presupuesto</small><div class="fbox">Hasta USD 000</div></div>
+            <div class="fgroup"><small>Habitación</small><div class="fbox">Individual</div><label class="fcheck"><i class="on"></i>Baño privado</label><label class="fcheck"><i></i>Con comidas</label></div>
+          </aside>
+          <div class="results">
+            <div class="results-head"><b>Residencias en Palermo</b><span>Ordenar: relevancia</span></div>
+            <div class="rgrid">
+              <article class="rcard"><div class="photo"><div class="ph"></div><span class="trust">✓ Residencia Verificada</span></div><div class="rbody"><b>Residencia ejemplo 1</b><span class="meta">Palermo</span><p class="price">Desde <strong>USD 000</strong> /mes</p></div></article>
+              <article class="rcard"><div class="photo"><div class="ph v2"></div><span class="trust">✓ Residencia Verificada</span></div><div class="rbody"><b>Residencia ejemplo 2</b><span class="meta">Palermo</span><p class="price">Desde <strong>USD 000</strong> /mes</p></div></article>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="example-note">Nombres y precios son de relleno del mockup, no datos reales.</p>
+    </div>
+  </section>
+
+  <!-- ================= PAQUETE B ================= -->
+  <section class="pkg" id="B">
+    <div class="pkg-head">
+      <div class="pkg-letter b">B</div>
+      <div class="pkg-title">
+        <h2>Coreografía de recorrido</h2>
+        <p>Hoy el movimiento existe pero es sutil y aislado: no se percibe. Propuesta: una secuencia reconocible que se repite en todo el sitio.</p>
+      </div>
+      <div class="seg" role="group" aria-label="Comparar paquete B" data-for="stageB">
+        <button aria-pressed="false" data-m="hoy">Hoy</button><button aria-pressed="true" data-m="prop">Propuesta</button>
+      </div>
+    </div>
+    <div class="ficha">
+      <div><h4>Valores</h4><ul>
+        <li>Hero: título → bajada → buscador, <code>translateY 14px→0</code> + opacity, 520ms, stagger 60ms (+80ms inicial); chips 420ms, stagger 40ms desde 260ms</li>
+        <li>Reveal: 400ms <code>--ease-out-fresh</code>, 16px (hoy 550ms/28px), stagger 60ms</li>
+        <li>Hover tarjeta: <code>translateY(-4px)</code> 320ms + foto <code>scale(1.045)</code> 600ms; press <code>scale(.99)</code> 120ms</li>
+        <li>Sello: scale 1.5→.94→1, rotate −10°→0, 420ms <code>--ease-bounce</code>, +180ms tras su tarjeta</li>
+        <li>Reducido: sin transform, fundido 200ms lineal</li>
+      </ul></div>
+      <div><h4>Costo</h4><span class="cost">Bajo</span><ul>
+        <li>Solo transform/opacity: composición en GPU, sin layout</li>
+        <li>1 IntersectionObserver compartido; sin librerías</li>
+        <li>Sin <code>will-change</code> permanente</li>
+        <li>Ojo: la regla global de reduced-motion hoy pone todo en 0,01ms; hay que exceptuar estos fundidos</li>
+      </ul></div>
+      <div><h4>Archivos (no tocados)</h4><ul>
+        <li><code>app/globals.css</code>: keyframes <code>rise</code>/<code>stamp</code>, <code>.reveal</code> 400ms/16px, regla reduced-motion gentil</li>
+        <li><code>components/ui/Reveal.tsx</code> (delay → stagger por índice)</li>
+        <li><code>components/marketing/HomeHero.tsx</code></li>
+        <li><code>components/residences/SearchResultCard.tsx</code>, <code>TrustBadge.tsx</code></li>
+      </ul></div>
+    </div>
+
+    <div id="stageB" data-mode="prop">
+      <div class="frame-label">Entrada del hero <button class="mini-btn" id="replayHero">Repetir entrada</button></div>
+      <div class="browser">
+        <div class="bar"><i></i><i></i><i></i><span>estured.vercel.app</span></div>
+        <div class="hero B-hero play" id="bHero" style="background:var(--cream)">
+          <span class="eyebrow seq" style="--i:0">Residencias verificadas en CABA</span>
+          <h3 class="seq" style="--i:1">La convivencia también se elige.</h3>
+          <p class="sub seq" style="--i:2">Compará residencias visitadas en persona y mandá tu solicitud.</p>
+          <div class="searchbar seq" style="--i:3"><div class="f"><small>Zona o universidad</small><span>Palermo, Recoleta, UBA…</span></div><div class="f"><small>Ingreso</small><span>Marzo</span></div><button class="go">Buscar</button></div>
+          <div class="chips"><span class="chip" style="--c:0">Baño privado</span><span class="chip" style="--c:1">Cerca de UBA</span><span class="chip" style="--c:2">Habitación individual</span><span class="chip" style="--c:3">Con comidas</span></div>
+        </div>
+      </div>
+
+      <div class="frame-label">/search · reveal + hover + sello (pasá el mouse o tabulá) <button class="mini-btn" id="replayCards">Repetir reveal</button></div>
+      <div class="browser">
+        <div class="bar"><i></i><i></i><i></i><span>estured.vercel.app/search</span></div>
+        <div class="results" style="background:var(--cream)">
+          <div class="rgrid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))" id="bGrid">
+            <article class="rcard B-card rv" style="--i:0"><a href="#B" style="color:inherit;text-decoration:none" aria-label="Residencia ejemplo 1"><div class="photo"><div class="ph"></div><span class="trust">✓ Residencia Verificada</span></div><div class="rbody"><b>Residencia ejemplo 1</b><span class="meta">Palermo</span><p class="price">Desde <strong>USD 000</strong> /mes</p></div></a></article>
+            <article class="rcard B-card rv" style="--i:1"><a href="#B" style="color:inherit;text-decoration:none" aria-label="Residencia ejemplo 2"><div class="photo"><div class="ph v2"></div><span class="trust">✓ Residencia Verificada</span></div><div class="rbody"><b>Residencia ejemplo 2</b><span class="meta">Recoleta</span><p class="price">Desde <strong>USD 000</strong> /mes</p></div></a></article>
+            <article class="rcard B-card rv" style="--i:2"><a href="#B" style="color:inherit;text-decoration:none" aria-label="Residencia ejemplo 3"><div class="photo"><div class="ph v3"></div><span class="trust">✓ Residencia Verificada</span></div><div class="rbody"><b>Residencia ejemplo 3</b><span class="meta">Almagro</span><p class="price">Desde <strong>USD 000</strong> /mes</p></div></a></article>
+            <article class="rcard B-card rv" style="--i:3"><a href="#B" style="color:inherit;text-decoration:none" aria-label="Residencia ejemplo 4"><div class="photo"><div class="ph"></div><span class="trust">✓ Residencia Verificada</span></div><div class="rbody"><b>Residencia ejemplo 4</b><span class="meta">Belgrano</span><p class="price">Desde <strong>USD 000</strong> /mes</p></div></a></article>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PAQUETE C ================= -->
+  <section class="pkg" id="C">
+    <div class="pkg-head">
+      <div class="pkg-letter c">C</div>
+      <div class="pkg-title">
+        <h2>Micro-momentos de identidad</h2>
+        <p>Los hitos del recorrido (enviar, avanzar, llegar) hoy pasan igual que cualquier clic. Propuesta: que cada hito se sienta, una sola vez.</p>
+      </div>
+      <div class="seg" role="group" aria-label="Comparar paquete C" data-for="stageC">
+        <button aria-pressed="false" data-m="hoy">Hoy</button><button aria-pressed="true" data-m="prop">Propuesta</button>
+      </div>
+    </div>
+    <div class="ficha">
+      <div><h4>Valores</h4><ul>
+        <li>Check: aro <code>stroke-dashoffset</code> 164→0 420ms; tilde 40→0 360ms (+300ms); texto sube 360ms (+420ms)</li>
+        <li>Checklist: <code>scaleX(n/total)</code>, origin left, 600ms <code>--ease-out-fresh</code>; tilde con <code>--ease-bounce</code> 260ms</li>
+        <li>Contador: columnas de dígitos <code>translateY</code> 900ms, una vez al entrar en vista</li>
+        <li>Paso activo: línea <code>scaleX</code> 500ms, punto <code>scale(1.12)</code>, halo 1,8s × 2 y se apaga</li>
+      </ul></div>
+      <div><h4>Costo</h4><span class="cost">Muy bajo</span><ul>
+        <li>SVG inline + CSS; transform/opacity (el dashoffset de un trazo de 56px es despreciable)</li>
+        <li>Sin loops infinitos: todo termina</li>
+        <li>Momentos poco frecuentes: no se repiten en cada render</li>
+      </ul></div>
+      <div><h4>Archivos (no tocados)</h4><ul>
+        <li>Éxito de solicitud en <code>app/(public)/residencias/[slug]</code> (formulario de solicitud)</li>
+        <li><code>components/students/ArrivalCard.tsx</code> (checklist + días)</li>
+        <li><code>app/students/dashboard/page.tsx</code> (paso activo)</li>
+        <li>Nuevo: <code>components/ui/DrawCheck.tsx</code>, <code>ProgressBar.tsx</code></li>
+      </ul></div>
+    </div>
+
+    <div id="stageC" data-mode="prop">
+      <div class="browser"><div class="bar"><i></i><i></i><i></i><span>Panel del estudiante</span></div>
+        <div class="moments">
+          <div class="moment">
+            <small>Solicitud enviada</small>
+            <div class="body">
+              <div class="sent go" id="sent">
+                <svg viewBox="0 0 56 56" aria-hidden="true"><circle class="ring" cx="28" cy="28" r="26"/><path class="tick" d="M17 29l7.5 7.5L40 21"/></svg>
+                <div class="txt" role="status"><b>Solicitud enviada</b><p>Está sujeta a confirmación. La residencia la revisa y te avisamos.</p></div>
+              </div>
+            </div>
+            <button class="btn btn-ghost" id="resend" style="align-self:flex-start">Repetir</button>
+          </div>
+
+          <div class="moment">
+            <small>Checklist de llegada</small>
+            <div class="cl-head"><b>Antes de mudarte</b><span id="clCount">2 de 5</span></div>
+            <div class="track" role="progressbar" aria-label="Avance del checklist" aria-valuemin="0" aria-valuemax="5" aria-valuenow="2" id="clBar"><div class="fill" id="clFill" style="--p:.4"></div></div>
+            <div class="cl-list" id="clList">
+              <button class="cl-item" role="checkbox" aria-checked="true"><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>Subir DNI</button>
+              <button class="cl-item" role="checkbox" aria-checked="true"><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>Leer el reglamento</button>
+              <button class="cl-item" role="checkbox" aria-checked="false"><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>Confirmar día y hora de llegada</button>
+              <button class="cl-item" role="checkbox" aria-checked="false"><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>Ropa de cama</button>
+              <button class="cl-item" role="checkbox" aria-checked="false"><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>Contacto de emergencia</button>
+            </div>
+          </div>
+
+          <div class="moment">
+            <small>Tu llegada</small>
+            <div class="body">
+              <div class="count" id="count">
+                <div class="num" aria-hidden="true"><span class="digit"><span class="col" id="d1"></span></span><span class="digit"><span class="col" id="d2"></span></span></div>
+                <div><b id="countLabel">Faltan 12 días</b><p>para mudarte. Revisá tu checklist.</p></div>
+              </div>
+            </div>
+            <button class="btn btn-ghost" id="recount" style="align-self:flex-start">Repetir</button>
+          </div>
+
+          <div class="moment">
+            <small>Dónde estás</small>
+            <div class="body">
+              <div class="stepper" id="stepper" style="--sp:.5">
+                <div class="prog"></div>
+                <div class="st done"><span class="dot">1</span>Buscá</div>
+                <div class="st done"><span class="dot">2</span>Solicitá</div>
+                <div class="st active" aria-current="step"><span class="dot">3</span>Respuesta</div>
+                <div class="st"><span class="dot">4</span>Pago</div>
+                <div class="st"><span class="dot">5</span>Comprobante</div>
+              </div>
+            </div>
+            <div class="st-ctrl"><button class="btn btn-ghost" id="stPrev">Anterior</button><button class="btn btn-orange" id="stNext">Siguiente paso</button></div>
+          </div>
+        </div>
+      </div>
+      <p class="example-note">El paso activo usa las etapas del recorrido público (Buscá → Comprobante), no estados técnicos. Valores de ejemplo.</p>
+    </div>
+  </section>
+</main>
+
+<script>
+(function(){
+  // Toggle Hoy / Propuesta
+  document.querySelectorAll('.seg').forEach(function(seg){
+    var stage=document.getElementById(seg.dataset.for);
+    seg.querySelectorAll('button').forEach(function(b){
+      b.addEventListener('click',function(){
+        seg.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',x===b)});
+        stage.dataset.mode=b.dataset.m;
+        if(stage.id==='stageB'){replayHero();replayCards();}
+        if(stage.id==='stageC'){replaySent();runCount();}
+      });
+    });
+  });
+  // Simular reduced motion
+  document.getElementById('rm').addEventListener('change',function(e){document.documentElement.classList.toggle('rm',e.target.checked)});
+
+  // B: hero
+  var hero=document.getElementById('bHero');
+  function replayHero(){hero.classList.remove('play');void hero.offsetWidth;hero.classList.add('play');}
+  document.getElementById('replayHero').addEventListener('click',replayHero);
+
+  // B: reveal con IntersectionObserver compartido
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}})},{threshold:.15,rootMargin:'0px 0px -40px 0px'});
+  var rvs=[].slice.call(document.querySelectorAll('.rv'));
+  rvs.forEach(function(el){io.observe(el)});
+  function replayCards(){rvs.forEach(function(el){el.classList.remove('in')});void document.body.offsetWidth;setTimeout(function(){rvs.forEach(function(el){io.observe(el)})},60);}
+  document.getElementById('replayCards').addEventListener('click',replayCards);
+
+  // C1: check
+  var sent=document.getElementById('sent');
+  function replaySent(){sent.classList.remove('go');void sent.offsetWidth;sent.classList.add('go');}
+  document.getElementById('resend').addEventListener('click',replaySent);
+
+  // C2: checklist
+  var items=[].slice.call(document.querySelectorAll('.cl-item'));
+  function upd(){var n=items.filter(function(i){return i.getAttribute('aria-checked')==='true'}).length;
+    document.getElementById('clFill').style.setProperty('--p',n/items.length);
+    document.getElementById('clCount').textContent=n+' de '+items.length;
+    document.getElementById('clBar').setAttribute('aria-valuenow',n);}
+  items.forEach(function(i){i.addEventListener('click',function(){i.setAttribute('aria-checked',i.getAttribute('aria-checked')!=='true');upd();})});
+
+  // C3: contador de dígitos (12)
+  var target=12,d1=document.getElementById('d1'),d2=document.getElementById('d2');
+  function fill(col,to){col.innerHTML='';for(var k=0;k<=to;k++){var s=document.createElement('span');s.textContent=k;col.appendChild(s);}}
+  function runCount(){var t=String(target).padStart(2,'0');fill(d1,+t[0]);fill(d2,+t[1]+10);
+    // segunda columna da una vuelta extra para que el giro se note
+    [].slice.call(d2.children).forEach(function(s,i){s.textContent=i%10});
+    var mode=document.getElementById('stageC').dataset.mode;
+    [d1,d2].forEach(function(c){c.style.transition='none';c.style.transform=mode==='prop'?'translateY(0)':'translateY(-'+(c.children.length-1)+'em)';});
+    void d1.offsetWidth;
+    [d1,d2].forEach(function(c){c.style.transition='';c.style.transform='translateY(-'+(c.children.length-1)+'em)';});}
+  var cio=new IntersectionObserver(function(es){if(es[0].isIntersecting){runCount();cio.disconnect();}},{threshold:.5});
+  cio.observe(document.getElementById('count'));
+  document.getElementById('recount').addEventListener('click',runCount);
+
+  // C4: paso activo
+  var sts=[].slice.call(document.querySelectorAll('#stepper .st')),cur=2;
+  function setStep(n){cur=Math.max(0,Math.min(sts.length-1,n));
+    sts.forEach(function(s,i){s.classList.toggle('done',i<cur);s.classList.toggle('active',i===cur);if(i===cur)s.setAttribute('aria-current','step');else s.removeAttribute('aria-current');
+      var d=s.querySelector('.dot');d.style.animation='none';void d.offsetWidth;d.style.animation='';});
+    document.getElementById('stepper').style.setProperty('--sp',cur/(sts.length-1));}
+  document.getElementById('stPrev').addEventListener('click',function(){setStep(cur-1)});
+  document.getElementById('stNext').addEventListener('click',function(){setStep(cur+1)});
+})();
+</script>
+</body>
+</html>

@@ -1188,7 +1188,7 @@ export default async function StudentDashboardPage() {
                 <Reveal delay={Math.min(i, 5) as 0 | 1 | 2 | 3 | 4 | 5} className="h-full">
                   <Link
                     href={`/residencias/${r.slug}`}
-                    className="group relative grid h-full overflow-hidden rounded-card border-[1.5px] border-line bg-paper shadow-card transition-all duration-300 ease-bounce hover:-translate-y-1 hover:shadow-card-hover focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest"
+                    className="group relative grid h-full overflow-hidden rounded-card border-[1.5px] border-line bg-paper shadow-card transition duration-200 ease-out-fresh hover:-translate-y-1 hover:shadow-card-hover focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest"
                   >
                     <span className="relative block h-32 bg-sand-200">
                       <ResidencePhoto src={r.photos[0]} name={r.name} zone={r.zone} alt="" sizes="(max-width: 640px) 90vw, 30vw" variant="card" />

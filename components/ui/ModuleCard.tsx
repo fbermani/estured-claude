@@ -37,7 +37,7 @@ export function ModuleCard({
   return (
     <div
       aria-disabled={disabled || undefined}
-      className={`${toneClass(tone)} group relative flex h-full flex-col gap-2.5 overflow-hidden rounded-card border p-[18px] shadow-card transition-all duration-300 ease-bounce ${
+      className={`${toneClass(tone)} group relative flex h-full flex-col gap-2.5 overflow-hidden rounded-card border p-[18px] shadow-card transition duration-200 ease-out-fresh ${
         disabled
           ? "border-line bg-paper opacity-70 shadow-none"
           : `motion-safe:active:scale-[0.98] active:shadow-card-hover hover:-translate-y-1 hover:shadow-card-hover focus-within:-translate-y-1 focus-within:shadow-card-hover ${
@@ -63,7 +63,7 @@ export function ModuleCard({
 
       <div className="relative z-[1] flex items-center gap-3">
         <span
-          className={`flex size-11 shrink-0 items-center justify-center rounded-[14px] transition-all duration-300 ease-bounce ${
+          className={`flex size-11 shrink-0 items-center justify-center rounded-[14px] transition duration-200 ease-out-fresh ${
             attention ? "bg-paper text-orange-700" : "bg-(--tone-tint) text-(--tone-700)"
           } ${disabled ? "" : "group-hover:-rotate-6 group-hover:scale-110 group-active:scale-110 group-hover:bg-(--tone) group-hover:text-white"}`}
         >
@@ -90,14 +90,14 @@ export function ModuleCard({
           }`}
         >
           {cta.label}
-          <Icon name="arrow_forward" className="text-lg transition-transform duration-300 ease-bounce group-hover:translate-x-1 group-active:translate-x-1" />
+          <Icon name="arrow_forward" className="text-lg transition-transform duration-200 ease-out-fresh group-hover:translate-x-1 group-active:translate-x-1" />
         </Link>
       )}
 
       {!disabled && !cta && (
         <Icon
           name="arrow_forward"
-          className="relative z-[1] mt-auto w-fit text-lg text-(--tone-700) transition-transform duration-300 ease-bounce group-hover:translate-x-1 group-active:translate-x-1"
+          className="relative z-[1] mt-auto w-fit text-lg text-(--tone-700) transition-transform duration-200 ease-out-fresh group-hover:translate-x-1 group-active:translate-x-1"
         />
       )}
     </div>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import { Icon } from "@/components/ui/Icon";
+import { ProgressBar } from "@/components/ui/ProgressBar";
 import { CHECKLIST_TOTAL, countChecked, countEssentialChecked, ESSENTIAL_ITEMS, ESSENTIAL_TOTAL, REST_CHECKLIST, type ChecklistCategory } from "@/lib/arrival/checklist";
 import { countdownLabel } from "@/lib/arrival/countdown";
 import { buildArrivalMessage, buildWhatsAppUrl } from "@/lib/arrival/whatsappMessage";
@@ -128,15 +129,8 @@ export function ArrivalCard({
                 Esenciales: {essentialDone} de {ESSENTIAL_TOTAL}
               </p>
             )}
-            <div
-              role="progressbar"
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={percent}
-              aria-label="Progreso del checklist de llegada"
-              className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-cream-2"
-            >
-              <div className="h-full rounded-full bg-forest transition-[width] duration-300" style={{ width: `${percent}%` }} />
+            <div className="mt-1.5">
+              <ProgressBar value={percent} label="Progreso del checklist de llegada" />
             </div>
           </div>
           <p role="status" aria-live="polite" className="sr-only">

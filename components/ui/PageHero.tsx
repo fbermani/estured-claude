@@ -64,7 +64,7 @@ export function PageHero({
         <div className="relative flex flex-col items-stretch gap-2">
           <Link
             href={cta.href}
-            className="inline-flex min-h-[46px] items-center justify-center gap-1.5 rounded-full bg-(--tone) px-6 text-[15px] font-semibold text-white transition-all duration-300 ease-bounce hover:-translate-y-px hover:bg-(--tone-600) hover:shadow-[0_6px_16px_var(--tone-glow)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) motion-safe:active:scale-[0.98] active:bg-(--tone-600)"
+            className="inline-flex min-h-[46px] items-center justify-center gap-1.5 rounded-full bg-(--tone) px-6 text-[15px] font-semibold text-white transition duration-200 ease-out-fresh hover:-translate-y-px hover:bg-(--tone-600) hover:shadow-[0_6px_16px_var(--tone-glow)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) motion-safe:active:scale-[0.98] active:bg-(--tone-600)"
           >
             {cta.label}
             <Icon name="arrow_forward" className="text-xl" />

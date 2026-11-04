@@ -38,7 +38,7 @@ export function SearchResultCard({
 }) {
   const list = layout === "list";
   const href = `/residencias/${residence.slug}`;
-  const maxIcons = list ? 6 : 5;
+  const maxIcons = list ? 6 : 4;
 
   const services = dedupeAmenities(residence.services);
   const areas = dedupeAmenities(residence.commonAreas ?? []);
@@ -59,12 +59,19 @@ export function SearchResultCard({
   // Plazas totales de la residencia (sin separar hombres y mujeres) + sello de quiénes pueden vivir.
   const places = residence.capacityPlaces != null && residence.capacityPlaces > 0 ? Math.floor(residence.capacityPlaces) : null;
   const policies = residence.genderPolicies ?? (residence.genderPolicy ? [residence.genderPolicy] : []);
+  // Un solo sello: si hay habitaciones de hombres y de mujeres (sin tipos mixtos) no se muestran dos pastillas apiladas.
+  const genderSeal =
+    policies.length === 0
+      ? null
+      : policies.length > 1
+        ? { icon: "wc", label: policies.includes("mixto") ? "Mixta" : "Hombres y mujeres", title: "Hay habitaciones para hombres y para mujeres" }
+        : { icon: GENDER_ICONS[policies[0]], label: policies[0] === "mixto" ? "Mixta" : GENDER_LABELS[policies[0]], title: undefined };
 
   return (
     <article
       aria-label={residence.name}
-      className={`group grid overflow-hidden rounded-card border-[1.5px] border-line bg-paper shadow-card motion-safe:transition-shadow hover:shadow-card-hover ${
-        list ? "@min-[620px]/res:grid-cols-[14.5rem_minmax(0,1fr)_14rem]" : "grid-rows-[auto_1fr_auto]"
+      className={`group group/card grid overflow-hidden rounded-card border-[1.5px] border-line-2 bg-paper shadow-anchor motion-safe:transition-[transform,box-shadow] motion-safe:duration-300 motion-safe:ease-out-fresh motion-safe:hover:-translate-y-1 motion-safe:focus-within:-translate-y-1 hover:shadow-card-hover focus-within:shadow-card-hover ${
+        list ? "grid-cols-[minmax(0,1fr)] @min-[620px]/res:grid-cols-[14.5rem_minmax(0,1fr)_14rem]" : "grid-cols-[minmax(0,1fr)] grid-rows-[auto_1fr_auto]"
       }`}
     >
       <CardPhotoCarousel
@@ -78,9 +85,15 @@ export function SearchResultCard({
         <div className="absolute left-2.5 top-2.5">
           <TrustBadge status={residence.verificationStatus} />
         </div>
+        {residence.promotionPercent != null && (
+          <span className="absolute right-2.5 top-2.5 inline-flex items-center gap-1 rounded-full bg-amber-soft-100 px-2.5 py-1 text-xs font-bold text-amber-soft-700 shadow-float">
+            <Icon name="sell" className="text-[15px]" />
+            −{residence.promotionPercent}%
+          </span>
+        )}
       </CardPhotoCarousel>
 
-      <div className="grid content-start gap-2.5 p-4">
+      <div className="grid min-w-0 content-start gap-2.5 p-4">
         <h3 className="text-[19px] leading-tight">
           <Link href={href} className="hover:underline focus-visible:outline-2 focus-visible:outline-forest">
             {residence.name}
@@ -94,7 +107,7 @@ export function SearchResultCard({
           </p>
         </div>
 
-        {(places || policies.length > 0) && (
+        {(places || genderSeal) && (
           <div className="flex flex-wrap items-center gap-1.5 text-[13.5px] text-ink-soft">
             {places && (
               <span className="flex items-center gap-1">
@@ -102,15 +115,15 @@ export function SearchResultCard({
                 <b className="font-semibold text-ink">{places}</b> {places === 1 ? "plaza" : "plazas"}
               </span>
             )}
-            {policies.map((g) => (
+            {genderSeal && (
               <span
-                key={g}
-                className="inline-flex items-center gap-1 rounded-full bg-sage-50 px-2.5 py-[3px] text-[12.5px] font-semibold text-sage-700"
+                title={genderSeal.title}
+                className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-sage-50 px-2.5 py-[3px] text-[12.5px] font-semibold text-sage-700"
               >
-                <Icon name={GENDER_ICONS[g]} className="text-[15px]" />
-                {g === "mixto" ? "Mixta" : GENDER_LABELS[g]}
+                <Icon name={genderSeal.icon} className="text-[15px]" />
+                {genderSeal.label}
               </span>
-            ))}
+            )}
           </div>
         )}
 
@@ -152,12 +165,6 @@ export function SearchResultCard({
       >
         <div className={`flex flex-col gap-2 ${list ? "@min-[620px]/res:items-end" : ""}`}>
           <StatusTag mode={residence.availabilityMode} />
-          {residence.promotionPercent != null && (
-            <span className="inline-flex w-fit items-center gap-1 rounded-full bg-amber-soft-100 px-2.5 py-1 text-xs font-semibold text-amber-soft-700">
-              <Icon name="sell" className="text-[15px]" />
-              Promoción vigente · −{residence.promotionPercent}%
-            </span>
-          )}
         </div>
         <div>
           <p className={`flex flex-wrap items-baseline gap-x-1 ${list ? "@min-[620px]/res:justify-end" : ""}`}>
@@ -180,7 +187,7 @@ export function SearchResultCard({
         </div>
         <Link
           href={href}
-          className="flex min-h-[42px] w-full items-center justify-center rounded-full bg-forest px-4 text-sm font-bold text-white shadow-card transition-colors hover:bg-forest-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+          className="flex min-h-[42px] w-full items-center justify-center rounded-full bg-forest px-4 text-sm font-bold text-white shadow-card transition-[background-color,transform] duration-150 ease-out-fresh motion-safe:active:scale-[0.97] hover:bg-forest-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
         >
           Ver residencia
         </Link>

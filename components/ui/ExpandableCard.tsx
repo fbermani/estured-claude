@@ -30,7 +30,7 @@ export function ExpandableCard({
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <div className={`${toneClass(tone)} overflow-hidden rounded-card border-[1.5px] border-line bg-paper transition-all duration-300 hover:shadow-card-hover ${tone ? "border-l-[5px] border-l-(--tone)" : ""} ${open ? "border-(--tone)/40" : ""} ${className}`}>
+    <div className={`${toneClass(tone)} overflow-hidden rounded-card border-[1.5px] border-line bg-paper transition-shadow duration-200 ease-out-fresh hover:shadow-card-hover ${tone ? "border-l-[5px] border-l-(--tone)" : ""} ${open ? "border-(--tone)/40" : ""} ${className}`}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}

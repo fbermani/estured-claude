@@ -56,7 +56,7 @@ export function FamilyApplicationsList({
               <FeeDeadlineNote expiresAt={a.nextAction.expiresAt} />
               <Link
                 href={a.nextAction.href}
-                className="inline-flex min-h-11 items-center gap-2 rounded-full bg-(--tone) px-4 text-sm font-bold text-white transition-all duration-300 ease-bounce hover:-translate-y-px hover:bg-(--tone-600) focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-(--tone)"
+                className="inline-flex min-h-11 items-center gap-2 rounded-full bg-(--tone) px-4 text-sm font-bold text-white transition duration-200 ease-out-fresh motion-safe:active:scale-[0.97] hover:-translate-y-px hover:bg-(--tone-600) focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-(--tone)"
               >
                 <Icon name="payments" className="text-base" /> Pagar el fee EstuRed
               </Link>

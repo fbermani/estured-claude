@@ -95,7 +95,7 @@ export function FamilyLinkCard({
   }
 
   return (
-    <div className="flex h-full flex-col rounded-card border-[1.5px] border-line bg-paper p-[18px] shadow-card transition-all duration-300 ease-bounce hover:-translate-y-1 hover:shadow-card-hover focus-within:-translate-y-1">
+    <div className="flex h-full flex-col rounded-card border-[1.5px] border-line bg-paper p-[18px] shadow-card transition duration-200 ease-out-fresh hover:-translate-y-1 hover:shadow-card-hover focus-within:-translate-y-1">
       <div className="flex items-center gap-3">
         <span className="flex size-11 shrink-0 items-center justify-center rounded-[14px] bg-(--tone-tint) text-(--tone-700)">
           <Icon name="family_restroom" className="text-2xl" />

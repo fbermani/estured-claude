@@ -148,14 +148,14 @@ export default function ForResidencesPage() {
                 <span className="flex-1 rounded-full border-[1.5px] border-line-2 px-4 py-2 text-center text-xs font-bold text-ink-soft">Ver perfil</span>
               </div>
             </div>
-            <div className="absolute -right-4 -top-5 hidden max-w-[190px] rotate-2 rounded-card bg-surface p-3.5 text-ink shadow-float ring-1 ring-sand-200 transition-transform duration-300 ease-bounce hover:-translate-y-1 hover:rotate-0 sm:block">
+            <div className="absolute -right-4 -top-5 hidden max-w-[190px] rotate-2 rounded-card bg-surface p-3.5 text-ink shadow-float ring-1 ring-sand-200 transition-transform duration-200 ease-out-fresh hover:-translate-y-1 hover:rotate-0 sm:block">
               <p className="flex items-center gap-2 text-sm font-extrabold leading-snug text-forest-700">
                 <Icon name="quiz" className="text-lg" />
                 Preguntas frecuentes en tu ficha
               </p>
               <p className="mt-1 text-xs text-ink-faint">Menos consultas repetidas por WhatsApp</p>
             </div>
-            <div className="absolute -bottom-4 -left-4 hidden -rotate-1 rounded-card bg-surface p-3.5 text-ink shadow-float ring-1 ring-sand-200 transition-transform duration-300 ease-bounce hover:-translate-y-1 hover:rotate-0 sm:block">
+            <div className="absolute -bottom-4 -left-4 hidden -rotate-1 rounded-card bg-surface p-3.5 text-ink shadow-float ring-1 ring-sand-200 transition-transform duration-200 ease-out-fresh hover:-translate-y-1 hover:rotate-0 sm:block">
               <p className="flex items-center gap-2 text-xs font-bold leading-snug text-ink">
                 <Icon name="hourglass_top" className="text-lg text-orange-700" />
                 Lista de espera ordenada
@@ -176,7 +176,7 @@ export default function ForResidencesPage() {
           {pains.map((p) => (
             <article
               key={p.title}
-              className="grid grid-cols-[44px_1fr] gap-3 rounded-card border border-line bg-paper p-6 shadow-card transition-all duration-300 ease-bounce md:hover:-translate-y-[3px] md:hover:shadow-card-hover"
+              className="grid grid-cols-[44px_1fr] gap-3 rounded-card border border-line bg-paper p-6 shadow-card transition duration-200 ease-out-fresh md:hover:-translate-y-0.5 md:hover:shadow-card-hover"
             >
               <span className="flex h-11 w-11 items-center justify-center rounded-field bg-petrol-50 text-petrol-600">
                 <Icon name={p.icon} className="text-2xl" />

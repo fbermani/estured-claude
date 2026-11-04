@@ -55,7 +55,7 @@ export function WhatYouPay({ variant = "student" }: { variant?: "student" | "res
         </p>
         <Link
           href="/for-students#que-pagas"
-          className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-forest-700 transition-transform duration-200 ease-bounce hover:translate-x-1"
+          className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-forest-700 transition-transform duration-200 ease-out-fresh hover:translate-x-1"
         >
           Ver el detalle de costos <Icon name="arrow_forward" className="text-base" />
         </Link>

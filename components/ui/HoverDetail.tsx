@@ -44,7 +44,7 @@ export function HoverDetail({
       onPointerLeave={(e) => e.pointerType === "mouse" && setOpen(false)}
       onClick={toggle}
       onKeyDown={onKeyDown}
-      className={`cursor-pointer rounded-field transition-all duration-300 ease-fresh focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest ${
+      className={`cursor-pointer rounded-field transition duration-200 ease-out-fresh focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest ${
         open ? "-translate-y-0.5 scale-[1.02] shadow-card-hover" : ""
       } ${className}`}
     >
