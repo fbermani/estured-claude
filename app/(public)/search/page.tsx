@@ -74,7 +74,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   ];
 
   const head = (
-    <div className="mb-3 grid gap-4 sm:mb-4 md:grid-cols-[minmax(0,1fr)_21rem] md:items-start md:gap-8">
+    <div className="mb-3 grid grid-cols-[minmax(0,1fr)] gap-4 sm:mb-4 md:grid-cols-[minmax(0,1fr)_21rem] md:items-start md:gap-8">
       <div className="max-w-2xl">
         <p className="mb-1.5 text-[13px] text-ink-faint">Inicio › Buscar residencias</p>
         <h1 className="text-[26px] leading-[1.15] font-extrabold text-ink min-[900px]:text-[34px]">Encontrá tu próximo hogar en Buenos Aires</h1>
@@ -82,7 +82,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
           Todas las residencias del catálogo fueron verificadas presencialmente. La disponibilidad es informativa y toda
           reserva está sujeta a confirmación.
         </p>
-        <GuidePicks keys={["01", "02"]} variant="strip" label="Antes de elegir:" className="mt-3" />
+        <GuidePicks keys={["01", "02"]} variant="strip" label="Antes de elegir:" className="mt-3" mobileSingle />
       </div>
       {residences.length > 0 && (
         <aside aria-label="Resumen del catálogo" className="hidden rounded-card border-[1.5px] border-line bg-paper p-4 shadow-card md:block">

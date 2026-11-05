@@ -6,13 +6,17 @@ import { useEffect, useId, useRef, useState } from "react";
 const EXCHANGE_RATE_DISCLAIMER =
   "El valor en pesos es referencial, calculado en base al dólar blue (valor venta) del día de hoy. El valor final en pesos será determinado en el momento en que realices el pago directamente a la residencia, según la cotización vigente en ese momento.";
 
+/** Frase corta aprobada por el dueño (auditoría 2026-11-03) para el tooltip de la tarjeta de /search. */
+const COMPACT_TIP = "Referencial: el importe final lo confirma la residencia según el tipo de cambio.";
+
 /**
  * Docs/08 §9.9: aviso breve reutilizable, siempre junto a un monto convertido de USD a ARS.
  * `showNote` suma la frase corta siempre visible («Referencial · el importe final lo confirma la residencia»)
  * al lado del botón «i»; el texto oficial completo sigue en el panel que abre el botón.
+ * `compact` (tarjeta de /search): solo el botón «i», con la frase corta en un tooltip (hover/foco en escritorio); al tocar abre el panel oficial.
  * Botón de 44px (área táctil), `aria-controls`, cierra con Esc / «Entendido» / clic afuera y devuelve el foco.
  */
-export function ExchangeRateNote({ showNote = false }: { showNote?: boolean }) {
+export function ExchangeRateNote({ showNote = false, compact = false }: { showNote?: boolean; compact?: boolean }) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLSpanElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -47,7 +51,7 @@ export function ExchangeRateNote({ showNote = false }: { showNote?: boolean }) {
   }
 
   return (
-    <span ref={containerRef} className={`relative inline-flex align-middle ${showNote ? "max-w-full items-start gap-0.5" : ""}`}>
+    <span ref={containerRef} className={`group/rn relative inline-flex align-middle ${showNote ? "max-w-full items-start gap-0.5" : ""}`}>
       {showNote && (
         <span className="text-xs font-semibold text-ink-soft">Referencial · el importe final lo confirma la residencia</span>
       )}
@@ -58,7 +62,11 @@ export function ExchangeRateNote({ showNote = false }: { showNote?: boolean }) {
         aria-expanded={open}
         aria-controls={panelId}
         aria-label="Más información sobre el valor en pesos"
-        className={`-mb-3 -mr-3 inline-flex size-11 shrink-0 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-forest ${showNote ? "-mt-3.5" : "-mt-3"}`}
+        className={
+          compact
+            ? "inline-flex size-9 shrink-0 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-forest"
+            : `-mb-3 -mr-3 inline-flex size-11 shrink-0 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-forest ${showNote ? "-mt-3.5" : "-mt-3"}`
+        }
       >
         <span
           aria-hidden="true"
@@ -67,15 +75,24 @@ export function ExchangeRateNote({ showNote = false }: { showNote?: boolean }) {
           i
         </span>
       </button>
+      {compact && !open && (
+        <span
+          role="tooltip"
+          className="pointer-events-none absolute bottom-[calc(100%+4px)] -left-20 z-20 hidden w-56 rounded-[10px] bg-ink px-3 py-2 text-left text-[12.5px] font-medium leading-snug text-white shadow-float [@media(hover:hover)]:group-focus-within/rn:block [@media(hover:hover)]:group-hover/rn:block"
+        >
+          {COMPACT_TIP}
+        </span>
+      )}
       {open && (
         <span
           id={panelId}
           role="region"
           aria-label="Valor en pesos referencial"
           className={`absolute bottom-full z-20 mb-2 w-64 max-w-[80vw] rounded-field border-[1.5px] border-line bg-paper p-3 text-left text-xs font-normal leading-relaxed text-ink-soft shadow-float ${
-            showNote ? "left-0" : "left-1/2 -translate-x-1/2"
+            showNote || compact ? "left-0" : "left-1/2 -translate-x-1/2"
           }`}
         >
+          {compact && <b className="mb-1 block font-semibold text-ink">{COMPACT_TIP}</b>}
           {EXCHANGE_RATE_DISCLAIMER}
           <button
             type="button"

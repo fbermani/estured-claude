@@ -20,6 +20,7 @@ export function GuidePicks({
   label,
   title,
   className = "",
+  mobileSingle = false,
 }: {
   keys: string[];
   variant?: Variant;
@@ -28,6 +29,8 @@ export function GuidePicks({
   /** Título del panel/cards. */
   title?: string;
   className?: string;
+  /** `strip` en móvil: una sola línea con la primera guía (el resto aparece desde `sm`). */
+  mobileSingle?: boolean;
 }) {
   const guides = resolveGuides(keys);
   if (guides.length === 0) return null;
@@ -92,14 +95,21 @@ export function GuidePicks({
 
   return (
     <p
-      className={`flex flex-wrap items-center gap-x-2 gap-y-1 rounded-field bg-forest-tint/50 px-3.5 py-2 text-xs text-ink-soft sm:text-[13px] ${className}`}
+      className={`flex items-center gap-x-2 gap-y-1 rounded-field bg-forest-tint/50 px-3.5 py-2 text-xs text-ink-soft sm:text-[13px] ${mobileSingle ? "max-sm:flex-nowrap" : ""} flex-wrap ${className}`}
     >
       <Icon name="menu_book" className="text-base text-forest-700" />
       {label && <span className="font-semibold text-ink">{label}</span>}
       {guides.map((g, i) => (
-        <span key={g.id} className="inline-flex w-full items-center gap-2 pl-6 sm:w-auto sm:pl-0">
+        <span
+          key={g.id}
+          className={
+            mobileSingle
+              ? `${i > 0 ? "max-sm:hidden " : "max-sm:min-w-0 max-sm:flex-1 "}inline-flex items-center gap-2 sm:w-auto`
+              : "inline-flex w-full items-center gap-2 pl-6 sm:w-auto sm:pl-0"
+          }
+        >
           {i > 0 && <span aria-hidden="true" className="hidden text-ink-faint sm:inline">·</span>}
-          <Link href={`/guias/${g.slug}`} className="font-bold text-forest-700 underline-offset-2 hover:underline">
+          <Link href={`/guias/${g.slug}`} className={`font-bold text-forest-700 underline-offset-2 hover:underline ${mobileSingle ? "max-sm:truncate" : ""}`}>
             {g.title}
           </Link>
         </span>

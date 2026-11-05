@@ -8,6 +8,7 @@ import type { Metadata } from "next";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { Button } from "@/components/ui/Button";
+import { FichaMobileBar, FichaSummary } from "@/components/residences/ficha/FichaSummary";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { TrustBadge } from "@/components/residences/TrustBadge";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
@@ -36,7 +37,7 @@ import { ProposeForm } from "@/app/(public)/residencias/[slug]/ProposeForm";
 import { FavoriteButton } from "@/app/(public)/residencias/[slug]/FavoriteButton";
 import { toggleStudentFavorite, toggleFamilyFavorite } from "@/app/students/favorites/actions";
 import { JoinWaitlistForm } from "@/app/(public)/residencias/[slug]/JoinWaitlistForm";
-import { formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
+import { usdToArsRounded } from "@/lib/mock/exchange";
 import { getResidenceLocation } from "@/lib/residences/residenceLocation";
 import { effectiveRoomGender, policyFromGender, summarizeTypeGenders } from "@/lib/residences/roomGender";
 import { startingPriceUsd, typeAvailabilityState } from "@/lib/availability/typeAvailability";
@@ -485,7 +486,17 @@ export default async function RealResidenceDetailPage({
     conditions.minimumStayMonths != null && conditions.minimumStayMonths > 0 ? monthsLabel(conditions.minimumStayMonths) : null;
 
   const chipClass =
-    "inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-line bg-paper px-3 py-1.5 text-sm text-ink-soft";
+    "inline-flex min-w-0 items-center gap-1.5 rounded-[18px] border border-line bg-paper px-3 py-1.5 text-sm leading-snug text-ink-soft sm:whitespace-nowrap sm:rounded-full";
+  // Resumen fijo (≥900 px): lo mismo que la fila de chips, que en esas pantallas se oculta para no repetirlo.
+  const summaryRows = [
+    typesChip && { label: "Habitaciones", value: typesChip.charAt(0).toUpperCase() + typesChip.slice(1) },
+    minimumStayLabel && { label: "Estadía mínima", value: minimumStayLabel },
+    nearest && { label: "Cercanía", value: `~${nearest.km.toFixed(1).replace(".", ",")} km de ${abbreviateUniversity(nearest.name)}` },
+    occupancyLabel
+      ? { label: "Plazas", value: occupancyLabel }
+      : (community?.totalResidents ?? 0) > 0 && { label: "Residentes", value: String(community?.totalResidents) },
+  ].filter((r): r is { label: string; value: string } => Boolean(r));
+  const hasSummary = fromPriceUsd != null;
 
   return (
     <ReservationSelectionProvider initialRoomTypeId={preselectedRoomTypeId} initialSheet={initialSheet}>
@@ -508,7 +519,7 @@ export default async function RealResidenceDetailPage({
           }).replace(/</g, "\\u003c"),
         }}
       />
-      <div className="mx-auto max-w-6xl px-4 pb-10 pt-6 sm:px-6 sm:pb-14">
+      <div className={`mx-auto max-w-6xl px-4 pb-10 pt-6 sm:px-6 sm:pb-14 ${hasSummary ? "max-[899px]:pb-28" : ""}`}>
         <nav aria-label="Ruta de navegación" className="mb-4 text-sm text-ink-faint">
           <ol className="flex flex-wrap items-center gap-1.5">
             <li>
@@ -525,6 +536,9 @@ export default async function RealResidenceDetailPage({
           </ol>
         </nav>
 
+        {/* Dos columnas desde 900 px (A1, auditoría 2026-11-03): contenido a la izquierda y resumen fijo a la derecha. */}
+        <div className={hasSummary ? "min-[900px]:grid min-[900px]:grid-cols-[minmax(0,1fr)_20rem] min-[900px]:gap-8" : ""}>
+        <div className="min-w-0">
         {/* Hero de fotos — se adapta a la cantidad (0 / 1 / 2–4 / 5+), Ciclo 54 (D12) */}
         <ResidenceGallery photos={photos} name={residence.name} zone={residence.public_area ?? ""} />
 
@@ -543,13 +557,8 @@ export default async function RealResidenceDetailPage({
             {residence.public_area}, CABA
           </p>
 
-          <ul className="-mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {fromPriceUsd != null && (
-              <li className={chipClass}>
-                <Icon name="payments" className="text-lg text-forest-700" />
-                Desde <strong className="text-ink">{formatUsd(fromPriceUsd)}</strong> /mes
-              </li>
-            )}
+          <ul className={`mt-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap ${hasSummary ? "min-[900px]:hidden!" : ""}`}>
+            {/* «Desde» vive en la barra inferior (móvil) y en el resumen (escritorio); sin precio no hay ninguno de los dos. */}
             {typesChip && (
               <li className={chipClass}>
                 <Icon name="bed" className="text-lg text-forest-700" />
@@ -585,7 +594,7 @@ export default async function RealResidenceDetailPage({
           </ul>
 
           {residence.description && (
-            <div className="mt-4 max-w-3xl">
+            <div className="mt-4 max-w-[68ch]">
               <ReadMore text={residence.description} />
             </div>
           )}
@@ -792,6 +801,10 @@ export default async function RealResidenceDetailPage({
           </section>
         </div>
 
+        </div>
+        {hasSummary && <FichaSummary fromPriceUsd={fromPriceUsd} arsPerUsd={rate.arsPerUsd} rows={summaryRows} />}
+        </div>
+
         <p className="mt-10 text-center text-xs text-ink-faint">
           ¿Buscás más opciones?{" "}
           <Link href="/search" className="text-forest-700 hover:underline">
@@ -876,6 +889,7 @@ export default async function RealResidenceDetailPage({
         />
       )}
 
+      {hasSummary && <FichaMobileBar fromPriceUsd={fromPriceUsd} />}
     </ReservationSelectionProvider>
   );
 }

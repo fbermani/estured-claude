@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
 import { PARAM_NAMES, type FilterGroupKey, type SearchFilters, type SortKey, type ViewMode } from "@/lib/residences/searchFilters";
@@ -54,6 +54,21 @@ export function SearchShell({ groups, filters, bounds, histogram, promoCount, mi
     pendingQs.current = null;
   }, [currentQs]);
   const asideRef = useRef<HTMLElement>(null);
+
+  // M8: al cambiar los filtros (cambia la URL) la lista entra con un fundido 0→1 de 180 ms (`--ease-out-fresh`), sin
+  // desplazamiento. No corre en la primera carga ni con «reducir movimiento».
+  const resultsRef = useRef<HTMLDivElement>(null);
+  const firstRender = useRef(true);
+  useLayoutEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    const el = resultsRef.current;
+    if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches || typeof el.animate !== "function") return;
+    const ease = getComputedStyle(document.documentElement).getPropertyValue("--ease-out-fresh").trim() || "ease-out";
+    el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 180, easing: ease });
+  }, [currentQs]);
 
   const push = (mutate: (p: URLSearchParams) => void) => {
     const p = new URLSearchParams(pendingQs.current ?? currentQs);
@@ -195,9 +210,10 @@ export function SearchShell({ groups, filters, bounds, histogram, promoCount, mi
         </div>
 
         <div className="mb-2.5 mt-0.5 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-          <h2 aria-live="polite" className="text-xl">
+          <h2 aria-live="polite" className="w-full text-xl sm:w-auto">
             {resultCount} {resultCount === 1 ? "residencia encontrada" : "residencias encontradas"}
           </h2>
+          <div className="flex w-full items-center justify-between gap-2 sm:contents">
           <div role="group" aria-label="Cómo ver los resultados" className="inline-flex rounded-full bg-cream-2 p-[3px]">
             {VIEWS.map((v) => (
               <button
@@ -205,28 +221,29 @@ export function SearchShell({ groups, filters, bounds, histogram, promoCount, mi
                 type="button"
                 aria-pressed={filters.view === v.key}
                 onClick={() => push((p) => (v.key === "grilla" ? p.delete("vista") : p.set("vista", v.key)))}
-                className={`inline-flex min-h-9 cursor-pointer items-center gap-1 rounded-full px-3.5 text-[13.5px] font-semibold ${FOCUS} ${
+                className={`inline-flex min-h-9 cursor-pointer items-center gap-1 rounded-full px-3 text-[13.5px] sm:px-3.5 font-semibold ${FOCUS} ${
                   filters.view === v.key ? "bg-paper text-forest-700 shadow-card" : "text-ink-soft hover:text-ink"
                 }`}
               >
-                <Icon name={v.icon} className="text-lg" />
+                <Icon name={v.icon} className="text-lg max-sm:hidden" />
                 {v.label}
               </button>
             ))}
           </div>
-          <label className="flex items-center gap-2 text-sm text-ink-soft">
-            <span aria-hidden="true">Ordenar por</span>
+          <label className="flex min-w-0 items-center gap-2 text-sm text-ink-soft">
+            <span aria-hidden="true" className="max-sm:hidden">Ordenar por</span>
             <select
               aria-label="Ordenar por"
               value={filters.sort}
               onChange={(e) => push((p) => (e.target.value === "rec" ? p.delete("orden") : p.set("orden", e.target.value)))}
-              className={`min-h-[42px] cursor-pointer rounded-field border-[1.5px] border-line-2 bg-paper py-0 pl-3 pr-3 text-sm font-semibold text-ink ${FOCUS}`}
+              className={`min-h-[42px] min-w-0 cursor-pointer rounded-field border-[1.5px] border-line-2 bg-paper py-0 pl-3 pr-3 text-sm font-semibold text-ink max-sm:max-w-[10.5rem] ${FOCUS}`}
             >
               {(Object.keys(SORT_LABELS) as SortKey[]).map((k) => (
                 <option key={k} value={k}>{SORT_LABELS[k]}</option>
               ))}
             </select>
           </label>
+          </div>
         </div>
 
         {chips.length > 0 && (
@@ -246,7 +263,7 @@ export function SearchShell({ groups, filters, bounds, histogram, promoCount, mi
         )}
 
         <div aria-busy={pending} className={`${pending ? "opacity-45" : ""} motion-safe:transition-opacity`}>
-          {children}
+          <div ref={resultsRef}>{children}</div>
         </div>
       </section>
     </div>
