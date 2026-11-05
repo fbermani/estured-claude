@@ -29,10 +29,6 @@ export const FAQ_CATEGORIES: { key: FaqCategory; label: string }[] = [
   { key: "privacidad_y_seguridad", label: "Privacidad y seguridad" },
 ];
 
-export function categoryLabel(key: string): string {
-  return FAQ_CATEGORIES.find((c) => c.key === key)?.label ?? "Otros";
-}
-
 /** Tope de la respuesta editada (el catálogo trae textos más largos que la FAQ libre). */
 export const CATALOG_ANSWER_MAX = 3000;
 

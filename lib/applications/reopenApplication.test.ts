@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { deleteResidenceCascade } from "@/lib/testing/deleteResidenceCascade";
 import { reopenApplication } from "@/lib/applications/reopenApplication";
+import { createTestStudent, deleteTestStudent, type TestStudent } from "@/lib/testing/testStudent";
 
 /**
  * Docs/12 §17 Fase 11 ("Admin puede intervenir solicitudes trabadas") —
@@ -19,6 +20,7 @@ describe.skipIf(!hasCreds)("reopenApplication (integración)", () => {
   let adminActorId: string;
   let studentProfileId: string;
   let studentUserId: string;
+  let testStudent: TestStudent | undefined;
 
   async function insertFixtureApplication(status: string): Promise<string> {
     const { data: snapshot } = await admin
@@ -69,10 +71,10 @@ describe.skipIf(!hasCreds)("reopenApplication (integración)", () => {
     ownerId = owner!.id;
     const { data: adminUser } = await admin.from("users").select("id").eq("email", "admin.operaciones@estured.test").single();
     adminActorId = adminUser!.id;
-    const { data: studentUser } = await admin.from("users").select("id").eq("email", "valentina.sosa@example.com").single();
-    studentUserId = studentUser!.id;
-    const { data: studentProfile } = await admin.from("student_profiles").select("id").eq("user_id", studentUserId).single();
-    studentProfileId = studentProfile!.id;
+    // Estudiante descartable propio: el test no depende de las solicitudes activas del demo (límite de 2).
+    testStudent = await createTestStudent(admin, "reopen");
+    studentUserId = testStudent.userId;
+    studentProfileId = testStudent.profileId;
 
     const { data: residence } = await admin
       .from("residences")
@@ -119,6 +121,7 @@ describe.skipIf(!hasCreds)("reopenApplication (integración)", () => {
     await admin.from("application_requests").delete().eq("residence_id", residenceId);
     await admin.from("residence_users").delete().eq("residence_id", residenceId);
     await deleteResidenceCascade(admin, residenceId);
+    await deleteTestStudent(admin, testStudent);
   });
 
   it("rechaza sin motivo", async () => {

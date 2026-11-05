@@ -69,17 +69,3 @@ export async function toggleFavorite(
   });
   return { ok: true, favorited: true };
 }
-
-export async function isFavorited(
-  admin: SupabaseClient,
-  studentProfileId: string,
-  residenceId: string,
-): Promise<boolean> {
-  const { data } = await admin
-    .from("student_favorites")
-    .select("id")
-    .eq("student_profile_id", studentProfileId)
-    .eq("residence_id", residenceId)
-    .maybeSingle();
-  return !!data;
-}

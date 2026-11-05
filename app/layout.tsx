@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Bricolage_Grotesque, Hanken_Grotesk } from "next/font/google";
 import { DemoSwitcherGate } from "@/components/dev/DemoSwitcherGate";
+import { isDemoLoginEnabled } from "@/lib/demoLogin";
 import "./globals.css";
 
 /** Sistema visual FRESH (design-references/fresh-style.md §1.2). */
@@ -54,7 +55,7 @@ export default function RootLayout({
       </head>
       <body className="antialiased">
         {children}
-        {process.env.DEMO_LOGIN_ENABLED === "true" && (
+        {isDemoLoginEnabled() && (
           // Suspense evita que la lectura de cookies() del switcher (solo
           // dev) fuerce rendering dinámico en toda página pública que use
           // este layout — el resto del árbol se sigue sirviendo estático.

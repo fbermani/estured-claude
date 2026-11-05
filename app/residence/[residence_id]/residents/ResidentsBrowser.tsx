@@ -6,7 +6,6 @@ import { Fragment, useMemo, useState, useEffect, useActionState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
-import { Card } from "@/components/ui/Card";
 import { PageHero } from "@/components/ui/PageHero";
 import { MetricCard } from "@/components/ui/MetricCard";
 import { FilterChips } from "@/components/ui/FilterChips";

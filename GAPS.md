@@ -384,7 +384,7 @@ No hay TODOs/FIXMEs en el código (verificado por grep) — la deuda está docum
 
 ## Vinculación de residentes (DR19, 2026-10-30)
 
-- **[BLOQUEANTE DE PRODUCCIÓN — TODO]** El mail de invitación («Residencia X te invita, vía EstuRed») y el código de verificación salen del **remitente sandbox de Resend** (`onboarding@resend.dev`): solo entregan al dueño de la cuenta Resend. Hace falta un **dominio verificado** y cambiar `FROM_ADDRESS` en `lib/email/sendEmail.ts`; sin eso, ni la invitación por mail ni el OTP funcionan para residentes reales (el canal WhatsApp tampoco puede verificar el mail).
+- **[BLOQUEANTE DE PRODUCCIÓN — TODO]** El mail de invitación («Residencia X te invita, vía EstuRed») y el código de verificación salen del **remitente sandbox de Resend** (`onboarding@resend.dev`): solo entregan al dueño de la cuenta Resend. Hace falta un **dominio verificado** y definir `EMAIL_FROM` (lo lee `lib/email/sendEmail.ts`; sin la variable usa el sandbox); sin eso, ni la invitación por mail ni el OTP funcionan para residentes reales (el canal WhatsApp tampoco puede verificar el mail).
 - **[PENDIENTE]** Menores: la activación exige tutor vinculado, pero falta avisar al tutor y un consentimiento específico para la invitación a un menor.
 - **[RIESGO ACEPTADO]** Los frenos de intentos del enlace y del OTP son en memoria por instancia (como `/verify`); el límite real va en el WAF de Vercel sobre `/register/student` y `/students/residency/invite`. El OTP además tiene tope persistente (5 intentos por código).
 - **[PENDIENTE]** `missing_residence_requests` solo avisa a los admins (notificación); falta una pantalla de admin para listarlas.

@@ -64,6 +64,7 @@ const ACTION_PHRASES: Record<string, string> = {
   residence_photo_uploaded: "subió una foto de una residencia",
   residence_photo_deleted: "borró una foto de una residencia",
   residence_photo_meta_updated: "actualizó las etiquetas de las fotos de una residencia",
+  residence_stay_documents_updated: "actualizó los documentos requeridos para la estadía de una residencia",
   residence_promotion_created: "creó una promoción en una residencia",
   residence_promotion_ended: "terminó una promoción de una residencia",
   stay_followup_answered: "respondió un seguimiento de estadía",
