@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
+import { extensionForMime, resolveEvidenceType } from "@/lib/files/sniffFile";
 
 export type OpenSupportCaseResult = { ok: true; supportCaseId: string } | { ok: false; error: string };
 
@@ -17,10 +18,11 @@ const ALLOWED_EVIDENCE_TYPES = [
   "audio/ogg",
 ];
 
-function validateEvidence(files: File[]): string | null {
+async function validateEvidence(files: File[]): Promise<string | null> {
   for (const file of files) {
     if (file.size > MAX_EVIDENCE_BYTES) return `${file.name} supera los 25MB permitidos.`;
-    if (!ALLOWED_EVIDENCE_TYPES.includes(file.type)) {
+    // El MIME lo declara el cliente: además se comprueba el contenido real (firma del archivo).
+    if (!ALLOWED_EVIDENCE_TYPES.includes(file.type) || !(await resolveEvidenceType(file, file.type))) {
       return `${file.name}: tipo de archivo no permitido (PDF, foto, video o audio).`;
     }
   }
@@ -29,11 +31,13 @@ function validateEvidence(files: File[]): string | null {
 
 async function uploadEvidence(admin: SupabaseClient, supportCaseId: string, actorUserId: string, files: File[]) {
   for (const file of files) {
-    const ext = file.name.includes(".") ? file.name.split(".").pop() : file.type.split("/")[1];
+    const realType = await resolveEvidenceType(file, file.type);
+    if (!realType) continue; // ya validado antes de abrir el caso; defensa extra
+    const ext = extensionForMime(realType);
     const path = `${supportCaseId}/${crypto.randomUUID()}.${ext}`;
     const { error: uploadError } = await admin.storage
       .from("support-evidence")
-      .upload(path, file, { contentType: file.type });
+      .upload(path, file, { contentType: realType });
     if (uploadError) {
       console.error("[support] evidence upload failed:", uploadError);
       continue;
@@ -45,7 +49,7 @@ async function uploadEvidence(admin: SupabaseClient, supportCaseId: string, acto
       bucket: "support-evidence",
       storage_path: path,
       filename: file.name,
-      mime_type: file.type,
+      mime_type: realType,
       size_bytes: file.size,
       visibility: "context_shared",
       document_type: "support_case_evidence",
@@ -92,7 +96,7 @@ export async function openSupportCase(
   const { data: residence } = await admin.from("residences").select("id").eq("id", params.residenceId).maybeSingle();
   if (!residence) return { ok: false, error: "No encontramos esa residencia." };
 
-  const evidenceError = validateEvidence(params.evidenceFiles);
+  const evidenceError = await validateEvidence(params.evidenceFiles);
   if (evidenceError) return { ok: false, error: evidenceError };
 
   const { data: supportCase, error } = await admin
@@ -195,7 +199,7 @@ export async function openFeePaymentSupportCase(
   if (description.length < 20) {
     return { ok: false, error: "Contanos un poco más — el detalle debe tener al menos 20 caracteres." };
   }
-  const evidenceError = validateEvidence(params.evidenceFiles);
+  const evidenceError = await validateEvidence(params.evidenceFiles);
   if (evidenceError) return { ok: false, error: evidenceError };
 
   const access = await resolveFeeReservationAccess(admin, params.actorUserId, params.reservationId);

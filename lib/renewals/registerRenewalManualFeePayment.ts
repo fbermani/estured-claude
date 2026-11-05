@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
+import { extensionForMime, resolveDocumentType } from "@/lib/files/sniffFile";
 
 export type RegisterRenewalFeePaymentResult = { ok: true } | { ok: false; error: string };
 
@@ -52,17 +53,21 @@ export async function registerRenewalManualFeePayment(
   if (!ALLOWED_TYPES.includes(params.file.type)) {
     return { ok: false, error: "El comprobante debe ser PDF, JPG, PNG o WebP." };
   }
+  const realType = await resolveDocumentType(params.file);
+  if (!realType) {
+    return { ok: false, error: "El comprobante debe ser PDF, JPG, PNG o WebP." };
+  }
   if (!params.payerBillingName) return { ok: false, error: "Ingresá el nombre para la Factura C." };
   if (!IVA_CONDITIONS.has(params.payerIvaCondition)) return { ok: false, error: "Condición de IVA inválida." };
   if (!params.acknowledgeNoRefund) {
     return { ok: false, error: "Tenés que confirmar que leíste la política de no reembolso." };
   }
 
-  const ext = params.file.type === "application/pdf" ? "pdf" : params.file.type.split("/")[1];
+  const ext = extensionForMime(realType);
   const path = `${params.renewalOfferId}/renewal-fee-proof-${crypto.randomUUID()}.${ext}`;
   const { error: uploadError } = await admin.storage
     .from("payment-proofs")
-    .upload(path, params.file, { contentType: params.file.type });
+    .upload(path, params.file, { contentType: realType });
   if (uploadError) {
     console.error("[renewals] fee proof upload failed:", uploadError);
     return { ok: false, error: "No pudimos subir el archivo. Intentá de nuevo." };
@@ -77,7 +82,7 @@ export async function registerRenewalManualFeePayment(
       bucket: "payment-proofs",
       storage_path: path,
       filename: params.file.name,
-      mime_type: params.file.type,
+      mime_type: realType,
       size_bytes: params.file.size,
       visibility: "context_shared",
       document_type: "other",

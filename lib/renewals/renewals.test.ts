@@ -642,7 +642,7 @@ describe.skipIf(!hasCreds)("módulo de renovaciones (integración)", () => {
       expect(afterReceived!.estured_fee_payment_id).not.toBeNull();
       const feePaymentId = afterReceived!.estured_fee_payment_id as string;
 
-      const proofFile = new File([new Uint8Array([1, 2, 3])], "comprobante.pdf", { type: "application/pdf" });
+      const proofFile = new File([new TextEncoder().encode("%PDF-1.4 prueba")], "comprobante.pdf", { type: "application/pdf" });
       const registered = await registerRenewalManualFeePayment(admin, {
         renewalOfferId: offerId,
         actorUserId: studentUserId,
@@ -786,7 +786,7 @@ describe.skipIf(!hasCreds)("módulo de renovaciones (integración)", () => {
         receiptFile: null,
       });
 
-      const proofFile = new File([new Uint8Array([1, 2, 3])], "comprobante.pdf", { type: "application/pdf" });
+      const proofFile = new File([new TextEncoder().encode("%PDF-1.4 prueba")], "comprobante.pdf", { type: "application/pdf" });
       const result = await registerRenewalManualFeePayment(admin, {
         renewalOfferId: offerId,
         actorUserId: ownerId, // dueño de la residencia, no el estudiante

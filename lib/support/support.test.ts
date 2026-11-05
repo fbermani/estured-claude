@@ -89,7 +89,7 @@ describe.skipIf(!hasCreds)("support_cases (integración)", () => {
   });
 
   it("sube evidencia real al bucket support-evidence y crea la fila en files", async () => {
-    const evidenceFile = new File([new Blob(["captura de prueba"], { type: "image/png" })], "captura.png", {
+    const evidenceFile = new File([new Blob([new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0])], { type: "image/png" })], "captura.png", {
       type: "image/png",
     });
     const opened = await openSupportCase(admin, {

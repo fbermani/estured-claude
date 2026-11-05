@@ -6,6 +6,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { createAuditLog } from "@/lib/audit";
 import { loadActiveFamilyLink } from "@/lib/family/access";
 import { normalizeBillingTaxId } from "@/lib/family/familyProfile";
+import { extensionForMime, resolveDocumentType } from "@/lib/files/sniffFile";
 
 export type RegisterFeePaymentState = { status: "idle" | "error" | "saved"; message?: string };
 
@@ -92,6 +93,10 @@ export async function registerManualFeePayment(
   if (!ALLOWED_TYPES.includes(file.type)) {
     return { status: "error", message: "El comprobante debe ser PDF, JPG, PNG o WebP." };
   }
+  const realType = await resolveDocumentType(file);
+  if (!realType) {
+    return { status: "error", message: "El comprobante debe ser PDF, JPG, PNG o WebP." };
+  }
 
   const billingName = String(formData.get("payer_billing_name") ?? "").trim().replace(/\s+/g, " ");
   if (!billingName) return { status: "error", message: "Ingresá el nombre para la Factura C." };
@@ -112,11 +117,11 @@ export async function registerManualFeePayment(
     return { status: "error", message: "Tenés que confirmar que leíste la política de no reembolso." };
   }
 
-  const ext = file.type === "application/pdf" ? "pdf" : file.type.split("/")[1];
+  const ext = extensionForMime(realType);
   const path = `${applicationId}/fee-proof-${crypto.randomUUID()}.${ext}`;
   const { error: uploadError } = await admin.storage
     .from("payment-proofs")
-    .upload(path, file, { contentType: file.type });
+    .upload(path, file, { contentType: realType });
   if (uploadError) {
     console.error("[fee] upload failed:", uploadError);
     return { status: "error", message: "No pudimos subir el archivo. Intentá de nuevo." };
@@ -131,7 +136,7 @@ export async function registerManualFeePayment(
       bucket: "payment-proofs",
       storage_path: path,
       filename: file.name,
-      mime_type: file.type,
+      mime_type: realType,
       size_bytes: file.size,
       visibility: "context_shared",
       document_type: "other",

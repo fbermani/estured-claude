@@ -104,6 +104,8 @@ export async function setBedStatus(
     reason: string | null;
   },
 ): Promise<Result> {
+  // El valor llega del cliente por una server action: se valida en runtime (el tipo de TS no existe acá).
+  if (params.status !== "active" && params.status !== "out_of_service") return { ok: false, error: "Estado de cama no válido." };
   const access = await assertResidencePermission(admin, params.actorUserId, params.residenceId, "operations.rooms_availability");
   if (!access.ok) return { ok: false, error: access.error };
   const actorRole = access.actorRole;
@@ -302,6 +304,7 @@ export async function setRoomOutOfService(
   admin: SupabaseClient,
   params: { actorUserId: string; residenceId: string; roomId: string; outOfService: boolean; reason: string | null },
 ): Promise<Result> {
+  if (typeof params.outOfService !== "boolean") return { ok: false, error: "Valor no válido." };
   const access = await assertResidencePermission(admin, params.actorUserId, params.residenceId, "operations.rooms_availability");
   if (!access.ok) return { ok: false, error: access.error };
 

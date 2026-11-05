@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { createAuditLog } from "@/lib/audit";
+import { extensionForMime, resolveDocumentType } from "@/lib/files/sniffFile";
 
 export type UploadProofState = { status: "idle" | "error" | "saved"; message?: string };
 
@@ -45,6 +46,10 @@ export async function uploadResidencePaymentProof(
   if (!ALLOWED_TYPES.includes(file.type)) {
     return { status: "error", message: "El comprobante debe ser PDF, JPG, PNG o WebP." };
   }
+  const realType = await resolveDocumentType(file);
+  if (!realType) {
+    return { status: "error", message: "El comprobante debe ser PDF, JPG, PNG o WebP." };
+  }
 
   const concept = String(formData.get("payment_concept") ?? "").trim();
   if (!concept) return { status: "error", message: "Contanos qué pagaste (ej: matrícula, seña)." };
@@ -59,11 +64,11 @@ export async function uploadResidencePaymentProof(
     .maybeSingle();
   if (!payment) return { status: "error", message: "No encontramos el registro de pago de esta solicitud." };
 
-  const ext = file.type === "application/pdf" ? "pdf" : file.type.split("/")[1];
+  const ext = extensionForMime(realType);
   const path = `${applicationId}/student-proof-${crypto.randomUUID()}.${ext}`;
   const { error: uploadError } = await admin.storage
     .from("payment-proofs")
-    .upload(path, file, { contentType: file.type });
+    .upload(path, file, { contentType: realType });
   if (uploadError) {
     console.error("[payment] upload failed:", uploadError);
     return { status: "error", message: "No pudimos subir el archivo. Intentá de nuevo." };
@@ -78,7 +83,7 @@ export async function uploadResidencePaymentProof(
       bucket: "payment-proofs",
       storage_path: path,
       filename: file.name,
-      mime_type: file.type,
+      mime_type: realType,
       size_bytes: file.size,
       visibility: "context_shared",
       document_type: "student_payment_proof_to_residence",

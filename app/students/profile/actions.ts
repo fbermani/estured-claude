@@ -15,6 +15,7 @@ import {
   resolveVisibilityUpdate,
   type VisibilityValues,
 } from "@/lib/students/communityVisibilitySettings";
+import { extensionForMime, resolveDocumentType } from "@/lib/files/sniffFile";
 import {
   INTEREST_OPTIONS,
   HABIT_OPTIONS,
@@ -279,6 +280,10 @@ export async function uploadStudentDocument(
   if (!ALLOWED_DOCUMENT_TYPES.includes(file.type)) {
     return { status: "error", message: "El archivo debe ser PDF, JPG, PNG o WebP." };
   }
+  const realType = await resolveDocumentType(file);
+  if (!realType) {
+    return { status: "error", message: "El archivo debe ser PDF, JPG, PNG o WebP." };
+  }
 
   // DR38: la etiqueta del requisito «Otro» se sanitiza y acota acá; en el resto de los tipos se ignora.
   let requirementLabel: string | null = null;
@@ -288,11 +293,11 @@ export async function uploadStudentDocument(
     requirementLabel = label || null;
   }
 
-  const ext = file.type === "application/pdf" ? "pdf" : file.type.split("/")[1];
+  const ext = extensionForMime(realType);
   const path = `${profile.id}/${documentType}-${crypto.randomUUID()}.${ext}`;
   const { error: uploadError } = await admin.storage
     .from("student-documents")
-    .upload(path, file, { contentType: file.type });
+    .upload(path, file, { contentType: realType });
   if (uploadError) {
     console.error("[students/profile] upload failed:", uploadError);
     return { status: "error", message: "No pudimos subir el archivo. Intentá de nuevo." };
@@ -305,7 +310,7 @@ export async function uploadStudentDocument(
     bucket: "student-documents",
     storage_path: path,
     filename: file.name,
-    mime_type: file.type,
+    mime_type: realType,
     size_bytes: file.size,
     visibility: "private",
     document_type: documentType,

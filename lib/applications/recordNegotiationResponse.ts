@@ -32,6 +32,8 @@ export type RecordNegotiationResponseResult = { ok: true } | { ok: false; error:
  * server action mantiene `redirect()` — no puede vivir acá, solo
  * funciona invocado dentro del ciclo de vida real de un Server Action.
  */
+const NEGOTIATION_RESPONSES: readonly string[] = ["accepted", "rejected_chose_original", "rejected_closed"];
+
 export async function recordNegotiationResponse(
   admin: SupabaseClient,
   params: {
@@ -40,6 +42,9 @@ export async function recordNegotiationResponse(
     actorUserId: string;
   },
 ): Promise<RecordNegotiationResponseResult> {
+  // Las server actions reciben este valor del cliente: el tipo de TS no existe en runtime, y la rama final de abajo es un `else`
+  // (cualquier otro texto cancelaría la solicitud). Se valida contra la lista cerrada.
+  if (!NEGOTIATION_RESPONSES.includes(params.response)) return { ok: false, error: "Respuesta no válida." };
   const { data: application } = await admin
     .from("application_requests")
     .select("id, status, student_profile_id, snapshot_original_id, residence_id, room_type_id, desired_start_date")
