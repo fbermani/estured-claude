@@ -34,24 +34,29 @@ export function ConditionCard({
           open ? "[transform:rotateY(180deg)]" : ""
         }`}
       >
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          aria-expanded={open}
-          aria-label={`Ver detalle: ${title}`}
+        <div
           inert={open}
-          className={`${face} items-start transition-shadow hover:shadow-card-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest`}
+          className={`${face} items-start transition-shadow hover:shadow-card-hover has-[button:focus-visible]:outline-2 has-[button:focus-visible]:outline-offset-2 has-[button:focus-visible]:outline-forest`}
         >
-          <span className="flex items-center gap-1 text-[11px] font-extrabold uppercase tracking-wide text-muted sm:gap-1.5 sm:text-xs">
+          {/* El botón que gira la tarjeta cubre todo el frente; el contenido va encima sin capturar clics,
+              salvo la nota de cotización (su propio botón «i»), para no anidar botones. */}
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            aria-expanded={open}
+            aria-label={`Ver detalle: ${title}`}
+            className="absolute inset-0 rounded-card focus-visible:outline-none"
+          />
+          <span className="pointer-events-none relative flex items-center gap-1 text-[11px] font-extrabold uppercase tracking-wide text-muted sm:gap-1.5 sm:text-xs">
             <Icon name={icon} className="text-lg text-forest-700" />
             {title}
           </span>
-          <span className="mt-1.5 font-display text-[15px] font-extrabold leading-tight text-ink sm:text-lg">{value}</span>
-          {note && <span className="mt-0.5 text-xs text-ink-faint">{note}</span>}
-          <span aria-hidden="true" className="mt-auto inline-flex items-center gap-0.5 text-xs font-bold text-forest-700">
+          <span className="pointer-events-none relative mt-1.5 font-display text-[15px] font-extrabold tabular-nums leading-tight text-ink sm:text-lg">{value}</span>
+          {note && <span className="pointer-events-none relative mt-0.5 text-xs text-ink-faint [&_button]:pointer-events-auto">{note}</span>}
+          <span aria-hidden="true" className="pointer-events-none relative mt-auto inline-flex items-center gap-0.5 text-xs font-bold text-forest-700">
             Ver detalle <Icon name="autorenew" className="text-base" />
           </span>
-        </button>
+        </div>
 
         <div className={`${face} [transform:rotateY(180deg)] bg-cream`} inert={!open}>
           <p className="flex shrink-0 items-center gap-1 text-[11px] font-extrabold uppercase tracking-wide text-muted sm:gap-1.5 sm:text-xs">

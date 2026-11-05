@@ -182,7 +182,7 @@ function NotesSection({
           placeholder="Escribí una nota sobre el residente…"
           required
           maxLength={2000}
-          className="w-full resize-none rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink placeholder:text-ink-faint focus:border-forest focus:outline-none"
+          className="w-full resize-none rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink placeholder:text-ink-faint focus:border-forest focus:outline-2 focus:outline-offset-1 focus:outline-forest"
         />
         <div className="mt-2 flex items-center justify-between gap-2">
           <div className="flex gap-3">
@@ -203,7 +203,7 @@ function NotesSection({
           <button
             type="submit"
             disabled={notePending}
-            className="shrink-0 cursor-pointer rounded-full bg-forest px-4 py-1.5 text-xs font-bold text-white hover:bg-forest-600"
+            className="inline-flex min-h-11 shrink-0 cursor-pointer items-center rounded-full bg-forest px-4 py-1.5 text-xs font-bold text-white hover:bg-forest-600"
           >
             {notePending ? "…" : "Guardar nota"}
           </button>
@@ -379,7 +379,7 @@ function DetailPanel({
           type="date"
           name="expected_end_date"
           defaultValue={row.expectedEndDate ?? ""}
-          className="w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none"
+          className="w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-2 focus:outline-offset-1 focus:outline-forest"
         />
         <label className="mb-1 mt-3 block text-xs font-bold text-ink" htmlFor={`rate-${row.stayId}`}>
           Tarifa del residente (USD)
@@ -398,7 +398,7 @@ function DetailPanel({
                 ? `${row.baseRateUsd} (tarifa del tipo)`
                 : "Sin tarifa"
           }
-          className="w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none"
+          className="w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-2 focus:outline-offset-1 focus:outline-forest"
         />
         <p className="mt-1 text-[11px] text-ink-faint">
           {row.agreedRateUsd != null
@@ -420,7 +420,7 @@ function DetailPanel({
         <button
           type="submit"
           disabled={detailsPending}
-          className="mt-3 cursor-pointer rounded-full bg-forest px-4 py-1.5 text-sm font-bold text-white hover:bg-forest-600"
+          className="mt-3 inline-flex min-h-11 cursor-pointer items-center rounded-full bg-forest px-4 py-1.5 text-sm font-bold text-white hover:bg-forest-600"
         >
           {detailsPending ? "Guardando…" : "Guardar"}
         </button>
@@ -445,7 +445,7 @@ function DetailPanel({
             name="bed_id"
             required
             defaultValue=""
-            className="w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none"
+            className="w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-2 focus:outline-offset-1 focus:outline-forest"
           >
             <option value="" disabled>
               {freeBeds.length > 0 ? "Cambiar a…" : "Sin camas libres"}
@@ -459,7 +459,7 @@ function DetailPanel({
           <button
             type="submit"
             disabled={bedPending || freeBeds.length === 0}
-            className="mt-3 cursor-pointer rounded-full border-[1.5px] border-line px-4 py-1.5 text-sm font-bold text-ink-soft hover:border-forest hover:text-forest-700 disabled:opacity-50"
+            className="mt-3 inline-flex min-h-11 cursor-pointer items-center rounded-full border-[1.5px] border-line px-4 py-1.5 text-sm font-bold text-ink-soft hover:border-forest hover:text-forest-700 disabled:opacity-50"
           >
             {bedPending ? "Asignando…" : "Cambiar ubicación"}
           </button>
@@ -779,7 +779,7 @@ export function ResidentsBrowser({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar por nombre, email o habitación…"
-            className="w-full rounded-field border-[1.5px] border-field-border bg-cream py-2.5 pl-10 pr-3 text-sm text-ink placeholder:text-ink-faint focus:border-forest focus:outline-none"
+            className="w-full rounded-field border-[1.5px] border-field-border bg-cream py-2.5 pl-10 pr-3 text-sm text-ink placeholder:text-ink-faint focus:border-forest focus:outline-2 focus:outline-offset-1 focus:outline-forest"
           />
         </div>
         <FilterChips
@@ -806,7 +806,7 @@ export function ResidentsBrowser({
               <select
                 value={changeType}
                 onChange={(e) => setChangeType(e.target.value)}
-                className="mt-1 w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none"
+                className="mt-1 w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-2 focus:outline-offset-1 focus:outline-forest"
               >
                 <option value="">Todos</option>
                 {data.roomTypes.map((t) => (
@@ -821,7 +821,7 @@ export function ResidentsBrowser({
               <select
                 value={changeGender}
                 onChange={(e) => setChangeGender(e.target.value)}
-                className="mt-1 w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none"
+                className="mt-1 w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-2 focus:outline-offset-1 focus:outline-forest"
               >
                 <option value="">Todos</option>
                 {ROOM_CHANGE_GENDERS.map((g) => (

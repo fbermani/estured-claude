@@ -40,12 +40,12 @@ export function ResidenceCardCompact({ residence, arsPerUsd }: { residence: Resi
         </div>
       </div>
       <div className="pointer-events-none relative mt-auto px-4 pb-4 pt-3 [&_button]:pointer-events-auto">
-        <p className="text-base font-bold text-forest-700">
+        <p className="text-base font-bold tabular-nums text-forest-700">
           <span className="text-xs font-normal text-ink-faint">Desde </span>
           {formatUsd(residence.priceFromUsd)}
           <span className="ml-1 text-xs font-normal text-ink-faint">/mes</span>
         </p>
-        <p className="text-xs text-ink-faint">
+        <p className="text-xs tabular-nums text-ink-faint">
           ≈ {formatArs(usdToArsRounded(residence.priceFromUsd, arsPerUsd))} referencial
           <ExchangeRateNote />
         </p>

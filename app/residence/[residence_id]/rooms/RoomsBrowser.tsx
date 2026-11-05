@@ -125,7 +125,7 @@ function RenameForm({ residenceId, room }: { residenceId: string; room: RoomData
           defaultValue={room.label}
           maxLength={40}
           required
-          className="w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none"
+          className="w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-2 focus:outline-offset-1 focus:outline-forest"
         />
         <button
           type="submit"
@@ -155,7 +155,7 @@ function GenderForm({ residenceId, room, shared }: { residenceId: string; room: 
           id={`room-gender-${room.id}`}
           name="gender"
           defaultValue={room.gender}
-          className="w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none"
+          className="w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-2 focus:outline-offset-1 focus:outline-forest"
         >
           {options.map((o) => (
             <option key={o} value={o}>
@@ -317,7 +317,7 @@ function BedRow({
             name="resident_stay_id"
             required
             defaultValue=""
-            className="w-full rounded-field border-[1.5px] border-field-border bg-paper px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none"
+            className="w-full rounded-field border-[1.5px] border-field-border bg-paper px-3 py-2 text-sm text-ink focus:border-forest focus:outline-2 focus:outline-offset-1 focus:outline-forest"
           >
             <option value="" disabled>
               Elegí un residente sin cama…
@@ -349,7 +349,7 @@ function BedRow({
           <input
             name="reason"
             placeholder="Razón (ej: mantenimiento aire acondicionado)"
-            className="w-full rounded-field border-[1.5px] border-field-border bg-paper px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none"
+            className="w-full rounded-field border-[1.5px] border-field-border bg-paper px-3 py-2 text-sm text-ink focus:border-forest focus:outline-2 focus:outline-offset-1 focus:outline-forest"
           />
           <button
             type="submit"
@@ -384,7 +384,7 @@ function RoomOutOfServiceForm({ residenceId, room }: { residenceId: string; room
             maxLength={200}
             placeholder="Razón (ej. Mantenimiento)"
             aria-label="Razón de la baja de servicio"
-            className="mt-2 w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none"
+            className="mt-2 w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-2 focus:outline-offset-1 focus:outline-forest"
           />
         </>
       )}
@@ -438,7 +438,7 @@ function BulkGenderBar({
         <select
           name="gender"
           defaultValue="mixto"
-          className="rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none"
+          className="rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-2 focus:outline-offset-1 focus:outline-forest"
         >
           {options.map((o) => (
             <option key={o} value={o}>
@@ -523,7 +523,7 @@ function RoomModal({
             <div>
               <p className="text-sm font-bold text-ink">Tarifa mensual</p>
               <p className="mt-0.5 text-sm text-ink-soft">
-                {formatUsd(priceUsd)} <span className="text-xs text-ink-faint">
+                <span className="tabular-nums">{formatUsd(priceUsd)}</span> <span className="text-xs text-ink-faint">
                   ≈ {formatArs(usdToArsRounded(priceUsd, arsPerUsd))}
                   <ExchangeRateNote />
                 </span>
@@ -758,7 +758,7 @@ export function RoomsBrowser({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar habitación o residente…"
-            className="w-full rounded-field border-[1.5px] border-field-border bg-cream py-2 pl-10 pr-3 text-sm text-ink placeholder:text-ink-faint focus:border-forest focus:outline-none"
+            className="w-full rounded-field border-[1.5px] border-field-border bg-cream py-2 pl-10 pr-3 text-sm text-ink placeholder:text-ink-faint focus:border-forest focus:outline-2 focus:outline-offset-1 focus:outline-forest"
           />
         </div>
         <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-ink-soft">
@@ -789,7 +789,7 @@ export function RoomsBrowser({
         <button
           type="button"
           onClick={() => setTypeFilter(null)}
-          className={`cursor-pointer rounded-full px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest ${
+          className={`inline-flex min-h-11 cursor-pointer items-center rounded-full px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest ${
             typeFilter === null ? "bg-forest-ink text-white" : "border-[1.5px] border-line bg-paper text-ink-soft hover:border-line-2"
           }`}
         >
@@ -800,7 +800,7 @@ export function RoomsBrowser({
             key={g.id}
             type="button"
             onClick={() => setTypeFilter(typeFilter === g.id ? null : g.id)}
-            className={`cursor-pointer rounded-full px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest ${
+            className={`inline-flex min-h-11 cursor-pointer items-center rounded-full px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest ${
               typeFilter === g.id ? "bg-forest-ink text-white" : "border-[1.5px] border-line bg-paper text-ink-soft hover:border-line-2"
             }`}
           >
@@ -854,7 +854,7 @@ export function RoomsBrowser({
                   )}
                   <div className="text-right">
                     <p className="text-[10px] font-extrabold uppercase tracking-widest text-muted">Tarifa base</p>
-                    <p className="font-bold text-ink">
+                    <p className="font-bold tabular-nums text-ink">
                       {formatUsd(g.priceUsd)}
                       <span className="ml-1.5 text-xs font-normal text-ink-faint">
                         ≈ {formatArs(usdToArsRounded(g.priceUsd, arsPerUsd))}

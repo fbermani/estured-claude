@@ -148,7 +148,7 @@ export function OwnerResidenceCard({
             )}
           </div>
           <div className="flex flex-col items-end gap-1.5">
-            <Button href={href} size="sm">
+            <Button href={href} size="sm" className="whitespace-nowrap">
               Gestionar residencia
             </Button>
             <Link href={`${href}/profile`} className="text-xs font-semibold text-forest-700 hover:underline">

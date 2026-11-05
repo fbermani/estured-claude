@@ -4,8 +4,8 @@ import Image from "next/image";
  * Foto de una residencia con estado "sin foto" de marca (Ciclo 54, D12).
  *
  * EstuRed no usa fotos de terceros: hasta que la residencia cargue las suyas
- * se muestra una fachada porteña ilustrada, con un tinte (mint / butter / sky)
- * estable por residencia, para que el vacío se lea como decisión de diseño y
+ * se muestra una placa tipográfica con el barrio en grande, con un tinte
+ * (mint / butter / sky / lilac) estable por barrio (miniaturas: fachada ilustrada), para que el vacío se lea como decisión de diseño y
  * no como algo roto. El texto "Foto próximamente" aparece solo donde se pasa
  * `label` (catálogo, ficha); en miniaturas y paneles internos va sin texto.
  *
@@ -13,7 +13,13 @@ import Image from "next/image";
  * (reserva el alto, así que no hay salto de layout al cargar la imagen).
  */
 
-const TINTS = ["bg-mint", "bg-butter", "bg-sky"] as const;
+/** Tinte por barrio (mismo barrio, mismo color) con su color de texto; clases estáticas para Tailwind. */
+const TINTS = [
+  { bg: "bg-mint", fg: "text-forest-700" },
+  { bg: "bg-butter", fg: "text-butter-fg" },
+  { bg: "bg-sky", fg: "text-sky-fg" },
+  { bg: "bg-lilac", fg: "text-lilac-fg" },
+] as const;
 
 function tintFor(seed: string): (typeof TINTS)[number] {
   let hash = 0;
@@ -81,7 +87,6 @@ export function ResidencePhotoPlaceholder({
   zone,
   variant = "card",
   label,
-  labelPosition = "top",
   className = "",
 }: {
   name: string;
@@ -89,32 +94,34 @@ export function ResidencePhotoPlaceholder({
   variant?: ResidencePlaceholderVariant;
   /** Texto discreto ("Foto próximamente"). Sin `label` no se muestra ninguno. */
   label?: string;
-  /** Arriba a la derecha por defecto (abajo suele estar la ilustración y las etiquetas de estado). */
-  labelPosition?: "top" | "bottom";
   className?: string;
 }) {
-  const tint = tintFor(`${name}|${zone ?? ""}`);
+  const tint = tintFor(zone?.trim() || name);
+  const plaque = variant !== "thumb";
   return (
     <div
       role="img"
       aria-label={label ? `${name}: ${label.toLowerCase()}` : `${name}: sin fotos cargadas`}
-      className={`absolute inset-0 flex items-end justify-center overflow-hidden ${tint} ${className}`}
+      className={`absolute inset-0 flex items-center justify-center overflow-hidden ${tint.bg} ${className}`}
     >
-      {variant !== "thumb" && (
+      {plaque ? (
         <>
           <span className="absolute -left-6 -top-8 size-28 rounded-full bg-paper/45" aria-hidden />
           <span className="absolute -bottom-10 -right-8 size-32 rounded-full bg-paper/35" aria-hidden />
+          {/* Placa tipográfica (auditoría A5): el barrio en grande distingue las residencias sin foto. */}
+          <div className={`relative flex max-w-[88%] flex-col items-center gap-1.5 text-center ${tint.fg}`}>
+            {zone && (
+              <span className={`font-display font-extrabold leading-tight ${variant === "hero" ? "text-4xl sm:text-5xl" : "text-2xl sm:text-[26px]"}`}>
+                {zone}
+              </span>
+            )}
+            <span className="rounded-full bg-paper/80 px-2.5 py-1 text-[11px] font-semibold text-ink-soft">
+              {label ?? "Foto próximamente"}
+            </span>
+          </div>
         </>
-      )}
-      <FacadeIllustration className={`relative text-forest-700/70 ${ILLUSTRATION_SIZE[variant]}`} />
-      {label && (
-        <span
-          className={`absolute right-3 rounded-full bg-paper/80 px-2.5 py-1 text-[11px] font-semibold text-ink-soft ${
-            labelPosition === "bottom" ? "bottom-2.5" : "top-3"
-          }`}
-        >
-          {label}
-        </span>
+      ) : (
+        <FacadeIllustration className={`relative ${tint.fg} opacity-70 ${ILLUSTRATION_SIZE[variant]}`} />
       )}
     </div>
   );
@@ -133,7 +140,6 @@ export function ResidencePhoto({
   priority,
   variant = "card",
   label,
-  labelPosition,
   imageClassName = "",
 }: {
   src?: string | null;
@@ -145,10 +151,11 @@ export function ResidencePhoto({
   priority?: boolean;
   variant?: ResidencePlaceholderVariant;
   label?: string;
+  /** @deprecated sin efecto desde la placa tipográfica; se conserva para no romper llamadores. */
   labelPosition?: "top" | "bottom";
   imageClassName?: string;
 }) {
-  if (!src) return <ResidencePhotoPlaceholder name={name} zone={zone} variant={variant} label={label} labelPosition={labelPosition} />;
+  if (!src) return <ResidencePhotoPlaceholder name={name} zone={zone} variant={variant} label={label} />;
   return (
     <Image
       src={src}

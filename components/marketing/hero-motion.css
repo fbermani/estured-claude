@@ -42,19 +42,9 @@
   animation-delay: var(--d, 0s);
 }
 
-@keyframes hero-float {
-  0%,
-  100% {
-    transform: translateY(0) rotate(var(--r, 0deg));
-  }
-  50% {
-    transform: translateY(-9px) rotate(var(--r, 0deg));
-  }
-}
+/* Auditoría B1: sin flotación infinita; las tarjetas quedan quietas con su leve rotación. */
 .hero-float {
   transform: rotate(var(--r, 0deg));
-  animation: hero-float 6.5s ease-in-out infinite;
-  animation-delay: var(--fd, 0s);
 }
 
 @keyframes hero-drift {
@@ -106,7 +96,6 @@
 @media (prefers-reduced-motion: reduce) {
   .hero-rise-t,
   .hero-seq,
-  .hero-float,
   .hero-drift,
   .hero-marquee,
   .hero-pulse,

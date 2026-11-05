@@ -1,6 +1,6 @@
 /** Skeleton de /search: cabecera, columna de filtros y tarjetas. Sin pulso con `prefers-reduced-motion`. */
 function Bar({ className = "" }: { className?: string }) {
-  return <div className={`rounded-full bg-line motion-safe:animate-pulse ${className}`} />;
+  return <div className={`kit-skel rounded-full ${className}`} />;
 }
 
 export default function LoadingSearch() {
@@ -25,7 +25,7 @@ export default function LoadingSearch() {
           <div className="mt-4 grid grid-cols-[repeat(auto-fill,minmax(17rem,1fr))] gap-4">
             {[0, 1, 2, 3, 4, 5].map((i) => (
               <div key={i} className="overflow-hidden rounded-card border-[1.5px] border-line bg-paper">
-                <div className="aspect-[16/10] bg-line motion-safe:animate-pulse" />
+                <div className="kit-skel aspect-[16/10]" />
                 <div className="space-y-3 p-4">
                   <Bar className="h-5 w-3/4" />
                   <Bar className="h-3.5 w-full" />
