@@ -3,13 +3,15 @@
 import { createContext, useCallback, useContext, useRef, useState, type ReactNode } from "react";
 
 /**
- * Estado compartido de la ficha entre la tabla de tarifas, el modal de solicitud (`RequestSheet`, DR30 §6) y
+ * Estado compartido de la ficha entre la tabla de tarifas, el panel de solicitud (`RequestPanel`) y
  * `CommunityBrowser`, sin pasar por navegación.
  *
- * - `roomTypeId`: el tipo de habitación elegido. Elegirlo en la tabla, en la card lateral o con `?room=` es
+ * - `roomTypeId`: el tipo de habitación elegido. Elegirlo en la tabla, en el panel o con `?room=` es
  *   el mismo estado (SPEC §4.1). Pedido original del dueño (Ciclo 35octodevicies): seleccionar una plaza debe
  *   completar el formulario y recalcular precios en tiempo real.
- * - `sheet`: qué hoja está abierta (`request` = solicitud o propuesta, `waitlist` = lista de espera) o `null`.
+ * - `panelMode`: qué contenido muestra el panel (`request` = solicitud o propuesta, `waitlist` = lista de espera).
+ * - `sheetOpen`: solo importa en móvil (< 900 px), donde el panel es una hoja inferior modal. En escritorio el
+ *   panel siempre está a la vista y `openSheet` solo lleva el foco ahí (`openTick` avisa que hubo un pedido).
  *
  * Viven en el mismo árbol de cliente gracias a `ReservationSelectionProvider` en `page.tsx`, que envuelve la
  * página como children (patrón "Server Component como children de un Client Component").
@@ -21,17 +23,22 @@ interface ReservationSelectionValue {
   roomTypeId: string | null;
   /** Identifica la plaza puntual elegida, solo para resaltarla visualmente — la reserva sigue siendo a nivel de tipo de habitación (docs: sin disponibilidad por cama individual). */
   slotKey: string | null;
-  /** Selección desde una plaza puntual en CommunityBrowser: fija tipo + plaza y abre el modal de solicitud. */
+  /** Selección desde una plaza puntual en CommunityBrowser: fija tipo + plaza y lleva al panel de solicitud. */
   select: (roomTypeId: string, slotKey: string) => void;
-  /** Cambio manual (tabla de tarifas, card o dropdown del formulario): ya no corresponde a una plaza puntual. */
+  /** Cambio manual (tabla de tarifas, panel o card): ya no corresponde a una plaza puntual. */
   setRoomTypeId: (roomTypeId: string) => void;
-  /** Hoja abierta, o `null`. */
-  sheet: SheetMode | null;
+  /** Contenido del panel: solicitud o lista de espera. */
+  panelMode: SheetMode;
+  setPanelMode: (mode: SheetMode) => void;
+  /** Hoja abierta (solo tiene efecto visual en móvil). */
+  sheetOpen: boolean;
+  /** Se incrementa en cada pedido de abrir el panel (para enfocarlo en escritorio / abrir la hoja en móvil). */
+  openTick: number;
   openSheet: (mode?: SheetMode) => void;
   closeSheet: () => void;
-  /** ¿Hay un modal de solicitud montado en esta página? (solo en la ficha, para estudiantes y familiares). */
+  /** ¿Hay un panel de solicitud montado en esta página? (solo en la ficha, para estudiantes y familiares). */
   hasSheet: boolean;
-  /** Lo llama `RequestSheet` al montarse; devuelve la función que lo desregistra. */
+  /** Lo llama `RequestPanel` al montarse; devuelve la función que lo desregistra. */
   registerSheet: () => () => void;
 }
 
@@ -43,13 +50,15 @@ export function ReservationSelectionProvider({
   children,
 }: {
   initialRoomTypeId?: string;
-  /** Abre la hoja al cargar (vuelta del login con `?solicitar=1`). */
+  /** Lleva al panel al cargar (vuelta del login con `?solicitar=1`): enfoca el panel en escritorio, abre la hoja en móvil. */
   initialSheet?: SheetMode | null;
   children: ReactNode;
 }) {
   const [roomTypeId, setRoomTypeIdState] = useState<string | null>(initialRoomTypeId ?? null);
   const [slotKey, setSlotKey] = useState<string | null>(null);
-  const [sheet, setSheet] = useState<SheetMode | null>(initialSheet);
+  const [panelMode, setPanelMode] = useState<SheetMode>(initialSheet ?? "request");
+  const [sheetOpen, setSheetOpen] = useState(initialSheet !== null);
+  const [openTick, setOpenTick] = useState(initialSheet !== null ? 1 : 0);
 
   const [hasSheet, setHasSheet] = useState(false);
   const hasSheetRef = useRef(false);
@@ -62,23 +71,43 @@ export function ReservationSelectionProvider({
     };
   }, []);
 
-  const select = useCallback((newRoomTypeId: string, newSlotKey: string) => {
-    setRoomTypeIdState(newRoomTypeId);
-    setSlotKey(newSlotKey);
-    if (hasSheetRef.current) setSheet("request");
+  const openSheet = useCallback((mode: SheetMode = "request") => {
+    setPanelMode(mode);
+    setSheetOpen(true);
+    setOpenTick((t) => t + 1);
   }, []);
+  const closeSheet = useCallback(() => setSheetOpen(false), []);
+
+  const select = useCallback(
+    (newRoomTypeId: string, newSlotKey: string) => {
+      setRoomTypeIdState(newRoomTypeId);
+      setSlotKey(newSlotKey);
+      if (hasSheetRef.current) openSheet("request");
+    },
+    [openSheet],
+  );
 
   const setRoomTypeId = useCallback((newRoomTypeId: string) => {
     setRoomTypeIdState(newRoomTypeId);
     setSlotKey(null);
   }, []);
 
-  const openSheet = useCallback((mode: SheetMode = "request") => setSheet(mode), []);
-  const closeSheet = useCallback(() => setSheet(null), []);
-
   return (
     <ReservationSelectionContext.Provider
-      value={{ roomTypeId, slotKey, select, setRoomTypeId, sheet, openSheet, closeSheet, hasSheet, registerSheet }}
+      value={{
+        roomTypeId,
+        slotKey,
+        select,
+        setRoomTypeId,
+        panelMode,
+        setPanelMode,
+        sheetOpen,
+        openTick,
+        openSheet,
+        closeSheet,
+        hasSheet,
+        registerSheet,
+      }}
     >
       {children}
     </ReservationSelectionContext.Provider>

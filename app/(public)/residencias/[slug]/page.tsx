@@ -9,6 +9,8 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { Button } from "@/components/ui/Button";
 import { FichaMobileBar, FichaSummary } from "@/components/residences/ficha/FichaSummary";
+import { RequestPanel, RequestMobileBar } from "@/components/residences/ficha/RequestPanel";
+import { GuestRequestContent } from "@/components/residences/ficha/GuestRequestContent";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { TrustBadge } from "@/components/residences/TrustBadge";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
@@ -62,7 +64,6 @@ import { ReservationConditions } from "@/components/residences/ficha/Reservation
 import { EarlyExitPolicy } from "@/components/residences/ficha/EarlyExitPolicy";
 import { CommunitySummary } from "@/components/residences/ficha/CommunitySummary";
 import { RequestHowItWorks, RequestNotices } from "@/components/residences/ficha/RequestNotices";
-import { RequestSheet } from "@/components/residences/ficha/RequestSheet";
 import { describeAgeRange } from "@/lib/residences/age";
 import { abbreviateUniversity } from "@/lib/residences/universityLabel";
 import { SITE_URL } from "@/lib/siteUrl";
@@ -487,16 +488,19 @@ export default async function RealResidenceDetailPage({
 
   const chipClass =
     "inline-flex min-w-0 items-center gap-1.5 rounded-[18px] border border-line bg-paper px-3 py-1.5 text-sm leading-snug text-ink-soft sm:whitespace-nowrap sm:rounded-full";
-  // Resumen fijo (≥900 px): lo mismo que la fila de chips, que en esas pantallas se oculta para no repetirlo.
-  const summaryRows = [
-    typesChip && { label: "Habitaciones", value: typesChip.charAt(0).toUpperCase() + typesChip.slice(1) },
-    minimumStayLabel && { label: "Estadía mínima", value: minimumStayLabel },
-    nearest && { label: "Cercanía", value: `~${nearest.km.toFixed(1).replace(".", ",")} km de ${abbreviateUniversity(nearest.name)}` },
-    occupancyLabel
-      ? { label: "Plazas", value: occupancyLabel }
-      : (community?.totalResidents ?? 0) > 0 && { label: "Residentes", value: String(community?.totalResidents) },
-  ].filter((r): r is { label: string; value: string } => Boolean(r));
+  // Quién ve el panel de solicitud en la columna derecha (≥ 900 px) y como hoja inferior en móvil: visitante, estudiante y
+  // familiar con estudiante vinculado, siempre que haya tipos para elegir. El resto (equipo, menores, otros roles) ve el
+  // resumen con «Ver tarifas».
+  const panelVariant: "guest" | "apply" | "propose" | null =
+    mode === "guest" && fichaTypes.length > 0
+      ? "guest"
+      : mode === "student" && roomTypes.length > 0
+        ? "apply"
+        : mode === "family" && roomTypes.length > 0
+          ? "propose"
+          : null;
   const hasSummary = fromPriceUsd != null;
+  const hasAside = panelVariant !== null || hasSummary;
 
   return (
     <ReservationSelectionProvider initialRoomTypeId={preselectedRoomTypeId} initialSheet={initialSheet}>
@@ -537,7 +541,7 @@ export default async function RealResidenceDetailPage({
         </nav>
 
         {/* Dos columnas desde 900 px (A1, auditoría 2026-11-03): contenido a la izquierda y resumen fijo a la derecha. */}
-        <div className={hasSummary ? "min-[900px]:grid min-[900px]:grid-cols-[minmax(0,1fr)_20rem] min-[900px]:gap-8" : ""}>
+        <div className={hasAside ? "min-[900px]:grid min-[900px]:grid-cols-[minmax(0,1fr)_23rem] min-[900px]:gap-8" : ""}>
         <div className="min-w-0">
         {/* Hero de fotos — se adapta a la cantidad (0 / 1 / 2–4 / 5+), Ciclo 54 (D12) */}
         <ResidenceGallery photos={photos} name={residence.name} zone={residence.public_area ?? ""} />
@@ -557,7 +561,7 @@ export default async function RealResidenceDetailPage({
             {residence.public_area}, CABA
           </p>
 
-          <ul className={`mt-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap ${hasSummary ? "min-[900px]:hidden!" : ""}`}>
+          <ul className={`mt-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap`}>
             {/* «Desde» vive en la barra inferior (móvil) y en el resumen (escritorio); sin precio no hay ninguno de los dos. */}
             {typesChip && (
               <li className={chipClass}>
@@ -802,7 +806,88 @@ export default async function RealResidenceDetailPage({
         </div>
 
         </div>
-        {hasSummary && <FichaSummary fromPriceUsd={fromPriceUsd} arsPerUsd={rate.arsPerUsd} rows={summaryRows} />}
+        {panelVariant ? (
+          <aside aria-label={`Solicitud de reserva en ${residence.name}`} className="max-[899px]:contents">
+            <RequestPanel
+              residenceName={residence.name}
+              windowNotice={windowNotice}
+              variant={panelVariant}
+              canRequest={anyRequestable}
+              requestContent={
+                mode === "guest" ? (
+                  <GuestRequestContent slug={slug} types={fichaTypes.filter((t) => isTypeRequestable(t.state))} />
+                ) : mode === "family" ? (
+                  <ProposeForm
+                    residenceId={residence.id}
+                    roomTypes={roomTypes.map((rt) => ({ ...rt, promotion_percent: rt.promotion?.discountPercent ?? null, vacancy: rt.vacancy }))}
+                    students={linkedStudents}
+                    moveInNotice={<MoveInGuideNote />}
+                    conditions={{
+                      minimumStayMonths: conditions.minimumStayMonths,
+                      enrollmentFeeMode: conditions.enrollmentFeeMode,
+                      enrollmentFeeUsd: conditions.enrollmentFeeUsd,
+                      enrollmentFeeFrequency: conditions.enrollmentFeeFrequency,
+                      depositUsd: conditions.depositUsd,
+                      depositMode: conditions.depositMode,
+                      enrollmentDiscountPercent: conditions.enrollmentDiscountPercent,
+                      enrollmentDiscountUntil: conditions.enrollmentDiscountUntil,
+                      emptyMonthChargePercent: conditions.emptyMonthChargePercent,
+                      initialPayment: conditions.initialPayment,
+                    }}
+                    arsPerUsd={rate.arsPerUsd}
+                  />
+                ) : (
+                  <ApplyForm
+                    typeCards={fichaTypes}
+                    residenceId={residence.id}
+                    moveInNotice={<MoveInGuideNote />}
+                    regulation={
+                      regulation
+                        ? {
+                            hash: regulation.hash,
+                            content: <RegulationText text={regulation.text} className="max-h-72 overflow-y-auto pr-2" />,
+                            isModel: regulation.isBaseModel,
+                          }
+                        : null
+                    }
+                    roomTypes={roomTypes.map((rt) => ({ ...rt, promotion_percent: rt.promotion?.discountPercent ?? null, vacancy: rt.vacancy }))}
+                    conditions={{
+                      minimumStayMonths: conditions.minimumStayMonths,
+                      enrollmentFeeMode: conditions.enrollmentFeeMode,
+                      enrollmentFeeUsd: conditions.enrollmentFeeUsd,
+                      enrollmentFeeFrequency: conditions.enrollmentFeeFrequency,
+                      depositUsd: conditions.depositUsd,
+                      depositMode: conditions.depositMode,
+                      enrollmentDiscountPercent: conditions.enrollmentDiscountPercent,
+                      enrollmentDiscountUntil: conditions.enrollmentDiscountUntil,
+                      emptyMonthChargePercent: conditions.emptyMonthChargePercent,
+                      initialPayment: conditions.initialPayment,
+                    }}
+                    arsPerUsd={rate.arsPerUsd}
+                    profileCompletenessPercent={profileCompletenessPercent}
+                    minStartDate={windowNotice?.minRequestStartDate ?? null}
+                    stayChange={
+                      windowNotice?.stayChangeOpen
+                        ? { currentEndDate: windowNotice.endDateLabel.split("/").reverse().join("-"), currentEndLabel: windowNotice.endDateLabel }
+                        : null
+                    }
+                  />
+                )
+              }
+              waitlistContent={
+                mode === "student" && waitlistTypeIds.length > 0 ? (
+                  <JoinWaitlistForm
+                    residenceId={residence.id}
+                    roomTypes={waitlistRoomTypes}
+                    minStartDate={windowNotice?.minRequestStartDate ?? null}
+                  />
+                ) : undefined
+              }
+            />
+          </aside>
+        ) : (
+          hasSummary && <FichaSummary fromPriceUsd={fromPriceUsd} arsPerUsd={rate.arsPerUsd} />
+        )}
         </div>
 
         <p className="mt-10 text-center text-xs text-ink-faint">
@@ -814,82 +899,12 @@ export default async function RealResidenceDetailPage({
         </p>
       </div>
 
-      {(mode === "student" || mode === "family") && (
-        <RequestSheet
-          residenceName={residence.name}
-          windowNotice={windowNotice}
-          variant={mode === "family" ? "propose" : "apply"}
-          requestContent={
-            mode === "family" ? (
-              <ProposeForm
-                residenceId={residence.id}
-                roomTypes={roomTypes.map((rt) => ({ ...rt, promotion_percent: rt.promotion?.discountPercent ?? null, vacancy: rt.vacancy }))}
-                students={linkedStudents}
-                moveInNotice={<MoveInGuideNote />}
-                conditions={{
-                  minimumStayMonths: conditions.minimumStayMonths,
-                  enrollmentFeeMode: conditions.enrollmentFeeMode,
-                  enrollmentFeeUsd: conditions.enrollmentFeeUsd,
-                  enrollmentFeeFrequency: conditions.enrollmentFeeFrequency,
-                  depositUsd: conditions.depositUsd,
-                  depositMode: conditions.depositMode,
-                  enrollmentDiscountPercent: conditions.enrollmentDiscountPercent,
-                  enrollmentDiscountUntil: conditions.enrollmentDiscountUntil,
-                  emptyMonthChargePercent: conditions.emptyMonthChargePercent,
-                  initialPayment: conditions.initialPayment,
-                }}
-                arsPerUsd={rate.arsPerUsd}
-              />
-            ) : (
-              <ApplyForm
-                residenceId={residence.id}
-                moveInNotice={<MoveInGuideNote />}
-                regulation={
-                  regulation
-                    ? {
-                        hash: regulation.hash,
-                        content: <RegulationText text={regulation.text} className="max-h-72 overflow-y-auto pr-2" />,
-                        isModel: regulation.isBaseModel,
-                      }
-                    : null
-                }
-                roomTypes={roomTypes.map((rt) => ({ ...rt, promotion_percent: rt.promotion?.discountPercent ?? null, vacancy: rt.vacancy }))}
-                conditions={{
-                  minimumStayMonths: conditions.minimumStayMonths,
-                  enrollmentFeeMode: conditions.enrollmentFeeMode,
-                  enrollmentFeeUsd: conditions.enrollmentFeeUsd,
-                  enrollmentFeeFrequency: conditions.enrollmentFeeFrequency,
-                  depositUsd: conditions.depositUsd,
-                  depositMode: conditions.depositMode,
-                  enrollmentDiscountPercent: conditions.enrollmentDiscountPercent,
-                  enrollmentDiscountUntil: conditions.enrollmentDiscountUntil,
-                  emptyMonthChargePercent: conditions.emptyMonthChargePercent,
-                  initialPayment: conditions.initialPayment,
-                }}
-                arsPerUsd={rate.arsPerUsd}
-                profileCompletenessPercent={profileCompletenessPercent}
-                minStartDate={windowNotice?.minRequestStartDate ?? null}
-                stayChange={
-                  windowNotice?.stayChangeOpen
-                    ? { currentEndDate: windowNotice.endDateLabel.split("/").reverse().join("-"), currentEndLabel: windowNotice.endDateLabel }
-                    : null
-                }
-              />
-            )
-          }
-          waitlistContent={
-            mode === "student" && waitlistTypeIds.length > 0 ? (
-              <JoinWaitlistForm
-                residenceId={residence.id}
-                roomTypes={waitlistRoomTypes}
-                minStartDate={windowNotice?.minRequestStartDate ?? null}
-              />
-            ) : undefined
-          }
-        />
-      )}
-
-      {hasSummary && <FichaMobileBar fromPriceUsd={fromPriceUsd} />}
+      {hasSummary &&
+        (panelVariant ? (
+          <RequestMobileBar fromPriceUsd={fromPriceUsd} label={panelVariant === "propose" ? "Proponer esta residencia" : "Elegir habitación"} />
+        ) : (
+          <FichaMobileBar fromPriceUsd={fromPriceUsd} />
+        ))}
     </ReservationSelectionProvider>
   );
 }

@@ -17,8 +17,8 @@ import type { FichaRoomType } from "@/components/residences/ficha/types";
 /** Si el nombre ya dice cuántas personas son («Individual», «Doble»…), no se repite la capacidad. */
 const NAME_IMPLIES_CAPACITY = /individual|simple|doble|triple|cu[aá]druple|cuadruple|compartid/i;
 
-/** Columnas fijas en pantallas ≥ sm: tipo | precio | disponibilidad | acción. Así precio, estado y botón quedan alineados en todas las filas. */
-const ROW_GRID = "sm:grid sm:grid-cols-[minmax(0,1fr)_10rem_13.5rem_8.5rem] sm:items-center sm:gap-x-4";
+/** Columnas fijas en pantallas ≥ @[42rem]: tipo | precio | disponibilidad | acción. Así precio, estado y botón quedan alineados en todas las filas. */
+const ROW_GRID = "@[42rem]:grid @[42rem]:grid-cols-[minmax(0,1fr)_9rem_12.5rem_7.5rem] @[42rem]:items-center @[42rem]:gap-x-4";
 const GENDER_ICON: Record<string, string> = { masculino: "man", femenino: "woman" };
 
 function Chip({ icon, children }: { icon: string; children: React.ReactNode }) {
@@ -31,8 +31,8 @@ function Chip({ icon, children }: { icon: string; children: React.ReactNode }) {
 }
 
 /**
- * "Tarifas" — una línea por tipo, visible para TODOS (H10 / D17, DR30 §4). «Elegir» abre el modal de solicitud
- * (DR30 §6) para estudiantes y familiares; invitados van a ingresar conservando la elección; el resto no ve el botón.
+ * "Tarifas" — una línea por tipo, visible para TODOS (H10 / D17, DR30 §4). «Elegir» selecciona el tipo en el panel de solicitud
+ * (escritorio: lleva el foco ahí; móvil: abre la hoja) para estudiantes y familiares; invitados van a ingresar conservando la elección; el resto no ve el botón.
  * Elegir un tipo acá o con `?room=` es el mismo estado (`ReservationSelectionProvider`). La disponibilidad sale solo
  * del tipo (`StatusTag` con su copy oficial); no hay cantidades de lugares (D3/H03).
  */
@@ -58,7 +58,7 @@ export function RatesTable({
   const selectedId = roomTypes.find((rt) => rt.id === roomTypeId && isTypeRequestable(rt.state))?.id ?? null;
 
   return (
-    <div className="overflow-hidden rounded-card border-[1.5px] border-line bg-paper shadow-card">
+    <div className="@container overflow-hidden rounded-card border-[1.5px] border-line bg-paper shadow-card">
       <ul className="divide-y divide-line">
         {roomTypes.map((rt) => {
           const requestable = isTypeRequestable(rt.state);
@@ -97,16 +97,18 @@ export function RatesTable({
                   </div>
                 </div>
 
-                <div className="min-w-0 sm:text-right">
+                <div className="min-w-0 @[42rem]:text-right">
                   <p className={`font-display text-lg font-extrabold leading-tight ${requestable ? "text-ink" : "text-ink-soft"}`}>
                     {rt.listPriceUsd != null && (
-                      <span className="mr-1.5 text-sm font-semibold text-ink-faint line-through">
+                      <span className="mr-1.5 text-sm font-semibold text-ink-faint line-through @[42rem]:mr-0 @[42rem]:block @[42rem]:text-xs">
                         <span className="sr-only">Antes </span>
                         {formatUsd(rt.listPriceUsd)}
                       </span>
                     )}
-                    {formatUsd(rt.priceUsd)}
-                    <span className="text-xs font-semibold text-ink-faint"> /mes</span>
+                    <span className="whitespace-nowrap">
+                      {formatUsd(rt.priceUsd)}
+                      <span className="text-xs font-semibold text-ink-faint"> /mes</span>
+                    </span>
                   </p>
                   <p className="text-xs text-ink-faint">≈ {formatArs(rt.arsRounded)}</p>
                   {rt.promotion && (
@@ -117,11 +119,11 @@ export function RatesTable({
                   )}
                 </div>
 
-                <div className="flex items-center justify-between gap-2 sm:contents">
-                  <div className="sm:justify-self-start">
+                <div className="flex items-center justify-between gap-2 @[42rem]:contents">
+                  <div className="@[42rem]:justify-self-start">
                     <StatusTag mode={availMode} roomTypeName={rt.state === "full" ? rt.name : null} withTip />
                   </div>
-                  <div className="sm:w-full">
+                  <div className="@[42rem]:w-full">
                   {requestable && opensModal ? (
                     <Button
                       type="button"
@@ -131,9 +133,8 @@ export function RatesTable({
                         setRoomTypeId(rt.id);
                         openSheet("request");
                       }}
-                      aria-haspopup="dialog"
                       aria-label={`Elegir: ${rt.name}`}
-                      className="sm:!h-9 sm:!w-full sm:!px-4 sm:text-xs hover:!translate-y-0"
+                      className="@[42rem]:!h-9 @[42rem]:!w-full @[42rem]:!px-4 @[42rem]:text-xs hover:!translate-y-0"
                     >
                       Elegir
                     </Button>
@@ -142,7 +143,7 @@ export function RatesTable({
                       href={loginHrefFor(rt.id)}
                       variant="outline"
                       size="sm"
-                      className="sm:!h-9 sm:!w-full sm:!px-4 sm:text-xs hover:!translate-y-0"
+                      className="@[42rem]:!h-9 @[42rem]:!w-full @[42rem]:!px-4 @[42rem]:text-xs hover:!translate-y-0"
                     >
                       Elegir
                     </Button>
@@ -155,7 +156,7 @@ export function RatesTable({
                         setRoomTypeId(rt.id);
                         openSheet("waitlist");
                       }}
-                      className="!px-4 sm:!h-9 sm:!w-full sm:!px-3 sm:text-xs"
+                      className="!px-4 @[42rem]:!h-9 @[42rem]:!w-full @[42rem]:!px-3 @[42rem]:text-xs"
                     >
                       Lista de espera
                     </Button>
@@ -164,7 +165,7 @@ export function RatesTable({
                       href={loginHrefFor(rt.id)}
                       variant="outline"
                       size="sm"
-                      className="!px-4 sm:!h-9 sm:!w-full sm:!px-3 sm:text-xs"
+                      className="!px-4 @[42rem]:!h-9 @[42rem]:!w-full @[42rem]:!px-3 @[42rem]:text-xs"
                     >
                       Lista de espera
                     </Button>
@@ -177,14 +178,14 @@ export function RatesTable({
                 <ul aria-label={`${rt.name}, por género`} className="mt-3 space-y-2 border-t border-line/70 pt-3">
                   {rt.genderOffers.map((o) => (
                     <li key={o.gender} className={`flex flex-wrap items-center justify-between gap-x-3 gap-y-1 ${ROW_GRID}`}>
-                      <span className="flex min-w-0 items-center gap-1.5 pl-1 text-sm font-semibold text-ink-soft sm:col-span-2">
+                      <span className="flex min-w-0 items-center gap-1.5 pl-1 text-sm font-semibold text-ink-soft @[42rem]:col-span-2">
                         <Icon name={GENDER_ICON[o.gender] ?? "wc"} className="text-base text-forest-700" />
                         {o.label}
                       </span>
-                      <span className="sm:justify-self-start">
+                      <span className="@[42rem]:justify-self-start">
                         <StatusTag mode={typeAvailabilityMode(o.state)} roomTypeName={o.state === "full" ? o.label : null} />
                       </span>
-                      {o.note && <p className="basis-full text-xs text-ink-faint sm:col-span-4">{o.note}</p>}
+                      {o.note && <p className="basis-full text-xs text-ink-faint @[42rem]:col-span-4">{o.note}</p>}
                     </li>
                   ))}
                 </ul>
