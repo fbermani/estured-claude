@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
+import type { PreviewProfile, PreviewSlot } from "@/lib/residents/communityPreview";
 
 /**
  * Vista previa de la comunidad en la ficha (propuesta C): tarjetas de perfil con filtro por tipo de habitación.
@@ -10,18 +11,7 @@ import { Icon } from "@/components/ui/Icon";
  * para quien ya puede verlo. Al visitante anónimo no le llega ningún dato individual: `guest` dibuja tarjetas
  * genéricas difuminadas (barras, no texto) con una invitación explícita a crear la cuenta.
  */
-export type PreviewProfile = {
-  id: string;
-  roomTypeName: string | null;
-  firstName: string;
-  age: number | null;
-  flag: string | null;
-  nationality: string | null;
-  career: string | null;
-  originCity: string | null;
-};
-
-export type PreviewSlot = { id: string; roomTypeName: string | null };
+export type { PreviewProfile, PreviewSlot };
 
 const TINTS = [
   "bg-forest-tint text-forest-700",
@@ -85,6 +75,7 @@ export function CommunityProfilesPreview({
   profiles,
   slots,
   totalProfiles,
+  scrollFilters = false,
 }: {
   slug: string;
   isGuest: boolean;
@@ -93,6 +84,8 @@ export function CommunityProfilesPreview({
   /** Visitante: un lugar por perfil visible (solo tipo de habitación, sin datos de la persona). */
   slots: PreviewSlot[];
   totalProfiles: number;
+  /** En el modal móvil los filtros van en una sola fila con scroll horizontal. */
+  scrollFilters?: boolean;
 }) {
   const [filter, setFilter] = useState<string>("all");
   const source: { id: string; roomTypeName: string | null }[] = isGuest ? slots : profiles;
@@ -107,14 +100,14 @@ export function CommunityProfilesPreview({
   return (
     <div className="space-y-3">
       {typeNames.length > 1 && (
-        <div role="group" aria-label="Filtrar por tipo de habitación" className="flex flex-wrap gap-2">
+        <div role="group" aria-label="Filtrar por tipo de habitación" className={scrollFilters ? "-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0" : "flex flex-wrap gap-2"}>
           {[{ value: "all", label: `Todos · ${source.length}` }, ...typeNames.map((n) => ({ value: n, label: n }))].map((f) => (
             <button
               key={f.value}
               type="button"
               aria-pressed={filter === f.value}
               onClick={() => setFilter(f.value)}
-              className={`min-h-11 rounded-full border-[1.5px] px-4 text-[13px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest ${
+              className={`min-h-11 shrink-0 rounded-full border-[1.5px] px-4 text-[13px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest ${
                 filter === f.value
                   ? "border-forest bg-forest text-white"
                   : "border-line-2 bg-paper text-ink-soft hover:bg-cream-2"

@@ -1,14 +1,10 @@
 import Link from "next/link";
 import type { CommunitySummary as CommunityData } from "@/lib/residents/communityVisibility";
 import { computeCommunityStats } from "@/lib/residents/communityStats";
+import { CommunityStatsGrid } from "@/components/residences/ficha/CommunityStatsGrid";
 import { Icon } from "@/components/ui/Icon";
-import {
-  CommunityProfilesPreview,
-  type PreviewProfile,
-  type PreviewSlot,
-} from "@/components/residences/ficha/CommunityProfilesPreview";
-
-const SM_COLS: Record<number, string> = { 2: "sm:grid-cols-2", 3: "sm:grid-cols-3", 4: "sm:grid-cols-4" };
+import { toPreviewData } from "@/lib/residents/communityPreview";
+import { CommunityProfilesPreview } from "@/components/residences/ficha/CommunityProfilesPreview";
 
 /**
  * Comunidad de la ficha (propuesta C + cifras de A): frase de la residencia, cifras agregadas (solo con 3 o más
@@ -32,40 +28,12 @@ export function CommunitySummary({
 }) {
   const total = community?.totalResidents ?? 0;
   const cards = community?.cards ?? [];
-  const visible = cards.filter((c) => c.kind === "profile");
 
-  const profiles: PreviewProfile[] = isGuest
-    ? []
-    : visible.flatMap((c) =>
-        c.firstName
-          ? [
-              {
-                id: c.residentStayId,
-                roomTypeName: c.roomTypeName,
-                firstName: c.firstName,
-                age: c.age ?? null,
-                flag: c.countryFlag ?? null,
-                nationality: c.nationality ?? null,
-                career: c.career ?? null,
-                originCity: c.originCity ?? null,
-              },
-            ]
-          : [],
-      );
-  const slots: PreviewSlot[] = isGuest ? visible.map((c) => ({ id: c.residentStayId, roomTypeName: c.roomTypeName })) : [];
+  const { profiles, slots } = toPreviewData(cards, isGuest);
   const shownCount = isGuest ? slots.length : profiles.length;
 
   // Para el visitante `cards` no trae edad, país ni carrera, así que las cifras dan null.
   const stats = computeCommunityStats(cards);
-  const tiles = [
-    { value: String(total), label: total === 1 ? "residente hoy" : "residentes hoy" },
-    stats?.countries != null && { value: String(stats.countries), label: stats.countries === 1 ? "país de origen" : "países de origen" },
-    stats?.ageRange && {
-      value: stats.ageRange.min === stats.ageRange.max ? String(stats.ageRange.min) : `${stats.ageRange.min}–${stats.ageRange.max}`,
-      label: "años",
-    },
-    stats?.careers != null && { value: String(stats.careers), label: stats.careers === 1 ? "carrera" : "carreras" },
-  ].filter((t): t is { value: string; label: string } => Boolean(t));
 
   return (
     <div className="space-y-4">
@@ -78,22 +46,7 @@ export function CommunitySummary({
 
       {total > 0 && (
         <>
-          {stats && tiles.length > 1 && (
-            <dl
-              className={`grid grid-cols-2 gap-px overflow-hidden rounded-card border border-line bg-line shadow-card ${SM_COLS[tiles.length] ?? "sm:grid-cols-4"}`}
-              aria-label="Cifras de la comunidad"
-            >
-              {tiles.map((t, i) => (
-                <div
-                  key={t.label}
-                  className={`grid bg-paper px-[18px] py-4 ${tiles.length % 2 === 1 && i === tiles.length - 1 ? "col-span-2 sm:col-span-1" : ""}`}
-                >
-                  <dt className="order-2 text-[12.5px] text-ink-faint">{t.label}</dt>
-                  <dd className="order-1 font-display text-[28px] font-extrabold text-forest-700">{t.value}</dd>
-                </div>
-              ))}
-            </dl>
-          )}
+          <CommunityStatsGrid total={total} stats={stats} />
 
           {shownCount > 0 ? (
             <CommunityProfilesPreview

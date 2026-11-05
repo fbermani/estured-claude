@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useId, useState } from "react";
+import { CommunityStatsGrid } from "@/components/residences/ficha/CommunityStatsGrid";
+import { CommunityProfilesPreview } from "@/components/residences/ficha/CommunityProfilesPreview";
 import { Dialog } from "@/components/ui/Dialog";
 import { Icon } from "@/components/ui/Icon";
 import { loadCommunityPreview, type CommunityPreview } from "@/app/(public)/search/community-actions";
@@ -18,6 +20,7 @@ export function CommunityPlazasButton({ slug, name, places, genderLabel }: { slu
   const [open, setOpen] = useState(false);
   const [state, setState] = useState<State>({ status: "idle" });
   const titleId = useId();
+  const shown = state.status === "done" && state.data.ok ? (state.data.guest ? state.data.slots.length : state.data.profiles.length) : 0;
 
   const load = () => {
     setState({ status: "loading" });
@@ -26,16 +29,6 @@ export function CommunityPlazasButton({ slug, name, places, genderLabel }: { slu
       () => setState({ status: "done", data: { ok: false, message: "No pudimos cargar los datos de la comunidad. Probá de nuevo en un rato." } }),
     );
   };
-
-  const data = state.status === "done" && state.data.ok ? state.data : null;
-  const tiles = data
-    ? [
-        data.residents != null && { value: String(data.residents), label: data.residents === 1 ? "residente hoy" : "residentes hoy" },
-        data.averageAgeYears != null && { value: `${data.averageAgeYears} años`, label: "edad promedio" },
-        data.countries != null && { value: String(data.countries), label: data.countries === 1 ? "país de origen" : "países de origen" },
-        data.careers != null && { value: String(data.careers), label: data.careers === 1 ? "carrera" : "carreras" },
-      ].filter((t): t is { value: string; label: string } => Boolean(t))
-    : [];
 
   return (
     <>
@@ -53,7 +46,7 @@ export function CommunityPlazasButton({ slug, name, places, genderLabel }: { slu
         <Icon name="chevron_right" className="text-base text-ink-faint" />
       </button>
 
-      <Dialog open={open} onClose={() => setOpen(false)} labelledBy={titleId} maxWidthClass="sm:max-w-md">
+      <Dialog open={open} onClose={() => setOpen(false)} labelledBy={titleId} maxWidthClass="sm:max-w-3xl">
         <div className="flex items-start justify-between gap-3 px-5 pb-2 pt-5">
           <div>
             <h2 id={titleId} className="text-xl">Comunidad de {name}</h2>
@@ -74,44 +67,57 @@ export function CommunityPlazasButton({ slug, name, places, genderLabel }: { slu
         </div>
         <div className="overflow-y-auto px-5 pb-6 pt-2" aria-live="polite" aria-busy={state.status === "loading"}>
           {state.status === "loading" || state.status === "idle" ? (
-            <div className="grid grid-cols-2 gap-2.5" aria-label="Cargando datos de la comunidad">
-              {[0, 1, 2, 3].map((i) => (
-                <div key={i} className="h-[68px] animate-pulse rounded-[12px] bg-cream-2 motion-reduce:animate-none" />
-              ))}
+            <div className="space-y-3" aria-label="Cargando datos de la comunidad">
+              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+                {[0, 1, 2, 3].map((i) => (
+                  <div key={i} className="h-[76px] animate-pulse rounded-card bg-cream-2 motion-reduce:animate-none" />
+                ))}
+              </div>
+              <div className="flex gap-2 overflow-hidden">
+                {[0, 1, 2, 3].map((i) => (
+                  <div key={i} className="h-11 w-24 shrink-0 animate-pulse rounded-full bg-cream-2 motion-reduce:animate-none" />
+                ))}
+              </div>
+              <div className="grid gap-2.5 sm:grid-cols-2">
+                {[0, 1, 2, 3].map((i) => (
+                  <div key={i} className="h-[76px] animate-pulse rounded-[18px] bg-cream-2 motion-reduce:animate-none" />
+                ))}
+              </div>
             </div>
           ) : !state.data.ok ? (
             <div className="rounded-[12px] bg-cream p-3.5 text-sm text-ink-soft">
               {state.data.message}{" "}
-              <button type="button" onClick={load} className="cursor-pointer font-bold text-forest-700 underline underline-offset-2">
+              <button type="button" onClick={load} className="min-h-11 cursor-pointer font-bold text-forest-700 underline underline-offset-2">
                 Reintentar
               </button>
             </div>
-          ) : tiles.length > 0 ? (
-            <ul className="grid grid-cols-2 gap-2.5">
-              {tiles.map((t) => (
-                <li key={t.label} className="rounded-[12px] border border-line bg-cream px-3 py-2.5">
-                  <b className="block font-display text-[22px] leading-tight tabular-nums text-ink">{t.value}</b>
-                  <span className="text-[12.5px] text-ink-faint">{t.label}</span>
-                </li>
-              ))}
-            </ul>
-          ) : state.data.guest ? null : (
-            <p className="rounded-[12px] bg-cream p-3.5 text-sm text-ink-soft">Todavía no hay suficientes perfiles</p>
+          ) : (
+            <div className="space-y-4">
+              {shown > 0 ? (
+                <>
+                  <CommunityStatsGrid total={state.data.total} stats={state.data.stats} />
+                  <CommunityProfilesPreview
+                    slug={slug}
+                    isGuest={state.data.guest}
+                    profiles={state.data.profiles}
+                    slots={state.data.slots}
+                    totalProfiles={shown}
+                    scrollFilters
+                  />
+                </>
+              ) : (
+                <p className="rounded-[12px] bg-cream p-3.5 text-sm text-ink-soft">Todavía no hay suficientes perfiles</p>
+              )}
+              {state.data.guest ? (
+                <Link
+                  href={`/login?next=${encodeURIComponent("/search")}`}
+                  className="flex min-h-11 items-center rounded-[12px] bg-forest-tint p-3.5 text-sm font-bold text-forest-700 underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+                >
+                  Ingresá para ver más de la comunidad
+                </Link>
+              ) : null}
+            </div>
           )}
-          {data?.guest ? (
-            <Link
-              href={`/login?next=${encodeURIComponent("/search")}`}
-              className="mt-3 block rounded-[12px] bg-forest-tint p-3.5 text-sm font-bold text-forest-700 underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
-            >
-              Ingresá para ver más de la comunidad
-            </Link>
-          ) : null}
-          <Link
-            href={`/residencias/${slug}#comunidad`}
-            className="mt-4 flex min-h-11 w-full items-center justify-center rounded-full border-[1.5px] border-line-2 bg-paper px-4 text-sm font-bold text-ink hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
-          >
-            Ver la comunidad en la ficha
-          </Link>
         </div>
       </Dialog>
     </>
