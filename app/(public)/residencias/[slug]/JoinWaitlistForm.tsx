@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { DrawCheck } from "@/components/ui/DrawCheck";
 import { Button } from "@/components/ui/Button";
 import { Input, Select } from "@/components/ui/Input";
 import { formatDateOnly } from "@/lib/dates/formatDateOnly";
@@ -33,9 +34,10 @@ export function JoinWaitlistForm({
   if (state.status === "saved") {
     return (
       <div className="px-5 py-5 sm:px-6">
-        <p className="rounded-field bg-mint px-4 py-3 text-sm text-forest-700">
-          Te sumamos a la lista de espera. Te avisamos si se libera un lugar.
-        </p>
+        <div role="status" className="flex items-center gap-3 rounded-field bg-mint px-4 py-3 text-sm text-forest-700">
+          <DrawCheck className="size-10" />
+          <p className="dc-rise">Te sumamos a la lista de espera. Te avisamos si se libera un lugar.</p>
+        </div>
       </div>
     );
   }

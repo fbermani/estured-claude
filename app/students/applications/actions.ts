@@ -176,7 +176,7 @@ export async function createApplicationRequest(
     });
   }
 
-  redirect(`/students/applications/${result.id}`);
+  redirect(`/students/applications/${result.id}?enviada=1`);
 }
 
 export type AcceptRegulationState = { status: "idle" | "saved" | "error"; message?: string };

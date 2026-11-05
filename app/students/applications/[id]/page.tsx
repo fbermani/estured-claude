@@ -7,6 +7,7 @@ import { familyStatusLabel } from "@/lib/family/familyStatusLabel";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { loadActiveFamilyLink } from "@/lib/family/access";
 import { getSessionUser } from "@/lib/auth/session";
+import { DrawCheck } from "@/components/ui/DrawCheck";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -40,10 +41,13 @@ export const dynamic = "force-dynamic";
 
 export default async function StudentApplicationDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ enviada?: string }>;
 }) {
   const { id } = await params;
+  const justSent = (await searchParams).enviada === "1";
   const supabase = await getSupabaseServer();
   if (!supabase) notFound();
   // DR4: el familiar vinculado SIGUE la solicitud en solo lectura (RLS `is_family_member_of_student`): sin respuestas a
@@ -194,6 +198,15 @@ export default async function StudentApplicationDetailPage({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
+      {justSent && !isFamilyViewer && (
+        <div role="status" className="mb-4 flex items-center gap-4 rounded-card border-[1.5px] border-line bg-mint px-5 py-4 text-sm text-forest-700">
+          <DrawCheck className="size-12" />
+          <div className="dc-rise">
+            <p className="font-semibold">Enviaste tu solicitud.</p>
+            <p className="mt-1">Queda sujeta a confirmación de la residencia.</p>
+          </div>
+        </div>
+      )}
       <Card className="p-8">
         <div className="flex items-start justify-between gap-4">
           <div>

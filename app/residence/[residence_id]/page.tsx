@@ -18,6 +18,7 @@ import { getStaleAvailabilityByResidence, staleAvailabilityMessage } from "@/lib
 import { getVisibleStatus } from "@/lib/applications/visibleStatus";
 import { loadReservationInfoByApplication } from "@/lib/applications/loadReservationInfo";
 import { countUnansweredStayChanges } from "@/lib/stayChange/load";
+import { DismissibleNote } from "@/components/residences/DismissibleNote";
 import { PremiumTag } from "@/components/residences/PremiumLock";
 import { hasOperationalManagementAccess } from "@/lib/residences/operationalAccess";
 import { PREMIUM_FEATURES } from "@/lib/residences/planFeatures";
@@ -308,20 +309,47 @@ export default async function ResidenceOverviewPage({
         <p className="text-sm text-ink-soft">
           <span className="font-bold text-ink">{totalResidentsCount ?? 0}</span> cargados ·{" "}
           <span className="font-bold text-ink">{waitlistCount ?? 0}</span> en lista de espera
-          {(seekingChangeCount ?? 0) > 0 && (
-            <Link
-              href={`/residence/${residenceId}/residents?filtro=buscan-cambiar`}
-              className="mt-2 flex items-center gap-1.5 rounded-field bg-orange-tint px-2.5 py-1.5 text-xs font-bold text-orange-700 hover:underline"
-            >
-              <Icon name="swap_horiz" className="text-base" />
-              {seekingChangeCount === 1 ? "1 residente busca cambiar" : `${seekingChangeCount} residentes buscan cambiar`}
-              {unansweredChangeCount > 0 ? ` · ${unansweredChangeCount} sin responder` : ""}
-            </Link>
-          )}
         </p>
       ),
     },
   ];
+
+  // «Para hacer hoy» (M2): solo pendientes reales que ya existen en los datos; sin pendientes, no se muestra.
+  const todo: { key: string; icon: string; label: string; href: string; cta: string }[] = [];
+  if ((seekingChangeCount ?? 0) > 0)
+    todo.push({
+      key: "cambio",
+      icon: "swap_horiz",
+      label:
+        (seekingChangeCount === 1 ? "1 residente busca cambiar" : `${seekingChangeCount} residentes buscan cambiar`) +
+        (unansweredChangeCount > 0 ? ` · ${unansweredChangeCount} sin responder` : ""),
+      href: `/residence/${residenceId}/residents?filtro=buscan-cambiar`,
+      cta: "Ver residentes",
+    });
+  if ((newApplicationsCount ?? 0) > 0)
+    todo.push({
+      key: "solicitudes",
+      icon: "inbox",
+      label: newApplicationsCount === 1 ? "1 solicitud nueva" : `${newApplicationsCount} solicitudes nuevas`,
+      href: `/residence/${residenceId}/applications`,
+      cta: "Revisar solicitudes",
+    });
+  if (renewalsNeedingAttention > 0)
+    todo.push({
+      key: "renovaciones",
+      icon: "sync_alt",
+      label: `Renovaciones: ${renewalsNeedingAttention} esperando tu respuesta`,
+      href: `/residence/${residenceId}/renewals`,
+      cta: "Ver renovaciones",
+    });
+  if ((pendingActivationCount ?? 0) > 0)
+    todo.push({
+      key: "activacion",
+      icon: "groups",
+      label: `Residentes: ${pendingActivationCount} pendientes`,
+      href: `/residence/${residenceId}/residents`,
+      cta: "Ver residentes",
+    });
 
   const iconTiles: Record<string, string> = {
     forest: "bg-forest-tint text-forest-700",
@@ -376,33 +404,27 @@ export default async function ResidenceOverviewPage({
         </Link>
       )}
 
-      {!hasPremium && (
-        <section className="mt-8 rounded-card border-[1.5px] border-orange/30 bg-orange-tint p-5">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="min-w-0 flex-1">
-              <p className="flex items-center gap-2 text-sm font-extrabold text-orange-700">
-                <Icon name="lock" className="text-lg" />
-                Función Premium · hoy bonificada
-              </p>
-              <p className="mt-1 text-sm text-orange-700">
-                Tu residencia tiene el Perfil Verificado (gratuito). La Gestión Operativa es parte del Plan Premium.
-              </p>
-              <ul className="mt-3 flex flex-wrap gap-2">
-                {PREMIUM_FEATURES.map((f) => (
-                  <li key={f.label} className="flex items-center gap-1.5 rounded-full bg-paper px-3 py-1 text-xs font-bold text-ink-soft">
-                    <Icon name="lock" className="text-sm text-orange-700" />
-                    {f.label}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <Link
-              href={`/residence/${residenceId}/plan`}
-              className="shrink-0 rounded-full bg-forest px-4 py-2 text-sm font-bold text-white hover:bg-forest-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
-            >
-              Ver planes
-            </Link>
-          </div>
+      {todo.length > 0 && (
+        <section aria-labelledby="para-hacer-hoy" className="mt-8 rounded-card border-[1.5px] border-orange bg-gradient-to-b from-orange-tint to-paper to-80% p-5">
+          <h2 id="para-hacer-hoy" className="font-display text-lg font-bold text-ink">
+            Para hacer hoy
+          </h2>
+          <ul className="mt-3 divide-y divide-orange/25">
+            {todo.map((t) => (
+              <li key={t.key} className="flex flex-wrap items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0">
+                <span className="flex min-w-0 items-center gap-2.5 text-sm font-semibold text-ink">
+                  <Icon name={t.icon} className="shrink-0 text-xl text-orange-700" />
+                  {t.label}
+                </span>
+                <Link
+                  href={t.href}
+                  className="inline-flex min-h-11 shrink-0 items-center rounded-full border-[1.5px] border-line-2 bg-paper px-4 text-sm font-bold text-ink hover:border-forest hover:bg-forest-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+                >
+                  {t.cta}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </section>
       )}
 
@@ -431,6 +453,32 @@ export default async function ResidenceOverviewPage({
           </Card>
         ))}
       </div>
+
+      {!hasPremium && (
+        <DismissibleNote storageKey={`estured:premium-note:${residenceId}`} className="mt-8 rounded-card border-[1.5px] border-line bg-sand-50 p-5 pr-14">
+          <p className="flex items-center gap-2 text-sm font-extrabold text-ink">
+            <Icon name="lock" className="text-lg text-ink-faint" />
+            Función Premium · hoy bonificada
+          </p>
+          <p className="mt-1 text-sm text-ink-soft">
+            Tu residencia tiene el Perfil Verificado (gratuito). La Gestión Operativa es parte del Plan Premium.
+          </p>
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {PREMIUM_FEATURES.map((f) => (
+              <li key={f.label} className="flex items-center gap-1.5 rounded-full bg-paper px-3 py-1 text-xs font-bold text-ink-soft">
+                <Icon name="lock" className="text-sm text-ink-faint" />
+                {f.label}
+              </li>
+            ))}
+          </ul>
+          <Link
+            href={`/residence/${residenceId}/plan`}
+            className="mt-3 inline-flex min-h-11 items-center rounded-full bg-forest px-4 text-sm font-bold text-white hover:bg-forest-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+          >
+            Ver planes
+          </Link>
+        </DismissibleNote>
+      )}
 
       <div className="mt-8">
         <Card className="overflow-hidden p-0">

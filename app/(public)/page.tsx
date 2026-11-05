@@ -180,7 +180,7 @@ export default async function HomePage() {
       <div className="band">
 <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-20">
         <SectionHeader
-          eyebrow="Catálogo"
+          align="left"
           title="Residencias verificadas en CABA"
           description="Precios y reglas a la vista. La disponibilidad la informa cada residencia."
         />
@@ -193,7 +193,7 @@ export default async function HomePage() {
                 </div>
               ))}
             </div>
-            <div className="mt-8 text-center">
+            <div className="mt-8">
               <Button href="/search" variant="outline">
                 Ver todas las residencias
               </Button>
@@ -213,11 +213,11 @@ export default async function HomePage() {
       <div className="bg-paper">
 <section id="el-proceso" className="mx-auto max-w-6xl scroll-mt-20 overflow-x-clip px-4 py-16 sm:px-6 sm:py-24">
         <SectionHeader
-          eyebrow="El proceso"
+          align="left"
           title="De la búsqueda a tu reserva confirmada, sin viajar a Buenos Aires"
           description="Cinco pasos desde donde estés. Cada uno queda registrado."
         />
-        <p className="-mt-4 mb-8 text-center">
+        <p className="-mt-4 mb-8">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-soft-100 px-3 py-1.5 text-[13px] font-bold text-amber-soft-700">
             <Icon name="home_pin" className="text-lg" /> Todo a distancia
           </span>
@@ -230,7 +230,7 @@ export default async function HomePage() {
       <div className="surface-glow surface-grain">
 <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
         <SectionHeader
-          eyebrow="Para quién es"
+          align="left"
           title="Cada uno con su lugar en el proceso"
           description="Quien estudia elige. La familia acompaña. La residencia recibe solicitudes completas."
         />
@@ -253,6 +253,7 @@ export default async function HomePage() {
         <section aria-label="Centro de Guías" className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
           <SectionHeader
             eyebrow="Centro de Guías"
+            align="left"
             title="Antes de decidir, informate"
             description="Guías simples para elegir residencia y prepararte para mudarte a Buenos Aires."
           />
@@ -261,7 +262,7 @@ export default async function HomePage() {
               <GuideCard key={g.id} guide={g} />
             ))}
           </div>
-          <p className="mt-6 text-center">
+          <p className="mt-6">
             <Link href="/guias" className="text-sm font-bold text-forest-700 hover:underline">
               Ver todas las guías
             </Link>
@@ -271,7 +272,7 @@ export default async function HomePage() {
 
       {/* FAQ */}
       <section className="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-24">
-        <SectionHeader eyebrow="Preguntas frecuentes" title="Dudas comunes" />
+        <SectionHeader align="left" title="Preguntas frecuentes" />
         <div className="space-y-4">
           {faqs.map((faq, i) => (
             <Reveal key={faq.q} delay={Math.min(i, 5) as 0 | 1 | 2 | 3 | 4 | 5}>

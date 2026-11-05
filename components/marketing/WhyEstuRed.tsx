@@ -1,31 +1,12 @@
 import { Icon } from "@/components/ui/Icon";
-import { WhyChip } from "@/components/marketing/WhyChip";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { ReceiptMiniature } from "@/components/marketing/ReceiptMiniature";
 
 /**
  * Home · «Por qué EstuRed» (DR22): fusiona «Por qué» y «La diferencia».
- * Chips con detalle al hover/foco/tap (HoverDetail), tabla «Con EstuRed vs. por fuera»
+ * Tabla «Con EstuRed vs. por fuera»
  * y miniatura del comprobante de reserva.
  */
-const CHIPS = [
-  {
-    icon: "verified",
-    label: "Visitadas en persona",
-    detail: "Chequeamos que la residencia existe, quién la gestiona y que lo publicado es real.",
-  },
-  {
-    icon: "receipt",
-    label: "Costos a la vista",
-    detail: "Pagás a la residencia lo acordado y, aparte, a EstuRed el 5% de la estadía inicial.",
-  },
-  {
-    icon: "task_alt",
-    label: "Todo queda registrado",
-    detail: "Solicitud, acuerdos y comprobante, en tu cuenta.",
-  },
-];
-
 const ROWS = [
   { what: "La residencia", withUs: "Verificada en persona por EstuRed", outside: "La chequeás por tu cuenta" },
   { what: "Precio y costos", withUs: "Publicados, con el fee a la vista", outside: "Los consultás uno por uno" },
@@ -41,16 +22,9 @@ export function WhyEstuRed() {
         <SectionHeader
           eyebrow="Por qué EstuRed"
           title="Hacelo por EstuRed y queda todo por escrito"
+          align="left"
           description="Instagram y los referidos sirven para descubrir. Para reservar, conviene que quede registrado."
         />
-
-        <div role="region" aria-label="Beneficios de EstuRed" tabIndex={0} className="-mx-4 mb-8 flex snap-x snap-mandatory scroll-px-4 gap-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest overflow-x-auto px-4 pb-3 sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0 sm:pb-0">
-          {CHIPS.map((c) => (
-            <div key={c.label} className="w-[78%] shrink-0 snap-start sm:w-auto">
-              <WhyChip {...c} />
-            </div>
-          ))}
-        </div>
 
         <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
           {/* Desktop: tabla semántica */}
@@ -96,7 +70,7 @@ export function WhyEstuRed() {
           <ul className="space-y-2.5 md:hidden" aria-label="Con EstuRed vs. por fuera">
             {ROWS.map((r) => (
               <li key={r.what} className="rounded-card border border-sand-200 p-3">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-ink-faint">{r.what}</p>
+                <p className="text-xs font-bold text-ink-faint">{r.what}</p>
                 <div className="mt-1.5 grid grid-cols-2 gap-2 text-[13px] leading-snug">
                   <p className="flex items-start gap-1.5 rounded-lg bg-forest-tint/60 p-2 font-medium text-ink">
                     <Icon name="check" className="text-base text-forest" />

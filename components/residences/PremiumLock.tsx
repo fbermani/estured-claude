@@ -6,14 +6,12 @@ import { Icon } from "@/components/ui/Icon";
  * Sin "use client": se usa tanto desde Server Components como desde el sidebar.
  */
 
-/** Etiqueta chica con candado: «Premium». */
-export function PremiumTag({ className = "", compact = false }: { className?: string; compact?: boolean }) {
+/** Candado neutro (el naranja queda para lo urgente): `compact`/por defecto solo ícono; el texto va para lectores de pantalla. */
+export function PremiumTag({ className = "" }: { className?: string; compact?: boolean }) {
   return (
-    <span
-      className={`inline-flex shrink-0 items-center gap-1 rounded-full bg-orange-tint px-2 py-0.5 text-[11px] font-extrabold leading-4 text-orange-700 ${className}`}
-    >
-      <Icon name="lock" className="text-[13px]" aria-hidden />
-      {compact ? <span className="sr-only">Premium</span> : "Premium"}
+    <span title="Plan Premium" className={`inline-flex shrink-0 items-center text-ink-faint ${className}`}>
+      <Icon name="lock" className="text-base" aria-hidden />
+      <span className="sr-only">Premium</span>
     </span>
   );
 }
@@ -32,13 +30,13 @@ export function PremiumNotice({
   return (
     <div
       role="note"
-      className={`flex flex-wrap items-center gap-4 rounded-card border-[1.5px] border-orange/30 bg-orange-tint p-4 ${className}`}
+      className={`flex flex-wrap items-center gap-4 rounded-card border-[1.5px] border-line bg-sand-50 p-4 ${className}`}
     >
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-paper text-orange-700">
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-paper text-ink-faint">
         <Icon name="lock" className="text-xl" />
       </span>
-      <div className="min-w-0 flex-1 text-sm text-orange-700">
-        <p className="font-extrabold">Función Premium · hoy bonificada</p>
+      <div className="min-w-0 flex-1 text-sm text-ink-soft">
+        <p className="font-extrabold text-ink">Función Premium · hoy bonificada</p>
         <p className="mt-0.5">
           {feature} es parte de la Gestión Operativa del Plan Premium.
         </p>

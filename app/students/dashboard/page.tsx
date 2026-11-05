@@ -13,8 +13,8 @@ import { FamilyLinkActions } from "@/app/students/FamilyLinkActions";
 import { FamilyLinkCard } from "@/app/students/profile/FamilyLinkCard";
 import { StartRenewalModal } from "@/app/students/renewals/StartRenewalModal";
 import { ModuleCard } from "@/components/ui/ModuleCard";
+import { SpaceList, type SpaceItem } from "@/components/students/SpaceList";
 import { PageHero } from "@/components/ui/PageHero";
-import { MetricCard } from "@/components/ui/MetricCard";
 import { ListRow } from "@/components/ui/ListRow";
 import { Reveal } from "@/components/ui/Reveal";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -91,13 +91,6 @@ type ReservationRow = {
   room_types: { name: string } | null;
   application_snapshots: { monthly_price_usd: number } | null;
 };
-type FavoriteRow = {
-  id: string;
-  residence_id: string;
-  added_by_role: "student" | "family_member";
-};
-type FavoritePreview = { slug: string; name: string; zone: string; photo: string | null; addedByFamily: boolean };
-
 const PROPOSAL_STATUS_LABEL: Record<string, { label: string; tone: "amber" | "sage" | "neutral" }> = {
   pending_student_approval: { label: "Esperando respuesta", tone: "amber" },
   approved_by_student: { label: "Aprobada", tone: "sage" },
@@ -414,7 +407,6 @@ export default async function StudentDashboardPage() {
   let completenessPercent = 100;
   let completenessMissing: string[] = [];
   let docsUploadedCount = 0;
-  let favoritesPreview: FavoritePreview[] = [];
   let favoritesTotal = 0;
   let applications: ApplicationSummaryRow[] = [];
   let reservationInfoByAppId = new Map<string, ReservationInfo>();
@@ -445,7 +437,7 @@ export default async function StudentDashboardPage() {
       }
 
       if (profile?.id) {
-        const [{ data: docFiles }, { data: favoriteRows, count: favCount }, { data: activeLinkRow }, { data: pendingInvitationRow }, { count: supportCount }] =
+        const [{ data: docFiles }, { count: favCount }, { data: activeLinkRow }, { data: pendingInvitationRow }, { count: supportCount }] =
           await Promise.all([
             admin
               .from("files")
@@ -486,31 +478,6 @@ export default async function StudentDashboardPage() {
         docsUploadedCount = new Set((docFiles ?? []).map((f) => f.document_type)).size;
 
         favoritesTotal = favCount ?? 0;
-        const favRows = (favoriteRows ?? []) as FavoriteRow[];
-        if (favRows.length > 0) {
-          const allResidences = await catalogPromise;
-          const { data: slugRows } = await admin
-            .from("residences")
-            .select("id, slug")
-            .in("id", favRows.map((r) => r.residence_id));
-          const slugById = new Map((slugRows ?? []).map((r) => [r.id, r.slug]));
-          const residenceBySlug = new Map(allResidences.map((r) => [r.slug, r]));
-          favoritesPreview = favRows
-            .map((r): FavoritePreview | null => {
-              const slug = slugById.get(r.residence_id);
-              const residence = slug ? residenceBySlug.get(slug) : undefined;
-              if (!residence) return null;
-              return {
-                slug: residence.slug,
-                name: residence.name,
-                zone: residence.zone,
-                photo: residence.photos[0] ?? null,
-                addedByFamily: r.added_by_role === "family_member",
-              };
-            })
-            .filter((r): r is FavoritePreview => r !== null);
-        }
-
         const activeLinkFamily = (
           activeLinkRow as unknown as {
             id: string;
@@ -800,130 +767,73 @@ export default async function StudentDashboardPage() {
     </>
   );
 
-  // Módulos comunes a ambos estados — orden y children varían apenas según isHoused.
-  const perfilCard = (
-    <ModuleCard
-      href="/students/profile"
-      icon="person"
-      title="Mi perfil"
-      attention={completenessPercent < 100}
-      badge={completenessPercent < 100 ? { label: `Falta ${100 - completenessPercent} %`, tone: "amber" } : undefined}
-      cta={completenessPercent < 100 ? { label: "Completar perfil", href: "/students/profile" } : undefined}
-    >
-      <div className="flex items-center gap-3">
-        <div
-          className="relative flex size-11 shrink-0 items-center justify-center rounded-full text-xs font-bold text-forest-700"
-          style={{ background: `conic-gradient(var(--color-forest-600) ${completenessPercent}%, var(--color-line-2) 0)` }}
-        >
-          <span className="flex size-8 items-center justify-center rounded-full bg-paper">{completenessPercent}%</span>
-        </div>
-        <div className="min-w-0">
-          <p className="font-semibold text-ink">
-            {completenessPercent >= 100 ? "Perfil completo" : "Completá tu perfil"}
-          </p>
-          <p className="truncate text-xs text-ink-faint">
-            {completenessPercent >= 100
-              ? `${docsUploadedCount} de 2 documentos`
-              : `Falta: ${completenessMissing.slice(0, 2).join(", ")}${completenessMissing.length > 2 ? "…" : ""}`}
-          </p>
-        </div>
-      </div>
-    </ModuleCard>
-  );
-
-  const solicitudesCard = (
-    <ModuleCard
-      href="/students/applications"
-      icon="description"
-      title="Mis solicitudes"
-      attention={applicationsActionNeeded.length > 0}
-      badge={
-        applicationsActionNeeded.length > 0
-          ? { label: `${applicationsActionNeeded.length} pendiente${applicationsActionNeeded.length > 1 ? "s" : ""}`, tone: "amber" }
-          : undefined
-      }
-      cta={
-        applicationsActionNeeded.length > 0
-          ? { label: "Continuar proceso", href: "/students/applications" }
-          : applications.length === 0
-            ? { label: "Buscar residencias", href: "/search" }
-            : undefined
-      }
-    >
-      {applications.length > 0 && primaryApplication ? (
-        <>
-          <p className="font-semibold text-ink">
-            {applications.length} solicitud{applications.length === 1 ? "" : "es"}
-          </p>
-          <p className="mt-1 truncate text-xs text-ink-faint">
-            {primaryApplication.residences?.name} — {visibleStatusOf(primaryApplication).label}
-          </p>
-        </>
-      ) : (
-        <p>Explorá el catálogo y dá el primer paso enviando tu primera solicitud.</p>
-      )}
-    </ModuleCard>
-  );
-
-  const favoritosCard = (
-    <ModuleCard href="/students/favorites" icon="favorite" title="Favoritos">
-      {favoritesTotal > 0 ? (
-        <div className="flex items-center gap-3">
-          <div className="flex -space-x-2">
-            {favoritesPreview.slice(0, 3).map((f) => (
-              <div key={f.slug} className="relative size-9 shrink-0 overflow-hidden rounded-full bg-sand-200 ring-2 ring-paper">
-                <ResidencePhoto src={f.photo} name={f.name} zone={f.zone} alt="" sizes="36px" variant="thumb" />
-              </div>
-            ))}
-          </div>
-          <p className="font-semibold text-ink">
-            {favoritesTotal} guardad{favoritesTotal === 1 ? "a" : "as"}
-          </p>
-        </div>
-      ) : (
-        <p>Guardá residencias desde su ficha para compararlas después.</p>
-      )}
-    </ModuleCard>
-  );
-
-  const listaEsperaCard = (
-    <ModuleCard
-      href="/students/waitlist"
-      icon="hourglass_top"
-      title="Lista de espera"
-      attention={waitlistNeedsAction}
-      badge={waitlistNeedsAction ? { label: "¡Hay lugar!", tone: "amber" } : undefined}
-    >
-      {waitlistCount > 0 ? (
-        <p className="font-semibold text-ink">
-          En {pluralize(waitlistCount, "lista", "listas")} de espera
-        </p>
-      ) : (
-        <p>Cuando una residencia no tenga lugar, vas a poder sumarte desde su ficha.</p>
-      )}
-    </ModuleCard>
-  );
+  // «Tu espacio»: lo pendiente arriba, los accesos abajo (M3). Mismos datos y textos de las tarjetas anteriores.
+  const spacePending: SpaceItem[] = [];
+  const spaceLinks: SpaceItem[] = [];
+  if (!isHoused) spaceLinks.push({ href: "/search", icon: "search", title: "Buscar residencias", value: "Ver catálogo" });
+  if (completenessPercent < 100)
+    spacePending.push({
+      href: "/students/profile",
+      icon: "person",
+      title: "Completá tu perfil",
+      badge: `Falta ${100 - completenessPercent} %`,
+      value: `Falta: ${completenessMissing.slice(0, 2).join(", ")}${completenessMissing.length > 2 ? "…" : ""}`,
+      progress: completenessPercent,
+      cta: { label: "Completar perfil", href: "/students/profile" },
+    });
+  else spaceLinks.push({ href: "/students/profile", icon: "person", title: "Mi perfil", value: `Perfil completo · ${docsUploadedCount} de 2 documentos` });
+  if (applicationsActionNeeded.length > 0)
+    spacePending.push({
+      href: "/students/applications",
+      icon: "description",
+      title: "Mis solicitudes",
+      badge: `${applicationsActionNeeded.length} pendiente${applicationsActionNeeded.length > 1 ? "s" : ""}`,
+      value: primaryApplication ? `${primaryApplication.residences?.name} — ${visibleStatusOf(primaryApplication).label}` : undefined,
+      cta: { label: "Continuar proceso", href: "/students/applications" },
+    });
+  else
+    spaceLinks.push({
+      href: "/students/applications",
+      icon: "description",
+      title: "Mis solicitudes",
+      value: applications.length > 0 ? `${applications.length} solicitud${applications.length === 1 ? "" : "es"}` : undefined,
+    });
+  if (waitlistNeedsAction)
+    spacePending.push({
+      href: "/students/waitlist",
+      icon: "hourglass_top",
+      title: "Lista de espera",
+      badge: "¡Hay lugar!",
+      value: waitlistCount > 0 ? `En ${pluralize(waitlistCount, "lista", "listas")} de espera` : undefined,
+    });
+  else
+    spaceLinks.push({
+      href: "/students/waitlist",
+      icon: "hourglass_top",
+      title: "Lista de espera",
+      value: waitlistCount > 0 ? `En ${pluralize(waitlistCount, "lista", "listas")} de espera` : undefined,
+    });
+  spaceLinks.push({
+    href: "/students/favorites",
+    icon: "favorite",
+    title: "Favoritos",
+    value: favoritesTotal > 0 ? `${favoritesTotal} guardad${favoritesTotal === 1 ? "a" : "as"}` : undefined,
+  });
+  if (openSupportCount > 0)
+    spacePending.push({
+      href: "/students/support",
+      icon: "support_agent",
+      title: "Soporte",
+      badge: `${openSupportCount} en curso`,
+      value: "Tenés casos en seguimiento con EstuRed.",
+      cta: { label: "Ver mis casos", href: "/students/support" },
+    });
+  else spaceLinks.push({ href: "/students/support", icon: "support_agent", title: "Soporte", value: "Abrir un caso" });
 
   const vinculacionCard = (
     <div id="vinculacion" className="h-full scroll-mt-24">
       <FamilyLinkCard activeLink={familyActiveLink} pendingApprovalCount={0} pendingInvitation={familyPendingInvitation} isMinor={isMinor} />
     </div>
-  );
-
-  const soporteCard = (
-    <ModuleCard
-      href="/students/support"
-      icon="support_agent"
-      title="Soporte"
-      badge={openSupportCount > 0 ? { label: `${openSupportCount} en curso`, tone: "amber" } : undefined}
-      cta={{ label: openSupportCount > 0 ? "Ver mis casos" : "Abrir un caso", href: "/students/support" }}
-    >
-      <p>
-        {openSupportCount > 0
-          ? "Tenés casos en seguimiento con EstuRed."
-          : "¿Algo no salió como esperabas con una residencia? Estamos para ayudarte."}
-      </p>
-    </ModuleCard>
   );
 
   const greetName = firstName ? `Hola, ${firstName}.` : "Hola.";
@@ -983,13 +893,13 @@ export default async function StudentDashboardPage() {
       {headerBanners}
 
       {!isHoused && (
-        <Reveal delay={1} className="mt-6">
+        <div className="mt-6">
           <NextStepCard step={nextStep} />
-        </Reveal>
+        </div>
       )}
 
       {showArrival && arrival && arrivalDays !== null && arrivalGuides && (
-        <Reveal delay={1} className="mt-6">
+        <div className="mt-6">
           <ArrivalCard
             reservationId={arrival.id}
             residenceName={arrival.residenceName}
@@ -999,42 +909,34 @@ export default async function StudentDashboardPage() {
             persistent={arrivalChecked.persistent}
             {...arrivalGuides}
           />
-        </Reveal>
+        </div>
       )}
 
       {isHoused && reservation && residence && (
         <>
-          <div className="mt-6 grid grid-cols-1 gap-3.5 sm:grid-cols-3">
-            <Reveal delay={1} className="h-full">
-              <MetricCard
-                icon="event"
-                label="Ingreso"
-                value={formatDateOnly(reservation.start_date)}
-                hint={reservation.room_types?.name ?? undefined}
-                className="h-full"
-              />
-            </Reveal>
-            <Reveal delay={2} className="h-full">
-              <MetricCard
-                icon="hourglass_bottom"
-                label={contract?.renewedUntil ? "Renovada hasta" : "Fin de contrato"}
-                value={contractEndLabel}
-                hint={remaining > 0 ? `Faltan ${remaining} días` : "Contrato vencido"}
-                className="h-full"
-              />
-            </Reveal>
-            <Reveal delay={3} className="h-full">
-              <MetricCard
-                icon="payments"
-                label="Valor mensual"
-                value={`USD ${contract?.currentRateUsd ?? reservation.application_snapshots?.monthly_price_usd ?? "—"}`}
-                hint="Se paga a la residencia"
-                className="h-full"
-              />
-            </Reveal>
-          </div>
+          <dl className="mt-6 grid grid-cols-3 divide-x divide-line rounded-card border-[1.5px] border-line bg-paper shadow-card">
+            {[
+              { label: "Ingreso", value: formatDateOnly(reservation.start_date), hint: reservation.room_types?.name ?? undefined },
+              {
+                label: contract?.renewedUntil ? "Renovada hasta" : "Fin de contrato",
+                value: contractEndLabel,
+                hint: remaining > 0 ? `Faltan ${remaining} días` : "Contrato vencido",
+              },
+              {
+                label: "Valor mensual",
+                value: `USD ${contract?.currentRateUsd ?? reservation.application_snapshots?.monthly_price_usd ?? "—"}`,
+                hint: "Se paga a la residencia",
+              },
+            ].map((m) => (
+              <div key={m.label} className="min-w-0 px-3 py-3.5 sm:px-5">
+                <dt className="text-xs font-semibold text-ink-faint">{m.label}</dt>
+                <dd className="mt-0.5 whitespace-nowrap font-display text-base font-bold tabular-nums text-ink sm:text-xl">{m.value}</dd>
+                {m.hint && <p className="mt-0.5 text-[11px] leading-snug text-ink-soft sm:text-xs">{m.hint}</p>}
+              </div>
+            ))}
+          </dl>
 
-          <Reveal delay={2} className="mt-6">
+          <div className="mt-6">
             <Card className="overflow-hidden p-0">
               <div className="grid grid-cols-1 lg:grid-cols-5">
                 <div className="relative h-56 lg:col-span-2 lg:h-auto">
@@ -1089,27 +991,16 @@ export default async function StudentDashboardPage() {
                 </div>
               </div>
             </Card>
-          </Reveal>
+          </div>
         </>
       )}
 
       <h2 className="mt-8 font-display text-lg font-bold text-ink">{isHoused ? "Tu espacio" : "Qué podés hacer ahora"}</h2>
-      <div className="mt-3 grid grid-cols-1 items-stretch gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
-        {!isHoused && (
-          <Reveal delay={0} className="h-full">
-            <ModuleCard
-              href="/search"
-              icon="search"
-              title="Buscar residencias"
-              cta={{ label: "Ver catálogo", href: "/search" }}
-            >
-              <p>Catálogo en CABA, con reglas, servicios y precios claros.</p>
-            </ModuleCard>
-          </Reveal>
-        )}
+      <SpaceList pending={spacePending} links={spaceLinks} />
 
+      <div className="mt-3.5 grid grid-cols-1 items-stretch gap-3.5 sm:grid-cols-2">
         {isHoused && reservation && (
-          <Reveal delay={0} className="h-full">
+          <div className="h-full">
             <ExpandableCard
               tone="student"
               className="h-full"
@@ -1161,15 +1052,9 @@ export default async function StudentDashboardPage() {
                 )}
               </div>
             </ExpandableCard>
-          </Reveal>
+          </div>
         )}
-
-        <Reveal delay={1} className="h-full">{perfilCard}</Reveal>
-        <Reveal delay={2} className="h-full">{solicitudesCard}</Reveal>
-        <Reveal delay={3} className="h-full">{favoritosCard}</Reveal>
-        <Reveal delay={4} className="h-full">{listaEsperaCard}</Reveal>
-        <Reveal delay={5} className="h-full">{vinculacionCard}</Reveal>
-        <Reveal delay={5} className="h-full">{soporteCard}</Reveal>
+        {vinculacionCard}
       </div>
 
       {suggestedResidences.length > 0 && (
