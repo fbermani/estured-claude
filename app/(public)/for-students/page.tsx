@@ -3,7 +3,8 @@ import { StudentsHero } from "@/components/marketing/StudentsHero";
 import { Button } from "@/components/ui/Button";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Reveal } from "@/components/ui/Reveal";
-import { BenefitBento, STUDENT_BENEFITS } from "@/components/marketing/BenefitBento";
+import { STUDENT_BENEFITS } from "@/components/marketing/BenefitBento";
+import { BenefitCompare } from "@/components/marketing/BenefitCompare";
 import { CommunityPreview } from "@/components/marketing/CommunityPreview";
 import { StepsList } from "@/app/(public)/for-students/StepsList";
 import { getCatalogResidences } from "@/lib/residences/catalog";
@@ -101,14 +102,14 @@ export default async function ForStudentsPage() {
     <>
       <StudentsHero residences={catalog} />
 
-      {/* Beneficios — bento; en mobile, mazo con swipe */}
+      {/* Beneficios — comparativo «Lo que suele pasar → Con EstuRed» (tabla real) */}
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
         <SectionHeader
           eyebrow="Beneficios"
           title="Lo que cambia cuando buscás con EstuRed"
           description="Conocé los requisitos y beneficios de cada residencia sin moverte de tu casa."
         />
-        <BenefitBento items={STUDENT_BENEFITS} label="Beneficios para estudiantes" />
+        <BenefitCompare items={STUDENT_BENEFITS} label="Lo que suele pasar y lo que cambia con EstuRed" />
       </section>
 
       <CommunityPreview variant="students" />

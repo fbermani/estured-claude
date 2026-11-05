@@ -94,6 +94,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .hero-rise,
+  .hero-chip,
   .hero-rise-t,
   .hero-seq,
   .hero-drift,

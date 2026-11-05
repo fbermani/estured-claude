@@ -17,7 +17,7 @@ export type BentoItem = {
   viz?: ReactNode;
 };
 
-const TONE: Record<Tone, string> = {
+export const TONE: Record<Tone, string> = {
   forest: "bg-forest-tint text-forest-700",
   amber: "bg-amber-soft-100 text-amber-soft-700",
   petrol: "bg-petrol-50 text-petrol-600",

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
@@ -33,7 +34,7 @@ function FloatCard({
   return (
     <div
       aria-hidden="true"
-      className={`hero-float absolute flex max-w-[210px] items-start gap-2.5 rounded-[18px] border border-line bg-white px-3 py-2.5 text-xs leading-snug shadow-float md:max-w-[240px] md:px-3.5 md:py-3 md:text-[13px] ${className}`}
+      className={`hero-float absolute flex max-w-[210px] items-start gap-2.5 rounded-[18px] border border-line bg-white px-3 py-2.5 text-ink text-xs leading-snug shadow-float md:max-w-[240px] md:px-3.5 md:py-3 md:text-[13px] ${className}`}
       style={style({ "--r": rotate, "--fd": floatDelay })}
     >
       <span className={`flex size-[34px] shrink-0 items-center justify-center rounded-[11px] ${tile}`}>
@@ -45,24 +46,22 @@ function FloatCard({
 }
 
 /**
- * Hero de /for-students (propuesta A, "collage vivo"): fotos del catálogo real en arco, píldora y óvalo,
- * tarjetas flotantes decorativas y manchas de color que derivan. Todo el movimiento es CSS.
+ * Hero de /for-students (propuesta A, "collage vivo"; contraste AA, 2 fotos + 2 tarjetas decorativas). Todo el movimiento es CSS.
  */
 export function StudentsHero({ residences }: { residences: Residence[] }) {
   const first = residences[0] ?? null;
-  // Tres fotos distintas: primero las de la primera residencia y, si faltan, las de las siguientes.
-  const photos = Array.from(new Set(residences.flatMap((r) => r.photos))).slice(0, 3);
+  // Dos fotos distintas: primero las de la primera residencia y, si faltan, las de las siguientes.
+  const photos = Array.from(new Set(residences.flatMap((r) => r.photos))).slice(0, 2);
   const frames = [
     { src: photos[0] ?? null, name: first?.name ?? "Residencia verificada", zone: first?.zone },
     { src: photos[1] ?? null, name: residences[1]?.name ?? first?.name ?? "Residencia verificada", zone: residences[1]?.zone ?? first?.zone },
-    { src: photos[2] ?? null, name: residences[2]?.name ?? first?.name ?? "Residencia verificada", zone: residences[2]?.zone ?? first?.zone },
   ];
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-forest-ink via-forest-700 to-forest-600 text-white">
+    <section className="relative overflow-hidden bg-[linear-gradient(175deg,var(--color-forest-ink)_0%,#0e4434_62%,var(--color-forest-700)_100%)] text-white">
       <i
         aria-hidden="true"
-        className="hero-drift pointer-events-none absolute -right-32 -top-44 size-[520px] rounded-full bg-[radial-gradient(circle,rgb(239_133_81/.35),transparent_65%)]"
+        className="hero-drift pointer-events-none absolute -right-[60px] top-10 size-[560px] rounded-full bg-[radial-gradient(circle,rgb(239_133_81/.22),transparent_62%)]"
         style={style({ "--dx": "-30px" })}
       />
       <i
@@ -70,8 +69,8 @@ export function StudentsHero({ residences }: { residences: Residence[] }) {
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(rgb(255_255_255/.09)_1px,transparent_1.2px)] [background-size:22px_22px] [mask-image:linear-gradient(#000,transparent_80%)]"
       />
 
-      <div className="relative mx-auto grid max-w-6xl items-center gap-7 px-4 pb-5 pt-9 sm:px-6 md:grid-cols-[1.02fr_0.98fr] md:gap-12 md:pb-7 md:pt-[72px]">
-        <div>
+      <div className="relative mx-auto grid max-w-6xl items-center gap-x-10 px-4 pt-8 sm:px-6 md:grid-cols-[1.25fr_0.75fr] md:pt-16">
+        <div className="md:col-start-1 md:row-start-1">
           <p
             className="hero-rise mb-[18px] inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3.5 py-1.5 text-[13px] font-semibold text-white"
             style={style({ "--d": "0.08s" })}
@@ -80,7 +79,7 @@ export function StudentsHero({ residences }: { residences: Residence[] }) {
             Para estudiantes y familias
           </p>
           <h1
-            className="hero-rise text-[2.5rem] font-extrabold leading-[1.05] tracking-tight text-white md:text-6xl"
+            className="hero-rise max-w-[620px] text-4xl font-extrabold leading-[1.06] tracking-tight text-white md:text-[52px] md:leading-[1.04]"
             style={style({ "--d": "0.18s" })}
           >
             Elegí tu residencia en Buenos Aires{" "}
@@ -88,30 +87,38 @@ export function StudentsHero({ residences }: { residences: Residence[] }) {
               con todo verificado y por escrito.
             </span>
           </h1>
-          <p className="hero-rise mt-[18px] max-w-[520px] text-lg text-white/85 md:text-xl" style={style({ "--d": "0.3s" })}>
+          <p className="hero-rise mt-3.5 max-w-[590px] text-[17px] text-white/85 md:mt-5 md:text-[19px]" style={style({ "--d": "0.3s" })}>
             Residencias verificadas, un proceso registrado paso a paso y un comprobante de reserva que cualquiera puede
             verificar. Sin viajar.
           </p>
-          <p className="hero-rise mt-3 text-sm font-medium text-white/70" style={style({ "--d": "0.3s" })}>
-            Conocé los requisitos y beneficios de cada residencia sin moverte de tu casa.
-          </p>
-          <div className="hero-rise mt-6 flex flex-col gap-2.5 sm:flex-row sm:flex-wrap" style={style({ "--d": "0.42s" })}>
-            <Button href="/search" size="lg" variant="secondary" className="whitespace-nowrap">
+          <div className="hero-rise mt-[22px] flex flex-col items-stretch gap-1 md:mt-7 md:flex-row md:flex-wrap md:items-center md:gap-3" style={style({ "--d": "0.42s" })}>
+            <Button href="/search" size="lg" variant="secondary" className="whitespace-nowrap [--btn-focus:#fff]">
               Buscar residencia en CABA
               <Icon name="arrow_forward" className="text-xl" />
             </Button>
-            <Button href="/register" variant="outline" size="lg" className="whitespace-nowrap">
+            <div className="hidden md:block">
+              <Button href="/register" variant="outline-dark" size="lg" className="whitespace-nowrap">
+                Crear cuenta de estudiante
+              </Button>
+            </div>
+            <Link
+              href="/register"
+              className="flex min-h-12 items-center justify-center text-[15.5px] font-bold text-white underline decoration-white/50 underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:hidden"
+            >
               Crear cuenta de estudiante
-            </Button>
+            </Link>
           </div>
-          <p className="hero-rise mt-3.5 text-[13px] text-white/75" style={style({ "--d": "0.6s" })}>
+          <p className="hero-rise mt-1 text-center text-[13px] text-white/80 md:mt-3.5 md:text-left md:text-[13.5px]" style={style({ "--d": "0.6s" })}>
             Explorar es gratis. Toda solicitud queda sujeta a confirmación de la residencia.
           </p>
         </div>
 
-        {/* Collage: fotos reales del catálogo + tarjetas decorativas */}
-        <div className="hero-rise relative mx-1.5 h-[440px] md:mx-0 md:h-[560px]" style={style({ "--d": "0.3s" })}>
-          <figure className="absolute left-0 top-0 m-0 h-[76%] w-[62%] overflow-hidden rounded-t-[200px] rounded-b-[26px] bg-sand-200 shadow-float">
+        {/* Collage: fotos reales del catálogo + tarjetas decorativas (en móvil va después de la fila de confianza) */}
+        <div
+          className="hero-rise relative order-3 mx-4 mb-8 mt-1 h-[300px] md:order-none md:col-start-2 md:row-start-1 md:mx-0 md:mb-0 md:mt-0 md:h-[470px]"
+          style={style({ "--d": "0.3s" })}
+        >
+          <figure className="absolute left-0 top-0 m-0 h-full w-[64%] overflow-hidden rounded-t-[200px] rounded-b-[26px] bg-sand-200 shadow-float md:left-[4%] md:h-[84%] md:w-[70%]">
             <ResidencePhoto
               src={frames[0].src}
               name={frames[0].name}
@@ -122,31 +129,13 @@ export function StudentsHero({ residences }: { residences: Residence[] }) {
               priority
             />
           </figure>
-          <figure className="absolute right-0 top-[10%] m-0 h-[34%] w-[36%] overflow-hidden rounded-[26px] bg-sand-200 shadow-float">
-            <ResidencePhoto src={frames[1].src} name={frames[1].name} zone={frames[1].zone} alt="" sizes="(max-width: 768px) 36vw, 20vw" variant="card" />
-          </figure>
-          <figure className="absolute bottom-0 right-[4%] m-0 h-[34%] w-[46%] overflow-hidden rounded-l-full rounded-r-[26px] bg-sand-200 shadow-float">
-            <ResidencePhoto src={frames[2].src} name={frames[2].name} zone={frames[2].zone} alt="" sizes="(max-width: 768px) 46vw, 26vw" variant="card" />
+          <figure className="absolute -bottom-[2%] right-0 m-0 h-[46%] w-[46%] overflow-hidden rounded-l-full rounded-r-[26px] border-4 border-[#0e4434] bg-sand-200 shadow-float md:bottom-[2%] md:h-[36%] md:w-[42%]">
+            <ResidencePhoto src={frames[1].src} name={frames[1].name} zone={frames[1].zone} alt="" sizes="(max-width: 768px) 46vw, 20vw" variant="card" />
           </figure>
 
           <FloatCard
-            className="left-[-4px] top-[58%] md:left-[-30px] md:top-[62%]"
-            rotate="-3deg"
-            floatDelay="0s"
-            tile="bg-info-bg text-info-fg"
-            icon="send"
-          >
-            <b className="text-ink">Tu solicitud</b>
-            <br />
-            <span className="text-ink-faint">Enviada a {first?.name ?? "la residencia"}</span>
-            <br />
-            <span className="mt-1 inline-block rounded-full bg-info-bg px-2.5 py-0.5 text-xs font-semibold text-info-fg">
-              Sujeta a confirmación
-            </span>
-          </FloatCard>
-          <FloatCard
-            className="right-[-4px] top-[2%] max-w-[170px] md:right-[-16px] md:top-0"
-            rotate="2.5deg"
+            className="right-0 top-[6%] max-w-[186px] md:right-[-6px] md:top-[8%]"
+            rotate="1.5deg"
             floatDelay="-2s"
             tile="bg-forest-tint text-forest-700"
             icon="verified"
@@ -156,7 +145,7 @@ export function StudentsHero({ residences }: { residences: Residence[] }) {
             <span className="text-ink-faint">Reglas, servicios y fotos revisados</span>
           </FloatCard>
           <FloatCard
-            className="bottom-[-8px] right-0 md:bottom-[-14px] md:right-[-10px]"
+            className="bottom-[4%] left-[-4px] md:bottom-[6%] md:left-[-14px]"
             rotate="-1.5deg"
             floatDelay="-4s"
             tile="bg-orange-tint text-orange-700"
@@ -164,21 +153,21 @@ export function StudentsHero({ residences }: { residences: Residence[] }) {
           >
             <b className="text-ink">Comprobante de reserva</b>
             <br />
-            <code className="rounded bg-cream-2 px-1.5 py-px text-[11px]">ER-XXXX-XXXX</code>
+            <code className="rounded bg-cream-2 px-1.5 py-px text-[11px] font-bold tracking-[0.02em] text-ink">ER-XXXX-XXXX</code>
             <br />
             <span className="text-ink-faint">Cualquiera puede verificarlo</span>
           </FloatCard>
         </div>
-      </div>
 
-      <ul className="relative mx-auto grid max-w-6xl grid-cols-2 gap-x-3.5 gap-y-2.5 px-4 pb-9 pt-2 text-[13px] font-semibold text-ink-soft sm:px-6 md:flex md:justify-between md:pb-11 md:pt-3 md:text-sm">
-        {TRUST.map((t) => (
-          <li key={t.label} className="flex items-center gap-2">
-            <Icon name={t.icon} className="text-xl text-forest" />
-            {t.label}
-          </li>
-        ))}
-      </ul>
+        <ul className="order-2 mt-[22px] grid grid-cols-2 gap-x-3 gap-y-3.5 border-t border-white/15 pb-5 pt-4 text-[13.5px] font-semibold leading-tight text-white/90 md:order-none md:col-span-2 md:row-start-2 md:mt-10 md:flex md:justify-between md:gap-6 md:pb-9 md:pt-[18px] md:text-sm">
+          {TRUST.map((t) => (
+            <li key={t.label} className="flex items-center gap-2">
+              <Icon name={t.icon} className="text-[21px] text-mint" />
+              {t.label}
+            </li>
+          ))}
+        </ul>
+      </div>
     </section>
   );
 }

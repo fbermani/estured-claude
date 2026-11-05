@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
-type Variant = "primary" | "secondary" | "outline" | "outline-forest" | "ghost";
+type Variant = "primary" | "secondary" | "outline" | "outline-forest" | "outline-dark" | "ghost";
 type Size = "sm" | "md" | "lg";
 
 /**
@@ -12,7 +12,7 @@ type Size = "sm" | "md" | "lg";
  * qué clases renderiza cada uno.
  */
 const base =
-  "inline-flex items-center justify-center gap-2 font-bold rounded-full transition duration-200 ease-out-fresh focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest disabled:opacity-50 disabled:pointer-events-none motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-px motion-safe:active:scale-[0.97] motion-safe:active:duration-[140ms]";
+  "inline-flex items-center justify-center gap-2 font-bold rounded-full transition duration-200 ease-out-fresh focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--btn-focus,var(--color-forest))] disabled:opacity-50 disabled:pointer-events-none motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-px motion-safe:active:scale-[0.97] motion-safe:active:duration-[140ms]";
 
 const variants: Record<Variant, string> = {
   // btn-forest — acción principal de gestión/guardar.
@@ -25,6 +25,9 @@ const variants: Record<Variant, string> = {
   // outline con borde forest — secundario junto a un primario (ej. «Crear cuenta» en el header).
   "outline-forest":
     "border-[1.5px] border-forest text-forest-700 hover:bg-forest-tint bg-paper",
+  // contorno sobre fondo oscuro (heros forest-ink): borde blanco 55% (>=4:1), foco blanco.
+  "outline-dark":
+    "border-[1.5px] border-white/55 bg-transparent text-white hover:bg-white/10 [--btn-focus:#fff]",
   // btn-ghost sin borde — terciario.
   ghost: "text-ink-soft hover:bg-cream-2 bg-transparent",
 };

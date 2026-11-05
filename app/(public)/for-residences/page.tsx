@@ -8,6 +8,7 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Icon } from "@/components/ui/Icon";
 import { Reveal } from "@/components/ui/Reveal";
 import { SwipeStack } from "@/components/ui/SwipeStack";
+import { ResidenceHeroPanel } from "@/components/marketing/ResidenceHeroPanel";
 import { CommunityPreview } from "@/components/marketing/CommunityPreview";
 import { HoverFeatureList } from "@/components/ui/HoverFeatureList";
 import { VERIFIED_FEATURES, PREMIUM_FEATURES } from "@/lib/residences/planFeatures";
@@ -116,51 +117,17 @@ export default function ForResidencesPage() {
               </Button>
               <Button
                 href="#como-funciona"
-                variant="outline"
+                variant="outline-dark"
                 size="lg"
-                className="border-forest bg-transparent text-white hover:bg-forest-600"
               >
                 Ver cómo funciona
               </Button>
             </div>
           </Reveal>
 
-          {/* Composición visual — un vistazo ilustrativo al panel real
-              (solicitud entrante + métrica), no una foto de stock: ancla
-              la promesa "ordena tu operación" en algo concreto. */}
-          <Reveal delay={2} className="relative mx-auto w-full max-w-sm lg:max-w-none">
-            <div className="rounded-card bg-paper p-5 text-ink shadow-float">
-              <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-forest-700">
-                <span className="h-1.5 w-1.5 rounded-full bg-forest-600" aria-hidden />
-                Solicitud nueva
-              </p>
-              <div className="mt-3 flex items-center gap-3">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-forest-tint text-sm font-bold text-forest-700">
-                  MJ
-                </span>
-                <div>
-                  <p className="font-bold text-ink">María José R.</p>
-                  <p className="text-xs text-ink-faint">Habitación Doble · Desde marzo</p>
-                </div>
-              </div>
-              <div className="mt-4 flex gap-2">
-                <span className="flex-1 rounded-full bg-forest px-4 py-2 text-center text-xs font-bold text-white">Establecer contacto</span>
-                <span className="flex-1 rounded-full border-[1.5px] border-line-2 px-4 py-2 text-center text-xs font-bold text-ink-soft">Ver perfil</span>
-              </div>
-            </div>
-            <div className="absolute -right-4 -top-5 hidden max-w-[190px] rotate-2 rounded-card bg-surface p-3.5 text-ink shadow-float ring-1 ring-sand-200 transition-transform duration-200 ease-out-fresh hover:-translate-y-1 hover:rotate-0 sm:block">
-              <p className="flex items-center gap-2 text-sm font-extrabold leading-snug text-forest-700">
-                <Icon name="quiz" className="text-lg" />
-                Preguntas frecuentes en tu ficha
-              </p>
-              <p className="mt-1 text-xs text-ink-faint">Menos consultas repetidas por WhatsApp</p>
-            </div>
-            <div className="absolute -bottom-4 -left-4 hidden -rotate-1 rounded-card bg-surface p-3.5 text-ink shadow-float ring-1 ring-sand-200 transition-transform duration-200 ease-out-fresh hover:-translate-y-1 hover:rotate-0 sm:block">
-              <p className="flex items-center gap-2 text-xs font-bold leading-snug text-ink">
-                <Icon name="hourglass_top" className="text-lg text-orange-700" />
-                Lista de espera ordenada
-              </p>
-            </div>
+          {/* Captura fiel del panel real (HTML/CSS, datos de ejemplo rotulados) */}
+          <Reveal delay={2} className="relative w-full">
+            <ResidenceHeroPanel />
           </Reveal>
         </div>
       </section>
