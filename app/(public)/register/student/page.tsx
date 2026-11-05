@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { safeInternalPath } from "@/lib/auth/safeNext";
 import { getSessionUser, roleHome } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { peekResidentInvitation } from "@/lib/residents/inviteVerification";
@@ -14,8 +15,8 @@ import { RegisterStudentForm } from "@/app/(public)/register/student/RegisterStu
 export const metadata: Metadata = { title: "Crear cuenta de estudiante", robots: { index: false, follow: false }, referrer: "no-referrer" };
 export const dynamic = "force-dynamic";
 
-export default async function RegisterStudentPage({ searchParams }: { searchParams: Promise<{ invite?: string }> }) {
-  const { invite } = await searchParams;
+export default async function RegisterStudentPage({ searchParams }: { searchParams: Promise<{ invite?: string; next?: string }> }) {
+  const { invite, next: nextRaw } = await searchParams;
   const sessionUser = await getSessionUser();
 
   if (invite) {
@@ -26,6 +27,8 @@ export default async function RegisterStudentPage({ searchParams }: { searchPara
 
   if (sessionUser) redirect(roleHome(sessionUser));
   const residences = await listActiveResidencesForPicker();
+  const next = safeInternalPath(nextRaw) ?? undefined;
+  const loginHref = next ? `/login?next=${encodeURIComponent(next)}` : "/login";
 
   return (
     <div className="mx-auto max-w-xl px-4 py-14 sm:py-20">
@@ -39,12 +42,12 @@ export default async function RegisterStudentPage({ searchParams }: { searchPara
         </p>
       </div>
       <div className="mt-8">
-        <RegisterStudentForm residences={residences} />
+        <RegisterStudentForm residences={residences} next={next} />
       </div>
       <p className="mt-6 text-center text-sm text-ink-soft">
         ¿Ya tenés cuenta?{" "}
         <Link
-          href="/login"
+          href={loginHref}
           className="font-semibold text-forest-700 hover:text-forest-700"
         >
           Iniciar sesión

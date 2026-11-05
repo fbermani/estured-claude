@@ -1,5 +1,6 @@
 "use server";
 
+import { safeInternalPath } from "@/lib/auth/safeNext";
 import { validatePassword } from "@/lib/auth/password";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -43,6 +44,8 @@ export async function registerStudent(
   formData: FormData,
 ): Promise<RegisterState> {
   const inviteToken = String(formData.get("invite") ?? "").trim();
+  // Destino tras el alta (p. ej. la ficha con el tipo elegido). Solo rutas internas; si no pasa el validador se ignora.
+  const afterSignup = safeInternalPath(String(formData.get("next") ?? ""));
   const firstName = String(formData.get("first_name") ?? "").trim();
   const lastName = String(formData.get("last_name") ?? "").trim();
   const birthDateRaw = String(formData.get("birth_date") ?? "").trim();
@@ -246,7 +249,7 @@ export async function registerStudent(
     }
     // Falló: la cuenta ya existe; se avisa en el destino para repetirlo desde «Mi residencia».
     if (!residenceNoticeSent) redirect("/students/residency?aviso=error");
-    redirect("/students/residency");
+    redirect(afterSignup ?? "/students/residency");
   }
-  redirect("/students/dashboard");
+  redirect(afterSignup ?? "/students/dashboard");
 }

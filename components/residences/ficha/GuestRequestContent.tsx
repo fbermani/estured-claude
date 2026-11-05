@@ -26,7 +26,7 @@ export function GuestRequestContent({ slug, types }: { slug: string; types: Fich
         </p>
       </div>
       <div className="flex shrink-0 flex-col gap-2.5 border-t border-line bg-paper px-5 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 shadow-[0_-6px_16px_rgb(29_39_34/0.05)] sm:px-6">
-        <Button href="/register/student" size="lg">
+        <Button href={`/register/student?next=${encodeURIComponent(next)}`} size="lg">
           Crear cuenta de estudiante
         </Button>
         <Button href={loginHref} variant="outline" size="lg">

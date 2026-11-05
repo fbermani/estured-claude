@@ -26,7 +26,8 @@ function isUnder18(isoDate: string): boolean {
 export function RegisterStudentForm({
   invite,
   residences = [],
-}: { invite?: { token: string; maskedEmail: string }; residences?: { id: string; name: string; area: string | null }[] } = {}) {
+  next,
+}: { next?: string; invite?: { token: string; maskedEmail: string }; residences?: { id: string; name: string; area: string | null }[] } = {}) {
   const [state, formAction, isPending] = useActionState(
     registerStudent,
     initialState,
@@ -44,6 +45,7 @@ export function RegisterStudentForm({
     <Card className="p-8">
       <form ref={formRef} action={formAction} className="flex flex-col gap-5">
         {invite && <input type="hidden" name="invite" value={invite.token} />}
+        {next && !invite && <input type="hidden" name="next" value={next} />}
         <p className="text-sm text-ink-soft">
           Paso 1 de 2 — lo justo para crear tu cuenta. El resto de tu perfil (universidad, nacionalidad,
           documentos) lo completás después, sin apuro.

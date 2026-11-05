@@ -45,7 +45,7 @@ const HERO: Record<Role, { eyebrow: string; glyph: string; subtitle: string }> =
 };
 
 /** Selector de rol (opción A de «Crear cuenta»): elegís quién sos y abajo aparece el formulario correspondiente, sin cambiar de pantalla. */
-export function RolePicker({ residences }: { residences: { id: string; name: string; area: string | null }[] }) {
+export function RolePicker({ residences, next }: { next?: string; residences: { id: string; name: string; area: string | null }[] }) {
   const [role, setRole] = useState<Role>("student");
   const current = ROLES.find((r) => r.id === role)!;
   const hero = HERO[role];
@@ -106,7 +106,7 @@ export function RolePicker({ residences }: { residences: { id: string; name: str
           )}
         </details>
         {/* Los tres formularios quedan montados (solo se oculta el que no corresponde) para no perder lo escrito al cambiar de rol. */}
-        <div hidden={role !== "student"}><RegisterStudentForm residences={residences} /></div>
+        <div hidden={role !== "student"}><RegisterStudentForm residences={residences} next={next} /></div>
         <div hidden={role !== "family"}><RegisterFamilyForm /></div>
         <div hidden={role !== "residence"}><RegisterResidenceForm /></div>
       </div>
