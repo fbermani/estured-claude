@@ -9,7 +9,7 @@ import "./hero-motion.css";
 const style = (vars: Record<string, string>) => vars as CSSProperties;
 
 const TRUST = [
-  { icon: "verified_user", label: "Residencias verificadas" },
+  { icon: "verified_user", label: "Visitamos cada residencia" },
   { icon: "edit_document", label: "Todo registrado por escrito" },
   { icon: "lock", label: "Ves el monto exacto antes de pagar" },
   { icon: "flight_takeoff", label: "100% a distancia" },
@@ -88,8 +88,7 @@ export function StudentsHero({ residences }: { residences: Residence[] }) {
             </span>
           </h1>
           <p className="hero-rise mt-3.5 max-w-[590px] text-[17px] text-white/85 md:mt-5 md:text-[19px]" style={style({ "--d": "0.3s" })}>
-            Residencias verificadas, un proceso registrado paso a paso y un comprobante de reserva que cualquiera puede
-            verificar. Sin viajar.
+            Un proceso registrado paso a paso y un comprobante de reserva que cualquiera puede consultar online.
           </p>
           <div className="hero-rise mt-[22px] flex flex-col items-stretch gap-1 md:mt-7 md:flex-row md:flex-wrap md:items-center md:gap-3" style={style({ "--d": "0.42s" })}>
             <Button href="/search" size="lg" variant="secondary" className="whitespace-nowrap [--btn-focus:#fff]">
@@ -140,7 +139,7 @@ export function StudentsHero({ residences }: { residences: Residence[] }) {
             tile="bg-forest-tint text-forest-700"
             icon="verified"
           >
-            <b className="text-ink">Verificada en persona</b>
+            <b className="text-ink">Visitada en persona</b>
             <br />
             <span className="text-ink-faint">Reglas, servicios y fotos revisados</span>
           </FloatCard>
@@ -155,14 +154,14 @@ export function StudentsHero({ residences }: { residences: Residence[] }) {
             <br />
             <code className="rounded bg-cream-2 px-1.5 py-px text-[11px] font-bold tracking-[0.02em] text-ink">ER-XXXX-XXXX</code>
             <br />
-            <span className="text-ink-faint">Cualquiera puede verificarlo</span>
+            <span className="text-ink-faint">Cualquiera puede consultarlo</span>
           </FloatCard>
         </div>
 
         <ul className="order-2 mt-[22px] grid grid-cols-2 gap-x-3 gap-y-3.5 border-t border-white/15 pb-5 pt-4 text-[13.5px] font-semibold leading-tight text-white/90 md:order-none md:col-span-2 md:row-start-2 md:mt-10 md:flex md:justify-between md:gap-6 md:pb-9 md:pt-[18px] md:text-sm">
-          {TRUST.map((t) => (
-            <li key={t.label} className="flex items-center gap-2">
-              <Icon name={t.icon} className="text-[21px] text-mint" />
+          {TRUST.map((t, i) => (
+            <li key={t.label} className="trust-item flex items-center gap-2 rounded-full px-3 py-1.5 -mx-3" style={style({ "--i": String(i) })}>
+              <Icon name={t.icon} className="trust-icon inline-block text-[21px] text-mint" />
               {t.label}
             </li>
           ))}

@@ -93,7 +93,55 @@
   animation: hero-pulse-orange 2s infinite;
 }
 
+/* Franja de confianza: resalta un beneficio por vez (3 s cada uno, ciclo de 12 s). Solo fondo, color y escala mínima: sin saltos de layout. */
+@keyframes trust-glow {
+  0%,
+  100% {
+    background-color: transparent;
+    box-shadow: inset 0 0 0 1px transparent;
+    color: rgb(255 255 255 / 0.9);
+  }
+  4%,
+  22% {
+    background-color: rgb(255 255 255 / 0.12);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.28);
+    color: #fff;
+  }
+  27% {
+    background-color: transparent;
+    box-shadow: inset 0 0 0 1px transparent;
+    color: rgb(255 255 255 / 0.9);
+  }
+}
+@keyframes trust-icon {
+  0%,
+  100%,
+  27% {
+    color: var(--color-mint);
+    transform: none;
+  }
+  4%,
+  22% {
+    color: var(--color-orange-light);
+    transform: scale(1.14);
+  }
+}
+.trust-item {
+  animation: trust-glow 12s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * 3s + 1.2s);
+  animation-fill-mode: backwards;
+}
+.trust-icon {
+  animation: trust-icon 12s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * 3s + 1.2s);
+  animation-fill-mode: backwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .trust-item,
+  .trust-icon {
+    animation: none;
+  }
   .hero-rise,
   .hero-chip,
   .hero-rise-t,
