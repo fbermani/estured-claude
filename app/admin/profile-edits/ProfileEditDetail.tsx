@@ -120,7 +120,7 @@ export function ProfileEditDetail({
           </p>
         )}
 
-        <div className="mt-5 flex justify-end gap-3">
+        <div className="mt-5 flex flex-wrap justify-end gap-3">
           <ActionButton action="needs_changes" variant="secondary" label="Pedir corrección" />
           <ActionButton action="reject" variant="danger" label="Rechazar" />
           <ActionButton action="approve" variant="primary" label="Aprobar y publicar" />
@@ -142,7 +142,7 @@ function ActionButton({
   const { pending, data } = useFormStatus();
   const isThisPending = pending && data?.get("action") === action;
   return (
-    <AdminButton type="submit" name="action" value={action} variant={variant} disabled={pending}>
+    <AdminButton type="submit" name="action" value={action} variant={variant} disabled={pending} className="whitespace-nowrap">
       {isThisPending ? "Guardando…" : label}
     </AdminButton>
   );
