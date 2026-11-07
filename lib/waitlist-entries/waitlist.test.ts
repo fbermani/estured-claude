@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { deleteResidenceCascade } from "@/lib/testing/deleteResidenceCascade";
+import { buildMonthOptions } from "@/lib/waitlist-entries/desiredMonth";
 import { joinWaitlist } from "@/lib/waitlist-entries/joinWaitlist";
 import { leaveWaitlist } from "@/lib/waitlist-entries/leaveWaitlist";
 import { stayInWaitlist } from "@/lib/waitlist-entries/stayInWaitlist";
@@ -122,7 +123,7 @@ describe.skipIf(!hasCreds)("disponibilidad y lista de espera (integración)", ()
       actorUserId: studentUserId,
       residenceId,
       roomTypeId,
-      desiredStartDate: "2026-09-01",
+      desiredStartDate: buildMonthOptions()[3].value, // DR40: mes de ingreso futuro (día 1)
       desiredDurationMonths: 6,
     });
     expect(first.ok).toBe(true);

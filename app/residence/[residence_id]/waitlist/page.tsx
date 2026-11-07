@@ -1,4 +1,3 @@
-import { formatDateOnly } from "@/lib/dates/formatDateOnly";
 import { formatDate } from "@/lib/dates/format";
 import { formatShortName } from "@/lib/format/shortName";
 import type { Metadata } from "next";
@@ -14,7 +13,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
 import { PageHero } from "@/components/ui/PageHero";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { daysUntilDesired as computeDaysUntilDesired, describeDaysUntilDesired } from "@/lib/waitlist-entries/daysUntilDesired";
+import { formatDesiredMonth, isCurrentMonth, isCountableWaitlistEntry, sortWaitlistEntries } from "@/lib/waitlist-entries/desiredMonth";
 import { WaitlistRowActions } from "@/app/residence/[residence_id]/waitlist/WaitlistRowActions";
 
 export const metadata: Metadata = { title: "Lista de espera" };
@@ -28,21 +27,17 @@ const STATUS_COPY: Record<string, { label: string; tone: "amber" | "sage" | "neu
 
 const ACTIVE_STATUSES = ["active", "availability_notification_sent", "retention_check_sent"];
 const NEEDS_RESPONSE_STATUSES = ["availability_notification_sent", "retention_check_sent"];
-const URGENT_WINDOW_DAYS = 14;
 
 function daysBetween(fromIso: string, toIso: string): number {
   return Math.round((new Date(toIso).getTime() - new Date(fromIso).getTime()) / (24 * 3600 * 1000));
 }
 
 /**
- * No hay columna de "prioridad" declarada en waitlist_entries (docs/06 §10.2
- * documenta joined_at como único criterio de orden). El orden por
- * "prioridad" que pide el dueño se deriva acá, sin persistir nada nuevo:
- * primero quien está a mitad de un flujo con el estudiante (avisado /
- * chequeo de retención — tiene una ventana de respuesta corriendo), luego
- * por cercanía de la fecha de ingreso deseada, y por último por antigüedad
- * (FIFO) como desempate. La numeración #1, #2… resultante es "quién debería
- * recibir la próxima vacante" dentro de cada tipo de habitación.
+ * No hay columna de "prioridad" declarada en waitlist_entries (docs/06 §10.2 documenta joined_at como único criterio de orden).
+ * El orden se deriva acá, sin persistir nada (DR40, docs/00 §31): por tipo de habitación; dentro de cada grupo (a) quien tiene una
+ * respuesta corriendo (avisado / chequeo de retención) primero, (b) mes de ingreso elegido ascendente (el mes en curso es
+ * «urgente»), (c) antigüedad (FIFO) como desempate y (d) «Cuando haya lugar» (sin mes) al final, también FIFO. Ver `sortWaitlistEntries`.
+ * Defensa en profundidad: las entradas con mes ya terminado no se listan aunque el cron todavía no las haya vencido.
  */
 export default async function ResidenceWaitlistPage({
   params,
@@ -92,19 +87,18 @@ export default async function ResidenceWaitlistPage({
     .not("stay_change_intent_id", "is", null);
   if (!movingError) for (const row of movingEntries ?? []) movingEntryIds.add(row.id as string);
 
-  const nowIso = new Date().toISOString();
+  const now = new Date();
+  const nowIso = now.toISOString();
 
-  const enriched = rows.map((entry) => {
-    const waitingDays = daysBetween(entry.joined_at, nowIso);
-    const daysUntilDesired = computeDaysUntilDesired(entry.desired_start_date);
-    return {
+  const enriched = rows
+    .filter((entry) => isCountableWaitlistEntry(entry, now))
+    .map((entry) => ({
       ...entry,
-      waitingDays,
-      daysUntilDesired,
+      waitingDays: daysBetween(entry.joined_at, nowIso),
       needsResponse: NEEDS_RESPONSE_STATUSES.includes(entry.status),
-      urgent: daysUntilDesired !== null && daysUntilDesired <= URGENT_WINDOW_DAYS,
-    };
-  });
+      thisMonth: isCurrentMonth(entry.desired_start_date, now),
+      monthLabel: formatDesiredMonth(entry.desired_start_date),
+    }));
 
   const groupsMap = new Map<string, { key: string; name: string; entries: typeof enriched }>();
   for (const entry of enriched) {
@@ -117,17 +111,13 @@ export default async function ResidenceWaitlistPage({
   const groups = Array.from(groupsMap.values())
     .map((g) => ({
       ...g,
-      entries: [...g.entries].sort((a, b) => {
-        if (a.needsResponse !== b.needsResponse) return a.needsResponse ? -1 : 1;
-        const aUrgent = a.daysUntilDesired ?? Infinity;
-        const bUrgent = b.daysUntilDesired ?? Infinity;
-        if (aUrgent !== bUrgent) return aUrgent - bUrgent;
-        return b.waitingDays - a.waitingDays;
-      }),
+      entries: sortWaitlistEntries(g.entries),
     }))
     .sort((a, b) => (a.key === "__any__" ? 1 : b.key === "__any__" ? -1 : a.name.localeCompare(b.name)));
 
-  const totalCount = rows.length;
+  const totalCount = enriched.length;
+  const urgentCount = enriched.filter((e) => e.thisMonth).length;
+  const awaitingCount = enriched.filter((e) => e.needsResponse).length;
 
   return (
     <div className="tone-residence mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
@@ -136,7 +126,7 @@ export default async function ResidenceWaitlistPage({
         eyebrow="Lista de espera"
         eyebrowIcon="hourglass_top"
         title="Lista de espera"
-        subtitle="Por tipo de habitación, ordenada por quién debería recibir la próxima vacante."
+        subtitle="Por tipo de habitación; primero quien tiene una respuesta pendiente, después el mes de ingreso más cercano."
         glyph="hourglass_top"
       />
 
@@ -146,6 +136,18 @@ export default async function ResidenceWaitlistPage({
         </div>
       ) : (
         <div className="mt-6 space-y-8">
+          <div className="grid grid-cols-3 gap-3 text-center">
+            {[
+              { label: "En lista", value: totalCount, hot: false },
+              { label: "Entran este mes", value: urgentCount, hot: urgentCount > 0 },
+              { label: "Esperando respuesta", value: awaitingCount, hot: false },
+            ].map((stat) => (
+              <Card key={stat.label} className={`px-3 py-3 ${stat.hot ? "border-danger-fg/30" : ""}`}>
+                <p className={`text-2xl font-extrabold ${stat.hot ? "text-danger-fg" : "text-ink"}`}>{stat.value}</p>
+                <p className="text-xs text-ink-faint">{stat.label}</p>
+              </Card>
+            ))}
+          </div>
           {groups.map((group) => (
             <section key={group.key}>
               <div className="mb-3 flex items-center gap-2">
@@ -159,7 +161,7 @@ export default async function ResidenceWaitlistPage({
                   const badge = STATUS_COPY[entry.status] ?? { label: entry.status, tone: "neutral" as const };
                   const position = i + 1;
                   return (
-                    <Card key={entry.id} className={`p-5 ${entry.urgent ? "border-danger-fg/30" : ""}`}>
+                    <Card key={entry.id} className={`p-5 ${entry.thisMonth ? "border-danger-fg/30" : ""}`}>
                       <div className="flex items-start gap-3">
                         <span
                           className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-extrabold ${
@@ -174,10 +176,10 @@ export default async function ResidenceWaitlistPage({
                               {formatShortName(entry.student_profiles?.first_name, entry.student_profiles?.last_initial)}
                             </p>
                             <div className="flex flex-wrap items-center gap-1.5">
-                              {entry.urgent && (
+                              {entry.thisMonth && (
                                 <Badge tone="danger">
                                   <Icon name="priority_high" className="text-xs" />
-                                  Urgente
+                                  Este mes
                                 </Badge>
                               )}
                               {movingEntryIds.has(entry.id) && (
@@ -190,19 +192,17 @@ export default async function ResidenceWaitlistPage({
                             </div>
                           </div>
                           <p className="mt-0.5 text-xs text-ink-faint">
-                            {entry.desired_start_date && (
+                            {entry.monthLabel ? (
                               <>
-                                Ingreso deseado {formatDateOnly(entry.desired_start_date)}
-                                {describeDaysUntilDesired(entry.daysUntilDesired) && (
-                                  <> ({describeDaysUntilDesired(entry.daysUntilDesired)})</>
-                                )}
+                                Ingreso: {entry.monthLabel} · Vence a fin de mes
                               </>
+                            ) : (
+                              "Cuando haya lugar"
                             )}
                             {entry.desired_duration_months && <> · {entry.desired_duration_months} meses</>}
                           </p>
                           <p className="text-xs text-ink-faint">
-                            En lista desde {formatDate(entry.joined_at)} · {entry.waitingDays}{" "}
-                            {entry.waitingDays === 1 ? "día" : "días"} de antigüedad
+                            En lista desde {formatDate(entry.joined_at)} ({entry.waitingDays} {entry.waitingDays === 1 ? "día" : "días"})
                           </p>
                           <PermissionGate allowed={canManage}>
                             <WaitlistRowActions residenceId={residenceId} entryId={entry.id} />

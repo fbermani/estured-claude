@@ -26,6 +26,7 @@ import { OnboardingBanner } from "@/components/residences/OnboardingBanner";
 import { buildOnboardingChecklist, getOnboardingBanner } from "@/lib/residences/onboardingStatus";
 import { loadChangesMessage } from "@/lib/residences/loadChangesMessage";
 import { computeProfileStrength } from "@/lib/residences/profileStrength";
+import { isCountableWaitlistEntry } from "@/lib/waitlist-entries/desiredMonth";
 
 export const metadata: Metadata = { title: "Panel de la residencia" };
 export const dynamic = "force-dynamic";
@@ -142,7 +143,7 @@ export default async function ResidenceOverviewPage({
     { count: pendingRenewalOffersCount },
     { count: totalResidentsCount },
     { count: pendingActivationCount },
-    { count: waitlistCount },
+    { data: waitlistRows },
     { data: recentApplicationsData },
   ] = await Promise.all([
     admin.from("application_requests").select("*", { count: "exact", head: true }).eq("residence_id", residenceId).eq("status", "submitted"),
@@ -158,7 +159,7 @@ export default async function ResidenceOverviewPage({
     admin.from("renewal_offers").select("*", { count: "exact", head: true }).eq("residence_id", residenceId).in("status", ["sent", "viewed"]),
     admin.from("resident_stays").select("*", { count: "exact", head: true }).eq("residence_id", residenceId).eq("is_current", true),
     admin.from("resident_stays").select("*", { count: "exact", head: true }).eq("residence_id", residenceId).eq("is_current", true).in("status", ["pending_activation", "created_by_residence"]),
-    admin.from("waitlist_entries").select("*", { count: "exact", head: true }).eq("residence_id", residenceId).in("status", ["active", "availability_notification_sent", "retention_check_sent"]),
+    admin.from("waitlist_entries").select("status, desired_start_date").eq("residence_id", residenceId).in("status", ["active", "availability_notification_sent", "retention_check_sent"]),
     admin
       .from("application_requests")
       .select("id, status, created_at, student_profiles(first_name, last_initial), room_types(name)")
@@ -166,6 +167,9 @@ export default async function ResidenceOverviewPage({
       .order("created_at", { ascending: false })
       .limit(5),
   ]);
+
+  // DR40: no cuentan las entradas con mes ya terminado.
+  const waitlistCount = (waitlistRows ?? []).filter((w) => isCountableWaitlistEntry(w as { status: string; desired_start_date: string | null })).length;
 
   // "Quiero cambiar" (DR3): residentes que avisaron que buscan otro lugar (lecturas degradables: ante un error, la línea no aparece).
   const [{ count: seekingChangeCount }, unansweredChangeCount] = await Promise.all([

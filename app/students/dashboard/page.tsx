@@ -48,6 +48,7 @@ import { loadReservationInfoByApplication, type ReservationInfo } from "@/lib/ap
 import { FeeUrgentBanner } from "@/components/applications/FeeUrgentBanner";
 import { sortPendingFees } from "@/lib/payments/feeUrgentBanner";
 import { pluralize } from "@/lib/format/plural";
+import { isCountableWaitlistEntry } from "@/lib/waitlist-entries/desiredMonth";
 
 export const metadata: Metadata = { title: "Tu espacio" };
 export const dynamic = "force-dynamic";
@@ -529,7 +530,7 @@ export default async function StudentDashboardPage() {
         .order("created_at", { ascending: false }),
       supabase
         .from("waitlist_entries")
-        .select("id, status")
+        .select("id, status, desired_start_date")
         .in("status", ["active", "availability_notification_sent", "retention_check_sent"]),
     ]);
     studentLinks = (data as unknown as StudentLinkRow[]) ?? [];
@@ -597,8 +598,10 @@ export default async function StudentDashboardPage() {
       applications.filter((a) => a.status === "converted_to_reservation").map((a) => a.id),
     );
 
-    waitlistCount = waitlistRows?.length ?? 0;
-    waitlistNeedsAction = (waitlistRows ?? []).some((w) => w.status !== "active");
+    // DR40: no cuentan las entradas con mes ya terminado (el cron las vence después).
+    const liveWaitlistRows = (waitlistRows ?? []).filter((w) => isCountableWaitlistEntry(w as { status: string; desired_start_date: string | null }));
+    waitlistCount = liveWaitlistRows.length;
+    waitlistNeedsAction = liveWaitlistRows.some((w) => w.status !== "active");
   }
 
   const pendingLinks = studentLinks.filter((l) => l.status === "pending_student_approval");

@@ -807,6 +807,7 @@ waitlist_entry
 | `removed_by_admin` | Admin eliminó por control o soporte. |
 | `removed_due_to_confirmed_reservation` | Se confirmó una reserva del estudiante (en cualquier residencia). Se anula la entrada y se lo notifica. |
 | `closed_by_residence` | La residencia cerró la lista de espera para ese tipo/plaza. |
+| `expired` | **(DR40, 2026-11-07)** Terminó el mes de ingreso que el estudiante eligió: sale sola de la lista (`removed_reason = 'month_passed'`). Se lo notifica una vez y puede sumarse de nuevo. |
 
 ---
 
@@ -818,8 +819,10 @@ waitlist_entry
   - **Aviso al estudiante:** se lo notifica indicando **cuáles** listas se anularon (residencia y tipo de habitación) y **por qué** (confirmó una reserva).
   - **Favoritos:** esas residencias quedan **solo en sus favoritos** (se agregan si no estaban). El estudiante decide si las mantiene o las quita de favoritos; el sistema no las vuelve a anotar ni las quita por su cuenta.
   - Las anuladas dejan de contar para la residencia (sale de su lista de espera).
+- Al sumarse, el estudiante elige **un mes de ingreso** o «Cuando haya lugar» (DR40). `desired_start_date` guarda el día 1 del mes; `null` = sin mes.
 - A los 90 días, el sistema envía recordatorio para que el estudiante confirme si quiere seguir.
-- La lista no vence automáticamente por tiempo.
+- **Vencimiento por mes (DR40, 2026-11-07):** `active` y `retention_check_sent` con mes elegido ya terminado (fin del último día del mes, hora de Buenos Aires) pasan a `expired`. **No** vence `availability_notification_sent` (flujo en curso). Sin mes, la entrada no vence por fecha. Reemplaza la regla anterior «la lista no vence automáticamente por tiempo».
+- **Orden en la residencia (DR40):** por tipo; (a) con respuesta corriendo primero, (b) mes ascendente, (c) antigüedad (FIFO), (d) «Cuando haya lugar» al final (FIFO).
 - Cuando aparece disponibilidad: los estudiantes reciben notificación especial. La residencia puede contactar. No se activa solicitud automáticamente.
 
 ---
@@ -1396,9 +1399,9 @@ Terminales: `paid`, `expired`, `refunded`, `chargeback`.
 
 ## 21.5. Lista de espera
 
-Terminales: `student_activated_request`, `removed_by_student`, `removed_by_residence`, `removed_by_admin`, `removed_due_to_confirmed_reservation`, `closed_by_residence`.
+Terminales: `student_activated_request`, `removed_by_student`, `removed_by_residence`, `removed_by_admin`, `removed_due_to_confirmed_reservation`, `closed_by_residence`, `expired`.
 
-No vence automáticamente por tiempo. `retention_check_sent` no es terminal.
+Transiciones nuevas (DR40): `active`/`retention_check_sent` → `expired` cuando pasa el mes de ingreso elegido. Sin mes no vence por fecha. `retention_check_sent` no es terminal.
 
 ## 21.6. Aviso "Quiero cambiar" (stay_change_intent)
 
@@ -1505,7 +1508,7 @@ application_request.submitted (initiated_by=student)
 2. No llamar reserva confirmada a una operación sin fee EstuRed pagado.
 3. No emitir comprobante antes de reserva confirmada.
 4. No cerrar solicitudes alternativas hasta que exista reserva confirmada.
-5. No vencer automáticamente lista de espera por tiempo.
+5. No vencer lista de espera por tiempo salvo por el mes de ingreso elegido (DR40); sin mes no vence por fecha.
 6. No permitir publicar residencias no verificadas.
 7. No permitir que cambios tarifarios alteren snapshots de solicitudes existentes.
 8. No mostrar datos sensibles nunca.

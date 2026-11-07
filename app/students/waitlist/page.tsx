@@ -1,4 +1,4 @@
-import { formatDateOnly } from "@/lib/dates/formatDateOnly";
+import { formatDesiredMonth, isDesiredMonthExpired } from "@/lib/waitlist-entries/desiredMonth";
 import { formatDate } from "@/lib/dates/format";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -23,6 +23,7 @@ const STATUS_COPY: Record<string, { label: string; tone: "amber" | "sage" | "neu
   removed_by_residence: { label: "La residencia te sacó de la lista", tone: "neutral" },
   removed_by_admin: { label: "EstuRed te sacó de la lista", tone: "neutral" },
   closed_by_residence: { label: "La residencia cerró la lista", tone: "neutral" },
+  expired: { label: "Venció: pasó el mes elegido", tone: "neutral" },
 };
 
 const ACTIVE_STATUSES = new Set(["active", "availability_notification_sent", "retention_check_sent"]);
@@ -52,6 +53,13 @@ export default async function StudentWaitlistPage() {
       .order("joined_at", { ascending: false });
     if (error) console.error("[students/waitlist] query failed:", error);
     entries = (data as unknown as WaitlistRow[]) ?? [];
+    // DR40: si el mes elegido ya terminó y el cron todavía no la venció, se muestra como vencida (defensa en profundidad).
+    const now = new Date();
+    entries = entries.map((e) =>
+      ACTIVE_STATUSES.has(e.status) && e.status !== "availability_notification_sent" && isDesiredMonthExpired(e.desired_start_date, now)
+        ? { ...e, status: "expired" }
+        : e,
+    );
   }
 
   // "Quiero cambiar" (DR3): las entradas creadas bajo un aviso se etiquetan "Por tu cambio de residencia". Lectura aparte y
@@ -118,8 +126,8 @@ export default async function StudentWaitlistPage() {
                     <dd className="font-semibold text-ink">{entry.room_types?.name ?? "Cualquier tipo"}</dd>
                   </div>
                   <div>
-                    <dt className="text-xs text-ink-faint">Ingreso deseado</dt>
-                    <dd className="font-semibold text-ink">{entry.desired_start_date ? formatDateOnly(entry.desired_start_date) : "Flexible"}</dd>
+                    <dt className="text-xs text-ink-faint">Ingreso</dt>
+                    <dd className="font-semibold text-ink">{formatDesiredMonth(entry.desired_start_date) ?? "Cuando haya lugar"}</dd>
                   </div>
                   <div>
                     <dt className="text-xs text-ink-faint">Duración</dt>

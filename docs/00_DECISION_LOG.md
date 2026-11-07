@@ -1,7 +1,7 @@
 # 00_DECISION_LOG.md
 # EstuRed — Registro de decisiones consolidadas
 
-Última actualización: 2026-11-03 (DR39: relevamiento lote 3; DR38: documentación de la estadía configurable por residencia; DR37: ficha más corta y con la comunidad al frente; DR36: el dueño borra sus fotos; DR35: checklist de llegada con esenciales; DR33–DR34 config de residencia; DR30: ficha y solicitud en modal; DR29: Fase 2 de Guías, llegada y checklist; DR28: Centro de Guías público en /guias; DR27 costos sin «sin depósito» y comprobante en la home; DR22–DR26 y anteriores en §31)
+Última actualización: 2026-11-07 (DR40: lista de espera con mes y vencimiento automático; DR39: relevamiento lote 3; DR38: documentación de la estadía configurable por residencia; DR37: ficha más corta y con la comunidad al frente; DR36: el dueño borra sus fotos; DR35: checklist de llegada con esenciales; DR33–DR34 config de residencia; DR30: ficha y solicitud en modal; DR29: Fase 2 de Guías, llegada y checklist; DR28: Centro de Guías público en /guias; DR27 costos sin «sin depósito» y comprobante en la home; DR22–DR26 y anteriores en §31)
 
 Este documento es la fuente de verdad del proyecto EstuRed.
 Registra todas las decisiones de producto, negocio, operación, experiencia y arquitectura técnica.
@@ -1655,3 +1655,21 @@ Decisiones del dueño tras revisar flujos y dashboards:
 5. **Comunidad:** la ficha flotante de cada residente va en un portal con posición fija: no la recortan los contenedores ni la tapan las tarjetas vecinas.
 6. **Mi residencia:** el encabezado es una presentación (foto, servicios, áreas comunes); después «Sobre tu residencia» con las reglas y el reglamento descargable en PDF.
 7. **Documentación de la estadía:** ver DR38.
+
+### DR40: lista de espera con mes de ingreso y vencimiento automático (2026-11-07, migración 0078)
+
+**Decisión del dueño (2026-11-07).** Reemplaza la regla «la lista no vence automáticamente por tiempo» (`docs/04` §11.3 y §24 regla 5, `docs/05`, `docs/08` §6.10). *(Se numera DR40 porque DR33 ya está tomado por disponibilidad por tipo y género.)*
+
+**Reglas.**
+1. **Mes de ingreso.** Al sumarse, TODO estudiante elige **un mes específico** (del mes actual a +12 meses; con una reserva vigente, solo meses desde el que termina su período) o **«Cuando haya lugar»** (sin mes: lugar «para cuando sea»). Tiene que elegir una de las dos; ya no hay fecha exacta.
+2. **Vencimiento automático.** Si el mes elegido terminó (fin del último día del mes, hora de Buenos Aires), la entrada sale sola de la lista: estado nuevo `expired`. **Sin mes no vence nunca por fecha** (rige el recordatorio de 90 días de siempre: `retention_check_sent` no es terminal). Al vencer se notifica una sola vez al estudiante («Podés sumarte de nuevo»).
+3. **Lista de la residencia, ordenada y priorizada.** Por tipo de habitación; dentro de cada grupo: (a) quien tiene una respuesta corriendo (avisado / chequeo de retención) primero; (b) luego por mes elegido ascendente (el más cercano primero; el mes en curso es **urgente**); (c) desempate por antigüedad (FIFO, `joined_at`); (d) «Cuando haya lugar» al final, también FIFO. Se muestra «Ingreso: noviembre 2026» / «Cuando haya lugar» / «Vence a fin de mes», con un resumen arriba (total, urgentes este mes, esperando respuesta).
+
+**Supuestos reversibles (documentados, no pedidos por el dueño).**
+- **Sin cambiar columnas:** `desired_start_date` guarda el **día 1** del mes elegido; `null` = «Cuando haya lugar».
+- **Superposición con una reserva vigente (DR1/DR3):** con un mes se evalúa con el **último día del mes** (criterio no excesivamente estricto: solo se bloquea si todo el mes cae dentro del período vigente). Sin mes se sigue evaluando desde hoy.
+- **El job NO vence `availability_notification_sent`** (están a mitad de flujo: ya se les avisó que hay lugar). Sí vence `active` y `retention_check_sent`.
+- **Defensa en profundidad:** las vistas (residencia, estudiante, admin) ocultan las entradas activas cuyo mes ya terminó aunque el cron todavía no haya corrido.
+- **Consecuencia:** con una reserva/estadía vigente (sin aviso «Quiero cambiar» que lo exceptúe) el formulario NO ofrece «Cuando haya lugar»: sin mes se considera superpuesto (`docs/04` §5.6bis); tiene que elegir un mes posterior a su período.
+- `activateFromWaitlist` (pide fecha de ingreso nueva para la solicitud) no cambia. Las entradas viejas con fecha exacta se muestran por su mes y vencen a fin de ese mes.
+- **Prioridad (b):** es un orden de presentación derivado (no se persiste), igual que antes.

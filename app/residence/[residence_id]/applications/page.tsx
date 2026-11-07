@@ -13,6 +13,7 @@ import { buildApplicantProfile, type ApplicantProfileSource } from "@/lib/applic
 import { movingSignalFor } from "@/lib/stayChange/copy";
 import { advanceGateMessage, stayChangeAdvanceAt } from "@/lib/stayChange/advanceGate";
 import { ApplicationsInbox, type FullApplication } from "@/app/residence/[residence_id]/applications/ApplicationsInbox";
+import { isCountableWaitlistEntry } from "@/lib/waitlist-entries/desiredMonth";
 
 export const metadata: Metadata = { title: "Solicitudes recibidas" };
 export const dynamic = "force-dynamic";
@@ -45,14 +46,14 @@ export default async function ResidenceApplicationsPage({
       )
       .eq("residence_id", residenceId)
       .order("created_at", { ascending: false }),
-    admin.from("waitlist_entries").select("room_type_id").eq("residence_id", residenceId).in("status", WAITLIST_ACTIVE_STATUSES),
+    admin.from("waitlist_entries").select("room_type_id, status, desired_start_date").eq("residence_id", residenceId).in("status", WAITLIST_ACTIVE_STATUSES),
   ]);
 
   const rows = applications ?? [];
 
   const waitlistCountByType = new Map<string, number>();
   for (const w of waitlistEntries ?? []) {
-    if (!w.room_type_id) continue;
+    if (!w.room_type_id || !isCountableWaitlistEntry(w as { status: string; desired_start_date: string | null })) continue;
     waitlistCountByType.set(w.room_type_id, (waitlistCountByType.get(w.room_type_id) ?? 0) + 1);
   }
 

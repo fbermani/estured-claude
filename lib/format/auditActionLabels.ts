@@ -221,6 +221,7 @@ const ACTION_PHRASES: Record<string, string> = {
   waitlist_entry_stayed: "confirmó que sigue en la lista de espera",
   waitlist_availability_notified: "avisó a la lista de espera que hay lugar",
   waitlist_keep_alive_notified: "pidió confirmar que sigue en la lista de espera",
+  waitlist_entry_expired_month_passed: "venció una entrada de la lista de espera (pasó el mes elegido)",
   waitlist_entry_removed_by_admin: "quitó a alguien de una lista de espera",
   waitlist_entry_removed_by_residence: "quitó a alguien de su lista de espera",
   waitlist_entry_removed_confirmed_reservation: "cerró una lista de espera por reserva confirmada",

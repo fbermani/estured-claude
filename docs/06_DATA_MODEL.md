@@ -222,7 +222,7 @@ No usar `jsonb` para reemplazar relaciones centrales como usuarios, residencias,
 ---
 
 ### 4.12. `waitlist_status`
-`active`, `availability_notification_sent`, `retention_check_sent`, `student_activated_request`, `removed_by_student`, `removed_due_to_confirmed_reservation`, `removed_by_residence`, `removed_by_admin`, `closed_by_residence`
+`active`, `availability_notification_sent`, `retention_check_sent`, `student_activated_request`, `removed_by_student`, `removed_due_to_confirmed_reservation`, `removed_by_residence`, `removed_by_admin`, `closed_by_residence`, `expired` *(DR40, migración 0078)*
 
 ---
 
@@ -873,14 +873,14 @@ Reglas:
 | `student_profile_id` | uuid | Estudiante |
 | `residence_id` | uuid | Residencia |
 | `room_type_id` | uuid null | Tipo deseado |
-| `desired_start_date` | date null | Fecha deseada |
+| `desired_start_date` | date null | Mes de ingreso elegido (DR40): día 1 del mes; `null` = «Cuando haya lugar» |
 | `desired_duration_months` | integer null | Duración deseada |
 | `status` | waitlist_status | Estado |
 | `joined_at` | timestamptz | Alta |
 | `last_keep_alive_notified_at` | timestamptz null | Notificación 90 días |
 | `removed_at` | timestamptz null | Remoción |
 | `removed_by` | uuid null | Quién removió |
-| `removed_reason` | text null | Motivo (p. ej. `stay_change_cancelled`, DR3) |
+| `removed_reason` | text null | Motivo (p. ej. `stay_change_cancelled`, DR3; `month_passed`, DR40) |
 | `stay_change_intent_id` | uuid null | FK `stay_change_intents` si se creó bajo la excepción "Quiero cambiar" (DR3, §14bis) |
 | `created_at` | timestamptz | Alta |
 | `updated_at` | timestamptz | Actualización |
@@ -2083,6 +2083,7 @@ Evidencia de casos de soporte. Privado; acceso por partes del caso y admin.
 ### 27.8. Lista de espera
 - notificar disponibilidad;
 - notificar a los 90 días para confirmar permanencia;
+- **vencer por mes (DR40):** pasar a `expired` (`removed_at`, `removed_reason = 'month_passed'`) las entradas `active` y `retention_check_sent` cuyo mes de ingreso terminó (fin del último día del mes, Buenos Aires); no toca `availability_notification_sent`; notificación in-app única al estudiante;
 - al confirmarse una reserva del estudiante (`confirmed`), anular **todas** sus entradas de lista de espera activas (`removed_due_to_confirmed_reservation`, `removed_reason` con el motivo; DR2, 2026-10-23);
 - notificar al estudiante cuáles listas se anularon (residencia y tipo) y por qué;
 - agregar esas residencias a sus `favorites` si no estaban (solo favoritos: no se quitan ni se reanotan solas).

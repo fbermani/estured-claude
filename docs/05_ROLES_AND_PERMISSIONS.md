@@ -929,7 +929,7 @@ No pueden convertir lista de espera en solicitud activa sin acción del estudian
 
 Sistema retira al estudiante de otras listas cuando confirma reserva en otra residencia.
 
-La lista no vence automáticamente. A los 90 días, el sistema envía recordatorio.
+La lista vence sola solo cuando termina el mes de ingreso que eligió el estudiante (DR40); sin mes no vence por fecha. A los 90 días, el sistema envía recordatorio.
 
 ---
 

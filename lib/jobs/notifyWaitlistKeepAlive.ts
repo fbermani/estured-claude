@@ -5,8 +5,8 @@ import { createAuditLog } from "@/lib/audit";
 const KEEP_ALIVE_AFTER_DAYS = 90;
 
 /**
- * Job de retención a 90 días (docs/06 §27.8, docs/08 §6.10) — "no vence
- * automáticamente por tiempo", así que este job NO remueve a nadie, solo
+ * Job de retención a 90 días (docs/06 §27.8, docs/08 §6.10) — este job NO remueve a nadie (el vencimiento por mes de ingreso es
+ * otro job: `expireWaitlistByMonth`, DR40), solo
  * marca `retention_check_sent` para que el estudiante confirme
  * ("quedarme en lista") o se saque él mismo. Sin notificación real
  * todavía (docs/00 §29), mismo criterio que el resto de los jobs.

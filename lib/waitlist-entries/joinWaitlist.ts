@@ -4,6 +4,7 @@ import { createAuditLog } from "@/lib/audit";
 import { notifyResidenceTeam } from "@/lib/residences/notifyResidenceTeam";
 import { typeAvailabilityState } from "@/lib/availability/typeAvailability";
 import { checkReservationWindowOverlap } from "@/lib/students/reservationWindow";
+import { monthEndIso, parseDesiredMonthInput, WAITLIST_ANY_MONTH_VALUE } from "@/lib/waitlist-entries/desiredMonth";
 
 export type JoinWaitlistResult = { ok: true; waitlistEntryId: string } | { ok: false; error: string };
 
@@ -18,6 +19,10 @@ export type JoinWaitlistResult = { ok: true; waitlistEntryId: string } | { ok: f
  * se elige un tipo, tiene que ser de ESTA residencia, estar activo y estar completo (no pausado, ni con
  * lugar: ahí se solicita directo); (c) con una reserva vigente no se puede anotar para fechas que se
  * superpongan con ella (`reservationWindow.ts`); sin fecha deseada se evalúa desde hoy.
+ *
+ * DR40 (2026-11-07): `desiredStartDate` es el MES de ingreso (se normaliza al día 1; no puede ser de un mes pasado) o `null` =
+ * «Cuando haya lugar». Para la superposición con una reserva vigente (DR1/DR3) se evalúa con el ÚLTIMO día del mes: solo se
+ * bloquea si el mes entero cae dentro del período vigente (supuesto reversible, docs/00 DR40).
  */
 export async function joinWaitlist(
   admin: SupabaseClient,
@@ -29,6 +34,10 @@ export async function joinWaitlist(
     desiredDurationMonths: number | null;
   },
 ): Promise<JoinWaitlistResult> {
+  const month = parseDesiredMonthInput(params.desiredStartDate ?? WAITLIST_ANY_MONTH_VALUE);
+  if (!month.ok) return { ok: false, error: month.error };
+  const desiredStartDate = month.desiredStartDate;
+
   const { data: studentProfile, error: profileError } = await admin
     .from("student_profiles")
     .select("id")
@@ -78,7 +87,7 @@ export async function joinWaitlist(
 
   const overlap = await checkReservationWindowOverlap(admin, {
     studentProfileId: studentProfile.id,
-    desiredStartDate: params.desiredStartDate,
+    desiredStartDate: monthEndIso(desiredStartDate),
     durationMonths: params.desiredDurationMonths,
     residenceId: params.residenceId,
   });
@@ -113,7 +122,7 @@ export async function joinWaitlist(
       student_profile_id: studentProfile.id,
       residence_id: params.residenceId,
       room_type_id: params.roomTypeId,
-      desired_start_date: params.desiredStartDate,
+      desired_start_date: desiredStartDate,
       desired_duration_months: params.desiredDurationMonths,
       // DR3: si se permitió por la excepción "Quiero cambiar", queda vinculada al aviso (se cierra si se cancela).
       ...(overlap.stayChangeIntentId ? { stay_change_intent_id: overlap.stayChangeIntentId } : {}),
