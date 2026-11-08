@@ -5,7 +5,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getResidenceMembership } from "@/lib/residences/access";
 import { can } from "@/lib/residences/permissions";
-import { PremiumNotice } from "@/components/residences/PremiumLock";
+import { PremiumNotice } from "@/components/residences/PremiumNotice";
 import { hasOperationalManagementAccess } from "@/lib/residences/operationalAccess";
 import { ResidentsBrowser, type ResidentsData } from "@/app/residence/[residence_id]/residents/ResidentsBrowser";
 import { RESIDENCE_OFFER_STATUS_COPY } from "@/lib/renewals/statusCopy";

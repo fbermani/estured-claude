@@ -10,7 +10,7 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { PageHero } from "@/components/ui/PageHero";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { PremiumNotice } from "@/components/residences/PremiumLock";
+import { PremiumNotice } from "@/components/residences/PremiumNotice";
 import { hasOperationalManagementAccess } from "@/lib/residences/operationalAccess";
 import { RESIDENCE_OFFER_STATUS_COPY } from "@/lib/renewals/statusCopy";
 

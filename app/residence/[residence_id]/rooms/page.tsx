@@ -5,7 +5,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getResidenceMembership } from "@/lib/residences/access";
 import { can } from "@/lib/residences/permissions";
-import { PremiumNotice } from "@/components/residences/PremiumLock";
+import { PremiumNotice } from "@/components/residences/PremiumNotice";
 import { hasOperationalManagementAccess } from "@/lib/residences/operationalAccess";
 import { effectiveRoomGender } from "@/lib/residences/roomGender";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";

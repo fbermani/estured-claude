@@ -1010,6 +1010,8 @@ Visible para toda residencia (MVP: todo gratis, D8). Sin cambios de fondo respec
 
 ---
 
+**Aviso «Función Premium, hoy bonificada» y Habitaciones (2026-11-08):** el aviso (Habitaciones, Renovaciones y Residentes) es de una sola línea y se puede cerrar con una ✕; al cerrarlo no vuelve a mostrarse en ninguna de las tres pantallas (queda en el navegador). En Habitaciones el encabezado es bajo, el resumen (plazas, ocupación, vacantes, movimientos) es una sola franja compacta, las tarjetas de habitación son más chicas y cada tipo de habitación se pliega/despliega (más «Plegar todos»).
+
 ### 7.13. Renovaciones
 
 **Ruta:** `/residence/[residence_id]/renewals`
