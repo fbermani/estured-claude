@@ -1,4 +1,5 @@
 import { formatDate } from "@/lib/dates/format";
+import { ResidenceHero } from "@/components/residences/ResidenceHero";
 import { formatShortName } from "@/lib/format/shortName";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -262,17 +263,7 @@ export default async function ResidenceWaitlistPage({
 
   return (
     <div className="tone-residence mx-auto max-w-7xl px-4 py-8 pb-28 sm:px-6 sm:py-10">
-      <header className="relative mb-5 overflow-hidden rounded-card bg-(--tone-soft) px-5 py-5 md:px-8 md:py-6">
-        <span aria-hidden="true" className="pointer-events-none absolute -right-14 -top-[70px] size-[220px] rounded-full bg-(--tone) opacity-[0.12]" />
-        <div className="relative grid gap-1.5">
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.09em] text-(--tone-700)">
-            <Icon name="hourglass_top" className="text-lg" />
-            Lista de espera
-          </span>
-          <h1 className="font-display text-[1.75rem] font-bold leading-[1.08] text-(--tone-ink) md:text-4xl">Lista de espera</h1>
-          <p className="max-w-[60ch] text-[15px] text-ink-soft">Elegí a varias personas y avisales que hay lugar de una vez.</p>
-        </div>
-      </header>
+      <ResidenceHero icon="hourglass_top" title="Lista de espera" subtitle="Elegí a varias personas y avisales que hay lugar de una vez." />
 
       {totalCount === 0 ? (
         <div className="mt-6">

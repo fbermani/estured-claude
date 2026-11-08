@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ResidenceHero } from "@/components/residences/ResidenceHero";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
@@ -62,9 +63,9 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
   ];
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
-      <h1 className="text-2xl font-bold text-ink">Preguntas frecuentes</h1>
-      <p className="mt-1 text-sm text-ink-soft">
+    <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
+      <ResidenceHero icon="forum" title="Preguntas frecuentes" subtitle="Lo que mostrás en tu ficha y lo que te preguntan." />
+      <p className="text-sm text-ink-soft">
         Elegí qué preguntas del catálogo de EstuRed mostrar en tu ficha y ajustá las respuestas con los datos de tu residencia. Abajo
         respondés las preguntas libres de quienes miran tu ficha.
       </p>
@@ -123,7 +124,7 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
                     className="group rounded-card border-[1.5px] border-line bg-cream-2/40"
                   >
                     <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-3">
-                      <span className="text-sm font-extrabold uppercase tracking-widest text-muted">{category.label}</span>
+                      <span className="text-sm font-bold uppercase tracking-widest text-muted">{category.label}</span>
                       <span className="rounded-full bg-cream-2 px-2 py-0.5 text-xs font-bold text-ink-soft">
                         {selectedCount} de {entries.length} en tu ficha
                       </span>
@@ -194,7 +195,7 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
             return (
               <section key={section.key}>
                 <div className="mb-3 flex items-center gap-2">
-                  <h2 className="text-sm font-extrabold uppercase tracking-widest text-muted">{section.title}</h2>
+                  <h2 className="text-sm font-bold uppercase tracking-widest text-muted">{section.title}</h2>
                   <span className="rounded-full bg-cream-2 px-2 py-0.5 text-xs font-bold text-ink-soft">
                     {items.length}
                   </span>

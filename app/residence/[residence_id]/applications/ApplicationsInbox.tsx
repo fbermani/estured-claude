@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
-import { PageHero } from "@/components/ui/PageHero";
+import { ResidenceHero } from "@/components/residences/ResidenceHero";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatUsd } from "@/lib/mock/exchange";
 import { ApplicationActions, type ApplicationAllowed } from "@/app/residence/[residence_id]/applications/[id]/ApplicationActions";
@@ -183,7 +183,7 @@ function ListRow({
             {app.roomTypeName ?? "Cualquier tipo"} · Ingreso {formatDateOnly(app.desiredStartDate)}
           </p>
           {app.moving && (
-            <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-orange-tint px-2 py-0.5 text-[11px] font-bold text-orange-700">
+            <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-orange-tint px-2 py-0.5 text-xs font-bold text-orange-700">
               <Icon name="swap_horiz" className="text-sm" />
               {app.moving.label}
             </p>
@@ -228,7 +228,7 @@ export function ApplicationsInbox({
   if (applications.length === 0) {
     return (
       <div className="tone-residence mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
-        <PageHero tone="residence" eyebrow="Solicitudes" eyebrowIcon="inbox" title="Solicitudes recibidas" subtitle="Revisá y respondé las solicitudes de reserva." glyph="inbox" />
+        <ResidenceHero icon="inbox" title="Solicitudes recibidas" subtitle="Revisá y respondé las solicitudes de reserva." />
         <div className="mt-8">
           <EmptyState
             tone="residence"
@@ -246,7 +246,7 @@ export function ApplicationsInbox({
       {groups.map((group) => (
         <div key={group.key}>
           <div className="mb-2 flex items-center gap-2 px-1">
-            <h2 className="text-xs font-extrabold uppercase tracking-widest text-muted">{group.label}</h2>
+            <h2 className="text-xs font-bold uppercase tracking-widest text-muted">{group.label}</h2>
             <span className="rounded-full bg-cream-2 px-2 py-0.5 text-xs font-bold text-ink-soft">
               {group.entries.length}
             </span>
@@ -276,15 +276,7 @@ export function ApplicationsInbox({
 
   return (
     <div className="tone-residence mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
-      <PageHero
-        tone="residence"
-        eyebrow="Solicitudes"
-        eyebrowIcon="inbox"
-        title="Solicitudes recibidas"
-        subtitle="Revisá y respondé las solicitudes de reserva."
-        glyph="inbox"
-        status={<span className="inline-flex items-center rounded-full bg-paper px-2.5 py-1 text-xs font-bold text-(--tone-700)">{applications.length === 1 ? "1 solicitud" : `${applications.length} solicitudes`}</span>}
-      />
+      <ResidenceHero icon="inbox" title="Solicitudes recibidas" subtitle="Revisá y respondé las solicitudes de reserva." actions={<span className="inline-flex items-center rounded-full bg-paper px-2.5 py-1 text-xs font-bold text-(--tone-700)">{applications.length === 1 ? "1 solicitud" : `${applications.length} solicitudes`}</span>} />
 
       {/* Desktop: 2 columnas — lista + detalle (el resumen vive dentro del detalle). */}
       <div className="mt-6 hidden gap-6 lg:grid lg:grid-cols-[340px_1fr]">
@@ -392,7 +384,7 @@ function ApplicationDetail({ residenceId, app, allowed }: { residenceId: string;
             Reserva confirmada
           </p>
           <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-ink-faint">Ingreso</p>
-          <p className="text-xl font-extrabold text-ink">{formatDateOnly(app.desiredStartDate)}</p>
+          <p className="text-xl font-bold text-ink">{formatDateOnly(app.desiredStartDate)}</p>
           <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
             <div>
               <dt className="text-ink-faint">Comprobante N.º</dt>

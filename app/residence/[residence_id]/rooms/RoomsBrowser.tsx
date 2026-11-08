@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useRef, useState, useActionState } from "react";
+import { ResidenceHero } from "@/components/residences/ResidenceHero";
 import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
 import { Card } from "@/components/ui/Card";
@@ -693,13 +694,7 @@ export function RoomsBrowser({
 
   return (
     <div className="tone-residence mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
-      <header className="mb-4">
-        <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.09em] text-forest-700">
-          <Icon name="meeting_room" className="text-lg" /> Habitaciones
-        </span>
-        <h1 className="font-display text-2xl font-bold leading-tight text-ink md:text-3xl">Habitaciones</h1>
-        <p className="mt-0.5 text-sm text-ink-soft">Tus habitaciones, camas y ocupación, en un pantallazo.</p>
-      </header>
+      <ResidenceHero icon="meeting_room" title="Habitaciones" subtitle="Tus habitaciones, camas y ocupación, en un pantallazo." />
 
       {/* Resumen compacto: habitaciones y plazas · ocupación · vacantes · movimientos */}
       <Card className="grid divide-y divide-line sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-4 lg:divide-x">

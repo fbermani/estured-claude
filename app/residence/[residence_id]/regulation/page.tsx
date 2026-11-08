@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ResidenceHero } from "@/components/residences/ResidenceHero";
 import { notFound } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
@@ -41,9 +42,9 @@ export default async function ResidenceRegulationPage({ params }: { params: Prom
   const modelText = normalizeRegulationText(buildModelText());
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
-      <h1 className="text-2xl font-bold text-ink">Reglamento</h1>
-      <p className="mt-1 text-sm text-ink-soft">
+    <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
+      <ResidenceHero icon="gavel" title="Reglamento" subtitle="El que lee y acepta quien envía una solicitud." />
+      <p className="text-sm text-ink-soft">
         Es el reglamento que lee quien mira tu ficha y que acepta al enviar su solicitud. Podés partir del modelo de EstuRed o
         cargar el tuyo. No lo revisa EstuRed: lo que publicás rige apenas lo publicás, y cada versión queda registrada.
       </p>

@@ -1,6 +1,7 @@
 "use client";
 
 import { CLEANING_PER_WEEK_MAX, CLEANING_SERVICE, KITCHENS_MAX, KITCHEN_AREA, amenityDisplayName, type AmenityDetails } from "@/lib/residences/amenityDetails";
+import { ResidenceHero } from "@/components/residences/ResidenceHero";
 import { formatDate } from "@/lib/dates/format";
 import Image from "next/image";
 import { useActionState, useMemo, useState } from "react";
@@ -416,12 +417,14 @@ export function ResidenceProfileForm({
   const badge = statusCopy[initial.status] ?? statusCopy.draft;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
-      <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-ink">Configuración de Residencia</h1>
-          <p className="mt-1 text-sm text-ink-soft">
-            {readOnly
+    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+      <ResidenceHero
+        icon="settings"
+        title="Configuración de Residencia"
+        className="mb-6"
+        actions={<Badge tone={badge.tone}>{badge.label}</Badge>}
+        subtitle={
+          readOnly
               ? `Así está cargada la información de ${initial.name}.`
               : initial.status === "draft"
               ? `Completá la información de ${initial.name} para poder publicarla. Guardá cuando quieras como borrador.`
@@ -431,11 +434,9 @@ export function ResidenceProfileForm({
                   ? `Corregí lo que pidió el equipo de EstuRed en ${initial.name} y reenviala para revisión.`
                   : initial.status === "verification_expired"
                     ? `La verificación anual de ${initial.name} venció. Revisá que el perfil esté al día y reenviala para revisión.`
-                  : `Mantené al día la información de ${initial.name} mientras el equipo de EstuRed la revisa.`}
-          </p>
-        </div>
-        <Badge tone={badge.tone}>{badge.label}</Badge>
-      </div>
+                  : `Mantené al día la información de ${initial.name} mientras el equipo de EstuRed la revisa.`
+        }
+      />
 
       {readOnly && (
         <section
