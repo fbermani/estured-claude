@@ -33,7 +33,7 @@ export function StartHere({ guides }: { guides: Guide[] }) {
                   <Icon name={meta.icon} className="text-2xl!" />
                 </span>
                 <div>
-                  <p className="font-display text-base font-extrabold text-ink">{meta.label}</p>
+                  <p className="font-display text-base font-bold text-ink">{meta.label}</p>
                   <p className="text-sm text-ink-soft">{meta.hint}</p>
                 </div>
               </div>

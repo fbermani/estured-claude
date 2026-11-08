@@ -93,11 +93,11 @@ export function GuidesHub({
         <span aria-hidden="true" className="pointer-events-none absolute -right-16 -top-20 size-72 rounded-full bg-forest/10" />
         <span aria-hidden="true" className="pointer-events-none absolute -bottom-24 left-1/3 size-60 rounded-full bg-orange-tint/70" />
         <div className="relative mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
-          <p className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.09em] text-forest-700">
+          <p className="inline-flex items-center gap-1.5 text-xs font-bold text-forest-700">
             <Icon name="menu_book" className="text-lg!" />
             Centro de Guías
           </p>
-          <h1 className="mt-3 max-w-3xl font-display text-[2rem] font-extrabold leading-[1.08] text-ink sm:text-5xl">
+          <h1 className="mt-3 max-w-3xl font-display text-[2rem] font-bold leading-[1.08] text-ink sm:text-5xl">
             Guías para estudiar y vivir en Buenos Aires
           </h1>
           <p className="mt-4 max-w-2xl text-base text-ink-soft sm:text-lg">
@@ -154,7 +154,7 @@ export function GuidesHub({
                   <span className={`flex size-10 items-center justify-center rounded-xl ${meta.tile}`}>
                     <Icon name={meta.icon} className="text-2xl!" />
                   </span>
-                  <span className="text-sm font-extrabold leading-tight text-ink">{meta.label}</span>
+                  <span className="text-sm font-bold leading-tight text-ink">{meta.label}</span>
                   <span className="text-xs text-ink-faint">
                     {counts[c]} {counts[c] === 1 ? "guía" : "guías"}
                   </span>
@@ -184,7 +184,7 @@ export function GuidesHub({
       <section id="resultados" aria-labelledby="guias-todas" className="mx-auto max-w-6xl scroll-mt-24 px-4 py-10 sm:px-6">
         <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 id="guias-todas" className="font-display text-2xl font-extrabold text-ink sm:text-3xl">
+            <h2 id="guias-todas" className="font-display text-2xl font-bold text-ink sm:text-3xl">
               {filtering ? "Resultados" : showFeatured ? "Más guías" : "Todas las guías"}
             </h2>
             <p role="status" aria-live="polite" className="mt-1 text-sm text-ink-soft">

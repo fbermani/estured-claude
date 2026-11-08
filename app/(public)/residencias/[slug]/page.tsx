@@ -615,7 +615,7 @@ export default async function RealResidenceDetailPage({
               <h2 className="text-2xl font-bold text-ink">Servicios y áreas comunes</h2>
               {services.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-bold uppercase tracking-wide text-ink-faint">Servicios incluidos</h3>
+                  <h3 className="text-sm font-bold text-ink-faint">Servicios incluidos</h3>
                   <div className="mt-2">
                     <AmenityGrid layout="chips" items={services.map((s) => ({ name: amenityDisplayName(s, amenityDetails), ...getServiceIcon(s) }))} />
                   </div>
@@ -623,7 +623,7 @@ export default async function RealResidenceDetailPage({
               )}
               {commonAreas.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-bold uppercase tracking-wide text-ink-faint">Áreas comunes</h3>
+                  <h3 className="text-sm font-bold text-ink-faint">Áreas comunes</h3>
                   <div className="mt-2">
                     <AmenityGrid layout="chips" items={commonAreas.map((a) => ({ name: amenityDisplayName(a, amenityDetails), ...getCommonAreaIcon(a) }))} />
                   </div>

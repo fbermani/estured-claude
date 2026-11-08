@@ -198,7 +198,7 @@ export function RegisterStudentForm({
                   {residences.map((r) => (
                     <option key={r.id} value={r.id}>
                       {r.name}
-                      {r.area ? ` · ${r.area}` : ""}
+                      {r.area ? `, ${r.area}` : ""}
                     </option>
                   ))}
                 </Select>

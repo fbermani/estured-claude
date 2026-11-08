@@ -14,7 +14,7 @@ export function FichaSummary({ fromPriceUsd, arsPerUsd }: { fromPriceUsd: number
         <div>
           <span className="text-[13px] text-ink-faint">Desde</span>
           <p>
-            <b className="font-display text-3xl font-extrabold tracking-tight text-ink tabular-nums">{formatUsd(fromPriceUsd)}</b>{" "}
+            <b className="font-display text-3xl font-bold tracking-tight text-ink tabular-nums">{formatUsd(fromPriceUsd)}</b>{" "}
             <span className="text-[13px] text-ink-faint">/mes</span>
           </p>
           <p className="flex items-center gap-0.5 text-[12.5px] tabular-nums text-ink-faint">
@@ -43,7 +43,7 @@ export function FichaMobileBar({ fromPriceUsd }: { fromPriceUsd: number }) {
     <div className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-between gap-3 border-t border-line-2 bg-paper/95 px-4 pt-2.5 shadow-[0_-6px_18px_rgba(29,39,34,0.08)] backdrop-blur pb-[max(0.625rem,env(safe-area-inset-bottom))] min-[900px]:hidden">
       <p className="leading-none">
         <span className="block text-[12px] text-ink-faint">Desde</span>
-        <b className="font-display text-[22px] font-extrabold tabular-nums text-ink">{formatUsd(fromPriceUsd)}</b>{" "}
+        <b className="font-display text-[22px] font-bold tabular-nums text-ink">{formatUsd(fromPriceUsd)}</b>{" "}
         <span className="text-[13px] text-ink-faint">/mes</span>
       </p>
       <a

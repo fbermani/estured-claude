@@ -20,7 +20,7 @@ const MINI_POINTS = [
 function FakeField({ label, value }: { label: string; value: string }) {
   return (
     <span className="grid gap-0.5 rounded-2xl px-4 py-2 text-left md:px-5 md:[&:not(:first-child)]:border-l md:[&:not(:first-child)]:border-line md:rounded-full">
-      <span className="text-[11px] font-bold uppercase tracking-wider text-ink-faint">{label}</span>
+      <span className="text-xs font-bold text-ink-faint">{label}</span>
       <span className="flex items-center justify-between gap-2 text-[15px] font-semibold text-ink">
         {value}
         <Icon name="expand_more" className="text-lg text-ink-faint" />
@@ -30,7 +30,7 @@ function FakeField({ label, value }: { label: string; value: string }) {
 }
 
 function MarqueeCard({ residence, hidden }: { residence: Residence; hidden?: boolean }) {
-  const types = Array.from(new Set(residence.roomTypes.map((t) => t.type))).join(" · ");
+  const types = Array.from(new Set(residence.roomTypes.map((t) => t.type))).join(", ");
   return (
     <Link
       href={`/residencias/${residence.slug}`}
@@ -54,7 +54,7 @@ function MarqueeCard({ residence, hidden }: { residence: Residence; hidden?: boo
         <b className="font-display text-base font-bold text-white">{residence.name}</b>
         <span>
           {residence.zone}
-          {types ? ` · ${types}` : ""}
+          {types ? `, ${types}` : ""}
         </span>
       </span>
     </Link>
@@ -76,7 +76,7 @@ export function HomeHero({ residences }: { residences: Residence[] }) {
     <section className="relative overflow-hidden bg-gradient-to-br from-forest-ink via-forest-700 to-forest-600 text-white">
       <i
         aria-hidden="true"
-        className="hero-drift pointer-events-none absolute -right-32 -top-44 size-[520px] rounded-full bg-[radial-gradient(circle,rgb(239_133_81/.55),transparent_65%)]"
+        className="hero-drift pointer-events-none absolute -right-32 -top-44 size-[520px] rounded-full bg-[radial-gradient(circle,rgb(239_133_81/.28),transparent_65%)]"
       />
       <i
         aria-hidden="true"
@@ -84,11 +84,11 @@ export function HomeHero({ residences }: { residences: Residence[] }) {
       />
 
       <div className="relative mx-auto max-w-[900px] px-4 pb-6 pt-8 text-center sm:px-6 md:pb-9 md:pt-20">
-        <p className="hero-seq mb-3.5 text-xs font-bold uppercase tracking-widest text-orange-light" style={delay(0.06)}>
+        <p className="hero-seq mb-3.5 text-[13px] font-bold text-amber-soft-300" style={delay(0.06)}>
           Ciudad de Buenos Aires
         </p>
         <h1
-          className="hero-seq text-[1.875rem] font-extrabold leading-[1.1] tracking-tight text-white sm:text-[2.375rem] md:text-6xl"
+          className="hero-seq text-[1.875rem] font-bold leading-[1.1] tracking-tight text-white sm:text-[2.375rem] md:text-6xl"
           style={delay(0.12)}
         >
           Elegí tu residencia a distancia, <span className="text-amber-soft-300">sin adivinar.</span>
@@ -124,7 +124,7 @@ export function HomeHero({ residences }: { residences: Residence[] }) {
         >
           {MINI_POINTS.map((p, i) => (
             <li key={p.label} className="hero-chip inline-flex items-center gap-1.5" style={delay(0.36 + i * 0.04)}>
-              <Icon name={p.icon} className="text-lg text-orange-light" />
+              <Icon name={p.icon} className="text-lg text-amber-soft-300" />
               {p.label}
             </li>
           ))}

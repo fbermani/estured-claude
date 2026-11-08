@@ -301,7 +301,7 @@ export default async function HomePage() {
       {/* CTA final */}
       <section className="bg-mint">
         <Reveal className="mx-auto max-w-3xl px-4 py-20 text-center sm:px-6">
-          <p className="font-display text-2xl font-extrabold text-ink sm:text-3xl">
+          <p className="font-display text-2xl font-bold text-ink sm:text-3xl">
             La convivencia también se elige.
           </p>
           <p className="mx-auto mt-4 max-w-xl text-ink-soft">

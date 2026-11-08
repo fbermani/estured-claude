@@ -155,7 +155,7 @@ export default async function ForStudentsPage() {
 
       <section className="bg-mint">
         <Reveal className="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6">
-          <h2 className="text-3xl font-bold text-ink">
+          <h2 className="text-3xl font-bold text-ink sm:text-4xl md:text-5xl">
             Empezá tu búsqueda con todo a la vista
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-ink-soft">

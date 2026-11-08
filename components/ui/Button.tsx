@@ -12,7 +12,7 @@ type Size = "sm" | "md" | "lg";
  * qué clases renderiza cada uno.
  */
 const base =
-  "inline-flex items-center justify-center gap-2 font-bold rounded-full transition duration-200 ease-out-fresh focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--btn-focus,var(--color-forest))] disabled:opacity-50 disabled:pointer-events-none motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-px motion-safe:active:scale-[0.97] motion-safe:active:duration-[140ms]";
+  "inline-flex items-center justify-center gap-2 sm:whitespace-nowrap font-bold rounded-full transition duration-200 ease-out-fresh focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--btn-focus,var(--color-forest))] disabled:opacity-50 disabled:pointer-events-none motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-px motion-safe:active:scale-[0.97] motion-safe:active:duration-[140ms]";
 
 const variants: Record<Variant, string> = {
   // btn-forest — acción principal de gestión/guardar.

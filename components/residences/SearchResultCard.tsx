@@ -113,7 +113,7 @@ export function SearchResultCard({
           </h3>
           <p className="mt-0.5 text-[13px] text-ink-soft">
             {residence.zone}, {residence.city}
-            {genderLabel ? ` · ${genderLabel}` : ""}
+            {genderLabel ? `, ${genderLabel}` : ""}
           </p>
         </div>
 
@@ -146,7 +146,7 @@ export function SearchResultCard({
                 {universities.map((u) => (
                   <span key={u.name} className="block">
                     {abbreviateUniversity(u.name)}
-                    {u.blocks !== null && ` · ${u.blocks} ${u.blocks === 1 ? "cuadra" : "cuadras"}`}
+                    {u.blocks !== null && `, ${u.blocks} ${u.blocks === 1 ? "cuadra" : "cuadras"}`}
                   </span>
                 ))}
               </span>

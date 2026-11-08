@@ -16,14 +16,14 @@ const studentItems = [
   },
   {
     icon: "apartment",
-    label: "Pago 1 · A la residencia",
+    label: "Pago 1: a la residencia",
     amount: "Lo acordado",
     tone: "residence",
     text: "Por ejemplo, el primer mes o la matrícula, y después las mensualidades. Le pagás directamente a la residencia, que confirma que lo recibió. EstuRed no cobra ese dinero.",
   },
   {
     icon: "payments",
-    label: "Pago 2 · Aparte, a EstuRed",
+    label: "Pago 2: aparte, a EstuRed",
     amount: "Fee del 5%",
     tone: "fee",
     text: "Verás todos los montos antes de enviar tu solicitud. Solo abonás por nuestro servicio una vez que la residencia confirma tu pago, y lo podés pagar vos o el familiar que designes.",

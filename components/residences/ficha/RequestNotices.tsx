@@ -116,16 +116,16 @@ export function RequestHowItWorks() {
       <div>
         <ol className="space-y-2 text-[13px] text-ink-soft">
           <li className="flex items-start gap-2.5">
-            <span aria-hidden="true" className="flex size-5 shrink-0 items-center justify-center rounded-full bg-forest-tint text-[11px] font-bold text-forest-700">1</span>
-            <span><strong className="font-bold text-ink">Enviás la solicitud</strong> · es gratis</span>
+            <span aria-hidden="true" className="flex size-5 shrink-0 items-center justify-center rounded-full bg-forest-tint text-xs font-bold text-forest-700">1</span>
+            <span><strong className="font-bold text-ink">Enviás la solicitud</strong>: es gratis</span>
           </li>
           <li className="flex items-start gap-2.5">
-            <span aria-hidden="true" className="flex size-5 shrink-0 items-center justify-center rounded-full bg-forest-tint text-[11px] font-bold text-forest-700">2</span>
-            <span><strong className="font-bold text-ink">Si avanza, le pagás a la residencia</strong> · matrícula, seña o depósito</span>
+            <span aria-hidden="true" className="flex size-5 shrink-0 items-center justify-center rounded-full bg-forest-tint text-xs font-bold text-forest-700">2</span>
+            <span><strong className="font-bold text-ink">Si avanza, le pagás a la residencia</strong>: matrícula, seña o depósito</span>
           </li>
           <li className="flex items-start gap-2.5">
-            <span aria-hidden="true" className="flex size-5 shrink-0 items-center justify-center rounded-full bg-forest-tint text-[11px] font-bold text-forest-700">3</span>
-            <span><strong className="font-bold text-ink">Pagás a EstuRed</strong> · 5% de servicio</span>
+            <span aria-hidden="true" className="flex size-5 shrink-0 items-center justify-center rounded-full bg-forest-tint text-xs font-bold text-forest-700">3</span>
+            <span><strong className="font-bold text-ink">Pagás a EstuRed</strong>: 5% de servicio</span>
           </li>
         </ol>
         <p className="mt-3 text-xs leading-relaxed text-ink-faint">

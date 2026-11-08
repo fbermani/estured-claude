@@ -52,7 +52,7 @@ export function PayCard({
             className={`text-2xl text-forest-700 transition-transform duration-300 motion-reduce:transition-none ${open ? "rotate-180" : ""}`}
           />
         </span>
-        <span className="mt-2 text-xs font-extrabold uppercase tracking-wide text-ink-faint">{label}</span>
+        <span className="mt-2 text-xs font-bold text-ink-faint">{label}</span>
         <span className="font-display text-xl font-bold text-ink">{amount}</span>
       </button>
       <div id={panelId} hidden={!open}>

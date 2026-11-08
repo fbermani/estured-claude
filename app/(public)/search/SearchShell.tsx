@@ -162,7 +162,7 @@ export function SearchShell({ groups, filters, bounds, histogram, promoCount, mi
             : "hidden min-[900px]:sticky min-[900px]:top-20 min-[900px]:block min-[900px]:max-h-[calc(100vh-6rem)] min-[900px]:overflow-y-auto min-[900px]:overscroll-contain min-[900px]:rounded-card min-[900px]:border-[1.5px] min-[900px]:border-line min-[900px]:bg-paper min-[900px]:shadow-card"
         }
       >
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-line bg-paper px-4 py-3 min-[900px]:hidden">
+        <div className="max-[899px]:sticky max-[899px]:top-0 z-10 flex items-center justify-between border-b border-line bg-paper px-4 py-3 min-[900px]:hidden">
           <h2 className="text-lg">Filtros</h2>
           <button ref={closeBtn} type="button" onClick={() => setDrawer(false)} aria-label="Cerrar filtros" className={`flex size-11 cursor-pointer items-center justify-center rounded-full text-ink-soft hover:bg-cream-2 ${FOCUS}`}>
             <Icon name="close" className="text-xl" />
@@ -236,7 +236,7 @@ export function SearchShell({ groups, filters, bounds, histogram, promoCount, mi
               aria-label="Ordenar por"
               value={filters.sort}
               onChange={(e) => push((p) => (e.target.value === "rec" ? p.delete("orden") : p.set("orden", e.target.value)))}
-              className={`min-h-[42px] min-w-0 cursor-pointer rounded-field border-[1.5px] border-line-2 bg-paper py-0 pl-3 pr-3 text-sm font-semibold text-ink max-sm:max-w-[10.5rem] ${FOCUS}`}
+              className={`min-h-[42px] min-w-0 cursor-pointer rounded-field border-[1.5px] border-field-border bg-paper py-0 pl-3 pr-3 text-sm font-semibold text-ink max-sm:max-w-[10.5rem] ${FOCUS}`}
             >
               {(Object.keys(SORT_LABELS) as SortKey[]).map((k) => (
                 <option key={k} value={k}>{SORT_LABELS[k]}</option>
@@ -287,11 +287,11 @@ function LinkBtn({ children, onClick, disabled }: { children: React.ReactNode; o
 function Row({ label, count, checked, onChange, icon }: { label: string; count: number; checked: boolean; onChange: () => void; icon?: string }) {
   const muted = count === 0 && !checked;
   return (
-    <label className={`-mx-1 flex min-h-[34px] cursor-pointer items-center gap-2.5 rounded-[10px] px-1 py-[3px] text-[14.5px] hover:bg-cream ${muted ? "text-ink-faint" : "text-ink"}`}>
+    <label className={`-mx-1 flex min-h-[34px] cursor-pointer items-center gap-2.5 rounded-[10px] px-1 py-[3px] text-[14.5px] hover:bg-cream has-[:focus-visible]:bg-forest-tint has-[:focus-visible]:outline-[3px] has-[:focus-visible]:outline-offset-1 has-[:focus-visible]:outline-forest-ink ${muted ? "text-ink-faint" : "text-ink"}`}>
       <input type="checkbox" checked={checked} onChange={onChange} className="peer sr-only" />
       <span
         aria-hidden="true"
-        className="grid size-5 flex-none place-items-center rounded-[6px] border-[1.75px] border-ink-faint bg-white after:h-2.5 after:w-[5px] after:-translate-y-px after:rotate-45 after:border-b-[2.25px] after:border-r-[2.25px] after:border-white after:opacity-0 after:content-[''] motion-safe:transition-colors peer-checked:border-forest peer-checked:bg-forest peer-checked:after:opacity-100 peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-2 peer-focus-visible:outline-forest"
+        className="grid size-5 flex-none place-items-center rounded-[6px] border-[1.75px] border-ink-faint bg-white after:h-2.5 after:w-[5px] after:-translate-y-px after:rotate-45 after:border-b-[2.25px] after:border-r-[2.25px] after:border-white after:opacity-0 after:content-[''] motion-safe:transition-colors peer-checked:border-forest peer-checked:bg-forest peer-checked:after:opacity-100 peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-2 peer-focus-visible:outline-forest-ink"
       />
       {icon && <Icon name={icon} className="text-lg text-ink-faint" />}
       <span className="min-w-0 flex-1 leading-tight">{label}</span>

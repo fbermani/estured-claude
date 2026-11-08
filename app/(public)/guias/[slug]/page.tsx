@@ -95,9 +95,9 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
                 <Icon name={cat.icon} className="text-sm!" />
                 {cat.label}
               </Badge>
-              {guide.eyebrow && <span className="text-xs font-bold uppercase tracking-[0.09em] text-ink-soft">{guide.eyebrow}</span>}
+              {guide.eyebrow && <span className="text-xs font-bold text-ink-soft">{guide.eyebrow}</span>}
             </div>
-            <h1 className="mt-3 font-display text-[1.75rem] font-extrabold leading-[1.1] text-ink sm:text-4xl lg:text-[2.6rem]">{guide.title}</h1>
+            <h1 className="mt-3 font-display text-[1.75rem] font-bold leading-[1.1] text-ink sm:text-4xl lg:text-[2.6rem]">{guide.title}</h1>
             {guide.lede && (
               <p className="mt-3 max-w-2xl text-base text-ink-soft sm:text-lg">
                 <Inline text={guide.lede} />
@@ -110,7 +110,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
               </span>
               <span className="inline-flex items-center gap-1">
                 <Icon name="group" className="text-lg!" />
-                {guide.audience.map((a) => AUDIENCE_META[a].label).join(" · ")}
+                {guide.audience.map((a) => AUDIENCE_META[a].label).join(", ")}
               </span>
               {guide.reviewedAt && (
                 <span className="inline-flex items-center gap-1">
@@ -134,7 +134,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
 
             {guide.cta && (
               <div className="mt-10 flex flex-col items-start gap-3 rounded-card border-[1.5px] border-line bg-paper p-5 shadow-card sm:flex-row sm:items-center sm:justify-between sm:p-6">
-                <p className="font-display text-lg font-extrabold text-ink">Seguí con EstuRed</p>
+                <p className="font-display text-lg font-bold text-ink">Seguí con EstuRed</p>
                 <Button href={guide.cta.href} variant="secondary">
                   {guide.cta.label}
                   <Icon name="arrow_forward" className="text-xl!" />
@@ -155,7 +155,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
 
         {related.length > 0 && (
           <section aria-labelledby="segui-leyendo" className="mt-14">
-            <h2 id="segui-leyendo" className="font-display text-2xl font-extrabold text-ink sm:text-3xl">
+            <h2 id="segui-leyendo" className="font-display text-2xl font-bold text-ink sm:text-3xl">
               Seguí leyendo
             </h2>
             <ul className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

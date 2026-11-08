@@ -70,7 +70,7 @@ export function ExchangeRateNote({ showNote = false, compact = false }: { showNo
       >
         <span
           aria-hidden="true"
-          className="inline-flex size-5 items-center justify-center rounded-full border border-muted text-[11px] font-bold leading-none text-muted"
+          className="inline-flex size-5 items-center justify-center rounded-full border border-muted text-xs font-bold leading-none text-muted"
         >
           i
         </span>

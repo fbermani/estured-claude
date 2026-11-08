@@ -103,7 +103,7 @@ export default function ForResidencesPage() {
             <p className="mb-4 inline-flex rounded-full bg-forest-600 px-3 py-1 text-sm font-semibold text-forest-tint">
               Para residencias estudiantiles
             </p>
-            <h1 className="text-4xl font-extrabold sm:text-5xl">
+            <h1 className="text-4xl font-bold sm:text-5xl">
               Menos mensajes, más residencia
             </h1>
             <p className="mt-5 text-lg text-forest-tint">
@@ -111,7 +111,7 @@ export default function ForResidencesPage() {
               repetidas, solicitudes completas, lista de espera y renovaciones
               con un proceso claro. Perfil Verificado gratuito.
             </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Button href="/register/residence" size="lg" variant="secondary">
                 Solicitar sumar mi residencia
               </Button>
@@ -238,7 +238,7 @@ export default function ForResidencesPage() {
 
       <section className="bg-mint">
         <Reveal className="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6">
-          <h2 className="text-3xl font-bold text-ink">
+          <h2 className="text-3xl font-bold text-ink sm:text-4xl md:text-5xl">
             Sumate como Residencia fundadora
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-ink-soft">

@@ -194,7 +194,7 @@ export function ApplyForm({
       <div ref={scrollRef} className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 py-5 sm:px-6">
         {/* Paso 1 · Tu estadía */}
         <div className={step === 1 ? "flex flex-col gap-4" : "hidden"}>
-          <p className="text-xs font-extrabold uppercase tracking-widest text-muted">1 · Tu estadía</p>
+          <p className="text-xs font-bold text-muted">1. Tu estadía</p>
           <RoomTypeCards
             types={cards}
             value={roomTypeId}
@@ -299,15 +299,15 @@ export function ApplyForm({
             <div className="flex items-start gap-3 rounded-field border border-line-2 bg-cream-2/60 px-3.5 py-3 text-sm">
               <Icon name="bed" className="mt-0.5 shrink-0 text-xl text-forest-700" />
               <p className="min-w-0 text-ink-soft">
-                <b className="text-ink">{selected.name}</b>{selectedCard ? <> · {formatUsd(selectedCard.priceUsd)}/mes</> : null}
+                <b className="text-ink">{selected.name}</b>{selectedCard ? <>, {formatUsd(selectedCard.priceUsd)}/mes</> : null}
                 <span className="block text-xs">
-                  Ingreso {startDate ? formatDateOnly(startDate) : "—"} · {duration} {duration === 1 ? "mes" : "meses"}
+                  Ingreso {startDate ? formatDateOnly(startDate) : "—"}, {duration} {duration === 1 ? "mes" : "meses"}
                 </span>
               </p>
             </div>
           )}
 
-          <p className="mt-1 text-xs font-extrabold uppercase tracking-widest text-muted">2 · Sobre vos</p>
+          <p className="mt-1 text-xs font-bold text-muted">2. Sobre vos</p>
           <div>
             <span id="apply-objective-label" className="mb-1.5 block text-sm font-semibold text-ink">¿Cuál es tu objetivo académico?</span>
             <input type="hidden" name="academic_objective_choice" value={objectiveChoice} />
@@ -341,7 +341,7 @@ export function ApplyForm({
 
           {stayChange && (
             <div className="rounded-field border border-line-2 bg-cream-2/50 p-4">
-              <p className="text-xs font-extrabold uppercase tracking-widest text-muted">3 · Tu mudanza (opcional)</p>
+              <p className="text-xs font-bold text-muted">3. Tu mudanza (opcional)</p>
               <Textarea
                 id="apply-move-note"
                 name="move_context_note"
@@ -364,7 +364,7 @@ export function ApplyForm({
           )}
 
           <div>
-            <p className="mt-1 text-xs font-extrabold uppercase tracking-widest text-muted">{stayChange ? "4" : "3"} · Reglamento</p>
+            <p className="mt-1 text-xs font-bold text-muted">{stayChange ? "4" : "3"}. Reglamento</p>
             {regulation ? (
               <details ref={regulationRef} id="apply-regulation" className="mt-2 rounded-field border border-line-2 bg-cream-2/50 p-4">
                 <summary className="cursor-pointer text-sm font-bold text-forest-700">Leer el reglamento completo de la residencia</summary>

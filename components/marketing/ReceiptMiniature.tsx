@@ -25,7 +25,7 @@ export async function ReceiptMiniature() {
   const qr = await QRCode.toDataURL(`${SITE_URL}/verify`, { margin: 1, width: 120 });
   return (
     <figure className="relative m-0 flex h-full flex-col rounded-card border border-sand-200 bg-paper p-4 shadow-card lg:-rotate-1 lg:transition-transform lg:duration-500 lg:hover:rotate-0">
-      <span className="mb-2.5 self-start rounded-md bg-amber-soft-100 px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-[0.08em] text-amber-soft-700">
+      <span className="mb-2.5 self-start rounded-md bg-amber-soft-100 px-2 py-0.5 text-xs font-bold text-amber-soft-700">
         Datos de ejemplo
       </span>
       <div className="flex items-center gap-2">

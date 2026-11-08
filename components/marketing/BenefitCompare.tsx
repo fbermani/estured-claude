@@ -22,7 +22,7 @@ export function BenefitCompare({ items, label }: { items: BentoItem[]; label: st
           <th
             scope="col"
             role="columnheader"
-            className="w-[32%] px-[22px] pb-3 text-left text-[12.5px] font-extrabold uppercase tracking-[0.07em] text-ink-faint"
+            className="w-[32%] px-[22px] pb-3 text-left text-[12.5px] font-bold text-ink-faint"
           >
             <span className="flex items-center gap-1.5">
               <Icon name="remove" className="text-[17px] text-orange-700" />
@@ -32,7 +32,7 @@ export function BenefitCompare({ items, label }: { items: BentoItem[]; label: st
           <th
             scope="col"
             role="columnheader"
-            className="rounded-t-card border border-b-0 border-line bg-paper px-[22px] pb-3 pt-4 text-left text-[12.5px] font-extrabold uppercase tracking-[0.07em] text-forest-700"
+            className="rounded-t-card border border-b-0 border-line bg-paper px-[22px] pb-3 pt-4 text-left text-[12.5px] font-bold text-forest-700"
           >
             <span className="flex items-center gap-1.5">
               <Icon name="check_circle" className="text-[17px] [font-variation-settings:'FILL'_1]" />

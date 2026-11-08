@@ -98,7 +98,7 @@ export function RatesTable({
                 </div>
 
                 <div className="min-w-0 @[42rem]:text-right">
-                  <p className={`font-display text-lg font-extrabold leading-tight ${requestable ? "text-ink" : "text-ink-soft"}`}>
+                  <p className={`font-display text-lg font-bold leading-tight ${requestable ? "text-ink" : "text-ink-soft"}`}>
                     {rt.listPriceUsd != null && (
                       <span className="mr-1.5 text-sm font-semibold text-ink-faint line-through @[42rem]:mr-0 @[42rem]:block @[42rem]:text-xs">
                         <span className="sr-only">Antes </span>
@@ -113,7 +113,7 @@ export function RatesTable({
                   <p className="text-xs text-ink-faint">≈ {formatArs(rt.arsRounded)}</p>
                   {rt.promotion && (
                     <p className="text-xs font-bold text-forest-700">
-                      {rt.promotion.label} · −{rt.promotion.percent}%
+                      {rt.promotion.label}: −{rt.promotion.percent}%
                       {rt.promotion.endsOn ? ` hasta el ${formatDateOnly(rt.promotion.endsOn)}` : ""}
                     </p>
                   )}

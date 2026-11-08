@@ -42,8 +42,8 @@ export function CommunityPreview({ variant }: { variant: "students" | "residence
       <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
         <div className={`grid items-center gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14 ${variant === "residences" ? "lg:[&>*:first-child]:order-2" : ""}`}>
           <Reveal>
-            <p className="text-sm font-extrabold uppercase tracking-wide text-forest-700">{c.eyebrow}</p>
-            <h2 id={titleId} className="mt-2.5 text-3xl font-bold leading-[1.12] text-ink sm:text-4xl">
+            <p className="text-sm font-bold text-forest-700">{c.eyebrow}</p>
+            <h2 id={titleId} className="mt-2.5 text-3xl font-bold leading-[1.12] text-ink sm:text-4xl md:text-5xl">
               {c.title}
             </h2>
             <p className="mt-3 text-base text-ink-soft sm:text-lg">{c.lede}</p>
@@ -70,12 +70,9 @@ export function CommunityPreview({ variant }: { variant: "students" | "residence
           <Reveal delay={2}>
             <figure className="relative m-0 overflow-hidden rounded-[30px] border border-line bg-paper shadow-float lg:-rotate-1 lg:transition-transform lg:duration-500 lg:ease-out-fresh lg:hover:rotate-0">
               <div aria-hidden className="flex items-center gap-1.5 border-b border-line bg-cream-2 px-3.5 py-2.5">
-                <i className="h-2.5 w-2.5 rounded-full bg-line-2" />
-                <i className="h-2.5 w-2.5 rounded-full bg-line-2" />
-                <i className="h-2.5 w-2.5 rounded-full bg-line-2" />
-                <span className="ml-2 flex-1 truncate rounded-lg bg-paper px-2.5 py-0.5 text-xs text-ink-faint">EstuRed · Comunidad de la residencia</span>
+                <span className="flex-1 truncate text-xs font-semibold text-ink-soft">Comunidad de la residencia</span>
               </div>
-              <span className="absolute right-3 top-[52px] z-10 rounded-md bg-amber-soft-100 px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-[0.08em] text-amber-soft-700">
+              <span className="absolute right-3 top-[52px] z-10 rounded-md bg-amber-soft-100 px-2 py-0.5 text-xs font-bold text-amber-soft-700">
                 Datos de ejemplo
               </span>
               <Image

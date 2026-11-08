@@ -75,7 +75,7 @@ export function AmenityIconRow({
 
   return (
     <div ref={rootRef} className="grid gap-2">
-      <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-ink-faint">{label}</p>
+      <p className="text-xs font-bold text-ink-faint">{label}</p>
       <div className="flex min-w-0 flex-nowrap items-center gap-1.5">
         {items.map((item, i) => {
           const id = `${baseId}-${i}`;
@@ -128,7 +128,7 @@ export function AmenityIconRow({
                     align === "left" ? "left-0" : align === "right" ? "right-0" : "left-1/2 -translate-x-1/2"
                   }`}
                 >
-                  <span className="mb-0.5 block text-[10.5px] font-bold uppercase tracking-[0.08em] text-amber-soft-300">
+                  <span className="mb-0.5 block text-xs font-bold text-amber-soft-300">
                     {kind === "area" ? "Área común" : "Servicio"}
                   </span>
                   <b className="block text-[13.5px]">{item.name}</b>
@@ -152,7 +152,7 @@ export function AmenityIconRow({
                 role="tooltip"
                 className="pointer-events-none absolute bottom-[calc(100%+10px)] right-0 z-20 hidden w-[220px] rounded-[14px] bg-forest-ink px-3 py-2.5 text-left text-[13px] leading-snug text-white shadow-float group-focus-within/tip:block group-hover/tip:block"
               >
-                <span className="mb-0.5 block text-[10.5px] font-bold uppercase tracking-[0.08em] text-amber-soft-300">
+                <span className="mb-0.5 block text-xs font-bold text-amber-soft-300">
                   {kind === "area" ? "Más áreas comunes" : "Más servicios"}
                 </span>
                 {extraNames.map((n) => (

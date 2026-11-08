@@ -41,7 +41,7 @@ export function GuideCard({ guide, size = "default" }: { guide: GuideSummary; si
             {guide.readMinutes} min de lectura
           </span>
         </div>
-        <h3 className={`font-display font-extrabold leading-snug text-ink ${featured ? "text-xl sm:text-2xl" : "text-lg"}`}>
+        <h3 className={`font-display font-bold leading-snug text-ink ${featured ? "text-xl sm:text-2xl" : "text-lg"}`}>
           <Link
             href={`/guias/${guide.slug}`}
             className="outline-none after:absolute after:inset-0 after:content-['']"
@@ -51,7 +51,7 @@ export function GuideCard({ guide, size = "default" }: { guide: GuideSummary; si
         </h3>
         <p className="line-clamp-3 text-sm leading-relaxed text-ink-soft">{guide.description}</p>
         <div className="mt-auto flex items-center justify-between gap-3 pt-2 text-xs font-semibold text-ink-faint">
-          <span>{guide.audience.map((a) => AUDIENCE_META[a].label).join(" · ")}</span>
+          <span>{guide.audience.map((a) => AUDIENCE_META[a].label).join(", ")}</span>
           <span className="inline-flex items-center gap-1 text-forest-700">
             Leer
             <Icon name="arrow_forward" className="text-base! transition-transform duration-300 group-hover/card:translate-x-1 motion-reduce:transition-none" />

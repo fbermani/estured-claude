@@ -169,7 +169,7 @@ export function CommunityProfilesPreview({
               ))}
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block font-display text-lg font-extrabold leading-tight sm:text-xl">
+              <span className="block font-display text-lg font-bold leading-tight sm:text-xl">
                 Ver los {totalProfiles} {totalProfiles === 1 ? "perfil" : "perfiles"}
               </span>
               <span className="block text-[13px] text-white/85">Conocé con quién vas a vivir antes de reservar</span>

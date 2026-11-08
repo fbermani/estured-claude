@@ -30,7 +30,7 @@ export function CommunityStatsGrid({ total, stats }: { total: number; stats: Com
           className={`grid bg-paper px-[18px] py-4 ${tiles.length % 2 === 1 && i === tiles.length - 1 ? "col-span-2 sm:col-span-1" : ""}`}
         >
           <dt className="order-2 text-[12.5px] text-ink-faint">{t.label}</dt>
-          <dd className="order-1 font-display text-[28px] font-extrabold text-forest-700">{t.value}</dd>
+          <dd className="order-1 font-display text-[28px] font-bold text-forest-700">{t.value}</dd>
         </div>
       ))}
     </dl>

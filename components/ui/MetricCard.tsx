@@ -71,7 +71,7 @@ export function MetricCard({
 /** Marca «Ejemplo» para datos de muestra. */
 export function ExampleMark() {
   return (
-    <span className="rounded-md bg-cream-2 px-1.5 py-0.5 text-[10.5px] font-bold uppercase tracking-[0.07em] text-ink-faint">
+    <span className="rounded-md bg-cream-2 px-1.5 py-0.5 text-xs font-bold uppercase tracking-[0.07em] text-ink-faint">
       Ejemplo
     </span>
   );

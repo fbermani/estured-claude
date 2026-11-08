@@ -92,7 +92,7 @@ export const STUDENT_BENEFITS: BentoItem[] = [
               </span>
             ))}
           </div>
-          <span className="text-xs text-ink-faint">Medicina · Diseño · Económicas</span>
+          <span className="text-xs text-ink-faint">Medicina, Diseño, Económicas</span>
         </div>
       </VizBox>
     ),

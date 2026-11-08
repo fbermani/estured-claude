@@ -39,7 +39,7 @@ export function FamilyHighlight() {
           <p className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-surface px-3 py-1 text-sm font-semibold text-forest-700">
             <Icon name="family_restroom" className="text-base" /> Para las familias
           </p>
-          <h2 id="para-familias-title" className="text-3xl font-bold text-ink sm:text-4xl">
+          <h2 id="para-familias-title" className="text-3xl font-bold text-ink sm:text-4xl md:text-5xl">
             Seguridad para tu familia, autonomía para tu decisión
           </h2>
           <p className="mt-4 text-base text-ink-soft sm:text-lg">

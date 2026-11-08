@@ -67,7 +67,7 @@ export function StepsList({ steps }: { steps: Step[] }) {
                       />
                     </div>
                     <span aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-cream to-transparent md:hidden" />
-                    <figcaption className="absolute left-2 top-2 rounded-full bg-ink/80 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-white">
+                    <figcaption className="absolute left-2 top-2 rounded-full bg-ink px-2 py-0.5 text-xs font-bold text-white">
                       Ejemplo
                     </figcaption>
                   </figure>

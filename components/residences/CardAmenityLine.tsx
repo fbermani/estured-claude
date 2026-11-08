@@ -49,19 +49,19 @@ export function CardAmenityLine({
         onClick={() => {
           if (!window.matchMedia("(hover: hover)").matches) setSheet(true);
         }}
-        className="-mx-1.5 grid w-[calc(100%+0.75rem)] cursor-pointer grid-cols-[5.25rem_minmax(0,1fr)] items-center gap-2 rounded-[10px] px-1.5 py-1 text-left hover:bg-cream focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest"
+        className="-mx-1.5 grid w-[calc(100%+0.75rem)] cursor-pointer grid-cols-[4.5rem_minmax(0,1fr)] items-center gap-2 min-[400px]:grid-cols-[5.25rem_minmax(0,1fr)] rounded-[10px] px-1.5 py-1 text-left hover:bg-cream focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest"
       >
-        <span aria-hidden="true" className="text-[10.5px] font-bold uppercase leading-tight tracking-[0.08em] text-ink-faint">
+        <span aria-hidden="true" className="text-xs font-bold leading-tight text-ink-faint">
           {label}
         </span>
         <span aria-hidden="true" className="flex min-w-0 flex-nowrap items-center gap-1">
           {shown.map((i) => (
-            <span key={i.name} className="inline-grid size-7 shrink-0 place-items-center rounded-[9px] bg-cream-2 text-forest-700">
-              <Icon name={i.icon} className="text-[17px]" />
+            <span key={i.name} className="inline-grid aspect-square min-w-0 max-w-7 flex-1 place-items-center rounded-[9px] bg-cream-2 text-forest-700">
+              <Icon name={i.icon} className="text-[clamp(14px,4.4vw,17px)]" />
             </span>
           ))}
           {extra > 0 && (
-            <span className="inline-flex h-7 shrink-0 items-center rounded-[9px] bg-forest-tint px-2 text-[12px] font-bold text-forest-700">+{extra}</span>
+            <span className="inline-flex h-7 shrink-0 items-center rounded-[9px] bg-forest-tint px-1.5 text-[12px] font-bold text-forest-700">+{extra}</span>
           )}
         </span>
       </button>

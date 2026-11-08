@@ -29,7 +29,7 @@ export function FaqAccordion({
         return (
           <div key={`${i}-${faq.question}`} className="space-y-3">
             {showGroup && (
-              <h3 className={`text-xs font-extrabold uppercase tracking-widest text-muted ${i > 0 ? "pt-3" : ""}`}>{faq.group}</h3>
+              <h3 className={`text-xs font-bold text-muted ${i > 0 ? "pt-3" : ""}`}>{faq.group}</h3>
             )}
           <div className="overflow-hidden rounded-card border-[1.5px] border-line bg-paper">
             <button
@@ -42,7 +42,7 @@ export function FaqAccordion({
             >
               <span className="min-w-0">
                 {faq.fromVisitor && (
-                  <span className="mb-0.5 block text-[11px] font-bold uppercase tracking-wide text-forest-700">
+                  <span className="mb-0.5 block text-xs font-bold text-forest-700">
                     Pregunta de un visitante
                   </span>
                 )}

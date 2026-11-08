@@ -128,7 +128,7 @@ export function ResidenceCard({
           ≈ {formatArs(usdToArsRounded(residence.priceFromUsd, arsPerUsd))} referencial
           <ExchangeRateNote />
         </p>
-        {residence.promotionPercent != null && <p className="text-xs font-bold text-forest-700">Promoción vigente · −{residence.promotionPercent}%</p>}
+        {residence.promotionPercent != null && <p className="text-xs font-bold text-forest-700">Promoción vigente: −{residence.promotionPercent}%</p>}
       </div>
 
       <div className="px-5 pb-5 pt-3">

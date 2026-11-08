@@ -16,7 +16,7 @@ export function PremiumTag({ className = "" }: { className?: string; compact?: b
   );
 }
 
-/** Aviso «Función Premium · hoy bonificada» con CTA al comparador de planes. */
+/** Aviso «Función Premium, hoy bonificada» con CTA al comparador de planes. */
 export function PremiumNotice({
   residenceId,
   feature,
@@ -36,7 +36,7 @@ export function PremiumNotice({
         <Icon name="lock" className="text-xl" />
       </span>
       <div className="min-w-0 flex-1 text-sm text-ink-soft">
-        <p className="font-extrabold text-ink">Función Premium · hoy bonificada</p>
+        <p className="font-extrabold text-ink">Función Premium, hoy bonificada</p>
         <p className="mt-0.5">
           {feature} es parte de la Gestión Operativa del Plan Premium.
         </p>

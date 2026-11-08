@@ -226,7 +226,7 @@ export function GalleryMosaic({
       >
         <div className="flex items-center justify-between gap-3 border-b border-line bg-paper px-4 py-3">
           <p className="truncate text-sm font-bold text-ink">
-            {name} · {total} fotos
+            {name}, {total} fotos
           </p>
           <button
             type="button"

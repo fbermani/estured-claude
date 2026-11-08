@@ -79,7 +79,7 @@ export function StudentsHero({ residences }: { residences: Residence[] }) {
             Para estudiantes y familias
           </p>
           <h1
-            className="hero-rise max-w-[620px] text-4xl font-extrabold leading-[1.06] tracking-tight text-white md:text-[52px] md:leading-[1.04]"
+            className="hero-rise max-w-[620px] text-4xl font-bold leading-[1.06] tracking-tight text-white md:text-[52px] md:leading-[1.04]"
             style={style({ "--d": "0.18s" })}
           >
             Elegí tu residencia en Buenos Aires{" "}
@@ -152,7 +152,7 @@ export function StudentsHero({ residences }: { residences: Residence[] }) {
           >
             <b className="text-ink">Comprobante de reserva</b>
             <br />
-            <code className="rounded bg-cream-2 px-1.5 py-px text-[11px] font-bold tracking-[0.02em] text-ink">ER-XXXX-XXXX</code>
+            <code className="rounded bg-cream-2 px-1.5 py-px text-xs font-bold tracking-[0.02em] text-ink">ER-XXXX-XXXX</code>
             <br />
             <span className="text-ink-faint">Cualquiera puede consultarlo</span>
           </FloatCard>

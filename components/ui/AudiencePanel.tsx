@@ -78,14 +78,14 @@ export function AudiencePanel({
           aria-hidden="true"
           className={`absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-[0.12] ${t.blob}`}
         />
-        <p className={`relative inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.09em] ${t.who}`}>
+        <p className={`relative inline-flex items-center gap-2 text-xs font-bold ${t.who}`}>
           <Icon name={icon} className="text-lg" style={{ fontVariationSettings: "'FILL' 1" }} />
           {who}
         </p>
         <h3 className={`relative mt-3 text-2xl font-bold leading-[1.1] ${t.title}`}>{promise}</h3>
         {badge && (
           <span
-            className={`absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-xl bg-paper py-1 pl-1.5 pr-2.5 text-[11px] font-bold leading-tight shadow-card ring-1 ring-line ${t.who}`}
+            className={`absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-xl bg-paper py-1 pl-1.5 pr-2.5 text-xs font-bold leading-tight shadow-card ring-1 ring-line ${t.who}`}
           >
             <Icon name="verified" className="text-[22px]" style={{ fontVariationSettings: "'FILL' 1" }} />
             <span>{badge}</span>
@@ -131,9 +131,9 @@ export function AudiencePanel({
 
 function MiniTitle({ children }: { children: ReactNode }) {
   return (
-    <h4 className="flex items-center justify-between gap-2 text-xs font-bold uppercase tracking-[0.06em] text-ink-faint">
+    <h4 className="flex items-center justify-between gap-2 text-xs font-bold text-ink-faint">
       {children}
-      <span className="rounded-md bg-cream-2 px-1.5 py-0.5 text-[10.5px] tracking-[0.07em] text-ink-faint">
+      <span className="rounded-md bg-cream-2 px-1.5 py-0.5 text-xs tracking-[0.07em] text-ink-faint">
         Ejemplo
       </span>
     </h4>

@@ -112,7 +112,7 @@ export function CostBreakdown({
     <div className="space-y-3 text-sm">
       {/* (a) DR30 §6: lo primero que se muestra del dinero es lo que se paga a la residencia para reservar. */}
       <section aria-label="Pago inicial a la residencia" className="rounded-field border-[1.5px] border-forest/30 bg-forest-tint/40 p-4">
-        <p className="text-[11px] font-extrabold uppercase tracking-widest text-forest-700">
+        <p className="text-xs font-bold text-forest-700">
           Pago inicial a la residencia para reservar{initialLabel ? ` (${initialLabel})` : ""}
           <InfoTip label="Qué es el pago inicial">
             {initialPayment.mode === "custom_usd"
@@ -126,7 +126,7 @@ export function CostBreakdown({
             cuando la residencia habilita el pago.
           </InfoTip>
         </p>
-        <p className="mt-1.5 font-display text-3xl font-extrabold leading-none text-ink">
+        <p className="mt-1.5 font-display text-3xl font-bold leading-none text-ink">
           {formatArs(initialPayment.arsDisplay)}
         </p>
         <p className="mt-1 text-xs font-semibold text-ink-soft">
@@ -151,8 +151,8 @@ export function CostBreakdown({
           </span>
           <span className="flex items-center gap-1.5 text-right">
             <span>
-              <span className="block font-extrabold text-ink">{formatUsd(reservationTotalUsd)}</span>
-              <span className="block text-[10px] font-normal text-ink-faint">≈ {formatArs(totalArs)}</span>
+              <span className="block font-bold text-ink">{formatUsd(reservationTotalUsd)}</span>
+              <span className="block text-xs font-normal text-ink-faint">≈ {formatArs(totalArs)}</span>
             </span>
             <Icon name="expand_more" className="text-xl text-ink-faint transition-transform group-open:rotate-180" />
           </span>
@@ -162,12 +162,12 @@ export function CostBreakdown({
       {startDate && (
         <div className="mb-3 flex items-center justify-between rounded-field border border-line bg-paper px-3 py-2.5">
           <span>
-            <span className="block text-[10px] font-extrabold uppercase tracking-widest text-muted">Entrada</span>
+            <span className="block text-xs font-bold text-muted">Entrada</span>
             <span className="font-bold text-ink">{formatDateOnly(startDate)}</span>
           </span>
           <Icon name="arrow_forward" className="text-lg text-ink-faint" />
           <span className="text-right">
-            <span className="block text-[10px] font-extrabold uppercase tracking-widest text-muted">Salida</span>
+            <span className="block text-xs font-bold text-muted">Salida</span>
             <span className="font-bold text-ink">{computeExitDate(startDate, duration)}</span>
           </span>
         </div>
@@ -211,7 +211,7 @@ export function CostBreakdown({
             )}
             {enrollmentUsd > 0 ? formatUsd(enrollmentUsd) : "Bonificada"}
             {money.enrollment.discountPercent > 0 && (
-              <span className="block text-[10px] font-normal text-forest-700">
+              <span className="block text-xs font-normal text-forest-700">
                 {money.enrollment.discountPercent >= 100 ? "Sin costo por ahora" : `${money.enrollment.discountPercent}% de descuento`}
               </span>
             )}
@@ -261,9 +261,9 @@ export function CostBreakdown({
               reserva — enviar la {submitNoun} no cuesta nada.
             </InfoTip>
           </span>
-          <span className="text-right font-extrabold text-warning-fg">
+          <span className="text-right font-bold text-warning-fg">
             {formatUsd(feeUsd)}
-            <span className="block text-[10px] font-normal">
+            <span className="block text-xs font-normal">
               ≈ {formatArs(fee.estimatedFeeArs)}
               <ExchangeRateNote />
             </span>
@@ -288,7 +288,7 @@ export function CostBreakdown({
             </span>
             <span className="text-right font-bold text-ink">
               {formatUsd(depositUsd)}
-              <span className="block text-[10px] font-normal text-ink-faint">reembolsable</span>
+              <span className="block text-xs font-normal text-ink-faint">reembolsable</span>
             </span>
           </div>
         </div>
