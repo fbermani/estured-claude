@@ -3,124 +3,85 @@ import { Badge } from "@/components/ui/Badge";
 import { SwipeStack } from "@/components/ui/SwipeStack";
 
 /**
- * Beneficios para residencias en formato «Hoy → Con EstuRed», cada uno con un fragmento de pantalla de ejemplo
- * (datos ficticios, rotulados). Compacto: una línea por lado. En mobile, mazo con swipe (SwipeStack).
+ * Beneficios para residencias: 4 tarjetas iguales «ancla + título». Ancla enorme (artefacto real del producto),
+ * título fuerte, una línea y un mini ejemplo rotulado (datos ficticios). En mobile, mazo con swipe (SwipeStack).
  */
 
-function Pair({ title, hoy, con, dark = false }: { title: string; hoy: string; con: string; dark?: boolean }) {
-  const tag = dark ? "bg-white/12 text-white/80" : "bg-sand-100 text-ink-soft";
-  const tagCon = dark ? "bg-white text-petrol-800" : "bg-petrol-600 text-white";
-  return (
-    <div className="grid gap-2">
-      <h3 className={`text-[17px] leading-snug ${dark ? "text-white" : "text-ink"}`}>{title}</h3>
-      <p className="flex items-baseline gap-2 text-[13.5px]">
-        <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ${tag}`}>Hoy</span>
-        <span className={`italic ${dark ? "text-white/70" : "text-ink-faint"}`}>{hoy}</span>
-      </p>
-      <p className="flex items-baseline gap-2 text-[14px]">
-        <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ${tagCon}`}>Con EstuRed</span>
-        <span className={dark ? "text-white" : "text-ink"}>{con}</span>
-      </p>
-    </div>
-  );
-}
+type Benefit = {
+  anchor: string;
+  code?: boolean;
+  tone: "forest" | "orange";
+  title: string;
+  line: string;
+  exampleLabel: string;
+  example: ReactNode;
+};
 
-function Proof({ label, dark = false, children }: { label: string; dark?: boolean; children: ReactNode }) {
-  return (
-    <div
-      role="img"
-      aria-label={label}
-      className={`relative grid gap-1.5 rounded-field p-3 text-[12.5px] ${dark ? "bg-white text-ink" : "bg-sand-50 text-ink"}`}
-    >
-      <span className="justify-self-end text-[10px] font-medium uppercase leading-none tracking-wide text-ink-faint">Ejemplo</span>
-      {children}
-    </div>
-  );
-}
-
-const card = "grid content-start gap-3 rounded-card border border-line bg-paper p-4 shadow-card sm:p-5";
+const BENEFITS: Benefit[] = [
+  {
+    anchor: "1 ficha",
+    tone: "forest",
+    title: "Menos consultas repetidas",
+    line: "Tu ficha responde precio, reglas y qué incluye.",
+    exampleLabel: "Ejemplo: la ficha ya responde precio, qué incluye y reglas.",
+    example: <Badge tone="sage">Precio · reglas ✓</Badge>,
+  },
+  {
+    anchor: "1 lista",
+    tone: "orange",
+    title: "Renovaciones y lista de espera juntas",
+    line: "Sabés quién sigue y a quién avisar.",
+    exampleLabel: "Ejemplo: Estudiante E. decidió esperar. El aviso no reserva la plaza, sujeta a confirmación.",
+    example: <Badge>Decidió esperar</Badge>,
+  },
+  {
+    anchor: "ER-0427",
+    code: true,
+    tone: "forest",
+    title: "Reservas y pagos con registro",
+    line: "Lo acordado y cobrado, por escrito.",
+    exampleLabel: "Ejemplo: comprobante ER-0427 registrado.",
+    example: <Badge tone="sage">Registrado</Badge>,
+  },
+  {
+    anchor: "3 en común",
+    tone: "orange",
+    title: "Afinidad de convivencia antes de aceptar",
+    line: "Ves hábitos en común con quien ya vive ahí.",
+    exampleLabel: "Ejemplo: tres hábitos en común con quien ya vive en la habitación.",
+    example: <Badge tone="sage">✓ No fuma</Badge>,
+  },
+];
 
 export function BenefitBeforeAfter() {
   return (
-    <SwipeStack label="Beneficios para residencias" className="grid gap-3 md:grid-cols-12 md:gap-4">
-      <article className={`${card} md:col-span-7`}>
-        <Pair
-          title="Menos consultas repetidas"
-          hoy="«Respondo precio y reglas veinte veces.»"
-          con="Tu ficha responde lo de siempre."
-        />
-        <Proof label="Ejemplo: la ficha ya responde precio y reglas; la consulta nueva es específica.">
-          <p className="text-ink-soft">Ya responde tu ficha: precio · qué incluye · reglas ✓</p>
-          <p className="rounded-field bg-paper px-2.5 py-1.5">
-            <span className="text-[11px] text-ink-faint">Consulta nueva · Estudiante A.</span>
-            <br />
-            «¿Puedo mudarme el 3 de marzo en vez del 1?»
+    <SwipeStack label="Beneficios para residencias" className="grid gap-3 md:grid-cols-2 md:gap-4">
+      {BENEFITS.map((b) => (
+        <article
+          key={b.title}
+          className="group grid h-full grid-rows-[auto_auto_1fr_auto] gap-2 rounded-card border border-line bg-paper p-5 shadow-card transition-shadow motion-reduce:transition-none sm:p-6 md:hover:shadow-card-hover"
+        >
+          <p
+            className={`font-bold leading-none ${
+              b.code
+                ? "font-mono text-[38px] tracking-normal sm:text-[44px]"
+                : "font-display text-[44px] tracking-tight sm:text-[52px]"
+            } ${b.tone === "forest" ? "text-forest" : "text-orange-700"}`}
+          >
+            {b.anchor}
           </p>
-        </Proof>
-      </article>
-
-      <article className="grid content-start gap-3 rounded-card bg-petrol-900 p-4 text-white shadow-card sm:p-5 md:col-span-5">
-        <Pair
-          dark
-          title="Renovaciones y lista de espera"
-          hoy="«Me entero tarde de quién se va.»"
-          con="Sabés quién sigue y a quién avisar."
-        />
-        <Proof dark label="Ejemplo: un residente renueva, otro no, y hay estudiantes en lista de espera, uno que decidió esperar.">
-          {[
-            ["Residente B.", "Renueva", "sage"],
-            ["Residente C.", "No renueva", "amber"],
-            ["Estudiante D.", "Avisar", "petrol"],
-            ["Estudiante E.", "Decidió esperar", "neutral"],
-          ].map(([n, s, t]) => (
-            <p key={n} className="flex items-center justify-between gap-2 pr-0 pt-0.5">
-              <span>{n}</span>
-              <Badge tone={t as "sage" | "amber" | "petrol" | "neutral"}>{s}</Badge>
-            </p>
-          ))}
-          <p className="text-[11px] text-ink-faint">El aviso no reserva la plaza: sujeta a confirmación.</p>
-        </Proof>
-      </article>
-
-      <article className={`${card} md:col-span-5`}>
-        <Pair
-          title="Reservas y pagos con registro"
-          hoy="«La seña quedó en un chat.»"
-          con="Lo acordado y cobrado, por escrito."
-        />
-        <Proof label="Ejemplo de comprobante ER-0427: seña, pago a la residencia, registrado.">
-          <p className="flex items-center justify-between gap-2 pr-12">
-            <span>
-              Comprobante <b>ER-0427</b>
-            </span>
-            <Badge tone="sage">Registrado</Badge>
+          <h3 className="mt-1 text-[22px] font-bold leading-tight text-ink sm:text-2xl">{b.title}</h3>
+          <p className="text-[15px] text-ink-soft">{b.line}</p>
+          <p
+            role="img"
+            aria-label={b.exampleLabel}
+            className="mt-2 flex items-center gap-2 border-t border-line pt-3"
+          >
+            <span className="text-[10px] font-medium uppercase leading-none tracking-wide text-ink-faint">Ejemplo</span>
+            {b.example}
           </p>
-          <p className="text-ink-soft">Seña · pago a la residencia · Hab. doble desde 1/3</p>
-          <p className="text-ink-soft">Lo ven: vos y el estudiante</p>
-        </Proof>
-      </article>
-
-      <article className={`${card} md:col-span-7`}>
-        <Pair
-          title="Afinidad de convivencia antes de aceptar"
-          hoy="«Una mala convivencia y se vacía la habitación.»"
-          con="Ves hábitos en común con quien ya vive ahí."
-        />
-        <Proof label="Ejemplo: solicitud de Estudiante F. con tres hábitos en común con quien ya vive en la habitación.">
-          <p className="pr-12">
-            <b>Estudiante F.</b> · solicitud para Hab. doble · vive ahí: Residente B.
-          </p>
-          <p className="flex flex-wrap gap-1.5">
-            {["Se levanta temprano", "No fuma", "Estudia en casa"].map((c) => (
-              <Badge key={c} tone="sage">
-                ✓ {c}
-              </Badge>
-            ))}
-            <Badge>Toca la guitarra</Badge>
-          </p>
-          <p className="text-[11px] text-ink-faint">✓ = en común. La decisión es tuya.</p>
-        </Proof>
-      </article>
+        </article>
+      ))}
     </SwipeStack>
   );
 }
