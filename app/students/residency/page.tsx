@@ -509,7 +509,7 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
           </div>
           <div className="grid content-start gap-4 p-5 md:p-6">
             <div>
-              <h2 className="font-display text-xl font-extrabold leading-tight text-ink">{residence.name}</h2>
+              <h2 className="font-display text-xl font-bold leading-tight text-ink">{residence.name}</h2>
               <p className="mt-0.5 flex items-center gap-1 text-sm text-ink-soft">
                 <Icon name="location_on" className="text-[17px] text-ink-faint" />
                 {residence.public_area}, CABA
@@ -517,13 +517,13 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
             </div>
             {services.length > 0 && (
               <div>
-                <h3 className="mb-2 text-[11px] font-bold uppercase tracking-[0.08em] text-ink-faint">Servicios incluidos</h3>
+                <h3 className="mb-2 text-xs font-bold uppercase tracking-[0.08em] text-ink-faint">Servicios incluidos</h3>
                 <AmenityGrid layout="chips" items={services.map((s) => ({ name: amenityDisplayName(s, amenityDetails), ...getServiceIcon(s) }))} />
               </div>
             )}
             {commonAreas.length > 0 && (
               <div>
-                <h3 className="mb-2 text-[11px] font-bold uppercase tracking-[0.08em] text-ink-faint">Áreas comunes</h3>
+                <h3 className="mb-2 text-xs font-bold uppercase tracking-[0.08em] text-ink-faint">Áreas comunes</h3>
                 <AmenityGrid layout="chips" items={commonAreas.map((a) => ({ name: amenityDisplayName(a, amenityDetails), ...getCommonAreaIcon(a) }))} />
               </div>
             )}
@@ -534,7 +534,7 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="flex min-w-0 flex-col gap-6 lg:col-span-2">
           <Card className="p-6">
-            <h2 className="text-xs font-extrabold uppercase tracking-wider text-muted">Tu estadía</h2>
+            <h2 className="text-xs font-bold uppercase tracking-wider text-muted">Tu estadía</h2>
             <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
               <div>
                 <p className="text-xs text-ink-faint">Habitación</p>
@@ -635,7 +635,7 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
               <h2 className="text-xl font-bold text-ink">Sobre tu residencia</h2>
               {residence.description && <p className="mt-3 leading-relaxed text-ink-soft">{residence.description}</p>}
               <div className="mt-5">
-                <h3 className="text-sm font-extrabold uppercase tracking-wider text-muted">Reglas de convivencia</h3>
+                <h3 className="text-sm font-bold uppercase tracking-wider text-muted">Reglas de convivencia</h3>
                 <div className="mt-3">
                   <RulesHighlight rulesSummary={rulesSummary} pdfUrl={null} slug={residence.slug} hasRegulation />
                 </div>
@@ -654,7 +654,7 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
           {searchingChange && stayChange?.familyName && (
             <Card className="p-5">
               <div className="mb-3 flex items-center justify-between">
-                <p className="text-xs font-extrabold uppercase tracking-wider text-muted">Tu familiar vinculado</p>
+                <p className="text-xs font-bold uppercase tracking-wider text-muted">Tu familiar vinculado</p>
                 <Icon name="family_restroom" className="text-lg text-muted" />
               </div>
               <p className="text-sm leading-relaxed text-ink-soft">
@@ -665,7 +665,7 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
 
           <Card className="p-5">
             <div className="mb-3 flex items-center justify-between">
-              <p className="text-xs font-extrabold uppercase tracking-wider text-muted">Contacto y soporte</p>
+              <p className="text-xs font-bold uppercase tracking-wider text-muted">Contacto y soporte</p>
               <Icon name="support_agent" className="text-lg text-muted" />
             </div>
             <p className="text-sm text-ink-soft">

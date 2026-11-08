@@ -35,7 +35,7 @@ const typeRank = (name: string) => {
 function ProfileCard({ profile, index }: { profile: PreviewProfile; index: number }) {
   const origin = [profile.flag, profile.originCity ?? profile.nationality].filter(Boolean).join(" ");
   return (
-    <li className="flex items-center gap-3 rounded-[18px] border border-line bg-paper p-3 shadow-card transition-transform duration-200 ease-out-fresh hover:-translate-y-0.5">
+    <li className="flex items-center gap-3 rounded-card border border-line bg-paper p-3 shadow-card transition-transform duration-200 ease-out-fresh hover:-translate-y-0.5">
       <span
         aria-hidden="true"
         className={`flex size-11 shrink-0 items-center justify-center rounded-full text-[17px] font-bold ${TINTS[index % TINTS.length]}`}
@@ -56,7 +56,7 @@ function ProfileCard({ profile, index }: { profile: PreviewProfile; index: numbe
 
 function GhostCard({ index }: { index: number }) {
   return (
-    <li className="flex items-center gap-3 rounded-[18px] border border-line bg-paper p-3 shadow-card" aria-hidden="true">
+    <li className="flex items-center gap-3 rounded-card border border-line bg-paper p-3 shadow-card" aria-hidden="true">
       <span className={`flex size-11 shrink-0 items-center justify-center rounded-full ${TINTS[index % TINTS.length]}`}>
         <Icon name="person" className="text-2xl" />
       </span>

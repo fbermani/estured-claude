@@ -73,7 +73,7 @@ export async function WaitlistsView() {
               {["Alta", "Estudiante", "Residencia", "Tipo", "Ingreso", "Estado", ""].map((h) => (
                 <th
                   key={h}
-                  className="px-4 py-2.5 text-[11px] font-bold uppercase tracking-wide"
+                  className="px-4 py-2.5 text-xs font-bold uppercase tracking-wide"
                   style={{ color: cmd.outline }}
                 >
                   {h}

@@ -11,7 +11,7 @@ export function AdminCard({
 }) {
   return (
     <div
-      className={`rounded-[22px] bg-white ${className}`}
+      className={`rounded-card bg-paper ${className}`}
       style={{ border: `1.5px solid ${cmd.border}` }}
     >
       {children}

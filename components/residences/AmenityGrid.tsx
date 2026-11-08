@@ -60,7 +60,7 @@ export function AmenityGrid({
           {openIndex === i && (
             <div
               role="tooltip"
-              className="benefit-fade-in absolute bottom-full left-3 z-20 mb-1.5 w-48 rounded-field border-[1.5px] border-line bg-paper p-2.5 text-left text-[11px] leading-relaxed text-ink-soft shadow-float"
+              className="benefit-fade-in absolute bottom-full left-3 z-20 mb-1.5 w-48 rounded-field border-[1.5px] border-line bg-paper p-2.5 text-left text-xs leading-relaxed text-ink-soft shadow-float"
             >
               {item.description}
             </div>

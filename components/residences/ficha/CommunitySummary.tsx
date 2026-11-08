@@ -38,7 +38,7 @@ export function CommunitySummary({
   return (
     <div className="space-y-4">
       {statement && (
-        <blockquote className="rounded-card border-l-[3px] border-forest bg-forest-tint/45 px-5 py-4">
+        <blockquote className="rounded-card border-l-4 border-forest bg-forest-tint/45 px-5 py-4">
           <p className="text-sm italic leading-relaxed text-ink-soft">&ldquo;{statement}&rdquo;</p>
           <footer className="mt-2 text-xs font-bold text-forest-700">— La residencia</footer>
         </blockquote>

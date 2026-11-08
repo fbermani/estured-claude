@@ -94,7 +94,7 @@ export default async function AdminVisibilityPage() {
             <thead style={{ backgroundColor: cmd.surfaceContainerLow, borderBottom: `1px solid ${cmd.border}` }}>
               <tr>
                 {["Nombre", "Estado de visibilidad", "Notas internas", ""].map((h) => (
-                  <th key={h} className="px-4 py-2.5 text-[11px] font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
+                  <th key={h} className="px-4 py-2.5 text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
                     {h}
                   </th>
                 ))}

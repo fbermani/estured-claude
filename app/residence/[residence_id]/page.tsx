@@ -275,7 +275,7 @@ export default async function ResidenceOverviewPage({
       body: (
         <div>
           <p className="text-sm text-ink-soft">
-            <span className="text-2xl font-bold text-ink">{occupiedCount ?? 0}</span>
+            <span className="text-2xl font-bold tabular-nums text-ink">{occupiedCount ?? 0}</span>
             {capacity > 0 && <span> / {capacity} plazas operativas</span>}
           </p>
           {outOfServiceCount > 0 && (
@@ -375,13 +375,13 @@ export default async function ResidenceOverviewPage({
         <div className="flex gap-2">
           <Link
             href={`/residence/${residenceId}/support`}
-            className="rounded-full border-[1.5px] border-line-2 bg-paper px-4 py-2 text-sm font-bold text-ink hover:border-forest hover:bg-forest-tint"
+            className="inline-flex min-h-11 items-center whitespace-nowrap rounded-full border-[1.5px] border-line-2 bg-paper px-4 text-sm font-bold text-ink hover:border-forest hover:bg-forest-tint"
           >
             Soporte
           </Link>
           <Link
             href={`/residence/${residenceId}/profile`}
-            className="rounded-full border-[1.5px] border-line-2 bg-paper px-4 py-2 text-sm font-bold text-ink hover:border-forest hover:bg-forest-tint"
+            className="inline-flex min-h-11 items-center whitespace-nowrap rounded-full border-[1.5px] border-line-2 bg-paper px-4 text-sm font-bold text-ink hover:border-forest hover:bg-forest-tint"
           >
             {canEditProfile ? "Editar perfil" : "Ver perfil"}
           </Link>
@@ -409,7 +409,7 @@ export default async function ResidenceOverviewPage({
       )}
 
       {todo.length > 0 && (
-        <section aria-labelledby="para-hacer-hoy" className="mt-8 rounded-card border-[1.5px] border-orange bg-gradient-to-b from-orange-tint to-paper to-80% p-5">
+        <section aria-labelledby="para-hacer-hoy" className="mt-8 rounded-card border-[1.5px] border-line border-l-4 border-l-orange bg-paper p-5">
           <h2 id="para-hacer-hoy" className="font-display text-lg font-bold text-ink">
             Para hacer hoy
           </h2>
@@ -445,12 +445,12 @@ export default async function ResidenceOverviewPage({
                   {kpi.badge && <Badge tone="amber">{kpi.badge}</Badge>}
                 </div>
               </div>
-              <h3 className="mb-1 text-lg font-bold text-ink">{kpi.title}</h3>
+              <h2 className="mb-1 text-lg font-bold text-ink">{kpi.title}</h2>
               {kpi.body}
             </div>
             <Link
               href={kpi.href}
-              className="mt-4 rounded-full border-[1.5px] border-line-2 bg-paper py-2 text-center text-sm font-bold text-ink hover:border-forest hover:bg-forest-tint"
+              className="mt-4 inline-flex min-h-11 items-center justify-center rounded-full border-[1.5px] border-line-2 bg-paper px-4 text-center text-sm font-bold text-ink hover:border-forest hover:bg-forest-tint"
             >
               {kpi.cta}
             </Link>
@@ -460,9 +460,9 @@ export default async function ResidenceOverviewPage({
 
       {!hasPremium && (
         <DismissibleNote storageKey={`estured:premium-note:${residenceId}`} className="mt-8 rounded-card border-[1.5px] border-line bg-sand-50 p-5 pr-14">
-          <p className="flex items-center gap-2 text-sm font-extrabold text-ink">
+          <p className="flex items-center gap-2 text-sm font-bold text-ink">
             <Icon name="lock" className="text-lg text-ink-faint" />
-            Función Premium · hoy bonificada
+            Función Premium, hoy bonificada
           </p>
           <p className="mt-1 text-sm text-ink-soft">
             Tu residencia tiene el Perfil Verificado (gratuito). La Gestión Operativa es parte del Plan Premium.
@@ -487,8 +487,8 @@ export default async function ResidenceOverviewPage({
       <div className="mt-8">
         <Card className="overflow-hidden p-0">
           <div className="flex items-center justify-between border-b border-line px-6 py-4">
-            <h3 className="text-lg font-bold text-ink">Próximos ingresos y salidas</h3>
-            <Link href={`/residence/${residenceId}/residents`} className="text-sm font-bold text-forest-700 hover:underline">
+            <h2 className="text-lg font-bold text-ink">Próximos ingresos y salidas</h2>
+            <Link href={`/residence/${residenceId}/residents`} className="inline-flex min-h-11 items-center text-sm font-bold text-forest-700 hover:underline">
               Ver residentes
             </Link>
           </div>
@@ -512,7 +512,7 @@ export default async function ResidenceOverviewPage({
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-bold text-ink">{m.name}</p>
                     <p className="truncate text-xs text-ink-faint">
-                      {m.kind === "ingreso" ? "Ingreso" : "Egreso"} · {m.room ?? "Sin habitación"} ·{" "}
+                      {m.kind === "ingreso" ? "Ingreso" : "Egreso"}, {m.room ?? "Sin habitación"},{" "}
                       {formatDateOnly(m.date)}
                     </p>
                   </div>
@@ -527,8 +527,8 @@ export default async function ResidenceOverviewPage({
       <div className="mt-8">
         <Card className="overflow-hidden p-0">
           <div className="flex items-center justify-between border-b border-line px-6 py-4">
-            <h3 className="text-lg font-bold text-ink">Solicitudes recientes</h3>
-            <Link href={`/residence/${residenceId}/applications`} className="text-sm font-bold text-forest-700 hover:underline">
+            <h2 className="text-lg font-bold text-ink">Solicitudes recientes</h2>
+            <Link href={`/residence/${residenceId}/applications`} className="inline-flex min-h-11 items-center text-sm font-bold text-forest-700 hover:underline">
               Ver todas
             </Link>
           </div>
@@ -553,7 +553,7 @@ export default async function ResidenceOverviewPage({
                           {formatShortName(app.student_profiles?.first_name, app.student_profiles?.last_initial)}
                         </Link>
                         <p className="-mt-2 text-sm text-ink-soft">
-                          {app.room_types?.name ?? "—"} · {formatDate(app.created_at)}
+                          {app.room_types?.name ?? "—"}, {formatDate(app.created_at)}
                         </p>
                       </div>
                       <span className="mt-2.5 shrink-0">
@@ -568,10 +568,10 @@ export default async function ResidenceOverviewPage({
               <table className="w-full text-left text-sm">
                 <thead className="bg-cream-2 text-muted">
                   <tr>
-                    <th className="px-6 py-3 text-xs font-extrabold uppercase tracking-wider">Estudiante</th>
-                    <th className="px-6 py-3 text-xs font-extrabold uppercase tracking-wider">Habitación</th>
-                    <th className="px-6 py-3 text-xs font-extrabold uppercase tracking-wider">Fecha</th>
-                    <th className="px-6 py-3 text-xs font-extrabold uppercase tracking-wider">Estado</th>
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider">Estudiante</th>
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider">Habitación</th>
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider">Fecha</th>
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider">Estado</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-line">
@@ -589,7 +589,7 @@ export default async function ResidenceOverviewPage({
                           </Link>
                         </td>
                         <td className="px-6 py-4 text-ink-soft">{app.room_types?.name ?? "—"}</td>
-                        <td className="px-6 py-4 text-ink-soft">{formatDate(app.created_at)}</td>
+                        <td className="px-6 py-4 tabular-nums text-ink-soft">{formatDate(app.created_at)}</td>
                         <td className="px-6 py-4">
                           <Badge tone={badge.tone}>{badge.label}</Badge>
                         </td>

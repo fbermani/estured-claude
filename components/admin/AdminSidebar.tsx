@@ -187,7 +187,7 @@ export function AdminSidebar({ userEmail, roleLabel }: { userEmail: string; role
     <>
       {/* Barra móvil — solo visible por debajo de md, el aside pasa a ser un drawer */}
       <div
-        className="flex items-center justify-between border-b bg-white px-4 py-3 md:hidden"
+        className="flex items-center justify-between border-b bg-paper px-4 py-3 md:hidden"
         style={{ borderColor: cmd.border }}
       >
         <button
@@ -197,14 +197,14 @@ export function AdminSidebar({ userEmail, roleLabel }: { userEmail: string; role
           aria-label="Abrir menú"
           aria-expanded={mobileOpen}
           aria-controls="area-nav"
-          className="flex size-12 items-center justify-center rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="flex size-12 items-center justify-center rounded-field focus-visible:outline-2 focus-visible:outline-offset-2"
           style={{ color: cmd.onSurfaceVariant }}
         >
           <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-5 w-5">
             <path strokeLinecap="round" d="M3 5h14M3 10h14M3 15h14" />
           </svg>
         </button>
-        <p className="text-sm font-extrabold tracking-tight" style={{ color: cmd.primary }}>
+        <p className="text-sm font-bold tracking-tight" style={{ color: cmd.primary }}>
           EstuRed Admin
         </p>
         <NotificationBell />
@@ -225,7 +225,7 @@ export function AdminSidebar({ userEmail, roleLabel }: { userEmail: string; role
         role={mobileOpen ? "dialog" : undefined}
         aria-modal={mobileOpen ? true : undefined}
         aria-label={mobileOpen ? "Menú de navegación" : undefined}
-        className={`fixed inset-y-0 left-0 z-50 flex max-md:overflow-y-auto shrink-0 flex-col justify-between border-r bg-white transition-transform duration-200 md:static md:relative md:translate-x-0 md:transition-[width] ${
+        className={`fixed inset-y-0 left-0 z-50 flex max-md:overflow-y-auto shrink-0 flex-col justify-between border-r bg-paper transition-transform duration-200 md:static md:relative md:translate-x-0 md:transition-none ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         } ${collapsed ? "w-[260px] md:w-[76px]" : "w-[260px]"}`}
         style={{ borderColor: cmd.border }}
@@ -233,7 +233,7 @@ export function AdminSidebar({ userEmail, roleLabel }: { userEmail: string; role
         <div className="min-w-0">
           <div className={`flex items-center gap-2 px-6 py-6 ${collapsed ? "md:justify-center md:px-3" : "justify-between"}`}>
             <div className={collapsed ? "md:hidden" : ""}>
-              <p className="text-lg font-extrabold tracking-tight" style={{ color: cmd.primary }}>
+              <p className="text-lg font-bold tracking-tight" style={{ color: cmd.primary }}>
                 EstuRed Admin
               </p>
               <p className="text-xs font-medium tracking-wide" style={{ color: cmd.outline }}>
@@ -241,7 +241,7 @@ export function AdminSidebar({ userEmail, roleLabel }: { userEmail: string; role
               </p>
             </div>
             <span
-              className={`hidden h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm font-extrabold text-white ${collapsed ? "md:flex" : "md:hidden"}`}
+              className={`hidden h-8 w-8 shrink-0 items-center justify-center rounded-field text-sm font-bold text-white ${collapsed ? "md:flex" : "md:hidden"}`}
               style={{ backgroundColor: cmd.primary }}
               aria-hidden
             >
@@ -255,7 +255,7 @@ export function AdminSidebar({ userEmail, roleLabel }: { userEmail: string; role
               type="button"
               onClick={() => setMobileOpen(false)}
               aria-label="Cerrar menú"
-              className="flex size-11 items-center justify-center rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 md:hidden"
+              className="flex size-11 items-center justify-center rounded-field focus-visible:outline-2 focus-visible:outline-offset-2 md:hidden"
               style={{ color: cmd.onSurfaceVariant }}
             >
               <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-5 w-5">
@@ -268,7 +268,7 @@ export function AdminSidebar({ userEmail, roleLabel }: { userEmail: string; role
               <div key={group.title ?? gi} className={group.title ? "mt-3" : ""}>
                 {group.title ? (
                   <p
-                    className={`px-3 pb-1 text-[11px] font-bold uppercase tracking-wide ${collapsed ? "md:hidden" : ""}`}
+                    className={`px-3 pb-1 text-xs font-bold uppercase tracking-wide ${collapsed ? "md:hidden" : ""}`}
                     style={{ color: cmd.outline }}
                   >
                     {group.title}
@@ -285,7 +285,7 @@ export function AdminSidebar({ userEmail, roleLabel }: { userEmail: string; role
                       title={item.label}
                       aria-label={item.label}
                       aria-current={active ? "page" : undefined}
-                      className={`flex min-h-12 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] md:min-h-0 ${collapsed ? "md:justify-center" : ""}`}
+                      className={`flex min-h-12 items-center gap-3 rounded-field px-3 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] md:min-h-0 ${collapsed ? "md:justify-center" : ""}`}
                       style={
                         active
                           ? { backgroundColor: cmd.onPrimaryContainer, color: cmd.navActiveFg }
@@ -302,7 +302,7 @@ export function AdminSidebar({ userEmail, roleLabel }: { userEmail: string; role
           </nav>
         </div>
         <div className="border-t p-4" style={{ borderColor: cmd.border }}>
-          <div className={`flex items-center gap-3 rounded-lg p-2 ${collapsed ? "md:justify-center" : ""}`} style={{ backgroundColor: cmd.surfaceContainerLow }}>
+          <div className={`flex items-center gap-3 rounded-field p-2 ${collapsed ? "md:justify-center" : ""}`} style={{ backgroundColor: cmd.surfaceContainerLow }}>
             <span
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
               style={{ backgroundColor: cmd.primary }}
@@ -315,7 +315,7 @@ export function AdminSidebar({ userEmail, roleLabel }: { userEmail: string; role
               <p className="truncate text-xs font-semibold" style={{ color: cmd.onSurface }}>
                 {userEmail}
               </p>
-              <p className="text-[11px] font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
+              <p className="text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
                 {roleLabel}
               </p>
             </div>
@@ -337,7 +337,7 @@ export function AdminSidebar({ userEmail, roleLabel }: { userEmail: string; role
           onClick={toggleCollapsed}
           aria-label={collapsed ? "Expandir menú" : "Colapsar menú"}
           title={collapsed ? "Expandir menú" : "Colapsar menú"}
-          className="absolute -right-3 top-7 hidden h-6 w-6 items-center justify-center rounded-full border bg-white shadow-sm md:flex"
+          className="absolute -right-3 top-7 hidden h-6 w-6 items-center justify-center rounded-full border bg-paper shadow-sm md:flex"
           style={{ borderColor: cmd.border, color: cmd.onSurfaceVariant }}
         >
           <svg

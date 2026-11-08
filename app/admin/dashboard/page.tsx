@@ -175,7 +175,7 @@ export default async function AdminDashboardPage() {
   ];
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-8">
       <PageHero
         tone="admin"
         eyebrow="Admin"
@@ -200,7 +200,7 @@ export default async function AdminDashboardPage() {
             icon={m.tone === "amber" ? "priority_high" : "insights"}
             label={m.label}
             value={m.value}
-            className={m.tone === "amber" ? "border-orange/50" : ""}
+            className={m.tone === "amber" ? "border-l-4 border-l-orange" : ""}
             hint={
               <>
                 {m.note}
@@ -210,7 +210,7 @@ export default async function AdminDashboardPage() {
                   </span>
                 )}
                 {m.href && (
-                  <Link href={m.href} className="mt-1 inline-flex min-h-6 items-center font-bold text-(--tone-700) hover:underline">
+                  <Link href={m.href} className="mt-1 inline-flex min-h-11 items-center font-bold text-(--tone-700) hover:underline">
                     Ver detalle →
                   </Link>
                 )}
@@ -231,11 +231,11 @@ export default async function AdminDashboardPage() {
         ) : (
           <ul className="mt-3 divide-y" style={{ borderColor: cmd.border }}>
             {expiringVerifications.map((v) => (
-              <li key={v.residenceId} className="flex items-center justify-between py-2.5">
-                <Link href={`/admin/residences/${v.residenceId}`} className="text-sm font-semibold hover:underline" style={{ color: cmd.primary }}>
+              <li key={v.residenceId} className="flex items-center justify-between gap-3 py-1">
+                <Link href={`/admin/residences/${v.residenceId}`} className="inline-flex min-h-11 items-center text-sm font-semibold hover:underline" style={{ color: cmd.primary }}>
                   {v.name}
                 </Link>
-                <span className="text-xs" style={{ color: cmd.outline }}>
+                <span className="shrink-0 text-xs tabular-nums" style={{ color: cmd.outline }}>
                   vence el {formatDate(v.expiresAt)}
                 </span>
               </li>
@@ -255,14 +255,14 @@ export default async function AdminDashboardPage() {
         ) : (
           <ul className="mt-3 divide-y" style={{ borderColor: cmd.border }}>
             {recentActivity.map((a) => (
-              <li key={a.id} className="flex items-center justify-between py-2.5">
+              <li key={a.id} className="flex items-center justify-between gap-3 py-2.5">
                 <p className="text-sm" style={{ color: cmd.onSurfaceVariant }}>
                   <span className="font-semibold" style={{ color: cmd.onSurface }}>
                     {auditActorLabel(a.actor_role)}
                   </span>{" "}
                   {auditActionPhrase(a.action)}
                 </p>
-                <span className="text-xs" style={{ color: cmd.outline }}>
+                <span className="shrink-0 text-xs tabular-nums" style={{ color: cmd.outline }}>
                   {timeAgo(a.created_at)}
                 </span>
               </li>

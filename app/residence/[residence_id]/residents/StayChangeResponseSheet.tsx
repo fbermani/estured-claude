@@ -142,7 +142,7 @@ export function StayChangeResponseSheet({
       <form action={formAction} className="flex min-h-0 flex-1 flex-col">
         <header className="flex items-start justify-between gap-3 border-b border-line px-5 pb-4 pt-5 sm:px-6">
           <div className="min-w-0">
-            <p className="text-xs font-extrabold uppercase tracking-widest text-muted">{previewing ? "Vista previa" : "Aviso de cambio"}</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-muted">{previewing ? "Vista previa" : "Aviso de cambio"}</p>
             <h2 id={titleId} className="mt-1 text-xl font-bold text-ink">
               {previewing ? `Así lo ve ${firstName}` : `${editing ? "Editar respuesta a" : "Responder a"} ${studentLabel}`}
             </h2>

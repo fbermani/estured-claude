@@ -147,7 +147,7 @@ export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; wit
           href="https://www.openstreetmap.org/copyright"
           target="_blank"
           rel="noopener noreferrer"
-          className="absolute bottom-1.5 right-1.5 z-20 rounded bg-paper/85 px-1.5 py-0.5 text-[10px] text-ink-soft hover:underline"
+          className="absolute bottom-1.5 right-1.5 z-20 rounded bg-paper/85 px-1.5 py-0.5 text-xs text-ink-soft hover:underline"
         >
           © colaboradores de OpenStreetMap
         </a>

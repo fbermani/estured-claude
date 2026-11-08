@@ -49,7 +49,7 @@ function Field({
     required,
     "aria-invalid": error ? true : undefined,
     "aria-describedby": error ? `${name}-error` : hint ? `${name}-hint` : undefined,
-    className: "mt-1.5 w-full rounded-[10px] border bg-white px-3 py-2 text-sm",
+    className: "mt-1.5 w-full rounded-field border bg-white px-3 py-2 text-sm",
     style: { borderColor: error ? cmd.rose : cmd.outline, color: cmd.onSurface },
   };
   return (

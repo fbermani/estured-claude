@@ -40,7 +40,7 @@ function InviteForm() {
         </Button>
       </form>
       {inviteState.status === "error" && (
-        <p className="mt-1.5 text-xs font-medium text-danger-fg">{inviteState.message}</p>
+        <p role="alert" className="mt-1.5 text-xs font-medium text-danger-fg">{inviteState.message}</p>
       )}
       {inviteState.status === "sent" && (
         <p className="benefit-fade-in mt-1.5 text-xs font-medium text-forest-700">Invitación enviada.</p>
@@ -97,7 +97,7 @@ export function FamilyLinkCard({
   return (
     <div className="flex h-full flex-col rounded-card border-[1.5px] border-line bg-paper p-[18px] shadow-card transition duration-200 ease-out-fresh hover:-translate-y-1 hover:shadow-card-hover focus-within:-translate-y-1">
       <div className="flex items-center gap-3">
-        <span className="flex size-11 shrink-0 items-center justify-center rounded-[14px] bg-(--tone-tint) text-(--tone-700)">
+        <span className="flex size-11 shrink-0 items-center justify-center rounded-field bg-(--tone-tint) text-(--tone-700)">
           <Icon name="family_restroom" className="text-2xl" />
         </span>
         <h3 className="font-display text-[16.5px] font-bold leading-tight text-ink">Padre, madre o tutor</h3>

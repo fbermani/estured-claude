@@ -71,14 +71,14 @@ export function WaitlistForm() {
           id="wl-city"
           name="city"
           maxLength={120}
-          placeholder="Ej: Córdoba, Mendoza, Lima..."
+          placeholder="Ej: Córdoba, Mendoza, Lima…"
         />
         <Textarea
           label="Contanos qué estás buscando (opcional)"
           id="wl-message"
           name="message"
           maxLength={2000}
-          placeholder="Fecha estimada de mudanza, presupuesto, zona preferida, o datos de tu residencia..."
+          placeholder="Fecha estimada de mudanza, presupuesto, zona preferida, o datos de tu residencia…"
         />
         {/* Honeypot anti-spam: oculto para humanos */}
         <div className="hidden" aria-hidden="true">

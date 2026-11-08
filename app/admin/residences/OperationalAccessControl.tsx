@@ -35,7 +35,7 @@ export function OperationalAccessControl({
           {hasAccess ? "Revocar acceso" : "Otorgar acceso"}
         </AdminButton>
         {hasAccess && expiresUntil && (
-          <span className="text-[10px]" style={{ color: cmd.outline }}>
+          <span className="text-xs" style={{ color: cmd.outline }}>
             Hasta {formatDateOnly(expiresUntil)}
           </span>
         )}
@@ -55,7 +55,7 @@ export function OperationalAccessControl({
       />
       {!hasAccess && (
         <div className="w-full">
-          <label className="text-[10px] font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
+          <label className="text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
             Fecha límite (opcional, para Residencias fundadoras)
           </label>
           <input

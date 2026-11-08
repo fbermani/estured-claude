@@ -44,7 +44,7 @@ export function GuideCard({ guide, size = "default" }: { guide: GuideSummary; si
         <h3 className={`font-display font-bold leading-snug text-ink ${featured ? "text-xl sm:text-2xl" : "text-lg"}`}>
           <Link
             href={`/guias/${guide.slug}`}
-            className="outline-none after:absolute after:inset-0 after:content-['']"
+            className="focus-visible:outline-none after:absolute after:inset-0 after:content-['']"
           >
             {guide.title}
           </Link>

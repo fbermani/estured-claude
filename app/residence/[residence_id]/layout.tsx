@@ -7,6 +7,7 @@ import { can } from "@/lib/residences/permissions";
 import { countUnansweredStayChanges } from "@/lib/stayChange/load";
 import { hasOperationalManagementAccess } from "@/lib/residences/operationalAccess";
 import { countNewApplications, countPendingQuestions } from "@/lib/residences/sidebarCounts";
+import { SkipLink } from "@/components/ui/SkipLink";
 
 /**
  * Sidebar de navegación de una residencia puntual (Ciclo 34sexdecies) —
@@ -53,6 +54,7 @@ export default async function ResidenceDetailLayout({
 
   return (
     <div id="area-shell" className="tone-residence flex min-h-screen flex-col bg-cream md:flex-row">
+      <SkipLink />
       <ResidenceSidebar
         residenceId={residenceId}
         userEmail={user.email}
@@ -63,7 +65,7 @@ export default async function ResidenceDetailLayout({
         canEditProfile={canEditProfile}
         premiumLocked={premiumLocked}
       />
-      <main className="min-w-0 flex-1 pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-0">{children}</main>
+      <main id="contenido" tabIndex={-1} className="min-w-0 focus:outline-none flex-1 pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-0">{children}</main>
     </div>
   );
 }

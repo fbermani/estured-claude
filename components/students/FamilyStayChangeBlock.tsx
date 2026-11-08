@@ -26,7 +26,7 @@ export function FamilyStayChangeBlock({
 
   return (
     <div className="mt-4 space-y-3 border-t border-line pt-4">
-      <p className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-muted">
+      <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted">
         <Icon name="visibility" className="text-sm" /> Solo lectura
       </p>
 

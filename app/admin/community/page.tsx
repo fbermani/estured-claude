@@ -71,7 +71,7 @@ export default async function AdminCommunityPage() {
               <thead style={{ backgroundColor: cmd.surfaceContainer }}>
                 <tr>
                   {["Residencia", "Habitación", "Residente", "Estado", ""].map((h) => (
-                    <th key={h} className="whitespace-nowrap px-4 py-3 text-[11px] font-extrabold uppercase tracking-wide" style={{ color: cmd.outline }}>
+                    <th key={h} className="whitespace-nowrap px-4 py-3 text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
                       {h}
                     </th>
                   ))}

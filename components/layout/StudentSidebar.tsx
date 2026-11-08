@@ -145,7 +145,7 @@ export function StudentSidebar({
         role={mobileOpen ? "dialog" : undefined}
         aria-modal={mobileOpen ? true : undefined}
         aria-label={mobileOpen ? "Menú de navegación" : undefined}
-        className={`fixed inset-y-0 left-0 z-50 flex max-md:overflow-y-auto shrink-0 flex-col justify-between border-r border-line bg-paper transition-transform duration-200 md:relative md:translate-x-0 md:transition-[width] ${
+        className={`fixed inset-y-0 left-0 z-50 flex max-md:overflow-y-auto shrink-0 flex-col justify-between border-r border-line bg-paper transition-transform duration-200 md:relative md:translate-x-0 md:transition-none ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         } ${collapsed ? "w-64 md:w-[76px]" : "w-64"}`}
       >
@@ -187,9 +187,10 @@ export function StudentSidebar({
                   key={item.href}
                   href={item.href}
                   onClick={() => setMobileOpen(false)}
+                  aria-current={active ? "page" : undefined}
                   title={item.label}
                   aria-label={item.label}
-                  className={`flex items-center gap-3 rounded-field px-3 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) ${
+                  className={`flex min-h-11 items-center gap-3 rounded-field px-3 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) ${
                     active ? "bg-(--tone-tint) text-(--tone-700)" : "text-ink-soft hover:bg-cream-2"
                   } ${collapsed ? "md:justify-center" : ""}`}
                 >
@@ -207,7 +208,7 @@ export function StudentSidebar({
             href="/students/revocation"
             title="Botón de arrepentimiento"
             aria-label="Botón de arrepentimiento"
-            className={`mt-2 flex items-center gap-2 rounded-field px-3 py-2 text-sm font-medium text-ink-soft hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) ${collapsed ? "md:justify-center" : ""}`}
+            className={`mt-2 flex min-h-11 items-center gap-2 rounded-field px-3 py-2 text-sm font-medium text-ink-soft hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) ${collapsed ? "md:justify-center" : ""}`}
           >
             <Icon name="undo" className="shrink-0 text-lg" />
             <span className={collapsed ? "md:hidden" : ""}>Botón de arrepentimiento</span>
@@ -217,7 +218,7 @@ export function StudentSidebar({
               type="submit"
               title="Salir"
               aria-label="Salir"
-              className={`mt-1 flex w-full items-center gap-2 rounded-field px-3 py-2 text-left text-sm font-medium text-ink-soft hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) ${collapsed ? "md:justify-center" : ""}`}
+              className={`mt-1 flex min-h-11 w-full items-center gap-2 rounded-field px-3 py-2 text-left text-sm font-medium text-ink-soft hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) ${collapsed ? "md:justify-center" : ""}`}
             >
               <Icon name="logout" className="shrink-0 text-lg" />
               <span className={collapsed ? "md:hidden" : ""}>Salir</span>

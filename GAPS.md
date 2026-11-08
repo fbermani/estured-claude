@@ -6,6 +6,10 @@
 
 ---
 
+## [ABIERTO — medio, rendimiento] Material Symbols bloquea el primer pintado (2026-11-08)
+
+`app/layout.tsx` carga la fuente variable completa de Material Symbols con un `<link rel="stylesheet">` a Google Fonts: es CSS bloqueante y descarga todos los íconos y ejes. Se pasó a `display=block` (evita ver «arrow_forward» como texto mientras carga). Fix real: subset con `&icon_names=` (lista ordenada de los íconos usados; ojo con los nombres dinámicos que vienen de datos, p. ej. `cat.icon`, amenities) o self-hosting del subset con `next/font/local`. Requiere inventariar los íconos y un test que falle si aparece uno fuera de la lista.
+
 ## [ABIERTO — bajo, molestia] «Mi residencia no está» desde el alta (DR21)
 
 El tope de 3 avisos por perfil (`MAX_MISSING_RESIDENCE_REQUESTS`) se cuenta con un `select` previo, sin atomicidad: dos envíos en paralelo podrían superarlo. Tampoco hay rate limit por IP en el alta de estudiante (el límite existente es por usuario). El texto libre y el contacto son datos no verificados cargados por estudiantes; el admin los ve marcados así. Fix sugerido si molesta: función SQL con conteo atómico y límite por IP en el registro.

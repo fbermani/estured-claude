@@ -116,7 +116,7 @@ export function RegisterStudentForm({
             name="phone"
             type="tel"
             autoComplete="tel"
-            placeholder="+54 9 11 ..."
+            placeholder="+54 9 11 1234-5678"
             required {...fieldProps(state, "phone", "reg")} hint={fieldHint(state, "phone", "reg", "Privado. Necesario para coordinar tu solicitud.")} />
         </div>
         <Input

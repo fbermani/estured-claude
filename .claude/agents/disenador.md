@@ -76,5 +76,22 @@ Se aplican a todo diseño nuevo o rediseño. Donde choquen con las líneas de ar
 - No dibujar ventanas de navegador ni de sistema (barra con los tres puntos de colores) en mockups de producto: mostrar el panel como tarjeta.
 - Mostrar el producto real o una foto real. Un degradado vacío con "Foto próximamente" es un estado provisional, no un recurso de diseño.
 
+**Interfaz web (Vercel Web Interface Guidelines, adoptadas 2026-11-08)**
+- Foco visible siempre: nunca `outline-none` sin reemplazo (`focus-visible:outline-*`, o `has-[:focus-visible]` en el contenedor si el link es un overlay). En campos, borde + el anillo global de `globals.css`.
+- Cada layout tiene `SkipLink` («Saltar al contenido») y `<main id="contenido">`. Una sola `h1` por página (suele venir de `PageHero`).
+- Nada de `confirm()`/`alert()` nativos: `ConfirmDialog` (sobre `Dialog`), con el foco inicial en la acción segura.
+- Puntos suspensivos con `…`, no `...`. Placeholders con un ejemplo real («+54 9 11 1234-5678») o terminados en `…`.
+- `text-wrap: balance` en títulos y `pretty` en párrafos (ya global en `globals.css`). Números que se comparan, con `tabular-nums`.
+- Imágenes con `width`/`height` (o `fill`/`aspect-ratio`) para no mover el layout. Errores de formulario con `role="alert"`; mensajes que cambian, con `aria-live`. Navegación activa con `aria-current="page"`.
+- Respetar `prefers-reduced-motion`; nunca `transition-all` ni animar `width` (la sidebar colapsa sin transición de ancho).
+
+**Anti-slop**
+- Paleta: forest + orange + paper/cream. Los pasteles (`peach`, `butter`, `mint`, `lilac`, `sky`) solo como color semántico o de categoría, nunca de decoración.
+- Dos radios: `rounded-card` (cards, paneles, modales) y `rounded-field` (campos, tiles, ítems de lista). `rounded-full` solo en CTA, chips, contadores y avatares. Sin `rounded-[Npx]`.
+- Un grosor de borde (`border-[1.5px]`) más un acento lateral `border-l-4` para «pide atención». Sin gradientes de lavado (`from-*-tint to-paper`): fondo plano + acento.
+- Íconos solo donde ayudan a escanear (no uno por renglón). Fotos reales sobre ilustraciones. Hero sin fórmula centrada (título + frase + CTA al medio con blobs detrás).
+- Una acción primaria por pantalla; el resto, `outline` o link.
+
 **Cómo se valida**
+- Grep rápido antes de entregar (debe dar 0, salvo excepciones anotadas): `rg -n "outline-none|text-\[(9|10|11)(\.5)?px\]|rounded-\[[0-9]+px\]|confirm\(|from-[a-z-]+-tint to-paper" app components -g '*.tsx'` y `rg -n "#[0-9a-fA-F]{3,6}\b" app components -g '*.tsx'` (fuera de `BrandMark`, `components/admin/ui/tokens.ts` y metadatos).
 - Antes de entregar una pantalla pública: `HALLMARK_PUPPETEER=~/.hallmark-puppeteer CHROME_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" node ~/.claude/skills/hallmark/scripts/sloplint.mjs <archivos> --genre editorial --render --url http://localhost:3000/<ruta>` (con el dev server levantado). No debe quedar ningún FAIL nuevo.

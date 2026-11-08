@@ -36,7 +36,7 @@ export function PageHero({
 }) {
   return (
     <header
-      className={`${toneClass(tone)} group/hero relative grid gap-4 overflow-hidden rounded-[30px] bg-(--tone-soft) px-5 py-6 md:grid-cols-[1fr_auto] md:items-end md:gap-8 md:px-9 md:py-8 ${className}`}
+      className={`${toneClass(tone)} group/hero relative grid gap-4 overflow-hidden rounded-card bg-(--tone-soft) px-5 py-6 md:grid-cols-[1fr_auto] md:items-end md:gap-8 md:px-9 md:py-8 ${className}`}
     >
       <span
         aria-hidden="true"
@@ -55,7 +55,7 @@ export function PageHero({
             {eyebrow}
           </span>
         )}
-        <h1 className="font-display text-[1.75rem] font-extrabold leading-[1.08] text-(--tone-ink) md:text-4xl">{title}</h1>
+        <h1 className="font-display text-[1.75rem] font-bold leading-[1.08] text-(--tone-ink) md:text-4xl">{title}</h1>
         {subtitle && <p className="max-w-[52ch] text-[15px] text-ink-soft">{subtitle}</p>}
         {status && <div className="flex flex-wrap items-center gap-2.5">{status}</div>}
       </div>
@@ -64,7 +64,7 @@ export function PageHero({
         <div className="relative flex flex-col items-stretch gap-2">
           <Link
             href={cta.href}
-            className="inline-flex min-h-[46px] items-center justify-center gap-1.5 rounded-full bg-(--tone) px-6 text-[15px] font-semibold text-white transition duration-200 ease-out-fresh hover:-translate-y-px hover:bg-(--tone-600) hover:shadow-[0_6px_16px_var(--tone-glow)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) motion-safe:active:scale-[0.98] active:bg-(--tone-600)"
+            className="inline-flex min-h-[46px] items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-(--tone) px-6 text-[15px] font-semibold text-white transition duration-200 ease-out-fresh hover:-translate-y-px hover:bg-(--tone-600) hover:shadow-[0_6px_16px_var(--tone-glow)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) motion-safe:active:scale-[0.98] active:bg-(--tone-600)"
           >
             {cta.label}
             <Icon name="arrow_forward" className="text-xl" />

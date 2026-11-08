@@ -146,10 +146,10 @@ export function StayChangeCard(props: StayChangeCardProps) {
       {!view || closed ? (
         <section aria-labelledby="stay-change-title" className="overflow-hidden rounded-card border-[1.5px] border-line bg-paper shadow-card">
           <div className="p-5 sm:p-6">
-            <p className="inline-flex items-center gap-1.5 rounded-full bg-orange-tint px-3 py-1 text-xs font-extrabold uppercase tracking-wider text-orange-700">
+            <p className="inline-flex items-center gap-1.5 rounded-full bg-orange-tint px-3 py-1 text-xs font-bold uppercase tracking-wider text-orange-700">
               <Icon name="swap_horiz" className="text-sm" /> ¿Pensás en cambiarte?
             </p>
-            <h2 id="stay-change-title" className="mt-3 font-display text-xl font-extrabold text-ink sm:text-2xl">
+            <h2 id="stay-change-title" className="mt-3 font-display text-xl font-bold text-ink sm:text-2xl">
               Si querés cambiar de residencia, avisá con tiempo
             </h2>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-soft">
@@ -215,11 +215,11 @@ export function StayChangeCard(props: StayChangeCardProps) {
       {/* Menor: pendiente de su familiar */}
       {pendingFamily && (
         <section aria-labelledby="stay-change-title" className="overflow-hidden rounded-card border-[1.5px] border-orange/30 bg-paper shadow-card">
-          <div className="bg-gradient-to-br from-orange-tint to-paper p-5 sm:p-6">
-            <p className="inline-flex items-center gap-1.5 rounded-full bg-paper px-3 py-1 text-xs font-extrabold uppercase tracking-wider text-orange-700">
+          <div className="border-b border-line bg-orange-tint p-5 sm:p-6">
+            <p className="inline-flex items-center gap-1.5 rounded-full bg-paper px-3 py-1 text-xs font-bold uppercase tracking-wider text-orange-700">
               <Icon name="how_to_reg" className="text-sm" /> Pendiente de tu familiar
             </p>
-            <h2 id="stay-change-title" className="mt-3 font-display text-xl font-extrabold text-ink sm:text-2xl">
+            <h2 id="stay-change-title" className="mt-3 font-display text-xl font-bold text-ink sm:text-2xl">
               Tu familiar tiene que confirmar el aviso
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-ink-soft">
@@ -244,11 +244,11 @@ export function StayChangeCard(props: StayChangeCardProps) {
       {/* Aviso abierto: tarjeta de estado */}
       {active && (
         <section aria-labelledby="stay-change-title" className="overflow-hidden rounded-card border-[1.5px] border-orange/30 bg-paper shadow-card">
-          <div className="bg-gradient-to-br from-orange-tint to-paper p-5 sm:p-6">
-            <p className="inline-flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-orange-700">
+          <div className="border-b border-line bg-orange-tint p-5 sm:p-6">
+            <p className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-orange-700">
               <span aria-hidden className="size-2 rounded-full bg-orange" /> Aviso abierto
             </p>
-            <h2 id="stay-change-title" className="mt-2 font-display text-xl font-extrabold text-ink sm:text-2xl">
+            <h2 id="stay-change-title" className="mt-2 font-display text-xl font-bold text-ink sm:text-2xl">
               Estás buscando un cambio
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-ink-soft">

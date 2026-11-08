@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 export default function AdminDashboardLoading() {
   return (
     <div className="tone-admin p-8">
-      <Skeleton shape="block" className="mb-6 h-36 !rounded-[30px]" />
+      <Skeleton shape="block" className="mb-6 h-36 !rounded-card" />
       <Skeleton shape="card" rows={6} />
     </div>
   );

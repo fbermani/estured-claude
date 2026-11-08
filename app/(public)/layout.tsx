@@ -1,6 +1,7 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { getSessionUser } from "@/lib/auth/session";
+import { SkipLink } from "@/components/ui/SkipLink";
 
 export default async function PublicLayout({
   children,
@@ -12,8 +13,9 @@ export default async function PublicLayout({
   const user = await getSessionUser();
   return (
     <div className="flex min-h-screen flex-col">
+      <SkipLink />
       <Navbar />
-      <main className="flex-1">{children}</main>
+      <main id="contenido" tabIndex={-1} className="flex-1 focus:outline-none">{children}</main>
       <Footer hideSignup={Boolean(user)} />
     </div>
   );

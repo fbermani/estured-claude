@@ -42,14 +42,14 @@ export function StayChangeSection({
       aria-labelledby="stay-change-section-title"
       className="mt-6 scroll-mt-24 overflow-hidden rounded-card border-[1.5px] border-orange/30 bg-paper shadow-card"
     >
-      <header className="bg-gradient-to-br from-orange-tint to-paper px-5 py-5 sm:px-6">
+      <header className="border-b border-line bg-orange-tint px-5 py-5 sm:px-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex items-start gap-3">
             <span aria-hidden className="flex size-10 shrink-0 items-center justify-center rounded-full bg-paper text-orange-700 shadow-sm">
               <Icon name="swap_horiz" className="text-xl" />
             </span>
             <div className="min-w-0">
-              <h2 id="stay-change-section-title" className="font-display text-xl font-extrabold text-ink">
+              <h2 id="stay-change-section-title" className="font-display text-xl font-bold text-ink">
                 {open.length === 0 ? "Avisos de cambio cerrados" : open.length === 1 ? "1 residente busca cambiar" : `${open.length} residentes buscan cambiar`}
               </h2>
               <p className="mt-1 max-w-2xl text-sm leading-relaxed text-ink-soft">

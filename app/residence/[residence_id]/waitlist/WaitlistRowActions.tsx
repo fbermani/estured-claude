@@ -58,8 +58,8 @@ export function WaitlistRowActions({
           </button>
         </div>
       )}
-      {notifyState.status === "error" && <p className="text-xs font-medium text-danger-fg">{notifyState.message}</p>}
-      {removeState.status === "error" && <p className="text-xs font-medium text-danger-fg">{removeState.message}</p>}
+      {notifyState.status === "error" && <p role="alert" className="text-xs font-medium text-danger-fg">{notifyState.message}</p>}
+      {removeState.status === "error" && <p role="alert" className="text-xs font-medium text-danger-fg">{removeState.message}</p>}
     </div>
   );
 }

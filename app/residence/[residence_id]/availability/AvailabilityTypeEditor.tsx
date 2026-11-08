@@ -67,7 +67,7 @@ function GenderRowFields({
           {summary && <p className="mt-0.5 text-xs text-ink-faint">{summary}</p>}
         </div>
         {!row.stored && !legacy && (
-          <span className="rounded-full bg-amber-soft-100 px-2 py-0.5 text-[11px] font-semibold text-ink-soft">
+          <span className="rounded-full bg-amber-soft-100 px-2 py-0.5 text-xs font-semibold text-ink-soft">
             Sugerido: todavía no publicado
           </span>
         )}

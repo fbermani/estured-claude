@@ -39,7 +39,7 @@ export function FamilyApplicationsList({
       {shown.map((a) => (
         <div
           key={a.id}
-          className={`rounded-[18px] border p-4 shadow-card transition-shadow hover:shadow-card-hover ${a.nextAction?.kind === "pay_fee" ? "border-orange bg-gradient-to-b from-orange-tint to-paper to-80%" : "border-line bg-paper"}`}
+          className={`rounded-card border p-4 shadow-card transition-shadow hover:shadow-card-hover ${a.nextAction?.kind === "pay_fee" ? "border-line border-l-4 border-l-orange bg-paper" : "border-line bg-paper"}`}
         >
           <div className="flex flex-wrap items-start justify-between gap-2">
             <div className="min-w-0">

@@ -47,7 +47,7 @@ export function InfoTip({ label, children }: { label: string; children: React.Re
         aria-label={label}
         className="relative -ml-[11px] -mr-[15px] inline-flex size-11 items-center justify-center align-middle -my-4 text-muted hover:text-forest focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-forest rounded-full"
       >
-        <span aria-hidden className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border border-current text-[9px] font-bold leading-none">
+        <span aria-hidden className="inline-flex size-4 items-center justify-center rounded-full border border-current text-xs font-bold leading-none">
           i
         </span>
       </button>

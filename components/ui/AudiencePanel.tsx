@@ -72,7 +72,7 @@ export function AudiencePanel({
   const t = TONES[tone];
   return (
     // En escritorio las 4 franjas (encabezado, mini-UI, ventajas, botón) son filas de la grilla de la home (subgrid): las tres tarjetas quedan alineadas.
-    <article className="group flex h-full flex-col overflow-hidden rounded-[30px] border border-line bg-paper shadow-card transition duration-200 ease-out-fresh focus-within:shadow-card-hover hover:shadow-card-hover lg:row-span-4 lg:grid lg:grid-rows-subgrid motion-safe:focus-within:-translate-y-1 motion-safe:hover:-translate-y-1 motion-safe:active:scale-[0.99]">
+    <article className="group flex h-full flex-col overflow-hidden rounded-card border border-line bg-paper shadow-card transition duration-200 ease-out-fresh focus-within:shadow-card-hover hover:shadow-card-hover lg:row-span-4 lg:grid lg:grid-rows-subgrid motion-safe:focus-within:-translate-y-1 motion-safe:hover:-translate-y-1 motion-safe:active:scale-[0.99]">
       <div className={`relative overflow-hidden px-6 pb-20 pt-6 ${t.top}`}>
         <span
           aria-hidden="true"
@@ -94,7 +94,7 @@ export function AudiencePanel({
       </div>
 
       <div className="relative z-10 -mt-14 px-4">
-        <div className="grid gap-2.5 rounded-[20px] border border-line bg-paper p-3.5 text-[13px] shadow-float motion-safe:transition-transform motion-safe:duration-200 motion-safe:ease-out-fresh motion-safe:group-hover:-translate-y-1">
+        <div className="grid gap-2.5 rounded-card border border-line bg-paper p-3.5 text-[13px] shadow-float motion-safe:transition-transform motion-safe:duration-200 motion-safe:ease-out-fresh motion-safe:group-hover:-translate-y-1">
           {mini}
         </div>
       </div>

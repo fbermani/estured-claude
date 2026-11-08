@@ -80,7 +80,7 @@ export function StayChangeHighlight({ variant, studentCta = "register" }: { vari
           {/* Réplica estática de la tarjeta de estado de Mi residencia (decorativa). */}
           <Reveal delay={2} className="relative mx-auto w-full max-w-md lg:max-w-none">
             <div aria-hidden className="overflow-hidden rounded-card border-[1.5px] border-orange/30 bg-paper shadow-float">
-              <div className="bg-gradient-to-br from-orange-tint to-paper p-5">
+              <div className="border-b border-line bg-orange-tint p-5">
                 <p className="flex items-center gap-1.5 text-xs font-bold text-orange-700">
                   <span className="size-2 rounded-full bg-orange" /> Aviso abierto
                 </p>

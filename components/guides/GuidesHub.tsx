@@ -89,7 +89,7 @@ export function GuidesHub({
 
   return (
     <>
-      <header className="relative overflow-hidden bg-gradient-to-br from-forest-tint via-cream to-cream">
+      <header className="relative overflow-hidden bg-forest-tint">
         <span aria-hidden="true" className="pointer-events-none absolute -right-16 -top-20 size-72 rounded-full bg-forest/10" />
         <span aria-hidden="true" className="pointer-events-none absolute -bottom-24 left-1/3 size-60 rounded-full bg-orange-tint/70" />
         <div className="relative mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">

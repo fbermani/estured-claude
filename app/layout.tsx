@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { Bricolage_Grotesque, Hanken_Grotesk } from "next/font/google";
 import { DemoSwitcherGate } from "@/components/dev/DemoSwitcherGate";
@@ -28,6 +28,11 @@ export const metadata: Metadata = {
     "EstuRed te ayuda a elegir con confianza dónde empieza tu nueva etapa: residencias estudiantiles verificadas en CABA, con solicitudes registradas y comprobantes verificables.",
 };
 
+/** Color de la barra del navegador en mobile = --color-cream. Sin bloquear el zoom (WCAG 1.4.4). */
+export const viewport: Viewport = {
+  themeColor: "#fbf6ec",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -45,12 +50,14 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         {/* Material Symbols Outlined (design-references/fresh-style.md §1.2) — librería de íconos única del proyecto.
+            display=block: mientras carga la fuente no se ve el nombre del ícono como texto ("arrow_forward").
+            Pendiente (GAPS.md): subset con icon_names= o self-hosting para sacarlo del camino crítico.
             eslint-disable-next-line: no-page-custom-font es una regla de Pages Router (Next 12) que no
             reconoce el App Router — este <head> es el del root layout, así que SÍ aplica a toda la app. */}
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block"
         />
       </head>
       <body className="antialiased">

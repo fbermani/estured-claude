@@ -487,7 +487,7 @@ export default async function RealResidenceDetailPage({
     conditions.minimumStayMonths != null && conditions.minimumStayMonths > 0 ? monthsLabel(conditions.minimumStayMonths) : null;
 
   const chipClass =
-    "inline-flex min-w-0 items-center gap-1.5 rounded-[18px] border border-line bg-paper px-3 py-1.5 text-sm leading-snug text-ink-soft sm:whitespace-nowrap sm:rounded-full";
+    "inline-flex min-w-0 items-center gap-1.5 rounded-card border border-line bg-paper px-3 py-1.5 text-sm leading-snug text-ink-soft sm:whitespace-nowrap sm:rounded-full";
   // Quién ve el panel de solicitud en la columna derecha (≥ 900 px) y como hoja inferior en móvil: visitante, estudiante y
   // familiar con estudiante vinculado, siempre que haya tipos para elegir. El resto (equipo, menores, otros roles) ve el
   // resumen con «Ver tarifas».

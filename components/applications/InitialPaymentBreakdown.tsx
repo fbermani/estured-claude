@@ -34,7 +34,7 @@ export function InitialPaymentBreakdown({
 }) {
   return (
     <div className={`rounded-field border border-line bg-paper px-4 py-3 text-sm ${className}`}>
-      <p className="text-[10px] font-extrabold uppercase tracking-widest text-muted">Qué pagás y a quién</p>
+      <p className="text-xs font-bold uppercase tracking-widest text-muted">Qué pagás y a quién</p>
 
       <div className="mt-2 flex items-start justify-between gap-4">
         <div>
@@ -50,7 +50,7 @@ export function InitialPaymentBreakdown({
         <p className="text-right font-bold text-ink">
           {formatUsd(residenceUsd)}
           {residenceArs != null && (
-            <span className="block text-[11px] font-normal text-ink-soft">
+            <span className="block text-xs font-normal text-ink-soft">
               ≈ {formatArs(residenceArs)}
               <ExchangeRateNote />
             </span>
@@ -67,7 +67,7 @@ export function InitialPaymentBreakdown({
           <p className="text-right font-bold text-ink">
             {formatUsd(feeUsd)}
             {feeArs != null && (
-              <span className="block text-[11px] font-normal text-ink-soft">
+              <span className="block text-xs font-normal text-ink-soft">
                 ≈ {formatArs(feeArs)}
                 <ExchangeRateNote />
               </span>

@@ -137,7 +137,7 @@ export function ResidenceSidebar({
         role={mobileOpen ? "dialog" : undefined}
         aria-modal={mobileOpen ? true : undefined}
         aria-label={mobileOpen ? "Menú de navegación" : undefined}
-        className={`fixed inset-y-0 left-0 z-50 flex max-md:overflow-y-auto shrink-0 flex-col justify-between border-r border-line bg-paper transition-transform duration-200 md:relative md:translate-x-0 md:transition-[width] ${
+        className={`fixed inset-y-0 left-0 z-50 flex max-md:overflow-y-auto shrink-0 flex-col justify-between border-r border-line bg-paper transition-transform duration-200 md:relative md:translate-x-0 md:transition-none ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         } ${collapsed ? "w-64 md:w-[76px]" : "w-64"}`}
       >
@@ -179,9 +179,10 @@ export function ResidenceSidebar({
                   key={item.href}
                   href={item.href}
                   onClick={() => setMobileOpen(false)}
+                  aria-current={active ? "page" : undefined}
                   title={item.badge ? `${item.label}: ${item.badge} ${item.badgeNoun}` : premiumLocked && item.premium ? `${item.label} (Plan Premium)` : item.label}
                   aria-label={item.badge ? `${item.label}, ${item.badge} ${item.badgeNoun}` : premiumLocked && item.premium ? `${item.label}, función del Plan Premium` : item.label}
-                  className={`relative flex items-center gap-3 rounded-field px-3 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) ${
+                  className={`relative flex min-h-11 items-center gap-3 rounded-field px-3 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) ${
                     active ? "bg-(--tone-tint) text-(--tone-700)" : "text-ink-soft hover:bg-cream-2"
                   } ${collapsed ? "md:justify-center" : ""}`}
                 >
@@ -193,7 +194,7 @@ export function ResidenceSidebar({
                   {item.badge ? (
                     <span
                       aria-hidden
-                      className={`${premiumLocked && item.premium ? "ml-1" : "ml-auto"} flex min-w-5 items-center justify-center rounded-full bg-orange px-1.5 text-[11px] font-extrabold leading-5 text-white ${collapsed ? "md:absolute md:right-1.5 md:top-1" : ""}`}
+                      className={`${premiumLocked && item.premium ? "ml-1" : "ml-auto"} flex min-w-5 items-center justify-center rounded-full bg-orange px-1.5 text-xs font-bold leading-5 tabular-nums text-white ${collapsed ? "md:absolute md:right-1.5 md:top-1" : ""}`}
                     >
                       {item.badge}
                     </span>
@@ -220,7 +221,7 @@ export function ResidenceSidebar({
             href={`${base}/profile`}
             title={canEditProfile ? "Editar perfil" : "Ver perfil"}
             aria-label={canEditProfile ? "Editar perfil" : "Ver perfil"}
-            className={`mt-2 flex items-center gap-2 rounded-field px-3 py-2 text-sm font-medium text-ink-soft hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) ${collapsed ? "md:justify-center" : ""}`}
+            className={`mt-2 flex min-h-11 items-center gap-2 rounded-field px-3 py-2 text-sm font-medium text-ink-soft hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) ${collapsed ? "md:justify-center" : ""}`}
           >
             <Icon name={canEditProfile ? "edit" : "visibility"} className="shrink-0 text-lg" />
             <span className={collapsed ? "md:hidden" : ""}>{canEditProfile ? "Editar perfil" : "Ver perfil"}</span>
@@ -230,7 +231,7 @@ export function ResidenceSidebar({
               type="submit"
               title="Salir"
               aria-label="Salir"
-              className={`mt-1 flex w-full items-center gap-2 rounded-field px-3 py-2 text-left text-sm font-medium text-ink-soft hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) ${collapsed ? "md:justify-center" : ""}`}
+              className={`mt-1 flex min-h-11 w-full items-center gap-2 rounded-field px-3 py-2 text-left text-sm font-medium text-ink-soft hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) ${collapsed ? "md:justify-center" : ""}`}
             >
               <Icon name="logout" className="shrink-0 text-lg" />
               <span className={collapsed ? "md:hidden" : ""}>Salir</span>

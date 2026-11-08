@@ -196,7 +196,7 @@ export function Navbar() {
                 </Button>
                 <span
                   aria-hidden="true"
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-forest-tint text-sm font-extrabold text-forest-700"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-forest-tint text-sm font-bold text-forest-700"
                 >
                   {session.initial}
                 </span>

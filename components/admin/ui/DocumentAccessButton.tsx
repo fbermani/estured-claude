@@ -31,7 +31,7 @@ export function DocumentAccessButton({ fileId, label = "Ver documento" }: { file
 
   return (
     <div className="mt-1 rounded p-2" style={{ border: `1px solid ${cmd.border}`, backgroundColor: cmd.surfaceContainer }}>
-      <label className="text-[10px] font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
+      <label className="text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
         Motivo del acceso (obligatorio, mín. 10 caracteres)
       </label>
       <textarea

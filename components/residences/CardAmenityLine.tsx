@@ -49,26 +49,26 @@ export function CardAmenityLine({
         onClick={() => {
           if (!window.matchMedia("(hover: hover)").matches) setSheet(true);
         }}
-        className="-mx-1.5 grid w-[calc(100%+0.75rem)] cursor-pointer grid-cols-[4.5rem_minmax(0,1fr)] items-center gap-2 min-[400px]:grid-cols-[5.25rem_minmax(0,1fr)] rounded-[10px] px-1.5 py-1 text-left hover:bg-cream focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest"
+        className="-mx-1.5 grid w-[calc(100%+0.75rem)] cursor-pointer grid-cols-[4.5rem_minmax(0,1fr)] items-center gap-2 min-[400px]:grid-cols-[5.25rem_minmax(0,1fr)] rounded-field px-1.5 py-1 text-left hover:bg-cream focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest"
       >
         <span aria-hidden="true" className="text-xs font-bold leading-tight text-ink-faint">
           {label}
         </span>
         <span aria-hidden="true" className="flex min-w-0 flex-nowrap items-center gap-1">
           {shown.map((i) => (
-            <span key={i.name} className="inline-grid aspect-square min-w-0 max-w-7 flex-1 place-items-center rounded-[9px] bg-cream-2 text-forest-700">
+            <span key={i.name} className="inline-grid aspect-square min-w-0 max-w-7 flex-1 place-items-center rounded-field bg-cream-2 text-forest-700">
               <Icon name={i.icon} className="text-[clamp(14px,4.4vw,17px)]" />
             </span>
           ))}
           {extra > 0 && (
-            <span className="inline-flex h-7 shrink-0 items-center rounded-[9px] bg-forest-tint px-1.5 text-[12px] font-bold text-forest-700">+{extra}</span>
+            <span className="inline-flex h-7 shrink-0 items-center rounded-field bg-forest-tint px-1.5 text-[12px] font-bold text-forest-700">+{extra}</span>
           )}
         </span>
       </button>
       <div
         id={popId}
         role="tooltip"
-        className="pointer-events-none absolute -inset-x-1.5 bottom-[calc(100%+4px)] z-10 hidden rounded-[14px] border border-line-2 bg-paper px-3.5 py-3 text-left shadow-float [@media(hover:hover)]:group-focus-within/amen:block [@media(hover:hover)]:group-hover/amen:block"
+        className="pointer-events-none absolute -inset-x-1.5 bottom-[calc(100%+4px)] z-10 hidden rounded-field border border-line-2 bg-paper px-3.5 py-3 text-left shadow-float [@media(hover:hover)]:group-focus-within/amen:block [@media(hover:hover)]:group-hover/amen:block"
       >
         <b className="mb-1.5 block font-display text-[13px] text-ink">{label}</b>
         <ul className="grid grid-cols-2 gap-x-2.5 gap-y-1 text-[12.5px] text-ink-soft">

@@ -248,13 +248,13 @@ function BeforeAfterList({ label, before, after }: { label: string; before: stri
       </p>
       <div className="mt-2 grid grid-cols-2 gap-3">
         <div className="rounded p-3 text-sm" style={{ backgroundColor: cmd.roseBg, color: cmd.onSurfaceVariant }}>
-          <p className="mb-1 text-[10px] font-bold uppercase" style={{ color: cmd.rose }}>
+          <p className="mb-1 text-xs font-bold uppercase" style={{ color: cmd.rose }}>
             Antes (publicado)
           </p>
           {before}
         </div>
         <div className="rounded p-3 text-sm" style={{ backgroundColor: cmd.emeraldBg, color: cmd.onSurfaceVariant }}>
-          <p className="mb-1 text-[10px] font-bold uppercase" style={{ color: cmd.emerald }}>
+          <p className="mb-1 text-xs font-bold uppercase" style={{ color: cmd.emerald }}>
             Propuesto
           </p>
           {after}

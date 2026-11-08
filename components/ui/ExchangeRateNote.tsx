@@ -78,7 +78,7 @@ export function ExchangeRateNote({ showNote = false, compact = false }: { showNo
       {compact && !open && (
         <span
           role="tooltip"
-          className="pointer-events-none absolute bottom-[calc(100%+4px)] -left-20 z-20 hidden w-56 rounded-[10px] bg-ink px-3 py-2 text-left text-[12.5px] font-medium leading-snug text-white shadow-float [@media(hover:hover)]:group-focus-within/rn:block [@media(hover:hover)]:group-hover/rn:block"
+          className="pointer-events-none absolute bottom-[calc(100%+4px)] -left-20 z-20 hidden w-56 rounded-field bg-ink px-3 py-2 text-left text-[12.5px] font-medium leading-snug text-white shadow-float [@media(hover:hover)]:group-focus-within/rn:block [@media(hover:hover)]:group-hover/rn:block"
         >
           {COMPACT_TIP}
         </span>

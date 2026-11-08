@@ -238,7 +238,7 @@ export default async function StudentApplicationsPage() {
         <div className="flex flex-col gap-8">
           {actionNeeded.length > 0 && (
             <div>
-              <h2 className="mb-3 flex items-center gap-2 text-sm font-extrabold uppercase tracking-wide text-orange-700">
+              <h2 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-orange-700">
                 <span className="h-2 w-2 rounded-full bg-orange" aria-hidden />
                 Necesitan tu acción
               </h2>
@@ -247,7 +247,7 @@ export default async function StudentApplicationsPage() {
           )}
           <div>
             {actionNeeded.length > 0 && (
-              <h2 className="mb-3 text-sm font-extrabold uppercase tracking-wide text-muted">
+              <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-muted">
                 Resto de tus solicitudes
               </h2>
             )}

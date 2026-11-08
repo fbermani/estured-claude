@@ -96,7 +96,7 @@ export function MobileTabBar({
               href={it.href}
               aria-current={active ? "page" : undefined}
               aria-label={ariaFor(it)}
-              className={`relative flex min-h-14 min-w-0 flex-col items-center justify-center gap-0.5 rounded-2xl text-[11px] font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-(--tone) active:bg-cream-2 ${
+              className={`relative flex min-h-14 min-w-0 flex-col items-center justify-center gap-0.5 rounded-field text-xs font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-(--tone) active:bg-cream-2 ${
                 active ? "text-(--tone-700)" : "text-ink-faint"
               }`}
             >
@@ -109,7 +109,7 @@ export function MobileTabBar({
               {it.badge ? (
                 <span
                   aria-hidden
-                  className="absolute left-1/2 top-0.5 ml-2 flex min-w-4 items-center justify-center rounded-full bg-orange px-1 text-[10px] font-extrabold leading-4 text-white"
+                  className="absolute left-1/2 top-0.5 ml-2 flex min-w-[18px] items-center justify-center rounded-full bg-orange px-1 text-xs font-bold leading-[18px] tabular-nums text-white"
                 >
                   {it.badge}
                 </span>
@@ -125,7 +125,7 @@ export function MobileTabBar({
           aria-haspopup="dialog"
           aria-controls="more-sheet"
           aria-label={moreBadge ? `Más, ${moreBadge} avisos pendientes` : "Más"}
-          className={`relative flex min-h-14 min-w-0 flex-col items-center justify-center gap-0.5 rounded-2xl text-[11px] font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-(--tone) active:bg-cream-2 ${
+          className={`relative flex min-h-14 min-w-0 flex-col items-center justify-center gap-0.5 rounded-field text-xs font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-(--tone) active:bg-cream-2 ${
             moreActive ? "text-(--tone-700)" : "text-ink-faint"
           }`}
         >
@@ -181,7 +181,7 @@ export function MobileTabBar({
                           {it.badge ? (
                             <span
                               aria-hidden
-                              className="flex min-w-5 items-center justify-center rounded-full bg-orange px-1.5 text-[11px] font-extrabold leading-5 text-white"
+                              className="flex min-w-5 items-center justify-center rounded-full bg-orange px-1.5 text-xs font-bold leading-5 text-white"
                             >
                               {it.badge}
                             </span>

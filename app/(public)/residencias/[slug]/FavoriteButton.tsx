@@ -42,7 +42,7 @@ export function FavoriteButton({
         />
         {label ?? (favorited ? "Guardado" : "Guardar")}
       </button>
-      {state.status === "error" && <p className="text-xs font-medium text-danger-fg">{state.message}</p>}
+      {state.status === "error" && <p role="alert" className="text-xs font-medium text-danger-fg">{state.message}</p>}
     </form>
   );
 }

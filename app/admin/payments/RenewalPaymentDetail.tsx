@@ -50,7 +50,7 @@ export function RenewalPaymentDetail({
             {formatShortName(offer?.student_profiles?.first_name, offer?.student_profiles?.last_initial)} — {offer?.residences?.name}
           </h2>
           <span
-            className="rounded-[12px] px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide"
+            className="rounded-field px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide"
             style={{ backgroundColor: cmd.violetBg, color: cmd.violet }}
           >
             Renovación

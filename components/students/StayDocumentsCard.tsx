@@ -25,7 +25,7 @@ export function StayDocumentsCard({ items }: { items: StayDocumentItem[] }) {
   return (
     <Card className="p-5">
       <div className="mb-3 flex items-center justify-between">
-        <p className="text-xs font-extrabold uppercase tracking-wider text-muted">Documentación de tu estadía</p>
+        <p className="text-xs font-bold uppercase tracking-wider text-muted">Documentación de tu estadía</p>
         <Icon name="folder_shared" className="text-lg text-muted" />
       </div>
 
@@ -70,7 +70,7 @@ export function StayDocumentsCard({ items }: { items: StayDocumentItem[] }) {
             </ul>
           )}
 
-          <p className="mt-3 text-[11px] leading-relaxed text-ink-faint">
+          <p className="mt-3 text-xs leading-relaxed text-ink-faint">
             Son privados: la residencia solo ve si lo entregaste, no el archivo.
           </p>
         </>

@@ -27,7 +27,7 @@ export function ListRow({
   className?: string;
 }) {
   return (
-    <li className={`${toneClass(tone)} rounded-2xl transition-colors hover:bg-cream focus-within:bg-cream [&+&]:border-t [&+&]:border-line ${className}`}>
+    <li className={`${toneClass(tone)} rounded-field transition-colors hover:bg-cream focus-within:bg-cream [&+&]:border-t [&+&]:border-line ${className}`}>
       <div className="grid grid-cols-[auto_1fr] items-center gap-x-3 gap-y-1.5 p-3 md:grid-cols-[auto_1fr_auto_auto] md:gap-x-4">
         <span className="flex size-[42px] shrink-0 items-center justify-center rounded-full bg-(--tone-tint) font-display text-[15px] font-bold text-(--tone-700)">
           {avatar}

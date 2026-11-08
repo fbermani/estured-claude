@@ -132,8 +132,8 @@ export function RequestHowItWorks() {
           La residencia responde en hasta 48 horas. Toda reserva está sujeta a confirmación.
         </p>
       </div>
-      <div className="grid grid-cols-[36px_1fr] gap-2.5 rounded-[14px] bg-cream p-3 text-[13px] text-ink-soft md:max-w-xs">
-        <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-lilac text-lilac-fg">
+      <div className="grid grid-cols-[36px_1fr] gap-2.5 rounded-field bg-cream p-3 text-[13px] text-ink-soft md:max-w-xs">
+        <span className="flex h-9 w-9 items-center justify-center rounded-field bg-lilac text-lilac-fg">
           <Icon name="support_agent" className="text-xl" />
         </span>
         <p>

@@ -277,7 +277,7 @@ function LinkBtn({ children, onClick, disabled }: { children: React.ReactNode; o
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`cursor-pointer rounded-[6px] px-0.5 py-1.5 text-[13.5px] font-semibold text-forest-700 underline underline-offset-[3px] hover:text-forest-600 disabled:cursor-default disabled:text-ink-faint disabled:no-underline ${FOCUS}`}
+      className={`cursor-pointer rounded-field px-0.5 py-1.5 text-[13.5px] font-semibold text-forest-700 underline underline-offset-[3px] hover:text-forest-600 disabled:cursor-default disabled:text-ink-faint disabled:no-underline ${FOCUS}`}
     >
       {children}
     </button>
@@ -287,11 +287,11 @@ function LinkBtn({ children, onClick, disabled }: { children: React.ReactNode; o
 function Row({ label, count, checked, onChange, icon }: { label: string; count: number; checked: boolean; onChange: () => void; icon?: string }) {
   const muted = count === 0 && !checked;
   return (
-    <label className={`-mx-1 flex min-h-[34px] cursor-pointer items-center gap-2.5 rounded-[10px] px-1 py-[3px] text-[14.5px] hover:bg-cream has-[:focus-visible]:bg-forest-tint has-[:focus-visible]:outline-[3px] has-[:focus-visible]:outline-offset-1 has-[:focus-visible]:outline-forest-ink ${muted ? "text-ink-faint" : "text-ink"}`}>
+    <label className={`-mx-1 flex min-h-[34px] cursor-pointer items-center gap-2.5 rounded-field px-1 py-[3px] text-[14.5px] hover:bg-cream has-[:focus-visible]:bg-forest-tint has-[:focus-visible]:outline-[3px] has-[:focus-visible]:outline-offset-1 has-[:focus-visible]:outline-forest-ink ${muted ? "text-ink-faint" : "text-ink"}`}>
       <input type="checkbox" checked={checked} onChange={onChange} className="peer sr-only" />
       <span
         aria-hidden="true"
-        className="grid size-5 flex-none place-items-center rounded-[6px] border-[1.75px] border-ink-faint bg-white after:h-2.5 after:w-[5px] after:-translate-y-px after:rotate-45 after:border-b-[2.25px] after:border-r-[2.25px] after:border-white after:opacity-0 after:content-[''] motion-safe:transition-colors peer-checked:border-forest peer-checked:bg-forest peer-checked:after:opacity-100 peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-2 peer-focus-visible:outline-forest-ink"
+        className="grid size-5 flex-none place-items-center rounded-field border-[1.75px] border-ink-faint bg-white after:h-2.5 after:w-[5px] after:-translate-y-px after:rotate-45 after:border-b-[2.25px] after:border-r-[2.25px] after:border-white after:opacity-0 after:content-[''] motion-safe:transition-colors peer-checked:border-forest peer-checked:bg-forest peer-checked:after:opacity-100 peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-2 peer-focus-visible:outline-forest-ink"
       />
       {icon && <Icon name={icon} className="text-lg text-ink-faint" />}
       <span className="min-w-0 flex-1 leading-tight">{label}</span>

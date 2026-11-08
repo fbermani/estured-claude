@@ -80,12 +80,12 @@ export function CommunityPlazasButton({ slug, name, places, genderLabel }: { slu
               </div>
               <div className="grid gap-2.5 sm:grid-cols-2">
                 {[0, 1, 2, 3].map((i) => (
-                  <div key={i} className="h-[76px] animate-pulse rounded-[18px] bg-cream-2 motion-reduce:animate-none" />
+                  <div key={i} className="h-[76px] animate-pulse rounded-card bg-cream-2 motion-reduce:animate-none" />
                 ))}
               </div>
             </div>
           ) : !state.data.ok ? (
-            <div className="rounded-[12px] bg-cream p-3.5 text-sm text-ink-soft">
+            <div className="rounded-field bg-cream p-3.5 text-sm text-ink-soft">
               {state.data.message}{" "}
               <button type="button" onClick={load} className="min-h-11 cursor-pointer font-bold text-forest-700 underline underline-offset-2">
                 Reintentar
@@ -106,12 +106,12 @@ export function CommunityPlazasButton({ slug, name, places, genderLabel }: { slu
                   />
                 </>
               ) : (
-                <p className="rounded-[12px] bg-cream p-3.5 text-sm text-ink-soft">Todavía no hay suficientes perfiles</p>
+                <p className="rounded-field bg-cream p-3.5 text-sm text-ink-soft">Todavía no hay suficientes perfiles</p>
               )}
               {state.data.guest ? (
                 <Link
                   href={`/login?next=${encodeURIComponent("/search")}`}
-                  className="flex min-h-11 items-center rounded-[12px] bg-forest-tint p-3.5 text-sm font-bold text-forest-700 underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+                  className="flex min-h-11 items-center rounded-field bg-forest-tint p-3.5 text-sm font-bold text-forest-700 underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
                 >
                   Ingresá para ver más de la comunidad
                 </Link>

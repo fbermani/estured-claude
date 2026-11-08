@@ -48,7 +48,7 @@ export function FilterChips<T extends string>({
             {o.label}
             {o.count !== undefined && (
               <b
-                className={`rounded-full px-1.5 text-[11.5px] font-bold leading-5 ${
+                className={`rounded-full px-1.5 text-xs font-bold leading-5 ${
                   pressed ? "bg-white/25" : o.attention && o.count > 0 ? "bg-orange text-white" : "bg-black/[0.08]"
                 }`}
               >

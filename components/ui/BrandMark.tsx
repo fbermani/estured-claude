@@ -54,7 +54,7 @@ export function BrandMark({
       <BrandSymbol size={size} />
       <span
         aria-hidden="true"
-        className={`font-display font-extrabold tracking-tight ${hideTextOnMobile ? "hidden sm:inline" : ""} ${dark ? "text-white" : "text-ink"}`}
+        className={`font-display font-bold tracking-tight ${hideTextOnMobile ? "hidden sm:inline" : ""} ${dark ? "text-white" : "text-ink"}`}
         style={{ fontSize: Math.round(size * 0.68) }}
       >
         Estu<span className={dark ? "text-white/60" : "text-ink-faint"}>Red</span>

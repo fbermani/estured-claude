@@ -127,7 +127,7 @@ export function SearchResultCard({
               </span>
             )}
             <span className="whitespace-nowrap">
-              <b className="font-display text-[22px] font-extrabold tracking-tight text-ink tabular-nums">{formatUsd(residence.priceFromUsd)}</b>
+              <b className="font-display text-[22px] font-bold tracking-tight text-ink tabular-nums">{formatUsd(residence.priceFromUsd)}</b>
               <span className="ml-1 text-[13px] text-ink-faint">/mes</span>
             </span>
           </p>

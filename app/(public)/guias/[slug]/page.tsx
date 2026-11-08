@@ -86,7 +86,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
       <div className="mx-auto max-w-6xl px-4 pb-16 pt-4 sm:px-6">
         <Breadcrumbs items={[{ label: "Inicio", href: "/" }, { label: "Guías", href: "/guias" }, { label: guide.title }]} />
 
-        <header className={`relative mt-3 overflow-hidden rounded-[30px] bg-gradient-to-br ${cat.gradient} px-5 py-8 sm:px-9 sm:py-11`}>
+        <header className={`relative mt-3 overflow-hidden rounded-card bg-gradient-to-br ${cat.gradient} px-5 py-8 sm:px-9 sm:py-11`}>
           <span aria-hidden="true" className="pointer-events-none absolute -right-10 -top-14 size-56 rounded-full bg-white/40" />
           <Icon name={cat.icon} className="pointer-events-none absolute -bottom-4 right-6 text-[120px]! leading-none opacity-20 sm:text-[160px]!" />
           <div className="relative max-w-3xl">

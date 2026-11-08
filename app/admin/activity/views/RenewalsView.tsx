@@ -95,7 +95,7 @@ export async function RenewalsView() {
           <thead style={{ backgroundColor: cmd.surfaceContainerLow, borderBottom: `1px solid ${cmd.border}` }}>
             <tr>
               {["Fecha", "Estudiante", "Residencia", "Estado", ""].map((h) => (
-                <th key={h} className="px-4 py-2.5 text-[11px] font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
+                <th key={h} className="px-4 py-2.5 text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
                   {h}
                 </th>
               ))}
@@ -148,7 +148,7 @@ export async function RenewalsView() {
           <thead style={{ backgroundColor: cmd.surfaceContainerLow, borderBottom: `1px solid ${cmd.border}` }}>
             <tr>
               {["Fecha", "Estudiante", "Residencia", "Nuevo período desde", "USD/mes", "Estado", ""].map((h) => (
-                <th key={h} className="px-4 py-2.5 text-[11px] font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
+                <th key={h} className="px-4 py-2.5 text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
                   {h}
                 </th>
               ))}

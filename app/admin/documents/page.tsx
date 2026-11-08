@@ -219,7 +219,7 @@ export default async function AdminDocumentsPage({
               <thead style={{ backgroundColor: cmd.surfaceContainer }}>
                 <tr>
                   {["Archivo", "Tipo", "Entidad", "Estado", "Subido por", "Fecha", ""].map((h) => (
-                    <th key={h} className="whitespace-nowrap px-4 py-3 text-[11px] font-extrabold uppercase tracking-wide" style={{ color: cmd.outline }}>
+                    <th key={h} className="whitespace-nowrap px-4 py-3 text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
                       {h}
                     </th>
                   ))}

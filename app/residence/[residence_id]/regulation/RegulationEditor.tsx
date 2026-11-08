@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Input";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { publishRegulationAction, type PublishRegulationState } from "@/app/residence/[residence_id]/regulation/actions";
 import { MAX_REGULATION_LENGTH } from "@/lib/regulations/limits";
 import { RegulationWizard } from "@/app/residence/[residence_id]/regulation/RegulationWizard";
@@ -44,10 +45,15 @@ export function RegulationEditor({
   const [text, setText] = useState(initialText);
   const [source, setSource] = useState<"own" | "model">(initialSource);
   const [wizardOpen, setWizardOpen] = useState(false);
+  // Reemplazo pendiente de confirmar (modelo o asistente): se aplica solo si la persona confirma.
+  const [pendingReplace, setPendingReplace] = useState<{ text: string; kind: "model" | "wizard" } | null>(null);
   const unchanged = text.trim() === initialText.trim();
 
   function loadModel() {
-    if (text.trim() !== initialText.trim() && !window.confirm("Vas a reemplazar lo que escribiste por el modelo de EstuRed. ¿Seguimos?")) return;
+    if (text.trim() !== initialText.trim()) {
+      setPendingReplace({ text: modelText, kind: "model" });
+      return;
+    }
     setText(modelText);
     setSource("model");
   }
@@ -112,13 +118,35 @@ export function RegulationEditor({
           residenceName={residenceName}
           onCancel={() => setWizardOpen(false)}
           onFinish={(t) => {
-            if (text.trim() !== "" && source === "own" && !window.confirm("Vas a reemplazar tu reglamento por el que armaste con el asistente. ¿Seguimos?")) return;
+            setWizardOpen(false);
+            if (text.trim() !== "" && source === "own") {
+              setPendingReplace({ text: t, kind: "wizard" });
+              return;
+            }
             setText(t);
             setSource("model");
-            setWizardOpen(false);
           }}
         />
       )}
+      <ConfirmDialog
+        open={pendingReplace !== null}
+        title={pendingReplace?.kind === "wizard" ? "¿Reemplazar tu reglamento?" : "¿Reemplazar lo que escribiste?"}
+        description={
+          pendingReplace?.kind === "wizard"
+            ? "Vas a reemplazar tu reglamento por el que armaste con el asistente."
+            : "Vas a reemplazar lo que escribiste por el modelo de EstuRed."
+        }
+        confirmLabel="Reemplazar"
+        cancelLabel="Mantener el mío"
+        onCancel={() => setPendingReplace(null)}
+        onConfirm={() => {
+          if (pendingReplace) {
+            setText(pendingReplace.text);
+            setSource("model");
+          }
+          setPendingReplace(null);
+        }}
+      />
       <Textarea
         id="regulation-text"
         name="text"

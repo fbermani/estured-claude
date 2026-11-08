@@ -276,7 +276,7 @@ export async function LogsView({
               {["Fecha", "Actor", "Acción", "Entidad", "Origen"].map((h) => (
                 <th
                   key={h}
-                  className="px-4 py-2.5 text-[11px] font-bold uppercase tracking-wide"
+                  className="px-4 py-2.5 text-xs font-bold uppercase tracking-wide"
                   style={{ color: cmd.outline }}
                 >
                   {h}
@@ -294,7 +294,7 @@ export async function LogsView({
                   {log.actor_user_id && userEmails.get(log.actor_user_id) ? (
                     <>
                       <span className="block break-all font-medium">{userEmails.get(log.actor_user_id)}</span>
-                      <span className="block text-[11px]" style={{ color: cmd.outline }}>
+                      <span className="block text-xs" style={{ color: cmd.outline }}>
                         {auditActorLabel(log.actor_role)}
                       </span>
                     </>

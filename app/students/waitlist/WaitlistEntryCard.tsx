@@ -95,8 +95,8 @@ export function WaitlistEntryCard({
           </form>
         </div>
       )}
-      {leaveState.status === "error" && <p className="text-xs font-medium text-danger-fg">{leaveState.message}</p>}
-      {stayState.status === "error" && <p className="text-xs font-medium text-danger-fg">{stayState.message}</p>}
+      {leaveState.status === "error" && <p role="alert" className="text-xs font-medium text-danger-fg">{leaveState.message}</p>}
+      {stayState.status === "error" && <p role="alert" className="text-xs font-medium text-danger-fg">{stayState.message}</p>}
     </div>
   );
 }
