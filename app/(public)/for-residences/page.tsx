@@ -5,9 +5,8 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import { Icon } from "@/components/ui/Icon";
 import { Reveal } from "@/components/ui/Reveal";
-import { SwipeStack } from "@/components/ui/SwipeStack";
+import { BenefitBeforeAfter } from "@/components/marketing/BenefitBeforeAfter";
 import { ResidenceHeroPanel } from "@/components/marketing/ResidenceHeroPanel";
 import { CommunityPreview } from "@/components/marketing/CommunityPreview";
 import { HoverFeatureList } from "@/components/ui/HoverFeatureList";
@@ -20,33 +19,6 @@ export const metadata: Metadata = {
   description:
     "EstuRed no reemplaza tu operación. La ordena, la hace más clara y te ayuda a convertir mejores solicitudes.",
 };
-
-const pains = [
-  {
-    icon: "diversity_3",
-    title: "Afinidad de convivencia antes de aceptar",
-    quote: "«Una mala convivencia y se te vacía media habitación.»",
-    text: "Ves intereses y hábitos de cada estudiante antes de decir que sí. Elegís pensando en quién ya vive en esa habitación.",
-  },
-  {
-    icon: "fact_check",
-    title: "Reservas y pagos con registro",
-    quote: "«La seña quedó en un chat y nadie se acuerda qué se acordó.»",
-    text: "Lo acordado y lo cobrado quedan por escrito, para vos y para el estudiante. Sin discusiones de memoria.",
-  },
-  {
-    icon: "quiz",
-    title: "Menos consultas repetidas",
-    quote: "«Respondo precio y reglas veinte veces por semana.»",
-    text: "Tu ficha responde lo de siempre. Te escriben quienes ya leyeron todo.",
-  },
-  {
-    icon: "event_repeat",
-    title: "Renovaciones y lista de espera juntas",
-    quote: "«Me entero tarde de quién renueva y quién se va.»",
-    text: "Sabés quién sigue y a quién avisarle cuando se libera una plaza, en un mismo lugar.",
-  },
-];
 
 const faqs = [
   {
@@ -133,29 +105,13 @@ export default function ForResidencesPage() {
       </section>
 
       {/* Beneficios: dolores y cómo se resuelven; en mobile, mazo con swipe */}
-      <section id="como-funciona" className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+      <section id="como-funciona" className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
         <SectionHeader
           eyebrow="Beneficios"
           title="Herramientas para el día a día de tu residencia"
           description="Lo que hoy resolvés entre chats, planillas y memoria, en un solo lugar."
         />
-        <SwipeStack label="Beneficios para residencias" className="grid gap-4 md:grid-cols-2 md:gap-5">
-          {pains.map((p) => (
-            <article
-              key={p.title}
-              className="grid grid-cols-[44px_1fr] gap-3 rounded-card border border-line bg-paper p-6 shadow-card transition duration-200 ease-out-fresh md:hover:-translate-y-0.5 md:hover:shadow-card-hover"
-            >
-              <span className="flex h-11 w-11 items-center justify-center rounded-field bg-petrol-50 text-petrol-600">
-                <Icon name={p.icon} className="text-2xl" />
-              </span>
-              <div className="grid content-start gap-2">
-                <h3 className="text-[19px] text-ink">{p.title}</h3>
-                <p className="text-[13.5px] italic text-ink-faint">{p.quote}</p>
-                <p className="text-[15px] text-ink-soft">{p.text}</p>
-              </div>
-            </article>
-          ))}
-        </SwipeStack>
+        <BenefitBeforeAfter />
       </section>
 
       <StayChangeHighlight variant="residences" />
