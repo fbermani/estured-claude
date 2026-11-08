@@ -9,7 +9,7 @@ describe("notificationHref", () => {
     const h = (entityType: string) => notificationHref({ entityType, entityId: ID, area: "student" });
     expect(h("application_requests")).toBe(`/students/applications/${ID}`);
     expect(h("resident_stays")).toBe("/students/residency");
-    expect(h("waitlist_entries")).toBe("/students/waitlist");
+    expect(h("waitlist_entries")).toBe(`/students/waitlist#entrada-${ID}`);
     expect(h("support_cases")).toBe("/students/support");
     expect(h("renewal_offers")).toBe(`/students/renewals/${ID}`);
     expect(h("renewal_requests")).toBe("/students/renewals");

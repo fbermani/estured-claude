@@ -823,6 +823,7 @@ waitlist_entry
 - A los 90 días, el sistema envía recordatorio para que el estudiante confirme si quiere seguir.
 - **Vencimiento por mes (DR40, 2026-11-07):** `active` y `retention_check_sent` con mes elegido ya terminado (fin del último día del mes, hora de Buenos Aires) pasan a `expired`. **No** vence `availability_notification_sent` (flujo en curso). Sin mes, la entrada no vence por fecha. Reemplaza la regla anterior «la lista no vence automáticamente por tiempo».
 - **Orden en la residencia (DR40):** por tipo; (a) con respuesta corriendo primero, (b) mes ascendente, (c) antigüedad (FIFO), (d) «Cuando haya lugar» al final (FIFO).
+- **Aviso por lote y decisión del estudiante (DR41, 2026-11-07):** la residencia puede avisar a varias entradas `active` / `retention_check_sent` a la vez (tope 50 por lote, un aviso y una auditoría por entrada); pasan a `availability_notification_sent` (`notified_at`). El estudiante decide: enviar solicitud (`student_activated_request`), seguir esperando (vuelve a `active` y, si venía de un aviso «hay lugar», guarda `waiting_confirmed_at`, «Decidió esperar»; se limpia si lo reavisan) o salir (`removed_by_student`). Un aviso sin respuesta no vence (propuesta pendiente de validar: 7 días y vuelve a `active`).
 - Cuando aparece disponibilidad: los estudiantes reciben notificación especial. La residencia puede contactar. No se activa solicitud automáticamente.
 
 ---

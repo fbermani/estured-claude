@@ -712,6 +712,8 @@ Sin cambios de fondo respecto al original. Contenido: residencia, tipo de habita
 
 **Acciones:** salir de lista, quedarme en lista, activar solicitud, ver residencia.
 
+**Aviso «hay lugar» (DR41, 2026-11-07):** la notificación lleva a la tarjeta de la entrada, que muestra tres botones: «Enviar solicitud» (sujeta a confirmación de la residencia; con «Cualquier tipo» lleva a la ficha), «Seguir esperando» y «Salir de la lista».
+
 ---
 
 ### 6.11. Renovaciones
@@ -981,6 +983,8 @@ Sin cambios de fondo. Contenido: estudiante, plaza, fecha de ingreso, duración 
 **Ruta:** `/residence/[residence_id]/waitlist`
 
 **DR40 (2026-11-07):** resumen arriba (total, urgentes este mes, esperando respuesta); agrupada por tipo de habitación y ordenada: (a) con respuesta corriendo, (b) mes elegido ascendente (el mes en curso lleva la marca «Este mes»), (c) antigüedad (FIFO), (d) «Cuando haya lugar» al final. Cada fila muestra «Ingreso: noviembre 2026» / «Cuando haya lugar» y «Vence a fin de mes»; las entradas con mes ya terminado no se listan.
+
+**DR41 (2026-11-07):** tablero de columnas por tipo de habitación («Cualquier tipo» al final) con contador y scroll interno por columna; dentro de cada una, sección «Avisados · esperando respuesta» (con la fecha del aviso) y sección «En espera». Casilla por fila + «seleccionar todos» del tipo + barra «Avisar a N» (tope 50, resultado parcial). Marca «Decidió esperar · fecha» si el estudiante eligió seguir esperando. Filtros por mes / «Este mes» / «Cuando haya lugar» / estado y búsqueda por nombre. En móvil: columnas con scroll horizontal con snap y barra de acción fija abajo.
 
 ---
 

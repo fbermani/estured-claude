@@ -1,7 +1,7 @@
 # 00_DECISION_LOG.md
 # EstuRed — Registro de decisiones consolidadas
 
-Última actualización: 2026-11-07 (DR40: lista de espera con mes y vencimiento automático; DR39: relevamiento lote 3; DR38: documentación de la estadía configurable por residencia; DR37: ficha más corta y con la comunidad al frente; DR36: el dueño borra sus fotos; DR35: checklist de llegada con esenciales; DR33–DR34 config de residencia; DR30: ficha y solicitud en modal; DR29: Fase 2 de Guías, llegada y checklist; DR28: Centro de Guías público en /guias; DR27 costos sin «sin depósito» y comprobante en la home; DR22–DR26 y anteriores en §31)
+Última actualización: 2026-11-07 (DR41: aviso por lote y decisión del estudiante en la lista de espera; DR40: lista de espera con mes y vencimiento automático; DR39: relevamiento lote 3; DR38: documentación de la estadía configurable por residencia; DR37: ficha más corta y con la comunidad al frente; DR36: el dueño borra sus fotos; DR35: checklist de llegada con esenciales; DR33–DR34 config de residencia; DR30: ficha y solicitud en modal; DR29: Fase 2 de Guías, llegada y checklist; DR28: Centro de Guías público en /guias; DR27 costos sin «sin depósito» y comprobante en la home; DR22–DR26 y anteriores en §31)
 
 Este documento es la fuente de verdad del proyecto EstuRed.
 Registra todas las decisiones de producto, negocio, operación, experiencia y arquitectura técnica.
@@ -1673,3 +1673,21 @@ Decisiones del dueño tras revisar flujos y dashboards:
 - **Consecuencia:** con una reserva/estadía vigente (sin aviso «Quiero cambiar» que lo exceptúe) el formulario NO ofrece «Cuando haya lugar»: sin mes se considera superpuesto (`docs/04` §5.6bis); tiene que elegir un mes posterior a su período.
 - `activateFromWaitlist` (pide fecha de ingreso nueva para la solicitud) no cambia. Las entradas viejas con fecha exacta se muestran por su mes y vencen a fin de ese mes.
 - **Prioridad (b):** es un orden de presentación derivado (no se persiste), igual que antes.
+
+### DR41: lista de espera — aviso por lote, «Avisados» aparte, decisión del estudiante y tablero (2026-11-07, migración 0079)
+
+**Decisión del dueño (2026-11-07).** Extiende DR40 sin cambiar sus reglas de mes, vencimiento ni orden.
+
+**Reglas.**
+1. **Aviso por lote.** En la lista de la residencia se puede **seleccionar varias entradas** (casilla por fila, «seleccionar todos» por tipo de habitación) y avisar «hay lugar» a todas juntas con una barra de acción «Avisar a N». Exige el permiso `waitlist.manage` (DR11), valida del lado del servidor, manda **un aviso por estudiante** y deja **una auditoría por entrada** (`waitlist_availability_notified`). **Tope: 50 por lote.** Solo son avisables las entradas `active` o `retention_check_sent`; el resto (ya avisadas, vencidas, inexistentes) se ignora y se informa. Resultado parcial: «Avisamos a X; no pudimos con Y» (con el motivo). El aviso individual usa el mismo camino (lote de uno).
+2. **«Avisados» aparte.** Las entradas `availability_notification_sent` se ven en su propia sección «Avisados · esperando respuesta», con la fecha en que se avisó (`notified_at`), separadas de «En espera». Siguen primero dentro de su tipo (DR40 (a)).
+3. **El aviso al estudiante.** Notificación in-app enviada en nombre de la residencia (sin proveedor de email todavía: mismo criterio que el resto, `docs/00` §29). La notificación lleva a la tarjeta de esa entrada en `/students/waitlist`, donde decide entre tres opciones: **«Enviar solicitud»** (el flujo real que ya existe, `activateFromWaitlist`; texto fijo «Sujeta a confirmación de la residencia»; con «Cualquier tipo» lleva a la ficha de la residencia porque hay que elegir tipo), **«Seguir esperando»** y **«Salir de la lista»**. Las tres funcionan igual desde la notificación y desde la pantalla (es la misma tarjeta).
+4. **«Decidió esperar».** Si elige seguir esperando, la entrada vuelve a `active` y guarda `waiting_confirmed_at`; la residencia ve la marca «Decidió esperar · 5 nov». Si la residencia la **vuelve a avisar**, la marca se limpia (y `notified_at` se actualiza). Salir de la lista mantiene el patrón vigente: estado `removed_by_student` (no se borra la fila, queda auditoría) y deja de listarse.
+5. **Tablero.** `/residence/[id]/waitlist` pasa a columnas por tipo de habitación («Cualquier tipo» al final), con contador, scroll interno por columna, filtros rápidos (mes, «Este mes», «Cuando haya lugar», estado) y búsqueda por nombre; en móvil columnas con scroll horizontal y barra de acción fija abajo.
+
+**Supuestos reversibles (documentados, no pedidos por el dueño).**
+- **Persistencia:** columnas nuevas `notified_at` y `waiting_confirmed_at` (0079). Sin la migración las pantallas degradan: se ven igual, sin fecha de aviso ni marca.
+- **Timeout del aviso sin respuesta (NO implementado):** hoy un aviso sin respuesta no vence (DR40: `availability_notification_sent` no se vence ni recibe el chequeo de 90 días). Propuesta: pasados **7 días** sin respuesta, un job la devolvería a `active` (sin marca «Decidió esperar») y la residencia podría volver a avisarla. No se implementó para no agregar un job nuevo sin que el dueño lo valide; mientras tanto la residencia ve «Avisado hace N días» y puede sacarla.
+- **Aviso a retención:** una entrada `retention_check_sent` también se puede avisar; al avisarla pasa a «Avisados» y cuenta como respuesta al chequeo.
+- **«Decidió esperar» solo tras un aviso «hay lugar»:** «Seguir esperando» desde un chequeo de retención vuelve a `active` pero no guarda `waiting_confirmed_at`.
+- **Índice único parcial:** como `active` es único por estudiante + residencia + tipo, si el estudiante ya se sumó de nuevo en otra entrada activa del mismo tipo, «Seguir esperando» le dice que ya está en la lista.

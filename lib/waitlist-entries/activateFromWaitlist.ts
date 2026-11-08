@@ -103,7 +103,8 @@ export async function activateFromWaitlist(
   await admin
     .from("waitlist_entries")
     .update({ status: "student_activated_request", removed_at: new Date().toISOString(), removed_by: params.actorUserId })
-    .eq("id", entry.id);
+    .eq("id", entry.id)
+    .eq("status", entry.status);
 
   await createAuditLog(admin, {
     actorUserId: params.actorUserId,

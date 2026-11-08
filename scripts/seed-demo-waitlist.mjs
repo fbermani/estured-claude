@@ -1,5 +1,5 @@
 /**
- * Seed de la lista de espera de «Residencia Río de la Plata» (solo dev): 12 pedidos ficticios repartidos entre los 4 tipos de habitación
+ * Seed de la lista de espera de «Residencia Río de la Plata» (solo dev): 12 pedidos fijos + hasta ~36 generados (DR41: densidad del tablero, avisados con fecha y «Decidió esperar») repartidos entre los 4 tipos de habitación
  * y «cualquier tipo», con estados (en espera / avisado / chequeo de retención), meses de ingreso (DR40: día 1 del mes; este mes = urgente), varios «Cuando haya lugar» (sin mes) y antigüedades distintas.
  * Para ver `/residence/<id>/waitlist` con contenido. Idempotente: borra solo las filas de los estudiantes demo listados acá y las recrea.
  * Quitar: node --env-file=.env.local scripts/seed-demo-waitlist.mjs --delete
@@ -48,7 +48,26 @@ const ROWS = [
   ["d10ff9fc-2d08-4042-8ea6-81cbf7b59634", null, "active", 5, 1, 6], // Juan S. — cualquier tipo
   ["c36e3826-a3ae-4eb0-9e13-e8102ccce319", null, "active", 30, null, null], // Liam T. — cualquier tipo, sin mes
 ];
-const studentIds = ROWS.map((r) => r[0]);
+
+// DR41: relleno para ver la densidad del tablero. Reutiliza en rotación los estudiantes demo que existan (par estudiante+tipo único:
+// el índice parcial permite una sola entrada `active` por estudiante+residencia+tipo). Mezcla en espera / avisados / chequeo de retención.
+const { data: allStudents } = await admin.from("student_profiles").select("id").order("created_at", { ascending: true }).limit(40);
+const pool = (allStudents ?? []).map((s) => s.id);
+const TYPE_ROTATION = ["Individual", "Doble", "Triple", "Cuádruple", null];
+const STATUS_ROTATION = ["active", "active", "active", "availability_notification_sent", "active", "retention_check_sent"];
+const MONTH_ROTATION = [0, 1, 2, null, 3, 1, 4, null, 0, 6];
+const used = new Set(ROWS.map((r) => `${r[0]}|${r[1] ?? ""}`));
+const EXTRA_TARGET = 36;
+for (let i = 0; pool.length > 0 && ROWS.length < 12 + EXTRA_TARGET && i < pool.length * TYPE_ROTATION.length; i++) {
+  const student = pool[i % pool.length];
+  const type = TYPE_ROTATION[(i + Math.floor(i / pool.length)) % TYPE_ROTATION.length];
+  const key = `${student}|${type ?? ""}`;
+  if (used.has(key)) continue;
+  used.add(key);
+  const monthOffset = MONTH_ROTATION[i % MONTH_ROTATION.length];
+  ROWS.push([student, type, STATUS_ROTATION[i % STATUS_ROTATION.length], 2 + ((i * 7) % 60), monthOffset, monthOffset == null ? null : 3 + (i % 10)]);
+}
+const studentIds = Array.from(new Set(ROWS.map((r) => r[0])));
 
 const del = await admin.from("waitlist_entries").delete().eq("residence_id", residence.id).in("student_profile_id", studentIds);
 if (del.error) {
@@ -60,16 +79,33 @@ if (process.argv.includes("--delete")) {
   process.exit(0);
 }
 
-const payload = ROWS.map(([student, type, status, waited, monthOffset, months]) => ({
-  student_profile_id: student,
-  residence_id: residence.id,
-  room_type_id: type ? typeId(type) : null,
-  status,
-  joined_at: daysFromNow(-waited).toISOString(),
-  desired_start_date: monthOffset == null ? null : monthStart(monthOffset),
-  desired_duration_months: months,
-}));
-const ins = await admin.from("waitlist_entries").insert(payload);
+// DR41: los avisados llevan fecha de aviso (`notified_at`); el primer «en espera» sin mes de cada tanda de 5 «decidió esperar».
+let waitingMarked = 0;
+const payload = ROWS.map(([student, type, status, waited, monthOffset, months], i) => {
+  const row = {
+    student_profile_id: student,
+    residence_id: residence.id,
+    room_type_id: type ? typeId(type) : null,
+    status,
+    joined_at: daysFromNow(-waited).toISOString(),
+    desired_start_date: monthOffset == null ? null : monthStart(monthOffset),
+    desired_duration_months: months,
+  };
+  const extra = {};
+  if (status === "availability_notification_sent") extra.notified_at = daysFromNow(-(1 + (i % 6))).toISOString();
+  if (status === "active" && i % 5 === 2 && waitingMarked < 6) {
+    extra.waiting_confirmed_at = daysFromNow(-(1 + (i % 4))).toISOString();
+    extra.notified_at = daysFromNow(-(5 + (i % 4))).toISOString();
+    waitingMarked++;
+  }
+  return { row, extra };
+});
+// Con la migración 0079 aplicada se guardan las fechas; sin ella se insertan solo las columnas base.
+let ins = await admin.from("waitlist_entries").insert(payload.map((p) => ({ ...p.row, ...p.extra })));
+if (ins.error && /notified_at|waiting_confirmed_at/.test(ins.error.message)) {
+  console.warn("! Migración 0079 sin aplicar: se cargan las entradas sin fecha de aviso ni «Decidió esperar».");
+  ins = await admin.from("waitlist_entries").insert(payload.map((p) => p.row));
+}
 if (ins.error) {
   console.error("✗ No pude insertar:", ins.error.message);
   process.exit(1);

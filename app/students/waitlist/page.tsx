@@ -1,4 +1,4 @@
-import { formatDesiredMonth, isDesiredMonthExpired } from "@/lib/waitlist-entries/desiredMonth";
+import { currentMonthStart, formatDesiredMonth, isDesiredMonthExpired, toMonthStart } from "@/lib/waitlist-entries/desiredMonth";
 import { formatDate } from "@/lib/dates/format";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -35,6 +35,7 @@ type WaitlistRow = {
   desired_start_date: string | null;
   desired_duration_months: number | null;
   joined_at: string;
+  room_type_id: string | null;
   residences: { name: string; public_area: string; slug: string } | null;
   room_types: { name: string } | null;
 };
@@ -48,7 +49,7 @@ export default async function StudentWaitlistPage() {
     const { data, error } = await supabase
       .from("waitlist_entries")
       .select(
-        "id, status, desired_start_date, desired_duration_months, joined_at, residences (name, public_area, slug), room_types (name)",
+        "id, status, room_type_id, desired_start_date, desired_duration_months, joined_at, residences (name, public_area, slug), room_types (name)",
       )
       .order("joined_at", { ascending: false });
     if (error) console.error("[students/waitlist] query failed:", error);
@@ -73,6 +74,27 @@ export default async function StudentWaitlistPage() {
       .not("stay_change_intent_id", "is", null);
     if (!linkedError) for (const row of linked ?? []) changeEntryIds.add(row.id as string);
   }
+
+  // DR41: fecha del aviso y «Decidiste esperar» (migración 0079; lectura degradable).
+  const trackingById = new Map<string, { notified_at: string | null; waiting_confirmed_at: string | null }>();
+  if (supabase && sessionUser && entries.length > 0) {
+    const { data: tracking, error: trackingError } = await supabase
+      .from("waitlist_entries")
+      .select("id, notified_at, waiting_confirmed_at")
+      .in("id", entries.map((e) => e.id));
+    if (trackingError && trackingError.code !== "42703" && trackingError.code !== "PGRST204") {
+      console.error("[students/waitlist] tracking read failed:", trackingError);
+    }
+    if (!trackingError) {
+      for (const row of tracking ?? []) {
+        trackingById.set(row.id as string, {
+          notified_at: (row.notified_at as string | null) ?? null,
+          waiting_confirmed_at: (row.waiting_confirmed_at as string | null) ?? null,
+        });
+      }
+    }
+  }
+  const todayIso = new Date().toISOString().slice(0, 10);
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
@@ -113,9 +135,14 @@ export default async function StudentWaitlistPage() {
               </div>
             );
 
+            const track = trackingById.get(entry.id);
+            // Ingreso precargado: el mes elegido (día 1) si es futuro; si es este mes o ya pasó, hoy.
+            const monthStart = toMonthStart(entry.desired_start_date);
+            const defaultStartDate = monthStart && monthStart > todayIso && monthStart > currentMonthStart() ? monthStart : todayIso;
+
             return (
+              <div key={entry.id} id={`entrada-${entry.id}`} className="scroll-mt-24 target:[&>*]:ring-2 target:[&>*]:ring-forest/40">
               <ExpandableCard
-                key={entry.id}
                 defaultOpen={needsAction}
                 className={needsAction ? "border-orange/40 bg-warning-bg" : ""}
                 summary={summary}
@@ -139,6 +166,15 @@ export default async function StudentWaitlistPage() {
                 <p className="mt-3 text-xs text-ink-faint">
                   En lista desde {formatDate(entry.joined_at)}
                 </p>
+                {entry.status === "availability_notification_sent" && (
+                  <p className="mt-3 rounded-field bg-paper px-3 py-2 text-sm text-ink">
+                    {track?.notified_at ? `La residencia te avisó el ${formatDate(track.notified_at)}. ` : "La residencia te avisó. "}
+                    Podés enviar tu solicitud (queda sujeta a confirmación de la residencia), seguir esperando o salir de la lista.
+                  </p>
+                )}
+                {entry.status === "active" && track?.waiting_confirmed_at && (
+                  <p className="mt-3 text-xs font-medium text-forest-700">Decidiste seguir esperando el {formatDate(track.waiting_confirmed_at)}.</p>
+                )}
 
                 <div className="mt-4 border-t border-line pt-4">
                   <Link
@@ -150,12 +186,17 @@ export default async function StudentWaitlistPage() {
                   {isActive && (
                     <WaitlistEntryCard
                       entryId={entry.id}
-                      canActivate={entry.status === "availability_notification_sent"}
+                      canActivate={entry.status === "availability_notification_sent" && Boolean(entry.room_type_id)}
                       showStay={entry.status !== "active"}
+                      isNotified={entry.status === "availability_notification_sent"}
+                      residenceSlug={entry.residences?.slug}
+                      defaultStartDate={defaultStartDate}
+                      defaultDuration={entry.desired_duration_months ?? 6}
                     />
                   )}
                 </div>
               </ExpandableCard>
+              </div>
             );
           })}
         </div>

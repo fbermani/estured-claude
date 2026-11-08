@@ -882,6 +882,8 @@ Reglas:
 | `removed_by` | uuid null | Quién removió |
 | `removed_reason` | text null | Motivo (p. ej. `stay_change_cancelled`, DR3; `month_passed`, DR40) |
 | `stay_change_intent_id` | uuid null | FK `stay_change_intents` si se creó bajo la excepción "Quiero cambiar" (DR3, §14bis) |
+| `notified_at` | timestamptz null | Cuándo la residencia avisó «hay lugar» (DR41, migración 0079) |
+| `waiting_confirmed_at` | timestamptz null | Cuándo el estudiante eligió «Seguir esperando» tras un aviso (DR41); se limpia al reavisar |
 | `created_at` | timestamptz | Alta |
 | `updated_at` | timestamptz | Actualización |
 

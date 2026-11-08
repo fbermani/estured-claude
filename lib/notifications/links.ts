@@ -71,7 +71,8 @@ export function notificationHref(
       case "resident_stays":
         return "/students/residency";
       case "waitlist_entries":
-        return "/students/waitlist";
+        // DR41: el aviso «hay lugar» lleva a la tarjeta de esa entrada (con «Enviar solicitud» / «Seguir esperando» / «Salir»).
+        return id ? `/students/waitlist#entrada-${id}` : "/students/waitlist";
       case "student_favorites":
         // Ciclo 58: aviso de listas de espera anuladas al confirmar una reserva; el id es opcional.
         return "/students/favorites";
