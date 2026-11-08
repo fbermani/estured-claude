@@ -143,6 +143,9 @@ Plantilla de términos para estudiantes y familias. Auditada y alineada con los 
 ### `22_DOCUMENTATION_MASTER_GUIDE.md`
 Guía de entrega/handoff del paquete a otra IA o equipo externo. Auditada; la duplicación con este archivo (14) fue eliminada.
 
+### `23_PREAPERTURA.md`
+Preapertura pública (2026-11): capa con flag `PREAPERTURA=on`, preregistro de estudiantes y familiares, carrusel de comunidad, Residencias fundadoras y pendientes. Decisiones DR42–DR47 en `00`. Documentado, sin implementar. Referencia visual: `design-proposals/preapertura-2026-11/`.
+
 ---
 
 ## 7. Workflows recomendados

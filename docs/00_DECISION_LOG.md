@@ -1,7 +1,7 @@
 # 00_DECISION_LOG.md
 # EstuRed — Registro de decisiones consolidadas
 
-Última actualización: 2026-11-07 (DR41: aviso por lote y decisión del estudiante en la lista de espera; DR40: lista de espera con mes y vencimiento automático; DR39: relevamiento lote 3; DR38: documentación de la estadía configurable por residencia; DR37: ficha más corta y con la comunidad al frente; DR36: el dueño borra sus fotos; DR35: checklist de llegada con esenciales; DR33–DR34 config de residencia; DR30: ficha y solicitud en modal; DR29: Fase 2 de Guías, llegada y checklist; DR28: Centro de Guías público en /guias; DR27 costos sin «sin depósito» y comprobante en la home; DR22–DR26 y anteriores en §31)
+Última actualización: 2026-11-08 (DR42–DR47: preapertura, ver `docs/23_PREAPERTURA.md`; DR41: aviso por lote y decisión del estudiante en la lista de espera; DR40: lista de espera con mes y vencimiento automático; DR39: relevamiento lote 3; DR38: documentación de la estadía configurable por residencia; DR37: ficha más corta y con la comunidad al frente; DR36: el dueño borra sus fotos; DR35: checklist de llegada con esenciales; DR33–DR34 config de residencia; DR30: ficha y solicitud en modal; DR29: Fase 2 de Guías, llegada y checklist; DR28: Centro de Guías público en /guias; DR27 costos sin «sin depósito» y comprobante en la home; DR22–DR26 y anteriores en §31)
 
 Este documento es la fuente de verdad del proyecto EstuRed.
 Registra todas las decisiones de producto, negocio, operación, experiencia y arquitectura técnica.
@@ -1503,6 +1503,8 @@ Decisión del dueño (pedido con referencia de la galería «Ver todas» de Airb
 
 Decisión del dueño. El registro e ingreso siguen con email y contraseña (mínimo 8 caracteres, sin endurecer). Google SSO queda como idea futura: exigiría un callback que asigne el rol (estudiante/familiar) y registre los consentimientos de términos y privacidad antes de crear la cuenta; las residencias y el staff siguen entrando solo por invitación. Se retoma después del lanzamiento si la fricción del registro lo justifica.
 
+> **Nota (2026-11-08, DR43):** la preapertura contempla una variante **con** y otra **sin** botón «Continuar con Google»; el diseño muestra el botón «si existe». DR26 sigue vigente: no hay OAuth en el código y no se implementa salvo decisión expresa del dueño (pendiente). Si se implementara, aplican las condiciones de arriba (rol y consentimientos antes de crear la cuenta; con Google la fecha de nacimiento 18+ se pide aparte).
+
 ### DR27: costos sin la aclaración «sin depósito» + comprobante en «Por qué EstuRed» (2026-11-02)
 
 Decisión del dueño. (1) En el copy de costos de landings y ficha no se aclara «sin depósito» / «sin contar el depósito» / «nunca sobre el depósito»; la aclaración vive solo en las FAQ y en los términos (`/terms`). El cálculo no cambia: el fee es 5% de la estadía inicial y nunca incluye el depósito reembolsable. (2) En la home, «Por qué EstuRed» reemplaza la tarjeta «Qué revisamos» (repetía «Visitadas en persona») por una miniatura del Comprobante de Reserva Confirmada, armada con las mismas filas que la pantalla y el PDF reales, con datos de ejemplo rotulados.
@@ -1691,3 +1693,50 @@ Decisiones del dueño tras revisar flujos y dashboards:
 - **Aviso a retención:** una entrada `retention_check_sent` también se puede avisar; al avisarla pasa a «Avisados» y cuenta como respuesta al chequeo.
 - **«Decidió esperar» solo tras un aviso «hay lugar»:** «Seguir esperando» desde un chequeo de retención vuelve a `active` pero no guarda `waiting_confirmed_at`.
 - **Índice único parcial:** como `active` es único por estudiante + residencia + tipo, si el estudiante ya se sumó de nuevo en otra entrada activa del mismo tipo, «Seguir esperando» le dice que ya está en la lista.
+
+---
+
+## Preapertura (DR42–DR47, 2026-11-06 a 2026-11-08)
+
+Decisiones del dueño para la preapertura pública. Detalle operativo, componentes y pendientes en `docs/23_PREAPERTURA.md`; referencia visual aprobada (v4) en `design-proposals/preapertura-2026-11/`. Protocolo `docs/13` §5: doc primero, código después (nada implementado al 2026-11-08). No cambia estados de `docs/04`; mantiene separadas las entidades (propuesta, solicitud, negociación, pago, fee, reserva, factura, comprobante).
+
+### DR42: capa de preapertura con interruptor (2026-11-06)
+
+1. **Interruptor `PREAPERTURA=on`** (env de Vercel prod). Páginas nuevas en `app/(preapertura)/` con header/footer propios; `next.config` reescribe `/` y `/for-students` a la versión de preapertura y redirige `/search`, `/register`, `/waitlist` a `/preregistro`. Landings actuales, Navbar y Footer **no se tocan**; al abrir se apaga el flag y vuelven.
+2. **`/for-residences` NO se reescribe** (2026-11-07; **supera** el punto 6 original que la incluía): solo cambia el header por el de preapertura, sin «Crear cuenta». «Sumar mi residencia» va directo a `/register/residence` (excepción a la redirección de `/register`).
+3. **`/guias` no se enlaza** en preapertura y **su URL no se redirige** (no perder SEO); se reactiva en la apertura. `/students/*` redirige a «Mi lugar» con el flag encendido.
+4. **Tablas nuevas** (estudiantes preinscriptos, interesados); **no se reutiliza `waitlist_signups`** (RLS sin policies a propósito).
+5. **Diseño (2026-11-08, v4 aprobada):** landing blureada (`inert`, `aria-hidden`) + popup flotante que no se puede cerrar; objetivo urgencia, mínimo de texto, «gratis». Pills de 34 px aceptadas como **excepción** a la regla interna de 44 px.
+
+### DR43: registro de estudiantes y familiares en preapertura (2026-11-07/08)
+
+1. **Cuenta real** (no preinscripción sin cuenta). **Paso 1:** email + contraseña, rol estudiante/familiar, fecha de nacimiento, casillero de términos obligatorio. Copy dice «Buenos Aires», sin campo ciudad. **Google:** variante con y sin botón; ver nota en DR26 (no hay OAuth en el código). Apple, después.
+2. **Edad mínima de cuenta propia: 18** (2026-11-08), validada en el servidor. Un menor **no crea cuenta**: se lo deriva a pedirle a un familiar mayor que se registre primero y lo invite; entra solo con ese link (cuentas relacionadas). El menor invitado no puede activar la comunidad pública y nunca aparece en ella. Reutiliza `/register/family` + `family_links`; el familiar **no da consentimientos por el estudiante**. Una sola invitación, sin recordatorios (regla del sistema, no se comunica). **Supera** parcialmente `docs/10` §9 en el sentido de que en preapertura el menor no registra cuenta propia; DR32 (tutor) rige al abrir.
+3. **Paso 2 (opcional):** nombre; país → provincia si Argentina; solo universidad (**sin zona**); carrera; tipo de habitación (Individual / Compartida / Me da igual); mes de ingreso **solo Ene/Feb/Mar/Abr + «Todavía no sé»** (**supera** «12 meses»; el año se asume próxima temporada y se guarda en el servidor); **2 hábitos y 2 intereses** como chips predefinidos con nombres neutros; «¿Ya estás en una residencia?» + cuál (no se muestra a esa residencia). Sin presupuesto. Dos tarjetas en vivo («Así te van a ver» y «Busca residencia»).
+4. **«Mi lugar»** (pantalla final): posición (#N), mini resumen de los 5 pasos, carrusel y vista previa rotulada «se activa cuando abramos». **Se elimina** «qué compartís», «vos decidís», «Cómo funciona», «Tu privacidad», FAQ y avisos «la residencia nunca ve…»: todo eso vive solo en Términos y Privacidad.
+5. **Contador** de registrados visible desde 25 (con menos, «Sé de los primeros»); «#N tu lugar si terminás ahora» = registrados + 1, sin prioridad ni reserva (se aclara en Términos). *(Propuesta del diseñador incluida en la v4 aprobada.)*
+
+### DR44: comunidad pública y carrusel con ejemplos rotulados (2026-11-07/08)
+
+1. Carrusel dinámico **público** (landing, paso 1, «Mi lugar»): nombre sin apellido, edad, país, carrera, hábitos e intereses como chips; avatar con inicial + bandera (reusa `CommunityBrowser`/`CommunityProfileCard`, campos `show_*_to_registered`); **nunca** la residencia actual. **Supera** `docs/00` §19 en preapertura (allí el perfil individual lo ven usuarios registrados): el dueño aceptó la exposición pública y el riesgo de identificación indirecta.
+2. **Reglas:** lo tilda el estudiante (no el familiar), solo 18+, el casillero va **sin tildar**, en **una sola línea** («Mostrar mi perfil (nombre, edad, país, carrera, hábitos e intereses) en la comunidad de la web»); que sea público y retirable va en Términos §7; se retira con «Editar mi perfil» y la tarjeta desaparece. **Supera** el casillero de comunidad «separado» con explicación larga (decisión 8 del 2026-11-07).
+3. **Ejemplos ficticios rotulados** («Ejemplo»), **excepción acotada** del dueño a «no datos falsos», solo en esta sección; contadores siempre reales. Se retiran **de a uno** con cada estudiante real y se apagan al llegar a ~12 reales (a confirmar).
+
+### DR45: consentimiento mínimo, opción C y divulgación (2026-11-06/08)
+
+1. **Opción C dentro de los términos** (2026-11-08): el casillero **obligatorio** del paso 1 dice «Acepto los Términos y la Privacidad, incluido mostrar mi búsqueda sin nombre ni contacto a residencias verificadas»; detalle en Términos §7. **Supera** la decisión 2 (casillero C opcional y separado) y el casillero C del paso 2. Mitigación: el contacto se entrega solo si el estudiante confirma con un clic aparte; la C se puede desactivar; nunca se ofrece a una residencia un estudiante que ya vive ahí ni se revela de qué otra residencia viene. **Riesgo asumido por el dueño: sin validación legal (Ley 25.326)**; alternativa si se quiere blindar: segunda casilla de una línea, tildada por el usuario.
+2. **Servicio «1–2 opciones verificadas»:** solo residencias **externas** que ya aceptaron; Sin Fronteras queda fuera de las recomendaciones; se activa tras el primer acuerdo externo.
+3. **Vínculo del dueño con Sin Fronteras:** NO se escribe en ningún lado por ahora (ni formulario ni web ni textos de preapertura); la divulgación es **oral y en persona**, antes de que la residencia entregue datos o acepte un candidato; nunca mentir si preguntan. **Supera** la idea inicial de nombrarlo en términos/política. La política igual debe nombrar al responsable legal del tratamiento (datos pendientes).
+
+### DR46: Residencias fundadoras de preapertura (2026-11-07/08)
+
+1. **Cupo REAL de 10** (cuenta solicitudes + residencias en verificación; si una no avanza, el lugar se libera y el contador puede subir). **PROHIBIDO** bajar el cupo sin altas reales (escasez fabricada). Cuenta regresiva a una **fecha de cierre real** (se define al lanzar; si llega sin abrir: cerrar igual o extender avisando). Contador de residencias visible desde 3 reales; contador de estudiantes siempre real.
+2. **Frase «ya hay residencias registrándose»** solo cuando entre la primera residencia **externa** (Sin Fronteras no cuenta; aparece como fundadora recién al abrir).
+3. **Beneficios:** insignia «Residencia fundadora» + jerarquía al abrir (con etiqueta explícita; regla nueva) y **Plan Premium bonificado el primer año** (vigente, DR12), mostrado en **una línea**, sin planes ni precios. **Sin descuento en comisión** (el fee lo pagan solo los estudiantes). «Gratis» se usa solo para sumarse.
+4. **Registro sin cuenta:** `/register/residence` ya es solo una solicitud (`residence_signup_requests`); el equipo contacta, coordina charla y visita y recién ahí entrega la cuenta; **no hay «Mi lugar» para dueños** (pantalla de éxito + email). **Cinco campos obligatorios:** residencia, **dirección** (**reemplaza barrio**), nombre del responsable, teléfono/WhatsApp, email; Instagram y camas se piden en la charla. Validación en cliente y servidor.
+5. Sin mención de Sin Fronteras ni de planes/comisión en la web ni en el mail de confirmación.
+
+### DR47: captación y copy de preapertura (2026-11-06/08)
+
+1. **Estudiantes:** campaña fuerte desde ya, **sin fecha de apertura**, copy honesto, contenido real cada 1–2 semanas; tope operativo y presupuesto a definir. **Residencias:** el objetivo es **entrante** (el dueño escribe primero); la opción C es la palanca; se miden por separado. Los registros tempranos de estudiantes son el argumento para las residencias.
+2. **Copy:** beneficio principal «enterarte primero cuáles son las residencias verificadas»; «Sumarte es gratis» muy visible. Titulares recomendados: A «Encontrá tu residencia en Buenos Aires sin ir a ciegas.»; fundadoras «Menos mensajes, más residencia. Y gratis.». Sin promesas de disponibilidad, reserva ni match; «Soporte», no «mediación»; «acceso anticipado» sí. «Verificada/visitada en persona» permitido desde 2026-11-01.

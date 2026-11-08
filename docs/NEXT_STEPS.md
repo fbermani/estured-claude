@@ -2,6 +2,25 @@
 
 # EstuRed — Próximos pasos
 
+## Preapertura — 2026-11-08 (documentada, sin implementar)
+
+Doc: `docs/23_PREAPERTURA.md`; decisiones DR42–DR47. Orden sugerido (cada paso chico y verificable; migraciones con links dev/prod):
+1. Migración: columna de dirección en `residence_signup_requests` + tablas de preinscriptos/interesados; ajustar `/register/residence` (5 campos obligatorios).
+2. Flag `PREAPERTURA` + `app/(preapertura)/` con header/footer, rewrites/redirects en `next.config` (`/guias` intacto).
+3. `PreaperturaDialog` + `BlurredPreview` y entrada `/` con contador real.
+4. Paso 1 (18+ en servidor, términos con opción C) y bloqueo de menores con derivación a familiar.
+5. Paso 2 con tarjetas en vivo; registro familiar con invitación.
+6. «Mi lugar» y carrusel público (ejemplos rotulados, retiro progresivo).
+7. Fundadoras: medidor de cupo real (10), cuenta regresiva, pantalla de éxito y email.
+8. Tests acotados + `typecheck`/`lint`/`build`; revisión visual contra los HTML v4.
+Antes de implementar: definir fecha de cierre y el resto de pendientes de `docs/23` §9.
+
+## Motion video — 2026-11-05
+
+**Actualización Launch v3:** ya se analizó la grabación de referencia y se crearon `EstuRed-Launch-16x9`/`9x16`: 71,27 segundos, narración argentina, subtítulos, música original 128 BPM, interfaces desktop/mobile y personajes vectoriales. Revisar estas composiciones en Studio (puerto 3100); no hay MP4 nuevo. Guion y tiempos en `video/src/launch/story.json`. Se mantienen las versiones anteriores.
+
+Storyboard aprobado e implementado en las nuevas composiciones `EstuRed-Motion-*` (proyecto `video`). Previsualizar las versiones horizontal y vertical en Remotion Studio; revisar narrativa, ritmo y música original con el dueño. Lint/TypeScript y bundle de video OK; ocho cuadros por formato generados. No se exportó un MP4 nuevo. La referencia de YouTube sigue pendiente de cotejo visual. Detalles en `video/README.md`.
+
 **Fecha:** 2026-07-06 (actualizado tras el Ciclo 2 — calidad visual y UX)
 
 > **Nota (2026-07-08):** este archivo quedó desactualizado como bitácora operativa desde el Ciclo 3 en adelante — `MEMORY.md` es la fuente de verdad viva del estado del proyecto (leer siempre `MEMORY.md` §13/§13bis/§13ter/§13cuater para el historial de ciclos 3-8, y §14 para el plan de continuidad vigente). Este archivo se conserva por su valor histórico del arranque del proyecto (Ciclo 0-2).
