@@ -145,6 +145,25 @@ export function EntryCheckbox({ entryId, label }: { entryId: string; label: stri
   );
 }
 
+/** Casilla del encabezado de la tabla: elige o quita todas las avisables de la vista actual. */
+export function SelectAllCheckbox({ entryIds }: { entryIds: string[] }) {
+  const { selected, setMany, disabled } = useSelection();
+  if (entryIds.length === 0) return null;
+  const allOn = entryIds.every((id) => selected.has(id));
+  return (
+    <label className="-m-1 flex h-11 w-11 cursor-pointer items-center justify-center">
+      <input
+        type="checkbox"
+        checked={allOn}
+        onChange={() => setMany(entryIds, !allOn)}
+        disabled={disabled}
+        aria-label={allOn ? "Quitar todas las personas avisables" : "Elegir todas las personas avisables"}
+        className="h-5 w-5 accent-forest disabled:cursor-not-allowed"
+      />
+    </label>
+  );
+}
+
 /** «Elegir todos» del tipo de habitación (solo las avisables de esa columna). */
 export function SelectGroupToggle({ entryIds, groupName }: { entryIds: string[]; groupName: string }) {
   const { selected, setMany, disabled } = useSelection();

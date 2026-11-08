@@ -643,6 +643,8 @@ export function ResidentsBrowser({
   const [changeType, setChangeType] = useState("");
   const [changeGender, setChangeGender] = useState("");
   const [showAdd, setShowAdd] = useState(false);
+  const [pendingOpen, setPendingOpen] = useState(false);
+  const [inviteOpen, setInviteOpen] = useState(false);
   const [respondingId, setRespondingId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [exitRequest, setExitRequest] = useState<{ stayId: string; date: string | null; nonce: number } | null>(null);
@@ -718,6 +720,19 @@ export function ResidentsBrowser({
   );
 
   const { kpis } = data;
+  // Avisos que piden una decisión: viven plegados en una sola barra para no empujar la lista.
+  const openStayChanges = data.stayChanges.filter((c) => c.status === "open").length;
+  const linkCount = canManageResidents ? data.linkRequests.length : 0;
+  const pendingParts = [
+    linkCount > 0 ? `${linkCount} ${linkCount === 1 ? "vínculo" : "vínculos"} por revisar` : null,
+    data.placeAlerts.length > 0 ? `${data.placeAlerts.length} ${data.placeAlerts.length === 1 ? "plaza liberada" : "plazas liberadas"}` : null,
+    data.stayChanges.length > 0
+      ? openStayChanges > 0
+        ? `${openStayChanges} ${openStayChanges === 1 ? "residente busca cambiar" : "residentes buscan cambiar"}`
+        : "avisos de cambio cerrados"
+      : null,
+  ].filter((t): t is string => !!t);
+  const pendingTotal = pendingParts.length;
   // Cada número es lo que muestra la lista al elegir ese filtro (mismo criterio que `filtered`).
   const tabCounts = useMemo(() => {
     const c = { todos: data.rows.length, activo: 0, por_ingresar: 0, por_salir: 0, pendiente: 0 };
@@ -768,40 +783,36 @@ export function ResidentsBrowser({
               </div>
             )}
           </div>
+          <div className="flex flex-wrap items-center gap-3 max-md:w-full">
+            {canManageResidents && (
+              <button
+                type="button"
+                aria-expanded={inviteOpen}
+                onClick={() => setInviteOpen((v) => !v)}
+                className="inline-flex min-h-12 cursor-pointer items-center gap-2 rounded-full border-[1.5px] border-(--tone)/40 bg-white/70 px-5 text-sm font-bold text-(--tone-700) hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) max-md:flex-1 max-md:justify-center"
+              >
+                <Icon name="forum" className="text-lg" /> Invitar y código de casa
+                <Icon name="expand_more" className={`text-xl transition-transform duration-300 ${inviteOpen ? "rotate-180" : ""}`} />
+              </button>
+            )}
           <button
             type="button"
             onClick={() => setShowAdd((v) => !v)}
             disabled={!canManageResidents}
             title={canManageResidents ? undefined : "Pedile este permiso al dueño."}
-            className="inline-flex min-h-[56px] cursor-pointer items-center justify-center gap-2 rounded-full bg-(--tone) px-8 text-base font-bold text-white shadow-[0_8px_20px_var(--tone-glow)] transition duration-200 ease-out-fresh motion-safe:active:scale-[0.97] hover:-translate-y-0.5 hover:bg-(--tone-600) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) disabled:cursor-not-allowed disabled:opacity-50 max-md:w-full"
+            className="inline-flex min-h-[56px] cursor-pointer items-center justify-center gap-2 rounded-full bg-(--tone) px-8 text-base font-bold text-white shadow-[0_8px_20px_var(--tone-glow)] transition duration-200 ease-out-fresh motion-safe:active:scale-[0.97] hover:-translate-y-0.5 hover:bg-(--tone-600) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) disabled:cursor-not-allowed disabled:opacity-50 max-md:w-full max-md:order-first"
           >
             <Icon name={showAdd ? "close" : "person_add"} className="text-2xl" />
             {showAdd ? "Cerrar" : "Agregar residente"}
           </button>
+          </div>
         </div>
-        {canManageResidents &&
-          (() => {
-            const panels = (
-              <div className="grid gap-3 lg:grid-cols-[1.9fr_1fr]">
-                <InviteResidentsCard residenceName={residenceName} variant="panel" />
-                <HouseCodeCard residenceId={residenceId} code={data.houseCode} variant="panel" />
-              </div>
-            );
-            // En el celu las dos tarjetas van plegadas: lo primero que se ve es la lista.
-            return isMd ? (
-              <div className="relative mt-4">{panels}</div>
-            ) : (
-              <details className="group relative mt-3">
-                <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 rounded-field bg-white/70 px-4 text-sm font-bold text-(--tone-700) marker:hidden [&::-webkit-details-marker]:hidden">
-                  <span className="inline-flex items-center gap-2">
-                    <Icon name="forum" className="text-lg" /> Invitar residentes y código de casa
-                  </span>
-                  <Icon name="expand_more" className="text-xl transition-transform duration-300 group-open:rotate-180" />
-                </summary>
-                <div className="mt-3">{panels}</div>
-              </details>
-            );
-          })()}
+        {canManageResidents && inviteOpen && (
+          <div className="relative mt-4 grid gap-3 lg:grid-cols-[1.9fr_1fr]">
+            <InviteResidentsCard residenceName={residenceName} variant="panel" />
+            <HouseCodeCard residenceId={residenceId} code={data.houseCode} variant="panel" />
+          </div>
+        )}
       </header>
 
       {showAdd && (
@@ -810,9 +821,28 @@ export function ResidentsBrowser({
         </div>
       )}
 
-      {canManageResidents && <LinkRequestsCard residenceId={residenceId} requests={data.linkRequests} stays={data.unlinkedStays} />}
+      {pendingTotal > 0 && (
+        <section aria-label="Pendientes de gestión" className="mt-5">
+          <button
+            type="button"
+            aria-expanded={pendingOpen}
+            onClick={() => setPendingOpen((v) => !v)}
+            className="flex min-h-12 w-full cursor-pointer items-center justify-between gap-3 rounded-card border-[1.5px] border-orange/40 bg-orange-tint px-4 text-left focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-(--tone)"
+          >
+            <span className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
+              <span className="inline-flex items-center gap-2 font-bold text-ink">
+                <Icon name="notifications_active" className="text-xl text-orange-700" /> Pendientes de gestión
+              </span>
+              {pendingParts.map((t) => (
+                <span key={t} className="rounded-full bg-paper px-2.5 py-0.5 text-xs font-bold text-orange-700">{t}</span>
+              ))}
+            </span>
+            <Icon name="expand_more" className={`shrink-0 text-2xl text-ink-soft transition-transform duration-300 ${pendingOpen ? "rotate-180" : ""}`} />
+          </button>
+          <div hidden={!pendingOpen}>
+        {canManageResidents && <LinkRequestsCard residenceId={residenceId} requests={data.linkRequests} stays={data.unlinkedStays} />}
 
-      <RoomChangeAlertsCard
+        <RoomChangeAlertsCard
         residenceId={residenceId}
         alerts={data.placeAlerts}
         residents={alertResidents}
@@ -821,13 +851,17 @@ export function ResidentsBrowser({
         onMessage={setToast}
       />
 
-      <StayChangeSection
+        <StayChangeSection
         residenceId={residenceId}
         items={data.stayChanges}
         onRespond={(item) => setRespondingId(item.id)}
         onRegisterExit={registerExit}
         canAct={canManageResidents}
       />
+
+          </div>
+        </section>
+      )}
 
       {toast && (
         <p role="status" className="mt-4 flex items-start gap-2 rounded-field bg-success-bg px-4 py-3 text-sm font-medium text-success-fg">
