@@ -994,6 +994,8 @@ Sin cambios de fondo. Contenido: estudiante, plaza, fecha de ingreso, duración 
 
 Visible para toda residencia (MVP: todo gratis, D8). Sin cambios de fondo respecto al original.
 
+**Layout (2026-11-08, solo presentación).** La lista tiene que verse sin scrollear en desktop. (1) El encabezado reúne «Invitá a tus residentes» y «Código de casa» como dos paneles compactos y deja «Agregar residente» aparte y destacado; en el celular los paneles van plegados. (2) Las métricas y los filtros de estado son un solo control: cada tarjeta es un filtro con su número (el mismo que muestra la lista); «Renovación» no filtra, lleva a `/renewals`. (3) Cada título de columna ordena (ascendente → descendente → orden original); los valores vacíos van siempre al final. En el celular el orden se elige en un selector.
+
 **Estadías vencidas (decisión D11, 2026-10-20).** El sistema **alerta, nunca cierra solo**: avisa a la residencia (y al estudiante) **30 días antes** del fin del contrato (`expected_end_date`) y **al vencer**, con las acciones "Renovar" y "Registrar salida". Una estadía vencida sin acción queda visible con la alerta; no pasa sola a `inactive` ni libera la plaza.
 
 **Residentes que quieren cambiar ("Quiero cambiar", DR3, 2026-10-23; `docs/04` §12bis).**

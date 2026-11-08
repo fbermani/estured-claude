@@ -39,7 +39,7 @@ function DecisionButton({ value, tone, children }: { value: "approve" | "reject"
 function RequestRow({ residenceId, item, stays }: { residenceId: string; item: LinkRequestItem; stays: UnlinkedStay[] }) {
   const [state, action] = useActionState(resolveLinkRequestAction.bind(null, residenceId, item.id), initialState);
   return (
-    <li className="rounded-[18px] border border-line bg-paper p-4 shadow-card transition-shadow hover:shadow-card-hover">
+    <li className="rounded-card border border-line bg-paper p-4 shadow-card transition-shadow hover:shadow-card-hover">
       <div className="flex flex-wrap items-center gap-2.5">
         <span aria-hidden="true" className="flex size-[42px] shrink-0 items-center justify-center rounded-full bg-(--tone-tint) font-display text-[15px] font-bold text-(--tone-700)">
           {item.studentName.charAt(0).toUpperCase()}
@@ -90,7 +90,7 @@ function RequestRow({ residenceId, item, stays }: { residenceId: string; item: L
 export function LinkRequestsCard({ residenceId, requests, stays }: { residenceId: string; requests: LinkRequestItem[]; stays: UnlinkedStay[] }) {
   if (requests.length === 0) return null;
   return (
-    <section aria-labelledby="vinculos-por-revisar" className="mb-6 grid gap-3 rounded-[30px] border-[1.5px] border-amber-soft-300 bg-gradient-to-b from-amber-soft-100 to-paper to-60% p-4 sm:p-5">
+    <section aria-labelledby="vinculos-por-revisar" className="mb-6 grid gap-3 rounded-card border-[1.5px] border-line border-l-4 border-l-orange bg-paper p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 id="vinculos-por-revisar" className="flex items-center gap-2 font-display text-lg font-bold text-ink">
           <Icon name="link" className="text-2xl text-amber-soft-700" />
@@ -108,20 +108,32 @@ export function LinkRequestsCard({ residenceId, requests, stays }: { residenceId
   );
 }
 
+/** Contenedor: tarjeta suelta o panel compacto dentro del encabezado. */
+function Shell({ panel, children }: { panel: boolean; children: React.ReactNode }) {
+  return panel ? (
+    <div className="h-full rounded-card border border-white/70 bg-white/80 p-4 shadow-card">{children}</div>
+  ) : (
+    <Card className="mb-6 p-5">{children}</Card>
+  );
+}
+
 /** Código de casa: se lo das a quien vive acá para que llegue directo a tu residencia (igual pasa por tu aprobación). */
-export function HouseCodeCard({ residenceId, code }: { residenceId: string; code: string | null }) {
+export function HouseCodeCard({ residenceId, code, variant = "card" }: { residenceId: string; code: string | null; variant?: "card" | "panel" }) {
+  const panel = variant === "panel";
   const [state, action, pending] = useActionState(regenerateHouseCodeAction.bind(null, residenceId), initialState);
   const current = state.status === "saved" && state.message ? state.message : code;
   return (
-    <Card className="mb-6 p-5">
-      <div className="flex flex-wrap items-center gap-4">
-        <span className="flex size-11 items-center justify-center rounded-[14px] bg-(--tone-tint) text-(--tone-700)"><Icon name="pin" className="text-2xl" /></span>
+    <Shell panel={panel}>
+      <div className="flex items-start gap-3">
+        <span className={`flex shrink-0 items-center justify-center rounded-field bg-(--tone-tint) text-(--tone-700) ${panel ? "size-10" : "size-11"}`}><Icon name="pin" className={panel ? "text-xl" : "text-2xl"} /></span>
         <div className="min-w-0 flex-1">
-          <h2 className="font-bold text-ink">Código de casa</h2>
-          <p className="mt-0.5 text-sm text-ink-soft">Con este código, quien se registra solo llega directo a tu residencia.</p>
+          <h2 className={`font-bold text-ink ${panel ? "text-[15px]" : ""}`}>Código de casa</h2>
+          <p className={`mt-0.5 text-ink-soft ${panel ? "text-[13px] leading-snug" : "text-sm"}`}>Con este código, quien se registra solo llega directo a tu residencia.</p>
         </div>
+      </div>
+      <div className={`flex flex-wrap items-center gap-2 ${panel ? "mt-2" : "mt-3"}`}>
         {current ? (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <span className="rounded-field bg-cream-2 px-3 py-1.5 font-mono text-lg font-bold tracking-widest text-ink">{current}</span>
             <CopyButton value={current} label="el código de casa" />
           </div>
@@ -138,6 +150,6 @@ export function HouseCodeCard({ residenceId, code }: { residenceId: string; code
           {state.message}
         </p>
       )}
-    </Card>
+    </Shell>
   );
 }
