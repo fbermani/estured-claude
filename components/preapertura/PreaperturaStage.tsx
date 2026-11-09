@@ -44,7 +44,7 @@ export function PreaperturaStage({
         <button
           type="button"
           onClick={() => setDevRevealed(false)}
-          className="fixed right-4 top-3.5 z-[60] inline-flex min-h-11 items-center gap-1.5 rounded-full border-[1.5px] border-paper bg-forest-ink px-4 text-sm font-bold whitespace-nowrap text-paper shadow-float focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest-ink focus-visible:shadow-[0_0_0_2px_var(--color-paper)]"
+          className="fixed left-4 top-[7.5rem] z-[60] inline-flex min-h-11 items-center gap-1.5 rounded-full border-[1.5px] border-paper bg-forest-ink px-4 text-sm font-bold whitespace-nowrap text-paper shadow-float focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest-ink focus-visible:shadow-[0_0_0_2px_var(--color-paper)]"
         >
           <Icon name="open_in_new" className="text-lg" />
           Volver al popup (solo dev)
