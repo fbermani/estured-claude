@@ -8,6 +8,7 @@ import { getSafeUser } from "@/lib/supabase/safe-get-user";
 import { createAuditLog } from "@/lib/audit";
 import { validatePassword } from "@/lib/auth/password";
 import { COMMUNITY_RAIL_TAG } from "@/lib/preapertura/communityRailData";
+import { DEV_BIRTH_DATE, devAutoAccountsEnabled, devCredentials } from "@/lib/preapertura/devAccounts";
 import { isPreaperturaOn } from "@/lib/preapertura/flag";
 import { PREAPERTURA_CONSENT_VERSION, clientIpOf, createStudentAccount } from "@/lib/preapertura/accounts";
 import { INVITE_MESSAGES, resolveInvitation, type ResolvedInvitation } from "@/lib/preapertura/invitations";
@@ -33,10 +34,21 @@ export async function registerStudentStep1(_prev: Step1State, formData: FormData
   if (!isPreaperturaOn()) return stepError(UNAVAILABLE, undefined);
   const headerStore = await headers();
   const invitationToken = String(formData.get("invitacion") ?? "").trim();
-  const typedEmail = normalizeEmail(formData.get("email"));
-  const password = String(formData.get("password") ?? "");
-  const birthRaw = String(formData.get("birth_date") ?? "").trim();
-  const acceptTerms = formData.get("accept_terms") === "on";
+  let typedEmail = normalizeEmail(formData.get("email"));
+  let password = String(formData.get("password") ?? "");
+  let birthRaw = String(formData.get("birth_date") ?? "").trim();
+  let acceptTerms = formData.get("accept_terms") === "on";
+
+  // SOLO DESARROLLO: el envío completamente vacío crea una cuenta de prueba (`test-preap-est-…@estured.test`, 18+, términos aceptados) y
+  // sigue al paso 2. Con cualquier campo escrito, con invitación, o fuera de desarrollo (producción y tests), la validación normal queda intacta.
+  const devAuto = devAutoAccountsEnabled() && !invitationToken && !typedEmail && !password && !birthRaw;
+  if (devAuto) {
+    const creds = devCredentials("est");
+    typedEmail = creds.email;
+    password = creds.password;
+    birthRaw = DEV_BIRTH_DATE;
+    acceptTerms = true;
+  }
   const values = { email: typedEmail, birth_date: birthRaw };
 
   const admin = getSupabaseAdmin();
@@ -64,7 +76,7 @@ export async function registerStudentStep1(_prev: Step1State, formData: FormData
 
   if (!acceptTerms) return stepError("Necesitamos que aceptes los Términos y la Privacidad para sumarte.", values, "accept_terms");
 
-  if (!signupAllowed(headerStore, email)) return stepError(PREAPERTURA_TOO_MANY_ATTEMPTS, values);
+  if (!devAuto && !signupAllowed(headerStore, email)) return stepError(PREAPERTURA_TOO_MANY_ATTEMPTS, values);
 
   const result = await createStudentAccount(admin, {
     email,
@@ -86,7 +98,11 @@ export async function registerStudentStep1(_prev: Step1State, formData: FormData
   // Sesión iniciada: el cliente sigue al paso 2. Si el inicio de sesión fallara, la cuenta ya existe: se va a ingresar.
   const supabase = await getSupabaseServer();
   const signedIn = supabase ? await supabase.auth.signInWithPassword({ email, password }) : null;
-  return { status: "success", redirectTo: signedIn && !signedIn.error ? "/preregistro/perfil" : "/login" };
+  return {
+    status: "success",
+    redirectTo: signedIn && !signedIn.error ? "/preregistro/perfil" : "/login",
+    ...(devAuto ? { devEmail: email } : {}),
+  };
 }
 
 /**

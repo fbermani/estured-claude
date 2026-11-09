@@ -1,5 +1,7 @@
 "use client";
 
+import { DevAccountNotice } from "@/components/preapertura/DevAccountNotice";
+import { BackNav } from "@/components/preapertura/BackNav";
 import { startTransition, useActionState, useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -52,7 +54,7 @@ const FIELD_CLASS = "min-h-12 aria-invalid:border-danger-fg";
  * La validación real (listas cerradas, longitudes, 2 hábitos y 2 intereses) es la del servidor. Un menor invitado no puede activar
  * la comunidad: el casillero va deshabilitado («Disponible desde los 18 años»).
  */
-export function ProfileForm({ initial, age, isMinor }: { initial: ProfileInitial; age: number | null; isMinor: boolean }) {
+export function ProfileForm({ initial, age, isMinor, devAccount = false }: { initial: ProfileInitial; age: number | null; isMinor: boolean; devAccount?: boolean }) {
   const router = useRouter();
   const [state, formAction, isPending] = useActionState<ProfileState, FormData>(async (prev, formData) => {
     try {
@@ -123,6 +125,8 @@ export function ProfileForm({ initial, age, isMinor }: { initial: ProfileInitial
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] @min-[860px]:grid-cols-[minmax(0,1fr)_300px]">
       <div className="p-5 @min-[640px]:px-9 @min-[640px]:py-8">
+        <BackNav href="/mi-lugar">Volver a Mi lugar</BackNav>
+        {devAccount && <DevAccountNotice className="mt-1" />}
         <p className="flex items-center gap-2 text-sm font-bold text-ink-soft">
           <StepDots step={2} />
           Paso 2 de 2, tu perfil

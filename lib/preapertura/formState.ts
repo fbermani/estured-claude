@@ -13,6 +13,8 @@ export type Step1State = Base & {
   /** Valores no sensibles para repoblar tras un error (nunca la contraseña). */
   values?: { email?: string; birth_date?: string };
   redirectTo?: string;
+  /** Solo desarrollo: se creó una cuenta de prueba autogenerada (envío vacío). Es el mail de prueba, nunca la contraseña. */
+  devEmail?: string;
 };
 
 export type ProfileState = Base & {
@@ -30,6 +32,8 @@ export type FamilyState = Base & {
   inviteeEmail?: string;
   emailSent?: boolean;
   redirectTo?: string;
+  /** Solo desarrollo: cuenta de prueba autogenerada por enviar vacío. */
+  devEmail?: string;
 };
 
 export const NETWORK_MESSAGE = "Revisá tu conexión y probá de nuevo. Tus datos siguen acá.";

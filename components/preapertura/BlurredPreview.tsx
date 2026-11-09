@@ -14,14 +14,14 @@ export function BlurredPreview({ revealed = false, label = "Así se va a ver Est
         aria-hidden={revealed ? undefined : true}
         inert={!revealed}
         className={`absolute inset-0 overflow-y-auto overflow-x-hidden ${
-          revealed ? "" : "scale-[1.015] blur-[6px] saturate-[.92] select-none [scrollbar-width:none]"
+          revealed ? "" : "scale-[1.015] blur-[5px] saturate-[.92] select-none [scrollbar-width:none]"
         }`}
       >
         {children}
       </div>
       {!revealed && (
         <>
-          <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-forest-ink/30" />
+          <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-forest-ink/18" />
           <p
             aria-hidden="true"
             className="pointer-events-none absolute left-4 top-3.5 z-[3] inline-flex items-center gap-1.5 rounded-full bg-forest-ink/85 px-3 py-1.5 text-xs font-bold text-white"

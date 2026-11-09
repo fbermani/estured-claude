@@ -1,3 +1,4 @@
+import { DevAccountNotice } from "@/components/preapertura/DevAccountNotice";
 import Link from "next/link";
 import { signOut } from "@/app/(public)/login/actions";
 import { Button } from "@/components/ui/Button";
@@ -68,16 +69,19 @@ export function MiLugarContent({
   data,
   position,
   rail,
+  devAccount = false,
 }: {
   data: MiLugarData;
   position: number | null;
   rail: { cards: RailCard[]; hasExamples: boolean };
+  devAccount?: boolean;
 }) {
   const isStudent = data.role === "student";
   const showBoost = isStudent && data.profilePercent != null && data.profilePercent < 100;
   return (
     <div>
       <div className="grid justify-items-center gap-2.5 bg-forest-ink px-5 pb-6 pt-8 text-center text-white sm:px-10 sm:pb-7 sm:pt-9">
+        {devAccount && <DevAccountNotice />}
         <span aria-hidden="true" className="grid size-14 place-items-center rounded-full bg-gold text-forest-ink">
           <Icon name="check" className="text-4xl" />
         </span>

@@ -28,9 +28,9 @@ vi.mock("@/lib/email/sendEmail", () => ({
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { createStudentAccount } from "@/lib/preapertura/accounts";
 import { hashInviteToken } from "@/lib/preapertura/invitations";
-import { saveProfile } from "@/app/(preapertura)/preregistro/actions";
+import { registerStudentStep1, saveProfile } from "@/app/(preapertura)/preregistro/actions";
 import { registerFamilyInvite } from "@/app/(preapertura)/preregistro/familiar/actions";
-import type { FamilyState } from "@/lib/preapertura/formState";
+import type { FamilyState, Step1State } from "@/lib/preapertura/formState";
 
 const admin = getSupabaseAdmin();
 const stamp = `${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
@@ -194,5 +194,78 @@ describe("saveProfile: un menor invitado nunca persiste la comunidad", () => {
     expect((await saveProfile({ status: "idle" }, form(profile(true)))).status).toBe("success");
     const { data } = await admin.from("preapertura_estudiantes").select("consent_comunidad").eq("user_id", adult.userId).single();
     expect(data).toMatchObject({ consent_comunidad: true });
+  });
+});
+
+describe("envío vacío: cuenta de prueba SOLO en desarrollo", () => {
+  const EMPTY_STEP1 = { email: "", password: "", birth_date: "" };
+  const EMPTY_FAMILY = { email: "", student_email: "", password: "" };
+  const STEP1: Step1State = { status: "idle" };
+
+  it("PRODUCCIÓN: el paso 1 vacío falla con la validación normal y no crea ninguna cuenta", async (ctx) => {
+    if (!admin || !ready) return ctx.skip();
+    const countBefore = (await admin.from("users").select("id", { count: "exact", head: true }).like("email", "test-preap-est-%")).count;
+    const state = await registerStudentStep1(STEP1, form(EMPTY_STEP1));
+    expect(state.status).toBe("error");
+    expect(state.fieldErrors).toHaveProperty("email");
+    expect(state).not.toHaveProperty("devEmail");
+    const countAfter = (await admin.from("users").select("id", { count: "exact", head: true }).like("email", "test-preap-est-%")).count;
+    expect(countAfter).toBe(countBefore); // ninguna cuenta autogenerada nueva
+  });
+
+  it("PRODUCCIÓN: el registro familiar vacío falla con la validación normal y no crea nada", async (ctx) => {
+    if (!admin || !ready) return ctx.skip();
+    const countBefore = (await admin.from("users").select("id", { count: "exact", head: true }).like("email", "test-preap-fam-%")).count;
+    const state = await registerFamilyInvite(IDLE, form(EMPTY_FAMILY));
+    expect(state.status).toBe("error");
+    expect(state).not.toHaveProperty("devEmail");
+    expect(state).not.toHaveProperty("invitePath");
+    const countAfter = (await admin.from("users").select("id", { count: "exact", head: true }).like("email", "test-preap-fam-%")).count;
+    expect(countAfter).toBe(countBefore);
+    expect(sent).toHaveLength(0);
+  });
+
+  it("también fuera de desarrollo (entorno de test): vacío nunca autogenera", async () => {
+    vi.stubEnv("NODE_ENV", "test");
+    expect((await registerStudentStep1(STEP1, form(EMPTY_STEP1))).status).toBe("error");
+    expect((await registerFamilyInvite(IDLE, form(EMPTY_FAMILY))).status).toBe("error");
+  });
+
+  it("DESARROLLO: el paso 1 vacío crea una cuenta de prueba identificable (18+, con sesión) y sigue al paso 2", async (ctx) => {
+    if (!admin || !ready) return ctx.skip();
+    vi.stubEnv("NODE_ENV", "development");
+    const state = await registerStudentStep1(STEP1, form(EMPTY_STEP1));
+    expect(state.status).toBe("success");
+    expect(state.redirectTo).toBe("/preregistro/perfil");
+    expect(state.devEmail).toMatch(/^test-preap-est-[0-9a-f]{8}@estured\.test$/);
+    known.push(state.devEmail!);
+    const id = await userIdByEmail(state.devEmail!);
+    const { data } = await admin.from("preapertura_estudiantes").select("role, consent_c, birth_date").eq("user_id", id!).single();
+    expect(data).toMatchObject({ role: "student", consent_c: true, birth_date: "2000-01-15" });
+    expect(JSON.stringify(state)).not.toMatch(/password|Dev-/);
+  });
+
+  it("DESARROLLO: con cualquier campo escrito la validación normal sigue intacta (no se autogenera)", async (ctx) => {
+    if (!admin || !ready) return ctx.skip();
+    vi.stubEnv("NODE_ENV", "development");
+    const state = await registerStudentStep1(STEP1, form({ email: "no-es-un-mail", password: "", birth_date: "" }));
+    expect(state.status).toBe("error");
+    expect(state.fieldErrors).toHaveProperty("email");
+    const family = await registerFamilyInvite(IDLE, form({ email: "", student_email: "", password: "solo-esto" }));
+    expect(family.status).toBe("error");
+  });
+
+  it("DESARROLLO: el registro familiar vacío crea familiar + invitación de prueba y muestra el link, sin mandar mail", async (ctx) => {
+    if (!admin || !ready) return ctx.skip();
+    vi.stubEnv("NODE_ENV", "development");
+    const state = await registerFamilyInvite(IDLE, form(EMPTY_FAMILY));
+    expect(state.status).toBe("success");
+    expect(state.devEmail).toMatch(/^test-preap-fam-[0-9a-f]{8}@estured\.test$/);
+    expect(state.invitePath).toMatch(/^\/preregistro\?invitacion=/);
+    known.push(state.devEmail!);
+    expect(sent).toHaveLength(0);
+    const familyId = await userIdByEmail(state.devEmail!);
+    const { data: inv } = await admin.from("preapertura_invitaciones").select("invitee_email").eq("inviter_user_id", familyId!).single();
+    expect(inv?.invitee_email).toMatch(/^test-preap-hijo-[0-9a-f]{8}@estured\.test$/);
   });
 });

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { BackNav } from "@/components/preapertura/BackNav";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { Countdown } from "@/components/preapertura/Countdown";
@@ -51,7 +51,10 @@ export function FoundersContent({ state, closure, counter }: { state: FounderSta
   const closed = closure.kind === "closed";
   return (
     <div>
-      <div className="grid gap-3 bg-forest-ink px-5 pb-6 pt-7 text-white sm:px-9 sm:pb-7 sm:pt-9">
+      <div className="grid gap-3 bg-forest-ink px-5 pb-6 pt-4 text-white sm:px-9 sm:pb-7 sm:pt-5">
+        <BackNav href="/" tone="dark">
+          Volver al inicio
+        </BackNav>
         <span className="inline-flex items-center gap-2 justify-self-start rounded-full bg-gold py-1.5 pl-1.5 pr-4 text-sm font-bold text-forest-ink">
           <Icon name="workspace_premium" className="rounded-full bg-forest-ink p-1 text-base text-gold" />
           Residencias fundadoras
@@ -124,9 +127,6 @@ export function FoundersContent({ state, closure, counter }: { state: FounderSta
             Recibís tu cuenta
           </span>
         </p>
-        <Link href="/" className="inline-flex min-h-11 items-center justify-center rounded-field text-sm font-bold text-ink-soft hover:text-ink hover:underline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest-ink">
-          Volver al inicio
-        </Link>
       </div>
     </div>
   );

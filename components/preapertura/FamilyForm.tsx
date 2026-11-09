@@ -1,5 +1,7 @@
 "use client";
 
+import { DevAccountNotice, DevEmptyHint } from "@/components/preapertura/DevAccountNotice";
+import { BackNav } from "@/components/preapertura/BackNav";
 import { startTransition, useActionState, useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
@@ -62,6 +64,7 @@ export function FamilyForm({ loggedIn }: { loggedIn: boolean }) {
           Listo, ya estás adentro
         </h1>
         <div id="pre-family-done" tabIndex={-1} className="mt-4 grid gap-3 rounded-field focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest-ink" role="status">
+          {state.devEmail && <DevAccountNotice email={state.devEmail} />}
           <FormAlert
             tone="ok"
             icon="check_circle"
@@ -87,6 +90,7 @@ export function FamilyForm({ loggedIn }: { loggedIn: boolean }) {
 
   return (
     <div className="p-5 @min-[640px]:px-9 @min-[640px]:py-8">
+      <BackNav href="/">Volver al inicio</BackNav>
       <p className="text-sm font-bold text-ink-soft">Registro familiar</p>
       <h1 id="pre-family-title" className="mt-3 font-display text-3xl leading-tight tracking-tight text-ink">
         Registrate primero e invitalo/a
@@ -198,6 +202,7 @@ export function FamilyForm({ loggedIn }: { loggedIn: boolean }) {
           {errors?.accept_terms && <p>{errorHint(errors, "accept_terms", "pre")}</p>}
         </div>
         <SubmitButton isPending={isPending} idle="Crear cuenta e invitar" pending="Creando y enviando…" />
+        <DevEmptyHint />
       </form>
 
       <p className="mt-4 text-center text-sm text-ink-soft">

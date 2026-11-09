@@ -1,5 +1,7 @@
 "use client";
 
+import { DevEmptyHint } from "@/components/preapertura/DevAccountNotice";
+import { BackNav } from "@/components/preapertura/BackNav";
 import { startTransition, useActionState, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -62,6 +64,7 @@ export function Step1Form({ invitation, loggedIn }: { invitation: { token: strin
 
   return (
     <div className="p-5 @min-[640px]:px-9 @min-[640px]:py-8">
+      <BackNav href="/">Volver al inicio</BackNav>
       <p className="flex items-center gap-2 text-sm font-bold text-ink-soft">
         <StepDots step={1} />
         Paso 1 de 2, tu cuenta
@@ -194,6 +197,7 @@ export function Step1Form({ invitation, loggedIn }: { invitation: { token: strin
               {errors?.accept_terms && <p>{errorHint(errors, "accept_terms", "pre")}</p>}
             </div>
             <SubmitButton isPending={isPending} idle="Crear mi cuenta gratis" pending="Creando tu cuenta…" />
+            <DevEmptyHint />
           </>
         )}
       </form>

@@ -6,6 +6,7 @@ import { getSupabaseServer } from "@/lib/supabase/server";
 import { validatePassword } from "@/lib/auth/password";
 import { isEmailProviderConfigured, sendEmail } from "@/lib/email/sendEmail";
 import { SITE_URL } from "@/lib/siteUrl";
+import { devAutoAccountsEnabled, devCredentials } from "@/lib/preapertura/devAccounts";
 import { isPreaperturaOn } from "@/lib/preapertura/flag";
 import { clientIpOf, createFamilyAccount } from "@/lib/preapertura/accounts";
 import { PREAPERTURA_TOO_MANY_ATTEMPTS, signupAllowed } from "@/lib/preapertura/throttle";
@@ -33,13 +34,25 @@ function fail(message: string, values: FamilyState["values"], field?: string, co
 export async function registerFamilyInvite(_prev: FamilyState, formData: FormData): Promise<FamilyState> {
   if (!isPreaperturaOn()) return fail(UNAVAILABLE, undefined);
   const headerStore = await headers();
-  const email = normalizeEmail(formData.get("email"));
-  const studentEmail = normalizeEmail(formData.get("student_email"));
-  const password = String(formData.get("password") ?? "");
-  const acceptTerms = formData.get("accept_terms") === "on";
-  const declaredAdult = formData.get("accept_adult") === "on";
-  const values = { email, student_email: studentEmail };
+  let email = normalizeEmail(formData.get("email"));
+  let studentEmail = normalizeEmail(formData.get("student_email"));
+  let password = String(formData.get("password") ?? "");
+  let acceptTerms = formData.get("accept_terms") === "on";
+  let declaredAdult = formData.get("accept_adult") === "on";
   const isDev = process.env.NODE_ENV === "development";
+
+  // SOLO DESARROLLO: el envío completamente vacío crea un familiar de prueba + una invitación de prueba (mails `test-preap-…@estured.test`,
+  // sin mandar mail) y devuelve el link copiable. Con cualquier campo escrito o fuera de desarrollo (producción y tests): validación normal.
+  const devAuto = devAutoAccountsEnabled() && !email && !studentEmail && !password;
+  if (devAuto) {
+    const fam = devCredentials("fam");
+    email = fam.email;
+    password = fam.password;
+    studentEmail = devCredentials("hijo").email;
+    acceptTerms = true;
+    declaredAdult = true;
+  }
+  const values = { email, student_email: studentEmail };
 
   if (!isPlausibleEmail(email)) return fail("Escribí tu email completo, por ejemplo nombre@gmail.com.", values, "email");
   const passwordError = validatePassword(password);
@@ -48,7 +61,7 @@ export async function registerFamilyInvite(_prev: FamilyState, formData: FormDat
   if (studentEmail === email) return fail("Ese es tu email. Escribí el de tu hijo/a.", values, "student_email");
   if (!declaredAdult) return fail("Tenés que declarar que sos mayor de 18 años.", values, "accept_adult");
   if (!acceptTerms) return fail("Necesitamos que aceptes los Términos y la Privacidad para sumarte.", values, "accept_terms");
-  if (!signupAllowed(headerStore, email)) return fail(PREAPERTURA_TOO_MANY_ATTEMPTS, values);
+  if (!devAuto && !signupAllowed(headerStore, email)) return fail(PREAPERTURA_TOO_MANY_ATTEMPTS, values);
 
   // Sin proveedor de mail no hay forma de entregar la invitación: no se crea nada (solo en desarrollo se sigue, para probar con el link).
   if (!isDev && !isEmailProviderConfigured()) return fail(MAIL_UNAVAILABLE, values);
@@ -71,7 +84,8 @@ export async function registerFamilyInvite(_prev: FamilyState, formData: FormDat
 
   const invitePath = `/preregistro?invitacion=${encodeURIComponent(result.inviteToken)}`;
   // La invitación sale por mail con el sitio configurado (nunca con el Host del pedido: evita que alguien arme mails con otro dominio).
-  const emailSent = await sendEmail({
+  // La cuenta de prueba autogenerada no manda mail (el destinatario es un `.test` inexistente): se usa el link de desarrollo.
+  const emailSent = devAuto ? false : await sendEmail({
     to: studentEmail,
     subject: "Te invitaron a sumarte a EstuRed",
     html: `<p>Un familiar te invitó a sumarte a EstuRed, la plataforma para encontrar residencias estudiantiles verificadas en Buenos Aires.</p><p><a href="${SITE_URL}${invitePath}">Sumate desde este link</a></p><p>Si no esperabas este mensaje, ignoralo.</p>`,
@@ -92,5 +106,6 @@ export async function registerFamilyInvite(_prev: FamilyState, formData: FormDat
     redirectTo: "/mi-lugar",
     // Solo desarrollo: el link para probar sin mail. En producción el token no sale del servidor ni del mail al invitado.
     ...(isDev ? { invitePath } : {}),
+    ...(devAuto ? { devEmail: email } : {}),
   };
 }

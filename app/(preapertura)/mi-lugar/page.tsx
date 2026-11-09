@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { PreaperturaStage } from "@/components/preapertura/PreaperturaStage";
 import { DashboardPreview } from "@/components/preapertura/DashboardPreview";
 import { MiLugarContent } from "@/components/preapertura/MiLugarContent";
+import { devAutoAccountsEnabled, isDevAutoEmail } from "@/lib/preapertura/devAccounts";
 import { getStudentPosition } from "@/lib/preapertura/counts";
 import { getCommunityRail } from "@/lib/preapertura/communityRailData";
 import { loadMiLugar, type MiLugarData } from "@/lib/preapertura/miLugar";
@@ -40,7 +41,7 @@ export default async function MiLugarPage() {
       describedBy="pre-lugar-text"
       size="lugar"
     >
-      <MiLugarContent data={data} position={position} rail={rail} />
+      <MiLugarContent data={data} position={position} rail={rail} devAccount={devAutoAccountsEnabled() && isDevAutoEmail(user.email)} />
     </PreaperturaStage>
   );
 }

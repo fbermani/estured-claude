@@ -7,6 +7,7 @@ import { CAREER_OPTIONS, OTHER_CAREER } from "@/lib/preapertura/options";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { getSafeUser } from "@/lib/supabase/safe-get-user";
+import { devAutoAccountsEnabled, isDevAutoEmail } from "@/lib/preapertura/devAccounts";
 import { ageByBirthDate, isMinorByBirthDate } from "@/lib/students/isMinorByBirthDate";
 
 export const metadata: Metadata = { title: "Armá tu perfil", robots: { index: false, follow: false } };
@@ -61,7 +62,12 @@ export default async function PerfilPage() {
 
   return (
     <PreaperturaStage preview={<LandingPreview />} labelledBy="pre-profile-title" size="form" initialFocus="#pre-first_name">
-      <ProfileForm initial={initial} age={ageByBirthDate(row.birth_date)} isMinor={isMinorByBirthDate(row.birth_date)} />
+      <ProfileForm
+        initial={initial}
+        age={ageByBirthDate(row.birth_date)}
+        isMinor={isMinorByBirthDate(row.birth_date)}
+        devAccount={devAutoAccountsEnabled() && isDevAutoEmail(user.email)}
+      />
     </PreaperturaStage>
   );
 }

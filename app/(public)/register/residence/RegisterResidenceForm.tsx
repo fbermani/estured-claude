@@ -88,7 +88,8 @@ function SuccessPreapertura({ founder }: { founder: FounderPlace | undefined }) 
             {CONTACT_EMAIL}
           </a>
         </p>
-        <Link href="/" className="inline-flex min-h-11 items-center justify-center rounded-field text-sm font-bold text-ink-soft hover:text-ink hover:underline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest-ink">
+        <Link href="/" className="inline-flex min-h-11 items-center justify-center gap-1 rounded-field text-sm font-bold text-ink-soft hover:text-ink hover:underline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest-ink">
+          <Icon name="arrow_back" className="text-xl" />
           Volver al inicio
         </Link>
       </div>
