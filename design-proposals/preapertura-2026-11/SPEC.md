@@ -5,7 +5,7 @@ Mockups: `index.html` y una página por pantalla. La barra oscura de arriba es s
 ## Patrón común: landing blureada + pop-up
 - **Fondo:** la landing de preapertura completa (hero, residencias, beneficios, carrusel de comunidad, paso a paso) renderizada con `filter: blur(6px)`, un velo `forest-ink` al 20–40 %, `aria-hidden` + `inert` y scroll propio. Etiqueta fija «Así se va a ver EstuRed», con candado.
   - En Mi lugar, el fondo es el panel del estudiante blureado («Tu panel · se activa cuando abramos»).
-  - En residencias, es `/for-residences` blureado, sin los planes.
+  - En residencias, es la `/for-residences` REAL blureada (decisión posterior del dueño: planes incluidos, escenografía inerte). Con la entrada y los pasos, el fondo es la home real. Ya no hay maquetas.
 - **Pop-up (`PreaperturaDialog`):** `role=dialog` + `aria-modal`, no se puede cerrar, recibe el foco al entrar y lo mantiene adentro.
   - Desktop: centrado, de 540 px (entrada), 680 px (residencias) o 900–980 px (pasos con panel lateral).
   - El pop-up flota siempre: margen de al menos 48 px en desktop (el fondo blureado se ve por todos lados), sombra profunda y radio de 30 px. Los pasos con panel lateral lo llevan como tarjeta interna redondeada (padding de 10 px).

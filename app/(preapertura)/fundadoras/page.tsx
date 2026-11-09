@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { PreaperturaStage } from "@/components/preapertura/PreaperturaStage";
-import { ResidencesPreview } from "@/components/preapertura/ResidencesPreview";
+import { ResidencesBackdrop } from "@/components/preapertura/ResidencesBackdrop";
 import { FoundersContent } from "@/components/preapertura/FoundersContent";
 import { getFounderClosure, getFounderInputs, getStudentCount } from "@/lib/preapertura/counts";
 import { founderState, studentCounter } from "@/lib/preapertura/rules";
@@ -22,7 +22,7 @@ export default async function FundadorasPage() {
   const [inputs, count] = await Promise.all([getFounderInputs(), getStudentCount()]);
   return (
     <PreaperturaStage
-      preview={<ResidencesPreview />}
+      preview={<ResidencesBackdrop />}
       previewLabel="Así se va a ver EstuRed para residencias"
       labelledBy="pre-fund-title"
       describedBy="pre-fund-text"

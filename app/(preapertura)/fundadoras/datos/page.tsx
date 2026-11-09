@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { getSessionUser, roleHome } from "@/lib/auth/session";
 import { devAutoAccountsEnabled } from "@/lib/preapertura/devAccounts";
 import { PreaperturaStage } from "@/components/preapertura/PreaperturaStage";
-import { ResidencesPreview } from "@/components/preapertura/ResidencesPreview";
+import { ResidencesBackdrop } from "@/components/preapertura/ResidencesBackdrop";
 import { RegisterResidenceForm } from "@/app/(public)/register/residence/RegisterResidenceForm";
 
 export const metadata: Metadata = { title: "Sumar mi residencia", robots: { index: false, follow: false } };
@@ -23,7 +23,7 @@ export default async function SolicitudResidenciaPage({ searchParams }: { search
   const devSuccess = devAutoAccountsEnabled() && (dev === "cupo" || dev === "lleno" || dev === "cerrado") ? dev : undefined;
   return (
     <PreaperturaStage
-      preview={<ResidencesPreview />}
+      preview={<ResidencesBackdrop />}
       previewLabel="Así se va a ver EstuRed para residencias"
       labelledBy="pre-resi-title"
       size="mid"

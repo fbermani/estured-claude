@@ -17,7 +17,7 @@ Decisiones: `docs/00_DECISION_LOG.md` DR42–DR47 (mandan ante cualquier contrad
 - Fase 3: `/fundadoras` (popup de fundadoras; su CTA lleva a `/register/residence`, que con flag se reescribe a `/fundadoras/datos`), `/consentimientos` (legales; la misma sección «preapertura» vive en `/terms` y `/privacy` con flag) y `FOUNDERS_CLOSE_AT` (env opcional, ISO 8601: sin ella no hay cuenta regresiva).
 - `/guias`: no se enlaza y **no se redirige** (SEO). Landings, Navbar y Footer actuales no se tocan; al abrir se apaga el flag.
 - Tablas nuevas (preinscriptos, interesados); no se reutiliza `waitlist_signups`.
-- Patrón visual: landing blureada (`inert`, `aria-hidden`) + `PreaperturaDialog` (`role=dialog`, no cerrable, foco atrapado; bottom-sheet en <640 px). Componentes nuevos: `PreaperturaDialog`, `BlurredPreview`, `EarlyAccessPill`, `FreeBadge`, `LiveCount`, `MiniCommunityRail`, `ProfileMeter`, `FounderMeter`, `Countdown`. Detalle en `SPEC.md`.
+- Patrón visual: la landing REAL de fondo, completa y con su Navbar y Footer reales (`HomeBackdrop` = `HomeLanding` de la home; `ResidencesBackdrop` = `ResidencesLanding` de `/for-residences`, planes incluidos; ambas extraídas de las rutas para renderizar idéntico), en flujo normal con scroll del documento, `inert` + `aria-hidden`, con blur y velo en una capa fija (nunca maquetas) + `PreaperturaDialog` (`role=dialog`, no cerrable, foco atrapado; bottom-sheet en <640 px). Componentes nuevos: `PreaperturaDialog`, `BlurredPreview`, `EarlyAccessPill`, `FreeBadge`, `LiveCount`, `MiniCommunityRail`, `ProfileMeter`, `FounderMeter`, `Countdown`. Detalle en `SPEC.md`.
 
 ## 3. Flujo del estudiante (DR43)
 
@@ -43,7 +43,7 @@ Decisiones: `docs/00_DECISION_LOG.md` DR42–DR47 (mandan ante cualquier contrad
 
 ## 6. Residencias fundadoras (DR46)
 
-- Entrada: CTA destacado en la landing («Quiero ser fundadora») → resumen de `/for-residences` (hero, beneficios, previsibilidad, «Gratis»; sin planes) → «Quiero que me contacten».
+- Entrada: CTA destacado en la landing («Quiero ser fundadora») → pantalla de fundadoras (popup sobre la `/for-residences` real; el dueño aceptó que se vean los planes como escenografía inerte) → «Quiero que me contacten».
 - Cupo **real de 10** (solicitudes + en verificación; el lugar se libera si no avanza). **Prohibido** bajar el cupo sin altas reales. Cuenta regresiva a fecha real (pendiente). Frase «ya hay residencias registrándose» solo con la primera externa; contador de residencias desde 3 reales.
 - Beneficios: insignia «Residencia fundadora» + jerarquía al abrir (con etiqueta explícita) y Plan Premium bonificado el primer año en una línea, sin planes ni precios. Sin descuento en comisión.
 - Formulario (`/register/residence`, tabla `residence_signup_requests`, sin cuenta): 5 campos obligatorios (residencia, **dirección**, responsable, teléfono/WhatsApp, email). Pantalla de éxito + email; el equipo contacta, coordina charla y visita, y recién ahí entrega la cuenta. Sin «Mi lugar» para dueños.
