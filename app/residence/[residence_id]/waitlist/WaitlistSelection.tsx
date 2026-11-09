@@ -42,21 +42,9 @@ export function WaitlistSelectionProvider({
       selected,
       disabled: !canManage,
       toggle: (id) =>
-        setSelected((prev) => {
-          const next = new Set(prev);
-          if (next.has(id)) next.delete(id);
-          else next.add(id);
-          return next;
-        }),
+        setSelected((prev) => (prev.has(id) ? new Set([...prev].filter((x) => x !== id)) : new Set([...prev, id]))),
       setMany: (ids, on) =>
-        setSelected((prev) => {
-          const next = new Set(prev);
-          for (const id of ids) {
-            if (on) next.add(id);
-            else next.delete(id);
-          }
-          return next;
-        }),
+        setSelected((prev) => (on ? new Set([...prev, ...ids]) : new Set([...prev].filter((x) => !ids.includes(x))))),
     }),
     [selected, canManage],
   );
@@ -161,24 +149,5 @@ export function SelectAllCheckbox({ entryIds }: { entryIds: string[] }) {
         className="h-5 w-5 accent-forest disabled:cursor-not-allowed"
       />
     </label>
-  );
-}
-
-/** «Elegir todos» del tipo de habitación (solo las avisables de esa columna). */
-export function SelectGroupToggle({ entryIds, groupName }: { entryIds: string[]; groupName: string }) {
-  const { selected, setMany, disabled } = useSelection();
-  if (entryIds.length === 0) return null;
-  const allOn = entryIds.every((id) => selected.has(id));
-  return (
-    <button
-      type="button"
-      disabled={disabled}
-      onClick={() => setMany(entryIds, !allOn)}
-      aria-pressed={allOn}
-      aria-label={`${allOn ? "Quitar" : "Elegir"} todos los de ${groupName}`}
-      className="min-h-11 rounded-full px-3 text-xs font-bold text-forest-700 hover:bg-forest-tint disabled:cursor-not-allowed disabled:opacity-50"
-    >
-      {allOn ? "Quitar todos" : "Elegir todos"}
-    </button>
   );
 }

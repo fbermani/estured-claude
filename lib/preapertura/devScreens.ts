@@ -48,7 +48,3 @@ export function isCurrentDevScreen(screen: DevScreen, pathname: string, params: 
   const expected = new URLSearchParams(query).get(screen.matchKey);
   return params.get(screen.matchKey) === expected;
 }
-
-export function findDevScreenByPath(path: string): DevScreen | undefined {
-  return DEV_SCREENS.find((s) => s.path === path);
-}

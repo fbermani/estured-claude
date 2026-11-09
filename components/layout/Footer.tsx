@@ -4,24 +4,24 @@ import { Icon } from "@/components/ui/Icon";
 import { CONTACT_EMAIL } from "@/lib/constants/contact";
 
 const link =
-  "inline-flex min-h-11 items-center rounded-sm transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:min-h-9";
+  "inline-flex min-h-11 items-center rounded-sm transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:min-h-8";
 const legalLink =
-  "inline-flex min-h-11 items-center rounded-sm underline transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:min-h-9";
+  "inline-flex min-h-11 items-center rounded-sm underline transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:min-h-8";
 
 /** B2: firma de marca + 2 grupos de links + legal en una línea. */
 export function Footer({ hideSignup = false }: { hideSignup?: boolean } = {}) {
   return (
     <footer className="border-t border-line bg-forest-ink text-white">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.6fr_1fr_1fr]">
+      <div className="mx-auto grid max-w-6xl gap-6 px-4 py-7 sm:px-6 md:grid-cols-[1.6fr_1fr_1fr]">
         <div>
           <BrandMark size={36} tone="dark" />
           <span className="sr-only">EstuRed</span>
-          <p className="mt-3 max-w-sm text-sm text-white/70">
+          <p className="mt-2 max-w-sm text-sm text-white/70">
             La convivencia también se elige. Residencias estudiantiles
             verificadas en CABA, con solicitudes registradas y comprobantes
             verificables.
           </p>
-          <ul className="mt-4 space-y-1.5 text-sm text-white/80">
+          <ul className="mt-2 space-y-1 text-sm text-white/80">
             {["Residencias verificadas presencialmente", "Solicitudes registradas en la plataforma", "Comprobante de Reserva Confirmada"].map((t) => (
               <li key={t} className="flex items-start gap-2">
                 <Icon name="check" className="mt-0.5 text-base text-amber-soft-300" />
@@ -32,7 +32,7 @@ export function Footer({ hideSignup = false }: { hideSignup?: boolean } = {}) {
         </div>
         <nav aria-label="Explorar">
           <p className="text-sm font-bold text-white/60">Explorar</p>
-          <ul className="mt-2 text-sm text-white/80">
+          <ul className="mt-1 text-sm text-white/80">
             <li>
               <Link href="/search" className={link}>
                 Buscar residencias
@@ -64,7 +64,7 @@ export function Footer({ hideSignup = false }: { hideSignup?: boolean } = {}) {
         </nav>
         <nav aria-label="Ayuda">
           <p className="text-sm font-bold text-white/60">Ayuda</p>
-          <ul className="mt-2 text-sm text-white/80">
+          <ul className="mt-1 text-sm text-white/80">
             <li>
               <Link href="/students/support" className={`${link} gap-1.5 font-semibold text-white`}>
                 <Icon name="support_agent" className="text-lg text-amber-soft-300" />
@@ -86,7 +86,7 @@ export function Footer({ hideSignup = false }: { hideSignup?: boolean } = {}) {
                 Qué pagás y a quién
               </Link>
             </li>
-            <li className="py-2">
+            <li className="py-1">
               Contacto:{" "}
               <a href={`mailto:${CONTACT_EMAIL}`} className="rounded-sm underline transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
                 {CONTACT_EMAIL}
@@ -97,7 +97,7 @@ export function Footer({ hideSignup = false }: { hideSignup?: boolean } = {}) {
         </nav>
       </div>
       <div className="border-t border-white/10">
-        <div className="mx-auto max-w-6xl px-4 py-5 sm:px-6">
+        <div className="mx-auto max-w-6xl px-4 py-3 sm:px-6">
           <p className="text-xs text-white/60">
             EstuRed actúa como plataforma intermediaria de búsqueda, solicitud, registro y comprobante. No presta
             directamente el alojamiento. Los precios en ARS son referenciales al dólar blue del día.

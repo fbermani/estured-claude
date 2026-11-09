@@ -89,18 +89,17 @@ export function GuidesHub({
 
   return (
     <>
-      <header className="relative overflow-hidden bg-forest-tint">
-        <span aria-hidden="true" className="pointer-events-none absolute -right-16 -top-20 size-72 rounded-full bg-forest/10" />
-        <span aria-hidden="true" className="pointer-events-none absolute -bottom-24 left-1/3 size-60 rounded-full bg-orange-tint/70" />
-        <div className="relative mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
-          <p className="inline-flex items-center gap-1.5 text-xs font-bold text-forest-700">
+      <header className="relative overflow-hidden bg-forest-ink text-white">
+        <span aria-hidden="true" className="pointer-events-none absolute -right-16 -top-20 size-72 rounded-full bg-white/[0.06]" />
+                <div className="relative mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
+          <p className="inline-flex items-center gap-1.5 text-xs font-bold text-white/80">
             <Icon name="menu_book" className="text-lg!" />
             Centro de Guías
           </p>
-          <h1 className="mt-3 max-w-3xl font-display text-[2rem] font-bold leading-[1.08] text-ink sm:text-5xl">
+          <h1 className="mt-3 max-w-3xl font-display text-[2rem] font-bold leading-[1.08] text-white sm:text-5xl">
             Guías para estudiar y vivir en Buenos Aires
           </h1>
-          <p className="mt-4 max-w-2xl text-base text-ink-soft sm:text-lg">
+          <p className="mt-4 max-w-2xl text-base text-white/80 sm:text-lg">
             Elegir dónde vivir, prepararte para llegar y convivir mejor: recursos prácticos para estudiantes, familias y residencias.
           </p>
           <form role="search" onSubmit={(e) => e.preventDefault()} className="mt-7 max-w-xl">

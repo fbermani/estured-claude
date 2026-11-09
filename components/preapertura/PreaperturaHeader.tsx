@@ -13,9 +13,6 @@ export function PreaperturaHeader({ sticky = true }: { sticky?: boolean }) {
         <Link href="/" className="flex items-center gap-2" aria-label="EstuRed, inicio">
           <BrandMark size={34} />
         </Link>
-        <span className="hidden rounded-full bg-orange-tint px-3 py-1.5 text-xs font-bold whitespace-nowrap text-orange-700 sm:inline-block">
-          Acceso anticipado
-        </span>
         <div className="ml-auto flex items-center gap-1">
           <Link
             href="/for-residences"

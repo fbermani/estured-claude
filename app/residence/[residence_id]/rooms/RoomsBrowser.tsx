@@ -622,12 +622,7 @@ export function RoomsBrowser({
   // Tipos de habitación plegados (por comodidad; no se persiste).
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const toggleCollapsed = (id: string) =>
-    setCollapsed((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+    setCollapsed((prev) => (prev.has(id) ? new Set([...prev].filter((x) => x !== id)) : new Set([...prev, id])));
   // Edición en lote del género: se eligen habitaciones con casillas y se aplica el mismo género a todas.
   const [bulkMode, setBulkMode] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
