@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CONTACT_EMAIL } from "@/lib/constants/contact";
+import { PreaperturaPrivacyBody } from "@/components/preapertura/legal/LegalPreapertura";
+import { isPreaperturaOn } from "@/lib/preapertura/flag";
 
 export const metadata: Metadata = {
   title: "Política de privacidad",
@@ -184,6 +186,18 @@ export default function PrivacyPage() {
         página explica qué datos personales recolectamos, para qué los usamos, con quién los compartimos y cuáles
         son tus derechos sobre ellos.
       </p>
+
+      {isPreaperturaOn() && (
+        <section id="preapertura" className="mt-10 scroll-mt-20 rounded-card border-[1.5px] border-forest/30 bg-forest-tint p-5 sm:p-6">
+          <h2 className="text-xl font-bold text-ink">Política de privacidad de la preapertura</h2>
+          <p className="mt-2 text-sm text-ink-soft">
+            Mientras EstuRed esté en preapertura rige esta sección; lo demás aplica cuando abramos.
+          </p>
+          <div className="mt-3">
+            <PreaperturaPrivacyBody />
+          </div>
+        </section>
+      )}
 
       <div className="mt-10 space-y-10">
         {sections.map((s) => (

@@ -1,5 +1,6 @@
 "use server";
 
+import { isPreaperturaOn } from "@/lib/preapertura/flag";
 import { safeInternalPath } from "@/lib/auth/safeNext";
 import { validatePassword } from "@/lib/auth/password";
 import { headers } from "next/headers";
@@ -43,6 +44,9 @@ export async function registerStudent(
   _prev: RegisterState,
   formData: FormData,
 ): Promise<RegisterState> {
+  // Con la preapertura encendida esta alta (desde 14 años) está cerrada: el alta es `/preregistro`. Se corta acá y no solo en la página
+  // porque una acción de servidor se puede invocar sin pasar por la página.
+  if (isPreaperturaOn()) return formError(formData, "El registro todavía no está abierto. Sumate desde la página de inicio.");
   const inviteToken = String(formData.get("invite") ?? "").trim();
   // Destino tras el alta (p. ej. la ficha con el tipo elegido). Solo rutas internas; si no pasa el validador se ignora.
   const afterSignup = safeInternalPath(String(formData.get("next") ?? ""));

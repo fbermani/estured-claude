@@ -1,7 +1,7 @@
 # 23_PREAPERTURA.md
 # EstuRed — Preapertura: captación previa al lanzamiento
 
-Última actualización: 2026-11-08. Estado: **documentado, sin implementar** (protocolo `docs/13` §5: doc primero).
+Última actualización: 2026-11-08. Estado: **implementado en dev (Fases 1–3, sin commit); prod pendiente** (checklist en `docs/NEXT_STEPS.md`). Protocolo `docs/13` §5: doc primero.
 Decisiones: `docs/00_DECISION_LOG.md` DR42–DR47 (mandan ante cualquier contradicción). Referencia visual aprobada (v4): `design-proposals/preapertura-2026-11/` (9 HTML + `SPEC.md` + `CAMBIOS_SUGERIDOS.md`).
 
 ## 1. Objetivo y principios
@@ -14,6 +14,7 @@ Decisiones: `docs/00_DECISION_LOG.md` DR42–DR47 (mandan ante cualquier contrad
 
 - Flag `PREAPERTURA=on` (env de Vercel prod). Páginas en `app/(preapertura)/` con header/footer propios. Rutas: `/preregistro`, `/preregistro/familiar`, `/mi-lugar`.
 - `next.config`: reescribe `/` y `/for-students` a la versión de preapertura; redirige `/search`, `/register`, `/waitlist` a `/preregistro`; `/students/*` redirige a «Mi lugar». `/for-residences` no se reescribe (solo cambia el header, sin «Crear cuenta»). «Sumar mi residencia» va directo a `/register/residence`.
+- Fase 3: `/fundadoras` (popup de fundadoras; su CTA lleva a `/register/residence`, que con flag se reescribe a `/fundadoras/datos`), `/consentimientos` (legales; la misma sección «preapertura» vive en `/terms` y `/privacy` con flag) y `FOUNDERS_CLOSE_AT` (env opcional, ISO 8601: sin ella no hay cuenta regresiva).
 - `/guias`: no se enlaza y **no se redirige** (SEO). Landings, Navbar y Footer actuales no se tocan; al abrir se apaga el flag.
 - Tablas nuevas (preinscriptos, interesados); no se reutiliza `waitlist_signups`.
 - Patrón visual: landing blureada (`inert`, `aria-hidden`) + `PreaperturaDialog` (`role=dialog`, no cerrable, foco atrapado; bottom-sheet en <640 px). Componentes nuevos: `PreaperturaDialog`, `BlurredPreview`, `EarlyAccessPill`, `FreeBadge`, `LiveCount`, `MiniCommunityRail`, `ProfileMeter`, `FounderMeter`, `Countdown`. Detalle en `SPEC.md`.
@@ -22,7 +23,7 @@ Decisiones: `docs/00_DECISION_LOG.md` DR42–DR47 (mandan ante cualquier contrad
 
 1. **Entrada `/`:** H1 A «Encontrá tu residencia en Buenos Aires sin ir a ciegas.», «Sumarte es gratis», CTA «Sumarme gratis», contador (desde 25; antes «Sé de los primeros»), carrusel, enlaces «Soy familiar» e «Ingresá».
 2. **Paso 1:** email, contraseña, rol, fecha de nacimiento (18+, validada en servidor), casillero obligatorio de términos (incluye la opción C, §5). Urgencia «#N tu lugar si terminás ahora» (registrados + 1; sin prioridad ni reserva). Estados: enviando, error de campos, email ya registrado, sin conexión.
-3. **Menor de 18:** no se crea cuenta; se lo deriva a pedirle a un familiar mayor que se registre e invite («Ir al registro familiar» / «Copiar link»). Entra solo por la invitación; no puede activar la comunidad.
+3. **Menor de 18:** no se crea cuenta; se lo deriva a pedirle a un familiar mayor que se registre e invite («Ir al registro familiar» / «Copiar link» de la página de registro familiar, no de una invitación). Entra solo por la invitación; no puede activar la comunidad.
 4. **Paso 2 (opcional, «Lo completo después»):** campos y tarjetas en vivo según DR43.3. Sin presupuesto, sin zona.
 5. **Familiar:** una pantalla (su cuenta + email del estudiante), reutiliza `/register/family` + `family_links`; una invitación, sin recordatorios; no da consentimientos por el estudiante.
 6. **«Mi lugar»:** celebración, #N, 5 pasos, carrusel; variantes perfil incompleto y familiar; «Editar mi perfil» y «Salir».
@@ -70,3 +71,10 @@ Titulares recomendados: estudiantes A (§3.1); fundadoras «Menos mensajes, más
 - Validación de la edad del familiar (hoy declaración en Términos).
 - Cantidad exacta de ejemplos a retirar (~12) y tope/presupuesto de campaña.
 - Validación legal de consentimientos y política (Ley 25.326): **no realizada, riesgo asumido por el dueño**.
+
+### Riesgos aceptados por el dueño (2026-11-08, revisión de seguridad)
+- **Paso 1 sin verificación de mail** (`email_confirm: true`): decisión de fricción mínima; permite registrarse con un mail ajeno.
+- **«Ya hay una cuenta con ese email»** se mantiene tal cual (enumeración de cuentas): se cubre con el WAF de Vercel sobre `/preregistro`, `/preregistro/familiar`, `/register/residence` y `/fundadoras/datos`. Los frenos de la app (IP y email) son en memoria y por instancia.
+- **Invitación familiar:** el token sale solo por mail al email del invitado (fijo al canjear); sin mail no se emite (solo en desarrollo se muestra el link); el familiar declara ser mayor de 18. Un menor invitado no da la opción C ni la comunidad.
+- **`/register/residence` con `address`** aplica también con el flag apagado (DR46.4). La 0080 debe aplicarse en prod ANTES de desplegar: el fallback pre-0080 guarda la dirección en `neighborhood`.
+- Con el flag encendido `/register/student` y `/register/family` quedan cerrados (redirect + corte en servidor); las invitaciones de residencias (DR19) no operan durante la preapertura.

@@ -1,5 +1,3 @@
-import { BARRIO_OPTIONS } from "@/lib/residences/options";
-
 /**
  * Solicitud de alta de residencia (DR22 D/E1–E7, migración 0066). Reglas puras (sin base ni `server-only`) para poder testearlas.
  * Los estados son PROPIOS de la solicitud: no son los de `residences` (docs/04 §4) ni los del ciclo de verificación DR7.
@@ -77,11 +75,18 @@ export const INVITE_MESSAGES: Record<Exclude<InviteState, "valid">, string> = {
   expired: "Este enlace venció. Pedile uno nuevo al equipo de EstuRed.",
 };
 
-// ---- Validación del formulario público (E1) ----
+// ---- Validación del formulario público (E1, DR46.4) ----
+
+/** Los 5 datos OBLIGATORIOS del formulario (DR46.4: la dirección reemplaza al barrio). Instagram y camas son opcionales y solo los pide la versión sin preapertura. */
+export const SIGNUP_REQUIRED_FIELDS = ["residence_name", "address", "contact_name", "phone", "email"] as const;
+export type SignupRequiredField = (typeof SIGNUP_REQUIRED_FIELDS)[number];
+
+export const SIGNUP_ALERT_EMPTY = "Completá los 5 datos para que te contactemos.";
+export const SIGNUP_ALERT_INVALID = "Revisá los datos marcados.";
 
 export type SignupInput = {
   residence_name: string;
-  neighborhood: string;
+  address: string;
   contact_name: string;
   email: string;
   phone: string;
@@ -94,32 +99,55 @@ export type SignupValidation =
   | { ok: false; field: string; message: string };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const BARRIOS = new Set<string>(BARRIO_OPTIONS);
 
-/** Mismos límites que los checks de la tabla (`0066`). */
-export function validateSignupForm(raw: Record<string, string>): SignupValidation {
+export type SignupFieldsResult = {
+  /** name del campo -> mensaje (en español, accionable). Vacío si todo está bien. */
+  errors: Record<string, string>;
+  /** Alguno de los 5 obligatorios llegó vacío (decide qué alerta general se muestra). */
+  anyRequiredEmpty: boolean;
+  value: SignupInput | null;
+};
+
+/**
+ * Valida TODOS los campos a la vez (el cliente marca cada uno con `aria-invalid`; el servidor repite la misma regla, que es la que cuenta).
+ * Mismos límites que los checks de la tabla (`0066`/`0080`): nombre 2–120, dirección 5–200, responsable 2–120.
+ */
+export function validateSignupFields(raw: Record<string, string>): SignupFieldsResult {
   const residence_name = (raw.residence_name ?? "").trim();
-  const neighborhood = (raw.neighborhood ?? "").trim();
+  const address = (raw.address ?? "").trim();
   const contact_name = (raw.contact_name ?? "").trim();
   const email = (raw.email ?? "").trim().toLowerCase();
   const phone = (raw.phone ?? "").trim();
   const social = (raw.instagram_or_web ?? "").trim();
   const bedsRaw = (raw.approx_beds ?? "").trim();
 
-  if (residence_name.length < 2 || residence_name.length > 120)
-    return { ok: false, field: "residence_name", message: "Contanos el nombre de la residencia." };
-  if (!BARRIOS.has(neighborhood)) return { ok: false, field: "neighborhood", message: "Elegí el barrio donde está la residencia." };
-  if (contact_name.length < 2 || contact_name.length > 120)
-    return { ok: false, field: "contact_name", message: "Contanos el nombre del responsable." };
-  if (!EMAIL_RE.test(email) || email.length > 254) return { ok: false, field: "email", message: "Revisá el email: no parece válido." };
-  if (!/^[+0-9()\-\s]{5,40}$/.test(phone) || phone.replace(/\D/g, "").length < 6)
-    return { ok: false, field: "phone", message: "Revisá el teléfono: usá números, espacios o «+»." };
-  if (social.length > 200) return { ok: false, field: "instagram_or_web", message: "El Instagram o la web es demasiado largo (hasta 200 caracteres)." };
+  const errors: Record<string, string> = {};
+  if (residence_name.length < 2 || residence_name.length > 120) errors.residence_name = "Escribí el nombre de la residencia.";
+  if (address.length < 5 || address.length > 200 || !/\p{L}/u.test(address)) errors.address = "Escribí la dirección, con calle y número.";
+  if (contact_name.length < 2 || contact_name.length > 120) errors.contact_name = "Escribí tu nombre.";
+  if (!/^[+0-9()\-\s]{5,40}$/.test(phone) || phone.replace(/\D/g, "").length < 6) errors.phone = "Escribí un teléfono con código de área.";
+  if (!EMAIL_RE.test(email) || email.length > 254) errors.email = "Escribí un email completo, por ejemplo nombre@gmail.com.";
+  if (social.length > 200) errors.instagram_or_web = "El Instagram o la web es demasiado largo (hasta 200 caracteres).";
   let approx_beds: number | null = null;
   if (bedsRaw) {
     const n = Number(bedsRaw);
-    if (!Number.isInteger(n) || n < 1 || n > 2000) return { ok: false, field: "approx_beds", message: "Las camas tienen que ser un número entero, por ejemplo 12." };
-    approx_beds = n;
+    if (!Number.isInteger(n) || n < 1 || n > 2000) errors.approx_beds = "Las camas tienen que ser un número entero, por ejemplo 12.";
+    else approx_beds = n;
   }
-  return { ok: true, value: { residence_name, neighborhood, contact_name, email, phone, instagram_or_web: social || null, approx_beds } };
+
+  const anyRequiredEmpty = SIGNUP_REQUIRED_FIELDS.some((f) => ({ residence_name, address, contact_name, phone, email })[f] === "");
+  const ok = Object.keys(errors).length === 0;
+  return {
+    errors,
+    anyRequiredEmpty,
+    value: ok ? { residence_name, address, contact_name, email, phone, instagram_or_web: social || null, approx_beds } : null,
+  };
+}
+
+/** Variante «primer error» (compatibilidad con los usos y tests previos). */
+export function validateSignupForm(raw: Record<string, string>): SignupValidation {
+  const result = validateSignupFields(raw);
+  if (result.value) return { ok: true, value: result.value };
+  const [field, message] = Object.entries(result.errors)[0];
+  return { ok: false, field, message };
 }

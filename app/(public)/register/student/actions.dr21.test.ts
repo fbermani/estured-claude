@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
+// El .env.local de desarrollo enciende la preapertura; estas pruebas son del alta clásica (flag apagado).
+vi.mock("@/lib/preapertura/flag", () => ({ isPreaperturaOn: () => false }));
 const state = vi.hoisted(() => ({ redirected: null as string | null, link: vi.fn(), missing: vi.fn(), activate: vi.fn() }));
 vi.mock("next/navigation", () => ({
   redirect: (to: string) => {

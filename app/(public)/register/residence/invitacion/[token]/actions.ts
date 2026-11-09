@@ -97,7 +97,8 @@ export async function redeemResidenceInvite(token: string, _prev: RedeemState, f
         .insert({
           name: request.residence_name,
           slug: `${slugify(request.residence_name) || "residencia"}-${userId.slice(0, 6)}`,
-          public_area: BARRIOS.has(request.neighborhood) ? request.neighborhood : null,
+          // Las solicitudes nuevas traen dirección y no barrio: el área pública la completa el equipo en la ficha.
+          public_area: request.neighborhood && BARRIOS.has(request.neighborhood) ? request.neighborhood : null,
           city: "CABA",
           created_by: userId,
         })

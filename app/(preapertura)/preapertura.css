@@ -1,0 +1,57 @@
+/* Preapertura (DR42): movimiento propio de las piezas de components/preapertura. Solo transform y opacity; usa tokens de app/globals.css.
+   Sin tocar globals.css (archivo sensible). */
+
+/* Carrusel de «Se están sumando»: deriva horizontal continua; se pausa con hover y foco. */
+@keyframes pre-drift {
+  to { transform: translateX(-50%); }
+}
+.pre-track {
+  display: flex;
+  width: max-content;
+  gap: 0.75rem;
+  animation: pre-drift 50s linear infinite;
+}
+.pre-track[data-static] {
+  animation: none;
+  width: auto;
+  flex-wrap: wrap;
+  padding-inline: 1.25rem;
+}
+.pre-rail:hover .pre-track,
+.pre-rail:focus-within .pre-track {
+  animation-play-state: paused;
+}
+.pre-rail {
+  mask-image: linear-gradient(90deg, transparent, var(--color-ink) 8%, var(--color-ink) 92%, transparent);
+}
+
+/* Punto pulsante: un anillo que escala y se desvanece (transform + opacity, nada de box-shadow animado). */
+@keyframes pre-ring {
+  0% { transform: scale(1); opacity: 0.7; }
+  80%, 100% { transform: scale(2.6); opacity: 0; }
+}
+.pre-dot {
+  position: relative;
+}
+.pre-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: currentColor;
+  animation: pre-ring 1.8s var(--ease-out-fresh) infinite;
+}
+
+/* prefers-reduced-motion: carrusel quieto y desplazable a mano; el anillo no se muestra. */
+@media (prefers-reduced-motion: reduce) {
+  .pre-rail {
+    overflow-x: auto;
+    mask-image: none;
+  }
+  .pre-track {
+    animation: none;
+  }
+  .pre-dot::after {
+    display: none;
+  }
+}

@@ -1,5 +1,6 @@
 "use server";
 
+import { isPreaperturaOn } from "@/lib/preapertura/flag";
 import { sendFamilyEmailCode } from "@/lib/family/emailVerification";
 import { validatePassword } from "@/lib/auth/password";
 import { headers } from "next/headers";
@@ -26,6 +27,8 @@ export async function registerFamily(
   _prev: RegisterFamilyState,
   formData: FormData,
 ): Promise<RegisterFamilyState> {
+  // Con la preapertura encendida el alta familiar es `/preregistro/familiar`: acá se corta en el servidor (la acción se puede invocar sin la página).
+  if (isPreaperturaOn()) return formError(formData, "El registro todavía no está abierto. Sumate desde la página de inicio.");
   const firstName = String(formData.get("first_name") ?? "").trim();
   const lastName = String(formData.get("last_name") ?? "").trim();
   const relationship = String(formData.get("relationship_type") ?? "").trim();

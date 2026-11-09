@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
+import { FlagAvatar } from "@/components/residences/FlagAvatar";
 import { useReservationSelection } from "@/components/residences/reservationSelection";
 import { StatusTag } from "@/components/ui/StatusTag";
 import { FilterChips } from "@/components/ui/FilterChips";
@@ -35,36 +36,20 @@ import type { CommunityProfileCard, CommunityRoomTypeSummary, CommunitySummary }
  * pantalla permite elegir (`allowSelection`; "Mi residencia" no).
  */
 
-const AVATAR_STYLES = [
-  "bg-forest-tint text-forest-700",
-  "bg-orange-tint text-orange-700",
-  "bg-mint text-forest-700",
-  "bg-sand-100 text-ink-soft",
-];
-
 function items(value: Record<string, unknown> | null | undefined): string[] {
   const list = value?.items;
   return Array.isArray(list) ? list.filter((i): i is string => typeof i === "string") : [];
 }
 
 function Avatar({ card, index, size = "sm" }: { card: CommunityProfileCard; index: number; size?: "sm" | "lg" }) {
-  const initial = card.firstName?.[0]?.toUpperCase() ?? "?";
-  const style = AVATAR_STYLES[index % AVATAR_STYLES.length];
-  const sizing = size === "lg" ? "h-24 w-24 text-3xl" : "h-10 w-10 text-sm";
   return (
-    <div className="relative shrink-0">
-      <div className={`flex items-center justify-center rounded-full font-bold ${style} ${sizing}`}>{initial}</div>
-      {card.countryFlag && (
-        <span
-          className={`absolute -bottom-1 -right-1 flex items-center justify-center rounded-full bg-white shadow-sm ring-2 ring-paper ${
-            size === "lg" ? "h-9 w-9 text-xl" : "h-6 w-6 text-base"
-          }`}
-          aria-label={card.nationality ?? undefined}
-        >
-          {card.countryFlag}
-        </span>
-      )}
-    </div>
+    <FlagAvatar
+      initial={card.firstName?.[0]?.toUpperCase() ?? "?"}
+      flag={card.countryFlag}
+      flagLabel={card.nationality}
+      index={index}
+      size={size}
+    />
   );
 }
 

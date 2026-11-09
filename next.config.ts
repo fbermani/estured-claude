@@ -11,6 +11,14 @@ function supabaseImageHost(): string | null {
   }
 }
 
+/**
+ * Preapertura (DR42, docs/23): con `PREAPERTURA=on` la entrada pública pasa a la versión de preapertura. Apagado, nada de esto aplica.
+ * Se lee al arrancar/compilar: cambiar el flag exige reiniciar el dev server o volver a deployar.
+ * `/for-residences` y `/guias` NO se tocan (DR42.2–DR42.3). `/register/residence` conserva su URL: con el flag se reescribe al formulario
+ * de preapertura (`/fundadoras/datos`, mismo formulario de 5 datos dentro del popup).
+ */
+const PREAPERTURA_ON = process.env.PREAPERTURA === "on";
+
 const nextConfig: NextConfig = {
   // DR28: el Centro de Guías lee `content/guias/*.md` con fs; hay que incluirlos en el bundle de Vercel.
   outputFileTracingIncludes: {
@@ -18,10 +26,33 @@ const nextConfig: NextConfig = {
     "/guias/[slug]": ["./content/guias/**/*"],
     "/sitemap.xml": ["./content/guias/**/*"],
   },
+  // `beforeFiles`: `/` ya es una página real de `(public)`; sin esto la reescritura no le gana.
+  async rewrites() {
+    if (!PREAPERTURA_ON) return [];
+    return {
+      beforeFiles: [
+        { source: "/", destination: "/preapertura" },
+        { source: "/for-students", destination: "/preapertura" },
+        { source: "/register/residence", destination: "/fundadoras/datos" },
+      ],
+      afterFiles: [],
+      fallback: [],
+    };
+  },
   // docs/08 §3.1: la ruta oficial del detalle público es `/r/[slug]`; la ficha
   // real vive en `/residencias/[slug]` (auditoría 2026-10-20, H30).
   async redirects() {
     return [
+      ...(PREAPERTURA_ON
+        ? [
+            { source: "/search", destination: "/preregistro", permanent: false },
+            // Exacto: `/register/residence`, `/register/family` y el resto de `/register/*` siguen funcionando.
+            { source: "/register", destination: "/preregistro", permanent: false },
+            { source: "/waitlist", destination: "/preregistro", permanent: false },
+            // DR42.3: el área de estudiante/familiar no existe en preapertura; «Mi lugar» es su único destino.
+            { source: "/students/:path*", destination: "/mi-lugar", permanent: false },
+          ]
+        : []),
       { source: "/r/:slug", destination: "/residencias/:slug", permanent: false },
       // Lista de espera de pre-lanzamiento retirada (H30): la página y los datos guardados siguen en el repo; para revertir, quitar esta línea.
       { source: "/waitlist", destination: "/search", permanent: false },
@@ -48,6 +79,9 @@ const nextConfig: NextConfig = {
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
         ],
       },
+      // `/preregistro?invitacion=<token>` lleva un token de un solo uso: que no salga en el Referer hacia ningún sitio. Va DESPUÉS de la regla
+      // global: con la misma clave gana la última que coincide. (La página además lo declara en su metadata.)
+      { source: "/preregistro", headers: [{ key: "Referrer-Policy", value: "no-referrer" }] },
     ];
   },
 };

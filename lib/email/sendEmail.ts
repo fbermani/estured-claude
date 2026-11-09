@@ -41,6 +41,11 @@ export function sanitizeAddress(value: string | undefined | null): string | null
   return v.length > 0 && v.length <= 254 && SAFE_ADDRESS.test(v) ? v : null;
 }
 
+/** ¿Hay proveedor de mail configurado (clave de Resend)? No dice si el dominio está verificado: solo evita flujos que dependen de un mail que no puede salir. */
+export function isEmailProviderConfigured(): boolean {
+  return (process.env.RESEND_API_KEY ?? "").trim().length > 0;
+}
+
 export async function sendEmail(entry: {
   to: string;
   subject: string;
