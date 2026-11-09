@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
+import { DevAccountNotice, DevEmptyHint } from "@/components/preapertura/DevAccountNotice";
 import { FormAlert, SubmitButton, errorHint, errorProps, useFocusOnError } from "@/components/preapertura/FormParts";
 import { NETWORK_MESSAGE } from "@/lib/preapertura/formState";
 import { SIGNUP_ALERT_EMPTY, SIGNUP_ALERT_INVALID, validateSignupFields } from "@/lib/residenceSignup/rules";
@@ -22,7 +23,7 @@ const TIMELINE = [
 ] as const;
 
 /** Pantalla de éxito de preapertura (mockup v4): confirmación, lugar de fundadora según el cupo real y línea de tiempo de 4 pasos. */
-function SuccessPreapertura({ founder }: { founder: FounderPlace | undefined }) {
+function SuccessPreapertura({ founder, devEmail }: { founder: FounderPlace | undefined; devEmail?: string }) {
   useEffect(() => {
     document.getElementById("pre-resi-done")?.focus();
   }, []);
@@ -32,6 +33,7 @@ function SuccessPreapertura({ founder }: { founder: FounderPlace | undefined }) 
         <span aria-hidden="true" className="grid size-14 place-items-center rounded-full bg-gold text-forest-ink">
           <Icon name="mark_email_read" className="text-3xl" />
         </span>
+        {devEmail && <DevAccountNotice email={devEmail} />}
         <h1 id="pre-resi-done" tabIndex={-1} className="font-display text-[clamp(26px,6.5vw,34px)] leading-tight tracking-tight">
           ¡Recibimos tu solicitud!
         </h1>
@@ -103,7 +105,7 @@ function SuccessPreapertura({ founder }: { founder: FounderPlace | undefined }) 
  * `variant="preapertura"` es el lenguaje del popup v4 (alerta de «Completá los 5 datos», error por campo con `aria-invalid`, estado
  * «Enviando…», pantalla de éxito con el lugar de fundadora); `default` mantiene la tarjeta de siempre, con Instagram/camas opcionales.
  */
-export function RegisterResidenceForm({ variant = "default" }: { variant?: "default" | "preapertura" }) {
+export function RegisterResidenceForm({ variant = "default", devSuccess }: { variant?: "default" | "preapertura"; devSuccess?: FounderPlace }) {
   const pre = variant === "preapertura";
   const [state, formAction, isPending] = useActionState<RequestResidenceState, FormData>(async (prev, formData) => {
     try {
@@ -111,7 +113,7 @@ export function RegisterResidenceForm({ variant = "default" }: { variant?: "defa
     } catch {
       return { status: "error", message: NETWORK_MESSAGE, values: prev.values };
     }
-  }, initialState);
+  }, devSuccess ? ({ status: "success", founder: devSuccess } as RequestResidenceState) : initialState);
   const [clientErrors, setClientErrors] = useState<{ errors: Record<string, string>; empty: boolean } | null>(null);
 
   const serverFailed = state.status === "error" && !clientErrors;
@@ -120,7 +122,7 @@ export function RegisterResidenceForm({ variant = "default" }: { variant?: "defa
   const { formRef, alertRef } = useFocusOnError(clientErrors ?? state, failed);
 
   if (state.status === "success") {
-    if (pre) return <SuccessPreapertura founder={state.founder} />;
+    if (pre) return <SuccessPreapertura founder={state.founder} devEmail={state.devEmail} />;
     return (
       <Card className="p-8 text-center">
         <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-cream-2 text-forest-700">
@@ -156,7 +158,9 @@ export function RegisterResidenceForm({ variant = "default" }: { variant?: "defa
         const raw: Record<string, string> = {};
         for (const [k, v] of data.entries()) if (typeof v === "string") raw[k] = v;
         const checked = validateSignupFields(raw);
-        if (!checked.value) {
+        // Solo desarrollo: vacío del todo pasa al servidor, que crea una solicitud de prueba (en producción esta rama nunca aplica).
+        const devEmpty = process.env.NODE_ENV === "development" && Object.values(raw).every((v) => !v.trim());
+        if (!checked.value && !devEmpty) {
           setClientErrors({ errors: checked.errors, empty: checked.anyRequiredEmpty });
           return;
         }
@@ -296,6 +300,7 @@ export function RegisterResidenceForm({ variant = "default" }: { variant?: "defa
         </p>
       )}
       <SubmitButton idle={pre ? "Quiero que me contacten" : "Solicitar sumar mi residencia"} pending="Enviando…" isPending={isPending} />
+      <DevEmptyHint what="una solicitud de prueba" />
     </form>
   );
 

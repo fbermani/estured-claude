@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { PreaperturaStage } from "@/components/preapertura/PreaperturaStage";
-import { LandingPreview } from "@/components/preapertura/LandingPreview";
+import { HomeBackdrop } from "@/components/preapertura/HomeBackdrop";
 import { BackLink } from "@/components/preapertura/BackLink";
 import { ConsentLines, PreaperturaPrivacyBody, PreaperturaTermsBody } from "@/components/preapertura/legal/LegalPreapertura";
 
@@ -25,7 +25,7 @@ const h2 = "mb-3 font-display text-2xl font-bold tracking-tight text-ink";
  */
 export default function ConsentimientosPage() {
   return (
-    <PreaperturaStage preview={<LandingPreview />} labelledBy="pre-legal-title" size="md" initialFocus="#pre-legal-back">
+    <PreaperturaStage preview={<HomeBackdrop />} labelledBy="pre-legal-title" size="md" initialFocus="#pre-legal-back">
       <div>
         <div className="sticky top-0 z-[2] border-b border-line bg-paper px-5 pb-2 pt-3 sm:px-9">
           <BackLink id="pre-legal-back" />

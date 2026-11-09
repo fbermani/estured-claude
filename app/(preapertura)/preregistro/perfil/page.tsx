@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { PreaperturaStage } from "@/components/preapertura/PreaperturaStage";
-import { LandingPreview } from "@/components/preapertura/LandingPreview";
+import { HomeBackdrop } from "@/components/preapertura/HomeBackdrop";
 import { ProfileForm, type ProfileInitial } from "@/components/preapertura/ProfileForm";
 import { CAREER_OPTIONS, OTHER_CAREER } from "@/lib/preapertura/options";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
@@ -61,7 +61,7 @@ export default async function PerfilPage() {
   };
 
   return (
-    <PreaperturaStage preview={<LandingPreview />} labelledBy="pre-profile-title" size="form" initialFocus="#pre-first_name">
+    <PreaperturaStage preview={<HomeBackdrop />} labelledBy="pre-profile-title" size="form" initialFocus="#pre-first_name">
       <ProfileForm
         initial={initial}
         age={ageByBirthDate(row.birth_date)}

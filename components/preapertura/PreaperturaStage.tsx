@@ -8,8 +8,8 @@ import { PreaperturaDialog } from "@/components/preapertura/PreaperturaDialog";
 const IS_DEV = process.env.NODE_ENV === "development";
 
 /**
- * Escenario de toda pantalla de preapertura: landing blureada de fondo (`preview`) + popup (`children`). Pantalla completa fija:
- * el scroll es el del fondo y el popup flota encima.
+ * Escenario de toda pantalla de preapertura: landing real de fondo (`preview`, blureada con una capa fija) + popup (`children`). El fondo
+ * está en flujo normal: el documento se desplaza y el popup queda flotando (capa fija sin eventos de puntero salvo el diálogo).
  *
  * Solo en DESARROLLO el popup se puede ocultar con «Cerrar (solo dev)» para ver y recorrer la landing sin blur; un botón
  * «Volver al popup (solo dev)» lo trae de vuelta. En producción `IS_DEV` es false y ese estado nunca cambia: el popup es permanente.
@@ -38,7 +38,7 @@ export function PreaperturaStage({
   const revealed = IS_DEV && devRevealed;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-cream">
+    <div className="bg-cream">
       <BlurredPreview revealed={revealed} label={previewLabel}>{preview}</BlurredPreview>
       {revealed ? (
         <button

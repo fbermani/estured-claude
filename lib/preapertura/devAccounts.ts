@@ -31,3 +31,18 @@ export function isDevAutoEmail(email: string | null | undefined): boolean {
   const e = (email ?? "").toLowerCase();
   return e.startsWith(DEV_ACCOUNT_PREFIX) && e.endsWith(`@${DEV_ACCOUNT_DOMAIN}`);
 }
+
+/** Prefijo de las solicitudes de residencia de prueba autogeneradas (envío vacío de `/register/residence` en desarrollo). `seed --borrar` las limpia. */
+export const DEV_RESIDENCE_PREFIX = "test-resi-";
+
+/** Datos de una solicitud de residencia de prueba (solo desarrollo, envío vacío). Identificable por el prefijo del mail y el nombre. */
+export function devResidenceData(): { residence_name: string; address: string; contact_name: string; phone: string; email: string } {
+  const rand = randomBytes(4).toString("hex");
+  return {
+    residence_name: `Residencia de prueba ${rand}`,
+    address: "Calle de Prueba 123, CABA",
+    contact_name: "Responsable de Prueba",
+    phone: "+54 9 11 5555 0000",
+    email: `${DEV_RESIDENCE_PREFIX}${rand}@${DEV_ACCOUNT_DOMAIN}`,
+  };
+}

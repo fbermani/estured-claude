@@ -10,12 +10,17 @@ import { createSignupRequest } from "@/lib/residenceSignup/signupRequests";
 import { buildResidenceConfirmationEmail } from "@/lib/residenceSignup/confirmationEmail";
 import { getFounderClosure, getFounderInputs } from "@/lib/preapertura/counts";
 import { founderPlace, founderState, type FounderPlace } from "@/lib/preapertura/rules";
+import { devAutoAccountsEnabled, devResidenceData } from "@/lib/preapertura/devAccounts";
 import { isPreaperturaOn } from "@/lib/preapertura/flag";
 import { sendEmail } from "@/lib/email/sendEmail";
 import { CONTACT_EMAIL } from "@/lib/constants/contact";
 
 /** `founder` solo viaja en `success` y solo con preapertura encendida: define el recuadro de la pantalla de éxito. */
-export type RequestResidenceState = RegisterFormState & { founder?: FounderPlace };
+export type RequestResidenceState = RegisterFormState & {
+  founder?: FounderPlace;
+  /** Solo desarrollo: mail de la solicitud de prueba autogenerada (envío vacío). */
+  devEmail?: string;
+};
 
 /** Freno best-effort por IP (en memoria, por instancia; el límite real va en el WAF de Vercel). La clave es un hash, nunca la IP. */
 const attemptsByClient = createRateLimiter({ limit: 5, windowMs: 3_600_000 });
@@ -49,15 +54,19 @@ export async function requestResidenceSignup(_prev: RequestResidenceState, formD
   // Honeypot: invisible para humanos; si viene completo es un bot (respuesta de éxito, sin guardar).
   if (String(formData.get("company_site") ?? "") !== "") return { status: "success" };
 
-  const raw = rawValues(formData);
+  let raw = rawValues(formData);
+  // SOLO DESARROLLO: el envío completamente vacío crea una solicitud de PRUEBA identificable (`test-resi-…@estured.test`, nombre «Residencia de
+  // prueba …») y sigue a la pantalla de éxito. Con cualquier campo escrito, o fuera de desarrollo (producción y tests), validación normal.
+  const devAuto = devAutoAccountsEnabled() && ["residence_name", "address", "contact_name", "phone", "email", "instagram_or_web", "approx_beds"].every((k) => !(raw[k] ?? "").trim());
+  if (devAuto) raw = { ...raw, ...devResidenceData() };
   const result = validateSignupFields(raw);
   if (!result.value) return failure(result.anyRequiredEmpty ? SIGNUP_ALERT_EMPTY : SIGNUP_ALERT_INVALID, raw, result.errors);
 
   const clientKey = createHash("sha256").update(clientKeyFromHeaders(await headers())).digest("hex");
-  if (!attemptsByClient(clientKey)) return failure("Enviaste varias solicitudes seguidas. Probá de nuevo en un rato.", raw);
+  if (!devAuto && !attemptsByClient(clientKey)) return failure("Enviaste varias solicitudes seguidas. Probá de nuevo en un rato.", raw);
 
   const emailKey = createHash("sha256").update(result.value.email).digest("hex");
-  if (!attemptsByEmail(emailKey)) return failure("Ya recibimos varias solicitudes con ese email. Probá de nuevo más tarde o escribinos.", raw);
+  if (!devAuto && !attemptsByEmail(emailKey)) return failure("Ya recibimos varias solicitudes con ese email. Probá de nuevo más tarde o escribinos.", raw);
 
   const admin = getSupabaseAdmin();
   if (!admin) return failure("El formulario no está disponible en este momento. Probá más tarde.", raw);
@@ -70,7 +79,7 @@ export async function requestResidenceSignup(_prev: RequestResidenceState, formD
   if (!saved.ok) return failure("No pudimos enviar tu solicitud. Intentá de nuevo en unos minutos. Lo que escribiste sigue acá.", raw);
 
   // Un duplicado activo cuenta como éxito pero no repite el mail (evita usar el formulario para mandar mails a un tercero).
-  if (preapertura && !saved.duplicate) {
+  if (preapertura && !saved.duplicate && !devAuto) {
     await sendEmail({
       to: result.value.email,
       replyTo: CONTACT_EMAIL,
@@ -83,5 +92,5 @@ export async function requestResidenceSignup(_prev: RequestResidenceState, formD
       }),
     });
   }
-  return { status: "success", ...(place ? { founder: place } : {}) };
+  return { status: "success", ...(place ? { founder: place } : {}), ...(devAuto ? { devEmail: result.value.email } : {}) };
 }

@@ -57,36 +57,69 @@ export function PreaperturaDialog({
 
   useEffect(() => {
     const returnTo = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const previousOverflow = document.documentElement.style.overflow;
-    document.documentElement.style.overflow = "hidden";
+    // OJO: NO se bloquea el scroll del documento (nada de `overflow: hidden` en <html>): la página de atrás se desplaza con rueda, touch
+    // y teclado mientras el popup flota fijo.
     // El contenido ya está montado (no hay portal): se enfoca de inmediato, sin esperar un frame.
     const root = wrapperRef.current;
     const target =
       (initialFocus ? root?.querySelector<HTMLElement>(initialFocus) : null) ?? root?.querySelector<HTMLElement>(FOCUSABLE);
     target?.focus({ preventScroll: true });
     return () => {
-      document.documentElement.style.overflow = previousOverflow;
       returnTo?.focus?.({ preventScroll: true });
     };
   }, [initialFocus]);
 
-  // Trampa de foco. Sin tecla Esc a propósito: el popup no se cierra (ver doc del componente).
+  /**
+   * Teclado: trampa de foco (Tab) + scroll de la página de atrás. Sin Esc a propósito: el popup no se cierra (ver doc del componente).
+   * El navegador NO desplaza el documento con teclas (PageDown, espacio, flechas, Inicio/Fin) cuando el foco está dentro de un elemento
+   * `fixed` con su propio contenedor de scroll: lo hacemos nosotros. Si el contenido del popup todavía puede desplazarse en esa dirección
+   * se deja el comportamiento nativo (scrollea el popup); si no, desplaza el documento. No se toca nada dentro de campos de texto,
+   * selects ni botones (donde esas teclas significan otra cosa).
+   */
   function onKeyDown(event: KeyboardEvent<HTMLDivElement>) {
-    if (event.key !== "Tab") return;
-    const nodes = Array.from(wrapperRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? []).filter(
-      (el) => el.getClientRects().length > 0,
-    );
-    if (nodes.length === 0) return;
-    const first = nodes[0];
-    const last = nodes[nodes.length - 1];
-    const active = document.activeElement;
-    if (event.shiftKey && (active === first || !wrapperRef.current?.contains(active))) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && (active === last || !wrapperRef.current?.contains(active))) {
-      event.preventDefault();
-      first.focus();
+    if (event.key === "Tab") {
+      const nodes = Array.from(wrapperRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? []).filter(
+        (el) => el.getClientRects().length > 0,
+      );
+      if (nodes.length === 0) return;
+      const first = nodes[0];
+      const last = nodes[nodes.length - 1];
+      const active = document.activeElement;
+      if (event.shiftKey && (active === first || !wrapperRef.current?.contains(active))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (active === last || !wrapperRef.current?.contains(active))) {
+        event.preventDefault();
+        first.focus();
+      }
+      return;
     }
+
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
+    const target = event.target as HTMLElement;
+    if (target.closest("input, textarea, select, button, summary, [contenteditable='true']")) return;
+    const viewport = window.innerHeight;
+    let delta = 0;
+    let toEdge: "top" | "bottom" | null = null;
+    switch (event.key) {
+      case "PageDown": delta = viewport * 0.9; break;
+      case "PageUp": delta = -viewport * 0.9; break;
+      case " ": delta = event.shiftKey ? -viewport * 0.9 : viewport * 0.9; break;
+      case "ArrowDown": delta = 48; break;
+      case "ArrowUp": delta = -48; break;
+      case "Home": toEdge = "top"; break;
+      case "End": toEdge = "bottom"; break;
+      default: return;
+    }
+    const scroller = target.closest<HTMLElement>("[data-dialog-scroll]");
+    const canScrollInside =
+      scroller != null &&
+      (toEdge === "top" || delta < 0 ? scroller.scrollTop > 0 : scroller.scrollTop + scroller.clientHeight < scroller.scrollHeight - 1);
+    if (canScrollInside) return; // el popup todavía tiene contenido en esa dirección: scroll nativo
+    event.preventDefault();
+    const behavior: ScrollBehavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+    if (toEdge) window.scrollTo({ top: toEdge === "top" ? 0 : document.documentElement.scrollHeight, behavior });
+    else window.scrollBy({ top: delta, behavior });
   }
 
   const devClose = process.env.NODE_ENV === "development" && onDevClose;
@@ -114,7 +147,7 @@ export function PreaperturaDialog({
             Cerrar (solo dev)
           </button>
         )}
-        <div className="@container max-h-[inherit] overflow-y-auto overscroll-contain rounded-card bg-paper shadow-float">
+        <div data-dialog-scroll className="@container max-h-[inherit] overflow-y-auto overscroll-contain rounded-card bg-paper shadow-float">
           <div aria-hidden="true" className="mx-auto mt-2 h-1.5 w-11 rounded-full bg-field-border/50 sm:hidden" />
           {children}
         </div>

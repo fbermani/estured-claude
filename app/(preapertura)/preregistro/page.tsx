@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { PreaperturaStage } from "@/components/preapertura/PreaperturaStage";
-import { LandingPreview } from "@/components/preapertura/LandingPreview";
+import { HomeBackdrop } from "@/components/preapertura/HomeBackdrop";
 import { UrgencyPanel } from "@/components/preapertura/UrgencyPanel";
 import { Step1Form } from "@/components/preapertura/Step1Form";
 import { StubDialog } from "@/components/preapertura/StubDialog";
@@ -48,7 +48,7 @@ export default async function PreregistroPage({ searchParams }: { searchParams: 
 
   const count = await getStudentCount();
   return (
-    <PreaperturaStage preview={<LandingPreview />} labelledBy="pre-signup-title" size="wide" initialFocus={invitation ? "#pre-password" : "#pre-email"}>
+    <PreaperturaStage preview={<HomeBackdrop />} labelledBy="pre-signup-title" size="wide" initialFocus={invitation ? "#pre-password" : "#pre-email"}>
       <div className="grid grid-cols-[minmax(0,1fr)] p-2 pb-0 @min-[860px]:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] @min-[860px]:p-2.5">
         <UrgencyPanel position={count == null ? null : count + 1} counter={studentCounter(count)} />
         <Step1Form invitation={invitation} loggedIn={loggedIn} />

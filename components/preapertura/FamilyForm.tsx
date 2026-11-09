@@ -59,6 +59,7 @@ export function FamilyForm({ loggedIn }: { loggedIn: boolean }) {
   if (state.status === "success") {
     return (
       <div className="p-5 @min-[640px]:px-9 @min-[640px]:py-8">
+        <BackNav href="/">Volver al inicio</BackNav>
         <p className="flex items-center gap-2 text-sm font-bold text-ink-soft">Registro familiar</p>
         <h1 id="pre-family-title" className="mt-3 font-display text-3xl leading-tight tracking-tight text-ink">
           Listo, ya estás adentro

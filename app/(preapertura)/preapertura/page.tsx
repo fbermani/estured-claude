@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { PreaperturaStage } from "@/components/preapertura/PreaperturaStage";
-import { LandingPreview } from "@/components/preapertura/LandingPreview";
+import { HomeBackdrop } from "@/components/preapertura/HomeBackdrop";
 import { EntryContent } from "@/components/preapertura/EntryContent";
 import { FounderCta } from "@/components/preapertura/FounderCta";
 import { getPreaperturaEntryData } from "@/lib/preapertura/counts";
@@ -18,7 +18,7 @@ export default async function PreaperturaEntryPage() {
   const { counter, founders, closure } = await getPreaperturaEntryData();
   return (
     <PreaperturaStage
-      preview={<LandingPreview />}
+      preview={<HomeBackdrop />}
       labelledBy="pre-h1"
       describedBy="pre-sub"
       initialFocus='a[href="/preregistro"]'

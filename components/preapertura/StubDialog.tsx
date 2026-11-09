@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/Button";
 import { BrandMark } from "@/components/ui/BrandMark";
 import { PreaperturaStage } from "@/components/preapertura/PreaperturaStage";
-import { LandingPreview } from "@/components/preapertura/LandingPreview";
+import { HomeBackdrop } from "@/components/preapertura/HomeBackdrop";
 
 /**
  * Pantalla provisoria de la Fase 1: la ruta existe y se navega, pero el paso real (formularios, «Mi lugar») lo implementa la
@@ -9,7 +9,7 @@ import { LandingPreview } from "@/components/preapertura/LandingPreview";
  */
 export function StubDialog({ title, text }: { title: string; text: string }) {
   return (
-    <PreaperturaStage preview={<LandingPreview />} labelledBy="pre-stub-title" describedBy="pre-stub-text">
+    <PreaperturaStage preview={<HomeBackdrop />} labelledBy="pre-stub-title" describedBy="pre-stub-text">
       <div className="px-5 pb-6 pt-5 sm:px-9 sm:pb-8 sm:pt-8">
         <BrandMark size={32} />
         <h1 id="pre-stub-title" className="mt-5 font-display text-3xl leading-tight tracking-tight text-ink">

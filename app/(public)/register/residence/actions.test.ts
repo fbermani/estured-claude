@@ -142,4 +142,39 @@ describe("requestResidenceSignup: alta guardada (requiere 0080)", () => {
     expect(results[3].message).toContain("varias solicitudes con ese email");
     expect(sent).toHaveLength(1); // solo la primera (las otras son duplicados) mandó mail
   });
+
+  it("PRODUCCIÓN: el envío vacío falla con los 5 errores y no crea ninguna solicitud de prueba", async (ctx) => {
+    if (!admin || !ready) return ctx.skip();
+    vi.stubEnv("NODE_ENV", "production");
+    const before = (await admin.from("residence_signup_requests").select("id", { count: "exact", head: true }).like("email", "test-resi-%")).count;
+    const state = await requestResidenceSignup(IDLE, form({ residence_name: "", address: "", contact_name: "", phone: "", email: "" }));
+    vi.unstubAllEnvs();
+    expect(state.status).toBe("error");
+    expect(state.message).toBe(SIGNUP_ALERT_EMPTY);
+    expect(state).not.toHaveProperty("devEmail");
+    const after = (await admin.from("residence_signup_requests").select("id", { count: "exact", head: true }).like("email", "test-resi-%")).count;
+    expect(after).toBe(before);
+  });
+
+  it("DESARROLLO: el envío vacío crea una solicitud de PRUEBA identificable (test-resi-…) y sigue al éxito, sin mandar mail", async (ctx) => {
+    if (!admin || !ready) return ctx.skip();
+    vi.stubEnv("NODE_ENV", "development");
+    const state = await requestResidenceSignup(IDLE, form({ residence_name: "", address: "", contact_name: "", phone: "", email: "" }));
+    vi.unstubAllEnvs();
+    expect(state.status).toBe("success");
+    expect(state.devEmail).toMatch(/^test-resi-[0-9a-f]{8}@estured\.test$/);
+    const rows = await rowsOf(state.devEmail!);
+    expect(rows).toHaveLength(1);
+    expect(rows[0].residence_name).toMatch(/^Residencia de prueba /);
+    expect(sent).toHaveLength(0);
+    await admin.from("residence_signup_requests").delete().eq("email", state.devEmail!);
+  });
+
+  it("DESARROLLO con un campo escrito: validación normal (no se autogenera nada)", async () => {
+    vi.stubEnv("NODE_ENV", "development");
+    const state = await requestResidenceSignup(IDLE, form({ residence_name: "Casa", address: "", contact_name: "", phone: "", email: "" }));
+    vi.unstubAllEnvs();
+    expect(state.status).toBe("error");
+    expect(Object.keys(state.fieldErrors ?? {})).toEqual(expect.arrayContaining(["address", "contact_name", "phone", "email"]));
+  });
 });

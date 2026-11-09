@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { PreaperturaStage } from "@/components/preapertura/PreaperturaStage";
-import { LandingPreview } from "@/components/preapertura/LandingPreview";
+import { HomeBackdrop } from "@/components/preapertura/HomeBackdrop";
 import { FamilyBenefitsPanel } from "@/components/preapertura/FamilyBenefitsPanel";
 import { FamilyForm } from "@/components/preapertura/FamilyForm";
 import { getSupabaseServer } from "@/lib/supabase/server";
@@ -14,7 +14,7 @@ export default async function FamiliarPage() {
   const supabase = await getSupabaseServer();
   const loggedIn = Boolean(supabase && (await getSafeUser(supabase)));
   return (
-    <PreaperturaStage preview={<LandingPreview />} labelledBy="pre-family-title" size="wide" initialFocus="#pre-email">
+    <PreaperturaStage preview={<HomeBackdrop />} labelledBy="pre-family-title" size="wide" initialFocus="#pre-email">
       <div className="grid grid-cols-[minmax(0,1fr)] p-2 pb-0 @min-[860px]:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] @min-[860px]:p-2.5">
         <FamilyBenefitsPanel />
         <FamilyForm loggedIn={loggedIn} />

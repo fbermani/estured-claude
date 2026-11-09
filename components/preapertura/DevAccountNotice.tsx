@@ -14,7 +14,7 @@ export function DevAccountNotice({ email, className = "" }: { email?: string | n
 }
 
 /** Ayuda de desarrollo bajo el botón de envío: avisa que vacío crea una cuenta de prueba. Se oculta fuera de desarrollo. */
-export function DevEmptyHint() {
+export function DevEmptyHint({ what = "una cuenta de prueba" }: { what?: string }) {
   if (process.env.NODE_ENV !== "development") return null;
-  return <p className="text-center text-xs text-ink-soft">Modo dev: enviá el formulario vacío para crear una cuenta de prueba.</p>;
+  return <p className="text-center text-xs text-ink-soft">Modo dev: enviá el formulario vacío para crear {what}.</p>;
 }
