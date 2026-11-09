@@ -13,9 +13,9 @@ function supabaseImageHost(): string | null {
 
 /**
  * Preapertura (DR42, docs/23): con `PREAPERTURA=on` la entrada pública pasa a la versión de preapertura. Apagado, nada de esto aplica.
- * Se lee al arrancar/compilar: cambiar el flag exige reiniciar el dev server o volver a deployar. En desarrollo solo cambian `/` (popup),
- * `/register` (alta en `/preregistro`) y `/register/residence` (formulario de fundadoras); `/for-students`, `/search`, `/waitlist` y
- * `/students/*` quedan como siempre. En producción (`PREAPERTURA_LOCKED`) esas cuatro también se cortan.
+ * Se lee al arrancar/compilar: cambiar el flag exige reiniciar el dev server o volver a deployar. En desarrollo solo cambian `/` (popup)
+ * y `/register/residence` (formulario de fundadoras); `/for-students`, `/register`, `/search`, `/waitlist` y
+ * `/students/*` quedan como siempre. En producción (`PREAPERTURA_LOCKED`) esas también se cortan.
  * `/for-residences` y `/guias` NO se tocan (DR42.2–DR42.3). `/register/residence` conserva su URL: con el flag se reescribe al formulario
  * de preapertura (`/fundadoras/datos`, mismo formulario de 5 datos dentro del popup).
  */
@@ -47,14 +47,10 @@ const nextConfig: NextConfig = {
   // real vive en `/residencias/[slug]` (auditoría 2026-10-20, H30).
   async redirects() {
     return [
-      ...(PREAPERTURA_ON
+      ...(PREAPERTURA_LOCKED
         ? [
             // Exacto: `/register/residence`, `/register/family` y el resto de `/register/*` siguen funcionando.
             { source: "/register", destination: "/preregistro", permanent: false },
-          ]
-        : []),
-      ...(PREAPERTURA_LOCKED
-        ? [
             { source: "/search", destination: "/preregistro", permanent: false },
             { source: "/waitlist", destination: "/preregistro", permanent: false },
             // DR42.3: el área de estudiante/familiar no existe en preapertura; «Mi lugar» es su único destino.
