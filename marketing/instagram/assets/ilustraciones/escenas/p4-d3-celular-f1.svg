@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350" role="img">
+<title>Post 4, diapositiva 3: celular con F1 a un costado</title>
+<desc>F1, de pie y con el mate, mira con calma el celular grande que está a su derecha; no lo toca. La pantalla (#pantalla-captura) mide 310x671 en x 535, y 542 y espera la captura C2.</desc>
+<defs>
+<filter id="papel" x="0" y="0" width="100%" height="100%">
+  <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="7"/>
+  <feColorMatrix type="matrix" values="0 0 0 0 0.36  0 0 0 0 0.29  0 0 0 0 0.19  0 0 0 1.1 -0.48"/>
+</filter>
+
+</defs>
+<style>
+  .crema{fill:#fbf6ec}
+  .forest{fill:#1f7d5c}
+  .forest-osc{fill:#0c3a2c}
+  .tinta{fill:#1d2722}
+  .arena{fill:#f1d9a8}
+  .arena-osc{fill:#e2c88f}
+  .hoja{fill:#fffdf7}
+  .sombra{fill:#e9dfc8}
+  .barra{fill:#d9cba8}
+  .menta{fill:#cfe5d9}
+  .tilde{fill:none;stroke:#fbf6ec;stroke-linecap:round;stroke-linejoin:round}
+  .linea-tinta{fill:none;stroke:#1d2722;stroke-linecap:round;stroke-linejoin:round}
+  .linea-forest{fill:none;stroke:#1f7d5c;stroke-linecap:round;stroke-linejoin:round}
+  .linea-crema{fill:none;stroke:#fbf6ec;stroke-linecap:round;stroke-linejoin:round}
+  .vacio{fill:none;stroke:#b9a983;stroke-dasharray:10 8}
+  .f1-piel{fill:#d39a72}
+  .f1-piel-sombra{fill:#be8460}
+  .f1-pelo{fill:#4a3a30}
+  .f1-canas{fill:none;stroke:#a3958a;stroke-linecap:round}
+  .f1-tinta{fill:#1d2722}
+  .f1-trazo{fill:none;stroke:#1d2722;stroke-linecap:round}
+  .f1-anteojos{fill:none;stroke:#1d2722;stroke-width:4}
+  .f1-cardigan{fill:#6f8290}
+  .f1-cardigan-brazo{fill:none;stroke:#637583;stroke-linecap:round;stroke-linejoin:round}
+  .f1-cardigan-brazo-lejos{fill:none;stroke:#566773;stroke-linecap:round;stroke-linejoin:round}
+  .f1-cardigan-borde{fill:none;stroke:#4e5f6b;stroke-linecap:round}
+  .f1-remera{fill:#f3ead8}
+  .f1-boton{fill:#f3ead8}
+  .f1-punio{fill:none;stroke:#566773}
+  .f1-pantalon{fill:#5a4a42}
+  .f1-pantalon-lejos{fill:#4d3f38}
+  .f1-zapato{fill:#3d2f29}
+  .f1-mate{fill:#8a5a3c}
+  .f1-bombilla{fill:none;stroke:#c9c2b5;stroke-linecap:round}
+  .piso{fill:#1d2722;fill-opacity:0.12}
+  .pantalla{fill:#e4efe9}
+</style>
+<rect id="fondo" class="crema" width="1080" height="1350"/>
+<circle class="arena" cx="600" cy="930" r="330"/><g id="celular"><rect class="sombra" x="533.0" y="534" width="342" height="715" rx="52"/><rect class="tinta" x="519.0" y="520" width="342" height="715" rx="52"/><rect id="pantalla-captura" class="pantalla" x="535.0" y="542" width="310" height="671" rx="36"/><rect class="tinta" x="646" y="552" width="88" height="22" rx="11"/></g><g id="f1-mirando" transform="translate(-640 398) scale(0.8)">
+  <ellipse class="piso" cx="1160" cy="1074" rx="190" ry="22"/>
+  <g id="f1-tc-pierna-izq" data-parte="pierna-izq">
+    <rect class="f1-pantalon-lejos" x="1162" y="740" width="46" height="310" rx="14" />
+    <rect class="f1-zapato" x="1158" y="1040" width="72" height="32" rx="14" />
+  </g>
+  <g id="f1-tc-pierna-der" data-parte="pierna-der">
+    <rect class="f1-pantalon" x="1104" y="740" width="48" height="310" rx="14" />
+    <rect class="f1-zapato" x="1098" y="1040" width="74" height="32" rx="14" />
+  </g>
+
+  <g id="f1-tc-pelo-atras" data-parte="pelo">
+    <path class="f1-pelo" d="M1094 320 Q1090 236 1152 232 Q1212 236 1206 300 L1198 384 Q1150 400 1092 394 Z" />
+  </g>
+
+  <g id="f1-tc-brazo-izq" data-parte="brazo-izq">
+    <path class="f1-cardigan-brazo-lejos" stroke-width="40" d="M1238 432 Q1266 548 1222 596" />
+    <g id="f1-tc-mate" data-parte="mate">
+      <path class="f1-bombilla" stroke-width="5" d="M1214 556 L1232 518" />
+      <ellipse class="f1-mate" cx="1212" cy="576" rx="21" ry="25" />
+    </g>
+    <circle class="f1-piel" cx="1214" cy="600" r="19" />
+  </g>
+  <g id="f1-tc-torso" data-parte="torso">
+    <rect class="f1-piel-sombra" x="1140" y="368" width="26" height="40" rx="8" />
+    <path class="f1-cardigan" d="M1092 402 Q1150 390 1222 402 Q1258 416 1258 460 L1264 760 Q1170 774 1072 758 L1080 460 Q1080 414 1092 402 Z" />
+    <path class="f1-remera" d="M1170 398 Q1192 410 1210 400 L1193 620 L1187 620 Z" />
+    <path class="f1-cardigan-borde" stroke-width="5" d="M1170 400 L1188 620 M1210 402 L1192 620 M1190 620 V768" />
+    <path class="f1-punio" stroke-width="18" d="M1074 750 Q1170 766 1262 752" />
+    <circle class="f1-boton" cx="1190" cy="622" r="7" />
+  </g>
+
+  
+  <g transform="rotate(-4 1150 380)"><g id="f1-tc-cabeza" data-parte="cabeza">
+    <ellipse class="f1-piel" cx="1158" cy="315" rx="52" ry="68" />
+    <circle class="f1-piel" cx="1207" cy="334" r="8" />
+    <g id="f1-tc-pelo" data-parte="pelo">
+      <path class="f1-pelo" d="M1102 314 Q1098 244 1156 240 Q1212 244 1208 302 Q1196 282 1170 278 Q1130 276 1110 300 Z" />
+      <path class="f1-canas" stroke-width="8" d="M1124 268 Q1148 252 1176 254" />
+    </g>
+    <g id="f1-tc-cejas" data-parte="cejas">
+      <path class="f1-trazo" stroke-width="5" d="M1153 302 Q1166 297 1179 301" />
+      <path class="f1-trazo" stroke-width="5" d="M1189 301 Q1199 298 1208 302" />
+    </g>
+    <g id="f1-tc-ojos" data-parte="ojos">
+      <circle class="f1-tinta" cx="1166" cy="326" r="5.5" />
+      <circle class="f1-tinta" cx="1198" cy="326" r="5" />
+    </g>
+    <g id="f1-tc-anteojos" data-parte="anteojos">
+      <circle class="f1-anteojos" cx="1166" cy="326" r="15" />
+      <circle class="f1-anteojos" cx="1198" cy="326" r="12" />
+      <path class="f1-anteojos" d="M1151 323 L1116 318 M1181 324 Q1184 321 1186 324" />
+    </g>
+    <g id="f1-tc-boca" data-parte="boca">
+      <path class="f1-trazo" stroke-width="4.5" d="M1172 354 Q1182 359 1191 353" />
+    </g>
+  </g>
+
+  </g><g id="f1-tc-brazo-der" data-parte="brazo-der">
+    <path class="f1-cardigan-brazo" stroke-width="44" d="M1098 432 Q1072 560 1084 690" />
+    <path class="f1-punio" stroke-width="44" d="M1083 674 L1084 690" />
+    <circle class="f1-piel" cx="1086" cy="712" r="20" />
+  </g>
+
+</g>
+<rect id="textura-papel" width="1080" height="1350" filter="url(#papel)" opacity="0.55"/>
+</svg>

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350" role="img">
+<title>Post 2, diapositiva 8: checklist final</title>
+<desc>Seis casillas forest tildadas en dos columnas de tres (x 90 y 560; y 600, 790 y 980; 76 px). El texto de cada pregunta va a la derecha de su casilla y el pie, debajo, desde y 1130.</desc>
+<defs>
+<filter id="papel" x="0" y="0" width="100%" height="100%">
+  <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="7"/>
+  <feColorMatrix type="matrix" values="0 0 0 0 0.36  0 0 0 0 0.29  0 0 0 0 0.19  0 0 0 1.1 -0.48"/>
+</filter>
+
+</defs>
+<style>
+  .crema{fill:#fbf6ec}
+  .forest{fill:#1f7d5c}
+  .forest-osc{fill:#0c3a2c}
+  .tinta{fill:#1d2722}
+  .arena{fill:#f1d9a8}
+  .arena-osc{fill:#e2c88f}
+  .hoja{fill:#fffdf7}
+  .sombra{fill:#e9dfc8}
+  .barra{fill:#d9cba8}
+  .menta{fill:#cfe5d9}
+  .tilde{fill:none;stroke:#fbf6ec;stroke-linecap:round;stroke-linejoin:round}
+  .linea-tinta{fill:none;stroke:#1d2722;stroke-linecap:round;stroke-linejoin:round}
+  .linea-forest{fill:none;stroke:#1f7d5c;stroke-linecap:round;stroke-linejoin:round}
+  .linea-crema{fill:none;stroke:#fbf6ec;stroke-linecap:round;stroke-linejoin:round}
+  .vacio{fill:none;stroke:#b9a983;stroke-dasharray:10 8}
+
+</style>
+<rect id="fondo" class="crema" width="1080" height="1350"/>
+<g id="casillas"><g id="casilla-1"><rect class="forest" x="90" y="600" width="76" height="76" rx="17"/><path class="tilde" stroke-width="9.9" d="M108.2 639.5 L122.7 653.2 L148.5 622.8"/></g><g id="casilla-2"><rect class="forest" x="90" y="790" width="76" height="76" rx="17"/><path class="tilde" stroke-width="9.9" d="M108.2 829.5 L122.7 843.2 L148.5 812.8"/></g><g id="casilla-3"><rect class="forest" x="90" y="980" width="76" height="76" rx="17"/><path class="tilde" stroke-width="9.9" d="M108.2 1019.5 L122.7 1033.2 L148.5 1002.8"/></g><g id="casilla-4"><rect class="forest" x="560" y="600" width="76" height="76" rx="17"/><path class="tilde" stroke-width="9.9" d="M578.2 639.5 L592.7 653.2 L618.5 622.8"/></g><g id="casilla-5"><rect class="forest" x="560" y="790" width="76" height="76" rx="17"/><path class="tilde" stroke-width="9.9" d="M578.2 829.5 L592.7 843.2 L618.5 812.8"/></g><g id="casilla-6"><rect class="forest" x="560" y="980" width="76" height="76" rx="17"/><path class="tilde" stroke-width="9.9" d="M578.2 1019.5 L592.7 1033.2 L618.5 1002.8"/></g></g>
+<rect id="textura-papel" width="1080" height="1350" filter="url(#papel)" opacity="0.55"/>
+</svg>

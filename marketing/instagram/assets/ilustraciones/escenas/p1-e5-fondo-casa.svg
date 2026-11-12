@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920" role="img">
+<title>Casa de E1, sala</title>
+<desc>Pared de la sala de la casa de E1, con ventana, repisa con libros y planta, un cuadro sin imagen reconocible y una lámpara de pie. Fondo para la escena 5 del post 1.</desc>
+<defs>
+<filter id="papel" x="0" y="0" width="100%" height="100%">
+  <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="7"/>
+  <feColorMatrix type="matrix" values="0 0 0 0 0.36  0 0 0 0 0.29  0 0 0 0 0.19  0 0 0 1.1 -0.48"/>
+</filter>
+
+</defs>
+<style>
+  .bg-pared{fill:#e4dccb}
+  .bg-zocalo{fill:#d3c6ac}
+  .bg-piso{fill:#bfa37c}
+  .bg-tabla{fill:#b0946d}
+  .bg-marco{fill:#fbf6ec}
+  .bg-vidrio{fill:#c9dcd6}
+  .bg-sol{fill:#eef3ea}
+  .bg-repisa{fill:#a87f50}
+  .bg-maceta{fill:#c0603f}
+  .bg-planta{fill:#1f7d5c}
+  .bg-libro1{fill:#0c3a2c}
+  .bg-libro2{fill:#d8b06a}
+  .bg-libro3{fill:#6f8290}
+  .bg-lampara{fill:#f1d9a8}
+  .bg-lampara-pie{fill:#1d2722}
+  .bg-cuadro{fill:#fbf6ec}
+  .bg-cuadro-dentro{fill:#cfe0d6}
+</style>
+<rect class="bg-pared" width="1080" height="1330"/>
+<rect class="bg-zocalo" y="1304" width="1080" height="26"/>
+<rect class="bg-piso" y="1330" width="1080" height="590"/>
+<rect class="bg-tabla" y="1420" width="1080" height="5"/>
+<rect class="bg-tabla" y="1540" width="1080" height="5"/>
+<rect class="bg-tabla" y="1690" width="1080" height="5"/>
+<rect class="bg-tabla" y="1870" width="1080" height="5"/>
+
+<g id="ventana">
+  <rect class="bg-marco" x="640" y="330" width="300" height="420" rx="10"/>
+  <rect class="bg-vidrio" x="658" y="348" width="264" height="384" rx="4"/>
+  <circle class="bg-sol" cx="844.0" cy="481.2" r="39.0"/>
+  <rect class="bg-marco" x="782.0" y="348" width="16" height="384"/>
+  <rect class="bg-marco" x="658" y="531.6" width="264" height="14"/>
+  <rect class="bg-marco" x="624" y="744" width="332" height="22" rx="6"/>
+</g>
+<g id="repisa">
+  <rect class="bg-repisa" x="90" y="560" width="400" height="20" rx="4"/>
+  <rect class="bg-libro1" x="120" y="470" width="34" height="90" rx="4"/>
+  <rect class="bg-libro2" x="158" y="486" width="30" height="74" rx="4"/>
+  <rect class="bg-libro3" x="192" y="462" width="36" height="98" rx="4"/>
+  <path class="bg-maceta" d="M360 500 L430 500 L420 560 L370 560 Z"/>
+  <circle class="bg-planta" cx="380" cy="470" r="34"/>
+  <circle class="bg-planta" cx="414" cy="456" r="30"/>
+  <circle class="bg-planta" cx="396" cy="432" r="26"/>
+</g>
+<g id="cuadro">
+  <rect class="bg-cuadro" x="140" y="680" width="220" height="170" rx="6"/>
+  <rect class="bg-cuadro-dentro" x="156" y="696" width="188" height="138" rx="3"/>
+</g>
+<g id="lampara">
+  <rect class="bg-lampara-pie" x="992" y="760" width="12" height="570"/>
+  <path class="bg-lampara" d="M950 660 L1046 660 L1066 770 L930 770 Z"/>
+</g>
+<rect id="textura-papel" width="1080" height="1920" filter="url(#papel)" opacity="0.55"/>
+</svg>

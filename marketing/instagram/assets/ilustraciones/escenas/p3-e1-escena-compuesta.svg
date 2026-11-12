@@ -1,0 +1,177 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920" role="img">
+<title>Post 3, escena 1</title>
+<desc>Vista previa: E1 entra con la valija a la habitación vacía.</desc>
+<defs>
+<filter id="papel" x="0" y="0" width="100%" height="100%">
+  <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="7"/>
+  <feColorMatrix type="matrix" values="0 0 0 0 0.36  0 0 0 0 0.29  0 0 0 0 0.19  0 0 0 1.1 -0.48"/>
+</filter>
+
+
+</defs>
+<style>
+  .bg-pared{fill:#ece3d2}
+  .bg-zocalo{fill:#d9cdb5}
+  .bg-piso{fill:#cbb18c}
+  .bg-tabla{fill:#bb9f78}
+  .bg-marco{fill:#fbf6ec}
+  .bg-vidrio{fill:#cfe0e3}
+  .bg-sol{fill:#f2f6f2}
+  .bg-cama-base{fill:#b8a17f}
+  .bg-colchon{fill:#f4efe4}
+  .bg-frazada{fill:#9fb7a6}
+  .bg-frazada-pliegue{fill:#8aa592}
+  .bg-almohada{fill:#fbf8f1}
+  .bg-escritorio{fill:#a87f50}
+  .bg-escritorio-canto{fill:#946d42}
+  .bg-silla{fill:#5d6a66}
+  .bg-lampara{fill:#1d2722}
+  .bg-lampara-luz{fill:#f1d9a8}
+  .bg-puerta-marco{fill:#c9b391}
+  .bg-pasillo{fill:#8e9d97}
+  .bg-pasillo-piso{fill:#7d8b85}
+  .bg-cuadrito{fill:#fbf6ec}
+  .bg-cuadrito-dentro{fill:#c9d6c9}
+
+  .fondo{fill:#fbf6ec}
+  .piso{fill:#ece3cf}
+  .e1-piel{fill:#b97a4f}
+  .e1-piel-sombra{fill:#a4683f}
+  .e1-pelo{fill:#2a1d17}
+  .e1-tinta{fill:#1d2722}
+  .e1-trazo{fill:none;stroke:#1d2722;stroke-linecap:round}
+  .e1-abrigo{fill:#1f7d5c}
+  .e1-abrigo-brazo{fill:none;stroke:#1a6e51;stroke-linecap:round}
+  .e1-abrigo-brazo-lejos{fill:none;stroke:#155c44;stroke-linecap:round}
+  .e1-abrigo-linea{fill:none;stroke:#0c3a2c;stroke-linecap:round}
+  .e1-cuello{fill:#0c3a2c}
+  .e1-pantalon{fill:#2f3b45}
+  .e1-pantalon-lejos{fill:#27313a}
+  .e1-zapatilla{fill:#1d2722}
+  .e1-mochila{fill:#d8b06a}
+  .e1-mochila-sombra{fill:#c29a55}
+  .e1-tira{fill:none;stroke:#d8b06a;stroke-linecap:round}
+  .e1-valija{fill:#0c3a2c}
+  .e1-valija-lado{fill:#082a1f}
+  .e1-valija-manija{fill:#14503c}
+  .e1-valija-banda{fill:#f1d9a8}
+
+  .piso{fill:#1d2722;fill-opacity:0.12}
+</style>
+<rect class="bg-pared" width="1080" height="1330"/>
+<rect class="bg-zocalo" y="1304" width="1080" height="26"/>
+<rect class="bg-piso" y="1330" width="1080" height="590"/>
+<rect class="bg-tabla" y="1420" width="1080" height="5"/>
+<rect class="bg-tabla" y="1540" width="1080" height="5"/>
+<rect class="bg-tabla" y="1690" width="1080" height="5"/>
+<rect class="bg-tabla" y="1870" width="1080" height="5"/>
+
+<g id="puerta-entrada">
+  <rect class="bg-puerta-marco" x="0" y="560" width="200" height="770"/>
+  <rect class="bg-pasillo" x="0" y="584" width="176" height="746"/>
+  <path class="bg-pasillo-piso" d="M0 1180 L176 1180 L176 1330 L0 1330 Z"/>
+</g>
+<g id="ventana">
+  <rect class="bg-marco" x="690" y="560" width="260" height="340" rx="10"/>
+  <rect class="bg-vidrio" x="708" y="578" width="224" height="304" rx="4"/>
+  <circle class="bg-sol" cx="866.8" cy="682.4" r="33.800000000000004"/>
+  <rect class="bg-marco" x="812.0" y="578" width="16" height="304"/>
+  <rect class="bg-marco" x="708" y="723.2" width="224" height="14"/>
+  <rect class="bg-marco" x="674" y="894" width="292" height="22" rx="6"/>
+</g>
+<g id="escritorio">
+  <rect class="bg-escritorio" x="300" y="1060" width="300" height="22" rx="4"/>
+  <rect class="bg-escritorio-canto" x="316" y="1082" width="18" height="230"/>
+  <rect class="bg-escritorio-canto" x="566" y="1082" width="18" height="230"/>
+  <rect class="bg-lampara" x="530" y="960" width="8" height="100"/>
+  <path class="bg-lampara-luz" d="M506 930 L564 930 L576 970 L494 970 Z"/>
+  <rect class="bg-silla" x="360" y="960" width="22" height="300" rx="8"/>
+</g>
+<g id="cama">
+  <rect class="bg-cama-base" x="700" y="1170" width="420" height="150" rx="10"/>
+  <rect class="bg-colchon" x="690" y="1120" width="440" height="66" rx="20"/>
+  <rect class="bg-almohada" x="1000" y="1072" width="120" height="58" rx="24" transform="rotate(8 1060 1100)"/>
+  <path class="bg-frazada" d="M680 1142 Q760 1100 850 1134 Q920 1158 980 1126 L1000 1200 Q840 1246 676 1220 Z"/>
+  <path class="bg-frazada-pliegue" d="M740 1154 Q820 1142 900 1170 L896 1182 Q820 1158 744 1168 Z"/>
+</g>
+<rect id="textura-papel" width="1080" height="1920" filter="url(#papel)" opacity="0.55"/>
+<g id="personajes" transform="translate(-60 470) scale(0.9)">
+
+<ellipse class="piso" cx="560" cy="1114" rx="380" ry="22"/>
+<g id="e1-entrando" transform="translate(-525 40)">
+  <g id="e1-valija" data-parte="valija" transform="rotate(18 852 1066)">
+    <rect class="e1-valija-manija" x="862" y="592" width="9" height="200" rx="3"/>
+    <rect class="e1-valija-manija" x="894" y="592" width="9" height="200" rx="3"/>
+    <rect class="e1-valija" x="852" y="580" width="62" height="16" rx="8"/>
+    <rect class="e1-valija" x="830" y="790" width="104" height="270" rx="18"/>
+    <rect class="e1-valija-banda" x="830" y="858" width="104" height="16"/>
+    <rect class="e1-valija-banda" x="830" y="970" width="104" height="16"/>
+    <circle class="e1-tinta" cx="852" cy="1066" r="10"/>
+    <circle class="e1-tinta" cx="914" cy="1066" r="10"/>
+  </g>
+  <g id="e1-pierna-izq" data-parte="pierna-izq" transform="rotate(-13 1190 712)">
+    <rect class="e1-pantalon-lejos" x="1166" y="700" width="48" height="345" rx="14"/>
+    <rect class="e1-zapatilla" x="1158" y="1034" width="80" height="40" rx="18"/>
+  </g>
+  <g id="e1-brazo-izq" data-parte="brazo-izq">
+    <path class="e1-abrigo-brazo-lejos" stroke-width="42" d="M1236 404 Q1276 500 1300 600"/>
+    <circle class="e1-piel-sombra" cx="1306" cy="620" r="19"/>
+  </g>
+  <g id="e1-pierna-der" data-parte="pierna-der" transform="rotate(12 1126 712)">
+    <rect class="e1-pantalon" x="1100" y="700" width="52" height="345" rx="14"/>
+    <rect class="e1-zapatilla" x="1092" y="1034" width="82" height="40" rx="18"/>
+  </g>
+  <g id="e1-tc-mochila" data-parte="mochila">
+    <rect class="e1-mochila" x="1020" y="392" width="64" height="252" rx="24" />
+    <rect class="e1-mochila-sombra" x="1020" y="392" width="64" height="74" rx="24" />
+    <rect class="e1-mochila-sombra" x="1028" y="540" width="40" height="70" rx="12" />
+  </g>
+
+  
+  <g id="e1-tc-torso" data-parte="torso">
+    <rect class="e1-piel-sombra" x="1138" y="336" width="28" height="40" rx="8" />
+    <path class="e1-abrigo" d="M1082 376 Q1150 362 1228 376 Q1262 392 1262 440 L1268 722 Q1170 738 1068 720 L1074 440 Q1074 392 1082 376 Z" />
+    <path class="e1-abrigo-linea" stroke-width="5" d="M1184 386 V730" />
+    <path class="e1-abrigo-linea" stroke-width="5" d="M1206 612 H1244" />
+    <rect class="e1-cuello" x="1124" y="352" width="72" height="34" rx="15" />
+    <path class="e1-tira" stroke-width="16" d="M1104 384 Q1098 460 1102 540" />
+    <rect class="e1-mochila-sombra" x="1092" y="512" width="22" height="12" rx="4" />
+  </g>
+
+  
+  <g id="e1-tc-cabeza" data-parte="cabeza">
+    <ellipse class="e1-piel" cx="1155" cy="285" rx="55" ry="70" />
+    <circle class="e1-piel" cx="1208" cy="306" r="9" />
+    <g id="e1-tc-pelo" data-parte="pelo">
+      <ellipse class="e1-pelo" cx="1146" cy="234" rx="56" ry="27" />
+      <circle class="e1-pelo" cx="1100" cy="252" r="26" />
+      <circle class="e1-pelo" cx="1096" cy="278" r="20" />
+      <circle class="e1-pelo" cx="1108" cy="224" r="25" />
+      <circle class="e1-pelo" cx="1132" cy="206" r="26" />
+      <circle class="e1-pelo" cx="1163" cy="202" r="26" />
+      <circle class="e1-pelo" cx="1191" cy="213" r="23" />
+      <circle class="e1-pelo" cx="1206" cy="236" r="18" />
+    </g>
+    <circle class="e1-piel-sombra" cx="1104" cy="300" r="12" />
+    <g id="e1-tc-cejas" data-parte="cejas">
+      <path class="e1-trazo" stroke-width="6" d="M1148 278 Q1160 271 1172 277" />
+      <path class="e1-trazo" stroke-width="6" d="M1186 277 Q1195 272 1203 278" />
+    </g>
+    <g id="e1-tc-ojos" data-parte="ojos">
+      <circle class="e1-tinta" cx="1160" cy="297" r="7" />
+      <circle class="e1-tinta" cx="1195" cy="297" r="6" />
+    </g>
+    <g id="e1-tc-boca" data-parte="boca">
+      <path class="e1-trazo" stroke-width="4.5" d="M1170 323 Q1180 328 1190 322" />
+    </g>
+  </g>
+
+  
+  <g id="e1-brazo-der" data-parte="brazo-der">
+    <path class="e1-abrigo-brazo" stroke-width="46" d="M1090 404 Q1070 520 1036 600"/>
+    <circle class="e1-piel" cx="1028" cy="620" r="21"/>
+  </g>
+</g>
+
+</g>
+</svg>

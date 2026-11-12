@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920" role="img">
+<title>Calendario sin margen</title>
+<desc>Calendario sin números con dos días seguidos marcados y unidos: el de llegada, con una valija, y el primer día de clases, con un libro. Encima se apilan tres íconos: valija, trámite y cansancio (batería baja). Cada ícono es un grupo aparte para animarlo.</desc>
+<defs>
+<filter id="papel" x="0" y="0" width="100%" height="100%">
+  <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="7"/>
+  <feColorMatrix type="matrix" values="0 0 0 0 0.36  0 0 0 0 0.29  0 0 0 0 0.19  0 0 0 1.1 -0.48"/>
+</filter>
+
+</defs>
+<style>
+  .bg-fondo{fill:#fbf6ec}
+  .bg-hoja{fill:#ffffff}
+  .bg-hoja-sombra{fill:#1d2722;opacity:0.08}
+  .bg-cabecera{fill:#0c3a2c}
+  .bg-anillo{fill:#d9cdb5}
+  .bg-anillo-agujero{fill:#fbf6ec}
+  .bg-celda{fill:#f3ede1}
+  .bg-celda-llegada{fill:#cfe3d8}
+  .bg-celda-clase{fill:#f1d9a8}
+  .bg-une{fill:none;stroke:#1f7d5c;stroke-linejoin:round}
+  .bg-valija{fill:#0c3a2c}
+  .bg-valija-banda{fill:#f1d9a8}
+  .bg-valija-rueda{fill:#1d2722}
+  .bg-libro{fill:#c29a55}
+  .bg-libro-hojas{fill:#fbf6ec}
+  .bg-icono{fill:#fbf6ec}
+  .bg-icono-borde{fill:#1d2722}
+  .bg-papel-tramite{fill:#fbf6ec}
+  .bg-renglon{fill:#c9bfae}
+  .bg-sello-tramite{fill:none;stroke:#c0603f}
+  .bg-bateria{fill:none;stroke:#1d2722;stroke-linejoin:round}
+  .bg-bateria-baja{fill:#c0603f}
+  .bg-sombra-icono{fill:#1d2722;opacity:0.10}
+</style>
+<rect class="bg-fondo" width="1080" height="1920"/>
+<g id="calendario">
+  <rect class="bg-hoja-sombra" x="160" y="534" width="800" height="760" rx="28"/>
+  <rect class="bg-hoja" x="150" y="520" width="800" height="760" rx="28"/>
+  <path class="bg-cabecera" d="M150 548 Q150 520 178 520 L922 520 Q950 520 950 548 L950 670 L150 670 Z"/>
+  <rect class="bg-anillo" x="330" y="486" width="26" height="70" rx="13"/>
+  <rect class="bg-anillo" x="744" y="486" width="26" height="70" rx="13"/>
+  <rect class="bg-celda" x="164" y="710" width="100" height="96" rx="10"/><rect class="bg-celda" x="278" y="710" width="100" height="96" rx="10"/><rect class="bg-celda" x="392" y="710" width="100" height="96" rx="10"/><rect class="bg-celda" x="506" y="710" width="100" height="96" rx="10"/><rect class="bg-celda" x="620" y="710" width="100" height="96" rx="10"/><rect class="bg-celda" x="734" y="710" width="100" height="96" rx="10"/><rect class="bg-celda" x="848" y="710" width="100" height="96" rx="10"/><rect class="bg-celda" x="164" y="820" width="100" height="96" rx="10"/><rect class="bg-celda" x="278" y="820" width="100" height="96" rx="10"/><rect class="bg-celda" x="392" y="820" width="100" height="96" rx="10"/><rect class="bg-celda" x="506" y="820" width="100" height="96" rx="10"/><rect class="bg-celda" x="620" y="820" width="100" height="96" rx="10"/><rect class="bg-celda" x="734" y="820" width="100" height="96" rx="10"/><rect class="bg-celda" x="848" y="820" width="100" height="96" rx="10"/><rect class="bg-celda" x="164" y="930" width="100" height="96" rx="10"/><rect class="bg-celda" x="278" y="930" width="100" height="96" rx="10"/><rect class="bg-celda" x="392" y="930" width="100" height="96" rx="10"/><rect class="bg-celda" x="506" y="930" width="100" height="96" rx="10"/><rect class="bg-celda" x="620" y="930" width="100" height="96" rx="10"/><rect class="bg-celda" x="734" y="930" width="100" height="96" rx="10"/><rect class="bg-celda" x="848" y="930" width="100" height="96" rx="10"/><rect class="bg-celda" x="164" y="1040" width="100" height="96" rx="10"/><rect class="bg-celda" x="278" y="1040" width="100" height="96" rx="10"/><rect class="bg-celda-llegada" x="392" y="1040" width="100" height="96" rx="10"/><rect class="bg-celda-clase" x="506" y="1040" width="100" height="96" rx="10"/><rect class="bg-celda" x="620" y="1040" width="100" height="96" rx="10"/><rect class="bg-celda" x="734" y="1040" width="100" height="96" rx="10"/><rect class="bg-celda" x="848" y="1040" width="100" height="96" rx="10"/><rect class="bg-celda" x="164" y="1150" width="100" height="96" rx="10"/><rect class="bg-celda" x="278" y="1150" width="100" height="96" rx="10"/><rect class="bg-celda" x="392" y="1150" width="100" height="96" rx="10"/><rect class="bg-celda" x="506" y="1150" width="100" height="96" rx="10"/><rect class="bg-celda" x="620" y="1150" width="100" height="96" rx="10"/><rect class="bg-celda" x="734" y="1150" width="100" height="96" rx="10"/><rect class="bg-celda" x="848" y="1150" width="100" height="96" rx="10"/>
+</g>
+<g id="dias-pegados">
+  <rect class="bg-une" stroke-width="8" x="382" y="1030" width="234" height="116" rx="16"/>
+  <g id="dia-llegada" transform="translate(442.0 1092.0) scale(0.36)">
+  <rect class="bg-valija" x="-22" y="-112" width="12" height="44" rx="4"/>
+  <rect class="bg-valija" x="10" y="-112" width="12" height="44" rx="4"/>
+  <rect class="bg-valija" x="-30" y="-120" width="60" height="16" rx="8"/>
+  <rect class="bg-valija" x="-50" y="-76" width="100" height="160" rx="18"/>
+  <rect class="bg-valija-banda" x="-50" y="-36" width="100" height="14"/>
+  <rect class="bg-valija-banda" x="-50" y="34" width="100" height="14"/>
+  <circle class="bg-valija-rueda" cx="-28" cy="90" r="9"/>
+  <circle class="bg-valija-rueda" cx="28" cy="90" r="9"/>
+</g>
+  <g id="dia-clase" transform="translate(556.0 1088.0)">
+    <path class="bg-libro" d="M-34 -22 Q-16 -30 0 -20 Q16 -30 34 -22 L34 26 Q16 18 0 28 Q-16 18 -34 26 Z"/>
+    <path class="bg-libro-hojas" d="M-26 -16 Q-12 -22 -3 -14 L-3 18 Q-12 12 -26 18 Z M3 -14 Q12 -22 26 -16 L26 18 Q12 12 3 18 Z"/>
+  </g>
+</g>
+<g id="iconos-apilados" transform="translate(432 1000)">
+  <g id="icono-valija" transform="translate(0 -40)">
+    <circle class="bg-sombra-icono" cx="6" cy="8" r="72"/>
+    <circle class="bg-icono" r="72"/>
+    <g id="icono-valija-dibujo" transform="translate(0 -2) scale(0.42)">
+  <rect class="bg-valija" x="-22" y="-112" width="12" height="44" rx="4"/>
+  <rect class="bg-valija" x="10" y="-112" width="12" height="44" rx="4"/>
+  <rect class="bg-valija" x="-30" y="-120" width="60" height="16" rx="8"/>
+  <rect class="bg-valija" x="-50" y="-76" width="100" height="160" rx="18"/>
+  <rect class="bg-valija-banda" x="-50" y="-36" width="100" height="14"/>
+  <rect class="bg-valija-banda" x="-50" y="34" width="100" height="14"/>
+  <circle class="bg-valija-rueda" cx="-28" cy="90" r="9"/>
+  <circle class="bg-valija-rueda" cx="28" cy="90" r="9"/>
+</g>
+  </g>
+  <g id="icono-tramite" transform="translate(110 -170)">
+    <circle class="bg-sombra-icono" cx="6" cy="8" r="72"/>
+    <circle class="bg-icono" r="72"/>
+    <rect class="bg-icono-borde" x="-32" y="-42" width="64" height="84" rx="8"/>
+    <rect class="bg-papel-tramite" x="-26" y="-36" width="52" height="72" rx="5"/>
+    <rect class="bg-renglon" x="-18" y="-26" width="36" height="7" rx="3"/>
+    <rect class="bg-renglon" x="-18" y="-12" width="30" height="7" rx="3"/>
+    <rect class="bg-renglon" x="-18" y="2" width="36" height="7" rx="3"/>
+    <circle class="bg-sello-tramite" stroke-width="5" cx="10" cy="24" r="12"/>
+  </g>
+  <g id="icono-cansancio" transform="translate(-10 -300)">
+    <circle class="bg-sombra-icono" cx="6" cy="8" r="72"/>
+    <circle class="bg-icono" r="72"/>
+    <rect class="bg-bateria" stroke-width="7" x="-40" y="-22" width="72" height="44" rx="8"/>
+    <rect class="bg-icono-borde" x="34" y="-10" width="10" height="20" rx="3"/>
+    <rect class="bg-bateria-baja" x="-32" y="-14" width="16" height="28" rx="3"/>
+  </g>
+</g>
+<rect id="textura-papel" width="1080" height="1920" filter="url(#papel)" opacity="0.55"/>
+</svg>

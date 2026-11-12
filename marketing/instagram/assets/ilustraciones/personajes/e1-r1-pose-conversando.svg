@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200" role="img">
 <title>E1 y R1 conversando</title>
-<desc>E1 y R1 sentados a una mesa, de tres cuartos y mirándose, conversan con tranquilidad con una carpeta abierta (el reglamento) entre los dos.</desc>
+<desc>E1 y R1 sentados a una mesa, de tres cuartos y mirándose, conversan con tranquilidad con una carpeta abierta (el reglamento) entre los dos y una laptop abierta hacia R1, de la que solo se ve la tapa.</desc>
 <style>
   .fondo{fill:#fbf6ec}
   .piso{fill:#ece3cf}
@@ -50,6 +50,9 @@
   .silla{fill:#a87f50}
   .carpeta-hoja-mesa{fill:#f3ead8}
   .carpeta-mesa{fill:#2f6b5a}
+  .laptop-tapa{fill:#5d666b}
+  .laptop-canto{fill:#465055}
+  .laptop-base{fill:#7b8489}
 </style>
 <rect class="fondo" width="1200" height="1200"/>
 <defs><clipPath id="sobre-mesa"><rect x="0" y="0" width="1200" height="786"/></clipPath></defs>
@@ -178,5 +181,10 @@
 <g id="e1-brazo-der" data-parte="brazo-der" transform="translate(-765 220)">
   <path class="e1-abrigo-brazo" stroke-width="46" d="M1090 404 Q1070 470 1092 498 Q1150 520 1220 514"/>
   <circle class="e1-piel" cx="1238" cy="512" r="21"/>
+</g>
+<g id="laptop" data-parte="laptop">
+  <path class="laptop-tapa" d="M790 718 L806 622 L912 616 L900 716 Z"/>
+  <path class="laptop-canto" d="M900 716 L912 616 L918 618 L906 718 Z"/>
+  <path class="laptop-base" d="M770 718 L906 718 L914 730 L760 730 Z"/>
 </g>
 </svg>

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350" role="img">
+<title>Post 4, diapositivas 2, 4, 5 y 6: celular para la captura</title>
+<desc>Celular dibujado de frente, sin marca, sobre un círculo arena. La pantalla (#pantalla-captura) mide 310x671 en x 385, y 542 y espera la captura (C1, C3, C4 o C5) a 390x844.</desc>
+<defs>
+<filter id="papel" x="0" y="0" width="100%" height="100%">
+  <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="7"/>
+  <feColorMatrix type="matrix" values="0 0 0 0 0.36  0 0 0 0 0.29  0 0 0 0 0.19  0 0 0 1.1 -0.48"/>
+</filter>
+
+</defs>
+<style>
+  .crema{fill:#fbf6ec}
+  .forest{fill:#1f7d5c}
+  .forest-osc{fill:#0c3a2c}
+  .tinta{fill:#1d2722}
+  .arena{fill:#f1d9a8}
+  .arena-osc{fill:#e2c88f}
+  .hoja{fill:#fffdf7}
+  .sombra{fill:#e9dfc8}
+  .barra{fill:#d9cba8}
+  .menta{fill:#cfe5d9}
+  .tilde{fill:none;stroke:#fbf6ec;stroke-linecap:round;stroke-linejoin:round}
+  .linea-tinta{fill:none;stroke:#1d2722;stroke-linecap:round;stroke-linejoin:round}
+  .linea-forest{fill:none;stroke:#1f7d5c;stroke-linecap:round;stroke-linejoin:round}
+  .linea-crema{fill:none;stroke:#fbf6ec;stroke-linecap:round;stroke-linejoin:round}
+  .vacio{fill:none;stroke:#b9a983;stroke-dasharray:10 8}
+  .pantalla{fill:#e4efe9}
+</style>
+<rect id="fondo" class="crema" width="1080" height="1350"/>
+<circle class="arena" cx="540" cy="900" r="330"/><g id="celular"><rect class="sombra" x="383.0" y="534" width="342" height="715" rx="52"/><rect class="tinta" x="369.0" y="520" width="342" height="715" rx="52"/><rect id="pantalla-captura" class="pantalla" x="385.0" y="542" width="310" height="671" rx="36"/><rect class="tinta" x="496" y="552" width="88" height="22" rx="11"/></g>
+<rect id="textura-papel" width="1080" height="1350" filter="url(#papel)" opacity="0.55"/>
+</svg>

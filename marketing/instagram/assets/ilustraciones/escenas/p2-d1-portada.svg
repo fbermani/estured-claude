@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350" role="img">
+<title>Post 2, portada: E1 con laptop y checklist</title>
+<desc>Fondo forest. E1 de pie mira su laptop sobre un círculo arena; a la izquierda, una tarjeta crema con tres casillas tildadas y renglones sin texto. Abajo a la derecha, botón de deslizar. Arriba queda libre para el titular.</desc>
+<defs>
+<filter id="papel" x="0" y="0" width="100%" height="100%">
+  <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="7"/>
+  <feColorMatrix type="matrix" values="0 0 0 0 0.36  0 0 0 0 0.29  0 0 0 0 0.19  0 0 0 1.1 -0.48"/>
+</filter>
+
+</defs>
+<style>
+  .crema{fill:#fbf6ec}
+  .forest{fill:#1f7d5c}
+  .forest-osc{fill:#0c3a2c}
+  .tinta{fill:#1d2722}
+  .arena{fill:#f1d9a8}
+  .arena-osc{fill:#e2c88f}
+  .hoja{fill:#fffdf7}
+  .sombra{fill:#e9dfc8}
+  .barra{fill:#d9cba8}
+  .menta{fill:#cfe5d9}
+  .tilde{fill:none;stroke:#fbf6ec;stroke-linecap:round;stroke-linejoin:round}
+  .linea-tinta{fill:none;stroke:#1d2722;stroke-linecap:round;stroke-linejoin:round}
+  .linea-forest{fill:none;stroke:#1f7d5c;stroke-linecap:round;stroke-linejoin:round}
+  .linea-crema{fill:none;stroke:#fbf6ec;stroke-linecap:round;stroke-linejoin:round}
+  .vacio{fill:none;stroke:#b9a983;stroke-dasharray:10 8}
+
+  .piso{fill:#1d2722;fill-opacity:0.12}
+  .e1-piel{fill:#b97a4f}
+  .e1-piel-sombra{fill:#a4683f}
+  .e1-pelo{fill:#2a1d17}
+  .e1-tinta{fill:#1d2722}
+  .e1-trazo{fill:none;stroke:#1d2722;stroke-linecap:round}
+  .e1-abrigo{fill:#1f7d5c}
+  .e1-abrigo-brazo{fill:none;stroke:#1a6e51;stroke-linecap:round}
+  .e1-abrigo-brazo-lejos{fill:none;stroke:#155c44;stroke-linecap:round}
+  .e1-abrigo-linea{fill:none;stroke:#0c3a2c;stroke-linecap:round}
+  .e1-cuello{fill:#0c3a2c}
+  .e1-pantalon{fill:#2f3b45}
+  .e1-pantalon-lejos{fill:#27313a}
+  .e1-zapatilla{fill:#1d2722}
+  .e1-mochila{fill:#d8b06a}
+  .e1-mochila-sombra{fill:#c29a55}
+  .e1-tira{fill:none;stroke:#d8b06a;stroke-linecap:round}
+  .e1-valija{fill:#0c3a2c}
+  .e1-valija-lado{fill:#082a1f}
+  .e1-valija-manija{fill:#14503c}
+  .e1-valija-banda{fill:#f1d9a8}
+  .laptop-tapa{fill:#5d666b}
+  .laptop-canto{fill:#465055}
+  .laptop-base{fill:#7b8489}
+  .celular-dorso{fill:#1d2722}
+  .celular-camara{fill:#465055}
+
+</style>
+<rect id="fondo" class="forest" width="1080" height="1350"/>
+<circle id="escenario" class="arena" cx="650" cy="1010" r="270"/><g id="lista-tildes" transform="rotate(-5 270 900)"><rect class="sombra" x="122" y="742" width="300" height="330" rx="26" opacity="0.35"/><rect class="crema" x="110" y="728" width="300" height="330" rx="26"/><rect class="forest" x="146" y="778" width="52" height="52" rx="11"/><path class="tilde" stroke-width="6.8" d="M158.5 805.0 L168.4 814.4 L186.0 793.6"/><rect class="barra" x="218" y="796" width="170" height="18" rx="9"/><rect class="forest" x="146" y="870" width="52" height="52" rx="11"/><path class="tilde" stroke-width="6.8" d="M158.5 897.0 L168.4 906.4 L186.0 885.6"/><rect class="barra" x="218" y="888" width="130" height="18" rx="9"/><rect class="forest" x="146" y="962" width="52" height="52" rx="11"/><path class="tilde" stroke-width="6.8" d="M158.5 989.0 L168.4 998.4 L186.0 977.6"/><rect class="barra" x="218" y="980" width="150" height="18" rx="9"/></g><g id="e1" transform="translate(236 478) scale(0.69)">
+
+<ellipse class="piso" cx="600" cy="1114" rx="300" ry="22"/>
+<g id="e1-laptop" transform="translate(-560 40)">
+  <g id="e1-tc-pierna-izq" data-parte="pierna-izq">
+    <rect class="e1-pantalon-lejos" x="1166" y="700" width="48" height="345" rx="14" />
+    <rect class="e1-zapatilla" x="1158" y="1034" width="80" height="40" rx="18" />
+  </g>
+  
+  <g id="e1-tc-pierna-der" data-parte="pierna-der">
+    <rect class="e1-pantalon" x="1100" y="700" width="52" height="345" rx="14" />
+    <rect class="e1-zapatilla" x="1092" y="1034" width="82" height="40" rx="18" />
+  </g>
+
+  
+  <g id="e1-tc-mochila" data-parte="mochila">
+    <rect class="e1-mochila" x="1020" y="392" width="64" height="252" rx="24" />
+    <rect class="e1-mochila-sombra" x="1020" y="392" width="64" height="74" rx="24" />
+    <rect class="e1-mochila-sombra" x="1028" y="540" width="40" height="70" rx="12" />
+  </g>
+
+  
+  <g id="e1-brazo-izq-hombro" data-parte="brazo-izq">
+    <path class="e1-abrigo-brazo-lejos" stroke-width="42" d="M1236 404 Q1290 470 1318 548"/>
+  </g>
+  <g id="e1-tc-torso" data-parte="torso">
+    <rect class="e1-piel-sombra" x="1138" y="336" width="28" height="40" rx="8" />
+    <path class="e1-abrigo" d="M1082 376 Q1150 362 1228 376 Q1262 392 1262 440 L1268 722 Q1170 738 1068 720 L1074 440 Q1074 392 1082 376 Z" />
+    <path class="e1-abrigo-linea" stroke-width="5" d="M1184 386 V730" />
+    <path class="e1-abrigo-linea" stroke-width="5" d="M1206 612 H1244" />
+    <rect class="e1-cuello" x="1124" y="352" width="72" height="34" rx="15" />
+    <path class="e1-tira" stroke-width="16" d="M1104 384 Q1098 460 1102 540" />
+    <rect class="e1-mochila-sombra" x="1092" y="512" width="22" height="12" rx="4" />
+  </g>
+
+  
+  <g transform="rotate(9 1150 350)"><g id="e1-tc-cabeza" data-parte="cabeza">
+    <ellipse class="e1-piel" cx="1155" cy="285" rx="55" ry="70" />
+    <circle class="e1-piel" cx="1208" cy="306" r="9" />
+    <g id="e1-tc-pelo" data-parte="pelo">
+      <ellipse class="e1-pelo" cx="1146" cy="234" rx="56" ry="27" />
+      <circle class="e1-pelo" cx="1100" cy="252" r="26" />
+      <circle class="e1-pelo" cx="1096" cy="278" r="20" />
+      <circle class="e1-pelo" cx="1108" cy="224" r="25" />
+      <circle class="e1-pelo" cx="1132" cy="206" r="26" />
+      <circle class="e1-pelo" cx="1163" cy="202" r="26" />
+      <circle class="e1-pelo" cx="1191" cy="213" r="23" />
+      <circle class="e1-pelo" cx="1206" cy="236" r="18" />
+    </g>
+    <circle class="e1-piel-sombra" cx="1104" cy="300" r="12" />
+    <g id="e1-tc-cejas" data-parte="cejas">
+      <path class="e1-trazo" stroke-width="6" d="M1148 278 Q1160 271 1172 277" />
+      <path class="e1-trazo" stroke-width="6" d="M1186 277 Q1195 272 1203 278" />
+    </g>
+    <g id="e1-tc-ojos" data-parte="ojos">
+      <circle class="e1-tinta" cx="1160" cy="297" r="7" />
+      <circle class="e1-tinta" cx="1195" cy="297" r="6" />
+    </g>
+    <g id="e1-tc-boca" data-parte="boca">
+      <path class="e1-trazo" stroke-width="4.5" d="M1170 323 Q1180 328 1190 322" />
+    </g>
+  </g>
+
+  </g>
+  <g id="laptop" data-parte="laptop">
+    <path class="laptop-tapa" d="M1296 566 L1318 426 L1408 412 L1388 560 Z"/>
+    <path class="laptop-canto" d="M1388 560 L1408 412 L1415 415 L1395 563 Z"/>
+    <path class="laptop-base" d="M1176 572 L1388 560 L1398 574 L1166 588 Z"/>
+  </g>
+  <g id="e1-mano-izq" data-parte="brazo-izq">
+    <circle class="e1-piel-sombra" cx="1322" cy="562" r="18"/>
+  </g>
+  <g id="e1-brazo-der" data-parte="brazo-der">
+    <path class="e1-abrigo-brazo" stroke-width="46" d="M1090 404 Q1066 520 1120 586 L1196 594"/>
+    <circle class="e1-piel" cx="1214" cy="592" r="21"/>
+  </g>
+</g>
+
+</g><g id="flecha-deslizar"><circle class="crema" cx="946" cy="1216" r="46"/><path class="linea-forest" stroke-width="10" d="M920 1216 H968 M950 1196 L970 1216 L950 1236"/></g>
+<rect id="textura-papel" width="1080" height="1350" filter="url(#papel)" opacity="0.55"/>
+</svg>

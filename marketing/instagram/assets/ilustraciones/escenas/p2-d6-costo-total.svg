@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350" role="img">
+<title>Post 2, diapositiva 6: el costo total</title>
+<desc>Hoja de costos con un círculo forest y el signo pesos, seis renglones sin texto con su casilla de monto vacía, y una fila de total también vacía. Sin cifras.</desc>
+<defs>
+<filter id="papel" x="0" y="0" width="100%" height="100%">
+  <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="7"/>
+  <feColorMatrix type="matrix" values="0 0 0 0 0.36  0 0 0 0 0.29  0 0 0 0 0.19  0 0 0 1.1 -0.48"/>
+</filter>
+
+</defs>
+<style>
+  .crema{fill:#fbf6ec}
+  .forest{fill:#1f7d5c}
+  .forest-osc{fill:#0c3a2c}
+  .tinta{fill:#1d2722}
+  .arena{fill:#f1d9a8}
+  .arena-osc{fill:#e2c88f}
+  .hoja{fill:#fffdf7}
+  .sombra{fill:#e9dfc8}
+  .barra{fill:#d9cba8}
+  .menta{fill:#cfe5d9}
+  .tilde{fill:none;stroke:#fbf6ec;stroke-linecap:round;stroke-linejoin:round}
+  .linea-tinta{fill:none;stroke:#1d2722;stroke-linecap:round;stroke-linejoin:round}
+  .linea-forest{fill:none;stroke:#1f7d5c;stroke-linecap:round;stroke-linejoin:round}
+  .linea-crema{fill:none;stroke:#fbf6ec;stroke-linecap:round;stroke-linejoin:round}
+  .vacio{fill:none;stroke:#b9a983;stroke-dasharray:10 8}
+
+</style>
+<rect id="fondo" class="crema" width="1080" height="1350"/>
+<g id="costo-total"><rect class="sombra" x="164" y="604" width="780" height="640" rx="26"/><rect class="hoja" x="150" y="590" width="780" height="640" rx="26"/><circle class="forest" cx="238" cy="684" r="54"/><path class="linea-crema" stroke-width="9" d="M260 652 Q240 640 222 648 Q206 658 216 670 Q228 680 246 684 Q264 690 262 704 Q256 718 232 714 Q220 712 212 704"/><path class="linea-crema" stroke-width="7" d="M238 634 V734"/><rect class="arena-osc" x="318" y="670" width="260" height="28" rx="14"/><rect class="barra" x="200" y="790" width="180" height="18" rx="9"/><rect class="vacio" x="660" y="778" width="220" height="42" rx="10" stroke-width="4"/><rect class="barra" x="200" y="852" width="260" height="18" rx="9"/><rect class="vacio" x="660" y="840" width="220" height="42" rx="10" stroke-width="4"/><rect class="barra" x="200" y="914" width="160" height="18" rx="9"/><rect class="vacio" x="660" y="902" width="220" height="42" rx="10" stroke-width="4"/><rect class="barra" x="200" y="976" width="140" height="18" rx="9"/><rect class="vacio" x="660" y="964" width="220" height="42" rx="10" stroke-width="4"/><rect class="barra" x="200" y="1038" width="240" height="18" rx="9"/><rect class="vacio" x="660" y="1026" width="220" height="42" rx="10" stroke-width="4"/><rect class="barra" x="200" y="1100" width="190" height="18" rx="9"/><rect class="vacio" x="660" y="1088" width="220" height="42" rx="10" stroke-width="4"/><rect class="tinta" x="200" y="1150" width="680" height="6" rx="3"/><rect class="forest" x="200" y="1176" width="150" height="22" rx="11"/><rect class="vacio" x="660" y="1168" width="220" height="44" rx="10" stroke-width="5" style="stroke:#1f7d5c"/></g>
+<rect id="textura-papel" width="1080" height="1350" filter="url(#papel)" opacity="0.55"/>
+</svg>

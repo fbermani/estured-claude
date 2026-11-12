@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920" role="img">
+<title>Habitación vacía de residencia</title>
+<desc>Habitación vacía de una residencia: puerta de entrada abierta al pasillo, escritorio con lámpara y silla, ventana con luz de día y cama sin hacer con frazada verde. Fondo para la escena 1 del post 3.</desc>
+<defs>
+<filter id="papel" x="0" y="0" width="100%" height="100%">
+  <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="7"/>
+  <feColorMatrix type="matrix" values="0 0 0 0 0.36  0 0 0 0 0.29  0 0 0 0 0.19  0 0 0 1.1 -0.48"/>
+</filter>
+
+</defs>
+<style>
+  .bg-pared{fill:#ece3d2}
+  .bg-zocalo{fill:#d9cdb5}
+  .bg-piso{fill:#cbb18c}
+  .bg-tabla{fill:#bb9f78}
+  .bg-marco{fill:#fbf6ec}
+  .bg-vidrio{fill:#cfe0e3}
+  .bg-sol{fill:#f2f6f2}
+  .bg-cama-base{fill:#b8a17f}
+  .bg-colchon{fill:#f4efe4}
+  .bg-frazada{fill:#9fb7a6}
+  .bg-frazada-pliegue{fill:#8aa592}
+  .bg-almohada{fill:#fbf8f1}
+  .bg-escritorio{fill:#a87f50}
+  .bg-escritorio-canto{fill:#946d42}
+  .bg-silla{fill:#5d6a66}
+  .bg-lampara{fill:#1d2722}
+  .bg-lampara-luz{fill:#f1d9a8}
+  .bg-puerta-marco{fill:#c9b391}
+  .bg-pasillo{fill:#8e9d97}
+  .bg-pasillo-piso{fill:#7d8b85}
+  .bg-cuadrito{fill:#fbf6ec}
+  .bg-cuadrito-dentro{fill:#c9d6c9}
+</style>
+<rect class="bg-pared" width="1080" height="1330"/>
+<rect class="bg-zocalo" y="1304" width="1080" height="26"/>
+<rect class="bg-piso" y="1330" width="1080" height="590"/>
+<rect class="bg-tabla" y="1420" width="1080" height="5"/>
+<rect class="bg-tabla" y="1540" width="1080" height="5"/>
+<rect class="bg-tabla" y="1690" width="1080" height="5"/>
+<rect class="bg-tabla" y="1870" width="1080" height="5"/>
+
+<g id="puerta-entrada">
+  <rect class="bg-puerta-marco" x="0" y="560" width="200" height="770"/>
+  <rect class="bg-pasillo" x="0" y="584" width="176" height="746"/>
+  <path class="bg-pasillo-piso" d="M0 1180 L176 1180 L176 1330 L0 1330 Z"/>
+</g>
+<g id="ventana">
+  <rect class="bg-marco" x="690" y="560" width="260" height="340" rx="10"/>
+  <rect class="bg-vidrio" x="708" y="578" width="224" height="304" rx="4"/>
+  <circle class="bg-sol" cx="866.8" cy="682.4" r="33.800000000000004"/>
+  <rect class="bg-marco" x="812.0" y="578" width="16" height="304"/>
+  <rect class="bg-marco" x="708" y="723.2" width="224" height="14"/>
+  <rect class="bg-marco" x="674" y="894" width="292" height="22" rx="6"/>
+</g>
+<g id="escritorio">
+  <rect class="bg-escritorio" x="300" y="1060" width="300" height="22" rx="4"/>
+  <rect class="bg-escritorio-canto" x="316" y="1082" width="18" height="230"/>
+  <rect class="bg-escritorio-canto" x="566" y="1082" width="18" height="230"/>
+  <rect class="bg-lampara" x="530" y="960" width="8" height="100"/>
+  <path class="bg-lampara-luz" d="M506 930 L564 930 L576 970 L494 970 Z"/>
+  <rect class="bg-silla" x="360" y="960" width="22" height="300" rx="8"/>
+</g>
+<g id="cama">
+  <rect class="bg-cama-base" x="700" y="1170" width="420" height="150" rx="10"/>
+  <rect class="bg-colchon" x="690" y="1120" width="440" height="66" rx="20"/>
+  <rect class="bg-almohada" x="1000" y="1072" width="120" height="58" rx="24" transform="rotate(8 1060 1100)"/>
+  <path class="bg-frazada" d="M680 1142 Q760 1100 850 1134 Q920 1158 980 1126 L1000 1200 Q840 1246 676 1220 Z"/>
+  <path class="bg-frazada-pliegue" d="M740 1154 Q820 1142 900 1170 L896 1182 Q820 1158 744 1168 Z"/>
+</g>
+<rect id="textura-papel" width="1080" height="1920" filter="url(#papel)" opacity="0.55"/>
+</svg>
