@@ -1,15 +1,21 @@
 import "server-only";
-import { createRateLimiter } from "@/lib/receipts/verifyRateLimit";
+import { consumeRateLimit, emailRateLimitKey } from "@/lib/security/rateLimit";
 
 /**
- * Frenos del pedido de recuperación de contraseña (H13). En memoria y por
- * instancia (best-effort en serverless, igual que `verifyRateLimit`): encarece
- * el abuso pero NO es el control de producción. **El límite real va en el WAF
- * / Firewall de Vercel sobre `/forgot-password`** (pendiente, anotado en
- * MEMORY.md Ciclo 50). Las claves son hashes (IP y email), nunca texto plano.
+ * Frenos del pedido de recuperación de contraseña (H13, M6): persistentes en Postgres vía `consumeRateLimit` (migración 0083),
+ * así cuentan entre todas las instancias serverless. Las claves (IP y email) se hashean antes de guardarse, nunca en texto plano.
  */
-export const resetByIpAllowed = createRateLimiter({ limit: 5, windowMs: 3_600_000 });
-export const resetByEmailAllowed = createRateLimiter({ limit: 3, windowMs: 3_600_000 });
+const HOUR = 3_600;
+
+/** 5 pedidos por hora por IP (clave de `clientKeyFromHeaders`). */
+export async function resetByIpAllowed(clientKey: string): Promise<boolean> {
+  return (await consumeRateLimit({ bucket: "reset_ip", key: clientKey, windowSeconds: HOUR, max: 5 })).ok;
+}
+
+/** 3 pedidos por hora por email. */
+export async function resetByEmailAllowed(email: string): Promise<boolean> {
+  return (await consumeRateLimit({ bucket: "reset_email", key: emailRateLimitKey(email), windowSeconds: HOUR, max: 3 })).ok;
+}
 
 /** Piso de tiempo de respuesta: iguala cuentas normales con bloqueadas/limitadas. */
 export const MIN_RESET_RESPONSE_MS = 1500;

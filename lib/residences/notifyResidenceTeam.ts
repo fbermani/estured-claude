@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createNotification } from "@/lib/notifications/createNotification";
 import { sendEmail } from "@/lib/email/sendEmail";
 import { rowCan, type ResidencePermission } from "@/lib/residences/permissions";
+import { getAppUrl } from "@/lib/appUrl";
 
 /**
  * Avisos al equipo de la residencia (owner + staff activos) en el loop central (Ciclo 63, docs/07: "notificar a la
@@ -262,7 +263,7 @@ export async function notifyResidenceTeam(
     if (recipients.length === 0) return;
 
     const copy = buildResidenceTeamMessage(params.event, residence?.name ?? "tu residencia");
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+    const appUrl = getAppUrl();
     const link = `${appUrl}${pathFor(params.event, params.residenceId, params.entityId)}`;
 
     await Promise.all(

@@ -19,7 +19,12 @@ yarn-error.log*
 
 # env files — nunca commitear credenciales
 .env
-.env*.local
+.env*
+!.env.example
+*.key
+*.pem
+service-account*.json
+client_secret*.json
 
 # vercel
 .vercel

@@ -2,6 +2,15 @@
 
 # EstuRed — Próximos pasos
 
+## Pendientes tras el hardening de seguridad (2026-11-12)
+Detalle en `docs/audits/PLAN_SEGURIDAD_2026-11-12.md` ("Estado al 2026-11-12").
+- Pasar la CSP de Report-Only a enforce tras observar los reportes (M5).
+- CAPTCHA Turnstile en Supabase Auth y formularios públicos (M6).
+- Verificación de email en preapertura (hoy `email_confirm: true`).
+- B14: decidir qué carpetas sin trackear se commitean o ignoran.
+- Activar "Leaked password protection" en Supabase Auth (dev y prod) y revisar la duración del JWT.
+- Vercel prod: `NEXT_PUBLIC_APP_URL` obligatorio (`getAppUrl` lanza si falta), `DEMO_*` ausentes en Production y Preview, `CRON_SECRET`; crear el secreto `cron_secret` en Supabase Vault antes del bootstrap de prod.
+
 ## Preapertura — Fase 3 implementada 2026-11-08 (sin commit)
 
 **Hecho (pasos 6 y 7 + legales):** `/mi-lugar` final (celebración, #N real, panel blureado «se activa cuando abramos», 5 pasos, carrusel «Se siguen sumando»; variantes perfil incompleto, familiar con invitación esperando/vencida/vinculados y cuenta sin fila; pie «Editar mi perfil»/«Salir»). Carrusel público REAL en entrada, paso 1, fondo blureado y Mi lugar (`communityRail.ts` puro + `communityRailData.ts` con service role y lista blanca de columnas; caché de datos con etiqueta `preapertura-community` que `saveProfile` invalida junto con `/preapertura`, `/` y `/for-students`). `/fundadoras` (medidor de cupo real, `Countdown` solo con `FOUNDERS_CLOSE_AT`, estados 0 / 1–2 / 3–9 / 10 / cerrado) y el CTA de la entrada apunta ahí. `/register/residence`: 5 datos obligatorios (nombre de la residencia, `address`, responsable, teléfono, email), misma validación en cliente y servidor (`validateSignupFields`), éxito con lugar de fundadora según el cupo de ANTES de guardar, mail de confirmación (`lib/residenceSignup/confirmationEmail.ts`, solo con preapertura encendida, degrada sin Resend) y, con flag, reescritura a `/fundadoras/datos` (popup). Legales: `/consentimientos` (líneas del flujo + Términos de la preapertura con la opción C y la comunidad + política) y la misma sección en `/terms` y `/privacy` solo con flag; los casilleros enlazan ahí (pestaña nueva). Sin migración nueva.

@@ -8,9 +8,18 @@ import { setUserBlockedStatus } from "@/lib/users/setUserBlockedStatus";
 type Result = { data?: unknown; error?: { code: string; message: string } | null };
 
 /** Cliente falso mínimo: cada tabla devuelve un resultado fijo para select y update. */
-function fakeAdmin(tables: { users: Result; user_roles: Result; usersUpdate?: Result }) {
+function fakeAdmin(tables: { users: Result; user_roles: Result; usersUpdate?: Result; authError?: { message: string } | null }) {
   const updates: unknown[] = [];
+  const bans: unknown[] = [];
   const client = {
+    auth: {
+      admin: {
+        updateUserById: async (id: string, attrs: unknown) => {
+          bans.push({ id, attrs });
+          return { error: tables.authError ?? null };
+        },
+      },
+    },
     from(table: "users" | "user_roles") {
       const result = tables[table];
       const chain: Record<string, unknown> = {
@@ -27,7 +36,7 @@ function fakeAdmin(tables: { users: Result; user_roles: Result; usersUpdate?: Re
       return chain;
     },
   };
-  return { client: client as never, updates };
+  return { client: client as never, updates, bans };
 }
 
 const base = { actorUserId: "actor", targetUserId: "target", blocked: true, reason: "Motivo válido" };
@@ -82,5 +91,33 @@ describe("setUserBlockedStatus (permisos DR9, cliente falso)", () => {
     const { client } = fakeAdmin({ users: { data: targetUser }, user_roles: { data: [] }, usersUpdate: { data: [] } });
     const r = await setUserBlockedStatus(client, { ...base, actorRoles: ["admin"] });
     expect(r.status).toBe("error");
+  });
+
+  it("al bloquear banea también en Supabase Auth", async () => {
+    const { client, bans } = fakeAdmin({ users: { data: targetUser }, user_roles: { data: [] } });
+    const r = await setUserBlockedStatus(client, { ...base, actorRoles: ["admin"] });
+    expect(r.status).toBe("ok");
+    expect(bans).toEqual([{ id: "target", attrs: { ban_duration: "876000h" } }]);
+  });
+
+  it("al desbloquear levanta el ban de Auth", async () => {
+    const { client, bans } = fakeAdmin({ users: { data: { ...targetUser, is_blocked: true } }, user_roles: { data: [] } });
+    const r = await setUserBlockedStatus(client, { ...base, blocked: false, actorRoles: ["admin"] });
+    expect(r.status).toBe("ok");
+    expect(bans).toEqual([{ id: "target", attrs: { ban_duration: "none" } }]);
+  });
+
+  it("si Auth falla al desbloquear, no toca la base (sigue bloqueado)", async () => {
+    const { client, updates } = fakeAdmin({ users: { data: { ...targetUser, is_blocked: true } }, user_roles: { data: [] }, authError: { message: "down" } });
+    const r = await setUserBlockedStatus(client, { ...base, blocked: false, actorRoles: ["admin"] });
+    expect(r.status).toBe("error");
+    expect(updates).toHaveLength(0);
+  });
+
+  it("si Auth falla al bloquear, conserva el bloqueo en la base y devuelve error", async () => {
+    const { client, updates } = fakeAdmin({ users: { data: targetUser }, user_roles: { data: [] }, authError: { message: "down" } });
+    const r = await setUserBlockedStatus(client, { ...base, actorRoles: ["admin"] });
+    expect(r.status).toBe("error");
+    expect(updates).toHaveLength(1);
   });
 });

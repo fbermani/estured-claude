@@ -9,7 +9,10 @@ export function safeInternalPath(next: unknown, origin = "http://internal.invali
   try {
     const url = new URL(next, origin);
     if (url.origin !== new URL(origin).origin) return null;
-    return `${url.pathname}${url.search}${url.hash}`;
+    const normalized = `${url.pathname}${url.search}${url.hash}`;
+    // El normalizado (p. ej. `/.//evil.com` -> `//evil.com`) también debe ser un path interno.
+    if (normalized.startsWith("//") || normalized.startsWith("/\\") || !/^\/(?!\/)[^\\]*$/.test(normalized)) return null;
+    return normalized;
   } catch {
     return null;
   }

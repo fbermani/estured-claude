@@ -62,3 +62,11 @@ const EXTENSIONS: Record<EvidenceMime, string> = {
 export function extensionForMime(type: EvidenceMime): string {
   return EXTENSIONS[type];
 }
+
+/**
+ * Copia el archivo a un `Blob` con el tipo REAL detectado. `storage.upload()` ignora la opción `contentType` cuando el body es un `File`
+ * y guarda el tipo que declaró el cliente; con un `Blob` tipado, Storage guarda el tipo verificado.
+ */
+export async function toTypedBlob(file: Blob, realType: EvidenceMime): Promise<Blob> {
+  return new Blob([await file.arrayBuffer()], { type: realType });
+}

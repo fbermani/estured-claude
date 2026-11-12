@@ -3,7 +3,7 @@
 import { headers } from "next/headers";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { hashIp } from "@/lib/waitlist/hashIp";
+import { getAppUrl } from "@/lib/appUrl";
 import { clientKeyFromHeaders } from "@/lib/receipts/verifyRateLimit";
 import { padToMinimum, resetByEmailAllowed, resetByIpAllowed } from "@/lib/auth/resetThrottle";
 
@@ -27,9 +27,9 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  * observable (una llamada a Supabase Auth; las que no deben enviar usan una
  * dirección inexistente) y la respuesta se rellena hasta un piso fijo.
  *
- * Límites propios: 5 pedidos por hora por IP hasheada (error explícito, no
- * revela nada de la cuenta) y 3 por hora por email hasheado (silencioso).
- * Son en memoria: ver `lib/auth/resetThrottle.ts`.
+ * Límites propios: 5 pedidos por hora por IP (error explícito, no revela nada
+ * de la cuenta) y 3 por hora por email (silencioso). Persistentes en Postgres,
+ * con las claves hasheadas: ver `lib/auth/resetThrottle.ts`.
  */
 export async function requestPasswordReset(
   _prev: ForgotPasswordState,
@@ -44,8 +44,7 @@ export async function requestPasswordReset(
     return { status: "error", message: "Revisá tu email: no parece válido." };
   }
 
-  const ipKey = await hashIp(clientKeyFromHeaders(await headers()));
-  if (!resetByIpAllowed(ipKey)) {
+  if (!(await resetByIpAllowed(clientKeyFromHeaders(await headers())))) {
     return {
       status: "error",
       message: "Hiciste varios pedidos seguidos. Esperá un rato y probá de nuevo.",
@@ -60,7 +59,7 @@ export async function requestPasswordReset(
     };
   }
 
-  let shouldSend = resetByEmailAllowed(await hashIp(email));
+  let shouldSend = await resetByEmailAllowed(email);
   if (shouldSend) {
     const admin = getSupabaseAdmin();
     if (admin) {
@@ -75,7 +74,7 @@ export async function requestPasswordReset(
 
   // Misma llamada en todas las ramas; si no corresponde enviar, el destino no existe.
   const target = shouldSend ? email : `noop-${crypto.randomUUID()}@estured.invalid`;
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const appUrl = getAppUrl();
   try {
     const { error } = await supabase.auth.resetPasswordForEmail(target, {
       redirectTo: `${appUrl}/reset-password`,

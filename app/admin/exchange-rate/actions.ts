@@ -15,6 +15,9 @@ function todayArDate(): string {
 
 const provider = new MonedApiProvider();
 
+/** Tope de sanidad del override manual (ARS por USD). */
+const MAX_OVERRIDE_ARS_PER_USD = 100_000;
+
 /**
  * Docs/09 §25.3 — "Forzar actualización": vuelve a consultar monedapi.ar
  * y pisa la fila automática del día (o la crea si no existe). Nunca toca
@@ -29,7 +32,9 @@ export async function forceRefreshExchangeRate(): Promise<ExchangeRateActionStat
 
   const today = todayArDate();
   try {
-    const fetched = await provider.getReferenceUsdArsRate();
+    // "Forzar actualización" saltea el chequeo de ±50 % contra la última cotización (null = sin referencia); el de
+    // finito/>0/rango absoluto del provider sigue vigente.
+    const fetched = await provider.getReferenceUsdArsRate(null);
     const { data: existing } = await admin
       .from("exchange_rates")
       .select("id")
@@ -90,7 +95,9 @@ export async function setExchangeRateOverride(
 
   const arsPerUsd = Number(formData.get("ars_per_usd"));
   const reason = String(formData.get("reason") ?? "").trim();
-  if (!arsPerUsd || arsPerUsd <= 0) return { status: "error", message: "Ingresá un valor válido de ARS por USD." };
+  if (!Number.isFinite(arsPerUsd) || arsPerUsd <= 0 || arsPerUsd > MAX_OVERRIDE_ARS_PER_USD) {
+    return { status: "error", message: "Ingresá un valor válido de ARS por USD." };
+  }
   if (reason.length < 5) return { status: "error", message: "El motivo del override es obligatorio." };
 
   const today = todayArDate();

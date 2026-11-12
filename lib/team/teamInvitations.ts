@@ -51,6 +51,7 @@ import {
   validateInviteEmail,
   type InvitationView,
 } from "@/lib/team/teamRules";
+import { getAppUrl } from "@/lib/appUrl";
 
 /**
  * Equipo de una residencia (DR10, docs/00 §31): invitar, reenviar, cancelar, aceptar y quitar acceso. Cada función recibe el cliente
@@ -96,7 +97,7 @@ const GENERIC_ERROR = "No pudimos completar la acción. Intentá de nuevo en uno
 const ONE_HOUR_MS = 60 * 60 * 1000;
 
 function appUrl(): string {
-  return process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  return getAppUrl();
 }
 
 export function invitationLink(token: string): string {

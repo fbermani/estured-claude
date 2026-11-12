@@ -6,7 +6,8 @@ import { calculateFeeEstimate } from "@/lib/applications/fee";
 import { assertResidencePermission } from "@/lib/residences/access";
 import { assertRegulationAccepted } from "@/lib/regulations/gate";
 import { promoteNextQueuedApplication } from "@/lib/applications/roomTypeQueue";
-import { extensionForMime, resolveDocumentType } from "@/lib/files/sniffFile";
+import { extensionForMime, resolveDocumentType, toTypedBlob } from "@/lib/files/sniffFile";
+import { safeFilename } from "@/lib/files/safeFilename";
 
 export type RecordResidencePaymentReceivedResult =
   | { ok: true; reservationId: string; residenceId: string }
@@ -93,7 +94,7 @@ export async function recordResidencePaymentReceived(
     const path = `${params.applicationId}/residence-receipt-${crypto.randomUUID()}.${ext}`;
     const { error: uploadError } = await admin.storage
       .from("payment-proofs")
-      .upload(path, receiptFile, { contentType: realType });
+      .upload(path, await toTypedBlob(receiptFile, realType), { contentType: realType });
     if (uploadError) {
       console.error("[payment] receipt upload failed:", uploadError);
       return { ok: false, error: "No pudimos subir el recibo. Intentá de nuevo." };
@@ -106,7 +107,7 @@ export async function recordResidencePaymentReceived(
         related_entity_id: params.applicationId,
         bucket: "payment-proofs",
         storage_path: path,
-        filename: receiptFile.name,
+        filename: safeFilename(receiptFile.name),
         mime_type: realType,
         size_bytes: receiptFile.size,
         visibility: "context_shared",
@@ -118,6 +119,7 @@ export async function recordResidencePaymentReceived(
       .single();
     if (fileError || !fileRow) {
       console.error("[payment] receipt file row failed:", fileError);
+      await admin.storage.from("payment-proofs").remove([path]);
       return { ok: false, error: "No pudimos registrar el recibo." };
     }
     receiptFileId = fileRow.id;

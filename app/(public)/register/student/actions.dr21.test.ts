@@ -20,6 +20,7 @@ vi.mock("@/lib/residents/inviteVerification", () => ({
   resolveInviteByToken: async () => ({ ok: true, invite: { channel: "email", otp_verified_at: null }, stay: { invite_email: "x@y.com" } }),
 }));
 vi.mock("@/lib/residents/inviteThrottle", () => ({ INVITE_TOO_MANY_ATTEMPTS: "x", inviteAttemptAllowed: () => true }));
+vi.mock("@/lib/security/rateLimit", () => ({ consumeRateLimit: async () => ({ ok: true }) }));
 const inserted = vi.hoisted(() => ({ creates: 0 }));
 vi.mock("@/lib/supabase/admin", () => ({
   getSupabaseAdmin: () => ({

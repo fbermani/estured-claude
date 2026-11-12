@@ -52,3 +52,9 @@ export function clientKeyFromHeaders(headers: { get(name: string): string | null
 
 /** 20 búsquedas por número por minuto y por IP (o en total, para el bucket "unknown"). */
 export const verifyByNumberAllowed = createRateLimiter({ limit: 20, windowMs: 60_000 });
+
+/** IP del cliente para auditoría (sin bucket "unknown"): misma prioridad de cabeceras que `clientKeyFromHeaders`; null si no hay ninguna. */
+export function clientIpFromHeaders(headers: { get(name: string): string | null }): string | null {
+  const key = clientKeyFromHeaders(headers);
+  return key === "unknown" ? null : key;
+}

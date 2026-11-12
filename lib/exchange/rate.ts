@@ -69,7 +69,17 @@ export async function getCurrentExchangeRate(): Promise<CurrentExchangeRate> {
   if (existing) return toResult(existing);
 
   try {
-    const fetched = await provider.getReferenceUsdArsRate();
+    const { data: previous } = await admin
+      .from("exchange_rates")
+      .select("official_exchange_rate_ars_per_usd")
+      .eq("manually_overridden", false) // un override manual no es referencia de plausibilidad
+      .order("rate_date", { ascending: false })
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const fetched = await provider.getReferenceUsdArsRate(
+      previous ? Number(previous.official_exchange_rate_ars_per_usd) : null,
+    );
     const { data: inserted, error } = await admin
       .from("exchange_rates")
       .insert({

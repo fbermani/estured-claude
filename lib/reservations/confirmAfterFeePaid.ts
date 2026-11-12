@@ -7,6 +7,7 @@ import { promoteNextQueuedApplication } from "@/lib/applications/roomTypeQueue";
 import { withEmptyMonthColumns } from "@/lib/applications/snapshotColumns";
 import { insertReceiptWithRetry } from "@/lib/receipts/receiptNumber";
 import { resolveStayChangeIntentOnReservation } from "@/lib/stayChange/resolveStayChangeIntent";
+import { getAppUrl } from "@/lib/appUrl";
 
 type ConfirmResult =
   | { ok: true; reservationId: string; receiptId: string; verificationCode: string }
@@ -65,6 +66,8 @@ export async function confirmReservationAfterFeePaid(
     return { ok: false, error: "El pago a la residencia todavía no fue confirmado." };
   }
 
+  // Se lee antes de cualquier escritura: si falta la config, no queda una reserva confirmada sin comprobante.
+  const appUrl = getAppUrl();
   const now = new Date();
 
   // UPDATE condicional + chequeo de filas afectadas: solo sigue (disponibilidad, hermanas, comprobante) quien efectivamente la confirmó.
@@ -172,8 +175,6 @@ export async function confirmReservationAfterFeePaid(
     )
     .eq("id", feePayment.id)
     .single();
-
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
   const receiptPayload = {
     reservation_id: reservation.id,

@@ -1,7 +1,8 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
-import { extensionForMime, resolveDocumentType } from "@/lib/files/sniffFile";
+import { extensionForMime, resolveDocumentType, toTypedBlob } from "@/lib/files/sniffFile";
+import { safeFilename } from "@/lib/files/safeFilename";
 
 export type RegisterRenewalFeePaymentResult = { ok: true } | { ok: false; error: string };
 
@@ -67,7 +68,7 @@ export async function registerRenewalManualFeePayment(
   const path = `${params.renewalOfferId}/renewal-fee-proof-${crypto.randomUUID()}.${ext}`;
   const { error: uploadError } = await admin.storage
     .from("payment-proofs")
-    .upload(path, params.file, { contentType: realType });
+    .upload(path, await toTypedBlob(params.file, realType), { contentType: realType });
   if (uploadError) {
     console.error("[renewals] fee proof upload failed:", uploadError);
     return { ok: false, error: "No pudimos subir el archivo. Intentá de nuevo." };
@@ -81,7 +82,7 @@ export async function registerRenewalManualFeePayment(
       related_entity_id: offer.estured_fee_payment_id,
       bucket: "payment-proofs",
       storage_path: path,
-      filename: params.file.name,
+      filename: safeFilename(params.file.name),
       mime_type: realType,
       size_bytes: params.file.size,
       visibility: "context_shared",
@@ -93,6 +94,7 @@ export async function registerRenewalManualFeePayment(
     .single();
   if (fileError || !fileRow) {
     console.error("[renewals] fee proof file row failed:", fileError);
+    await admin.storage.from("payment-proofs").remove([path]);
     return { ok: false, error: "No pudimos registrar el comprobante." };
   }
 

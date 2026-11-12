@@ -20,14 +20,9 @@ type SessionHint =
   | { status: "guest" }
   | { status: "signedIn"; href: string; initial: string };
 
-/** Hay cookie de sesión de Supabase (no prueba que sea válida: eso lo confirma /api/session). */
+/** Hay cookie-pista `er-has-session` (las de Supabase son httpOnly; no prueba que la sesión sea válida: eso lo confirma /api/session). */
 function hasSessionCookie(): boolean {
-  return document.cookie
-    .split(";")
-    .some((c) => {
-      const name = c.trim().split("=")[0];
-      return name.startsWith("sb-") && name.includes("auth-token");
-    });
+  return document.cookie.split(";").some((c) => c.trim() === "er-has-session=1");
 }
 
 /**

@@ -2,6 +2,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { insertReceiptWithRetry } from "@/lib/receipts/receiptNumber";
+import { getAppUrl } from "@/lib/appUrl";
 
 export type ReissueBookingReceiptResult =
   | { ok: true; newReceiptId: string; newReceiptNumber: string }
@@ -38,7 +39,7 @@ export async function reissueBookingReceipt(
   }
 
   const now = new Date();
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const appUrl = getAppUrl();
 
   const payload: Record<string, unknown> = {
     ...(oldReceipt.receipt_payload as Record<string, unknown>),

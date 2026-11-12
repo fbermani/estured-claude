@@ -2,7 +2,8 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { assertResidencePermission } from "@/lib/residences/access";
-import { extensionForMime, resolveDocumentType } from "@/lib/files/sniffFile";
+import { extensionForMime, resolveDocumentType, toTypedBlob } from "@/lib/files/sniffFile";
+import { safeFilename } from "@/lib/files/safeFilename";
 
 export type RecordRenewalResidencePaymentReceivedResult =
   | { ok: true; residenceId: string }
@@ -85,7 +86,7 @@ export async function recordRenewalResidencePaymentReceived(
     const path = `${params.renewalOfferId}/renewal-residence-receipt-${crypto.randomUUID()}.${ext}`;
     const { error: uploadError } = await admin.storage
       .from("payment-proofs")
-      .upload(path, receiptFile, { contentType: realType });
+      .upload(path, await toTypedBlob(receiptFile, realType), { contentType: realType });
     if (uploadError) {
       console.error("[renewals] receipt upload failed:", uploadError);
       return { ok: false, error: "No pudimos subir el recibo. Intentá de nuevo." };
@@ -98,7 +99,7 @@ export async function recordRenewalResidencePaymentReceived(
         related_entity_id: params.renewalOfferId,
         bucket: "payment-proofs",
         storage_path: path,
-        filename: receiptFile.name,
+        filename: safeFilename(receiptFile.name),
         mime_type: realType,
         size_bytes: receiptFile.size,
         visibility: "context_shared",
@@ -110,6 +111,7 @@ export async function recordRenewalResidencePaymentReceived(
       .single();
     if (fileError || !fileRow) {
       console.error("[renewals] receipt file row failed:", fileError);
+      await admin.storage.from("payment-proofs").remove([path]);
       return { ok: false, error: "No pudimos registrar el recibo." };
     }
     receiptFileId = fileRow.id;

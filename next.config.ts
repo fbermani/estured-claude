@@ -23,7 +23,32 @@ const PREAPERTURA_ON = process.env.PREAPERTURA === "on";
 /** En producción (preapertura «cerrada») el sitio abierto no es navegable; en desarrollo solo se suma el popup y sus pantallas. */
 const PREAPERTURA_LOCKED = PREAPERTURA_ON && process.env.NODE_ENV !== "development";
 
+const IS_PROD = process.env.NODE_ENV === "production";
+
+/**
+ * CSP en modo Report-Only (auditoría M5): todavía no se aplica. Orígenes externos reales (barrido de app/components/lib): Google Fonts
+ * (hoja de Material Symbols + fuentes), tiles de OpenStreetMap del mapa de búsqueda (`<img>`) y el Supabase del entorno (fotos/comprobantes).
+ * `unsafe-inline` en script por el script de sesión de app/layout.tsx y los inline de Next; `unsafe-eval` solo en dev (HMR).
+ */
+function contentSecurityPolicyReportOnly(): string {
+  const supabase = supabaseImageHost();
+  const supabaseOrigin = supabase ? ` https://${supabase}` : "";
+  return [
+    "default-src 'self'",
+    `script-src 'self' 'unsafe-inline'${IS_PROD ? "" : " 'unsafe-eval'"}`,
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    `img-src 'self' data: blob: https://tile.openstreetmap.org${supabaseOrigin}`,
+    "font-src 'self' data: https://fonts.gstatic.com",
+    `connect-src 'self'${supabaseOrigin}${IS_PROD ? "" : " ws: wss:"}`,
+    "frame-ancestors 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "object-src 'none'",
+  ].join("; ");
+}
+
 const nextConfig: NextConfig = {
+  poweredByHeader: false,
   // DR28: el Centro de Guías lee `content/guias/*.md` con fs; hay que incluirlos en el bundle de Vercel.
   outputFileTracingIncludes: {
     "/guias": ["./content/guias/**/*"],
@@ -81,6 +106,10 @@ const nextConfig: NextConfig = {
           { key: "X-Frame-Options", value: "DENY" },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          // El mapa usa tiles propios sobre OSM y no pide la ubicación del navegador (sin navigator.geolocation en el código).
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+          { key: "Content-Security-Policy-Report-Only", value: contentSecurityPolicyReportOnly() },
+          ...(IS_PROD ? [{ key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" }] : []),
         ],
       },
       // `/preregistro?invitacion=<token>` lleva un token de un solo uso: que no salga en el Referer hacia ningún sitio. Va DESPUÉS de la regla

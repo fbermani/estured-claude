@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { extensionForMime, resolveDocumentType, resolveEvidenceType, sniffFileType } from "./sniffFile";
+import { extensionForMime, resolveDocumentType, resolveEvidenceType, sniffFileType, toTypedBlob } from "./sniffFile";
 
 const ascii = (s: string) => Array.from(s).map((c) => c.charCodeAt(0));
 const bytes = (...n: number[]) => new Uint8Array(n);
@@ -48,5 +48,14 @@ describe("extensionForMime", () => {
     expect(extensionForMime("image/jpeg")).toBe("jpg");
     expect(extensionForMime("application/pdf")).toBe("pdf");
     expect(extensionForMime("video/quicktime")).toBe("mov");
+  });
+});
+
+describe("toTypedBlob", () => {
+  it("devuelve un Blob con el tipo real, sin importar el tipo declarado del File", async () => {
+    const declared = new File([new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d])], "x.html", { type: "text/html" });
+    const typed = await toTypedBlob(declared, "application/pdf");
+    expect(typed.type).toBe("application/pdf");
+    expect(typed.size).toBe(5);
   });
 });

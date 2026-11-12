@@ -1,5 +1,6 @@
 "use server";
 
+import { clientIpFromHeaders } from "@/lib/receipts/verifyRateLimit";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
@@ -15,7 +16,7 @@ import {
   resolveVisibilityUpdate,
   type VisibilityValues,
 } from "@/lib/students/communityVisibilitySettings";
-import { extensionForMime, resolveDocumentType } from "@/lib/files/sniffFile";
+import { extensionForMime, resolveDocumentType, toTypedBlob } from "@/lib/files/sniffFile";
 import {
   INTEREST_OPTIONS,
   HABIT_OPTIONS,
@@ -24,6 +25,7 @@ import {
   CAREER_OTHER_VALUE,
   BIO_MAX_LENGTH,
 } from "@/lib/students/profileOptions";
+import { safeFilename } from "@/lib/files/safeFilename";
 
 export type UpdateProfileState = { status: "idle" | "error" | "saved"; message?: string };
 export type CommunityVisibilityState = { status: "idle" | "error" | "saved"; message?: string };
@@ -110,7 +112,7 @@ export async function updateStudentProfileDetails(
   // H04: guardar el perfil NO toca la visibilidad en la comunidad. Eso se
   // decide aparte, a conciencia, con `updateCommunityVisibility`.
   const headerStore = await headers();
-  const ip = headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
+  const ip = clientIpFromHeaders(headerStore);
   const userAgent = headerStore.get("user-agent");
 
   await createAuditLog(admin, {
@@ -189,7 +191,7 @@ export async function updateCommunityVisibility(
   }
 
   const headerStore = await headers();
-  const ip = headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
+  const ip = clientIpFromHeaders(headerStore);
   const userAgent = headerStore.get("user-agent");
 
   // El consentimiento se versiona solo cuando el estudiante lo ACTIVA. Si no
@@ -297,7 +299,7 @@ export async function uploadStudentDocument(
   const path = `${profile.id}/${documentType}-${crypto.randomUUID()}.${ext}`;
   const { error: uploadError } = await admin.storage
     .from("student-documents")
-    .upload(path, file, { contentType: realType });
+    .upload(path, await toTypedBlob(file, realType), { contentType: realType });
   if (uploadError) {
     console.error("[students/profile] upload failed:", uploadError);
     return { status: "error", message: "No pudimos subir el archivo. Intentá de nuevo." };
@@ -309,7 +311,7 @@ export async function uploadStudentDocument(
     related_entity_id: profile.id,
     bucket: "student-documents",
     storage_path: path,
-    filename: file.name,
+    filename: safeFilename(file.name),
     mime_type: realType,
     size_bytes: file.size,
     visibility: "private",

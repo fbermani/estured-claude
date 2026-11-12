@@ -168,7 +168,7 @@ const loadResidence = cache(async (slug: string) => {
   if (rulesFileRes.data?.storage_path) {
     const { data: signed, error: signedError } = await admin.storage
       .from("private-residence-documents")
-      .createSignedUrl(rulesFileRes.data.storage_path, 3600);
+      .createSignedUrl(rulesFileRes.data.storage_path, 600);
     if (signedError) console.error("[ficha] no se pudo firmar el reglamento:", signedError);
     rulesPdfUrl = signed?.signedUrl ?? null;
   }

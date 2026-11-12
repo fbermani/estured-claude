@@ -2,6 +2,7 @@ import "server-only";
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { hardenAuthCookie, sessionHintFor } from "@/lib/supabase/cookie-options";
 
 /**
  * Cliente Supabase con la sesión del usuario (cookies) — server-side.
@@ -28,8 +29,10 @@ export async function getSupabaseServer(): Promise<SupabaseClient | null> {
       setAll(cookiesToSet) {
         try {
           cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options),
+            cookieStore.set(name, value, hardenAuthCookie(options)),
           );
+          const hint = sessionHintFor(cookiesToSet);
+          if (hint) cookieStore.set(hint.name, hint.value, hint.options);
         } catch {
           // Llamado desde un Server Component (no puede escribir cookies):
           // el refresh de sesión lo maneja el middleware.

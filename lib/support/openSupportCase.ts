@@ -1,7 +1,8 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
-import { extensionForMime, resolveEvidenceType } from "@/lib/files/sniffFile";
+import { extensionForMime, resolveEvidenceType, toTypedBlob } from "@/lib/files/sniffFile";
+import { safeFilename } from "@/lib/files/safeFilename";
 
 export type OpenSupportCaseResult = { ok: true; supportCaseId: string } | { ok: false; error: string };
 
@@ -37,18 +38,18 @@ async function uploadEvidence(admin: SupabaseClient, supportCaseId: string, acto
     const path = `${supportCaseId}/${crypto.randomUUID()}.${ext}`;
     const { error: uploadError } = await admin.storage
       .from("support-evidence")
-      .upload(path, file, { contentType: realType });
+      .upload(path, await toTypedBlob(file, realType), { contentType: realType });
     if (uploadError) {
       console.error("[support] evidence upload failed:", uploadError);
       continue;
     }
-    await admin.from("files").insert({
+    const { error: fileInsertError } = await admin.from("files").insert({
       owner_user_id: actorUserId,
       related_entity_type: "support_cases",
       related_entity_id: supportCaseId,
       bucket: "support-evidence",
       storage_path: path,
-      filename: file.name,
+      filename: safeFilename(file.name),
       mime_type: realType,
       size_bytes: file.size,
       visibility: "context_shared",
@@ -56,8 +57,17 @@ async function uploadEvidence(admin: SupabaseClient, supportCaseId: string, acto
       status: "uploaded",
       uploaded_by_user_id: actorUserId,
     });
+    if (fileInsertError) {
+      console.error("[support] evidence file row failed:", fileInsertError);
+      // El archivo quedó sin registro: se limpia el objeto huérfano (mejor esfuerzo).
+      await admin.storage.from("support-evidence").remove([path]);
+    }
   }
 }
+
+/** Tope de la descripción de un caso (también CHECK en la base, migración 0084). */
+const MAX_DESCRIPTION_CHARS = 5000;
+const DESCRIPTION_TOO_LONG = `La descripción es demasiado larga (máximo ${MAX_DESCRIPTION_CHARS} caracteres). Resumila y adjuntá el detalle como evidencia.`;
 
 /**
  * Abrir un caso de soporte (docs/12 Fase 14, docs/03 §22). Puede
@@ -89,6 +99,7 @@ export async function openSupportCase(
   if (description.length < 20) {
     return { ok: false, error: "Contanos un poco más — el detalle debe tener al menos 20 caracteres." };
   }
+  if (description.length > MAX_DESCRIPTION_CHARS) return { ok: false, error: DESCRIPTION_TOO_LONG };
   if (!params.termsReminderAccepted) {
     return { ok: false, error: "Tenés que confirmar que leíste el alcance y los términos antes de continuar." };
   }
@@ -199,6 +210,7 @@ export async function openFeePaymentSupportCase(
   if (description.length < 20) {
     return { ok: false, error: "Contanos un poco más — el detalle debe tener al menos 20 caracteres." };
   }
+  if (description.length > MAX_DESCRIPTION_CHARS) return { ok: false, error: DESCRIPTION_TOO_LONG };
   const evidenceError = await validateEvidence(params.evidenceFiles);
   if (evidenceError) return { ok: false, error: evidenceError };
 

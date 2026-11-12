@@ -76,7 +76,7 @@ export async function registerStudentStep1(_prev: Step1State, formData: FormData
 
   if (!acceptTerms) return stepError("Necesitamos que aceptes los Términos y la Privacidad para sumarte.", values, "accept_terms");
 
-  if (!devAuto && !signupAllowed(headerStore, email)) return stepError(PREAPERTURA_TOO_MANY_ATTEMPTS, values);
+  if (!devAuto && !(await signupAllowed(headerStore, email))) return stepError(PREAPERTURA_TOO_MANY_ATTEMPTS, values);
 
   const result = await createStudentAccount(admin, {
     email,
@@ -115,7 +115,7 @@ export async function saveProfile(_prev: ProfileState, formData: FormData): Prom
   const supabase = await getSupabaseServer();
   const user = supabase ? await getSafeUser(supabase) : null;
   if (!user) return { status: "error", code: "no_session", message: "Tu sesión venció. Ingresá de nuevo para guardar tu perfil." };
-  if (!profileSaveAllowed(user.id)) return { status: "error", message: PREAPERTURA_TOO_MANY_ATTEMPTS };
+  if (!(await profileSaveAllowed(user.id))) return { status: "error", message: PREAPERTURA_TOO_MANY_ATTEMPTS };
 
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: UNAVAILABLE };

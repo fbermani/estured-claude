@@ -1,6 +1,7 @@
 "use server";
 
 import { headers } from "next/headers";
+import { clientIpFromHeaders } from "@/lib/receipts/verifyRateLimit";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { hashIp } from "@/lib/waitlist/hashIp";
 import { submitWaitlistSignup } from "@/lib/waitlist/submitWaitlistSignup";
@@ -13,12 +14,9 @@ export type WaitlistState = {
 const VALID_ROLES = new Set(["student", "family", "residence"]);
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-/** Vercel/proxies estándar inyectan `x-forwarded-for`; sin proxy (dev local) no hay IP y el rate limit simplemente no aplica. */
+/** Misma prioridad de cabeceras que el resto de los rate limits (`clientIpFromHeaders`); sin proxy (dev local) no hay IP y el rate limit simplemente no aplica. */
 async function getClientIp(): Promise<string | null> {
-  const headerList = await headers();
-  const forwardedFor = headerList.get("x-forwarded-for");
-  if (forwardedFor) return forwardedFor.split(",")[0].trim();
-  return headerList.get("x-real-ip");
+  return clientIpFromHeaders(await headers());
 }
 
 /**

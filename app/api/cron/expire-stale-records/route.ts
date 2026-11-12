@@ -1,8 +1,20 @@
+import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { runExpirationJobs } from "@/lib/jobs/runExpirationJobs";
 
 export const runtime = "nodejs";
+
+/** Comparación en tiempo constante; longitudes distintas se igualan con un costo equivalente. */
+function safeEqual(a: string, b: string): boolean {
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) {
+    timingSafeEqual(bufB, bufB); // mismo costo, sin filtrar por longitud el contenido
+    return false;
+  }
+  return timingSafeEqual(bufA, bufB);
+}
 
 /**
  * Endpoint interno invocado por `pg_cron` cada hora (docs/07 §31,
@@ -15,8 +27,8 @@ export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET;
   if (!secret) return NextResponse.json({ error: "CRON_SECRET no configurado." }, { status: 503 });
 
-  const authHeader = request.headers.get("authorization");
-  if (authHeader !== `Bearer ${secret}`) {
+  const authHeader = request.headers.get("authorization") ?? "";
+  if (!safeEqual(authHeader, `Bearer ${secret}`)) {
     return NextResponse.json({ error: "No autorizado." }, { status: 401 });
   }
 

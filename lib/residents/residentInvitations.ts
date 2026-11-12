@@ -15,6 +15,7 @@ import {
   type InviteState,
 } from "@/lib/residents/inviteRules";
 import { emailBelongsToUnguardedMinor } from "@/lib/residents/studentLinkGuards";
+import { getAppUrl } from "@/lib/appUrl";
 
 /**
  * Invitación personal a un residente ya cargado (DR19, lado residencia). Permiso `residents.manage`. Una sola invitación abierta por
@@ -26,7 +27,7 @@ const GENERIC = "No pudimos preparar la invitación. Intentá de nuevo.";
 const RESEND_COOLDOWN_MS = 60_000;
 
 function appUrl(): string {
-  return process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  return getAppUrl();
 }
 export function personalInviteLink(token: string): string {
   return `${appUrl()}/register/student?invite=${token}`;

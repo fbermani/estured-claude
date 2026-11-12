@@ -11,6 +11,7 @@ import { MAX_RESIDENCE_PHOTOS, photoDeleteBlockedMessage } from "@/lib/residence
 import { imageExtension, sniffImageType } from "@/lib/residences/imageSniff";
 import { stageProfileEdit } from "@/lib/residences/profileEdits";
 import type { PhotoMetaItem } from "@/lib/residences/photoSections";
+import { safeFilename } from "@/lib/files/safeFilename";
 
 export type PhotoMetaState = { status: "idle" | "success" | "error"; message?: string };
 
@@ -187,7 +188,7 @@ export async function uploadResidencePhoto(residenceId: string, formData: FormDa
       related_entity_id: residenceId,
       bucket: "public-residence-media",
       storage_path: path,
-      filename: photo.name,
+      filename: safeFilename(photo.name),
       mime_type: realType,
       size_bytes: photo.size,
       visibility: "public",

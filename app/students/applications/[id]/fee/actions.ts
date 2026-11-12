@@ -6,7 +6,8 @@ import { getSessionUser } from "@/lib/auth/session";
 import { createAuditLog } from "@/lib/audit";
 import { loadActiveFamilyLink } from "@/lib/family/access";
 import { normalizeBillingTaxId } from "@/lib/family/familyProfile";
-import { extensionForMime, resolveDocumentType } from "@/lib/files/sniffFile";
+import { extensionForMime, resolveDocumentType, toTypedBlob } from "@/lib/files/sniffFile";
+import { safeFilename } from "@/lib/files/safeFilename";
 
 export type RegisterFeePaymentState = { status: "idle" | "error" | "saved"; message?: string };
 
@@ -121,7 +122,7 @@ export async function registerManualFeePayment(
   const path = `${applicationId}/fee-proof-${crypto.randomUUID()}.${ext}`;
   const { error: uploadError } = await admin.storage
     .from("payment-proofs")
-    .upload(path, file, { contentType: realType });
+    .upload(path, await toTypedBlob(file, realType), { contentType: realType });
   if (uploadError) {
     console.error("[fee] upload failed:", uploadError);
     return { status: "error", message: "No pudimos subir el archivo. Intentá de nuevo." };
@@ -135,7 +136,7 @@ export async function registerManualFeePayment(
       related_entity_id: reservation.estured_fee_payment_id,
       bucket: "payment-proofs",
       storage_path: path,
-      filename: file.name,
+      filename: safeFilename(file.name),
       mime_type: realType,
       size_bytes: file.size,
       visibility: "context_shared",
@@ -147,6 +148,7 @@ export async function registerManualFeePayment(
     .single();
   if (fileError || !fileRow) {
     console.error("[fee] file row failed:", fileError);
+    await admin.storage.from("payment-proofs").remove([path]);
     return { status: "error", message: "No pudimos registrar el comprobante." };
   }
 

@@ -11,9 +11,25 @@ import { usdToArs } from "@/lib/mock/exchange";
 
 export type SendProposalState = { status: "idle" | "error"; message?: string };
 
-function numOrNull(formData: FormData, key: string): number | null {
+const MAX_USD = 100_000;
+
+type NumResult = { ok: true; value: number | null } | { ok: false };
+
+/** Número opcional: vacío -> null; si viene, debe ser finito, ≤ tope y > 0 (o ≥ 0 con `allowZero`). */
+function parseAmount(formData: FormData, key: string, opts: { allowZero: boolean; max: number; integer?: boolean }): NumResult {
   const raw = String(formData.get(key) ?? "").trim();
-  return raw ? Number(raw) : null;
+  if (!raw) return { ok: true, value: null };
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n > opts.max) return { ok: false };
+  if (opts.allowZero ? n < 0 : n <= 0) return { ok: false };
+  if (opts.integer && !Number.isInteger(n)) return { ok: false };
+  return { ok: true, value: n };
+}
+
+function isIsoDate(v: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return false;
+  const d = new Date(`${v}T00:00:00Z`);
+  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === v;
 }
 
 /**
@@ -66,13 +82,27 @@ export async function sendNegotiationProposal(
     return { status: "error", message: "Tenés que confirmar que leíste la advertencia." };
   }
 
-  const monthlyPriceUsd = numOrNull(formData, "proposed_monthly_price_usd");
-  const enrollmentFeeUsd = numOrNull(formData, "proposed_enrollment_fee_usd");
-  const depositUsd = numOrNull(formData, "proposed_deposit_usd");
-  const startDate = String(formData.get("proposed_start_date") ?? "").trim() || null;
-  const durationMonths = numOrNull(formData, "proposed_duration_months");
+  const usd = { allowZero: false, max: MAX_USD };
+  const usdOrZero = { allowZero: true, max: MAX_USD };
+  const monthly = parseAmount(formData, "proposed_monthly_price_usd", usd);
+  const enrollment = parseAmount(formData, "proposed_enrollment_fee_usd", usdOrZero);
+  const deposit = parseAmount(formData, "proposed_deposit_usd", usdOrZero);
+  const duration = parseAmount(formData, "proposed_duration_months", { allowZero: false, max: 24, integer: true });
+  const reservation = parseAmount(formData, "proposed_reservation_payment_amount_usd", usdOrZero);
+  const startDateRaw = String(formData.get("proposed_start_date") ?? "").trim();
+  if (!monthly.ok) return { status: "error", message: "El precio mensual tiene que ser un monto mayor a 0 (hasta USD 100.000)." };
+  if (!enrollment.ok) return { status: "error", message: "La matrícula tiene que ser un monto de 0 o más (hasta USD 100.000)." };
+  if (!deposit.ok) return { status: "error", message: "El depósito tiene que ser un monto de 0 o más (hasta USD 100.000)." };
+  if (!reservation.ok) return { status: "error", message: "El pago de reserva tiene que ser un monto de 0 o más (hasta USD 100.000)." };
+  if (!duration.ok) return { status: "error", message: "La duración tiene que ser un número entero de meses entre 1 y 24." };
+  if (startDateRaw && !isIsoDate(startDateRaw)) return { status: "error", message: "La fecha de inicio no es válida." };
+  const monthlyPriceUsd = monthly.value;
+  const enrollmentFeeUsd = enrollment.value;
+  const depositUsd = deposit.value;
+  const startDate = startDateRaw || null;
+  const durationMonths = duration.value;
   const adjustmentPolicy = String(formData.get("proposed_adjustment_policy") ?? "").trim() || null;
-  const reservationAmountUsd = numOrNull(formData, "proposed_reservation_payment_amount_usd");
+  const reservationAmountUsd = reservation.value;
   const specialConditions = String(formData.get("special_conditions") ?? "").trim() || null;
   const internalNotes = String(formData.get("internal_notes") ?? "").trim() || null;
 

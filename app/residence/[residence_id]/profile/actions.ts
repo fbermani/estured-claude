@@ -41,9 +41,11 @@ import {
   type StayDocumentsConfig,
 } from "@/lib/residences/stayDocuments";
 import { imageExtension, sniffImageType } from "@/lib/residences/imageSniff";
+import { extensionForMime, resolveDocumentType, toTypedBlob } from "@/lib/files/sniffFile";
 import { validateEarlyExitPolicy } from "@/lib/stayChange/validate";
 import { parseMoneyConditionsInput, type DepositMode } from "@/lib/applications/reservationMoney";
 import { describeInitialPaymentForLog, initialPaymentConfigFromRow, parseInitialPaymentInput, type InitialPaymentConfig } from "@/lib/reservations/initialPayment";
+import { safeFilename } from "@/lib/files/safeFilename";
 
 /** Mensaje cuando un staff con `profile.edit` (sin `operations.rooms_availability`) intenta cambiar la estructura de habitaciones o plazas. */
 const ROOM_STRUCTURE_PERMISSION_MESSAGE =
@@ -63,6 +65,9 @@ const ADJUSTMENT_POLICIES = new Set(ADJUSTMENT_POLICY_OPTIONS.map((o) => o.value
 const ROOM_FEATURES = new Set<string>(ROOM_FEATURE_OPTIONS);
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 const MAX_PDF_BYTES = 10 * 1024 * 1024;
+/** Topes de texto libre y de precio (B4); la base tiene CHECK equivalentes en la migración 0084. */
+const MAX_LONG_TEXT_CHARS = 5000;
+const MAX_MONTHLY_PRICE_USD = 100_000;
 
 function parseRoomTypes(raw: string): RoomTypeEditInput[] | null {
   try {
@@ -232,6 +237,10 @@ export async function saveResidenceProfile(
     .map(String)
     .filter((s) => UNIVERSITIES.has(s));
 
+  if (description.length > MAX_LONG_TEXT_CHARS)
+    return { status: "error", message: `La descripción es demasiado larga (máximo ${MAX_LONG_TEXT_CHARS} caracteres).` };
+  if (rulesSummaryRaw.length > MAX_LONG_TEXT_CHARS)
+    return { status: "error", message: `El resumen del reglamento es demasiado largo (máximo ${MAX_LONG_TEXT_CHARS} caracteres).` };
   if (tagline.length > 80)
     return { status: "error", message: "El eslogan no puede superar los 80 caracteres." };
 
@@ -323,6 +332,8 @@ export async function saveResidenceProfile(
       return { status: "error", message: "Género permitido inválido." };
     if (rt.monthlyPriceUsd <= 0)
       return { status: "error", message: "Cada tipo de habitación necesita una tarifa mayor a 0." };
+    if (!Number.isFinite(rt.monthlyPriceUsd) || rt.monthlyPriceUsd > MAX_MONTHLY_PRICE_USD)
+      return { status: "error", message: `La tarifa de ${rt.name} es demasiado alta. Revisala (máximo USD ${MAX_MONTHLY_PRICE_USD.toLocaleString("es-AR")} por mes).` };
     if (rt.roomCount <= 0)
       return { status: "error", message: `Indicá cuántas habitaciones ${rt.name} tenés (mínimo 1).` };
     if (rt.features.some((f) => !ROOM_FEATURES.has(f)))
@@ -698,12 +709,13 @@ export async function saveResidenceProfile(
     if (rulesFile instanceof File && rulesFile.size > 0) {
       if (rulesFile.size > MAX_PDF_BYTES)
         return { status: "error", message: "El reglamento no puede superar los 10MB." };
-      if (rulesFile.type !== "application/pdf")
+      // Se comprueba el contenido real (firma `%PDF-`), no el MIME que declara el cliente.
+      if ((await resolveDocumentType(rulesFile)) !== "application/pdf")
         return { status: "error", message: "El reglamento debe ser un PDF." };
-      const path = `${residenceId}/reglamento-${Date.now()}.pdf`;
+      const path = `${residenceId}/reglamento-${Date.now()}.${extensionForMime("application/pdf")}`;
       const { error: uploadError } = await admin.storage
         .from("private-residence-documents")
-        .upload(path, rulesFile, { contentType: "application/pdf", upsert: true });
+        .upload(path, await toTypedBlob(rulesFile, "application/pdf"), { contentType: "application/pdf", upsert: true });
       if (uploadError) throw uploadError;
       const { data: insertedFile, error: fileInsertError } = await admin
         .from("files")
@@ -713,8 +725,8 @@ export async function saveResidenceProfile(
           related_entity_id: residenceId,
           bucket: "private-residence-documents",
           storage_path: path,
-          filename: rulesFile.name,
-          mime_type: rulesFile.type,
+          filename: safeFilename(rulesFile.name),
+          mime_type: "application/pdf",
           size_bytes: rulesFile.size,
           visibility: "private",
           document_type: "residence_rules_document",
@@ -723,8 +735,12 @@ export async function saveResidenceProfile(
         })
         .select("id")
         .single();
-      if (fileInsertError || !insertedFile) throw fileInsertError;
-      uploadedRulesFile = { fileId: insertedFile.id, filename: rulesFile.name };
+      if (fileInsertError || !insertedFile) {
+        // El PDF quedó sin registro: se limpia el objeto huérfano (mejor esfuerzo) y se propaga el error.
+        await admin.storage.from("private-residence-documents").remove([path]);
+        throw fileInsertError ?? new Error("No se pudo registrar el reglamento.");
+      }
+      uploadedRulesFile = { fileId: insertedFile.id, filename: safeFilename(rulesFile.name) };
     }
 
     // Reglas: crítico (docs/09 §8.1) — gated si publicada. Cambia si el
@@ -791,7 +807,7 @@ export async function saveResidenceProfile(
           related_entity_id: residenceId,
           bucket: "public-residence-media",
           storage_path: path,
-          filename: photo.name,
+          filename: safeFilename(photo.name),
           mime_type: realType,
           size_bytes: photo.size,
           visibility: "public",

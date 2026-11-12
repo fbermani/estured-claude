@@ -1,5 +1,7 @@
 "use server";
 
+import { clientIpFromHeaders, clientKeyFromHeaders } from "@/lib/receipts/verifyRateLimit";
+import { consumeRateLimit } from "@/lib/security/rateLimit";
 import { isPreaperturaOn } from "@/lib/preapertura/flag";
 import { safeInternalPath } from "@/lib/auth/safeNext";
 import { validatePassword } from "@/lib/auth/password";
@@ -112,6 +114,10 @@ export async function registerStudent(
   // Menores: perfil de comunidad oculto y no modificable (docs/10 §9.2).
   const communityOptIn = wantsCommunity && !isMinor;
 
+  // M6: 25 altas por hora por IP, persistente (sin esto, un script crea cuentas en masa al apagar la preapertura).
+  const signupLimit = await consumeRateLimit({ bucket: "register_student_ip", key: clientKeyFromHeaders(await headers()), windowSeconds: 3_600, max: 25 });
+  if (!signupLimit.ok) return formError(formData, "Hiciste muchos intentos. Probá de nuevo en un rato.");
+
   const admin = getSupabaseAdmin();
   if (!admin)
     return formError(formData, "El registro no está disponible en este momento. Probá más tarde.");
@@ -142,7 +148,7 @@ export async function registerStudent(
   const userId = created.user.id;
   const headerStore = await headers();
   const ip =
-    headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
+    clientIpFromHeaders(headerStore);
   const userAgent = headerStore.get("user-agent");
 
   try {

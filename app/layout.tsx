@@ -39,12 +39,12 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning className={`${hanken.variable} ${bricolage.variable}`}>
       <head>
-        {/* H15: si hay cookie de sesión de Supabase, marca <html> antes del primer pintado para que la
+        {/* H15: si hay cookie-pista `er-has-session` (las de Supabase son httpOnly), marca <html> antes del primer pintado para que la
             navbar pública no muestre "Ingresar / Crear cuenta" a quien ya está logueado. La navbar
             lo quita cuando /api/session confirma la sesión. Las páginas siguen siendo estáticas. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{if(/(?:^|;\\s*)sb-[^=;]*auth-token/.test(document.cookie)){document.documentElement.setAttribute("data-session-hint","1")}}catch(e){}`,
+            __html: `try{if(/(?:^|;\\s*)er-has-session=1/.test(document.cookie)){document.documentElement.setAttribute("data-session-hint","1")}}catch(e){}`,
           }}
         />
         <link rel="preconnect" href="https://fonts.googleapis.com" />

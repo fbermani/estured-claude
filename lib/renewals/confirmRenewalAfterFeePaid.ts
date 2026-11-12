@@ -4,6 +4,7 @@ import { createAuditLog } from "@/lib/audit";
 import { removeWaitlistEntriesOnConfirmedReservation } from "@/lib/waitlist-entries/removeWaitlistEntriesOnConfirmedReservation";
 import { extendResidentStayOnRenewal } from "@/lib/residents/extendResidentStayOnRenewal";
 import { insertReceiptWithRetry } from "@/lib/receipts/receiptNumber";
+import { getAppUrl } from "@/lib/appUrl";
 
 type ConfirmRenewalResult =
   | { ok: true; renewalOfferId: string; receiptId: string; verificationCode: string }
@@ -51,6 +52,8 @@ export async function confirmRenewalAfterFeePaid(
     return { ok: false, error: "El pago a la residencia todavía no fue confirmado." };
   }
 
+  // Se lee antes de cualquier escritura: si falta la config, no queda una reserva confirmada sin comprobante.
+  const appUrl = getAppUrl();
   const now = new Date();
 
   const { error: offerError } = await admin
@@ -83,8 +86,6 @@ export async function confirmRenewalAfterFeePaid(
       .eq("id", feePayment.id)
       .single(),
   ]);
-
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
   const receiptPayload = {
     renewal_offer_id: offer.id,

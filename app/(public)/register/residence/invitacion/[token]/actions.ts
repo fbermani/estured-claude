@@ -7,7 +7,7 @@ import { validatePasswordWithConfirmation } from "@/lib/auth/password";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { createAuditLog } from "@/lib/audit";
-import { createRateLimiter, clientKeyFromHeaders } from "@/lib/receipts/verifyRateLimit";
+import { createRateLimiter, clientKeyFromHeaders, clientIpFromHeaders } from "@/lib/receipts/verifyRateLimit";
 import { saveResidencePrivateDetails } from "@/lib/residences/privateDetails";
 import { BARRIO_OPTIONS } from "@/lib/residences/options";
 import { INVITE_MESSAGES } from "@/lib/residenceSignup/rules";
@@ -60,7 +60,7 @@ export async function redeemResidenceInvite(token: string, _prev: RedeemState, f
 
   if (!(await claimSignupInvite(admin, request.id))) return { status: "error", message: INVITE_MESSAGES.used };
 
-  const ip = headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
+  const ip = clientIpFromHeaders(headerStore);
   const userAgent = headerStore.get("user-agent");
   let userId: string | null = null;
   let createdResidenceId: string | null = null;
