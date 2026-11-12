@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
+import { TurnstileWidget } from "@/components/ui/TurnstileWidget";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import {
@@ -56,6 +57,7 @@ export function ForgotPasswordForm() {
             {state.message}
           </p>
         )}
+        <TurnstileWidget resetKey={state} />
         <Button type="submit" size="lg" disabled={isPending}>
           {isPending ? "Enviando…" : "Enviar enlace"}
         </Button>

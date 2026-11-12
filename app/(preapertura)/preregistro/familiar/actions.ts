@@ -10,6 +10,8 @@ import { devAutoAccountsEnabled, devCredentials } from "@/lib/preapertura/devAcc
 import { isPreaperturaOn } from "@/lib/preapertura/flag";
 import { clientIpOf, createFamilyAccount } from "@/lib/preapertura/accounts";
 import { PREAPERTURA_TOO_MANY_ATTEMPTS, familyInviteMailAllowed, signupAllowed } from "@/lib/preapertura/throttle";
+import { clientIpFromHeaders } from "@/lib/receipts/verifyRateLimit";
+import { TURNSTILE_ERROR_MESSAGE, verifyTurnstile } from "@/lib/security/turnstile";
 import { isPlausibleEmail, normalizeEmail } from "@/lib/preapertura/validation";
 import type { FamilyState } from "@/lib/preapertura/formState";
 
@@ -61,6 +63,7 @@ export async function registerFamilyInvite(_prev: FamilyState, formData: FormDat
   if (studentEmail === email) return fail("Ese es tu email. Escribí el de tu hijo/a.", values, "student_email");
   if (!declaredAdult) return fail("Tenés que declarar que sos mayor de 18 años.", values, "accept_adult");
   if (!acceptTerms) return fail("Necesitamos que aceptes los Términos y la Privacidad para sumarte.", values, "accept_terms");
+  if (!(await verifyTurnstile(formData, clientIpFromHeaders(headerStore)))) return fail(TURNSTILE_ERROR_MESSAGE, values);
   if (!devAuto && !(await signupAllowed(headerStore, email))) return fail(PREAPERTURA_TOO_MANY_ATTEMPTS, values);
   // Tope de invitaciones a un mismo destinatario (3 por día): el formulario no puede usarse para llenar el buzón de un tercero. Va antes
   // de crear la cuenta para no dejar un alta sin invitación.

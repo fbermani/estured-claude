@@ -4,7 +4,8 @@ import { headers } from "next/headers";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getAppUrl } from "@/lib/appUrl";
-import { clientKeyFromHeaders } from "@/lib/receipts/verifyRateLimit";
+import { clientIpFromHeaders, clientKeyFromHeaders } from "@/lib/receipts/verifyRateLimit";
+import { TURNSTILE_ERROR_MESSAGE, verifyTurnstile } from "@/lib/security/turnstile";
 import { padToMinimum, resetByEmailAllowed, resetByIpAllowed } from "@/lib/auth/resetThrottle";
 
 export type ForgotPasswordState =
@@ -42,6 +43,10 @@ export async function requestPasswordReset(
 
   if (!EMAIL_RE.test(email) || email.length > 254) {
     return { status: "error", message: "Revisá tu email: no parece válido." };
+  }
+
+  if (!(await verifyTurnstile(formData, clientIpFromHeaders(await headers())))) {
+    return { status: "error", message: TURNSTILE_ERROR_MESSAGE };
   }
 
   if (!(await resetByIpAllowed(clientKeyFromHeaders(await headers())))) {

@@ -2,6 +2,7 @@
 
 import { DevAccountNotice, DevEmptyHint } from "@/components/preapertura/DevAccountNotice";
 import { BackNav } from "@/components/preapertura/BackNav";
+import { TurnstileWidget } from "@/components/ui/TurnstileWidget";
 import { startTransition, useActionState, useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
@@ -202,6 +203,7 @@ export function FamilyForm({ loggedIn }: { loggedIn: boolean }) {
           </CheckRow>
           {errors?.accept_terms && <p>{errorHint(errors, "accept_terms", "pre")}</p>}
         </div>
+        <TurnstileWidget resetKey={state} />
         <SubmitButton isPending={isPending} idle="Crear cuenta e invitar" pending="Creando y enviando…" />
         <DevEmptyHint />
       </form>

@@ -48,7 +48,7 @@ npm test           # vitest run (unitarios + integración contra estured-dev)
 - **Estilos:** Tailwind v4 — los tokens viven en `app/globals.css` bajo `@theme` (NO existe `tailwind.config.js`). Paleta: `petrol-*` (primario), `sage-*` (comunidad), `sand-*` (fondos), `amber-soft-*` (acento). Semánticos: `ink*`, `success/warning/danger/info-*`. Radios `rounded-card`/`rounded-field`, sombras `shadow-card`/`shadow-card-hover`/`shadow-float`. `className` se concatena a mano (sin tailwind-merge): evitar pasar clases que colisionen con las del componente.
 - **Tipos de dominio:** `types/domain.ts`. Los strings de estado son los oficiales de `docs/04_STATE_MACHINES.md` — no inventar estados ni renombrarlos.
 - **Datos:** reales, en Supabase (catálogo, solicitudes, reservas, comprobantes, residentes…) vía `lib/supabase/admin.ts` (service role, solo server) o el cliente del usuario (RLS). El mock de residencias ya no existe; en `lib/mock/` solo queda `exchange.ts` (constante de último recurso + helpers de formato/conversión USD↔ARS). Toda mutación va por server action con validación server-side — el cliente nunca escribe estados directamente (`docs/11 §5.2`).
-- **Errores de usuario:** mensajes en español, accionables, sin jerga técnica (ver `submitWaitlist`). Estados de UI: contemplar loading/empty/error siempre (`EmptyState` para vacíos).
+- **Errores de usuario:** mensajes en español, accionables, sin jerga técnica (ver `app/(public)/login/actions.ts`). Estados de UI: contemplar loading/empty/error siempre (`EmptyState` para vacíos).
 - **Commits:** mensaje en español con prefijo de ciclo ("Ciclo N: ..."), co-autoría de Claude al pie.
 - **Cierre de ciclo:** validar (`typecheck` + `lint` + `build`), actualizar `MEMORY.md` y `docs/NEXT_STEPS.md`.
 

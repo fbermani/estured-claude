@@ -35,11 +35,12 @@ function contentSecurityPolicyReportOnly(): string {
   const supabaseOrigin = supabase ? ` https://${supabase}` : "";
   return [
     "default-src 'self'",
-    `script-src 'self' 'unsafe-inline'${IS_PROD ? "" : " 'unsafe-eval'"}`,
+    `script-src 'self' 'unsafe-inline'${IS_PROD ? "" : " 'unsafe-eval'"} https://challenges.cloudflare.com`,
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     `img-src 'self' data: blob: https://tile.openstreetmap.org${supabaseOrigin}`,
     "font-src 'self' data: https://fonts.gstatic.com",
     `connect-src 'self'${supabaseOrigin}${IS_PROD ? "" : " ws: wss:"}`,
+    "frame-src https://challenges.cloudflare.com",
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",
@@ -83,7 +84,7 @@ const nextConfig: NextConfig = {
           ]
         : []),
       { source: "/r/:slug", destination: "/residencias/:slug", permanent: false },
-      // Lista de espera de pre-lanzamiento retirada (H30): la página y los datos guardados siguen en el repo; para revertir, quitar esta línea.
+      // Lista de espera de pre-lanzamiento retirada (H30/DR31); el código se borró el 2026-11-12. El redirect queda para links viejos; la tabla `waitlist_signups` sigue.
       { source: "/waitlist", destination: "/search", permanent: false },
     ];
   },

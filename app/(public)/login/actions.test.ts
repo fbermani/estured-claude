@@ -13,6 +13,11 @@ const state = vi.hoisted(() => ({
   consumeCalls: [] as Array<{ bucket: string; key: string; windowSeconds: number; max: number }>,
   peekBuckets: [] as string[],
   signInCalls: 0,
+  captchaOk: true,
+}));
+vi.mock("@/lib/security/turnstile", () => ({
+  TURNSTILE_ERROR_MESSAGE: "No pudimos verificar que no seas un robot. Recargá la página y probá de nuevo.",
+  verifyTurnstile: async () => state.captchaOk,
 }));
 vi.mock("@/lib/security/rateLimit", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/security/rateLimit")>()),
@@ -51,6 +56,7 @@ beforeEach(() => {
   state.consumeCalls = [];
   state.peekBuckets = [];
   state.signInCalls = 0;
+  state.captchaOk = true;
 });
 
 describe("signIn · rate limit (M6)", () => {
@@ -77,4 +83,14 @@ describe("signIn · rate limit (M6)", () => {
       expect(state.signInCalls).toBe(0);
     },
   );
+});
+
+describe("signIn · CAPTCHA", () => {
+  it("si Turnstile falla: devuelve el error y no llama a Supabase Auth ni consulta límites", async () => {
+    state.captchaOk = false;
+    const r = await signIn({ status: "idle" }, form("ana@mail.com"));
+    expect(r).toEqual({ status: "error", message: "No pudimos verificar que no seas un robot. Recargá la página y probá de nuevo." });
+    expect(state.signInCalls).toBe(0);
+    expect(state.peekBuckets).toEqual([]);
+  });
 });

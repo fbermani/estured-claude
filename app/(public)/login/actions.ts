@@ -8,7 +8,8 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser, roleHome } from "@/lib/auth/session";
 import { getSafeUser } from "@/lib/supabase/safe-get-user";
 import { createAuditLog } from "@/lib/audit";
-import { clientKeyFromHeaders } from "@/lib/receipts/verifyRateLimit";
+import { clientIpFromHeaders, clientKeyFromHeaders } from "@/lib/receipts/verifyRateLimit";
+import { TURNSTILE_ERROR_MESSAGE, verifyTurnstile } from "@/lib/security/turnstile";
 import { consumeRateLimit, emailRateLimitKey, isRateLimited } from "@/lib/security/rateLimit";
 
 export type AuthState = { status: "idle" | "error"; message?: string };
@@ -56,6 +57,10 @@ export async function signIn(
 
   if (!EMAIL_RE.test(email) || password.length < 1) {
     return { status: "error", message: "Completá email y contraseña." };
+  }
+
+  if (!(await verifyTurnstile(formData, clientIpFromHeaders(await headers())))) {
+    return { status: "error", message: TURNSTILE_ERROR_MESSAGE };
   }
 
   const supabase = await getSupabaseServer();

@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { TurnstileWidget } from "@/components/ui/TurnstileWidget";
 import { Input } from "@/components/ui/Input";
 import { signIn, type AuthState } from "@/app/(public)/login/actions";
 
@@ -55,6 +56,7 @@ export function LoginForm({ next }: { next?: string }) {
             {state.message}
           </p>
         )}
+        <TurnstileWidget resetKey={state} />
         <Button type="submit" size="lg" disabled={isPending}>
           {isPending ? "Entrando…" : "Iniciar sesión"}
         </Button>

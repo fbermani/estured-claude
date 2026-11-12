@@ -2,6 +2,7 @@
 
 import { clientIpFromHeaders, clientKeyFromHeaders } from "@/lib/receipts/verifyRateLimit";
 import { consumeRateLimit } from "@/lib/security/rateLimit";
+import { TURNSTILE_ERROR_MESSAGE, verifyTurnstile } from "@/lib/security/turnstile";
 import { isPreaperturaOn } from "@/lib/preapertura/flag";
 import { sendFamilyEmailCode } from "@/lib/family/emailVerification";
 import { validatePassword } from "@/lib/auth/password";
@@ -63,6 +64,10 @@ export async function registerFamily(
     return formError(formData, "El email del estudiante no puede ser el mismo que el tuyo.", "student_email");
   if (!acceptTerms || !acceptPrivacy)
     return formError(formData, "Necesitamos que aceptes los términos y la política de privacidad.");
+
+  if (!(await verifyTurnstile(formData, clientIpFromHeaders(await headers())))) {
+    return formError(formData, TURNSTILE_ERROR_MESSAGE);
+  }
 
   // M6: 25 altas por hora por IP, persistente. Va antes de buscar al estudiante: también acota el uso del formulario para sondear emails.
   const signupLimit = await consumeRateLimit({ bucket: "register_family_ip", key: clientKeyFromHeaders(await headers()), windowSeconds: 3_600, max: 25 });

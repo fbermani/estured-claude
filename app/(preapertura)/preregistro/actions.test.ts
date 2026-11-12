@@ -15,6 +15,7 @@ let sessionUserId: string | null = null;
 vi.mock("next/headers", () => ({ headers: async () => new Headers({ "x-real-ip": clientIp }) }));
 vi.mock("next/cache", async (importOriginal) => ({ ...(await importOriginal<typeof import("next/cache")>()), revalidateTag: () => {}, revalidatePath: () => {} }));
 vi.mock("@/lib/preapertura/flag", () => ({ isPreaperturaOn: () => true }));
+vi.mock("@/lib/security/turnstile", () => ({ TURNSTILE_ERROR_MESSAGE: "captcha", verifyTurnstile: async () => true }));
 // Rate limit persistente (0083) simulado: el test no deja filas en `rate_limit_hits` ni depende de corridas anteriores.
 vi.mock("@/lib/security/rateLimit", async (importOriginal) => ({ ...(await importOriginal<typeof import("@/lib/security/rateLimit")>()), consumeRateLimit: async () => ({ ok: true }) }));
 vi.mock("@/lib/supabase/server", () => ({ getSupabaseServer: async () => ({ auth: { signInWithPassword: async () => ({ error: null }) } }) }));

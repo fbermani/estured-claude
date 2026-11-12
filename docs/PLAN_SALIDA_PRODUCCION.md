@@ -2,9 +2,22 @@
 
 Estado de partida (verificado en el repo el 2026-10-23): producción = Supabase `estured-prod` (ref `mrwooskdcnkbitkhcvbf`, listado en `scripts/production-refs.json`) + Vercel (https://estured.vercel.app, deploya con push a `main`). Migraciones aplicadas en prod hasta la **0035**; faltan **0036–0055** (el repo tiene 56 archivos: 0001–0055 más 0043b; la 0043b va aparte en la Ruta A) y la **0013** (cron) con placeholders. No hay usuarios reales en prod. Este documento es un checklist: ningún paso se ejecuta solo.
 
+> **Actualización 2026-11-12 (leer primero).** Ruta elegida: **B1, proyecto Supabase nuevo** armado con `node scripts/build-bootstrap.mjs prod`. El repo llega hoy a **0001–0086 (+0043b)**; el bootstrap las incluye todas, así que la sección 3.1 (Ruta A, una por una) y la mención a "0001–0055" quedan como histórico. Lo nuevo del hardening de seguridad (`docs/audits/PLAN_SEGURIDAD_2026-11-12.md`) está integrado abajo y resumido en la **sección 0**. Regla: este runbook se actualiza cada vez que un cambio agrega un paso o una variable para producción.
+
 Convenciones: todos los SQL se pegan en Supabase Dashboard → SQL Editor del proyecto **estured-prod** (no hay supabase CLI). Antes de cada paso en prod, confirmá el ref en la URL del dashboard.
 
 ---
+
+## 0. Checklist rápido de seguridad para el prod nuevo (2026-11-12)
+
+Orden sugerido; cada ítem remite a su sección.
+- [ ] **No mergear la rama de hardening a `main` antes de tener las env vars nuevas en Vercel.** `main` deploya a `estured.vercel.app`: sin `TURNSTILE_SECRET_KEY` se rechazan todos los logins y registros, y sin `NEXT_PUBLIC_APP_URL` fallan los envíos de mail (2.2).
+- [ ] Bootstrap con 0001–0086: reemplazar los dos placeholders de la 0013 en una copia fuera del repo; el secreto del cron queda en **Supabase Vault** (`cron_secret`), no en `cron.job` (sección 1, Ruta B).
+- [ ] Env vars nuevas: `NEXT_PUBLIC_APP_URL` (obligatoria), `CRON_SECRET`, `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`; `DEMO_*` ausentes en Production y Preview (2.2).
+- [ ] Turnstile: crear el widget en Cloudflare (cuenta gratuita) para el dominio de prod; **no** usar las claves de prueba de dev (2.2).
+- [ ] Supabase Auth: apagar "Allow new users to sign up", activar "Leaked password protection", revisar duración del JWT, **no** activar el CAPTCHA nativo (2.4).
+- [ ] Después del deploy: correr los advisors de seguridad de Supabase y `scripts/check-anon-exposure.mjs`; probar login con y sin CAPTCHA (4).
+- [ ] Unas semanas después del lanzamiento: pasar la CSP de Report-Only a enforce (6).
 
 ## 1. Decisiones previas del dueño
 
@@ -58,12 +71,15 @@ Lista completa de las que lee el código (grep de `process.env`):
 | `NEXT_PUBLIC_SUPABASE_URL` | cliente y server | URL de `estured-prod` |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | cliente y middleware | anon key de prod |
 | `SUPABASE_SERVICE_ROLE_KEY` | solo server (`lib/supabase/admin.ts`) | service role de prod (marcar como Sensitive) |
-| `NEXT_PUBLIC_APP_URL` | links en emails, `redirectTo` de reset de contraseña, cron | dominio real con `https://` y sin barra final (si falta, cae a `http://localhost:3000`: los mails salen con links rotos) |
-| `CRON_SECRET` | `app/api/cron/expire-stale-records/route.ts` (503 si falta) | mismo valor que en la 0013 |
+| `NEXT_PUBLIC_APP_URL` | links en emails, `redirectTo` de reset de contraseña, cron | dominio real con `https://` y sin barra final. **Obligatoria desde 2026-11-12:** `lib/appUrl.ts` lanza en producción si falta (antes caía a localhost y salían links rotos) |
+| `CRON_SECRET` | `app/api/cron/expire-stale-records/route.ts` (503 si falta; comparación en tiempo constante) | mismo valor que el secreto `cron_secret` que el bootstrap guarda en Vault |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | widget de CAPTCHA (`components/ui/TurnstileWidget.tsx`) en login, registro, preregistro y recuperación | site key del widget de Cloudflare para el dominio de prod |
+| `TURNSTILE_SECRET_KEY` | verificación server (`lib/security/turnstile.ts`) | secret del mismo widget (Sensitive). **Sin ella, prod rechaza todos los envíos de esos formularios** |
 | `RESEND_API_KEY` | `lib/email/sendEmail.ts` (si falta, no envía y solo loguea) | clave de Resend |
 
 - [ ] Todas cargadas en Vercel → Settings → Environment Variables, entorno **Production** (y Preview si se usa; el Preview no debe apuntar a prod sin pensarlo).
 - [ ] **`DEMO_LOGIN_ENABLED` y `DEMO_USERS_PASSWORD` NO existen en Vercel** (app/layout.tsx muestra el selector de sesión si `DEMO_LOGIN_ENABLED === "true"`). Revisar Production, Preview y Development.
+- [ ] Las claves de prueba de Turnstile (`1x000…AA`) son solo para dev: en Vercel van las reales.
 - [ ] `NEXT_PUBLIC_APP_NAME` figura en `.env.example` pero el código no lo lee: opcional.
 - Éxito: tras el deploy, el widget "Simular sesión" no aparece en la esquina inferior izquierda.
 - Cuidado: las `NEXT_PUBLIC_*` se incrustan en el build; cambiarlas exige redeploy.
@@ -86,6 +102,10 @@ Lista completa de las que lee el código (grep de `process.env`):
 - [ ] Dashboard → Authentication → URL Configuration: **Site URL** = dominio de prod; **Redirect URLs** incluye `https://<dominio>/reset-password` (`forgot-password/actions.ts` usa `${NEXT_PUBLIC_APP_URL}/reset-password`). Si falta, el link de recuperación redirige mal.
 - [ ] Authentication → Settings: confirmación de email según lo decidido; el SMTP integrado de Supabase tiene límite muy bajo de envíos por hora: configurar **SMTP propio** (Resend u otro) en Authentication → SMTP Settings.
 - [ ] Revisar plantillas de mail de Auth (reset de contraseña) en español.
+- [ ] **Authentication → Sign In / Providers → "Allow new users to sign up": apagado.** Todas las altas usan `auth.admin.createUser` desde el servidor, así que la app sigue funcionando; apagarlo impide crear cuentas llamando a Supabase directo con la anon key. Si algún día se habilita Google (DR26), este switch tiene que volver a encenderse y hay que cerrar el alta por email de otra forma (Auth Hook "before user created" o CAPTCHA nativo).
+- [ ] **"Leaked password protection"** activado (rechaza contraseñas filtradas conocidas).
+- [ ] **CAPTCHA nativo de Supabase: apagado.** El CAPTCHA se verifica en las server actions (Turnstile, opción A); activarlo además rompe los logins automáticos tras el registro.
+- [ ] Duración del JWT: dejar el default (1 h) salvo motivo; los usuarios bloqueados ya quedan baneados también en Auth (`ban_duration`) y la base les niega acceso por RLS (`is_active_user()`).
 - Éxito: "Olvidé mi contraseña" con un usuario de prueba entrega el mail y el link abre `/reset-password` en prod.
 
 ### 2.5 Email transaccional (Resend)
@@ -96,7 +116,7 @@ Lista completa de las que lee el código (grep de `process.env`):
 ### 2.6 Mapa, contacto, WAF y dominio
 - [ ] **Proveedor de mapa:** `lib/maps/osmTiles.ts` usa `https://tile.openstreetmap.org/...` y `components/residences/CompactMap.tsx` advierte que no es apto para tráfico masivo (política de uso de OSM). Para beta cerrada alcanza; para lanzamiento: proveedor de teselas con clave (`docs/15` §23) — cambio de código + env var nueva. Anotar en sección 6.
 - [ ] **Email de contacto:** confirmar que `hola@estured.com` existe (buzón o alias) o cambiar `lib/constants/contact.ts`.
-- [ ] **Rate limit / WAF:** el repo solo tiene rate limit propio para la waitlist (0014) y el hash de IP de la FAQ (0039). No encontré límites en `/verify/[verification_code]` ni en `/forgot-password` (el segundo depende del rate limit de Supabase Auth). Configurar en Vercel (Firewall → Rate limiting) reglas para `/verify/*`, `/forgot-password`, `/login`, `/register/*`. Éxito: ráfaga de pruebas devuelve 429.
+- [ ] **Rate limit / WAF:** desde 2026-11-12 hay rate limit persistente en Postgres (0083/0086, `lib/security/rateLimit.ts`) en login, registro, preregistro y recuperación, más Turnstile; `/verify/*` tiene su propio límite (`lib/receipts/verifyRateLimit.ts`). Opcional: reglas de Vercel Firewall como segunda capa. Éxito: una ráfaga de logins fallidos devuelve el mensaje de "Hiciste muchos intentos".
 - [ ] **Dominio:** agregarlo en Vercel → Domains, DNS según indique Vercel, HTTPS activo; actualizar `NEXT_PUBLIC_APP_URL`, Site URL de Supabase y la URL de la 0013.
 
 ---
@@ -150,6 +170,7 @@ Ruta B (proyecto nuevo, elegida): la sección 3.1 se reemplaza por el bootstrap 
 - [ ] Antes del push: en local, `npm run typecheck && npm run lint && npm run build` en verde (no con el dev server levantado: corrompe `.next/`).
 - [ ] Cambio de `FROM_ADDRESS` hecho (2.5) y, si corresponde, de contacto.
 - [ ] `git status` limpio de secretos; `.env.local` no está trackeado. Los archivos sin trackear hoy (`.claude/agents/`, `.codex/`, `AGENTS.md`) decidir si van o no al repo.
+- [ ] Env vars de 2.2 cargadas **antes** del merge a `main` (en particular `TURNSTILE_SECRET_KEY` y `NEXT_PUBLIC_APP_URL`).
 - [ ] Push de `main` (~120 commits) a `fbermani/estured-claude`. **Lo hace el dueño**, con las env vars ya cargadas (2.2).
 - Éxito: deploy "Ready" en Vercel; `/`, `/search` y `/login` cargan; sin widget de sesión simulada.
 
@@ -178,6 +199,9 @@ Ruta B (proyecto nuevo, elegida): la sección 3.1 se reemplaza por el bootstrap 
   - Admin: verificar una residencia, `/admin/support-cases`, `/admin/exchange-rate`, `/admin/payment-settings`.
   - Flujo completo mínimo: solicitud → aprobación → pago del fee con datos de cobro → comprobante PDF → mail recibido.
   - Reset de contraseña de punta a punta.
+- [ ] **CAPTCHA:** login con el widget resuelto funciona; el widget aparece en `/login`, `/forgot-password` y en el registro/preregistro vigente.
+- [ ] **Cookies y headers:** las cookies `sb-*` son HttpOnly y Secure; la respuesta trae `Content-Security-Policy-Report-Only`, `Strict-Transport-Security` y `Permissions-Policy`, y no trae `X-Powered-By`.
+- [ ] **Advisors de Supabase** (Dashboard → Advisors → Security): solo deben quedar los esperados (tablas sin policies a propósito, helpers SECURITY DEFINER de RLS, `pg_net` en `public`).
 - [ ] **Cuentas de prueba:** borrarlas o marcarlas antes de abrir al público.
 
 ---
@@ -214,6 +238,10 @@ Ruta B (proyecto nuevo, elegida): la sección 3.1 se reemplaza por el bootstrap 
 - [ ] **Proveedor de teselas con clave** en lugar de `tile.openstreetmap.org` (2.6).
 - [ ] **Remitente de email** con dominio propio (2.5) y SMTP de Auth.
 - [ ] **Reglamento modelo y FAQ sugeridas** (`docs/IDEAS_DEL_DUENO_2026-10-23.md` §3 en adelante): son ideas pendientes de diseño, no reglas vigentes.
-- [ ] **`/waitlist`**: decidir si sigue publicada tras el lanzamiento (H30).
+- [x] **`/waitlist`**: retirada por DR31 (redirige a `/search`); el código se borró el 2026-11-12 (queda la tabla `waitlist_signups`, que cuenta el dashboard admin).
+- [ ] **CSP a enforce:** hoy está en `Content-Security-Policy-Report-Only`; tras observar unas semanas sin violaciones legítimas, cambiar el header en `next.config.ts` (M5).
+- [ ] **Verificación de email en preapertura:** las cuentas se crean con `email_confirm: true`; antes del lanzamiento público, pasar a verificación por mail/OTP (M6).
+- [ ] **Google SSO (DR26):** fuera del MVP; si se decide, ver la nota de 2.4 sobre el switch de altas.
+- [ ] **Carpetas sin trackear (B14):** decidir qué se commitea y qué se ignora; `scripts/data/crm-residencias/` tiene contactos y no debería ir al repo.
 - [ ] **Monitoreo:** alertas de errores (Vercel logs/Sentry), revisión periódica de `cron.job_run_details`, backups programados de Supabase (según plan).
-- [ ] **Actualizar docs tras el lanzamiento:** `MEMORY.md`, `docs/NEXT_STEPS.md`, y el conteo de migraciones de `CLAUDE.md` ("Hoy: 0001–0036" ya está desactualizado: el repo llega a 0055).
+- [ ] **Actualizar docs tras el lanzamiento:** `MEMORY.md`, `docs/NEXT_STEPS.md`, y el conteo de migraciones de `CLAUDE.md` (hoy 0001–0086 + 0043b).

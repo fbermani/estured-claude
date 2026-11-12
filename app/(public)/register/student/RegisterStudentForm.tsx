@@ -4,6 +4,7 @@ import { useActionState, useEffect, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { TurnstileWidget } from "@/components/ui/TurnstileWidget";
 import { Input, Select } from "@/components/ui/Input";
 import { fieldHint, fieldProps, useFocusOnError } from "@/app/(public)/register/useRegisterFormErrors";
 import {
@@ -232,6 +233,7 @@ export function RegisterStudentForm({
           </p>
         )}
 
+        {!invite && <TurnstileWidget resetKey={state} />}
         <Button type="submit" size="lg" disabled={isPending}>
           {isPending ? "Creando tu cuenta…" : "Crear mi cuenta"}
         </Button>

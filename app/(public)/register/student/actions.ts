@@ -2,6 +2,7 @@
 
 import { clientIpFromHeaders, clientKeyFromHeaders } from "@/lib/receipts/verifyRateLimit";
 import { consumeRateLimit } from "@/lib/security/rateLimit";
+import { TURNSTILE_ERROR_MESSAGE, verifyTurnstile } from "@/lib/security/turnstile";
 import { isPreaperturaOn } from "@/lib/preapertura/flag";
 import { safeInternalPath } from "@/lib/auth/safeNext";
 import { validatePassword } from "@/lib/auth/password";
@@ -113,6 +114,11 @@ export async function registerStudent(
   const isMinor = age < 18;
   // Menores: perfil de comunidad oculto y no modificable (docs/10 §9.2).
   const communityOptIn = wantsCommunity && !isMinor;
+
+  // CAPTCHA solo en el alta abierta: la invitación personal ya está gateada por su token.
+  if (!inviteToken && !(await verifyTurnstile(formData, clientIpFromHeaders(await headers())))) {
+    return formError(formData, TURNSTILE_ERROR_MESSAGE);
+  }
 
   // M6: 25 altas por hora por IP, persistente (sin esto, un script crea cuentas en masa al apagar la preapertura).
   const signupLimit = await consumeRateLimit({ bucket: "register_student_ip", key: clientKeyFromHeaders(await headers()), windowSeconds: 3_600, max: 25 });

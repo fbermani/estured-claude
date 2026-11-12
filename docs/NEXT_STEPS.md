@@ -5,7 +5,7 @@
 ## Pendientes tras el hardening de seguridad (2026-11-12)
 Detalle en `docs/audits/PLAN_SEGURIDAD_2026-11-12.md` ("Estado al 2026-11-12").
 - Pasar la CSP de Report-Only a enforce tras observar los reportes (M5).
-- CAPTCHA Turnstile en Supabase Auth y formularios públicos (M6).
+- Turnstile (M6, opción A, implementado): apagar "Allow new users to sign up" en Supabase Auth (dev y prod) y cargar las claves reales en Vercel prod (`NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`).
 - Verificación de email en preapertura (hoy `email_confirm: true`).
 - B14: decidir qué carpetas sin trackear se commitean o ignoran.
 - Activar "Leaked password protection" en Supabase Auth (dev y prod) y revisar la duración del JWT.

@@ -14,6 +14,8 @@ import { PREAPERTURA_CONSENT_VERSION, clientIpOf, createStudentAccount } from "@
 import { INVITE_MESSAGES, resolveInvitation, type ResolvedInvitation } from "@/lib/preapertura/invitations";
 import { PREAPERTURA_TOO_MANY_ATTEMPTS, profileSaveAllowed, signupAllowed } from "@/lib/preapertura/throttle";
 import { checkBirthDate, isPlausibleEmail, normalizeEmail, validateProfile } from "@/lib/preapertura/validation";
+import { clientIpFromHeaders } from "@/lib/receipts/verifyRateLimit";
+import { TURNSTILE_ERROR_MESSAGE, verifyTurnstile } from "@/lib/security/turnstile";
 import { isMinorByBirthDate } from "@/lib/students/isMinorByBirthDate";
 import type { ProfileState, Step1State } from "@/lib/preapertura/formState";
 
@@ -75,6 +77,9 @@ export async function registerStudentStep1(_prev: Step1State, formData: FormData
   }
 
   if (!acceptTerms) return stepError("Necesitamos que aceptes los Términos y la Privacidad para sumarte.", values, "accept_terms");
+
+  // CAPTCHA solo en el alta abierta: con invitación familiar el token ya gatea el alta.
+  if (!invitation && !(await verifyTurnstile(formData, clientIpFromHeaders(headerStore)))) return stepError(TURNSTILE_ERROR_MESSAGE, values);
 
   if (!devAuto && !(await signupAllowed(headerStore, email))) return stepError(PREAPERTURA_TOO_MANY_ATTEMPTS, values);
 

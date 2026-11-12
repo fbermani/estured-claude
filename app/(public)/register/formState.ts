@@ -14,7 +14,7 @@ function safeValues(formData: FormData): Record<string, string> {
   const out: Record<string, string> = {};
   for (const [key, value] of formData.entries()) {
     if (typeof value !== "string" || NEVER_ECHO.has(key) || /pass|token/i.test(key) || key.startsWith("accept_") || key === "community_opt_in") continue;
-    if (key.startsWith("$ACTION")) continue;
+    if (key.startsWith("$ACTION") || key === "cf-turnstile-response") continue;
     out[key] = value;
   }
   return out;

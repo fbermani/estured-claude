@@ -5,6 +5,7 @@ import { BackNav } from "@/components/preapertura/BackNav";
 import { startTransition, useActionState, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { TurnstileWidget } from "@/components/ui/TurnstileWidget";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
@@ -196,6 +197,7 @@ export function Step1Form({ invitation, loggedIn }: { invitation: { token: strin
               </CheckRow>
               {errors?.accept_terms && <p>{errorHint(errors, "accept_terms", "pre")}</p>}
             </div>
+            {!invitation && <TurnstileWidget resetKey={state} />}
             <SubmitButton isPending={isPending} idle="Crear mi cuenta gratis" pending="Creando tu cuenta…" />
             <DevEmptyHint />
           </>
