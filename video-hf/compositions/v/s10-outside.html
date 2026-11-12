@@ -1,0 +1,65 @@
+<template>
+  <style>
+    @font-face { font-family: 'Bricolage Grotesque'; src: url('assets/fonts/BricolageGrotesque.woff2') format('woff2'); font-weight: 200 800; }
+    @font-face { font-family: 'Hanken Grotesk'; src: url('assets/fonts/HankenGrotesk.woff2') format('woff2'); font-weight: 100 900; }
+    #root { position: absolute; inset: 0; overflow: hidden; background: #fffdf8; font-family: 'Hanken Grotesk', sans-serif; color: #1d2722; }
+    #s10-out { position: absolute; left: 0; top: 0; width: 1080px; height: 664px; background: #ebe5d9; overflow: hidden; }
+    #s10-with { position: absolute; left: 0; top: 664px; width: 1080px; height: 1256px; background: #fffdf8; overflow: hidden; }
+    .s10-col { position: absolute; left: 60px; width: 960px; }
+    #s10-out .s10-col { top: 176px; }
+    #s10-with .s10-col { top: 26px; }
+    .s10-h { display: flex; align-items: center; gap: 16px; height: 72px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 60px; letter-spacing: -0.03em; }
+    #s10-out .s10-h { color: #6f6a60; }
+    #s10-with .s10-h { color: #0f4d39; }
+    .s10-h img { width: 64px; height: 64px; }
+    .s10-item { margin-top: 14px; padding: 16px 26px; border-radius: 22px; }
+    .s10-item b { display: block; font-size: 28px; line-height: 34px; font-weight: 700; letter-spacing: .02em; }
+    .s10-item span { display: flex; align-items: center; gap: 14px; margin-top: 4px; font-size: 38px; line-height: 46px; font-weight: 700; }
+    #s10-out .s10-item { background: #f4efe6; border: 2px dashed #cfc6b4; }
+    #s10-out .s10-item b { color: #8a8478; }
+    #s10-out .s10-item span { color: #6f6a60; }
+    #s10-with .s10-item { background: #eef6f1; border: 2px solid #b9dfce; }
+    #s10-with .s10-item b { color: #1f7d5c; }
+    .s10-ic { width: 42px; height: 42px; flex: none; }
+    .s10-bubble { position: absolute; padding: 10px 18px; border-radius: 18px; background: #e3dccd; color: #6f6a60; font-size: 28px; font-weight: 600; white-space: nowrap; }
+  </style>
+  <div id="root" data-composition-id="s10-outside" data-width="1080" data-height="1920">
+    <div id="s10-out">
+      <div class="s10-col">
+        <div class="s10-h">Por fuera</div>
+        <div class="s10-item" id="s10-o1"><b>Acuerdos</b><span>Quedan en chats sueltos</span></div>
+        <div class="s10-item" id="s10-o2"><b>Reserva confirmada</b><span>Depende de cada residencia</span></div>
+        <div class="s10-item" id="s10-o3"><b>Si algo no coincide</b><span>Lo resolvés directo con la residencia</span></div>
+      </div>
+      <div class="s10-bubble" style="left:400px;top:192px">¿Me pasás el CBU?</div>
+      <div class="s10-bubble" style="left:730px;top:192px">Audio (0:47)</div>
+    </div>
+    <div id="s10-with">
+      <div class="s10-col">
+        <div class="s10-h"><img src="assets/brand/estured-symbol.svg" alt="" />Con EstuRed</div>
+        <div class="s10-item" id="s10-w1"><b>Acuerdos</b><span><svg class="s10-ic" viewBox="0 0 24 24" fill="none" stroke="#1f7d5c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7" /></svg>Registrados en tu cuenta</span></div>
+        <div class="s10-item" id="s10-w2"><b>Reserva confirmada</b><span><svg class="s10-ic" viewBox="0 0 24 24" fill="none" stroke="#1f7d5c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7" /></svg>Comprobante con código verificable</span></div>
+        <div class="s10-item" id="s10-w3"><b>Si algo no coincide</b><span><svg class="s10-ic" viewBox="0 0 24 24" fill="none" stroke="#1f7d5c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7" /></svg>Abrís un caso de Soporte</span></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    gsap.set(["#s10-w1", "#s10-w2", "#s10-w3"], { opacity: 0 });
+    tl.fromTo("#s10-out", { yPercent: -100 }, { yPercent: 0, duration: 0.5, ease: "power3.out" }, 0);
+    tl.fromTo("#s10-with", { y: 1300 }, { y: 0, duration: 0.5, ease: "power3.out" }, 0);
+    // por fuera: todo llega desordenado y se queda inquieto
+    tl.fromTo(["#s10-o1", "#s10-o2", "#s10-o3"], { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.3, stagger: 0.35, ease: "power3.out" }, 0.45);
+    tl.fromTo("#s10-out .s10-bubble", { opacity: 0, scale: 0.75 }, { opacity: 1, scale: 1, duration: 0.12, stagger: 0.3, ease: "power3.out" }, 1.0);
+    tl.to("#s10-out .s10-bubble", { x: 5, duration: 0.05, yoyo: true, repeat: 5, ease: "none", stagger: 0.1 }, 2.2);
+    tl.to("#s10-out", { filter: "saturate(0.5)", duration: 0.6 }, 3.3);
+    // con EstuRed: cada fila llega con su palabra, quieta
+    tl.to("#s10-w1", { opacity: 1, duration: 0.3, ease: "power2.out" }, 3.8);
+    tl.to("#s10-w2", { opacity: 1, duration: 0.3, ease: "power2.out" }, 5.95);
+    tl.to("#s10-w3", { opacity: 1, duration: 0.3, ease: "power2.out" }, 6.8);
+    // la pantalla dividida colapsa en la que importa
+    tl.to("#s10-out", { yPercent: -100, duration: 0.45, ease: "power3.in" }, 7.25);
+    tl.to("#s10-with", { y: -340, duration: 0.45, ease: "power3.inOut" }, 7.25);
+    window.__timelines["s10-outside"] = tl;
+  </script>
+</template>

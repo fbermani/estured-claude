@@ -1,0 +1,162 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1200" viewBox="0 0 1600 1200" role="img">
+<title>E2 master</title>
+<desc>Compañera de residencia E2 de EstuRed en pose neutra, de frente y en tres cuartos: cola de caballo alta, buzo con capucha terracota, auriculares al cuello, pantalón ancho y zapatillas claras.</desc>
+<style>
+  .fondo{fill:#fbf6ec}
+  .piso{fill:#ece3cf}
+  .piel{fill:#8a5638}
+  .piel-sombra{fill:#764830}
+  .pelo{fill:#1a1412}
+  .gomita{fill:#c0603f}
+  .tinta{fill:#1d2722}
+  .trazo{fill:none;stroke:#1d2722;stroke-linecap:round}
+  .buzo{fill:#c0603f}
+  .buzo-oscuro{fill:#a44f33}
+  .buzo-brazo{fill:none;stroke:#b3583a;stroke-linecap:round;stroke-linejoin:round}
+  .buzo-brazo-lejos{fill:none;stroke:#9c4b31;stroke-linecap:round;stroke-linejoin:round}
+  .punio{fill:none;stroke:#a44f33}
+  .cordon{fill:none;stroke:#f3ead8;stroke-linecap:round}
+  .auriculares{fill:none;stroke:#1d2722;stroke-linecap:round}
+  .auricular{fill:#1d2722}
+  .pantalon{fill:#a8946e}
+  .pantalon-lejos{fill:#958260}
+  .zapatilla{fill:#f3ead8}
+  .suela{fill:#1d2722}
+</style>
+
+<rect class="fondo" width="1600" height="1200"/>
+
+<!-- ===================== VISTA DE FRENTE ===================== -->
+<g id="e2-frente">
+  <ellipse class="piso" cx="500" cy="1074" rx="210" ry="22"/>
+
+  <g id="frente-pierna-der" data-parte="pierna-der">
+    <path class="pantalon" d="M444 716 L500 716 L498 1046 L432 1046 Z"/>
+    <rect class="zapatilla" x="426" y="1034" width="74" height="34" rx="15"/>
+    <rect class="suela" x="426" y="1062" width="74" height="10" rx="5"/>
+  </g>
+  <g id="frente-pierna-izq" data-parte="pierna-izq">
+    <path class="pantalon" d="M500 716 L556 716 L568 1046 L502 1046 Z"/>
+    <rect class="zapatilla" x="500" y="1034" width="74" height="34" rx="15"/>
+    <rect class="suela" x="500" y="1062" width="74" height="10" rx="5"/>
+  </g>
+
+  <g id="frente-cola" data-parte="pelo">
+    <path class="pelo" d="M540 214 Q600 214 604 280 Q608 340 584 392 Q574 344 560 300 Q548 260 530 236 Z"/>
+  </g>
+
+  <g id="frente-torso" data-parte="torso">
+    <rect class="piel-sombra" x="486" y="340" width="28" height="40" rx="8"/>
+    <path class="buzo-oscuro" d="M432 380 Q500 404 568 380 Q560 360 500 362 Q440 360 432 380 Z"/>
+    <path class="buzo" d="M432 376 Q500 398 568 376 Q622 390 626 446 L630 716 Q500 732 370 716 L374 446 Q378 390 432 376 Z"/>
+    <path class="buzo-oscuro" d="M444 590 Q500 580 556 590 L566 676 Q500 686 434 676 Z"/>
+    <path class="punio" stroke-width="20" d="M372 706 Q500 724 628 706"/>
+    <path class="cordon" stroke-width="5" d="M484 396 L480 460 M516 396 L520 460"/>
+  </g>
+
+  <g id="frente-auriculares" data-parte="auriculares">
+    <path class="auriculares" stroke-width="8" d="M452 386 Q500 420 548 386"/>
+    <rect class="auricular" x="434" y="370" width="30" height="40" rx="12"/>
+    <rect class="auricular" x="536" y="370" width="30" height="40" rx="12"/>
+  </g>
+
+  <g id="frente-cabeza" data-parte="cabeza">
+    <circle class="piel" cx="444" cy="302" r="12"/>
+    <circle class="piel" cx="556" cy="302" r="12"/>
+    <ellipse class="piel" cx="500" cy="290" rx="56" ry="68"/>
+    <g id="frente-pelo" data-parte="pelo">
+      <path class="pelo" d="M444 296 Q438 218 500 216 Q562 218 556 296 Q550 254 500 250 Q450 254 444 296 Z"/>
+      <circle class="pelo" cx="540" cy="212" r="20"/>
+      <rect class="gomita" x="526" y="214" width="22" height="12" rx="6" transform="rotate(30 537 220)"/>
+    </g>
+    <g id="frente-cejas" data-parte="cejas">
+      <path class="trazo" stroke-width="5.5" d="M466 278 Q479 272 492 276"/>
+      <path class="trazo" stroke-width="5.5" d="M508 276 Q521 272 534 278"/>
+    </g>
+    <g id="frente-ojos" data-parte="ojos">
+      <ellipse class="tinta" cx="481" cy="302" rx="6" ry="6.5"/>
+      <ellipse class="tinta" cx="519" cy="302" rx="6" ry="6.5"/>
+    </g>
+    <g id="frente-boca" data-parte="boca">
+      <path class="trazo" stroke-width="4.5" d="M489 330 Q500 337 511 330"/>
+    </g>
+  </g>
+
+  <g id="frente-brazo-der" data-parte="brazo-der">
+    <path class="buzo-brazo" stroke-width="50" d="M408 420 Q384 560 396 680"/>
+    <path class="punio" stroke-width="50" d="M395 668 L396 686"/>
+    <circle class="piel" cx="398" cy="708" r="20"/>
+  </g>
+  <g id="frente-brazo-izq" data-parte="brazo-izq">
+    <path class="buzo-brazo" stroke-width="50" d="M592 420 Q616 560 604 680"/>
+    <path class="punio" stroke-width="50" d="M605 668 L604 686"/>
+    <circle class="piel" cx="602" cy="708" r="20"/>
+  </g>
+</g>
+
+<!-- ===================== VISTA 3/4 ===================== -->
+<g id="e2-tres-cuartos">
+  <ellipse class="piso" cx="1160" cy="1074" rx="220" ry="22"/>
+
+  <g id="tc-pierna-izq" data-parte="pierna-izq">
+    <path class="pantalon-lejos" d="M1160 716 L1214 716 L1226 1046 L1164 1046 Z"/>
+    <rect class="zapatilla" x="1162" y="1034" width="82" height="34" rx="15"/>
+    <rect class="suela" x="1162" y="1062" width="82" height="10" rx="5"/>
+  </g>
+  <g id="tc-pierna-der" data-parte="pierna-der">
+    <path class="pantalon" d="M1100 716 L1158 716 L1160 1046 L1090 1046 Z"/>
+    <rect class="zapatilla" x="1086" y="1034" width="84" height="34" rx="15"/>
+    <rect class="suela" x="1086" y="1062" width="84" height="10" rx="5"/>
+  </g>
+
+  <g id="tc-cola" data-parte="pelo">
+    <path class="pelo" d="M1122 222 Q1062 214 1046 270 Q1032 330 1052 394 Q1070 344 1088 302 Q1104 262 1128 246 Z"/>
+  </g>
+
+  <g id="tc-torso" data-parte="torso">
+    <rect class="piel-sombra" x="1142" y="340" width="28" height="40" rx="8"/>
+    <path class="buzo-oscuro" d="M1092 384 Q1100 352 1150 356 L1120 400 Z"/>
+    <path class="buzo" d="M1096 378 Q1160 394 1222 378 Q1262 392 1264 446 L1270 716 Q1170 732 1066 716 L1072 446 Q1074 392 1096 378 Z"/>
+    <path class="buzo-oscuro" d="M1140 590 Q1196 580 1246 590 L1254 676 Q1196 686 1132 676 Z"/>
+    <path class="punio" stroke-width="20" d="M1068 706 Q1170 724 1268 706"/>
+    <path class="cordon" stroke-width="5" d="M1178 394 L1176 456 M1206 390 L1210 452"/>
+  </g>
+
+  <g id="tc-auriculares" data-parte="auriculares">
+    <path class="auriculares" stroke-width="8" d="M1124 386 Q1170 418 1214 384"/>
+    <rect class="auricular" x="1200" y="366" width="28" height="40" rx="12"/>
+    <rect class="auricular" x="1108" y="372" width="24" height="36" rx="11"/>
+  </g>
+
+  <g id="tc-cabeza" data-parte="cabeza">
+    <ellipse class="piel" cx="1160" cy="290" rx="52" ry="68"/>
+    <circle class="piel" cx="1122" cy="304" r="11"/>
+    <g id="tc-pelo" data-parte="pelo">
+      <path class="pelo" d="M1108 300 Q1100 218 1160 216 Q1216 218 1212 282 Q1196 252 1160 250 Q1130 252 1128 270 Q1124 290 1112 304 Z"/>
+      <circle class="pelo" cx="1124" cy="222" r="20"/>
+      <rect class="gomita" x="1112" y="226" width="22" height="12" rx="6" transform="rotate(-30 1123 232)"/>
+    </g>
+    <g id="tc-cejas" data-parte="cejas">
+      <path class="trazo" stroke-width="5.5" d="M1156 278 Q1168 272 1180 276"/>
+      <path class="trazo" stroke-width="5.5" d="M1192 276 Q1201 273 1209 278"/>
+    </g>
+    <g id="tc-ojos" data-parte="ojos">
+      <ellipse class="tinta" cx="1168" cy="302" rx="6" ry="6.5"/>
+      <ellipse class="tinta" cx="1200" cy="302" rx="5" ry="6"/>
+    </g>
+    <g id="tc-boca" data-parte="boca">
+      <path class="trazo" stroke-width="4.5" d="M1176 330 Q1186 336 1196 329"/>
+    </g>
+  </g>
+
+  <g id="tc-brazo-izq" data-parte="brazo-izq">
+    <path class="buzo-brazo-lejos" stroke-width="46" d="M1240 420 Q1262 560 1248 676"/>
+    <circle class="piel" cx="1246" cy="704" r="19"/>
+  </g>
+  <g id="tc-brazo-der" data-parte="brazo-der">
+    <path class="buzo-brazo" stroke-width="50" d="M1098 420 Q1074 560 1088 680"/>
+    <path class="punio" stroke-width="50" d="M1087 668 L1088 686"/>
+    <circle class="piel" cx="1090" cy="708" r="20"/>
+  </g>
+</g>
+</svg>

@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200" role="img">
+<title>E1 ceño fruncido</title>
+<desc>Primer plano de E1 de frente con el ceño fruncido, mirando el celular que sostiene a la altura del pecho.</desc>
+<style>
+  .fondo{fill:#fbf6ec}
+  .piel{fill:#b97a4f}
+  .piel-sombra{fill:#a4683f}
+  .pelo{fill:#2a1d17}
+  .tinta{fill:#1d2722}
+  .trazo{fill:none;stroke:#1d2722;stroke-linecap:round}
+  .abrigo{fill:#1f7d5c}
+  .abrigo-brazo{fill:none;stroke:#1a6e51;stroke-linecap:round;stroke-linejoin:round}
+  .abrigo-linea{fill:none;stroke:#0c3a2c;stroke-linecap:round}
+  .cuello{fill:#0c3a2c}
+  .mochila-sombra{fill:#c29a55}
+  .tira{fill:none;stroke:#d8b06a;stroke-linecap:round}
+  .celular{fill:#1d2722}
+</style>
+
+<rect class="fondo" width="1200" height="1200"/>
+
+<!-- Mismas coordenadas que la vista de frente del master, ampliadas 2,4x -->
+<g id="e1-primer-plano" transform="translate(-600 -264) scale(2.4)">
+  <g id="torso" data-parte="torso">
+    <rect class="piel-sombra" x="486" y="336" width="28" height="40" rx="8"/>
+    <path class="abrigo" d="M430 372 Q500 360 570 372 Q615 385 618 432 L625 722 Q500 738 375 722 L382 432 Q385 385 430 372 Z"/>
+    <path class="abrigo-linea" stroke-width="5" d="M500 386 V728"/>
+    <rect class="cuello" x="464" y="352" width="72" height="34" rx="15"/>
+    <path class="tira" stroke-width="16" d="M452 384 Q446 460 450 540"/>
+    <path class="tira" stroke-width="16" d="M548 384 Q554 460 550 540"/>
+    <rect class="mochila-sombra" x="440" y="512" width="22" height="12" rx="4"/>
+    <rect class="mochila-sombra" x="538" y="512" width="22" height="12" rx="4"/>
+  </g>
+
+  <g id="brazo-izq" data-parte="brazo-izq">
+    <path class="abrigo-brazo" stroke-width="46" d="M598 402 Q626 522 616 650"/>
+  </g>
+
+  <g id="cabeza" data-parte="cabeza">
+    <circle class="piel" cx="442" cy="298" r="13"/>
+    <circle class="piel" cx="558" cy="298" r="13"/>
+    <ellipse class="piel" cx="500" cy="285" rx="58" ry="70"/>
+    <g id="pelo" data-parte="pelo">
+      <ellipse class="pelo" cx="502" cy="234" rx="54" ry="27"/>
+      <circle class="pelo" cx="447" cy="256" r="22"/>
+      <circle class="pelo" cx="455" cy="230" r="26"/>
+      <circle class="pelo" cx="480" cy="210" r="27"/>
+      <circle class="pelo" cx="511" cy="204" r="27"/>
+      <circle class="pelo" cx="540" cy="213" r="26"/>
+      <circle class="pelo" cx="559" cy="236" r="22"/>
+      <circle class="pelo" cx="554" cy="257" r="20"/>
+    </g>
+    <g id="cejas" data-parte="cejas">
+      <path class="trazo" stroke-width="6" d="M467 279 Q480 278 492 283"/>
+      <path class="trazo" stroke-width="6" d="M508 283 Q520 278 533 279"/>
+    </g>
+    <g id="ojos" data-parte="ojos">
+      <ellipse class="tinta" cx="481" cy="300" rx="7" ry="6"/>
+      <ellipse class="tinta" cx="519" cy="300" rx="7" ry="6"/>
+    </g>
+    <g id="boca" data-parte="boca">
+      <path class="trazo" stroke-width="4.5" d="M491 327 Q500 325 509 327"/>
+    </g>
+  </g>
+
+  <g id="celular" data-parte="celular">
+    <rect class="celular" x="440" y="436" width="40" height="68" rx="8" transform="rotate(-8 460 470)"/>
+  </g>
+
+  <g id="brazo-der" data-parte="brazo-der">
+    <path class="abrigo-brazo" stroke-width="46" d="M402 408 Q388 540 452 508"/>
+    <circle class="piel" cx="464" cy="498" r="21"/>
+  </g>
+</g>
+</svg>

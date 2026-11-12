@@ -5,9 +5,8 @@
 ## Pendientes tras el hardening de seguridad (2026-11-12)
 Detalle en `docs/audits/PLAN_SEGURIDAD_2026-11-12.md` ("Estado al 2026-11-12").
 - Pasar la CSP de Report-Only a enforce tras observar los reportes (M5).
-- Turnstile (M6, opción A, implementado): apagar "Allow new users to sign up" en Supabase Auth (dev y prod) y cargar las claves reales en Vercel prod (`NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`).
-- Verificación de email en preapertura (hoy `email_confirm: true`).
-- B14: decidir qué carpetas sin trackear se commitean o ignoran.
+- Turnstile (M6, opción A, implementado): "Allow new users to sign up" ya apagado en dev (verificado); falta apagarlo en prod y cargar las claves reales en Vercel prod (`NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`).
+- Verificación de email (decidido 2026-11-12, opción C): la preapertura sigue creando cuentas con `email_confirm: true`; antes del lanzamiento público hay que exigir email verificado (link por mail) antes de solicitudes, pagos o contacto con residencias. Requisito de lanzamiento, no de preapertura.
 - Activar "Leaked password protection" en Supabase Auth (dev y prod) y revisar la duración del JWT.
 - Vercel prod: `NEXT_PUBLIC_APP_URL` obligatorio (`getAppUrl` lanza si falta), `DEMO_*` ausentes en Production y Preview, `CRON_SECRET`; crear el secreto `cron_secret` en Supabase Vault antes del bootstrap de prod.
 

@@ -1,0 +1,67 @@
+<template>
+  <style>
+    @font-face { font-family: 'Bricolage Grotesque'; src: url('assets/fonts/BricolageGrotesque.woff2') format('woff2'); font-weight: 200 800; }
+    @font-face { font-family: 'Hanken Grotesk'; src: url('assets/fonts/HankenGrotesk.woff2') format('woff2'); font-weight: 100 900; }
+    #root { position: absolute; inset: 0; overflow: hidden; background: #f9f5ee; font-family: 'Hanken Grotesk', sans-serif; color: #1d2722; }
+    #s08-stage { position: absolute; inset: 0; }
+    #s08-cam { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; }
+    #s08-card { position: absolute; left: 60px; top: 230px; width: 960px; padding: 44px 46px 36px; border-radius: 30px; background: #fffdf8; border: 1.5px solid #ece5d8; box-shadow: 0 24px 65px rgba(12,58,44,.08); }
+    .s08-h { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 52px; letter-spacing: -0.02em; margin-bottom: 16px; }
+    .s08-row { position: relative; display: flex; align-items: center; gap: 20px; height: 116px; font-size: 38px; white-space: nowrap; font-weight: 700; }
+    .s08-row::before { content: ""; position: absolute; left: 27px; top: 86px; width: 3px; height: 60px; background: #c8ded3; }
+    .s08-row:last-child::before { display: none; }
+    #s08-r2 { height: 170px; align-items: flex-start; padding-top: 28px; }
+    #s08-r2::before { top: 112px; height: 86px; }
+    .s08-lbl2 { display: flex; flex-direction: column; gap: 12px; }
+    .s08-cw { position: relative; width: 58px; height: 58px; flex: none; }
+    .s08-ring { position: absolute; inset: 0; border-radius: 50%; border: 3px solid #c8ded3; background: #fffdf8; }
+    .s08-fill { position: absolute; inset: 0; border-radius: 50%; background: #1f7d5c; }
+    .s08-cw svg { position: absolute; left: 13px; top: 13px; width: 32px; height: 32px; }
+    .s08-cw .tick { stroke: #fffdf8; stroke-width: 3.4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .s08-st { margin-left: auto; font-size: 30px; font-weight: 500; color: #5f6c65; }
+    .s08-tag { align-self: flex-start; white-space: nowrap; padding: 7px 18px; border-radius: 999px; background: #e2f1ea; color: #0f4d39; font-size: 30px; font-weight: 700; }
+    .s08-to { margin-left: auto; display: flex; align-items: center; gap: 10px; padding: 10px 20px; border-radius: 18px; font-size: 30px; font-weight: 700; background: #fffdf8; }
+    #s08-to-res { color: #0f4d39; border: 2.5px solid #1f7d5c; }
+    #s08-to-fee { color: #9a4118; border: 2.5px solid #c0521d; }
+    .s08-arrow { font-family: 'Bricolage Grotesque', sans-serif; font-size: 34px; }
+  </style>
+  <div id="root" data-composition-id="s08-steps" data-width="1080" data-height="1920">
+    <div id="s08-stage">
+      <div id="s08-cam">
+        <div id="s08-card">
+          <div class="s08-h">Cómo viene la solicitud</div>
+          <div class="s08-row" id="s08-r1"><span class="s08-cw"><span class="s08-ring"></span><span class="s08-fill"></span><svg viewBox="0 0 24 24"><path class="tick" d="M5 13l4 4L19 7" /></svg></span>Solicitud enviada <span class="s08-st">Listo</span></div>
+          <div class="s08-row" id="s08-r2"><span class="s08-cw"><span class="s08-ring"></span><span class="s08-fill"></span><svg viewBox="0 0 24 24"><path class="tick" d="M5 13l4 4L19 7" /></svg></span><span class="s08-lbl2">Contacto con la residencia<span class="s08-tag" id="s08-cond">Condiciones aceptadas</span></span></div>
+          <div class="s08-row" id="s08-r3"><span class="s08-cw"><span class="s08-ring"></span><span class="s08-fill"></span><svg viewBox="0 0 24 24"><path class="tick" d="M5 13l4 4L19 7" /></svg></span>Pago a la residencia <span id="s08-to-res" class="s08-to"><span class="s08-arrow">→</span>a la residencia</span></div>
+          <div class="s08-row" id="s08-r4"><span class="s08-cw"><span class="s08-ring"></span><span class="s08-fill"></span><svg viewBox="0 0 24 24"><path class="tick" d="M5 13l4 4L19 7" /></svg></span>Fee EstuRed <span id="s08-to-fee" class="s08-to"><span class="s08-arrow">→</span>a EstuRed</span></div>
+          <div class="s08-row" id="s08-r5"><span class="s08-cw"><span class="s08-ring"></span><span class="s08-fill"></span><svg viewBox="0 0 24 24"><path class="tick" d="M5 13l4 4L19 7" /></svg></span>Reserva confirmada <span class="s08-st" id="s08-r5s">Listo</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo("#s08-stage", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power3.out" }, 0);
+    gsap.set(["#s08-r3 .s08-fill", "#s08-r4 .s08-fill", "#s08-r5 .s08-fill"], { scale: 0 });
+    gsap.set(["#s08-r3 .tick", "#s08-r4 .tick", "#s08-r5 .tick"], { strokeDasharray: 24, strokeDashoffset: 24 });
+    gsap.set(["#s08-r5s", "#s08-cond", "#s08-to-res", "#s08-to-fee"], { opacity: 0 });
+    gsap.set(["#s08-r3", "#s08-r4", "#s08-r5"], { color: "#8a948e" });
+    tl.fromTo("#s08-cond", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.24, ease: "back.out(1.6)", transformOrigin: "0% 50%" }, 0.75);
+    const tick = (r, at) => {
+      tl.to(r, { color: "#1d2722", duration: 0.15 }, at);
+      tl.to(r + " .s08-fill", { scale: 1, duration: 0.22, ease: "back.out(1.8)" }, at);
+      tl.to(r + " .tick", { strokeDashoffset: 0, duration: 0.22, ease: "power2.out" }, at + 0.06);
+    };
+    // cámara: acerca los dos pagos, cada uno a su destino
+    tl.to("#s08-cam", { scale: 1.08, duration: 0.6, ease: "power2.inOut", transformOrigin: "540px 760px" }, 2.9);
+    tick("#s08-r3", 3.6);
+    tl.fromTo("#s08-to-res", { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.35, ease: "expo.out" }, 3.7);
+    tick("#s08-r4", 4.6);
+    tl.fromTo("#s08-to-fee", { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.35, ease: "expo.out" }, 4.7);
+    tl.to("#s08-cam", { scale: 1, duration: 0.5, ease: "power2.inOut" }, 5.2);
+    tick("#s08-r5", 5.75);
+    tl.to("#s08-r5s", { opacity: 1, duration: 0.2 }, 5.85);
+    tl.to("#s08-card", { scale: 1.12, opacity: 0, filter: "blur(8px)", duration: 0.35, ease: "power3.in", transformOrigin: "40% 90%" }, 6.62);
+    window.__timelines["s08-steps"] = tl;
+  </script>
+</template>

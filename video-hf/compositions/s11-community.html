@@ -1,0 +1,35 @@
+<template>
+  <style>
+    @font-face { font-family: 'Bricolage Grotesque'; src: url('assets/fonts/BricolageGrotesque.woff2') format('woff2'); font-weight: 200 800; }
+    @font-face { font-family: 'Hanken Grotesk'; src: url('assets/fonts/HankenGrotesk.woff2') format('woff2'); font-weight: 100 900; }
+    #root { position: absolute; inset: 0; overflow: hidden; background: #f9f5ee; font-family: 'Hanken Grotesk', sans-serif; color: #1d2722; }
+    #s11-cam { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+    #s11-page { position: absolute; left: 90px; top: 24px; width: 1740px; height: 1278px; }
+    #s11-page img { position: absolute; left: 0; top: 0; width: 1740px; height: auto; }
+    #s11-flood { position: absolute; inset: 0; background: #0c3a2c; clip-path: circle(0px at 960px 540px); }
+  </style>
+  <div id="root" data-composition-id="s11-community" data-width="1920" data-height="1080">
+    <div id="s11-cam">
+      <div id="s11-page">
+        <img id="s11-a" src="assets/ui/comunidad-li.png" alt="Comunidad actual de Residencia Norte (demo)" />
+        <img id="s11-b" src="assets/ui/comunidad-perfil.png" alt="Perfil de un residente: sobre mí, intereses y hábitos (demo)" />
+      </div>
+    </div>
+    <div id="s11-flood"></div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    gsap.set("#s11-b", { opacity: 0 });
+    tl.fromTo("#s11-cam", { scale: 0.9, opacity: 0, filter: "blur(10px)" }, { scale: 1, opacity: 1, filter: "blur(0px)", duration: 0.5, ease: "expo.out", transformOrigin: "960px 540px" }, 0);
+    // «cuántos son»: empuje al contador de residentes
+    tl.to("#s11-cam", { scale: 1.45, duration: 0.55, ease: "power2.inOut", transformOrigin: "260px 300px" }, 2.75);
+    // «en qué habitaciones»: baja a los tipos y las habitaciones
+    tl.to("#s11-cam", { scale: 1.2, y: -420, duration: 0.6, ease: "power2.inOut", transformOrigin: "260px 300px" }, 3.75);
+    // «lo que cada uno elige mostrar»: se abre un perfil
+    tl.to("#s11-cam", { scale: 1.5, y: -60, x: -220, duration: 0.6, ease: "power2.inOut", transformOrigin: "680px 360px" }, 4.95);
+    tl.to("#s11-b", { opacity: 1, duration: 0.18, ease: "power2.out" }, 5.25);
+    // inundación de color hacia el cierre
+    tl.to("#s11-flood", { clipPath: "circle(1200px at 960px 540px)", duration: 0.5, ease: "power2.inOut" }, 7.0);
+    window.__timelines["s11-community"] = tl;
+  </script>
+</template>

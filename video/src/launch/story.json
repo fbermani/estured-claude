@@ -1,0 +1,222 @@
+{
+  "fps": 30,
+  "bpm": 128,
+  "durationInFrames": 2138,
+  "scenes": [
+    {
+      "name": "El problema",
+      "text": "Te vas a estudiar a Buenos Aires. Pero... ¿reservar tu próxima casa solo con fotos de Instagram y mensajes de WhatsApp?",
+      "audio": "launch/voice-01.mp3",
+      "audioSeconds": 8.04,
+      "from": 0,
+      "frames": 281,
+      "captions": [
+        {
+          "text": "Te vas a estudiar a Buenos Aires.",
+          "start": 0.446291,
+          "end": 3.000458
+        },
+        {
+          "text": "Pero...",
+          "start": 3.000458,
+          "end": 3.637041
+        },
+        {
+          "text": "¿reservar tu próxima casa solo con fotos",
+          "start": 3.637041,
+          "end": 5.77825
+        },
+        {
+          "text": "de Instagram y mensajes de WhatsApp?",
+          "start": 5.77825,
+          "end": 7.837499
+        }
+      ]
+    },
+    {
+      "name": "La distancia",
+      "text": "Y viajar antes para conocer todas las residencias... no siempre es una opción.",
+      "audio": "launch/voice-02.mp3",
+      "audioSeconds": 5.064,
+      "from": 281,
+      "frames": 225,
+      "captions": [
+        {
+          "text": "Y viajar antes para conocer todas las",
+          "start": 0.446291,
+          "end": 2.217125
+        },
+        {
+          "text": "residencias...",
+          "start": 2.217125,
+          "end": 3.305083
+        },
+        {
+          "text": "no siempre es una opción.",
+          "start": 3.305083,
+          "end": 4.878249
+        }
+      ]
+    },
+    {
+      "name": "EstuRed verifica",
+      "text": "Por eso existe EstuRed. Residencias verificadas presencialmente: ya fuimos por vos.",
+      "audio": "launch/voice-03.mp3",
+      "audioSeconds": 6.6,
+      "from": 506,
+      "frames": 225,
+      "captions": [
+        {
+          "text": "Por eso existe EstuRed.",
+          "start": 0.446291,
+          "end": 2.630083
+        },
+        {
+          "text": "Residencias verificadas presencialmente: ya",
+          "start": 2.630083,
+          "end": 5.222665999999999
+        },
+        {
+          "text": "fuimos por vos.",
+          "start": 5.222665999999999,
+          "end": 6.367624
+        }
+      ]
+    },
+    {
+      "name": "Buscar en familia",
+      "text": "Buscá y compará ubicación, servicios, reglas y precios. Desde tu casa, con tu familia. Vos elegís.",
+      "audio": "launch/voice-04.mp3",
+      "audioSeconds": 9.168,
+      "from": 731,
+      "frames": 338,
+      "captions": [
+        {
+          "text": "Buscá y compará ubicación, servicios, reglas y",
+          "start": 0.446291,
+          "end": 3.744916
+        },
+        {
+          "text": "precios.",
+          "start": 3.744916,
+          "end": 5.1185
+        },
+        {
+          "text": "Desde tu casa, con tu familia.",
+          "start": 5.1185,
+          "end": 7.805541
+        },
+        {
+          "text": "Vos elegís.",
+          "start": 7.805541,
+          "end": 8.915750000000001
+        }
+      ]
+    },
+    {
+      "name": "Reserva registrada",
+      "text": "Enviá tu solicitud y seguí cada paso desde tu panel. Cuando confirmás tu reserva, tenés un comprobante verificable. Todo queda registrado.",
+      "audio": "launch/voice-05.mp3",
+      "audioSeconds": 9.864,
+      "from": 1069,
+      "frames": 338,
+      "captions": [
+        {
+          "text": "Enviá tu solicitud y seguí cada paso",
+          "start": 0.446291,
+          "end": 2.460166
+        },
+        {
+          "text": "desde tu panel.",
+          "start": 2.460166,
+          "end": 4.0305409999999995
+        },
+        {
+          "text": "Cuando confirmás tu reserva, tenés un comprobante",
+          "start": 4.0305409999999995,
+          "end": 6.6
+        },
+        {
+          "text": "verificable.",
+          "start": 6.6,
+          "end": 8.185666
+        },
+        {
+          "text": "Todo queda registrado.",
+          "start": 8.185666,
+          "end": 9.619916
+        }
+      ]
+    },
+    {
+      "name": "Comunidad",
+      "text": "Y antes de llegar, descubrí la comunidad de cada residencia. Porque la convivencia también se elige.",
+      "audio": "launch/voice-06.mp3",
+      "audioSeconds": 6.864,
+      "from": 1407,
+      "frames": 281,
+      "captions": [
+        {
+          "text": "Y antes de llegar, descubrí la comunidad",
+          "start": 0.446291,
+          "end": 2.645375
+        },
+        {
+          "text": "de cada residencia.",
+          "start": 2.645375,
+          "end": 4.574541
+        },
+        {
+          "text": "Porque la convivencia también se elige.",
+          "start": 4.574541,
+          "end": 6.6222080000000005
+        }
+      ]
+    },
+    {
+      "name": "Soporte",
+      "text": "¿Necesitás ayuda? Contás con Soporte para acompañarte durante el proceso.",
+      "audio": "launch/voice-07.mp3",
+      "audioSeconds": 5.664,
+      "from": 1688,
+      "frames": 225,
+      "captions": [
+        {
+          "text": "¿Necesitás ayuda?",
+          "start": 0.44816599999999995,
+          "end": 2.375458
+        },
+        {
+          "text": "Contás con Soporte para acompañarte durante el",
+          "start": 2.375458,
+          "end": 4.597665999999999
+        },
+        {
+          "text": "proceso.",
+          "start": 4.597665999999999,
+          "end": 5.406916000000001
+        }
+      ]
+    },
+    {
+      "name": "Tu próxima etapa",
+      "text": "Tu próxima etapa empieza acá. Sumate a EstuRed y completá tu perfil.",
+      "audio": "launch/voice-08.mp3",
+      "audioSeconds": 5.616,
+      "from": 1913,
+      "frames": 225,
+      "captions": [
+        {
+          "text": "Tu próxima etapa empieza acá.",
+          "start": 0.446291,
+          "end": 2.9541660000000003
+        },
+        {
+          "text": "Sumate a EstuRed y completá tu perfil.",
+          "start": 2.9541660000000003,
+          "end": 5.430083000000001
+        }
+      ]
+    }
+  ]
+}

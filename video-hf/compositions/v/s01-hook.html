@@ -1,0 +1,62 @@
+<template>
+  <style>
+    @font-face { font-family: 'Bricolage Grotesque'; src: url('assets/fonts/BricolageGrotesque.woff2') format('woff2'); font-weight: 200 800; }
+    @font-face { font-family: 'Hanken Grotesk'; src: url('assets/fonts/HankenGrotesk.woff2') format('woff2'); font-weight: 100 900; }
+    #root { position: absolute; inset: 0; overflow: hidden; background: #e2f1ea; font-family: 'Hanken Grotesk', sans-serif; color: #1d2722; }
+    #s01-stage { position: absolute; inset: 0; }
+    #s01-title { position: absolute; left: 0; right: 0; top: 176px; text-align: center; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 124px; line-height: 0.98; letter-spacing: -0.03em; }
+    #s01-title .acc { color: #c0521d; }
+    #s01-route { position: absolute; left: 0; right: 0; top: 432px; display: flex; justify-content: center; align-items: center; gap: 18px; font-size: 36px; font-weight: 700; }
+    .s01-dot { width: 20px; height: 20px; border-radius: 50%; background: #1d2722; }
+    .s01-dot.to { background: #c0521d; }
+    #s01-dash { width: 250px; height: 6px; }
+    #s01-phone { position: absolute; left: 310px; top: 506px; width: 460px; height: 920px; border-radius: 64px; background: #1d2722; padding: 14px; box-shadow: 0 30px 70px rgba(12,58,44,.22), 0 4px 12px rgba(12,58,44,.12); }
+    #s01-screen { position: absolute; inset: 14px; border-radius: 50px; background: #fffdf8; overflow: hidden; }
+    .s01-head { position: absolute; left: 0; right: 0; top: 0; height: 118px; padding: 46px 26px 0; display: flex; align-items: center; gap: 14px; border-bottom: 2px solid #ece5d8; background: #f7f2e8; }
+    .s01-avatar { width: 50px; height: 50px; border-radius: 50%; background: #cfc6b4; }
+    .s01-name { font-weight: 700; font-size: 28px; }
+    .s01-sub { font-size: 24px; color: #5f6c65; }
+    #s01-thread { position: absolute; left: 20px; right: 20px; top: 136px; display: flex; flex-direction: column; gap: 12px; }
+    .s01-b { max-width: 350px; padding: 13px 18px; border-radius: 24px; font-size: 28px; line-height: 1.22; font-weight: 500; }
+    .s01-in { align-self: flex-start; background: #efe9de; border-bottom-left-radius: 8px; }
+    .s01-out { align-self: flex-end; background: #d4ecdf; border-bottom-right-radius: 8px; }
+    .s01-photo { width: 260px; height: 130px; border-radius: 16px; background: linear-gradient(135deg, #cdbfa6, #b6a88f); margin-bottom: 8px; display: grid; place-items: center; }
+    .s01-seen { align-self: flex-end; font-size: 24px; color: #5f6c65; margin-top: -4px; }
+  </style>
+  <div id="root" data-composition-id="s01-hook" data-width="1080" data-height="1920">
+    <div id="s01-stage">
+      <div id="s01-title">¿Dónde vas<br />a <span class="acc">vivir?</span></div>
+      <div id="s01-route">
+        <span class="s01-dot"></span><span>Rosario</span>
+        <svg id="s01-dash" viewBox="0 0 250 6"><line id="s01-line" x1="3" y1="3" x2="247" y2="3" stroke="#1d2722" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 14" /></svg>
+        <span class="s01-dot to"></span><span>CABA</span>
+      </div>
+      <div id="s01-phone" data-layout-allow-caption-zone>
+        <div id="s01-screen">
+          <div class="s01-head"><div class="s01-avatar"></div><div><div class="s01-name">Consulta residencia</div><div class="s01-sub">en línea</div></div></div>
+          <div id="s01-thread">
+            <div id="s01-m1" class="s01-b s01-in"><div class="s01-photo"><svg viewBox="0 0 24 24" width="60" height="60" fill="none" stroke="#fffdf8" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 16l5-5 4 4 3-3 6 6" /><circle cx="16" cy="9" r="1.6" /></svg></div>Te paso fotos</div>
+            <div id="s01-m2" class="s01-b s01-out">¿Es como en las fotos?</div>
+            <div id="s01-m3" class="s01-b s01-out">¿A quién le transfiero la seña?</div>
+            <div id="s01-m4" class="s01-b s01-out">¿Hay lugar de verdad?</div>
+            <div id="s01-seen" class="s01-seen">Visto</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    // f0 = miniatura: la pregunta y el teléfono ya están en pantalla
+    tl.fromTo("#s01-phone", { y: 40 }, { y: 0, duration: 0.6, ease: "expo.out" }, 0);
+    tl.fromTo("#s01-title", { y: -16 }, { y: 0, duration: 0.6, ease: "expo.out" }, 0);
+    for (const [sel, at] of [["#s01-m3", 1.0], ["#s01-m4", 2.0]]) {
+      tl.fromTo(sel, { opacity: 0, scale: 0.75, transformOrigin: "100% 100%" }, { opacity: 1, scale: 1, duration: 0.14, ease: "power3.out" }, at);
+    }
+    tl.fromTo("#s01-seen", { opacity: 0 }, { opacity: 1, duration: 0.2 }, 3.0);
+    tl.fromTo("#s01-route", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power3.out" }, 4.1);
+    tl.fromTo("#s01-line", { attr: { x2: 3 } }, { attr: { x2: 247 }, duration: 0.9, ease: "power2.inOut" }, 4.2);
+    tl.to("#s01-stage", { x: -1200, duration: 0.45, ease: "power3.in" }, 6.05);
+    window.__timelines["s01-hook"] = tl;
+  </script>
+</template>

@@ -1,0 +1,65 @@
+<template>
+  <style>
+    @font-face { font-family: 'Bricolage Grotesque'; src: url('assets/fonts/BricolageGrotesque.woff2') format('woff2'); font-weight: 200 800; }
+    @font-face { font-family: 'Hanken Grotesk'; src: url('assets/fonts/HankenGrotesk.woff2') format('woff2'); font-weight: 100 900; }
+    #root { position: absolute; inset: 0; overflow: hidden; background: #e2f1ea; font-family: 'Hanken Grotesk', sans-serif; color: #1d2722; }
+    #s01-stage { position: absolute; inset: 0; }
+    #s01-phone { position: absolute; left: 300px; top: 96px; width: 420px; height: 840px; border-radius: 60px; background: #1d2722; padding: 14px; box-shadow: 0 30px 70px rgba(12,58,44,.22), 0 4px 12px rgba(12,58,44,.12); }
+    #s01-screen { position: absolute; inset: 14px; border-radius: 46px; background: #fffdf8; overflow: hidden; }
+    .s01-head { position: absolute; left: 0; right: 0; top: 0; height: 128px; padding: 54px 26px 0; display: flex; align-items: center; gap: 14px; border-bottom: 2px solid #ece5d8; background: #f7f2e8; }
+    .s01-avatar { width: 52px; height: 52px; border-radius: 50%; background: #cfc6b4; }
+    .s01-name { font-weight: 700; font-size: 26px; }
+    .s01-sub { font-size: 24px; color: #5f6c65; }
+    #s01-thread { position: absolute; left: 22px; right: 22px; top: 150px; display: flex; flex-direction: column; gap: 14px; }
+    .s01-b { max-width: 300px; padding: 14px 18px; border-radius: 24px; font-size: 26px; line-height: 1.25; font-weight: 500; }
+    .s01-in { align-self: flex-start; background: #efe9de; border-bottom-left-radius: 8px; }
+    .s01-out { align-self: flex-end; background: #d4ecdf; border-bottom-right-radius: 8px; }
+    .s01-photo { width: 270px; height: 170px; border-radius: 16px; background: linear-gradient(135deg, #cdbfa6, #b6a88f); margin-bottom: 8px; display: grid; place-items: center; color: #fffdf8; font-size: 22px; font-weight: 700; letter-spacing: .02em; }
+    .s01-seen { align-self: flex-end; font-size: 24px; color: #5f6c65; margin-top: -6px; }
+    #s01-title { position: absolute; left: 860px; top: 300px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 128px; line-height: 1.0; letter-spacing: -0.03em; }
+    #s01-title .w { display: inline-block; }
+    #s01-title .acc { color: #c0521d; }
+    #s01-route { position: absolute; left: 866px; top: 600px; display: flex; align-items: center; gap: 22px; font-size: 38px; font-weight: 700; }
+    .s01-dot { width: 22px; height: 22px; border-radius: 50%; background: #1d2722; }
+    .s01-dot.to { background: #c0521d; }
+    #s01-dash { width: 330px; height: 6px; }
+  </style>
+  <div id="root" data-composition-id="s01-hook" data-width="1920" data-height="1080">
+    <div id="s01-stage">
+      <div id="s01-phone">
+        <div id="s01-screen">
+          <div class="s01-head"><div class="s01-avatar"></div><div><div class="s01-name">Consulta residencia</div><div class="s01-sub">en línea</div></div></div>
+          <div id="s01-thread">
+            <div id="s01-m1" class="s01-b s01-in"><div class="s01-photo"><svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="#fffdf8" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 16l5-5 4 4 3-3 6 6" /><circle cx="16" cy="9" r="1.6" /></svg></div>Te paso fotos</div>
+            <div id="s01-m2" class="s01-b s01-out">¿Es como en las fotos?</div>
+            <div id="s01-m3" class="s01-b s01-out">¿A quién le transfiero la seña?</div>
+            <div id="s01-m4" class="s01-b s01-out">¿Hay lugar de verdad?</div>
+            <div id="s01-seen" class="s01-seen">Visto</div>
+          </div>
+        </div>
+      </div>
+      <div id="s01-title"><span class="w">¿Dónde</span> <span class="w">vas</span><br /><span class="w">a</span> <span class="w acc">vivir?</span></div>
+      <div id="s01-route">
+        <span class="s01-dot"></span><span id="s01-from">Rosario</span>
+        <svg id="s01-dash" viewBox="0 0 330 6"><line id="s01-line" x1="3" y1="3" x2="327" y2="3" stroke="#1d2722" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 14" /></svg>
+        <span class="s01-dot to"></span><span id="s01-to">CABA</span>
+      </div>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    // f0 ya muestra el teléfono con la foto y la primera duda (miniatura)
+    tl.fromTo("#s01-phone", { y: 40 }, { y: 0, duration: 0.6, ease: "expo.out" }, 0);
+    tl.fromTo("#s01-title", { x: 24 }, { x: 0, duration: 0.6, ease: "expo.out" }, 0);
+    for (const [sel, at] of [["#s01-m3", 1.0], ["#s01-m4", 2.0]]) {
+      tl.fromTo(sel, { opacity: 0, scale: 0.75, transformOrigin: "100% 100%" }, { opacity: 1, scale: 1, duration: 0.14, ease: "power3.out" }, at);
+    }
+    tl.fromTo("#s01-seen", { opacity: 0 }, { opacity: 1, duration: 0.2 }, 3.0);
+    // nadie contesta: el hilo queda quieto; el recorrido explica la distancia
+    tl.fromTo("#s01-route", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power3.out" }, 4.1);
+    tl.fromTo("#s01-line", { attr: { x2: 3 } }, { attr: { x2: 327 }, duration: 0.9, ease: "power2.inOut" }, 4.2);
+    // salida: whip hacia la izquierda
+    tl.to("#s01-stage", { x: -1500, duration: 0.45, ease: "power3.in" }, 6.05);
+    window.__timelines["s01-hook"] = tl;
+  </script>
+</template>

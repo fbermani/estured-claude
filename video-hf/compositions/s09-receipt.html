@@ -1,0 +1,74 @@
+<template>
+  <style>
+    @font-face { font-family: 'Bricolage Grotesque'; src: url('assets/fonts/BricolageGrotesque.woff2') format('woff2'); font-weight: 200 800; }
+    @font-face { font-family: 'Hanken Grotesk'; src: url('assets/fonts/HankenGrotesk.woff2') format('woff2'); font-weight: 100 900; }
+    #root { position: absolute; inset: 0; overflow: hidden; background: #e2f1ea; font-family: 'Hanken Grotesk', sans-serif; color: #1d2722; }
+    #s09-desk { position: absolute; inset: 0; }
+    #s09-card { position: absolute; left: 150px; top: 30px; width: 1120px; padding: 38px 56px 32px; border-radius: 30px; background: #fffdf8; border: 3px solid #ece5d8; box-shadow: 0 40px 100px rgba(12,58,44,.18), 0 4px 12px rgba(12,58,44,.06); }
+    .s09-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; }
+    .s09-h { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 54px; line-height: 1.02; letter-spacing: -0.025em; }
+    .s09-valid { display: inline-flex; align-items: center; gap: 10px; padding: 12px 26px; border-radius: 999px; background: #1f7d5c; color: #fffdf8; font-size: 34px; font-weight: 700; white-space: nowrap; }
+    .s09-num { margin-top: 8px; font-size: 30px; color: #44524b; letter-spacing: .02em; }
+    .s09-rows { margin-top: 18px; border-radius: 18px; border: 1.5px solid #ece5d8; padding: 4px 30px; }
+    .s09-row { display: flex; justify-content: space-between; padding: 11px 0; font-size: 31px; border-bottom: 1.5px solid #f0e9dd; }
+    .s09-row:last-child { border-bottom: 0; }
+    .s09-row span:first-child { color: #44524b; }
+    .s09-row span:last-child { font-weight: 700; }
+    .s09-qrbox { display: flex; align-items: center; gap: 30px; margin-top: 18px; }
+    #s09-qr { width: 160px; height: 160px; padding: 12px; background: #fffdf8; border: 1.5px solid #ece5d8; border-radius: 14px; }
+    .s09-qrt { font-size: 32px; color: #44524b; line-height: 1.35; }
+    .s09-qrt b { color: #1d2722; }
+    #s09-phone { position: absolute; left: 1360px; top: 150px; width: 400px; height: 800px; border-radius: 60px; background: #1d2722; padding: 14px; box-shadow: 0 40px 90px rgba(12,58,44,.28); }
+    #s09-screen { position: absolute; inset: 14px; border-radius: 46px; overflow: hidden; background: #2b332f; }
+    #s09-view { position: absolute; left: 50%; top: 50%; width: 240px; height: 240px; margin: -120px 0 0 -120px; background: #fffdf8; border-radius: 10px; }
+    #s09-view::after { content: ""; position: absolute; inset: 16px; background: url("assets/brand/qr-estured.svg") center / contain no-repeat; }
+    .s09-cam-hint { position: absolute; left: 0; right: 0; bottom: 70px; text-align: center; color: #fffdf8; font-size: 28px; font-weight: 600; }
+    #s09-verify { position: absolute; inset: 0; background: #f9f5ee; }
+    #s09-vimg { position: absolute; left: 360px; top: 110px; width: 1200px; height: auto; border-radius: 24px; }
+    #s09-vline { position: absolute; left: 0; right: 0; top: 830px; text-align: center; font-family: 'Bricolage Grotesque', sans-serif; font-size: 40px; font-weight: 700; color: #0f4d39; }
+  </style>
+  <div id="root" data-composition-id="s09-receipt" data-width="1920" data-height="1080">
+    <div id="s09-desk">
+      <div id="s09-card">
+        <div class="s09-top"><div class="s09-h">Comprobante de<br />Reserva Confirmada</div><span class="s09-valid"><svg viewBox="0 0 24 24" width="30" height="30"><path d="M5 13l4 4L19 7" stroke="#fffdf8" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round" /></svg>Válido</span></div>
+        <div class="s09-num">N.º ER-2026-5C75F4</div>
+        <div class="s09-rows">
+          <div class="s09-row"><span>Estudiante</span><span>Lucia F.</span></div>
+          <div class="s09-row"><span>Residencia</span><span>Residencia Norte · Palermo</span></div>
+          <div class="s09-row"><span>Tipo de habitación</span><span>Individual</span></div>
+          <div class="s09-row"><span>Duración inicial</span><span>6 meses</span></div>
+          <div class="s09-row"><span>Condiciones aceptadas</span><span>Registradas</span></div>
+          <div class="s09-row"><span>Fee EstuRed</span><span>Pagado</span></div>
+        </div>
+        <div class="s09-qrbox"><img id="s09-qr" src="assets/brand/qr-estured.svg" alt="Código QR" /><div class="s09-qrt"><b>Código verificable</b><br />Cualquiera puede comprobar que este comprobante existe.</div></div>
+      </div>
+      <div id="s09-phone"><div id="s09-screen"><div id="s09-view"></div><div class="s09-cam-hint">Escaneando…</div></div></div>
+    </div>
+    <div id="s09-verify">
+      <img id="s09-vimg" src="assets/ui/verify-ok.png" alt="Verificación pública del comprobante (EstuRed)" />
+      <div id="s09-vline">estured.com/verify</div>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    gsap.set("#s09-verify", { opacity: 0 });
+    // el comprobante sale de la fila «Reserva confirmada» y ocupa la escena
+    tl.fromTo("#s09-card", { scale: 0.7, y: 120, opacity: 0, filter: "blur(10px)" }, { scale: 1, y: 0, opacity: 1, filter: "blur(0px)", duration: 0.6, ease: "expo.out" }, 0);
+    tl.fromTo("#s09-card .s09-row", { opacity: 0, x: -14 }, { opacity: 1, x: 0, duration: 0.26, stagger: 0.16, ease: "power3.out" }, 0.4);
+    // «Comprobante de Reserva Confirmada»: el sello de válido aterriza con peso
+    tl.fromTo(".s09-valid", { scale: 2.2, opacity: 0, rotation: -10 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.42, ease: "back.out(1.4)" }, 2.3);
+    tl.to("#s09-card", { borderColor: "#1f7d5c", duration: 0.3 }, 2.45);
+    tl.fromTo("#s09-card .s09-qrbox", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.3, ease: "power3.out" }, 1.5);
+    // «un código que cualquiera puede verificar»: otro teléfono lo escanea
+    tl.fromTo("#s09-phone", { y: 1000, rotation: 6 }, { y: 0, rotation: -3, duration: 0.6, ease: "expo.out" }, 3.6);
+    tl.fromTo("#s09-view", { scale: 0.7 }, { scale: 1, duration: 0.45, ease: "power2.out" }, 4.0);
+    tl.to("#s09-screen", { backgroundColor: "#fffdf8", duration: 0.06, yoyo: true, repeat: 1 }, 4.75);
+    // corte duro en el beat: la verificación pública
+    tl.set("#s09-desk", { opacity: 0 }, 5.0);
+    tl.set("#s09-verify", { opacity: 1 }, 5.0);
+    tl.fromTo("#s09-vimg", { scale: 1.06 }, { scale: 1, duration: 0.45, ease: "expo.out" }, 5.0);
+    tl.fromTo("#s09-vline", { opacity: 0 }, { opacity: 1, duration: 0.25 }, 5.35);
+    tl.to("#s09-verify", { opacity: 0, filter: "blur(10px)", duration: 0.2, ease: "power2.in" }, 7.78);
+    window.__timelines["s09-receipt"] = tl;
+  </script>
+</template>

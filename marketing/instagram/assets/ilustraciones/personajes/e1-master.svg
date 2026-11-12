@@ -1,0 +1,186 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1200" viewBox="0 0 1600 1200" role="img">
+<title>E1 master</title>
+<desc>Estudiante E1 de EstuRed en pose neutra, de frente y en tres cuartos: rulos oscuros, campera parka verde, mochila ocre y valija de cabina verde oscuro.</desc>
+<style>
+  .fondo{fill:#fbf6ec}
+  .piso{fill:#ece3cf}
+  .piel{fill:#b97a4f}
+  .piel-sombra{fill:#a4683f}
+  .pelo{fill:#2a1d17}
+  .tinta{fill:#1d2722}
+  .trazo{fill:none;stroke:#1d2722;stroke-linecap:round}
+  .abrigo{fill:#1f7d5c}
+  .abrigo-brazo{fill:none;stroke:#1a6e51;stroke-linecap:round}
+  .abrigo-brazo-lejos{fill:none;stroke:#155c44;stroke-linecap:round}
+  .abrigo-linea{fill:none;stroke:#0c3a2c;stroke-linecap:round}
+  .cuello{fill:#0c3a2c}
+  .pantalon{fill:#2f3b45}
+  .pantalon-lejos{fill:#27313a}
+  .zapatilla{fill:#1d2722}
+  .mochila{fill:#d8b06a}
+  .mochila-sombra{fill:#c29a55}
+  .tira{fill:none;stroke:#d8b06a;stroke-linecap:round}
+  .valija{fill:#0c3a2c}
+  .valija-lado{fill:#082a1f}
+  .valija-manija{fill:#14503c}
+  .valija-banda{fill:#f1d9a8}
+</style>
+
+<rect class="fondo" width="1600" height="1200"/>
+
+<!-- ===================== VISTA DE FRENTE ===================== -->
+<g id="e1-frente">
+  <ellipse class="piso" cx="565" cy="1074" rx="240" ry="22"/>
+
+  <g id="frente-pierna-der" data-parte="pierna-der">
+    <rect class="pantalon" x="444" y="700" width="50" height="345" rx="14"/>
+    <rect class="zapatilla" x="426" y="1034" width="72" height="40" rx="18"/>
+  </g>
+  <g id="frente-pierna-izq" data-parte="pierna-izq">
+    <rect class="pantalon" x="506" y="700" width="50" height="345" rx="14"/>
+    <rect class="zapatilla" x="502" y="1034" width="72" height="40" rx="18"/>
+  </g>
+
+  <g id="frente-valija" data-parte="valija">
+    <rect class="valija-manija" x="684" y="682" width="9" height="112" rx="3"/>
+    <rect class="valija-manija" x="716" y="682" width="9" height="112" rx="3"/>
+    <rect class="valija" x="672" y="672" width="64" height="16" rx="8"/>
+    <rect class="valija" x="645" y="790" width="120" height="270" rx="20"/>
+    <rect class="valija-banda" x="645" y="858" width="120" height="16"/>
+    <rect class="valija-banda" x="645" y="970" width="120" height="16"/>
+    <circle class="tinta" cx="668" cy="1066" r="10"/>
+    <circle class="tinta" cx="742" cy="1066" r="10"/>
+  </g>
+
+  <g id="frente-torso" data-parte="torso">
+    <rect class="piel-sombra" x="486" y="336" width="28" height="40" rx="8"/>
+    <path class="abrigo" d="M430 372 Q500 360 570 372 Q615 385 618 432 L625 722 Q500 738 375 722 L382 432 Q385 385 430 372 Z"/>
+    <path class="abrigo-linea" stroke-width="5" d="M500 386 V728"/>
+    <path class="abrigo-linea" stroke-width="5" d="M418 612 H458 M542 612 H582"/>
+    <rect class="cuello" x="464" y="352" width="72" height="34" rx="15"/>
+  </g>
+
+  <g id="frente-mochila" data-parte="mochila">
+    <path class="tira" stroke-width="16" d="M452 384 Q446 460 450 540"/>
+    <path class="tira" stroke-width="16" d="M548 384 Q554 460 550 540"/>
+    <rect class="mochila-sombra" x="440" y="512" width="22" height="12" rx="4"/>
+    <rect class="mochila-sombra" x="538" y="512" width="22" height="12" rx="4"/>
+  </g>
+
+  <g id="frente-cabeza" data-parte="cabeza">
+    <circle class="piel" cx="442" cy="298" r="13"/>
+    <circle class="piel" cx="558" cy="298" r="13"/>
+    <ellipse class="piel" cx="500" cy="285" rx="58" ry="70"/>
+    <g id="frente-pelo" data-parte="pelo">
+      <ellipse class="pelo" cx="502" cy="234" rx="54" ry="27"/>
+      <circle class="pelo" cx="447" cy="256" r="22"/>
+      <circle class="pelo" cx="455" cy="230" r="26"/>
+      <circle class="pelo" cx="480" cy="210" r="27"/>
+      <circle class="pelo" cx="511" cy="204" r="27"/>
+      <circle class="pelo" cx="540" cy="213" r="26"/>
+      <circle class="pelo" cx="559" cy="236" r="22"/>
+      <circle class="pelo" cx="554" cy="257" r="20"/>
+    </g>
+    <g id="frente-cejas" data-parte="cejas">
+      <path class="trazo" stroke-width="6" d="M468 278 Q480 271 492 277"/>
+      <path class="trazo" stroke-width="6" d="M508 277 Q520 271 532 278"/>
+    </g>
+    <g id="frente-ojos" data-parte="ojos">
+      <circle class="tinta" cx="480" cy="297" r="7"/>
+      <circle class="tinta" cx="520" cy="297" r="7"/>
+    </g>
+    <g id="frente-boca" data-parte="boca">
+      <path class="trazo" stroke-width="4.5" d="M490 323 Q500 329 510 323"/>
+    </g>
+  </g>
+
+  <g id="frente-brazo-der" data-parte="brazo-der">
+    <path class="abrigo-brazo" stroke-width="46" d="M402 402 Q374 522 384 650"/>
+    <circle class="piel" cx="386" cy="676" r="21"/>
+  </g>
+  <g id="frente-brazo-izq" data-parte="brazo-izq">
+    <path class="abrigo-brazo" stroke-width="46" d="M598 402 Q640 540 690 660"/>
+    <circle class="piel" cx="700" cy="680" r="21"/>
+  </g>
+</g>
+
+<!-- ===================== VISTA 3/4 ===================== -->
+<g id="e1-tres-cuartos">
+  <ellipse class="piso" cx="1250" cy="1074" rx="260" ry="22"/>
+
+  <g id="tc-pierna-izq" data-parte="pierna-izq">
+    <rect class="pantalon-lejos" x="1166" y="700" width="48" height="345" rx="14"/>
+    <rect class="zapatilla" x="1158" y="1034" width="80" height="40" rx="18"/>
+  </g>
+  <g id="tc-pierna-der" data-parte="pierna-der">
+    <rect class="pantalon" x="1100" y="700" width="52" height="345" rx="14"/>
+    <rect class="zapatilla" x="1092" y="1034" width="82" height="40" rx="18"/>
+  </g>
+
+  <g id="tc-valija" data-parte="valija">
+    <rect class="valija-manija" x="1360" y="756" width="9" height="40" rx="3"/>
+    <rect class="valija-manija" x="1392" y="756" width="9" height="40" rx="3"/>
+    <rect class="valija" x="1350" y="748" width="62" height="16" rx="8"/>
+    <path class="valija-lado" d="M1412 790 L1462 782 Q1478 780 1478 798 L1478 1040 Q1478 1054 1464 1056 L1420 1060 Z"/>
+    <rect class="valija" x="1330" y="790" width="104" height="270" rx="18"/>
+    <rect class="valija-banda" x="1330" y="858" width="104" height="16"/>
+    <rect class="valija-banda" x="1330" y="970" width="104" height="16"/>
+    <circle class="tinta" cx="1352" cy="1066" r="10"/>
+    <circle class="tinta" cx="1414" cy="1066" r="10"/>
+    <circle class="tinta" cx="1466" cy="1060" r="8"/>
+  </g>
+
+  <g id="tc-mochila" data-parte="mochila">
+    <rect class="mochila" x="1020" y="392" width="64" height="252" rx="24"/>
+    <rect class="mochila-sombra" x="1020" y="392" width="64" height="74" rx="24"/>
+    <rect class="mochila-sombra" x="1028" y="540" width="40" height="70" rx="12"/>
+  </g>
+
+  <g id="tc-brazo-izq" data-parte="brazo-izq">
+    <path class="abrigo-brazo-lejos" stroke-width="42" d="M1236 404 Q1264 520 1256 650"/>
+    <circle class="piel-sombra" cx="1255" cy="672" r="19"/>
+  </g>
+
+  <g id="tc-torso" data-parte="torso">
+    <rect class="piel-sombra" x="1138" y="336" width="28" height="40" rx="8"/>
+    <path class="abrigo" d="M1082 376 Q1150 362 1228 376 Q1262 392 1262 440 L1268 722 Q1170 738 1068 720 L1074 440 Q1074 392 1082 376 Z"/>
+    <path class="abrigo-linea" stroke-width="5" d="M1184 386 V730"/>
+    <path class="abrigo-linea" stroke-width="5" d="M1206 612 H1244"/>
+    <rect class="cuello" x="1124" y="352" width="72" height="34" rx="15"/>
+    <path class="tira" stroke-width="16" d="M1104 384 Q1098 460 1102 540"/>
+    <rect class="mochila-sombra" x="1092" y="512" width="22" height="12" rx="4"/>
+  </g>
+
+  <g id="tc-cabeza" data-parte="cabeza">
+    <ellipse class="piel" cx="1155" cy="285" rx="55" ry="70"/>
+    <circle class="piel" cx="1208" cy="306" r="9"/>
+    <g id="tc-pelo" data-parte="pelo">
+      <ellipse class="pelo" cx="1146" cy="234" rx="56" ry="27"/>
+      <circle class="pelo" cx="1100" cy="252" r="26"/>
+      <circle class="pelo" cx="1096" cy="278" r="20"/>
+      <circle class="pelo" cx="1108" cy="224" r="25"/>
+      <circle class="pelo" cx="1132" cy="206" r="26"/>
+      <circle class="pelo" cx="1163" cy="202" r="26"/>
+      <circle class="pelo" cx="1191" cy="213" r="23"/>
+      <circle class="pelo" cx="1206" cy="236" r="18"/>
+    </g>
+    <circle class="piel-sombra" cx="1104" cy="300" r="12"/>
+    <g id="tc-cejas" data-parte="cejas">
+      <path class="trazo" stroke-width="6" d="M1148 278 Q1160 271 1172 277"/>
+      <path class="trazo" stroke-width="6" d="M1186 277 Q1195 272 1203 278"/>
+    </g>
+    <g id="tc-ojos" data-parte="ojos">
+      <circle class="tinta" cx="1160" cy="297" r="7"/>
+      <circle class="tinta" cx="1195" cy="297" r="6"/>
+    </g>
+    <g id="tc-boca" data-parte="boca">
+      <path class="trazo" stroke-width="4.5" d="M1170 323 Q1180 328 1190 322"/>
+    </g>
+  </g>
+
+  <g id="tc-brazo-der" data-parte="brazo-der">
+    <path class="abrigo-brazo" stroke-width="46" d="M1090 404 Q1062 525 1076 650"/>
+    <circle class="piel" cx="1078" cy="676" r="21"/>
+  </g>
+</g>
+</svg>

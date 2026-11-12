@@ -29,8 +29,8 @@ Reglas: fases en orden; un agente por fase (o dos en paralelo si tocan archivos 
 
 ## Pendiente de decisión del dueño (se pregunta de a una al llegar)
 1. ~~CAPTCHA Turnstile~~ **Decidido 2026-11-12: opción A** — Turnstile verificado en nuestras server actions (`lib/security/turnstile.ts`, widget `components/ui/TurnstileWidget.tsx`) en login, registro estudiante/familiar, preregistro (+familiar), forgot-password (la waitlist pública se borró después); las altas con invitación válida no lo piden. Complemento: apagar "Allow new users to sign up" en Supabase Auth (todas las altas usan `auth.admin.createUser`). Dev usa las claves de prueba de Cloudflare.
-2. Preapertura con `email_confirm: true`: pasar a verificación por email/OTP o aceptar el riesgo mientras dure la preapertura.
-3. B14: qué carpetas sin trackear se commitean y cuáles se ignoran.
+2. ~~Preapertura con `email_confirm: true`~~ **Decidido 2026-11-12: opción C** — se acepta durante la preapertura; antes del lanzamiento público se exige email verificado (link por mail) para solicitudes, pagos y contacto con residencias. Queda como requisito de lanzamiento en `docs/PLAN_SALIDA_PRODUCCION.md` §6.
+3. ~~B14~~ **Decidido 2026-11-12: opción A** — se versionan `marketing/`, `.codex/agents`, la config de agentes/skills y el fuente de `video/` y `video-hf/`; se ignoran `scripts/data/` (contactos y notas del CRM), `.hallmark/`, `design-proposals/` y lo generado de los videos (node_modules, build, out, captures, renders, cachés).
 4. Verificaciones en Vercel cuando exista el proyecto de prod nuevo: `NEXT_PUBLIC_APP_URL`, `DEMO_*` ausentes en Production y Preview.
 
 ## Estado al 2026-11-12
@@ -47,12 +47,13 @@ Reglas: fases en orden; un agente por fase (o dos en paralelo si tocan archivos 
 | M7 | Corregido | policy de residencia en `support_cases` eliminada |
 | B1–B3, B5–B10, B12 | Corregido | — |
 | M5 | Parcial | CSP en Report-Only; falta pasar a enforce tras observar |
-| M6 | Parcial | rate limit persistente en Postgres (0083/0086) en login/registro/preregistro/forgot y respuesta neutra en `/register/family`; Turnstile en server actions (opción A); falta verificación de email en preapertura; preregistro sigue diciendo "Ya hay una cuenta" |
+| M6 | Parcial | rate limit persistente en Postgres (0083/0086) en login/registro/preregistro/forgot y respuesta neutra en `/register/family`; Turnstile en server actions (opción A); verificación de email diferida al lanzamiento por decisión (opción C); preregistro sigue diciendo "Ya hay una cuenta" |
 | B4 | Parcial | topes de texto (0084); sin throttle de uploads |
-| B14 | Parcial | patrones de `.gitignore`; carpetas sin trackear pendientes de decisión |
+| B14 | Corregido | `.gitignore` según opción A (2026-11-12) |
 | B13 | Sin cambio por decisión | — |
 | I1, I3, I5 | Info sin acción | — |
 
 - **Migraciones nuevas 0081–0086:** todas aplicadas en `estured-dev` (vía MCP), NINGUNA en producción; entran en el bootstrap de prod. El bootstrap de prod ahora crea el cron leyendo el secreto de Supabase Vault: hay que crear el secreto `cron_secret` antes.
 - **Verificación:** typecheck/lint/build en verde; suite completa 1861/1874 + los 4 fallos corregidos (`auditActionLabels` preexistente; `stayChange` era dato de dev, test ajustado); login/logout/cookies/CSP verificados en el navegador local.
-- **Pendientes del dueño:** apagar "Allow new users to sign up" en Supabase Auth (dev y prod); claves reales de Turnstile en Vercel prod (`NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`: sin el secret, prod rechaza todos los envíos); verificación de email en preapertura; carpetas de B14; "Leaked password protection" en Supabase Auth (dev y prod); revisar duración del JWT; en Vercel prod: `NEXT_PUBLIC_APP_URL` obligatorio (`getAppUrl` lanza si falta), `DEMO_*` ausentes en Production y Preview, `CRON_SECRET`.
+- **"Allow new users to sign up" apagado en dev (2026-11-12):** `/auth/v1/settings` devuelve `disable_signup: true` y un preregistro completo en el navegador sigue funcionando (alta vía `admin.createUser` + autologin; cuenta de prueba borrada).
+- **Pendientes del dueño:** apagar "Allow new users to sign up" en Supabase Auth de prod; claves reales de Turnstile en Vercel prod (`NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`: sin el secret, prod rechaza todos los envíos); "Leaked password protection" en Supabase Auth (dev y prod); revisar duración del JWT; en Vercel prod: `NEXT_PUBLIC_APP_URL` obligatorio (`getAppUrl` lanza si falta), `DEMO_*` ausentes en Production y Preview, `CRON_SECRET`.

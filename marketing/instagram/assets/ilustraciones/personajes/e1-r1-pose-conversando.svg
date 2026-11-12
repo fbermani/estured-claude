@@ -1,0 +1,182 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200" role="img">
+<title>E1 y R1 conversando</title>
+<desc>E1 y R1 sentados a una mesa, de tres cuartos y mirándose, conversan con tranquilidad con una carpeta abierta (el reglamento) entre los dos.</desc>
+<style>
+  .fondo{fill:#fbf6ec}
+  .piso{fill:#ece3cf}
+  .e1-piel{fill:#b97a4f}
+  .e1-piel-sombra{fill:#a4683f}
+  .e1-pelo{fill:#2a1d17}
+  .e1-tinta{fill:#1d2722}
+  .e1-trazo{fill:none;stroke:#1d2722;stroke-linecap:round}
+  .e1-abrigo{fill:#1f7d5c}
+  .e1-abrigo-brazo{fill:none;stroke:#1a6e51;stroke-linecap:round}
+  .e1-abrigo-brazo-lejos{fill:none;stroke:#155c44;stroke-linecap:round}
+  .e1-abrigo-linea{fill:none;stroke:#0c3a2c;stroke-linecap:round}
+  .e1-cuello{fill:#0c3a2c}
+  .e1-pantalon{fill:#2f3b45}
+  .e1-pantalon-lejos{fill:#27313a}
+  .e1-zapatilla{fill:#1d2722}
+  .e1-mochila{fill:#d8b06a}
+  .e1-mochila-sombra{fill:#c29a55}
+  .e1-tira{fill:none;stroke:#d8b06a;stroke-linecap:round}
+  .e1-valija{fill:#0c3a2c}
+  .e1-valija-lado{fill:#082a1f}
+  .e1-valija-manija{fill:#14503c}
+  .e1-valija-banda{fill:#f1d9a8}
+  .r1-piel{fill:#c98b62}
+  .r1-piel-sombra{fill:#b37750}
+  .r1-pelo{fill:#6b625c}
+  .r1-barba{fill:#5c544e}
+  .r1-tinta{fill:#1d2722}
+  .r1-trazo{fill:none;stroke:#1d2722;stroke-linecap:round}
+  .r1-camisa{fill:#9fbcd0}
+  .r1-camisa-oscura{fill:#87a6bc}
+  .r1-camisa-brazo{fill:none;stroke:#93b2c7;stroke-linecap:round;stroke-linejoin:round}
+  .r1-camisa-brazo-lejos{fill:none;stroke:#7f9db2;stroke-linecap:round;stroke-linejoin:round}
+  .r1-arremangado{fill:none;stroke:#b6cddc;stroke-linecap:round}
+  .r1-antebrazo{fill:none;stroke:#c98b62;stroke-linecap:round}
+  .r1-antebrazo-lejos{fill:none;stroke:#b37750;stroke-linecap:round}
+  .r1-cuello-camisa{fill:#b6cddc}
+  .r1-linea{fill:none;stroke:#7895aa;stroke-linecap:round}
+  .r1-cinturon{fill:#3a2a20}
+  .r1-pantalon{fill:#3d3a36}
+  .r1-pantalon-lejos{fill:#33302d}
+  .r1-zapato{fill:#5a3d2b}
+  .r1-carpeta{fill:#2f6b5a}
+  .r1-carpeta-hoja{fill:#f3ead8}
+  .mesa{fill:#d9b98a}
+  .mesa-canto{fill:#b8925f}
+  .silla{fill:#a87f50}
+  .carpeta-hoja-mesa{fill:#f3ead8}
+  .carpeta-mesa{fill:#2f6b5a}
+</style>
+<rect class="fondo" width="1200" height="1200"/>
+<defs><clipPath id="sobre-mesa"><rect x="0" y="0" width="1200" height="786"/></clipPath></defs>
+<ellipse class="piso" cx="600" cy="1110" rx="470" ry="22"/>
+<g id="sillas">
+  <rect class="silla" x="210" y="590" width="30" height="516" rx="10"/>
+  <rect class="silla" x="962" y="560" width="30" height="546" rx="10"/>
+</g>
+<g clip-path="url(#sobre-mesa)">
+  <g id="r1-sentado" transform="translate(1990 196) scale(-1 1)">
+    <g id="r1-brazo-izq" data-parte="brazo-izq">
+      <path class="r1-camisa-brazo-lejos" stroke-width="46" d="M1250 400 Q1288 470 1290 530"/>
+    </g>
+    <g id="r1-tc-torso" data-parte="torso">
+    <rect class="r1-piel-sombra" x="1140" y="318" width="32" height="44" rx="8" />
+    <path class="r1-camisa" d="M1090 356 Q1160 342 1236 356 Q1272 370 1272 424 L1266 704 Q1170 716 1070 704 L1072 424 Q1074 370 1090 356 Z" />
+    <path class="r1-cuello-camisa" d="M1146 346 L1176 384 L1158 398 L1134 360 Z M1204 346 L1176 384 L1196 396 L1214 360 Z" />
+    <path class="r1-linea" stroke-width="5" d="M1176 384 V692" />
+    <circle class="r1-camisa-oscura" cx="1176" cy="440" r="5" />
+    <circle class="r1-camisa-oscura" cx="1176" cy="530" r="5" />
+    <circle class="r1-camisa-oscura" cx="1176" cy="620" r="5" />
+    <rect class="r1-cinturon" x="1070" y="680" width="198" height="24" rx="6" />
+  </g>
+
+  
+    <g id="r1-tc-cabeza" data-parte="cabeza">
+    <ellipse class="r1-piel" cx="1160" cy="264" rx="54" ry="72" />
+    <g id="r1-tc-pelo" data-parte="pelo">
+      <path class="r1-pelo" d="M1104 276 Q1098 196 1158 190 Q1214 194 1214 252 Q1200 222 1170 218 Q1132 218 1124 250 Q1122 268 1110 280 Z" />
+    </g>
+    <g id="r1-tc-barba" data-parte="barba">
+      <path class="r1-barba" d="M1110 276 Q1116 340 1172 344 Q1214 338 1214 280 Q1206 312 1188 316 Q1168 310 1150 318 Q1124 314 1110 276 Z" />
+    </g>
+    <circle class="r1-piel" cx="1120" cy="282" r="12" />
+    <g id="r1-tc-cejas" data-parte="cejas">
+      <path class="r1-trazo" stroke-width="6" d="M1154 248 Q1166 243 1179 247" />
+      <path class="r1-trazo" stroke-width="6" d="M1191 247 Q1200 244 1209 249" />
+    </g>
+    <g id="r1-tc-ojos" data-parte="ojos">
+      <circle class="r1-tinta" cx="1167" cy="270" r="5.5" />
+      <circle class="r1-tinta" cx="1199" cy="270" r="5" />
+    </g>
+    <g id="r1-tc-boca" data-parte="boca">
+      <path class="r1-trazo" stroke-width="4.5" d="M1172 304 Q1182 309 1192 303" />
+    </g>
+  </g>
+
+  
+  </g>
+  <g id="e1-sentado" transform="translate(-765 220)">
+    <g id="e1-brazo-izq" data-parte="brazo-izq">
+      <path class="e1-abrigo-brazo-lejos" stroke-width="42" d="M1236 404 Q1268 450 1270 500"/>
+    </g>
+    <g id="e1-tc-mochila" data-parte="mochila">
+    <rect class="e1-mochila" x="1020" y="392" width="64" height="252" rx="24" />
+    <rect class="e1-mochila-sombra" x="1020" y="392" width="64" height="74" rx="24" />
+    <rect class="e1-mochila-sombra" x="1028" y="540" width="40" height="70" rx="12" />
+  </g>
+
+  
+    <g id="e1-tc-torso" data-parte="torso">
+    <rect class="e1-piel-sombra" x="1138" y="336" width="28" height="40" rx="8" />
+    <path class="e1-abrigo" d="M1082 376 Q1150 362 1228 376 Q1262 392 1262 440 L1268 722 Q1170 738 1068 720 L1074 440 Q1074 392 1082 376 Z" />
+    <path class="e1-abrigo-linea" stroke-width="5" d="M1184 386 V730" />
+    <path class="e1-abrigo-linea" stroke-width="5" d="M1206 612 H1244" />
+    <rect class="e1-cuello" x="1124" y="352" width="72" height="34" rx="15" />
+    <path class="e1-tira" stroke-width="16" d="M1104 384 Q1098 460 1102 540" />
+    <rect class="e1-mochila-sombra" x="1092" y="512" width="22" height="12" rx="4" />
+  </g>
+
+  
+    <g id="e1-tc-cabeza" data-parte="cabeza">
+    <ellipse class="e1-piel" cx="1155" cy="285" rx="55" ry="70" />
+    <circle class="e1-piel" cx="1208" cy="306" r="9" />
+    <g id="e1-tc-pelo" data-parte="pelo">
+      <ellipse class="e1-pelo" cx="1146" cy="234" rx="56" ry="27" />
+      <circle class="e1-pelo" cx="1100" cy="252" r="26" />
+      <circle class="e1-pelo" cx="1096" cy="278" r="20" />
+      <circle class="e1-pelo" cx="1108" cy="224" r="25" />
+      <circle class="e1-pelo" cx="1132" cy="206" r="26" />
+      <circle class="e1-pelo" cx="1163" cy="202" r="26" />
+      <circle class="e1-pelo" cx="1191" cy="213" r="23" />
+      <circle class="e1-pelo" cx="1206" cy="236" r="18" />
+    </g>
+    <circle class="e1-piel-sombra" cx="1104" cy="300" r="12" />
+    <g id="e1-tc-cejas" data-parte="cejas">
+      <path class="e1-trazo" stroke-width="6" d="M1148 278 Q1160 271 1172 277" />
+      <path class="e1-trazo" stroke-width="6" d="M1186 277 Q1195 272 1203 278" />
+    </g>
+    <g id="e1-tc-ojos" data-parte="ojos">
+      <circle class="e1-tinta" cx="1160" cy="297" r="7" />
+      <circle class="e1-tinta" cx="1195" cy="297" r="6" />
+    </g>
+    <g id="e1-tc-boca" data-parte="boca">
+      <path class="e1-trazo" stroke-width="4.5" d="M1170 323 Q1180 328 1190 322" />
+    </g>
+  </g>
+
+  
+  </g>
+</g>
+<g id="piernas-bajo-mesa">
+  <rect class="e1-pantalon-lejos" x="476" y="776" width="46" height="290" rx="14"/>
+  <rect class="e1-pantalon" x="420" y="776" width="50" height="300" rx="14"/>
+  <rect class="e1-zapatilla" x="414" y="1066" width="84" height="40" rx="18"/>
+  <rect class="r1-pantalon-lejos" x="666" y="776" width="54" height="290" rx="14"/>
+  <rect class="r1-pantalon" x="724" y="776" width="56" height="300" rx="14"/>
+  <rect class="r1-zapato" x="694" y="1072" width="88" height="34" rx="14"/>
+</g>
+<g id="mesa">
+  <path class="mesa" d="M270 712 L930 712 L980 760 L220 760 Z"/>
+  <rect class="mesa-canto" x="220" y="760" width="760" height="26" rx="4"/>
+  <rect class="mesa-canto" x="246" y="786" width="26" height="320"/>
+  <rect class="mesa-canto" x="928" y="786" width="26" height="320"/>
+</g>
+<g id="carpeta" data-parte="carpeta">
+  <path class="carpeta-hoja-mesa" d="M560 724 L700 724 L712 744 L548 744 Z"/>
+  <path class="carpeta-mesa" d="M548 744 L712 744 L718 752 L542 752 Z"/>
+</g>
+<g id="r1-brazo-der" data-parte="brazo-der" transform="translate(1990 196) scale(-1 1)">
+  <path class="r1-camisa-brazo" stroke-width="50" d="M1100 400 Q1080 470 1092 520"/>
+  <path class="r1-arremangado" stroke-width="54" d="M1094 516 L1104 528"/>
+  <path class="r1-antebrazo" stroke-width="38" d="M1108 532 Q1160 548 1250 540"/>
+  <circle class="r1-piel" cx="1268" cy="538" r="21"/>
+</g>
+<g id="e1-brazo-der" data-parte="brazo-der" transform="translate(-765 220)">
+  <path class="e1-abrigo-brazo" stroke-width="46" d="M1090 404 Q1070 470 1092 498 Q1150 520 1220 514"/>
+  <circle class="e1-piel" cx="1238" cy="512" r="21"/>
+</g>
+</svg>
