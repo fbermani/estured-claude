@@ -4,7 +4,8 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
 import { MapTiles } from "@/components/residences/MapTiles";
-import { boundsCenterPixel, chooseZoom, offsetFromCenter, tilesCovering } from "@/lib/maps/osmTiles";
+import { ResidencePhoto } from "@/components/residences/ResidencePhoto";
+import { boundsCenterPixel, chooseZoom, offsetFromCenter, tilesCovering, type PixelPoint } from "@/lib/maps/osmTiles";
 import type { MapPoint } from "@/lib/residences/mapPoints";
 
 /**
@@ -16,6 +17,10 @@ import type { MapPoint } from "@/lib/residences/mapPoints";
  */
 const PAD_X = 64;
 const PAD_Y = 56;
+const MIN_ZOOM = 10;
+const MAX_ZOOM = 17;
+
+type Cam = { key: string; zoom: number; c: PixelPoint };
 
 export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; withoutLocation: number }) {
   const boxRef = useRef<HTMLDivElement>(null);
@@ -44,15 +49,104 @@ export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; wit
     return () => document.removeEventListener("keydown", onKey);
   }, [openId]);
 
-  const view = useMemo(() => {
+  const fitKey = points.map((p) => p.id).join("|");
+  const fit = useMemo<Cam | null>(() => {
     if (!size || points.length === 0) return null;
     const zoom = chooseZoom(points, Math.max(40, size.w / 2 - PAD_X), Math.max(40, size.h / 2 - PAD_Y), 11, 15);
-    const center = boundsCenterPixel(points, zoom);
-    return {
-      tiles: tilesCovering(center, zoom, size.w / 2 + 128, size.h / 2 + 128),
-      pins: points.map((p) => ({ p, pos: offsetFromCenter(p, center, zoom) })),
+    return { key: fitKey, zoom, c: boundsCenterPixel(points, zoom) };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- el encuadre inicial depende del conjunto de pines, no del redimensionado
+  }, [!!size, fitKey]);
+  const [userCam, setUserCam] = useState<Cam | null>(null);
+  const cam = userCam && userCam.key === fitKey ? userCam : fit;
+  const camRef = useRef(cam);
+  camRef.current = cam;
+
+  /** Zoom a `next` manteniendo fijo el punto bajo `anchor` (px desde el centro de la caja). */
+  const zoomTo = (next: number, anchor: PixelPoint = { x: 0, y: 0 }) => {
+    const cur = camRef.current;
+    if (!cur) return;
+    const z = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, next));
+    if (z === cur.zoom) return;
+    const f = 2 ** (z - cur.zoom);
+    setUserCam({ key: cur.key, zoom: z, c: { x: (cur.c.x + anchor.x) * f - anchor.x, y: (cur.c.y + anchor.y) * f - anchor.y } });
+  };
+
+  const anchorOf = (clientX: number, clientY: number): PixelPoint => {
+    const r = boxRef.current!.getBoundingClientRect();
+    return { x: clientX - r.left - r.width / 2, y: clientY - r.top - r.height / 2 };
+  };
+
+  // Rueda: zoom hacia el cursor (listener no pasivo para no scrollear la página).
+  useEffect(() => {
+    const el = boxRef.current;
+    if (!el) return;
+    let acc = 0;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      acc += e.deltaY;
+      if (Math.abs(acc) < 60) return;
+      const dir = acc < 0 ? 1 : -1;
+      acc = 0;
+      if (camRef.current) zoomTo(camRef.current.zoom + dir, anchorOf(e.clientX, e.clientY));
     };
-  }, [size, points]);
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  });
+
+  // Arrastre (mouse, touch o lápiz). Un movimiento de más de 4 px no cuenta como click.
+  const drag = useRef<{ x: number; y: number; moved: boolean; id: number } | null>(null);
+  const pointers = useRef(new Map<number, PixelPoint>());
+  const pinch = useRef<number | null>(null);
+  const onPointerDown = (e: React.PointerEvent) => {
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointers.current.size === 2) {
+      const [a, b] = [...pointers.current.values()];
+      pinch.current = Math.hypot(a.x - b.x, a.y - b.y);
+      drag.current = null;
+      return;
+    }
+    drag.current = { x: e.clientX, y: e.clientY, moved: false, id: e.pointerId };
+  };
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (pointers.current.has(e.pointerId)) pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointers.current.size === 2 && pinch.current) {
+      const [a, b] = [...pointers.current.values()];
+      const d = Math.hypot(a.x - b.x, a.y - b.y);
+      if (camRef.current && Math.abs(d - pinch.current) > 40) {
+        zoomTo(camRef.current.zoom + (d > pinch.current ? 1 : -1), anchorOf((a.x + b.x) / 2, (a.y + b.y) / 2));
+        pinch.current = d;
+      }
+      return;
+    }
+    const d = drag.current;
+    const cur = camRef.current;
+    if (!d || d.id !== e.pointerId || !cur) return;
+    const dx = e.clientX - d.x;
+    const dy = e.clientY - d.y;
+    if (!d.moved && Math.hypot(dx, dy) < 4) return;
+    if (!d.moved) boxRef.current?.setPointerCapture(e.pointerId);
+    d.moved = true;
+    d.x = e.clientX;
+    d.y = e.clientY;
+    setUserCam({ key: cur.key, zoom: cur.zoom, c: { x: cur.c.x - dx, y: cur.c.y - dy } });
+  };
+  const onPointerUp = (e: React.PointerEvent) => {
+    pointers.current.delete(e.pointerId);
+    if (pointers.current.size < 2) pinch.current = null;
+    // `moved` se limpia después del click que sigue al soltar.
+    setTimeout(() => {
+      if (drag.current?.id === e.pointerId) drag.current = null;
+    }, 0);
+  };
+  const wasDrag = () => !!drag.current?.moved;
+
+  const view = useMemo(() => {
+    if (!size || !cam) return null;
+    return {
+      tiles: tilesCovering(cam.c, cam.zoom, size.w / 2 + 128, size.h / 2 + 128),
+      pins: points.map((p) => ({ p, pos: offsetFromCenter(p, cam.c, cam.zoom) })),
+    };
+  }, [size, cam, points]);
 
   const open = points.find((p) => p.id === openId) ?? null;
   // El pin abierto va arriba de los demás.
@@ -70,8 +164,15 @@ export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; wit
         ref={boxRef}
         role="group"
         aria-label="Mapa de residencias con el precio desde de cada una"
-        onClick={() => setOpenId(null)}
-        className="relative h-[520px] overflow-hidden rounded-card border-[1.5px] border-line bg-cream-2 shadow-card lg:h-[640px]"
+        onClick={() => {
+          if (!wasDrag()) setOpenId(null);
+        }}
+        onDoubleClick={(e) => cam && zoomTo(cam.zoom + 1, anchorOf(e.clientX, e.clientY))}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+        className="relative h-[520px] touch-none cursor-grab overflow-hidden active:cursor-grabbing rounded-card border-[1.5px] border-line bg-cream-2 shadow-card lg:h-[640px]"
       >
         {view && (
           <>
@@ -88,6 +189,7 @@ export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; wit
                   aria-label={`${p.name}, desde USD ${p.price} por mes`}
                   onClick={(e) => {
                     e.stopPropagation();
+                    if (wasDrag()) return;
                     setOpenId(openId === p.id ? null : p.id);
                   }}
                   style={{ left: pos.x, top: pos.y }}
@@ -113,9 +215,25 @@ export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; wit
             role="dialog"
             aria-label={open.name}
             onClick={(e) => e.stopPropagation()}
-            className="absolute inset-x-3 bottom-3 z-30 flex items-center gap-3 rounded-2xl bg-paper p-3 pl-4 shadow-float sm:inset-x-auto sm:left-4 sm:w-96"
+            onDoubleClick={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+            className="absolute inset-x-3 bottom-3 z-30 overflow-hidden rounded-2xl bg-paper shadow-float sm:inset-x-auto sm:left-4 sm:w-80"
           >
-            <div className="min-w-0 flex-1">
+            <div className="relative h-32 w-full bg-cream-2">
+              <ResidencePhoto src={open.photo} name={open.name} zone={open.zone} sizes="320px" />
+              <button
+                type="button"
+                aria-label="Cerrar"
+                onClick={() => {
+                  pinRefs.current[open.id]?.focus();
+                  setOpenId(null);
+                }}
+                className="absolute right-2 top-2 flex size-10 cursor-pointer items-center justify-center rounded-full bg-paper/95 text-ink-soft shadow-card hover:bg-paper focus-visible:outline-2 focus-visible:outline-forest"
+              >
+                <Icon name="close" className="text-xl" />
+              </button>
+            </div>
+            <div className="p-3 pl-4">
               <p className="truncate font-display text-[15px] font-bold text-ink">{open.name}</p>
               <p className="text-[13px] text-ink-soft">{open.zone}, CABA</p>
               <p className="mt-0.5 text-sm text-ink">
@@ -129,16 +247,16 @@ export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; wit
                 Ver residencia
               </Link>
             </div>
-            <button
-              type="button"
-              aria-label="Cerrar"
-              onClick={() => {
-                pinRefs.current[open.id]?.focus();
-                setOpenId(null);
-              }}
-              className="flex size-10 shrink-0 cursor-pointer items-center justify-center self-start rounded-full text-ink-soft hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-forest"
-            >
-              <Icon name="close" className="text-xl" />
+          </div>
+        )}
+
+        {cam && (
+          <div className="absolute right-3 top-3 z-20 flex flex-col overflow-hidden rounded-field border-[1.5px] border-line bg-paper shadow-card" onClick={(e) => e.stopPropagation()} onDoubleClick={(e) => e.stopPropagation()}>
+            <button type="button" aria-label="Acercar" disabled={cam.zoom >= MAX_ZOOM} onClick={() => zoomTo(cam.zoom + 1)} className="flex size-10 cursor-pointer items-center justify-center text-xl font-bold text-ink hover:bg-cream-2 disabled:cursor-default disabled:text-ink-faint focus-visible:outline-2 focus-visible:outline-forest">
+              +
+            </button>
+            <button type="button" aria-label="Alejar" disabled={cam.zoom <= MIN_ZOOM} onClick={() => zoomTo(cam.zoom - 1)} className="flex size-10 cursor-pointer items-center justify-center border-t-[1.5px] border-line text-xl font-bold text-ink hover:bg-cream-2 disabled:cursor-default disabled:text-ink-faint focus-visible:outline-2 focus-visible:outline-forest">
+              −
             </button>
           </div>
         )}

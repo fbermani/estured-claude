@@ -237,9 +237,11 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
           <>
             <p className="mb-3 text-xs text-ink-faint">{availabilityHelpText("by_room_type_to_confirm")}</p>
             <div className="@container/res">
-              <div className={filters.view === "lista" ? "grid gap-4" : "grid grid-cols-[repeat(auto-fill,minmax(17rem,1fr))] gap-4"}>
+              <div className={filters.view === "lista" ? "grid gap-3 @min-[1100px]/res:grid-cols-2" : "grid grid-cols-[repeat(auto-fill,minmax(17rem,1fr))] gap-4"}>
                 {results.map((r) => (
-                  <SearchResultCard key={r.slug} residence={r} arsPerUsd={rate.arsPerUsd} layout={filters.view === "lista" ? "list" : "grid"} />
+                  <div key={r.slug} className="@container/card min-w-0">
+                    <SearchResultCard residence={r} arsPerUsd={rate.arsPerUsd} layout={filters.view === "lista" ? "list" : "grid"} />
+                  </div>
                 ))}
               </div>
             </div>

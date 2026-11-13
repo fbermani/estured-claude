@@ -140,7 +140,7 @@ describe("género, vista y mapa", () => {
       { slug: "b", name: "B", priceFromUsd: 100, latitude: null, longitude: null, zone: "Almagro" },
       { slug: "c", name: "C", priceFromUsd: 100, zone: "Caballito" },
     ]);
-    expect(points).toEqual([{ id: "a", slug: "a", name: "A", price: 100, lat: -34.6, lng: -58.4, zone: "Palermo" }]);
+    expect(points).toEqual([{ id: "a", slug: "a", name: "A", price: 100, lat: -34.6, lng: -58.4, zone: "Palermo", photo: null }]);
     expect(withoutLocation).toBe(2);
   });
 });

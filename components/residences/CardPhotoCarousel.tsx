@@ -5,13 +5,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { Icon } from "@/components/ui/Icon";
 import { ResidencePhoto } from "@/components/residences/ResidencePhoto";
-import { useRotation, useSwipe } from "@/components/residences/useRotation";
-import { RotationToggle } from "@/components/residences/RotationToggle";
+import { useSwipe } from "@/components/residences/useRotation";
 
 /**
- * Foto de la tarjeta del catálogo (DR18, tanda 2): con 2+ fotos rota sola y se puede pasar con flechas.
+ * Foto de la tarjeta del catálogo (DR18, tanda 2): muestra la foto principal quieta; con 2+ fotos se pasa con flechas,
+ * puntos o deslizando. Sin rotación automática (decisión del dueño 2026-11-12: la rotación cargaba fotos de más y distraía).
  * La foto es un enlace a la ficha (overlay) y los controles son botones aparte: no hay interactivos anidados dentro de un <a>.
- * Se pausa con hover o foco; respeta `prefers-reduced-motion` (ver `useRotation`). Los badges llegan como `children`.
+ * Los badges llegan como `children`.
  */
 export function CardPhotoCarousel({
   photos,
@@ -31,8 +31,8 @@ export function CardPhotoCarousel({
   className?: string;
   children?: ReactNode;
 }) {
-  const [paused, setPaused] = useState(false);
-  const { index, go, setIndex, ref, playing, toggle } = useRotation(photos.length, { paused });
+  const [index, setIndex] = useState(0);
+  const go = (delta: number) => setIndex((i) => (i + delta + photos.length) % Math.max(photos.length, 1));
   // Solo se montan las fotos ya vistas: crossfade sin bajar las 5 de entrada.
   const [seen, setSeen] = useState<Set<number>>(() => new Set([0]));
   const [lastIndex, setLastIndex] = useState(0);
@@ -45,17 +45,10 @@ export function CardPhotoCarousel({
 
   return (
     <div
-      ref={ref}
       role="group"
       aria-roledescription={multiple ? "carrusel" : undefined}
       aria-label={multiple ? `Fotos de ${name}` : undefined}
       {...(multiple ? swipe : {})}
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onFocus={() => setPaused(true)}
-      onBlur={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setPaused(false);
-      }}
       className={`group/photo relative w-full ${multiple ? "touch-pan-y" : ""} overflow-hidden bg-sand-200 ${className}`}
     >
       {photos.length === 0 ? (
@@ -95,12 +88,11 @@ export function CardPhotoCarousel({
               aria-label={`${b.label} de ${name}`}
               className={`absolute top-1/2 z-30 flex size-11 -translate-y-1/2 items-center justify-center rounded-full focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-forest max-sm:pointer-events-none max-sm:opacity-0 max-sm:focus-visible:pointer-events-auto max-sm:focus-visible:opacity-100 [@media(hover:hover)]:opacity-0 group-hover/photo:opacity-100 ${b.side}`}
             >
-              <span className="flex size-8 items-center justify-center rounded-full bg-paper/90 text-ink shadow-card transition-colors hover:bg-paper">
-                <Icon name={b.icon} className="text-xl" />
+              <span className="flex size-6 items-center justify-center rounded-full bg-paper/90 text-ink shadow-card transition-colors hover:bg-paper">
+                <Icon name={b.icon} className="text-base" />
               </span>
             </button>
           ))}
-          <RotationToggle playing={playing} onToggle={toggle} className="absolute bottom-0 left-0.5 z-30" />
           <div className="absolute bottom-1.5 right-2 z-30 flex items-center rounded-full bg-forest-ink/45 px-0.5">
             {photos.map((_, i) => (
               <button

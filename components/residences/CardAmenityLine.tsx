@@ -68,23 +68,22 @@ export function CardAmenityLine({
       <div
         id={popId}
         role="tooltip"
-        className="pointer-events-none absolute -inset-x-1.5 bottom-[calc(100%+4px)] z-10 hidden rounded-field border border-line-2 bg-paper px-3.5 py-3 text-left shadow-float [@media(hover:hover)]:group-focus-within/amen:block [@media(hover:hover)]:group-hover/amen:block"
+        className="pointer-events-none absolute bottom-[calc(100%+4px)] left-0 z-10 hidden w-max max-w-[min(15rem,100%)] rounded-field border border-line-2 bg-paper px-2.5 py-2 text-left shadow-float [@media(hover:hover)]:group-focus-within/amen:block [@media(hover:hover)]:group-hover/amen:block"
       >
-        <b className="mb-1.5 block font-display text-[13px] text-ink">{label}</b>
-        <ul className="grid grid-cols-2 gap-x-2.5 gap-y-1 text-[12.5px] text-ink-soft">
+        <ul className="grid gap-y-0.5 text-[12px] leading-tight text-ink-soft">
           {items.map((i) => (
             <li key={i.name} className="flex min-w-0 items-center gap-1.5">
-              <Icon name={i.icon} className="text-base text-forest-700" />
+              <Icon name={i.icon} className="text-[15px] text-forest-700" />
               <span className="min-w-0">{i.name}</span>
             </li>
           ))}
         </ul>
       </div>
 
-      <Dialog open={sheet} onClose={() => setSheet(false)} labelledBy={titleId} maxWidthClass="sm:max-w-md">
-        <div className="flex items-start justify-between gap-3 px-5 pb-2 pt-5">
+      <Dialog open={sheet} onClose={() => setSheet(false)} labelledBy={titleId} maxWidthClass="sm:max-w-xs">
+        <div className="flex items-start justify-between gap-3 px-4 pb-1 pt-4">
           <div>
-            <h2 id={titleId} className="text-xl">{label}</h2>
+            <h2 id={titleId} className="text-lg">{label}</h2>
             <p className="text-[13px] text-ink-faint">{residenceName}</p>
           </div>
           <button
@@ -92,15 +91,15 @@ export function CardAmenityLine({
             data-autofocus
             onClick={() => setSheet(false)}
             aria-label="Cerrar"
-            className="grid size-11 shrink-0 cursor-pointer place-items-center rounded-full bg-cream-2 text-ink-soft focus-visible:outline-2 focus-visible:outline-forest"
+            className="grid size-10 shrink-0 cursor-pointer place-items-center rounded-full bg-cream-2 text-ink-soft focus-visible:outline-2 focus-visible:outline-forest"
           >
             <Icon name="close" className="text-xl" />
           </button>
         </div>
-        <ul className="grid grid-cols-2 gap-x-3 gap-y-2.5 overflow-y-auto px-5 pb-6 pt-2 text-[14px] text-ink-soft">
+        <ul className="grid gap-y-1.5 overflow-y-auto px-4 pb-4 pt-2 text-[13.5px] text-ink-soft">
           {items.map((i) => (
             <li key={i.name} className="flex items-center gap-2">
-              <Icon name={i.icon} className="text-xl text-forest-700" />
+              <Icon name={i.icon} className="text-lg text-forest-700" />
               <span className="min-w-0">{i.name}</span>
             </li>
           ))}
