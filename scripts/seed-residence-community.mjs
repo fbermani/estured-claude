@@ -24,7 +24,7 @@ if (!url || !serviceRoleKey || !password) {
 
 const admin = createClient(url, serviceRoleKey, { auth: { persistSession: false } });
 const ARS_RATE = 1480;
-const TARGET_PER_RESIDENCE = 30;
+const TARGET_PER_RESIDENCE = Number(process.env.TARGET ?? 30);
 
 const RESIDENCES = [
   {
@@ -58,6 +58,23 @@ const RESIDENCES = [
     ],
   },
 ];
+
+// CRM=1: aplica solo a las fichas de scripts/data/crm-residencias (seed-crm-residencias.mjs), con los 4 tipos estándar.
+if (process.env.CRM === "1") {
+  const { readdirSync, readFileSync } = await import("node:fs");
+  const dir = new URL("./data/crm-residencias/", import.meta.url);
+  const std = [
+    { name: "Individual", capacity_per_room: 1, monthly_price_usd: 430, bathroom_type: "privado", available_count: 1 },
+    { name: "Doble", capacity_per_room: 2, monthly_price_usd: 320, bathroom_type: "compartido", available_count: 2 },
+    { name: "Triple", capacity_per_room: 3, monthly_price_usd: 250, bathroom_type: "compartido", available_count: 1 },
+    { name: "Cuádruple", capacity_per_room: 4, monthly_price_usd: 200, bathroom_type: "compartido", available_count: 0 },
+  ];
+  RESIDENCES.length = 0;
+  for (const f of readdirSync(dir).filter((x) => x.endsWith(".json"))) {
+    const r = JSON.parse(readFileSync(new URL(f, dir), "utf-8"));
+    if (r.status === "ok" && r.lat != null) RESIDENCES.push({ slug: r.slug, label: r.name, roomTypes: std });
+  }
+}
 
 const FIRST_NAMES = [
   "Martina", "Diego", "Juan", "Sofía", "Mateo", "Valentina", "Liam", "Camila", "Ana", "Tomás",
@@ -326,7 +343,7 @@ async function main() {
     const residence = { ...residenceConfig, id: residenceRow.id };
     console.log(`\n== ${residence.label} ==`);
     const idByName = await ensureRoomTypes(residence.id, residence.roomTypes);
-    await ensureAvailability(residence.id, residence.roomTypes, idByName);
+    if (process.env.CRM !== "1") await ensureAvailability(residence.id, residence.roomTypes, idByName);
 
     const { count: currentCount } = await admin
       .from("resident_stays")
