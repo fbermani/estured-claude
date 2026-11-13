@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920" role="img"><title>Fondo crema con el mapa de Argentina y Malvinas (sin ruta, sin marcadores). Grano de papel.</title><desc>Fondo crema con el mapa de Argentina y Malvinas (sin ruta, sin marcadores). Grano de papel.</desc><defs><filter id="papel" x="0" y="0" width="100%" height="100%">
+  <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="7" />
+  <feColorMatrix type="matrix" values="0 0 0 0 0.36  0 0 0 0 0.29  0 0 0 0 0.19  0 0 0 1.1 -0.48" />
+</filter>
+
+</defs><style>
+  .bg-fondo{fill:#fbf6ec}
+  .bg-tierra{fill:#f1d9a8}
+  .bg-ruta{fill:none;stroke:#1f7d5c;stroke-linecap:round}
+  .bg-origen{fill:#c29a55}
+  .bg-caba{fill:#0c3a2c}
+  .bg-reloj{fill:#0c3a2c}
+  .bg-reloj-cara{fill:#fbf6ec}
+  .bg-aguja{fill:none;stroke:#0c3a2c;stroke-linecap:round}
+  .bg-valija{fill:#0c3a2c}
+  .bg-valija-banda{fill:#f1d9a8}
+  .bg-valija-rueda{fill:#1d2722}
+</style>
+<rect class="bg-fondo" width="1080" height="1920" />
+<g id="mapa-argentina">
+    <path class="bg-tierra" d="M445.4 341.8 L498.6 368.4 L555.6 338.0 L574.6 353.2 L662.0 414.0 L730.4 452.0 L753.2 539.4 L821.6 543.2 L867.2 474.8 L901.4 497.6 L897.6 535.6 L829.2 581.2 L814.0 600.2 L753.2 649.6 L730.4 733.2 L722.8 790.2 L719.0 809.2 L768.4 843.4 L764.6 881.4 L787.4 889.0 L753.2 953.6 L700.0 972.6 L605.0 984.0 L574.6 995.4 L582.2 1044.8 L517.6 1063.8 L472.0 1052.4 L468.2 1098.0 L525.2 1120.8 L491.0 1132.2 L472.0 1158.8 L453.0 1212.0 L377.0 1250.0 L388.4 1272.8 L441.6 1318.4 L377.0 1383.0 L346.6 1409.6 L320.0 1462.8 L342.8 1489.4 L301.0 1485.6 L209.8 1478.0 L194.6 1462.8 L160.4 1402.0 L187.0 1326.0 L213.6 1269.0 L213.6 1212.0 L228.8 1155.0 L213.6 1098.0 L217.4 1022.0 L244.0 946.0 L266.8 889.0 L282.0 813.0 L289.6 737.0 L274.4 661.0 L297.2 585.0 L339.0 528.0 L346.6 471.0 L392.2 433.0 L396.0 376.0 L399.8 349.4 Z" />
+    <path class="bg-tierra" d="M335.2 1500.8 L411.2 1538.8 L464.4 1584.4 L415.0 1593.9 L335.2 1588.2 Z" />
+    <path class="bg-tierra" d="M612.6 1451.4 L684.8 1451.4 L677.2 1485.6 L624.0 1478.0 Z" />
+    <path class="bg-tierra" d="M688.6 1455.2 L745.6 1459.0 L722.8 1489.4 L681.0 1489.4 Z" />
+  </g>
+  <rect id="textura-papel" width="1080" height="1920" filter="url(#papel)" opacity="0.55" />
+</svg>

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920" role="img"><title>Mano que sostiene el celular (pulgares y palma).</title><desc>Mano que sostiene el celular (pulgares y palma).</desc><defs /><style>
+  .bg-fondo{fill:#e9dcc4}
+  .bg-mano{fill:#b97a4f}
+  .bg-celu{fill:#1d2722}
+  .bg-pantalla{fill:#f4f1ea}
+  .bg-burbuja-otro{fill:#e2dccf}
+  .bg-burbuja-yo{fill:#cfe3d8}
+  .bg-renglon{fill:#b9b1a2}
+  .bg-renglon-yo{fill:#8fb9a3}
+  .bg-foto{fill:#fbf6ec}
+  .bg-foto-pared{fill:#e8d7b7}
+  .bg-foto-pared2{fill:#d9e1d8}
+  .bg-foto-pared3{fill:#efd2c0}
+  .bg-foto-cama{fill:#c8ad85}
+  .bg-foto-ventana{fill:#bcd3d6}
+  .bg-sombra{fill:#1d2722;opacity:0.12}
+</style>
+<g id="mano">
+  <path class="bg-mano" d="M160 1500 Q150 1400 206 1360 L240 1420 Q250 1560 200 1700 L120 1920 L0 1920 L0 1760 Z" />
+  <rect class="bg-mano" x="840" y="1180" width="90" height="56" rx="28" />
+  <rect class="bg-mano" x="848" y="1250" width="86" height="54" rx="27" />
+</g>
+</svg>

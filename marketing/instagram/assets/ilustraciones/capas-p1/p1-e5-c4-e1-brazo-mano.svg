@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920" role="img"><title>Brazo derecho de E1 con mano, sobre el celular.</title><desc>Brazo derecho de E1 con mano, sobre el celular.</desc><defs /><style>
+  .bg-pared{fill:#e4dccb}
+  .bg-zocalo{fill:#d3c6ac}
+  .bg-piso{fill:#bfa37c}
+  .bg-tabla{fill:#b0946d}
+  .bg-marco{fill:#fbf6ec}
+  .bg-vidrio{fill:#c9dcd6}
+  .bg-sol{fill:#eef3ea}
+  .bg-repisa{fill:#a87f50}
+  .bg-maceta{fill:#c0603f}
+  .bg-planta{fill:#1f7d5c}
+  .bg-libro1{fill:#0c3a2c}
+  .bg-libro2{fill:#d8b06a}
+  .bg-libro3{fill:#6f8290}
+  .bg-lampara{fill:#f1d9a8}
+  .bg-lampara-pie{fill:#1d2722}
+  .bg-cuadro{fill:#fbf6ec}
+  .bg-cuadro-dentro{fill:#cfe0d6}
+
+  .fondo{fill:#fbf6ec}
+  /* E1 */
+  .piel{fill:#b97a4f}
+  .pelo{fill:#2a1d17}
+  .abrigo{fill:#1f7d5c}
+  .abrigo-brazo{fill:none;stroke:#1a6e51;stroke-linecap:round;stroke-linejoin:round}
+  .abrigo-linea{fill:none;stroke:#0c3a2c;stroke-linecap:round}
+  .cuello{fill:#0c3a2c}
+  .mochila{fill:#d8b06a}
+  .mochila-sombra{fill:#c29a55}
+  .tira{fill:none;stroke:#d8b06a;stroke-linecap:round}
+  /* F1 */
+  .f1-piel{fill:#d39a72}
+  .f1-pelo{fill:#4a3a30}
+  .f1-canas{fill:none;stroke:#a3958a;stroke-linecap:round}
+  .f1-cardigan{fill:#6f8290}
+  .f1-brazo{fill:none;stroke:#637583;stroke-linecap:round}
+  .f1-punio{fill:none;stroke:#566773}
+  .anteojos{fill:none;stroke:#1d2722;stroke-linecap:round}
+  /* Celular */
+  .celular{fill:#1d2722}
+  .pantalla{fill:#e4efe9}
+
+  .piso{fill:#1d2722;fill-opacity:0.12}
+</style>
+<g transform="translate(0 840) scale(0.9)"><g id="e1-brazo-der" data-parte="brazo-der">
+    <path class="abrigo-brazo" stroke-width="84" d="M610 720 Q740 690 712 552" />
+    <circle class="piel" cx="700" cy="522" r="36" />
+  </g>
+</g></svg>

@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920" role="img"><title>Fachada de tres pisos con puerta cerrada, vereda y árbol; sin sello ni persona. Grano de papel.</title><desc>Fachada de tres pisos con puerta cerrada, vereda y árbol; sin sello ni persona. Grano de papel.</desc><defs><filter id="papel" x="0" y="0" width="100%" height="100%">
+  <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="7" />
+  <feColorMatrix type="matrix" values="0 0 0 0 0.36  0 0 0 0 0.29  0 0 0 0 0.19  0 0 0 1.1 -0.48" />
+</filter>
+
+</defs><style>
+  .bg-cielo{fill:#e7eee8}
+  .bg-vereda{fill:#d9cfbd}
+  .bg-cordon{fill:#c7bba5}
+  .bg-frente{fill:#ecd3a6}
+  .bg-frente-sombra{fill:#dcbf8d}
+  .bg-cornisa{fill:#fbf6ec}
+  .bg-ventana-marco{fill:#fbf6ec}
+  .bg-ventana-vidrio{fill:#a9c6c6}
+  .bg-balcon{fill:#0c3a2c}
+  .bg-puerta{fill:#0c3a2c}
+  .bg-puerta-vidrio{fill:#a9c6c6}
+  .bg-escalon{fill:#c7bba5}
+  .bg-arbol{fill:#1f7d5c}
+  .bg-arbol-oscuro{fill:#18694d}
+  .bg-tronco{fill:#7a5a3c}
+  .bg-sello{fill:#1f7d5c}
+  .bg-sello-borde{fill:#fbf6ec}
+  .bg-tilde-fondo{fill:#f1d9a8}
+  .bg-tilde{fill:none;stroke:#0c3a2c;stroke-linecap:round;stroke-linejoin:round}
+  .eq-piel{fill:#2c3a36}
+  .eq-piel-sombra{fill:#2c3a36}
+  .eq-pelo{fill:#2c3a36}
+  .eq-barba{fill:#2c3a36}
+  .eq-tinta{fill:#2c3a36}
+  .eq-trazo{fill:none;stroke:#2c3a36;stroke-linecap:round}
+  .eq-camisa{fill:#2c3a36}
+  .eq-camisa-oscura{fill:#2c3a36}
+  .eq-camisa-brazo{fill:none;stroke:#2c3a36;stroke-linecap:round;stroke-linejoin:round}
+  .eq-camisa-brazo-lejos{fill:none;stroke:#2c3a36;stroke-linecap:round;stroke-linejoin:round}
+  .eq-arremangado{fill:none;stroke:#2c3a36;stroke-linecap:round}
+  .eq-antebrazo{fill:none;stroke:#2c3a36;stroke-linecap:round}
+  .eq-antebrazo-lejos{fill:none;stroke:#2c3a36;stroke-linecap:round}
+  .eq-cuello-camisa{fill:#2c3a36}
+  .eq-linea{fill:none;stroke:#2c3a36;stroke-linecap:round}
+  .eq-cinturon{fill:#2c3a36}
+  .eq-pantalon{fill:#2c3a36}
+  .eq-pantalon-lejos{fill:#2c3a36}
+  .eq-zapato{fill:#2c3a36}
+  .eq-carpeta{fill:#f1d9a8}
+  .eq-carpeta-hoja{fill:#fbf6ec}
+</style>
+<rect class="bg-cielo" width="1080" height="1920" />
+<g id="fachada">
+  <rect class="bg-frente" x="90" y="300" width="900" height="1260" />
+  <rect class="bg-frente-sombra" x="90" y="300" width="900" height="40" />
+  <rect class="bg-cornisa" x="70" y="280" width="940" height="36" rx="6" />
+  <rect class="bg-cornisa" x="70" y="760" width="940" height="22" rx="4" />
+  <rect class="bg-cornisa" x="70" y="1150" width="940" height="22" rx="4" />
+  <rect class="bg-ventana-marco" x="170" y="430" width="150" height="200" rx="6" />
+  <rect class="bg-ventana-vidrio" x="184" y="444" width="122" height="172" rx="3" />
+  <rect class="bg-ventana-marco" x="239" y="444" width="12" height="172" />
+  <rect class="bg-balcon" x="156" y="600" width="178" height="12" rx="4" />
+  <rect class="bg-balcon" x="156" y="626" width="178" height="12" rx="4" />
+  <rect class="bg-ventana-marco" x="465" y="430" width="150" height="200" rx="6" />
+  <rect class="bg-ventana-vidrio" x="479" y="444" width="122" height="172" rx="3" />
+  <rect class="bg-ventana-marco" x="534" y="444" width="12" height="172" />
+  <rect class="bg-balcon" x="451" y="600" width="178" height="12" rx="4" />
+  <rect class="bg-balcon" x="451" y="626" width="178" height="12" rx="4" />
+  <rect class="bg-ventana-marco" x="760" y="430" width="150" height="200" rx="6" />
+  <rect class="bg-ventana-vidrio" x="774" y="444" width="122" height="172" rx="3" />
+  <rect class="bg-ventana-marco" x="829" y="444" width="12" height="172" />
+  <rect class="bg-balcon" x="746" y="600" width="178" height="12" rx="4" />
+  <rect class="bg-balcon" x="746" y="626" width="178" height="12" rx="4" />
+  <rect class="bg-ventana-marco" x="170" y="860" width="150" height="200" rx="6" />
+  <rect class="bg-ventana-vidrio" x="184" y="874" width="122" height="172" rx="3" />
+  <rect class="bg-ventana-marco" x="239" y="874" width="12" height="172" />
+  <rect class="bg-balcon" x="156" y="1030" width="178" height="12" rx="4" />
+  <rect class="bg-balcon" x="156" y="1056" width="178" height="12" rx="4" />
+  <rect class="bg-ventana-marco" x="760" y="860" width="150" height="200" rx="6" />
+  <rect class="bg-ventana-vidrio" x="774" y="874" width="122" height="172" rx="3" />
+  <rect class="bg-ventana-marco" x="829" y="874" width="12" height="172" />
+  <rect class="bg-balcon" x="746" y="1030" width="178" height="12" rx="4" />
+  <rect class="bg-balcon" x="746" y="1056" width="178" height="12" rx="4" />
+  <rect class="bg-ventana-marco" x="170" y="1250" width="150" height="190" rx="6" />
+  <rect class="bg-ventana-vidrio" x="184" y="1264" width="122" height="162" rx="3" />
+  <rect class="bg-ventana-marco" x="760" y="1250" width="150" height="190" rx="6" />
+  <rect class="bg-ventana-vidrio" x="774" y="1264" width="122" height="162" rx="3" />
+  <path class="bg-puerta" d="M440 1560 L440 1250 Q540 1150 640 1250 L640 1560 Z" />
+  <path class="bg-puerta-vidrio" d="M466 1262 Q540 1196 614 1262 L614 1292 L466 1292 Z" />
+  <rect class="bg-cornisa" x="536" y="1298" width="8" height="262" />
+  <rect class="bg-escalon" x="410" y="1556" width="260" height="24" rx="4" />
+</g>
+<rect class="bg-vereda" y="1580" width="1080" height="340" />
+<rect class="bg-cordon" y="1830" width="1080" height="18" />
+<g id="arbol">
+  <rect class="bg-tronco" x="938" y="1240" width="34" height="380" rx="10" />
+  <circle class="bg-arbol-oscuro" cx="990" cy="1180" r="120" />
+  <circle class="bg-arbol" cx="930" cy="1120" r="130" />
+  <circle class="bg-arbol" cx="1020" cy="1060" r="100" />
+</g>
+<rect id="textura-papel" width="1080" height="1920" filter="url(#papel)" opacity="0.55" />
+</svg>

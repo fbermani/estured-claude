@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920" role="img"><title>Brazo derecho y mano del equipo, sobre la carpeta.</title><desc>Brazo derecho y mano del equipo, sobre la carpeta.</desc><defs /><style>
+  .bg-cielo{fill:#e7eee8}
+  .bg-vereda{fill:#d9cfbd}
+  .bg-cordon{fill:#c7bba5}
+  .bg-frente{fill:#ecd3a6}
+  .bg-frente-sombra{fill:#dcbf8d}
+  .bg-cornisa{fill:#fbf6ec}
+  .bg-ventana-marco{fill:#fbf6ec}
+  .bg-ventana-vidrio{fill:#a9c6c6}
+  .bg-balcon{fill:#0c3a2c}
+  .bg-puerta{fill:#0c3a2c}
+  .bg-puerta-vidrio{fill:#a9c6c6}
+  .bg-escalon{fill:#c7bba5}
+  .bg-arbol{fill:#1f7d5c}
+  .bg-arbol-oscuro{fill:#18694d}
+  .bg-tronco{fill:#7a5a3c}
+  .bg-sello{fill:#1f7d5c}
+  .bg-sello-borde{fill:#fbf6ec}
+  .bg-tilde-fondo{fill:#f1d9a8}
+  .bg-tilde{fill:none;stroke:#0c3a2c;stroke-linecap:round;stroke-linejoin:round}
+  .eq-piel{fill:#2c3a36}
+  .eq-piel-sombra{fill:#2c3a36}
+  .eq-pelo{fill:#2c3a36}
+  .eq-barba{fill:#2c3a36}
+  .eq-tinta{fill:#2c3a36}
+  .eq-trazo{fill:none;stroke:#2c3a36;stroke-linecap:round}
+  .eq-camisa{fill:#2c3a36}
+  .eq-camisa-oscura{fill:#2c3a36}
+  .eq-camisa-brazo{fill:none;stroke:#2c3a36;stroke-linecap:round;stroke-linejoin:round}
+  .eq-camisa-brazo-lejos{fill:none;stroke:#2c3a36;stroke-linecap:round;stroke-linejoin:round}
+  .eq-arremangado{fill:none;stroke:#2c3a36;stroke-linecap:round}
+  .eq-antebrazo{fill:none;stroke:#2c3a36;stroke-linecap:round}
+  .eq-antebrazo-lejos{fill:none;stroke:#2c3a36;stroke-linecap:round}
+  .eq-cuello-camisa{fill:#2c3a36}
+  .eq-linea{fill:none;stroke:#2c3a36;stroke-linecap:round}
+  .eq-cinturon{fill:#2c3a36}
+  .eq-pantalon{fill:#2c3a36}
+  .eq-pantalon-lejos{fill:#2c3a36}
+  .eq-zapato{fill:#2c3a36}
+  .eq-carpeta{fill:#f1d9a8}
+  .eq-carpeta-hoja{fill:#fbf6ec}
+</style>
+<g transform="translate(1228 1171) scale(-0.4 0.4)"><g id="eq-tc-brazo-der" data-parte="brazo-der">
+    <path class="eq-camisa-brazo" stroke-width="50" d="M1100 400 Q1076 470 1082 540" />
+    <path class="eq-arremangado" stroke-width="54" d="M1082 532 L1083 548" />
+    <path class="eq-antebrazo" stroke-width="38" d="M1084 552 Q1088 600 1104 620" />
+    <circle class="eq-piel" cx="1106" cy="622" r="21" />
+  </g>
+
+</g></svg>

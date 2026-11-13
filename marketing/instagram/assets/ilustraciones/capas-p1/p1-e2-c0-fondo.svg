@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920" role="img"><title>Fondo liso de la escena del celular. Grano de papel.</title><desc>Fondo liso de la escena del celular. Grano de papel.</desc><defs><filter id="papel" x="0" y="0" width="100%" height="100%">
+  <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="7" />
+  <feColorMatrix type="matrix" values="0 0 0 0 0.36  0 0 0 0 0.29  0 0 0 0 0.19  0 0 0 1.1 -0.48" />
+</filter>
+
+</defs><style>
+  .bg-fondo{fill:#e9dcc4}
+  .bg-mano{fill:#b97a4f}
+  .bg-celu{fill:#1d2722}
+  .bg-pantalla{fill:#f4f1ea}
+  .bg-burbuja-otro{fill:#e2dccf}
+  .bg-burbuja-yo{fill:#cfe3d8}
+  .bg-renglon{fill:#b9b1a2}
+  .bg-renglon-yo{fill:#8fb9a3}
+  .bg-foto{fill:#fbf6ec}
+  .bg-foto-pared{fill:#e8d7b7}
+  .bg-foto-pared2{fill:#d9e1d8}
+  .bg-foto-pared3{fill:#efd2c0}
+  .bg-foto-cama{fill:#c8ad85}
+  .bg-foto-ventana{fill:#bcd3d6}
+  .bg-sombra{fill:#1d2722;opacity:0.12}
+</style>
+<rect class="bg-fondo" width="1080" height="1920" />
+<rect id="textura-papel" width="1080" height="1920" filter="url(#papel)" opacity="0.55" />
+</svg>

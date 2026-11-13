@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920" role="img"><title>Burbuja de chat 2 (sin texto).</title><desc>Burbuja de chat 2 (sin texto).</desc><defs /><style>
+  .bg-fondo{fill:#e9dcc4}
+  .bg-mano{fill:#b97a4f}
+  .bg-celu{fill:#1d2722}
+  .bg-pantalla{fill:#f4f1ea}
+  .bg-burbuja-otro{fill:#e2dccf}
+  .bg-burbuja-yo{fill:#cfe3d8}
+  .bg-renglon{fill:#b9b1a2}
+  .bg-renglon-yo{fill:#8fb9a3}
+  .bg-foto{fill:#fbf6ec}
+  .bg-foto-pared{fill:#e8d7b7}
+  .bg-foto-pared2{fill:#d9e1d8}
+  .bg-foto-pared3{fill:#efd2c0}
+  .bg-foto-cama{fill:#c8ad85}
+  .bg-foto-ventana{fill:#bcd3d6}
+  .bg-sombra{fill:#1d2722;opacity:0.12}
+</style>
+<g id="chat-2"><rect class="bg-burbuja-yo" x="420" y="560" width="400" height="64" rx="26" /><rect class="bg-renglon-yo" x="446" y="586" width="216" height="12" rx="6" /></g>
+  </svg>
