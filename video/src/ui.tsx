@@ -9,6 +9,7 @@ import {
   useVideoConfig,
 } from "remotion";
 import { body, C, display, ICON_FAMILY } from "./theme";
+import { BRAND_ICON_PATHS } from "./brandIcon";
 
 /** Layout: v = vertical (9:16). u = unidad de escala (1 = 1080 px de ancho útil). */
 export const useLayout = () => {
@@ -301,17 +302,13 @@ export const HeroBg: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   );
 };
 
-/** Logo de EstuRed (copia del BrandSymbol de la app: casa + R + cama). */
+/** Logo de EstuRed (el definitivo, igual que `BrandSymbol` de la app: casa + R + cama). */
 export const BrandMark: React.FC<{ size: number; dark?: boolean }> = ({ size, dark }) => (
   <span style={{ display: "inline-flex", alignItems: "center", gap: size * 0.28 }}>
-    <svg width={size} height={size} viewBox="0 0 64 64">
-      <rect width="64" height="64" rx="15" fill={C.cream} />
-      <g fill="none" stroke={C.ink} strokeWidth="4.6" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M27 50H14V25L32 11L50 25V37" />
-        <path d="M28 25H37A7.5 7.5 0 0 1 37 40H33M36 40L48 52" />
-      </g>
-      <rect x="17" y="35" width="6" height="4.5" rx="2.2" fill="#c4ad8d" />
-      <rect x="17" y="40" width="12" height="6" rx="1.6" fill="#c4ad8d" />
+    <svg width={size} height={size} viewBox="0 0 512 512">
+      {BRAND_ICON_PATHS.map((p) => (
+        <path key={p.fill} fill={p.fill} fillRule="evenodd" d={p.d} />
+      ))}
     </svg>
     <span
       style={{

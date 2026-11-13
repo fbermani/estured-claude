@@ -15,7 +15,7 @@ Orden sugerido; cada ítem remite a su sección.
 - [ ] Bootstrap con 0001–0086: reemplazar los dos placeholders de la 0013 en una copia fuera del repo; el secreto del cron queda en **Supabase Vault** (`cron_secret`), no en `cron.job` (sección 1, Ruta B).
 - [ ] Env vars nuevas: `NEXT_PUBLIC_APP_URL` (obligatoria), `CRON_SECRET`, `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`; `DEMO_*` ausentes en Production y Preview (2.2).
 - [ ] Turnstile: crear el widget en Cloudflare (cuenta gratuita) para el dominio de prod; **no** usar las claves de prueba de dev (2.2).
-- [ ] Supabase Auth: apagar "Allow new users to sign up", activar "Leaked password protection", revisar duración del JWT, **no** activar el CAPTCHA nativo (2.4).
+- [ ] Supabase Auth: apagar "Allow new users to sign up", activar "Leaked password protection" (requiere plan Pro), dejar el JWT en 1 h (default), **no** activar el CAPTCHA nativo (2.4).
 - [ ] Después del deploy: correr los advisors de seguridad de Supabase y `scripts/check-anon-exposure.mjs`; probar login con y sin CAPTCHA (4).
 - [ ] Unas semanas después del lanzamiento: pasar la CSP de Report-Only a enforce (6).
 
@@ -25,6 +25,13 @@ Orden sugerido; cada ítem remite a su sección.
 - [ ] **D-B. Dominio:** ¿se lanza en `estured.vercel.app` o con dominio propio (`estured.com`)? Condiciona SMTP, Redirect URLs, `NEXT_PUBLIC_APP_URL` y la 0013.
 - [ ] **D-C. Email de contacto real** (hoy `hola@estured.com` en `lib/constants/contact.ts`): ¿existe y alguien lo lee?
 - [ ] **D-D. ¿Se abre al público ya o es beta cerrada?** Define si hace falta cerrar antes los pendientes de la sección 6.
+- [ ] **D-E. Titularidad de las cuentas (2026-11-12): organizaciones, no cuentas nuevas.** Comprado el dominio:
+  - Registrador (Cloudflare/Namecheap) con 2FA, auto-renovación y un segundo email de recuperación: quien controla el dominio controla todos los resets de contraseña.
+  - Mail del dominio (`hola@`, `soporte@`): arrancar con Cloudflare Email Routing (gratis) o Google Workspace; sumarlo como email secundario/de facturación de las cuentas existentes, no como único dueño.
+  - **GitHub:** crear una *Organization* (gratis) propiedad de la cuenta personal y transferir el repo (conserva historial y la conexión con Vercel). No crear una segunda cuenta personal (va contra los términos de GitHub).
+  - **Supabase:** crear una *Organization* y crear `estured-prod` **directamente ahí** (prod todavía no existe, mover es gratis ahora). Si ya existiera, usar *Transfer project* (el ref y las claves no cambian).
+  - **Vercel:** pasar el proyecto a un *Team*; el plan Hobby es solo uso no comercial, al cobrar fees hace falta Pro.
+  - Si se constituye una sociedad (SAS), el traspaso de titularidad es cambiar el owner de cada organización.
 
 ### Ruta A — Conservar la base y migrar (menor trabajo)
 
@@ -103,7 +110,7 @@ Lista completa de las que lee el código (grep de `process.env`):
 - [ ] Authentication → Settings: confirmación de email según lo decidido; el SMTP integrado de Supabase tiene límite muy bajo de envíos por hora: configurar **SMTP propio** (Resend u otro) en Authentication → SMTP Settings.
 - [ ] Revisar plantillas de mail de Auth (reset de contraseña) en español.
 - [ ] **Authentication → Sign In / Providers → "Allow new users to sign up": apagado.** Todas las altas usan `auth.admin.createUser` desde el servidor, así que la app sigue funcionando; apagarlo impide crear cuentas llamando a Supabase directo con la anon key. Si algún día se habilita Google (DR26), este switch tiene que volver a encenderse y hay que cerrar el alta por email de otra forma (Auth Hook "before user created" o CAPTCHA nativo). Ojo: hay que tocar **Save** y confirmar que se esté en el proyecto correcto (la URL lleva el ref). Verificación: `GET https://<ref>.supabase.co/auth/v1/settings` con el header `apikey: <anon key>` tiene que devolver `"disable_signup": true`; después, un preregistro desde la app tiene que seguir funcionando (en dev se verificó así el 2026-11-12).
-- [ ] **"Leaked password protection"** activado (rechaza contraseñas filtradas conocidas).
+- [ ] **"Leaked password protection"** activado (rechaza contraseñas filtradas conocidas, vía HaveIBeenPwned). **Solo existe en el plan Pro de Supabase**: en el plan gratis no aparece (dev está en Free y por eso no se pudo activar, 2026-11-12). Si prod arranca en Free, queda pendiente hasta pasar a Pro; mientras tanto el mínimo de contraseña de la app es la única defensa. El advisor de seguridad lo marca como `auth_leaked_password_protection` hasta que se active.
 - [ ] **CAPTCHA nativo de Supabase: apagado.** El CAPTCHA se verifica en las server actions (Turnstile, opción A); activarlo además rompe los logins automáticos tras el registro.
 - [ ] Duración del JWT: dejar el default (1 h) salvo motivo; los usuarios bloqueados ya quedan baneados también en Auth (`ban_duration`) y la base les niega acceso por RLS (`is_active_user()`).
 - Éxito: "Olvidé mi contraseña" con un usuario de prueba entrega el mail y el link abre `/reset-password` en prod.

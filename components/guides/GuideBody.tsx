@@ -1,4 +1,5 @@
 import { Icon } from "@/components/ui/Icon";
+import { BrandBullet } from "@/components/ui/BrandMark";
 import { Inline } from "@/components/guides/Inline";
 import type { GuideBlock, GuideSection } from "@/lib/guides/types";
 
@@ -16,12 +17,21 @@ function Blocks({ blocks, linkClass, textClass }: { blocks: GuideBlock[]; linkCl
           case "list": {
             const Tag = b.ordered ? "ol" : "ul";
             return (
-              <Tag key={i} className={`mt-4 grid gap-2 pl-6 text-[17px] leading-8 ${b.ordered ? "list-decimal" : "list-disc"} ${textClass}`}>
-                {b.items.map((it, n) => (
-                  <li key={n}>
-                    <Inline text={it} linkClass={linkClass} />
-                  </li>
-                ))}
+              <Tag key={i} className={`mt-4 grid gap-2 text-[17px] leading-8 ${b.ordered ? "list-decimal pl-6" : "list-none"} ${textClass}`}>
+                {b.items.map((it, n) =>
+                  b.ordered ? (
+                    <li key={n}>
+                      <Inline text={it} linkClass={linkClass} />
+                    </li>
+                  ) : (
+                    <li key={n} className="flex items-start gap-2.5">
+                      <BrandBullet size={20} className="mt-[7px] opacity-70" />
+                      <span>
+                        <Inline text={it} linkClass={linkClass} />
+                      </span>
+                    </li>
+                  ),
+                )}
               </Tag>
             );
           }

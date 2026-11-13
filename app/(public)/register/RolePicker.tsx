@@ -4,6 +4,7 @@ import { useState } from "react";
 import { PageHero } from "@/components/ui/PageHero";
 import { Icon } from "@/components/ui/Icon";
 import { Card } from "@/components/ui/Card";
+import { BrandList } from "@/components/ui/BrandMark";
 import { RegisterStudentForm } from "@/app/(public)/register/student/RegisterStudentForm";
 import { RegisterFamilyForm } from "@/app/(public)/register/family/RegisterFamilyForm";
 import { RegisterResidenceForm } from "@/app/(public)/register/residence/RegisterResidenceForm";
@@ -85,11 +86,7 @@ export function RolePicker({ residences, next }: { next?: string; residences: { 
           <summary className="min-h-11 cursor-pointer text-sm font-semibold text-ink-soft hover:text-ink [&::marker]:text-(--tone)">
             <span className="ml-1">Qué incluye tu cuenta</span>
           </summary>
-          <ul className="mb-3 list-disc space-y-1 pl-6 text-sm text-ink-soft">
-            {current.includes.map((t) => (
-              <li key={t}>{t}</li>
-            ))}
-          </ul>
+          <BrandList items={current.includes} className="mb-3 text-sm text-ink-soft" />
           {role === "student" && (
             <div className="mb-3 rounded-field bg-cream-2 p-3 text-sm">
               <p className="mb-2 flex items-center gap-2 font-semibold text-ink">

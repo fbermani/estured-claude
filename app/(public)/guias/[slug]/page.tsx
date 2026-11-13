@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Badge } from "@/components/ui/Badge";
+import { BrandDivider } from "@/components/ui/BrandMark";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { Breadcrumbs } from "@/components/guides/Breadcrumbs";
@@ -131,6 +132,8 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
             <article id="guia-articulo">
               <GuideBody sections={guide.sections} />
             </article>
+
+            <BrandDivider className="mt-10" />
 
             {guide.cta && (
               <div className="mt-10 flex flex-col items-start gap-3 rounded-card border-[1.5px] border-line bg-paper p-5 shadow-card sm:flex-row sm:items-center sm:justify-between sm:p-6">
