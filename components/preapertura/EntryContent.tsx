@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { BrandMark } from "@/components/ui/BrandMark";
 import { EarlyAccessPill } from "@/components/preapertura/EarlyAccessPill";
+import { SignedInEntryCta } from "@/components/preapertura/SignedInEntryCta";
 import { FreeBadge } from "@/components/preapertura/FreeBadge";
 import { LiveCount } from "@/components/preapertura/LiveCount";
 import { MiniCommunityRail } from "@/components/preapertura/MiniCommunityRail";
@@ -41,10 +42,12 @@ export async function EntryContent({ counter, founders, closure }: { counter: St
       <FreeBadge className="mt-5" />
 
       <div className="mt-5 grid gap-3">
-        <Button href="/preregistro" variant="secondary" size="lg" className="w-full shadow-orange">
-          Sumarme gratis
-          <Icon name="arrow_forward" className="text-xl" />
-        </Button>
+        <SignedInEntryCta>
+          <Button href="/preregistro" variant="secondary" size="lg" className="w-full shadow-orange">
+            Sumarme gratis
+            <Icon name="arrow_forward" className="text-xl" />
+          </Button>
+        </SignedInEntryCta>
         <LiveCount counter={counter} />
       </div>
 

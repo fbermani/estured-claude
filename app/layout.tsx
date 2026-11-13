@@ -4,6 +4,8 @@ import { Bricolage_Grotesque, Hanken_Grotesk } from "next/font/google";
 import { DemoSwitcherGate } from "@/components/dev/DemoSwitcherGate";
 import { isDemoLoginEnabled } from "@/lib/demoLogin";
 import "./globals.css";
+// Clases animate__* (animate.css 4.1.1, MIT). Úsalas con `animate__animated animate__<efecto>`.
+import "animate.css";
 
 /** Sistema visual FRESH (design-references/fresh-style.md §1.2). */
 const hanken = Hanken_Grotesk({

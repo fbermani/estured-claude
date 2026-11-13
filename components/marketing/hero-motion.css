@@ -62,7 +62,7 @@
   }
 }
 .hero-marquee {
-  animation: hero-marquee var(--dur, 46s) linear infinite;
+  animation: hero-marquee var(--dur, 92s) linear infinite;
 }
 .hero-marquee-wrap:hover .hero-marquee,
 .hero-marquee-wrap:focus-within .hero-marquee {
