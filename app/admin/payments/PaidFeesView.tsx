@@ -50,14 +50,18 @@ export async function PaidFeesView() {
   const rows = (data as unknown as PaidRow[]) ?? [];
   const unconfirmed = admin ? await loadUnconfirmedPaidFees(admin) : { items: [], failed: false };
   const unconfirmedIds = new Set(unconfirmed.items.map((item) => item.id));
-  const totalPaid = rows.filter((r) => r.status === "paid").reduce((sum, r) => sum + Number(r.fee_amount_ars), 0);
+  const paidRows = rows.filter((r) => r.status === "paid");
+  const refundedCount = rows.length - paidRows.length;
+  // El importe suma solo los fees que siguen cobrados: no resta ni suma los reintegrados.
+  const totalPaid = paidRows.reduce((sum, r) => sum + Number(r.fee_amount_ars), 0);
 
   return (
     <div className="p-8">
       <PaymentsTabs active="paid" />
       <p className="mt-3 text-sm" style={{ color: cmd.onSurfaceVariant }}>
-        {rows.length} fee(s) cobrados — {formatArs(totalPaid)} en total
-        {rows.length >= LIMIT && ` (se muestran los últimos ${LIMIT})`}.
+        {paidRows.length} cobrado(s)
+        {refundedCount > 0 && ` · ${refundedCount} reintegrado(s)`} — {formatArs(totalPaid)} cobrados vigentes (sin contar los reintegrados)
+        {rows.length >= LIMIT && `. Se muestran los últimos ${LIMIT} movimientos`}.
       </p>
 
       {unconfirmed.failed && (
