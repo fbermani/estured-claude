@@ -3,6 +3,7 @@
 import { useActionState, useState, useTransition } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Icon } from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
 import {
@@ -74,9 +75,11 @@ export function FamilyLinkCard({
   const [isCancelling, startCancel] = useTransition();
   const [cancelError, setCancelError] = useState<string | null>(null);
   const [formEpoch, setFormEpoch] = useState(0);
+  const [confirming, setConfirming] = useState<"revoke" | "cancel" | null>(null);
 
   function handleRevoke() {
     if (!activeLink) return;
+    setConfirming(null);
     setRevokeError(null);
     startRevoke(async () => {
       const result = await revokeFamilyLink(activeLink.id);
@@ -86,6 +89,7 @@ export function FamilyLinkCard({
 
   function handleCancelInvitation() {
     if (!pendingInvitation) return;
+    setConfirming(null);
     setCancelError(null);
     startCancel(async () => {
       const result = await cancelFamilyInvitation(pendingInvitation.id);
@@ -127,7 +131,7 @@ export function FamilyLinkCard({
           </div>
           <button
             type="button"
-            onClick={handleRevoke}
+            onClick={() => setConfirming("revoke")}
             disabled={isRevoking}
             className="mt-1 inline-flex min-h-11 items-center self-start text-xs font-semibold text-danger-fg hover:underline disabled:opacity-50"
           >
@@ -143,7 +147,7 @@ export function FamilyLinkCard({
           </p>
           <button
             type="button"
-            onClick={handleCancelInvitation}
+            onClick={() => setConfirming("cancel")}
             disabled={isCancelling}
             className="mt-1 inline-flex min-h-11 items-center self-start text-xs font-semibold text-ink-faint hover:text-danger-fg hover:underline disabled:opacity-50"
           >
@@ -170,6 +174,25 @@ export function FamilyLinkCard({
           )}
         </>
       )}
+      <ConfirmDialog
+        open={confirming === "revoke"}
+        title="¿Desvincular a tu familiar?"
+        description="Va a dejar de ver tu búsqueda y tus solicitudes. Si estaba como pagador de un pago pendiente, ese pago vuelve a quedar a tu cargo. Podés invitarlo de nuevo cuando quieras."
+        confirmLabel="Desvincular"
+        tone="danger"
+        onConfirm={handleRevoke}
+        onCancel={() => setConfirming(null)}
+      />
+      <ConfirmDialog
+        open={confirming === "cancel"}
+        title="¿Cancelar la invitación?"
+        description="El link que le enviamos deja de funcionar. Podés mandar una nueva cuando quieras."
+        confirmLabel="Cancelar invitación"
+        cancelLabel="Volver"
+        tone="danger"
+        onConfirm={handleCancelInvitation}
+        onCancel={() => setConfirming(null)}
+      />
     </div>
   );
 }

@@ -17,7 +17,7 @@ const SAMPLE: ReceiptPayload = {
   final_conditions: { monthly_price_usd: 250, monthly_price_ars: 375000, exchange_rate_ars_per_usd: 1500 },
   estured_fee: { amount_usd: 75, currency: "USD" },
 };
-const SAMPLE_NUMBER = "ER-7K3M-92QD";
+const SAMPLE_NUMBER = "ER-2026-7K3QM-9XJ4A";
 const SHOWN = ["Estudiante", "Residencia", "Tipo de habitación", "Fecha de ingreso", "Duración inicial", "Tarifa mensual acordada", "Fee EstuRed pagado"];
 
 export async function ReceiptMiniature() {

@@ -8,8 +8,12 @@ const link =
 const legalLink =
   "inline-flex min-h-11 items-center rounded-sm underline transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:min-h-8";
 
-/** B2: firma de marca + 2 grupos de links + legal en una línea. */
-export function Footer({ hideSignup = false }: { hideSignup?: boolean } = {}) {
+/**
+ * B2: firma de marca + 2 grupos de links + legal en una línea.
+ * `staffView`: lo usan las pantallas de quien administra una residencia; saca «Crear cuenta», «Soporte» y el botón de
+ * arrepentimiento, que son de estudiantes y a ese rol lo devolvían al panel sin avisar.
+ */
+export function Footer({ hideSignup = false, staffView = false }: { hideSignup?: boolean; staffView?: boolean } = {}) {
   return (
     <footer className="border-t border-line bg-forest-ink text-white">
       <div className="mx-auto grid max-w-6xl gap-6 px-4 py-7 sm:px-6 md:grid-cols-[1.6fr_1fr_1fr]">
@@ -53,7 +57,7 @@ export function Footer({ hideSignup = false }: { hideSignup?: boolean } = {}) {
                 Guías
               </Link>
             </li>
-            {!hideSignup && (
+            {!hideSignup && !staffView && (
               <li>
                 <Link href="/register" className={link}>
                   Crear cuenta
@@ -65,12 +69,14 @@ export function Footer({ hideSignup = false }: { hideSignup?: boolean } = {}) {
         <nav aria-label="Ayuda">
           <p className="text-sm font-bold text-white/60">Ayuda</p>
           <ul className="mt-1 text-sm text-white/80">
-            <li>
-              <Link href="/students/support" className={`${link} gap-1.5 font-semibold text-white`}>
-                <Icon name="support_agent" className="text-lg text-amber-soft-300" />
-                Soporte
-              </Link>
-            </li>
+            {!staffView && (
+              <li>
+                <Link href="/students/support" className={`${link} gap-1.5 font-semibold text-white`}>
+                  <Icon name="support_agent" className="text-lg text-amber-soft-300" />
+                  Soporte
+                </Link>
+              </li>
+            )}
             <li>
               <Link href="/for-students#preguntas-frecuentes" className={link}>
                 Preguntas frecuentes
@@ -104,11 +110,13 @@ export function Footer({ hideSignup = false }: { hideSignup?: boolean } = {}) {
           </p>
           <div className="mt-1 flex flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
             <ul className="flex flex-wrap gap-x-5 text-xs text-white/70">
-              <li>
-                <Link href="/students/revocation" className={legalLink}>
-                  Botón de arrepentimiento
-                </Link>
-              </li>
+              {!staffView && (
+                <li>
+                  <Link href="/students/revocation" className={legalLink}>
+                    Botón de arrepentimiento
+                  </Link>
+                </li>
+              )}
               <li>
                 <Link href="/verify" className={legalLink}>
                   Verificar un comprobante

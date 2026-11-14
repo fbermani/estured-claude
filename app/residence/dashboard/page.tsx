@@ -96,7 +96,7 @@ export default async function ResidenceDashboardPage() {
           <OwnerResidenceGrid cards={validCards} arsPerUsd={arsPerUsd} />
         )}
       </main>
-      <Footer />
+      <Footer staffView />
     </div>
   );
 }

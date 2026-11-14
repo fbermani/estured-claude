@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { cleanupTestSideEffects } from "@/lib/testing/cleanupTestSideEffects";
 import { deleteResidenceCascade } from "@/lib/testing/deleteResidenceCascade";
 import { createRenewalRequest } from "@/lib/renewals/createRenewalRequest";
 import { createRenewalOffer } from "@/lib/renewals/createRenewalOffer";
@@ -29,6 +30,9 @@ describe.skipIf(!hasCreds)("módulo de renovaciones (integración)", () => {
   let studentUserId: string;
   let studentProfileId: string;
   let adminActorId: string;
+
+  // Margen de 1 min por desfase de reloj entre el runner y la base.
+  const startedAt = new Date(Date.now() - 60_000).toISOString();
 
   beforeAll(async () => {
     admin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
@@ -161,6 +165,7 @@ describe.skipIf(!hasCreds)("módulo de renovaciones (integración)", () => {
     await admin.from("residence_users").delete().eq("residence_id", residenceId);
 
     await deleteResidenceCascade(admin, residenceId);
+    await cleanupTestSideEffects(admin, startedAt);
   });
 
   async function createConfirmedReservation() {

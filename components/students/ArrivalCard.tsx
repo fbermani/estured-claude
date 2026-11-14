@@ -50,6 +50,7 @@ export function ArrivalCard({
   const [checked, setChecked] = useState<Set<string>>(() => new Set(initialChecked));
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [copyFailed, setCopyFailed] = useState(false);
   const [pending, setPending] = useState<Set<string>>(new Set());
   const [, startTransition] = useTransition();
   const locked = readOnly || !persistent;
@@ -91,10 +92,13 @@ export function ArrivalCard({
   async function copyMessage() {
     try {
       await navigator.clipboard.writeText(message);
+      setCopyFailed(false);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
       setCopied(false);
+      setCopyFailed(true);
+      setTimeout(() => setCopyFailed(false), 4000);
     }
   }
 
@@ -134,7 +138,7 @@ export function ArrivalCard({
             </div>
           </div>
           <p role="status" aria-live="polite" className="sr-only">
-            {copied ? "Mensaje copiado al portapapeles" : ""}
+            {copied ? "Mensaje copiado al portapapeles" : copyFailed ? "No se pudo copiar el mensaje" : ""}
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             {mainGuide && (
@@ -147,7 +151,7 @@ export function ArrivalCard({
               <>
                 <button type="button" onClick={copyMessage} className={btn}>
                   <Icon name="content_copy" className="text-[18px]!" />
-                  {copied ? "¡Copiado!" : "Copiar mensaje"}
+                  {copied ? "¡Copiado!" : copyFailed ? "No se pudo copiar" : "Copiar mensaje"}
                 </button>
                 <a href={buildWhatsAppUrl(message)} target="_blank" rel="noopener noreferrer" className={btn}>
                   <Icon name="chat" className="text-[18px]!" />

@@ -218,7 +218,7 @@ export function FamilyMini() {
         <Icon name="qr_code_2" className="text-orange-700" />
         <div>
           <small className="block text-xs text-ink-faint">Código verificable</small>
-          <b className="rounded-lg bg-cream-2 px-2 py-0.5 font-mono text-[13px] tracking-wider">EST-XXXX-XXXX</b>
+          <b className="rounded-lg bg-cream-2 px-2 py-0.5 font-mono text-[13px] tracking-wider">ER-2026-XXXXX-XXXXX</b>
         </div>
       </Row>
     </>

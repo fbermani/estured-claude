@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -12,6 +12,8 @@ const initialState: AuthState = { status: "idle" };
 
 export function LoginForm({ next }: { next?: string }) {
   const [state, formAction, isPending] = useActionState(signIn, initialState);
+  // Controlado: React vacía el formulario tras cada envío y, si las credenciales fallan, había que reescribir el email.
+  const [email, setEmail] = useState("");
 
   return (
     <Card className="p-8">
@@ -28,6 +30,8 @@ export function LoginForm({ next }: { next?: string }) {
           spellCheck={false}
           enterKeyHint="next"
           placeholder="tu@email.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           required
         />
         <Input

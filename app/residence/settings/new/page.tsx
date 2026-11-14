@@ -36,7 +36,7 @@ export default async function NewResidencePage() {
           <AddResidenceForm />
         </div>
       </main>
-      <Footer />
+      <Footer staffView />
     </div>
   );
 }
