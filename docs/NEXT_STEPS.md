@@ -2,10 +2,22 @@
 
 # EstuRed — Próximos pasos
 
+## Auditoría UX por recorrido Codex — 2026-11-14
+
+Informe compartible: [`AUDITORIA_UX_RECORRIDO_CODEX_2026-11-14.md`](audits/AUDITORIA_UX_RECORRIDO_CODEX_2026-11-14.md). Siete demos y visitante; 12 hallazgos (2 P1, 8 P2, 2 P3), con capturas, criterios de aceptación y [cobertura explícita](audits/evidence/ux-2026-11-14/COBERTURA.md). No se implementaron fixes.
+
+- Primero **UX01**: corregir la ayuda que dice que la dirección es privada aunque se publica; **UX02**: búsqueda/paginación de Comunidad admin (hoy corta en 300 y no permite llegar a Norte/Río).
+- Luego contadores/listas, preguntas pendientes, orientación del perfil, revisión económica de solicitud y cambios enviados a aprobación. Reproducir con datos actuales antes de editar: hubo tests/commits concurrentes en dev.
+- Para completar los estados no recorridos: casos demo vigentes de solicitud/renovación/espera, menor con vínculo estable y staff limitado. Typecheck/build OK; lint global con 7 errores en `docs/audits/evidence/2026-11-14/repro-actions.cjs`, no modificado por esta auditoría UX.
+
 ## DR48: documentos de estudiantes visibles para la residencia — 2026-11-14
 
 - Implementado (acción `lib/documents/requestResidenceDocumentAccess.ts`, UI en Residentes y en el detalle de la solicitud con pago habilitado). Migración **0087** aplicada en dev vía MCP; en prod entra con el bootstrap.
 - Pendiente: verificación visual en staging (dueño, staff con y sin casillero) y, si se quiere, una vista admin del registro `residence_document_access_log`.
+
+## Auditoría de seguridad en dev — 2026-11-14
+
+Informe: `docs/audits/AUDITORIA_SEGURIDAD_2026-11-14.md`. Tres medios sin corregir: **SEG14-01** (no reactivar fee de renovación vencido), **SEG14-02** (revalidar residencia publicada al convertir propuesta familiar) y **SEG14-03/B4** (cuota acumulada y rate limit de documentos). Sin críticos/altos confirmados en el alcance revisado; quedan límites de verificación explícitos en el informe. Antes de beta, implementar MFA obligatorio para admin/superadmin conforme docs/11 y docs/18. La revisión no modifica el estado de migraciones ni aprueba producción.
 
 ## Pendientes tras el hardening de seguridad (2026-11-12)
 Detalle en `docs/audits/PLAN_SEGURIDAD_2026-11-12.md` ("Estado al 2026-11-12").
@@ -416,3 +428,5 @@ Ver `CLAUDE_CODE_AUDIT.md` §6. Los principales: código sin versionar; pendient
 ## 7. Preguntas críticas abiertas
 
 Ninguna bloqueante para el Ciclo 1. Decisión logística necesaria: **dónde hostear el repo** y **credenciales de Supabase** para el próximo ciclo. Las decisiones de negocio abiertas viven en `docs/00` §29.
+
+- **UX (2026-11-14):** correr `npm run build` con el servidor dev detenido, pushear `staging`, verificar en estured.vercel.app a 1280/375 px los CON implementados y decidir de a una: CON-13, 15, 16 (rótulo), 18 (plazo), 21, 24, 26, 27, 29, tutor de Valentina y umbral de revocación. Detalle: `docs/audits/PLAN_REMEDIACION_UX_2026-11-14.md`.
