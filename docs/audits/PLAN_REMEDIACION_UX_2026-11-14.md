@@ -47,7 +47,7 @@ Prioridad: P1 confianza/tarea inaccesible · P2 fricción o información contrad
 | CON-23 | H15(a, b) | Panel de residencia: 29/35 vs «34 cargados» sin leyenda; solicitudes recientes idénticas. | P2 | Rotular universos; sumar fecha de ingreso y duración. | implementado (falta verificar en staging) |
 | CON-24 | H15(c) | Vocabulario de «reserva vencida» distinto por rol. | P2 | Decidido (DR52): un rótulo por estado vencido entre roles; la perspectiva va en el helper. | implementado (falta verificar en staging); con test |
 | CON-25 | H16 | Dueño multi-residencia: sin franja «qué requiere mi atención». | P3 | Recomendación de diseño. | pendiente (baja, no implementado) |
-| CON-26 | H17(b) | Nombres confusos del menú admin. | P3 | Decisión de nomenclatura. | requiere decisión |
+| CON-26 | H17(b) | Nombres confusos del menú admin. | P3 | Decidido por el dueño: dejar el menú como está (2026-11-14). | descartado (decisión del dueño) |
 | CON-27 | H8(b–d), H9 | Siete tarjetas de condiciones con «No cobra»; skeleton/CLS/placeholder de fotos. | P3 | Condiciones: decisión de diseño. Skeleton/CLS: rendimiento dev. | requiere decisión / descartado (dev) |
 | CON-28 | H19 | «Abrir WhatsApp» sin aclarar que abre la app y que el mensaje es borrador. | P3 | Copy breve. | implementado (falta verificar en staging) |
 | CON-29 | B decisión | Valentina (17) puede abrir la solicitud de una ficha «De 18 a 26 años». | — | Decidido (DR50): aviso no bloqueante en el formulario según la edad a la fecha de ingreso. | implementado (falta verificar en staging); lógica con test |
@@ -73,4 +73,5 @@ Prioridad: P1 confianza/tarea inaccesible · P2 fricción o información contrad
 - **CON-16 decidido (DR51):** rótulo del filtro de edad en `/search`.
 - **CON-18 decidido:** sin plazo de contacto en el formulario de fundadoras.
 - **CON-24 decidido (DR52):** rótulo único por estado vencido.
-- Pendientes de decisión del dueño (de a una): 26, 27, mail del tutor (CON-30), umbral de revocación (CON-09).
+- **CON-26 decidido:** el menú admin queda como está.
+- Pendientes de decisión del dueño (de a una): 27, mail del tutor (CON-30), umbral de revocación (CON-09).
