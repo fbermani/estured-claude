@@ -555,7 +555,7 @@ function RoomModal({
                 </span>
               </p>
               <Link
-                href={`/residence/${residenceId}/profile`}
+                href={`/residence/${residenceId}/profile#perfil-habitaciones`}
                 className="mt-1 inline-block text-xs font-semibold text-forest-700 hover:underline"
               >
                 Editar tarifa en la configuración →
@@ -891,7 +891,7 @@ export function RoomsBrowser({
                     </span>
                   </p>
                   <Link
-                    href={`/residence/${residenceId}/profile`}
+                    href={`/residence/${residenceId}/profile#perfil-habitaciones`}
                     className="flex items-center gap-1 text-sm font-bold text-forest-700 hover:underline"
                   >
                     <Icon name="edit" className="text-base" /> Editar tarifa

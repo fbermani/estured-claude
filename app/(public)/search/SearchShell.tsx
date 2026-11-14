@@ -225,7 +225,7 @@ export function SearchShell({ groups, filters, bounds, histogram, promoCount, mi
                   filters.view === v.key ? "bg-paper text-forest-700 shadow-card" : "text-ink-soft hover:text-ink"
                 }`}
               >
-                <Icon name={v.icon} className="text-lg max-sm:hidden" />
+                <span aria-hidden="true" className="inline-flex max-sm:hidden"><Icon name={v.icon} className="text-lg" /></span>
                 {v.label}
               </button>
             ))}
@@ -236,7 +236,7 @@ export function SearchShell({ groups, filters, bounds, histogram, promoCount, mi
               aria-label="Ordenar por"
               value={filters.sort}
               onChange={(e) => push((p) => (e.target.value === "rec" ? p.delete("orden") : p.set("orden", e.target.value)))}
-              className={`min-h-[42px] min-w-0 cursor-pointer rounded-field border-[1.5px] border-field-border bg-paper py-0 pl-3 pr-3 text-sm font-semibold text-ink max-sm:max-w-[10.5rem] ${FOCUS}`}
+              className={`min-h-[42px] min-w-0 cursor-pointer rounded-field border-[1.5px] border-field-border bg-paper py-0 pl-3 pr-3 text-sm font-semibold text-ink ${FOCUS}`}
             >
               {(Object.keys(SORT_LABELS) as SortKey[]).map((k) => (
                 <option key={k} value={k}>{SORT_LABELS[k]}</option>

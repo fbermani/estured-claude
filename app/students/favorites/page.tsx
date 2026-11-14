@@ -8,6 +8,8 @@ import { ResidenceCard } from "@/components/residences/ResidenceCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { FavoriteButton } from "@/app/(public)/residencias/[slug]/FavoriteButton";
+import { toggleStudentFavorite, toggleFamilyFavorite } from "@/app/students/favorites/actions";
 
 export const metadata: Metadata = { title: "Favoritos" };
 export const dynamic = "force-dynamic";
@@ -167,6 +169,15 @@ export default async function StudentFavoritesPage() {
                 )}
               </div>
               <ResidenceCard residence={residence} arsPerUsd={rate.arsPerUsd} />
+              <FavoriteButton
+                action={
+                  isFamilyMember
+                    ? toggleFamilyFavorite.bind(null, row.residence_id, row.student_profile_id)
+                    : toggleStudentFavorite.bind(null, row.residence_id)
+                }
+                initialFavorited
+                label="Quitar de favoritos"
+              />
             </div>
           );
         })}

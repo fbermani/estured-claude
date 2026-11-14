@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { getSessionUser } from "@/lib/auth/session";
+import { getSessionUser, hasAnyRole } from "@/lib/auth/session";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
@@ -102,7 +102,7 @@ function PendingActivationBlock({ pending }: { pending: StayRow[] }) {
   );
 }
 
-export default async function StudentResidencyPage({ searchParams }: { searchParams?: Promise<{ pendiente?: string; aviso?: string }> }) {
+export default async function StudentResidencyPage({ searchParams }: { searchParams?: Promise<{ pendiente?: string; aviso?: string; estudiante?: string }> }) {
   const sp = await searchParams;
   const pendingNotice = sp?.pendiente === "1";
   const registerNoticeFailed = sp?.aviso === "error";
@@ -151,14 +151,36 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
     mine = (data as unknown as StayRow[]) ?? [];
   }
 
+  // Familiar (sin perfil de estudiante): la estadía es la de uno de sus estudiantes vinculados. Con más de uno se elige con
+  // `?estudiante=` (si falta o no corresponde, el primero con reserva confirmada).
+  const isFamilyOnly = Boolean(sessionUser && hasAnyRole(sessionUser, ["family_member"]) && !hasAnyRole(sessionUser, ["student"]));
+  let familyStudents: { id: string; name: string }[] = [];
+  let selectedStudentId: string | null = null;
+  if (isFamilyOnly && supabase) {
+    const { data: links } = await supabase
+      .from("reservations")
+      .select("student_profile_id, student_profiles(first_name)")
+      .eq("status", "confirmed")
+      .order("confirmed_at", { ascending: false });
+    const seen = new Set<string>();
+    for (const l of (links ?? []) as unknown as { student_profile_id: string; student_profiles: { first_name: string } | null }[]) {
+      if (seen.has(l.student_profile_id)) continue;
+      seen.add(l.student_profile_id);
+      familyStudents.push({ id: l.student_profile_id, name: l.student_profiles?.first_name ?? "tu familiar" });
+    }
+    selectedStudentId = familyStudents.find((st) => st.id === sp?.estudiante)?.id ?? familyStudents[0]?.id ?? null;
+  }
+
   let reservation: ReservationRow | null = null;
   if (supabase) {
-    const { data, error: reservationError } = await supabase
+    let reservationQuery = supabase
       .from("reservations")
       .select(
         "id, start_date, initial_duration_months, booking_receipt_id, residences(id, name, public_area, slug, description, minimum_stay_months), room_types(name), application_snapshots(monthly_price_usd)",
       )
-      .eq("status", "confirmed")
+      .eq("status", "confirmed");
+    if (selectedStudentId) reservationQuery = reservationQuery.eq("student_profile_id", selectedStudentId);
+    const { data, error: reservationError } = await reservationQuery
       .order("confirmed_at", { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -471,9 +493,9 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
     <div className="tone-student mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
       <PageHero
         tone="student"
-        eyebrow="Tu casa"
+        eyebrow={isFamilyOnly ? "Su casa" : "Tu casa"}
         eyebrowIcon="home_work"
-        title="Mi residencia"
+        title={isFamilyOnly ? `Estadía de ${familyStudents.find((st) => st.id === selectedStudentId)?.name ?? "tu familiar"}` : "Mi residencia"}
         subtitle={`${residence?.name ?? ""} · ${residence?.public_area ?? ""}, CABA`}
         glyph="home_work"
         status={
@@ -489,6 +511,27 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
           </>
         }
       />
+
+      {isFamilyOnly && familyStudents.length > 1 && (
+        <nav aria-label="Elegí de quién ver la estadía" className="mb-5 flex flex-wrap items-center gap-2">
+          <span className="text-sm text-ink-soft">Estadía de:</span>
+          {familyStudents.map((st) => {
+            const active = st.id === selectedStudentId;
+            return (
+              <Link
+                key={st.id}
+                href={`/students/residency?estudiante=${st.id}`}
+                aria-current={active ? "page" : undefined}
+                className={`inline-flex min-h-11 items-center rounded-full border px-4 text-sm font-semibold transition-colors ${
+                  active ? "border-forest bg-forest text-white" : "border-line-2 bg-paper text-ink hover:border-forest"
+                }`}
+              >
+                {st.name}
+              </Link>
+            );
+          })}
+        </nav>
+      )}
 
       {stayChange && (
         <div className="mt-6 empty:hidden">

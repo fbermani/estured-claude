@@ -30,6 +30,7 @@ export function FavoriteButton({
         type="submit"
         disabled={isPending}
         aria-pressed={favorited}
+        aria-busy={isPending}
         className={`flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-semibold transition duration-200 ease-out-fresh hover:-translate-y-0.5 active:scale-95 disabled:opacity-60 ${
           favorited
             ? "border-orange bg-warning-bg text-orange-700"
@@ -40,7 +41,7 @@ export function FavoriteButton({
           name={favorited ? "favorite" : "favorite_border"}
           className={`text-base transition-transform duration-200 ease-bounce ${favorited ? "scale-110" : ""}`}
         />
-        {label ?? (favorited ? "Guardado" : "Guardar")}
+        {isPending ? "Un momento…" : (label ?? (favorited ? "Guardado" : "Guardar"))}
       </button>
       {state.status === "error" && <p role="alert" className="text-xs font-medium text-danger-fg">{state.message}</p>}
     </form>
