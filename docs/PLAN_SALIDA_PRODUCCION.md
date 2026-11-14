@@ -11,7 +11,11 @@ Estado del código (2026-11-13): rama `hardening/pre-produccion-2026-11`, migrac
 ## A. Decisiones previas (contestar antes de empezar)
 
 - [x] **A1. Lanzamiento en modo preapertura — decidido 2026-11-13: `PREAPERTURA=on` en producción.** Con `PREAPERTURA=on` en producción el sitio abierto queda cerrado (`/` y `/for-students` muestran el popup de preapertura; `/search`, `/register`, `/waitlist` y `/students/*` redirigen). Login, `/admin`, `/for-residences`, `/guias`, `/fundadoras` y `/register/residence` siguen. **Recomendado: salir así** y abrir el sitio completo después (ver sección G). Si se quiere abrir todo ya, dejar la variable vacía, pero entonces hay que cerrar antes los requisitos de la sección G (verificación de email, etc.).
-- [ ] **A2. Planes pagos.** Vercel Hobby es solo uso no comercial: al cobrar fees hace falta **Pro**. Supabase **Pro** da backups diarios, "Leaked password protection" y más límites. Recomendado: Supabase Pro desde el día uno; Vercel Pro antes de cobrar.
+- [x] **A2. Planes — decidido 2026-11-14: empezar en Free (Supabase y Vercel Hobby).** Consecuencias aceptadas, a revisar **antes de abrir el sitio completo o cobrar fees** (pasar a Supabase Pro y Vercel Pro):
+  - Supabase Free **no tiene backups propios**: hasta pasar a Pro, hacer un `pg_dump` manual periódico (Dashboard → Connect → connection string; guardar fuera del repo) y antes de cada migración grande.
+  - Supabase Free **pausa el proyecto tras ~7 días sin actividad**: el cron horario de la 0013 genera tráfico a la base, pero hay que confirmar tras la primera semana que no se pausó (si pasa, *Restore* desde el dashboard y subir a Pro).
+  - **"Leaked password protection" no existe en Free**: la única defensa es el mínimo de contraseña de la app (queda pendiente en la sección I).
+  - Vercel Hobby es solo uso no comercial: válido para la preapertura (no se cobra nada); **hay que pasar a Pro antes de cobrar el primer fee**.
 - [ ] **A3. Titularidad de las cuentas (organizaciones, no cuentas nuevas).** Mejor ahora, que prod no existe y mover es gratis: *Organization* de GitHub (transferir el repo conserva historial y la conexión con Vercel), *Organization* de Supabase (crear `estured-prod` directamente ahí) y *Team* de Vercel. Dominio: Hostinger con 2FA, auto-renovación y un segundo mail de recuperación (quien controla el dominio controla todos los resets de contraseña). Si el repo se transfiere, cambia el remoto `origin`.
 - [ ] **A4. Casilla `hola@estured.com`.** El código la usa como contacto (`lib/constants/contact.ts`) y como `replyTo` de los mails. Tiene que existir y alguien tiene que leerla. En Hostinger: hPanel → Dominio → Correo electrónico (reenvío o buzón; revisar qué incluye tu plan). Si el buzón de Hostinger usa MX propios, **no** toques los MX al configurar Resend (Resend usa registros en un subdominio, ver C3).
 - [ ] **A5. Fecha de cierre de fundadoras** (`FOUNDERS_CLOSE_AT`, ISO 8601). Opcional: sin la variable no hay cuenta regresiva.
@@ -204,5 +208,5 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 - [ ] **S4** (login no atómico): aceptado; revisar si aparece abuso.
 - [ ] **Aviso «Ya hay una cuenta con ese email»** en `/preregistro` (revela qué emails existen; aceptado por el alta con autologin).
 - [ ] **Google SSO (DR26):** fuera del MVP; si se decide, el switch de altas de D3 tiene que volver a encenderse y cerrar el alta por email de otra forma.
-- [ ] **Monitoreo y backups:** alertas de errores (Vercel logs/Sentry), revisión de `cron.job_run_details`, backups de Supabase (según plan).
+- [ ] **Pasar a Supabase Pro y Vercel Pro (A2)** antes de abrir/cobrar. **Monitoreo y backups:** alertas de errores (Vercel logs/Sentry), revisión de `cron.job_run_details`, backups de Supabase (según plan).
 - [ ] **WAF de Vercel** como segunda capa opcional sobre las rutas públicas.
