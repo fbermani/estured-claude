@@ -128,12 +128,20 @@ export function restrictToLegacyRequirements(requirements: StayRequirement[]): S
 }
 
 export type StudentDocumentFile = {
+  /** `files.id`: solo lo usan las pantallas que pueden abrir el archivo (DR48). */
+  id?: string;
   document_type: string;
   requirement_label?: string | null;
   created_at?: string | null;
 };
 
-export type RequirementStatus = { requirement: StayRequirement; delivered: boolean; deliveredAt: string | null };
+export type RequirementStatus = {
+  requirement: StayRequirement;
+  delivered: boolean;
+  deliveredAt: string | null;
+  /** Archivo más reciente que cubre el requisito (DR48: la residencia autorizada lo puede abrir). `null` si falta o no trae id. */
+  fileId: string | null;
+};
 
 /** Cruza los requisitos de una residencia con los archivos que el estudiante tiene en su perfil (el más reciente de cada uno). */
 export function computeRequirementStatuses(requirements: StayRequirement[], files: StudentDocumentFile[]): RequirementStatus[] {
@@ -145,12 +153,18 @@ export function computeRequirementStatuses(requirements: StayRequirement[], file
           !!f.requirement_label &&
           normalizeRequirementLabel(f.requirement_label) === normalizeRequirementLabel(requirement.requirementLabel),
     );
-    const deliveredAt = matches.reduce<string | null>((latest, f) => {
+    let deliveredAt: string | null = null;
+    let fileId: string | null = null;
+    for (const f of matches) {
       const at = f.created_at ?? null;
-      if (!at) return latest;
-      return !latest || at > latest ? at : latest;
-    }, null);
-    return { requirement, delivered: matches.length > 0, deliveredAt };
+      if (at && (!deliveredAt || at > deliveredAt)) {
+        deliveredAt = at;
+        fileId = f.id ?? null;
+      } else if (!fileId && !deliveredAt) {
+        fileId = f.id ?? null;
+      }
+    }
+    return { requirement, delivered: matches.length > 0, deliveredAt, fileId };
   });
 }
 

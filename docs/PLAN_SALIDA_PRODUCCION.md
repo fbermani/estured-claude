@@ -4,7 +4,7 @@
 
 Cómo se usa: cada paso dice **quién lo hace**: **[Vos]** (dashboards, cuentas, claves: yo no tengo ni debo tener acceso) o **[Yo]** (código y repo). Se avanza en orden y se tilda. Ningún paso se ejecuta solo, y **nada de esto se hizo todavía**. Regla: este runbook se actualiza cada vez que un cambio agrega un paso o una variable.
 
-Estado del código (2026-11-13): rama `hardening/pre-produccion-2026-11`, migraciones **0001–0086 (+0043b)** (87 archivos), auditoría de seguridad final sin críticos ni altos (`docs/audits/PLAN_SEGURIDAD_2026-11-12.md`). `origin/main` (`fbermani/estured-claude`) está ~200 commits atrás y **deploya solo a Vercel al hacer push**.
+Estado del código (2026-11-13): rama `hardening/pre-produccion-2026-11`, migraciones **0001–0087 (+0043b)** (88 archivos; la 0087 es DR48, registro de aperturas de documentos por residencias), auditoría de seguridad final sin críticos ni altos (`docs/audits/PLAN_SEGURIDAD_2026-11-12.md`). `origin/main` (`fbermani/estured-claude`) está ~200 commits atrás y **deploya solo a Vercel al hacer push**.
 
 ---
 
@@ -89,7 +89,7 @@ Objetivo: probar el deploy real (build, variables, Turnstile, headers) sin tocar
 ## D. Base de datos y Storage (Supabase nuevo)
 
 ### D1. Bootstrap con las 87 migraciones [Vos con mi ayuda]
-Genera el SQL completo (0001–0086 + 0043b), con el cron de la 0013 ya apuntando a `https://estured.com`. El secreto del cron se guarda en **Supabase Vault** (no queda en texto plano en `cron.job`).
+Genera el SQL completo (0001–0087 + 0043b; la 0087 crea `residence_document_access_log`, sin pasos extra), con el cron de la 0013 ya apuntando a `https://estured.com`. El secreto del cron se guarda en **Supabase Vault** (no queda en texto plano en `cron.job`).
 
 - [ ] Generar el secreto y la copia lista para pegar, **fuera del repo** (un solo bloque; deja el secreto en el portapapeles para Vercel y no lo muestra):
   ```bash

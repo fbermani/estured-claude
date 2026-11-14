@@ -48,6 +48,7 @@ const ACTION_PHRASES: Record<string, string> = {
   residence_visibility_restored: "restauró la visibilidad normal de una residencia",
   tariff_change_reviewed: "revisó un cambio de tarifa",
   document_accessed: "accedió a un documento sensible",
+  residence_document_accessed: "abrió un documento de un estudiante desde su residencia",
   operational_access_granted: "otorgó acceso a Gestión Operativa",
   operational_access_revoked: "revocó acceso a Gestión Operativa",
   operational_access_expired: "venció un acceso a Gestión Operativa",

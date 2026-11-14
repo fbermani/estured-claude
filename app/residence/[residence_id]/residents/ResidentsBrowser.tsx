@@ -1,7 +1,6 @@
 "use client";
 
 import { formatDateOnly } from "@/lib/dates/formatDateOnly";
-import { formatDate as formatTimestampDate } from "@/lib/dates/format";
 import { Fragment, useMemo, useState, useEffect, useActionState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -9,6 +8,7 @@ import { Icon } from "@/components/ui/Icon";
 import { ScrollTable } from "@/components/ui/ScrollTable";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { StudentDocumentChecklist, type StudentDocumentItem } from "@/components/residences/StudentDocumentChecklist";
 import { formatUsd } from "@/lib/mock/exchange";
 import { InviteResidentsCard } from "@/app/residence/[residence_id]/residents/InviteResidentsCard";
 import { PendingInviteBlock } from "@/app/residence/[residence_id]/residents/PendingInviteBlock";
@@ -65,7 +65,8 @@ export type ResidentRow = {
   } | null;
   studentProfileId: string | null;
   /** DR38: documentación que pide la residencia y su estado en este residente (solo estado, nunca el archivo). `null` = sin cuenta de estudiante vinculada. */
-  documents: { label: string; delivered: boolean; deliveredAt: string | null }[] | null;
+  /** DR38/DR48: `fileId` solo viene si quien mira puede abrir el archivo (casillero `residents.manage`). */
+  documents: StudentDocumentItem[] | null;
   /** Depósito de la reserva vinculada: define las opciones al registrar una salida anticipada. */
   depositMode: "had" | "none" | "unknown";
   /** Pedido de cambio de habitación dentro de la residencia (DR34): el abierto o, si no hay, el último cerrado. */
@@ -257,8 +258,8 @@ function NotesSection({
   );
 }
 
-/** DR38: documentación que pide la residencia y su estado en este residente. Solo estado: nunca el archivo ni un enlace. */
-function StayDocumentsBlock({ row, limited }: { row: ResidentRow; limited: boolean }) {
+/** DR38/DR48: documentación que pide la residencia y su estado en este residente; «Ver» abre el archivo si hay permiso. */
+function StayDocumentsBlock({ residenceId, row, limited }: { residenceId: string; row: ResidentRow; limited: boolean }) {
   const docs = row.documents;
   const missing = docs ? docs.filter((d) => !d.delivered).length : 0;
   return (
@@ -276,24 +277,15 @@ function StayDocumentsBlock({ row, limited }: { row: ResidentRow; limited: boole
       ) : docs.length === 0 ? (
         <p className="text-sm text-ink-soft">Tu residencia no pide documentos. Podés elegirlos en Configuración, en «Documentos que pedís a tus residentes».</p>
       ) : (
-        <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {docs.map((d) => (
-            <li key={d.label} className="flex items-center justify-between gap-2 rounded-field bg-cream-2 px-3 py-2 text-sm">
-              <span className="min-w-0 truncate font-medium text-ink">{d.label}</span>
-              {d.delivered ? (
-                <span className="flex shrink-0 items-center gap-1 text-xs font-semibold text-forest-700">
-                  <Icon name="check_circle" className="text-base" /> Entregado{d.deliveredAt ? ` · ${formatTimestampDate(d.deliveredAt)}` : ""}
-                </span>
-              ) : (
-                <Badge tone="amber">Falta</Badge>
-              )}
-            </li>
-          ))}
-        </ul>
+        <StudentDocumentChecklist residenceId={residenceId} items={docs} />
       )}
       {docs !== null && (
         <p className="mt-2 text-xs leading-relaxed text-ink-faint">
-          Solo ves si lo entregó. Los documentos son privados y no se muestran.
+          {docs.some((d) => d.fileId)
+            ? "Cada vez que abrís un documento queda registrado. El link dura 5 minutos."
+            : docs.some((d) => d.delivered)
+              ? "Solo ves si lo entregó: para abrir los documentos necesitás el permiso «Residentes»."
+              : "Cuando lo entregue, vas a poder abrirlo desde acá."}
           {limited ? " Antecedentes penales y los documentos propios se van a poder ver cuando se actualice el sistema." : ""}
         </p>
       )}
@@ -610,7 +602,7 @@ function DetailPanel({
         <NotesSection residenceId={residenceId} row={row} notes={notes} />
       </PermissionGate>
 
-      <StayDocumentsBlock row={row} limited={documentsLimited} />
+      <StayDocumentsBlock residenceId={residenceId} row={row} limited={documentsLimited} />
     </div>
   );
 }

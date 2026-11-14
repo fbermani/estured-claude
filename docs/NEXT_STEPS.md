@@ -2,6 +2,11 @@
 
 # EstuRed — Próximos pasos
 
+## DR48: documentos de estudiantes visibles para la residencia — 2026-11-14
+
+- Implementado (acción `lib/documents/requestResidenceDocumentAccess.ts`, UI en Residentes y en el detalle de la solicitud con pago habilitado). Migración **0087** aplicada en dev vía MCP; en prod entra con el bootstrap.
+- Pendiente: verificación visual en staging (dueño, staff con y sin casillero) y, si se quiere, una vista admin del registro `residence_document_access_log`.
+
 ## Pendientes tras el hardening de seguridad (2026-11-12)
 Detalle en `docs/audits/PLAN_SEGURIDAD_2026-11-12.md` ("Estado al 2026-11-12").
 - Pasar la CSP de Report-Only a enforce tras observar los reportes (M5).

@@ -14,6 +14,7 @@ import { getVisibleStatus, type ReservationStatusInput } from "@/lib/application
 import { describePaymentDeadline } from "@/lib/applications/paymentDeadline";
 import type { ApplicantProfileView } from "@/lib/applications/applicantProfile";
 import { ApplicantAvatar, ApplicantProfileBlock } from "@/app/residence/[residence_id]/applications/ApplicantProfileBlock";
+import { StudentDocumentChecklist, type StudentDocumentItem } from "@/components/residences/StudentDocumentChecklist";
 
 export type FullApplication = {
   id: string;
@@ -42,6 +43,8 @@ export type FullApplication = {
   isActive: boolean;
   /** DR3b: solicitud de un residente en proceso de mudanza. Nunca trae la residencia de origen ni el motivo (salvo la nota voluntaria). */
   moving: { label: string; note: string | null; advanceNotice: string | null } | null;
+  /** DR48: documentación del solicitante, solo con el pago a la residencia habilitado (si no, `null`). `fileId` solo con permiso. */
+  documents: StudentDocumentItem[] | null;
 };
 
 function visibleOf(app: FullApplication) {
@@ -211,10 +214,13 @@ export function ApplicationsInbox({
   applications,
   initialSelectedId,
   allowed,
+  documentsLimited = false,
 }: {
   residenceId: string;
   applications: FullApplication[];
   initialSelectedId: string | null;
+  /** DR38: falta la migración 0077 (solo se reconocen identidad y estudios). */
+  documentsLimited?: boolean;
   /** DR11: permisos de quien mira, resueltos en el servidor (solo presentación; cada acción se valida en el servidor). */
   allowed: ApplicationAllowed;
 }) {
@@ -267,7 +273,7 @@ export function ApplicationsInbox({
   );
 
   const DetailColumn = selected ? (
-    <ApplicationDetail residenceId={residenceId} app={selected} allowed={allowed} />
+    <ApplicationDetail residenceId={residenceId} app={selected} allowed={allowed} documentsLimited={documentsLimited} />
   ) : (
     <div className="flex h-full items-center justify-center rounded-card border-[1.5px] border-dashed border-line p-8 text-center text-sm text-ink-faint">
       Elegí una solicitud de la lista para ver el detalle.
@@ -306,7 +312,17 @@ export function ApplicationsInbox({
   );
 }
 
-function ApplicationDetail({ residenceId, app, allowed }: { residenceId: string; app: FullApplication; allowed: ApplicationAllowed }) {
+function ApplicationDetail({
+  residenceId,
+  app,
+  allowed,
+  documentsLimited,
+}: {
+  residenceId: string;
+  app: FullApplication;
+  allowed: ApplicationAllowed;
+  documentsLimited: boolean;
+}) {
   const visible = visibleOf(app);
 
   return (
@@ -341,6 +357,8 @@ function ApplicationDetail({ residenceId, app, allowed }: { residenceId: string;
       )}
 
       <ApplicantProfileBlock applicant={app.applicant} beforeContact={NEW_STATUSES.includes(app.status)} />
+
+      {app.documents && <ApplicantDocumentsBlock residenceId={residenceId} documents={app.documents} limited={documentsLimited} />}
 
       <dl className="mt-6 grid gap-3 text-sm sm:grid-cols-2">
         <div className="flex justify-between border-b border-sand-200 pb-2 sm:col-span-1">
@@ -425,5 +443,45 @@ function ApplicationDetail({ residenceId, app, allowed }: { residenceId: string;
         />
       </div>
     </Card>
+  );
+}
+
+/** DR48: documentación del solicitante con el pago a la residencia habilitado. «Ver» solo con el permiso «Pago a la residencia». */
+function ApplicantDocumentsBlock({
+  residenceId,
+  documents,
+  limited,
+}: {
+  residenceId: string;
+  documents: StudentDocumentItem[];
+  limited: boolean;
+}) {
+  const missing = documents.filter((d) => !d.delivered).length;
+  return (
+    <section aria-labelledby="applicant-docs-title" className="mt-6 rounded-field border border-line bg-paper p-4">
+      <h3 id="applicant-docs-title" className="mb-3 flex items-center gap-1.5 text-sm font-bold text-ink">
+        <Icon name="folder_shared" className="text-base" /> Documentación
+        {documents.length > 0 && (
+          <span className="ml-1 text-xs font-semibold text-ink-faint">
+            {missing === 0 ? "Completa" : `Faltan ${missing} de ${documents.length}`}
+          </span>
+        )}
+      </h3>
+      {documents.length === 0 ? (
+        <p className="text-sm text-ink-soft">Tu residencia no pide documentos. Podés elegirlos en Configuración, en «Documentos que pedís a tus residentes».</p>
+      ) : (
+        <StudentDocumentChecklist residenceId={residenceId} items={documents} />
+      )}
+      {documents.length > 0 && (
+        <p className="mt-2 text-xs leading-relaxed text-ink-faint">
+          {documents.some((d) => d.fileId)
+            ? "Cada vez que abrís un documento queda registrado. El link dura 5 minutos."
+            : documents.some((d) => d.delivered)
+              ? "Solo ves si lo entregó: para abrir los documentos necesitás el permiso «Pago a la residencia»."
+              : "Cuando lo entregue, vas a poder abrirlo desde acá."}
+          {limited ? " Antecedentes penales y los documentos propios se van a poder ver cuando se actualice el sistema." : ""}
+        </p>
+      )}
+    </section>
   );
 }
