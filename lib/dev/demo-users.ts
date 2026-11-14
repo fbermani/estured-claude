@@ -12,45 +12,41 @@ export interface DemoUser {
   detail: string;
 }
 
+/** El orden de esta lista es el del selector. Sofía (staff, `staff.norte@estured.test`) sigue existiendo pero no se ofrece acá. */
 export const DEMO_USERS: DemoUser[] = [
   {
-    email: "lucia.fernandez@example.com",
-    label: "Lucía — estudiante",
-    detail: "Mayor de edad, de Rosario, buscando residencia",
+    email: "camila.rojas@example.com",
+    label: "Camila — Estudiante en Búsqueda",
+    detail: "No vive en ninguna residencia: solicitudes y lista de espera",
   },
   {
-    email: "camila.rojas@example.com",
-    label: "Camila — estudiante internacional",
-    detail: "Chilena, intercambio de 6 meses",
+    email: "lucia.fernandez@example.com",
+    label: "Lucía — Estudiante Alojada",
+    detail: "Vive en Residencia Río de la Plata",
   },
   {
     email: "valentina.sosa@example.com",
-    label: "Valentina — estudiante menor",
-    detail: "17 años, requiere familiar vinculado",
+    label: "Valentina — Estudiante Menor vinculada",
+    detail: "17 años, con su familiar vinculado",
   },
   {
     email: "padre.lucia@example.com",
-    label: "Martín — familiar",
-    detail: "Padre de Lucía, vínculo activo",
+    label: "Martín — Familiar de Valentina vinculado",
+    detail: "Vínculo activo con Valentina",
   },
   {
     email: "owner.residencia.norte@example.com",
-    label: "Ricardo — dueño de residencia",
+    label: "Ricardo — Dueño de Residencia",
     detail: "Owner de Residencia Norte y Río de la Plata",
   },
   {
-    email: "staff.norte@estured.test",
-    label: "Sofía — staff de residencia",
-    detail: "Staff con acceso a una sola residencia",
-  },
-  {
     email: "admin.operaciones@estured.test",
-    label: "Admin operativo",
+    label: "Admin Operativo",
     detail: "Panel admin de EstuRed",
   },
   {
     email: "superadmin@estured.test",
-    label: "Superadmin",
+    label: "SuperAdmin",
     detail: "Acceso total al panel admin",
   },
 ];
