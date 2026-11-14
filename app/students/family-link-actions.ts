@@ -95,10 +95,14 @@ export async function revokeFamilyLink(linkId: string): Promise<FamilyLinkDecisi
 
   const { data: studentProfile } = await admin
     .from("student_profiles")
-    .select("id")
+    .select("id, is_minor")
     .eq("user_id", sessionUser.id)
     .maybeSingle();
   if (!studentProfile) return { status: "error", message: "No encontramos tu perfil de estudiante." };
+  // docs/05 §4.4: una estudiante menor no puede desvincular a su familiar mientras siga siendo menor.
+  if (studentProfile.is_minor) {
+    return { status: "error", message: "Mientras seas menor de edad no podés desvincular a tu familiar. Si necesitás un cambio, escribí a Soporte." };
+  }
 
   const { data: link } = await admin
     .from("family_links")

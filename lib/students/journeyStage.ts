@@ -58,8 +58,10 @@ export function getNextStep(input: {
   profilePercent: number;
   application: JourneyApplication | null;
   hadPreviousApplications?: boolean;
+  /** Requisito real (docs/05): una menor sin familiar vinculado todavía no puede enviar solicitudes. */
+  minorWithoutLink?: boolean;
 }): NextStep {
-  const { profilePercent, application, hadPreviousApplications } = input;
+  const { profilePercent, application, hadPreviousApplications, minorWithoutLink } = input;
 
   if (application) {
     const stage = stageForStatusKey(application.statusKey);
@@ -76,24 +78,36 @@ export function getNextStep(input: {
     };
   }
 
-  if (profilePercent < 100) {
+  // Único requisito real previo a solicitar: la menor necesita un familiar vinculado.
+  if (minorWithoutLink) {
     return {
       stage: 1,
-      title: "Completá tu perfil para pedir residencia",
+      title: "Vinculá a tu padre, madre o tutor para pedir residencia",
       description:
-        "Con tu perfil completo, las residencias te conocen mejor y tu solicitud tiene más chances. Te lleva unos minutos.",
-      primary: { label: "Completar mi perfil", href: "/students/profile" },
+        "Por ser menor de edad, necesitás un familiar vinculado para enviar solicitudes. Mientras tanto podés explorar y guardar residencias.",
+      primary: { label: "Invitar a un familiar", href: "/students/dashboard#vinculacion" },
       secondary: { label: "Buscar residencias", href: "/search" },
     };
   }
 
+  // El perfil es una recomendación, no un requisito: nunca frena la búsqueda ni la solicitud.
+  const profileIncomplete = profilePercent < 100;
   return {
     stage: 2,
     title: hadPreviousApplications ? "Seguí buscando tu residencia" : "Elegí tu residencia",
     description: hadPreviousApplications
-      ? "Tu solicitud anterior ya se cerró. Podés mirar el catálogo y enviar una nueva cuando quieras."
-      : "Tu perfil está listo. Mirá reglas, servicios y quiénes viven en cada residencia, y enviá tu solicitud sin costo.",
+      ? "Tus solicitudes anteriores ya se cerraron. Podés mirar el catálogo y enviar una nueva cuando quieras."
+      : "Mirá reglas, servicios y quiénes viven en cada residencia, y enviá tu solicitud sin costo.",
+    ...(profileIncomplete
+      ? {
+          description: `${
+            hadPreviousApplications
+              ? "Tus solicitudes anteriores ya se cerraron. Podés buscar y enviar una nueva cuando quieras."
+              : "Podés buscar y solicitar ya, sin costo."
+          } Completar tu perfil es opcional: ayuda a que las residencias te conozcan mejor.`,
+        }
+      : {}),
     primary: { label: "Buscar residencias", href: "/search" },
-    secondary: null,
+    secondary: profileIncomplete ? { label: "Completar mi perfil", href: "/students/profile" } : null,
   };
 }

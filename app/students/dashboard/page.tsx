@@ -286,7 +286,7 @@ export default async function StudentDashboardPage() {
                           {l.status === "pending_student_approval"
                             ? "Esperando que apruebe la vinculación"
                             : l.status === "active"
-                              ? "Vínculo activo"
+                              ? "Estudiante vinculado"
                               : "Vínculo no activo"}
                         </p>
                       </div>
@@ -660,6 +660,7 @@ export default async function StudentDashboardPage() {
           }
         : null,
     hadPreviousApplications: applications.length > 0,
+    minorWithoutLink: isMinor && !activeLink,
   });
   // Residencias para mirar (solo mientras busca): primeras del catálogo real.
   const suggestedResidences = isHoused ? [] : (await catalogPromise).slice(0, 3);
@@ -779,7 +780,7 @@ export default async function StudentDashboardPage() {
       href: "/students/profile",
       icon: "person",
       title: "Completá tu perfil",
-      badge: `Falta ${100 - completenessPercent} %`,
+      badge: "Recomendado",
       value: `Falta: ${completenessMissing.slice(0, 2).join(", ")}${completenessMissing.length > 2 ? "…" : ""}`,
       progress: completenessPercent,
       cta: { label: "Completar perfil", href: "/students/profile" },

@@ -129,14 +129,20 @@ export function FamilyLinkCard({
             <p className="mt-1 text-sm font-bold text-ink">{activeLink.name}</p>
             {activeLink.email && <p className="text-xs text-ink-faint">{activeLink.email}</p>}
           </div>
-          <button
-            type="button"
-            onClick={() => setConfirming("revoke")}
-            disabled={isRevoking}
-            className="mt-1 inline-flex min-h-11 items-center self-start text-xs font-semibold text-danger-fg hover:underline disabled:opacity-50"
-          >
-            {isRevoking ? "Desvinculando…" : "Desvincular"}
-          </button>
+          {isMinor ? (
+            <p className="mt-2 text-xs leading-relaxed text-ink-soft">
+              {activeLink.name} ve tus solicitudes y reservas, pero no decide por vos. Mientras seas menor de edad no podés desvincularlo; si necesitás un cambio, escribí a Soporte.
+            </p>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setConfirming("revoke")}
+              disabled={isRevoking}
+              className="mt-1 inline-flex min-h-11 items-center self-start text-xs font-semibold text-danger-fg hover:underline disabled:opacity-50"
+            >
+              {isRevoking ? "Desvinculando…" : "Desvincular"}
+            </button>
+          )}
           {revokeError && <p className="mt-1.5 text-xs font-medium text-danger-fg">{revokeError}</p>}
         </>
       ) : pendingInvitation ? (
