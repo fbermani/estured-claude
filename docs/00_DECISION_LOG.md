@@ -1754,3 +1754,8 @@ Decisiones del dueño para la preapertura pública. Detalle operativo, component
 6. **Familiares:** hoy no suben documentos (no hay flujo de carga de `family_identity` ni `student_family_authorization`), así que no hay nada que mostrar; si se agrega, se evalúa aparte.
 
 **Supuesto reversible.** Incluir `converted_to_reservation` con reserva viva cubre el tramo entre la conversión y el alta de la estadía; si el dueño prefiere cortarlo en `residence_payment_reported`, alcanza con quitarlo de `LIVE_RESERVATION_STATUSES`.
+
+### DR49: Residencia Sin Fronteras fuera del orden «Recomendado» (2026-11-14, sin migración)
+
+**Decisión del dueño** (auditoría UX H6/CON-15). Las residencias que EstuRed opera o co-gestiona (hoy solo «Residencia Sin Fronteras») **no se ven ocultas ni marcadas**, pero quedan **al final del orden «Recomendado»** (`/search` y la landing). En los órdenes por precio y en los filtros se tratan como cualquier otra. Se identifican por slug en `EXCLUDED_FROM_RECOMMENDED_SLUGS` (`lib/residences/searchFilters.ts`). No cambia DR45 (divulgación solo oral) ni agrega etiqueta visible; si más adelante se quiere una etiqueta, es otra decisión. Supuesto reversible: vaciar la lista.
+

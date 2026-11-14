@@ -225,11 +225,19 @@ export function recommendedGroup(mode: AvailabilityMode): 1 | 2 | 3 {
 }
 
 /**
+ * DR49: residencias que EstuRed opera o co-gestiona. No aparecen ocultas ni marcadas, pero quedan al final del orden
+ * «Recomendado» (en el resto de los órdenes y filtros se tratan igual que cualquier otra). Se identifican por slug.
+ */
+export const EXCLUDED_FROM_RECOMMENDED_SLUGS: readonly string[] = ["residencia-sin-fronteras-29fefe"];
+
+/**
  * DR24: «disponibles primero». Orden estable: dentro de cada grupo se conserva el orden
  * de entrada, que el catálogo entrega por created_at desc (más recientes primero). No oculta nada.
+ * DR49: las residencias de `EXCLUDED_FROM_RECOMMENDED_SLUGS` van después de todas las demás.
  */
-export function sortRecommended<T extends { availabilityMode: AvailabilityMode }>(list: T[]): T[] {
-  return [...list].sort((a, b) => recommendedGroup(a.availabilityMode) - recommendedGroup(b.availabilityMode));
+export function sortRecommended<T extends { availabilityMode: AvailabilityMode; slug?: string }>(list: T[]): T[] {
+  const excluded = (r: T) => (r.slug && EXCLUDED_FROM_RECOMMENDED_SLUGS.includes(r.slug) ? 1 : 0);
+  return [...list].sort((a, b) => excluded(a) - excluded(b) || recommendedGroup(a.availabilityMode) - recommendedGroup(b.availabilityMode));
 }
 
 export function applySearchFilters<T extends Matchable>(list: T[], f: SearchFilters): T[] {
