@@ -62,6 +62,8 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
     { key: "hidden", title: "Ocultas", empty: "" },
   ];
 
+  const pendingCount = rows.filter((r) => r.status === "pending").length;
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
       <ResidenceHero icon="forum" title="Preguntas frecuentes" subtitle="Lo que mostrás en tu ficha y lo que te preguntan." />
@@ -69,6 +71,20 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
         Elegí qué preguntas del catálogo de EstuRed mostrar en tu ficha y ajustá las respuestas con los datos de tu residencia. Abajo
         respondés las preguntas libres de quienes miran tu ficha.
       </p>
+
+      {pendingCount > 0 && (
+        <div role="status" className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-card border-[1.5px] border-amber-soft-300 bg-amber-soft-100 px-4 py-3">
+          <p className="text-sm font-bold text-ink">
+            Sin responder · {pendingCount} {pendingCount === 1 ? "pregunta de un visitante" : "preguntas de visitantes"}
+          </p>
+          <Link
+            href="#preguntas-visitantes"
+            className="rounded-field text-sm font-semibold text-forest-700 underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2"
+          >
+            Ir a responder
+          </Link>
+        </div>
+      )}
 
       <section className="mt-8" aria-labelledby="faq-catalog-title">
         <h2 id="faq-catalog-title" className="text-lg font-bold text-ink">
@@ -151,7 +167,7 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
         )}
       </section>
 
-      <h2 className="mt-12 text-lg font-bold text-ink">Preguntas de visitantes</h2>
+      <h2 id="preguntas-visitantes" className="mt-12 scroll-mt-20 text-lg font-bold text-ink">Preguntas de visitantes</h2>
       <p className="mt-1 text-sm text-ink-soft">
         Quienes miran tu ficha pueden hacerte una pregunta libre. Respondé cuando puedas: las respuestas se publican
         debajo de tus preguntas frecuentes. No hay respuestas automáticas.

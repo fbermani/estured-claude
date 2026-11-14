@@ -896,7 +896,7 @@ export function ResidentsBrowser({
             </span>
             <span className="flex items-baseline gap-1.5">
               <span className="font-display text-2xl font-bold leading-none tabular-nums text-(--tone-ink)">{kpis.renewals}</span>
-              <span className="text-xs text-ink-faint">en ventana →</span>
+              <span className="text-xs text-ink-faint">{kpis.renewals === 1 ? "pedido u oferta" : "pedidos u ofertas"} →</span>
             </span>
           </Link>
         </div>

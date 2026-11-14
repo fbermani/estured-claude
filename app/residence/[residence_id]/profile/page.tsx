@@ -12,6 +12,7 @@ import { listCustomAmenities } from "@/lib/residences/customAmenitiesDb";
 import { loadCurrentRegulation } from "@/lib/regulations/current";
 import { parseStayDocumentsContent } from "@/lib/residences/stayDocuments";
 import { loadPhotoMeta } from "@/lib/residences/photoMetaDb";
+import { summarizeProfileEdit } from "@/lib/residences/profileEditSummary";
 import { loadResidencePromotions } from "@/lib/residences/promotions";
 import { isWithinWindow, normalizeDepositMode, todayIso } from "@/lib/applications/reservationMoney";
 import type { PhotoMetaItem } from "@/app/residence/[residence_id]/profile/PhotoMetaManager";
@@ -69,7 +70,7 @@ export default async function ResidenceProfilePage({
         .maybeSingle(),
       admin
         .from("residence_profile_edits")
-        .select("field_group, created_at")
+        .select("field_group, created_at, old_value, new_value")
         .eq("residence_id", residenceId)
         .eq("status", "pending_admin_review")
         .order("created_at", { ascending: false }),
@@ -106,7 +107,11 @@ export default async function ResidenceProfilePage({
     };
   });
   photoItems.sort((a, b) => a.sortOrder - b.sortOrder); // estable: a igual orden, la antigüedad
-  const pendingEditGroups = (pendingEdits ?? []).map((e) => ({ fieldGroup: e.field_group, createdAt: e.created_at }));
+  const pendingEditGroups = (pendingEdits ?? []).map((e) => ({
+    fieldGroup: e.field_group,
+    createdAt: e.created_at,
+    summary: summarizeProfileEdit(e.field_group, e.old_value, e.new_value),
+  }));
 
   return (
     <ResidenceProfileForm

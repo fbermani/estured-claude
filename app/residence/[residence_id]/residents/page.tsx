@@ -76,12 +76,16 @@ export default async function ResidenceResidentsPage({
     Promise.all([
       admin
         .from("renewal_requests")
-        .select("*", { count: "exact", head: true })
+        // Misma elegibilidad que /renewals: solo reservas confirmadas, para que cada unidad lleve a una fila de esa pantalla.
+        .select("id, reservations!inner(status)", { count: "exact", head: true })
+        .eq("reservations.status", "confirmed")
         .eq("residence_id", residenceId)
         .in("status", ["created_by_student", "notified_to_residence"]),
       admin
         .from("renewal_offers")
-        .select("*", { count: "exact", head: true })
+        // Misma elegibilidad que /renewals: solo reservas confirmadas, para que cada unidad lleve a una fila de esa pantalla.
+        .select("id, reservations!inner(status)", { count: "exact", head: true })
+        .eq("reservations.status", "confirmed")
         .eq("residence_id", residenceId)
         .in("status", ["sent", "viewed"]),
     ]),

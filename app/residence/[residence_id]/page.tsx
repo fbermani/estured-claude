@@ -35,9 +35,19 @@ type RecentApplicationRow = {
   id: string;
   status: string;
   created_at: string;
+  desired_start_date: string | null;
+  initial_duration_months: number | null;
   student_profiles: { first_name: string; last_initial: string } | null;
   room_types: { name: string } | null;
 };
+
+/** «Ingreso 01/03/2027 · 6 meses»: distingue solicitudes del mismo estudiante y tipo (H15). */
+function stayLabel(app: { desired_start_date: string | null; initial_duration_months: number | null }): string {
+  const parts: string[] = [];
+  if (app.desired_start_date) parts.push(`Ingreso ${formatDateOnly(app.desired_start_date)}`);
+  if (app.initial_duration_months) parts.push(`${app.initial_duration_months} meses`);
+  return parts.join(" · ");
+}
 
 type MovementRow = {
   id: string;
@@ -162,7 +172,7 @@ export default async function ResidenceOverviewPage({
     admin.from("waitlist_entries").select("status, desired_start_date").eq("residence_id", residenceId).in("status", ["active", "availability_notification_sent", "retention_check_sent"]),
     admin
       .from("application_requests")
-      .select("id, status, created_at, student_profiles(first_name, last_initial), room_types(name)")
+      .select("id, status, created_at, desired_start_date, initial_duration_months, student_profiles(first_name, last_initial), room_types(name)")
       .eq("residence_id", residenceId)
       .order("created_at", { ascending: false })
       .limit(5),
@@ -276,11 +286,11 @@ export default async function ResidenceOverviewPage({
         <div>
           <p className="text-sm text-ink-soft">
             <span className="text-2xl font-bold tabular-nums text-ink">{occupiedCount ?? 0}</span>
-            {capacity > 0 && <span> / {capacity} plazas operativas</span>}
+            {capacity > 0 && <span> de {capacity} plazas operativas ocupadas</span>}
           </p>
           {outOfServiceCount > 0 && (
             <p className="mt-1 text-xs text-ink-faint">
-              {capacity} operativas ({outOfServiceCount} fuera de servicio)
+              Más {outOfServiceCount} {outOfServiceCount === 1 ? "plaza fuera" : "plazas fuera"} de servicio, que no cuentan como operativas.
             </p>
           )}
           {capacity > 0 && (
@@ -311,7 +321,8 @@ export default async function ResidenceOverviewPage({
       badge: (pendingActivationCount ?? 0) > 0 ? `${pendingActivationCount} pendientes` : null,
       body: (
         <p className="text-sm text-ink-soft">
-          <span className="font-bold text-ink">{totalResidentsCount ?? 0}</span> cargados ·{" "}
+          <span className="font-bold text-ink">{totalResidentsCount ?? 0}</span> cargados
+          {(pendingActivationCount ?? 0) > 0 ? ` (${pendingActivationCount} por confirmar)` : ""} ·{" "}
           <span className="font-bold text-ink">{waitlistCount ?? 0}</span> en lista de espera
         </p>
       ),
@@ -553,8 +564,9 @@ export default async function ResidenceOverviewPage({
                           {formatShortName(app.student_profiles?.first_name, app.student_profiles?.last_initial)}
                         </Link>
                         <p className="-mt-2 text-sm text-ink-soft">
-                          {app.room_types?.name ?? "—"}, {formatDate(app.created_at)}
+                          {app.room_types?.name ?? "—"}, solicitó el {formatDate(app.created_at)}
                         </p>
+                        {stayLabel(app) && <p className="text-xs text-ink-faint">{stayLabel(app)}</p>}
                       </div>
                       <span className="mt-2.5 shrink-0">
                         <Badge tone={badge.tone}>{badge.label}</Badge>
@@ -570,7 +582,8 @@ export default async function ResidenceOverviewPage({
                   <tr>
                     <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider">Estudiante</th>
                     <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider">Habitación</th>
-                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider">Fecha</th>
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider">Solicitada</th>
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider">Ingreso y duración</th>
                     <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider">Estado</th>
                   </tr>
                 </thead>
@@ -590,6 +603,7 @@ export default async function ResidenceOverviewPage({
                         </td>
                         <td className="px-6 py-4 text-ink-soft">{app.room_types?.name ?? "—"}</td>
                         <td className="px-6 py-4 tabular-nums text-ink-soft">{formatDate(app.created_at)}</td>
+                        <td className="px-6 py-4 tabular-nums text-ink-soft">{stayLabel(app) || "—"}</td>
                         <td className="px-6 py-4">
                           <Badge tone={badge.tone}>{badge.label}</Badge>
                         </td>

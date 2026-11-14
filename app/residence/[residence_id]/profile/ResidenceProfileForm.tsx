@@ -137,7 +137,7 @@ interface ProfileInitial {
   moneyReady: boolean;
   roomTypes: RoomTypeDraft[];
   conditions: ConditionsDraft;
-  pendingEditGroups: { fieldGroup: string; createdAt: string }[];
+  pendingEditGroups: { fieldGroup: string; createdAt: string; summary: { before: string; after: string } | null }[];
   /** Mensaje del admin al pedir cambios (DR5, migración 0048); null si no hay (cambios pedidos antes de la 0048). */
   changesMessage: string | null;
 }
@@ -487,13 +487,21 @@ export function ResidenceProfileForm({
             Como esta residencia ya está publicada, estos campos no se actualizan hasta que un admin los revise.
             Mientras tanto seguís viendo acá los valores actuales (los que ya están publicados), no los que enviaste.
           </p>
-          <ul className="mt-3 flex flex-wrap gap-2">
+          <ul className="mt-3 space-y-3">
             {initial.pendingEditGroups.map((e) => (
-              <li key={e.fieldGroup}>
-                <Badge tone="amber">
-                  {FIELD_GROUP_LABELS[e.fieldGroup] ?? e.fieldGroup} · enviado el{" "}
-                  {formatDate(e.createdAt)}
-                </Badge>
+              <li key={e.fieldGroup} className="rounded-field bg-paper p-3 text-sm">
+                <p className="flex flex-wrap items-center gap-2">
+                  <span className="font-bold text-ink">{FIELD_GROUP_LABELS[e.fieldGroup] ?? e.fieldGroup}</span>
+                  <Badge tone="amber">Esperando revisión · enviado el {formatDate(e.createdAt)}</Badge>
+                </p>
+                {e.summary && (
+                  <dl className="mt-2 grid gap-1 sm:grid-cols-[auto_1fr] sm:gap-x-3">
+                    <dt className="text-ink-soft">Publicado</dt>
+                    <dd className="break-words text-ink">{e.summary.before}</dd>
+                    <dt className="text-ink-soft">Enviado</dt>
+                    <dd className="break-words font-bold text-ink">{e.summary.after}</dd>
+                  </dl>
+                )}
               </li>
             ))}
           </ul>
@@ -581,7 +589,7 @@ export function ResidenceProfileForm({
               value={initial.addressLine}
               disabled
               className="mt-4"
-              hint="Privada. Escribinos si necesitás corregirla."
+              hint="Se muestra en tu ficha pública. Para corregirla, escribinos a Soporte."
             />
             <Input
               label="Frase corta (eslogan)"
