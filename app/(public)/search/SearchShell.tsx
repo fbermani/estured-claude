@@ -176,6 +176,7 @@ export function SearchShell({ groups, filters, bounds, histogram, promoCount, mi
             <LinkBtn onClick={clearAll} disabled={activeCount === 0}>Borrar todo</LinkBtn>
           </div>
           <PriceGroup key={`${filters.pmin}-${filters.pmax}`} bounds={bounds} histogram={histogram} filters={filters} onChange={setPrice} />
+          <CommunityToggle count={communityCount} checked={filters.community} onChange={() => setFlag("comunidad", !filters.community)} />
           {groups.map((g) => (
             <OptionGroup key={g.key} group={g} selected={filters[g.key]} onToggle={(v) => toggle(g.key, v)} />
           ))}
@@ -183,7 +184,6 @@ export function SearchShell({ groups, filters, bounds, histogram, promoCount, mi
             <h3 id="g-otros" className="mb-2 text-[15px]">Otros</h3>
             <Row label="Con promoción vigente" count={promoCount} checked={filters.promo} onChange={() => setFlag("promo", !filters.promo)} />
             <Row label="Admite menores de 18" count={minorCount} checked={filters.minor} onChange={() => setFlag("menores", !filters.minor)} />
-            <Row label="Con comunidad activa" count={communityCount} checked={filters.community} onChange={() => setFlag("comunidad", !filters.community)} />
           </section>
         </div>
         <div className="sticky bottom-0 flex gap-2.5 border-t border-line bg-paper px-4 py-3 min-[900px]:hidden">
@@ -300,6 +300,31 @@ function Row({ label, count, checked, onChange, icon }: { label: string; count: 
       <span className="min-w-0 flex-1 leading-tight">{label}</span>
       <span className="text-[13px] tabular-nums text-ink-faint" aria-label={`${count} resultados`}>{count}</span>
     </label>
+  );
+}
+
+/** Interruptor destacado justo bajo el presupuesto: «solo residencias con comunidad activa» (residentes viviendo hoy). */
+function CommunityToggle({ count, checked, onChange }: { count: number; checked: boolean; onChange: () => void }) {
+  const muted = count === 0 && !checked;
+  return (
+    <div className="border-t border-line px-[18px] py-3.5">
+      <label
+        className={`flex cursor-pointer items-center gap-3 rounded-card border-[1.5px] px-3 py-2.5 motion-safe:transition-colors has-[:focus-visible]:outline-[3px] has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-forest-ink ${checked ? "border-forest bg-forest-tint" : "border-line-2 bg-cream hover:border-forest"} ${muted ? "opacity-70" : ""}`}
+      >
+        <input type="checkbox" role="switch" checked={checked} onChange={onChange} className="peer sr-only" />
+        <Icon name="groups" className="text-2xl text-forest-700" />
+        <span className="min-w-0 flex-1 leading-tight">
+          <span className="block text-[14.5px] font-bold text-ink">Comunidad activa</span>
+          <span className="block text-[12.5px] text-ink-soft">
+            <span className="tabular-nums">{count}</span> {count === 1 ? "residencia" : "residencias"} con estudiantes viviendo hoy
+          </span>
+        </span>
+        <span
+          aria-hidden="true"
+          className="relative h-6 w-10 flex-none rounded-full bg-line-2 motion-safe:transition-colors after:absolute after:left-0.5 after:top-0.5 after:size-5 after:rounded-full after:bg-white after:shadow-sm after:content-[''] motion-safe:after:transition-transform peer-checked:bg-forest peer-checked:after:translate-x-4"
+        />
+      </label>
+    </div>
   );
 }
 
