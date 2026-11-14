@@ -40,6 +40,11 @@ export const DEMO_USERS: DemoUser[] = [
     detail: "Owner de Residencia Norte y Río de la Plata",
   },
   {
+    email: "staff.sinpermisos@estured.test",
+    label: "Staff de Norte — sin casilleros",
+    detail: "Staff de Residencia Norte con todos los permisos apagados (prueba de documentos: solo estado)",
+  },
+  {
     email: "admin.operaciones@estured.test",
     label: "Admin Operativo",
     detail: "Panel admin de EstuRed",

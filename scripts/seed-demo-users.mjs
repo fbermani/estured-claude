@@ -90,6 +90,7 @@ const SEEDS = [
   },
   { email: "owner.residencia.norte@example.com", role: "residence_owner", phone: "+54 9 11 5555-0105" },
   { email: "staff.norte@estured.test", role: "residence_staff", phone: "+54 9 11 5555-0106" },
+  { email: "staff.sinpermisos@estured.test", role: "residence_staff", phone: "+54 9 11 5555-0107" },
   { email: "admin.operaciones@estured.test", role: "admin", phone: null },
   { email: "superadmin@estured.test", role: "superadmin", phone: null },
 ];
