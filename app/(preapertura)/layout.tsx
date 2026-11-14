@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { SkipLink } from "@/components/ui/SkipLink";
 import { isPreaperturaOn } from "@/lib/preapertura/flag";
 import "./preapertura.css";
+import { Suspense } from "react";
 
 /**
  * Layout de la preapertura (DR42.1): solo existe con `PREAPERTURA=on`; apagado, estas rutas dan 404 y la app queda como siempre.
@@ -20,7 +21,12 @@ export default async function PreaperturaLayout({ children }: { children: React.
     <>
       <SkipLink />
       <main id="contenido">{children}</main>
-      {DevScreenNav && <DevScreenNav />}
+      {/* `DevScreenNav` usa `useSearchParams`: sin Suspense falla el prerender del build (staging). */}
+      {DevScreenNav && (
+        <Suspense fallback={null}>
+          <DevScreenNav />
+        </Suspense>
+      )}
     </>
   );
 }
