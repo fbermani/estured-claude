@@ -18,6 +18,11 @@ vi.mock("@/lib/email/sendEmail", () => ({
     return true;
   },
 }));
+let captchaOk = true;
+vi.mock("@/lib/security/turnstile", () => ({
+  TURNSTILE_ERROR_MESSAGE: "captcha",
+  verifyTurnstile: async () => captchaOk,
+}));
 vi.mock("@/lib/preapertura/flag", () => ({ isPreaperturaOn: () => flagOn }));
 
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
@@ -58,6 +63,7 @@ beforeAll(async () => {
 beforeEach(() => {
   sent.length = 0;
   flagOn = true;
+  captchaOk = true;
   clientIp = `203.0.113.${Math.floor(Math.random() * 250) + 2}`;
 });
 afterAll(async () => {
@@ -90,6 +96,17 @@ describe("requestResidenceSignup: validación de servidor de los 5 datos", () =>
   it("el honeypot completo responde éxito sin guardar", async () => {
     const fields = { ...valid("bot"), company_site: "http://spam" };
     expect((await requestResidenceSignup(IDLE, form(fields))).status).toBe("success");
+    if (admin && ready) expect(await rowsOf(fields.email)).toHaveLength(0);
+    expect(sent).toHaveLength(0);
+  });
+});
+
+describe("requestResidenceSignup: CAPTCHA (S1)", () => {
+  it("sin CAPTCHA válido no guarda ni manda mail", async () => {
+    captchaOk = false;
+    const fields = valid("cap");
+    const state = await requestResidenceSignup(IDLE, form(fields));
+    expect(state).toMatchObject({ status: "error", message: "captcha" });
     if (admin && ready) expect(await rowsOf(fields.email)).toHaveLength(0);
     expect(sent).toHaveLength(0);
   });
@@ -134,7 +151,7 @@ describe("requestResidenceSignup: alta guardada (requiere 0080)", () => {
     const fields = valid("rl");
     const results: RequestResidenceState[] = [];
     for (let i = 0; i < 4; i++) {
-      clientIp = `198.51.100.${10 + i}`; // IP distinta cada vez: el límite que corta es el del email
+      clientIp = `198.51.100.${(Number(stamp.slice(-3)) % 200) + 10 + i}`; // IP distinta cada vez: el límite que corta es el del email
       results.push(await requestResidenceSignup(IDLE, form(fields)));
     }
     expect(results.slice(0, 3).every((r) => r.status === "success")).toBe(true);

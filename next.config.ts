@@ -45,6 +45,8 @@ function contentSecurityPolicyReportOnly(): string {
     "base-uri 'self'",
     "form-action 'self'",
     "object-src 'none'",
+    // S2: destino de las violaciones (route handler que solo loguea).
+    "report-uri /api/csp-report",
   ].join("; ");
 }
 

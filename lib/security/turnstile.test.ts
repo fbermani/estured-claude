@@ -84,4 +84,19 @@ describe("verifyTurnstile", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     expect(await (await load())(form("tok"), null)).toBe(false);
   });
+
+  it("producción con el secret de PRUEBA de Cloudflare: fail-closed sin llamar a la red", async () => {
+    vi.stubEnv("TURNSTILE_SECRET_KEY", "1x0000000000000000000000000000000AA");
+    vi.stubEnv("NODE_ENV", "production");
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    expect(await (await load())(form("tok"), null)).toBe(false);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("fuera de producción el secret de prueba sigue funcionando", async () => {
+    vi.stubEnv("TURNSTILE_SECRET_KEY", "1x0000000000000000000000000000000AA");
+    vi.stubEnv("NODE_ENV", "development");
+    fetchMock.mockResolvedValue({ ok: true, json: async () => ({ success: true }) });
+    expect(await (await load())(form("tok"), null)).toBe(true);
+  });
 });

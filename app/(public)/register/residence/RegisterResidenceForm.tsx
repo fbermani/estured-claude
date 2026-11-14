@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
+import { TurnstileWidget } from "@/components/ui/TurnstileWidget";
 import { DevAccountNotice, DevEmptyHint } from "@/components/preapertura/DevAccountNotice";
 import { FormAlert, SubmitButton, errorHint, errorProps, useFocusOnError } from "@/components/preapertura/FormParts";
 import { NETWORK_MESSAGE } from "@/lib/preapertura/formState";
@@ -286,6 +287,7 @@ export function RegisterResidenceForm({ variant = "default", devSuccess }: { var
           <input type="text" name="company_site" tabIndex={-1} autoComplete="off" />
         </label>
       </div>
+      <TurnstileWidget resetKey={state} />
       {pre ? (
         <p className="text-sm text-ink-soft">
           Al enviar aceptás la{" "}

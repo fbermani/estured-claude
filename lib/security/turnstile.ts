@@ -6,6 +6,8 @@ import "server-only";
  *
  * Sin `TURNSTILE_SECRET_KEY`: fuera de producción deja pasar (fail-open, con aviso) y en producción corta (fail-closed, con error);
  * mismo criterio que `rateLimit.ts`. Token vacío o desmedido, error de red o timeout: corta.
+ * En producción, un secret de PRUEBA de Cloudflare (`1x…`, `2x…`, `3x…`: siempre dan success o fallo fijo) se trata como secret faltante:
+ * así un copiar y pegar de la clave de dev en Vercel no apaga el CAPTCHA en silencio.
  */
 export const TURNSTILE_ERROR_MESSAGE = "No pudimos verificar que no seas un robot. Recargá la página y probá de nuevo.";
 
@@ -20,7 +22,7 @@ function missingSecretResult(): boolean {
   const isProd = process.env.NODE_ENV === "production";
   if (!warnedMissingSecret) {
     warnedMissingSecret = true;
-    if (isProd) console.error("[turnstile] falta TURNSTILE_SECRET_KEY: se rechazan todos los envíos");
+    if (isProd) console.error("[turnstile] falta TURNSTILE_SECRET_KEY (o es una clave de prueba): se rechazan todos los envíos");
     else console.warn("[turnstile] falta TURNSTILE_SECRET_KEY: se omite la verificación (solo desarrollo)");
   }
   return !isProd;
@@ -29,6 +31,8 @@ function missingSecretResult(): boolean {
 export async function verifyTurnstile(formData: FormData, ip: string | null): Promise<boolean> {
   const secret = process.env.TURNSTILE_SECRET_KEY;
   if (!secret) return missingSecretResult();
+  // Claves de prueba de Cloudflare: formato `1x`/`2x`/`3x` + ceros + sufijo. Las reales no empiezan así.
+  if (process.env.NODE_ENV === "production" && /^[123]x0{10,}/.test(secret)) return missingSecretResult();
 
   const token = formData.get(FIELD_NAME);
   if (typeof token !== "string" || token.length === 0 || token.length > MAX_TOKEN_LENGTH) return false;

@@ -1,9 +1,10 @@
 "use server";
 
-import { createHash } from "node:crypto";
 import { headers } from "next/headers";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { createRateLimiter, clientKeyFromHeaders } from "@/lib/receipts/verifyRateLimit";
+import { clientIpFromHeaders, clientKeyFromHeaders } from "@/lib/receipts/verifyRateLimit";
+import { TURNSTILE_ERROR_MESSAGE, verifyTurnstile } from "@/lib/security/turnstile";
+import { consumeRateLimit, emailRateLimitKey } from "@/lib/security/rateLimit";
 import type { RegisterFormState } from "@/app/(public)/register/formState";
 import { SIGNUP_ALERT_EMPTY, SIGNUP_ALERT_INVALID, validateSignupFields } from "@/lib/residenceSignup/rules";
 import { createSignupRequest } from "@/lib/residenceSignup/signupRequests";
@@ -21,16 +22,6 @@ export type RequestResidenceState = RegisterFormState & {
   /** Solo desarrollo: mail de la solicitud de prueba autogenerada (envío vacío). */
   devEmail?: string;
 };
-
-/** Freno best-effort por IP (en memoria, por instancia; el límite real va en el WAF de Vercel). La clave es un hash, nunca la IP. */
-const attemptsByClient = createRateLimiter({ limit: 5, windowMs: 3_600_000 });
-
-/**
- * Segundo freno, por EMAIL (hash) y aparte del de IP: evita usar el formulario para mandar mails de confirmación a un tercero desde
- * muchas IP. Igual que el de IP es en memoria y por instancia (best-effort); el límite real vive en el WAF de Vercel sobre esta ruta
- * (checklist de producción en docs/NEXT_STEPS.md). Va después de validar y antes de guardar; se cuenta también el duplicado.
- */
-const attemptsByEmail = createRateLimiter({ limit: 3, windowMs: 3_600_000 });
 
 /** Los valores no sensibles se repueblan tras un error: nada de lo escrito se pierde. */
 function rawValues(formData: FormData): Record<string, string> {
@@ -62,11 +53,17 @@ export async function requestResidenceSignup(_prev: RequestResidenceState, formD
   const result = validateSignupFields(raw);
   if (!result.value) return failure(result.anyRequiredEmpty ? SIGNUP_ALERT_EMPTY : SIGNUP_ALERT_INVALID, raw, result.errors);
 
-  const clientKey = createHash("sha256").update(clientKeyFromHeaders(await headers())).digest("hex");
-  if (!devAuto && !attemptsByClient(clientKey)) return failure("Enviaste varias solicitudes seguidas. Probá de nuevo en un rato.", raw);
+  // S1: CAPTCHA antes de cualquier límite o escritura (el formulario es público y cada email nuevo dispara un mail de EstuRed).
+  if (!devAuto && !(await verifyTurnstile(formData, clientIpFromHeaders(await headers())))) return failure(TURNSTILE_ERROR_MESSAGE, raw);
 
-  const emailKey = createHash("sha256").update(result.value.email).digest("hex");
-  if (!devAuto && !attemptsByEmail(emailKey)) return failure("Ya recibimos varias solicitudes con ese email. Probá de nuevo más tarde o escribinos.", raw);
+  // Frenos persistentes en Postgres (no se pierden por instancia): por IP y, aparte, por email (evita mandar mails de confirmación a
+  // un tercero desde muchas IP). Van después de validar y antes de guardar; el duplicado también cuenta.
+  if (!devAuto) {
+    const byIp = await consumeRateLimit({ bucket: "residence_signup_ip", key: clientKeyFromHeaders(await headers()), windowSeconds: 3_600, max: 5 });
+    if (!byIp.ok) return failure("Enviaste varias solicitudes seguidas. Probá de nuevo en un rato.", raw);
+    const byEmail = await consumeRateLimit({ bucket: "residence_signup_email", key: emailRateLimitKey(result.value.email), windowSeconds: 3_600, max: 3 });
+    if (!byEmail.ok) return failure("Ya recibimos varias solicitudes con ese email. Probá de nuevo más tarde o escribinos.", raw);
+  }
 
   const admin = getSupabaseAdmin();
   if (!admin) return failure("El formulario no está disponible en este momento. Probá más tarde.", raw);
