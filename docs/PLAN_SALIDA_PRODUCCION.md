@@ -33,7 +33,8 @@ Es **irreversible**: se pierde la base, Auth y Storage de ese proyecto. Estado c
 - [ ] Vercel: desde este momento `estured.vercel.app` (apuntando a esa base) deja de funcionar. Está bien: se reemplaza con el deploy nuevo. No hay usuarios reales.
 - [ ] **[Yo]** una vez borrado, dejo el ref viejo en `scripts/production-refs.json` (no molesta: sigue bloqueando seeds/tests contra él) y agrego el ref nuevo en C2.
 
-### A0.2 Staging en Vercel contra `estured-dev` (ensayo)
+### A0.2 Staging en Vercel contra `estured-dev` (ensayo) — HECHO 2026-11-14
+Deploy de la rama `staging` en *Ready* y login real verificado con Turnstile; la URL pide login de Vercel. Pendiente menor: Redirect URL de reset de contraseña en Supabase dev (no había acceso a esa cuenta).
 Objetivo: probar el deploy real (build, variables, Turnstile, headers) sin tocar producción, y tener un lugar fuera de localhost para probar cada cambio. **No usa `estured.com` ni Hostinger**: el dominio propio es solo de producción.
 - **Proyecto de Vercel: se reutiliza `estured-claude`** (cuenta personal `fbermani-gmailcoms-projects`, repo `fbermani/estured-claude`, dominio `estured.vercel.app`). Estaba limpio: 4 variables y 3 deploys viejos de `main`. Se transfiere a un Team más adelante si se decide (A3).
 - **Variables separadas por entorno:** *Production* = Supabase nuevo (las 4 viejas quedaron solo en Production, pendientes de reemplazar); *Preview* = `estured-dev`. Ningún preview toca producción. Hecho el 2026-11-14.
