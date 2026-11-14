@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Icon } from "@/components/ui/Icon";
 import { availabilityHelpText, availabilityLabel } from "@/components/ui/StatusTag";
 import { getSessionUser } from "@/lib/auth/session";
+import { ageFilterNotice } from "@/lib/residences/ageFilterNotice";
 import { getStudentAgeAt, parseIngresoParam } from "@/lib/residences/studentAge";
 import { todayIso } from "@/lib/residences/age";
 import { serviceLabel } from "@/lib/residences/options";
@@ -73,6 +74,9 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
     ...(minPrice != null ? [{ icon: "payments", value: `USD ${minPrice}`, label: "precio desde" }] : []),
   ];
 
+  // DR51: con edad conocida, el filtro puede ocultar residencias; se avisa cuántas para que 42 vs 43 no parezca un error.
+  const ageNotice = studentAge != null ? ageFilterNotice(total - residences.length, !!parseIngresoParam(ingreso)) : null;
+
   const head = (
     <div className="mb-3 grid grid-cols-[minmax(0,1fr)] gap-4 sm:mb-4 md:grid-cols-[minmax(0,1fr)_21rem] md:items-start md:gap-8">
       <div className="max-w-2xl">
@@ -82,6 +86,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
           Todas las residencias del catálogo fueron verificadas presencialmente. La disponibilidad es informativa y toda
           reserva está sujeta a confirmación.
         </p>
+        {ageNotice && <p className="mt-2 text-[13px] text-ink-faint">{ageNotice}</p>}
         <GuidePicks keys={["01", "02"]} variant="strip" label="Antes de elegir:" className="mt-3" mobileSingle />
       </div>
       {residences.length > 0 && (

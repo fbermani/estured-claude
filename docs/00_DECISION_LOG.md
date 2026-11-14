@@ -1763,3 +1763,7 @@ Decisiones del dueño para la preapertura pública. Detalle operativo, component
 
 **Decisión del dueño** (auditoría UX, hallazgo B «Valentina 17 vs «De 18 a 26 años»», CON-29). Si la edad del estudiante **a la fecha de ingreso elegida** queda fuera del rango que publica la residencia (DR14), el formulario de solicitud muestra un **aviso no bloqueante** debajo de la fecha: «A esa fecha tendrías N años y esta residencia publica «de X a Y años». Podés enviar la solicitud igual, pero tené en cuenta ese rango.». No bloquea el envío, no oculta residencias ni agrega reglas de admisión. La fecha de nacimiento solo viaja al navegador del propio estudiante (`ageRangeNotice` en `lib/residences/age.ts`). Sin fecha de nacimiento no se avisa (DR14).
 
+### DR51: rótulo del filtro de edad en /search (2026-11-14, sin migración)
+
+**Decisión del dueño** (auditoría UX H7/CON-16: 42 residencias con Camila logueada vs 43 deslogueada; la diferencia es el filtro de edad de DR14, no un error de conteo). Cuando un estudiante con fecha de nacimiento ve el catálogo y el filtro oculta residencias, `/search` muestra bajo la introducción: «Mostramos las residencias que aceptan tu edad[ a la fecha de ingreso elegida]. N más tienen otro rango de edad.». Visitantes y perfiles sin fecha de nacimiento no ven nada (no se excluye ninguna). `lib/residences/ageFilterNotice.ts`.
+

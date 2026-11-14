@@ -37,7 +37,7 @@ Prioridad: P1 confianza/tarea inaccesible · P2 fricción o información contrad
 | CON-13 | H1, H18 | Popup de preapertura vs. landing inerte que dice «Reservá y pagá desde donde estés», «Ya podés buscar…», dos `<h1>`, meta. | P1 (A: alto) | Copy: «Solicitá y coordiná desde donde estés» (H18). Qué muestra el fondo/SEO en preapertura: decisión del dueño. | copy H18 implementado; fondo/SEO: decidido por el dueño «dejar como está» (2026-11-14), sin cambios |
 | CON-14 | H2 | Contadores públicos de fundadoras alimentados por filas seed/prueba en staging. | — | Es condición de datos de dev (identificables `test-*`/seed); en prod no existen. Opcional: limpiar con el script de cleanup antes de mostrar staging. | descartado (dev) |
 | CON-15 | H6 | «Residencia Sin Fronteras» figura como «Verificada» común, sin señal de relación con EstuRed. | P1 (A: alto) | Decidido por el dueño: fuera de «Recomendadas» (DR49), sin etiqueta. | implementado (falta verificar en staging) |
-| CON-16 | H7 | `/search` muestra 42 (logueada) / 43 (deslogueada) / 43 (admin). | P2 | Investigar regla de ocultamiento (p. ej. residencia ya solicitada) o bug de conteo. | ya explicado: filtro de edad intencional (DR14); rótulo «N más tienen otro rango»: requiere decisión |
+| CON-16 | H7 | `/search` muestra 42 (logueada) / 43 (deslogueada) / 43 (admin). | P2 | Investigar regla de ocultamiento (p. ej. residencia ya solicitada) o bug de conteo. | explicado (filtro de edad intencional, DR14); decidido rotular (DR51): implementado (falta verificar en staging); copy con test |
 | CON-17 | H3 | «#15 Tu lugar en la lista» sugiere prioridad (el doc dice sin prioridad); `/mi-lugar` para cuenta activa repite el paso 1; fecha de nacimiento sin anticipar qué pasa si es menor. | P2 | Quitar el ordinal; variante para cuentas ya activas; aviso «si sos menor, tu familiar te invita». | implementado (falta verificar en staging); `LegalPreapertura.tsx:68` aún dice «Tu lugar en la lista indica el orden»: alinear (decisión) |
 | CON-18 | H4 | `/fundadoras/datos` no dice qué sigue. | P2 | Éxito con próximos pasos sin plazo (un plazo es compromiso operativo → decisión). | éxito con próximos pasos ya existía; plazo «48 h»: requiere decisión |
 | CON-19 | H5 | Widgets solo-dev ocupan 20 % en móvil. | P3 | No es interfaz pública. | descartado (dev) |
@@ -70,4 +70,5 @@ Prioridad: P1 confianza/tarea inaccesible · P2 fricción o información contrad
 - **CON-13 decidido:** el fondo del popup y el SEO se dejan como están.
 - **CON-21 decidido:** se deja la demo de Lucía como está.
 - **CON-29 decidido (DR50):** aviso no bloqueante de rango de edad en el formulario.
-- Pendientes de decisión del dueño (de a una): 16 (rótulo), 18 (plazo), 24, 26, 27, mail del tutor (CON-30), umbral de revocación (CON-09).
+- **CON-16 decidido (DR51):** rótulo del filtro de edad en `/search`.
+- Pendientes de decisión del dueño (de a una): 18 (plazo), 24, 26, 27, mail del tutor (CON-30), umbral de revocación (CON-09).
