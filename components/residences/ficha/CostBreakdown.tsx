@@ -47,7 +47,10 @@ export function CostBreakdown({
   conditions,
   arsPerUsd,
   submitNoun = "solicitud",
+  compact = false,
 }: {
+  /** Revisión previa al envío (paso 2 de `ApplyForm`): solo los tres destinatarios (residencia, EstuRed, depósito), con los mismos cálculos. */
+  compact?: boolean;
   /** Qué se envía (el estudiante envía una solicitud; el familiar, una propuesta): solo cambia el texto. */
   submitNoun?: "solicitud" | "propuesta";
   /** Tarifa de lista del tipo elegido; la promoción vigente (si hay) se aplica acá, igual que en el servidor. */
@@ -107,6 +110,51 @@ export function CostBreakdown({
         : initialPayment.mode === "deposit_only"
           ? "depósito"
           : null;
+
+  if (compact) {
+    return (
+      <section aria-label="Resumen de importes estimados" className="rounded-field border border-line-2 bg-paper px-4 py-3 text-sm">
+        <p className="text-xs font-bold text-muted">Importes estimados</p>
+        <dl className="mt-2 divide-y divide-line">
+          <div className="flex items-start justify-between gap-3 py-2">
+            <dt className="text-ink-soft">
+              <span className="font-semibold text-ink">A la residencia</span>
+              <span className="block text-xs text-ink-faint">
+                Pago inicial{initialLabel ? ` (${initialLabel})` : ""}, una vez aprobada la solicitud.
+              </span>
+            </dt>
+            <dd className="text-right font-bold tabular-nums text-ink">
+              {formatArs(initialPayment.arsDisplay)}
+              <span className="block text-xs font-normal text-ink-faint">{formatUsd(initialPayment.usd)}</span>
+            </dd>
+          </div>
+          <div className="flex items-start justify-between gap-3 py-2">
+            <dt className="text-ink-soft">
+              <span className="font-semibold text-ink">A EstuRed: fee ({Math.round(FEE_PERCENT * 100)}%)</span>
+              <span className="block text-xs text-ink-faint">Solo si la residencia confirma la reserva.</span>
+            </dt>
+            <dd className="text-right font-bold tabular-nums text-ink">
+              {formatUsd(feeUsd)}
+              <span className="block text-xs font-normal text-ink-faint">≈ {formatArs(fee.estimatedFeeArs)}</span>
+            </dd>
+          </div>
+          {depositUsd > 0 && (
+            <div className="flex items-start justify-between gap-3 py-2">
+              <dt className="text-ink-soft">
+                <span className="font-semibold text-ink">Depósito</span>
+                <span className="block text-xs text-ink-faint">A la residencia, al ingresar. Reembolsable.</span>
+              </dt>
+              <dd className="text-right font-bold tabular-nums text-ink">{formatUsd(depositUsd)}</dd>
+            </div>
+          )}
+        </dl>
+        <p className="mt-1 text-xs leading-snug text-ink-faint">
+          Importes estimados y sujetos a confirmación de la residencia. Enviar la {submitNoun} es gratis.
+          <ExchangeRateNote />
+        </p>
+      </section>
+    );
+  }
 
   return (
     <div className="space-y-3 text-sm">

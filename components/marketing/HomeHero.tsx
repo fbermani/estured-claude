@@ -94,7 +94,7 @@ export function HomeHero({ residences }: { residences: Residence[] }) {
           Elegí tu residencia a distancia, <span className="text-amber-soft-300">sin adivinar.</span>
         </h1>
         <p className="hero-seq mx-auto mt-4 max-w-[600px] text-base text-forest-tint sm:text-[17px] md:text-xl" style={delay(0.18)}>
-          Residencias en Buenos Aires, verificadas por EstuRed. Reservá y pagá desde donde estés, sin viajar.
+          Residencias en Buenos Aires, verificadas por EstuRed. Solicitá y coordiná desde donde estés, sin viajar.
         </p>
 
         {/* Buscador: mock visual. Lleva a /search; los campos no son controles. */}

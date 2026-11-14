@@ -76,7 +76,7 @@ export function ProposeForm({
     return <p className="px-5 py-5 text-sm text-ink-soft sm:px-6">Esta residencia todavía no cargó tipos de habitación.</p>;
   }
   if (availableTypes.length === 0) {
-    return <p className="px-5 py-5 text-sm text-ink-soft sm:px-6">No hay lugares disponibles en este momento.</p>;
+    return <p className="px-5 py-5 text-sm text-ink-soft sm:px-6">Ningún tipo de habitación tiene disponibilidad informada por ahora.</p>;
   }
 
   return (

@@ -77,6 +77,11 @@ export function MiLugarContent({
   devAccount?: boolean;
 }) {
   const isStudent = data.role === "student";
+  // Sin fila de preapertura = la cuenta ya existía (no nació acá): el primer paso («Creá tu cuenta») ya está hecho.
+  const hasAccount = data.role === null;
+  const steps = hasAccount
+    ? [{ icon: "check_circle", title: "Ya tenés tu cuenta", text: "Buscás cuando abramos." }, ...STEPS.slice(1)]
+    : STEPS;
   const showBoost = isStudent && data.profilePercent != null && data.profilePercent < 100;
   return (
     <div>
@@ -86,7 +91,7 @@ export function MiLugarContent({
           <Icon name="check" className="text-4xl" />
         </span>
         <h1 id="pre-lugar-title" className="font-display text-[clamp(28px,7vw,40px)] leading-[1.05] tracking-[-0.03em]">
-          {data.firstName ? `¡Listo, ${data.firstName}! Ya estás adentro.` : "¡Listo! Ya estás adentro."}
+          {hasAccount ? "Tu cuenta ya está lista." : data.firstName ? `¡Listo, ${data.firstName}! Ya estás adentro.` : "¡Listo! Ya estás adentro."}
         </h1>
         <p id="pre-lugar-text" className="max-w-[44ch] text-base text-white/90">
           Te vas a enterar primero de las residencias verificadas y de todas las novedades.
@@ -94,16 +99,10 @@ export function MiLugarContent({
         {isStudent && position != null && (
           <div className="grid justify-items-center gap-1">
             <p className="inline-flex items-baseline gap-2 rounded-card border border-white/20 bg-white/10 px-4 py-2">
-              <b className="font-display text-[34px] leading-none tabular-nums">
-                <small aria-hidden="true" className="text-xl text-orange-light">
-                  #
-                </small>
-                <span className="sr-only">Número </span>
-                {position.toLocaleString("es-AR")}
-              </b>
-              <span className="text-sm text-white/90">tu lugar en el acceso anticipado</span>
+              <b className="font-display text-[34px] leading-none tabular-nums">{position.toLocaleString("es-AR")}</b>
+              <span className="text-sm text-white/90">persona en sumarse al acceso anticipado</span>
             </p>
-            <p className="text-sm text-white/85">Es el orden en que te sumaste: no da prioridad ni reserva nada.</p>
+            <p className="text-sm text-white/85">Es solo el orden en que te sumaste: no da prioridad ni reserva nada.</p>
           </div>
         )}
       </div>
@@ -136,7 +135,7 @@ export function MiLugarContent({
             Así va a funcionar
           </h2>
           <ol className="grid gap-2.5 @min-[700px]:grid-cols-5">
-            {STEPS.map((s, i) => (
+            {steps.map((s, i) => (
               <li key={s.title} className="flex items-center gap-3 rounded-field border-[1.5px] border-line bg-paper p-3 @min-[700px]:flex-col @min-[700px]:items-start @min-[700px]:p-3.5">
                 <span aria-hidden="true" className="relative grid size-10 shrink-0 place-items-center rounded-field bg-forest-tint text-forest-700">
                   <Icon name={s.icon} className="text-2xl" />

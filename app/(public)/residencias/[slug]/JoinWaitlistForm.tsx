@@ -1,9 +1,10 @@
 "use client";
 
-import { useActionState, useMemo } from "react";
+import { useActionState, useMemo, useState } from "react";
+import { type TypeAvailabilityState } from "@/lib/availability/typeAvailability";
 import { DrawCheck } from "@/components/ui/DrawCheck";
 import { Button } from "@/components/ui/Button";
-import { Input, Select } from "@/components/ui/Input";
+import { Select } from "@/components/ui/Input";
 import { buildMonthOptions, WAITLIST_ANY_MONTH_VALUE } from "@/lib/waitlist-entries/desiredMonth";
 import { useReservationSelection } from "@/components/residences/reservationSelection";
 import { joinWaitlistAction, type JoinWaitlistState } from "@/app/(public)/residencias/[slug]/waitlist-actions";
@@ -11,6 +12,8 @@ import { joinWaitlistAction, type JoinWaitlistState } from "@/app/(public)/resid
 interface RoomTypeOption {
   id: string;
   name: string;
+  /** Estado de disponibilidad informado del tipo; ausente = no se acota el mensaje con él. */
+  state?: TypeAvailabilityState;
 }
 
 const initialState: JoinWaitlistState = { status: "idle" };
@@ -31,6 +34,27 @@ export function JoinWaitlistForm({
   // El tipo que la persona venía mirando en la ficha (por ejemplo, el que tocó "Lista de espera") llega preelegido.
   const { roomTypeId } = useReservationSelection();
   const preselected = roomTypes.some((rt) => rt.id === roomTypeId) ? (roomTypeId as string) : "";
+  const [chosen, setChosen] = useState(preselected);
+  const [seenPreselected, setSeenPreselected] = useState(preselected);
+  if (seenPreselected !== preselected) {
+    setSeenPreselected(preselected);
+    setChosen(preselected);
+  }
+  const chosenType = roomTypes.find((rt) => rt.id === chosen) ?? null;
+  // Otros tipos con disponibilidad informada (no «completos» ni pausados): la espera no los menciona como lugar prometido.
+  const informedOthers = roomTypes.filter((rt) => rt.id !== chosen && rt.state === "available").map((rt) => rt.name);
+  const othersText = informedOthers.length > 0 ? ` Tienen disponibilidad informada: ${informedOthers.join(", ")}. Podés solicitarlos sin esperar.` : "";
+  let scopeMessage: string;
+  if (chosenType) {
+    scopeMessage =
+      chosenType.state === "available"
+        ? `${chosenType.name} tiene disponibilidad informada: podés solicitarla sin esperar.`
+        : chosenType.state === "full"
+          ? `${chosenType.name}: completa por ahora.${othersText}`
+          : `${chosenType.name}: sin lugar para solicitar por ahora.${othersText}`;
+  } else {
+    scopeMessage = `Elegí un tipo para ver su estado, o sumate a la espera de cualquiera.${othersText}`;
+  }
 
   if (state.status === "saved") {
     return (
@@ -45,8 +69,14 @@ export function JoinWaitlistForm({
 
   return (
     <form action={formAction} className="flex flex-col gap-3 px-5 py-5 sm:px-6">
-      <p className="text-sm text-ink-soft">No hay lugares disponibles en este momento.</p>
-      <Select key={preselected} label="Tipo de habitación (opcional)" id="waitlist-room-type" name="room_type_id" defaultValue={preselected}>
+      <p className="text-sm text-ink-soft">{scopeMessage}</p>
+      <Select
+        label="Tipo de habitación (opcional)"
+        id="waitlist-room-type"
+        name="room_type_id"
+        value={chosen}
+        onChange={(e) => setChosen(e.target.value)}
+      >
         <option value="">Cualquiera</option>
         {roomTypes.map((rt) => (
           <option key={rt.id} value={rt.id}>

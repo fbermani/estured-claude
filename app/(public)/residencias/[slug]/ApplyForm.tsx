@@ -128,7 +128,13 @@ export function ApplyForm({
         </p>
       );
     }
-    return <JoinWaitlistForm residenceId={residenceId} roomTypes={roomTypes} minStartDate={minStartDate} />;
+    return (
+      <JoinWaitlistForm
+        residenceId={residenceId}
+        roomTypes={roomTypes.map((rt) => ({ id: rt.id, name: rt.name, state: typeAvailabilityState(rt.profile_availability?.status) }))}
+        minStartDate={minStartDate}
+      />
+    );
   }
 
   const selected = availableTypes.find((rt) => rt.id === roomTypeId) ?? null;
@@ -298,13 +304,32 @@ export function ApplyForm({
           {selected && (
             <div className="flex items-start gap-3 rounded-field border border-line-2 bg-cream-2/60 px-3.5 py-3 text-sm">
               <Icon name="bed" className="mt-0.5 shrink-0 text-xl text-forest-700" />
-              <p className="min-w-0 text-ink-soft">
+              <p className="min-w-0 flex-1 text-ink-soft">
                 <b className="text-ink">{selected.name}</b>{selectedCard ? <>, {formatUsd(selectedCard.priceUsd)}/mes</> : null}
                 <span className="block text-xs">
                   Ingreso {startDate ? formatDateOnly(startDate) : "—"}, {duration} {duration === 1 ? "mes" : "meses"}
                 </span>
               </p>
+              <button
+                type="button"
+                onClick={() => goToStep(1)}
+                className="shrink-0 rounded-full px-2.5 py-1 text-xs font-bold text-forest-700 underline underline-offset-2 hover:bg-forest-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+              >
+                Editar
+              </button>
             </div>
+          )}
+          {selected && duration > 0 && (
+            <CostBreakdown
+              compact
+              monthlyUsd={monthlyUsd}
+              promotionPercent={selected.promotion_percent ?? null}
+              vacancy={selected.vacancy ?? null}
+              duration={duration}
+              startDate={startDate}
+              conditions={conditions}
+              arsPerUsd={arsPerUsd}
+            />
           )}
 
           <p className="mt-1 text-xs font-bold text-muted">2. Sobre vos</p>

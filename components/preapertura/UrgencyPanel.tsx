@@ -25,17 +25,13 @@ export async function UrgencyPanel({ position, counter }: { position: number | n
       <div className="flex items-center gap-3.5">
         {position != null && (
           <b className="font-display text-[40px] leading-none tracking-tight tabular-nums @min-[860px]:text-[56px]">
-            <small aria-hidden="true" className="text-xl text-orange-light @min-[860px]:text-[26px]">
-              #
-            </small>
-            <span className="sr-only">Número </span>
             {position.toLocaleString("es-AR")}
           </b>
         )}
         <span className="text-sm leading-snug text-white/90">
           {position != null ? (
             <>
-              Tu lugar en la lista
+              persona en sumarse
               <br />
               si terminás ahora
             </>

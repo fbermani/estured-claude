@@ -152,7 +152,7 @@ export function Step1Form({ invitation, loggedIn }: { invitation: { token: strin
                 Tenés menos de 18 años.
               </span>
             ) : (
-              errorHint(errors, "birth_date", "pre", invitation ? undefined : "Necesitamos saber si ya cumpliste 18.")
+              errorHint(errors, "birth_date", "pre", invitation ? undefined : "Necesitamos saber si ya cumpliste 18. Si sos menor, tu familiar te invita.")
             )
           }
           className="aria-invalid:border-danger-fg"

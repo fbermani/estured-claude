@@ -386,7 +386,9 @@ export default async function RealResidenceDetailPage({
   // Lista de espera: solo tipos completos, y nunca el tipo en el que ya tiene una reserva vigente en ESTA residencia.
   const ownTypeIds = new Set(studentViewer?.ownReservationTypeIds ?? []);
   const waitlistTypeIds = fichaTypes.filter((t) => t.state === "full" && !ownTypeIds.has(t.id)).map((t) => t.id);
-  const waitlistRoomTypes = roomTypes.filter((rt) => !ownTypeIds.has(rt.id));
+  const waitlistRoomTypes = roomTypes
+    .filter((rt) => !ownTypeIds.has(rt.id))
+    .map((rt) => ({ id: rt.id, name: rt.name, state: fichaTypes.find((t) => t.id === rt.id)?.state }));
   const anyRequestable = fichaTypes.some((t) => isTypeRequestable(t.state));
   // Vuelta del login con `?solicitar=1`: abre la hoja que corresponde (solicitud con el tipo elegido, o lista de espera).
   const preselectedType = fichaTypes.find((t) => t.id === preselectedRoomTypeId);
