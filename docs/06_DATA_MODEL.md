@@ -554,6 +554,8 @@ Reglas:
 
 **Segunda corrección del mes vacío (migración 0062, `docs/00` «segunda corrección del mes vacío»):** la disponibilidad publicada del tipo (`profile_availability`: `available_to_confirm`, no oculta, desde `available_from` o hoy) define la vacancia para todas las residencias; la ocupación real (Premium) solo descarta tramos ocupados. Medición por tramo con parciales (mes completo = 1; resto >15 días = 1, ≤15 = 0,5), tope 3. `application_snapshots.empty_months_count` pasa a `numeric(3,1)`; sin disponibilidad publicada no se cobra («a confirmar»). FAQ-51 se reescribe de nuevo.
 
+**Copy del mes vacío (DR53, migración 0088, solo texto):** FAQ-51 y FAQ-22 se reescriben sin hablar de «descuento» (cargo parcial por guardar la plaza vacía). Sin cambios de columnas ni de regla.
+
 **Coordenadas públicas (decisión DF5, 2026-10-23; reemplaza DF3).** La ubicación de la residencia es pública. `residences` guarda sus coordenadas exactas en `latitude`/`longitude` (`numeric(9,6)`, nullable; sustituyen a `lat`/`lng` de la tabla de arriba, que no se usaban) y son legibles públicamente junto con `address_line` y `public_area`: la ficha dibuja el pin exacto y calcula en línea recta la distancia a las universidades cercanas. Si faltan, el mapa cae al centro del barrio (`public_area`) sin pin. Ya no hay columnas de coordenada "aproximada" ni redondeo del lado del servidor.
 
 **Dirección (decisión DF5, 2026-10-23; reemplaza DF4 en este punto).** `address_line` es **pública**: se muestra en la ficha sin condición de rol ni de estado de la solicitud. Siguen privados `responsible_name` y `responsible_contact`.

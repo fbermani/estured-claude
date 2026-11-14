@@ -70,7 +70,7 @@ Los ajustes se aplican {periodicidad_ajuste} y se comunican con {anticipacion_aj
 El fee de EstuRed (5 %) se paga una sola vez a EstuRed por quien estudia o por el familiar que designe, y no forma parte de la mensualidad, la matrícula ni el depósito. Esos conceptos se pagan a la residencia.
 
 **Art. 14. Reserva con ingreso diferido (mes vacío)** [Opcional/Configurable]
-Si la residencia admite reservar con ingreso en una fecha futura, cobra {porcentaje_mes_vacio} de la mensualidad por cada mes hasta el ingreso, hasta {maximo_meses_mes_vacio} meses. Condición si se cancela: {condicion_cancelacion_diferido}.
+Si la residencia admite reservar con ingreso en una fecha futura, cobra {porcentaje_mes_vacio} de la mensualidad por el tiempo en que la plaza queda libre esperando al estudiante (el «mes vacío»), contado hasta el día anterior al ingreso y hasta {maximo_meses_mes_vacio} meses; no se cobra si la plaza estuvo ocupada en ese tramo ni si el ingreso es el primer día disponible. Condición si se cancela: {condicion_cancelacion_diferido}.
 
 ## Sección 4. Convivencia, horarios y silencio
 
@@ -342,7 +342,10 @@ A la residencia, directamente, por {medios_de_pago} {datos_de_cobro_via_platafor
 Sí, {periodicidad_ajuste}, con {anticipacion_ajuste} de aviso. Criterio: {criterio_de_ajuste}. Cualquier propuesta de ajuste la ves en tu cuenta y la decisión es tuya.
 
 **FAQ-22. ¿Puedo reservar hoy para ingresar más adelante?** · *Residencia completa*
-{admite_ingreso_diferido: Sí / No}. {si_admite: Cobra {porcentaje_mes_vacio} de la mensualidad por cada mes hasta el ingreso, hasta {maximo_meses_mes_vacio} meses}. {condicion_cancelacion_diferido}.
+{admite_ingreso_diferido: Sí / No}. {si_admite: Cobra {porcentaje_mes_vacio} de la mensualidad por el tiempo en que la plaza queda libre esperándote antes de tu ingreso (el «mes vacío»), hasta {maximo_meses_mes_vacio} meses}. {condicion_cancelacion_diferido}.
+
+**FAQ-51. ¿Qué es el mes vacío y por qué se cobra?** · *Texto fijo EstuRed (migración 0088)*
+Si reservás para ingresar más adelante y la plaza está libre mientras tanto, la residencia te la guarda. Por ese tiempo sin vos adentro, que llamamos «mes vacío», cobra un porcentaje de la renta (lo define cada residencia), no la renta entera. No es un descuento: es un cargo parcial por tener la plaza vacía esperándote. Ver el texto completo en `db/migrations/0088_faq_mes_vacio_claro.sql`.
 
 **FAQ-23. ¿En qué moneda se paga?** · *Residencia completa*
 Los precios se muestran en USD con su equivalente referencial en pesos, actualizado a diario. La residencia cobra en {moneda_cobro}. El fee EstuRed se paga en ARS o USD según el medio elegido.

@@ -1448,8 +1448,7 @@ export function ResidenceProfileForm({
                     Es una elección de tu residencia. Se muestra a los estudiantes en la tarjeta «Mes vacío» de la ficha.
                   </p>
                   <p className="mt-1 text-xs text-ink-soft">
-                    Cuando un estudiante reserva hoy para ingresar más adelante, podés cobrar un porcentaje de la renta por el tiempo
-                    (hasta 3 meses) en que la plaza queda guardada y vacía para él.
+                    Cuando un estudiante reserva para ingresar más adelante y la plaza queda libre mientras tanto, podés cobrar un porcentaje de la renta (no la renta entera) por ese tiempo, hasta 3 meses.
                   </p>
                 </div>
                 <Switch
@@ -1495,8 +1494,9 @@ export function ResidenceProfileForm({
                     <div>
                       <p className="font-semibold text-ink">¿Qué es?</p>
                       <p>
-                        Si un estudiante reserva hoy pero ingresa más adelante, la plaza queda guardada para él y sin ocupar. Esos meses de
-                        espera, sin él y sin otro estudiante, se pierden. Con el mes vacío cobrás una parte de la renta por ese tiempo.
+                        Si un estudiante reserva para ingresar más adelante y la plaza está libre mientras tanto, se la guardás: por ese
+                        tiempo sin él adentro (el «mes vacío») cobrás un porcentaje de la renta, no la renta entera. No es un descuento: es un
+                        cargo parcial por guardar la plaza vacía.
                       </p>
                     </div>
                     <div>

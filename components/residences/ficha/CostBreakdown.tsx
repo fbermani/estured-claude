@@ -6,6 +6,7 @@ import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
 import { formatDateOnly } from "@/lib/dates/formatDateOnly";
 import { calculateFeeEstimate, FEE_PERCENT } from "@/lib/applications/fee";
+import { EMPTY_MONTH_IDEA } from "@/lib/residences/emptyMonthCopy";
 import { type InitialPaymentConfig } from "@/lib/reservations/initialPayment";
 import { confirmedEmptyMonthsCharge, MAX_EMPTY_MONTHS, type VacancyOutlook } from "@/lib/applications/emptyMonths";
 import { resolveReservationMoney, todayIso, type DepositMode } from "@/lib/applications/reservationMoney";
@@ -272,11 +273,10 @@ export function CostBreakdown({
           <span className="text-orange-700">
             Mes vacío ({emptyLabel})
             <InfoTip label="Qué es el mes vacío">
-              Reservás hoy para ingresar más adelante y la habitación está disponible desde {empty.vacantFrom ? formatDateOnly(empty.vacantFrom) : "hoy"}:
-              la residencia te guarda la plaza y ese tiempo hasta tu ingreso, en que queda vacía, se cobra al {emptyPercent}% de la renta.
-              Se cuenta en proporción a los días: más de 15 días extra cuentan como un mes y 15 o menos como medio mes (máximo {MAX_EMPTY_MONTHS} meses). Se
-              confirma al enviar la solicitud, con la disponibilidad de ese momento. Se paga a la residencia y forma parte del total sobre
-              el que se calcula el fee.
+              {EMPTY_MONTH_IDEA} En tu caso la plaza está disponible desde {empty.vacantFrom ? formatDateOnly(empty.vacantFrom) : "hoy"} y la
+              residencia cobra el {emptyPercent}% de la renta por cada mes vacío. Se cuenta en proporción a los días: más de 15 días extra
+              cuentan como un mes y de 1 a 15 como medio mes (máximo {MAX_EMPTY_MONTHS} meses). Se confirma al enviar la solicitud, con la
+              disponibilidad de ese momento. Se paga a la residencia y forma parte del total sobre el que se calcula el fee.
             </InfoTip>
           </span>
           <span className="text-right font-bold text-orange-700">{formatUsd(emptyChargeUsd)}</span>
@@ -285,14 +285,14 @@ export function CostBreakdown({
       {empty.status === "to_confirm" && (
         <div className="border-t border-line py-1.5 text-xs text-ink-soft">
           <span className="font-semibold text-orange-700">Mes vacío: a confirmar por la residencia.</span>{" "}
-          Reservás con ingreso diferido y esta residencia cobra el {emptyPercent}% de la renta por cada mes en que la plaza queda realmente
-          vacía antes de tu ingreso (máximo {MAX_EMPTY_MONTHS}). Todavía no tenemos la disponibilidad publicada para esas fechas: la residencia lo confirma y
-          no se suma al total hasta entonces. Se confirma al enviar la solicitud.
+          Reservás con ingreso a futuro y esta residencia cobra el {emptyPercent}% de la renta por cada mes vacío (el tiempo en que la plaza
+          queda libre esperándote, máximo {MAX_EMPTY_MONTHS} meses). Todavía no tenemos la disponibilidad publicada para esas fechas: la
+          residencia lo confirma y no se suma al total hasta entonces. Se confirma al enviar la solicitud.
         </div>
       )}
       {empty.status === "not_charged" && (
         <p className="border-t border-line py-1.5 text-xs text-ink-faint">
-          Mes vacío: no aplica, ingresás cuando la plaza empieza a estar disponible o antes estaba ocupada (se confirma al enviar la solicitud).
+          Mes vacío: no aplica. Ingresás cuando la plaza empieza a estar disponible, o antes estaba ocupada (se confirma al enviar la solicitud).
         </p>
       )}
 

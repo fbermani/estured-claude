@@ -1,5 +1,5 @@
 import { describeEnrollmentFee } from "@/lib/residences/enrollmentFee";
-import { MAX_EMPTY_MONTHS } from "@/lib/applications/emptyMonths";
+import { EMPTY_MONTH_IDEA, EMPTY_MONTH_RULES } from "@/lib/residences/emptyMonthCopy";
 import { formatUsd } from "@/lib/mock/exchange";
 import { resolveInitialPaymentUsd, type InitialPaymentConfig } from "@/lib/reservations/initialPayment";
 import { depositModeLabel, isWithinWindow, todayIso, type DepositMode } from "@/lib/applications/reservationMoney";
@@ -207,9 +207,9 @@ export function buildConditionItems(input: FichaConditionsInput, today: string =
     items.push({
       key: "advance_booking",
       icon: "hourglass_top",
-      label: "Si reservás con anticipación",
-      value: `${input.emptyMonthChargePercent}% por mes`,
-      help: `Solo si reservás con ingreso diferido y la plaza queda realmente vacía entre que está disponible y tu ingreso (hasta ${MAX_EMPTY_MONTHS} meses). La residencia te guarda la plaza y ese tiempo se cobra en proporción a los días: más de 15 días extra cuentan como un mes y 15 o menos como medio mes. Si ingresás el primer día disponible, o la plaza está ocupada, no se cobra.`,
+      label: "Mes vacío",
+      value: `${input.emptyMonthChargePercent}% de la renta`,
+      help: `${EMPTY_MONTH_IDEA} ${EMPTY_MONTH_RULES}`,
       arsFromUsd: null,
     });
   }

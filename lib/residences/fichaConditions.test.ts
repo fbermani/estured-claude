@@ -37,7 +37,7 @@ describe("buildConditionItems", () => {
     expect(items.initial_payment.value).toBe("Primer mes");
     expect(items.deposit.arsFromUsd).toBe(300);
     expect(items.minimum_stay.value).toBe("6 meses");
-    expect(items.advance_booking.value).toBe("50% por mes");
+    expect(items.advance_booking.value).toBe("50% de la renta");
   });
 
   it("matrícula null = 'No cobra' (no se oculta)", () => {
@@ -132,7 +132,9 @@ describe("buildConditionItems: dinero DR18 tanda 3", () => {
     const free = { ...withMatricula, enrollmentDiscountPercent: 100, enrollmentDiscountUntil: null };
     expect(byKey(buildConditionItems(free, "2026-10-28")).enrollment.help).toContain("bonificada");
   });
-  it("mes vacío aclara que solo se cobra si la plaza queda vacía", () => {
-    expect(byKey(buildConditionItems(base)).advance_booking.help).toContain("realmente vacía");
+  it("mes vacío abre con la idea central y aclara cuándo no se cobra", () => {
+    const help = byKey(buildConditionItems(base)).advance_booking.help;
+    expect(help.startsWith("Si reservás para ingresar más adelante")).toBe(true);
+    expect(help).toContain("no se cobra");
   });
 });
