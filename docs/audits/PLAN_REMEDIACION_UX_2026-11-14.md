@@ -45,7 +45,7 @@ Prioridad: P1 confianza/tarea inaccesible · P2 fricción o información contrad
 | CON-21 | H12 | Lucía: «Ya tenés tu lugar» + «Alojado» + «Ya renovaste» antes de mudarse; ingreso 15/02/2027 vs 20/07/2026 (Martín). | P2 | Investigar si es dato demo (dos estadías) o bug de derivación; unificar etiquetas por entidad. | dato demo, no bug; decidido por el dueño: dejar la demo como está (se conserva la tarjeta «Tu llegada»); el script `--coherencia-lucia` queda sin aplicar |
 | CON-22 | H14 | El panel de la menor no dice que su tutor ve sus solicitudes; «Desvincular» sin consecuencias. | P2 | Línea de privacidad; contrastar «Desvincular» con docs/05. | implementado (falta verificar en staging); cambio de servidor: `revokeFamilyLink` rechaza a menores (docs/05 §4.4); canal de pedido a Soporte a confirmar |
 | CON-23 | H15(a, b) | Panel de residencia: 29/35 vs «34 cargados» sin leyenda; solicitudes recientes idénticas. | P2 | Rotular universos; sumar fecha de ingreso y duración. | implementado (falta verificar en staging) |
-| CON-24 | H15(c) | Vocabulario de «reserva vencida» distinto por rol. | P2 | Unificar etiqueta por entidad (docs/04); variar solo la descripción. | requiere decisión |
+| CON-24 | H15(c) | Vocabulario de «reserva vencida» distinto por rol. | P2 | Decidido (DR52): un rótulo por estado vencido entre roles; la perspectiva va en el helper. | implementado (falta verificar en staging); con test |
 | CON-25 | H16 | Dueño multi-residencia: sin franja «qué requiere mi atención». | P3 | Recomendación de diseño. | pendiente (baja, no implementado) |
 | CON-26 | H17(b) | Nombres confusos del menú admin. | P3 | Decisión de nomenclatura. | requiere decisión |
 | CON-27 | H8(b–d), H9 | Siete tarjetas de condiciones con «No cobra»; skeleton/CLS/placeholder de fotos. | P3 | Condiciones: decisión de diseño. Skeleton/CLS: rendimiento dev. | requiere decisión / descartado (dev) |
@@ -72,4 +72,5 @@ Prioridad: P1 confianza/tarea inaccesible · P2 fricción o información contrad
 - **CON-29 decidido (DR50):** aviso no bloqueante de rango de edad en el formulario.
 - **CON-16 decidido (DR51):** rótulo del filtro de edad en `/search`.
 - **CON-18 decidido:** sin plazo de contacto en el formulario de fundadoras.
-- Pendientes de decisión del dueño (de a una): 24, 26, 27, mail del tutor (CON-30), umbral de revocación (CON-09).
+- **CON-24 decidido (DR52):** rótulo único por estado vencido.
+- Pendientes de decisión del dueño (de a una): 26, 27, mail del tutor (CON-30), umbral de revocación (CON-09).

@@ -7,7 +7,6 @@ const THIRD_PERSON: Record<string, string> = {
   "Pagá a la residencia": "Pago a la residencia pendiente",
   "Pagá el fee EstuRed": "Fee EstuRed por pagar",
   "Cancelada por vos": "Cancelada por el estudiante",
-  "Vencida — no respondiste a tiempo": "Vencida — sin respuesta del estudiante",
   "Reserva cancelada por vos": "Reserva cancelada por el estudiante",
   "Reserva revocada por vos": "Reserva revocada por el estudiante",
 };

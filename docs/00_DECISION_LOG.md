@@ -1767,3 +1767,7 @@ Decisiones del dueño para la preapertura pública. Detalle operativo, component
 
 **Decisión del dueño** (auditoría UX H7/CON-16: 42 residencias con Camila logueada vs 43 deslogueada; la diferencia es el filtro de edad de DR14, no un error de conteo). Cuando un estudiante con fecha de nacimiento ve el catálogo y el filtro oculta residencias, `/search` muestra bajo la introducción: «Mostramos las residencias que aceptan tu edad[ a la fecha de ingreso elegida]. N más tienen otro rango de edad.». Visitantes y perfiles sin fecha de nacimiento no ven nada (no se excluye ninguna). `lib/residences/ageFilterNotice.ts`.
 
+### DR52: un solo rótulo por estado vencido, entre roles (2026-11-14, sin migración)
+
+**Decisión del dueño** (auditoría UX H15/CON-24: «Reserva vencida», «Reserva vencida — fee sin pagar», «Vencida — sin pago a la residencia» y «Venció por falta de pago» nombraban lo mismo según el rol). Los estados vencidos (`expired_no_residence_response`, `expired_no_student_payment`, `expired_offer_no_response`, `expired_fee_unpaid`) llevan **el mismo rótulo para estudiante, residencia y admin**; la perspectiva va solo en el texto de ayuda (`helper`). Rótulos: «Vencida — sin respuesta», «Vencida — sin pago a la residencia», «Vencida — propuesta sin respuesta» y «Reserva vencida». Ajusta las columnas de rótulo de `docs/04` §5.4 en lo que respecta a estos cuatro estados; los estados y transiciones no cambian. Fuente: `lib/applications/visibleStatus.ts`; el rótulo en tercera persona del familiar ya no necesita traducir el de la propuesta.
+

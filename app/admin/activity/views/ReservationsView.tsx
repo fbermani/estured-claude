@@ -13,7 +13,7 @@ const STATUS_BADGE: Record<string, { label: string; tone: "amber" | "emerald" | 
   pending_estured_fee: { label: "Fee pendiente", tone: "amber" },
   estured_fee_processing: { label: "Procesando fee", tone: "amber" },
   estured_fee_failed: { label: "Fee falló", tone: "rose" },
-  expired_fee_unpaid: { label: "Fee vencido", tone: "rose" },
+  expired_fee_unpaid: { label: "Reserva vencida", tone: "rose" },
   confirmed: { label: "Confirmada", tone: "emerald" },
   receipt_pending: { label: "Comprobante pendiente", tone: "amber" },
   receipt_issued: { label: "Comprobante emitido", tone: "emerald" },

@@ -295,4 +295,16 @@ describe("copy — reglas del proyecto", () => {
       expect(v.helper, status).not.toMatch(/\b(puedes|tienes|escríbenos|haz clic|quieres)\b/i);
     }
   });
+
+  it("DR52: los estados vencidos tienen el mismo rótulo para estudiante, residencia y admin (solo cambia el helper)", () => {
+    const app = (status: string, viewer: "student" | "residence" | "admin") =>
+      getVisibleStatus({ applicationStatus: status as never, reservation: null, viewer }).label;
+    for (const status of ["expired_no_residence_response", "expired_no_student_payment", "expired_offer_no_response"]) {
+      expect(new Set([app(status, "student"), app(status, "residence"), app(status, "admin")]).size).toBe(1);
+    }
+    const res = (viewer: "student" | "residence" | "admin") =>
+      getVisibleStatus({ applicationStatus: "converted_to_reservation" as never, reservation: { status: "expired_fee_unpaid" }, viewer }).label;
+    expect(new Set([res("student"), res("residence"), res("admin")])).toEqual(new Set(["Reserva vencida"]));
+  });
 });
+
