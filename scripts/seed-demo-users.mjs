@@ -30,7 +30,7 @@ const SEEDS = [
     role: "student",
     phone: "+54 9 341 555-0101",
     profile: {
-      first_name: "Lucia",
+      first_name: "Lucía",
       last_name: "Fernandez",
       birth_date: "2006-09-15",
       nationality: "Argentina",
@@ -85,7 +85,7 @@ const SEEDS = [
     role: "family_member",
     phone: "+54 9 341 555-0104",
     // docs/17 §Usuarios demo obligatorios #4: vínculo activo con Lucía, can_create_proposals=true.
-    familyMemberProfile: { first_name: "Martin", last_name: "Fernandez", relationship_type: "padre" },
+    familyMemberProfile: { first_name: "Martín", last_name: "Fernandez", relationship_type: "padre" },
     linkedStudentEmail: "lucia.fernandez@example.com",
   },
   { email: "owner.residencia.norte@example.com", role: "residence_owner", phone: "+54 9 11 5555-0105" },
