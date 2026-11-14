@@ -1,0 +1,159 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- complementary:
+  - paragraph: EstuRed Admin
+  - paragraph: Panel de administración
+  - button "Notificaciones":
+    - generic: notifications
+  - navigation "Administración":
+    - link "Dashboard":
+      - /url: /admin/dashboard
+      - generic: Dashboard
+    - paragraph: Residencias
+    - link "Residencias":
+      - /url: /admin/residences
+      - generic: Residencias
+    - link "Verificaciones":
+      - /url: /admin/verifications
+      - generic: Verificaciones
+    - link "Ediciones de perfil":
+      - /url: /admin/profile-edits
+      - generic: Ediciones de perfil
+    - link "Solicitudes de alta":
+      - /url: /admin/solicitudes-alta
+      - generic: Solicitudes de alta
+    - link "Residencias pedidas":
+      - /url: /admin/residencias-pedidas
+      - generic: Residencias pedidas
+    - link "Preguntas de fichas":
+      - /url: /admin/faq
+      - generic: Preguntas de fichas
+    - link "Ítems «Otro» de fichas":
+      - /url: /admin/custom-amenities
+      - generic: Ítems «Otro» de fichas
+    - paragraph: Operación
+    - link "Solicitudes":
+      - /url: /admin/applications
+      - generic: Solicitudes
+    - link "Propuestas familiar":
+      - /url: /admin/family-proposals
+      - generic: Propuestas familiar
+    - link "Pagos":
+      - /url: /admin/payments
+      - generic: Pagos
+    - link "Actividad":
+      - /url: /admin/activity
+      - generic: Actividad
+    - link "Seguimiento":
+      - /url: /admin/followups
+      - generic: Seguimiento
+    - paragraph: Plataforma
+    - link "Comunidad":
+      - /url: /admin/community
+      - generic: Comunidad
+    - link "Visibilidad y penalizaciones":
+      - /url: /admin/visibility
+      - generic: Visibilidad y penalizaciones
+    - link "Administración de tarifas":
+      - /url: /admin/pricing
+      - generic: Administración de tarifas
+    - link "Documentos":
+      - /url: /admin/documents
+      - generic: Documentos
+    - link "Tipo de cambio":
+      - /url: /admin/exchange-rate
+      - generic: Tipo de cambio
+    - link "Usuarios":
+      - /url: /admin/users
+      - generic: Usuarios
+    - paragraph: Soporte
+    - link "Soporte":
+      - /url: /admin/support-cases
+      - generic: Soporte
+  - generic: S
+  - paragraph: superadmin@estured.test
+  - paragraph: Superadmin
+  - button "Cerrar sesión"
+  - button "Colapsar menú":
+- main:
+  - generic: admin_panel_settings
+  - generic: admin_panel_settings
+  - text: Admin
+  - heading "Dashboard operativo" [level=1]
+  - paragraph: Estado general de EstuRed al abrir esta página.
+  - generic: 1 verificación pendiente
+  - link "Revisar verificaciones":
+    - /url: /admin/verifications
+    - text: Revisar verificaciones
+    - generic: arrow_forward
+  - generic: insights
+  - text: Residencias activas
+  - generic: "43"
+  - generic: priority_high
+  - text: Verificaciones pendientes
+  - generic: "1"
+  - generic: Requiere acción
+  - link "Ver detalle →":
+    - /url: /admin/verifications
+  - generic: insights
+  - text: Esperando a la residencia
+  - generic: "0"
+  - text: Pedimos cambios y esperamos que las corrijan y reenvíen.
+  - link "Ver detalle →":
+    - /url: /admin/verifications
+  - generic: insights
+  - text: Residencias con disponibilidad vencida
+  - generic: "0"
+  - link "Ver detalle →":
+    - /url: /admin/residences?filter=stale-availability
+  - generic: priority_high
+  - text: Revocaciones sin resolver
+  - generic: "1"
+  - text: La más vieja espera hace 24 días.
+  - generic: Requiere acción
+  - link "Ver detalle →":
+    - /url: /admin/activity?tab=revocations
+  - generic: insights
+  - text: Usuarios registrados
+  - generic: "498"
+  - generic: priority_high
+  - text: Ediciones de perfil pendientes
+  - generic: "4"
+  - generic: Requiere acción
+  - generic: insights
+  - text: Alertas de tarifa sin revisar
+  - generic: "0"
+  - generic: insights
+  - text: Leads en lista de espera
+  - generic: "3"
+  - generic: insights
+  - text: Reservas confirmadas (mes)
+  - generic: "0"
+  - generic: insights
+  - text: Fee cobrado (mes)
+  - generic: ARS 0
+  - link "Ver detalle →":
+    - /url: /admin/payments?tab=paid
+  - heading "Verificaciones que vencen en 30 días" [level=2]
+  - paragraph: Ninguna verificación vence en los próximos 30 días.
+  - heading "Actividad reciente" [level=2]
+  - list:
+    - paragraph: Sistema pasó una solicitud de la cola a nuevas
+    - generic: hace 11 min
+    - paragraph: Estudiante aprobó una propuesta de familiar
+    - generic: hace 12 min
+    - paragraph: Estudiante envió una solicitud de reserva
+    - generic: hace 12 min
+    - paragraph: Estudiante rechazó una propuesta de familiar
+    - generic: hace 12 min
+    - paragraph: Admin quitó a alguien de una lista de espera
+    - generic: hace 12 min
+    - paragraph: Estudiante se sumó a una lista de espera
+    - generic: hace 12 min
+    - paragraph: Sistema cerró una lista de espera por reserva confirmada
+    - generic: hace 12 min
+    - paragraph: Estudiante se sumó a una lista de espera
+    - generic: hace 12 min
+- button "SuperAdmin": SuperAdmin
+- button "Open Next.js Dev Tools":
+- alert

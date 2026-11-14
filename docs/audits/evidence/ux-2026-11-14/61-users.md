@@ -1,0 +1,400 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- complementary:
+  - paragraph: EstuRed Admin
+  - paragraph: Panel de administración
+  - button "Notificaciones":
+    - generic: notifications
+  - navigation "Administración":
+    - link "Dashboard":
+      - /url: /admin/dashboard
+      - generic: Dashboard
+    - paragraph: Residencias
+    - link "Residencias":
+      - /url: /admin/residences
+      - generic: Residencias
+    - link "Verificaciones":
+      - /url: /admin/verifications
+      - generic: Verificaciones
+    - link "Ediciones de perfil":
+      - /url: /admin/profile-edits
+      - generic: Ediciones de perfil
+    - link "Solicitudes de alta":
+      - /url: /admin/solicitudes-alta
+      - generic: Solicitudes de alta
+    - link "Residencias pedidas":
+      - /url: /admin/residencias-pedidas
+      - generic: Residencias pedidas
+    - link "Preguntas de fichas":
+      - /url: /admin/faq
+      - generic: Preguntas de fichas
+    - link "Ítems «Otro» de fichas":
+      - /url: /admin/custom-amenities
+      - generic: Ítems «Otro» de fichas
+    - paragraph: Operación
+    - link "Solicitudes":
+      - /url: /admin/applications
+      - generic: Solicitudes
+    - link "Propuestas familiar":
+      - /url: /admin/family-proposals
+      - generic: Propuestas familiar
+    - link "Pagos":
+      - /url: /admin/payments
+      - generic: Pagos
+    - link "Actividad":
+      - /url: /admin/activity
+      - generic: Actividad
+    - link "Seguimiento":
+      - /url: /admin/followups
+      - generic: Seguimiento
+    - paragraph: Plataforma
+    - link "Comunidad":
+      - /url: /admin/community
+      - generic: Comunidad
+    - link "Visibilidad y penalizaciones":
+      - /url: /admin/visibility
+      - generic: Visibilidad y penalizaciones
+    - link "Administración de tarifas":
+      - /url: /admin/pricing
+      - generic: Administración de tarifas
+    - link "Documentos":
+      - /url: /admin/documents
+      - generic: Documentos
+    - link "Tipo de cambio":
+      - /url: /admin/exchange-rate
+      - generic: Tipo de cambio
+    - link "Usuarios":
+      - /url: /admin/users
+      - generic: Usuarios
+    - paragraph: Soporte
+    - link "Soporte":
+      - /url: /admin/support-cases
+      - generic: Soporte
+  - generic: A
+  - paragraph: admin.operaciones@estured.test
+  - paragraph: Admin
+  - button "Cerrar sesión"
+  - button "Colapsar menú":
+- main:
+  - heading "Usuarios" [level=1]
+  - paragraph: 498 usuarios.
+  - searchbox "Buscar por email o nombre"
+  - combobox "Filtrar por rol":
+    - option "Todos los roles" [selected]
+    - option "Estudiante"
+    - option "Familiar"
+    - option "Dueño de residencia"
+    - option "Staff de residencia"
+    - option "Registrado"
+    - option "Admin"
+    - option "Superadmin"
+  - combobox "Filtrar por estado":
+    - option "Todos los estados" [selected]
+    - option "Activo"
+    - option "Bloqueado"
+    - option "Inactivo"
+  - button "Filtrar"
+  - region "Usuarios":
+    - table:
+      - rowgroup:
+        - row "Usuario Rol Alta Último ingreso Estado":
+          - columnheader "Usuario"
+          - columnheader "Rol"
+          - columnheader "Alta"
+          - columnheader "Último ingreso"
+          - columnheader "Estado"
+          - columnheader
+      - rowgroup:
+        - row "Estudiante 14/11/2026 Nunca Activo Bloquear":
+          - cell
+          - cell "Estudiante":
+            - generic: Estudiante
+          - cell "14/11/2026"
+          - cell "Nunca"
+          - cell "Activo":
+            - generic: Activo
+          - cell "Bloquear":
+            - button "Bloquear"
+        - row "Familiar 14/11/2026 Nunca Activo Bloquear":
+          - cell
+          - cell "Familiar":
+            - generic: Familiar
+          - cell "14/11/2026"
+          - cell "Nunca"
+          - cell "Activo":
+            - generic: Activo
+          - cell "Bloquear":
+            - button "Bloquear"
+        - row "Familiar 14/11/2026 Nunca Activo Bloquear":
+          - cell
+          - cell "Familiar":
+            - generic: Familiar
+          - cell "14/11/2026"
+          - cell "Nunca"
+          - cell "Activo":
+            - generic: Activo
+          - cell "Bloquear":
+            - button "Bloquear"
+        - row "Estudiante 12/11/2026 Nunca Activo Bloquear":
+          - cell
+          - cell "Estudiante":
+            - generic: Estudiante
+          - cell "12/11/2026"
+          - cell "Nunca"
+          - cell "Activo":
+            - generic: Activo
+          - cell "Bloquear":
+            - button "Bloquear"
+        - row "Estudiante 12/11/2026 Nunca Activo Bloquear":
+          - cell
+          - cell "Estudiante":
+            - generic: Estudiante
+          - cell "12/11/2026"
+          - cell "Nunca"
+          - cell "Activo":
+            - generic: Activo
+          - cell "Bloquear":
+            - button "Bloquear"
+        - row "Estudiante 12/11/2026 Nunca Activo Bloquear":
+          - cell
+          - cell "Estudiante":
+            - generic: Estudiante
+          - cell "12/11/2026"
+          - cell "Nunca"
+          - cell "Activo":
+            - generic: Activo
+          - cell "Bloquear":
+            - button "Bloquear"
+        - row "ygggh test-preap-est-531501e8@estured.test Estudiante 09/11/2026 Nunca Activo Bloquear":
+          - cell "ygggh test-preap-est-531501e8@estured.test":
+            - generic: ygggh
+            - generic: test-preap-est-531501e8@estured.test
+          - cell "Estudiante":
+            - generic: Estudiante
+          - cell "09/11/2026"
+          - cell "Nunca"
+          - cell "Activo":
+            - generic: Activo
+          - cell "Bloquear":
+            - button "Bloquear"
+        - row "Estudiante 09/11/2026 Nunca Activo Bloquear":
+          - cell
+          - cell "Estudiante":
+            - generic: Estudiante
+          - cell "09/11/2026"
+          - cell "Nunca"
+          - cell "Activo":
+            - generic: Activo
+          - cell "Bloquear":
+            - button "Bloquear"
+        - row "Joaquín C. joaquin.castro@estured.test Estudiante 09/11/2026 Nunca Activo Bloquear":
+          - cell "Joaquín C. joaquin.castro@estured.test":
+            - generic: Joaquín C.
+            - generic: joaquin.castro@estured.test
+          - cell "Estudiante":
+            - generic: Estudiante
+          - cell "09/11/2026"
+          - cell "Nunca"
+          - cell "Activo":
+            - generic: Activo
+          - cell "Bloquear":
+            - button "Bloquear"
+        - row "Josefina S. josefina.sosa@estured.test Estudiante 09/11/2026 Nunca Activo Bloquear":
+          - cell "Josefina S. josefina.sosa@estured.test":
+            - generic: Josefina S.
+            - generic: josefina.sosa@estured.test
+          - cell "Estudiante":
+            - generic: Estudiante
+          - cell "09/11/2026"
+          - cell "Nunca"
+          - cell "Activo":
+            - generic: Activo
+          - cell "Bloquear":
+            - button "Bloquear"
+        - row "Ivo L. ivo.lawson@estured.test Estudiante 09/11/2026 Nunca Activo Bloquear":
+          - cell "Ivo L. ivo.lawson@estured.test":
+            - generic: Ivo L.
+            - generic: ivo.lawson@estured.test
+          - cell "Estudiante":
+            - generic: Estudiante
+          - cell "09/11/2026"
+          - cell "Nunca"
+          - cell "Activo":
+            - generic: Activo
+          - cell "Bloquear":
+            - button "Bloquear"
+        - row "Ivana C. ivana.carrizo@estured.test Estudiante 09/11/2026 Nunca Activo Bloquear":
+          - cell "Ivana C. ivana.carrizo@estured.test":
+            - generic: Ivana C.
+            - generic: ivana.carrizo@estured.test
+          - cell "Estudiante":
+            - generic: Estudiante
+          - cell "09/11/2026"
+          - cell "Nunca"
+          - cell "Activo":
+            - generic: Activo
+          - cell "Bloquear":
+            - button "Bloquear"
+        - row "Hernán U. hernan.uzal@estured.test Estudiante 09/11/2026 Nunca Activo Bloquear":
+          - cell "Hernán U. hernan.uzal@estured.test":
+            - generic: Hernán U.
+            - generic: hernan.uzal@estured.test
+          - cell "Estudiante":
+            - generic: Estudiante
+          - cell "09/11/2026"
+          - cell "Nunca"
+          - cell "Activo":
+            - generic: Activo
+          - cell "Bloquear":
+            - button "Bloquear"
+        - row "Guadalupe N. guadalupe.ninci@estured.test Estudiante 09/11/2026 Nunca Activo Bloquear":
+          - cell "Guadalupe N. guadalupe.ninci@estured.test":
+            - generic: Guadalupe N.
+            - generic: guadalupe.ninci@estured.test
+          - cell "Estudiante":
+            - generic: Estudiante
+          - cell "09/11/2026"
+          - cell "Nunca"
+          - cell "Activo":
+            - generic: Activo
+          - cell "Bloquear":
+            - button "Bloquear"
+        - row "Gonzalo G. gonzalo.godoy@estured.test Estudiante 09/11/2026 Nunca Activo Bloquear":
+          - cell "Gonzalo G. gonzalo.godoy@estured.test":
+            - generic: Gonzalo G.
+            - generic: gonzalo.godoy@estured.test
+          - cell "Estudiante":
+            - generic: Estudiante
+          - cell "09/11/2026"
+          - cell "Nunca"
+          - cell "Activo":
+            - generic: Activo
+          - cell "Bloquear":
+            - button "Bloquear"
+        - row "Emilia Z. emilia.zambrano@estured.test Estudiante 09/11/2026 Nunca Activo Bloquear":
+          - cell "Emilia Z. emilia.zambrano@estured.test":
+            - generic: Emilia Z.
+            - generic: emilia.zambrano@estured.test
+          - cell "Estudiante":
+            - generic: Estudiante
+          - cell "09/11/2026"
+          - cell "Nunca"
+          - cell "Activo":
+            - generic: Activo
+          - cell "Bloquear":
+            - button "Bloquear"
+        - row "Facundo Q. facundo.quiroga@estured.test Estudiante 09/11/2026 Nunca Activo Bloquear":
+          - cell "Facundo Q. facundo.quiroga@estured.test":
+            - generic: Facundo Q.
+            - generic: facundo.quiroga@estured.test
+          - cell "Estudiante":
+            - generic: Estudiante
+          - cell "09/11/2026"
+          - cell "Nunca"
+          - cell "Activo":
+            - generic: Activo
+          - cell "Bloquear":
+            - button "Bloquear"
+        - row "Delfina J. delfina.juarez@estured.test Estudiante 09/11/2026 Nunca Activo Bloquear":
+          - cell "Delfina J. delfina.juarez@estured.test":
+            - generic: Delfina J.
+            - generic: delfina.juarez@estured.test
+          - cell "Estudiante":
+            - generic: Estudiante
+          - cell "09/11/2026"
+          - cell "Nunca"
+          - cell "Activo":
+            - generic: Activo
+          - cell "Bloquear":
+            - button "Bloquear"
+        - row "Emiliano C. emiliano.cabrera@estured.test Estudiante 09/11/2026 Nunca Activo Bloquear":
+          - cell "Emiliano C. emiliano.cabrera@estured.test":
+            - generic: Emiliano C.
+            - generic: emiliano.cabrera@estured.test
+          - cell "Estudiante":
+            - generic: Estudiante
+          - cell "09/11/2026"
+          - cell "Nunca"
+          - cell "Activo":
+            - generic: Activo
+          - cell "Bloquear":
+            - button "Bloquear"
+        - row "Brenda R. brenda.romero@estured.test Estudiante 09/11/2026 Nunca Activo Bloquear":
+          - cell "Brenda R. brenda.romero@estured.test":
+            - generic: Brenda R.
+            - generic: brenda.romero@estured.test
+          - cell "Estudiante":
+            - generic: Estudiante
+          - cell "09/11/2026"
+          - cell "Nunca"
+          - cell "Activo":
+            - generic: Activo
+          - cell "Bloquear":
+            - button "Bloquear"
+        - row "Dante N. dante.nunez@estured.test Estudiante 09/11/2026 Nunca Activo Bloquear":
+          - cell "Dante N. dante.nunez@estured.test":
+            - generic: Dante N.
+            - generic: dante.nunez@estured.test
+          - cell "Estudiante":
+            - generic: Estudiante
+          - cell "09/11/2026"
+          - cell "Nunca"
+          - cell "Activo":
+            - generic: Activo
+          - cell "Bloquear":
+            - button "Bloquear"
+        - row "Antonella F. antonella.fernandez@estured.test Estudiante 09/11/2026 Nunca Activo Bloquear":
+          - cell "Antonella F. antonella.fernandez@estured.test":
+            - generic: Antonella F.
+            - generic: antonella.fernandez@estured.test
+          - cell "Estudiante":
+            - generic: Estudiante
+          - cell "09/11/2026"
+          - cell "Nunca"
+          - cell "Activo":
+            - generic: Activo
+          - cell "Bloquear":
+            - button "Bloquear"
+        - row "Ciro C. ciro.cavalcanti@estured.test Estudiante 09/11/2026 Nunca Activo Bloquear":
+          - cell "Ciro C. ciro.cavalcanti@estured.test":
+            - generic: Ciro C.
+            - generic: ciro.cavalcanti@estured.test
+          - cell "Estudiante":
+            - generic: Estudiante
+          - cell "09/11/2026"
+          - cell "Nunca"
+          - cell "Activo":
+            - generic: Activo
+          - cell "Bloquear":
+            - button "Bloquear"
+        - row "Rocío V. rocio.vidal@estured.test Estudiante 09/11/2026 Nunca Activo Bloquear":
+          - cell "Rocío V. rocio.vidal@estured.test":
+            - generic: Rocío V.
+            - generic: rocio.vidal@estured.test
+          - cell "Estudiante":
+            - generic: Estudiante
+          - cell "09/11/2026"
+          - cell "Nunca"
+          - cell "Activo":
+            - generic: Activo
+          - cell "Bloquear":
+            - button "Bloquear"
+        - row "Benjamín O. benjamin.ojeda@estured.test Estudiante 09/11/2026 Nunca Activo Bloquear":
+          - cell "Benjamín O. benjamin.ojeda@estured.test":
+            - generic: Benjamín O.
+            - generic: benjamin.ojeda@estured.test
+          - cell "Estudiante":
+            - generic: Estudiante
+          - cell "09/11/2026"
+          - cell "Nunca"
+          - cell "Activo":
+            - generic: Activo
+          - cell "Bloquear":
+            - button "Bloquear"
+  - paragraph: Página 1 de 20
+  - generic: ← Anterior
+  - link "Siguiente →":
+    - /url: /admin/users?page=2
+- button "Admin Operativo": Admin Operativo
+- button "Open Next.js Dev Tools":
+- alert

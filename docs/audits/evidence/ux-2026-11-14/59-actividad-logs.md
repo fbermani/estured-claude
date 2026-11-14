@@ -1,0 +1,813 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- complementary:
+  - paragraph: EstuRed Admin
+  - paragraph: Panel de administración
+  - button "Notificaciones":
+    - generic: notifications
+  - navigation "Administración":
+    - link "Dashboard":
+      - /url: /admin/dashboard
+      - generic: Dashboard
+    - paragraph: Residencias
+    - link "Residencias":
+      - /url: /admin/residences
+      - generic: Residencias
+    - link "Verificaciones":
+      - /url: /admin/verifications
+      - generic: Verificaciones
+    - link "Ediciones de perfil":
+      - /url: /admin/profile-edits
+      - generic: Ediciones de perfil
+    - link "Solicitudes de alta":
+      - /url: /admin/solicitudes-alta
+      - generic: Solicitudes de alta
+    - link "Residencias pedidas":
+      - /url: /admin/residencias-pedidas
+      - generic: Residencias pedidas
+    - link "Preguntas de fichas":
+      - /url: /admin/faq
+      - generic: Preguntas de fichas
+    - link "Ítems «Otro» de fichas":
+      - /url: /admin/custom-amenities
+      - generic: Ítems «Otro» de fichas
+    - paragraph: Operación
+    - link "Solicitudes":
+      - /url: /admin/applications
+      - generic: Solicitudes
+    - link "Propuestas familiar":
+      - /url: /admin/family-proposals
+      - generic: Propuestas familiar
+    - link "Pagos":
+      - /url: /admin/payments
+      - generic: Pagos
+    - link "Actividad":
+      - /url: /admin/activity
+      - generic: Actividad
+    - link "Seguimiento":
+      - /url: /admin/followups
+      - generic: Seguimiento
+    - paragraph: Plataforma
+    - link "Comunidad":
+      - /url: /admin/community
+      - generic: Comunidad
+    - link "Visibilidad y penalizaciones":
+      - /url: /admin/visibility
+      - generic: Visibilidad y penalizaciones
+    - link "Administración de tarifas":
+      - /url: /admin/pricing
+      - generic: Administración de tarifas
+    - link "Documentos":
+      - /url: /admin/documents
+      - generic: Documentos
+    - link "Tipo de cambio":
+      - /url: /admin/exchange-rate
+      - generic: Tipo de cambio
+    - link "Usuarios":
+      - /url: /admin/users
+      - generic: Usuarios
+    - paragraph: Soporte
+    - link "Soporte":
+      - /url: /admin/support-cases
+      - generic: Soporte
+  - generic: A
+  - paragraph: admin.operaciones@estured.test
+  - paragraph: Admin
+  - button "Cerrar sesión"
+  - button "Colapsar menú":
+- main:
+  - heading "Actividad" [level=1]
+  - paragraph: Negociaciones, reservas, renovaciones, revocaciones, comprobantes, listas de espera y logs — todo lo que es seguimiento, en un solo lugar.
+  - navigation:
+    - link "Negociaciones":
+      - /url: /admin/activity?tab=negotiations
+    - link "Reservas":
+      - /url: /admin/activity?tab=reservations
+    - link "Renovaciones":
+      - /url: /admin/activity?tab=renewals
+    - link "Revocaciones":
+      - /url: /admin/activity?tab=revocations
+    - link "Comprobantes":
+      - /url: /admin/activity?tab=receipts
+    - link "Listas de espera":
+      - /url: /admin/activity?tab=waitlists
+    - link "Logs":
+      - /url: /admin/activity?tab=logs
+  - heading "Logs de auditoría" [level=1]
+  - paragraph: "4196 eventos en total. Append-only: nada acá se edita ni se borra."
+  - text: Desde
+  - textbox "Desde"
+  - text: Hasta
+  - textbox "Hasta"
+  - text: Origen
+  - combobox "Origen":
+    - option "Todos" [selected]
+    - option "Usuario"
+    - option "Admin"
+    - option "Sistema"
+    - option "Proveedor de pago"
+  - text: Acción
+  - combobox "Acción":
+    - option "Todas" [selected]
+    - option "abrió un caso de Soporte"
+    - option "accedió a un documento sensible"
+    - option "aceptó el reglamento al enviar la solicitud"
+    - option "aceptó una invitación al equipo de una residencia"
+    - option "aceptó una oferta de renovación"
+    - option "aceptó una propuesta de ajuste"
+    - option "activó su perfil de comunidad en la preapertura"
+    - option "activó un lugar en la lista de espera"
+    - option "activó un residente"
+    - option "actualizó el género admitido en una habitación"
+    - option "actualizó el tipo de cambio"
+    - option "actualizó la disponibilidad de un tipo de habitación por género"
+    - option "actualizó la disponibilidad de una residencia"
+    - option "actualizó la edad de los residentes de una residencia"
+    - option "actualizó la política de salida anticipada de una residencia"
+    - option "actualizó la preferencia de un pedido de cambio de habitación"
+    - option "actualizó la ubicación de una residencia"
+    - option "actualizó las condiciones económicas de una residencia"
+    - option "actualizó las etiquetas de las fotos de una residencia"
+    - option "actualizó los datos de cobro"
+    - option "actualizó los datos de un residente"
+    - option "actualizó los documentos requeridos para la estadía de una residencia"
+    - option "actualizó su perfil"
+    - option "actualizó su perfil de familiar"
+    - option "actualizó un aviso de cambio de residencia"
+    - option "actualizó un caso de Soporte"
+    - option "actualizó una pregunta frecuente del catálogo en su ficha"
+    - option "agregó una nota a un residente"
+    - option "agregó una nota interna a una residencia"
+    - option "aprobó un pedido de vínculo de un residente"
+    - option "aprobó un servicio «Otro» de una residencia"
+    - option "aprobó un vínculo familiar"
+    - option "aprobó una edición de perfil"
+    - option "aprobó una propuesta de familiar"
+    - option "aprobó y publicó una residencia"
+    - option "asignó una cama a un residente"
+    - option "avisó a la lista de espera que hay lugar"
+    - option "avisó que quiere cambiar de residencia o plaza"
+    - option "avisó que su residencia no está en EstuRed"
+    - option "avisó que vence pronto la verificación de una residencia (30 días)"
+    - option "bloqueó a un usuario"
+    - option "borró una foto de una residencia"
+    - option "cambió el estado de un pedido de cambio de habitación"
+    - option "cambió el estado de una solicitud de alta de residencia"
+    - option "cambió los permisos de una persona del equipo de una residencia"
+    - option "cambió quién paga el fee EstuRed"
+    - option "cambió su visibilidad en la comunidad"
+    - option "canceló su pedido de cambio de habitación"
+    - option "canceló un aviso de cambio de residencia"
+    - option "canceló una invitación al equipo de una residencia"
+    - option "canceló una solicitud por un cambio de residencia"
+    - option "cargó el mail de un residente"
+    - option "cargó un residente"
+    - option "cerró sesión"
+    - option "cerró un aviso de cambio porque terminó la estadía"
+    - option "cerró un pedido de renovación sin oferta"
+    - option "cerró una lista de espera por reserva confirmada"
+    - option "completó el alta de una residencia y creó su cuenta"
+    - option "comunicó a la residencia un seguimiento de estadía"
+    - option "confirmó el email de una solicitud de alta de residencia"
+    - option "confirmó que sigue en la lista de espera"
+    - option "confirmó una renovación"
+    - option "confirmó una reserva"
+    - option "confirmó, como familiar, un aviso de cambio"
+    - option "confirmó, como tutor, la estadía de un menor"
+    - option "corrigió el mail de un residente"
+    - option "creó un usuario admin"
+    - option "creó una promoción en una residencia"
+    - option "creó una propuesta de familiar"
+    - option "dejó su perfil de comunidad desactivado en la preapertura"
+    - option "dejó una cama fuera de servicio"
+    - option "dejó una solicitud en cola"
+    - option "denegó la revocación de un fee EstuRed"
+    - option "desbloqueó a un usuario"
+    - option "editó la respuesta a una pregunta de la ficha"
+    - option "editó su respuesta a un aviso de cambio"
+    - option "eligió una universidad lejana en el perfil de una residencia"
+    - option "emitió una advertencia de calidad"
+    - option "envió una oferta de renovación"
+    - option "envió una propuesta de ajuste"
+    - option "envió una residencia para revisión"
+    - option "envió una solicitud de reserva"
+    - option "estableció contacto con un estudiante"
+    - option "extendió un aviso de cambio de residencia"
+    - option "fijó un tipo de cambio manual"
+    - option "generó el enlace de invitación para el alta de una residencia"
+    - option "generó el enlace personal de un residente para compartirlo por WhatsApp"
+    - option "generó un código de casa nuevo"
+    - option "guardó cambios en una residencia"
+    - option "guardó la nota de una salida anticipada"
+    - option "guardó un borrador de oferta de renovación"
+    - option "guardó una residencia en favoritos"
+    - option "habilitó el pago a la residencia sin cambios"
+    - option "ignoró el aviso de una plaza liberada que coincidía con un pedido de cambio"
+    - option "invitó a un familiar"
+    - option "invitó a una persona al equipo de una residencia"
+    - option "limitó la visibilidad de un residente"
+    - option "mandó por mail la invitación personal a un residente"
+    - option "marcó como contactada una residencia pedida por estudiantes"
+    - option "marcó el fee de una renovación como cobrado"
+    - option "marcó el pago a la residencia como recibido"
+    - option "marcó el pago de una renovación como recibido"
+    - option "marcó un fee EstuRed como cobrado"
+    - option "marcó un residente como inactivo"
+    - option "marcó una disponibilidad como sin actualizar"
+    - option "no pudo confirmar una reserva con el fee ya cobrado"
+    - option "no pudo generar un comprobante de renovación"
+    - option "no pudo generar un comprobante de reserva"
+    - option "no pudo registrar la aceptación del reglamento de una solicitud"
+    - option "ocultó a un residente de la comunidad"
+    - option "ocultó de las búsquedas una disponibilidad vencida"
+    - option "ocultó una pregunta de su ficha"
+    - option "ocultó una pregunta de una ficha"
+    - option "ofreció una plaza liberada a un residente que pidió cambio de habitación"
+    - option "otorgó acceso a Gestión Operativa"
+    - option "pasó una solicitud de la cola a nuevas"
+    - option "pausó una residencia"
+    - option "pidió cambios en una residencia"
+    - option "pidió confirmar que sigue en la lista de espera"
+    - option "pidió confirmar que sigue vigente un aviso de cambio"
+    - option "pidió corrección en una edición de perfil"
+    - option "pidió la confirmación del tutor para la estadía de un menor"
+    - option "pidió o anotó un cambio de habitación"
+    - option "pidió una renovación"
+    - option "pidió vincularse a su residencia"
+    - option "programó la visita de verificación de una residencia"
+    - option "propuso servicios «Otro» para una residencia"
+    - option "publicó como disponible una plaza liberada que coincidía con un pedido de cambio"
+    - option "publicó una versión del reglamento"
+    - option "quitó a alguien de su lista de espera"
+    - option "quitó a alguien de una lista de espera"
+    - option "quitó a alguien de una lista de espera por un cambio de residencia"
+    - option "quitó el acceso a una persona del equipo de una residencia"
+    - option "quitó el tipo de cambio manual"
+    - option "quitó una residencia de favoritos"
+    - option "reabrió el plazo de un fee EstuRed"
+    - option "reabrió un pedido de renovación"
+    - option "reabrió una oferta de renovación"
+    - option "reabrió una solicitud"
+    - option "reactivó una cama"
+    - option "reactivó una habitación que estaba fuera de servicio"
+    - option "reactivó una residencia"
+    - option "reactivó una solicitud que estaba pausada"
+    - option "rechazó un intento de restablecer la contraseña"
+    - option "rechazó un pedido de vínculo de un residente"
+    - option "rechazó un servicio «Otro» de una residencia"
+    - option "rechazó un vínculo familiar"
+    - option "rechazó una edición de perfil"
+    - option "rechazó una oferta de renovación"
+    - option "rechazó una propuesta de ajuste"
+    - option "rechazó una propuesta de ajuste y cerró la solicitud"
+    - option "rechazó una propuesta de ajuste y eligió las condiciones originales"
+    - option "rechazó una propuesta de familiar"
+    - option "rechazó una residencia"
+    - option "rechazó una solicitud"
+    - option "rechazó, como tutor, la estadía de un menor"
+    - option "redujo la visibilidad de una residencia"
+    - option "reenvió a revisión una residencia tras pedido de cambios"
+    - option "reenvió una invitación al equipo de una residencia"
+    - option "registró la salida de un residente"
+    - option "registró un comprobante del fee de una renovación"
+    - option "registró un comprobante del fee EstuRed"
+    - option "registró una residencia"
+    - option "registró una salida anticipada de un residente"
+    - option "reintegró un fee EstuRed tras una revocación"
+    - option "reintentó la confirmación de una reserva"
+    - option "renombró una habitación"
+    - option "resolvió un aviso de cambio de residencia"
+    - option "respondió a un aviso de cambio"
+    - option "respondió que no vive en la residencia que lo invitó"
+    - option "respondió un seguimiento de estadía"
+    - option "respondió una pregunta de la ficha"
+    - option "restableció su contraseña"
+    - option "restauró la visibilidad de un residente"
+    - option "restauró la visibilidad normal de una residencia"
+    - option "retiró su pedido de vínculo"
+    - option "revisó un cambio de tarifa"
+    - option "revisó un seguimiento de estadía"
+    - option "revocó acceso a Gestión Operativa"
+    - option "revocó un fee EstuRed"
+    - option "revocó un vínculo familiar"
+    - option "sacó una habitación de servicio"
+    - option "salió de una lista de espera"
+    - option "se registró como estudiante"
+    - option "se registró como estudiante desde la preapertura"
+    - option "se registró como familiar desde la preapertura e invitó a un estudiante"
+    - option "se registró como familiar y pidió vincularse"
+    - option "se sumó a una lista de espera"
+    - option "sembró un usuario demo"
+    - option "subió un comprobante de pago a la residencia"
+    - option "subió un documento de estudiante"
+    - option "subió una foto de una residencia"
+    - option "terminó una promoción de una residencia"
+    - option "venció el plazo de un fee EstuRed"
+    - option "venció la verificación anual de una residencia"
+    - option "venció un acceso a Gestión Operativa"
+    - option "venció un aviso de cambio de residencia"
+    - option "venció una entrada de la lista de espera (pasó el mes elegido)"
+    - option "venció una oferta de renovación"
+    - option "venció una propuesta de ajuste"
+    - option "venció una propuesta de familiar"
+    - option "venció una solicitud sin pago a la residencia"
+    - option "venció una solicitud sin respuesta de la residencia"
+    - option "vio un seguimiento de estadía"
+    - option "volvió a emitir un comprobante de reserva"
+    - option "volvió a mostrar a un residente en la comunidad"
+    - option "volvió a mostrar una pregunta de su ficha"
+    - option "volvió a mostrar una pregunta de una ficha"
+  - text: Entidad
+  - combobox "Entidad":
+    - option "Todas" [selected]
+    - option "Archivo"
+    - option "Aviso de cambio"
+    - option "Aviso de plaza liberada"
+    - option "Cama"
+    - option "Caso de Soporte"
+    - option "Comprobante de reserva"
+    - option "Confirmación del tutor"
+    - option "Datos de cobro"
+    - option "Disponibilidad"
+    - option "Favorito"
+    - option "Habitación"
+    - option "Invitación al equipo"
+    - option "Invitación de familiar"
+    - option "Lista de espera"
+    - option "Miembro del equipo"
+    - option "Nota de residente"
+    - option "Oferta de renovación"
+    - option "Pago del fee EstuRed"
+    - option "Pedido de cambio de habitación"
+    - option "Pedido de renovación"
+    - option "Pedido de vínculo"
+    - option "Perfil de estudiante"
+    - option "Perfil de familiar"
+    - option "Pregunta de ficha"
+    - option "Pregunta frecuente del catálogo"
+    - option "Propuesta de familiar"
+    - option "Reserva"
+    - option "Residencia"
+    - option "Residencia faltante"
+    - option "Residente"
+    - option "Revocación del fee"
+    - option "Salida anticipada"
+    - option "Solicitud"
+    - option "Tipo de cambio"
+    - option "Usuario"
+    - option "Vínculo familiar"
+    - option "Visibilidad de estudiante"
+  - text: Actor
+  - searchbox "Actor"
+  - button "Aplicar filtros"
+  - region "Registro de actividad":
+    - table:
+      - rowgroup:
+        - row "Fecha Actor Acción Entidad Origen":
+          - columnheader "Fecha"
+          - columnheader "Actor"
+          - columnheader "Acción"
+          - columnheader "Entidad"
+          - columnheader "Origen"
+      - rowgroup:
+        - row "14/11/2026, 18:02 Sistema pasó una solicitud de la cola a nuevas Solicitud Sistema":
+          - cell "14/11/2026, 18:02"
+          - cell "Sistema"
+          - cell "pasó una solicitud de la cola a nuevas"
+          - cell "Solicitud"
+          - cell "Sistema":
+            - generic: Sistema
+        - row "14/11/2026, 18:02 lucia.fernandez@example.com Estudiante aprobó una propuesta de familiar Propuesta de familiar Usuario":
+          - cell "14/11/2026, 18:02"
+          - cell "lucia.fernandez@example.com Estudiante":
+            - generic: lucia.fernandez@example.com
+            - generic: Estudiante
+          - cell "aprobó una propuesta de familiar"
+          - cell "Propuesta de familiar"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:02 lucia.fernandez@example.com Estudiante envió una solicitud de reserva Solicitud Usuario":
+          - cell "14/11/2026, 18:02"
+          - cell "lucia.fernandez@example.com Estudiante":
+            - generic: lucia.fernandez@example.com
+            - generic: Estudiante
+          - cell "envió una solicitud de reserva"
+          - cell "Solicitud"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:02 lucia.fernandez@example.com Estudiante rechazó una propuesta de familiar Prefiero seguir buscando otras opciones. Propuesta de familiar Usuario":
+          - cell "14/11/2026, 18:02"
+          - cell "lucia.fernandez@example.com Estudiante":
+            - generic: lucia.fernandez@example.com
+            - generic: Estudiante
+          - cell "rechazó una propuesta de familiar Prefiero seguir buscando otras opciones.":
+            - text: rechazó una propuesta de familiar
+            - generic: Prefiero seguir buscando otras opciones.
+          - cell "Propuesta de familiar"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:02 admin.operaciones@estured.test Admin quitó a alguien de una lista de espera El estudiante pidió por email que lo sacáramos manualmente. Lista de espera Admin":
+          - cell "14/11/2026, 18:02"
+          - cell "admin.operaciones@estured.test Admin":
+            - generic: admin.operaciones@estured.test
+            - generic: Admin
+          - cell "quitó a alguien de una lista de espera El estudiante pidió por email que lo sacáramos manualmente.":
+            - text: quitó a alguien de una lista de espera
+            - generic: El estudiante pidió por email que lo sacáramos manualmente.
+          - cell "Lista de espera"
+          - cell "Admin":
+            - generic: Admin
+        - row "14/11/2026, 18:02 valentina.sosa@example.com Estudiante se sumó a una lista de espera Lista de espera Usuario":
+          - cell "14/11/2026, 18:02"
+          - cell "valentina.sosa@example.com Estudiante":
+            - generic: valentina.sosa@example.com
+            - generic: Estudiante
+          - cell "se sumó a una lista de espera"
+          - cell "Lista de espera"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:02 Sistema cerró una lista de espera por reserva confirmada Lista de espera Sistema":
+          - cell "14/11/2026, 18:02"
+          - cell "Sistema"
+          - cell "cerró una lista de espera por reserva confirmada"
+          - cell "Lista de espera"
+          - cell "Sistema":
+            - generic: Sistema
+        - row "14/11/2026, 18:02 valentina.sosa@example.com Estudiante se sumó a una lista de espera Lista de espera Usuario":
+          - cell "14/11/2026, 18:02"
+          - cell "valentina.sosa@example.com Estudiante":
+            - generic: valentina.sosa@example.com
+            - generic: Estudiante
+          - cell "se sumó a una lista de espera"
+          - cell "Lista de espera"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:02 valentina.sosa@example.com Estudiante salió de una lista de espera Lista de espera Usuario":
+          - cell "14/11/2026, 18:02"
+          - cell "valentina.sosa@example.com Estudiante":
+            - generic: valentina.sosa@example.com
+            - generic: Estudiante
+          - cell "salió de una lista de espera"
+          - cell "Lista de espera"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:02 Sistema pidió confirmar que sigue en la lista de espera Lista de espera Sistema":
+          - cell "14/11/2026, 18:02"
+          - cell "Sistema"
+          - cell "pidió confirmar que sigue en la lista de espera"
+          - cell "Lista de espera"
+          - cell "Sistema":
+            - generic: Sistema
+        - row "14/11/2026, 18:02 valentina.sosa@example.com Estudiante se sumó a una lista de espera Lista de espera Usuario":
+          - cell "14/11/2026, 18:02"
+          - cell "valentina.sosa@example.com Estudiante":
+            - generic: valentina.sosa@example.com
+            - generic: Estudiante
+          - cell "se sumó a una lista de espera"
+          - cell "Lista de espera"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:02 Sistema ocultó de las búsquedas una disponibilidad vencida Disponibilidad Sistema":
+          - cell "14/11/2026, 18:02"
+          - cell "Sistema"
+          - cell "ocultó de las búsquedas una disponibilidad vencida"
+          - cell "Disponibilidad"
+          - cell "Sistema":
+            - generic: Sistema
+        - row "14/11/2026, 18:02 Sistema marcó una disponibilidad como sin actualizar Disponibilidad Sistema":
+          - cell "14/11/2026, 18:02"
+          - cell "Sistema"
+          - cell "marcó una disponibilidad como sin actualizar"
+          - cell "Disponibilidad"
+          - cell "Sistema":
+            - generic: Sistema
+        - row "14/11/2026, 18:02 owner.residencia.norte@example.com Residencia actualizó la disponibilidad de una residencia Disponibilidad Usuario":
+          - cell "14/11/2026, 18:02"
+          - cell "owner.residencia.norte@example.com Residencia":
+            - generic: owner.residencia.norte@example.com
+            - generic: Residencia
+          - cell "actualizó la disponibilidad de una residencia"
+          - cell "Disponibilidad"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:02 valentina.sosa@example.com Estudiante activó un lugar en la lista de espera Lista de espera Usuario":
+          - cell "14/11/2026, 18:02"
+          - cell "valentina.sosa@example.com Estudiante":
+            - generic: valentina.sosa@example.com
+            - generic: Estudiante
+          - cell "activó un lugar en la lista de espera"
+          - cell "Lista de espera"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:02 valentina.sosa@example.com Estudiante envió una solicitud de reserva Solicitud Usuario":
+          - cell "14/11/2026, 18:02"
+          - cell "valentina.sosa@example.com Estudiante":
+            - generic: valentina.sosa@example.com
+            - generic: Estudiante
+          - cell "envió una solicitud de reserva"
+          - cell "Solicitud"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:01 valentina.sosa@example.com Estudiante se sumó a una lista de espera Lista de espera Usuario":
+          - cell "14/11/2026, 18:01"
+          - cell "valentina.sosa@example.com Estudiante":
+            - generic: valentina.sosa@example.com
+            - generic: Estudiante
+          - cell "se sumó a una lista de espera"
+          - cell "Lista de espera"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:01 valentina.sosa@example.com Estudiante salió de una lista de espera Lista de espera Usuario":
+          - cell "14/11/2026, 18:01"
+          - cell "valentina.sosa@example.com Estudiante":
+            - generic: valentina.sosa@example.com
+            - generic: Estudiante
+          - cell "salió de una lista de espera"
+          - cell "Lista de espera"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:01 valentina.sosa@example.com Estudiante se sumó a una lista de espera Lista de espera Usuario":
+          - cell "14/11/2026, 18:01"
+          - cell "valentina.sosa@example.com Estudiante":
+            - generic: valentina.sosa@example.com
+            - generic: Estudiante
+          - cell "se sumó a una lista de espera"
+          - cell "Lista de espera"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:01 owner.residencia.norte@example.com Residencia quitó a alguien de su lista de espera Se dio de baja el tipo de habitación. Lista de espera Usuario":
+          - cell "14/11/2026, 18:01"
+          - cell "owner.residencia.norte@example.com Residencia":
+            - generic: owner.residencia.norte@example.com
+            - generic: Residencia
+          - cell "quitó a alguien de su lista de espera Se dio de baja el tipo de habitación.":
+            - text: quitó a alguien de su lista de espera
+            - generic: Se dio de baja el tipo de habitación.
+          - cell "Lista de espera"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:01 valentina.sosa@example.com Estudiante se sumó a una lista de espera Lista de espera Usuario":
+          - cell "14/11/2026, 18:01"
+          - cell "valentina.sosa@example.com Estudiante":
+            - generic: valentina.sosa@example.com
+            - generic: Estudiante
+          - cell "se sumó a una lista de espera"
+          - cell "Lista de espera"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:01 valentina.sosa@example.com Estudiante salió de una lista de espera Lista de espera Usuario":
+          - cell "14/11/2026, 18:01"
+          - cell "valentina.sosa@example.com Estudiante":
+            - generic: valentina.sosa@example.com
+            - generic: Estudiante
+          - cell "salió de una lista de espera"
+          - cell "Lista de espera"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:01 valentina.sosa@example.com Estudiante se sumó a una lista de espera Lista de espera Usuario":
+          - cell "14/11/2026, 18:01"
+          - cell "valentina.sosa@example.com Estudiante":
+            - generic: valentina.sosa@example.com
+            - generic: Estudiante
+          - cell "se sumó a una lista de espera"
+          - cell "Lista de espera"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:01 valentina.sosa@example.com Estudiante salió de una lista de espera Lista de espera Usuario":
+          - cell "14/11/2026, 18:01"
+          - cell "valentina.sosa@example.com Estudiante":
+            - generic: valentina.sosa@example.com
+            - generic: Estudiante
+          - cell "salió de una lista de espera"
+          - cell "Lista de espera"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:01 owner.residencia.norte@example.com Residencia avisó a la lista de espera que hay lugar Lista de espera Usuario":
+          - cell "14/11/2026, 18:01"
+          - cell "owner.residencia.norte@example.com Residencia":
+            - generic: owner.residencia.norte@example.com
+            - generic: Residencia
+          - cell "avisó a la lista de espera que hay lugar"
+          - cell "Lista de espera"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:01 valentina.sosa@example.com Estudiante confirmó que sigue en la lista de espera Lista de espera Usuario":
+          - cell "14/11/2026, 18:01"
+          - cell "valentina.sosa@example.com Estudiante":
+            - generic: valentina.sosa@example.com
+            - generic: Estudiante
+          - cell "confirmó que sigue en la lista de espera"
+          - cell "Lista de espera"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:01 owner.residencia.norte@example.com Residencia avisó a la lista de espera que hay lugar Lista de espera Usuario":
+          - cell "14/11/2026, 18:01"
+          - cell "owner.residencia.norte@example.com Residencia":
+            - generic: owner.residencia.norte@example.com
+            - generic: Residencia
+          - cell "avisó a la lista de espera que hay lugar"
+          - cell "Lista de espera"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:01 valentina.sosa@example.com Estudiante se sumó a una lista de espera Lista de espera Usuario":
+          - cell "14/11/2026, 18:01"
+          - cell "valentina.sosa@example.com Estudiante":
+            - generic: valentina.sosa@example.com
+            - generic: Estudiante
+          - cell "se sumó a una lista de espera"
+          - cell "Lista de espera"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:01 valentina.sosa@example.com Estudiante salió de una lista de espera Lista de espera Usuario":
+          - cell "14/11/2026, 18:01"
+          - cell "valentina.sosa@example.com Estudiante":
+            - generic: valentina.sosa@example.com
+            - generic: Estudiante
+          - cell "salió de una lista de espera"
+          - cell "Lista de espera"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:01 valentina.sosa@example.com Estudiante confirmó que sigue en la lista de espera Lista de espera Usuario":
+          - cell "14/11/2026, 18:01"
+          - cell "valentina.sosa@example.com Estudiante":
+            - generic: valentina.sosa@example.com
+            - generic: Estudiante
+          - cell "confirmó que sigue en la lista de espera"
+          - cell "Lista de espera"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:01 owner.residencia.norte@example.com Residencia avisó a la lista de espera que hay lugar Lista de espera Usuario":
+          - cell "14/11/2026, 18:01"
+          - cell "owner.residencia.norte@example.com Residencia":
+            - generic: owner.residencia.norte@example.com
+            - generic: Residencia
+          - cell "avisó a la lista de espera que hay lugar"
+          - cell "Lista de espera"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:01 valentina.sosa@example.com Estudiante se sumó a una lista de espera Lista de espera Usuario":
+          - cell "14/11/2026, 18:01"
+          - cell "valentina.sosa@example.com Estudiante":
+            - generic: valentina.sosa@example.com
+            - generic: Estudiante
+          - cell "se sumó a una lista de espera"
+          - cell "Lista de espera"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:01 valentina.sosa@example.com Estudiante salió de una lista de espera Lista de espera Usuario":
+          - cell "14/11/2026, 18:01"
+          - cell "valentina.sosa@example.com Estudiante":
+            - generic: valentina.sosa@example.com
+            - generic: Estudiante
+          - cell "salió de una lista de espera"
+          - cell "Lista de espera"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:01 valentina.sosa@example.com Estudiante se sumó a una lista de espera Lista de espera Usuario":
+          - cell "14/11/2026, 18:01"
+          - cell "valentina.sosa@example.com Estudiante":
+            - generic: valentina.sosa@example.com
+            - generic: Estudiante
+          - cell "se sumó a una lista de espera"
+          - cell "Lista de espera"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:01 valentina.sosa@example.com Estudiante guardó la nota de una salida anticipada Salida anticipada Usuario":
+          - cell "14/11/2026, 18:01"
+          - cell "valentina.sosa@example.com Estudiante":
+            - generic: valentina.sosa@example.com
+            - generic: Estudiante
+          - cell "guardó la nota de una salida anticipada"
+          - cell "Salida anticipada"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:01 owner.residencia.norte@example.com Residencia registró la salida de un residente Residente Usuario":
+          - cell "14/11/2026, 18:01"
+          - cell "owner.residencia.norte@example.com Residencia":
+            - generic: owner.residencia.norte@example.com
+            - generic: Residencia
+          - cell "registró la salida de un residente"
+          - cell "Residente"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:01 owner.residencia.norte@example.com Residencia registró una salida anticipada de un residente Residente Usuario":
+          - cell "14/11/2026, 18:01"
+          - cell "owner.residencia.norte@example.com Residencia":
+            - generic: owner.residencia.norte@example.com
+            - generic: Residencia
+          - cell "registró una salida anticipada de un residente"
+          - cell "Residente"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:01 Sistema resolvió un aviso de cambio de residencia Aviso de cambio Sistema":
+          - cell "14/11/2026, 18:01"
+          - cell "Sistema"
+          - cell "resolvió un aviso de cambio de residencia"
+          - cell "Aviso de cambio"
+          - cell "Sistema":
+            - generic: Sistema
+        - row "14/11/2026, 18:00 valentina.sosa@example.com Estudiante envió una solicitud de reserva Solicitud Usuario":
+          - cell "14/11/2026, 18:00"
+          - cell "valentina.sosa@example.com Estudiante":
+            - generic: valentina.sosa@example.com
+            - generic: Estudiante
+          - cell "envió una solicitud de reserva"
+          - cell "Solicitud"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:00 Sistema venció un aviso de cambio de residencia Aviso de cambio Sistema":
+          - cell "14/11/2026, 18:00"
+          - cell "Sistema"
+          - cell "venció un aviso de cambio de residencia"
+          - cell "Aviso de cambio"
+          - cell "Sistema":
+            - generic: Sistema
+        - row "14/11/2026, 18:00 Sistema quitó a alguien de una lista de espera por un cambio de residencia Lista de espera Sistema":
+          - cell "14/11/2026, 18:00"
+          - cell "Sistema"
+          - cell "quitó a alguien de una lista de espera por un cambio de residencia"
+          - cell "Lista de espera"
+          - cell "Sistema":
+            - generic: Sistema
+        - row "14/11/2026, 18:00 valentina.sosa@example.com Estudiante se sumó a una lista de espera Lista de espera Usuario":
+          - cell "14/11/2026, 18:00"
+          - cell "valentina.sosa@example.com Estudiante":
+            - generic: valentina.sosa@example.com
+            - generic: Estudiante
+          - cell "se sumó a una lista de espera"
+          - cell "Lista de espera"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:00 Sistema pidió confirmar que sigue vigente un aviso de cambio Aviso de cambio Sistema":
+          - cell "14/11/2026, 18:00"
+          - cell "Sistema"
+          - cell "pidió confirmar que sigue vigente un aviso de cambio"
+          - cell "Aviso de cambio"
+          - cell "Sistema":
+            - generic: Sistema
+        - row "14/11/2026, 18:00 Sistema resolvió un aviso de cambio de residencia Aviso de cambio Sistema":
+          - cell "14/11/2026, 18:00"
+          - cell "Sistema"
+          - cell "resolvió un aviso de cambio de residencia"
+          - cell "Aviso de cambio"
+          - cell "Sistema":
+            - generic: Sistema
+        - row "14/11/2026, 18:00 padre.lucia@example.com Familiar confirmó, como familiar, un aviso de cambio Aviso de cambio Usuario":
+          - cell "14/11/2026, 18:00"
+          - cell "padre.lucia@example.com Familiar":
+            - generic: padre.lucia@example.com
+            - generic: Familiar
+          - cell "confirmó, como familiar, un aviso de cambio"
+          - cell "Aviso de cambio"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:00 valentina.sosa@example.com Estudiante avisó que quiere cambiar de residencia o plaza Aviso de cambio Usuario":
+          - cell "14/11/2026, 18:00"
+          - cell "valentina.sosa@example.com Estudiante":
+            - generic: valentina.sosa@example.com
+            - generic: Estudiante
+          - cell "avisó que quiere cambiar de residencia o plaza"
+          - cell "Aviso de cambio"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:00 valentina.sosa@example.com Estudiante canceló un aviso de cambio de residencia Aviso de cambio Usuario":
+          - cell "14/11/2026, 18:00"
+          - cell "valentina.sosa@example.com Estudiante":
+            - generic: valentina.sosa@example.com
+            - generic: Estudiante
+          - cell "canceló un aviso de cambio de residencia"
+          - cell "Aviso de cambio"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:00 valentina.sosa@example.com Estudiante quitó a alguien de una lista de espera por un cambio de residencia Lista de espera Usuario":
+          - cell "14/11/2026, 18:00"
+          - cell "valentina.sosa@example.com Estudiante":
+            - generic: valentina.sosa@example.com
+            - generic: Estudiante
+          - cell "quitó a alguien de una lista de espera por un cambio de residencia"
+          - cell "Lista de espera"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:00 valentina.sosa@example.com Estudiante canceló una solicitud por un cambio de residencia Solicitud Usuario":
+          - cell "14/11/2026, 18:00"
+          - cell "valentina.sosa@example.com Estudiante":
+            - generic: valentina.sosa@example.com
+            - generic: Estudiante
+          - cell "canceló una solicitud por un cambio de residencia"
+          - cell "Solicitud"
+          - cell "Usuario":
+            - generic: Usuario
+        - row "14/11/2026, 18:00 valentina.sosa@example.com Estudiante extendió un aviso de cambio de residencia Aviso de cambio Usuario":
+          - cell "14/11/2026, 18:00"
+          - cell "valentina.sosa@example.com Estudiante":
+            - generic: valentina.sosa@example.com
+            - generic: Estudiante
+          - cell "extendió un aviso de cambio de residencia"
+          - cell "Aviso de cambio"
+          - cell "Usuario":
+            - generic: Usuario
+  - paragraph: Página 1 de 84
+  - generic: ← Anterior
+  - link "Siguiente →":
+    - /url: /admin/activity?tab=logs&page=2
+- button "Admin Operativo": Admin Operativo

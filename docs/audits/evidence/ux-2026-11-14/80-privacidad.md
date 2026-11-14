@@ -1,0 +1,185 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- banner:
+  - navigation:
+    - link "EstuRed, inicio":
+      - /url: /
+      - generic: EstuRed
+    - link "Para estudiantesy familias":
+      - /url: /for-students
+      - generic: Para estudiantesy familias
+    - link "Para residencias":
+      - /url: /for-residences
+    - link "Guías":
+      - /url: /guias
+    - link "Ingresar":
+      - /url: /login
+    - link "Crear cuenta":
+      - /url: /register
+    - link "Buscar residencias":
+      - /url: /search
+      - generic: search
+      - text: Buscar residencias
+- main:
+  - heading "Política de privacidad" [level=1]
+  - paragraph: "Última actualización: julio de 2026."
+  - paragraph:
+    - strong: Este es un borrador operativo
+    - text: ", escrito a partir de nuestras reglas internas de privacidad. Todavía está pendiente de revisión por un abogado antes de nuestro lanzamiento público masivo, y puede cambiar. Si tenés dudas puntuales, escribinos a"
+    - link "hola@estured.com":
+      - /url: mailto:hola@estured.com
+    - text: .
+  - paragraph: EstuRed es una plataforma intermediaria de búsqueda, solicitud y reserva de alojamiento estudiantil. Esta página explica qué datos personales recolectamos, para qué los usamos, con quién los compartimos y cuáles son tus derechos sobre ellos.
+  - heading "Política de privacidad de la preapertura" [level=2]
+  - paragraph: Mientras EstuRed esté en preapertura rige esta sección; lo demás aplica cuando abramos.
+  - paragraph: Versión de la preapertura, vigente desde [Fecha a definir].
+  - heading "Quién es responsable de tus datos" [level=3]
+  - paragraph:
+    - text: "El responsable de la base de datos es [Responsable: a definir] (nombre o razón social, CUIT y domicilio en la Ciudad Autónoma de Buenos Aires), que opera EstuRed. Contacto:"
+    - link "hola@estured.com":
+      - /url: mailto:hola@estured.com
+    - text: .
+  - heading "Qué datos pedimos" [level=3]
+  - list:
+    - listitem: "Para tu cuenta: email, contraseña (guardada cifrada), fecha de nacimiento y si sos estudiante o familiar."
+    - listitem: "Tu perfil: nombre, país y provincia, universidad, carrera, mes de ingreso, tipo de habitación, hábitos, intereses y si ya vivís en una residencia (y cuál)."
+    - listitem: "Familiares: el email del estudiante que acompañás."
+    - listitem: "Residencias: nombre y dirección de la residencia, responsable, email y teléfono."
+  - paragraph: No pedimos presupuesto, documentos ni datos de pago en la preapertura.
+  - heading "Para qué los usamos" [level=3]
+  - list:
+    - listitem: Crear y mantener tu cuenta.
+    - listitem: Avisarte cuando EstuRed abra y contarte novedades de la preapertura.
+    - listitem: Mostrar tu búsqueda sin nombre ni contacto a residencias verificadas (Términos) y, si la activás, tu tarjeta en la comunidad pública.
+    - listitem: Medir cuántas personas se suman, siempre en números totales.
+  - heading "Con quién los compartimos" [level=3]
+  - list:
+    - listitem: "Residencias verificadas: solo tu búsqueda sin nombre ni contacto. Tu nombre y email, solo si confirmás que una residencia te contacte."
+    - listitem: "Cualquier visitante de la web: tu tarjeta de comunidad, solo si la activaste."
+    - listitem: "Tu familiar vinculado: tu búsqueda, solo si aceptaste su invitación."
+    - listitem: "Proveedores que nos dan servicio: alojamiento de la base de datos y de la web, y envío de mails. Algunos guardan datos fuera de Argentina; al aceptar esta política consentís esa transferencia."
+  - paragraph: Nunca vendemos tus datos ni los usamos para publicidad de terceros.
+  - heading "Menores de edad" [level=3]
+  - paragraph: Las cuentas son para mayores de 18. Un menor solo puede sumarse con la invitación de un familiar mayor de edad registrado en EstuRed; sus cuentas quedan conectadas y su perfil nunca aparece en la comunidad pública.
+  - heading "Cuánto tiempo los guardamos" [level=3]
+  - paragraph: Mientras tengas cuenta. Si la cerrás, borramos tus datos dentro de los 30 días, salvo lo que la ley nos obligue a conservar. La tarjeta de comunidad se quita de la web apenas la desactivás.
+  - heading "Tus derechos" [level=3]
+  - paragraph:
+    - text: Podés pedir acceso a tus datos (gratis, cada seis meses), corregirlos, actualizarlos o borrarlos, y retirar cualquier permiso cuando quieras, escribiendo a
+    - link "hola@estured.com":
+      - /url: mailto:hola@estured.com
+    - text: . Respondemos pedidos de acceso en 10 días corridos y de corrección o borrado en 5 días hábiles.
+  - heading "Cookies" [level=3]
+  - paragraph: Usamos solo las cookies necesarias para que inicies sesión.
+  - heading "Cambios" [level=3]
+  - paragraph: Si cambiamos esta política, te avisamos por mail antes de que rija.
+  - paragraph: LA AGENCIA DE ACCESO A LA INFORMACIÓN PÚBLICA, en su carácter de Órgano de Control de la Ley N° 25.326, tiene la atribución de atender las denuncias y reclamos que interpongan quienes resulten afectados en sus derechos por incumplimiento de las normas vigentes en materia de protección de datos personales.
+  - heading "1. Qué datos recolectamos" [level=2]
+  - paragraph: "Según cómo uses EstuRed, podemos recolectar: datos de tu cuenta (nombre, apellido, email, teléfono, nacionalidad, fecha de nacimiento, ciudad de origen, carrera, hábitos e intereses declarados), documentos que subís vos (DNI o pasaporte, constancia de estudio, comprobantes de pago, y otra documentación que te pida la residencia), y si te sumás a nuestra lista de espera: tu nombre, email, ciudad y el mensaje que nos dejes."
+  - paragraph: Evitamos activamente pedir datos sensibles como salud, religión, ideología política, orientación sexual, origen étnico o antecedentes penales, salvo que vos los compartas voluntariamente (por ejemplo, para pedir una adaptación de accesibilidad).
+  - heading "2. Para qué los usamos" [level=2]
+  - paragraph: Usamos tus datos para crear tu cuenta, mostrarte residencias, procesar tus solicitudes de reserva y las propuestas de tu familiar vinculado, gestionar negociaciones, administrar pagos y emitir comprobantes y facturas del fee EstuRed, verificar residencias, habilitar la comunidad visible (con tu configuración de privacidad), darte soporte, y cumplir obligaciones legales, fiscales y operativas. No usamos tus datos para fines distintos a estos sin pedirte un consentimiento adicional.
+  - heading "3. Con quién compartimos tus datos" [level=2]
+  - paragraph: "Compartimos datos solo cuando hace falta para el servicio, nunca de forma abierta o global:"
+  - list:
+    - text: Con la
+    - strong: residencia
+    - text: a la que le enviaste una solicitud, o con la que tenés una reserva en proceso, confirmada o activa — nunca con residencias sin ese contexto.
+    - text: Con
+    - strong: proveedores de pago
+    - text: (MercadoPago, PayU Argentina) para procesar el cobro del fee.
+    - text: Con
+    - strong: TusFacturas.app
+    - text: ", para emitir la Factura C del fee a nombre de quien paga."
+    - text: Con tu
+    - strong: familiar vinculado
+    - text: ", si consentiste explícitamente compartir tu teléfono al recibir una propuesta de su parte."
+  - paragraph: Nunca hacemos públicos tu apellido completo, email, teléfono, fecha de nacimiento, universidad específica, documentos cargados, datos de pago, dirección, ni el contenido de una propuesta de tu familiar antes de que la apruebes.
+  - paragraph: Nuestra infraestructura corre sobre proveedores cloud que pueden alojar datos fuera de Argentina; estamos validando las reglas exactas de transferencia internacional que corresponden.
+  - heading "4. Menores de edad" [level=2]
+  - paragraph: Si sos menor de 18, no podés terminar tu registro sin un familiar vinculado. Por defecto, tu perfil tiene visibilidad más restringida (por ejemplo, sin foto real para visitantes). Vos seguís siendo quien aprueba o rechaza cualquier propuesta que te haga tu familiar — nunca la aprueba en tu lugar. Si sos menor, el contacto de la residencia se dirige siempre a tu familiar vinculado.
+  - paragraph: El tratamiento de datos de usuarios menores de edad está sujeto a revisión legal adicional antes del lanzamiento público masivo de la plataforma.
+  - heading "5. Cuánto tiempo conservamos tus datos" [level=2]
+  - paragraph: Conservamos tus datos mientras tengas una cuenta activa o mientras haga falta para operar tu reserva, soporte, auditoría, pagos y obligaciones fiscales. Podés pedir la baja de tu cuenta, la rectificación de tus datos, o la eliminación de datos que ya no sean necesarios.
+  - paragraph: Si eliminás tu cuenta, conservamos un mínimo de trazabilidad de operaciones ya confirmadas (reserva, pago, comprobante, factura fiscal) cuando la ley nos obliga a hacerlo — y anonimizamos el resto de tus datos personales cuando es posible.
+  - paragraph: "Todavía no tenemos un plazo de retención exacto en años definido: estamos validando esa política con asesoría legal."
+  - heading "6. Tus derechos" [level=2]
+  - paragraph:
+    - text: Bajo la Ley 25.326 de Protección de Datos Personales, tenés derecho a acceder, rectificar, actualizar y pedir la supresión de tus datos personales. Podés ejercer estos derechos escribiéndonos a
+    - link "hola@estured.com":
+      - /url: mailto:hola@estured.com
+    - text: .
+  - heading "7. Cómo pedir el borrado de tus datos" [level=2]
+  - paragraph:
+    - text: "Hoy este proceso no es automático: escribinos a"
+    - link "hola@estured.com":
+      - /url: mailto:hola@estured.com
+    - text: pidiendo la baja o eliminación de tu cuenta y lo gestionamos manualmente. Puede haber una demora si tenés operaciones activas, reclamos abiertos, u obligaciones legales o fiscales que nos obliguen a conservar cierta información igual.
+  - heading "8. Cómo protegemos tus datos" [level=2]
+  - paragraph: Usamos control de acceso por rol, reglas de seguridad a nivel de base de datos, enlaces firmados y con vencimiento para tus documentos privados, y registramos auditoría de accesos sensibles.
+  - heading "9. Contacto" [level=2]
+  - paragraph:
+    - text: Para cualquier consulta sobre esta política o tus datos personales, escribinos a
+    - link "hola@estured.com":
+      - /url: mailto:hola@estured.com
+    - text: .
+  - paragraph:
+    - text: Volver a
+    - link "EstuRed":
+      - /url: /
+    - text: .
+- contentinfo:
+  - generic: EstuRed
+  - generic: EstuRed
+  - paragraph: La convivencia también se elige. Residencias estudiantiles verificadas en CABA, con solicitudes registradas y comprobantes verificables.
+  - list:
+    - generic: check
+    - text: Residencias verificadas presencialmente
+    - generic: check
+    - text: Solicitudes registradas en la plataforma
+    - generic: check
+    - text: Comprobante de Reserva Confirmada
+  - navigation "Explorar":
+    - paragraph: Explorar
+    - list:
+      - link "Buscar residencias":
+        - /url: /search
+      - link "Para estudiantes y familias":
+        - /url: /for-students
+      - link "Para residencias":
+        - /url: /for-residences
+      - link "Guías":
+        - /url: /guias
+      - link "Crear cuenta":
+        - /url: /register
+  - navigation "Ayuda":
+    - paragraph: Ayuda
+    - list:
+      - link "Soporte":
+        - /url: /students/support
+        - generic: support_agent
+        - text: Soporte
+      - link "Preguntas frecuentes":
+        - /url: /for-students#preguntas-frecuentes
+      - link "Cómo funciona":
+        - /url: /#el-proceso
+      - link "Qué pagás y a quién":
+        - /url: /for-students#que-pagas
+      - text: "Contacto:"
+      - link "hola@estured.com":
+        - /url: mailto:hola@estured.com
+      - listitem: ¿Tenés una reserva y algo no coincide? Abrí un caso desde tu panel.
+  - paragraph: EstuRed actúa como plataforma intermediaria de búsqueda, solicitud, registro y comprobante. No presta directamente el alojamiento. Los precios en ARS son referenciales al dólar blue del día.
+  - list:
+    - link "Botón de arrepentimiento":
+      - /url: /students/revocation
+    - link "Verificar un comprobante":
+      - /url: /verify
+    - link "Términos y condiciones":
+      - /url: /terms
+    - link "Política de privacidad":
+      - /url: /privacy
+  - paragraph: Hecho con ♥ en Buenos Aires
+- button "Simular usuario": Simular usuario
+- button "Open Next.js Dev Tools":
+- alert

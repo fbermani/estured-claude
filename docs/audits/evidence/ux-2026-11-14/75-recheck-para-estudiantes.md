@@ -1,0 +1,362 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- banner:
+  - navigation:
+    - link "EstuRed, inicio":
+      - /url: /
+      - generic: EstuRed
+    - link "Para estudiantesy familias" [active]:
+      - /url: /for-students
+      - generic: Para estudiantesy familias
+    - link "Para residencias":
+      - /url: /for-residences
+    - link "Guías":
+      - /url: /guias
+    - link "Ingresar":
+      - /url: /login
+    - link "Crear cuenta":
+      - /url: /register
+    - link "Buscar residencias":
+      - /url: /search
+      - generic: search
+      - text: Buscar residencias
+- main:
+  - paragraph: Para estudiantes y familias
+  - heading "Elegí tu residencia en Buenos Aires con todo verificado y por escrito." [level=1]
+  - paragraph: Un proceso registrado paso a paso y un comprobante de reserva que cualquiera puede consultar online.
+  - link "Buscar residencia en CABA":
+    - /url: /search
+    - text: Buscar residencia en CABA
+    - generic: arrow_forward
+  - link "Crear cuenta de estudiante":
+    - /url: /register
+  - paragraph: Explorar es gratis. Toda solicitud queda sujeta a confirmación de la residencia.
+  - figure:
+    - img "Residencia Wanna Tango"
+  - figure
+  - generic: verified
+  - text: Visitada en persona
+  - text: Reglas, servicios y fotos revisados
+  - generic: receipt_long
+  - text: Comprobante de reserva
+  - code: ER-XXXX-XXXX
+  - text: Cualquiera puede consultarlo
+  - list:
+    - generic: verified_user
+    - text: Visitamos cada residencia
+    - generic: edit_document
+    - text: Todo registrado por escrito
+    - generic: lock
+    - text: Ves el monto exacto antes de pagar
+    - generic: flight_takeoff
+    - text: 100% a distancia
+  - paragraph: Beneficios
+  - heading "Lo que cambia cuando buscás con EstuRed" [level=2]
+  - paragraph: Conocé los requisitos y beneficios de cada residencia sin moverte de tu casa.
+  - table "Lo que suele pasar y lo que cambia con EstuRed":
+    - rowgroup:
+      - row "Beneficio Lo que suele pasar Con EstuRed":
+        - columnheader "Beneficio":
+          - generic: Beneficio
+        - columnheader "Lo que suele pasar":
+          - generic: remove
+          - text: Lo que suele pasar
+        - columnheader "Con EstuRed":
+          - generic: check_circle
+          - text: Con EstuRed
+    - rowgroup:
+      - row "Comunidad visible no sabés con quién vivís hasta que llegás. Conocé a tus compañeros antes de solicitar.":
+        - rowheader "Comunidad visible":
+          - generic: groups
+          - generic: Comunidad visible
+        - cell "no sabés con quién vivís hasta que llegás.":
+          - generic: remove
+          - generic: no sabés con quién vivís hasta que llegás.
+        - cell "Conocé a tus compañeros antes de solicitar.":
+          - generic: check_circle
+          - generic: Conocé a tus compañeros antes de solicitar.
+      - row "Reglas antes de escribir las reglas aparecen cuando ya pagaste. Las 5 principales a la vista y el reglamento para descargar.":
+        - rowheader "Reglas antes de escribir":
+          - generic: rule
+          - generic: Reglas antes de escribir
+        - cell "las reglas aparecen cuando ya pagaste.":
+          - generic: remove
+          - generic: las reglas aparecen cuando ya pagaste.
+        - cell "Las 5 principales a la vista y el reglamento para descargar.":
+          - generic: check_circle
+          - generic: Las 5 principales a la vista y el reglamento para descargar.
+      - row "Tu familia te acompaña tu familia se entera por capturas. Sigue cada paso y te propone opciones. Decidís vos.":
+        - rowheader "Tu familia te acompaña":
+          - generic: family_restroom
+          - generic: Tu familia te acompaña
+        - cell "tu familia se entera por capturas.":
+          - generic: remove
+          - generic: tu familia se entera por capturas.
+        - cell "Sigue cada paso y te propone opciones. Decidís vos.":
+          - generic: check_circle
+          - generic: Sigue cada paso y te propone opciones. Decidís vos.
+      - row "Precios claros costos que aparecen al final. Dólares con referencia en pesos, matrícula y depósito a la vista.":
+        - rowheader "Precios claros":
+          - generic: sell
+          - generic: Precios claros
+        - cell "costos que aparecen al final.":
+          - generic: remove
+          - generic: costos que aparecen al final.
+        - cell "Dólares con referencia en pesos, matrícula y depósito a la vista.":
+          - generic: check_circle
+          - generic: Dólares con referencia en pesos, matrícula y depósito a la vista.
+      - row "Comprobante de reserva tu reserva depende de un mensaje. Abonado el fee, tu reserva queda confirmada con código.":
+        - rowheader "Comprobante de reserva":
+          - generic: qr_code_2
+          - generic: Comprobante de reserva
+        - cell "tu reserva depende de un mensaje.":
+          - generic: remove
+          - generic: tu reserva depende de un mensaje.
+        - cell "Abonado el fee, tu reserva queda confirmada con código.":
+          - generic: check_circle
+          - generic: Abonado el fee, tu reserva queda confirmada con código.
+  - region "Mirá cómo es por dentro antes de solicitar":
+    - paragraph: Comunidad visible
+    - heading "Mirá cómo es por dentro antes de solicitar" [level=2]
+    - paragraph: En cada ficha ves qué habitaciones tienen plazas libres y quiénes viven ahí. Elegís sabiendo con quién vas a compartir.
+    - list:
+      - generic: bed
+      - generic: Plazas libres a la vista
+      - text: Según la disponibilidad que informa la residencia. Tu solicitud queda sujeta a confirmación.
+      - generic: groups
+      - generic: Quiénes viven ahí
+      - text: Carrera, universidad e intereses, según lo que cada residente elige mostrar.
+      - generic: favorite
+      - generic: Convivencia que se elige
+      - text: Encontrás gente que estudia lo mismo o comparte tus horarios.
+    - link "Buscar residencias":
+      - /url: /search
+    - figure "Captura real de la app con datos de ejemplo. Cada residente elige qué mostrar; quienes son menores no aparecen.":
+      - generic: Comunidad de la residencia
+      - generic: Datos de ejemplo
+      - 'img "Sección Comunidad de una residencia en EstuRed: residentes, ocupación y habitaciones individuales y dobles con quién vive en cada cama y las plazas libres."'
+      - generic: lock
+      - text: Captura real de la app con datos de ejemplo. Cada residente elige qué mostrar; quienes son menores no aparecen.
+  - region "Seguridad para tu familia, autonomía para tu decisión":
+    - paragraph:
+      - generic: family_restroom
+      - text: Para las familias
+    - heading "Seguridad para tu familia, autonomía para tu decisión" [level=2]
+    - paragraph: Creás una cuenta de familiar y pedís vincularte con tu estudiante, que aprueba la vinculación. Desde ahí acompañás el proceso con la información que corresponde a tu rol.
+    - paragraph:
+      - generic: lock
+      - generic: "Tu estudiante mantiene el control: sus documentos y mensajes privados son suyos, y las solicitudes se envían solo desde su cuenta. Toda solicitud está sujeta a la confirmación de la residencia."
+    - link "Crear cuenta de familiar":
+      - /url: /register/family
+    - list:
+      - generic "Seguís cada paso Estado de solicitudes y reserva, con avisos":
+        - generic: visibility
+        - generic: Seguís cada paso
+        - generic: Estado de solicitudes y reserva, con avisos
+        - generic: expand_more
+      - generic "Proponés opciones Sugerís residencias; decide tu estudiante":
+        - generic: lightbulb
+        - generic: Proponés opciones
+        - generic: Sugerís residencias; decide tu estudiante
+        - generic: expand_more
+      - generic "Pagás el fee si te designa Solo si tu estudiante te elige":
+        - generic: payments
+        - generic: Pagás el fee si te designa
+        - generic: Solo si tu estudiante te elige
+        - generic: expand_more
+  - paragraph: Paso a paso
+  - heading "Así funciona el proceso" [level=2]
+  - paragraph: Enviar una solicitud es gratis. La residencia revisa tu perfil y confirma si hay lugar.
+  - list:
+    - generic: "1"
+    - 'generic "Paso 1: Creá tu cuenta y buscá Filtrá y compará residencias con reglas y comunidad a la vista. Ver más"':
+      - generic: search
+      - generic: "Paso 1:"
+      - generic: Creá tu cuenta y buscá
+      - generic: Filtrá y compará residencias con reglas y comunidad a la vista.
+      - generic: Ver más
+      - generic: expand_more
+    - generic: "2"
+    - 'generic "Paso 2: Enviá tu solicitud Gratis y registrada. Si no hay lugar, lista de espera automática. Ver más"':
+      - generic: edit_note
+      - generic: "Paso 2:"
+      - generic: Enviá tu solicitud
+      - generic: Gratis y registrada. Si no hay lugar, lista de espera automática.
+      - generic: Ver más
+      - generic: expand_more
+    - generic: "3"
+    - 'generic "Paso 3: La residencia te responde Propuesta con valores finales, sin costos ocultos. Ver más"':
+      - generic: mark_email_read
+      - generic: "Paso 3:"
+      - generic: La residencia te responde
+      - generic: Propuesta con valores finales, sin costos ocultos.
+      - generic: Ver más
+      - generic: expand_more
+    - generic: "4"
+    - 'generic "Paso 4: Le pagás a la residencia Lo acordado para reservar; ella confirma que lo recibió. Ver más"':
+      - generic: apartment
+      - generic: "Paso 4:"
+      - generic: Le pagás a la residencia
+      - generic: Lo acordado para reservar; ella confirma que lo recibió.
+      - generic: Ver más
+      - generic: expand_more
+    - generic: "5"
+    - 'generic "Paso 5: Confirmás y recibís tu comprobante Fee de EstuRed del 5%, aparte. Ves el monto exacto antes de pagar. Ver más"':
+      - generic: verified
+      - generic: "Paso 5:"
+      - generic: Confirmás y recibís tu comprobante
+      - generic: Fee de EstuRed del 5%, aparte. Ves el monto exacto antes de pagar.
+      - generic: Ver más
+      - generic: expand_more
+  - paragraph: Costos
+  - heading "Qué pagás y a quién" [level=2]
+  - paragraph: Cuatro cosas distintas, cada una con su momento. Pasá el mouse o tocá cada una para ver el detalle.
+  - button "Enviar una solicitud Gratis":
+    - generic: edit_note
+    - generic: expand_more
+    - generic: Enviar una solicitud
+    - generic: Gratis
+  - 'button "Pago 1: a la residencia Lo acordado"':
+    - generic: apartment
+    - generic: expand_more
+    - generic: "Pago 1: a la residencia"
+    - generic: Lo acordado
+  - 'button "Pago 2: aparte, a EstuRed Fee del 5%"':
+    - generic: payments
+    - generic: expand_more
+    - generic: "Pago 2: aparte, a EstuRed"
+    - generic: Fee del 5%
+  - button "Tu comprobante Reserva confirmada":
+    - generic: receipt_long
+    - generic: expand_more
+    - generic: Tu comprobante
+    - generic: Reserva confirmada
+  - paragraph:
+    - text: Los precios se publican en dólares, con su equivalente referencial en pesos actualizado a diario.
+    - button "Más información sobre el valor en pesos":
+      - generic: i
+  - region "Cambiarte de residencia, sin esconderte y con los costos claros":
+    - paragraph:
+      - generic: swap_horiz
+      - text: Si ya vivís en una residencia
+    - heading "Cambiarte de residencia, sin esconderte y con los costos claros" [level=2]
+    - paragraph: Si el lugar donde vivís ya no es para vos, avisale con un botón y buscá otro aunque tu contrato siga vigente. Antes de decidir, sabés qué costos tiene salir.
+    - list:
+      - generic "Avisás con un botón Tu reserva sigue igual":
+        - generic: "1"
+        - generic: Avisás con un botón
+        - generic: Tu reserva sigue igual
+        - generic: expand_more
+      - generic "Buscás sin trabas de fechas Solicitás y te sumás a listas de espera":
+        - generic: "2"
+        - generic: Buscás sin trabas de fechas
+        - generic: Solicitás y te sumás a listas de espera
+        - generic: expand_more
+      - generic "Conocés los costos antes Por escrito, antes de decidir":
+        - generic: "3"
+        - generic: Conocés los costos antes
+        - generic: Por escrito, antes de decidir
+        - generic: expand_more
+    - paragraph: "Lo cancelás cuando quieras. Las otras residencias solo ven que estás en proceso de mudanza, no de cuál venís. Los costos de salida los informa cada residencia: EstuRed no los fija ni los cobra. Toda solicitud está sujeta a confirmación."
+    - paragraph: Aviso abierto
+    - paragraph: Estás buscando un cambio
+    - paragraph: Ya podés solicitar y sumarte a listas de espera aunque las fechas se superpongan con tu estadía.
+    - generic: ✓
+    - text: Avisaste
+    - generic: Responde
+    - generic: Buscás
+    - generic: Confirmás
+    - paragraph:
+      - generic: payments
+      - text: Costos de salida
+    - paragraph: Lo informa tu residencia por escrito, antes de que decidas.
+    - paragraph:
+      - generic: lock
+      - text: Tu reserva sigue igual
+    - paragraph:
+      - generic: description
+      - text: Costos de salida, por escrito
+    - generic: family_restroom
+    - paragraph: "Para familias: te enterás de todo"
+    - paragraph: Si estás vinculado como familiar, ves el aviso, la fecha estimada de salida y los costos que informe la residencia. Podés proponer opciones; la decisión es de tu estudiante.
+    - link "Vincularme como familiar":
+      - /url: /register/family
+  - paragraph: Preguntas frecuentes
+  - heading "Dudas comunes" [level=2]
+  - generic "¿Cuánto cuesta usar EstuRed?":
+    - text: ¿Cuánto cuesta usar EstuRed?
+    - generic: +
+  - generic "¿Qué requisitos piden las residencias?":
+    - text: ¿Qué requisitos piden las residencias?
+    - generic: +
+  - generic "¿EstuRed verifica a los estudiantes?":
+    - text: ¿EstuRed verifica a los estudiantes?
+    - generic: +
+  - generic "¿Qué pasa si algo no coincide con lo publicado?":
+    - text: ¿Qué pasa si algo no coincide con lo publicado?
+    - generic: +
+  - paragraph:
+    - text: ¿Sos familiar? Leé
+    - 'link "Guía para familias: elegir residencia y acompañar la nueva etapa"':
+      - /url: /guias/guia-familias-elegir-residencia-universitaria
+  - heading "Empezá tu búsqueda con todo a la vista" [level=2]
+  - paragraph: Buscá entre las residencias verificadas de CABA y enviá tu solicitud. Es gratis.
+  - link "Buscar residencia":
+    - /url: /search
+  - link "Crear cuenta":
+    - /url: /register/student
+- contentinfo:
+  - generic: EstuRed
+  - generic: EstuRed
+  - paragraph: La convivencia también se elige. Residencias estudiantiles verificadas en CABA, con solicitudes registradas y comprobantes verificables.
+  - list:
+    - generic: check
+    - text: Residencias verificadas presencialmente
+    - generic: check
+    - text: Solicitudes registradas en la plataforma
+    - generic: check
+    - text: Comprobante de Reserva Confirmada
+  - navigation "Explorar":
+    - paragraph: Explorar
+    - list:
+      - link "Buscar residencias":
+        - /url: /search
+      - link "Para estudiantes y familias":
+        - /url: /for-students
+      - link "Para residencias":
+        - /url: /for-residences
+      - link "Guías":
+        - /url: /guias
+      - link "Crear cuenta":
+        - /url: /register
+  - navigation "Ayuda":
+    - paragraph: Ayuda
+    - list:
+      - link "Soporte":
+        - /url: /students/support
+        - generic: support_agent
+        - text: Soporte
+      - link "Preguntas frecuentes":
+        - /url: /for-students#preguntas-frecuentes
+      - link "Cómo funciona":
+        - /url: /#el-proceso
+      - link "Qué pagás y a quién":
+        - /url: /for-students#que-pagas
+      - text: "Contacto:"
+      - link "hola@estured.com":
+        - /url: mailto:hola@estured.com
+      - listitem: ¿Tenés una reserva y algo no coincide? Abrí un caso desde tu panel.
+  - paragraph: EstuRed actúa como plataforma intermediaria de búsqueda, solicitud, registro y comprobante. No presta directamente el alojamiento. Los precios en ARS son referenciales al dólar blue del día.
+  - list:
+    - link "Botón de arrepentimiento":
+      - /url: /students/revocation
+    - link "Verificar un comprobante":
+      - /url: /verify
+    - link "Términos y condiciones":
+      - /url: /terms
+    - link "Política de privacidad":
+      - /url: /privacy
+  - paragraph: Hecho con ♥ en Buenos Aires
+- button "Simular usuario": Simular usuario
+- button "Open Next.js Dev Tools":
+- alert: Para estudiantes y familias | EstuRed

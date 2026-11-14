@@ -1,0 +1,708 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- complementary:
+  - paragraph: EstuRed Admin
+  - paragraph: Panel de administración
+  - button "Notificaciones":
+    - generic: notifications
+  - navigation "Administración":
+    - link "Dashboard":
+      - /url: /admin/dashboard
+      - generic: Dashboard
+    - paragraph: Residencias
+    - link "Residencias":
+      - /url: /admin/residences
+      - generic: Residencias
+    - link "Verificaciones":
+      - /url: /admin/verifications
+      - generic: Verificaciones
+    - link "Ediciones de perfil":
+      - /url: /admin/profile-edits
+      - generic: Ediciones de perfil
+    - link "Solicitudes de alta":
+      - /url: /admin/solicitudes-alta
+      - generic: Solicitudes de alta
+    - link "Residencias pedidas":
+      - /url: /admin/residencias-pedidas
+      - generic: Residencias pedidas
+    - link "Preguntas de fichas":
+      - /url: /admin/faq
+      - generic: Preguntas de fichas
+    - link "Ítems «Otro» de fichas":
+      - /url: /admin/custom-amenities
+      - generic: Ítems «Otro» de fichas
+    - paragraph: Operación
+    - link "Solicitudes":
+      - /url: /admin/applications
+      - generic: Solicitudes
+    - link "Propuestas familiar":
+      - /url: /admin/family-proposals
+      - generic: Propuestas familiar
+    - link "Pagos":
+      - /url: /admin/payments
+      - generic: Pagos
+    - link "Actividad":
+      - /url: /admin/activity
+      - generic: Actividad
+    - link "Seguimiento":
+      - /url: /admin/followups
+      - generic: Seguimiento
+    - paragraph: Plataforma
+    - link "Comunidad":
+      - /url: /admin/community
+      - generic: Comunidad
+    - link "Visibilidad y penalizaciones":
+      - /url: /admin/visibility
+      - generic: Visibilidad y penalizaciones
+    - link "Administración de tarifas":
+      - /url: /admin/pricing
+      - generic: Administración de tarifas
+    - link "Documentos":
+      - /url: /admin/documents
+      - generic: Documentos
+    - link "Tipo de cambio":
+      - /url: /admin/exchange-rate
+      - generic: Tipo de cambio
+    - link "Usuarios":
+      - /url: /admin/users
+      - generic: Usuarios
+    - paragraph: Soporte
+    - link "Soporte":
+      - /url: /admin/support-cases
+      - generic: Soporte
+  - generic: A
+  - paragraph: admin.operaciones@estured.test
+  - paragraph: Admin
+  - button "Cerrar sesión"
+  - button "Colapsar menú":
+- main:
+  - heading "Actividad" [level=1]
+  - paragraph: Negociaciones, reservas, renovaciones, revocaciones, comprobantes, listas de espera y logs — todo lo que es seguimiento, en un solo lugar.
+  - navigation:
+    - link "Negociaciones":
+      - /url: /admin/activity?tab=negotiations
+    - link "Reservas":
+      - /url: /admin/activity?tab=reservations
+    - link "Renovaciones":
+      - /url: /admin/activity?tab=renewals
+    - link "Revocaciones":
+      - /url: /admin/activity?tab=revocations
+    - link "Comprobantes":
+      - /url: /admin/activity?tab=receipts
+    - link "Listas de espera":
+      - /url: /admin/activity?tab=waitlists
+    - link "Logs":
+      - /url: /admin/activity?tab=logs
+  - heading "Listas de espera" [level=1]
+  - paragraph: 46 en espera activa de 50 registro(s). Desde acá se puede sacar a alguien de una lista activa.
+  - region "Listas de espera":
+    - table:
+      - rowgroup:
+        - row "Alta Estudiante Residencia Tipo Ingreso Estado":
+          - columnheader "Alta"
+          - columnheader "Estudiante"
+          - columnheader "Residencia"
+          - columnheader "Tipo"
+          - columnheader "Ingreso"
+          - columnheader "Estado"
+          - columnheader
+      - rowgroup:
+        - row "05/11/2026 Lucia F. Residencia Río de la Plata Recoleta Individual noviembre 2026 Salió (otra reserva)":
+          - cell "05/11/2026"
+          - cell "Lucia F."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Individual"
+          - cell "noviembre 2026"
+          - cell "Salió (otra reserva)":
+            - generic: Salió (otra reserva)
+          - cell
+        - row "04/11/2026 Sofía I. Residencia Río de la Plata Recoleta Individual abril 2027 En espera Sacar":
+          - cell "04/11/2026"
+          - cell "Sofía I."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Individual"
+          - cell "abril 2027"
+          - cell "En espera":
+            - generic: En espera
+          - cell "Sacar":
+            - button "Sacar"
+        - row "03/11/2026 Benjamín S. Residencia Río de la Plata Recoleta Doble marzo 2027 En espera Sacar":
+          - cell "03/11/2026"
+          - cell "Benjamín S."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Doble"
+          - cell "marzo 2027"
+          - cell "En espera":
+            - generic: En espera
+          - cell "Sacar":
+            - button "Sacar"
+        - row "02/11/2026 Juan S. Residencia Río de la Plata Recoleta Cualquiera diciembre 2026 En espera Sacar":
+          - cell "02/11/2026"
+          - cell "Juan S."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Cualquiera"
+          - cell "diciembre 2026"
+          - cell "En espera":
+            - generic: En espera
+          - cell "Sacar":
+            - button "Sacar"
+        - row "01/11/2026 Diego P. Residencia Río de la Plata Recoleta Doble noviembre 2026 En espera Sacar":
+          - cell "01/11/2026"
+          - cell "Diego P."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Doble"
+          - cell "noviembre 2026"
+          - cell "En espera":
+            - generic: En espera
+          - cell "Sacar":
+            - button "Sacar"
+        - row "31/10/2026 Emilia V. Residencia Río de la Plata Recoleta Individual diciembre 2026 Chequeo de retención Sacar":
+          - cell "31/10/2026"
+          - cell "Emilia V."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Individual"
+          - cell "diciembre 2026"
+          - cell "Chequeo de retención":
+            - generic: Chequeo de retención
+          - cell "Sacar":
+            - button "Sacar"
+        - row "30/10/2026 Lautaro E. Residencia Río de la Plata Recoleta Cuádruple noviembre 2026 En espera Sacar":
+          - cell "30/10/2026"
+          - cell "Lautaro E."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Cuádruple"
+          - cell "noviembre 2026"
+          - cell "En espera":
+            - generic: En espera
+          - cell "Sacar":
+            - button "Sacar"
+        - row "29/10/2026 Camila R. Residencia Río de la Plata Recoleta Doble diciembre 2026 En espera Sacar":
+          - cell "29/10/2026"
+          - cell "Camila R."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Doble"
+          - cell "diciembre 2026"
+          - cell "En espera":
+            - generic: En espera
+          - cell "Sacar":
+            - button "Sacar"
+        - row "29/10/2026 Lucía L. Residencia Río de la Plata Recoleta Individual noviembre 2026 En espera Sacar":
+          - cell "29/10/2026"
+          - cell "Lucía L."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Individual"
+          - cell "noviembre 2026"
+          - cell "En espera":
+            - generic: En espera
+          - cell "Sacar":
+            - button "Sacar"
+        - row "27/10/2026 Rocío M. Residencia Río de la Plata Recoleta Triple Cuando haya lugar Avisado Sacar":
+          - cell "27/10/2026"
+          - cell "Rocío M."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Triple"
+          - cell "Cuando haya lugar"
+          - cell "Avisado":
+            - generic: Avisado
+          - cell "Sacar":
+            - button "Sacar"
+        - row "26/10/2026 Camila C. Residencia Río de la Plata Recoleta Individual noviembre 2026 En espera Sacar":
+          - cell "26/10/2026"
+          - cell "Camila C."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Individual"
+          - cell "noviembre 2026"
+          - cell "En espera":
+            - generic: En espera
+          - cell "Sacar":
+            - button "Sacar"
+        - row "26/10/2026 Tomás Q. Residencia Río de la Plata Recoleta Triple diciembre 2026 Avisado Sacar":
+          - cell "26/10/2026"
+          - cell "Tomás Q."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Triple"
+          - cell "diciembre 2026"
+          - cell "Avisado":
+            - generic: Avisado
+          - cell "Sacar":
+            - button "Sacar"
+        - row "24/10/2026 Gonzalo C. Residencia Río de la Plata Recoleta Doble marzo 2027 En espera Sacar":
+          - cell "24/10/2026"
+          - cell "Gonzalo C."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Doble"
+          - cell "marzo 2027"
+          - cell "En espera":
+            - generic: En espera
+          - cell "Sacar":
+            - button "Sacar"
+        - row "23/10/2026 Lucía L. Residencia Río de la Plata Recoleta Cualquiera mayo 2027 En espera Sacar":
+          - cell "23/10/2026"
+          - cell "Lucía L."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Cualquiera"
+          - cell "mayo 2027"
+          - cell "En espera":
+            - generic: En espera
+          - cell "Sacar":
+            - button "Sacar"
+        - row "23/10/2026 Lautaro E. Residencia Río de la Plata Recoleta Doble febrero 2027 En espera Sacar":
+          - cell "23/10/2026"
+          - cell "Lautaro E."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Doble"
+          - cell "febrero 2027"
+          - cell "En espera":
+            - generic: En espera
+          - cell "Sacar":
+            - button "Sacar"
+        - row "22/10/2026 Valentina S. Residencia Río de la Plata Recoleta Triple enero 2027 Salió (otra reserva)":
+          - cell "22/10/2026"
+          - cell "Valentina S."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Triple"
+          - cell "enero 2027"
+          - cell "Salió (otra reserva)":
+            - generic: Salió (otra reserva)
+          - cell
+        - row "20/10/2026 Lucia F. Residencia Norte Palermo Individual octubre 2026 Salió (otra reserva)":
+          - cell "20/10/2026"
+          - cell "Lucia F."
+          - cell "Residencia Norte Palermo":
+            - text: Residencia Norte
+            - generic: Palermo
+          - cell "Individual"
+          - cell "octubre 2026"
+          - cell "Salió (otra reserva)":
+            - generic: Salió (otra reserva)
+          - cell
+        - row "20/10/2026 Camila R. Residencia Norte Palermo Doble septiembre 2026 Salió (estudiante)":
+          - cell "20/10/2026"
+          - cell "Camila R."
+          - cell "Residencia Norte Palermo":
+            - text: Residencia Norte
+            - generic: Palermo
+          - cell "Doble"
+          - cell "septiembre 2026"
+          - cell "Salió (estudiante)":
+            - generic: Salió (estudiante)
+          - cell
+        - row "20/10/2026 Ciro F. Residencia Río de la Plata Recoleta Cuádruple noviembre 2026 En espera Sacar":
+          - cell "20/10/2026"
+          - cell "Ciro F."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Cuádruple"
+          - cell "noviembre 2026"
+          - cell "En espera":
+            - generic: En espera
+          - cell "Sacar":
+            - button "Sacar"
+        - row "20/10/2026 Ignacio S. Residencia Río de la Plata Recoleta Cuádruple Cuando haya lugar En espera Sacar":
+          - cell "20/10/2026"
+          - cell "Ignacio S."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Cuádruple"
+          - cell "Cuando haya lugar"
+          - cell "En espera":
+            - generic: En espera
+          - cell "Sacar":
+            - button "Sacar"
+        - row "19/10/2026 Ana J. Residencia Río de la Plata Recoleta Doble diciembre 2026 Chequeo de retención Sacar":
+          - cell "19/10/2026"
+          - cell "Ana J."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Doble"
+          - cell "diciembre 2026"
+          - cell "Chequeo de retención":
+            - generic: Chequeo de retención
+          - cell "Sacar":
+            - button "Sacar"
+        - row "17/10/2026 Guadalupe F. Residencia Río de la Plata Recoleta Triple Cuando haya lugar En espera Sacar":
+          - cell "17/10/2026"
+          - cell "Guadalupe F."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Triple"
+          - cell "Cuando haya lugar"
+          - cell "En espera":
+            - generic: En espera
+          - cell "Sacar":
+            - button "Sacar"
+        - row "17/10/2026 Mateo F. Residencia Río de la Plata Recoleta Individual noviembre 2026 Avisado Sacar":
+          - cell "17/10/2026"
+          - cell "Mateo F."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Individual"
+          - cell "noviembre 2026"
+          - cell "Avisado":
+            - generic: Avisado
+          - cell "Sacar":
+            - button "Sacar"
+        - row "16/10/2026 Ignacio S. Residencia Río de la Plata Recoleta Individual noviembre 2026 En espera Sacar":
+          - cell "16/10/2026"
+          - cell "Ignacio S."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Individual"
+          - cell "noviembre 2026"
+          - cell "En espera":
+            - generic: En espera
+          - cell "Sacar":
+            - button "Sacar"
+        - row "15/10/2026 Martina Á. Residencia Río de la Plata Recoleta Cuádruple Cuando haya lugar Avisado Sacar":
+          - cell "15/10/2026"
+          - cell "Martina Á."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Cuádruple"
+          - cell "Cuando haya lugar"
+          - cell "Avisado":
+            - generic: Avisado
+          - cell "Sacar":
+            - button "Sacar"
+        - row "13/10/2026 Antonella D. Residencia Río de la Plata Recoleta Cualquiera mayo 2027 Chequeo de retención Sacar":
+          - cell "13/10/2026"
+          - cell "Antonella D."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Cualquiera"
+          - cell "mayo 2027"
+          - cell "Chequeo de retención":
+            - generic: Chequeo de retención
+          - cell "Sacar":
+            - button "Sacar"
+        - row "11/10/2026 Valentina M. Residencia Río de la Plata Recoleta Triple Cuando haya lugar En espera Sacar":
+          - cell "11/10/2026"
+          - cell "Valentina M."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Triple"
+          - cell "Cuando haya lugar"
+          - cell "En espera":
+            - generic: En espera
+          - cell "Sacar":
+            - button "Sacar"
+        - row "09/10/2026 Carla B. Residencia Río de la Plata Recoleta Doble diciembre 2026 Avisado Sacar":
+          - cell "09/10/2026"
+          - cell "Carla B."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Doble"
+          - cell "diciembre 2026"
+          - cell "Avisado":
+            - generic: Avisado
+          - cell "Sacar":
+            - button "Sacar"
+        - row "08/10/2026 Diego P. Residencia Río de la Plata Recoleta Cualquiera febrero 2027 En espera Sacar":
+          - cell "08/10/2026"
+          - cell "Diego P."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Cualquiera"
+          - cell "febrero 2027"
+          - cell "En espera":
+            - generic: En espera
+          - cell "Sacar":
+            - button "Sacar"
+        - row "08/10/2026 Liam T. Residencia Río de la Plata Recoleta Cualquiera Cuando haya lugar En espera Sacar":
+          - cell "08/10/2026"
+          - cell "Liam T."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Cualquiera"
+          - cell "Cuando haya lugar"
+          - cell "En espera":
+            - generic: En espera
+          - cell "Sacar":
+            - button "Sacar"
+        - row "06/10/2026 Dante K. Residencia Río de la Plata Recoleta Individual noviembre 2026 En espera Sacar":
+          - cell "06/10/2026"
+          - cell "Dante K."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Individual"
+          - cell "noviembre 2026"
+          - cell "En espera":
+            - generic: En espera
+          - cell "Sacar":
+            - button "Sacar"
+        - row "05/10/2026 Julieta X. Residencia Río de la Plata Recoleta Cuádruple Cuando haya lugar En espera Sacar":
+          - cell "05/10/2026"
+          - cell "Julieta X."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Cuádruple"
+          - cell "Cuando haya lugar"
+          - cell "En espera":
+            - generic: En espera
+          - cell "Sacar":
+            - button "Sacar"
+        - row "04/10/2026 Ana J. Residencia Río de la Plata Recoleta Individual enero 2027 En espera Sacar":
+          - cell "04/10/2026"
+          - cell "Ana J."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Individual"
+          - cell "enero 2027"
+          - cell "En espera":
+            - generic: En espera
+          - cell "Sacar":
+            - button "Sacar"
+        - row "02/10/2026 Bruno I. Residencia Río de la Plata Recoleta Triple enero 2027 En espera Sacar":
+          - cell "02/10/2026"
+          - cell "Bruno I."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Triple"
+          - cell "enero 2027"
+          - cell "En espera":
+            - generic: En espera
+          - cell "Sacar":
+            - button "Sacar"
+        - row "01/10/2026 Juan S. Residencia Río de la Plata Recoleta Individual diciembre 2026 Chequeo de retención Sacar":
+          - cell "01/10/2026"
+          - cell "Juan S."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Individual"
+          - cell "diciembre 2026"
+          - cell "Chequeo de retención":
+            - generic: Chequeo de retención
+          - cell "Sacar":
+            - button "Sacar"
+        - row "29/09/2026 Brenda R. Residencia Río de la Plata Recoleta Doble diciembre 2026 En espera Sacar":
+          - cell "29/09/2026"
+          - cell "Brenda R."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Doble"
+          - cell "diciembre 2026"
+          - cell "En espera":
+            - generic: En espera
+          - cell "Sacar":
+            - button "Sacar"
+        - row "28/09/2026 Nicolás G. Residencia Río de la Plata Recoleta Doble diciembre 2026 Chequeo de retención Sacar":
+          - cell "28/09/2026"
+          - cell "Nicolás G."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Doble"
+          - cell "diciembre 2026"
+          - cell "Chequeo de retención":
+            - generic: Chequeo de retención
+          - cell "Sacar":
+            - button "Sacar"
+        - row "28/09/2026 Nicolás G. Residencia Río de la Plata Recoleta Cualquiera febrero 2027 En espera Sacar":
+          - cell "28/09/2026"
+          - cell "Nicolás G."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Cualquiera"
+          - cell "febrero 2027"
+          - cell "En espera":
+            - generic: En espera
+          - cell "Sacar":
+            - button "Sacar"
+        - row "25/09/2026 Milagros P. Residencia Río de la Plata Recoleta Cuádruple Cuando haya lugar Chequeo de retención Sacar":
+          - cell "25/09/2026"
+          - cell "Milagros P."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Cuádruple"
+          - cell "Cuando haya lugar"
+          - cell "Chequeo de retención":
+            - generic: Chequeo de retención
+          - cell "Sacar":
+            - button "Sacar"
+        - row "24/09/2026 Sofía I. Residencia Río de la Plata Recoleta Doble marzo 2027 En espera Sacar":
+          - cell "24/09/2026"
+          - cell "Sofía I."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Doble"
+          - cell "marzo 2027"
+          - cell "En espera":
+            - generic: En espera
+          - cell "Sacar":
+            - button "Sacar"
+        - row "22/09/2026 Emiliano A. Residencia Río de la Plata Recoleta Triple enero 2027 En espera Sacar":
+          - cell "22/09/2026"
+          - cell "Emiliano A."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Triple"
+          - cell "enero 2027"
+          - cell "En espera":
+            - generic: En espera
+          - cell "Sacar":
+            - button "Sacar"
+        - row "21/09/2026 Florencia M. Residencia Río de la Plata Recoleta Individual diciembre 2026 Avisado Sacar":
+          - cell "21/09/2026"
+          - cell "Florencia M."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Individual"
+          - cell "diciembre 2026"
+          - cell "Avisado":
+            - generic: Avisado
+          - cell "Sacar":
+            - button "Sacar"
+        - row "18/09/2026 Agustín W. Residencia Río de la Plata Recoleta Cualquiera febrero 2027 En espera Sacar":
+          - cell "18/09/2026"
+          - cell "Agustín W."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Cualquiera"
+          - cell "febrero 2027"
+          - cell "En espera":
+            - generic: En espera
+          - cell "Sacar":
+            - button "Sacar"
+        - row "17/09/2026 Mateo F. Residencia Río de la Plata Recoleta Triple Cuando haya lugar En espera Sacar":
+          - cell "17/09/2026"
+          - cell "Mateo F."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Triple"
+          - cell "Cuando haya lugar"
+          - cell "En espera":
+            - generic: En espera
+          - cell "Sacar":
+            - button "Sacar"
+        - row "15/09/2026 Delfina H. Residencia Río de la Plata Recoleta Cuádruple Cuando haya lugar Avisado Sacar":
+          - cell "15/09/2026"
+          - cell "Delfina H."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Cuádruple"
+          - cell "Cuando haya lugar"
+          - cell "Avisado":
+            - generic: Avisado
+          - cell "Sacar":
+            - button "Sacar"
+        - row "14/09/2026 Franco S. Residencia Río de la Plata Recoleta Doble marzo 2027 En espera Sacar":
+          - cell "14/09/2026"
+          - cell "Franco S."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Doble"
+          - cell "marzo 2027"
+          - cell "En espera":
+            - generic: En espera
+          - cell "Sacar":
+            - button "Sacar"
+        - row "11/09/2026 Micaela R. Residencia Río de la Plata Recoleta Individual diciembre 2026 En espera Sacar":
+          - cell "11/09/2026"
+          - cell "Micaela R."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Individual"
+          - cell "diciembre 2026"
+          - cell "En espera":
+            - generic: En espera
+          - cell "Sacar":
+            - button "Sacar"
+        - row "10/09/2026 Valentina M. Residencia Río de la Plata Recoleta Cuádruple noviembre 2026 En espera Sacar":
+          - cell "10/09/2026"
+          - cell "Valentina M."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Cuádruple"
+          - cell "noviembre 2026"
+          - cell "En espera":
+            - generic: En espera
+          - cell "Sacar":
+            - button "Sacar"
+        - row "08/09/2026 Facundo O. Residencia Río de la Plata Recoleta Cualquiera febrero 2027 En espera Sacar":
+          - cell "08/09/2026"
+          - cell "Facundo O."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Cualquiera"
+          - cell "febrero 2027"
+          - cell "En espera":
+            - generic: En espera
+          - cell "Sacar":
+            - button "Sacar"
+        - row "07/09/2026 Agustina A. Residencia Río de la Plata Recoleta Triple Cuando haya lugar Chequeo de retención Sacar":
+          - cell "07/09/2026"
+          - cell "Agustina A."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Triple"
+          - cell "Cuando haya lugar"
+          - cell "Chequeo de retención":
+            - generic: Chequeo de retención
+          - cell "Sacar":
+            - button "Sacar"
+- button "Admin Operativo": Admin Operativo
+- button "Open Next.js Dev Tools":
+- alert

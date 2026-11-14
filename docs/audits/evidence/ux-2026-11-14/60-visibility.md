@@ -1,0 +1,506 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- complementary:
+  - paragraph: EstuRed Admin
+  - paragraph: Panel de administración
+  - button "Notificaciones":
+    - generic: notifications
+  - navigation "Administración":
+    - link "Dashboard":
+      - /url: /admin/dashboard
+      - generic: Dashboard
+    - paragraph: Residencias
+    - link "Residencias":
+      - /url: /admin/residences
+      - generic: Residencias
+    - link "Verificaciones":
+      - /url: /admin/verifications
+      - generic: Verificaciones
+    - link "Ediciones de perfil":
+      - /url: /admin/profile-edits
+      - generic: Ediciones de perfil
+    - link "Solicitudes de alta":
+      - /url: /admin/solicitudes-alta
+      - generic: Solicitudes de alta
+    - link "Residencias pedidas":
+      - /url: /admin/residencias-pedidas
+      - generic: Residencias pedidas
+    - link "Preguntas de fichas":
+      - /url: /admin/faq
+      - generic: Preguntas de fichas
+    - link "Ítems «Otro» de fichas":
+      - /url: /admin/custom-amenities
+      - generic: Ítems «Otro» de fichas
+    - paragraph: Operación
+    - link "Solicitudes":
+      - /url: /admin/applications
+      - generic: Solicitudes
+    - link "Propuestas familiar":
+      - /url: /admin/family-proposals
+      - generic: Propuestas familiar
+    - link "Pagos":
+      - /url: /admin/payments
+      - generic: Pagos
+    - link "Actividad":
+      - /url: /admin/activity
+      - generic: Actividad
+    - link "Seguimiento":
+      - /url: /admin/followups
+      - generic: Seguimiento
+    - paragraph: Plataforma
+    - link "Comunidad":
+      - /url: /admin/community
+      - generic: Comunidad
+    - link "Visibilidad y penalizaciones":
+      - /url: /admin/visibility
+      - generic: Visibilidad y penalizaciones
+    - link "Administración de tarifas":
+      - /url: /admin/pricing
+      - generic: Administración de tarifas
+    - link "Documentos":
+      - /url: /admin/documents
+      - generic: Documentos
+    - link "Tipo de cambio":
+      - /url: /admin/exchange-rate
+      - generic: Tipo de cambio
+    - link "Usuarios":
+      - /url: /admin/users
+      - generic: Usuarios
+    - paragraph: Soporte
+    - link "Soporte":
+      - /url: /admin/support-cases
+      - generic: Soporte
+  - generic: A
+  - paragraph: admin.operaciones@estured.test
+  - paragraph: Admin
+  - button "Cerrar sesión"
+  - button "Colapsar menú":
+- main:
+  - heading "Visibilidad y penalizaciones" [level=1]
+  - paragraph:
+    - text: Ninguna residencia tiene penalizaciones activas. Pausar, suspender o remover de la red se hace desde
+    - link "Residencias":
+      - /url: /admin/residences
+    - text: — acá solo se gestiona la señal de calidad.
+  - region "Visibilidad de residencias":
+    - table:
+      - rowgroup:
+        - row "Nombre Estado de visibilidad Notas internas":
+          - columnheader "Nombre"
+          - columnheader "Estado de visibilidad"
+          - columnheader "Notas internas"
+          - columnheader
+      - rowgroup:
+        - row "2340 Residencia Universitaria by Luco Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "2340 Residencia Universitaria by Luco"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Arcos del Soho Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Arcos del Soho"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Casa Almagro Estudiantes Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Casa Almagro Estudiantes"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Casa AURA Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Casa AURA"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Casa Colegiales Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Casa Colegiales"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Casa Compartida Almagro Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Casa Compartida Almagro"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Casa Rica Coliving (Obelisco) Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Casa Rica Coliving (Obelisco)"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Casa San Telmo Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Casa San Telmo"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Charlie's Hostel Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Charlie's Hostel"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "CLEI Residencia de Estudiantes Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "CLEI Residencia de Estudiantes"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Entis Residencia Universitaria Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Entis Residencia Universitaria"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "IndER Residencia Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "IndER Residencia"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "La Casa de Cris - Residencia I Almagro Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "La Casa de Cris - Residencia I Almagro"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "La Casona Monserrat Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "La Casona Monserrat"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "La Casona Recoleta Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "La Casona Recoleta"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "La Scala Belgrano Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "La Scala Belgrano"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "La Scala Hollywood Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "La Scala Hollywood"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Las Cabañas Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Las Cabañas"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Luco Hotel (Residencia) Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Luco Hotel (Residencia)"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Mansión Paloma Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Mansión Paloma"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Residencia Balvanera Centro Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Residencia Balvanera Centro"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Residencia Belgrano R Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Residencia Belgrano R"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Residencia Caballito Parque Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Residencia Caballito Parque"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Residencia El Ángel Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Residencia El Ángel"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Residencia Family Home Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Residencia Family Home"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Residencia Norte Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Residencia Norte"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Residencia Núñez Río Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Residencia Núñez Río"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Residencia Palermo Soho Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Residencia Palermo Soho"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Residencia Prueba DR22 Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Residencia Prueba DR22"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Residencia Recoleta Plaza Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Residencia Recoleta Plaza"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Residencia Río de la Plata Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Residencia Río de la Plata"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Residencia San Marcos Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Residencia San Marcos"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Residencia Sin Fronteras Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Residencia Sin Fronteras"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Residencia Universitaria Gusti Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Residencia Universitaria Gusti"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Residencia Universitaria Lith Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Residencia Universitaria Lith"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Residencia Universitaria Olivia Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Residencia Universitaria Olivia"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Residencia Villa Crespo Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Residencia Villa Crespo"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Student Hostel La Bamba (Ilvero) Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Student Hostel La Bamba (Ilvero)"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Verona del Soho Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Verona del Soho"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Wanna Centro Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Wanna Centro"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Wanna Congreso Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Wanna Congreso"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Wanna Independencia Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Wanna Independencia"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Wanna Palermo Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Wanna Palermo"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Wanna Sur Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Wanna Sur"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+        - row "Wanna Tango Visibilidad normal Sin notas Emitir advertencia Reducir visibilidad + Nota interna":
+          - cell "Wanna Tango"
+          - cell "Visibilidad normal":
+            - generic: Visibilidad normal
+          - cell "Sin notas"
+          - cell "Emitir advertencia Reducir visibilidad + Nota interna":
+            - button "Emitir advertencia"
+            - button "Reducir visibilidad"
+            - button "+ Nota interna"
+- button "Admin Operativo": Admin Operativo
+- button "Open Next.js Dev Tools":
+- button "Open issues overlay":
+  - generic: "0"
+  - generic: "1"
+  - generic: Issue
+- button "Collapse issues badge":
+- alert

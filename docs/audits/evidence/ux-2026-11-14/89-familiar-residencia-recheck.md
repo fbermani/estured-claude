@@ -1,0 +1,483 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- button "Abrir menú":
+  - generic: menu
+- generic: EstuRed
+- button "Notificaciones, 12 sin leer":
+  - generic: notifications
+  - generic: "12"
+- complementary:
+  - link "EstuRed, inicio":
+    - /url: /
+    - generic: EstuRed
+  - button "Notificaciones, 12 sin leer":
+    - generic: notifications
+    - generic: "12"
+  - button "Cerrar menú":
+    - generic: close
+  - navigation:
+    - link "Inicio":
+      - /url: /students/dashboard
+      - generic: home
+      - generic: Inicio
+    - link "Buscar residencias":
+      - /url: /search
+      - generic: search
+      - generic: Buscar residencias
+    - link "Favoritos":
+      - /url: /students/favorites
+      - generic: favorite
+      - generic: Favoritos
+    - link "Mis solicitudes":
+      - /url: /students/applications
+      - generic: description
+      - generic: Mis solicitudes
+    - link "Lista de espera":
+      - /url: /students/waitlist
+      - generic: hourglass_top
+      - generic: Lista de espera
+    - link "Mi perfil":
+      - /url: /students/profile
+      - generic: person
+      - generic: Mi perfil
+    - link "Mi estadía":
+      - /url: /students/residency
+      - generic: apartment
+      - generic: Mi estadía
+    - link "Soporte":
+      - /url: /students/support
+      - generic: support_agent
+      - generic: Soporte
+  - paragraph: padre.lucia@example.com
+  - link "Botón de arrepentimiento":
+    - /url: /students/revocation
+    - generic: undo
+    - generic: Botón de arrepentimiento
+  - button "Salir":
+    - generic: logout
+    - generic: Salir
+- navigation "Navegación principal":
+  - link "Inicio":
+    - /url: /students/dashboard
+    - generic: home
+    - generic: Inicio
+  - link "Buscar residencias":
+    - /url: /search
+    - generic: search
+    - generic: Buscar
+  - link "Favoritos":
+    - /url: /students/favorites
+    - generic: favorite
+    - generic: Favoritos
+  - link "Mis solicitudes":
+    - /url: /students/applications
+    - generic: description
+    - generic: Solicitudes
+  - button "Más":
+    - generic: more_horiz
+    - generic: Más
+- main:
+  - generic: home_work
+  - generic: home_work
+  - text: Su casa
+  - heading "Estadía de Lucia" [level=1]
+  - paragraph: Residencia Río de la Plata · Recoleta, CABA
+  - generic: check_circle
+  - text: Alojado
+  - region "Presentación de Residencia Río de la Plata":
+    - generic: apartment
+    - heading "Residencia Río de la Plata" [level=2]
+    - paragraph:
+      - generic: location_on
+      - text: Recoleta, CABA
+    - heading "Servicios incluidos" [level=3]
+    - button "WiFi":
+      - generic: wifi
+      - generic: WiFi
+    - button "Aire acondicionado":
+      - generic: ac_unit
+      - generic: Aire acondicionado
+    - button "Seguridad 24hs":
+      - generic: security
+      - generic: Seguridad 24hs
+    - heading "Áreas comunes" [level=3]
+    - button "Terraza":
+      - generic: deck
+      - generic: Terraza
+    - button "Gimnasio / Área para ejercitar":
+      - generic: fitness_center
+      - generic: Gimnasio / Área para ejercitar
+  - heading "Tu estadía" [level=2]
+  - paragraph: Habitación
+  - paragraph: Individual
+  - paragraph: Valor mensual
+  - paragraph: USD 350
+  - paragraph: Ingreso
+  - paragraph: 15/02/2027
+  - paragraph: Fin de contrato
+  - paragraph: 20/07/2027
+  - paragraph: Quedan ~8 meses de tu estadía actual
+  - link "Comprobante de reserva":
+    - /url: /students/receipts/077e9372-0b57-4a3d-a482-1e7fcbc6f54c
+    - generic: receipt_long
+    - text: Comprobante de reserva
+  - link "Solicitudes relacionadas":
+    - /url: /students/applications
+    - generic: description
+    - text: Solicitudes relacionadas
+  - generic: sync
+  - paragraph: Ya renovaste tu estadía
+  - paragraph: Revisá el estado de tu renovación.
+  - link "Ver renovaciones":
+    - /url: /students/renewals
+  - heading "Sobre tu residencia" [level=2]
+  - paragraph: "Bienvenido a Residencia Río de la Plata, una casona recuperada a pasos del Jardín Botánico y de las líneas que conectan con UBA Medicina y la Universidad Católica Argentina. Combinamos estudios individuales para quienes buscan independencia con habitaciones compartidas pensadas para la vida en comunidad: cocina amplia por piso, sala de estudio en silencio y terraza compartida. La administración vive en el edificio y coordina el ingreso de cada estudiante personalmente."
+  - heading "Reglas de convivencia" [level=3]
+  - list:
+    - generic: rule
+    - paragraph: Sin mascotas. Horario de portería 7-23hs, timbre coordinado fuera de ese rango.
+  - link "Descargar reglamento":
+    - /url: /residencias/residencia-rio-de-la-plata-demo/reglamento
+    - generic: download
+    - text: Descargar reglamento
+  - paragraph: Contacto y soporte
+  - generic: support_agent
+  - paragraph: Para cualquier consulta sobre tu estadía o tu cambio, escribinos a Soporte.
+  - link "Ir a Soporte":
+    - /url: /students/support
+  - heading "Comunidad actual" [level=2]
+  - paragraph: Tus compañeros de residencia — cada uno decide qué mostrar.
+  - generic: groups
+  - text: Residentes
+  - generic: 30actuales
+  - generic: Cada uno decide qué mostrar.
+  - generic: bed
+  - text: Camas libres
+  - generic: "9"
+  - img "30 ocupadas de 39"
+  - generic: Informadas por la residencia.
+  - generic: category
+  - text: Tipos de habitación
+  - generic: "4"
+  - generic: Individual · Cuádruple · Doble
+  - group "Filtrar por tipo de habitación":
+    - button "Todos 30" [pressed]:
+      - text: Todos
+      - generic: "30"
+    - button "Individual 9":
+      - text: Individual
+      - generic: "9"
+    - button "Cuádruple 7":
+      - text: Cuádruple
+      - generic: "7"
+    - button "Doble 7":
+      - text: Doble
+      - generic: "7"
+    - button "Triple 7":
+      - text: Triple
+      - generic: "7"
+  - button "Individual 9 residentes · 2 camas libres Disponibilidad informada" [expanded]:
+    - generic: Individual
+    - generic: 9 residentes · 2 camas libres
+    - generic: Disponibilidad informada
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 1
+  - generic: 1/1 cama
+  - button "L Argentina Lucia 20 · Medicina":
+    - generic: L
+    - generic "Argentina": 🇦🇷
+    - paragraph: Lucia
+    - paragraph: 20 · Medicina
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 2
+  - generic: 1/1 cama
+  - button "M Brasil Martina 25 · Ingeniería Industrial":
+    - generic: M
+    - generic "Brasil": 🇧🇷
+    - paragraph: Martina
+    - paragraph: 25 · Ingeniería Industrial
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 3
+  - generic: 1/1 cama
+  - button "M Perú Mateo 21 · Administración de Empresas":
+    - generic: M
+    - generic "Perú": 🇵🇪
+    - paragraph: Mateo
+    - paragraph: 21 · Administración de Empresas
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 4
+  - generic: 1/1 cama
+  - button "A España Ana 24 · Economía":
+    - generic: A
+    - generic "España": 🇪🇸
+    - paragraph: Ana
+    - paragraph: 24 · Economía
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 5
+  - generic: 1/1 cama
+  - button "F Italia Florencia 20 · Kinesiología":
+    - generic: F
+    - generic "Italia": 🇮🇹
+    - paragraph: Florencia
+    - paragraph: 20 · Kinesiología
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 6
+  - generic: 1/1 cama
+  - button "L Brasil Lucía 23 · Comunicación Social":
+    - generic: L
+    - generic "Brasil": 🇧🇷
+    - paragraph: Lucía
+    - paragraph: 23 · Comunicación Social
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 7
+  - generic: 1/1 cama
+  - button "M Perú Milagros 19 · Ingeniería Industrial":
+    - generic: M
+    - generic "Perú": 🇵🇪
+    - paragraph: Milagros
+    - paragraph: 19 · Ingeniería Industrial
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 8
+  - generic: 1/1 cama
+  - button "R España Rocío 22 · Administración de Empresas":
+    - generic: R
+    - generic "España": 🇪🇸
+    - paragraph: Rocío
+    - paragraph: 22 · Administración de Empresas
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 9
+  - generic: 1/1 cama
+  - button "B Italia Brenda 25 · Economía":
+    - generic: B
+    - generic "Italia": 🇮🇹
+    - paragraph: Brenda
+    - paragraph: 25 · Economía
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 10
+  - generic: 0/1 cama · 1 libre
+  - generic: bed
+  - paragraph: Plaza libre
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 11
+  - generic: 0/1 cama · 1 libre
+  - generic: bed
+  - paragraph: Plaza libre
+  - button "Cuádruple 7 residentes · 1 cama libre Disponibilidad informada":
+    - generic: Cuádruple
+    - generic: 7 residentes · 1 cama libre
+    - generic: Disponibilidad informada
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 1
+  - generic: 4/4 camas
+  - button "S Argentina Sofía 22 · Ingeniería en Sistemas":
+    - generic: S
+    - generic "Argentina": 🇦🇷
+    - paragraph: Sofía
+    - paragraph: 22 · Ingeniería en Sistemas
+    - generic: expand_more
+  - button "N México Nicolás 20 · Biología":
+    - generic: "N"
+    - generic "México": 🇲🇽
+    - paragraph: Nicolás
+    - paragraph: 20 · Biología
+    - generic: expand_more
+  - button "L Francia Lautaro 24 · Diseño Gráfico":
+    - generic: L
+    - generic "Francia": 🇫🇷
+    - paragraph: Lautaro
+    - paragraph: 24 · Diseño Gráfico
+    - generic: expand_more
+  - button "C Uruguay Camila 25 · Arquitectura":
+    - generic: C
+    - generic "Uruguay": 🇺🇾
+    - paragraph: Camila
+    - paragraph: 25 · Arquitectura
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 2
+  - generic: 3/4 camas · 1 libre
+  - button "B Argentina Bruno 20 · Ciencias de la Educación":
+    - generic: B
+    - generic "Argentina": 🇦🇷
+    - paragraph: Bruno
+    - paragraph: 20 · Ciencias de la Educación
+    - generic: expand_more
+  - button "D México Dante 19 · Arquitectura":
+    - generic: D
+    - generic "México": 🇲🇽
+    - paragraph: Dante
+    - paragraph: 19 · Arquitectura
+    - generic: expand_more
+  - button "B Uruguay Benjamín 22 · Ingeniería en Sistemas":
+    - generic: B
+    - generic "Uruguay": 🇺🇾
+    - paragraph: Benjamín
+    - paragraph: 22 · Ingeniería en Sistemas
+    - generic: expand_more
+  - generic: bed
+  - paragraph: Plaza libre
+  - button "Doble 7 residentes · 1 cama libre Disponibilidad informada":
+    - generic: Doble
+    - generic: 7 residentes · 1 cama libre
+    - generic: Disponibilidad informada
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 1
+  - generic: 2/2 camas
+  - button "D Bolivia Diego 24 · Ciencias Políticas":
+    - generic: D
+    - generic "Bolivia": 🇧🇴
+    - paragraph: Diego
+    - paragraph: 24 · Ciencias Políticas
+    - generic: expand_more
+  - button "V Alemania Valentina 20 · Nutrición":
+    - generic: V
+    - generic "Alemania": 🇩🇪
+    - paragraph: Valentina
+    - paragraph: 20 · Nutrición
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 2
+  - generic: 2/2 camas
+  - button "T Estados Unidos Tomás 23 · Contador Público":
+    - generic: T
+    - generic "Estados Unidos": 🇺🇸
+    - paragraph: Tomás
+    - paragraph: 23 · Contador Público
+    - generic: expand_more
+  - button "F Chile Franco 19 · Derecho":
+    - generic: F
+    - generic "Chile": 🇨🇱
+    - paragraph: Franco
+    - paragraph: 19 · Derecho
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 3
+  - generic: 2/2 camas
+  - button "I Bolivia Ignacio 22 · Veterinaria":
+    - generic: I
+    - generic "Bolivia": 🇧🇴
+    - paragraph: Ignacio
+    - paragraph: 22 · Veterinaria
+    - generic: expand_more
+  - button "A Alemania Agustín 24 · Ciencias Políticas":
+    - generic: A
+    - generic "Alemania": 🇩🇪
+    - paragraph: Agustín
+    - paragraph: 24 · Ciencias Políticas
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 4
+  - generic: 1/2 camas · 1 libre
+  - button "C Estados Unidos Ciro 21 · Nutrición":
+    - generic: C
+    - generic "Estados Unidos": 🇺🇸
+    - paragraph: Ciro
+    - paragraph: 21 · Nutrición
+    - generic: expand_more
+  - generic: bed
+  - paragraph: Plaza libre
+  - button "Triple 7 residentes · 5 camas libres Disponibilidad informada":
+    - generic: Triple
+    - generic: 7 residentes · 5 camas libres
+    - generic: Disponibilidad informada
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 1
+  - generic: 3/3 camas
+  - button "J Reino Unido Juan 23 · Relaciones Internacionales":
+    - generic: J
+    - generic "Reino Unido": 🇬🇧
+    - paragraph: Juan
+    - paragraph: 23 · Relaciones Internacionales
+    - generic: expand_more
+  - button "L Ecuador Liam 19 · Medicina":
+    - generic: L
+    - generic "Ecuador": 🇪🇨
+    - paragraph: Liam
+    - paragraph: 19 · Medicina
+    - generic: expand_more
+  - button "J Colombia Julieta 21 · Odontología":
+    - generic: J
+    - generic "Colombia": 🇨🇴
+    - paragraph: Julieta
+    - paragraph: 21 · Odontología
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 2
+  - generic: 3/3 camas
+  - button "A Paraguay Agustina 25 · Psicología":
+    - generic: A
+    - generic "Paraguay": 🇵🇾
+    - paragraph: Agustina
+    - paragraph: 25 · Psicología
+    - generic: expand_more
+  - button "M Ecuador Micaela 23 · Relaciones Internacionales":
+    - generic: M
+    - generic "Ecuador": 🇪🇨
+    - paragraph: Micaela
+    - paragraph: 23 · Relaciones Internacionales
+    - generic: expand_more
+  - button "C Reino Unido Carla 21 · Letras":
+    - generic: C
+    - generic "Reino Unido": 🇬🇧
+    - paragraph: Carla
+    - paragraph: 21 · Letras
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 3
+  - generic: 1/3 camas · 2 libres
+  - button "A Colombia Antonella 20 · Medicina":
+    - generic: A
+    - generic "Colombia": 🇨🇴
+    - paragraph: Antonella
+    - paragraph: 20 · Medicina
+    - generic: expand_more
+  - generic: bed
+  - paragraph: Plaza libre
+  - generic: bed
+  - paragraph: Plaza libre
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 4
+  - generic: 0/3 camas · 3 libres
+  - generic: bed
+  - paragraph: Plaza libre
+  - generic: bed
+  - paragraph: Plaza libre
+  - generic: bed
+  - paragraph: Plaza libre
+- button "Martín — Familiar de Valentina vinculado": Martín — Familiar de Valentina vinculado
+- button "Open Next.js Dev Tools":
+- alert

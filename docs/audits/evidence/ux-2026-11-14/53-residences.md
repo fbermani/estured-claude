@@ -1,0 +1,693 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- complementary:
+  - paragraph: EstuRed Admin
+  - paragraph: Panel de administración
+  - button "Notificaciones":
+    - generic: notifications
+  - navigation "Administración":
+    - link "Dashboard":
+      - /url: /admin/dashboard
+      - generic: Dashboard
+    - paragraph: Residencias
+    - link "Residencias":
+      - /url: /admin/residences
+      - generic: Residencias
+    - link "Verificaciones":
+      - /url: /admin/verifications
+      - generic: Verificaciones
+    - link "Ediciones de perfil":
+      - /url: /admin/profile-edits
+      - generic: Ediciones de perfil
+    - link "Solicitudes de alta":
+      - /url: /admin/solicitudes-alta
+      - generic: Solicitudes de alta
+    - link "Residencias pedidas":
+      - /url: /admin/residencias-pedidas
+      - generic: Residencias pedidas
+    - link "Preguntas de fichas":
+      - /url: /admin/faq
+      - generic: Preguntas de fichas
+    - link "Ítems «Otro» de fichas":
+      - /url: /admin/custom-amenities
+      - generic: Ítems «Otro» de fichas
+    - paragraph: Operación
+    - link "Solicitudes":
+      - /url: /admin/applications
+      - generic: Solicitudes
+    - link "Propuestas familiar":
+      - /url: /admin/family-proposals
+      - generic: Propuestas familiar
+    - link "Pagos":
+      - /url: /admin/payments
+      - generic: Pagos
+    - link "Actividad":
+      - /url: /admin/activity
+      - generic: Actividad
+    - link "Seguimiento":
+      - /url: /admin/followups
+      - generic: Seguimiento
+    - paragraph: Plataforma
+    - link "Comunidad":
+      - /url: /admin/community
+      - generic: Comunidad
+    - link "Visibilidad y penalizaciones":
+      - /url: /admin/visibility
+      - generic: Visibilidad y penalizaciones
+    - link "Administración de tarifas":
+      - /url: /admin/pricing
+      - generic: Administración de tarifas
+    - link "Documentos":
+      - /url: /admin/documents
+      - generic: Documentos
+    - link "Tipo de cambio":
+      - /url: /admin/exchange-rate
+      - generic: Tipo de cambio
+    - link "Usuarios":
+      - /url: /admin/users
+      - generic: Usuarios
+    - paragraph: Soporte
+    - link "Soporte":
+      - /url: /admin/support-cases
+      - generic: Soporte
+  - generic: A
+  - paragraph: admin.operaciones@estured.test
+  - paragraph: Admin
+  - button "Cerrar sesión"
+  - button "Colapsar menú":
+- main:
+  - heading "Residencias" [level=1]
+  - paragraph:
+    - text: 43 activa(s) de 45 en total. Desde acá se puede pausar o reactivar una residencia — las validaciones pendientes están en
+    - link "Verificaciones":
+      - /url: /admin/verifications
+    - text: .
+  - searchbox "Buscar por nombre…"
+  - region "Residencias":
+    - table:
+      - rowgroup:
+        - row "Nombre Zona Alta Estado Gestión Operativa":
+          - columnheader "Nombre"
+          - columnheader "Zona"
+          - columnheader "Alta"
+          - columnheader "Estado"
+          - columnheader "Gestión Operativa"
+          - columnheader
+      - rowgroup:
+        - row "Wanna Tango Montserrat 09/11/2026 Activa y publicada Sin acceso Pausar Otorgar acceso":
+          - cell "Wanna Tango":
+            - link "Wanna Tango":
+              - /url: /admin/residences/3ef8642d-b2eb-4406-b5ec-b2a86aad3837
+          - cell "Montserrat"
+          - cell "09/11/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Sin acceso":
+            - generic: Sin acceso
+          - cell "Pausar Otorgar acceso":
+            - button "Pausar"
+            - button "Otorgar acceso"
+        - row "Wanna Sur Montserrat 09/11/2026 Activa y publicada Sin acceso Pausar Otorgar acceso":
+          - cell "Wanna Sur":
+            - link "Wanna Sur":
+              - /url: /admin/residences/573b3aab-00ac-475a-a791-aad03c1d9384
+          - cell "Montserrat"
+          - cell "09/11/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Sin acceso":
+            - generic: Sin acceso
+          - cell "Pausar Otorgar acceso":
+            - button "Pausar"
+            - button "Otorgar acceso"
+        - row "Wanna Palermo Recoleta 09/11/2026 Activa y publicada Sin acceso Pausar Otorgar acceso":
+          - cell "Wanna Palermo":
+            - link "Wanna Palermo":
+              - /url: /admin/residences/1bf2e897-c215-47b0-9509-ecf992b44452
+          - cell "Recoleta"
+          - cell "09/11/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Sin acceso":
+            - generic: Sin acceso
+          - cell "Pausar Otorgar acceso":
+            - button "Pausar"
+            - button "Otorgar acceso"
+        - row "Wanna Independencia San Cristóbal 09/11/2026 Activa y publicada Sin acceso Pausar Otorgar acceso":
+          - cell "Wanna Independencia":
+            - link "Wanna Independencia":
+              - /url: /admin/residences/1faa73ea-49c2-4c09-b0d7-ed6199fecfb6
+          - cell "San Cristóbal"
+          - cell "09/11/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Sin acceso":
+            - generic: Sin acceso
+          - cell "Pausar Otorgar acceso":
+            - button "Pausar"
+            - button "Otorgar acceso"
+        - row "Wanna Congreso Balvanera 09/11/2026 Activa y publicada Sin acceso Pausar Otorgar acceso":
+          - cell "Wanna Congreso":
+            - link "Wanna Congreso":
+              - /url: /admin/residences/9d8350c1-947d-41c5-9c0f-6bfea7c2dc8e
+          - cell "Balvanera"
+          - cell "09/11/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Sin acceso":
+            - generic: Sin acceso
+          - cell "Pausar Otorgar acceso":
+            - button "Pausar"
+            - button "Otorgar acceso"
+        - row "Wanna Centro San Nicolás 09/11/2026 Activa y publicada Sin acceso Pausar Otorgar acceso":
+          - cell "Wanna Centro":
+            - link "Wanna Centro":
+              - /url: /admin/residences/efa60798-2b28-4cef-b37a-f6d636607d3d
+          - cell "San Nicolás"
+          - cell "09/11/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Sin acceso":
+            - generic: Sin acceso
+          - cell "Pausar Otorgar acceso":
+            - button "Pausar"
+            - button "Otorgar acceso"
+        - row "Verona del Soho Palermo 09/11/2026 Activa y publicada Sin acceso Pausar Otorgar acceso":
+          - cell "Verona del Soho":
+            - link "Verona del Soho":
+              - /url: /admin/residences/db2880ab-a808-42a3-a02a-f2c524eb5868
+          - cell "Palermo"
+          - cell "09/11/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Sin acceso":
+            - generic: Sin acceso
+          - cell "Pausar Otorgar acceso":
+            - button "Pausar"
+            - button "Otorgar acceso"
+        - row "Student Hostel La Bamba (Ilvero) Recoleta 09/11/2026 Activa y publicada Sin acceso Pausar Otorgar acceso":
+          - cell "Student Hostel La Bamba (Ilvero)":
+            - link "Student Hostel La Bamba (Ilvero)":
+              - /url: /admin/residences/cb62951f-8e8f-4043-afed-1d323da4ed0c
+          - cell "Recoleta"
+          - cell "09/11/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Sin acceso":
+            - generic: Sin acceso
+          - cell "Pausar Otorgar acceso":
+            - button "Pausar"
+            - button "Otorgar acceso"
+        - row "Residencia San Marcos Montserrat 09/11/2026 Activa y publicada Sin acceso Pausar Otorgar acceso":
+          - cell "Residencia San Marcos":
+            - link "Residencia San Marcos":
+              - /url: /admin/residences/c2f276ec-34ec-44c8-8565-907f5a1b8a1b
+          - cell "Montserrat"
+          - cell "09/11/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Sin acceso":
+            - generic: Sin acceso
+          - cell "Pausar Otorgar acceso":
+            - button "Pausar"
+            - button "Otorgar acceso"
+        - row "Residencia Universitaria Olivia Núñez 09/11/2026 Activa y publicada Sin acceso Pausar Otorgar acceso":
+          - cell "Residencia Universitaria Olivia":
+            - link "Residencia Universitaria Olivia":
+              - /url: /admin/residences/956787c1-44e2-4b18-8049-34bcb15a2db9
+          - cell "Núñez"
+          - cell "09/11/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Sin acceso":
+            - generic: Sin acceso
+          - cell "Pausar Otorgar acceso":
+            - button "Pausar"
+            - button "Otorgar acceso"
+        - row "Residencia Universitaria Lith Balvanera 09/11/2026 Activa y publicada Sin acceso Pausar Otorgar acceso":
+          - cell "Residencia Universitaria Lith":
+            - link "Residencia Universitaria Lith":
+              - /url: /admin/residences/879635ec-b7a2-43ab-882d-7f606cc90823
+          - cell "Balvanera"
+          - cell "09/11/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Sin acceso":
+            - generic: Sin acceso
+          - cell "Pausar Otorgar acceso":
+            - button "Pausar"
+            - button "Otorgar acceso"
+        - row "Residencia Universitaria Gusti Balvanera 09/11/2026 Activa y publicada Sin acceso Pausar Otorgar acceso":
+          - cell "Residencia Universitaria Gusti":
+            - link "Residencia Universitaria Gusti":
+              - /url: /admin/residences/87f99d9d-5f4d-41af-9e6d-38d2b2392f85
+          - cell "Balvanera"
+          - cell "09/11/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Sin acceso":
+            - generic: Sin acceso
+          - cell "Pausar Otorgar acceso":
+            - button "Pausar"
+            - button "Otorgar acceso"
+        - row "Residencia Family Home Constitución 09/11/2026 Activa y publicada Sin acceso Pausar Otorgar acceso":
+          - cell "Residencia Family Home":
+            - link "Residencia Family Home":
+              - /url: /admin/residences/f9dac5a7-c30a-4149-85e4-be4e0ce5cd7d
+          - cell "Constitución"
+          - cell "09/11/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Sin acceso":
+            - generic: Sin acceso
+          - cell "Pausar Otorgar acceso":
+            - button "Pausar"
+            - button "Otorgar acceso"
+        - row "Residencia El Ángel Montserrat 09/11/2026 Activa y publicada Sin acceso Pausar Otorgar acceso":
+          - cell "Residencia El Ángel":
+            - link "Residencia El Ángel":
+              - /url: /admin/residences/5221d442-72b0-43c4-a939-0ac3c59f761a
+          - cell "Montserrat"
+          - cell "09/11/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Sin acceso":
+            - generic: Sin acceso
+          - cell "Pausar Otorgar acceso":
+            - button "Pausar"
+            - button "Otorgar acceso"
+        - row "Mansión Paloma Colegiales 09/11/2026 Activa y publicada Sin acceso Pausar Otorgar acceso":
+          - cell "Mansión Paloma":
+            - link "Mansión Paloma":
+              - /url: /admin/residences/7ef4c8d5-276a-49ab-a24b-2d93e95423d9
+          - cell "Colegiales"
+          - cell "09/11/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Sin acceso":
+            - generic: Sin acceso
+          - cell "Pausar Otorgar acceso":
+            - button "Pausar"
+            - button "Otorgar acceso"
+        - row "Luco Hotel (Residencia) Recoleta 09/11/2026 Activa y publicada Sin acceso Pausar Otorgar acceso":
+          - cell "Luco Hotel (Residencia)":
+            - link "Luco Hotel (Residencia)":
+              - /url: /admin/residences/c4849dca-3af0-4ae2-880d-5ce5d4529ddf
+          - cell "Recoleta"
+          - cell "09/11/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Sin acceso":
+            - generic: Sin acceso
+          - cell "Pausar Otorgar acceso":
+            - button "Pausar"
+            - button "Otorgar acceso"
+        - row "2340 Residencia Universitaria by Luco Balvanera 09/11/2026 Activa y publicada Con acceso Pausar Revocar acceso Hasta 14/11/2027":
+          - cell "2340 Residencia Universitaria by Luco":
+            - link "2340 Residencia Universitaria by Luco":
+              - /url: /admin/residences/4cfd0b44-155e-4789-97cf-aee75988113d
+          - cell "Balvanera"
+          - cell "09/11/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Con acceso":
+            - generic: Con acceso
+          - cell "Pausar Revocar acceso Hasta 14/11/2027":
+            - button "Pausar"
+            - button "Revocar acceso"
+            - generic: Hasta 14/11/2027
+        - row "Las Cabañas Monserrat 09/11/2026 Activa y publicada Sin acceso Pausar Otorgar acceso":
+          - cell "Las Cabañas":
+            - link "Las Cabañas":
+              - /url: /admin/residences/8dd399a0-a915-4ca1-ac95-2c255797603b
+          - cell "Monserrat"
+          - cell "09/11/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Sin acceso":
+            - generic: Sin acceso
+          - cell "Pausar Otorgar acceso":
+            - button "Pausar"
+            - button "Otorgar acceso"
+        - row "La Scala Hollywood Palermo 09/11/2026 Activa y publicada Sin acceso Pausar Otorgar acceso":
+          - cell "La Scala Hollywood":
+            - link "La Scala Hollywood":
+              - /url: /admin/residences/57e53591-43dc-4a9e-929f-cb0d08277fb4
+          - cell "Palermo"
+          - cell "09/11/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Sin acceso":
+            - generic: Sin acceso
+          - cell "Pausar Otorgar acceso":
+            - button "Pausar"
+            - button "Otorgar acceso"
+        - row "La Scala Belgrano Colegiales 09/11/2026 Activa y publicada Sin acceso Pausar Otorgar acceso":
+          - cell "La Scala Belgrano":
+            - link "La Scala Belgrano":
+              - /url: /admin/residences/909546df-a993-49e8-9bab-9f1b1ee800ea
+          - cell "Colegiales"
+          - cell "09/11/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Sin acceso":
+            - generic: Sin acceso
+          - cell "Pausar Otorgar acceso":
+            - button "Pausar"
+            - button "Otorgar acceso"
+        - row "La Casona Recoleta Balvanera 09/11/2026 Activa y publicada Sin acceso Pausar Otorgar acceso":
+          - cell "La Casona Recoleta":
+            - link "La Casona Recoleta":
+              - /url: /admin/residences/0126cdda-061b-4199-be60-a5d836d30452
+          - cell "Balvanera"
+          - cell "09/11/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Sin acceso":
+            - generic: Sin acceso
+          - cell "Pausar Otorgar acceso":
+            - button "Pausar"
+            - button "Otorgar acceso"
+        - row "La Casona Monserrat Monserrat 09/11/2026 Activa y publicada Sin acceso Pausar Otorgar acceso":
+          - cell "La Casona Monserrat":
+            - link "La Casona Monserrat":
+              - /url: /admin/residences/cb23ec65-aef5-4a05-aee2-51945ee09e5e
+          - cell "Monserrat"
+          - cell "09/11/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Sin acceso":
+            - generic: Sin acceso
+          - cell "Pausar Otorgar acceso":
+            - button "Pausar"
+            - button "Otorgar acceso"
+        - row "La Casa de Cris - Residencia I Almagro Almagro 09/11/2026 Activa y publicada Con acceso Pausar Revocar acceso Hasta 14/11/2027":
+          - cell "La Casa de Cris - Residencia I Almagro":
+            - link "La Casa de Cris - Residencia I Almagro":
+              - /url: /admin/residences/56ca049c-dfa1-4c14-848d-8730139d7bde
+          - cell "Almagro"
+          - cell "09/11/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Con acceso":
+            - generic: Con acceso
+          - cell "Pausar Revocar acceso Hasta 14/11/2027":
+            - button "Pausar"
+            - button "Revocar acceso"
+            - generic: Hasta 14/11/2027
+        - row "IndER Residencia Constitución 09/11/2026 Activa y publicada Con acceso Pausar Revocar acceso Hasta 14/11/2027":
+          - cell "IndER Residencia":
+            - link "IndER Residencia":
+              - /url: /admin/residences/31c527b4-0f07-4c3b-b1a8-10c7c76770ca
+          - cell "Constitución"
+          - cell "09/11/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Con acceso":
+            - generic: Con acceso
+          - cell "Pausar Revocar acceso Hasta 14/11/2027":
+            - button "Pausar"
+            - button "Revocar acceso"
+            - generic: Hasta 14/11/2027
+        - row "Entis Residencia Universitaria San Telmo 09/11/2026 Activa y publicada Con acceso Pausar Revocar acceso Hasta 14/11/2027":
+          - cell "Entis Residencia Universitaria":
+            - link "Entis Residencia Universitaria":
+              - /url: /admin/residences/730bfbf6-e2b7-485d-b882-90acfea4f3f3
+          - cell "San Telmo"
+          - cell "09/11/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Con acceso":
+            - generic: Con acceso
+          - cell "Pausar Revocar acceso Hasta 14/11/2027":
+            - button "Pausar"
+            - button "Revocar acceso"
+            - generic: Hasta 14/11/2027
+        - row "CLEI Residencia de Estudiantes Monserrat 09/11/2026 Activa y publicada Con acceso Pausar Revocar acceso Hasta 14/11/2027":
+          - cell "CLEI Residencia de Estudiantes":
+            - link "CLEI Residencia de Estudiantes":
+              - /url: /admin/residences/bca9afdf-0a9c-412f-abf9-f6637a425457
+          - cell "Monserrat"
+          - cell "09/11/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Con acceso":
+            - generic: Con acceso
+          - cell "Pausar Revocar acceso Hasta 14/11/2027":
+            - button "Pausar"
+            - button "Revocar acceso"
+            - generic: Hasta 14/11/2027
+        - row "Charlie's Hostel Villa Crespo 09/11/2026 Activa y publicada Con acceso Pausar Revocar acceso Hasta 14/11/2027":
+          - cell "Charlie's Hostel":
+            - link "Charlie's Hostel":
+              - /url: /admin/residences/83d0555f-b515-40d9-b548-d094b5d60072
+          - cell "Villa Crespo"
+          - cell "09/11/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Con acceso":
+            - generic: Con acceso
+          - cell "Pausar Revocar acceso Hasta 14/11/2027":
+            - button "Pausar"
+            - button "Revocar acceso"
+            - generic: Hasta 14/11/2027
+        - row "Casa Rica Coliving (Obelisco) San Nicolás 09/11/2026 Activa y publicada Con acceso Pausar Revocar acceso Hasta 14/11/2027":
+          - cell "Casa Rica Coliving (Obelisco)":
+            - link "Casa Rica Coliving (Obelisco)":
+              - /url: /admin/residences/c3a55b19-c272-42a2-8247-49569b29769f
+          - cell "San Nicolás"
+          - cell "09/11/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Con acceso":
+            - generic: Con acceso
+          - cell "Pausar Revocar acceso Hasta 14/11/2027":
+            - button "Pausar"
+            - button "Revocar acceso"
+            - generic: Hasta 14/11/2027
+        - row "Casa AURA Constitución 09/11/2026 Activa y publicada Con acceso Pausar Revocar acceso Hasta 14/11/2027":
+          - cell "Casa AURA":
+            - link "Casa AURA":
+              - /url: /admin/residences/b94522ef-cdb7-47c7-b0bc-08b8237ba727
+          - cell "Constitución"
+          - cell "09/11/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Con acceso":
+            - generic: Con acceso
+          - cell "Pausar Revocar acceso Hasta 14/11/2027":
+            - button "Pausar"
+            - button "Revocar acceso"
+            - generic: Hasta 14/11/2027
+        - row "Arcos del Soho Palermo 09/11/2026 Activa y publicada Con acceso Pausar Revocar acceso Hasta 14/11/2027":
+          - cell "Arcos del Soho":
+            - link "Arcos del Soho":
+              - /url: /admin/residences/0183359d-ee3b-4b17-ab20-74daa9744064
+          - cell "Palermo"
+          - cell "09/11/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Con acceso":
+            - generic: Con acceso
+          - cell "Pausar Revocar acceso Hasta 14/11/2027":
+            - button "Pausar"
+            - button "Revocar acceso"
+            - generic: Hasta 14/11/2027
+        - row "Residencia Prueba DR22 Caballito 01/11/2026 Borrador Sin acceso Otorgar acceso":
+          - cell "Residencia Prueba DR22":
+            - link "Residencia Prueba DR22":
+              - /url: /admin/residences/f35f5863-5164-406d-aa25-865a25566494
+          - cell "Caballito"
+          - cell "01/11/2026"
+          - cell "Borrador":
+            - generic: Borrador
+          - cell "Sin acceso":
+            - generic: Sin acceso
+          - cell "Otorgar acceso":
+            - button "Otorgar acceso"
+        - row "Casa Colegiales Colegiales 29/10/2026 Activa y publicada Sin acceso Pausar Otorgar acceso":
+          - cell "Casa Colegiales":
+            - link "Casa Colegiales":
+              - /url: /admin/residences/495d3334-e9f7-4792-8dea-10ae41418d05
+          - cell "Colegiales"
+          - cell "29/10/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Sin acceso":
+            - generic: Sin acceso
+          - cell "Pausar Otorgar acceso":
+            - button "Pausar"
+            - button "Otorgar acceso"
+        - row "Residencia Núñez Río Núñez 29/10/2026 Activa y publicada Sin acceso Pausar Otorgar acceso":
+          - cell "Residencia Núñez Río":
+            - link "Residencia Núñez Río":
+              - /url: /admin/residences/22bb730b-a7ef-42fd-b0d0-83ba3aa8bf85
+          - cell "Núñez"
+          - cell "29/10/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Sin acceso":
+            - generic: Sin acceso
+          - cell "Pausar Otorgar acceso":
+            - button "Pausar"
+            - button "Otorgar acceso"
+        - row "Residencia Villa Crespo Villa Crespo 29/10/2026 Activa y publicada Sin acceso Pausar Otorgar acceso":
+          - cell "Residencia Villa Crespo":
+            - link "Residencia Villa Crespo":
+              - /url: /admin/residences/9dade9c3-5196-4fe3-8be9-081cff5af266
+          - cell "Villa Crespo"
+          - cell "29/10/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Sin acceso":
+            - generic: Sin acceso
+          - cell "Pausar Otorgar acceso":
+            - button "Pausar"
+            - button "Otorgar acceso"
+        - row "Casa San Telmo San Telmo 29/10/2026 Activa y publicada Sin acceso Pausar Otorgar acceso":
+          - cell "Casa San Telmo":
+            - link "Casa San Telmo":
+              - /url: /admin/residences/2585781d-21aa-4952-bdda-b6cb94c7339b
+          - cell "San Telmo"
+          - cell "29/10/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Sin acceso":
+            - generic: Sin acceso
+          - cell "Pausar Otorgar acceso":
+            - button "Pausar"
+            - button "Otorgar acceso"
+        - row "Residencia Belgrano R Belgrano 29/10/2026 Activa y publicada Sin acceso Pausar Otorgar acceso":
+          - cell "Residencia Belgrano R":
+            - link "Residencia Belgrano R":
+              - /url: /admin/residences/b6ac08d3-41c8-4acb-9309-80a89271da94
+          - cell "Belgrano"
+          - cell "29/10/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Sin acceso":
+            - generic: Sin acceso
+          - cell "Pausar Otorgar acceso":
+            - button "Pausar"
+            - button "Otorgar acceso"
+        - row "Residencia Balvanera Centro Balvanera 29/10/2026 Activa y publicada Sin acceso Pausar Otorgar acceso":
+          - cell "Residencia Balvanera Centro":
+            - link "Residencia Balvanera Centro":
+              - /url: /admin/residences/f07b3471-96e9-466f-8d17-a666b827734c
+          - cell "Balvanera"
+          - cell "29/10/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Sin acceso":
+            - generic: Sin acceso
+          - cell "Pausar Otorgar acceso":
+            - button "Pausar"
+            - button "Otorgar acceso"
+        - row "Residencia Caballito Parque Caballito 29/10/2026 Activa y publicada Sin acceso Pausar Otorgar acceso":
+          - cell "Residencia Caballito Parque":
+            - link "Residencia Caballito Parque":
+              - /url: /admin/residences/7ca8f4b1-2e99-47f2-96cc-e30f7f059748
+          - cell "Caballito"
+          - cell "29/10/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Sin acceso":
+            - generic: Sin acceso
+          - cell "Pausar Otorgar acceso":
+            - button "Pausar"
+            - button "Otorgar acceso"
+        - row "Casa Almagro Estudiantes Almagro 29/10/2026 Activa y publicada Sin acceso Pausar Otorgar acceso":
+          - cell "Casa Almagro Estudiantes":
+            - link "Casa Almagro Estudiantes":
+              - /url: /admin/residences/2f62964e-1539-40e3-8ec8-22cfba445bce
+          - cell "Almagro"
+          - cell "29/10/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Sin acceso":
+            - generic: Sin acceso
+          - cell "Pausar Otorgar acceso":
+            - button "Pausar"
+            - button "Otorgar acceso"
+        - row "Residencia Recoleta Plaza Recoleta 29/10/2026 Activa y publicada Sin acceso Pausar Otorgar acceso":
+          - cell "Residencia Recoleta Plaza":
+            - link "Residencia Recoleta Plaza":
+              - /url: /admin/residences/bafa1092-45f5-4631-9799-9916fcdc1546
+          - cell "Recoleta"
+          - cell "29/10/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Sin acceso":
+            - generic: Sin acceso
+          - cell "Pausar Otorgar acceso":
+            - button "Pausar"
+            - button "Otorgar acceso"
+        - row "Residencia Palermo Soho Palermo 29/10/2026 Activa y publicada Sin acceso Pausar Otorgar acceso":
+          - cell "Residencia Palermo Soho":
+            - link "Residencia Palermo Soho":
+              - /url: /admin/residences/c1d7693b-4f81-4b13-99c7-fd51b1552a9a
+          - cell "Palermo"
+          - cell "29/10/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Sin acceso":
+            - generic: Sin acceso
+          - cell "Pausar Otorgar acceso":
+            - button "Pausar"
+            - button "Otorgar acceso"
+        - row "Residencia Sin Fronteras Centro 27/10/2026 Activa y publicada Con acceso Pausar Revocar acceso":
+          - cell "Residencia Sin Fronteras":
+            - link "Residencia Sin Fronteras":
+              - /url: /admin/residences/54d972ea-25a2-4933-add3-8a683684d452
+          - cell "Centro"
+          - cell "27/10/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Con acceso":
+            - generic: Con acceso
+          - cell "Pausar Revocar acceso":
+            - button "Pausar"
+            - button "Revocar acceso"
+        - row "Casa Compartida Almagro Almagro 20/10/2026 Pendiente de verificación Sin acceso Otorgar acceso":
+          - cell "Casa Compartida Almagro":
+            - link "Casa Compartida Almagro":
+              - /url: /admin/residences/b9e509f4-e92d-420b-aeb3-43af1a30a88e
+          - cell "Almagro"
+          - cell "20/10/2026"
+          - cell "Pendiente de verificación":
+            - generic: Pendiente de verificación
+          - cell "Sin acceso":
+            - generic: Sin acceso
+          - cell "Otorgar acceso":
+            - button "Otorgar acceso"
+        - row "Residencia Río de la Plata Recoleta 20/10/2026 Activa y publicada Con acceso Pausar Revocar acceso Hasta 14/11/2027":
+          - cell "Residencia Río de la Plata":
+            - link "Residencia Río de la Plata":
+              - /url: /admin/residences/6f3cfe08-b2e6-4e6b-b59d-2a8efe61b9de
+          - cell "Recoleta"
+          - cell "20/10/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Con acceso":
+            - generic: Con acceso
+          - cell "Pausar Revocar acceso Hasta 14/11/2027":
+            - button "Pausar"
+            - button "Revocar acceso"
+            - generic: Hasta 14/11/2027
+        - row "Residencia Norte Palermo 20/10/2026 Activa y publicada Con acceso Pausar Revocar acceso Hasta 14/11/2027":
+          - cell "Residencia Norte":
+            - link "Residencia Norte":
+              - /url: /admin/residences/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e
+          - cell "Palermo"
+          - cell "20/10/2026"
+          - cell "Activa y publicada":
+            - generic: Activa y publicada
+          - cell "Con acceso":
+            - generic: Con acceso
+          - cell "Pausar Revocar acceso Hasta 14/11/2027":
+            - button "Pausar"
+            - button "Revocar acceso"
+            - generic: Hasta 14/11/2027
+- button "Admin Operativo": Admin Operativo
+- button "Open Next.js Dev Tools":
+- alert

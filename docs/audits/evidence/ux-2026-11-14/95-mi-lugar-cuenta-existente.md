@@ -1,0 +1,152 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- main:
+  - generic: EstuRed
+  - generic: Inicio
+  - generic: Buscar residencias
+  - generic: Mis solicitudes
+  - generic: Comunidad
+  - generic: Mi perfil
+  - paragraph: Hola
+  - generic: Tu búsqueda
+  - generic: Solicitudes
+  - generic: Tu llegada
+  - paragraph: Residencias para vos
+  - paragraph: Tu comunidad
+  - generic: person
+  - generic: person
+  - paragraph:
+    - generic: lock
+    - text: Tu panel · se activa cuando abramos
+  - dialog "¡Listo! Ya estás adentro.":
+    - button "Cerrar (solo dev)" [active]:
+      - generic: close
+      - text: Cerrar (solo dev)
+    - generic: check
+    - heading "¡Listo! Ya estás adentro." [level=1]
+    - paragraph: Te vas a enterar primero de las residencias verificadas y de todas las novedades.
+    - paragraph:
+      - generic: dashboard
+      - generic: Cuando se active tu cuenta, acá vas a ver tu panel.
+      - text: Y vas a poder buscar entre las residencias verificadas.
+    - region "Así va a funcionar":
+      - heading "Así va a funcionar" [level=2]
+      - list:
+        - generic: search
+        - generic: "1"
+        - generic: Creá tu cuenta y buscá
+        - generic: Compará reglas y comunidad.
+        - generic: edit_note
+        - generic: "2"
+        - generic: Enviá tu solicitud
+        - generic: Gratis y registrada.
+        - generic: mark_email_read
+        - generic: "3"
+        - generic: La residencia te responde
+        - generic: Valores finales, sin costos ocultos.
+        - generic: apartment
+        - generic: "4"
+        - generic: Le pagás a la residencia
+        - generic: Ella confirma que lo recibió.
+        - generic: verified
+        - generic: "5"
+        - generic: Recibís tu comprobante
+        - generic: Fee de EstuRed aparte, a la vista.
+    - region "Se siguen sumando":
+      - heading "Se siguen sumando" [level=2]
+      - generic: info
+      - text: Las marcadas «Ejemplo» son ilustrativas
+      - group "Estudiantes que se están sumando (incluye ejemplos ilustrativos)":
+        - generic: V
+        - generic "Perú": 🇵🇪
+        - paragraph: Valeria
+        - paragraph: 23 años, de Perú
+        - paragraph: Arquitectura
+        - generic: Me gusta cocinar
+        - generic: Arte
+        - generic: Orden ante todo
+        - generic: J
+        - generic "Argentina": 🇦🇷
+        - paragraph: Joaquín
+        - paragraph: 22 años, de Argentina
+        - paragraph: Ingeniería en Sistemas
+        - generic: Hago deporte
+        - generic: Deportes
+        - generic: Me acuesto tarde
+        - generic: L
+        - generic "Uruguay": 🇺🇾
+        - paragraph: Lucía
+        - paragraph: 21 años, de Uruguay
+        - paragraph: Medicina
+        - generic: Madrugo
+        - generic: Lectura
+        - generic: Estudio en silencio
+        - generic: Ejemplo
+        - generic: M
+        - generic "Uruguay": 🇺🇾
+        - paragraph: Martina
+        - paragraph: 19 años, de Uruguay
+        - paragraph: Medicina
+        - generic: Madrugo
+        - generic: Lectura
+        - generic: Ejemplo
+        - generic: J
+        - generic "Argentina": 🇦🇷
+        - paragraph: Joaquín
+        - paragraph: 21 años, de Argentina
+        - paragraph: Ingeniería en Sistemas
+        - generic: Hago deporte
+        - generic: Música
+        - generic: V
+        - generic: 🇵🇪
+        - paragraph: Valeria
+        - paragraph: 23 años, de Perú
+        - paragraph: Arquitectura
+        - generic: Me gusta cocinar
+        - generic: Arte
+        - generic: Orden ante todo
+        - generic: J
+        - generic: 🇦🇷
+        - paragraph: Joaquín
+        - paragraph: 22 años, de Argentina
+        - paragraph: Ingeniería en Sistemas
+        - generic: Hago deporte
+        - generic: Deportes
+        - generic: Me acuesto tarde
+        - generic: L
+        - generic: 🇺🇾
+        - paragraph: Lucía
+        - paragraph: 21 años, de Uruguay
+        - paragraph: Medicina
+        - generic: Madrugo
+        - generic: Lectura
+        - generic: Estudio en silencio
+        - generic: Ejemplo
+        - generic: M
+        - generic: 🇺🇾
+        - paragraph: Martina
+        - paragraph: 19 años, de Uruguay
+        - paragraph: Medicina
+        - generic: Madrugo
+        - generic: Lectura
+        - generic: Ejemplo
+        - generic: J
+        - generic: 🇦🇷
+        - paragraph: Joaquín
+        - paragraph: 21 años, de Argentina
+        - paragraph: Ingeniería en Sistemas
+        - generic: Hago deporte
+        - generic: Música
+    - button "Salir"
+    - link "Términos":
+      - /url: /consentimientos#terminos
+    - link "Privacidad":
+      - /url: /consentimientos#privacidad
+- navigation "Pantallas (dev)":
+  - button "Pantallas (dev)"
+  - 'link "Pantalla siguiente: Entrada (popup + CTA fundadoras)"':
+    - /url: /dev-preapertura/preparar?estado=anon&next=%2F
+    - text: →
+- button "Camila — Estudiante en Búsqueda": Camila — Estudiante en Búsqueda
+- button "Open Next.js Dev Tools":
+- alert

@@ -1,0 +1,495 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- banner:
+  - navigation:
+    - link "EstuRed, inicio":
+      - /url: /
+      - generic: EstuRed
+    - link "Para estudiantesy familias":
+      - /url: /for-students
+      - generic: Para estudiantesy familias
+    - link "Para residencias":
+      - /url: /for-residences
+    - link "Guías":
+      - /url: /guias
+    - link "Buscar residencias":
+      - /url: /search
+    - generic: C
+    - link "Mi panel":
+      - /url: /students/dashboard
+- main:
+  - navigation "Ruta de navegación":
+    - list:
+      - link "Residencias":
+        - /url: /search
+      - listitem: ›
+      - listitem: Montserrat
+      - listitem: ›
+      - listitem: Wanna Tango
+  - group "Fotos destacadas de Wanna Tango":
+    - button "Ver foto 3 de 4":
+      - img "Foto de Wanna Tango en Montserrat"
+    - button "Ver foto 1 de 4":
+      - img "Foto 1 de 4 de Wanna Tango en Montserrat"
+    - button "Ver foto 2 de 4":
+      - img "Foto 2 de 4 de Wanna Tango en Montserrat"
+    - button "Ver foto 4 de 4":
+      - img "Foto 4 de 4 de Wanna Tango en Montserrat"
+    - button "Foto destacada anterior":
+      - generic: chevron_left
+    - generic: 3 / 4
+    - button "Foto destacada siguiente":
+      - generic: chevron_right
+    - button "Pausar fotos destacadas":
+      - generic: pause
+  - heading "Wanna Tango" [level=1]
+  - generic "Verificada presencialmente por el equipo de EstuRed":
+    - generic: verified
+    - text: Residencia Verificada
+  - button "Guardar":
+    - generic: favorite_border
+    - text: Guardar
+  - paragraph:
+    - generic: location_on
+    - text: Av. de Mayo 861, Montserrat, CABA
+  - list:
+    - generic: bed
+    - generic: doble, triple, cuádruple y individual
+    - generic: event_available
+    - text: Estadía mínima
+    - strong: 3 meses
+    - generic: school
+    - text: ~0,6 km de UADE
+    - generic: groups
+    - text: 12 residentes
+  - paragraph: Casa totalmente remodelada sobre Av. de Mayo y Tacuarí, a metros de la 9 de Julio, con cuatro líneas de subte, colectivos y universidades cerca. Patio central lleno de plantas, ideal para concentrarse, amplia sala de juegos para la comunidad y terraza tranquila. Wi-Fi, lavandería y coworking.
+  - button "Leer más"
+  - navigation "Secciones de la ficha":
+    - list:
+      - link "Servicios":
+        - /url: "#servicios"
+        - text: Servicios
+      - link "Comunidad":
+        - /url: "#comunidad"
+        - text: Comunidad
+      - link "Tarifas y condiciones":
+        - /url: "#tarifas"
+        - text: Tarifas y condiciones
+      - link "Ubicación":
+        - /url: "#ubicacion"
+        - text: Ubicación
+      - link "Preguntas":
+        - /url: "#preguntas"
+        - text: Preguntas
+  - heading "Servicios y áreas comunes" [level=2]
+  - heading "Servicios incluidos" [level=3]
+  - button "Wifi":
+    - generic: wifi
+    - generic: Wifi
+  - button "Cámaras 24 hs":
+    - generic: videocam
+    - generic: Cámaras 24 hs
+  - button "Lavandería":
+    - generic: local_laundry_service
+    - generic: Lavandería
+  - button "Coordinador Presencial":
+    - generic: support_agent
+    - generic: Coordinador Presencial
+  - heading "Áreas comunes" [level=3]
+  - button "Patio":
+    - generic: yard
+    - generic: Patio
+  - button "Terraza":
+    - generic: deck
+    - generic: Terraza
+  - button "Sala de Juegos":
+    - generic: sports_esports
+    - generic: Sala de Juegos
+  - button "Cocina compartida":
+    - generic: kitchen
+    - generic: Cocina compartida
+  - button "Sala de Estar":
+    - generic: weekend
+    - generic: Sala de Estar
+  - button "Área de Estudio":
+    - generic: school
+    - generic: Área de Estudio
+  - heading "Edad de los residentes" [level=2]
+  - paragraph: Desde 18 años.
+  - heading "Reglas de convivencia" [level=2]
+  - button "Leer reglamento":
+    - generic: article
+    - text: Leer reglamento
+  - link "Descargar reglamento":
+    - /url: /residencias/wanna-tango/reglamento
+    - generic: download
+    - text: Descargar reglamento
+  - heading "Comunidad y convivencia" [level=2]
+  - paragraph: Quiénes viven hoy en la residencia.
+  - generic "Cifras de la comunidad":
+    - term: residentes hoy
+    - definition: "12"
+    - term: países de origen
+    - definition: "12"
+    - term: años
+    - definition: 19–25
+    - term: carreras
+    - definition: "12"
+  - group "Filtrar por tipo de habitación":
+    - button "Todos · 12" [pressed]
+    - button "Individual"
+    - button "Doble"
+    - button "Triple"
+    - button "Cuádruple"
+  - list:
+    - generic: B
+    - paragraph:
+      - text: Brenda
+      - generic: ", 20"
+    - paragraph: 🇮🇹 Roma
+    - paragraph: Economía
+    - generic: E
+    - paragraph:
+      - text: Emiliano
+      - generic: ", 19"
+    - paragraph: 🇨🇱 Valparaíso
+    - paragraph: Contador Público
+    - generic: D
+    - paragraph:
+      - text: Delfina
+      - generic: ", 25"
+    - paragraph: 🇵🇾 Asunción
+    - paragraph: Odontología
+    - generic: F
+    - paragraph:
+      - text: Facundo
+      - generic: ", 24"
+    - paragraph: 🇫🇷 Lyon
+    - paragraph: Biología
+    - generic: E
+    - paragraph:
+      - text: Emilia
+      - generic: ", 23"
+    - paragraph: 🇧🇷 São Paulo
+    - paragraph: Kinesiología
+    - generic: I
+    - paragraph:
+      - text: Ivo
+      - generic: ", 25"
+    - paragraph: 🇩🇪 Múnich
+    - paragraph: Veterinaria
+  - link "Ver los 12 perfiles Conocé con quién vas a vivir antes de reservar":
+    - /url: /residencias/wanna-tango/comunidad
+    - generic: B
+    - generic: E
+    - generic: D
+    - generic: Ver los 12 perfiles
+    - generic: Conocé con quién vas a vivir antes de reservar
+    - generic: arrow_forward
+  - paragraph:
+    - generic: info
+    - text: Se muestran solo los perfiles que cada estudiante eligió compartir. Pueden cambiar antes de tu ingreso. La disponibilidad por habitación está en
+    - link "Tarifas":
+      - /url: "#tarifas"
+    - text: .
+  - heading "Tarifas y condiciones" [level=2]
+  - paragraph: Precios mensuales por tipo de habitación, visibles para todos. La disponibilidad la informa la residencia por tipo.
+  - list:
+    - 'listitem "Doble, USD 315 por mes, Doble: completa"':
+      - paragraph:
+        - generic: group
+        - generic: Doble
+      - generic: wc
+      - text: Mixta
+      - generic: bathroom
+      - text: Baño compartido
+      - paragraph:
+        - generic: USD 315 /mes
+      - paragraph: ≈ ARS 494.500
+      - text: "Doble: completa"
+      - 'button "Qué significa \"Doble: completa\""':
+        - generic: i
+      - button "Lista de espera"
+    - 'listitem "Triple, USD 245 por mes, Triple: completa"':
+      - paragraph:
+        - generic: group
+        - generic: Triple
+      - generic: wc
+      - text: Mixta
+      - generic: bathroom
+      - text: Baño compartido
+      - paragraph:
+        - generic: USD 245 /mes
+      - paragraph: ≈ ARS 384.500
+      - text: "Triple: completa"
+      - 'button "Qué significa \"Triple: completa\""':
+        - generic: i
+      - button "Lista de espera"
+    - 'listitem "Cuádruple, USD 195 por mes, Cuádruple: completa"':
+      - paragraph:
+        - generic: group
+        - generic: Cuádruple
+      - generic: wc
+      - text: Mixta
+      - generic: bathroom
+      - text: Baño compartido
+      - paragraph:
+        - generic: USD 195 /mes
+      - paragraph: ≈ ARS 306.000
+      - text: "Cuádruple: completa"
+      - 'button "Qué significa \"Cuádruple: completa\""':
+        - generic: i
+      - button "Lista de espera"
+    - listitem "Individual, USD 420 por mes, Disponibilidad informada":
+      - paragraph:
+        - generic: person
+        - generic: Individual
+      - generic: wc
+      - text: Mixta
+      - generic: shower
+      - text: Baño privado
+      - paragraph:
+        - generic: USD 420 /mes
+      - paragraph: ≈ ARS 659.500
+      - text: Disponibilidad informada
+      - button "Qué significa \"Disponibilidad informada\"":
+        - generic: i
+      - 'button "Elegir: Individual"': Elegir
+  - paragraph:
+    - text: Los pesos son referenciales, según la cotización de referencia de hoy (ARS 1.570).
+    - button "Más información sobre el valor en pesos":
+      - generic: i
+  - list:
+    - generic: "1"
+    - strong: Enviás la solicitud
+    - text: ": es gratis"
+    - generic: "2"
+    - strong: Si avanza, le pagás a la residencia
+    - text: ": matrícula, seña o depósito"
+    - generic: "3"
+    - strong: Pagás a EstuRed
+    - text: ": 5% de servicio"
+  - paragraph: La residencia responde en hasta 48 horas. Toda reserva está sujeta a confirmación.
+  - generic: support_agent
+  - paragraph:
+    - text: Si después algo no coincide con lo publicado, Soporte de EstuRed te acompaña.
+    - link "Cómo funciona":
+      - /url: /for-students#preguntas-frecuentes
+  - list:
+    - 'button "Ver detalle: Para reservar"'
+    - generic: payments
+    - text: Para reservar
+    - generic: Primer mes
+    - text: Ver detalle
+    - generic: autorenew
+    - paragraph:
+      - generic: payments
+      - text: Para reservar
+    - generic: "Pago inicial a la residencia: el mes del tipo que elijas."
+    - button "Volver":
+      - text: Volver
+      - generic: autorenew
+    - 'button "Ver detalle: Matrícula"'
+    - generic: badge
+    - text: Matrícula
+    - generic: No cobra
+    - text: Ver detalle
+    - generic: autorenew
+    - paragraph:
+      - generic: badge
+      - text: Matrícula
+    - generic: Esta residencia no cobra cargo de ingreso.
+    - button "Volver":
+      - text: Volver
+      - generic: autorenew
+    - 'button "Ver detalle: Depósito"'
+    - generic: savings
+    - text: Depósito
+    - generic: No cobra
+    - text: Ver detalle
+    - generic: autorenew
+    - paragraph:
+      - generic: savings
+      - text: Depósito
+    - generic: Esta residencia no pide depósito.
+    - button "Volver":
+      - text: Volver
+      - generic: autorenew
+    - 'button "Ver detalle: Ajuste de tarifa"'
+    - generic: trending_up
+    - text: Ajuste de tarifa
+    - generic: Trimestral
+    - text: Ver detalle
+    - generic: autorenew
+    - paragraph:
+      - generic: trending_up
+      - text: Ajuste de tarifa
+    - generic: La residencia puede actualizar la tarifa cada 3 meses.
+    - button "Volver":
+      - text: Volver
+      - generic: autorenew
+    - 'button "Ver detalle: Mes vacío"'
+    - generic: hourglass_top
+    - text: Mes vacío
+    - generic: No cobra mes vacío
+    - text: Ver detalle
+    - generic: autorenew
+    - paragraph:
+      - generic: hourglass_top
+      - text: Mes vacío
+    - text: Si la plaza queda vacía antes de tu ingreso, la residencia puede cobrarte esos meses al porcentaje que fijó. Más en la
+    - link "pregunta frecuente sobre mes vacío":
+      - /url: "#preguntas"
+    - text: .
+    - button "Volver":
+      - text: Volver
+      - generic: autorenew
+    - 'button "Ver detalle: Documentos para admisión"'
+    - generic: description
+    - text: Documentos para admisión
+    - generic: A coordinar con la residencia
+    - text: Ver detalle
+    - generic: autorenew
+    - paragraph:
+      - generic: description
+      - text: Documentos para admisión
+    - generic: Los documentos que necesita la residencia para admitirte los define ella y te los pide una vez que tu solicitud avanza.
+    - button "Volver":
+      - text: Volver
+      - generic: autorenew
+  - heading "Ubicación" [level=2]
+  - paragraph: Av. de Mayo 861, Montserrat, CABA.
+  - img "Mapa con la ubicación de Wanna Tango, en Av. de Mayo 861, y las universidades cercanas":
+    - generic: "1"
+    - generic: "2"
+    - generic: home
+    - link "© colaboradores de OpenStreetMap":
+      - /url: https://www.openstreetmap.org/copyright
+  - paragraph:
+    - generic: location_on
+    - text: Wanna Tango
+    - generic: Av. de Mayo 861, Montserrat
+  - paragraph: Universidades cercanas
+  - list:
+    - generic: "1"
+    - generic: UADE
+    - generic: ~6 cuadras, 0,6 km
+    - generic: "2"
+    - generic: USAL
+    - generic: ~6 cuadras, 0,6 km
+  - paragraph:
+    - generic: info
+    - text: Distancias aproximadas en línea recta desde la residencia (una cuadra son unos 100 m).
+    - link "Ver en OpenStreetMap":
+      - /url: https://www.openstreetmap.org/?mlat=-34.608723&mlon=-58.378626#map=16/-34.608723/-58.378626
+  - paragraph:
+    - generic: menu_book
+    - generic: "Antes de reservar, leé:"
+    - link "Cómo elegir una residencia estudiantil en Buenos Aires":
+      - /url: /guias/como-elegir-residencia-estudiantil-buenos-aires
+    - generic: ·
+    - link "Seis errores comunes al mudarte a Buenos Aires (y cómo evitarlos)":
+      - /url: /guias/errores-comunes-mudarse-buenos-aires
+  - heading "Preguntas frecuentes" [level=2]
+  - heading "¿Tenés otra pregunta?" [level=3]
+  - paragraph: Escribila acá y se la hacemos llegar a la residencia. La residencia responde cuando puede; no es una respuesta automática. No hace falta que dejes tus datos.
+  - paragraph:
+    - generic: fact_check
+    - generic: Asegurate de que la respuesta no esté ya en esta ficha ni en las preguntas frecuentes antes de enviarla.
+  - generic: Tu pregunta
+  - textbox "Tu pregunta":
+    - /placeholder: "Ej.: ¿Se pueden recibir visitas los fines de semana?"
+  - paragraph: 0/500 caracteres. No incluyas datos personales ni de contacto; la residencia responde por acá.
+  - button "Enviar pregunta"
+  - complementary "Solicitud de reserva en Wanna Tango":
+    - region "Lista de espera":
+      - heading "Lista de espera" [level=2]
+      - paragraph: Sumarte a la lista de espera no es una solicitud ni reserva un lugar. Te avisamos si se libera uno.
+      - button "Volver a la solicitud":
+        - generic: chevron_left
+        - text: Volver a la solicitud
+      - paragraph: No hay lugares disponibles en este momento.
+      - generic: Tipo de habitación (opcional)
+      - combobox "Tipo de habitación (opcional)" [active]:
+        - option "Cualquiera"
+        - option "Doble" [selected]
+        - option "Triple"
+        - option "Cuádruple"
+        - option "Individual"
+      - generic: ¿Para qué mes?
+      - combobox "¿Para qué mes?":
+        - option "Elegí un mes" [disabled] [selected]
+        - option "noviembre 2026"
+        - option "diciembre 2026"
+        - option "enero 2027"
+        - option "febrero 2027"
+        - option "marzo 2027"
+        - option "abril 2027"
+        - option "mayo 2027"
+        - option "junio 2027"
+        - option "julio 2027"
+        - option "agosto 2027"
+        - option "septiembre 2027"
+        - option "octubre 2027"
+        - option "noviembre 2027"
+        - option "Cuando haya lugar"
+      - paragraph: Si el mes pasa sin lugar, salís de la lista y podés sumarte de nuevo.
+      - button "Sumarme a lista de espera"
+  - paragraph:
+    - text: ¿Buscás más opciones?
+    - link "Mirá el catálogo completo":
+      - /url: /search
+    - text: .
+- contentinfo:
+  - generic: EstuRed
+  - generic: EstuRed
+  - paragraph: La convivencia también se elige. Residencias estudiantiles verificadas en CABA, con solicitudes registradas y comprobantes verificables.
+  - list:
+    - generic: check
+    - text: Residencias verificadas presencialmente
+    - generic: check
+    - text: Solicitudes registradas en la plataforma
+    - generic: check
+    - text: Comprobante de Reserva Confirmada
+  - navigation "Explorar":
+    - paragraph: Explorar
+    - list:
+      - link "Buscar residencias":
+        - /url: /search
+      - link "Para estudiantes y familias":
+        - /url: /for-students
+      - link "Para residencias":
+        - /url: /for-residences
+      - link "Guías":
+        - /url: /guias
+  - navigation "Ayuda":
+    - paragraph: Ayuda
+    - list:
+      - link "Soporte":
+        - /url: /students/support
+        - generic: support_agent
+        - text: Soporte
+      - link "Preguntas frecuentes":
+        - /url: /for-students#preguntas-frecuentes
+      - link "Cómo funciona":
+        - /url: /#el-proceso
+      - link "Qué pagás y a quién":
+        - /url: /for-students#que-pagas
+      - text: "Contacto:"
+      - link "hola@estured.com":
+        - /url: mailto:hola@estured.com
+      - listitem: ¿Tenés una reserva y algo no coincide? Abrí un caso desde tu panel.
+  - paragraph: EstuRed actúa como plataforma intermediaria de búsqueda, solicitud, registro y comprobante. No presta directamente el alojamiento. Los precios en ARS son referenciales al dólar blue del día.
+  - list:
+    - link "Botón de arrepentimiento":
+      - /url: /students/revocation
+    - link "Verificar un comprobante":
+      - /url: /verify
+    - link "Términos y condiciones":
+      - /url: /terms
+    - link "Política de privacidad":
+      - /url: /privacy
+  - paragraph: Hecho con ♥ en Buenos Aires
+- button "Camila — Estudiante en Búsqueda": Camila — Estudiante en Búsqueda
+- button "Open Next.js Dev Tools":
+- alert

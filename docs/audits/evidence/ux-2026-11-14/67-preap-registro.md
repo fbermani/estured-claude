@@ -1,0 +1,1124 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- main:
+  - navigation:
+    - link:
+      - /url: /
+      - generic: EstuRed
+    - link:
+      - /url: /for-students
+      - generic: Para estudiantesy familias
+    - link:
+      - /url: /for-residences
+      - text: Para residencias
+    - link:
+      - /url: /guias
+      - text: Guías
+    - link:
+      - /url: /login
+      - text: Ingresar
+    - link:
+      - /url: /register
+      - text: Crear cuenta
+    - link:
+      - /url: /search
+      - generic: search
+      - text: Buscar residencias
+  - paragraph: Ciudad de Buenos Aires
+  - heading [level=1]: Elegí tu residencia a distancia, sin adivinar.
+  - paragraph: Residencias en Buenos Aires, verificadas por EstuRed. Reservá y pagá desde donde estés, sin viajar.
+  - link:
+    - /url: /search
+    - generic: ¿Dónde?
+    - text: Todos los barrios
+    - generic: expand_more
+    - generic: ¿Qué estudiás?
+    - text: Todas
+    - generic: expand_more
+    - generic: ¿Cuándo entrás?
+    - text: Cuando quieras
+    - generic: expand_more
+    - generic: search
+    - text: Buscar residencias
+  - paragraph:
+    - text: Explorar es gratis. Toda solicitud queda sujeta a confirmación de la residencia.
+    - link:
+      - /url: /register/residence
+      - text: Solicitar sumar mi residencia
+  - list:
+    - generic: verified
+    - text: Verificadas por EstuRed
+    - generic: flight_takeoff
+    - text: Sin viajar
+    - generic: receipt_long
+    - text: Comprobante verificable
+  - region:
+    - link:
+      - /url: /residencias/wanna-tango
+      - generic: verified
+      - text: Verificada
+      - generic: Wanna Tango
+      - generic: Montserrat, Doble, Triple, Cuádruple, Individual
+    - link:
+      - /url: /residencias/wanna-sur
+      - generic: verified
+      - text: Verificada
+      - generic: Wanna Sur
+      - generic: Montserrat, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/wanna-palermo
+      - generic: verified
+      - text: Verificada
+      - generic: Wanna Palermo
+      - generic: Recoleta, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/wanna-independencia
+      - generic: verified
+      - text: Verificada
+      - generic: Wanna Independencia
+      - generic: San Cristóbal, Cuádruple, Individual, Triple, Doble
+    - link:
+      - /url: /residencias/wanna-congreso
+      - generic: verified
+      - text: Verificada
+      - generic: Wanna Congreso
+      - generic: Balvanera, Cuádruple, Individual, Doble, Triple
+    - link:
+      - /url: /residencias/wanna-centro
+      - generic: verified
+      - text: Verificada
+      - generic: Wanna Centro
+      - generic: San Nicolás, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/verona-del-soho
+      - generic: verified
+      - text: Verificada
+      - generic: Verona del Soho
+      - generic: Palermo, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/student-hostel-la-bamba
+      - generic: verified
+      - text: Verificada
+      - generic: Student Hostel La Bamba (Ilvero)
+      - generic: Recoleta, Individual, Doble, Cuádruple, Triple
+    - link:
+      - /url: /residencias/residencia-san-marcos
+      - generic: verified
+      - text: Verificada
+      - generic: Residencia San Marcos
+      - generic: Montserrat, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/residencia-olivia
+      - generic: verified
+      - text: Verificada
+      - generic: Residencia Universitaria Olivia
+      - generic: Núñez, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/residencia-lith
+      - generic: verified
+      - text: Verificada
+      - generic: Residencia Universitaria Lith
+      - generic: Balvanera, Doble, Triple, Cuádruple, Individual
+    - link:
+      - /url: /residencias/residencia-gusti
+      - generic: verified
+      - text: Verificada
+      - generic: Residencia Universitaria Gusti
+      - generic: Balvanera, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/residencia-family-home
+      - generic: verified
+      - text: Verificada
+      - generic: Residencia Family Home
+      - generic: Constitución, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/residencia-el-angel
+      - generic: verified
+      - text: Verificada
+      - generic: Residencia El Ángel
+      - generic: Montserrat, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/mansion-paloma
+      - generic: verified
+      - text: Verificada
+      - generic: Mansión Paloma
+      - generic: Colegiales, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/luco-hotel
+      - generic: verified
+      - text: Verificada
+      - generic: Luco Hotel (Residencia)
+      - generic: Recoleta, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/las-cabanas
+      - generic: verified
+      - text: Verificada
+      - generic: Las Cabañas
+      - generic: Monserrat, Doble, Triple, Individual, Cuádruple
+    - link:
+      - /url: /residencias/la-scala-hollywood
+      - generic: verified
+      - text: Verificada
+      - generic: La Scala Hollywood
+      - generic: Palermo, Doble, Triple, Individual, Cuádruple
+    - link:
+      - /url: /residencias/la-scala-belgrano
+      - generic: verified
+      - text: Verificada
+      - generic: La Scala Belgrano
+      - generic: Colegiales, Doble, Triple, Individual, Cuádruple
+    - link:
+      - /url: /residencias/la-casona-recoleta
+      - generic: verified
+      - text: Verificada
+      - generic: La Casona Recoleta
+      - generic: Balvanera, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/la-casona-monserrat
+      - generic: verified
+      - text: Verificada
+      - generic: La Casona Monserrat
+      - generic: Monserrat, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/la-casa-de-cris-almagro
+      - generic: verified
+      - text: Verificada
+      - generic: La Casa de Cris - Residencia I Almagro
+      - generic: Almagro, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/inder-residencia
+      - generic: verified
+      - text: Verificada
+      - generic: IndER Residencia
+      - generic: Constitución, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/entis
+      - generic: verified
+      - text: Verificada
+      - generic: Entis Residencia Universitaria
+      - generic: San Telmo, Cuádruple, Individual, Doble, Triple
+    - link:
+      - /url: /residencias/clei
+      - generic: verified
+      - text: Verificada
+      - generic: CLEI Residencia de Estudiantes
+      - generic: Monserrat, Cuádruple, Individual, Doble, Triple
+    - link:
+      - /url: /residencias/charlies-hostel
+      - generic: verified
+      - text: Verificada
+      - generic: Charlie's Hostel
+      - generic: Villa Crespo, Cuádruple, Individual, Doble, Triple
+    - link:
+      - /url: /residencias/casa-rica
+      - generic: verified
+      - text: Verificada
+      - generic: Casa Rica Coliving (Obelisco)
+      - generic: San Nicolás, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/casa-aura
+      - generic: verified
+      - text: Verificada
+      - generic: Casa AURA
+      - generic: Constitución, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/arcos-del-soho
+      - generic: verified
+      - text: Verificada
+      - generic: Arcos del Soho
+      - generic: Palermo, Triple, Cuádruple, Individual, Doble
+    - link:
+      - /url: /residencias/residencia-sin-fronteras-29fefe
+      - generic: verified
+      - text: Verificada
+      - generic: Residencia Sin Fronteras
+      - generic: Centro, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/residencia-rio-de-la-plata-demo
+      - generic: verified
+      - text: Verificada
+      - generic: Residencia Río de la Plata
+      - generic: Recoleta, Individual, Cuádruple, Doble, Triple
+    - link:
+      - /url: /residencias/residencia-norte-demo
+      - generic: verified
+      - text: Verificada
+      - generic: Residencia Norte
+      - generic: Palermo, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/luco-2340
+      - generic: verified
+      - text: Verificada
+      - generic: 2340 Residencia Universitaria by Luco
+      - generic: Balvanera, Doble, Triple, Individual, Cuádruple
+    - link:
+      - /url: /residencias/casa-colegiales-demo
+      - generic: verified
+      - text: Verificada
+      - generic: Casa Colegiales
+      - generic: Colegiales, Doble, Triple
+    - link:
+      - /url: /residencias/residencia-nunez-rio-demo
+      - generic: verified
+      - text: Verificada
+      - generic: Residencia Núñez Río
+      - generic: Núñez, Individual, Doble, Triple
+    - link:
+      - /url: /residencias/residencia-villa-crespo-demo
+      - generic: verified
+      - text: Verificada
+      - generic: Residencia Villa Crespo
+      - generic: Villa Crespo, Individual, Doble
+    - link:
+      - /url: /residencias/casa-san-telmo-demo
+      - generic: verified
+      - text: Verificada
+      - generic: Casa San Telmo
+      - generic: San Telmo, Individual, Doble, Triple
+    - link:
+      - /url: /residencias/residencia-belgrano-r-demo
+      - generic: verified
+      - text: Verificada
+      - generic: Residencia Belgrano R
+      - generic: Belgrano, Individual, Doble
+    - link:
+      - /url: /residencias/residencia-balvanera-centro-demo
+      - generic: verified
+      - text: Verificada
+      - generic: Residencia Balvanera Centro
+      - generic: Balvanera, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/residencia-caballito-parque-demo
+      - generic: verified
+      - text: Verificada
+      - generic: Residencia Caballito Parque
+      - generic: Caballito, Individual, Doble, Compartida
+    - link:
+      - /url: /residencias/casa-almagro-estudiantes-demo
+      - generic: verified
+      - text: Verificada
+      - generic: Casa Almagro Estudiantes
+      - generic: Almagro, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/residencia-recoleta-plaza-demo
+      - generic: verified
+      - text: Verificada
+      - generic: Residencia Recoleta Plaza
+      - generic: Recoleta, Doble, Individual
+    - link:
+      - /url: /residencias/residencia-palermo-soho-demo
+      - generic: verified
+      - text: Verificada
+      - generic: Residencia Palermo Soho
+      - generic: Palermo, Individual, Doble, Triple
+    - link:
+      - /url: /residencias/wanna-tango
+      - generic: verified
+      - text: Verificada
+      - generic: Wanna Tango
+      - generic: Montserrat, Doble, Triple, Cuádruple, Individual
+    - link:
+      - /url: /residencias/wanna-sur
+      - generic: verified
+      - text: Verificada
+      - generic: Wanna Sur
+      - generic: Montserrat, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/wanna-palermo
+      - generic: verified
+      - text: Verificada
+      - generic: Wanna Palermo
+      - generic: Recoleta, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/wanna-independencia
+      - generic: verified
+      - text: Verificada
+      - generic: Wanna Independencia
+      - generic: San Cristóbal, Cuádruple, Individual, Triple, Doble
+    - link:
+      - /url: /residencias/wanna-congreso
+      - generic: verified
+      - text: Verificada
+      - generic: Wanna Congreso
+      - generic: Balvanera, Cuádruple, Individual, Doble, Triple
+    - link:
+      - /url: /residencias/wanna-centro
+      - generic: verified
+      - text: Verificada
+      - generic: Wanna Centro
+      - generic: San Nicolás, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/verona-del-soho
+      - generic: verified
+      - text: Verificada
+      - generic: Verona del Soho
+      - generic: Palermo, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/student-hostel-la-bamba
+      - generic: verified
+      - text: Verificada
+      - generic: Student Hostel La Bamba (Ilvero)
+      - generic: Recoleta, Individual, Doble, Cuádruple, Triple
+    - link:
+      - /url: /residencias/residencia-san-marcos
+      - generic: verified
+      - text: Verificada
+      - generic: Residencia San Marcos
+      - generic: Montserrat, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/residencia-olivia
+      - generic: verified
+      - text: Verificada
+      - generic: Residencia Universitaria Olivia
+      - generic: Núñez, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/residencia-lith
+      - generic: verified
+      - text: Verificada
+      - generic: Residencia Universitaria Lith
+      - generic: Balvanera, Doble, Triple, Cuádruple, Individual
+    - link:
+      - /url: /residencias/residencia-gusti
+      - generic: verified
+      - text: Verificada
+      - generic: Residencia Universitaria Gusti
+      - generic: Balvanera, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/residencia-family-home
+      - generic: verified
+      - text: Verificada
+      - generic: Residencia Family Home
+      - generic: Constitución, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/residencia-el-angel
+      - generic: verified
+      - text: Verificada
+      - generic: Residencia El Ángel
+      - generic: Montserrat, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/mansion-paloma
+      - generic: verified
+      - text: Verificada
+      - generic: Mansión Paloma
+      - generic: Colegiales, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/luco-hotel
+      - generic: verified
+      - text: Verificada
+      - generic: Luco Hotel (Residencia)
+      - generic: Recoleta, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/las-cabanas
+      - generic: verified
+      - text: Verificada
+      - generic: Las Cabañas
+      - generic: Monserrat, Doble, Triple, Individual, Cuádruple
+    - link:
+      - /url: /residencias/la-scala-hollywood
+      - generic: verified
+      - text: Verificada
+      - generic: La Scala Hollywood
+      - generic: Palermo, Doble, Triple, Individual, Cuádruple
+    - link:
+      - /url: /residencias/la-scala-belgrano
+      - generic: verified
+      - text: Verificada
+      - generic: La Scala Belgrano
+      - generic: Colegiales, Doble, Triple, Individual, Cuádruple
+    - link:
+      - /url: /residencias/la-casona-recoleta
+      - generic: verified
+      - text: Verificada
+      - generic: La Casona Recoleta
+      - generic: Balvanera, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/la-casona-monserrat
+      - generic: verified
+      - text: Verificada
+      - generic: La Casona Monserrat
+      - generic: Monserrat, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/la-casa-de-cris-almagro
+      - generic: verified
+      - text: Verificada
+      - generic: La Casa de Cris - Residencia I Almagro
+      - generic: Almagro, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/inder-residencia
+      - generic: verified
+      - text: Verificada
+      - generic: IndER Residencia
+      - generic: Constitución, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/entis
+      - generic: verified
+      - text: Verificada
+      - generic: Entis Residencia Universitaria
+      - generic: San Telmo, Cuádruple, Individual, Doble, Triple
+    - link:
+      - /url: /residencias/clei
+      - generic: verified
+      - text: Verificada
+      - generic: CLEI Residencia de Estudiantes
+      - generic: Monserrat, Cuádruple, Individual, Doble, Triple
+    - link:
+      - /url: /residencias/charlies-hostel
+      - generic: verified
+      - text: Verificada
+      - generic: Charlie's Hostel
+      - generic: Villa Crespo, Cuádruple, Individual, Doble, Triple
+    - link:
+      - /url: /residencias/casa-rica
+      - generic: verified
+      - text: Verificada
+      - generic: Casa Rica Coliving (Obelisco)
+      - generic: San Nicolás, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/casa-aura
+      - generic: verified
+      - text: Verificada
+      - generic: Casa AURA
+      - generic: Constitución, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/arcos-del-soho
+      - generic: verified
+      - text: Verificada
+      - generic: Arcos del Soho
+      - generic: Palermo, Triple, Cuádruple, Individual, Doble
+    - link:
+      - /url: /residencias/residencia-sin-fronteras-29fefe
+      - generic: verified
+      - text: Verificada
+      - generic: Residencia Sin Fronteras
+      - generic: Centro, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/residencia-rio-de-la-plata-demo
+      - generic: verified
+      - text: Verificada
+      - generic: Residencia Río de la Plata
+      - generic: Recoleta, Individual, Cuádruple, Doble, Triple
+    - link:
+      - /url: /residencias/residencia-norte-demo
+      - generic: verified
+      - text: Verificada
+      - generic: Residencia Norte
+      - generic: Palermo, Individual, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/luco-2340
+      - generic: verified
+      - text: Verificada
+      - generic: 2340 Residencia Universitaria by Luco
+      - generic: Balvanera, Doble, Triple, Individual, Cuádruple
+    - link:
+      - /url: /residencias/casa-colegiales-demo
+      - generic: verified
+      - text: Verificada
+      - generic: Casa Colegiales
+      - generic: Colegiales, Doble, Triple
+    - link:
+      - /url: /residencias/residencia-nunez-rio-demo
+      - generic: verified
+      - text: Verificada
+      - generic: Residencia Núñez Río
+      - generic: Núñez, Individual, Doble, Triple
+    - link:
+      - /url: /residencias/residencia-villa-crespo-demo
+      - generic: verified
+      - text: Verificada
+      - generic: Residencia Villa Crespo
+      - generic: Villa Crespo, Individual, Doble
+    - link:
+      - /url: /residencias/casa-san-telmo-demo
+      - generic: verified
+      - text: Verificada
+      - generic: Casa San Telmo
+      - generic: San Telmo, Individual, Doble, Triple
+    - link:
+      - /url: /residencias/residencia-belgrano-r-demo
+      - generic: verified
+      - text: Verificada
+      - generic: Residencia Belgrano R
+      - generic: Belgrano, Individual, Doble
+    - link:
+      - /url: /residencias/residencia-balvanera-centro-demo
+      - generic: verified
+      - text: Verificada
+      - generic: Residencia Balvanera Centro
+      - generic: Balvanera, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/residencia-caballito-parque-demo
+      - generic: verified
+      - text: Verificada
+      - generic: Residencia Caballito Parque
+      - generic: Caballito, Individual, Doble, Compartida
+    - link:
+      - /url: /residencias/casa-almagro-estudiantes-demo
+      - generic: verified
+      - text: Verificada
+      - generic: Casa Almagro Estudiantes
+      - generic: Almagro, Doble, Triple, Cuádruple
+    - link:
+      - /url: /residencias/residencia-recoleta-plaza-demo
+      - generic: verified
+      - text: Verificada
+      - generic: Residencia Recoleta Plaza
+      - generic: Recoleta, Doble, Individual
+    - link:
+      - /url: /residencias/residencia-palermo-soho-demo
+      - generic: verified
+      - text: Verificada
+      - generic: Residencia Palermo Soho
+      - generic: Palermo, Individual, Doble, Triple
+  - paragraph: Por qué EstuRed
+  - heading [level=2]: Hacelo por EstuRed y queda todo por escrito
+  - paragraph: Instagram y los referidos sirven para descubrir. Para reservar, conviene que quede registrado.
+  - table:
+    - caption: Con EstuRed vs. por fuera
+    - rowgroup:
+      - row:
+        - columnheader: Qué cambia
+        - columnheader: Con EstuRed
+        - columnheader: Por fuera
+    - rowgroup:
+      - row:
+        - rowheader: La residencia
+        - cell:
+          - generic: check
+          - text: Verificada en persona por EstuRed
+        - cell:
+          - generic: remove
+          - text: La chequeás por tu cuenta
+      - row:
+        - rowheader: Precio y costos
+        - cell:
+          - generic: check
+          - text: Publicados, con el fee a la vista
+        - cell:
+          - generic: remove
+          - text: Los consultás uno por uno
+      - row:
+        - rowheader: Acuerdos
+        - cell:
+          - generic: check
+          - text: Registrados en tu cuenta
+        - cell:
+          - generic: remove
+          - text: Quedan en chats sueltos
+      - row:
+        - rowheader: Reserva confirmada
+        - cell:
+          - generic: check
+          - text: Comprobante con código verificable
+        - cell:
+          - generic: remove
+          - text: Depende de cada residencia
+      - row:
+        - rowheader: Si algo no coincide
+        - cell:
+          - generic: check
+          - text: Abrís un caso de Soporte
+        - cell:
+          - generic: remove
+          - text: Lo resolvés directo con la residencia
+  - figure:
+    - generic: Datos de ejemplo
+    - generic: receipt_long
+    - paragraph: Comprobante de Reserva Confirmada
+    - paragraph: N.º ER-2026-7K3QM-9XJ4A
+    - term: Estudiante
+    - definition: Lucía M.
+    - term: Residencia
+    - definition: Casa Colegiales · Colegiales
+    - term: Tipo de habitación
+    - definition: Doble
+    - term: Fecha de ingreso
+    - definition: 01/03/2027
+    - term: Duración inicial
+    - definition: 6 meses
+    - term: Tarifa mensual acordada
+    - definition: USD 250 · ARS 375.000
+    - term: Fee EstuRed pagado
+    - definition: USD 75
+    - generic: Cualquiera puede verificarlo con el QR o el número, en /verify.
+  - heading [level=2]: Residencias verificadas en CABA
+  - paragraph: Precios y reglas a la vista. La disponibilidad la informa cada residencia.
+  - region:
+    - generic: verified
+    - text: Residencia Verificada
+    - heading [level=3]:
+      - link:
+        - /url: /residencias/wanna-tango
+        - text: Wanna Tango
+    - paragraph:
+      - generic: location_on
+      - text: Montserrat
+    - paragraph: Desde USD 420/mes
+    - paragraph:
+      - text: ≈ ARS 659.500 referencial
+      - button:
+        - generic: i
+    - generic: Disponibilidad informada
+    - generic: verified
+    - text: Residencia Verificada
+    - heading [level=3]:
+      - link:
+        - /url: /residencias/wanna-sur
+        - text: Wanna Sur
+    - paragraph:
+      - generic: location_on
+      - text: Montserrat
+    - paragraph: Desde USD 190/mes
+    - paragraph:
+      - text: ≈ ARS 298.500 referencial
+      - button:
+        - generic: i
+    - generic: Disponibilidad informada
+    - generic: verified
+    - text: Residencia Verificada
+    - heading [level=3]:
+      - link:
+        - /url: /residencias/wanna-palermo
+        - text: Wanna Palermo
+    - paragraph:
+      - generic: location_on
+      - text: Recoleta
+    - paragraph: Desde USD 230/mes
+    - paragraph:
+      - text: ≈ ARS 361.000 referencial
+      - button:
+        - generic: i
+    - generic: Disponibilidad informada
+    - generic: verified
+    - text: Residencia Verificada
+    - heading [level=3]:
+      - link:
+        - /url: /residencias/wanna-independencia
+        - text: Wanna Independencia
+    - paragraph:
+      - generic: location_on
+      - text: San Cristóbal
+    - paragraph: Desde USD 215/mes
+    - paragraph:
+      - text: ≈ ARS 337.500 referencial
+      - button:
+        - generic: i
+    - generic: Disponibilidad informada
+  - link:
+    - /url: /search
+    - text: Ver todas las residencias
+  - heading [level=2]: De la búsqueda a tu reserva confirmada, sin viajar a Buenos Aires
+  - paragraph: Cinco pasos desde donde estés. Cada uno queda registrado.
+  - paragraph:
+    - generic: home_pin
+    - text: Todo a distancia
+  - tablist:
+    - tab [selected]:
+      - generic: "1"
+      - generic: Buscá sin viajar
+    - tab:
+      - generic: "2"
+      - generic: Solicitá gratis
+    - tab:
+      - generic: "3"
+      - generic: Vos decidís
+    - tab:
+      - generic: "4"
+      - generic: Pago directo
+    - tab:
+      - generic: "5"
+      - generic: Comprobante verificable
+  - button:
+    - generic: pause
+    - text: Pausar
+  - tabpanel:
+    - generic: "Paso 1: Buscá sin viajar"
+    - heading [level=3]: Buscás tu residencia
+    - paragraph: Filtrá por universidad, barrio y precio. Mirá reglas, servicios, disponibilidad y quiénes viven ahí.
+  - tabpanel:
+  - tabpanel:
+  - tabpanel:
+  - tabpanel:
+  - heading [level=2]: Cada uno con su lugar en el proceso
+  - paragraph: Quien estudia elige. La familia acompaña. La residencia recibe solicitudes completas.
+  - article:
+    - paragraph:
+      - generic: backpack
+      - text: Estudiantes
+    - heading [level=3]: Sabé con quién y cómo vas a vivir, antes de mudarte.
+    - heading [level=4]:
+      - text: Comunidad de la casa
+      - generic: Ejemplo
+    - generic: C
+    - generic: M
+    - generic: J
+    - generic: 3 perfiles visibles
+    - text: Carrera, intereses, de dónde son
+    - generic: schedule
+    - text: Silencio desde las 23
+    - generic: Sin fiestas
+    - generic: Wifi incluido
+    - generic: directions_walk
+    - text: 8 min a pie de tu facultad
+    - list:
+      - generic: groups
+      - generic: Conocé a tus futuros compañeros
+      - text: Perfiles que cada residente decide mostrar.
+      - generic: rule
+      - generic: Reglas y servicios, sin sorpresas
+      - text: Lo principal en la ficha y el reglamento completo.
+      - generic: verified
+      - generic: Verificada en persona
+      - text: Visitamos cada residencia antes de publicarla.
+    - link:
+      - /url: /for-students
+      - text: Ver cómo funciona para vos
+      - generic: arrow_forward
+    - generic: Explorar es gratis
+  - article:
+    - paragraph:
+      - generic: family_restroom
+      - text: Familias
+    - heading [level=3]: Acompañá sin viajar. Ser parte, con tranquilidad.
+    - heading [level=4]:
+      - text: Seguimiento
+      - generic: Ejemplo
+    - generic: check
+    - generic: Propuesta de la familia enviada
+    - generic: check
+    - generic: Solicitud enviada a la residencia
+    - generic: Esperando la respuesta
+    - generic: Comprobante de reserva
+    - generic: qr_code_2
+    - generic: Código verificable
+    - text: ER-2026-XXXXX-XXXXX
+    - list:
+      - generic: home_pin
+      - generic: Todo a distancia
+      - text: Sin viajar a Buenos Aires.
+      - generic: add_comment
+      - generic: Proponé opciones
+      - text: Vos sugerís, tu estudiante decide.
+      - generic: verified_user
+      - generic: Comprobante que cualquiera puede verificar
+      - text: Queda todo registrado.
+    - link:
+      - /url: /for-students#para-familias
+      - text: Ver cómo acompañar
+      - generic: arrow_forward
+    - generic: Toda solicitud queda sujeta a confirmación de la residencia
+  - article:
+    - paragraph:
+      - generic: apartment
+      - text: Residencias
+    - heading [level=3]: ¡Menos consultas, mejores reservas!
+    - generic: verified
+    - generic: Perfil Verificado gratuito
+    - heading [level=4]:
+      - text: Solicitud nueva
+      - generic: Ejemplo
+    - generic: L
+    - generic: Perfil completo
+    - text: Carrera, fechas y habitación elegida
+    - generic: Completa
+    - generic: quiz
+    - generic: Tu ficha ya respondió
+    - text: Reglas, servicios y precios
+    - generic: "Ejemplo: ficha completa"
+    - list:
+      - generic: inbox
+      - generic: Menos preguntas de siempre
+      - text: La ficha responde por vos.
+      - generic: how_to_reg
+      - generic: Vos decidís a quién aceptar
+      - text: Con el perfil a la vista.
+      - generic: dashboard
+      - generic: Herramientas para ordenar tu gestión
+      - text: Habitaciones, plazas y solicitudes en un lugar.
+    - link:
+      - /url: /for-residences
+      - text: Solicitar sumar mi residencia
+      - generic: arrow_forward
+    - generic: Primero verificamos tu residencia en persona
+  - region:
+    - paragraph: Centro de Guías
+    - heading [level=2]: Antes de decidir, informate
+    - paragraph: Guías simples para elegir residencia y prepararte para mudarte a Buenos Aires.
+    - article:
+      - generic: bed
+      - generic: bed
+      - text: Alojamiento
+      - generic: schedule
+      - text: 2 min de lectura
+      - heading [level=3]:
+        - link:
+          - /url: /guias/como-elegir-residencia-estudiantil-buenos-aires
+          - text: Cómo elegir una residencia estudiantil en Buenos Aires
+      - paragraph: "Qué revisar antes de elegir una residencia estudiantil en Buenos Aires: ubicación, convivencia, reglamento y costos."
+      - generic: Estudiantes, Familias
+      - text: Leer
+      - generic: arrow_forward
+    - article:
+      - generic: luggage
+      - generic: luggage
+      - text: Mudanza a Buenos Aires
+      - generic: schedule
+      - text: 4 min de lectura
+      - heading [level=3]:
+        - link:
+          - /url: /guias/guia-mudarte-buenos-aires-estudiar
+          - text: Guía para mudarte a Buenos Aires a estudiar
+      - paragraph: "Prepará tu mudanza a Buenos Aires para estudiar: documentación, transporte, alojamiento, presupuesto y adaptación."
+      - generic: Estudiantes
+      - text: Leer
+      - generic: arrow_forward
+    - article:
+      - generic: luggage
+      - generic: luggage
+      - text: Mudanza a Buenos Aires
+      - generic: schedule
+      - text: 2 min de lectura
+      - heading [level=3]:
+        - link:
+          - /url: /guias/errores-comunes-mudarse-buenos-aires
+          - text: Seis errores comunes al mudarte a Buenos Aires (y cómo evitarlos)
+      - paragraph: Seis errores comunes al mudarte a Buenos Aires para estudiar y recomendaciones prácticas para evitarlos.
+      - generic: Estudiantes, Familias
+      - text: Leer
+      - generic: arrow_forward
+    - paragraph:
+      - link:
+        - /url: /guias
+        - text: Ver todas las guías
+  - heading [level=2]: Preguntas frecuentes
+  - text: ¿EstuRed es una inmobiliaria?
+  - generic: +
+  - text: ¿Cuánto cuesta usar EstuRed?
+  - generic: +
+  - text: ¿Qué significa que una residencia esté verificada?
+  - generic: +
+  - text: Si una residencia figura con lugar, ¿ya tengo mi lugar?
+  - generic: +
+  - text: ¿EstuRed verifica a los estudiantes?
+  - generic: +
+  - text: ¿Qué recibo cuando se confirma mi reserva?
+  - generic: +
+  - text: ¿Qué pasa si algo no coincide con lo publicado?
+  - generic: +
+  - paragraph: La convivencia también se elige.
+  - paragraph: Ya podés buscar, comparar y enviar tu solicitud a las primeras residencias verificadas de Buenos Aires.
+  - link:
+    - /url: /search
+    - text: Buscar residencia
+  - link:
+    - /url: /register
+    - text: Crear cuenta
+  - generic: EstuRed
+  - generic: EstuRed
+  - paragraph: La convivencia también se elige. Residencias estudiantiles verificadas en CABA, con solicitudes registradas y comprobantes verificables.
+  - list:
+    - generic: check
+    - text: Residencias verificadas presencialmente
+    - generic: check
+    - text: Solicitudes registradas en la plataforma
+    - generic: check
+    - text: Comprobante de Reserva Confirmada
+  - navigation:
+    - paragraph: Explorar
+    - list:
+      - link:
+        - /url: /search
+        - text: Buscar residencias
+      - link:
+        - /url: /for-students
+        - text: Para estudiantes y familias
+      - link:
+        - /url: /for-residences
+        - text: Para residencias
+      - link:
+        - /url: /guias
+        - text: Guías
+      - link:
+        - /url: /register
+        - text: Crear cuenta
+  - navigation:
+    - paragraph: Ayuda
+    - list:
+      - link:
+        - /url: /students/support
+        - generic: support_agent
+        - text: Soporte
+      - link:
+        - /url: /for-students#preguntas-frecuentes
+        - text: Preguntas frecuentes
+      - link:
+        - /url: /#el-proceso
+        - text: Cómo funciona
+      - link:
+        - /url: /for-students#que-pagas
+        - text: Qué pagás y a quién
+      - text: "Contacto:"
+      - link:
+        - /url: mailto:hola@estured.com
+        - text: hola@estured.com
+      - listitem: ¿Tenés una reserva y algo no coincide? Abrí un caso desde tu panel.
+  - paragraph: EstuRed actúa como plataforma intermediaria de búsqueda, solicitud, registro y comprobante. No presta directamente el alojamiento. Los precios en ARS son referenciales al dólar blue del día.
+  - list:
+    - link:
+      - /url: /students/revocation
+      - text: Botón de arrepentimiento
+    - link:
+      - /url: /verify
+      - text: Verificar un comprobante
+    - link:
+      - /url: /terms
+      - text: Términos y condiciones
+    - link:
+      - /url: /privacy
+      - text: Política de privacidad
+  - paragraph: Hecho con ♥ en Buenos Aires
+  - paragraph:
+    - generic: lock
+    - text: Así se va a ver EstuRed
+  - dialog "Creá tu cuenta":
+    - button "Cerrar (solo dev)":
+      - generic: close
+      - text: Cerrar (solo dev)
+    - complementary "Tu lugar en la preapertura":
+      - generic: Acceso anticipado
+      - heading "Mientras otros buscan a ciegas, vos te enterás primero." [level=2]
+      - text: "#"
+      - generic: Número
+      - text: "15"
+      - text: Tu lugar en la lista
+      - text: si terminás ahora
+      - list:
+        - generic: bolt
+        - text: Primero en saber qué residencias verificamos en persona.
+        - generic: sell
+        - text: Gratis. Sin tarjeta.
+        - generic: groups
+        - text: Sé de los primeros en sumarte.
+      - paragraph:
+        - generic: info
+        - text: Se están sumando, con ejemplos ilustrativos
+      - group "Estudiantes que se están sumando (incluye ejemplos ilustrativos)":
+        - generic: V
+        - generic "Perú": 🇵🇪
+        - paragraph: Valeria
+        - paragraph: 23 años, de Perú
+        - paragraph: Arquitectura
+        - generic: Me gusta cocinar
+        - generic: Arte
+        - generic: Orden ante todo
+        - generic: J
+        - generic "Argentina": 🇦🇷
+        - paragraph: Joaquín
+        - paragraph: 22 años, de Argentina
+        - paragraph: Ingeniería en Sistemas
+        - generic: Hago deporte
+        - generic: Deportes
+        - generic: Me acuesto tarde
+        - generic: L
+        - generic "Uruguay": 🇺🇾
+        - paragraph: Lucía
+        - paragraph: 21 años, de Uruguay
+        - paragraph: Medicina
+        - generic: Madrugo
+        - generic: Lectura
+        - generic: Estudio en silencio
+        - generic: Ejemplo
+        - generic: M
+        - generic "Uruguay": 🇺🇾
+        - paragraph: Martina
+        - paragraph: 19 años, de Uruguay
+        - paragraph: Medicina
+        - generic: Madrugo
+        - generic: Lectura
+        - generic: Ejemplo
+        - generic: J
+        - generic "Argentina": 🇦🇷
+        - paragraph: Joaquín
+        - paragraph: 21 años, de Argentina
+        - paragraph: Ingeniería en Sistemas
+        - generic: Hago deporte
+        - generic: Música
+        - generic: V
+        - generic: 🇵🇪
+        - paragraph: Valeria
+        - paragraph: 23 años, de Perú
+        - paragraph: Arquitectura
+        - generic: Me gusta cocinar
+        - generic: Arte
+        - generic: Orden ante todo
+        - generic: J
+        - generic: 🇦🇷
+        - paragraph: Joaquín
+        - paragraph: 22 años, de Argentina
+        - paragraph: Ingeniería en Sistemas
+        - generic: Hago deporte
+        - generic: Deportes
+        - generic: Me acuesto tarde
+        - generic: L
+        - generic: 🇺🇾
+        - paragraph: Lucía
+        - paragraph: 21 años, de Uruguay
+        - paragraph: Medicina
+        - generic: Madrugo
+        - generic: Lectura
+        - generic: Estudio en silencio
+        - generic: Ejemplo
+        - generic: M
+        - generic: 🇺🇾
+        - paragraph: Martina
+        - paragraph: 19 años, de Uruguay
+        - paragraph: Medicina
+        - generic: Madrugo
+        - generic: Lectura
+        - generic: Ejemplo
+        - generic: J
+        - generic: 🇦🇷
+        - paragraph: Joaquín
+        - paragraph: 21 años, de Argentina
+        - paragraph: Ingeniería en Sistemas
+        - generic: Hago deporte
+        - generic: Música
+    - link "Volver al inicio":
+      - /url: /
+      - generic: arrow_back
+      - text: Volver al inicio
+    - paragraph: Paso 1 de 2, tu cuenta
+    - heading "Creá tu cuenta" [level=1]
+    - generic: Email
+    - textbox "Email":
+      - /placeholder: tu@email.com
+    - generic: Contraseña
+    - textbox "Contraseña"
+    - paragraph: Mínimo 8 caracteres.
+    - button "Mostrar contraseña":
+      - generic: visibility
+    - generic: Fecha de nacimiento
+    - textbox "Fecha de nacimiento"
+    - paragraph: Necesitamos saber si ya cumpliste 18.
+    - checkbox "Acepto los Términos y la Privacidad, incluido mostrar mi búsqueda sin nombre ni contacto a residencias verificadas."
+    - text: Acepto los
+    - link "Términos":
+      - /url: /consentimientos#terminos
+    - text: y la
+    - link "Privacidad":
+      - /url: /consentimientos#privacidad
+    - text: ", incluido mostrar mi búsqueda sin nombre ni contacto a residencias verificadas."
+    - button "Crear mi cuenta gratis"
+    - paragraph: "Modo dev: enviá el formulario vacío para crear una cuenta de prueba."
+    - paragraph:
+      - text: ¿Sos familiar?
+      - link "Registrate como familiar":
+        - /url: /preregistro/familiar
+- navigation "Pantallas (dev)":
+  - button "Pantallas (dev), 2/13"
+  - 'link "Pantalla anterior: Entrada (popup + CTA fundadoras)"':
+    - /url: /dev-preapertura/preparar?estado=anon&next=%2F
+    - text: ←
+  - 'link "Pantalla siguiente: Paso 2: armá tu perfil"':
+    - /url: /dev-preapertura/preparar?estado=incompleto&next=%2Fpreregistro%2Fperfil
+    - text: →
+- button "Simular usuario": Simular usuario

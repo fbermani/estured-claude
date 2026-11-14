@@ -1,0 +1,108 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- complementary:
+  - paragraph: EstuRed Admin
+  - paragraph: Panel de administración
+  - button "Notificaciones":
+    - generic: notifications
+  - navigation "Administración":
+    - link "Dashboard":
+      - /url: /admin/dashboard
+      - generic: Dashboard
+    - paragraph: Residencias
+    - link "Residencias":
+      - /url: /admin/residences
+      - generic: Residencias
+    - link "Verificaciones":
+      - /url: /admin/verifications
+      - generic: Verificaciones
+    - link "Ediciones de perfil":
+      - /url: /admin/profile-edits
+      - generic: Ediciones de perfil
+    - link "Solicitudes de alta":
+      - /url: /admin/solicitudes-alta
+      - generic: Solicitudes de alta
+    - link "Residencias pedidas":
+      - /url: /admin/residencias-pedidas
+      - generic: Residencias pedidas
+    - link "Preguntas de fichas":
+      - /url: /admin/faq
+      - generic: Preguntas de fichas
+    - link "Ítems «Otro» de fichas":
+      - /url: /admin/custom-amenities
+      - generic: Ítems «Otro» de fichas
+    - paragraph: Operación
+    - link "Solicitudes":
+      - /url: /admin/applications
+      - generic: Solicitudes
+    - link "Propuestas familiar":
+      - /url: /admin/family-proposals
+      - generic: Propuestas familiar
+    - link "Pagos":
+      - /url: /admin/payments
+      - generic: Pagos
+    - link "Actividad":
+      - /url: /admin/activity
+      - generic: Actividad
+    - link "Seguimiento":
+      - /url: /admin/followups
+      - generic: Seguimiento
+    - paragraph: Plataforma
+    - link "Comunidad":
+      - /url: /admin/community
+      - generic: Comunidad
+    - link "Visibilidad y penalizaciones":
+      - /url: /admin/visibility
+      - generic: Visibilidad y penalizaciones
+    - link "Administración de tarifas":
+      - /url: /admin/pricing
+      - generic: Administración de tarifas
+    - link "Documentos":
+      - /url: /admin/documents
+      - generic: Documentos
+    - link "Tipo de cambio":
+      - /url: /admin/exchange-rate
+      - generic: Tipo de cambio
+    - link "Usuarios":
+      - /url: /admin/users
+      - generic: Usuarios
+    - paragraph: Soporte
+    - link "Soporte":
+      - /url: /admin/support-cases
+      - generic: Soporte
+  - generic: A
+  - paragraph: admin.operaciones@estured.test
+  - paragraph: Admin
+  - button "Cerrar sesión"
+  - button "Colapsar menú":
+- main:
+  - heading "Casos de soporte" [level=1]
+  - paragraph: 1 abierto(s) de 3 en total
+  - list:
+    - link "Abierto 24/10/2026 Revocación del fee EstuRed camila.rojas@example.com":
+      - /url: /admin/support-cases?id=f6213488-d138-4b1a-ba5d-04727559cf87
+      - generic: Abierto
+      - generic: 24/10/2026
+      - paragraph: Revocación del fee EstuRed
+      - paragraph: camila.rojas@example.com
+    - link "Cerrado sin acción 24/10/2026 Revocación del fee EstuRed camila.rojas@example.com":
+      - /url: /admin/support-cases?id=34661f3a-5a20-4deb-9ed0-0d6bfbc1d8b8
+      - generic: Cerrado sin acción
+      - generic: 24/10/2026
+      - paragraph: Revocación del fee EstuRed
+      - paragraph: camila.rojas@example.com
+    - link "Acción tomada 24/10/2026 Revocación del fee EstuRed camila.rojas@example.com":
+      - /url: /admin/support-cases?id=0cb2148e-620d-48d7-b832-b88c485d830a
+      - generic: Acción tomada
+      - generic: 24/10/2026
+      - paragraph: Revocación del fee EstuRed
+      - paragraph: camila.rojas@example.com
+  - paragraph: Revocación del fee EstuRed · referencia EST-0A55A1DB
+  - paragraph: Abierto por camila.rojas@example.com (student)
+  - generic: Abierto
+  - paragraph: "Revocación del fee EstuRed de la reserva en Residencia Norte, ejercida dentro del plazo de 10 días corridos. EstuRed revisa el caso. Motivo indicado: Conseguí un lugar más cerca de la facultad y no voy a poder mudarme acá."
+  - paragraph:
+    - text: Este caso se cierra solo al resolver la revocación.
+    - link "Ir a Revocaciones →":
+      - /url: /admin/activity?tab=revocations
+- button "Admin Operativo": Admin Operativo

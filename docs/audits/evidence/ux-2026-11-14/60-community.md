@@ -1,0 +1,3393 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- complementary:
+  - paragraph: EstuRed Admin
+  - paragraph: Panel de administración
+  - button "Notificaciones":
+    - generic: notifications
+  - navigation "Administración":
+    - link "Dashboard":
+      - /url: /admin/dashboard
+      - generic: Dashboard
+    - paragraph: Residencias
+    - link "Residencias":
+      - /url: /admin/residences
+      - generic: Residencias
+    - link "Verificaciones":
+      - /url: /admin/verifications
+      - generic: Verificaciones
+    - link "Ediciones de perfil":
+      - /url: /admin/profile-edits
+      - generic: Ediciones de perfil
+    - link "Solicitudes de alta":
+      - /url: /admin/solicitudes-alta
+      - generic: Solicitudes de alta
+    - link "Residencias pedidas":
+      - /url: /admin/residencias-pedidas
+      - generic: Residencias pedidas
+    - link "Preguntas de fichas":
+      - /url: /admin/faq
+      - generic: Preguntas de fichas
+    - link "Ítems «Otro» de fichas":
+      - /url: /admin/custom-amenities
+      - generic: Ítems «Otro» de fichas
+    - paragraph: Operación
+    - link "Solicitudes":
+      - /url: /admin/applications
+      - generic: Solicitudes
+    - link "Propuestas familiar":
+      - /url: /admin/family-proposals
+      - generic: Propuestas familiar
+    - link "Pagos":
+      - /url: /admin/payments
+      - generic: Pagos
+    - link "Actividad":
+      - /url: /admin/activity
+      - generic: Actividad
+    - link "Seguimiento":
+      - /url: /admin/followups
+      - generic: Seguimiento
+    - paragraph: Plataforma
+    - link "Comunidad":
+      - /url: /admin/community
+      - generic: Comunidad
+    - link "Visibilidad y penalizaciones":
+      - /url: /admin/visibility
+      - generic: Visibilidad y penalizaciones
+    - link "Administración de tarifas":
+      - /url: /admin/pricing
+      - generic: Administración de tarifas
+    - link "Documentos":
+      - /url: /admin/documents
+      - generic: Documentos
+    - link "Tipo de cambio":
+      - /url: /admin/exchange-rate
+      - generic: Tipo de cambio
+    - link "Usuarios":
+      - /url: /admin/users
+      - generic: Usuarios
+    - paragraph: Soporte
+    - link "Soporte":
+      - /url: /admin/support-cases
+      - generic: Soporte
+  - generic: A
+  - paragraph: admin.operaciones@estured.test
+  - paragraph: Admin
+  - button "Cerrar sesión"
+  - button "Colapsar menú":
+- main:
+  - heading "Administración de Comunidad" [level=1]
+  - paragraph: Visibilidad y estado de los residentes activos en la comunidad de cada residencia.
+  - region "Residentes de la comunidad":
+    - table:
+      - rowgroup:
+        - row "Residencia Habitación Residente Estado":
+          - columnheader "Residencia"
+          - columnheader "Habitación"
+          - columnheader "Residente"
+          - columnheader "Estado"
+          - columnheader
+      - rowgroup:
+        - row "Wanna Tango· Montserrat Cuádruple Joaquín C. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Tango· Montserrat":
+            - text: Wanna Tango
+            - generic: · Montserrat
+          - cell "Cuádruple"
+          - cell "Joaquín C."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Tango· Montserrat Triple Josefina S. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Tango· Montserrat":
+            - text: Wanna Tango
+            - generic: · Montserrat
+          - cell "Triple"
+          - cell "Josefina S."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Tango· Montserrat Doble Ivo L. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Tango· Montserrat":
+            - text: Wanna Tango
+            - generic: · Montserrat
+          - cell "Doble"
+          - cell "Ivo L."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Tango· Montserrat Individual Ivana C. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Tango· Montserrat":
+            - text: Wanna Tango
+            - generic: · Montserrat
+          - cell "Individual"
+          - cell "Ivana C."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Tango· Montserrat Cuádruple Hernán U. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Tango· Montserrat":
+            - text: Wanna Tango
+            - generic: · Montserrat
+          - cell "Cuádruple"
+          - cell "Hernán U."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Tango· Montserrat Triple Guadalupe N. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Tango· Montserrat":
+            - text: Wanna Tango
+            - generic: · Montserrat
+          - cell "Triple"
+          - cell "Guadalupe N."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Tango· Montserrat Doble Gonzalo G. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Tango· Montserrat":
+            - text: Wanna Tango
+            - generic: · Montserrat
+          - cell "Doble"
+          - cell "Gonzalo G."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Tango· Montserrat Individual Emilia Z. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Tango· Montserrat":
+            - text: Wanna Tango
+            - generic: · Montserrat
+          - cell "Individual"
+          - cell "Emilia Z."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Tango· Montserrat Cuádruple Facundo Q. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Tango· Montserrat":
+            - text: Wanna Tango
+            - generic: · Montserrat
+          - cell "Cuádruple"
+          - cell "Facundo Q."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Tango· Montserrat Triple Delfina J. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Tango· Montserrat":
+            - text: Wanna Tango
+            - generic: · Montserrat
+          - cell "Triple"
+          - cell "Delfina J."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Tango· Montserrat Doble Emiliano C. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Tango· Montserrat":
+            - text: Wanna Tango
+            - generic: · Montserrat
+          - cell "Doble"
+          - cell "Emiliano C."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Tango· Montserrat Individual Brenda R. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Tango· Montserrat":
+            - text: Wanna Tango
+            - generic: · Montserrat
+          - cell "Individual"
+          - cell "Brenda R."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Sur· Montserrat Cuádruple Dante N. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Sur· Montserrat":
+            - text: Wanna Sur
+            - generic: · Montserrat
+          - cell "Cuádruple"
+          - cell "Dante N."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Sur· Montserrat Triple Antonella F. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Sur· Montserrat":
+            - text: Wanna Sur
+            - generic: · Montserrat
+          - cell "Triple"
+          - cell "Antonella F."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Sur· Montserrat Doble Ciro C. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Sur· Montserrat":
+            - text: Wanna Sur
+            - generic: · Montserrat
+          - cell "Doble"
+          - cell "Ciro C."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Sur· Montserrat Individual Rocío V. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Sur· Montserrat":
+            - text: Wanna Sur
+            - generic: · Montserrat
+          - cell "Individual"
+          - cell "Rocío V."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Sur· Montserrat Cuádruple Benjamín O. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Sur· Montserrat":
+            - text: Wanna Sur
+            - generic: · Montserrat
+          - cell "Cuádruple"
+          - cell "Benjamín O."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Sur· Montserrat Triple Micaela H. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Sur· Montserrat":
+            - text: Wanna Sur
+            - generic: · Montserrat
+          - cell "Triple"
+          - cell "Micaela H."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Sur· Montserrat Doble Agustín A. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Sur· Montserrat":
+            - text: Wanna Sur
+            - generic: · Montserrat
+          - cell "Doble"
+          - cell "Agustín A."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Sur· Montserrat Individual Milagros R. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Sur· Montserrat":
+            - text: Wanna Sur
+            - generic: · Montserrat
+          - cell "Individual"
+          - cell "Milagros R."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Sur· Montserrat Cuádruple Bruno K. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Sur· Montserrat":
+            - text: Wanna Sur
+            - generic: · Montserrat
+          - cell "Cuádruple"
+          - cell "Bruno K."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Sur· Montserrat Triple Carla D. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Sur· Montserrat":
+            - text: Wanna Sur
+            - generic: · Montserrat
+          - cell "Triple"
+          - cell "Carla D."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Sur· Montserrat Doble Ignacio F. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Sur· Montserrat":
+            - text: Wanna Sur
+            - generic: · Montserrat
+          - cell "Doble"
+          - cell "Ignacio F."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Sur· Montserrat Individual Lucía M. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Sur· Montserrat":
+            - text: Wanna Sur
+            - generic: · Montserrat
+          - cell "Individual"
+          - cell "Lucía M."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Palermo· Recoleta Cuádruple Lautaro S. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Palermo· Recoleta":
+            - text: Wanna Palermo
+            - generic: · Recoleta
+          - cell "Cuádruple"
+          - cell "Lautaro S."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Palermo· Recoleta Triple Agustina R. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Palermo· Recoleta":
+            - text: Wanna Palermo
+            - generic: · Recoleta
+          - cell "Triple"
+          - cell "Agustina R."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Palermo· Recoleta Doble Franco W. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Palermo· Recoleta":
+            - text: Wanna Palermo
+            - generic: · Recoleta
+          - cell "Doble"
+          - cell "Franco W."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Palermo· Recoleta Individual Florencia P. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Palermo· Recoleta":
+            - text: Wanna Palermo
+            - generic: · Recoleta
+          - cell "Individual"
+          - cell "Florencia P."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Palermo· Recoleta Cuádruple Nicolás I. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Palermo· Recoleta":
+            - text: Wanna Palermo
+            - generic: · Recoleta
+          - cell "Cuádruple"
+          - cell "Nicolás I."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Palermo· Recoleta Triple Julieta B. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Palermo· Recoleta":
+            - text: Wanna Palermo
+            - generic: · Recoleta
+          - cell "Triple"
+          - cell "Julieta B."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Palermo· Recoleta Doble Tomás S. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Palermo· Recoleta":
+            - text: Wanna Palermo
+            - generic: · Recoleta
+          - cell "Doble"
+          - cell "Tomás S."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Palermo· Recoleta Individual Ana L. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Palermo· Recoleta":
+            - text: Wanna Palermo
+            - generic: · Recoleta
+          - cell "Individual"
+          - cell "Ana L."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Palermo· Recoleta Cuádruple Camila E. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Palermo· Recoleta":
+            - text: Wanna Palermo
+            - generic: · Recoleta
+          - cell "Cuádruple"
+          - cell "Camila E."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Palermo· Recoleta Triple Liam A. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Palermo· Recoleta":
+            - text: Wanna Palermo
+            - generic: · Recoleta
+          - cell "Triple"
+          - cell "Liam A."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Palermo· Recoleta Doble Valentina S. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Palermo· Recoleta":
+            - text: Wanna Palermo
+            - generic: · Recoleta
+          - cell "Doble"
+          - cell "Valentina S."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Palermo· Recoleta Individual Mateo M. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Palermo· Recoleta":
+            - text: Wanna Palermo
+            - generic: · Recoleta
+          - cell "Individual"
+          - cell "Mateo M."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Independencia· San Cristóbal Cuádruple Sofía G. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Independencia· San Cristóbal":
+            - text: Wanna Independencia
+            - generic: · San Cristóbal
+          - cell "Cuádruple"
+          - cell "Sofía G."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Independencia· San Cristóbal Triple Juan X. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Independencia· San Cristóbal":
+            - text: Wanna Independencia
+            - generic: · San Cristóbal
+          - cell "Triple"
+          - cell "Juan X."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Independencia· San Cristóbal Doble Diego Q. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Independencia· San Cristóbal":
+            - text: Wanna Independencia
+            - generic: · San Cristóbal
+          - cell "Doble"
+          - cell "Diego Q."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Independencia· San Cristóbal Individual Martina J. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Independencia· San Cristóbal":
+            - text: Wanna Independencia
+            - generic: · San Cristóbal
+          - cell "Individual"
+          - cell "Martina J."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Independencia· San Cristóbal Cuádruple Matías C. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Independencia· San Cristóbal":
+            - text: Wanna Independencia
+            - generic: · San Cristóbal
+          - cell "Cuádruple"
+          - cell "Matías C."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Independencia· San Cristóbal Triple Amparo T. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Independencia· San Cristóbal":
+            - text: Wanna Independencia
+            - generic: · San Cristóbal
+          - cell "Triple"
+          - cell "Amparo T."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Independencia· San Cristóbal Doble Federico M. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Independencia· San Cristóbal":
+            - text: Wanna Independencia
+            - generic: · San Cristóbal
+          - cell "Doble"
+          - cell "Federico M."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Independencia· San Cristóbal Individual Trinidad F. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Independencia· San Cristóbal":
+            - text: Wanna Independencia
+            - generic: · San Cristóbal
+          - cell "Individual"
+          - cell "Trinidad F."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Independencia· San Cristóbal Cuádruple Ramiro I. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Independencia· San Cristóbal":
+            - text: Wanna Independencia
+            - generic: · San Cristóbal
+          - cell "Cuádruple"
+          - cell "Ramiro I."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Independencia· San Cristóbal Triple Pilar S. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Independencia· San Cristóbal":
+            - text: Wanna Independencia
+            - generic: · San Cristóbal
+          - cell "Triple"
+          - cell "Pilar S."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Independencia· San Cristóbal Doble Vicente P. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Independencia· San Cristóbal":
+            - text: Wanna Independencia
+            - generic: · San Cristóbal
+          - cell "Doble"
+          - cell "Vicente P."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Independencia· San Cristóbal Individual Olivia Á. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Independencia· San Cristóbal":
+            - text: Wanna Independencia
+            - generic: · San Cristóbal
+          - cell "Individual"
+          - cell "Olivia Á."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Congreso· Balvanera Cuádruple Simón Y. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Congreso· Balvanera":
+            - text: Wanna Congreso
+            - generic: · Balvanera
+          - cell "Cuádruple"
+          - cell "Simón Y."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Congreso· Balvanera Triple Malena R. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Congreso· Balvanera":
+            - text: Wanna Congreso
+            - generic: · Balvanera
+          - cell "Triple"
+          - cell "Malena R."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Congreso· Balvanera Doble Lorenzo K. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Congreso· Balvanera":
+            - text: Wanna Congreso
+            - generic: · Balvanera
+          - cell "Doble"
+          - cell "Lorenzo K."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Congreso· Balvanera Individual Isabella D. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Congreso· Balvanera":
+            - text: Wanna Congreso
+            - generic: · Balvanera
+          - cell "Individual"
+          - cell "Isabella D."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Congreso· Balvanera Cuádruple Gael U. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Congreso· Balvanera":
+            - text: Wanna Congreso
+            - generic: · Balvanera
+          - cell "Cuádruple"
+          - cell "Gael U."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Congreso· Balvanera Triple Victoria N. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Congreso· Balvanera":
+            - text: Wanna Congreso
+            - generic: · Balvanera
+          - cell "Triple"
+          - cell "Victoria N."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Congreso· Balvanera Doble Bautista G. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Congreso· Balvanera":
+            - text: Wanna Congreso
+            - generic: · Balvanera
+          - cell "Doble"
+          - cell "Bautista G."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Congreso· Balvanera Individual Constanza V. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Congreso· Balvanera":
+            - text: Wanna Congreso
+            - generic: · Balvanera
+          - cell "Individual"
+          - cell "Constanza V."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Congreso· Balvanera Cuádruple Elias O. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Congreso· Balvanera":
+            - text: Wanna Congreso
+            - generic: · Balvanera
+          - cell "Cuádruple"
+          - cell "Elias O."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Congreso· Balvanera Triple Abril G. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Congreso· Balvanera":
+            - text: Wanna Congreso
+            - generic: · Balvanera
+          - cell "Triple"
+          - cell "Abril G."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Congreso· Balvanera Doble Maximiliano R. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Congreso· Balvanera":
+            - text: Wanna Congreso
+            - generic: · Balvanera
+          - cell "Doble"
+          - cell "Maximiliano R."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Congreso· Balvanera Individual Catalina Z. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Congreso· Balvanera":
+            - text: Wanna Congreso
+            - generic: · Balvanera
+          - cell "Individual"
+          - cell "Catalina Z."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Centro· San Nicolás Cuádruple Uriel S. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Centro· San Nicolás":
+            - text: Wanna Centro
+            - generic: · San Nicolás
+          - cell "Cuádruple"
+          - cell "Uriel S."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Centro· San Nicolás Triple Zoe L. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Centro· San Nicolás":
+            - text: Wanna Centro
+            - generic: · San Nicolás
+          - cell "Triple"
+          - cell "Zoe L."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Centro· San Nicolás Doble Thiago E. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Centro· San Nicolás":
+            - text: Wanna Centro
+            - generic: · San Nicolás
+          - cell "Doble"
+          - cell "Thiago E."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Centro· San Nicolás Individual Yamila V. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Centro· San Nicolás":
+            - text: Wanna Centro
+            - generic: · San Nicolás
+          - cell "Individual"
+          - cell "Yamila V."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Centro· San Nicolás Cuádruple Santino O. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Centro· San Nicolás":
+            - text: Wanna Centro
+            - generic: · San Nicolás
+          - cell "Cuádruple"
+          - cell "Santino O."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Centro· San Nicolás Triple Tamara H. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Centro· San Nicolás":
+            - text: Wanna Centro
+            - generic: · San Nicolás
+          - cell "Triple"
+          - cell "Tamara H."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Centro· San Nicolás Doble Rodrigo A. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Centro· San Nicolás":
+            - text: Wanna Centro
+            - generic: · San Nicolás
+          - cell "Doble"
+          - cell "Rodrigo A."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Centro· San Nicolás Individual Sabrina H. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Centro· San Nicolás":
+            - text: Wanna Centro
+            - generic: · San Nicolás
+          - cell "Individual"
+          - cell "Sabrina H."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Centro· San Nicolás Cuádruple Pedro D. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Centro· San Nicolás":
+            - text: Wanna Centro
+            - generic: · San Nicolás
+          - cell "Cuádruple"
+          - cell "Pedro D."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Centro· San Nicolás Triple Renata T. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Centro· San Nicolás":
+            - text: Wanna Centro
+            - generic: · San Nicolás
+          - cell "Triple"
+          - cell "Renata T."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Centro· San Nicolás Doble Octavio B. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Centro· San Nicolás":
+            - text: Wanna Centro
+            - generic: · San Nicolás
+          - cell "Doble"
+          - cell "Octavio B."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Wanna Centro· San Nicolás Individual Paula T. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Wanna Centro· San Nicolás":
+            - text: Wanna Centro
+            - generic: · San Nicolás
+          - cell "Individual"
+          - cell "Paula T."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Verona del Soho· Palermo Cuádruple Nahuel M. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Verona del Soho· Palermo":
+            - text: Verona del Soho
+            - generic: · Palermo
+          - cell "Cuádruple"
+          - cell "Nahuel M."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Verona del Soho· Palermo Triple Nadia F. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Verona del Soho· Palermo":
+            - text: Verona del Soho
+            - generic: · Palermo
+          - cell "Triple"
+          - cell "Nadia F."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Verona del Soho· Palermo Doble Marcos W. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Verona del Soho· Palermo":
+            - text: Verona del Soho
+            - generic: · Palermo
+          - cell "Doble"
+          - cell "Marcos W."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Verona del Soho· Palermo Individual Melina P. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Verona del Soho· Palermo":
+            - text: Verona del Soho
+            - generic: · Palermo
+          - cell "Individual"
+          - cell "Melina P."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Verona del Soho· Palermo Cuádruple Leandro I. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Verona del Soho· Palermo":
+            - text: Verona del Soho
+            - generic: · Palermo
+          - cell "Cuádruple"
+          - cell "Leandro I."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Verona del Soho· Palermo Triple Luciana B. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Verona del Soho· Palermo":
+            - text: Verona del Soho
+            - generic: · Palermo
+          - cell "Triple"
+          - cell "Luciana B."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Verona del Soho· Palermo Doble Kevin C. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Verona del Soho· Palermo":
+            - text: Verona del Soho
+            - generic: · Palermo
+          - cell "Doble"
+          - cell "Kevin C."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Verona del Soho· Palermo Individual Karen S. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Verona del Soho· Palermo":
+            - text: Verona del Soho
+            - generic: · Palermo
+          - cell "Individual"
+          - cell "Karen S."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Verona del Soho· Palermo Cuádruple Joaquín L. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Verona del Soho· Palermo":
+            - text: Verona del Soho
+            - generic: · Palermo
+          - cell "Cuádruple"
+          - cell "Joaquín L."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Verona del Soho· Palermo Triple Josefina C. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Verona del Soho· Palermo":
+            - text: Verona del Soho
+            - generic: · Palermo
+          - cell "Triple"
+          - cell "Josefina C."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Verona del Soho· Palermo Doble Ivo U. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Verona del Soho· Palermo":
+            - text: Verona del Soho
+            - generic: · Palermo
+          - cell "Doble"
+          - cell "Ivo U."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Verona del Soho· Palermo Individual Ivana N. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Verona del Soho· Palermo":
+            - text: Verona del Soho
+            - generic: · Palermo
+          - cell "Individual"
+          - cell "Ivana N."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Student Hostel La Bamba (Ilvero)· Recoleta Cuádruple Hernán G. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Student Hostel La Bamba (Ilvero)· Recoleta":
+            - text: Student Hostel La Bamba (Ilvero)
+            - generic: · Recoleta
+          - cell "Cuádruple"
+          - cell "Hernán G."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Student Hostel La Bamba (Ilvero)· Recoleta Triple Guadalupe Z. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Student Hostel La Bamba (Ilvero)· Recoleta":
+            - text: Student Hostel La Bamba (Ilvero)
+            - generic: · Recoleta
+          - cell "Triple"
+          - cell "Guadalupe Z."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Student Hostel La Bamba (Ilvero)· Recoleta Doble Gonzalo Q. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Student Hostel La Bamba (Ilvero)· Recoleta":
+            - text: Student Hostel La Bamba (Ilvero)
+            - generic: · Recoleta
+          - cell "Doble"
+          - cell "Gonzalo Q."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Student Hostel La Bamba (Ilvero)· Recoleta Individual Emilia J. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Student Hostel La Bamba (Ilvero)· Recoleta":
+            - text: Student Hostel La Bamba (Ilvero)
+            - generic: · Recoleta
+          - cell "Individual"
+          - cell "Emilia J."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Student Hostel La Bamba (Ilvero)· Recoleta Cuádruple Facundo C. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Student Hostel La Bamba (Ilvero)· Recoleta":
+            - text: Student Hostel La Bamba (Ilvero)
+            - generic: · Recoleta
+          - cell "Cuádruple"
+          - cell "Facundo C."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Student Hostel La Bamba (Ilvero)· Recoleta Triple Delfina R. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Student Hostel La Bamba (Ilvero)· Recoleta":
+            - text: Student Hostel La Bamba (Ilvero)
+            - generic: · Recoleta
+          - cell "Triple"
+          - cell "Delfina R."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Student Hostel La Bamba (Ilvero)· Recoleta Doble Emiliano N. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Student Hostel La Bamba (Ilvero)· Recoleta":
+            - text: Student Hostel La Bamba (Ilvero)
+            - generic: · Recoleta
+          - cell "Doble"
+          - cell "Emiliano N."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Student Hostel La Bamba (Ilvero)· Recoleta Individual Brenda F. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Student Hostel La Bamba (Ilvero)· Recoleta":
+            - text: Student Hostel La Bamba (Ilvero)
+            - generic: · Recoleta
+          - cell "Individual"
+          - cell "Brenda F."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Student Hostel La Bamba (Ilvero)· Recoleta Cuádruple Dante C. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Student Hostel La Bamba (Ilvero)· Recoleta":
+            - text: Student Hostel La Bamba (Ilvero)
+            - generic: · Recoleta
+          - cell "Cuádruple"
+          - cell "Dante C."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Student Hostel La Bamba (Ilvero)· Recoleta Triple Antonella V. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Student Hostel La Bamba (Ilvero)· Recoleta":
+            - text: Student Hostel La Bamba (Ilvero)
+            - generic: · Recoleta
+          - cell "Triple"
+          - cell "Antonella V."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Student Hostel La Bamba (Ilvero)· Recoleta Doble Ciro O. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Student Hostel La Bamba (Ilvero)· Recoleta":
+            - text: Student Hostel La Bamba (Ilvero)
+            - generic: · Recoleta
+          - cell "Doble"
+          - cell "Ciro O."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Student Hostel La Bamba (Ilvero)· Recoleta Individual Rocío H. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Student Hostel La Bamba (Ilvero)· Recoleta":
+            - text: Student Hostel La Bamba (Ilvero)
+            - generic: · Recoleta
+          - cell "Individual"
+          - cell "Rocío H."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia San Marcos· Montserrat Cuádruple Benjamín A. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia San Marcos· Montserrat":
+            - text: Residencia San Marcos
+            - generic: · Montserrat
+          - cell "Cuádruple"
+          - cell "Benjamín A."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia San Marcos· Montserrat Triple Micaela R. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia San Marcos· Montserrat":
+            - text: Residencia San Marcos
+            - generic: · Montserrat
+          - cell "Triple"
+          - cell "Micaela R."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia San Marcos· Montserrat Doble Agustín K. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia San Marcos· Montserrat":
+            - text: Residencia San Marcos
+            - generic: · Montserrat
+          - cell "Doble"
+          - cell "Agustín K."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia San Marcos· Montserrat Individual Milagros D. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia San Marcos· Montserrat":
+            - text: Residencia San Marcos
+            - generic: · Montserrat
+          - cell "Individual"
+          - cell "Milagros D."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia San Marcos· Montserrat Cuádruple Bruno F. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia San Marcos· Montserrat":
+            - text: Residencia San Marcos
+            - generic: · Montserrat
+          - cell "Cuádruple"
+          - cell "Bruno F."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia San Marcos· Montserrat Triple Carla M. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia San Marcos· Montserrat":
+            - text: Residencia San Marcos
+            - generic: · Montserrat
+          - cell "Triple"
+          - cell "Carla M."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia San Marcos· Montserrat Doble Ignacio S. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia San Marcos· Montserrat":
+            - text: Residencia San Marcos
+            - generic: · Montserrat
+          - cell "Doble"
+          - cell "Ignacio S."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia San Marcos· Montserrat Individual Lucía R. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia San Marcos· Montserrat":
+            - text: Residencia San Marcos
+            - generic: · Montserrat
+          - cell "Individual"
+          - cell "Lucía R."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia San Marcos· Montserrat Cuádruple Lautaro W. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia San Marcos· Montserrat":
+            - text: Residencia San Marcos
+            - generic: · Montserrat
+          - cell "Cuádruple"
+          - cell "Lautaro W."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia San Marcos· Montserrat Triple Agustina P. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia San Marcos· Montserrat":
+            - text: Residencia San Marcos
+            - generic: · Montserrat
+          - cell "Triple"
+          - cell "Agustina P."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia San Marcos· Montserrat Doble Franco I. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia San Marcos· Montserrat":
+            - text: Residencia San Marcos
+            - generic: · Montserrat
+          - cell "Doble"
+          - cell "Franco I."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia San Marcos· Montserrat Individual Florencia B. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia San Marcos· Montserrat":
+            - text: Residencia San Marcos
+            - generic: · Montserrat
+          - cell "Individual"
+          - cell "Florencia B."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Olivia· Núñez Cuádruple Nicolás S. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Olivia· Núñez":
+            - text: Residencia Universitaria Olivia
+            - generic: · Núñez
+          - cell "Cuádruple"
+          - cell "Nicolás S."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Olivia· Núñez Triple Julieta L. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Olivia· Núñez":
+            - text: Residencia Universitaria Olivia
+            - generic: · Núñez
+          - cell "Triple"
+          - cell "Julieta L."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Olivia· Núñez Doble Tomás E. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Olivia· Núñez":
+            - text: Residencia Universitaria Olivia
+            - generic: · Núñez
+          - cell "Doble"
+          - cell "Tomás E."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Olivia· Núñez Individual Ana A. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Olivia· Núñez":
+            - text: Residencia Universitaria Olivia
+            - generic: · Núñez
+          - cell "Individual"
+          - cell "Ana A."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Olivia· Núñez Cuádruple Camila S. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Olivia· Núñez":
+            - text: Residencia Universitaria Olivia
+            - generic: · Núñez
+          - cell "Cuádruple"
+          - cell "Camila S."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Olivia· Núñez Triple Liam M. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Olivia· Núñez":
+            - text: Residencia Universitaria Olivia
+            - generic: · Núñez
+          - cell "Triple"
+          - cell "Liam M."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Olivia· Núñez Doble Valentina G. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Olivia· Núñez":
+            - text: Residencia Universitaria Olivia
+            - generic: · Núñez
+          - cell "Doble"
+          - cell "Valentina G."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Olivia· Núñez Individual Mateo X. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Olivia· Núñez":
+            - text: Residencia Universitaria Olivia
+            - generic: · Núñez
+          - cell "Individual"
+          - cell "Mateo X."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Olivia· Núñez Cuádruple Sofía Q. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Olivia· Núñez":
+            - text: Residencia Universitaria Olivia
+            - generic: · Núñez
+          - cell "Cuádruple"
+          - cell "Sofía Q."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Olivia· Núñez Triple Juan J. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Olivia· Núñez":
+            - text: Residencia Universitaria Olivia
+            - generic: · Núñez
+          - cell "Triple"
+          - cell "Juan J."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Olivia· Núñez Doble Diego C. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Olivia· Núñez":
+            - text: Residencia Universitaria Olivia
+            - generic: · Núñez
+          - cell "Doble"
+          - cell "Diego C."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Olivia· Núñez Individual Martina T. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Olivia· Núñez":
+            - text: Residencia Universitaria Olivia
+            - generic: · Núñez
+          - cell "Individual"
+          - cell "Martina T."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Lith· Balvanera Cuádruple Matías M. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Lith· Balvanera":
+            - text: Residencia Universitaria Lith
+            - generic: · Balvanera
+          - cell "Cuádruple"
+          - cell "Matías M."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Lith· Balvanera Triple Amparo F. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Lith· Balvanera":
+            - text: Residencia Universitaria Lith
+            - generic: · Balvanera
+          - cell "Triple"
+          - cell "Amparo F."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Lith· Balvanera Doble Federico I. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Lith· Balvanera":
+            - text: Residencia Universitaria Lith
+            - generic: · Balvanera
+          - cell "Doble"
+          - cell "Federico I."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Lith· Balvanera Individual Trinidad S. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Lith· Balvanera":
+            - text: Residencia Universitaria Lith
+            - generic: · Balvanera
+          - cell "Individual"
+          - cell "Trinidad S."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Lith· Balvanera Cuádruple Ramiro P. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Lith· Balvanera":
+            - text: Residencia Universitaria Lith
+            - generic: · Balvanera
+          - cell "Cuádruple"
+          - cell "Ramiro P."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Lith· Balvanera Triple Pilar Á. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Lith· Balvanera":
+            - text: Residencia Universitaria Lith
+            - generic: · Balvanera
+          - cell "Triple"
+          - cell "Pilar Á."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Lith· Balvanera Doble Vicente Y. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Lith· Balvanera":
+            - text: Residencia Universitaria Lith
+            - generic: · Balvanera
+          - cell "Doble"
+          - cell "Vicente Y."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Lith· Balvanera Individual Olivia R. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Lith· Balvanera":
+            - text: Residencia Universitaria Lith
+            - generic: · Balvanera
+          - cell "Individual"
+          - cell "Olivia R."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Lith· Balvanera Cuádruple Simón K. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Lith· Balvanera":
+            - text: Residencia Universitaria Lith
+            - generic: · Balvanera
+          - cell "Cuádruple"
+          - cell "Simón K."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Lith· Balvanera Triple Malena D. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Lith· Balvanera":
+            - text: Residencia Universitaria Lith
+            - generic: · Balvanera
+          - cell "Triple"
+          - cell "Malena D."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Lith· Balvanera Doble Lorenzo U. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Lith· Balvanera":
+            - text: Residencia Universitaria Lith
+            - generic: · Balvanera
+          - cell "Doble"
+          - cell "Lorenzo U."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Lith· Balvanera Individual Isabella N. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Lith· Balvanera":
+            - text: Residencia Universitaria Lith
+            - generic: · Balvanera
+          - cell "Individual"
+          - cell "Isabella N."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Gusti· Balvanera Cuádruple Gael G. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Gusti· Balvanera":
+            - text: Residencia Universitaria Gusti
+            - generic: · Balvanera
+          - cell "Cuádruple"
+          - cell "Gael G."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Gusti· Balvanera Triple Victoria V. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Gusti· Balvanera":
+            - text: Residencia Universitaria Gusti
+            - generic: · Balvanera
+          - cell "Triple"
+          - cell "Victoria V."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Gusti· Balvanera Doble Bautista O. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Gusti· Balvanera":
+            - text: Residencia Universitaria Gusti
+            - generic: · Balvanera
+          - cell "Doble"
+          - cell "Bautista O."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Gusti· Balvanera Individual Constanza G. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Gusti· Balvanera":
+            - text: Residencia Universitaria Gusti
+            - generic: · Balvanera
+          - cell "Individual"
+          - cell "Constanza G."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Gusti· Balvanera Cuádruple Elias R. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Gusti· Balvanera":
+            - text: Residencia Universitaria Gusti
+            - generic: · Balvanera
+          - cell "Cuádruple"
+          - cell "Elias R."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Gusti· Balvanera Triple Abril Z. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Gusti· Balvanera":
+            - text: Residencia Universitaria Gusti
+            - generic: · Balvanera
+          - cell "Triple"
+          - cell "Abril Z."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Gusti· Balvanera Doble Maximiliano S. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Gusti· Balvanera":
+            - text: Residencia Universitaria Gusti
+            - generic: · Balvanera
+          - cell "Doble"
+          - cell "Maximiliano S."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Gusti· Balvanera Individual Catalina L. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Gusti· Balvanera":
+            - text: Residencia Universitaria Gusti
+            - generic: · Balvanera
+          - cell "Individual"
+          - cell "Catalina L."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Gusti· Balvanera Cuádruple Uriel E. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Gusti· Balvanera":
+            - text: Residencia Universitaria Gusti
+            - generic: · Balvanera
+          - cell "Cuádruple"
+          - cell "Uriel E."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Gusti· Balvanera Triple Zoe V. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Gusti· Balvanera":
+            - text: Residencia Universitaria Gusti
+            - generic: · Balvanera
+          - cell "Triple"
+          - cell "Zoe V."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Gusti· Balvanera Doble Thiago O. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Gusti· Balvanera":
+            - text: Residencia Universitaria Gusti
+            - generic: · Balvanera
+          - cell "Doble"
+          - cell "Thiago O."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Universitaria Gusti· Balvanera Individual Yamila H. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Universitaria Gusti· Balvanera":
+            - text: Residencia Universitaria Gusti
+            - generic: · Balvanera
+          - cell "Individual"
+          - cell "Yamila H."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Family Home· Constitución Cuádruple Santino A. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Family Home· Constitución":
+            - text: Residencia Family Home
+            - generic: · Constitución
+          - cell "Cuádruple"
+          - cell "Santino A."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Family Home· Constitución Triple Tamara H. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Family Home· Constitución":
+            - text: Residencia Family Home
+            - generic: · Constitución
+          - cell "Triple"
+          - cell "Tamara H."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Family Home· Constitución Doble Rodrigo D. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Family Home· Constitución":
+            - text: Residencia Family Home
+            - generic: · Constitución
+          - cell "Doble"
+          - cell "Rodrigo D."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Family Home· Constitución Individual Sabrina T. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Family Home· Constitución":
+            - text: Residencia Family Home
+            - generic: · Constitución
+          - cell "Individual"
+          - cell "Sabrina T."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Family Home· Constitución Cuádruple Pedro B. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Family Home· Constitución":
+            - text: Residencia Family Home
+            - generic: · Constitución
+          - cell "Cuádruple"
+          - cell "Pedro B."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Family Home· Constitución Triple Renata T. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Family Home· Constitución":
+            - text: Residencia Family Home
+            - generic: · Constitución
+          - cell "Triple"
+          - cell "Renata T."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Family Home· Constitución Doble Octavio M. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Family Home· Constitución":
+            - text: Residencia Family Home
+            - generic: · Constitución
+          - cell "Doble"
+          - cell "Octavio M."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Family Home· Constitución Individual Paula F. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Family Home· Constitución":
+            - text: Residencia Family Home
+            - generic: · Constitución
+          - cell "Individual"
+          - cell "Paula F."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Family Home· Constitución Cuádruple Nahuel W. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Family Home· Constitución":
+            - text: Residencia Family Home
+            - generic: · Constitución
+          - cell "Cuádruple"
+          - cell "Nahuel W."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Family Home· Constitución Triple Nadia P. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Family Home· Constitución":
+            - text: Residencia Family Home
+            - generic: · Constitución
+          - cell "Triple"
+          - cell "Nadia P."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Family Home· Constitución Doble Marcos I. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Family Home· Constitución":
+            - text: Residencia Family Home
+            - generic: · Constitución
+          - cell "Doble"
+          - cell "Marcos I."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia Family Home· Constitución Individual Melina B. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia Family Home· Constitución":
+            - text: Residencia Family Home
+            - generic: · Constitución
+          - cell "Individual"
+          - cell "Melina B."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia El Ángel· Montserrat Cuádruple Leandro C. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia El Ángel· Montserrat":
+            - text: Residencia El Ángel
+            - generic: · Montserrat
+          - cell "Cuádruple"
+          - cell "Leandro C."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia El Ángel· Montserrat Triple Luciana S. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia El Ángel· Montserrat":
+            - text: Residencia El Ángel
+            - generic: · Montserrat
+          - cell "Triple"
+          - cell "Luciana S."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia El Ángel· Montserrat Doble Kevin L. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia El Ángel· Montserrat":
+            - text: Residencia El Ángel
+            - generic: · Montserrat
+          - cell "Doble"
+          - cell "Kevin L."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia El Ángel· Montserrat Individual Karen C. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia El Ángel· Montserrat":
+            - text: Residencia El Ángel
+            - generic: · Montserrat
+          - cell "Individual"
+          - cell "Karen C."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia El Ángel· Montserrat Cuádruple Joaquín U. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia El Ángel· Montserrat":
+            - text: Residencia El Ángel
+            - generic: · Montserrat
+          - cell "Cuádruple"
+          - cell "Joaquín U."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia El Ángel· Montserrat Triple Josefina N. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia El Ángel· Montserrat":
+            - text: Residencia El Ángel
+            - generic: · Montserrat
+          - cell "Triple"
+          - cell "Josefina N."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia El Ángel· Montserrat Doble Ivo G. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia El Ángel· Montserrat":
+            - text: Residencia El Ángel
+            - generic: · Montserrat
+          - cell "Doble"
+          - cell "Ivo G."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia El Ángel· Montserrat Individual Ivana Z. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia El Ángel· Montserrat":
+            - text: Residencia El Ángel
+            - generic: · Montserrat
+          - cell "Individual"
+          - cell "Ivana Z."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia El Ángel· Montserrat Cuádruple Hernán Q. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia El Ángel· Montserrat":
+            - text: Residencia El Ángel
+            - generic: · Montserrat
+          - cell "Cuádruple"
+          - cell "Hernán Q."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia El Ángel· Montserrat Triple Guadalupe J. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia El Ángel· Montserrat":
+            - text: Residencia El Ángel
+            - generic: · Montserrat
+          - cell "Triple"
+          - cell "Guadalupe J."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia El Ángel· Montserrat Doble Gonzalo C. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia El Ángel· Montserrat":
+            - text: Residencia El Ángel
+            - generic: · Montserrat
+          - cell "Doble"
+          - cell "Gonzalo C."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Residencia El Ángel· Montserrat Individual Emilia R. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Residencia El Ángel· Montserrat":
+            - text: Residencia El Ángel
+            - generic: · Montserrat
+          - cell "Individual"
+          - cell "Emilia R."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Mansión Paloma· Colegiales Cuádruple Facundo N. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Mansión Paloma· Colegiales":
+            - text: Mansión Paloma
+            - generic: · Colegiales
+          - cell "Cuádruple"
+          - cell "Facundo N."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Mansión Paloma· Colegiales Triple Delfina F. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Mansión Paloma· Colegiales":
+            - text: Mansión Paloma
+            - generic: · Colegiales
+          - cell "Triple"
+          - cell "Delfina F."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Mansión Paloma· Colegiales Doble Emiliano C. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Mansión Paloma· Colegiales":
+            - text: Mansión Paloma
+            - generic: · Colegiales
+          - cell "Doble"
+          - cell "Emiliano C."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Mansión Paloma· Colegiales Individual Brenda V. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Mansión Paloma· Colegiales":
+            - text: Mansión Paloma
+            - generic: · Colegiales
+          - cell "Individual"
+          - cell "Brenda V."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Mansión Paloma· Colegiales Cuádruple Dante O. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Mansión Paloma· Colegiales":
+            - text: Mansión Paloma
+            - generic: · Colegiales
+          - cell "Cuádruple"
+          - cell "Dante O."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Mansión Paloma· Colegiales Triple Antonella H. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Mansión Paloma· Colegiales":
+            - text: Mansión Paloma
+            - generic: · Colegiales
+          - cell "Triple"
+          - cell "Antonella H."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Mansión Paloma· Colegiales Doble Ciro A. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Mansión Paloma· Colegiales":
+            - text: Mansión Paloma
+            - generic: · Colegiales
+          - cell "Doble"
+          - cell "Ciro A."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Mansión Paloma· Colegiales Individual Rocío R. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Mansión Paloma· Colegiales":
+            - text: Mansión Paloma
+            - generic: · Colegiales
+          - cell "Individual"
+          - cell "Rocío R."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Mansión Paloma· Colegiales Cuádruple Benjamín K. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Mansión Paloma· Colegiales":
+            - text: Mansión Paloma
+            - generic: · Colegiales
+          - cell "Cuádruple"
+          - cell "Benjamín K."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Mansión Paloma· Colegiales Triple Micaela D. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Mansión Paloma· Colegiales":
+            - text: Mansión Paloma
+            - generic: · Colegiales
+          - cell "Triple"
+          - cell "Micaela D."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Mansión Paloma· Colegiales Doble Agustín F. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Mansión Paloma· Colegiales":
+            - text: Mansión Paloma
+            - generic: · Colegiales
+          - cell "Doble"
+          - cell "Agustín F."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Mansión Paloma· Colegiales Individual Milagros M. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Mansión Paloma· Colegiales":
+            - text: Mansión Paloma
+            - generic: · Colegiales
+          - cell "Individual"
+          - cell "Milagros M."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Luco Hotel (Residencia)· Recoleta Cuádruple Bruno S. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Luco Hotel (Residencia)· Recoleta":
+            - text: Luco Hotel (Residencia)
+            - generic: · Recoleta
+          - cell "Cuádruple"
+          - cell "Bruno S."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Luco Hotel (Residencia)· Recoleta Triple Carla R. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Luco Hotel (Residencia)· Recoleta":
+            - text: Luco Hotel (Residencia)
+            - generic: · Recoleta
+          - cell "Triple"
+          - cell "Carla R."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Luco Hotel (Residencia)· Recoleta Doble Ignacio W. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Luco Hotel (Residencia)· Recoleta":
+            - text: Luco Hotel (Residencia)
+            - generic: · Recoleta
+          - cell "Doble"
+          - cell "Ignacio W."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Luco Hotel (Residencia)· Recoleta Individual Lucía P. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Luco Hotel (Residencia)· Recoleta":
+            - text: Luco Hotel (Residencia)
+            - generic: · Recoleta
+          - cell "Individual"
+          - cell "Lucía P."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Luco Hotel (Residencia)· Recoleta Cuádruple Lautaro I. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Luco Hotel (Residencia)· Recoleta":
+            - text: Luco Hotel (Residencia)
+            - generic: · Recoleta
+          - cell "Cuádruple"
+          - cell "Lautaro I."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Luco Hotel (Residencia)· Recoleta Triple Agustina B. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Luco Hotel (Residencia)· Recoleta":
+            - text: Luco Hotel (Residencia)
+            - generic: · Recoleta
+          - cell "Triple"
+          - cell "Agustina B."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Luco Hotel (Residencia)· Recoleta Doble Franco S. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Luco Hotel (Residencia)· Recoleta":
+            - text: Luco Hotel (Residencia)
+            - generic: · Recoleta
+          - cell "Doble"
+          - cell "Franco S."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Luco Hotel (Residencia)· Recoleta Individual Florencia L. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Luco Hotel (Residencia)· Recoleta":
+            - text: Luco Hotel (Residencia)
+            - generic: · Recoleta
+          - cell "Individual"
+          - cell "Florencia L."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Luco Hotel (Residencia)· Recoleta Cuádruple Nicolás E. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Luco Hotel (Residencia)· Recoleta":
+            - text: Luco Hotel (Residencia)
+            - generic: · Recoleta
+          - cell "Cuádruple"
+          - cell "Nicolás E."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Luco Hotel (Residencia)· Recoleta Triple Julieta A. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Luco Hotel (Residencia)· Recoleta":
+            - text: Luco Hotel (Residencia)
+            - generic: · Recoleta
+          - cell "Triple"
+          - cell "Julieta A."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Luco Hotel (Residencia)· Recoleta Doble Tomás S. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Luco Hotel (Residencia)· Recoleta":
+            - text: Luco Hotel (Residencia)
+            - generic: · Recoleta
+          - cell "Doble"
+          - cell "Tomás S."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Luco Hotel (Residencia)· Recoleta Individual Ana M. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Luco Hotel (Residencia)· Recoleta":
+            - text: Luco Hotel (Residencia)
+            - generic: · Recoleta
+          - cell "Individual"
+          - cell "Ana M."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "2340 Residencia Universitaria by Luco· Balvanera Cuádruple 1 Camila G. Activo Limitar visibilidad Marcar inactivo":
+          - cell "2340 Residencia Universitaria by Luco· Balvanera":
+            - text: 2340 Residencia Universitaria by Luco
+            - generic: · Balvanera
+          - cell "Cuádruple 1"
+          - cell "Camila G."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "2340 Residencia Universitaria by Luco· Balvanera Triple 1 Liam X. Activo Limitar visibilidad Marcar inactivo":
+          - cell "2340 Residencia Universitaria by Luco· Balvanera":
+            - text: 2340 Residencia Universitaria by Luco
+            - generic: · Balvanera
+          - cell "Triple 1"
+          - cell "Liam X."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "2340 Residencia Universitaria by Luco· Balvanera Doble 2 Valentina Q. Activo Limitar visibilidad Marcar inactivo":
+          - cell "2340 Residencia Universitaria by Luco· Balvanera":
+            - text: 2340 Residencia Universitaria by Luco
+            - generic: · Balvanera
+          - cell "Doble 2"
+          - cell "Valentina Q."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "2340 Residencia Universitaria by Luco· Balvanera Individual 3 Mateo J. Activo Limitar visibilidad Marcar inactivo":
+          - cell "2340 Residencia Universitaria by Luco· Balvanera":
+            - text: 2340 Residencia Universitaria by Luco
+            - generic: · Balvanera
+          - cell "Individual 3"
+          - cell "Mateo J."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "2340 Residencia Universitaria by Luco· Balvanera Cuádruple 1 Sofía C. Activo Limitar visibilidad Marcar inactivo":
+          - cell "2340 Residencia Universitaria by Luco· Balvanera":
+            - text: 2340 Residencia Universitaria by Luco
+            - generic: · Balvanera
+          - cell "Cuádruple 1"
+          - cell "Sofía C."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "2340 Residencia Universitaria by Luco· Balvanera Triple 1 Juan T. Activo Limitar visibilidad Marcar inactivo":
+          - cell "2340 Residencia Universitaria by Luco· Balvanera":
+            - text: 2340 Residencia Universitaria by Luco
+            - generic: · Balvanera
+          - cell "Triple 1"
+          - cell "Juan T."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "2340 Residencia Universitaria by Luco· Balvanera Doble 1 Diego M. Activo Limitar visibilidad Marcar inactivo":
+          - cell "2340 Residencia Universitaria by Luco· Balvanera":
+            - text: 2340 Residencia Universitaria by Luco
+            - generic: · Balvanera
+          - cell "Doble 1"
+          - cell "Diego M."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "2340 Residencia Universitaria by Luco· Balvanera Individual 2 Martina F. Activo Limitar visibilidad Marcar inactivo":
+          - cell "2340 Residencia Universitaria by Luco· Balvanera":
+            - text: 2340 Residencia Universitaria by Luco
+            - generic: · Balvanera
+          - cell "Individual 2"
+          - cell "Martina F."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "2340 Residencia Universitaria by Luco· Balvanera Cuádruple 1 Matías I. Activo Limitar visibilidad Marcar inactivo":
+          - cell "2340 Residencia Universitaria by Luco· Balvanera":
+            - text: 2340 Residencia Universitaria by Luco
+            - generic: · Balvanera
+          - cell "Cuádruple 1"
+          - cell "Matías I."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "2340 Residencia Universitaria by Luco· Balvanera Triple 1 Amparo S. Activo Limitar visibilidad Marcar inactivo":
+          - cell "2340 Residencia Universitaria by Luco· Balvanera":
+            - text: 2340 Residencia Universitaria by Luco
+            - generic: · Balvanera
+          - cell "Triple 1"
+          - cell "Amparo S."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "2340 Residencia Universitaria by Luco· Balvanera Doble 1 Federico P. Activo Limitar visibilidad Marcar inactivo":
+          - cell "2340 Residencia Universitaria by Luco· Balvanera":
+            - text: 2340 Residencia Universitaria by Luco
+            - generic: · Balvanera
+          - cell "Doble 1"
+          - cell "Federico P."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "2340 Residencia Universitaria by Luco· Balvanera Individual 1 Trinidad Á. Activo Limitar visibilidad Marcar inactivo":
+          - cell "2340 Residencia Universitaria by Luco· Balvanera":
+            - text: 2340 Residencia Universitaria by Luco
+            - generic: · Balvanera
+          - cell "Individual 1"
+          - cell "Trinidad Á."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Las Cabañas· Monserrat Cuádruple Ramiro Y. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Las Cabañas· Monserrat":
+            - text: Las Cabañas
+            - generic: · Monserrat
+          - cell "Cuádruple"
+          - cell "Ramiro Y."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Las Cabañas· Monserrat Triple Pilar R. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Las Cabañas· Monserrat":
+            - text: Las Cabañas
+            - generic: · Monserrat
+          - cell "Triple"
+          - cell "Pilar R."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Las Cabañas· Monserrat Doble Vicente K. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Las Cabañas· Monserrat":
+            - text: Las Cabañas
+            - generic: · Monserrat
+          - cell "Doble"
+          - cell "Vicente K."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Las Cabañas· Monserrat Individual Olivia D. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Las Cabañas· Monserrat":
+            - text: Las Cabañas
+            - generic: · Monserrat
+          - cell "Individual"
+          - cell "Olivia D."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Las Cabañas· Monserrat Cuádruple Simón U. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Las Cabañas· Monserrat":
+            - text: Las Cabañas
+            - generic: · Monserrat
+          - cell "Cuádruple"
+          - cell "Simón U."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Las Cabañas· Monserrat Triple Malena N. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Las Cabañas· Monserrat":
+            - text: Las Cabañas
+            - generic: · Monserrat
+          - cell "Triple"
+          - cell "Malena N."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Las Cabañas· Monserrat Doble Lorenzo G. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Las Cabañas· Monserrat":
+            - text: Las Cabañas
+            - generic: · Monserrat
+          - cell "Doble"
+          - cell "Lorenzo G."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Las Cabañas· Monserrat Individual Isabella V. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Las Cabañas· Monserrat":
+            - text: Las Cabañas
+            - generic: · Monserrat
+          - cell "Individual"
+          - cell "Isabella V."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Las Cabañas· Monserrat Cuádruple Gael O. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Las Cabañas· Monserrat":
+            - text: Las Cabañas
+            - generic: · Monserrat
+          - cell "Cuádruple"
+          - cell "Gael O."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Las Cabañas· Monserrat Triple Victoria G. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Las Cabañas· Monserrat":
+            - text: Las Cabañas
+            - generic: · Monserrat
+          - cell "Triple"
+          - cell "Victoria G."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Las Cabañas· Monserrat Doble Bautista R. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Las Cabañas· Monserrat":
+            - text: Las Cabañas
+            - generic: · Monserrat
+          - cell "Doble"
+          - cell "Bautista R."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Las Cabañas· Monserrat Individual Constanza Z. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Las Cabañas· Monserrat":
+            - text: Las Cabañas
+            - generic: · Monserrat
+          - cell "Individual"
+          - cell "Constanza Z."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Scala Hollywood· Palermo Cuádruple Elias S. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Scala Hollywood· Palermo":
+            - text: La Scala Hollywood
+            - generic: · Palermo
+          - cell "Cuádruple"
+          - cell "Elias S."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Scala Hollywood· Palermo Triple Abril L. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Scala Hollywood· Palermo":
+            - text: La Scala Hollywood
+            - generic: · Palermo
+          - cell "Triple"
+          - cell "Abril L."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Scala Hollywood· Palermo Doble Maximiliano E. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Scala Hollywood· Palermo":
+            - text: La Scala Hollywood
+            - generic: · Palermo
+          - cell "Doble"
+          - cell "Maximiliano E."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Scala Hollywood· Palermo Individual Catalina V. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Scala Hollywood· Palermo":
+            - text: La Scala Hollywood
+            - generic: · Palermo
+          - cell "Individual"
+          - cell "Catalina V."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Scala Hollywood· Palermo Cuádruple Uriel O. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Scala Hollywood· Palermo":
+            - text: La Scala Hollywood
+            - generic: · Palermo
+          - cell "Cuádruple"
+          - cell "Uriel O."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Scala Hollywood· Palermo Triple Zoe H. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Scala Hollywood· Palermo":
+            - text: La Scala Hollywood
+            - generic: · Palermo
+          - cell "Triple"
+          - cell "Zoe H."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Scala Hollywood· Palermo Doble Thiago A. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Scala Hollywood· Palermo":
+            - text: La Scala Hollywood
+            - generic: · Palermo
+          - cell "Doble"
+          - cell "Thiago A."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Scala Hollywood· Palermo Individual Yamila H. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Scala Hollywood· Palermo":
+            - text: La Scala Hollywood
+            - generic: · Palermo
+          - cell "Individual"
+          - cell "Yamila H."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Scala Hollywood· Palermo Cuádruple Santino D. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Scala Hollywood· Palermo":
+            - text: La Scala Hollywood
+            - generic: · Palermo
+          - cell "Cuádruple"
+          - cell "Santino D."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Scala Hollywood· Palermo Triple Tamara T. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Scala Hollywood· Palermo":
+            - text: La Scala Hollywood
+            - generic: · Palermo
+          - cell "Triple"
+          - cell "Tamara T."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Scala Hollywood· Palermo Doble Rodrigo B. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Scala Hollywood· Palermo":
+            - text: La Scala Hollywood
+            - generic: · Palermo
+          - cell "Doble"
+          - cell "Rodrigo B."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Scala Hollywood· Palermo Individual Sabrina T. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Scala Hollywood· Palermo":
+            - text: La Scala Hollywood
+            - generic: · Palermo
+          - cell "Individual"
+          - cell "Sabrina T."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Scala Belgrano· Colegiales Cuádruple Pedro M. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Scala Belgrano· Colegiales":
+            - text: La Scala Belgrano
+            - generic: · Colegiales
+          - cell "Cuádruple"
+          - cell "Pedro M."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Scala Belgrano· Colegiales Triple Renata F. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Scala Belgrano· Colegiales":
+            - text: La Scala Belgrano
+            - generic: · Colegiales
+          - cell "Triple"
+          - cell "Renata F."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Scala Belgrano· Colegiales Doble Octavio W. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Scala Belgrano· Colegiales":
+            - text: La Scala Belgrano
+            - generic: · Colegiales
+          - cell "Doble"
+          - cell "Octavio W."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Scala Belgrano· Colegiales Individual Paula P. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Scala Belgrano· Colegiales":
+            - text: La Scala Belgrano
+            - generic: · Colegiales
+          - cell "Individual"
+          - cell "Paula P."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Scala Belgrano· Colegiales Cuádruple Nahuel I. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Scala Belgrano· Colegiales":
+            - text: La Scala Belgrano
+            - generic: · Colegiales
+          - cell "Cuádruple"
+          - cell "Nahuel I."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Scala Belgrano· Colegiales Triple Nadia B. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Scala Belgrano· Colegiales":
+            - text: La Scala Belgrano
+            - generic: · Colegiales
+          - cell "Triple"
+          - cell "Nadia B."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Scala Belgrano· Colegiales Doble Marcos C. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Scala Belgrano· Colegiales":
+            - text: La Scala Belgrano
+            - generic: · Colegiales
+          - cell "Doble"
+          - cell "Marcos C."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Scala Belgrano· Colegiales Individual Melina S. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Scala Belgrano· Colegiales":
+            - text: La Scala Belgrano
+            - generic: · Colegiales
+          - cell "Individual"
+          - cell "Melina S."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Scala Belgrano· Colegiales Cuádruple Leandro L. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Scala Belgrano· Colegiales":
+            - text: La Scala Belgrano
+            - generic: · Colegiales
+          - cell "Cuádruple"
+          - cell "Leandro L."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Scala Belgrano· Colegiales Triple Luciana C. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Scala Belgrano· Colegiales":
+            - text: La Scala Belgrano
+            - generic: · Colegiales
+          - cell "Triple"
+          - cell "Luciana C."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Scala Belgrano· Colegiales Doble Kevin U. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Scala Belgrano· Colegiales":
+            - text: La Scala Belgrano
+            - generic: · Colegiales
+          - cell "Doble"
+          - cell "Kevin U."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Scala Belgrano· Colegiales Individual Karen N. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Scala Belgrano· Colegiales":
+            - text: La Scala Belgrano
+            - generic: · Colegiales
+          - cell "Individual"
+          - cell "Karen N."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casona Recoleta· Balvanera Cuádruple Joaquín G. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casona Recoleta· Balvanera":
+            - text: La Casona Recoleta
+            - generic: · Balvanera
+          - cell "Cuádruple"
+          - cell "Joaquín G."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casona Recoleta· Balvanera Triple Josefina Z. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casona Recoleta· Balvanera":
+            - text: La Casona Recoleta
+            - generic: · Balvanera
+          - cell "Triple"
+          - cell "Josefina Z."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casona Recoleta· Balvanera Doble Ivo Q. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casona Recoleta· Balvanera":
+            - text: La Casona Recoleta
+            - generic: · Balvanera
+          - cell "Doble"
+          - cell "Ivo Q."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casona Recoleta· Balvanera Individual Ivana J. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casona Recoleta· Balvanera":
+            - text: La Casona Recoleta
+            - generic: · Balvanera
+          - cell "Individual"
+          - cell "Ivana J."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casona Recoleta· Balvanera Cuádruple Hernán C. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casona Recoleta· Balvanera":
+            - text: La Casona Recoleta
+            - generic: · Balvanera
+          - cell "Cuádruple"
+          - cell "Hernán C."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casona Recoleta· Balvanera Triple Guadalupe R. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casona Recoleta· Balvanera":
+            - text: La Casona Recoleta
+            - generic: · Balvanera
+          - cell "Triple"
+          - cell "Guadalupe R."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casona Recoleta· Balvanera Doble Gonzalo N. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casona Recoleta· Balvanera":
+            - text: La Casona Recoleta
+            - generic: · Balvanera
+          - cell "Doble"
+          - cell "Gonzalo N."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casona Recoleta· Balvanera Individual Emilia F. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casona Recoleta· Balvanera":
+            - text: La Casona Recoleta
+            - generic: · Balvanera
+          - cell "Individual"
+          - cell "Emilia F."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casona Recoleta· Balvanera Cuádruple Facundo C. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casona Recoleta· Balvanera":
+            - text: La Casona Recoleta
+            - generic: · Balvanera
+          - cell "Cuádruple"
+          - cell "Facundo C."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casona Recoleta· Balvanera Triple Delfina V. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casona Recoleta· Balvanera":
+            - text: La Casona Recoleta
+            - generic: · Balvanera
+          - cell "Triple"
+          - cell "Delfina V."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casona Recoleta· Balvanera Doble Emiliano O. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casona Recoleta· Balvanera":
+            - text: La Casona Recoleta
+            - generic: · Balvanera
+          - cell "Doble"
+          - cell "Emiliano O."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casona Recoleta· Balvanera Individual Brenda H. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casona Recoleta· Balvanera":
+            - text: La Casona Recoleta
+            - generic: · Balvanera
+          - cell "Individual"
+          - cell "Brenda H."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casona Monserrat· Monserrat Cuádruple Dante A. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casona Monserrat· Monserrat":
+            - text: La Casona Monserrat
+            - generic: · Monserrat
+          - cell "Cuádruple"
+          - cell "Dante A."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casona Monserrat· Monserrat Triple Antonella R. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casona Monserrat· Monserrat":
+            - text: La Casona Monserrat
+            - generic: · Monserrat
+          - cell "Triple"
+          - cell "Antonella R."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casona Monserrat· Monserrat Doble Ciro K. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casona Monserrat· Monserrat":
+            - text: La Casona Monserrat
+            - generic: · Monserrat
+          - cell "Doble"
+          - cell "Ciro K."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casona Monserrat· Monserrat Individual Rocío D. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casona Monserrat· Monserrat":
+            - text: La Casona Monserrat
+            - generic: · Monserrat
+          - cell "Individual"
+          - cell "Rocío D."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casona Monserrat· Monserrat Cuádruple Benjamín F. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casona Monserrat· Monserrat":
+            - text: La Casona Monserrat
+            - generic: · Monserrat
+          - cell "Cuádruple"
+          - cell "Benjamín F."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casona Monserrat· Monserrat Triple Micaela M. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casona Monserrat· Monserrat":
+            - text: La Casona Monserrat
+            - generic: · Monserrat
+          - cell "Triple"
+          - cell "Micaela M."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casona Monserrat· Monserrat Doble Agustín S. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casona Monserrat· Monserrat":
+            - text: La Casona Monserrat
+            - generic: · Monserrat
+          - cell "Doble"
+          - cell "Agustín S."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casona Monserrat· Monserrat Individual Milagros R. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casona Monserrat· Monserrat":
+            - text: La Casona Monserrat
+            - generic: · Monserrat
+          - cell "Individual"
+          - cell "Milagros R."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casona Monserrat· Monserrat Cuádruple Bruno W. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casona Monserrat· Monserrat":
+            - text: La Casona Monserrat
+            - generic: · Monserrat
+          - cell "Cuádruple"
+          - cell "Bruno W."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casona Monserrat· Monserrat Triple Carla P. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casona Monserrat· Monserrat":
+            - text: La Casona Monserrat
+            - generic: · Monserrat
+          - cell "Triple"
+          - cell "Carla P."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casona Monserrat· Monserrat Doble Ignacio I. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casona Monserrat· Monserrat":
+            - text: La Casona Monserrat
+            - generic: · Monserrat
+          - cell "Doble"
+          - cell "Ignacio I."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casona Monserrat· Monserrat Individual Lucía B. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casona Monserrat· Monserrat":
+            - text: La Casona Monserrat
+            - generic: · Monserrat
+          - cell "Individual"
+          - cell "Lucía B."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casa de Cris - Residencia I Almagro· Almagro Cuádruple 1 Lautaro S. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casa de Cris - Residencia I Almagro· Almagro":
+            - text: La Casa de Cris - Residencia I Almagro
+            - generic: · Almagro
+          - cell "Cuádruple 1"
+          - cell "Lautaro S."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casa de Cris - Residencia I Almagro· Almagro Triple 1 Agustina L. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casa de Cris - Residencia I Almagro· Almagro":
+            - text: La Casa de Cris - Residencia I Almagro
+            - generic: · Almagro
+          - cell "Triple 1"
+          - cell "Agustina L."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casa de Cris - Residencia I Almagro· Almagro Doble 2 Franco E. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casa de Cris - Residencia I Almagro· Almagro":
+            - text: La Casa de Cris - Residencia I Almagro
+            - generic: · Almagro
+          - cell "Doble 2"
+          - cell "Franco E."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casa de Cris - Residencia I Almagro· Almagro Individual 3 Florencia A. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casa de Cris - Residencia I Almagro· Almagro":
+            - text: La Casa de Cris - Residencia I Almagro
+            - generic: · Almagro
+          - cell "Individual 3"
+          - cell "Florencia A."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casa de Cris - Residencia I Almagro· Almagro Cuádruple 1 Nicolás S. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casa de Cris - Residencia I Almagro· Almagro":
+            - text: La Casa de Cris - Residencia I Almagro
+            - generic: · Almagro
+          - cell "Cuádruple 1"
+          - cell "Nicolás S."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casa de Cris - Residencia I Almagro· Almagro Triple 1 Julieta M. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casa de Cris - Residencia I Almagro· Almagro":
+            - text: La Casa de Cris - Residencia I Almagro
+            - generic: · Almagro
+          - cell "Triple 1"
+          - cell "Julieta M."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casa de Cris - Residencia I Almagro· Almagro Doble 1 Tomás G. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casa de Cris - Residencia I Almagro· Almagro":
+            - text: La Casa de Cris - Residencia I Almagro
+            - generic: · Almagro
+          - cell "Doble 1"
+          - cell "Tomás G."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casa de Cris - Residencia I Almagro· Almagro Individual 2 Ana X. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casa de Cris - Residencia I Almagro· Almagro":
+            - text: La Casa de Cris - Residencia I Almagro
+            - generic: · Almagro
+          - cell "Individual 2"
+          - cell "Ana X."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casa de Cris - Residencia I Almagro· Almagro Cuádruple 1 Camila Q. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casa de Cris - Residencia I Almagro· Almagro":
+            - text: La Casa de Cris - Residencia I Almagro
+            - generic: · Almagro
+          - cell "Cuádruple 1"
+          - cell "Camila Q."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casa de Cris - Residencia I Almagro· Almagro Triple 1 Liam J. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casa de Cris - Residencia I Almagro· Almagro":
+            - text: La Casa de Cris - Residencia I Almagro
+            - generic: · Almagro
+          - cell "Triple 1"
+          - cell "Liam J."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casa de Cris - Residencia I Almagro· Almagro Doble 1 Valentina C. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casa de Cris - Residencia I Almagro· Almagro":
+            - text: La Casa de Cris - Residencia I Almagro
+            - generic: · Almagro
+          - cell "Doble 1"
+          - cell "Valentina C."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "La Casa de Cris - Residencia I Almagro· Almagro Individual 1 Mateo T. Activo Limitar visibilidad Marcar inactivo":
+          - cell "La Casa de Cris - Residencia I Almagro· Almagro":
+            - text: La Casa de Cris - Residencia I Almagro
+            - generic: · Almagro
+          - cell "Individual 1"
+          - cell "Mateo T."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "IndER Residencia· Constitución Cuádruple 1 Sofía M. Activo Limitar visibilidad Marcar inactivo":
+          - cell "IndER Residencia· Constitución":
+            - text: IndER Residencia
+            - generic: · Constitución
+          - cell "Cuádruple 1"
+          - cell "Sofía M."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "IndER Residencia· Constitución Triple 1 Juan F. Activo Limitar visibilidad Marcar inactivo":
+          - cell "IndER Residencia· Constitución":
+            - text: IndER Residencia
+            - generic: · Constitución
+          - cell "Triple 1"
+          - cell "Juan F."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "IndER Residencia· Constitución Doble 2 Diego I. Activo Limitar visibilidad Marcar inactivo":
+          - cell "IndER Residencia· Constitución":
+            - text: IndER Residencia
+            - generic: · Constitución
+          - cell "Doble 2"
+          - cell "Diego I."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "IndER Residencia· Constitución Individual 3 Martina S. Activo Limitar visibilidad Marcar inactivo":
+          - cell "IndER Residencia· Constitución":
+            - text: IndER Residencia
+            - generic: · Constitución
+          - cell "Individual 3"
+          - cell "Martina S."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "IndER Residencia· Constitución Cuádruple 1 Matías P. Activo Limitar visibilidad Marcar inactivo":
+          - cell "IndER Residencia· Constitución":
+            - text: IndER Residencia
+            - generic: · Constitución
+          - cell "Cuádruple 1"
+          - cell "Matías P."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "IndER Residencia· Constitución Triple 1 Amparo Á. Activo Limitar visibilidad Marcar inactivo":
+          - cell "IndER Residencia· Constitución":
+            - text: IndER Residencia
+            - generic: · Constitución
+          - cell "Triple 1"
+          - cell "Amparo Á."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "IndER Residencia· Constitución Doble 1 Federico Y. Activo Limitar visibilidad Marcar inactivo":
+          - cell "IndER Residencia· Constitución":
+            - text: IndER Residencia
+            - generic: · Constitución
+          - cell "Doble 1"
+          - cell "Federico Y."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "IndER Residencia· Constitución Individual 2 Trinidad R. Activo Limitar visibilidad Marcar inactivo":
+          - cell "IndER Residencia· Constitución":
+            - text: IndER Residencia
+            - generic: · Constitución
+          - cell "Individual 2"
+          - cell "Trinidad R."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "IndER Residencia· Constitución Cuádruple 1 Ramiro K. Activo Limitar visibilidad Marcar inactivo":
+          - cell "IndER Residencia· Constitución":
+            - text: IndER Residencia
+            - generic: · Constitución
+          - cell "Cuádruple 1"
+          - cell "Ramiro K."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "IndER Residencia· Constitución Triple 1 Pilar D. Activo Limitar visibilidad Marcar inactivo":
+          - cell "IndER Residencia· Constitución":
+            - text: IndER Residencia
+            - generic: · Constitución
+          - cell "Triple 1"
+          - cell "Pilar D."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "IndER Residencia· Constitución Doble 1 Vicente U. Activo Limitar visibilidad Marcar inactivo":
+          - cell "IndER Residencia· Constitución":
+            - text: IndER Residencia
+            - generic: · Constitución
+          - cell "Doble 1"
+          - cell "Vicente U."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "IndER Residencia· Constitución Individual 1 Olivia N. Activo Limitar visibilidad Marcar inactivo":
+          - cell "IndER Residencia· Constitución":
+            - text: IndER Residencia
+            - generic: · Constitución
+          - cell "Individual 1"
+          - cell "Olivia N."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Entis Residencia Universitaria· San Telmo Cuádruple 1 Simón G. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Entis Residencia Universitaria· San Telmo":
+            - text: Entis Residencia Universitaria
+            - generic: · San Telmo
+          - cell "Cuádruple 1"
+          - cell "Simón G."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Entis Residencia Universitaria· San Telmo Triple 1 Malena V. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Entis Residencia Universitaria· San Telmo":
+            - text: Entis Residencia Universitaria
+            - generic: · San Telmo
+          - cell "Triple 1"
+          - cell "Malena V."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Entis Residencia Universitaria· San Telmo Doble 2 Lorenzo O. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Entis Residencia Universitaria· San Telmo":
+            - text: Entis Residencia Universitaria
+            - generic: · San Telmo
+          - cell "Doble 2"
+          - cell "Lorenzo O."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Entis Residencia Universitaria· San Telmo Individual 2 Isabella G. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Entis Residencia Universitaria· San Telmo":
+            - text: Entis Residencia Universitaria
+            - generic: · San Telmo
+          - cell "Individual 2"
+          - cell "Isabella G."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Entis Residencia Universitaria· San Telmo Cuádruple 1 Gael R. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Entis Residencia Universitaria· San Telmo":
+            - text: Entis Residencia Universitaria
+            - generic: · San Telmo
+          - cell "Cuádruple 1"
+          - cell "Gael R."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Entis Residencia Universitaria· San Telmo Triple 1 Victoria Z. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Entis Residencia Universitaria· San Telmo":
+            - text: Entis Residencia Universitaria
+            - generic: · San Telmo
+          - cell "Triple 1"
+          - cell "Victoria Z."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Entis Residencia Universitaria· San Telmo Doble 1 Bautista S. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Entis Residencia Universitaria· San Telmo":
+            - text: Entis Residencia Universitaria
+            - generic: · San Telmo
+          - cell "Doble 1"
+          - cell "Bautista S."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Entis Residencia Universitaria· San Telmo Individual 3 Constanza L. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Entis Residencia Universitaria· San Telmo":
+            - text: Entis Residencia Universitaria
+            - generic: · San Telmo
+          - cell "Individual 3"
+          - cell "Constanza L."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Entis Residencia Universitaria· San Telmo Cuádruple 1 Elias E. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Entis Residencia Universitaria· San Telmo":
+            - text: Entis Residencia Universitaria
+            - generic: · San Telmo
+          - cell "Cuádruple 1"
+          - cell "Elias E."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Entis Residencia Universitaria· San Telmo Triple 1 Abril V. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Entis Residencia Universitaria· San Telmo":
+            - text: Entis Residencia Universitaria
+            - generic: · San Telmo
+          - cell "Triple 1"
+          - cell "Abril V."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Entis Residencia Universitaria· San Telmo Doble 1 Maximiliano O. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Entis Residencia Universitaria· San Telmo":
+            - text: Entis Residencia Universitaria
+            - generic: · San Telmo
+          - cell "Doble 1"
+          - cell "Maximiliano O."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+        - row "Entis Residencia Universitaria· San Telmo Individual 1 Catalina H. Activo Limitar visibilidad Marcar inactivo":
+          - cell "Entis Residencia Universitaria· San Telmo":
+            - text: Entis Residencia Universitaria
+            - generic: · San Telmo
+          - cell "Individual 1"
+          - cell "Catalina H."
+          - cell "Activo":
+            - generic: Activo
+          - cell "Limitar visibilidad Marcar inactivo":
+            - button "Limitar visibilidad"
+            - button "Marcar inactivo"
+- button "Admin Operativo": Admin Operativo
+- button "Open Next.js Dev Tools":
+- alert

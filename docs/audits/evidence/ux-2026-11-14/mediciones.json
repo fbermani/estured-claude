@@ -1,0 +1,42 @@
+{
+  "date": "2026-11-14",
+  "faqMobile": {
+    "width": 375,
+    "height": 812,
+    "documentHeight": 10299,
+    "visitorQuestionsY": 9091,
+    "unansweredHeadingY": 9371,
+    "measurement": "DOM; captura 83 y 84"
+  },
+  "community": {
+    "norteVisible": false,
+    "paginationLinks": [],
+    "rioVisible": false,
+    "rows": 300,
+    "searchFields": 0,
+    "url": "/admin/community"
+  },
+  "contrastSamples": [
+    {
+      "candidates": [],
+      "tested": 240,
+      "totalCandidates": 0,
+      "url": "/residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/faq",
+      "width": 375
+    },
+    {
+      "candidates": [],
+      "tested": 189,
+      "totalCandidates": 0,
+      "url": "/residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/profile",
+      "width": 375
+    },
+    {
+      "candidates": [],
+      "tested": 1203,
+      "totalCandidates": 0,
+      "url": "/admin/community",
+      "width": 375
+    }
+  ]
+}

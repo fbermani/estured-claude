@@ -1,0 +1,280 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- banner:
+  - navigation:
+    - link "EstuRed, inicio":
+      - /url: /
+      - generic: EstuRed
+    - link "Para estudiantesy familias":
+      - /url: /for-students
+      - generic: Para estudiantesy familias
+    - link "Para residencias":
+      - /url: /for-residences
+    - link "Guías":
+      - /url: /guias
+    - link "Ingresar":
+      - /url: /login
+    - link "Crear cuenta":
+      - /url: /register
+    - link "Buscar residencias":
+      - /url: /search
+      - generic: search
+      - text: Buscar residencias
+- main:
+  - heading "Términos y condiciones" [level=1]
+  - paragraph: "Para estudiantes y familias. Versión borrador v1.1 · Última actualización: octubre de 2026."
+  - paragraph:
+    - strong: Este es un borrador operativo
+    - text: ", escrito a partir de nuestras reglas internas de producto. Todavía está pendiente de revisión por un abogado antes de nuestro lanzamiento público masivo, y puede cambiar. Donde falta información legal, lo marcamos como «a completar con asesoría legal». Si tenés dudas puntuales, escribinos a"
+    - link "hola@estured.com":
+      - /url: mailto:hola@estured.com
+    - text: .
+  - paragraph:
+    - text: EstuRed es una plataforma intermediaria de búsqueda, solicitud, registro y comprobante de alojamiento estudiantil. Esta página explica las reglas que aceptás al usar la plataforma. Leela junto con la
+    - link "política de privacidad":
+      - /url: /privacy
+    - text: .
+  - heading "Términos de la preapertura" [level=2]
+  - paragraph: Mientras EstuRed esté en preapertura rige esta sección; lo demás aplica cuando abramos.
+  - paragraph: "EstuRed es una plataforma que conecta estudiantes y familias con residencias estudiantiles de Buenos Aires. Hoy está en preapertura: todavía no abrió y no se pueden mandar solicitudes ni reservar."
+  - list:
+    - listitem: "Para crear una cuenta tenés que tener 18 años o más. Si sos menor, te sumás solo con la invitación de un familiar mayor de edad, que se registra primero: sus cuentas quedan conectadas, tu perfil no aparece en la comunidad pública y tu búsqueda no se muestra a residencias."
+    - listitem: Sumarte no tiene costo y no reserva un lugar en ninguna residencia.
+    - listitem: No hay fecha de apertura confirmada. Te avisamos por mail cuando abramos.
+    - listitem: Tu lugar en la lista indica el orden en que te sumaste; no da prioridad para conseguir un lugar.
+    - listitem: Cuando abramos, cada solicitud a una residencia queda sujeta a su confirmación.
+    - listitem: "Las tarjetas marcadas «Ejemplo» son ilustrativas: no son personas reales."
+    - text: "Tu búsqueda para residencias: al aceptar estos Términos, tu búsqueda (tipo de habitación, mes de ingreso y universidad) se muestra sin tu nombre ni contacto a residencias verificadas. Si una se interesa, confirmás con un clic si le pasamos tu nombre y email. La residencia donde vivís hoy nunca la ve. La podés desactivar cuando quieras escribiendo a"
+    - link "hola@estured.com":
+      - /url: mailto:hola@estured.com
+    - text: .
+    - listitem: "Comunidad pública: solo si tildás la casilla. Tu tarjeta (nombre sin apellido, edad, país, carrera, hábitos e intereses) se ve en la web pública, para cualquiera. Nunca tu apellido, contacto ni dónde vivís. La quitás cuando quieras desde «Editar mi perfil» y desaparece."
+    - listitem: Podés cerrar tu cuenta cuando quieras escribiéndonos.
+  - heading "1. Quiénes quedan alcanzados y aceptación" [level=2]
+  - paragraph: Estos términos regulan el uso de EstuRed por parte de estudiantes; padres, madres o familiares vinculados; y usuarios registrados que exploran residencias, envían o aprueban solicitudes, pagan fees, cargan documentación o participan en procesos de reserva, ajuste de condiciones, renovación, lista de espera, comunidad visible o Soporte.
+  - paragraph: Al registrarte, crear una cuenta, vincularte como familiar, enviar o aprobar una solicitud, responder a una propuesta de ajuste de condiciones, pagar el fee EstuRed, cargar documentación, activar un perfil visible o usar cualquier funcionalidad de la plataforma, declarás haber leído y aceptado estos términos, la política de privacidad, las reglas de visibilidad, las condiciones de uso de datos y los avisos específicos que se muestren en cada paso crítico.
+  - heading "2. Qué es EstuRed" [level=2]
+  - paragraph: EstuRed es una plataforma intermediaria que facilita la búsqueda, comparación, solicitud, negociación estructurada de condiciones, reserva registrada, cobro y facturación del fee de servicio, emisión de comprobantes, soporte operativo, lista de espera, renovaciones y herramientas de confianza vinculadas a residencias estudiantiles.
+  - paragraph: EstuRed no es propietaria, operadora ni administradora directa de las residencias publicadas, salvo acuerdo específico por escrito. No presta directamente el alojamiento ofrecido por las residencias y no garantiza el comportamiento futuro de residencias, estudiantes, familiares, residentes, personal de residencia ni terceros.
+  - paragraph: EstuRed puede actuar como plataforma de búsqueda; canal de solicitud; registrador de operaciones; emisor de comprobantes de reserva o renovación confirmada; emisor del comprobante fiscal correspondiente a su propio fee de servicio; canal de Soporte; e intermediario operativo.
+  - paragraph: La prestación efectiva del alojamiento, las reglas internas, los pagos mensuales, las condiciones de permanencia, la convivencia, los servicios incluidos y las obligaciones propias de la residencia corresponden a cada residencia.
+  - heading "3. Definiciones" [level=2]
+  - term: "Estudiante:"
+  - definition: usuario que busca, solicita, reserva o reside en una residencia estudiantil dentro de EstuRed.
+  - term: "Familiar vinculado:"
+  - definition: padre, madre, tutor, responsable económico o familiar que se vincula a la cuenta de un estudiante con autorización del estudiante. Puede acompañar operativamente, cargar documentación, proponer solicitudes de reserva sujetas a aprobación del estudiante, pagar el fee EstuRed y acceder a comprobantes según permisos.
+  - term: "Residencia:"
+  - definition: alojamiento estudiantil publicado y verificado por EstuRed.
+  - term: "Residencia Verificada:"
+  - definition: residencia cuya identidad responsable, dirección y similitud básica con las fotos publicadas fueron revisadas por EstuRed mediante un proceso de verificación presencial. Este sello no implica garantía absoluta sobre la totalidad de servicios, convivencia futura, cumplimiento contractual o comportamiento de las partes.
+  - term: "Propuesta de solicitud del familiar:"
+  - definition: sugerencia que un familiar vinculado le hace al estudiante para enviar una solicitud a una residencia determinada. No es visible para la residencia ni produce efecto alguno hasta que el estudiante la apruebe.
+  - term: "Solicitud de reserva:"
+  - definition: manifestación de interés enviada por el estudiante, directamente o mediante la aprobación de una propuesta del familiar, para avanzar con una residencia. No confirma automáticamente la reserva.
+  - term: "Contacto establecido:"
+  - definition: estado en el cual una residencia decide avanzar con una solicitud y habilita el contacto estructurado con el estudiante (o con el familiar, cuando la solicitud la inició este último o el estudiante es menor de edad) para coordinar el pago requerido por la residencia.
+  - term: "Propuesta de ajuste de condiciones:"
+  - definition: comunicación formal que la residencia puede enviar, una única vez por cada solicitud, para modificar condiciones como tarifa, tipo de habitación, fecha de ingreso, duración, depósito, matrícula, política de ajustes o monto requerido para reservar.
+  - term: "Pago a la residencia:"
+  - definition: pago realizado directamente por el estudiante o el familiar a la residencia, en concepto de seña, matrícula, depósito, reserva u otro concepto configurado por la residencia.
+  - term: "Fee EstuRed:"
+  - definition: cargo de servicio abonado a EstuRed por el estudiante o el familiar. Se calcula como el 5% del total de la estadía inicial reservada, sobre las condiciones finalmente aceptadas por el estudiante, incluyendo matrícula o cargos obligatorios no reembolsables y excluyendo el depósito reembolsable. Puede abonarse en pesos argentinos o en dólares estadounidenses, según los medios de pago habilitados por EstuRed.
+  - term: "Reserva confirmada:"
+  - definition: estado alcanzado cuando la residencia informa que recibió el pago requerido y el fee EstuRed fue abonado correctamente.
+  - term: "Comprobante de Reserva Confirmada / de Renovación Confirmada:"
+  - definition: documento emitido por EstuRed una vez confirmada la reserva o la renovación dentro de la plataforma.
+  - term: "Comprobante fiscal del fee EstuRed:"
+  - definition: documento fiscal emitido por EstuRed a nombre de quien abona el fee, una vez confirmado su pago.
+  - term: "Lista de espera:"
+  - definition: manifestación de interés en una residencia sin disponibilidad actual. No equivale a una solicitud activa hasta que el estudiante decida activar una solicitud.
+  - term: "Comunidad visible:"
+  - definition: información de residentes, habitaciones, plazas y perfiles visibles según permisos y consentimiento de los usuarios.
+  - heading "4. Registro de cuenta" [level=2]
+  - paragraph: "Para usar las funciones completas de EstuRed hay que crear una cuenta. El registro de estudiante puede requerir: nombre, apellido, nacionalidad, fecha de nacimiento, lugar donde vas a estudiar, email, teléfono, contraseña, objetivo académico declarado, ciudad de origen, carrera o área de estudio, hábitos e intereses (si aplica), configuración de visibilidad, y documentación opcional o requerida por residencias."
+  - paragraph: Tu apellido completo, email, teléfono, fecha de nacimiento, universidad y documentos personales nunca se muestran públicamente.
+  - paragraph: Declarás que la información que cargás es verdadera, actualizada y propia. EstuRed puede pedirte correcciones o documentación adicional, o suspender funcionalidades si detecta datos falsos, inconsistentes, abusivos o riesgosos.
+  - heading "5. Estudiantes menores de edad" [level=2]
+  - paragraph: Si el estudiante es menor de edad, debe contar obligatoriamente con un familiar vinculado para finalizar el registro y avanzar en operaciones relevantes. El familiar vinculado debe aprobar, acompañar o intervenir en los pasos que EstuRed determine para menores.
+  - paragraph: EstuRed puede bloquear solicitudes, propuestas de solicitud, pagos, comunidad visible o documentación cuando el estudiante menor no tenga un vínculo familiar activo, y puede aplicar controles reforzados y exigir una aceptación adicional del familiar vinculado.
+  - paragraph: El estudiante, incluso siendo menor de edad, es quien aprueba o rechaza una propuesta de solicitud enviada por su familiar vinculado. El familiar no puede aprobarla en su representación bajo ninguna circunstancia.
+  - paragraph: Cuando el estudiante es menor de edad, el contacto que establezca la residencia se dirige siempre al familiar vinculado, independientemente de quién haya iniciado la solicitud. Por eso, el teléfono del familiar vinculado es un dato obligatorio para que un estudiante menor pueda enviar o aprobar solicitudes.
+  - heading "6. Familiar vinculado" [level=2]
+  - paragraph: El familiar vinculado puede acompañar el proceso del estudiante, pero no reemplaza su decisión, ni siquiera cuando el estudiante es menor, salvo lo indicado en la sección anterior.
+  - list:
+    - listitem: Un estudiante puede tener solo un familiar vinculado activo; un familiar puede estar vinculado a más de un estudiante.
+    - listitem: La vinculación requiere aprobación del estudiante, excepto cuando el estudiante es menor y el flujo exige la vinculación obligatoria. El estudiante mayor de edad puede revocar el vínculo.
+    - listitem: El familiar puede proponer una solicitud de reserva al estudiante, pero esa propuesta solo se convierte en una solicitud real, y solo entonces resulta visible para la residencia, si el estudiante la aprueba expresamente.
+    - listitem: Si el estudiante aprueba una propuesta iniciada por el familiar, el contacto posterior de la residencia se dirige al familiar, no al estudiante.
+    - listitem: El familiar puede pagar el fee EstuRed de una solicitud o renovación, cargar documentación, subir comprobantes y acceder a comprobantes según permisos.
+    - listitem: El familiar no puede modificar la identidad del estudiante, aceptar una propuesta de ajuste de condiciones en su nombre, ni actuar de forma incompatible con la voluntad del estudiante.
+  - heading "Quién figura en los comprobantes" [level=3]
+  - paragraph: Si el familiar realiza un pago, el comprobante fiscal del fee EstuRed se emite a nombre de quien paga. El comprobante de reserva o renovación identifica al estudiante como beneficiario de la operación.
+  - heading "7. Perfil del estudiante, comunidad visible, hábitos e intereses" [level=2]
+  - paragraph: "El estudiante puede configurar la visibilidad de su perfil. Según su configuración, pueden mostrarse: nombre e inicial, foto real (si la acepta) o avatar, edad, nacionalidad o bandera, carrera o área de estudio, ciudad de origen, hábitos e intereses. Nunca se muestran públicamente: apellido completo, email, teléfono, fecha de nacimiento, universidad, documentos personales ni datos sensibles que no sean necesarios para la finalidad de alojamiento."
+  - paragraph: Los usuarios invitados tienen acceso limitado. Los usuarios registrados pueden ver perfiles individuales de residentes según los permisos configurados por cada estudiante.
+  - paragraph: La residencia puede invitar a un residente a activar su cuenta, pero no puede obligarlo a mostrar un perfil completo. Si el residente no activa la cuenta o limita su visibilidad, puede aparecer como plaza ocupada o residente pendiente de activar cuenta, sin datos personales adicionales.
+  - paragraph: El contenido de una propuesta de solicitud realizada por un familiar nunca es visible para la residencia ni para terceros mientras esté pendiente de aprobación del estudiante.
+  - paragraph: "Los hábitos e intereses ayudan a entender la convivencia y el perfil general de la comunidad. Pueden incluir, según tu configuración: horarios aproximados, rutina de estudio o trabajo, preferencia de limpieza, tolerancia al ruido, uso de espacios comunes, preferencia sobre visitas, si fumás o no (cuando es relevante para las reglas de la residencia) e intereses generales. EstuRed no solicita ni publica datos sensibles innecesarios, como salud, religión, ideología política, orientación sexual o situación económica detallada."
+  - heading "8. Documentación del estudiante" [level=2]
+  - paragraph: El estudiante o el familiar vinculado puede cargar documentos dentro de EstuRed. La documentación puede servir para mejorar la calidad de una solicitud, facilitar la admisión, respaldar la identidad o cumplir requisitos de una residencia; su carga puede ser opcional o requerida por una residencia para avanzar.
+  - paragraph: La residencia solo puede acceder a documentos autorizados y vinculados a una solicitud, reserva, renovación, estadía o proceso operativo correspondiente. No tiene acceso global irrestricto a todos los documentos cargados por el estudiante.
+  - paragraph: EstuRed puede registrar auditoría sobre el acceso, carga, descarga, reemplazo o eliminación de documentos. Declarás que los documentos que cargás son verdaderos, propios y pertinentes.
+  - heading "9. Búsqueda de residencias y disponibilidad" [level=2]
+  - paragraph: Podés buscar residencias en EstuRed, inicialmente con foco en CABA. Las fichas pueden mostrar fotos, ubicación o zona, servicios, reglas, composición de habitaciones, precios en USD y ARS, matrícula, depósito, política de ajustes, disponibilidad, comunidad visible (si aplica), condiciones de reserva, el sello de Residencia Verificada y preguntas frecuentes con información cargada por la residencia.
+  - paragraph: La disponibilidad que se muestra es informada por la residencia y requiere confirmación al solicitar. Cuando una residencia usa Gestión Operativa y mantiene actualizado su inventario de habitaciones y plazas, la información puede ser más precisa.
+  - paragraph: Entendés que ver disponibilidad no implica una reserva automática ni una garantía absoluta de disponibilidad hasta completar el proceso de confirmación.
+  - heading "10. Tarifas, moneda y tipo de cambio" [level=2]
+  - paragraph: EstuRed puede mostrar tarifas en dólares estadounidenses y pesos argentinos. El fee EstuRed puede abonarse en pesos o en dólares, según el medio de pago que elijas entre los habilitados.
+  - paragraph: Las conversiones en pantalla usan la fuente de tipo de cambio configurada por EstuRed. El valor en pesos es referencial y el valor final se acuerda directamente con la residencia al momento del pago efectivo.
+  - paragraph: "Cada solicitud guarda un snapshot con: tarifa en USD y en ARS, tipo de cambio utilizado, fecha y hora del cálculo, duración inicial declarada, matrícula, depósito, política de ajustes, base de cálculo del fee y fee EstuRed estimado o final. Si la residencia envía una propuesta de ajuste de condiciones y la aceptás, se genera un nuevo snapshot con los valores acordados, que reemplaza al original a efectos del cálculo del fee y del comprobante."
+  - paragraph: Las tarifas de meses futuros pueden estar sujetas a modificaciones según la política de ajuste de cada residencia, que es responsable de informar si aplica ajuste mensual, trimestral, semestral, anual o ninguno. El fee EstuRed se calcula sobre las condiciones finalmente aceptadas y no considera ajustes futuros.
+  - heading "11. Propuesta de solicitud del familiar" [level=2]
+  - paragraph: El familiar vinculado puede proponerle al estudiante el envío de una solicitud de reserva a una residencia determinada. Esta propuesta no es una solicitud real ni es visible para la residencia. El estudiante debe revisarla y puede aprobarla o rechazarla, sin poder modificar sus términos; si quiere otros términos, debe rechazarla y pedirle una nueva al familiar, o iniciar su propia solicitud.
+  - paragraph: Si el estudiante no responde dentro de las 48 horas siguientes a la creación de la propuesta, esta vence automáticamente y el familiar es notificado.
+  - paragraph: Si el estudiante la aprueba, se convierte en una solicitud real, sujeta a las mismas reglas que cualquier otra, incluyendo el límite de solicitudes activas. Como la solicitud fue originada por el familiar, el contacto que eventualmente establezca la residencia se dirige a este último. Las propuestas pendientes de aprobación no computan dentro del límite de solicitudes activas del estudiante.
+  - heading "12. Solicitudes de reserva" [level=2]
+  - paragraph: Enviar una solicitud de reserva, directamente o mediante la aprobación de una propuesta del familiar, no confirma automáticamente la reserva. Al enviarla o aprobarla, el estudiante declara su interés en avanzar con una residencia bajo las condiciones visibles y registradas en el snapshot de la solicitud. Las solicitudes quedan sujetas a confirmación de la residencia.
+  - list:
+    - listitem: El estudiante puede tener hasta 2 solicitudes activas; si una avanza, la otra queda pausada; si una reserva se confirma, las demás solicitudes activas se cierran.
+    - listitem: Una plaza puede tener hasta 3 solicitudes visibles y 2 en cola; la residencia solo puede avanzar con una solicitud por plaza a la vez.
+    - listitem: La residencia puede rechazar solicitudes con motivo interno. Una solicitud puede vencer si no hay respuesta o avance dentro de los plazos establecidos.
+    - listitem: Cuando la residencia establece contacto, el estudiante o, en su caso, el familiar que originó la solicitud tiene 48 horas para realizar el pago requerido por la residencia.
+    - listitem: La solicitud vence a las 48 horas desde su envío si no existe avance suficiente. Al vencer, el estudiante puede pedir actualizarla con los mismos parámetros, para verificar si la residencia mantiene disponibilidad y cuál sería la tarifa aproximada vigente.
+  - heading "13. Propuesta de ajuste de condiciones y snapshot" [level=2]
+  - paragraph: Después de establecido el contacto, la residencia puede enviar, una única vez por cada solicitud, una propuesta formal de ajuste sobre las condiciones originalmente informadas (tarifa, tipo de habitación, fecha de ingreso, duración, depósito, matrícula, política de ajustes o monto requerido para reservar). La propuesta no puede modificar tus datos personales.
+  - paragraph: "Vas a ver una comparación entre las condiciones originales y las propuestas, y vas a poder: aceptarla, en cuyo caso las nuevas condiciones reemplazan a las originales, incluso para el cálculo del fee EstuRed; rechazarla y continuar con las condiciones originales; o rechazarla y cerrar la solicitud."
+  - paragraph: El plazo de 48 horas para completar el pago a la residencia se reinicia cuando se envía una propuesta de ajuste.
+  - paragraph: Las conversaciones o acuerdos informales entre el estudiante o el familiar y la residencia, incluidos los mantenidos por WhatsApp, no modifican las condiciones de la solicitud a menos que se formalicen mediante este mecanismo.
+  - paragraph: El sistema conserva el snapshot original de la solicitud y, cuando corresponde, un snapshot final con la propuesta de ajuste aceptada. Todos los cálculos posteriores (incluido el fee EstuRed y el contenido del comprobante) se basan en el snapshot final vigente.
+  - heading "14. Contacto establecido y pago a la residencia" [level=2]
+  - paragraph: Cuando la residencia decide avanzar con una solicitud, se habilita el contacto estructurado con el estudiante o, si la solicitud fue iniciada por un familiar o el estudiante es menor, con el familiar vinculado. Ese contacto consiste en un enlace que abre WhatsApp con un mensaje pre-formateado, que la residencia envía manualmente. EstuRed no participa ni tiene acceso al contenido de esa conversación.
+  - paragraph: El pago requerido para asegurar la plaza se hace directamente a la residencia, por los medios que ella indique (transferencia bancaria, billetera virtual, efectivo u otros). Puede corresponder a seña, matrícula, depósito, cargo de reserva u otro concepto informado por la residencia.
+  - paragraph: La residencia configura previamente sus parámetros de matrícula, depósito y monto requerido para reservar. Esos montos no pueden modificarse caso por caso dentro de una solicitud activa, salvo mediante la propuesta formal de ajuste.
+  - paragraph: Podés cargar el comprobante de tu pago a la residencia como referencia, pero ese comprobante no confirma por sí solo la reserva dentro de EstuRed. La residencia debe marcar Pago recibido únicamente cuando efectivamente haya recibido el pago.
+  - paragraph: El reembolso de montos abonados directamente a la residencia depende de las políticas de la residencia, los acuerdos entre las partes y la normativa aplicable. EstuRed no custodia esos fondos.
+  - heading "15. Fee EstuRed" [level=2]
+  - paragraph: El fee EstuRed lo abona el estudiante o el familiar. Equivale al 5% del total de la estadía inicial reservada, calculado sobre las condiciones finalmente aceptadas por el estudiante (las originales, o las de una propuesta de ajuste aceptada), sin considerar ajustes futuros.
+  - list:
+    - listitem: "Incluye: tarifa de alojamiento por la duración inicial reservada, matrícula y cargo de ingreso obligatorio no reembolsable."
+    - listitem: "Excluye: depósito reembolsable, servicios opcionales, consumos variables, multas, cargos no obligatorios y ajustes futuros de tarifa."
+    - listitem: Se cobra después de que la residencia informa que recibió el pago requerido para asegurar la reserva.
+    - listitem: La reserva no queda confirmada dentro de EstuRed y no se emite comprobante hasta que el fee haya sido abonado correctamente. Al confirmarse el pago, EstuRed emite el comprobante fiscal correspondiente a nombre de quien lo realizó.
+    - listitem: Si el pago del fee falla, EstuRed puede realizar hasta 3 intentos dentro de un plazo de 48 horas, además de notificarte.
+  - heading "16. Medios de pago" [level=2]
+  - paragraph: Para el fee EstuRed podés elegir entre pagar en pesos argentinos o en dólares estadounidenses, a través de los proveedores de pago habilitados por EstuRed. El medio elegido se usa exclusivamente para abonar el fee, no para los pagos mensuales ni para conceptos que se abonen directamente a la residencia.
+  - paragraph: Los medios de pago a la residencia los define cada residencia durante el contacto posterior a la solicitud. Si se usa pago manual del fee, tenés que cargar el comprobante y esperar la validación correspondiente.
+  - heading "17. Reembolso del fee y derecho de revocación" [level=2]
+  - paragraph: El fee EstuRed no es reembolsable si el estudiante cancela por decisión propia, no se presenta, decide no continuar o incumple los pasos necesarios para sostener la reserva, salvo el derecho de revocación descripto más abajo.
+  - paragraph: El fee puede ser evaluado para reintegro si la cancelación, el incumplimiento o la falta sustancial fuera atribuible a la residencia y luego de la revisión de EstuRed, sujeto a la normativa aplicable. EstuRed puede solicitar evidencia, contactar a las partes y evaluar el caso antes de resolver.
+  - paragraph: EstuRed no reembolsa ni es responsable por montos que el estudiante o el familiar hayan pagado directamente a la residencia, bajo ninguna circunstancia.
+  - heading "Derecho de revocación del fee EstuRed" [level=3]
+  - paragraph: Podés ejercer tu derecho de revocación sobre el fee EstuRed dentro de los 10 días corridos posteriores a su pago, mediante el enlace «Botón de arrepentimiento» disponible en el pie de página de la plataforma.
+  - paragraph: Al ejercerlo, tu reserva queda cancelada y el comprobante emitido se anula. Si la revocación se ejerce dentro de ese plazo, EstuRed reintegra el fee EstuRed completo después de una revisión de su equipo. El reintegro no es automático y EstuRed lo realiza por fuera de la plataforma, por ejemplo por transferencia. En la revisión, EstuRed puede cotejar con la residencia para evaluar situaciones de uso indebido.
+  - paragraph: "Este derecho aplica únicamente al fee EstuRed. No alcanza a los montos que hayas pagado directamente a la residencia: su devolución se acuerda con la residencia."
+  - heading "18. Reserva confirmada y comprobante" [level=2]
+  - paragraph: Una reserva se considera confirmada dentro de EstuRed únicamente cuando la residencia marcó Pago recibido, el fee EstuRed fue abonado correctamente, la reserva quedó registrada en el sistema y se habilitó la emisión del Comprobante de Reserva Confirmada. Antes de ese momento la operación puede estar en proceso, pero no es una reserva confirmada.
+  - paragraph: "Al confirmarse, obtenés: el registro de la operación dentro de EstuRed, el Comprobante de Reserva Confirmada, el comprobante fiscal del fee abonado, acceso a Soporte y la posibilidad de seguimiento y renovación."
+  - paragraph: "El comprobante puede incluir: ID de reserva, código verificable y QR de verificación pública, fecha de emisión, datos del estudiante, datos del familiar pagador (si aplica), datos de la residencia, fecha estimada de ingreso, duración inicial declarada, objetivo académico declarado, tipo de habitación o plaza, condiciones finales aceptadas, monto abonado a la residencia (informado por la residencia), fee EstuRed, política de ajustes, aclaraciones operativas, disclaimer de responsabilidad y contacto de Soporte."
+  - paragraph: El comprobante no reemplaza contratos, reglamentos, recibos, facturas u otros documentos que correspondan entre estudiante y residencia. Cualquier persona puede verificar su autenticidad con el código de verificación, sin iniciar sesión; la verificación pública muestra información limitada y nunca datos sensibles.
+  - paragraph: El objetivo académico declarado es obligatorio para emitir el comprobante. Puede usarse para contextualizar la estadía, respaldar trámites o acompañar documentación de la reserva, y declarás que es verdadero y pertinente.
+  - heading "19. Renovaciones" [level=2]
+  - paragraph: "EstuRed puede permitir renovaciones de estadía dentro de la plataforma. La residencia puede emitir una oferta formal de renovación con: período renovado, tarifa actual, moneda, política de ajustes, monto requerido para asegurar la renovación (si aplica), fecha límite de aceptación y condiciones específicas. El estudiante puede aceptarla o rechazarla."
+  - paragraph: El estudiante también puede solicitar una renovación, pero esa solicitud no es una oferta formal hasta que la residencia la emita.
+  - paragraph: "El fee de renovación se calcula con la misma lógica que el de la reserva inicial: 5% del total del período renovado, sobre la tarifa actual, sin considerar ajustes futuros y excluyendo depósitos reembolsables. Una vez confirmada la renovación y abonado el fee, se emite un Comprobante de Renovación Confirmada junto con el comprobante fiscal correspondiente."
+  - heading "20. Lista de espera" [level=2]
+  - paragraph: Cuando una residencia no tiene disponibilidad, podés sumarte a su lista de espera. Estar en lista de espera no cuenta como una de las 2 solicitudes activas, y no equivale a una solicitud activa hasta que decidas activar una. Si aparece disponibilidad, EstuRed puede notificarte.
+  - paragraph: La residencia puede contactarte o manifestar interés en estudiantes de la lista de espera, pero la solicitud solo se activa si decidís avanzar. Si confirmás una reserva en otra residencia dentro de EstuRed, se te remueve automáticamente de otras listas de espera.
+  - paragraph: A los 90 días, EstuRed puede notificarte para confirmar si querés seguir en la lista, pero no se te elimina automáticamente por el solo paso del tiempo. La residencia puede eliminar manualmente estudiantes de su lista, dejando registro de la acción.
+  - heading "21. No-show y cancelaciones" [level=2]
+  - paragraph: "Si el estudiante no se presenta en la fecha y hora acordadas de ingreso y la residencia no logra comunicarse por canales razonables dentro de las 24 horas posteriores, la residencia puede marcar el caso como No-show. En ese caso: la residencia puede liberar la plaza; el fee EstuRed no es reembolsable, salvo normativa aplicable o decisión excepcional de EstuRed; la residencia puede retener o devolver importes según sus condiciones publicadas y los acuerdos aplicables; y EstuRed registra el evento internamente."
+  - paragraph: Podés cancelar una solicitud antes de confirmar la reserva. Una vez confirmada, las cancelaciones quedan sujetas a las condiciones de la residencia, la política de fee EstuRed, la normativa aplicable, la evidencia disponible y la revisión de EstuRed cuando corresponda.
+  - paragraph: Si la cancelación es atribuible a la residencia, EstuRed puede registrar el incidente, colaborar en la búsqueda de alternativas, evaluar el reintegro del fee y aplicar medidas internas a la residencia. Si es decisión del estudiante, el fee no es reembolsable, salvo normativa aplicable o decisión excepcional.
+  - heading "22. Reclamos y Soporte" [level=2]
+  - paragraph: Estudiantes, familiares y residencias pueden usar los canales de contacto para reportar problemas, dudas, diferencias o situaciones relevantes. Antes de iniciar la gestión de un caso, EstuRed puede mostrar un recordatorio de términos, alcance y límites de intervención, y puede decidir si un caso amerita intervención activa.
+  - paragraph: La apertura de un reclamo no suspende automáticamente una solicitud, reserva, renovación o pago, salvo decisión manual de EstuRed.
+  - paragraph: Durante la gestión de un caso, EstuRed puede solicitar evidencia, contactar a las partes, pedir información adicional, proponer soluciones, cerrar sin acción, registrar un acuerdo, aplicar medidas administrativas, evaluar el reembolso del fee y suspender usuarios o residencias. La intervención de EstuRed no implica garantía de resultado.
+  - paragraph: Podés cargar evidencia como fotos, videos, capturas (incluyendo capturas de conversaciones de WhatsApp, ya que EstuRed no tiene acceso directo a ellas), audios u otros elementos pertinentes.
+  - heading "23. Conducta del usuario y antidiscriminación" [level=2]
+  - paragraph: Te comprometés a brindar información verdadera; actuar de buena fe; respetar a residencias, estudiantes, familiares, residentes y al equipo de EstuRed; no usar la plataforma para fraude, acoso, discriminación o abuso; no cargar documentación falsa; no suplantar identidad; no manipular solicitudes, propuestas, negociaciones, comprobantes, pagos o estados; no usar datos de otros usuarios fuera de la finalidad de alojamiento y convivencia; y no intentar vulnerar la seguridad, los permisos o la privacidad de la plataforma.
+  - paragraph: EstuRed puede suspender, bloquear o limitar cuentas ante incumplimientos, abuso, riesgo, fraude, documentación falsa, maltrato, discriminación o uso indebido.
+  - paragraph: EstuRed no admite conductas discriminatorias por motivos raciales, étnicos, religiosos, nacionales, de género, orientación sexual, discapacidad, condición social u otros criterios prohibidos por la normativa aplicable. Las residencias pueden declarar condiciones objetivas y públicas de admisión o convivencia cuando formen parte real del alojamiento ofrecido (por ejemplo, residencia femenina, masculina o mixta, habitaciones separadas por género, reglas de convivencia o requisitos operativos no discriminatorios). Podés reportar conductas discriminatorias por los canales de contacto de EstuRed; ante un comportamiento sistemático inadecuado, EstuRed puede suspender o expulsar de la red a la residencia o al usuario.
+  - heading "24. Notificaciones y WhatsApp" [level=2]
+  - paragraph: EstuRed envía notificaciones por email y dentro de la plataforma. Tenés que elegir al menos un canal de notificación, siendo el email el respaldo obligatorio. Sos responsable de mantener actualizados tus datos de contacto.
+  - paragraph: "Entre las notificaciones posibles están: propuesta de solicitud del familiar (recibida, aprobada, rechazada o vencida), solicitud enviada o recibida por la residencia, contacto establecido, propuesta de ajuste de condiciones, inicio del plazo de 48 horas, solicitud por vencer, pago a la residencia informado, fee pendiente o pagado, comprobante fiscal emitido, reserva confirmada, comprobante emitido, lista de espera, renovación y casos de Soporte."
+  - paragraph: WhatsApp no es un canal de notificación de EstuRed y no existe integración con la API de WhatsApp Business. El único uso de WhatsApp es el enlace pre-formateado que la residencia acciona manualmente al establecer contacto. Su uso no elimina la necesidad de registrar los estados críticos dentro de EstuRed (contacto establecido, propuesta de ajuste, pago recibido, rechazo, cancelación, reserva confirmada, renovación e incidentes relevantes).
+  - heading "25. Disponibilidad, responsabilidad de la residencia y sello Residencia Verificada" [level=2]
+  - paragraph: La disponibilidad es informada o gestionada por cada residencia. En Modo Perfil Verificado, la disponibilidad requiere confirmación al solicitar; en Gestión Operativa puede tener mayor precisión si la residencia mantiene actualizado su inventario.
+  - paragraph: Si una residencia informa disponibilidad incorrecta, cancela sin causa suficiente o no respeta las condiciones publicadas o acordadas, EstuRed puede registrar el incidente, intervenir en su resolución, reducir su visibilidad, suspenderla o tomar medidas internas. Puede ayudarte a buscar alternativas ante una cancelación imprevista atribuible a la residencia, pero no garantiza disponibilidad de reemplazo ni asume la prestación directa del alojamiento.
+  - paragraph: El sello Residencia Verificada indica que EstuRed revisó la identidad responsable, la dirección y la similitud básica entre las fotos publicadas y los espacios reales mediante verificación presencial. No implica garantía absoluta sobre todos los servicios, certificación legal integral, garantía de convivencia futura, garantía de conducta de residentes o personal, garantía de inexistencia de conflictos ni sustitución de contratos o acuerdos particulares. Revisá las condiciones de cada residencia antes de avanzar.
+  - heading "26. Datos personales y auditoría" [level=2]
+  - paragraph: "EstuRed trata datos personales para operar la plataforma: búsqueda, solicitudes, propuestas del familiar, negociación de condiciones, reservas, comprobantes, pagos y facturación del fee, comunidad visible, Soporte, seguridad, auditoría y mejora del servicio. Los datos deben ser adecuados, pertinentes y no excesivos para esa finalidad, y EstuRed implementa medidas razonables de seguridad, confidencialidad y control de acceso. El detalle está en la política de privacidad."
+  - paragraph: EstuRed puede registrar auditoría sobre acciones críticas (creación y edición de cuenta, cambios de visibilidad, cargas documentales, propuestas y solicitudes, propuestas de ajuste, pagos, facturación del fee, comprobantes, contacto establecido, cancelaciones, reclamos, acciones de familiares vinculados y accesos a información sensible) para seguridad, Soporte, resolución de incidentes, prevención de abuso, cumplimiento operativo y mejora de la plataforma.
+  - heading "27. Baja, suspensión y limitación de cuenta" [level=2]
+  - paragraph: Podés solicitar la baja o eliminación de tu cuenta según los mecanismos disponibles y la normativa aplicable. La baja puede estar limitada temporalmente si existen operaciones activas, reservas, comprobantes, pagos, facturas, reclamos, obligaciones de auditoría o requisitos legales de conservación.
+  - paragraph: EstuRed puede suspender, limitar o bloquear cuentas si detecta información o documentación falsa, fraude, abuso, maltrato, discriminación, uso indebido de datos, intentos de vulnerar la seguridad, incumplimiento de estos términos o riesgo para otros usuarios o para la plataforma.
+  - heading "28. Aceptación digital" [level=2]
+  - paragraph: La aceptación de estos términos puede realizarse mediante casilla de verificación, botón de aceptación, firma digital simple, aceptación dentro de la plataforma o cualquier mecanismo operativo definido por EstuRed.
+  - paragraph: "Aceptás que ciertas acciones críticas puedan requerir aceptaciones adicionales, por ejemplo: enviar una solicitud, crear o aprobar una propuesta de solicitud del familiar, responder a una propuesta de ajuste de condiciones, compartir documentos, hacer visible tu perfil, pagar el fee EstuRed, confirmar una renovación, iniciar un caso de Soporte, vincularte como familiar o avanzar siendo menor de edad."
+  - heading "29. Residencias" [level=2]
+  - paragraph: "Las condiciones específicas para residencias (alta, verificación, publicación y relación con EstuRed) se rigen por un acuerdo propio, distinto de este documento. Texto y vinculación con este documento: a completar con asesoría legal."
+  - heading "30. Datos legales, ley aplicable y jurisdicción" [level=2]
+  - paragraph: "Razón social y datos legales de EstuRed, ley aplicable y jurisdicción: a completar con asesoría legal."
+  - paragraph: "Todavía quedan pendientes de revisión legal, entre otros: la estructura contractual con estudiantes y familias, el tratamiento de datos personales, la visibilidad de la comunidad, la defensa del consumidor y la contratación a distancia, la condición impositiva de EstuRed y la validez del comprobante fiscal, la habilitación de los proveedores de pago, el alcance del sello Residencia Verificada, la responsabilidad de EstuRed como intermediario, la validez de la aceptación digital y la baja de cuenta (a completar con asesoría legal)."
+  - paragraph:
+    - text: Volver a
+    - link "EstuRed":
+      - /url: /
+    - text: .
+- contentinfo:
+  - generic: EstuRed
+  - generic: EstuRed
+  - paragraph: La convivencia también se elige. Residencias estudiantiles verificadas en CABA, con solicitudes registradas y comprobantes verificables.
+  - list:
+    - generic: check
+    - text: Residencias verificadas presencialmente
+    - generic: check
+    - text: Solicitudes registradas en la plataforma
+    - generic: check
+    - text: Comprobante de Reserva Confirmada
+  - navigation "Explorar":
+    - paragraph: Explorar
+    - list:
+      - link "Buscar residencias":
+        - /url: /search
+      - link "Para estudiantes y familias":
+        - /url: /for-students
+      - link "Para residencias":
+        - /url: /for-residences
+      - link "Guías":
+        - /url: /guias
+      - link "Crear cuenta":
+        - /url: /register
+  - navigation "Ayuda":
+    - paragraph: Ayuda
+    - list:
+      - link "Soporte":
+        - /url: /students/support
+        - generic: support_agent
+        - text: Soporte
+      - link "Preguntas frecuentes":
+        - /url: /for-students#preguntas-frecuentes
+      - link "Cómo funciona":
+        - /url: /#el-proceso
+      - link "Qué pagás y a quién":
+        - /url: /for-students#que-pagas
+      - text: "Contacto:"
+      - link "hola@estured.com":
+        - /url: mailto:hola@estured.com
+      - listitem: ¿Tenés una reserva y algo no coincide? Abrí un caso desde tu panel.
+  - paragraph: EstuRed actúa como plataforma intermediaria de búsqueda, solicitud, registro y comprobante. No presta directamente el alojamiento. Los precios en ARS son referenciales al dólar blue del día.
+  - list:
+    - link "Botón de arrepentimiento":
+      - /url: /students/revocation
+    - link "Verificar un comprobante":
+      - /url: /verify
+    - link "Términos y condiciones":
+      - /url: /terms
+    - link "Política de privacidad":
+      - /url: /privacy
+  - paragraph: Hecho con ♥ en Buenos Aires
+- button "Simular usuario": Simular usuario

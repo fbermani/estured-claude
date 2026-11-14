@@ -1,0 +1,359 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- banner:
+  - navigation:
+    - link "EstuRed, inicio":
+      - /url: /
+      - generic: EstuRed
+    - link "Para estudiantesy familias":
+      - /url: /for-students
+      - generic: Para estudiantesy familias
+    - link "Para residencias":
+      - /url: /for-residences
+    - link "Guías":
+      - /url: /guias
+    - link "Ingresar":
+      - /url: /login
+    - link "Crear cuenta":
+      - /url: /register
+    - link "Buscar residencias":
+      - /url: /search
+      - generic: search
+      - text: Buscar residencias
+- main:
+  - paragraph: Para residencias estudiantiles
+  - heading "Menos mensajes, más residencia" [level=1]
+  - paragraph: "EstuRed no reemplaza tu operación: la ordena. Menos consultas repetidas, solicitudes completas, lista de espera y renovaciones con un proceso claro. Perfil Verificado gratuito."
+  - link "Solicitar sumar mi residencia":
+    - /url: /register/residence
+  - link "Ver cómo funciona":
+    - /url: "#como-funciona"
+  - 'img "Vista de ejemplo del panel de una residencia: solicitudes nuevas, renovaciones, residentes, lista de espera y preguntas; y la tarjeta Quién solicita con los hábitos de convivencia. Datos de ejemplo."':
+    - generic: Panel de la residencia
+    - generic: Datos de ejemplo
+    - navigation:
+      - generic: dashboard
+      - text: Panel
+      - generic: inbox
+      - text: Solicitudes
+      - generic: "1"
+      - generic: bed
+      - text: Disponibilidad
+      - generic: sync_alt
+      - text: Renovaciones
+      - generic: groups
+      - text: Residentes
+      - generic: hourglass_top
+      - text: Lista de espera
+      - generic: forum
+      - text: Preguntas
+      - generic: "2"
+      - generic: gavel
+      - text: Reglamento
+    - paragraph: Residencia Norte
+    - paragraph:
+      - generic: location_on
+      - text: Palermo, CABA
+    - generic: Editar perfil
+    - paragraph: Para hacer hoy
+    - list:
+      - generic: inbox
+      - text: 1 solicitud nueva
+      - generic: Revisar solicitudes
+      - generic: sync_alt
+      - text: "Renovaciones: 2 esperando tu respuesta"
+      - generic: Ver renovaciones
+      - generic: swap_horiz
+      - text: 1 residente busca cambiar
+      - generic: Ver residentes
+    - generic: sync_alt
+    - generic: 2 por revisar
+    - paragraph: Renovaciones
+    - generic: 2 esperando tu respuesta
+    - generic: groups
+    - paragraph: Residentes
+    - generic: 28 cargados, 4 en lista de espera
+    - generic: M
+    - text: Quién solicita
+    - text: María José R.
+    - text: Hábitos de convivencia
+    - generic: Ordenado
+    - generic: Estudio en silencio
+  - paragraph: Beneficios
+  - heading "Herramientas para el día a día de tu residencia" [level=2]
+  - paragraph: Lo que hoy resolvés entre chats, planillas y memoria, en un solo lugar.
+  - group "Beneficios para residencias":
+    - article:
+      - generic: quiz
+      - heading "Menos consultas repetidas" [level=3]
+      - paragraph: «Respondo precio y reglas veinte veces por semana.»
+      - paragraph: Tu ficha responde lo de siempre. Te escriben quienes ya leyeron todo.
+    - article:
+      - generic: event_repeat
+      - heading "Renovaciones y lista de espera juntas" [level=3]
+      - paragraph: «Me entero tarde de quién renueva y quién se va.»
+      - paragraph: Sabés quién sigue y a quién avisarle cuando se libera una plaza, en un mismo lugar.
+    - article:
+      - generic: fact_check
+      - heading "Reservas y pagos con registro" [level=3]
+      - paragraph: «La seña quedó en un chat y nadie se acuerda qué se acordó.»
+      - paragraph: Lo acordado y lo cobrado quedan por escrito, para vos y para el estudiante. Sin discusiones de memoria.
+    - article:
+      - generic: diversity_3
+      - heading "Afinidad de convivencia antes de aceptar" [level=3]
+      - paragraph: «Una mala convivencia y se te vacía media habitación.»
+      - paragraph: Ves intereses y hábitos de cada estudiante antes de decir que sí. Elegís pensando en quién ya vive en esa habitación.
+  - region "Enterate de una salida con tiempo, no el día que se van":
+    - paragraph: Previsibilidad
+    - heading "Enterate de una salida con tiempo, no el día que se van" [level=2]
+    - paragraph: Con “Quiero cambiar”, te enterás cuando un residente empieza a buscar otra residencia y para cuándo. Así ordenás tu lista de espera y tus renovaciones con margen.
+    - list:
+      - generic: event_upcoming
+      - paragraph: Anticipás la salida
+      - paragraph: Sabés quién busca otro lugar y desde qué mes.
+      - generic: request_quote
+      - paragraph: Comunicás los costos
+      - paragraph: Depósito, preaviso y condiciones por escrito, con plantillas.
+      - generic: calendar_month
+      - paragraph: Planificás la plaza
+      - paragraph: Ves cuántas plazas se liberarían y cuándo.
+      - generic: hearing
+      - paragraph: Escuchás el motivo
+      - paragraph: Si es algo que podés mejorar, lo sabés a tiempo.
+    - img "Ejemplo del panel de la residencia, datos ficticios":
+      - heading "2 residentes buscan cambiar" [level=3]
+      - generic: 1 sin responder
+      - paragraph: Respondé con los costos, las condiciones y los detalles de la salida.
+      - generic: LF
+      - paragraph: Lucía F.
+      - paragraph: "Salida estimada: diciembre"
+      - generic: Sin responder
+      - generic: TR
+      - paragraph: Tomás R.
+      - paragraph: "Salida estimada: marzo"
+      - generic: Respondida
+      - generic: notifications_active
+      - generic: Lucía avisó que busca cambiar. Respondele con los costos y las condiciones de salida.
+      - text: Cómo te da tiempo
+      - list:
+        - generic: Hoy
+        - text: Lucía avisa
+        - generic: Esta semana
+        - text: Respondés
+        - generic: Octubre
+        - text: Avisás a tu lista
+        - generic: Diciembre
+        - text: Se libera
+    - paragraph: "Tu respuesta es informativa: no reemplaza el contrato ni el preaviso que acordaste con el residente. Las otras residencias no ven a tus residentes. EstuRed es una plataforma intermediaria y no fija ni cobra costos de salida."
+  - region "Así ven tu residencia los estudiantes":
+    - paragraph: Tu comunidad, tu mejor carta
+    - heading "Así ven tu residencia los estudiantes" [level=2]
+    - paragraph: "Tus habitaciones y la comunidad que ya vive ahí responden la pregunta que más se repite: «¿con quién voy a vivir?»."
+    - list:
+      - generic: quiz
+      - generic: Menos preguntas antes de solicitar
+      - text: Llegan solicitudes de quienes ya vieron cómo es la casa.
+      - generic: diversity_3
+      - generic: Afinidad desde el primer contacto
+      - text: Quien solicita ya sabe qué estudian y qué les gusta a tus residentes.
+      - generic: tune
+      - generic: Vos y tus residentes controlan qué se ve
+      - text: Cada residente elige qué mostrar. Quienes son menores no aparecen.
+    - link "Solicitar sumar mi residencia":
+      - /url: /register/residence
+    - figure "Captura real de la app con datos de ejemplo. Cada residente elige qué mostrar; quienes son menores no aparecen.":
+      - generic: Comunidad de la residencia
+      - generic: Datos de ejemplo
+      - 'img "Sección Comunidad de una residencia en EstuRed: residentes, ocupación y habitaciones individuales y dobles con quién vive en cada cama y las plazas libres."'
+      - generic: lock
+      - text: Captura real de la app con datos de ejemplo. Cada residente elige qué mostrar; quienes son menores no aparecen.
+  - paragraph: Planes
+  - heading "Dos planes, uno para empezar" [level=2]
+  - paragraph: Perfil Verificado es gratuito. Plan Premium, bonificado el primer año para Residencias fundadoras.
+  - generic: Gratuito
+  - heading "Perfil Verificado" [level=3]
+  - paragraph: Tu residencia en el catálogo, con el sello de verificación en persona y gestión de solicitudes.
+  - list:
+    - button "Perfil público verificado con fotos, servicios y reglas":
+      - generic: check_circle
+      - generic: Perfil público verificado con fotos, servicios y reglas
+      - paragraph: Es lo primero que ve un estudiante al buscar — reduce las consultas de gente que no tenía la información básica.
+    - button "Disponibilidad informada por tipo de habitación":
+      - generic: check_circle
+      - generic: Disponibilidad informada por tipo de habitación
+      - paragraph: Mostrás cupo por tipo de habitación sin necesidad de gestionar cada cama individualmente.
+    - button "Solicitudes de reserva registradas":
+      - generic: check_circle
+      - generic: Solicitudes de reserva registradas
+      - paragraph: Cada solicitud queda con fecha y estado, sin depender de tu memoria o de un chat.
+    - button "Lista de espera":
+      - generic: check_circle
+      - generic: Lista de espera
+      - paragraph: Cuando un tipo de habitación está completo, los interesados se anotan en tu lista. Si se libera un lugar, les avisás desde tu panel.
+    - button "Preguntas frecuentes":
+      - generic: check_circle
+      - generic: Preguntas frecuentes
+      - paragraph: Cargá hasta 5 preguntas y respuestas en tu ficha para que los interesados resuelvan dudas básicas antes de escribirte.
+    - button "Reglamento":
+      - generic: check_circle
+      - generic: Reglamento
+      - paragraph: Publicá el reglamento de tu residencia para que cada estudiante lo conozca antes de solicitar.
+    - button "Soporte":
+      - generic: check_circle
+      - generic: Soporte
+      - paragraph: Abrí un caso con EstuRed si algo no salió como esperabas con un estudiante o familiar.
+  - generic: Plan Premium
+  - generic: Bonificado el 1er año
+  - heading "Plan Premium" [level=3]
+  - paragraph: "Todo lo del Perfil Verificado, más la Gestión Operativa: habitaciones, plazas, residentes, comunidad y renovaciones."
+  - list:
+    - button "Habitaciones y plazas":
+      - generic: check_circle
+      - generic: Habitaciones y plazas
+      - paragraph: Cargás tus habitaciones y camas, y ves la ocupación de cada una.
+    - button "Residentes":
+      - generic: check_circle
+      - generic: Residentes
+      - paragraph: Registrás altas, salidas y notas, y respondés los avisos de «Quiero cambiar».
+    - button "Comunidad visible":
+      - generic: check_circle
+      - generic: Comunidad visible
+      - paragraph: Los estudiantes conocen a quienes viven en tu residencia, según lo que cada residente elige mostrar.
+    - button "Elección de plaza":
+      - generic: check_circle
+      - generic: Elección de plaza
+      - paragraph: El estudiante puede indicar una plaza libre al solicitar; la residencia confirma.
+    - button "Renovaciones":
+      - generic: check_circle
+      - generic: Renovaciones
+      - paragraph: Gestioná renovaciones de tus residentes actuales sin tener que perseguir confirmaciones.
+  - paragraph: Plan Premium bonificado el primer año para Residencias fundadoras.
+  - region "A quién le paga cada cosa el estudiante":
+    - paragraph: Costos
+    - heading "Qué cobra EstuRed" [level=2]
+    - paragraph: Lo que paga el estudiante por tu residencia te llega a vos, completo. El fee de EstuRed lo paga el estudiante, aparte.
+    - heading "A quién le paga cada cosa el estudiante" [level=3]
+    - 'group "Diagrama: el estudiante hace dos pagos separados"':
+      - paragraph: "Pago 1: a tu residencia"
+      - generic: school
+      - text: Estudiante o familiar
+      - generic: arrow_downward
+      - paragraph:
+        - generic: Alquiler, matrícula y depósito
+        - text: Paga directo a vos, en tu cuenta y en tus términos.
+      - generic: home
+      - text: Tu residencia
+      - paragraph: "Pago 2: aparte, a EstuRed"
+      - generic: school
+      - text: Estudiante o familiar
+      - generic: arrow_downward
+      - paragraph:
+        - generic: Fee de EstuRed (5%)
+        - text: También lo paga el estudiante, cuando la reserva se confirma. No sale de lo que te pagan a vos.
+      - generic: hub
+      - text: EstuRed
+      - paragraph: "El fee se calcula sobre lo que paga el estudiante:"
+      - list:
+        - generic: check_circle
+        - text: Alquiler, con la promoción aplicada
+        - generic: check_circle
+        - text: Matrícula, ya con su descuento
+        - generic: check_circle
+        - text: Meses vacíos confirmados
+        - generic: block
+        - generic: No se descuenta de lo que cobrás.
+    - generic: 0%
+    - paragraph:
+      - generic: Descuento sobre tu tarifa
+      - text: No retenemos ni descontamos nada de lo que te pagan.
+    - generic: USD 0
+    - paragraph:
+      - generic: Publicar y gestionar, hoy
+      - text: Perfil Verificado (gratuito) y Plan Premium (bonificado el primer año para Residencias fundadoras).
+    - generic: account_balance
+    - paragraph:
+      - generic: Cobro directo
+      - text: "EstuRed no toca el dinero de tus reservas: vos confirmás que lo recibiste."
+  - paragraph: Preguntas frecuentes
+  - heading "Dudas de las residencias" [level=2]
+  - generic "¿Qué implica sumar mi residencia a EstuRed?":
+    - text: ¿Qué implica sumar mi residencia a EstuRed?
+    - generic: +
+  - generic "¿Qué es gratis y qué está bonificado?":
+    - text: ¿Qué es gratis y qué está bonificado?
+    - generic: +
+  - generic "¿Quién define precios, condiciones y acepta reservas?":
+    - text: ¿Quién define precios, condiciones y acepta reservas?
+    - generic: +
+  - generic "¿Quién cobra matrícula, seña o depósito?":
+    - text: ¿Quién cobra matrícula, seña o depósito?
+    - generic: +
+  - generic "¿Cómo es la verificación?":
+    - text: ¿Cómo es la verificación?
+    - generic: +
+  - generic "¿Cómo empiezo y gestiono solicitudes y disponibilidad?":
+    - text: ¿Cómo empiezo y gestiono solicitudes y disponibilidad?
+    - generic: +
+  - paragraph:
+    - text: Para tu equipo, leé
+    - link "Cómo acompañar a los estudiantes de hoy y a sus familias desde una residencia":
+      - /url: /guias/acompanar-estudiantes-familias-desde-residencia
+  - heading "Sumate como Residencia fundadora" [level=2]
+  - paragraph: "Estamos sumando las primeras residencias de CABA: las Residencias fundadoras. Dejanos tus datos y el equipo de EstuRed te contacta para conocer tu residencia y coordinar la visita."
+  - link "Solicitar sumar mi residencia":
+    - /url: /register/residence
+- contentinfo:
+  - generic: EstuRed
+  - generic: EstuRed
+  - paragraph: La convivencia también se elige. Residencias estudiantiles verificadas en CABA, con solicitudes registradas y comprobantes verificables.
+  - list:
+    - generic: check
+    - text: Residencias verificadas presencialmente
+    - generic: check
+    - text: Solicitudes registradas en la plataforma
+    - generic: check
+    - text: Comprobante de Reserva Confirmada
+  - navigation "Explorar":
+    - paragraph: Explorar
+    - list:
+      - link "Buscar residencias":
+        - /url: /search
+      - link "Para estudiantes y familias":
+        - /url: /for-students
+      - link "Para residencias":
+        - /url: /for-residences
+      - link "Guías":
+        - /url: /guias
+      - link "Crear cuenta":
+        - /url: /register
+  - navigation "Ayuda":
+    - paragraph: Ayuda
+    - list:
+      - link "Soporte":
+        - /url: /students/support
+        - generic: support_agent
+        - text: Soporte
+      - link "Preguntas frecuentes":
+        - /url: /for-students#preguntas-frecuentes
+      - link "Cómo funciona":
+        - /url: /#el-proceso
+      - link "Qué pagás y a quién":
+        - /url: /for-students#que-pagas
+      - text: "Contacto:"
+      - link "hola@estured.com":
+        - /url: mailto:hola@estured.com
+      - listitem: ¿Tenés una reserva y algo no coincide? Abrí un caso desde tu panel.
+  - paragraph: EstuRed actúa como plataforma intermediaria de búsqueda, solicitud, registro y comprobante. No presta directamente el alojamiento. Los precios en ARS son referenciales al dólar blue del día.
+  - list:
+    - link "Botón de arrepentimiento":
+      - /url: /students/revocation
+    - link "Verificar un comprobante":
+      - /url: /verify
+    - link "Términos y condiciones":
+      - /url: /terms
+    - link "Política de privacidad":
+      - /url: /privacy
+  - paragraph: Hecho con ♥ en Buenos Aires
+- button "Simular usuario": Simular usuario
+- button "Open Next.js Dev Tools":
+- alert

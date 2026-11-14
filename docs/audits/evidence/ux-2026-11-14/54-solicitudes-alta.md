@@ -1,0 +1,139 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- complementary:
+  - paragraph: EstuRed Admin
+  - paragraph: Panel de administración
+  - button "Notificaciones":
+    - generic: notifications
+  - navigation "Administración":
+    - link "Dashboard":
+      - /url: /admin/dashboard
+      - generic: Dashboard
+    - paragraph: Residencias
+    - link "Residencias":
+      - /url: /admin/residences
+      - generic: Residencias
+    - link "Verificaciones":
+      - /url: /admin/verifications
+      - generic: Verificaciones
+    - link "Ediciones de perfil":
+      - /url: /admin/profile-edits
+      - generic: Ediciones de perfil
+    - link "Solicitudes de alta":
+      - /url: /admin/solicitudes-alta
+      - generic: Solicitudes de alta
+    - link "Residencias pedidas":
+      - /url: /admin/residencias-pedidas
+      - generic: Residencias pedidas
+    - link "Preguntas de fichas":
+      - /url: /admin/faq
+      - generic: Preguntas de fichas
+    - link "Ítems «Otro» de fichas":
+      - /url: /admin/custom-amenities
+      - generic: Ítems «Otro» de fichas
+    - paragraph: Operación
+    - link "Solicitudes":
+      - /url: /admin/applications
+      - generic: Solicitudes
+    - link "Propuestas familiar":
+      - /url: /admin/family-proposals
+      - generic: Propuestas familiar
+    - link "Pagos":
+      - /url: /admin/payments
+      - generic: Pagos
+    - link "Actividad":
+      - /url: /admin/activity
+      - generic: Actividad
+    - link "Seguimiento":
+      - /url: /admin/followups
+      - generic: Seguimiento
+    - paragraph: Plataforma
+    - link "Comunidad":
+      - /url: /admin/community
+      - generic: Comunidad
+    - link "Visibilidad y penalizaciones":
+      - /url: /admin/visibility
+      - generic: Visibilidad y penalizaciones
+    - link "Administración de tarifas":
+      - /url: /admin/pricing
+      - generic: Administración de tarifas
+    - link "Documentos":
+      - /url: /admin/documents
+      - generic: Documentos
+    - link "Tipo de cambio":
+      - /url: /admin/exchange-rate
+      - generic: Tipo de cambio
+    - link "Usuarios":
+      - /url: /admin/users
+      - generic: Usuarios
+    - paragraph: Soporte
+    - link "Soporte":
+      - /url: /admin/support-cases
+      - generic: Soporte
+  - generic: A
+  - paragraph: admin.operaciones@estured.test
+  - paragraph: Admin
+  - button "Cerrar sesión"
+  - button "Colapsar menú":
+- main:
+  - heading "Solicitudes de alta" [level=1]
+  - paragraph: Residencias que pidieron sumarse. Ordenadas por antigüedad. Contactalas, coordiná la visita y, después, generá el enlace para que creen su cuenta.
+  - navigation "Filtrar por estado":
+    - link "Activas":
+      - /url: /admin/solicitudes-alta
+    - link "Recibida":
+      - /url: /admin/solicitudes-alta?estado=received
+    - link "En contacto":
+      - /url: /admin/solicitudes-alta?estado=in_contact
+    - link "Visita coordinada":
+      - /url: /admin/solicitudes-alta?estado=visit_scheduled
+    - link "Cuenta entregada":
+      - /url: /admin/solicitudes-alta?estado=account_delivered
+    - link "Descartada":
+      - /url: /admin/solicitudes-alta?estado=discarded
+    - link "Todas":
+      - /url: /admin/solicitudes-alta?estado=all
+  - list:
+    - generic: Residencia Seed Palermo
+    - generic: Recibida
+    - generic: Av. Santa Fe 3200, CABA · recibida el 08/11/2026
+    - paragraph: Responsable Seed 1 · seed-preap-residencia-1@estured.test · +54 9 11 5555 0101
+    - paragraph: Datos cargados por la propia residencia (no verificados).
+    - button "Pasar a «En contacto»"
+    - button "Descartar"
+    - text: "El email no está verificado: confirmalo con la residencia antes de generar la invitación."
+    - button "Confirmé el email con la residencia"
+    - generic "Notas, visita y ficha borrador"
+    - generic: Residencia Seed Caballito
+    - generic: Recibida
+    - generic: Av. Rivadavia 5100, CABA · recibida el 08/11/2026
+    - paragraph: Responsable Seed 2 · seed-preap-residencia-2@estured.test · +54 9 11 5555 0102
+    - paragraph: Datos cargados por la propia residencia (no verificados).
+    - button "Pasar a «En contacto»"
+    - button "Descartar"
+    - text: "El email no está verificado: confirmalo con la residencia antes de generar la invitación."
+    - button "Confirmé el email con la residencia"
+    - generic "Notas, visita y ficha borrador"
+    - generic: Residencia de prueba 756d8897
+    - generic: Recibida
+    - generic: Calle de Prueba 123, CABA · recibida el 09/11/2026
+    - paragraph: Responsable de Prueba · test-resi-756d8897@estured.test · +54 9 11 5555 0000
+    - paragraph: Datos cargados por la propia residencia (no verificados).
+    - button "Pasar a «En contacto»"
+    - button "Descartar"
+    - text: "El email no está verificado: confirmalo con la residencia antes de generar la invitación."
+    - button "Confirmé el email con la residencia"
+    - generic "Notas, visita y ficha borrador"
+    - generic: Residencia de prueba 8fdcbb96
+    - generic: Recibida
+    - generic: Calle de Prueba 123, CABA · recibida el 09/11/2026
+    - paragraph: Responsable de Prueba · test-resi-8fdcbb96@estured.test · +54 9 11 5555 0000
+    - paragraph: Datos cargados por la propia residencia (no verificados).
+    - button "Pasar a «En contacto»"
+    - button "Descartar"
+    - text: "El email no está verificado: confirmalo con la residencia antes de generar la invitación."
+    - button "Confirmé el email con la residencia"
+    - generic "Notas, visita y ficha borrador"
+- button "Admin Operativo": Admin Operativo
+- button "Open Next.js Dev Tools":
+- alert
