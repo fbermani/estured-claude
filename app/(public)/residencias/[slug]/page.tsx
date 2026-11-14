@@ -867,6 +867,16 @@ export default async function RealResidenceDetailPage({
                     }}
                     arsPerUsd={rate.arsPerUsd}
                     profileCompletenessPercent={profileCompletenessPercent}
+                    ageCheck={
+                      studentViewer?.birthDate
+                        ? {
+                            birthDate: studentViewer.birthDate,
+                            minResidentAge: residence.min_resident_age as number | null | undefined,
+                            maxResidentAge: residence.max_resident_age as number | null | undefined,
+                            acceptsMinors: residence.accepts_minors as boolean | null | undefined,
+                          }
+                        : null
+                    }
                     minStartDate={windowNotice?.minRequestStartDate ?? null}
                     stayChange={
                       windowNotice?.stayChangeOpen

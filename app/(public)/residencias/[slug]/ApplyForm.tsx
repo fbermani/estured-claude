@@ -1,5 +1,6 @@
 "use client";
 
+import { ageRangeNotice } from "@/lib/residences/age";
 import { useActionState, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input, Textarea } from "@/components/ui/Input";
@@ -68,6 +69,7 @@ export function ApplyForm({
   profileCompletenessPercent,
   minStartDate,
   stayChange,
+  ageCheck,
   regulation,
   moveInNotice,
 }: {
@@ -87,6 +89,8 @@ export function ApplyForm({
   minStartDate?: string | null;
   /** Aviso "Quiero cambiar" abierto (DR3): la solicitud puede superponerse con su estadía. `currentEndDate` es el fin de contrato exclusivo ("YYYY-MM-DD"). */
   stayChange?: { currentEndDate: string; currentEndLabel: string } | null;
+  /** DR50: datos para avisar (sin bloquear) si la edad a la fecha de ingreso queda fuera del rango de la residencia. */
+  ageCheck?: { birthDate: string; minResidentAge: number | null | undefined; maxResidentAge: number | null | undefined; acceptsMinors: boolean | null | undefined } | null;
 }) {
   const action = createApplicationRequest.bind(null, residenceId);
   const [state, formAction, isPending] = useActionState(action, initialState);
@@ -138,6 +142,9 @@ export function ApplyForm({
   }
 
   const selected = availableTypes.find((rt) => rt.id === roomTypeId) ?? null;
+  const ageNotice = ageCheck
+    ? ageRangeNotice({ minResidentAge: ageCheck.minResidentAge, maxResidentAge: ageCheck.maxResidentAge, acceptsMinors: ageCheck.acceptsMinors }, ageCheck.birthDate, startDate)
+    : null;
   const overlapsStay = !!stayChange && !!startDate && startDate < stayChange.currentEndDate;
   const monthlyUsd = selected ? Number(selected.monthly_price_usd) : 0;
   const availableIds = new Set(availableTypes.map((rt) => rt.id));
@@ -228,7 +235,7 @@ export function ApplyForm({
                   setErrors((er) => ({ ...er, date: undefined }));
                 }}
                 aria-invalid={errors.date ? true : undefined}
-                aria-describedby={[errors.date ? "apply-date-error" : "", overlapsStay ? "apply-overlap-notice" : ""].filter(Boolean).join(" ") || undefined}
+                aria-describedby={[errors.date ? "apply-date-error" : "", ageNotice ? "apply-age-notice" : "", overlapsStay ? "apply-overlap-notice" : ""].filter(Boolean).join(" ") || undefined}
                 className={invalid}
               />
             </div>
@@ -262,6 +269,12 @@ export function ApplyForm({
           {conditions.minimumStayMonths ? (
             <p className="-mt-2 text-xs text-muted">Esta residencia pide una estadía mínima de {conditions.minimumStayMonths} meses.</p>
           ) : null}
+          {ageNotice && (
+            <p id="apply-age-notice" role="status" className="flex items-start gap-2 rounded-field bg-warning-bg px-3.5 py-2.5 text-xs leading-relaxed text-warning-fg">
+              <Icon name="info" className="mt-0.5 shrink-0 text-base" />
+              <span>{ageNotice}</span>
+            </p>
+          )}
           {overlapsStay && stayChange && (
             <p
               id="apply-overlap-notice"

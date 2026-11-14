@@ -1759,3 +1759,7 @@ Decisiones del dueño para la preapertura pública. Detalle operativo, component
 
 **Decisión del dueño** (auditoría UX H6/CON-15). Las residencias que EstuRed opera o co-gestiona (hoy solo «Residencia Sin Fronteras») **no se ven ocultas ni marcadas**, pero quedan **al final del orden «Recomendado»** (`/search` y la landing). En los órdenes por precio y en los filtros se tratan como cualquier otra. Se identifican por slug en `EXCLUDED_FROM_RECOMMENDED_SLUGS` (`lib/residences/searchFilters.ts`). No cambia DR45 (divulgación solo oral) ni agrega etiqueta visible; si más adelante se quiere una etiqueta, es otra decisión. Supuesto reversible: vaciar la lista.
 
+### DR50: aviso de rango de edad al solicitar (2026-11-14, sin migración)
+
+**Decisión del dueño** (auditoría UX, hallazgo B «Valentina 17 vs «De 18 a 26 años»», CON-29). Si la edad del estudiante **a la fecha de ingreso elegida** queda fuera del rango que publica la residencia (DR14), el formulario de solicitud muestra un **aviso no bloqueante** debajo de la fecha: «A esa fecha tendrías N años y esta residencia publica «de X a Y años». Podés enviar la solicitud igual, pero tené en cuenta ese rango.». No bloquea el envío, no oculta residencias ni agrega reglas de admisión. La fecha de nacimiento solo viaja al navegador del propio estudiante (`ageRangeNotice` en `lib/residences/age.ts`). Sin fecha de nacimiento no se avisa (DR14).
+

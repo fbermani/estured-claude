@@ -50,7 +50,7 @@ Prioridad: P1 confianza/tarea inaccesible · P2 fricción o información contrad
 | CON-26 | H17(b) | Nombres confusos del menú admin. | P3 | Decisión de nomenclatura. | requiere decisión |
 | CON-27 | H8(b–d), H9 | Siete tarjetas de condiciones con «No cobra»; skeleton/CLS/placeholder de fotos. | P3 | Condiciones: decisión de diseño. Skeleton/CLS: rendimiento dev. | requiere decisión / descartado (dev) |
 | CON-28 | H19 | «Abrir WhatsApp» sin aclarar que abre la app y que el mensaje es borrador. | P3 | Copy breve. | implementado (falta verificar en staging) |
-| CON-29 | B decisión | Valentina (17) puede abrir la solicitud de una ficha «De 18 a 26 años». | — | Decidir cómo anticipar la condición de edad; no es fallo de autorización. | requiere decisión |
+| CON-29 | B decisión | Valentina (17) puede abrir la solicitud de una ficha «De 18 a 26 años». | — | Decidido (DR50): aviso no bloqueante en el formulario según la edad a la fecha de ingreso. | implementado (falta verificar en staging); lógica con test |
 | CON-30 | B cond. 3–4, A | Demo: «Lucia/Lucía», tutor con mail de otra estudiante, Martín↔Valentina vs Lucía, staff en selector. | P3 | Normalizar datos demo de forma aditiva. | implementado en dev: tildes normalizadas (script idempotente); mail del tutor de Valentina: requiere decisión |
 | CON-31 | B lint | `npm run lint` falla en `docs/audits/evidence/2026-11-14/repro-actions.cjs` (evidencia de seguridad). | P3 | Ignorarlo en la config de ESLint (no es código de la app). Verificar si sigue fallando. | resuelto: ESLint 0 errores (`docs/audits/evidence/**` ignorado) |
 
@@ -69,4 +69,5 @@ Prioridad: P1 confianza/tarea inaccesible · P2 fricción o información contrad
 - **CON-15 decidido (DR49):** al final del orden «Recomendado».
 - **CON-13 decidido:** el fondo del popup y el SEO se dejan como están.
 - **CON-21 decidido:** se deja la demo de Lucía como está.
-- Pendientes de decisión del dueño (de a una): 16 (rótulo), 18 (plazo), 21, 24, 26, 27, 29, mail del tutor (CON-30), umbral de revocación (CON-09).
+- **CON-29 decidido (DR50):** aviso no bloqueante de rango de edad en el formulario.
+- Pendientes de decisión del dueño (de a una): 16 (rótulo), 18 (plazo), 24, 26, 27, mail del tutor (CON-30), umbral de revocación (CON-09).
