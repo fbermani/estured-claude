@@ -10,11 +10,39 @@ Estado del código (2026-11-13): rama `hardening/pre-produccion-2026-11`, migrac
 
 ## A. Decisiones previas (contestar antes de empezar)
 
-- [ ] **A1. Lanzamiento en modo preapertura.** Con `PREAPERTURA=on` en producción el sitio abierto queda cerrado (`/` y `/for-students` muestran el popup de preapertura; `/search`, `/register`, `/waitlist` y `/students/*` redirigen). Login, `/admin`, `/for-residences`, `/guias`, `/fundadoras` y `/register/residence` siguen. **Recomendado: salir así** y abrir el sitio completo después (ver sección G). Si se quiere abrir todo ya, dejar la variable vacía, pero entonces hay que cerrar antes los requisitos de la sección G (verificación de email, etc.).
+- [x] **A1. Lanzamiento en modo preapertura — decidido 2026-11-13: `PREAPERTURA=on` en producción.** Con `PREAPERTURA=on` en producción el sitio abierto queda cerrado (`/` y `/for-students` muestran el popup de preapertura; `/search`, `/register`, `/waitlist` y `/students/*` redirigen). Login, `/admin`, `/for-residences`, `/guias`, `/fundadoras` y `/register/residence` siguen. **Recomendado: salir así** y abrir el sitio completo después (ver sección G). Si se quiere abrir todo ya, dejar la variable vacía, pero entonces hay que cerrar antes los requisitos de la sección G (verificación de email, etc.).
 - [ ] **A2. Planes pagos.** Vercel Hobby es solo uso no comercial: al cobrar fees hace falta **Pro**. Supabase **Pro** da backups diarios, "Leaked password protection" y más límites. Recomendado: Supabase Pro desde el día uno; Vercel Pro antes de cobrar.
 - [ ] **A3. Titularidad de las cuentas (organizaciones, no cuentas nuevas).** Mejor ahora, que prod no existe y mover es gratis: *Organization* de GitHub (transferir el repo conserva historial y la conexión con Vercel), *Organization* de Supabase (crear `estured-prod` directamente ahí) y *Team* de Vercel. Dominio: Hostinger con 2FA, auto-renovación y un segundo mail de recuperación (quien controla el dominio controla todos los resets de contraseña). Si el repo se transfiere, cambia el remoto `origin`.
 - [ ] **A4. Casilla `hola@estured.com`.** El código la usa como contacto (`lib/constants/contact.ts`) y como `replyTo` de los mails. Tiene que existir y alguien tiene que leerla. En Hostinger: hPanel → Dominio → Correo electrónico (reenvío o buzón; revisar qué incluye tu plan). Si el buzón de Hostinger usa MX propios, **no** toques los MX al configurar Resend (Resend usa registros en un subdominio, ver C3).
 - [ ] **A5. Fecha de cierre de fundadoras** (`FOUNDERS_CLOSE_AT`, ISO 8601). Opcional: sin la variable no hay cuenta regresiva.
+
+---
+
+## A0. Orden de trabajo (decidido 2026-11-13)
+
+1. **Liberar el lugar en Supabase** dando de baja el `estured-prod` viejo (paso A0.1).
+2. **Staging primero** (A0.2): ensayo general del deploy en Vercel contra `estured-dev`, con `staging.estured.com`. Local sigue igual (`npm run dev`, selector «Simular usuario», `.env.local` → `estured-dev`).
+3. Recién después, producción (secciones B a G).
+
+### A0.1 Baja del Supabase prod viejo [Vos]
+Es **irreversible**: se pierde la base, Auth y Storage de ese proyecto. Estado conocido: sin usuarios reales, solo residuo demo/tests. Antes de borrar:
+- [ ] Entrar a Supabase con la **cuenta de producción** (no la de `estured-dev`) y confirmar en la URL que el ref es `mrwooskdcnkbitkhcvbf`.
+- [ ] Confirmar que no hay datos reales: SQL Editor → `select count(*) from auth.users;` y `select count(*) from residences;` (esperado: usuarios demo/test y residencias de prueba). Si hay algo que valga, `Database → Backups` o `pg_dump` antes.
+- [ ] Anotar lo que se quiera conservar de Settings (nada que el repo no tenga: las migraciones y los scripts reconstruyen todo).
+- [ ] Project Settings → General → *Delete project* (o *Pause* si querés conservar un rollback; ojo: confirmar si un proyecto pausado sigue ocupando el lugar del plan Free).
+- [ ] Vercel: desde este momento `estured.vercel.app` (apuntando a esa base) deja de funcionar. Está bien: se reemplaza con el deploy nuevo. No hay usuarios reales.
+- [ ] **[Yo]** una vez borrado, dejo el ref viejo en `scripts/production-refs.json` (no molesta: sigue bloqueando seeds/tests contra él) y agrego el ref nuevo en C2.
+
+### A0.2 Staging en Vercel contra `estured-dev` (ensayo)
+Objetivo: probar el deploy real (build, variables, dominio, Turnstile, headers) sin tocar producción, y tener un lugar fuera de localhost para probar cada cambio.
+- **Un solo proyecto de Vercel.** Variables en entorno **Preview** → `estured-dev`; en **Production** → Supabase nuevo. Ningún preview toca producción.
+- **Rama `staging`** + dominio `staging.estured.com` asignado a esa rama (Vercel → Settings → Domains → *Edit* → *Git Branch* = `staging`). En Hostinger, un `CNAME staging → cname.vercel-dns.com` (valor exacto: el que indique Vercel).
+- **Protección:** Vercel → Settings → Deployment Protection → *Vercel Authentication* activada para Preview. `estured-dev` tiene usuarios demo con contraseña conocida: el staging **no puede ser público**. `DEMO_LOGIN_ENABLED` / `DEMO_USERS_PASSWORD` **no** van a Vercel (ni en Preview).
+- **Turnstile propio:** Vercel compila con `NODE_ENV=production`, así que la guarda S3 rechaza las claves de prueba (`1x…`). Crear un segundo widget en Cloudflare (`EstuRed staging`, dominio `staging.estured.com`) y usar esas claves en Preview.
+- **Variables de Preview:** `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` / `SUPABASE_SERVICE_ROLE_KEY` de `estured-dev`; `NEXT_PUBLIC_APP_URL` y `NEXT_PUBLIC_SITE_URL` = `https://staging.estured.com`; `CRON_SECRET` propio (el cron de dev no se aplica: 0013 queda comentada, no hace falta); claves de Turnstile de staging; `RESEND_API_KEY` solo si se quieren mails (sin remitente verificado, solo llegan al dueño de la cuenta de Resend); `PREAPERTURA` **vacía** (se prueba el sitio completo).
+- **Supabase dev → Auth → URL Configuration:** agregar `https://staging.estured.com/reset-password` a las Redirect URLs (el Site URL puede quedar).
+- **Verificación:** deploy *Ready*; `https://staging.estured.com/login` pide login de Vercel y luego carga; el widget de Turnstile aparece y un login real funciona; `curl -sI` muestra los headers (CSP Report-Only con `report-uri`, HSTS); sin widget de sesión simulada.
+- Costo: ninguno (Hobby alcanza para ensayar; ver A2 para producción).
 
 ---
 
@@ -151,7 +179,7 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 
 | Paso | Rollback |
 |---|---|
-| Proyecto Supabase nuevo | borrarlo desde Dashboard (no tiene datos aún); el viejo `estured-prod` queda intacto |
+| Proyecto Supabase nuevo | borrarlo desde Dashboard (no tiene datos aún); el `estured-prod` viejo se da de baja en A0.1 (sin rollback a la base anterior: no había datos reales) |
 | Bootstrap (D1) | no es re-ejecutable: vaciar el proyecto (borrar y recrearlo es lo más limpio) |
 | Buckets | borrar los buckets vacíos desde Dashboard |
 | Variables de Vercel | restaurar el valor anterior y redeploy (las `NEXT_PUBLIC_*` requieren rebuild) |
