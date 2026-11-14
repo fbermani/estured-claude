@@ -1,0 +1,476 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- button "Abrir menú":
+  - generic: menu
+- generic: EstuRed
+- button "Notificaciones, 18 sin leer":
+  - generic: notifications
+  - generic: "18"
+- complementary:
+  - link "Tus residencias":
+    - /url: /residence/dashboard
+    - generic: EstuRed
+  - button "Notificaciones, 18 sin leer":
+    - generic: notifications
+    - generic: "18"
+  - button "Cerrar menú":
+    - generic: close
+  - navigation:
+    - link "Panel":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e
+      - generic: dashboard
+      - generic: Panel
+    - link "Solicitudes":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/applications
+      - generic: inbox
+      - generic: Solicitudes
+    - link "Habitaciones":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/rooms
+      - generic: meeting_room
+      - generic: Habitaciones
+    - link "Disponibilidad":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/availability
+      - generic: bed
+      - generic: Disponibilidad
+    - link "Renovaciones":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/renewals
+      - generic: sync_alt
+      - generic: Renovaciones
+    - link "Residentes":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/residents
+      - generic: groups
+      - generic: Residentes
+    - link "Lista de espera":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/waitlist
+      - generic: hourglass_top
+      - generic: Lista de espera
+    - link "Preguntas, 1 preguntas sin responder":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/faq
+      - generic: forum
+      - generic: Preguntas
+      - generic: "1"
+    - link "Reglamento":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/regulation
+      - generic: gavel
+      - generic: Reglamento
+    - link "Soporte":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/support
+      - generic: support_agent
+      - generic: Soporte
+    - link "Plan":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/plan
+      - generic: workspace_premium
+      - generic: Plan
+    - link "Equipo":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/team
+      - generic: supervisor_account
+      - generic: Equipo
+  - link "Todas mis residencias":
+    - /url: /residence/dashboard
+    - generic: apartment
+    - generic: Todas mis residencias
+  - paragraph: owner.residencia.norte@example.com
+  - link "Editar perfil":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/profile
+    - generic: edit
+    - generic: Editar perfil
+  - button "Salir":
+    - generic: logout
+    - generic: Salir
+- navigation "Navegación principal":
+  - link "Panel":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e
+    - generic: dashboard
+    - generic: Panel
+  - link "Solicitudes":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/applications
+    - generic: inbox
+    - generic: Solicitudes
+  - link "Camas, Disponibilidad":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/availability
+    - generic: bed
+    - generic: Camas
+  - link "Residentes":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/residents
+    - generic: groups
+    - generic: Residentes
+  - button "Más, 1 avisos pendientes":
+    - generic: more_horiz
+    - generic: Más
+- main:
+  - generic: meeting_room
+  - text: Habitaciones
+  - heading "Habitaciones" [level=1]
+  - paragraph: Tus habitaciones, camas y ocupación, en un pantallazo.
+  - paragraph: Habitaciones y plazas
+  - paragraph:
+    - text: "19"
+    - generic: habs. · 36 plazas
+  - paragraph: 35 operativas · 1 fuera de servicio
+  - paragraph: Ocupación
+  - paragraph: 83%
+  - paragraph: 29 de 35 plazas operativas
+  - paragraph: Vacantes actuales
+  - paragraph: 6 vacantes
+  - paragraph:
+    - generic: Individual 1
+    - generic: Doble 3
+    - generic: Triple 1
+    - generic: Cuádruple 1
+  - paragraph: Movimientos próximos
+  - generic "Ingresos":
+    - generic: login
+    - text: "0"
+  - generic "Salidas (30 días)":
+    - generic: logout
+    - text: "11"
+  - generic "Renovaciones":
+    - generic: autorenew
+    - text: "1"
+  - paragraph: Ingresos · salidas (30 días) · renovaciones
+  - paragraph:
+    - generic: info
+    - text: 5 residentes sin cama asignada — abrí una habitación con lugar y usá “Asignar”.
+  - generic: search
+  - searchbox "Buscar habitación o residente…"
+  - checkbox "Solo vacantes"
+  - text: Solo vacantes
+  - button "Cambiar género en lote":
+    - generic: checklist
+    - text: Cambiar género en lote
+  - button "Todos"
+  - button "Individual (9)"
+  - button "Doble (5)"
+  - button "Triple (3)"
+  - button "Cuádruple (2)"
+  - button "Plegar todos":
+    - generic: unfold_less
+    - text: Plegar todos
+  - button "Individual 9 habitaciones 1 vacante" [expanded]:
+    - generic: expand_more
+    - heading "Individual" [level=2]
+    - generic: 9 habitaciones
+    - generic: 1 vacante
+  - paragraph:
+    - text: Tarifa base USD 300
+    - text: ≈ ARS 471.000
+    - button "Más información sobre el valor en pesos":
+      - generic: i
+  - link "Editar tarifa":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/profile#perfil-habitaciones
+    - generic: edit
+    - text: Editar tarifa
+  - heading "Habitación 1" [level=3]:
+    - generic: Habitación 1
+  - generic: 1/1
+  - generic: R
+  - paragraph: Residente sin activar
+  - paragraph: Pendiente de activación
+  - button "Gestionar"
+  - heading "Habitación 2" [level=3]:
+    - generic: Habitación 2
+  - generic: 1/1
+  - generic: E
+  - generic: 🇨🇱
+  - paragraph:
+    - text: Emiliano A.
+    - generic: · Chile
+  - paragraph: Hasta ene 2027
+  - button "Gestionar"
+  - heading "Habitación 3" [level=3]:
+    - generic: Habitación 3
+  - generic: 1/1
+  - generic: G
+  - generic: 🇧🇴
+  - paragraph:
+    - text: Gonzalo C.
+    - generic: · Bolivia
+  - paragraph: Hasta feb 2027
+  - button "Gestionar"
+  - heading "Habitación 4" [level=3]:
+    - generic: Habitación 4
+  - generic: 1/1
+  - generic: I
+  - generic: 🇩🇪
+  - paragraph:
+    - text: Ivo C.
+    - generic: · Alemania
+  - paragraph: Hasta abr 2027
+  - button "Gestionar"
+  - heading "Habitación 5" [level=3]:
+    - generic: Habitación 5
+  - generic: 1/1
+  - generic: K
+  - generic: 🇺🇸
+  - paragraph:
+    - text: Kevin G.
+    - generic: · Estados Unidos
+  - paragraph: Hasta jun 2027
+  - button "Gestionar"
+  - heading "Habitación 6" [level=3]:
+    - generic: Habitación 6
+  - generic: 1/1
+  - generic: M
+  - generic: 🇨🇱
+  - paragraph:
+    - text: Marcos L.
+    - generic: · Chile
+  - paragraph: Hasta ago 2027
+  - button "Gestionar"
+  - heading "Habitación 7" [level=3]:
+    - generic: Habitación 7
+  - generic: 1/1
+  - generic: O
+  - generic: 🇧🇴
+  - paragraph:
+    - text: Octavio I.
+    - generic: · Bolivia
+  - paragraph: Hasta ago 2027
+  - button "Gestionar"
+  - heading "Habitación 8" [level=3]:
+    - generic: Habitación 8
+  - generic: 1/1
+  - generic: R
+  - generic: 🇩🇪
+  - paragraph:
+    - text: Rodrigo M.
+    - generic: · Alemania
+  - paragraph: Hasta nov 2026
+  - button "Gestionar"
+  - heading "Habitación 9" [level=3]:
+    - generic: Habitación 9
+  - generic: 0/1
+  - generic: add_circle
+  - text: Cama disponible
+  - button "Gestionar"
+  - button "Doble 5 habitaciones 3 vacantes" [expanded]:
+    - generic: expand_more
+    - heading "Doble" [level=2]
+    - generic: 5 habitaciones
+    - generic: 3 vacantes
+  - paragraph:
+    - text: Tarifa base USD 220
+    - text: ≈ ARS 345.500
+    - button "Más información sobre el valor en pesos":
+      - generic: i
+  - link "Editar tarifa":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/profile#perfil-habitaciones
+    - generic: edit
+    - text: Editar tarifa
+  - heading "Habitación 1" [level=3]:
+    - generic: Habitación 1
+  - generic: MIX
+  - generic: 1/2
+  - generic: D
+  - generic: 🇵🇾
+  - paragraph:
+    - text: Delfina H.
+    - generic: · Paraguay
+  - paragraph: Hasta nov 2026
+  - generic: add_circle
+  - text: Cama disponible
+  - button "Gestionar"
+  - heading "Habitación 2" [level=3]:
+    - generic: Habitación 2
+  - generic: MIX
+  - generic: 2/2
+  - generic: G
+  - generic: 🇬🇧
+  - paragraph:
+    - text: Guadalupe F.
+    - generic: · Reino Unido
+  - paragraph: Hasta nov 2026
+  - generic: J
+  - generic: 🇪🇨
+  - paragraph:
+    - text: Josefina J.
+    - generic: · Ecuador
+  - paragraph: Hasta dic 2026
+  - button "Gestionar"
+  - heading "Habitación 3" [level=3]:
+    - generic: Habitación 3
+  - generic: MIX
+  - generic: 2/2
+  - generic: L
+  - generic: 🇨🇴
+  - paragraph:
+    - text: Luciana N.
+    - generic: · Colombia
+  - paragraph: Hasta ene 2027
+  - generic: "N"
+  - generic: 🇵🇾
+  - paragraph:
+    - text: Nadia S.
+    - generic: · Paraguay
+  - paragraph: Hasta feb 2027
+  - button "Gestionar"
+  - heading "Habitación 4" [level=3]:
+    - generic: Habitación 4
+  - generic: MIX
+  - generic: 2/2
+  - generic: R
+  - generic: 🇬🇧
+  - paragraph:
+    - text: Renata P.
+    - generic: · Reino Unido
+  - paragraph: Hasta dic 2026
+  - generic: T
+  - generic: 🇪🇨
+  - paragraph:
+    - text: Tamara T.
+    - generic: · Ecuador
+  - paragraph: Hasta ene 2027
+  - button "Gestionar"
+  - heading "Habitación 5" [level=3]:
+    - generic: Habitación 5
+  - generic: MIX
+  - generic: 0/2
+  - generic: add_circle
+  - text: 2 camas disponibles
+  - button "Gestionar"
+  - button "Triple 3 habitaciones 1 vacante" [expanded]:
+    - generic: expand_more
+    - heading "Triple" [level=2]
+    - generic: 3 habitaciones
+    - generic: 1 vacante
+  - paragraph:
+    - text: Tarifa base USD 190
+    - text: ≈ ARS 298.500
+    - button "Más información sobre el valor en pesos":
+      - generic: i
+  - link "Editar tarifa":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/profile#perfil-habitaciones
+    - generic: edit
+    - text: Editar tarifa
+  - heading "Habitación 1" [level=3]:
+    - generic: Habitación 1
+  - generic: MIX
+  - generic: 3/3
+  - generic: F
+  - generic: 🇫🇷
+  - paragraph:
+    - text: Facundo O.
+    - generic: · Francia
+  - paragraph: Hasta abr 2027
+  - generic: H
+  - generic: 🇦🇷
+  - paragraph:
+    - text: Hernán N.
+    - generic: · Argentina
+  - paragraph: Hasta jun 2027
+  - generic: J
+  - generic: 🇺🇾
+  - paragraph:
+    - text: Joaquín Q.
+    - generic: · Uruguay
+  - paragraph: Hasta ago 2027
+  - button "Gestionar"
+  - heading "Habitación 2" [level=3]:
+    - generic: Habitación 2
+  - generic: MIX
+  - generic: 3/3
+  - generic: L
+  - generic: 🇲🇽
+  - paragraph:
+    - text: Leandro U.
+    - generic: · México
+  - paragraph: Hasta feb 2027
+  - generic: "N"
+  - generic: 🇫🇷
+  - paragraph:
+    - text: Nahuel C.
+    - generic: · Francia
+  - paragraph: Hasta abr 2027
+  - generic: P
+  - generic: 🇦🇷
+  - paragraph:
+    - text: Pedro W.
+    - generic: · Argentina
+  - paragraph: Hasta jun 2027
+  - button "Gestionar"
+  - heading "Habitación 3" [level=3]:
+    - generic: Habitación 3
+  - generic: MIX
+  - generic: 1/2
+  - generic: S
+  - generic: 🇺🇾
+  - paragraph:
+    - text: Santino B.
+    - generic: · Uruguay
+  - paragraph: Hasta ago 2027
+  - generic: add_circle
+  - text: Cama disponible
+  - button "Gestionar"
+  - button "Cuádruple 2 habitaciones 1 vacante" [expanded]:
+    - generic: expand_more
+    - heading "Cuádruple" [level=2]
+    - generic: 2 habitaciones
+    - generic: 1 vacante
+  - paragraph:
+    - text: Tarifa base USD 160
+    - text: ≈ ARS 251.000
+    - button "Más información sobre el valor en pesos":
+      - generic: i
+  - link "Editar tarifa":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/profile#perfil-habitaciones
+    - generic: edit
+    - text: Editar tarifa
+  - heading "Habitación 1" [level=3]:
+    - generic: Habitación 1
+  - generic: MIX
+  - generic "Baño compartido": BC
+  - generic: 4/4
+  - generic: E
+  - generic: 🇧🇷
+  - paragraph:
+    - text: Emilia V.
+    - generic: · Brasil
+  - paragraph: Hasta nov 2026
+  - generic: I
+  - generic: 🇵🇪
+  - paragraph:
+    - text: Ivana R.
+    - generic: · Perú
+  - paragraph: Hasta nov 2026
+  - generic: K
+  - generic: 🇪🇸
+  - paragraph:
+    - text: Karen Z.
+    - generic: · España
+  - paragraph: Hasta dic 2026
+  - generic: M
+  - generic: 🇮🇹
+  - paragraph:
+    - text: Melina C.
+    - generic: · Italia
+  - paragraph: Hasta ene 2027
+  - button "Gestionar"
+  - heading "Habitación 2" [level=3]:
+    - generic: Habitación 2
+  - generic: MIX
+  - generic "Baño compartido": BC
+  - generic: 3/4
+  - generic: P
+  - generic: 🇧🇷
+  - paragraph:
+    - text: Paula B.
+    - generic: · Brasil
+  - paragraph: Hasta nov 2026
+  - generic: S
+  - generic: 🇵🇪
+  - paragraph:
+    - text: Sabrina F.
+    - generic: · Perú
+  - paragraph: Hasta nov 2026
+  - generic: "Y"
+  - generic: 🇪🇸
+  - paragraph:
+    - text: Yamila T.
+    - generic: · España
+  - paragraph: Hasta dic 2026
+  - generic: add_circle
+  - text: Cama disponible
+  - button "Gestionar"
+- button "Ricardo — Dueño de Residencia": Ricardo — Dueño de Residencia
+- button "Open Next.js Dev Tools":
+- alert

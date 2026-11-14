@@ -1,0 +1,144 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- banner:
+  - navigation:
+    - link "EstuRed, inicio":
+      - /url: /
+      - generic: EstuRed
+    - link "Buscar":
+      - /url: /search
+    - button "Abrir menú":
+      - generic: menu
+- main:
+  - paragraph: Inicio › Buscar residencias
+  - heading "Encontrá tu próximo hogar en Buenos Aires" [level=1]
+  - paragraph: Todas las residencias del catálogo fueron verificadas presencialmente. La disponibilidad es informativa y toda reserva está sujeta a confirmación.
+  - paragraph:
+    - generic: menu_book
+    - generic: "Antes de elegir:"
+    - link "Cómo elegir una residencia estudiantil en Buenos Aires":
+      - /url: /guias/como-elegir-residencia-estudiantil-buenos-aires
+  - region "Resultados":
+    - button "Filtros 1":
+      - generic: tune
+      - text: Filtros
+      - generic: "1"
+    - heading "1 residencia encontrada" [level=2]
+    - group "Cómo ver los resultados":
+      - button "Lista"
+      - button "Grilla" [pressed]
+      - button "Mapa"
+    - combobox "Ordenar por":
+      - option "Recomendadas" [selected]
+      - 'option "Precio: menor a mayor"'
+      - 'option "Precio: mayor a menor"'
+    - list "Filtros activos":
+      - button "Quitar filtro Hab. Compartida":
+        - text: Hab. Compartida
+        - generic: close
+      - button "Borrar todo"
+    - paragraph: Disponibilidad informada por la residencia. Requiere confirmación al solicitar.
+    - article "Residencia Caballito Parque":
+      - 'img "Residencia Caballito Parque: foto próximamente"':
+        - generic: Caballito
+        - generic: Foto próximamente
+      - link "Ver Residencia Caballito Parque":
+        - /url: /residencias/residencia-caballito-parque-demo
+      - generic "Verificada presencialmente por el equipo de EstuRed":
+        - generic: verified
+        - text: Residencia Verificada
+      - heading "Residencia Caballito Parque" [level=3]:
+        - link "Residencia Caballito Parque":
+          - /url: /residencias/residencia-caballito-parque-demo
+      - paragraph:
+        - generic: location_on
+        - text: Caballito
+        - generic: Mixta
+      - paragraph:
+        - generic: desde
+        - generic: USD 220/mes
+      - paragraph:
+        - text: ≈ ARS 345.500
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UTN FRBA, 34 cuadras
+        - generic: UNA, 52 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble y compartida
+      - 'button "Servicios: Wifi, Dispenser de Agua, Limpieza General"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: water_drop
+        - generic: mop
+      - 'button "Áreas comunes: Terraza, Sala de Estudio, Comedor, Gimnasio / Área para ejercitar, Cocina compartida"':
+        - generic: Áreas comunes
+        - generic: deck
+        - generic: school
+        - generic: dining
+        - generic: fitness_center
+        - generic: kitchen
+      - generic: Residencia completa
+      - generic: Lista de espera abierta
+      - link "Ver residencia":
+        - /url: /residencias/residencia-caballito-parque-demo
+        - text: Ver residencia
+        - generic: chevron_right
+- contentinfo:
+  - generic: EstuRed
+  - generic: EstuRed
+  - paragraph: La convivencia también se elige. Residencias estudiantiles verificadas en CABA, con solicitudes registradas y comprobantes verificables.
+  - list:
+    - generic: check
+    - text: Residencias verificadas presencialmente
+    - generic: check
+    - text: Solicitudes registradas en la plataforma
+    - generic: check
+    - text: Comprobante de Reserva Confirmada
+  - navigation "Explorar":
+    - paragraph: Explorar
+    - list:
+      - link "Buscar residencias":
+        - /url: /search
+      - link "Para estudiantes y familias":
+        - /url: /for-students
+      - link "Para residencias":
+        - /url: /for-residences
+      - link "Guías":
+        - /url: /guias
+      - link "Crear cuenta":
+        - /url: /register
+  - navigation "Ayuda":
+    - paragraph: Ayuda
+    - list:
+      - link "Soporte":
+        - /url: /students/support
+        - generic: support_agent
+        - text: Soporte
+      - link "Preguntas frecuentes":
+        - /url: /for-students#preguntas-frecuentes
+      - link "Cómo funciona":
+        - /url: /#el-proceso
+      - link "Qué pagás y a quién":
+        - /url: /for-students#que-pagas
+      - text: "Contacto:"
+      - link "hola@estured.com":
+        - /url: mailto:hola@estured.com
+      - listitem: ¿Tenés una reserva y algo no coincide? Abrí un caso desde tu panel.
+  - paragraph: EstuRed actúa como plataforma intermediaria de búsqueda, solicitud, registro y comprobante. No presta directamente el alojamiento. Los precios en ARS son referenciales al dólar blue del día.
+  - list:
+    - link "Botón de arrepentimiento":
+      - /url: /students/revocation
+    - link "Verificar un comprobante":
+      - /url: /verify
+    - link "Términos y condiciones":
+      - /url: /terms
+    - link "Política de privacidad":
+      - /url: /privacy
+  - paragraph: Hecho con ♥ en Buenos Aires
+- button "Simular usuario": Simular usuario
+- button "Open Next.js Dev Tools":
+- alert: Buscar residencias en CABA | EstuRed

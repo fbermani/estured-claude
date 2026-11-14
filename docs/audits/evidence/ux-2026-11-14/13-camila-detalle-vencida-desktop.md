@@ -1,0 +1,106 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- complementary:
+  - link "EstuRed, inicio":
+    - /url: /
+    - generic: EstuRed
+  - button "Notificaciones, 4 sin leer":
+    - generic: notifications
+    - generic: "4"
+  - navigation:
+    - link "Inicio":
+      - /url: /students/dashboard
+      - generic: home
+      - generic: Inicio
+    - link "Buscar residencias":
+      - /url: /search
+      - generic: search
+      - generic: Buscar residencias
+    - link "Favoritos":
+      - /url: /students/favorites
+      - generic: favorite
+      - generic: Favoritos
+    - link "Mis solicitudes":
+      - /url: /students/applications
+      - generic: description
+      - generic: Mis solicitudes
+    - link "Lista de espera":
+      - /url: /students/waitlist
+      - generic: hourglass_top
+      - generic: Lista de espera
+    - link "Mi perfil":
+      - /url: /students/profile
+      - generic: person
+      - generic: Mi perfil
+    - link "Mi estadía":
+      - /url: /students/residency
+      - generic: apartment
+      - generic: Mi estadía
+    - link "Soporte":
+      - /url: /students/support
+      - generic: support_agent
+      - generic: Soporte
+  - paragraph: camila.rojas@example.com
+  - link "Botón de arrepentimiento":
+    - /url: /students/revocation
+    - generic: undo
+    - generic: Botón de arrepentimiento
+  - button "Salir":
+    - generic: logout
+    - generic: Salir
+  - button "Colapsar menú":
+    - generic: chevron_left
+- main:
+  - heading "Residencia Río de la Plata" [level=1]
+  - paragraph: Individual · Recoleta, CABA
+  - generic: Vencida — no respondiste a tiempo
+  - paragraph: Terminó acá
+  - paragraph: No respondiste la propuesta de ajuste dentro de las 48 horas.
+  - link "Escribir a Soporte":
+    - /url: /students/support
+  - term: Dirección de la residencia
+  - definition: Av. Las Heras 2480, Recoleta (demo)
+  - term: Fecha de ingreso deseada
+  - definition: 01/03/2027
+  - term: Duración estimada
+  - definition: 4 meses
+  - term: Enviada
+  - definition: 02/11/2026
+  - paragraph: "Tu objetivo académico: [DEMO-NEG] Demo negociación"
+  - heading "Lo que llegó a pasar" [level=2]
+  - list "Recorrido de la solicitud":
+    - generic: check
+    - paragraph:
+      - text: Solicitud enviada
+      - generic: Listo · 02/11/2026
+    - generic: check
+    - paragraph:
+      - text: Contacto con la residencia
+      - generic: Listo · 02/11/2026
+  - heading "Condiciones de la solicitud" [level=2]
+  - paragraph: "La solicitud terminó: estos montos quedan como referencia de lo que se había planteado."
+  - term: Tarifa mensual
+  - definition:
+    - text: USD 350
+    - generic: · ≈ ARS 532.000
+  - term: Duración inicial
+  - definition: 4 meses
+  - term: Matrícula (no reembolsable)
+  - definition:
+    - text: USD 100
+    - generic: · ≈ ARS 152.000
+  - term: Depósito (reembolsable)
+  - definition:
+    - text: USD 350
+    - generic: · ≈ ARS 532.000
+  - term: Política de ajustes
+  - definition: Ajuste trimestral
+  - term: Tipo de cambio de referencia
+  - definition:
+    - text: ARS 1.520 por USD
+    - text: al 02/11/2026
+    - button "Más información sobre el valor en pesos":
+      - generic: i
+- button "Camila — Estudiante en Búsqueda": Camila — Estudiante en Búsqueda
+- button "Open Next.js Dev Tools":
+- alert: Detalle de solicitud | EstuRed

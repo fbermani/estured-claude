@@ -26,6 +26,13 @@ import {
   BIO_MAX_LENGTH,
 } from "@/lib/students/profileOptions";
 import { safeFilename } from "@/lib/files/safeFilename";
+import { consumeRateLimit } from "@/lib/security/rateLimit";
+import {
+  STUDENT_DOCUMENT_QUOTA_MESSAGE,
+  STUDENT_DOCUMENT_UPLOADS_PER_HOUR,
+  exceedsDocumentQuota,
+  studentDocumentUsage,
+} from "@/lib/students/documentQuota";
 
 export type UpdateProfileState = { status: "idle" | "error" | "saved"; message?: string };
 export type CommunityVisibilityState = { status: "idle" | "error" | "saved"; message?: string };
@@ -295,6 +302,12 @@ export async function uploadStudentDocument(
     requirementLabel = label || null;
   }
 
+  // SEG14-03: freno persistente por usuario y cuota acumulada (falla cerrado si no se puede medir el uso).
+  const rate = await consumeRateLimit({ bucket: "student_document_upload", key: sessionUser.id, windowSeconds: 3_600, max: STUDENT_DOCUMENT_UPLOADS_PER_HOUR });
+  if (!rate.ok) return { status: "error", message: "Subiste varios documentos seguidos. Probá de nuevo en un rato." };
+  const usageBefore = await studentDocumentUsage(admin, profile.id);
+  if (!usageBefore || exceedsDocumentQuota(usageBefore, file.size)) return { status: "error", message: STUDENT_DOCUMENT_QUOTA_MESSAGE };
+
   const ext = extensionForMime(realType);
   const path = `${profile.id}/${documentType}-${crypto.randomUUID()}.${ext}`;
   const { error: uploadError } = await admin.storage
@@ -326,6 +339,14 @@ export async function uploadStudentDocument(
     // No dejar un archivo huérfano en el bucket si no se pudo registrar.
     await admin.storage.from("student-documents").remove([path]);
     return { status: "error", message: "No pudimos registrar el archivo. Intentá de nuevo." };
+  }
+
+  // Recuento posterior: si dos subidas concurrentes pasaron el chequeo previo, la que deja el total sobre la cuota se deshace.
+  const usageAfter = await studentDocumentUsage(admin, profile.id);
+  if (!usageAfter || exceedsDocumentQuota(usageAfter)) {
+    await admin.from("files").delete().eq("bucket", "student-documents").eq("storage_path", path);
+    await admin.storage.from("student-documents").remove([path]);
+    return { status: "error", message: STUDENT_DOCUMENT_QUOTA_MESSAGE };
   }
 
   await createAuditLog(admin, {

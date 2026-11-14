@@ -22,7 +22,7 @@ function fakeAdmin(residenceRow: Record<string, unknown>, promotions: Record<str
         eq: () => chain,
         in: () => chain,
         neq: () => chain,
-        maybeSingle: async () => ({ data: table === "residences" ? residenceRow : null, error: null }),
+        maybeSingle: async () => ({ data: table === "residences" ? { status: "verified_active", ...residenceRow } : null, error: null }),
         single: async () => ({ data: { id: `${table}-id` }, error: null }),
         insert: (row: Record<string, unknown>) => {
           (inserts[table] ??= []).push(row);
@@ -235,5 +235,15 @@ describe("createApplicationFromRoomType: dinero DR18 tanda 3", () => {
     });
     await createApplicationFromRoomType(b.admin, { ...params, desiredStartDate: daysAhead(40) });
     expect(b.inserts.application_snapshots[0].empty_months_count).toBe(1.5);
+  });
+});
+
+describe("createApplicationFromRoomType: residencia no publicada (SEG14-02)", () => {
+  it.each(["paused_by_admin", "draft", "suspended"])("residencia en estado %s: no crea solicitud ni snapshot", async (status) => {
+    const { admin, inserts } = fakeAdmin({ status, adjustment_policy: "quarterly" });
+    const result = await createApplicationFromRoomType(admin, params);
+    expect(result).toEqual({ error: "Esta residencia ya no está disponible para solicitar." });
+    expect(inserts.application_snapshots).toBeUndefined();
+    expect(inserts.application_requests).toBeUndefined();
   });
 });

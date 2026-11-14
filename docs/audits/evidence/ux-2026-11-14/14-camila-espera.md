@@ -1,0 +1,87 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- complementary:
+  - link "EstuRed, inicio":
+    - /url: /
+    - generic: EstuRed
+  - button "Notificaciones, 4 sin leer":
+    - generic: notifications
+    - generic: "4"
+  - navigation:
+    - link "Inicio":
+      - /url: /students/dashboard
+      - generic: home
+      - generic: Inicio
+    - link "Buscar residencias":
+      - /url: /search
+      - generic: search
+      - generic: Buscar residencias
+    - link "Favoritos":
+      - /url: /students/favorites
+      - generic: favorite
+      - generic: Favoritos
+    - link "Mis solicitudes":
+      - /url: /students/applications
+      - generic: description
+      - generic: Mis solicitudes
+    - link "Lista de espera":
+      - /url: /students/waitlist
+      - generic: hourglass_top
+      - generic: Lista de espera
+    - link "Mi perfil":
+      - /url: /students/profile
+      - generic: person
+      - generic: Mi perfil
+    - link "Mi estadía":
+      - /url: /students/residency
+      - generic: apartment
+      - generic: Mi estadía
+    - link "Soporte":
+      - /url: /students/support
+      - generic: support_agent
+      - generic: Soporte
+  - paragraph: camila.rojas@example.com
+  - link "Botón de arrepentimiento":
+    - /url: /students/revocation
+    - generic: undo
+    - generic: Botón de arrepentimiento
+  - button "Salir":
+    - generic: logout
+    - generic: Salir
+  - button "Colapsar menú":
+    - generic: chevron_left
+- main:
+  - heading "Lista de espera" [level=1]
+  - paragraph: Residencias sin lugar hoy a las que te sumaste — no cuenta como solicitud activa.
+  - button "Residencia Río de la Plata Recoleta En lista de espera":
+    - paragraph: Residencia Río de la Plata
+    - paragraph: Recoleta
+    - generic: En lista de espera
+    - generic: expand_more
+  - term: Habitación
+  - definition: Doble
+  - term: Ingreso
+  - definition: diciembre 2026
+  - term: Duración
+  - definition: 4 meses
+  - paragraph: En lista desde 29/10/2026
+  - link "Ver ficha de la residencia":
+    - /url: /residencias/residencia-rio-de-la-plata-demo
+  - button "Salir de la lista"
+  - button "Residencia Norte Palermo Saliste de la lista":
+    - paragraph: Residencia Norte
+    - paragraph: Palermo
+    - generic: Saliste de la lista
+    - generic: expand_more
+  - term: Habitación
+  - definition: Doble
+  - term: Ingreso
+  - definition: septiembre 2026
+  - term: Duración
+  - definition: 6 meses
+  - paragraph: En lista desde 20/10/2026
+  - link "Ver ficha de la residencia":
+    - /url: /residencias/residencia-norte-demo
+- button "Camila — Estudiante en Búsqueda": Camila — Estudiante en Búsqueda
+- button "Open Next.js Dev Tools":
+- alert

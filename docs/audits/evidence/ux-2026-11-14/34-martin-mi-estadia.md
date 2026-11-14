@@ -1,0 +1,154 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- button "Abrir menú":
+  - generic: menu
+- generic: EstuRed
+- button "Notificaciones, 13 sin leer":
+  - generic: notifications
+  - generic: "13"
+- complementary:
+  - link "EstuRed, inicio":
+    - /url: /
+    - generic: EstuRed
+  - button "Notificaciones, 13 sin leer":
+    - generic: notifications
+    - generic: "13"
+  - button "Cerrar menú":
+    - generic: close
+  - navigation:
+    - link "Inicio":
+      - /url: /students/dashboard
+      - generic: home
+      - generic: Inicio
+    - link "Buscar residencias":
+      - /url: /search
+      - generic: search
+      - generic: Buscar residencias
+    - link "Favoritos":
+      - /url: /students/favorites
+      - generic: favorite
+      - generic: Favoritos
+    - link "Mis solicitudes":
+      - /url: /students/applications
+      - generic: description
+      - generic: Mis solicitudes
+    - link "Lista de espera":
+      - /url: /students/waitlist
+      - generic: hourglass_top
+      - generic: Lista de espera
+    - link "Mi perfil":
+      - /url: /students/profile
+      - generic: person
+      - generic: Mi perfil
+    - link "Mi estadía":
+      - /url: /students/residency
+      - generic: apartment
+      - generic: Mi estadía
+    - link "Soporte":
+      - /url: /students/support
+      - generic: support_agent
+      - generic: Soporte
+  - paragraph: padre.lucia@example.com
+  - link "Botón de arrepentimiento":
+    - /url: /students/revocation
+    - generic: undo
+    - generic: Botón de arrepentimiento
+  - button "Salir":
+    - generic: logout
+    - generic: Salir
+- navigation "Navegación principal":
+  - link "Inicio":
+    - /url: /students/dashboard
+    - generic: home
+    - generic: Inicio
+  - link "Buscar residencias":
+    - /url: /search
+    - generic: search
+    - generic: Buscar
+  - link "Favoritos":
+    - /url: /students/favorites
+    - generic: favorite
+    - generic: Favoritos
+  - link "Mis solicitudes":
+    - /url: /students/applications
+    - generic: description
+    - generic: Solicitudes
+  - button "Más":
+    - generic: more_horiz
+    - generic: Más
+- main:
+  - generic: home_work
+  - generic: home_work
+  - text: Su casa
+  - heading "Estadía de Valentina" [level=1]
+  - paragraph: Residencia Test Integración (Ciclo 59 — actual) · Palermo, CABA
+  - generic: check_circle
+  - text: Alojado
+  - navigation "Elegí de quién ver la estadía":
+    - generic: "Estadía de:"
+    - link "Valentina":
+      - /url: /students/residency?estudiante=03d2c433-7c90-4d4a-a2c8-7566b03d70e0
+    - link "Lucia":
+      - /url: /students/residency?estudiante=c76ddff3-c150-46f9-bdc6-bee321a252e5
+  - region "Presentación de Residencia Test Integración (Ciclo 59 — actual)":
+    - generic: apartment
+    - heading "Residencia Test Integración (Ciclo 59 — actual)" [level=2]
+    - paragraph:
+      - generic: location_on
+      - text: Palermo, CABA
+  - heading "Tu estadía" [level=2]
+  - paragraph: Habitación
+  - paragraph: Individual
+  - paragraph: Valor mensual
+  - paragraph: USD 300
+  - paragraph: Ingreso
+  - paragraph: 14/11/2026
+  - paragraph: Fin de contrato
+  - paragraph: 14/05/2027
+  - paragraph: Quedan ~6 meses de tu estadía actual
+  - link "Solicitudes relacionadas":
+    - /url: /students/applications
+    - generic: description
+    - text: Solicitudes relacionadas
+  - generic: sync
+  - paragraph: ¿Se acerca el fin de tu estadía?
+  - paragraph: Solicitá tu renovación, sin plazos mínimos de anticipación.
+  - button "Iniciar renovación"
+  - heading "Sobre tu residencia" [level=2]
+  - heading "Reglas de convivencia" [level=3]
+  - link "Descargar reglamento":
+    - /url: /residencias/residencia-test-quiero-cambiar-actual-1794689995003/reglamento
+    - generic: download
+    - text: Descargar reglamento
+  - paragraph: Contacto y soporte
+  - generic: support_agent
+  - paragraph: Para cualquier consulta sobre tu estadía o tu cambio, escribinos a Soporte.
+  - link "Ir a Soporte":
+    - /url: /students/support
+  - heading "Comunidad actual" [level=2]
+  - paragraph: Tus compañeros de residencia — cada uno decide qué mostrar.
+  - generic: groups
+  - text: Residentes
+  - generic: 0actuales
+  - generic: Cada uno decide qué mostrar.
+  - generic: bed
+  - text: Camas libres
+  - generic: "2"
+  - img "0 ocupadas de 2"
+  - generic: Informadas por la residencia.
+  - generic: category
+  - text: Tipos de habitación
+  - generic: "1"
+  - generic: Individual
+  - button "Individual 0 residentes · 2 camas libres Disponibilidad informada" [expanded]:
+    - generic: Individual
+    - generic: 0 residentes · 2 camas libres
+    - generic: Disponibilidad informada
+    - generic: expand_more
+  - generic: bed
+  - paragraph: Plaza libre
+  - generic: bed
+  - paragraph: Plaza libre
+- button "Martín — Familiar de Valentina vinculado": Martín — Familiar de Valentina vinculado
+- button "Open Next.js Dev Tools":
+- alert

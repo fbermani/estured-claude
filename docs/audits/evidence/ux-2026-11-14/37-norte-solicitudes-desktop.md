@@ -1,0 +1,175 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- complementary:
+  - link "Tus residencias":
+    - /url: /residence/dashboard
+    - generic: EstuRed
+  - button "Notificaciones, 14 sin leer":
+    - generic: notifications
+    - generic: "14"
+  - navigation:
+    - link "Panel":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e
+      - generic: dashboard
+      - generic: Panel
+    - link "Solicitudes":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/applications
+      - generic: inbox
+      - generic: Solicitudes
+    - link "Habitaciones":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/rooms
+      - generic: meeting_room
+      - generic: Habitaciones
+    - link "Disponibilidad":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/availability
+      - generic: bed
+      - generic: Disponibilidad
+    - link "Renovaciones":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/renewals
+      - generic: sync_alt
+      - generic: Renovaciones
+    - link "Residentes":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/residents
+      - generic: groups
+      - generic: Residentes
+    - link "Lista de espera":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/waitlist
+      - generic: hourglass_top
+      - generic: Lista de espera
+    - link "Preguntas, 1 preguntas sin responder":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/faq
+      - generic: forum
+      - generic: Preguntas
+      - generic: "1"
+    - link "Reglamento":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/regulation
+      - generic: gavel
+      - generic: Reglamento
+    - link "Soporte":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/support
+      - generic: support_agent
+      - generic: Soporte
+    - link "Plan":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/plan
+      - generic: workspace_premium
+      - generic: Plan
+    - link "Equipo":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/team
+      - generic: supervisor_account
+      - generic: Equipo
+  - link "Todas mis residencias":
+    - /url: /residence/dashboard
+    - generic: apartment
+    - generic: Todas mis residencias
+  - paragraph: owner.residencia.norte@example.com
+  - link "Editar perfil":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/profile
+    - generic: edit
+    - generic: Editar perfil
+  - button "Salir":
+    - generic: logout
+    - generic: Salir
+  - button "Colapsar menú":
+    - generic: chevron_left
+- main:
+  - generic: inbox
+  - text: Solicitudes recibidas
+  - heading "Solicitudes recibidas" [level=1]
+  - paragraph: Revisá y respondé las solicitudes de reserva.
+  - generic: 10 solicitudes
+  - heading "Cerradas" [level=2]
+  - generic: "10"
+  - button "Camila R. Reserva revocada por el estudiante 21 años · Diseño Gráfico Individual · Ingreso 01/04/2026":
+    - generic: C
+    - paragraph: Camila R.
+    - generic: Reserva revocada por el estudiante
+    - paragraph: 21 años · Diseño Gráfico
+    - paragraph: Individual · Ingreso 01/04/2026
+  - button "Camila R. Reserva revocada por el estudiante 21 años · Diseño Gráfico Individual · Ingreso 01/03/2026":
+    - generic: C
+    - paragraph: Camila R.
+    - generic: Reserva revocada por el estudiante
+    - paragraph: 21 años · Diseño Gráfico
+    - paragraph: Individual · Ingreso 01/03/2026
+  - button "Lucia F. Reserva vencida — fee sin pagar 20 años · Medicina Individual · Ingreso 01/03/2027":
+    - generic: L
+    - paragraph: Lucia F.
+    - generic: Reserva vencida — fee sin pagar
+    - paragraph: 20 años · Medicina
+    - paragraph: Individual · Ingreso 01/03/2027
+  - button "Mateo F. Venció por falta de pago 21 años · Administración de Empresas Cuádruple · Ingreso 06/12/2026":
+    - generic: M
+    - paragraph: Mateo F.
+    - generic: Venció por falta de pago
+    - paragraph: 21 años · Administración de Empresas
+    - paragraph: Cuádruple · Ingreso 06/12/2026
+  - button "Camila R. Reserva vencida — fee sin pagar 21 años · Diseño Gráfico Individual · Ingreso 01/05/2026":
+    - generic: C
+    - paragraph: Camila R.
+    - generic: Reserva vencida — fee sin pagar
+    - paragraph: 21 años · Diseño Gráfico
+    - paragraph: Individual · Ingreso 01/05/2026
+  - button "Camila R. Reserva revocada por el estudiante 21 años · Diseño Gráfico Doble · Ingreso 01/06/2026":
+    - generic: C
+    - paragraph: Camila R.
+    - generic: Reserva revocada por el estudiante
+    - paragraph: 21 años · Diseño Gráfico
+    - paragraph: Doble · Ingreso 01/06/2026
+  - button "Camila R. Estadía finalizada 21 años · Diseño Gráfico Individual · Ingreso 01/02/2026":
+    - generic: C
+    - paragraph: Camila R.
+    - generic: Estadía finalizada
+    - paragraph: 21 años · Diseño Gráfico
+    - paragraph: Individual · Ingreso 01/02/2026
+  - button "Camila R. Reserva vencida — fee sin pagar 21 años · Diseño Gráfico Doble · Ingreso 10/08/2026":
+    - generic: C
+    - paragraph: Camila R.
+    - generic: Reserva vencida — fee sin pagar
+    - paragraph: 21 años · Diseño Gráfico
+    - paragraph: Doble · Ingreso 10/08/2026
+  - button "Lucia F. Venció por falta de pago 20 años · Medicina Doble · Ingreso 15/08/2026 En proceso de mudanza":
+    - generic: L
+    - paragraph: Lucia F.
+    - generic: Venció por falta de pago
+    - paragraph: 20 años · Medicina
+    - paragraph: Doble · Ingreso 15/08/2026
+    - paragraph:
+      - generic: swap_horiz
+      - text: En proceso de mudanza
+  - button "Camila R. Venció sin respuesta 21 años · Diseño Gráfico Individual · Ingreso 01/08/2026":
+    - generic: C
+    - paragraph: Camila R.
+    - generic: Venció sin respuesta
+    - paragraph: 21 años · Diseño Gráfico
+    - paragraph: Individual · Ingreso 01/08/2026
+  - heading "Solicitud de Camila R." [level=2]
+  - paragraph: Individual
+  - generic: Reserva revocada por el estudiante
+  - region "Quién solicita":
+    - generic: C
+    - heading "Quién solicita" [level=3]
+    - paragraph: Camila R.
+    - term: Edad
+    - definition: 21 años
+    - term: Carrera
+    - definition: Diseño Gráfico
+    - term: Universidad
+    - definition: Institución educativa en CABA
+    - term: Origen
+    - definition: Santiago, Chile
+    - paragraph:
+      - generic: visibility_off
+      - generic: El estudiante eligió no compartir sus hábitos y sus intereses.
+  - term: Fecha de ingreso deseada
+  - definition: 01/04/2026
+  - term: Duración estimada
+  - definition: 4 meses
+  - term: Tarifa solicitada
+  - definition: USD 240
+  - term: Contacto dirigido a
+  - definition: Estudiante
+  - paragraph: "Objetivo académico: Realizar intercambio académico por un semestre en CABA."
+  - paragraph: Si la plaza estaba retenida para este estudiante, revisá tu disponibilidad.
+- button "Ricardo — Dueño de Residencia": Ricardo — Dueño de Residencia
+- button "Open Next.js Dev Tools":
+- alert

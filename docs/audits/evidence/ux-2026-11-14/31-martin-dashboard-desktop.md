@@ -1,0 +1,212 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- complementary:
+  - link "EstuRed, inicio":
+    - /url: /
+    - generic: EstuRed
+  - button "Notificaciones, 11 sin leer":
+    - generic: notifications
+    - generic: "11"
+  - navigation:
+    - link "Inicio":
+      - /url: /students/dashboard
+      - generic: home
+      - generic: Inicio
+    - link "Buscar residencias":
+      - /url: /search
+      - generic: search
+      - generic: Buscar residencias
+    - link "Favoritos":
+      - /url: /students/favorites
+      - generic: favorite
+      - generic: Favoritos
+    - link "Mis solicitudes":
+      - /url: /students/applications
+      - generic: description
+      - generic: Mis solicitudes
+    - link "Lista de espera":
+      - /url: /students/waitlist
+      - generic: hourglass_top
+      - generic: Lista de espera
+    - link "Mi perfil":
+      - /url: /students/profile
+      - generic: person
+      - generic: Mi perfil
+    - link "Mi estadía":
+      - /url: /students/residency
+      - generic: apartment
+      - generic: Mi estadía
+    - link "Soporte":
+      - /url: /students/support
+      - generic: support_agent
+      - generic: Soporte
+  - paragraph: padre.lucia@example.com
+  - link "Botón de arrepentimiento":
+    - /url: /students/revocation
+    - generic: undo
+    - generic: Botón de arrepentimiento
+  - button "Salir":
+    - generic: logout
+    - generic: Salir
+  - button "Colapsar menú":
+    - generic: chevron_left
+- main:
+  - generic: family_restroom
+  - generic: family_restroom
+  - text: Familia
+  - heading "Tu espacio de familiar" [level=1]
+  - paragraph: Acompañás, proponés residencias y seguís cómo avanza cada solicitud. Decide cada estudiante.
+  - generic: link
+  - text: 2 vínculos activos
+  - link "Proponer una residencia":
+    - /url: /search
+    - text: Proponer una residencia
+    - generic: arrow_forward
+  - generic: Es una propuesta, no una reserva
+  - generic: V
+  - paragraph: Valentina S.
+  - paragraph: Vínculo activo
+  - generic: swap_horiz
+  - text: Buscando un cambio
+  - generic: Activo
+  - paragraph:
+    - generic: visibility
+    - text: Solicitudes y reserva, solo lectura
+  - paragraph: Residencia Test Integración (Ciclo 59 — actual)
+  - paragraph: Individual · Ingreso 14/11/2026
+  - generic: Reserva confirmada
+  - link "Ver detalle":
+    - /url: /students/applications/aaa1125d-5b01-4de6-8293-edd17a716e7e
+    - generic: open_in_new
+    - text: Ver detalle
+  - paragraph:
+    - generic: visibility
+    - text: Solo lectura
+  - paragraph:
+    - text: "Valentina avisó a Residencia Test Integración (Ciclo 59 — actual) el 14/11/2026 que busca otro lugar. Salida estimada:"
+    - strong: 14/01/2027
+    - text: . Su reserva actual sigue vigente.
+  - paragraph: La residencia todavía no informó costos ni condiciones de salida. Te avisamos cuando responda.
+  - link "Proponerle una residencia":
+    - /url: /search
+  - link "Buscar residencias":
+    - /url: /search
+  - paragraph: "La decisión es de Valentina: vos podés proponerle opciones y ella o él decide si envía la solicitud. Solo Valentina puede cancelar el aviso."
+  - paragraph: Si Valentina quiere cambiarse, no te enterás a último momento
+  - paragraph: "El aviso da previsibilidad: ves cada novedad, los costos de salida por escrito y podés proponerle residencias. Sin promesas de lugar: toda solicitud está sujeta a confirmación."
+  - generic: Te avisamos cada novedad
+  - generic: Costos de salida por escrito
+  - generic: Podés proponerle residencias
+  - generic: L
+  - paragraph: Lucia F.
+  - paragraph: Vínculo activo
+  - generic: Activo
+  - paragraph:
+    - generic: visibility
+    - text: Solicitudes y reserva, solo lectura
+  - paragraph: Residencia Río de la Plata
+  - paragraph: Individual · Ingreso 20/07/2026
+  - generic: Reserva confirmada
+  - link "Ver comprobante":
+    - /url: /students/receipts/077e9372-0b57-4a3d-a482-1e7fcbc6f54c
+    - generic: receipt_long
+    - text: Ver comprobante
+  - link "Ver detalle":
+    - /url: /students/applications/c58f4b64-a00a-424c-94e2-d03845a80091
+    - generic: open_in_new
+    - text: Ver detalle
+  - paragraph: Residencia Río de la Plata
+  - paragraph: Individual · Ingreso 01/09/2027
+  - generic: Vencida — sin pago a la residencia
+  - link "Ver detalle":
+    - /url: /students/applications/2e237ac1-7229-4290-80cd-f28253478937
+    - generic: open_in_new
+    - text: Ver detalle
+  - paragraph: Residencia Río de la Plata
+  - paragraph: Individual · Ingreso 01/03/2027
+  - generic: Vencida — sin pago a la residencia
+  - link "Ver detalle":
+    - /url: /students/applications/c1541725-6ee3-463a-be62-4ddd34984bb2
+    - generic: open_in_new
+    - text: Ver detalle
+  - link "Ver las 5 solicitudes":
+    - /url: /students/applications
+  - region "Llegada de Lucia":
+    - generic: flight_land
+    - paragraph: Faltan 93 días
+    - heading "Llegada de Lucia" [level=2]
+    - paragraph: Residencia Río de la Plata · ingreso previsto el 15/02/2027
+    - generic: Progreso del checklist
+    - generic: 5 de 44
+    - paragraph: "Esenciales: 1 de 10"
+    - progressbar "Progreso del checklist de llegada"
+    - status
+    - link "Leer la guía para mudarte":
+      - /url: /guias/guia-mudarte-buenos-aires-estudiar
+      - generic: menu_book
+      - text: Leer la guía para mudarte
+    - paragraph: "Solo lectura: el checklist lo completa el estudiante."
+    - paragraph: "Solo lectura: el checklist lo completa el estudiante y los ítems están escritos para él o ella."
+    - generic "Checklist para antes de viajar 9 categorías con todo lo que conviene tener listo antes de llegar. 5 de 44 hechos. Abrir":
+      - generic: checklist
+      - generic: Checklist para antes de viajar
+      - generic: 9 categorías con todo lo que conviene tener listo antes de llegar. 5 de 44 hechos.
+      - generic: Abrir
+      - generic: expand_more
+  - paragraph:
+    - generic: visibility
+    - text: Solo lectura
+  - paragraph: Lucia confirmó una reserva en otra residencia desde el 15/08/2026.
+  - paragraph: Residencia Río de la Plata registra su salida cuando se retire.
+  - paragraph: Si Lucia quiere cambiarse, no te enterás a último momento
+  - paragraph: "El aviso da previsibilidad: ves cada novedad, los costos de salida por escrito y podés proponerle residencias. Sin promesas de lugar: toda solicitud está sujeta a confirmación."
+  - generic: Te avisamos cada novedad
+  - generic: Costos de salida por escrito
+  - generic: Podés proponerle residencias
+  - link "Explorar residencias":
+    - /url: /search
+    - generic: Explorar residencias
+  - generic: search
+  - heading "Explorar residencias" [level=3]
+  - paragraph: "Proponele opciones al estudiante que acompañás: él o ella decide si aprobarlas."
+  - link "Buscar residencia":
+    - /url: /search
+    - text: Buscar residencia
+    - generic: arrow_forward
+  - region "Propuestas que enviaste":
+    - heading "Propuestas que enviaste" [level=2]
+    - list:
+      - generic: R
+      - generic: Residencia Río de la Plata
+      - generic: Para Lucia F.
+      - generic: Rechazada
+      - generic: R
+      - generic: Residencia Norte
+      - generic: Para Lucia F.
+      - generic: Rechazada
+      - generic: R
+      - generic: Residencia Norte
+      - generic: Para Lucia F.
+      - generic: Vencida
+  - region "Para leer con calma":
+    - heading "Para leer con calma" [level=2]:
+      - generic: menu_book
+      - text: Para leer con calma
+    - link "Ver todas":
+      - /url: /guias
+    - list:
+      - 'link "Guía para familias: elegir residencia y acompañar la nueva etapa 2 min de lectura"':
+        - /url: /guias/guia-familias-elegir-residencia-universitaria
+        - generic: family_restroom
+        - generic: "Guía para familias: elegir residencia y acompañar la nueva etapa"
+        - generic: 2 min de lectura
+        - generic: arrow_forward
+      - link "Seis errores comunes al mudarte a Buenos Aires (y cómo evitarlos) 2 min de lectura":
+        - /url: /guias/errores-comunes-mudarse-buenos-aires
+        - generic: luggage
+        - generic: Seis errores comunes al mudarte a Buenos Aires (y cómo evitarlos)
+        - generic: 2 min de lectura
+        - generic: arrow_forward
+- button "Martín — Familiar de Valentina vinculado": Martín — Familiar de Valentina vinculado
+- button "Open Next.js Dev Tools":
+- alert

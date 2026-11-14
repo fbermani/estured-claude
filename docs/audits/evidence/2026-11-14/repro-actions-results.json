@@ -1,0 +1,48 @@
+{
+  "verification": "PASS: both unsafe behaviors reproduced in isolated mocks",
+  "databaseAccess": false,
+  "cases": [
+    {
+      "case": "family proposal converted while residence paused_by_admin",
+      "result": {
+        "ok": true,
+        "applicationId": "new-application"
+      },
+      "created": 1,
+      "residenceFixtureStatus": "paused_by_admin",
+      "residenceStatusQueried": false,
+      "limitation": "Creation helper is mocked; its absence of status validation was reviewed statically."
+    },
+    {
+      "case": "expired renewal fee becomes pending_manual_payment",
+      "result": {
+        "ok": true
+      },
+      "fee": {
+        "id": "fee",
+        "status": "pending_manual_payment",
+        "expires_at": "2000-01-01",
+        "manual_payment_file_id": "new-proof",
+        "payment_provider": "manual",
+        "payment_channel": null,
+        "payer_billing_name": "Test",
+        "payer_billing_cuit": null,
+        "payer_iva_condition": "consumidor_final"
+      },
+      "writes": [
+        {
+          "table": "estured_fee_payments",
+          "update": {
+            "status": "pending_manual_payment",
+            "payment_provider": "manual",
+            "manual_payment_file_id": "new-proof",
+            "payment_channel": null,
+            "payer_billing_name": "Test",
+            "payer_billing_cuit": null,
+            "payer_iva_condition": "consumidor_final"
+          }
+        }
+      ]
+    }
+  ]
+}

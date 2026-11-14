@@ -814,6 +814,81 @@ describe.skipIf(!hasCreds)("módulo de renovaciones (integración)", () => {
     }
   });
 
+  it("SEG14-01: un fee de renovación vencido no se puede registrar ni validar", async () => {
+    const fixture = await createConfirmedReservation();
+    let offerId: string | null = null;
+    try {
+      const created = await createRenewalOffer(admin, {
+        reservationId: fixture.reservationId,
+        renewalRequestId: null,
+        actorUserId: ownerId,
+        periodStartDate: "2027-08-15",
+        durationMonths: 6,
+        monthlyPriceUsd: 300,
+        enrollmentOrRenewalFeeUsd: null,
+        depositUsd: null,
+        adjustmentPolicy: "quarterly",
+        acceptanceDeadlineAt: new Date(Date.now() + 7 * 24 * 3_600_000).toISOString(),
+        sendNow: true,
+      });
+      expect(created.ok).toBe(true);
+      if (!created.ok) return;
+      offerId = created.renewalOfferId;
+
+      await respondRenewalOffer(admin, { renewalOfferId: offerId, response: "accepted", actorUserId: studentUserId });
+      await recordRenewalResidencePaymentReceived(admin, {
+        renewalOfferId: offerId,
+        actorUserId: ownerId,
+        receivedAmountArs: null,
+        receivedAmountUsd: 1800,
+        paymentMethodLabel: "Transferencia",
+        confirmationAccepted: true,
+        receiptFile: null,
+      });
+      const { data: offer } = await admin.from("renewal_offers").select("estured_fee_payment_id").eq("id", offerId).single();
+      const feeId = offer!.estured_fee_payment_id as string;
+      // El job de vencimiento dejó el fee en `expired` mientras la oferta sigue en `estured_fee_pending`.
+      await admin.from("estured_fee_payments").update({ status: "expired", expires_at: "2000-01-01T00:00:00Z" }).eq("id", feeId);
+
+      const proofFile = new File([new TextEncoder().encode("%PDF-1.4 prueba")], "comprobante.pdf", { type: "application/pdf" });
+      const registered = await registerRenewalManualFeePayment(admin, {
+        renewalOfferId: offerId,
+        actorUserId: studentUserId,
+        file: proofFile,
+        payerBillingName: "Lucia Fernandez",
+        payerBillingCuit: null,
+        payerIvaCondition: "consumidor_final",
+        paymentChannel: null,
+        acknowledgeNoRefund: true,
+      });
+      expect(registered.ok).toBe(false);
+      const { data: after } = await admin.from("estured_fee_payments").select("status, manual_payment_file_id").eq("id", feeId).single();
+      expect(after!.status).toBe("expired");
+      expect(after!.manual_payment_file_id).toBeNull();
+
+      // Un fee pendiente pero con el plazo ya cumplido tampoco se valida como admin.
+      await admin.from("estured_fee_payments").update({ status: "pending_manual_payment" }).eq("id", feeId);
+      const validated = await recordRenewalManualFeePayment(admin, {
+        feePaymentId: feeId,
+        reason: "Intento sobre un fee vencido (test).",
+        paymentCurrency: "USD",
+        providerReference: null,
+        actorUserId: ownerId,
+        actorRole: "admin",
+      });
+      expect(validated.ok).toBe(false);
+      const { data: unpaid } = await admin.from("estured_fee_payments").select("status").eq("id", feeId).single();
+      expect(unpaid!.status).toBe("pending_manual_payment");
+
+      await cleanupFase2(offerId);
+      await cleanupFixture(fixture, { renewalOfferIds: [offerId] });
+    } catch (e) {
+      if (offerId) await cleanupFase2(offerId);
+      await cleanupFixture(fixture);
+      throw e;
+    }
+  });
+
   it("recordRenewalManualFeePayment: rechaza sin motivo", async () => {
     const fixture = await createConfirmedReservation();
     let offerId: string | null = null;

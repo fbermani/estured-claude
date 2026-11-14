@@ -1,0 +1,152 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- button "Abrir menú":
+  - generic: menu
+- generic: EstuRed
+- button "Notificaciones, 19 sin leer":
+  - generic: notifications
+  - generic: "19"
+- complementary:
+  - link "Tus residencias":
+    - /url: /residence/dashboard
+    - generic: EstuRed
+  - button "Notificaciones, 19 sin leer":
+    - generic: notifications
+    - generic: "19"
+  - button "Cerrar menú":
+    - generic: close
+  - navigation:
+    - link "Panel":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e
+      - generic: dashboard
+      - generic: Panel
+    - link "Solicitudes":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/applications
+      - generic: inbox
+      - generic: Solicitudes
+    - link "Habitaciones":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/rooms
+      - generic: meeting_room
+      - generic: Habitaciones
+    - link "Disponibilidad":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/availability
+      - generic: bed
+      - generic: Disponibilidad
+    - link "Renovaciones":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/renewals
+      - generic: sync_alt
+      - generic: Renovaciones
+    - link "Residentes":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/residents
+      - generic: groups
+      - generic: Residentes
+    - link "Lista de espera":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/waitlist
+      - generic: hourglass_top
+      - generic: Lista de espera
+    - link "Preguntas, 1 preguntas sin responder":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/faq
+      - generic: forum
+      - generic: Preguntas
+      - generic: "1"
+    - link "Reglamento":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/regulation
+      - generic: gavel
+      - generic: Reglamento
+    - link "Soporte":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/support
+      - generic: support_agent
+      - generic: Soporte
+    - link "Plan":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/plan
+      - generic: workspace_premium
+      - generic: Plan
+    - link "Equipo":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/team
+      - generic: supervisor_account
+      - generic: Equipo
+  - link "Todas mis residencias":
+    - /url: /residence/dashboard
+    - generic: apartment
+    - generic: Todas mis residencias
+  - paragraph: owner.residencia.norte@example.com
+  - link "Editar perfil":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/profile
+    - generic: edit
+    - generic: Editar perfil
+  - button "Salir":
+    - generic: logout
+    - generic: Salir
+- navigation "Navegación principal":
+  - link "Panel":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e
+    - generic: dashboard
+    - generic: Panel
+  - link "Solicitudes":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/applications
+    - generic: inbox
+    - generic: Solicitudes
+  - link "Camas, Disponibilidad":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/availability
+    - generic: bed
+    - generic: Camas
+  - link "Residentes":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/residents
+    - generic: groups
+    - generic: Residentes
+  - button "Más, 1 avisos pendientes":
+    - generic: more_horiz
+    - generic: Más
+- main:
+  - generic: group
+  - text: Equipo
+  - heading "Equipo" [level=1]
+  - paragraph: Las personas que trabajan con vos en Residencia Norte. Cada residencia tiene su propio equipo.
+  - heading "Cómo funcionan los permisos" [level=2]:
+    - generic: info
+    - text: Cómo funcionan los permisos
+  - paragraph: "Vos elegís, staff por staff, qué puede hacer: revisar y rechazar solicitudes, el pago a la residencia, habitaciones y disponibilidad, residentes, renovaciones, lista de espera, preguntas y, si querés, proponer ajustes o editar el perfil. Todo staff activo puede ver el panel y las pantallas en solo lectura, abrir un caso de Soporte y recibir avisos. Gestionar el equipo y sus permisos, enviar el perfil a verificación, sumar otra residencia y el reporte PDF son solo tuyos."
+  - region "Miembros":
+    - heading "Miembros" [level=2]
+    - generic: "2"
+    - list:
+      - paragraph: owner.residencia.norte@example.comVos
+      - paragraph: Desde 20/10/2026
+      - generic: Dueño
+      - generic: Activo
+      - paragraph: staff.norte@estured.test
+      - paragraph: Desde 20/10/2026
+      - generic: Staff
+      - generic: Activo
+      - generic "Permisos (5 de 10 activos)":
+        - text: Permisos
+        - generic: (5 de 10 activos)
+      - button "Quitar acceso"
+  - region "Invitar a una persona":
+    - heading "Invitar a una persona" [level=2]
+    - generic: Email de la persona
+    - textbox "Email de la persona":
+      - /placeholder: nombre@ejemplo.com
+    - paragraph: Le llega un enlace para sumarse como staff. Vence a los 7 días.
+    - generic "Permisos iniciales (8 de 10 activos)":
+      - text: Permisos iniciales
+      - generic: (8 de 10 activos)
+    - button "Enviar invitación"
+    - paragraph: "Hasta 10 personas de staff (hoy: 1). La invitación vence a los 7 días y se puede usar una sola vez."
+  - region "Invitaciones pendientes":
+    - heading "Invitaciones pendientes" [level=2]
+    - generic: "2"
+    - list:
+      - paragraph: pendiente.equipo@estured.test
+      - paragraph: Enviada el 23/10/2026 · venció el 30/10/2026
+      - generic: Vencida
+      - button "Reenviar"
+      - button "Cancelar invitación"
+      - paragraph: vencida.equipo@estured.test
+      - paragraph: Enviada el 16/10/2026 · venció el 23/10/2026
+      - generic: Vencida
+      - button "Reenviar"
+      - button "Cancelar invitación"
+- button "Ricardo — Dueño de Residencia": Ricardo — Dueño de Residencia
+- button "Open Next.js Dev Tools":
+- alert

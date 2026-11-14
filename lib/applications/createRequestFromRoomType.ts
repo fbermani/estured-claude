@@ -48,6 +48,13 @@ export async function createApplicationFromRoomType(
     regulationPending?: boolean;
   },
 ): Promise<{ id: string } | { error: string }> {
+  // SEG14-02: punto único de entrada. Una residencia pausada/no publicada no recibe solicitudes nuevas por ningún camino
+  // (directo, propuesta familiar vieja o lista de espera).
+  const { data: residence } = await admin.from("residences").select("status").eq("id", params.residenceId).maybeSingle();
+  if (!residence || residence.status !== "verified_active") {
+    return { error: "Esta residencia ya no está disponible para solicitar." };
+  }
+
   const initialStatus = await determineInitialApplicationStatus(admin, params.roomTypeId);
   if ("error" in initialStatus) return { error: initialStatus.error };
 

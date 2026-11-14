@@ -1,0 +1,120 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- complementary:
+  - link "EstuRed, inicio":
+    - /url: /
+    - generic: EstuRed
+  - button "Notificaciones":
+    - generic: notifications
+  - navigation:
+    - link "Inicio":
+      - /url: /students/dashboard
+      - generic: home
+      - generic: Inicio
+    - link "Buscar residencias":
+      - /url: /search
+      - generic: search
+      - generic: Buscar residencias
+    - link "Favoritos":
+      - /url: /students/favorites
+      - generic: favorite
+      - generic: Favoritos
+    - link "Mis solicitudes":
+      - /url: /students/applications
+      - generic: description
+      - generic: Mis solicitudes
+    - link "Lista de espera":
+      - /url: /students/waitlist
+      - generic: hourglass_top
+      - generic: Lista de espera
+    - link "Mi perfil":
+      - /url: /students/profile
+      - generic: person
+      - generic: Mi perfil
+    - link "Mi estadía":
+      - /url: /students/residency
+      - generic: apartment
+      - generic: Mi estadía
+    - link "Soporte":
+      - /url: /students/support
+      - generic: support_agent
+      - generic: Soporte
+  - paragraph: camila.rojas@example.com
+  - link "Botón de arrepentimiento":
+    - /url: /students/revocation
+    - generic: undo
+    - generic: Botón de arrepentimiento
+  - button "Salir":
+    - generic: logout
+    - generic: Salir
+  - button "Colapsar menú":
+    - generic: chevron_left
+- main:
+  - generic: home_work
+  - generic: home_work
+  - text: Tu estadía
+  - heading "Mi estadía" [level=1]
+  - paragraph: Si tu residencia te cargó como residente, activá tu cuenta con el enlace personal que te mandó o con un código a tu mail.
+  - generic: apartment
+  - heading "¿Ya vivís en una residencia?" [level=2]
+  - paragraph: "Pedile a tu residencia que te vincule: apenas lo apruebe, figurás como residente."
+  - list:
+    - generic: Residencia Norte
+    - generic: Esperando a la residencia
+    - button "Retirar"
+  - generic: Tu residencia
+  - combobox "Tu residencia":
+    - option "Elegí una…" [selected]
+    - option "2340 Residencia Universitaria by Luco · Balvanera"
+    - option "Arcos del Soho · Palermo"
+    - option "Casa Almagro Estudiantes · Almagro"
+    - option "Casa AURA · Constitución"
+    - option "Casa Colegiales · Colegiales"
+    - option "Casa Rica Coliving (Obelisco) · San Nicolás"
+    - option "Casa San Telmo · San Telmo"
+    - option "Charlie's Hostel · Villa Crespo"
+    - option "CLEI Residencia de Estudiantes · Monserrat"
+    - option "Entis Residencia Universitaria · San Telmo"
+    - option "IndER Residencia · Constitución"
+    - option "La Casa de Cris - Residencia I Almagro · Almagro"
+    - option "La Casona Monserrat · Monserrat"
+    - option "La Casona Recoleta · Balvanera"
+    - option "La Scala Belgrano · Colegiales"
+    - option "La Scala Hollywood · Palermo"
+    - option "Las Cabañas · Monserrat"
+    - option "Luco Hotel (Residencia) · Recoleta"
+    - option "Mansión Paloma · Colegiales"
+    - option "Residencia Balvanera Centro · Balvanera"
+    - option "Residencia Belgrano R · Belgrano"
+    - option "Residencia Caballito Parque · Caballito"
+    - option "Residencia El Ángel · Montserrat"
+    - option "Residencia Family Home · Constitución"
+    - option "Residencia Norte · Palermo"
+    - option "Residencia Núñez Río · Núñez"
+    - option "Residencia Palermo Soho · Palermo"
+    - option "Residencia Recoleta Plaza · Recoleta"
+    - option "Residencia Río de la Plata · Recoleta"
+    - option "Residencia San Marcos · Montserrat"
+    - option "Residencia Sin Fronteras · Centro"
+    - option "Residencia Test Integración (Ciclo 30 — renovaciones) · Palermo"
+    - option "Residencia Universitaria Gusti · Balvanera"
+    - option "Residencia Universitaria Lith · Balvanera"
+    - option "Residencia Universitaria Olivia · Núñez"
+    - option "Residencia Villa Crespo · Villa Crespo"
+    - option "Student Hostel La Bamba (Ilvero) · Recoleta"
+    - option "Verona del Soho · Palermo"
+    - option "Wanna Centro · San Nicolás"
+    - option "Wanna Congreso · Balvanera"
+    - option "Wanna Independencia · San Cristóbal"
+    - option "Wanna Palermo · Recoleta"
+    - option "Wanna Sur · Montserrat"
+    - option "Wanna Tango · Montserrat"
+  - generic "Tengo un código de casa"
+  - generic: Mensaje (opcional)
+  - textbox "Mensaje (opcional)"
+  - paragraph: Por ejemplo, tu habitación o desde cuándo vivís ahí.
+  - button "Pedir que me vinculen"
+  - generic "Mi residencia no está"
+- button "Camila — Estudiante en Búsqueda": Camila — Estudiante en Búsqueda
+- button "Open Next.js Dev Tools":
+- alert

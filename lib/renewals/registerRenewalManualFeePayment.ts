@@ -8,6 +8,8 @@ export type RegisterRenewalFeePaymentResult = { ok: true } | { ok: false; error:
 
 const MAX_PROOF_BYTES = 10 * 1024 * 1024;
 const ALLOWED_TYPES = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
+const FEE_NOT_REGISTRABLE =
+  "El pago ya no se puede registrar: el plazo venció o ya hay un comprobante cargado. Escribinos a Soporte si necesitás ayuda.";
 const IVA_CONDITIONS = new Set(["consumidor_final", "responsable_inscripto", "monotributista", "exento"]);
 
 /**
@@ -48,6 +50,16 @@ export async function registerRenewalManualFeePayment(
     return { ok: false, error: "Todavía no se habilitó el pago del fee para esta renovación." };
   }
   if (!offer.estured_fee_payment_id) return { ok: false, error: "No encontramos el fee de esta renovación." };
+
+  // SEG14-01: el fee tiene que seguir esperando el pago y dentro de plazo (un fee `expired` es terminal: se reabre solo por la vía de admin).
+  const { data: fee } = await admin
+    .from("estured_fee_payments")
+    .select("status, expires_at")
+    .eq("id", offer.estured_fee_payment_id)
+    .maybeSingle();
+  if (!fee || fee.status !== "pending_payment_method" || (fee.expires_at && new Date(fee.expires_at) <= new Date())) {
+    return { ok: false, error: FEE_NOT_REGISTRABLE };
+  }
 
   if (params.file.size === 0) return { ok: false, error: "Adjuntá un comprobante de la transferencia." };
   if (params.file.size > MAX_PROOF_BYTES) return { ok: false, error: "El archivo no puede superar los 10MB." };
@@ -98,7 +110,8 @@ export async function registerRenewalManualFeePayment(
     return { ok: false, error: "No pudimos registrar el comprobante." };
   }
 
-  const { error: updateError } = await admin
+  // Compare-and-set: solo si el fee sigue esperando el pago y no venció (cierra la carrera con el job de vencimiento y los envíos dobles).
+  const { data: updatedRows, error: updateError } = await admin
     .from("estured_fee_payments")
     .update({
       status: "pending_manual_payment",
@@ -109,10 +122,16 @@ export async function registerRenewalManualFeePayment(
       payer_billing_cuit: params.payerBillingCuit,
       payer_iva_condition: params.payerIvaCondition,
     })
-    .eq("id", offer.estured_fee_payment_id);
-  if (updateError) {
-    console.error("[renewals] fee proof update failed:", updateError);
-    return { ok: false, error: "No pudimos registrar el pago." };
+    .eq("id", offer.estured_fee_payment_id)
+    .eq("status", "pending_payment_method")
+    .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
+    .select("id");
+  if (updateError || !updatedRows || updatedRows.length === 0) {
+    if (updateError) console.error("[renewals] fee proof update failed:", updateError);
+    // El comprobante subido no quedó asociado a ningún pago: se limpia (mejor esfuerzo).
+    await admin.from("files").delete().eq("id", fileRow.id);
+    await admin.storage.from("payment-proofs").remove([path]);
+    return { ok: false, error: updateError ? "No pudimos registrar el pago." : FEE_NOT_REGISTRABLE };
   }
 
   await createAuditLog(admin, {

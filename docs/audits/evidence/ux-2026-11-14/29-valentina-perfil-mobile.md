@@ -1,0 +1,313 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- button "Abrir menú":
+  - generic: menu
+- generic: EstuRed
+- button "Notificaciones, 1 sin leer":
+  - generic: notifications
+  - generic: "1"
+- complementary:
+  - link "EstuRed, inicio":
+    - /url: /
+    - generic: EstuRed
+  - button "Notificaciones, 1 sin leer":
+    - generic: notifications
+    - generic: "1"
+  - button "Cerrar menú":
+    - generic: close
+  - navigation:
+    - link "Inicio":
+      - /url: /students/dashboard
+      - generic: home
+      - generic: Inicio
+    - link "Buscar residencias":
+      - /url: /search
+      - generic: search
+      - generic: Buscar residencias
+    - link "Favoritos":
+      - /url: /students/favorites
+      - generic: favorite
+      - generic: Favoritos
+    - link "Mis solicitudes":
+      - /url: /students/applications
+      - generic: description
+      - generic: Mis solicitudes
+    - link "Lista de espera":
+      - /url: /students/waitlist
+      - generic: hourglass_top
+      - generic: Lista de espera
+    - link "Mi perfil":
+      - /url: /students/profile
+      - generic: person
+      - generic: Mi perfil
+    - link "Mi estadía":
+      - /url: /students/residency
+      - generic: apartment
+      - generic: Mi estadía
+    - link "Soporte":
+      - /url: /students/support
+      - generic: support_agent
+      - generic: Soporte
+  - paragraph: valentina.sosa@example.com
+  - link "Botón de arrepentimiento":
+    - /url: /students/revocation
+    - generic: undo
+    - generic: Botón de arrepentimiento
+  - button "Salir":
+    - generic: logout
+    - generic: Salir
+- navigation "Navegación principal":
+  - link "Inicio":
+    - /url: /students/dashboard
+    - generic: home
+    - generic: Inicio
+  - link "Buscar residencias":
+    - /url: /search
+    - generic: search
+    - generic: Buscar
+  - link "Favoritos":
+    - /url: /students/favorites
+    - generic: favorite
+    - generic: Favoritos
+  - link "Mis solicitudes":
+    - /url: /students/applications
+    - generic: description
+    - generic: Solicitudes
+  - button "Más":
+    - generic: more_horiz
+    - generic: Más
+- main:
+  - heading "Mi perfil" [level=1]
+  - paragraph: Completá estos datos para que las residencias conozcan mejor tu solicitud. Los perfiles más completos tienen mejores chances de ser aceptados.
+  - paragraph:
+    - generic: lock
+    - generic: "Tus documentos y tus datos personales están protegidos: son privados, solo acceden quienes corresponde y cada acceso queda registrado."
+  - generic: Perfil completo
+  - generic: 44%
+  - list:
+    - generic: arrow_right_alt
+    - text: Subí tu documento de identidad para dar más confianza a las residencias.
+    - generic: arrow_right_alt
+    - text: Subí tu comprobante de estudio para respaldar tu solicitud.
+    - generic: arrow_right_alt
+    - text: Agregá una descripción personal para generar mayor confianza.
+    - generic: arrow_right_alt
+    - text: Completá tus intereses para aumentar las posibilidades de ser aceptado.
+    - generic: arrow_right_alt
+    - text: Contanos tus hábitos de convivencia — ayuda a generar mejores convivencias.
+  - heading "Datos de tu perfil" [level=2]
+  - generic: Nacionalidad
+  - combobox "Nacionalidad":
+    - option "Elegí un país"
+    - option "🇦🇷 Argentina" [selected]
+    - option "🇧🇴 Bolivia"
+    - option "🇧🇷 Brasil"
+    - option "🇨🇱 Chile"
+    - option "🇨🇴 Colombia"
+    - option "🇨🇷 Costa Rica"
+    - option "🇨🇺 Cuba"
+    - option "🇪🇨 Ecuador"
+    - option "🇸🇻 El Salvador"
+    - option "🇬🇹 Guatemala"
+    - option "🇭🇳 Honduras"
+    - option "🇲🇽 México"
+    - option "🇳🇮 Nicaragua"
+    - option "🇵🇦 Panamá"
+    - option "🇵🇾 Paraguay"
+    - option "🇵🇪 Perú"
+    - option "🇩🇴 República Dominicana"
+    - option "🇺🇾 Uruguay"
+    - option "🇻🇪 Venezuela"
+    - option "🇩🇪 Alemania"
+    - option "🇦🇺 Australia"
+    - option "🇦🇹 Austria"
+    - option "🇧🇪 Bélgica"
+    - option "🇨🇦 Canadá"
+    - option "🇨🇳 China"
+    - option "🇰🇷 Corea del Sur"
+    - option "🇩🇰 Dinamarca"
+    - option "🇪🇸 España"
+    - option "🇺🇸 Estados Unidos"
+    - option "🇫🇮 Finlandia"
+    - option "🇫🇷 Francia"
+    - option "🇬🇷 Grecia"
+    - option "🇮🇳 India"
+    - option "🇮🇪 Irlanda"
+    - option "🇮🇱 Israel"
+    - option "🇮🇹 Italia"
+    - option "🇯🇵 Japón"
+    - option "🇳🇴 Noruega"
+    - option "🇳🇱 Países Bajos"
+    - option "🇵🇱 Polonia"
+    - option "🇵🇹 Portugal"
+    - option "🇬🇧 Reino Unido"
+    - option "🇷🇺 Rusia"
+    - option "🇿🇦 Sudáfrica"
+    - option "🇸🇪 Suecia"
+    - option "🇨🇭 Suiza"
+    - option "🇹🇷 Turquía"
+    - option "🇺🇦 Ucrania"
+  - generic: Provincia o ciudad de origen (opcional)
+  - textbox "Provincia o ciudad de origen (opcional)":
+    - /placeholder: "Ej: Córdoba, Mendoza, Lima…"
+    - text: Córdoba
+  - generic: ¿Dónde vas a estudiar?
+  - combobox "¿Dónde vas a estudiar?":
+    - option "Elegí tu universidad"
+    - option "UBA - Facultad de Derecho"
+    - option "UBA - Facultad de Medicina"
+    - option "UBA - Facultad de Ingeniería"
+    - option "UBA - Facultad de Ciencias Económicas"
+    - option "UBA - Facultad de Filosofía y Letras"
+    - option "UBA - Ciudad Universitaria"
+    - option "UBA - Facultad de Arquitectura, Diseño y Urbanismo (FADU)"
+    - option "UBA - Facultad de Psicología"
+    - option "UBA - Facultad de Ciencias Sociales"
+    - option "UBA - Facultad de Odontología"
+    - option "Universidad Católica Argentina (UCA)"
+    - option "Universidad de Palermo (UP)"
+    - option "UADE"
+    - option "Instituto Tecnológico de Buenos Aires (ITBA)"
+    - option "Universidad de Belgrano"
+    - option "Universidad Torcuato Di Tella (UTDT)"
+    - option "Universidad del Salvador (USAL)"
+    - option "Universidad Tecnológica Nacional (UTN - FRBA)"
+    - option "Universidad de Ciencias Empresariales y Sociales (UCES)"
+    - option "Universidad Abierta Interamericana (UAI)"
+    - option "Universidad Nacional de las Artes (UNA)"
+    - option "Instituto Universitario del Hospital Italiano"
+    - option "Universidad Argentina John F. Kennedy (UK)"
+    - option "Otra universidad…" [selected]
+  - paragraph: Nos ayuda a mostrarte residencias bien ubicadas.
+  - textbox "Nombre de tu universidad": Universidad en CABA
+  - generic: ¿Qué carrera?
+  - combobox "¿Qué carrera?":
+    - option "Elegí tu carrera"
+    - option "Medicina"
+    - option "Derecho"
+    - option "Ingeniería Industrial"
+    - option "Arquitectura" [selected]
+    - option "Psicología"
+    - option "Ciencias Políticas"
+    - option "Economía"
+    - option "Diseño Gráfico"
+    - option "Relaciones Internacionales"
+    - option "Contador Público"
+    - option "Comunicación Social"
+    - option "Ingeniería en Sistemas"
+    - option "Odontología"
+    - option "Veterinaria"
+    - option "Administración de Empresas"
+    - option "Biología"
+    - option "Letras"
+    - option "Nutrición"
+    - option "Kinesiología"
+    - option "Ciencias de la Educación"
+    - option "Otra carrera…"
+  - heading "Sobre vos y tu convivencia" [level=2]
+  - paragraph: Quién ve esto lo elegís vos más abajo, en «Tu perfil en la comunidad».
+  - generic: auto_awesome
+  - text: Sobre mí
+  - paragraph: Lo primero que van a leer de vos
+  - paragraph:
+    - generic: lightbulb
+    - text: Contá cómo sos como compañero de residencia, qué te gusta hacer, cómo es tu rutina o cualquier aspecto que ayude a conocerte mejor. Evitá repetir información como tu carrera o nacionalidad.
+  - textbox "Sobre mí":
+    - /placeholder: "Ej: Soy tranquilo, ordenado y me gusta cocinar los domingos. Busco un ambiente de estudio, pero también me copa compartir un mate de vez en cuando…"
+  - paragraph: Empezá contando cómo sos como compañero de residencia.
+  - generic: 0/240
+  - button "Ver ejemplos":
+    - generic: expand_more
+    - text: Ver ejemplos
+  - generic: favorite
+  - generic: Intereses (opcional)
+  - paragraph: Elegí los que te representen — ayuda a encontrar compañeros afines.
+  - button "Deportes"
+  - button "Música"
+  - button "Cine"
+  - button "Series"
+  - button "Lectura"
+  - button "Tecnología"
+  - button "Programación"
+  - button "Gaming"
+  - button "Viajes"
+  - button "Idiomas"
+  - button "Cocina"
+  - button "Fotografía"
+  - button "Arte"
+  - button "Naturaleza"
+  - button "Emprendimiento"
+  - button "Voluntariado"
+  - generic: schedule
+  - generic: Hábitos (opcional)
+  - paragraph: Ayuda a generar mejores convivencias con tus futuros compañeros de residencia.
+  - button "Madrugador"
+  - button "Nocturno"
+  - button "Ordenado"
+  - button "Muy sociable"
+  - button "Tranquilo"
+  - button "Me gusta cocinar"
+  - button "Estudio en silencio"
+  - button "Escucho música para estudiar"
+  - button "No fumo"
+  - button "Fumador"
+  - button "Hago deporte"
+  - button "Trabajo mientras estudio"
+  - button "Recibo visitas ocasionalmente"
+  - button "Guardar"
+  - generic: groups
+  - heading "Tu perfil en la comunidad" [level=2]
+  - paragraph: Cuando te alojes, los demás usuarios registrados pueden ver tu perfil en la comunidad de tu residencia. Vos decidís si aparecés y qué se ve. Podés cambiarlo cuando quieras.
+  - paragraph:
+    - generic: shield_person
+    - generic: Mientras seas menor de 18 tu perfil no aparece en la comunidad. Cuando cumplas 18 vas a poder activarlo. Mientras tanto, solo se muestra que la plaza está ocupada.
+  - generic: Aparecer en la comunidad de mi residencia
+  - generic: Si lo apagás, solo se ve que hay una plaza ocupada. Tu nombre y tus datos no se muestran.
+  - switch "Aparecer en la comunidad de mi residencia Si lo apagás, solo se ve que hay una plaza ocupada. Tu nombre y tus datos no se muestran." [disabled]
+  - paragraph: Qué ven los demás usuarios registrados
+  - generic: Edad
+  - generic: Tu edad, no tu fecha de nacimiento.
+  - switch "Edad Tu edad, no tu fecha de nacimiento." [disabled]
+  - generic: Nacionalidad
+  - generic: Tu país y su bandera.
+  - switch "Nacionalidad Tu país y su bandera." [disabled]
+  - generic: Carrera y ciudad de origen
+  - generic: Qué estudiás y de dónde sos.
+  - switch "Carrera y ciudad de origen Qué estudiás y de dónde sos." [disabled]
+  - generic: Hábitos e intereses
+  - generic: Los que elegiste en tu perfil.
+  - switch "Hábitos e intereses Los que elegiste en tu perfil." [disabled]
+  - paragraph: Tu nombre de pila y tu texto «Sobre mí» se ven cuando aparecés. Tu apellido, email, teléfono, fecha de nacimiento, universidad y documentos nunca se muestran.
+  - paragraph: Así te ve otro usuario registrado
+  - generic: person
+  - paragraph: Plaza ocupada
+  - paragraph: Nadie ve tu nombre ni tus datos.
+  - paragraph: La vista previa se actualiza en vivo con lo que cargás arriba. Para que quede así en tu perfil, guardá los cambios de arriba.
+  - button "Guardar visibilidad" [disabled]
+  - generic: folder_shared
+  - heading "Documentos" [level=2]
+  - paragraph: "Protegidos y privados: no se muestran a otros usuarios y cada acceso queda registrado. Ayudan a que confíen en tu solicitud."
+  - generic: Documento de identidad (DNI, pasaporte)
+  - button "Choose File"
+  - button "Subir"
+  - generic: Comprobante de estudio (constancia de alumno regular, aceptación)
+  - button "Choose File"
+  - button "Subir"
+  - generic: Antecedentes penales (certificado de antecedentes)
+  - button "Choose File"
+  - button "Subir"
+  - paragraph: Otros documentos importantes
+  - paragraph: "Algunas residencias piden documentación adicional: certificados, visa, seguro médico, carta de aceptación."
+  - button "Choose File"
+  - button "Agregar documento"
+  - generic: family_restroom
+  - heading "Padre, madre o tutor" [level=3]
+  - paragraph:
+    - generic: check_circle
+    - text: Vinculado
+  - paragraph: Martin Fernandez
+  - paragraph: padre.lucia@example.com
+  - button "Desvincular"
+- button "Valentina — Estudiante Menor vinculada": Valentina — Estudiante Menor vinculada
+- button "Open Next.js Dev Tools":
+- alert

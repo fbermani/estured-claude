@@ -1,0 +1,269 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- banner:
+  - navigation:
+    - link "EstuRed, inicio":
+      - /url: /
+      - generic: EstuRed
+    - link "Buscar":
+      - /url: /search
+    - button "Abrir menú":
+      - generic: menu
+- main:
+  - paragraph: Inicio › Buscar residencias
+  - heading "Encontrá tu próximo hogar en Buenos Aires" [level=1]
+  - paragraph: Todas las residencias del catálogo fueron verificadas presencialmente. La disponibilidad es informativa y toda reserva está sujeta a confirmación.
+  - paragraph:
+    - generic: menu_book
+    - generic: "Antes de elegir:"
+    - link "Cómo elegir una residencia estudiantil en Buenos Aires":
+      - /url: /guias/como-elegir-residencia-estudiantil-buenos-aires
+  - dialog "Filtros":
+    - heading "Filtros" [level=2]
+    - button "Cerrar filtros" [active]:
+      - generic: close
+    - region "Presupuesto mensual":
+      - heading "Presupuesto mensual" [level=3]
+      - slider "Precio mínimo en USD por mes": "130"
+      - slider "Precio máximo en USD por mes": "470"
+      - paragraph:
+        - generic: USD 130
+        - generic: —
+        - generic: USD 470+
+      - paragraph: Precio «desde» por persona, en USD.
+    - switch "Comunidad activa 0 residencias con estudiantes viviendo hoy"
+    - generic: groups
+    - generic: Comunidad activa
+    - generic: 0 residencias con estudiantes viviendo hoy
+    - region "Barrio":
+      - heading "Barrio" [level=3]
+      - group "Barrio":
+        - checkbox "Almagro 0 resultados"
+        - generic: Almagro
+        - generic "0 resultados": "0"
+        - checkbox "Balvanera 0 resultados"
+        - generic: Balvanera
+        - generic "0 resultados": "0"
+        - checkbox "Belgrano 0 resultados"
+        - generic: Belgrano
+        - generic "0 resultados": "0"
+        - checkbox "Caballito 0 resultados"
+        - generic: Caballito
+        - generic "0 resultados": "0"
+        - checkbox "Centro 0 resultados"
+        - generic: Centro
+        - generic "0 resultados": "0"
+        - checkbox "Colegiales 0 resultados"
+        - generic: Colegiales
+        - generic "0 resultados": "0"
+      - button "Mostrar 10 más"
+    - region "Universidad cercana":
+      - heading "Universidad cercana" [level=3]
+      - group "Universidad cercana":
+        - checkbox "Instituto Tecnológico de Buenos Aires (ITBA) 0 resultados"
+        - generic: Instituto Tecnológico de Buenos Aires (ITBA)
+        - generic "0 resultados": "0"
+        - checkbox "Instituto Universitario del Hospital Italiano 0 resultados"
+        - generic: Instituto Universitario del Hospital Italiano
+        - generic "0 resultados": "0"
+        - checkbox "UADE 0 resultados"
+        - generic: UADE
+        - generic "0 resultados": "0"
+        - checkbox "UBA - Facultad de Arquitectura, Diseño y Urbanismo (FADU) 0 resultados"
+        - generic: UBA - Facultad de Arquitectura, Diseño y Urbanismo (FADU)
+        - generic "0 resultados": "0"
+        - checkbox "UBA - Facultad de Ciencias Económicas 0 resultados"
+        - generic: UBA - Facultad de Ciencias Económicas
+        - generic "0 resultados": "0"
+      - button "Mostrar 15 más"
+    - region "Tipo de habitación":
+      - heading "Tipo de habitación" [level=3]
+      - group "Tipo de habitación":
+        - checkbox "Individual 8 resultados"
+        - generic: Individual
+        - generic "8 resultados": "8"
+        - checkbox "Doble 9 resultados"
+        - generic: Doble
+        - generic "9 resultados": "9"
+        - checkbox "Triple 7 resultados"
+        - generic: Triple
+        - generic "7 resultados": "7"
+        - checkbox "Cuádruple 6 resultados"
+        - generic: Cuádruple
+        - generic "6 resultados": "6"
+        - checkbox "Compartida 0 resultados" [checked]
+        - generic: Compartida
+        - generic "0 resultados": "0"
+    - region "Servicios":
+      - heading "Servicios" [level=3]
+      - paragraph: Se muestran las que ofrecen todos los que elijas.
+      - group "Servicios":
+        - checkbox "Wifi 0 resultados"
+        - generic: wifi
+        - generic: Wifi
+        - generic "0 resultados": "0"
+        - checkbox "Cámaras 24 hs 0 resultados"
+        - generic: videocam
+        - generic: Cámaras 24 hs
+        - generic "0 resultados": "0"
+        - checkbox "Limpieza General 0 resultados"
+        - generic: mop
+        - generic: Limpieza General
+        - generic "0 resultados": "0"
+        - checkbox "Limpieza de Habitación 0 resultados"
+        - generic: cleaning_services
+        - generic: Limpieza de Habitación
+        - generic "0 resultados": "0"
+        - checkbox "Lavandería 0 resultados"
+        - generic: local_laundry_service
+        - generic: Lavandería
+        - generic "0 resultados": "0"
+        - checkbox "Área Protegida (emergencias médicas) 0 resultados"
+        - generic: shield
+        - generic: Área Protegida (emergencias médicas)
+        - generic "0 resultados": "0"
+      - button "Mostrar 6 más"
+    - region "Áreas comunes":
+      - heading "Áreas comunes" [level=3]
+      - paragraph: Se muestran las que ofrecen todas las que elijas.
+      - group "Áreas comunes":
+        - checkbox "Sala de Estar 0 resultados"
+        - generic: weekend
+        - generic: Sala de Estar
+        - generic "0 resultados": "0"
+        - checkbox "Sala de Estudio 0 resultados"
+        - generic: school
+        - generic: Sala de Estudio
+        - generic "0 resultados": "0"
+        - checkbox "Comedor 0 resultados"
+        - generic: dining
+        - generic: Comedor
+        - generic "0 resultados": "0"
+        - checkbox "Patio 0 resultados"
+        - generic: yard
+        - generic: Patio
+        - generic "0 resultados": "0"
+      - button "Mostrar 5 más"
+    - region "Quiénes viven en la residencia":
+      - heading "Quiénes viven en la residencia" [level=3]
+      - group "Quiénes viven en la residencia":
+        - checkbox "Mixto 1 resultados"
+        - generic: Mixto
+        - generic "1 resultados": "1"
+        - checkbox "Solo mujeres 0 resultados" [checked]
+        - generic: Solo mujeres
+        - generic "0 resultados": "0"
+        - checkbox "Solo hombres 0 resultados"
+        - generic: Solo hombres
+        - generic "0 resultados": "0"
+    - region "Disponibilidad":
+      - heading "Disponibilidad" [level=3]
+      - paragraph: "Informativa: toda solicitud queda sujeta a confirmación."
+      - group "Disponibilidad":
+        - checkbox "Disponibilidad informada 0 resultados"
+        - generic: Disponibilidad informada
+        - generic "0 resultados": "0"
+        - checkbox "Residencia completa 0 resultados"
+        - generic: Residencia completa
+        - generic "0 resultados": "0"
+    - region "Otros":
+      - heading "Otros" [level=3]
+      - checkbox "Con promoción vigente 0 resultados"
+      - generic: Con promoción vigente
+      - generic "0 resultados": "0"
+      - checkbox "Admite menores de 18 0 resultados"
+      - generic: Admite menores de 18
+      - generic "0 resultados": "0"
+    - button "Borrar todo"
+    - button "Sin resultados"
+  - region "Resultados":
+    - button "Filtros 2" [expanded]:
+      - generic: tune
+      - text: Filtros
+      - generic: "2"
+    - heading "0 residencias encontradas" [level=2]
+    - group "Cómo ver los resultados":
+      - button "Lista"
+      - button "Grilla" [pressed]
+      - button "Mapa"
+    - combobox "Ordenar por":
+      - option "Recomendadas" [selected]
+      - 'option "Precio: menor a mayor"'
+      - 'option "Precio: mayor a menor"'
+    - list "Filtros activos":
+      - button "Quitar filtro Hab. Compartida":
+        - text: Hab. Compartida
+        - generic: close
+      - button "Quitar filtro Solo mujeres":
+        - text: Solo mujeres
+        - generic: close
+      - button "Borrar todo"
+    - generic: search_off
+    - heading "No encontramos residencias con estos filtros" [level=3]
+    - paragraph: "Probá sacando alguno. El catálogo se va ampliando: si todavía no hay una residencia para lo que buscás, volvé a pasar pronto."
+    - list:
+      - link "Quitar «Compartida», 9 resultados":
+        - /url: /search?genero=solo_mujeres
+        - text: Quitar «Compartida», 9 resultados
+        - generic: close
+      - link "Quitar «Solo mujeres», 1 resultado":
+        - /url: /search?hab=Compartida
+        - text: Quitar «Solo mujeres», 1 resultado
+        - generic: close
+    - link "Borrar todos los filtros":
+      - /url: /search
+- contentinfo:
+  - generic: EstuRed
+  - generic: EstuRed
+  - paragraph: La convivencia también se elige. Residencias estudiantiles verificadas en CABA, con solicitudes registradas y comprobantes verificables.
+  - list:
+    - generic: check
+    - text: Residencias verificadas presencialmente
+    - generic: check
+    - text: Solicitudes registradas en la plataforma
+    - generic: check
+    - text: Comprobante de Reserva Confirmada
+  - navigation "Explorar":
+    - paragraph: Explorar
+    - list:
+      - link "Buscar residencias":
+        - /url: /search
+      - link "Para estudiantes y familias":
+        - /url: /for-students
+      - link "Para residencias":
+        - /url: /for-residences
+      - link "Guías":
+        - /url: /guias
+      - link "Crear cuenta":
+        - /url: /register
+  - navigation "Ayuda":
+    - paragraph: Ayuda
+    - list:
+      - link "Soporte":
+        - /url: /students/support
+        - generic: support_agent
+        - text: Soporte
+      - link "Preguntas frecuentes":
+        - /url: /for-students#preguntas-frecuentes
+      - link "Cómo funciona":
+        - /url: /#el-proceso
+      - link "Qué pagás y a quién":
+        - /url: /for-students#que-pagas
+      - text: "Contacto:"
+      - link "hola@estured.com":
+        - /url: mailto:hola@estured.com
+      - listitem: ¿Tenés una reserva y algo no coincide? Abrí un caso desde tu panel.
+  - paragraph: EstuRed actúa como plataforma intermediaria de búsqueda, solicitud, registro y comprobante. No presta directamente el alojamiento. Los precios en ARS son referenciales al dólar blue del día.
+  - list:
+    - link "Botón de arrepentimiento":
+      - /url: /students/revocation
+    - link "Verificar un comprobante":
+      - /url: /verify
+    - link "Términos y condiciones":
+      - /url: /terms
+    - link "Política de privacidad":
+      - /url: /privacy
+  - paragraph: Hecho con ♥ en Buenos Aires
+- button "Simular usuario": Simular usuario
+- button "Open Next.js Dev Tools":
+- alert: Buscar residencias en CABA | EstuRed

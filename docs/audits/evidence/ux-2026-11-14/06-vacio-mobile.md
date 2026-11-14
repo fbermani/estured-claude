@@ -1,0 +1,111 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- banner:
+  - navigation:
+    - link "EstuRed, inicio":
+      - /url: /
+      - generic: EstuRed
+    - link "Buscar":
+      - /url: /search
+    - button "Abrir menú":
+      - generic: menu
+- main:
+  - paragraph: Inicio › Buscar residencias
+  - heading "Encontrá tu próximo hogar en Buenos Aires" [level=1]
+  - paragraph: Todas las residencias del catálogo fueron verificadas presencialmente. La disponibilidad es informativa y toda reserva está sujeta a confirmación.
+  - paragraph:
+    - generic: menu_book
+    - generic: "Antes de elegir:"
+    - link "Cómo elegir una residencia estudiantil en Buenos Aires":
+      - /url: /guias/como-elegir-residencia-estudiantil-buenos-aires
+  - region "Resultados":
+    - button "Filtros 2" [active]:
+      - generic: tune
+      - text: Filtros
+      - generic: "2"
+    - heading "0 residencias encontradas" [level=2]
+    - group "Cómo ver los resultados":
+      - button "Lista"
+      - button "Grilla" [pressed]
+      - button "Mapa"
+    - combobox "Ordenar por":
+      - option "Recomendadas" [selected]
+      - 'option "Precio: menor a mayor"'
+      - 'option "Precio: mayor a menor"'
+    - list "Filtros activos":
+      - button "Quitar filtro Hab. Compartida":
+        - text: Hab. Compartida
+        - generic: close
+      - button "Quitar filtro Solo mujeres":
+        - text: Solo mujeres
+        - generic: close
+      - button "Borrar todo"
+    - generic: search_off
+    - heading "No encontramos residencias con estos filtros" [level=3]
+    - paragraph: "Probá sacando alguno. El catálogo se va ampliando: si todavía no hay una residencia para lo que buscás, volvé a pasar pronto."
+    - list:
+      - link "Quitar «Compartida», 9 resultados":
+        - /url: /search?genero=solo_mujeres
+        - text: Quitar «Compartida», 9 resultados
+        - generic: close
+      - link "Quitar «Solo mujeres», 1 resultado":
+        - /url: /search?hab=Compartida
+        - text: Quitar «Solo mujeres», 1 resultado
+        - generic: close
+    - link "Borrar todos los filtros":
+      - /url: /search
+- contentinfo:
+  - generic: EstuRed
+  - generic: EstuRed
+  - paragraph: La convivencia también se elige. Residencias estudiantiles verificadas en CABA, con solicitudes registradas y comprobantes verificables.
+  - list:
+    - generic: check
+    - text: Residencias verificadas presencialmente
+    - generic: check
+    - text: Solicitudes registradas en la plataforma
+    - generic: check
+    - text: Comprobante de Reserva Confirmada
+  - navigation "Explorar":
+    - paragraph: Explorar
+    - list:
+      - link "Buscar residencias":
+        - /url: /search
+      - link "Para estudiantes y familias":
+        - /url: /for-students
+      - link "Para residencias":
+        - /url: /for-residences
+      - link "Guías":
+        - /url: /guias
+      - link "Crear cuenta":
+        - /url: /register
+  - navigation "Ayuda":
+    - paragraph: Ayuda
+    - list:
+      - link "Soporte":
+        - /url: /students/support
+        - generic: support_agent
+        - text: Soporte
+      - link "Preguntas frecuentes":
+        - /url: /for-students#preguntas-frecuentes
+      - link "Cómo funciona":
+        - /url: /#el-proceso
+      - link "Qué pagás y a quién":
+        - /url: /for-students#que-pagas
+      - text: "Contacto:"
+      - link "hola@estured.com":
+        - /url: mailto:hola@estured.com
+      - listitem: ¿Tenés una reserva y algo no coincide? Abrí un caso desde tu panel.
+  - paragraph: EstuRed actúa como plataforma intermediaria de búsqueda, solicitud, registro y comprobante. No presta directamente el alojamiento. Los precios en ARS son referenciales al dólar blue del día.
+  - list:
+    - link "Botón de arrepentimiento":
+      - /url: /students/revocation
+    - link "Verificar un comprobante":
+      - /url: /verify
+    - link "Términos y condiciones":
+      - /url: /terms
+    - link "Política de privacidad":
+      - /url: /privacy
+  - paragraph: Hecho con ♥ en Buenos Aires
+- button "Simular usuario": Simular usuario
+- button "Open Next.js Dev Tools":
+- alert: Buscar residencias en CABA | EstuRed

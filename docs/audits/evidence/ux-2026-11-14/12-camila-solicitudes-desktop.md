@@ -1,0 +1,250 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- complementary:
+  - link "EstuRed, inicio":
+    - /url: /
+    - generic: EstuRed
+  - button "Notificaciones, 4 sin leer":
+    - generic: notifications
+    - generic: "4"
+  - navigation:
+    - link "Inicio":
+      - /url: /students/dashboard
+      - generic: home
+      - generic: Inicio
+    - link "Buscar residencias":
+      - /url: /search
+      - generic: search
+      - generic: Buscar residencias
+    - link "Favoritos":
+      - /url: /students/favorites
+      - generic: favorite
+      - generic: Favoritos
+    - link "Mis solicitudes":
+      - /url: /students/applications
+      - generic: description
+      - generic: Mis solicitudes
+    - link "Lista de espera":
+      - /url: /students/waitlist
+      - generic: hourglass_top
+      - generic: Lista de espera
+    - link "Mi perfil":
+      - /url: /students/profile
+      - generic: person
+      - generic: Mi perfil
+    - link "Mi estadía":
+      - /url: /students/residency
+      - generic: apartment
+      - generic: Mi estadía
+    - link "Soporte":
+      - /url: /students/support
+      - generic: support_agent
+      - generic: Soporte
+  - paragraph: camila.rojas@example.com
+  - link "Botón de arrepentimiento":
+    - /url: /students/revocation
+    - generic: undo
+    - generic: Botón de arrepentimiento
+  - button "Salir":
+    - generic: logout
+    - generic: Salir
+  - button "Colapsar menú":
+    - generic: chevron_left
+- main:
+  - heading "Mis solicitudes" [level=1]
+  - paragraph: Seguimiento de tus solicitudes de reserva.
+  - link "Buscar residencias":
+    - /url: /search
+  - button "Residencia Río de la Plata Individual · Ingreso 01/03/2027 Vencida — no respondiste a tiempo":
+    - paragraph: Residencia Río de la Plata
+    - paragraph: Individual · Ingreso 01/03/2027
+    - generic: Vencida — no respondiste a tiempo
+    - generic: expand_more
+  - paragraph: No respondiste la propuesta de ajuste dentro de las 48 horas.
+  - term: Habitación
+  - definition: Individual
+  - term: Duración
+  - definition: 4 meses
+  - term: Tarifa mensual
+  - definition: USD 350/mes
+  - term: Enviada
+  - definition: 02/11/2026
+  - paragraph: "Tu objetivo académico: [DEMO-NEG] Demo negociación"
+  - link "Ver detalle completo":
+    - /url: /students/applications/0e6f33fe-eda2-4161-89de-60069991be44
+    - generic: open_in_new
+    - text: Ver detalle completo
+  - button "Residencia Norte Individual · Ingreso 01/04/2026 Reserva revocada por vos":
+    - paragraph: Residencia Norte
+    - paragraph: Individual · Ingreso 01/04/2026
+    - generic: Reserva revocada por vos
+    - generic: expand_more
+  - paragraph: Ejerciste tu derecho de revocación y la reserva quedó sin efecto. Si querés volver a intentarlo, podés enviar una nueva solicitud, o escribirle a Soporte si tenés dudas.
+  - term: Habitación
+  - definition: Individual
+  - term: Duración
+  - definition: 4 meses
+  - term: Tarifa mensual
+  - definition: USD 240/mes
+  - term: Enviada
+  - definition: 24/10/2026
+  - paragraph: "Tu objetivo académico: Realizar intercambio académico por un semestre en CABA."
+  - link "Escribir a Soporte":
+    - /url: /students/support
+    - generic: support_agent
+    - text: Escribir a Soporte
+  - link "Ver detalle completo":
+    - /url: /students/applications/a0a5e002-4948-4adf-897b-d80c2439602c
+    - generic: open_in_new
+    - text: Ver detalle completo
+  - button "Residencia Norte Individual · Ingreso 01/03/2026 Reserva revocada por vos":
+    - paragraph: Residencia Norte
+    - paragraph: Individual · Ingreso 01/03/2026
+    - generic: Reserva revocada por vos
+    - generic: expand_more
+  - paragraph: Ejerciste tu derecho de revocación y la reserva quedó sin efecto. Si querés volver a intentarlo, podés enviar una nueva solicitud, o escribirle a Soporte si tenés dudas.
+  - term: Habitación
+  - definition: Individual
+  - term: Duración
+  - definition: 3 meses
+  - term: Tarifa mensual
+  - definition: USD 260/mes
+  - term: Enviada
+  - definition: 24/10/2026
+  - paragraph: "Tu objetivo académico: Realizar intercambio académico por un semestre en CABA."
+  - link "Escribir a Soporte":
+    - /url: /students/support
+    - generic: support_agent
+    - text: Escribir a Soporte
+  - link "Ver detalle completo":
+    - /url: /students/applications/3a291eee-3431-4d94-8ec1-40b04c1a8f06
+    - generic: open_in_new
+    - text: Ver detalle completo
+  - button "Residencia Norte Individual · Ingreso 01/05/2026 Reserva vencida":
+    - paragraph: Residencia Norte
+    - paragraph: Individual · Ingreso 01/05/2026
+    - generic: Reserva vencida
+    - generic: expand_more
+  - paragraph: El plazo para pagar el fee EstuRed terminó y esta reserva ya no está vigente. Si querés retomarla, escribinos a Soporte y vemos cómo ayudarte.
+  - term: Habitación
+  - definition: Individual
+  - term: Duración
+  - definition: 3 meses
+  - term: Tarifa mensual
+  - definition: USD 280/mes
+  - term: Enviada
+  - definition: 21/10/2026
+  - paragraph: "Tu objetivo académico: Realizar intercambio académico por un semestre en CABA."
+  - link "Escribir a Soporte":
+    - /url: /students/support
+    - generic: support_agent
+    - text: Escribir a Soporte
+  - link "Ver detalle completo":
+    - /url: /students/applications/f5916caa-690e-4812-875c-e52d6b9599c6
+    - generic: open_in_new
+    - text: Ver detalle completo
+  - button "Residencia Norte Doble · Ingreso 01/06/2026 Reserva revocada por vos":
+    - paragraph: Residencia Norte
+    - paragraph: Doble · Ingreso 01/06/2026
+    - generic: Reserva revocada por vos
+    - generic: expand_more
+  - paragraph: Ejerciste tu derecho de revocación y la reserva quedó sin efecto. Si querés volver a intentarlo, podés enviar una nueva solicitud, o escribirle a Soporte si tenés dudas.
+  - term: Habitación
+  - definition: Doble
+  - term: Duración
+  - definition: 4 meses
+  - term: Tarifa mensual
+  - definition: USD 220/mes
+  - term: Enviada
+  - definition: 20/10/2026
+  - paragraph: "Tu objetivo académico: Realizar intercambio académico por un semestre en CABA."
+  - link "Escribir a Soporte":
+    - /url: /students/support
+    - generic: support_agent
+    - text: Escribir a Soporte
+  - link "Ver detalle completo":
+    - /url: /students/applications/83c1f7a7-5dd1-4a75-8b8b-14ed4bc2e0a0
+    - generic: open_in_new
+    - text: Ver detalle completo
+  - button "Residencia Norte Individual · Ingreso 01/02/2026 Estadía finalizada":
+    - paragraph: Residencia Norte
+    - paragraph: Individual · Ingreso 01/02/2026
+    - generic: Estadía finalizada
+    - generic: expand_more
+  - term: Habitación
+  - definition: Individual
+  - term: Duración
+  - definition: 6 meses
+  - term: Tarifa mensual
+  - definition: USD 300/mes
+  - term: Enviada
+  - definition: 20/10/2026
+  - paragraph: "Tu objetivo académico: Realizar intercambio académico por un semestre en CABA."
+  - link "Ver detalle completo":
+    - /url: /students/applications/b59e37bf-bd48-4902-a1e6-dfac246798ab
+    - generic: open_in_new
+    - text: Ver detalle completo
+  - button "Residencia Norte Doble · Ingreso 10/08/2026 Reserva vencida":
+    - paragraph: Residencia Norte
+    - paragraph: Doble · Ingreso 10/08/2026
+    - generic: Reserva vencida
+    - generic: expand_more
+  - paragraph: El plazo para pagar el fee EstuRed terminó y esta reserva ya no está vigente. Si querés retomarla, escribinos a Soporte y vemos cómo ayudarte.
+  - term: Habitación
+  - definition: Doble
+  - term: Duración
+  - definition: 5 meses
+  - term: Tarifa mensual
+  - definition: USD 220/mes
+  - term: Enviada
+  - definition: 20/10/2026
+  - paragraph: "Tu objetivo académico: Realizar intercambio académico por un semestre en CABA."
+  - link "Escribir a Soporte":
+    - /url: /students/support
+    - generic: support_agent
+    - text: Escribir a Soporte
+  - link "Ver detalle completo":
+    - /url: /students/applications/46e36598-fc7f-464f-a357-b522dd1e41c8
+    - generic: open_in_new
+    - text: Ver detalle completo
+  - button "Residencia Río de la Plata Individual · Ingreso 01/09/2026 Vencida — no respondiste a tiempo":
+    - paragraph: Residencia Río de la Plata
+    - paragraph: Individual · Ingreso 01/09/2026
+    - generic: Vencida — no respondiste a tiempo
+    - generic: expand_more
+  - paragraph: No respondiste la propuesta de ajuste dentro de las 48 horas.
+  - term: Habitación
+  - definition: Individual
+  - term: Duración
+  - definition: 4 meses
+  - term: Tarifa mensual
+  - definition: USD 350/mes
+  - term: Enviada
+  - definition: 20/10/2026
+  - paragraph: "Tu objetivo académico: Realizar intercambio académico por un semestre en CABA."
+  - link "Ver detalle completo":
+    - /url: /students/applications/abf7d261-7fb0-46ae-b4c5-f6eef98021de
+    - generic: open_in_new
+    - text: Ver detalle completo
+  - button "Residencia Norte Individual · Ingreso 01/08/2026 Vencida — sin respuesta":
+    - paragraph: Residencia Norte
+    - paragraph: Individual · Ingreso 01/08/2026
+    - generic: Vencida — sin respuesta
+    - generic: expand_more
+  - paragraph: La residencia no respondió dentro de las 48 horas.
+  - term: Habitación
+  - definition: Individual
+  - term: Duración
+  - definition: 6 meses
+  - term: Tarifa mensual
+  - definition: USD 300/mes
+  - term: Enviada
+  - definition: 20/10/2026
+  - paragraph: "Tu objetivo académico: Realizar intercambio académico por un semestre en CABA."
+  - link "Ver detalle completo":
+    - /url: /students/applications/994a0b5b-e6f5-4f65-9dc7-ccd564178921
+    - generic: open_in_new
+    - text: Ver detalle completo
+- button "Camila — Estudiante en Búsqueda": Camila — Estudiante en Búsqueda
+- button "Open Next.js Dev Tools":
+- alert
