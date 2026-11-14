@@ -154,7 +154,7 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
   // Familiar (sin perfil de estudiante): la estadía es la de uno de sus estudiantes vinculados. Con más de uno se elige con
   // `?estudiante=` (si falta o no corresponde, el primero con reserva confirmada).
   const isFamilyOnly = Boolean(sessionUser && hasAnyRole(sessionUser, ["family_member"]) && !hasAnyRole(sessionUser, ["student"]));
-  let familyStudents: { id: string; name: string }[] = [];
+  const familyStudents: { id: string; name: string }[] = [];
   let selectedStudentId: string | null = null;
   if (isFamilyOnly && supabase) {
     const { data: links } = await supabase
