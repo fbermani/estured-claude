@@ -14,7 +14,8 @@ import "./preapertura.css";
  */
 export default async function PreaperturaLayout({ children }: { children: React.ReactNode }) {
   if (!isPreaperturaOn()) notFound();
-  const DevScreenNav = process.env.NODE_ENV === "development" ? (await import("@/components/dev/DevScreenNav")).DevScreenNav : null;
+  const showDevNav = process.env.NODE_ENV === "development" || (process.env.NEXT_PUBLIC_STAGING === "on" && process.env.VERCEL_ENV !== "production");
+  const DevScreenNav = showDevNav ? (await import("@/components/dev/DevScreenNav")).DevScreenNav : null;
   return (
     <>
       <SkipLink />

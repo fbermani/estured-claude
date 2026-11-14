@@ -43,7 +43,7 @@ Objetivo: probar el deploy real (build, variables, Turnstile, headers) sin tocar
 - **Proyecto de Vercel: se reutiliza `estured-claude`** (cuenta personal `fbermani-gmailcoms-projects`, repo `fbermani/estured-claude`, dominio `estured.vercel.app`). Estaba limpio: 4 variables y 3 deploys viejos de `main`. Se transfiere a un Team más adelante si se decide (A3).
 - **Variables separadas por entorno:** *Production* = Supabase nuevo (las 4 viejas quedaron solo en Production, pendientes de reemplazar); *Preview* = `estured-dev`. Ningún preview toca producción. Hecho el 2026-11-14.
 - **Rama `staging`** (creada local; el push lo hace el dueño: `git push -u origin staging`). Su URL es `https://estured.vercel.app` (dominio reasignado de Production a la rama `staging` el 2026-11-14; producción irá en `estured.com`).
-- **Protección:** el proyecto tiene *Vercel Authentication* con alcance `all_except_custom_domains`: las URLs `*.vercel.app` piden login de Vercel (por eso el staging usa `estured.vercel.app` y **no** un subdominio de `estured.com`, que quedaría público con la base de dev y sus usuarios demo). `DEMO_LOGIN_ENABLED` / `DEMO_USERS_PASSWORD` **no** van a Vercel. Verificar en incógnito que la URL pide login.
+- **Protección:** el proyecto tiene *Vercel Authentication* con alcance `all_except_custom_domains`: las URLs `*.vercel.app` piden login de Vercel (por eso el staging usa `estured.vercel.app` y **no** un subdominio de `estured.com`, que quedaría público con la base de dev y sus usuarios demo). El selector «Simular usuario» **sí** va en el staging (decisión del dueño, 2026-11-14), pero solo como variables de *Preview* **acotadas a la rama `staging`** (`DEMO_LOGIN_ENABLED`, `DEMO_USERS_PASSWORD` sensitive, `NEXT_PUBLIC_STAGING=on`, `PREAPERTURA=on`) y detrás del login de Vercel; `isDemoLoginEnabled()` y `isDevUi()` (`lib/dev/devUi.ts`) las ignoran si `VERCEL_ENV=production`. **Nunca** en Production. Verificar en incógnito que la URL pide login.
 - **Turnstile propio:** Vercel compila con `NODE_ENV=production`, así que la guarda S3 rechaza las claves de prueba (`1x…`). Widget `EstuRed staging` en Cloudflare con el hostname de la URL de la rama (sin `https://`); sus claves van solo a *Preview* (`NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`; la secret conviene crearla como *Sensitive*).
 - **Variables de Preview cargadas:** claves de `estured-dev`, `NEXT_PUBLIC_APP_URL` y `NEXT_PUBLIC_SITE_URL` = URL de la rama, `NEXT_PUBLIC_APP_NAME`, Turnstile. Sin `PREAPERTURA` (se prueba el sitio completo), sin `RESEND_API_KEY` (mails solo si se quiere probar con el sandbox de Resend, que entrega solo al dueño de la cuenta), sin `CRON_SECRET` (el cron de dev no se aplica).
 - **Supabase dev → Auth → URL Configuration → Redirect URLs:** agregar `https://estured.vercel.app/reset-password`.
@@ -138,7 +138,7 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 | `PREAPERTURA` | `on` si se sale en preapertura (A1) |
 | `FOUNDERS_CLOSE_AT` | opcional (A5) |
 
-- [ ] **`DEMO_LOGIN_ENABLED` y `DEMO_USERS_PASSWORD` NO existen en Vercel** (Production, Preview y Development): el selector de sesión simulada solo va en `.env.local`.
+- [ ] **`DEMO_LOGIN_ENABLED`, `DEMO_USERS_PASSWORD` y `NEXT_PUBLIC_STAGING` NO existen en Production** (solo en Preview de la rama `staging`, ver A0.2). Verificar con el MCP/dashboard que ninguna tenga `production` entre sus entornos.
 - [ ] Cargadas todas **antes** del primer deploy a prod.
 
 ---

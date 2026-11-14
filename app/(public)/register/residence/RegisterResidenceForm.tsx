@@ -13,6 +13,7 @@ import { SIGNUP_ALERT_EMPTY, SIGNUP_ALERT_INVALID, validateSignupFields } from "
 import { requestResidenceSignup, type RequestResidenceState } from "@/app/(public)/register/residence/actions";
 import { CONTACT_EMAIL } from "@/lib/constants/contact";
 import type { FounderPlace } from "@/lib/preapertura/rules";
+import { isDevUi } from "@/lib/dev/devUi";
 
 const initialState: RequestResidenceState = { status: "idle" };
 
@@ -160,7 +161,7 @@ export function RegisterResidenceForm({ variant = "default", devSuccess }: { var
         for (const [k, v] of data.entries()) if (typeof v === "string") raw[k] = v;
         const checked = validateSignupFields(raw);
         // Solo desarrollo: vacío del todo pasa al servidor, que crea una solicitud de prueba (en producción esta rama nunca aplica).
-        const devEmpty = process.env.NODE_ENV === "development" && Object.values(raw).every((v) => !v.trim());
+        const devEmpty = isDevUi() && Object.values(raw).every((v) => !v.trim());
         if (!checked.value && !devEmpty) {
           setClientErrors({ errors: checked.errors, empty: checked.anyRequiredEmpty });
           return;

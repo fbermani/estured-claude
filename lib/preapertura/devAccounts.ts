@@ -1,11 +1,12 @@
 /**
- * Cuentas de PRUEBA autogeneradas de la preapertura (solo desarrollo). En `NODE_ENV === "development"`, enviar el registro VACÍO crea una
+ * Cuentas de PRUEBA autogeneradas de la preapertura (solo desarrollo). En desarrollo y en el staging de Vercel (`isDevUi`), enviar el registro VACÍO crea una
  * cuenta de prueba y sigue al paso siguiente, para recorrer el flujo sin tipear. En producción (y en cualquier otro entorno, incluido
  * el de los tests) esto NUNCA aplica: el envío vacío falla con la validación normal. Módulo puro: sin base ni `server-only`.
  *
  * Las cuentas son identificables por el prefijo y el dominio `.test`; `scripts/seed-preapertura-dev.mjs --borrar` las limpia.
  */
 import { randomBytes } from "node:crypto";
+import { isDevUi } from "@/lib/dev/devUi";
 
 export const DEV_ACCOUNT_PREFIX = "test-preap-";
 export const DEV_ACCOUNT_DOMAIN = "estured.test";
@@ -13,7 +14,7 @@ export const DEV_ACCOUNT_DOMAIN = "estured.test";
 export const DEV_BIRTH_DATE = "2000-01-15";
 
 export function devAutoAccountsEnabled(): boolean {
-  return process.env.NODE_ENV === "development";
+  return isDevUi();
 }
 
 export type DevKind = "est" | "fam" | "hijo";

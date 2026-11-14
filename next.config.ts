@@ -21,7 +21,9 @@ function supabaseImageHost(): string | null {
  */
 const PREAPERTURA_ON = process.env.PREAPERTURA === "on";
 /** En producción (preapertura «cerrada») el sitio abierto no es navegable; en desarrollo solo se suma el popup y sus pantallas. */
-const PREAPERTURA_LOCKED = PREAPERTURA_ON && process.env.NODE_ENV !== "development";
+// El staging de Vercel (`NEXT_PUBLIC_STAGING=on`, solo Preview) se comporta como desarrollo: preapertura sin cortar el resto del sitio.
+const DEV_UI = process.env.NODE_ENV === "development" || (process.env.NEXT_PUBLIC_STAGING === "on" && process.env.VERCEL_ENV !== "production");
+const PREAPERTURA_LOCKED = PREAPERTURA_ON && !DEV_UI;
 
 const IS_PROD = process.env.NODE_ENV === "production";
 

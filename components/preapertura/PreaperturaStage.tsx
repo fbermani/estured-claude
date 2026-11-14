@@ -4,8 +4,9 @@ import { useSyncExternalStore, type ReactNode } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { BlurredPreview } from "@/components/preapertura/BlurredPreview";
 import { PreaperturaDialog } from "@/components/preapertura/PreaperturaDialog";
+import { isDevUi } from "@/lib/dev/devUi";
 
-const IS_DEV = process.env.NODE_ENV === "development";
+const IS_DEV = isDevUi();
 /** Solo desarrollo: el popup cerrado se recuerda entre pantallas (sessionStorage) hasta que se aprieta «Volver al popup». */
 const REVEAL_KEY = "estured:pre-dev-revealed";
 const REVEAL_EVENT = "estured:pre-dev-revealed-change";

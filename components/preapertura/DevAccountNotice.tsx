@@ -1,4 +1,5 @@
 import { Icon } from "@/components/ui/Icon";
+import { isDevUi } from "@/lib/dev/devUi";
 
 /** Aviso discreto «Modo dev: cuenta de prueba»: solo aparece en desarrollo con una cuenta autogenerada (ver `lib/preapertura/devAccounts.ts`). */
 export function DevAccountNotice({ email, className = "" }: { email?: string | null; className?: string }) {
@@ -15,6 +16,6 @@ export function DevAccountNotice({ email, className = "" }: { email?: string | n
 
 /** Ayuda de desarrollo bajo el botón de envío: avisa que vacío crea una cuenta de prueba. Se oculta fuera de desarrollo. */
 export function DevEmptyHint({ what = "una cuenta de prueba" }: { what?: string }) {
-  if (process.env.NODE_ENV !== "development") return null;
+  if (!isDevUi()) return null;
   return <p className="text-center text-xs text-ink-soft">Modo dev: enviá el formulario vacío para crear {what}.</p>;
 }

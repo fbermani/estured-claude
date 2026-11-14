@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, type KeyboardEvent, type ReactNode } from "react";
 import { Icon } from "@/components/ui/Icon";
+import { isDevUi } from "@/lib/dev/devUi";
 
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -122,7 +123,7 @@ export function PreaperturaDialog({
     else window.scrollBy({ top: delta, behavior });
   }
 
-  const devClose = process.env.NODE_ENV === "development" && onDevClose;
+  const devClose = isDevUi() && onDevClose;
 
   return (
     <div

@@ -1,3 +1,5 @@
+import { isDevUi } from "@/lib/dev/devUi";
+
 /**
  * Interruptor de la preapertura (DR42). `PREAPERTURA=on` enciende la capa de preapertura: `/` muestra el popup y sus pantallas
  * (`/preregistro`, `/fundadoras`, `/mi-lugar`…) y las altas clásicas quedan cortadas. Apagado, la app se comporta exactamente como antes.
@@ -14,5 +16,5 @@ export function isPreaperturaOn(): boolean {
  * de preapertura). En desarrollo el flag solo suma el popup y sus pantallas: el resto del sitio funciona como siempre.
  */
 export function isPreaperturaLocked(): boolean {
-  return isPreaperturaOn() && process.env.NODE_ENV !== "development";
+  return isPreaperturaOn() && !isDevUi();
 }
