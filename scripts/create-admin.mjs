@@ -2,7 +2,9 @@
  * Crea (o promueve) un usuario admin de EstuRed.
  *
  * Uso:
- *   node --env-file=.env.local scripts/create-admin.mjs <email> <password>
+ *   node --env-file=.env.local scripts/create-admin.mjs <email> <password> [--superadmin]
+ *
+ * `--superadmin` otorga el rol superadmin (el único que edita /admin/payment-settings y gestiona admins) en vez de admin.
  *
  * - Crea el usuario en Supabase Auth pre-confirmado (si no existe).
  * - Crea la fila en public.users con primary_role=admin.
@@ -14,9 +16,11 @@
  */
 import { createClient } from "@supabase/supabase-js";
 
-const [email, password] = process.argv.slice(2);
+const args = process.argv.slice(2);
+const ROLE = args.includes("--superadmin") ? "superadmin" : "admin";
+const [email, password] = args.filter((a) => !a.startsWith("--"));
 if (!email || !password) {
-  console.error("Uso: node --env-file=.env.local scripts/create-admin.mjs <email> <password>");
+  console.error("Uso: node --env-file=.env.local scripts/create-admin.mjs <email> <password> [--superadmin]");
   process.exit(1);
 }
 if (password.length < 12) {
@@ -51,7 +55,7 @@ if (createError) {
       console.error("El email existe en Auth pero no en public.users — revisar manualmente.");
       process.exit(1);
     }
-    console.log("El usuario ya existía; se promueve a admin.");
+    console.log(`El usuario ya existía; se promueve a ${ROLE}.`);
   } else {
     console.error("Error creando usuario:", createError.message);
     process.exit(1);
@@ -61,7 +65,7 @@ if (createError) {
 const { error: userError } = await admin.from("users").upsert({
   id: userId,
   email: email.toLowerCase(),
-  primary_role: "admin",
+  primary_role: ROLE,
 });
 if (userError) {
   console.error("Error en public.users:", userError.message);
@@ -69,7 +73,7 @@ if (userError) {
 }
 
 const { error: roleError } = await admin.from("user_roles").upsert(
-  { user_id: userId, role: "admin", scope_type: "global", scope_id: null },
+  { user_id: userId, role: ROLE, scope_type: "global", scope_id: null },
   { onConflict: "user_id,role,scope_type,scope_id" },
 );
 if (roleError && roleError.code !== "23505") {
@@ -85,8 +89,8 @@ await admin.from("audit_logs").insert({
   entity_id: userId,
   is_system_action: true,
   source: "admin",
-  new_value: { email: email.toLowerCase(), role: "admin" },
+  new_value: { email: email.toLowerCase(), role: ROLE },
 });
 
-console.log(`✓ Admin listo: ${email} (${userId})`);
+console.log(`✓ ${ROLE} listo: ${email} (${userId})`);
 console.log("  Ya puede entrar en /login → redirige a /admin/dashboard.");

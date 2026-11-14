@@ -49,7 +49,7 @@ export function buildReminderCopy(input: ReminderCopyInput): ReminderCopy {
   // Familiar: solo t7/t2 (cadencia cerrada); cualquier otro aviso cae a la versión t2 en vez de inventar texto.
   const famKey = input.key === "t7" ? "t7" : "t2";
   const base = input.kind === "family" ? familyBody(famKey, residence, name) : studentBody(input.key, residence);
-  const baseUrl = (input.baseUrl ?? "https://estured.vercel.app").replace(/\/+$/, "");
+  const baseUrl = (input.baseUrl ?? "https://estured.com").replace(/\/+$/, "");
   const guide = input.guideSlug ? `${baseUrl}/guias/${encodeURIComponent(input.guideSlug)}` : null;
   const html =
     `<p>${escapeHtml(base.body)}</p>` +

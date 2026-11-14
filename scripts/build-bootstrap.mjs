@@ -4,7 +4,7 @@
  *
  *   node scripts/build-bootstrap.mjs dev    → db/_generated/dev_bootstrap.sql  (sin el cron de la 0013)
  *   node scripts/build-bootstrap.mjs prod   → db/_generated/prod_bootstrap.sql (con el cron de la 0013:
- *                                              hay que reemplazar REEMPLAZAR-CON-TU-DOMINIO y
+ *                                              hay que reemplazar REEMPLAZAR-CON-TU-DOMINIO (o usar --host=estured.com) y
  *                                              REEMPLAZAR-CON-TU-CRON-SECRET antes de ejecutarlo)
  *
  * Solo sirve para una base VACÍA (no es re-ejecutable). El resultado está en .gitignore.
@@ -13,6 +13,12 @@ import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename } from "node:path";
 
 const target = process.argv[2];
+// Opcional (solo prod): `--host=estured.com` reemplaza el host del cron de la 0013 (sin https:// ni barra). El secreto NO se pasa por acá.
+const hostArg = process.argv.find((a) => a.startsWith("--host="))?.slice("--host=".length);
+if (hostArg !== undefined && !/^[a-z0-9]([a-z0-9.-]*[a-z0-9])?\.[a-z]{2,}$/i.test(hostArg)) {
+  console.error("--host debe ser un dominio sin https:// ni barra final (ej. estured.com)");
+  process.exit(1);
+}
 if (target !== "dev" && target !== "prod") {
   console.error("Uso: node scripts/build-bootstrap.mjs dev|prod");
   process.exit(1);
@@ -25,7 +31,7 @@ const parts = [
   `-- EstuRed — bootstrap de ${target.toUpperCase()} (generado, no commitear).\n` +
     `-- Une ${files.length} migraciones en orden (${files[0].slice(0, 4)} … ${files[files.length - 1].slice(0, 5)}). Solo para una base VACÍA.\n` +
     (target === "prod"
-      ? "-- ANTES de ejecutar: reemplazá REEMPLAZAR-CON-TU-DOMINIO (dominio real, sin https://) y REEMPLAZAR-CON-TU-CRON-SECRET en el bloque de la 0013 (se guarda en Supabase Vault; mismo valor que CRON_SECRET en Vercel).\n"
+      ? "-- ANTES de ejecutar: reemplazá REEMPLAZAR-CON-TU-DOMINIO (dominio real, sin https://; o pasá --host=estured.com al generar) y REEMPLAZAR-CON-TU-CRON-SECRET en el bloque de la 0013 (se guarda en Supabase Vault; mismo valor que CRON_SECRET en Vercel).\n"
       : "-- El cron de la 0013 está comentado a propósito: en dev no debe pegarle a producción.\n"),
 ];
 
@@ -49,6 +55,7 @@ for (const f of files) {
       /headers := jsonb_build_object\('Authorization', 'Bearer REEMPLAZAR-CON-TU-CRON-SECRET'\)/,
       "headers := jsonb_build_object('Authorization', 'Bearer ' || (select decrypted_secret from vault.decrypted_secrets where name = 'cron_secret'))",
     );
+    if (hostArg) sql = sql.replaceAll("REEMPLAZAR-CON-TU-DOMINIO", hostArg);
     if (sql === before || !sql.includes("vault.decrypted_secrets")) throw new Error("No pude aplicar la variante Vault a la 0013");
   }
   parts.push(`\n-- ====================== ${basename(f)} ======================\n${sql}\n`);

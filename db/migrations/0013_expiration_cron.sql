@@ -41,7 +41,7 @@ select cron.schedule(
   '0 * * * *', -- cada hora en punto (granularidad aceptada por docs/00 §865)
   $$
   select net.http_get(
-    url := 'https://REEMPLAZAR-CON-TU-DOMINIO.vercel.app/api/cron/expire-stale-records',
+    url := 'https://REEMPLAZAR-CON-TU-DOMINIO/api/cron/expire-stale-records',
     headers := jsonb_build_object('Authorization', 'Bearer REEMPLAZAR-CON-TU-CRON-SECRET')
   );
   $$
