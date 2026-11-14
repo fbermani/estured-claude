@@ -141,7 +141,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
     gender: [...GENDER_FILTER_OPTIONS],
     status: statusOptions,
   };
-  const { counts, promo, minor } = buildCounts(residences, filters, options);
+  const { counts, promo, minor, community } = buildCounts(residences, filters, options);
   // Dentro de cada grupo, primero las opciones con más resultados (los barrios y universidades); servicios/áreas/tipos mantienen el orden de la ficha.
   const opt = (key: keyof typeof options, label: (v: string) => string, sort = false, icon?: (v: string) => string) => {
     const list = options[key].map((value) => ({ value, label: label(value), count: counts[key][value] ?? 0, icon: icon?.(value) }));
@@ -168,6 +168,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   const labelOf = (group: string, value?: string) => {
     if (group === "promo") return "Con promoción";
     if (group === "minor") return "Admite menores de 18";
+    if (group === "community") return "Con comunidad activa";
     if (group === "price") return "el presupuesto";
     const o = groups.find((g) => g.key === group)?.options.find((x) => x.value === value);
     return o?.label ?? value ?? "";
@@ -181,7 +182,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
           .sort((a, b) => b.count - a.count)
           .slice(0, 3)
       : [];
-  const clearQs = filtersToQuery({ ...filters, barrio: [], uni: [], room: [], services: [], areas: [], gender: [], status: [], promo: false, minor: false, pmin: null, pmax: null });
+  const clearQs = filtersToQuery({ ...filters, barrio: [], uni: [], room: [], services: [], areas: [], gender: [], status: [], promo: false, minor: false, community: false, pmin: null, pmax: null });
   const hrefFor = (qs: string) => (qs ? `/search?${qs}` : "/search");
   const mapData = filters.view === "mapa" ? toMapPoints(results) : null;
 
@@ -197,6 +198,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
         histogram={histogram}
         promoCount={promo}
         minorCount={minor}
+        communityCount={community}
         activeCount={countActiveFilters(filters)}
         resultCount={results.length}
       >

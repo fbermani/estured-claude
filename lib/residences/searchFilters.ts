@@ -115,6 +115,8 @@ export type SearchFilters = {
   gender: string[];
   promo: boolean;
   minor: boolean;
+  /** Solo residencias con comunidad activa (residentes visibles, que solo muestran las Premium). */
+  community: boolean;
   /** Presupuesto en USD sobre el precio «desde» mostrado; `null` = sin extremo. */
   pmin: number | null;
   pmax: number | null;
@@ -179,6 +181,7 @@ export function parseSearchFilters(params: SearchParamsInput, universe: FilterUn
     gender: only("gender", GENDER_FILTER_OPTIONS),
     promo: params.promo === "1",
     minor: params.menores === "1",
+    community: params.comunidad === "1",
     pmin,
     pmax,
     sort: sortRaw === "pa" || sortRaw === "pd" ? sortRaw : "rec",
@@ -186,10 +189,10 @@ export function parseSearchFilters(params: SearchParamsInput, universe: FilterUn
   };
 }
 
-type Matchable = Pick<Residence, "zone" | "nearUniversities" | "roomTypes" | "services" | "commonAreas" | "availabilityMode" | "priceFromUsd" | "promotionPercent" | "acceptsMinors" | "genderPolicy" | "genderPolicies">;
+type Matchable = Pick<Residence, "zone" | "nearUniversities" | "roomTypes" | "services" | "commonAreas" | "availabilityMode" | "priceFromUsd" | "promotionPercent" | "acceptsMinors" | "residentsCount" | "genderPolicy" | "genderPolicies">;
 
 /** `skip` ignora un grupo (para contadores y para el rango de precios). Dentro de un grupo: «alguno»; servicios y áreas: «todos». */
-export function matchesFilters(r: Matchable, f: SearchFilters, skip?: FilterGroupKey | "price" | "promo" | "minor"): boolean {
+export function matchesFilters(r: Matchable, f: SearchFilters, skip?: FilterGroupKey | "price" | "promo" | "minor" | "community"): boolean {
   const any = (sel: string[], test: (v: string) => boolean) => sel.length === 0 || sel.some(test);
   const hasAll = (sel: string[]) => {
     if (sel.length === 0) return true;
@@ -206,6 +209,7 @@ export function matchesFilters(r: Matchable, f: SearchFilters, skip?: FilterGrou
     (skip === "status" || any(f.status, (v) => r.availabilityMode === v)) &&
     (skip === "promo" || !f.promo || (r.promotionPercent ?? 0) > 0) &&
     (skip === "minor" || !f.minor || r.acceptsMinors === true) &&
+    (skip === "community" || !f.community || (r.residentsCount ?? 0) > 0) &&
     (skip === "price" || ((f.pmin === null || r.priceFromUsd >= f.pmin) && (f.pmax === null || r.priceFromUsd <= f.pmax)))
   );
 }
@@ -244,7 +248,7 @@ export function countOption(list: Matchable[], f: SearchFilters, key: FilterGrou
 }
 
 /** Contador de un interruptor (promoción / menores): cuántas quedarían al activarlo. */
-export function countToggle(list: Matchable[], f: SearchFilters, key: "promo" | "minor"): number {
+export function countToggle(list: Matchable[], f: SearchFilters, key: "promo" | "minor" | "community"): number {
   const probe = { ...f, [key]: true };
   return list.filter((r) => matchesFilters(r, probe)).length;
 }
@@ -255,7 +259,7 @@ export function buildCounts(list: Matchable[], f: SearchFilters, options: Record
   for (const key of Object.keys(options) as FilterGroupKey[]) {
     counts[key] = Object.fromEntries(options[key].map((v) => [v, countOption(list, f, key, v)]));
   }
-  return { counts, promo: countToggle(list, f, "promo"), minor: countToggle(list, f, "minor") };
+  return { counts, promo: countToggle(list, f, "promo"), minor: countToggle(list, f, "minor"), community: countToggle(list, f, "community") };
 }
 
 /** Límites del control de presupuesto (múltiplos de 10 que cubren el catálogo). */
@@ -279,7 +283,7 @@ export function priceHistogram(list: Matchable[], f: SearchFilters, bounds: { mi
 }
 
 export function countActiveFilters(f: SearchFilters): number {
-  return f.barrio.length + f.uni.length + f.room.length + f.services.length + f.areas.length + f.status.length + f.gender.length + (f.promo ? 1 : 0) + (f.minor ? 1 : 0) + (f.pmin !== null || f.pmax !== null ? 1 : 0);
+  return f.barrio.length + f.uni.length + f.room.length + f.services.length + f.areas.length + f.status.length + f.gender.length + (f.promo ? 1 : 0) + (f.minor ? 1 : 0) + (f.community ? 1 : 0) + (f.pmin !== null || f.pmax !== null ? 1 : 0);
 }
 
 /**
@@ -291,6 +295,7 @@ export function filtersToQuery(f: SearchFilters): string {
   for (const key of Object.keys(PARAM_NAMES) as FilterGroupKey[]) if (f[key].length > 0) p.set(PARAM_NAMES[key], f[key].join(","));
   if (f.promo) p.set("promo", "1");
   if (f.minor) p.set("menores", "1");
+  if (f.community) p.set("comunidad", "1");
   if (f.pmin !== null) p.set("min", String(f.pmin));
   if (f.pmax !== null) p.set("max", String(f.pmax));
   if (f.sort !== "rec") p.set("orden", f.sort);
@@ -299,13 +304,14 @@ export function filtersToQuery(f: SearchFilters): string {
 }
 
 /** Cada filtro activo como una pieza que se puede quitar: devuelve los filtros sin ella. */
-export function removableFilters(f: SearchFilters): { key: string; group: FilterGroupKey | "promo" | "minor" | "price"; value?: string; without: SearchFilters }[] {
+export function removableFilters(f: SearchFilters): { key: string; group: FilterGroupKey | "promo" | "minor" | "community" | "price"; value?: string; without: SearchFilters }[] {
   const out: ReturnType<typeof removableFilters> = [];
   for (const group of Object.keys(PARAM_NAMES) as FilterGroupKey[]) {
     for (const value of f[group]) out.push({ key: `${group}:${value}`, group, value, without: { ...f, [group]: f[group].filter((v) => v !== value) } });
   }
   if (f.promo) out.push({ key: "promo", group: "promo", without: { ...f, promo: false } });
   if (f.minor) out.push({ key: "minor", group: "minor", without: { ...f, minor: false } });
+  if (f.community) out.push({ key: "community", group: "community", without: { ...f, community: false } });
   if (f.pmin !== null || f.pmax !== null) out.push({ key: "price", group: "price", without: { ...f, pmin: null, pmax: null } });
   return out;
 }

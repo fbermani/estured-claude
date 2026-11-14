@@ -33,12 +33,13 @@ type Props = {
   histogram: number[];
   promoCount: number;
   minorCount: number;
+  communityCount: number;
   activeCount: number;
   resultCount: number;
   children: React.ReactNode;
 };
 
-export function SearchShell({ groups, filters, bounds, histogram, promoCount, minorCount, activeCount, resultCount, children }: Props) {
+export function SearchShell({ groups, filters, bounds, histogram, promoCount, minorCount, communityCount, activeCount, resultCount, children }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -85,7 +86,7 @@ export function SearchShell({ groups, filters, bounds, histogram, promoCount, mi
     const cur = filters[key];
     push((p) => setList(p, key, cur.includes(value) ? cur.filter((v) => v !== value) : [...cur, value]));
   };
-  const setFlag = (param: "promo" | "menores", on: boolean) => push((p) => (on ? p.set(param, "1") : p.delete(param)));
+  const setFlag = (param: "promo" | "menores" | "comunidad", on: boolean) => push((p) => (on ? p.set(param, "1") : p.delete(param)));
   const setPrice = (min: number | null, max: number | null) =>
     push((p) => {
       if (min !== null) p.set("min", String(min)); else p.delete("min");
@@ -93,7 +94,7 @@ export function SearchShell({ groups, filters, bounds, histogram, promoCount, mi
     });
   const clearAll = () =>
     push((p) => {
-      [...Object.values(PARAM_NAMES), "promo", "menores", "min", "max"].forEach((k) => p.delete(k));
+      [...Object.values(PARAM_NAMES), "promo", "menores", "comunidad", "min", "max"].forEach((k) => p.delete(k));
     });
 
   // Hoja mobile: Esc cierra, foco al botón de cerrar, devuelve el foco al abrir, y se bloquea el scroll de fondo.
@@ -146,6 +147,7 @@ export function SearchShell({ groups, filters, bounds, histogram, promoCount, mi
     ),
     ...(filters.promo ? [{ key: "promo", label: "Con promoción", remove: () => setFlag("promo", false) }] : []),
     ...(filters.minor ? [{ key: "menores", label: "Admite menores de 18", remove: () => setFlag("menores", false) }] : []),
+    ...(filters.community ? [{ key: "comunidad", label: "Con comunidad activa", remove: () => setFlag("comunidad", false) }] : []),
     ...(filters.pmin !== null || filters.pmax !== null ? [{ key: "precio", label: fmtPrice, remove: () => setPrice(null, null) }] : []),
   ];
 
@@ -159,7 +161,7 @@ export function SearchShell({ groups, filters, bounds, histogram, promoCount, mi
         className={
           drawer
             ? "fixed inset-0 z-[60] flex flex-col bg-paper motion-safe:transition-[transform,opacity] motion-safe:duration-300 starting:translate-y-6 starting:opacity-0 min-[900px]:static min-[900px]:z-auto min-[900px]:block min-[900px]:rounded-card min-[900px]:border-[1.5px] min-[900px]:border-line min-[900px]:shadow-card"
-            : "hidden min-[900px]:sticky min-[900px]:top-20 min-[900px]:block min-[900px]:max-h-[calc(100vh-6rem)] min-[900px]:overflow-y-auto min-[900px]:overscroll-contain min-[900px]:rounded-card min-[900px]:border-[1.5px] min-[900px]:border-line min-[900px]:bg-paper min-[900px]:shadow-card"
+            : "hidden min-[900px]:sticky min-[900px]:top-20 min-[900px]:block min-[900px]:max-h-[calc(100vh-6rem)] min-[900px]:overflow-y-auto min-[900px]:overscroll-contain min-[900px]:[scrollbar-width:thin] min-[900px]:[scrollbar-color:var(--color-line-2)_transparent] min-[900px]:rounded-card min-[900px]:border-[1.5px] min-[900px]:border-line min-[900px]:bg-paper min-[900px]:shadow-card"
         }
       >
         <div className="max-[899px]:sticky max-[899px]:top-0 z-10 flex items-center justify-between border-b border-line bg-paper px-4 py-3 min-[900px]:hidden">
@@ -181,6 +183,7 @@ export function SearchShell({ groups, filters, bounds, histogram, promoCount, mi
             <h3 id="g-otros" className="mb-2 text-[15px]">Otros</h3>
             <Row label="Con promoción vigente" count={promoCount} checked={filters.promo} onChange={() => setFlag("promo", !filters.promo)} />
             <Row label="Admite menores de 18" count={minorCount} checked={filters.minor} onChange={() => setFlag("menores", !filters.minor)} />
+            <Row label="Con comunidad activa" count={communityCount} checked={filters.community} onChange={() => setFlag("comunidad", !filters.community)} />
           </section>
         </div>
         <div className="sticky bottom-0 flex gap-2.5 border-t border-line bg-paper px-4 py-3 min-[900px]:hidden">

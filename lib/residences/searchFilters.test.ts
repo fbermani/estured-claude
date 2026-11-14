@@ -49,7 +49,7 @@ const full = (o: Partial<Residence>) =>
 
 describe("filtros estilo Booking", () => {
   const list = [
-    full({ zone: "Palermo", nearUniversities: ["UBA"], roomTypes: [{ type: "Individual", priceUsd: 300, available: true }], priceFromUsd: 300, promotionPercent: 10, acceptsMinors: true }),
+    full({ zone: "Palermo", nearUniversities: ["UBA"], roomTypes: [{ type: "Individual", priceUsd: 300, available: true }], priceFromUsd: 300, promotionPercent: 10, acceptsMinors: true, residentsCount: 12 }),
     full({ zone: "Almagro", nearUniversities: ["UBA", "UTN"], roomTypes: [{ type: "Doble", priceUsd: 200, available: true }], priceFromUsd: 200, availabilityMode: "real_by_place" }),
     full({ zone: "Almagro", nearUniversities: ["UTN"], roomTypes: [{ type: "Doble", priceUsd: 450, available: false }], priceFromUsd: 450, services: ["Wifi"] }),
   ];
@@ -73,6 +73,8 @@ describe("filtros estilo Booking", () => {
     expect(applySearchFilters(list, parse({ max: "250" }))).toHaveLength(1);
     expect(applySearchFilters(list, parse({ promo: "1" }))).toHaveLength(1);
     expect(applySearchFilters(list, parse({ menores: "1" }))).toHaveLength(1);
+    expect(applySearchFilters(list, parse({ comunidad: "1" }))).toHaveLength(1);
+    expect(applySearchFilters(list, parse({ comunidad: "0" }))).toHaveLength(3);
     expect(applySearchFilters(list, parse({ orden: "pa" })).map((r) => r.priceFromUsd)).toEqual([200, 300, 450]);
   });
 
