@@ -180,6 +180,7 @@ const ACTION_PHRASES: Record<string, string> = {
   renewal_offer_sent: "envió una oferta de renovación",
   renewal_offer_draft_saved: "guardó un borrador de oferta de renovación",
   renewal_offer_expired: "venció una oferta de renovación",
+  renewal_offer_expired_fee_unpaid: "venció una renovación por fee sin pagar",
   renewal_offer_reopened_by_admin: "reabrió una oferta de renovación",
   renewal_offer_accepted_by_student: "aceptó una oferta de renovación",
   renewal_offer_rejected_by_student: "rechazó una oferta de renovación",

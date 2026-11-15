@@ -1,6 +1,6 @@
 {
   "tag": "sanitizado",
-  "generated": "2026-11-15T03:58:39.954Z",
+  "generated": "2026-11-15T12:22:46.184Z",
   "evidence": [
     {
       "id": "A1:application_requests:anon",
@@ -629,35 +629,35 @@
       "id": "A2:estudianteB→solicitud ajena",
       "control": "mutación directa denegada: estudianteB→solicitud ajena",
       "expected": "0 filas afectadas o error",
-      "got": "0 filas",
+      "got": "0 filas, error",
       "status": "comprobado"
     },
     {
       "id": "A2:owner2→solicitud de R1",
       "control": "mutación directa denegada: owner2→solicitud de R1",
       "expected": "0 filas afectadas o error",
-      "got": "0 filas",
+      "got": "0 filas, error",
       "status": "comprobado"
     },
     {
       "id": "A2:estudianteA→salta estado propio",
       "control": "mutación directa denegada: estudianteA→salta estado propio",
       "expected": "0 filas afectadas o error",
-      "got": "0 filas",
+      "got": "0 filas, error",
       "status": "comprobado"
     },
     {
       "id": "A2:staff0→se da permisos",
       "control": "mutación directa denegada: staff0→se da permisos",
       "expected": "0 filas afectadas o error",
-      "got": "0 filas",
+      "got": "0 filas, error",
       "status": "comprobado"
     },
     {
       "id": "A2:staff0→se vuelve owner",
       "control": "mutación directa denegada: staff0→se vuelve owner",
       "expected": "0 filas afectadas o error",
-      "got": "0 filas",
+      "got": "0 filas, error",
       "status": "comprobado"
     },
     {
@@ -671,7 +671,7 @@
       "id": "A2:estudianteA→rol admin",
       "control": "mutación directa denegada: estudianteA→rol admin",
       "expected": "0 filas afectadas o error",
-      "got": "0 filas",
+      "got": "0 filas, error",
       "status": "comprobado"
     },
     {
@@ -685,28 +685,28 @@
       "id": "A2:estudianteA→desbloquearse",
       "control": "mutación directa denegada: estudianteA→desbloquearse",
       "expected": "0 filas afectadas o error",
-      "got": "0 filas",
+      "got": "0 filas, error",
       "status": "comprobado"
     },
     {
       "id": "A2:estudianteB→archivo ajeno",
       "control": "mutación directa denegada: estudianteB→archivo ajeno",
       "expected": "0 filas afectadas o error",
-      "got": "0 filas",
+      "got": "0 filas, error",
       "status": "comprobado"
     },
     {
       "id": "A2:estudianteB→borra archivo ajeno",
       "control": "mutación directa denegada: estudianteB→borra archivo ajeno",
       "expected": "0 filas afectadas o error",
-      "got": "0 filas",
+      "got": "0 filas, error",
       "status": "comprobado"
     },
     {
       "id": "A2:estudianteB→perfil ajeno",
       "control": "mutación directa denegada: estudianteB→perfil ajeno",
       "expected": "0 filas afectadas o error",
-      "got": "0 filas",
+      "got": "0 filas, error",
       "status": "comprobado"
     },
     {
@@ -720,14 +720,14 @@
       "id": "A2:owner1→residencia de R2",
       "control": "mutación directa denegada: owner1→residencia de R2",
       "expected": "0 filas afectadas o error",
-      "got": "0 filas",
+      "got": "0 filas, error",
       "status": "comprobado"
     },
     {
       "id": "A2:owner2→residencia de R1",
       "control": "mutación directa denegada: owner2→residencia de R1",
       "expected": "0 filas afectadas o error",
-      "got": "0 filas",
+      "got": "0 filas, error",
       "status": "comprobado"
     },
     {

@@ -10,8 +10,8 @@ Se confirmaron **dos hallazgos nuevos de severidad media** y **tres observacione
 |---|---|---|---|
 | SEG15-01 | Media | «Pago recibido» de la residencia crea reservas y fees duplicados si se confirma varias veces a la vez | Confirmado con prueba dinámica; **corregido en dev (2026-11-15, migración 0089 + reclamo atómico); pendiente en prod** |
 | SEG15-02 | Media (baja en dev) | Soporte: sin tope de casos ni de evidencia acumulada por usuario | Confirmado con prueba dinámica; **corregido en dev (2026-11-15, sin migración); pendiente en prod** |
-| SEG15-03 | Baja | Reemisión de comprobante sin compare-and-set: dos reemisiones simultáneas dejan dos comprobantes vigentes | Confirmado por código; **no ejecutado** |
-| SEG15-04 | Baja | 44 tablas conservan grants de escritura a `anon` (el RLS sin policies los neutraliza) | Confirmado en catálogo vivo; defensa en profundidad |
+| SEG15-03 | Baja | Reemisión de comprobante sin compare-and-set: dos reemisiones simultáneas dejan dos comprobantes vigentes | Confirmado por código; **corregido en dev (2026-11-15, con test de concurrencia)** |
+| SEG15-04 | Baja | 44 tablas conservan grants de escritura a `anon` (el RLS sin policies los neutraliza) | **Corregido en dev (2026-11-15, migración 0090); pendiente en prod** |
 | SEG15-05 | Baja | Un registro de apertura DR48 puede existir sin que se haya entregado enlace (falla de firma) | Confirmado; comportamiento aceptable a documentar |
 
 ## 1. Alcance, entorno y límites
@@ -228,3 +228,10 @@ Correcciones de SEG14-01/02/03, hallazgos históricos corregidos, dependencias d
 1. Residencia pausada/rechazada/no activa: **no** abre documentos de solicitantes con pago habilitado (implementado y probado).
 2. Bloquear a un estudiante **no** lo saca del carrusel de preapertura (se deja como está).
 3. Fee de renovación vencido: la oferta pasa a «vencida», se avisa a ambas partes y la residencia debe volver a enviar la renovación (implementado y probado).
+
+## Cierre del bloque de cobertura (2026-11-15)
+
+- **SEG15-04 corregido:** migración `0090` revoca INSERT/UPDATE/DELETE/TRUNCATE/REFERENCES/TRIGGER a `anon` y `authenticated` sobre todas las tablas de `public` (quedan solo los SELECT, gobernados por RLS y por los grants por columna de 0081) y cambia los privilegios por defecto para que las tablas nuevas no nazcan con escritura. Verificado en el catálogo de dev: 0 grants de escritura a nivel tabla y 0 a nivel columna. El cliente de la app no escribe con el JWT del usuario (solo `getSupabaseAdmin()` muta), así que no cambia ningún flujo. Antes la protección dependía de que no existiera ninguna policy permisiva de escritura.
+- **Sesiones no cubiertas, ahora probadas** (`seguridad-sesiones.test.ts`, resultado en `results-sesiones.json`, 35 controles comprobados, 0 fallidos): menor y su tutor (vínculo activo ve; suspendido no), familiar con vínculo activo (ve), pendiente, revocado por el estudiante, revocado por la familia y sin vínculo (no ven), estudiante ajeno, anónimo, admin y superadmin (con su JWT no leen datos privados ajenos: el panel usa service role en el servidor). 13 escrituras directas (escalar rol, reactivar vínculo, aprobarse un vínculo, desmarcar `is_minor`, insertar auditoría falsa, borrar perfil ajeno, etc.) no cambiaron el estado real.
+- **Pendiente de producción:** aplicar la 0090 junto con 0088 y 0089.
+- **Sigue sin cubrir:** server actions por HTTP sin SSO, subidas concurrentes por la acción real, límite de apertura de documentos (DR48), SEG15-05 (registro de apertura si falla la firma; aceptado).
