@@ -50,7 +50,7 @@ export function PreaperturaStage({
   children: ReactNode;
   labelledBy: string;
   describedBy?: string;
-  size?: "sm" | "md" | "mid" | "lugar" | "form" | "wide" | "lg";
+  size?: "sm" | "entry" | "md" | "mid" | "lugar" | "form" | "wide" | "lg";
   initialFocus?: string;
   aside?: ReactNode;
   /** Etiqueta fija arriba a la izquierda del fondo blureado (por defecto «Así se va a ver EstuRed»). */

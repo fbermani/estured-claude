@@ -21,6 +21,7 @@ export default async function PreaperturaEntryPage() {
       preview={<HomeBackdrop />}
       labelledBy="pre-h1"
       describedBy="pre-sub"
+      size="entry"
       initialFocus='a[href="/preregistro"]'
       aside={<FounderCta state={founders} closure={closure} variant="float" />}
     >

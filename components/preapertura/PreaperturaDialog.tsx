@@ -9,6 +9,8 @@ const FOCUSABLE =
 
 const SIZES = {
   sm: "sm:max-w-[540px]",
+  /** Entrada `/`: 600 px, para que entre completa sin scroll en desktop. */
+  entry: "sm:max-w-[600px]",
   md: "sm:max-w-[680px]",
   /** Fundadoras, solicitud enviada y legales: 660 px. */
   mid: "sm:max-w-[660px]",

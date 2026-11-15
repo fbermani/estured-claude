@@ -15,7 +15,7 @@ import type { FounderClosure, FounderState, StudentCounter } from "@/lib/preaper
 export async function EntryContent({ counter, founders, closure }: { counter: StudentCounter; founders: FounderState; closure: FounderClosure }) {
   const rail = await getCommunityRail();
   return (
-    <div className="px-5 pb-6 pt-5 sm:px-9 sm:pb-8 sm:pt-8">
+    <div className="px-5 pb-6 pt-5 sm:px-9 sm:pb-6 sm:pt-5">
       <div className="flex flex-wrap items-center justify-between gap-x-3">
         <Link href="/" aria-label="EstuRed, inicio" className="inline-flex min-h-11 items-center rounded-field">
           <BrandMark size={32} />
@@ -28,22 +28,22 @@ export async function EntryContent({ counter, founders, closure }: { counter: St
         </Link>
       </div>
 
-      <div className="mt-3">
+      <div className="mt-2 sm:mt-1">
         <EarlyAccessPill />
       </div>
 
-      <h1 id="pre-h1" className="mt-4 font-display text-[clamp(30px,8.4vw,40px)] leading-[1.04] tracking-[-0.035em] text-ink">
+      <h1 id="pre-h1" className="mt-3 font-display text-[clamp(30px,8.4vw,40px)] leading-[1.04] tracking-[-0.035em] text-ink sm:mt-3 sm:text-[34px]">
         Encontrá tu residencia en Buenos Aires <span className="text-orange">sin ir a ciegas.</span>
       </h1>
-      <p id="pre-sub" className="mt-3 text-[17px] text-ink-soft">
+      <p id="pre-sub" className="mt-3 text-[17px] text-ink-soft sm:mt-2 sm:text-base">
         Estamos visitando residencias una por una. Sumate y enterate primero cuáles quedaron verificadas.
       </p>
 
-      <FreeBadge className="mt-5" />
+      <FreeBadge className="mt-5 sm:mt-4" />
 
-      <div className="mt-5 grid gap-3">
+      <div className="mt-5 grid gap-3 sm:mt-4 sm:gap-2.5">
         <SignedInEntryCta>
-          <Button href="/preregistro" variant="secondary" size="lg" className="w-full shadow-orange">
+          <Button href="/preregistro" variant="secondary" size="lg" className="w-full shadow-orange sm:h-12 sm:text-lg">
             Sumarme gratis
             <Icon name="arrow_forward" className="text-xl" />
           </Button>
@@ -51,7 +51,7 @@ export async function EntryContent({ counter, founders, closure }: { counter: St
         <LiveCount counter={counter} />
       </div>
 
-      <section aria-labelledby="pre-rail-title" className="-mx-5 mt-5 border-y border-line bg-cream pb-1 pt-3 sm:-mx-9">
+      <section aria-labelledby="pre-rail-title" className="-mx-5 mt-5 border-y border-line bg-cream pb-0 pt-3 sm:-mx-9 sm:mt-4 sm:pt-2.5">
         <div className="flex items-center gap-2 px-5 sm:px-9">
           <span aria-hidden="true" className="pre-dot size-2 shrink-0 rounded-full bg-forest text-forest" />
           <h2 id="pre-rail-title" className="font-sans text-sm font-bold tracking-normal text-ink">
@@ -64,17 +64,14 @@ export async function EntryContent({ counter, founders, closure }: { counter: St
         <MiniCommunityRail cards={rail.cards} hasExamples={rail.hasExamples} />
       </section>
 
-      <div className="mt-2 flex justify-center">
-        <Link
-          href="/preregistro/familiar"
-          className="inline-flex min-h-11 items-center gap-1.5 rounded-field px-2 text-sm font-bold text-ink-soft hover:text-ink hover:underline"
-        >
-          <Icon name="family_restroom" className="text-lg" />
+      <div className="mt-4">
+        <Button href="/preregistro/familiar" variant="outline-forest" size="md" className="w-full sm:text-base">
+          <Icon name="family_restroom" className="text-xl" />
           Soy familiar de un estudiante
-        </Link>
+        </Button>
       </div>
 
-      <div className="mt-2">
+      <div className="mt-4">
         <FounderCta state={founders} closure={closure} variant="modal" />
       </div>
     </div>

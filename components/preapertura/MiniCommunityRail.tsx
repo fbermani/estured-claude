@@ -59,7 +59,7 @@ export function MiniCommunityRail({ cards, hasExamples }: { cards: RailCard[]; h
       aria-label={hasExamples ? "Estudiantes que se están sumando (incluye ejemplos ilustrativos)" : "Estudiantes que se están sumando"}
       tabIndex={0}
     >
-      <div className="pre-track py-4" data-static={drift ? undefined : ""}>
+      <div className="pre-track py-4 sm:py-3" data-static={drift ? undefined : ""}>
         {cards.map((c, i) => (
           <CommunityCard key={`${c.kind}-${c.name}-${i}`} card={c} index={i} />
         ))}
