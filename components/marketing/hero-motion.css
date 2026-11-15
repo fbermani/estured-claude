@@ -159,6 +159,11 @@
   animation: hero-intro-out 2.1s ease-in-out both;
 }
 
+/* Detrás del popup de preapertura (landing blureada) la apertura no se dibuja: se reproduce al revelar la landing (solo dev). */
+[data-blurred] .hero-intro {
+  display: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero-intro {
     display: none;

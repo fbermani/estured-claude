@@ -178,7 +178,7 @@ export async function HomeLanding({ schema = true }: { schema?: boolean }) {
         />
       )}
       {/* Hero (propuesta B: buscador mock + cinta de residencias reales) */}
-      <HomeHero residences={catalog} intro={schema} />
+      <HomeHero residences={catalog} />
 
       {/* Por qué EstuRed (fusionada con «La diferencia», DR22) */}
       <WhyEstuRed />
