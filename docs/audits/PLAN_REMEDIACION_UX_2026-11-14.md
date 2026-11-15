@@ -51,7 +51,7 @@ Prioridad: P1 confianza/tarea inaccesible · P2 fricción o información contrad
 | CON-27 | H8(b–d), H9 | Siete tarjetas de condiciones con «No cobra»; skeleton/CLS/placeholder de fotos. | P3 | Condiciones: solo tarjetas que cobran + «Ver condiciones completas»; mes vacío reescrito en todos los lugares y FAQ-51/22 (DR53, migración 0088 aplicada en dev). Skeleton/CLS: rendimiento dev. | implementado, falta verificar en staging / descartado (dev) |
 | CON-28 | H19 | «Abrir WhatsApp» sin aclarar que abre la app y que el mensaje es borrador. | P3 | Copy breve. | implementado (falta verificar en staging) |
 | CON-29 | B decisión | Valentina (17) puede abrir la solicitud de una ficha «De 18 a 26 años». | — | Decidido (DR50): aviso no bloqueante en el formulario según la edad a la fecha de ingreso. | implementado (falta verificar en staging); lógica con test |
-| CON-30 | B cond. 3–4, A | Demo: «Lucia/Lucía», tutor con mail de otra estudiante, Martín↔Valentina vs Lucía, staff en selector. | P3 | Normalizar datos demo de forma aditiva. | implementado en dev: tildes normalizadas (script idempotente); mail del tutor de Valentina: requiere decisión |
+| CON-30 | B cond. 3–4, A | Demo: «Lucia/Lucía», tutor con mail de otra estudiante, Martín↔Valentina vs Lucía, staff en selector. | P3 | Normalizar datos demo de forma aditiva. | implementado en dev: tildes normalizadas (script idempotente); mail del tutor de Valentina: dejar como está (decisión del dueño, solo demo) |
 | CON-31 | B lint | `npm run lint` falla en `docs/audits/evidence/2026-11-14/repro-actions.cjs` (evidencia de seguridad). | P3 | Ignorarlo en la config de ESLint (no es código de la app). Verificar si sigue fallando. | resuelto: ESLint 0 errores (`docs/audits/evidence/**` ignorado) |
 
 ## Lotes
