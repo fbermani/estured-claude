@@ -91,6 +91,7 @@ Objetivo: probar el deploy real (build, variables, Turnstile, headers) sin tocar
 ### D1. Bootstrap con las 87 migraciones [Vos con mi ayuda]
 Genera el SQL completo (0001–0087 + 0043b; la 0087 crea `residence_document_access_log`, sin pasos extra), con el cron de la 0013 ya apuntando a `https://estured.com`. El secreto del cron se guarda en **Supabase Vault** (no queda en texto plano en `cron.job`).
 
+- [ ] **Migraciones 0088 y 0089 entran en el bootstrap** (el script toma todos los `db/migrations/*.sql`; verificar que aparezcan al final). La **0089** (SEG15-01) crea el índice único `reservations_one_per_application_uidx`: en una base ya poblada correr antes `select application_request_id, count(*) from reservations where application_request_id is not null group by 1 having count(*) > 1;` (debe dar 0 filas). En un bootstrap desde cero no hay datos y no hace falta.
 - [ ] Generar el secreto y la copia lista para pegar, **fuera del repo** (un solo bloque; deja el secreto en el portapapeles para Vercel y no lo muestra):
   ```bash
   cd "/Users/fabriciobermani/Desktop/EstuRed Claude" && node scripts/build-bootstrap.mjs prod --host=estured.com && S=$(openssl rand -hex 32) && sed "s/REEMPLAZAR-CON-TU-CRON-SECRET/$S/g" db/_generated/prod_bootstrap.sql > ~/Desktop/prod_bootstrap_LISTO.sql && printf %s "$S" | pbcopy && echo "Listo: ~/Desktop/prod_bootstrap_LISTO.sql (secreto en el portapapeles)"

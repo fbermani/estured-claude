@@ -18,6 +18,7 @@ import { createTestStudent, deleteTestStudent, type TestStudent } from "@/lib/te
 import { grantResidenceDocumentAccess } from "@/lib/documents/residenceDocumentAccess";
 import { recordResidencePaymentReceived } from "@/lib/reservations/recordResidencePaymentReceived";
 import { noPermissions } from "@/lib/residences/permissions";
+import { openSupportCase } from "@/lib/support/openSupportCase";
 import { consumeRateLimit } from "@/lib/security/rateLimit";
 
 const URL_ = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
@@ -251,8 +252,10 @@ describe.skipIf(!hasCreds)("auditoría complementaria 2026-11-15 (dev, fixtures 
       await admin.from("external_residence_payments").delete().eq("application_request_id", appA);
     }
     await admin.from("residence_document_access_log").delete().in("student_profile_id", profileIds);
-    const { data: fl } = await admin.from("files").select("id, bucket, storage_path").in("related_entity_id", profileIds);
+    await admin.from("support_cases").update({ resolution_notes: null }).eq("residence_id", r1 ?? "");
+    const { data: fl } = await admin.from("files").select("id, bucket, storage_path").in("uploaded_by_user_id", cleanupUsers);
     for (const f of fl ?? []) await admin.storage.from(f.bucket).remove([f.storage_path]);
+    await admin.from("files").delete().in("uploaded_by_user_id", cleanupUsers);
     await admin.from("files").delete().in("related_entity_id", profileIds);
     await admin.from("audit_logs").delete().in("actor_user_id", cleanupUsers);
     await admin.from("notifications").delete().in("user_id", cleanupUsers);
@@ -559,7 +562,7 @@ describe.skipIf(!hasCreds)("auditoría complementaria 2026-11-15 (dev, fixtures 
     const resIds = (resv ?? []).map((r) => r.id as string);
     const { data: fees } = resIds.length ? await admin.from("estured_fee_payments").select("id").in("reservation_id", resIds) : { data: [] as { id: string }[] };
     const { data: events } = await admin.from("application_status_events").select("id").eq("application_request_id", appA).eq("to_status", "converted_to_reservation");
-    const dup = resIds.length > 1 || (fees ?? []).length > 1;
+    const dup = resIds.length !== 1 || (fees ?? []).length !== 1 || (events ?? []).length !== 1 || okCount !== 1;
     rec(
       "D1:confirmacion-concurrente",
       "3 confirmaciones simultáneas del mismo pago: una sola reserva y un solo fee",
@@ -572,7 +575,8 @@ describe.skipIf(!hasCreds)("auditoría complementaria 2026-11-15 (dev, fixtures 
     const { data: resv2 } = await admin.from("reservations").select("id").eq("application_request_id", appA);
     rec("D1:reintento-posterior", "reintento tras el éxito se rechaza y no duplica", "rechazado; sin reservas nuevas", `${retry.ok ? "ok" : "rechazado"}; ${(resv2 ?? []).length} reservas`, !retry.ok && (resv2 ?? []).length === resIds.length);
     expect(retry.ok).toBe(false);
-    // No se hace `expect(dup).toBe(false)` aquí: es la medición; el informe la clasifica.
+    // SEG15-01 corregido (0089 + reclamo atómico): ahora es una regresión estricta.
+    expect(dup).toBe(false);
   }, 120_000);
 
   it("H1 consumeRateLimit: atómico bajo concurrencia (login/registro/subidas)", async () => {
@@ -582,4 +586,44 @@ describe.skipIf(!hasCreds)("auditoría complementaria 2026-11-15 (dev, fixtures 
     rec("H1:rate-limit-atomico", "20 llamadas simultáneas con tope 5 permiten exactamente 5", "5 ok", `${okCount} ok`, okCount === 5);
     expect(okCount).toBe(5);
   }, 60_000);
+
+  // ───────────────────────── G / E ─────────────────────────
+  it("G1 soporte: sin tope por usuario de casos ni de evidencia acumulada (SEG14-03 equivalente)", async () => {
+    const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==", "base64");
+    const N = 6;
+    const results = [];
+    for (let i = 0; i < N; i++) {
+      results.push(
+        await openSupportCase(admin, {
+          actorUserId: studentA.userId,
+          actorRole: "student",
+          residenceId: r1,
+          description: `Caso de auditoría número ${i + 1}: texto de relleno para superar el mínimo.`,
+          termsReminderAccepted: true,
+          evidenceFiles: [new File([png], `evidencia-${i}.png`, { type: "image/png" })],
+        } as never),
+      );
+    }
+    const ok = results.filter((r) => (r as { ok: boolean }).ok).length;
+    const { data: cases } = await admin.from("support_cases").select("id").eq("opened_by_user_id", studentA.userId);
+    const { data: ev } = await admin.from("files").select("id").eq("bucket", "support-evidence").eq("uploaded_by_user_id", studentA.userId);
+    rec("G1:soporte-sin-tope", `${N} casos seguidos con evidencia por el mismo usuario: se espera un freno/cuota`, "freno o cuota que corte antes de N", `${ok} de ${N} aceptados; ${(cases ?? []).length} casos; ${(ev ?? []).length} archivos`, ok < N);
+    // SEG15-02 corregido (tope de 5 casos por hora): regresión estricta.
+    expect(ok).toBeLessThan(N);
+  }, 120_000);
+
+  it("E1 bloqueo en Auth: ban corta login nuevo; el token ya emitido muere por RLS (A4)", async () => {
+    const c = createClient(URL_, ANON, { auth: { persistSession: false, autoRefreshToken: false } });
+    const first = await c.auth.signInWithPassword({ email: emails.b, password: PASSWORD });
+    await admin.auth.admin.updateUserById(studentB.userId, { ban_duration: "876000h" });
+    const c2 = createClient(URL_, ANON, { auth: { persistSession: false, autoRefreshToken: false } });
+    const banned = await c2.auth.signInWithPassword({ email: emails.b, password: PASSWORD });
+    const refresh = first.data.session ? await c.auth.refreshSession({ refresh_token: first.data.session.refresh_token }) : null;
+    const getUser = first.data.session ? await createClient(URL_, ANON, { auth: { persistSession: false } }).auth.getUser(first.data.session.access_token) : null;
+    await admin.auth.admin.updateUserById(studentB.userId, { ban_duration: "none" });
+    rec("E1:login-baneado", "usuario baneado no inicia sesión", "error", banned.error ? "error" : "SESIÓN", !!banned.error);
+    rec("E1:refresh-baneado", "el refresh token de un baneado no renueva", "error", refresh?.error ? "error" : "RENOVÓ", !!refresh?.error);
+    rec("E1:getUser-baneado", "getUser (usado por getSafeUser) rechaza el access token de un baneado", "error", getUser?.error ? "error" : "VÁLIDO", !!getUser?.error);
+    expect(banned.error).toBeTruthy();
+  }, 120_000);
 });

@@ -38,6 +38,19 @@ export async function reissueBookingReceipt(
     return { ok: false, error: "Solo se puede reemitir un comprobante vigente (emitido)." };
   }
 
+  // SEG15-03: reclamo atómico del comprobante vigente. Dos reemisiones simultáneas ya no dejan dos `issued`: solo una pasa de
+  // `issued` a `reissued`; la otra se rechaza sin crear nada.
+  const { data: claimed, error: claimError } = await admin
+    .from("booking_receipts")
+    .update({ status: "reissued" })
+    .eq("id", oldReceipt.id)
+    .eq("status", "issued")
+    .select("id");
+  if (claimError || !claimed || claimed.length === 0) {
+    if (claimError) console.error("[receipts] reclamo del comprobante falló:", claimError.code);
+    return { ok: false, error: "Solo se puede reemitir un comprobante vigente (emitido)." };
+  }
+
   const now = new Date();
   const appUrl = getAppUrl();
 
@@ -85,16 +98,9 @@ export async function reissueBookingReceipt(
   );
   if (insertError || !newReceipt) {
     console.error("[receipts] reissue insert failed:", insertError);
+    // Devuelve el reclamo: el comprobante anterior sigue vigente.
+    await admin.from("booking_receipts").update({ status: "issued" }).eq("id", oldReceipt.id).eq("status", "reissued");
     return { ok: false, error: "No pudimos generar el nuevo comprobante. Intentá de nuevo." };
-  }
-
-  const { error: oldUpdateError } = await admin
-    .from("booking_receipts")
-    .update({ status: "reissued" })
-    .eq("id", oldReceipt.id);
-  if (oldUpdateError) {
-    console.error("[receipts] old receipt status update failed:", oldUpdateError);
-    return { ok: false, error: "No pudimos actualizar el comprobante anterior. Intentá de nuevo." };
   }
 
   await admin

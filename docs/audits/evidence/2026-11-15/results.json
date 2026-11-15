@@ -1,6 +1,6 @@
 {
   "tag": "sanitizado",
-  "generated": "2026-11-15T03:36:08.501Z",
+  "generated": "2026-11-15T03:58:39.954Z",
   "evidence": [
     {
       "id": "A1:application_requests:anon",
@@ -171,56 +171,56 @@
       "status": "comprobado"
     },
     {
-      "id": "A1:files:anon",
+      "id": "A1:files:B-anon",
       "control": "lectura de files(id) como anon",
       "expected": "sin filas",
       "got": "sin filas",
       "status": "comprobado"
     },
     {
-      "id": "A1:files:studentA",
+      "id": "A1:files:B-studentA",
       "control": "lectura de files(id) como studentA",
       "expected": "sin filas",
       "got": "sin filas",
       "status": "comprobado"
     },
     {
-      "id": "A1:files:studentB",
+      "id": "A1:files:B-studentB",
       "control": "lectura de files(id) como studentB",
-      "expected": "sin filas",
+      "expected": "visible o no (diseño)",
       "got": "sin filas",
       "status": "comprobado"
     },
     {
-      "id": "A1:files:owner1",
+      "id": "A1:files:B-owner1",
       "control": "lectura de files(id) como owner1",
       "expected": "sin filas",
       "got": "sin filas",
       "status": "comprobado"
     },
     {
-      "id": "A1:files:owner2",
+      "id": "A1:files:B-owner2",
       "control": "lectura de files(id) como owner2",
       "expected": "sin filas",
       "got": "sin filas",
       "status": "comprobado"
     },
     {
-      "id": "A1:files:staff1",
+      "id": "A1:files:B-staff1",
       "control": "lectura de files(id) como staff1",
       "expected": "sin filas",
       "got": "sin filas",
       "status": "comprobado"
     },
     {
-      "id": "A1:files:staff0",
+      "id": "A1:files:B-staff0",
       "control": "lectura de files(id) como staff0",
       "expected": "sin filas",
       "got": "sin filas",
       "status": "comprobado"
     },
     {
-      "id": "A1:files:staffX",
+      "id": "A1:files:B-staffX",
       "control": "lectura de files(id) como staffX",
       "expected": "sin filas",
       "got": "sin filas",
@@ -283,25 +283,893 @@
       "status": "comprobado"
     },
     {
-      "id": "A1:student_profiles:anon",
+      "id": "A1:student_profiles:B-anon",
       "control": "lectura de student_profiles(id) como anon",
       "expected": "sin filas",
       "got": "sin filas",
       "status": "comprobado"
     },
     {
-      "id": "A1:student_profiles:studentA",
+      "id": "A1:student_profiles:B-studentA",
       "control": "lectura de student_profiles(id) como studentA",
       "expected": "sin filas",
       "got": "sin filas",
       "status": "comprobado"
     },
     {
-      "id": "A1:student_profiles:studentB",
+      "id": "A1:student_profiles:B-studentB",
       "control": "lectura de student_profiles(id) como studentB",
-      "expected": "sin filas",
+      "expected": "visible o no (diseño)",
       "got": "filas",
-      "status": "fallido"
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:student_profiles:B-owner1",
+      "control": "lectura de student_profiles(id) como owner1",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:student_profiles:B-owner2",
+      "control": "lectura de student_profiles(id) como owner2",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:student_profiles:B-staff1",
+      "control": "lectura de student_profiles(id) como staff1",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:student_profiles:B-staff0",
+      "control": "lectura de student_profiles(id) como staff0",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:student_profiles:B-staffX",
+      "control": "lectura de student_profiles(id) como staffX",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:users:anon",
+      "control": "lectura de users(id) como anon",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:users:studentA",
+      "control": "lectura de users(id) como studentA",
+      "expected": "visible o no (diseño)",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:users:studentB",
+      "control": "lectura de users(id) como studentB",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:users:owner1",
+      "control": "lectura de users(id) como owner1",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:users:owner2",
+      "control": "lectura de users(id) como owner2",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:users:staff1",
+      "control": "lectura de users(id) como staff1",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:users:staff0",
+      "control": "lectura de users(id) como staff0",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:users:staffX",
+      "control": "lectura de users(id) como staffX",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:residence_users:anon",
+      "control": "lectura de residence_users(residence_id) como anon",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:residence_users:studentA",
+      "control": "lectura de residence_users(residence_id) como studentA",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:residence_users:studentB",
+      "control": "lectura de residence_users(residence_id) como studentB",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:residence_users:owner1",
+      "control": "lectura de residence_users(residence_id) como owner1",
+      "expected": "visible o no (diseño)",
+      "got": "filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:residence_users:owner2",
+      "control": "lectura de residence_users(residence_id) como owner2",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:residence_users:staff1",
+      "control": "lectura de residence_users(residence_id) como staff1",
+      "expected": "visible o no (diseño)",
+      "got": "filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:residence_users:staff0",
+      "control": "lectura de residence_users(residence_id) como staff0",
+      "expected": "visible o no (diseño)",
+      "got": "filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:residence_users:staffX",
+      "control": "lectura de residence_users(residence_id) como staffX",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:residence_document_access_log:anon",
+      "control": "lectura de residence_document_access_log como anon",
+      "expected": "sin filas / denegado",
+      "got": "0 filas (error)",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:residence_document_access_log:studentA",
+      "control": "lectura de residence_document_access_log como studentA",
+      "expected": "sin filas / denegado",
+      "got": "0 filas (error)",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:residence_document_access_log:studentB",
+      "control": "lectura de residence_document_access_log como studentB",
+      "expected": "sin filas / denegado",
+      "got": "0 filas (error)",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:residence_document_access_log:owner1",
+      "control": "lectura de residence_document_access_log como owner1",
+      "expected": "sin filas / denegado",
+      "got": "0 filas (error)",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:residence_document_access_log:owner2",
+      "control": "lectura de residence_document_access_log como owner2",
+      "expected": "sin filas / denegado",
+      "got": "0 filas (error)",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:residence_document_access_log:staff1",
+      "control": "lectura de residence_document_access_log como staff1",
+      "expected": "sin filas / denegado",
+      "got": "0 filas (error)",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:residence_document_access_log:staff0",
+      "control": "lectura de residence_document_access_log como staff0",
+      "expected": "sin filas / denegado",
+      "got": "0 filas (error)",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:residence_document_access_log:staffX",
+      "control": "lectura de residence_document_access_log como staffX",
+      "expected": "sin filas / denegado",
+      "got": "0 filas (error)",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:document_access_log:anon",
+      "control": "lectura de document_access_log como anon",
+      "expected": "sin filas / denegado",
+      "got": "0 filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:document_access_log:studentA",
+      "control": "lectura de document_access_log como studentA",
+      "expected": "sin filas / denegado",
+      "got": "0 filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:document_access_log:studentB",
+      "control": "lectura de document_access_log como studentB",
+      "expected": "sin filas / denegado",
+      "got": "0 filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:document_access_log:owner1",
+      "control": "lectura de document_access_log como owner1",
+      "expected": "sin filas / denegado",
+      "got": "0 filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:document_access_log:owner2",
+      "control": "lectura de document_access_log como owner2",
+      "expected": "sin filas / denegado",
+      "got": "0 filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:document_access_log:staff1",
+      "control": "lectura de document_access_log como staff1",
+      "expected": "sin filas / denegado",
+      "got": "0 filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:document_access_log:staff0",
+      "control": "lectura de document_access_log como staff0",
+      "expected": "sin filas / denegado",
+      "got": "0 filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:document_access_log:staffX",
+      "control": "lectura de document_access_log como staffX",
+      "expected": "sin filas / denegado",
+      "got": "0 filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:audit_logs:anon",
+      "control": "lectura de audit_logs como anon",
+      "expected": "sin filas / denegado",
+      "got": "0 filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:audit_logs:studentA",
+      "control": "lectura de audit_logs como studentA",
+      "expected": "sin filas / denegado",
+      "got": "0 filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:audit_logs:studentB",
+      "control": "lectura de audit_logs como studentB",
+      "expected": "sin filas / denegado",
+      "got": "0 filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:audit_logs:owner1",
+      "control": "lectura de audit_logs como owner1",
+      "expected": "sin filas / denegado",
+      "got": "0 filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:audit_logs:owner2",
+      "control": "lectura de audit_logs como owner2",
+      "expected": "sin filas / denegado",
+      "got": "0 filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:audit_logs:staff1",
+      "control": "lectura de audit_logs como staff1",
+      "expected": "sin filas / denegado",
+      "got": "0 filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:audit_logs:staff0",
+      "control": "lectura de audit_logs como staff0",
+      "expected": "sin filas / denegado",
+      "got": "0 filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:audit_logs:staffX",
+      "control": "lectura de audit_logs como staffX",
+      "expected": "sin filas / denegado",
+      "got": "0 filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:notifications",
+      "control": "notificaciones propias visibles / ajenas no",
+      "expected": "A ve 1; B ve 0",
+      "got": "A=0; B=0",
+      "status": "comprobado"
+    },
+    {
+      "id": "A2:estudianteB→solicitud ajena",
+      "control": "mutación directa denegada: estudianteB→solicitud ajena",
+      "expected": "0 filas afectadas o error",
+      "got": "0 filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A2:owner2→solicitud de R1",
+      "control": "mutación directa denegada: owner2→solicitud de R1",
+      "expected": "0 filas afectadas o error",
+      "got": "0 filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A2:estudianteA→salta estado propio",
+      "control": "mutación directa denegada: estudianteA→salta estado propio",
+      "expected": "0 filas afectadas o error",
+      "got": "0 filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A2:staff0→se da permisos",
+      "control": "mutación directa denegada: staff0→se da permisos",
+      "expected": "0 filas afectadas o error",
+      "got": "0 filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A2:staff0→se vuelve owner",
+      "control": "mutación directa denegada: staff0→se vuelve owner",
+      "expected": "0 filas afectadas o error",
+      "got": "0 filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A2:staff0→se suma a R2",
+      "control": "mutación directa denegada: staff0→se suma a R2",
+      "expected": "0 filas afectadas o error",
+      "got": "0 filas, error",
+      "status": "comprobado"
+    },
+    {
+      "id": "A2:estudianteA→rol admin",
+      "control": "mutación directa denegada: estudianteA→rol admin",
+      "expected": "0 filas afectadas o error",
+      "got": "0 filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A2:estudianteA→user_roles admin",
+      "control": "mutación directa denegada: estudianteA→user_roles admin",
+      "expected": "0 filas afectadas o error",
+      "got": "0 filas, error",
+      "status": "comprobado"
+    },
+    {
+      "id": "A2:estudianteA→desbloquearse",
+      "control": "mutación directa denegada: estudianteA→desbloquearse",
+      "expected": "0 filas afectadas o error",
+      "got": "0 filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A2:estudianteB→archivo ajeno",
+      "control": "mutación directa denegada: estudianteB→archivo ajeno",
+      "expected": "0 filas afectadas o error",
+      "got": "0 filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A2:estudianteB→borra archivo ajeno",
+      "control": "mutación directa denegada: estudianteB→borra archivo ajeno",
+      "expected": "0 filas afectadas o error",
+      "got": "0 filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A2:estudianteB→perfil ajeno",
+      "control": "mutación directa denegada: estudianteB→perfil ajeno",
+      "expected": "0 filas afectadas o error",
+      "got": "0 filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A2:estudianteB→forja log DR48",
+      "control": "mutación directa denegada: estudianteB→forja log DR48",
+      "expected": "0 filas afectadas o error",
+      "got": "0 filas, error",
+      "status": "comprobado"
+    },
+    {
+      "id": "A2:owner1→residencia de R2",
+      "control": "mutación directa denegada: owner1→residencia de R2",
+      "expected": "0 filas afectadas o error",
+      "got": "0 filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A2:owner2→residencia de R1",
+      "control": "mutación directa denegada: owner2→residencia de R1",
+      "expected": "0 filas afectadas o error",
+      "got": "0 filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A2:estado-persistido",
+      "control": "tras las mutaciones, estado/rol/permiso sin cambios",
+      "expected": "intacto",
+      "got": "intacto",
+      "status": "comprobado"
+    },
+    {
+      "id": "A3:storage:studentB",
+      "control": "Storage directo student-documents como studentB",
+      "expected": "firmar/descargar/listar denegado",
+      "got": "denegado",
+      "status": "comprobado"
+    },
+    {
+      "id": "A3:storage:studentA",
+      "control": "Storage directo student-documents como studentA",
+      "expected": "firmar/descargar/listar denegado",
+      "got": "denegado",
+      "status": "comprobado"
+    },
+    {
+      "id": "A3:storage:owner1",
+      "control": "Storage directo student-documents como owner1",
+      "expected": "firmar/descargar/listar denegado",
+      "got": "denegado",
+      "status": "comprobado"
+    },
+    {
+      "id": "A3:storage:anon",
+      "control": "Storage directo student-documents como anon",
+      "expected": "firmar/descargar/listar denegado",
+      "got": "denegado",
+      "status": "comprobado"
+    },
+    {
+      "id": "A3:rpc:consume_rate_limit:anon",
+      "control": "RPC privilegiada consume_rate_limit como anon",
+      "expected": "denegada (42501/404)",
+      "got": "PGRST202",
+      "status": "comprobado"
+    },
+    {
+      "id": "A3:rpc:peek_rate_limit:anon",
+      "control": "RPC privilegiada peek_rate_limit como anon",
+      "expected": "denegada (42501/404)",
+      "got": "PGRST202",
+      "status": "comprobado"
+    },
+    {
+      "id": "A3:rpc:create_residence_private_details:anon",
+      "control": "RPC privilegiada create_residence_private_details como anon",
+      "expected": "denegada (42501/404)",
+      "got": "PGRST202",
+      "status": "comprobado"
+    },
+    {
+      "id": "A3:rpc:publish_residence_regulation:anon",
+      "control": "RPC privilegiada publish_residence_regulation como anon",
+      "expected": "denegada (42501/404)",
+      "got": "PGRST202",
+      "status": "comprobado"
+    },
+    {
+      "id": "A3:rpc:consume_invite_otp_attempt:anon",
+      "control": "RPC privilegiada consume_invite_otp_attempt como anon",
+      "expected": "denegada (42501/404)",
+      "got": "PGRST202",
+      "status": "comprobado"
+    },
+    {
+      "id": "A3:rpc:register_invite_otp_send:anon",
+      "control": "RPC privilegiada register_invite_otp_send como anon",
+      "expected": "denegada (42501/404)",
+      "got": "PGRST202",
+      "status": "comprobado"
+    },
+    {
+      "id": "A3:rpc:ensure_model_regulation_version:anon",
+      "control": "RPC privilegiada ensure_model_regulation_version como anon",
+      "expected": "denegada (42501/404)",
+      "got": "PGRST202",
+      "status": "comprobado"
+    },
+    {
+      "id": "A3:rpc:consume_rate_limit:studentA",
+      "control": "RPC privilegiada consume_rate_limit como studentA",
+      "expected": "denegada (42501/404)",
+      "got": "PGRST202",
+      "status": "comprobado"
+    },
+    {
+      "id": "A3:rpc:peek_rate_limit:studentA",
+      "control": "RPC privilegiada peek_rate_limit como studentA",
+      "expected": "denegada (42501/404)",
+      "got": "PGRST202",
+      "status": "comprobado"
+    },
+    {
+      "id": "A3:rpc:create_residence_private_details:studentA",
+      "control": "RPC privilegiada create_residence_private_details como studentA",
+      "expected": "denegada (42501/404)",
+      "got": "PGRST202",
+      "status": "comprobado"
+    },
+    {
+      "id": "A3:rpc:publish_residence_regulation:studentA",
+      "control": "RPC privilegiada publish_residence_regulation como studentA",
+      "expected": "denegada (42501/404)",
+      "got": "PGRST202",
+      "status": "comprobado"
+    },
+    {
+      "id": "A3:rpc:consume_invite_otp_attempt:studentA",
+      "control": "RPC privilegiada consume_invite_otp_attempt como studentA",
+      "expected": "denegada (42501/404)",
+      "got": "PGRST202",
+      "status": "comprobado"
+    },
+    {
+      "id": "A3:rpc:register_invite_otp_send:studentA",
+      "control": "RPC privilegiada register_invite_otp_send como studentA",
+      "expected": "denegada (42501/404)",
+      "got": "PGRST202",
+      "status": "comprobado"
+    },
+    {
+      "id": "A3:rpc:ensure_model_regulation_version:studentA",
+      "control": "RPC privilegiada ensure_model_regulation_version como studentA",
+      "expected": "denegada (42501/404)",
+      "got": "PGRST202",
+      "status": "comprobado"
+    },
+    {
+      "id": "A3:rpc:consume_rate_limit:owner1",
+      "control": "RPC privilegiada consume_rate_limit como owner1",
+      "expected": "denegada (42501/404)",
+      "got": "PGRST202",
+      "status": "comprobado"
+    },
+    {
+      "id": "A3:rpc:peek_rate_limit:owner1",
+      "control": "RPC privilegiada peek_rate_limit como owner1",
+      "expected": "denegada (42501/404)",
+      "got": "PGRST202",
+      "status": "comprobado"
+    },
+    {
+      "id": "A3:rpc:create_residence_private_details:owner1",
+      "control": "RPC privilegiada create_residence_private_details como owner1",
+      "expected": "denegada (42501/404)",
+      "got": "PGRST202",
+      "status": "comprobado"
+    },
+    {
+      "id": "A3:rpc:publish_residence_regulation:owner1",
+      "control": "RPC privilegiada publish_residence_regulation como owner1",
+      "expected": "denegada (42501/404)",
+      "got": "PGRST202",
+      "status": "comprobado"
+    },
+    {
+      "id": "A3:rpc:consume_invite_otp_attempt:owner1",
+      "control": "RPC privilegiada consume_invite_otp_attempt como owner1",
+      "expected": "denegada (42501/404)",
+      "got": "PGRST202",
+      "status": "comprobado"
+    },
+    {
+      "id": "A3:rpc:register_invite_otp_send:owner1",
+      "control": "RPC privilegiada register_invite_otp_send como owner1",
+      "expected": "denegada (42501/404)",
+      "got": "PGRST202",
+      "status": "comprobado"
+    },
+    {
+      "id": "A3:rpc:ensure_model_regulation_version:owner1",
+      "control": "RPC privilegiada ensure_model_regulation_version como owner1",
+      "expected": "denegada (42501/404)",
+      "got": "PGRST202",
+      "status": "comprobado"
+    },
+    {
+      "id": "A4:bloqueado",
+      "control": "estudiante bloqueado con JWT vigente deja de leer sus datos (RLS)",
+      "expected": "antes 1 fila / después 0",
+      "got": "antes=1 después=0",
+      "status": "comprobado"
+    },
+    {
+      "id": "B1:owner-applicant",
+      "control": "owner abre doc de solicitante con pago habilitado",
+      "expected": "ok + link",
+      "got": "ok",
+      "status": "comprobado"
+    },
+    {
+      "id": "B1:log-contenido",
+      "control": "el registro guarda actor, documento, residencia, vínculo y solicitud",
+      "expected": "campos correctos y sin URL",
+      "got": "correcto",
+      "status": "comprobado"
+    },
+    {
+      "id": "B1:ttl",
+      "control": "el enlace firmado expira en ≤ 300 s",
+      "expected": "≤ 300 s",
+      "got": "300 s restantes",
+      "status": "comprobado"
+    },
+    {
+      "id": "B1:staff con payments.residence (solicitante)",
+      "control": "staff con payments.residence (solicitante)",
+      "expected": "ok",
+      "got": "ok",
+      "status": "comprobado"
+    },
+    {
+      "id": "B1:staff sin permisos",
+      "control": "staff sin permisos",
+      "expected": "denegado",
+      "got": "Tu usuario no tiene permiso para ver los documentos de esta persona. Pedíselo al dueño de la residencia.",
+      "status": "comprobado"
+    },
+    {
+      "id": "B1:owner de otra residencia (R2) apuntando a R2",
+      "control": "owner de otra residencia (R2) apuntando a R2",
+      "expected": "denegado",
+      "got": "No encontramos ese documento o no tenés acceso a verlo.",
+      "status": "comprobado"
+    },
+    {
+      "id": "B1:owner de R2 con residenceId manipulado a R1",
+      "control": "owner de R2 con residenceId manipulado a R1",
+      "expected": "denegado",
+      "got": "No tenés acceso a esta residencia.",
+      "status": "comprobado"
+    },
+    {
+      "id": "B1:owner de R1 sobre doc de estudiante sin vínculo",
+      "control": "owner de R1 sobre doc de estudiante sin vínculo",
+      "expected": "denegado",
+      "got": "No encontramos ese documento o no tenés acceso a verlo.",
+      "status": "comprobado"
+    },
+    {
+      "id": "B1:owner de R1 con residenceId manipulado a R2",
+      "control": "owner de R1 con residenceId manipulado a R2",
+      "expected": "denegado",
+      "got": "No tenés acceso a esta residencia.",
+      "status": "comprobado"
+    },
+    {
+      "id": "B1:archivo de otro bucket/tipo (comprobante)",
+      "control": "archivo de otro bucket/tipo (comprobante)",
+      "expected": "denegado",
+      "got": "No encontramos ese documento o no tenés acceso a verlo.",
+      "status": "comprobado"
+    },
+    {
+      "id": "B1:id de archivo inexistente",
+      "control": "id de archivo inexistente",
+      "expected": "denegado",
+      "got": "No encontramos ese documento o no tenés acceso a verlo.",
+      "status": "comprobado"
+    },
+    {
+      "id": "B1:usuario sin vínculo (estudiante B)",
+      "control": "usuario sin vínculo (estudiante B)",
+      "expected": "denegado",
+      "got": "No tenés acceso a esta residencia.",
+      "status": "comprobado"
+    },
+    {
+      "id": "B1:log-solo-exitosos",
+      "control": "solo las aperturas exitosas dejan registro",
+      "expected": "3 filas",
+      "got": "3 filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "B2:estado:rejected",
+      "control": "solicitud en rejected no habilita documentos",
+      "expected": "denegado",
+      "got": "denegado",
+      "status": "comprobado"
+    },
+    {
+      "id": "B2:estado:cancelled_by_student",
+      "control": "solicitud en cancelled_by_student no habilita documentos",
+      "expected": "denegado",
+      "got": "denegado",
+      "status": "comprobado"
+    },
+    {
+      "id": "B2:estado:contact_established",
+      "control": "solicitud en contact_established no habilita documentos",
+      "expected": "denegado",
+      "got": "denegado",
+      "status": "comprobado"
+    },
+    {
+      "id": "B2:estado:submitted",
+      "control": "solicitud en submitted no habilita documentos",
+      "expected": "denegado",
+      "got": "denegado",
+      "status": "comprobado"
+    },
+    {
+      "id": "B2:convertida-sin-reserva",
+      "control": "convertida sin reserva viva no habilita",
+      "expected": "denegado",
+      "got": "denegado",
+      "status": "comprobado"
+    },
+    {
+      "id": "B2:permiso-retirado",
+      "control": "staff con permiso retirado no obtiene nuevos enlaces",
+      "expected": "denegado",
+      "got": "denegado",
+      "status": "comprobado"
+    },
+    {
+      "id": "B2:staff-inactivo",
+      "control": "staff desvinculado no obtiene nuevos enlaces",
+      "expected": "denegado",
+      "got": "denegado",
+      "status": "comprobado"
+    },
+    {
+      "id": "B2:enlace-emitido",
+      "control": "un enlace ya emitido sigue funcionando hasta su expiración (≤ 300 s)",
+      "expected": "200 (periodo de validez previsto)",
+      "got": "HTTP 200",
+      "status": "comprobado"
+    },
+    {
+      "id": "B2:residente",
+      "control": "staff con residents.manage abre docs de residente vigente",
+      "expected": "ok",
+      "got": "ok",
+      "status": "comprobado"
+    },
+    {
+      "id": "B2:salida",
+      "control": "tras la salida del residente no hay nuevos enlaces",
+      "expected": "denegado",
+      "got": "denegado",
+      "status": "comprobado"
+    },
+    {
+      "id": "B3:falla-registro",
+      "control": "si falla el registro no se entrega enlace",
+      "expected": "denegado",
+      "got": "denegado",
+      "status": "comprobado"
+    },
+    {
+      "id": "B3:falla-lectura-archivo",
+      "control": "si falla la lectura del archivo no hay enlace",
+      "expected": "denegado",
+      "got": "denegado",
+      "status": "comprobado"
+    },
+    {
+      "id": "B3:falla-vinculos",
+      "control": "si falla la lectura de vínculos no hay enlace",
+      "expected": "denegado",
+      "got": "denegado",
+      "status": "comprobado"
+    },
+    {
+      "id": "B3:falla-membresia",
+      "control": "si falla la verificación de membresía no hay enlace",
+      "expected": "denegado",
+      "got": "denegado",
+      "status": "comprobado"
+    },
+    {
+      "id": "B3:falla-firma",
+      "control": "si falla la firma no hay enlace (el registro queda, sobre-informa)",
+      "expected": "denegado",
+      "got": "denegado",
+      "status": "comprobado"
+    },
+    {
+      "id": "B3:log-por-falla-firma",
+      "control": "fallo de firma deja un registro sin enlace entregado (sobre-registro)",
+      "expected": "1 fila de más",
+      "got": "1 filas de más",
+      "status": "comprobado"
+    },
+    {
+      "id": "D1:confirmacion-concurrente",
+      "control": "3 confirmaciones simultáneas del mismo pago: una sola reserva y un solo fee",
+      "expected": "1 reserva, 1 fee, 1 evento",
+      "got": "1 ok; 1 reservas; 1 fees; 1 eventos",
+      "status": "comprobado"
+    },
+    {
+      "id": "D1:reintento-posterior",
+      "control": "reintento tras el éxito se rechaza y no duplica",
+      "expected": "rechazado; sin reservas nuevas",
+      "got": "rechazado; 1 reservas",
+      "status": "comprobado"
+    },
+    {
+      "id": "H1:rate-limit-atomico",
+      "control": "20 llamadas simultáneas con tope 5 permiten exactamente 5",
+      "expected": "5 ok",
+      "got": "5 ok",
+      "status": "comprobado"
+    },
+    {
+      "id": "G1:soporte-sin-tope",
+      "control": "6 casos seguidos con evidencia por el mismo usuario: se espera un freno/cuota",
+      "expected": "freno o cuota que corte antes de N",
+      "got": "5 de 6 aceptados; 5 casos; 5 archivos",
+      "status": "comprobado"
+    },
+    {
+      "id": "E1:login-baneado",
+      "control": "usuario baneado no inicia sesión",
+      "expected": "error",
+      "got": "error",
+      "status": "comprobado"
+    },
+    {
+      "id": "E1:refresh-baneado",
+      "control": "el refresh token de un baneado no renueva",
+      "expected": "error",
+      "got": "error",
+      "status": "comprobado"
+    },
+    {
+      "id": "E1:getUser-baneado",
+      "control": "getUser (usado por getSafeUser) rechaza el access token de un baneado",
+      "expected": "error",
+      "got": "error",
+      "status": "comprobado"
     }
   ]
 }
