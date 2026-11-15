@@ -46,14 +46,14 @@ export function PayCard({
         className="flex w-full cursor-pointer flex-col gap-1 rounded-card p-5 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest-600"
       >
         <span className="flex items-start justify-between">
-          <Icon name={icon} className="text-3xl text-forest-700" />
+          <Icon name={icon} className="text-4xl text-forest-700 sm:text-3xl" />
           <Icon
             name="expand_more"
             className={`text-2xl text-forest-700 transition-transform duration-300 motion-reduce:transition-none ${open ? "rotate-180" : ""}`}
           />
         </span>
-        <span className="mt-2 text-sm font-bold text-ink-soft">{label}</span>
-        <span className="font-display text-2xl font-bold leading-tight text-ink">{amount}</span>
+        <span className="mt-2 text-base font-bold text-ink-soft">{label}</span>
+        <span className="font-display text-[1.75rem] font-bold leading-tight text-ink sm:text-2xl">{amount}</span>
       </button>
       <div id={panelId} hidden={!open}>
         <p className="benefit-fade-in border-t border-black/5 px-5 pb-5 pt-3 text-base leading-relaxed text-ink-soft">{text}</p>
