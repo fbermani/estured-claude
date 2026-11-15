@@ -9,7 +9,7 @@ import { ReceiptMiniature } from "@/components/marketing/ReceiptMiniature";
  */
 const ROWS = [
   { what: "La residencia", withUs: "Verificada en persona por EstuRed", outside: "La chequeás por tu cuenta" },
-  { what: "Precio y costos", withUs: "Publicados, con el fee a la vista", outside: "Los consultás uno por uno" },
+  { what: "Precio y costos", withUs: "Publicados, sin costos ocultos", outside: "Los consultás uno por uno" },
   { what: "Acuerdos", withUs: "Registrados en tu cuenta", outside: "Quedan en chats sueltos" },
   { what: "Reserva confirmada", withUs: "Comprobante con código verificable", outside: "Depende de cada residencia" },
   { what: "Si algo no coincide", withUs: "Abrís un caso de Soporte", outside: "Lo resolvés directo con la residencia" },

@@ -52,11 +52,11 @@ export function PayCard({
             className={`text-2xl text-forest-700 transition-transform duration-300 motion-reduce:transition-none ${open ? "rotate-180" : ""}`}
           />
         </span>
-        <span className="mt-2 text-xs font-bold text-ink-faint">{label}</span>
-        <span className="font-display text-xl font-bold text-ink">{amount}</span>
+        <span className="mt-2 text-sm font-bold text-ink-soft">{label}</span>
+        <span className="font-display text-2xl font-bold leading-tight text-ink">{amount}</span>
       </button>
       <div id={panelId} hidden={!open}>
-        <p className="benefit-fade-in border-t border-black/5 px-5 pb-5 pt-3 text-sm leading-relaxed text-ink-soft">{text}</p>
+        <p className="benefit-fade-in border-t border-black/5 px-5 pb-5 pt-3 text-base leading-relaxed text-ink-soft">{text}</p>
       </div>
     </div>
   );

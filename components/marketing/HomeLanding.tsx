@@ -13,6 +13,7 @@ import { WhyEstuRed } from "@/components/marketing/WhyEstuRed";
 import { HowItWorksSteps } from "@/app/(public)/HowItWorksSteps";
 import { ResidenceCardCompact } from "@/components/residences/ResidenceCardCompact";
 import { HomeHero } from "@/components/marketing/HomeHero";
+import { EsturedSeal } from "@/components/brand/EsturedSeal";
 import { getCatalogResidences } from "@/lib/residences/catalog";
 import { sortRecommended } from "@/lib/residences/searchFilters";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
@@ -177,7 +178,7 @@ export async function HomeLanding({ schema = true }: { schema?: boolean }) {
         />
       )}
       {/* Hero (propuesta B: buscador mock + cinta de residencias reales) */}
-      <HomeHero residences={catalog} />
+      <HomeHero residences={catalog} intro={schema} />
 
       {/* Por qué EstuRed (fusionada con «La diferencia», DR22) */}
       <WhyEstuRed />
@@ -185,11 +186,18 @@ export async function HomeLanding({ schema = true }: { schema?: boolean }) {
       {/* Catálogo (tarjetas reducidas) */}
       <div className="band">
 <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-20">
-        <SectionHeader
-          align="left"
-          title="Residencias verificadas en CABA"
-          description="Precios y reglas a la vista. La disponibilidad la informa cada residencia."
-        />
+        <div className="mb-10 flex items-start justify-between gap-4 sm:gap-8">
+          <div className="[&>div]:mb-0">
+            <SectionHeader
+              align="left"
+              title="Residencias verificadas en CABA"
+              description="Precios y reglas a la vista. La disponibilidad la informa cada residencia."
+            />
+          </div>
+          <Reveal className="shrink-0">
+            <EsturedSeal size={156} className="-mt-1 size-[84px] sm:mt-0 sm:size-[132px] lg:size-[156px]" />
+          </Reveal>
+        </div>
         {featured.length > 0 ? (
           <>
             <StaggerIn role="region" aria-label="Residencias del catálogo" tabIndex={0} className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest overflow-x-auto px-4 pb-3 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4">

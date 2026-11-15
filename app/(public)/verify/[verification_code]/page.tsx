@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { BrandMark } from "@/components/ui/BrandMark";
 import { formatDateOnly } from "@/lib/dates/formatDateOnly";
 import {
   lookupPublicReceipt,
@@ -50,6 +51,7 @@ export default async function VerifyReceiptPage({
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-lg flex-col items-center justify-center px-4 py-14 sm:px-6">
       <Card className="w-full p-8 text-center">
+        <BrandMark size={28} className="mb-5 justify-center" />
         {rateLimited ? (
           <>
             <Badge tone="neutral">Demasiadas consultas</Badge>

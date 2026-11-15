@@ -1,0 +1,56 @@
+/* Sello de EstuRed: golpe de sello (cae grande y rotado, rebota y queda). Solo transform + opacity.
+   Con prefers-reduced-motion queda quieto y visible. */
+@keyframes seal-stamp {
+  0% {
+    opacity: 0;
+    transform: scale(2.6) rotate(-22deg);
+  }
+  42% {
+    opacity: 1;
+    transform: scale(0.88) rotate(2deg);
+  }
+  60% {
+    transform: scale(1.05) rotate(-1deg);
+  }
+  80% {
+    transform: scale(0.99);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+.seal-stamp {
+  animation: seal-stamp 0.85s cubic-bezier(0.2, 0.8, 0.25, 1) both;
+  animation-delay: var(--seal-delay, 0s);
+}
+
+/* Onda de impacto detrás del sello cuando toca el «papel». */
+@keyframes seal-impact {
+  0%,
+  40% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  46% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+}
+.seal-impact {
+  animation: seal-impact 1s ease-out both;
+  animation-delay: var(--seal-delay, 0s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .seal-stamp,
+  .seal-impact {
+    animation: none;
+  }
+  .seal-impact {
+    display: none;
+  }
+}

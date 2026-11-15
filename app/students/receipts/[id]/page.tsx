@@ -4,6 +4,7 @@ import QRCode from "qrcode";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { BrandMark } from "@/components/ui/BrandMark";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import {
   FUTURE_PAYMENTS_NOTICE,
@@ -58,6 +59,7 @@ export default async function ReceiptPage({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
+      <BrandMark size={30} className="mb-5" />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-ink">Comprobante de Reserva Confirmada</h1>
         <Badge tone={statusBadge.tone}>{statusBadge.label}</Badge>

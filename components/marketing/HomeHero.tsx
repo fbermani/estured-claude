@@ -2,11 +2,15 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { ResidencePhoto } from "@/components/residences/ResidencePhoto";
+import { EsturedSeal } from "@/components/brand/EsturedSeal";
 import type { Residence } from "@/types/domain";
 import "./hero-motion.css";
 
 /** Cantidad mínima de tarjetas por tanda para que la cinta cubra el ancho y el bucle (-50%) no tenga saltos. */
 const MIN_CARDS_PER_SET = 8;
+
+/** El sello abre la página (golpe + pausa) y recién después aparece el resto: el contenido arranca a los 1,7 s. */
+const INTRO_S = 1.7;
 
 const delay = (s: number) => ({ "--d": `${s}s` }) as CSSProperties;
 
@@ -64,9 +68,11 @@ function MarqueeCard({ residence, hidden }: { residence: Residence; hidden?: boo
 /**
  * Hero de la home (propuesta B): fondo forest oscuro, buscador mock que lleva a /search
  * y cinta de residencias reales que se desplaza sola (pausa con hover o foco).
- * Todo el movimiento es CSS; no hay estado ni JS de cliente.
+ * Todo el movimiento es CSS; no hay estado ni JS de cliente. `intro`: apertura con el sello de EstuRed estampándose sobre el hero
+ * (~2 s, solo visual: el texto ya está en el DOM desde el primer frame); se apaga con prefers-reduced-motion.
  */
-export function HomeHero({ residences }: { residences: Residence[] }) {
+export function HomeHero({ residences, intro = true }: { residences: Residence[]; intro?: boolean }) {
+  const t = intro ? INTRO_S : 0;
   let set: Residence[] = [];
   if (residences.length > 0) {
     while (set.length < MIN_CARDS_PER_SET) set = set.concat(residences);
@@ -83,17 +89,26 @@ export function HomeHero({ residences }: { residences: Residence[] }) {
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(rgb(255_255_255/.09)_1px,transparent_1.2px)] [background-size:22px_22px] [mask-image:linear-gradient(#000,transparent_80%)]"
       />
 
+      {intro && (
+        <div aria-hidden="true" className="hero-intro bg-gradient-to-br from-forest-ink via-forest-700 to-forest-600">
+          <span className="relative grid place-items-center" style={{ "--seal-delay": "0.3s" } as CSSProperties}>
+            <i className="seal-impact absolute size-[300px] rounded-full border-2 border-paper/60 sm:size-[360px]" />
+            <EsturedSeal size={260} tone="cream" stamp className="size-[220px] sm:size-[260px]" />
+          </span>
+        </div>
+      )}
+
       <div className="relative mx-auto max-w-[900px] px-4 pb-6 pt-8 text-center sm:px-6 md:pb-9 md:pt-20">
-        <p className="hero-seq mb-3.5 text-[13px] font-bold text-amber-soft-300" style={delay(0.06)}>
+        <p className="hero-seq mb-3.5 text-[13px] font-bold text-amber-soft-300" style={delay(0.06 + t)}>
           Ciudad de Buenos Aires
         </p>
         <h1
           className="hero-seq text-[1.875rem] font-bold leading-[1.1] tracking-tight text-white sm:text-[2.375rem] md:text-6xl"
-          style={delay(0.12)}
+          style={delay(0.12 + t)}
         >
           Elegí tu residencia a distancia, <span className="text-amber-soft-300">sin adivinar.</span>
         </h1>
-        <p className="hero-seq mx-auto mt-4 max-w-[600px] text-base text-forest-tint sm:text-[17px] md:text-xl" style={delay(0.18)}>
+        <p className="hero-seq mx-auto mt-4 max-w-[600px] text-base text-forest-tint sm:text-[17px] md:text-xl" style={delay(0.18 + t)}>
           Residencias en Buenos Aires, verificadas por EstuRed. Solicitá y coordiná desde donde estés, sin viajar.
         </p>
 
@@ -102,7 +117,7 @@ export function HomeHero({ residences }: { residences: Residence[] }) {
           href="/search"
           aria-label="Buscar residencias en Buenos Aires"
           className="hero-seq group mx-auto mt-5 grid gap-1 rounded-[26px] bg-white p-2.5 text-ink shadow-float focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white md:grid-cols-[1.1fr_1fr_1fr_auto] md:items-center md:rounded-full md:py-2 md:pl-3.5 md:pr-2 md:gap-0"
-          style={delay(0.24)}
+          style={delay(0.24 + t)}
         >
           <FakeField label="¿Dónde?" value="Todos los barrios" />
           <FakeField label="¿Qué estudiás?" value="Todas" />
@@ -113,7 +128,7 @@ export function HomeHero({ residences }: { residences: Residence[] }) {
           </span>
         </Link>
 
-        <p className="hero-rise mt-3.5 text-[13px] text-forest-tint" style={delay(0.32)}>
+        <p className="hero-rise mt-3.5 text-[13px] text-forest-tint" style={delay(0.32 + t)}>
           Explorar es gratis. Toda solicitud queda sujeta a confirmación de la residencia.{" "}
           <Link href="/register/residence" className="font-bold text-white underline-offset-2 hover:underline">
             Solicitar sumar mi residencia
@@ -123,7 +138,7 @@ export function HomeHero({ residences }: { residences: Residence[] }) {
           className="mt-4 flex flex-wrap justify-center gap-x-[18px] gap-y-2 text-[13px] font-semibold text-forest-tint"
         >
           {MINI_POINTS.map((p, i) => (
-            <li key={p.label} className="hero-chip inline-flex items-center gap-1.5" style={delay(0.36 + i * 0.04)}>
+            <li key={p.label} className="hero-chip inline-flex items-center gap-1.5" style={delay(0.36 + t + i * 0.04)}>
               <Icon name={p.icon} className="text-lg text-amber-soft-300" />
               {p.label}
             </li>

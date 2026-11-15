@@ -131,9 +131,9 @@ export function StayChangeHighlight({ variant, studentCta = "register" }: { vari
                 <Icon name="family_restroom" className="text-[26px]" />
               </span>
               <div>
-                <p className="text-lg font-bold text-forest-700">Para familias: te enterás de todo</p>
+                <p className="text-lg font-bold text-forest-700">Acompañá en cada paso</p>
                 <p className="mt-1 max-w-2xl text-sm leading-relaxed text-ink-soft sm:text-base">
-                  Si estás vinculado como familiar, ves el aviso, la fecha estimada de salida y los costos que informe la residencia. Podés proponer opciones; la decisión
+                  Si estás vinculado como familiar, acompañás el proceso con el aviso, la fecha estimada de salida y los costos que informe la residencia. Podés proponer opciones; la decisión
                   es de tu estudiante.
                 </p>
               </div>
