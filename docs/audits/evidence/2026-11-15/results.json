@@ -1,0 +1,307 @@
+{
+  "tag": "sanitizado",
+  "generated": "2026-11-15T03:36:08.501Z",
+  "evidence": [
+    {
+      "id": "A1:application_requests:anon",
+      "control": "lectura de application_requests(id) como anon",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:application_requests:studentA",
+      "control": "lectura de application_requests(id) como studentA",
+      "expected": "visible o no (diseño)",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:application_requests:studentB",
+      "control": "lectura de application_requests(id) como studentB",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:application_requests:owner1",
+      "control": "lectura de application_requests(id) como owner1",
+      "expected": "visible o no (diseño)",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:application_requests:owner2",
+      "control": "lectura de application_requests(id) como owner2",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:application_requests:staff1",
+      "control": "lectura de application_requests(id) como staff1",
+      "expected": "visible o no (diseño)",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:application_requests:staff0",
+      "control": "lectura de application_requests(id) como staff0",
+      "expected": "visible o no (diseño)",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:application_requests:staffX",
+      "control": "lectura de application_requests(id) como staffX",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:application_snapshots:anon",
+      "control": "lectura de application_snapshots(id) como anon",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:application_snapshots:studentA",
+      "control": "lectura de application_snapshots(id) como studentA",
+      "expected": "visible o no (diseño)",
+      "got": "filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:application_snapshots:studentB",
+      "control": "lectura de application_snapshots(id) como studentB",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:application_snapshots:owner1",
+      "control": "lectura de application_snapshots(id) como owner1",
+      "expected": "visible o no (diseño)",
+      "got": "filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:application_snapshots:owner2",
+      "control": "lectura de application_snapshots(id) como owner2",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:application_snapshots:staff1",
+      "control": "lectura de application_snapshots(id) como staff1",
+      "expected": "visible o no (diseño)",
+      "got": "filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:application_snapshots:staff0",
+      "control": "lectura de application_snapshots(id) como staff0",
+      "expected": "visible o no (diseño)",
+      "got": "filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:application_snapshots:staffX",
+      "control": "lectura de application_snapshots(id) como staffX",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:files:anon",
+      "control": "lectura de files(id) como anon",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:files:studentA",
+      "control": "lectura de files(id) como studentA",
+      "expected": "visible o no (diseño)",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:files:studentB",
+      "control": "lectura de files(id) como studentB",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:files:owner1",
+      "control": "lectura de files(id) como owner1",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:files:owner2",
+      "control": "lectura de files(id) como owner2",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:files:staff1",
+      "control": "lectura de files(id) como staff1",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:files:staff0",
+      "control": "lectura de files(id) como staff0",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:files:staffX",
+      "control": "lectura de files(id) como staffX",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:files:anon",
+      "control": "lectura de files(id) como anon",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:files:studentA",
+      "control": "lectura de files(id) como studentA",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:files:studentB",
+      "control": "lectura de files(id) como studentB",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:files:owner1",
+      "control": "lectura de files(id) como owner1",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:files:owner2",
+      "control": "lectura de files(id) como owner2",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:files:staff1",
+      "control": "lectura de files(id) como staff1",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:files:staff0",
+      "control": "lectura de files(id) como staff0",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:files:staffX",
+      "control": "lectura de files(id) como staffX",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:student_profiles:anon",
+      "control": "lectura de student_profiles(id) como anon",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:student_profiles:studentA",
+      "control": "lectura de student_profiles(id) como studentA",
+      "expected": "visible o no (diseño)",
+      "got": "filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:student_profiles:studentB",
+      "control": "lectura de student_profiles(id) como studentB",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:student_profiles:owner1",
+      "control": "lectura de student_profiles(id) como owner1",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:student_profiles:owner2",
+      "control": "lectura de student_profiles(id) como owner2",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:student_profiles:staff1",
+      "control": "lectura de student_profiles(id) como staff1",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:student_profiles:staff0",
+      "control": "lectura de student_profiles(id) como staff0",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:student_profiles:staffX",
+      "control": "lectura de student_profiles(id) como staffX",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:student_profiles:anon",
+      "control": "lectura de student_profiles(id) como anon",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:student_profiles:studentA",
+      "control": "lectura de student_profiles(id) como studentA",
+      "expected": "sin filas",
+      "got": "sin filas",
+      "status": "comprobado"
+    },
+    {
+      "id": "A1:student_profiles:studentB",
+      "control": "lectura de student_profiles(id) como studentB",
+      "expected": "sin filas",
+      "got": "filas",
+      "status": "fallido"
+    }
+  ]
+}
