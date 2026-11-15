@@ -11,6 +11,7 @@ import { registerRenewalManualFeePayment } from "@/lib/renewals/registerRenewalM
 import { recordRenewalManualFeePayment } from "@/lib/renewals/recordRenewalManualFeePayment";
 import { expireRenewalRequests } from "@/lib/jobs/expireRenewalRequests";
 import { expireRenewalOffers } from "@/lib/jobs/expireRenewalOffers";
+import { expireEsturedFeeWindows } from "@/lib/jobs/expireEsturedFeeWindows";
 import { reopenRenewalRequest } from "@/lib/renewals/reopenRenewalRequest";
 import { reopenRenewalOffer } from "@/lib/renewals/reopenRenewalOffer";
 
@@ -879,6 +880,60 @@ describe.skipIf(!hasCreds)("módulo de renovaciones (integración)", () => {
       expect(validated.ok).toBe(false);
       const { data: unpaid } = await admin.from("estured_fee_payments").select("status").eq("id", feeId).single();
       expect(unpaid!.status).toBe("pending_manual_payment");
+
+      await cleanupFase2(offerId);
+      await cleanupFixture(fixture, { renewalOfferIds: [offerId] });
+    } catch (e) {
+      if (offerId) await cleanupFase2(offerId);
+      await cleanupFixture(fixture);
+      throw e;
+    }
+  });
+
+  it("fee de renovación vencido: la oferta pasa a «vencida sin pago», se avisa a ambas partes y no se reabre", async () => {
+    const fixture = await createConfirmedReservation();
+    let offerId: string | null = null;
+    try {
+      const created = await createRenewalOffer(admin, {
+        reservationId: fixture.reservationId,
+        renewalRequestId: null,
+        actorUserId: ownerId,
+        periodStartDate: "2027-08-15",
+        durationMonths: 6,
+        monthlyPriceUsd: 300,
+        enrollmentOrRenewalFeeUsd: null,
+        depositUsd: null,
+        adjustmentPolicy: "quarterly",
+        acceptanceDeadlineAt: new Date(Date.now() + 7 * 24 * 3_600_000).toISOString(),
+        sendNow: true,
+      });
+      expect(created.ok).toBe(true);
+      if (!created.ok) return;
+      offerId = created.renewalOfferId;
+      await respondRenewalOffer(admin, { renewalOfferId: offerId, response: "accepted", actorUserId: studentUserId });
+      await recordRenewalResidencePaymentReceived(admin, {
+        renewalOfferId: offerId,
+        actorUserId: ownerId,
+        receivedAmountArs: null,
+        receivedAmountUsd: 1800,
+        paymentMethodLabel: "Transferencia",
+        confirmationAccepted: true,
+        receiptFile: null,
+      });
+      const { data: offer } = await admin.from("renewal_offers").select("estured_fee_payment_id").eq("id", offerId).single();
+      await admin.from("estured_fee_payments").update({ expires_at: "2000-01-01T00:00:00Z" }).eq("id", offer!.estured_fee_payment_id as string);
+
+      await expireEsturedFeeWindows(admin);
+
+      const { data: after } = await admin.from("renewal_offers").select("status").eq("id", offerId).single();
+      expect(after!.status).toBe("expired_no_student_payment");
+      const { data: notes } = await admin.from("notifications").select("user_id").eq("related_entity_id", offerId);
+      const notified = new Set((notes ?? []).map((n) => n.user_id as string));
+      expect(notified.has(studentUserId)).toBe(true);
+      expect(notified.has(ownerId)).toBe(true);
+
+      const reopen = await reopenRenewalOffer(admin, { renewalOfferId: offerId, actorUserId: adminActorId, actorRole: "admin", reason: "Intento de reabrir (test)." });
+      expect(reopen.status).toBe("error");
 
       await cleanupFase2(offerId);
       await cleanupFixture(fixture, { renewalOfferIds: [offerId] });

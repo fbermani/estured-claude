@@ -31,6 +31,7 @@ function seed(overrides: Partial<Record<string, Row[]>> = {}): Record<string, Ro
       { id: "f-stranger", bucket: "student-documents", storage_path: "sp-stranger/id.pdf", related_entity_type: "student_profiles", related_entity_id: STRANGER, document_type: "student_identity" },
       { id: "f-proof", bucket: "payment-proofs", storage_path: "x.pdf", related_entity_type: "application_requests", related_entity_id: "app-1", document_type: "student_payment_proof_to_residence" },
     ],
+    residences: [{ id: RES, status: "verified_active" }, { id: OTHER_RES, status: "verified_active" }],
     resident_stays: [{ id: "stay-1", residence_id: RES, student_profile_id: RESIDENT, is_current: true }],
     application_requests: [
       { id: "app-1", residence_id: RES, student_profile_id: APPLICANT, status: "residence_payment_pending" },
@@ -151,5 +152,17 @@ describe("grantResidenceDocumentAccess", () => {
     expect(await grantResidenceDocumentAccess(client, { userId: "owner", residenceId: RES, fileId: "f-resident" })).toEqual({ ok: false, error: DOCUMENT_LOG_FAILED_MESSAGE });
     expect(createSignedUrl).not.toHaveBeenCalled();
     expect(tables.audit_logs).toHaveLength(0);
+  });
+
+  it("residencia pausada o con verificación rechazada: no abre documentos de solicitantes, pero sí los de residentes", async () => {
+    for (const status of ["paused_by_residence", "paused_by_admin", "suspended", "needs_changes", "verification_expired", "archived"]) {
+      const { client, tables, createSignedUrl } = setup({ residences: [{ id: RES, status }] });
+      const applicant = await grantResidenceDocumentAccess(client, { userId: "owner", residenceId: RES, fileId: "f-applicant" });
+      expect(applicant.ok, status).toBe(false);
+      expect(tables.residence_document_access_log).toHaveLength(0);
+      expect(createSignedUrl).not.toHaveBeenCalled();
+      const resident = await grantResidenceDocumentAccess(client, { userId: "owner", residenceId: RES, fileId: "f-resident" });
+      expect(resident.ok, status).toBe(true);
+    }
   });
 });

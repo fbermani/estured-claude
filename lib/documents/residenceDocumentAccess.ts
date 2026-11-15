@@ -38,6 +38,7 @@ export const DOCUMENT_NOT_AVAILABLE_MESSAGE = "No encontramos ese documento o no
 export const DOCUMENT_CHECK_FAILED_MESSAGE = "No pudimos verificar el acceso al documento. Probá de nuevo en un rato.";
 export const DOCUMENT_LOG_FAILED_MESSAGE = "No pudimos registrar la apertura del documento. Probá de nuevo.";
 export const DOCUMENT_LINK_FAILED_MESSAGE = "No pudimos abrir el documento. Probá de nuevo en un rato.";
+export const DOCUMENT_RESIDENCE_INACTIVE_MESSAGE = "La residencia no está activa en este momento, así que no podés ver documentos de solicitantes.";
 export const DOCUMENT_PERMISSION_MESSAGE = "Tu usuario no tiene permiso para ver los documentos de esta persona. Pedíselo al dueño de la residencia.";
 
 /** ¿La solicitud (con su reserva, si tiene) habilita ver los documentos del solicitante? Lógica pura, la usan la acción y la UI. */
@@ -153,9 +154,25 @@ export async function grantResidenceDocumentAccess(
   const studentProfileId = row.related_entity_id;
 
   // 3. Vínculo del estudiante con ESA residencia.
-  const { bases, readFailed } = await findDocumentBases(admin, residenceId, studentProfileId);
+  const found = await findDocumentBases(admin, residenceId, studentProfileId);
+  const readFailed = found.readFailed;
+  let bases = found.bases;
   if (readFailed) return { ok: false, error: DOCUMENT_CHECK_FAILED_MESSAGE };
   if (bases.length === 0) return { ok: false, error: DOCUMENT_NOT_AVAILABLE_MESSAGE };
+
+  // 3b. Decisión del dueño (2026-11-15): una residencia que no está activa (pausada, suspendida, con verificación rechazada o vencida,
+  //     archivada) no abre documentos de SOLICITANTES. Los residentes actuales no se ven afectados. Falla cerrado.
+  if (bases.some((b) => b.kind === "applicant")) {
+    const { data: residenceRow, error: residenceError } = await admin.from("residences").select("status").eq("id", residenceId).maybeSingle();
+    if (residenceError) {
+      console.error("[residence-documents] lectura del estado de la residencia falló:", residenceError.code);
+      return { ok: false, error: DOCUMENT_CHECK_FAILED_MESSAGE };
+    }
+    if ((residenceRow as { status: string } | null)?.status !== "verified_active") {
+      bases = bases.filter((b) => b.kind !== "applicant");
+      if (bases.length === 0) return { ok: false, error: DOCUMENT_RESIDENCE_INACTIVE_MESSAGE };
+    }
+  }
 
   // 4. Casillero del staff según el vínculo (el dueño pasa siempre). Si hay varios vínculos alcanza con uno permitido.
   let granted: { basis: ResidenceDocumentBasis; actorRole: ResidenceActorRole } | null = null;

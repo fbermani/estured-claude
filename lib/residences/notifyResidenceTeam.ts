@@ -13,6 +13,7 @@ import { getAppUrl } from "@/lib/appUrl";
  * y no promete disponibilidad. El detalle se ve al entrar con el enlace.
  */
 export type ResidenceTeamEvent = "new_application" | "new_waitlist_entry" | "new_renewal_request"
+  | "renewal_fee_expired"
   | "changes_requested"
   | "verification_approved"
   | "verification_rejected"
@@ -44,6 +45,8 @@ export const PERMISSION_BY_EVENT: Partial<Record<ResidenceTeamEvent, ResidencePe
   new_application: "applications.review_contact",
   new_waitlist_entry: "waitlist.manage",
   new_renewal_request: "renewals.manage",
+  // Decisión 2026-11-15: el fee de una renovación venció sin pago; quien gestiona renovaciones tiene que volver a enviarla.
+  renewal_fee_expired: "renewals.manage",
   // DR18: el staff que puede editar el perfil se entera de qué pasó con los ítems «Otro» que propuso.
   custom_amenity_approved: "profile.edit",
   custom_amenity_rejected: "profile.edit",
@@ -58,6 +61,7 @@ const ENTITY_BY_EVENT: Record<ResidenceTeamEvent, string> = {
   new_application: "application_requests",
   new_waitlist_entry: "waitlist_entries",
   new_renewal_request: "renewal_requests",
+  renewal_fee_expired: "renewal_offers",
   // Ciclo 66: el destino de la campana es el Panel (`notificationHref` área residencia, entidad `residences`).
   changes_requested: "residences",
   verification_approved: "residences",
@@ -79,6 +83,7 @@ function pathFor(event: ResidenceTeamEvent, residenceId: string, entityId: strin
     case "new_waitlist_entry":
       return `/residence/${residenceId}/waitlist`;
     case "new_renewal_request":
+    case "renewal_fee_expired":
       return `/residence/${residenceId}/renewals`;
     case "changes_requested":
     case "verification_approved":
@@ -130,6 +135,14 @@ export function buildResidenceTeamMessage(
         body: "Podés responder con una oferta desde la sección Renovaciones.",
         subject: "EstuRed: nuevo pedido de renovación",
         intro: `Un residente pidió renovar su estadía en ${residenceName}.`,
+        cta: "Ver renovaciones",
+      };
+    case "renewal_fee_expired":
+      return {
+        title: `Venció el pago de una renovación en ${residenceName}`,
+        body: "El fee EstuRed no se pagó a tiempo y la renovación quedó vencida. Para renovar, tenés que enviar una oferta nueva desde Renovaciones.",
+        subject: "EstuRed: venció una renovación por falta de pago",
+        intro: `El fee EstuRed de una renovación en ${residenceName} no se pagó a tiempo y la renovación quedó vencida. Para renovar, enviá una oferta nueva desde Renovaciones.`,
         cta: "Ver renovaciones",
       };
     case "new_resident_link_request":

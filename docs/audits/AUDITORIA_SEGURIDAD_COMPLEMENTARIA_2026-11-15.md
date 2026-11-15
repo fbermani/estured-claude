@@ -222,3 +222,9 @@ Correcciones de SEG14-01/02/03, hallazgos históricos corregidos, dependencias d
 - Ejecución: `npx vitest run docs/audits/evidence/2026-11-15/seguridad-complementaria.test.ts`
 - Resultado sanitizado: `docs/audits/evidence/2026-11-15/results.json` (167 controles: 167 comprobados y 0 fallidos tras corregir SEG15-01 y SEG15-02 (en la medición original eran 165 y 2); sin tokens, cookies, URLs firmadas ni correos).
 - La prueba corre solo contra el ref de `estured-dev` y se niega en otro.
+
+## Decisiones del dueño (2026-11-15) — registradas en `docs/00` DR54
+
+1. Residencia pausada/rechazada/no activa: **no** abre documentos de solicitantes con pago habilitado (implementado y probado).
+2. Bloquear a un estudiante **no** lo saca del carrusel de preapertura (se deja como está).
+3. Fee de renovación vencido: la oferta pasa a «vencida», se avisa a ambas partes y la residencia debe volver a enviar la renovación (implementado y probado).
