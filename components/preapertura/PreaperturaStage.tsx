@@ -91,7 +91,15 @@ export function PreaperturaStage({
           describedBy={describedBy}
           size={size}
           initialFocus={initialFocus}
-          onDevClose={IS_DEV ? () => writeRevealed(true) : undefined}
+          onDevClose={
+            IS_DEV
+              ? () => {
+                  // La landing se vuelve a montar y su apertura con el sello arranca en el hero: hay que estar arriba para verla.
+                  window.scrollTo({ top: 0, behavior: "instant" });
+                  writeRevealed(true);
+                }
+              : undefined
+          }
           aside={aside}
         >
           {children}
