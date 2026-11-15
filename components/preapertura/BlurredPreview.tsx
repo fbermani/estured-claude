@@ -11,15 +11,7 @@ import { Icon } from "@/components/ui/Icon";
 export function BlurredPreview({ revealed = false, label = "Así se va a ver EstuRed", children }: { revealed?: boolean; label?: string; children: ReactNode }) {
   return (
     <>
-      {/* `key`: al revelar (solo dev) la landing se vuelve a montar y la apertura con el sello se reproduce de nuevo. Mientras está blureada
-          (`data-blurred`) la apertura no se dibuja (ver `.hero-intro` en hero-motion.css). */}
-      <div
-        key={revealed ? "revealed" : "blurred"}
-        data-blurred={revealed ? undefined : ""}
-        aria-hidden={revealed ? undefined : true}
-        inert={!revealed}
-        className={revealed ? "" : "select-none"}
-      >
+      <div aria-hidden={revealed ? undefined : true} inert={!revealed} className={revealed ? "" : "select-none"}>
         {children}
       </div>
       {!revealed && (

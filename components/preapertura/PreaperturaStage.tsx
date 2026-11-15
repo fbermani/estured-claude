@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useSyncExternalStore, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
+import { EsturedSeal } from "@/components/brand/EsturedSeal";
+import "@/components/marketing/hero-motion.css";
 import { BlurredPreview } from "@/components/preapertura/BlurredPreview";
 import { PreaperturaDialog } from "@/components/preapertura/PreaperturaDialog";
 import { isDevUi } from "@/lib/dev/devUi";
@@ -57,6 +59,8 @@ export function PreaperturaStage({
   previewLabel?: string;
 }) {
   const pathname = usePathname();
+  /** Cada cierre (solo dev) dispara la apertura con el sello sobre toda la pantalla. */
+  const [introRun, setIntroRun] = useState(0);
   const devRevealed = useSyncExternalStore(subscribeReveal, readRevealed, () => false);
 
   // Volver al home (navegación sin recarga) reinicia el popup, antes de pintar.
@@ -75,6 +79,14 @@ export function PreaperturaStage({
 
   return (
     <div className="bg-cream">
+      {introRun > 0 && (
+        <div key={introRun} aria-hidden="true" className="hero-intro hero-intro-fixed bg-gradient-to-br from-forest-ink via-forest-700 to-forest-600">
+          <span className="relative grid place-items-center" style={{ "--seal-delay": "0.15s" } as CSSProperties}>
+            <i className="seal-impact absolute size-[300px] rounded-full border-2 border-paper/60 sm:size-[360px]" />
+            <EsturedSeal size={260} tone="cream" stamp className="size-[220px] sm:size-[260px]" />
+          </span>
+        </div>
+      )}
       <BlurredPreview revealed={revealed} label={previewLabel}>{preview}</BlurredPreview>
       {revealed ? (
         <button
@@ -94,8 +106,7 @@ export function PreaperturaStage({
           onDevClose={
             IS_DEV
               ? () => {
-                  // La landing se vuelve a montar y su apertura con el sello arranca en el hero: hay que estar arriba para verla.
-                  window.scrollTo({ top: 0, behavior: "instant" });
+                  setIntroRun((n) => n + 1);
                   writeRevealed(true);
                 }
               : undefined

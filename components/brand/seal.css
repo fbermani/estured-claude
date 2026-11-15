@@ -3,7 +3,7 @@
 @keyframes seal-stamp {
   0% {
     opacity: 0;
-    transform: scale(2.6) rotate(-22deg);
+    transform: scale(1.9) rotate(-22deg);
   }
   42% {
     opacity: 1;
