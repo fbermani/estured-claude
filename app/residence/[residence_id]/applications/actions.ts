@@ -10,6 +10,7 @@ import { createAuditLog } from "@/lib/audit";
 import { assertRegulationAccepted } from "@/lib/regulations/gate";
 import { checkStayChangeAdvanceGate } from "@/lib/stayChange/advanceGate";
 import { ACTIVE_APPLICATION_STATUSES, REJECTION_REASONS } from "@/lib/applications/types";
+import { MAX_APPLICATION_TEXT, checkTextMax } from "@/lib/applications/inputLimits";
 import { createPendingResidencePayment } from "@/lib/applications/residencePayment";
 import { promoteNextQueuedApplication } from "@/lib/applications/roomTypeQueue";
 import { reactivatePausedApplications } from "@/lib/applications/reactivatePausedApplications";
@@ -302,6 +303,8 @@ export async function rejectApplication(
   if (reasonCode === "other" && reasonText.length < 5) {
     return { status: "error", message: "Si el motivo es \"Otro\", contanos brevemente por qué." };
   }
+  const reasonCheck = checkTextMax(reasonText, MAX_APPLICATION_TEXT, "El detalle del motivo");
+  if (!reasonCheck.ok) return { status: "error", message: reasonCheck.error };
 
   const { data: rejectedRow, error } = await admin
     .from("application_requests")

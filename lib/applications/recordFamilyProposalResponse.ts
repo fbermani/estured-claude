@@ -7,6 +7,7 @@ import { ACTIVE_APPLICATION_STATUSES } from "@/lib/applications/types";
 import { createApplicationFromRoomType } from "@/lib/applications/createRequestFromRoomType";
 import { requestBlockedMessage, typeAvailabilityState } from "@/lib/availability/typeAvailability";
 import { checkReservationWindowOverlap } from "@/lib/students/reservationWindow";
+import { MAX_APPLICATION_TEXT, MAX_REJECTION_REASON } from "@/lib/applications/inputLimits";
 
 export type RecordFamilyProposalResponseResult =
   | { ok: true; applicationId: string | null }
@@ -58,7 +59,11 @@ export async function recordFamilyProposalResponse(
   }
 
   if (params.decision === "reject") {
-    await admin
+    if ((params.rejectionReason ?? "").length > MAX_REJECTION_REASON) {
+      return { ok: false, error: `El motivo puede tener hasta ${MAX_REJECTION_REASON} caracteres.` };
+    }
+    // Reclamo atómico: solo resuelve quien la encuentra todavía pendiente (evita doble resolución y avisos duplicados).
+    const { data: rejectedRow } = await admin
       .from("family_application_proposals")
       .update({
         status: "rejected_by_student",
@@ -66,7 +71,10 @@ export async function recordFamilyProposalResponse(
         student_response_by_user_id: params.actorUserId,
         rejection_reason: params.rejectionReason,
       })
-      .eq("id", params.proposalId);
+      .eq("id", params.proposalId)
+      .eq("status", "pending_student_approval")
+      .select("id");
+    if (!rejectedRow || rejectedRow.length === 0) return { ok: false, error: "Esa propuesta ya fue resuelta." };
 
     await createAuditLog(admin, {
       actorUserId: params.actorUserId,
@@ -85,6 +93,9 @@ export async function recordFamilyProposalResponse(
   const academicObjective = (params.academicObjective ?? "").trim();
   if (academicObjective.length < 10) {
     return { ok: false, error: "Contanos brevemente tu objetivo académico (obligatorio para el comprobante)." };
+  }
+  if (academicObjective.length > MAX_APPLICATION_TEXT) {
+    return { ok: false, error: `El objetivo académico puede tener hasta ${MAX_APPLICATION_TEXT} caracteres.` };
   }
 
   const { data: link } = await admin
@@ -138,6 +149,20 @@ export async function recordFamilyProposalResponse(
     return { ok: false, error: blockedMessage };
   }
 
+  // Reclamo atómico antes de crear la solicitud: dos aprobaciones simultáneas ya no generan dos solicitudes.
+  const nowIso = new Date().toISOString();
+  const { data: claimedRow } = await admin
+    .from("family_application_proposals")
+    .update({
+      status: "approved_by_student",
+      student_response_at: nowIso,
+      student_response_by_user_id: params.actorUserId,
+    })
+    .eq("id", params.proposalId)
+    .eq("status", "pending_student_approval")
+    .select("id");
+  if (!claimedRow || claimedRow.length === 0) return { ok: false, error: "Esa propuesta ya fue resuelta." };
+
   const result = await createApplicationFromRoomType(admin, {
     studentProfileId: studentProfile.id,
     residenceId: proposal.residence_id,
@@ -156,16 +181,19 @@ export async function recordFamilyProposalResponse(
     // DR14: queda en pausa para la residencia hasta que el estudiante (o su familiar si es menor) lea y acepte el reglamento.
     regulationPending: await regulationAcceptanceEnabled(admin),
   });
-  if ("error" in result) return { ok: false, error: result.error };
+  if ("error" in result) {
+    // No se creó la solicitud: se libera el reclamo para que pueda reintentar.
+    await admin
+      .from("family_application_proposals")
+      .update({ status: "pending_student_approval", student_response_at: null, student_response_by_user_id: null })
+      .eq("id", params.proposalId)
+      .eq("status", "approved_by_student");
+    return { ok: false, error: result.error };
+  }
 
   await admin
     .from("family_application_proposals")
-    .update({
-      status: "approved_by_student",
-      student_response_at: new Date().toISOString(),
-      student_response_by_user_id: params.actorUserId,
-      converted_to_application_id: result.id,
-    })
+    .update({ converted_to_application_id: result.id })
     .eq("id", params.proposalId);
 
   await createAuditLog(admin, {

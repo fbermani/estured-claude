@@ -195,7 +195,9 @@ export async function recordNegotiationResponse(
     snapshotFinalId = finalSnapshot.id;
     newStatus = "residence_payment_pending";
 
-    await admin
+    // Reclamo atómico (compare-and-set): solo gana quien encuentra la solicitud todavía en `offer_pending_student_acceptance`.
+    // Dos respuestas simultáneas (doble clic, dos pestañas) ya no dejan dos snapshots finales ni pagos duplicados.
+    const { data: claimed, error: claimError } = await admin
       .from("application_requests")
       .update({
         snapshot_final_id: snapshotFinalId,
@@ -204,20 +206,43 @@ export async function recordNegotiationResponse(
         desired_start_date: proposal.proposed_start_date ?? undefined,
         initial_duration_months: durationMonths,
       })
-      .eq("id", applicationId);
+      .eq("id", applicationId)
+      .eq("status", "offer_pending_student_acceptance")
+      .select("id");
+    if (claimError || !claimed || claimed.length === 0) {
+      // Perdió la carrera (o falló): se descarta el snapshot huérfano que se acaba de crear.
+      await admin.from("application_snapshots").delete().eq("id", snapshotFinalId);
+      if (claimError) console.error("[negotiation] claim accepted failed:", claimError);
+      return { ok: false, error: "Esta solicitud ya no tiene una propuesta pendiente." };
+    }
   } else if (response === "rejected_chose_original") {
     newStatus = "residence_payment_pending";
-    await admin
+    const { data: claimed, error: claimError } = await admin
       .from("application_requests")
       .update({
         snapshot_final_id: application.snapshot_original_id,
         status: newStatus,
         payment_deadline_at: new Date(now.getTime() + 48 * 60 * 60 * 1000).toISOString(),
       })
-      .eq("id", applicationId);
+      .eq("id", applicationId)
+      .eq("status", "offer_pending_student_acceptance")
+      .select("id");
+    if (claimError || !claimed || claimed.length === 0) {
+      if (claimError) console.error("[negotiation] claim chose_original failed:", claimError);
+      return { ok: false, error: "Esta solicitud ya no tiene una propuesta pendiente." };
+    }
   } else {
     newStatus = "cancelled_by_student";
-    await admin.from("application_requests").update({ status: newStatus }).eq("id", applicationId);
+    const { data: claimed, error: claimError } = await admin
+      .from("application_requests")
+      .update({ status: newStatus })
+      .eq("id", applicationId)
+      .eq("status", "offer_pending_student_acceptance")
+      .select("id");
+    if (claimError || !claimed || claimed.length === 0) {
+      if (claimError) console.error("[negotiation] claim closed failed:", claimError);
+      return { ok: false, error: "Esta solicitud ya no tiene una propuesta pendiente." };
+    }
   }
 
   await admin

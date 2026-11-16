@@ -8,6 +8,12 @@ import { assertResidencePermission } from "@/lib/residences/access";
 import { assertRegulationAccepted } from "@/lib/regulations/gate";
 import { createAuditLog } from "@/lib/audit";
 import { usdToArs } from "@/lib/mock/exchange";
+import {
+  MAX_ADJUSTMENT_POLICY,
+  MAX_APPLICATION_TEXT,
+  checkTextMax,
+  isIsoDate,
+} from "@/lib/applications/inputLimits";
 
 export type SendProposalState = { status: "idle" | "error"; message?: string };
 
@@ -24,12 +30,6 @@ function parseAmount(formData: FormData, key: string, opts: { allowZero: boolean
   if (opts.allowZero ? n < 0 : n <= 0) return { ok: false };
   if (opts.integer && !Number.isInteger(n)) return { ok: false };
   return { ok: true, value: n };
-}
-
-function isIsoDate(v: string): boolean {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return false;
-  const d = new Date(`${v}T00:00:00Z`);
-  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === v;
 }
 
 /**
@@ -105,6 +105,13 @@ export async function sendNegotiationProposal(
   const reservationAmountUsd = reservation.value;
   const specialConditions = String(formData.get("special_conditions") ?? "").trim() || null;
   const internalNotes = String(formData.get("internal_notes") ?? "").trim() || null;
+  const textChecks = [
+    checkTextMax(adjustmentPolicy, MAX_ADJUSTMENT_POLICY, "La política de ajuste"),
+    checkTextMax(specialConditions, MAX_APPLICATION_TEXT, "Las condiciones especiales"),
+    checkTextMax(internalNotes, MAX_APPLICATION_TEXT, "Las notas internas"),
+  ];
+  const tooLong = textChecks.find((c) => !c.ok);
+  if (tooLong && !tooLong.ok) return { status: "error", message: tooLong.error };
 
   // Docs/07 §15.4: al menos un campo debe diferir de las condiciones originales.
   const hasAnyChange =

@@ -8,6 +8,7 @@ import { createAuditLog } from "@/lib/audit";
 import { recordFamilyProposalResponse } from "@/lib/applications/recordFamilyProposalResponse";
 import { requestBlockedMessage, typeAvailabilityState } from "@/lib/availability/typeAvailability";
 import { checkReservationWindowOverlap } from "@/lib/students/reservationWindow";
+import { MAX_APPLICATION_TEXT, checkTextMax, isIsoDate, parseDurationMonths } from "@/lib/applications/inputLimits";
 
 export type CreateFamilyProposalState = { status: "idle" | "error"; message?: string };
 export type RespondFamilyProposalState = { status: "idle" | "error"; message?: string };
@@ -30,14 +31,17 @@ export async function createFamilyProposal(
   const studentProfileId = String(formData.get("student_profile_id") ?? "");
   const roomTypeId = String(formData.get("room_type_id") ?? "");
   const desiredStartDate = String(formData.get("desired_start_date") ?? "");
-  const durationMonths = Number(formData.get("initial_duration_months") ?? 0);
+  const durationMonths = parseDurationMonths(formData.get("initial_duration_months")) ?? 0;
   const messageToStudent = String(formData.get("message_to_student") ?? "").trim() || null;
 
   if (!studentProfileId) return { status: "error", message: "Elegí a qué estudiante le proponés esto." };
   if (!roomTypeId) return { status: "error", message: "Elegí un tipo de habitación." };
   if (!desiredStartDate) return { status: "error", message: "Elegí una fecha de ingreso estimada." };
+  if (!isIsoDate(desiredStartDate)) return { status: "error", message: "La fecha de ingreso no es válida." };
   if (durationMonths < 1 || durationMonths > 24)
     return { status: "error", message: "La duración debe ser entre 1 y 24 meses." };
+  const messageCheck = checkTextMax(messageToStudent, MAX_APPLICATION_TEXT, "El mensaje");
+  if (!messageCheck.ok) return { status: "error", message: messageCheck.error };
 
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento. Probá más tarde." };
