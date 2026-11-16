@@ -155,7 +155,7 @@ export function StayChangeHighlight({ variant, studentCta = "register" }: { vari
           <Reveal>
             <p className="text-sm font-bold text-orange-light">Previsibilidad</p>
             <h2 id="quiero-cambiar-residences-title" className="mt-2.5 text-[28px] font-bold leading-[1.15] sm:text-4xl md:text-5xl">
-              Enterate de una salida con tiempo, no el día que se van
+              Anticipate a las vacantes: enterate con tiempo cuándo se libera un lugar
             </h2>
             <p className="mt-3 text-base text-white/85 sm:text-lg">
               Con “Quiero cambiar”, te enterás cuando un residente empieza a buscar otra residencia y para cuándo. Así ordenás tu lista de espera y tus renovaciones con margen.

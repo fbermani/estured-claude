@@ -109,11 +109,13 @@ export function ResidencesLanding({ schema = true }: { schema?: boolean }) {
             <p className="mt-5 text-lg text-forest-tint">
               EstuRed no reemplaza tu operación: la ordena. Menos consultas
               repetidas, solicitudes completas, lista de espera y renovaciones
-              con un proceso claro. Perfil Verificado gratuito.
+              con un proceso claro. Lo que paga el estudiante por tu residencia
+              te llega completo: EstuRed no cobra comisión sobre tu tarifa.
+              Perfil Verificado gratuito.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Button href="/register/residence" size="lg" variant="secondary">
-                Solicitar sumar mi residencia
+                Sumá tu residencia, es gratis
               </Button>
               <Button
                 href="#como-funciona"
@@ -248,7 +250,7 @@ export function ResidencesLanding({ schema = true }: { schema?: boolean }) {
           </p>
           <div className="mt-6">
             <Button href="/register/residence" size="lg">
-              Solicitar sumar mi residencia
+              Sumá tu residencia, es gratis
             </Button>
           </div>
         </Reveal>

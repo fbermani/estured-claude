@@ -109,7 +109,7 @@ export function HomeHero({ residences, intro = true }: { residences: Residence[]
           Elegí tu residencia a distancia, <span className="text-amber-soft-300">sin adivinar.</span>
         </h1>
         <p className="hero-seq mx-auto mt-4 max-w-[600px] text-base text-forest-tint sm:text-[17px] md:text-xl" style={delay(0.18 + t)}>
-          Residencias en Buenos Aires, verificadas por EstuRed. Solicitá y coordiná desde donde estés, sin viajar.
+          Residencias en Buenos Aires visitadas en persona por nuestro equipo. Solicitá y coordiná desde donde estés, sin viajar.
         </p>
 
         {/* Buscador: mock visual. Lleva a /search; los campos no son controles. */}
@@ -129,9 +129,9 @@ export function HomeHero({ residences, intro = true }: { residences: Residence[]
         </Link>
 
         <p className="hero-rise mt-3.5 text-[13px] text-forest-tint" style={delay(0.32 + t)}>
-          Explorar es gratis. Toda solicitud queda sujeta a confirmación de la residencia.{" "}
+          Explorar es gratis · Cada solicitud la confirma la residencia.{" "}
           <Link href="/register/residence" className="font-bold text-white underline-offset-2 hover:underline">
-            Solicitar sumar mi residencia
+            Sumá tu residencia, es gratis
           </Link>
         </p>
         <ul

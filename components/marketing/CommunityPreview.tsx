@@ -17,7 +17,7 @@ const COPY = {
     points: [
       { icon: "bed", title: "Plazas libres a la vista", text: "Según la disponibilidad que informa la residencia. Tu solicitud queda sujeta a confirmación." },
       { icon: "groups", title: "Quiénes viven ahí", text: "Carrera, universidad e intereses, según lo que cada residente elige mostrar." },
-      { icon: "favorite", title: "Convivencia que se elige", text: "Encontrás gente que estudia lo mismo o comparte tus horarios." },
+      { icon: "shield_person", title: "Los menores no aparecen", text: "Quienes son menores de edad no se muestran en la comunidad, y cada residente decide qué compartir." },
     ],
     cta: { href: "/search", label: "Buscar residencias" },
   },
@@ -30,7 +30,7 @@ const COPY = {
       { icon: "diversity_3", title: "Afinidad desde el primer contacto", text: "Quien solicita ya sabe qué estudian y qué les gusta a tus residentes." },
       { icon: "tune", title: "Vos y tus residentes controlan qué se ve", text: "Cada residente elige qué mostrar. Quienes son menores no aparecen." },
     ],
-    cta: { href: "/register/residence", label: "Solicitar sumar mi residencia" },
+    cta: { href: "/register/residence", label: "Sumá tu residencia, es gratis" },
   },
 } as const;
 

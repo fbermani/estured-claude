@@ -92,7 +92,7 @@ export function StudentsHero({ residences }: { residences: Residence[] }) {
           </p>
           <div className="hero-rise mt-[22px] flex flex-col items-stretch gap-1 md:mt-7 md:flex-row md:flex-wrap md:items-center md:gap-3" style={style({ "--d": "0.42s" })}>
             <Button href="/search" size="lg" variant="secondary" className="whitespace-nowrap [--btn-focus:#fff]">
-              Buscar residencia en CABA
+              Ver residencias verificadas
               <Icon name="arrow_forward" className="text-xl" />
             </Button>
             <div className="hidden md:block">
@@ -108,7 +108,7 @@ export function StudentsHero({ residences }: { residences: Residence[] }) {
             </Link>
           </div>
           <p className="hero-rise mt-1 text-center text-[13px] text-white/80 md:mt-3.5 md:text-left md:text-[13.5px]" style={style({ "--d": "0.6s" })}>
-            Explorar es gratis. Toda solicitud queda sujeta a confirmación de la residencia.
+            Explorar es gratis · Cada solicitud la confirma la residencia.
           </p>
         </div>
 

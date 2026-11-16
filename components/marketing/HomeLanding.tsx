@@ -107,7 +107,7 @@ const audiences: Array<
       { icon: "dashboard", title: "Herramientas para ordenar tu gestión", text: "Habitaciones, plazas y solicitudes en un lugar." },
     ],
     href: "/for-residences",
-    cta: "Solicitar sumar mi residencia",
+    cta: "Sumá tu residencia, es gratis",
     note: "Primero verificamos tu residencia en persona",
   },
 ];
