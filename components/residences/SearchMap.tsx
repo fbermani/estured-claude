@@ -6,7 +6,7 @@ import { Icon } from "@/components/ui/Icon";
 import { MapTiles } from "@/components/residences/MapTiles";
 import { ResidencePhoto } from "@/components/residences/ResidencePhoto";
 import { boundsCenterPixel, chooseZoom, latLngToWorldPixel, offsetFromCenter, tilesCovering, type PixelPoint } from "@/lib/maps/osmTiles";
-import { UNIVERSITY_CATEGORIES, UNIVERSITY_PINS, type UniversityCategory } from "@/lib/maps/universityPins";
+import { UNIVERSITY_CATEGORIES, UNIVERSITY_COUNT, UNIVERSITY_LEGEND, UNIVERSITY_PINS, type UniversityCategory } from "@/lib/maps/universityPins";
 import type { MapPoint } from "@/lib/residences/mapPoints";
 
 /**
@@ -159,13 +159,13 @@ export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; wit
   const open = points.find((p) => p.id === openId) ?? null;
   const showLegend = legendOpen ?? false;
   /** Desde la referencia: abre el pin y centra el mapa en la universidad (acercando un poco si estaba muy lejos). */
-  const focusUniversity = (name: string) => {
-    const u = UNIVERSITY_PINS.find((x) => x.name === name);
+  const focusUniversity = (pinId: string) => {
+    const u = UNIVERSITY_PINS.find((x) => x.id === pinId);
     const cur = camRef.current;
     if (!u || !cur) return;
     const z = Math.max(cur.zoom, 14);
     setOpenId(null);
-    setOpenUni(u.name);
+    setOpenUni(u.id);
     setUserCam({ key: cur.key, zoom: z, c: latLngToWorldPixel(u, z) });
   };
   // El pin abierto va arriba de los demás.
@@ -200,18 +200,18 @@ export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; wit
             <MapTiles tiles={view.tiles} unavailableMessage="El mapa no está disponible por ahora. Mirá las residencias en la vista Lista o Grilla." />
             <div className="absolute left-1/2 top-1/2 h-0 w-0">
               {view.unis.map(({ u, pos }) => {
-                const isOpen = openUni === u.name;
+                const isOpen = openUni === u.id;
                 return (
                   <button
-                    key={u.name}
+                    key={u.id}
                     type="button"
                     aria-expanded={isOpen}
-                    aria-label={`Universidad: ${u.name}`}
+                    aria-label={`Universidad: ${u.label}`}
                     onClick={(e) => {
                       e.stopPropagation();
                       if (wasDrag()) return;
                       setOpenId(null);
-                      setOpenUni(isOpen ? null : u.name);
+                      setOpenUni(isOpen ? null : u.id);
                     }}
                     style={{ left: pos.x, top: pos.y }}
                     className={`group/uni absolute ${isOpen ? "z-20" : "z-[11]"} flex size-6 -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border-2 border-paper text-white shadow-[0_2px_6px_rgb(29_39_34/0.3)] hover:z-20 focus-visible:z-20 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest motion-safe:transition-transform hover:scale-110 ${UNIVERSITY_CATEGORIES[u.category].pin} ${isOpen ? "scale-110" : ""}`}
@@ -220,7 +220,7 @@ export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; wit
                     <span
                       className={`pointer-events-none absolute bottom-full mb-1.5 whitespace-nowrap rounded-md bg-forest-ink px-2 py-1 text-xs font-semibold text-white shadow-card ${isOpen ? "block" : "hidden group-hover/uni:block group-focus-visible/uni:block"}`}
                     >
-                      {isOpen ? u.name : u.short}
+                      {isOpen ? u.label : u.short}
                     </span>
                   </button>
                 );
@@ -272,7 +272,7 @@ export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; wit
               className="inline-flex min-h-10 cursor-pointer items-center gap-1.5 rounded-full border-[1.5px] border-line bg-paper px-3 text-[13px] font-bold text-ink shadow-card hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-forest"
             >
               <Icon name="school" className="text-lg text-petrol-600" />
-              Universidades ({UNIVERSITY_PINS.length})
+              Universidades ({UNIVERSITY_COUNT})
               <Icon name={showLegend ? "expand_more" : "expand_less"} className="text-lg" />
             </button>
             {!showLegend && (
@@ -294,14 +294,14 @@ export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; wit
                       {UNIVERSITY_CATEGORIES[cat].label}
                     </h3>
                     <ul className="mt-1">
-                      {UNIVERSITY_PINS.filter((u) => u.category === cat).map((u) => (
-                        <li key={u.name}>
+                      {UNIVERSITY_LEGEND.filter((u) => u.category === cat).map((u) => (
+                        <li key={u.label}>
                           <button
                             type="button"
-                            onClick={() => focusUniversity(u.name)}
-                            className={`min-h-8 w-full cursor-pointer rounded-md px-2 text-left text-[13px] text-ink hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-forest ${openUni === u.name ? "bg-cream-2 font-bold" : ""}`}
+                            onClick={() => focusUniversity(u.pinId)}
+                            className={`min-h-8 w-full cursor-pointer rounded-md px-2 text-left text-[13px] text-ink hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-forest ${openUni === u.pinId ? "bg-cream-2 font-bold" : ""}`}
                           >
-                            {u.name}
+                            {u.label}
                           </button>
                         </li>
                       ))}
