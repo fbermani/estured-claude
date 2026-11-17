@@ -211,13 +211,13 @@ export async function generateMetadata({
   const { slug } = await params;
   const data = await loadResidence(slug);
   if (!data) return { title: "Residencia no encontrada", robots: { index: false, follow: false } };
-  const { residence, photos } = data;
+  const { residence } = data;
   const zone = (residence.public_area as string | null)?.trim();
   const description = zone
     ? `${residence.name}: residencia estudiantil verificada en ${zone}, CABA. Mirá fotos, servicios y reglas, y enviá tu solicitud.`
     : `${residence.name}: residencia estudiantil verificada en CABA. Mirá fotos, servicios y reglas, y enviá tu solicitud.`;
   const path = `/residencias/${slug}`;
-  const image = photos[0]?.url;
+  // La imagen de vista previa (og:image) la genera `opengraph-image.tsx` (placa + precio «desde» + sello); Next la agrega sola.
   return {
     title: residence.name,
     description,
@@ -229,8 +229,8 @@ export async function generateMetadata({
       url: path,
       title: residence.name,
       description,
-      ...(image ? { images: [{ url: image }] } : {}),
     },
+    twitter: { card: "summary_large_image", title: residence.name, description },
   };
 }
 
