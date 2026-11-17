@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
+import { UNIVERSITY_CATEGORIES, UNIVERSITY_CATEGORY_ORDER, type UniversityCategory } from "@/lib/maps/universityPins";
 import { PARAM_NAMES, type FilterGroupKey, type SearchFilters, type SortKey, type ViewMode } from "@/lib/residences/searchFilters";
 
 /**
@@ -12,7 +13,8 @@ import { PARAM_NAMES, type FilterGroupKey, type SearchFilters, type SortKey, typ
  * control. Los resultados llegan como `children` (Server Components).
  */
 
-export type FilterOption = { value: string; label: string; count: number; icon?: string };
+/** `category`: solo en «Universidad cercana» (UBA · otras públicas · privadas); agrupa las opciones y lleva el mismo color que los pines del mapa. */
+export type FilterOption = { value: string; label: string; count: number; icon?: string; category?: UniversityCategory };
 export type FilterGroup = { key: FilterGroupKey; title: string; hint?: string; options: FilterOption[]; show: number };
 
 const SORT_LABELS: Record<SortKey, string> = { rec: "Recomendadas", pa: "Precio: menor a mayor", pd: "Precio: mayor a menor" };
@@ -328,7 +330,76 @@ function CommunityToggle({ count, checked, onChange }: { count: number; checked:
   );
 }
 
+/**
+ * «Universidad cercana»: a la vista solo las de la UBA; «Mostrar más» despliega las categorías (UBA, otras públicas, privadas)
+ * como secciones plegables, con el color de referencia de los pines del mapa. Las elegidas siempre quedan a la vista.
+ */
+function UniversityGroup({ group, selected, onToggle }: { group: FilterGroup; selected: string[]; onToggle: (v: string) => void }) {
+  const [expanded, setExpanded] = useState(false);
+  const titleId = `g-${group.key}`;
+  const uba = group.options.filter((o) => o.category === "uba");
+  const others = group.options.filter((o) => o.category !== "uba");
+  const hiddenSelected = others.filter((o) => selected.includes(o.value));
+  const visible = expanded ? [] : [...uba, ...hiddenSelected];
+  return (
+    <section className="border-t border-line px-[18px] pb-3 pt-3.5" aria-labelledby={titleId}>
+      <h3 id={titleId} className="mb-2 text-[15px]">{group.title}</h3>
+      {!expanded && uba.length > 0 && (
+        <p className="-mt-1 mb-1.5 flex items-center gap-1.5 text-[12.5px] text-ink-faint">
+          <span aria-hidden="true" className={`size-2.5 rounded-full ${UNIVERSITY_CATEGORIES.uba.dot}`} />
+          UBA
+        </p>
+      )}
+      {!expanded && (
+        <div role="group" aria-labelledby={titleId}>
+          {visible.map((o) => (
+            <Row key={o.value} label={o.label} count={o.count} checked={selected.includes(o.value)} onChange={() => onToggle(o.value)} />
+          ))}
+        </div>
+      )}
+      {expanded && (
+        <div role="group" aria-labelledby={titleId} className="space-y-1">
+          {UNIVERSITY_CATEGORY_ORDER.map((cat) => {
+            const list = group.options.filter((o) => (o.category ?? "private") === cat);
+            if (list.length === 0) return null;
+            const meta = UNIVERSITY_CATEGORIES[cat];
+            const picked = list.filter((o) => selected.includes(o.value)).length;
+            return (
+              <details key={cat} open={cat === "uba" || picked > 0} className="group/cat rounded-field border border-line">
+                <summary className={`flex min-h-10 cursor-pointer list-none items-center gap-2 px-2.5 text-[14px] font-bold text-ink [&::-webkit-details-marker]:hidden ${FOCUS}`}>
+                  <span aria-hidden="true" className={`size-3 flex-none rounded-full ${meta.dot}`} />
+                  <span className="min-w-0 flex-1">{meta.label}</span>
+                  {picked > 0 && <span className="rounded-full bg-forest px-1.5 text-[11px] font-bold tabular-nums text-white">{picked}</span>}
+                  <span className="text-[13px] font-normal tabular-nums text-ink-faint">{list.length}</span>
+                  <Icon name="expand_more" className="text-xl text-ink-faint motion-safe:transition-transform group-open/cat:rotate-180" />
+                </summary>
+                <div className="border-t border-line px-2.5 py-1">
+                  {list.map((o) => (
+                    <Row key={o.value} label={o.label} count={o.count} checked={selected.includes(o.value)} onChange={() => onToggle(o.value)} />
+                  ))}
+                </div>
+              </details>
+            );
+          })}
+        </div>
+      )}
+      {others.length > 0 && (
+        <div className="mt-1">
+          <LinkBtn onClick={() => setExpanded((v) => !v)}>
+            {expanded ? "Mostrar menos" : `Mostrar más: públicas y privadas (${others.length})`}
+          </LinkBtn>
+        </div>
+      )}
+    </section>
+  );
+}
+
 function OptionGroup({ group, selected, onToggle }: { group: FilterGroup; selected: string[]; onToggle: (v: string) => void }) {
+  if (group.key === "uni" && group.options.some((o) => o.category)) return <UniversityGroup group={group} selected={selected} onToggle={onToggle} />;
+  return <PlainOptionGroup group={group} selected={selected} onToggle={onToggle} />;
+}
+
+function PlainOptionGroup({ group, selected, onToggle }: { group: FilterGroup; selected: string[]; onToggle: (v: string) => void }) {
   const [expanded, setExpanded] = useState(false);
   // Las opciones elegidas siempre se ven, aunque caigan en la parte plegada.
   const visible = group.options.filter((o, i) => expanded || i < group.show || selected.includes(o.value));

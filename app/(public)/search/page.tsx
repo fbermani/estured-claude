@@ -36,6 +36,8 @@ import {
   type SearchParamsInput,
 } from "@/lib/residences/searchFilters";
 
+import { universityCategory } from "@/lib/maps/universityPins";
+
 const SEARCH_DESCRIPTION = "Explorá residencias estudiantiles verificadas en CABA. Filtrá por barrio, universidad, servicios y precio.";
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<SearchParamsInput> }): Promise<Metadata> {
@@ -149,7 +151,14 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   const { counts, promo, minor, community } = buildCounts(residences, filters, options);
   // Dentro de cada grupo, primero las opciones con más resultados (los barrios y universidades); servicios/áreas/tipos mantienen el orden de la ficha.
   const opt = (key: keyof typeof options, label: (v: string) => string, sort = false, icon?: (v: string) => string) => {
-    const list = options[key].map((value) => ({ value, label: label(value), count: counts[key][value] ?? 0, icon: icon?.(value) }));
+    const list = options[key].map((value) => ({
+      value,
+      label: label(value),
+      count: counts[key][value] ?? 0,
+      icon: icon?.(value),
+      // «Universidad cercana» se agrupa por tipo (UBA · otras públicas · privadas) en el filtro.
+      ...(key === "uni" ? { category: universityCategory(value) } : {}),
+    }));
     return sort ? list.sort((a, b) => b.count - a.count || a.label.localeCompare(b.label, "es")) : list;
   };
   const same = (v: string) => v;

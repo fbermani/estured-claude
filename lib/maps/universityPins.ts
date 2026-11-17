@@ -73,14 +73,20 @@ const EXTRA_SITES: Record<string, { main: string; sites: Site[] }> = {
   },
 };
 
-export type UniversityPin = { id: string; label: string; short: string; lat: number; lng: number; category: UniversityCategory };
-/** Fila de la referencia: lleva al pin `pinId`. */
-export type UniversityLegendItem = { label: string; pinId: string; category: UniversityCategory };
+/** `n`: número de referencia (1…) que se dibuja en el pin y en la lista; se asigna por categoría: primero UBA, luego públicas, luego privadas. */
+export type UniversityPin = { id: string; n: number; label: string; short: string; lat: number; lng: number; category: UniversityCategory };
+/** Fila de la referencia: lleva al pin `pinId` (y comparte su número `n`). */
+export type UniversityLegendItem = { label: string; pinId: string; n: number; category: UniversityCategory };
 
-function categoryOf(name: string): UniversityCategory {
+/** Orden de las categorías en la lista y en la numeración. */
+export const UNIVERSITY_CATEGORY_ORDER: UniversityCategory[] = ["uba", "public", "private"];
+
+/** Categoría de una universidad por su nombre de la lista (UBA · otras públicas · privadas; lo desconocido cuenta como privada). */
+export function universityCategory(name: string): UniversityCategory {
   if (name.startsWith("UBA")) return "uba";
   return PUBLIC_NAMES.includes(name) ? "public" : "private";
 }
+const categoryOf = universityCategory;
 
 /** «UBA - Facultad de Derecho» → «UBA · Derecho»; «Universidad Católica Argentina (UCA)» → «UCA». */
 export function shortUniversityName(name: string): string {
@@ -94,8 +100,10 @@ export function shortUniversityName(name: string): string {
   return acronym ? acronym[1] : name;
 }
 
-const pins: UniversityPin[] = [];
-const legend: UniversityLegendItem[] = [];
+type RawPin = Omit<UniversityPin, "n">;
+type RawLegend = Omit<UniversityLegendItem, "n">;
+const pins: RawPin[] = [];
+const legend: RawLegend[] = [];
 
 for (const u of BUENOS_AIRES_UNIVERSITIES) {
   const category = categoryOf(u.name);
@@ -126,7 +134,18 @@ for (const u of BUENOS_AIRES_UNIVERSITIES) {
   legend.push({ label: u.name, pinId: u.name, category });
 }
 
-export const UNIVERSITY_PINS: UniversityPin[] = pins;
-export const UNIVERSITY_LEGEND: UniversityLegendItem[] = legend;
+const rank = (c: UniversityCategory) => UNIVERSITY_CATEGORY_ORDER.indexOf(c);
+export const UNIVERSITY_PINS: UniversityPin[] = pins
+  .map((p, i) => ({ p, i }))
+  .sort((a, b) => rank(a.p.category) - rank(b.p.category) || a.i - b.i)
+  .map(({ p }, k) => ({ ...p, n: k + 1 }));
+const numberOf = new Map(UNIVERSITY_PINS.map((p) => [p.id, p.n]));
+/** Referencia ordenada por número de pin (UBA, públicas, privadas); las filas que comparten sede repiten el número. */
+export const UNIVERSITY_LEGEND: UniversityLegendItem[] = legend
+  .map((l, i) => ({ l, i }))
+  .sort((a, b) => numberOf.get(a.l.pinId)! - numberOf.get(b.l.pinId)! || a.i - b.i)
+  .map(({ l }) => ({ ...l, n: numberOf.get(l.pinId)! }));
+/** Pines que se ven al abrir el mapa: solo la UBA. El resto se elige desde la lista. */
+export const DEFAULT_VISIBLE_UNIVERSITY_IDS: string[] = UNIVERSITY_PINS.filter((p) => p.category === "uba").map((p) => p.id);
 /** Cantidad de universidades (no de pines ni de filas). */
 export const UNIVERSITY_COUNT = BUENOS_AIRES_UNIVERSITIES.length;

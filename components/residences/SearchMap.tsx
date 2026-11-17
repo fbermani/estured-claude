@@ -6,7 +6,13 @@ import { Icon } from "@/components/ui/Icon";
 import { MapTiles } from "@/components/residences/MapTiles";
 import { ResidencePhoto } from "@/components/residences/ResidencePhoto";
 import { boundsCenterPixel, chooseZoom, latLngToWorldPixel, offsetFromCenter, tilesCovering, type PixelPoint } from "@/lib/maps/osmTiles";
-import { UNIVERSITY_CATEGORIES, UNIVERSITY_COUNT, UNIVERSITY_LEGEND, UNIVERSITY_PINS, type UniversityCategory } from "@/lib/maps/universityPins";
+import {
+  DEFAULT_VISIBLE_UNIVERSITY_IDS,
+  UNIVERSITY_CATEGORIES,
+  UNIVERSITY_CATEGORY_ORDER,
+  UNIVERSITY_LEGEND,
+  UNIVERSITY_PINS,
+} from "@/lib/maps/universityPins";
 import type { MapPoint } from "@/lib/residences/mapPoints";
 
 /**
@@ -14,8 +20,9 @@ import type { MapPoint } from "@/lib/residences/mapPoints";
  * sin API key ni librería de mapas) con un pin de precio por residencia. Encuadra todos los pines según el ancho real del
  * contenedor. Tocar un pin abre una mini-tarjeta con el enlace a la ficha; Esc o tocar el fondo la cierra. Recibe solo lo
  * mínimo de cada residencia (`MapPoint`). ⚠ Igual que `CompactMap`: antes del lanzamiento masivo hay que cambiar el
- * proveedor de teselas (ver `lib/maps/osmTiles.ts`). Además muestra siempre las universidades de CABA (pin de color según
- * categoría, con su nombre al tocarlas) y una referencia plegable con la lista agrupada por color.
+ * proveedor de teselas (ver `lib/maps/osmTiles.ts`). Además muestra universidades de CABA con un pin numerado y de color según
+ * categoría (nombre al tocarlas). Por defecto solo se ven las de la UBA; debajo del mapa hay una lista numerada, agrupada
+ * (UBA, otras públicas, privadas), donde se elige cuáles ver.
  */
 const PAD_X = 64;
 const PAD_Y = 56;
@@ -29,7 +36,8 @@ export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; wit
   const [size, setSize] = useState<{ w: number; h: number } | null>(null);
   const [openId, setOpenId] = useState<string | null>(null);
   const [openUni, setOpenUni] = useState<string | null>(null);
-  const [legendOpen, setLegendOpen] = useState<boolean | null>(null);
+  // Universidades visibles: por defecto solo la UBA; el resto lo elige la persona desde la lista de abajo.
+  const [visibleUnis, setVisibleUnis] = useState<Set<string>>(() => new Set(DEFAULT_VISIBLE_UNIVERSITY_IDS));
   const pinRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   useLayoutEffect(() => {
@@ -57,8 +65,8 @@ export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; wit
   const fitKey = points.map((p) => p.id).join("|");
   const fit = useMemo<Cam | null>(() => {
     if (!size) return null;
-    // El encuadre incluye las universidades: siempre se ven todas, aunque no haya residencias con ubicación.
-    const all = [...points, ...UNIVERSITY_PINS];
+    // El encuadre incluye las universidades de la UBA (las que se ven al abrir), aunque no haya residencias con ubicación.
+    const all = [...points, ...UNIVERSITY_PINS.filter((u) => DEFAULT_VISIBLE_UNIVERSITY_IDS.includes(u.id))];
     const zoom = chooseZoom(all, Math.max(40, size.w / 2 - PAD_X), Math.max(40, size.h / 2 - PAD_Y), 11, 15);
     return { key: fitKey, zoom, c: boundsCenterPixel(all, zoom) };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- el encuadre inicial depende del conjunto de pines, no del redimensionado
@@ -152,21 +160,34 @@ export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; wit
     return {
       tiles: tilesCovering(cam.c, cam.zoom, size.w / 2 + 128, size.h / 2 + 128),
       pins: points.map((p) => ({ p, pos: offsetFromCenter(p, cam.c, cam.zoom) })),
-      unis: UNIVERSITY_PINS.map((u) => ({ u, pos: offsetFromCenter(u, cam.c, cam.zoom) })),
+      unis: UNIVERSITY_PINS.filter((u) => visibleUnis.has(u.id)).map((u) => ({ u, pos: offsetFromCenter(u, cam.c, cam.zoom) })),
     };
-  }, [size, cam, points]);
+  }, [size, cam, points, visibleUnis]);
 
   const open = points.find((p) => p.id === openId) ?? null;
-  const showLegend = legendOpen ?? false;
-  /** Desde la referencia: abre el pin y centra el mapa en la universidad (acercando un poco si estaba muy lejos). */
+  const shownCount = UNIVERSITY_PINS.filter((u) => visibleUnis.has(u.id)).length;
+  const setPins = (ids: string[], on: boolean) => {
+    setVisibleUnis((prev) => {
+      const next = new Set(prev);
+      for (const id of ids) {
+        if (on) next.add(id);
+        else next.delete(id);
+      }
+      return next;
+    });
+    if (!on && openUni && ids.includes(openUni)) setOpenUni(null);
+  };
+  /** Desde la lista: la muestra (si estaba oculta), abre el pin y centra el mapa en la universidad (acercando un poco si estaba muy lejos). */
   const focusUniversity = (pinId: string) => {
     const u = UNIVERSITY_PINS.find((x) => x.id === pinId);
     const cur = camRef.current;
     if (!u || !cur) return;
     const z = Math.max(cur.zoom, 14);
+    setPins([u.id], true);
     setOpenId(null);
     setOpenUni(u.id);
     setUserCam({ key: cur.key, zoom: z, c: latLngToWorldPixel(u, z) });
+    boxRef.current?.scrollIntoView({ block: "nearest", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
   };
   // El pin abierto va arriba de los demás.
   const pins = view ? [...view.pins].sort((a, b) => (a.p.id === openId ? 1 : 0) - (b.p.id === openId ? 1 : 0)) : [];
@@ -179,6 +200,12 @@ export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; wit
           {withoutLocation} {withoutLocation === 1 ? "residencia sin ubicación no aparece" : "residencias sin ubicación no aparecen"} en el mapa. Las ves en la vista Lista o Grilla.
         </p>
       )}
+      <p className="mb-2 flex items-start gap-1.5 text-[13px] text-ink-soft">
+        <Icon name="school" className="mt-px text-base text-petrol-600" />
+        <span>
+          En el mapa ves las sedes de la <b>UBA</b>. <b>Elegí en la lista de abajo</b> qué otras universidades querés ver (públicas y privadas).
+        </span>
+      </p>
       <div
         ref={boxRef}
         role="group"
@@ -206,7 +233,7 @@ export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; wit
                     key={u.id}
                     type="button"
                     aria-expanded={isOpen}
-                    aria-label={`Universidad: ${u.label}`}
+                    aria-label={`Universidad ${u.n}: ${u.label}`}
                     onClick={(e) => {
                       e.stopPropagation();
                       if (wasDrag()) return;
@@ -216,11 +243,13 @@ export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; wit
                     style={{ left: pos.x, top: pos.y }}
                     className={`group/uni absolute ${isOpen ? "z-20" : "z-[11]"} flex size-6 -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border-2 border-paper text-white shadow-[0_2px_6px_rgb(29_39_34/0.3)] hover:z-20 focus-visible:z-20 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest motion-safe:transition-transform hover:scale-110 ${UNIVERSITY_CATEGORIES[u.category].pin} ${isOpen ? "scale-110" : ""}`}
                   >
-                    <Icon name="school" className="text-[15px]" />
+                    <span aria-hidden="true" className="text-[11px] font-bold leading-none tabular-nums">
+                      {u.n}
+                    </span>
                     <span
                       className={`pointer-events-none absolute bottom-full mb-1.5 whitespace-nowrap rounded-md bg-forest-ink px-2 py-1 text-xs font-semibold text-white shadow-card ${isOpen ? "block" : "hidden group-hover/uni:block group-focus-visible/uni:block"}`}
                     >
-                      {isOpen ? u.label : u.short}
+                      {isOpen ? `${u.n}. ${u.label}` : `${u.n}. ${u.short}`}
                     </span>
                   </button>
                 );
@@ -255,62 +284,6 @@ export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; wit
           <p className="pointer-events-none absolute inset-x-3 bottom-10 z-20 mx-auto max-w-md rounded-field bg-paper/95 p-3 text-center text-sm text-ink-soft shadow-card">
             Ninguna de estas residencias tiene ubicación cargada todavía. Probá la vista Lista o Grilla.
           </p>
-        )}
-
-        {cam && (
-          <div
-            className="absolute left-3 top-3 z-20 max-w-[calc(100%-5rem)]"
-            onClick={(e) => e.stopPropagation()}
-            onDoubleClick={(e) => e.stopPropagation()}
-            onPointerDown={(e) => e.stopPropagation()}
-          >
-            <button
-              type="button"
-              aria-expanded={showLegend}
-              aria-controls="mapa-universidades"
-              onClick={() => setLegendOpen(!showLegend)}
-              className="inline-flex min-h-10 cursor-pointer items-center gap-1.5 rounded-full border-[1.5px] border-line bg-paper px-3 text-[13px] font-bold text-ink shadow-card hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-forest"
-            >
-              <Icon name="school" className="text-lg text-petrol-600" />
-              Universidades ({UNIVERSITY_COUNT})
-              <Icon name={showLegend ? "expand_more" : "expand_less"} className="text-lg" />
-            </button>
-            {!showLegend && (
-              <ul className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 rounded-field bg-paper/90 px-2.5 py-1.5 text-xs font-semibold text-ink shadow-card">
-                {(Object.keys(UNIVERSITY_CATEGORIES) as UniversityCategory[]).map((cat) => (
-                  <li key={cat} className="inline-flex items-center gap-1.5">
-                    <span aria-hidden="true" className={`size-3 rounded-full ${UNIVERSITY_CATEGORIES[cat].dot}`} />
-                    {UNIVERSITY_CATEGORIES[cat].label}
-                  </li>
-                ))}
-              </ul>
-            )}
-            {showLegend && (
-              <div id="mapa-universidades" className="mt-2 max-h-56 w-72 max-w-full overflow-y-auto rounded-2xl border-[1.5px] border-line bg-paper p-3 shadow-float sm:max-h-72">
-                {(Object.keys(UNIVERSITY_CATEGORIES) as UniversityCategory[]).map((cat) => (
-                  <section key={cat} aria-label={UNIVERSITY_CATEGORIES[cat].label} className="mb-2 last:mb-0">
-                    <h3 className="flex items-center gap-1.5 text-xs font-bold text-ink-faint">
-                      <span aria-hidden="true" className={`size-3 rounded-full ${UNIVERSITY_CATEGORIES[cat].dot}`} />
-                      {UNIVERSITY_CATEGORIES[cat].label}
-                    </h3>
-                    <ul className="mt-1">
-                      {UNIVERSITY_LEGEND.filter((u) => u.category === cat).map((u) => (
-                        <li key={u.label}>
-                          <button
-                            type="button"
-                            onClick={() => focusUniversity(u.pinId)}
-                            className={`min-h-8 w-full cursor-pointer rounded-md px-2 text-left text-[13px] text-ink hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-forest ${openUni === u.pinId ? "bg-cream-2 font-bold" : ""}`}
-                          >
-                            {u.label}
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  </section>
-                ))}
-              </div>
-            )}
-          </div>
         )}
 
         {open && (
@@ -373,6 +346,78 @@ export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; wit
           © colaboradores de OpenStreetMap
         </a>
       </div>
+
+      <section aria-labelledby="mapa-unis-titulo" className="mt-5">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <h2 id="mapa-unis-titulo" className="text-lg font-bold text-ink">
+            Universidades en el mapa
+          </h2>
+          <p className="text-[13px] text-ink-soft" aria-live="polite">
+            Mostrando <b className="tabular-nums">{shownCount}</b> de <span className="tabular-nums">{UNIVERSITY_PINS.length}</span> sedes
+          </p>
+        </div>
+        <p className="mt-0.5 text-[13px] text-ink-soft">Marcá las que querés ver. El número es el que aparece en el pin.</p>
+        <div className="mt-3 space-y-5">
+          {UNIVERSITY_CATEGORY_ORDER.map((cat) => {
+            const rows = UNIVERSITY_LEGEND.filter((r) => r.category === cat);
+            const pinIds = [...new Set(rows.map((r) => r.pinId))];
+            const onCount = pinIds.filter((id) => visibleUnis.has(id)).length;
+            const allOn = onCount === pinIds.length;
+            const meta = UNIVERSITY_CATEGORIES[cat];
+            return (
+              <div key={cat}>
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-1.5">
+                  <h3 className="flex items-center gap-2 text-[15px] font-bold text-ink">
+                    <span aria-hidden="true" className={`size-3 rounded-full ${meta.dot}`} />
+                    {meta.label}
+                    <span className="text-[13px] font-normal text-ink-faint tabular-nums">
+                      {onCount} de {pinIds.length} en el mapa
+                    </span>
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => setPins(pinIds, !allOn)}
+                    className="min-h-9 cursor-pointer rounded-field px-1 text-[13.5px] font-semibold text-forest-700 underline underline-offset-[3px] hover:text-forest-600 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest"
+                  >
+                    {allOn ? "Quitar todas del mapa" : "Mostrar todas en el mapa"}
+                  </button>
+                </div>
+                <ul className="mt-1.5 grid gap-x-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {rows.map((r) => {
+                    const checked = visibleUnis.has(r.pinId);
+                    return (
+                      <li key={r.label} className="flex items-center gap-1">
+                        <label className="-mx-1 flex min-h-11 min-w-0 flex-1 cursor-pointer items-center gap-2.5 rounded-field px-1 hover:bg-cream has-[:focus-visible]:outline-[3px] has-[:focus-visible]:outline-offset-1 has-[:focus-visible]:outline-forest">
+                          <input type="checkbox" checked={checked} onChange={() => setPins([r.pinId], !checked)} className="peer sr-only" />
+                          <span
+                            aria-hidden="true"
+                            className="grid size-5 flex-none place-items-center rounded-field border-[1.75px] border-ink-faint bg-white after:h-2.5 after:w-[5px] after:-translate-y-px after:rotate-45 after:border-b-[2.25px] after:border-r-[2.25px] after:border-white after:opacity-0 after:content-[''] motion-safe:transition-colors peer-checked:border-forest peer-checked:bg-forest peer-checked:after:opacity-100"
+                          />
+                          <span aria-hidden="true" className={`grid size-6 flex-none place-items-center rounded-full text-[11px] font-bold leading-none tabular-nums text-white ${meta.pin}`}>
+                            {r.n}
+                          </span>
+                          <span className="min-w-0 flex-1 text-[14px] leading-tight text-ink">
+                            <span className="sr-only">{r.n}. </span>
+                            {r.label}
+                          </span>
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => focusUniversity(r.pinId)}
+                          aria-label={`Ver en el mapa: ${r.label}`}
+                          className="flex size-11 flex-none cursor-pointer items-center justify-center rounded-full text-ink-soft hover:bg-cream hover:text-forest-700 focus-visible:outline-[3px] focus-visible:outline-offset-1 focus-visible:outline-forest"
+                        >
+                          <Icon name="my_location" className="text-xl" />
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            );
+          })}
+        </div>
+      </section>
     </div>
   );
 }

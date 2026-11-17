@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { BUENOS_AIRES_UNIVERSITIES, UNIVERSITY_NAMES, UNIVERSITY_OTHER_NAME, withoutOtherUniversity } from "@/lib/data/buenosAiresUniversities";
-import { UNIVERSITY_LEGEND, UNIVERSITY_PINS } from "@/lib/maps/universityPins";
+import { DEFAULT_VISIBLE_UNIVERSITY_IDS, UNIVERSITY_LEGEND, UNIVERSITY_PINS, universityCategory } from "@/lib/maps/universityPins";
 
 describe("pines de universidades", () => {
   it("cada fila de la referencia apunta a un pin que existe y los ids no se repiten", () => {
@@ -24,6 +24,27 @@ describe("pines de universidades", () => {
   it("las facultades con más de una sede tienen un pin por sede", () => {
     expect(UNIVERSITY_PINS.filter((p) => p.id.startsWith("UBA - Facultad de Psicología")).length).toBe(2);
     expect(UNIVERSITY_PINS.filter((p) => p.id.startsWith("Universidad Nacional de las Artes (UNA)")).length).toBe(16);
+  });
+
+  it("los pines se numeran 1…N sin repetir y por categoría: primero UBA, luego públicas, luego privadas", () => {
+    expect(UNIVERSITY_PINS.map((p) => p.n)).toEqual(UNIVERSITY_PINS.map((_, i) => i + 1));
+    const order = ["uba", "public", "private"];
+    const ranks = UNIVERSITY_PINS.map((p) => order.indexOf(p.category));
+    expect(ranks).toEqual([...ranks].sort((a, b) => a - b));
+    expect(UNIVERSITY_LEGEND.map((r) => r.n)).toEqual([...UNIVERSITY_LEGEND.map((r) => r.n)].sort((a, b) => a - b));
+  });
+
+  it("por defecto el mapa muestra solo los pines de la UBA", () => {
+    expect(DEFAULT_VISIBLE_UNIVERSITY_IDS.length).toBeGreaterThan(0);
+    const byId = new Map(UNIVERSITY_PINS.map((p) => [p.id, p]));
+    for (const id of DEFAULT_VISIBLE_UNIVERSITY_IDS) expect(byId.get(id)?.category).toBe("uba");
+    expect(UNIVERSITY_PINS.filter((p) => p.category === "uba").length).toBe(DEFAULT_VISIBLE_UNIVERSITY_IDS.length);
+  });
+
+  it("universityCategory clasifica UBA, públicas y privadas (lo desconocido es privada)", () => {
+    expect(universityCategory("UBA - Facultad de Derecho")).toBe("uba");
+    expect(universityCategory("Universidad Nacional de San Martín (UNSAM)")).toBe("public");
+    expect(universityCategory("Universidad Austral")).toBe("private");
   });
 
   it("la opción «Otra» no está en la lista de universidades pero se oculta al público", () => {
