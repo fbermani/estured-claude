@@ -7,10 +7,13 @@ import { Icon } from "@/components/ui/Icon";
 export function FaqAccordion({
   items: allItems,
   visibleLimit,
+  onDark = false,
 }: {
   items: { question: string; answer: string; fromVisitor?: boolean; group?: string }[];
   /** Si se pasa, muestra solo esa cantidad y un botón «Ver todas las preguntas» (DR18: la ficha muestra 10). */
   visibleLimit?: number;
+  /** Sobre un fondo forest-ink (banda de preguntas destacadas de la ficha): las tarjetas siguen en paper y el foco se dibuja adentro, en ink. */
+  onDark?: boolean;
 }) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
   const [showAll, setShowAll] = useState(false);
@@ -29,7 +32,7 @@ export function FaqAccordion({
         return (
           <div key={`${i}-${faq.question}`} className="space-y-3">
             {showGroup && (
-              <h3 className={`text-xs font-bold text-muted ${i > 0 ? "pt-3" : ""}`}>{faq.group}</h3>
+              <h3 className={`text-xs font-bold ${onDark ? "text-[color:var(--paper-88)]" : "text-muted"} ${i > 0 ? "pt-3" : ""}`}>{faq.group}</h3>
             )}
           <div className="overflow-hidden rounded-card border-[1.5px] border-line bg-paper">
             <button
@@ -38,7 +41,11 @@ export function FaqAccordion({
               id={buttonId}
               aria-expanded={open}
               aria-controls={panelId}
-              className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition-colors hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+              className={`flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition-colors hover:bg-cream-2 focus-visible:outline-2 ${
+                onDark
+                  ? "focus-visible:outline-offset-[-4px] focus-visible:outline-forest-ink!"
+                  : "focus-visible:outline-offset-2 focus-visible:outline-forest"
+              }`}
             >
               <span className="min-w-0">
                 {faq.fromVisitor && (

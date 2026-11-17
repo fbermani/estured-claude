@@ -143,6 +143,7 @@
   --paper-88: rgb(255 253 248 / 0.88); /* texto secundario sobre oscuro (≥ 88 %, contraste AA) */
   --paper-16: rgb(255 253 248 / 0.16); /* filetes de la placa */
   --paper-40: rgb(255 253 248 / 0.4); /* brillo del CTA al hover */
+  --forest-ink-80: rgb(12 58 44 / 0.8); /* placa de la ficha: forest-ink al 80 %, deja ver la foto (texto paper ≥ 6,7:1 aun sobre blanco) */
 }
 
 body {

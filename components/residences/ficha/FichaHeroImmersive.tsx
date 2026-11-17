@@ -13,12 +13,16 @@ import type { GalleryPhoto } from "@/lib/residences/photoMeta";
  * mismo criterio de la imagen de vista previa del link), un velo para que lo que va encima se lea, la placa (`plate`, que lleva el
  * h1, el precio y el sello) y la CTA naranja (`cta`, solo escritorio).
  *
- * Conserva lo que hacía la galería anterior: el botón «Ver las N fotos» abre el visor agrupado por secciones con lightbox
- * (`usePhotoViewer`). Sin fotos muestra un fondo de marca (sin foto inventada) y sin botón; con una foto, solo esa.
+ * Jerarquía visual: (1) la foto, (2) nombre y barrio, (3) precio «desde» con su ARS, (4) CTA «Elegir habitación», (5) botón de fotos,
+ * (6) sello. Las tres primeras viven en la placa, chica y semitransparente; el sello es su carril propio (ver `ResidencePlate`).
  *
- * Layout: la placa y la CTA son hermanas de un mismo flex (escritorio) o apiladas (móvil); el sello vive dentro de la placa, en su
- * propio carril (ver `ResidencePlate`). Nada se superpone por posicionamiento absoluto salvo el botón de fotos (arriba a la derecha,
- * lejos de la placa, que va abajo).
+ * Layout: una sola fila al pie del hero. A la izquierda la «identidad» (el botón «Ver las N fotos» encima de la placa, alineados al
+ * mismo borde) y a la derecha la CTA y su aclaración (desde 900 px; en móvil la acción vive en la barra inferior, así una sola CTA
+ * late por pantalla). Todo en flujo normal: no hay nada `absolute` salvo la foto y el velo de fondo.
+ *
+ * El botón «Ver las N fotos» es el control de la galería: papel sólido, texto ink, 44 px de alto e ícono, para que se descubra a
+ * simple vista sin competir con la CTA (naranja, más grande, la única que pulsa). Abre el visor agrupado por secciones con lightbox
+ * (`usePhotoViewer`). Sin fotos muestra un fondo de marca (sin foto inventada) y sin botón; con una foto, solo esa.
  */
 export function FichaHeroImmersive({
   photos,
@@ -64,22 +68,25 @@ export function FichaHeroImmersive({
           className="pointer-events-none absolute inset-0 -z-10 [background:linear-gradient(to_top,var(--scrim-ink-70)_0%,var(--scrim-ink-70)_18%,transparent_62%)]"
         />
 
-        {buttonLabel && (
-          <div className="absolute inset-x-0 top-0 z-[1] mx-auto flex max-w-6xl justify-end px-4 pt-4 sm:px-6 sm:pt-6">
-            <button
-              type="button"
-              onClick={() => viewer.openAt(0)}
-              className="inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap rounded-full border-[1.5px] border-[color:var(--paper-16)] bg-[color:var(--scrim-ink-70)] px-4 text-sm font-semibold text-paper transition-transform duration-200 ease-out-fresh motion-safe:active:scale-[0.97]"
-            >
-              <Icon name="photo_library" className="text-lg" />
-              {buttonLabel}
-            </button>
+        <div className="relative z-[1] mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 pb-5 pt-16 sm:px-6 sm:pb-8 min-[900px]:flex-row min-[900px]:items-end min-[900px]:justify-between min-[900px]:gap-6">
+          <div data-hero-region="identity" className="flex min-w-0 flex-col items-start gap-3 max-[899px]:w-full min-[900px]:max-w-[500px] min-[900px]:flex-1">
+            {buttonLabel && (
+              <button
+                type="button"
+                onClick={() => viewer.openAt(0)}
+                className="inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full bg-paper px-4 text-[15px] font-bold text-ink shadow-float transition-[background-color,transform] duration-200 ease-out-fresh hover:bg-cream-2 motion-safe:active:scale-[0.97]"
+              >
+                <Icon name="photo_library" className="text-xl text-forest-700" />
+                {buttonLabel}
+              </button>
+            )}
+            {plate}
           </div>
-        )}
-
-        <div className="relative z-[1] mx-auto flex w-full max-w-6xl flex-col px-4 pb-5 pt-24 sm:px-6 sm:pb-10 min-[900px]:flex-row min-[900px]:items-end min-[900px]:justify-between min-[900px]:gap-6">
-          {plate}
-          {cta && <div className="hidden shrink-0 flex-col items-end gap-2.5 text-right min-[900px]:flex">{cta}</div>}
+          {cta && (
+            <div data-hero-region="cta" className="hidden shrink-0 flex-col items-end gap-2.5 text-right min-[900px]:flex">
+              {cta}
+            </div>
+          )}
         </div>
       </section>
       {viewer.node}

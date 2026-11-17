@@ -61,6 +61,11 @@ import { isTypeRequestable } from "@/lib/availability/typeAvailability";
 import { resolveRequestPanelMode } from "@/lib/residences/requestPanelMode";
 import type { FichaRoomType } from "@/components/residences/ficha/types";
 import { SectionNav, type SectionNavItem } from "@/components/residences/ficha/SectionNav";
+import { ChapterHeading } from "@/components/residences/ficha/ChapterHeading";
+import { FaqBand } from "@/components/residences/ficha/FaqBand";
+import { ResidenceGallery } from "@/components/residences/ResidenceGallery";
+import { buildChapters, type Chapter as FichaChapter, type ChapterKey } from "@/lib/residences/fichaChapters";
+import { splitFeaturedFaq } from "@/lib/residences/featuredFaq";
 import { ReadMore } from "@/components/residences/ficha/ReadMore";
 import { RatesTable } from "@/components/residences/ficha/RatesTable";
 import { ReservationConditions } from "@/components/residences/ficha/ReservationConditions";
@@ -74,6 +79,21 @@ import { loadAverageResidentAge } from "@/lib/residents/averageAge";
 const FICHA_GENDER_LABEL: Record<string, string> = { mixto: "Mixta", solo_hombres: "Solo hombres", solo_mujeres: "Solo mujeres" };
 
 export const dynamic = "force-dynamic";
+
+/** Espaciado y desplazamiento de ancla de cada capítulo: la navbar (4 rem) y la navegación de capítulos (~3,75 rem) quedan fijas arriba. */
+const CHAPTER_SECTION = "scroll-mt-36 pt-10 min-[768px]:pt-14";
+
+/** Un capítulo de la ficha: sección con ancla, número y título (h2). Los capítulos con encabezado propio (preguntas) arman su `<section>` aparte. */
+function Chapter({ chapter, children }: { chapter: FichaChapter; children: React.ReactNode }) {
+  return (
+    <section id={chapter.id} aria-labelledby={`h-${chapter.id}`} className={CHAPTER_SECTION}>
+      <ChapterHeading id={`h-${chapter.id}`} number={chapter.number}>
+        {chapter.title}
+      </ChapterHeading>
+      {children}
+    </section>
+  );
+}
 
 /**
  * Una sola lectura por request: `generateMetadata` y la página la llaman, y `cache` evita repetir las ~6 consultas.
@@ -371,13 +391,23 @@ export default async function RealResidenceDetailPage({
   const hasCommunity = !!communityStatement || (community?.totalResidents ?? 0) > 0;
 
   const hasServices = services.length > 0 || commonAreas.length > 0;
-  const navItems: SectionNavItem[] = [
-    ...(hasServices ? [{ id: "servicios", label: "Servicios" }] : []),
-    ...(hasCommunity ? [{ id: "comunidad", label: "Comunidad" }] : []),
-    { id: "tarifas", label: "Tarifas y condiciones" },
-    { id: "ubicacion", label: "Ubicación" },
-    { id: "preguntas", label: "Preguntas" },
-  ];
+  // Capítulos de la ficha (fase 3): solo los que tienen contenido; la numeración sale de los visibles.
+  const hasGallery = photos.length >= 2;
+  const hasAgeSection = residence.min_resident_age !== undefined;
+  const hasRules = !!(rulesSummary || rulesPdfUrl || regulation);
+  const chapters = buildChapters({
+    vivir: hasGallery || hasServices || !!residence.description,
+    tarifas: true,
+    incluye: true,
+    preguntas: true,
+    comunidad: hasCommunity || hasAgeSection,
+    reglas: hasRules,
+    ubicacion: true,
+  });
+  const chapter = (key: ChapterKey) => chapters.find((c) => c.key === key);
+  const navItems: SectionNavItem[] = chapters.map((c) => ({ id: c.id, label: c.navLabel, number: c.number }));
+  // Banda de preguntas destacadas: hoy las primeras por orden (ver `lib/residences/featuredFaq.ts`; pasa a `is_featured` con la migración).
+  const { featured: featuredFaq, rest: restFaq } = splitFeaturedFaq(faqItems);
   const showStudentFavoriteInHeader = isStudent;
   const singleStudentName = linkedStudents.length === 1 ? linkedStudents[0].first_name : null;
   // Lista de espera: solo tipos completos, y nunca el tipo en el que ya tiene una reserva vigente en ESTA residencia.
@@ -555,7 +585,9 @@ export default async function RealResidenceDetailPage({
         }
         cta={heroCta}
       />
-      <EssentialsStrip cells={essentialCells} faqCount={faqItems.length} />
+      <EssentialsStrip cells={essentialCells} faqCount={featuredFaq.length} />
+      {/* Navegación de capítulos: a todo el ancho, fija bajo la navbar (único sticky de la ficha). */}
+      <SectionNav items={navItems} label="Capítulos de la ficha" />
       <div className={`mx-auto max-w-6xl px-4 pb-10 pt-6 sm:px-6 sm:pb-14 ${hasSummary ? "max-[899px]:pb-28" : ""}`}>
         <nav aria-label="Ruta de navegación" className="mb-4 text-sm text-ink-faint">
           <ol className="flex flex-wrap items-center gap-1.5">
@@ -577,7 +609,7 @@ export default async function RealResidenceDetailPage({
         <div className={`mt-6 ${hasAside ? "min-[900px]:grid min-[900px]:grid-cols-[minmax(0,1fr)_23rem] min-[900px]:gap-8" : ""}`}>
         <div className="min-w-0">
         <header>
-          {/* El nombre (h1), el precio «desde» y el sello viven en la placa del hero; acá quedan la dirección, el favorito y la descripción. */}
+          {/* El nombre (h1), el precio «desde» y el sello viven en la placa del hero; acá quedan la dirección y el favorito (la descripción vive en «Vivir acá»). */}
           <div className="flex flex-wrap items-start justify-between gap-3">
             <p className="flex items-center gap-1.5 text-ink-soft">
               <Icon name="location_on" className="text-lg text-orange-700" />
@@ -591,7 +623,7 @@ export default async function RealResidenceDetailPage({
           </div>
 
           {/* DR18: «plazas · residentes», sin porcentaje ni «quedan N». Sin plazas declaradas queda el conteo de la comunidad.
-              Tipos, estadía mínima y universidad cercana ya están en la franja «Lo esencial». */}
+              Tipos, estadía mínima y universidad cercana ya están en la franja «Lo esencial»; la descripción vive en «Vivir acá». */}
           {(occupancyLabel || (community?.totalResidents ?? 0) > 0) && (
             <ul className="mt-4 flex flex-wrap gap-2">
               <li className={chipClass}>
@@ -605,212 +637,263 @@ export default async function RealResidenceDetailPage({
             </ul>
           )}
 
-          {residence.description && (
-            <div className="mt-4 max-w-[68ch]">
-              <ReadMore text={residence.description} />
-            </div>
-          )}
         </header>
 
-        <div className="mt-5">
-          <SectionNav items={navItems} />
-        </div>
-
-        <div className="mt-8 grid gap-y-8">
-          {/* DR30 §3 (1) Servicios y áreas comunes — horizontal, con íconos */}
-          {(services.length > 0 || commonAreas.length > 0) && (
-            <section id="servicios" className="scroll-mt-32 space-y-4">
-              <h2 className="text-2xl font-bold text-ink">Servicios y áreas comunes</h2>
-              {services.length > 0 && (
-                <div>
-                  <h3 className="text-sm font-bold text-ink-faint">Servicios incluidos</h3>
-                  <div className="mt-2">
-                    <AmenityGrid layout="chips" items={services.map((s) => ({ name: amenityDisplayName(s, amenityDetails), ...getServiceIcon(s) }))} />
-                  </div>
+        {/* Capítulos de la ficha (fase 3): 01 Vivir acá · 02 Habitaciones y precio · 03 Qué incluye · 04 Preguntas · 05 La comunidad ·
+            06 Reglas de casa · 07 Dónde está. Solo se dibujan los que tienen contenido; la numeración sale de los visibles. */}
+        <div>
+          {/* 01 Vivir acá: descripción, galería (con el visor de fotos), servicios y áreas comunes. El mosaico restaura la galería que
+              dejó de verse al pasar la portada al hero; con 0 o 1 foto no se repite lo que ya muestra el hero. */}
+          {chapter("vivir") && (
+            <Chapter chapter={chapter("vivir")!}>
+              {residence.description && (
+                <div className="max-w-[68ch]">
+                  <ReadMore text={residence.description} />
                 </div>
               )}
-              {commonAreas.length > 0 && (
-                <div>
-                  <h3 className="text-sm font-bold text-ink-faint">Áreas comunes</h3>
-                  <div className="mt-2">
-                    <AmenityGrid layout="chips" items={commonAreas.map((a) => ({ name: amenityDisplayName(a, amenityDetails), ...getCommonAreaIcon(a) }))} />
-                  </div>
+              {hasGallery && (
+                <div className={residence.description ? "mt-6" : ""}>
+                  <ResidenceGallery photos={photos} name={residence.name} zone={residence.public_area ?? ""} />
                 </div>
               )}
-            </section>
+              {/* DR30 §3 (1) Servicios y áreas comunes — horizontal, con íconos */}
+              {hasServices && (
+                <div className={`space-y-4 ${residence.description || hasGallery ? "mt-6" : ""}`}>
+                  {services.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-bold text-ink-faint">Servicios incluidos</h3>
+                      <div className="mt-2">
+                        <AmenityGrid layout="chips" items={services.map((s) => ({ name: amenityDisplayName(s, amenityDetails), ...getServiceIcon(s) }))} />
+                      </div>
+                    </div>
+                  )}
+                  {commonAreas.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-bold text-ink-faint">Áreas comunes</h3>
+                      <div className="mt-2">
+                        <AmenityGrid layout="chips" items={commonAreas.map((a) => ({ name: amenityDisplayName(a, amenityDetails), ...getCommonAreaIcon(a) }))} />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </Chapter>
           )}
 
-          {/* (2) Edad de los residentes (DR14): oculta si la migración 0052 no está aplicada. */}
-          {residence.min_resident_age !== undefined && (
-            <section id="edad" className="scroll-mt-32 space-y-3">
-              <h2 className="text-2xl font-bold text-ink">Edad de los residentes</h2>
-              <p className="text-ink-soft">
-                {describeAgeRange({
-                  minResidentAge: residence.min_resident_age as number | null | undefined,
-                  maxResidentAge: residence.max_resident_age as number | null | undefined,
-                  acceptsMinors: residence.accepts_minors as boolean | null | undefined,
-                })}
-                .
+          {/* 02 Habitaciones y precio: tarifas visibles para TODOS (H10 / D17). Conserva el ancla histórica #tarifas. */}
+          {chapter("tarifas") && (
+            <Chapter chapter={chapter("tarifas")!}>
+              <p className="-mt-2 mb-5 text-sm text-ink-soft">
+                Precios mensuales por tipo de habitación, visibles para todos. La disponibilidad la informa la residencia por tipo.
               </p>
-              {averageAge && (
-                <p className="inline-flex items-center gap-2 rounded-full border border-line bg-paper px-4 py-2 text-sm text-ink-soft">
-                  <Icon name="cake" className="text-lg text-forest-700" />
-                  Edad promedio hoy: <strong className="text-ink">{averageAge.years} años</strong>
-                  <span className="text-ink-faint">· entre {averageAge.residents} residentes</span>
-                </p>
-              )}
-              {residence.accepts_minors === true && (
-                <div className="rounded-card border border-line bg-paper p-5">
-                  <h3 className="text-base font-bold text-ink">Para menores de 18</h3>
-                  <p className="mt-2 text-sm text-ink-soft">
-                    Esta residencia admite residentes menores de 18. Consultá con la residencia las condiciones que aplican y, al solicitar,
-                    tu guardián deberá confirmar la solicitud. La solicitud queda sujeta a confirmación de la residencia.
-                  </p>
-                </div>
-              )}
-            </section>
-          )}
-
-          {/* (3) Reglas de convivencia (top 5) + reglamento para leer (modal) y descargar. Se acepta al enviar la solicitud. */}
-          {(rulesSummary || rulesPdfUrl || regulation) && (
-            <section id="convivencia" className="scroll-mt-32 space-y-3">
-              <h2 className="text-2xl font-bold text-ink">Reglas de convivencia</h2>
-              <RulesHighlight
-                rulesSummary={rulesSummary}
-                pdfUrl={rulesPdfUrl}
-                slug={slug}
-                hasRegulation={!!regulation}
-                regulationActions={
-                  regulation ? (
-                    <RegulationModal
-                      title="Reglamento de convivencia"
-                      intro={`${
-                        regulation.isBaseModel
-                          ? "Esta residencia todavía no cargó su propio reglamento: te mostramos el modelo de convivencia de EstuRed. Consultá con la residencia los puntos que quieras confirmar."
-                          : regulation.source === "model"
-                            ? "Reglamento de convivencia de la residencia, adaptado a partir del modelo de EstuRed."
-                            : "Reglamento de convivencia de la residencia."
-                      } Lo aceptás al enviar tu solicitud; esa aceptación no asegura el lugar (solicitud sujeta a confirmación).${
-                        regulation.versionNumber != null && regulation.publishedAt && !regulation.isBaseModel
-                          ? ` Versión ${regulation.versionNumber}, publicada el ${formatDate(regulation.publishedAt)}.`
-                          : ""
-                      }`}
-                      footnote={regulation.isBaseModel ? MODEL_LEGAL_NOTE : null}
-                      downloadHref={`/residencias/${slug}/reglamento`}
-                    >
-                      <RegulationText text={regulation.text} />
-                    </RegulationModal>
-                  ) : undefined
-                }
-              />
-            </section>
-          )}
-
-          {/* (4) Comunidad y convivencia — resumen por tipo (D18); el mapa de camas vive en /comunidad */}
-          {hasCommunity && (
-            <section id="comunidad" className="scroll-mt-32 space-y-4">
-              <div>
-                <h2 className="text-2xl font-bold text-ink">Comunidad y convivencia</h2>
-                <p className="mt-1 text-sm text-ink-soft">Quiénes viven hoy en la residencia.</p>
+              <div className="space-y-5">
+                <RequestNotices
+                  mode={mode}
+                  roomTypes={fichaTypes}
+                  slot={panelSlot}
+                  windowNotice={windowNotice}
+                  studentName={singleStudentName}
+                />
+                {fichaTypes.length > 0 ? (
+                  <RatesTable
+                    roomTypes={fichaTypes}
+                    arsPerUsd={rate.arsPerUsd}
+                    waitlistTypeIds={mode === "student" ? waitlistTypeIds : []}
+                    mode={mode}
+                    slug={slug}
+                  />
+                ) : (
+                  <EmptyState
+                    icon="request_quote"
+                    title="La residencia todavía no publicó sus tarifas"
+                    description="Podés hacerle una pregunta o seguir mirando otras residencias."
+                    action={
+                      <div className="flex flex-wrap justify-center gap-2">
+                        <Button href="#preguntas" variant="outline" size="sm">
+                          Hacer una pregunta
+                        </Button>
+                        <Button href="/search" size="sm">
+                          Ver más residencias
+                        </Button>
+                      </div>
+                    }
+                  />
+                )}
+                {(mode === "guest" || mode === "student") && anyRequestable && <RequestHowItWorks />}
               </div>
-              <CommunitySummary slug={slug} community={community} statement={communityStatement} isGuest={!sessionUser} />
+            </Chapter>
+          )}
+
+          {/* 03 Qué incluye y qué se paga aparte: condiciones de reserva + salida anticipada (el cuadro de costos nuevo con la línea de
+              tiempo de 3 pasos es la fase 4) y las guías generales de EstuRed, separadas del reglamento propio de la residencia. */}
+          {chapter("incluye") && (
+            <Chapter chapter={chapter("incluye")!}>
+              <div className="space-y-5">
+                <ReservationConditions conditions={conditions} arsPerUsd={rate.arsPerUsd} />
+                <EarlyExitPolicy
+                  depositClausesText={conditions.earlyExitDepositClausesText}
+                  costsText={conditions.earlyExitCostsText}
+                  conditionsText={conditions.earlyExitConditionsText}
+                />
+                <GuidePicks keys={["01", "03"]} variant="strip" label="Antes de reservar, leé:" />
+              </div>
+            </Chapter>
+          )}
+
+          {/* 04 Preguntas: banda destacada (las primeras, hasta 6) + el resto en el acordeón + «Hacer una pregunta». Las preguntas
+              siguen en este capítulo (decisión del dueño). Sin preguntas: estado vacío. */}
+          {chapter("preguntas") && (
+            <section id="preguntas" aria-labelledby="h-preguntas" className={CHAPTER_SECTION}>
+              {faqItems.length > 0 ? (
+                <>
+                  <FaqBand
+                    headingId="h-preguntas"
+                    number={chapter("preguntas")!.number}
+                    items={featuredFaq}
+                    residenceName={residence.name}
+                    askHref={isOwnResidenceTeam ? undefined : "#hacer-pregunta"}
+                  />
+                  {restFaq.length > 0 && (
+                    <div className="mt-8">
+                      <h3 className="mb-3 font-display text-xl font-bold text-ink">Más preguntas</h3>
+                      <FaqAccordion items={restFaq} visibleLimit={FICHA_FAQ_VISIBLE} />
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <ChapterHeading id="h-preguntas" number={chapter("preguntas")!.number}>
+                    Preguntas
+                  </ChapterHeading>
+                  <EmptyState
+                    icon="help"
+                    title="Todavía no hay preguntas respondidas"
+                    description={
+                      isOwnResidenceTeam
+                        ? "Cuando tu residencia responda preguntas, las ves acá."
+                        : "Podés hacerle tu pregunta a la residencia y, si la responde, la ves en la ficha."
+                    }
+                    action={
+                      isOwnResidenceTeam ? undefined : (
+                        <Button href="#hacer-pregunta" variant="outline" size="sm">
+                          Hacer una pregunta
+                        </Button>
+                      )
+                    }
+                  />
+                </>
+              )}
+              <div id="hacer-pregunta" className="mt-6 scroll-mt-36">
+                {isOwnResidenceTeam ? (
+                  <p className="rounded-card border-[1.5px] border-line bg-paper px-5 py-4 text-sm text-ink-soft">
+                    Las preguntas que reciba esta residencia las ves y respondés desde{" "}
+                    <Link href={`/residence/${residence.id}/faq`} className="font-bold text-forest-700 hover:underline">
+                      tu panel
+                    </Link>
+                    .
+                  </p>
+                ) : (
+                  <AskQuestionForm residenceId={residence.id} signedIn={!!sessionUser} />
+                )}
+              </div>
             </section>
           )}
 
-          {/* (5) Tarifas + condiciones + salida anticipada — visible para TODOS (H10 / D17) */}
-          <section id="tarifas" className="scroll-mt-32 space-y-5">
-            <div>
-              <h2 className="text-2xl font-bold text-ink">Tarifas y condiciones</h2>
-              <p className="mt-1 text-sm text-ink-soft">
-                Precios mensuales por tipo de habitación, visibles para todos. La disponibilidad la informa la
-                residencia por tipo.
-              </p>
-            </div>
-            <RequestNotices
-              mode={mode}
-              roomTypes={fichaTypes}
-              slot={panelSlot}
-              windowNotice={windowNotice}
-              studentName={singleStudentName}
-            />
-            {fichaTypes.length > 0 ? (
-              <RatesTable
-                roomTypes={fichaTypes}
-                arsPerUsd={rate.arsPerUsd}
-                waitlistTypeIds={mode === "student" ? waitlistTypeIds : []}
-                mode={mode}
-                slug={slug}
-              />
-            ) : (
-              <EmptyState
-                icon="request_quote"
-                title="La residencia todavía no publicó sus tarifas"
-                description="Podés hacerle una pregunta o seguir mirando otras residencias."
-                action={
-                  <div className="flex flex-wrap justify-center gap-2">
-                    <Button href="#preguntas" variant="outline" size="sm">
-                      Hacer una pregunta
-                    </Button>
-                    <Button href="/search" size="sm">
-                      Ver más residencias
-                    </Button>
+          {/* 05 La comunidad: comunidad y convivencia (resumen por tipo, D18; el mapa de camas vive en /comunidad) y edad de los residentes (DR14). */}
+          {chapter("comunidad") && (
+            <Chapter chapter={chapter("comunidad")!}>
+              <div className="space-y-8">
+                {hasCommunity && (
+                  <div id="comunidad-resumen" className="space-y-4">
+                    <p className="-mt-2 text-sm text-ink-soft">Quiénes viven hoy en la residencia.</p>
+                    <CommunitySummary slug={slug} community={community} statement={communityStatement} isGuest={!sessionUser} />
                   </div>
-                }
-              />
-            )}
-            {(mode === "guest" || mode === "student") && anyRequestable && <RequestHowItWorks />}
-            <ReservationConditions conditions={conditions} arsPerUsd={rate.arsPerUsd} />
-            <EarlyExitPolicy
-              depositClausesText={conditions.earlyExitDepositClausesText}
-              costsText={conditions.earlyExitCostsText}
-              conditionsText={conditions.earlyExitConditionsText}
-            />
-          </section>
+                )}
+                {/* Edad de los residentes (DR14): oculta si la migración 0052 no está aplicada. */}
+                {hasAgeSection && (
+                  <div id="edad" className="scroll-mt-36 space-y-3">
+                    <h3 className="font-display text-xl font-bold text-ink">Edad de los residentes</h3>
+                    <p className="text-ink-soft">
+                      {describeAgeRange({
+                        minResidentAge: residence.min_resident_age as number | null | undefined,
+                        maxResidentAge: residence.max_resident_age as number | null | undefined,
+                        acceptsMinors: residence.accepts_minors as boolean | null | undefined,
+                      })}
+                      .
+                    </p>
+                    {averageAge && (
+                      <p className="inline-flex items-center gap-2 rounded-full border border-line bg-paper px-4 py-2 text-sm text-ink-soft">
+                        <Icon name="cake" className="text-lg text-forest-700" />
+                        Edad promedio hoy: <strong className="text-ink">{averageAge.years} años</strong>
+                        <span className="text-ink-faint">· entre {averageAge.residents} residentes</span>
+                      </p>
+                    )}
+                    {residence.accepts_minors === true && (
+                      <div className="rounded-card border border-line bg-paper p-5">
+                        <h3 className="text-base font-bold text-ink">Para menores de 18</h3>
+                        <p className="mt-2 text-sm text-ink-soft">
+                          Esta residencia admite residentes menores de 18. Consultá con la residencia las condiciones que aplican y, al solicitar,
+                          tu guardián deberá confirmar la solicitud. La solicitud queda sujeta a confirmación de la residencia.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </Chapter>
+          )}
 
-          {/* (8) Ubicación — pin exacto + dirección pública + universidades con distancia (DF5) */}
-          <section id="ubicacion" className="scroll-mt-32 space-y-4">
-            <div>
-              <h2 className="text-2xl font-bold text-ink">Ubicación</h2>
-              <p className="mt-1 text-sm text-ink-soft">
+          {/* 06 Reglas de casa: reglas de convivencia (top 5) + reglamento para leer (modal) y descargar. Se acepta al enviar la solicitud. */}
+          {chapter("reglas") && (
+            <Chapter chapter={chapter("reglas")!}>
+              <div id="convivencia" className="scroll-mt-36">
+                <RulesHighlight
+                  rulesSummary={rulesSummary}
+                  pdfUrl={rulesPdfUrl}
+                  slug={slug}
+                  hasRegulation={!!regulation}
+                  regulationActions={
+                    regulation ? (
+                      <RegulationModal
+                        title="Reglamento de convivencia"
+                        intro={`${
+                          regulation.isBaseModel
+                            ? "Esta residencia todavía no cargó su propio reglamento: te mostramos el modelo de convivencia de EstuRed. Consultá con la residencia los puntos que quieras confirmar."
+                            : regulation.source === "model"
+                              ? "Reglamento de convivencia de la residencia, adaptado a partir del modelo de EstuRed."
+                              : "Reglamento de convivencia de la residencia."
+                        } Lo aceptás al enviar tu solicitud; esa aceptación no asegura el lugar (solicitud sujeta a confirmación).${
+                          regulation.versionNumber != null && regulation.publishedAt && !regulation.isBaseModel
+                            ? ` Versión ${regulation.versionNumber}, publicada el ${formatDate(regulation.publishedAt)}.`
+                            : ""
+                        }`}
+                        footnote={regulation.isBaseModel ? MODEL_LEGAL_NOTE : null}
+                        downloadHref={`/residencias/${slug}/reglamento`}
+                      >
+                        <RegulationText text={regulation.text} />
+                      </RegulationModal>
+                    ) : undefined
+                  }
+                />
+              </div>
+            </Chapter>
+          )}
+
+          {/* 07 Dónde está: pin exacto + dirección pública + universidades con distancia (DF5) */}
+          {chapter("ubicacion") && (
+            <Chapter chapter={chapter("ubicacion")!}>
+              <p className="-mt-2 mb-4 text-sm text-ink-soft">
                 {addressLine ? `${addressLine}, ${residence.public_area}, CABA.` : `${residence.public_area}, CABA.`}
               </p>
-            </div>
-            <CompactMap
-              residenceName={residence.name}
-              zone={residence.public_area}
-              nearUniversityNames={nearUniversities}
-              location={location}
-              address={addressLine}
-            />
-          </section>
-
-          {/* Lectura previa: guías generales de EstuRed, separadas del reglamento propio de la residencia. */}
-          <div className="lg:col-start-1">
-            <GuidePicks keys={["01", "03"]} variant="strip" label="Antes de reservar, leé:" />
-          </div>
-
-          {/* (9) Preguntas frecuentes */}
-          <section id="preguntas" className="scroll-mt-32">
-            <h2 className="text-2xl font-bold text-ink">Preguntas frecuentes</h2>
-            {faqItems.length > 0 && (
-              <div className="mt-4">
-                <FaqAccordion items={faqItems} visibleLimit={FICHA_FAQ_VISIBLE} />
-              </div>
-            )}
-            <div className="mt-4">
-              {isOwnResidenceTeam ? (
-                <p className="rounded-card border-[1.5px] border-line bg-paper px-5 py-4 text-sm text-ink-soft">
-                  Las preguntas que reciba esta residencia las ves y respondés desde{" "}
-                  <Link href={`/residence/${residence.id}/faq`} className="font-bold text-forest-700 hover:underline">
-                    tu panel
-                  </Link>
-                  .
-                </p>
-              ) : (
-                <AskQuestionForm residenceId={residence.id} signedIn={!!sessionUser} />
-              )}
-            </div>
-          </section>
+              <CompactMap
+                residenceName={residence.name}
+                zone={residence.public_area}
+                nearUniversityNames={nearUniversities}
+                location={location}
+                address={addressLine}
+              />
+            </Chapter>
+          )}
         </div>
 
         </div>

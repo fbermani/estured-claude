@@ -1,7 +1,7 @@
 import { EsturedSeal } from "@/components/brand/EsturedSeal";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import { fromPriceLabels } from "@/lib/residences/fichaEssentials";
-import { plateTitleFontSize } from "@/lib/residences/fichaHero";
+import { PLATE_SEAL_WIDTH, plateTitleFontSize } from "@/lib/residences/fichaHero";
 
 /**
  * La «placa porteña» de la ficha (propuesta A): el nombre de la residencia en una placa forest-ink con doble filete, el barrio, el
@@ -9,15 +9,19 @@ import { plateTitleFontSize } from "@/lib/residences/fichaHero";
  * panel de solicitud y en la barra móvil para que el link compartido y la página se reconozcan como lo mismo.
  *
  * Variantes:
- * - `hero`: la placa grande sobre la portada. El h1 de la página vive acá.
+ * - `hero`: la placa sobre la portada, chica y semitransparente (forest-ink al 80 %) para que la foto siga siendo lo primero. El h1 de
+ *   la página vive acá.
  * - `panel`: placa chica sobre el panel de solicitud (nombre, barrio y sello mini).
  * - `bar`: «numeración» de la barra inferior móvil (filete + precio «desde» + ARS).
  *
- * El sello NO PUEDE TAPAR el precio, la placa ni la CTA, en ningún ancho (320 a 1440 px). Se garantiza por ESTRUCTURA, no por
- * posicionamiento: la placa es una columna de tres regiones apiladas (`data-plate-region`): «top» (barrio y precio), el nombre y
- * «foot» (texto de verificación y sello). El sello vive en SU PROPIA columna del carril de abajo, con un ancho que escala con
- * `clamp()` sobre el ancho de la placa (`cqw`); precio y sello nunca comparten fila ni hay ningún elemento `absolute` adentro.
- * `ResidencePlate.test.ts` verifica esa estructura.
+ * Jerarquía de la placa hero: nombre y barrio, después el precio con su ARS, y al final el sello (un carril aparte, sin texto: el
+ * sello alcanza). Contraste del texto: paper sobre forest-ink al 80 % da 6,7:1 en el PEOR caso (foto casi blanca detrás); el texto
+ * secundario (paper al 88 %) da 5,6:1. Sin `backdrop-blur`: con ese contraste no hace falta y se ve la foto de verdad.
+ *
+ * El sello NO PUEDE TAPAR el precio ni el nombre, en ningún ancho (320 a 1440 px). Se garantiza por ESTRUCTURA, no por
+ * posicionamiento: la placa es una fila de dos columnas (`data-plate-region`): «main» (barrio, nombre y precio, apilados en flujo
+ * normal) y «seal» (el sello, en SU PROPIO carril, con un ancho que escala con `clamp()` sobre el ancho de la placa). Precio y sello
+ * nunca comparten columna ni hay ningún elemento `absolute` adentro. `ResidencePlate.test.ts` verifica esa estructura.
  */
 export type ResidencePlateProps =
   | { variant: "hero"; name: string; zone: string | null; fromPriceUsd: number | null; arsPerUsd: number }
@@ -52,49 +56,46 @@ function HeroPlate({
   const price = fromPriceUsd != null ? fromPriceLabels(fromPriceUsd, arsPerUsd) : null;
   return (
     // El contenedor `@container` mide el ancho real de la placa: de ahí salen el tamaño del nombre y el del sello (`cqw`).
-    <div data-plate="hero" className="@container w-full min-w-0 max-w-[760px] min-[900px]:flex-1">
+    <div data-plate="hero" className="@container w-full min-w-0 max-w-[500px]">
       <div
-        className={`rounded-field bg-forest-ink px-[18px] pb-4 pt-[18px] text-paper min-[768px]:px-[30px] min-[768px]:pb-[22px] min-[768px]:pt-[26px] ${PLATE_FRAME}`}
+        className={`flex items-center gap-3 rounded-field bg-[color:var(--forest-ink-80)] px-[18px] py-3.5 text-paper min-[768px]:gap-4 min-[768px]:px-6 min-[768px]:py-[18px] ${PLATE_FRAME}`}
       >
-        {/* Región superior: barrio a la izquierda, «numeración» (precio) a la derecha. Si no entran en una línea, el precio baja. */}
-        <div data-plate-region="top" className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2 px-1">
-          {zone && <p className={`text-sm font-semibold sm:text-base ${SOFT}`}>{zone}, CABA</p>}
+        {/* Columna principal: barrio, nombre y precio apilados. */}
+        <div data-plate-region="main" className="min-w-0 flex-1">
+          {zone && <p className={`text-[13px] font-semibold sm:text-sm ${SOFT}`}>{zone}, CABA</p>}
+          {/* El tamaño se calcula para que la palabra más larga entre en una línea; la clase es solo el respaldo sin `cqw`. */}
+          <h1
+            className="mt-0.5 text-2xl font-bold leading-[0.95] text-paper [overflow-wrap:anywhere] sm:text-4xl"
+            style={{ fontSize: plateTitleFontSize(name), letterSpacing: "-0.03em" }}
+          >
+            {name}
+          </h1>
           {price && (
-            <div data-plate-region="price" className="ml-auto flex flex-col items-end gap-0.5 text-right">
-              <span className="rounded-field bg-paper px-2.5 py-0.5 text-[15px] font-bold tabular-nums text-forest-ink sm:text-base">
+            <div
+              data-plate-region="price"
+              className="mt-2.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 border-t-[1.5px] border-[color:var(--paper-16)] pt-2.5"
+            >
+              <span className="whitespace-nowrap rounded-field bg-paper px-2.5 py-0.5 text-[15px] font-bold tabular-nums text-forest-ink">
                 {price.usdPerMonth}
               </span>
-              <span className={`flex items-center text-[13px] font-semibold tabular-nums ${SOFT}`}>
+              <span className={`flex items-center whitespace-nowrap text-[13px] font-semibold tabular-nums ${SOFT}`}>
                 {price.ars}
-                <ExchangeRateNote compact onDark align="end" />
+                <ExchangeRateNote compact onDark />
               </span>
             </div>
           )}
         </div>
 
-        {/* El tamaño se calcula para que la palabra más larga entre en una línea; la clase es solo el respaldo sin `cqw`. */}
-        <h1
-          className="mx-1 mb-3.5 mt-2.5 text-4xl font-bold leading-[0.9] text-paper [overflow-wrap:anywhere] sm:text-6xl"
-          style={{ fontSize: plateTitleFontSize(name), letterSpacing: "-0.035em" }}
+        {/* Carril del sello: su propia columna, sin texto al lado (el sello ya dice «Verificada»); el nombre accesible va acá. */}
+        <span
+          data-plate-region="seal"
+          role="img"
+          aria-label="Verificada por EstuRed: la visitamos en persona"
+          className="aspect-square shrink-0 [--seal-delay:0.6s]"
+          style={{ width: PLATE_SEAL_WIDTH }}
         >
-          {name}
-        </h1>
-
-        <div aria-hidden="true" className="mx-1 h-[1.5px] bg-[color:var(--paper-16)]" />
-
-        {/* Región inferior: texto de verificación y sello, cada uno en su columna. */}
-        <div data-plate-region="foot" className="flex items-center gap-3 px-1 pt-3">
-          <p className="min-w-0 flex-1 text-[15px] leading-snug sm:text-base">
-            <strong className="font-bold">Verificada por EstuRed:</strong> <span className={SOFT}>la visitamos en persona.</span>
-          </p>
-          <span
-            data-plate-region="seal"
-            className="aspect-square shrink-0 [--seal-delay:0.6s]"
-            style={{ width: "clamp(5.5rem, 15cqw, 7rem)" }}
-          >
-            <EsturedSeal tone="cream" stamp size={112} className="size-full" />
-          </span>
-        </div>
+          <EsturedSeal tone="cream" stamp size={80} className="size-full" />
+        </span>
       </div>
     </div>
   );

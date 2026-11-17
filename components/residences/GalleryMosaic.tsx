@@ -11,7 +11,8 @@ import { usePhotoViewer } from "@/components/residences/PhotoViewer";
 /**
  * Mosaico de fotos de la ficha (2+ fotos) con el visor de todas las fotos (`usePhotoViewer`: `<dialog>` nativo agrupado por secciones y
  * lightbox con flechas, teclado y deslizar). En mobile se ve una sola foto grande con el botón "Ver N fotos"; desde `sm` aparece el mosaico.
- * El hero inmersivo de la ficha («placa porteña») usa el mismo visor; este mosaico queda para el capítulo «Vivir acá».
+ * El hero inmersivo de la ficha («placa porteña») usa el mismo visor; este mosaico vive en el capítulo «Vivir acá», debajo del pliegue
+ * (por eso sus imágenes cargan perezosas, sin `priority`: la portada del hero es la que se precarga).
  */
 
 // Clases por posición según la cantidad de fotos del mosaico (literales para que Tailwind las detecte).
@@ -103,7 +104,6 @@ export function GalleryMosaic({
                         fill
                         sizes="(max-width: 640px) 100vw, 576px"
                         className={`object-cover transition-opacity duration-700 motion-reduce:transition-none ${k === heroIndex ? "opacity-100" : "opacity-0"}`}
-                        priority={k === 0}
                       />
                     ) : null,
                   )
@@ -114,7 +114,6 @@ export function GalleryMosaic({
                     fill
                     sizes={i === 0 || visible.length === 2 ? "(max-width: 640px) 100vw, 576px" : "288px"}
                     className="object-cover transition-transform duration-500 hover:scale-[1.03]"
-                    priority={i === 0}
                   />
                 )}
                 {isLastTile && (

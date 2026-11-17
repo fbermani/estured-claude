@@ -2,17 +2,25 @@
 
 import { useEffect, useState } from "react";
 
-export type SectionNavItem = { id: string; label: string };
+export type SectionNavItem = {
+  id: string;
+  label: string;
+  /** Número del capítulo («01»). Es decorativo para lectores de pantalla: el vínculo se llama como el capítulo. */
+  number?: string;
+};
 
 /**
- * Subnav sticky de la ficha (SPEC §3): anclas a las secciones con scrollspy. Debajo de la navbar (h-16).
- * Sin JS de scroll propio: `IntersectionObserver` marca la sección activa y los links son anclas nativas.
+ * Navegación de capítulos de la ficha (propuesta A, fase 3): chips de ancla con scrollspy, fijos debajo de la navbar (h-16), a todo el
+ * ancho de la página. Es el ÚNICO elemento sticky de la ficha además de la navbar. El capítulo activo lleva `aria-current` y el fondo
+ * forest-ink; cada chip mide 44 px de alto. Sin JS de scroll propio: `IntersectionObserver` marca el capítulo activo y los links son
+ * anclas nativas (con JS desactivado la navegación funciona igual, solo sin marcar el activo). En pantallas angostas la tira de chips
+ * se desplaza sola, sin generar scroll horizontal de la página.
  */
 export function SectionNav({
   items,
   label = "Secciones de la ficha",
   className = "sticky top-16 z-30",
-  rootMargin = "-130px 0px -55% 0px",
+  rootMargin = "-140px 0px -55% 0px",
 }: {
   items: SectionNavItem[];
   /** Nombre accesible del `<nav>` (también ubica la pestaña activa). */
@@ -56,34 +64,34 @@ export function SectionNav({
   }, [active, label]);
 
   return (
-    <nav
-      aria-label={label}
-      className={`${className} -mx-4 border-b border-line bg-cream/95 px-4 backdrop-blur sm:-mx-6 sm:px-6`}
-    >
-      <ul className="flex gap-1 overflow-x-auto [mask-image:linear-gradient(90deg,#000_90%,transparent)] [scrollbar-width:none] lg:[mask-image:none] [&::-webkit-scrollbar]:hidden">
-        {items.map((item) => {
-          const isActive = item.id === active;
-          return (
-            <li key={item.id} className="shrink-0">
-              <a
-                href={`#${item.id}`}
-                aria-current={isActive ? "true" : undefined}
-                className={`relative flex h-12 items-center px-3.5 text-sm font-bold transition-colors duration-200 ease-fresh focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-forest ${
-                  isActive ? "text-forest-700" : "text-ink-soft hover:text-ink"
-                }`}
-              >
-                {item.label}
-                <span
-                  aria-hidden="true"
-                  className={`absolute inset-x-3 bottom-0 h-[3px] rounded-full bg-forest transition-opacity duration-200 ${
-                    isActive ? "opacity-100" : "opacity-0"
+    <nav aria-label={label} className={`${className} border-b-[1.5px] border-line-2 bg-cream`}>
+      <div className="mx-auto max-w-6xl px-2 sm:px-4">
+        <ul className="flex gap-2 overflow-x-auto px-2 py-2 [mask-image:linear-gradient(90deg,#000_92%,transparent)] [scrollbar-width:none] lg:[mask-image:none] [&::-webkit-scrollbar]:hidden">
+          {items.map((item) => {
+            const isActive = item.id === active;
+            return (
+              <li key={item.id} className="shrink-0">
+                <a
+                  href={`#${item.id}`}
+                  aria-current={isActive ? "true" : undefined}
+                  className={`inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap rounded-full border-[1.5px] px-3.5 text-sm font-semibold transition-colors duration-200 ease-out-fresh ${
+                    isActive
+                      ? "border-forest-ink bg-forest-ink text-paper"
+                      : "border-line-2 bg-paper text-ink-soft hover:border-forest-700 hover:text-ink"
                   }`}
-                />
-              </a>
-            </li>
-          );
-        })}
-      </ul>
+                >
+                  {item.number && (
+                    <span aria-hidden="true" className={`tabular-nums ${isActive ? "text-[color:var(--paper-88)]" : "text-ink-faint"}`}>
+                      {item.number}
+                    </span>
+                  )}
+                  {item.label}
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
     </nav>
   );
 }

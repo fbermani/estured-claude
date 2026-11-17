@@ -57,19 +57,21 @@ describe("plateTitleFontSize", () => {
     expect(longestWord("")).toBe(0);
   });
 
-  it("un nombre corto sale grande (tope de 120 px) y uno con una palabra larga achica", () => {
-    expect(max(plateTitleFontSize("Casa Sur"))).toBe(120);
-    expect(max(plateTitleFontSize("Residencia Norte"))).toBeLessThan(120);
-    expect(max(plateTitleFontSize("Residencia Universitaria Internacional"))).toBeLessThan(max(plateTitleFontSize("Residencia Norte")));
+  it("un nombre corto sale al tope (40 px, la placa es una etiqueta) y uno con una palabra larga achica", () => {
+    expect(max(plateTitleFontSize("Casa Sur"))).toBe(40);
+    expect(max(plateTitleFontSize("Residencia Norte"))).toBe(40);
+    expect(max(plateTitleFontSize("Residencia Interuniversitaria"))).toBeLessThan(40);
   });
 
   it("escala con el ancho de la placa (cqw) y respeta un mínimo legible", () => {
     const css = plateTitleFontSize("Residencia Norte");
     expect(css).toContain("100cqw");
-    expect(css.startsWith("clamp(1.75rem,")).toBe(true);
+    expect(css.startsWith("clamp(1.5rem,")).toBe(true);
+    // descuenta el relleno de la placa y el carril del sello
+    expect(css).toContain("100cqw - 4rem - clamp(3.75rem, 16cqw, 5rem)");
   });
 
   it("el tope nunca baja del mínimo ni siquiera con una palabra enorme", () => {
-    expect(max(plateTitleFontSize("Supercalifragilisticoespialidosoextraordinario"))).toBeGreaterThanOrEqual(28);
+    expect(max(plateTitleFontSize("Supercalifragilisticoespialidosoextraordinario"))).toBeGreaterThanOrEqual(24);
   });
 });
