@@ -1,18 +1,28 @@
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
-import { ConditionCard } from "@/components/residences/ficha/ConditionCard";
 import { Icon } from "@/components/ui/Icon";
 import { formatArs, usdToArsRounded } from "@/lib/mock/exchange";
-import type { FichaConditionsInput } from "@/lib/residences/fichaConditions";
-import { buildConditionRows, visibleConditionCards, type ConditionRow } from "@/lib/residences/conditionCards";
-import { EMPTY_MONTH_CARD_LINE, EMPTY_MONTH_IDEA, EMPTY_MONTH_RULES, emptyMonthExample } from "@/lib/residences/emptyMonthCopy";
+import { buildConditionItems, type FichaConditionsInput } from "@/lib/residences/fichaConditions";
+import { buildConditionRows, type ConditionRow } from "@/lib/residences/conditionCards";
+import { EMPTY_MONTH_IDEA, EMPTY_MONTH_RULES, emptyMonthExample } from "@/lib/residences/emptyMonthCopy";
 
-const ICONS: Record<ConditionRow["key"], string> = {
+const ICONS: Record<ConditionRow["key"] | "minimum_stay", string> = {
+  minimum_stay: "event_available",
   initial_payment: "payments",
   enrollment: "badge",
   deposit: "savings",
   adjustment: "trending_up",
   empty_month: "hourglass_top",
   documents: "description",
+};
+
+type ListRow = {
+  key: ConditionRow["key"] | "minimum_stay";
+  title: string;
+  value: string;
+  valueNote?: string;
+  help: string;
+  arsFromUsd?: number | null;
+  emptyPercent?: number;
 };
 
 function FaqLink() {
@@ -24,107 +34,74 @@ function FaqLink() {
 }
 
 /**
- * Condiciones de admisión (DR53, reemplaza «seis tarjetas fijas» de DR30 §4): las TARJETAS muestran solo lo que
- * cobra algo («Para reservar» siempre; Matrícula, Depósito y Mes vacío solo si la residencia los cobra). Las seis
- * condiciones, incluidas las que no cobran o no tienen dato, quedan tras un único «Ver condiciones completas».
- * Si un dato no está cargado se dice («No cobra», «A coordinar»), nunca se inventa.
+ * Condiciones de la reserva como LISTA escaneable, debajo de «Habitaciones y precio» (revisión del dueño en staging: el desplegable «Ver
+ * condiciones completas» ya no existe). Son los mismos datos de siempre, en el mismo orden: estadía mínima, pago para reservar, matrícula,
+ * depósito, ajuste de tarifa, mes vacío y documentos. Un dato no cargado se dice («No cobra», «A coordinar con la residencia»), nunca
+ * se inventa; los montos en USD traen su referencia en ARS (`ExchangeRateNote`). Sin promesas de disponibilidad.
+ * Cada fila es un par título / valor con su aclaración: en escritorio dos columnas (título a la izquierda), en móvil apilado.
  */
 export function ReservationConditions({
   conditions,
   arsPerUsd,
-  onlyDetails = false,
+  headingId = "h-condiciones",
 }: {
   conditions: FichaConditionsInput;
   arsPerUsd: number;
-  /** Solo el expander «Ver condiciones completas» (sin las tarjetas): el cuadro de costos del capítulo ya dice lo que se cobra. */
-  onlyDetails?: boolean;
+  headingId?: string;
 }) {
-  const rows = buildConditionRows(conditions);
-  const cards = visibleConditionCards(rows);
-  const ars = (row: ConditionRow) =>
+  const stay = buildConditionItems(conditions).find((i) => i.key === "minimum_stay");
+  const rows: ListRow[] = [
+    ...(stay ? [{ key: "minimum_stay" as const, title: stay.label, value: stay.value, help: stay.help }] : []),
+    ...buildConditionRows(conditions),
+  ];
+  const ars = (row: ListRow) =>
     row.arsFromUsd != null ? (
       <>
         ≈ {formatArs(usdToArsRounded(row.arsFromUsd, arsPerUsd))}
-        <ExchangeRateNote />
+        <ExchangeRateNote compact />
       </>
-    ) : undefined;
+    ) : null;
 
   return (
-    <div>
-      {!onlyDetails && (
-      <ul className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-3">
-        {cards.map((row) =>
-          row.key === "empty_month" ? (
-            <ConditionCard
-              key={row.key}
-              icon={ICONS[row.key]}
-              title={row.title}
-              value={row.value}
-              note={EMPTY_MONTH_CARD_LINE}
-              detail={
-                <>
-                  {EMPTY_MONTH_IDEA} <FaqLink />.
-                </>
-              }
-            />
-          ) : (
-            <ConditionCard
-              key={row.key}
-              icon={ICONS[row.key]}
-              title={row.title}
-              value={row.value}
-              note={row.valueNote ?? ars(row)}
-              detail={
-                <>
-                  {row.help}
-                  {row.valueNote && row.arsFromUsd != null && <span className="mt-1 block text-ink-faint">{ars(row)}</span>}
-                </>
-              }
-            />
-          ),
-        )}
-      </ul>
-      )}
-
-      <details className={`group rounded-card border-[1.5px] border-line bg-paper ${onlyDetails ? "" : "mt-3"}`}>
-        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 rounded-card px-3.5 py-2.5 text-sm font-bold text-forest-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest [&::-webkit-details-marker]:hidden">
-          Ver condiciones completas
-          <Icon name="expand_more" className="text-xl transition-transform group-open:rotate-180" />
-        </summary>
-        <dl className="divide-y divide-line border-t border-line px-3.5">
-          {rows.map((row) => (
-            <div key={row.key} className="py-3">
-              <dt className="flex items-center gap-1.5 text-xs font-bold text-muted">
-                <Icon name={ICONS[row.key]} className="text-lg text-forest-700" />
-                {row.title}
-              </dt>
-              <dd className="mt-1 text-sm text-ink-soft">
-                <span className="font-display font-bold tabular-nums text-ink">{row.value}</span>
-                {row.valueNote && <span className="text-ink-faint"> · {row.valueNote}</span>}
-                {row.arsFromUsd != null && <span className="ml-1 text-xs text-ink-faint">{ars(row)}</span>}
-                {row.key === "empty_month" ? (
-                  row.emptyPercent != null ? (
-                    <span className="mt-1 block space-y-1.5 text-xs leading-relaxed">
-                      <span className="block">{EMPTY_MONTH_IDEA}</span>
-                      <span className="block">{EMPTY_MONTH_RULES}</span>
-                      <span className="block font-semibold text-ink">{emptyMonthExample(row.emptyPercent)}</span>
-                      <span className="block">
-                        <FaqLink />.
-                      </span>
+    <section aria-labelledby={headingId} className="rounded-card border-[1.5px] border-line bg-paper p-5 shadow-card">
+      <h3 id={headingId} className="font-display text-xl font-bold text-ink">
+        Condiciones de la reserva
+      </h3>
+      <dl className="mt-3 divide-y-[1.5px] divide-line">
+        {rows.map((row) => (
+          <div key={row.key} className="grid gap-x-6 gap-y-1 py-3 first:pt-0 last:pb-0 min-[640px]:grid-cols-[13rem_minmax(0,1fr)]">
+            <dt className="flex items-center gap-2 font-bold text-ink">
+              <Icon name={ICONS[row.key]} className="text-xl text-forest-700" />
+              {row.title}
+            </dt>
+            <dd className="min-w-0">
+              <span className="font-display text-lg font-bold tabular-nums text-ink">{row.value}</span>
+              {row.valueNote && <span className="ml-1.5 text-[14px] text-ink-faint">{row.valueNote}</span>}
+              {row.arsFromUsd != null && (
+                <span className="mt-0.5 flex items-center text-[14px] tabular-nums text-ink-soft">{ars(row)}</span>
+              )}
+              {row.key === "empty_month" ? (
+                row.emptyPercent != null ? (
+                  <span className="mt-1 block space-y-1.5 text-[14px] leading-snug text-ink-soft">
+                    <span className="block">{EMPTY_MONTH_IDEA}</span>
+                    <span className="block">{EMPTY_MONTH_RULES}</span>
+                    <span className="block font-semibold text-ink">{emptyMonthExample(row.emptyPercent)}</span>
+                    <span className="block">
+                      <FaqLink />.
                     </span>
-                  ) : (
-                    <span className="mt-1 block text-xs leading-relaxed">
-                      Esta residencia no cobra por el tiempo en que la plaza queda libre antes de tu ingreso.
-                    </span>
-                  )
+                  </span>
                 ) : (
-                  <span className="mt-1 block text-xs leading-relaxed">{row.help}</span>
-                )}
-              </dd>
-            </div>
-          ))}
-        </dl>
-      </details>
-    </div>
+                  <span className="mt-1 block text-[14px] leading-snug text-ink-soft">
+                    Esta residencia no cobra por el tiempo en que la plaza queda libre antes de tu ingreso.
+                  </span>
+                )
+              ) : (
+                <span className="mt-1 block text-[14px] leading-snug text-ink-soft">{row.help}</span>
+              )}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </section>
   );
 }

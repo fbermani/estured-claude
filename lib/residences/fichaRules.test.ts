@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { RULES_VISIBLE, canDownloadRegulation, moreRulesLabel, parseRuleLines, splitRules } from "@/lib/residences/fichaRules";
+import { RULES_VISIBLE, canDownloadRegulation, moreRulesLabel, parseRuleLines, splitRuleLine, splitRules } from "@/lib/residences/fichaRules";
 
 describe("parseRuleLines", () => {
   it("una regla por línea, sin vacías ni espacios de más", () => {
@@ -58,5 +58,25 @@ describe("canDownloadRegulation", () => {
   it("si la residencia no cargó nada propio no hay botón", () => {
     expect(canDownloadRegulation({ regulation: { isBaseModel: true }, hasUploadedPdf: false })).toBe(false);
     expect(canDownloadRegulation({ regulation: null, hasUploadedPdf: false })).toBe(false);
+  });
+});
+
+describe("splitRuleLine", () => {
+  it("separa «Título: detalle»", () => {
+    expect(splitRuleLine("Silencio: de 23 a 7, para música o videos, auriculares")).toEqual({
+      title: "Silencio",
+      body: "de 23 a 7, para música o videos, auriculares",
+    });
+  });
+  it("sin dos puntos la regla entera es el cuerpo", () => {
+    expect(splitRuleLine("No se admiten mascotas")).toEqual({ title: null, body: "No se admiten mascotas" });
+  });
+  it("un título largo o sin detalle no se parte (no se pierde texto)", () => {
+    const long = "Esto es una frase larguísima que contiene: dos puntos más adelante";
+    expect(splitRuleLine(long)).toEqual({ title: null, body: long });
+    expect(splitRuleLine("Visitas:")).toEqual({ title: null, body: "Visitas:" });
+  });
+  it("una dirección web no se parte", () => {
+    expect(splitRuleLine("https://ejemplo.com/reglas").title).toBeNull();
   });
 });

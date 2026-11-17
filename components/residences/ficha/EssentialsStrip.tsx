@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { CSSProperties } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
@@ -13,8 +12,8 @@ const CHIP =
  * Franja «Lo esencial» bajo el hero (propuesta A): hasta cinco celdas de la misma altura (Desde, Habitaciones, Estadía mínima, Cerca de y
  * Edades),
  * cada una con ícono, etiqueta, valor que no se parte y una bajada de una línea, separadas por filetes; y el botón de contorno que lleva
- * a las preguntas frecuentes: con preguntas abre la lista completa en un modal (`faqCount` = TODAS las de la residencia, no solo las
- * destacadas); sin ninguna lleva al capítulo (`#preguntas`). Móvil: grilla 2×2 con borde y filetes internos (una quinta celda ocupa la
+ * a las preguntas frecuentes: abre la lista completa en un modal (`faqCount` = TODAS las de la residencia, no solo las destacadas); sin
+ * preguntas el botón no se dibuja. Móvil: grilla 2×2 con borde y filetes internos (una quinta celda ocupa la
  * fila entera) y el botón a todo el ancho debajo. Escritorio
  * (≥ 768 px): una fila de celdas; el botón queda a la derecha desde 1100 px y en su propia fila antes.
  * Las celdas vienen de `buildEssentialCells` (datos ya calculados por la página; una celda sin dato no se dibuja). Todo monto en USD
@@ -52,16 +51,11 @@ export function EssentialsStrip({ cells, faqCount }: { cells: EssentialCell[]; f
             </li>
           ))}
         </ul>
-        {faqCount > 0 ? (
+        {faqCount > 0 && (
           <OpenFaqButton className={CHIP}>
             {faqChipLabel(faqCount)}
             <Icon name="arrow_forward" className="text-lg" />
           </OpenFaqButton>
-        ) : (
-          <Link href="#preguntas" className={CHIP}>
-            {faqChipLabel(faqCount)}
-            <Icon name="arrow_forward" className="text-lg" />
-          </Link>
         )}
       </div>
     </section>

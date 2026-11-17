@@ -15,6 +15,21 @@ export function parseRuleLines(summary: string | null | undefined): string[] {
     .filter(Boolean);
 }
 
+/**
+ * Separa «Título: detalle» (la forma en que muchas residencias escriben cada regla) para mostrar el título destacado y el detalle abajo,
+ * como en el mockup («Silencio» / «Para música o videos, auriculares»). Solo parte si el título es corto (≤ 40 caracteres) y queda un
+ * detalle; si no, la regla entera es el cuerpo. Nunca se inventa ni se recorta texto.
+ */
+export function splitRuleLine(rule: string): { title: string | null; body: string } {
+  const i = rule.indexOf(":");
+  if (i > 0 && i <= 40) {
+    const title = rule.slice(0, i).trim();
+    const body = rule.slice(i + 1).trim();
+    if (title && body && !/https?$/i.test(title)) return { title, body };
+  }
+  return { title: null, body: rule };
+}
+
 /** Parte las reglas en las que van a la vista y las que quedan en el desplegable (el orden se conserva). */
 export function splitRules(rules: string[], visible: number = RULES_VISIBLE): { primary: string[]; more: string[] } {
   const limit = Math.max(0, Math.floor(visible));

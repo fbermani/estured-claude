@@ -59,25 +59,30 @@ export function CostsBoard({ included, paid, residenceName }: { included: string
         </div>
       </section>
 
-      <section aria-labelledby="costs-paid" className="flex flex-col rounded-card border-[1.5px] border-line bg-paper p-5 shadow-card">
+      {/* «Se paga aparte»: lo que se cobra fuera del precio mensual, con acento lateral naranja (pide atención). Cada ítem lleva su título
+          destacado, la aclaración debajo y, a la derecha, el monto con su referencia en pesos. */}
+      <section
+        aria-labelledby="costs-paid"
+        className="flex flex-col rounded-card border-[1.5px] border-l-4 border-line border-l-orange bg-paper p-5 shadow-card"
+      >
         <h3 id="costs-paid" className="font-display text-xl font-bold text-ink">
           Se paga aparte
         </h3>
-        {paid.groups.map((group) => (
-          <div key={group.key} className="mt-3">
-            <p className="text-[13px] font-bold text-forest-700">{group.who}</p>
+        {paid.groups.map((group, g) => (
+          <div key={group.key} className={g === 0 ? "mt-3" : "mt-4 border-t-[1.5px] border-line pt-4"}>
+            <p className="text-[14px] font-bold text-orange-700">{group.who}</p>
             <dl className="mt-1 divide-y-[1.5px] divide-line">
               {group.rows.map((row) => (
-                <div key={row.key} className="flex items-start justify-between gap-4 py-2.5">
+                <div key={row.key} className="flex items-start justify-between gap-4 py-3 first:pt-2">
                   <dt className="min-w-0">
-                    <span className="block font-semibold text-ink">{row.label}</span>
-                    <span className="block text-[14px] leading-snug text-ink-soft">{row.help}</span>
+                    <span className="block text-[17px] font-bold leading-snug text-ink">{row.label}</span>
+                    <span className="mt-0.5 block text-[14px] leading-snug text-ink-soft">{row.help}</span>
                   </dt>
                   <dd className="shrink-0 text-right">
-                    <span className="block whitespace-nowrap font-display font-bold tabular-nums text-ink">{row.value}</span>
-                    {row.valueNote && <span className="block text-[13px] text-ink-faint">{row.valueNote}</span>}
+                    <span className="block whitespace-nowrap font-display text-lg font-bold tabular-nums text-ink">{row.value}</span>
+                    {row.valueNote && <span className="block text-[13px] text-ink-soft">{row.valueNote}</span>}
                     {row.ars && (
-                      <span className="flex items-center justify-end whitespace-nowrap text-[13px] tabular-nums text-ink-faint">
+                      <span className="flex items-center justify-end whitespace-nowrap text-[13px] tabular-nums text-ink-soft">
                         {row.ars}
                         <ExchangeRateNote compact align="end" />
                       </span>

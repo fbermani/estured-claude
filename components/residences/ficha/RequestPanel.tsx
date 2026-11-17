@@ -26,6 +26,10 @@ const getMobileServer = () => false;
  * `request`) o `JoinWaitlistForm` (modo `waitlist`). El encabezado y el pie del formulario quedan fijos y solo el
  * cuerpo scrollea.
  *
+ * En escritorio el panel es `sticky` y arranca DEBAJO de la navbar y de la tira de capítulos (`top` = ambas alturas + 1 rem, de
+ * `--ficha-navbar-h` y `--ficha-chips-h`, definidas por la página con `lib/residences/fichaLayout.ts`), así su cabecera nunca queda
+ * tapada; su alto máximo es lo que queda del viewport y el cuerpo scrollea por dentro.
+ *
  * `role="dialog"`, `aria-modal`, trampa de foco, Esc, bloqueo del scroll y retorno del foco solo aplican en móvil.
  * En escritorio, «Elegir» (`openSheet`) selecciona el tipo y lleva el foco al primer campo del panel, sin modal.
  */
@@ -162,7 +166,7 @@ export function RequestPanel({
         inert={isMobile && !sheetOpen}
         onKeyDown={onKeyDown}
         data-residence={residenceName}
-        className={`flex flex-col overflow-hidden bg-paper transition-[transform,opacity] duration-300 ease-[var(--ease-out-fresh)] motion-reduce:transition-none min-[900px]:sticky min-[900px]:top-24 min-[900px]:max-h-[calc(100dvh-7rem)] min-[900px]:rounded-card min-[900px]:border-[1.5px] min-[900px]:border-line min-[900px]:shadow-card max-[899px]:fixed max-[899px]:inset-x-0 max-[899px]:bottom-0 max-[899px]:z-[60] max-[899px]:max-h-[calc(100dvh-2.5rem)] max-[899px]:rounded-t-[24px] max-[899px]:shadow-float ${
+        className={`flex flex-col overflow-hidden bg-paper transition-[transform,opacity] duration-300 ease-[var(--ease-out-fresh)] motion-reduce:transition-none min-[900px]:sticky min-[900px]:top-[calc(var(--ficha-navbar-h,4.0625rem)_+_var(--ficha-chips-h,3.9rem)_+_1rem)] min-[900px]:max-h-[calc(100dvh_-_var(--ficha-navbar-h,4.0625rem)_-_var(--ficha-chips-h,3.9rem)_-_2rem)] min-[900px]:rounded-card min-[900px]:border-[1.5px] min-[900px]:border-line min-[900px]:shadow-card max-[899px]:fixed max-[899px]:inset-x-0 max-[899px]:bottom-0 max-[899px]:z-[60] max-[899px]:max-h-[calc(100dvh-2.5rem)] max-[899px]:rounded-t-[24px] max-[899px]:shadow-float ${
           sheetOpen ? "" : "max-[899px]:pointer-events-none max-[899px]:translate-y-full max-[899px]:opacity-0"
         }`}
       >

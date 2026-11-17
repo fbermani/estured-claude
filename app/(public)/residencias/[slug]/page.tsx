@@ -60,11 +60,12 @@ import type { FichaRoomType } from "@/components/residences/ficha/types";
 import { SectionNav, type SectionNavItem } from "@/components/residences/ficha/SectionNav";
 import { ChapterHeading } from "@/components/residences/ficha/ChapterHeading";
 import { FaqBand } from "@/components/residences/ficha/FaqBand";
-import { ResidenceGallery } from "@/components/residences/ResidenceGallery";
+import { VivirMosaic } from "@/components/residences/ficha/VivirMosaic";
+import { FICHA_BARS_STYLE } from "@/lib/residences/fichaLayout";
 import { buildChapters, type Chapter as FichaChapter, type ChapterKey } from "@/lib/residences/fichaChapters";
 import { splitFeaturedFaq } from "@/lib/residences/featuredFaq";
 import { ReadMore } from "@/components/residences/ficha/ReadMore";
-import { RatesTable } from "@/components/residences/ficha/RatesTable";
+import { RoomCards } from "@/components/residences/ficha/RoomCards";
 import { ReservationConditions } from "@/components/residences/ficha/ReservationConditions";
 import { EarlyExitPolicy } from "@/components/residences/ficha/EarlyExitPolicy";
 import { CommunitySummary } from "@/components/residences/ficha/CommunitySummary";
@@ -84,8 +85,12 @@ const FICHA_GENDER_LABEL: Record<string, string> = { mixto: "Mixta", solo_hombre
 
 export const dynamic = "force-dynamic";
 
-/** Espaciado y desplazamiento de ancla de cada capítulo: la navbar (4 rem) y la navegación de capítulos (~3,75 rem) quedan fijas arriba. */
-const CHAPTER_SECTION = "scroll-mt-36 pt-10 min-[768px]:pt-14";
+/**
+ * Espaciado y desplazamiento de ancla de cada capítulo: la navbar y la navegación de capítulos quedan fijas arriba; su altura total
+ * (variables `--ficha-navbar-h` y `--ficha-chips-h` de `lib/residences/fichaLayout.ts`; la clase va literal para que Tailwind la detecte) más 1 rem de aire es el `scroll-margin-top` de todas las anclas.
+ */
+const ANCHOR_OFFSET = "scroll-mt-[calc(var(--ficha-navbar-h,4.0625rem)_+_var(--ficha-chips-h,3.9rem)_+_1rem)]";
+const CHAPTER_SECTION = `${ANCHOR_OFFSET} pt-10 min-[768px]:pt-14`;
 
 /** Un capítulo de la ficha: sección con ancla, número y título (h2). Los capítulos con encabezado propio (preguntas) arman su `<section>` aparte. */
 function Chapter({ chapter, children }: { chapter: FichaChapter; children: React.ReactNode }) {
@@ -365,6 +370,11 @@ export default async function RealResidenceDetailPage({
         }
       : {}),
     arsRounded: usdToArsRounded(applyPromotion(Number(rt.monthly_price_usd), rt.promotion?.discountPercent), rate.arsPerUsd),
+    // Foto del tipo: la primera que la residencia clasificó «Por tipo de habitación» con este nombre (sin ella: ilustración de marca).
+    ...(() => {
+      const photoUrl = photos.find((p) => p.category === "room_type" && p.roomTypeName === rt.name)?.url;
+      return photoUrl ? { photoUrl } : {};
+    })(),
     subtitle: roomTypeSubtitle({
       capacityPerRoom: rt.capacity_per_room,
       genderPolicy: rt.gender_policy,
@@ -404,7 +414,7 @@ export default async function RealResidenceDetailPage({
     tarifas: true,
     incluye: true,
     preguntas: true,
-    comunidad: hasCommunity || hasAgeSection,
+    comunidad: hasCommunity || hasAgeSection || !!occupancyLabel,
     reglas: hasRules,
     ubicacion: true,
   });
@@ -603,6 +613,7 @@ export default async function RealResidenceDetailPage({
             variant="hero"
             name={residence.name}
             zone={(residence.public_area as string | null)?.trim() || null}
+            address={addressLine}
             fromPriceUsd={fromPriceUsd}
             arsPerUsd={rate.arsPerUsd}
           />
@@ -610,66 +621,47 @@ export default async function RealResidenceDetailPage({
         cta={heroCta}
       />
       {/* Las preguntas completas viven en un modal que abren el chip de la franja y el botón de la banda (una sola instancia). */}
-      <FaqModalProvider items={faqItems} residenceName={residence.name} askHref={isOwnResidenceTeam ? undefined : "#hacer-pregunta"}>
+      <FaqModalProvider
+        items={faqItems}
+        residenceName={residence.name}
+        askSlot={isOwnResidenceTeam ? undefined : <AskQuestionForm residenceId={residence.id} signedIn={!!sessionUser} />}
+      >
+      {/* Las alturas de la navbar y de la tira de capítulos se publican como variables CSS para el sticky del panel y las anclas. */}
+      <div style={FICHA_BARS_STYLE}>
       <EssentialsStrip cells={essentialCells} faqCount={faqItems.length} />
       {/* Navegación de capítulos: a todo el ancho, fija bajo la navbar (único sticky de la ficha). */}
       <SectionNav items={navItems} label="Capítulos de la ficha" />
       <div className={`mx-auto max-w-6xl px-4 pb-10 pt-6 sm:px-6 sm:pb-14 ${hasSummary ? "max-[899px]:pb-28" : ""}`}>
-        <nav aria-label="Ruta de navegación" className="mb-4 text-sm text-ink-faint">
-          <ol className="flex flex-wrap items-center gap-1.5">
-            <li>
-              <Link href="/search" className="hover:text-forest-700 hover:underline">
-                Residencias
-              </Link>
-            </li>
-            <li aria-hidden="true">›</li>
-            <li>{residence.public_area}</li>
-            <li aria-hidden="true">›</li>
-            <li aria-current="page" className="font-semibold text-ink-soft">
-              {residence.name}
-            </li>
-          </ol>
-        </nav>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <nav aria-label="Ruta de navegación" className="text-sm text-ink-faint">
+            <ol className="flex flex-wrap items-center gap-1.5">
+              <li>
+                <Link href="/search" className="hover:text-forest-700 hover:underline">
+                  Residencias
+                </Link>
+              </li>
+              <li aria-hidden="true">›</li>
+              <li>{residence.public_area}</li>
+              <li aria-hidden="true">›</li>
+              <li aria-current="page" className="font-semibold text-ink-soft">
+                {residence.name}
+              </li>
+            </ol>
+          </nav>
+          {/* Favorito: el nombre, la dirección y el precio viven en la placa del hero; acá queda solo la acción de guardar. */}
+          {showStudentFavoriteInHeader && (
+            <FavoriteButton action={toggleStudentFavorite.bind(null, residence.id)} initialFavorited={studentFavorited} />
+          )}
+        </div>
 
         {/* Dos columnas desde 900 px (A1, auditoría 2026-11-03): contenido a la izquierda y resumen fijo a la derecha. */}
         <div className={`mt-6 ${hasAside ? "min-[900px]:grid min-[900px]:grid-cols-[minmax(0,1fr)_23rem] min-[900px]:gap-8" : ""}`}>
         <div className="min-w-0">
-        <header>
-          {/* El nombre (h1), el precio «desde» y el sello viven en la placa del hero; acá quedan la dirección y el favorito (la descripción vive en «Vivir acá»). */}
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <p className="flex items-center gap-1.5 text-ink-soft">
-              <Icon name="location_on" className="text-lg text-orange-700" />
-              {addressLine ? `${addressLine}, ` : ""}
-              {residence.public_area}, CABA
-            </p>
-            {/* Favorito — cerca del título, no compite con el panel de solicitud */}
-            {showStudentFavoriteInHeader && (
-              <FavoriteButton action={toggleStudentFavorite.bind(null, residence.id)} initialFavorited={studentFavorited} />
-            )}
-          </div>
-
-          {/* DR18: «plazas · residentes», sin porcentaje ni «quedan N». Sin plazas declaradas queda el conteo de la comunidad.
-              Tipos, estadía mínima y universidad cercana ya están en la franja «Lo esencial»; la descripción vive en «Vivir acá». */}
-          {(occupancyLabel || (community?.totalResidents ?? 0) > 0) && (
-            <ul className="mt-4 flex flex-wrap gap-2">
-              <li className={chipClass}>
-                <Icon name="groups" className="text-lg text-forest-700" />
-                {occupancyLabel ? (
-                  <strong className="font-semibold text-ink">{occupancyLabel}</strong>
-                ) : (
-                  <>{community?.totalResidents} residentes</>
-                )}
-              </li>
-            </ul>
-          )}
-
-        </header>
-
         {/* Capítulos de la ficha (fase 3): 01 Vivir acá · 02 Habitaciones y precio · 03 Qué incluye · 04 Preguntas · 05 La comunidad ·
             06 Reglas de casa · 07 Dónde está. Solo se dibujan los que tienen contenido; la numeración sale de los visibles. */}
         <div>
-          {/* 01 Vivir acá: descripción, galería (con el visor de fotos), servicios y áreas comunes. El mosaico restaura la galería que
-              dejó de verse al pasar la portada al hero; con 0 o 1 foto no se repite lo que ya muestra el hero. */}
+          {/* 01 Vivir acá: descripción, mosaico de fotos con rótulos y su pill «Ver todas las fotos (N)» (abre el visor), y debajo los chips de
+              servicios y áreas comunes. Con 0 o 1 foto no se dibuja el mosaico: la portada ya está en el hero. */}
           {chapter("vivir") && (
             <Chapter chapter={chapter("vivir")!}>
               {residence.description && (
@@ -679,7 +671,7 @@ export default async function RealResidenceDetailPage({
               )}
               {hasGallery && (
                 <div className={residence.description ? "mt-6" : ""}>
-                  <ResidenceGallery photos={photos} name={residence.name} zone={residence.public_area ?? ""} />
+                  <VivirMosaic photos={photos} name={residence.name} zone={residence.public_area ?? ""} />
                 </div>
               )}
               {/* DR30 §3 (1) Servicios y áreas comunes — horizontal, con íconos */}
@@ -721,7 +713,7 @@ export default async function RealResidenceDetailPage({
                   studentName={singleStudentName}
                 />
                 {fichaTypes.length > 0 ? (
-                  <RatesTable
+                  <RoomCards
                     roomTypes={fichaTypes}
                     arsPerUsd={rate.arsPerUsd}
                     waitlistTypeIds={mode === "student" ? waitlistTypeIds : []}
@@ -732,12 +724,14 @@ export default async function RealResidenceDetailPage({
                   <EmptyState
                     icon="request_quote"
                     title="La residencia todavía no publicó sus tarifas"
-                    description="Podés hacerle una pregunta o seguir mirando otras residencias."
+                    description={faqItems.length > 0 ? "Mientras tanto, leé las respuestas rápidas o seguí mirando otras residencias." : "Seguí mirando otras residencias."}
                     action={
                       <div className="flex flex-wrap justify-center gap-2">
-                        <Button href="#preguntas" variant="outline" size="sm">
-                          Hacer una pregunta
-                        </Button>
+                        {faqItems.length > 0 && (
+                          <Button href="#preguntas" variant="outline" size="sm">
+                            Leé las respuestas rápidas
+                          </Button>
+                        )}
                         <Button href="/search" size="sm">
                           Ver más residencias
                         </Button>
@@ -746,17 +740,18 @@ export default async function RealResidenceDetailPage({
                   />
                 )}
                 {(mode === "guest" || mode === "student") && anyRequestable && <RequestHowItWorks />}
+                {/* Condiciones de la reserva (estadía mínima, pago inicial, matrícula, depósito, ajuste, mes vacío y documentos): lista
+                    escaneable debajo de las habitaciones, sin desplegable. */}
+                <ReservationConditions conditions={conditions} arsPerUsd={rate.arsPerUsd} />
               </div>
             </Chapter>
           )}
 
-          {/* 03 Qué incluye y qué se paga aparte: cuadro de costos (incluido / se paga aparte / línea de tiempo de 3 pasos), el detalle de
-              condiciones, la salida anticipada y las guías generales de EstuRed, separadas del reglamento propio de la residencia. */}
+          {/* 03 Qué incluye y qué se paga aparte: cuadro de costos (incluido / se paga aparte / línea de tiempo de 3 pasos), la salida anticipada y las guías generales de EstuRed, separadas del reglamento propio de la residencia. */}
           {chapter("incluye") && (
             <Chapter chapter={chapter("incluye")!}>
               <div className="space-y-5">
                 <CostsBoard included={includedItems} paid={paidSeparately} residenceName={residence.name} />
-                <ReservationConditions conditions={conditions} arsPerUsd={rate.arsPerUsd} onlyDetails />
                 <EarlyExitPolicy
                   depositClausesText={conditions.earlyExitDepositClausesText}
                   costsText={conditions.earlyExitCostsText}
@@ -767,21 +762,18 @@ export default async function RealResidenceDetailPage({
             </Chapter>
           )}
 
-          {/* 04 Preguntas: banda destacada (las primeras, hasta 6) + el resto en el acordeón + «Hacer una pregunta». Las preguntas
-              siguen en este capítulo (decisión del dueño). Sin preguntas: estado vacío. */}
+          {/* 04 Preguntas: banda destacada (las primeras, hasta 6) con «Leé las respuestas rápidas», que abre todas en el modal. No hay botón de
+              «Hacer una pregunta» (el dueño quiere incentivar a leer): el formulario vive como enlace discreto al final del modal; solo sin
+              ninguna pregunta respondida se muestra directo acá. */}
           {chapter("preguntas") && (
             <section id="preguntas" aria-labelledby="h-preguntas" className={CHAPTER_SECTION}>
               {faqItems.length > 0 ? (
-                <>
-                  <FaqBand
-                    headingId="h-preguntas"
-                    number={chapter("preguntas")!.number}
-                    items={featuredFaq}
-                    totalCount={faqItems.length}
-                    residenceName={residence.name}
-                    askHref={isOwnResidenceTeam ? undefined : "#hacer-pregunta"}
-                  />
-                </>
+                <FaqBand
+                  headingId="h-preguntas"
+                  number={chapter("preguntas")!.number}
+                  items={featuredFaq}
+                  residenceName={residence.name}
+                />
               ) : (
                 <>
                   <ChapterHeading id="h-preguntas" number={chapter("preguntas")!.number}>
@@ -795,29 +787,24 @@ export default async function RealResidenceDetailPage({
                         ? "Cuando tu residencia responda preguntas, las ves acá."
                         : "Podés hacerle tu pregunta a la residencia y, si la responde, la ves en la ficha."
                     }
-                    action={
-                      isOwnResidenceTeam ? undefined : (
-                        <Button href="#hacer-pregunta" variant="outline" size="sm">
-                          Hacer una pregunta
-                        </Button>
-                      )
-                    }
                   />
                 </>
               )}
-              <div id="hacer-pregunta" className="mt-6 scroll-mt-36">
-                {isOwnResidenceTeam ? (
-                  <p className="rounded-card border-[1.5px] border-line bg-paper px-5 py-4 text-sm text-ink-soft">
-                    Las preguntas que reciba esta residencia las ves y respondés desde{" "}
-                    <Link href={`/residence/${residence.id}/faq`} className="font-bold text-forest-700 hover:underline">
-                      tu panel
-                    </Link>
-                    .
-                  </p>
-                ) : (
-                  <AskQuestionForm residenceId={residence.id} signedIn={!!sessionUser} />
-                )}
-              </div>
+              {isOwnResidenceTeam ? (
+                <p className="mt-6 rounded-card border-[1.5px] border-line bg-paper px-5 py-4 text-sm text-ink-soft">
+                  Las preguntas que reciba esta residencia las ves y respondés desde{" "}
+                  <Link href={`/residence/${residence.id}/faq`} className="font-bold text-forest-700 hover:underline">
+                    tu panel
+                  </Link>
+                  .
+                </p>
+              ) : (
+                faqItems.length === 0 && (
+                  <div id="hacer-pregunta" className={`mt-6 ${ANCHOR_OFFSET}`}>
+                    <AskQuestionForm residenceId={residence.id} signedIn={!!sessionUser} />
+                  </div>
+                )
+              )}
             </section>
           )}
 
@@ -825,6 +812,16 @@ export default async function RealResidenceDetailPage({
           {chapter("comunidad") && (
             <Chapter chapter={chapter("comunidad")!}>
               <div className="space-y-8">
+                {/* «Plazas · residentes» (antes un pill suelto bajo el breadcrumb): sin porcentaje ni «quedan N». Sin plazas declaradas queda el
+                    conteo de la comunidad. */}
+                {(occupancyLabel || (community?.totalResidents ?? 0) > 0) && (
+                  <ul className="-mt-1 flex flex-wrap gap-2" aria-label="Residentes">
+                    <li className={chipClass}>
+                      <Icon name="groups" className="text-lg text-forest-700" />
+                      {occupancyLabel ? <strong className="font-semibold text-ink">{occupancyLabel}</strong> : <>{community?.totalResidents} residentes</>}
+                    </li>
+                  </ul>
+                )}
                 {hasCommunity && (
                   <div id="comunidad-resumen" className="space-y-4">
                     <p className="-mt-2 text-sm text-ink-soft">Quiénes viven hoy en la residencia.</p>
@@ -841,7 +838,7 @@ export default async function RealResidenceDetailPage({
           {/* 06 Reglas de casa: reglas de convivencia (top 5) + reglamento para leer (modal) y descargar. Se acepta al enviar la solicitud. */}
           {chapter("reglas") && (
             <Chapter chapter={chapter("reglas")!}>
-              <div id="convivencia" className="scroll-mt-36">
+              <div id="convivencia" className={ANCHOR_OFFSET}>
                 <HouseRules
                   rulesSummary={rulesSummary}
                   actions={
@@ -1001,6 +998,7 @@ export default async function RealResidenceDetailPage({
           </Link>
           .
         </p>
+      </div>
       </div>
       </FaqModalProvider>
 

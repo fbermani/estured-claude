@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useId, useRef, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { FaqAccordion } from "@/components/residences/FaqAccordion";
 import { Icon } from "@/components/ui/Icon";
 
@@ -15,22 +15,29 @@ const FaqModalContext = createContext<{ open: () => void } | null>(null);
  *
  * Es el contexto que comparten los botones que lo abren (`OpenFaqButton`: el chip de «Lo esencial» y el de la banda): se renderiza una
  * sola vez y envuelve la ficha. Las preguntas se muestran en acordeones, agrupadas por categoría cuando vienen del catálogo (el
- * acordeón dibuja el encabezado del grupo). `askHref`: ancla de «Hacer una pregunta» (se omite para el equipo de la propia residencia).
+ * acordeón dibuja el encabezado del grupo).
+ *
+ * `askSlot`: el formulario de pregunta libre (ya armado por el servidor). Es el único lugar de la ficha desde el que se envía una pregunta
+ * cuando ya hay respuestas para leer: el dueño quiere incentivar a LEER, no a preguntar, así que va al final del modal como un enlace de
+ * texto discreto («¿No encontraste lo que buscabas?») que despliega el formulario, nunca como botón del capítulo. Se omite para el
+ * equipo de la propia residencia, que responde desde su panel.
  */
 export function FaqModalProvider({
   items,
   residenceName,
-  askHref,
+  askSlot,
   children,
 }: {
   items: FaqItem[];
   residenceName: string;
-  askHref?: string;
+  askSlot?: ReactNode;
   children: ReactNode;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const bodyOverflowRef = useRef<string | null>(null);
   const titleId = useId();
+  const askId = useId();
+  const [askOpen, setAskOpen] = useState(false);
 
   function lockScroll() {
     if (bodyOverflowRef.current === null) bodyOverflowRef.current = document.body.style.overflow;
@@ -51,19 +58,6 @@ export function FaqModalProvider({
     dialog.showModal();
   }
 
-  function goToAsk(event: React.MouseEvent<HTMLAnchorElement>) {
-    if (!askHref) return;
-    event.preventDefault();
-    dialogRef.current?.close();
-    // El scroll del body se libera en `onClose`; se espera un tick para que el desplazamiento ya pueda ocurrir.
-    window.setTimeout(() => {
-      const target = document.querySelector<HTMLElement>(askHref);
-      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      target?.scrollIntoView({ block: "start", behavior: reduce ? "auto" : "smooth" });
-      target?.querySelector<HTMLElement>("textarea, input")?.focus({ preventScroll: true });
-    }, 0);
-  }
-
   const total = items.length;
   return (
     <FaqModalContext.Provider value={{ open }}>
@@ -72,7 +66,10 @@ export function FaqModalProvider({
         <dialog
           ref={dialogRef}
           aria-labelledby={titleId}
-          onClose={unlockScroll}
+          onClose={() => {
+            unlockScroll();
+            setAskOpen(false);
+          }}
           onClick={(e) => {
             // Click en el fondo (el propio <dialog>, fuera del contenido) cierra.
             if (e.target === e.currentTarget) e.currentTarget.close();
@@ -100,19 +97,23 @@ export function FaqModalProvider({
             </div>
             <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-6 sm:py-5">
               <FaqAccordion items={items} initialOpen={null} />
+              {askSlot && (
+                <div className="mt-5 border-t-[1.5px] border-line pt-3">
+                  <button
+                    type="button"
+                    onClick={() => setAskOpen((v) => !v)}
+                    aria-expanded={askOpen}
+                    aria-controls={askId}
+                    className="inline-flex min-h-11 items-center text-[15px] font-semibold text-ink-soft underline underline-offset-2 hover:text-forest-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+                  >
+                    ¿No encontraste lo que buscabas?
+                  </button>
+                  <div id={askId} hidden={!askOpen} className="mt-2">
+                    {askSlot}
+                  </div>
+                </div>
+              )}
             </div>
-            {askHref && (
-              <div className="flex flex-wrap items-center justify-between gap-3 border-t-[1.5px] border-line bg-paper px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-6">
-                <p className="text-[14px] text-ink-soft">¿No está tu pregunta? Si la residencia la responde, la ves acá.</p>
-                <a
-                  href={askHref}
-                  onClick={goToAsk}
-                  className="inline-flex min-h-11 items-center whitespace-nowrap rounded-full border-[1.5px] border-forest-700 px-4 text-[15px] font-bold text-forest-700 transition-colors duration-200 ease-out-fresh hover:bg-forest-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
-                >
-                  Hacer una pregunta
-                </a>
-              </div>
-            )}
           </div>
         </dialog>
       )}

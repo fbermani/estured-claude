@@ -14,7 +14,7 @@ import { PLATE_SEAL_WIDTH, plateTitleFontSize } from "@/lib/residences/fichaHero
  * - `panel`: placa chica sobre el panel de solicitud (nombre, barrio y sello mini).
  * - `bar`: «numeración» de la barra inferior móvil (filete + precio «desde» + ARS).
  *
- * Jerarquía de la placa hero: nombre y barrio, después el precio con su ARS, y al final el sello (un carril aparte, sin texto: el
+ * Jerarquía de la placa hero: dirección y barrio (una línea que puede partirse), nombre, después el precio con su ARS, y al final el sello (un carril aparte, sin texto: el
  * sello alcanza). Contraste del texto: paper sobre forest-ink al 80 % da 6,7:1 en el PEOR caso (foto casi blanca detrás); el texto
  * secundario (paper al 88 %) da 5,6:1. Sin `backdrop-blur`: con ese contraste no hace falta y se ve la foto de verdad.
  *
@@ -24,7 +24,7 @@ import { PLATE_SEAL_WIDTH, plateTitleFontSize } from "@/lib/residences/fichaHero
  * nunca comparten columna ni hay ningún elemento `absolute` adentro. `ResidencePlate.test.ts` verifica esa estructura.
  */
 export type ResidencePlateProps =
-  | { variant: "hero"; name: string; zone: string | null; fromPriceUsd: number | null; arsPerUsd: number }
+  | { variant: "hero"; name: string; zone: string | null; address?: string | null; fromPriceUsd: number | null; arsPerUsd: number }
   | { variant: "panel"; name: string; zone: string | null }
   | { variant: "bar"; fromPriceUsd: number; arsPerUsd: number };
 
@@ -39,21 +39,30 @@ const SOFT = "text-[color:var(--paper-88)]";
 export function ResidencePlate(props: ResidencePlateProps) {
   if (props.variant === "bar") return <BarNumbering fromPriceUsd={props.fromPriceUsd} arsPerUsd={props.arsPerUsd} />;
   if (props.variant === "panel") return <PanelPlate name={props.name} zone={props.zone} />;
-  return <HeroPlate name={props.name} zone={props.zone} fromPriceUsd={props.fromPriceUsd} arsPerUsd={props.arsPerUsd} />;
+  return <HeroPlate name={props.name} zone={props.zone} address={props.address ?? null} fromPriceUsd={props.fromPriceUsd} arsPerUsd={props.arsPerUsd} />;
+}
+
+/** «Av. de Mayo 861, Montserrat, CABA»: la dirección pública entra en la placa (antes iba suelta bajo el hero). */
+export function plateLocationLine(address: string | null | undefined, zone: string | null | undefined): string | null {
+  const parts = [address?.trim() || null, zone?.trim() || null].filter(Boolean) as string[];
+  return parts.length > 0 ? `${parts.join(", ")}, CABA` : null;
 }
 
 function HeroPlate({
   name,
   zone,
+  address,
   fromPriceUsd,
   arsPerUsd,
 }: {
   name: string;
   zone: string | null;
+  address: string | null;
   fromPriceUsd: number | null;
   arsPerUsd: number;
 }) {
   const price = fromPriceUsd != null ? fromPriceLabels(fromPriceUsd, arsPerUsd) : null;
+  const location = plateLocationLine(address, zone);
   return (
     // El contenedor `@container` mide el ancho real de la placa: de ahí salen el tamaño del nombre y el del sello (`cqw`).
     <div data-plate="hero" className="@container w-full min-w-0 max-w-[500px]">
@@ -62,7 +71,7 @@ function HeroPlate({
       >
         {/* Columna principal: barrio, nombre y precio apilados. */}
         <div data-plate-region="main" className="min-w-0 flex-1">
-          {zone && <p className={`text-[13px] font-semibold sm:text-sm ${SOFT}`}>{zone}, CABA</p>}
+          {location && <p className={`text-[13px] font-semibold leading-snug sm:text-sm ${SOFT}`}>{location}</p>}
           {/* El tamaño se calcula para que la palabra más larga entre en una línea; la clase es solo el respaldo sin `cqw`. */}
           <h1
             className="mt-0.5 text-2xl font-bold leading-[0.95] text-paper [overflow-wrap:anywhere] sm:text-4xl"

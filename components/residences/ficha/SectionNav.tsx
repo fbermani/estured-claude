@@ -19,13 +19,13 @@ export type SectionNavItem = {
 export function SectionNav({
   items,
   label = "Secciones de la ficha",
-  className = "sticky top-16 z-30",
+  className = "sticky top-[var(--ficha-navbar-h,4.0625rem)] z-30",
   rootMargin = "-140px 0px -55% 0px",
 }: {
   items: SectionNavItem[];
   /** Nombre accesible del `<nav>` (también ubica la pestaña activa). */
   label?: string;
-  /** Posición/visibilidad del contenedor (por defecto, debajo de la navbar h-16). */
+  /** Posición/visibilidad del contenedor (por defecto, debajo de la navbar: `--ficha-navbar-h`; la altura de la barra es `--ficha-chips-h`, ver `lib/residences/fichaLayout.ts`). */
   className?: string;
   rootMargin?: string;
 }) {
@@ -64,8 +64,8 @@ export function SectionNav({
   }, [active, label]);
 
   return (
-    <nav aria-label={label} className={`${className} border-b-[1.5px] border-line-2 bg-cream`}>
-      <div className="mx-auto max-w-6xl px-2 sm:px-4">
+    <nav aria-label={label} className={`${className} flex h-[var(--ficha-chips-h,3.9rem)] items-center border-b-[1.5px] border-line-2 bg-cream`}>
+      <div className="mx-auto w-full max-w-6xl px-2 sm:px-4">
         <ul className="flex gap-2 overflow-x-auto px-2 py-2 [mask-image:linear-gradient(90deg,#000_92%,transparent)] [scrollbar-width:none] lg:[mask-image:none] [&::-webkit-scrollbar]:hidden">
           {items.map((item) => {
             const isActive = item.id === active;

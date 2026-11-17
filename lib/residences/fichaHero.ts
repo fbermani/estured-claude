@@ -19,15 +19,13 @@ export function photosButtonLabel(total: number): string | null {
   return total === 1 ? "Ver la foto" : `Ver las ${total} fotos`;
 }
 
-/** Texto del botón de contorno de la franja «Lo esencial» que lleva a las preguntas frecuentes. */
-export function faqChipLabel(count: number): string {
-  if (count <= 0) return "Hacé una pregunta";
-  return count === 1 ? "Leé la respuesta rápida" : `Leé las ${count} respuestas rápidas`;
-}
+/** Texto del botón de la banda de preguntas que abre la lista completa (el dueño quiere incentivar a leer, no a preguntar). */
+export const FAQ_READ_LABEL = "Leé las respuestas rápidas";
 
-/** Texto del botón de la banda de preguntas que abre la lista completa. `total` = todas las preguntas de la residencia. */
-export function seeAllFaqLabel(total: number): string {
-  return `Ver todas las preguntas (${total})`;
+/** Texto del botón de contorno de la franja «Lo esencial» que abre las preguntas frecuentes. Sin preguntas el botón no se dibuja. */
+export function faqChipLabel(count: number): string {
+  if (count <= 0) return FAQ_READ_LABEL;
+  return count === 1 ? "Leé la respuesta rápida" : `Leé las ${count} respuestas rápidas`;
 }
 
 /** Ancho de un carácter promedio del título en la placa (Bricolage Grotesque 700, tracking -0,03em), con margen para las letras anchas. */

@@ -12,7 +12,7 @@ import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
 export function FichaSummary({ fromPriceUsd, arsPerUsd }: { fromPriceUsd: number; arsPerUsd: number }) {
   return (
     <aside aria-label="Resumen de la residencia" className="hidden min-[900px]:block">
-      <div className="sticky top-24 grid gap-3 rounded-card border-[1.5px] border-line bg-paper p-4 shadow-card">
+      <div className="sticky top-[calc(var(--ficha-navbar-h,4.0625rem)_+_var(--ficha-chips-h,3.9rem)_+_1rem)] grid gap-3 rounded-card border-[1.5px] border-line bg-paper p-4 shadow-card">
         <div>
           <span className="text-[13px] text-ink-faint">Desde</span>
           <p>

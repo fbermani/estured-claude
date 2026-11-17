@@ -9,7 +9,7 @@ import { readFileSync } from "node:fs";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { ResidencePlate } from "@/components/residences/ficha/ResidencePlate";
+import { ResidencePlate, plateLocationLine } from "@/components/residences/ficha/ResidencePlate";
 import { PLATE_SEAL_WIDTH } from "@/lib/residences/fichaHero";
 
 const hero = (over: Partial<{ name: string; zone: string | null; fromPriceUsd: number | null }> = {}) =>
@@ -83,6 +83,22 @@ describe("ResidencePlate hero: el sello no tapa el precio", () => {
     const html = hero({ name: "Residencia Universitaria Internacional San Telmo" });
     expect(html).toContain("overflow-wrap:anywhere");
     expect(html).toContain("font-size:clamp(1.5rem, calc((100cqw - 4rem - clamp(3.75rem, 16cqw, 5rem)) / ");
+  });
+});
+
+describe("ResidencePlate hero: la dirección entra en la placa", () => {
+  it("arma «dirección, barrio, CABA» y se omiten las partes que faltan", () => {
+    expect(plateLocationLine("Av. de Mayo 861", "Montserrat")).toBe("Av. de Mayo 861, Montserrat, CABA");
+    expect(plateLocationLine(null, "Palermo")).toBe("Palermo, CABA");
+    expect(plateLocationLine("  ", null)).toBeNull();
+  });
+
+  it("la dirección va en la columna principal, antes del nombre y del sello", () => {
+    const html = hero({ address: "Av. de Mayo 861", zone: "Montserrat" } as never);
+    expect(html).toContain("Av. de Mayo 861, Montserrat, CABA");
+    expect(html.indexOf("Av. de Mayo 861")).toBeGreaterThan(html.indexOf('data-plate-region="main"'));
+    expect(html.indexOf("Av. de Mayo 861")).toBeLessThan(html.indexOf("<h1"));
+    expect(html.indexOf("Av. de Mayo 861")).toBeLessThan(html.indexOf('data-plate-region="seal"'));
   });
 });
 
