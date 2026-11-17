@@ -2,7 +2,8 @@
 
 import { useEffect, useId, useRef, useSyncExternalStore, type ReactNode } from "react";
 import { Icon } from "@/components/ui/Icon";
-import { formatUsd } from "@/lib/mock/exchange";
+import { Button } from "@/components/ui/Button";
+import { ResidencePlate } from "@/components/residences/ficha/ResidencePlate";
 import type { ReservationWindowNotice } from "@/lib/students/reservationWindow";
 import { useReservationSelection } from "@/components/residences/reservationSelection";
 
@@ -30,6 +31,7 @@ const getMobileServer = () => false;
  */
 export function RequestPanel({
   residenceName,
+  zone = null,
   variant,
   requestContent,
   waitlistContent,
@@ -37,6 +39,8 @@ export function RequestPanel({
   windowNotice,
 }: {
   residenceName: string;
+  /** Barrio de la residencia, para la placa chica de arriba del panel (escritorio). */
+  zone?: string | null;
   /** Reserva vigente: se avisa arriba del formulario (el selector de fecha ya viene acotado). */
   windowNotice?: ReservationWindowNotice | null;
   /** `guest`: visitante sin sesión (elige el tipo y sigue por el ingreso). */
@@ -163,6 +167,10 @@ export function RequestPanel({
         }`}
       >
         <span aria-hidden="true" className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-full bg-line-2 min-[900px]:hidden" />
+        {/* Placa chica (escritorio): el nombre y el sello acompañan al panel mientras se scrollea la ficha. */}
+        <div className="hidden shrink-0 px-5 pt-5 sm:px-6 min-[900px]:block">
+          <ResidencePlate variant="panel" name={residenceName} zone={zone} />
+        </div>
         <header className="flex shrink-0 items-start justify-between gap-3 border-b border-line px-5 pb-4 pt-4 sm:px-6 min-[900px]:pt-5">
           <div className="min-w-0">
             <h2 id={titleId} className="text-lg font-bold leading-snug text-ink">
@@ -212,27 +220,26 @@ export function RequestPanel({
 }
 
 /**
- * Barra inferior fija para pantallas de menos de 900 px: precio «Desde» y botón que abre el panel como hoja modal.
- * Respeta el área segura del iPhone.
+ * Barra inferior fija para pantallas de menos de 900 px: la «numeración» de la placa (precio «desde» con su referencia en ARS) y la CTA
+ * naranja que abre el panel como hoja modal. Es la única CTA que late en móvil. Respeta el área segura del iPhone.
  */
-export function RequestMobileBar({ fromPriceUsd, label }: { fromPriceUsd: number; label: string }) {
+export function RequestMobileBar({ fromPriceUsd, arsPerUsd, label }: { fromPriceUsd: number; arsPerUsd: number; label: string }) {
   const { openSheet, sheetOpen } = useReservationSelection();
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-between gap-3 border-t border-line-2 bg-paper/95 px-4 pt-2.5 shadow-[0_-6px_18px_rgba(29,39,34,0.08)] backdrop-blur pb-[max(0.625rem,env(safe-area-inset-bottom))] min-[900px]:hidden">
-      <p className="leading-none">
-        <span className="block text-[12px] text-ink-faint">Desde</span>
-        <b className="font-display text-[22px] font-bold tabular-nums text-ink">{formatUsd(fromPriceUsd)}</b>{" "}
-        <span className="text-[13px] text-ink-faint">/mes</span>
-      </p>
-      <button
+      <ResidencePlate variant="bar" fromPriceUsd={fromPriceUsd} arsPerUsd={arsPerUsd} />
+      <Button
         type="button"
+        variant="cta"
+        size="cta-bar"
+        pulse
         onClick={() => openSheet("request")}
         aria-haspopup="dialog"
         aria-expanded={sheetOpen}
-        className="flex min-h-11 items-center justify-center rounded-full bg-forest px-5 text-sm font-bold text-white shadow-card hover:bg-forest-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+        className="shrink-0 whitespace-nowrap max-[359px]:px-3.5"
       >
         {label}
-      </button>
+      </Button>
     </div>
   );
 }

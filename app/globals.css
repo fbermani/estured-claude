@@ -138,6 +138,11 @@
   --tone-admin-deep: #1d2722;
   --tone-admin-tint: #ecebe3;
   --tone-orange-ink: #5c2a0e;
+  /* Ficha «placa porteña» (propuesta A, SPEC §Tokens): sobre fotos y fondos forest-ink. */
+  --scrim-ink-70: rgb(12 58 44 / 0.72); /* velo de foto bajo texto: forest-ink al 72 % */
+  --paper-88: rgb(255 253 248 / 0.88); /* texto secundario sobre oscuro (≥ 88 %, contraste AA) */
+  --paper-16: rgb(255 253 248 / 0.16); /* filetes de la placa */
+  --paper-40: rgb(255 253 248 / 0.4); /* brillo del CTA al hover */
 }
 
 body {

@@ -436,7 +436,7 @@ export function ApplyForm({
 
       {/* Pie del paso 1 */}
       <div className={`${footerClass} ${step === 1 ? "flex" : "hidden"}`}>
-        <Button type="button" size="lg" onClick={continueToStep2}>
+        <Button type="button" variant="cta" size="cta" onClick={continueToStep2}>
           Continuar
         </Button>
         <p className="text-center text-xs text-ink-faint">
@@ -477,7 +477,7 @@ export function ApplyForm({
             </button>
           </span>
         </label>
-        <Button type="submit" size="lg" disabled={isPending || !regulation}>
+        <Button type="submit" variant="cta" size="cta" disabled={isPending || !regulation}>
           {isPending ? "Enviando…" : "Enviar solicitud de reserva"}
         </Button>
         <p className="text-center text-xs text-ink-faint">

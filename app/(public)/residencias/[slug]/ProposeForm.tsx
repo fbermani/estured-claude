@@ -174,7 +174,7 @@ export function ProposeForm({
             {state.message}
           </p>
         )}
-        <Button type="submit" size="lg" disabled={isPending}>
+        <Button type="submit" variant="cta" size="cta" disabled={isPending}>
           {isPending ? "Enviando…" : "Enviar propuesta al estudiante"}
         </Button>
       </div>

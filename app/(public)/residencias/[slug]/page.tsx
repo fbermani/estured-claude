@@ -12,7 +12,6 @@ import { FichaMobileBar, FichaSummary } from "@/components/residences/ficha/Fich
 import { RequestPanel, RequestMobileBar } from "@/components/residences/ficha/RequestPanel";
 import { GuestRequestContent } from "@/components/residences/ficha/GuestRequestContent";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { TrustBadge } from "@/components/residences/TrustBadge";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 import { Icon } from "@/components/ui/Icon";
 import { getCommunityVisibility } from "@/lib/residents/communityVisibility";
@@ -45,7 +44,11 @@ import { effectiveRoomGender, policyFromGender, summarizeTypeGenders } from "@/l
 import { startingPriceUsd, typeAvailabilityState } from "@/lib/availability/typeAvailability";
 import { initialPaymentConfigFromRow } from "@/lib/reservations/initialPayment";
 import { ReservationSelectionProvider } from "@/components/residences/reservationSelection";
-import { ResidenceGallery } from "@/components/residences/ResidenceGallery";
+import { FichaHeroImmersive } from "@/components/residences/ficha/FichaHeroImmersive";
+import { HeroCta } from "@/components/residences/ficha/HeroCta";
+import { ResidencePlate } from "@/components/residences/ficha/ResidencePlate";
+import { EssentialsStrip } from "@/components/residences/ficha/EssentialsStrip";
+import { buildEssentialCells } from "@/lib/residences/fichaEssentials";
 import { buildGalleryPhotos, loadPhotoMeta } from "@/lib/residences/photoMetaDb";
 import { loadResidencePromotions } from "@/lib/residences/promotions";
 import { loadVacancyOutlooks } from "@/lib/residences/vacancy";
@@ -53,7 +56,7 @@ import { applyPromotion, normalizeDepositMode, pickActivePromotion, todayIso } f
 import { computeCapacity, formatOccupancy, residentsToDisplay } from "@/lib/residences/occupancy";
 import { loadFamilyViewer, loadStudentViewer, type LinkedStudent, type StudentViewer } from "@/app/(public)/residencias/[slug]/loadViewerContext";
 import { findUniversitiesByName, haversineDistanceKm, withoutOtherUniversity } from "@/lib/data/buenosAiresUniversities";
-import { monthsLabel, roomTypeSubtitle } from "@/lib/residences/fichaConditions";
+import { roomTypeSubtitle } from "@/lib/residences/fichaConditions";
 import { isTypeRequestable } from "@/lib/availability/typeAvailability";
 import { resolveRequestPanelMode } from "@/lib/residences/requestPanelMode";
 import type { FichaRoomType } from "@/components/residences/ficha/types";
@@ -65,7 +68,6 @@ import { EarlyExitPolicy } from "@/components/residences/ficha/EarlyExitPolicy";
 import { CommunitySummary } from "@/components/residences/ficha/CommunitySummary";
 import { RequestHowItWorks, RequestNotices } from "@/components/residences/ficha/RequestNotices";
 import { describeAgeRange } from "@/lib/residences/age";
-import { abbreviateUniversity } from "@/lib/residences/universityLabel";
 import { SITE_URL } from "@/lib/siteUrl";
 import { loadAverageResidentAge } from "@/lib/residents/averageAge";
 
@@ -366,11 +368,6 @@ export default async function RealResidenceDetailPage({
   const nearest = findUniversitiesByName(nearUniversities)
     .map((u) => ({ name: u.name, km: haversineDistanceKm(location, u) }))
     .sort((a, b) => a.km - b.km)[0];
-  const typeNames = fichaTypes.map((t) => t.name.toLowerCase());
-  const typesChip =
-    typeNames.length > 1
-      ? `${typeNames.slice(0, -1).join(", ")} y ${typeNames[typeNames.length - 1]}`
-      : (typeNames[0] ?? "");
   const hasCommunity = !!communityStatement || (community?.totalResidents ?? 0) > 0;
 
   const hasServices = services.length > 0 || commonAreas.length > 0;
@@ -485,9 +482,6 @@ export default async function RealResidenceDetailPage({
     );
   }
 
-  const minimumStayLabel =
-    conditions.minimumStayMonths != null && conditions.minimumStayMonths > 0 ? monthsLabel(conditions.minimumStayMonths) : null;
-
   const chipClass =
     "inline-flex min-w-0 items-center gap-1.5 rounded-card border border-line bg-paper px-3 py-1.5 text-sm leading-snug text-ink-soft sm:whitespace-nowrap sm:rounded-full";
   // Quién ve el panel de solicitud en la columna derecha (≥ 900 px) y como hoja inferior en móvil: visitante, estudiante y
@@ -503,6 +497,26 @@ export default async function RealResidenceDetailPage({
           : null;
   const hasSummary = fromPriceUsd != null;
   const hasAside = panelVariant !== null || hasSummary;
+
+  // Franja «Lo esencial» (datos que la página ya calculó) y CTA del hero: la misma acción que la barra móvil, solo en escritorio.
+  const essentialCells = buildEssentialCells({
+    fromPriceUsd,
+    arsPerUsd: rate.arsPerUsd,
+    roomTypes: fichaTypes.map((t) => ({ capacity: t.capacity ?? null })),
+    minimumStayMonths: conditions.minimumStayMonths,
+    enrollmentFeeMode: conditions.enrollmentFeeMode,
+    enrollmentFeeUsd: conditions.enrollmentFeeUsd,
+    nearest: nearest ?? null,
+  });
+  const heroCta = panelVariant ? (
+    <HeroCta
+      action={{ kind: "sheet" }}
+      label={panelVariant === "propose" ? "Proponer esta residencia" : "Elegir habitación"}
+      note={panelVariant === "propose" ? undefined : "Enviar la solicitud es gratis"}
+    />
+  ) : hasSummary ? (
+    <HeroCta action={{ kind: "link", href: "#tarifas" }} label="Ver tarifas" />
+  ) : undefined;
 
   return (
     <ReservationSelectionProvider initialRoomTypeId={preselectedRoomTypeId} initialSheet={initialSheet}>
@@ -525,6 +539,23 @@ export default async function RealResidenceDetailPage({
           }).replace(/</g, "\\u003c"),
         }}
       />
+      {/* Hero inmersivo (portada + placa + CTA) y franja «Lo esencial»: a todo el ancho, antes del contenedor de la ficha. */}
+      <FichaHeroImmersive
+        photos={photos}
+        name={residence.name}
+        zone={residence.public_area ?? ""}
+        plate={
+          <ResidencePlate
+            variant="hero"
+            name={residence.name}
+            zone={(residence.public_area as string | null)?.trim() || null}
+            fromPriceUsd={fromPriceUsd}
+            arsPerUsd={rate.arsPerUsd}
+          />
+        }
+        cta={heroCta}
+      />
+      <EssentialsStrip cells={essentialCells} faqCount={faqItems.length} />
       <div className={`mx-auto max-w-6xl px-4 pb-10 pt-6 sm:px-6 sm:pb-14 ${hasSummary ? "max-[899px]:pb-28" : ""}`}>
         <nav aria-label="Ruta de navegación" className="mb-4 text-sm text-ink-faint">
           <ol className="flex flex-wrap items-center gap-1.5">
@@ -542,62 +573,37 @@ export default async function RealResidenceDetailPage({
           </ol>
         </nav>
 
-        {/* Hero de fotos a todo el ancho — se adapta a la cantidad (0 / 1 / 2–4 / 5+), Ciclo 54 (D12). El panel de solicitud arranca recién debajo. */}
-        <ResidenceGallery photos={photos} name={residence.name} zone={residence.public_area ?? ""} />
-
         {/* Dos columnas desde 900 px (A1, auditoría 2026-11-03): contenido a la izquierda y resumen fijo a la derecha. */}
         <div className={`mt-6 ${hasAside ? "min-[900px]:grid min-[900px]:grid-cols-[minmax(0,1fr)_23rem] min-[900px]:gap-8" : ""}`}>
         <div className="min-w-0">
         <header>
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-3xl font-bold text-ink sm:text-4xl">{residence.name}</h1>
-            <TrustBadge status="verified_active" size="md" stamp />
+          {/* El nombre (h1), el precio «desde» y el sello viven en la placa del hero; acá quedan la dirección, el favorito y la descripción. */}
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <p className="flex items-center gap-1.5 text-ink-soft">
+              <Icon name="location_on" className="text-lg text-orange-700" />
+              {addressLine ? `${addressLine}, ` : ""}
+              {residence.public_area}, CABA
+            </p>
             {/* Favorito — cerca del título, no compite con el panel de solicitud */}
             {showStudentFavoriteInHeader && (
               <FavoriteButton action={toggleStudentFavorite.bind(null, residence.id)} initialFavorited={studentFavorited} />
             )}
           </div>
-          <p className="mt-1.5 flex items-center gap-1.5 text-ink-soft">
-            <Icon name="location_on" className="text-lg text-orange-700" />
-            {addressLine ? `${addressLine}, ` : ""}
-            {residence.public_area}, CABA
-          </p>
 
-          <ul className={`mt-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap`}>
-            {/* «Desde» vive en la barra inferior (móvil) y en el resumen (escritorio); sin precio no hay ninguno de los dos. */}
-            {typesChip && (
-              <li className={chipClass}>
-                <Icon name="bed" className="text-lg text-forest-700" />
-                <span className="first-letter:uppercase">{typesChip}</span>
-              </li>
-            )}
-            {minimumStayLabel && (
-              <li className={chipClass}>
-                <Icon name="event_available" className="text-lg text-forest-700" />
-                Estadía mínima <strong className="text-ink">{minimumStayLabel}</strong>
-              </li>
-            )}
-            {nearest && (
-              <li className={chipClass}>
-                <Icon name="school" className="text-lg text-forest-700" />
-                ~{nearest.km.toFixed(1).replace(".", ",")} km de {abbreviateUniversity(nearest.name)}
-              </li>
-            )}
-            {/* DR18: «plazas · residentes», sin porcentaje ni «quedan N». Sin plazas declaradas queda el conteo de la comunidad. */}
-            {occupancyLabel ? (
+          {/* DR18: «plazas · residentes», sin porcentaje ni «quedan N». Sin plazas declaradas queda el conteo de la comunidad.
+              Tipos, estadía mínima y universidad cercana ya están en la franja «Lo esencial». */}
+          {(occupancyLabel || (community?.totalResidents ?? 0) > 0) && (
+            <ul className="mt-4 flex flex-wrap gap-2">
               <li className={chipClass}>
                 <Icon name="groups" className="text-lg text-forest-700" />
-                <strong className="font-semibold text-ink">{occupancyLabel}</strong>
+                {occupancyLabel ? (
+                  <strong className="font-semibold text-ink">{occupancyLabel}</strong>
+                ) : (
+                  <>{community?.totalResidents} residentes</>
+                )}
               </li>
-            ) : (
-              (community?.totalResidents ?? 0) > 0 && (
-                <li className={chipClass}>
-                  <Icon name="groups" className="text-lg text-forest-700" />
-                  {community?.totalResidents} residentes
-                </li>
-              )
-            )}
-          </ul>
+            </ul>
+          )}
 
           {residence.description && (
             <div className="mt-4 max-w-[68ch]">
@@ -812,6 +818,7 @@ export default async function RealResidenceDetailPage({
           <aside aria-label={`Solicitud de reserva en ${residence.name}`} className="max-[899px]:contents">
             <RequestPanel
               residenceName={residence.name}
+              zone={(residence.public_area as string | null)?.trim() || null}
               windowNotice={windowNotice}
               variant={panelVariant}
               canRequest={anyRequestable}
@@ -913,9 +920,9 @@ export default async function RealResidenceDetailPage({
 
       {hasSummary &&
         (panelVariant ? (
-          <RequestMobileBar fromPriceUsd={fromPriceUsd} label={panelVariant === "propose" ? "Proponer esta residencia" : "Elegir habitación"} />
+          <RequestMobileBar fromPriceUsd={fromPriceUsd} arsPerUsd={rate.arsPerUsd} label={panelVariant === "propose" ? "Proponer esta residencia" : "Elegir habitación"} />
         ) : (
-          <FichaMobileBar fromPriceUsd={fromPriceUsd} />
+          <FichaMobileBar fromPriceUsd={fromPriceUsd} arsPerUsd={rate.arsPerUsd} />
         ))}
     </ReservationSelectionProvider>
   );

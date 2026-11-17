@@ -1,5 +1,7 @@
 import { Icon } from "@/components/ui/Icon";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
+import { Button } from "@/components/ui/Button";
+import { ResidencePlate } from "@/components/residences/ficha/ResidencePlate";
 import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
 
 /**
@@ -37,21 +39,14 @@ export function FichaSummary({ fromPriceUsd, arsPerUsd }: { fromPriceUsd: number
   );
 }
 
-/** Barra inferior fija para pantallas de menos de 900 px: precio «Desde» y acceso a tarifas. Respeta el área segura del iPhone. */
-export function FichaMobileBar({ fromPriceUsd }: { fromPriceUsd: number }) {
+/** Barra inferior fija para pantallas de menos de 900 px: precio «desde» (con su referencia en ARS) y acceso a tarifas con la CTA naranja. Respeta el área segura del iPhone. */
+export function FichaMobileBar({ fromPriceUsd, arsPerUsd }: { fromPriceUsd: number; arsPerUsd: number }) {
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-between gap-3 border-t border-line-2 bg-paper/95 px-4 pt-2.5 shadow-[0_-6px_18px_rgba(29,39,34,0.08)] backdrop-blur pb-[max(0.625rem,env(safe-area-inset-bottom))] min-[900px]:hidden">
-      <p className="leading-none">
-        <span className="block text-[12px] text-ink-faint">Desde</span>
-        <b className="font-display text-[22px] font-bold tabular-nums text-ink">{formatUsd(fromPriceUsd)}</b>{" "}
-        <span className="text-[13px] text-ink-faint">/mes</span>
-      </p>
-      <a
-        href="#tarifas"
-        className="flex min-h-11 items-center justify-center rounded-full bg-forest px-5 text-sm font-bold text-white shadow-card hover:bg-forest-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
-      >
+      <ResidencePlate variant="bar" fromPriceUsd={fromPriceUsd} arsPerUsd={arsPerUsd} />
+      <Button href="#tarifas" variant="cta" size="cta-bar" pulse className="shrink-0 whitespace-nowrap max-[359px]:px-3.5">
         Ver tarifas
-      </a>
+      </Button>
     </div>
   );
 }
