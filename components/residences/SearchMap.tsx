@@ -5,7 +5,8 @@ import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
 import { MapTiles } from "@/components/residences/MapTiles";
 import { ResidencePhoto } from "@/components/residences/ResidencePhoto";
-import { boundsCenterPixel, chooseZoom, offsetFromCenter, tilesCovering, type PixelPoint } from "@/lib/maps/osmTiles";
+import { boundsCenterPixel, chooseZoom, latLngToWorldPixel, offsetFromCenter, tilesCovering, type PixelPoint } from "@/lib/maps/osmTiles";
+import { UNIVERSITY_CATEGORIES, UNIVERSITY_PINS, type UniversityCategory } from "@/lib/maps/universityPins";
 import type { MapPoint } from "@/lib/residences/mapPoints";
 
 /**
@@ -13,7 +14,8 @@ import type { MapPoint } from "@/lib/residences/mapPoints";
  * sin API key ni librería de mapas) con un pin de precio por residencia. Encuadra todos los pines según el ancho real del
  * contenedor. Tocar un pin abre una mini-tarjeta con el enlace a la ficha; Esc o tocar el fondo la cierra. Recibe solo lo
  * mínimo de cada residencia (`MapPoint`). ⚠ Igual que `CompactMap`: antes del lanzamiento masivo hay que cambiar el
- * proveedor de teselas (ver `lib/maps/osmTiles.ts`).
+ * proveedor de teselas (ver `lib/maps/osmTiles.ts`). Además muestra siempre las universidades de CABA (pin de color según
+ * categoría, con su nombre al tocarlas) y una referencia plegable con la lista agrupada por color.
  */
 const PAD_X = 64;
 const PAD_Y = 56;
@@ -26,6 +28,8 @@ export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; wit
   const boxRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState<{ w: number; h: number } | null>(null);
   const [openId, setOpenId] = useState<string | null>(null);
+  const [openUni, setOpenUni] = useState<string | null>(null);
+  const [legendOpen, setLegendOpen] = useState<boolean | null>(null);
   const pinRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   useLayoutEffect(() => {
@@ -39,21 +43,24 @@ export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; wit
   }, []);
 
   useEffect(() => {
-    if (!openId) return;
+    if (!openId && !openUni) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
-      pinRefs.current[openId]?.focus();
+      if (openId) pinRefs.current[openId]?.focus();
       setOpenId(null);
+      setOpenUni(null);
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [openId]);
+  }, [openId, openUni]);
 
   const fitKey = points.map((p) => p.id).join("|");
   const fit = useMemo<Cam | null>(() => {
-    if (!size || points.length === 0) return null;
-    const zoom = chooseZoom(points, Math.max(40, size.w / 2 - PAD_X), Math.max(40, size.h / 2 - PAD_Y), 11, 15);
-    return { key: fitKey, zoom, c: boundsCenterPixel(points, zoom) };
+    if (!size) return null;
+    // El encuadre incluye las universidades: siempre se ven todas, aunque no haya residencias con ubicación.
+    const all = [...points, ...UNIVERSITY_PINS];
+    const zoom = chooseZoom(all, Math.max(40, size.w / 2 - PAD_X), Math.max(40, size.h / 2 - PAD_Y), 11, 15);
+    return { key: fitKey, zoom, c: boundsCenterPixel(all, zoom) };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- el encuadre inicial depende del conjunto de pines, no del redimensionado
   }, [!!size, fitKey]);
   const [userCam, setUserCam] = useState<Cam | null>(null);
@@ -145,10 +152,22 @@ export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; wit
     return {
       tiles: tilesCovering(cam.c, cam.zoom, size.w / 2 + 128, size.h / 2 + 128),
       pins: points.map((p) => ({ p, pos: offsetFromCenter(p, cam.c, cam.zoom) })),
+      unis: UNIVERSITY_PINS.map((u) => ({ u, pos: offsetFromCenter(u, cam.c, cam.zoom) })),
     };
   }, [size, cam, points]);
 
   const open = points.find((p) => p.id === openId) ?? null;
+  const showLegend = legendOpen ?? false;
+  /** Desde la referencia: abre el pin y centra el mapa en la universidad (acercando un poco si estaba muy lejos). */
+  const focusUniversity = (name: string) => {
+    const u = UNIVERSITY_PINS.find((x) => x.name === name);
+    const cur = camRef.current;
+    if (!u || !cur) return;
+    const z = Math.max(cur.zoom, 14);
+    setOpenId(null);
+    setOpenUni(u.name);
+    setUserCam({ key: cur.key, zoom: z, c: latLngToWorldPixel(u, z) });
+  };
   // El pin abierto va arriba de los demás.
   const pins = view ? [...view.pins].sort((a, b) => (a.p.id === openId ? 1 : 0) - (b.p.id === openId ? 1 : 0)) : [];
 
@@ -165,7 +184,9 @@ export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; wit
         role="group"
         aria-label="Mapa de residencias con el precio desde de cada una"
         onClick={() => {
-          if (!wasDrag()) setOpenId(null);
+          if (wasDrag()) return;
+          setOpenId(null);
+          setOpenUni(null);
         }}
         onDoubleClick={(e) => cam && zoomTo(cam.zoom + 1, anchorOf(e.clientX, e.clientY))}
         onPointerDown={onPointerDown}
@@ -178,6 +199,32 @@ export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; wit
           <>
             <MapTiles tiles={view.tiles} unavailableMessage="El mapa no está disponible por ahora. Mirá las residencias en la vista Lista o Grilla." />
             <div className="absolute left-1/2 top-1/2 h-0 w-0">
+              {view.unis.map(({ u, pos }) => {
+                const isOpen = openUni === u.name;
+                return (
+                  <button
+                    key={u.name}
+                    type="button"
+                    aria-expanded={isOpen}
+                    aria-label={`Universidad: ${u.name}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (wasDrag()) return;
+                      setOpenId(null);
+                      setOpenUni(isOpen ? null : u.name);
+                    }}
+                    style={{ left: pos.x, top: pos.y }}
+                    className={`group/uni absolute ${isOpen ? "z-20" : "z-[11]"} flex size-6 -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border-2 border-paper text-white shadow-[0_2px_6px_rgb(29_39_34/0.3)] hover:z-20 focus-visible:z-20 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest motion-safe:transition-transform hover:scale-110 ${UNIVERSITY_CATEGORIES[u.category].pin} ${isOpen ? "scale-110" : ""}`}
+                  >
+                    <Icon name="school" className="text-[15px]" />
+                    <span
+                      className={`pointer-events-none absolute bottom-full mb-1.5 whitespace-nowrap rounded-md bg-forest-ink px-2 py-1 text-xs font-semibold text-white shadow-card ${isOpen ? "block" : "hidden group-hover/uni:block group-focus-visible/uni:block"}`}
+                    >
+                      {isOpen ? u.name : u.short}
+                    </span>
+                  </button>
+                );
+              })}
               {pins.map(({ p, pos }) => (
                 <button
                   key={p.id}
@@ -205,9 +252,65 @@ export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; wit
         )}
 
         {points.length === 0 && (
-          <p className="absolute inset-0 z-20 grid place-items-center bg-cream/70 p-6 text-center text-sm text-ink-soft">
+          <p className="pointer-events-none absolute inset-x-3 bottom-10 z-20 mx-auto max-w-md rounded-field bg-paper/95 p-3 text-center text-sm text-ink-soft shadow-card">
             Ninguna de estas residencias tiene ubicación cargada todavía. Probá la vista Lista o Grilla.
           </p>
+        )}
+
+        {cam && (
+          <div
+            className="absolute left-3 top-3 z-20 max-w-[calc(100%-5rem)]"
+            onClick={(e) => e.stopPropagation()}
+            onDoubleClick={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              aria-expanded={showLegend}
+              aria-controls="mapa-universidades"
+              onClick={() => setLegendOpen(!showLegend)}
+              className="inline-flex min-h-10 cursor-pointer items-center gap-1.5 rounded-full border-[1.5px] border-line bg-paper px-3 text-[13px] font-bold text-ink shadow-card hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-forest"
+            >
+              <Icon name="school" className="text-lg text-petrol-600" />
+              Universidades ({UNIVERSITY_PINS.length})
+              <Icon name={showLegend ? "expand_more" : "expand_less"} className="text-lg" />
+            </button>
+            {!showLegend && (
+              <ul className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 rounded-field bg-paper/90 px-2.5 py-1.5 text-xs font-semibold text-ink shadow-card">
+                {(Object.keys(UNIVERSITY_CATEGORIES) as UniversityCategory[]).map((cat) => (
+                  <li key={cat} className="inline-flex items-center gap-1.5">
+                    <span aria-hidden="true" className={`size-3 rounded-full ${UNIVERSITY_CATEGORIES[cat].dot}`} />
+                    {UNIVERSITY_CATEGORIES[cat].label}
+                  </li>
+                ))}
+              </ul>
+            )}
+            {showLegend && (
+              <div id="mapa-universidades" className="mt-2 max-h-56 w-72 max-w-full overflow-y-auto rounded-2xl border-[1.5px] border-line bg-paper p-3 shadow-float sm:max-h-72">
+                {(Object.keys(UNIVERSITY_CATEGORIES) as UniversityCategory[]).map((cat) => (
+                  <section key={cat} aria-label={UNIVERSITY_CATEGORIES[cat].label} className="mb-2 last:mb-0">
+                    <h3 className="flex items-center gap-1.5 text-xs font-bold text-ink-faint">
+                      <span aria-hidden="true" className={`size-3 rounded-full ${UNIVERSITY_CATEGORIES[cat].dot}`} />
+                      {UNIVERSITY_CATEGORIES[cat].label}
+                    </h3>
+                    <ul className="mt-1">
+                      {UNIVERSITY_PINS.filter((u) => u.category === cat).map((u) => (
+                        <li key={u.name}>
+                          <button
+                            type="button"
+                            onClick={() => focusUniversity(u.name)}
+                            className={`min-h-8 w-full cursor-pointer rounded-md px-2 text-left text-[13px] text-ink hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-forest ${openUni === u.name ? "bg-cream-2 font-bold" : ""}`}
+                          >
+                            {u.name}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                ))}
+              </div>
+            )}
+          </div>
         )}
 
         {open && (
