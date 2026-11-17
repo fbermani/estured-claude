@@ -213,3 +213,6 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 - [ ] **Google SSO (DR26):** fuera del MVP; si se decide, el switch de altas de D3 tiene que volver a encenderse y cerrar el alta por email de otra forma.
 - [ ] **Pasar a Supabase Pro y Vercel Pro (A2)** antes de abrir/cobrar. **Monitoreo y backups:** alertas de errores (Vercel logs/Sentry), revisión de `cron.job_run_details`, backups de Supabase (según plan).
 - [ ] **WAF de Vercel** como segunda capa opcional sobre las rutas públicas.
+
+## Migraciones 0093 y 0094 (2026-11-17)
+- **0093** (plazas atómicas vía RPC `decrement_profile_availability` + trigger del tope de 2 solicitudes activas) y **0094** (índices parciales de expiración). Aplicar en dev (SQL Editor) y entrar en el bootstrap de prod: `node scripts/build-bootstrap.mjs prod` las toma solas (esperar 0001–0094). El código ya llama a la RPC: aplicar 0093 en cada proyecto ANTES de desplegar a ese entorno, o la confirmación de reserva no descuenta plazas (solo loguea error).

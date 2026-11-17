@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { deleteResidenceCascade } from "@/lib/testing/deleteResidenceCascade";
+import { createTestStudent, deleteTestStudent, type TestStudent } from "@/lib/testing/testStudent";
 import { expireApplicationRequests } from "@/lib/jobs/expireApplicationRequests";
 
 const hasCreds = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
@@ -12,6 +13,8 @@ describe.skipIf(!hasCreds)("expireApplicationRequests (integración)", () => {
   let ownerId: string;
   let studentUserId: string;
   let studentProfileId: string;
+  // Tope de 2 activas por estudiante (0093): la tercera solicitud va con un estudiante descartable.
+  let extraStudent: TestStudent;
   let staleSubmittedId: string;
   let staleResidencePaymentId: string;
   let freshAppId: string;
@@ -90,12 +93,13 @@ describe.skipIf(!hasCreds)("expireApplicationRequests (integración)", () => {
       return snapshot!.id;
     }
 
-    async function createApp(status: string, extra: Record<string, unknown>) {
+    extraStudent = await createTestStudent(admin, "expire-apps");
+    async function createApp(status: string, extra: Record<string, unknown>, other?: TestStudent) {
       const snapshotId = await createSnapshot();
       const { data: application } = await admin
         .from("application_requests")
         .insert({
-          student_profile_id: studentProfileId,
+          student_profile_id: other?.profileId ?? studentProfileId,
           initiated_by: "student",
           contact_target: "student",
           residence_id: residenceId,
@@ -105,7 +109,7 @@ describe.skipIf(!hasCreds)("expireApplicationRequests (integración)", () => {
           initial_duration_months: 6,
           academic_objective: "Objetivo académico de prueba (test de integración).",
           snapshot_original_id: snapshotId,
-          created_by_user_id: studentUserId,
+          created_by_user_id: other?.userId ?? studentUserId,
           ...extra,
         })
         .select("id")
@@ -122,7 +126,7 @@ describe.skipIf(!hasCreds)("expireApplicationRequests (integración)", () => {
     });
     freshAppId = await createApp("submitted", {
       expires_at: new Date(Date.now() + 48 * 3_600_000).toISOString(),
-    });
+    }, extraStudent);
 
     // Ciclo 34terdecies: createPendingResidencePayment (Ciclo 8) crea esta fila
     // real al entrar a residence_payment_pending — se replica acá para poder
@@ -140,6 +144,7 @@ describe.skipIf(!hasCreds)("expireApplicationRequests (integración)", () => {
     await admin.from("external_residence_payments").delete().eq("application_request_id", staleResidencePaymentId);
     await admin.from("application_requests").delete().in("id", [staleSubmittedId, staleResidencePaymentId, freshAppId]);
     await deleteResidenceCascade(admin, residenceId);
+    if (extraStudent) await deleteTestStudent(admin, extraStudent);
   });
 
   it("vence solicitudes sin respuesta de la residencia y sin pago a la residencia, deja intacta la vigente", async () => {

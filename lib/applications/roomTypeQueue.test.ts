@@ -26,6 +26,8 @@ describe.skipIf(!hasCreds)("roomTypeQueue (integración)", () => {
   let roomTypeId: string;
   let ownerId: string;
   let studentProfileId: string;
+  /** Otros estudiantes demo: el trigger de la 0093 limita a 2 solicitudes activas por estudiante, así que la fixture reparte. */
+  let spareStudents: Array<{ id: string; user_id: string }> = [];
   let createdByUserId: string;
   const applicationIds: string[] = [];
 
@@ -54,6 +56,8 @@ describe.skipIf(!hasCreds)("roomTypeQueue (integración)", () => {
       .eq("user_id", createdByUserId)
       .single();
     studentProfileId = studentProfile!.id;
+    const { data: others } = await admin.from("student_profiles").select("id, user_id").neq("id", studentProfileId).limit(8);
+    spareStudents = others ?? [];
 
     const { data: residence } = await admin
       .from("residences")
@@ -128,32 +132,41 @@ describe.skipIf(!hasCreds)("roomTypeQueue (integración)", () => {
       .select("id")
       .single();
 
-    const { data: application } = await admin
-      .from("application_requests")
-      .insert({
-        student_profile_id: studentProfileId,
-        initiated_by: "student",
-        contact_target: "student",
-        residence_id: residenceId,
-        room_type_id: roomTypeId,
-        status,
-        desired_start_date: "2026-08-15",
-        initial_duration_months: 6,
-        academic_objective: "Objetivo académico de prueba (test de integración).",
-        snapshot_original_id: snapshot!.id,
-        created_by_user_id: createdByUserId,
-      })
-      .select("id")
-      .single();
+    // Prueba con Lucía y, si el tope de 2 activas (0093) la rechaza, con los otros estudiantes demo.
+    let application: { id: string } | null = null;
+    for (const candidate of [{ id: studentProfileId, user_id: createdByUserId }, ...spareStudents]) {
+      const { data } = await admin
+        .from("application_requests")
+        .insert({
+          student_profile_id: candidate.id,
+          initiated_by: "student",
+          contact_target: "student",
+          residence_id: residenceId,
+          room_type_id: roomTypeId,
+          status,
+          desired_start_date: "2026-08-15",
+          initial_duration_months: 6,
+          academic_objective: "Objetivo académico de prueba (test de integración).",
+          snapshot_original_id: snapshot!.id,
+          created_by_user_id: candidate.user_id,
+        })
+        .select("id")
+        .single();
+      if (data) {
+        application = data;
+        break;
+      }
+    }
+    if (!application) throw new Error("Ningún estudiante demo con cupo de solicitudes activas para la fixture.");
     // Back-reference que createApplicationFromRoomType.ts también setea
     // (application_snapshots.application_request_id) — sin esto la
     // snapshot queda huérfana (application_request_id null) y bloquea el
     // cascade-delete de room_types → residences en el afterAll, porque
     // application_snapshots.room_type_id no tiene "on delete cascade"
     // (db/migrations/0007_application_requests.sql:68).
-    await admin.from("application_snapshots").update({ application_request_id: application!.id }).eq("id", snapshot!.id);
-    applicationIds.push(application!.id);
-    return application!.id;
+    await admin.from("application_snapshots").update({ application_request_id: application.id }).eq("id", snapshot!.id);
+    applicationIds.push(application.id);
+    return application.id;
   }
 
   it("entra directo si hay menos de 3 solicitudes visibles", async () => {

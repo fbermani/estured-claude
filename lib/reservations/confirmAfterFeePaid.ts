@@ -123,21 +123,13 @@ export async function confirmReservationAfterFeePaid(
     }
   }
 
-  // Descuenta disponibilidad declarada (Modo Perfil Verificado, docs/07 §18.2).
-  const { data: availability } = await admin
-    .from("profile_availability")
-    .select("id, available_count, status")
-    .eq("room_type_id", reservation.room_type_id)
-    .maybeSingle();
-  if (availability) {
-    const nextCount = Math.max(0, (availability.available_count ?? 1) - 1);
-    await admin
-      .from("profile_availability")
-      .update({
-        available_count: nextCount,
-        status: nextCount === 0 ? "full" : availability.status,
-      })
-      .eq("id", availability.id);
+  // Descuenta disponibilidad declarada (Modo Perfil Verificado, docs/07 §18.2). Un solo UPDATE atómico en SQL (0093): dos
+  // confirmaciones simultáneas del mismo tipo ya no pisan el conteo del otro.
+  const { error: availabilityError } = await admin.rpc("decrement_profile_availability", {
+    p_room_type_id: reservation.room_type_id,
+  });
+  if (availabilityError) {
+    console.error("[confirmAfterFeePaid] decrement_profile_availability failed:", availabilityError.code, availabilityError.message);
   }
 
   // Datos para el comprobante (docs/06 §13.3 — congelados al momento de emitir).
