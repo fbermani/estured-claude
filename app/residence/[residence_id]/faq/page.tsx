@@ -14,6 +14,8 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { FaqQuestionCard } from "@/app/residence/[residence_id]/faq/FaqQuestionCard";
 import { FaqCatalogItem } from "@/app/residence/[residence_id]/faq/FaqCatalogItem";
 import { loadCatalogForResidence } from "@/lib/faq/residenceCatalog";
+import { loadFeaturedCandidates } from "@/lib/faq/featured";
+import { FeaturedFaqManager } from "@/app/residence/[residence_id]/faq/FeaturedFaqManager";
 import { FAQ_CATEGORIES, FICHA_FAQ_VISIBLE, effectiveAnswer } from "@/lib/faq/catalog";
 
 export const metadata: Metadata = { title: "Preguntas frecuentes" };
@@ -45,7 +47,7 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
   // DR11: sin `faq.manage` las acciones se ven deshabilitadas (solo presentación; el servidor valida cada acción).
   const canManage = can(membership, "faq.manage");
 
-  const catalog = await loadCatalogForResidence(admin, residenceId);
+  const [catalog, featured] = await Promise.all([loadCatalogForResidence(admin, residenceId), loadFeaturedCandidates(admin, residenceId)]);
 
   const { data, error } = await admin
     .from("residence_faq_questions")
@@ -166,6 +168,32 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
           </PermissionGate>
         )}
       </section>
+
+      {featured.ok ? (
+        <PermissionGate allowed={canManage} className="mt-8">
+          <FeaturedFaqManager
+            residenceId={residenceId}
+            candidates={featured.candidates.map((c) => ({ ref: c.ref, question: c.question, order: c.order }))}
+          />
+        </PermissionGate>
+      ) : (
+        <section className="mt-8" aria-labelledby="faq-featured-title">
+          <h2 id="faq-featured-title" className="text-lg font-bold text-ink">
+            Preguntas destacadas
+          </h2>
+          <div className="mt-3">
+            <EmptyState
+              icon={featured.reason === "schema_pending" ? "hourglass_top" : "error"}
+              title={featured.reason === "schema_pending" ? "Elegir destacadas todavía no está disponible" : "No pudimos cargar las destacadas"}
+              description={
+                featured.reason === "schema_pending"
+                  ? "Lo estamos terminando de preparar en este entorno. Mientras tanto, tu ficha destaca las primeras 6 preguntas."
+                  : "Probá de nuevo en unos minutos. Si sigue pasando, avisale a Soporte."
+              }
+            />
+          </div>
+        </section>
+      )}
 
       <h2 id="preguntas-visitantes" className="mt-12 scroll-mt-20 text-lg font-bold text-ink">Preguntas de visitantes</h2>
       <p className="mt-1 text-sm text-ink-soft">

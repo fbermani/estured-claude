@@ -132,6 +132,8 @@ interface ProfileInitial {
   photoSectionsReady: boolean;
   /** Migración 0074 (orden de portada). */
   photoCoverReady: boolean;
+  /** Migración 0097 aplicada: se puede elegir la foto principal. */
+  photoMainCoverReady: boolean;
   /** DR18 t3 (migración 0060): promociones de tarifa y si las opciones nuevas de dinero ya se pueden guardar. */
   promotions: PromotionItem[];
   moneyReady: boolean;
@@ -1142,6 +1144,7 @@ export function ResidenceProfileForm({
               schemaReady={initial.photoMetaReady}
               sectionsReady={initial.photoSectionsReady}
               coverReady={initial.photoCoverReady}
+              mainCoverReady={initial.photoMainCoverReady}
               readOnly={readOnly}
               onCountsChange={setPhotoCounts}
             />

@@ -9,6 +9,7 @@ import {
   restoreResidenceQuestion,
 } from "@/lib/faq/moderateResidenceQuestion";
 import { saveCatalogItem } from "@/lib/faq/residenceCatalog";
+import { saveFeaturedFaq } from "@/lib/faq/featured";
 
 export type FaqModerationState = { status: "idle" | "saved" | "error"; message?: string };
 
@@ -73,4 +74,25 @@ export async function saveFaqCatalogItemAction(
   revalidatePath(`/residence/${residenceId}/faq`);
   revalidatePath("/residencias/[slug]", "page");
   return { status: "saved", message: result.selected ? "Listo, la pregunta se muestra en tu ficha." : "Listo, la pregunta no se muestra en tu ficha." };
+}
+
+export type FaqFeaturedResult = { status: "success"; count: number } | { status: "error"; message: string };
+
+/**
+ * Elegir cuáles preguntas se destacan en la ficha (hasta 6) y en qué orden. El permiso (`faq.manage`), la validación (que cada pregunta
+ * sea de ESTA residencia y hoy se muestre, sin repetidos, máximo 6) y la auditoría viven en `lib/faq/featured`.
+ */
+export async function saveFeaturedFaqAction(residenceId: string, refs: unknown): Promise<FaqFeaturedResult> {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) return { status: "error", message: "Tu sesión expiró. Volvé a iniciar sesión." };
+  const admin = getSupabaseAdmin();
+  if (!admin) return { status: "error", message: "No disponible en este momento. Probá más tarde." };
+  if (typeof residenceId !== "string" || !residenceId) return { status: "error", message: "No encontramos la residencia." };
+
+  const result = await saveFeaturedFaq(admin, { actorUserId: sessionUser.id, residenceId, refs });
+  if (!result.ok) return { status: "error", message: result.error };
+
+  revalidatePath(`/residence/${residenceId}/faq`);
+  revalidatePath("/residencias/[slug]", "page");
+  return { status: "success", count: result.count };
 }

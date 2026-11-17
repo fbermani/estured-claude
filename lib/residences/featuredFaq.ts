@@ -1,17 +1,17 @@
 /**
  * Preguntas destacadas de la ficha (banda del capítulo «Preguntas que más nos hacen», propuesta A). Lógica pura.
  *
- * TRANSITORIO: la migración con `is_featured` / `featured_order` en las FAQ (SPEC, «Datos nuevos» punto 2) todavía no existe. Mientras
- * tanto, las destacadas son las primeras `FEATURED_FAQ_MAX` por el orden actual de la ficha (las del catálogo que la residencia eligió,
- * después las fijas del perfil y al final las libres respondidas). Cuando exista la columna, alcanza con que la página pase `isFeatured`
- * y `featuredOrder` en cada ítem: esta función ya los respeta (si la residencia marcó alguna, solo esas, en su orden y con el máximo).
+ * La residencia elige cuáles destacar y en qué orden (migración 0096: `is_featured` / `featured_order` en las del catálogo y en las libres
+ * respondidas; las 5 fijas del perfil no se pueden destacar). Si marcó alguna, son solo esas, en su orden y con el máximo. Sin ninguna marcada
+ * (o con la migración sin aplicar), las destacadas son las primeras `FEATURED_FAQ_MAX` por el orden actual de la ficha (las del catálogo que
+ * la residencia eligió, después las fijas del perfil y al final las libres respondidas).
  */
 export const FEATURED_FAQ_MAX = 6;
 
 export type FeaturableFaq = {
-  /** Marcada por la residencia como destacada (futuro `is_featured`). Hoy la página no lo envía. */
+  /** Marcada por la residencia como destacada (`is_featured`). */
   isFeatured?: boolean | null;
-  /** Orden elegido por la residencia entre las destacadas (futuro `featured_order`). */
+  /** Orden elegido por la residencia entre las destacadas (`featured_order`). */
   featuredOrder?: number | null;
 };
 

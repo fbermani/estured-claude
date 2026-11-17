@@ -136,6 +136,8 @@ export type GalleryPhoto = {
   sortOrder?: number;
   /** Orden entre las de portada (migración 0074). */
   coverOrder?: number | null;
+  /** Foto principal elegida por la residencia (migración 0097): hero de la ficha y vista previa del link. Una sola por residencia. */
+  isCover?: boolean;
 };
 
 /** Sección efectiva: la elegida, o el área / tipo de habitación, o «Fotos adicionales». */
@@ -170,15 +172,19 @@ export function groupPhotosBySections<T extends Pick<GalleryPhoto, "section" | "
 /**
  * Las fotos que rotan: las de portada (hasta 5) o, si no hay, las primeras 5. Las de portada salen en el orden elegido por el owner
  * (`coverOrder`); sin orden, según el de la galería (`sortOrder`) y, a igualdad, el de llegada (orden estable).
+ * Si la residencia eligió una FOTO PRINCIPAL (`isCover`, migración 0097), va siempre primera —aunque no esté entre las de portada— y las
+ * demás siguen detrás en su orden, hasta completar `MAX_FEATURED_PHOTOS` en total. La principal es la del hero y la de la vista previa del link.
  */
-export function pickRotationPhotos<T extends { featured: boolean; coverOrder?: number | null; sortOrder?: number }>(photos: T[]): T[] {
+export function pickRotationPhotos<T extends { featured: boolean; coverOrder?: number | null; sortOrder?: number; isCover?: boolean }>(photos: T[]): T[] {
   const featured = photos
     .map((p, i) => ({ p, i }))
     .filter(({ p }) => p.featured)
     .sort((a, b) => (a.p.coverOrder ?? 99) - (b.p.coverOrder ?? 99) || (a.p.sortOrder ?? 0) - (b.p.sortOrder ?? 0) || a.i - b.i)
-    .slice(0, MAX_FEATURED_PHOTOS)
     .map(({ p }) => p);
-  return featured.length > 0 ? featured : photos.slice(0, MAX_FEATURED_PHOTOS);
+  const rotation = featured.length > 0 ? featured : photos.slice(0, MAX_FEATURED_PHOTOS);
+  const main = photos.find((p) => p.isCover === true);
+  if (!main) return rotation.slice(0, MAX_FEATURED_PHOTOS);
+  return [main, ...rotation.filter((p) => p !== main)].slice(0, MAX_FEATURED_PHOTOS);
 }
 
 export type PhotoGroup = { key: string; title: string; photos: GalleryPhoto[] };

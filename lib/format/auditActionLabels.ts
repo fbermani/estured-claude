@@ -168,6 +168,10 @@ const ACTION_PHRASES: Record<string, string> = {
   application_regulation_accepted: "aceptó el reglamento al enviar la solicitud",
   application_regulation_acceptance_failed: "no pudo registrar la aceptación del reglamento de una solicitud",
   residence_faq_catalog_item_saved: "actualizó una pregunta frecuente del catálogo en su ficha",
+  residence_faq_featured_updated: "eligió las preguntas destacadas de su ficha",
+  residence_share_message_saved: "guardó su mensaje de WhatsApp para compartir la ficha",
+  residence_share_message_reset: "volvió al mensaje original de WhatsApp para compartir la ficha",
+  residence_cover_photo_set: "eligió la foto principal de su ficha",
   // Dinero: confirmación de reserva (DR8)
   reservation_confirmation_failed_after_fee_paid: "no pudo confirmar una reserva con el fee ya cobrado",
   reservation_confirmation_retried: "reintentó la confirmación de una reserva",

@@ -18,6 +18,8 @@ export type PhotoMetaRow = {
   sort_order?: number;
   /** Migración 0074: ausente si todavía no está aplicada. */
   cover_order?: number | null;
+  /** Migración 0097: foto principal (una por residencia); ausente si todavía no está aplicada. */
+  is_cover?: boolean;
 };
 
 /**
@@ -90,15 +92,16 @@ export async function loadPhotoMeta(
   admin: SupabaseClient,
   residenceIds: string[],
   opts: { reconcile?: boolean } = {},
-): Promise<{ byFileId: Map<string, PhotoMetaRow>; schemaReady: boolean; sectionsReady: boolean; coverReady: boolean }> {
+): Promise<{ byFileId: Map<string, PhotoMetaRow>; schemaReady: boolean; sectionsReady: boolean; coverReady: boolean; mainCoverReady: boolean }> {
   const byFileId = new Map<string, PhotoMetaRow>();
-  if (residenceIds.length === 0) return { byFileId, schemaReady: true, sectionsReady: true, coverReady: true };
+  if (residenceIds.length === 0) return { byFileId, schemaReady: true, sectionsReady: true, coverReady: true, mainCoverReady: true };
   const base = "file_id, residence_id, category, area, room_type_id, is_featured";
-  // Se prueba con todas las columnas y se va degradando: 0074 (cover_order) → 0070 (section / sort_order) → 0059.
+  // Se prueba con todas las columnas y se va degradando: 0097 (is_cover) → 0074 (cover_order) → 0070 (section / sort_order) → 0059.
   const tiers = [
-    { cols: `${base}, section, sort_order, cover_order`, sectionsReady: true, coverReady: true },
-    { cols: `${base}, section, sort_order`, sectionsReady: true, coverReady: false },
-    { cols: base, sectionsReady: false, coverReady: false },
+    { cols: `${base}, section, sort_order, cover_order, is_cover`, sectionsReady: true, coverReady: true, mainCoverReady: true },
+    { cols: `${base}, section, sort_order, cover_order`, sectionsReady: true, coverReady: true, mainCoverReady: false },
+    { cols: `${base}, section, sort_order`, sectionsReady: true, coverReady: false, mainCoverReady: false },
+    { cols: base, sectionsReady: false, coverReady: false, mainCoverReady: false },
   ];
   let data: unknown[] | null = null;
   let error: { code?: string | null; message?: string | null } | null = null;
@@ -110,7 +113,7 @@ export async function loadPhotoMeta(
   }
   if (error) {
     if (!isMissingSchemaError(error)) console.error("[photo-meta] lectura fallida:", error.code, error.message);
-    return { byFileId, schemaReady: false, sectionsReady: false, coverReady: false };
+    return { byFileId, schemaReady: false, sectionsReady: false, coverReady: false, mainCoverReady: false };
   }
   const rows = (data ?? []) as PhotoMetaRow[];
   const withClassification = rows.some((r) => r.category !== "general" || r.section);
@@ -122,7 +125,7 @@ export async function loadPhotoMeta(
     const defs = defsByResidence?.get(row.residence_id);
     byFileId.set(row.file_id, defs ? reconcileMetaRow(row, defs, tier.sectionsReady) : row);
   }
-  return { byFileId, schemaReady: true, sectionsReady: tier.sectionsReady, coverReady: tier.coverReady };
+  return { byFileId, schemaReady: true, sectionsReady: tier.sectionsReady, coverReady: tier.coverReady, mainCoverReady: tier.mainCoverReady };
 }
 
 /** Une fotos aprobadas con sus metadatos (el orden es la antigüedad, que ya trae la consulta; el editor no reordena). */
@@ -143,6 +146,7 @@ export function buildGalleryPhotos(
       section: m?.section ?? null,
       sortOrder: m?.sort_order ?? 0,
       coverOrder: m?.cover_order ?? null,
+      isCover: m?.is_cover === true,
     };
   });
 }

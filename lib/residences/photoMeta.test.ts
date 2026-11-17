@@ -108,3 +108,31 @@ describe("secciones (DR30)", () => {
     expect(g[0].photos.map((x) => x.id)).toEqual(["2", "3"]);
   });
 });
+
+describe("foto principal (isCover, migración 0097)", () => {
+  const photo = (url: string, extra: Partial<GalleryPhoto> = {}): GalleryPhoto => ({ url, category: "general", area: null, roomTypeName: null, featured: false, ...extra });
+
+  it("sin foto principal nada cambia", () => {
+    expect(pickRotationPhotos([photo("a"), photo("b", { featured: true, coverOrder: 1 }), photo("c", { featured: true, coverOrder: 2 })]).map((x) => x.url)).toEqual(["b", "c"]);
+  });
+  it("la principal va siempre primera aunque no sea de las de portada, y las demás siguen detrás en su orden", () => {
+    const list = [photo("a"), photo("b", { featured: true, coverOrder: 1 }), photo("c", { featured: true, coverOrder: 2 }), photo("d", { isCover: true })];
+    expect(pickRotationPhotos(list).map((x) => x.url)).toEqual(["d", "b", "c"]);
+  });
+  it("si la principal ya es de portada, se mueve al frente sin repetirse", () => {
+    const list = [photo("a", { featured: true, coverOrder: 1 }), photo("b", { featured: true, coverOrder: 2 }), photo("c", { featured: true, coverOrder: 3, isCover: true })];
+    expect(pickRotationPhotos(list).map((x) => x.url)).toEqual(["c", "a", "b"]);
+  });
+  it("sin portadas elegidas, la principal encabeza las primeras 5 y el total no pasa de 5", () => {
+    const list = ["a", "b", "c", "d", "e", "f", "g"].map((u) => photo(u, u === "g" ? { isCover: true } : {}));
+    expect(pickRotationPhotos(list).map((x) => x.url)).toEqual(["g", "a", "b", "c", "d"]);
+  });
+  it("con 5 de portada más una principal aparte, el total sigue en 5", () => {
+    const list = [
+      ...["a", "b", "c", "d", "e"].map((u, i) => photo(u, { featured: true, coverOrder: i + 1 })),
+      photo("z", { isCover: true }),
+    ];
+    const out = pickRotationPhotos(list).map((x) => x.url);
+    expect(out).toEqual(["z", "a", "b", "c", "d"]);
+  });
+});

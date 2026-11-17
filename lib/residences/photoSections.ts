@@ -57,6 +57,8 @@ export type PhotoMetaItem = SectionedPhoto & {
   featured: boolean;
   sortOrder: number;
   coverOrder: number | null;
+  /** Foto principal (migración 0097): hero de la ficha y vista previa del link. Una sola por residencia. */
+  isCover?: boolean;
 };
 
 /** Ítem «Otro» de tipo área común (`residence_custom_amenities`, kind `area`). */

@@ -63,6 +63,7 @@ export function ResidenceSidebar({
     { href: `${base}/waitlist`, label: "Lista de espera", icon: "hourglass_top" },
     { href: `${base}/faq`, label: "Preguntas", icon: "forum", badge: faqBadge, badgeNoun: "preguntas sin responder" },
     { href: `${base}/regulation`, label: "Reglamento", icon: "gavel" },
+    { href: `${base}/share`, label: "Compartir ficha", icon: "share" },
     { href: `${base}/support`, label: "Soporte", icon: "support_agent" },
     { href: `${base}/plan`, label: "Plan", icon: "workspace_premium" },
     ...(isOwner ? [{ href: `${base}/team`, label: "Equipo", icon: "supervisor_account" }] : []),
@@ -95,6 +96,7 @@ export function ResidenceSidebar({
         },
         item(`${base}/faq`),
         item(`${base}/regulation`),
+        item(`${base}/share`),
       ],
     },
     {

@@ -126,7 +126,9 @@ export async function saveCatalogItem(
   return { ok: true, selected: params.selected };
 }
 
-export type PublicCatalogGroup = { category: string; label: string; items: { question: string; answer: string }[] };
+/** `isFeatured` / `featuredOrder`: lo que la residencia destacó (migración 0096); ausentes si la migración no está aplicada. */
+export type PublicCatalogItem = { question: string; answer: string; isFeatured?: boolean; featuredOrder?: number | null };
+export type PublicCatalogGroup = { category: string; label: string; items: PublicCatalogItem[] };
 
 /**
  * Preguntas del catálogo que la residencia eligió mostrar, agrupadas por tema, para la ficha pública. Lee con service role pero NO
@@ -134,16 +136,18 @@ export type PublicCatalogGroup = { category: string; label: string; items: { que
  * del catálogo. Si falla (o la 0054 no está aplicada), devuelve `[]` y la ficha sigue sin esa parte.
  */
 export async function getPublicCatalogFaq(admin: SupabaseClient, residenceId: string): Promise<PublicCatalogGroup[]> {
-  const { data: items, error } = await admin
-    .from("residence_faq_items")
-    .select("predefined_question_id, answer_override")
-    .eq("residence_id", residenceId)
-    .eq("is_selected", true);
+  // Con las columnas de destacadas (0096); si todavía no existen, se reintenta sin ellas (la ficha destaca las primeras).
+  let items: unknown[] | null = null;
+  let error: { code?: string | null; message?: string | null } | null = null;
+  for (const cols of ["predefined_question_id, answer_override, is_featured, featured_order", "predefined_question_id, answer_override"]) {
+    ({ data: items, error } = await admin.from("residence_faq_items").select(cols).eq("residence_id", residenceId).eq("is_selected", true));
+    if (!error || !isMissingSchemaError(error)) break;
+  }
   if (error) {
     if (!isMissingSchemaError(error)) console.error("[faq] public catalog items failed:", error.code, error.message);
     return [];
   }
-  const selected = (items ?? []) as { predefined_question_id: string; answer_override: string | null }[];
+  const selected = (items ?? []) as { predefined_question_id: string; answer_override: string | null; is_featured?: boolean; featured_order?: number | null }[];
   if (selected.length === 0) return [];
 
   const { data: questions, error: questionsError } = await admin
@@ -160,12 +164,20 @@ export async function getPublicCatalogFaq(admin: SupabaseClient, residenceId: st
     return [];
   }
   const overrides = new Map(selected.map((s) => [s.predefined_question_id, s.answer_override]));
+  const featuredBy = new Map(selected.map((s) => [s.predefined_question_id, s]));
   const groups: PublicCatalogGroup[] = FAQ_CATEGORIES.map((c) => ({ category: c.key as string, label: c.label, items: [] }));
   for (const q of (questions ?? []) as CatalogQuestion[]) {
     const answer = effectiveAnswer(q, { is_selected: true, answer_override: isEditableOwner(q.owner) ? (overrides.get(q.id) ?? null) : null });
     if (hasUnfilledFields(answer)) continue;
     const group = groups.find((g) => g.category === q.category);
-    if (group) group.items.push({ question: q.question_text, answer });
+    const featured = featuredBy.get(q.id);
+    if (group) {
+      group.items.push({
+        question: q.question_text,
+        answer,
+        ...(featured?.is_featured !== undefined ? { isFeatured: featured.is_featured === true, featuredOrder: featured.featured_order ?? null } : {}),
+      });
+    }
   }
   return groups.filter((g) => g.items.length > 0);
 }

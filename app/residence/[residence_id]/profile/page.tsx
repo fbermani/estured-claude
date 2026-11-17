@@ -104,6 +104,7 @@ export default async function ResidenceProfilePage({
       section: m?.section ?? null,
       sortOrder: m?.sort_order ?? 0,
       coverOrder: m?.cover_order ?? null,
+      isCover: m?.is_cover === true,
     };
   });
   photoItems.sort((a, b) => a.sortOrder - b.sortOrder); // estable: a igual orden, la antigüedad
@@ -151,6 +152,7 @@ export default async function ResidenceProfilePage({
         photoMetaReady: photoMeta.schemaReady,
         photoSectionsReady: photoMeta.sectionsReady,
         photoCoverReady: photoMeta.coverReady,
+        photoMainCoverReady: photoMeta.mainCoverReady,
         // DR18 t3 (0060): las opciones de dinero se habilitan cuando existe `deposit_mode` y la tabla de promociones.
         moneyReady: promotionsRes.schemaReady && "deposit_mode" in residence,
         promotions: promotionsRes.promotions.map((p) => ({

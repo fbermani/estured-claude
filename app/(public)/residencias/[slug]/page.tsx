@@ -312,7 +312,7 @@ export default async function RealResidenceDetailPage({
   // El equipo de ESTA residencia no se pregunta a sí mismo: en vez del formulario ve un aviso (responde desde su panel).
   // Orden (DR14): primero las del catálogo agrupadas por tema, después las fijas del perfil y al final las libres respondidas.
   const otherFaqGroup = catalogFaq.length > 0 ? "Otras preguntas" : undefined;
-  const faqItems: { question: string; answer: string; fromVisitor?: boolean; group?: string }[] = [
+  const faqItems: { question: string; answer: string; fromVisitor?: boolean; group?: string; isFeatured?: boolean; featuredOrder?: number | null }[] = [
     ...catalogFaq.flatMap((g) => g.items.map((q) => ({ ...q, group: g.label }))),
     ...staticFaqItems.map((q) => ({ ...q, group: otherFaqGroup })),
     ...answeredQuestions.map((q) => ({ ...q, fromVisitor: true, group: otherFaqGroup })),
@@ -410,7 +410,7 @@ export default async function RealResidenceDetailPage({
   });
   const chapter = (key: ChapterKey) => chapters.find((c) => c.key === key);
   const navItems: SectionNavItem[] = chapters.map((c) => ({ id: c.id, label: c.navLabel, number: c.number }));
-  // Banda de preguntas destacadas: hoy las primeras por orden (ver `lib/residences/featuredFaq.ts`; pasa a `is_featured` con la migración).
+  // Banda de preguntas destacadas: las que la residencia marcó (`isFeatured` / `featuredOrder`, migración 0096) y, si no marcó ninguna, las primeras por orden (ver `lib/residences/featuredFaq.ts`).
   const { featured: featuredFaq } = splitFeaturedFaq(faqItems);
   const showStudentFavoriteInHeader = isStudent;
   const singleStudentName = linkedStudents.length === 1 ? linkedStudents[0].first_name : null;

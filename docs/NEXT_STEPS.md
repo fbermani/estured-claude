@@ -2,6 +2,10 @@
 
 # EstuRed — Próximos pasos
 
+## Fase 5 de la ficha: compartir por WhatsApp, FAQ destacadas y foto principal — 2026-11-17
+
+Hecho (sin verificar en navegador; ver `docs/00` DR57): `/residence/[id]/share` («Compartir ficha» en el sidebar), `lib/share/*` (plantilla, validación, resolución, `wa.me`), hoja `ShareFichaSheetServer` (`components/share/`), selección de FAQ destacadas en `/residence/[id]/faq` y botón «Principal» en las fotos del perfil. **Pendiente:** (1) aplicar 0095, 0096 y 0097 en `estured-dev` ANTES de pushear (runbook en `docs/PLAN_SALIDA_PRODUCCION.md`) y correr `scripts/seed-demo-share-featured.mjs`; (2) ubicar `<ShareFichaSheetServer residenceId={residence.id} />` en la ficha pública (hero o cabecera; no la tocó la fase 5 por convivir con el rediseño de `components/residences/ficha/*`); (3) etiqueta «Nuevo» en el sidebar las primeras semanas (SPEC) y medir clics de «Abrir WhatsApp» / `?ref=wa` (opcional, no hecho); (4) las 5 FAQ fijas del perfil no se pueden destacar (son un jsonb); decidir si se migran al catálogo.
+
 ## Auditoría UX por recorrido Codex — 2026-11-14
 
 Informe compartible: [`AUDITORIA_UX_RECORRIDO_CODEX_2026-11-14.md`](audits/AUDITORIA_UX_RECORRIDO_CODEX_2026-11-14.md). Siete demos y visitante; 12 hallazgos (2 P1, 8 P2, 2 P3), con capturas, criterios de aceptación y [cobertura explícita](audits/evidence/ux-2026-11-14/COBERTURA.md). No se implementaron fixes.
