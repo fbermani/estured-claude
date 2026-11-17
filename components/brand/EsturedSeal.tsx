@@ -9,6 +9,8 @@ import "./seal.css";
  *
  * - `variant="full"`: anillos, «ESTURED» arriba, banda «VERIFICADA» y «BUENOS AIRES» abajo. Para tamaños desde ~96 px.
  * - `variant="mini"`: anillos + logo, sin texto, para tarjetas (~40 px), donde el texto no se leería.
+ * - `onLight`: para superficies claras (tarjetas `paper`). Solo en `full`: la banda se rellena de tinta y «VERIFICADA» queda calada en
+ *   `paper`, como en el sello físico. Sin `onLight` (hero, imagen OG, landing) el dibujo no cambia.
  *
  * Decorativo: `aria-hidden`. El significado ya está en el texto de al lado («Residencia Verificada»).
  * `stamp`: el sello «cae» con un golpe (una vez, solo transform/opacity; con prefers-reduced-motion queda quieto).
@@ -18,12 +20,14 @@ export function EsturedSeal({
   variant = "full",
   tone = "forest",
   stamp = false,
+  onLight = false,
   className = "",
 }: {
   size?: number;
   variant?: "full" | "mini";
   tone?: "forest" | "cream";
   stamp?: boolean;
+  onLight?: boolean;
   className?: string;
 }) {
   const uid = useId().replace(/[^a-zA-Z0-9]/g, "");
@@ -97,7 +101,7 @@ export function EsturedSeal({
                 <path key={p.fill} d={p.d} fill="currentColor" fillRule="evenodd" />
               ))}
             </svg>
-            <rect x="52" y="104" width="96" height="28" rx="3" fill="none" stroke="currentColor" strokeWidth="3.4" />
+            <rect x="52" y="104" width="96" height="28" rx="3" fill={onLight ? "currentColor" : "none"} stroke="currentColor" strokeWidth="3.4" />
             <text
               x="100"
               y="125"
@@ -107,6 +111,7 @@ export function EsturedSeal({
               textAnchor="middle"
               textLength="84"
               lengthAdjust="spacingAndGlyphs"
+              style={onLight ? { fill: "var(--color-paper)" } : undefined}
             >
               VERIFICADA
             </text>

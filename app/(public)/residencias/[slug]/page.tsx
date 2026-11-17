@@ -17,8 +17,6 @@ import { Icon } from "@/components/ui/Icon";
 import { getCommunityVisibility } from "@/lib/residents/communityVisibility";
 import { AmenityGrid } from "@/components/residences/AmenityGrid";
 import { getApprovedCustomAmenities } from "@/lib/residences/customAmenitiesDb";
-import { RulesHighlight } from "@/components/residences/RulesHighlight";
-import { FaqAccordion } from "@/components/residences/FaqAccordion";
 import { assertResidenceAccess } from "@/lib/residences/access";
 import { getPublicAnsweredQuestions } from "@/lib/faq/getPublicAnsweredQuestions";
 import { getPublicCatalogFaq } from "@/lib/faq/residenceCatalog";
@@ -30,7 +28,6 @@ import { formatDate } from "@/lib/dates/format";
 import { AskQuestionForm } from "@/app/(public)/residencias/[slug]/AskQuestionForm";
 import { CompactMap } from "@/components/residences/CompactMap";
 import { getServiceIcon, getCommonAreaIcon } from "@/lib/residences/amenityIcons";
-import { FICHA_FAQ_VISIBLE } from "@/lib/faq/catalog";
 import { GuidePicks } from "@/components/guides/GuidePicks";
 import { MoveInGuideNote } from "@/components/guides/MoveInGuideNote";
 import { ApplyForm } from "@/app/(public)/residencias/[slug]/ApplyForm";
@@ -72,7 +69,14 @@ import { ReservationConditions } from "@/components/residences/ficha/Reservation
 import { EarlyExitPolicy } from "@/components/residences/ficha/EarlyExitPolicy";
 import { CommunitySummary } from "@/components/residences/ficha/CommunitySummary";
 import { RequestHowItWorks, RequestNotices } from "@/components/residences/ficha/RequestNotices";
-import { describeAgeRange } from "@/lib/residences/age";
+import { CostsBoard } from "@/components/residences/ficha/CostsBoard";
+import { FaqModalProvider } from "@/components/residences/ficha/FaqModal";
+import { HouseRules, RegulationDownloadLink } from "@/components/residences/ficha/HouseRules";
+import { ResidentAge } from "@/components/residences/ficha/ResidentAge";
+import { ClosingCta } from "@/components/residences/ficha/ClosingCta";
+import { buildPaidSeparately } from "@/lib/residences/fichaCosts";
+import { buildAgeFacts } from "@/lib/residences/fichaAge";
+import { canDownloadRegulation } from "@/lib/residences/fichaRules";
 import { SITE_URL } from "@/lib/siteUrl";
 import { loadAverageResidentAge } from "@/lib/residents/averageAge";
 
@@ -407,7 +411,7 @@ export default async function RealResidenceDetailPage({
   const chapter = (key: ChapterKey) => chapters.find((c) => c.key === key);
   const navItems: SectionNavItem[] = chapters.map((c) => ({ id: c.id, label: c.navLabel, number: c.number }));
   // Banda de preguntas destacadas: hoy las primeras por orden (ver `lib/residences/featuredFaq.ts`; pasa a `is_featured` con la migración).
-  const { featured: featuredFaq, rest: restFaq } = splitFeaturedFaq(faqItems);
+  const { featured: featuredFaq } = splitFeaturedFaq(faqItems);
   const showStudentFavoriteInHeader = isStudent;
   const singleStudentName = linkedStudents.length === 1 ? linkedStudents[0].first_name : null;
   // Lista de espera: solo tipos completos, y nunca el tipo en el que ya tiene una reserva vigente en ESTA residencia.
@@ -512,6 +516,12 @@ export default async function RealResidenceDetailPage({
     );
   }
 
+  // Cuadro de costos del capítulo «Qué incluye»: lo incluido (servicios declarados) y lo que se paga aparte (a la residencia / a EstuRed).
+  const includedItems = services.map((s) => amenityDisplayName(s, amenityDetails));
+  const paidSeparately = buildPaidSeparately({ conditions, fromPriceUsd, arsPerUsd: rate.arsPerUsd });
+  // Reglamento: se ofrece la descarga solo si la residencia cargó el suyo (propio, adaptado del modelo o un PDF subido).
+  const regulationDownloadHref = canDownloadRegulation({ regulation, hasUploadedPdf: !!rulesPdfUrl }) ? `/residencias/${slug}/reglamento` : null;
+
   const chipClass =
     "inline-flex min-w-0 items-center gap-1.5 rounded-card border border-line bg-paper px-3 py-1.5 text-sm leading-snug text-ink-soft sm:whitespace-nowrap sm:rounded-full";
   // Quién ve el panel de solicitud en la columna derecha (≥ 900 px) y como hoja inferior en móvil: visitante, estudiante y
@@ -528,6 +538,13 @@ export default async function RealResidenceDetailPage({
   const hasSummary = fromPriceUsd != null;
   const hasAside = panelVariant !== null || hasSummary;
 
+  // Edad de los residentes: rango que admite la residencia + promedio de la comunidad (ya filtrado por privacidad). Lo leen la franja y el capítulo.
+  const ageFacts = buildAgeFacts({
+    minAge: residence.min_resident_age as number | null | undefined,
+    maxAge: residence.max_resident_age as number | null | undefined,
+    acceptsMinors: residence.accepts_minors as boolean | null | undefined,
+    average: averageAge,
+  });
   // Franja «Lo esencial» (datos que la página ya calculó) y CTA del hero: la misma acción que la barra móvil, solo en escritorio.
   const essentialCells = buildEssentialCells({
     fromPriceUsd,
@@ -537,6 +554,7 @@ export default async function RealResidenceDetailPage({
     enrollmentFeeMode: conditions.enrollmentFeeMode,
     enrollmentFeeUsd: conditions.enrollmentFeeUsd,
     nearest: nearest ?? null,
+    age: ageFacts.strip,
   });
   const heroCta = panelVariant ? (
     <HeroCta
@@ -546,6 +564,12 @@ export default async function RealResidenceDetailPage({
     />
   ) : hasSummary ? (
     <HeroCta action={{ kind: "link", href: "#tarifas" }} label="Ver tarifas" />
+  ) : undefined;
+
+  const heroCtaClosing = panelVariant ? (
+    <HeroCta action={{ kind: "sheet" }} label={panelVariant === "propose" ? "Proponer esta residencia" : "Elegir habitación"} pulse={false} />
+  ) : hasSummary ? (
+    <HeroCta action={{ kind: "link", href: "#tarifas" }} label="Ver tarifas" pulse={false} />
   ) : undefined;
 
   return (
@@ -585,7 +609,9 @@ export default async function RealResidenceDetailPage({
         }
         cta={heroCta}
       />
-      <EssentialsStrip cells={essentialCells} faqCount={featuredFaq.length} />
+      {/* Las preguntas completas viven en un modal que abren el chip de la franja y el botón de la banda (una sola instancia). */}
+      <FaqModalProvider items={faqItems} residenceName={residence.name} askHref={isOwnResidenceTeam ? undefined : "#hacer-pregunta"}>
+      <EssentialsStrip cells={essentialCells} faqCount={faqItems.length} />
       {/* Navegación de capítulos: a todo el ancho, fija bajo la navbar (único sticky de la ficha). */}
       <SectionNav items={navItems} label="Capítulos de la ficha" />
       <div className={`mx-auto max-w-6xl px-4 pb-10 pt-6 sm:px-6 sm:pb-14 ${hasSummary ? "max-[899px]:pb-28" : ""}`}>
@@ -724,12 +750,13 @@ export default async function RealResidenceDetailPage({
             </Chapter>
           )}
 
-          {/* 03 Qué incluye y qué se paga aparte: condiciones de reserva + salida anticipada (el cuadro de costos nuevo con la línea de
-              tiempo de 3 pasos es la fase 4) y las guías generales de EstuRed, separadas del reglamento propio de la residencia. */}
+          {/* 03 Qué incluye y qué se paga aparte: cuadro de costos (incluido / se paga aparte / línea de tiempo de 3 pasos), el detalle de
+              condiciones, la salida anticipada y las guías generales de EstuRed, separadas del reglamento propio de la residencia. */}
           {chapter("incluye") && (
             <Chapter chapter={chapter("incluye")!}>
               <div className="space-y-5">
-                <ReservationConditions conditions={conditions} arsPerUsd={rate.arsPerUsd} />
+                <CostsBoard included={includedItems} paid={paidSeparately} residenceName={residence.name} />
+                <ReservationConditions conditions={conditions} arsPerUsd={rate.arsPerUsd} onlyDetails />
                 <EarlyExitPolicy
                   depositClausesText={conditions.earlyExitDepositClausesText}
                   costsText={conditions.earlyExitCostsText}
@@ -750,15 +777,10 @@ export default async function RealResidenceDetailPage({
                     headingId="h-preguntas"
                     number={chapter("preguntas")!.number}
                     items={featuredFaq}
+                    totalCount={faqItems.length}
                     residenceName={residence.name}
                     askHref={isOwnResidenceTeam ? undefined : "#hacer-pregunta"}
                   />
-                  {restFaq.length > 0 && (
-                    <div className="mt-8">
-                      <h3 className="mb-3 font-display text-xl font-bold text-ink">Más preguntas</h3>
-                      <FaqAccordion items={restFaq} visibleLimit={FICHA_FAQ_VISIBLE} />
-                    </div>
-                  )}
                 </>
               ) : (
                 <>
@@ -809,36 +831,9 @@ export default async function RealResidenceDetailPage({
                     <CommunitySummary slug={slug} community={community} statement={communityStatement} isGuest={!sessionUser} />
                   </div>
                 )}
-                {/* Edad de los residentes (DR14): oculta si la migración 0052 no está aplicada. */}
-                {hasAgeSection && (
-                  <div id="edad" className="scroll-mt-36 space-y-3">
-                    <h3 className="font-display text-xl font-bold text-ink">Edad de los residentes</h3>
-                    <p className="text-ink-soft">
-                      {describeAgeRange({
-                        minResidentAge: residence.min_resident_age as number | null | undefined,
-                        maxResidentAge: residence.max_resident_age as number | null | undefined,
-                        acceptsMinors: residence.accepts_minors as boolean | null | undefined,
-                      })}
-                      .
-                    </p>
-                    {averageAge && (
-                      <p className="inline-flex items-center gap-2 rounded-full border border-line bg-paper px-4 py-2 text-sm text-ink-soft">
-                        <Icon name="cake" className="text-lg text-forest-700" />
-                        Edad promedio hoy: <strong className="text-ink">{averageAge.years} años</strong>
-                        <span className="text-ink-faint">· entre {averageAge.residents} residentes</span>
-                      </p>
-                    )}
-                    {residence.accepts_minors === true && (
-                      <div className="rounded-card border border-line bg-paper p-5">
-                        <h3 className="text-base font-bold text-ink">Para menores de 18</h3>
-                        <p className="mt-2 text-sm text-ink-soft">
-                          Esta residencia admite residentes menores de 18. Consultá con la residencia las condiciones que aplican y, al solicitar,
-                          tu guardián deberá confirmar la solicitud. La solicitud queda sujeta a confirmación de la residencia.
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
+                {/* Edad de los residentes (DR14): el rango que admite la residencia y el promedio de la comunidad (solo con comunidad activa y
+                    más de 10 edades). Oculta si la migración 0052 no está aplicada. */}
+                {hasAgeSection && <ResidentAge facts={ageFacts} acceptsMinors={residence.accepts_minors === true} />}
               </div>
             </Chapter>
           )}
@@ -847,12 +842,9 @@ export default async function RealResidenceDetailPage({
           {chapter("reglas") && (
             <Chapter chapter={chapter("reglas")!}>
               <div id="convivencia" className="scroll-mt-36">
-                <RulesHighlight
+                <HouseRules
                   rulesSummary={rulesSummary}
-                  pdfUrl={rulesPdfUrl}
-                  slug={slug}
-                  hasRegulation={!!regulation}
-                  regulationActions={
+                  actions={
                     regulation ? (
                       <RegulationModal
                         title="Reglamento de convivencia"
@@ -868,10 +860,12 @@ export default async function RealResidenceDetailPage({
                             : ""
                         }`}
                         footnote={regulation.isBaseModel ? MODEL_LEGAL_NOTE : null}
-                        downloadHref={`/residencias/${slug}/reglamento`}
+                        downloadHref={regulationDownloadHref}
                       >
                         <RegulationText text={regulation.text} />
                       </RegulationModal>
+                    ) : regulationDownloadHref ? (
+                      <RegulationDownloadLink href={regulationDownloadHref} />
                     ) : undefined
                   }
                 />
@@ -895,6 +889,14 @@ export default async function RealResidenceDetailPage({
             </Chapter>
           )}
         </div>
+
+        {/* Cierre: «¿Te ves viviendo acá?» con la misma CTA, sin segundo halo (una sola CTA pulsante por pantalla). */}
+        {heroCtaClosing && (
+          <ClosingCta
+            description={panelVariant ? "Enviar la solicitud es gratis y queda sujeta a confirmación de la residencia." : "Mirá las tarifas de cada tipo de habitación."}
+            cta={heroCtaClosing}
+          />
+        )}
 
         </div>
         {panelVariant ? (
@@ -1000,6 +1002,7 @@ export default async function RealResidenceDetailPage({
           .
         </p>
       </div>
+      </FaqModalProvider>
 
       {hasSummary &&
         (panelVariant ? (

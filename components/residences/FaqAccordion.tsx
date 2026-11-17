@@ -8,14 +8,17 @@ export function FaqAccordion({
   items: allItems,
   visibleLimit,
   onDark = false,
+  initialOpen = 0,
 }: {
   items: { question: string; answer: string; fromVisitor?: boolean; group?: string }[];
   /** Si se pasa, muestra solo esa cantidad y un botón «Ver todas las preguntas» (DR18: la ficha muestra 10). */
   visibleLimit?: number;
   /** Sobre un fondo forest-ink (banda de preguntas destacadas de la ficha): las tarjetas siguen en paper y el foco se dibuja adentro, en ink. */
   onDark?: boolean;
+  /** Índice de la pregunta abierta al montar (por defecto la primera); `null` = todas cerradas (lista larga, como el modal de la ficha). */
+  initialOpen?: number | null;
 }) {
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const [openIndex, setOpenIndex] = useState<number | null>(initialOpen);
   const [showAll, setShowAll] = useState(false);
   const baseId = useId();
   const hasMore = visibleLimit !== undefined && allItems.length > visibleLimit;
@@ -32,7 +35,7 @@ export function FaqAccordion({
         return (
           <div key={`${i}-${faq.question}`} className="space-y-3">
             {showGroup && (
-              <h3 className={`text-xs font-bold ${onDark ? "text-[color:var(--paper-88)]" : "text-muted"} ${i > 0 ? "pt-3" : ""}`}>{faq.group}</h3>
+              <h3 className={`text-sm font-bold ${onDark ? "text-[color:var(--paper-88)]" : "text-muted"} ${i > 0 ? "pt-3" : ""}`}>{faq.group}</h3>
             )}
           <div className="overflow-hidden rounded-card border-[1.5px] border-line bg-paper">
             <button

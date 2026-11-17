@@ -5,10 +5,11 @@
 import { pickRotationPhotos } from "@/lib/residences/photoMeta";
 
 /**
- * Portada del hero: la primera de las fotos que rotan (destacadas en el orden elegido por la residencia; sin destacadas, la primera).
+ * Portada del hero: la foto principal que eligió la residencia (`isCover`) o, si no eligió, la primera de las que rotan (destacadas en el orden
+ * elegido; sin destacadas, la primera).
  * Es el mismo criterio de la imagen de vista previa del link (`lib/residences/sharePreview.ts`), para que link y página se vean iguales.
  */
-export function pickHeroCover<T extends { featured: boolean; coverOrder?: number | null; sortOrder?: number }>(photos: T[]): T | null {
+export function pickHeroCover<T extends { featured: boolean; coverOrder?: number | null; sortOrder?: number; isCover?: boolean }>(photos: T[]): T | null {
   return pickRotationPhotos(photos)[0] ?? null;
 }
 
@@ -22,6 +23,11 @@ export function photosButtonLabel(total: number): string | null {
 export function faqChipLabel(count: number): string {
   if (count <= 0) return "Hacé una pregunta";
   return count === 1 ? "Leé la respuesta rápida" : `Leé las ${count} respuestas rápidas`;
+}
+
+/** Texto del botón de la banda de preguntas que abre la lista completa. `total` = todas las preguntas de la residencia. */
+export function seeAllFaqLabel(total: number): string {
+  return `Ver todas las preguntas (${total})`;
 }
 
 /** Ancho de un carácter promedio del título en la placa (Bricolage Grotesque 700, tracking -0,03em), con margen para las letras anchas. */

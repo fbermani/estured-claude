@@ -13,22 +13,25 @@ export function HeroCta({
   action,
   label,
   note,
+  pulse = true,
 }: {
   action: { kind: "sheet" } | { kind: "link"; href: string };
   label: string;
   /** Aclaración corta debajo del botón. */
   note?: string;
+  /** Halo que late cada ~4 s. Una sola CTA pulsante por pantalla: el cierre de la ficha («¿Te ves viviendo acá?») lo apaga. */
+  pulse?: boolean;
 }) {
   const { openSheet } = useReservationSelection();
   const focus = "[--btn-focus:var(--color-paper)]";
   return (
     <>
       {action.kind === "sheet" ? (
-        <Button type="button" variant="cta" size="cta" pulse className={focus} onClick={() => openSheet("request")}>
+        <Button type="button" variant="cta" size="cta" pulse={pulse} className={focus} onClick={() => openSheet("request")}>
           {label}
         </Button>
       ) : (
-        <Button href={action.href} variant="cta" size="cta" pulse className={focus}>
+        <Button href={action.href} variant="cta" size="cta" pulse={pulse} className={focus}>
           {label}
         </Button>
       )}

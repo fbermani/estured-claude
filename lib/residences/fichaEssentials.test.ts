@@ -86,4 +86,14 @@ describe("buildEssentialCells", () => {
     expect(h?.value).toBe("2 tipos");
     expect(h?.sub).toBeUndefined();
   });
+
+  it("la celda de edades va al final y solo si hay dato", () => {
+    expect(buildEssentialCells(base).some((c) => c.key === "edad")).toBe(false);
+    const cells = buildEssentialCells({ ...base, age: { value: "18 a 30", unit: "años", sub: "promedio 23 años" } });
+    expect(cells.map((c) => c.key)).toEqual(["desde", "habitaciones", "estadia", "cerca", "edad"]);
+    const edad = cells[4];
+    expect(edad).toMatchObject({ label: "Edades", value: "18 a 30", unit: "años", sub: "promedio 23 años" });
+    expect(edad.ariaLabel).toBe("Edades: 18 a 30 años, promedio 23 años");
+    expect(buildEssentialCells({ ...base, age: null }).some((c) => c.key === "edad")).toBe(false);
+  });
 });

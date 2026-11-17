@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { faqChipLabel, longestWord, pickHeroCover, photosButtonLabel, plateTitleFontSize } from "@/lib/residences/fichaHero";
+import { faqChipLabel, seeAllFaqLabel, longestWord, pickHeroCover, photosButtonLabel, plateTitleFontSize } from "@/lib/residences/fichaHero";
 import { pickRotationPhotos } from "@/lib/residences/photoMeta";
 
 const photo = (url: string, extra: Partial<{ featured: boolean; coverOrder: number | null; sortOrder: number }> = {}) => ({
@@ -45,6 +45,11 @@ describe("textos de los botones", () => {
     expect(faqChipLabel(0)).toBe("Hacé una pregunta");
     expect(faqChipLabel(1)).toBe("Leé la respuesta rápida");
     expect(faqChipLabel(6)).toBe("Leé las 6 respuestas rápidas");
+  });
+
+  it("el botón cuenta TODAS las preguntas de la residencia, no solo las destacadas", () => {
+    expect(faqChipLabel(14)).toBe("Leé las 14 respuestas rápidas");
+    expect(seeAllFaqLabel(14)).toBe("Ver todas las preguntas (14)");
   });
 });
 

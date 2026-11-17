@@ -32,9 +32,12 @@ function FaqLink() {
 export function ReservationConditions({
   conditions,
   arsPerUsd,
+  onlyDetails = false,
 }: {
   conditions: FichaConditionsInput;
   arsPerUsd: number;
+  /** Solo el expander «Ver condiciones completas» (sin las tarjetas): el cuadro de costos del capítulo ya dice lo que se cobra. */
+  onlyDetails?: boolean;
 }) {
   const rows = buildConditionRows(conditions);
   const cards = visibleConditionCards(rows);
@@ -48,6 +51,7 @@ export function ReservationConditions({
 
   return (
     <div>
+      {!onlyDetails && (
       <ul className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-3">
         {cards.map((row) =>
           row.key === "empty_month" ? (
@@ -80,8 +84,9 @@ export function ReservationConditions({
           ),
         )}
       </ul>
+      )}
 
-      <details className="group mt-3 rounded-card border-[1.5px] border-line bg-paper">
+      <details className={`group rounded-card border-[1.5px] border-line bg-paper ${onlyDetails ? "" : "mt-3"}`}>
         <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 rounded-card px-3.5 py-2.5 text-sm font-bold text-forest-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest [&::-webkit-details-marker]:hidden">
           Ver condiciones completas
           <Icon name="expand_more" className="text-xl transition-transform group-open:rotate-180" />

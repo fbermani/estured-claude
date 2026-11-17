@@ -28,7 +28,7 @@ export function fromPriceLabels(fromPriceUsd: number, arsPerUsd: number): FromPr
 }
 
 export type EssentialCell = {
-  key: "desde" | "habitaciones" | "estadia" | "cerca";
+  key: "desde" | "habitaciones" | "estadia" | "cerca" | "edad";
   /** Ícono de Material Symbols. */
   icon: string;
   label: string;
@@ -54,6 +54,8 @@ export type EssentialsInput = {
   enrollmentFeeUsd: number | null;
   /** Universidad más cercana (nombre completo del listado y distancia en línea recta, km). */
   nearest: { name: string; km: number } | null;
+  /** Celda de edades (`buildAgeFacts(...).strip`): rango que admite la residencia y/o promedio de la comunidad. Sin dato, no hay celda. */
+  age?: { value: string; unit: string; sub?: string } | null;
 };
 
 /** «de 1 a 3 personas» / «para 2 personas» / `undefined` si ningún tipo tiene la capacidad cargada. */
@@ -72,7 +74,7 @@ export function formatKm(km: number): string {
 }
 
 /**
- * Las celdas de la franja, en orden: Desde, Habitaciones, Estadía mínima, Cerca de. Una celda sin dato se omite (nunca se muestra un
+ * Las celdas de la franja, en orden: Desde, Habitaciones, Estadía mínima, Cerca de y Edades. Una celda sin dato se omite (nunca se muestra un
  * valor inventado). La matrícula solo se afirma como «sin matrícula» cuando la residencia declaró que no cobra (`describeEnrollmentFee`).
  */
 export function buildEssentialCells(input: EssentialsInput): EssentialCell[] {
@@ -115,6 +117,18 @@ export function buildEssentialCells(input: EssentialsInput): EssentialCell[] {
       sub: abbreviateUniversity(input.nearest.name),
       title: input.nearest.name,
       ariaLabel: `Cerca de: a ${km.replace(" km", "")} kilómetros de ${input.nearest.name}`,
+    });
+  }
+
+  if (input.age) {
+    cells.push({
+      key: "edad",
+      icon: "groups",
+      label: "Edades",
+      value: input.age.value,
+      unit: input.age.unit,
+      sub: input.age.sub,
+      ariaLabel: `Edades: ${input.age.value} ${input.age.unit}${input.age.sub ? `, ${input.age.sub}` : ""}`,
     });
   }
 
