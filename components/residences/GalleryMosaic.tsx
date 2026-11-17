@@ -4,7 +4,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import Image from "next/image";
 import { Icon } from "@/components/ui/Icon";
 import type { GalleryLayout } from "@/lib/residences/photos";
-import { groupPhotosBySections, pickRotationPhotos, type GalleryPhoto } from "@/lib/residences/photoMeta";
+import { DEFAULT_SECTION, groupPhotosBySections, pickRotationPhotos, type GalleryPhoto } from "@/lib/residences/photoMeta";
 import { useRotation, useSwipe } from "@/components/residences/useRotation";
 
 /**
@@ -12,6 +12,8 @@ import { useRotation, useSwipe } from "@/components/residences/useRotation";
  * un `<dialog>` nativo (foco y Escape los resuelve el navegador; el scroll
  * del body se bloquea a mano mientras está abierto, porque `showModal()` no lo hace). En mobile se ve una sola foto grande con el botón "Ver N
  * fotos"; desde `sm` aparece el mosaico.
+ * El visor separa áreas comunes y tipos de habitación; al tocar una foto se abre un segundo `<dialog>` (lightbox) con la foto grande,
+ * flechas, teclado (← →) y deslizar para pasar de a una.
  */
 
 // Clases por posición según la cantidad de fotos del mosaico (literales para que Tailwind las detecte).
@@ -60,8 +62,18 @@ export function GalleryMosaic({
   // DR18: el hero rota las destacadas (hasta 5); si hay menos de 5, los tiles se completan con el resto de la galería.
   const rotation = pickRotationPhotos(photos);
   // Orden del visor (DR30): agrupado por sección con nombre (o área / tipo sugeridos), «Fotos adicionales» al final.
-  const groups = groupPhotosBySections(photos);
+  // Áreas comunes primero, después los tipos de habitación y «Fotos adicionales» al final (el orden interno de cada bloque se conserva).
+  const rawGroups = groupPhotosBySections(photos).map((g) => ({
+    ...g,
+    kind: g.photos.some((p) => p.category === "room_type") ? ("room" as const) : g.title === DEFAULT_SECTION ? ("extra" as const) : ("common" as const),
+  }));
+  const kindRank = { common: 0, room: 1, extra: 2 } as const;
+  const groups = rawGroups
+    .map((g, i) => ({ g, i }))
+    .sort((a, b) => kindRank[a.g.kind] - kindRank[b.g.kind] || a.i - b.i)
+    .map(({ g }) => g);
   const ordered = groups.flatMap((g) => g.photos);
+  const [lightbox, setLightbox] = useState<number | null>(null);
   const [paused, setPaused] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   // La rotación se pausa con hover/foco y mientras el visor está abierto.
@@ -121,7 +133,7 @@ export function GalleryMosaic({
         }}
         className={`relative ${rotates ? "touch-pan-y" : ""}`}
       >
-        <div className="grid h-72 grid-cols-1 gap-2 overflow-hidden rounded-card sm:h-[420px] sm:grid-cols-4 sm:grid-rows-2">
+        <div className="grid h-72 grid-cols-1 gap-2 overflow-hidden rounded-card sm:h-[440px] sm:grid-cols-4 lg:h-[500px] sm:grid-rows-2">
           {visible.map((photo, i) => {
             const isLastTile = showAll && i === visible.length - 1;
             const isHero = i === 0 && rotates;
@@ -267,28 +279,37 @@ export function GalleryMosaic({
                 aria-labelledby={`${uid}-sec-${gi}`}
                 className="scroll-mt-2 grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,2.4fr)] sm:gap-6"
               >
-                <h3 id={`${uid}-sec-${gi}`} tabIndex={-1} className="text-base font-bold text-ink sm:text-lg">
-                  {group.title}
-                </h3>
+                <div>
+                  {group.kind !== "extra" && (
+                    <p className="mb-0.5 text-xs font-semibold text-forest-700">{group.kind === "room" ? "Habitación" : "Área común"}</p>
+                  )}
+                  <h3 id={`${uid}-sec-${gi}`} tabIndex={-1} className="text-base font-bold text-ink sm:text-lg">
+                    {group.title}
+                  </h3>
+                </div>
                 <div className="grid grid-cols-2 gap-2">
                   {group.photos.map((photo, pi) => {
                     const i = ordered.indexOf(photo);
                     // Una foto sola, o la impar final, ocupa el ancho de las dos columnas (como Airbnb).
                     const wide = group.photos.length % 2 === 1 && pi === group.photos.length - 1;
                     return (
-                      <div
+                      <button
                         key={photo.url}
+                        type="button"
                         data-photo-index={i}
-                        className={`relative aspect-[4/3] w-full scroll-mt-2 overflow-hidden rounded-field bg-sand-200 ${wide ? "col-span-2" : ""}`}
+                        onClick={() => setLightbox(i)}
+                        aria-label={`Ampliar foto ${i + 1} de ${total}: ${group.title}`}
+                        aria-haspopup="dialog"
+                        className={`group relative aspect-[4/3] w-full scroll-mt-2 cursor-zoom-in overflow-hidden rounded-field bg-sand-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest ${wide ? "col-span-2" : ""}`}
                       >
                         <Image
                           src={photo.url}
                           alt={`${group.title}: foto ${i + 1} de ${total} de ${name}${place}`}
                           fill
                           sizes="(max-width: 640px) 47vw, 520px"
-                          className="object-cover"
+                          className="object-cover transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none"
                         />
-                      </div>
+                      </button>
                     );
                   })}
                 </div>
@@ -297,6 +318,117 @@ export function GalleryMosaic({
           </div>
         </div>
       </dialog>
+
+      <PhotoLightbox
+        photos={ordered}
+        titles={groups.flatMap((g) => g.photos.map(() => g.title))}
+        index={lightbox}
+        onIndex={setLightbox}
+        name={name}
+        place={place}
+      />
     </>
+  );
+}
+
+/**
+ * Foto ampliada en un `<dialog>` modal flotante, encima del visor. ← → / botones / deslizar para pasar de a una (circular);
+ * Esc o tocar el fondo cierra solo este modal y devuelve al visor. `index === null` = cerrado.
+ */
+function PhotoLightbox({
+  photos,
+  titles,
+  index,
+  onIndex,
+  name,
+  place,
+}: {
+  photos: GalleryPhoto[];
+  titles: string[];
+  index: number | null;
+  onIndex: (i: number | null) => void;
+  name: string;
+  place: string;
+}) {
+  const ref = useRef<HTMLDialogElement>(null);
+  const total = photos.length;
+  const open = index !== null;
+
+  useEffect(() => {
+    const dialog = ref.current;
+    if (!dialog) return;
+    if (open && !dialog.open) dialog.showModal();
+    if (!open && dialog.open) dialog.close();
+  }, [open]);
+
+  function go(delta: 1 | -1) {
+    if (index === null || total < 2) return;
+    onIndex((index + delta + total) % total);
+  }
+  const swipe = useSwipe(go);
+  const photo = index !== null ? photos[index] : null;
+  const arrow =
+    "absolute top-1/2 z-10 flex size-12 -translate-y-1/2 items-center justify-center rounded-full bg-paper/95 text-ink shadow-card hover:bg-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-forest";
+
+  return (
+    <dialog
+      ref={ref}
+      aria-label={`Foto ampliada de ${name}`}
+      onClose={() => onIndex(null)}
+      onCancel={(e) => e.stopPropagation()}
+      onKeyDown={(e) => {
+        if (e.key === "ArrowRight") {
+          e.preventDefault();
+          go(1);
+        } else if (e.key === "ArrowLeft") {
+          e.preventDefault();
+          go(-1);
+        }
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) e.currentTarget.close();
+      }}
+      className="m-auto h-dvh max-h-none w-screen max-w-none overflow-hidden bg-transparent p-0 backdrop:bg-forest-ink/90"
+    >
+      {photo && index !== null && (
+        <div className="relative flex h-full w-full flex-col items-center justify-center px-3 py-14 sm:px-20" {...swipe} onClick={(e) => e.target === e.currentTarget && ref.current?.close()}>
+          <div className="absolute inset-x-0 top-0 flex items-center justify-between gap-3 px-4 py-3 text-white">
+            <p className="min-w-0 truncate text-sm font-bold">
+              {titles[index]} <span className="font-normal tabular-nums opacity-80">· {index + 1} / {total}</span>
+            </p>
+            <button
+              type="button"
+              onClick={() => ref.current?.close()}
+              aria-label="Cerrar foto ampliada"
+              className="inline-flex shrink-0 items-center gap-1 rounded-full bg-paper/95 px-3.5 py-2 text-sm font-bold text-ink hover:bg-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            >
+              <Icon name="close" className="text-lg" />
+              Cerrar
+            </button>
+          </div>
+          <div className="relative h-full w-full max-w-5xl">
+            <Image
+              key={photo.url}
+              src={photo.url}
+              alt={`${titles[index]}: foto ${index + 1} de ${total} de ${name}${place}`}
+              fill
+              sizes="(max-width: 1024px) 100vw, 1024px"
+              className="select-none object-contain"
+              priority
+            />
+          </div>
+          {total > 1 && (
+            <>
+              <button type="button" onClick={() => go(-1)} aria-label="Foto anterior" className={`${arrow} left-2 sm:left-5`}>
+                <Icon name="chevron_left" className="text-2xl" />
+              </button>
+              <button type="button" onClick={() => go(1)} aria-label="Foto siguiente" className={`${arrow} right-2 sm:right-5`}>
+                <Icon name="chevron_right" className="text-2xl" />
+              </button>
+            </>
+          )}
+        </div>
+      )}
+    </dialog>
   );
 }

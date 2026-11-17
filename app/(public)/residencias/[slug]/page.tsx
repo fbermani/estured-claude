@@ -542,13 +542,13 @@ export default async function RealResidenceDetailPage({
           </ol>
         </nav>
 
-        {/* Dos columnas desde 900 px (A1, auditoría 2026-11-03): contenido a la izquierda y resumen fijo a la derecha. */}
-        <div className={hasAside ? "min-[900px]:grid min-[900px]:grid-cols-[minmax(0,1fr)_23rem] min-[900px]:gap-8" : ""}>
-        <div className="min-w-0">
-        {/* Hero de fotos — se adapta a la cantidad (0 / 1 / 2–4 / 5+), Ciclo 54 (D12) */}
+        {/* Hero de fotos a todo el ancho — se adapta a la cantidad (0 / 1 / 2–4 / 5+), Ciclo 54 (D12). El panel de solicitud arranca recién debajo. */}
         <ResidenceGallery photos={photos} name={residence.name} zone={residence.public_area ?? ""} />
 
-        <header className="mt-6">
+        {/* Dos columnas desde 900 px (A1, auditoría 2026-11-03): contenido a la izquierda y resumen fijo a la derecha. */}
+        <div className={`mt-6 ${hasAside ? "min-[900px]:grid min-[900px]:grid-cols-[minmax(0,1fr)_23rem] min-[900px]:gap-8" : ""}`}>
+        <div className="min-w-0">
+        <header>
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="text-3xl font-bold text-ink sm:text-4xl">{residence.name}</h1>
             <TrustBadge status="verified_active" size="md" stamp />
