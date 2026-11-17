@@ -1,4 +1,4 @@
-import { buildConditionItems, type ConditionItem, type FichaConditionsInput } from "@/lib/residences/fichaConditions";
+import { adjustmentPolicyCopy, buildConditionItems, type ConditionItem, type FichaConditionsInput } from "@/lib/residences/fichaConditions";
 
 /**
  * Tarjetas de «Tarifas y condiciones» de la ficha (DR53, reemplaza «seis tarjetas fijas» de DR30 §4):
@@ -94,4 +94,51 @@ export function buildConditionRows(input: FichaConditionsInput, today?: string):
 /** Solo las tarjetas que cobran algo (siempre incluye «Para reservar»). */
 export function visibleConditionCards(rows: ConditionRow[]): ConditionRow[] {
   return rows.filter((r) => r.charges);
+}
+
+/**
+ * Condición que la ficha muestra a la vista (revisión del dueño en staging): SOLO las que aplican a la residencia. Las que no aplican
+ * (sin matrícula, sin depósito, sin ajuste de tarifa, sin mes vacío, documentos «a coordinar») se omiten por completo: no hay filas
+ * «no cobra» ni vacías. «Para reservar» (el pago inicial) y la estadía mínima, cuando está cargada, siempre aplican.
+ */
+export type ApplicableCondition = {
+  key: ConditionKey | "minimum_stay";
+  title: string;
+  value: string;
+  valueNote?: string;
+  help: string;
+  /** Monto en USD a convertir a ARS referencial (la UI agrega la nota de cotización). */
+  arsFromUsd?: number | null;
+  /** Porcentaje del mes vacío (la UI suma su explicación y el ejemplo). */
+  emptyPercent?: number;
+};
+
+export function applicableConditions(input: FichaConditionsInput, today?: string): ApplicableCondition[] {
+  const items = buildConditionItems(input, today);
+  const stay = items.find((i) => i.key === "minimum_stay");
+  const rows = buildConditionRows(input, today);
+  const adjustment = adjustmentPolicyCopy(input.adjustmentPolicy);
+
+  const out: ApplicableCondition[] = [];
+  if (stay) out.push({ key: "minimum_stay", title: stay.label, value: stay.value, help: stay.help });
+  for (const r of rows) {
+    if (r.key === "documents") continue;
+    if (r.key === "adjustment") {
+      // «Sin ajuste» y un dato no cargado no aplican: la fila se omite.
+      if (!adjustment || input.adjustmentPolicy === "none") continue;
+      out.push({ key: r.key, title: r.title, value: r.value, help: r.help });
+      continue;
+    }
+    if (!r.charges) continue;
+    out.push({
+      key: r.key,
+      title: r.title,
+      value: r.value,
+      help: r.help,
+      ...(r.valueNote ? { valueNote: r.valueNote } : {}),
+      ...(r.arsFromUsd != null ? { arsFromUsd: r.arsFromUsd } : {}),
+      ...(r.emptyPercent != null ? { emptyPercent: r.emptyPercent } : {}),
+    });
+  }
+  return out;
 }

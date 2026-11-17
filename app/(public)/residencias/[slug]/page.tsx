@@ -69,11 +69,11 @@ import { RoomCards } from "@/components/residences/ficha/RoomCards";
 import { ReservationConditions } from "@/components/residences/ficha/ReservationConditions";
 import { EarlyExitPolicy } from "@/components/residences/ficha/EarlyExitPolicy";
 import { CommunitySummary } from "@/components/residences/ficha/CommunitySummary";
-import { RequestHowItWorks, RequestNotices } from "@/components/residences/ficha/RequestNotices";
+import { RequestNotices } from "@/components/residences/ficha/RequestNotices";
 import { CostsBoard } from "@/components/residences/ficha/CostsBoard";
 import { FaqModalProvider } from "@/components/residences/ficha/FaqModal";
 import { HouseRules, RegulationDownloadLink } from "@/components/residences/ficha/HouseRules";
-import { ResidentAge } from "@/components/residences/ficha/ResidentAge";
+import { MinorsNotice } from "@/components/residences/ficha/MinorsNotice";
 import { ClosingCta } from "@/components/residences/ficha/ClosingCta";
 import { buildPaidSeparately } from "@/lib/residences/fichaCosts";
 import { buildAgeFacts } from "@/lib/residences/fichaAge";
@@ -93,12 +93,13 @@ const ANCHOR_OFFSET = "scroll-mt-[calc(var(--ficha-navbar-h,4.0625rem)_+_var(--f
 const CHAPTER_SECTION = `${ANCHOR_OFFSET} pt-10 min-[768px]:pt-14`;
 
 /** Un capítulo de la ficha: sección con ancla, número y título (h2). Los capítulos con encabezado propio (preguntas) arman su `<section>` aparte. */
-function Chapter({ chapter, children }: { chapter: FichaChapter; children: React.ReactNode }) {
+function Chapter({ chapter, subtitle, children }: { chapter: FichaChapter; subtitle?: string | null; children: React.ReactNode }) {
   return (
     <section id={chapter.id} aria-labelledby={`h-${chapter.id}`} className={CHAPTER_SECTION}>
       <ChapterHeading id={`h-${chapter.id}`} number={chapter.number}>
         {chapter.title}
       </ChapterHeading>
+      {subtitle && <p className="-mt-2 mb-5 text-lg text-ink-soft tabular-nums">{subtitle}</p>}
       {children}
     </section>
   );
@@ -407,7 +408,14 @@ export default async function RealResidenceDetailPage({
   const hasServices = services.length > 0 || commonAreas.length > 0;
   // Capítulos de la ficha (fase 3): solo los que tienen contenido; la numeración sale de los visibles.
   const hasGallery = photos.length >= 2;
-  const hasAgeSection = residence.min_resident_age !== undefined;
+  // Edad de los residentes: rango que admite la residencia + promedio de la comunidad (ya filtrado por privacidad). Lo leen la franja «Lo esencial» y el subtítulo del capítulo «La comunidad».
+  const ageFacts = buildAgeFacts({
+    minAge: residence.min_resident_age as number | null | undefined,
+    maxAge: residence.max_resident_age as number | null | undefined,
+    acceptsMinors: residence.accepts_minors as boolean | null | undefined,
+    average: averageAge,
+  });
+  const hasAgeSection = !!ageFacts.subtitle;
   const hasRules = !!(rulesSummary || rulesPdfUrl || regulation);
   const chapters = buildChapters({
     vivir: hasGallery || hasServices || !!residence.description,
@@ -548,13 +556,6 @@ export default async function RealResidenceDetailPage({
   const hasSummary = fromPriceUsd != null;
   const hasAside = panelVariant !== null || hasSummary;
 
-  // Edad de los residentes: rango que admite la residencia + promedio de la comunidad (ya filtrado por privacidad). Lo leen la franja y el capítulo.
-  const ageFacts = buildAgeFacts({
-    minAge: residence.min_resident_age as number | null | undefined,
-    maxAge: residence.max_resident_age as number | null | undefined,
-    acceptsMinors: residence.accepts_minors as boolean | null | undefined,
-    average: averageAge,
-  });
   // Franja «Lo esencial» (datos que la página ya calculó) y CTA del hero: la misma acción que la barra móvil, solo en escritorio.
   const essentialCells = buildEssentialCells({
     fromPriceUsd,
@@ -674,25 +675,17 @@ export default async function RealResidenceDetailPage({
                   <VivirMosaic photos={photos} name={residence.name} zone={residence.public_area ?? ""} />
                 </div>
               )}
-              {/* DR30 §3 (1) Servicios y áreas comunes — horizontal, con íconos */}
+              {/* Servicios y áreas comunes: una sola fila de etiquetas, como en el mockup (cada una con su tooltip al hover). */}
               {hasServices && (
-                <div className={`space-y-4 ${residence.description || hasGallery ? "mt-6" : ""}`}>
-                  {services.length > 0 && (
-                    <div>
-                      <h3 className="text-sm font-bold text-ink-faint">Servicios incluidos</h3>
-                      <div className="mt-2">
-                        <AmenityGrid layout="chips" items={services.map((s) => ({ name: amenityDisplayName(s, amenityDetails), ...getServiceIcon(s) }))} />
-                      </div>
-                    </div>
-                  )}
-                  {commonAreas.length > 0 && (
-                    <div>
-                      <h3 className="text-sm font-bold text-ink-faint">Áreas comunes</h3>
-                      <div className="mt-2">
-                        <AmenityGrid layout="chips" items={commonAreas.map((a) => ({ name: amenityDisplayName(a, amenityDetails), ...getCommonAreaIcon(a) }))} />
-                      </div>
-                    </div>
-                  )}
+                <div className={residence.description || hasGallery ? "mt-4" : ""}>
+                  <AmenityGrid
+                    layout="chips"
+                    tone="tag"
+                    items={[
+                      ...services.map((s) => ({ name: amenityDisplayName(s, amenityDetails), ...getServiceIcon(s) })),
+                      ...commonAreas.map((a) => ({ name: amenityDisplayName(a, amenityDetails), ...getCommonAreaIcon(a) })),
+                    ].filter((item, i, all) => all.findIndex((o) => o.name === item.name) === i)}
+                  />
                 </div>
               )}
             </Chapter>
@@ -739,7 +732,6 @@ export default async function RealResidenceDetailPage({
                     }
                   />
                 )}
-                {(mode === "guest" || mode === "student") && anyRequestable && <RequestHowItWorks />}
                 {/* Condiciones de la reserva (estadía mínima, pago inicial, matrícula, depósito, ajuste, mes vacío y documentos): lista
                     escaneable debajo de las habitaciones, sin desplegable. */}
                 <ReservationConditions conditions={conditions} arsPerUsd={rate.arsPerUsd} />
@@ -772,6 +764,7 @@ export default async function RealResidenceDetailPage({
                   headingId="h-preguntas"
                   number={chapter("preguntas")!.number}
                   items={featuredFaq}
+                  total={faqItems.length}
                   residenceName={residence.name}
                 />
               ) : (
@@ -810,7 +803,7 @@ export default async function RealResidenceDetailPage({
 
           {/* 05 La comunidad: comunidad y convivencia (resumen por tipo, D18; el mapa de camas vive en /comunidad) y edad de los residentes (DR14). */}
           {chapter("comunidad") && (
-            <Chapter chapter={chapter("comunidad")!}>
+            <Chapter chapter={chapter("comunidad")!} subtitle={ageFacts.subtitle}>
               <div className="space-y-8">
                 {/* «Plazas · residentes» (antes un pill suelto bajo el breadcrumb): sin porcentaje ni «quedan N». Sin plazas declaradas queda el
                     conteo de la comunidad. */}
@@ -828,9 +821,8 @@ export default async function RealResidenceDetailPage({
                     <CommunitySummary slug={slug} community={community} statement={communityStatement} isGuest={!sessionUser} />
                   </div>
                 )}
-                {/* Edad de los residentes (DR14): el rango que admite la residencia y el promedio de la comunidad (solo con comunidad activa y
-                    más de 10 edades). Oculta si la migración 0052 no está aplicada. */}
-                {hasAgeSection && <ResidentAge facts={ageFacts} acceptsMinors={residence.accepts_minors === true} />}
+                {/* La edad de los residentes (rango que admite la residencia y promedio de la comunidad, DR14) va como subtítulo del capítulo. */}
+                {residence.accepts_minors === true && <MinorsNotice />}
               </div>
             </Chapter>
           )}

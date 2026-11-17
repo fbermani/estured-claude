@@ -1,37 +1,44 @@
 import type { ReactNode } from "react";
 import { Icon } from "@/components/ui/Icon";
-import { moreRulesLabel, parseRuleLines, splitRuleLine, splitRules } from "@/lib/residences/fichaRules";
+import { moreRulesLabel, parseRuleLines, ruleLead, splitRuleLine, splitRules } from "@/lib/residences/fichaRules";
 
 /**
- * Lista de reglas al estilo del mockup: filas separadas por filetes, con el número de la regla a la izquierda (display, forest-700) y a la
- * derecha el título destacado y el detalle debajo. Si la regla no trae «Título: detalle», va entera como texto.
+ * Lista de reglas 1:1 con el mockup (`.rules`): sin tarjeta, filas separadas por filetes de 1,5 px (también arriba y abajo), con una columna
+ * izquierda de ancho fijo en display bold forest-700 («23 a 7», «Libre», «No») y a la derecha el título en negrita y el detalle debajo.
+ * La columna izquierda se LEE del texto de la regla (`ruleLead`); si la regla no trae ese dato, lleva un ícono neutro en su lugar (nunca
+ * se inventa un «cuándo»). Si la regla no trae «Título: detalle», va entera como texto.
  */
 function RuleList({ rules, offset = 0 }: { rules: string[]; offset?: number }) {
   return (
-    <ol role="list" className="m-0 grid list-none gap-0 p-0">
+    <ul role="list" className="m-0 grid list-none gap-0 border-y-[1.5px] border-line p-0">
       {rules.map((rule, i) => {
         const { title, body } = splitRuleLine(rule);
+        const lead = ruleLead(rule);
         return (
           <li
             key={`${offset + i}-${rule}`}
-            className="grid grid-cols-[2.5rem_minmax(0,1fr)] gap-x-3 border-t-[1.5px] border-line py-3.5 first:border-t-0 min-[640px]:grid-cols-[4.5rem_minmax(0,1fr)] min-[640px]:gap-x-4"
+            className="grid grid-cols-[4.5rem_minmax(0,1fr)] gap-x-3.5 border-t-[1.5px] border-line py-3.5 first:border-t-0 min-[640px]:grid-cols-[6rem_minmax(0,1fr)]"
           >
-            <span aria-hidden="true" className="font-display text-xl font-bold tabular-nums text-forest-700">
-              {String(offset + i + 1).padStart(2, "0")}
-            </span>
+            {lead ? (
+              <span className="font-display text-xl font-bold leading-tight tabular-nums text-forest-700">{lead}</span>
+            ) : (
+              <span aria-hidden="true" className="flex items-start">
+                <Icon name="home" className="text-2xl text-forest-700" />
+              </span>
+            )}
             <p className="min-w-0 [overflow-wrap:anywhere]">
-              {title && <strong className="block text-[17px] font-bold leading-snug text-ink">{title}</strong>}
-              <span className={title ? "block text-[15px] leading-snug text-ink-soft" : "block text-[16px] leading-snug text-ink"}>{body}</span>
+              {title && <strong className="block text-base font-bold leading-snug text-ink">{title}</strong>}
+              <span className={title ? "block text-[15px] leading-snug text-ink-soft" : "block text-base leading-snug text-ink"}>{body}</span>
             </p>
           </li>
         );
       })}
-    </ol>
+    </ul>
   );
 }
 
 /**
- * Reglas de casa principales (capítulo «Reglas de casa»): hasta 5 reglas a la vista como lista escaneable y el resto en un
+ * Reglas de casa principales (capítulo «Reglas de casa»): hasta 5 reglas a la vista en el formato del mockup y el resto en un
  * desplegable («Ver N reglas más»), sin perder ninguna. `actions` trae los botones del reglamento (leer en el modal y descargar), que
  * arma la página según lo que la residencia cargó. Sin reglas ni acciones no se dibuja nada.
  */
@@ -40,18 +47,14 @@ export function HouseRules({ rulesSummary, actions }: { rulesSummary: string; ac
   if (primary.length === 0 && !actions) return null;
   return (
     <div className="space-y-4">
-      {primary.length > 0 && (
-        <div className="rounded-card border-[1.5px] border-line bg-paper px-4 py-1 shadow-card min-[640px]:px-5">
-          <RuleList rules={primary} />
-        </div>
-      )}
+      {primary.length > 0 && <RuleList rules={primary} />}
       {more.length > 0 && (
-        <details className="group rounded-card border-[1.5px] border-line bg-paper">
-          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 rounded-card px-4 py-2.5 text-[15px] font-bold text-forest-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest [&::-webkit-details-marker]:hidden">
+        <details className="group">
+          <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-1 text-[15px] font-bold text-forest-700 underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest [&::-webkit-details-marker]:hidden">
             {moreRulesLabel(more.length)}
-            <Icon name="expand_more" className="text-xl transition-transform group-open:rotate-180" />
+            <Icon name="expand_more" className="text-xl transition-transform group-open:rotate-180 motion-reduce:transition-none" />
           </summary>
-          <div className="border-t-[1.5px] border-line px-4 min-[640px]:px-5">
+          <div className="mt-2">
             <RuleList rules={more} offset={primary.length} />
           </div>
         </details>

@@ -22,6 +22,11 @@ export type AgeFacts = {
   /** El rango tiene un tope: dice algo más que «mayores de 18». */
   hasCap: boolean;
   average: { years: number; residents: number } | null;
+  /**
+   * Subtítulo de «La comunidad», debajo del título: «De 18 a 30 años, promedio 23 años» / «Desde 18 años» / «Edad promedio 23 años».
+   * `null` si no hay rango ni promedio. Comas, no puntos medios.
+   */
+  subtitle: string | null;
   /** Celda de la franja «Lo esencial»; `null` si no hay nada útil que mostrar. */
   strip: { value: string; unit: string; sub?: string } | null;
 };
@@ -42,5 +47,7 @@ export function buildAgeFacts(input: AgeInput): AgeFacts {
   } else if (average) {
     strip = { value: String(average.years), unit: "años", sub: "edad promedio" };
   }
-  return { rangeLabel, hasCap, average, strip };
+  const avgText = average ? `promedio ${average.years} años` : null;
+  const subtitle = rangeLabel ? (avgText ? `${rangeLabel}, ${avgText}` : rangeLabel) : average ? `Edad ${avgText}` : null;
+  return { rangeLabel, hasCap, average, subtitle, strip };
 }

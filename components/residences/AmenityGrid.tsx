@@ -16,13 +16,17 @@ export function AmenityGrid({
   items,
   columns = 2,
   layout = "list",
+  tone = "line",
 }: {
   items: AmenityItem[];
   columns?: 1 | 2;
   /** `chips` (DR30): píldoras horizontales con ícono, en fila con wrap. */
   layout?: "list" | "chips";
+  /** Solo con `chips`. `tag` = etiqueta de «Vivir acá» del mockup (forest-tint, texto forest-700, sin ícono ni borde); `line` = píldora con borde e ícono. */
+  tone?: "line" | "tag";
 }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const tag = layout === "chips" && tone === "tag";
 
   return (
     <div
@@ -47,14 +51,28 @@ export function AmenityGrid({
             onBlur={() => setOpenIndex((v) => (v === i ? null : v))}
             aria-expanded={openIndex === i}
             className={`flex items-center text-left ${
-              layout === "chips" ? "gap-2 rounded-full border border-line bg-paper px-3 py-1.5" : "w-full gap-3 rounded-field px-2.5 py-2"
-            }  transition-colors duration-200 ease-fresh hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest`}
+              tag
+                ? "min-h-9 rounded-full bg-forest-tint px-3.5 hover:bg-forest-tint/70"
+                : layout === "chips"
+                  ? "gap-2 rounded-full border border-line bg-paper px-3 py-1.5 hover:bg-cream-2"
+                  : "w-full gap-3 rounded-field px-2.5 py-2 hover:bg-cream-2"
+            }  transition-colors duration-200 ease-fresh focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest`}
           >
-            <Icon
-              name={item.icon}
-              className={`shrink-0 ${layout === "chips" ? "text-lg" : "text-xl"} text-ink-soft transition-colors duration-200 ease-fresh group-hover:text-forest-700`}
-            />
-            <span className="text-sm text-ink-soft transition-colors duration-200 ease-fresh group-hover:text-ink">{item.name}</span>
+            {!tag && (
+              <Icon
+                name={item.icon}
+                className={`shrink-0 ${layout === "chips" ? "text-lg" : "text-xl"} text-ink-soft transition-colors duration-200 ease-fresh group-hover:text-forest-700`}
+              />
+            )}
+            <span
+              className={
+                tag
+                  ? "text-sm font-semibold text-forest-700"
+                  : "text-sm text-ink-soft transition-colors duration-200 ease-fresh group-hover:text-ink"
+              }
+            >
+              {item.name}
+            </span>
           </button>
 
           {openIndex === i && (

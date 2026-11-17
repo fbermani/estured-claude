@@ -36,3 +36,17 @@ export function splitFeaturedFaq<T extends object>(items: T[], max: number = FEA
   const taken = new Set<T>(featured);
   return { featured, rest: items.filter((q) => !taken.has(q)) };
 }
+
+/**
+ * Pie de la banda de preguntas (propuesta A): el pill «Leé las respuestas rápidas» (abre la lista completa en el modal) y la línea de
+ * texto que lo acompaña, en la composición del mockup (texto a la izquierda, botón a la derecha). El pill se muestra siempre que la
+ * residencia tenga ALGUNA pregunta respondida (`total > 0`), aunque todas estén ya en la banda: es la entrada al modal y el dueño
+ * quiere incentivar a leer, no a preguntar. `shown` = las que la banda ya muestra; `total` = todas las de la ficha.
+ */
+export function faqBandFooter(total: number, shown: number): { showReadButton: boolean; text: string } {
+  const more = Math.max(0, total - shown);
+  return {
+    showReadButton: total > 0,
+    text: more > 0 ? `Hay ${more} ${more === 1 ? "respuesta más" : "respuestas más"} para leer.` : "Leé todas las respuestas juntas.",
+  };
+}

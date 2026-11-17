@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { FichaConditionsInput } from "@/lib/residences/fichaConditions";
-import { buildConditionRows, visibleConditionCards } from "@/lib/residences/conditionCards";
+import { applicableConditions, buildConditionRows, visibleConditionCards } from "@/lib/residences/conditionCards";
 import { EMPTY_MONTH_IDEA, emptyMonthExample } from "@/lib/residences/emptyMonthCopy";
 
 const none: FichaConditionsInput = {
@@ -76,5 +76,48 @@ describe("copy del mes vacío", () => {
     expect(emptyMonthExample(50)).toContain("1,5 meses × 50 % = 0,75");
     expect(emptyMonthExample(100)).toContain("1,5 meses × 100 % = 1,5");
     expect(emptyMonthExample(25)).toContain("0,38");
+  });
+});
+
+describe("condiciones que aplican (ficha, revisión del dueño)", () => {
+  const applicable = (i: FichaConditionsInput) => applicableConditions(i).map((r) => r.key);
+
+  it("una residencia que no cobra nada más: solo «Para reservar» (nada de filas «no cobra»)", () => {
+    expect(applicable(none)).toEqual(["initial_payment"]);
+    const rows = applicableConditions(none);
+    expect(rows.every((r) => !/no cobra|a coordinar/i.test(r.value))).toBe(true);
+  });
+
+  it("estadía mínima primero; sin ajuste, sin depósito y sin matrícula se omiten", () => {
+    expect(applicable({ ...none, minimumStayMonths: 6, adjustmentPolicy: "none" })).toEqual(["minimum_stay", "initial_payment"]);
+  });
+
+  it("cobra todo: estadía, pago inicial, matrícula, depósito, ajuste y mes vacío, en ese orden; nunca documentos", () => {
+    expect(
+      applicable({
+        ...none,
+        minimumStayMonths: 3,
+        adjustmentPolicy: "quarterly",
+        enrollmentFeeMode: "manual",
+        enrollmentFeeUsd: 150,
+        depositUsd: 300,
+        emptyMonthChargePercent: 50,
+      }),
+    ).toEqual(["minimum_stay", "initial_payment", "enrollment", "deposit", "adjustment", "empty_month"]);
+  });
+
+  it("política de ajuste desconocida o ausente no aplica; un ajuste real sí", () => {
+    expect(applicable({ ...none, adjustmentPolicy: "raro" })).toEqual(["initial_payment"]);
+    expect(applicable({ ...none, adjustmentPolicy: "semiannual" })).toEqual(["initial_payment", "adjustment"]);
+  });
+
+  it("mes vacío en 0 no aplica; con porcentaje lleva el dato para el ejemplo", () => {
+    expect(applicable({ ...none, emptyMonthChargePercent: 0 })).toEqual(["initial_payment"]);
+    expect(applicableConditions({ ...none, emptyMonthChargePercent: 40 }).find((r) => r.key === "empty_month")?.emptyPercent).toBe(40);
+  });
+
+  it("los montos en USD traen la cifra para convertir a ARS", () => {
+    const dep = applicableConditions({ ...none, depositUsd: 300 }).find((r) => r.key === "deposit");
+    expect(dep?.arsFromUsd).toBe(300);
   });
 });

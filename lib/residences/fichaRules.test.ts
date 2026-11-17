@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { RULES_VISIBLE, canDownloadRegulation, moreRulesLabel, parseRuleLines, splitRuleLine, splitRules } from "@/lib/residences/fichaRules";
+import { RULES_VISIBLE, canDownloadRegulation, moreRulesLabel, parseRuleLines, splitRuleLine, ruleLead, splitRules } from "@/lib/residences/fichaRules";
 
 describe("parseRuleLines", () => {
   it("una regla por línea, sin vacías ni espacios de más", () => {
@@ -78,5 +78,33 @@ describe("splitRuleLine", () => {
   });
   it("una dirección web no se parte", () => {
     expect(splitRuleLine("https://ejemplo.com/reglas").title).toBeNull();
+  });
+});
+
+describe("ruleLead (columna izquierda, solo se lee del texto)", () => {
+  it("rango horario: «23 a 7»", () => {
+    expect(ruleLead("Silencio: de 23 a 7, para música o videos, auriculares")).toBe("23 a 7");
+    expect(ruleLead("Cocina abierta: de 7 a 23")).toBe("7 a 23");
+    expect(ruleLead("Silencio: de 23:00 a 7:00 hs")).toBe("23 a 7");
+    expect(ruleLead("Visitas hasta las 22:30 a 23:30")).toBe("22:30 a 23:30");
+  });
+  it("«de 2 a 4 personas» no es un horario", () => {
+    expect(ruleLead("Visitas: de 2 a 4 personas por vez")).toBeNull();
+    expect(ruleLead("Estadía de 3 a 6 meses")).toBeNull();
+    expect(ruleLead("Entre 10 a 99 reglas")).toBeNull();
+  });
+  it("prohibición: «No»", () => {
+    expect(ruleLead("No se admiten mascotas")).toBe("No");
+    expect(ruleLead("Mascotas: No se admiten, por convivencia")).toBe("No");
+    expect(ruleLead("Visitas: no pueden quedarse a dormir")).toBeNull();
+  });
+  it("«Libre» y «Sí»", () => {
+    expect(ruleLead("Entrada y salida: libre, con tu llave")).toBe("Libre");
+    expect(ruleLead("Ambiente libre de humo")).toBeNull();
+    expect(ruleLead("Visitas: Sí, en los espacios comunes")).toBe("Sí");
+    expect(ruleLead("Si tenés visitas, avisá")).toBeNull();
+  });
+  it("sin forma reconocible no se inventa nada", () => {
+    expect(ruleLead("Cada uno lava y guarda lo que usa")).toBeNull();
   });
 });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FEATURED_FAQ_MAX, splitFeaturedFaq } from "@/lib/residences/featuredFaq";
+import { FEATURED_FAQ_MAX, faqBandFooter, splitFeaturedFaq } from "@/lib/residences/featuredFaq";
 
 const q = (n: number, extra: Record<string, unknown> = {}) => ({ question: `P${n}`, ...extra });
 
@@ -54,5 +54,23 @@ describe("splitFeaturedFaq (preparada para is_featured)", () => {
   it("isFeatured en false o null no cuenta como marca", () => {
     const items = [q(1, { isFeatured: false }), q(2, { isFeatured: null }), q(3)];
     expect(splitFeaturedFaq(items).featured).toHaveLength(3);
+  });
+});
+
+describe("faqBandFooter (pill «Leé las respuestas rápidas»)", () => {
+  it("con alguna pregunta respondida el pill siempre se muestra, también si todas están en la banda", () => {
+    expect(faqBandFooter(3, 3).showReadButton).toBe(true);
+    expect(faqBandFooter(1, 1).showReadButton).toBe(true);
+    expect(faqBandFooter(12, 6).showReadButton).toBe(true);
+  });
+
+  it("sin preguntas no hay pill (la banda ni se dibuja)", () => {
+    expect(faqBandFooter(0, 0).showReadButton).toBe(false);
+  });
+
+  it("el texto cuenta las que quedan fuera de la banda, en singular o plural", () => {
+    expect(faqBandFooter(12, 6).text).toBe("Hay 6 respuestas más para leer.");
+    expect(faqBandFooter(7, 6).text).toBe("Hay 1 respuesta más para leer.");
+    expect(faqBandFooter(4, 4).text).toBe("Leé todas las respuestas juntas.");
   });
 });
