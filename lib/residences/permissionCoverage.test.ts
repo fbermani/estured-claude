@@ -46,6 +46,8 @@ const GUARDED: Record<string, string[]> = {
   "lib/waitlist-entries/notifyWaitlistAvailability.ts": ["assertResidencePermission(", "waitlist.manage"],
   "lib/waitlist-entries/removeFromWaitlistByResidence.ts": ["assertResidencePermission(", "waitlist.manage"],
   "lib/faq/moderateResidenceQuestion.ts": ["assertResidencePermission(", "faq.manage"],
+  // Compartir la ficha por WhatsApp (mensaje editable): guardar/restablecer requiere `profile.edit`
+  "lib/share/shareMessage.ts": ["assertResidencePermission(", "profile.edit"],
   // Solo dueño (no delegable)
   "lib/team/teamInvitations.ts": ["assertResidenceOwner("],
   "app/residence/dashboard/pdf/route.ts": ["ownerOnly: true"],
@@ -68,6 +70,7 @@ const DELEGATING: Record<string, string[]> = {
   "app/residence/[residence_id]/residents/stayChangeActions.ts": ["@/lib/stayChange/respondStayChangeIntent"],
   "app/residence/[residence_id]/residents/roomChangeActions.ts": ["@/lib/roomChange/manage"],
   "app/residence/[residence_id]/faq/actions.ts": ["@/lib/faq/moderateResidenceQuestion"],
+  "app/residence/[residence_id]/share/actions.ts": ["@/lib/share/shareMessage"],
   "app/residence/[residence_id]/regulation/actions.ts": ["@/lib/regulations/publish"],
   "app/residence/[residence_id]/team/actions.ts": ["@/lib/team/teamInvitations"],
   "app/residence/[residence_id]/applications/[id]/payment/actions.ts": ["@/lib/reservations/recordResidencePaymentReceived"],
