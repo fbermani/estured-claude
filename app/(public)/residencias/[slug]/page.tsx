@@ -52,7 +52,7 @@ import { loadVacancyOutlooks } from "@/lib/residences/vacancy";
 import { applyPromotion, normalizeDepositMode, pickActivePromotion, todayIso } from "@/lib/applications/reservationMoney";
 import { computeCapacity, formatOccupancy, residentsToDisplay } from "@/lib/residences/occupancy";
 import { loadFamilyViewer, loadStudentViewer, type LinkedStudent, type StudentViewer } from "@/app/(public)/residencias/[slug]/loadViewerContext";
-import { findUniversitiesByName, haversineDistanceKm } from "@/lib/data/buenosAiresUniversities";
+import { findUniversitiesByName, haversineDistanceKm, withoutOtherUniversity } from "@/lib/data/buenosAiresUniversities";
 import { monthsLabel, roomTypeSubtitle } from "@/lib/residences/fichaConditions";
 import { isTypeRequestable } from "@/lib/availability/typeAvailability";
 import { resolveRequestPanelMode } from "@/lib/residences/requestPanelMode";
@@ -279,7 +279,7 @@ export default async function RealResidenceDetailPage({
     commonAreas: [...((sectionMap.common_areas?.items as string[]) ?? []), ...customAmenities.areas],
   });
   const amenityDetails = parseAmenityDetails((residence as { amenity_details?: unknown }).amenity_details);
-  const nearUniversities = (sectionMap.near_universities?.items as string[]) ?? [];
+  const nearUniversities = withoutOtherUniversity((sectionMap.near_universities?.items as string[]) ?? []);
   const rulesSummary = (sectionMap.rules?.summary as string) ?? "";
   const staticFaqItems = (sectionMap.faq?.items as { question: string; answer: string }[]) ?? [];
   const communityStatement = (sectionMap.community_statement?.quote as string) ?? "";

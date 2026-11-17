@@ -9,6 +9,7 @@ import { todayIso } from "@/lib/applications/reservationMoney";
 import { getApprovedCustomAmenitiesByResidence } from "@/lib/residences/customAmenitiesDb";
 import { buildGalleryPhotos, loadPhotoMeta, rotationUrls } from "@/lib/residences/photoMetaDb";
 import { nearestUniversityNames } from "@/lib/residences/nearestUniversities";
+import { withoutOtherUniversity } from "@/lib/data/buenosAiresUniversities";
 import { getResidenceLocation } from "@/lib/residences/residenceLocation";
 import { computeCapacity, residentsToDisplay } from "@/lib/residences/occupancy";
 import type { Residence, RoomTypeName, RoomTypeOffer } from "@/types/domain";
@@ -169,7 +170,7 @@ export async function getCatalogResidencesWithTotal(
       services: [...new Set([...((sectionMap.services?.items as string[]) ?? []), ...(custom?.services ?? [])])],
       commonAreas: [...new Set([...((sectionMap.common_areas?.items as string[]) ?? []), ...(custom?.areas ?? [])])],
     });
-    const nearUniversities = (sectionMap.near_universities?.items as string[]) ?? [];
+    const nearUniversities = withoutOtherUniversity((sectionMap.near_universities?.items as string[]) ?? []);
     // La tarjeta muestra solo las 3 sedes más cercanas; la ficha las lista todas (y el filtro usa la lista completa).
     const cardUniversities = nearestUniversityNames(nearUniversities, getResidenceLocation(r));
 

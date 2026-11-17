@@ -14,19 +14,64 @@ export const UNIVERSITY_CATEGORIES: Record<UniversityCategory, { label: string; 
   private: { label: "Privadas", pin: "bg-amber-soft-700", dot: "bg-amber-soft-700" },
 };
 
-/** Universidades públicas que no son UBA (el resto de la lista son privadas). */
-const PUBLIC_NAMES = ["Universidad Tecnológica Nacional (UTN - FRBA)", "Universidad Nacional de las Artes (UNA)"];
+/** Universidades e institutos públicos que no son UBA (el resto de la lista son privados). */
+const PUBLIC_NAMES = [
+  "Universidad Tecnológica Nacional (UTN - FRBA)",
+  "Universidad Nacional de las Artes (UNA)",
+  "Universidad de la Defensa Nacional (UNDEF)",
+  "Universidad Pedagógica Nacional (UNIPE)",
+  "Universidad Nacional de Tres de Febrero (UNTREF)",
+  "Universidad Nacional de San Martín (UNSAM)",
+  "Universidad de la Ciudad de Buenos Aires (UniCABA)",
+  "Instituto Universitario de la Policía Federal (IUPFA)",
+  "Instituto Universitario de Gendarmería Nacional (IUGNA)",
+  "Instituto Universitario de Seguridad (IUSE)",
+  "Instituto Universitario Nacional de Derechos Humanos (IUNMa)",
+];
 
-/** Comparten sede: la clave se dibuja en el pin del valor. */
+/** Comparten sede: la clave se dibuja en el pin del valor (la Ciudad Universitaria reúne FADU y Exactas). */
 const SHARED_SITE: Record<string, string> = {
   "UBA - Facultad de Arquitectura, Diseño y Urbanismo (FADU)": "UBA - Ciudad Universitaria",
+  "UBA - Facultad de Ciencias Exactas y Naturales": "UBA - Ciudad Universitaria",
 };
 
-/** Sedes adicionales (Av. Independencia 3065 es la del dato base; esta es Hipólito Yrigoyen 3242, Balvanera). */
-const EXTRA_SITES: Record<string, { site: string; lat: number; lng: number }> = {
-  "UBA - Facultad de Psicología": { site: "Sede Hipólito Yrigoyen", lat: -34.6125, lng: -58.4123 },
+type Site = { site: string; lat: number; lng: number };
+
+/** Sedes adicionales de una misma institución (la sede principal es la coordenada de la lista base). */
+const EXTRA_SITES: Record<string, { main: string; sites: Site[] }> = {
+  "UBA - Facultad de Psicología": {
+    main: "Sede Independencia",
+    sites: [{ site: "Sede Hipólito Yrigoyen", lat: -34.6125, lng: -58.4123 }],
+  },
+  "UBA - Facultad de Ingeniería": {
+    main: "Sede Paseo Colón",
+    sites: [{ site: "Sede Las Heras", lat: -34.5888, lng: -58.3966 }],
+  },
+  "Universidad Tecnológica Nacional (UTN - FRBA)": {
+    main: "Sede Medrano",
+    sites: [{ site: "Campus Mozart", lat: -34.6596, lng: -58.4678 }],
+  },
+  "Universidad Nacional de las Artes (UNA)": {
+    main: "Rectorado",
+    sites: [
+      { site: "Rectorado (Anexo Investigación y Extensión)", lat: -34.6059, lng: -58.3908 },
+      { site: "Artes Visuales (Sede Central)", lat: -34.5906, lng: -58.3929 },
+      { site: "Artes Visuales (Sede Huergo)", lat: -34.6231, lng: -58.3662 },
+      { site: "Artes Visuales (Sede Quinquela Martín)", lat: -34.6366, lng: -58.3694 },
+      { site: "Artes Musicales y Sonoras (DAMuS)", lat: -34.5992, lng: -58.4021 },
+      { site: "Artes Dramáticas (Sede French)", lat: -34.5831, lng: -58.4143 },
+      { site: "Artes Dramáticas (Sede Venezuela)", lat: -34.6149, lng: -58.4023 },
+      { site: "Artes Audiovisuales (Sede Rocamora)", lat: -34.5995, lng: -58.4239 },
+      { site: "Artes Audiovisuales (Sede Salguero)", lat: -34.6111, lng: -58.4216 },
+      { site: "Artes del Movimiento", lat: -34.6315, lng: -58.3621 },
+      { site: "Artes Multimediales", lat: -34.6331, lng: -58.3596 },
+      { site: "Folklore", lat: -34.6161, lng: -58.4139 },
+      { site: "Crítica de Artes", lat: -34.6078, lng: -58.3931 },
+      { site: "Formación Docente", lat: -34.6269, lng: -58.3728 },
+      { site: "Museo de la Cárcova", lat: -34.6186, lng: -58.3563 },
+    ],
+  },
 };
-const MAIN_SITE_LABEL: Record<string, string> = { "UBA - Facultad de Psicología": "Sede Independencia" };
 
 export type UniversityPin = { id: string; label: string; short: string; lat: number; lng: number; category: UniversityCategory };
 /** Fila de la referencia: lleva al pin `pinId`. */
@@ -67,10 +112,14 @@ for (const u of BUENOS_AIRES_UNIVERSITIES) {
   }
   const extra = EXTRA_SITES[u.name];
   if (extra) {
-    pins.push({ id: u.name, label: `${u.name} (${MAIN_SITE_LABEL[u.name]})`, short: `${shortUniversityName(u.name)} · ${MAIN_SITE_LABEL[u.name]}`, lat: u.lat, lng: u.lng, category });
-    pins.push({ id: `${u.name}|extra`, label: `${u.name} (${extra.site})`, short: `${shortUniversityName(u.name)} · ${extra.site}`, lat: extra.lat, lng: extra.lng, category });
-    legend.push({ label: `${u.name} (${MAIN_SITE_LABEL[u.name]})`, pinId: u.name, category });
-    legend.push({ label: `${u.name} (${extra.site})`, pinId: `${u.name}|extra`, category });
+    const short = shortUniversityName(u.name);
+    pins.push({ id: u.name, label: `${u.name} (${extra.main})`, short: `${short} · ${extra.main}`, lat: u.lat, lng: u.lng, category });
+    legend.push({ label: `${u.name} (${extra.main})`, pinId: u.name, category });
+    extra.sites.forEach((x, i) => {
+      const id = `${u.name}|${i}`;
+      pins.push({ id, label: `${u.name} (${x.site})`, short: `${short} · ${x.site}`, lat: x.lat, lng: x.lng, category });
+      legend.push({ label: `${u.name} (${x.site})`, pinId: id, category });
+    });
     continue;
   }
   pins.push({ id: u.name, label: u.name, short: shortUniversityName(u.name), lat: u.lat, lng: u.lng, category });

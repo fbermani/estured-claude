@@ -92,6 +92,22 @@ export const UNIVERSITY_SUGGESTIONS = [
   "Universidad de Belgrano",
   "Universidad Austral",
   "Universidad de Palermo",
+  "UNA",
+  "UNDEF",
+  "UNIPE",
+  "UNTREF",
+  "UNSAM",
+  "UniCABA",
+  "ITBA",
+  "USAL",
+  "UCES",
+  "UAI",
+  "Universidad de San Andrés",
+  "UCEMA",
+  "Universidad Favaloro",
+  "Universidad Maimónides",
+  "UFLO",
+  "Universidad Kennedy",
 ] as const;
 
 export const CAREER_OPTIONS = [
