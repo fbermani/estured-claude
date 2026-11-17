@@ -19,6 +19,8 @@ export type TabItem = {
   badgeNoun?: string;
   /** Contenido extra a la derecha en la hoja «Más» (p. ej. `PremiumTag`). */
   trailing?: ReactNode;
+  /** `trailing` es una etiqueta «Nuevo»: se suma al nombre accesible (el texto visible tiene que estar en el nombre). */
+  isNew?: boolean;
 };
 
 export type MoreGroup = { title?: string; items: TabItem[] };
@@ -36,7 +38,8 @@ function ariaFor(item: TabItem) {
     item.tabLabel && !item.label.toLowerCase().includes(item.tabLabel.toLowerCase())
       ? `${item.tabLabel}, ${item.label}`
       : item.label;
-  return item.badge ? `${base}, ${item.badge} ${item.badgeNoun ?? "pendientes"}` : base;
+  const named = item.isNew ? `${base}, nuevo` : base;
+  return item.badge ? `${named}, ${item.badge} ${item.badgeNoun ?? "pendientes"}` : named;
 }
 
 /**

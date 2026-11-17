@@ -7,7 +7,7 @@ import { startingPriceUsd, typeAvailabilityState } from "@/lib/availability/type
 import { findUniversitiesByName, haversineDistanceKm, withoutOtherUniversity } from "@/lib/data/buenosAiresUniversities";
 import { getResidenceLocation } from "@/lib/residences/residenceLocation";
 import { getShareBaseUrl } from "@/lib/share/shareLink";
-import { buildShareLink, buildShareValues, type SharePlaceholderKey } from "@/lib/share/resolveShareMessage";
+import { buildShareLink, buildShareValues, buildWhatsappMessageLink, type SharePlaceholderKey } from "@/lib/share/resolveShareMessage";
 
 export type ShareData = {
   residenceName: string;
@@ -67,10 +67,11 @@ export async function loadShareData(admin: SupabaseClient, residenceId: string):
   return {
     residenceName: residence.name as string,
     slug,
+    // «Copiar link» entrega el link limpio; el que va dentro del mensaje de WhatsApp lleva `?ref=wa` (la ficha lo ignora).
     link,
     published: residence.status === "verified_active",
     values: buildShareValues({
-      link,
+      link: buildWhatsappMessageLink(getShareBaseUrl(), slug),
       fromPriceUsd,
       arsPerUsd: rate.arsPerUsd,
       zone: (residence.public_area as string | null) ?? null,

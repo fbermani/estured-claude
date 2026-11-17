@@ -469,6 +469,30 @@ export default async function ResidenceOverviewPage({
         ))}
       </div>
 
+      {/* Atajo a «Compartir tu ficha»: solo con la ficha publicada (antes el link no abre). Secundario: el Panel no tiene acción primaria.
+          Lo ve todo el equipo: quien no tiene `profile.edit` lo ve y lo comparte, pero no lo edita (lo resuelve la propia pantalla). */}
+      {residence.status === "verified_active" && (
+        <Card className="mt-8 flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 items-start gap-3">
+            <div className="shrink-0 rounded-field bg-forest-tint p-2 text-forest-700">
+              <Icon name="share" className="text-xl" />
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-lg font-bold text-ink">Compartí tu ficha por WhatsApp</h2>
+              <p className="mt-1 max-w-[60ch] text-sm text-ink-soft">
+                Mandala como primera respuesta y ahorrate las consultas de siempre: fotos, precios y respuestas en un solo link.
+              </p>
+            </div>
+          </div>
+          <Link
+            href={`/residence/${residenceId}/share`}
+            className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-full border-[1.5px] border-line-2 bg-paper px-4 text-center text-sm font-bold text-ink hover:border-forest hover:bg-forest-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+          >
+            Compartir mi ficha
+          </Link>
+        </Card>
+      )}
+
       {!hasPremium && (
         <DismissibleNote storageKey={`estured:premium-note:${residenceId}`} className="mt-8 rounded-card border-[1.5px] border-line bg-sand-50 p-5 pr-14">
           <p className="flex items-center gap-2 text-sm font-bold text-ink">

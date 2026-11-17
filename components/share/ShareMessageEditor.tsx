@@ -236,6 +236,19 @@ export function ShareMessageEditor({
           </figcaption>
         </figure>
       )}
+      {canEdit && (
+        <div className="mt-5 text-xs text-ink-faint">
+          <p className="font-bold text-ink-soft">Qué se completa solo</p>
+          <dl className="mt-1.5 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
+            {SHARE_PLACEHOLDERS.map((p) => (
+              <div key={p.key} className="contents">
+                <dt className="font-semibold text-forest-700">{p.label}</dt>
+                <dd>{p.description}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      )}
     </section>
   );
 

@@ -10,7 +10,7 @@ import { DEFAULT_SHARE_TEMPLATE } from "@/lib/share/resolveShareMessage";
 /**
  * Server Component que monta «Compartir esta ficha» en la ficha pública SOLO para el equipo de ESTA residencia (dueño o staff activo).
  * Para cualquier otra persona (visitante, estudiante, familiar, equipo de otra residencia) devuelve `null`: no se arma ni se envía nada.
- * Uso: `<ShareFichaSheetServer residenceId={residence.id} />` (ver `docs/NEXT_STEPS.md`: falta ubicarlo en el hero de la ficha).
+ * Uso: lo monta `OwnerShareBar` (franja sobre el hero de la ficha pública), dentro de `Suspense`.
  */
 export async function ShareFichaSheetServer({ residenceId }: { residenceId: string }) {
   const user = await getSessionUser();

@@ -41,6 +41,7 @@ import { effectiveRoomGender, policyFromGender, summarizeTypeGenders } from "@/l
 import { startingPriceUsd, typeAvailabilityState } from "@/lib/availability/typeAvailability";
 import { initialPaymentConfigFromRow } from "@/lib/reservations/initialPayment";
 import { ReservationSelectionProvider } from "@/components/residences/reservationSelection";
+import { OwnerShareBar } from "@/components/share/OwnerShareBar";
 import { FichaHeroImmersive } from "@/components/residences/ficha/FichaHeroImmersive";
 import { HeroCta } from "@/components/residences/ficha/HeroCta";
 import { ResidencePlate } from "@/components/residences/ficha/ResidencePlate";
@@ -604,6 +605,8 @@ export default async function RealResidenceDetailPage({
           }).replace(/</g, "\\u003c"),
         }}
       />
+      {/* Solo el equipo de ESTA residencia (dueño o staff activo) ve «Compartir esta ficha»; nadie más recibe la franja ni sus datos. */}
+      {isOwnResidenceTeam && <OwnerShareBar residenceId={residence.id} />}
       {/* Hero inmersivo (portada + placa + CTA) y franja «Lo esencial»: a todo el ancho, antes del contenedor de la ficha. */}
       <FichaHeroImmersive
         photos={photos}

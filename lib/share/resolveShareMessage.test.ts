@@ -4,6 +4,7 @@ import {
   SHARE_PLACEHOLDERS,
   SHARE_TEMPLATE_MAX,
   buildShareLink,
+  buildWhatsappMessageLink,
   buildShareValues,
   buildStayConditions,
   buildWhatsappShareUrl,
@@ -177,6 +178,12 @@ describe("validateShareTemplate", () => {
 describe("enlace y WhatsApp", () => {
   it("arma el link corto /r/<slug> sin barras de más", () => {
     expect(buildShareLink("https://estured.vercel.app/", "residencia-norte-demo")).toBe("https://estured.vercel.app/r/residencia-norte-demo");
+  });
+
+  it("el link dentro del mensaje de WhatsApp lleva ?ref=wa y el link limpio no", () => {
+    expect(buildWhatsappMessageLink("https://estured.vercel.app/", "residencia-norte-demo")).toBe(
+      "https://estured.vercel.app/r/residencia-norte-demo?ref=wa",
+    );
   });
 
   it("la URL de WhatsApp es wa.me con el texto codificado (botón manual, sin API)", () => {

@@ -8,6 +8,7 @@ import { countUnansweredStayChanges } from "@/lib/stayChange/load";
 import { hasOperationalManagementAccess } from "@/lib/residences/operationalAccess";
 import { countNewApplications, countPendingQuestions } from "@/lib/residences/sidebarCounts";
 import { SkipLink } from "@/components/ui/SkipLink";
+import { isShareFeatureNew } from "@/lib/share/newBadge";
 
 /**
  * Sidebar de navegación de una residencia puntual (Ciclo 34sexdecies) —
@@ -64,6 +65,7 @@ export default async function ResidenceDetailLayout({
         isOwner={isOwner}
         canEditProfile={canEditProfile}
         premiumLocked={premiumLocked}
+        shareIsNew={isShareFeatureNew()}
       />
       <main id="contenido" tabIndex={-1} className="min-w-0 focus:outline-none flex-1 pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-0">{children}</main>
     </div>

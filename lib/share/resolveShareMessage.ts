@@ -127,6 +127,15 @@ export function buildShareLink(baseUrl: string, slug: string): string {
   return `${baseUrl.replace(/\/+$/, "")}/r/${encodeURIComponent(slug)}`;
 }
 
+/** Marca de origen del link que va DENTRO del mensaje de WhatsApp (`?ref=wa`): la ficha la ignora; sirve para distinguir estas visitas en los logs. */
+export const SHARE_REF_PARAM = "ref";
+export const SHARE_REF_WHATSAPP = "wa";
+
+/** Link del mensaje de WhatsApp: el link corto con `?ref=wa`. «Copiar link» usa el link limpio (`buildShareLink`). */
+export function buildWhatsappMessageLink(baseUrl: string, slug: string): string {
+  return `${buildShareLink(baseUrl, slug)}?${SHARE_REF_PARAM}=${SHARE_REF_WHATSAPP}`;
+}
+
 export type ShareDataInput = {
   link: string;
   /** Precio «desde» en USD (mismo criterio de la ficha) o `null` si no hay tipos con precio. */
