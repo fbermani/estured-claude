@@ -7,7 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Residencias estudiantiles verificadas en CABA.",
     start_url: "/",
     display: "standalone",
-    background_color: "#fbf6ec",
+    // Pantalla de carga (splash) al abrir la app instalada: verde de marca (= --color-forest-ink de globals.css; el manifest no admite tokens CSS).
+    background_color: "#0c3a2c",
     theme_color: "#fbf6ec",
     icons: [
       { src: "/icon-192.png", sizes: "192x192", type: "image/png" },
