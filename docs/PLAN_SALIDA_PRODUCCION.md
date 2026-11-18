@@ -242,7 +242,7 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 - [ ] Medir **Core Web Vitals reales** (PageSpeed/CrUX) de `/`, `/search` y una ficha una vez en `estured.com`; el informe SEO solo pudo estimarlos.
 
 **Pendientes del informe (no bloquean salir; sí conviene antes del lanzamiento público):**
-- [ ] **ISR / caché** en páginas estables (hoy `cache-control: private, no-store` en todo, H11) y **peso de `/search`** (1,1 MB de HTML, 342 scripts; limitar tarjetas SSR, `next/dynamic` para mapa y filtros) y `priority` en la foto hero de la ficha (H10, H12). Medir antes/después.
+- [ ] **Caché de páginas públicas (hecho en código 2026-11-18):** el layout público ya no lee la sesión; con `DEMO_LOGIN_ENABLED` apagado (producción) `/guias`, `/guias/[slug]`, `/terms`, `/privacy` y `/for-residences` se prerenderizan. **Verificar en prod:** `curl -sI https://estured.com/guias` → `x-vercel-cache: HIT` (tras la 2.ª visita) y sin `no-store`; estando logueado, el footer no muestra «Crear cuenta». En staging (demo encendida) siguen dinámicas: es esperado. `/`, `/search`, `/for-students` y fichas siguen dinámicas a propósito (dependen del visitante); cachearlas sería un cambio de producto aparte.
 - [ ] **Página «Cómo verificamos» / «Nosotros»** (criterios de visita, contacto de Soporte, datos legales) — la brecha de confianza más grande (H06). Necesita contenido del dueño.
 - [ ] **Fecha de verificación por residencia** («Verificada en persona en [mes/año]», C-07) y **`updated_at` verificado en cada guía** (C-06); sin eso no se emiten `dateModified` ni la leyenda.
 - [ ] **FAQ de `/for-students`** (C-09): borrador a redactar y aprobar.
