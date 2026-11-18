@@ -243,9 +243,7 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 
 **Pendientes del informe (no bloquean salir; sí conviene antes del lanzamiento público):**
 - [ ] **Caché de páginas públicas (hecho en código 2026-11-18):** el layout público ya no lee la sesión; con `DEMO_LOGIN_ENABLED` apagado (producción) `/guias`, `/guias/[slug]`, `/terms`, `/privacy` y `/for-residences` se prerenderizan. **Verificar en prod:** `curl -sI https://estured.com/guias` → `x-vercel-cache: HIT` (tras la 2.ª visita) y sin `no-store`; estando logueado, el footer no muestra «Crear cuenta». En staging (demo encendida) siguen dinámicas: es esperado. `/`, `/search`, `/for-students` y fichas siguen dinámicas a propósito (dependen del visitante); cachearlas sería un cambio de producto aparte.
-- [ ] **Página «Cómo verificamos» / «Nosotros»** (criterios de visita, contacto de Soporte, datos legales) — la brecha de confianza más grande (H06). Necesita contenido del dueño.
-- [ ] **Fecha de verificación por residencia** («Verificada en persona en [mes/año]», C-07) y **`updated_at` verificado en cada guía** (C-06); sin eso no se emiten `dateModified` ni la leyenda.
-- [ ] **FAQ de `/for-students`** (C-09): borrador a redactar y aprobar.
+- [ ] **Textos pendientes de aprobación del dueño** (borradores en `docs/audits/SEO_PROPUESTAS_COPY_2026-11-18.md`): página «Cómo verificamos» (H06, la brecha de confianza más grande), línea «Verificada en persona en [mes/año]» en la ficha (necesita la fecha de visita por residencia; C-07), 4 preguntas nuevas del FAQ de `/for-students` (C-09; el `FAQPage` de las 4 existentes ya está aplicado) y `updated_at` verificado en cada guía (C-06).
 - [ ] **Guías por barrio y universidad** (T-11, cluster local; enlazar a `/search` y fichas).
 - [ ] **`sameAs` de Organization** (Instagram/LinkedIn oficiales de la marca) y `SearchAction` de WebSite si `/search` llega a soportar `?q=`.
 - [ ] **`favicon.ico`** y `/.well-known/security.txt` (opcionales, H24).
