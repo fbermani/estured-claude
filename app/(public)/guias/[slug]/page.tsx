@@ -75,7 +75,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
     ...(guide.heroImage ? { image: guide.heroImage.src.startsWith("http") ? guide.heroImage.src : `${SITE_URL}${guide.heroImage.src}` } : {}),
     ...(guide.updatedAt || guide.reviewedAt ? { dateModified: guide.updatedAt ?? guide.reviewedAt } : {}),
     author: guide.author ? { "@type": "Person", name: guide.author } : { "@type": "Organization", name: "EstuRed", url: SITE_URL },
-    publisher: { "@type": "Organization", name: "EstuRed", url: SITE_URL },
+    publisher: { "@type": "Organization", name: "EstuRed", url: SITE_URL, logo: { "@type": "ImageObject", url: `${SITE_URL}/icon-512.png` } },
   };
 
   return (

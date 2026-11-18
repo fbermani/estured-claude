@@ -35,6 +35,7 @@ import { ProposeForm } from "@/app/(public)/residencias/[slug]/ProposeForm";
 import { FavoriteButton } from "@/app/(public)/residencias/[slug]/FavoriteButton";
 import { toggleStudentFavorite, toggleFamilyFavorite } from "@/app/students/favorites/actions";
 import { JoinWaitlistForm } from "@/app/(public)/residencias/[slug]/JoinWaitlistForm";
+import { residenceJsonLd } from "@/lib/seo/residenceJsonLd";
 import { usdToArsRounded } from "@/lib/mock/exchange";
 import { getResidenceLocation } from "@/lib/residences/residenceLocation";
 import { effectiveRoomGender, policyFromGender, summarizeTypeGenders } from "@/lib/residences/roomGender";
@@ -581,20 +582,18 @@ export default async function RealResidenceDetailPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "LodgingBusiness",
+          __html: residenceJsonLd({
+            slug,
             name: residence.name,
-            url: `${SITE_URL}/residencias/${slug}`,
-            address: {
-              "@type": "PostalAddress",
-              ...(addressLine ? { streetAddress: addressLine } : {}),
-              addressLocality: residence.public_area || "Ciudad Autónoma de Buenos Aires",
-              addressRegion: "CABA",
-              addressCountry: "AR",
-            },
-            ...(photos[0]?.url ? { image: photos[0].url } : {}),
-          }).replace(/</g, "\\u003c"),
+            description: residence.description as string | null,
+            addressLine,
+            area: residence.public_area as string | null,
+            geo: location.source === "residence" ? { lat: location.lat, lng: location.lng } : null,
+            photoUrl: photos[0]?.url ?? null,
+            pricesUsd: fichaTypes.map((t) => t.priceUsd),
+            amenities: includedItems,
+            faq: faqItems.filter((q) => !q.fromVisitor),
+          }),
         }}
       />
       {/* Solo el equipo de ESTA residencia (dueño o staff activo) ve «Compartir esta ficha»; nadie más recibe la franja ni sus datos. */}
