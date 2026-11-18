@@ -4,8 +4,12 @@
  * La residencia carga un resumen de convivencia en `residence_profile_sections.rules.summary`, una regla por línea (el campo
  * `highlightedRules` de `types/domain.ts` solo existe en el modelo del catálogo y hoy viaja vacío: la fuente real es este resumen).
  * Se muestran hasta `RULES_VISIBLE` a la vista y el resto queda en un desplegable: ninguna regla se pierde.
+ * Desde la fase de reglas estructuradas, `rules.items` (hasta 6 `{ lead?, title, detail? }`, ver `ruleItems.ts`) manda sobre el resumen.
  */
-export const RULES_VISIBLE = 5;
+import { parseRuleItems, type HouseRuleItem } from "@/lib/residences/ruleItems";
+
+/** Igual al máximo de reglas estructuradas (`MAX_RULE_ITEMS`): las 6 que carga la residencia se ven sin desplegable. */
+export const RULES_VISIBLE = 6;
 
 /** Una regla por línea; saca viñetas («-», «•», «*») y numeración («1.», «2)») que la residencia pudo haber tipeado. */
 export function parseRuleLines(summary: string | null | undefined): string[] {
@@ -38,7 +42,7 @@ const trimHour = (h: string) => h.replace(/:00$/, "");
  *   - Un rango horario escrito en la regla («de 23 a 7», «de 23:00 a 7:00 hs»): «23 a 7». Con un horario con «:» o «hs/h/horas» alcanza;
  *     sin marca, solo si va precedido de «de/desde/entre» y alguna hora es mayor a 12 (evita «de 2 a 4 personas»).
  *   - La regla empieza con «No …» o dice «No se admiten/permiten/aceptan…»: «No».
- *   - La regla dice «libre» (salvo «libre de …»): «Libre». Empieza con «Sí»: «Sí».
+ *   - La regla (o su detalle) empieza con «libre» (salvo «libre de …») o su título termina en «libre»: «Libre». Empieza con «Sí»: «Sí».
  * Sin ninguna de esas formas devuelve `null` y la fila lleva un ícono neutro en vez de un dato.
  */
 export function ruleLead(rule: string): string | null {
@@ -56,13 +60,14 @@ export function ruleLead(rule: string): string | null {
   }
   const { title, body } = splitRuleLine(text);
   if (/^no\b/i.test(text) || (title && /^no\s+(se\s+)?(admit|permit|acept)/i.test(body))) return "No";
-  if (/\blibres?\b(?!\s+de\b)/i.test(text)) return "Libre";
+  // «Libre» solo cuando es inequívoco: la regla (o su detalle) empieza con «libre», o el título dice «… libre» («Entrada libre: …»).
+  if (/^libres?\b(?!\s+de\b)/i.test(title ? body : text) || (title != null && /\blibres?\s*$/i.test(title))) return "Libre";
   if (/^sí(?![\p{L}])/iu.test(title ? body : text)) return "Sí";
   return null;
 }
 
 /** Parte las reglas en las que van a la vista y las que quedan en el desplegable (el orden se conserva). */
-export function splitRules(rules: string[], visible: number = RULES_VISIBLE): { primary: string[]; more: string[] } {
+export function splitRules<T>(rules: T[], visible: number = RULES_VISIBLE): { primary: T[]; more: T[] } {
   const limit = Math.max(0, Math.floor(visible));
   return { primary: rules.slice(0, limit), more: rules.slice(limit) };
 }
@@ -78,4 +83,39 @@ export function moreRulesLabel(count: number): string {
  */
 export function canDownloadRegulation(params: { regulation: { isBaseModel: boolean } | null; hasUploadedPdf: boolean }): boolean {
   return params.hasUploadedPdf || (params.regulation != null && !params.regulation.isBaseModel);
+}
+
+/** Una fila de la lista de reglas de la ficha: dato grande de la izquierda (o ícono neutro si es `null`), título en negrita y detalle. */
+export type RuleRow = { lead: string | null; title: string | null; body: string };
+
+/** Largo máximo de un fragmento al partir un resumen de una sola línea (más largo = es una oración, no una regla corta). */
+const FRAGMENT_MAX = 70;
+
+/**
+ * Líneas de reglas de un resumen de texto libre. Una por línea; si el resumen es UNA sola línea sin «Título: detalle» y se puede partir
+ * por «;», «.» o «,» en ≥ 2 fragmentos cortos, cada fragmento pasa a ser una regla (capitalizada y sin punto final). Si no, queda tal cual:
+ * nunca se recorta ni se inventa texto.
+ */
+export function summaryToRuleLines(summary: string | null | undefined): string[] {
+  const lines = parseRuleLines(summary);
+  if (lines.length !== 1 || lines[0].includes(":")) return lines;
+  const parts = lines[0]
+    .split(/;|\.(?=\s|$)|,(?=\s)/)
+    .map((p) => p.trim().replace(/[.;,]+$/, "").trim())
+    .filter(Boolean)
+    .map((p) => p.charAt(0).toLocaleUpperCase("es-AR") + p.slice(1));
+  return parts.length >= 2 && parts.every((p) => p.length >= 3 && p.length <= FRAGMENT_MAX) ? parts : lines;
+}
+
+/**
+ * Filas de «Reglas de casa»: si la residencia cargó reglas estructuradas (`items`), esas, tal cual (dato, título y detalle); si no, las que
+ * se derivan del resumen de texto (`summaryToRuleLines` + `splitRuleLine` + `ruleLead`). Sin ninguna de las dos, no hay filas.
+ */
+export function buildRuleRows(input: { items?: unknown; summary?: string | null }): RuleRow[] {
+  const items: HouseRuleItem[] = parseRuleItems(input.items);
+  if (items.length > 0) return items.map((i) => ({ lead: i.lead ?? null, title: i.title, body: i.detail ?? "" }));
+  return summaryToRuleLines(input.summary).map((line) => {
+    const { title, body } = splitRuleLine(line);
+    return { lead: ruleLead(line), title, body };
+  });
 }

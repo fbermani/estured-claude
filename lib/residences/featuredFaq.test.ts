@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FEATURED_FAQ_MAX, faqBandFooter, splitFeaturedFaq } from "@/lib/residences/featuredFaq";
+import { FEATURED_FAQ_MAX, faqBandFooter, faqChapterVisible, splitFeaturedFaq } from "@/lib/residences/featuredFaq";
 
 const q = (n: number, extra: Record<string, unknown> = {}) => ({ question: `P${n}`, ...extra });
 
@@ -71,6 +71,17 @@ describe("faqBandFooter (pill «Leé las respuestas rápidas»)", () => {
   it("el texto cuenta las que quedan fuera de la banda, en singular o plural", () => {
     expect(faqBandFooter(12, 6).text).toBe("Hay 6 respuestas más para leer.");
     expect(faqBandFooter(7, 6).text).toBe("Hay 1 respuesta más para leer.");
-    expect(faqBandFooter(4, 4).text).toBe("Leé todas las respuestas juntas.");
+    expect(faqBandFooter(4, 4).text).toBe("Mirá todas las respuestas en un solo lugar.");
+  });
+});
+
+describe("faqChapterVisible (preguntas para leer, no para preguntar)", () => {
+  it("sin preguntas respondidas no hay capítulo", () => {
+    expect(faqChapterVisible(0)).toBe(false);
+    expect(faqChapterVisible(-1)).toBe(false);
+  });
+  it("con al menos una, sí", () => {
+    expect(faqChapterVisible(1)).toBe(true);
+    expect(faqChapterVisible(12)).toBe(true);
   });
 });

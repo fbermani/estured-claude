@@ -58,7 +58,38 @@ describe("HouseRules (formato del mockup)", () => {
   });
   it("las reglas de más van en un desplegable", () => {
     const many = renderToStaticMarkup(createElement(HouseRules, { rulesSummary: Array.from({ length: 7 }, (_, i) => `Regla ${i + 1}`).join("\n") }));
-    expect(many).toContain("Ver 2 reglas más");
+    expect(many).toContain("Ver 1 regla más");
+  });
+  it("con reglas estructuradas usa el dato, el título y el detalle de la residencia", () => {
+    const structured = renderToStaticMarkup(
+      createElement(HouseRules, {
+        rulesSummary: "Texto viejo que no se muestra",
+        items: [
+          { lead: "23 a 7", title: "Silencio", detail: "Para música o videos, auriculares" },
+          { lead: "Libre", title: "Entrada y salida", detail: "Con tu llave, sin horario de llegada" },
+          { title: "Cocina abierta" },
+        ],
+      }),
+    );
+    expect(structured).toContain(">23 a 7<");
+    expect(structured).toContain(">Libre<");
+    expect(structured).toContain("<strong");
+    expect(structured).toContain("Para música o videos, auriculares");
+    expect(structured).not.toContain("Texto viejo");
+    expect(structured).toContain(">home<");
+  });
+  it("un resumen de una sola línea se parte en filas cortas", () => {
+    const one = renderToStaticMarkup(
+      createElement(HouseRules, { rulesSummary: "Convivencia respetuosa, silencio después de las 23hs, visitas coordinadas con anticipación." }),
+    );
+    expect(one.match(/<li/g)?.length).toBe(3);
+    expect(one).toContain("Visitas coordinadas con anticipación");
+  });
+  it("sin reglas pero con reglamento dibuja solo el botón, sin lista vacía; sin nada no dibuja nada", () => {
+    const onlyAction = renderToStaticMarkup(createElement(HouseRules, { rulesSummary: "", actions: createElement("button", null, "Leer el reglamento") }));
+    expect(onlyAction).toContain("Leer el reglamento");
+    expect(onlyAction).not.toContain("<ul");
+    expect(renderToStaticMarkup(createElement(HouseRules, { rulesSummary: "" }))).toBe("");
   });
 });
 
@@ -70,5 +101,15 @@ describe("FaqBand", () => {
     expect(html).toContain("Preguntas que más nos hacen");
     expect(html).toContain("Hay 8 respuestas más para leer.");
     expect(html).not.toContain("Hacer una pregunta");
+  });
+  it("no repite subtítulos de categoría dentro de la banda (quedan en el modal)", () => {
+    const grouped = [
+      { question: "P1", answer: "A1", group: "Antes de reservar" },
+      { question: "P2", answer: "A2", group: "Convivencia y reglas" },
+    ];
+    const html = renderToStaticMarkup(createElement(FaqBand, { headingId: "h", number: "04", items: grouped, total: 2, residenceName: "Norte" }));
+    expect(html).not.toContain("Antes de reservar");
+    expect(html).not.toContain("Convivencia y reglas");
+    expect(html).toContain("Mirá todas las respuestas en un solo lugar.");
   });
 });

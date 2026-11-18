@@ -51,7 +51,7 @@ import { buildGalleryPhotos, loadPhotoMeta } from "@/lib/residences/photoMetaDb"
 import { loadResidencePromotions } from "@/lib/residences/promotions";
 import { loadVacancyOutlooks } from "@/lib/residences/vacancy";
 import { applyPromotion, normalizeDepositMode, pickActivePromotion, todayIso } from "@/lib/applications/reservationMoney";
-import { computeCapacity, formatOccupancy, residentsToDisplay } from "@/lib/residences/occupancy";
+import { computeCapacity } from "@/lib/residences/occupancy";
 import { loadFamilyViewer, loadStudentViewer, type LinkedStudent, type StudentViewer } from "@/app/(public)/residencias/[slug]/loadViewerContext";
 import { findUniversitiesByName, haversineDistanceKm, withoutOtherUniversity } from "@/lib/data/buenosAiresUniversities";
 import { roomTypeSubtitle } from "@/lib/residences/fichaConditions";
@@ -64,7 +64,8 @@ import { FaqBand } from "@/components/residences/ficha/FaqBand";
 import { VivirMosaic } from "@/components/residences/ficha/VivirMosaic";
 import { FICHA_BARS_STYLE } from "@/lib/residences/fichaLayout";
 import { buildChapters, type Chapter as FichaChapter, type ChapterKey } from "@/lib/residences/fichaChapters";
-import { splitFeaturedFaq } from "@/lib/residences/featuredFaq";
+import { faqChapterVisible, splitFeaturedFaq } from "@/lib/residences/featuredFaq";
+import { buildRuleRows } from "@/lib/residences/fichaRules";
 import { ReadMore } from "@/components/residences/ficha/ReadMore";
 import { RoomCards } from "@/components/residences/ficha/RoomCards";
 import { ReservationConditions } from "@/components/residences/ficha/ReservationConditions";
@@ -123,7 +124,7 @@ const loadResidence = cache(async (slug: string) => {
   if (residenceError) console.error("[ficha] no se pudo leer la residencia:", residenceError);
   if (!residence) return null;
 
-  const [roomTypesRes, roomsRes, sectionsRes, photosRes, rulesFileRes, photoMeta, staysRes, promotionsRes] = await Promise.all([
+  const [roomTypesRes, roomsRes, sectionsRes, photosRes, rulesFileRes, photoMeta, promotionsRes] = await Promise.all([
     admin
       .from("room_types")
       .select(
@@ -158,15 +159,8 @@ const loadResidence = cache(async (slug: string) => {
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle(),
-    // DR18 (tanda 2): clasificación de fotos (degrada a «todo general» sin la 0059) y residentes vigentes para «plazas · residentes».
+    // DR18 (tanda 2): clasificación de fotos (degrada a «todo general» sin la 0059).
     loadPhotoMeta(admin, [residence.id]),
-    admin
-      .from("resident_stays")
-      .select("id", { count: "exact", head: true })
-      .eq("residence_id", residence.id)
-      .eq("is_current", true)
-      .neq("status", "hidden_by_user")
-      .neq("status", "inactive"),
     // DR18 (tanda 3): promociones de tarifa (degrada a «sin promociones» sin la 0060).
     loadResidencePromotions(admin, residence.id),
   ]);
@@ -188,14 +182,11 @@ const loadResidence = cache(async (slug: string) => {
     (path) => admin.storage.from("public-residence-media").getPublicUrl(path).data.publicUrl,
     typeNames,
   );
-  // Plazas declaradas (Verificado) y residentes reales (solo Gestión Operativa, con estadías vigentes): sin porcentaje ni «quedan N».
+  // Plazas declaradas (Verificado): van en la bajada de «Habitaciones» de la franja «Lo esencial». Sin porcentaje ni «quedan N».
   const capacityPlaces = computeCapacity(
     (roomTypesRes.data ?? []).map((rt) => ({ id: rt.id as string, capacity_per_room: rt.capacity_per_room as number | null })),
     ((roomsRes.data ?? []) as { room_type_id: string }[]).map((r) => ({ room_type_id: r.room_type_id })),
   );
-  const stayCount = staysRes.error ? 0 : (staysRes.count ?? 0);
-  const residentsCount = residentsToDisplay(residence.has_operational_management_access as boolean | null | undefined, stayCount);
-  const occupancyLabel = formatOccupancy(capacityPlaces, residentsCount);
 
   let rulesPdfUrl: string | null = null;
   if (rulesFileRes.data?.storage_path) {
@@ -233,7 +224,7 @@ const loadResidence = cache(async (slug: string) => {
     genderRows: genderAvailability.byType.get(rt.id as string) ?? [],
   }));
 
-  return { residence, roomTypes: normalizedRoomTypes, sectionMap, photos, rulesPdfUrl, occupancyLabel };
+  return { residence, roomTypes: normalizedRoomTypes, sectionMap, photos, rulesPdfUrl, capacityPlaces };
 });
 
 export async function generateMetadata({
@@ -278,7 +269,7 @@ export default async function RealResidenceDetailPage({
   const { room: preselectedRoomTypeId, solicitar } = await searchParams;
   const data = await loadResidence(slug);
   if (!data) notFound();
-  const { residence, roomTypes, sectionMap, photos, rulesPdfUrl, occupancyLabel } = data;
+  const { residence, roomTypes, sectionMap, photos, rulesPdfUrl, capacityPlaces } = data;
 
   // Lecturas independientes en paralelo: cotización, sesión y, con la sesión, todo lo que depende de quién mira.
   const adminClient = getSupabaseAdmin();
@@ -417,13 +408,16 @@ export default async function RealResidenceDetailPage({
     average: averageAge,
   });
   const hasAgeSection = !!ageFacts.subtitle;
-  const hasRules = !!(rulesSummary || rulesPdfUrl || regulation);
+  // Reglas de casa: las estructuradas (`rules.items`) o las derivadas del resumen; sin ninguna y sin reglamento, el capítulo no se muestra.
+  const rulesItems = sectionMap.rules?.items;
+  const hasRules = buildRuleRows({ items: rulesItems, summary: rulesSummary }).length > 0 || !!rulesPdfUrl || !!regulation;
   const chapters = buildChapters({
     vivir: hasGallery || hasServices || !!residence.description,
     tarifas: true,
     incluye: true,
-    preguntas: true,
-    comunidad: hasCommunity || hasAgeSection || !!occupancyLabel,
+    // Sin preguntas respondidas no hay capítulo: el dueño quiere que la gente LEA, no que pregunte (ver `faqChapterVisible`).
+    preguntas: faqChapterVisible(faqItems.length),
+    comunidad: hasCommunity || hasAgeSection,
     reglas: hasRules,
     ubicacion: true,
   });
@@ -541,8 +535,6 @@ export default async function RealResidenceDetailPage({
   // Reglamento: se ofrece la descarga solo si la residencia cargó el suyo (propio, adaptado del modelo o un PDF subido).
   const regulationDownloadHref = canDownloadRegulation({ regulation, hasUploadedPdf: !!rulesPdfUrl }) ? `/residencias/${slug}/reglamento` : null;
 
-  const chipClass =
-    "inline-flex min-w-0 items-center gap-1.5 rounded-card border border-line bg-paper px-3 py-1.5 text-sm leading-snug text-ink-soft sm:whitespace-nowrap sm:rounded-full";
   // Quién ve el panel de solicitud en la columna derecha (≥ 900 px) y como hoja inferior en móvil: visitante, estudiante y
   // familiar con estudiante vinculado, siempre que haya tipos para elegir. El resto (equipo, menores, otros roles) ve el
   // resumen con «Ver tarifas».
@@ -567,6 +559,7 @@ export default async function RealResidenceDetailPage({
     enrollmentFeeUsd: conditions.enrollmentFeeUsd,
     nearest: nearest ?? null,
     age: ageFacts.strip,
+    totalPlaces: capacityPlaces,
   });
   const heroCta = panelVariant ? (
     <HeroCta
@@ -758,49 +751,17 @@ export default async function RealResidenceDetailPage({
           )}
 
           {/* 04 Preguntas: banda destacada (las primeras, hasta 6) con «Leé las respuestas rápidas», que abre todas en el modal. No hay botón de
-              «Hacer una pregunta» (el dueño quiere incentivar a leer): el formulario vive como enlace discreto al final del modal; solo sin
-              ninguna pregunta respondida se muestra directo acá. */}
+              «Hacer una pregunta» (el dueño quiere incentivar a leer): el formulario vive solo como enlace discreto al final del modal. Sin
+              ninguna pregunta respondida el capítulo (y su chip) no existe. */}
           {chapter("preguntas") && (
             <section id="preguntas" aria-labelledby="h-preguntas" className={CHAPTER_SECTION}>
-              {faqItems.length > 0 ? (
-                <FaqBand
-                  headingId="h-preguntas"
-                  number={chapter("preguntas")!.number}
-                  items={featuredFaq}
-                  total={faqItems.length}
-                  residenceName={residence.name}
-                />
-              ) : (
-                <>
-                  <ChapterHeading id="h-preguntas" number={chapter("preguntas")!.number}>
-                    Preguntas
-                  </ChapterHeading>
-                  <EmptyState
-                    icon="help"
-                    title="Todavía no hay preguntas respondidas"
-                    description={
-                      isOwnResidenceTeam
-                        ? "Cuando tu residencia responda preguntas, las ves acá."
-                        : "Podés hacerle tu pregunta a la residencia y, si la responde, la ves en la ficha."
-                    }
-                  />
-                </>
-              )}
-              {isOwnResidenceTeam ? (
-                <p className="mt-6 rounded-card border-[1.5px] border-line bg-paper px-5 py-4 text-sm text-ink-soft">
-                  Las preguntas que reciba esta residencia las ves y respondés desde{" "}
-                  <Link href={`/residence/${residence.id}/faq`} className="font-bold text-forest-700 hover:underline">
-                    tu panel
-                  </Link>
-                  .
-                </p>
-              ) : (
-                faqItems.length === 0 && (
-                  <div id="hacer-pregunta" className={`mt-6 ${ANCHOR_OFFSET}`}>
-                    <AskQuestionForm residenceId={residence.id} signedIn={!!sessionUser} />
-                  </div>
-                )
-              )}
+              <FaqBand
+                headingId="h-preguntas"
+                number={chapter("preguntas")!.number}
+                items={featuredFaq}
+                total={faqItems.length}
+                residenceName={residence.name}
+              />
             </section>
           )}
 
@@ -808,16 +769,6 @@ export default async function RealResidenceDetailPage({
           {chapter("comunidad") && (
             <Chapter chapter={chapter("comunidad")!} subtitle={ageFacts.subtitle}>
               <div className="space-y-8">
-                {/* «Plazas · residentes» (antes un pill suelto bajo el breadcrumb): sin porcentaje ni «quedan N». Sin plazas declaradas queda el
-                    conteo de la comunidad. */}
-                {(occupancyLabel || (community?.totalResidents ?? 0) > 0) && (
-                  <ul className="-mt-1 flex flex-wrap gap-2" aria-label="Residentes">
-                    <li className={chipClass}>
-                      <Icon name="groups" className="text-lg text-forest-700" />
-                      {occupancyLabel ? <strong className="font-semibold text-ink">{occupancyLabel}</strong> : <>{community?.totalResidents} residentes</>}
-                    </li>
-                  </ul>
-                )}
                 {hasCommunity && (
                   <div id="comunidad-resumen" className="space-y-4">
                     <p className="-mt-2 text-sm text-ink-soft">Quiénes viven hoy en la residencia.</p>
@@ -836,6 +787,7 @@ export default async function RealResidenceDetailPage({
               <div id="convivencia" className={ANCHOR_OFFSET}>
                 <HouseRules
                   rulesSummary={rulesSummary}
+                  items={rulesItems}
                   actions={
                     regulation ? (
                       <RegulationModal

@@ -434,3 +434,5 @@ Ver `CLAUDE_CODE_AUDIT.md` §6. Los principales: código sin versionar; pendient
 Ninguna bloqueante para el Ciclo 1. Decisión logística necesaria: **dónde hostear el repo** y **credenciales de Supabase** para el próximo ciclo. Las decisiones de negocio abiertas viven en `docs/00` §29.
 
 - **UX (2026-11-14):** correr `npm run build` con el servidor dev detenido, pushear `staging`, verificar en estured.vercel.app a 1280/375 px los CON implementados y decidir de a una: CON-13, 15, 16 (rótulo), 18 (plazo), 21, 24, 26, 27, 29, tutor de Valentina y umbral de revocación. Detalle: `docs/audits/PLAN_REMEDIACION_UX_2026-11-14.md`.
+
+- **2026-11-18 · Ficha, reglas estructuradas:** correr `node --env-file=.env.local scripts/seed-demo-house-rules.mjs` (carga `rules.items` en `residencia-norte-demo`; sin migración) y revisar en staging «Reglas de casa», «Preguntas» (oculto sin FAQ) y la celda «Habitaciones» con plazas.

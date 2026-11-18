@@ -36,7 +36,8 @@ export function FaqBand({
         Preguntas que más nos hacen
       </ChapterHeading>
       <p className="-mt-2 mb-5 text-base text-[color:var(--paper-88)]">Respondidas por {residenceName}.</p>
-      <FaqAccordion items={items} onDark />
+      {/* Lista simple, sin subtítulos de categoría (como el mockup); las categorías se conservan en el modal. */}
+      <FaqAccordion items={items.map((q) => ({ question: q.question, answer: q.answer, fromVisitor: q.fromVisitor }))} onDark />
       <div className="mt-5 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
         <p className="text-[15px] text-[color:var(--paper-88)]">{footer.text}</p>
         {footer.showReadButton && (

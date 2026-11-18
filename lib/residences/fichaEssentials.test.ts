@@ -97,3 +97,20 @@ describe("buildEssentialCells", () => {
     expect(buildEssentialCells({ ...base, age: null }).some((c) => c.key === "edad")).toBe(false);
   });
 });
+
+describe("celda «Habitaciones» con el total de plazas", () => {
+  it("las plazas pasan a la bajada y el rango por habitación al tooltip", () => {
+    const cell = buildEssentialCells({ ...base, totalPlaces: 36 }).find((c) => c.key === "habitaciones");
+    expect(cell?.sub).toBe("36 plazas");
+    expect(cell?.title).toBe("36 plazas · de 1 a 3 personas");
+    expect(cell?.ariaLabel).toContain("36 plazas");
+  });
+  it("sin plazas conserva el rango por habitación", () => {
+    const cell = buildEssentialCells({ ...base, totalPlaces: null }).find((c) => c.key === "habitaciones");
+    expect(cell?.sub).toBe("de 1 a 3 personas");
+    expect(cell?.title).toBeUndefined();
+  });
+  it("una plaza en singular", () => {
+    expect(buildEssentialCells({ ...base, roomTypes: [{ capacity: null }], totalPlaces: 1 }).find((c) => c.key === "habitaciones")?.sub).toBe("1 plaza");
+  });
+});

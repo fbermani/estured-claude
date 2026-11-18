@@ -49,6 +49,8 @@ export type EssentialsInput = {
   arsPerUsd: number;
   /** Capacidad por habitación de cada tipo activo (`null` si no está cargada). */
   roomTypes: { capacity: number | null }[];
+  /** Plazas totales de la residencia (suma de las camas/capacidad declaradas). Con dato, la celda «Habitaciones» las muestra en su bajada. */
+  totalPlaces?: number | null;
   minimumStayMonths: number | null;
   enrollmentFeeMode: "one_month" | "manual" | null;
   enrollmentFeeUsd: number | null;
@@ -87,12 +89,18 @@ export function buildEssentialCells(input: EssentialsInput): EssentialCell[] {
 
   const types = input.roomTypes.length;
   if (types > 0) {
+    const range = capacityRangeLabel(input.roomTypes.map((t) => t.capacity));
+    const places = input.totalPlaces != null && Number.isFinite(input.totalPlaces) ? Math.floor(input.totalPlaces) : 0;
+    const placesLabel = places > 0 ? `${places} ${places === 1 ? "plaza" : "plazas"}` : undefined;
+    // Con el total de plazas, la bajada lo muestra (antes vivía en un pill de «La comunidad»); el rango por habitación pasa al tooltip.
+    const full = [placesLabel, range].filter(Boolean).join(" · ");
     cells.push({
       key: "habitaciones",
       icon: "bed",
       label: "Habitaciones",
       value: `${types} ${types === 1 ? "tipo" : "tipos"}`,
-      sub: capacityRangeLabel(input.roomTypes.map((t) => t.capacity)),
+      sub: placesLabel ?? range,
+      ...(placesLabel && range ? { title: full, ariaLabel: `Habitaciones: ${types} ${types === 1 ? "tipo" : "tipos"}, ${full}` } : {}),
     });
   }
 

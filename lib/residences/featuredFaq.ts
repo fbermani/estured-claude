@@ -47,6 +47,15 @@ export function faqBandFooter(total: number, shown: number): { showReadButton: b
   const more = Math.max(0, total - shown);
   return {
     showReadButton: total > 0,
-    text: more > 0 ? `Hay ${more} ${more === 1 ? "respuesta más" : "respuestas más"} para leer.` : "Leé todas las respuestas juntas.",
+    text: more > 0 ? `Hay ${more} ${more === 1 ? "respuesta más" : "respuestas más"} para leer.` : "Mirá todas las respuestas en un solo lugar.",
   };
+}
+
+/**
+ * ¿Existe el capítulo «Preguntas que más nos hacen»? Solo con al menos una pregunta respondida. Sin ninguna no se dibuja el capítulo, ni su
+ * chip de la navegación, ni ningún formulario de «Hacer una pregunta»: el dueño quiere que la gente LEA, no que pregunte (la pregunta libre
+ * vive solo como enlace discreto al final del modal, que existe únicamente cuando hay respuestas).
+ */
+export function faqChapterVisible(total: number): boolean {
+  return total > 0;
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { RULES_VISIBLE, canDownloadRegulation, moreRulesLabel, parseRuleLines, splitRuleLine, ruleLead, splitRules } from "@/lib/residences/fichaRules";
+import { RULES_VISIBLE, buildRuleRows, canDownloadRegulation, moreRulesLabel, parseRuleLines, splitRuleLine, ruleLead, splitRules, summaryToRuleLines } from "@/lib/residences/fichaRules";
 
 describe("parseRuleLines", () => {
   it("una regla por línea, sin vacías ni espacios de más", () => {
@@ -29,15 +29,15 @@ describe("parseRuleLines", () => {
 
 describe("splitRules", () => {
   const rules = Array.from({ length: 8 }, (_, i) => `R${i + 1}`);
-  it("muestra hasta 5 y deja el resto en el desplegable, sin perder ni repetir ninguna", () => {
+  it("muestra hasta 6 y deja el resto en el desplegable, sin perder ni repetir ninguna", () => {
     const { primary, more } = splitRules(rules);
-    expect(RULES_VISIBLE).toBe(5);
-    expect(primary).toEqual(["R1", "R2", "R3", "R4", "R5"]);
-    expect(more).toEqual(["R6", "R7", "R8"]);
+    expect(RULES_VISIBLE).toBe(6);
+    expect(primary).toEqual(["R1", "R2", "R3", "R4", "R5", "R6"]);
+    expect(more).toEqual(["R7", "R8"]);
     expect([...primary, ...more]).toEqual(rules);
   });
-  it("con 5 o menos no hay desplegable", () => {
-    expect(splitRules(rules.slice(0, 5)).more).toEqual([]);
+  it("con 6 o menos no hay desplegable", () => {
+    expect(splitRules(rules.slice(0, 6)).more).toEqual([]);
     expect(splitRules(rules.slice(0, 2))).toEqual({ primary: ["R1", "R2"], more: [] });
     expect(splitRules([])).toEqual({ primary: [], more: [] });
   });
@@ -106,5 +106,68 @@ describe("ruleLead (columna izquierda, solo se lee del texto)", () => {
   });
   it("sin forma reconocible no se inventa nada", () => {
     expect(ruleLead("Cada uno lava y guarda lo que usa")).toBeNull();
+  });
+});
+
+describe("ruleLead: «Libre» solo cuando es inequívoco", () => {
+  it("al inicio de la regla o de su detalle, o al final del título", () => {
+    expect(ruleLead("Libre acceso con tu llave")).toBe("Libre");
+    expect(ruleLead("Entrada libre: sin horario")).toBe("Libre");
+  });
+  it("una mención suelta no es dato", () => {
+    expect(ruleLead("Visitas libres hasta las 22 en el living")).toBeNull();
+  });
+});
+
+describe("summaryToRuleLines (resumen de una sola línea)", () => {
+  it("parte por comas en fragmentos cortos, capitalizados y sin punto final", () => {
+    expect(
+      summaryToRuleLines("Convivencia respetuosa, silencio después de las 23hs, visitas coordinadas con anticipación."),
+    ).toEqual(["Convivencia respetuosa", "Silencio después de las 23hs", "Visitas coordinadas con anticipación"]);
+  });
+  it("también por punto y coma y por punto", () => {
+    expect(summaryToRuleLines("No fumar; Silencio de noche. Visitas hasta las 22")).toEqual(["No fumar", "Silencio de noche", "Visitas hasta las 22"]);
+  });
+  it("una sola frase corta no se parte", () => {
+    expect(summaryToRuleLines("Convivencia respetuosa")).toEqual(["Convivencia respetuosa"]);
+  });
+  it("con «Título: detalle» no se parte (el detalle puede llevar comas)", () => {
+    expect(summaryToRuleLines("Silencio: para música o videos, auriculares")).toEqual(["Silencio: para música o videos, auriculares"]);
+  });
+  it("si algún fragmento es largo, queda la línea entera", () => {
+    const long = `Una regla muy larga que explica con muchísimo detalle por qué conviene ser cuidadoso con los espacios comunes, y otra`;
+    expect(summaryToRuleLines(long)).toEqual([long]);
+  });
+  it("decimales no se parten; varias líneas se respetan", () => {
+    expect(summaryToRuleLines("Visitas hasta 1,5 horas")).toEqual(["Visitas hasta 1,5 horas"]);
+    expect(summaryToRuleLines("Uno, dos\nTres")).toEqual(["Uno, dos", "Tres"]);
+  });
+});
+
+describe("buildRuleRows", () => {
+  it("con ítems estructurados manda el dato de la residencia, en su orden", () => {
+    const rows = buildRuleRows({
+      summary: "Texto viejo",
+      items: [
+        { lead: "23 a 7", title: "Silencio", detail: "Para música o videos, auriculares" },
+        { title: "Cocina abierta" },
+      ],
+    });
+    expect(rows).toEqual([
+      { lead: "23 a 7", title: "Silencio", body: "Para música o videos, auriculares" },
+      { lead: null, title: "Cocina abierta", body: "" },
+    ]);
+  });
+  it("sin ítems deriva del resumen (una línea partida) y lee el dato solo si es inequívoco", () => {
+    const rows = buildRuleRows({ items: [], summary: "Convivencia respetuosa, silencio de 23 a 7, visitas coordinadas con anticipación." });
+    expect(rows.map((r) => r.body)).toEqual(["Convivencia respetuosa", "Silencio de 23 a 7", "Visitas coordinadas con anticipación"]);
+    expect(rows.map((r) => r.lead)).toEqual([null, "23 a 7", null]);
+  });
+  it("sin ítems ni resumen no hay filas", () => {
+    expect(buildRuleRows({ items: undefined, summary: "" })).toEqual([]);
+    expect(buildRuleRows({ items: "basura", summary: null })).toEqual([]);
+  });
+  it("ítems mal formados se descartan", () => {
+    expect(buildRuleRows({ items: [{ lead: "No" }, 3, null], summary: "" })).toEqual([]);
   });
 });

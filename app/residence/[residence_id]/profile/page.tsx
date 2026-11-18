@@ -1,3 +1,4 @@
+import { parseRuleItems } from "@/lib/residences/ruleItems";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
@@ -136,6 +137,7 @@ export default async function ResidenceProfilePage({
         nearUniversities: (sectionMap.near_universities?.items as string[]) ?? [],
         stayDocuments: parseStayDocumentsContent(sectionMap.stay_documents),
         rulesSummary: (sectionMap.rules?.summary as string) ?? "",
+        rulesItems: parseRuleItems(sectionMap.rules?.items),
         rulesFileName: rulesFile?.filename ?? null,
         customAmenities: (customAmenitiesRes.ok ? customAmenitiesRes.items : []).map((i) => ({
           id: i.id,

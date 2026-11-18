@@ -35,4 +35,16 @@ describe("buildChapters", () => {
     expect(new Set(ids).size).toBe(ids.length);
     expect(CHAPTER_DEFS.find((c) => c.key === "tarifas")?.id).toBe("tarifas");
   });
+
+  it("sin preguntas respondidas el capítulo y su chip se omiten y la numeración se recalcula", () => {
+    const chapters = buildChapters({ ...all, preguntas: false });
+    expect(chapters.map((c) => [c.key, c.number])).toEqual([
+      ["vivir", "01"],
+      ["tarifas", "02"],
+      ["incluye", "03"],
+      ["comunidad", "04"],
+      ["reglas", "05"],
+      ["ubicacion", "06"],
+    ]);
+  });
 });

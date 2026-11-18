@@ -28,7 +28,6 @@ import {
   ADJUSTMENT_POLICY_OPTIONS,
   ROOM_FEATURE_OPTIONS,
   serviceLabel,
-  RULE_SUGGESTIONS,
 } from "@/lib/residences/options";
 import {
   CUSTOM_AMENITY_MAX,
@@ -36,7 +35,10 @@ import {
   type CustomAmenityKind,
   type CustomAmenityStatus,
 } from "@/lib/residences/customAmenities";
-import { MAX_TOP_RULES, TOP_RULE_MAX, splitRules } from "@/lib/residences/topRules";
+import { MAX_RULE_ITEMS, ruleItemsToSummary, type HouseRuleItem } from "@/lib/residences/ruleItems";
+import { buildRuleRows } from "@/lib/residences/fichaRules";
+import { splitRules as splitRulesLines } from "@/lib/residences/topRules";
+import { RulesItemsEditor, newRuleDraft, type RuleDraft } from "@/app/residence/[residence_id]/profile/RulesItemsEditor";
 import {
   MAX_OTHER_STAY_DOCUMENTS,
   MAX_OTHER_STAY_DOCUMENT_LENGTH,
@@ -118,6 +120,8 @@ interface ProfileInitial {
   /** DR38: documentos que la residencia le pide a sus residentes (claves del catálogo + «Otro»). */
   stayDocuments: { items: StayDocumentKey[]; other: string[] };
   rulesSummary: string;
+  /** Reglas principales estructuradas (`rules.items`); vacío si la residencia solo tiene el resumen de texto. */
+  rulesItems: HouseRuleItem[];
   rulesFileName: string | null;
   /** DR18: ítems «Otro» ya cargados (con su estado) y si la migración 0058 está aplicada. */
   customAmenities: { id: string; kind: CustomAmenityKind; label: string; status: CustomAmenityStatus; rejectReason: string | null }[];
@@ -272,11 +276,24 @@ export function ResidenceProfileForm({
     setStayDocDraft("");
     setStayDocDraftError(null);
   }
-  const [rulesList, setRulesList] = useState<string[]>(() => {
-    const existing = splitRules(initial.rulesSummary).slice(0, MAX_TOP_RULES);
-    return existing.length > 0 ? existing : [""];
+  // Reglas principales: las estructuradas guardadas o, si la residencia solo tiene el resumen de texto, filas armadas a partir de él
+  // (la residencia las revisa; no se guarda nada hasta que toca la lista: `rulesDirty`).
+  const derivedFromText = initial.rulesItems.length === 0 && initial.rulesSummary.trim().length > 0;
+  const [rulesRows, setRulesRows] = useState<RuleDraft[]>(() => {
+    if (initial.rulesItems.length > 0) return initial.rulesItems.map((i) => newRuleDraft({ lead: i.lead, title: i.title, detail: i.detail }));
+    return buildRuleRows({ summary: initial.rulesSummary })
+      .slice(0, MAX_RULE_ITEMS)
+      .map((r) => {
+        // Solo se prefiere el dato cuando es un horario («23 a 7»); «No»/«Sí» repetirían el título.
+        const lead = r.lead && r.lead.includes(" a ") ? r.lead : "";
+        if (r.title) return newRuleDraft({ lead, title: r.title.slice(0, 40), detail: r.body.slice(0, 120) });
+        return r.body.length <= 40 ? newRuleDraft({ lead, title: r.body }) : newRuleDraft({ lead, detail: r.body.slice(0, 120) });
+      });
   });
-  const rulesSummary = rulesList.map((r) => r.trim()).filter(Boolean).join("\n");
+  const [rulesDirty, setRulesDirty] = useState(false);
+  const rulesSummary = rulesDirty
+    ? ruleItemsToSummary(rulesRows.filter((r) => r.title.trim()).map((r) => ({ title: r.title.trim() })))
+    : initial.rulesSummary.trim();
   const [customItems, setCustomItems] = useState<{ id?: string; kind: CustomAmenityKind; label: string; status: CustomAmenityStatus; rejectReason: string | null }[]>(
     initial.customAmenities,
   );
@@ -768,57 +785,36 @@ export function ResidenceProfileForm({
               antes de ser público.
             </p>
             <div className="mt-4">
-              <p className="text-sm font-medium text-ink">Reglas de convivencia destacadas</p>
+              <p className="text-sm font-medium text-ink">Reglas principales</p>
               <p className="mt-0.5 text-xs text-ink-soft">
-                Elegí las {MAX_TOP_RULES} reglas más importantes o que quieras destacar. Se muestran en tu ficha pública; el detalle completo va en el reglamento.
+                Hasta {MAX_RULE_ITEMS} reglas, las más importantes. Se muestran en tu ficha pública con el dato grande a la izquierda; el detalle completo va en el
+                reglamento. Ejemplo: <strong>23 a 7</strong> · Silencio · Para música o videos, auriculares. Otro: <strong>Libre</strong> · Entrada y salida · Con tu
+                llave, sin horario de llegada.
               </p>
-              <input type="hidden" name="rules_summary" value={rulesSummary} />
-              <ul className="mt-3 space-y-2">
-                {rulesList.map((rule, i) => (
-                  <li key={i} className="flex gap-2">
-                    <input
-                      value={rule}
-                      maxLength={TOP_RULE_MAX}
-                      onChange={(e) => setRulesList((prev) => prev.map((r, j) => (j === i ? e.target.value : r)))}
-                      aria-label={`Regla destacada ${i + 1}`}
-                      placeholder={RULE_SUGGESTIONS[i % RULE_SUGGESTIONS.length]}
-                      className="min-w-0 flex-1 rounded-field border-[1.5px] border-line-2 bg-paper px-3 py-2 text-sm"
-                    />
-                    {rulesList.length > 1 && (
-                      <button type="button" onClick={() => setRulesList((prev) => prev.filter((_, j) => j !== i))} className="text-xs font-semibold text-ink-soft underline">
-                        Quitar
-                      </button>
-                    )}
-                  </li>
-                ))}
-              </ul>
-              {rulesList.length < MAX_TOP_RULES && (
-                <button type="button" onClick={() => setRulesList((prev) => [...prev, ""])} className="mt-2 text-sm font-semibold text-forest-700 underline">
-                  Agregar otra regla
-                </button>
+              {derivedFromText && !rulesDirty && (
+                <p className="mt-2 rounded-field bg-forest-tint px-3 py-2 text-xs text-ink">
+                  Armamos estas filas a partir del texto que tenías cargado. Revisalas y completalas: hasta que no cambies algo, tu ficha sigue mostrando lo de antes.
+                </p>
               )}
-              <div className="mt-3 flex flex-wrap gap-2" aria-label="Sugerencias de reglas">
-                {RULE_SUGGESTIONS.filter((sg) => !rulesList.includes(sg)).map((sg) => (
-                  <button
-                    key={sg}
-                    type="button"
-                    disabled={rulesList.filter((r) => r.trim()).length >= MAX_TOP_RULES && !rulesList.some((r) => !r.trim())}
-                    onClick={() =>
-                      setRulesList((prev) => {
-                        const emptyAt = prev.findIndex((r) => !r.trim());
-                        if (emptyAt >= 0) return prev.map((r, j) => (j === emptyAt ? sg : r));
-                        return prev.length < MAX_TOP_RULES ? [...prev, sg] : prev;
-                      })
-                    }
-                    className="rounded-full border border-line-2 bg-paper px-3 py-1 text-xs text-ink-soft hover:border-forest hover:text-forest-700 disabled:opacity-40"
-                  >
-                    + {sg}
-                  </button>
-                ))}
+              <input type="hidden" name="rules_summary" value={initial.rulesSummary} />
+              <input type="hidden" name="rules_items_dirty" value={rulesDirty ? "1" : "0"} />
+              <input
+                type="hidden"
+                name="rules_items_json"
+                value={JSON.stringify(rulesRows.map((r) => ({ lead: r.lead, title: r.title, detail: r.detail })))}
+              />
+              <div className="mt-3">
+                <RulesItemsEditor
+                  rows={rulesRows}
+                  onChange={(next) => {
+                    setRulesRows(next);
+                    setRulesDirty(true);
+                  }}
+                />
               </div>
-              {splitRules(initial.rulesSummary).length > MAX_TOP_RULES && (
+              {splitRulesLines(initial.rulesSummary).length > MAX_RULE_ITEMS && !rulesDirty && (
                 <p className="mt-2 text-xs text-warning-fg">
-                  Tenías más de {MAX_TOP_RULES} reglas cargadas: acá ves las primeras {MAX_TOP_RULES}. Al guardar, quedan solo esas.
+                  Tenías más de {MAX_RULE_ITEMS} reglas cargadas: acá ves las primeras {MAX_RULE_ITEMS}. Si guardás cambios en esta lista, quedan solo esas.
                 </p>
               )}
             </div>

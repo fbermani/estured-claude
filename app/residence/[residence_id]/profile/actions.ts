@@ -32,6 +32,7 @@ import { SUBMITTABLE_RESIDENCE_STATUSES, VERIFICATION_STATUSES_RESET_ON_SUBMIT, 
 import { parseCustomAmenityDrafts } from "@/lib/residences/customAmenities";
 import { syncCustomAmenities } from "@/lib/residences/customAmenitiesDb";
 import { splitRules, validateTopRules } from "@/lib/residences/topRules";
+import { normalizeRuleItems, parseRuleItems, ruleItemsToSummary, sameRuleItems, type HouseRuleItem } from "@/lib/residences/ruleItems";
 import { validateAgeRange } from "@/lib/residences/age";
 import { MAX_RESIDENCE_PHOTOS } from "@/lib/residences/photos";
 import {
@@ -271,7 +272,22 @@ export async function saveResidenceProfile(
     .maybeSingle();
   const storedRulesRaw = ((storedRulesSection?.content as { summary?: string } | null)?.summary ?? "").trim();
   let rulesSummary = rulesSummaryRaw;
-  if (splitRules(rulesSummaryRaw).join("\n") !== splitRules(storedRulesRaw).join("\n")) {
+  // Reglas principales estructuradas (hasta 6 `{ lead?, title, detail? }`): el editor las manda solo si el dueño las tocó
+  // (`rules_items_dirty`); si no, lo guardado (ítems y resumen) queda tal cual y no se pide revisión de nada.
+  const storedRuleItems = parseRuleItems((storedRulesSection?.content as { items?: unknown } | null)?.items);
+  let ruleItems: HouseRuleItem[] = storedRuleItems;
+  if (formData.get("rules_items_dirty") === "1") {
+    let rawItems: unknown;
+    try {
+      rawItems = JSON.parse(String(formData.get("rules_items_json") ?? "[]"));
+    } catch {
+      return { status: "error", message: "No pudimos leer las reglas principales. Probá de nuevo." };
+    }
+    const itemsCheck = normalizeRuleItems(rawItems);
+    if (!itemsCheck.ok) return { status: "error", message: itemsCheck.error };
+    ruleItems = itemsCheck.items;
+    rulesSummary = ruleItemsToSummary(ruleItems);
+  } else if (splitRules(rulesSummaryRaw).join("\n") !== splitRules(storedRulesRaw).join("\n")) {
     const rulesCheck = validateTopRules(rulesSummaryRaw);
     if (!rulesCheck.ok) return { status: "error", message: rulesCheck.error };
     rulesSummary = rulesCheck.items.join("\n");
@@ -745,20 +761,20 @@ export async function saveResidenceProfile(
 
     // Reglas: crítico (docs/09 §8.1) — gated si publicada. Cambia si el
     // resumen cambió o si se subió un reglamento nuevo.
-    const rulesChanged = rulesSummary !== currentRulesSummary || uploadedRulesFile !== null;
+    const rulesChanged = rulesSummary !== currentRulesSummary || !sameRuleItems(ruleItems, storedRuleItems) || uploadedRulesFile !== null;
     if (gateApplies && rulesChanged) {
       const stage = await stageProfileEdit(admin, {
         residenceId,
         fieldGroup: "rules",
-        oldValue: { summary: currentRulesSummary },
-        newValue: { summary: rulesSummary, rulesFile: uploadedRulesFile },
+        oldValue: { summary: currentRulesSummary, items: storedRuleItems },
+        newValue: { summary: rulesSummary, items: ruleItems, rulesFile: uploadedRulesFile },
         submittedByUserId: sessionUser.id,
       });
       if (!stage.ok) return { status: "error", message: stage.error };
       pendingGroups.push("rules");
     } else {
       const { error } = await admin.from("residence_profile_sections").upsert(
-        { residence_id: residenceId, section_type: "rules", content: { summary: rulesSummary }, requires_admin_review: true },
+        { residence_id: residenceId, section_type: "rules", content: { summary: rulesSummary, items: ruleItems }, requires_admin_review: true },
         { onConflict: "residence_id,section_type" },
       );
       if (error) throw error;

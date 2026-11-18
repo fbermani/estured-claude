@@ -1,22 +1,21 @@
 import type { ReactNode } from "react";
 import { Icon } from "@/components/ui/Icon";
-import { moreRulesLabel, parseRuleLines, ruleLead, splitRuleLine, splitRules } from "@/lib/residences/fichaRules";
+import { buildRuleRows, moreRulesLabel, splitRules, type RuleRow } from "@/lib/residences/fichaRules";
 
 /**
  * Lista de reglas 1:1 con el mockup (`.rules`): sin tarjeta, filas separadas por filetes de 1,5 px (también arriba y abajo), con una columna
  * izquierda de ancho fijo en display bold forest-700 («23 a 7», «Libre», «No») y a la derecha el título en negrita y el detalle debajo.
- * La columna izquierda se LEE del texto de la regla (`ruleLead`); si la regla no trae ese dato, lleva un ícono neutro en su lugar (nunca
- * se inventa un «cuándo»). Si la regla no trae «Título: detalle», va entera como texto.
+ * El dato de la izquierda lo carga la residencia (reglas estructuradas) o se LEE del texto de la regla (`ruleLead`); si la regla no trae
+ * ese dato, lleva un ícono neutro en su lugar (nunca se inventa un «cuándo»). Una regla sin «Título: detalle» va entera como texto.
  */
-function RuleList({ rules, offset = 0 }: { rules: string[]; offset?: number }) {
+function RuleList({ rules, offset = 0 }: { rules: RuleRow[]; offset?: number }) {
   return (
     <ul role="list" className="m-0 grid list-none gap-0 border-y-[1.5px] border-line p-0">
       {rules.map((rule, i) => {
-        const { title, body } = splitRuleLine(rule);
-        const lead = ruleLead(rule);
+        const { lead, title, body } = rule;
         return (
           <li
-            key={`${offset + i}-${rule}`}
+            key={`${offset + i}-${title ?? ""}-${body}`}
             className="grid grid-cols-[4.5rem_minmax(0,1fr)] gap-x-3.5 border-t-[1.5px] border-line py-3.5 first:border-t-0 min-[640px]:grid-cols-[6rem_minmax(0,1fr)]"
           >
             {lead ? (
@@ -28,7 +27,7 @@ function RuleList({ rules, offset = 0 }: { rules: string[]; offset?: number }) {
             )}
             <p className="min-w-0 [overflow-wrap:anywhere]">
               {title && <strong className="block text-base font-bold leading-snug text-ink">{title}</strong>}
-              <span className={title ? "block text-[15px] leading-snug text-ink-soft" : "block text-base leading-snug text-ink"}>{body}</span>
+              {body && <span className={title ? "block text-[15px] leading-snug text-ink-soft" : "block text-base leading-snug text-ink"}>{body}</span>}
             </p>
           </li>
         );
@@ -38,12 +37,14 @@ function RuleList({ rules, offset = 0 }: { rules: string[]; offset?: number }) {
 }
 
 /**
- * Reglas de casa principales (capítulo «Reglas de casa»): hasta 5 reglas a la vista en el formato del mockup y el resto en un
- * desplegable («Ver N reglas más»), sin perder ninguna. `actions` trae los botones del reglamento (leer en el modal y descargar), que
- * arma la página según lo que la residencia cargó. Sin reglas ni acciones no se dibuja nada.
+ * Reglas de casa principales (capítulo «Reglas de casa»): hasta 6 reglas a la vista en el formato del mockup y el resto en un
+ * desplegable («Ver N reglas más»), sin perder ninguna. Fuente: las reglas estructuradas de la residencia (`items`) o, si no cargó, las
+ * que se derivan de su resumen de texto (`buildRuleRows`). `actions` trae los botones del reglamento (leer en el modal y descargar), que
+ * arma la página según lo que la residencia cargó. Sin reglas ni acciones no se dibuja nada; sin reglas pero con acciones, solo los
+ * botones (nunca una lista vacía).
  */
-export function HouseRules({ rulesSummary, actions }: { rulesSummary: string; actions?: ReactNode }) {
-  const { primary, more } = splitRules(parseRuleLines(rulesSummary));
+export function HouseRules({ rulesSummary, items, actions }: { rulesSummary?: string; items?: unknown; actions?: ReactNode }) {
+  const { primary, more } = splitRules(buildRuleRows({ items, summary: rulesSummary }));
   if (primary.length === 0 && !actions) return null;
   return (
     <div className="space-y-4">
