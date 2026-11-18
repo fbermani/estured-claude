@@ -1,10 +1,12 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Residence } from "@/types/domain";
 import { Badge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
 import { StatusTag } from "@/components/ui/StatusTag";
 import { TrustBadge } from "@/components/residences/TrustBadge";
 import { CardPhotoCarousel } from "@/components/residences/CardPhotoCarousel";
+import { ResidencePhotoPlaceholder } from "@/components/residences/ResidencePhoto";
 import { CardAmenityLine } from "@/components/residences/CardAmenityLine";
 import { CommunityPlazasButton } from "@/components/residences/CommunityPlazasButton";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
@@ -25,7 +27,9 @@ import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
  * pie crema con el estado (solo vía `StatusTag`), «N plazas ›» (modal de comunidad, datos lazy) y «Ver residencia».
  * Toda la tarjeta es clickeable por el `::after` del título; los botones del pie, las líneas de amenities y la nota de
  * cambio van por encima (`z-[2]`), así que no hay interactivos dentro de un `<a>`. Dos disposiciones: `grid` (vertical) y
- * `list` (foto a la izquierda cuando la propia tarjeta (contenedor `card`) mide 480 px o más; si no, se apila igual que la grilla).
+ * `list` (foto a la izquierda cuando la propia tarjeta (contenedor `card`) mide 480 px o más; por debajo, disposición horizontal
+ * compacta: miniatura a la izquierda con sello de ícono y promo, nombre y precio a la derecha, y el resto —universidades, tipos,
+ * servicios, pie— a ancho completo; el bloque de texto usa `contents` para que sus hijos entren en la grilla de la tarjeta).
  * Solo en `list` y con la tarjeta ancha (≥ 560 px) se suman la edad de residentes y, bajo el precio, el precio de lista por
  * tipo de habitación (sin estados de disponibilidad: eso vive solo en `StatusTag`); la grilla queda igual.
  */
@@ -107,16 +111,43 @@ export function SearchResultCard({
     <article
       aria-label={residence.name}
       className={`group group/card relative grid rounded-card border-[1.5px] border-line-2 bg-paper shadow-anchor motion-safe:transition-[transform,box-shadow] motion-safe:duration-300 motion-safe:ease-out-fresh [@media(hover:hover)]:motion-safe:hover:-translate-y-1 motion-safe:focus-within:-translate-y-1 hover:shadow-card-hover focus-within:shadow-card-hover ${
-        list ? "grid-cols-[minmax(0,1fr)] @min-[480px]/card:grid-cols-[11.5rem_minmax(0,1fr)] @min-[640px]/card:grid-cols-[15.5rem_minmax(0,1fr)] @min-[480px]/card:grid-rows-[1fr_auto]" : "grid-cols-[minmax(0,1fr)] grid-rows-[auto_1fr_auto]"
+        list ? "grid-cols-[7.5rem_minmax(0,1fr)] gap-x-3 @max-[480px]/card:gap-y-1 @min-[480px]/card:gap-x-0 @min-[480px]/card:grid-cols-[11.5rem_minmax(0,1fr)] @min-[640px]/card:grid-cols-[15.5rem_minmax(0,1fr)] @min-[480px]/card:grid-rows-[1fr_auto]" : "grid-cols-[minmax(0,1fr)] grid-rows-[auto_1fr_auto]"
       }`}
     >
+      {list && (
+        <div
+          data-card-thumb
+          className="relative col-start-1 row-span-2 row-start-1 mb-2 ml-2 mt-2 min-h-24 self-stretch overflow-hidden rounded-[calc(var(--radius-card)-8px)] bg-sand-200 @min-[480px]/card:hidden"
+        >
+          {residence.photos[0] ? (
+            <Image
+              src={residence.photos[0]}
+              alt={`Foto de ${residence.name}${residence.zone ? ` en ${residence.zone}` : ""}`}
+              fill
+              sizes="120px"
+              className="object-cover"
+            />
+          ) : (
+            <ResidencePhotoPlaceholder name={residence.name} zone={residence.zone} variant="thumb" />
+          )}
+          <div className="absolute left-1.5 top-1.5">
+            <TrustBadge status={residence.verificationStatus} size="icon" />
+          </div>
+          {residence.promotionPercent != null && (
+            <span className="absolute bottom-1.5 left-1.5 inline-flex items-center gap-0.5 rounded-full bg-amber-soft-100 px-2 py-0.5 text-xs font-bold text-amber-soft-700 shadow-float">
+              <Icon name="sell" className="text-[13px]" />
+              −{residence.promotionPercent}%
+            </span>
+          )}
+        </div>
+      )}
       <CardPhotoCarousel
         photos={residence.photos}
         name={residence.name}
         zone={residence.zone}
         href={href}
         sizes={list ? "(max-width: 640px) 100vw, 248px" : "(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"}
-        className={`z-[2] h-[136px] rounded-t-[calc(var(--radius-card)-2px)] ${list ? "@min-[480px]/card:row-span-2 @min-[480px]/card:h-auto @min-[480px]/card:min-h-52 @min-[480px]/card:rounded-bl-[calc(var(--radius-card)-2px)] @min-[480px]/card:rounded-tr-none" : ""}`}
+        className={`z-[2] h-[136px] rounded-t-[calc(var(--radius-card)-2px)] ${list ? "hidden @min-[480px]/card:block @min-[480px]/card:row-span-2 @min-[480px]/card:h-auto @min-[480px]/card:min-h-52 @min-[480px]/card:rounded-bl-[calc(var(--radius-card)-2px)] @min-[480px]/card:rounded-tr-none" : ""}`}
       >
         <div className="absolute left-2.5 top-2.5">
           <TrustBadge status={residence.verificationStatus} />
@@ -129,8 +160,8 @@ export function SearchResultCard({
         )}
       </CardPhotoCarousel>
 
-      <div className={`grid min-w-0 content-start gap-x-4 gap-y-2 px-3.5 pb-2.5 pt-3 ${list ? "@min-[560px]/card:grid-cols-[minmax(0,1fr)_auto]" : ""}`}>
-        <div>
+      <div className={`${list ? "contents @min-[480px]/card:grid" : "grid"} min-w-0 content-start gap-x-4 gap-y-2 px-3.5 pb-2.5 pt-3 ${list ? "@min-[560px]/card:grid-cols-[minmax(0,1fr)_auto]" : ""}`}>
+        <div className={list ? "@max-[480px]/card:col-start-2 @max-[480px]/card:pr-3.5 @max-[480px]/card:pt-3" : ""}>
           <h3 className="text-[17px] leading-tight">
             <Link href={href} className="after:absolute after:inset-0 after:z-[1] after:rounded-card hover:underline focus-visible:outline-2 focus-visible:outline-forest">
               {residence.name}
@@ -147,7 +178,7 @@ export function SearchResultCard({
           </p>
         </div>
 
-        <div className={list ? "@min-[560px]/card:col-start-2 @min-[560px]/card:row-start-1 @min-[560px]/card:row-span-3 @min-[560px]/card:text-right" : ""}>
+        <div className={list ? "@max-[480px]/card:col-start-2 @max-[480px]/card:pr-3.5 @min-[560px]/card:col-start-2 @min-[560px]/card:row-start-1 @min-[560px]/card:row-span-3 @min-[560px]/card:text-right" : ""}>
           <p className={`flex flex-wrap items-baseline gap-x-1 ${list ? "@min-[560px]/card:justify-end" : ""}`}>
             <span className="text-[13px] text-ink-faint">desde</span>
             {residence.priceFromListUsd != null && (
@@ -177,7 +208,7 @@ export function SearchResultCard({
           )}
         </div>
 
-        <ul className={`grid gap-1 text-[13px] leading-snug text-ink-soft ${list ? "@min-[560px]/card:col-start-1" : ""}`}>
+        <ul className={`grid gap-1 text-[13px] leading-snug text-ink-soft ${list ? "@max-[480px]/card:col-span-2 @max-[480px]/card:px-3.5 @min-[560px]/card:col-start-1" : ""}`}>
           {universities.length > 0 && (
             <li className="flex items-start gap-2">
               <Icon name="school" className="mt-px text-[18px] text-forest-700" />
@@ -213,14 +244,14 @@ export function SearchResultCard({
         </ul>
 
         {(serviceItems.length > 0 || areaItems.length > 0) && (
-          <div className={`grid gap-0 ${list ? "@min-[560px]/card:col-start-1" : ""}`}>
+          <div className={`grid gap-0 ${list ? "@max-[480px]/card:col-span-2 @max-[480px]/card:px-3.5 @max-[480px]/card:pb-1 @min-[560px]/card:col-start-1" : ""}`}>
             <CardAmenityLine label="Servicios" residenceName={residence.name} items={serviceItems} />
             <CardAmenityLine label="Áreas comunes" residenceName={residence.name} items={areaItems} />
           </div>
         )}
       </div>
 
-      <div className="relative z-[2] flex flex-wrap items-center gap-x-2 gap-y-2 rounded-b-[calc(var(--radius-card)-2px)] border-t border-line bg-cream px-3.5 py-2.5">
+      <div className={`relative z-[2] flex flex-wrap items-center gap-x-2 gap-y-2 rounded-b-[calc(var(--radius-card)-2px)] border-t border-line bg-cream px-3.5 py-2.5 ${list ? "col-span-2 @min-[480px]/card:col-span-1" : ""}`}>
         <div className={`flex basis-full flex-wrap items-center gap-1.5 ${list ? "@min-[560px]/card:basis-auto @min-[560px]/card:mr-auto" : ""}`}>
           <StatusTag mode={residence.availabilityMode} />
           {!hasAvailable && residence.availabilityHint === "waitlist" && <Badge tone="neutral">Lista de espera abierta</Badge>}
