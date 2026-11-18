@@ -399,7 +399,6 @@ export default async function RealResidenceDetailPage({
 
   const hasServices = services.length > 0 || commonAreas.length > 0;
   // Capítulos de la ficha (fase 3): solo los que tienen contenido; la numeración sale de los visibles.
-  const hasGallery = photos.length >= 2;
   // Edad de los residentes: rango que admite la residencia + promedio de la comunidad (ya filtrado por privacidad). Lo leen la franja «Lo esencial» y el subtítulo del capítulo «La comunidad».
   const ageFacts = buildAgeFacts({
     minAge: residence.min_resident_age as number | null | undefined,
@@ -412,7 +411,7 @@ export default async function RealResidenceDetailPage({
   const rulesItems = sectionMap.rules?.items;
   const hasRules = buildRuleRows({ items: rulesItems, summary: rulesSummary }).length > 0 || !!rulesPdfUrl || !!regulation;
   const chapters = buildChapters({
-    vivir: hasGallery || hasServices || !!residence.description,
+    vivir: true, // el mosaico se dibuja siempre (con tarjetas vacías si faltan fotos): la estructura de la ficha no depende de las fotos
     tarifas: true,
     incluye: true,
     // Sin preguntas respondidas no hay capítulo: el dueño quiere que la gente LEA, no que pregunte (ver `faqChapterVisible`).
@@ -658,7 +657,7 @@ export default async function RealResidenceDetailPage({
             06 Reglas de casa · 07 Dónde está. Solo se dibujan los que tienen contenido; la numeración sale de los visibles. */}
         <div>
           {/* 01 Vivir acá: descripción, mosaico de fotos con rótulos y su pill «Ver todas las fotos (N)» (abre el visor), y debajo los chips de
-              servicios y áreas comunes. Con 0 o 1 foto no se dibuja el mosaico: la portada ya está en el hero. */}
+              servicios y áreas comunes. Con 0 o 1 foto el mosaico se dibuja igual, con tarjetas vacías. */}
           {chapter("vivir") && (
             <Chapter chapter={chapter("vivir")!}>
               {residence.description && (
@@ -666,14 +665,12 @@ export default async function RealResidenceDetailPage({
                   <ReadMore text={residence.description} />
                 </div>
               )}
-              {hasGallery && (
-                <div className={residence.description ? "mt-6" : ""}>
-                  <VivirMosaic photos={photos} name={residence.name} zone={residence.public_area ?? ""} />
-                </div>
-              )}
+              <div className={residence.description ? "mt-6" : ""}>
+                <VivirMosaic photos={photos} name={residence.name} zone={residence.public_area ?? ""} />
+              </div>
               {/* Servicios y áreas comunes: una sola fila de etiquetas, como en el mockup (cada una con su tooltip al hover). */}
               {hasServices && (
-                <div className={residence.description || hasGallery ? "mt-4" : ""}>
+                <div className="mt-4">
                   <AmenityGrid
                     layout="chips"
                     tone="tag"

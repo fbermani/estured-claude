@@ -8,6 +8,8 @@ import { describe, expect, it } from "vitest";
 import { ReservationConditions } from "@/components/residences/ficha/ReservationConditions";
 import { HouseRules } from "@/components/residences/ficha/HouseRules";
 import { FaqBand } from "@/components/residences/ficha/FaqBand";
+import { VivirMosaic } from "@/components/residences/ficha/VivirMosaic";
+import type { GalleryPhoto } from "@/lib/residences/photoMeta";
 import type { FichaConditionsInput } from "@/lib/residences/fichaConditions";
 
 const none: FichaConditionsInput = {
@@ -141,5 +143,45 @@ describe("FaqBand", () => {
     expect(html).not.toContain("Antes de reservar");
     expect(html).not.toContain("Convivencia y reglas");
     expect(html).toContain("Mirá todas las respuestas en un solo lugar.");
+  });
+});
+
+describe("VivirMosaic: siempre dibuja el mosaico", () => {
+  const ph = (url: string, over: Partial<GalleryPhoto> = {}): GalleryPhoto => ({ url, category: "general", area: null, roomTypeName: null, featured: false, ...over });
+  // Sin los <dialog> del visor (cerrados, con su propio botón «Cerrar»): interesa solo lo que se ve en la página.
+  const render = (photos: GalleryPhoto[]) =>
+    renderToStaticMarkup(createElement(VivirMosaic, { photos, name: "Casa Test", zone: "Almagro" })).replace(/<dialog[\s\S]*?<\/dialog>/g, "");
+  const count = (html: string, re: RegExp) => (html.match(re) ?? []).length;
+
+  it("0 fotos: 3 tarjetas vacías, sin botones ni pill, con una aclaración para lectores", () => {
+    const html = render([]);
+    expect(count(html, /<li /g)).toBe(3);
+    expect(count(html, /<button/g)).toBe(0);
+    expect(html).not.toMatch(/Ver todas las fotos|Ver la foto|ampliar la foto/);
+    expect(html).toContain("Fotos próximamente");
+    expect(html).toContain("Esta residencia todavía no subió fotos.");
+  });
+
+  it("1 foto: una tarjeta con foto (botón), 2 vacías y pill «Ver la foto»", () => {
+    const html = render([ph("https://x.test/a.jpg")]);
+    expect(count(html, /<li /g)).toBe(3);
+    expect(count(html, /<li [^>]*aria-hidden="true"/g)).toBe(2);
+    expect(html).toContain("ampliar la foto");
+    expect(html).toContain("Ver la foto");
+    expect(html).toContain("Esta residencia todavía no subió más fotos.");
+  });
+
+  it("2 fotos: 2 tarjetas, sin vacías ni aclaración", () => {
+    const html = render([ph("https://x.test/a.jpg"), ph("https://x.test/b.jpg")]);
+    expect(count(html, /<li /g)).toBe(2);
+    expect(html).not.toContain("Próximamente");
+    expect(html).not.toContain("todavía no subió");
+  });
+
+  it("4 fotos: 3 tarjetas con foto, «+ 1 foto» y pill con el total", () => {
+    const html = render([1, 2, 3, 4].map((n) => ph(`https://x.test/${n}.jpg`, { category: "area", area: `area${n}` })));
+    expect(count(html, /<li /g)).toBe(3);
+    expect(html).not.toContain("Próximamente");
+    expect(html).toContain("Ver todas las fotos (4)");
   });
 });
