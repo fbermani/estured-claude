@@ -7,7 +7,12 @@ import { CONTACT_EMAIL } from "@/lib/constants/contact";
 import { LoginForm } from "@/app/(public)/login/LoginForm";
 
 // La query de `next` puede llevar `?invite=<token>` de un enlace personal: no viaja en el Referer.
-export const metadata: Metadata = { title: "Iniciar sesión", referrer: "no-referrer" };
+export const metadata: Metadata = {
+  title: "Iniciar sesión",
+  referrer: "no-referrer",
+  alternates: { canonical: "/login" },
+  robots: { index: false, follow: true },
+};
 
 export default async function LoginPage({
   searchParams,

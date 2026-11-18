@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo/pageMeta";
 import { GuidePicks } from "@/components/guides/GuidePicks";
 import { SearchShell, type FilterGroup } from "@/app/(public)/search/SearchShell";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
@@ -44,12 +45,7 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   const params = await searchParams;
   // Cualquier query param (filtros, orden, vista, paginado, ingreso) = variante no indexable; el canonical apunta a /search.
   const hasParams = Object.values(params).some((v) => (Array.isArray(v) ? v.length > 0 : v !== undefined && v !== ""));
-  return {
-    title: "Buscar residencias en CABA",
-    description: SEARCH_DESCRIPTION,
-    alternates: { canonical: "/search" },
-    ...(hasParams ? { robots: { index: false, follow: true } } : {}),
-  };
+  return pageMetadata({ title: "Buscar residencias en CABA", description: SEARCH_DESCRIPTION, path: "/search", noindex: hasParams });
 }
 export const dynamic = "force-dynamic";
 

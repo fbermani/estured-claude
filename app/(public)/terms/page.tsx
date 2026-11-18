@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo/pageMeta";
 import Link from "next/link";
 import { CONTACT_EMAIL } from "@/lib/constants/contact";
 import { REVOCATION_TERMS_PARAGRAPHS } from "@/lib/revocations/copy";
 import { PreaperturaTermsBody } from "@/components/preapertura/legal/LegalPreapertura";
 import { isPreaperturaOn } from "@/lib/preapertura/flag";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Términos y condiciones",
   description:
     "Las reglas de uso de EstuRed para estudiantes y familias: qué es la plataforma, cómo funcionan las solicitudes, el fee y los comprobantes.",
-};
+  path: "/terms",
+});
 
 /**
  * Borrador basado en docs/21 (Términos y Condiciones para Estudiantes y

@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo/pageMeta";
 import Link from "next/link";
 import { CONTACT_EMAIL } from "@/lib/constants/contact";
 import { PreaperturaPrivacyBody } from "@/components/preapertura/legal/LegalPreapertura";
 import { isPreaperturaOn } from "@/lib/preapertura/flag";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Política de privacidad",
   description: "Qué datos recolecta EstuRed, para qué los usa, y cómo ejercer tus derechos sobre ellos.",
-};
+  path: "/privacy",
+});
 
 
 const sections = [

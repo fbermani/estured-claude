@@ -6,6 +6,8 @@ import { isDemoLoginEnabled } from "@/lib/demoLogin";
 import "./globals.css";
 // Clases animate__* (animate.css 4.1.1, MIT). Úsalas con `animate__animated animate__<efecto>`.
 import "animate.css";
+import { SITE_URL } from "@/lib/siteUrl";
+import { siteJsonLd } from "@/lib/seo/siteJsonLd";
 
 /** Sistema visual FRESH (design-references/fresh-style.md §1.2). */
 const hanken = Hanken_Grotesk({
@@ -22,6 +24,8 @@ const bricolage = Bricolage_Grotesque({
 });
 
 export const metadata: Metadata = {
+  // Hace absolutas las URLs relativas de canonical/OG/imágenes con el dominio definitivo (NEXT_PUBLIC_SITE_URL; por defecto estured.com).
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "EstuRed — Residencias estudiantiles verificadas en CABA",
     template: "%s | EstuRed",
@@ -63,6 +67,7 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: siteJsonLd() }} />
         {children}
         {isDemoLoginEnabled() && (
           // Suspense evita que la lectura de cookies() del switcher (solo

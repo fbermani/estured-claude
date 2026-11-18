@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo/pageMeta";
 import { StudentsHero } from "@/components/marketing/StudentsHero";
 import { Button } from "@/components/ui/Button";
 import { SectionHeader } from "@/components/ui/SectionHeader";
@@ -14,11 +15,12 @@ import { StayChangeHighlight } from "@/components/marketing/StayChangeHighlight"
 import { GuidePicks } from "@/components/guides/GuidePicks";
 import { WhatYouPay } from "@/components/marketing/WhatYouPay";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Para estudiantes y familias",
   description:
     "Mudarse a CABA con más confianza: residencias verificadas, solicitudes registradas y comprobante de reserva verificable.",
-};
+  path: "/for-students",
+});
 
 const steps = [
   {
