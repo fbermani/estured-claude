@@ -81,7 +81,6 @@ import { ClosingCta } from "@/components/residences/ficha/ClosingCta";
 import { buildPaidSeparately } from "@/lib/residences/fichaCosts";
 import { buildAgeFacts } from "@/lib/residences/fichaAge";
 import { canDownloadRegulation } from "@/lib/residences/fichaRules";
-import { SITE_URL } from "@/lib/siteUrl";
 import { loadAverageResidentAge } from "@/lib/residents/averageAge";
 
 const FICHA_GENDER_LABEL: Record<string, string> = { mixto: "Mixta", solo_hombres: "Solo hombres", solo_mujeres: "Solo mujeres" };
@@ -247,6 +246,8 @@ export async function generateMetadata({
     title: residence.name,
     description,
     alternates: { canonical: path },
+    // Fichas de demostración (slug «-demo»): nunca se indexan.
+    ...(slug.endsWith("-demo") ? { robots: { index: false, follow: false } } : {}),
     openGraph: {
       type: "website",
       siteName: "EstuRed",

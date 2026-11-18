@@ -224,3 +224,30 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 - Datos demo: `node --env-file=.env.local scripts/seed-demo-share-featured.mjs` (aditivo, no borra nada; se salta cada parte si falta su migración).
 - `scripts/seed-dev-fichas-completas.mjs` es SOLO para desarrollo (completa reglas, FAQ, condiciones y habitaciones demo para revisar el diseño de la ficha): NO se corre en producción, donde cada residencia carga sus datos (la guarda `_assert-dev-project.mjs` lo impide).
 - Sin variables nuevas. El link que se comparte usa `NEXT_PUBLIC_APP_URL` (o `NEXT_PUBLIC_SITE_URL`); en prod tiene que apuntar al dominio real, si no, cae a `https://estured.vercel.app` (`lib/share/shareLink.ts`).
+
+---
+
+## J. SEO (auditoría 2026-11-18, informe en `docs/audits/SEO_2026-11-18.md`)
+
+**Ya aplicado en `staging` (bloque técnico, copy aprobado, schema de ficha, `llms.txt`, robots):** `metadataBase`, canonical y OG por página, JSON-LD Organization/WebSite/LodgingBusiness/BreadcrumbList/FAQPage, sitemap sin `-demo`, `noindex` en `/login` y fichas `-demo`, `/llms.txt`, robots con crawlers de IA permitidos.
+
+**Al desplegar (verificar):**
+- [ ] `NEXT_PUBLIC_SITE_URL=https://estured.com` en Production (ya está en la tabla de E). **`app/robots.ts` cierra todo con `Disallow: /` si el host no es `estured.com`:** staging y previews deben tener su propia URL en esa variable (así no se indexan); si Production quedara con otro valor, el sitio entero saldría bloqueado a Google.
+- [ ] `https://estured.com/robots.txt` muestra `Allow: /` + Disallow de áreas privadas + bloques de crawlers de IA + `Sitemap`; `/sitemap.xml` sin `-demo` y con host `estured.com`; `/llms.txt` responde 200.
+- [ ] En una ficha: `og:image`, `canonical` y `og:url` absolutos con `estured.com` (ya no el host de staging); `curl -s https://estured.com/residencias/<slug> | grep -o 'og:image[^>]*'`.
+- [ ] Rich Results Test de Google sobre una ficha (LodgingBusiness, FAQPage, BreadcrumbList) y una guía (Article).
+- [ ] **Search Console:** verificar la propiedad `estured.com` (DNS en Hostinger), enviar `sitemap.xml`, revisar Cobertura a la semana. Bing Webmaster Tools igual.
+- [ ] **Solo residencias reales en prod:** el sitemap lista las `verified_active`; sin demos (el prod nuevo nace sin seeds).
+- [ ] **Preapertura:** con `PREAPERTURA=on`, `/` sirve la página de preapertura (title «acceso anticipado…», 2 H1, sin canonical/OG/JSON-LD). Aceptado mientras sea temporal; al apagarla, la home real ya tiene canonical, OG del layout y FAQPage. Si la preapertura se alarga, darle canonical + OG + un solo H1.
+- [ ] Medir **Core Web Vitals reales** (PageSpeed/CrUX) de `/`, `/search` y una ficha una vez en `estured.com`; el informe SEO solo pudo estimarlos.
+
+**Pendientes del informe (no bloquean salir; sí conviene antes del lanzamiento público):**
+- [ ] **ISR / caché** en páginas estables (hoy `cache-control: private, no-store` en todo, H11) y **peso de `/search`** (1,1 MB de HTML, 342 scripts; limitar tarjetas SSR, `next/dynamic` para mapa y filtros) y `priority` en la foto hero de la ficha (H10, H12). Medir antes/después.
+- [ ] **Página «Cómo verificamos» / «Nosotros»** (criterios de visita, contacto de Soporte, datos legales) — la brecha de confianza más grande (H06). Necesita contenido del dueño.
+- [ ] **Fecha de verificación por residencia** («Verificada en persona en [mes/año]», C-07) y **`updated_at` verificado en cada guía** (C-06); sin eso no se emiten `dateModified` ni la leyenda.
+- [ ] **FAQ de `/for-students`** (C-09): borrador a redactar y aprobar.
+- [ ] **Guías por barrio y universidad** (T-11, cluster local; enlazar a `/search` y fichas).
+- [ ] **`sameAs` de Organization** (Instagram/LinkedIn oficiales de la marca) y `SearchAction` de WebSite si `/search` llega a soportar `?q=`.
+- [ ] **`favicon.ico`** y `/.well-known/security.txt` (opcionales, H24).
+- [ ] **CSP a enforce** (ya figura en I).
+- [ ] Menciones externas (blogs universitarios, comunidades): trabajo de marketing, no de código.
