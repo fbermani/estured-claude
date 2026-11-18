@@ -1,24 +1,33 @@
+import { Icon } from "@/components/ui/Icon";
+import { OpenFaqButton } from "@/components/residences/ficha/FaqModal";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import { formatArs, usdToArsRounded } from "@/lib/mock/exchange";
 import type { FichaConditionsInput } from "@/lib/residences/fichaConditions";
 import { applicableConditions, type ApplicableCondition } from "@/lib/residences/conditionCards";
-import { EMPTY_MONTH_IDEA, EMPTY_MONTH_RULES, emptyMonthExample } from "@/lib/residences/emptyMonthCopy";
+import { EMPTY_MONTH_CARD_LINE, EMPTY_MONTH_IDEA, emptyMonthExample } from "@/lib/residences/emptyMonthCopy";
 
-function EmptyMonthHelp({ percent }: { percent: number }) {
+/**
+ * Mes vacío: la fila muestra título y valor; debajo, UN solo desplegable cerrado («Solo si reservás con ingreso a futuro») con la
+ * explicación de qué es y el ejemplo con números. El detalle de cálculo (reglas y tope) vive en la respuesta de la pregunta frecuente
+ * FAQ-51, no acá: antes había un segundo desplegable «Cómo se calcula» que repetía el contenido.
+ */
+function EmptyMonthHelp({ percent, faqLink }: { percent: number; faqLink: boolean }) {
   return (
-    <span className="mt-0.5 block space-y-1.5 text-[14px] leading-snug text-ink-soft">
-      <span className="block">{EMPTY_MONTH_IDEA}</span>
-      <span className="block font-semibold text-ink">{emptyMonthExample(percent)}</span>
-      <details className="group">
-        <summary className="inline-flex min-h-11 cursor-pointer list-none items-center font-bold text-forest-700 underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest [&::-webkit-details-marker]:hidden">
-          Cómo se calcula
-        </summary>
-        <span className="block pb-1">{EMPTY_MONTH_RULES}</span>
-      </details>
-      <a href="#preguntas" className="inline-block font-bold text-forest-700 underline underline-offset-2">
-        Ver más en las preguntas frecuentes
-      </a>
-    </span>
+    <details className="group mt-0.5">
+      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1 text-[14px] font-bold leading-snug text-forest-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest [&::-webkit-details-marker]:hidden">
+        <span className="underline underline-offset-2">{EMPTY_MONTH_CARD_LINE}</span>
+        <Icon name="expand_more" className="shrink-0 text-xl transition-transform duration-200 ease-out-fresh group-open:rotate-180 motion-reduce:transition-none" />
+      </summary>
+      <span className="block space-y-1.5 pb-1 text-[14px] leading-snug text-ink-soft">
+        <span className="block">{EMPTY_MONTH_IDEA}</span>
+        <span className="block font-semibold text-ink">{emptyMonthExample(percent)}</span>
+        {faqLink && (
+          <OpenFaqButton className="inline-flex min-h-11 items-center font-bold text-forest-700 underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest">
+            Ver más en las preguntas frecuentes
+          </OpenFaqButton>
+        )}
+      </span>
+    </details>
   );
 }
 
@@ -33,10 +42,13 @@ export function ReservationConditions({
   conditions,
   arsPerUsd,
   headingId = "h-condiciones",
+  showFaqLink = true,
 }: {
   conditions: FichaConditionsInput;
   arsPerUsd: number;
   headingId?: string;
+  /** Si la residencia tiene preguntas respondidas (si no, el enlace del mes vacío no llevaría a ningún lado). */
+  showFaqLink?: boolean;
 }) {
   const rows: ApplicableCondition[] = applicableConditions(conditions);
   if (rows.length === 0) return null;
@@ -52,7 +64,7 @@ export function ReservationConditions({
             <dt className="min-w-0">
               <span className="block text-[17px] font-bold leading-snug text-ink">{row.title}</span>
               {row.key === "empty_month" && row.emptyPercent != null ? (
-                <EmptyMonthHelp percent={row.emptyPercent} />
+                <EmptyMonthHelp percent={row.emptyPercent} faqLink={showFaqLink} />
               ) : (
                 <span className="mt-0.5 block text-[14px] leading-snug text-ink-soft">{row.help}</span>
               )}

@@ -108,7 +108,7 @@ export function RoomCards({
           : {})}
         className={
           carousel
-            ? "-mx-1 flex snap-x snap-mandatory gap-3.5 overflow-x-auto overscroll-x-contain px-1 pb-3 pt-1 [scrollbar-width:none] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest [&::-webkit-scrollbar]:hidden"
+            ? "relative -mx-1 flex snap-x snap-mandatory gap-3.5 overflow-x-auto overscroll-x-contain px-1 pb-3 pt-1 [scrollbar-width:none] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest [&::-webkit-scrollbar]:hidden"
             : `grid list-none gap-3.5 p-0 ${gridCols}`
         }
       >

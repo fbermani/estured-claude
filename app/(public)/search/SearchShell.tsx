@@ -252,7 +252,7 @@ export function SearchShell({ groups, filters, bounds, histogram, promoCount, mi
         </div>
 
         {chips.length > 0 && (
-          <ul aria-label="Filtros activos" className="mb-3 flex items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none] min-[900px]:flex-wrap min-[900px]:overflow-visible min-[900px]:pb-0">
+          <ul aria-label="Filtros activos" className="relative mb-3 flex items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none] min-[900px]:flex-wrap min-[900px]:overflow-visible min-[900px]:pb-0">
             {chips.map((c) => (
               <li key={c.key} className="shrink-0">
                 <button type="button" onClick={c.remove} aria-label={`Quitar filtro ${c.label}`} className={`inline-flex min-h-[34px] cursor-pointer items-center gap-1 whitespace-nowrap rounded-full border border-sage-200 bg-forest-tint py-0 pl-3 pr-2 text-[13px] font-semibold text-forest-700 hover:bg-sage-100 ${FOCUS}`}>

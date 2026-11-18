@@ -66,7 +66,7 @@ export function SectionNav({
   return (
     <nav aria-label={label} className={`${className} flex h-[var(--ficha-chips-h,3.9rem)] items-center border-b-[1.5px] border-line-2 bg-cream`}>
       <div className="mx-auto w-full max-w-6xl px-2 sm:px-4">
-        <ul className="flex gap-2 overflow-x-auto px-2 py-2 [mask-image:linear-gradient(90deg,#000_92%,transparent)] [scrollbar-width:none] lg:[mask-image:none] [&::-webkit-scrollbar]:hidden">
+        <ul className="relative flex gap-2 overflow-x-auto px-2 py-2 [mask-image:linear-gradient(90deg,#000_92%,transparent)] [scrollbar-width:none] lg:[mask-image:none] [&::-webkit-scrollbar]:hidden">
           {items.map((item) => {
             const isActive = item.id === active;
             return (

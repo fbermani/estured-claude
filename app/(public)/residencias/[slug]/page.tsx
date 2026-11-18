@@ -730,7 +730,7 @@ export default async function RealResidenceDetailPage({
                 )}
                 {/* Condiciones de la reserva (estadía mínima, pago inicial, matrícula, depósito, ajuste, mes vacío y documentos): lista
                     escaneable debajo de las habitaciones, sin desplegable. */}
-                <ReservationConditions conditions={conditions} arsPerUsd={rate.arsPerUsd} />
+                <ReservationConditions conditions={conditions} arsPerUsd={rate.arsPerUsd} showFaqLink={faqChapterVisible(faqItems.length)} />
               </div>
             </Chapter>
           )}

@@ -200,7 +200,7 @@ export async function HomeLanding({ schema = true }: { schema?: boolean }) {
         </div>
         {featured.length > 0 ? (
           <>
-            <StaggerIn role="region" aria-label="Residencias del catálogo" tabIndex={0} className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest overflow-x-auto px-4 pb-3 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4">
+            <StaggerIn role="region" aria-label="Residencias del catálogo" tabIndex={0} className="relative -mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest overflow-x-auto px-4 pb-3 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4">
               {featured.map((residence) => (
                 <div key={residence.slug} className="w-[78%] shrink-0 snap-start sm:w-auto">
                   <ResidenceCardCompact residence={residence} arsPerUsd={rate.arsPerUsd} />

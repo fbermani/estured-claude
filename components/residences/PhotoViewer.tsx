@@ -106,7 +106,7 @@ export function usePhotoViewer({ photos, name, zone }: { photos: GalleryPhoto[];
           {groups.length > 1 && (
             <nav aria-label="Recorrido fotográfico" className="mb-6">
               <h2 className="mb-3 text-lg font-bold text-ink">Recorrido fotográfico</h2>
-              <ul className="flex gap-3 overflow-x-auto pb-2">
+              <ul className="relative flex gap-3 overflow-x-auto pb-2">
                 {groups.map((group, gi) => (
                   <li key={group.key} className="w-28 shrink-0 sm:w-36">
                     <button

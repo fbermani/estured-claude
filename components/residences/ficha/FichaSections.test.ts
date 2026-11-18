@@ -40,6 +40,36 @@ describe("ReservationConditions", () => {
   });
 });
 
+describe("ReservationConditions: mes vacío con un único desplegable", () => {
+  const render = (props: Partial<{ showFaqLink: boolean }> = {}) =>
+    renderToStaticMarkup(createElement(ReservationConditions, { conditions: { ...none, emptyMonthChargePercent: 50 }, arsPerUsd: 1500, ...props }));
+
+  it("la fila muestra título y valor, y un solo desplegable con el rótulo «Solo si reservás con ingreso a futuro»", () => {
+    const html = render();
+    expect(html).toContain("Mes vacío");
+    expect(html).toContain("50 % de la renta");
+    expect(html.match(/<details/g)).toHaveLength(1);
+    expect(html).toContain("Solo si reservás con ingreso a futuro");
+    expect(html).not.toContain("Cómo se calcula");
+  });
+
+  it("el desplegable nace cerrado y adentro lleva la explicación y el ejemplo con números", () => {
+    const html = render();
+    expect(html).not.toMatch(/<details[^>]*\sopen/);
+    expect(html).toContain("no la renta entera");
+    expect(html).toContain("1,5 meses × 50 % = 0,75");
+  });
+
+  it("el detalle de las reglas de cálculo ya no se repite acá (vive en la FAQ)", () => {
+    expect(render()).not.toContain("hasta 3 meses");
+  });
+
+  it("el enlace a las preguntas frecuentes se mantiene, salvo que la residencia no tenga preguntas", () => {
+    expect(render()).toContain("Ver más en las preguntas frecuentes");
+    expect(render({ showFaqLink: false })).not.toContain("Ver más en las preguntas frecuentes");
+  });
+});
+
 describe("HouseRules (formato del mockup)", () => {
   const html = renderToStaticMarkup(
     createElement(HouseRules, {

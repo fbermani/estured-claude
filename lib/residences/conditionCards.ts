@@ -109,7 +109,7 @@ export type ApplicableCondition = {
   help: string;
   /** Monto en USD a convertir a ARS referencial (la UI agrega la nota de cotización). */
   arsFromUsd?: number | null;
-  /** Porcentaje del mes vacío (la UI suma su explicación y el ejemplo). */
+  /** Porcentaje del mes vacío: la UI lo muestra como «N % de la renta» y, en UN desplegable cerrado, suma la idea y el ejemplo (las reglas de cálculo viven en la FAQ-51). */
   emptyPercent?: number;
 };
 

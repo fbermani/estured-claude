@@ -100,7 +100,7 @@ export function CommunityProfilesPreview({
   return (
     <div className="space-y-3">
       {typeNames.length > 1 && (
-        <div role="group" aria-label="Filtrar por tipo de habitación" className={scrollFilters ? "-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0" : "flex flex-wrap gap-2"}>
+        <div role="group" aria-label="Filtrar por tipo de habitación" className={scrollFilters ? "relative -mx-5 flex gap-2 overflow-x-auto px-5 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0" : "flex flex-wrap gap-2"}>
           {[{ value: "all", label: `Todos · ${source.length}` }, ...typeNames.map((n) => ({ value: n, label: n }))].map((f) => (
             <button
               key={f.value}
