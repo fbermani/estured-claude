@@ -9,6 +9,7 @@ import { LoginForm } from "@/app/(public)/login/LoginForm";
 // La query de `next` puede llevar `?invite=<token>` de un enlace personal: no viaja en el Referer.
 export const metadata: Metadata = {
   title: "Iniciar sesión",
+  description: "Ingresá a tu cuenta de EstuRed para seguir tus solicitudes y tus residencias.",
   referrer: "no-referrer",
   alternates: { canonical: "/login" },
   robots: { index: false, follow: true },

@@ -1,4 +1,7 @@
+import type { Metadata } from "next";
 import { ComingSoon } from "@/components/ui/ComingSoon";
+
+export const metadata: Metadata = { title: "Página no encontrada" };
 
 export default function NotFound() {
   return (

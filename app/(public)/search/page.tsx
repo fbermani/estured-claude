@@ -79,7 +79,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
     <div className="mb-3 grid grid-cols-[minmax(0,1fr)] gap-4 sm:mb-4 md:grid-cols-[minmax(0,1fr)_21rem] md:items-start md:gap-8">
       <div className="max-w-2xl">
         <p className="mb-1.5 text-[13px] text-ink-faint">Inicio › Buscar residencias</p>
-        <h1 className="text-[26px] leading-[1.15] font-bold text-ink min-[900px]:text-[34px]">Encontrá tu próximo hogar en Buenos Aires</h1>
+        <h1 className="text-[26px] leading-[1.15] font-bold text-ink min-[900px]:text-[34px]">Encontrá tu residencia estudiantil en Buenos Aires</h1>
         <p className="mt-1.5 max-w-[42.5rem] text-[14.5px] text-ink-soft">
           Todas las residencias del catálogo fueron verificadas presencialmente. La disponibilidad es informativa y toda
           reserva está sujeta a confirmación.

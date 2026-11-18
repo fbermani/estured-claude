@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ComingSoon } from "@/components/ui/ComingSoon";
@@ -9,6 +10,8 @@ import { ComingSoon } from "@/components/ui/ComingSoon";
  * en el 404 de Next, en inglés y con fondo negro. Este archivo cubre ese caso
  * con la misma navbar y footer del sitio.
  */
+export const metadata: Metadata = { title: "Página no encontrada" };
+
 export default function RootNotFound() {
   return (
     <div className="flex min-h-screen flex-col">
