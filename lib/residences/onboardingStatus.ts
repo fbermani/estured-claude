@@ -86,11 +86,11 @@ export function getOnboardingBanner(status: string, options: { changesMessage?: 
 export type ChecklistState = "done" | "todo" | "in_progress";
 
 export interface ChecklistItem {
-  key: "profile" | "photos" | "rules" | "visit";
+  key: "profile" | "photos" | "rules" | "faq" | "visit";
   label: string;
   detail: string;
   state: ChecklistState;
-  href: "profile" | null;
+  href: "profile" | "faq" | null;
 }
 
 export interface ChecklistInput {
@@ -98,6 +98,8 @@ export interface ChecklistInput {
   profileGapsCount: number;
   photos: number;
   hasRules: boolean;
+  /** Preguntas esenciales del catálogo listas (elegidas y sin campos pendientes). Si falta, el paso no se muestra. */
+  essentialFaqs?: { ready: number; total: number };
   /** residence_verifications.status (null si no hay fila). */
   verificationStatus: string | null;
   scheduledAt: string | null;
@@ -137,6 +139,21 @@ export function buildOnboardingChecklist(input: ChecklistInput): ChecklistItem[]
     };
   }
 
+  const faq: ChecklistItem[] = input.essentialFaqs
+    ? [
+        {
+          key: "faq",
+          label: "Preguntas esenciales",
+          detail:
+            input.essentialFaqs.ready >= input.essentialFaqs.total
+              ? "Las preguntas esenciales de tu ficha están listas."
+              : `${input.essentialFaqs.ready} de ${input.essentialFaqs.total} preguntas esenciales listas.`,
+          state: input.essentialFaqs.ready >= input.essentialFaqs.total ? "done" : input.essentialFaqs.ready > 0 ? "in_progress" : "todo",
+          href: "faq",
+        },
+      ]
+    : [];
+
   return [
     {
       key: "profile",
@@ -159,6 +176,7 @@ export function buildOnboardingChecklist(input: ChecklistInput): ChecklistItem[]
       state: input.hasRules ? "done" : "todo",
       href: "profile",
     },
+    ...faq,
     visit,
   ];
 }

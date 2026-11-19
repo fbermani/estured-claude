@@ -52,4 +52,11 @@ describe("buildOnboardingChecklist", () => {
     expect(buildOnboardingChecklist({ ...base, verificationStatus: "visit_scheduled" })[3].state).toBe("in_progress");
     expect(buildOnboardingChecklist({ ...base, verificationStatus: "approved" })[3].state).toBe("done");
   });
+  it("preguntas esenciales: paso opcional con estado según avance", () => {
+    expect(buildOnboardingChecklist(base).some((i) => i.key === "faq")).toBe(false);
+    const step = (ready: number) => buildOnboardingChecklist({ ...base, essentialFaqs: { ready, total: 6 } }).find((i) => i.key === "faq");
+    expect(step(0)).toMatchObject({ state: "todo", href: "faq" });
+    expect(step(3)).toMatchObject({ state: "in_progress", detail: "3 de 6 preguntas esenciales listas." });
+    expect(step(6)?.state).toBe("done");
+  });
 });

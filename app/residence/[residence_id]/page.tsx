@@ -26,6 +26,8 @@ import { OnboardingBanner } from "@/components/residences/OnboardingBanner";
 import { buildOnboardingChecklist, getOnboardingBanner } from "@/lib/residences/onboardingStatus";
 import { loadChangesMessage } from "@/lib/residences/loadChangesMessage";
 import { computeProfileStrength } from "@/lib/residences/profileStrength";
+import { loadCatalogForResidence } from "@/lib/faq/residenceCatalog";
+import { ESSENTIAL_FAQ_IDS, countEssentialFaqsReady } from "@/lib/faq/catalog";
 import { isCountableWaitlistEntry } from "@/lib/waitlist-entries/desiredMonth";
 
 export const metadata: Metadata = { title: "Panel de la residencia" };
@@ -96,7 +98,7 @@ export default async function ResidenceOverviewPage({
   const onboardingCopy = getOnboardingBanner(residence.status, { changesMessage });
   let onboardingChecklist: ReturnType<typeof buildOnboardingChecklist> = [];
   if (onboardingCopy) {
-    const [{ data: full }, { data: sections }, { data: roomTypes }, { count: photoCount }, { data: rulesFile }, { data: verification }] =
+    const [{ data: full }, { data: sections }, { data: roomTypes }, { count: photoCount }, { data: rulesFile }, { data: verification }, faqCatalog] =
       await Promise.all([
         admin.from("residences").select("tagline, description").eq("id", residenceId).maybeSingle(),
         admin.from("residence_profile_sections").select("section_type, content").eq("residence_id", residenceId),
@@ -117,6 +119,7 @@ export default async function ResidenceOverviewPage({
           .limit(1)
           .maybeSingle(),
         admin.from("residence_verifications").select("status, scheduled_at").eq("residence_id", residenceId).maybeSingle(),
+        loadCatalogForResidence(admin, residenceId),
       ]);
     const sectionMap = Object.fromEntries((sections ?? []).map((s) => [s.section_type, s.content as Record<string, unknown>]));
     const itemsLen = (key: string) => (Array.isArray(sectionMap[key]?.items) ? (sectionMap[key].items as unknown[]).length : 0);
@@ -135,6 +138,7 @@ export default async function ResidenceOverviewPage({
       profileGapsCount: strength.gaps.length,
       photos: photoCount ?? 0,
       hasRules: rulesSummary.trim().length > 0 || !!rulesFile,
+      essentialFaqs: faqCatalog.ok ? { ready: countEssentialFaqsReady(faqCatalog.entries), total: ESSENTIAL_FAQ_IDS.length } : undefined,
       verificationStatus: verification?.status ?? null,
       scheduledAt: verification?.scheduled_at ?? null,
       scheduledAtLabel: verification?.scheduled_at ? formatDate(verification.scheduled_at) : null,
