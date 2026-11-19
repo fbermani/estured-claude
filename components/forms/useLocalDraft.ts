@@ -50,6 +50,10 @@ export function useLocalDraft<R, V extends R = R>({
 
   const latest = useRef({ value, json, stamp, dirty, enabled });
   const wrote = useRef(false);
+  // Entre aplicar un borrador y que el formulario refleje sus datos pasa un render con `dirty` en false: no confundirlo con «volvió al original».
+  const awaitingRestore = useRef(false);
+  // Mientras haya un borrador viejo pendiente de decisión no se escribe nada: no se pisa lo que la persona todavía puede recuperar.
+  const blocked = useRef(false);
   const submittedJson = useRef<string | null>(null);
   const onRestoreRef = useRef(onRestore);
   const validateRef = useRef(validate);
@@ -61,7 +65,7 @@ export function useLocalDraft<R, V extends R = R>({
 
   const flush = useCallback(() => {
     const cur = latest.current;
-    if (!cur.enabled || !cur.dirty) return;
+    if (!cur.enabled || !cur.dirty || blocked.current) return;
     const ok = writeDraft(browserStorage(), storageKey, cur.value, cur.stamp);
     wrote.current = ok;
     setLocalState(ok ? "saved" : "unavailable");
@@ -74,12 +78,14 @@ export function useLocalDraft<R, V extends R = R>({
     const draft = readDraft(browserStorage(), storageKey, (raw) => validateRef.current(raw));
     if (!draft) return;
     if (isDraftStale(draft, latest.current.stamp)) {
+      blocked.current = true;
       setStaleData(draft.data);
       setNotice({ kind: "stale", savedAt: draft.savedAt });
       return;
     }
     onRestoreRef.current(draft.data);
     wrote.current = true;
+    awaitingRestore.current = true;
     setLocalState("saved");
     setSavedAt(draft.savedAt);
     setNotice({ kind: "restored", savedAt: draft.savedAt });
@@ -89,7 +95,7 @@ export function useLocalDraft<R, V extends R = R>({
   useEffect(() => {
     if (!enabled) return;
     if (!dirty) {
-      if (wrote.current) {
+      if (wrote.current && !awaitingRestore.current) {
         clearDraft(browserStorage(), storageKey);
         wrote.current = false;
         // Estado derivado de un borrador que acaba de limpiarse.
@@ -98,10 +104,12 @@ export function useLocalDraft<R, V extends R = R>({
       }
       return;
     }
+    awaitingRestore.current = false;
+    if (blocked.current) return;
     setLocalState((s) => (s === "unavailable" ? s : "pending"));
     const timer = window.setTimeout(flush, debounceMs);
     return () => window.clearTimeout(timer);
-  }, [json, dirty, enabled, storageKey, debounceMs, flush]);
+  }, [json, stamp, dirty, enabled, storageKey, debounceMs, flush]);
 
   // Volcado inmediato al salir de la página, ocultar la pestaña o desmontar (navegación interna).
   useEffect(() => {
@@ -134,6 +142,8 @@ export function useLocalDraft<R, V extends R = R>({
     latest.current.dirty = false;
     clearDraft(browserStorage(), storageKey);
     wrote.current = false;
+    blocked.current = false;
+    setStaleData(null);
     setLocalState("idle");
     setSavedAt(null);
     setNotice(null);
@@ -143,6 +153,8 @@ export function useLocalDraft<R, V extends R = R>({
   const discard = useCallback(() => {
     clearDraft(browserStorage(), storageKey);
     wrote.current = false;
+    awaitingRestore.current = false;
+    blocked.current = false;
     setLocalState("idle");
     setSavedAt(null);
     setStaleData(null);
@@ -153,8 +165,10 @@ export function useLocalDraft<R, V extends R = R>({
   /** El borrador era de una versión anterior del servidor y la persona decidió recuperarlo igual. */
   const acceptStale = useCallback(() => {
     if (staleData === null) return;
+    blocked.current = false;
     onRestoreRef.current(staleData);
     wrote.current = true;
+    awaitingRestore.current = true;
     setStaleData(null);
     setNotice((current) => (current ? { kind: "restored", savedAt: current.savedAt } : null));
   }, [staleData]);

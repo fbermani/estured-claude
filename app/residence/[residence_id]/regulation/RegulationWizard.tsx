@@ -23,7 +23,8 @@ export function RegulationWizard({
   residenceName: string;
   /** Para guardar el avance en este dispositivo (borrador local). Sin esto el avance se pierde al cerrar. */
   draftScope?: { userId: string; residenceId: string };
-  onFinish: (text: string) => void;
+  /** Devuelve true si el texto se aplicó al editor (se limpia el avance); false si espera una confirmación y el asistente sigue abierto. */
+  onFinish: (text: string) => boolean;
   onCancel: () => void;
 }) {
   const sections = useMemo(() => wizardSections(), []);
@@ -60,9 +61,10 @@ export function RegulationWizard({
 
   function finish() {
     const text = assembleWizardText(MODEL_ARTICLES.map((a) => ({ n: a.n, ...choices[a.n] })));
-    draft.beginSave();
-    draft.completeSave();
-    onFinish(text);
+    if (onFinish(text)) {
+      draft.beginSave();
+      draft.completeSave();
+    }
   }
 
   return (

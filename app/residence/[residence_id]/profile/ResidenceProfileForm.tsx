@@ -16,7 +16,7 @@ import { SaveStatus } from "@/components/forms/SaveStatus";
 import { DraftNotice } from "@/components/forms/DraftNotice";
 import { UnsavedChangesGuard } from "@/components/forms/UnsavedChangesGuard";
 import { useProfileDraft } from "@/app/residence/[residence_id]/profile/useProfileDraft";
-import { saveImpactNote } from "@/lib/residences/profileDraft";
+import { profileStamp, saveImpactNote } from "@/lib/residences/profileDraft";
 import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import { ResidencePhotoPlaceholder } from "@/components/residences/ResidencePhoto";
@@ -245,8 +245,8 @@ export function ResidenceProfileForm({
   readOnly?: boolean;
   /** DR11: enviar o reenviar a verificación es solo del dueño, no delegable. Un staff con `profile.edit` guarda pero no envía. */
   canSubmit?: boolean;
-  /** Borrador local: quién edita y la huella del estado guardado (`updated_at`). Sin esto no se guarda borrador en el dispositivo. */
-  draftScope?: { userId: string; stamp: string };
+  /** Borrador local: quién edita. Sin esto no se guarda borrador en el dispositivo. */
+  draftScope?: { userId: string };
 }) {
   const action = saveResidenceProfile.bind(null, residenceId);
   const [state, formAction] = useActionState(action, initialState);
@@ -388,10 +388,11 @@ export function ResidenceProfileForm({
 
   // Borrador local (solo en este dispositivo): se guarda solo mientras se escribe y se recupera al volver. No toca el servidor:
   // lo único que guarda en la cuenta es «Guardar cambios» (o «Guardar y salir» en el aviso de salida).
+  const draftStamp = useMemo(() => profileStamp(initial), [initial]);
   const draft = useProfileDraft<RoomTypeDraft, ConditionsDraft>({
     residenceId,
     userId: draftScope?.userId ?? "",
-    stamp: draftScope?.stamp ?? "",
+    stamp: draftStamp,
     enabled: !readOnly && draftScope !== undefined,
     source: { tagline, description, services, commonAreas, kitchens, cleaningMode, cleaningPerWeek, nearUniversities, stayDocKeys, stayDocOther, rulesRows, rulesDirty, customItems, faqItems, roomTypes, conditions },
     setters: { setTagline, setDescription, setServices, setCommonAreas, setKitchens, setCleaningMode, setCleaningPerWeek, setNearUniversities, setStayDocKeys, setStayDocOther, setRulesRows, setRulesDirty, setCustomItems, setFaqItems, setRoomTypes, setConditions },

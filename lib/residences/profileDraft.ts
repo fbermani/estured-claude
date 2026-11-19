@@ -202,3 +202,48 @@ export function saveImpactNote(status: string): string | null {
   }
   return null;
 }
+
+/** Datos editables del perfil que definen «el estado guardado» sobre el que se escribe un borrador (sin fotos, URLs ni estados). */
+export type ProfileStampInput = {
+  tagline: string;
+  description: string;
+  services: readonly string[];
+  commonAreas: readonly string[];
+  amenityDetails: unknown;
+  nearUniversities: readonly string[];
+  stayDocuments: unknown;
+  rulesSummary: string;
+  rulesItems: unknown;
+  faqItems: unknown;
+  roomTypes: unknown;
+  conditions: unknown;
+};
+
+/**
+ * Huella del estado guardado de la configuración. Se calcula SOLO con los datos editables: publicar el reglamento, subir fotos o cambiar
+ * el estado de la residencia no la alteran (con `updated_at` el recorrido «editar → ir al reglamento → publicar → volver» marcaba el
+ * borrador como viejo). Si lo guardado cambió por otra vía, la huella cambia y el borrador viejo no se aplica solo.
+ */
+export function profileStamp(input: ProfileStampInput): string {
+  const text = JSON.stringify([
+    input.tagline,
+    input.description,
+    [...input.services].sort(),
+    [...input.commonAreas].sort(),
+    input.amenityDetails,
+    [...input.nearUniversities].sort(),
+    input.stayDocuments,
+    input.rulesSummary,
+    input.rulesItems,
+    input.faqItems,
+    input.roomTypes,
+    input.conditions,
+  ]);
+  // FNV-1a de 32 bits: alcanza para detectar cambios y no depende de módulos de Node (corre igual en el navegador).
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < text.length; i++) {
+    hash ^= text.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return (hash >>> 0).toString(16).padStart(8, "0");
+}

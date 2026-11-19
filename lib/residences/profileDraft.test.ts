@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { SERVICE_OPTIONS } from "@/lib/residences/options";
-import { mergeByTemplate, sanitizeProfileDraft, sanitizeRoomTypes, saveImpactNote, toProfileDraftData, type ProfileDraftSource } from "@/lib/residences/profileDraft";
+import { mergeByTemplate, profileStamp, sanitizeProfileDraft, sanitizeRoomTypes, saveImpactNote, toProfileDraftData, type ProfileDraftSource, type ProfileStampInput } from "@/lib/residences/profileDraft";
 
 function source(patch: Partial<ProfileDraftSource> = {}): ProfileDraftSource {
   return {
@@ -118,5 +118,36 @@ describe("saveImpactNote", () => {
   it("avisa que guardar manda a revisión solo en una residencia publicada", () => {
     expect(saveImpactNote("verified_active")).toMatch(/pendientes de aprobación/);
     for (const s of ["draft", "needs_changes", "pending_verification", "verification_expired"]) expect(saveImpactNote(s)).toBeNull();
+  });
+});
+
+describe("profileStamp", () => {
+  const base: ProfileStampInput = {
+    tagline: "Casa",
+    description: "Linda",
+    services: ["b", "a"],
+    commonAreas: [],
+    amenityDetails: { kitchens: 1 },
+    nearUniversities: [],
+    stayDocuments: { items: [], other: [] },
+    rulesSummary: "Silencio",
+    rulesItems: [],
+    faqItems: [],
+    roomTypes: [{ name: "Individual", monthlyPriceUsd: 300 }],
+    conditions: { minimumStayMonths: 3 },
+  };
+  it("es estable y no depende del orden de los conjuntos", () => {
+    expect(profileStamp(base)).toBe(profileStamp({ ...base }));
+    expect(profileStamp(base)).toBe(profileStamp({ ...base, services: ["a", "b"] }));
+    expect(profileStamp(base)).toMatch(/^[0-9a-f]{8}$/);
+  });
+  it("no cambia por datos ajenos al formulario (fotos, estado, reglamento publicado)", () => {
+    const withExtras = { ...base, photos: [{ url: "x" }], status: "verified_active", hasOwnRegulation: true } as ProfileStampInput;
+    expect(profileStamp(withExtras)).toBe(profileStamp(base));
+  });
+  it("cambia cuando cambia algo editable guardado en el servidor", () => {
+    expect(profileStamp({ ...base, tagline: "Otra" })).not.toBe(profileStamp(base));
+    expect(profileStamp({ ...base, roomTypes: [{ name: "Individual", monthlyPriceUsd: 350 }] })).not.toBe(profileStamp(base));
+    expect(profileStamp({ ...base, conditions: { minimumStayMonths: 6 } })).not.toBe(profileStamp(base));
   });
 });

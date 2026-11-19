@@ -166,13 +166,15 @@ export function RegulationEditor({
           draftScope={draftScope && canEdit ? { userId: draftScope.userId, residenceId } : undefined}
           onCancel={() => setWizardOpen(false)}
           onFinish={(t) => {
-            setWizardOpen(false);
+            // Con un reglamento propio ya escrito se pide confirmar antes de reemplazarlo; el asistente sigue abierto (y con su avance) hasta entonces.
             if (text.trim() !== "" && source === "own") {
               setPendingReplace({ text: t, kind: "wizard" });
-              return;
+              return false;
             }
+            setWizardOpen(false);
             setText(t);
             setSource("model");
+            return true;
           }}
         />
       )}
@@ -191,6 +193,7 @@ export function RegulationEditor({
           if (pendingReplace) {
             setText(pendingReplace.text);
             setSource("model");
+            if (pendingReplace.kind === "wizard") setWizardOpen(false);
           }
           setPendingReplace(null);
         }}
