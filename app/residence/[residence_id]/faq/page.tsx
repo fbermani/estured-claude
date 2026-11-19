@@ -109,7 +109,9 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
         </p>
         {catalog.ok && (
           <p className="mt-3 rounded-field bg-forest-tint px-4 py-3 text-sm text-ink">
-            Las preguntas marcadas como «Esencial» son las que el estudiante y su familia necesitan ver respondidas en tu ficha antes de decidir.
+            Las preguntas marcadas como «Esencial» son las que más se repiten antes de reservar. Si las respondés en tu ficha, quien te escribe ya
+            tiene la respuesta y llega con la decisión más avanzada: recibís menos consultas sueltas y más solicitudes de reserva. Te las
+            recomendamos, pero no son obligatorias.
             <span className="mt-1 block font-semibold">
               Esenciales listas: {countEssentialFaqsReady(catalog.entries)} de {ESSENTIAL_FAQ_IDS.length}.
             </span>

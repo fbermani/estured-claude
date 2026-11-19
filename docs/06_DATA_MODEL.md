@@ -1575,6 +1575,8 @@ Reglas:
 | `is_active` | boolean | Disponible para elegir |
 | `created_at`, `updated_at` | timestamptz | Alta / actualización |
 
+> **Poda del catálogo (2026-11-19, migración 0099):** se desactivan 15 preguntas (FAQ-02, 03, 05, 12, 17, 19, 21, 22, 23, 24, 31, 40, 44, 46, 47) que repiten datos estructurados de la ficha, explican el proceso de EstuRed (se cubre en guías y `/for-students`) o aportan poco. Solo `is_active = false`: las selecciones se conservan. No se agregan temas nuevos.
+
 > **Preguntas «Esenciales» (2026-11-19, solo código, sin migración):** `ESSENTIAL_FAQ_IDS` en `lib/faq/catalog.ts` (FAQ-07, 09, 36, 42, 43, 49) marca en el panel de la residencia las preguntas que la ficha debe responder para evitar consultas directas y que no están ya como datos estructurados (depósito, matrícula, ajustes, estadía mínima y reglamento salen de la configuración). No es un tope ni se confunde con las «recomendadas» de `FICHA_FAQ_VISIBLE` (cantidad de preguntas de entrada).
 ---
 
