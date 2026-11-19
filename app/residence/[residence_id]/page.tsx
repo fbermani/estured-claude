@@ -24,6 +24,8 @@ import { hasOperationalManagementAccess } from "@/lib/residences/operationalAcce
 import { PREMIUM_FEATURES } from "@/lib/residences/planFeatures";
 import { OnboardingBanner } from "@/components/residences/OnboardingBanner";
 import { buildOnboardingChecklist, getOnboardingBanner } from "@/lib/residences/onboardingStatus";
+import { VerificationStepper, VerificationStatusChip } from "@/components/residences/VerificationStepper";
+import { getVerificationProgress } from "@/lib/residences/verificationStages";
 import { loadChangesMessage } from "@/lib/residences/loadChangesMessage";
 import { computeProfileStrength } from "@/lib/residences/profileStrength";
 import { loadCatalogForResidence } from "@/lib/faq/residenceCatalog";
@@ -95,6 +97,7 @@ export default async function ResidenceOverviewPage({
   ]);
 
   // Onboarding (Ciclo 65): banner + checklist solo si la residencia no está publicada.
+  const verificationProgress = getVerificationProgress(residence.status);
   const onboardingCopy = getOnboardingBanner(residence.status, { changesMessage });
   let onboardingChecklist: ReturnType<typeof buildOnboardingChecklist> = [];
   if (onboardingCopy) {
@@ -386,6 +389,11 @@ export default async function ResidenceOverviewPage({
             <Icon name="location_on" className="text-base" />
             {residence.public_area}, CABA
           </p>
+          {verificationProgress && !verificationProgress.complete && (
+            <div className="mt-3">
+              <VerificationStatusChip progress={verificationProgress} />
+            </div>
+          )}
         </div>
         <div className="flex gap-2">
           <Link
@@ -404,6 +412,8 @@ export default async function ResidenceOverviewPage({
       </div>
 
       {!isOwner && <StaffPermissionsSummary permissions={membership.permissions} />}
+
+      {verificationProgress && <VerificationStepper progress={verificationProgress} />}
 
       {onboardingCopy && (
         <OnboardingBanner copy={onboardingCopy} checklist={onboardingChecklist} residenceId={residenceId} ownerOnlyNote={!isOwner} />
