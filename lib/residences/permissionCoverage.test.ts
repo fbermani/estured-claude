@@ -51,6 +51,9 @@ const GUARDED: Record<string, string[]> = {
   // Solo dueño (no delegable)
   "lib/team/teamInvitations.ts": ["assertResidenceOwner("],
   "app/residence/dashboard/pdf/route.ts": ["ownerOnly: true"],
+  // Vista previa de la ficha (solo lectura): el filtro de estado se omite SOLO tras comprobar el vínculo activo con ESA residencia
+  "lib/residences/fichaResidence.ts": ["assertResidenceAccess("],
+  "app/residence/[residence_id]/preview/page.tsx": ["loadPreviewFicha("],
   // Siempre disponible para todo staff activo: solo exige el vínculo con la residencia
   "app/residence/[residence_id]/support/actions.ts": ["getResidenceMembership("],
 };
