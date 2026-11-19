@@ -23,6 +23,8 @@ ESTUDIANTES
 
 Preparación práctica para llegar, conocer la ciudad y empezar la etapa universitaria con menos imprevistos.
 
+Para mudarte a Buenos Aires a estudiar, planificá la llegada con dos o tres semanas de margen, reuní tu documentación (identidad, constancia de inscripción y antecedentes académicos), confirmá tu alojamiento y probá el recorrido a la facultad. Armá además un presupuesto del primer mes que separe gastos únicos y recurrentes.
+
 ## Planificá con anticipación, sin exigirte una fecha perfecta
 
 Si tus posibilidades lo permiten, llegar dos o tres semanas antes del comienzo de clases puede ayudarte a conocer la residencia y tus compañeros, adaptarte a un nuevo entorno, clima, el barrio, ensayar trayectos y resolver pendientes. Lo ideal es que puedas ocuparte de éstos aspectos con anticipación, para luego concentrarte de lleno en el inicio de clases. Algunas personas prefieren más tiempo y otras no pueden anticiparse; lo importante es reservar un margen realista para trámites, mudanza y descanso. Comenzás una etapa completamente distinta en tu vida! (no lo tomes a la ligera)

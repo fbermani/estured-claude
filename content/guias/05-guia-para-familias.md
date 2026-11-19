@@ -23,6 +23,8 @@ MADRES, PADRES Y TUTORES
 
 Cómo evaluar el alojamiento, conversar sobre autonomía y estar presentes sin invadir.
 
+Al elegir una residencia para un estudiante a tu cargo, mirá más que las fotos: el recorrido hasta la universidad, la cantidad de residentes, los lugares de estudio, el manejo de emergencias y un responsable identificable. Acuerden cómo mantenerse en contacto: acompañar la autonomía funciona mejor que vigilar.
+
 ## Qué mirar además de las fotos
 
 Evaluá el recorrido hasta la universidad, cantidad de residentes totales, lugares para estudiar, limpieza, manejo de emergencias y acceso a un responsable identificable. Bajá y leé el reglamento y condiciones escritas. No todas las residencias ofrecen coordinación presencial ni el mismo tipo de acompañamiento.

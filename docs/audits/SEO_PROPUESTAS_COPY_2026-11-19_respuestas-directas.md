@@ -1,6 +1,6 @@
-# Respuestas directas al inicio de las guías (GEO) — PENDIENTE DE APROBACIÓN
+# Respuestas directas al inicio de las guías (GEO) — G-01 a G-05 APROBADAS Y APLICADAS 2026-11-19; hallazgos pendientes
 
-Fecha: 2026-11-19. Ninguna está aplicada. Cada una iría como **primer párrafo** de la guía, debajo de la bajada y antes del primer título, sin tocar el texto editorial existente (que no se reescribe sin autorización). Solo usan datos que ya están en cada guía. Objetivo: que buscadores y asistentes de IA puedan citar una respuesta completa de 40–55 palabras.
+Fecha: 2026-11-19. Las 5 fueron aprobadas por el dueño y aplicadas; los «Hallazgos» siguen pendientes de aprobación. Cada una iría como **primer párrafo** de la guía, debajo de la bajada y antes del primer título, sin tocar el texto editorial existente (que no se reescribe sin autorización). Solo usan datos que ya están en cada guía. Objetivo: que buscadores y asistentes de IA puedan citar una respuesta completa de 40–55 palabras.
 
 ## G-01 · Cómo elegir una residencia estudiantil
 > Para elegir bien una residencia estudiantil, definí primero tu presupuesto total, el tiempo máximo hasta tu facultad y el tipo de habitación que necesitás. Después compará la ubicación real, los espacios compartidos, el reglamento y el costo total (precio mensual, reserva, depósito y ajustes) antes de enviar una solicitud.

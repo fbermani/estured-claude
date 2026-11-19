@@ -24,6 +24,8 @@ ESTUDIANTES Y FAMILIAS
 
 Los tropiezos más frecuentes en los primeros meses y decisiones simples para prevenirlos.
 
+Los errores más comunes al mudarte a Buenos Aires son llegar sin margen, aislarte, no organizar el tiempo de estudio, dejar pasar los problemas de convivencia, elegir solo por precio o cercanía y descuidar alimentación y descanso. Todos se previenen con planificación simple y pidiendo apoyo a tiempo.
+
 ## 1. Llegar sin margen para adaptarte
 
 Empezar clases inmediatamente después del viaje puede superponer cansancio, trámites y orientación. Solución: organizá lo esencial de antemano; si podés, llegá antes y reservá tiempo para reconocer el barrio y la facultad. Si no, evitá cargar de actividades las primeras jornadas.

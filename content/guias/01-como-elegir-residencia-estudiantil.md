@@ -24,6 +24,8 @@ ESTUDIANTES Y FAMILIAS
 
 Qué revisar antes de decidir dónde vas a vivir, especialmente si reservás a distancia.
 
+Para elegir bien una residencia estudiantil, definí primero tu presupuesto total, el tiempo máximo hasta tu facultad y el tipo de habitación que necesitás. Después compará la ubicación real, los espacios compartidos, el reglamento y el costo total (precio mensual, reserva, depósito y ajustes) antes de enviar una solicitud.
+
 ## Empezá por lo que necesitás, no por la foto más linda
 
 Antes de mirar opciones, anotá tus prioridades: presupuesto mensual total, tiempo máximo tolerable hasta tu facultad, tipo de habitación, privacidad deseada, necesidad de espacio para estudiar y servicios indispensables. No todas las personas necesitan lo mismo. Una residencia que funciona muy bien para un estudiante sociable puede no ser la mejor para quien necesita silencio y horarios estables.
