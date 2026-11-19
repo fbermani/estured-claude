@@ -99,8 +99,8 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
         </p>
         <p className="mt-3 rounded-field bg-amber-soft-100 px-4 py-3 text-sm text-ink">
           Te recomendamos elegir como máximo {FICHA_FAQ_VISIBLE} preguntas: son las que se ven de entrada en tu ficha. Las demás, y las que
-          respondas de los visitantes, quedan detrás de «Ver todas las preguntas». Cuanto más respondas, más consultas vas a recibir por
-          EstuRed.
+          respondas de los visitantes, quedan detrás de «Ver todas las preguntas». Cuanto más completa esté tu ficha, menos preguntas
+          recibís y más reservas directas conseguís.
           {catalog.ok && (
             <span className="mt-1 block font-semibold">
               Elegiste {catalog.entries.filter((e) => e.selection?.is_selected).length} de {FICHA_FAQ_VISIBLE} recomendadas.
