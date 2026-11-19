@@ -4,7 +4,7 @@ import { CLEANING_PER_WEEK_MAX, CLEANING_SERVICE, KITCHENS_MAX, KITCHEN_AREA, am
 import { ResidenceHero } from "@/components/residences/ResidenceHero";
 import { formatDate } from "@/lib/dates/format";
 import Image from "next/image";
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -12,6 +12,11 @@ import { Badge } from "@/components/ui/Badge";
 import { Input, Select, Textarea } from "@/components/ui/Input";
 import { Icon } from "@/components/ui/Icon";
 import { SectionNav } from "@/components/residences/ficha/SectionNav";
+import { SaveStatus } from "@/components/forms/SaveStatus";
+import { DraftNotice } from "@/components/forms/DraftNotice";
+import { UnsavedChangesGuard } from "@/components/forms/UnsavedChangesGuard";
+import { useProfileDraft } from "@/app/residence/[residence_id]/profile/useProfileDraft";
+import { saveImpactNote } from "@/lib/residences/profileDraft";
 import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import { ResidencePhotoPlaceholder } from "@/components/residences/ResidencePhoto";
@@ -60,7 +65,7 @@ import {
   type ProfileFormState,
 } from "@/app/residence/[residence_id]/profile/actions";
 
-interface RoomTypeDraft {
+export interface RoomTypeDraft {
   id?: string;
   name: string;
   genderPolicy?: string;
@@ -74,7 +79,7 @@ interface RoomTypeDraft {
 }
 
 /** Condiciones generales de reserva (migración 0025 — ref de configuración). */
-interface ConditionsDraft {
+export interface ConditionsDraft {
   minimumStayMonths: number | "";
   adjustmentPolicy: string;
   /** Pago inicial para reservar (D7/H08, migración 0041): primer mes, monto fijo en USD o solo la matrícula (DR18 t3). */
@@ -231,6 +236,7 @@ export function ResidenceProfileForm({
   arsPerUsd,
   readOnly = false,
   canSubmit = true,
+  draftScope,
 }: {
   residenceId: string;
   initial: ProfileInitial;
@@ -239,6 +245,8 @@ export function ResidenceProfileForm({
   readOnly?: boolean;
   /** DR11: enviar o reenviar a verificación es solo del dueño, no delegable. Un staff con `profile.edit` guarda pero no envía. */
   canSubmit?: boolean;
+  /** Borrador local: quién edita y la huella del estado guardado (`updated_at`). Sin esto no se guarda borrador en el dispositivo. */
+  draftScope?: { userId: string; stamp: string };
 }) {
   const action = saveResidenceProfile.bind(null, residenceId);
   const [state, formAction] = useActionState(action, initialState);
@@ -377,6 +385,44 @@ export function ResidenceProfileForm({
   const [conditions, setConditions] = useState<ConditionsDraft>(initial.conditions);
   // Fotos del editor de la galería (se suben y se aprueban por su cuenta, no con el guardado del perfil).
   const [photoCounts, setPhotoCounts] = useState({ total: initial.photos.length, approved: initial.photos.filter((p) => !p.pending).length });
+
+  // Borrador local (solo en este dispositivo): se guarda solo mientras se escribe y se recupera al volver. No toca el servidor:
+  // lo único que guarda en la cuenta es «Guardar cambios» (o «Guardar y salir» en el aviso de salida).
+  const draft = useProfileDraft<RoomTypeDraft, ConditionsDraft>({
+    residenceId,
+    userId: draftScope?.userId ?? "",
+    stamp: draftScope?.stamp ?? "",
+    enabled: !readOnly && draftScope !== undefined,
+    source: { tagline, description, services, commonAreas, kitchens, cleaningMode, cleaningPerWeek, nearUniversities, stayDocKeys, stayDocOther, rulesRows, rulesDirty, customItems, faqItems, roomTypes, conditions },
+    setters: { setTagline, setDescription, setServices, setCommonAreas, setKitchens, setCleaningMode, setCleaningPerWeek, setNearUniversities, setStayDocKeys, setStayDocOther, setRulesRows, setRulesDirty, setCustomItems, setFaqItems, setRoomTypes, setConditions },
+    roomTemplate: emptyRoomType(),
+  });
+  const formRef = useRef<HTMLFormElement>(null);
+  const saveWaiter = useRef<((r: { ok: boolean; message?: string }) => void) | null>(null);
+  const [accountSavedAt, setAccountSavedAt] = useState<number | null>(null);
+  const { completeSave } = draft;
+  useEffect(() => {
+    if (state.status === "idle") return;
+    const ok = state.status === "saved" || state.status === "saved_pending_review" || state.status === "submitted";
+    if (ok) {
+      completeSave();
+      setAccountSavedAt(Date.now());
+    }
+    saveWaiter.current?.({ ok, message: state.message });
+    saveWaiter.current = null;
+  }, [state, completeSave]);
+  /** «Guardar y salir» del aviso de salida: envía el formulario como «Guardar cambios» (nunca como «Enviar para revisión») y espera el resultado. */
+  const saveAndWait = useCallback(
+    () =>
+      new Promise<{ ok: boolean; message?: string }>((resolve) => {
+        const form = formRef.current;
+        if (!form) return resolve({ ok: false });
+        if (!form.checkValidity()) return resolve({ ok: false, message: "Hay datos con formato inválido en el formulario. Revisalos o elegí otra opción." });
+        saveWaiter.current = resolve;
+        form.requestSubmit();
+      }),
+    [],
+  );
 
   function updateConditions(patch: Partial<ConditionsDraft>) {
     setConditions((prev) => ({ ...prev, ...patch }));
@@ -552,8 +598,27 @@ export function ResidenceProfileForm({
         items={PROFILE_SECTIONS}
       />
 
+      <DraftNotice
+        notice={draft.notice}
+        what="tus cambios sin guardar"
+        extra="Si habías elegido fotos o un PDF, volvé a elegirlos: los archivos no se guardan en el borrador."
+        onDiscard={draft.discard}
+        onAccept={draft.acceptStale}
+        onDismiss={draft.dismissNotice}
+        className="mb-6"
+      />
+      <UnsavedChangesGuard
+        active={draft.dirty}
+        description="Lo que escribiste sigue como borrador en este dispositivo y lo recuperás al volver, pero todavía no está en tu cuenta."
+        impactNote={saveImpactNote(initial.status)}
+        onSave={saveAndWait}
+        onLeave={draft.saveNow}
+      />
+
       <form
+        ref={formRef}
         action={(fd) => {
+          draft.beginSave();
           // El intent viaja como name/value del <button> que disparó el
           // submit (patrón HTML nativo) — leer el botón evita la carrera
           // de usar onClick + estado de React para decidirlo.
@@ -824,6 +889,8 @@ export function ResidenceProfileForm({
                 <a href={`/residence/${residenceId}/regulation`} className="font-semibold text-forest-700 underline">
                   Ir al reglamento
                 </a>
+                . Un reglamento completo y prolijo evita problemas a futuro y preguntas repetidas antes de reservar. Lo que escribas acá queda
+                como borrador en este dispositivo: podés ir, volver con «Volver a la configuración» y seguir.
               </p>
             )}
             <div className="mt-4">
@@ -1576,6 +1643,13 @@ export function ResidenceProfileForm({
           {/* Bajo md: barra fija sobre la tab bar. Los 61px = alto de MobileTabBar sin safe-area (1 borde + 4 pt + 56 min-h-14): si cambia ese alto, cambiar acá. De md a lg: sticky en el main (no pisa la sidebar). Desde lg, en el flujo. */}
           <div className="max-md:fixed max-md:inset-x-0 max-md:bottom-[calc(61px+max(0.25rem,env(safe-area-inset-bottom)))] max-lg:mb-0! max-lg:z-30 md:max-lg:sticky md:max-lg:bottom-0 md:max-lg:-mx-4 sm:md:max-lg:-mx-6 max-lg:border-t max-lg:border-line max-lg:bg-paper/95 max-lg:px-4 max-lg:py-2 max-lg:backdrop-blur md:max-lg:pb-[max(0.5rem,env(safe-area-inset-bottom))] lg:contents">
           <div className="space-y-2 max-lg:mb-2 max-lg:max-h-24 max-lg:overflow-y-auto max-lg:empty:hidden max-lg:[&>p]:py-2 max-lg:[&>p]:text-xs lg:contents">
+          <SaveStatus
+            dirty={draft.dirty}
+            localState={draft.localState}
+            localSavedAt={draft.savedAt}
+            accountSavedAt={accountSavedAt}
+            className="max-lg:py-0! sm:text-right"
+          />
           {state.status === "error" && (
             <p role="alert" className="rounded-field bg-danger-bg px-4 py-3 text-sm font-medium text-danger-fg">
               {state.message}

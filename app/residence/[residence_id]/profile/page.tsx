@@ -121,6 +121,7 @@ export default async function ResidenceProfilePage({
       arsPerUsd={rate.arsPerUsd}
       readOnly={readOnly}
       canSubmit={canSubmit}
+      draftScope={{ userId: sessionUser.id, stamp: String(residence?.updated_at ?? "") }}
       initial={{
         name: residence.name,
         tagline: residence.tagline ?? "",
