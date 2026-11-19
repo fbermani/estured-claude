@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // lastModified de las páginas estáticas = momento de la generación (el sitemap es dinámico); mejor dato que ninguno.
   const now = new Date();
-  const entries: MetadataRoute.Sitemap = ["", "/for-students", "/for-residences", "/search", "/guias"].map((p) => ({ url: `${SITE_URL}${p}`, lastModified: now }));
+  const entries: MetadataRoute.Sitemap = ["", "/for-students", "/for-residences", "/search", "/guias", "/nosotros"].map((p) => ({ url: `${SITE_URL}${p}`, lastModified: now }));
   for (const g of getAllGuides()) entries.push({ url: `${SITE_URL}/guias/${g.slug}`, lastModified: now });
   try {
     const admin = getSupabaseAdmin();

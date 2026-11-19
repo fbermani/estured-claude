@@ -1,8 +1,10 @@
-# Propuestas de copy SEO — PENDIENTE DE APROBACIÓN (2026-11-18)
+# Propuestas de copy SEO — (2026-11-18)
+
+**Actualización 2026-11-18 (respuestas del dueño):** la página institucional va en `/nosotros` (incluye «Cómo verificamos»), quien visita se menciona de forma genérica, la fecha de visita aparecerá a medida que se hagan las visitas (hoy las fichas son ficticias) y **los familiares NO envían solicitudes** (solo estudiantes): la pregunta 3 del FAQ se descarta. Página `/nosotros` **creada** (sin la sección «quién soy / cómo surgió», que falta el texto del dueño).
 
 Nada de esto está aplicado en el sitio. Cada texto sale de las reglas ya documentadas (`docs/03` §5.2–5.4, `docs/19` §6.6) y respeta las reglas del proyecto: voseo, «Soporte», «solicitud sujeta a confirmación», sin garantías ni disponibilidad. Lo que falta saber está marcado **[A COMPLETAR]**.
 
-## 1. Página «Cómo verificamos» (nueva, ruta propuesta `/como-verificamos`)
+## 1. Página «Cómo verificamos» → CREADA como `/nosotros` (revisar el texto antes de publicar)
 
 **Title:** Cómo verificamos las residencias
 **Description:** Qué revisa EstuRed en cada residencia antes de publicarla: identidad, dirección y fotos, con una visita presencial. Y qué no garantiza el sello.
@@ -48,7 +50,7 @@ Estado: **PENDIENTE DE APROBACIÓN**. Decisiones tuyas: (a) ruta `/como-verifica
 
 1. **¿Enviar una solicitud me asegura la habitación?** — No. La solicitud queda registrada y sujeta a confirmación de la residencia. Cuando la residencia responde, lo ves en tu panel.
 2. **¿Cómo sé que la residencia existe y es como en las fotos?** — Antes de publicarla, una persona de EstuRed la visita en persona y compara lo que ve con lo publicado. En «Cómo verificamos» está el detalle. (Depende de aprobar la página 1.)
-3. **¿Puedo mandar una solicitud por mi hijo o hija?** — Sí, si sos familiar vinculado a la cuenta del estudiante. [A COMPLETAR: confirmar el flujo exacto de vinculación de familiar con `docs/05`/`docs/08` antes de publicar.]
+3. ~~¿Puedo mandar una solicitud por mi hijo o hija?~~ — DESCARTADA: solo los estudiantes envían solicitudes.
 4. **¿A quién pago?** — A la residencia le pagás lo acordado con ella, por fuera de EstuRed. A EstuRed solo el fee, y recién cuando la residencia confirma. (Coherente con la respuesta existente de «¿Cuánto cuesta?».)
 
 Estado: **PENDIENTE DE APROBACIÓN** (la 3 además de confirmación de flujo).

@@ -16,6 +16,7 @@ export function GET() {
     `- [Buscar residencias](${SITE_URL}/search): catálogo de residencias verificadas, con filtros por barrio, universidad, servicios y precio.`,
     `- [Para estudiantes y familias](${SITE_URL}/for-students): cómo funciona una solicitud y qué queda registrado.`,
     `- [Para residencias](${SITE_URL}/for-residences): cómo publicar una residencia en EstuRed.`,
+    `- [Nosotros y cómo verificamos](${SITE_URL}/nosotros): qué es EstuRed y qué revisa la visita presencial a cada residencia.`,
     `- [Verificar un comprobante](${SITE_URL}/verify): comprobación de comprobantes de reserva.`,
     "",
     "## Guías",
