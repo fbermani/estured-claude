@@ -148,6 +148,7 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 ## F. Deploy y dominio
 
 ### F1. Dominio `estured.com` en Vercel [Vos]
+> **Relevamiento solo lectura (2026-11-19):** `estured.com` activo en Hostinger (registrado 2026-11-14, vence 2027-11-14, lock + privacidad + auto-renovación ON, mail de contacto verificado). Nameservers `aster/helios.dns-parking.com` (zona DNS editable por API). DNS hoy: solo `A @ 2.57.91.91` (TTL 50, parking) y `CNAME www → estured.com`; sin MX/TXT/CAA. Responde 200 con la página de parking de Hostinger. En Vercel (proyecto `estured-claude`) el único dominio es `estured.vercel.app`, atado a la rama `staging`; **no hay dominio de Production ni deploys de `main`**. Hostinger tiene además *Unlimited Web Hosting* (activo, auto-renovación) y *Ecommerce Growth* (en prueba, auto-renovación), sin ningún sitio creado: decidir si se cancelan (pendiente, requiere confirmar ítem y monto). Ningún cambio hecho todavía.
 - [ ] Vercel → proyecto → Settings → Domains → agregar `estured.com` y `www.estured.com` (www redirige al apex). Vercel muestra los registros exactos.
 - [ ] Hostinger → DNS zone: **borrar** los registros A/AAAA/CNAME de `@` y `www` que haya por defecto (parking) y crear los que indica Vercel (normalmente `A @ 76.76.21.21` y `CNAME www cname.vercel-dns.com`; **usar los valores que muestre Vercel**). No tocar los registros de Resend ni los MX del correo.
 - [ ] Esperar a que Vercel ponga ambos dominios en verde (HTTPS automático; propagación de minutos a horas).
