@@ -18,6 +18,8 @@ import { loadCatalogForResidence } from "@/lib/faq/residenceCatalog";
 import { loadFeaturedCandidates } from "@/lib/faq/featured";
 import { FeaturedFaqManager } from "@/app/residence/[residence_id]/faq/FeaturedFaqManager";
 import { ESSENTIAL_FAQ_IDS, FAQ_CATEGORIES, FICHA_FAQ_VISIBLE, countEssentialFaqsReady, effectiveAnswer, isEssentialFaq } from "@/lib/faq/catalog";
+import { FEATURED_FAQ_MAX } from "@/lib/residences/featuredFaq";
+import { normalizeOwnFaqItems } from "@/lib/residences/ownFaq";
 
 export const metadata: Metadata = { title: "Preguntas frecuentes" };
 export const dynamic = "force-dynamic";
@@ -48,7 +50,13 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
   // DR11: sin `faq.manage` las acciones se ven deshabilitadas (solo presentación; el servidor valida cada acción).
   const canManage = can(membership, "faq.manage");
 
-  const [catalog, featured] = await Promise.all([loadCatalogForResidence(admin, residenceId), loadFeaturedCandidates(admin, residenceId)]);
+  const [catalog, featured, ownFaqSection] = await Promise.all([
+    loadCatalogForResidence(admin, residenceId),
+    loadFeaturedCandidates(admin, residenceId),
+    admin.from("residence_profile_sections").select("content").eq("residence_id", residenceId).eq("section_type", "faq").maybeSingle(),
+  ]);
+  // Preguntas propias del sistema anterior (texto libre, se editan en la configuración): solo se las nombra si existen.
+  const ownFaqCount = normalizeOwnFaqItems((ownFaqSection.data?.content as { items?: unknown } | null)?.items).length;
 
   const { data, error } = await admin
     .from("residence_faq_questions")
@@ -99,10 +107,28 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
           entre llaves {"{…}"} antes de mostrarlas. Lo que escribas acá no confirma disponibilidad ni precios: eso se informa en la ficha y
           en la solicitud.
         </p>
+        <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-3" aria-label="Cómo se ordenan tus preguntas en la ficha">
+          <div className="rounded-field border-[1.5px] border-line bg-cream px-4 py-3">
+            <dt className="font-bold text-ink">Esenciales</dt>
+            <dd className="mt-1 text-ink-soft">
+              Cubren lo imprescindible: las que más se repiten antes de reservar. Hay {ESSENTIAL_FAQ_IDS.length} y están marcadas «Esencial».
+            </dd>
+          </div>
+          <div className="rounded-field border-[1.5px] border-line bg-cream px-4 py-3">
+            <dt className="font-bold text-ink">Destacadas</dt>
+            <dd className="mt-1 text-ink-soft">
+              Hasta {FEATURED_FAQ_MAX} que se ven primero en tu ficha. Las elegís más abajo, entre las que ya mostrás.
+            </dd>
+          </div>
+          <div className="rounded-field border-[1.5px] border-line bg-cream px-4 py-3">
+            <dt className="font-bold text-ink">El resto</dt>
+            <dd className="mt-1 text-ink-soft">Las demás que elijas quedan detrás de «Ver todas las preguntas», ordenadas por tema.</dd>
+          </div>
+        </dl>
         <p className="mt-3 rounded-field bg-amber-soft-100 px-4 py-3 text-sm text-ink">
-          Te recomendamos elegir como máximo {FICHA_FAQ_VISIBLE} preguntas: son las que se ven de entrada en tu ficha. Las demás, y las que
-          respondas de los visitantes, quedan detrás de «Ver todas las preguntas». Cuanto más completa esté tu ficha, menos preguntas
-          recibís y más reservas directas conseguís.
+          Te recomendamos elegir hasta {FICHA_FAQ_VISIBLE} preguntas, para que se vean de entrada en tu ficha. Podés elegir más: las demás
+          quedan detrás de «Ver todas las preguntas». Cuanto más completa esté tu ficha, menos consultas repetidas recibís y más solicitudes
+          llegan con la decisión avanzada.
           {catalog.ok && (
             <span className="mt-1 block font-semibold">
               Elegiste {catalog.entries.filter((e) => e.selection?.is_selected).length} de {FICHA_FAQ_VISIBLE} recomendadas.
@@ -111,8 +137,7 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
         </p>
         {catalog.ok && (
           <p className="mt-3 rounded-field bg-forest-tint px-4 py-3 text-sm text-ink">
-            Las preguntas marcadas como «Esencial» son las que más se repiten antes de reservar. Si las respondés en tu ficha, quien te escribe ya
-            tiene la respuesta y llega con la decisión más avanzada: recibís menos consultas sueltas y más solicitudes de reserva. Te las
+            Si respondés las esenciales en tu ficha, quien te escribe ya tiene la respuesta y llega con la decisión más avanzada. Te las
             recomendamos, pero no son obligatorias.
             <span className="mt-1 block font-semibold">
               Esenciales listas: {countEssentialFaqsReady(catalog.entries)} de {ESSENTIAL_FAQ_IDS.length}.
@@ -146,11 +171,11 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
                 const entries = catalog.entries.filter((e) => e.category === category.key);
                 if (entries.length === 0) return null;
                 const selectedCount = entries.filter((e) => e.selection?.is_selected).length;
-                const anySelected = catalog.entries.some((e) => e.selection?.is_selected);
                 return (
                   <details
                     key={category.key}
-                    open={selectedCount > 0 || (!anySelected && index === 0)}
+                    // El primer tema siempre abierto (para ver una pregunta a primera vista) y los que ya tienen elegidas.
+                    open={selectedCount > 0 || index === 0}
                     className="group rounded-card border-[1.5px] border-line bg-cream-2/40"
                   >
                     <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-3">
@@ -218,14 +243,17 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
       </p>
       <p className="mt-2 text-xs text-ink-faint">
         Las preguntas no muestran quién las hizo. No confirmes disponibilidad ni precios por acá: eso se informa en la
-        ficha y en la solicitud. Para cambiar tus{" "}
-        <Link
-          href={`/residence/${residenceId}/profile`}
-          className="font-semibold text-forest-700 underline underline-offset-2"
-        >
-          preguntas frecuentes fijas
-        </Link>{" "}
-        (hasta 5), editá tu perfil.
+        ficha y en la solicitud.
+        {ownFaqCount > 0 && (
+          <>
+            {" "}
+            Las preguntas propias que escribiste antes del catálogo se editan en tu{" "}
+            <Link href={`/residence/${residenceId}/profile#perfil-faq`} className="font-semibold text-forest-700 underline underline-offset-2">
+              configuración
+            </Link>
+            .
+          </>
+        )}
       </p>
 
       {error ? (

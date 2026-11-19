@@ -52,6 +52,9 @@ import {
   normalizeRequirementLabel,
   type StayDocumentKey,
 } from "@/lib/residences/stayDocuments";
+import { ProfileFaqCard } from "@/app/residence/[residence_id]/profile/ProfileFaqCard";
+import type { FaqProfileSummary } from "@/lib/faq/profileSummary";
+import type { OwnFaqItem } from "@/lib/residences/ownFaq";
 import { PhotoMetaManager, type PhotoMetaItem } from "@/app/residence/[residence_id]/profile/PhotoMetaManager";
 import { PromotionsManager, type PromotionItem } from "@/app/residence/[residence_id]/profile/PromotionsManager";
 import {
@@ -133,7 +136,10 @@ interface ProfileInitial {
   customAmenitiesReady: boolean;
   /** DR18: la residencia ya publicó un reglamento propio (si no, se la invita a armarlo con el modelo). */
   hasOwnRegulation: boolean;
-  faqItems: { question: string; answer: string }[];
+  /** Preguntas propias guardadas (texto libre, sistema anterior al catálogo). */
+  faqItems: OwnFaqItem[];
+  /** Estado del catálogo de preguntas (elegidas, esenciales, destacadas); `null` si no se pudo cargar. */
+  faqSummary: FaqProfileSummary | null;
   /** DR18 (tanda 2): fotos con su clasificación (0059) y los tipos de habitación a los que se pueden asociar. */
   photos: PhotoMetaItem[];
   photoRoomTypes: { id: string; name: string }[];
@@ -376,9 +382,8 @@ export function ResidenceProfileForm({
       </div>
     );
   }
-  const [faqItems, setFaqItems] = useState<{ question: string; answer: string }[]>(
-    initial.faqItems.length > 0 ? initial.faqItems : [{ question: "", answer: "" }],
-  );
+  // Preguntas propias (sistema anterior al catálogo): solo las ya guardadas, sin casilleros vacíos; sumar nuevas se hace desde el catálogo.
+  const [faqItems, setFaqItems] = useState<OwnFaqItem[]>(initial.faqItems);
   const [roomTypes, setRoomTypes] = useState<RoomTypeDraft[]>(
     initial.roomTypes.length > 0 ? initial.roomTypes : [emptyRoomType()],
   );
@@ -438,18 +443,6 @@ export function ResidenceProfileForm({
 
   function updateRoomType(index: number, patch: Partial<RoomTypeDraft>) {
     setRoomTypes((prev) => prev.map((rt, i) => (i === index ? { ...rt, ...patch } : rt)));
-  }
-
-  function updateFaqItem(index: number, patch: Partial<{ question: string; answer: string }>) {
-    setFaqItems((prev) => prev.map((f, i) => (i === index ? { ...f, ...patch } : f)));
-  }
-
-  function addFaqItem() {
-    setFaqItems((prev) => (prev.length >= 5 ? prev : [...prev, { question: "", answer: "" }]));
-  }
-
-  function removeFaqItem(index: number) {
-    setFaqItems((prev) => (prev.length > 1 ? prev.filter((_, i) => i !== index) : prev));
   }
 
   function toggleRoomFeature(index: number, feature: string) {
@@ -626,10 +619,8 @@ export function ResidenceProfileForm({
           fd.set("room_types_json", JSON.stringify(roomTypes));
           fd.set("stay_documents_other_json", JSON.stringify(stayDocOther));
           fd.set("custom_amenities_json", JSON.stringify(customItems.map((i) => ({ id: i.id, kind: i.kind, label: i.label }))));
-          fd.set(
-            "faq_json",
-            JSON.stringify(faqItems.filter((f) => f.question.trim() && f.answer.trim())),
-          );
+          // Siempre se manda (aunque esté vacío): así quitar todas las preguntas propias se guarda, y su ausencia nunca borra nada.
+          fd.set("faq_json", JSON.stringify(faqItems.filter((f) => f.question.trim() && f.answer.trim())));
           fd.set(
             "conditions_json",
             JSON.stringify({
@@ -911,55 +902,8 @@ export function ResidenceProfileForm({
             </div>
           </Card>
 
-          {/* Preguntas frecuentes — hasta 5, se muestran públicamente en la ficha con acordeón */}
-          <Card id="perfil-faq" className="p-6 max-lg:scroll-mt-14">
-            <h2 className="text-lg font-bold text-ink">Preguntas frecuentes</h2>
-            <p className="mt-1 text-sm text-ink-soft">
-              Hasta 5 preguntas que los estudiantes suelen hacer antes de reservar. Se muestran en tu ficha pública.
-            </p>
-            <div className="mt-4 space-y-4">
-              {faqItems.map((faq, i) => (
-                <div key={i} className="rounded-field border-[1.5px] border-line p-4">
-                  <div className="flex items-start justify-between gap-2">
-                    <Input
-                      label={`Pregunta ${i + 1}`}
-                      value={faq.question}
-                      onChange={(e) => updateFaqItem(i, { question: e.target.value })}
-                      placeholder="Ej: ¿Se permiten mascotas?"
-                      className="flex-1"
-                    />
-                    {faqItems.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeFaqItem(i)}
-                        className="mt-7 shrink-0 rounded-field p-2 text-ink-faint transition-colors hover:bg-cream-2 hover:text-danger-fg"
-                        aria-label="Quitar pregunta"
-                      >
-                        <Icon name="close" className="text-lg" />
-                      </button>
-                    )}
-                  </div>
-                  <Textarea
-                    label="Respuesta"
-                    value={faq.answer}
-                    onChange={(e) => updateFaqItem(i, { answer: e.target.value })}
-                    rows={2}
-                    className="mt-3"
-                    placeholder="Respuesta breve y clara"
-                  />
-                </div>
-              ))}
-            </div>
-            {faqItems.length < 5 && (
-              <button
-                type="button"
-                onClick={addFaqItem}
-                className="mt-3 text-sm font-semibold text-forest-700 hover:underline"
-              >
-                + Agregar pregunta
-              </button>
-            )}
-          </Card>
+          {/* Preguntas frecuentes: se eligen del catálogo en /faq; acá el estado real y, si existen, las preguntas propias anteriores */}
+          <ProfileFaqCard residenceId={residenceId} summary={initial.faqSummary} ownItems={faqItems} onChangeOwn={setFaqItems} />
 
           {/* Universidades cercanas */}
           <Card id="perfil-universidades" className="p-6 max-lg:scroll-mt-14">

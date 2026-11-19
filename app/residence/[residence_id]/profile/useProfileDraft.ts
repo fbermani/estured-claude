@@ -4,6 +4,7 @@ import { useCallback } from "react";
 import { useLocalDraft } from "@/components/forms/useLocalDraft";
 import { draftStorageKey } from "@/lib/forms/localDraft";
 import { newRuleDraft, type RuleDraft } from "@/app/residence/[residence_id]/profile/RulesItemsEditor";
+import { dropBlankOwnFaq } from "@/lib/residences/ownFaq";
 import type { CustomAmenityKind, CustomAmenityStatus } from "@/lib/residences/customAmenities";
 import {
   PROFILE_DRAFT_SCOPE,
@@ -82,7 +83,8 @@ export function useProfileDraft<Room extends object, Conditions extends object>(
         // Los ya guardados vienen del servidor; los nuevos se reemplazan por los del borrador.
         setters.setCustomItems((prev) => [...prev.filter((i) => i.id), ...fresh]);
       }
-      if (data.faqItems && data.faqItems.length > 0) setters.setFaqItems(data.faqItems);
+      // Las preguntas propias pueden quedar en cero (se quitaron todas); los borradores viejos traían un casillero en blanco: se descarta.
+      if (data.faqItems) setters.setFaqItems(dropBlankOwnFaq(data.faqItems));
       if (data.roomTypes) {
         const rooms = sanitizeRoomTypes(data.roomTypes, roomTemplate);
         if (rooms && rooms.length > 0) setters.setRoomTypes(rooms as Room[]);

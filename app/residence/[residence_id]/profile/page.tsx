@@ -1,4 +1,7 @@
 import { parseRuleItems } from "@/lib/residences/ruleItems";
+import { loadCatalogForResidence } from "@/lib/faq/residenceCatalog";
+import { loadFeaturedCandidates } from "@/lib/faq/featured";
+import { buildFaqProfileSummary } from "@/lib/faq/profileSummary";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
@@ -80,11 +83,14 @@ export default async function ResidenceProfilePage({
   if (!residence) notFound();
 
   // DR18: ítems «Otro» (degrada a vacío sin la migración 0058) y si ya hay reglamento propio publicado (si no, se invita a armarlo).
-  const [customAmenitiesRes, regulationRes, photoMeta, promotionsRes] = await Promise.all([
+  const [customAmenitiesRes, regulationRes, photoMeta, promotionsRes, faqCatalog, faqFeatured] = await Promise.all([
     listCustomAmenities(admin, residenceId),
     loadCurrentRegulation(admin, residenceId),
     loadPhotoMeta(admin, [residenceId], { reconcile: false }),
     loadResidencePromotions(admin, residenceId),
+    // Estado del catálogo de preguntas para la tarjeta «Preguntas frecuentes» (no editable acá: se elige en /faq).
+    loadCatalogForResidence(admin, residenceId),
+    loadFeaturedCandidates(admin, residenceId),
   ]);
   const today = todayIso();
 
@@ -150,6 +156,7 @@ export default async function ResidenceProfilePage({
         customAmenitiesReady: customAmenitiesRes.ok && customAmenitiesRes.schemaReady,
         hasOwnRegulation: regulationRes.ok ? !regulationRes.view.isBaseModel : true,
         faqItems: (sectionMap.faq?.items as { question: string; answer: string }[]) ?? [],
+        faqSummary: buildFaqProfileSummary(faqCatalog, faqFeatured),
         photos: photoItems,
         photoRoomTypes: (roomTypes ?? []).map((rt) => ({ id: rt.id as string, name: rt.name as string })),
         photoMetaReady: photoMeta.schemaReady,

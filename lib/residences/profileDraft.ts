@@ -1,5 +1,6 @@
 import { COMMON_AREA_OPTIONS, SERVICE_OPTIONS, UNIVERSITY_OPTIONS } from "@/lib/residences/options";
 import { MAX_RULE_ITEMS } from "@/lib/residences/ruleItems";
+import { OWN_FAQ_ANSWER_MAX, OWN_FAQ_MAX, OWN_FAQ_QUESTION_MAX } from "@/lib/residences/ownFaq";
 
 /**
  * Borrador local de la configuración de residencia (formulario de `profile`). Lógica pura, sin React ni almacenamiento.
@@ -182,8 +183,8 @@ export function sanitizeProfileDraft(raw: unknown): Partial<ProfileDraftData> | 
   if (Array.isArray(raw.faqItems)) {
     out.faqItems = raw.faqItems
       .filter(isRecord)
-      .slice(0, 5)
-      .map((f) => ({ question: str(f.question, 200) ?? "", answer: str(f.answer, 500) ?? "" }));
+      .slice(0, OWN_FAQ_MAX)
+      .map((f) => ({ question: str(f.question, OWN_FAQ_QUESTION_MAX) ?? "", answer: str(f.answer, OWN_FAQ_ANSWER_MAX) ?? "" }));
   }
   if (Array.isArray(raw.roomTypes)) out.roomTypes = raw.roomTypes.filter(isRecord).slice(0, 12);
   if (isRecord(raw.conditions)) out.conditions = raw.conditions;

@@ -35,6 +35,7 @@ import { splitRules, validateTopRules } from "@/lib/residences/topRules";
 import { normalizeRuleItems, parseRuleItems, ruleItemsToSummary, sameRuleItems, type HouseRuleItem } from "@/lib/residences/ruleItems";
 import { validateAgeRange } from "@/lib/residences/age";
 import { MAX_RESIDENCE_PHOTOS } from "@/lib/residences/photos";
+import { parseOwnFaqField } from "@/lib/residences/ownFaq";
 import {
   STAY_DOCUMENTS_SECTION,
   normalizeStayDocumentsInput,
@@ -563,21 +564,10 @@ export async function saveResidenceProfile(
       if (error) throw error;
     }
 
-    // FAQ: hasta 5 pares pregunta/respuesta, sanitizados (largo acotado,
-    // sin HTML) — texto libre del dueño, mismo nivel de confianza que el
-    // resumen de reglas, no crítico (no requiere aprobación de admin).
-    let faqItems: { question: string; answer: string }[] = [];
-    try {
-      const parsed = JSON.parse(String(formData.get("faq_json") ?? "[]"));
-      if (Array.isArray(parsed)) {
-        faqItems = parsed
-          .map((f) => ({ question: String(f?.question ?? "").trim().slice(0, 200), answer: String(f?.answer ?? "").trim().slice(0, 500) }))
-          .filter((f) => f.question && f.answer)
-          .slice(0, 5);
-      }
-    } catch {
-      faqItems = [];
-    }
+    // Preguntas propias (sistema anterior al catálogo): hasta `OWN_FAQ_MAX` pares pregunta/respuesta, sanitizados (largo acotado,
+    // sin HTML) — texto libre del dueño, mismo nivel de confianza que el resumen de reglas, no crítico (no requiere aprobación de
+    // admin). Si el formulario no manda `faq_json` NO se toca lo guardado (un cliente viejo o incompleto nunca borra las preguntas).
+    const faqItems = parseOwnFaqField(formData.get("faq_json"));
 
     // DR18: sedes a más de 20 cuadras (≈2 km) → solo alerta al admin; se guardan y se muestran igual.
     // Se compara contra lo guardado antes para no repetir el aviso en cada guardado.
@@ -606,7 +596,7 @@ export async function saveResidenceProfile(
     for (const section of [
       { section_type: "common_areas", content: { items: commonAreas } },
       { section_type: "near_universities", content: { items: nearUniversities } },
-      { section_type: "faq", content: { items: faqItems } },
+      ...(faqItems !== null ? [{ section_type: "faq", content: { items: faqItems } }] : []),
     ]) {
       const { error } = await admin
         .from("residence_profile_sections")
