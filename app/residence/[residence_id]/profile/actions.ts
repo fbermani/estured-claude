@@ -15,8 +15,8 @@ import {
   ROOM_TYPE_NAMES,
   GENDER_POLICY_OPTIONS,
   ADJUSTMENT_POLICY_OPTIONS,
-  ROOM_FEATURE_OPTIONS,
 } from "@/lib/residences/options";
+import { sanitizeRoomFeatures } from "@/lib/residences/roomFeatures";
 import {
   applyRoomTypesUpdate,
   changesRoomStructure,
@@ -64,7 +64,6 @@ const UNIVERSITIES = new Set<string>(UNIVERSITY_OPTIONS);
 const ROOM_NAMES = new Set<string>(ROOM_TYPE_NAMES);
 const GENDER_POLICIES = new Set(GENDER_POLICY_OPTIONS.map((o) => o.value));
 const ADJUSTMENT_POLICIES = new Set(ADJUSTMENT_POLICY_OPTIONS.map((o) => o.value));
-const ROOM_FEATURES = new Set<string>(ROOM_FEATURE_OPTIONS);
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 const MAX_PDF_BYTES = 10 * 1024 * 1024;
 /** Topes de texto libre y de precio (B4); la base tiene CHECK equivalentes en la migración 0084. */
@@ -353,8 +352,10 @@ export async function saveResidenceProfile(
       return { status: "error", message: `La tarifa de ${rt.name} es demasiado alta. Revisala (máximo USD ${MAX_MONTHLY_PRICE_USD.toLocaleString("es-AR")} por mes).` };
     if (rt.roomCount <= 0)
       return { status: "error", message: `Indicá cuántas habitaciones ${rt.name} tenés (mínimo 1).` };
-    if (rt.features.some((f) => !ROOM_FEATURES.has(f)))
-      return { status: "error", message: "Una de las características no es válida." };
+    // Las de la lista pasan tal cual; «Otro» admite UNA característica propia de hasta 2 palabras (se normaliza acá: el cliente no manda).
+    const features = sanitizeRoomFeatures(rt.features);
+    if (!features.ok) return { status: "error", message: `Característica de la habitación ${rt.name}: ${features.error}` };
+    rt.features = features.features;
   }
   const names = roomTypes.map((rt) => rt.name);
   if (new Set(names).size !== names.length)

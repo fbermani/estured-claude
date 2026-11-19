@@ -106,6 +106,13 @@ describe("sanitizeRoomTypes", () => {
     const r = sanitizeRoomTypes([{ name: "Doble", features: "no-array", roomCount: "x", monthlyPriceUsd: 450, id: "abc" }], template);
     expect(r).toEqual([{ id: "abc", name: "Doble", features: [], roomCount: 1, capacityPerRoom: 1, monthlyPriceUsd: 450 }]);
   });
+  it("conserva la característica propia de «Otro» junto con las de la lista (ida y vuelta del borrador)", () => {
+    const rooms = [{ name: "Doble", features: ["Ventana", "Aire acondicionado"], roomCount: 2, capacityPerRoom: 2, monthlyPriceUsd: 400 }];
+    const draft = toProfileDraftData(source({ roomTypes: rooms }));
+    const back = sanitizeProfileDraft(JSON.parse(JSON.stringify(draft)));
+    const restored = sanitizeRoomTypes(back?.roomTypes, template);
+    expect(restored?.[0].features).toEqual(["Ventana", "Aire acondicionado"]);
+  });
   it("ignora entradas que no son objetos y limita la cantidad", () => {
     const many = Array.from({ length: 30 }, () => ({ name: "Triple" }));
     expect(sanitizeRoomTypes([1, null, "x"], template)).toEqual([]);

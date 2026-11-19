@@ -30,7 +30,6 @@ import {
   ROOM_TYPE_NAMES,
   GENDER_POLICY_OPTIONS,
   ADJUSTMENT_POLICY_OPTIONS,
-  ROOM_FEATURE_OPTIONS,
   serviceLabel,
 } from "@/lib/residences/options";
 import {
@@ -51,6 +50,7 @@ import {
   normalizeRequirementLabel,
   type StayDocumentKey,
 } from "@/lib/residences/stayDocuments";
+import { RoomFeaturesField } from "@/app/residence/[residence_id]/profile/RoomFeaturesField";
 import { UniversityPicker } from "@/app/residence/[residence_id]/profile/UniversityPicker";
 import { ProfileFaqCard } from "@/app/residence/[residence_id]/profile/ProfileFaqCard";
 import type { FaqProfileSummary } from "@/lib/faq/profileSummary";
@@ -443,16 +443,6 @@ export function ResidenceProfileForm({
 
   function updateRoomType(index: number, patch: Partial<RoomTypeDraft>) {
     setRoomTypes((prev) => prev.map((rt, i) => (i === index ? { ...rt, ...patch } : rt)));
-  }
-
-  function toggleRoomFeature(index: number, feature: string) {
-    setRoomTypes((prev) =>
-      prev.map((rt, i) => {
-        if (i !== index) return rt;
-        const has = rt.features.includes(feature);
-        return { ...rt, features: has ? rt.features.filter((f) => f !== feature) : [...rt.features, feature] };
-      }),
-    );
   }
 
   const strength = useMemo(
@@ -1096,20 +1086,7 @@ export function ResidenceProfileForm({
                       />
                     </div>
                   )}
-                  <div className="mt-3 flex flex-wrap gap-4">
-                    <span className="text-sm font-medium text-ink">Características</span>
-                    {ROOM_FEATURE_OPTIONS.map((f) => (
-                      <label key={f} className="max-lg:min-h-11 flex items-center gap-1.5 text-sm text-ink-soft">
-                        <input
-                          type="checkbox"
-                          checked={rt.features.includes(f)}
-                          onChange={() => toggleRoomFeature(i, f)}
-                          className="h-4 w-4 max-lg:size-5! accent-forest"
-                        />
-                        {f}
-                      </label>
-                    ))}
-                  </div>
+                  <RoomFeaturesField features={rt.features} onChange={(next) => updateRoomType(i, { features: next })} />
                 </div>
               ))}
             </div>
