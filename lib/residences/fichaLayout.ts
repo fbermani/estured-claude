@@ -14,3 +14,13 @@ export const FICHA_BARS_STYLE = {
   "--ficha-navbar-h": `${FICHA_NAVBAR_REM}rem`,
   "--ficha-chips-h": `${FICHA_CHIPS_REM}rem`,
 } as CSSProperties;
+
+/**
+ * Vista previa del equipo (`/residence/[id]/preview`): no hay navbar del sitio; arriba queda fija la barra de «Vista previa» (altura fija,
+ * una sola línea), que ocupa el lugar de la navbar para los sticky y las anclas de la ficha (altura = barra + filete inferior de 1 px).
+ */
+export const FICHA_PREVIEW_BANNER_REM = 3.5;
+export const FICHA_PREVIEW_BARS_STYLE = {
+  "--ficha-navbar-h": `${FICHA_PREVIEW_BANNER_REM + 0.0625}rem`,
+  "--ficha-chips-h": `${FICHA_CHIPS_REM}rem`,
+} as CSSProperties;

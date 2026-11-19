@@ -76,6 +76,7 @@ export function CommunityProfilesPreview({
   slots,
   totalProfiles,
   scrollFilters = false,
+  preview = false,
 }: {
   slug: string;
   isGuest: boolean;
@@ -86,6 +87,8 @@ export function CommunityProfilesPreview({
   totalProfiles: number;
   /** En el modal móvil los filtros van en una sola fila con scroll horizontal. */
   scrollFilters?: boolean;
+  /** Vista previa del equipo: el visitante ve lugares sin datos y NO se ofrecen los enlaces de crear cuenta / ingresar. */
+  preview?: boolean;
 }) {
   const [filter, setFilter] = useState<string>("all");
   const source: { id: string; roomTypeName: string | null }[] = isGuest ? slots : profiles;
@@ -132,18 +135,22 @@ export function CommunityProfilesPreview({
             <p className="max-w-[340px] text-[12.5px] text-ink-faint">
               Nombres, carreras e intereses de quienes eligen mostrarlos. Es gratis y no te compromete a nada.
             </p>
-            <Link
-              href="/register/student"
-              className="mt-2 inline-flex h-12 items-center justify-center rounded-full bg-forest px-6 text-sm font-bold text-white shadow-sm transition duration-200 ease-out-fresh motion-safe:active:scale-[0.97] hover:-translate-y-0.5 hover:bg-forest-600 hover:shadow-forest focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
-            >
-              Crear mi cuenta
-            </Link>
-            <Link
-              href="/login"
-              className="inline-flex min-h-11 items-center text-sm font-bold text-forest-700 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
-            >
-              Ya tengo cuenta
-            </Link>
+            {!preview && (
+              <>
+                <Link
+                  href="/register/student"
+                  className="mt-2 inline-flex h-12 items-center justify-center rounded-full bg-forest px-6 text-sm font-bold text-white shadow-sm transition duration-200 ease-out-fresh motion-safe:active:scale-[0.97] hover:-translate-y-0.5 hover:bg-forest-600 hover:shadow-forest focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+                >
+                  Crear mi cuenta
+                </Link>
+                <Link
+                  href="/login"
+                  className="inline-flex min-h-11 items-center text-sm font-bold text-forest-700 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+                >
+                  Ya tengo cuenta
+                </Link>
+              </>
+            )}
           </div>
         </div>
       ) : (

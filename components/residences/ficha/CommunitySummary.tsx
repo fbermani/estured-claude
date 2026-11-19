@@ -20,11 +20,14 @@ export function CommunitySummary({
   community,
   statement,
   isGuest,
+  preview = false,
 }: {
   slug: string;
   community: CommunityData | null;
   statement: string;
   isGuest: boolean;
+  /** Vista previa del equipo: sin enlaces de ingreso ni de registro. */
+  preview?: boolean;
 }) {
   const total = community?.totalResidents ?? 0;
   const cards = community?.cards ?? [];
@@ -52,6 +55,7 @@ export function CommunitySummary({
             <CommunityProfilesPreview
               slug={slug}
               isGuest={isGuest}
+              preview={preview}
               profiles={profiles}
               slots={slots}
               totalProfiles={shownCount}
