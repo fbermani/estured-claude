@@ -1,6 +1,6 @@
 -- EstuRed — Migración 0099: poda del catálogo de FAQ (decisión del dueño 2026-11-19)
 -- Aplicar en: Supabase Dashboard → SQL Editor → New query → pegar y Run.
--- ⚠ REQUIERE ACCIÓN DEL DUEÑO: aplicarla primero en estured-dev y después en producción (por separado). NO está aplicada.
+-- Aplicada en estured-dev el 2026-11-19. Producción: pendiente (se arma con el bootstrap).
 --    Necesita la 0054 aplicada. Es IDEMPOTENTE y NO borra datos: las preguntas solo se desactivan (is_active = false) y las
 --    selecciones/respuestas que las residencias ya tenían quedan guardadas. No toca RLS ni grants (las policies de 0054 filtran
 --    por is_active). Sin SECURITY DEFINER.
