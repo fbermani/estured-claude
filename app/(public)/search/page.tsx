@@ -38,6 +38,7 @@ import {
 } from "@/lib/residences/searchFilters";
 
 import { universityCategory } from "@/lib/maps/universityPins";
+import { SITE_URL } from "@/lib/siteUrl";
 
 const SEARCH_DESCRIPTION = "Explorá residencias estudiantiles verificadas en CABA. Filtrá por barrio, universidad, servicios y precio.";
 
@@ -196,8 +197,26 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   const hrefFor = (qs: string) => (qs ? `/search?${qs}` : "/search");
   const mapData = filters.view === "mapa" ? toMapPoints(results) : null;
 
+  // ItemList solo en la vista canónica (sin filtros): las primeras residencias del catálogo, sin precios ni disponibilidad.
+  const isCanonicalView = Object.values(params).every((v) => (Array.isArray(v) ? v.length === 0 : v === undefined || v === ""));
+  const itemListJsonLd =
+    isCanonicalView && residences.length > 0
+      ? JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          name: "Residencias estudiantiles verificadas en CABA",
+          itemListElement: residences.filter((r) => !r.slug.endsWith("-demo")).slice(0, 10).map((r, i) => ({
+            "@type": "ListItem",
+            position: i + 1,
+            name: r.name,
+            url: `${SITE_URL}/residencias/${r.slug}`,
+          })),
+        }).replace(/</g, "\\u003c")
+      : null;
+
   return (
     <div className="surface-glow-forest relative">
+      {itemListJsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: itemListJsonLd }} />}
       <div aria-hidden="true" className="grain-layer" />
       <div className="relative mx-auto max-w-[80rem] px-4 py-6 sm:px-6 sm:py-8">
       {head}

@@ -247,7 +247,10 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 - [ ] **Leyenda «Verificada en persona en [mes/año]» en la ficha (C-07):** la fecha existe en la base (`visited_at` de la verificación, interna). Hoy las fichas son ficticias: mostrarla cuando haya visitas reales, exponiendo solo ese dato a la ficha pública y enlazando a `/nosotros`.
 - [ ] **Textos pendientes de aprobación** (`docs/audits/SEO_PROPUESTAS_COPY_2026-11-18.md`): 3 preguntas nuevas del FAQ de `/for-students` (C-09; la de familiares se descartó) y `updated_at` verificado en cada guía (C-06). El `FAQPage` de las 4 existentes ya está aplicado.
 - [ ] **Guías por barrio y universidad** (T-11, cluster local; enlazar a `/search` y fichas).
-- [ ] **`sameAs` de Organization** (Instagram/LinkedIn oficiales de la marca) y `SearchAction` de WebSite si `/search` llega a soportar `?q=`.
-- [ ] **`favicon.ico`** y `/.well-known/security.txt` (opcionales, H24).
-- [ ] **CSP a enforce** (ya figura en I).
-- [ ] Menciones externas (blogs universitarios, comunidades): trabajo de marketing, no de código.
+- [ ] **`sameAs` de Organization:** el dueño aún no tiene Instagram oficial (y probablemente no habrá LinkedIn). **Antes de pasar a producción:** crear la cuenta de Instagram y pasar la URL; luego agregarla a `lib/seo/siteJsonLd.ts`. `SearchAction` de WebSite solo si `/search` llega a soportar `?q=`.
+- [x] **`favicon.ico`**, **`/.well-known/security.txt`** (contacto `CONTACT_EMAIL`) e **`ItemList`** en `/search` sin filtros (primeras 10 residencias, sin demos): hechos 2026-11-19. Verificar en prod: `/favicon.ico` 200, `/.well-known/security.txt` 200.
+- [ ] **CSP a enforce** (ya figura en I): hoy está en Report-Only a propósito; pasarla a enforce solo tras revisar `/api/csp-report` en `estured.com` sin violaciones legítimas.
+- [ ] **Enlaces a barrios cercanos en la ficha (3 por ficha):** propuesta en conversación 2026-11-19; implementar cuando haya residencias reales y guías/páginas de barrio a las que enlazar.
+- [ ] **Respuestas directas (GEO) al inicio de cada sección de las guías:** propuestas por guía, a aprobar una por una.
+- [ ] **Guías nuevas** (borradores a aprobar): «Residencia estudiantil vs. alquilar un departamento compartido» y «Barrios y universidades».
+- [ ] **Post-producción:** menciones externas (blogs universitarios, centros de estudiantes, comunidades) y, recién cuando existan menciones reales, evaluar una sección «Prensa» en `/nosotros`. Es trabajo de marketing, no de código.
