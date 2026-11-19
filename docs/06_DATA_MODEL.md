@@ -1575,6 +1575,7 @@ Reglas:
 | `is_active` | boolean | Disponible para elegir |
 | `created_at`, `updated_at` | timestamptz | Alta / actualización |
 
+> **Preguntas «Esenciales» (2026-11-19, solo código, sin migración):** `ESSENTIAL_FAQ_IDS` en `lib/faq/catalog.ts` (FAQ-07, 09, 36, 42, 43, 49) marca en el panel de la residencia las preguntas que la ficha debe responder para evitar consultas directas y que no están ya como datos estructurados (depósito, matrícula, ajustes, estadía mínima y reglamento salen de la configuración). No es un tope ni se confunde con las «recomendadas» de `FICHA_FAQ_VISIBLE` (cantidad de preguntas de entrada).
 ---
 
 ### 17.2. `residence_faq_items`

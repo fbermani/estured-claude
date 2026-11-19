@@ -16,7 +16,7 @@ import { FaqCatalogItem } from "@/app/residence/[residence_id]/faq/FaqCatalogIte
 import { loadCatalogForResidence } from "@/lib/faq/residenceCatalog";
 import { loadFeaturedCandidates } from "@/lib/faq/featured";
 import { FeaturedFaqManager } from "@/app/residence/[residence_id]/faq/FeaturedFaqManager";
-import { FAQ_CATEGORIES, FICHA_FAQ_VISIBLE, effectiveAnswer } from "@/lib/faq/catalog";
+import { ESSENTIAL_FAQ_IDS, FAQ_CATEGORIES, FICHA_FAQ_VISIBLE, countEssentialFaqsReady, effectiveAnswer, isEssentialFaq } from "@/lib/faq/catalog";
 
 export const metadata: Metadata = { title: "Preguntas frecuentes" };
 export const dynamic = "force-dynamic";
@@ -107,6 +107,14 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
             </span>
           )}
         </p>
+        {catalog.ok && (
+          <p className="mt-3 rounded-field bg-forest-tint px-4 py-3 text-sm text-ink">
+            Las preguntas marcadas como «Esencial» son las que el estudiante y su familia necesitan ver respondidas en tu ficha antes de decidir.
+            <span className="mt-1 block font-semibold">
+              Esenciales listas: {countEssentialFaqsReady(catalog.entries)} de {ESSENTIAL_FAQ_IDS.length}.
+            </span>
+          </p>
+        )}
         {!catalog.ok ? (
           <div className="mt-4">
             <EmptyState
@@ -158,6 +166,7 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
                           suggestedAnswer={entry.suggested_answer}
                           initialSelected={entry.selection?.is_selected ?? false}
                           initialAnswer={effectiveAnswer(entry, entry.selection)}
+                          essential={isEssentialFaq(entry.id)}
                         />
                       ))}
                     </div>
