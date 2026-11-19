@@ -1,6 +1,6 @@
 {
   "tag": "sanitizado",
-  "generated": "2026-11-19T11:29:31.263Z",
+  "generated": "2026-11-19T11:37:59.722Z",
   "evidence": [
     {
       "id": "A1:application_requests:anon",
@@ -937,7 +937,7 @@
       "id": "B1:ttl",
       "control": "el enlace firmado expira en ≤ 300 s",
       "expected": "≤ 300 s",
-      "got": "300 s restantes",
+      "got": "299 s restantes",
       "status": "comprobado"
     },
     {

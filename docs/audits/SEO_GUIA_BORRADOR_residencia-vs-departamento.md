@@ -1,4 +1,4 @@
-# Borrador de guía — «Residencia o departamento compartido» — PENDIENTE DE APROBACIÓN
+# Borrador de guía — «Residencia o departamento compartido» — APROBADA Y PUBLICADA 2026-11-19 (con tabla y frase de garantías)
 
 Fecha: 2026-11-19. No está publicada: no existe en `content/guias/`. Enfoque del dueño: más allá del costo, la residencia como primera etapa de aprendizaje (convivir, compartir, negociar, sostener vínculos, orden y limpieza, autonomía) antes del departamento compartido. Sin precios ni datos inventados; sin «preguntas para hacerle a la residencia».
 

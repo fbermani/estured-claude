@@ -125,3 +125,13 @@ describe("content/guias (loader)", () => {
     expect(all).not.toMatch(/Sin Fronteras/i);
   });
 });
+
+describe("tablas Markdown", () => {
+  it("parsea una tabla simple a un bloque table sin la fila separadora", () => {
+    const md = `---\ntitle: T\nslug: t\ndescription: d\ncategory: alojamiento\naudience:\n- estudiantes\nstatus: published\n---\n\n# T\n\n## Sección\n\nTexto.\n\n| | A | B |\n|---|---|---|\n| Uno | x | y |\n| Dos | z | w |\n\nCierre.\n`;
+    const g = parseGuide("99-t", md);
+    const table = g.sections[0].blocks.find((b) => b.type === "table");
+    expect(table).toEqual({ type: "table", header: ["", "A", "B"], rows: [["Uno", "x", "y"], ["Dos", "z", "w"]] });
+    expect(g.sections[0].blocks.at(-1)).toEqual({ type: "paragraph", text: "Cierre." });
+  });
+});

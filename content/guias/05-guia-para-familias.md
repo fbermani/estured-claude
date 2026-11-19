@@ -12,6 +12,7 @@ featured: false
 related_guides:
 - 01-como-elegir-residencia-estudiantil
 - 03-errores-comunes-mudanza
+- 07-residencia-o-departamento-compartido
 cta:
   label: Buscar residencias
   href: /search

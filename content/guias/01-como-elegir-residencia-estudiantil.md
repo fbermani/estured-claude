@@ -13,6 +13,7 @@ featured: true
 related_guides:
 - 02-guia-mudarte-buenos-aires
 - 05-guia-para-familias
+- 07-residencia-o-departamento-compartido
 cta:
   label: Buscar residencias
   href: /search

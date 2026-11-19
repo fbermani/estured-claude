@@ -22,6 +22,8 @@ export type GuideBlock =
   | { type: "list"; ordered: boolean; items: string[] }
   /** Preguntas de un «Checklist»: se muestran con casillas visuales, el texto no cambia. */
   | { type: "checklist"; items: string[] }
+  /** Tabla Markdown simple (`| a | b |`): primera fila = encabezado. */
+  | { type: "table"; header: string[]; rows: string[][] }
   | { type: "subheading"; id: string; text: string }
   /** Reservado para herramientas futuras (checklist guardable, calculadora). Hoy no se renderiza. */
   | { type: "embed"; name: string };

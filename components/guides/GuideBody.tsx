@@ -50,6 +50,39 @@ function Blocks({ blocks, linkClass, textClass }: { blocks: GuideBlock[]; linkCl
                 ))}
               </ul>
             );
+          case "table":
+            return (
+              <div key={i} className="mt-4 overflow-x-auto rounded-field border border-sage-200 bg-paper">
+                <table className="w-full min-w-[34rem] border-collapse text-left text-[15px] leading-6">
+                  <thead>
+                    <tr className="bg-forest-tint">
+                      {b.header.map((h, n) => (
+                        <th key={n} scope="col" className="px-4 py-3 font-bold text-ink">
+                          <Inline text={h} />
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {b.rows.map((row, r) => (
+                      <tr key={r} className="border-t border-sage-200">
+                        {row.map((c, n) =>
+                          n === 0 ? (
+                            <th key={n} scope="row" className="px-4 py-3 align-top font-bold text-ink">
+                              <Inline text={c} />
+                            </th>
+                          ) : (
+                            <td key={n} className="px-4 py-3 align-top text-ink">
+                              <Inline text={c} />
+                            </td>
+                          ),
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            );
           case "subheading":
             return (
               <h3 key={i} id={b.id} className="mt-6 scroll-mt-28 font-display text-xl font-bold text-ink">
