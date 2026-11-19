@@ -3,13 +3,13 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import Image from "next/image";
 import { Icon } from "@/components/ui/Icon";
-import { DEFAULT_SECTION, groupPhotosBySections, type GalleryPhoto } from "@/lib/residences/photoMeta";
+import { DEFAULT_SECTION, PRESENTATION_LABEL, groupPhotosBySections, type GalleryPhoto } from "@/lib/residences/photoMeta";
 import { useSwipe } from "@/components/residences/useRotation";
 
 /**
  * Visor de todas las fotos de la ficha, compartido por el hero inmersivo y por el mosaico: un `<dialog>` nativo (foco y Escape los
  * resuelve el navegador; el scroll del body se bloquea a mano mientras está abierto, porque `showModal()` no lo hace) con las fotos
- * agrupadas por sección (áreas comunes primero, después los tipos de habitación y «Fotos adicionales» al final), y un segundo
+ * agrupadas por sección (áreas comunes primero, después los tipos de habitación y «Fotos adicionales» al final; solo aparecen las secciones con al menos una foto), y un segundo
  * `<dialog>` (lightbox) con la foto ampliada, flechas, teclado (← →) y deslizar para pasar de a una.
  *
  * Uso: `const viewer = usePhotoViewer({ photos, name, zone })`, renderizar `{viewer.node}` (fuera de cualquier contenedor con color
@@ -39,9 +39,16 @@ export function usePhotoViewer({ photos, name, zone }: { photos: GalleryPhoto[];
   // Áreas comunes primero, después los tipos de habitación y «Fotos adicionales» al final (el orden interno de cada bloque se conserva).
   const rawGroups = groupPhotosBySections(photos).map((g) => ({
     ...g,
-    kind: g.photos.some((p) => p.category === "room_type") ? ("room" as const) : g.title === DEFAULT_SECTION ? ("extra" as const) : ("common" as const),
+    kind: g.photos.some((p) => p.category === "room_type")
+      ? ("room" as const)
+      : g.title === DEFAULT_SECTION
+        ? ("extra" as const)
+        : g.title === PRESENTATION_LABEL
+          ? ("presentation" as const)
+          : ("common" as const),
   }));
-  const kindRank = { common: 0, room: 1, extra: 2 } as const;
+  // «presentation» comparte lugar con las áreas comunes (el orden interno se conserva) pero lleva su propio título, sin rótulo «Área común».
+  const kindRank = { presentation: 0, common: 0, room: 1, extra: 2 } as const;
   const groups = rawGroups
     .map((g, i) => ({ g, i }))
     .sort((a, b) => kindRank[a.g.kind] - kindRank[b.g.kind] || a.i - b.i)
@@ -133,7 +140,7 @@ export function usePhotoViewer({ photos, name, zone }: { photos: GalleryPhoto[];
                 className="scroll-mt-2 grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,2.4fr)] sm:gap-6"
               >
                 <div>
-                  {group.kind !== "extra" && (
+                  {group.kind !== "extra" && group.kind !== "presentation" && (
                     <p className="mb-0.5 text-xs font-semibold text-forest-700">{group.kind === "room" ? "Habitación" : "Área común"}</p>
                   )}
                   <h3 id={`${uid}-sec-${gi}`} tabIndex={-1} className="text-base font-bold text-ink sm:text-lg">

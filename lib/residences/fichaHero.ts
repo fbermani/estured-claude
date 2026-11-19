@@ -5,8 +5,8 @@
 import { pickRotationPhotos } from "@/lib/residences/photoMeta";
 
 /**
- * Portada del hero: la foto principal que eligió la residencia (`isCover`) o, si no eligió, la primera de las que rotan (destacadas en el orden
- * elegido; sin destacadas, la primera).
+ * Portada del hero: la foto principal que eligió la residencia (`isCover`) o, si no eligió, la primera de las destacadas (en el orden
+ * elegido; sin destacadas, la primera de la galería). El hero es fijo: no rota.
  * Es el mismo criterio de la imagen de vista previa del link (`lib/residences/sharePreview.ts`), para que link y página se vean iguales.
  */
 export function pickHeroCover<T extends { featured: boolean; coverOrder?: number | null; sortOrder?: number; isCover?: boolean }>(photos: T[]): T | null {

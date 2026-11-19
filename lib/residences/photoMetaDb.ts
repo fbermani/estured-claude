@@ -151,7 +151,7 @@ export function buildGalleryPhotos(
   });
 }
 
-/** URLs que rotan (destacadas o primeras 5). */
+/** URLs de la tarjeta del catálogo, en orden (principal primero; destacadas o, sin ellas, las primeras 5). No rotan solas: se pasan a mano. */
 export function rotationUrls(photos: GalleryPhoto[]): string[] {
   return pickRotationPhotos(photos).map((p) => p.url);
 }

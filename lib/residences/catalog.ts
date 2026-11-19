@@ -145,7 +145,7 @@ export async function getCatalogResidencesWithTotal(
         profile_availability: rt.profile_availability as unknown as { status: string; available_count: number | null } | null,
       }));
 
-    // DR18 (tanda 2): la tarjeta rota las fotos destacadas (o las primeras 5); la portada es la primera de ellas.
+    // DR18 (tanda 2): la tarjeta pasa de a una las fotos destacadas (o las primeras 5), sin rotación automática; la primera es la portada.
     const typeNames = new Map(rts.map((rt) => [rt.id as string, rt.name as string]));
     const photoUrls = rotationUrls(
       buildGalleryPhotos(

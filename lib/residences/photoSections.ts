@@ -2,16 +2,19 @@
  * Modelo del editor de la galería de fotos (rediseño 2026-11-03). Funciones puras, sin dependencias de servidor: las usa el editor del owner
  * (cliente) y los tests. No hay schema propio: cada sección se guarda con los campos de `residence_photo_meta` (migraciones 0059 / 0070 / 0074):
  *   - «Sin clasificar» = foto general sin sección (lo que ya era cualquier foto recién subida).
- *   - «Fachada / Exterior» = category `area`, área `entrada`.
+ *   - «Foto principal o de presentación» (antes «Fachada / Exterior») = category `area`, área `entrada`. Solo cambió el rótulo visible.
  *   - Áreas comunes elegidas = category `area` con el área que corresponda; «Sala de Juegos» y los ítems «Otro» (sin área propia en el modelo) = área `otra` + nombre de sección.
  *   - Tipos de habitación activos = category `room_type` + `room_type_id`.
- * Las secciones salen SOLO de lo que la residencia tiene hoy (fachada + áreas comunes + «Otro» + tipos activos). Una foto clasificada en algo que ya no existe
+ * Las secciones salen SOLO de lo que la residencia tiene hoy (foto de presentación + áreas comunes + «Otro» + tipos activos). Una foto clasificada en algo que ya no existe
  * (área destacada, tipo desactivado o borrado, «Otro» no aprobado) no se pierde: cae en «Sin clasificar» en el editor y en «Fotos adicionales» en la ficha.
  */
-import { MAX_FEATURED_PHOTOS, normalizeSection, type PhotoArea, type PhotoCategory } from "@/lib/residences/photoMeta";
+import { MAX_FEATURED_PHOTOS, PRESENTATION_LABEL, normalizeSection, type PhotoArea, type PhotoCategory } from "@/lib/residences/photoMeta";
 
 export const UNSORTED_KEY = "unsorted";
+/** Nombre de sección que se GUARDA para las fotos de esta sección (valor interno, sin migrar: lo ya cargado lo usa). */
 export const FACADE_TITLE = "Fachada / Exterior";
+/** Título que ve la gente (editor y ficha pública). */
+export const FACADE_LABEL = PRESENTATION_LABEL;
 
 export type PhotoSectionKind = "facade" | "area" | "room_type";
 
@@ -65,7 +68,7 @@ export type PhotoMetaItem = SectionedPhoto & {
 export type CustomAreaInput = { label: string; status: "pending" | "approved" | "rejected" };
 
 /**
- * Secciones, en el orden en que se muestran: Fachada / Exterior, las áreas comunes elegidas (en el orden de la lista fija), los ítems «Otro» de área
+ * Secciones, en el orden en que se muestran: «Foto principal o de presentación», las áreas comunes elegidas (en el orden de la lista fija), los ítems «Otro» de área
  * (aprobados y, para el editor, pendientes), y los tipos de habitación activos (en el orden recibido; si dos se llaman igual, se numeran).
  * Sin `sectionNamesReady` (migración 0070) no se puede guardar el nombre de sección: «Sala de Juegos» y los «Otro» no se ofrecen.
  */
@@ -78,10 +81,10 @@ export function buildPhotoSections(params: {
   const { commonAreas, customAreas = [], roomTypes, sectionNamesReady } = params;
   const named = (title: string) => (sectionNamesReady ? title : null);
   const defs: PhotoSectionDef[] = [
-    { key: "facade", title: FACADE_TITLE, kind: "facade", icon: "home_work", assign: { category: "area", area: "entrada", roomTypeId: null, section: named(FACADE_TITLE) } },
+    { key: "facade", title: FACADE_LABEL, kind: "facade", icon: "home_work", assign: { category: "area", area: "entrada", roomTypeId: null, section: named(FACADE_TITLE) } },
   ];
   const usedAreas = new Set<PhotoArea>(["entrada"]);
-  const usedTitles = new Set<string>([FACADE_TITLE.toLowerCase()]);
+  const usedTitles = new Set<string>([FACADE_TITLE.toLowerCase(), FACADE_LABEL.toLowerCase()]);
   for (const a of commonAreas) {
     const m = COMMON_AREA_PHOTO[a];
     if (!m) continue;
@@ -135,6 +138,7 @@ export function sectionKeyOf(photo: PhotoAssignment, defs: PhotoSectionDef[]): s
   }
   // General: si el nombre de sección coincide con una sección actual, va ahí; si no, queda sin clasificar.
   if (name) {
+    if (name === FACADE_TITLE.toLowerCase()) return "facade"; // nombre guardado antes del cambio de rótulo
     const byName = defs.find((d) => d.title.toLowerCase() === name);
     if (byName) return byName.key;
   }

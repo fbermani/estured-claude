@@ -45,9 +45,11 @@ type Upload = {
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 /**
- * Galería de fotos del perfil (rediseño 2026-11-03). Las secciones se arman solas y son exactamente: Fachada / Exterior, las áreas comunes elegidas
- * (incluidas las «Otro»), y los tipos de habitación guardados y activos; lo que ya no tiene sección queda en «Sin clasificar». Dos formas de cargar: todas juntas a «Sin clasificar» y de ahí arrastrar cada miniatura a su sección
- * (en táctil: «Mover a…»), o subir directo dentro de una sección. Hasta 5 fotos de portada con orden (las que rotan en la ficha y la búsqueda).
+ * Galería de fotos del perfil (rediseño 2026-11-03). Las secciones se arman solas y son exactamente: «Foto principal o de presentación» (antes «Fachada / Exterior»),
+ * las áreas comunes elegidas (incluidas las «Otro»), y los tipos de habitación guardados y activos; lo que ya no tiene sección queda en «Sin clasificar».
+ * Dos formas de cargar: todas juntas a «Sin clasificar» y de ahí arrastrar cada miniatura a su sección (en táctil: «Mover a…»), o subir directo dentro de una sección.
+ * Dónde se ve cada cosa (nada rota solo): hasta 5 fotos de portada con orden = la tarjeta de /search las pasa de a una; la foto principal (una sola) = encabeza
+ * la ficha, va primera en la tarjeta y es la imagen del link; el mosaico de «Vivir acá» elige solo; el visor «Ver todas» agrupa por sección y oculta las secciones sin fotos.
  * Cada cambio se guarda solo (con debounce); las fotos se suben de a una por server action. Las reglas de moderación son las de siempre:
  * en una residencia publicada la foto nueva queda «Pendiente» hasta que el equipo la apruebe. Vive dentro del <form> del perfil: todos sus
  * botones son type="button" y sus campos no tienen `name`, así que no viajan en el guardado del perfil.
@@ -417,6 +419,7 @@ export function PhotoMetaManager({
       {/* Secciones */}
       {schemaReady && (
         <div className="space-y-3">
+          {editable && <p className="text-xs text-ink-soft">Las secciones sin fotos no se muestran en tu ficha.</p>}
           {defs.map((d) => {
             const sectionItems = byKey(d.key);
             const sectionUploads = uploads.filter((u) => u.key === d.key);
@@ -438,6 +441,12 @@ export function PhotoMetaManager({
                     <PickButton label="Subir" ariaLabel={`Subir fotos a ${d.title}`} onFiles={(files) => startUploads(files, d.key)} />
                   )}
                 </div>
+                {editable && d.kind === "facade" && (
+                  <p className="mt-1 text-xs text-ink-soft">
+                    Las fotos con las que se presenta tu residencia, por ejemplo el frente.
+                    {mainCoverReady && " La que encabece tu ficha la elegís con el ícono de imagen."}
+                  </p>
+                )}
                 {total === 0 ? (
                   <p className="mt-2 text-sm text-ink-faint">{editable ? "Arrastrá fotos acá o tocá «Subir»." : "Sin fotos todavía."}</p>
                 ) : (
@@ -593,7 +602,7 @@ function UploadDropzone({
   );
 }
 
-/** Tira de portada: hasta 5 lugares numerados; el 1 es la foto principal. */
+/** Tira de portada: hasta 5 lugares numerados, en el orden en que la tarjeta de la búsqueda las pasa. La foto principal (insignia «Principal») va primera igual. */
 function CoverStrip({
   cover,
   editable,
@@ -626,9 +635,14 @@ function CoverStrip({
         </span>
       </div>
       <p className="mt-1 text-xs text-ink-soft">
-        {editable ? "Marcá con la estrella las fotos que rotan en tu ficha y en la búsqueda." : "Estas son las fotos que rotan en tu ficha y en la búsqueda."}{" "}
-        {cover.length === 0 && `Si no elegís, rotan las primeras ${MAX_FEATURED_PHOTOS}. `}
-        {editable && mainCoverReady && "Con el ícono de imagen elegís la foto principal: la que ve primero quien abre tu ficha y la que se muestra al compartir el link."}
+        {editable
+          ? `Marcá con la estrella hasta ${MAX_FEATURED_PHOTOS} fotos para tu tarjeta de la búsqueda: quien explora las pasa de a una.`
+          : "Estas son las fotos de tu tarjeta de la búsqueda: quien explora las pasa de a una."}{" "}
+        {cover.length === 0 && `Si no elegís, se muestran las primeras ${MAX_FEATURED_PHOTOS}. `}
+        {editable &&
+          (mainCoverReady
+            ? "Con el ícono de imagen elegís la foto principal: encabeza tu ficha, va primera en la búsqueda y se muestra al compartir el link."
+            : "El encabezado de tu ficha usa la primera foto de la portada.")}
       </p>
       <ol className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5 sm:gap-3">
         {Array.from({ length: MAX_FEATURED_PHOTOS }, (_, i) => {

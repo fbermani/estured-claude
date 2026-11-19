@@ -17,7 +17,7 @@ export type PhotoMetaState = { status: "idle" | "success" | "error"; message?: s
 
 /**
  * Guarda la clasificación de las fotos (DR18 fase 2, migración 0059; DR30, 0070): categoría, área, tipo de habitación, sección con nombre, orden y destacadas (hasta 5).
- * No pasa por la cola de revisión: no cambia qué fotos son públicas, solo cómo se agrupan y cuáles rotan. Requiere `profile.edit`;
+ * No pasa por la cola de revisión: no cambia qué fotos son públicas, solo cómo se agrupan y cuáles van en la tarjeta de la búsqueda. Requiere `profile.edit`;
  * las fotos y los tipos se validan contra los de ESTA residencia (nunca se confía en los ids del cliente).
  */
 export async function savePhotoMeta(residenceId: string, items: unknown): Promise<PhotoMetaState> {
@@ -76,7 +76,7 @@ export async function savePhotoMeta(residenceId: string, items: unknown): Promis
   }));
   if (rows.length > 0) {
     let { error } = await admin.from("residence_photo_meta").upsert(rows, { onConflict: "file_id" });
-    // Sin la migración 0074 (cover_order) se guarda sin el orden de portada: rotan según el orden de la galería.
+    // Sin la migración 0074 (cover_order) se guarda sin el orden de portada: salen según el orden de la galería.
     if (error && isMissingSchemaError(error)) {
       const withoutCover = rows.map((r) => ({ file_id: r.file_id, residence_id: r.residence_id, category: r.category, area: r.area, room_type_id: r.room_type_id, is_featured: r.is_featured, section: r.section, sort_order: r.sort_order }));
       ({ error } = await admin.from("residence_photo_meta").upsert(withoutCover, { onConflict: "file_id" }));

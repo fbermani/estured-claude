@@ -94,3 +94,11 @@ describe("buildMosaicSlots", () => {
     expect(emptyMosaicNote(1)).toMatch(/todavía no subió más fotos/);
   });
 });
+
+describe("rótulo de la sección de presentación", () => {
+  it("la foto de la sección que antes era «Fachada / Exterior» se rotula con la etiqueta nueva", () => {
+    expect(tileCaption(photo({ url: "f", category: "area", area: "entrada", section: "Fachada / Exterior" }))).toBe("Foto principal o de presentación");
+    expect(tileCaption(photo({ url: "f", category: "area", area: "entrada" }))).toBe("Foto principal o de presentación");
+  });
+});
+

@@ -28,7 +28,7 @@ const defs = buildPhotoSections({
 describe("buildPhotoSections", () => {
   it("arma Fachada, áreas elegidas (estudio sin repetir) y tipos, en ese orden; nada más", () => {
     expect(defs.map((d) => d.title)).toEqual([
-      "Fachada / Exterior",
+      "Foto principal o de presentación",
       "Sala de Estar",
       "Sala de Estudio",
       "Sala de Juegos",
@@ -39,7 +39,7 @@ describe("buildPhotoSections", () => {
   });
   it("sin nombres de sección (0070) no ofrece «Sala de Juegos» y no guarda `section`", () => {
     const d = buildPhotoSections({ commonAreas: ["Sala de Juegos", "Patio"], roomTypes: [], sectionNamesReady: false });
-    expect(d.map((x) => x.title)).toEqual(["Fachada / Exterior", "Patio"]);
+    expect(d.map((x) => x.title)).toEqual(["Foto principal o de presentación", "Patio"]);
     expect(d.every((x) => x.assign.section === null)).toBe(true);
   });
   it("una sección por cada «Otro» de área (aprobado o pendiente, marcado), sin rechazados ni repetidos", () => {
@@ -55,13 +55,13 @@ describe("buildPhotoSections", () => {
       roomTypes: [],
       sectionNamesReady: true,
     });
-    expect(d.map((x) => x.title)).toEqual(["Fachada / Exterior", "Patio", "Huerta", "Pileta"]);
+    expect(d.map((x) => x.title)).toEqual(["Foto principal o de presentación", "Patio", "Huerta", "Pileta"]);
     expect(d.map((x) => !!x.pending)).toEqual([false, false, false, true]);
     expect(d[2].assign).toMatchObject({ category: "area", area: "otra", section: "Huerta" });
   });
   it("un área que ya no está elegida no deja sección aunque haya fotos viejas", () => {
     const d = buildPhotoSections({ commonAreas: [], roomTypes: [], sectionNamesReady: true });
-    expect(d.map((x) => x.title)).toEqual(["Fachada / Exterior"]);
+    expect(d.map((x) => x.title)).toEqual(["Foto principal o de presentación"]);
   });
   it("tipos de habitación con el mismo nombre se numeran y mantienen el orden recibido", () => {
     const d = buildPhotoSections({
@@ -73,7 +73,7 @@ describe("buildPhotoSections", () => {
     expect(new Set(d.map((x) => x.key)).size).toBe(d.length);
   });
   it("ignora áreas desconocidas", () => {
-    expect(buildPhotoSections({ commonAreas: ["Inventada"], roomTypes: [], sectionNamesReady: true }).map((d) => d.title)).toEqual(["Fachada / Exterior"]);
+    expect(buildPhotoSections({ commonAreas: ["Inventada"], roomTypes: [], sectionNamesReady: true }).map((d) => d.title)).toEqual(["Foto principal o de presentación"]);
   });
 });
 

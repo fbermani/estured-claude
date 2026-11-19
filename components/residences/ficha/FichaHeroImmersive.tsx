@@ -10,7 +10,7 @@ import type { GalleryPhoto } from "@/lib/residences/photoMeta";
 
 /**
  * Hero de la ficha («placa porteña», propuesta A): un MARCO verde de marca (forest-ink) con la portada como pieza adentro, como en el
- * mockup aprobado. La portada es la primera de las fotos que rotan (el mismo criterio de la imagen de vista previa del link); sin
+ * mockup aprobado. La portada es fija, no rota: la foto principal que eligió la residencia o, sin elegir, la primera de la portada (el mismo criterio de la imagen de vista previa del link); sin
  * fotos entra la ilustración de marca (`BrandBackdrop`), sin foto inventada. Sobre la pieza van un velo para que lo de abajo se lea,
  * la placa (`plate`, que lleva el h1, la dirección, el precio y el sello) y la CTA naranja (`cta`, solo escritorio).
  *

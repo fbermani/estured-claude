@@ -11,7 +11,7 @@ import { pickRotationPhotos } from "@/lib/residences/photoMeta";
 export type SharePreview = {
   name: string;
   zone: string | null;
-  /** Portada: la primera de las que rotan en la ficha (destacadas, en el orden elegido por la residencia). */
+  /** Portada: la foto principal que eligió la residencia o, sin elegir, la primera de las destacadas (en el orden elegido). */
   coverUrl: string | null;
   /** «Desde» con el mismo criterio de la ficha (mínimo de los tipos que se pueden pedir, con promoción aplicada). */
   fromPriceUsd: number | null;
