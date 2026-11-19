@@ -27,7 +27,6 @@ import { NO_PERMISSION_NOTE } from "@/lib/residences/permissions";
 import {
   SERVICE_OPTIONS,
   COMMON_AREA_OPTIONS,
-  UNIVERSITY_OPTIONS,
   ROOM_TYPE_NAMES,
   GENDER_POLICY_OPTIONS,
   ADJUSTMENT_POLICY_OPTIONS,
@@ -52,6 +51,7 @@ import {
   normalizeRequirementLabel,
   type StayDocumentKey,
 } from "@/lib/residences/stayDocuments";
+import { UniversityPicker } from "@/app/residence/[residence_id]/profile/UniversityPicker";
 import { ProfileFaqCard } from "@/app/residence/[residence_id]/profile/ProfileFaqCard";
 import type { FaqProfileSummary } from "@/lib/faq/profileSummary";
 import type { OwnFaqItem } from "@/lib/residences/ownFaq";
@@ -909,21 +909,7 @@ export function ResidenceProfileForm({
           <Card id="perfil-universidades" className="p-6 max-lg:scroll-mt-14">
             <h2 className="text-lg font-bold text-ink">Proximidad a Universidades</h2>
             <p className="mt-1 text-sm text-ink-soft">Elegí solo las sedes a no más de 15 cuadras (≈1,5 km) de tu residencia: es lo que buscan los estudiantes al filtrar por universidad.</p>
-            <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
-              {UNIVERSITY_OPTIONS.map((u) => (
-                <label key={u} className="max-lg:min-h-11 flex items-center gap-2 text-sm text-ink">
-                  <input
-                    type="checkbox"
-                    name="near_universities"
-                    value={u}
-                    checked={nearUniversities.has(u)}
-                    onChange={() => toggle(nearUniversities, setNearUniversities, u)}
-                    className="h-4 w-4 max-lg:size-5! accent-forest"
-                  />
-                  {u}
-                </label>
-              ))}
-            </div>
+            <UniversityPicker selected={nearUniversities} onToggle={(name) => toggle(nearUniversities, setNearUniversities, name)} />
           </Card>
 
           {/* DR38: documentos que se le piden al residente. Solo el dueño los edita; no es contenido público. */}

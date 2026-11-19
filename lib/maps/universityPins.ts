@@ -6,28 +6,10 @@ import { BUENOS_AIRES_UNIVERSITIES } from "@/lib/data/buenosAiresUniversities";
  * ajustes del mapa: (1) las que comparten sede van en un solo pin (Ciudad Universitaria + FADU) y (2) una facultad con
  * más de una sede tiene un pin por sede (Psicología). Los nombres de la lista de la app no cambian.
  */
-export type UniversityCategory = "uba" | "public" | "private";
+import { UNIVERSITY_CATEGORIES, UNIVERSITY_CATEGORY_ORDER, universityCategory, type UniversityCategory } from "@/lib/maps/universityCategories";
 
-export const UNIVERSITY_CATEGORIES: Record<UniversityCategory, { label: string; pin: string; dot: string }> = {
-  uba: { label: "UBA", pin: "bg-petrol-600", dot: "bg-petrol-600" },
-  public: { label: "Otras públicas", pin: "bg-lilac-fg", dot: "bg-lilac-fg" },
-  private: { label: "Privadas", pin: "bg-amber-soft-700", dot: "bg-amber-soft-700" },
-};
-
-/** Universidades e institutos públicos que no son UBA (el resto de la lista son privados). */
-const PUBLIC_NAMES = [
-  "Universidad Tecnológica Nacional (UTN - FRBA)",
-  "Universidad Nacional de las Artes (UNA)",
-  "Universidad de la Defensa Nacional (UNDEF)",
-  "Universidad Pedagógica Nacional (UNIPE)",
-  "Universidad Nacional de Tres de Febrero (UNTREF)",
-  "Universidad Nacional de San Martín (UNSAM)",
-  "Universidad de la Ciudad de Buenos Aires (UniCABA)",
-  "Instituto Universitario de la Policía Federal (IUPFA)",
-  "Instituto Universitario de Gendarmería Nacional (IUGNA)",
-  "Instituto Universitario de Seguridad (IUSE)",
-  "Instituto Universitario Nacional de Derechos Humanos (IUNMa)",
-];
+export { UNIVERSITY_CATEGORIES, UNIVERSITY_CATEGORY_ORDER, universityCategory };
+export type { UniversityCategory };
 
 /** Comparten sede: la clave se dibuja en el pin del valor (la Ciudad Universitaria reúne FADU y Exactas). */
 const SHARED_SITE: Record<string, string> = {
@@ -78,14 +60,6 @@ export type UniversityPin = { id: string; n: number; label: string; short: strin
 /** Fila de la referencia: lleva al pin `pinId` (y comparte su número `n`). */
 export type UniversityLegendItem = { label: string; pinId: string; n: number; category: UniversityCategory };
 
-/** Orden de las categorías en la lista y en la numeración. */
-export const UNIVERSITY_CATEGORY_ORDER: UniversityCategory[] = ["uba", "public", "private"];
-
-/** Categoría de una universidad por su nombre de la lista (UBA · otras públicas · privadas; lo desconocido cuenta como privada). */
-export function universityCategory(name: string): UniversityCategory {
-  if (name.startsWith("UBA")) return "uba";
-  return PUBLIC_NAMES.includes(name) ? "public" : "private";
-}
 const categoryOf = universityCategory;
 
 /** «UBA - Facultad de Derecho» → «UBA · Derecho»; «Universidad Católica Argentina (UCA)» → «UCA». */
