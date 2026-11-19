@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ResidenceHero } from "@/components/residences/ResidenceHero";
+import { BackToProfileLink } from "@/components/residences/BackToProfileLink";
 import { PermissionNote } from "@/components/residences/PermissionGate";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ShareMessageEditor } from "@/components/share/ShareMessageEditor";
@@ -30,6 +31,7 @@ export default async function ResidenceSharePage({ params }: { params: Promise<{
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
+      <BackToProfileLink residenceId={residenceId} className="mb-2" />
       <ResidenceHero
         icon="share"
         title="Compartir tu ficha"

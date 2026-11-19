@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useRef, useState, useActionState } from "react";
 import { ResidenceHero } from "@/components/residences/ResidenceHero";
+import { BackToProfileLink } from "@/components/residences/BackToProfileLink";
 import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
 import { Card } from "@/components/ui/Card";
@@ -694,6 +695,7 @@ export function RoomsBrowser({
 
   return (
     <div className="tone-residence mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+      <BackToProfileLink residenceId={residenceId} className="mb-2" />
       <ResidenceHero icon="meeting_room" title="Habitaciones" subtitle="Tus habitaciones, camas y ocupación, en un pantallazo." />
 
       {/* Resumen compacto: habitaciones y plazas · ocupación · vacantes · movimientos */}

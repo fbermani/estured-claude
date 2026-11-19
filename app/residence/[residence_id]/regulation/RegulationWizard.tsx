@@ -3,7 +3,11 @@
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Input";
-import { MODEL_ARTICLES } from "@/lib/regulations/modelTemplate";
+import { MODEL_ARTICLES, MODEL_VERSION } from "@/lib/regulations/modelTemplate";
+import { useLocalDraft } from "@/components/forms/useLocalDraft";
+import { DraftNotice } from "@/components/forms/DraftNotice";
+import { draftStorageKey } from "@/lib/forms/localDraft";
+import { REGULATION_WIZARD_DRAFT_SCOPE, sanitizeWizardDraft, type WizardDraftData } from "@/lib/regulations/draft";
 import { assembleWizardText, baseArticleBody, wizardSections } from "@/lib/regulations/wizard";
 
 /**
@@ -12,10 +16,13 @@ import { assembleWizardText, baseArticleBody, wizardSections } from "@/lib/regul
  */
 export function RegulationWizard({
   residenceName,
+  draftScope,
   onFinish,
   onCancel,
 }: {
   residenceName: string;
+  /** Para guardar el avance en este dispositivo (borrador local). Sin esto el avance se pierde al cerrar. */
+  draftScope?: { userId: string; residenceId: string };
   onFinish: (text: string) => void;
   onCancel: () => void;
 }) {
@@ -26,6 +33,24 @@ export function RegulationWizard({
       MODEL_ARTICLES.map((a) => [a.n, { included: a.tag === "suggested", body: baseArticleBody(a, residenceName) }]),
     ) as Record<number, { included: boolean; body: string }>,
   );
+  // El avance (paso y artículos elegidos) queda en este dispositivo: se puede cerrar el asistente y retomarlo después.
+  const draft = useLocalDraft<WizardDraftData>({
+    storageKey: draftStorageKey(REGULATION_WIZARD_DRAFT_SCOPE, draftScope?.userId ?? "", draftScope?.residenceId ?? ""),
+    enabled: draftScope !== undefined,
+    stamp: MODEL_VERSION,
+    value: { step, choices },
+    validate: (raw) =>
+      sanitizeWizardDraft(
+        raw,
+        MODEL_ARTICLES.map((a) => a.n),
+        sections.length,
+      ),
+    onRestore: (d) => {
+      setStep(d.step);
+      // Lo que falta en el borrador conserva el valor del modelo.
+      setChoices((prev) => ({ ...prev, ...d.choices }));
+    },
+  });
   const section = sections[step];
   const last = step === sections.length - 1;
 
@@ -35,6 +60,8 @@ export function RegulationWizard({
 
   function finish() {
     const text = assembleWizardText(MODEL_ARTICLES.map((a) => ({ n: a.n, ...choices[a.n] })));
+    draft.beginSave();
+    draft.completeSave();
     onFinish(text);
   }
 
@@ -48,9 +75,17 @@ export function RegulationWizard({
           Cerrar asistente
         </Button>
       </div>
+      <DraftNotice
+        notice={draft.notice}
+        what="tu avance en el asistente"
+        onDiscard={draft.discard}
+        onAccept={draft.acceptStale}
+        onDismiss={draft.dismissNotice}
+      />
       <p className="text-xs text-ink-soft">
         Elegí qué artículos incluir y completá los campos entre llaves (por ejemplo {"{hora_silencio}"}). Los marcados «sugerido» ordenan la convivencia;
         los opcionales los decidís vos. Al terminar, el texto pasa al editor para que lo revises y lo publiques.
+        Podés cerrar el asistente cuando quieras: tu avance queda guardado en este dispositivo.
       </p>
       <ul className="space-y-4">
         {section.articles.map((a) => {

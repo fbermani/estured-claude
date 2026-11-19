@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ResidenceHero } from "@/components/residences/ResidenceHero";
+import { BackToProfileLink } from "@/components/residences/BackToProfileLink";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
@@ -68,6 +69,7 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
+      <BackToProfileLink residenceId={residenceId} className="mb-2" />
       <ResidenceHero icon="forum" title="Preguntas frecuentes" subtitle="Lo que mostrás en tu ficha y lo que te preguntan." />
       <p className="text-sm text-ink-soft">
         Elegí qué preguntas del catálogo de EstuRed mostrar en tu ficha y ajustá las respuestas con los datos de tu residencia. Abajo

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Input";
@@ -9,6 +9,12 @@ import { publishRegulationAction, type PublishRegulationState } from "@/app/resi
 import { MAX_REGULATION_LENGTH } from "@/lib/regulations/limits";
 import { RegulationWizard } from "@/app/residence/[residence_id]/regulation/RegulationWizard";
 import { renderPlaceholders } from "@/lib/regulations/modelTemplate";
+import { useLocalDraft } from "@/components/forms/useLocalDraft";
+import { SaveStatus } from "@/components/forms/SaveStatus";
+import { DraftNotice } from "@/components/forms/DraftNotice";
+import { UnsavedChangesGuard } from "@/components/forms/UnsavedChangesGuard";
+import { draftStorageKey } from "@/lib/forms/localDraft";
+import { REGULATION_DRAFT_SCOPE, sanitizeRegulationDraft, type RegulationDraftData } from "@/lib/regulations/draft";
 
 const initialState: PublishRegulationState = { status: "idle" };
 
@@ -32,6 +38,7 @@ export function RegulationEditor({
   modelText,
   canEdit,
   residenceName,
+  draftScope,
 }: {
   residenceId: string;
   initialText: string;
@@ -39,6 +46,8 @@ export function RegulationEditor({
   modelText: string;
   canEdit: boolean;
   residenceName: string;
+  /** Borrador local: quién edita y la huella de la versión vigente (su hash). Sin esto no se guarda borrador en el dispositivo. */
+  draftScope?: { userId: string; stamp: string };
 }) {
   const action = publishRegulationAction.bind(null, residenceId);
   const [state, formAction] = useActionState(action, initialState);
@@ -48,6 +57,27 @@ export function RegulationEditor({
   // Reemplazo pendiente de confirmar (modelo o asistente): se aplica solo si la persona confirma.
   const [pendingReplace, setPendingReplace] = useState<{ text: string; kind: "model" | "wizard" } | null>(null);
   const unchanged = text.trim() === initialText.trim();
+
+  // Borrador local (solo en este dispositivo): se guarda solo mientras se escribe y se recupera al volver. NO es una versión del
+  // reglamento: no cuenta como aceptado ni vigente. Lo único que publica es «Publicar versión nueva».
+  const draft = useLocalDraft<RegulationDraftData>({
+    storageKey: draftStorageKey(REGULATION_DRAFT_SCOPE, draftScope?.userId ?? "", residenceId),
+    enabled: canEdit && draftScope !== undefined,
+    stamp: draftScope?.stamp ?? "",
+    value: { text, source },
+    validate: sanitizeRegulationDraft,
+    onRestore: (d) => {
+      setText(d.text);
+      setSource(d.source);
+    },
+  });
+  const { completeSave } = draft;
+  const [publishedAt, setPublishedAt] = useState<number | null>(null);
+  useEffect(() => {
+    if (state.status !== "published") return;
+    completeSave();
+    setPublishedAt(Date.now());
+  }, [state, completeSave]);
 
   function loadModel() {
     if (text.trim() !== initialText.trim()) {
@@ -89,7 +119,24 @@ export function RegulationEditor({
   }
 
   return (
-    <form action={formAction} className="space-y-4">
+    <form
+      action={(fd) => {
+        draft.beginSave();
+        formAction(fd);
+      }}
+      className="space-y-4"
+    >
+      <DraftNotice
+        notice={draft.notice}
+        what="tu borrador del reglamento"
+        onDiscard={draft.discard}
+        onAccept={draft.acceptStale}
+        onDismiss={draft.dismissNotice}
+      />
+      <UnsavedChangesGuard
+        active={draft.dirty && draft.localState === "unavailable"}
+        description="Este navegador no permite guardar borradores, así que lo que escribiste se pierde si salís. Publicalo o copiá el texto antes de irte."
+      />
       <input type="hidden" name="source" value={source} />
       <div className="flex flex-wrap items-center gap-2">
         <Button type="button" variant="outline" size="sm" onClick={loadModel} disabled={!canEdit}>
@@ -116,6 +163,7 @@ export function RegulationEditor({
       {wizardOpen && (
         <RegulationWizard
           residenceName={residenceName}
+          draftScope={draftScope && canEdit ? { userId: draftScope.userId, residenceId } : undefined}
           onCancel={() => setWizardOpen(false)}
           onFinish={(t) => {
             setWizardOpen(false);
@@ -169,10 +217,23 @@ export function RegulationEditor({
           {state.message}
         </p>
       )}
+      <SaveStatus
+        dirty={draft.dirty}
+        localState={draft.localState}
+        localSavedAt={draft.savedAt}
+        accountSavedAt={publishedAt}
+        accountLabel="Publicado"
+      />
       <div className="flex flex-wrap items-center gap-3">
         <PublishButton disabled={!canEdit || unchanged} />
+        <Button type="button" variant="outline" size="sm" onClick={draft.saveNow} disabled={!canEdit || !draft.dirty}>
+          Guardar borrador
+        </Button>
         <p className="text-xs text-ink-faint">Los cambios rigen para solicitudes nuevas; las que ya aceptaron una versión anterior conservan esa versión.</p>
       </div>
+      <p className="text-xs text-ink-soft">
+        El borrador queda guardado en este dispositivo, no se publica y no cambia lo que ven quienes mandan una solicitud. Podés volver a la configuración y seguir más tarde.
+      </p>
     </form>
   );
 }
