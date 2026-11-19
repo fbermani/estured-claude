@@ -1,6 +1,6 @@
 {
   "tag": "sanitizado",
-  "generated": "2026-11-15T12:22:46.184Z",
+  "generated": "2026-11-19T11:29:31.263Z",
   "evidence": [
     {
       "id": "A1:application_requests:anon",
@@ -510,7 +510,7 @@
       "id": "A1:document_access_log:anon",
       "control": "lectura de document_access_log como anon",
       "expected": "sin filas / denegado",
-      "got": "0 filas",
+      "got": "0 filas (error)",
       "status": "comprobado"
     },
     {
@@ -566,7 +566,7 @@
       "id": "A1:audit_logs:anon",
       "control": "lectura de audit_logs como anon",
       "expected": "sin filas / denegado",
-      "got": "0 filas",
+      "got": "0 filas (error)",
       "status": "comprobado"
     },
     {
