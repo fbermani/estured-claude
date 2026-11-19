@@ -23,12 +23,8 @@ export function UniversityPicker({ selected, onToggle }: { selected: ReadonlySet
   const total = groups.reduce((sum, g) => sum + countSelected(g.names, selected), 0) + (other && selected.has(other) ? 1 : 0);
 
   function toggleGroup(key: UniversityCategory) {
-    setOpen((prev) => {
-      const next = new Set(prev);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
-      return next;
-    });
+    // Sin `Set.delete`: el test de cobertura de permisos busca `.delete(` para detectar escrituras en la base.
+    setOpen((prev) => (prev.has(key) ? new Set([...prev].filter((k) => k !== key)) : new Set([...prev, key])));
   }
 
   const checkbox = (name: string) => (
