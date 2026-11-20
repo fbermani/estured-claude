@@ -6,6 +6,7 @@ import { roundUsd, roundArs, usdToArs } from "@/lib/mock/exchange";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 import { inheritedGenderChange } from "@/lib/residences/roomGender";
 import { logTariffChange } from "@/lib/residences/tariffLog";
+import { notifyAdminsSafe } from "@/lib/notifications/notifyAdminsSafe";
 
 /**
  * Revisión de ediciones de perfil (docs/09 §8, docs/06 §8.5, migración
@@ -164,17 +165,30 @@ export async function stageProfileEdit(
     return { ok: false, error: "No pudimos guardar el cambio pendiente de revisión." };
   }
 
-  const { error } = await admin.from("residence_profile_edits").insert({
-    residence_id: params.residenceId,
-    field_group: params.fieldGroup,
-    old_value: params.oldValue,
-    new_value: params.newValue,
-    status: "pending_admin_review",
-    submitted_by: params.submittedByUserId,
-  });
+  const { data: inserted, error } = await admin
+    .from("residence_profile_edits")
+    .insert({
+      residence_id: params.residenceId,
+      field_group: params.fieldGroup,
+      old_value: params.oldValue,
+      new_value: params.newValue,
+      status: "pending_admin_review",
+      submitted_by: params.submittedByUserId,
+    })
+    .select("id")
+    .single();
   if (error) {
     console.error("[profile-edits] insert failed:", error);
     return { ok: false, error: "No pudimos guardar el cambio pendiente de revisión." };
+  }
+  // Aviso a admin: hay una edición de perfil pendiente de revisión (texto neutro). Nunca lanza.
+  if (inserted?.id) {
+    await notifyAdminsSafe(admin, {
+      title: "Hay un cambio de perfil por revisar",
+      body: "Una residencia verificada envió un cambio de su ficha. Revisalo en Ediciones de perfil.",
+      entityType: "residence_profile_edits",
+      entityId: inserted.id as string,
+    });
   }
   return { ok: true };
 }

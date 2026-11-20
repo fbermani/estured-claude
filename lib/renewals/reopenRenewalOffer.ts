@@ -65,6 +65,7 @@ export async function reopenRenewalOffer(
   if (studentProfile) {
     const residenceName = (offer.residences as unknown as { name: string } | null)?.name ?? "la residencia";
     await createNotification(admin, {
+      category: "requests_reservations",
       userId: studentProfile.user_id,
       title: "Te dieron otra chance para responder una oferta de renovación",
       body: `El equipo de EstuRed reabrió tu oferta de renovación de ${residenceName} — tenés 7 días más para responder. Motivo: ${reason}`,

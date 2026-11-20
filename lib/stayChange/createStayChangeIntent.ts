@@ -129,6 +129,7 @@ export async function createStayChangeIntent(
     }
     for (const userId of await loadResidenceUserIds(admin, ctx.currentResidenceId)) {
       await createNotification(admin, {
+        category: "requests_reservations",
         userId,
         title: `${name} avisó que busca cambiar de residencia`,
         body: `Salida estimada: ${input.value.estimatedExitDate ?? "sin definir"}. Respondele con los costos y condiciones de salida desde Residentes.`,
@@ -144,6 +145,7 @@ export async function createStayChangeIntent(
     });
     for (const userId of familyUserIds) {
       await createNotification(admin, {
+        category: "requests_reservations",
         userId,
         title: `${name} quiere avisar que busca cambiar de residencia`,
         body: "Confirmalo para que le avisemos a la residencia actual. No cancela la reserva ni asegura lugar en otra residencia.",

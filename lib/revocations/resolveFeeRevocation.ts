@@ -218,6 +218,7 @@ async function notifyStudentAndPayer(
     await Promise.all(
       [...recipients].map((userId) =>
         createNotification(admin, {
+          category: "payments_fee",
           userId,
           title: REVOCATION_RESOLVED_TITLE,
           body: params.body,

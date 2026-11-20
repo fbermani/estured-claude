@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
+import { notifyAdminsSafe } from "@/lib/notifications/notifyAdminsSafe";
 import { assertResidencePermission } from "@/lib/residences/access";
 import { extensionForMime, resolveDocumentType, toTypedBlob } from "@/lib/files/sniffFile";
 import { safeFilename } from "@/lib/files/safeFilename";
@@ -168,6 +169,13 @@ export async function recordRenewalResidencePaymentReceived(
       entityType: "renewal_offers",
       entityId: offer.id,
       newValue: { permission: access.permission, estured_fee_payment_id: feePayment.id },
+    });
+    // Aviso a admin: la renovación pasó a «debe abonar el fee». Texto neutro. Nunca lanza.
+    await notifyAdminsSafe(admin, {
+      title: "Una renovación debe abonar el fee EstuRed",
+      body: "Una residencia confirmó que recibió el pago de la renovación. El fee EstuRed quedó pendiente.",
+      entityType: "renewal_offers",
+      entityId: offer.id,
     });
 
     return { ok: true, residenceId: offer.residence_id };

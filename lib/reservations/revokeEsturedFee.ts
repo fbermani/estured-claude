@@ -146,6 +146,7 @@ export async function revokeEsturedFee(
   // Si revocó un familiar, el estudiante se entera siempre (es su reserva).
   if (!isOwner && studentProfile?.user_id) {
     await createNotification(admin, {
+      category: "payments_fee",
       userId: studentProfile.user_id as string,
       title: "Se revocó el fee de tu reserva",
       body: `${familyFirstName ?? "Tu familiar"} revocó el fee de tu reserva en ${residenceName ?? "la residencia"}. La reserva quedó cancelada y el equipo de EstuRed va a revisar el caso.`,

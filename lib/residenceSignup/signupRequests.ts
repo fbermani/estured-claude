@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
+import { notifyAdminsSafe } from "@/lib/notifications/notifyAdminsSafe";
 import { isMissingSchemaError } from "@/lib/stayChange/schema";
 import { generateInvitationToken, hashInvitationToken, isPlausibleInvitationToken } from "@/lib/team/invitationToken";
 import {
@@ -53,15 +54,29 @@ export async function createSignupRequest(
   admin: SupabaseClient,
   input: SignupInput,
 ): Promise<{ ok: true; duplicate: boolean } | { ok: false; unavailable: boolean }> {
-  let { error } = await admin.from("residence_signup_requests").insert({ ...input, source: "web" });
+  let { data: inserted, error } = await admin.from("residence_signup_requests").insert({ ...input, source: "web" }).select("id").single();
   if (error && isMissingSchemaError(error) && /address/i.test(error.message ?? "")) {
     const { address, ...rest } = input;
-    ({ error } = await admin.from("residence_signup_requests").insert({ ...rest, neighborhood: address.slice(0, 80), source: "web" }));
+    ({ data: inserted, error } = await admin
+      .from("residence_signup_requests")
+      .insert({ ...rest, neighborhood: address.slice(0, 80), source: "web" })
+      .select("id")
+      .single());
   }
   if (error) {
     if (error.code === "23505") return { ok: true, duplicate: true };
     if (!isMissingSchemaError(error)) console.error("[residence-signup] insert failed:", error.code ?? error.message);
     return { ok: false, unavailable: isMissingSchemaError(error) };
+  }
+  // Aviso a admin (texto neutro, sin datos de contacto). Nunca lanza.
+  if (inserted?.id) {
+    await notifyAdminsSafe(admin, {
+      title: "Llegó una solicitud de alta de residencia",
+      body: "Hay una solicitud nueva para revisar en Solicitudes de alta.",
+      entityType: "residence_signup_requests",
+      entityId: inserted.id as string,
+      category: "admin_signups",
+    });
   }
   return { ok: true, duplicate: false };
 }

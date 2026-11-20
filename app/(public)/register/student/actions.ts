@@ -11,6 +11,7 @@ import { redirect } from "next/navigation";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { createAuditLog } from "@/lib/audit";
+import { notifyAdminsSafe } from "@/lib/notifications/notifyAdminsSafe";
 import { formError, type RegisterFormState } from "@/app/(public)/register/formState";
 import { activateResidentStay } from "@/lib/residents/activateResidentStay";
 import { otpRequiredFor, resolveInviteByToken } from "@/lib/residents/inviteVerification";
@@ -239,6 +240,14 @@ export async function registerStudent(
     await admin.auth.admin.deleteUser(userId).catch(() => {});
     return formError(formData, "No pudimos completar el registro. Intentá de nuevo en unos minutos.");
   }
+  // Aviso a admin (texto neutro, sin datos personales). Nunca lanza. El registro por preapertura avisa en `createStudentAccount`.
+  await notifyAdminsSafe(admin, {
+    title: "Se registró un estudiante nuevo",
+    body: "Hay una cuenta de estudiante nueva en EstuRed.",
+    entityType: "users",
+    entityId: userId,
+    category: "admin_signups",
+  });
 
   // 3. Iniciar sesión y entrar al área de estudiante.
   const supabase = await getSupabaseServer();

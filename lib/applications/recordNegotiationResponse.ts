@@ -1,5 +1,6 @@
 import "server-only";
 import { notifyFamilyApplicationMilestone } from "@/lib/family/familyMilestones";
+import { notifyResidenceProposalResponse } from "@/lib/notifications/notifyResidenceProposalResponse";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { checkStayChangeAdvanceGate } from "@/lib/stayChange/advanceGate";
@@ -295,6 +296,8 @@ export async function recordNegotiationResponse(
     entityType: "application_requests",
     entityId: applicationId,
   });
+  // Aviso a la residencia: el estudiante respondió su propuesta de ajuste. Nunca lanza.
+  await notifyResidenceProposalResponse(admin, { applicationId, residenceId: application.residence_id, response: params.response });
 
   if (newStatus === "cancelled_by_student") {
     if (application.room_type_id) await promoteNextQueuedApplication(admin, application.room_type_id);

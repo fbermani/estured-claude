@@ -45,6 +45,7 @@ export async function expireRenewalOffers(admin: SupabaseClient): Promise<{ expi
     if (studentProfile) {
       const residenceName = (row.residences as unknown as { name: string } | null)?.name ?? "la residencia";
       await createNotification(admin, {
+        category: "deadlines",
         userId: studentProfile.user_id,
         title: "Venció una oferta de renovación",
         body: `No respondiste a tiempo la oferta de renovación de ${residenceName}.`,

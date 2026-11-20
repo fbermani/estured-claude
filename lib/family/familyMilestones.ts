@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createNotification } from "@/lib/notifications/createNotification";
+import type { NotificationCategory } from "@/lib/notifications/categories";
 import { notifyLinkedFamily, loadStudentShortName } from "@/lib/family/notifyLinkedFamily";
 import { formatDateTime } from "@/lib/dates/format";
 
@@ -26,6 +27,19 @@ async function loadApplicationContext(admin: SupabaseClient, applicationId: stri
     studentName: await loadStudentShortName(admin, data.student_profile_id as string),
   };
 }
+
+const APPLICATION_CATEGORY: Record<string, NotificationCategory> = {
+  accepted: "requests_reservations",
+  payment_requested: "requests_reservations",
+  expired_no_response: "deadlines",
+  expired_no_payment: "deadlines",
+};
+
+const RESERVATION_CATEGORY: Record<string, NotificationCategory> = {
+  fee_to_pay: "payments_fee",
+  confirmed: "requests_reservations",
+  fee_expired: "deadlines",
+};
 
 export type ApplicationMilestone = "accepted" | "payment_requested" | "expired_no_response" | "expired_no_payment";
 
@@ -61,6 +75,7 @@ export async function notifyFamilyApplicationMilestone(
       ...copy[milestone],
       relatedEntityType: "application_requests",
       relatedEntityId: applicationId,
+      category: APPLICATION_CATEGORY[milestone],
     });
   } catch (error) {
     console.error("[family] notifyFamilyApplicationMilestone failed:", error);
@@ -116,7 +131,7 @@ export async function notifyFamilyReservationMilestone(
     await notifyLinkedFamily(
       admin,
       reservation.student_profile_id as string,
-      { ...copy[milestone], relatedEntityType: "reservations", relatedEntityId: reservationId },
+      { ...copy[milestone], relatedEntityType: "reservations", relatedEntityId: reservationId, category: RESERVATION_CATEGORY[milestone] },
       options,
     );
   } catch (error) {
@@ -158,6 +173,7 @@ export async function notifyFamilyProposalOutcome(
     };
     await createNotification(admin, {
       userId: familyUserId,
+      category: "requests_reservations",
       ...copy[outcome],
       relatedEntityType: outcome === "approved" && data.converted_to_application_id ? "application_requests" : "family_application_proposals",
       relatedEntityId: outcome === "approved" && data.converted_to_application_id ? (data.converted_to_application_id as string) : proposalId,

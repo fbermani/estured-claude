@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createNotification } from "@/lib/notifications/createNotification";
+import type { NotificationCategory } from "@/lib/notifications/categories";
 import { formatShortName } from "@/lib/format/shortName";
 import { loadActiveFamilyUserIds } from "@/lib/stayChange/recipients";
 
@@ -15,7 +16,7 @@ import { loadActiveFamilyUserIds } from "@/lib/stayChange/recipients";
 export async function notifyLinkedFamily(
   admin: SupabaseClient,
   studentProfileId: string | null | undefined,
-  entry: { title: string; body: string; relatedEntityType?: string; relatedEntityId?: string },
+  entry: { title: string; body: string; relatedEntityType?: string; relatedEntityId?: string; category?: NotificationCategory },
   options: { excludeUserIds?: string[] } = {},
 ): Promise<void> {
   if (!studentProfileId) return;

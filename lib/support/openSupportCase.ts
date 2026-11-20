@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
+import { notifyAdminsSafe } from "@/lib/notifications/notifyAdminsSafe";
 import { extensionForMime, resolveEvidenceType, toTypedBlob } from "@/lib/files/sniffFile";
 import { safeFilename } from "@/lib/files/safeFilename";
 import { consumeRateLimit } from "@/lib/security/rateLimit";
@@ -188,6 +189,13 @@ export async function openSupportCase(
     entityId: supportCase.id,
     source: "user",
   });
+  // Aviso a admin: contacto a Soporte (texto neutro, sin el detalle del caso). Nunca lanza.
+  await notifyAdminsSafe(admin, {
+    title: "Nuevo contacto a Soporte",
+    body: "Se abrió un caso de Soporte. Revisalo en el panel.",
+    entityType: "support_cases",
+    entityId: supportCase.id,
+  });
 
   return { ok: true, supportCaseId: supportCase.id };
 }
@@ -308,6 +316,13 @@ export async function openFeePaymentSupportCase(
     entityId: supportCase.id,
     newValue: { topic: "estured_fee_payment", reservation_id: reservation.id },
     source: "user",
+  });
+  // Aviso a admin: consulta por el pago del fee (texto neutro). Nunca lanza.
+  await notifyAdminsSafe(admin, {
+    title: "Nueva consulta por el pago del fee",
+    body: "Se abrió un caso de Soporte por el pago del fee EstuRed. Revisalo en el panel.",
+    entityType: "support_cases",
+    entityId: supportCase.id,
   });
 
   return { ok: true, supportCaseId: supportCase.id };

@@ -61,7 +61,7 @@ async function notifyGuardians(admin: SupabaseClient, studentProfileId: string, 
   try {
     const userIds = await loadActiveFamilyUserIds(admin, studentProfileId);
     for (const userId of userIds) {
-      await createNotification(admin, { userId, ...entry, relatedEntityType: "guardian_stay_confirmations", relatedEntityId: confirmationId });
+      await createNotification(admin, { userId, ...entry, relatedEntityType: "guardian_stay_confirmations", relatedEntityId: confirmationId, category: "requests_reservations" });
       if (process.env.EMAIL_DOMAIN_VERIFIED !== "true") continue;
       const { data: user } = await admin.from("users").select("email").eq("id", userId).maybeSingle();
       const email = (user as { email?: string } | null)?.email;
@@ -252,7 +252,7 @@ export async function resolveGuardianConfirmation(
   if (params.decision === "reject") {
     if (!(await close("rejected"))) return { ok: false, error: GUARDIAN_ERRORS.alreadyResolved };
     await closeLinkRequestOf(admin, row, now);
-    if (names.studentUserId) await createNotification(admin, { userId: names.studentUserId, ...GUARDIAN_COPY.rejectedForStudent(names.residenceName), relatedEntityType: "resident_stays" });
+    if (names.studentUserId) await createNotification(admin, { userId: names.studentUserId, ...GUARDIAN_COPY.rejectedForStudent(names.residenceName), relatedEntityType: "resident_stays", category: "requests_reservations" });
     await createAuditLog(admin, { actorUserId: params.actorUserId, actorRole: "family_member", action: "guardian_confirmation_rejected", entityType: "guardian_stay_confirmations", entityId: row.id });
     return { ok: true };
   }
@@ -326,7 +326,7 @@ export async function resolveGuardianConfirmation(
     await linkStayToReservationIfMissing(admin, { residentStayId: linked.stayId, residenceId: row.residence_id, studentProfileId: row.student_profile_id });
   }
 
-  if (names.studentUserId) await createNotification(admin, { userId: names.studentUserId, ...GUARDIAN_COPY.confirmedForStudent(names.residenceName), relatedEntityType: "resident_stays", relatedEntityId: row.resident_stay_id ?? undefined });
+  if (names.studentUserId) await createNotification(admin, { userId: names.studentUserId, ...GUARDIAN_COPY.confirmedForStudent(names.residenceName), relatedEntityType: "resident_stays", relatedEntityId: row.resident_stay_id ?? undefined, category: "requests_reservations" });
   await createAuditLog(admin, { actorUserId: params.actorUserId, actorRole: "family_member", action: "guardian_confirmation_confirmed", entityType: "guardian_stay_confirmations", entityId: row.id });
   return { ok: true };
 }
@@ -346,7 +346,7 @@ export async function runGuardianConfirmationJob(admin: SupabaseClient, now: Dat
         if (!claimed || claimed.length === 0) continue;
         await closeLinkRequestOf(admin, row, now);
         const names = await loadNames(admin, row.student_profile_id, row.residence_id);
-        if (names.studentUserId) await createNotification(admin, { userId: names.studentUserId, ...GUARDIAN_COPY.expiredForStudent(names.residenceName), relatedEntityType: "resident_stays" });
+        if (names.studentUserId) await createNotification(admin, { userId: names.studentUserId, ...GUARDIAN_COPY.expiredForStudent(names.residenceName), relatedEntityType: "resident_stays", category: "deadlines" });
         await notifyGuardians(admin, row.student_profile_id, GUARDIAN_COPY.expiredForGuardian(names.studentName, names.residenceName), row.id);
         result.expired += 1;
       } else if (guardianNeedsReminder(row, now)) {

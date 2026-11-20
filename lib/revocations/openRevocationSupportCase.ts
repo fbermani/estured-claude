@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
+import { notifyAdminsSafe } from "@/lib/notifications/notifyAdminsSafe";
 import { isMissingSchemaError } from "@/lib/stayChange/schema";
 
 const CLOSED_STATUSES = ["resolved_by_agreement", "closed_no_action", "closed_unresolved", "admin_action_taken"];
@@ -67,6 +68,13 @@ export async function openFeeRevocationSupportCase(
       entityId: supportCase.id as string,
       newValue: { topic: "fee_revocation", reservation_id: params.reservationId },
       source: "user",
+    });
+    // Aviso a admin: pedido de revocación del fee (texto neutro). Nunca lanza.
+    await notifyAdminsSafe(admin, {
+      title: "Nuevo pedido de revocación del fee",
+      body: "Se pidió revisar la revocación de un fee EstuRed. Revisalo en Soporte.",
+      entityType: "support_cases",
+      entityId: supportCase.id as string,
     });
     return { ok: true, supportCaseId: supportCase.id as string };
   } catch (e) {

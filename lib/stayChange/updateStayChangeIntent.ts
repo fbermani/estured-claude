@@ -93,6 +93,7 @@ export async function updateStayChangeIntent(
     const name = shortStudentName(student);
     for (const userId of await loadResidenceUserIds(admin, intent.current_residence_id)) {
       await createNotification(admin, {
+        category: "requests_reservations",
         userId,
         title: `${name} actualizó su aviso de cambio`,
         body: `Salida estimada: ${next.estimatedExitDate ?? "sin definir"}. Revisá los datos en Residentes.`,

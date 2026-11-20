@@ -98,6 +98,7 @@ export async function setFeePayer(
   const residenceName = (application.residences as unknown as { name: string } | null)?.name ?? "la residencia";
   if (family) {
     await createNotification(admin, {
+      category: "payments_fee",
       userId: family.userId,
       title: "Te designaron para pagar el fee EstuRed",
       body: `Vas a pagar el fee de la reserva en ${residenceName}. Revisá el monto, los datos de transferencia y el plazo de pago.`,
@@ -107,6 +108,7 @@ export async function setFeePayer(
   } else if (fee.payer_user_id !== params.actorUserId) {
     // Volvió a pagar el estudiante: el familiar designado antes se entera.
     await createNotification(admin, {
+      category: "payments_fee",
       userId: fee.payer_user_id as string,
       title: "Ya no sos el pagador del fee EstuRed",
       body: `El pago del fee de la reserva en ${residenceName} lo hace ahora el estudiante.`,

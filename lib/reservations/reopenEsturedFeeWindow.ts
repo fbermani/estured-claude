@@ -78,6 +78,7 @@ export async function reopenEsturedFeeWindow(
 
   const residenceName = (reservation.residences as unknown as { name: string } | null)?.name ?? "tu residencia";
   await createNotification(admin, {
+    category: "payments_fee",
     userId: feePayment.payer_user_id,
     title: "Te dieron otra chance para pagar el fee EstuRed",
     body: `El equipo de EstuRed reabrió el pago del fee para tu reserva en ${residenceName} — tenés 48hs más. Motivo: ${reason}`,

@@ -1,5 +1,7 @@
 import "server-only";
 import { notifyFamilyReservationMilestone } from "@/lib/family/familyMilestones";
+import { notifyAdminsSafe } from "@/lib/notifications/notifyAdminsSafe";
+import { notifyStudentReservationMilestone } from "@/lib/notifications/notifyStudent";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog, alertAdminsOfAuditFailure } from "@/lib/audit";
 import { calculateFeeEstimate } from "@/lib/applications/fee";
@@ -283,6 +285,14 @@ export async function recordResidencePaymentReceived(
 
     // DR4: hito para el familiar vinculado (fee a pagar y su plazo). Nunca lanza.
     await notifyFamilyReservationMilestone(admin, reservation.id, "fee_to_pay");
+    await notifyStudentReservationMilestone(admin, reservation.id, "fee_to_pay");
+    // Aviso a admin: la solicitud pasó a «debe abonar el fee». Texto neutro. Nunca lanza.
+    await notifyAdminsSafe(admin, {
+      title: "Una reserva debe abonar el fee EstuRed",
+      body: "Una residencia confirmó que recibió el pago de la reserva. El fee EstuRed quedó pendiente.",
+      entityType: "reservations",
+      entityId: reservation.id,
+    });
 
     return { ok: true, reservationId: reservation.id, residenceId: application.residence_id };
   } catch (error) {

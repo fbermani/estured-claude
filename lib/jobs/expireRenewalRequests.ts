@@ -45,6 +45,7 @@ export async function expireRenewalRequests(admin: SupabaseClient): Promise<{ ex
     if (studentProfile) {
       const residenceName = (row.residences as unknown as { name: string } | null)?.name ?? "la residencia";
       await createNotification(admin, {
+        category: "deadlines",
         userId: studentProfile.user_id,
         title: "Tu solicitud de renovación venció",
         body: `${residenceName} no respondió tu solicitud de renovación dentro de los 30 días. Podés volver a pedirla cuando quieras.`,

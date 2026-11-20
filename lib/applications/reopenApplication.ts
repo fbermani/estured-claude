@@ -98,6 +98,7 @@ export async function reopenApplication(
   if (studentProfile) {
     const residenceName = (application.residences as unknown as { name: string } | null)?.name ?? "la residencia";
     await createNotification(admin, {
+      category: "requests_reservations",
       userId: studentProfile.user_id,
       title: "Tu solicitud fue reabierta",
       body: `El equipo de EstuRed reabrió tu solicitud a ${residenceName}. Motivo: ${reason}`,

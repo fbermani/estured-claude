@@ -5,6 +5,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { assertResidenceOwner, assertResidencePermission } from "@/lib/residences/access";
 import { createAuditLog, notifyAdmins } from "@/lib/audit";
+import { notifyAdminsSafe } from "@/lib/notifications/notifyAdminsSafe";
 import { getResidenceLocation } from "@/lib/residences/residenceLocation";
 import { findFarUniversities, newlyFarUniversities, RECOMMENDED_MAX_BLOCKS } from "@/lib/residences/farUniversities";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
@@ -1018,6 +1019,16 @@ export async function saveResidenceProfile(
         });
         revalidatePath("/admin/verifications");
         revalidatePath("/admin/dashboard");
+      }
+
+      // Aviso a admin: la ficha quedó en revisión (envío o reenvío). Texto neutro, sin datos de la residencia. Nunca lanza.
+      if (transitioned) {
+        await notifyAdminsSafe(admin, {
+          title: wasNeedsChanges ? "Una residencia reenvió su ficha a revisión" : "Una residencia envió su ficha a revisión",
+          body: "Hay una verificación nueva para revisar en el panel.",
+          entityType: "residences",
+          entityId: residenceId,
+        });
       }
     }
   } catch (error) {

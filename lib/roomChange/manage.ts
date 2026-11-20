@@ -68,7 +68,7 @@ async function notifyStudent(admin: SupabaseClient, studentProfileId: string | n
   const { data } = await admin.from("student_profiles").select("user_id").eq("id", studentProfileId).maybeSingle();
   const userId = (data as { user_id?: string } | null)?.user_id;
   if (!userId) return;
-  await createNotification(admin, { userId, ...entry, relatedEntityType: "room_change_requests", relatedEntityId: requestId });
+  await createNotification(admin, { userId, ...entry, relatedEntityType: "room_change_requests", relatedEntityId: requestId, category: "requests_reservations" });
 }
 
 /** Devuelve a «por decidir» los avisos de plaza que estaban ofrecidos a este pedido (o los cierra si el residente ya se mudó). */

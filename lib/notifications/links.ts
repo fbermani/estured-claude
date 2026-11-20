@@ -44,6 +44,9 @@ const ADMIN_LIST: Record<string, string> = {
   waitlist_entries: "/admin/waitlists",
   resident_stays: "/admin/community",
   stay_followups: "/admin/followups",
+  users: "/admin/users",
+  residence_signup_requests: "/admin/solicitudes-alta",
+  residence_profile_edits: "/admin/profile-edits",
 };
 
 export function notificationHref(

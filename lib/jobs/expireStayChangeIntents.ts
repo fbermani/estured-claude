@@ -49,6 +49,7 @@ export async function expireStayChangeIntents(
       const student = await loadStudentName(admin, row.student_profile_id as string);
       if (student?.user_id) {
         await createNotification(admin, {
+          category: "deadlines",
           userId: student.user_id,
           title: "Tu aviso de cambio vence en 10 días",
           body: "¿Seguís buscando? Entrá a Mi residencia y confirmá que seguís buscando, o cancelá el aviso.",
@@ -114,6 +115,7 @@ export async function expireStayChangeIntents(
       const entity = { relatedEntityType: "stay_change_intents", relatedEntityId: intent.id } as const;
       if (student?.user_id) {
         await createNotification(admin, {
+          category: "deadlines",
           userId: student.user_id,
           title: "Tu aviso de cambio venció",
           body: "Si seguís buscando, podés avisar de nuevo desde Mi residencia.",

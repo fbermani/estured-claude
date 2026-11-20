@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
+import { notifyStudentRenewalOfferSent } from "@/lib/notifications/notifyStudent";
 import { assertResidencePermission } from "@/lib/residences/access";
 import { can } from "@/lib/residences/permissions";
 import { calculateFeeEstimate } from "@/lib/applications/fee";
@@ -207,6 +208,7 @@ export async function createRenewalOffer(
     newValue: { permission: access.permission, status, duration_months: params.durationMonths, monthly_price_usd: params.monthlyPriceUsd },
     source: "user",
   });
+  if (params.sendNow) await notifyStudentRenewalOfferSent(admin, offer.id);
 
   return { ok: true, renewalOfferId: offer.id };
 }

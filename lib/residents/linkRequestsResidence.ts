@@ -276,6 +276,7 @@ export async function resolveLinkRequest(
   });
   if (studentUserId) {
     await createNotification(admin, {
+      category: "requests_reservations",
       userId: studentUserId,
       title: params.decision === "approve" ? `${residenceName} aprobó tu vínculo` : `${residenceName} no aprobó tu solicitud de vínculo`,
       body:

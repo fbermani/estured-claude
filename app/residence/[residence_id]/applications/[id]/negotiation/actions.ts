@@ -7,6 +7,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { assertResidencePermission } from "@/lib/residences/access";
 import { assertRegulationAccepted } from "@/lib/regulations/gate";
 import { createAuditLog } from "@/lib/audit";
+import { notifyStudentApplicationMilestone } from "@/lib/notifications/notifyStudent";
 import { usdToArs } from "@/lib/mock/exchange";
 import {
   MAX_ADJUSTMENT_POLICY,
@@ -200,6 +201,8 @@ export async function sendNegotiationProposal(
     entityType: "application_requests",
     entityId: applicationId,
   });
+  // Aviso al estudiante: llegó una propuesta de ajuste. Nunca lanza.
+  await notifyStudentApplicationMilestone(admin, applicationId, "adjustment_proposed");
 
   revalidatePath(`/residence/${application.residence_id}/applications`);
   redirect(`/residence/${application.residence_id}/applications?app=${applicationId}`);

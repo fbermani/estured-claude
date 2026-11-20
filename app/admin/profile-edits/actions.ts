@@ -113,6 +113,7 @@ export async function reviewProfileEdit(
   });
 
   await createNotification(admin, {
+    category: "requests_reservations",
     userId: edit.submitted_by,
     title: notificationTitle,
     body: notificationBody,

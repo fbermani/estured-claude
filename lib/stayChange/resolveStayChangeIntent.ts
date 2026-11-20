@@ -79,6 +79,7 @@ export async function resolveStayChangeIntentOnReservation(
 
     for (const userId of await loadResidenceUserIds(admin, intent.current_residence_id)) {
       await createNotification(admin, {
+        category: "requests_reservations",
         userId,
         title: `${name} tiene una reserva confirmada en otra residencia`,
         body: when
@@ -89,6 +90,7 @@ export async function resolveStayChangeIntentOnReservation(
     }
     if (student?.user_id) {
       await createNotification(admin, {
+        category: "requests_reservations",
         userId: student.user_id as string,
         title: "Tu aviso de cambio se resolvió",
         body: "Tu residencia actual ya sabe la fecha de tu ingreso al nuevo lugar. Coordiná tu salida con ella: ver lo que te informó.",

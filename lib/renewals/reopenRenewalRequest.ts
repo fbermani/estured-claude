@@ -62,6 +62,7 @@ export async function reopenRenewalRequest(
   if (studentProfile) {
     const residenceName = (request.residences as unknown as { name: string } | null)?.name ?? "la residencia";
     await createNotification(admin, {
+      category: "requests_reservations",
       userId: studentProfile.user_id,
       title: "Tu solicitud de renovación fue reabierta",
       body: `El equipo de EstuRed reabrió tu solicitud de renovación a ${residenceName}. Motivo: ${reason}`,

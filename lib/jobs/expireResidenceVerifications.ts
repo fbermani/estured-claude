@@ -2,6 +2,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { createNotification } from "@/lib/notifications/createNotification";
+import { notifyAdminsSafe } from "@/lib/notifications/notifyAdminsSafe";
 
 /**
  * Job de vencimiento de verificación anual (docs/03 §"verificación
@@ -35,6 +36,7 @@ export async function expireResidenceVerifications(admin: SupabaseClient): Promi
   }
 
   let expiredCount = 0;
+  let firstExpiredResidenceId: string | null = null;
   for (const v of staleVerifications ?? []) {
     const residence = v.residences as unknown as { id: string; name: string };
 
@@ -72,6 +74,7 @@ export async function expireResidenceVerifications(admin: SupabaseClient): Promi
       .eq("is_active", true);
     for (const ru of residenceUsers ?? []) {
       await createNotification(admin, {
+        category: "deadlines",
         userId: ru.user_id,
         title: "La verificación anual de tu residencia venció",
         body: `${residence.name} dejó de estar publicada porque su verificación anual venció. Contactá a EstuRed para coordinar la re-verificación.`,
@@ -80,6 +83,17 @@ export async function expireResidenceVerifications(admin: SupabaseClient): Promi
       });
     }
     expiredCount += 1;
+    firstExpiredResidenceId ??= residence.id;
+  }
+
+  // Un solo aviso resumen a admin por corrida (sin datos de las residencias). Nunca lanza.
+  if (expiredCount > 0 && firstExpiredResidenceId) {
+    await notifyAdminsSafe(admin, {
+      title: "Verificaciones anuales vencidas",
+      body: `${expiredCount} ${expiredCount === 1 ? "residencia dejó de estar publicada porque su verificación anual venció" : "residencias dejaron de estar publicadas porque su verificación anual venció"}. Revisalas en Residencias.`,
+      entityType: "residences",
+      entityId: firstExpiredResidenceId,
+    });
   }
 
   return { expiredCount };

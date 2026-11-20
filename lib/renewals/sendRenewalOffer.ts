@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
+import { notifyStudentRenewalOfferSent } from "@/lib/notifications/notifyStudent";
 import { assertResidencePermission } from "@/lib/residences/access";
 import { OFFERABLE_RENEWAL_REQUEST_STATUSES } from "@/lib/renewals/createRenewalOffer";
 
@@ -53,6 +54,7 @@ export async function sendRenewalOffer(
     entityId: offer.id,
     source: "user",
   });
+  await notifyStudentRenewalOfferSent(admin, offer.id);
 
   return { ok: true };
 }

@@ -7,6 +7,7 @@ import { validatePasswordWithConfirmation } from "@/lib/auth/password";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { createAuditLog } from "@/lib/audit";
+import { notifyAdminsSafe } from "@/lib/notifications/notifyAdminsSafe";
 import { createRateLimiter, clientKeyFromHeaders, clientIpFromHeaders } from "@/lib/receipts/verifyRateLimit";
 import { saveResidencePrivateDetails } from "@/lib/residences/privateDetails";
 import { BARRIO_OPTIONS } from "@/lib/residences/options";
@@ -155,6 +156,17 @@ export async function redeemResidenceInvite(token: string, _prev: RedeemState, f
     }
     await releaseSignupInvite(admin, request.id, request.residence_id);
     return { status: "error", message: "No pudimos completar la creación de tu cuenta. Intentá de nuevo en unos minutos." };
+  }
+  // Aviso a admin (texto neutro). Nunca lanza.
+  const registeredResidenceId = createdResidenceId ?? request.residence_id;
+  if (registeredResidenceId) {
+    await notifyAdminsSafe(admin, {
+      title: "Se registró una residencia nueva",
+      body: "Una residencia canjeó su invitación y creó su cuenta.",
+      entityType: "residences",
+      entityId: registeredResidenceId,
+      category: "admin_signups",
+    });
   }
   // El login va fuera del try: la cuenta ya existe y el alta está cerrada; si falla, no se revierte nada.
   const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });

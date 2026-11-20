@@ -65,6 +65,7 @@ export async function removeFromWaitlistByAdmin(
   if (studentProfile) {
     const residenceName = (entry.residences as unknown as { name: string } | null)?.name ?? "la residencia";
     await createNotification(admin, {
+      category: "requests_reservations",
       userId: studentProfile.user_id,
       title: "EstuRed te sacó de una lista de espera",
       body: `El equipo de EstuRed te sacó de la lista de espera de ${residenceName}. Motivo: ${reason}`,

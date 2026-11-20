@@ -98,6 +98,7 @@ export async function notifyArrivalReminders(admin: SupabaseClient, now: Date = 
         });
         if (await claimSend(admin, row.id, r.userId, key, "in_app")) {
           await createNotification(admin, {
+            category: "deadlines",
             userId: r.userId,
             title: copy.title,
             body: copy.body,

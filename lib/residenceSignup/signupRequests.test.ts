@@ -17,7 +17,13 @@ type Err = { code?: string; message?: string } | null;
 /** Cliente simulado: cada `insert` devuelve el siguiente resultado de la cola y deja registrado lo que se intentó guardar. */
 function fakeAdmin(results: Err[]) {
   const calls: Record<string, unknown>[] = [];
-  const client = { from: () => ({ insert: async (row: Record<string, unknown>) => { calls.push(row); return { error: results.shift() ?? null }; } }) };
+  const insert = (row: Record<string, unknown>) => {
+    calls.push(row);
+    const error = results.shift() ?? null;
+    return { select: () => ({ single: async () => ({ data: error ? null : { id: "00000000-0000-4000-8000-000000000001" }, error }) }) };
+  };
+  // Cualquier otra tabla (p. ej. `user_roles` del aviso a admin) responde vacío: no hay admins a quienes avisar.
+  const client = { from: (table: string) => (table === "residence_signup_requests" ? { insert } : { select: () => ({ in: async () => ({ data: [] }) }) }) };
   return { admin: client as unknown as SupabaseClient, calls };
 }
 

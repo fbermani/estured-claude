@@ -2,6 +2,7 @@ import "server-only";
 import { isIP } from "node:net";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
+import { notifyAdminsSafe } from "@/lib/notifications/notifyAdminsSafe";
 import { createInvitation, redeemInvitation, type ResolvedInvitation } from "@/lib/preapertura/invitations";
 import { isMissingSchemaError } from "@/lib/stayChange/schema";
 
@@ -143,6 +144,14 @@ export async function createStudentAccount(
     await admin.auth.admin.deleteUser(userId).catch(() => {});
     return { ok: false, reason: failure };
   }
+  // Aviso a admin (texto neutro, sin datos personales). Nunca lanza. No se duplica con `registerStudent`: ese flujo no llama a esta función.
+  await notifyAdminsSafe(admin, {
+    title: "Se registró un estudiante nuevo",
+    body: "Hay una cuenta de estudiante nueva en EstuRed (preapertura).",
+    entityType: "users",
+    entityId: userId,
+    category: "admin_signups",
+  });
   return { ok: true, userId };
 }
 

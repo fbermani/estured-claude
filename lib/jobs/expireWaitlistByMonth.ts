@@ -67,6 +67,7 @@ export async function expireWaitlistByMonth(
       if (userId) {
         const residenceName = row.residences?.name ?? "la residencia";
         await createNotification(admin, {
+          category: "deadlines",
           userId,
           title: "Tu lugar en la lista de espera venció",
           body: `Tu lugar en la lista de espera de ${residenceName} venció porque pasó el mes elegido. Podés sumarte de nuevo.`,

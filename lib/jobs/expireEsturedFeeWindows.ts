@@ -98,6 +98,7 @@ async function expireRenewalOfferOfFee(admin: SupabaseClient, feeId: string, pay
     await Promise.all(
       recipients.map((userId) =>
         createNotification(admin, {
+          category: "deadlines",
           userId,
           title: "Venció el pago de tu renovación",
           body: `El fee EstuRed de tu renovación en ${residenceName} no se pagó a tiempo. La residencia tiene que enviarte una oferta nueva si quiere renovar.`,

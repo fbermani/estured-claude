@@ -139,6 +139,7 @@ export async function confirmStayChangeIntentByFamily(
   const entity = { relatedEntityType: "stay_change_intents", relatedEntityId: intent.id } as const;
   if (student?.user_id) {
     await createNotification(admin, {
+      category: "requests_reservations",
       userId: student.user_id as string,
       title: "Tu familiar confirmó tu aviso de cambio",
       body: "Le avisamos a tu residencia actual. Ya podés solicitar con fechas que se superponen. Tu reserva sigue igual.",
@@ -147,6 +148,7 @@ export async function confirmStayChangeIntentByFamily(
   }
   for (const userId of await loadResidenceUserIds(admin, intent.current_residence_id)) {
     await createNotification(admin, {
+      category: "requests_reservations",
       userId,
       title: `${name} avisó que busca cambiar de residencia`,
       body: `Salida estimada: ${intent.estimated_exit_date ?? "sin definir"}. Respondele con los costos y condiciones de salida desde Residentes.`,

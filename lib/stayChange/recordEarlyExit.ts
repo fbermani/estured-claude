@@ -152,6 +152,7 @@ export async function finalizeEarlyExit(
       const body = `Tu residencia registró tu salida el ${when}. ${DEPOSIT_STATUS_LABELS[prepared.depositStatus]}. Podés dejar tu propia nota. ${UNPAID_DISCLAIMER}`;
       if (student?.user_id) {
         await createNotification(admin, {
+          category: "requests_reservations",
           userId: student.user_id as string,
           title: "Tu residencia registró tu salida",
           body,

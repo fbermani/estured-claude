@@ -6,6 +6,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { assertResidencePermission } from "@/lib/residences/access";
 import type { ResidencePermission } from "@/lib/residences/permissions";
 import { notifyFamilyApplicationMilestone } from "@/lib/family/familyMilestones";
+import { notifyStudentApplicationMilestone } from "@/lib/notifications/notifyStudent";
 import { createAuditLog } from "@/lib/audit";
 import { assertRegulationAccepted } from "@/lib/regulations/gate";
 import { checkStayChangeAdvanceGate } from "@/lib/stayChange/advanceGate";
@@ -187,6 +188,7 @@ export async function establishContact(applicationId: string): Promise<Applicati
   });
   // DR4: hito para el familiar vinculado (solicitud aceptada).
   await notifyFamilyApplicationMilestone(admin, applicationId, "accepted");
+  await notifyStudentApplicationMilestone(admin, applicationId, "accepted");
 
   revalidatePath(`/residence/${result.application.residence_id}/applications`);
   return { status: "saved" };
@@ -262,6 +264,7 @@ export async function enableResidencePayment(applicationId: string): Promise<App
   });
   // DR4: hito para el familiar vinculado (pago a la residencia pedido).
   await notifyFamilyApplicationMilestone(admin, applicationId, "payment_requested");
+  await notifyStudentApplicationMilestone(admin, applicationId, "payment_enabled");
 
   revalidatePath(`/residence/${result.application.residence_id}/applications`);
   return { status: "saved" };

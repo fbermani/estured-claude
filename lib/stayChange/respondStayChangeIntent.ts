@@ -109,6 +109,7 @@ export async function respondStayChangeIntent(
   const entity = { relatedEntityType: "stay_change_intents", relatedEntityId: intent.id } as const;
   if (student?.user_id) {
     await createNotification(admin, {
+      category: "requests_reservations",
       userId: student.user_id as string,
       title: edited ? `${residenceName} actualizó su respuesta` : `${residenceName} respondió a tu aviso`,
       body: `Te informó costos y condiciones de salida. Es información de tu residencia: no modifica tu contrato. Ante dudas, escribí a Soporte. ${UNPAID_DISCLAIMER}`,

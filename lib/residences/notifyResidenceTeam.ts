@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createNotification } from "@/lib/notifications/createNotification";
+import type { NotificationCategory } from "@/lib/notifications/categories";
 import { sendEmail } from "@/lib/email/sendEmail";
 import { rowCan, type ResidencePermission } from "@/lib/residences/permissions";
 import { getAppUrl } from "@/lib/appUrl";
@@ -55,6 +56,24 @@ export const PERMISSION_BY_EVENT: Partial<Record<ResidenceTeamEvent, ResidencePe
   // DR34: pedidos de cambio de habitación y plazas liberadas que coinciden con uno; los resuelve quien tiene `residents.manage`.
   new_room_change_request: "residents.manage",
   room_change_place_matched: "residents.manage",
+};
+
+/** DR61: categoría de push por evento. `none` = solo in-app. */
+export const CATEGORY_BY_EVENT: Record<ResidenceTeamEvent, NotificationCategory> = {
+  new_application: "requests_reservations",
+  new_waitlist_entry: "none",
+  new_renewal_request: "requests_reservations",
+  renewal_fee_expired: "deadlines",
+  changes_requested: "requests_reservations",
+  verification_approved: "none",
+  verification_rejected: "requests_reservations",
+  verification_expiring: "deadlines",
+  team_member_joined: "none",
+  custom_amenity_approved: "none",
+  custom_amenity_rejected: "none",
+  new_resident_link_request: "requests_reservations",
+  new_room_change_request: "requests_reservations",
+  room_change_place_matched: "requests_reservations",
 };
 
 const ENTITY_BY_EVENT: Record<ResidenceTeamEvent, string> = {
@@ -287,6 +306,7 @@ export async function notifyResidenceTeam(
           body: copy.body,
           relatedEntityType: ENTITY_BY_EVENT[params.event],
           relatedEntityId: params.entityId,
+          category: CATEGORY_BY_EVENT[params.event],
         }),
         r.email
           ? sendEmail({

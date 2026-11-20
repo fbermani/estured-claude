@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
+import { notifyAdminsSafe } from "@/lib/notifications/notifyAdminsSafe";
 import { notifyResidenceTeam } from "@/lib/residences/notifyResidenceTeam";
 import { EXPIRY_WARNING_DAYS } from "@/lib/residences/verificationReview";
 
@@ -28,6 +29,7 @@ export async function notifyExpiringVerifications(admin: SupabaseClient): Promis
     }
 
     let warnedCount = 0;
+    let firstWarnedResidenceId: string | null = null;
     for (const row of rows ?? []) {
       const residenceId = row.residence_id as string;
       let alreadyWarned = admin
@@ -58,6 +60,16 @@ export async function notifyExpiringVerifications(admin: SupabaseClient): Promis
       if (!logged) continue;
       await notifyResidenceTeam(admin, { residenceId, event: "verification_expiring", entityId: residenceId });
       warnedCount += 1;
+      firstWarnedResidenceId ??= residenceId;
+    }
+    // Un solo aviso resumen a admin por corrida (sin datos de las residencias). Nunca lanza.
+    if (warnedCount > 0 && firstWarnedResidenceId) {
+      await notifyAdminsSafe(admin, {
+        title: "Verificaciones anuales por vencer",
+        body: `Hay ${warnedCount} ${warnedCount === 1 ? "residencia con la verificación anual por vencer" : "residencias con la verificación anual por vencer"}. Revisalas en Residencias.`,
+        entityType: "residences",
+        entityId: firstWarnedResidenceId,
+      });
     }
     return { warnedCount };
   } catch (error) {
