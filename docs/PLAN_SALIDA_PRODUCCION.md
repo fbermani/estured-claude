@@ -286,3 +286,51 @@ Informe: `docs/audits/AUDITORIA_PRE_PRODUCCION_2026-11-19.md`. No hay variables 
 - [ ] CI mínimo con typecheck, lint y tests (P19-18).
 - [ ] Agregar `scratchpad/` a `.gitignore` y `@source not` en `globals.css` (S19-06, R19-07).
 - [ ] Aprobar o rechazar el borrado de 2 residencias de test en `estured-dev` (`cleanup-test-residences.mjs --apply`).
+
+---
+
+## K. Checklist de beta y lanzamiento (fusionado de docs 15 y 18, 2026-11-20)
+
+Solo lo vigente y no cubierto arriba. Cada ítem se verificó contra el código o `docs/00`. Texto íntegro original en `docs/archive/15_ENVIRONMENT_AND_SETUP.md` y `docs/archive/18_RELEASE_AND_BETA_CHECKLIST.md`. Los ítems de abajo no cambian reglas de negocio.
+
+**K1. Variables y entorno**
+- [ ] `.env.example` coincide con la tabla de E (hoy lo hace). No existen variables de MercadoPago, PayU, TusFacturas ni `QR_SECRET`: el fee se cobra por transferencia manual.
+- [ ] Un proyecto Supabase por ambiente (dev, prod). Los datos demo y seeds jamás entran a producción.
+- [ ] Sin integración de la API de WhatsApp Business: solo el botón `wa.me` pre-formateado.
+
+**K2. QA antes de abrir (beta privada)**
+- [ ] Flujo central completo al menos 3 veces en staging: búsqueda, solicitud, contacto, pago a residencia, «Pago recibido», fee, reserva confirmada, comprobante.
+- [ ] Una corrida con propuesta del familiar (aprobada y rechazada) y otra con negociación (aceptada y rechazada, una sola propuesta de ajuste por solicitud).
+- [ ] Un owner con 2 residencias no ve datos cruzados; el staff solo ve las asignadas.
+- [ ] Un usuario sin permiso no accede a un documento privado.
+- [ ] No hay bypass del fee: sin fee pagado no hay reserva confirmada ni comprobante. Fee vencido deja la reserva en `expired_fee_unpaid`.
+- [ ] `/verify/<código>` válido muestra solo datos limitados; uno inválido da 404 limpio.
+- [ ] Revocación del fee: enlace en el footer, pantalla y revisión en `/admin/revocations`; se bloquea fuera de los 10 días.
+- [ ] El contacto con estudiantes menores se dirige al familiar vinculado.
+- [ ] `npx playwright test` contra staging con las migraciones al día (ver «Antes de prod»).
+
+**K3. Admin y seguridad**
+- [ ] **2FA obligatorio para admin y superadmin** (decidido en `docs/00` §31 «desde la beta privada»). Hoy el código no tiene MFA (sin referencias a TOTP/MFA): implementarlo o dejar el desvío documentado antes de la beta.
+- [ ] El admin puede operar sin tocar la base: solicitudes, pagos, comprobantes, soporte, propuestas del familiar, negociaciones y registro de acciones (`/admin/logs`).
+- [ ] Toda acción crítica del admin queda en el registro de auditoría con motivo.
+
+**K4. Residencias pioneras**
+- [ ] No publicar una residencia sin: visita presencial hecha, condiciones y precio claros, disponibilidad o «completa» cargada, términos aceptados y responsable validado.
+- [ ] Residencias reales con perfil completo, fotos y coordenadas exactas (ya en G). Las residencias capacitadas conocen el flujo, la negociación y su límite.
+- [ ] Idealmente un owner con más de una residencia para ver el dashboard multi-residencia con datos reales.
+
+**K5. Contenido y legal**
+- [ ] Barrido de copy público: nada de «mediación» (decir «Soporte»), nada de «garantizado» ni «reserva garantizada», el fee explicado antes de enviar la solicitud, «solicitud sujeta a confirmación».
+- [ ] Términos y privacidad visibles; aceptación específica de la residencia al marcar «Pago recibido», del estudiante antes de pagar el fee y al aprobar la propuesta del familiar (revisión legal en I).
+- [ ] Soporte visible (`hola@estured.com`, A4) y alguien que lo lee.
+
+**K6. Operación de la beta**
+- [ ] Día de apertura: login admin, búsqueda, una solicitud de prueba (también por propuesta del familiar), notificaciones, logs de Vercel, dashboard admin. Congelar cambios no críticos.
+- [ ] Primeras 48 h, revisión diaria: solicitudes sin respuesta, propuestas del familiar pendientes, errores de usuario y técnicos, dudas sobre el fee y el pago a la residencia, problemas mobile.
+- [ ] Primera semana: conversión búsqueda, solicitud, contacto, pago a residencia, fee, comprobante; tiempo de respuesta de las residencias; motivos de rechazo; carga del admin.
+- [ ] No escalar tráfico si las residencias no responden o la disponibilidad queda desactualizada de forma recurrente.
+
+**K7. Incidentes y contingencia**
+- [ ] Incidentes críticos: fee cobrado dos veces, residencia que ve datos de otra del mismo owner, una propuesta de ajuste duplicada, dato sensible expuesto.
+- [ ] Respuesta: 1) pausar lo afectado; 2) registrar; 3) revisar el audit log; 4) contactar a las partes; 5) corregir el dato o estado; 6) documentar la causa; 7) test de regresión; 8) decidir si se reactiva.
+- [ ] La operación manual desde el admin no pierde trazabilidad (rollback técnico en H).
