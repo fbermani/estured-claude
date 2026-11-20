@@ -21,6 +21,7 @@ Demo: selector "Simular usuario" (solo con `DEMO_LOGIN_ENABLED=true` en `.env.lo
 
 El detalle de ciclos anteriores (62–87, preapertura, ficha «placa porteña», DR12–DR48, auditorías) está en `docs/archive/MEMORY_HISTORICO_2026-11-19.md` §B. Lo vigente:
 
+- **DR58 — documento del estudiante (2026-11-20, rama `claude/upbeat-shaw-7a5e48`, commit 0e36ea8, sin PR):** tipo (DNI/pasaporte/otro) + número en la tabla privada `student_identity_documents` (RLS sin policies, solo service role; 0100). Formulario en `/students/profile` (`IdentityDocumentForm`, acción `saveIdentityDocument`, número enmascarado, auditoría sin el número). Validación en `lib/students/identityDocument.ts`. Visibilidad: igual que el archivo (DR48). **Pendiente fase 2:** mostrar el número a la residencia con registro de acceso; vista del familiar de un menor. Verificado: typecheck, lint, 6 tests; sin build ni prueba visual.
 - **Vista previa de la ficha (2026-11-19, sin build ni verificación visual):** `/residence/[residence_id]/preview` muestra la MISMA ficha (`components/residences/ficha/FichaView.tsx`, modo `preview`) con lo último guardado y en cualquier estado, solo para dueño o staff activo de esa residencia (`loadPreviewFicha` → `fichaResidence.ts`; la pública sigue exigiendo `verified_active`). Sin sesión, sin acciones ni JSON-LD, noindex; el layout del área la muestra sin menú lateral (`ResidenceAreaShell`). Lo ya pendiente de revisión de Soporte no aparece.
 - **Borradores y «Volver a la configuración» (2026-11-19):** perfil y reglamento guardan borrador LOCAL (`lib/forms/localDraft.ts`, `UnsavedChangesGuard`); no hay autoguardado en servidor (supuesto reversible). `BackToProfileLink` en las pantallas del panel. Sin build ni verificación visual.
 - **Fotos (2026-11-19):** la ficha no rota fotos; «Fachada / Exterior» se muestra «Foto principal o de presentación» (`PRESENTATION_LABEL`, datos sin migrar); secciones sin fotos no se publican.
@@ -33,7 +34,7 @@ El detalle de ciclos anteriores (62–87, preapertura, ficha «placa porteña»,
 
 ## 3. Migraciones (estado real, 2026-11-19)
 
-- Archivos `db/migrations/0001`–`0099` (+0043b), 100 en total. **Dev (`estured-dev`, ref `gyfbtsuibmecefwovdgh`): aplicadas hasta 0099** (0098 endurecimiento de funciones, 0099 poda del catálogo de FAQ). **Prod: ninguna**; se arma desde cero con `node scripts/build-bootstrap.mjs prod --host=estured.com` (genera `db/_generated/prod_bootstrap.sql`, gitignored; regenerar antes de usar). El ref `mrwooskdcnkbitkhcvbf` es el Supabase prod viejo (baja en runbook A0.1; los tests lo rechazan vía `scripts/production-refs.json`).
+- Archivos `db/migrations/0001`–`0099` (+0043b), 100 en total. **Dev (`estured-dev`, ref `gyfbtsuibmecefwovdgh`): aplicadas hasta 0100** (0098 endurecimiento de funciones, 0099 poda del catálogo de FAQ, 0100 `student_identity_documents`, aplicada 2026-11-20). **Prod: ninguna**; se arma desde cero con `node scripts/build-bootstrap.mjs prod --host=estured.com` (genera `db/_generated/prod_bootstrap.sql`, gitignored; regenerar antes de usar). El ref `mrwooskdcnkbitkhcvbf` es el Supabase prod viejo (baja en runbook A0.1; los tests lo rechazan vía `scripts/production-refs.json`).
 - Toda migración es idempotente y degrada con gracia si falta (el código chequea `isMissing*`).
 - Histórico de actualizaciones de estado y orden de pendientes viejas: `docs/archive/MEMORY_HISTORICO_2026-11-19.md` §C.
 - Links SQL Editor: dev https://supabase.com/dashboard/project/gyfbtsuibmecefwovdgh/sql/new · prod (el link cambia con el proyecto nuevo). **Cada vez que haya una migración por aplicar: dar ambos links + el archivo a pegar** (también si hay script de Storage, ej. `scripts/setup-storage.mjs`).
@@ -42,7 +43,7 @@ El detalle de ciclos anteriores (62–87, preapertura, ficha «placa porteña»,
 
 Fuente: `docs/PLAN_SALIDA_PRODUCCION.md` (runbook). Pendientes del dueño antes de abrir:
 
-1. **Aplicar 0098 y 0099 en prod** (entran solas con el bootstrap; si prod ya se armó, pegar cada archivo en su SQL Editor).
+1. **Aplicar 0098, 0099 y 0100 en prod** (entran solas con el bootstrap; si prod ya se armó, pegar cada archivo en su SQL Editor).
 2. **Activar «Leaked password protection»** en Supabase Auth (prod y dev; es un interruptor del panel).
 3. **Cerrar el staging público** (`estured.vercel.app`: sin login de Vercel y con selector demo): Vercel Authentication en Preview, o apagar `DEMO_LOGIN_ENABLED`.
 4. **Correr `npx playwright test` contra staging** con las migraciones al día.
