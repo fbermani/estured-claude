@@ -248,6 +248,16 @@ export function Navbar() {
                 {link.extra && <span className="ml-1 text-xs font-semibold opacity-75">{link.extra}</span>}
               </Link>
             ))}
+            <Link
+              href="/instalar"
+              onClick={() => setOpen(false)}
+              className={`flex min-h-12 items-center gap-2 rounded-field px-3 text-base font-bold ${
+                pathname === "/instalar" ? "bg-forest-tint text-forest-700" : "text-ink-soft"
+              }`}
+            >
+              <Icon name="install_mobile" className="text-xl" />
+              Instalá la app
+            </Link>
             {session.status === "guest" && (
               <>
                 <Link
