@@ -137,7 +137,12 @@ function parseBlocks(lines: string[], usedIds: Set<string>, variant: GuideSectio
   const blocks: GuideBlock[] = [];
   let para: string[] = [];
   let list: { ordered: boolean; items: string[] } | null = null;
+  let tableRows: string[][] = [];
 
+  const flushTable = () => {
+    if (tableRows.length >= 2) blocks.push({ type: "table", header: tableRows[0], rows: tableRows.slice(1) });
+    tableRows = [];
+  };
   const flushPara = () => {
     if (para.length === 0) return;
     const text = para.join(" ").trim();
@@ -166,8 +171,17 @@ function parseBlocks(lines: string[], usedIds: Set<string>, variant: GuideSectio
     if (t === "") {
       flushPara();
       flushList();
+      flushTable();
       continue;
     }
+    if (t.startsWith("|")) {
+      flushPara();
+      flushList();
+      const cells = t.replace(/^\|/, "").replace(/\|$/, "").split("|").map((c) => c.trim());
+      if (!cells.every((c) => /^:?-{3,}:?$/.test(c))) tableRows.push(cells); // omite la fila separadora
+      continue;
+    }
+    flushTable();
     const h3 = /^###\s+(.*)$/.exec(t);
     if (h3) {
       flushPara();
@@ -197,6 +211,7 @@ function parseBlocks(lines: string[], usedIds: Set<string>, variant: GuideSectio
   }
   flushPara();
   flushList();
+  flushTable();
   return blocks;
 }
 

@@ -92,3 +92,15 @@ export function describeAgeRange(rule: ResidenceAgeRule): string {
   const max = rule.maxResidentAge ?? null;
   return max != null ? `De ${min} a ${max} años` : `Desde ${min} años`;
 }
+
+/**
+ * DR50: aviso (no bloqueante) cuando la edad del estudiante a la fecha de ingreso queda fuera del rango que publica la residencia.
+ * Devuelve el texto o null si no hay nada que avisar (sin fecha de nacimiento o de ingreso, o dentro del rango).
+ */
+export function ageRangeNotice(rule: ResidenceAgeRule, birthDate: string | null | undefined, atDate: string | null | undefined): string | null {
+  if (!atDate) return null;
+  const age = ageAtDate(birthDate, atDate);
+  if (age == null || residenceAcceptsAge(rule, age)) return null;
+  return `A esa fecha tendrías ${age} años y esta residencia publica «${describeAgeRange(rule).toLowerCase()}». Podés enviar la solicitud igual, pero tené en cuenta ese rango.`;
+}
+

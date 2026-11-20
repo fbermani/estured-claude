@@ -23,6 +23,8 @@ ESTUDIANTES
 
 Preparación práctica para llegar, conocer la ciudad y empezar la etapa universitaria con menos imprevistos.
 
+Para mudarte a Buenos Aires a estudiar, planificá la llegada con dos o tres semanas de margen, reuní tu documentación (identidad, constancia de inscripción y antecedentes académicos), confirmá tu alojamiento y probá el recorrido a la facultad. Armá además un presupuesto del primer mes que separe gastos únicos y recurrentes.
+
 ## Planificá con anticipación, sin exigirte una fecha perfecta
 
 Si tus posibilidades lo permiten, llegar dos o tres semanas antes del comienzo de clases puede ayudarte a conocer la residencia y tus compañeros, adaptarte a un nuevo entorno, clima, el barrio, ensayar trayectos y resolver pendientes. Lo ideal es que puedas ocuparte de éstos aspectos con anticipación, para luego concentrarte de lleno en el inicio de clases. Algunas personas prefieren más tiempo y otras no pueden anticiparse; lo importante es reservar un margen realista para trámites, mudanza y descanso. Comenzás una etapa completamente distinta en tu vida! (no lo tomes a la ligera)
@@ -35,7 +37,7 @@ Si tenés alguna condición de salud, llevá también el certificado médico que
 
 ## Alojamiento: asegurá lo esencial antes de viajar
 
-Confirmá dirección, fecha y horario de ingreso, persona de contacto, habitación/plaza, inventario básico, medios de pago y reglas. Preguntá qué debés llevar: ropa de cama, toallas, utensilios o candado pueden estar incluidos o no. Guardá los documentos y comprobantes en un lugar accesible.
+Confirmá dirección, fecha y horario de ingreso, persona de contacto, habitación/plaza, inventario básico, medios de pago y reglas. Revisá en la ficha de la residencia qué debés llevar: ropa de cama, toallas, utensilios o candado pueden estar incluidos o no. Guardá los documentos y comprobantes en un lugar accesible.
 
 Viajá liviano. En general, las residencias tienen poco espacio, así que conviene ser prudente al empacar y no llevar todo de entrada: frazadas, almohadas, mucha ropa de abrigo o muchos pares de zapatos pueden ir sumándose con el tiempo, a medida que sepas qué necesitás. Además, tu familia puede traerte cosas cuando te visite.
 
@@ -59,9 +61,9 @@ Conocer gente puede llevar tiempo. Empezá con gestos pequeños: presentate, com
 
 Antes de salir: documentación verificada, alojamiento confirmado, gastos previstos, transporte desde la terminal o aeropuerto (podés usar taxi, remis o aplicaciones de transporte), contacto de llegada y elementos personales. En la primera semana: recorrido a la facultad, compras básicas, normas de convivencia y rutina provisional.
 
-## Fuentes para consultar antes de publicar
+## Fuentes oficiales para consultar
 
-Dirección Nacional de Migraciones (argentina.gob.ar/interior/migraciones); RENAPER (argentina.gob.ar/interior/renaper); SUBE (argentina.gob.ar/sube); Gobierno de la Ciudad y agenda cultural (buenosaires.gob.ar). Confirmar enlaces y trámites vigentes antes de lanzar.
+Dirección Nacional de Migraciones (argentina.gob.ar/interior/migraciones); RENAPER (argentina.gob.ar/interior/renaper); SUBE (argentina.gob.ar/sube); Gobierno de la Ciudad y agenda cultural (buenosaires.gob.ar).
 
 Para seguir explorando: consultá otras guías EstuRed relacionadas con alojamiento, vida universitaria y convivencia. La disponibilidad, los servicios y las reglas deben confirmarse en la ficha particular de cada residencia.
 

@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { DeclineInvite, InviteCodeStep } from "@/components/residents/InviteSteps";
 import { listActiveResidencesForPicker } from "@/lib/residents/activeResidences";
+import { isPreaperturaOn } from "@/lib/preapertura/flag";
 import { RegisterStudentForm } from "@/app/(public)/register/student/RegisterStudentForm";
 
 // El enlace personal lleva un token de un solo uso: no se indexa ni viaja en el Referer.
@@ -16,6 +17,10 @@ export const metadata: Metadata = { title: "Crear cuenta de estudiante", robots:
 export const dynamic = "force-dynamic";
 
 export default async function RegisterStudentPage({ searchParams }: { searchParams: Promise<{ invite?: string; next?: string }> }) {
+  // DR42: con la preapertura encendida el único alta de estudiantes es `/preregistro` (18+; menores solo invitados por un familiar).
+  // Esta ruta (que aceptaba desde 14 años y también sirve a las invitaciones de residencias, que todavía no operan) queda cerrada;
+  // la acción `registerStudent` también se corta en el servidor.
+  if (isPreaperturaOn()) redirect("/preregistro");
   const { invite, next: nextRaw } = await searchParams;
   const sessionUser = await getSessionUser();
 

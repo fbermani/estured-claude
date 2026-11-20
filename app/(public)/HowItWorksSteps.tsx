@@ -205,8 +205,8 @@ export function HowItWorksSteps({ steps }: { steps: Step[] }) {
                     </div>
                   </div>
                   <div className={`grid gap-2 p-[18px] pb-5 lg:px-6 lg:pb-6 lg:pt-[22px] ${front ? "" : "lg:invisible"}`}>
-                    <span className="text-xs font-bold uppercase tracking-[0.08em] text-forest-700">
-                      Paso {i + 1} · {s.slogan}
+                    <span className="text-xs font-bold text-forest-700">
+                      Paso {i + 1}: {s.slogan}
                     </span>
                     <h3 className="text-xl text-ink lg:text-[22px]">{s.title}</h3>
                     <p className="text-[15px] leading-relaxed text-ink-soft">{s.description}</p>

@@ -1,0 +1,544 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- banner:
+  - navigation:
+    - link "EstuRed, inicio":
+      - /url: /
+      - generic: EstuRed
+    - link "Para estudiantesy familias":
+      - /url: /for-students
+      - generic: Para estudiantesy familias
+    - link "Para residencias":
+      - /url: /for-residences
+    - link "Guías":
+      - /url: /guias
+    - link "Buscar residencias":
+      - /url: /search
+    - generic: C
+    - link "Mi panel":
+      - /url: /students/dashboard
+- main:
+  - navigation "Ruta de navegación":
+    - list:
+      - link "Residencias":
+        - /url: /search
+      - listitem: ›
+      - listitem: Palermo
+      - listitem: ›
+      - listitem: Residencia Norte
+  - 'img "Residencia Norte: foto próximamente"':
+    - generic: Palermo
+    - generic: Foto próximamente
+  - heading "Residencia Norte" [level=1]
+  - generic "Verificada presencialmente por el equipo de EstuRed":
+    - generic: verified
+    - text: Residencia Verificada
+  - button "Guardar":
+    - generic: favorite_border
+    - text: Guardar
+  - paragraph:
+    - generic: location_on
+    - text: Av. Santa Fe 4120, Palermo (demo), Palermo, CABA
+  - list:
+    - generic: bed
+    - generic: individual, doble, triple y cuádruple
+    - generic: event_available
+    - text: Estadía mínima
+    - strong: 6 meses
+    - generic: school
+    - text: ~2,0 km de UP
+    - generic: groups
+    - strong: 36 plazas · 34 residentes
+  - paragraph: "Residencia Norte es una casa de estilo racionalista renovada en el corazón de Palermo, a metros de Plaza Italia y a minutos de la Universidad de Palermo y UBA Derecho. Los ambientes son luminosos, con techos altos y espacios comunes recién renovados: patio con parrilla, cocina equipada y un living amplio donde la comunidad se junta a estudiar y cocinar. El barrio ofrece cafés de especialidad, librerías y transporte directo a las principales facultades."
+  - button "Leer más"
+  - navigation "Secciones de la ficha":
+    - list:
+      - link "Servicios":
+        - /url: "#servicios"
+        - text: Servicios
+      - link "Comunidad":
+        - /url: "#comunidad"
+        - text: Comunidad
+      - link "Tarifas y condiciones":
+        - /url: "#tarifas"
+        - text: Tarifas y condiciones
+      - link "Ubicación":
+        - /url: "#ubicacion"
+        - text: Ubicación
+      - link "Preguntas":
+        - /url: "#preguntas"
+        - text: Preguntas
+  - heading "Servicios y áreas comunes" [level=2]
+  - heading "Servicios incluidos" [level=3]
+  - button "WiFi de alta velocidad":
+    - generic: wifi
+    - generic: WiFi de alta velocidad
+  - button "Limpieza semanal de áreas comunes":
+    - generic: mop
+    - generic: Limpieza semanal de áreas comunes
+  - button "Lavadero":
+    - generic: check_circle
+    - generic: Lavadero
+  - heading "Áreas comunes" [level=3]
+  - button "Terraza":
+    - generic: deck
+    - generic: Terraza
+  - button "Cocina":
+    - generic: kitchen
+    - generic: Cocina
+  - button "Sala de estudio":
+    - generic: school
+    - generic: Sala de estudio
+  - button "Balcón":
+    - generic: balcony
+    - generic: Balcón
+  - heading "Edad de los residentes" [level=2]
+  - paragraph: De 18 a 26 años.
+  - paragraph:
+    - generic: cake
+    - text: "Edad promedio hoy:"
+    - strong: 22 años
+    - generic: · entre 29 residentes
+  - heading "Reglas de convivencia" [level=2]
+  - list:
+    - generic: rule
+    - paragraph: Convivencia respetuosa, silencio después de las 23hs, visitas coordinadas con anticipación.
+  - button "Leer reglamento":
+    - generic: article
+    - text: Leer reglamento
+  - link "Descargar reglamento":
+    - /url: /residencias/residencia-norte-demo/reglamento
+    - generic: download
+    - text: Descargar reglamento
+  - heading "Comunidad y convivencia" [level=2]
+  - paragraph: Quiénes viven hoy en la residencia.
+  - blockquote:
+    - paragraph: "“Somos una casa activa y social: acá se cocina en grupo, se estudia en el living y se arma plan de fin de semana. Buscamos estudiantes con buena onda que también respeten los horarios de descanso.”"
+    - generic: — La residencia
+  - generic "Cifras de la comunidad":
+    - term: residentes hoy
+    - definition: "34"
+    - term: países de origen
+    - definition: "16"
+    - term: años
+    - definition: 18–25
+    - term: carreras
+    - definition: "20"
+  - group "Filtrar por tipo de habitación":
+    - button "Todos · 28" [pressed]
+    - button "Individual"
+    - button "Doble"
+    - button "Triple"
+    - button "Cuádruple"
+  - list:
+    - generic: E
+    - paragraph:
+      - text: Emiliano
+      - generic: ", 24"
+    - paragraph: 🇨🇱 Concepción
+    - paragraph: Contador Público
+    - generic: G
+    - paragraph:
+      - text: Gonzalo
+      - generic: ", 20"
+    - paragraph: 🇧🇴 Santa Cruz
+    - paragraph: Derecho
+    - generic: I
+    - paragraph:
+      - text: Ivo
+      - generic: ", 23"
+    - paragraph: 🇩🇪 Múnich
+    - paragraph: Veterinaria
+    - generic: K
+    - paragraph:
+      - text: Kevin
+      - generic: ", 19"
+    - paragraph: 🇺🇸 Chicago
+    - paragraph: Ciencias Políticas
+    - generic: G
+    - paragraph:
+      - text: Guadalupe
+      - generic: ", 18"
+    - paragraph: 🇬🇧 Londres
+    - paragraph: Psicología
+    - generic: J
+    - paragraph:
+      - text: Josefina
+      - generic: ", 22"
+    - paragraph: 🇪🇨 Quito
+    - paragraph: Letras
+  - link "Ver los 28 perfiles Conocé con quién vas a vivir antes de reservar":
+    - /url: /residencias/residencia-norte-demo/comunidad
+    - generic: E
+    - generic: G
+    - generic: I
+    - generic: Ver los 28 perfiles
+    - generic: Conocé con quién vas a vivir antes de reservar
+    - generic: arrow_forward
+  - paragraph:
+    - generic: info
+    - text: Se muestran solo los perfiles que cada estudiante eligió compartir. Pueden cambiar antes de tu ingreso. La disponibilidad por habitación está en
+    - link "Tarifas":
+      - /url: "#tarifas"
+    - text: .
+  - heading "Tarifas y condiciones" [level=2]
+  - paragraph: Precios mensuales por tipo de habitación, visibles para todos. La disponibilidad la informa la residencia por tipo.
+  - list:
+    - listitem "Individual, USD 255 por mes, Disponibilidad informada":
+      - paragraph:
+        - generic: person
+        - generic: Individual
+      - paragraph:
+        - generic: Antes
+        - text: USD 300
+        - generic: USD 255 /mes
+      - paragraph: ≈ ARS 400.500
+      - paragraph: "Promo de temporada: −15% hasta el 27/11/2026"
+      - text: Disponibilidad informada
+      - button "Qué significa \"Disponibilidad informada\"":
+        - generic: i
+      - 'button "Elegir: Individual"': Elegir
+    - listitem "Doble, USD 187 por mes, Disponibilidad informada":
+      - paragraph:
+        - generic: group
+        - generic: Doble
+      - generic: wc
+      - text: Mixta
+      - paragraph:
+        - generic: Antes
+        - text: USD 220
+        - generic: USD 187 /mes
+      - paragraph: ≈ ARS 293.500
+      - paragraph: "Promo de temporada: −15% hasta el 27/11/2026"
+      - text: Disponibilidad informada
+      - button "Qué significa \"Disponibilidad informada\"":
+        - generic: i
+      - 'button "Elegir: Doble"': Elegir
+    - listitem "Triple, USD 161,5 por mes, Disponibilidad informada":
+      - paragraph:
+        - generic: group
+        - generic: Triple
+      - generic: wc
+      - text: Mixta
+      - paragraph:
+        - generic: Antes
+        - text: USD 190
+        - generic: USD 161,5 /mes
+      - paragraph: ≈ ARS 253.500
+      - paragraph: "Promo de temporada: −15% hasta el 27/11/2026"
+      - text: Disponibilidad informada
+      - button "Qué significa \"Disponibilidad informada\"":
+        - generic: i
+      - 'button "Elegir: Triple"': Elegir
+    - listitem "Cuádruple, USD 136 por mes, Disponibilidad informada":
+      - paragraph:
+        - generic: group
+        - generic: Cuádruple
+      - generic: wc
+      - text: Mixta
+      - generic: bathroom
+      - text: Baño compartido
+      - paragraph:
+        - generic: Antes
+        - text: USD 160
+        - generic: USD 136 /mes
+      - paragraph: ≈ ARS 213.500
+      - paragraph: "Promo de temporada: −15% hasta el 27/11/2026"
+      - text: Disponibilidad informada
+      - button "Qué significa \"Disponibilidad informada\"":
+        - generic: i
+      - 'button "Elegir: Cuádruple"': Elegir
+  - paragraph:
+    - text: Los pesos son referenciales, según la cotización de referencia de hoy (ARS 1.570).
+    - button "Más información sobre el valor en pesos":
+      - generic: i
+  - list:
+    - generic: "1"
+    - strong: Enviás la solicitud
+    - text: ": es gratis"
+    - generic: "2"
+    - strong: Si avanza, le pagás a la residencia
+    - text: ": matrícula, seña o depósito"
+    - generic: "3"
+    - strong: Pagás a EstuRed
+    - text: ": 5% de servicio"
+  - paragraph: La residencia responde en hasta 48 horas. Toda reserva está sujeta a confirmación.
+  - generic: support_agent
+  - paragraph:
+    - text: Si después algo no coincide con lo publicado, Soporte de EstuRed te acompaña.
+    - link "Cómo funciona":
+      - /url: /for-students#preguntas-frecuentes
+  - list:
+    - 'button "Ver detalle: Para reservar"'
+    - generic: payments
+    - text: Para reservar
+    - generic: Primer mes
+    - text: Ver detalle
+    - generic: autorenew
+    - paragraph:
+      - generic: payments
+      - text: Para reservar
+    - generic: "Pago inicial a la residencia: el mes del tipo que elijas."
+    - button "Volver":
+      - text: Volver
+      - generic: autorenew
+    - 'button "Ver detalle: Matrícula"'
+    - generic: badge
+    - text: Matrícula
+    - generic: No cobra
+    - text: Ver detalle
+    - generic: autorenew
+    - paragraph:
+      - generic: badge
+      - text: Matrícula
+    - generic: Esta residencia no cobra cargo de ingreso.
+    - button "Volver":
+      - text: Volver
+      - generic: autorenew
+    - 'button "Ver detalle: Depósito"'
+    - generic: savings
+    - text: Depósito
+    - generic: USD 300
+    - text: ≈ ARS 471.000
+    - button "Más información sobre el valor en pesos":
+      - generic: i
+    - text: Ver detalle
+    - generic: autorenew
+    - paragraph:
+      - generic: savings
+      - text: Depósito
+    - generic: Reembolsable al irte si no hay daños.
+    - button "Volver":
+      - text: Volver
+      - generic: autorenew
+    - 'button "Ver detalle: Ajuste de tarifa"'
+    - generic: trending_up
+    - text: Ajuste de tarifa
+    - generic: Trimestral
+    - text: Ver detalle
+    - generic: autorenew
+    - paragraph:
+      - generic: trending_up
+      - text: Ajuste de tarifa
+    - generic: La residencia puede actualizar la tarifa cada 3 meses.
+    - button "Volver":
+      - text: Volver
+      - generic: autorenew
+    - 'button "Ver detalle: Mes vacío"'
+    - generic: hourglass_top
+    - text: Mes vacío
+    - generic: Esta residencia cobra mes vacío (50 %)
+    - text: Ver detalle
+    - generic: autorenew
+    - paragraph:
+      - generic: hourglass_top
+      - text: Mes vacío
+    - text: Si la plaza queda vacía antes de tu ingreso, la residencia puede cobrarte esos meses al porcentaje que fijó. Más en la
+    - link "pregunta frecuente sobre mes vacío":
+      - /url: "#preguntas"
+    - text: .
+    - button "Volver":
+      - text: Volver
+      - generic: autorenew
+    - 'button "Ver detalle: Documentos para admisión"'
+    - generic: description
+    - text: Documentos para admisión
+    - generic: A coordinar con la residencia
+    - text: Ver detalle
+    - generic: autorenew
+    - paragraph:
+      - generic: description
+      - text: Documentos para admisión
+    - generic: Los documentos que necesita la residencia para admitirte los define ella y te los pide una vez que tu solicitud avanza.
+    - button "Volver":
+      - text: Volver
+      - generic: autorenew
+  - region "Si te vas antes":
+    - heading "Si te vas antes" [level=3]:
+      - generic: logout
+      - text: Si te vas antes
+    - paragraph: Lo informa la residencia y lo ves antes de reservar. Si más adelante querés cambiarte, te va a confirmar costos y condiciones por escrito.
+    - term:
+      - generic: payments
+      - text: Costos de salida anticipada
+    - definition: Si te vas antes de cumplir la estadía mínima, el depósito no se devuelve.
+    - term:
+      - generic: savings
+      - text: "Depósito: cláusulas básicas"
+    - definition: El depósito se devuelve dentro de los 30 días de la salida, una vez revisada la habitación. Se descuentan únicamente daños comprobados.
+    - term:
+      - generic: rule
+      - text: Condiciones
+    - definition: Preaviso de 30 días con la fecha exacta de salida. Entrega de la habitación con administración.
+    - paragraph: "Es información de la residencia: EstuRed no fija ni cobra estos costos y no reemplaza el contrato."
+  - heading "Ubicación" [level=2]
+  - paragraph: Av. Santa Fe 4120, Palermo (demo), Palermo, CABA.
+  - img "Mapa con la ubicación de Residencia Norte, en Av. Santa Fe 4120, Palermo (demo), y las universidades cercanas":
+    - generic: "1"
+    - generic: "2"
+    - generic: home
+    - link "© colaboradores de OpenStreetMap":
+      - /url: https://www.openstreetmap.org/copyright
+  - paragraph:
+    - generic: location_on
+    - text: Residencia Norte
+    - generic: Av. Santa Fe 4120, Palermo (demo), Palermo
+  - paragraph: Universidades cercanas
+  - list:
+    - generic: "1"
+    - generic: UP
+    - generic: ~20 cuadras, 2,0 km
+    - generic: "2"
+    - generic: UBA Derecho
+    - generic: ~27 cuadras, 2,7 km
+  - paragraph:
+    - generic: info
+    - text: Distancias aproximadas en línea recta desde la residencia (una cuadra son unos 100 m).
+    - link "Ver en OpenStreetMap":
+      - /url: https://www.openstreetmap.org/?mlat=-34.58142&mlon=-58.42115#map=16/-34.58142/-58.42115
+  - paragraph:
+    - generic: menu_book
+    - generic: "Antes de reservar, leé:"
+    - link "Cómo elegir una residencia estudiantil en Buenos Aires":
+      - /url: /guias/como-elegir-residencia-estudiantil-buenos-aires
+    - generic: ·
+    - link "Seis errores comunes al mudarte a Buenos Aires (y cómo evitarlos)":
+      - /url: /guias/errores-comunes-mudarse-buenos-aires
+  - heading "Preguntas frecuentes" [level=2]
+  - heading "Antes de reservar" [level=3]
+  - button "¿Qué pasa cuando envío una solicitud?" [expanded]:
+    - generic: ¿Qué pasa cuando envío una solicitud?
+    - generic: expand_more
+  - generic "¿Qué pasa cuando envío una solicitud?":
+    - paragraph: Enviar una solicitud es gratis. La residencia revisa tu perfil y confirma si hay lugar. Hasta que lo confirme, la solicitud queda sujeta a confirmación. Vas a ver cada paso en tu cuenta.
+  - button "¿Qué es una Residencia Verificada?":
+    - generic: ¿Qué es una Residencia Verificada?
+    - generic: expand_more
+  - heading "Convivencia y reglas" [level=3]
+  - button "¿Hay toque de queda?":
+    - generic: ¿Hay toque de queda?
+    - generic: expand_more
+  - button "¿Cuáles son los horarios de silencio?":
+    - generic: ¿Cuáles son los horarios de silencio?
+    - generic: expand_more
+  - button "¿Puedo usar la cocina y la heladera?":
+    - generic: ¿Puedo usar la cocina y la heladera?
+    - generic: expand_more
+  - heading "Qué llevar" [level=3]
+  - button "¿Hay lavandería?":
+    - generic: ¿Hay lavandería?
+    - generic: expand_more
+  - heading "Otras preguntas" [level=3]
+  - button "¿La cocina está equipada?":
+    - generic: ¿La cocina está equipada?
+    - generic: expand_more
+  - button "¿Hay estacionamiento?":
+    - generic: ¿Hay estacionamiento?
+    - generic: expand_more
+  - button "¿Puedo cambiar de habitación una vez que ingreso?":
+    - generic: ¿Puedo cambiar de habitación una vez que ingreso?
+    - generic: expand_more
+  - button "Pregunta de un visitante ¿Se puede cocinar en la habitación o solo en la cocina común?":
+    - generic: Pregunta de un visitante
+    - text: ¿Se puede cocinar en la habitación o solo en la cocina común?
+    - generic: expand_more
+  - heading "¿Tenés otra pregunta?" [level=3]
+  - paragraph: Escribila acá y se la hacemos llegar a la residencia. La residencia responde cuando puede; no es una respuesta automática. No hace falta que dejes tus datos.
+  - paragraph:
+    - generic: fact_check
+    - generic: Asegurate de que la respuesta no esté ya en esta ficha ni en las preguntas frecuentes antes de enviarla.
+  - generic: Tu pregunta
+  - textbox "Tu pregunta":
+    - /placeholder: "Ej.: ¿Se pueden recibir visitas los fines de semana?"
+  - paragraph: 0/500 caracteres. No incluyas datos personales ni de contacto; la residencia responde por acá.
+  - button "Enviar pregunta"
+  - complementary "Solicitud de reserva en Residencia Norte":
+    - region "Tu solicitud de reserva":
+      - heading "Tu solicitud de reserva" [level=2]
+      - paragraph: Sujeta a confirmación de la residencia.
+      - button "Volver":
+        - generic: chevron_left
+        - text: Volver
+      - generic: bed
+      - paragraph:
+        - text: Doble, USD 187/mes
+        - generic: Ingreso 02/03/2027, 6 meses
+      - paragraph: 2. Sobre vos
+      - generic: ¿Cuál es tu objetivo académico?
+      - group "¿Cuál es tu objetivo académico?":
+        - button "Empezar mi carrera"
+        - button "Continuar mis estudios"
+        - button "Intercambio académico"
+        - button "Posgrado o especialización"
+      - textbox "Más detalle sobre tu objetivo académico (opcional)":
+        - /placeholder: Agregá más detalle si querés (opcional).
+      - paragraph: Se usa para tu comprobante de reserva.
+      - paragraph: 3. Reglamento
+      - generic "Leer el reglamento completo de la residencia"
+      - link "Tu perfil está 44% completo. Completarlo ayuda a que la residencia te conozca.":
+        - /url: /students/profile
+        - generic: Tu perfil está 44% completo. Completarlo ayuda a que la residencia te conozca.
+        - generic: chevron_right
+      - checkbox "Leí y acepto el reglamento de la residencia. Leerlo completo"
+      - text: Leí y acepto el reglamento de la residencia.
+      - button "Leerlo completo"
+      - button "Enviar solicitud de reserva"
+      - paragraph: "La residencia verá tu carrera y universidad y tiene 48 horas para responder; si no lo hace, la solicitud vence. Solicitud sujeta a confirmación: enviarla no te asegura el lugar."
+  - paragraph:
+    - text: ¿Buscás más opciones?
+    - link "Mirá el catálogo completo":
+      - /url: /search
+    - text: .
+- contentinfo:
+  - generic: EstuRed
+  - generic: EstuRed
+  - paragraph: La convivencia también se elige. Residencias estudiantiles verificadas en CABA, con solicitudes registradas y comprobantes verificables.
+  - list:
+    - generic: check
+    - text: Residencias verificadas presencialmente
+    - generic: check
+    - text: Solicitudes registradas en la plataforma
+    - generic: check
+    - text: Comprobante de Reserva Confirmada
+  - navigation "Explorar":
+    - paragraph: Explorar
+    - list:
+      - link "Buscar residencias":
+        - /url: /search
+      - link "Para estudiantes y familias":
+        - /url: /for-students
+      - link "Para residencias":
+        - /url: /for-residences
+      - link "Guías":
+        - /url: /guias
+  - navigation "Ayuda":
+    - paragraph: Ayuda
+    - list:
+      - link "Soporte":
+        - /url: /students/support
+        - generic: support_agent
+        - text: Soporte
+      - link "Preguntas frecuentes":
+        - /url: /for-students#preguntas-frecuentes
+      - link "Cómo funciona":
+        - /url: /#el-proceso
+      - link "Qué pagás y a quién":
+        - /url: /for-students#que-pagas
+      - text: "Contacto:"
+      - link "hola@estured.com":
+        - /url: mailto:hola@estured.com
+      - listitem: ¿Tenés una reserva y algo no coincide? Abrí un caso desde tu panel.
+  - paragraph: EstuRed actúa como plataforma intermediaria de búsqueda, solicitud, registro y comprobante. No presta directamente el alojamiento. Los precios en ARS son referenciales al dólar blue del día.
+  - list:
+    - link "Botón de arrepentimiento":
+      - /url: /students/revocation
+    - link "Verificar un comprobante":
+      - /url: /verify
+    - link "Términos y condiciones":
+      - /url: /terms
+    - link "Política de privacidad":
+      - /url: /privacy
+  - paragraph: Hecho con ♥ en Buenos Aires
+- button "Camila — Estudiante en Búsqueda": Camila — Estudiante en Búsqueda
+- button "Open Next.js Dev Tools":
+- alert: Residencia Norte | EstuRed

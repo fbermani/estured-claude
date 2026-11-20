@@ -12,6 +12,7 @@ featured: false
 related_guides:
 - 01-como-elegir-residencia-estudiantil
 - 03-errores-comunes-mudanza
+- 07-residencia-o-departamento-compartido
 cta:
   label: Buscar residencias
   href: /search
@@ -22,6 +23,8 @@ cta:
 MADRES, PADRES Y TUTORES
 
 Cómo evaluar el alojamiento, conversar sobre autonomía y estar presentes sin invadir.
+
+Al elegir una residencia para un estudiante a tu cargo, mirá más que las fotos: el recorrido hasta la universidad, la cantidad de residentes, los lugares de estudio, el manejo de emergencias y un responsable identificable. Acuerden cómo mantenerse en contacto: acompañar la autonomía funciona mejor que vigilar.
 
 ## Qué mirar además de las fotos
 

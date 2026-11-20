@@ -27,7 +27,7 @@ export function ApplicantAvatar({ initial, className = "" }: { initial: string; 
 function Tile({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-field bg-cream-2 px-3 py-3">
-      <dt className="text-[11px] font-extrabold uppercase tracking-widest text-muted">{label}</dt>
+      <dt className="text-xs font-bold uppercase tracking-widest text-muted">{label}</dt>
       <dd className="mt-0.5 break-words text-sm font-semibold text-ink">{value}</dd>
     </div>
   );
@@ -36,7 +36,7 @@ function Tile({ label, value }: { label: string; value: string }) {
 function Chips({ title, items }: { title: string; items: string[] }) {
   return (
     <div>
-      <h4 className="text-xs font-extrabold uppercase tracking-widest text-muted">{title}</h4>
+      <h4 className="text-xs font-bold uppercase tracking-widest text-muted">{title}</h4>
       <ul className="mt-2 flex flex-wrap gap-2">
         {items.map((item) => (
           <li key={item} className="rounded-full bg-forest-tint px-3 py-1 text-xs font-semibold text-forest-700">
@@ -75,7 +75,7 @@ export function ApplicantProfileBlock({
       <div className="flex items-center gap-3">
         <ApplicantAvatar initial={applicant.avatarInitial} className="h-11 w-11 text-base" />
         <div className="min-w-0">
-          <h3 id="applicant-title" className="text-xs font-extrabold uppercase tracking-widest text-muted">
+          <h3 id="applicant-title" className="text-xs font-bold uppercase tracking-widest text-muted">
             Quién solicita
           </h3>
           <p className="truncate text-base font-bold text-ink">{applicant.displayName}</p>
@@ -94,7 +94,7 @@ export function ApplicantProfileBlock({
 
       {applicant.bio && (
         <div className="mt-5">
-          <h4 className="text-xs font-extrabold uppercase tracking-widest text-muted">Sobre mí</h4>
+          <h4 className="text-xs font-bold uppercase tracking-widest text-muted">Sobre mí</h4>
           <p className="mt-1.5 whitespace-pre-line break-words text-sm leading-relaxed text-ink-soft">{applicant.bio}</p>
         </div>
       )}

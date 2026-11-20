@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EstuRed · Preapertura · Registro familiar</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL@20..24,400,0..1&display=swap">
+<style>/* EstuRed · Preapertura 2026-11 — base de mockups.
+   Valores copiados de app/globals.css (@theme, sistema FRESH). Propuesta de diseño, no código de producción. */
+:root{
+  --ink:#1d2722;--ink-soft:#44524b;--ink-faint:#5f6c65;--line:#e8e0d2;--line-2:#ded4c2;--field-border:#8f836c;
+  --cream:#fbf6ec;--cream-2:#f4ecdc;--paper:#fff;
+  --forest:#1f7d5c;--forest-600:#166349;--forest-700:#0f4d39;--forest-ink:#0c3a2c;--forest-tint:#e2f1ea;
+  --orange:#c0521d;--orange-light:#ef8551;--orange-600:#a9461a;--orange-700:#9a4118;--orange-tint:#fde7da;
+  --gold:#e9b84b;--peach:#fde1d2;--butter:#fbeec3;--butter-fg:#7a5f0c;--mint:#d7efe2;--lilac:#e7e2f8;--lilac-fg:#5b4ea8;--sky:#d9ebf5;--sky-fg:#2a6a91;
+  --red:#d15c4f;--red-700:#9c392e;--red-tint:#fbe5e2;--blue-ink:#2d6f97;--blue-tint:#e3f0f9;
+  --r-lg:30px;--r-md:22px;--r-sm:16px;--r-field:12px;
+  --sh-sm:0 1px 2px rgb(29 39 34/.06),0 2px 6px rgb(29 39 34/.05);
+  --sh-card:0 1px 2px rgb(29 39 34/.05),0 4px 16px rgb(29 39 34/.07);
+  --sh-hover:0 2px 4px rgb(29 39 34/.06),0 8px 28px rgb(29 39 34/.12);
+  --sh-float:0 4px 12px rgb(29 39 34/.08),0 12px 40px rgb(29 39 34/.16);
+  --sh-orange:0 10px 24px rgb(239 133 81/.35);
+  --ease:cubic-bezier(.22,.61,.36,1);--ease-out:cubic-bezier(.16,1,.3,1);--ease-bounce:cubic-bezier(.34,1.56,.64,1);
+  --display:"Bricolage Grotesque","Hanken Grotesk",system-ui,sans-serif;
+  --sans:"Hanken Grotesk",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;overflow-x:clip}
+body{background:#ece5d5;color:var(--ink);font:15px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--display);font-weight:700;letter-spacing:-.02em;margin:0;line-height:1.1;text-wrap:balance}
+p{margin:0}
+a{color:inherit}
+button{font:inherit;cursor:pointer;color:inherit}
+input,select,textarea{font:inherit;color:inherit}
+.ms{font-family:"Material Symbols Rounded";font-weight:400;font-style:normal;font-size:20px;line-height:1;display:inline-block;vertical-align:middle;flex-shrink:0;font-feature-settings:"liga";user-select:none}
+.ms.fill{font-variation-settings:"FILL" 1}
+.num{font-variant-numeric:tabular-nums}
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:focus-visible{outline:3px solid var(--forest);outline-offset:2px;border-radius:10px}
+.on-dark :focus-visible{outline-color:#fff}
+[hidden]{display:none!important}
+
+/* ---------- Barra de control del mockup (no es parte del diseño) ---------- */
+.mk{position:sticky;top:0;z-index:90;background:var(--forest-ink);color:#fff;font:600 12.5px/1.2 var(--sans);padding:8px 14px;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.mk a{color:#cfe7dc;text-decoration:none}.mk a:hover{text-decoration:underline}
+.mk b{font:700 14px var(--display)}
+.mk .sp{flex:1}
+.mk .grp{display:inline-flex;align-items:center;gap:6px}
+.mk .grp>span{opacity:.7;font-weight:500}
+.mk .seg{display:inline-flex;flex-wrap:wrap;background:rgb(255 255 255/.12);border-radius:99px;padding:2px}
+.mk .seg button{border:0;background:none;color:#fff;font:600 12px var(--sans);padding:6px 11px;border-radius:99px;min-height:28px}
+.mk .seg button[aria-pressed=true]{background:#fff;color:var(--forest-ink)}
+.mk :focus-visible{outline-color:#fff}
+
+/* ---------- Marco (desktop / móvil 375) ---------- */
+.frame{container:frame/inline-size;background:var(--cream);max-width:1280px;margin:0 auto;min-height:100vh;position:relative}
+body.s-vista-movil .frame{max-width:375px;margin:18px auto;border:1px solid var(--line-2);border-radius:28px;overflow:clip;box-shadow:var(--sh-float);min-height:780px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 16px}
+@container frame (min-width:760px){.wrap{padding:0 32px}}
+
+/* ---------- Header y footer de preapertura ---------- */
+.ph-head{position:sticky;top:0;z-index:40;background:rgb(251 246 236/.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.ph-head .wrap{display:flex;align-items:center;gap:12px;min-height:64px}
+.brand{display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+.brand b{font:800 21px/1 var(--display);letter-spacing:-.03em}.brand b span{color:var(--ink-faint)}
+.ph-pill{font:700 11px/1 var(--sans);text-transform:uppercase;letter-spacing:.08em;color:var(--orange-700);background:var(--orange-tint);border-radius:99px;padding:6px 9px;white-space:nowrap}
+.ph-nav{margin-left:auto;display:flex;align-items:center;gap:4px}
+.ph-nav a.lk{display:none;text-decoration:none;font-weight:600;font-size:14px;color:var(--ink-soft);padding:10px 12px;border-radius:99px}
+.ph-nav a.lk:hover{background:var(--cream-2);color:var(--ink)}
+@container frame (min-width:760px){.ph-nav a.lk{display:inline-flex}}
+.ph-foot{background:var(--forest-ink);color:#d5e6dd;margin-top:0}
+.ph-foot .wrap{padding-top:40px;padding-bottom:32px;display:grid;gap:24px}
+.ph-foot .brand b{color:#fff}.ph-foot .brand b span{color:rgb(255 255 255/.6)}
+.ph-foot .tag{font:600 15px var(--display);color:#fff;margin-top:10px}
+.ph-foot nav{display:flex;flex-wrap:wrap;gap:4px 18px}
+.ph-foot nav a{text-decoration:none;font-size:14px;padding:12px 0;display:inline-block}
+.ph-foot nav a:hover{color:#fff;text-decoration:underline}
+.ph-foot small{font-size:12.5px;color:#a9c6b8}
+@container frame (min-width:760px){.ph-foot .wrap{grid-template-columns:1.2fr 2fr;align-items:start}.ph-foot small{grid-column:1/-1}}
+
+/* ---------- Botones ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 22px;border-radius:99px;border:1.5px solid transparent;font:700 15.5px/1 var(--sans);text-decoration:none;white-space:nowrap;transition:transform .25s var(--ease-bounce),background .2s var(--ease),box-shadow .2s var(--ease)}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:translateY(1px) scale(.98)}
+.btn-primary{background:var(--orange);color:#fff;box-shadow:var(--sh-orange)}
+.btn-primary:hover{background:var(--orange-600)}
+.btn-forest{background:var(--forest);color:#fff}
+.btn-forest:hover{background:var(--forest-600)}
+.btn-ghost{background:var(--paper);border-color:var(--line-2);color:var(--ink)}
+.btn-ghost:hover{border-color:var(--field-border)}
+.btn-onDark{background:rgb(255 255 255/.1);border-color:rgb(255 255 255/.35);color:#fff}
+.btn-sm{min-height:44px;padding:0 16px;font-size:14px}
+.btn-block{width:100%}
+.btn[disabled],.btn[aria-disabled=true]{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-link{background:none;border:0;padding:12px 4px;font-weight:700;color:var(--forest-700);text-decoration:underline;text-underline-offset:3px;min-height:44px}
+.spin{width:18px;height:18px;border-radius:50%;border:2.5px solid rgb(255 255 255/.45);border-top-color:#fff;animation:spin .8s linear infinite}
+.spin.dark{border-color:rgb(29 39 34/.2);border-top-color:var(--forest)}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ---------- Formularios ---------- */
+.field{display:grid;gap:6px}
+.field>label,.lbl{font-weight:700;font-size:14px;color:var(--ink)}
+.field .opt{font-weight:500;color:var(--ink-faint)}
+.inp{min-height:48px;height:48px;width:100%;border:1.5px solid var(--field-border);background:var(--paper);border-radius:var(--r-field);padding:10px 14px;font-size:16px;transition:border-color .15s,box-shadow .15s}
+.inp:focus{outline:none;border-color:var(--forest);box-shadow:0 0 0 3px rgb(31 125 92/.25)}
+.inp[aria-invalid=true]{border-color:var(--red-700);box-shadow:0 0 0 3px rgb(209 92 79/.18)}
+.inp[disabled]{background:var(--cream-2);color:var(--ink-faint)}
+.hint{font-size:13px;color:var(--ink-faint)}
+.err{font-size:13.5px;color:var(--red-700);font-weight:600;display:flex;gap:6px;align-items:flex-start}
+.err .ms{font-size:18px}
+.pw{position:relative}.pw .inp{padding-right:52px}
+.pw button{position:absolute;right:4px;top:50%;translate:0 -50%;width:44px;height:44px;border:0;background:none;border-radius:10px;color:var(--ink-faint)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{position:relative}
+.chip input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.chip span{display:inline-flex;align-items:center;gap:5px;min-height:34px;padding:0 11px;border-radius:99px;border:1.5px solid var(--line-2);background:var(--paper);font-weight:600;font-size:13px;color:var(--ink-soft);transition:all .18s var(--ease)}
+.chip input:checked+span{background:var(--forest-tint);border-color:var(--forest);color:var(--forest-700)}
+.chip input:checked+span::before{content:"check";font-family:"Material Symbols Rounded";font-size:15px}
+.chip input:focus-visible+span{outline:3px solid var(--forest);outline-offset:2px}
+.chip input:disabled+span{opacity:.5}
+.alert{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:var(--r-sm);font-size:14px}
+.alert .ms{font-size:20px;margin-top:1px}
+.alert.err-box{background:var(--red-tint);color:var(--red-700)}
+.alert.info{background:var(--blue-tint);color:var(--blue-ink)}
+.alert.ok{background:var(--forest-tint);color:var(--forest-700)}
+.alert.warn{background:var(--orange-tint);color:var(--orange-700)}
+.alert b{display:block}
+
+/* ---------- Tarjetas / piezas ---------- */
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--sh-card)}
+.eyebrow{font:800 11.5px/1 var(--sans);text-transform:uppercase;letter-spacing:.1em;color:var(--orange-700)}
+.pill{display:inline-flex;align-items:center;gap:5px;border-radius:99px;padding:4px 9px;font:700 12px/1.2 var(--sans)}
+.pill .ms{font-size:16px}
+.pill.ok{background:var(--forest-tint);color:var(--forest-700)}
+.pill.wait{background:var(--butter);color:var(--butter-fg)}
+.pill.off{background:var(--cream-2);color:var(--ink-faint)}
+.pill.info{background:var(--blue-tint);color:var(--blue-ink)}
+.tbd{display:inline-flex;align-items:center;gap:5px;border:1.5px dashed var(--butter-fg);background:var(--butter);color:var(--butter-fg);border-radius:8px;padding:2px 8px;font:700 12px/1.4 var(--sans)}
+.tbd::before{content:"edit_note";font-family:"Material Symbols Rounded";font-size:15px}
+details>summary{list-style:none;cursor:pointer}
+details>summary::-webkit-details-marker{display:none}
+
+/* ---------- Tarjeta de comunidad (reusa la idea de CommunityProfileCard) ---------- */
+.pc{position:relative;width:236px;flex:0 0 auto;background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:16px;box-shadow:var(--sh-card);display:grid;gap:12px;align-content:start}
+.pc.ex{border:1.5px dashed #c9b996;background:#fffdf8}
+.pc .tape{position:absolute;top:-10px;right:14px;background:var(--butter);color:var(--butter-fg);font:800 10.5px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;padding:6px 9px;border-radius:6px;transform:rotate(2deg);box-shadow:var(--sh-sm)}
+.pc .who{display:flex;gap:12px;align-items:center}
+.av{position:relative;width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font:800 20px var(--display);flex:0 0 auto}
+.av .flag{position:absolute;right:-5px;bottom:-4px;width:24px;height:24px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:14px;box-shadow:0 0 0 2px #fff,var(--sh-sm)}
+.t1{background:var(--mint);color:var(--forest-700)}.t2{background:var(--peach);color:var(--orange-700)}.t3{background:var(--lilac);color:var(--lilac-fg)}.t4{background:var(--sky);color:var(--sky-fg)}.t5{background:var(--butter);color:var(--butter-fg)}
+.pc .nm{font:800 18px/1.1 var(--display)}
+.pc .sub{font-size:13px;color:var(--ink-soft)}
+.pc .car{display:flex;gap:6px;align-items:center;font-size:13.5px;font-weight:600;color:var(--ink)}
+.pc .car .ms{font-size:18px;color:var(--forest-700)}
+.hab{display:flex;flex-wrap:wrap;gap:6px}
+.hab span{font-size:12px;font-weight:600;padding:5px 9px;border-radius:99px;background:var(--cream-2);color:var(--ink-soft);border:1px solid var(--line)}
+.pc.new{animation:pop .6s var(--ease-bounce)}
+@keyframes pop{from{transform:scale(.92);opacity:0}}
+
+/* ---------- Esqueletos ---------- */
+.sk{background:linear-gradient(90deg,var(--cream-2),#efe6d3,var(--cream-2));background-size:200% 100%;animation:sk 1.4s linear infinite;border-radius:10px}
+@keyframes sk{to{background-position:-200% 0}}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+@container frame (max-width:420px){.ph-head .wrap{gap:8px}.brand b{font-size:19px}.ph-pill{font-size:9.5px;padding:5px 7px;letter-spacing:.06em}.ph-nav .btn-sm{padding:0 12px}.ph-nav .hint{display:none}}
+
+/* ===================== Preapertura v2: landing blureada + modal ===================== */
+.stage{position:relative;height:100vh;min-height:640px;overflow:hidden;background:var(--cream)}
+body.s-vista-movil .stage{height:812px;min-height:0}
+.bgv{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;filter:blur(6px) saturate(.92);transform:scale(1.015);user-select:none;scrollbar-width:none}
+.bgv::-webkit-scrollbar{display:none}
+.veil{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgb(12 58 44/.18),rgb(12 58 44/.38))}
+.peek{position:absolute;z-index:4;left:16px;top:14px;display:inline-flex;align-items:center;gap:6px;background:rgb(12 58 44/.82);color:#fff;border-radius:99px;padding:7px 12px;font:700 12.5px var(--sans);pointer-events:none}
+.peek .ms{font-size:16px;color:var(--gold)}
+.modal{position:absolute;z-index:5;left:50%;top:50%;translate:-50% -50%;width:min(540px,calc(100% - 32px));max-height:calc(100% - 96px);overflow-y:auto;background:var(--paper);border-radius:30px;box-shadow:0 30px 90px rgb(12 58 44/.45),0 6px 18px rgb(12 58 44/.2),0 0 0 1px rgb(255 255 255/.6);overscroll-behavior:contain;animation:mIn .6s var(--ease-out)}
+.modal.wide{width:min(920px,calc(100% - 96px))}
+.modal.mid{width:min(660px,calc(100% - 96px))}
+@keyframes mIn{from{opacity:0;translate:-50% -46%}}
+.grab{display:none}
+@container frame (max-width:639px){
+ .modal,.modal.wide,.modal.mid{left:10px;right:10px;top:auto;bottom:10px;translate:none;width:auto!important;max-height:calc(100% - 92px);border-radius:26px;animation:sIn .6s var(--ease-out)}
+ .grab{display:block;position:absolute;z-index:3;left:50%;translate:-50% 0;top:8px;width:44px;height:5px;border-radius:9px;background:rgb(143 131 108/.5)}
+ .modal>.mpad,.modal>.split>.form:first-child{padding-top:28px}
+}
+@keyframes sIn{from{transform:translateY(40px);opacity:0}}
+.mpad{padding:24px 22px 26px}
+@container frame (min-width:640px){.mpad{padding:34px 38px 34px}}
+.hot{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(90deg,var(--orange),#d9682c);color:#fff;border-radius:99px;padding:8px 14px 8px 10px;font:800 12.5px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;box-shadow:var(--sh-orange)}
+.hot i{width:9px;height:9px;border-radius:50%;background:#fff;box-shadow:0 0 0 0 rgb(255 255 255/.7);animation:pulse 1.8s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 9px rgb(255 255 255/0)}100%{box-shadow:0 0 0 0 rgb(255 255 255/0)}}
+.free{display:inline-flex;align-items:center;gap:8px;background:var(--forest-tint);color:var(--forest-700);border:1.5px solid #b9dccb;border-radius:14px;padding:9px 12px;font-weight:800;font-size:14.5px}
+.free .ms{font-size:20px}
+.free small{font-weight:600;color:var(--forest-700);opacity:.85;font-size:13px}
+.live{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--ink-soft)}
+.live b{font:800 18px var(--display);color:var(--ink)}
+.live .faces{display:flex}
+.live .faces span{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font:800 12px var(--display);border:2px solid #fff;margin-left:-9px}
+.live .faces span:first-child{margin-left:0}
+.ticks{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.ticks li{display:flex;gap:10px;align-items:flex-start;font-weight:600;font-size:15px}
+.ticks li .ms{color:var(--forest);font-size:22px}
+.mstep{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:800;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.08em}
+.mstep .dots{display:flex;gap:5px}
+.mstep .dots i{width:22px;height:6px;border-radius:9px;background:var(--cream-2)}
+.mstep .dots i.on{background:var(--orange)}
+.mstep .dots i.done{background:var(--forest)}
+.mini-rail{max-width:100%;overflow:hidden;mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.mini-rail .track{display:flex;gap:12px;width:max-content;animation:drift 50s linear infinite;padding:16px 0 10px}
+.mini-rail:hover .track,.mini-rail:focus-within .track{animation-play-state:paused}
+@keyframes drift{to{transform:translateX(-50%)}}
+.pc.sm{width:200px;padding:12px;gap:8px;border-radius:16px}
+.pc.sm .av{width:38px;height:38px;font-size:16px}
+.pc.sm .nm{font-size:15px}
+.pc.sm .sub{font-size:12px}
+.pc.sm .hab span{font-size:11px;padding:4px 8px}
+@media (prefers-reduced-motion:reduce){.mini-rail{overflow-x:auto;mask-image:none}.mini-rail .track{animation:none}.hot i{animation:none}}
+
+/* v3: tarjeta flotante con panel interno redondeado */
+.split.inset{padding:10px}
+.split.inset>.side{border-radius:22px}
+@container frame (max-width:859px){.split.inset{padding:8px 8px 0}.split.inset>.side{border-radius:20px}}
+.stamp{position:fixed;left:10px;bottom:10px;z-index:200;background:var(--forest-ink);color:#fff;font:700 11px/1 var(--sans);padding:6px 9px;border-radius:8px;opacity:.85;pointer-events:none}
+.resi-cta{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:center;background:var(--forest-ink);color:#fff;border-radius:20px;padding:14px 16px;text-decoration:none;box-shadow:0 8px 24px rgb(12 58 44/.3);transition:transform .25s var(--ease-bounce)}
+.resi-cta:hover{transform:translateY(-2px)}
+.resi-cta .seal{grid-row:1/3;width:44px;height:44px;border-radius:50%;background:var(--gold);color:var(--forest-ink);display:grid;place-items:center}
+.resi-cta b{font:700 16px/1.2 var(--display)}
+.resi-cta small{font-size:13px;color:#d5e6dd}
+.resi-cta small strong{color:var(--gold)}
+.resi-cta .go{grid-column:1/-1;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:6px;background:var(--gold);color:var(--forest-ink);border-radius:99px;min-height:46px;font-weight:800;font-size:15px}
+
+@container frame (min-width:640px){.resi-cta{grid-template-columns:auto 1fr auto}.resi-cta .go{grid-column:3;grid-row:1/3;margin:0;padding:0 18px}}
+
+/* ---- Página ---- */
+.split{display:grid}
+@container frame (min-width:860px){.split{grid-template-columns:.95fr 1.05fr}}
+.side{background:linear-gradient(160deg,#fde7da,#fbeec3);border-radius:22px;padding:22px;display:grid;gap:14px}
+@container frame (min-width:860px){.side{padding:36px 34px;gap:20px;align-content:start}}
+.side h2{font-size:clamp(22px,5cqw,32px);line-height:1.08}
+.side h2 em{font-style:normal;color:var(--orange-700)}
+.side .ticks li{font-size:14.5px}
+.side .ticks li .ms{color:var(--orange-700)}
+.pair{display:flex;align-items:center;gap:10px;background:#fff;border-radius:18px;padding:12px 14px;box-shadow:var(--sh-card)}
+.pair .av{width:42px;height:42px;font-size:17px}
+.pair .ln{flex:1;height:2px;background:repeating-linear-gradient(90deg,var(--forest) 0 6px,transparent 6px 11px);position:relative}
+.pair .ln .ms{position:absolute;left:50%;top:50%;translate:-50% -50%;background:#fff;color:var(--forest-700);font-size:20px;border-radius:50%;padding:2px}
+.pair small{display:block;font-size:12px;color:var(--ink-faint)}
+.pair b{font-size:14px}
+@container frame (max-width:859px){.side .ticks{display:none}.side .pair{display:none}}
+.form{padding:24px 22px 26px}
+@container frame (min-width:640px){.form{padding:34px 38px}}
+.form h1{font-size:clamp(26px,6cqw,32px);margin-top:10px}
+form{display:grid;gap:16px;margin-top:18px}
+.sep{border-top:1px dashed var(--line-2);padding-top:16px;display:grid;gap:12px}
+.sep>p{font:800 11.5px var(--sans);text-transform:uppercase;letter-spacing:.1em;color:var(--orange-700)}
+.cbx{display:flex;gap:12px;align-items:flex-start;font-size:13.5px;color:var(--ink-soft);cursor:pointer}
+.cbx input{width:22px;height:22px;margin:0;accent-color:var(--forest);flex:0 0 auto}
+.cbx a{color:var(--forest-700);font-weight:700}
+.bottom{text-align:center;font-size:14px;color:var(--ink-soft);margin-top:14px}
+.bottom a{color:var(--forest-700);font-weight:700}
+</style></head>
+<body><div class="stamp" aria-hidden="true">v4 · 2026-11-08 14:30</div><div class="mk" role="region" aria-label="Controles del mockup (no forman parte del diseño)"><a href="index.html">← Índice</a><b>Registro familiar</b><span class="sp"></span>
+<span class="grp"><span>Vista</span><span class="seg" data-ctl="vista"><button data-val="desktop" aria-pressed="true">Desktop</button><button data-val="movil" aria-pressed="false">Móvil 375</button></span></span><span class="grp"><span>Estado</span><span class="seg" data-ctl="st"><button data-val="ok" aria-pressed="true">Normal</button><button data-val="load" aria-pressed="false">Enviando</button><button data-val="val" aria-pressed="false">Error de campos</button><button data-val="self" aria-pressed="false">Mismo email</button><button data-val="err" aria-pressed="false">Error</button></span></span>
+</div>
+<div class="frame">
+<div class="stage">
+<div class="bgv" aria-hidden="true">
+<style>
+.b-head{display:flex;align-items:center;gap:14px;padding:14px 24px;background:var(--cream);border-bottom:1px solid var(--line)}
+.b-head nav{margin-left:auto;display:flex;gap:18px;font-weight:600;font-size:14px;color:var(--ink-soft)}
+.b-hero{background:radial-gradient(120% 90% at 85% 0%,#18573f,var(--forest-ink) 55%);color:#fff;padding:56px 24px 64px;text-align:center}
+.b-hero h2{font-size:clamp(30px,6cqw,56px);max-width:16ch;margin:12px auto 0;line-height:1.05}
+.b-hero h2 em{font-style:normal;color:var(--orange-light)}
+.b-hero p{color:#cfe2d8;margin:14px auto 0;max-width:46ch}
+.b-search{margin:26px auto 0;max-width:760px;background:#fff;border-radius:20px;padding:10px;display:grid;grid-template-columns:repeat(3,1fr) auto;gap:8px;color:var(--ink);text-align:left}
+.b-search span{padding:8px 12px;font-size:13px;border-right:1px solid var(--line)}
+.b-search b{background:var(--orange);color:#fff;border-radius:14px;padding:12px 18px;font-size:14px}
+@container frame (max-width:639px){.b-search{grid-template-columns:1fr}.b-search span{border-right:0;border-bottom:1px solid var(--line)}.b-head nav{display:none}}
+.b-sec{padding:48px 24px;max-width:1120px;margin:0 auto}
+.b-sec h3{font-size:30px;margin-bottom:20px}
+.b-g3{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.b-card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:20px;display:grid;gap:8px;box-shadow:var(--sh-card)}
+.b-card .ic{width:44px;height:44px;border-radius:14px;display:grid;place-items:center}
+.b-card b{font:700 18px var(--display)}
+.b-card p{font-size:14px;color:var(--ink-soft)}
+.b-rail{display:flex;gap:14px;overflow:hidden;padding:8px 24px 40px}
+.b-res{background:#fff;border-radius:22px;overflow:hidden;border:1px solid var(--line);box-shadow:var(--sh-card)}
+.b-res .im{height:150px;background:linear-gradient(135deg,#d9c8a6,#efe2c6 50%,#cdb48a)}
+.b-res .bd{padding:14px;display:grid;gap:6px}
+.b-res .bd b{font:700 17px var(--display)}
+.b-res .bd i{height:9px;border-radius:5px;background:var(--cream-2);display:block}
+.b-steps{display:grid;gap:10px}
+.b-step{display:flex;gap:14px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px 18px}
+.b-step .n{width:40px;height:40px;border-radius:12px;background:var(--forest-tint);color:var(--forest-700);display:grid;place-items:center}
+.b-foot{background:var(--forest-ink);color:#cfe2d8;padding:40px 24px;margin-top:20px}
+</style>
+<div class="b-head"><svg width="32" height="32" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><rect width="64" height="64" rx="15" fill="#fbf6ec" stroke="#e8e0d2"/><g fill="none" stroke="#1d2722" stroke-width="4.6" stroke-linecap="round" stroke-linejoin="round"><path d="M27 50H14V25L32 11L50 25V37"/><path d="M28 25H37A7.5 7.5 0 0 1 37 40H33M36 40L48 52"/></g><rect x="17" y="35" width="6" height="4.5" rx="2.2" fill="#c4ad8d"/><rect x="17" y="40" width="12" height="6" rx="1.6" fill="#c4ad8d"/></svg><b style="font:800 20px var(--display)">Estu<span style="color:var(--ink-faint)">Red</span></b><nav><span>Buscar residencias</span><span>Comunidad</span><span>Para residencias</span><span>Ingresar</span></nav></div>
+<section class="b-hero"><p class="eyebrow" style="color:var(--orange-light)">Ciudad de Buenos Aires</p><h2>Elegí tu residencia a distancia, <em>sin adivinar.</em></h2><p>Residencias verificadas en persona. Compará reglas, precios y comunidad antes de mandar tu solicitud.</p>
+<div class="b-search"><span>¿Dónde?<br><b style="background:none;color:var(--ink);padding:0">Todos los barrios</b></span><span>¿Qué estudiás?<br><b style="background:none;color:var(--ink);padding:0">Todas</b></span><span>¿Cuándo entrás?<br><b style="background:none;color:var(--ink);padding:0">Cuando quieras</b></span><b>Buscar residencias</b></div></section>
+<section class="b-sec"><h3>Residencias verificadas</h3><div class="b-g3">
+<div class="b-res"><div class="im"></div><div class="bd"><b>Residencia ·····</b><i style="width:70%"></i><i style="width:40%"></i></div></div>
+<div class="b-res"><div class="im" style="background:linear-gradient(135deg,#bcd3c6,#e2efe8 50%,#9fbfae)"></div><div class="bd"><b>Residencia ·····</b><i style="width:60%"></i><i style="width:45%"></i></div></div>
+<div class="b-res"><div class="im" style="background:linear-gradient(135deg,#e8c3ad,#f7e2d4 50%,#d9a385)"></div><div class="bd"><b>Residencia ·····</b><i style="width:65%"></i><i style="width:35%"></i></div></div>
+</div></section>
+<section class="b-sec" style="padding-top:0"><h3>Por qué EstuRed</h3><div class="b-g3">
+<div class="b-card"><span class="ic" style="background:var(--sky);color:var(--sky-fg)"><span class="ms">verified</span></span><b>Visitadas en persona</b><p>Cada residencia, verificada antes de publicarse.</p></div>
+<div class="b-card"><span class="ic" style="background:var(--mint);color:var(--forest-700)"><span class="ms">groups</span></span><b>Conocé la comunidad</b><p>Mirá con quién vas a convivir antes de elegir.</p></div>
+<div class="b-card"><span class="ic" style="background:var(--orange-tint);color:var(--orange-700)"><span class="ms">receipt_long</span></span><b>Todo con registro</b><p>Propuesta, pago y comprobante verificable.</p></div>
+</div></section>
+<section style="background:var(--forest-ink);padding-top:40px"><h3 style="color:#fff;font-size:30px;padding:0 24px 8px;max-width:1120px;margin:0 auto">Tus posibles compañeros</h3>
+<div class="b-rail">
+<div class="pc"><div class="who"><div class="av t1">M<span class="flag">🇺🇾</span></div><div><p class="nm">Martina</p><p class="sub">19 años · De Uruguay</p></div></div><p class="car"><span class="ms">school</span>Medicina</p><div class="hab"><span>Madrugo</span><span>Lectura</span></div></div>
+<div class="pc"><div class="who"><div class="av t4">J<span class="flag">🇦🇷</span></div><div><p class="nm">Joaquín</p><p class="sub">21 años · De Salta</p></div></div><p class="car"><span class="ms">school</span>Ingeniería</p><div class="hab"><span>Deportes</span></div></div>
+<div class="pc"><div class="who"><div class="av t2">V<span class="flag">🇵🇪</span></div><div><p class="nm">Valeria</p><p class="sub">20 años · De Perú</p></div></div><p class="car"><span class="ms">school</span>Arquitectura</p><div class="hab"><span>Cocina</span></div></div>
+<div class="pc"><div class="who"><div class="av t3">T<span class="flag">🇵🇾</span></div><div><p class="nm">Tomás</p><p class="sub">18 años · De Paraguay</p></div></div><p class="car"><span class="ms">school</span>Derecho</p><div class="hab"><span>Música</span></div></div>
+<div class="pc"><div class="who"><div class="av t5">A<span class="flag">🇨🇴</span></div><div><p class="nm">Agustina</p><p class="sub">22 años · De Colombia</p></div></div><p class="car"><span class="ms">school</span>Psicología</p><div class="hab"><span>Viajes</span></div></div>
+</div></section>
+<section class="b-sec"><h3>Paso a paso</h3><div class="b-steps">
+<div class="b-step"><span class="n"><span class="ms">search</span></span><b>Creá tu cuenta y buscá</b></div>
+<div class="b-step"><span class="n"><span class="ms">edit_note</span></span><b>Enviá tu solicitud</b></div>
+<div class="b-step"><span class="n"><span class="ms">mark_email_read</span></span><b>La residencia te responde</b></div>
+<div class="b-step"><span class="n"><span class="ms">apartment</span></span><b>Le pagás a la residencia</b></div>
+<div class="b-step"><span class="n"><span class="ms">verified</span></span><b>Confirmás y recibís tu comprobante</b></div>
+</div></section>
+<footer class="b-foot"><b style="font:800 20px var(--display);color:#fff">EstuRed</b><p style="margin-top:8px">La convivencia también se elige.</p></footer>
+</div>
+<div class="veil"></div>
+<p class="peek"><span class="ms">lock</span>Así se va a ver EstuRed</p>
+
+<section class="modal wide" role="dialog" aria-modal="true" aria-labelledby="t">
+ <div class="grab" aria-hidden="true"></div>
+ <div class="split inset">
+  <aside class="side" aria-label="Por qué acompañar con EstuRed">
+   <span class="hot" style="justify-self:start"><i aria-hidden="true"></i>Acceso anticipado</span>
+   <h2>Acompañá su mudanza a Buenos Aires <em>desde donde estés.</em></h2>
+   <ul class="ticks">
+    <li><span class="ms fill">verified</span>Residencias visitadas en persona, no solo fotos.</li>
+    <li><span class="ms fill">visibility</span>Seguís cada solicitud y cada pago, paso a paso.</li>
+    <li><span class="ms fill">bolt</span>Se enteran primero cuando abramos.</li>
+    <li><span class="ms fill">sell</span>Gratis para los dos.</li>
+    <li><span class="ms fill">shield_person</span>Si es menor de 18, se suma con tu invitación.</li>
+   </ul>
+   <div class="pair" aria-hidden="true"><div class="av t2">M</div><div><b>Vos</b><small>Familiar</small></div><span class="ln"><span class="ms">link</span></span><div style="text-align:right"><b>Tu hijo/a</b><small>Estudiante</small></div><div class="av t1">L</div></div>
+  </aside>
+  <div class="form">
+   <p class="mstep">Registro familiar</p>
+   <h1 id="t">Registrate primero e invitalo/a</h1>
+   <div class="alert err-box" role="alert" data-when="st:err" style="margin-top:14px"><span class="ms">error</span><span><b>No pudimos crear tu cuenta.</b>Probá de nuevo en un rato. Lo que escribiste sigue acá.</span></div>
+   <form novalidate onsubmit="event.preventDefault();mkSet('st','load');setTimeout(function(){location.href='mi-lugar.html?rol=fam&vinc=pend'},1100)">
+    <div class="field"><label for="em">Tu email</label><input class="inp" id="em" type="email" autocomplete="email" inputmode="email" autocapitalize="none" spellcheck="false" placeholder="tu@email.com" value="martin.perez@gmail.com"></div>
+    <div class="field"><label for="pw">Contraseña</label><div class="pw"><input class="inp" id="pw" type="password" autocomplete="new-password" aria-describedby="pw-h"><button type="button" aria-label="Mostrar contraseña"><span class="ms">visibility</span></button></div><p class="hint" id="pw-h">Mínimo 8 caracteres.</p></div>
+    <div class="sep"><p>Tu hijo/a</p>
+     <div class="field"><label for="se">Su email</label><input class="inp" id="se" type="email" inputmode="email" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="su@email.com" aria-describedby="se-h se-e se-s"><p class="hint" id="se-h" data-when="st:ok st:load st:err">Le mandamos la invitación. Si es menor de 18, solo puede sumarse así.</p><p class="err" id="se-e" data-when="st:val"><span class="ms">error</span>Escribí un email completo, por ejemplo nombre@gmail.com.</p><p class="err" id="se-s" data-when="st:self"><span class="ms">error</span>Ese es tu email. Escribí el de tu hijo/a.</p></div>
+    </div>
+    <label class="cbx"><input type="checkbox" required><span>Acepto los <a href="consentimientos.html#terminos">Términos</a> y la <a href="consentimientos.html#privacidad">Privacidad</a>.</span></label>
+    <button class="btn btn-primary btn-block" type="submit" data-when="st:ok st:val st:self st:err" style="min-height:54px">Crear cuenta e invitar</button>
+    <button class="btn btn-primary btn-block" type="button" aria-disabled="true" data-when="st:load" style="min-height:54px"><span class="spin" aria-hidden="true"></span>Creando y enviando…</button>
+   </form>
+   <p class="bottom">¿Sos estudiante? <a href="preregistro-paso1.html">Registrate acá</a></p>
+  </div>
+ </div>
+</section>
+</div>
+</div>
+
+<script>/* Controles del mockup: vista (desktop/móvil) y estados. Elementos con data-when="clave:valor clave:valor2" se muestran solo si coincide. */
+(function(){
+  var st={};
+  function apply(){
+    document.querySelectorAll("[data-when]").forEach(function(el){
+      var ok=el.getAttribute("data-when").split(/\s*,\s*/).every(function(group){
+        return group.split(/\s+/).some(function(cond){var p=cond.split(":");return st[p[0]]===p[1];});
+      });
+      el.hidden=!ok;
+    });
+    document.body.className=document.body.className.replace(/\bs-[\w-]+/g,"").trim();
+    Object.keys(st).forEach(function(k){document.body.classList.add("s-"+k+"-"+st[k]);});
+    document.dispatchEvent(new CustomEvent("mkstate",{detail:st}));
+  }
+  document.querySelectorAll(".mk .seg[data-ctl]").forEach(function(seg){
+    var k=seg.dataset.ctl,btns=seg.querySelectorAll("button");
+    btns.forEach(function(b){
+      if(b.getAttribute("aria-pressed")==="true")st[k]=b.dataset.val;
+      b.addEventListener("click",function(){btns.forEach(function(x){x.setAttribute("aria-pressed","false")});b.setAttribute("aria-pressed","true");st[k]=b.dataset.val;apply();});
+    });
+  });
+  window.mkState=st;window.mkApply=apply;
+  window.mkSet=function(k,v){var seg=document.querySelector('.mk .seg[data-ctl="'+k+'"] button[data-val="'+v+'"]');if(seg)seg.click();else{st[k]=v;apply();}};
+  var q=new URLSearchParams(location.search);
+  function fit(){var mk=document.querySelector(".mk"),h=mk?mk.offsetHeight:0;document.querySelectorAll(".stage").forEach(function(st){st.style.height=document.body.classList.contains("s-vista-movil")?"":(innerHeight-h)+"px";});}
+  window.addEventListener("resize",fit);document.addEventListener("mkstate",fit);
+  apply();fit();
+  q.forEach(function(v,k){window.mkSet(k,v);});
+})();
+
+document.addEventListener("mkstate",function(e){var s=e.detail.st,i=document.getElementById("se");i.setAttribute("aria-invalid",s==="val"||s==="self");i.value=s==="val"?"lucia.perez@":s==="self"?"martin.perez@gmail.com":(s==="ok"?"":"lucia.perez@gmail.com");});
+mkApply();
+</script></body></html>

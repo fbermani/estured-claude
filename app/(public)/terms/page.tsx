@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo/pageMeta";
 import Link from "next/link";
 import { CONTACT_EMAIL } from "@/lib/constants/contact";
 import { REVOCATION_TERMS_PARAGRAPHS } from "@/lib/revocations/copy";
+import { PreaperturaTermsBody } from "@/components/preapertura/legal/LegalPreapertura";
+import { isPreaperturaOn } from "@/lib/preapertura/flag";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Términos y condiciones",
   description:
     "Las reglas de uso de EstuRed para estudiantes y familias: qué es la plataforma, cómo funcionan las solicitudes, el fee y los comprobantes.",
-};
+  path: "/terms",
+});
 
 /**
  * Borrador basado en docs/21 (Términos y Condiciones para Estudiantes y
@@ -379,6 +383,18 @@ export default function TermsPage() {
         </Link>
         .
       </p>
+
+      {isPreaperturaOn() && (
+        <section id="preapertura" className="mt-10 scroll-mt-20 rounded-card border-[1.5px] border-forest/30 bg-forest-tint p-5 sm:p-6">
+          <h2 className="text-xl font-bold text-ink">Términos de la preapertura</h2>
+          <p className="mt-2 text-sm text-ink-soft">
+            Mientras EstuRed esté en preapertura rige esta sección; lo demás aplica cuando abramos.
+          </p>
+          <div className="mt-3">
+            <PreaperturaTermsBody />
+          </div>
+        </section>
+      )}
 
       <div className="mt-10 space-y-10">
         {sections.map((s) => (

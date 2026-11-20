@@ -1,5 +1,6 @@
 "use server";
 
+import { clientIpFromHeaders } from "@/lib/receipts/verifyRateLimit";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
@@ -59,7 +60,7 @@ export async function reviewProfileEdit(
   }
 
   const headerStore = await headers();
-  const ip = headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
+  const ip = clientIpFromHeaders(headerStore);
   const userAgent = headerStore.get("user-agent");
   const actorRole = sessionUser.roles.includes("superadmin") ? "superadmin" : "admin";
   const fieldLabel = FIELD_GROUP_LABELS[edit.field_group] ?? edit.field_group;

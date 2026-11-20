@@ -1,5 +1,9 @@
 "use server";
 
+import { clientIpFromHeaders, clientKeyFromHeaders } from "@/lib/receipts/verifyRateLimit";
+import { consumeRateLimit } from "@/lib/security/rateLimit";
+import { TURNSTILE_ERROR_MESSAGE, verifyTurnstile } from "@/lib/security/turnstile";
+import { isPreaperturaOn } from "@/lib/preapertura/flag";
 import { sendFamilyEmailCode } from "@/lib/family/emailVerification";
 import { validatePassword } from "@/lib/auth/password";
 import { headers } from "next/headers";
@@ -26,6 +30,8 @@ export async function registerFamily(
   _prev: RegisterFamilyState,
   formData: FormData,
 ): Promise<RegisterFamilyState> {
+  // Con la preapertura encendida el alta familiar es `/preregistro/familiar`: acá se corta en el servidor (la acción se puede invocar sin la página).
+  if (isPreaperturaOn()) return formError(formData, "El registro todavía no está abierto. Sumate desde la página de inicio.");
   const firstName = String(formData.get("first_name") ?? "").trim();
   const lastName = String(formData.get("last_name") ?? "").trim();
   const relationship = String(formData.get("relationship_type") ?? "").trim();
@@ -59,37 +65,47 @@ export async function registerFamily(
   if (!acceptTerms || !acceptPrivacy)
     return formError(formData, "Necesitamos que aceptes los términos y la política de privacidad.");
 
+  if (!(await verifyTurnstile(formData, clientIpFromHeaders(await headers())))) {
+    return formError(formData, TURNSTILE_ERROR_MESSAGE);
+  }
+
+  // M6: 25 altas por hora por IP, persistente. Va antes de buscar al estudiante: también acota el uso del formulario para sondear emails.
+  const signupLimit = await consumeRateLimit({ bucket: "register_family_ip", key: clientKeyFromHeaders(await headers()), windowSeconds: 3_600, max: 25 });
+  if (!signupLimit.ok) return formError(formData, "Hiciste muchos intentos. Probá de nuevo en un rato.");
+
   const admin = getSupabaseAdmin();
   if (!admin)
     return formError(formData, "El registro no está disponible en este momento. Probá más tarde.");
 
   // Buscar al estudiante ANTES de crear la cuenta del familiar — evita
   // dejar cuentas huérfanas si el email no corresponde a un estudiante.
+  // M6 (enumeración): un único mensaje para «no existe», «no es estudiante» y «ya tiene un familiar vinculado», así el formulario no
+  // revela si un email es de un estudiante (incluidos menores), de otra cuenta (p. ej. admin) ni si ya tiene familiar.
+  const studentNotLinkable = () =>
+    formError(
+      formData,
+      "No pudimos enviar la solicitud a ese email. Revisá que sea el mismo con el que el estudiante se registró en EstuRed; si todavía no tiene cuenta, pedile que se registre primero.",
+      "student_email",
+    );
   const { data: studentUser } = await admin
     .from("users")
     .select("id")
     .eq("email", studentEmail)
     .maybeSingle();
-  if (!studentUser) {
-    return formError(formData, "No encontramos una cuenta de estudiante con ese email. Pedile que se registre primero en EstuRed.", "student_email");
-  }
+  if (!studentUser) return studentNotLinkable();
   const { data: studentProfile } = await admin
     .from("student_profiles")
     .select("id")
     .eq("user_id", studentUser.id)
     .maybeSingle();
-  if (!studentProfile) {
-    return formError(formData, "Esa cuenta no tiene un perfil de estudiante válido.", "student_email");
-  }
+  if (!studentProfile) return studentNotLinkable();
   const { data: activeLink } = await admin
     .from("family_links")
     .select("id")
     .eq("student_profile_id", studentProfile.id)
     .eq("status", "active")
     .maybeSingle();
-  if (activeLink) {
-    return formError(formData, "Ese estudiante ya tiene un familiar vinculado activo.", "student_email");
-  }
+  if (activeLink) return studentNotLinkable();
 
   const { data: created, error: createError } = await admin.auth.admin.createUser({
     email,
@@ -108,7 +124,7 @@ export async function registerFamily(
 
   const userId = created.user.id;
   const headerStore = await headers();
-  const ip = headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
+  const ip = clientIpFromHeaders(headerStore);
   const userAgent = headerStore.get("user-agent");
 
   try {

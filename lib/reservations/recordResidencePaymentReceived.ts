@@ -6,6 +6,8 @@ import { calculateFeeEstimate } from "@/lib/applications/fee";
 import { assertResidencePermission } from "@/lib/residences/access";
 import { assertRegulationAccepted } from "@/lib/regulations/gate";
 import { promoteNextQueuedApplication } from "@/lib/applications/roomTypeQueue";
+import { extensionForMime, resolveDocumentType, toTypedBlob } from "@/lib/files/sniffFile";
+import { safeFilename } from "@/lib/files/safeFilename";
 
 export type RecordResidencePaymentReceivedResult =
   | { ok: true; reservationId: string; residenceId: string }
@@ -76,6 +78,7 @@ export async function recordResidencePaymentReceived(
 
   // Recibo opcional (docs/03 §12.4: la residencia puede cargar evidencia propia).
   let receiptFileId: string | null = null;
+  let receiptStoragePath: string | null = null;
   if (params.receiptFile && params.receiptFile.size > 0) {
     const receiptFile = params.receiptFile;
     if (receiptFile.size > MAX_RECEIPT_BYTES) {
@@ -84,11 +87,15 @@ export async function recordResidencePaymentReceived(
     if (!ALLOWED_RECEIPT_TYPES.includes(receiptFile.type)) {
       return { ok: false, error: "El recibo debe ser PDF, JPG, PNG o WebP." };
     }
-    const ext = receiptFile.type === "application/pdf" ? "pdf" : receiptFile.type.split("/")[1];
+    const realType = await resolveDocumentType(receiptFile);
+    if (!realType) {
+      return { ok: false, error: "El recibo debe ser PDF, JPG, PNG o WebP." };
+    }
+    const ext = extensionForMime(realType);
     const path = `${params.applicationId}/residence-receipt-${crypto.randomUUID()}.${ext}`;
     const { error: uploadError } = await admin.storage
       .from("payment-proofs")
-      .upload(path, receiptFile, { contentType: receiptFile.type });
+      .upload(path, await toTypedBlob(receiptFile, realType), { contentType: realType });
     if (uploadError) {
       console.error("[payment] receipt upload failed:", uploadError);
       return { ok: false, error: "No pudimos subir el recibo. Intentá de nuevo." };
@@ -101,8 +108,8 @@ export async function recordResidencePaymentReceived(
         related_entity_id: params.applicationId,
         bucket: "payment-proofs",
         storage_path: path,
-        filename: receiptFile.name,
-        mime_type: receiptFile.type,
+        filename: safeFilename(receiptFile.name),
+        mime_type: realType,
         size_bytes: receiptFile.size,
         visibility: "context_shared",
         document_type: "residence_payment_receipt",
@@ -113,9 +120,11 @@ export async function recordResidencePaymentReceived(
       .single();
     if (fileError || !fileRow) {
       console.error("[payment] receipt file row failed:", fileError);
+      await admin.storage.from("payment-proofs").remove([path]);
       return { ok: false, error: "No pudimos registrar el recibo." };
     }
     receiptFileId = fileRow.id;
+    receiptStoragePath = path;
   }
 
   const snapshotId = application.snapshot_final_id ?? application.snapshot_original_id;
@@ -132,6 +141,25 @@ export async function recordResidencePaymentReceived(
 
   const now = new Date();
   const feeDeadline = new Date(now.getTime() + 48 * 60 * 60 * 1000);
+
+  // SEG15-01: reclamo atómico de la solicitud. Solo una confirmación concurrente pasa de `residence_payment_pending` a
+  // `converted_to_reservation`; las demás no tocan nada. Antes la lectura de arriba y el update del final eran independientes
+  // y tres confirmaciones simultáneas creaban tres reservas.
+  const { data: claimed, error: claimError } = await admin
+    .from("application_requests")
+    .update({ status: "converted_to_reservation", payment_deadline_at: feeDeadline.toISOString() })
+    .eq("id", params.applicationId)
+    .eq("status", "residence_payment_pending")
+    .select("id");
+  if (claimError || !claimed || claimed.length === 0) {
+    // Perdió la carrera (o falló la lectura): no deja un recibo huérfano.
+    if (receiptFileId) {
+      await admin.from("files").delete().eq("id", receiptFileId);
+      if (receiptStoragePath) await admin.storage.from("payment-proofs").remove([receiptStoragePath]);
+    }
+    if (claimError) console.error("[payment] reclamo de la solicitud falló:", claimError.code);
+    return { ok: false, error: "Esa solicitud no está esperando pago a la residencia." };
+  }
 
   try {
     const { error: consentError, data: consent } = await admin
@@ -218,12 +246,6 @@ export async function recordResidencePaymentReceived(
       .eq("id", reservation.id);
     if (reservationUpdateError) throw reservationUpdateError;
 
-    const { error: applicationUpdateError } = await admin
-      .from("application_requests")
-      .update({ status: "converted_to_reservation", payment_deadline_at: feeDeadline.toISOString() })
-      .eq("id", params.applicationId);
-    if (applicationUpdateError) throw applicationUpdateError;
-
     await admin.from("application_status_events").insert({
       application_request_id: params.applicationId,
       from_status: "residence_payment_pending",
@@ -265,6 +287,20 @@ export async function recordResidencePaymentReceived(
     return { ok: true, reservationId: reservation.id, residenceId: application.residence_id };
   } catch (error) {
     console.error("[payment] mark-received failed:", error);
+    // Devuelve el reclamo solo si no llegó a nacer la reserva: así el dueño puede reintentar sin duplicar. Con reserva ya creada
+    // la solicitud queda convertida (la reserva existe y el índice 0089 impide una segunda).
+    const { data: existing } = await admin
+      .from("reservations")
+      .select("id")
+      .eq("application_request_id", params.applicationId)
+      .limit(1);
+    if (!existing || existing.length === 0) {
+      await admin
+        .from("application_requests")
+        .update({ status: "residence_payment_pending", payment_deadline_at: null })
+        .eq("id", params.applicationId)
+        .eq("status", "converted_to_reservation");
+    }
     return { ok: false, error: "No pudimos procesar la confirmación. Intentá de nuevo." };
   }
 }

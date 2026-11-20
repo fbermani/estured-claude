@@ -140,7 +140,7 @@ export function StayChangeModal({
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="rounded-field border border-line bg-cream-2/60 p-4">
-                <p className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-forest-700">
+                <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-forest-700">
                   <Icon name="visibility" className="text-sm" /> Tu residencia ve
                 </p>
                 <ul className="mt-2 list-disc space-y-1 pl-4 text-xs leading-relaxed text-ink-soft">
@@ -150,7 +150,7 @@ export function StayChangeModal({
                 </ul>
               </div>
               <div className="rounded-field border border-line bg-cream-2/60 p-4">
-                <p className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-orange-700">
+                <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-orange-700">
                   <Icon name="visibility_off" className="text-sm" /> Tu residencia no ve
                 </p>
                 <ul className="mt-2 list-disc space-y-1 pl-4 text-xs leading-relaxed text-ink-soft">

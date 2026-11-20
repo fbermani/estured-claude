@@ -49,7 +49,7 @@ export const STAFF_PERMISSIONS = [
     key: "payments.residence",
     group: "applications",
     label: "Pago a la residencia",
-    description: "Habilitar el pago a la residencia y marcar el pago como recibido.",
+    description: "Habilitar el pago a la residencia, marcar el pago como recibido y ver los documentos de esos solicitantes.",
     defaultEnabled: true,
   },
   {
@@ -70,7 +70,7 @@ export const STAFF_PERMISSIONS = [
     key: "residents.manage",
     group: "operations",
     label: "Residentes",
-    description: "Altas, salidas, notas y respuestas a \"Quiero cambiar\" y a salidas anticipadas.",
+    description: "Altas, salidas, notas, documentos de los residentes y respuestas a \"Quiero cambiar\" y a salidas anticipadas.",
     defaultEnabled: true,
   },
   {

@@ -1,0 +1,215 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- button "Abrir menú":
+- paragraph: EstuRed Admin
+- button "Notificaciones, 2 sin leer":
+  - generic: notifications
+  - generic: "2"
+- complementary:
+  - paragraph: EstuRed Admin
+  - paragraph: Panel de administración
+  - button "Notificaciones, 2 sin leer":
+    - generic: notifications
+    - generic: "2"
+  - button "Cerrar menú":
+  - navigation "Administración":
+    - link "Dashboard":
+      - /url: /admin/dashboard
+      - generic: Dashboard
+    - paragraph: Residencias
+    - link "Residencias":
+      - /url: /admin/residences
+      - generic: Residencias
+    - link "Verificaciones":
+      - /url: /admin/verifications
+      - generic: Verificaciones
+    - link "Ediciones de perfil":
+      - /url: /admin/profile-edits
+      - generic: Ediciones de perfil
+    - link "Solicitudes de alta":
+      - /url: /admin/solicitudes-alta
+      - generic: Solicitudes de alta
+    - link "Residencias pedidas":
+      - /url: /admin/residencias-pedidas
+      - generic: Residencias pedidas
+    - link "Preguntas de fichas":
+      - /url: /admin/faq
+      - generic: Preguntas de fichas
+    - link "Ítems «Otro» de fichas":
+      - /url: /admin/custom-amenities
+      - generic: Ítems «Otro» de fichas
+    - paragraph: Operación
+    - link "Solicitudes":
+      - /url: /admin/applications
+      - generic: Solicitudes
+    - link "Propuestas familiar":
+      - /url: /admin/family-proposals
+      - generic: Propuestas familiar
+    - link "Pagos":
+      - /url: /admin/payments
+      - generic: Pagos
+    - link "Actividad":
+      - /url: /admin/activity
+      - generic: Actividad
+    - link "Seguimiento":
+      - /url: /admin/followups
+      - generic: Seguimiento
+    - paragraph: Plataforma
+    - link "Comunidad":
+      - /url: /admin/community
+      - generic: Comunidad
+    - link "Visibilidad y penalizaciones":
+      - /url: /admin/visibility
+      - generic: Visibilidad y penalizaciones
+    - link "Administración de tarifas":
+      - /url: /admin/pricing
+      - generic: Administración de tarifas
+    - link "Documentos":
+      - /url: /admin/documents
+      - generic: Documentos
+    - link "Tipo de cambio":
+      - /url: /admin/exchange-rate
+      - generic: Tipo de cambio
+    - link "Usuarios":
+      - /url: /admin/users
+      - generic: Usuarios
+    - paragraph: Soporte
+    - link "Soporte":
+      - /url: /admin/support-cases
+      - generic: Soporte
+  - generic: A
+  - paragraph: admin.operaciones@estured.test
+  - paragraph: Admin
+  - button "Cerrar sesión"
+- main:
+  - heading "Actividad" [level=1]
+  - paragraph: Negociaciones, reservas, renovaciones, revocaciones, comprobantes, listas de espera y logs — todo lo que es seguimiento, en un solo lugar.
+  - navigation:
+    - link "Negociaciones":
+      - /url: /admin/activity?tab=negotiations
+    - link "Reservas":
+      - /url: /admin/activity?tab=reservations
+    - link "Renovaciones":
+      - /url: /admin/activity?tab=renewals
+    - link "Revocaciones":
+      - /url: /admin/activity?tab=revocations
+    - link "Comprobantes":
+      - /url: /admin/activity?tab=receipts
+    - link "Listas de espera":
+      - /url: /admin/activity?tab=waitlists
+    - link "Logs":
+      - /url: /admin/activity?tab=logs
+  - heading "Revocaciones del fee" [level=1]
+  - paragraph: Cuando un estudiante revoca el fee dentro de los 10 días corridos del pago, EstuRed le reintegra el fee completo después de tu revisión. El fee sigue pagado hasta que lo resuelvas, siempre con motivo. Lo pagado a la residencia queda afuera.
+  - paragraph: 1 pendiente · 1 reintegradas · 1 denegadas
+  - region "Revocaciones pendientes":
+    - paragraph:
+      - text: Camila R.
+      - generic: · Residencia Norte (Palermo)
+    - paragraph: La pidió el estudiante
+    - generic: Pendiente
+    - term: Fee a reintegrar
+    - definition:
+      - text: ARS 67.000
+      - generic: ≈ USD 44
+    - term: Fee pagado el
+    - definition: 20/10/2026
+    - term: Revocada el
+    - definition: 20/10/2026, 23:07
+    - term: Plazo de 10 días corridos
+    - definition:
+      - text: Dentro de plazo
+      - generic: Revocada día 1 de 10; el plazo venció el 30/10/2026.
+    - term: Sin resolver hace
+    - definition: 24 días
+    - term: Soporte
+    - definition:
+      - link "Ver caso →":
+        - /url: /admin/support-cases?id=f6213488-d138-4b1a-ba5d-04727559cf87
+    - paragraph: "Motivo del estudiante: Conseguí un lugar más cerca de la facultad y no voy a poder mudarme acá."
+    - generic "Resolver revocación" [active]
+    - generic: Motivo de la resolución (obligatorio, interno)
+    - textbox "Motivo de la resolución (obligatorio, interno)":
+      - /placeholder: "Ej: dentro de plazo, sin indicios de uso del contacto por fuera de la plataforma"
+    - paragraph: De 10 a 1000 caracteres. Queda auditado y el estudiante nunca lo ve.
+    - generic: Mensaje para el estudiante (opcional)
+    - textbox "Mensaje para el estudiante (opcional)":
+      - /placeholder: Es lo único que ve el estudiante de esta resolución.
+    - paragraph: Reintegrar el fee
+    - paragraph: El reintegro se hace por fuera de EstuRed (por ejemplo, una transferencia). Acá solo registrás que ya lo hiciste.
+    - generic: Medio
+    - combobox "Medio":
+      - option "Transferencia bancaria" [selected]
+      - option "Billetera virtual"
+      - option "Otro medio"
+    - generic: Fecha del reintegro
+    - textbox "Fecha del reintegro": 2026-11-14
+    - generic: Referencia de la operación
+    - paragraph: N.º de operación (sin CBU/CVU/alias).
+    - textbox "Referencia de la operación":
+      - /placeholder: N.º de operación (sin CBU/CVU/alias)
+    - checkbox "Confirmo que reintegré ARS 67.000, el fee completo."
+    - generic: Confirmo que reintegré ARS 67.000, el fee completo.
+    - button "Reintegrar fee"
+    - paragraph: Denegar la revocación
+    - paragraph: "La reserva no se restaura: sigue cancelada y el fee queda pagado. Se revocó dentro de los 10 días (día 1 de 10), así que para denegar necesitás una causa justificada."
+    - checkbox "Hay una causa justificada para denegar (la explico en el motivo)."
+    - generic: Hay una causa justificada para denegar (la explico en el motivo).
+    - checkbox "Confirmo que quiero denegar esta revocación."
+    - generic: Confirmo que quiero denegar esta revocación.
+    - button "Denegar revocación"
+  - region "Revocaciones resueltas":
+    - heading "Resueltas" [level=2]
+    - paragraph:
+      - text: Camila R.
+      - generic: · Residencia Norte (Palermo)
+    - paragraph: La pidió el estudiante
+    - generic: Denegada
+    - term: Fee
+    - definition:
+      - text: ARS 73.000
+      - generic: ≈ USD 48
+    - term: Fee pagado el
+    - definition: 09/10/2026
+    - term: Revocada el
+    - definition: 22/10/2026, 19:06
+    - term: Plazo de 10 días corridos
+    - definition:
+      - text: Fuera de plazo
+      - generic: Revocada fuera de plazo (día 13); el plazo venció el 19/10/2026.
+    - term: Soporte
+    - definition:
+      - link "Ver caso →":
+        - /url: /admin/support-cases?id=34661f3a-5a20-4deb-9ed0-0d6bfbc1d8b8
+    - paragraph: "Motivo del estudiante: Prefiero otra residencia."
+    - paragraph: Denegada el 23/10/2026.
+    - paragraph: "Motivo interno: Revocación fuera de los 10 días corridos desde el pago del fee. Sin causa para reintegro."
+    - paragraph: "Mensaje al estudiante: La revocación llegó después de los 10 días corridos desde el pago, por eso no correspondió reintegrar el fee."
+    - paragraph:
+      - text: Camila R.
+      - generic: · Residencia Norte (Palermo)
+    - paragraph: La pidió el estudiante
+    - generic: Reintegrada
+    - term: Fee
+    - definition:
+      - text: ARS 59.500
+      - generic: ≈ USD 39
+    - term: Fee pagado el
+    - definition: 12/10/2026
+    - term: Revocada el
+    - definition: 15/10/2026, 19:06
+    - term: Plazo de 10 días corridos
+    - definition:
+      - text: Dentro de plazo
+      - generic: Revocada día 3 de 10; el plazo venció el 22/10/2026.
+    - term: Soporte
+    - definition:
+      - link "Ver caso →":
+        - /url: /admin/support-cases?id=0cb2148e-620d-48d7-b832-b88c485d830a
+    - paragraph: "Motivo del estudiante: Cambié de facultad y ya no voy a mudarme."
+    - paragraph: Reintegrada el 18/10/2026 por ARS 59.500 · Transferencia bancaria · ref. OP-DEMO-0001.
+    - paragraph: "Motivo interno: Dentro de plazo y sin indicios de acuerdo por fuera de la plataforma. Reintegro total."
+    - paragraph: "Mensaje al estudiante: Te transferimos el fee completo. Si no lo ves en tu cuenta en un par de días, escribinos por Soporte."
+- button "Admin Operativo": Admin Operativo
+- button "Open Next.js Dev Tools":
+- alert

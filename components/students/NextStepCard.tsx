@@ -14,7 +14,7 @@ export function JourneyStepper({ stage }: { stage: number }) {
           <li
             key={label}
             aria-current={state === "current" ? "step" : undefined}
-            className={`relative grid flex-1 justify-items-center gap-1.5 text-center text-[11px] font-semibold md:text-[12.5px] ${
+            className={`relative grid flex-1 justify-items-center gap-1.5 text-center text-xs font-semibold md:text-[12.5px] ${
               state === "done" ? "text-forest-700" : state === "current" ? "text-orange-700" : "text-ink-faint"
             }`}
           >
@@ -64,7 +64,7 @@ export function NextStepCard({ step }: { step: NextStep }) {
           {step.title}
         </h2>
         <span className="inline-flex items-center rounded-full bg-info-bg px-2.5 py-1 text-xs font-bold text-info-fg">
-          Paso {step.stage} de {JOURNEY_STEPS.length}
+          <span className="tabular-nums">Paso {step.stage} de {JOURNEY_STEPS.length}</span>
         </span>
       </div>
       <JourneyStepper stage={step.stage} />
@@ -76,7 +76,7 @@ export function NextStepCard({ step }: { step: NextStep }) {
         <div className="benefit-fade-in grid gap-3 text-sm text-ink-soft">
           <p className="max-w-2xl">{step.description}</p>
           {step.stage >= 3 && (
-            <p className="flex gap-2 rounded-xl bg-cream px-3 py-2 text-[12.5px]">
+            <p className="flex gap-2 rounded-field bg-cream px-3 py-2 text-[12.5px]">
               <Icon name="info" className="text-lg text-forest-700" />
               Una solicitud no es una reserva: queda sujeta a confirmación de la residencia.
             </p>

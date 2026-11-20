@@ -27,7 +27,7 @@ function ars(value: number): string {
 function Fact({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="min-w-0">
-      <dt className="text-[11px] font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
+      <dt className="text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
         {label}
       </dt>
       <dd className="mt-0.5 text-sm" style={{ color: cmd.onSurface }}>

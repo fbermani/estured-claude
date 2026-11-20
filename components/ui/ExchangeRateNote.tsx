@@ -15,8 +15,20 @@ const COMPACT_TIP = "Referencial: el importe final lo confirma la residencia seg
  * al lado del botón «i»; el texto oficial completo sigue en el panel que abre el botón.
  * `compact` (tarjeta de /search): solo el botón «i», con la frase corta en un tooltip (hover/foco en escritorio); al tocar abre el panel oficial.
  * Botón de 44px (área táctil), `aria-controls`, cierra con Esc / «Entendido» / clic afuera y devuelve el foco.
+ * `onDark`: la «i» y el foco en tonos paper, para usarla sobre fondos forest-ink (placa de la ficha).
+ * `align="end"`: el panel y el tooltip se abren hacia la izquierda (la nota está pegada al borde derecho de su contenedor).
  */
-export function ExchangeRateNote({ showNote = false, compact = false }: { showNote?: boolean; compact?: boolean }) {
+export function ExchangeRateNote({
+  showNote = false,
+  compact = false,
+  onDark = false,
+  align = "start",
+}: {
+  showNote?: boolean;
+  compact?: boolean;
+  onDark?: boolean;
+  align?: "start" | "end";
+}) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLSpanElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -50,6 +62,11 @@ export function ExchangeRateNote({ showNote = false, compact = false }: { showNo
     buttonRef.current?.focus();
   }
 
+  const focusRing = onDark ? "focus-visible:outline-paper" : "focus-visible:outline-forest";
+  const circleTone = onDark ? "border-[color:var(--paper-88)] text-[color:var(--paper-88)]" : "border-muted text-muted";
+  const tipSide = align === "end" ? "right-0" : "-left-20";
+  const panelSide = align === "end" ? "right-0" : showNote || compact ? "left-0" : "left-1/2 -translate-x-1/2";
+
   return (
     <span ref={containerRef} className={`group/rn relative inline-flex align-middle ${showNote ? "max-w-full items-start gap-0.5" : ""}`}>
       {showNote && (
@@ -64,13 +81,13 @@ export function ExchangeRateNote({ showNote = false, compact = false }: { showNo
         aria-label="Más información sobre el valor en pesos"
         className={
           compact
-            ? "inline-flex size-9 shrink-0 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-forest"
-            : `-mb-3 -mr-3 inline-flex size-11 shrink-0 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-forest ${showNote ? "-mt-3.5" : "-mt-3"}`
+            ? `inline-flex size-9 shrink-0 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-[-4px] ${focusRing}`
+            : `-mb-3 -mr-3 inline-flex size-11 shrink-0 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-[-4px] ${focusRing} ${showNote ? "-mt-3.5" : "-mt-3"}`
         }
       >
         <span
           aria-hidden="true"
-          className="inline-flex size-5 items-center justify-center rounded-full border border-muted text-[11px] font-bold leading-none text-muted"
+          className={`inline-flex size-5 items-center justify-center rounded-full border text-xs font-bold leading-none ${circleTone}`}
         >
           i
         </span>
@@ -78,7 +95,7 @@ export function ExchangeRateNote({ showNote = false, compact = false }: { showNo
       {compact && !open && (
         <span
           role="tooltip"
-          className="pointer-events-none absolute bottom-[calc(100%+4px)] -left-20 z-20 hidden w-56 rounded-[10px] bg-ink px-3 py-2 text-left text-[12.5px] font-medium leading-snug text-white shadow-float [@media(hover:hover)]:group-focus-within/rn:block [@media(hover:hover)]:group-hover/rn:block"
+          className={`pointer-events-none absolute bottom-[calc(100%+4px)] ${tipSide} z-20 hidden w-56 rounded-field bg-ink px-3 py-2 text-left text-[12.5px] font-medium leading-snug text-white shadow-float [@media(hover:hover)]:group-focus-within/rn:block [@media(hover:hover)]:group-hover/rn:block`}
         >
           {COMPACT_TIP}
         </span>
@@ -88,9 +105,7 @@ export function ExchangeRateNote({ showNote = false, compact = false }: { showNo
           id={panelId}
           role="region"
           aria-label="Valor en pesos referencial"
-          className={`absolute bottom-full z-20 mb-2 w-64 max-w-[80vw] rounded-field border-[1.5px] border-line bg-paper p-3 text-left text-xs font-normal leading-relaxed text-ink-soft shadow-float ${
-            showNote || compact ? "left-0" : "left-1/2 -translate-x-1/2"
-          }`}
+          className={`absolute bottom-full z-20 mb-2 w-64 max-w-[80vw] rounded-field border-[1.5px] border-line bg-paper p-3 text-left text-xs font-normal leading-relaxed text-ink-soft shadow-float ${panelSide}`}
         >
           {compact && <b className="mb-1 block font-semibold text-ink">{COMPACT_TIP}</b>}
           {EXCHANGE_RATE_DISCLAIMER}

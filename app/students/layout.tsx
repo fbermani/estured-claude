@@ -3,6 +3,7 @@ import { getSessionUser, hasAnyRole, roleHome } from "@/lib/auth/session";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { getIsHoused } from "@/lib/students/isHoused";
 import { StudentSidebar } from "@/components/layout/StudentSidebar";
+import { SkipLink } from "@/components/ui/SkipLink";
 
 /**
  * Área estudiante/familiar (docs/11 §7.2). El middleware ya exige
@@ -45,8 +46,9 @@ export default async function StudentsLayout({
 
   return (
     <div id="area-shell" className={`${hasAnyRole(user, ["student"]) ? "tone-student" : "tone-family"} flex min-h-screen flex-col bg-cream md:flex-row`}>
+      <SkipLink />
       <StudentSidebar userEmail={user.email} isHoused={isHoused} searchingChange={searchingChange} />
-      <main className="min-w-0 flex-1 pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-0">{children}</main>
+      <main id="contenido" tabIndex={-1} className="min-w-0 focus:outline-none flex-1 pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-0">{children}</main>
     </div>
   );
 }

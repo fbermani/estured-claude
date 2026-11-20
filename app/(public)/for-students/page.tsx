@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo/pageMeta";
 import { StudentsHero } from "@/components/marketing/StudentsHero";
 import { Button } from "@/components/ui/Button";
 import { SectionHeader } from "@/components/ui/SectionHeader";
@@ -14,11 +15,12 @@ import { StayChangeHighlight } from "@/components/marketing/StayChangeHighlight"
 import { GuidePicks } from "@/components/guides/GuidePicks";
 import { WhatYouPay } from "@/components/marketing/WhatYouPay";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Para estudiantes y familias",
   description:
     "Mudarse a CABA con más confianza: residencias verificadas, solicitudes registradas y comprobante de reserva verificable.",
-};
+  path: "/for-students",
+});
 
 const steps = [
   {
@@ -133,6 +135,16 @@ export default async function ForStudentsPage() {
 
       <StayChangeHighlight variant="students" studentCta={sessionUser?.roles.includes("student") ? "residency" : "register"} />
 
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: faqs.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+          }).replace(/</g, "\\u003c"),
+        }}
+      />
       <section id="preguntas-frecuentes" className="mx-auto max-w-3xl scroll-mt-20 px-4 py-16 sm:px-6 sm:py-20">
         <SectionHeader eyebrow="Preguntas frecuentes" title="Dudas comunes" />
         <div className="space-y-4">
@@ -155,7 +167,7 @@ export default async function ForStudentsPage() {
 
       <section className="bg-mint">
         <Reveal className="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6">
-          <h2 className="text-3xl font-bold text-ink">
+          <h2 className="text-3xl font-bold text-ink sm:text-4xl md:text-5xl">
             Empezá tu búsqueda con todo a la vista
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-ink-soft">

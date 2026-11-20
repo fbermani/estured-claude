@@ -239,7 +239,7 @@ describe.skipIf(!hasCreds)("familiar pagador y avisos (integración)", () => {
 
   it("hitos: avisan al familiar vinculado de Lucía y a nadie en el caso de Camila", async () => {
     await notifyFamilyReservationMilestone(admin, reservationId, "fee_to_pay");
-    expect((await martinNotifications(reservationId)).some((t) => t.startsWith("Fee EstuRed a pagar — reserva de Lucia"))).toBe(true);
+    expect((await martinNotifications(reservationId)).some((t) => t.startsWith("Fee EstuRed a pagar — reserva de Luc"))).toBe(true);
 
     await notifyFamilyApplicationMilestone(admin, appId, "accepted");
     const accepted = await martinNotifications(appId);

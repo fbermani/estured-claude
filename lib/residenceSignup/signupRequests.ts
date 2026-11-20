@@ -20,7 +20,9 @@ export type SignupRequestRow = {
   id: string;
   created_at: string;
   residence_name: string;
-  neighborhood: string;
+  /** Solicitudes viejas (antes de la 0080): barrio. Las nuevas (DR46.4) guardan `address` y dejan el barrio en null. */
+  neighborhood: string | null;
+  address: string | null;
   contact_name: string;
   email: string;
   phone: string;
@@ -38,19 +40,30 @@ export type SignupRequestRow = {
 };
 
 const COLUMNS =
-  "id, created_at, residence_name, neighborhood, contact_name, email, phone, instagram_or_web, approx_beds, status, admin_notes, email_confirmed_at, contacted_at, visit_at, handled_by, invite_expires_at, invite_used_at, residence_id";
+  "id, created_at, residence_name, neighborhood, address, contact_name, email, phone, instagram_or_web, approx_beds, status, admin_notes, email_confirmed_at, contacted_at, visit_at, handled_by, invite_expires_at, invite_used_at, residence_id";
 
 type Actor = { actorUserId: string; actorRole: string };
 
-/** Alta pública. Duplicado activo (23505) = éxito: no se le dice a nadie que ya existía. */
-export async function createSignupRequest(admin: SupabaseClient, input: SignupInput): Promise<{ ok: true } | { ok: false; unavailable: boolean }> {
-  const { error } = await admin.from("residence_signup_requests").insert({ ...input, source: "web" });
+/**
+ * Alta pública. Duplicado activo (23505) = éxito: no se le dice a nadie que ya existía (`duplicate` solo lo usa el llamador para no
+ * mandar otro mail de confirmación). Si todavía falta la migración 0080 (columna `address`) el alta cae al esquema viejo: la dirección
+ * se guarda en `neighborhood` (texto, hasta 80), así el formulario nunca se rompe si el código sale antes que la migración.
+ */
+export async function createSignupRequest(
+  admin: SupabaseClient,
+  input: SignupInput,
+): Promise<{ ok: true; duplicate: boolean } | { ok: false; unavailable: boolean }> {
+  let { error } = await admin.from("residence_signup_requests").insert({ ...input, source: "web" });
+  if (error && isMissingSchemaError(error) && /address/i.test(error.message ?? "")) {
+    const { address, ...rest } = input;
+    ({ error } = await admin.from("residence_signup_requests").insert({ ...rest, neighborhood: address.slice(0, 80), source: "web" }));
+  }
   if (error) {
-    if (error.code === "23505") return { ok: true };
-    if (!isMissingSchemaError(error)) console.error("[residence-signup] insert failed:", error.message);
+    if (error.code === "23505") return { ok: true, duplicate: true };
+    if (!isMissingSchemaError(error)) console.error("[residence-signup] insert failed:", error.code ?? error.message);
     return { ok: false, unavailable: isMissingSchemaError(error) };
   }
-  return { ok: true };
+  return { ok: true, duplicate: false };
 }
 
 export async function listSignupRequests(

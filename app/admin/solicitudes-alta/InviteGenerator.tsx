@@ -18,16 +18,16 @@ export function InviteGenerator({ id, contactName, residenceName, phone, hasPend
   return (
     <div className="space-y-2">
       <form action={formAction}>
-        <button type="submit" disabled={pending} className="cursor-pointer rounded-full bg-[#1f2937] px-3 py-1.5 text-xs font-bold text-white disabled:opacity-60">
+        <button type="submit" disabled={pending} className="cursor-pointer rounded-full bg-ink px-3 py-1.5 text-xs font-bold text-white disabled:opacity-60">
           {pending ? "Generando…" : hasPending ? "Generar invitación nueva" : "Generar invitación"}
         </button>
-        {hasPending && state.status !== "ready" && <span className="ml-2 text-xs text-[#6b7280]">Hay un enlace vigente; generar otro invalida el anterior.</span>}
+        {hasPending && state.status !== "ready" && <span className="ml-2 text-xs text-muted">Hay un enlace vigente; generar otro invalida el anterior.</span>}
       </form>
       {state.status === "error" && <p role="alert" className="text-xs font-semibold text-red-700">{state.message}</p>}
       {state.status === "ready" && state.link && (
-        <div className="space-y-2 rounded-lg border border-amber-300 bg-amber-50 p-3">
-          <p className="text-xs font-semibold text-amber-900">Copialo ahora: no se vuelve a mostrar. Enviáselo vos a la residencia (vence el {new Date(state.expiresAt ?? "").toLocaleDateString("es-AR")}).</p>
-          <input readOnly value={state.link} aria-label="Enlace de invitación" onFocus={(e) => e.currentTarget.select()} className="w-full rounded border border-amber-300 bg-white px-2 py-1 text-xs" />
+        <div className="space-y-2 rounded-field border border-orange/40 bg-warning-bg p-3">
+          <p className="text-xs font-semibold text-warning-fg">Copialo ahora: no se vuelve a mostrar. Enviáselo vos a la residencia (vence el {new Date(state.expiresAt ?? "").toLocaleDateString("es-AR")}).</p>
+          <input readOnly value={state.link} aria-label="Enlace de invitación" onFocus={(e) => e.currentTarget.select()} className="w-full rounded-field border border-field-border bg-paper px-2 py-1 text-xs" />
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
@@ -39,12 +39,12 @@ export function InviteGenerator({ id, contactName, residenceName, phone, hasPend
                   setCopied(false);
                 }
               }}
-              className="cursor-pointer rounded-full border border-amber-400 px-3 py-1 text-xs font-bold text-amber-900"
+              className="cursor-pointer rounded-full border border-orange-700 px-3 py-1 text-xs font-bold text-warning-fg"
             >
               {copied ? "Copiado" : "Copiar enlace"}
             </button>
             {wa && (
-              <a href={wa} target="_blank" rel="noopener noreferrer" className="rounded-full border border-amber-400 px-3 py-1 text-xs font-bold text-amber-900">
+              <a href={wa} target="_blank" rel="noopener noreferrer" className="rounded-full border border-orange-700 px-3 py-1 text-xs font-bold text-warning-fg">
                 Abrir WhatsApp (envío manual)
               </a>
             )}

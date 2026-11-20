@@ -4,6 +4,7 @@ import { createAuditLog } from "@/lib/audit";
 import { createNotification } from "@/lib/notifications/createNotification";
 import { ACTIVE_APPLICATION_STATUSES } from "@/lib/applications/types";
 import { determineInitialApplicationStatus } from "@/lib/applications/roomTypeQueue";
+import { MAX_REJECTION_REASON } from "@/lib/applications/inputLimits";
 
 export type ReopenApplicationResult = { status: "ok"; newStatus: string } | { status: "error"; message: string };
 
@@ -28,6 +29,9 @@ export async function reopenApplication(
 ): Promise<ReopenApplicationResult> {
   const reason = params.reason.trim();
   if (reason.length < 5) return { status: "error", message: "El motivo de la reapertura es obligatorio." };
+  if (reason.length > MAX_REJECTION_REASON) {
+    return { status: "error", message: `El motivo no puede superar los ${MAX_REJECTION_REASON} caracteres.` };
+  }
 
   const { data: application } = await admin
     .from("application_requests")
@@ -51,14 +55,19 @@ export async function reopenApplication(
   const next = await determineInitialApplicationStatus(admin, application.room_type_id);
   if ("error" in next) return { status: "error", message: next.error };
 
-  const { error: updateError } = await admin
+  const { data: reopened, error: updateError } = await admin
     .from("application_requests")
     .update({ status: next.status })
     .eq("id", application.id)
-    .eq("status", application.status);
+    .eq("status", application.status)
+    .select("id");
   if (updateError) {
     console.error("[applications] reopenApplication update failed:", updateError);
     return { status: "error", message: "No pudimos reabrir la solicitud. Probá de nuevo." };
+  }
+  // Compare-and-set: si otra reapertura (u otro cambio) ganó, no se duplican eventos, auditoría ni notificación.
+  if (!reopened || reopened.length === 0) {
+    return { status: "error", message: "Esta solicitud ya cambió de estado. Actualizá la página." };
   }
 
   await admin.from("application_status_events").insert({

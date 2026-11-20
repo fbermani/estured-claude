@@ -8,6 +8,7 @@ import { createApplicationFromRoomType } from "@/lib/applications/createRequestF
 import { requestBlockedMessage, typeAvailabilityState } from "@/lib/availability/typeAvailability";
 import { checkReservationWindowOverlap } from "@/lib/students/reservationWindow";
 import { validateMovingNote } from "@/lib/stayChange/validate";
+import { MAX_APPLICATION_TEXT, checkTextMax, isIsoDate, parseDurationMonths } from "@/lib/applications/inputLimits";
 import { acceptRegulationForApplication, recordRegulationAcceptance, resolveRegulationToAccept } from "@/lib/regulations/acceptance";
 import { revalidatePath } from "next/cache";
 
@@ -31,7 +32,7 @@ export async function createApplicationRequest(
   const roomTypeId = String(formData.get("room_type_id") ?? "");
   if (!roomTypeId) return { status: "error", message: "Elegí un tipo de habitación." };
   const desiredStartDate = String(formData.get("desired_start_date") ?? "");
-  const durationMonths = Number(formData.get("initial_duration_months") ?? 0);
+  const durationMonths = parseDurationMonths(formData.get("initial_duration_months")) ?? 0;
   const academicObjectiveChoice = String(formData.get("academic_objective_choice") ?? "").trim();
   const academicObjectiveDetail = String(formData.get("academic_objective_detail") ?? "").trim();
   const academicObjective = academicObjectiveDetail
@@ -39,10 +40,13 @@ export async function createApplicationRequest(
     : academicObjectiveChoice;
 
   if (!desiredStartDate) return { status: "error", message: "Elegí una fecha de ingreso estimada." };
+  if (!isIsoDate(desiredStartDate)) return { status: "error", message: "La fecha de ingreso no es válida." };
   if (durationMonths < 1 || durationMonths > 24)
     return { status: "error", message: "La duración debe ser entre 1 y 24 meses." };
   if (!academicObjectiveChoice)
     return { status: "error", message: "Elegí una opción para tu objetivo académico." };
+  const objectiveCheck = checkTextMax(academicObjective, MAX_APPLICATION_TEXT, "El objetivo académico");
+  if (!objectiveCheck.ok) return { status: "error", message: objectiveCheck.error };
   // DR3: nota voluntaria para la residencia nueva (solo se guarda si la solicitud se permitió por el aviso "Quiero cambiar").
   const movingNote = validateMovingNote(formData.get("move_context_note"));
   if (!movingNote.ok) return { status: "error", message: movingNote.error };

@@ -1,0 +1,251 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- banner:
+  - navigation:
+    - link "EstuRed, inicio":
+      - /url: /
+      - generic: EstuRed
+    - link "Para estudiantesy familias":
+      - /url: /for-students
+      - generic: Para estudiantesy familias
+    - link "Para residencias":
+      - /url: /for-residences
+    - link "Guías":
+      - /url: /guias
+    - link "Ingresar":
+      - /url: /login
+    - link "Crear cuenta":
+      - /url: /register
+    - link "Buscar residencias":
+      - /url: /search
+      - generic: search
+      - text: Buscar residencias
+- main:
+  - paragraph:
+    - generic: menu_book
+    - text: Centro de Guías
+  - heading "Guías para estudiar y vivir en Buenos Aires" [level=1]
+  - paragraph: "Elegir dónde vivir, prepararte para llegar y convivir mejor: recursos prácticos para estudiantes, familias y residencias."
+  - search:
+    - generic: Buscar guías
+    - generic: search
+    - searchbox "Buscar guías"
+  - region "Categorías":
+    - heading "Categorías" [level=2]
+    - list:
+      - button "Alojamiento 1 guía":
+        - generic: bed
+        - generic: Alojamiento
+        - generic: 1 guía
+      - button "Mudanza a Buenos Aires 2 guías":
+        - generic: luggage
+        - generic: Mudanza a Buenos Aires
+        - generic: 2 guías
+      - button "Convivencia y estudio 1 guía":
+        - generic: diversity_3
+        - generic: Convivencia y estudio
+        - generic: 1 guía
+      - button "Para familias 1 guía":
+        - generic: family_restroom
+        - generic: Para familias
+        - generic: 1 guía
+      - button "Para residencias 1 guía":
+        - generic: domain
+        - generic: Para residencias
+        - generic: 1 guía
+  - region "Empezá por acá según tu etapa":
+    - paragraph: Empezá por acá
+    - heading "¿En qué momento estás?" [level=2]
+    - paragraph: Elegí tu etapa y andá directo a la guía que más te sirve.
+    - heading "Empezá por acá según tu etapa" [level=2]
+    - list:
+      - generic: search
+      - paragraph: Estoy buscando residencia
+      - paragraph: Qué revisar antes de decidir.
+      - list:
+        - link "Cómo elegir una residencia estudiantil en Buenos Aires":
+          - /url: /guias/como-elegir-residencia-estudiantil-buenos-aires
+          - generic: Cómo elegir una residencia estudiantil en Buenos Aires
+          - generic: arrow_forward
+      - generic: flight_takeoff
+      - paragraph: Estoy por viajar
+      - paragraph: Preparar la mudanza y evitar imprevistos.
+      - list:
+        - link "Guía para mudarte a Buenos Aires a estudiar":
+          - /url: /guias/guia-mudarte-buenos-aires-estudiar
+          - generic: Guía para mudarte a Buenos Aires a estudiar
+          - generic: arrow_forward
+        - link "Seis errores comunes al mudarte a Buenos Aires (y cómo evitarlos)":
+          - /url: /guias/errores-comunes-mudarse-buenos-aires
+          - generic: Seis errores comunes al mudarte a Buenos Aires (y cómo evitarlos)
+          - generic: arrow_forward
+      - generic: home
+      - paragraph: Ya vivo en una residencia
+      - paragraph: Organizarte y convivir mejor.
+      - list:
+        - link "Cómo estudiar, organizarte y convivir en una residencia":
+          - /url: /guias/como-estudiar-organizarte-convivir-residencia
+          - generic: Cómo estudiar, organizarte y convivir en una residencia
+          - generic: arrow_forward
+      - generic: family_restroom
+      - paragraph: Soy familiar
+      - paragraph: Elegir y acompañar la nueva etapa.
+      - list:
+        - 'link "Guía para familias: elegir residencia y acompañar la nueva etapa"':
+          - /url: /guias/guia-familias-elegir-residencia-universitaria
+          - generic: "Guía para familias: elegir residencia y acompañar la nueva etapa"
+          - generic: arrow_forward
+      - generic: domain
+      - paragraph: Gestiono una residencia
+      - paragraph: Recursos para tu equipo.
+      - list:
+        - link "Cómo acompañar a los estudiantes de hoy y a sus familias desde una residencia":
+          - /url: /guias/acompanar-estudiantes-familias-desde-residencia
+          - generic: Cómo acompañar a los estudiantes de hoy y a sus familias desde una residencia
+          - generic: arrow_forward
+  - region "Guías destacadas":
+    - paragraph: Destacadas
+    - heading "Para empezar" [level=2]
+    - heading "Guías destacadas" [level=2]
+    - list:
+      - article:
+        - generic: bed
+        - generic: bed
+        - text: Alojamiento
+        - generic: schedule
+        - text: 2 min de lectura
+        - heading "Cómo elegir una residencia estudiantil en Buenos Aires" [level=3]:
+          - link "Cómo elegir una residencia estudiantil en Buenos Aires":
+            - /url: /guias/como-elegir-residencia-estudiantil-buenos-aires
+        - paragraph: "Qué revisar antes de elegir una residencia estudiantil en Buenos Aires: ubicación, convivencia, reglamento y costos."
+        - generic: Estudiantes, Familias
+        - text: Leer
+        - generic: arrow_forward
+      - article:
+        - generic: luggage
+        - generic: luggage
+        - text: Mudanza a Buenos Aires
+        - generic: schedule
+        - text: 4 min de lectura
+        - heading "Guía para mudarte a Buenos Aires a estudiar" [level=3]:
+          - link "Guía para mudarte a Buenos Aires a estudiar":
+            - /url: /guias/guia-mudarte-buenos-aires-estudiar
+        - paragraph: "Prepará tu mudanza a Buenos Aires para estudiar: documentación, transporte, alojamiento, presupuesto y adaptación."
+        - generic: Estudiantes
+        - text: Leer
+        - generic: arrow_forward
+  - region "Más guías":
+    - heading "Más guías" [level=2]
+    - status: 6 guías para leer sin crear cuenta
+    - generic: "Para quién:"
+    - group "Filtrar por audiencia":
+      - button "Todas" [pressed]
+      - button "Estudiantes"
+      - button "Familias"
+      - button "Residencias"
+    - list:
+      - article:
+        - generic: luggage
+        - generic: luggage
+        - text: Mudanza a Buenos Aires
+        - generic: schedule
+        - text: 2 min de lectura
+        - heading "Seis errores comunes al mudarte a Buenos Aires (y cómo evitarlos)" [level=3]:
+          - link "Seis errores comunes al mudarte a Buenos Aires (y cómo evitarlos)":
+            - /url: /guias/errores-comunes-mudarse-buenos-aires
+        - paragraph: Seis errores comunes al mudarte a Buenos Aires para estudiar y recomendaciones prácticas para evitarlos.
+        - generic: Estudiantes, Familias
+        - text: Leer
+        - generic: arrow_forward
+      - article:
+        - generic: diversity_3
+        - generic: diversity_3
+        - text: Convivencia y estudio
+        - generic: schedule
+        - text: 2 min de lectura
+        - heading "Cómo estudiar, organizarte y convivir en una residencia" [level=3]:
+          - link "Cómo estudiar, organizarte y convivir en una residencia":
+            - /url: /guias/como-estudiar-organizarte-convivir-residencia
+        - paragraph: Consejos para estudiar, organizar tus horarios y convivir con respeto en una residencia universitaria.
+        - generic: Estudiantes
+        - text: Leer
+        - generic: arrow_forward
+      - article:
+        - generic: family_restroom
+        - generic: family_restroom
+        - text: Para familias
+        - generic: schedule
+        - text: 2 min de lectura
+        - 'heading "Guía para familias: elegir residencia y acompañar la nueva etapa" [level=3]':
+          - 'link "Guía para familias: elegir residencia y acompañar la nueva etapa"':
+            - /url: /guias/guia-familias-elegir-residencia-universitaria
+        - paragraph: Cómo elegir una residencia para un hijo o hija y acompañar su nueva etapa universitaria respetando su autonomía.
+        - generic: Familias
+        - text: Leer
+        - generic: arrow_forward
+      - article:
+        - generic: domain
+        - generic: domain
+        - text: Para residencias
+        - generic: schedule
+        - text: 3 min de lectura
+        - heading "Cómo acompañar a los estudiantes de hoy y a sus familias desde una residencia" [level=3]:
+          - link "Cómo acompañar a los estudiantes de hoy y a sus familias desde una residencia":
+            - /url: /guias/acompanar-estudiantes-familias-desde-residencia
+        - paragraph: Recomendaciones para administrar residencias estudiantiles, acompañar a jóvenes y familias y prevenir conflictos.
+        - generic: Residencias
+        - text: Leer
+        - generic: arrow_forward
+- contentinfo:
+  - generic: EstuRed
+  - generic: EstuRed
+  - paragraph: La convivencia también se elige. Residencias estudiantiles verificadas en CABA, con solicitudes registradas y comprobantes verificables.
+  - list:
+    - generic: check
+    - text: Residencias verificadas presencialmente
+    - generic: check
+    - text: Solicitudes registradas en la plataforma
+    - generic: check
+    - text: Comprobante de Reserva Confirmada
+  - navigation "Explorar":
+    - paragraph: Explorar
+    - list:
+      - link "Buscar residencias":
+        - /url: /search
+      - link "Para estudiantes y familias":
+        - /url: /for-students
+      - link "Para residencias":
+        - /url: /for-residences
+      - link "Guías":
+        - /url: /guias
+      - link "Crear cuenta":
+        - /url: /register
+  - navigation "Ayuda":
+    - paragraph: Ayuda
+    - list:
+      - link "Soporte":
+        - /url: /students/support
+        - generic: support_agent
+        - text: Soporte
+      - link "Preguntas frecuentes":
+        - /url: /for-students#preguntas-frecuentes
+      - link "Cómo funciona":
+        - /url: /#el-proceso
+      - link "Qué pagás y a quién":
+        - /url: /for-students#que-pagas
+      - text: "Contacto:"
+      - link "hola@estured.com":
+        - /url: mailto:hola@estured.com
+      - listitem: ¿Tenés una reserva y algo no coincide? Abrí un caso desde tu panel.
+  - paragraph: EstuRed actúa como plataforma intermediaria de búsqueda, solicitud, registro y comprobante. No presta directamente el alojamiento. Los precios en ARS son referenciales al dólar blue del día.
+  - list:
+    - link "Botón de arrepentimiento":
+      - /url: /students/revocation
+    - link "Verificar un comprobante":
+      - /url: /verify
+    - link "Términos y condiciones":
+      - /url: /terms
+    - link "Política de privacidad":
+      - /url: /privacy
+  - paragraph: Hecho con ♥ en Buenos Aires
+- button "Simular usuario": Simular usuario

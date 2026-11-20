@@ -41,7 +41,7 @@ export function ModuleCard({
         disabled
           ? "border-line bg-paper opacity-70 shadow-none"
           : `motion-safe:active:scale-[0.98] active:shadow-card-hover hover:-translate-y-1 hover:shadow-card-hover focus-within:-translate-y-1 focus-within:shadow-card-hover ${
-              attention ? "border-orange bg-gradient-to-b from-orange-tint to-paper to-70%" : "border-line bg-paper"
+              attention ? "border-line border-l-4 border-l-orange bg-paper" : "border-line bg-paper"
             }`
       } ${className}`}
     >
@@ -63,8 +63,8 @@ export function ModuleCard({
 
       <div className="relative z-[1] flex items-center gap-3">
         <span
-          className={`flex size-11 shrink-0 items-center justify-center rounded-[14px] transition duration-200 ease-out-fresh ${
-            attention ? "bg-paper text-orange-700" : "bg-(--tone-tint) text-(--tone-700)"
+          className={`flex size-11 shrink-0 items-center justify-center rounded-field transition duration-200 ease-out-fresh ${
+            attention ? "bg-orange-tint text-orange-700" : "bg-(--tone-tint) text-(--tone-700)"
           } ${disabled ? "" : "group-hover:-rotate-6 group-hover:scale-110 group-active:scale-110 group-hover:bg-(--tone) group-hover:text-white"}`}
         >
           <Icon name={icon} className="text-2xl" />

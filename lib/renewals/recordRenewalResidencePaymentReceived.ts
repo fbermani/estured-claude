@@ -2,6 +2,8 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { assertResidencePermission } from "@/lib/residences/access";
+import { extensionForMime, resolveDocumentType, toTypedBlob } from "@/lib/files/sniffFile";
+import { safeFilename } from "@/lib/files/safeFilename";
 
 export type RecordRenewalResidencePaymentReceivedResult =
   | { ok: true; residenceId: string }
@@ -76,11 +78,15 @@ export async function recordRenewalResidencePaymentReceived(
     if (!ALLOWED_RECEIPT_TYPES.includes(receiptFile.type)) {
       return { ok: false, error: "El recibo debe ser PDF, JPG, PNG o WebP." };
     }
-    const ext = receiptFile.type === "application/pdf" ? "pdf" : receiptFile.type.split("/")[1];
+    const realType = await resolveDocumentType(receiptFile);
+    if (!realType) {
+      return { ok: false, error: "El recibo debe ser PDF, JPG, PNG o WebP." };
+    }
+    const ext = extensionForMime(realType);
     const path = `${params.renewalOfferId}/renewal-residence-receipt-${crypto.randomUUID()}.${ext}`;
     const { error: uploadError } = await admin.storage
       .from("payment-proofs")
-      .upload(path, receiptFile, { contentType: receiptFile.type });
+      .upload(path, await toTypedBlob(receiptFile, realType), { contentType: realType });
     if (uploadError) {
       console.error("[renewals] receipt upload failed:", uploadError);
       return { ok: false, error: "No pudimos subir el recibo. Intentá de nuevo." };
@@ -93,8 +99,8 @@ export async function recordRenewalResidencePaymentReceived(
         related_entity_id: params.renewalOfferId,
         bucket: "payment-proofs",
         storage_path: path,
-        filename: receiptFile.name,
-        mime_type: receiptFile.type,
+        filename: safeFilename(receiptFile.name),
+        mime_type: realType,
         size_bytes: receiptFile.size,
         visibility: "context_shared",
         document_type: "residence_payment_receipt",
@@ -105,6 +111,7 @@ export async function recordRenewalResidencePaymentReceived(
       .single();
     if (fileError || !fileRow) {
       console.error("[renewals] receipt file row failed:", fileError);
+      await admin.storage.from("payment-proofs").remove([path]);
       return { ok: false, error: "No pudimos registrar el recibo." };
     }
     receiptFileId = fileRow.id;

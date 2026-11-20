@@ -31,6 +31,7 @@ export function FaqCatalogItem({
   suggestedAnswer,
   initialSelected,
   initialAnswer,
+  essential = false,
 }: {
   residenceId: string;
   questionId: string;
@@ -40,6 +41,8 @@ export function FaqCatalogItem({
   initialSelected: boolean;
   /** Respuesta con la que arranca el campo: el override guardado o, si no hay, la sugerida. */
   initialAnswer: string;
+  /** Pregunta «Esencial»: se muestra una etiqueta. */
+  essential?: boolean;
 }) {
   const action = saveFaqCatalogItemAction.bind(null, residenceId, questionId);
   const [state, formAction] = useActionState(action, initialState);
@@ -56,6 +59,9 @@ export function FaqCatalogItem({
         <p className="min-w-0 flex-1 font-semibold text-ink">
           <span className="mr-2 text-xs font-bold text-ink-faint">{questionId}</span>
           {question}
+          {essential && (
+            <span className="ml-2 inline-flex items-center rounded-full bg-amber-soft-100 px-2 py-0.5 align-middle text-xs font-bold text-ink">Esencial</span>
+          )}
         </p>
         <label className="flex shrink-0 cursor-pointer items-center gap-2 text-sm font-semibold text-ink">
           <input

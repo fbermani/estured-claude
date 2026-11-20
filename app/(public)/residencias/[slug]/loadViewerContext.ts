@@ -24,6 +24,8 @@ export type StudentViewer = {
   windowNotice: ReservationWindowNotice | null;
   /** Tipos de ESTA residencia en los que ya tiene una reserva vigente (no se le ofrece lista de espera ahí). */
   ownReservationTypeIds: string[];
+  /** Fecha de nacimiento del PROPIO estudiante (solo viaja a su navegador, para el aviso de edad del formulario). */
+  birthDate: string | null;
 };
 
 export async function loadStudentViewer(
@@ -34,7 +36,7 @@ export async function loadStudentViewer(
   const sessionClient = await getSupabaseServer();
   const [completeness, profileRes, windowRes, ownRes] = await Promise.all([
     getStudentProfileCompleteness(admin, userId),
-    admin.from("student_profiles").select("id, is_minor").eq("user_id", userId).maybeSingle(),
+    admin.from("student_profiles").select("id, is_minor, birth_date").eq("user_id", userId).maybeSingle(),
     sessionClient ? loadReservationWindowForUser(sessionClient, userId) : Promise.resolve({ window: null, failed: true }),
     sessionClient
       ? sessionClient
@@ -91,6 +93,7 @@ export async function loadStudentViewer(
   const windowNotice = describeReservationWindow(windowRes.window, { stayChangeOpen });
   return {
     profileCompletenessPercent: completeness?.percent ?? null,
+    birthDate: (profile?.birth_date as string | null | undefined) ?? null,
     studentFavorited,
     minorBlock,
     windowNotice,

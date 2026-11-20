@@ -1,0 +1,92 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- banner:
+  - navigation:
+    - link "EstuRed, inicio":
+      - /url: /
+      - generic: EstuRed
+    - link "Para estudiantesy familias":
+      - /url: /for-students
+      - generic: Para estudiantesy familias
+    - link "Para residencias":
+      - /url: /for-residences
+    - link "Guías":
+      - /url: /guias
+    - link "Ingresar":
+      - /url: /login
+    - link "Crear cuenta":
+      - /url: /register
+    - link "Buscar residencias":
+      - /url: /search
+      - generic: search
+      - text: Buscar residencias
+- main:
+  - generic: Válido
+  - heading "Comprobante de Reserva Confirmada" [level=1]
+  - term: Residencia
+  - definition: Residencia Río de la Plata
+  - term: Estudiante
+  - definition: Lucia F.
+  - term: Tipo de habitación
+  - definition: Individual
+  - term: Fecha de ingreso
+  - definition: 20/07/2026
+  - term: Duración inicial
+  - definition: 6 meses
+  - term: Emitido
+  - definition: 20/10/2026
+  - paragraph: Comprobante N.º ER-2026-5C75F4
+  - paragraph: EstuRed actúa como plataforma intermediaria. No presta directamente el alojamiento ni garantiza la conducta de las partes.
+- contentinfo:
+  - generic: EstuRed
+  - generic: EstuRed
+  - paragraph: La convivencia también se elige. Residencias estudiantiles verificadas en CABA, con solicitudes registradas y comprobantes verificables.
+  - list:
+    - generic: check
+    - text: Residencias verificadas presencialmente
+    - generic: check
+    - text: Solicitudes registradas en la plataforma
+    - generic: check
+    - text: Comprobante de Reserva Confirmada
+  - navigation "Explorar":
+    - paragraph: Explorar
+    - list:
+      - link "Buscar residencias":
+        - /url: /search
+      - link "Para estudiantes y familias":
+        - /url: /for-students
+      - link "Para residencias":
+        - /url: /for-residences
+      - link "Guías":
+        - /url: /guias
+      - link "Crear cuenta":
+        - /url: /register
+  - navigation "Ayuda":
+    - paragraph: Ayuda
+    - list:
+      - link "Soporte":
+        - /url: /students/support
+        - generic: support_agent
+        - text: Soporte
+      - link "Preguntas frecuentes":
+        - /url: /for-students#preguntas-frecuentes
+      - link "Cómo funciona":
+        - /url: /#el-proceso
+      - link "Qué pagás y a quién":
+        - /url: /for-students#que-pagas
+      - text: "Contacto:"
+      - link "hola@estured.com":
+        - /url: mailto:hola@estured.com
+      - listitem: ¿Tenés una reserva y algo no coincide? Abrí un caso desde tu panel.
+  - paragraph: EstuRed actúa como plataforma intermediaria de búsqueda, solicitud, registro y comprobante. No presta directamente el alojamiento. Los precios en ARS son referenciales al dólar blue del día.
+  - list:
+    - link "Botón de arrepentimiento":
+      - /url: /students/revocation
+    - link "Verificar un comprobante":
+      - /url: /verify
+    - link "Términos y condiciones":
+      - /url: /terms
+    - link "Política de privacidad":
+      - /url: /privacy
+  - paragraph: Hecho con ♥ en Buenos Aires
+- button "Simular usuario": Simular usuario

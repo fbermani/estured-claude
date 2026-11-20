@@ -1,5 +1,6 @@
 "use server";
 
+import { clientIpFromHeaders } from "@/lib/receipts/verifyRateLimit";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { getSessionUser } from "@/lib/auth/session";
@@ -30,7 +31,7 @@ async function context() {
   return {
     sessionUser,
     admin,
-    ipAddress: headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
+    ipAddress: clientIpFromHeaders(headerStore),
     userAgent: headerStore.get("user-agent"),
   };
 }

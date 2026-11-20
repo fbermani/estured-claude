@@ -3,6 +3,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { notifyFamilyReservationMilestone } from "@/lib/family/familyMilestones";
 import { reactivatePausedApplications } from "@/lib/applications/reactivatePausedApplications";
+import { createNotification } from "@/lib/notifications/createNotification";
+import { notifyResidenceTeam } from "@/lib/residences/notifyResidenceTeam";
 
 const PENDING_FEE_STATUSES = ["pending_payment_method", "pending_manual_payment", "pending_auto_charge", "processing"];
 
@@ -21,7 +23,7 @@ export async function expireEsturedFeeWindows(admin: SupabaseClient): Promise<{ 
     .update({ status: "expired" })
     .in("status", PENDING_FEE_STATUSES)
     .lt("expires_at", new Date().toISOString())
-    .select("id, reservation_id");
+    .select("id, reservation_id, payer_user_id");
 
   if (error) {
     console.error("[jobs] expireEsturedFeeWindows failed:", error);
@@ -46,6 +48,7 @@ export async function expireEsturedFeeWindows(admin: SupabaseClient): Promise<{ 
         await reactivatePausedApplications(admin, expiredReservation.student_profile_id);
       }
     }
+    if (!fee.reservation_id) await expireRenewalOfferOfFee(admin, fee.id, (fee as { payer_user_id: string | null }).payer_user_id);
     await createAuditLog(admin, {
       actorUserId: null,
       actorRole: "system",
@@ -60,4 +63,51 @@ export async function expireEsturedFeeWindows(admin: SupabaseClient): Promise<{ 
   }
 
   return { expiredCount };
+}
+
+/**
+ * Decisión del dueño (2026-11-15, cierra el pendiente de SEG14-01): cuando vence el fee de una renovación, la oferta pasa a
+ * `expired_no_student_payment` («Vencida»), se avisa al estudiante (y al pagador, si es otra persona) y al equipo de la residencia, y
+ * la residencia tiene que enviar una renovación nueva. No se reabre: el job de reapertura de admin solo vale para ofertas `expired`
+ * (sin respuesta). Update condicional: solo cierra ofertas que seguían esperando ese fee. Nunca lanza.
+ */
+async function expireRenewalOfferOfFee(admin: SupabaseClient, feeId: string, payerUserId: string | null): Promise<void> {
+  try {
+    const { data: offer } = await admin
+      .from("renewal_offers")
+      .update({ status: "expired_no_student_payment" })
+      .eq("estured_fee_payment_id", feeId)
+      .in("status", ["estured_fee_pending", "estured_fee_processing"])
+      .select("id, residence_id, student_profile_id, residences(name)")
+      .maybeSingle();
+    if (!offer) return;
+
+    await createAuditLog(admin, {
+      actorUserId: null,
+      actorRole: "system",
+      action: "renewal_offer_expired_fee_unpaid",
+      entityType: "renewal_offers",
+      entityId: offer.id,
+      newValue: { estured_fee_payment_id: feeId },
+      source: "system",
+    });
+
+    const { data: studentProfile } = await admin.from("student_profiles").select("user_id").eq("id", offer.student_profile_id).maybeSingle();
+    const residenceName = (offer.residences as unknown as { name: string } | null)?.name ?? "la residencia";
+    const recipients = [...new Set([studentProfile?.user_id, payerUserId].filter((id): id is string => !!id))];
+    await Promise.all(
+      recipients.map((userId) =>
+        createNotification(admin, {
+          userId,
+          title: "Venció el pago de tu renovación",
+          body: `El fee EstuRed de tu renovación en ${residenceName} no se pagó a tiempo. La residencia tiene que enviarte una oferta nueva si quiere renovar.`,
+          relatedEntityType: "renewal_offers",
+          relatedEntityId: offer.id,
+        }),
+      ),
+    );
+    await notifyResidenceTeam(admin, { residenceId: offer.residence_id as string, event: "renewal_fee_expired", entityId: offer.id });
+  } catch (error) {
+    console.error("[jobs] expireRenewalOfferOfFee failed:", error);
+  }
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { ageRangeNotice } from "@/lib/residences/age";
 import { useActionState, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input, Textarea } from "@/components/ui/Input";
@@ -68,6 +69,7 @@ export function ApplyForm({
   profileCompletenessPercent,
   minStartDate,
   stayChange,
+  ageCheck,
   regulation,
   moveInNotice,
 }: {
@@ -87,6 +89,8 @@ export function ApplyForm({
   minStartDate?: string | null;
   /** Aviso "Quiero cambiar" abierto (DR3): la solicitud puede superponerse con su estadía. `currentEndDate` es el fin de contrato exclusivo ("YYYY-MM-DD"). */
   stayChange?: { currentEndDate: string; currentEndLabel: string } | null;
+  /** DR50: datos para avisar (sin bloquear) si la edad a la fecha de ingreso queda fuera del rango de la residencia. */
+  ageCheck?: { birthDate: string; minResidentAge: number | null | undefined; maxResidentAge: number | null | undefined; acceptsMinors: boolean | null | undefined } | null;
 }) {
   const action = createApplicationRequest.bind(null, residenceId);
   const [state, formAction, isPending] = useActionState(action, initialState);
@@ -128,10 +132,19 @@ export function ApplyForm({
         </p>
       );
     }
-    return <JoinWaitlistForm residenceId={residenceId} roomTypes={roomTypes} minStartDate={minStartDate} />;
+    return (
+      <JoinWaitlistForm
+        residenceId={residenceId}
+        roomTypes={roomTypes.map((rt) => ({ id: rt.id, name: rt.name, state: typeAvailabilityState(rt.profile_availability?.status) }))}
+        minStartDate={minStartDate}
+      />
+    );
   }
 
   const selected = availableTypes.find((rt) => rt.id === roomTypeId) ?? null;
+  const ageNotice = ageCheck
+    ? ageRangeNotice({ minResidentAge: ageCheck.minResidentAge, maxResidentAge: ageCheck.maxResidentAge, acceptsMinors: ageCheck.acceptsMinors }, ageCheck.birthDate, startDate)
+    : null;
   const overlapsStay = !!stayChange && !!startDate && startDate < stayChange.currentEndDate;
   const monthlyUsd = selected ? Number(selected.monthly_price_usd) : 0;
   const availableIds = new Set(availableTypes.map((rt) => rt.id));
@@ -194,7 +207,7 @@ export function ApplyForm({
       <div ref={scrollRef} className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 py-5 sm:px-6">
         {/* Paso 1 · Tu estadía */}
         <div className={step === 1 ? "flex flex-col gap-4" : "hidden"}>
-          <p className="text-xs font-extrabold uppercase tracking-widest text-muted">1 · Tu estadía</p>
+          <p className="text-xs font-bold text-muted">1. Tu estadía</p>
           <RoomTypeCards
             types={cards}
             value={roomTypeId}
@@ -222,7 +235,7 @@ export function ApplyForm({
                   setErrors((er) => ({ ...er, date: undefined }));
                 }}
                 aria-invalid={errors.date ? true : undefined}
-                aria-describedby={[errors.date ? "apply-date-error" : "", overlapsStay ? "apply-overlap-notice" : ""].filter(Boolean).join(" ") || undefined}
+                aria-describedby={[errors.date ? "apply-date-error" : "", ageNotice ? "apply-age-notice" : "", overlapsStay ? "apply-overlap-notice" : ""].filter(Boolean).join(" ") || undefined}
                 className={invalid}
               />
             </div>
@@ -256,6 +269,12 @@ export function ApplyForm({
           {conditions.minimumStayMonths ? (
             <p className="-mt-2 text-xs text-muted">Esta residencia pide una estadía mínima de {conditions.minimumStayMonths} meses.</p>
           ) : null}
+          {ageNotice && (
+            <p id="apply-age-notice" role="status" className="flex items-start gap-2 rounded-field bg-warning-bg px-3.5 py-2.5 text-xs leading-relaxed text-warning-fg">
+              <Icon name="info" className="mt-0.5 shrink-0 text-base" />
+              <span>{ageNotice}</span>
+            </p>
+          )}
           {overlapsStay && stayChange && (
             <p
               id="apply-overlap-notice"
@@ -298,16 +317,35 @@ export function ApplyForm({
           {selected && (
             <div className="flex items-start gap-3 rounded-field border border-line-2 bg-cream-2/60 px-3.5 py-3 text-sm">
               <Icon name="bed" className="mt-0.5 shrink-0 text-xl text-forest-700" />
-              <p className="min-w-0 text-ink-soft">
-                <b className="text-ink">{selected.name}</b>{selectedCard ? <> · {formatUsd(selectedCard.priceUsd)}/mes</> : null}
+              <p className="min-w-0 flex-1 text-ink-soft">
+                <b className="text-ink">{selected.name}</b>{selectedCard ? <>, {formatUsd(selectedCard.priceUsd)}/mes</> : null}
                 <span className="block text-xs">
-                  Ingreso {startDate ? formatDateOnly(startDate) : "—"} · {duration} {duration === 1 ? "mes" : "meses"}
+                  Ingreso {startDate ? formatDateOnly(startDate) : "—"}, {duration} {duration === 1 ? "mes" : "meses"}
                 </span>
               </p>
+              <button
+                type="button"
+                onClick={() => goToStep(1)}
+                className="shrink-0 rounded-full px-2.5 py-1 text-xs font-bold text-forest-700 underline underline-offset-2 hover:bg-forest-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+              >
+                Editar
+              </button>
             </div>
           )}
+          {selected && duration > 0 && (
+            <CostBreakdown
+              compact
+              monthlyUsd={monthlyUsd}
+              promotionPercent={selected.promotion_percent ?? null}
+              vacancy={selected.vacancy ?? null}
+              duration={duration}
+              startDate={startDate}
+              conditions={conditions}
+              arsPerUsd={arsPerUsd}
+            />
+          )}
 
-          <p className="mt-1 text-xs font-extrabold uppercase tracking-widest text-muted">2 · Sobre vos</p>
+          <p className="mt-1 text-xs font-bold text-muted">2. Sobre vos</p>
           <div>
             <span id="apply-objective-label" className="mb-1.5 block text-sm font-semibold text-ink">¿Cuál es tu objetivo académico?</span>
             <input type="hidden" name="academic_objective_choice" value={objectiveChoice} />
@@ -341,7 +379,7 @@ export function ApplyForm({
 
           {stayChange && (
             <div className="rounded-field border border-line-2 bg-cream-2/50 p-4">
-              <p className="text-xs font-extrabold uppercase tracking-widest text-muted">3 · Tu mudanza (opcional)</p>
+              <p className="text-xs font-bold text-muted">3. Tu mudanza (opcional)</p>
               <Textarea
                 id="apply-move-note"
                 name="move_context_note"
@@ -364,7 +402,7 @@ export function ApplyForm({
           )}
 
           <div>
-            <p className="mt-1 text-xs font-extrabold uppercase tracking-widest text-muted">{stayChange ? "4" : "3"} · Reglamento</p>
+            <p className="mt-1 text-xs font-bold text-muted">{stayChange ? "4" : "3"}. Reglamento</p>
             {regulation ? (
               <details ref={regulationRef} id="apply-regulation" className="mt-2 rounded-field border border-line-2 bg-cream-2/50 p-4">
                 <summary className="cursor-pointer text-sm font-bold text-forest-700">Leer el reglamento completo de la residencia</summary>
@@ -398,7 +436,7 @@ export function ApplyForm({
 
       {/* Pie del paso 1 */}
       <div className={`${footerClass} ${step === 1 ? "flex" : "hidden"}`}>
-        <Button type="button" size="lg" onClick={continueToStep2}>
+        <Button type="button" variant="cta" size="cta" onClick={continueToStep2}>
           Continuar
         </Button>
         <p className="text-center text-xs text-ink-faint">
@@ -439,7 +477,7 @@ export function ApplyForm({
             </button>
           </span>
         </label>
-        <Button type="submit" size="lg" disabled={isPending || !regulation}>
+        <Button type="submit" variant="cta" size="cta" disabled={isPending || !regulation}>
           {isPending ? "Enviando…" : "Enviar solicitud de reserva"}
         </Button>
         <p className="text-center text-xs text-ink-faint">

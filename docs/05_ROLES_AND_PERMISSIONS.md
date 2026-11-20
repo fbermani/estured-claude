@@ -929,7 +929,7 @@ No pueden convertir lista de espera en solicitud activa sin acción del estudian
 
 Sistema retira al estudiante de otras listas cuando confirma reserva en otra residencia.
 
-La lista no vence automáticamente. A los 90 días, el sistema envía recordatorio.
+La lista vence sola solo cuando termina el mes de ingreso que eligió el estudiante (DR40); sin mes no vence por fecha. A los 90 días, el sistema envía recordatorio.
 
 ---
 
@@ -967,7 +967,7 @@ Reglas en `docs/04` §12bis.
 |---|---|
 | Crear, editar y cancelar el aviso | Solo el estudiante alojado (cancelar se bloquea con pago en curso: Soporte). |
 | Confirmar el aviso de un menor | Solo el familiar vinculado activo. No crea, edita ni cancela. |
-| Ver el aviso | Estudiante; familiar vinculado (solo lectura, **sin el mensaje privado del estudiante**); residencia actual (owner/staff con acceso a residentes); admin. |
+| Ver el aviso | Estudiante; familiar vinculado (solo lectura, **sin el mensaje privado del estudiante**); residencia actual (owner, o cualquier staff activo en solo lectura por DR11 — el casillero `residents.manage` solo habilita **responder** y finalizar, no ver); admin. *(Aclarado 2026-11-19: las policies de lectura exigen staff activo, no el casillero; así lo implementa el sistema.)* |
 | Responder el aviso (costos, condiciones, detalles) | residence_owner y residence_staff con acceso a residentes de la residencia actual; admin en caso excepcional. |
 | Definir la política de salida anticipada (perfil) | `residence_owner`, o staff con `profile.edit` (DR11). Es pública en la ficha. |
 | Finalizar la estadía con salida anticipada (depósito devuelto / no devuelto / sin depósito, nota) | **Solo la residencia actual** (owner o staff con `residents.manage` (DR11)) o admin; nunca el estudiante, el aviso ni el sistema. |

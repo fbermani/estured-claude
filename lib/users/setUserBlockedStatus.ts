@@ -56,6 +56,19 @@ export async function setUserBlockedStatus(
   });
   if (!decision.allowed) return { status: "error", message: decision.reason };
 
+  // Orden fail-closed (sincroniza `users.is_blocked` con el ban de Supabase Auth, que corta el token ya emitido):
+  // - desbloquear: primero Auth; si falla, no se toca la base y el usuario sigue bloqueado en ambos lados.
+  // - bloquear: primero la base (el bloqueo ya rige en la app); si Auth falla se conserva el bloqueo y se
+  //   devuelve error para que el admin reintente (la operación es idempotente).
+  const banDuration = params.blocked ? "876000h" : "none";
+  const banAuth = async () => {
+    const { error: authError } = await admin.auth.admin.updateUserById(params.targetUserId, { ban_duration: banDuration });
+    if (authError) console.error("[users] setUserBlockedStatus auth ban failed:", authError.message);
+    return authError;
+  };
+  const AUTH_ERROR = { status: "error", message: "No pudimos actualizar el acceso del usuario. Probá de nuevo." } as const;
+  if (!params.blocked && (await banAuth())) return AUTH_ERROR;
+
   const newValue = { is_blocked: params.blocked, blocked_reason: params.blocked ? reason : null };
   const { data: updated, error } = await admin
     .from("users")
@@ -66,6 +79,8 @@ export async function setUserBlockedStatus(
     console.error("[users] setUserBlockedStatus failed:", error?.code, error?.message ?? "sin filas afectadas");
     return { status: "error", message: "No pudimos actualizar el usuario. Probá de nuevo." };
   }
+
+  const blockAuthError = params.blocked ? await banAuth() : null;
 
   await createAuditLog(admin, {
     actorUserId: params.actorUserId,
@@ -79,5 +94,6 @@ export async function setUserBlockedStatus(
     source: "admin",
   });
 
+  if (blockAuthError) return AUTH_ERROR;
   return { status: "ok" };
 }

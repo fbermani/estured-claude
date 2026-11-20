@@ -5,7 +5,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getResidenceMembership } from "@/lib/residences/access";
 import { can } from "@/lib/residences/permissions";
-import { PremiumNotice } from "@/components/residences/PremiumLock";
+import { PremiumNotice } from "@/components/residences/PremiumNotice";
 import { hasOperationalManagementAccess } from "@/lib/residences/operationalAccess";
 import { ResidentsBrowser, type ResidentsData } from "@/app/residence/[residence_id]/residents/ResidentsBrowser";
 import { RESIDENCE_OFFER_STATUS_COPY } from "@/lib/renewals/statusCopy";
@@ -76,12 +76,16 @@ export default async function ResidenceResidentsPage({
     Promise.all([
       admin
         .from("renewal_requests")
-        .select("*", { count: "exact", head: true })
+        // Misma elegibilidad que /renewals: solo reservas confirmadas, para que cada unidad lleve a una fila de esa pantalla.
+        .select("id, reservations!inner(status)", { count: "exact", head: true })
+        .eq("reservations.status", "confirmed")
         .eq("residence_id", residenceId)
         .in("status", ["created_by_student", "notified_to_residence"]),
       admin
         .from("renewal_offers")
-        .select("*", { count: "exact", head: true })
+        // Misma elegibilidad que /renewals: solo reservas confirmadas, para que cada unidad lleve a una fila de esa pantalla.
+        .select("id, reservations!inner(status)", { count: "exact", head: true })
+        .eq("reservations.status", "confirmed")
         .eq("residence_id", residenceId)
         .in("status", ["sent", "viewed"]),
     ]),
@@ -185,8 +189,9 @@ export default async function ResidenceResidentsPage({
     if (!latestOfferStatusByReservation.has(o.reservation_id)) latestOfferStatusByReservation.set(o.reservation_id, o.status);
   }
 
-  // DR38: documentación de cada residente contra lo que pide ESTA residencia. Solo estado (entregado / falta): nunca el archivo ni su
-  // enlace. La membresía ya se verificó arriba y las estadías son solo las de esta residencia. Tolerante: sin la 0077 se muestran los de siempre.
+  // DR38/DR48: documentación de cada residente contra lo que pide ESTA residencia. El dueño y el staff con `residents.manage` pueden
+  // abrir cada archivo (`requestResidenceDocumentAccess`, con registro); el resto ve solo el estado. Nunca se manda un link firmado
+  // desde acá. La membresía ya se verificó arriba y las estadías son solo las de esta residencia. Tolerante: sin la 0077 se muestran los de siempre.
   const stayDocsConfig = await loadStayDocumentsConfig(admin, residenceId);
   const linkedProfileIds = [...new Set(rawStays.map((s) => s.student_profile_id).filter((id): id is string => !!id))];
   const { files: studentDocFiles, schemaReady: docsSchemaReady } = await loadStudentDocumentFiles(admin, linkedProfileIds);
@@ -239,6 +244,8 @@ export default async function ResidenceResidentsPage({
             label: st.requirement.label,
             delivered: st.delivered,
             deliveredAt: st.deliveredAt,
+            // DR48: el id del archivo solo viaja si quien mira puede abrirlo; la acción vuelve a autorizar igual.
+            fileId: canManage ? st.fileId : null,
           }))
         : null,
       roomChange: roomChangeByStay.get(s.id) ?? null,

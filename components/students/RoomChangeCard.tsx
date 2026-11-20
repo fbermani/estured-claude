@@ -19,7 +19,7 @@ import {
 
 const initialState: StudentRoomChangeState = { status: "idle" };
 
-const fieldClass = "w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2.5 text-sm text-ink focus:border-forest focus:outline-none";
+const fieldClass = "w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2.5 text-sm text-ink focus:border-forest";
 
 const STATUS_TONE: Record<string, "amber" | "sage" | "neutral"> = { pending: "amber", offered: "sage", resolved: "neutral", cancelled: "neutral" };
 

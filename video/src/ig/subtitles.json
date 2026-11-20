@@ -1,0 +1,495 @@
+{
+  "provisional": false,
+  "cues": [
+    {
+      "scene": 1,
+      "text": "¿Cómo elegís una residencia en Buenos Aires… sin poder ir a verla?",
+      "words": [
+        {
+          "w": "¿Cómo",
+          "start": 0.15,
+          "end": 0.41
+        },
+        {
+          "w": "elegís",
+          "start": 0.41,
+          "end": 0.85
+        },
+        {
+          "w": "una",
+          "start": 0.85,
+          "end": 1.01
+        },
+        {
+          "w": "residencia",
+          "start": 1.01,
+          "end": 1.65
+        },
+        {
+          "w": "en",
+          "start": 1.65,
+          "end": 1.73
+        },
+        {
+          "w": "Buenos",
+          "start": 1.73,
+          "end": 1.93
+        },
+        {
+          "w": "Aires…",
+          "start": 1.93,
+          "end": 2.31
+        },
+        {
+          "w": "sin",
+          "start": 2.31,
+          "end": 3.15
+        },
+        {
+          "w": "poder",
+          "start": 3.15,
+          "end": 3.53
+        },
+        {
+          "w": "ir",
+          "start": 3.53,
+          "end": 3.69
+        },
+        {
+          "w": "a",
+          "start": 3.69,
+          "end": 3.79
+        },
+        {
+          "w": "verla?",
+          "start": 3.79,
+          "end": 4.15
+        }
+      ]
+    },
+    {
+      "scene": 2,
+      "text": "Las fotos y los chats no alcanzan para decidir dónde vas a vivir.",
+      "words": [
+        {
+          "w": "Las",
+          "start": 4.84,
+          "end": 5.04
+        },
+        {
+          "w": "fotos",
+          "start": 5.04,
+          "end": 5.4
+        },
+        {
+          "w": "y",
+          "start": 5.4,
+          "end": 5.62
+        },
+        {
+          "w": "los",
+          "start": 5.62,
+          "end": 5.76
+        },
+        {
+          "w": "chats",
+          "start": 5.76,
+          "end": 6.16
+        },
+        {
+          "w": "no",
+          "start": 6.16,
+          "end": 6.5
+        },
+        {
+          "w": "alcanzan",
+          "start": 6.5,
+          "end": 7.12
+        },
+        {
+          "w": "para",
+          "start": 7.12,
+          "end": 7.32
+        },
+        {
+          "w": "decidir",
+          "start": 7.32,
+          "end": 7.9
+        },
+        {
+          "w": "dónde",
+          "start": 7.9,
+          "end": 8.14
+        },
+        {
+          "w": "vas",
+          "start": 8.14,
+          "end": 8.48
+        },
+        {
+          "w": "a",
+          "start": 8.48,
+          "end": 8.6
+        },
+        {
+          "w": "vivir.",
+          "start": 8.6,
+          "end": 8.84
+        }
+      ]
+    },
+    {
+      "scene": 3,
+      "text": "Y viajar antes a verlas todas no siempre se puede.",
+      "words": [
+        {
+          "w": "Y",
+          "start": 9.99,
+          "end": 10.15
+        },
+        {
+          "w": "viajar",
+          "start": 10.15,
+          "end": 10.49
+        },
+        {
+          "w": "antes",
+          "start": 10.49,
+          "end": 10.81
+        },
+        {
+          "w": "a",
+          "start": 10.81,
+          "end": 11.03
+        },
+        {
+          "w": "verlas",
+          "start": 11.03,
+          "end": 11.29
+        },
+        {
+          "w": "todas",
+          "start": 11.29,
+          "end": 11.65
+        },
+        {
+          "w": "no",
+          "start": 11.65,
+          "end": 12.23
+        },
+        {
+          "w": "siempre",
+          "start": 12.23,
+          "end": 12.57
+        },
+        {
+          "w": "se",
+          "start": 12.57,
+          "end": 12.77
+        },
+        {
+          "w": "puede.",
+          "start": 12.77,
+          "end": 13.07
+        }
+      ]
+    },
+    {
+      "scene": 4,
+      "text": "Por eso en EstuRed las residencias se visitan en persona antes de publicarse.",
+      "words": [
+        {
+          "w": "Por",
+          "start": 13.74,
+          "end": 13.9
+        },
+        {
+          "w": "eso",
+          "start": 13.9,
+          "end": 14.16
+        },
+        {
+          "w": "en",
+          "start": 14.38,
+          "end": 14.46
+        },
+        {
+          "w": "EstuRed",
+          "start": 14.46,
+          "end": 15.22
+        },
+        {
+          "w": "las",
+          "start": 15.22,
+          "end": 15.3
+        },
+        {
+          "w": "residencias",
+          "start": 15.3,
+          "end": 15.92
+        },
+        {
+          "w": "se",
+          "start": 15.92,
+          "end": 16.08
+        },
+        {
+          "w": "visitan",
+          "start": 16.08,
+          "end": 16.54
+        },
+        {
+          "w": "en",
+          "start": 16.54,
+          "end": 16.64
+        },
+        {
+          "w": "persona",
+          "start": 16.64,
+          "end": 17.06
+        },
+        {
+          "w": "antes",
+          "start": 17.06,
+          "end": 17.64
+        },
+        {
+          "w": "de",
+          "start": 17.64,
+          "end": 17.8
+        },
+        {
+          "w": "publicarse.",
+          "start": 17.8,
+          "end": 18.42
+        }
+      ]
+    },
+    {
+      "scene": 5,
+      "text": "Compara su ubicación, servicios y reglamento",
+      "words": [
+        {
+          "w": "Compara",
+          "start": 18.9,
+          "end": 19.3
+        },
+        {
+          "w": "su",
+          "start": 19.3,
+          "end": 19.46
+        },
+        {
+          "w": "ubicación,",
+          "start": 19.46,
+          "end": 20.04
+        },
+        {
+          "w": "servicios",
+          "start": 20.32,
+          "end": 20.82
+        },
+        {
+          "w": "y",
+          "start": 20.82,
+          "end": 21.16
+        },
+        {
+          "w": "reglamento",
+          "start": 21.16,
+          "end": 21.76
+        }
+      ]
+    },
+    {
+      "scene": 5,
+      "text": "desde tu casa, con tu familia si querés.",
+      "words": [
+        {
+          "w": "desde",
+          "start": 21.76,
+          "end": 22
+        },
+        {
+          "w": "tu",
+          "start": 22,
+          "end": 22.24
+        },
+        {
+          "w": "casa,",
+          "start": 22.24,
+          "end": 22.58
+        },
+        {
+          "w": "con",
+          "start": 22.98,
+          "end": 23.1
+        },
+        {
+          "w": "tu",
+          "start": 23.1,
+          "end": 23.2
+        },
+        {
+          "w": "familia",
+          "start": 23.2,
+          "end": 23.62
+        },
+        {
+          "w": "si",
+          "start": 23.62,
+          "end": 23.82
+        },
+        {
+          "w": "querés.",
+          "start": 23.82,
+          "end": 24.2
+        }
+      ]
+    },
+    {
+      "scene": 5,
+      "text": "La decisión es tuya.",
+      "words": [
+        {
+          "w": "La",
+          "start": 24.6,
+          "end": 24.76
+        },
+        {
+          "w": "decisión",
+          "start": 24.76,
+          "end": 25.28
+        },
+        {
+          "w": "es",
+          "start": 25.28,
+          "end": 25.54
+        },
+        {
+          "w": "tuya.",
+          "start": 25.54,
+          "end": 25.96
+        }
+      ]
+    },
+    {
+      "scene": 6,
+      "text": "Enviás tu solicitud sin costo,",
+      "words": [
+        {
+          "w": "Enviás",
+          "start": 26.4,
+          "end": 26.8
+        },
+        {
+          "w": "tu",
+          "start": 26.8,
+          "end": 26.88
+        },
+        {
+          "w": "solicitud",
+          "start": 26.88,
+          "end": 27.46
+        },
+        {
+          "w": "sin",
+          "start": 27.46,
+          "end": 27.7
+        },
+        {
+          "w": "costo,",
+          "start": 27.7,
+          "end": 28.3
+        }
+      ]
+    },
+    {
+      "scene": 6,
+      "text": "seguís cada paso y todo queda registrado.",
+      "words": [
+        {
+          "w": "seguís",
+          "start": 28.46,
+          "end": 28.88
+        },
+        {
+          "w": "cada",
+          "start": 28.88,
+          "end": 29.14
+        },
+        {
+          "w": "paso",
+          "start": 29.14,
+          "end": 29.58
+        },
+        {
+          "w": "y",
+          "start": 29.58,
+          "end": 29.96
+        },
+        {
+          "w": "todo",
+          "start": 29.96,
+          "end": 30.26
+        },
+        {
+          "w": "queda",
+          "start": 30.26,
+          "end": 30.58
+        },
+        {
+          "w": "registrado.",
+          "start": 30.58,
+          "end": 31.28
+        }
+      ]
+    },
+    {
+      "scene": 7,
+      "text": "Sumate gratis desde el link en la bio.",
+      "words": [
+        {
+          "w": "Sumate",
+          "start": 32.03,
+          "end": 32.47
+        },
+        {
+          "w": "gratis",
+          "start": 32.47,
+          "end": 32.99
+        },
+        {
+          "w": "desde",
+          "start": 32.99,
+          "end": 33.23
+        },
+        {
+          "w": "el",
+          "start": 33.23,
+          "end": 33.47
+        },
+        {
+          "w": "link",
+          "start": 33.47,
+          "end": 33.69
+        },
+        {
+          "w": "en",
+          "start": 33.69,
+          "end": 33.83
+        },
+        {
+          "w": "la",
+          "start": 33.83,
+          "end": 33.95
+        },
+        {
+          "w": "bio.",
+          "start": 33.95,
+          "end": 34.13
+        }
+      ]
+    }
+  ]
+}

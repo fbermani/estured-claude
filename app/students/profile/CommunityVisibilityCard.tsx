@@ -74,7 +74,7 @@ function Preview({ isMinor, values, data }: { isMinor: boolean; values: Visibili
   const preview = buildCommunityPreview({ isMinor, values, data });
   return (
     <div className="rounded-field border border-line-2 bg-cream-2 p-4" aria-live="polite">
-      <p className="text-[11px] font-bold uppercase tracking-wide text-ink-faint">Así te ve otro usuario registrado</p>
+      <p className="text-xs font-bold uppercase tracking-wide text-ink-faint">Así te ve otro usuario registrado</p>
       {preview.kind === "placeholder" ? (
         <div className="mt-3 flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-sand-200 text-ink-faint">
@@ -112,13 +112,13 @@ function Preview({ isMinor, values, data }: { isMinor: boolean; values: Visibili
               (group) =>
                 group.items.length > 0 && (
                   <div key={group.label} className="mt-2.5">
-                    <p className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wide text-ink-faint">
+                    <p className="flex items-center gap-1 text-xs font-bold uppercase tracking-wide text-ink-faint">
                       <Icon name={group.icon} className="text-sm" />
                       {group.label}
                     </p>
                     <div className="mt-1 flex flex-wrap gap-1.5">
                       {group.items.map((t) => (
-                        <span key={t} className="rounded-full bg-paper px-2.5 py-0.5 text-[11px] font-semibold text-ink-soft">
+                        <span key={t} className="rounded-full bg-paper px-2.5 py-0.5 text-xs font-semibold text-ink-soft">
                           {t}
                         </span>
                       ))}
@@ -240,7 +240,7 @@ export function CommunityVisibilityCard({
 
         <div className="space-y-3">
           <Preview isMinor={isMinor} values={live} data={previewData} />
-          <p className="text-[11px] leading-relaxed text-ink-faint">
+          <p className="text-xs leading-relaxed text-ink-faint">
             La vista previa se actualiza en vivo con lo que cargás arriba. Para que quede así en tu perfil, guardá los cambios de arriba.
           </p>
         </div>

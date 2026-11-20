@@ -1,0 +1,152 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- complementary:
+  - paragraph: EstuRed Admin
+  - paragraph: Panel de administración
+  - button "Notificaciones":
+    - generic: notifications
+  - navigation "Administración":
+    - link "Dashboard":
+      - /url: /admin/dashboard
+      - generic: Dashboard
+    - paragraph: Residencias
+    - link "Residencias":
+      - /url: /admin/residences
+      - generic: Residencias
+    - link "Verificaciones":
+      - /url: /admin/verifications
+      - generic: Verificaciones
+    - link "Ediciones de perfil":
+      - /url: /admin/profile-edits
+      - generic: Ediciones de perfil
+    - link "Solicitudes de alta":
+      - /url: /admin/solicitudes-alta
+      - generic: Solicitudes de alta
+    - link "Residencias pedidas":
+      - /url: /admin/residencias-pedidas
+      - generic: Residencias pedidas
+    - link "Preguntas de fichas":
+      - /url: /admin/faq
+      - generic: Preguntas de fichas
+    - link "Ítems «Otro» de fichas":
+      - /url: /admin/custom-amenities
+      - generic: Ítems «Otro» de fichas
+    - paragraph: Operación
+    - link "Solicitudes":
+      - /url: /admin/applications
+      - generic: Solicitudes
+    - link "Propuestas familiar":
+      - /url: /admin/family-proposals
+      - generic: Propuestas familiar
+    - link "Pagos":
+      - /url: /admin/payments
+      - generic: Pagos
+    - link "Actividad":
+      - /url: /admin/activity
+      - generic: Actividad
+    - link "Seguimiento":
+      - /url: /admin/followups
+      - generic: Seguimiento
+    - paragraph: Plataforma
+    - link "Comunidad":
+      - /url: /admin/community
+      - generic: Comunidad
+    - link "Visibilidad y penalizaciones":
+      - /url: /admin/visibility
+      - generic: Visibilidad y penalizaciones
+    - link "Administración de tarifas":
+      - /url: /admin/pricing
+      - generic: Administración de tarifas
+    - link "Documentos":
+      - /url: /admin/documents
+      - generic: Documentos
+    - link "Tipo de cambio":
+      - /url: /admin/exchange-rate
+      - generic: Tipo de cambio
+    - link "Usuarios":
+      - /url: /admin/users
+      - generic: Usuarios
+    - paragraph: Soporte
+    - link "Soporte":
+      - /url: /admin/support-cases
+      - generic: Soporte
+  - generic: S
+  - paragraph: superadmin@estured.test
+  - paragraph: Superadmin
+  - button "Cerrar sesión"
+  - button "Colapsar menú":
+- main:
+  - heading "Pagos fee EstuRed" [level=1]
+  - link "Pendientes":
+    - /url: /admin/payments
+  - link "Cobrados":
+    - /url: /admin/payments?tab=paid
+  - link "Datos de cobro":
+    - /url: /admin/payment-settings
+  - paragraph: 6 fee(s) cobrados — ARS 596.000 en total.
+  - table:
+    - rowgroup:
+      - row "Cobrado el Estudiante Residencia Concepto Monto Medio Estado":
+        - columnheader "Cobrado el"
+        - columnheader "Estudiante"
+        - columnheader "Residencia"
+        - columnheader "Concepto"
+        - columnheader "Monto"
+        - columnheader "Medio"
+        - columnheader "Estado"
+    - rowgroup:
+      - row "20/10/2026 Camila R. Residencia Norte Reserva ARS 67.000 Transferencia Cobrado":
+        - cell "20/10/2026"
+        - cell "Camila R."
+        - cell "Residencia Norte"
+        - cell "Reserva"
+        - cell "ARS 67.000"
+        - cell "Transferencia"
+        - cell "Cobrado":
+          - generic: Cobrado
+      - row "20/10/2026 Camila R. Residencia Norte Reserva ARS 137.000 Transferencia Cobrado":
+        - cell "20/10/2026"
+        - cell "Camila R."
+        - cell "Residencia Norte"
+        - cell "Reserva"
+        - cell "ARS 137.000"
+        - cell "Transferencia"
+        - cell "Cobrado":
+          - generic: Cobrado
+      - row "20/10/2026 Lucia F. Residencia Río de la Plata Renovación ARS 159.500 Transferencia Cobrado":
+        - cell "20/10/2026"
+        - cell "Lucia F."
+        - cell "Residencia Río de la Plata"
+        - cell "Renovación"
+        - cell "ARS 159.500"
+        - cell "Transferencia"
+        - cell "Cobrado":
+          - generic: Cobrado
+      - row "20/10/2026 Lucia F. Residencia Río de la Plata Reserva ARS 159.500 Transferencia Cobrado":
+        - cell "20/10/2026"
+        - cell "Lucia F."
+        - cell "Residencia Río de la Plata"
+        - cell "Reserva"
+        - cell "ARS 159.500"
+        - cell "Transferencia"
+        - cell "Cobrado":
+          - generic: Cobrado
+      - row "12/10/2026 Camila R. Residencia Norte Reserva ARS 59.500 Transferencia Reintegrado":
+        - cell "12/10/2026"
+        - cell "Camila R."
+        - cell "Residencia Norte"
+        - cell "Reserva"
+        - cell "ARS 59.500"
+        - cell "Transferencia"
+        - cell "Reintegrado":
+          - generic: Reintegrado
+      - row "09/10/2026 Camila R. Residencia Norte Reserva ARS 73.000 Transferencia Cobrado":
+        - cell "09/10/2026"
+        - cell "Camila R."
+        - cell "Residencia Norte"
+        - cell "Reserva"
+        - cell "ARS 73.000"
+        - cell "Transferencia"
+        - cell "Cobrado":
+          - generic: Cobrado
+- button "SuperAdmin": SuperAdmin

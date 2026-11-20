@@ -25,4 +25,13 @@ describe("sortRecommended (DR24)", () => {
     expect(sortRecommended(input)).toHaveLength(input.length);
     expect(input).toEqual(copy);
   });
+
+  it("DR49: una residencia excluida va al final aunque esté disponible, sin ocultarse", () => {
+    const input = [
+      { id: "ex", availabilityMode: "real_by_place" as const, slug: "residencia-sin-fronteras-29fefe" },
+      { id: "full", availabilityMode: "full" as const, slug: "otra" },
+      { id: "ok", availabilityMode: "real_by_place" as const, slug: "ok" },
+    ];
+    expect(sortRecommended(input).map((r) => r.id)).toEqual(["ok", "full", "ex"]);
+  });
 });

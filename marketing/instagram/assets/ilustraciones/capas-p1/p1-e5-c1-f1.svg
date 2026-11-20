@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920" role="img"><title>F1 de espaldas (detrás, a la derecha).</title><desc>F1 de espaldas (detrás, a la derecha).</desc><defs /><style>
+  .bg-pared{fill:#e4dccb}
+  .bg-zocalo{fill:#d3c6ac}
+  .bg-piso{fill:#bfa37c}
+  .bg-tabla{fill:#b0946d}
+  .bg-marco{fill:#fbf6ec}
+  .bg-vidrio{fill:#c9dcd6}
+  .bg-sol{fill:#eef3ea}
+  .bg-repisa{fill:#a87f50}
+  .bg-maceta{fill:#c0603f}
+  .bg-planta{fill:#1f7d5c}
+  .bg-libro1{fill:#0c3a2c}
+  .bg-libro2{fill:#d8b06a}
+  .bg-libro3{fill:#6f8290}
+  .bg-lampara{fill:#f1d9a8}
+  .bg-lampara-pie{fill:#1d2722}
+  .bg-cuadro{fill:#fbf6ec}
+  .bg-cuadro-dentro{fill:#cfe0d6}
+
+  .fondo{fill:#fbf6ec}
+  /* E1 */
+  .piel{fill:#b97a4f}
+  .pelo{fill:#2a1d17}
+  .abrigo{fill:#1f7d5c}
+  .abrigo-brazo{fill:none;stroke:#1a6e51;stroke-linecap:round;stroke-linejoin:round}
+  .abrigo-linea{fill:none;stroke:#0c3a2c;stroke-linecap:round}
+  .cuello{fill:#0c3a2c}
+  .mochila{fill:#d8b06a}
+  .mochila-sombra{fill:#c29a55}
+  .tira{fill:none;stroke:#d8b06a;stroke-linecap:round}
+  /* F1 */
+  .f1-piel{fill:#d39a72}
+  .f1-pelo{fill:#4a3a30}
+  .f1-canas{fill:none;stroke:#a3958a;stroke-linecap:round}
+  .f1-cardigan{fill:#6f8290}
+  .f1-brazo{fill:none;stroke:#637583;stroke-linecap:round}
+  .f1-punio{fill:none;stroke:#566773}
+  .anteojos{fill:none;stroke:#1d2722;stroke-linecap:round}
+  /* Celular */
+  .celular{fill:#1d2722}
+  .pantalla{fill:#e4efe9}
+
+  .piso{fill:#1d2722;fill-opacity:0.12}
+</style>
+<g transform="translate(0 840) scale(0.9)"><g id="f1">
+  <g id="f1-torso" data-parte="torso">
+    <path class="f1-cardigan" d="M748 742 Q880 712 1012 742 Q1082 762 1090 842 L1100 1200 L660 1200 L670 842 Q680 762 748 742 Z" />
+    <path class="f1-brazo" stroke-width="84" d="M712 800 Q690 960 700 1200" />
+    <path class="f1-brazo" stroke-width="84" d="M1048 800 Q1072 960 1062 1200" />
+    <rect class="f1-piel" x="848" y="660" width="62" height="70" rx="20" />
+  </g>
+  <g id="f1-cabeza" data-parte="cabeza" transform="rotate(-5 880 700)">
+    <circle class="f1-piel" cx="770" cy="590" r="20" />
+    <path class="anteojos" stroke-width="7" d="M762 572 L808 566" />
+    <g id="f1-pelo" data-parte="pelo">
+      <path class="f1-pelo" d="M772 576 Q770 430 880 428 Q990 430 988 576 L990 680 Q880 698 770 680 Z" />
+      <path class="f1-canas" stroke-width="14" d="M820 470 Q860 444 912 448" />
+    </g>
+  </g>
+</g>
+
+
+</g></svg>

@@ -1,0 +1,204 @@
+- button "Open Next.js Dev Tools":
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- button "Abrir menú":
+  - generic: menu
+- generic: EstuRed
+- button "Notificaciones, 4 sin leer":
+  - generic: notifications
+  - generic: "4"
+- complementary:
+  - link "EstuRed, inicio":
+    - /url: /
+    - generic: EstuRed
+  - button "Notificaciones, 4 sin leer":
+    - generic: notifications
+    - generic: "4"
+  - button "Cerrar menú":
+    - generic: close
+  - navigation:
+    - link "Inicio":
+      - /url: /students/dashboard
+      - generic: home
+      - generic: Inicio
+    - link "Buscar residencias":
+      - /url: /search
+      - generic: search
+      - generic: Buscar residencias
+    - link "Favoritos":
+      - /url: /students/favorites
+      - generic: favorite
+      - generic: Favoritos
+    - link "Mis solicitudes":
+      - /url: /students/applications
+      - generic: description
+      - generic: Mis solicitudes
+    - link "Lista de espera":
+      - /url: /students/waitlist
+      - generic: hourglass_top
+      - generic: Lista de espera
+    - link "Mi perfil":
+      - /url: /students/profile
+      - generic: person
+      - generic: Mi perfil
+    - link "Mi estadía":
+      - /url: /students/residency
+      - generic: apartment
+      - generic: Mi estadía
+    - link "Soporte":
+      - /url: /students/support
+      - generic: support_agent
+      - generic: Soporte
+  - paragraph: camila.rojas@example.com
+  - link "Botón de arrepentimiento":
+    - /url: /students/revocation
+    - generic: undo
+    - generic: Botón de arrepentimiento
+  - button "Salir":
+    - generic: logout
+    - generic: Salir
+- navigation "Navegación principal":
+  - link "Inicio":
+    - /url: /students/dashboard
+    - generic: home
+    - generic: Inicio
+  - link "Buscar residencias":
+    - /url: /search
+    - generic: search
+    - generic: Buscar
+  - link "Favoritos":
+    - /url: /students/favorites
+    - generic: favorite
+    - generic: Favoritos
+  - link "Mis solicitudes":
+    - /url: /students/applications
+    - generic: description
+    - generic: Solicitudes
+  - button "Más":
+    - generic: more_horiz
+    - generic: Más
+- main:
+  - generic: travel_explore
+  - generic: backpack
+  - text: Tu camino
+  - heading "Hola, Camila. Armemos tu camino a la residencia." [level=1]
+  - paragraph: Con el perfil completo, las residencias te conocen mejor.
+  - generic: edit_note
+  - text: Perfil al 44 %
+  - link "Completar mi perfil":
+    - /url: /students/profile
+    - text: Completar mi perfil
+    - generic: arrow_forward
+  - generic: Sin compromiso
+  - region "Completá tu perfil para pedir residencia":
+    - heading "Completá tu perfil para pedir residencia" [level=2]
+    - generic: Paso 1 de 6
+    - list "Tu camino a la reserva":
+      - generic: "1"
+      - text: Perfil
+      - generic: (etapa actual)
+      - generic: "2"
+      - generic: Buscar
+      - generic: "3"
+      - generic: Solicitud
+      - generic: "4"
+      - generic: Propuesta
+      - generic: "5"
+      - generic: Pago
+      - generic: "6"
+      - generic: Reserva
+    - generic "Más detalle":
+      - text: Más detalle
+      - generic: expand_more
+  - heading "Qué podés hacer ahora" [level=2]
+  - list:
+    - generic: person
+    - paragraph:
+      - text: Completá tu perfil
+      - generic: Falta 56 %
+    - paragraph: "Falta: Documento de identidad, Comprobante de estudio…"
+    - link "Completar perfil":
+      - /url: /students/profile
+    - generic: support_agent
+    - paragraph:
+      - text: Soporte
+      - generic: 1 en curso
+    - paragraph: Tenés casos en seguimiento con EstuRed.
+    - link "Ver mis casos":
+      - /url: /students/support
+  - list:
+    - link "Buscar residencias Ver catálogo":
+      - /url: /search
+      - generic: search
+      - generic: Buscar residencias
+      - generic: Ver catálogo
+      - generic: chevron_right
+    - link "Mis solicitudes 9 solicitudes":
+      - /url: /students/applications
+      - generic: description
+      - generic: Mis solicitudes
+      - generic: 9 solicitudes
+      - generic: chevron_right
+    - link "Lista de espera En 1 lista de espera":
+      - /url: /students/waitlist
+      - generic: hourglass_top
+      - generic: Lista de espera
+      - generic: En 1 lista de espera
+      - generic: chevron_right
+    - link "Favoritos":
+      - /url: /students/favorites
+      - generic: favorite
+      - generic: Favoritos
+      - generic: chevron_right
+  - generic: family_restroom
+  - heading "Padre, madre o tutor" [level=3]
+  - paragraph: Invitá a tu familiar por email para que te acompañe. Vos seguís decidiendo todo.
+  - textbox "email@ejemplo.com"
+  - button "Enviar invitación"
+  - generic "Qué puede hacer":
+    - text: Qué puede hacer
+    - generic: expand_more
+  - region "Residencias verificadas para mirar":
+    - heading "Residencias verificadas para mirar" [level=2]
+    - link "Ver todas":
+      - /url: /search
+    - list:
+      - link "Verificada Wanna Tango Montserrat · Doble · Triple · Cuádruple · Individual":
+        - /url: /residencias/wanna-tango
+        - generic: verified
+        - text: Verificada
+        - generic: Wanna Tango
+        - generic: Montserrat · Doble · Triple · Cuádruple · Individual
+      - link "Verificada Wanna Sur Montserrat · Individual · Doble · Triple · Cuádruple":
+        - /url: /residencias/wanna-sur
+        - generic: verified
+        - text: Verificada
+        - generic: Wanna Sur
+        - generic: Montserrat · Individual · Doble · Triple · Cuádruple
+      - link "Verificada Wanna Palermo Recoleta · Individual · Doble · Triple · Cuádruple":
+        - /url: /residencias/wanna-palermo
+        - generic: verified
+        - text: Verificada
+        - generic: Wanna Palermo
+        - generic: Recoleta · Individual · Doble · Triple · Cuádruple
+  - region "Para ir preparándote":
+    - heading "Para ir preparándote" [level=2]:
+      - generic: menu_book
+      - text: Para ir preparándote
+    - link "Ver todas":
+      - /url: /guias
+    - list:
+      - link "Cómo elegir una residencia estudiantil en Buenos Aires 2 min de lectura":
+        - /url: /guias/como-elegir-residencia-estudiantil-buenos-aires
+        - generic: bed
+        - generic: Cómo elegir una residencia estudiantil en Buenos Aires
+        - generic: 2 min de lectura
+        - generic: arrow_forward
+      - link "Guía para mudarte a Buenos Aires a estudiar 4 min de lectura":
+        - /url: /guias/guia-mudarte-buenos-aires-estudiar
+        - generic: luggage
+        - generic: Guía para mudarte a Buenos Aires a estudiar
+        - generic: 4 min de lectura
+        - generic: arrow_forward
+- button "Camila — Estudiante en Búsqueda": Camila — Estudiante en Búsqueda
+- alert

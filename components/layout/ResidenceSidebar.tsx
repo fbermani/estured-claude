@@ -9,6 +9,7 @@ import { signOut } from "@/app/(public)/login/actions";
 import { useSidebarCollapse } from "@/components/layout/useSidebarCollapse";
 import { MobileTabBar, type TabItem } from "@/components/layout/MobileTabBar";
 import { PremiumTag } from "@/components/residences/PremiumLock";
+import { NewTag } from "@/components/layout/NewTag";
 
 /**
  * Sidebar de navegación de una residencia puntual — a semejanza
@@ -32,6 +33,7 @@ export function ResidenceSidebar({
   isOwner = false,
   canEditProfile = false,
   premiumLocked = false,
+  shareIsNew = false,
 }: {
   residenceId: string;
   userEmail: string;
@@ -47,13 +49,15 @@ export function ResidenceSidebar({
   canEditProfile?: boolean;
   /** DR17: la residencia no tiene Gestión Operativa (Plan Premium): remarca esas secciones. Solo presentación, nada se bloquea (D8). */
   premiumLocked?: boolean;
+  /** Etiqueta «Nuevo» en «Compartir ficha» (se apaga sola en la fecha de `lib/share/newBadge.ts`; la resuelve el layout). */
+  shareIsNew?: boolean;
 }) {
   const pathname = usePathname();
   const base = `/residence/${residenceId}`;
   const { collapsed, toggleCollapsed, mobileOpen, setMobileOpen, drawerInert, menuButtonRef, closeButtonRef, drawerRef } =
     useSidebarCollapse();
 
-  const NAV: { href: string; label: string; icon: string; exact?: boolean; badge?: number; badgeNoun?: string; premium?: boolean }[] = [
+  const NAV: { href: string; label: string; icon: string; exact?: boolean; badge?: number; badgeNoun?: string; premium?: boolean; isNew?: boolean }[] = [
     { href: base, label: "Panel", icon: "dashboard", exact: true },
     { href: `${base}/applications`, label: "Solicitudes", icon: "inbox", badge: applicationsBadge, badgeNoun: "solicitudes nuevas sin revisar" },
     { href: `${base}/rooms`, label: "Habitaciones", icon: "meeting_room", premium: true },
@@ -63,6 +67,7 @@ export function ResidenceSidebar({
     { href: `${base}/waitlist`, label: "Lista de espera", icon: "hourglass_top" },
     { href: `${base}/faq`, label: "Preguntas", icon: "forum", badge: faqBadge, badgeNoun: "preguntas sin responder" },
     { href: `${base}/regulation`, label: "Reglamento", icon: "gavel" },
+    { href: `${base}/share`, label: "Compartir ficha", icon: "share", isNew: shareIsNew },
     { href: `${base}/support`, label: "Soporte", icon: "support_agent" },
     { href: `${base}/plan`, label: "Plan", icon: "workspace_premium" },
     ...(isOwner ? [{ href: `${base}/team`, label: "Equipo", icon: "supervisor_account" }] : []),
@@ -95,6 +100,7 @@ export function ResidenceSidebar({
         },
         item(`${base}/faq`),
         item(`${base}/regulation`),
+        { ...item(`${base}/share`), trailing: shareIsNew ? <NewTag /> : undefined },
       ],
     },
     {
@@ -137,7 +143,7 @@ export function ResidenceSidebar({
         role={mobileOpen ? "dialog" : undefined}
         aria-modal={mobileOpen ? true : undefined}
         aria-label={mobileOpen ? "Menú de navegación" : undefined}
-        className={`fixed inset-y-0 left-0 z-50 flex max-md:overflow-y-auto shrink-0 flex-col justify-between border-r border-line bg-paper transition-transform duration-200 md:relative md:translate-x-0 md:transition-[width] ${
+        className={`fixed inset-y-0 left-0 z-50 flex max-md:overflow-y-auto shrink-0 flex-col justify-between border-r border-line bg-paper transition-transform duration-200 md:relative md:translate-x-0 md:transition-none ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         } ${collapsed ? "w-64 md:w-[76px]" : "w-64"}`}
       >
@@ -179,9 +185,10 @@ export function ResidenceSidebar({
                   key={item.href}
                   href={item.href}
                   onClick={() => setMobileOpen(false)}
+                  aria-current={active ? "page" : undefined}
                   title={item.badge ? `${item.label}: ${item.badge} ${item.badgeNoun}` : premiumLocked && item.premium ? `${item.label} (Plan Premium)` : item.label}
-                  aria-label={item.badge ? `${item.label}, ${item.badge} ${item.badgeNoun}` : premiumLocked && item.premium ? `${item.label}, función del Plan Premium` : item.label}
-                  className={`relative flex items-center gap-3 rounded-field px-3 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) ${
+                  aria-label={item.badge ? `${item.label}, ${item.badge} ${item.badgeNoun}` : premiumLocked && item.premium ? `${item.label}, función del Plan Premium` : item.isNew ? `${item.label}, nuevo` : item.label}
+                  className={`relative flex min-h-11 items-center gap-3 rounded-field px-3 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) ${
                     active ? "bg-(--tone-tint) text-(--tone-700)" : "text-ink-soft hover:bg-cream-2"
                   } ${collapsed ? "md:justify-center" : ""}`}
                 >
@@ -190,10 +197,11 @@ export function ResidenceSidebar({
                   {premiumLocked && item.premium ? (
                     <PremiumTag className={`ml-auto ${collapsed ? "md:hidden" : ""}`} />
                   ) : null}
+                  {item.isNew ? <NewTag className={`ml-auto ${collapsed ? "md:hidden" : ""}`} /> : null}
                   {item.badge ? (
                     <span
                       aria-hidden
-                      className={`${premiumLocked && item.premium ? "ml-1" : "ml-auto"} flex min-w-5 items-center justify-center rounded-full bg-orange px-1.5 text-[11px] font-extrabold leading-5 text-white ${collapsed ? "md:absolute md:right-1.5 md:top-1" : ""}`}
+                      className={`${premiumLocked && item.premium ? "ml-1" : "ml-auto"} flex min-w-5 items-center justify-center rounded-full bg-orange px-1.5 text-xs font-bold leading-5 tabular-nums text-white ${collapsed ? "md:absolute md:right-1.5 md:top-1" : ""}`}
                     >
                       {item.badge}
                     </span>
@@ -220,7 +228,7 @@ export function ResidenceSidebar({
             href={`${base}/profile`}
             title={canEditProfile ? "Editar perfil" : "Ver perfil"}
             aria-label={canEditProfile ? "Editar perfil" : "Ver perfil"}
-            className={`mt-2 flex items-center gap-2 rounded-field px-3 py-2 text-sm font-medium text-ink-soft hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) ${collapsed ? "md:justify-center" : ""}`}
+            className={`mt-2 flex min-h-11 items-center gap-2 rounded-field px-3 py-2 text-sm font-medium text-ink-soft hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) ${collapsed ? "md:justify-center" : ""}`}
           >
             <Icon name={canEditProfile ? "edit" : "visibility"} className="shrink-0 text-lg" />
             <span className={collapsed ? "md:hidden" : ""}>{canEditProfile ? "Editar perfil" : "Ver perfil"}</span>
@@ -230,7 +238,7 @@ export function ResidenceSidebar({
               type="submit"
               title="Salir"
               aria-label="Salir"
-              className={`mt-1 flex w-full items-center gap-2 rounded-field px-3 py-2 text-left text-sm font-medium text-ink-soft hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) ${collapsed ? "md:justify-center" : ""}`}
+              className={`mt-1 flex min-h-11 w-full items-center gap-2 rounded-field px-3 py-2 text-left text-sm font-medium text-ink-soft hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) ${collapsed ? "md:justify-center" : ""}`}
             >
               <Icon name="logout" className="shrink-0 text-lg" />
               <span className={collapsed ? "md:hidden" : ""}>Salir</span>

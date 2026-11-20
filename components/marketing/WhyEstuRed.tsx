@@ -9,7 +9,7 @@ import { ReceiptMiniature } from "@/components/marketing/ReceiptMiniature";
  */
 const ROWS = [
   { what: "La residencia", withUs: "Verificada en persona por EstuRed", outside: "La chequeás por tu cuenta" },
-  { what: "Precio y costos", withUs: "Publicados, con el fee a la vista", outside: "Los consultás uno por uno" },
+  { what: "Precio y costos", withUs: "Publicados, sin costos ocultos", outside: "Los consultás uno por uno" },
   { what: "Acuerdos", withUs: "Registrados en tu cuenta", outside: "Quedan en chats sueltos" },
   { what: "Reserva confirmada", withUs: "Comprobante con código verificable", outside: "Depende de cada residencia" },
   { what: "Si algo no coincide", withUs: "Abrís un caso de Soporte", outside: "Lo resolvés directo con la residencia" },
@@ -66,26 +66,26 @@ export function WhyEstuRed() {
             </tbody>
           </table>
 
-          {/* Mobile: filas apiladas, rótulo arriba y dos celdas lado a lado */}
+          {/* Mobile: filas apiladas, rótulo arriba y dos celdas lado a lado, cada una con su etiqueta («Con EstuRed» / «Por fuera») */}
           <ul className="space-y-2.5 md:hidden" aria-label="Con EstuRed vs. por fuera">
             {ROWS.map((r) => (
               <li key={r.what} className="rounded-card border border-sand-200 p-3">
-                <p className="text-xs font-bold text-ink-faint">{r.what}</p>
-                <div className="mt-1.5 grid grid-cols-2 gap-2 text-[13px] leading-snug">
-                  <p className="flex items-start gap-1.5 rounded-lg bg-forest-tint/60 p-2 font-medium text-ink">
-                    <Icon name="check" className="text-base text-forest" />
-                    <span>
-                      <span className="sr-only">Con EstuRed: </span>
-                      {r.withUs}
-                    </span>
-                  </p>
-                  <p className="flex items-start gap-1.5 p-2 text-ink-soft">
-                    <Icon name="remove" className="text-base text-ink-faint" />
-                    <span>
-                      <span className="sr-only">Por fuera: </span>
-                      {r.outside}
-                    </span>
-                  </p>
+                <p className="text-sm font-bold text-ink">{r.what}</p>
+                <div className="mt-2 grid grid-cols-2 gap-2 text-[15px] leading-snug">
+                  <div className="rounded-lg bg-forest-tint p-2.5">
+                    <p className="flex items-center gap-1 text-xs font-bold text-forest-700">
+                      <Icon name="check" className="text-base" />
+                      Con EstuRed
+                    </p>
+                    <p className="mt-1 font-medium text-ink">{r.withUs}</p>
+                  </div>
+                  <div className="rounded-lg bg-sand-50 p-2.5">
+                    <p className="flex items-center gap-1 text-xs font-bold text-ink-faint">
+                      <Icon name="remove" className="text-base" />
+                      Por fuera
+                    </p>
+                    <p className="mt-1 text-ink-soft">{r.outside}</p>
+                  </div>
                 </div>
               </li>
             ))}

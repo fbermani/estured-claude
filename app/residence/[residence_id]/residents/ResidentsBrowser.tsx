@@ -1,18 +1,14 @@
 "use client";
 
 import { formatDateOnly } from "@/lib/dates/formatDateOnly";
-import { formatDate as formatTimestampDate } from "@/lib/dates/format";
 import { Fragment, useMemo, useState, useEffect, useActionState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
-import { Card } from "@/components/ui/Card";
-import { PageHero } from "@/components/ui/PageHero";
-import { MetricCard } from "@/components/ui/MetricCard";
-import { FilterChips } from "@/components/ui/FilterChips";
 import { ScrollTable } from "@/components/ui/ScrollTable";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { StudentDocumentChecklist, type StudentDocumentItem } from "@/components/residences/StudentDocumentChecklist";
 import { formatUsd } from "@/lib/mock/exchange";
 import { InviteResidentsCard } from "@/app/residence/[residence_id]/residents/InviteResidentsCard";
 import { PendingInviteBlock } from "@/app/residence/[residence_id]/residents/PendingInviteBlock";
@@ -69,7 +65,8 @@ export type ResidentRow = {
   } | null;
   studentProfileId: string | null;
   /** DR38: documentación que pide la residencia y su estado en este residente (solo estado, nunca el archivo). `null` = sin cuenta de estudiante vinculada. */
-  documents: { label: string; delivered: boolean; deliveredAt: string | null }[] | null;
+  /** DR38/DR48: `fileId` solo viene si quien mira puede abrir el archivo (casillero `residents.manage`). */
+  documents: StudentDocumentItem[] | null;
   /** Depósito de la reserva vinculada: define las opciones al registrar una salida anticipada. */
   depositMode: "had" | "none" | "unknown";
   /** Pedido de cambio de habitación dentro de la residencia (DR34): el abierto o, si no hay, el último cerrado. */
@@ -146,15 +143,45 @@ const STATUS_META: Record<StatusKey, { label: string; tone: "sage" | "amber" | "
   pendiente: { label: "Pendiente de activación", tone: "neutral" },
 };
 
-const FILTER_PILLS: { key: FilterKey; label: string }[] = [
-  { key: "todos", label: "Todos" },
-  { key: "activo", label: "Activos" },
-  { key: "por_ingresar", label: "Por ingresar" },
-  { key: "por_salir", label: "Por salir" },
-  { key: "busca_cambiar", label: "Buscan cambiar" },
-  { key: "cambio_habitacion", label: "Piden otra habitación" },
-  { key: "pendiente", label: "Pendientes" },
+type SortKey = "name" | "room" | "status" | "end" | "rate";
+type SortState = { key: SortKey; dir: "asc" | "desc" } | null;
+
+const SORT_COLUMNS: { key: SortKey; label: string }[] = [
+  { key: "name", label: "Residente" },
+  { key: "room", label: "Habitación / Cama" },
+  { key: "status", label: "Estado" },
+  { key: "end", label: "Contrato hasta" },
+  { key: "rate", label: "Tarifa mensual" },
 ];
+
+const STATUS_ORDER: Record<StatusKey, number> = { activo: 0, por_ingresar: 1, por_salir: 2, pendiente: 3 };
+
+/** Los valores vacíos (sin habitación, sin fecha, sin tarifa) van siempre al final, en cualquier sentido. */
+function compareRows(a: ResidentRow, b: ResidentRow, key: SortKey, dir: "asc" | "desc", todayStr: string, in30Str: string): number {
+  const sign = dir === "asc" ? 1 : -1;
+  const collator = (x: string, y: string) => x.localeCompare(y, "es", { numeric: true, sensitivity: "base" });
+  const rate = (r: ResidentRow) => r.rateUsd ?? r.agreedRateUsd ?? r.baseRateUsd;
+  switch (key) {
+    case "name":
+      return sign * collator(a.name, b.name);
+    case "room": {
+      if (!a.roomLabel || !b.roomLabel) return a.roomLabel ? -1 : b.roomLabel ? 1 : 0;
+      return sign * (collator(a.roomLabel, b.roomLabel) || collator(a.bedLetter ?? "", b.bedLetter ?? ""));
+    }
+    case "status":
+      return sign * (STATUS_ORDER[statusOf(a, todayStr, in30Str)] - STATUS_ORDER[statusOf(b, todayStr, in30Str)]);
+    case "end": {
+      if (!a.expectedEndDate || !b.expectedEndDate) return a.expectedEndDate ? -1 : b.expectedEndDate ? 1 : 0;
+      return sign * a.expectedEndDate.localeCompare(b.expectedEndDate);
+    }
+    case "rate": {
+      const ra = rate(a);
+      const rb = rate(b);
+      if (ra == null || rb == null) return ra != null ? -1 : rb != null ? 1 : 0;
+      return sign * (ra - rb);
+    }
+  }
+}
 
 function NotesSection({
   residenceId,
@@ -171,7 +198,7 @@ function NotesSection({
 
   return (
     <div className="rounded-field border border-line bg-paper p-4 sm:col-span-2 lg:col-span-1">
-      <p className="mb-3 flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest text-muted">
+      <p className="mb-3 flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-muted">
         <Icon name="edit_note" className="text-sm" /> Notas internas
         <span className="ml-auto normal-case tracking-normal text-ink-faint">Solo visible para la residencia</span>
       </p>
@@ -208,7 +235,7 @@ function NotesSection({
             {notePending ? "…" : "Guardar nota"}
           </button>
         </div>
-        {noteState.status === "error" && <p className="mt-1.5 text-xs font-medium text-danger-fg">{noteState.message}</p>}
+        {noteState.status === "error" && <p role="alert" className="mt-1.5 text-xs font-medium text-danger-fg">{noteState.message}</p>}
       </form>
 
       {notes.length > 0 && (
@@ -220,7 +247,7 @@ function NotesSection({
                 <span className="text-ink-faint">{timeAgo(note.createdAt)}</span>
               </div>
               <p className="mt-0.5 leading-relaxed text-ink-soft">{note.body}</p>
-              <span className="mt-1 inline-block rounded-full bg-cream-2 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink-faint">
+              <span className="mt-1 inline-block rounded-full bg-cream-2 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-ink-faint">
                 {NOTE_CATEGORY_LABEL[note.category]}
               </span>
             </li>
@@ -231,13 +258,13 @@ function NotesSection({
   );
 }
 
-/** DR38: documentación que pide la residencia y su estado en este residente. Solo estado: nunca el archivo ni un enlace. */
-function StayDocumentsBlock({ row, limited }: { row: ResidentRow; limited: boolean }) {
+/** DR38/DR48: documentación que pide la residencia y su estado en este residente; «Ver» abre el archivo si hay permiso. */
+function StayDocumentsBlock({ residenceId, row, limited }: { residenceId: string; row: ResidentRow; limited: boolean }) {
   const docs = row.documents;
   const missing = docs ? docs.filter((d) => !d.delivered).length : 0;
   return (
     <div className="rounded-field border border-line bg-paper p-4 sm:col-span-2 lg:col-span-4">
-      <p className="mb-3 flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest text-muted">
+      <p className="mb-3 flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-muted">
         <Icon name="folder_shared" className="text-sm" /> Documentación
         {docs && docs.length > 0 && (
           <span className="ml-1 font-semibold normal-case tracking-normal text-ink-faint">
@@ -250,24 +277,15 @@ function StayDocumentsBlock({ row, limited }: { row: ResidentRow; limited: boole
       ) : docs.length === 0 ? (
         <p className="text-sm text-ink-soft">Tu residencia no pide documentos. Podés elegirlos en Configuración, en «Documentos que pedís a tus residentes».</p>
       ) : (
-        <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {docs.map((d) => (
-            <li key={d.label} className="flex items-center justify-between gap-2 rounded-field bg-cream-2 px-3 py-2 text-sm">
-              <span className="min-w-0 truncate font-medium text-ink">{d.label}</span>
-              {d.delivered ? (
-                <span className="flex shrink-0 items-center gap-1 text-xs font-semibold text-forest-700">
-                  <Icon name="check_circle" className="text-base" /> Entregado{d.deliveredAt ? ` · ${formatTimestampDate(d.deliveredAt)}` : ""}
-                </span>
-              ) : (
-                <Badge tone="amber">Falta</Badge>
-              )}
-            </li>
-          ))}
-        </ul>
+        <StudentDocumentChecklist residenceId={residenceId} items={docs} />
       )}
       {docs !== null && (
-        <p className="mt-2 text-[11px] leading-relaxed text-ink-faint">
-          Solo ves si lo entregó. Los documentos son privados y no se muestran.
+        <p className="mt-2 text-xs leading-relaxed text-ink-faint">
+          {docs.some((d) => d.fileId)
+            ? "Cada vez que abrís un documento queda registrado. El link dura 5 minutos."
+            : docs.some((d) => d.delivered)
+              ? "Solo ves si lo entregó: para abrir los documentos necesitás el permiso «Residentes»."
+              : "Cuando lo entregue, vas a poder abrirlo desde acá."}
           {limited ? " Antecedentes penales y los documentos propios se van a poder ver cuando se actualice el sistema." : ""}
         </p>
       )}
@@ -368,7 +386,7 @@ function DetailPanel({
       {/* Salida exacta + tarifa — ref modal perfil del residente */}
       <PermissionGate bare allowed={canResidents}>
       <form action={detailsFormAction} className="rounded-field border border-line bg-paper p-4">
-        <p className="mb-3 flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest text-muted">
+        <p className="mb-3 flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-muted">
           <Icon name="event" className="text-sm" /> Estadía y tarifa
         </p>
         <label className="mb-1 block text-xs font-bold text-ink" htmlFor={`end-${row.stayId}`}>
@@ -400,14 +418,14 @@ function DetailPanel({
           }
           className="w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-2 focus:outline-offset-1 focus:outline-forest"
         />
-        <p className="mt-1 text-[11px] text-ink-faint">
+        <p className="mt-1 text-xs text-ink-faint">
           {row.agreedRateUsd != null
             ? "Vacío = rige la tarifa acordada en la reserva."
             : "Vacío = rige la tarifa del tipo de habitación."}
         </p>
         {row.agreedRateUsd != null && (
           <p
-            className={`mt-2 rounded-field px-2.5 py-1.5 text-[11px] ${
+            className={`mt-2 rounded-field px-2.5 py-1.5 text-xs ${
               rateDiffersFromAgreed ? "bg-warning-bg font-medium text-warning-fg" : "bg-cream-2 text-ink-soft"
             }`}
           >
@@ -425,7 +443,7 @@ function DetailPanel({
           {detailsPending ? "Guardando…" : "Guardar"}
         </button>
         {detailsState.status === "error" && (
-          <p className="mt-2 text-xs font-medium text-danger-fg">{detailsState.message}</p>
+          <p role="alert" className="mt-2 text-xs font-medium text-danger-fg">{detailsState.message}</p>
         )}
         {detailsState.status === "saved" && <p className="mt-2 text-xs font-medium text-success-fg">Guardado.</p>}
       </form>
@@ -433,7 +451,7 @@ function DetailPanel({
 
       {/* Habitación y cama (+ cambio de habitación, DR34) */}
       <div className="rounded-field border border-line bg-paper p-4">
-        <p className="mb-3 flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest text-muted">
+        <p className="mb-3 flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-muted">
           <Icon name="meeting_room" className="text-sm" /> Habitación y cama
         </p>
         <p className="text-sm font-semibold text-ink">
@@ -464,7 +482,7 @@ function DetailPanel({
             {bedPending ? "Asignando…" : "Cambiar ubicación"}
           </button>
         </form>
-        {bedState.status === "error" && <p className="mt-2 text-xs font-medium text-danger-fg">{bedState.message}</p>}
+        {bedState.status === "error" && <p role="alert" className="mt-2 text-xs font-medium text-danger-fg">{bedState.message}</p>}
         {bedState.status === "saved" && <p className="mt-2 text-xs font-medium text-success-fg">Reubicado.</p>}
         </PermissionGate>
         <PermissionGate bare allowed={canResidents}>
@@ -475,7 +493,7 @@ function DetailPanel({
       {/* Renovación + zona de riesgo */}
       <div className="flex flex-col gap-4">
         <div className="rounded-field border border-line-2 bg-forest-tint/50 p-4">
-          <p className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest text-forest-700">
+          <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-forest-700">
             <Icon name="autorenew" className="text-sm" /> Renovación
           </p>
           {row.renewal ? (
@@ -528,7 +546,7 @@ function DetailPanel({
         </div>
         <PermissionGate bare allowed={canResidents}>
         <div className="rounded-field border border-danger-fg/30 bg-danger-bg/50 p-4">
-          <p className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest text-danger-fg">
+          <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-danger-fg">
             <Icon name="warning" className="text-sm" /> Zona de riesgo
           </p>
           {row.stayChange && (
@@ -575,7 +593,7 @@ function DetailPanel({
               </button>
             </form>
           )}
-          {endState.status === "error" && <p className="mt-2 text-xs font-medium text-danger-fg">{endState.message}</p>}
+          {endState.status === "error" && <p role="alert" className="mt-2 text-xs font-medium text-danger-fg">{endState.message}</p>}
         </div>
         </PermissionGate>
       </div>
@@ -584,7 +602,7 @@ function DetailPanel({
         <NotesSection residenceId={residenceId} row={row} notes={notes} />
       </PermissionGate>
 
-      <StayDocumentsBlock row={row} limited={documentsLimited} />
+      <StayDocumentsBlock residenceId={residenceId} row={row} limited={documentsLimited} />
     </div>
   );
 }
@@ -611,10 +629,14 @@ export function ResidentsBrowser({
     return param === "buscan-cambiar" ? "busca_cambiar" : param === "cambio-habitacion" ? "cambio_habitacion" : "todos";
   });
   const [search, setSearch] = useState("");
+  // Orden por columna: asc → desc → orden original.
+  const [sort, setSort] = useState<SortState>(null);
   // Sub-filtros de «Piden otra habitación» (DR34): una preferencia vacía es «me da igual», así que también aparece cuando se filtra por un tipo o género.
   const [changeType, setChangeType] = useState("");
   const [changeGender, setChangeGender] = useState("");
   const [showAdd, setShowAdd] = useState(false);
+  const [pendingOpen, setPendingOpen] = useState(false);
+  const [inviteOpen, setInviteOpen] = useState(false);
   const [respondingId, setRespondingId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [exitRequest, setExitRequest] = useState<{ stayId: string; date: string | null; nonce: number } | null>(null);
@@ -665,6 +687,15 @@ export function ResidentsBrowser({
     });
   }, [data.rows, filter, search, changeType, changeGender, todayStr, in30Str]);
 
+  const shown = useMemo(() => {
+    if (!sort) return filtered;
+    return [...filtered].sort((a, b) => compareRows(a, b, sort.key, sort.dir, todayStr, in30Str));
+  }, [filtered, sort, todayStr, in30Str]);
+
+  function toggleSort(key: SortKey) {
+    setSort((cur) => (cur?.key !== key ? { key, dir: "asc" } : cur.dir === "asc" ? { key, dir: "desc" } : null));
+  }
+
   const openRoomChangeCount = useMemo(() => data.rows.filter((r) => r.roomChange && isOpenRoomChangeStatus(r.roomChange.status)).length, [data.rows]);
   // Residentes con un pedido pendiente, para mostrar a quién se le puede ofrecer cada plaza liberada.
   const alertResidents = useMemo(
@@ -681,6 +712,34 @@ export function ResidentsBrowser({
   );
 
   const { kpis } = data;
+  // Avisos que piden una decisión: viven plegados en una sola barra para no empujar la lista.
+  const openStayChanges = data.stayChanges.filter((c) => c.status === "open").length;
+  const linkCount = canManageResidents ? data.linkRequests.length : 0;
+  const pendingParts = [
+    linkCount > 0 ? `${linkCount} ${linkCount === 1 ? "vínculo" : "vínculos"} por revisar` : null,
+    data.placeAlerts.length > 0 ? `${data.placeAlerts.length} ${data.placeAlerts.length === 1 ? "plaza liberada" : "plazas liberadas"}` : null,
+    data.stayChanges.length > 0
+      ? openStayChanges > 0
+        ? `${openStayChanges} ${openStayChanges === 1 ? "residente busca cambiar" : "residentes buscan cambiar"}`
+        : "avisos de cambio cerrados"
+      : null,
+  ].filter((t): t is string => !!t);
+  const pendingTotal = pendingParts.length;
+  // Cada número es lo que muestra la lista al elegir ese filtro (mismo criterio que `filtered`).
+  const tabCounts = useMemo(() => {
+    const c = { todos: data.rows.length, activo: 0, por_ingresar: 0, por_salir: 0, pendiente: 0 };
+    for (const r of data.rows) c[statusOf(r, todayStr, in30Str)]++;
+    return c;
+  }, [data.rows, todayStr, in30Str]);
+  const STAT_TABS: { key: FilterKey; label: string; icon: string; count: number; attention?: boolean }[] = [
+    { key: "todos", label: "Todos", icon: "groups", count: tabCounts.todos },
+    { key: "activo", label: "Activos", icon: "check_circle", count: tabCounts.activo },
+    { key: "por_ingresar", label: "Por ingresar", icon: "flight_land", count: tabCounts.por_ingresar },
+    { key: "por_salir", label: "Por salir", icon: "flight_takeoff", count: tabCounts.por_salir },
+    { key: "busca_cambiar", label: "Buscan cambiar", icon: "swap_horiz", count: kpis.seekingChange, attention: true },
+    { key: "cambio_habitacion", label: "Piden otra habitación", icon: "meeting_room", count: openRoomChangeCount, attention: true },
+    { key: "pendiente", label: "Pendientes", icon: "hourglass_top", count: tabCounts.pendiente },
+  ];
 
   function registerExit(item: ResidenceStayChangeItem) {
     const row = data.rows.find((r) => r.studentProfileId === item.studentProfileId);
@@ -698,34 +757,55 @@ export function ResidentsBrowser({
 
   return (
     <div className="tone-residence mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
-      <PageHero
-        tone="residence"
-        eyebrow={residenceName}
-        eyebrowIcon="apartment"
-        title="Residentes"
-        subtitle="Ingresos, estadías y renovaciones en un solo lugar."
-        glyph="groups"
-        className="mb-6"
-        status={
-          data.linkRequests.length > 0 && canManageResidents ? (
-            <Badge tone="amber">
-              <Icon name="link" className="text-sm" /> {data.linkRequests.length} {data.linkRequests.length === 1 ? "vínculo por revisar" : "vínculos por revisar"}
-            </Badge>
-          ) : undefined
-        }
-        actions={
+      <header className="relative mb-5 overflow-hidden rounded-card bg-(--tone-soft) px-5 py-5 md:px-8 md:py-6">
+        <span aria-hidden="true" className="pointer-events-none absolute -right-14 -top-[70px] size-[220px] rounded-full bg-(--tone) opacity-[0.12]" />
+        <div className="relative flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+          <div className="grid gap-1.5">
+            <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.09em] text-(--tone-700)">
+              <Icon name="apartment" className="text-lg" />
+              {residenceName}
+            </span>
+            <h1 className="font-display text-[1.75rem] font-bold leading-[1.08] text-(--tone-ink) md:text-4xl">Residentes</h1>
+            <p className="max-w-[52ch] text-[15px] text-ink-soft">Ingresos, estadías y renovaciones en un solo lugar.</p>
+            {data.linkRequests.length > 0 && canManageResidents && (
+              <div className="flex flex-wrap items-center gap-2.5">
+                <Badge tone="amber">
+                  <Icon name="link" className="text-sm" /> {data.linkRequests.length} {data.linkRequests.length === 1 ? "vínculo por revisar" : "vínculos por revisar"}
+                </Badge>
+              </div>
+            )}
+          </div>
+          <div className="flex flex-wrap items-center gap-3 max-md:w-full">
+            {canManageResidents && (
+              <button
+                type="button"
+                aria-expanded={inviteOpen}
+                onClick={() => setInviteOpen((v) => !v)}
+                className="inline-flex min-h-12 cursor-pointer items-center gap-2 rounded-full border-[1.5px] border-(--tone)/40 bg-white/70 px-5 text-sm font-bold text-(--tone-700) hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) max-md:flex-1 max-md:justify-center"
+              >
+                <Icon name="forum" className="text-lg" /> Invitar y código de casa
+                <Icon name="expand_more" className={`text-xl transition-transform duration-300 ${inviteOpen ? "rotate-180" : ""}`} />
+              </button>
+            )}
           <button
             type="button"
             onClick={() => setShowAdd((v) => !v)}
             disabled={!canManageResidents}
             title={canManageResidents ? undefined : "Pedile este permiso al dueño."}
-            className="inline-flex min-h-[46px] cursor-pointer items-center justify-center gap-1.5 rounded-full bg-(--tone) px-6 text-[15px] font-semibold text-white transition duration-200 ease-out-fresh motion-safe:active:scale-[0.97] hover:-translate-y-px hover:bg-(--tone-600) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex min-h-[56px] cursor-pointer items-center justify-center gap-2 rounded-full bg-(--tone) px-8 text-base font-bold text-white shadow-[0_8px_20px_var(--tone-glow)] transition duration-200 ease-out-fresh motion-safe:active:scale-[0.97] hover:-translate-y-0.5 hover:bg-(--tone-600) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) disabled:cursor-not-allowed disabled:opacity-50 max-md:w-full max-md:order-first"
           >
-            <Icon name={showAdd ? "close" : "person_add"} className="text-xl" />
+            <Icon name={showAdd ? "close" : "person_add"} className="text-2xl" />
             {showAdd ? "Cerrar" : "Agregar residente"}
           </button>
-        }
-      />
+          </div>
+        </div>
+        {canManageResidents && inviteOpen && (
+          <div className="relative mt-4 grid gap-3 lg:grid-cols-[1.9fr_1fr]">
+            <InviteResidentsCard residenceName={residenceName} variant="panel" />
+            <HouseCodeCard residenceId={residenceId} code={data.houseCode} variant="panel" />
+          </div>
+        )}
+      </header>
 
       {showAdd && (
         <div className="mb-6">
@@ -733,20 +813,28 @@ export function ResidentsBrowser({
         </div>
       )}
 
-      {canManageResidents && <LinkRequestsCard residenceId={residenceId} requests={data.linkRequests} stays={data.unlinkedStays} />}
-      {canManageResidents && <InviteResidentsCard residenceName={residenceName} />}
-      {canManageResidents && <HouseCodeCard residenceId={residenceId} code={data.houseCode} />}
+      {pendingTotal > 0 && (
+        <section aria-label="Pendientes de gestión" className="mt-5">
+          <button
+            type="button"
+            aria-expanded={pendingOpen}
+            onClick={() => setPendingOpen((v) => !v)}
+            className="flex min-h-12 w-full cursor-pointer items-center justify-between gap-3 rounded-card border-[1.5px] border-orange/40 bg-orange-tint px-4 text-left focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-(--tone)"
+          >
+            <span className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
+              <span className="inline-flex items-center gap-2 font-bold text-ink">
+                <Icon name="notifications_active" className="text-xl text-orange-700" /> Pendientes de gestión
+              </span>
+              {pendingParts.map((t) => (
+                <span key={t} className="rounded-full bg-paper px-2.5 py-0.5 text-xs font-bold text-orange-700">{t}</span>
+              ))}
+            </span>
+            <Icon name="expand_more" className={`shrink-0 text-2xl text-ink-soft transition-transform duration-300 ${pendingOpen ? "rotate-180" : ""}`} />
+          </button>
+          <div hidden={!pendingOpen}>
+        {canManageResidents && <LinkRequestsCard residenceId={residenceId} requests={data.linkRequests} stays={data.unlinkedStays} />}
 
-      {/* KPIs — ref gestión de residentes (sin "evaluaciones": feature pospuesta) */}
-      <div className="grid grid-cols-2 gap-3 sm:gap-3.5 lg:grid-cols-5">
-        <MetricCard icon="groups" label="Activos" value={kpis.active} />
-        <MetricCard icon="flight_land" label="Por ingresar" value={kpis.arrivals} />
-        <MetricCard icon="flight_takeoff" label="Salidas" value={kpis.departures} hint="Próximos 30 días" />
-        <MetricCard icon="autorenew" label="Renovación" value={kpis.renewals} hint="En ventana" />
-        <MetricCard icon="swap_horiz" label="Buscan cambiar" value={kpis.seekingChange} className={`col-span-2 lg:col-span-1 ${kpis.seekingChange > 0 ? "border-orange/50" : ""}`} />
-      </div>
-
-      <RoomChangeAlertsCard
+        <RoomChangeAlertsCard
         residenceId={residenceId}
         alerts={data.placeAlerts}
         residents={alertResidents}
@@ -755,13 +843,17 @@ export function ResidentsBrowser({
         onMessage={setToast}
       />
 
-      <StayChangeSection
+        <StayChangeSection
         residenceId={residenceId}
         items={data.stayChanges}
         onRespond={(item) => setRespondingId(item.id)}
         onRegisterExit={registerExit}
         canAct={canManageResidents}
       />
+
+          </div>
+        </section>
+      )}
 
       {toast && (
         <p role="status" className="mt-4 flex items-start gap-2 rounded-field bg-success-bg px-4 py-3 text-sm font-medium text-success-fg">
@@ -770,35 +862,55 @@ export function ResidentsBrowser({
         </p>
       )}
 
-      {/* Búsqueda + pills */}
-      <div className="mt-6 rounded-card border-[1.5px] border-line bg-paper p-4 shadow-card">
-        <div className="relative">
+      {/* Métricas = filtros: cada número es la lista que se ve al tocarlo */}
+      <div className="mt-6 rounded-card border-[1.5px] border-line bg-paper p-3 shadow-card">
+        <div role="group" aria-label="Filtrar por estado" className="flex gap-2 overflow-x-auto overscroll-x-contain pb-0.5">
+          {STAT_TABS.map((t) => {
+            const pressed = filter === t.key;
+            const warm = !pressed && t.attention && t.count > 0;
+            return (
+              <button
+                key={t.key}
+                type="button"
+                aria-pressed={pressed}
+                onClick={() => setFilter(t.key)}
+                className={`flex min-h-[64px] min-w-[112px] flex-1 cursor-pointer flex-col justify-between rounded-field border-[1.5px] px-3 py-2 text-left transition duration-200 ease-out-fresh motion-safe:active:scale-[0.98] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-(--tone) ${
+                  pressed ? "border-(--tone) bg-(--tone) text-white" : warm ? "border-orange/50 bg-paper hover:bg-cream-2" : "border-line-2 bg-paper hover:bg-cream-2"
+                }`}
+              >
+                <span className={`flex items-center gap-1 text-[11px] font-bold uppercase leading-tight tracking-[0.04em] ${pressed ? "text-white/90" : "text-ink-faint"}`}>
+                  <Icon name={t.icon} className={`shrink-0 text-base ${pressed ? "text-white" : "text-(--tone)"}`} />
+                  {t.label}
+                </span>
+                <span className={`font-display text-2xl font-bold leading-none tabular-nums ${pressed ? "text-white" : warm ? "text-orange-700" : "text-(--tone-ink)"}`}>{t.count}</span>
+              </button>
+            );
+          })}
+          <Link
+            href={`/residence/${residenceId}/renewals`}
+            className="flex min-h-[64px] min-w-[112px] flex-1 cursor-pointer flex-col justify-between rounded-field border-[1.5px] border-dashed border-line-2 bg-paper px-3 py-2 text-left hover:bg-cream-2 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-(--tone)"
+          >
+            <span className="flex items-center gap-1 text-[11px] font-bold uppercase leading-tight tracking-[0.04em] text-ink-faint">
+              <Icon name="autorenew" className="shrink-0 text-base text-(--tone)" />
+              Renovación
+            </span>
+            <span className="flex items-baseline gap-1.5">
+              <span className="font-display text-2xl font-bold leading-none tabular-nums text-(--tone-ink)">{kpis.renewals}</span>
+              <span className="text-xs text-ink-faint">{kpis.renewals === 1 ? "pedido u oferta" : "pedidos u ofertas"} →</span>
+            </span>
+          </Link>
+        </div>
+        <div className="relative mt-3">
           <Icon name="search" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-lg text-ink-faint" />
           <input
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar por nombre, email o habitación…"
-            className="w-full rounded-field border-[1.5px] border-field-border bg-cream py-2.5 pl-10 pr-3 text-sm text-ink placeholder:text-ink-faint focus:border-forest focus:outline-2 focus:outline-offset-1 focus:outline-forest"
+            aria-label="Buscar residentes"
+            className="w-full rounded-field border-[1.5px] border-field-border bg-cream py-2 pl-10 pr-3 text-sm text-ink placeholder:text-ink-faint focus:border-forest focus:outline-2 focus:outline-offset-1 focus:outline-forest"
           />
         </div>
-        <FilterChips
-          className="mt-3"
-          label="Filtrar por estado"
-          value={filter}
-          onChange={setFilter}
-          options={FILTER_PILLS.map((p) => ({
-            value: p.key,
-            label: p.label,
-            count:
-              p.key === "busca_cambiar" && kpis.seekingChange > 0
-                ? kpis.seekingChange
-                : p.key === "cambio_habitacion" && openRoomChangeCount > 0
-                  ? openRoomChangeCount
-                  : undefined,
-            attention: true,
-          }))}
-        />
         {filter === "cambio_habitacion" && (
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <label className="block text-xs font-semibold text-ink-soft">
@@ -865,8 +977,30 @@ export function ResidentsBrowser({
       ) : (
         <div className="mt-6 overflow-hidden rounded-card border-[1.5px] border-line bg-paper shadow-card">
           {!isMd && (
+          <div className="flex items-center gap-2 border-b border-line bg-cream-2 px-4 py-2">
+            <label htmlFor="residents-sort" className="text-xs font-bold uppercase tracking-wider text-muted">
+              Ordenar
+            </label>
+            <select
+              id="residents-sort"
+              value={sort ? `${sort.key}:${sort.dir}` : ""}
+              onChange={(e) => {
+                const [key, dir] = e.target.value.split(":");
+                setSort(key ? { key: key as SortKey, dir: dir as "asc" | "desc" } : null);
+              }}
+              className="min-h-11 min-w-0 flex-1 rounded-field border-[1.5px] border-field-border bg-paper px-2 text-sm text-ink focus:border-forest focus:outline-2 focus:outline-offset-1 focus:outline-forest"
+            >
+              <option value="">Orden original</option>
+              {SORT_COLUMNS.flatMap((c) => [
+                <option key={`${c.key}:asc`} value={`${c.key}:asc`}>{c.label} ↑</option>,
+                <option key={`${c.key}:desc`} value={`${c.key}:desc`}>{c.label} ↓</option>,
+              ])}
+            </select>
+          </div>
+          )}
+          {!isMd && (
           <ul className="divide-y divide-line" aria-label="Residentes">
-            {filtered.map((row, i) => {
+            {shown.map((row, i) => {
               const st = statusOf(row, todayStr, in30Str);
               const meta = STATUS_META[st];
               const open = openStayId === row.stayId;
@@ -958,15 +1092,28 @@ export function ResidentsBrowser({
             <table className="w-full text-left text-sm">
               <thead className="border-b border-line bg-cream-2">
                 <tr>
-                  {["Residente", "Habitación / Cama", "Estado", "Contrato hasta", "Tarifa mensual", ""].map((h) => (
-                    <th key={h} className="px-4 py-3 text-[11px] font-extrabold uppercase tracking-wider text-muted">
-                      {h}
-                    </th>
-                  ))}
+                  {SORT_COLUMNS.map((c) => {
+                    const active = sort?.key === c.key;
+                    return (
+                      <th key={c.key} scope="col" aria-sort={active ? (sort.dir === "asc" ? "ascending" : "descending") : "none"} className="px-4 py-1.5">
+                        <button
+                          type="button"
+                          onClick={() => toggleSort(c.key)}
+                          className={`-mx-2 inline-flex min-h-9 cursor-pointer items-center gap-1 rounded-field px-2 text-xs font-bold uppercase tracking-wider hover:bg-line/50 hover:text-ink focus-visible:outline-2 focus-visible:outline-(--tone) ${active ? "text-(--tone-700)" : "text-muted"}`}
+                        >
+                          {c.label}
+                          <Icon name={active ? (sort.dir === "asc" ? "arrow_upward" : "arrow_downward") : "unfold_more"} className={`text-base ${active ? "" : "opacity-50"}`} />
+                        </button>
+                      </th>
+                    );
+                  })}
+                  <th scope="col" className="px-4 py-3">
+                    <span className="sr-only">Acciones</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((row, i) => {
+                {shown.map((row, i) => {
                   const st = statusOf(row, todayStr, in30Str);
                   const meta = STATUS_META[st];
                   const open = openStayId === row.stayId;
@@ -1034,14 +1181,14 @@ export function ResidentsBrowser({
                         <td className="whitespace-nowrap px-4 py-3 font-bold text-ink">
                           {effectiveRate != null ? formatUsd(effectiveRate) : "—"}
                           {row.rateUsd != null && row.agreedRateUsd != null && row.rateUsd !== row.agreedRateUsd ? (
-                            <span className="block text-[10px] font-normal text-orange-700">
+                            <span className="block text-xs font-normal text-orange-700">
                               difiere de lo acordado ({formatUsd(row.agreedRateUsd)})
                             </span>
                           ) : (
                             row.rateUsd != null &&
                             row.baseRateUsd != null &&
                             row.rateUsd !== row.baseRateUsd && (
-                              <span className="block text-[10px] font-normal text-orange-700">personalizada</span>
+                              <span className="block text-xs font-normal text-orange-700">personalizada</span>
                             )
                           )}
                         </td>

@@ -1,0 +1,124 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- complementary:
+  - paragraph: EstuRed Admin
+  - paragraph: Panel de administración
+  - button "Notificaciones":
+    - generic: notifications
+  - navigation "Administración":
+    - link "Dashboard":
+      - /url: /admin/dashboard
+      - generic: Dashboard
+    - paragraph: Residencias
+    - link "Residencias":
+      - /url: /admin/residences
+      - generic: Residencias
+    - link "Verificaciones":
+      - /url: /admin/verifications
+      - generic: Verificaciones
+    - link "Ediciones de perfil":
+      - /url: /admin/profile-edits
+      - generic: Ediciones de perfil
+    - link "Solicitudes de alta":
+      - /url: /admin/solicitudes-alta
+      - generic: Solicitudes de alta
+    - link "Residencias pedidas":
+      - /url: /admin/residencias-pedidas
+      - generic: Residencias pedidas
+    - link "Preguntas de fichas":
+      - /url: /admin/faq
+      - generic: Preguntas de fichas
+    - link "Ítems «Otro» de fichas":
+      - /url: /admin/custom-amenities
+      - generic: Ítems «Otro» de fichas
+    - paragraph: Operación
+    - link "Solicitudes":
+      - /url: /admin/applications
+      - generic: Solicitudes
+    - link "Propuestas familiar":
+      - /url: /admin/family-proposals
+      - generic: Propuestas familiar
+    - link "Pagos":
+      - /url: /admin/payments
+      - generic: Pagos
+    - link "Actividad":
+      - /url: /admin/activity
+      - generic: Actividad
+    - link "Seguimiento":
+      - /url: /admin/followups
+      - generic: Seguimiento
+    - paragraph: Plataforma
+    - link "Comunidad":
+      - /url: /admin/community
+      - generic: Comunidad
+    - link "Visibilidad y penalizaciones":
+      - /url: /admin/visibility
+      - generic: Visibilidad y penalizaciones
+    - link "Administración de tarifas":
+      - /url: /admin/pricing
+      - generic: Administración de tarifas
+    - link "Documentos":
+      - /url: /admin/documents
+      - generic: Documentos
+    - link "Tipo de cambio":
+      - /url: /admin/exchange-rate
+      - generic: Tipo de cambio
+    - link "Usuarios":
+      - /url: /admin/users
+      - generic: Usuarios
+    - paragraph: Soporte
+    - link "Soporte":
+      - /url: /admin/support-cases
+      - generic: Soporte
+  - generic: A
+  - paragraph: admin.operaciones@estured.test
+  - paragraph: Admin
+  - button "Cerrar sesión"
+  - button "Colapsar menú":
+- main:
+  - heading "Seguimiento post-ingreso" [level=1]
+  - paragraph: A los 5 días del ingreso. La residencia no ve esta pantalla.
+  - link "Todos":
+    - /url: /admin/followups
+  - link "Programado":
+    - /url: /admin/followups?estado=scheduled
+  - link "Enviado":
+    - /url: /admin/followups?estado=sent
+  - link "Respondido":
+    - /url: /admin/followups?estado=answered
+  - link "Sin respuesta":
+    - /url: /admin/followups?estado=no_response
+  - link "Revisado":
+    - /url: /admin/followups?estado=reviewed
+  - link "Cancelado":
+    - /url: /admin/followups?estado=cancelled
+  - list:
+    - link "Lucia F. Enviado Residencia Río de la Plata · ingreso 20/07/2026":
+      - /url: /admin/followups?id=f119e6cc-787c-4d01-9216-2feb69ec0f9f
+      - generic: Lucia F.
+      - generic: Enviado
+      - paragraph: Residencia Río de la Plata · ingreso 20/07/2026
+    - link "Sin cuenta de estudiante Enviado Residencia Norte · ingreso 10/08/2026":
+      - /url: /admin/followups?id=31fc65aa-93e7-4562-9a99-b9655b825c39
+      - generic: Sin cuenta de estudiante
+      - generic: Enviado
+      - paragraph: Residencia Norte · ingreso 10/08/2026
+    - link "Valentina S. Respondido Residencia Norte · ingreso 15/09/2026":
+      - /url: /admin/followups?id=c83cb032-3d44-4d83-bc3d-09a80b9abaf9
+      - generic: Valentina S.
+      - generic: Respondido
+      - paragraph: Residencia Norte · ingreso 15/09/2026
+    - link "Valentina S. Revisado Residencia Norte · ingreso 15/09/2026":
+      - /url: /admin/followups?id=83aa80f7-4ee9-45cd-8384-ed9c5cf2e68e
+      - generic: Valentina S.
+      - generic: Revisado
+      - paragraph: Residencia Norte · ingreso 15/09/2026
+    - link "Valentina S. Sin respuesta Residencia Norte · ingreso 15/09/2026":
+      - /url: /admin/followups?id=3cda492f-c6be-44d9-be9b-dc89185964d5
+      - generic: Valentina S.
+      - generic: Sin respuesta
+      - paragraph: Residencia Norte · ingreso 15/09/2026
+  - paragraph: Elegí un seguimiento para ver las respuestas.
+- button "Admin Operativo": Admin Operativo
+- button "Open Next.js Dev Tools":
+- alert

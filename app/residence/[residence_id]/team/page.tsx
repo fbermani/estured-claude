@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ResidenceHero } from "@/components/residences/ResidenceHero";
 import { notFound } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
@@ -31,7 +32,7 @@ export default async function ResidenceTeamPage({ params }: { params: Promise<{ 
 
   if (membership.role !== "owner") {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
+      <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
         <EmptyState
           icon="lock"
           title="Esta sección es solo para el dueño de la residencia"
@@ -49,8 +50,8 @@ export default async function ResidenceTeamPage({ params }: { params: Promise<{ 
 
   if (!snapshot.ok) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
-        <h1 className="text-2xl font-bold text-ink">Equipo</h1>
+      <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
+        <ResidenceHero icon="group" title="Equipo" className="mb-5" />
         <div className="mt-6">
           <EmptyState icon="error" title="No pudimos cargar el equipo" description={`${snapshot.error} Recargá la página para intentar de nuevo.`} />
         </div>
@@ -64,11 +65,12 @@ export default async function ResidenceTeamPage({ params }: { params: Promise<{ 
   const staffCount = members.filter((m) => m.role === "staff").length;
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
-      <h1 className="text-2xl font-bold text-ink">Equipo</h1>
-      <p className="mt-1 text-sm text-ink-soft">
-        Las personas que trabajan con vos en <span className="font-semibold text-ink">{residenceName}</span>. Cada residencia tiene su propio equipo.
-      </p>
+    <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
+      <ResidenceHero
+        icon="group"
+        title="Equipo"
+        subtitle={<>Las personas que trabajan con vos en <span className="font-semibold text-ink">{residenceName}</span>. Cada residencia tiene su propio equipo.</>}
+      />
 
       <Card className="mt-6 border-forest-tint bg-forest-tint/40 p-5">
         <h2 className="flex items-center gap-2 text-sm font-bold text-ink">
@@ -85,7 +87,7 @@ export default async function ResidenceTeamPage({ params }: { params: Promise<{ 
 
       <section className="mt-8" aria-labelledby="team-members">
         <div className="mb-3 flex items-center gap-2">
-          <h2 id="team-members" className="text-sm font-extrabold uppercase tracking-widest text-muted">
+          <h2 id="team-members" className="text-sm font-bold uppercase tracking-widest text-muted">
             Miembros
           </h2>
           <span className="rounded-full bg-cream-2 px-2 py-0.5 text-xs font-bold text-ink-soft">{members.length}</span>
@@ -127,7 +129,7 @@ export default async function ResidenceTeamPage({ params }: { params: Promise<{ 
       </section>
 
       <section className="mt-8" aria-labelledby="team-invite">
-        <h2 id="team-invite" className="mb-3 text-sm font-extrabold uppercase tracking-widest text-muted">
+        <h2 id="team-invite" className="mb-3 text-sm font-bold uppercase tracking-widest text-muted">
           Invitar a una persona
         </h2>
         <Card className="p-5">
@@ -148,7 +150,7 @@ export default async function ResidenceTeamPage({ params }: { params: Promise<{ 
       {invitationsAvailable && (
         <section className="mt-8" aria-labelledby="team-pending">
           <div className="mb-3 flex items-center gap-2">
-            <h2 id="team-pending" className="text-sm font-extrabold uppercase tracking-widest text-muted">
+            <h2 id="team-pending" className="text-sm font-bold uppercase tracking-widest text-muted">
               Invitaciones pendientes
             </h2>
             <span className="rounded-full bg-cream-2 px-2 py-0.5 text-xs font-bold text-ink-soft">{pending.length}</span>

@@ -1,4 +1,5 @@
 import { formatDate } from "@/lib/dates/format";
+import { ResidenceHero } from "@/components/residences/ResidenceHero";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
@@ -54,9 +55,8 @@ export default async function ResidenceSupportPage({
   const cases = (caseRows as unknown as CaseRow[]) ?? [];
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
-      <h1 className="text-3xl font-bold text-ink">Soporte</h1>
-      <p className="mt-1 text-ink-soft">Abrí un caso si algo no salió como esperabas con un estudiante o familiar.</p>
+    <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
+      <ResidenceHero icon="support_agent" title="Soporte" subtitle="Abrí un caso si algo no salió como esperabas con un estudiante o familiar." />
 
       <div className="mt-8">
         <OpenCaseForm residenceId={residenceId} />

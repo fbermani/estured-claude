@@ -13,6 +13,7 @@ import { AreaHeader } from "@/components/layout/AreaHeader";
 import { Footer } from "@/components/layout/Footer";
 import { MAX_RESIDENCES_PER_OWNER } from "@/lib/residences/addResidenceForOwner";
 import { OwnerResidenceGrid } from "@/components/residences/OwnerResidenceGrid";
+import { SkipLink } from "@/components/ui/SkipLink";
 
 export const metadata: Metadata = { title: "Panel de residencia" };
 export const dynamic = "force-dynamic";
@@ -42,8 +43,9 @@ export default async function ResidenceDashboardPage() {
 
   return (
     <div className="flex min-h-screen flex-col">
+      <SkipLink />
       <AreaHeader areaLabel="Residencias" userEmail={sessionUser.email} tone="residence" />
-      <main className="tone-residence mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6 sm:py-12">
+      <main id="contenido" tabIndex={-1} className="focus:outline-none tone-residence mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6 sm:py-12">
         <PageHero
           tone="residence"
           eyebrow="Residencias"
@@ -82,12 +84,19 @@ export default async function ResidenceDashboardPage() {
             icon="apartment"
             title="Todavía no tenés residencias cargadas"
             description="Si acabás de registrarte, puede que falte completar el alta."
+            action={
+              canAddResidence ? (
+                <Button href="/residence/settings/new" size="sm">
+                  Cargar mi residencia
+                </Button>
+              ) : undefined
+            }
           />
         ) : (
           <OwnerResidenceGrid cards={validCards} arsPerUsd={arsPerUsd} />
         )}
       </main>
-      <Footer />
+      <Footer staffView />
     </div>
   );
 }

@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920" role="img"><title>Puerta entreabierta con pasillo (reemplaza la puerta cerrada del fondo; ponerla sobre c0 cuando entra la persona).</title><desc>Puerta entreabierta con pasillo (reemplaza la puerta cerrada del fondo; ponerla sobre c0 cuando entra la persona).</desc><defs /><style>
+  .bg-cielo{fill:#e7eee8}
+  .bg-vereda{fill:#d9cfbd}
+  .bg-cordon{fill:#c7bba5}
+  .bg-frente{fill:#ecd3a6}
+  .bg-frente-sombra{fill:#dcbf8d}
+  .bg-cornisa{fill:#fbf6ec}
+  .bg-ventana-marco{fill:#fbf6ec}
+  .bg-ventana-vidrio{fill:#a9c6c6}
+  .bg-balcon{fill:#0c3a2c}
+  .bg-puerta{fill:#0c3a2c}
+  .bg-puerta-vidrio{fill:#a9c6c6}
+  .bg-escalon{fill:#c7bba5}
+  .bg-arbol{fill:#1f7d5c}
+  .bg-arbol-oscuro{fill:#18694d}
+  .bg-tronco{fill:#7a5a3c}
+  .bg-sello{fill:#1f7d5c}
+  .bg-sello-borde{fill:#fbf6ec}
+  .bg-tilde-fondo{fill:#f1d9a8}
+  .bg-tilde{fill:none;stroke:#0c3a2c;stroke-linecap:round;stroke-linejoin:round}
+  .eq-piel{fill:#2c3a36}
+  .eq-piel-sombra{fill:#2c3a36}
+  .eq-pelo{fill:#2c3a36}
+  .eq-barba{fill:#2c3a36}
+  .eq-tinta{fill:#2c3a36}
+  .eq-trazo{fill:none;stroke:#2c3a36;stroke-linecap:round}
+  .eq-camisa{fill:#2c3a36}
+  .eq-camisa-oscura{fill:#2c3a36}
+  .eq-camisa-brazo{fill:none;stroke:#2c3a36;stroke-linecap:round;stroke-linejoin:round}
+  .eq-camisa-brazo-lejos{fill:none;stroke:#2c3a36;stroke-linecap:round;stroke-linejoin:round}
+  .eq-arremangado{fill:none;stroke:#2c3a36;stroke-linecap:round}
+  .eq-antebrazo{fill:none;stroke:#2c3a36;stroke-linecap:round}
+  .eq-antebrazo-lejos{fill:none;stroke:#2c3a36;stroke-linecap:round}
+  .eq-cuello-camisa{fill:#2c3a36}
+  .eq-linea{fill:none;stroke:#2c3a36;stroke-linecap:round}
+  .eq-cinturon{fill:#2c3a36}
+  .eq-pantalon{fill:#2c3a36}
+  .eq-pantalon-lejos{fill:#2c3a36}
+  .eq-zapato{fill:#2c3a36}
+  .eq-carpeta{fill:#f1d9a8}
+  .eq-carpeta-hoja{fill:#fbf6ec}
+</style>
+<g id="puerta-entreabierta">
+<clipPath id="arco"><path d="M452 1560 L452 1255 Q540 1165 628 1255 L628 1560 Z" /></clipPath>
+<path class="bg-puerta" d="M440 1560 L440 1250 Q540 1150 640 1250 L640 1560 Z" />
+<g clip-path="url(#arco)">
+ <rect x="440" y="1160" width="200" height="400" fill="#f4ead4" />
+ <path d="M452 1170 L505 1300 L505 1500 L452 1560 Z" fill="#e3cfa4" />
+ <path d="M628 1170 L575 1300 L575 1500 L628 1560 Z" fill="#ead7b4" />
+ <path d="M452 1560 L505 1500 L575 1500 L628 1560 Z" fill="#c9a77a" />
+ <rect x="522" y="1330" width="36" height="170" rx="4" fill="#0c3a2c" />
+ <rect x="505" y="1300" width="70" height="8" fill="#fff3d6" opacity="0.8" />
+</g>
+<path d="M452 1262 L496 1292 L496 1528 L452 1556 Z" fill="#0c3a2c" />
+<path d="M458 1288 L490 1306 L490 1340 L458 1330 Z" fill="#a9c6c6" />
+<rect x="488" y="1410" width="5" height="26" rx="2" fill="#f1d9a8" />
+</g></svg>

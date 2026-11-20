@@ -24,8 +24,13 @@ import { hasOperationalManagementAccess } from "@/lib/residences/operationalAcce
 import { PREMIUM_FEATURES } from "@/lib/residences/planFeatures";
 import { OnboardingBanner } from "@/components/residences/OnboardingBanner";
 import { buildOnboardingChecklist, getOnboardingBanner } from "@/lib/residences/onboardingStatus";
+import { VerificationStepper, VerificationStatusChip } from "@/components/residences/VerificationStepper";
+import { getVerificationProgress } from "@/lib/residences/verificationStages";
 import { loadChangesMessage } from "@/lib/residences/loadChangesMessage";
 import { computeProfileStrength } from "@/lib/residences/profileStrength";
+import { loadCatalogForResidence } from "@/lib/faq/residenceCatalog";
+import { ESSENTIAL_FAQ_IDS, countEssentialFaqsReady } from "@/lib/faq/catalog";
+import { isCountableWaitlistEntry } from "@/lib/waitlist-entries/desiredMonth";
 
 export const metadata: Metadata = { title: "Panel de la residencia" };
 export const dynamic = "force-dynamic";
@@ -34,9 +39,19 @@ type RecentApplicationRow = {
   id: string;
   status: string;
   created_at: string;
+  desired_start_date: string | null;
+  initial_duration_months: number | null;
   student_profiles: { first_name: string; last_initial: string } | null;
   room_types: { name: string } | null;
 };
+
+/** «Ingreso 01/03/2027 · 6 meses»: distingue solicitudes del mismo estudiante y tipo (H15). */
+function stayLabel(app: { desired_start_date: string | null; initial_duration_months: number | null }): string {
+  const parts: string[] = [];
+  if (app.desired_start_date) parts.push(`Ingreso ${formatDateOnly(app.desired_start_date)}`);
+  if (app.initial_duration_months) parts.push(`${app.initial_duration_months} meses`);
+  return parts.join(" · ");
+}
 
 type MovementRow = {
   id: string;
@@ -82,10 +97,11 @@ export default async function ResidenceOverviewPage({
   ]);
 
   // Onboarding (Ciclo 65): banner + checklist solo si la residencia no está publicada.
+  const verificationProgress = getVerificationProgress(residence.status);
   const onboardingCopy = getOnboardingBanner(residence.status, { changesMessage });
   let onboardingChecklist: ReturnType<typeof buildOnboardingChecklist> = [];
   if (onboardingCopy) {
-    const [{ data: full }, { data: sections }, { data: roomTypes }, { count: photoCount }, { data: rulesFile }, { data: verification }] =
+    const [{ data: full }, { data: sections }, { data: roomTypes }, { count: photoCount }, { data: rulesFile }, { data: verification }, faqCatalog] =
       await Promise.all([
         admin.from("residences").select("tagline, description").eq("id", residenceId).maybeSingle(),
         admin.from("residence_profile_sections").select("section_type, content").eq("residence_id", residenceId),
@@ -106,6 +122,7 @@ export default async function ResidenceOverviewPage({
           .limit(1)
           .maybeSingle(),
         admin.from("residence_verifications").select("status, scheduled_at").eq("residence_id", residenceId).maybeSingle(),
+        loadCatalogForResidence(admin, residenceId),
       ]);
     const sectionMap = Object.fromEntries((sections ?? []).map((s) => [s.section_type, s.content as Record<string, unknown>]));
     const itemsLen = (key: string) => (Array.isArray(sectionMap[key]?.items) ? (sectionMap[key].items as unknown[]).length : 0);
@@ -124,6 +141,7 @@ export default async function ResidenceOverviewPage({
       profileGapsCount: strength.gaps.length,
       photos: photoCount ?? 0,
       hasRules: rulesSummary.trim().length > 0 || !!rulesFile,
+      essentialFaqs: faqCatalog.ok ? { ready: countEssentialFaqsReady(faqCatalog.entries), total: ESSENTIAL_FAQ_IDS.length } : undefined,
       verificationStatus: verification?.status ?? null,
       scheduledAt: verification?.scheduled_at ?? null,
       scheduledAtLabel: verification?.scheduled_at ? formatDate(verification.scheduled_at) : null,
@@ -142,7 +160,7 @@ export default async function ResidenceOverviewPage({
     { count: pendingRenewalOffersCount },
     { count: totalResidentsCount },
     { count: pendingActivationCount },
-    { count: waitlistCount },
+    { data: waitlistRows },
     { data: recentApplicationsData },
   ] = await Promise.all([
     admin.from("application_requests").select("*", { count: "exact", head: true }).eq("residence_id", residenceId).eq("status", "submitted"),
@@ -158,14 +176,17 @@ export default async function ResidenceOverviewPage({
     admin.from("renewal_offers").select("*", { count: "exact", head: true }).eq("residence_id", residenceId).in("status", ["sent", "viewed"]),
     admin.from("resident_stays").select("*", { count: "exact", head: true }).eq("residence_id", residenceId).eq("is_current", true),
     admin.from("resident_stays").select("*", { count: "exact", head: true }).eq("residence_id", residenceId).eq("is_current", true).in("status", ["pending_activation", "created_by_residence"]),
-    admin.from("waitlist_entries").select("*", { count: "exact", head: true }).eq("residence_id", residenceId).in("status", ["active", "availability_notification_sent", "retention_check_sent"]),
+    admin.from("waitlist_entries").select("status, desired_start_date").eq("residence_id", residenceId).in("status", ["active", "availability_notification_sent", "retention_check_sent"]),
     admin
       .from("application_requests")
-      .select("id, status, created_at, student_profiles(first_name, last_initial), room_types(name)")
+      .select("id, status, created_at, desired_start_date, initial_duration_months, student_profiles(first_name, last_initial), room_types(name)")
       .eq("residence_id", residenceId)
       .order("created_at", { ascending: false })
       .limit(5),
   ]);
+
+  // DR40: no cuentan las entradas con mes ya terminado.
+  const waitlistCount = (waitlistRows ?? []).filter((w) => isCountableWaitlistEntry(w as { status: string; desired_start_date: string | null })).length;
 
   // "Quiero cambiar" (DR3): residentes que avisaron que buscan otro lugar (lecturas degradables: ante un error, la línea no aparece).
   const [{ count: seekingChangeCount }, unansweredChangeCount] = await Promise.all([
@@ -271,12 +292,12 @@ export default async function ResidenceOverviewPage({
       body: (
         <div>
           <p className="text-sm text-ink-soft">
-            <span className="text-2xl font-bold text-ink">{occupiedCount ?? 0}</span>
-            {capacity > 0 && <span> / {capacity} plazas operativas</span>}
+            <span className="text-2xl font-bold tabular-nums text-ink">{occupiedCount ?? 0}</span>
+            {capacity > 0 && <span> de {capacity} plazas operativas ocupadas</span>}
           </p>
           {outOfServiceCount > 0 && (
             <p className="mt-1 text-xs text-ink-faint">
-              {capacity} operativas ({outOfServiceCount} fuera de servicio)
+              Más {outOfServiceCount} {outOfServiceCount === 1 ? "plaza fuera" : "plazas fuera"} de servicio, que no cuentan como operativas.
             </p>
           )}
           {capacity > 0 && (
@@ -307,7 +328,8 @@ export default async function ResidenceOverviewPage({
       badge: (pendingActivationCount ?? 0) > 0 ? `${pendingActivationCount} pendientes` : null,
       body: (
         <p className="text-sm text-ink-soft">
-          <span className="font-bold text-ink">{totalResidentsCount ?? 0}</span> cargados ·{" "}
+          <span className="font-bold text-ink">{totalResidentsCount ?? 0}</span> cargados
+          {(pendingActivationCount ?? 0) > 0 ? ` (${pendingActivationCount} por confirmar)` : ""} ·{" "}
           <span className="font-bold text-ink">{waitlistCount ?? 0}</span> en lista de espera
         </p>
       ),
@@ -367,17 +389,22 @@ export default async function ResidenceOverviewPage({
             <Icon name="location_on" className="text-base" />
             {residence.public_area}, CABA
           </p>
+          {verificationProgress && !verificationProgress.complete && (
+            <div className="mt-3">
+              <VerificationStatusChip progress={verificationProgress} />
+            </div>
+          )}
         </div>
         <div className="flex gap-2">
           <Link
             href={`/residence/${residenceId}/support`}
-            className="rounded-full border-[1.5px] border-line-2 bg-paper px-4 py-2 text-sm font-bold text-ink hover:border-forest hover:bg-forest-tint"
+            className="inline-flex min-h-11 items-center whitespace-nowrap rounded-full border-[1.5px] border-line-2 bg-paper px-4 text-sm font-bold text-ink hover:border-forest hover:bg-forest-tint"
           >
             Soporte
           </Link>
           <Link
             href={`/residence/${residenceId}/profile`}
-            className="rounded-full border-[1.5px] border-line-2 bg-paper px-4 py-2 text-sm font-bold text-ink hover:border-forest hover:bg-forest-tint"
+            className="inline-flex min-h-11 items-center whitespace-nowrap rounded-full border-[1.5px] border-line-2 bg-paper px-4 text-sm font-bold text-ink hover:border-forest hover:bg-forest-tint"
           >
             {canEditProfile ? "Editar perfil" : "Ver perfil"}
           </Link>
@@ -385,6 +412,8 @@ export default async function ResidenceOverviewPage({
       </div>
 
       {!isOwner && <StaffPermissionsSummary permissions={membership.permissions} />}
+
+      {verificationProgress && <VerificationStepper progress={verificationProgress} />}
 
       {onboardingCopy && (
         <OnboardingBanner copy={onboardingCopy} checklist={onboardingChecklist} residenceId={residenceId} ownerOnlyNote={!isOwner} />
@@ -405,7 +434,7 @@ export default async function ResidenceOverviewPage({
       )}
 
       {todo.length > 0 && (
-        <section aria-labelledby="para-hacer-hoy" className="mt-8 rounded-card border-[1.5px] border-orange bg-gradient-to-b from-orange-tint to-paper to-80% p-5">
+        <section aria-labelledby="para-hacer-hoy" className="mt-8 rounded-card border-[1.5px] border-line border-l-4 border-l-orange bg-paper p-5">
           <h2 id="para-hacer-hoy" className="font-display text-lg font-bold text-ink">
             Para hacer hoy
           </h2>
@@ -441,12 +470,12 @@ export default async function ResidenceOverviewPage({
                   {kpi.badge && <Badge tone="amber">{kpi.badge}</Badge>}
                 </div>
               </div>
-              <h3 className="mb-1 text-lg font-bold text-ink">{kpi.title}</h3>
+              <h2 className="mb-1 text-lg font-bold text-ink">{kpi.title}</h2>
               {kpi.body}
             </div>
             <Link
               href={kpi.href}
-              className="mt-4 rounded-full border-[1.5px] border-line-2 bg-paper py-2 text-center text-sm font-bold text-ink hover:border-forest hover:bg-forest-tint"
+              className="mt-4 inline-flex min-h-11 items-center justify-center rounded-full border-[1.5px] border-line-2 bg-paper px-4 text-center text-sm font-bold text-ink hover:border-forest hover:bg-forest-tint"
             >
               {kpi.cta}
             </Link>
@@ -454,11 +483,35 @@ export default async function ResidenceOverviewPage({
         ))}
       </div>
 
+      {/* Atajo a «Compartir tu ficha»: solo con la ficha publicada (antes el link no abre). Secundario: el Panel no tiene acción primaria.
+          Lo ve todo el equipo: quien no tiene `profile.edit` lo ve y lo comparte, pero no lo edita (lo resuelve la propia pantalla). */}
+      {residence.status === "verified_active" && (
+        <Card className="mt-8 flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 items-start gap-3">
+            <div className="shrink-0 rounded-field bg-forest-tint p-2 text-forest-700">
+              <Icon name="share" className="text-xl" />
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-lg font-bold text-ink">Compartí tu ficha por WhatsApp</h2>
+              <p className="mt-1 max-w-[60ch] text-sm text-ink-soft">
+                Mandala como primera respuesta y ahorrate las consultas de siempre: fotos, precios y respuestas en un solo link.
+              </p>
+            </div>
+          </div>
+          <Link
+            href={`/residence/${residenceId}/share`}
+            className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-full border-[1.5px] border-line-2 bg-paper px-4 text-center text-sm font-bold text-ink hover:border-forest hover:bg-forest-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+          >
+            Compartir mi ficha
+          </Link>
+        </Card>
+      )}
+
       {!hasPremium && (
         <DismissibleNote storageKey={`estured:premium-note:${residenceId}`} className="mt-8 rounded-card border-[1.5px] border-line bg-sand-50 p-5 pr-14">
-          <p className="flex items-center gap-2 text-sm font-extrabold text-ink">
+          <p className="flex items-center gap-2 text-sm font-bold text-ink">
             <Icon name="lock" className="text-lg text-ink-faint" />
-            Función Premium · hoy bonificada
+            Función Premium, hoy bonificada
           </p>
           <p className="mt-1 text-sm text-ink-soft">
             Tu residencia tiene el Perfil Verificado (gratuito). La Gestión Operativa es parte del Plan Premium.
@@ -483,8 +536,8 @@ export default async function ResidenceOverviewPage({
       <div className="mt-8">
         <Card className="overflow-hidden p-0">
           <div className="flex items-center justify-between border-b border-line px-6 py-4">
-            <h3 className="text-lg font-bold text-ink">Próximos ingresos y salidas</h3>
-            <Link href={`/residence/${residenceId}/residents`} className="text-sm font-bold text-forest-700 hover:underline">
+            <h2 className="text-lg font-bold text-ink">Próximos ingresos y salidas</h2>
+            <Link href={`/residence/${residenceId}/residents`} className="inline-flex min-h-11 items-center text-sm font-bold text-forest-700 hover:underline">
               Ver residentes
             </Link>
           </div>
@@ -508,7 +561,7 @@ export default async function ResidenceOverviewPage({
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-bold text-ink">{m.name}</p>
                     <p className="truncate text-xs text-ink-faint">
-                      {m.kind === "ingreso" ? "Ingreso" : "Egreso"} · {m.room ?? "Sin habitación"} ·{" "}
+                      {m.kind === "ingreso" ? "Ingreso" : "Egreso"}, {m.room ?? "Sin habitación"},{" "}
                       {formatDateOnly(m.date)}
                     </p>
                   </div>
@@ -523,8 +576,8 @@ export default async function ResidenceOverviewPage({
       <div className="mt-8">
         <Card className="overflow-hidden p-0">
           <div className="flex items-center justify-between border-b border-line px-6 py-4">
-            <h3 className="text-lg font-bold text-ink">Solicitudes recientes</h3>
-            <Link href={`/residence/${residenceId}/applications`} className="text-sm font-bold text-forest-700 hover:underline">
+            <h2 className="text-lg font-bold text-ink">Solicitudes recientes</h2>
+            <Link href={`/residence/${residenceId}/applications`} className="inline-flex min-h-11 items-center text-sm font-bold text-forest-700 hover:underline">
               Ver todas
             </Link>
           </div>
@@ -549,8 +602,9 @@ export default async function ResidenceOverviewPage({
                           {formatShortName(app.student_profiles?.first_name, app.student_profiles?.last_initial)}
                         </Link>
                         <p className="-mt-2 text-sm text-ink-soft">
-                          {app.room_types?.name ?? "—"} · {formatDate(app.created_at)}
+                          {app.room_types?.name ?? "—"}, solicitó el {formatDate(app.created_at)}
                         </p>
+                        {stayLabel(app) && <p className="text-xs text-ink-faint">{stayLabel(app)}</p>}
                       </div>
                       <span className="mt-2.5 shrink-0">
                         <Badge tone={badge.tone}>{badge.label}</Badge>
@@ -564,10 +618,11 @@ export default async function ResidenceOverviewPage({
               <table className="w-full text-left text-sm">
                 <thead className="bg-cream-2 text-muted">
                   <tr>
-                    <th className="px-6 py-3 text-xs font-extrabold uppercase tracking-wider">Estudiante</th>
-                    <th className="px-6 py-3 text-xs font-extrabold uppercase tracking-wider">Habitación</th>
-                    <th className="px-6 py-3 text-xs font-extrabold uppercase tracking-wider">Fecha</th>
-                    <th className="px-6 py-3 text-xs font-extrabold uppercase tracking-wider">Estado</th>
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider">Estudiante</th>
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider">Habitación</th>
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider">Solicitada</th>
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider">Ingreso y duración</th>
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider">Estado</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-line">
@@ -585,7 +640,8 @@ export default async function ResidenceOverviewPage({
                           </Link>
                         </td>
                         <td className="px-6 py-4 text-ink-soft">{app.room_types?.name ?? "—"}</td>
-                        <td className="px-6 py-4 text-ink-soft">{formatDate(app.created_at)}</td>
+                        <td className="px-6 py-4 tabular-nums text-ink-soft">{formatDate(app.created_at)}</td>
+                        <td className="px-6 py-4 tabular-nums text-ink-soft">{stayLabel(app) || "—"}</td>
                         <td className="px-6 py-4">
                           <Badge tone={badge.tone}>{badge.label}</Badge>
                         </td>

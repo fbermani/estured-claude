@@ -1,0 +1,320 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- button "Abrir menú":
+  - generic: menu
+- generic: EstuRed
+- button "Notificaciones, 19 sin leer":
+  - generic: notifications
+  - generic: "19"
+- complementary:
+  - link "Tus residencias":
+    - /url: /residence/dashboard
+    - generic: EstuRed
+  - button "Notificaciones":
+    - generic: notifications
+  - button "Cerrar menú":
+    - generic: close
+  - navigation:
+    - link "Panel":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e
+      - generic: dashboard
+      - generic: Panel
+    - link "Solicitudes":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/applications
+      - generic: inbox
+      - generic: Solicitudes
+    - link "Habitaciones":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/rooms
+      - generic: meeting_room
+      - generic: Habitaciones
+    - link "Disponibilidad":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/availability
+      - generic: bed
+      - generic: Disponibilidad
+    - link "Renovaciones":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/renewals
+      - generic: sync_alt
+      - generic: Renovaciones
+    - link "Residentes":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/residents
+      - generic: groups
+      - generic: Residentes
+    - link "Lista de espera":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/waitlist
+      - generic: hourglass_top
+      - generic: Lista de espera
+    - link "Preguntas, 1 preguntas sin responder":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/faq
+      - generic: forum
+      - generic: Preguntas
+      - generic: "1"
+    - link "Reglamento":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/regulation
+      - generic: gavel
+      - generic: Reglamento
+    - link "Soporte":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/support
+      - generic: support_agent
+      - generic: Soporte
+    - link "Plan":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/plan
+      - generic: workspace_premium
+      - generic: Plan
+    - link "Equipo":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/team
+      - generic: supervisor_account
+      - generic: Equipo
+  - link "Todas mis residencias":
+    - /url: /residence/dashboard
+    - generic: apartment
+    - generic: Todas mis residencias
+  - paragraph: owner.residencia.norte@example.com
+  - link "Editar perfil":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/profile
+    - generic: edit
+    - generic: Editar perfil
+  - button "Salir":
+    - generic: logout
+    - generic: Salir
+- navigation "Navegación principal":
+  - link "Panel":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e
+    - generic: dashboard
+    - generic: Panel
+  - link "Solicitudes":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/applications
+    - generic: inbox
+    - generic: Solicitudes
+  - link "Camas, Disponibilidad":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/availability
+    - generic: bed
+    - generic: Camas
+  - link "Residentes":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/residents
+    - generic: groups
+    - generic: Residentes
+  - button "Más, 1 avisos pendientes":
+    - generic: more_horiz
+    - generic: Más
+- main:
+  - generic: forum
+  - text: Preguntas frecuentes
+  - heading "Preguntas frecuentes" [level=1]
+  - paragraph: Lo que mostrás en tu ficha y lo que te preguntan.
+  - paragraph: Elegí qué preguntas del catálogo de EstuRed mostrar en tu ficha y ajustá las respuestas con los datos de tu residencia. Abajo respondés las preguntas libres de quienes miran tu ficha.
+  - region "Catálogo de preguntas":
+    - heading "Catálogo de preguntas" [level=2]
+    - paragraph: "Cada pregunta trae una respuesta sugerida. Las que dicen «Texto fijo de EstuRed» no se editan; en el resto, completá los datos entre llaves {…} antes de mostrarlas. Lo que escribas acá no confirma disponibilidad ni precios: eso se informa en la ficha y en la solicitud."
+    - paragraph:
+      - text: "Te recomendamos elegir como máximo 10 preguntas: son las que se ven de entrada en tu ficha. Las demás, y las que respondas de los visitantes, quedan detrás de «Ver todas las preguntas». Cuanto más respondas, más consultas vas a recibir por EstuRed."
+      - generic: Elegiste 6 de 10 recomendadas.
+    - generic "Antes de reservar 2 de 9 en tu ficha":
+      - generic: Antes de reservar
+      - generic: 2 de 9 en tu ficha
+    - paragraph: FAQ-02¿Qué pasa cuando envío una solicitud?
+    - checkbox "Mostrar" [checked]
+    - text: Mostrar
+    - paragraph:
+      - generic: lock
+      - text: Texto fijo de EstuRed
+    - paragraph: Enviar una solicitud es gratis. La residencia revisa tu perfil y confirma si hay lugar. Hasta que lo confirme, la solicitud queda sujeta a confirmación. Vas a ver cada paso en tu cuenta.
+    - paragraph: "Solo podés elegir si se muestra: la residencia no lo edita."
+    - button "Guardar"
+    - paragraph: FAQ-03¿Hay lugar disponible?
+    - checkbox "Mostrar"
+    - text: Mostrar
+    - paragraph:
+      - generic: lock
+      - text: Texto fijo de EstuRed
+    - paragraph: "La disponibilidad la informa la residencia y puede cambiar. Si querés ingresar, enviá la solicitud: la residencia confirma si hay lugar para las fechas que elegiste."
+    - paragraph: "Solo podés elegir si se muestra: la residencia no lo edita."
+    - button "Guardar"
+    - paragraph: FAQ-04¿Puede ingresar cualquiera?
+    - checkbox "Mostrar"
+    - text: Mostrar
+    - generic: Respuesta
+    - textbox "Respuesta": "No. La residencia evalúa cada solicitud. Para ingresar se pide {documentos_requeridos}, y se tiene en cuenta {criterios_de_admision} (por ejemplo, edad entre {edad_minima} y {edad_maxima}, actitud de convivencia). La decisión final es de la residencia."
+    - paragraph: "Completá los datos entre llaves {…}: borrá las llaves y escribí el dato real. Faltan: documentos_requeridos, criterios_de_admision, edad_minima, edad_maxima. Para mostrarla no puede quedar ninguna."
+    - button "Guardar"
+    - paragraph: FAQ-05¿Qué tipos de habitación hay?
+    - checkbox "Mostrar"
+    - text: Mostrar
+    - generic: Respuesta
+    - textbox "Respuesta": "Hay {tipos_de_habitacion}. {descripcion_por_tipo}. El detalle y los precios están en la ficha de la residencia."
+    - paragraph: "Completá los datos entre llaves {…}: borrá las llaves y escribí el dato real. Faltan: tipos_de_habitacion, descripcion_por_tipo. Para mostrarla no puede quedar ninguna."
+    - button "Guardar"
+    - paragraph: FAQ-06¿Hay habitaciones con baño privado?
+    - checkbox "Mostrar"
+    - text: Mostrar
+    - generic: Respuesta
+    - textbox "Respuesta": "{respuesta_banos}: sí, en {tipos_con_bano_privado} / no, los baños son compartidos (hay {cantidad_banos} para {cantidad_residentes})."
+    - paragraph: "Completá los datos entre llaves {…}: borrá las llaves y escribí el dato real. Faltan: respuesta_banos, tipos_con_bano_privado, cantidad_banos, cantidad_residentes. Para mostrarla no puede quedar ninguna."
+    - button "Guardar"
+    - paragraph: FAQ-07¿Qué servicios están incluidos?
+    - checkbox "Mostrar"
+    - text: Mostrar
+    - generic: Respuesta
+    - textbox "Respuesta": "Incluye {servicios_incluidos} (por ejemplo, internet, limpieza de espacios comunes, cocina equipada). No incluye {servicios_no_incluidos}."
+    - paragraph: "Completá los datos entre llaves {…}: borrá las llaves y escribí el dato real. Faltan: servicios_incluidos, servicios_no_incluidos. Para mostrarla no puede quedar ninguna."
+    - button "Guardar"
+    - paragraph: FAQ-08¿Cómo elijo la fecha de ingreso?
+    - checkbox "Mostrar"
+    - text: Mostrar
+    - paragraph:
+      - generic: lock
+      - text: Texto fijo de EstuRed
+    - paragraph: En la solicitud elegís el mes de ingreso y la cantidad de meses (según el mínimo de la residencia). La fecha exacta se acuerda con la residencia después de hacer la reserva, y cualquier fracción de tarifa se acuerda de forma particular con ella.
+    - paragraph: "Solo podés elegir si se muestra: la residencia no lo edita."
+    - button "Guardar"
+    - paragraph: FAQ-09¿Hay algún responsable en la residencia?
+    - checkbox "Mostrar"
+    - text: Mostrar
+    - generic: Respuesta
+    - textbox "Respuesta": "Sí. El responsable es {nombre_o_cargo_responsable}, que acompaña tu ingreso y atiende consultas {horario_atencion}. Contacto: {medio_contacto_responsable}."
+    - paragraph: "Completá los datos entre llaves {…}: borrá las llaves y escribí el dato real. Faltan: nombre_o_cargo_responsable, horario_atencion, medio_contacto_responsable. Para mostrarla no puede quedar ninguna."
+    - button "Guardar"
+    - paragraph: FAQ-10¿Qué es una Residencia Verificada?
+    - checkbox "Mostrar" [checked]
+    - text: Mostrar
+    - paragraph:
+      - generic: lock
+      - text: Texto fijo de EstuRed
+    - paragraph: Es una residencia que EstuRed visitó en persona antes de publicarla. Revisamos la identidad del responsable, la ubicación y las fotos. EstuRed verifica a las residencias, no a las personas.
+    - paragraph: "Solo podés elegir si se muestra: la residencia no lo edita."
+    - button "Guardar"
+    - generic "Requisitos 0 de 5 en tu ficha":
+      - generic: Requisitos
+      - generic: 0 de 5 en tu ficha
+    - generic "Costos y pagos 0 de 10 en tu ficha":
+      - generic: Costos y pagos
+      - generic: 0 de 10 en tu ficha
+    - generic "Convivencia y reglas 3 de 8 en tu ficha":
+      - generic: Convivencia y reglas
+      - generic: 3 de 8 en tu ficha
+    - paragraph: FAQ-25¿Hay toque de queda?
+    - checkbox "Mostrar" [checked]
+    - text: Mostrar
+    - generic: Respuesta
+    - textbox "Respuesta": No, podés entrar y salir libremente. La entrada principal se cierra de noche y se abre con tu llave. Respetá el silencio de 23:00 a 7:00.
+    - paragraph: 137/3000 caracteres. Partís de la respuesta sugerida; editala con los datos de tu residencia.
+    - button "Volver a la respuesta sugerida"
+    - button "Guardar"
+    - paragraph: FAQ-26¿Cuáles son los horarios de silencio?
+    - checkbox "Mostrar" [checked]
+    - text: Mostrar
+    - generic: Respuesta
+    - textbox "Respuesta": Se guarda silencio de 23:00 a 7:00. Para música o videos, auriculares.
+    - paragraph: 70/3000 caracteres. Partís de la respuesta sugerida; editala con los datos de tu residencia.
+    - button "Volver a la respuesta sugerida"
+    - button "Guardar"
+    - paragraph: FAQ-27¿Se puede fumar o tomar alcohol?
+    - checkbox "Mostrar"
+    - text: Mostrar
+    - generic: Respuesta
+    - textbox "Respuesta": "Fumar: {fumar_politica}. Alcohol: {alcohol_politica}. No se permite consumir sustancias ilegales ni ingresar en estado de ebriedad {otras_restricciones}."
+    - paragraph: "Completá los datos entre llaves {…}: borrá las llaves y escribí el dato real. Faltan: fumar_politica, alcohol_politica, otras_restricciones. Para mostrarla no puede quedar ninguna."
+    - button "Guardar"
+    - paragraph: FAQ-28¿Puedo llevar mascotas?
+    - checkbox "Mostrar"
+    - text: Mostrar
+    - generic: Respuesta
+    - textbox "Respuesta": "{mascotas_politica}."
+    - paragraph: "Completá los datos entre llaves {…}: borrá las llaves y escribí el dato real. Faltan: mascotas_politica. Para mostrarla no puede quedar ninguna."
+    - button "Guardar"
+    - paragraph: FAQ-29¿Con quién voy a compartir habitación?
+    - checkbox "Mostrar"
+    - text: Mostrar
+    - generic: Respuesta
+    - textbox "Respuesta": "Lo que ves hoy en la ficha —quiénes viven en la residencia— no es necesariamente con quienes te va a tocar compartir. En {tipos_compartidos} compartís con {cantidad_companeros}. La residencia {criterio_de_asignacion}. Podés pedir {pedidos_posibles}, sujeto a lo que la residencia pueda confirmar. La asignación de la plaza depende de múltiples factores, como el tipo de habitación y las decisiones de la residencia al momento de tu ingreso. Por eso la solicitud queda sujeta a confirmación."
+    - paragraph: "Completá los datos entre llaves {…}: borrá las llaves y escribí el dato real. Faltan: tipos_compartidos, cantidad_companeros, criterio_de_asignacion, pedidos_posibles. Para mostrarla no puede quedar ninguna."
+    - button "Guardar"
+    - paragraph: FAQ-30¿Cómo se limpia y quién limpia?
+    - checkbox "Mostrar"
+    - text: Mostrar
+    - generic: Respuesta
+    - textbox "Respuesta": "La residencia limpia {frecuencia_limpieza_comun}. En el día a día, cada residente mantiene ordenado su espacio y deja limpio lo que usa. Elementos de limpieza: {ubicacion_elementos_limpieza}."
+    - paragraph: "Completá los datos entre llaves {…}: borrá las llaves y escribí el dato real. Faltan: frecuencia_limpieza_comun, ubicacion_elementos_limpieza. Para mostrarla no puede quedar ninguna."
+    - button "Guardar"
+    - paragraph: FAQ-31¿Qué pasa si no se cumplen las reglas?
+    - checkbox "Mostrar"
+    - text: Mostrar
+    - generic: Respuesta
+    - textbox "Respuesta": "Según la gravedad: {medidas_resumen}. El detalle está en el reglamento de la residencia, que recibís al ingresar."
+    - paragraph: "Completá los datos entre llaves {…}: borrá las llaves y escribí el dato real. Faltan: medidas_resumen. Para mostrarla no puede quedar ninguna."
+    - button "Guardar"
+    - paragraph: FAQ-32¿Puedo usar la cocina y la heladera?
+    - checkbox "Mostrar" [checked]
+    - text: Mostrar
+    - generic: Respuesta
+    - textbox "Respuesta": Sí, de 7:00 a 23:00. Cada habitación tiene un frigobar chico y también hay heladera compartida. Cada uno lava y guarda lo que usa.
+    - paragraph: 130/3000 caracteres. Partís de la respuesta sugerida; editala con los datos de tu residencia.
+    - button "Volver a la respuesta sugerida"
+    - button "Guardar"
+    - generic "Visitas 0 de 3 en tu ficha":
+      - generic: Visitas
+      - generic: 0 de 3 en tu ficha
+    - generic "Qué llevar 1 de 3 en tu ficha":
+      - generic: Qué llevar
+      - generic: 1 de 3 en tu ficha
+    - paragraph: FAQ-36¿Qué cosas tengo que llevar?
+    - checkbox "Mostrar"
+    - text: Mostrar
+    - generic: Respuesta
+    - textbox "Respuesta": "Llevá {lista_de_que_llevar}: por ejemplo, ropa de cama, toallas, artículos de higiene y un candado para el locker. La residencia provee {lista_provista}. No se permite {objetos_no_permitidos}."
+    - paragraph: "Completá los datos entre llaves {…}: borrá las llaves y escribí el dato real. Faltan: lista_de_que_llevar, lista_provista, objetos_no_permitidos. Para mostrarla no puede quedar ninguna."
+    - button "Guardar"
+    - paragraph: FAQ-37¿Hay lavandería?
+    - checkbox "Mostrar" [checked]
+    - text: Mostrar
+    - generic: Respuesta
+    - textbox "Respuesta": Sí, hay lavandería con cronograma en el cartel del primer piso, sin costo adicional de uso.
+    - paragraph: 91/3000 caracteres. Partís de la respuesta sugerida; editala con los datos de tu residencia.
+    - button "Volver a la respuesta sugerida"
+    - button "Guardar"
+    - paragraph: FAQ-39¿Hay internet?
+    - checkbox "Mostrar"
+    - text: Mostrar
+    - generic: Respuesta
+    - textbox "Respuesta": "{internet_politica}. Si el proveedor tiene una falla, la residencia hace el reclamo, pero la reparación depende de la empresa."
+    - paragraph: "Completá los datos entre llaves {…}: borrá las llaves y escribí el dato real. Faltan: internet_politica. Para mostrarla no puede quedar ninguna."
+    - button "Guardar"
+    - generic "Estadía y salida 0 de 5 en tu ficha":
+      - generic: Estadía y salida
+      - generic: 0 de 5 en tu ficha
+    - generic "Privacidad y seguridad 0 de 5 en tu ficha":
+      - generic: Privacidad y seguridad
+      - generic: 0 de 5 en tu ficha
+  - heading "Preguntas de visitantes" [level=2]
+  - paragraph: "Quienes miran tu ficha pueden hacerte una pregunta libre. Respondé cuando puedas: las respuestas se publican debajo de tus preguntas frecuentes. No hay respuestas automáticas."
+  - paragraph: No publiques teléfonos ni enlaces para contactar por fuera de EstuRed. Las respuestas se ven en tu ficha pública.
+  - paragraph:
+    - text: "Las preguntas no muestran quién las hizo. No confirmes disponibilidad ni precios por acá: eso se informa en la ficha y en la solicitud. Para cambiar tus"
+    - link "preguntas frecuentes fijas":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/profile
+    - text: (hasta 5), editá tu perfil.
+  - heading "Sin responder" [level=2]
+  - generic: "1"
+  - paragraph: ¿Aceptan estudiantes que lleguen en la segunda semana del mes?
+  - generic: Sin responder
+  - paragraph: Recibida el 22/10/2026
+  - generic: Tu respuesta
+  - textbox "Tu respuesta":
+    - /placeholder: Respondé con información concreta y verificable. No confirmes disponibilidad ni precios por acá.
+  - paragraph: 0/1500 caracteres. Se publica en tu ficha apenas la guardás.
+  - button "Responder y publicar"
+  - button "Ocultar"
+  - heading "Respondidas" [level=2]
+  - generic: "1"
+  - paragraph: ¿Se puede cocinar en la habitación o solo en la cocina común?
+  - generic: Respondida · visible en tu ficha
+  - paragraph: Recibida el 22/10/2026 · respondida el 22/10/2026
+  - generic: Respuesta publicada
+  - textbox "Respuesta publicada":
+    - /placeholder: Respondé con información concreta y verificable. No confirmes disponibilidad ni precios por acá.
+    - text: Solo en la cocina común, que está abierta de 7 a 23 hs. Cada habitación tiene un frigobar chico.
+  - paragraph: 96/1500 caracteres. Se publica en tu ficha apenas la guardás.
+  - button "Guardar cambios"
+  - button "Ocultar"
+- button "Ricardo — Dueño de Residencia": Ricardo — Dueño de Residencia
+- button "Open Next.js Dev Tools":
+- alert

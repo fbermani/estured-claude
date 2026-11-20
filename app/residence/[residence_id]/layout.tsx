@@ -7,6 +7,8 @@ import { can } from "@/lib/residences/permissions";
 import { countUnansweredStayChanges } from "@/lib/stayChange/load";
 import { hasOperationalManagementAccess } from "@/lib/residences/operationalAccess";
 import { countNewApplications, countPendingQuestions } from "@/lib/residences/sidebarCounts";
+import { ResidenceAreaShell } from "@/components/layout/ResidenceAreaShell";
+import { isShareFeatureNew } from "@/lib/share/newBadge";
 
 /**
  * Sidebar de navegación de una residencia puntual (Ciclo 34sexdecies) —
@@ -16,7 +18,8 @@ import { countNewApplications, countPendingQuestions } from "@/lib/residences/si
  * sesión para no duplicar esa query en el layout. Desde el Ciclo 73 (DR10)
  * también se resuelve el rol del vínculo (dueño o staff) de ESTA residencia
  * para armar el menú: el staff no ve "Equipo". Es solo presentación; cada
- * acción y página solo-dueño valida el rol en el servidor.
+ * acción y página solo-dueño valida el rol en el servidor. La vista previa de la ficha (`preview`) se muestra sin menú lateral
+ * (`ResidenceAreaShell`).
  */
 export default async function ResidenceDetailLayout({
   children,
@@ -52,18 +55,22 @@ export default async function ResidenceDetailLayout({
   }
 
   return (
-    <div id="area-shell" className="tone-residence flex min-h-screen flex-col bg-cream md:flex-row">
-      <ResidenceSidebar
-        residenceId={residenceId}
-        userEmail={user.email}
-        residentsBadge={residentsBadge}
-        applicationsBadge={applicationsBadge}
-        faqBadge={faqBadge}
-        isOwner={isOwner}
-        canEditProfile={canEditProfile}
-        premiumLocked={premiumLocked}
-      />
-      <main className="min-w-0 flex-1 pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-0">{children}</main>
-    </div>
+    <ResidenceAreaShell
+      sidebar={
+        <ResidenceSidebar
+          residenceId={residenceId}
+          userEmail={user.email}
+          residentsBadge={residentsBadge}
+          applicationsBadge={applicationsBadge}
+          faqBadge={faqBadge}
+          isOwner={isOwner}
+          canEditProfile={canEditProfile}
+          premiumLocked={premiumLocked}
+          shareIsNew={isShareFeatureNew()}
+        />
+      }
+    >
+      {children}
+    </ResidenceAreaShell>
   );
 }

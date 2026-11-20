@@ -60,7 +60,7 @@ export function GuideToc({ items }: { items: TocItem[] }) {
   return (
     <>
       <details ref={details} className="group/toc rounded-card border-[1.5px] border-line bg-paper lg:hidden">
-        <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-2 px-4 text-sm font-extrabold text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest [&::-webkit-details-marker]:hidden">
+        <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-2 px-4 text-sm font-bold text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest [&::-webkit-details-marker]:hidden">
           <span className="inline-flex items-center gap-2">
             <Icon name="toc" className="text-xl! text-forest-700" />
             En esta guía
@@ -72,7 +72,7 @@ export function GuideToc({ items }: { items: TocItem[] }) {
         </nav>
       </details>
       <nav aria-label="Índice de contenidos" className="sticky top-24 hidden max-h-[calc(100vh-7rem)] overflow-y-auto lg:block">
-        <p className="mb-2 px-3 text-xs font-extrabold uppercase tracking-wide text-ink-faint">En esta guía</p>
+        <p className="mb-2 px-3 text-xs font-bold text-ink-faint">En esta guía</p>
         {list()}
       </nav>
     </>

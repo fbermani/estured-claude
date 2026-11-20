@@ -107,7 +107,7 @@ export function CompactMap({
               <span
                 key={u.name}
                 aria-hidden="true"
-                className="absolute flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white bg-blue-ink text-[11px] font-extrabold text-white shadow-card"
+                className="absolute flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white bg-blue-ink text-xs font-bold text-white shadow-card"
                 style={{ left: pos.x, top: pos.y }}
               >
                 {i + 1}
@@ -130,7 +130,7 @@ export function CompactMap({
           href="https://www.openstreetmap.org/copyright"
           target="_blank"
           rel="noopener noreferrer"
-          className="absolute bottom-1.5 right-1.5 rounded bg-paper/85 px-1.5 py-0.5 text-[10px] text-ink-soft hover:underline"
+          className="absolute bottom-1.5 right-1.5 rounded bg-paper/85 px-1.5 py-0.5 text-xs text-ink-soft hover:underline"
         >
           © colaboradores de OpenStreetMap
         </a>
@@ -147,13 +147,13 @@ export function CompactMap({
 
         {withDistance.length > 0 ? (
           <div>
-            <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.08em] text-ink-faint">Universidades cercanas</p>
+            <p className="mb-2 text-xs font-bold text-ink-faint">Universidades cercanas</p>
             <ul className="grid gap-2 sm:grid-cols-2">
               {withDistance.map((u, i) => (
                 <li key={u.name} className="flex items-center gap-3 rounded-field border border-line bg-cream px-3 py-2.5 text-sm text-ink">
                   <span
                     aria-hidden="true"
-                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-tint text-[11px] font-extrabold text-blue-ink"
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-tint text-xs font-bold text-blue-ink"
                   >
                     {i + 1}
                   </span>
@@ -162,7 +162,7 @@ export function CompactMap({
                     {/* Sin el pin de la residencia no se puede medir: se muestran solo los nombres. */}
                     {isExact && (
                       <span className="block text-xs text-ink-soft">
-                        {formatBlocks(u.distanceKm)} · {u.distanceKm.toFixed(1).replace(".", ",")} km
+                        {formatBlocks(u.distanceKm)}, {u.distanceKm.toFixed(1).replace(".", ",")} km
                       </span>
                     )}
                   </span>
@@ -174,7 +174,7 @@ export function CompactMap({
           <p className="text-xs text-ink-faint">Esta residencia todavía no cargó universidades cercanas.</p>
         )}
 
-        <p className="flex items-start gap-1.5 pt-1 text-[11px] leading-relaxed text-ink-faint">
+        <p className="flex items-start gap-1.5 pt-1 text-xs leading-relaxed text-ink-faint">
           <Icon name="info" className="mt-0.5 shrink-0 text-sm" />
           <span>
             {isExact

@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
+// El .env.local de desarrollo enciende la preapertura; estas pruebas son del alta clásica (flag apagado).
+vi.mock("@/lib/preapertura/flag", () => ({ isPreaperturaOn: () => false }));
 const state = vi.hoisted(() => ({ redirected: null as string | null, link: vi.fn(), missing: vi.fn(), activate: vi.fn() }));
 vi.mock("next/navigation", () => ({
   redirect: (to: string) => {
@@ -18,6 +20,7 @@ vi.mock("@/lib/residents/inviteVerification", () => ({
   resolveInviteByToken: async () => ({ ok: true, invite: { channel: "email", otp_verified_at: null }, stay: { invite_email: "x@y.com" } }),
 }));
 vi.mock("@/lib/residents/inviteThrottle", () => ({ INVITE_TOO_MANY_ATTEMPTS: "x", inviteAttemptAllowed: () => true }));
+vi.mock("@/lib/security/rateLimit", () => ({ consumeRateLimit: async () => ({ ok: true }) }));
 const inserted = vi.hoisted(() => ({ creates: 0 }));
 vi.mock("@/lib/supabase/admin", () => ({
   getSupabaseAdmin: () => ({

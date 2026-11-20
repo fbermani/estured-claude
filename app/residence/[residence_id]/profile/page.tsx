@@ -1,3 +1,8 @@
+import { residenceAvailabilityMode, typeAvailabilityState } from "@/lib/availability/typeAvailability";
+import { parseRuleItems } from "@/lib/residences/ruleItems";
+import { loadCatalogForResidence } from "@/lib/faq/residenceCatalog";
+import { loadFeaturedCandidates } from "@/lib/faq/featured";
+import { buildFaqProfileSummary } from "@/lib/faq/profileSummary";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
@@ -12,6 +17,7 @@ import { listCustomAmenities } from "@/lib/residences/customAmenitiesDb";
 import { loadCurrentRegulation } from "@/lib/regulations/current";
 import { parseStayDocumentsContent } from "@/lib/residences/stayDocuments";
 import { loadPhotoMeta } from "@/lib/residences/photoMetaDb";
+import { summarizeProfileEdit } from "@/lib/residences/profileEditSummary";
 import { loadResidencePromotions } from "@/lib/residences/promotions";
 import { isWithinWindow, normalizeDepositMode, todayIso } from "@/lib/applications/reservationMoney";
 import type { PhotoMetaItem } from "@/app/residence/[residence_id]/profile/PhotoMetaManager";
@@ -19,6 +25,14 @@ import { ResidenceProfileForm } from "@/app/residence/[residence_id]/profile/Res
 
 export const metadata: Metadata = { title: "Configuración de residencia" };
 export const dynamic = "force-dynamic";
+
+/** Coordenada de la residencia para ordenar las universidades de la miniatura por cercanía; `null` si falta o no es válida. */
+function previewLocation(lat: unknown, lng: unknown): { lat: number; lng: number } | null {
+  if (lat === null || lat === undefined || lat === "" || lng === null || lng === undefined || lng === "") return null;
+  const la = Number(lat);
+  const lo = Number(lng);
+  return Number.isFinite(la) && Number.isFinite(lo) ? { lat: la, lng: lo } : null;
+}
 
 export default async function ResidenceProfilePage({
   params,
@@ -45,7 +59,7 @@ export default async function ResidenceProfilePage({
       admin.from("residence_profile_sections").select("section_type, content").eq("residence_id", residenceId),
       admin
         .from("room_types")
-        .select("id, name, gender_policy, bathroom_type, features, capacity_per_room, monthly_price_usd")
+        .select("id, name, gender_policy, bathroom_type, features, capacity_per_room, monthly_price_usd, profile_availability(status)")
         .eq("residence_id", residenceId)
         .eq("is_active", true)
         .order("created_at", { ascending: true }),
@@ -69,7 +83,7 @@ export default async function ResidenceProfilePage({
         .maybeSingle(),
       admin
         .from("residence_profile_edits")
-        .select("field_group, created_at")
+        .select("field_group, created_at, old_value, new_value")
         .eq("residence_id", residenceId)
         .eq("status", "pending_admin_review")
         .order("created_at", { ascending: false }),
@@ -78,11 +92,14 @@ export default async function ResidenceProfilePage({
   if (!residence) notFound();
 
   // DR18: ítems «Otro» (degrada a vacío sin la migración 0058) y si ya hay reglamento propio publicado (si no, se invita a armarlo).
-  const [customAmenitiesRes, regulationRes, photoMeta, promotionsRes] = await Promise.all([
+  const [customAmenitiesRes, regulationRes, photoMeta, promotionsRes, faqCatalog, faqFeatured] = await Promise.all([
     listCustomAmenities(admin, residenceId),
     loadCurrentRegulation(admin, residenceId),
     loadPhotoMeta(admin, [residenceId], { reconcile: false }),
     loadResidencePromotions(admin, residenceId),
+    // Estado del catálogo de preguntas para la tarjeta «Preguntas frecuentes» (no editable acá: se elige en /faq).
+    loadCatalogForResidence(admin, residenceId),
+    loadFeaturedCandidates(admin, residenceId),
   ]);
   const today = todayIso();
 
@@ -103,10 +120,15 @@ export default async function ResidenceProfilePage({
       section: m?.section ?? null,
       sortOrder: m?.sort_order ?? 0,
       coverOrder: m?.cover_order ?? null,
+      isCover: m?.is_cover === true,
     };
   });
   photoItems.sort((a, b) => a.sortOrder - b.sortOrder); // estable: a igual orden, la antigüedad
-  const pendingEditGroups = (pendingEdits ?? []).map((e) => ({ fieldGroup: e.field_group, createdAt: e.created_at }));
+  const pendingEditGroups = (pendingEdits ?? []).map((e) => ({
+    fieldGroup: e.field_group,
+    createdAt: e.created_at,
+    summary: summarizeProfileEdit(e.field_group, e.old_value, e.new_value),
+  }));
 
   return (
     <ResidenceProfileForm
@@ -114,6 +136,7 @@ export default async function ResidenceProfilePage({
       arsPerUsd={rate.arsPerUsd}
       readOnly={readOnly}
       canSubmit={canSubmit}
+      draftScope={{ userId: sessionUser.id }}
       initial={{
         name: residence.name,
         tagline: residence.tagline ?? "",
@@ -130,6 +153,7 @@ export default async function ResidenceProfilePage({
         nearUniversities: (sectionMap.near_universities?.items as string[]) ?? [],
         stayDocuments: parseStayDocumentsContent(sectionMap.stay_documents),
         rulesSummary: (sectionMap.rules?.summary as string) ?? "",
+        rulesItems: parseRuleItems(sectionMap.rules?.items),
         rulesFileName: rulesFile?.filename ?? null,
         customAmenities: (customAmenitiesRes.ok ? customAmenitiesRes.items : []).map((i) => ({
           id: i.id,
@@ -141,11 +165,19 @@ export default async function ResidenceProfilePage({
         customAmenitiesReady: customAmenitiesRes.ok && customAmenitiesRes.schemaReady,
         hasOwnRegulation: regulationRes.ok ? !regulationRes.view.isBaseModel : true,
         faqItems: (sectionMap.faq?.items as { question: string; answer: string }[]) ?? [],
+        faqSummary: buildFaqProfileSummary(faqCatalog, faqFeatured),
+        slug: residence.slug as string,
+        // Disponibilidad ya guardada, con la misma regla del catálogo (el estado oficial se muestra solo vía StatusTag).
+        availabilityMode: residenceAvailabilityMode(
+          (roomTypes ?? []).map((rt) => typeAvailabilityState((rt.profile_availability as unknown as { status: string } | null)?.status)),
+        ),
+        location: previewLocation(residence.latitude, residence.longitude),
         photos: photoItems,
         photoRoomTypes: (roomTypes ?? []).map((rt) => ({ id: rt.id as string, name: rt.name as string })),
         photoMetaReady: photoMeta.schemaReady,
         photoSectionsReady: photoMeta.sectionsReady,
         photoCoverReady: photoMeta.coverReady,
+        photoMainCoverReady: photoMeta.mainCoverReady,
         // DR18 t3 (0060): las opciones de dinero se habilitan cuando existe `deposit_mode` y la tabla de promociones.
         moneyReady: promotionsRes.schemaReady && "deposit_mode" in residence,
         promotions: promotionsRes.promotions.map((p) => ({

@@ -1,0 +1,988 @@
+[
+ {
+  "id": "line-01",
+  "text": "Te vas a estudiar a Buenos Aires. Y tenés que elegir dónde vivir… desde lejos.",
+  "src": "assets/voice/line-01.mp3",
+  "duration": 6.216,
+  "words": [
+   {
+    "text": "Te",
+    "start": 0.099,
+    "end": 0.208
+   },
+   {
+    "text": "vas",
+    "start": 0.232,
+    "end": 0.475
+   },
+   {
+    "text": "a",
+    "start": 0.475,
+    "end": 0.499
+   },
+   {
+    "text": "estudiar",
+    "start": 0.499,
+    "end": 0.899
+   },
+   {
+    "text": "a",
+    "start": 0.899,
+    "end": 0.96
+   },
+   {
+    "text": "Buenos",
+    "start": 0.997,
+    "end": 1.349
+   },
+   {
+    "text": "Aires",
+    "start": 1.349,
+    "end": 1.883
+   },
+   {
+    "text": "Y",
+    "start": 2.779,
+    "end": 2.876
+   },
+   {
+    "text": "tenés",
+    "start": 2.949,
+    "end": 3.24
+   },
+   {
+    "text": "que",
+    "start": 3.265,
+    "end": 3.313
+   },
+   {
+    "text": "elegir",
+    "start": 3.313,
+    "end": 3.689
+   },
+   {
+    "text": "dónde",
+    "start": 3.714,
+    "end": 3.932
+   },
+   {
+    "text": "vivir",
+    "start": 3.968,
+    "end": 4.333
+   },
+   {
+    "text": "desde",
+    "start": 4.539,
+    "end": 4.733
+   },
+   {
+    "text": "lejos",
+    "start": 4.769,
+    "end": 5.279
+   }
+  ]
+ },
+ {
+  "id": "line-02",
+  "text": "Fotos que no sabés si son de hoy. Precios por chat. Una seña sin comprobante.",
+  "src": "assets/voice/line-02.mp3",
+  "duration": 7.032,
+  "words": [
+   {
+    "text": "Fotos",
+    "start": 0.099,
+    "end": 0.475
+   },
+   {
+    "text": "que",
+    "start": 0.523,
+    "end": 0.596
+   },
+   {
+    "text": "no",
+    "start": 0.633,
+    "end": 0.73
+   },
+   {
+    "text": "sabés",
+    "start": 0.754,
+    "end": 1.069
+   },
+   {
+    "text": "si",
+    "start": 1.069,
+    "end": 1.191
+   },
+   {
+    "text": "son",
+    "start": 1.215,
+    "end": 1.409
+   },
+   {
+    "text": "de",
+    "start": 1.47,
+    "end": 1.567
+   },
+   {
+    "text": "hoy",
+    "start": 1.591,
+    "end": 1.798
+   },
+   {
+    "text": "Precios",
+    "start": 2.731,
+    "end": 3.07
+   },
+   {
+    "text": "por",
+    "start": 3.143,
+    "end": 3.252
+   },
+   {
+    "text": "chat",
+    "start": 3.325,
+    "end": 3.629
+   },
+   {
+    "text": "Una",
+    "start": 4.551,
+    "end": 4.782
+   },
+   {
+    "text": "seña",
+    "start": 4.818,
+    "end": 5.134
+   },
+   {
+    "text": "sin",
+    "start": 5.182,
+    "end": 5.413
+   },
+   {
+    "text": "comprobante",
+    "start": 5.413,
+    "end": 6.105
+   }
+  ]
+ },
+ {
+  "id": "line-03",
+  "text": "Por eso existe EstuRed.",
+  "src": "assets/voice/line-03.mp3",
+  "duration": 2.4,
+  "words": [
+   {
+    "text": "Por",
+    "start": 0.099,
+    "end": 0.281
+   },
+   {
+    "text": "eso",
+    "start": 0.281,
+    "end": 0.523
+   },
+   {
+    "text": "existe",
+    "start": 0.523,
+    "end": 0.948
+   },
+   {
+    "text": "EstuRed",
+    "start": 0.96,
+    "end": 1.494
+   }
+  ]
+ },
+ {
+  "id": "line-04",
+  "text": "Cada residencia está verificada en persona. Y tenés toda la información: servicios, reglamento, condiciones de admisión… y filtros para encontrar la tuya.",
+  "src": "assets/voice/line-04.mp3",
+  "duration": 11.16,
+  "words": [
+   {
+    "text": "Cada",
+    "start": 0.099,
+    "end": 0.353
+   },
+   {
+    "text": "residencia",
+    "start": 0.39,
+    "end": 0.972
+   },
+   {
+    "text": "está",
+    "start": 0.972,
+    "end": 1.166
+   },
+   {
+    "text": "verificada",
+    "start": 1.191,
+    "end": 1.761
+   },
+   {
+    "text": "en",
+    "start": 1.785,
+    "end": 1.907
+   },
+   {
+    "text": "persona",
+    "start": 1.907,
+    "end": 2.392
+   },
+   {
+    "text": "Y",
+    "start": 3.313,
+    "end": 3.422
+   },
+   {
+    "text": "tenés",
+    "start": 3.495,
+    "end": 3.774
+   },
+   {
+    "text": "toda",
+    "start": 3.823,
+    "end": 4.005
+   },
+   {
+    "text": "la",
+    "start": 4.041,
+    "end": 4.078
+   },
+   {
+    "text": "información",
+    "start": 4.078,
+    "end": 4.854
+   },
+   {
+    "text": "servicios",
+    "start": 5.109,
+    "end": 5.849
+   },
+   {
+    "text": "reglamento",
+    "start": 6.068,
+    "end": 6.808
+   },
+   {
+    "text": "condiciones",
+    "start": 7.063,
+    "end": 7.634
+   },
+   {
+    "text": "de",
+    "start": 7.646,
+    "end": 7.682
+   },
+   {
+    "text": "admisión",
+    "start": 7.682,
+    "end": 8.277
+   },
+   {
+    "text": "y",
+    "start": 8.568,
+    "end": 8.641
+   },
+   {
+    "text": "filtros",
+    "start": 8.665,
+    "end": 9.041
+   },
+   {
+    "text": "para",
+    "start": 9.114,
+    "end": 9.235
+   },
+   {
+    "text": "encontrar",
+    "start": 9.235,
+    "end": 9.672
+   },
+   {
+    "text": "la",
+    "start": 9.672,
+    "end": 9.782
+   },
+   {
+    "text": "tuya",
+    "start": 9.854,
+    "end": 10.194
+   }
+  ]
+ },
+ {
+  "id": "line-05",
+  "text": "Comparás desde tu casa y enviás tu solicitud. Queda registrada, y sujeta a la confirmación de la residencia.",
+  "src": "assets/voice/line-05.mp3",
+  "duration": 7.92,
+  "words": [
+   {
+    "text": "Comparás",
+    "start": 0.099,
+    "end": 0.596
+   },
+   {
+    "text": "desde",
+    "start": 0.608,
+    "end": 0.802
+   },
+   {
+    "text": "tu",
+    "start": 0.875,
+    "end": 0.948
+   },
+   {
+    "text": "casa",
+    "start": 1.009,
+    "end": 1.336
+   },
+   {
+    "text": "y",
+    "start": 1.373,
+    "end": 1.458
+   },
+   {
+    "text": "enviás",
+    "start": 1.458,
+    "end": 1.798
+   },
+   {
+    "text": "tu",
+    "start": 1.834,
+    "end": 1.907
+   },
+   {
+    "text": "solicitud",
+    "start": 1.931,
+    "end": 2.599
+   },
+   {
+    "text": "Queda",
+    "start": 3.507,
+    "end": 3.75
+   },
+   {
+    "text": "registrada",
+    "start": 3.786,
+    "end": 4.515
+   },
+   {
+    "text": "y",
+    "start": 4.721,
+    "end": 4.782
+   },
+   {
+    "text": "sujeta",
+    "start": 4.806,
+    "end": 5.206
+   },
+   {
+    "text": "a",
+    "start": 5.206,
+    "end": 5.231
+   },
+   {
+    "text": "la",
+    "start": 5.267,
+    "end": 5.328
+   },
+   {
+    "text": "confirmación",
+    "start": 5.388,
+    "end": 6.007
+   },
+   {
+    "text": "de",
+    "start": 6.056,
+    "end": 6.104
+   },
+   {
+    "text": "la",
+    "start": 6.141,
+    "end": 6.238
+   },
+   {
+    "text": "residencia",
+    "start": 6.262,
+    "end": 6.954
+   }
+  ]
+ },
+ {
+  "id": "line-06",
+  "text": "Tu familia puede proponerte opciones y acompañarte en cada paso. La decisión es tuya.",
+  "src": "assets/voice/line-06.mp3",
+  "duration": 6.528,
+  "words": [
+   {
+    "text": "Tu",
+    "start": 0.099,
+    "end": 0.208
+   },
+   {
+    "text": "familia",
+    "start": 0.232,
+    "end": 0.633
+   },
+   {
+    "text": "puede",
+    "start": 0.717,
+    "end": 0.875
+   },
+   {
+    "text": "proponerte",
+    "start": 0.936,
+    "end": 1.47
+   },
+   {
+    "text": "opciones",
+    "start": 1.47,
+    "end": 2.016
+   },
+   {
+    "text": "y",
+    "start": 2.052,
+    "end": 2.077
+   },
+   {
+    "text": "acompañarte",
+    "start": 2.101,
+    "end": 2.781
+   },
+   {
+    "text": "en",
+    "start": 2.781,
+    "end": 2.902
+   },
+   {
+    "text": "cada",
+    "start": 2.902,
+    "end": 3.096
+   },
+   {
+    "text": "paso",
+    "start": 3.169,
+    "end": 3.497
+   },
+   {
+    "text": "La",
+    "start": 4.418,
+    "end": 4.563
+   },
+   {
+    "text": "decisión",
+    "start": 4.636,
+    "end": 5.073
+   },
+   {
+    "text": "es",
+    "start": 5.073,
+    "end": 5.195
+   },
+   {
+    "text": "tuya",
+    "start": 5.231,
+    "end": 5.583
+   }
+  ]
+ },
+ {
+  "id": "line-07",
+  "text": "Del otro lado, la residencia recibe solicitudes ordenadas y completas. Menos mensajes repetidos.",
+  "src": "assets/voice/line-07.mp3",
+  "duration": 7.704,
+  "words": [
+   {
+    "text": "Del",
+    "start": 0.099,
+    "end": 0.268
+   },
+   {
+    "text": "otro",
+    "start": 0.293,
+    "end": 0.548
+   },
+   {
+    "text": "lado",
+    "start": 0.572,
+    "end": 0.936
+   },
+   {
+    "text": "la",
+    "start": 1.215,
+    "end": 1.336
+   },
+   {
+    "text": "residencia",
+    "start": 1.373,
+    "end": 1.883
+   },
+   {
+    "text": "recibe",
+    "start": 1.919,
+    "end": 2.271
+   },
+   {
+    "text": "solicitudes",
+    "start": 2.307,
+    "end": 2.95
+   },
+   {
+    "text": "ordenadas",
+    "start": 2.95,
+    "end": 3.533
+   },
+   {
+    "text": "y",
+    "start": 3.545,
+    "end": 3.594
+   },
+   {
+    "text": "completas",
+    "start": 3.642,
+    "end": 4.358
+   },
+   {
+    "text": "Menos",
+    "start": 5.256,
+    "end": 5.547
+   },
+   {
+    "text": "mensajes",
+    "start": 5.583,
+    "end": 6.032
+   },
+   {
+    "text": "repetidos",
+    "start": 6.069,
+    "end": 6.809
+   }
+  ]
+ },
+ {
+  "id": "line-08",
+  "text": "Las condiciones quedan por escrito. Pagás a la residencia y el fee de EstuRed, por separado.",
+  "src": "assets/voice/line-08.mp3",
+  "duration": 6.936,
+  "words": [
+   {
+    "text": "Las",
+    "start": 0.099,
+    "end": 0.293
+   },
+   {
+    "text": "condiciones",
+    "start": 0.341,
+    "end": 0.924
+   },
+   {
+    "text": "quedan",
+    "start": 0.96,
+    "end": 1.251
+   },
+   {
+    "text": "por",
+    "start": 1.264,
+    "end": 1.385
+   },
+   {
+    "text": "escrito",
+    "start": 1.385,
+    "end": 1.919
+   },
+   {
+    "text": "Pagás",
+    "start": 2.84,
+    "end": 3.265
+   },
+   {
+    "text": "a",
+    "start": 3.265,
+    "end": 3.301
+   },
+   {
+    "text": "la",
+    "start": 3.325,
+    "end": 3.422
+   },
+   {
+    "text": "residencia",
+    "start": 3.447,
+    "end": 4.078
+   },
+   {
+    "text": "y",
+    "start": 4.102,
+    "end": 4.175
+   },
+   {
+    "text": "el",
+    "start": 4.175,
+    "end": 4.284
+   },
+   {
+    "text": "fee",
+    "start": 4.308,
+    "end": 4.454
+   },
+   {
+    "text": "de",
+    "start": 4.502,
+    "end": 4.551
+   },
+   {
+    "text": "EstuRed",
+    "start": 4.563,
+    "end": 5.085
+   },
+   {
+    "text": "por",
+    "start": 5.316,
+    "end": 5.4
+   },
+   {
+    "text": "separado",
+    "start": 5.437,
+    "end": 5.995
+   }
+  ]
+ },
+ {
+  "id": "line-09",
+  "text": "Y al confirmar, recibís tu Comprobante de Reserva Confirmada, con un código que cualquiera puede verificar.",
+  "src": "assets/voice/line-09.mp3",
+  "duration": 6.84,
+  "words": [
+   {
+    "text": "Y",
+    "start": 0.099,
+    "end": 0.183
+   },
+   {
+    "text": "al",
+    "start": 0.196,
+    "end": 0.305
+   },
+   {
+    "text": "confirmar",
+    "start": 0.341,
+    "end": 0.912
+   },
+   {
+    "text": "recibís",
+    "start": 1.203,
+    "end": 1.664
+   },
+   {
+    "text": "tu",
+    "start": 1.7,
+    "end": 1.761
+   },
+   {
+    "text": "Comprobante",
+    "start": 1.81,
+    "end": 2.319
+   },
+   {
+    "text": "de",
+    "start": 2.392,
+    "end": 2.429
+   },
+   {
+    "text": "Reserva",
+    "start": 2.465,
+    "end": 2.841
+   },
+   {
+    "text": "Confirmada",
+    "start": 2.902,
+    "end": 3.569
+   },
+   {
+    "text": "con",
+    "start": 3.849,
+    "end": 3.97
+   },
+   {
+    "text": "un",
+    "start": 3.994,
+    "end": 4.14
+   },
+   {
+    "text": "código",
+    "start": 4.152,
+    "end": 4.455
+   },
+   {
+    "text": "que",
+    "start": 4.504,
+    "end": 4.577
+   },
+   {
+    "text": "cualquiera",
+    "start": 4.625,
+    "end": 5.038
+   },
+   {
+    "text": "puede",
+    "start": 5.123,
+    "end": 5.281
+   },
+   {
+    "text": "verificar",
+    "start": 5.317,
+    "end": 5.863
+   }
+  ]
+ },
+ {
+  "id": "line-10",
+  "text": "Y antes de llegar, conocés tu comunidad: cuántos son, en qué habitaciones, y lo que cada uno elige mostrar.",
+  "src": "assets/voice/line-10.mp3",
+  "duration": 7.392,
+  "words": [
+   {
+    "text": "Y",
+    "start": 0.099,
+    "end": 0.22
+   },
+   {
+    "text": "antes",
+    "start": 0.256,
+    "end": 0.548
+   },
+   {
+    "text": "de",
+    "start": 0.56,
+    "end": 0.62
+   },
+   {
+    "text": "llegar",
+    "start": 0.645,
+    "end": 1.057
+   },
+   {
+    "text": "conocés",
+    "start": 1.324,
+    "end": 1.713
+   },
+   {
+    "text": "tu",
+    "start": 1.749,
+    "end": 1.81
+   },
+   {
+    "text": "comunidad",
+    "start": 1.858,
+    "end": 2.441
+   },
+   {
+    "text": "cuántos",
+    "start": 2.708,
+    "end": 3.06
+   },
+   {
+    "text": "son",
+    "start": 3.06,
+    "end": 3.412
+   },
+   {
+    "text": "en",
+    "start": 3.63,
+    "end": 3.776
+   },
+   {
+    "text": "qué",
+    "start": 3.776,
+    "end": 3.812
+   },
+   {
+    "text": "habitaciones",
+    "start": 3.812,
+    "end": 4.637
+   },
+   {
+    "text": "y",
+    "start": 4.892,
+    "end": 4.953
+   },
+   {
+    "text": "lo",
+    "start": 4.989,
+    "end": 5.074
+   },
+   {
+    "text": "que",
+    "start": 5.135,
+    "end": 5.208
+   },
+   {
+    "text": "cada",
+    "start": 5.281,
+    "end": 5.487
+   },
+   {
+    "text": "uno",
+    "start": 5.548,
+    "end": 5.717
+   },
+   {
+    "text": "elige",
+    "start": 5.717,
+    "end": 5.972
+   },
+   {
+    "text": "mostrar",
+    "start": 6.009,
+    "end": 6.434
+   }
+  ]
+ },
+ {
+  "id": "line-11",
+  "text": "Porque la convivencia también se elige. Sumate a EstuRed.",
+  "src": "assets/voice/line-11.mp3",
+  "duration": 4.944,
+  "words": [
+   {
+    "text": "Porque",
+    "start": 0.099,
+    "end": 0.341
+   },
+   {
+    "text": "la",
+    "start": 0.378,
+    "end": 0.45
+   },
+   {
+    "text": "convivencia",
+    "start": 0.511,
+    "end": 1.021
+   },
+   {
+    "text": "también",
+    "start": 1.082,
+    "end": 1.385
+   },
+   {
+    "text": "se",
+    "start": 1.409,
+    "end": 1.506
+   },
+   {
+    "text": "elige",
+    "start": 1.506,
+    "end": 1.931
+   },
+   {
+    "text": "Sumate",
+    "start": 2.864,
+    "end": 3.374
+   },
+   {
+    "text": "a",
+    "start": 3.398,
+    "end": 3.471
+   },
+   {
+    "text": "EstuRed",
+    "start": 3.52,
+    "end": 4.029
+   }
+  ]
+ },
+ {
+  "id": "line-12",
+  "text": "Por fuera, todo queda en chats sueltos. Con EstuRed, queda por escrito: con comprobante y con Soporte.",
+  "src": "assets/voice/line-12.mp3",
+  "duration": 8.112,
+  "words": [
+   {
+    "text": "Por",
+    "start": 0.099,
+    "end": 0.268
+   },
+   {
+    "text": "fuera",
+    "start": 0.305,
+    "end": 0.73
+   },
+   {
+    "text": "todo",
+    "start": 1.082,
+    "end": 1.288
+   },
+   {
+    "text": "queda",
+    "start": 1.373,
+    "end": 1.555
+   },
+   {
+    "text": "en",
+    "start": 1.555,
+    "end": 1.676
+   },
+   {
+    "text": "chats",
+    "start": 1.676,
+    "end": 1.882
+   },
+   {
+    "text": "sueltos",
+    "start": 1.883,
+    "end": 2.514
+   },
+   {
+    "text": "Con",
+    "start": 3.422,
+    "end": 3.604
+   },
+   {
+    "text": "EstuRed",
+    "start": 3.616,
+    "end": 4.175
+   },
+   {
+    "text": "queda",
+    "start": 4.43,
+    "end": 4.624
+   },
+   {
+    "text": "por",
+    "start": 4.697,
+    "end": 4.818
+   },
+   {
+    "text": "escrito",
+    "start": 4.818,
+    "end": 5.364
+   },
+   {
+    "text": "con",
+    "start": 5.595,
+    "end": 5.777
+   },
+   {
+    "text": "comprobante",
+    "start": 5.777,
+    "end": 6.359
+   },
+   {
+    "text": "y",
+    "start": 6.371,
+    "end": 6.432
+   },
+   {
+    "text": "con",
+    "start": 6.468,
+    "end": 6.614
+   },
+   {
+    "text": "Soporte",
+    "start": 6.626,
+    "end": 7.172
+   }
+  ]
+ }
+]

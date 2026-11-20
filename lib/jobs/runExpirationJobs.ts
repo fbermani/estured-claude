@@ -6,6 +6,7 @@ import { expireApplicationRequests } from "@/lib/jobs/expireApplicationRequests"
 import { expireEsturedFeeWindows } from "@/lib/jobs/expireEsturedFeeWindows";
 import { checkStaleAvailability } from "@/lib/jobs/checkStaleAvailability";
 import { notifyWaitlistKeepAlive } from "@/lib/jobs/notifyWaitlistKeepAlive";
+import { expireWaitlistByMonth } from "@/lib/jobs/expireWaitlistByMonth";
 import { expireRenewalRequests } from "@/lib/jobs/expireRenewalRequests";
 import { expireRenewalOffers } from "@/lib/jobs/expireRenewalOffers";
 import { expireOperationalAccess } from "@/lib/jobs/expireOperationalAccess";
@@ -27,6 +28,9 @@ import { runGuardianConfirmationJob } from "@/lib/residents/guardianConfirmation
  * umbral de días cada hora es idempotente y no tiene costo real.
  */
 export async function runExpirationJobs(admin: SupabaseClient) {
+  // DR40: el vencimiento por mes corre ANTES del recordatorio de 90 días (si no, a alguien se le pediría «confirmá que seguís» y enseguida «venció»).
+  const waitlistMonthExpiryPromise = expireWaitlistByMonth(admin);
+  const waitlistKeepAlivePromise = waitlistMonthExpiryPromise.then(() => notifyWaitlistKeepAlive(admin));
   const [
     familyProposals,
     negotiationProposals,
@@ -34,6 +38,7 @@ export async function runExpirationJobs(admin: SupabaseClient) {
     esturedFeeWindows,
     staleAvailability,
     waitlistKeepAlive,
+    waitlistMonthExpiry,
     renewalRequests,
     renewalOffers,
     operationalAccess,
@@ -49,7 +54,8 @@ export async function runExpirationJobs(admin: SupabaseClient) {
     expireApplicationRequests(admin),
     expireEsturedFeeWindows(admin),
     checkStaleAvailability(admin),
-    notifyWaitlistKeepAlive(admin),
+    waitlistKeepAlivePromise,
+    waitlistMonthExpiryPromise,
     expireRenewalRequests(admin),
     expireRenewalOffers(admin),
     expireOperationalAccess(admin),
@@ -68,6 +74,7 @@ export async function runExpirationJobs(admin: SupabaseClient) {
     esturedFeeWindows,
     staleAvailability,
     waitlistKeepAlive,
+    waitlistMonthExpiry,
     renewalRequests,
     renewalOffers,
     operationalAccess,

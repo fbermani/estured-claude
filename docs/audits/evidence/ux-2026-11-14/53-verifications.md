@@ -1,0 +1,148 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- complementary:
+  - paragraph: EstuRed Admin
+  - paragraph: Panel de administración
+  - button "Notificaciones":
+    - generic: notifications
+  - navigation "Administración":
+    - link "Dashboard":
+      - /url: /admin/dashboard
+      - generic: Dashboard
+    - paragraph: Residencias
+    - link "Residencias":
+      - /url: /admin/residences
+      - generic: Residencias
+    - link "Verificaciones":
+      - /url: /admin/verifications
+      - generic: Verificaciones
+    - link "Ediciones de perfil":
+      - /url: /admin/profile-edits
+      - generic: Ediciones de perfil
+    - link "Solicitudes de alta":
+      - /url: /admin/solicitudes-alta
+      - generic: Solicitudes de alta
+    - link "Residencias pedidas":
+      - /url: /admin/residencias-pedidas
+      - generic: Residencias pedidas
+    - link "Preguntas de fichas":
+      - /url: /admin/faq
+      - generic: Preguntas de fichas
+    - link "Ítems «Otro» de fichas":
+      - /url: /admin/custom-amenities
+      - generic: Ítems «Otro» de fichas
+    - paragraph: Operación
+    - link "Solicitudes":
+      - /url: /admin/applications
+      - generic: Solicitudes
+    - link "Propuestas familiar":
+      - /url: /admin/family-proposals
+      - generic: Propuestas familiar
+    - link "Pagos":
+      - /url: /admin/payments
+      - generic: Pagos
+    - link "Actividad":
+      - /url: /admin/activity
+      - generic: Actividad
+    - link "Seguimiento":
+      - /url: /admin/followups
+      - generic: Seguimiento
+    - paragraph: Plataforma
+    - link "Comunidad":
+      - /url: /admin/community
+      - generic: Comunidad
+    - link "Visibilidad y penalizaciones":
+      - /url: /admin/visibility
+      - generic: Visibilidad y penalizaciones
+    - link "Administración de tarifas":
+      - /url: /admin/pricing
+      - generic: Administración de tarifas
+    - link "Documentos":
+      - /url: /admin/documents
+      - generic: Documentos
+    - link "Tipo de cambio":
+      - /url: /admin/exchange-rate
+      - generic: Tipo de cambio
+    - link "Usuarios":
+      - /url: /admin/users
+      - generic: Usuarios
+    - paragraph: Soporte
+    - link "Soporte":
+      - /url: /admin/support-cases
+      - generic: Soporte
+  - generic: A
+  - paragraph: admin.operaciones@estured.test
+  - paragraph: Admin
+  - button "Cerrar sesión"
+  - button "Colapsar menú":
+- main:
+  - heading "Verificación de residencias" [level=1]
+  - paragraph: 1 pendiente
+  - list:
+    - link "Reenviada Casa Compartida Almagro Almagro · Ricardo Owner":
+      - /url: /admin/verifications?id=b9e509f4-e92d-420b-aeb3-43af1a30a88e
+      - generic: Reenviada
+      - paragraph: Casa Compartida Almagro
+      - paragraph: Almagro · Ricardo Owner
+  - paragraph: Verificación de residencia
+  - heading "Casa Compartida Almagro" [level=1]
+  - paragraph: Medrano 650, Almagro (demo) — Almagro, CABA · Registrada el 20/10/2026
+  - paragraph:
+    - text: "Responsable:"
+    - strong: Ricardo Owner
+    - text: · +54 9 11 5555-0105
+  - paragraph:
+    - generic: Reenviada para revisión · 24/10/2026
+  - paragraph: “Ambiente familiar”
+  - heading "Galería de propiedad (0)" [level=2]
+  - generic: "Fotos propias: 0 de 3 necesarias"
+  - 'img "Casa Compartida Almagro: sin fotos cargadas"':
+    - generic: Almagro
+    - generic: Foto próximamente
+  - paragraph: La residencia todavía no cargó fotos. No se puede aprobar hasta que tenga al menos 3.
+  - heading "Tipos de habitación" [level=2]
+  - list:
+    - generic: Triple · 2 disponibles
+    - generic: USD 180
+    - generic: Doble · 4 disponibles
+    - generic: USD 210
+    - generic: Individual · 0 disponibles
+    - generic: USD 260
+    - generic: Cuádruple · 1 disponibles
+    - generic: USD 120
+  - heading "Entorno académico" [level=2]
+  - list:
+    - listitem: UBA - Facultad de Ciencias Sociales
+  - paragraph: Documentación
+  - paragraph: No se cargó reglamento en PDF.
+  - paragraph: Resumen de normas
+  - paragraph: Tareas domésticas rotativas entre residentes.
+  - heading "Checklist de verificación presencial" [level=2]
+  - generic: Datos sensibles
+  - paragraph: Completá esto después de la visita presencial a la residencia.
+  - checkbox "Identidad del responsable verificada (DNI)"
+  - text: Identidad del responsable verificada (DNI)
+  - checkbox "Identidad del coordinador verificada (si aplica)"
+  - text: Identidad del coordinador verificada (si aplica)
+  - checkbox "Dirección comprobada in situ" [checked]
+  - text: Dirección comprobada in situ
+  - checkbox "Fotos coinciden con la realidad"
+  - text: Fotos coinciden con la realidad
+  - text: Visita programada para
+  - textbox "Visita programada para"
+  - paragraph: Solo para “Programar visita”. La residencia ve la fecha en su panel.
+  - text: Fecha de la visita realizada
+  - textbox "Fecha de la visita realizada"
+  - paragraph: "Obligatoria para aprobar: la verificación presencial no se puede saltear."
+  - text: Notas internas / motivo
+  - textbox "Notas internas / motivo":
+    - /placeholder: "Obligatorio si rechazás. Es interno: la residencia no lo ve."
+  - text: Mensaje para la residencia
+  - textbox "Mensaje para la residencia":
+    - /placeholder: "Obligatorio al pedir cambios (10 a 1000 caracteres). La residencia lo ve en su panel: decile qué corregir."
+  - paragraph: "Solo se usa al pedir cambios (y ahí no se guarda el checklist). No es una nota interna: la residencia lo lee."
+  - button "Programar visita"
+  - button "Pedir cambios"
+  - button "Rechazar"
+  - button "Aprobar y publicar"
+- button "Admin Operativo": Admin Operativo

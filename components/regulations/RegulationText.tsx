@@ -14,7 +14,7 @@ export function RegulationText({ text, className = "" }: { text: string; classNa
         const isSection = rest.length === 0 && first === first.toUpperCase() && /[A-ZÁÉÍÓÚÑ]/.test(first) && first.length < 80;
         if (isSection) {
           return (
-            <h4 key={i} className="pt-3 text-xs font-extrabold uppercase tracking-widest text-ink first:pt-0">
+            <h4 key={i} className="pt-3 text-xs font-bold uppercase tracking-widest text-ink first:pt-0">
               {first}
             </h4>
           );

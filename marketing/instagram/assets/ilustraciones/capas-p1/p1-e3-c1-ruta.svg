@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920" role="img"><title>Línea punteada de la provincia a CABA.</title><desc>Línea punteada de la provincia a CABA.</desc><defs /><style>
+  .bg-fondo{fill:#fbf6ec}
+  .bg-tierra{fill:#f1d9a8}
+  .bg-ruta{fill:none;stroke:#1f7d5c;stroke-linecap:round}
+  .bg-origen{fill:#c29a55}
+  .bg-caba{fill:#0c3a2c}
+  .bg-reloj{fill:#0c3a2c}
+  .bg-reloj-cara{fill:#fbf6ec}
+  .bg-aguja{fill:none;stroke:#0c3a2c;stroke-linecap:round}
+  .bg-valija{fill:#0c3a2c}
+  .bg-valija-banda{fill:#f1d9a8}
+  .bg-valija-rueda{fill:#1d2722}
+</style>
+<path id="mapa-ruta" class="bg-ruta" stroke-width="18" stroke-dasharray="1.8 39.6" d="M464.4 520.4 Q677.2 623.0 722.8 816.8" />
+  </svg>

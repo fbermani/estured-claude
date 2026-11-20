@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { effectiveSection, groupGalleryPhotos, groupPhotosBySections, pickRotationPhotos, validatePhotoMeta, type GalleryPhoto } from "./photoMeta";
+import { PHOTO_AREAS, PRESENTATION_LABEL, areaLabel, effectiveSection, groupGalleryPhotos, groupPhotosBySections, pickRotationPhotos, validatePhotoMeta, type GalleryPhoto } from "./photoMeta";
 
 const ctx = { validFileIds: new Set(["f1", "f2", "f3"]), validRoomTypeIds: new Set(["rt1"]) };
 
@@ -35,11 +35,11 @@ describe("validatePhotoMeta", () => {
   });
 });
 
-describe("rotación y agrupado", () => {
+describe("portada de la tarjeta y agrupado", () => {
   const p = (url: string, featured = false, category: GalleryPhoto["category"] = "general", area: string | null = null, rt: string | null = null): GalleryPhoto => ({
     url, featured, category, area, roomTypeName: rt,
   });
-  it("rota las destacadas; sin destacadas, las primeras 5", () => {
+  it("la portada son las destacadas; sin destacadas, las primeras 5", () => {
     expect(pickRotationPhotos([p("a"), p("b", true), p("c", true)]).map((x) => x.url)).toEqual(["b", "c"]);
     expect(pickRotationPhotos(["a", "b", "c", "d", "e", "f", "g"].map((u) => p(u))).map((x) => x.url)).toEqual(["a", "b", "c", "d", "e"]);
   });
@@ -106,5 +106,77 @@ describe("secciones (DR30)", () => {
     ]);
     expect(g.map((x) => x.title)).toEqual(["A", "B"]);
     expect(g[0].photos.map((x) => x.id)).toEqual(["2", "3"]);
+  });
+});
+
+describe("foto principal o de presentación (rótulo visible, sin migrar datos)", () => {
+  const base = { category: "general" as const, area: null, roomTypeName: null };
+  it("la etiqueta del área `entrada` es la nueva; el valor guardado no cambia", () => {
+    expect(PHOTO_AREAS.find((a) => a.value === "entrada")?.label).toBe("Foto principal o de presentación");
+    expect(areaLabel("entrada")).toBe(PRESENTATION_LABEL);
+    expect(PHOTO_AREAS.map((a) => a.value)).toContain("entrada");
+  });
+  it("el nombre de sección viejo «Fachada / Exterior» se muestra con la etiqueta nueva (sin distinguir mayúsculas)", () => {
+    expect(effectiveSection({ category: "area", area: "entrada", roomTypeName: null, section: "Fachada / Exterior" })).toBe(PRESENTATION_LABEL);
+    expect(effectiveSection({ ...base, section: " fachada / exterior " })).toBe(PRESENTATION_LABEL);
+  });
+  it("sin nombre guardado, el área entrada también cae en la etiqueta nueva", () => {
+    expect(effectiveSection({ category: "area", area: "entrada", roomTypeName: null, section: null })).toBe(PRESENTATION_LABEL);
+  });
+  it("lo viejo y lo nuevo caen en UNA sola sección y ningún título conserva «Fachada»", () => {
+    const g = groupPhotosBySections([
+      { category: "area" as const, area: "entrada", roomTypeName: null, section: "Fachada / Exterior", sortOrder: 0, id: "a" },
+      { category: "area" as const, area: "entrada", roomTypeName: null, section: null, sortOrder: 1, id: "b" },
+      { category: "area" as const, area: "entrada", roomTypeName: null, section: PRESENTATION_LABEL, sortOrder: 2, id: "c" },
+    ]);
+    expect(g.map((x) => x.title)).toEqual([PRESENTATION_LABEL]);
+    expect(g[0].photos.map((x) => x.id)).toEqual(["a", "b", "c"]);
+  });
+});
+
+describe("secciones sin fotos no se publican en la ficha", () => {
+  const sec = (section: string | null, over: Partial<GalleryPhoto> = {}) => ({ category: "general" as const, area: null, roomTypeName: null, section, sortOrder: 0, ...over });
+  it("sin fotos no hay ninguna sección (ni «Fotos adicionales»)", () => {
+    expect(groupPhotosBySections([])).toEqual([]);
+  });
+  it("las secciones son exactamente las de las fotos, cada una con al menos una; «Fotos adicionales» solo si hay una foto sin sección", () => {
+    const withExtra = groupPhotosBySections([sec("Patio"), sec(null), sec("Patio")]);
+    expect(withExtra.map((g) => g.title)).toEqual(["Patio", "Fotos adicionales"]);
+    const withoutExtra = groupPhotosBySections([sec("Patio"), sec("Cocina"), sec("Patio")]);
+    expect(withoutExtra.map((g) => g.title)).toEqual(["Patio", "Cocina"]);
+    for (const g of [...withExtra, ...withoutExtra]) expect(g.photos.length).toBeGreaterThan(0);
+  });
+  it("una foto en un área o tipo que ya no existe no genera una sección vacía: cae en «Fotos adicionales»", () => {
+    const g = groupPhotosBySections([sec(null, { category: "room_type", roomTypeName: null })]);
+    expect(g.map((x) => x.title)).toEqual(["Fotos adicionales"]);
+    expect(g[0].photos).toHaveLength(1);
+  });
+});
+
+describe("foto principal (isCover, migración 0097)", () => {
+  const photo = (url: string, extra: Partial<GalleryPhoto> = {}): GalleryPhoto => ({ url, category: "general", area: null, roomTypeName: null, featured: false, ...extra });
+
+  it("sin foto principal nada cambia", () => {
+    expect(pickRotationPhotos([photo("a"), photo("b", { featured: true, coverOrder: 1 }), photo("c", { featured: true, coverOrder: 2 })]).map((x) => x.url)).toEqual(["b", "c"]);
+  });
+  it("la principal va siempre primera aunque no sea de las de portada, y las demás siguen detrás en su orden", () => {
+    const list = [photo("a"), photo("b", { featured: true, coverOrder: 1 }), photo("c", { featured: true, coverOrder: 2 }), photo("d", { isCover: true })];
+    expect(pickRotationPhotos(list).map((x) => x.url)).toEqual(["d", "b", "c"]);
+  });
+  it("si la principal ya es de portada, se mueve al frente sin repetirse", () => {
+    const list = [photo("a", { featured: true, coverOrder: 1 }), photo("b", { featured: true, coverOrder: 2 }), photo("c", { featured: true, coverOrder: 3, isCover: true })];
+    expect(pickRotationPhotos(list).map((x) => x.url)).toEqual(["c", "a", "b"]);
+  });
+  it("sin portadas elegidas, la principal encabeza las primeras 5 y el total no pasa de 5", () => {
+    const list = ["a", "b", "c", "d", "e", "f", "g"].map((u) => photo(u, u === "g" ? { isCover: true } : {}));
+    expect(pickRotationPhotos(list).map((x) => x.url)).toEqual(["g", "a", "b", "c", "d"]);
+  });
+  it("con 5 de portada más una principal aparte, el total sigue en 5", () => {
+    const list = [
+      ...["a", "b", "c", "d", "e"].map((u, i) => photo(u, { featured: true, coverOrder: i + 1 })),
+      photo("z", { isCover: true }),
+    ];
+    const out = pickRotationPhotos(list).map((x) => x.url);
+    expect(out).toEqual(["z", "a", "b", "c", "d"]);
   });
 });

@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { canGenerateInvite, canTransition, inviteExpiry, inviteState, validateSignupForm, type InviteRow } from "@/lib/residenceSignup/rules";
+import {
+  SIGNUP_REQUIRED_FIELDS,
+  canGenerateInvite,
+  canTransition,
+  inviteExpiry,
+  inviteState,
+  validateSignupFields,
+  validateSignupForm,
+  type InviteRow,
+} from "@/lib/residenceSignup/rules";
 
 const NOW = new Date("2026-11-01T12:00:00Z");
 const future = new Date(NOW.getTime() + 3600_000).toISOString();
@@ -46,7 +55,7 @@ describe("estado del enlace de invitación", () => {
 });
 
 describe("validación del formulario público", () => {
-  const ok = { residence_name: "Casa Norte", neighborhood: "Palermo", contact_name: "Ana Gómez", email: " ANA@mail.com ", phone: "+54 9 11 5555 1234" };
+  const ok = { residence_name: "Casa Norte", address: "Av. Córdoba 1234, CABA", contact_name: "Ana Gómez", email: " ANA@mail.com ", phone: "+54 9 11 5555 1234" };
   it("acepta lo mínimo y normaliza el email", () => {
     const r = validateSignupForm(ok);
     expect(r.ok && r.value.email).toBe("ana@mail.com");
@@ -56,5 +65,37 @@ describe("validación del formulario público", () => {
     expect(!r.ok && r.field).toBe("email");
     const b = validateSignupForm({ ...ok, approx_beds: "0" });
     expect(!b.ok && b.field).toBe("approx_beds");
+  });
+});
+
+describe("los 5 datos obligatorios (DR46.4)", () => {
+  const ok = { residence_name: "Casa Norte", address: "Av. Córdoba 1234, CABA", contact_name: "Ana Gómez", email: "ana@mail.com", phone: "+54 9 11 5555 1234" };
+  it("son nombre, dirección, responsable, teléfono y email (el barrio ya no se pide)", () => {
+    expect([...SIGNUP_REQUIRED_FIELDS].sort()).toEqual(["address", "contact_name", "email", "phone", "residence_name"]);
+    const r = validateSignupFields(ok);
+    expect(r.errors).toEqual({});
+    expect(r.value).toMatchObject({ address: "Av. Córdoba 1234, CABA", instagram_or_web: null, approx_beds: null });
+    expect(r.value).not.toHaveProperty("neighborhood");
+  });
+  it("con todo vacío marca los 5 campos y pide completar los 5 datos", () => {
+    const r = validateSignupFields({ residence_name: "", address: "  ", contact_name: "", email: "", phone: "" });
+    expect(Object.keys(r.errors).sort()).toEqual(["address", "contact_name", "email", "phone", "residence_name"]);
+    expect(r.anyRequiredEmpty).toBe(true);
+    expect(r.value).toBeNull();
+  });
+  it("cada campo falla por separado y sin vacío no pide «completar»", () => {
+    expect(validateSignupFields({ ...ok, address: "Córdoba" }).errors).toEqual({}); // 5+ caracteres con letras: alcanza
+    expect(Object.keys(validateSignupFields({ ...ok, address: "1234" }).errors)).toEqual(["address"]);
+    expect(Object.keys(validateSignupFields({ ...ok, address: "x".repeat(201) }).errors)).toEqual(["address"]);
+    expect(Object.keys(validateSignupFields({ ...ok, phone: "abc" }).errors)).toEqual(["phone"]);
+    expect(Object.keys(validateSignupFields({ ...ok, email: "sin-arroba" }).errors)).toEqual(["email"]);
+    expect(Object.keys(validateSignupFields({ ...ok, contact_name: "A" }).errors)).toEqual(["contact_name"]);
+    const bad = validateSignupFields({ ...ok, email: "sin-arroba" });
+    expect(bad.anyRequiredEmpty).toBe(false);
+  });
+  it("nombre de la residencia y responsable con espacios solos cuentan como vacíos", () => {
+    const r = validateSignupFields({ ...ok, residence_name: "   ", contact_name: "  " });
+    expect(Object.keys(r.errors).sort()).toEqual(["contact_name", "residence_name"]);
+    expect(r.anyRequiredEmpty).toBe(true);
   });
 });

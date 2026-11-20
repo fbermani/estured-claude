@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
-import { PageHero } from "@/components/ui/PageHero";
+import { ResidenceHero } from "@/components/residences/ResidenceHero";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatUsd } from "@/lib/mock/exchange";
 import { ApplicationActions, type ApplicationAllowed } from "@/app/residence/[residence_id]/applications/[id]/ApplicationActions";
@@ -14,6 +14,7 @@ import { getVisibleStatus, type ReservationStatusInput } from "@/lib/application
 import { describePaymentDeadline } from "@/lib/applications/paymentDeadline";
 import type { ApplicantProfileView } from "@/lib/applications/applicantProfile";
 import { ApplicantAvatar, ApplicantProfileBlock } from "@/app/residence/[residence_id]/applications/ApplicantProfileBlock";
+import { StudentDocumentChecklist, type StudentDocumentItem } from "@/components/residences/StudentDocumentChecklist";
 
 export type FullApplication = {
   id: string;
@@ -42,6 +43,8 @@ export type FullApplication = {
   isActive: boolean;
   /** DR3b: solicitud de un residente en proceso de mudanza. Nunca trae la residencia de origen ni el motivo (salvo la nota voluntaria). */
   moving: { label: string; note: string | null; advanceNotice: string | null } | null;
+  /** DR48: documentación del solicitante, solo con el pago a la residencia habilitado (si no, `null`). `fileId` solo con permiso. */
+  documents: StudentDocumentItem[] | null;
 };
 
 function visibleOf(app: FullApplication) {
@@ -183,7 +186,7 @@ function ListRow({
             {app.roomTypeName ?? "Cualquier tipo"} · Ingreso {formatDateOnly(app.desiredStartDate)}
           </p>
           {app.moving && (
-            <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-orange-tint px-2 py-0.5 text-[11px] font-bold text-orange-700">
+            <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-orange-tint px-2 py-0.5 text-xs font-bold text-orange-700">
               <Icon name="swap_horiz" className="text-sm" />
               {app.moving.label}
             </p>
@@ -211,10 +214,13 @@ export function ApplicationsInbox({
   applications,
   initialSelectedId,
   allowed,
+  documentsLimited = false,
 }: {
   residenceId: string;
   applications: FullApplication[];
   initialSelectedId: string | null;
+  /** DR38: falta la migración 0077 (solo se reconocen identidad y estudios). */
+  documentsLimited?: boolean;
   /** DR11: permisos de quien mira, resueltos en el servidor (solo presentación; cada acción se valida en el servidor). */
   allowed: ApplicationAllowed;
 }) {
@@ -228,7 +234,7 @@ export function ApplicationsInbox({
   if (applications.length === 0) {
     return (
       <div className="tone-residence mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
-        <PageHero tone="residence" eyebrow="Solicitudes" eyebrowIcon="inbox" title="Solicitudes recibidas" subtitle="Revisá y respondé las solicitudes de reserva." glyph="inbox" />
+        <ResidenceHero icon="inbox" title="Solicitudes recibidas" subtitle="Revisá y respondé las solicitudes de reserva." />
         <div className="mt-8">
           <EmptyState
             tone="residence"
@@ -246,7 +252,7 @@ export function ApplicationsInbox({
       {groups.map((group) => (
         <div key={group.key}>
           <div className="mb-2 flex items-center gap-2 px-1">
-            <h2 className="text-xs font-extrabold uppercase tracking-widest text-muted">{group.label}</h2>
+            <h2 className="text-xs font-bold uppercase tracking-widest text-muted">{group.label}</h2>
             <span className="rounded-full bg-cream-2 px-2 py-0.5 text-xs font-bold text-ink-soft">
               {group.entries.length}
             </span>
@@ -267,7 +273,7 @@ export function ApplicationsInbox({
   );
 
   const DetailColumn = selected ? (
-    <ApplicationDetail residenceId={residenceId} app={selected} allowed={allowed} />
+    <ApplicationDetail residenceId={residenceId} app={selected} allowed={allowed} documentsLimited={documentsLimited} />
   ) : (
     <div className="flex h-full items-center justify-center rounded-card border-[1.5px] border-dashed border-line p-8 text-center text-sm text-ink-faint">
       Elegí una solicitud de la lista para ver el detalle.
@@ -276,15 +282,7 @@ export function ApplicationsInbox({
 
   return (
     <div className="tone-residence mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
-      <PageHero
-        tone="residence"
-        eyebrow="Solicitudes"
-        eyebrowIcon="inbox"
-        title="Solicitudes recibidas"
-        subtitle="Revisá y respondé las solicitudes de reserva."
-        glyph="inbox"
-        status={<span className="inline-flex items-center rounded-full bg-paper px-2.5 py-1 text-xs font-bold text-(--tone-700)">{applications.length === 1 ? "1 solicitud" : `${applications.length} solicitudes`}</span>}
-      />
+      <ResidenceHero icon="inbox" title="Solicitudes recibidas" subtitle="Revisá y respondé las solicitudes de reserva." actions={<span className="inline-flex items-center rounded-full bg-paper px-2.5 py-1 text-xs font-bold text-(--tone-700)">{applications.length === 1 ? "1 solicitud" : `${applications.length} solicitudes`}</span>} />
 
       {/* Desktop: 2 columnas — lista + detalle (el resumen vive dentro del detalle). */}
       <div className="mt-6 hidden gap-6 lg:grid lg:grid-cols-[340px_1fr]">
@@ -314,7 +312,17 @@ export function ApplicationsInbox({
   );
 }
 
-function ApplicationDetail({ residenceId, app, allowed }: { residenceId: string; app: FullApplication; allowed: ApplicationAllowed }) {
+function ApplicationDetail({
+  residenceId,
+  app,
+  allowed,
+  documentsLimited,
+}: {
+  residenceId: string;
+  app: FullApplication;
+  allowed: ApplicationAllowed;
+  documentsLimited: boolean;
+}) {
   const visible = visibleOf(app);
 
   return (
@@ -349,6 +357,8 @@ function ApplicationDetail({ residenceId, app, allowed }: { residenceId: string;
       )}
 
       <ApplicantProfileBlock applicant={app.applicant} beforeContact={NEW_STATUSES.includes(app.status)} />
+
+      {app.documents && <ApplicantDocumentsBlock residenceId={residenceId} documents={app.documents} limited={documentsLimited} />}
 
       <dl className="mt-6 grid gap-3 text-sm sm:grid-cols-2">
         <div className="flex justify-between border-b border-sand-200 pb-2 sm:col-span-1">
@@ -392,7 +402,7 @@ function ApplicationDetail({ residenceId, app, allowed }: { residenceId: string;
             Reserva confirmada
           </p>
           <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-ink-faint">Ingreso</p>
-          <p className="text-xl font-extrabold text-ink">{formatDateOnly(app.desiredStartDate)}</p>
+          <p className="text-xl font-bold text-ink">{formatDateOnly(app.desiredStartDate)}</p>
           <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
             <div>
               <dt className="text-ink-faint">Comprobante N.º</dt>
@@ -433,5 +443,45 @@ function ApplicationDetail({ residenceId, app, allowed }: { residenceId: string;
         />
       </div>
     </Card>
+  );
+}
+
+/** DR48: documentación del solicitante con el pago a la residencia habilitado. «Ver» solo con el permiso «Pago a la residencia». */
+function ApplicantDocumentsBlock({
+  residenceId,
+  documents,
+  limited,
+}: {
+  residenceId: string;
+  documents: StudentDocumentItem[];
+  limited: boolean;
+}) {
+  const missing = documents.filter((d) => !d.delivered).length;
+  return (
+    <section aria-labelledby="applicant-docs-title" className="mt-6 rounded-field border border-line bg-paper p-4">
+      <h3 id="applicant-docs-title" className="mb-3 flex items-center gap-1.5 text-sm font-bold text-ink">
+        <Icon name="folder_shared" className="text-base" /> Documentación
+        {documents.length > 0 && (
+          <span className="ml-1 text-xs font-semibold text-ink-faint">
+            {missing === 0 ? "Completa" : `Faltan ${missing} de ${documents.length}`}
+          </span>
+        )}
+      </h3>
+      {documents.length === 0 ? (
+        <p className="text-sm text-ink-soft">Tu residencia no pide documentos. Podés elegirlos en Configuración, en «Documentos que pedís a tus residentes».</p>
+      ) : (
+        <StudentDocumentChecklist residenceId={residenceId} items={documents} />
+      )}
+      {documents.length > 0 && (
+        <p className="mt-2 text-xs leading-relaxed text-ink-faint">
+          {documents.some((d) => d.fileId)
+            ? "Cada vez que abrís un documento queda registrado. El link dura 5 minutos."
+            : documents.some((d) => d.delivered)
+              ? "Solo ves si lo entregó: para abrir los documentos necesitás el permiso «Pago a la residencia»."
+              : "Cuando lo entregue, vas a poder abrirlo desde acá."}
+          {limited ? " Antecedentes penales y los documentos propios se van a poder ver cuando se actualice el sistema." : ""}
+        </p>
+      )}
+    </section>
   );
 }

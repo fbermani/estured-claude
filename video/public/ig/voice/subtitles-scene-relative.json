@@ -1,0 +1,462 @@
+{
+ "1": {
+  "text": "¿Cómo elegís una residencia en Buenos Aires… sin poder ir a verla?",
+  "words": [
+   {
+    "w": "¿Cómo",
+    "start": 0.0,
+    "end": 0.26
+   },
+   {
+    "w": "elegís",
+    "start": 0.26,
+    "end": 0.7
+   },
+   {
+    "w": "una",
+    "start": 0.7,
+    "end": 0.86
+   },
+   {
+    "w": "residencia",
+    "start": 0.86,
+    "end": 1.5
+   },
+   {
+    "w": "en",
+    "start": 1.5,
+    "end": 1.58
+   },
+   {
+    "w": "Buenos",
+    "start": 1.58,
+    "end": 1.78
+   },
+   {
+    "w": "Aires",
+    "start": 1.78,
+    "end": 2.16
+   },
+   {
+    "w": "sin",
+    "start": 2.16,
+    "end": 3.0
+   },
+   {
+    "w": "poder",
+    "start": 3.0,
+    "end": 3.38
+   },
+   {
+    "w": "ir",
+    "start": 3.38,
+    "end": 3.54
+   },
+   {
+    "w": "a",
+    "start": 3.54,
+    "end": 3.64
+   },
+   {
+    "w": "verla?",
+    "start": 3.64,
+    "end": 4.0
+   }
+  ]
+ },
+ "2": {
+  "text": "Las fotos y los chats no alcanzan para decidir dónde vas a vivir.",
+  "words": [
+   {
+    "w": "Las",
+    "start": 0.0,
+    "end": 0.2
+   },
+   {
+    "w": "fotos",
+    "start": 0.2,
+    "end": 0.56
+   },
+   {
+    "w": "y",
+    "start": 0.56,
+    "end": 0.78
+   },
+   {
+    "w": "los",
+    "start": 0.78,
+    "end": 0.92
+   },
+   {
+    "w": "chats",
+    "start": 0.92,
+    "end": 1.32
+   },
+   {
+    "w": "no",
+    "start": 1.32,
+    "end": 1.66
+   },
+   {
+    "w": "alcanzan",
+    "start": 1.66,
+    "end": 2.28
+   },
+   {
+    "w": "para",
+    "start": 2.28,
+    "end": 2.48
+   },
+   {
+    "w": "decidir",
+    "start": 2.48,
+    "end": 3.06
+   },
+   {
+    "w": "dónde",
+    "start": 3.06,
+    "end": 3.3
+   },
+   {
+    "w": "vas",
+    "start": 3.3,
+    "end": 3.64
+   },
+   {
+    "w": "a",
+    "start": 3.64,
+    "end": 3.76
+   },
+   {
+    "w": "vivir.",
+    "start": 3.76,
+    "end": 4.0
+   }
+  ]
+ },
+ "3": {
+  "text": "Y viajar antes a verlas todas no siempre se puede.",
+  "words": [
+   {
+    "w": "Y",
+    "start": 0.0,
+    "end": 0.16
+   },
+   {
+    "w": "viajar",
+    "start": 0.16,
+    "end": 0.5
+   },
+   {
+    "w": "antes",
+    "start": 0.5,
+    "end": 0.82
+   },
+   {
+    "w": "a",
+    "start": 0.82,
+    "end": 1.04
+   },
+   {
+    "w": "verlas",
+    "start": 1.04,
+    "end": 1.3
+   },
+   {
+    "w": "todas",
+    "start": 1.3,
+    "end": 1.66
+   },
+   {
+    "w": "no",
+    "start": 1.66,
+    "end": 2.24
+   },
+   {
+    "w": "siempre",
+    "start": 2.24,
+    "end": 2.58
+   },
+   {
+    "w": "se",
+    "start": 2.58,
+    "end": 2.78
+   },
+   {
+    "w": "puede.",
+    "start": 2.78,
+    "end": 3.08
+   }
+  ]
+ },
+ "4": {
+  "text": "Por eso en EstuRed las residencias se visitan en persona antes de publicarse.",
+  "words": [
+   {
+    "w": "Por",
+    "start": 0.0,
+    "end": 0.16
+   },
+   {
+    "w": "eso",
+    "start": 0.16,
+    "end": 0.42
+   },
+   {
+    "w": "en",
+    "start": 0.64,
+    "end": 0.72
+   },
+   {
+    "w": "EstuRed",
+    "start": 0.72,
+    "end": 1.48
+   },
+   {
+    "w": "las",
+    "start": 1.48,
+    "end": 1.56
+   },
+   {
+    "w": "residencias",
+    "start": 1.56,
+    "end": 2.18
+   },
+   {
+    "w": "se",
+    "start": 2.18,
+    "end": 2.34
+   },
+   {
+    "w": "visitan",
+    "start": 2.34,
+    "end": 2.8
+   },
+   {
+    "w": "en",
+    "start": 2.8,
+    "end": 2.9
+   },
+   {
+    "w": "persona",
+    "start": 2.9,
+    "end": 3.32
+   },
+   {
+    "w": "antes",
+    "start": 3.32,
+    "end": 3.9
+   },
+   {
+    "w": "de",
+    "start": 3.9,
+    "end": 4.06
+   },
+   {
+    "w": "publicarse.",
+    "start": 4.06,
+    "end": 4.68
+   }
+  ]
+ },
+ "5": {
+  "text": "Comparás ubicación, servicios y reglas desde tu casa, con tu familia si querés. La decisión es tuya.",
+  "words": [
+   {
+    "w": "Comparás",
+    "start": 0.0,
+    "end": 0.56
+   },
+   {
+    "w": "ubicación,",
+    "start": 0.56,
+    "end": 1.14
+   },
+   {
+    "w": "servicios",
+    "start": 1.42,
+    "end": 1.92
+   },
+   {
+    "w": "y",
+    "start": 1.92,
+    "end": 2.26
+   },
+   {
+    "w": "reglas",
+    "start": 2.26,
+    "end": 2.86
+   },
+   {
+    "w": "desde",
+    "start": 2.86,
+    "end": 3.1
+   },
+   {
+    "w": "tu",
+    "start": 3.1,
+    "end": 3.34
+   },
+   {
+    "w": "casa,",
+    "start": 3.34,
+    "end": 3.68
+   },
+   {
+    "w": "con",
+    "start": 4.08,
+    "end": 4.2
+   },
+   {
+    "w": "tu",
+    "start": 4.2,
+    "end": 4.3
+   },
+   {
+    "w": "familia",
+    "start": 4.3,
+    "end": 4.72
+   },
+   {
+    "w": "si",
+    "start": 4.72,
+    "end": 4.92
+   },
+   {
+    "w": "querés.",
+    "start": 4.92,
+    "end": 5.3
+   },
+   {
+    "w": "La",
+    "start": 5.7,
+    "end": 5.86
+   },
+   {
+    "w": "decisión",
+    "start": 5.86,
+    "end": 6.38
+   },
+   {
+    "w": "es",
+    "start": 6.38,
+    "end": 6.64
+   },
+   {
+    "w": "tuya.",
+    "start": 6.64,
+    "end": 7.06
+   }
+  ]
+ },
+ "6": {
+  "text": "Enviás tu solicitud sin costo, seguís cada paso y todo queda registrado.",
+  "words": [
+   {
+    "w": "Enviás",
+    "start": 0.0,
+    "end": 0.4
+   },
+   {
+    "w": "tu",
+    "start": 0.4,
+    "end": 0.48
+   },
+   {
+    "w": "solicitud",
+    "start": 0.48,
+    "end": 1.06
+   },
+   {
+    "w": "sin",
+    "start": 1.06,
+    "end": 1.3
+   },
+   {
+    "w": "costo,",
+    "start": 1.3,
+    "end": 1.9
+   },
+   {
+    "w": "seguís",
+    "start": 2.06,
+    "end": 2.48
+   },
+   {
+    "w": "cada",
+    "start": 2.48,
+    "end": 2.74
+   },
+   {
+    "w": "paso",
+    "start": 2.74,
+    "end": 3.18
+   },
+   {
+    "w": "y",
+    "start": 3.18,
+    "end": 3.56
+   },
+   {
+    "w": "todo",
+    "start": 3.56,
+    "end": 3.86
+   },
+   {
+    "w": "queda",
+    "start": 3.86,
+    "end": 4.18
+   },
+   {
+    "w": "registrado.",
+    "start": 4.18,
+    "end": 4.88
+   }
+  ]
+ },
+ "7": {
+  "text": "Sumate gratis desde el link en la bio.",
+  "words": [
+   {
+    "w": "Sumate",
+    "start": 0.0,
+    "end": 0.44
+   },
+   {
+    "w": "gratis",
+    "start": 0.44,
+    "end": 0.96
+   },
+   {
+    "w": "desde",
+    "start": 0.96,
+    "end": 1.2
+   },
+   {
+    "w": "el",
+    "start": 1.2,
+    "end": 1.44
+   },
+   {
+    "w": "link",
+    "start": 1.44,
+    "end": 1.66
+   },
+   {
+    "w": "en",
+    "start": 1.66,
+    "end": 1.8
+   },
+   {
+    "w": "la",
+    "start": 1.8,
+    "end": 1.92
+   },
+   {
+    "w": "bio.",
+    "start": 1.92,
+    "end": 2.1
+   }
+  ]
+ }
+}

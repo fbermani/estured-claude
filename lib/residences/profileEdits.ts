@@ -1,4 +1,5 @@
 import "server-only";
+import { parseRuleItems } from "@/lib/residences/ruleItems";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { syncRoomsAndBeds } from "@/lib/residences/syncRoomsAndBeds";
 import { roundUsd, roundArs, usdToArs } from "@/lib/mock/exchange";
@@ -343,7 +344,7 @@ export async function applyApprovedEdit(
         {
           residence_id: edit.residence_id,
           section_type: "rules",
-          content: { summary: newValue.summary ?? "" },
+          content: { summary: newValue.summary ?? "", items: parseRuleItems(newValue.items) },
           requires_admin_review: true,
         },
         { onConflict: "residence_id,section_type" },

@@ -25,10 +25,26 @@ describe("stageForStatusKey", () => {
 });
 
 describe("getNextStep", () => {
-  it("recién registrado con perfil incompleto: etapa Perfil", () => {
+  it("perfil incompleto pero elegible: puede buscar y solicitar; el perfil es opcional", () => {
     const s = getNextStep({ profilePercent: 40, application: null });
+    expect(s.stage).toBe(2);
+    expect(s.primary.href).toBe("/search");
+    expect(s.description).toMatch(/opcional/);
+    expect(s.secondary?.href).toBe("/students/profile");
+  });
+  it("Camila: perfil al 44 % con todas las solicitudes cerradas no vuelve al paso Perfil", () => {
+    const s = getNextStep({ profilePercent: 44, application: null, hadPreviousApplications: true });
+    expect(s.stage).toBe(2);
+    expect(s.title).toMatch(/Seguí buscando/);
+    expect(s.title).not.toMatch(/perfil/i);
+  });
+  it("menor sin familiar vinculado: requisito real, lleva a vincular", () => {
+    const s = getNextStep({ profilePercent: 100, application: null, minorWithoutLink: true });
     expect(s.stage).toBe(1);
-    expect(s.primary.href).toBe("/students/profile");
+    expect(s.primary.href).toBe("/students/dashboard#vinculacion");
+  });
+  it("una solicitud viva manda aunque el perfil esté incompleto o sea menor sin vínculo", () => {
+    expect(getNextStep({ profilePercent: 10, application: app(), minorWithoutLink: true }).stage).toBe(3);
   });
   it("perfil completo sin solicitudes: etapa Buscar", () => {
     const s = getNextStep({ profilePercent: 100, application: null });

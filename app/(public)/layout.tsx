@@ -1,20 +1,26 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { getSessionUser } from "@/lib/auth/session";
+import { SkipLink } from "@/components/ui/SkipLink";
+import { PreaperturaHeader } from "@/components/preapertura/PreaperturaHeader";
+import { PreaperturaFooter } from "@/components/preapertura/PreaperturaFooter";
+import { isPreaperturaLocked } from "@/lib/preapertura/flag";
 
-export default async function PublicLayout({
+export default function PublicLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // Con sesión iniciada no tiene sentido ofrecer "Crear cuenta". El enlace de
-  // arrepentimiento se mantiene para todos: docs/10 §15.4 lo pide en el footer.
-  const user = await getSessionUser();
+  // Este layout NO lee la sesión: así las páginas públicas estáticas (guías, términos, privacidad…) se sirven desde caché.
+  // «Crear cuenta» del footer se oculta por CSS si hay sesión (`data-session-hint`, ver Footer).
+  // DR42.2: con la preapertura cerrada (PREAPERTURA=on en producción), header y footer de preapertura (sin «Crear cuenta», buscador ni
+  // Guías). En desarrollo y con el flag apagado, header y footer reales.
+  const preapertura = isPreaperturaLocked();
   return (
     <div className="flex min-h-screen flex-col">
-      <Navbar />
-      <main className="flex-1">{children}</main>
-      <Footer hideSignup={Boolean(user)} />
+      <SkipLink />
+      {preapertura ? <PreaperturaHeader /> : <Navbar />}
+      <main id="contenido" tabIndex={-1} className="flex-1 focus:outline-none">{children}</main>
+      {preapertura ? <PreaperturaFooter /> : <Footer />}
     </div>
   );
 }

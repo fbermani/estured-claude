@@ -51,7 +51,7 @@ export function GuidePicks({
         {label ? `${label} ` : ""}
         {guides.map((g, i) => (
           <span key={g.id}>
-            {i > 0 && " · "}
+            {i > 0 && ", "}
             <Link href={`/guias/${g.slug}`} className="font-bold text-forest-700 underline-offset-2 hover:underline">
               {g.title}
             </Link>

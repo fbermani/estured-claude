@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920" role="img"><title>E1 sentado: piernas, mochila, brazo lejano, torso, cabeza (ojos, cejas, boca por grupos). Sin celular ni brazo derecho.</title><desc>E1 sentado: piernas, mochila, brazo lejano, torso, cabeza (ojos, cejas, boca por grupos). Sin celular ni brazo derecho.</desc><defs /><style>
+  .bg-pared{fill:#ead7b4}
+  .bg-zocalo{fill:#d8bf93}
+  .bg-piso{fill:#c9a77a}
+  .bg-tabla{fill:#b9966a}
+  .bg-marco{fill:#fbf6ec}
+  .bg-vidrio{fill:#f6d9a0}
+  .bg-sol{fill:#fbe9c4}
+  .bg-cuadro{fill:#a87f50}
+  .bg-papel{fill:#fbf6ec}
+  .bg-tierra{fill:#e6cf9f}
+  .bg-ruta{fill:none;stroke:#1f7d5c;stroke-linecap:round}
+  .bg-origen{fill:#c29a55}
+  .bg-caba{fill:#0c3a2c}
+  .bg-luz{fill:#fff3d6;opacity:0.45}
+
+  .fondo{fill:#fbf6ec}
+  .piso{fill:#ece3cf}
+  .piel{fill:#b97a4f}
+  .piel-sombra{fill:#a4683f}
+  .pelo{fill:#2a1d17}
+  .tinta{fill:#1d2722}
+  .trazo{fill:none;stroke:#1d2722;stroke-linecap:round}
+  .abrigo{fill:#1f7d5c}
+  .abrigo-brazo{fill:none;stroke:#1a6e51;stroke-linecap:round;stroke-linejoin:round}
+  .abrigo-brazo-lejos{fill:none;stroke:#155c44;stroke-linecap:round}
+  .abrigo-linea{fill:none;stroke:#0c3a2c;stroke-linecap:round}
+  .cuello{fill:#0c3a2c}
+  .pantalon{fill:#2f3b45}
+  .pantalon-lejos{fill:#27313a}
+  .zapatilla{fill:#1d2722}
+  .mochila{fill:#d8b06a}
+  .mochila-sombra{fill:#c29a55}
+  .tira{fill:none;stroke:#d8b06a;stroke-linecap:round}
+  .valija{fill:#0c3a2c}
+  .valija-manija{fill:#14503c}
+  .valija-banda{fill:#f1d9a8}
+  .celular{fill:#1d2722}
+  .cama-colchon{fill:#efe4cb}
+  .cama-base{fill:#e0cfa8}
+  .cama-almohada{fill:#f8f1e3}
+
+  .piso{fill:#1d2722;fill-opacity:0.12}
+</style>
+<g transform="translate(-40 430) scale(0.9)"><g id="pierna-izq" data-parte="pierna-izq">
+    <rect class="pantalon-lejos" x="600" y="648" width="236" height="50" rx="22" />
+    <rect class="pantalon-lejos" x="790" y="662" width="48" height="346" rx="16" />
+    <rect class="zapatilla" x="788" y="992" width="92" height="40" rx="18" />
+  </g>
+  <g id="pierna-der" data-parte="pierna-der">
+    <rect class="pantalon" x="560" y="664" width="234" height="54" rx="24" />
+    <rect class="pantalon" x="744" y="680" width="52" height="330" rx="16" />
+    <rect class="zapatilla" x="740" y="994" width="98" height="40" rx="18" />
+  </g>
+
+  <g id="mochila" data-parte="mochila">
+    <rect class="mochila" x="460" y="382" width="64" height="252" rx="24" />
+    <rect class="mochila-sombra" x="460" y="382" width="64" height="74" rx="24" />
+    <rect class="mochila-sombra" x="468" y="530" width="40" height="70" rx="12" />
+  </g>
+
+  <g id="brazo-izq" data-parte="brazo-izq">
+    <path class="abrigo-brazo-lejos" stroke-width="42" d="M676 400 Q708 500 712 548" />
+  </g>
+
+  <g id="torso" data-parte="torso">
+    <rect class="piel-sombra" x="578" y="326" width="28" height="40" rx="8" />
+    <path class="abrigo" d="M522 366 Q590 352 668 366 Q702 382 702 430 L708 712 Q610 728 508 710 L514 430 Q514 382 522 366 Z" />
+    <path class="abrigo-linea" stroke-width="5" d="M624 376 V720" />
+    <path class="abrigo-linea" stroke-width="5" d="M646 602 H684" />
+    <rect class="cuello" x="564" y="342" width="72" height="34" rx="15" />
+    <path class="tira" stroke-width="16" d="M544 374 Q538 450 542 530" />
+    <rect class="mochila-sombra" x="532" y="502" width="22" height="12" rx="4" />
+  </g>
+
+  <g id="cabeza" data-parte="cabeza" transform="rotate(14 595 345)">
+    <ellipse class="piel" cx="595" cy="275" rx="55" ry="70" />
+    <circle class="piel" cx="648" cy="296" r="9" />
+    <g id="pelo" data-parte="pelo">
+      <ellipse class="pelo" cx="586" cy="224" rx="56" ry="27" />
+      <circle class="pelo" cx="540" cy="242" r="26" />
+      <circle class="pelo" cx="536" cy="268" r="20" />
+      <circle class="pelo" cx="548" cy="214" r="25" />
+      <circle class="pelo" cx="572" cy="196" r="26" />
+      <circle class="pelo" cx="603" cy="192" r="26" />
+      <circle class="pelo" cx="631" cy="203" r="23" />
+      <circle class="pelo" cx="646" cy="226" r="18" />
+    </g>
+    <circle class="piel-sombra" cx="544" cy="290" r="12" />
+    <g id="cejas" data-parte="cejas">
+      <path class="trazo" stroke-width="6" d="M588 270 Q600 265 612 270" />
+      <path class="trazo" stroke-width="6" d="M626 270 Q635 266 643 271" />
+    </g>
+    <g id="ojos" data-parte="ojos">
+      <ellipse class="tinta" cx="600" cy="292" rx="7" ry="5" />
+      <ellipse class="tinta" cx="635" cy="292" rx="6" ry="5" />
+    </g>
+    <g id="boca" data-parte="boca">
+      <path class="trazo" stroke-width="4.5" d="M611 313 Q620 317 629 313" />
+    </g>
+  </g>
+
+  </g></svg>

@@ -229,6 +229,58 @@ describe.skipIf(!hasCreds)("recordNegotiationResponse (integración)", () => {
     }
   });
 
+  it("concurrencia: 3 «aceptar» simultáneos dejan un solo snapshot final y un solo pago pendiente", async () => {
+    const { applicationId } = await createFixtureApplication();
+    try {
+      const results = await Promise.all(
+        [1, 2, 3].map(() =>
+          recordNegotiationResponse(admin, { applicationId, response: "accepted", actorUserId: studentUserId }),
+        ),
+      );
+      expect(results.filter((r) => r.ok)).toHaveLength(1);
+
+      const { count: finals } = await admin
+        .from("application_snapshots")
+        .select("id", { count: "exact", head: true })
+        .eq("application_request_id", applicationId)
+        .eq("snapshot_type", "final");
+      expect(finals).toBe(1);
+
+      const { count: payments } = await admin
+        .from("external_residence_payments")
+        .select("id", { count: "exact", head: true })
+        .eq("application_request_id", applicationId);
+      expect(payments).toBe(1);
+    } finally {
+      await deleteFixtureApplication(applicationId);
+    }
+  });
+
+  it("concurrencia: «aceptar» y «cerrar» a la vez no dejan una solicitud cancelada con pago habilitado", async () => {
+    const { applicationId } = await createFixtureApplication();
+    try {
+      const [a, b] = await Promise.all([
+        recordNegotiationResponse(admin, { applicationId, response: "accepted", actorUserId: studentUserId }),
+        recordNegotiationResponse(admin, { applicationId, response: "rejected_closed", actorUserId: studentUserId }),
+      ]);
+      expect([a.ok, b.ok].filter(Boolean)).toHaveLength(1);
+
+      const { data: application } = await admin
+        .from("application_requests")
+        .select("status")
+        .eq("id", applicationId)
+        .single();
+      const { count: payments } = await admin
+        .from("external_residence_payments")
+        .select("id", { count: "exact", head: true })
+        .eq("application_request_id", applicationId);
+      if (application!.status === "cancelled_by_student") expect(payments).toBe(0);
+      else expect(payments).toBe(1);
+    } finally {
+      await deleteFixtureApplication(applicationId);
+    }
+  });
+
   it("rechaza y cierra la solicitud (rejected_closed) sin habilitar pago a la residencia", async () => {
     const { applicationId } = await createFixtureApplication();
     try {

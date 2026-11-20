@@ -222,7 +222,7 @@ No usar `jsonb` para reemplazar relaciones centrales como usuarios, residencias,
 ---
 
 ### 4.12. `waitlist_status`
-`active`, `availability_notification_sent`, `retention_check_sent`, `student_activated_request`, `removed_by_student`, `removed_due_to_confirmed_reservation`, `removed_by_residence`, `removed_by_admin`, `closed_by_residence`
+`active`, `availability_notification_sent`, `retention_check_sent`, `student_activated_request`, `removed_by_student`, `removed_due_to_confirmed_reservation`, `removed_by_residence`, `removed_by_admin`, `closed_by_residence`, `expired` *(DR40, migración 0078)*
 
 ---
 
@@ -554,6 +554,8 @@ Reglas:
 
 **Segunda corrección del mes vacío (migración 0062, `docs/00` «segunda corrección del mes vacío»):** la disponibilidad publicada del tipo (`profile_availability`: `available_to_confirm`, no oculta, desde `available_from` o hoy) define la vacancia para todas las residencias; la ocupación real (Premium) solo descarta tramos ocupados. Medición por tramo con parciales (mes completo = 1; resto >15 días = 1, ≤15 = 0,5), tope 3. `application_snapshots.empty_months_count` pasa a `numeric(3,1)`; sin disponibilidad publicada no se cobra («a confirmar»). FAQ-51 se reescribe de nuevo.
 
+**Copy del mes vacío (DR53, migración 0088, solo texto):** FAQ-51 y FAQ-22 se reescriben sin hablar de «descuento» (cargo parcial por guardar la plaza vacía). Sin cambios de columnas ni de regla.
+
 **Coordenadas públicas (decisión DF5, 2026-10-23; reemplaza DF3).** La ubicación de la residencia es pública. `residences` guarda sus coordenadas exactas en `latitude`/`longitude` (`numeric(9,6)`, nullable; sustituyen a `lat`/`lng` de la tabla de arriba, que no se usaban) y son legibles públicamente junto con `address_line` y `public_area`: la ficha dibuja el pin exacto y calcula en línea recta la distancia a las universidades cercanas. Si faltan, el mapa cae al centro del barrio (`public_area`) sin pin. Ya no hay columnas de coordenada "aproximada" ni redondeo del lado del servidor.
 
 **Dirección (decisión DF5, 2026-10-23; reemplaza DF4 en este punto).** `address_line` es **pública**: se muestra en la ficha sin condición de rol ni de estado de la solicitud. Siguen privados `responsible_name` y `responsible_contact`.
@@ -873,15 +875,17 @@ Reglas:
 | `student_profile_id` | uuid | Estudiante |
 | `residence_id` | uuid | Residencia |
 | `room_type_id` | uuid null | Tipo deseado |
-| `desired_start_date` | date null | Fecha deseada |
+| `desired_start_date` | date null | Mes de ingreso elegido (DR40): día 1 del mes; `null` = «Cuando haya lugar» |
 | `desired_duration_months` | integer null | Duración deseada |
 | `status` | waitlist_status | Estado |
 | `joined_at` | timestamptz | Alta |
 | `last_keep_alive_notified_at` | timestamptz null | Notificación 90 días |
 | `removed_at` | timestamptz null | Remoción |
 | `removed_by` | uuid null | Quién removió |
-| `removed_reason` | text null | Motivo (p. ej. `stay_change_cancelled`, DR3) |
+| `removed_reason` | text null | Motivo (p. ej. `stay_change_cancelled`, DR3; `month_passed`, DR40) |
 | `stay_change_intent_id` | uuid null | FK `stay_change_intents` si se creó bajo la excepción "Quiero cambiar" (DR3, §14bis) |
+| `notified_at` | timestamptz null | Cuándo la residencia avisó «hay lugar» (DR41, migración 0079) |
+| `waiting_confirmed_at` | timestamptz null | Cuándo el estudiante eligió «Seguir esperando» tras un aviso (DR41); se limpia al reavisar |
 | `created_at` | timestamptz | Alta |
 | `updated_at` | timestamptz | Actualización |
 
@@ -1571,6 +1575,9 @@ Reglas:
 | `is_active` | boolean | Disponible para elegir |
 | `created_at`, `updated_at` | timestamptz | Alta / actualización |
 
+> **Poda del catálogo (2026-11-19, migración 0099):** se desactivan 15 preguntas (FAQ-02, 03, 05, 12, 17, 19, 21, 22, 23, 24, 31, 40, 44, 46, 47) que repiten datos estructurados de la ficha, explican el proceso de EstuRed (se cubre en guías y `/for-students`) o aportan poco. Solo `is_active = false`: las selecciones se conservan. No se agregan temas nuevos.
+
+> **Preguntas «Esenciales» (2026-11-19, solo código, sin migración):** `ESSENTIAL_FAQ_IDS` en `lib/faq/catalog.ts` (FAQ-07, 09, 36, 42, 43, 49) marca en el panel de la residencia las preguntas que la ficha debe responder para evitar consultas directas y que no están ya como datos estructurados (depósito, matrícula, ajustes, estadía mínima y reglamento salen de la configuración). No es un tope ni se confunde con las «recomendadas» de `FICHA_FAQ_VISIBLE` (cantidad de preguntas de entrada).
 ---
 
 ### 17.2. `residence_faq_items`
@@ -2083,6 +2090,7 @@ Evidencia de casos de soporte. Privado; acceso por partes del caso y admin.
 ### 27.8. Lista de espera
 - notificar disponibilidad;
 - notificar a los 90 días para confirmar permanencia;
+- **vencer por mes (DR40):** pasar a `expired` (`removed_at`, `removed_reason = 'month_passed'`) las entradas `active` y `retention_check_sent` cuyo mes de ingreso terminó (fin del último día del mes, Buenos Aires); no toca `availability_notification_sent`; notificación in-app única al estudiante;
 - al confirmarse una reserva del estudiante (`confirmed`), anular **todas** sus entradas de lista de espera activas (`removed_due_to_confirmed_reservation`, `removed_reason` con el motivo; DR2, 2026-10-23);
 - notificar al estudiante cuáles listas se anularon (residencia y tipo) y por qué;
 - agregar esas residencias a sus `favorites` si no estaban (solo favoritos: no se quitan ni se reanotan solas).

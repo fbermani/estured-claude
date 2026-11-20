@@ -1,0 +1,187 @@
+/**
+ * Segunda ronda de ajustes de la ficha: condiciones de reserva (solo las que aplican), reglas de casa en el formato del mockup y banda de
+ * preguntas con su pill. Se renderizan a HTML estático.
+ */
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { describe, expect, it } from "vitest";
+import { ReservationConditions } from "@/components/residences/ficha/ReservationConditions";
+import { HouseRules } from "@/components/residences/ficha/HouseRules";
+import { FaqBand } from "@/components/residences/ficha/FaqBand";
+import { VivirMosaic } from "@/components/residences/ficha/VivirMosaic";
+import type { GalleryPhoto } from "@/lib/residences/photoMeta";
+import type { FichaConditionsInput } from "@/lib/residences/fichaConditions";
+
+const none: FichaConditionsInput = {
+  minimumStayMonths: null,
+  adjustmentPolicy: null,
+  enrollmentFeeMode: null,
+  enrollmentFeeUsd: null,
+  enrollmentFeeFrequency: "once",
+  depositUsd: null,
+  emptyMonthChargePercent: null,
+  initialPayment: { mode: "one_month", customUsd: null },
+};
+
+describe("ReservationConditions", () => {
+  it("omite por completo lo que no aplica: nada de «No cobra» ni «A coordinar»", () => {
+    const html = renderToStaticMarkup(createElement(ReservationConditions, { conditions: { ...none, adjustmentPolicy: "none" }, arsPerUsd: 1500 }));
+    expect(html).toContain("Para reservar");
+    expect(html).not.toMatch(/No cobra|coordinar|Matrícula|Depósito|Ajuste|Mes vacío|Documentos/);
+  });
+
+  it("lo que aplica va con su valor y la referencia en ARS", () => {
+    const html = renderToStaticMarkup(
+      createElement(ReservationConditions, { conditions: { ...none, minimumStayMonths: 6, depositUsd: 300 }, arsPerUsd: 1500 }),
+    );
+    expect(html).toContain("Estadía mínima");
+    expect(html).toContain("6 meses");
+    expect(html).toContain("Depósito");
+    expect(html).toContain("USD 300");
+    expect(html).toContain("≈ ARS");
+  });
+});
+
+describe("ReservationConditions: mes vacío con un único desplegable", () => {
+  const render = (props: Partial<{ showFaqLink: boolean }> = {}) =>
+    renderToStaticMarkup(createElement(ReservationConditions, { conditions: { ...none, emptyMonthChargePercent: 50 }, arsPerUsd: 1500, ...props }));
+
+  it("la fila muestra título y valor, y un solo desplegable con el rótulo «Solo si reservás con ingreso a futuro»", () => {
+    const html = render();
+    expect(html).toContain("Mes vacío");
+    expect(html).toContain("50 % de la renta");
+    expect(html.match(/<details/g)).toHaveLength(1);
+    expect(html).toContain("Solo si reservás con ingreso a futuro");
+    expect(html).not.toContain("Cómo se calcula");
+  });
+
+  it("el desplegable nace cerrado y adentro lleva la explicación y el ejemplo con números", () => {
+    const html = render();
+    expect(html).not.toMatch(/<details[^>]*\sopen/);
+    expect(html).toContain("no la renta entera");
+    expect(html).toContain("1,5 meses × 50 % = 0,75");
+  });
+
+  it("el detalle de las reglas de cálculo ya no se repite acá (vive en la FAQ)", () => {
+    expect(render()).not.toContain("hasta 3 meses");
+  });
+
+  it("el enlace a las preguntas frecuentes se mantiene, salvo que la residencia no tenga preguntas", () => {
+    expect(render()).toContain("Ver más en las preguntas frecuentes");
+    expect(render({ showFaqLink: false })).not.toContain("Ver más en las preguntas frecuentes");
+  });
+});
+
+describe("HouseRules (formato del mockup)", () => {
+  const html = renderToStaticMarkup(
+    createElement(HouseRules, {
+      rulesSummary: "Silencio: de 23 a 7, para música auriculares\nCocina abierta: de 7 a 23\nMascotas: No se admiten\nCada uno lava lo que usa",
+    }),
+  );
+  it("columna izquierda con el dato leído del texto, sin numeración", () => {
+    expect(html).toContain(">23 a 7<");
+    expect(html).toContain(">7 a 23<");
+    expect(html).toContain(">No<");
+    expect(html).not.toContain(">01<");
+  });
+  it("la regla sin dato lleva un ícono neutro, no un dato inventado", () => {
+    expect(html).toContain("Cada uno lava lo que usa");
+    expect(html).toContain(">home<");
+  });
+  it("las reglas de más van en un desplegable", () => {
+    const many = renderToStaticMarkup(createElement(HouseRules, { rulesSummary: Array.from({ length: 7 }, (_, i) => `Regla ${i + 1}`).join("\n") }));
+    expect(many).toContain("Ver 1 regla más");
+  });
+  it("con reglas estructuradas usa el dato, el título y el detalle de la residencia", () => {
+    const structured = renderToStaticMarkup(
+      createElement(HouseRules, {
+        rulesSummary: "Texto viejo que no se muestra",
+        items: [
+          { lead: "23 a 7", title: "Silencio", detail: "Para música o videos, auriculares" },
+          { lead: "Libre", title: "Entrada y salida", detail: "Con tu llave, sin horario de llegada" },
+          { title: "Cocina abierta" },
+        ],
+      }),
+    );
+    expect(structured).toContain(">23 a 7<");
+    expect(structured).toContain(">Libre<");
+    expect(structured).toContain("<strong");
+    expect(structured).toContain("Para música o videos, auriculares");
+    expect(structured).not.toContain("Texto viejo");
+    expect(structured).toContain(">home<");
+  });
+  it("un resumen de una sola línea se parte en filas cortas", () => {
+    const one = renderToStaticMarkup(
+      createElement(HouseRules, { rulesSummary: "Convivencia respetuosa, silencio después de las 23hs, visitas coordinadas con anticipación." }),
+    );
+    expect(one.match(/<li/g)?.length).toBe(3);
+    expect(one).toContain("Visitas coordinadas con anticipación");
+  });
+  it("sin reglas pero con reglamento dibuja solo el botón, sin lista vacía; sin nada no dibuja nada", () => {
+    const onlyAction = renderToStaticMarkup(createElement(HouseRules, { rulesSummary: "", actions: createElement("button", null, "Leer el reglamento") }));
+    expect(onlyAction).toContain("Leer el reglamento");
+    expect(onlyAction).not.toContain("<ul");
+    expect(renderToStaticMarkup(createElement(HouseRules, { rulesSummary: "" }))).toBe("");
+  });
+});
+
+describe("FaqBand", () => {
+  const items = [{ question: "¿Qué incluye?", answer: "Wifi" }];
+  it("muestra el pill «Leé las respuestas rápidas» y el título", () => {
+    const html = renderToStaticMarkup(createElement(FaqBand, { headingId: "h", number: "04", items, total: 9, residenceName: "Norte" }));
+    expect(html).toContain("Leé las respuestas rápidas");
+    expect(html).toContain("Preguntas que más nos hacen");
+    expect(html).toContain("Hay 8 respuestas más para leer.");
+    expect(html).not.toContain("Hacer una pregunta");
+  });
+  it("no repite subtítulos de categoría dentro de la banda (quedan en el modal)", () => {
+    const grouped = [
+      { question: "P1", answer: "A1", group: "Antes de reservar" },
+      { question: "P2", answer: "A2", group: "Convivencia y reglas" },
+    ];
+    const html = renderToStaticMarkup(createElement(FaqBand, { headingId: "h", number: "04", items: grouped, total: 2, residenceName: "Norte" }));
+    expect(html).not.toContain("Antes de reservar");
+    expect(html).not.toContain("Convivencia y reglas");
+    expect(html).toContain("Mirá todas las respuestas en un solo lugar.");
+  });
+});
+
+describe("VivirMosaic: siempre dibuja el mosaico", () => {
+  const ph = (url: string, over: Partial<GalleryPhoto> = {}): GalleryPhoto => ({ url, category: "general", area: null, roomTypeName: null, featured: false, ...over });
+  // Sin los <dialog> del visor (cerrados, con su propio botón «Cerrar»): interesa solo lo que se ve en la página.
+  const render = (photos: GalleryPhoto[]) =>
+    renderToStaticMarkup(createElement(VivirMosaic, { photos, name: "Casa Test", zone: "Almagro" })).replace(/<dialog[\s\S]*?<\/dialog>/g, "");
+  const count = (html: string, re: RegExp) => (html.match(re) ?? []).length;
+
+  it("0 fotos: 3 tarjetas vacías, sin botones ni pill, con una aclaración para lectores", () => {
+    const html = render([]);
+    expect(count(html, /<li /g)).toBe(3);
+    expect(count(html, /<button/g)).toBe(0);
+    expect(html).not.toMatch(/Ver todas las fotos|Ver la foto|ampliar la foto/);
+    expect(html).toContain("Fotos próximamente");
+    expect(html).toContain("Esta residencia todavía no subió fotos.");
+  });
+
+  it("1 foto: una tarjeta con foto (botón), 2 vacías y pill «Ver la foto»", () => {
+    const html = render([ph("https://x.test/a.jpg")]);
+    expect(count(html, /<li /g)).toBe(3);
+    expect(count(html, /<li [^>]*aria-hidden="true"/g)).toBe(2);
+    expect(html).toContain("ampliar la foto");
+    expect(html).toContain("Ver la foto");
+    expect(html).toContain("Esta residencia todavía no subió más fotos.");
+  });
+
+  it("2 fotos: 2 tarjetas, sin vacías ni aclaración", () => {
+    const html = render([ph("https://x.test/a.jpg"), ph("https://x.test/b.jpg")]);
+    expect(count(html, /<li /g)).toBe(2);
+    expect(html).not.toContain("Próximamente");
+    expect(html).not.toContain("todavía no subió");
+  });
+
+  it("4 fotos: 3 tarjetas con foto, «+ 1 foto» y pill con el total", () => {
+    const html = render([1, 2, 3, 4].map((n) => ph(`https://x.test/${n}.jpg`, { category: "area", area: `area${n}` })));
+    expect(count(html, /<li /g)).toBe(3);
+    expect(html).not.toContain("Próximamente");
+    expect(html).toContain("Ver todas las fotos (4)");
+  });
+});

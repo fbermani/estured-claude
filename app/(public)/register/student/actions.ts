@@ -1,5 +1,9 @@
 "use server";
 
+import { clientIpFromHeaders, clientKeyFromHeaders } from "@/lib/receipts/verifyRateLimit";
+import { consumeRateLimit } from "@/lib/security/rateLimit";
+import { TURNSTILE_ERROR_MESSAGE, verifyTurnstile } from "@/lib/security/turnstile";
+import { isPreaperturaOn } from "@/lib/preapertura/flag";
 import { safeInternalPath } from "@/lib/auth/safeNext";
 import { validatePassword } from "@/lib/auth/password";
 import { headers } from "next/headers";
@@ -43,6 +47,9 @@ export async function registerStudent(
   _prev: RegisterState,
   formData: FormData,
 ): Promise<RegisterState> {
+  // Con la preapertura encendida esta alta (desde 14 años) está cerrada: el alta es `/preregistro`. Se corta acá y no solo en la página
+  // porque una acción de servidor se puede invocar sin pasar por la página.
+  if (isPreaperturaOn()) return formError(formData, "El registro todavía no está abierto. Sumate desde la página de inicio.");
   const inviteToken = String(formData.get("invite") ?? "").trim();
   // Destino tras el alta (p. ej. la ficha con el tipo elegido). Solo rutas internas; si no pasa el validador se ignora.
   const afterSignup = safeInternalPath(String(formData.get("next") ?? ""));
@@ -108,6 +115,15 @@ export async function registerStudent(
   // Menores: perfil de comunidad oculto y no modificable (docs/10 §9.2).
   const communityOptIn = wantsCommunity && !isMinor;
 
+  // CAPTCHA solo en el alta abierta: la invitación personal ya está gateada por su token.
+  if (!inviteToken && !(await verifyTurnstile(formData, clientIpFromHeaders(await headers())))) {
+    return formError(formData, TURNSTILE_ERROR_MESSAGE);
+  }
+
+  // M6: 25 altas por hora por IP, persistente (sin esto, un script crea cuentas en masa al apagar la preapertura).
+  const signupLimit = await consumeRateLimit({ bucket: "register_student_ip", key: clientKeyFromHeaders(await headers()), windowSeconds: 3_600, max: 25 });
+  if (!signupLimit.ok) return formError(formData, "Hiciste muchos intentos. Probá de nuevo en un rato.");
+
   const admin = getSupabaseAdmin();
   if (!admin)
     return formError(formData, "El registro no está disponible en este momento. Probá más tarde.");
@@ -138,7 +154,7 @@ export async function registerStudent(
   const userId = created.user.id;
   const headerStore = await headers();
   const ip =
-    headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
+    clientIpFromHeaders(headerStore);
   const userAgent = headerStore.get("user-agent");
 
   try {

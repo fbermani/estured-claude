@@ -1,0 +1,82 @@
+<template>
+  <style>
+    @font-face { font-family: 'Bricolage Grotesque'; src: url('assets/fonts/BricolageGrotesque.woff2') format('woff2'); font-weight: 200 800; }
+    @font-face { font-family: 'Hanken Grotesk'; src: url('assets/fonts/HankenGrotesk.woff2') format('woff2'); font-weight: 100 900; }
+    #root { position: absolute; inset: 0; overflow: hidden; background: #fbf6ec; font-family: 'Hanken Grotesk', sans-serif; color: #1d2722; }
+    #s05-stage { position: absolute; inset: 0; }
+    .s05-who { position: absolute; display: flex; align-items: center; gap: 14px; font-size: 30px; font-weight: 700; }
+    .s05-av { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 26px; }
+    #s05-who-fam { left: 84px; top: 220px; }
+    #s05-who-fam .s05-av { background: #fde7da; color: #9a4118; }
+    #s05-who-stu { left: 1064px; top: 132px; }
+    #s05-who-stu .s05-av { background: #e2f1ea; color: #0f4d39; }
+    #s05-banner { position: absolute; left: 80px; top: 300px; width: 900px; height: auto; border-radius: 28px; box-shadow: 0 24px 65px rgba(12,58,44,.10); }
+    #s05-panel { position: absolute; left: 1060px; top: 210px; width: 790px; height: 690px; padding: 40px 44px; border-radius: 24px; background: #fffdf8; box-shadow: 0 24px 65px rgba(12,58,44,.10), 0 3px 10px rgba(12,58,44,.04); }
+    .s05-h { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 46px; letter-spacing: -0.02em; }
+    .s05-sub { margin-top: 10px; font-size: 28px; line-height: 1.35; color: #44524b; }
+    #s05-card { position: absolute; left: 1104px; top: 420px; width: 702px; padding: 30px 32px; border-radius: 20px; background: #fffdf8; border: 2px solid #ece5d8; box-shadow: 0 12px 30px rgba(12,58,44,.08); }
+    .s05-top { display: flex; justify-content: space-between; align-items: flex-start; }
+    .s05-name { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 38px; }
+    .s05-meta { font-size: 28px; color: #44524b; margin-top: 6px; }
+    .s05-chip { position: relative; padding: 8px 18px; border-radius: 999px; font-size: 28px; font-weight: 700; }
+    #s05-pend { background: #f3ece1; color: #5f6c65; }
+    #s05-ok { position: absolute; right: 0; top: 0; background: #e2f1ea; color: #0f4d39; white-space: nowrap; }
+    .s05-chipbox { position: relative; width: 190px; height: 48px; }
+    .s05-chipbox .s05-chip { position: absolute; right: 0; top: 0; }
+    .s05-line { display: flex; justify-content: space-between; margin-top: 20px; font-size: 27px; padding-top: 16px; border-top: 1.5px solid #f0e9dd; }
+    .s05-line span:first-child { color: #44524b; }
+    .s05-line span:last-child { font-weight: 600; }
+    #s05-approve { margin-top: 26px; display: inline-block; padding: 16px 40px; border-radius: 999px; background: #1f7d5c; color: #fffdf8; font-size: 28px; font-weight: 700; }
+    .s05-cursor { position: absolute; left: 0; top: 0; width: 66px; height: 66px; }
+    .s05-cursor path { fill: #1d2722; stroke: #fffdf8; stroke-width: 1.6; stroke-linejoin: round; }
+  </style>
+  <div id="root" data-composition-id="s05-family" data-width="1920" data-height="1080">
+    <div id="s05-stage">
+      <div id="s05-who-fam" class="s05-who"><span class="s05-av">M</span>Martín, el papá de Lucía</div>
+      <img id="s05-banner" src="assets/ui/family-banner.png" alt="Tu espacio de familiar (EstuRed)" />
+      <div id="s05-who-stu" class="s05-who"><span class="s05-av">L</span>Lucía</div>
+      <div id="s05-panel">
+        <div class="s05-h">Propuestas de tu familiar</div>
+        <div class="s05-sub">Residencias que tu familiar te sugirió. Tenés 48 horas para aprobar o rechazar cada una.</div>
+      </div>
+      <div id="s05-card">
+        <div class="s05-top">
+          <div><div class="s05-name">Residencia Norte</div><div class="s05-meta">Palermo, CABA · Individual</div></div>
+          <div class="s05-chipbox"><span id="s05-pend" class="s05-chip">Pendiente</span><span id="s05-ok" class="s05-chip">Aprobada</span></div>
+        </div>
+        <div class="s05-line"><span>Duración propuesta</span><span>6 meses</span></div>
+        <div class="s05-line"><span>Sugerida por</span><span>Martín F.</span></div>
+        <div id="s05-approve">Aprobar</div>
+      </div>
+      <svg id="s05-cur1" class="s05-cursor" viewBox="0 0 24 24"><path d="M5 3 L5 19 L9 15 L12 22 L15 20.5 L11.5 14 L18 14 Z" /></svg>
+      <svg id="s05-cur2" class="s05-cursor" viewBox="0 0 24 24"><path d="M5 3 L5 19 L9 15 L12 22 L15 20.5 L11.5 14 L18 14 Z" /></svg>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo("#s05-stage", { x: 1600 }, { x: 0, duration: 0.5, ease: "power3.out" }, 0);
+    tl.fromTo("#s05-banner", { x: 130, y: -60, scale: 1.667, transformOrigin: "0% 0%" }, { x: 130, y: -60, scale: 1.667, duration: 0.01 }, 0);
+    tl.to("#s05-banner", { x: 0, y: 0, scale: 1, duration: 0.6, ease: "power3.inOut" }, 1.3);
+    tl.fromTo(["#s05-who-fam"], { x: 130, y: -60 }, { x: 0, y: 0, duration: 0.6, ease: "power3.inOut", immediateRender: true }, 1.3);
+    tl.fromTo(["#s05-panel", "#s05-who-stu"], { opacity: 0 }, { opacity: 1, duration: 0.3 }, 1.3);
+    gsap.set("#s05-ok", { opacity: 0 });
+    // cursor del familiar: «Proponer una residencia»
+    tl.fromTo("#s05-cur1", { x: 1500, y: 1100 }, { x: 1416, y: 494, duration: 0.6, ease: "power3.out" }, 0.45);
+    tl.to("#s05-cur1", { scale: 0.86, duration: 0.07, yoyo: true, repeat: 1, ease: "power2.inOut", transformOrigin: "20% 12%" }, 1.1);
+    tl.to("#s05-cur1", { x: 1300, y: 1150, duration: 0.5, ease: "power3.in" }, 1.4);
+    // la propuesta sale del botón y viaja al panel de Lucía
+    tl.fromTo("#s05-card", { x: 260, y: 70, scale: 0.42, opacity: 0, transformOrigin: "0% 0%" }, { opacity: 1, duration: 0.12, ease: "none" }, 1.15);
+    tl.to("#s05-card", { x: 0, y: 0, scale: 1, duration: 0.65, ease: "power3.inOut" }, 1.27);
+    // cursor de Lucía: «Aprobar»
+    tl.fromTo("#s05-cur2", { x: 1900, y: 1100 }, { x: 1220, y: 728, duration: 0.7, ease: "power3.out" }, 3.4);
+    tl.to("#s05-cur2", { scale: 0.86, duration: 0.07, yoyo: true, repeat: 1, ease: "power2.inOut", transformOrigin: "20% 12%" }, 4.2);
+    tl.to("#s05-approve", { scale: 0.96, duration: 0.07, yoyo: true, repeat: 1 }, 4.2);
+    tl.to("#s05-pend", { opacity: 0, duration: 0.1 }, 4.3);
+    tl.fromTo("#s05-ok", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.22, ease: "back.out(1.7)" }, 4.32);
+    tl.to("#s05-approve", { opacity: 0.35, duration: 0.25 }, 4.45);
+    tl.to("#s05-cur2", { x: 1500, y: 1150, duration: 0.5, ease: "power3.in" }, 5.2);
+    // blur swap hacia la ficha
+    tl.to("#s05-stage", { opacity: 0, filter: "blur(10px)", duration: 0.2, ease: "power2.in" }, 6.78);
+    window.__timelines["s05-family"] = tl;
+  </script>
+</template>

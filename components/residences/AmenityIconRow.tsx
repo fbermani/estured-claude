@@ -75,7 +75,7 @@ export function AmenityIconRow({
 
   return (
     <div ref={rootRef} className="grid gap-2">
-      <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-ink-faint">{label}</p>
+      <p className="text-xs font-bold text-ink-faint">{label}</p>
       <div className="flex min-w-0 flex-nowrap items-center gap-1.5">
         {items.map((item, i) => {
           const id = `${baseId}-${i}`;
@@ -116,7 +116,7 @@ export function AmenityIconRow({
                   setOpen((v) => (v === i ? null : v));
                   setPinned(false);
                 }}
-                className={`flex h-11 w-full items-center justify-center rounded-[14px] border transition duration-200 ease-out-fresh hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest ${tone} ${isOpen ? "-translate-y-0.5 bg-forest-tint text-forest-700" : ""}`}
+                className={`flex h-11 w-full items-center justify-center rounded-field border transition duration-200 ease-out-fresh hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest ${tone} ${isOpen ? "-translate-y-0.5 bg-forest-tint text-forest-700" : ""}`}
               >
                 <Icon name={item.icon} className="text-2xl" />
               </button>
@@ -124,11 +124,11 @@ export function AmenityIconRow({
                 <span
                   id={id}
                   role="tooltip"
-                  className={`absolute bottom-[calc(100%+10px)] z-20 w-[220px] rounded-[14px] bg-forest-ink px-3 py-2.5 text-left text-[13px] leading-snug text-white shadow-float ${
+                  className={`absolute bottom-[calc(100%+10px)] z-20 w-[220px] rounded-field bg-forest-ink px-3 py-2.5 text-left text-[13px] leading-snug text-white shadow-float ${
                     align === "left" ? "left-0" : align === "right" ? "right-0" : "left-1/2 -translate-x-1/2"
                   }`}
                 >
-                  <span className="mb-0.5 block text-[10.5px] font-bold uppercase tracking-[0.08em] text-amber-soft-300">
+                  <span className="mb-0.5 block text-xs font-bold text-amber-soft-300">
                     {kind === "area" ? "Área común" : "Servicio"}
                   </span>
                   <b className="block text-[13.5px]">{item.name}</b>
@@ -143,16 +143,16 @@ export function AmenityIconRow({
             <Link
               href={moreHref}
               aria-label={moreLabel ?? `Ver ${extra} más en la ficha`}
-              className="flex h-11 items-center justify-center rounded-[14px] border-[1.5px] border-dashed border-line-2 bg-paper px-2.5 text-[13px] font-bold text-forest-700 hover:bg-cream-2 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-forest"
+              className="flex h-11 items-center justify-center rounded-field border-[1.5px] border-dashed border-line-2 bg-paper px-2.5 text-[13px] font-bold text-forest-700 hover:bg-cream-2 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-forest"
             >
               +{extra}
             </Link>
             {extraNames.length > 0 && (
               <span
                 role="tooltip"
-                className="pointer-events-none absolute bottom-[calc(100%+10px)] right-0 z-20 hidden w-[220px] rounded-[14px] bg-forest-ink px-3 py-2.5 text-left text-[13px] leading-snug text-white shadow-float group-focus-within/tip:block group-hover/tip:block"
+                className="pointer-events-none absolute bottom-[calc(100%+10px)] right-0 z-20 hidden w-[220px] rounded-field bg-forest-ink px-3 py-2.5 text-left text-[13px] leading-snug text-white shadow-float group-focus-within/tip:block group-hover/tip:block"
               >
-                <span className="mb-0.5 block text-[10.5px] font-bold uppercase tracking-[0.08em] text-amber-soft-300">
+                <span className="mb-0.5 block text-xs font-bold text-amber-soft-300">
                   {kind === "area" ? "Más áreas comunes" : "Más servicios"}
                 </span>
                 {extraNames.map((n) => (

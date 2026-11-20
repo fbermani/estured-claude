@@ -1,0 +1,112 @@
+<template>
+  <style>
+    @font-face { font-family: 'Bricolage Grotesque'; src: url('assets/fonts/BricolageGrotesque.woff2') format('woff2'); font-weight: 200 800; }
+    @font-face { font-family: 'Hanken Grotesk'; src: url('assets/fonts/HankenGrotesk.woff2') format('woff2'); font-weight: 100 900; }
+    #root { position: absolute; inset: 0; overflow: hidden; background: #fbf6ec; font-family: 'Hanken Grotesk', sans-serif; color: #1d2722; }
+    #s04-stage { position: absolute; inset: 0; }
+    #s04-window { position: absolute; left: 60px; top: 176px; width: 960px; height: 980px; border-radius: 26px; overflow: hidden; background: #f9f5ee; box-shadow: 0 24px 65px rgba(12,58,44,.10), 0 3px 10px rgba(12,58,44,.04); border: 1.5px solid rgba(12,58,44,.08); }
+    #s04-cam { position: absolute; left: 0; top: 0; width: 960px; height: 980px; }
+    #s04-strip { position: absolute; left: 0; top: 0; width: 960px; }
+    #s04-strip img { display: block; width: 960px; height: auto; }
+    #s04-cond { width: 960px; height: 980px; padding: 34px 36px; background: #f9f5ee; }
+    .s04-ch { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 50px; letter-spacing: -0.02em; margin-bottom: 26px; }
+    .s04-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    .s04-cc { position: relative; height: 250px; perspective: 1400px; }
+    .s04-face { position: absolute; inset: 0; border-radius: 22px; background: #fffdf8; border: 1.5px solid #ece5d8; padding: 22px 24px; backface-visibility: hidden; box-shadow: 0 8px 22px rgba(12,58,44,.05); }
+    .s04-face b { display: block; font-size: 28px; font-weight: 600; color: #44524b; }
+    .s04-face strong { display: block; margin-top: 12px; font-size: 34px; line-height: 1.12; font-weight: 700; }
+    .s04-face i { position: absolute; left: 24px; bottom: 18px; font-style: normal; font-size: 28px; font-weight: 700; color: #0f4d39; }
+    .s04-skel { display: block; margin-top: 20px; width: 150px; height: 30px; border-radius: 8px; background: #ece5d8; }
+    .s04-back { background: #e2f1ea; border-color: #c8ded3; font-size: 28px; line-height: 1.3; color: #0f4d39; font-weight: 500; padding: 20px 22px; }
+    #s04-card { position: absolute; left: 90px; top: 620px; width: 900px; padding: 40px 44px; border-radius: 26px; background: #fffdf8; box-shadow: 0 24px 65px rgba(12,58,44,.16), 0 3px 10px rgba(12,58,44,.05); }
+    .s04-head { display: flex; align-items: center; gap: 16px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 48px; letter-spacing: -0.02em; color: #0f4d39; }
+    .s04-seal { width: 56px; height: 56px; }
+    .s04-row { display: flex; align-items: center; gap: 18px; margin-top: 24px; font-size: 36px; font-weight: 600; }
+    .s04-cw { position: relative; width: 50px; height: 50px; flex: none; }
+    .s04-ring, .s04-fill { position: absolute; inset: 0; border-radius: 50%; }
+    .s04-ring { border: 3px solid #c8ded3; }
+    .s04-fill { background: #1f7d5c; }
+    .s04-cw svg { position: absolute; left: 11px; top: 11px; width: 28px; height: 28px; }
+    .s04-cw .tick { stroke: #fffdf8; stroke-width: 3.4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    #s04-chip { display: inline-block; margin-top: 30px; padding: 12px 24px; border-radius: 999px; background: #fde7da; color: #9a4118; font-size: 32px; font-weight: 700; }
+    #s04-filters { position: absolute; left: 250px; top: 190px; width: 580px; height: 960px; padding: 30px 0 0; border-radius: 26px; background: #fffdf8; border: 1.5px solid #ece5d8; box-shadow: 0 24px 65px rgba(12,58,44,.12); overflow: hidden; }
+    .s04-fh { height: 60px; padding: 0 34px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 42px; line-height: 48px; }
+    #s04-fimg { display: block; width: 580px; height: auto; }
+    #s04-check { position: absolute; left: 43px; top: 156px; width: 33px; height: 33px; border-radius: 50%; background: #1f7d5c; border: 6px solid #fffdf8; box-shadow: 0 0 0 3px #1f7d5c; }
+    .s04-cursor { position: absolute; left: 0; top: 0; width: 72px; height: 72px; }
+    .s04-cursor path { fill: #1d2722; stroke: #fffdf8; stroke-width: 1.6; stroke-linejoin: round; }
+  </style>
+  <div id="root" data-composition-id="s04-verified" data-width="1080" data-height="1920">
+    <div id="s04-stage">
+      <div id="s04-window">
+        <div id="s04-cam">
+          <div id="s04-strip">
+            <img src="assets/ui/ficha-left.png" alt="Ficha de Residencia Norte (demo)" />
+            <img src="assets/ui/ficha-info.png" alt="Servicios, edad de los residentes y reglas de convivencia" />
+            <div id="s04-cond">
+              <div class="s04-ch">Tarifas y condiciones</div>
+              <div class="s04-grid">
+                <div class="s04-cc"><div class="s04-face"><b>Para reservar</b><strong>Primer mes</strong><i>Ver detalle ↻</i></div></div>
+                <div class="s04-cc"><div class="s04-face"><b>Matrícula</b><strong>No cobra</strong><i>Ver detalle ↻</i></div></div>
+                <div class="s04-cc"><div class="s04-face"><b>Depósito</b><span class="s04-skel"></span><i>Ver detalle ↻</i></div></div>
+                <div class="s04-cc"><div class="s04-face"><b>Ajuste de tarifa</b><strong>Trimestral</strong><i>Ver detalle ↻</i></div></div>
+                <div class="s04-cc"><div class="s04-face"><b>Mes vacío</b><strong>Esta residencia cobra mes vacío (50 %)</strong></div></div>
+                <div class="s04-cc"><div class="s04-face" id="s04-front" data-layout-allow-overlap><b>Documentos para admisión</b><strong>A coordinar con la residencia</strong><i>Ver detalle ↻</i></div><div class="s04-face s04-back" id="s04-backf" data-layout-allow-overlap>Los documentos que necesita la residencia para admitirte los define ella y te los pide una vez que tu solicitud avanza.</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="s04-card">
+        <div class="s04-head">
+          <svg class="s04-seal" viewBox="0 0 24 24" fill="none" stroke="#1f7d5c" stroke-width="1.8" stroke-linejoin="round"><path d="M12 2.5l2.4 1.7 2.9-.2.9 2.8 2.4 1.7-.9 2.8.9 2.8-2.4 1.7-.9 2.8-2.9-.2L12 21.5l-2.4-1.7-2.9.2-.9-2.8-2.4-1.7.9-2.8-.9-2.8 2.4-1.7.9-2.8 2.9.2z" /><path d="M8.6 12.2l2.3 2.3 4.6-4.8" stroke-linecap="round" /></svg>
+          Residencia Verificada
+        </div>
+        <div class="s04-row" id="s04-r1"><span class="s04-cw"><span class="s04-ring"></span><span class="s04-fill"></span><svg viewBox="0 0 24 24"><path class="tick" d="M5 13l4 4L19 7" /></svg></span>Identidad de responsables revisada</div>
+        <div class="s04-row" id="s04-r2"><span class="s04-cw"><span class="s04-ring"></span><span class="s04-fill"></span><svg viewBox="0 0 24 24"><path class="tick" d="M5 13l4 4L19 7" /></svg></span>Dirección verificada</div>
+        <div class="s04-row" id="s04-r3"><span class="s04-cw"><span class="s04-ring"></span><span class="s04-fill"></span><svg viewBox="0 0 24 24"><path class="tick" d="M5 13l4 4L19 7" /></svg></span>Visita presencial realizada</div>
+        <div class="s04-row" id="s04-r4"><span class="s04-cw"><span class="s04-ring"></span><span class="s04-fill"></span><svg viewBox="0 0 24 24"><path class="tick" d="M5 13l4 4L19 7" /></svg></span>Similitud con fotos revisada</div>
+        <div id="s04-chip">Verificada en persona</div>
+      </div>
+      <div id="s04-filters">
+        <div class="s04-fh">Filtrar por</div>
+        <div style="position:relative"><img id="s04-fimg" src="assets/ui/search-filters.png" alt="Filtros del buscador: barrio y universidad cercana" /><span id="s04-check"></span></div>
+      </div>
+      <svg id="s04-cur" class="s04-cursor" viewBox="0 0 24 24"><path d="M5 3 L5 19 L9 15 L12 22 L15 20.5 L11.5 14 L18 14 Z" /></svg>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    gsap.set("#s04-backf", { rotationY: -180 });
+    gsap.set(["#s04-filters", "#s04-check"], { opacity: 0 });
+    // 1 · verificada en persona: empuje al nombre + sello, el checklist sube desde abajo
+    tl.fromTo("#s04-window", { scale: 1.06, opacity: 0.5 }, { scale: 1, opacity: 1, duration: 0.6, ease: "expo.out" }, 0);
+    tl.fromTo("#s04-cam", { scale: 1 }, { scale: 1.36, duration: 0.6, ease: "power2.inOut", transformOrigin: "24px 330px" }, 0.45);
+    tl.fromTo("#s04-card", { y: 160, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, ease: "expo.out" }, 0.75);
+    ["#s04-r1", "#s04-r2", "#s04-r3", "#s04-r4"].forEach((r, i) => {
+      const at = 1.2 + i * 0.35;
+      tl.fromTo(r + " .s04-fill", { scale: 0 }, { scale: 1, duration: 0.2, ease: "back.out(1.8)" }, at);
+      tl.fromTo(r + " .tick", { strokeDasharray: 24, strokeDashoffset: 24 }, { strokeDashoffset: 0, duration: 0.2, ease: "power2.out" }, at + 0.05);
+    });
+    tl.fromTo("#s04-chip", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.25, ease: "back.out(1.6)" }, 2.6);
+    // 2 · toda la información: servicios → reglamento → condiciones
+    tl.to("#s04-card", { y: 900, opacity: 0, duration: 0.4, ease: "power3.in" }, 3.95);
+    tl.to("#s04-cam", { scale: 1, duration: 0.5, ease: "power2.inOut" }, 3.95);
+    tl.to("#s04-strip", { y: -746, duration: 0.55, ease: "power2.inOut" }, 4.75);
+    tl.to("#s04-cam", { scale: 1.3, duration: 0.55, ease: "power2.inOut", transformOrigin: "0px 0px" }, 4.75);
+    tl.to("#s04-strip", { y: -1076, duration: 0.5, ease: "power2.inOut" }, 5.75);
+    tl.to("#s04-strip", { y: -1550, duration: 0.55, ease: "power2.inOut" }, 6.7);
+    tl.to("#s04-cam", { scale: 1, duration: 0.55, ease: "power2.inOut" }, 6.7);
+    tl.to("#s04-front", { rotationY: 180, duration: 0.5, ease: "power2.inOut" }, 7.5);
+    tl.to("#s04-backf", { rotationY: 0, duration: 0.5, ease: "power2.inOut" }, 7.5);
+    // 3 · filtros para encontrar la tuya
+    tl.to("#s04-window", { x: 1100, duration: 0.5, ease: "power3.inOut" }, 8.35);
+    tl.fromTo("#s04-filters", { x: -900, opacity: 1 }, { x: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 8.4);
+    tl.fromTo("#s04-cur", { x: 700, y: 2050 }, { x: 296, y: 446, duration: 0.6, ease: "power3.out" }, 8.75);
+    tl.to("#s04-cur", { scale: 0.86, duration: 0.07, yoyo: true, repeat: 1, transformOrigin: "20% 12%" }, 9.4);
+    tl.fromTo("#s04-check", { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.18, ease: "back.out(2)" }, 9.45);
+    tl.to("#s04-cur", { x: 700, y: 2050, duration: 0.45, ease: "power3.in" }, 9.95);
+    tl.to("#s04-stage", { x: -1200, duration: 0.45, ease: "power3.in" }, 10.55);
+    window.__timelines["s04-verified"] = tl;
+  </script>
+</template>

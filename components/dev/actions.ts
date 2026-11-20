@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { getSessionUser, roleHome } from "@/lib/auth/session";
 import { DEMO_EMAILS } from "@/lib/dev/demo-users";
+import { isDemoLoginEnabled } from "@/lib/demoLogin";
 
 /**
  * Inicia sesión como un usuario demo (selector de sesión simulada).
@@ -18,7 +19,7 @@ import { DEMO_EMAILS } from "@/lib/dev/demo-users";
  * roles y redirects exactamente como una sesión verdadera.
  */
 export async function impersonateDemoUser(formData: FormData): Promise<void> {
-  if (process.env.DEMO_LOGIN_ENABLED !== "true") {
+  if (!isDemoLoginEnabled()) {
     throw new Error("Demo login deshabilitado.");
   }
   const email = String(formData.get("email") ?? "").toLowerCase();
@@ -44,7 +45,7 @@ export async function impersonateDemoUser(formData: FormData): Promise<void> {
 
 /** Cierra la sesión simulada y vuelve al home público. */
 export async function exitDemoSession(): Promise<void> {
-  if (process.env.DEMO_LOGIN_ENABLED !== "true") {
+  if (!isDemoLoginEnabled()) {
     throw new Error("Demo login deshabilitado.");
   }
   const supabase = await getSupabaseServer();

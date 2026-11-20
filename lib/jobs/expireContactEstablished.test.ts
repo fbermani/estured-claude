@@ -27,6 +27,9 @@ describe.skipIf(!hasCreds)("vencimiento de contact_established (integración)", 
   let valentina: { userId: string; profileId: string };
   let ana: { userId: string; profileId: string };
   let mateo: TestStudent;
+  // Tope de 2 activas por estudiante (0093): estudiantes descartables para las solicitudes que sobrarían.
+  let extraA: TestStudent;
+  let extraB: TestStudent;
   let lucia: { userId: string; profileId: string };
   const appIds: string[] = [];
 
@@ -92,6 +95,8 @@ describe.skipIf(!hasCreds)("vencimiento de contact_established (integración)", 
     valentina = await findStudent("valentina.maidana@estured.test");
     ana = await findStudent("ana.jara@estured.test");
     mateo = await createTestStudent(admin, "expire-contact");
+    extraA = await createTestStudent(admin, "expire-contact-a");
+    extraB = await createTestStudent(admin, "expire-contact-b");
     lucia = await findStudent("lucia.fernandez@example.com");
 
     const { data: residence } = await admin
@@ -128,6 +133,8 @@ describe.skipIf(!hasCreds)("vencimiento de contact_established (integración)", 
     }
     await deleteResidenceCascade(admin, residenceId);
     await deleteTestStudent(admin, mateo);
+    await deleteTestStudent(admin, extraA);
+    await deleteTestStudent(admin, extraB);
   });
 
   it("vence contact_established con plazo pasado, deja intactas las vigentes y reactiva la pausada del estudiante", async () => {
@@ -143,7 +150,7 @@ describe.skipIf(!hasCreds)("vencimiento de contact_established (integración)", 
       payment_deadline_at: iso(24),
     });
     const legacyStale = await createApp(lucia, "contact_established", { contact_established_at: iso(-72) });
-    const legacyFresh = await createApp(lucia, "contact_established", { contact_established_at: iso(-1) });
+    const legacyFresh = await createApp(extraA, "contact_established", { contact_established_at: iso(-1) });
 
     const result = await expireApplicationRequests(admin);
     expect(result.expiredCount).toBeGreaterThanOrEqual(2);
@@ -176,10 +183,10 @@ describe.skipIf(!hasCreds)("vencimiento de contact_established (integración)", 
   });
 
   it("no reactiva la pausada si el estudiante todavía tiene otra solicitud avanzada", async () => {
-    await createApp(valentina, "residence_payment_pending", { payment_deadline_at: iso(24) });
-    const paused = await createApp(valentina, "paused_due_to_other_active_request", {});
+    await createApp(extraB, "residence_payment_pending", { payment_deadline_at: iso(24) });
+    const paused = await createApp(extraB, "paused_due_to_other_active_request", {});
 
-    const result = await reactivatePausedApplications(admin, valentina.profileId);
+    const result = await reactivatePausedApplications(admin, extraB.profileId);
     expect(result.reactivatedCount).toBe(0);
     expect((await statusOf(paused)).status).toBe("paused_due_to_other_active_request");
   });

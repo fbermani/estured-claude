@@ -144,7 +144,7 @@ export default async function ProfileEditsPage({
                   >
                     <div className="flex items-center justify-between">
                       <AdminBadge tone="amber">{FIELD_GROUP_LABELS[r.field_group] ?? r.field_group}</AdminBadge>
-                      <span className="text-[11px]" style={{ color: cmd.outline }}>
+                      <span className="text-xs" style={{ color: cmd.outline }}>
                         {formatDate(r.created_at)}
                       </span>
                     </div>

@@ -20,14 +20,9 @@ type SessionHint =
   | { status: "guest" }
   | { status: "signedIn"; href: string; initial: string };
 
-/** Hay cookie de sesión de Supabase (no prueba que sea válida: eso lo confirma /api/session). */
+/** Hay cookie-pista `er-has-session` (las de Supabase son httpOnly; no prueba que la sesión sea válida: eso lo confirma /api/session). */
 function hasSessionCookie(): boolean {
-  return document.cookie
-    .split(";")
-    .some((c) => {
-      const name = c.trim().split("=")[0];
-      return name.startsWith("sb-") && name.includes("auth-token");
-    });
+  return document.cookie.split(";").some((c) => c.trim() === "er-has-session=1");
 }
 
 /**
@@ -96,8 +91,11 @@ export function Navbar() {
   useEffect(() => {
     if (!open) return;
     const toggle = toggleRef.current;
-    const main = document.getElementById("main-content") ?? document.querySelector("main");
-    const footer = document.querySelector("body > footer, footer");
+    // Solo se inertan los bloques que NO contienen la barra: en la vista previa de preapertura (modo dev) la barra va dentro de <main>,
+    // y volver inerte a su propio ancestro dejaba el menú sin respuesta y sin forma de cerrarlo.
+    const outside = (el: Element | null) => (el && !el.contains(toggle) && !el.contains(menuRef.current) ? el : null);
+    const main = outside(document.getElementById("main-content") ?? document.querySelector("main"));
+    const footer = outside(document.querySelector("body > footer, footer"));
     const prevOverflow = document.documentElement.style.overflow;
     document.documentElement.style.overflow = "hidden";
     main?.setAttribute("inert", "");
@@ -196,7 +194,7 @@ export function Navbar() {
                 </Button>
                 <span
                   aria-hidden="true"
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-forest-tint text-sm font-extrabold text-forest-700"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-forest-tint text-sm font-bold text-forest-700"
                 >
                   {session.initial}
                 </span>

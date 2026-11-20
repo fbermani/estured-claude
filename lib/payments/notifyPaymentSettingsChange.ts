@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createNotification } from "@/lib/notifications/createNotification";
 import { sendEmail } from "@/lib/email/sendEmail";
 import { formatDateTime } from "@/lib/dates/format";
+import { getAppUrl } from "@/lib/appUrl";
 
 /** Rótulos de los campos de `payment_settings`, para decir qué cambió sin mostrar los valores. */
 const FIELD_LABELS: Record<string, string> = {
@@ -50,7 +51,7 @@ export async function notifySuperadminsOfPaymentSettingsChange(
 
     const labels = params.changedFields.map((f) => FIELD_LABELS[f] ?? f);
     const what = params.isFirstLoad ? "se cargaron por primera vez" : `se modificaron (${labels.join(", ") || "sin cambios de valor"})`;
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+    const appUrl = getAppUrl();
     const when = formatDateTime(new Date());
 
     await Promise.all(

@@ -1,5 +1,6 @@
 import "server-only";
-import { Document, Page, Text, View, Image, StyleSheet } from "@react-pdf/renderer";
+import { Document, Page, Text, View, Image, StyleSheet, Svg, Path } from "@react-pdf/renderer";
+import { MARK_PATHS, MARK_VIEWBOX } from "@/lib/brand/markPath";
 
 import {
   FUTURE_PAYMENTS_NOTICE,
@@ -15,7 +16,8 @@ export type ReceiptPdfPayload = ReceiptPayload;
 const styles = StyleSheet.create({
   page: { padding: 40, fontSize: 10, color: "#1a1a1a" },
   headerRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  brand: { fontSize: 16, fontWeight: 700, color: "#0F5C7A" },
+  brandRow: { flexDirection: "row", alignItems: "center" },
+  brand: { fontSize: 16, fontWeight: 700, color: "#0F5C7A", marginLeft: 8 },
   title: { fontSize: 14, fontWeight: 700, marginTop: 18 },
   receiptNumber: { fontSize: 9, color: "#666666", marginTop: 2 },
   statusBadge: { fontSize: 9, fontWeight: 700, paddingVertical: 3, paddingHorizontal: 8, borderRadius: 10 },
@@ -71,7 +73,14 @@ export function ReceiptPdfDocument({
     <Document title={`Comprobante ${receiptNumber}`}>
       <Page size="A4" style={styles.page}>
         <View style={styles.headerRow}>
-          <Text style={styles.brand}>EstuRed</Text>
+          <View style={styles.brandRow}>
+            <Svg viewBox={MARK_VIEWBOX} style={{ width: 28, height: 28.7 }}>
+              {MARK_PATHS.map((p) => (
+                <Path key={p.fill} d={p.d} fill={p.fill} fillRule="evenodd" />
+              ))}
+            </Svg>
+            <Text style={styles.brand}>EstuRed</Text>
+          </View>
           <Text style={[styles.statusBadge, isVoided ? styles.statusVoided : styles.statusValid]}>
             {isVoided ? "ANULADO" : isReissued ? "REEMITIDO" : "VÁLIDO"}
           </Text>

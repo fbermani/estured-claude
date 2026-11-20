@@ -41,14 +41,14 @@ export function MetricCard({
 }) {
   return (
     <div
-      className={`${toneClass(tone)} grid gap-1.5 rounded-card border border-line bg-paper p-4 shadow-card transition duration-200 ease-out-fresh hover:-translate-y-0.5 hover:shadow-card-hover ${className}`}
+      className={`${toneClass(tone)} grid gap-1.5 rounded-card border border-line bg-paper p-4 shadow-card ${className}`}
     >
       <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.05em] text-ink-faint">
         <Icon name={icon} className="text-lg text-(--tone)" />
         {label}
         {example && <ExampleMark />}
       </span>
-      <span className="font-display text-[2.1rem] font-extrabold leading-none tracking-tight text-(--tone-ink)">
+      <span className="font-display text-[2.1rem] font-bold leading-none tracking-tight tabular-nums text-(--tone-ink)">
         {value}
         {unit && <small className="ml-1 font-sans text-[15px] font-semibold tracking-normal text-ink-faint">{unit}</small>}
       </span>
@@ -71,7 +71,7 @@ export function MetricCard({
 /** Marca «Ejemplo» para datos de muestra. */
 export function ExampleMark() {
   return (
-    <span className="rounded-md bg-cream-2 px-1.5 py-0.5 text-[10.5px] font-bold uppercase tracking-[0.07em] text-ink-faint">
+    <span className="rounded-field bg-cream-2 px-1.5 py-0.5 text-xs font-bold uppercase tracking-[0.07em] text-ink-faint">
       Ejemplo
     </span>
   );

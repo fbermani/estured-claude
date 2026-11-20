@@ -29,7 +29,7 @@ export async function recordRenewalManualFeePayment(
 
   const { data: feePayment } = await admin
     .from("estured_fee_payments")
-    .select("id, status, renewal_offer_id")
+    .select("id, status, renewal_offer_id, expires_at")
     .eq("id", params.feePaymentId)
     .maybeSingle();
   if (!feePayment) return { ok: false, error: "No encontramos ese pago." };
@@ -38,9 +38,14 @@ export async function recordRenewalManualFeePayment(
     return { ok: false, error: "Ese pago ya no está pendiente de validación." };
   }
 
+  // SEG14-01: un fee vencido no se marca pagado (docs/04 §17: primero se reabre el plazo).
+  if (feePayment.expires_at && new Date(feePayment.expires_at) <= new Date()) {
+    return { ok: false, error: "El plazo de este pago venció: reabrilo antes de validarlo." };
+  }
+
   const now = new Date();
 
-  const { error: updateError } = await admin
+  const { data: updatedRows, error: updateError } = await admin
     .from("estured_fee_payments")
     .update({
       status: "paid",
@@ -49,11 +54,14 @@ export async function recordRenewalManualFeePayment(
       provider_payment_id: params.providerReference,
       paid_at: now.toISOString(),
     })
-    .eq("id", params.feePaymentId);
+    .eq("id", params.feePaymentId)
+    .in("status", VALIDATABLE_STATUSES)
+    .select("id");
   if (updateError) {
     console.error("[renewals] mark-paid failed:", updateError);
     return { ok: false, error: "No pudimos guardar el pago." };
   }
+  if (!updatedRows || updatedRows.length === 0) return { ok: false, error: "Ese pago ya no está pendiente de validación." };
 
   await createAuditLog(admin, {
     actorUserId: params.actorUserId,

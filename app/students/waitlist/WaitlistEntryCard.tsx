@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -16,10 +17,22 @@ export function WaitlistEntryCard({
   entryId,
   canActivate,
   showStay,
+  isNotified = false,
+  residenceSlug,
+  defaultStartDate,
+  defaultDuration = 6,
 }: {
   entryId: string;
+  /** El aviso trae «Enviar solicitud» con un tipo de habitación elegido (flujo `activateFromWaitlist`). */
   canActivate: boolean;
   showStay: boolean;
+  /** DR41: la residencia avisó «hay lugar»: se muestran las tres opciones del aviso. */
+  isNotified?: boolean;
+  /** Entrada sin tipo elegido («Cualquier tipo»): «Enviar solicitud» lleva a la ficha, donde se elige el tipo. */
+  residenceSlug?: string;
+  /** Fecha de ingreso precargada (ISO), derivada del mes elegido. */
+  defaultStartDate?: string;
+  defaultDuration?: number;
 }) {
   const [showActivateForm, setShowActivateForm] = useState(false);
 
@@ -36,8 +49,9 @@ export function WaitlistEntryCard({
     <div className="mt-4 space-y-3">
       {showActivateForm ? (
         <form action={activateFormAction} className="flex flex-col gap-3 rounded-field border border-sand-200 p-4">
-          <Input label="Fecha de ingreso deseada" name="desired_start_date" type="date" required />
-          <Input label="Duración (meses)" name="initial_duration_months" type="number" min={1} max={24} defaultValue={6} required />
+          <Input label="Fecha de ingreso deseada" name="desired_start_date" type="date" defaultValue={defaultStartDate} required />
+          <Input label="Duración (meses)" name="initial_duration_months" type="number" min={1} max={24} defaultValue={defaultDuration} required />
+          <p className="text-xs text-ink-faint">Tu solicitud queda sujeta a confirmación de la residencia.</p>
           {activateState.status === "error" && (
             <p role="alert" className="text-sm font-medium text-danger-fg">
               {activateState.message}
@@ -56,13 +70,21 @@ export function WaitlistEntryCard({
         <div className="flex flex-wrap gap-2">
           {canActivate && (
             <Button size="sm" onClick={() => setShowActivateForm(true)}>
-              Activar solicitud
+              {isNotified ? "Enviar solicitud" : "Activar solicitud"}
             </Button>
+          )}
+          {isNotified && !canActivate && residenceSlug && (
+            <Link
+              href={`/residencias/${encodeURIComponent(residenceSlug)}?solicitar=1`}
+              className="inline-flex min-h-11 items-center rounded-full bg-forest px-5 text-sm font-bold text-white hover:bg-forest-700"
+            >
+              Enviar solicitud
+            </Link>
           )}
           {showStay && (
             <form action={stayFormAction}>
               <Button type="submit" size="sm" variant="outline" disabled={stayPending}>
-                {stayPending ? "Guardando…" : "Quedarme en lista"}
+                {stayPending ? "Guardando…" : isNotified ? "Seguir esperando" : "Quedarme en lista"}
               </Button>
             </form>
           )}
@@ -73,8 +95,8 @@ export function WaitlistEntryCard({
           </form>
         </div>
       )}
-      {leaveState.status === "error" && <p className="text-xs font-medium text-danger-fg">{leaveState.message}</p>}
-      {stayState.status === "error" && <p className="text-xs font-medium text-danger-fg">{stayState.message}</p>}
+      {leaveState.status === "error" && <p role="alert" className="text-xs font-medium text-danger-fg">{leaveState.message}</p>}
+      {stayState.status === "error" && <p role="alert" className="text-xs font-medium text-danger-fg">{stayState.message}</p>}
     </div>
   );
 }

@@ -1,0 +1,25 @@
+{
+  "typecheck": {
+    "result": "PASS",
+    "exit_code": 0
+  },
+  "lint": {
+    "result": "FAIL",
+    "exit_code": 1,
+    "errors": 7,
+    "warnings": 51,
+    "error_file": "docs/audits/evidence/2026-11-14/repro-actions.cjs",
+    "note": "Archivo existente de evidencia de seguridad; no se modificó en esta auditoría UX."
+  },
+  "build": {
+    "result": "PASS_WITH_WARNINGS",
+    "exit_code": 0,
+    "note": "Dev detenido antes del build; dev restaurado en localhost:3000 después."
+  },
+  "artifact_validation": {
+    "links": "PASS",
+    "priority_counts": "PASS",
+    "json": "PASS"
+  },
+  "integration_tests": "No ejecutados en este pase UX"
+}

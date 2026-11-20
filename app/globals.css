@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/* Tailwind v4 escanea todo el repo salvo lo ignorado por git: se excluyen carpetas sin clases de la app (auditoría 2026-11-19, R19-07). */
+@source not "../scratchpad";
+@source not "../design-references";
+@source not "../design-proposals";
+@source not "../docs";
+@source not "../marketing";
+
 /* EstuRed - Design tokens. Sistema visual FRESH, ver design-references/fresh-style.md */
 
 @theme {
@@ -13,8 +20,8 @@
   --color-field-border: #8f836c; /* borde de controles de formulario (WCAG 1.4.11, >=3:1 sobre cream, cream-2 y paper) */
   --color-cream: #fbf6ec; /* fondo base de página */
   --color-cream-2: #f4ecdc; /* fondo secundario, hover de filas */
-  --color-paper: #ffffff; /* superficie de card/modal/tabla */
-  --color-surface: #ffffff; /* alias legacy de --color-paper */
+  --color-paper: #fffdf8; /* superficie de card/modal/tabla (blanco apenas cálido, no #fff puro) */
+  --color-surface: #fffdf8; /* alias legacy de --color-paper */
 
   /* ---- FRESH: marca ---- */
   --color-forest: #1f7d5c; /* primario de acción/marca */
@@ -91,7 +98,7 @@
   --color-amber-soft-300: #f9d48a;
   --color-amber-soft-400: #f5b041;
   --color-amber-soft-500: #e09a26;
-  --color-amber-soft-700: #9c6a15;
+  --color-amber-soft-700: #8a5c0f;
 
   /* ---- Tipografía FRESH: Bricolage Grotesque (display) + Hanken Grotesk (UI/body) ---- */
   --font-sans: var(--font-hanken), ui-sans-serif, system-ui, sans-serif;
@@ -124,6 +131,28 @@
   --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1); /* hover de botones/toggles/modales — el "signature" del sistema */
 }
 
+/* Valores sueltos que usaban literales: viven acá como tokens (no generan utilidades de Tailwind). */
+:root {
+  --font-icons: "Material Symbols Outlined";
+  --glow-forest-11: rgb(31 125 92 / 0.11);
+  --glow-forest-35: rgb(31 125 92 / 0.35);
+  --glow-orange-08: rgb(192 82 29 / 0.08);
+  --glow-orange-35: rgb(192 82 29 / 0.35);
+  --glow-petrol-35: rgb(15 92 122 / 0.35);
+  --glow-ink-25: rgb(29 39 34 / 0.25);
+  --shade-ink-18: rgb(29 39 34 / 0.18);
+  --tone-admin-base: #2f3b35;
+  --tone-admin-deep: #1d2722;
+  --tone-admin-tint: #ecebe3;
+  --tone-orange-ink: #5c2a0e;
+  /* Ficha «placa porteña» (propuesta A, SPEC §Tokens): sobre fotos y fondos forest-ink. */
+  --scrim-ink-70: rgb(12 58 44 / 0.72); /* velo de foto bajo texto: forest-ink al 72 % */
+  --paper-88: rgb(255 253 248 / 0.88); /* texto secundario sobre oscuro (≥ 88 %, contraste AA) */
+  --paper-16: rgb(255 253 248 / 0.16); /* filetes de la placa */
+  --paper-40: rgb(255 253 248 / 0.4); /* brillo del CTA al hover */
+  --forest-ink-80: rgb(12 58 44 / 0.8); /* placa de la ficha: forest-ink al 80 %, deja ver la foto (texto paper ≥ 6,7:1 aun sobre blanco) */
+}
+
 body {
   background-color: var(--color-cream);
   color: var(--color-ink);
@@ -146,6 +175,19 @@ p {
   text-wrap: pretty;
 }
 
+/* ---- Foco de teclado visible (contraste ≥ 3:1). Base para todo lo que no declara el suyo;
+   las utilidades de Tailwind (focus-visible:outline-*) siguen mandando donde existen. ---- */
+@layer base {
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 3px solid var(--color-forest-ink);
+    outline-offset: 3px;
+  }
+}
+/* Sobre fondos oscuros (hero verde, franja oscura, footer) el anillo es blanco. */
+:is(.bg-forest-ink, [class*="from-forest-ink"]) :focus-visible {
+  outline-color: var(--color-paper);
+}
+
 ::selection {
   background-color: var(--color-orange-tint);
   color: var(--color-ink);
@@ -153,7 +195,7 @@ p {
 
 /* ---- Íconos: Material Symbols Outlined exclusivamente (design-references/fresh-style.md §1.2) ---- */
 .material-symbols-outlined {
-  font-family: "Material Symbols Outlined";
+  font-family: var(--font-icons);
   font-weight: normal;
   font-style: normal;
   font-size: 24px;
@@ -195,7 +237,7 @@ p {
   }
 }
 .animate-modal-in {
-  animation: modal-in 220ms var(--ease-bounce);
+  animation: modal-in 220ms var(--ease-out-fresh);
 }
 .animate-dropdown-in {
   animation: dropdown-in 160ms var(--ease-out-fresh);
@@ -239,14 +281,14 @@ p {
 }
 
 /* ---- Motion: reveal-on-scroll (fresh-style.md §3 "Sitio público") — 400ms / 16px, stagger corto ---- */
+/* Visible por defecto: Reveal.tsx marca con data-js solo lo que está bajo el pliegue
+   (sin JS, o para lo que ya se ve al cargar, el contenido nunca queda oculto). */
 .reveal {
-  opacity: 0;
-  transform: translateY(16px);
   transition: opacity 400ms var(--ease-out-fresh), transform 400ms var(--ease-out-fresh);
 }
-.reveal.in {
-  opacity: 1;
-  transform: translateY(0);
+.reveal[data-js]:not(.in) {
+  opacity: 0;
+  transform: translateY(16px);
 }
 .reveal-d1 { transition-delay: 60ms; }
 .reveal-d2 { transition-delay: 120ms; }
@@ -261,13 +303,13 @@ p {
    .band: franja cream-2 con borde y sombra interior superior (separa secciones sin color nuevo). */
 .surface-glow {
   background:
-    radial-gradient(900px 420px at 88% -12%, rgb(31 125 92 / 0.11), transparent 62%),
-    radial-gradient(700px 360px at -6% 108%, rgb(192 82 29 / 0.08), transparent 60%),
+    radial-gradient(900px 420px at 88% -12%, var(--glow-forest-11), transparent 62%),
+    radial-gradient(700px 360px at -6% 108%, var(--glow-orange-08), transparent 60%),
     var(--color-cream);
 }
 .surface-glow-forest {
   background:
-    radial-gradient(900px 420px at 88% -12%, rgb(31 125 92 / 0.11), transparent 62%),
+    radial-gradient(900px 420px at 88% -12%, var(--glow-forest-11), transparent 62%),
     var(--color-cream);
 }
 .surface-grain {
@@ -292,7 +334,7 @@ p {
   background: var(--color-cream-2);
   border-top: 1.5px solid var(--color-line);
   border-bottom: 1.5px solid var(--color-line);
-  box-shadow: inset 0 10px 18px -14px rgb(29 39 34 / 0.18);
+  box-shadow: inset 0 10px 18px -14px var(--shade-ink-18);
 }
 
 /* ---- Coreografía (paquete B): sello que se estampa + entrada del hero ---- */
@@ -366,10 +408,10 @@ p {
 }
 @keyframes benefit-progress {
   from {
-    width: 0%;
+    transform: scaleX(0);
   }
   to {
-    width: 100%;
+    transform: scaleX(1);
   }
 }
 
@@ -386,7 +428,17 @@ p {
   }
 }
 .animate-select-pop {
-  animation: select-pop 320ms var(--ease-bounce);
+  animation: select-pop 320ms var(--ease-out-fresh);
+}
+
+/* Entrada escalonada de StaggerIn (reemplaza animate.css fadeInLeft, auditoría 2026-11-19 R19-05). Duración y retraso van inline. */
+@keyframes fade-in-left {
+  from { opacity: 0; transform: translate3d(-100%, 0, 0); }
+  to { opacity: 1; transform: none; }
+}
+.stagger-in {
+  animation-name: fade-in-left;
+  animation-fill-mode: both;
 }
 
 /* ---- Motion: prefers-reduced-motion "gentil": se quita el MOVIMIENTO (translate/scale/rotate,
@@ -449,7 +501,7 @@ p {
   --tone-tint: var(--color-forest-tint);
   --tone-soft: var(--color-sage-100);
   --tone-ink: var(--color-forest-ink);
-  --tone-glow: rgb(31 125 92 / 0.35);
+  --tone-glow: var(--glow-forest-35);
 }
 .tone-family {
   --tone: var(--color-orange);
@@ -457,8 +509,8 @@ p {
   --tone-700: var(--color-orange-700);
   --tone-tint: var(--color-orange-tint);
   --tone-soft: var(--color-amber-soft-100);
-  --tone-ink: #5c2a0e;
-  --tone-glow: rgb(192 82 29 / 0.35);
+  --tone-ink: var(--tone-orange-ink);
+  --tone-glow: var(--glow-orange-35);
 }
 .tone-residence {
   --tone: var(--color-petrol-600);
@@ -467,16 +519,16 @@ p {
   --tone-tint: var(--color-petrol-50);
   --tone-soft: var(--color-petrol-100);
   --tone-ink: var(--color-petrol-800);
-  --tone-glow: rgb(15 92 122 / 0.35);
+  --tone-glow: var(--glow-petrol-35);
 }
 .tone-admin {
-  --tone: #2f3b35;
-  --tone-600: #1d2722;
-  --tone-700: #1d2722;
-  --tone-tint: #ecebe3;
+  --tone: var(--tone-admin-base);
+  --tone-600: var(--tone-admin-deep);
+  --tone-700: var(--tone-admin-deep);
+  --tone-tint: var(--tone-admin-tint);
   --tone-soft: var(--color-cream-2);
-  --tone-ink: #1d2722;
-  --tone-glow: rgb(29 39 34 / 0.25);
+  --tone-ink: var(--tone-admin-deep);
+  --tone-glow: var(--glow-ink-25);
 }
 
 /* Kit: pulso del paso actual, shimmer de carga y entrada de detalle. */
@@ -489,7 +541,7 @@ p {
   to { background-position: 200% 0; }
 }
 .kit-skel {
-  background: linear-gradient(90deg, var(--color-cream-2) 25%, #fff 50%, var(--color-cream-2) 75%);
+  background: linear-gradient(90deg, var(--color-cream-2) 25%, var(--color-paper) 50%, var(--color-cream-2) 75%);
   background-size: 200% 100%;
   animation: kit-shimmer 1.4s linear infinite;
 }

@@ -60,20 +60,6 @@ export async function loadActiveFamilyLink(
   };
 }
 
-/** Estudiantes con vínculo ACTIVO del familiar. */
-export async function loadActiveStudentProfileIds(admin: SupabaseClient, familyUserId: string): Promise<string[]> {
-  const { data, error } = await admin
-    .from("family_links")
-    .select("student_profile_id, family_members!inner(user_id)")
-    .eq("status", "active")
-    .eq("family_members.user_id", familyUserId);
-  if (error) {
-    console.error("[family] no se pudieron leer los vínculos:", error);
-    return [];
-  }
-  return (data ?? []).map((row) => row.student_profile_id as string);
-}
-
 /**
  * Familiar vinculado ACTIVO del estudiante, con lo que hace falta para designarlo pagador. `maybeSingle` es seguro porque
  * el índice único parcial `family_links_one_active_per_student` (migración 0004, docs/00 §17) garantiza a lo sumo un vínculo

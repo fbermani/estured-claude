@@ -1,0 +1,505 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- button "Abrir menú":
+  - generic: menu
+- generic: EstuRed
+- button "Notificaciones, 19 sin leer":
+  - generic: notifications
+  - generic: "19"
+- complementary:
+  - link "Tus residencias":
+    - /url: /residence/dashboard
+    - generic: EstuRed
+  - button "Notificaciones, 19 sin leer":
+    - generic: notifications
+    - generic: "19"
+  - button "Cerrar menú":
+    - generic: close
+  - navigation:
+    - link "Panel":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e
+      - generic: dashboard
+      - generic: Panel
+    - link "Solicitudes":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/applications
+      - generic: inbox
+      - generic: Solicitudes
+    - link "Habitaciones":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/rooms
+      - generic: meeting_room
+      - generic: Habitaciones
+    - link "Disponibilidad":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/availability
+      - generic: bed
+      - generic: Disponibilidad
+    - link "Renovaciones":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/renewals
+      - generic: sync_alt
+      - generic: Renovaciones
+    - link "Residentes":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/residents
+      - generic: groups
+      - generic: Residentes
+    - link "Lista de espera":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/waitlist
+      - generic: hourglass_top
+      - generic: Lista de espera
+    - link "Preguntas, 1 preguntas sin responder":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/faq
+      - generic: forum
+      - generic: Preguntas
+      - generic: "1"
+    - link "Reglamento":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/regulation
+      - generic: gavel
+      - generic: Reglamento
+    - link "Soporte":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/support
+      - generic: support_agent
+      - generic: Soporte
+    - link "Plan":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/plan
+      - generic: workspace_premium
+      - generic: Plan
+    - link "Equipo":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/team
+      - generic: supervisor_account
+      - generic: Equipo
+  - link "Todas mis residencias":
+    - /url: /residence/dashboard
+    - generic: apartment
+    - generic: Todas mis residencias
+  - paragraph: owner.residencia.norte@example.com
+  - link "Editar perfil":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/profile
+    - generic: edit
+    - generic: Editar perfil
+  - button "Salir":
+    - generic: logout
+    - generic: Salir
+- navigation "Navegación principal":
+  - link "Panel":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e
+    - generic: dashboard
+    - generic: Panel
+  - link "Solicitudes":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/applications
+    - generic: inbox
+    - generic: Solicitudes
+  - link "Camas, Disponibilidad":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/availability
+    - generic: bed
+    - generic: Camas
+  - link "Residentes":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/residents
+    - generic: groups
+    - generic: Residentes
+  - button "Más, 1 avisos pendientes":
+    - generic: more_horiz
+    - generic: Más
+- main:
+  - generic: apartment
+  - text: Residencia Norte
+  - heading "Residentes" [level=1]
+  - paragraph: Ingresos, estadías y renovaciones en un solo lugar.
+  - generic: link
+  - text: 1 vínculo por revisar
+  - button "Invitar y código de casa":
+    - generic: forum
+    - text: Invitar y código de casa
+    - generic: expand_more
+  - button "Cerrar" [active]:
+    - generic: close
+    - text: Cerrar
+  - heading "Cargar residente" [level=3]
+  - paragraph: "Cargalo con su email: le mandamos una invitación personal con un enlace de un solo uso (vale 14 días) para crear su cuenta o activar la que ya tiene. Si todavía no lo tenés, cargalo con nombre y apellido (y teléfono, si querés mandarle su enlace personal por WhatsApp): queda como “residente sin activar” hasta que le cargues el mail."
+  - generic: Email del residente
+  - textbox "Email del residente"
+  - paragraph: Dejalo vacío si todavía no lo tenés.
+  - generic: Nombre y apellido (si no hay email)
+  - textbox "Nombre y apellido (si no hay email)"
+  - generic: Teléfono (opcional)
+  - textbox "Teléfono (opcional)"
+  - paragraph: Con código de país, solo números (ej. 5491112345678). Solo se usa para armarte el mensaje de WhatsApp.
+  - generic: Tipo de habitación (opcional)
+  - combobox "Tipo de habitación (opcional)":
+    - option "Sin especificar" [selected]
+    - option "Individual"
+    - option "Doble"
+    - option "Triple"
+    - option "Cuádruple"
+  - generic: Fecha de ingreso (opcional)
+  - textbox "Fecha de ingreso (opcional)"
+  - generic: Contrato hasta (opcional)
+  - textbox "Contrato hasta (opcional)"
+  - paragraph: Salida estimada — se muestra en habitaciones y residentes.
+  - button "Cargar residente"
+  - region "Pendientes de gestión":
+    - button "Pendientes de gestión 1 vínculo por revisar 1 plaza liberada 1 residente busca cambiar":
+      - generic: notifications_active
+      - text: Pendientes de gestión
+      - generic: 1 vínculo por revisar
+      - generic: 1 plaza liberada
+      - generic: 1 residente busca cambiar
+      - generic: expand_more
+  - group "Filtrar por estado":
+    - button "Todos 34" [pressed]:
+      - generic: groups
+      - text: Todos
+      - generic: "34"
+    - button "Activos 19":
+      - generic: check_circle
+      - text: Activos
+      - generic: "19"
+    - button "Por ingresar 0":
+      - generic: flight_land
+      - text: Por ingresar
+      - generic: "0"
+    - button "Por salir 10":
+      - generic: flight_takeoff
+      - text: Por salir
+      - generic: "10"
+    - button "Buscan cambiar 1":
+      - generic: swap_horiz
+      - text: Buscan cambiar
+      - generic: "1"
+    - button "Piden otra habitación 3":
+      - generic: meeting_room
+      - text: Piden otra habitación
+      - generic: "3"
+    - button "Pendientes 5":
+      - generic: hourglass_top
+      - text: Pendientes
+      - generic: "5"
+    - link "Renovación 1 en ventana →":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/renewals
+      - generic: autorenew
+      - text: Renovación
+      - generic: "1"
+      - generic: en ventana →
+  - generic: search
+  - searchbox "Buscar residentes"
+  - generic: Ordenar
+  - combobox "Ordenar":
+    - option "Orden original" [selected]
+    - option "Residente ↑"
+    - option "Residente ↓"
+    - option "Habitación / Cama ↑"
+    - option "Habitación / Cama ↓"
+    - option "Estado ↑"
+    - option "Estado ↓"
+    - option "Contrato hasta ↑"
+    - option "Contrato hasta ↓"
+    - option "Tarifa mensual ↑"
+    - option "Tarifa mensual ↓"
+  - list "Residentes":
+    - generic: V
+    - paragraph:
+      - generic: Valentina S.
+    - paragraph: Sin asignar
+    - generic: Activo
+    - generic: Hasta — · —
+    - button "Gestionar Valentina S.": Gestionar
+    - generic: R
+    - paragraph:
+      - generic: Residente sin activar
+    - paragraph: Sin asignar
+    - paragraph: paula.vinculo@estured.test
+    - generic: Pendiente de activación
+    - generic: Hasta — · —
+    - button "Gestionar Residente sin activar": Gestionar
+    - generic: R
+    - paragraph:
+      - generic: Residente sin activar
+    - paragraph: Sin asignar
+    - paragraph: tomas.vinculo@estured.test
+    - generic: Pendiente de activación
+    - generic: Hasta — · —
+    - button "Gestionar Residente sin activar": Gestionar
+    - generic: J
+    - paragraph:
+      - generic: Julieta Demo
+    - paragraph: Sin asignar
+    - generic: Pendiente de activación
+    - generic: Hasta — · —
+    - button "Gestionar Julieta Demo": Gestionar
+    - generic: R
+    - paragraph:
+      - generic: Residente sin activar
+    - paragraph: Sin asignar
+    - paragraph: mateo.vinculo@estured.test
+    - generic: Pendiente de activación
+    - generic: Hasta — · —
+    - button "Gestionar Residente sin activar": Gestionar
+    - generic: "Y"
+    - paragraph:
+      - generic: Yamila T.
+      - generic: 🇪🇸
+    - paragraph: Habitación 2 - C · Cuádruple
+    - paragraph: yamila.torres@estured.test
+    - generic: Por salir
+    - generic: Hasta 07/12/2026 · USD 160
+    - button "Gestionar Yamila T.": Gestionar
+    - generic: S
+    - paragraph:
+      - generic: Santino B.
+      - generic: 🇺🇾
+    - paragraph: Habitación 3 - A · Triple
+    - paragraph: santino.bianchi@estured.test
+    - generic: Activo
+    - generic: Hasta 23/08/2027 · USD 190
+    - button "Gestionar Santino B.": Gestionar
+    - generic: T
+    - paragraph:
+      - generic: Tamara T.
+      - generic: 🇪🇨
+    - paragraph: Habitación 4 - B · Doble
+    - paragraph: tamara.tapia@estured.test
+    - generic: Activo
+    - generic: Hasta 21/01/2027 · USD 220
+    - button "Gestionar Tamara T.": Gestionar
+    - generic: R
+    - paragraph:
+      - generic: Rodrigo M.
+      - generic: 🇩🇪
+    - paragraph: Habitación 8 - A · Individual
+    - paragraph: rodrigo.machado@estured.test
+    - generic: Por salir
+    - generic: Hasta 16/11/2026 · USD 300
+    - button "Gestionar Rodrigo M.": Gestionar
+    - generic: S
+    - paragraph:
+      - generic: Sabrina F.
+      - generic: 🇵🇪
+    - paragraph: Habitación 2 - B · Cuádruple
+    - paragraph: sabrina.franco@estured.test
+    - generic: Por salir
+    - generic: Hasta 16/11/2026 · USD 160
+    - button "Gestionar Sabrina F.": Gestionar
+    - generic: P
+    - paragraph:
+      - generic: Pedro W.
+      - generic: 🇦🇷
+    - paragraph: Habitación 2 - C · Triple
+    - paragraph: pedro.weber@estured.test
+    - generic: Activo
+    - generic: Hasta 23/06/2027 · USD 190
+    - button "Gestionar Pedro W.": Gestionar
+    - generic: R
+    - paragraph:
+      - generic: Renata P.
+      - generic: 🇬🇧
+    - paragraph: Habitación 4 - A · Doble
+    - paragraph: renata.paredes@estured.test
+    - generic: Por salir
+    - generic: Hasta 06/12/2026 · USD 220
+    - button "Gestionar Renata P.": Gestionar
+    - generic: O
+    - paragraph:
+      - generic: Octavio I.
+      - generic: 🇧🇴
+    - paragraph: Habitación 7 - A · Individual
+    - paragraph: octavio.iturralde@estured.test
+    - generic: Activo
+    - generic: Hasta 22/08/2027 · USD 300
+    - button "Gestionar Octavio I.": Gestionar
+    - generic: P
+    - paragraph:
+      - generic: Paula B.
+      - generic: 🇧🇷
+    - paragraph: Habitación 2 - A · Cuádruple
+    - paragraph: paula.benitez@estured.test
+    - generic: Activo
+    - generic: Hasta 10/11/2026 · USD 160
+    - button "Gestionar Paula B.": Gestionar
+    - generic: "N"
+    - paragraph:
+      - generic: Nahuel C.
+      - generic: 🇫🇷
+    - paragraph: Habitación 2 - B · Triple
+    - paragraph: nahuel.castro@estured.test
+    - generic: Activo
+    - generic: Hasta 23/04/2027 · USD 190
+    - button "Gestionar Nahuel C.": Gestionar
+    - generic: "N"
+    - paragraph:
+      - generic: Nadia S.
+      - generic: 🇵🇾
+    - paragraph: Habitación 3 - B · Doble
+    - paragraph: nadia.sosa@estured.test
+    - generic: Activo
+    - generic: Hasta 19/02/2027 · USD 220
+    - button "Gestionar Nadia S.": Gestionar
+    - generic: M
+    - paragraph:
+      - generic: Marcos L.
+      - generic: 🇨🇱
+    - paragraph: Habitación 6 - A · Individual
+    - paragraph: marcos.lawson@estured.test
+    - generic: Activo
+    - generic: Hasta 20/08/2027 · USD 300
+    - button "Gestionar Marcos L.": Gestionar
+    - generic: M
+    - paragraph:
+      - generic: Melina C.
+      - generic: 🇮🇹
+    - paragraph: Habitación 1 - D · Cuádruple
+    - paragraph: melina.carrizo@estured.test
+    - generic: Activo
+    - generic: Hasta 20/01/2027 · USD 160
+    - button "Gestionar Melina C.": Gestionar
+    - generic: L
+    - paragraph:
+      - generic: Leandro U.
+      - generic: 🇲🇽
+    - paragraph: Habitación 2 - A · Triple
+    - paragraph: leandro.uzal@estured.test
+    - generic: Activo
+    - generic: Hasta 21/02/2027 · USD 190
+    - button "Gestionar Leandro U.": Gestionar
+    - generic: L
+    - paragraph:
+      - generic: Luciana N.
+      - generic: 🇨🇴
+    - paragraph: Habitación 3 - A · Doble
+    - paragraph: luciana.ninci@estured.test
+    - generic: Activo
+    - generic: Hasta 19/01/2027 · USD 220
+    - button "Gestionar Luciana N.": Gestionar
+    - generic: K
+    - paragraph:
+      - generic: Kevin G.
+      - generic: 🇺🇸
+    - paragraph: Habitación 5 - A · Individual
+    - paragraph: kevin.godoy@estured.test
+    - generic: Activo
+    - generic: Hasta 20/06/2027 · USD 300
+    - button "Gestionar Kevin G.": Gestionar
+    - generic: K
+    - paragraph:
+      - generic: Karen Z.
+      - generic: 🇪🇸
+    - paragraph: Habitación 1 - C · Cuádruple
+    - paragraph: karen.zambrano@estured.test
+    - generic: Por salir
+    - generic: Hasta 05/12/2026 · USD 160
+    - button "Gestionar Karen Z.": Gestionar
+    - generic: J
+    - paragraph:
+      - generic: Joaquín Q.
+      - generic: 🇺🇾
+    - paragraph: Habitación 1 - C · Triple
+    - paragraph: joaquin.quiroga@estured.test
+    - generic: Activo
+    - generic: Hasta 21/08/2027 · USD 190
+    - button "Gestionar Joaquín Q.": Gestionar
+    - generic: J
+    - paragraph:
+      - generic: Josefina J.
+      - generic: 🇪🇨
+    - paragraph: Habitación 2 - B · Doble
+    - paragraph: josefina.juarez@estured.test
+    - generic: Por salir
+    - generic: Hasta 11/12/2026 · USD 220
+    - button "Gestionar Josefina J.": Gestionar
+    - generic: I
+    - paragraph:
+      - generic: Ivo C.
+      - generic: 🇩🇪
+    - paragraph: Habitación 4 - A · Individual
+    - paragraph: ivo.cabrera@estured.test
+    - generic: Activo
+    - generic: Hasta 20/04/2027 · USD 300
+    - button "Gestionar Ivo C.": Gestionar
+    - generic: I
+    - paragraph:
+      - generic: Ivana R.
+      - generic: 🇵🇪
+    - paragraph: Habitación 1 - B · Cuádruple
+    - paragraph: ivana.romero@estured.test
+    - generic: Por salir
+    - generic: Hasta 21/11/2026 · USD 160
+    - button "Gestionar Ivana R.": Gestionar
+    - generic: H
+    - paragraph:
+      - generic: Hernán N.
+      - generic: 🇦🇷
+    - paragraph: Habitación 1 - B · Triple
+    - paragraph: hernan.nunez@estured.test
+    - generic: Activo
+    - generic: Hasta 21/06/2027 · USD 190
+    - button "Gestionar Hernán N.": Gestionar
+    - generic: G
+    - paragraph:
+      - generic: Guadalupe F.
+      - generic: 🇬🇧
+    - paragraph: Habitación 2 - A · Doble
+    - paragraph: guadalupe.fernandez@estured.test
+    - generic: Por salir
+    - generic: Hasta 20/11/2026 · USD 220
+    - button "Gestionar Guadalupe F.": Gestionar
+    - generic: G
+    - paragraph:
+      - generic: Gonzalo C.
+      - generic: 🇧🇴
+    - paragraph: Habitación 3 - A · Individual
+    - paragraph: gonzalo.cavalcanti@estured.test
+    - generic: Activo
+    - generic: Hasta 18/02/2027 · USD 300
+    - button "Gestionar Gonzalo C.": Gestionar
+    - generic: E
+    - paragraph:
+      - generic: Emilia V.
+      - generic: 🇧🇷
+    - paragraph: Habitación 1 - A · Cuádruple
+    - paragraph: emilia.vidal@estured.test
+    - generic: Por salir
+    - generic: swap_horiz
+    - text: Busca cambiar
+    - generic: Hasta 15/11/2026 · USD 160
+    - button "Gestionar Emilia V.": Gestionar
+    - generic: F
+    - paragraph:
+      - generic: Facundo O.
+      - generic: 🇫🇷
+    - paragraph: Habitación 1 - A · Triple
+    - paragraph: facundo.ojeda@estured.test
+    - generic: Activo
+    - generic: meeting_room
+    - text: Pide otra habitación
+    - generic: Hasta 21/04/2027 · USD 190
+    - button "Gestionar Facundo O.": Gestionar
+    - generic: D
+    - paragraph:
+      - generic: Delfina H.
+      - generic: 🇵🇾
+    - paragraph: Habitación 1 - A · Doble
+    - paragraph: delfina.highton@estured.test
+    - generic: Por salir
+    - generic: meeting_room
+    - text: Pide otra habitación
+    - generic: Hasta 14/11/2026 · USD 220
+    - button "Gestionar Delfina H.": Gestionar
+    - generic: E
+    - paragraph:
+      - generic: Emiliano A.
+      - generic: 🇨🇱
+    - paragraph: Habitación 2 - A · Individual
+    - paragraph: emiliano.almeida@estured.test
+    - generic: Activo
+    - generic: meeting_room
+    - text: Pide otra habitación
+    - generic: Hasta 25/01/2027 · USD 300
+    - button "Gestionar Emiliano A.": Gestionar
+    - generic: R
+    - paragraph:
+      - generic: Residente sin activar
+    - paragraph: Habitación 1 - A · Individual
+    - paragraph: residente.externo@example.com
+    - generic: Pendiente de activación
+    - generic: Hasta 10/12/2026 · USD 300
+    - button "Gestionar Residente sin activar": Gestionar
+  - paragraph: Cada residente decide si aparece en la comunidad y qué datos muestra; la residencia no puede cambiarlo. Quien no activó su perfil se ve como «Plaza ocupada». Acá solo gestionás la operación de tu residencia.
+- button "Ricardo — Dueño de Residencia": Ricardo — Dueño de Residencia
+- button "Open Next.js Dev Tools":
+- alert

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { PageHero } from "@/components/ui/PageHero";
 import { Icon } from "@/components/ui/Icon";
 import { Card } from "@/components/ui/Card";
+import { BrandList } from "@/components/ui/BrandMark";
 import { RegisterStudentForm } from "@/app/(public)/register/student/RegisterStudentForm";
 import { RegisterFamilyForm } from "@/app/(public)/register/family/RegisterFamilyForm";
 import { RegisterResidenceForm } from "@/app/(public)/register/residence/RegisterResidenceForm";
@@ -55,7 +56,7 @@ export function RolePicker({ residences, next }: { next?: string; residences: { 
       <PageHero tone={current.tone} eyebrow={hero.eyebrow} title="Creá tu cuenta" subtitle={hero.subtitle} glyph={hero.glyph} />
 
       <Card className="p-4 sm:p-5">
-        <p className="mb-3 text-[13px] font-bold uppercase tracking-wider text-ink-faint">1 · ¿Quién sos?</p>
+        <p className="mb-3 text-[13px] font-bold text-ink-faint">1. ¿Quién sos?</p>
         <div role="radiogroup" aria-label="Tipo de cuenta" className="grid gap-3 sm:grid-cols-3">
           {ROLES.map((r) => {
             const selected = r.id === role;
@@ -80,21 +81,17 @@ export function RolePicker({ residences, next }: { next?: string; residences: { 
       </Card>
 
       <div className={toneClass(current.tone)}>
-        <p className="mb-3 px-1 text-[13px] font-bold uppercase tracking-wider text-ink-faint">2 · Tus datos</p>
+        <p className="mb-3 px-1 text-[13px] font-bold text-ink-faint">2. Tus datos</p>
         <details className="mb-3 rounded-field border border-line bg-paper px-4 py-1">
           <summary className="min-h-11 cursor-pointer text-sm font-semibold text-ink-soft hover:text-ink [&::marker]:text-(--tone)">
             <span className="ml-1">Qué incluye tu cuenta</span>
           </summary>
-          <ul className="mb-3 list-disc space-y-1 pl-6 text-sm text-ink-soft">
-            {current.includes.map((t) => (
-              <li key={t}>{t}</li>
-            ))}
-          </ul>
+          <BrandList items={current.includes} className="mb-3 text-sm text-ink-soft" />
           {role === "student" && (
             <div className="mb-3 rounded-field bg-cream-2 p-3 text-sm">
               <p className="mb-2 flex items-center gap-2 font-semibold text-ink">
                 Así te ven otras personas
-                <span className="rounded-full bg-butter px-2 py-0.5 text-[11px] font-bold text-butter-fg">Ejemplo</span>
+                <span className="rounded-full bg-butter px-2 py-0.5 text-xs font-bold text-butter-fg">Ejemplo</span>
               </p>
               <ul className="space-y-1.5 text-ink-soft">
                 <li className="flex items-center gap-2"><Icon name="person" className="text-lg" /><b className="text-ink">Lucía R.</b> solo tu inicial</li>

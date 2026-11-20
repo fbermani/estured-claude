@@ -1,0 +1,92 @@
+<template>
+  <style>
+    @font-face { font-family: 'Bricolage Grotesque'; src: url('assets/fonts/BricolageGrotesque.woff2') format('woff2'); font-weight: 200 800; }
+    @font-face { font-family: 'Hanken Grotesk'; src: url('assets/fonts/HankenGrotesk.woff2') format('woff2'); font-weight: 100 900; }
+    #root { position: absolute; inset: 0; overflow: hidden; background: #f9f5ee; font-family: 'Hanken Grotesk', sans-serif; color: #1d2722; }
+    #s07-stage { position: absolute; inset: 0; }
+    #s07-side { position: absolute; left: 0; top: 0; width: 380px; height: 1080px; background: #fffdf8; border-right: 1.5px solid #ece5d8; overflow: hidden; }
+    #s07-side img { width: 380px; height: auto; }
+    #s07-head { position: absolute; left: 420px; top: 34px; width: 1460px; height: auto; }
+    .s07-bucket { position: absolute; left: 424px; top: 268px; font-size: 28px; font-weight: 700; letter-spacing: .04em; color: #44524b; display: flex; align-items: center; gap: 12px; }
+    .s07-count { min-width: 34px; height: 34px; border-radius: 999px; background: #ece5d8; display: grid; place-items: center; font-size: 20px; }
+    #s07-card { position: absolute; left: 420px; top: 316px; width: 560px; padding: 26px 26px 24px; border-radius: 20px; background: #eef6f1; border: 2.5px solid #1f7d5c; }
+    .s07-row1 { display: flex; align-items: center; gap: 16px; }
+    .s07-av { width: 54px; height: 54px; border-radius: 50%; background: #e2f1ea; color: #0f4d39; display: grid; place-items: center; font-weight: 800; font-size: 26px; }
+    .s07-name { font-size: 32px; font-weight: 700; }
+    .s07-chipbox { position: relative; margin-left: auto; width: 300px; height: 46px; }
+    .s07-chip { position: absolute; right: 0; top: 0; padding: 7px 16px; border-radius: 999px; font-size: 28px; font-weight: 700; white-space: nowrap; }
+    #s07-new { background: #fde7da; color: #9a4118; }
+    #s07-contact { background: #e2f1ea; color: #0f4d39; }
+    .s07-meta { margin: 8px 0 0 70px; font-size: 28px; color: #44524b; line-height: 1.4; }
+    #s07-help { position: absolute; left: 424px; top: 540px; width: 556px; font-size: 28px; color: #44524b; line-height: 1.35; }
+    #s07-detail { position: absolute; left: 1012px; top: 268px; width: 868px; height: 650px; padding: 36px 40px; border-radius: 24px; background: #fffdf8; border: 1.5px solid #ece5d8; box-shadow: 0 18px 50px rgba(12,58,44,.07); }
+    .s07-dh { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 42px; letter-spacing: -0.02em; }
+    .s07-ds { font-size: 28px; color: #44524b; margin-top: 4px; }
+    .s07-tiles { display: flex; gap: 16px; margin-top: 30px; }
+    .s07-tile { flex: 1; padding: 18px 20px; border-radius: 16px; background: #f3ece1; }
+    .s07-tile b { display: block; font-size: 22px; letter-spacing: .08em; color: #5f6c65; font-weight: 700; }
+    .s07-tile span { display: block; margin-top: 6px; font-size: 28px; font-weight: 600; }
+    .s07-k { margin-top: 30px; font-size: 22px; font-weight: 700; letter-spacing: .08em; color: #5f6c65; }
+    .s07-v { margin-top: 8px; font-size: 30px; }
+    .s07-pills { display: flex; gap: 12px; margin-top: 10px; }
+    .s07-pill { padding: 8px 18px; border-radius: 999px; background: #e2f1ea; color: #0f4d39; font-size: 28px; font-weight: 600; }
+    #s07-noise { position: absolute; left: 1040px; top: 290px; width: 820px; height: 620px; }
+    .s07-msg { position: absolute; padding: 18px 26px; border-radius: 24px; background: #efe9de; font-size: 34px; font-weight: 600; box-shadow: 0 10px 24px rgba(12,58,44,.08); white-space: nowrap; }
+  </style>
+  <div id="root" data-composition-id="s07-residence" data-width="1920" data-height="1080">
+    <div id="s07-stage">
+      <div id="s07-side"><img src="assets/ui/res-sidebar.png" alt="Menú de la residencia (EstuRed)" /></div>
+      <img id="s07-head" src="assets/ui/res-header.png" alt="Solicitudes recibidas" />
+      <div class="s07-bucket">NUEVAS <span class="s07-count">1</span></div>
+      <div id="s07-noise">
+        <div class="s07-msg" style="left:20px;top:10px">¿Hay lugar?</div>
+        <div class="s07-msg" style="left:330px;top:70px">Hola, info?</div>
+        <div class="s07-msg" style="left:80px;top:170px">¿Precio?</div>
+        <div class="s07-msg" style="left:430px;top:220px">¿Hay lugar para marzo?</div>
+        <div class="s07-msg" style="left:10px;top:330px">¿Aceptan mascotas?</div>
+        <div class="s07-msg" style="left:400px;top:390px">¿Hay lugar?</div>
+        <div class="s07-msg" style="left:120px;top:480px">Hola, ¿precio?</div>
+      </div>
+      <div id="s07-card">
+        <div class="s07-row1"><span class="s07-av">L</span><span class="s07-name">Lucia F.</span>
+          <span class="s07-chipbox"><span id="s07-new" class="s07-chip">Nueva</span><span id="s07-contact" class="s07-chip">Contacto establecido</span></span></div>
+        <div class="s07-meta">20 años · Medicina<br />Individual · 6 meses</div>
+      </div>
+      <div id="s07-help">Tenés 48 horas para responder esta solicitud.</div>
+      <div id="s07-detail">
+        <div class="s07-dh">Solicitud de Lucia F.</div>
+        <div class="s07-ds">Individual</div>
+        <div class="s07-tiles">
+          <div class="s07-tile"><b>EDAD</b><span>20 años</span></div>
+          <div class="s07-tile"><b>CARRERA</b><span>Medicina</span></div>
+          <div class="s07-tile"><b>ORIGEN</b><span>Rosario, Argentina</span></div>
+        </div>
+        <div class="s07-k">SOBRE MÍ</div>
+        <div class="s07-v">Ordenada y noctámbula.</div>
+        <div class="s07-k">INTERESES</div>
+        <div class="s07-pills"><span class="s07-pill">Cocina</span><span class="s07-pill">Voluntariado</span></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+        gsap.set(["#s07-contact", "#s07-detail", "#s07-help"], { opacity: 0 });
+    // antes: mensajes sueltos que se apilan
+    const msgs = gsap.utils.toArray("#s07-noise .s07-msg");
+    msgs.forEach((m, i) => tl.fromTo(m, { opacity: i < 3 ? 1 : 0, scale: i < 3 ? 1 : 0.75 }, { opacity: 1, scale: 1, duration: 0.12, ease: "power3.out" }, i < 3 ? 0 : 0.05 + (i - 3) * 0.12));
+    // la solicitud llega desde la derecha y ordena todo
+    tl.to(msgs, { opacity: 0, y: 40, filter: "blur(6px)", duration: 0.25, stagger: 0.02, ease: "power2.in" }, 0.95);
+    tl.fromTo("#s07-card", { x: 1500, scale: 0.6, opacity: 1 }, { x: 0, scale: 1, duration: 0.6, ease: "power3.out", transformOrigin: "0% 0%" }, 0.95);
+    tl.fromTo("#s07-help", { opacity: 0 }, { opacity: 1, duration: 0.2 }, 1.7);
+    tl.fromTo("#s07-detail", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.45, ease: "expo.out" }, 2.1);
+    tl.fromTo("#s07-detail .s07-tile", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.3, stagger: 0.08, ease: "power3.out" }, 2.5);
+    tl.fromTo("#s07-detail .s07-k, #s07-detail .s07-v, #s07-detail .s07-pills", { opacity: 0 }, { opacity: 1, duration: 0.25, stagger: 0.12 }, 3.0);
+    // la residencia responde: cambia el estado
+    tl.to("#s07-new", { opacity: 0, duration: 0.1 }, 5.6);
+    tl.fromTo("#s07-contact", { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.22, ease: "back.out(1.6)", transformOrigin: "100% 50%" }, 5.62);
+    tl.to("#s07-help", { opacity: 0, duration: 0.2 }, 5.6);
+    // blur swap al panel del estudiante
+    tl.to("#s07-stage", { opacity: 0, filter: "blur(10px)", duration: 0.2, ease: "power2.in" }, 7.28);
+    window.__timelines["s07-residence"] = tl;
+  </script>
+</template>

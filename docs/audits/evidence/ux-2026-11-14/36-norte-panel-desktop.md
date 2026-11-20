@@ -1,0 +1,241 @@
+- button "Open Next.js Dev Tools":
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- complementary:
+  - link "Tus residencias":
+    - /url: /residence/dashboard
+    - generic: EstuRed
+  - button "Notificaciones":
+    - generic: notifications
+  - navigation:
+    - link "Panel":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e
+      - generic: dashboard
+      - generic: Panel
+    - link "Solicitudes":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/applications
+      - generic: inbox
+      - generic: Solicitudes
+    - link "Habitaciones":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/rooms
+      - generic: meeting_room
+      - generic: Habitaciones
+    - link "Disponibilidad":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/availability
+      - generic: bed
+      - generic: Disponibilidad
+    - link "Renovaciones":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/renewals
+      - generic: sync_alt
+      - generic: Renovaciones
+    - link "Residentes":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/residents
+      - generic: groups
+      - generic: Residentes
+    - link "Lista de espera":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/waitlist
+      - generic: hourglass_top
+      - generic: Lista de espera
+    - link "Preguntas, 1 preguntas sin responder":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/faq
+      - generic: forum
+      - generic: Preguntas
+      - generic: "1"
+    - link "Reglamento":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/regulation
+      - generic: gavel
+      - generic: Reglamento
+    - link "Soporte":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/support
+      - generic: support_agent
+      - generic: Soporte
+    - link "Plan":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/plan
+      - generic: workspace_premium
+      - generic: Plan
+    - link "Equipo":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/team
+      - generic: supervisor_account
+      - generic: Equipo
+  - link "Todas mis residencias":
+    - /url: /residence/dashboard
+    - generic: apartment
+    - generic: Todas mis residencias
+  - paragraph: owner.residencia.norte@example.com
+  - link "Editar perfil":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/profile
+    - generic: edit
+    - generic: Editar perfil
+  - button "Salir":
+    - generic: logout
+    - generic: Salir
+  - button "Colapsar menú":
+    - generic: chevron_left
+- main:
+  - heading "Residencia Norte" [level=1]
+  - paragraph:
+    - generic: location_on
+    - text: Palermo, CABA
+  - link "Soporte":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/support
+  - link "Editar perfil":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/profile
+  - region "Para hacer hoy":
+    - heading "Para hacer hoy" [level=2]
+    - list:
+      - generic: swap_horiz
+      - text: 1 residente busca cambiar
+      - link "Ver residentes":
+        - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/residents?filtro=buscan-cambiar
+      - generic: groups
+      - text: "Residentes: 5 pendientes"
+      - link "Ver residentes":
+        - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/residents
+  - generic: inbox
+  - heading "Solicitudes" [level=2]
+  - paragraph: 0 en curso · 0 nuevas
+  - link "Revisar solicitudes":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/applications
+  - generic: bed
+  - heading "Ocupación" [level=2]
+  - paragraph:
+    - text: "29"
+    - generic: / 35 plazas operativas
+  - paragraph: 35 operativas (1 fuera de servicio)
+  - link "Ver disponibilidad":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/availability
+  - generic: sync_alt
+  - heading "Renovaciones" [level=2]
+  - paragraph: 0 esperando tu respuesta
+  - link "Ver renovaciones":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/renewals
+  - generic: groups
+  - generic: 5 pendientes
+  - heading "Residentes" [level=2]
+  - paragraph: 34 cargados · 0 en lista de espera
+  - link "Ver residentes":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/residents
+  - heading "Próximos ingresos y salidas" [level=2]
+  - link "Ver residentes":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/residents
+  - link "Delfina H. Egreso, Habitación 1, 14/11/2026 Confirmado":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/residents?stay=18226674-8cc1-49f1-b7ab-405eb8da58e5
+    - generic: logout
+    - paragraph: Delfina H.
+    - paragraph: Egreso, Habitación 1, 14/11/2026
+    - generic: Confirmado
+  - link "Emilia V. Egreso, Habitación 1, 15/11/2026 Confirmado":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/residents?stay=3f60545a-b806-41b9-a4e6-11d3af7ed0b4
+    - generic: logout
+    - paragraph: Emilia V.
+    - paragraph: Egreso, Habitación 1, 15/11/2026
+    - generic: Confirmado
+  - link "Sabrina F. Egreso, Habitación 2, 16/11/2026 Confirmado":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/residents?stay=71f1f805-9aee-4a2e-9b26-95adbdcb8000
+    - generic: logout
+    - paragraph: Sabrina F.
+    - paragraph: Egreso, Habitación 2, 16/11/2026
+    - generic: Confirmado
+  - link "Rodrigo M. Egreso, Habitación 8, 16/11/2026 Confirmado":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/residents?stay=8ad8aaac-0c5e-46e0-8ee3-ab277dcca68a
+    - generic: logout
+    - paragraph: Rodrigo M.
+    - paragraph: Egreso, Habitación 8, 16/11/2026
+    - generic: Confirmado
+  - link "Guadalupe F. Egreso, Habitación 2, 20/11/2026 Confirmado":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/residents?stay=1411beb0-4ed4-4c40-83bf-e28635a877c4
+    - generic: logout
+    - paragraph: Guadalupe F.
+    - paragraph: Egreso, Habitación 2, 20/11/2026
+    - generic: Confirmado
+  - link "Ivana R. Egreso, Habitación 1, 21/11/2026 Confirmado":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/residents?stay=38528f36-badc-40fa-98f5-b2570049dfb0
+    - generic: logout
+    - paragraph: Ivana R.
+    - paragraph: Egreso, Habitación 1, 21/11/2026
+    - generic: Confirmado
+  - link "Karen Z. Egreso, Habitación 1, 05/12/2026 Confirmado":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/residents?stay=463dae70-f73c-4981-a6d0-e58c26df7404
+    - generic: logout
+    - paragraph: Karen Z.
+    - paragraph: Egreso, Habitación 1, 05/12/2026
+    - generic: Confirmado
+  - link "Renata P. Egreso, Habitación 4, 06/12/2026 Confirmado":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/residents?stay=2f39cb40-b699-4c60-964f-bbec8afdd457
+    - generic: logout
+    - paragraph: Renata P.
+    - paragraph: Egreso, Habitación 4, 06/12/2026
+    - generic: Confirmado
+  - heading "Solicitudes recientes" [level=2]
+  - link "Ver todas":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/applications
+  - region "Solicitudes recientes":
+    - table:
+      - rowgroup:
+        - row "Estudiante Habitación Fecha Estado":
+          - columnheader "Estudiante"
+          - columnheader "Habitación"
+          - columnheader "Fecha"
+          - columnheader "Estado"
+      - rowgroup:
+        - row "Camila R. Individual 24/10/2026 Reserva revocada por el estudiante":
+          - cell "Camila R.":
+            - link "Camila R.":
+              - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/applications?app=a0a5e002-4948-4adf-897b-d80c2439602c
+          - cell "Individual"
+          - cell "24/10/2026"
+          - cell "Reserva revocada por el estudiante":
+            - generic: Reserva revocada por el estudiante
+        - row "Camila R. Individual 24/10/2026 Reserva revocada por el estudiante":
+          - cell "Camila R.":
+            - link "Camila R.":
+              - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/applications?app=3a291eee-3431-4d94-8ec1-40b04c1a8f06
+          - cell "Individual"
+          - cell "24/10/2026"
+          - cell "Reserva revocada por el estudiante":
+            - generic: Reserva revocada por el estudiante
+        - row "Lucia F. Individual 23/10/2026 Reserva vencida — fee sin pagar":
+          - cell "Lucia F.":
+            - link "Lucia F.":
+              - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/applications?app=d8f68c2d-5ab4-4145-b7aa-4a112554b74d
+          - cell "Individual"
+          - cell "23/10/2026"
+          - cell "Reserva vencida — fee sin pagar":
+            - generic: Reserva vencida — fee sin pagar
+        - row "Mateo F. Cuádruple 22/10/2026 Venció por falta de pago":
+          - cell "Mateo F.":
+            - link "Mateo F.":
+              - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/applications?app=906224be-880a-496d-a455-397d7a242d23
+          - cell "Cuádruple"
+          - cell "22/10/2026"
+          - cell "Venció por falta de pago":
+            - generic: Venció por falta de pago
+        - row "Camila R. Individual 21/10/2026 Reserva vencida — fee sin pagar":
+          - cell "Camila R.":
+            - link "Camila R.":
+              - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/applications?app=f5916caa-690e-4812-875c-e52d6b9599c6
+          - cell "Individual"
+          - cell "21/10/2026"
+          - cell "Reserva vencida — fee sin pagar":
+            - generic: Reserva vencida — fee sin pagar
+  - region "Guías para tu equipo":
+    - heading "Guías para tu equipo" [level=2]:
+      - generic: menu_book
+      - text: Guías para tu equipo
+    - link "Ver todas":
+      - /url: /guias
+    - list:
+      - link "Cómo acompañar a los estudiantes de hoy y a sus familias desde una residencia 3 min de lectura":
+        - /url: /guias/acompanar-estudiantes-familias-desde-residencia
+        - generic: domain
+        - generic: Cómo acompañar a los estudiantes de hoy y a sus familias desde una residencia
+        - generic: 3 min de lectura
+        - generic: arrow_forward
+      - link "Cómo estudiar, organizarte y convivir en una residencia 2 min de lectura":
+        - /url: /guias/como-estudiar-organizarte-convivir-residencia
+        - generic: diversity_3
+        - generic: Cómo estudiar, organizarte y convivir en una residencia
+        - generic: 2 min de lectura
+        - generic: arrow_forward
+- button "Ricardo — Dueño de Residencia": Ricardo — Dueño de Residencia
+- alert: Panel de la residencia | EstuRed

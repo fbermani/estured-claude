@@ -23,6 +23,7 @@ function fakeAdmin(rows: Record<string, unknown>) {
       };
       return chain;
     },
+    rpc: async () => ({ data: true, error: null }),
     storage: { from: () => ({ upload: async () => ({ error: null }) }) },
   };
   return { admin: client as unknown as SupabaseClient, inserts };

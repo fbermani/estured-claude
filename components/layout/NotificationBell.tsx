@@ -85,11 +85,11 @@ export function NotificationBell() {
         onClick={handleToggle}
         aria-label={unreadCount > 0 ? `Notificaciones, ${unreadCount} sin leer` : "Notificaciones"}
         aria-expanded={open}
-        className="relative rounded-full p-2 text-ink-soft transition-colors hover:bg-cream-2 hover:text-forest-700"
+        className="relative inline-flex size-11 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-cream-2 hover:text-forest-700"
       >
         <Icon name="notifications" className="text-xl" />
         {unreadCount > 0 && (
-          <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-orange px-1 text-[10px] font-bold text-white">
+          <span className="absolute right-0.5 top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-orange px-1 text-xs font-bold leading-none tabular-nums text-white">
             {unreadCount > 99 ? "99+" : unreadCount}
           </span>
         )}

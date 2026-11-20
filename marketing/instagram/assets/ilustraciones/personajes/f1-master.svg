@@ -1,0 +1,160 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1200" viewBox="0 0 1600 1200" role="img">
+<title>F1 master</title>
+<desc>Familiar F1 de EstuRed en pose neutra, de frente y en tres cuartos: melena lacia con flequillo y canas, anteojos redondos, cárdigan gris azulado sobre remera crema y un mate en la mano.</desc>
+<style>
+  .fondo{fill:#fbf6ec}
+  .piso{fill:#ece3cf}
+  .piel{fill:#d39a72}
+  .piel-sombra{fill:#be8460}
+  .pelo{fill:#4a3a30}
+  .canas{fill:none;stroke:#a3958a;stroke-linecap:round}
+  .tinta{fill:#1d2722}
+  .trazo{fill:none;stroke:#1d2722;stroke-linecap:round}
+  .anteojos{fill:none;stroke:#1d2722;stroke-width:4}
+  .cardigan{fill:#6f8290}
+  .cardigan-brazo{fill:none;stroke:#637583;stroke-linecap:round;stroke-linejoin:round}
+  .cardigan-brazo-lejos{fill:none;stroke:#566773;stroke-linecap:round;stroke-linejoin:round}
+  .cardigan-borde{fill:none;stroke:#4e5f6b;stroke-linecap:round}
+  .remera{fill:#f3ead8}
+  .boton{fill:#f3ead8}
+  .punio{fill:none;stroke:#566773}
+  .pantalon{fill:#5a4a42}
+  .pantalon-lejos{fill:#4d3f38}
+  .zapato{fill:#3d2f29}
+  .mate{fill:#8a5a3c}
+  .bombilla{fill:none;stroke:#c9c2b5;stroke-linecap:round}
+</style>
+
+<rect class="fondo" width="1600" height="1200"/>
+
+<!-- ===================== VISTA DE FRENTE ===================== -->
+<g id="f1-frente">
+  <ellipse class="piso" cx="500" cy="1074" rx="200" ry="22"/>
+
+  <g id="frente-pierna-der" data-parte="pierna-der">
+    <rect class="pantalon" x="448" y="740" width="48" height="310" rx="14"/>
+    <rect class="zapato" x="436" y="1040" width="64" height="32" rx="14"/>
+  </g>
+  <g id="frente-pierna-izq" data-parte="pierna-izq">
+    <rect class="pantalon" x="504" y="740" width="48" height="310" rx="14"/>
+    <rect class="zapato" x="500" y="1040" width="64" height="32" rx="14"/>
+  </g>
+
+  <g id="frente-pelo-atras" data-parte="pelo">
+    <path class="pelo" d="M436 320 Q432 236 500 232 Q568 236 564 320 L568 394 Q542 404 520 398 L480 398 Q458 404 432 394 Z"/>
+  </g>
+
+  <g id="frente-torso" data-parte="torso">
+    <rect class="piel-sombra" x="487" y="368" width="26" height="40" rx="8"/>
+    <path class="cardigan" d="M436 402 Q500 392 564 402 Q606 414 608 458 L616 760 Q500 772 384 760 L392 458 Q394 414 436 402 Z"/>
+    <path class="remera" d="M474 398 Q500 412 526 398 L504 620 L496 620 Z"/>
+    <path class="cardigan-borde" stroke-width="5" d="M474 400 L497 620 M526 400 L503 620 M500 620 V764"/>
+    <path class="punio" stroke-width="18" d="M386 752 Q500 764 614 752"/>
+    <circle class="boton" cx="500" cy="622" r="7"/>
+  </g>
+
+  <g id="frente-cabeza" data-parte="cabeza">
+    <ellipse class="piel" cx="500" cy="315" rx="56" ry="68"/>
+    <g id="frente-pelo" data-parte="pelo">
+      <path class="pelo" d="M444 312 Q440 242 500 240 Q560 242 556 312 Q548 286 520 280 Q480 274 450 298 Z"/>
+      <path class="canas" stroke-width="8" d="M462 270 Q486 252 516 254"/>
+    </g>
+    <g id="frente-cejas" data-parte="cejas">
+      <path class="trazo" stroke-width="5" d="M468 302 Q481 297 494 301"/>
+      <path class="trazo" stroke-width="5" d="M506 301 Q519 297 532 302"/>
+    </g>
+    <g id="frente-ojos" data-parte="ojos">
+      <circle class="tinta" cx="481" cy="326" r="5.5"/>
+      <circle class="tinta" cx="519" cy="326" r="5.5"/>
+    </g>
+    <g id="frente-anteojos" data-parte="anteojos">
+      <circle class="anteojos" cx="481" cy="326" r="15"/>
+      <circle class="anteojos" cx="519" cy="326" r="15"/>
+      <path class="anteojos" d="M496 324 Q500 320 504 324"/>
+    </g>
+    <g id="frente-boca" data-parte="boca">
+      <path class="trazo" stroke-width="4.5" d="M490 354 Q500 360 510 354"/>
+    </g>
+  </g>
+
+  <g id="frente-brazo-der" data-parte="brazo-der">
+    <path class="cardigan-brazo" stroke-width="44" d="M412 432 Q390 560 400 690"/>
+    <path class="punio" stroke-width="44" d="M399 674 L400 690"/>
+    <circle class="piel" cx="402" cy="712" r="20"/>
+  </g>
+  <g id="frente-brazo-izq" data-parte="brazo-izq">
+    <path class="cardigan-brazo" stroke-width="44" d="M588 432 Q622 560 566 600"/>
+    <g id="frente-mate" data-parte="mate">
+      <path class="bombilla" stroke-width="5" d="M550 560 L566 520"/>
+      <ellipse class="mate" cx="548" cy="578" rx="22" ry="26"/>
+    </g>
+    <circle class="piel" cx="552" cy="602" r="20"/>
+  </g>
+</g>
+
+<!-- ===================== VISTA 3/4 ===================== -->
+<g id="f1-tres-cuartos">
+  <ellipse class="piso" cx="1160" cy="1074" rx="210" ry="22"/>
+
+  <g id="tc-pierna-izq" data-parte="pierna-izq">
+    <rect class="pantalon-lejos" x="1162" y="740" width="46" height="310" rx="14"/>
+    <rect class="zapato" x="1158" y="1040" width="72" height="32" rx="14"/>
+  </g>
+  <g id="tc-pierna-der" data-parte="pierna-der">
+    <rect class="pantalon" x="1104" y="740" width="48" height="310" rx="14"/>
+    <rect class="zapato" x="1098" y="1040" width="74" height="32" rx="14"/>
+  </g>
+
+  <g id="tc-pelo-atras" data-parte="pelo">
+    <path class="pelo" d="M1094 320 Q1090 236 1152 232 Q1212 236 1206 300 L1198 384 Q1150 400 1092 394 Z"/>
+  </g>
+
+  <g id="tc-torso" data-parte="torso">
+    <rect class="piel-sombra" x="1140" y="368" width="26" height="40" rx="8"/>
+    <path class="cardigan" d="M1092 402 Q1150 390 1222 402 Q1258 416 1258 460 L1264 760 Q1170 774 1072 758 L1080 460 Q1080 414 1092 402 Z"/>
+    <path class="remera" d="M1170 398 Q1192 410 1210 400 L1193 620 L1187 620 Z"/>
+    <path class="cardigan-borde" stroke-width="5" d="M1170 400 L1188 620 M1210 402 L1192 620 M1190 620 V768"/>
+    <path class="punio" stroke-width="18" d="M1074 750 Q1170 766 1262 752"/>
+    <circle class="boton" cx="1190" cy="622" r="7"/>
+  </g>
+
+  <g id="tc-cabeza" data-parte="cabeza">
+    <ellipse class="piel" cx="1158" cy="315" rx="52" ry="68"/>
+    <circle class="piel" cx="1207" cy="334" r="8"/>
+    <g id="tc-pelo" data-parte="pelo">
+      <path class="pelo" d="M1102 314 Q1098 244 1156 240 Q1212 244 1208 302 Q1196 282 1170 278 Q1130 276 1110 300 Z"/>
+      <path class="canas" stroke-width="8" d="M1124 268 Q1148 252 1176 254"/>
+    </g>
+    <g id="tc-cejas" data-parte="cejas">
+      <path class="trazo" stroke-width="5" d="M1153 302 Q1166 297 1179 301"/>
+      <path class="trazo" stroke-width="5" d="M1189 301 Q1199 298 1208 302"/>
+    </g>
+    <g id="tc-ojos" data-parte="ojos">
+      <circle class="tinta" cx="1166" cy="326" r="5.5"/>
+      <circle class="tinta" cx="1198" cy="326" r="5"/>
+    </g>
+    <g id="tc-anteojos" data-parte="anteojos">
+      <circle class="anteojos" cx="1166" cy="326" r="15"/>
+      <circle class="anteojos" cx="1198" cy="326" r="12"/>
+      <path class="anteojos" d="M1151 323 L1116 318 M1181 324 Q1184 321 1186 324"/>
+    </g>
+    <g id="tc-boca" data-parte="boca">
+      <path class="trazo" stroke-width="4.5" d="M1172 354 Q1182 359 1191 353"/>
+    </g>
+  </g>
+
+  <g id="tc-brazo-izq" data-parte="brazo-izq">
+    <path class="cardigan-brazo-lejos" stroke-width="40" d="M1238 432 Q1266 548 1222 596"/>
+    <g id="tc-mate" data-parte="mate">
+      <path class="bombilla" stroke-width="5" d="M1214 556 L1232 518"/>
+      <ellipse class="mate" cx="1212" cy="576" rx="21" ry="25"/>
+    </g>
+    <circle class="piel" cx="1214" cy="600" r="19"/>
+  </g>
+  <g id="tc-brazo-der" data-parte="brazo-der">
+    <path class="cardigan-brazo" stroke-width="44" d="M1098 432 Q1072 560 1084 690"/>
+    <path class="punio" stroke-width="44" d="M1083 674 L1084 690"/>
+    <circle class="piel" cx="1086" cy="712" r="20"/>
+  </g>
+</g>
+</svg>

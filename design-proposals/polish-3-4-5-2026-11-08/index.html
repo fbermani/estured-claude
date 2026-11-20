@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EstuRed polish: antes y después</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Hanken+Grotesk:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#fbf6ec; --cream-2:#f4ecdc; --paper:#fffdf8; --line:#e8e0d2;
+  --ink:#1d2722; --ink-soft:#44524b; --forest:#1f7d5c; --forest-700:#0f4d39; --forest-ink:#0c3a2c;
+  --orange:#c0521d; --orange-light:#ef8551;
+  --font-sans:"Hanken Grotesk",system-ui,sans-serif; --font-display:"Bricolage Grotesque","Hanken Grotesk",system-ui,sans-serif;
+  --bad:#9c392e; --good:#166349;
+}
+*{box-sizing:border-box}
+html,body{margin:0;overflow-x:clip}
+body{background:var(--cream);color:var(--ink);font:16px/1.55 var(--font-sans)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px 80px}
+h1,h2,h3{font-family:var(--font-display);margin:0;line-height:1.1}
+h1{font-size:clamp(28px,5vw,40px);padding-top:40px}
+.lead{max-width:60ch;color:var(--ink-soft);margin:12px 0 0}
+nav.toc{display:flex;gap:8px;flex-wrap:wrap;margin:24px 0 8px}
+nav.toc a{padding:8px 14px;border-radius:999px;background:var(--paper);border:1px solid var(--line);color:var(--ink);text-decoration:none;font-weight:600;font-size:14px}
+section{margin-top:56px}
+section>h2{font-size:clamp(24px,4vw,32px)}
+.why{max-width:68ch;color:var(--ink-soft);margin:8px 0 20px}
+.pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+@media(max-width:760px){.pair{grid-template-columns:minmax(0,1fr)}}
+.side{border:1px solid var(--line);border-radius:20px;background:var(--paper);overflow:hidden}
+.tag{display:flex;align-items:center;gap:8px;padding:10px 16px;font-weight:800;font-size:14px;border-bottom:1px solid var(--line)}
+.tag.b{color:var(--bad);background:#fbe5e2}.tag.a{color:var(--good);background:#e2f1ea}
+.stage{padding:20px}
+.note{padding:12px 16px 16px;font-size:14px;color:var(--ink-soft);border-top:1px solid var(--line)}
+.note b{color:var(--ink)}
+.ratio{display:inline-block;padding:2px 8px;border-radius:999px;font-weight:800;font-size:13px}
+.ratio.fail{background:#fbe5e2;color:var(--bad)}.ratio.pass{background:#e2f1ea;color:var(--good)}
+:focus-visible{outline:3px solid var(--forest-ink);outline-offset:3px;box-shadow:0 0 0 6px #fff}
+
+/* 3 — tipografía */
+.mini{background:var(--cream);border-radius:14px;padding:18px;border:1px solid var(--line)}
+.mini-hero{background:var(--forest-ink);color:#fff;border-radius:14px;padding:18px 18px 20px}
+.mini-hero .h{font-family:var(--font-display);font-weight:700;line-height:1.05}
+.t-before .h{font-size:34px}
+.t-before .eb{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--orange-light);font-weight:800}
+.t-before h3{font-size:20px;font-weight:700;margin-top:10px}
+.t-before .meta{font-size:10.5px;color:var(--ink-soft);margin-top:6px;font-weight:500}
+.t-before .p{font-size:14px;font-weight:600;margin-top:8px}
+.t-before .p2{font-size:14px;font-weight:700;margin-top:4px;color:var(--ink-soft)}
+.t-after .h{font-size:34px}
+.t-after .eb{font-size:13px;color:var(--orange-light);font-weight:600}
+.t-after h3{font-size:26px;font-weight:700;margin-top:10px}
+.t-after .meta{font-size:12.5px;color:var(--ink-soft);margin-top:6px;font-weight:400}
+.t-after .p{font-size:14px;font-weight:600;margin-top:8px}
+.t-after .p2{font-size:14px;font-weight:600;margin-top:4px;color:var(--ink-soft)}
+.weights{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;font-size:12.5px}
+.weights span{padding:2px 8px;border-radius:999px;background:var(--cream-2)}
+.mini .sec{margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+
+/* 4 — contraste */
+.hero1{border-radius:14px;padding:20px;color:#fff;background:linear-gradient(135deg,#0c3a2c 0%,#1c6b50 60%,#7a6a3a 100%)}
+.hero1 .big{font-family:var(--font-display);font-weight:700;font-size:26px;line-height:1.1}
+.hero1 p{margin:10px 0 0;font-size:15px}
+.c-before .a{color:rgba(255,255,255,.62)} .c-before .b{color:rgba(255,255,255,.70)}
+.c-after .a{color:rgba(255,255,255,.90)} .c-after .b{color:#fff}
+.c-after.hero1{background:linear-gradient(135deg,#0c3a2c 0%,#1c6b50 60%,#5a4d2a 100%)}
+.rows{display:grid;gap:10px;margin-top:14px;font-size:14px}
+.rows div{display:flex;justify-content:space-between;gap:12px;align-items:center}
+
+/* 5 — foco */
+.focus-bg{background:var(--forest-ink);border-radius:14px;padding:20px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.fbtn{font:600 15px var(--font-sans);min-height:46px;padding:0 22px;border-radius:999px;border:0;cursor:pointer;color:#fff;background:var(--orange)}
+.fbtn.o{background:transparent;border:1.5px solid rgba(255,255,255,.7)}
+.fb-before :focus-visible{outline:2px solid var(--forest);outline-offset:2px;box-shadow:none}
+.fb-after :focus-visible{outline:3px solid #fff;outline-offset:3px;box-shadow:0 0 0 6px var(--forest-ink)}
+.chk-list{display:grid;gap:4px;margin-top:14px}
+.chk{display:flex;align-items:center;gap:10px;padding:8px 6px;border-radius:10px;cursor:pointer;font-weight:500}
+.chk input{width:20px;height:20px;accent-color:var(--forest)}
+.chk-before input:focus-visible{outline:none;box-shadow:none}
+.chk-before .chk:focus-within{outline:none}
+.chk-after .chk:focus-within{outline:3px solid var(--forest-ink);outline-offset:1px;background:#e2f1ea}
+.chk-after input:focus-visible{outline:none;box-shadow:none}
+.kbd{display:inline-block;padding:1px 8px;border:1px solid var(--line);border-bottom-width:3px;border-radius:6px;background:var(--cream-2);font-weight:800;font-size:13px}
+footer{margin-top:64px;padding-top:20px;border-top:1px solid var(--line);font-size:14px;color:var(--ink-soft)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Polish de EstuRed: tres cambios, antes y después</h1>
+  <p class="lead">Maqueta aparte con los colores y fuentes reales de la app. No toca el código del proyecto. Es una aproximación visual: en la app real el resultado depende de cada pantalla.</p>
+  <nav class="toc" aria-label="Secciones">
+    <a href="#t3">3 · Tipografía</a><a href="#t4">4 · Contraste</a><a href="#t5">5 · Foco de teclado</a>
+  </nav>
+
+  <section id="t3">
+    <h2>3 · Textos más legibles</h2>
+    <p class="why">Hoy hay textos de 10,5 px, cinco pesos de letra mezclados (400 a 800) y títulos de sección que se ven chicos bajo el hero. Propuesta: mínimo 12,5 px, tres pesos (400, 600, 700) y títulos de sección más grandes.</p>
+    <div class="pair">
+      <div class="side">
+        <div class="tag b">Antes</div>
+        <div class="stage t-before">
+          <div class="mini-hero"><div class="h">Elegí tu residencia</div></div>
+          <div class="mini"><span class="eb">Beneficios</span>
+            <h3>Lo que cambia cuando buscás</h3>
+            <div class="meta">Recoleta, CABA · Individual · Doble · Triple</div>
+            <div class="p">USD 270 /mes</div><div class="p2">Disponibilidad informada</div>
+          </div>
+          <div class="weights"><span>400</span><span>500</span><span>600</span><span>700</span><span>800</span></div>
+        </div>
+        <div class="note"><b>Se nota:</b> la línea de datos de 10,5 px cansa la vista, el título de sección parece subtítulo y hay 5 pesos distintos.</div>
+      </div>
+      <div class="side">
+        <div class="tag a">Después</div>
+        <div class="stage t-after">
+          <div class="mini-hero"><div class="h">Elegí tu residencia</div></div>
+          <div class="mini"><span class="eb">Beneficios</span>
+            <h3>Lo que cambia cuando buscás</h3>
+            <div class="meta">Recoleta, CABA, individual, doble, triple</div>
+            <div class="p">USD 270 /mes</div><div class="p2">Disponibilidad informada</div>
+          </div>
+          <div class="weights"><span>400</span><span>600</span><span>700</span></div>
+        </div>
+        <div class="note"><b>Cambia:</b> datos a 12,5 px, título de sección de 20 a 26 px (en la app real, de 36 a ~48 px), tres pesos y sin mayúsculas ni puntos medios en las etiquetas.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="t4">
+    <h2>4 · Contraste del texto sobre el hero</h2>
+    <p class="why">El texto claro sobre el degradado verde baja del mínimo de 4,5:1 (WCAG AA) en la zona más clara, donde aparece el brillo naranja. Propuesta: subir la opacidad del texto secundario y oscurecer un poco el punto más claro del degradado.</p>
+    <div class="pair">
+      <div class="side">
+        <div class="tag b">Antes</div>
+        <div class="stage">
+          <div class="hero1 c-before">
+            <div class="big">Elegí tu residencia a distancia</div>
+            <p class="a" id="b1">Residencias en Buenos Aires, verificadas por EstuRed.</p>
+            <p class="b" id="b2" style="margin-top:44px;text-align:right">Explorar es gratis. Toda solicitud queda sujeta a confirmación.</p>
+          </div>
+          <div class="rows">
+            <div><span>Texto secundario, zona media</span><span class="ratio fail" data-r="b1"></span></div>
+            <div><span>Texto en la zona del brillo</span><span class="ratio fail" data-r="b2"></span></div>
+          </div>
+        </div>
+        <div class="note"><b>Se nota:</b> la frase de abajo a la derecha casi se pierde.</div>
+      </div>
+      <div class="side">
+        <div class="tag a">Después</div>
+        <div class="stage">
+          <div class="hero1 c-after">
+            <div class="big">Elegí tu residencia a distancia</div>
+            <p class="a" id="a1">Residencias en Buenos Aires, verificadas por EstuRed.</p>
+            <p class="b" id="a2" style="margin-top:44px;text-align:right">Explorar es gratis. Toda solicitud queda sujeta a confirmación.</p>
+          </div>
+          <div class="rows">
+            <div><span>Texto secundario, zona media</span><span class="ratio pass" data-r="a1"></span></div>
+            <div><span>Texto en la zona del brillo</span><span class="ratio pass" data-r="a2"></span></div>
+          </div>
+        </div>
+        <div class="note"><b>Cambia:</b> el brillo sigue ahí, algo más tenue, y el texto es casi blanco. Las proporciones se calculan en vivo con los colores mostrados.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="t5">
+    <h2>5 · Foco de teclado visible</h2>
+    <p class="why">Hoy el anillo de foco es del verde de marca sobre fondo verde oscuro (1,7:1, casi invisible) y los checkboxes de barrio en la búsqueda no muestran foco. Propuesta: anillo doble, blanco y oscuro, que se ve sobre cualquier fondo, y la fila entera resaltada en los checkboxes.</p>
+    <p class="why"><b>Probalo:</b> hacé clic en un espacio vacío de la maqueta y usá <span class="kbd">Tab</span> para moverte entre los controles. Solo aparece con teclado, no con el mouse.</p>
+    <div class="pair">
+      <div class="side">
+        <div class="tag b">Antes</div>
+        <div class="stage fb-before">
+          <div class="focus-bg"><button class="fbtn" type="button">Buscar residencia</button><button class="fbtn o" type="button">Crear cuenta</button></div>
+          <div class="chk-list chk-before" role="group" aria-label="Barrio (antes)">
+            <label class="chk"><input type="checkbox"> Palermo <span style="margin-left:auto;color:var(--ink-soft)">3</span></label>
+            <label class="chk"><input type="checkbox"> Recoleta <span style="margin-left:auto;color:var(--ink-soft)">2</span></label>
+            <label class="chk"><input type="checkbox"> Almagro <span style="margin-left:auto;color:var(--ink-soft)">1</span></label>
+          </div>
+        </div>
+        <div class="note"><b>Se nota:</b> en el fondo verde apenas se ve dónde está el foco, y en los checkboxes no se ve nada.</div>
+      </div>
+      <div class="side">
+        <div class="tag a">Después</div>
+        <div class="stage fb-after">
+          <div class="focus-bg"><button class="fbtn" type="button">Buscar residencia</button><button class="fbtn o" type="button">Crear cuenta</button></div>
+          <div class="chk-list chk-after" role="group" aria-label="Barrio (después)">
+            <label class="chk"><input type="checkbox"> Palermo <span style="margin-left:auto;color:var(--ink-soft)">3</span></label>
+            <label class="chk"><input type="checkbox"> Recoleta <span style="margin-left:auto;color:var(--ink-soft)">2</span></label>
+            <label class="chk"><input type="checkbox"> Almagro <span style="margin-left:auto;color:var(--ink-soft)">1</span></label>
+          </div>
+        </div>
+        <div class="note"><b>Cambia:</b> anillo blanco con borde oscuro (8,7:1 sobre el verde) y fila resaltada con contorno oscuro en los checkboxes.</div>
+      </div>
+    </div>
+  </section>
+
+  <footer>Si algo de esto no te convence, decime cuál y lo ajusto antes de tocar la app.</footer>
+</div>
+<script>
+(function(){
+  function lin(c){c/=255;return c<=0.03928?c/12.92:Math.pow((c+0.055)/1.055,2.4)}
+  function lum(c){return 0.2126*lin(c[0])+0.7152*lin(c[1])+0.0722*lin(c[2])}
+  function parse(s){var m=s.match(/[\d.]+/g).map(Number);return {rgb:m.slice(0,3),a:m.length>3?m[3]:1}}
+  // color de fondo aproximado detrás del texto: se toma del degradado a la altura relativa del elemento
+  function bgAt(box,el){
+    var cs=getComputedStyle(box),g=cs.backgroundImage;
+    var stops=[{p:0,c:[12,58,44]},{p:.6,c:[28,107,80]},{p:1,c:box.classList.contains('c-after')?[90,77,42]:[122,106,58]}];
+    var b=box.getBoundingClientRect(),r=el.getBoundingClientRect();
+    var x=((r.left+r.width/2-b.left)/b.width),y=((r.top+r.height/2-b.top)/b.height);
+    var t=Math.min(1,Math.max(0,(x+y)/2));
+    for(var i=0;i<stops.length-1;i++){var s=stops[i],e=stops[i+1];
+      if(t<=e.p){var k=(t-s.p)/(e.p-s.p);return s.c.map(function(v,j){return Math.round(v+(e.c[j]-v)*k)})}}
+    return stops[2].c;
+  }
+  function ratio(id){
+    var el=document.getElementById(id),box=el.closest('.hero1');
+    var f=parse(getComputedStyle(el).color),bg=bgAt(box,el);
+    var mix=f.rgb.map(function(v,i){return v*f.a+bg[i]*(1-f.a)});
+    var L1=lum(mix),L2=lum(bg),hi=Math.max(L1,L2),lo=Math.min(L1,L2);
+    return ((hi+0.05)/(lo+0.05)).toFixed(2)+':1';
+  }
+  document.querySelectorAll('[data-r]').forEach(function(n){n.textContent=ratio(n.getAttribute('data-r'))});
+})();
+</script>
+</body>
+</html>

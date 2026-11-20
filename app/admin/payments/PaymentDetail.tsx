@@ -139,7 +139,7 @@ export function PaymentDetail({
         </dl>
 
         <div className="mt-5 rounded-lg p-3 text-sm" style={{ backgroundColor: cmd.surfaceContainer }}>
-          <p className="text-[10px] font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
+          <p className="text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
             Cómo se calculó el fee
           </p>
           <p className="mt-1.5" style={{ color: cmd.onSurface }}>
@@ -453,7 +453,7 @@ function ValidationCard({
             {step === "confirm" && (
               <div className="mt-4">
                 <div className="rounded-lg p-3 text-sm" style={{ backgroundColor: cmd.surfaceContainer, color: cmd.onSurface }}>
-                  <p className="text-[10px] font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
+                  <p className="text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
                     Estás por confirmar
                   </p>
                   <p className="mt-1.5">

@@ -1,0 +1,157 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- button "Abrir menú":
+  - generic: menu
+- generic: EstuRed
+- button "Notificaciones, 19 sin leer":
+  - generic: notifications
+  - generic: "19"
+- complementary:
+  - link "Tus residencias":
+    - /url: /residence/dashboard
+    - generic: EstuRed
+  - button "Notificaciones, 19 sin leer":
+    - generic: notifications
+    - generic: "19"
+  - button "Cerrar menú":
+    - generic: close
+  - navigation:
+    - link "Panel":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e
+      - generic: dashboard
+      - generic: Panel
+    - link "Solicitudes":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/applications
+      - generic: inbox
+      - generic: Solicitudes
+    - link "Habitaciones":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/rooms
+      - generic: meeting_room
+      - generic: Habitaciones
+    - link "Disponibilidad":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/availability
+      - generic: bed
+      - generic: Disponibilidad
+    - link "Renovaciones":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/renewals
+      - generic: sync_alt
+      - generic: Renovaciones
+    - link "Residentes":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/residents
+      - generic: groups
+      - generic: Residentes
+    - link "Lista de espera":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/waitlist
+      - generic: hourglass_top
+      - generic: Lista de espera
+    - link "Preguntas, 1 preguntas sin responder":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/faq
+      - generic: forum
+      - generic: Preguntas
+      - generic: "1"
+    - link "Reglamento":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/regulation
+      - generic: gavel
+      - generic: Reglamento
+    - link "Soporte":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/support
+      - generic: support_agent
+      - generic: Soporte
+    - link "Plan":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/plan
+      - generic: workspace_premium
+      - generic: Plan
+    - link "Equipo":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/team
+      - generic: supervisor_account
+      - generic: Equipo
+  - link "Todas mis residencias":
+    - /url: /residence/dashboard
+    - generic: apartment
+    - generic: Todas mis residencias
+  - paragraph: owner.residencia.norte@example.com
+  - link "Editar perfil":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/profile
+    - generic: edit
+    - generic: Editar perfil
+  - button "Salir":
+    - generic: logout
+    - generic: Salir
+- navigation "Navegación principal":
+  - link "Panel":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e
+    - generic: dashboard
+    - generic: Panel
+  - link "Solicitudes":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/applications
+    - generic: inbox
+    - generic: Solicitudes
+  - link "Camas, Disponibilidad":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/availability
+    - generic: bed
+    - generic: Camas
+  - link "Residentes":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/residents
+    - generic: groups
+    - generic: Residentes
+  - button "Más, 1 avisos pendientes":
+    - generic: more_horiz
+    - generic: Más
+- main:
+  - generic: workspace_premium
+  - text: Planes
+  - heading "Planes" [level=1]
+  - paragraph: Mirá qué incluye cada plan. Perfil Verificado es gratuito; Plan Premium está bonificado el primer año para Residencias fundadoras.
+  - generic: Gratuito
+  - heading "Perfil Verificado" [level=2]
+  - paragraph: Tu residencia en el catálogo, con el sello de verificación en persona y gestión de solicitudes.
+  - list:
+    - generic: check
+    - text: Perfil público verificado con fotos, servicios y reglas
+    - generic: Es lo primero que ve un estudiante al buscar — reduce las consultas de gente que no tenía la información básica.
+    - generic: check
+    - text: Disponibilidad informada por tipo de habitación
+    - generic: Mostrás cupo por tipo de habitación sin necesidad de gestionar cada cama individualmente.
+    - generic: check
+    - text: Solicitudes de reserva registradas
+    - generic: Cada solicitud queda con fecha y estado, sin depender de tu memoria o de un chat.
+    - generic: check
+    - text: Lista de espera
+    - generic: Cuando un tipo de habitación está completo, los interesados se anotan en tu lista. Si se libera un lugar, les avisás desde tu panel.
+    - generic: check
+    - text: Preguntas frecuentes
+    - generic: Cargá hasta 5 preguntas y respuestas en tu ficha para que los interesados resuelvan dudas básicas antes de escribirte.
+    - generic: check
+    - text: Reglamento
+    - generic: Publicá el reglamento de tu residencia para que cada estudiante lo conozca antes de solicitar.
+    - generic: check
+    - text: Soporte
+    - generic: Abrí un caso con EstuRed si algo no salió como esperabas con un estudiante o familiar.
+  - generic: Plan Premium
+  - generic: Tu plan actual
+  - heading "Plan Premium" [level=2]
+  - paragraph: "Todo lo del Perfil Verificado, más la Gestión Operativa: habitaciones, plazas, residentes, comunidad y renovaciones."
+  - list:
+    - generic: check
+    - text: Habitaciones y plazas
+    - generic: Cargás tus habitaciones y camas, y ves la ocupación de cada una.
+    - generic: check
+    - text: Residentes
+    - generic: Registrás altas, salidas y notas, y respondés los avisos de «Quiero cambiar».
+    - generic: check
+    - text: Comunidad visible
+    - generic: Los estudiantes conocen a quienes viven en tu residencia, según lo que cada residente elige mostrar.
+    - generic: check
+    - text: Elección de plaza
+    - generic: El estudiante puede indicar una plaza libre al solicitar; la residencia confirma.
+    - generic: check
+    - text: Renovaciones
+    - generic: Gestioná renovaciones de tus residentes actuales sin tener que perseguir confirmaciones.
+  - paragraph: "Plan Premium bonificado el primer año para Residencias fundadoras. El plan todavía no tiene precio: te lo vamos a informar con anticipación y nadie paga nada sin aceptarlo antes."
+  - heading "Tenés el Plan Premium" [level=3]
+  - paragraph: Tu residencia tiene el Plan Premium activo. Si tenés dudas sobre el plan, escribinos.
+  - link "Contactar a EstuRed":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/support
+- button "Ricardo — Dueño de Residencia": Ricardo — Dueño de Residencia
+- button "Open Next.js Dev Tools":
+- alert

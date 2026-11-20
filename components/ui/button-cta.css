@@ -1,0 +1,72 @@
+/* Variante `cta` de Button (CTA de conversión de la ficha, propuesta A): naranja de marca, sombra de color, brillo al hover
+   y, opcionalmente, un halo que late cada ~4 s. Todo el movimiento es transform + opacity; con prefers-reduced-motion queda quieto. */
+.btn-cta {
+  position: relative;
+  box-shadow: 0 8px 20px var(--glow-orange-35);
+}
+
+/* Brillo: una banda clara que cruza el botón al pasar el mouse. Vive dentro de un contenedor que recorta (no recorta el halo). */
+.btn-cta__shine {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+}
+.btn-cta__shine::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -45%;
+  width: 40%;
+  background: linear-gradient(100deg, transparent, var(--paper-40), transparent);
+  transform: translateX(0) skewX(-12deg);
+  opacity: 0;
+}
+.btn-cta:hover .btn-cta__shine::before {
+  opacity: 1;
+  transform: translateX(380%) skewX(-12deg);
+  transition: transform 700ms var(--ease-out-fresh), opacity 100ms linear;
+}
+
+/* Halo: un aro del color de la marca que se expande y se desvanece (sin rebote). Una sola CTA por pantalla lo lleva (`pulse`). */
+.btn-cta--pulse::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 0 0 2px var(--color-orange);
+  opacity: 0;
+  pointer-events: none;
+  animation: btn-cta-halo 4s var(--ease-out-fresh) 1.4s infinite;
+}
+.btn-cta--pulse:hover::after,
+.btn-cta--pulse:focus-visible::after {
+  animation: none;
+}
+@keyframes btn-cta-halo {
+  0% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  28% {
+    opacity: 0;
+    transform: scale(1.12, 1.4);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.12, 1.4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-cta--pulse::after {
+    animation: none;
+    opacity: 0;
+  }
+  .btn-cta:hover .btn-cta__shine::before {
+    transition: none;
+    opacity: 0;
+  }
+}

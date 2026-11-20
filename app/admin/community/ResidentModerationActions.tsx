@@ -15,7 +15,7 @@ export function ResidentModerationActions({ residentStayId, status }: { resident
   if (pendingAction) {
     return (
       <div className="rounded p-2" style={{ border: `1px solid ${cmd.border}`, backgroundColor: cmd.surfaceContainer }}>
-        <label className="text-[10px] font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
+        <label className="text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
           Motivo (obligatorio)
         </label>
         <textarea

@@ -1,0 +1,2437 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- banner:
+  - navigation:
+    - link "EstuRed, inicio":
+      - /url: /
+      - generic: EstuRed
+    - link "Buscar":
+      - /url: /search
+    - button "Abrir menú":
+      - generic: menu
+- main:
+  - paragraph: Inicio › Buscar residencias
+  - heading "Encontrá tu próximo hogar en Buenos Aires" [level=1]
+  - paragraph: Todas las residencias del catálogo fueron verificadas presencialmente. La disponibilidad es informativa y toda reserva está sujeta a confirmación.
+  - paragraph:
+    - generic: menu_book
+    - generic: "Antes de elegir:"
+    - link "Cómo elegir una residencia estudiantil en Buenos Aires":
+      - /url: /guias/como-elegir-residencia-estudiantil-buenos-aires
+  - region "Resultados":
+    - button "Filtros":
+      - generic: tune
+      - text: Filtros
+    - heading "43 residencias encontradas" [level=2]
+    - group "Cómo ver los resultados":
+      - button "Lista"
+      - button "Grilla" [pressed]
+      - button "Mapa" [active]
+    - combobox "Ordenar por":
+      - option "Recomendadas" [selected]
+      - 'option "Precio: menor a mayor"'
+      - 'option "Precio: mayor a menor"'
+    - paragraph: Disponibilidad informada por la residencia. Requiere confirmación al solicitar.
+    - article "Wanna Tango":
+      - group "Fotos de Wanna Tango":
+        - img "Foto 1 de 4 de Wanna Tango en Montserrat"
+        - link "Ver Wanna Tango":
+          - /url: /residencias/wanna-tango
+        - generic "Verificada presencialmente por el equipo de EstuRed":
+          - generic: verified
+          - text: Residencia Verificada
+        - button "Foto anterior de Wanna Tango":
+          - generic: chevron_left
+        - button "Foto siguiente de Wanna Tango":
+          - generic: chevron_right
+        - button "Ver foto 1 de 4"
+        - button "Ver foto 2 de 4"
+        - button "Ver foto 3 de 4"
+        - button "Ver foto 4 de 4"
+      - heading "Wanna Tango" [level=3]:
+        - link "Wanna Tango":
+          - /url: /residencias/wanna-tango
+      - paragraph:
+        - generic: location_on
+        - text: Montserrat
+        - generic: Mixta
+      - paragraph:
+        - generic: desde
+        - generic: USD 420/mes
+      - paragraph:
+        - text: ≈ ARS 659.500
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UADE, 6 cuadras
+        - generic: USAL, 6 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble, triple y cuádruple
+      - 'button "Servicios: Wifi, Cámaras 24 hs, Lavandería, Coordinador Presencial"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: videocam
+        - generic: local_laundry_service
+        - generic: support_agent
+      - 'button "Áreas comunes: Patio, Terraza, Sala de Juegos, Cocina compartida, Sala de Estar, Área de Estudio"':
+        - generic: Áreas comunes
+        - generic: yard
+        - generic: deck
+        - generic: sports_esports
+        - generic: kitchen
+        - generic: weekend
+        - generic: "+1"
+      - generic: Disponibilidad informada
+      - link "Ver residencia":
+        - /url: /residencias/wanna-tango
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Wanna Sur":
+      - group "Fotos de Wanna Sur":
+        - img "Foto 1 de 5 de Wanna Sur en Montserrat"
+        - link "Ver Wanna Sur":
+          - /url: /residencias/wanna-sur
+        - generic "Verificada presencialmente por el equipo de EstuRed":
+          - generic: verified
+          - text: Residencia Verificada
+        - button "Foto anterior de Wanna Sur":
+          - generic: chevron_left
+        - button "Foto siguiente de Wanna Sur":
+          - generic: chevron_right
+        - button "Ver foto 1 de 5"
+        - button "Ver foto 2 de 5"
+        - button "Ver foto 3 de 5"
+        - button "Ver foto 4 de 5"
+        - button "Ver foto 5 de 5"
+      - heading "Wanna Sur" [level=3]:
+        - link "Wanna Sur":
+          - /url: /residencias/wanna-sur
+      - paragraph:
+        - generic: location_on
+        - text: Montserrat
+        - generic: Mixta
+      - paragraph:
+        - generic: desde
+        - generic: USD 190/mes
+      - paragraph:
+        - text: ≈ ARS 298.500
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UK, 5 cuadras
+        - generic: UBA Psicología, 5 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble, triple y cuádruple
+      - 'button "Servicios: Wifi, Cámaras 24 hs, Lavandería, Coordinador Presencial, Limpieza General"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: videocam
+        - generic: local_laundry_service
+        - generic: support_agent
+        - generic: mop
+      - 'button "Áreas comunes: Área de Estudio, Sala de Juegos, Terraza, Cocina compartida"':
+        - generic: Áreas comunes
+        - generic: school
+        - generic: sports_esports
+        - generic: deck
+        - generic: kitchen
+      - generic: Disponibilidad informada
+      - link "Ver residencia":
+        - /url: /residencias/wanna-sur
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Wanna Palermo":
+      - group "Fotos de Wanna Palermo":
+        - img "Foto 1 de 5 de Wanna Palermo en Recoleta"
+        - link "Ver Wanna Palermo":
+          - /url: /residencias/wanna-palermo
+        - generic "Verificada presencialmente por el equipo de EstuRed":
+          - generic: verified
+          - text: Residencia Verificada
+        - button "Foto anterior de Wanna Palermo":
+          - generic: chevron_left
+        - button "Foto siguiente de Wanna Palermo":
+          - generic: chevron_right
+        - button "Ver foto 1 de 5"
+        - button "Ver foto 2 de 5"
+        - button "Ver foto 3 de 5"
+        - button "Ver foto 4 de 5"
+        - button "Ver foto 5 de 5"
+      - heading "Wanna Palermo" [level=3]:
+        - link "Wanna Palermo":
+          - /url: /residencias/wanna-palermo
+      - paragraph:
+        - generic: location_on
+        - text: Recoleta
+        - generic: Mixta
+      - paragraph:
+        - generic: desde
+        - generic: USD 230/mes
+      - paragraph:
+        - text: ≈ ARS 361.000
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UP, 5 cuadras
+        - generic: UTN FRBA, 8 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble, triple y cuádruple
+      - 'button "Servicios: Parrilla"':
+        - generic: Servicios
+        - generic: outdoor_grill
+      - 'button "Áreas comunes: Terraza, Sala de Juegos, Cocina compartida, Área de Estudio"':
+        - generic: Áreas comunes
+        - generic: deck
+        - generic: sports_esports
+        - generic: kitchen
+        - generic: school
+      - generic: Disponibilidad informada
+      - link "Ver residencia":
+        - /url: /residencias/wanna-palermo
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Wanna Independencia":
+      - group "Fotos de Wanna Independencia":
+        - img "Foto 1 de 5 de Wanna Independencia en San Cristóbal"
+        - link "Ver Wanna Independencia":
+          - /url: /residencias/wanna-independencia
+        - generic "Verificada presencialmente por el equipo de EstuRed":
+          - generic: verified
+          - text: Residencia Verificada
+        - button "Foto anterior de Wanna Independencia":
+          - generic: chevron_left
+        - button "Foto siguiente de Wanna Independencia":
+          - generic: chevron_right
+        - button "Ver foto 1 de 5"
+        - button "Ver foto 2 de 5"
+        - button "Ver foto 3 de 5"
+        - button "Ver foto 4 de 5"
+        - button "Ver foto 5 de 5"
+      - heading "Wanna Independencia" [level=3]:
+        - link "Wanna Independencia":
+          - /url: /residencias/wanna-independencia
+      - paragraph:
+        - generic: location_on
+        - text: San Cristóbal
+        - generic: Mixta
+      - paragraph:
+        - generic: desde
+        - generic: USD 215/mes
+      - paragraph:
+        - text: ≈ ARS 337.500
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: Inst. Univ. del Hospital Italiano, 19 cuadras
+        - generic: UBA Psicología, 20 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble, triple y cuádruple
+      - 'button "Servicios: Wifi, Cámaras 24 hs, Lavandería, Coordinador Presencial"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: videocam
+        - generic: local_laundry_service
+        - generic: support_agent
+      - 'button "Áreas comunes: Sala de Juegos, Área de Estudio, Cocina compartida"':
+        - generic: Áreas comunes
+        - generic: sports_esports
+        - generic: school
+        - generic: kitchen
+      - generic: Disponibilidad informada
+      - link "Ver residencia":
+        - /url: /residencias/wanna-independencia
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Wanna Congreso":
+      - group "Fotos de Wanna Congreso":
+        - img "Foto 1 de 3 de Wanna Congreso en Balvanera"
+        - link "Ver Wanna Congreso":
+          - /url: /residencias/wanna-congreso
+        - generic "Verificada presencialmente por el equipo de EstuRed":
+          - generic: verified
+          - text: Residencia Verificada
+        - button "Foto anterior de Wanna Congreso":
+          - generic: chevron_left
+        - button "Foto siguiente de Wanna Congreso":
+          - generic: chevron_right
+        - button "Ver foto 1 de 3"
+        - button "Ver foto 2 de 3"
+        - button "Ver foto 3 de 3"
+      - heading "Wanna Congreso" [level=3]:
+        - link "Wanna Congreso":
+          - /url: /residencias/wanna-congreso
+      - paragraph:
+        - generic: location_on
+        - text: Balvanera
+        - generic: Mixta
+      - paragraph:
+        - generic: desde
+        - generic: USD 335/mes
+      - paragraph:
+        - text: ≈ ARS 526.000
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UBA Medicina, 11 cuadras
+        - generic: UBA Económicas, 13 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble, triple y cuádruple
+      - 'button "Servicios: Wifi, Cámaras 24 hs, Lavandería, Coordinador Presencial"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: videocam
+        - generic: local_laundry_service
+        - generic: support_agent
+      - 'button "Áreas comunes: Terraza, Sala de Juegos, Cocina compartida, Área de Estudio"':
+        - generic: Áreas comunes
+        - generic: deck
+        - generic: sports_esports
+        - generic: kitchen
+        - generic: school
+      - generic: Disponibilidad informada
+      - link "Ver residencia":
+        - /url: /residencias/wanna-congreso
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Wanna Centro":
+      - group "Fotos de Wanna Centro":
+        - img "Foto 1 de 4 de Wanna Centro en San Nicolás"
+        - link "Ver Wanna Centro":
+          - /url: /residencias/wanna-centro
+        - generic "Verificada presencialmente por el equipo de EstuRed":
+          - generic: verified
+          - text: Residencia Verificada
+        - button "Foto anterior de Wanna Centro":
+          - generic: chevron_left
+        - button "Foto siguiente de Wanna Centro":
+          - generic: chevron_right
+        - button "Ver foto 1 de 4"
+        - button "Ver foto 2 de 4"
+        - button "Ver foto 3 de 4"
+        - button "Ver foto 4 de 4"
+      - heading "Wanna Centro" [level=3]:
+        - link "Wanna Centro":
+          - /url: /residencias/wanna-centro
+      - paragraph:
+        - generic: location_on
+        - text: San Nicolás
+        - generic: Mixta
+      - paragraph:
+        - generic: desde
+        - generic: USD 215/mes
+      - paragraph:
+        - text: ≈ ARS 337.500
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UADE, 10 cuadras
+        - generic: UBA Medicina, 11 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble, triple y cuádruple
+      - 'button "Servicios: Wifi, Cámaras 24 hs, Limpieza General, Coordinador Presencial"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: videocam
+        - generic: mop
+        - generic: support_agent
+      - 'button "Áreas comunes: Área de Estudio, Terraza, Patio, Cocina compartida, Sala de Estar"':
+        - generic: Áreas comunes
+        - generic: school
+        - generic: deck
+        - generic: yard
+        - generic: kitchen
+        - generic: weekend
+      - generic: Disponibilidad informada
+      - link "Ver residencia":
+        - /url: /residencias/wanna-centro
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Verona del Soho":
+      - group "Fotos de Verona del Soho":
+        - img "Foto 1 de 5 de Verona del Soho en Palermo"
+        - link "Ver Verona del Soho":
+          - /url: /residencias/verona-del-soho
+        - generic "Verificada presencialmente por el equipo de EstuRed":
+          - generic: verified
+          - text: Residencia Verificada
+        - button "Foto anterior de Verona del Soho":
+          - generic: chevron_left
+        - button "Foto siguiente de Verona del Soho":
+          - generic: chevron_right
+        - button "Ver foto 1 de 5"
+        - button "Ver foto 2 de 5"
+        - button "Ver foto 3 de 5"
+        - button "Ver foto 4 de 5"
+        - button "Ver foto 5 de 5"
+      - heading "Verona del Soho" [level=3]:
+        - link "Verona del Soho":
+          - /url: /residencias/verona-del-soho
+      - paragraph:
+        - generic: location_on
+        - text: Palermo
+        - generic: Mixta
+      - paragraph:
+        - generic: desde
+        - generic: USD 235/mes
+      - paragraph:
+        - text: ≈ ARS 369.000
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UTN FRBA, 18 cuadras
+        - generic: UP, 20 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble, triple y cuádruple
+      - 'button "Servicios: Wifi, Limpieza General, Lavandería"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: mop
+        - generic: local_laundry_service
+      - 'button "Áreas comunes: Comedor, Sala de Estudio"':
+        - generic: Áreas comunes
+        - generic: dining
+        - generic: school
+      - generic: Disponibilidad informada
+      - link "Ver residencia":
+        - /url: /residencias/verona-del-soho
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Student Hostel La Bamba (Ilvero)":
+      - group "Fotos de Student Hostel La Bamba (Ilvero)":
+        - img "Foto 1 de 5 de Student Hostel La Bamba (Ilvero) en Recoleta"
+        - link "Ver Student Hostel La Bamba (Ilvero)":
+          - /url: /residencias/student-hostel-la-bamba
+        - generic "Verificada presencialmente por el equipo de EstuRed":
+          - generic: verified
+          - text: Residencia Verificada
+        - button "Foto anterior de Student Hostel La Bamba (Ilvero)":
+          - generic: chevron_left
+        - button "Foto siguiente de Student Hostel La Bamba (Ilvero)":
+          - generic: chevron_right
+        - button "Ver foto 1 de 5"
+        - button "Ver foto 2 de 5"
+        - button "Ver foto 3 de 5"
+        - button "Ver foto 4 de 5"
+        - button "Ver foto 5 de 5"
+      - heading "Student Hostel La Bamba (Ilvero)" [level=3]:
+        - link "Student Hostel La Bamba (Ilvero)":
+          - /url: /residencias/student-hostel-la-bamba
+      - paragraph:
+        - generic: location_on
+        - text: Recoleta
+        - generic: Mixta
+      - paragraph:
+        - generic: desde
+        - generic: USD 205/mes
+      - paragraph:
+        - text: ≈ ARS 322.000
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UBA Odontología, 9 cuadras
+        - generic: UP, 10 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble, triple y cuádruple
+      - 'button "Servicios: Wifi, Limpieza General"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: mop
+      - 'button "Áreas comunes: Cocina compartida"':
+        - generic: Áreas comunes
+        - generic: kitchen
+      - generic: Disponibilidad informada
+      - link "Ver residencia":
+        - /url: /residencias/student-hostel-la-bamba
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Residencia San Marcos":
+      - group "Fotos de Residencia San Marcos":
+        - img "Foto 1 de 5 de Residencia San Marcos en Montserrat"
+        - link "Ver Residencia San Marcos":
+          - /url: /residencias/residencia-san-marcos
+        - generic "Verificada presencialmente por el equipo de EstuRed":
+          - generic: verified
+          - text: Residencia Verificada
+        - button "Foto anterior de Residencia San Marcos":
+          - generic: chevron_left
+        - button "Foto siguiente de Residencia San Marcos":
+          - generic: chevron_right
+        - button "Ver foto 1 de 5"
+        - button "Ver foto 2 de 5"
+        - button "Ver foto 3 de 5"
+        - button "Ver foto 4 de 5"
+        - button "Ver foto 5 de 5"
+      - heading "Residencia San Marcos" [level=3]:
+        - link "Residencia San Marcos":
+          - /url: /residencias/residencia-san-marcos
+      - paragraph:
+        - generic: location_on
+        - text: Montserrat
+        - generic: Mixta
+      - paragraph:
+        - generic: desde
+        - generic: USD 180/mes
+      - paragraph:
+        - text: ≈ ARS 282.500
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UK, 1 cuadra
+        - generic: UADE, 2 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble, triple y cuádruple
+      - 'button "Servicios: Wifi, Cámaras 24 hs, Limpieza General, Limpieza de Habitación"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: videocam
+        - generic: mop
+        - generic: cleaning_services
+      - 'button "Áreas comunes: Cocina compartida, Patio, Área de Estudio"':
+        - generic: Áreas comunes
+        - generic: kitchen
+        - generic: yard
+        - generic: school
+      - generic: Disponibilidad informada
+      - link "Ver residencia":
+        - /url: /residencias/residencia-san-marcos
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Residencia Universitaria Olivia":
+      - group "Fotos de Residencia Universitaria Olivia":
+        - img "Foto 1 de 5 de Residencia Universitaria Olivia en Núñez"
+        - link "Ver Residencia Universitaria Olivia":
+          - /url: /residencias/residencia-olivia
+        - generic "Verificada presencialmente por el equipo de EstuRed":
+          - generic: verified
+          - text: Residencia Verificada
+        - button "Foto anterior de Residencia Universitaria Olivia":
+          - generic: chevron_left
+        - button "Foto siguiente de Residencia Universitaria Olivia":
+          - generic: chevron_right
+        - button "Ver foto 1 de 5"
+        - button "Ver foto 2 de 5"
+        - button "Ver foto 3 de 5"
+        - button "Ver foto 4 de 5"
+        - button "Ver foto 5 de 5"
+      - heading "Residencia Universitaria Olivia" [level=3]:
+        - link "Residencia Universitaria Olivia":
+          - /url: /residencias/residencia-olivia
+      - paragraph:
+        - generic: location_on
+        - text: Núñez
+        - generic: Solo mujeres
+      - paragraph:
+        - generic: desde
+        - generic: USD 190/mes
+      - paragraph:
+        - text: ≈ ARS 298.500
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: U. de Belgrano, 21 cuadras
+        - generic: UTDT, 21 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble, triple y cuádruple
+      - 'button "Servicios: Wifi"':
+        - generic: Servicios
+        - generic: wifi
+      - 'button "Áreas comunes: Terraza, Cocina compartida"':
+        - generic: Áreas comunes
+        - generic: deck
+        - generic: kitchen
+      - generic: Disponibilidad informada
+      - link "Ver residencia":
+        - /url: /residencias/residencia-olivia
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Residencia Universitaria Lith":
+      - group "Fotos de Residencia Universitaria Lith":
+        - img "Foto 1 de 5 de Residencia Universitaria Lith en Balvanera"
+        - link "Ver Residencia Universitaria Lith":
+          - /url: /residencias/residencia-lith
+        - generic "Verificada presencialmente por el equipo de EstuRed":
+          - generic: verified
+          - text: Residencia Verificada
+        - button "Foto anterior de Residencia Universitaria Lith":
+          - generic: chevron_left
+        - button "Foto siguiente de Residencia Universitaria Lith":
+          - generic: chevron_right
+        - button "Ver foto 1 de 5"
+        - button "Ver foto 2 de 5"
+        - button "Ver foto 3 de 5"
+        - button "Ver foto 4 de 5"
+        - button "Ver foto 5 de 5"
+      - heading "Residencia Universitaria Lith" [level=3]:
+        - link "Residencia Universitaria Lith":
+          - /url: /residencias/residencia-lith
+      - paragraph:
+        - generic: location_on
+        - text: Balvanera
+        - generic: Solo mujeres
+      - paragraph:
+        - generic: desde
+        - generic: USD 200/mes
+      - paragraph:
+        - text: ≈ ARS 314.000
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UADE, 10 cuadras
+        - generic: UK, 10 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble, triple y cuádruple
+      - 'button "Servicios: Wifi, Limpieza de Habitación, Lavandería, Parrilla"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: cleaning_services
+        - generic: local_laundry_service
+        - generic: outdoor_grill
+      - 'button "Áreas comunes: Patio, Cocina compartida, Comedor"':
+        - generic: Áreas comunes
+        - generic: yard
+        - generic: kitchen
+        - generic: dining
+      - generic: Disponibilidad informada
+      - link "Ver residencia":
+        - /url: /residencias/residencia-lith
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Residencia Universitaria Gusti":
+      - group "Fotos de Residencia Universitaria Gusti":
+        - img "Foto 1 de 5 de Residencia Universitaria Gusti en Balvanera"
+        - link "Ver Residencia Universitaria Gusti":
+          - /url: /residencias/residencia-gusti
+        - generic "Verificada presencialmente por el equipo de EstuRed":
+          - generic: verified
+          - text: Residencia Verificada
+        - button "Foto anterior de Residencia Universitaria Gusti":
+          - generic: chevron_left
+        - button "Foto siguiente de Residencia Universitaria Gusti":
+          - generic: chevron_right
+        - button "Ver foto 1 de 5"
+        - button "Ver foto 2 de 5"
+        - button "Ver foto 3 de 5"
+        - button "Ver foto 4 de 5"
+        - button "Ver foto 5 de 5"
+      - heading "Residencia Universitaria Gusti" [level=3]:
+        - link "Residencia Universitaria Gusti":
+          - /url: /residencias/residencia-gusti
+      - paragraph:
+        - generic: location_on
+        - text: Balvanera
+        - generic: Mixta
+      - paragraph:
+        - generic: desde
+        - generic: USD 260/mes
+      - paragraph:
+        - text: ≈ ARS 408.000
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UBA Medicina, 5 cuadras
+        - generic: UBA Económicas, 7 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble, triple y cuádruple
+      - 'button "Servicios: Wifi, Cámaras 24 hs, Limpieza de Habitación, Lavandería, Lockers Individuales"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: videocam
+        - generic: cleaning_services
+        - generic: local_laundry_service
+        - generic: lock
+      - 'button "Áreas comunes: Sala de Estudio, Cocina compartida"':
+        - generic: Áreas comunes
+        - generic: school
+        - generic: kitchen
+      - generic: Disponibilidad informada
+      - link "Ver residencia":
+        - /url: /residencias/residencia-gusti
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Residencia Family Home":
+      - group "Fotos de Residencia Family Home":
+        - img "Foto 1 de 5 de Residencia Family Home en Constitución"
+        - link "Ver Residencia Family Home":
+          - /url: /residencias/residencia-family-home
+        - generic "Verificada presencialmente por el equipo de EstuRed":
+          - generic: verified
+          - text: Residencia Verificada
+        - button "Foto anterior de Residencia Family Home":
+          - generic: chevron_left
+        - button "Foto siguiente de Residencia Family Home":
+          - generic: chevron_right
+        - button "Ver foto 1 de 5"
+        - button "Ver foto 2 de 5"
+        - button "Ver foto 3 de 5"
+        - button "Ver foto 4 de 5"
+        - button "Ver foto 5 de 5"
+      - heading "Residencia Family Home" [level=3]:
+        - link "Residencia Family Home":
+          - /url: /residencias/residencia-family-home
+      - paragraph:
+        - generic: location_on
+        - text: Constitución
+        - generic: Mixta
+      - paragraph:
+        - generic: desde
+        - generic: USD 325/mes
+      - paragraph:
+        - text: ≈ ARS 510.500
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UBA Psicología, 12 cuadras
+        - generic: UBA Sociales, 12 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble, triple y cuádruple
+      - 'button "Servicios: Wifi, Limpieza de Habitación, Lavandería"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: cleaning_services
+        - generic: local_laundry_service
+      - 'button "Áreas comunes: Sala de Estudio, Sala de Estar, Comedor, Cocina compartida, Gimnasio / Área para ejercitar"':
+        - generic: Áreas comunes
+        - generic: school
+        - generic: weekend
+        - generic: dining
+        - generic: kitchen
+        - generic: fitness_center
+      - generic: Disponibilidad informada
+      - link "Ver residencia":
+        - /url: /residencias/residencia-family-home
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Residencia El Ángel":
+      - group "Fotos de Residencia El Ángel":
+        - img "Foto 1 de 5 de Residencia El Ángel en Montserrat"
+        - link "Ver Residencia El Ángel":
+          - /url: /residencias/residencia-el-angel
+        - generic "Verificada presencialmente por el equipo de EstuRed":
+          - generic: verified
+          - text: Residencia Verificada
+        - button "Foto anterior de Residencia El Ángel":
+          - generic: chevron_left
+        - button "Foto siguiente de Residencia El Ángel":
+          - generic: chevron_right
+        - button "Ver foto 1 de 5"
+        - button "Ver foto 2 de 5"
+        - button "Ver foto 3 de 5"
+        - button "Ver foto 4 de 5"
+        - button "Ver foto 5 de 5"
+      - heading "Residencia El Ángel" [level=3]:
+        - link "Residencia El Ángel":
+          - /url: /residencias/residencia-el-angel
+      - paragraph:
+        - generic: location_on
+        - text: Montserrat
+        - generic: Mixta
+      - paragraph:
+        - generic: desde
+        - generic: USD 255/mes
+      - paragraph:
+        - text: ≈ ARS 400.500
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UK, 8 cuadras
+        - generic: UADE, 8 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble, triple y cuádruple
+      - 'button "Servicios: Wifi, Cámaras 24 hs, Lavandería, Dispenser de Agua, Lockers Individuales"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: videocam
+        - generic: local_laundry_service
+        - generic: water_drop
+        - generic: lock
+      - 'button "Áreas comunes: Cocina compartida, Sala de Estar, Terraza, Comedor"':
+        - generic: Áreas comunes
+        - generic: kitchen
+        - generic: weekend
+        - generic: deck
+        - generic: dining
+      - generic: Disponibilidad informada
+      - link "Ver residencia":
+        - /url: /residencias/residencia-el-angel
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Mansión Paloma":
+      - group "Fotos de Mansión Paloma":
+        - img "Foto 1 de 5 de Mansión Paloma en Colegiales"
+        - link "Ver Mansión Paloma":
+          - /url: /residencias/mansion-paloma
+        - generic "Verificada presencialmente por el equipo de EstuRed":
+          - generic: verified
+          - text: Residencia Verificada
+        - button "Foto anterior de Mansión Paloma":
+          - generic: chevron_left
+        - button "Foto siguiente de Mansión Paloma":
+          - generic: chevron_right
+        - button "Ver foto 1 de 5"
+        - button "Ver foto 2 de 5"
+        - button "Ver foto 3 de 5"
+        - button "Ver foto 4 de 5"
+        - button "Ver foto 5 de 5"
+      - heading "Mansión Paloma" [level=3]:
+        - link "Mansión Paloma":
+          - /url: /residencias/mansion-paloma
+      - paragraph:
+        - generic: location_on
+        - text: Colegiales
+        - generic: Mixta
+      - paragraph:
+        - generic: desde
+        - generic: USD 230/mes
+      - paragraph:
+        - text: ≈ ARS 361.000
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: U. de Belgrano, 11 cuadras
+        - generic: UAI, 12 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble, triple y cuádruple
+      - 'button "Servicios: Wifi, Cámaras 24 hs, Limpieza General, Coordinador Presencial"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: videocam
+        - generic: mop
+        - generic: support_agent
+      - 'button "Áreas comunes: Sala de Estar, Sala de Estudio, Comedor, Patio, Terraza, Sala de Juegos, Cocina compartida"':
+        - generic: Áreas comunes
+        - generic: weekend
+        - generic: school
+        - generic: dining
+        - generic: yard
+        - generic: deck
+        - generic: "+2"
+      - generic: Disponibilidad informada
+      - link "Ver residencia":
+        - /url: /residencias/mansion-paloma
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Luco Hotel (Residencia)":
+      - group "Fotos de Luco Hotel (Residencia)":
+        - img "Foto 1 de 5 de Luco Hotel (Residencia) en Recoleta"
+        - link "Ver Luco Hotel (Residencia)":
+          - /url: /residencias/luco-hotel
+        - generic "Verificada presencialmente por el equipo de EstuRed":
+          - generic: verified
+          - text: Residencia Verificada
+        - button "Foto anterior de Luco Hotel (Residencia)":
+          - generic: chevron_left
+        - button "Foto siguiente de Luco Hotel (Residencia)":
+          - generic: chevron_right
+        - button "Ver foto 1 de 5"
+        - button "Ver foto 2 de 5"
+        - button "Ver foto 3 de 5"
+        - button "Ver foto 4 de 5"
+        - button "Ver foto 5 de 5"
+      - heading "Luco Hotel (Residencia)" [level=3]:
+        - link "Luco Hotel (Residencia)":
+          - /url: /residencias/luco-hotel
+      - paragraph:
+        - generic: location_on
+        - text: Recoleta
+        - generic: Mixta
+      - paragraph:
+        - generic: desde
+        - generic: USD 185/mes
+      - paragraph:
+        - text: ≈ ARS 290.500
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UBA Medicina, 5 cuadras
+        - generic: UBA Odontología, 7 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble, triple y cuádruple
+      - 'button "Servicios: Wifi, Cámaras 24 hs, Limpieza de Habitación, Lockers Individuales"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: videocam
+        - generic: cleaning_services
+        - generic: lock
+      - 'button "Áreas comunes: Sala de Estudio, Cocina compartida, Patio, Terraza, Comedor"':
+        - generic: Áreas comunes
+        - generic: school
+        - generic: kitchen
+        - generic: yard
+        - generic: deck
+        - generic: dining
+      - generic: Disponibilidad informada
+      - link "Ver residencia":
+        - /url: /residencias/luco-hotel
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Las Cabañas":
+      - group "Fotos de Las Cabañas":
+        - img "Foto 1 de 5 de Las Cabañas en Monserrat"
+        - link "Ver Las Cabañas":
+          - /url: /residencias/las-cabanas
+        - generic "Verificada presencialmente por el equipo de EstuRed":
+          - generic: verified
+          - text: Residencia Verificada
+        - button "Foto anterior de Las Cabañas":
+          - generic: chevron_left
+        - button "Foto siguiente de Las Cabañas":
+          - generic: chevron_right
+        - button "Ver foto 1 de 5"
+        - button "Ver foto 2 de 5"
+        - button "Ver foto 3 de 5"
+        - button "Ver foto 4 de 5"
+        - button "Ver foto 5 de 5"
+      - heading "Las Cabañas" [level=3]:
+        - link "Las Cabañas":
+          - /url: /residencias/las-cabanas
+      - paragraph:
+        - generic: location_on
+        - text: Monserrat
+        - generic: Mixta
+      - paragraph:
+        - generic: desde
+        - generic: USD 395/mes
+      - paragraph:
+        - text: ≈ ARS 620.000
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UADE, 8 cuadras
+        - generic: UK, 8 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble, triple y cuádruple
+      - 'button "Servicios: Wifi"':
+        - generic: Servicios
+        - generic: wifi
+      - 'button "Áreas comunes: Sala de Estudio, Cocina compartida"':
+        - generic: Áreas comunes
+        - generic: school
+        - generic: kitchen
+      - generic: Disponibilidad informada
+      - link "Ver residencia":
+        - /url: /residencias/las-cabanas
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "La Scala Hollywood":
+      - group "Fotos de La Scala Hollywood":
+        - img "Foto 1 de 5 de La Scala Hollywood en Palermo"
+        - link "Ver La Scala Hollywood":
+          - /url: /residencias/la-scala-hollywood
+        - generic "Verificada presencialmente por el equipo de EstuRed":
+          - generic: verified
+          - text: Residencia Verificada
+        - button "Foto anterior de La Scala Hollywood":
+          - generic: chevron_left
+        - button "Foto siguiente de La Scala Hollywood":
+          - generic: chevron_right
+        - button "Ver foto 1 de 5"
+        - button "Ver foto 2 de 5"
+        - button "Ver foto 3 de 5"
+        - button "Ver foto 4 de 5"
+        - button "Ver foto 5 de 5"
+      - heading "La Scala Hollywood" [level=3]:
+        - link "La Scala Hollywood":
+          - /url: /residencias/la-scala-hollywood
+      - paragraph:
+        - generic: location_on
+        - text: Palermo
+        - generic: Mixta
+      - paragraph:
+        - generic: desde
+        - generic: USD 190/mes
+      - paragraph:
+        - text: ≈ ARS 298.500
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UAI, 10 cuadras
+        - generic: U. de Belgrano, 23 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble, triple y cuádruple
+      - 'button "Servicios: Wifi, Limpieza General, Lavandería"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: mop
+        - generic: local_laundry_service
+      - 'button "Áreas comunes: Comedor, Sala de Estudio"':
+        - generic: Áreas comunes
+        - generic: dining
+        - generic: school
+      - generic: Disponibilidad informada
+      - link "Ver residencia":
+        - /url: /residencias/la-scala-hollywood
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "La Scala Belgrano":
+      - group "Fotos de La Scala Belgrano":
+        - img "Foto 1 de 5 de La Scala Belgrano en Colegiales"
+        - link "Ver La Scala Belgrano":
+          - /url: /residencias/la-scala-belgrano
+        - generic "Verificada presencialmente por el equipo de EstuRed":
+          - generic: verified
+          - text: Residencia Verificada
+        - button "Foto anterior de La Scala Belgrano":
+          - generic: chevron_left
+        - button "Foto siguiente de La Scala Belgrano":
+          - generic: chevron_right
+        - button "Ver foto 1 de 5"
+        - button "Ver foto 2 de 5"
+        - button "Ver foto 3 de 5"
+        - button "Ver foto 4 de 5"
+        - button "Ver foto 5 de 5"
+      - heading "La Scala Belgrano" [level=3]:
+        - link "La Scala Belgrano":
+          - /url: /residencias/la-scala-belgrano
+      - paragraph:
+        - generic: location_on
+        - text: Colegiales
+        - generic: Mixta
+      - paragraph:
+        - generic: desde
+        - generic: USD 180/mes
+      - paragraph:
+        - text: ≈ ARS 282.500
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UAI, 8 cuadras
+        - generic: U. de Belgrano, 16 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble, triple y cuádruple
+      - 'button "Servicios: Wifi, Limpieza General, Lavandería"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: mop
+        - generic: local_laundry_service
+      - 'button "Áreas comunes: Comedor, Sala de Estudio"':
+        - generic: Áreas comunes
+        - generic: dining
+        - generic: school
+      - generic: Disponibilidad informada
+      - link "Ver residencia":
+        - /url: /residencias/la-scala-belgrano
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "La Casona Recoleta":
+      - group "Fotos de La Casona Recoleta":
+        - img "Foto 1 de 5 de La Casona Recoleta en Balvanera"
+        - link "Ver La Casona Recoleta":
+          - /url: /residencias/la-casona-recoleta
+        - generic "Verificada presencialmente por el equipo de EstuRed":
+          - generic: verified
+          - text: Residencia Verificada
+        - button "Foto anterior de La Casona Recoleta":
+          - generic: chevron_left
+        - button "Foto siguiente de La Casona Recoleta":
+          - generic: chevron_right
+        - button "Ver foto 1 de 5"
+        - button "Ver foto 2 de 5"
+        - button "Ver foto 3 de 5"
+        - button "Ver foto 4 de 5"
+        - button "Ver foto 5 de 5"
+      - heading "La Casona Recoleta" [level=3]:
+        - link "La Casona Recoleta":
+          - /url: /residencias/la-casona-recoleta
+      - paragraph:
+        - generic: location_on
+        - text: Balvanera
+        - generic: Mixta
+      - paragraph:
+        - generic: desde
+        - generic: USD 420/mes
+      - paragraph:
+        - text: ≈ ARS 659.500
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UBA Medicina, 3 cuadras
+        - generic: UBA Económicas, 6 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble, triple y cuádruple
+      - 'button "Servicios: Wifi, Cámaras 24 hs, Limpieza General, Limpieza de Habitación, Parrilla"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: videocam
+        - generic: mop
+        - generic: cleaning_services
+        - generic: outdoor_grill
+      - 'button "Áreas comunes: Sala de Estudio, Comedor, Cocina compartida, Terraza"':
+        - generic: Áreas comunes
+        - generic: school
+        - generic: dining
+        - generic: kitchen
+        - generic: deck
+      - generic: Disponibilidad informada
+      - link "Ver residencia":
+        - /url: /residencias/la-casona-recoleta
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "La Casona Monserrat":
+      - group "Fotos de La Casona Monserrat":
+        - img "Foto 1 de 5 de La Casona Monserrat en Monserrat"
+        - link "Ver La Casona Monserrat":
+          - /url: /residencias/la-casona-monserrat
+        - generic "Verificada presencialmente por el equipo de EstuRed":
+          - generic: verified
+          - text: Residencia Verificada
+        - button "Foto anterior de La Casona Monserrat":
+          - generic: chevron_left
+        - button "Foto siguiente de La Casona Monserrat":
+          - generic: chevron_right
+        - button "Ver foto 1 de 5"
+        - button "Ver foto 2 de 5"
+        - button "Ver foto 3 de 5"
+        - button "Ver foto 4 de 5"
+        - button "Ver foto 5 de 5"
+      - heading "La Casona Monserrat" [level=3]:
+        - link "La Casona Monserrat":
+          - /url: /residencias/la-casona-monserrat
+      - paragraph:
+        - generic: location_on
+        - text: Monserrat
+        - generic: Mixta
+      - paragraph:
+        - generic: desde
+        - generic: USD 190/mes
+      - paragraph:
+        - text: ≈ ARS 298.500
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UK, 4 cuadras
+        - generic: UADE, 5 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble, triple y cuádruple
+      - 'button "Servicios: Wifi, Cámaras 24 hs, Limpieza General, Limpieza de Habitación, Parrilla"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: videocam
+        - generic: mop
+        - generic: cleaning_services
+        - generic: outdoor_grill
+      - 'button "Áreas comunes: Sala de Estudio, Comedor, Cocina compartida, Terraza"':
+        - generic: Áreas comunes
+        - generic: school
+        - generic: dining
+        - generic: kitchen
+        - generic: deck
+      - generic: Disponibilidad informada
+      - link "Ver residencia":
+        - /url: /residencias/la-casona-monserrat
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "La Casa de Cris - Residencia I Almagro":
+      - group "Fotos de La Casa de Cris - Residencia I Almagro":
+        - img "Foto 1 de 5 de La Casa de Cris - Residencia I Almagro en Almagro"
+        - link "Ver La Casa de Cris - Residencia I Almagro":
+          - /url: /residencias/la-casa-de-cris-almagro
+        - generic "Verificada presencialmente por el equipo de EstuRed":
+          - generic: verified
+          - text: Residencia Verificada
+        - button "Foto anterior de La Casa de Cris - Residencia I Almagro":
+          - generic: chevron_left
+        - button "Foto siguiente de La Casa de Cris - Residencia I Almagro":
+          - generic: chevron_right
+        - button "Ver foto 1 de 5"
+        - button "Ver foto 2 de 5"
+        - button "Ver foto 3 de 5"
+        - button "Ver foto 4 de 5"
+        - button "Ver foto 5 de 5"
+      - heading "La Casa de Cris - Residencia I Almagro" [level=3]:
+        - link "La Casa de Cris - Residencia I Almagro":
+          - /url: /residencias/la-casa-de-cris-almagro
+      - paragraph:
+        - generic: location_on
+        - text: Almagro
+        - generic: Solo mujeres
+      - paragraph:
+        - generic: desde
+        - generic: USD 415/mes
+      - paragraph:
+        - text: ≈ ARS 651.500
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UBA Filosofía y Letras, 15 cuadras
+        - generic: Inst. Univ. del Hospital Italiano, 17 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble, triple y cuádruple
+      - 'button "Servicios: Wifi"':
+        - generic: Servicios
+        - generic: wifi
+      - 'button "Áreas comunes: Cocina compartida"':
+        - generic: Áreas comunes
+        - generic: kitchen
+      - generic: Disponibilidad informada
+      - button "24 plazas":
+        - generic: groups
+        - generic: "24"
+        - text: plazas
+        - generic: chevron_right
+      - link "Ver residencia":
+        - /url: /residencias/la-casa-de-cris-almagro
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "IndER Residencia":
+      - group "Fotos de IndER Residencia":
+        - img "Foto 1 de 5 de IndER Residencia en Constitución"
+        - link "Ver IndER Residencia":
+          - /url: /residencias/inder-residencia
+        - generic "Verificada presencialmente por el equipo de EstuRed":
+          - generic: verified
+          - text: Residencia Verificada
+        - button "Foto anterior de IndER Residencia":
+          - generic: chevron_left
+        - button "Foto siguiente de IndER Residencia":
+          - generic: chevron_right
+        - button "Ver foto 1 de 5"
+        - button "Ver foto 2 de 5"
+        - button "Ver foto 3 de 5"
+        - button "Ver foto 4 de 5"
+        - button "Ver foto 5 de 5"
+      - heading "IndER Residencia" [level=3]:
+        - link "IndER Residencia":
+          - /url: /residencias/inder-residencia
+      - paragraph:
+        - generic: location_on
+        - text: Constitución
+        - generic: Solo mujeres
+      - paragraph:
+        - generic: desde
+        - generic: USD 395/mes
+      - paragraph:
+        - text: ≈ ARS 620.000
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UBA Psicología, 9 cuadras
+        - generic: UBA Sociales, 9 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble, triple y cuádruple
+      - 'button "Servicios: Wifi, Limpieza de Habitación, Lavandería"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: cleaning_services
+        - generic: local_laundry_service
+      - 'button "Áreas comunes: Cocina compartida, Comedor, Sala de Estar"':
+        - generic: Áreas comunes
+        - generic: kitchen
+        - generic: dining
+        - generic: weekend
+      - generic: Disponibilidad informada
+      - button "24 plazas":
+        - generic: groups
+        - generic: "24"
+        - text: plazas
+        - generic: chevron_right
+      - link "Ver residencia":
+        - /url: /residencias/inder-residencia
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Entis Residencia Universitaria":
+      - group "Fotos de Entis Residencia Universitaria":
+        - img "Foto 1 de 5 de Entis Residencia Universitaria en San Telmo"
+        - link "Ver Entis Residencia Universitaria":
+          - /url: /residencias/entis
+        - generic "Verificada presencialmente por el equipo de EstuRed":
+          - generic: verified
+          - text: Residencia Verificada
+        - button "Foto anterior de Entis Residencia Universitaria":
+          - generic: chevron_left
+        - button "Foto siguiente de Entis Residencia Universitaria":
+          - generic: chevron_right
+        - button "Ver foto 1 de 5"
+        - button "Ver foto 2 de 5"
+        - button "Ver foto 3 de 5"
+        - button "Ver foto 4 de 5"
+        - button "Ver foto 5 de 5"
+      - heading "Entis Residencia Universitaria" [level=3]:
+        - link "Entis Residencia Universitaria":
+          - /url: /residencias/entis
+      - paragraph:
+        - generic: location_on
+        - text: San Telmo
+        - generic: Mixta
+      - paragraph:
+        - generic: desde
+        - generic: USD 255/mes
+      - paragraph:
+        - text: ≈ ARS 400.500
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UBA Sociales, 6 cuadras
+        - generic: UBA Psicología, 6 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble, triple y cuádruple
+      - 'button "Servicios: Wifi, Limpieza de Habitación, Área Protegida (emergencias médicas), Lockers Individuales, Parrilla"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: cleaning_services
+        - generic: shield
+        - generic: lock
+        - generic: outdoor_grill
+      - 'button "Áreas comunes: Sala de Estudio, Comedor, Cocina compartida, Sala de Juegos"':
+        - generic: Áreas comunes
+        - generic: school
+        - generic: dining
+        - generic: kitchen
+        - generic: sports_esports
+      - generic: Disponibilidad informada
+      - button "24 plazas":
+        - generic: groups
+        - generic: "24"
+        - text: plazas
+        - generic: chevron_right
+      - link "Ver residencia":
+        - /url: /residencias/entis
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "CLEI Residencia de Estudiantes":
+      - group "Fotos de CLEI Residencia de Estudiantes":
+        - img "Foto 1 de 5 de CLEI Residencia de Estudiantes en Monserrat"
+        - link "Ver CLEI Residencia de Estudiantes":
+          - /url: /residencias/clei
+        - generic "Verificada presencialmente por el equipo de EstuRed":
+          - generic: verified
+          - text: Residencia Verificada
+        - button "Foto anterior de CLEI Residencia de Estudiantes":
+          - generic: chevron_left
+        - button "Foto siguiente de CLEI Residencia de Estudiantes":
+          - generic: chevron_right
+        - button "Ver foto 1 de 5"
+        - button "Ver foto 2 de 5"
+        - button "Ver foto 3 de 5"
+        - button "Ver foto 4 de 5"
+        - button "Ver foto 5 de 5"
+      - heading "CLEI Residencia de Estudiantes" [level=3]:
+        - link "CLEI Residencia de Estudiantes":
+          - /url: /residencias/clei
+      - paragraph:
+        - generic: location_on
+        - text: Monserrat
+        - generic: Solo hombres
+      - paragraph:
+        - generic: desde
+        - generic: USD 180/mes
+      - paragraph:
+        - text: ≈ ARS 282.500
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UCA, 8 cuadras
+        - generic: UK, 10 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble, triple y cuádruple
+      - 'button "Servicios: Wifi, Limpieza General, Limpieza de Habitación, Lavandería"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: mop
+        - generic: cleaning_services
+        - generic: local_laundry_service
+      - 'button "Áreas comunes: Sala de Estar, Sala de Estudio, Comedor, Patio, Terraza, Gimnasio / Área para ejercitar, Cocina compartida"':
+        - generic: Áreas comunes
+        - generic: weekend
+        - generic: school
+        - generic: dining
+        - generic: yard
+        - generic: deck
+        - generic: "+2"
+      - generic: Disponibilidad informada
+      - button "24 plazas":
+        - generic: groups
+        - generic: "24"
+        - text: plazas
+        - generic: chevron_right
+      - link "Ver residencia":
+        - /url: /residencias/clei
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Charlie's Hostel":
+      - group "Fotos de Charlie's Hostel":
+        - img "Foto 1 de 5 de Charlie's Hostel en Villa Crespo"
+        - link "Ver Charlie's Hostel":
+          - /url: /residencias/charlies-hostel
+        - generic "Verificada presencialmente por el equipo de EstuRed":
+          - generic: verified
+          - text: Residencia Verificada
+        - button "Foto anterior de Charlie's Hostel":
+          - generic: chevron_left
+        - button "Foto siguiente de Charlie's Hostel":
+          - generic: chevron_right
+        - button "Ver foto 1 de 5"
+        - button "Ver foto 2 de 5"
+        - button "Ver foto 3 de 5"
+        - button "Ver foto 4 de 5"
+        - button "Ver foto 5 de 5"
+      - heading "Charlie's Hostel" [level=3]:
+        - link "Charlie's Hostel":
+          - /url: /residencias/charlies-hostel
+      - paragraph:
+        - generic: location_on
+        - text: Villa Crespo
+        - generic: Mixta
+      - paragraph:
+        - generic: desde
+        - generic: USD 465/mes
+      - paragraph:
+        - text: ≈ ARS 730.000
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UAI, 13 cuadras
+        - generic: UTN FRBA, 25 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble, triple y cuádruple
+      - 'button "Servicios: Wifi, Limpieza de Habitación, Lavandería"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: cleaning_services
+        - generic: local_laundry_service
+      - 'button "Áreas comunes: Sala de Estar, Sala de Estudio, Patio, Terraza, Cocina compartida"':
+        - generic: Áreas comunes
+        - generic: weekend
+        - generic: school
+        - generic: yard
+        - generic: deck
+        - generic: kitchen
+      - generic: Disponibilidad informada
+      - button "24 plazas":
+        - generic: groups
+        - generic: "24"
+        - text: plazas
+        - generic: chevron_right
+      - link "Ver residencia":
+        - /url: /residencias/charlies-hostel
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Casa Rica Coliving (Obelisco)":
+      - group "Fotos de Casa Rica Coliving (Obelisco)":
+        - img "Foto 1 de 5 de Casa Rica Coliving (Obelisco) en San Nicolás"
+        - link "Ver Casa Rica Coliving (Obelisco)":
+          - /url: /residencias/casa-rica
+        - generic "Verificada presencialmente por el equipo de EstuRed":
+          - generic: verified
+          - text: Residencia Verificada
+        - button "Foto anterior de Casa Rica Coliving (Obelisco)":
+          - generic: chevron_left
+        - button "Foto siguiente de Casa Rica Coliving (Obelisco)":
+          - generic: chevron_right
+        - button "Ver foto 1 de 5"
+        - button "Ver foto 2 de 5"
+        - button "Ver foto 3 de 5"
+        - button "Ver foto 4 de 5"
+        - button "Ver foto 5 de 5"
+      - heading "Casa Rica Coliving (Obelisco)" [level=3]:
+        - link "Casa Rica Coliving (Obelisco)":
+          - /url: /residencias/casa-rica
+      - paragraph:
+        - generic: location_on
+        - text: San Nicolás
+        - generic: Mixta
+      - paragraph:
+        - generic: desde
+        - generic: USD 445/mes
+      - paragraph:
+        - text: ≈ ARS 698.500
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: USAL, 2 cuadras
+        - generic: ITBA, 9 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble, triple y cuádruple
+      - 'button "Servicios: Wifi, Limpieza General, Limpieza de Habitación, Lavandería"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: mop
+        - generic: cleaning_services
+        - generic: local_laundry_service
+      - 'button "Áreas comunes: Cocina compartida, Sala de Estudio"':
+        - generic: Áreas comunes
+        - generic: kitchen
+        - generic: school
+      - generic: Disponibilidad informada
+      - button "24 plazas":
+        - generic: groups
+        - generic: "24"
+        - text: plazas
+        - generic: chevron_right
+      - link "Ver residencia":
+        - /url: /residencias/casa-rica
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Casa AURA":
+      - group "Fotos de Casa AURA":
+        - img "Foto 1 de 5 de Casa AURA en Constitución"
+        - link "Ver Casa AURA":
+          - /url: /residencias/casa-aura
+        - generic "Verificada presencialmente por el equipo de EstuRed":
+          - generic: verified
+          - text: Residencia Verificada
+        - button "Foto anterior de Casa AURA":
+          - generic: chevron_left
+        - button "Foto siguiente de Casa AURA":
+          - generic: chevron_right
+        - button "Ver foto 1 de 5"
+        - button "Ver foto 2 de 5"
+        - button "Ver foto 3 de 5"
+        - button "Ver foto 4 de 5"
+        - button "Ver foto 5 de 5"
+      - heading "Casa AURA" [level=3]:
+        - link "Casa AURA":
+          - /url: /residencias/casa-aura
+      - paragraph:
+        - generic: location_on
+        - text: Constitución
+        - generic: Solo mujeres
+      - paragraph:
+        - generic: desde
+        - generic: USD 425/mes
+      - paragraph:
+        - text: ≈ ARS 667.500
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UBA Psicología, 3 cuadras
+        - generic: UBA Sociales, 3 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble, triple y cuádruple
+      - 'button "Servicios: Wifi, Limpieza de Habitación"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: cleaning_services
+      - 'button "Áreas comunes: Sala de Estudio, Patio, Sala de Estar, Cocina compartida"':
+        - generic: Áreas comunes
+        - generic: school
+        - generic: yard
+        - generic: weekend
+        - generic: kitchen
+      - generic: Disponibilidad informada
+      - button "24 plazas":
+        - generic: groups
+        - generic: "24"
+        - text: plazas
+        - generic: chevron_right
+      - link "Ver residencia":
+        - /url: /residencias/casa-aura
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Arcos del Soho":
+      - group "Fotos de Arcos del Soho":
+        - img "Foto 1 de 5 de Arcos del Soho en Palermo"
+        - link "Ver Arcos del Soho":
+          - /url: /residencias/arcos-del-soho
+        - generic "Verificada presencialmente por el equipo de EstuRed":
+          - generic: verified
+          - text: Residencia Verificada
+        - button "Foto anterior de Arcos del Soho":
+          - generic: chevron_left
+        - button "Foto siguiente de Arcos del Soho":
+          - generic: chevron_right
+        - button "Ver foto 1 de 5"
+        - button "Ver foto 2 de 5"
+        - button "Ver foto 3 de 5"
+        - button "Ver foto 4 de 5"
+        - button "Ver foto 5 de 5"
+      - heading "Arcos del Soho" [level=3]:
+        - link "Arcos del Soho":
+          - /url: /residencias/arcos-del-soho
+      - paragraph:
+        - generic: location_on
+        - text: Palermo
+        - generic: Mixta
+      - paragraph:
+        - generic: desde
+        - generic: USD 190/mes
+      - paragraph:
+        - text: ≈ ARS 298.500
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UTN FRBA, 18 cuadras
+        - generic: UP, 20 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble, triple y cuádruple
+      - 'button "Servicios: Wifi, Limpieza General, Lavandería"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: mop
+        - generic: local_laundry_service
+      - 'button "Áreas comunes: Comedor, Sala de Estudio"':
+        - generic: Áreas comunes
+        - generic: dining
+        - generic: school
+      - generic: Disponibilidad informada
+      - button "24 plazas":
+        - generic: groups
+        - generic: "24"
+        - text: plazas
+        - generic: chevron_right
+      - link "Ver residencia":
+        - /url: /residencias/arcos-del-soho
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Residencia Sin Fronteras":
+      - group "Fotos de Residencia Sin Fronteras":
+        - img "Foto 1 de 5 de Residencia Sin Fronteras en Centro"
+        - link "Ver Residencia Sin Fronteras":
+          - /url: /residencias/residencia-sin-fronteras-29fefe
+        - generic "Verificada presencialmente por el equipo de EstuRed":
+          - generic: verified
+          - text: Residencia Verificada
+        - button "Foto anterior de Residencia Sin Fronteras":
+          - generic: chevron_left
+        - button "Foto siguiente de Residencia Sin Fronteras":
+          - generic: chevron_right
+        - button "Ver foto 1 de 5"
+        - button "Ver foto 2 de 5"
+        - button "Ver foto 3 de 5"
+        - button "Ver foto 4 de 5"
+        - button "Ver foto 5 de 5"
+      - heading "Residencia Sin Fronteras" [level=3]:
+        - link "Residencia Sin Fronteras":
+          - /url: /residencias/residencia-sin-fronteras-29fefe
+      - paragraph:
+        - generic: location_on
+        - text: Centro
+        - generic: Hombres y mujeres
+      - paragraph:
+        - generic: desde
+        - generic: USD 270/mes
+      - paragraph:
+        - text: ≈ ARS 424.000
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UADE, 11 cuadras
+        - generic: UBA Económicas, 12 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble, triple y cuádruple
+      - 'button "Servicios: Wifi, Cámaras 24 hs, Limpieza General, Lavandería, Área Protegida (emergencias médicas), Coordinador Presencial, Lockers Individuales, Parrilla, Dispenser de Agua"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: videocam
+        - generic: mop
+        - generic: local_laundry_service
+        - generic: shield
+        - generic: "+4"
+      - 'button "Áreas comunes: Sala de Estar, Área de Estudio, Comedor, Terraza, Gimnasio / Área para ejercitar, Cocina compartida"':
+        - generic: Áreas comunes
+        - generic: weekend
+        - generic: school
+        - generic: dining
+        - generic: deck
+        - generic: fitness_center
+        - generic: "+1"
+      - generic: Disponibilidad informada
+      - button "28 plazas":
+        - generic: groups
+        - generic: "28"
+        - text: plazas
+        - generic: chevron_right
+      - link "Ver residencia":
+        - /url: /residencias/residencia-sin-fronteras-29fefe
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Residencia Río de la Plata":
+      - 'img "Residencia Río de la Plata: foto próximamente"':
+        - generic: Recoleta
+        - generic: Foto próximamente
+      - link "Ver Residencia Río de la Plata":
+        - /url: /residencias/residencia-rio-de-la-plata-demo
+      - generic "Verificada presencialmente por el equipo de EstuRed":
+        - generic: verified
+        - text: Residencia Verificada
+      - heading "Residencia Río de la Plata" [level=3]:
+        - link "Residencia Río de la Plata":
+          - /url: /residencias/residencia-rio-de-la-plata-demo
+      - paragraph:
+        - generic: location_on
+        - text: Recoleta
+        - generic: Mixta
+      - paragraph:
+        - generic: desde
+        - generic: USD 170/mes
+      - paragraph:
+        - text: ≈ ARS 267.000
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UBA Medicina, 15 cuadras
+        - generic: UCA, 42 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble, triple y cuádruple
+      - 'button "Servicios: WiFi, Aire acondicionado, Seguridad 24hs"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: ac_unit
+        - generic: security
+      - 'button "Áreas comunes: Terraza, Gimnasio / Área para ejercitar"':
+        - generic: Áreas comunes
+        - generic: deck
+        - generic: fitness_center
+      - generic: Disponibilidad informada
+      - button "39 plazas":
+        - generic: groups
+        - generic: "39"
+        - text: plazas
+        - generic: chevron_right
+      - link "Ver residencia":
+        - /url: /residencias/residencia-rio-de-la-plata-demo
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Residencia Norte":
+      - 'img "Residencia Norte: foto próximamente"':
+        - generic: Palermo
+        - generic: Foto próximamente
+      - link "Ver Residencia Norte":
+        - /url: /residencias/residencia-norte-demo
+      - generic "Verificada presencialmente por el equipo de EstuRed":
+        - generic: verified
+        - text: Residencia Verificada
+      - generic: sell
+      - text: −15%
+      - heading "Residencia Norte" [level=3]:
+        - link "Residencia Norte":
+          - /url: /residencias/residencia-norte-demo
+      - paragraph:
+        - generic: location_on
+        - text: Palermo
+        - generic: Mixta
+      - paragraph:
+        - generic: desde
+        - generic: Antes
+        - text: USD 160
+        - generic: USD 136/mes
+      - paragraph:
+        - text: ≈ ARS 213.500
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UP, 20 cuadras
+        - generic: UBA Derecho, 27 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble, triple y cuádruple
+      - 'button "Servicios: WiFi de alta velocidad, Limpieza semanal de áreas comunes, Lavadero"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: mop
+        - generic: check_circle
+      - 'button "Áreas comunes: Terraza, Cocina, Sala de estudio, Balcón"':
+        - generic: Áreas comunes
+        - generic: deck
+        - generic: kitchen
+        - generic: school
+        - generic: balcony
+      - generic: Disponibilidad informada
+      - button "36 plazas":
+        - generic: groups
+        - generic: "36"
+        - text: plazas
+        - generic: chevron_right
+      - link "Ver residencia":
+        - /url: /residencias/residencia-norte-demo
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "2340 Residencia Universitaria by Luco":
+      - group "Fotos de 2340 Residencia Universitaria by Luco":
+        - img "Foto 1 de 5 de 2340 Residencia Universitaria by Luco en Balvanera"
+        - link "Ver 2340 Residencia Universitaria by Luco":
+          - /url: /residencias/luco-2340
+        - generic "Verificada presencialmente por el equipo de EstuRed":
+          - generic: verified
+          - text: Residencia Verificada
+        - button "Foto anterior de 2340 Residencia Universitaria by Luco":
+          - generic: chevron_left
+        - button "Foto siguiente de 2340 Residencia Universitaria by Luco":
+          - generic: chevron_right
+        - button "Ver foto 1 de 5"
+        - button "Ver foto 2 de 5"
+        - button "Ver foto 3 de 5"
+        - button "Ver foto 4 de 5"
+        - button "Ver foto 5 de 5"
+      - heading "2340 Residencia Universitaria by Luco" [level=3]:
+        - link "2340 Residencia Universitaria by Luco":
+          - /url: /residencias/luco-2340
+      - paragraph:
+        - generic: location_on
+        - text: Balvanera
+        - generic: Mixta
+      - paragraph:
+        - generic: desde
+        - generic: USD 190/mes
+      - paragraph:
+        - text: ≈ ARS 298.500
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UBA Medicina, 15 cuadras
+        - generic: UADE, 16 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble, triple y cuádruple
+      - 'button "Servicios: Wifi, Cámaras 24 hs, Limpieza de Habitación"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: videocam
+        - generic: cleaning_services
+      - 'button "Áreas comunes: Cocina compartida, Comedor, Sala de Estar, Sala de Estudio, Patio"':
+        - generic: Áreas comunes
+        - generic: kitchen
+        - generic: dining
+        - generic: weekend
+        - generic: school
+        - generic: yard
+      - generic: Residencia completa
+      - generic: Lista de espera abierta
+      - button "24 plazas":
+        - generic: groups
+        - generic: "24"
+        - text: plazas
+        - generic: chevron_right
+      - link "Ver residencia":
+        - /url: /residencias/luco-2340
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Casa Colegiales":
+      - 'img "Casa Colegiales: foto próximamente"':
+        - generic: Colegiales
+        - generic: Foto próximamente
+      - link "Ver Casa Colegiales":
+        - /url: /residencias/casa-colegiales-demo
+      - generic "Verificada presencialmente por el equipo de EstuRed":
+        - generic: verified
+        - text: Residencia Verificada
+      - heading "Casa Colegiales" [level=3]:
+        - link "Casa Colegiales":
+          - /url: /residencias/casa-colegiales-demo
+      - paragraph:
+        - generic: location_on
+        - text: Colegiales
+        - generic: Solo mujeres
+      - paragraph:
+        - generic: desde
+        - generic: USD 250/mes
+      - paragraph:
+        - text: ≈ ARS 392.500
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UP, 42 cuadras
+        - generic: USAL, 70 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Doble y triple
+      - 'button "Servicios: Wifi, Lavandería, Limpieza de Habitación"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: local_laundry_service
+        - generic: cleaning_services
+      - 'button "Áreas comunes: Patio, Comedor, Cocina compartida"':
+        - generic: Áreas comunes
+        - generic: yard
+        - generic: dining
+        - generic: kitchen
+      - generic: Residencia completa
+      - generic: Lista de espera abierta
+      - link "Ver residencia":
+        - /url: /residencias/casa-colegiales-demo
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Residencia Núñez Río":
+      - 'img "Residencia Núñez Río: foto próximamente"':
+        - generic: Núñez
+        - generic: Foto próximamente
+      - link "Ver Residencia Núñez Río":
+        - /url: /residencias/residencia-nunez-rio-demo
+      - generic "Verificada presencialmente por el equipo de EstuRed":
+        - generic: verified
+        - text: Residencia Verificada
+      - heading "Residencia Núñez Río" [level=3]:
+        - link "Residencia Núñez Río":
+          - /url: /residencias/residencia-nunez-rio-demo
+      - paragraph:
+        - generic: location_on
+        - text: Núñez
+        - generic: Mixta
+      - paragraph:
+        - generic: desde
+        - generic: USD 340/mes
+      - paragraph:
+        - text: ≈ ARS 534.000
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: U. de Belgrano, 20 cuadras
+        - generic: UADE, 104 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble y triple
+      - 'button "Servicios: Wifi, Limpieza General, Cámaras 24 hs, Dispenser de Agua"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: mop
+        - generic: videocam
+        - generic: water_drop
+      - 'button "Áreas comunes: Terraza, Sala de Estar, Patio, Gimnasio / Área para ejercitar, Cocina compartida"':
+        - generic: Áreas comunes
+        - generic: deck
+        - generic: weekend
+        - generic: yard
+        - generic: fitness_center
+        - generic: kitchen
+      - generic: Residencia completa
+      - generic: Lista de espera abierta
+      - link "Ver residencia":
+        - /url: /residencias/residencia-nunez-rio-demo
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Residencia Villa Crespo":
+      - 'img "Residencia Villa Crespo: foto próximamente"':
+        - generic: Villa Crespo
+        - generic: Foto próximamente
+      - link "Ver Residencia Villa Crespo":
+        - /url: /residencias/residencia-villa-crespo-demo
+      - generic "Verificada presencialmente por el equipo de EstuRed":
+        - generic: verified
+        - text: Residencia Verificada
+      - heading "Residencia Villa Crespo" [level=3]:
+        - link "Residencia Villa Crespo":
+          - /url: /residencias/residencia-villa-crespo-demo
+      - paragraph:
+        - generic: location_on
+        - text: Villa Crespo
+        - generic: Solo hombres
+      - paragraph:
+        - generic: desde
+        - generic: USD 330/mes
+      - paragraph:
+        - text: ≈ ARS 518.000
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UTN FRBA, 19 cuadras
+        - generic: UBA Económicas, 41 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual y doble
+      - 'button "Servicios: Wifi, Lockers Individuales"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: lock
+      - 'button "Áreas comunes: Terraza, Sala de Estudio, Gimnasio / Área para ejercitar, Cocina compartida"':
+        - generic: Áreas comunes
+        - generic: deck
+        - generic: school
+        - generic: fitness_center
+        - generic: kitchen
+      - generic: Residencia completa
+      - generic: Lista de espera abierta
+      - link "Ver residencia":
+        - /url: /residencias/residencia-villa-crespo-demo
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Casa San Telmo":
+      - 'img "Casa San Telmo: foto próximamente"':
+        - generic: San Telmo
+        - generic: Foto próximamente
+      - link "Ver Casa San Telmo":
+        - /url: /residencias/casa-san-telmo-demo
+      - generic "Verificada presencialmente por el equipo de EstuRed":
+        - generic: verified
+        - text: Residencia Verificada
+      - heading "Casa San Telmo" [level=3]:
+        - link "Casa San Telmo":
+          - /url: /residencias/casa-san-telmo-demo
+      - paragraph:
+        - generic: location_on
+        - text: San Telmo
+        - generic: Mixta
+      - paragraph:
+        - generic: desde
+        - generic: USD 230/mes
+      - paragraph:
+        - text: ≈ ARS 361.000
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: USAL, 22 cuadras
+        - generic: UNA, 34 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble y triple
+      - 'button "Servicios: Wifi, Parrilla, Lavandería"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: outdoor_grill
+        - generic: local_laundry_service
+      - 'button "Áreas comunes: Patio, Sala de Juegos, Comedor, Cocina compartida"':
+        - generic: Áreas comunes
+        - generic: yard
+        - generic: sports_esports
+        - generic: dining
+        - generic: kitchen
+      - generic: Residencia completa
+      - generic: Lista de espera abierta
+      - link "Ver residencia":
+        - /url: /residencias/casa-san-telmo-demo
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Residencia Belgrano R":
+      - 'img "Residencia Belgrano R: foto próximamente"':
+        - generic: Belgrano
+        - generic: Foto próximamente
+      - link "Ver Residencia Belgrano R":
+        - /url: /residencias/residencia-belgrano-r-demo
+      - generic "Verificada presencialmente por el equipo de EstuRed":
+        - generic: verified
+        - text: Residencia Verificada
+      - generic: sell
+      - text: −20%
+      - heading "Residencia Belgrano R" [level=3]:
+        - link "Residencia Belgrano R":
+          - /url: /residencias/residencia-belgrano-r-demo
+      - paragraph:
+        - generic: location_on
+        - text: Belgrano
+        - generic: Solo mujeres
+      - paragraph:
+        - generic: desde
+        - generic: Antes
+        - text: USD 410
+        - generic: USD 328/mes
+      - paragraph:
+        - text: ≈ ARS 515.000
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: U. de Belgrano, 2 cuadras
+        - generic: UTDT, 23 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual y doble
+      - 'button "Servicios: Wifi, Limpieza de Habitación, Área Protegida (emergencias médicas), Dispenser de Agua"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: cleaning_services
+        - generic: shield
+        - generic: water_drop
+      - 'button "Áreas comunes: Patio, Sala de Estudio, Terraza, Cocina compartida"':
+        - generic: Áreas comunes
+        - generic: yard
+        - generic: school
+        - generic: deck
+        - generic: kitchen
+      - generic: Residencia completa
+      - generic: Lista de espera abierta
+      - link "Ver residencia":
+        - /url: /residencias/residencia-belgrano-r-demo
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Residencia Balvanera Centro":
+      - 'img "Residencia Balvanera Centro: foto próximamente"':
+        - generic: Balvanera
+        - generic: Foto próximamente
+      - link "Ver Residencia Balvanera Centro":
+        - /url: /residencias/residencia-balvanera-centro-demo
+      - generic "Verificada presencialmente por el equipo de EstuRed":
+        - generic: verified
+        - text: Residencia Verificada
+      - heading "Residencia Balvanera Centro" [level=3]:
+        - link "Residencia Balvanera Centro":
+          - /url: /residencias/residencia-balvanera-centro-demo
+      - paragraph:
+        - generic: location_on
+        - text: Balvanera
+        - generic: Mixta
+      - paragraph:
+        - generic: desde
+        - generic: USD 190/mes
+      - paragraph:
+        - text: ≈ ARS 298.500
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UBA Económicas, 14 cuadras
+        - generic: UADE, 17 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Doble, triple y cuádruple
+      - 'button "Servicios: Wifi, Lavandería, Cámaras 24 hs"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: local_laundry_service
+        - generic: videocam
+      - 'button "Áreas comunes: Sala de Estar, Área de Estudio, Cocina compartida"':
+        - generic: Áreas comunes
+        - generic: weekend
+        - generic: school
+        - generic: kitchen
+      - generic: Residencia completa
+      - generic: Lista de espera abierta
+      - link "Ver residencia":
+        - /url: /residencias/residencia-balvanera-centro-demo
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Residencia Caballito Parque":
+      - 'img "Residencia Caballito Parque: foto próximamente"':
+        - generic: Caballito
+        - generic: Foto próximamente
+      - link "Ver Residencia Caballito Parque":
+        - /url: /residencias/residencia-caballito-parque-demo
+      - generic "Verificada presencialmente por el equipo de EstuRed":
+        - generic: verified
+        - text: Residencia Verificada
+      - heading "Residencia Caballito Parque" [level=3]:
+        - link "Residencia Caballito Parque":
+          - /url: /residencias/residencia-caballito-parque-demo
+      - paragraph:
+        - generic: location_on
+        - text: Caballito
+        - generic: Mixta
+      - paragraph:
+        - generic: desde
+        - generic: USD 220/mes
+      - paragraph:
+        - text: ≈ ARS 345.500
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UTN FRBA, 34 cuadras
+        - generic: UNA, 52 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble y compartida
+      - 'button "Servicios: Wifi, Dispenser de Agua, Limpieza General"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: water_drop
+        - generic: mop
+      - 'button "Áreas comunes: Terraza, Sala de Estudio, Comedor, Gimnasio / Área para ejercitar, Cocina compartida"':
+        - generic: Áreas comunes
+        - generic: deck
+        - generic: school
+        - generic: dining
+        - generic: fitness_center
+        - generic: kitchen
+      - generic: Residencia completa
+      - generic: Lista de espera abierta
+      - link "Ver residencia":
+        - /url: /residencias/residencia-caballito-parque-demo
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Casa Almagro Estudiantes":
+      - 'img "Casa Almagro Estudiantes: foto próximamente"':
+        - generic: Almagro
+        - generic: Foto próximamente
+      - link "Ver Casa Almagro Estudiantes":
+        - /url: /residencias/casa-almagro-estudiantes-demo
+      - generic "Verificada presencialmente por el equipo de EstuRed":
+        - generic: verified
+        - text: Residencia Verificada
+      - heading "Casa Almagro Estudiantes" [level=3]:
+        - link "Casa Almagro Estudiantes":
+          - /url: /residencias/casa-almagro-estudiantes-demo
+      - paragraph:
+        - generic: location_on
+        - text: Almagro
+        - generic: Solo hombres
+      - paragraph:
+        - generic: desde
+        - generic: USD 190/mes
+      - paragraph:
+        - text: ≈ ARS 298.500
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UTN FRBA, 14 cuadras
+        - generic: UBA Económicas, 27 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Doble, triple y cuádruple
+      - 'button "Servicios: Wifi, Parrilla, Lockers Individuales"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: outdoor_grill
+        - generic: lock
+      - 'button "Áreas comunes: Patio, Sala de Juegos, Cocina compartida"':
+        - generic: Áreas comunes
+        - generic: yard
+        - generic: sports_esports
+        - generic: kitchen
+      - generic: Residencia completa
+      - generic: Lista de espera abierta
+      - link "Ver residencia":
+        - /url: /residencias/casa-almagro-estudiantes-demo
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Residencia Recoleta Plaza":
+      - 'img "Residencia Recoleta Plaza: foto próximamente"':
+        - generic: Recoleta
+        - generic: Foto próximamente
+      - link "Ver Residencia Recoleta Plaza":
+        - /url: /residencias/residencia-recoleta-plaza-demo
+      - generic "Verificada presencialmente por el equipo de EstuRed":
+        - generic: verified
+        - text: Residencia Verificada
+      - heading "Residencia Recoleta Plaza" [level=3]:
+        - link "Residencia Recoleta Plaza":
+          - /url: /residencias/residencia-recoleta-plaza-demo
+      - paragraph:
+        - generic: location_on
+        - text: Recoleta
+        - generic: Solo mujeres
+      - paragraph:
+        - generic: desde
+        - generic: USD 450/mes
+      - paragraph:
+        - text: ≈ ARS 706.500
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UBA Medicina, 14 cuadras
+        - generic: UCA, 38 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual y doble
+      - 'button "Servicios: Wifi, Cámaras 24 hs, Área Protegida (emergencias médicas), Limpieza de Habitación, Coordinador Presencial"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: videocam
+        - generic: shield
+        - generic: cleaning_services
+        - generic: support_agent
+      - 'button "Áreas comunes: Sala de Estar, Comedor, Patio"':
+        - generic: Áreas comunes
+        - generic: weekend
+        - generic: dining
+        - generic: yard
+      - generic: Residencia completa
+      - generic: Lista de espera abierta
+      - link "Ver residencia":
+        - /url: /residencias/residencia-recoleta-plaza-demo
+        - text: Ver residencia
+        - generic: chevron_right
+    - article "Residencia Palermo Soho":
+      - 'img "Residencia Palermo Soho: foto próximamente"':
+        - generic: Palermo
+        - generic: Foto próximamente
+      - link "Ver Residencia Palermo Soho":
+        - /url: /residencias/residencia-palermo-soho-demo
+      - generic "Verificada presencialmente por el equipo de EstuRed":
+        - generic: verified
+        - text: Residencia Verificada
+      - generic: sell
+      - text: −10%
+      - heading "Residencia Palermo Soho" [level=3]:
+        - link "Residencia Palermo Soho":
+          - /url: /residencias/residencia-palermo-soho-demo
+      - paragraph:
+        - generic: location_on
+        - text: Palermo
+        - generic: Mixta
+      - paragraph:
+        - generic: desde
+        - generic: Antes
+        - text: USD 310
+        - generic: USD 279/mes
+      - paragraph:
+        - text: ≈ ARS 438.000
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UP, 19 cuadras
+        - generic: UBA Derecho, 36 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble y triple
+      - 'button "Servicios: Wifi, Lavandería, Limpieza General"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: local_laundry_service
+        - generic: mop
+      - 'button "Áreas comunes: Terraza, Sala de Estudio, Cocina compartida"':
+        - generic: Áreas comunes
+        - generic: deck
+        - generic: school
+        - generic: kitchen
+      - generic: Residencia completa
+      - generic: Lista de espera abierta
+      - link "Ver residencia":
+        - /url: /residencias/residencia-palermo-soho-demo
+        - text: Ver residencia
+        - generic: chevron_right
+- contentinfo:
+  - generic: EstuRed
+  - generic: EstuRed
+  - paragraph: La convivencia también se elige. Residencias estudiantiles verificadas en CABA, con solicitudes registradas y comprobantes verificables.
+  - list:
+    - generic: check
+    - text: Residencias verificadas presencialmente
+    - generic: check
+    - text: Solicitudes registradas en la plataforma
+    - generic: check
+    - text: Comprobante de Reserva Confirmada
+  - navigation "Explorar":
+    - paragraph: Explorar
+    - list:
+      - link "Buscar residencias":
+        - /url: /search
+      - link "Para estudiantes y familias":
+        - /url: /for-students
+      - link "Para residencias":
+        - /url: /for-residences
+      - link "Guías":
+        - /url: /guias
+      - link "Crear cuenta":
+        - /url: /register
+  - navigation "Ayuda":
+    - paragraph: Ayuda
+    - list:
+      - link "Soporte":
+        - /url: /students/support
+        - generic: support_agent
+        - text: Soporte
+      - link "Preguntas frecuentes":
+        - /url: /for-students#preguntas-frecuentes
+      - link "Cómo funciona":
+        - /url: /#el-proceso
+      - link "Qué pagás y a quién":
+        - /url: /for-students#que-pagas
+      - text: "Contacto:"
+      - link "hola@estured.com":
+        - /url: mailto:hola@estured.com
+      - listitem: ¿Tenés una reserva y algo no coincide? Abrí un caso desde tu panel.
+  - paragraph: EstuRed actúa como plataforma intermediaria de búsqueda, solicitud, registro y comprobante. No presta directamente el alojamiento. Los precios en ARS son referenciales al dólar blue del día.
+  - list:
+    - link "Botón de arrepentimiento":
+      - /url: /students/revocation
+    - link "Verificar un comprobante":
+      - /url: /verify
+    - link "Términos y condiciones":
+      - /url: /terms
+    - link "Política de privacidad":
+      - /url: /privacy
+  - paragraph: Hecho con ♥ en Buenos Aires
+- button "Simular usuario": Simular usuario
+- button "Open Next.js Dev Tools":
+- alert: Buscar residencias en CABA | EstuRed

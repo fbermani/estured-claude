@@ -1,0 +1,380 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- banner:
+  - navigation:
+    - link "EstuRed, inicio":
+      - /url: /
+      - generic: EstuRed
+    - link "Para estudiantesy familias":
+      - /url: /for-students
+      - generic: Para estudiantesy familias
+    - link "Para residencias":
+      - /url: /for-residences
+    - link "Guías":
+      - /url: /guias
+    - link "Ingresar":
+      - /url: /login
+    - link "Crear cuenta":
+      - /url: /register
+    - link "Buscar residencias":
+      - /url: /search
+      - generic: search
+      - text: Buscar residencias
+- main:
+  - link "← Residencia Norte":
+    - /url: /residencias/residencia-norte-demo
+  - heading "Comunidad actual de la residencia" [level=1]
+  - paragraph: Conocé a tus futuros compañeros — cada estudiante decide qué mostrar. Palermo, CABA.
+  - paragraph:
+    - link "Iniciá sesión":
+      - /url: /login?next=/residencias/residencia-norte-demo/comunidad
+    - text: para ver los perfiles individuales de los residentes que eligieron mostrarse.
+  - generic: groups
+  - text: Residentes
+  - generic: 34actuales
+  - generic: Cada uno decide qué mostrar.
+  - generic: bed
+  - text: Camas libres
+  - generic: "5"
+  - img "34 ocupadas de 39"
+  - generic: Informadas por la residencia.
+  - generic: category
+  - text: Tipos de habitación
+  - generic: "5"
+  - generic: Individual · Doble · Triple
+  - group "Filtrar por tipo de habitación":
+    - button "Todos 34" [pressed]:
+      - text: Todos
+      - generic: "34"
+    - button "Individual 8":
+      - text: Individual
+      - generic: "8"
+    - button "Doble 7":
+      - text: Doble
+      - generic: "7"
+    - button "Triple 7":
+      - text: Triple
+      - generic: "7"
+    - button "Cuádruple 7":
+      - text: Cuádruple
+      - generic: "7"
+    - button "Sin tipo asignado 5":
+      - text: Sin tipo asignado
+      - generic: "5"
+  - button "Individual 8 residentes · 1 cama libre Disponibilidad informada" [expanded]:
+    - generic: Individual
+    - generic: 8 residentes · 1 cama libre
+    - generic: Disponibilidad informada
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 1
+  - generic: 1/1 cama
+  - generic: person
+  - paragraph: Plaza ocupada
+  - paragraph: Residente pendiente de activar cuenta
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 2
+  - generic: 1/1 cama
+  - button "E Emiliano":
+    - generic: E
+    - paragraph: Emiliano
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 3
+  - generic: 1/1 cama
+  - button "G Gonzalo":
+    - generic: G
+    - paragraph: Gonzalo
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 4
+  - generic: 1/1 cama
+  - button "I Ivo":
+    - generic: I
+    - paragraph: Ivo
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 5
+  - generic: 1/1 cama
+  - button "K Kevin":
+    - generic: K
+    - paragraph: Kevin
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 6
+  - generic: 1/1 cama
+  - button "M Marcos":
+    - generic: M
+    - paragraph: Marcos
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 7
+  - generic: 1/1 cama
+  - button "O Octavio":
+    - generic: O
+    - paragraph: Octavio
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 8
+  - generic: 1/1 cama
+  - button "R Rodrigo":
+    - generic: R
+    - paragraph: Rodrigo
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 9
+  - generic: 0/1 cama · 1 libre
+  - button "Cama disponible Elegí este lugar para tu solicitud":
+    - generic: bed
+    - paragraph: Cama disponible
+    - paragraph: Elegí este lugar para tu solicitud
+  - button "Doble 7 residentes · 2 camas libres Disponibilidad informada":
+    - generic: Doble
+    - generic: 7 residentes · 2 camas libres
+    - generic: Disponibilidad informada
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 1
+  - generic: 1/2 camas · 1 libre
+  - button "D Delfina":
+    - generic: D
+    - paragraph: Delfina
+    - generic: expand_more
+  - button "Cama disponible Elegí este lugar para tu solicitud":
+    - generic: bed
+    - paragraph: Cama disponible
+    - paragraph: Elegí este lugar para tu solicitud
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 2
+  - generic: 2/2 camas
+  - button "G Guadalupe":
+    - generic: G
+    - paragraph: Guadalupe
+    - generic: expand_more
+  - button "J Josefina":
+    - generic: J
+    - paragraph: Josefina
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 3
+  - generic: 2/2 camas
+  - button "L Luciana":
+    - generic: L
+    - paragraph: Luciana
+    - generic: expand_more
+  - button "N Nadia":
+    - generic: "N"
+    - paragraph: Nadia
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 4
+  - generic: 2/2 camas
+  - button "R Renata":
+    - generic: R
+    - paragraph: Renata
+    - generic: expand_more
+  - button "T Tamara":
+    - generic: T
+    - paragraph: Tamara
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 5
+  - generic: 0/2 camas · 2 libres
+  - button "Cama disponible Elegí este lugar para tu solicitud":
+    - generic: bed
+    - paragraph: Cama disponible
+    - paragraph: Elegí este lugar para tu solicitud
+  - button "Cama disponible Elegí este lugar para tu solicitud":
+    - generic: bed
+    - paragraph: Cama disponible
+    - paragraph: Elegí este lugar para tu solicitud
+  - button "Triple 7 residentes · 1 cama libre Disponibilidad informada":
+    - generic: Triple
+    - generic: 7 residentes · 1 cama libre
+    - generic: Disponibilidad informada
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 1
+  - generic: 3/3 camas
+  - button "F Facundo":
+    - generic: F
+    - paragraph: Facundo
+    - generic: expand_more
+  - button "H Hernán":
+    - generic: H
+    - paragraph: Hernán
+    - generic: expand_more
+  - button "J Joaquín":
+    - generic: J
+    - paragraph: Joaquín
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 2
+  - generic: 3/3 camas
+  - button "L Leandro":
+    - generic: L
+    - paragraph: Leandro
+    - generic: expand_more
+  - button "N Nahuel":
+    - generic: "N"
+    - paragraph: Nahuel
+    - generic: expand_more
+  - button "P Pedro":
+    - generic: P
+    - paragraph: Pedro
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 3
+  - generic: 1/2 camas · 1 libre
+  - button "S Santino":
+    - generic: S
+    - paragraph: Santino
+    - generic: expand_more
+  - button "Cama disponible Elegí este lugar para tu solicitud":
+    - generic: bed
+    - paragraph: Cama disponible
+    - paragraph: Elegí este lugar para tu solicitud
+  - button "Cuádruple 7 residentes · 1 cama libre Disponibilidad informada":
+    - generic: Cuádruple
+    - generic: 7 residentes · 1 cama libre
+    - generic: Disponibilidad informada
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 1
+  - generic: 4/4 camas
+  - button "E Emilia":
+    - generic: E
+    - paragraph: Emilia
+    - generic: expand_more
+  - button "I Ivana":
+    - generic: I
+    - paragraph: Ivana
+    - generic: expand_more
+  - button "M Melina":
+    - generic: M
+    - paragraph: Melina
+    - generic: expand_more
+  - button "K Karen":
+    - generic: K
+    - paragraph: Karen
+    - generic: expand_more
+  - paragraph:
+    - generic: meeting_room
+    - text: Habitación 2
+  - generic: 3/4 camas · 1 libre
+  - button "P Paula":
+    - generic: P
+    - paragraph: Paula
+    - generic: expand_more
+  - button "S Sabrina":
+    - generic: S
+    - paragraph: Sabrina
+    - generic: expand_more
+  - button "Y Yamila":
+    - generic: "Y"
+    - paragraph: Yamila
+    - generic: expand_more
+  - button "Cama disponible Elegí este lugar para tu solicitud":
+    - generic: bed
+    - paragraph: Cama disponible
+    - paragraph: Elegí este lugar para tu solicitud
+  - button "Sin tipo asignado 5 residentes":
+    - generic: Sin tipo asignado
+    - generic: 5 residentes
+    - generic: expand_more
+  - generic: person
+  - paragraph: Plaza ocupada
+  - paragraph: Residente pendiente de activar cuenta
+  - generic: person
+  - paragraph: Plaza ocupada
+  - paragraph: Residente pendiente de activar cuenta
+  - generic: person
+  - paragraph: Plaza ocupada
+  - paragraph: Residente pendiente de activar cuenta
+  - generic: person
+  - paragraph: Plaza ocupada
+  - paragraph: Residente pendiente de activar cuenta
+  - generic: person
+  - paragraph: Plaza ocupada
+  - paragraph: Residente pendiente de activar cuenta
+  - paragraph:
+    - generic: info
+    - text: Hay lugares informados como libres. Toda solicitud está sujeta a confirmación de la residencia.
+  - link "Enviar solicitud":
+    - /url: /residencias/residencia-norte-demo#tarifas
+  - paragraph:
+    - generic: Nunca se muestran
+    - text: apellido completo, email, teléfono, fecha de nacimiento, universidad ni documentos.
+- contentinfo:
+  - generic: EstuRed
+  - generic: EstuRed
+  - paragraph: La convivencia también se elige. Residencias estudiantiles verificadas en CABA, con solicitudes registradas y comprobantes verificables.
+  - list:
+    - generic: check
+    - text: Residencias verificadas presencialmente
+    - generic: check
+    - text: Solicitudes registradas en la plataforma
+    - generic: check
+    - text: Comprobante de Reserva Confirmada
+  - navigation "Explorar":
+    - paragraph: Explorar
+    - list:
+      - link "Buscar residencias":
+        - /url: /search
+      - link "Para estudiantes y familias":
+        - /url: /for-students
+      - link "Para residencias":
+        - /url: /for-residences
+      - link "Guías":
+        - /url: /guias
+      - link "Crear cuenta":
+        - /url: /register
+  - navigation "Ayuda":
+    - paragraph: Ayuda
+    - list:
+      - link "Soporte":
+        - /url: /students/support
+        - generic: support_agent
+        - text: Soporte
+      - link "Preguntas frecuentes":
+        - /url: /for-students#preguntas-frecuentes
+      - link "Cómo funciona":
+        - /url: /#el-proceso
+      - link "Qué pagás y a quién":
+        - /url: /for-students#que-pagas
+      - text: "Contacto:"
+      - link "hola@estured.com":
+        - /url: mailto:hola@estured.com
+      - listitem: ¿Tenés una reserva y algo no coincide? Abrí un caso desde tu panel.
+  - paragraph: EstuRed actúa como plataforma intermediaria de búsqueda, solicitud, registro y comprobante. No presta directamente el alojamiento. Los precios en ARS son referenciales al dólar blue del día.
+  - list:
+    - link "Botón de arrepentimiento":
+      - /url: /students/revocation
+    - link "Verificar un comprobante":
+      - /url: /verify
+    - link "Términos y condiciones":
+      - /url: /terms
+    - link "Política de privacidad":
+      - /url: /privacy
+  - paragraph: Hecho con ♥ en Buenos Aires
+- button "Simular usuario": Simular usuario
+- button "Open Next.js Dev Tools":
+- alert

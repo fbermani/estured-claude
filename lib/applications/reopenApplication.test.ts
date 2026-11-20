@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { deleteResidenceCascade } from "@/lib/testing/deleteResidenceCascade";
 import { reopenApplication } from "@/lib/applications/reopenApplication";
+import { createTestStudent, deleteTestStudent, type TestStudent } from "@/lib/testing/testStudent";
 
 /**
  * Docs/12 §17 Fase 11 ("Admin puede intervenir solicitudes trabadas") —
@@ -19,6 +20,7 @@ describe.skipIf(!hasCreds)("reopenApplication (integración)", () => {
   let adminActorId: string;
   let studentProfileId: string;
   let studentUserId: string;
+  let testStudent: TestStudent | undefined;
 
   async function insertFixtureApplication(status: string): Promise<string> {
     const { data: snapshot } = await admin
@@ -69,10 +71,10 @@ describe.skipIf(!hasCreds)("reopenApplication (integración)", () => {
     ownerId = owner!.id;
     const { data: adminUser } = await admin.from("users").select("id").eq("email", "admin.operaciones@estured.test").single();
     adminActorId = adminUser!.id;
-    const { data: studentUser } = await admin.from("users").select("id").eq("email", "valentina.sosa@example.com").single();
-    studentUserId = studentUser!.id;
-    const { data: studentProfile } = await admin.from("student_profiles").select("id").eq("user_id", studentUserId).single();
-    studentProfileId = studentProfile!.id;
+    // Estudiante descartable propio: el test no depende de las solicitudes activas del demo (límite de 2).
+    testStudent = await createTestStudent(admin, "reopen");
+    studentUserId = testStudent.userId;
+    studentProfileId = testStudent.profileId;
 
     const { data: residence } = await admin
       .from("residences")
@@ -119,6 +121,7 @@ describe.skipIf(!hasCreds)("reopenApplication (integración)", () => {
     await admin.from("application_requests").delete().eq("residence_id", residenceId);
     await admin.from("residence_users").delete().eq("residence_id", residenceId);
     await deleteResidenceCascade(admin, residenceId);
+    await deleteTestStudent(admin, testStudent);
   });
 
   it("rechaza sin motivo", async () => {
@@ -171,5 +174,41 @@ describe.skipIf(!hasCreds)("reopenApplication (integración)", () => {
       .eq("related_entity_id", id)
       .maybeSingle();
     expect(notification?.title).toBe("Tu solicitud fue reabierta");
+  });
+
+  it("rechaza un motivo que supera el tope", async () => {
+    const id = await insertFixtureApplication("rejected");
+    const result = await reopenApplication(admin, {
+      applicationId: id,
+      actorUserId: adminActorId,
+      actorRole: "admin",
+      reason: "a".repeat(501),
+    });
+    expect(result.status).toBe("error");
+  });
+
+  it("dos reaperturas simultáneas: una gana y no se duplican eventos", async () => {
+    // El máximo de 2 activas cuenta las reabiertas por tests previos: se las deja inactivas antes de competir.
+    await admin
+      .from("application_requests")
+      .update({ status: "rejected" })
+      .eq("student_profile_id", studentProfileId)
+      .in("status", ["submitted", "under_review"]);
+    const id = await insertFixtureApplication("rejected");
+    const params = {
+      applicationId: id,
+      actorUserId: adminActorId,
+      actorRole: "admin",
+      reason: "Reapertura concurrente de prueba.",
+    };
+    const results = await Promise.all([reopenApplication(admin, params), reopenApplication(admin, params)]);
+    expect(results.filter((r) => r.status === "ok"), JSON.stringify(results)).toHaveLength(1);
+
+    const { count } = await admin
+      .from("application_status_events")
+      .select("*", { count: "exact", head: true })
+      .eq("application_request_id", id)
+      .eq("from_status", "rejected");
+    expect(count).toBe(1);
   });
 });

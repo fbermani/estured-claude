@@ -341,7 +341,7 @@ Ruta base: `/admin`
 - **Edad de residentes:** mínima y máxima de la residencia, y si admite menores (DR14).
 - CTA "Enviar solicitud de reserva". **Antes de enviar (DR14):** el paso final muestra el reglamento completo (propio o modelo) y un **checkbox obligatorio** «Leí el reglamento de la residencia y acepto sus términos»; sin aceptarlo no se envía. Se guarda la versión aceptada con fecha. Copy: la aceptación no garantiza plaza («solicitud sujeta a confirmación»). Si el estudiante es menor, lo acepta el familiar vinculado. Si la edad del estudiante a la fecha de ingreso queda fuera del rango de la residencia, el CTA se reemplaza por un aviso claro (sin promesas) y, para menores en residencias habilitadas, aparece el **apartado para menores** (datos del guardián).
 - **Vista del familiar vinculado (DR4):** ve la misma ficha con el desglose de costos ("Qué pagás y a quién") y, en lugar de "Enviar solicitud de reserva", el CTA **"Proponer a [nombre del estudiante]"** (flujo de propuestas del familiar, §6.3). No envía solicitudes en nombre del estudiante.
-- CTA "Sumarme a lista de espera" si está completa o sin disponibilidad.
+- CTA "Sumarme a lista de espera" si está completa o sin disponibilidad. **El formulario (DR40) pide un mes de ingreso o «Cuando haya lugar» (obligatorio elegir uno).**
 - CTA "Crear cuenta para ver más" para invitados.
 
 **Estudiante con reserva vigente o estadía en curso (DR1, 2026-10-23, `docs/00` §31; regla en `docs/04` §5.6bis):** reemplaza la regla simple "un estudiante alojado no puede solicitar". La ficha **no oculta** los CTA: el estudiante puede elegir fechas, pero si el período deseado **se superpone** con el de su reserva/estadía (de `start_date` al fin de contrato: `expected_end_date` o `start_date` + duración) "Enviar solicitud de reserva" y "Sumarme a lista de espera" quedan bloqueados con un mensaje accionable (p. ej. "Ya tenés una reserva hasta el {fecha}. Podés solicitar para fechas posteriores."). Para fechas **posteriores** al fin de ese período, ambos CTA funcionan normalmente (siempre dentro del máximo de 2 solicitudes activas). La validación definitiva es server-side.
@@ -704,11 +704,15 @@ Ruta base: `/students`
 
 Sin cambios de fondo respecto al original. Contenido: residencia, tipo de habitación/plaza, fecha deseada, duración deseada, fecha de inscripción, estado, notificación de disponibilidad.
 
-**Reglas:** no cuenta como solicitud activa; no vence automáticamente; a los 90 días se notifica; no se puede anotar con fechas superpuestas a una reserva vigente o estadía en curso (ver §4.5 y `docs/04` §5.6bis), sí para fechas posteriores al fin de ese período, **ni** con fechas superpuestas si tiene abierto un aviso "Quiero cambiar" (excepción DR3, §6.16): en ese caso las entradas se identifican con la etiqueta "Por tu cambio de residencia" y avisan disponibilidad como cualquier otra.
+**Mes de ingreso (DR40, 2026-11-07):** al sumarse (§5) todos eligen **un mes** (mes actual → +12; con reserva vigente, solo desde el mes en que termina) o «Cuando haya lugar»; se muestra «Ingreso: noviembre 2026» en vez de fecha exacta. Si el mes termina, la entrada sale sola (estado «Venció: pasó el mes elegido») y se notifica; «Cuando haya lugar» no vence por fecha.
+
+**Reglas:** no cuenta como solicitud activa; vence solo al terminar el mes elegido (DR40); a los 90 días se notifica; no se puede anotar con fechas superpuestas a una reserva vigente o estadía en curso (ver §4.5 y `docs/04` §5.6bis), sí para fechas posteriores al fin de ese período, **ni** con fechas superpuestas si tiene abierto un aviso "Quiero cambiar" (excepción DR3, §6.16): en ese caso las entradas se identifican con la etiqueta "Por tu cambio de residencia" y avisan disponibilidad como cualquier otra.
 
 **Al confirmarse una reserva (DR2, 2026-10-23):** todas las listas de espera del estudiante se **anulan automáticamente** (en cualquier residencia). Se le **notifica** cuáles se anularon (residencia y tipo de habitación) y por qué ("confirmaste una reserva"), y esas residencias quedan **solo en sus favoritos** (§6.2). Las entradas anuladas se ven con estado "Anulada: confirmaste una reserva" y el CTA "Ver en favoritos"; no hay acción "quedarme en lista" sobre ellas.
 
 **Acciones:** salir de lista, quedarme en lista, activar solicitud, ver residencia.
+
+**Aviso «hay lugar» (DR41, 2026-11-07):** la notificación lleva a la tarjeta de la entrada, que muestra tres botones: «Enviar solicitud» (sujeta a confirmación de la residencia; con «Cualquier tipo» lleva a la ficha), «Seguir esperando» y «Salir de la lista».
 
 ---
 
@@ -978,7 +982,9 @@ Sin cambios de fondo. Contenido: estudiante, plaza, fecha de ingreso, duración 
 
 **Ruta:** `/residence/[residence_id]/waitlist`
 
-Sin cambios de fondo.
+**DR40 (2026-11-07):** resumen arriba (total, urgentes este mes, esperando respuesta); agrupada por tipo de habitación y ordenada: (a) con respuesta corriendo, (b) mes elegido ascendente (el mes en curso lleva la marca «Este mes»), (c) antigüedad (FIFO), (d) «Cuando haya lugar» al final. Cada fila muestra «Ingreso: noviembre 2026» / «Cuando haya lugar» y «Vence a fin de mes»; las entradas con mes ya terminado no se listan.
+
+**DR41 (2026-11-07):** tablero de columnas por tipo de habitación («Cualquier tipo» al final) con contador y scroll interno por columna; dentro de cada una, sección «Avisados · esperando respuesta» (con la fecha del aviso) y sección «En espera». Casilla por fila + «seleccionar todos» del tipo + barra «Avisar a N» (tope 50, resultado parcial). Marca «Decidió esperar · fecha» si el estudiante eligió seguir esperando. Filtros por mes / «Este mes» / «Cuando haya lugar» / estado y búsqueda por nombre. En móvil: columnas con scroll horizontal con snap y barra de acción fija abajo.
 
 ---
 
@@ -987,6 +993,10 @@ Sin cambios de fondo.
 **Ruta:** `/residence/[residence_id]/residents`
 
 Visible para toda residencia (MVP: todo gratis, D8). Sin cambios de fondo respecto al original.
+
+**Layout (2026-11-08, solo presentación).** La lista tiene que verse sin scrollear en desktop. (1) El encabezado es una franja baja: «Agregar residente» destacado y, al lado, un botón que despliega «Invitá a tus residentes» y «Código de casa» (plegados por defecto). Los avisos que piden decisión (vínculos por revisar, plazas liberadas, residentes que buscan cambiar o avisos cerrados) van en una sola barra plegable «Pendientes de gestión» con sus conteos. (2) Las métricas y los filtros de estado son un solo control: cada tarjeta es un filtro con su número (el mismo que muestra la lista); «Renovación» no filtra, lleva a `/renewals`. (3) Cada título de columna ordena (ascendente → descendente → orden original); los valores vacíos van siempre al final. En el celular el orden se elige en un selector.
+
+**Lista de espera (`/waitlist`, mismo criterio, 2026-11-08).** Es una tabla como la de Residentes, no un tablero por columnas: Persona, Tipo de habitación, Ingreso, En lista, Estado y acciones, con casilla por fila y una en el encabezado para elegir todas las avisables de la vista. Las métricas son los filtros de estado (Todos / En espera / Avisados / Decidieron esperar / Entran este mes) con su número; la búsqueda y el mes viajan en la URL. Cada título ordena (`?orden=` y `dir=`); sin orden: por tipo y, dentro, el orden de prioridad de DR40. Las reglas de DR40/DR41 no cambian.
 
 **Estadías vencidas (decisión D11, 2026-10-20).** El sistema **alerta, nunca cierra solo**: avisa a la residencia (y al estudiante) **30 días antes** del fin del contrato (`expected_end_date`) y **al vencer**, con las acciones "Renovar" y "Registrar salida". Una estadía vencida sin acción queda visible con la alerta; no pasa sola a `inactive` ni libera la plaza.
 
@@ -999,6 +1009,8 @@ Visible para toda residencia (MVP: todo gratis, D8). Sin cambios de fondo respec
 - Beneficio explicado en un bloque de ayuda: previsibilidad de ocupación, planificación de la plaza y de renovaciones.
 
 ---
+
+**Aviso «Función Premium, hoy bonificada» y Habitaciones (2026-11-08):** el aviso (Habitaciones, Renovaciones y Residentes) es de una sola línea y se puede cerrar con una ✕; al cerrarlo no vuelve a mostrarse en ninguna de las tres pantallas (queda en el navegador). En Habitaciones el encabezado es bajo, el resumen (plazas, ocupación, vacantes, movimientos) es una sola franja compacta, las tarjetas de habitación son más chicas y cada tipo de habitación se pliega/despliega (más «Plegar todos»).
 
 ### 7.13. Renovaciones
 

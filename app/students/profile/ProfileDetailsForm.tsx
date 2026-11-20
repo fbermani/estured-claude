@@ -309,7 +309,7 @@ export function ProfileDetailsForm({
           {/* "Sobre mí" — tratamiento destacado (Ciclo 37): jerarquía
               visual propia, ayuda + ejemplos + sugerencia en vivo, no
               un textarea suelto más. */}
-          <div className="mt-4 rounded-card border border-line-2 bg-gradient-to-br from-sand-100/70 to-paper p-4">
+          <div className="mt-4 rounded-card border border-line-2 bg-cream p-4">
             <div className="flex items-center gap-2.5">
               <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-forest-tint text-forest-700">
                 <Icon name="auto_awesome" className="text-lg" />
@@ -322,7 +322,7 @@ export function ProfileDetailsForm({
               </div>
             </div>
 
-            <p className="mt-3 flex items-start gap-2 rounded-field border-l-[3px] border-forest bg-forest-tint/30 px-3 py-2.5 text-xs leading-relaxed text-ink-soft">
+            <p className="mt-3 flex items-start gap-2 rounded-field border-l-4 border-forest bg-forest-tint/30 px-3 py-2.5 text-xs leading-relaxed text-ink-soft">
               <Icon name="lightbulb" className="mt-0.5 shrink-0 text-sm text-forest-700" />
               Contá cómo sos como compañero de residencia, qué te gusta hacer, cómo es tu rutina o cualquier
               aspecto que ayude a conocerte mejor. Evitá repetir información como tu carrera o nacionalidad.
@@ -339,8 +339,8 @@ export function ProfileDetailsForm({
               className="mt-3 bg-paper"
             />
             <div className="mt-1.5 flex items-center justify-between gap-3">
-              <p className="text-[11px] font-medium text-forest-700">{bioHint(bioValue.length)}</p>
-              <span className="shrink-0 text-[11px] text-ink-faint">
+              <p className="text-xs font-medium text-forest-700">{bioHint(bioValue.length)}</p>
+              <span className="shrink-0 text-xs text-ink-faint">
                 {bioValue.length}/{BIO_MAX_LENGTH}
               </span>
             </div>

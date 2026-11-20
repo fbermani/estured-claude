@@ -50,6 +50,7 @@ export function ArrivalCard({
   const [checked, setChecked] = useState<Set<string>>(() => new Set(initialChecked));
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [copyFailed, setCopyFailed] = useState(false);
   const [pending, setPending] = useState<Set<string>>(new Set());
   const [, startTransition] = useTransition();
   const locked = readOnly || !persistent;
@@ -91,10 +92,13 @@ export function ArrivalCard({
   async function copyMessage() {
     try {
       await navigator.clipboard.writeText(message);
+      setCopyFailed(false);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
       setCopied(false);
+      setCopyFailed(true);
+      setTimeout(() => setCopyFailed(false), 4000);
     }
   }
 
@@ -108,10 +112,10 @@ export function ArrivalCard({
           <span className="flex size-14 items-center justify-center rounded-full bg-forest-tint text-forest-700 md:mx-auto md:size-16">
             <Icon name="flight_land" className="text-[30px]!" />
           </span>
-          <p className="font-display text-3xl font-extrabold leading-none text-forest-700 md:mt-2 md:text-4xl">{countdownLabel(daysLeft)}</p>
+          <p className="font-display text-3xl font-bold leading-none text-forest-700 md:mt-2 md:text-4xl">{countdownLabel(daysLeft)}</p>
         </div>
         <div className="min-w-0">
-          <h2 id={headingId} className="text-lg font-extrabold text-ink">
+          <h2 id={headingId} className="text-lg font-bold text-ink">
             {ownerName ? `Llegada de ${ownerName}` : "Tu llegada"}
           </h2>
           <p className="mt-0.5 text-sm text-ink-soft">
@@ -134,7 +138,7 @@ export function ArrivalCard({
             </div>
           </div>
           <p role="status" aria-live="polite" className="sr-only">
-            {copied ? "Mensaje copiado al portapapeles" : ""}
+            {copied ? "Mensaje copiado al portapapeles" : copyFailed ? "No se pudo copiar el mensaje" : ""}
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             {mainGuide && (
@@ -147,7 +151,7 @@ export function ArrivalCard({
               <>
                 <button type="button" onClick={copyMessage} className={btn}>
                   <Icon name="content_copy" className="text-[18px]!" />
-                  {copied ? "¡Copiado!" : "Copiar mensaje"}
+                  {copied ? "¡Copiado!" : copyFailed ? "No se pudo copiar" : "Copiar mensaje"}
                 </button>
                 <a href={buildWhatsAppUrl(message)} target="_blank" rel="noopener noreferrer" className={btn}>
                   <Icon name="chat" className="text-[18px]!" />
@@ -156,17 +160,17 @@ export function ArrivalCard({
               </>
             )}
           </div>
+          {!readOnly && (
+            <p className="mt-2 text-xs text-ink-faint">
+              «Abrir WhatsApp» abre la app con el mensaje como borrador: elegís a quién enviarlo y lo revisás antes de mandarlo.
+            </p>
+          )}
         </div>
       </div>
 
       <p id={`${headingId}-locked`} className="sr-only">
         {readOnly ? "Solo lectura: el checklist lo completa el estudiante." : !persistent ? "Todavía no se pueden guardar los tildes." : ""}
       </p>
-      {readOnly && (
-        <p className="border-t border-line bg-cream-2 px-5 py-2.5 text-xs text-ink-soft md:px-6">
-          Solo lectura: el checklist lo completa el estudiante y los ítems están escritos para él o ella.
-        </p>
-      )}
       {!persistent && !readOnly && (
         <p className="border-t border-line bg-cream-2 px-5 py-2.5 text-xs text-ink-soft md:px-6">
           Guardar tus tildes todavía no está disponible: el checklist se muestra solo para leer.
@@ -184,7 +188,7 @@ export function ArrivalCard({
             <Icon name="checklist" className="text-[22px]!" />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-sm font-extrabold text-ink">Checklist para antes de viajar</span>
+            <span className="block text-sm font-bold text-ink">Checklist para antes de viajar</span>
             <span className="block text-xs leading-snug text-ink-soft">
               {SECTIONS.length} categorías con todo lo que conviene tener listo antes de llegar. {done} de {CHECKLIST_TOTAL} hechos.
             </span>

@@ -23,7 +23,7 @@ import {
   type PhotoMetaItem,
   type PhotoSectionDef,
 } from "@/lib/residences/photoSections";
-import { deleteResidencePhoto, savePhotoMeta, uploadResidencePhoto } from "@/app/residence/[residence_id]/profile/photoMetaActions";
+import { deleteResidencePhoto, savePhotoMeta, setMainCoverPhoto, uploadResidencePhoto } from "@/app/residence/[residence_id]/profile/photoMetaActions";
 
 export type { PhotoMetaItem } from "@/lib/residences/photoSections";
 
@@ -45,9 +45,11 @@ type Upload = {
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 /**
- * Galería de fotos del perfil (rediseño 2026-11-03). Las secciones se arman solas y son exactamente: Fachada / Exterior, las áreas comunes elegidas
- * (incluidas las «Otro»), y los tipos de habitación guardados y activos; lo que ya no tiene sección queda en «Sin clasificar». Dos formas de cargar: todas juntas a «Sin clasificar» y de ahí arrastrar cada miniatura a su sección
- * (en táctil: «Mover a…»), o subir directo dentro de una sección. Hasta 5 fotos de portada con orden (las que rotan en la ficha y la búsqueda).
+ * Galería de fotos del perfil (rediseño 2026-11-03). Las secciones se arman solas y son exactamente: «Foto principal o de presentación» (antes «Fachada / Exterior»),
+ * las áreas comunes elegidas (incluidas las «Otro»), y los tipos de habitación guardados y activos; lo que ya no tiene sección queda en «Sin clasificar».
+ * Dos formas de cargar: todas juntas a «Sin clasificar» y de ahí arrastrar cada miniatura a su sección (en táctil: «Mover a…»), o subir directo dentro de una sección.
+ * Dónde se ve cada cosa (nada rota solo): hasta 5 fotos de portada con orden = la tarjeta de /search las pasa de a una; la foto principal (una sola) = encabeza
+ * la ficha, va primera en la tarjeta y es la imagen del link; el mosaico de «Vivir acá» elige solo; el visor «Ver todas» agrupa por sección y oculta las secciones sin fotos.
  * Cada cambio se guarda solo (con debounce); las fotos se suben de a una por server action. Las reglas de moderación son las de siempre:
  * en una residencia publicada la foto nueva queda «Pendiente» hasta que el equipo la apruebe. Vive dentro del <form> del perfil: todos sus
  * botones son type="button" y sus campos no tienen `name`, así que no viajan en el guardado del perfil.
@@ -62,6 +64,7 @@ export function PhotoMetaManager({
   schemaReady,
   sectionsReady,
   coverReady,
+  mainCoverReady = false,
   readOnly,
   onCountsChange,
 }: {
@@ -78,6 +81,8 @@ export function PhotoMetaManager({
   schemaReady: boolean;
   sectionsReady: boolean;
   coverReady: boolean;
+  /** Migración 0097 aplicada: se puede elegir la foto principal (hero de la ficha y vista previa del link). */
+  mainCoverReady?: boolean;
   readOnly: boolean;
   onCountsChange?: (counts: { total: number; approved: number }) => void;
 }) {
@@ -91,6 +96,7 @@ export function PhotoMetaManager({
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [mainError, setMainError] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const saving = useRef(false);
   const again = useRef(false);
@@ -186,6 +192,24 @@ export function PhotoMetaManager({
   const moveTo = (id: string, key: string) => commit((prev) => movePhotoToSection(prev, id, key, defsRef.current));
   const toggleStar = (id: string) => commit((prev) => toggleCover(prev, id));
   const shiftCover = (id: string, dir: -1 | 1) => commit((prev) => moveCover(prev, id, dir));
+
+  // Foto principal (0097): se guarda en el acto con su propia acción (no pasa por el guardado automático); si falla, vuelve a como estaba.
+  async function toggleMain(id: string) {
+    const before = itemsRef.current;
+    const makeMain = before.find((i) => i.id === id)?.isCover !== true;
+    const apply = (list: PhotoMetaItem[]) => list.map((i) => ({ ...i, isCover: makeMain && i.id === id }));
+    setMainError(null);
+    itemsRef.current = apply(before);
+    setItems(itemsRef.current);
+    const result = await setMainCoverPhoto(residenceId, makeMain ? id : null);
+    if (result.status === "error") {
+      // Se restaura solo la marca (no se pisa lo que se haya tocado mientras tanto).
+      const restore = (list: PhotoMetaItem[]) => list.map((i) => ({ ...i, isCover: before.find((b) => b.id === i.id)?.isCover === true }));
+      itemsRef.current = restore(itemsRef.current);
+      setItems(itemsRef.current);
+      setMainError(result.message);
+    }
+  }
 
   // Borrar una foto propia (DR36): primero se guarda lo pendiente, después se borra en el servidor y recién ahí sale de la grilla.
   async function removePhoto(id: string) {
@@ -334,11 +358,18 @@ export function PhotoMetaManager({
         </p>
       )}
 
+      {mainError && (
+        <p role="alert" className="rounded-field bg-danger-bg px-4 py-3 text-sm font-medium text-danger-fg">
+          {mainError}
+        </p>
+      )}
+
       {schemaReady && (
         <CoverStrip
           cover={cover}
           editable={editable}
           coverReady={coverReady}
+          mainCoverReady={mainCoverReady}
           onToggle={toggleStar}
           onShift={shiftCover}
         />
@@ -388,6 +419,7 @@ export function PhotoMetaManager({
       {/* Secciones */}
       {schemaReady && (
         <div className="space-y-3">
+          {editable && <p className="text-xs text-ink-soft">Las secciones sin fotos no se muestran en tu ficha.</p>}
           {defs.map((d) => {
             const sectionItems = byKey(d.key);
             const sectionUploads = uploads.filter((u) => u.key === d.key);
@@ -409,6 +441,12 @@ export function PhotoMetaManager({
                     <PickButton label="Subir" ariaLabel={`Subir fotos a ${d.title}`} onFiles={(files) => startUploads(files, d.key)} />
                   )}
                 </div>
+                {editable && d.kind === "facade" && (
+                  <p className="mt-1 text-xs text-ink-soft">
+                    Las fotos con las que se presenta tu residencia, por ejemplo el frente.
+                    {mainCoverReady && " La que encabece tu ficha la elegís con el ícono de imagen."}
+                  </p>
+                )}
                 {total === 0 ? (
                   <p className="mt-2 text-sm text-ink-faint">{editable ? "Arrastrá fotos acá o tocá «Subir»." : "Sin fotos todavía."}</p>
                 ) : (
@@ -470,6 +508,8 @@ export function PhotoMetaManager({
       },
       onMove: moveTo,
       onStar: toggleStar,
+      mainCoverReady,
+      onMain: (id: string) => void toggleMain(id),
       onRetry: retry,
       onDismiss: dismiss,
       confirmDeleteId,
@@ -562,17 +602,19 @@ function UploadDropzone({
   );
 }
 
-/** Tira de portada: hasta 5 lugares numerados; el 1 es la foto principal. */
+/** Tira de portada: hasta 5 lugares numerados, en el orden en que la tarjeta de la búsqueda las pasa. La foto principal (insignia «Principal») va primera igual. */
 function CoverStrip({
   cover,
   editable,
   coverReady,
+  mainCoverReady,
   onToggle,
   onShift,
 }: {
   cover: PhotoMetaItem[];
   editable: boolean;
   coverReady: boolean;
+  mainCoverReady: boolean;
   onToggle: (id: string) => void;
   onShift: (id: string, dir: -1 | 1) => void;
 }) {
@@ -593,8 +635,14 @@ function CoverStrip({
         </span>
       </div>
       <p className="mt-1 text-xs text-ink-soft">
-        {editable ? "Marcá con la estrella las fotos que rotan en tu ficha y en la búsqueda." : "Estas son las fotos que rotan en tu ficha y en la búsqueda."}{" "}
-        {cover.length === 0 && `Si no elegís, rotan las primeras ${MAX_FEATURED_PHOTOS}.`}
+        {editable
+          ? `Marcá con la estrella hasta ${MAX_FEATURED_PHOTOS} fotos para tu tarjeta de la búsqueda: quien explora las pasa de a una.`
+          : "Estas son las fotos de tu tarjeta de la búsqueda: quien explora las pasa de a una."}{" "}
+        {cover.length === 0 && `Si no elegís, se muestran las primeras ${MAX_FEATURED_PHOTOS}. `}
+        {editable &&
+          (mainCoverReady
+            ? "Con el ícono de imagen elegís la foto principal: encabeza tu ficha, va primera en la búsqueda y se muestra al compartir el link."
+            : "El encabezado de tu ficha usa la primera foto de la portada.")}
       </p>
       <ol className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5 sm:gap-3">
         {Array.from({ length: MAX_FEATURED_PHOTOS }, (_, i) => {
@@ -609,6 +657,7 @@ function CoverStrip({
             <li key={photo.id} className="relative aspect-[4/3] overflow-hidden rounded-field bg-cream-2">
               <Image src={photo.url} alt={`Portada ${i + 1}`} fill sizes="(min-width: 640px) 120px, 45vw" draggable={false} className="object-cover" />
               <span className="absolute left-1 top-1 grid size-6 place-items-center rounded-full bg-forest-ink/85 text-xs font-bold text-white">{i + 1}</span>
+              {photo.isCover && <span className="absolute bottom-1 left-1 rounded-full bg-forest-ink px-2 py-0.5 text-xs font-bold text-paper">Principal</span>}
               {editable && (
                 <>
                   <button
@@ -667,6 +716,8 @@ type GridProps = {
   onDragEnd: () => void;
   onMove: (id: string, key: string) => void;
   onStar: (id: string) => void;
+  mainCoverReady: boolean;
+  onMain: (id: string) => void;
   onRetry: (id: string) => void;
   onDismiss: (id: string) => void;
   confirmDeleteId: string | null;
@@ -718,6 +769,24 @@ function PhotoGrid(props: GridProps) {
               >
                 <Icon name="star" className="text-xl" style={{ fontVariationSettings: `'FILL' ${photo.featured ? 1 : 0}` }} />
               </button>
+            )}
+            {sectionsEnabled && editable && props.mainCoverReady && !photo.pending && (
+              <button
+                type="button"
+                onClick={() => props.onMain(photo.id)}
+                aria-pressed={photo.isCover === true}
+                aria-label={photo.isCover ? "Dejar de usar como foto principal" : "Usar como foto principal"}
+                title={photo.isCover ? "Es la foto principal de tu ficha y del link" : "Usar como foto principal de tu ficha y del link"}
+                className={`absolute left-1 top-1 inline-flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-full text-xs font-bold shadow-sm focus-visible:outline-2 focus-visible:outline-forest ${
+                  photo.isCover ? "bg-forest-ink px-3 text-paper" : "bg-paper/90 text-ink hover:bg-paper"
+                }`}
+              >
+                <Icon name="image" className="text-xl" />
+                {photo.isCover && "Principal"}
+              </button>
+            )}
+            {sectionsEnabled && !editable && photo.isCover && (
+              <span className="absolute left-1 top-1 rounded-full bg-forest-ink px-2.5 py-1 text-xs font-bold text-paper">Principal</span>
             )}
             {sectionsEnabled && !editable && photo.featured && (
               <span className="absolute right-1 top-1 grid size-8 place-items-center rounded-full bg-orange text-white" title="En la portada">

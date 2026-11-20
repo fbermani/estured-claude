@@ -1,96 +1,87 @@
+import { Icon } from "@/components/ui/Icon";
+import { OpenFaqButton } from "@/components/residences/ficha/FaqModal";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
-import { ConditionCard } from "@/components/residences/ficha/ConditionCard";
 import { formatArs, usdToArsRounded } from "@/lib/mock/exchange";
-import { buildConditionItems, type ConditionItem, type FichaConditionsInput } from "@/lib/residences/fichaConditions";
-
-const MES_VACIO_BACK =
-  "Si la plaza queda vacía antes de tu ingreso, la residencia puede cobrarte esos meses al porcentaje que fijó. Más en la ";
-
-const COORDINAR = "A coordinar con la residencia";
+import type { FichaConditionsInput } from "@/lib/residences/fichaConditions";
+import { applicableConditions, type ApplicableCondition } from "@/lib/residences/conditionCards";
+import { EMPTY_MONTH_CARD_LINE, EMPTY_MONTH_IDEA, emptyMonthExample } from "@/lib/residences/emptyMonthCopy";
 
 /**
- * Condiciones de admisión (DR30 §4): SEIS tarjetas fijas, mismas en todas las residencias y en este orden:
- * Para reservar, Matrícula, Depósito, Ajuste de tarifa, Mes vacío, Documentos para admisión. Si un dato no
- * está cargado se dice («No aplica», «No cobra», «A coordinar»), nunca se inventa ni se oculta la tarjeta.
+ * Mes vacío: la fila muestra título y valor; debajo, UN solo desplegable cerrado («Solo si reservás con ingreso a futuro») con la
+ * explicación de qué es y el ejemplo con números. El detalle de cálculo (reglas y tope) vive en la respuesta de la pregunta frecuente
+ * FAQ-51, no acá: antes había un segundo desplegable «Cómo se calcula» que repetía el contenido.
+ */
+function EmptyMonthHelp({ percent, faqLink }: { percent: number; faqLink: boolean }) {
+  return (
+    <details className="group mt-0.5">
+      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1 text-[14px] font-bold leading-snug text-forest-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest [&::-webkit-details-marker]:hidden">
+        <span className="underline underline-offset-2">{EMPTY_MONTH_CARD_LINE}</span>
+        <Icon name="expand_more" className="shrink-0 text-xl transition-transform duration-200 ease-out-fresh group-open:rotate-180 motion-reduce:transition-none" />
+      </summary>
+      <span className="block space-y-1.5 pb-1 text-[14px] leading-snug text-ink-soft">
+        <span className="block">{EMPTY_MONTH_IDEA}</span>
+        <span className="block font-semibold text-ink">{emptyMonthExample(percent)}</span>
+        {faqLink && (
+          <OpenFaqButton className="inline-flex min-h-11 items-center font-bold text-forest-700 underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest">
+            Ver más en las preguntas frecuentes
+          </OpenFaqButton>
+        )}
+      </span>
+    </details>
+  );
+}
+
+/**
+ * Condiciones de la reserva, debajo de «Habitaciones y precio» (revisión del dueño en staging: antes quedaban listadas todas, también las
+ * que no aplicaban). Ahora se ven SOLO las que aplican a la residencia (`applicableConditions`: estadía mínima, pago para reservar y, si
+ * existen, matrícula, depósito, ajuste de tarifa y mes vacío); lo que no aplica no se dibuja. Mismo formato que «Se paga aparte» del
+ * mockup: título destacado con su aclaración a la izquierda y el valor a la derecha, con su referencia en ARS (`ExchangeRateNote`).
+ * Sin promesas de disponibilidad; un dato no cargado nunca se inventa.
  */
 export function ReservationConditions({
   conditions,
   arsPerUsd,
+  headingId = "h-condiciones",
+  showFaqLink = true,
 }: {
   conditions: FichaConditionsInput;
   arsPerUsd: number;
+  headingId?: string;
+  /** Si la residencia tiene preguntas respondidas (si no, el enlace del mes vacío no llevaría a ningún lado). */
+  showFaqLink?: boolean;
 }) {
-  const items = buildConditionItems(conditions);
-  const by = (key: ConditionItem["key"]) => items.find((i) => i.key === key);
-  const ars = (item: ConditionItem | undefined) =>
-    item?.arsFromUsd != null ? (
-      <>
-        ≈ {formatArs(usdToArsRounded(item.arsFromUsd, arsPerUsd))}
-        <ExchangeRateNote />
-      </>
-    ) : undefined;
-
-  const initial = by("initial_payment");
-  const enrollment = by("enrollment");
-  const deposit = by("deposit");
-  const adjustment = by("adjustment");
-  const percent = conditions.emptyMonthChargePercent;
-  const chargesEmpty = percent != null && percent > 0;
+  const rows: ApplicableCondition[] = applicableConditions(conditions);
+  if (rows.length === 0) return null;
 
   return (
-    <ul className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-3">
-      <ConditionCard
-        icon="payments"
-        title="Para reservar"
-        value={initial?.value ?? COORDINAR}
-        note={ars(initial)}
-        detail={initial?.help ?? "El pago inicial lo define la residencia."}
-      />
-      <ConditionCard
-        icon="badge"
-        title="Matrícula"
-        value={enrollment?.value ?? "No cobra"}
-        note={enrollment?.valueNote ?? ars(enrollment)}
-        detail={
-          <>
-            {enrollment?.help ?? "Esta residencia no cobra cargo de ingreso."}
-            {enrollment?.arsFromUsd != null && <span className="mt-1 block text-ink-faint">{ars(enrollment)}</span>}
-          </>
-        }
-      />
-      <ConditionCard
-        icon="savings"
-        title="Depósito"
-        value={deposit?.value ?? "No cobra"}
-        note={ars(deposit)}
-        detail={deposit?.help ?? "Esta residencia no pide depósito."}
-      />
-      <ConditionCard
-        icon="trending_up"
-        title="Ajuste de tarifa"
-        value={adjustment?.value ?? COORDINAR}
-        detail={adjustment?.help ?? "La residencia te indica cada cuánto puede actualizar la tarifa."}
-      />
-      <ConditionCard
-        icon="hourglass_top"
-        title="Mes vacío"
-        value={chargesEmpty ? `Esta residencia cobra mes vacío (${percent} %)` : "No cobra mes vacío"}
-        detail={
-          <>
-            {MES_VACIO_BACK}
-            <a href="#preguntas" className="font-bold text-forest-700 underline underline-offset-2">
-              pregunta frecuente sobre mes vacío
-            </a>
-            .
-          </>
-        }
-      />
-      <ConditionCard
-        icon="description"
-        title="Documentos para admisión"
-        value={COORDINAR}
-        detail="Los documentos que necesita la residencia para admitirte los define ella y te los pide una vez que tu solicitud avanza."
-      />
-    </ul>
+    <section aria-labelledby={headingId} className="rounded-card border-[1.5px] border-line bg-paper p-5 shadow-card">
+      <h3 id={headingId} className="font-display text-xl font-bold text-ink">
+        Condiciones de la reserva
+      </h3>
+      <dl className="mt-3 divide-y-[1.5px] divide-line">
+        {rows.map((row) => (
+          <div key={row.key} className="flex items-start justify-between gap-4 py-3 first:pt-2 last:pb-0">
+            <dt className="min-w-0">
+              <span className="block text-[17px] font-bold leading-snug text-ink">{row.title}</span>
+              {row.key === "empty_month" && row.emptyPercent != null ? (
+                <EmptyMonthHelp percent={row.emptyPercent} faqLink={showFaqLink} />
+              ) : (
+                <span className="mt-0.5 block text-[14px] leading-snug text-ink-soft">{row.help}</span>
+              )}
+            </dt>
+            <dd className="shrink-0 text-right">
+              <span className="block whitespace-nowrap font-display text-lg font-bold tabular-nums text-ink">{row.value}</span>
+              {row.valueNote && <span className="block text-[13px] text-ink-soft">{row.valueNote}</span>}
+              {row.arsFromUsd != null && (
+                <span className="flex items-center justify-end whitespace-nowrap text-[13px] tabular-nums text-ink-soft">
+                  ≈ {formatArs(usdToArsRounded(row.arsFromUsd, arsPerUsd))}
+                  <ExchangeRateNote compact align="end" />
+                </span>
+              )}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </section>
   );
 }

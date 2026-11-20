@@ -1,0 +1,34 @@
+<template>
+  <style>
+    @font-face { font-family: 'Bricolage Grotesque'; src: url('assets/fonts/BricolageGrotesque.woff2') format('woff2'); font-weight: 200 800; }
+    @font-face { font-family: 'Hanken Grotesk'; src: url('assets/fonts/HankenGrotesk.woff2') format('woff2'); font-weight: 100 900; }
+    #root { position: absolute; inset: 0; overflow: hidden; background: #0c3a2c; font-family: 'Hanken Grotesk', sans-serif; color: #fffdf8; }
+    #s03-lockup { position: absolute; left: 0; right: 0; top: 330px; display: flex; justify-content: center; align-items: center; gap: 44px; }
+    #s03-symbol { width: 230px; height: 230px; }
+    #s03-word { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 196px; letter-spacing: -0.035em; line-height: 1; }
+    #s03-word .l { display: inline-block; }
+    #s03-word .soft { color: #b9dfce; }
+    #s03-tag { position: absolute; left: 0; right: 0; top: 640px; text-align: center; font-size: 46px; font-weight: 500; color: #e2f1ea; }
+    #s03-tag .acc { color: #ef8551; font-weight: 700; }
+    #s03-zoom { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; background: #fbf6ec; opacity: 0; }
+  </style>
+  <div id="root" data-composition-id="s03-reveal" data-width="1920" data-height="1080">
+    <div id="s03-lockup">
+      <img id="s03-symbol" src="assets/brand/estured-symbol.svg" alt="EstuRed" />
+      <div id="s03-word"><span class="l">E</span><span class="l">s</span><span class="l">t</span><span class="l">u</span><span class="l soft">R</span><span class="l soft">e</span><span class="l soft">d</span></div>
+    </div>
+    <div id="s03-tag">Residencias estudiantiles <span class="acc">verificadas</span> en CABA</div>
+    <div id="s03-zoom"></div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo("#s03-symbol", { scale: 0.35, rotation: -8 }, { scale: 1, rotation: 0, duration: 0.55, ease: "back.out(1.5)" }, 0.02);
+    tl.fromTo("#s03-word .l", { opacity: 0, filter: "blur(6px)", y: 18 }, { opacity: 1, filter: "blur(0px)", y: 0, duration: 0.22, stagger: 0.06, ease: "power3.out" }, 0.3);
+    tl.fromTo("#s03-tag", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power3.out" }, 1.25);
+    // zoom a través del ícono: su crema se vuelve el suelo de la ficha
+    tl.to("#s03-word, #s03-tag", { opacity: 0, filter: "blur(10px)", duration: 0.2, ease: "power2.in" }, 2.9);
+    tl.to("#s03-symbol", { scale: 14, duration: 0.5, ease: "power3.in", transformOrigin: "50% 50%" }, 2.95);
+    tl.to("#s03-zoom", { opacity: 1, duration: 0.12, ease: "none" }, 3.35);
+    window.__timelines["s03-reveal"] = tl;
+  </script>
+</template>

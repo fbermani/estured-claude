@@ -1,0 +1,133 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- button "Abrir menú":
+  - generic: menu
+- generic: EstuRed
+- button "Notificaciones, 19 sin leer":
+  - generic: notifications
+  - generic: "19"
+- complementary:
+  - link "Tus residencias":
+    - /url: /residence/dashboard
+    - generic: EstuRed
+  - button "Notificaciones, 19 sin leer":
+    - generic: notifications
+    - generic: "19"
+  - button "Cerrar menú":
+    - generic: close
+  - navigation:
+    - link "Panel":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e
+      - generic: dashboard
+      - generic: Panel
+    - link "Solicitudes":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/applications
+      - generic: inbox
+      - generic: Solicitudes
+    - link "Habitaciones":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/rooms
+      - generic: meeting_room
+      - generic: Habitaciones
+    - link "Disponibilidad":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/availability
+      - generic: bed
+      - generic: Disponibilidad
+    - link "Renovaciones":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/renewals
+      - generic: sync_alt
+      - generic: Renovaciones
+    - link "Residentes":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/residents
+      - generic: groups
+      - generic: Residentes
+    - link "Lista de espera":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/waitlist
+      - generic: hourglass_top
+      - generic: Lista de espera
+    - link "Preguntas, 1 preguntas sin responder":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/faq
+      - generic: forum
+      - generic: Preguntas
+      - generic: "1"
+    - link "Reglamento":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/regulation
+      - generic: gavel
+      - generic: Reglamento
+    - link "Soporte":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/support
+      - generic: support_agent
+      - generic: Soporte
+    - link "Plan":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/plan
+      - generic: workspace_premium
+      - generic: Plan
+    - link "Equipo":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/team
+      - generic: supervisor_account
+      - generic: Equipo
+  - link "Todas mis residencias":
+    - /url: /residence/dashboard
+    - generic: apartment
+    - generic: Todas mis residencias
+  - paragraph: owner.residencia.norte@example.com
+  - link "Editar perfil":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/profile
+    - generic: edit
+    - generic: Editar perfil
+  - button "Salir":
+    - generic: logout
+    - generic: Salir
+- navigation "Navegación principal":
+  - link "Panel":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e
+    - generic: dashboard
+    - generic: Panel
+  - link "Solicitudes":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/applications
+    - generic: inbox
+    - generic: Solicitudes
+  - link "Camas, Disponibilidad":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/availability
+    - generic: bed
+    - generic: Camas
+  - link "Residentes":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/residents
+    - generic: groups
+    - generic: Residentes
+  - button "Más, 1 avisos pendientes":
+    - generic: more_horiz
+    - generic: Más
+- main:
+  - generic: gavel
+  - text: Reglamento
+  - heading "Reglamento" [level=1]
+  - paragraph: El que lee y acepta quien envía una solicitud.
+  - paragraph: "Es el reglamento que lee quien mira tu ficha y que acepta al enviar su solicitud. Podés partir del modelo de EstuRed o cargar el tuyo. No lo revisa EstuRed: lo que publicás rige apenas lo publicás, y cada versión queda registrada."
+  - paragraph: "Este modelo es orientativo: no es asesoramiento legal ni un contrato. Cada residencia lo adapta a su realidad y a la normativa que le aplique, y conviene que un profesional lo revise (sobre todo cámaras, medidas por incumplimiento, menores y devolución del depósito). EstuRed es una plataforma intermediaria: no redacta ni firma contratos entre residencia y residente, y no fija lo que cobra la residencia."
+  - paragraph: "Versión vigente: 2, publicada el 25/10/2026."
+  - button "Partir del modelo de EstuRed"
+  - button "Es un reglamento propio" [disabled]
+  - button "Armarlo paso a paso"
+  - button "Descargar (.txt)"
+  - button "Imprimir / guardar como PDF"
+  - generic: Reglamento propio de la residencia.
+  - generic: Texto del reglamento
+  - textbox "Texto del reglamento": CONVIVENCIA Y HORARIOS Art. 1. Objeto y aceptación Este reglamento ordena la convivencia en Residencia Norte. Quien reside lo recibe al ingresar y declara haberlo leído. Las modificaciones se comunican por correo con 15 días de anticipación. Art. 2. Horarios de silencio Se guarda silencio desde las 23:00 hasta las 7:00 y entre las 14:00 y las 16:00. Música y videos, con auriculares en habitaciones y espacios comunes. Art. 3. Visitas Las visitas se reciben de 10:00 a 21:00 y se anuncian en recepción. Permanecen en los espacios comunes. El pernocte de visitas se permite hasta 2 noches con autorización previa del responsable. PAGOS Art. 4. Mensualidad La mensualidad se paga del día 1 al 10 de cada mes, por transferencia. Si el pago no llega en fecha, se avisa a administración y se acuerda cómo regularizarlo. Art. 5. Egreso Se avisa con 30 días de anticipación. La habitación se entrega limpia, con las llaves y accesos, y se hace un recorrido con el responsable.
+  - paragraph: "977/40.000 caracteres. Texto plano: una línea en mayúsculas es un título de sección y «Art. N.» abre un artículo."
+  - button "Publicar versión nueva" [disabled]
+  - paragraph: Los cambios rigen para solicitudes nuevas; las que ya aceptaron una versión anterior conservan esa versión.
+  - heading "Historial de versiones" [level=2]
+  - list:
+    - generic: Versión 2
+    - generic: Vigente
+    - generic: Reglamento propio
+    - generic: 25/10/2026
+    - generic "Ver el texto"
+    - generic: Versión 1
+    - generic: Reemplazada
+    - generic: Reglamento propio
+    - generic: 11/10/2026
+    - generic "Ver el texto"
+- button "Ricardo — Dueño de Residencia": Ricardo — Dueño de Residencia
+- button "Open Next.js Dev Tools":
+- alert

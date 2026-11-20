@@ -1,0 +1,186 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- complementary:
+  - paragraph: EstuRed Admin
+  - paragraph: Panel de administración
+  - button "Notificaciones":
+    - generic: notifications
+  - navigation "Administración":
+    - link "Dashboard":
+      - /url: /admin/dashboard
+      - generic: Dashboard
+    - paragraph: Residencias
+    - link "Residencias":
+      - /url: /admin/residences
+      - generic: Residencias
+    - link "Verificaciones":
+      - /url: /admin/verifications
+      - generic: Verificaciones
+    - link "Ediciones de perfil":
+      - /url: /admin/profile-edits
+      - generic: Ediciones de perfil
+    - link "Solicitudes de alta":
+      - /url: /admin/solicitudes-alta
+      - generic: Solicitudes de alta
+    - link "Residencias pedidas":
+      - /url: /admin/residencias-pedidas
+      - generic: Residencias pedidas
+    - link "Preguntas de fichas":
+      - /url: /admin/faq
+      - generic: Preguntas de fichas
+    - link "Ítems «Otro» de fichas":
+      - /url: /admin/custom-amenities
+      - generic: Ítems «Otro» de fichas
+    - paragraph: Operación
+    - link "Solicitudes":
+      - /url: /admin/applications
+      - generic: Solicitudes
+    - link "Propuestas familiar":
+      - /url: /admin/family-proposals
+      - generic: Propuestas familiar
+    - link "Pagos":
+      - /url: /admin/payments
+      - generic: Pagos
+    - link "Actividad":
+      - /url: /admin/activity
+      - generic: Actividad
+    - link "Seguimiento":
+      - /url: /admin/followups
+      - generic: Seguimiento
+    - paragraph: Plataforma
+    - link "Comunidad":
+      - /url: /admin/community
+      - generic: Comunidad
+    - link "Visibilidad y penalizaciones":
+      - /url: /admin/visibility
+      - generic: Visibilidad y penalizaciones
+    - link "Administración de tarifas":
+      - /url: /admin/pricing
+      - generic: Administración de tarifas
+    - link "Documentos":
+      - /url: /admin/documents
+      - generic: Documentos
+    - link "Tipo de cambio":
+      - /url: /admin/exchange-rate
+      - generic: Tipo de cambio
+    - link "Usuarios":
+      - /url: /admin/users
+      - generic: Usuarios
+    - paragraph: Soporte
+    - link "Soporte":
+      - /url: /admin/support-cases
+      - generic: Soporte
+  - generic: A
+  - paragraph: admin.operaciones@estured.test
+  - paragraph: Admin
+  - button "Cerrar sesión"
+  - button "Colapsar menú":
+- main:
+  - heading "Tipo de cambio" [level=1]
+  - paragraph: "Fuente confirmada: monedapi.ar (dólar blue, valor de venta). Usado para toda conversión USD→ARS y el cálculo del fee."
+  - paragraph: ARS 1.570
+  - paragraph: por USD 1 — monedapi.ar
+  - generic: Automático
+  - paragraph: "Última actualización automática: 14/11/2026, 00:25"
+  - button "Forzar actualización"
+  - button "Establecer override manual"
+  - heading "Histórico" [level=2]
+  - table:
+    - rowgroup:
+      - row "Fecha ARS/USD Fuente Tipo":
+        - columnheader "Fecha"
+        - columnheader "ARS/USD"
+        - columnheader "Fuente"
+        - columnheader "Tipo"
+    - rowgroup:
+      - row "2026-11-14 1.570 monedapi.ar Automático":
+        - cell "2026-11-14"
+        - cell "1.570"
+        - cell "monedapi.ar"
+        - cell "Automático":
+          - generic: Automático
+      - row "2026-11-13 1.565 monedapi.ar Automático":
+        - cell "2026-11-13"
+        - cell "1.565"
+        - cell "monedapi.ar"
+        - cell "Automático":
+          - generic: Automático
+      - row "2026-11-12 1.565 monedapi.ar Automático":
+        - cell "2026-11-12"
+        - cell "1.565"
+        - cell "monedapi.ar"
+        - cell "Automático":
+          - generic: Automático
+      - row "2026-11-11 1.565 monedapi.ar Automático":
+        - cell "2026-11-11"
+        - cell "1.565"
+        - cell "monedapi.ar"
+        - cell "Automático":
+          - generic: Automático
+      - row "2026-11-10 1.555 monedapi.ar Automático":
+        - cell "2026-11-10"
+        - cell "1.555"
+        - cell "monedapi.ar"
+        - cell "Automático":
+          - generic: Automático
+      - row "2026-11-09 1.555 monedapi.ar Automático":
+        - cell "2026-11-09"
+        - cell "1.555"
+        - cell "monedapi.ar"
+        - cell "Automático":
+          - generic: Automático
+      - row "2026-11-08 1.555 monedapi.ar Automático":
+        - cell "2026-11-08"
+        - cell "1.555"
+        - cell "monedapi.ar"
+        - cell "Automático":
+          - generic: Automático
+      - row "2026-11-07 1.555 monedapi.ar Automático":
+        - cell "2026-11-07"
+        - cell "1.555"
+        - cell "monedapi.ar"
+        - cell "Automático":
+          - generic: Automático
+      - row "2026-11-06 1.555 monedapi.ar Automático":
+        - cell "2026-11-06"
+        - cell "1.555"
+        - cell "monedapi.ar"
+        - cell "Automático":
+          - generic: Automático
+      - row "2026-11-05 1.565 monedapi.ar Automático":
+        - cell "2026-11-05"
+        - cell "1.565"
+        - cell "monedapi.ar"
+        - cell "Automático":
+          - generic: Automático
+      - row "2026-11-04 1.565 monedapi.ar Automático":
+        - cell "2026-11-04"
+        - cell "1.565"
+        - cell "monedapi.ar"
+        - cell "Automático":
+          - generic: Automático
+      - row "2026-11-03 1.565 monedapi.ar Automático":
+        - cell "2026-11-03"
+        - cell "1.565"
+        - cell "monedapi.ar"
+        - cell "Automático":
+          - generic: Automático
+      - row "2026-11-02 1.565 monedapi.ar Automático":
+        - cell "2026-11-02"
+        - cell "1.565"
+        - cell "monedapi.ar"
+        - cell "Automático":
+          - generic: Automático
+      - row "2026-11-01 1.565 monedapi.ar Automático":
+        - cell "2026-11-01"
+        - cell "1.565"
+        - cell "monedapi.ar"
+        - cell "Automático":
+          - generic: Automático
+      - row "2026-10-31 1.565 monedapi.ar Automático":
+        - cell "2026-10-31"
+        - cell "1.565"
+        - cell "monedapi.ar"
+        - cell "Automático":
+          - generic: Automático
+- button "Admin Operativo": Admin Operativo

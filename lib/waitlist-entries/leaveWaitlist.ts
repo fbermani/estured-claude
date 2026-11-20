@@ -28,10 +28,15 @@ export async function leaveWaitlist(
     return { ok: false, error: "Esta entrada ya no está activa." };
   }
 
-  const { error } = await admin
+  const { data: updated, error } = await admin
     .from("waitlist_entries")
     .update({ status: "removed_by_student", removed_at: new Date().toISOString(), removed_by: params.actorUserId })
-    .eq("id", entry.id);
+    .eq("id", entry.id)
+    .eq("status", entry.status)
+    .select("id");
+  if (!error && (updated ?? []).length === 0) {
+    return { ok: false, error: "La entrada cambió mientras tanto. Recargá la página." };
+  }
   if (error) {
     console.error("[waitlist] leaveWaitlist update failed:", error);
     return { ok: false, error: "No pudimos sacarte de la lista de espera. Intentá de nuevo." };

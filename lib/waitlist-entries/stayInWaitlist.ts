@@ -32,10 +32,28 @@ export async function stayInWaitlist(
     return { ok: false, error: "Esta entrada no tiene una notificación pendiente de confirmar." };
   }
 
-  const { error } = await admin.from("waitlist_entries").update({ status: "active" }).eq("id", entry.id);
-  if (error) {
-    console.error("[waitlist] stayInWaitlist update failed:", error);
+  // DR41: «Decidió esperar» solo si venía de un aviso «hay lugar»; en un chequeo de retención no se marca. Sin la migración 0079 degrada sin la marca.
+  const markWaiting = entry.status === "availability_notification_sent";
+  const doUpdate = (withMark: boolean) =>
+    admin
+      .from("waitlist_entries")
+      .update(withMark ? { status: "active", waiting_confirmed_at: new Date().toISOString() } : { status: "active" })
+      .eq("id", entry.id)
+      .eq("status", entry.status)
+      .select("id");
+  let update = await doUpdate(markWaiting);
+  if (update.error && markWaiting && (update.error.code === "42703" || update.error.code === "PGRST204")) {
+    update = await doUpdate(false);
+  }
+  if (update.error?.code === "23505") {
+    return { ok: false, error: "Ya estás en la lista de esa residencia para este tipo de habitación." };
+  }
+  if (update.error) {
+    console.error("[waitlist] stayInWaitlist update failed:", update.error);
     return { ok: false, error: "No pudimos actualizar tu lista de espera. Intentá de nuevo." };
+  }
+  if ((update.data ?? []).length === 0) {
+    return { ok: false, error: "La entrada cambió mientras tanto. Recargá la página." };
   }
 
   await createAuditLog(admin, {

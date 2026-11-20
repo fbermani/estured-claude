@@ -1,4 +1,6 @@
 import { formatDate } from "@/lib/dates/format";
+import { ResidenceHero } from "@/components/residences/ResidenceHero";
+import { BackToProfileLink } from "@/components/residences/BackToProfileLink";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -120,9 +122,10 @@ export default async function ResidenceAvailabilityPage({
   const roomsHref = `/residence/${residenceId}/rooms`;
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-14">
-      <h1 className="text-2xl font-bold text-ink">Disponibilidad</h1>
-      <p className="mt-1 text-sm text-ink-soft">
+    <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-8">
+      <BackToProfileLink residenceId={residenceId} className="mb-2" />
+      <ResidenceHero icon="bed" title="Disponibilidad" subtitle="Cuántos lugares ofrecés, por tipo de habitación y por género." />
+      <p className="text-sm text-ink-soft">
         Acá informás cuántos lugares ofrecés, por tipo de habitación y por género. Partimos de las camas libres que ya cargaste en{" "}
         <Link href={roomsHref} className="font-semibold text-forest-700 hover:underline">
           Habitaciones

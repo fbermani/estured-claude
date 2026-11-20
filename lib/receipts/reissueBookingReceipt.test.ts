@@ -288,4 +288,20 @@ describe.skipIf(!hasCreds)("reissueBookingReceipt (integración)", () => {
       await cleanupFixture(fixture, extraIds);
     }
   });
+
+  it("SEG15-03: tres reemisiones simultáneas dejan un solo comprobante vigente", async () => {
+    const fixture = await createConfirmedReservationWithReceipt();
+    const extraIds: string[] = [];
+    try {
+      const call = (n: number) =>
+        reissueBookingReceipt(admin, { receiptId: fixture.receiptId, actorUserId: adminUserId, actorRole: "admin", reason: `Reemisión simultánea ${n}.` });
+      const results = await Promise.all([call(1), call(2), call(3)]);
+      for (const r of results) if (r.ok) extraIds.push(r.newReceiptId);
+      expect(results.filter((r) => r.ok)).toHaveLength(1);
+      const { data: issued } = await admin.from("booking_receipts").select("id").eq("reservation_id", fixture.reservationId).eq("status", "issued");
+      expect(issued).toHaveLength(1);
+    } finally {
+      await cleanupFixture(fixture, extraIds);
+    }
+  });
 });

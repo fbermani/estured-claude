@@ -18,22 +18,25 @@ export function RegulationModal({
   title: string;
   intro: string;
   footnote?: string | null;
-  downloadHref: string;
+  /** Descarga del reglamento (la residencia cargó el suyo); `null` = no se ofrece descarga (rige el modelo base). */
+  downloadHref: string | null;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const btn =
-    "inline-flex items-center gap-2 rounded-full border-[1.5px] border-line-2 bg-paper px-4 py-2 text-sm font-semibold text-ink transition-colors hover:border-forest hover:bg-forest-tint hover:text-forest-700";
+    "inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full border-[1.5px] border-line-2 bg-paper px-4 text-[15px] font-semibold text-ink transition-colors hover:border-forest hover:bg-forest-tint hover:text-forest-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest";
   return (
     <>
       <button type="button" onClick={() => setOpen(true)} className={btn}>
         <Icon name="article" className="text-base" />
         Leer reglamento
       </button>
-      <a href={downloadHref} download className={btn}>
-        <Icon name="download" className="text-base" />
-        Descargar reglamento
-      </a>
+      {downloadHref && (
+        <a href={downloadHref} download className={btn}>
+          <Icon name="download" className="text-base" />
+          Descargar el reglamento
+        </a>
+      )}
       <Dialog open={open} onClose={() => setOpen(false)} labelledBy="reglamento-title" maxWidthClass="sm:max-w-2xl">
         <div className="flex items-start justify-between gap-3 border-b border-line px-5 py-4">
           <h2 id="reglamento-title" className="text-lg font-bold text-ink">
@@ -54,12 +57,14 @@ export function RegulationModal({
           {children}
           {footnote && <p className="mt-4 text-xs text-ink-faint">{footnote}</p>}
         </div>
-        <div className="border-t border-line px-5 py-3">
-          <a href={downloadHref} download className={btn}>
-            <Icon name="download" className="text-base" />
-            Descargar
-          </a>
-        </div>
+        {downloadHref && (
+          <div className="border-t border-line px-5 py-3">
+            <a href={downloadHref} download className={btn}>
+              <Icon name="download" className="text-base" />
+              Descargar
+            </a>
+          </div>
+        )}
       </Dialog>
     </>
   );

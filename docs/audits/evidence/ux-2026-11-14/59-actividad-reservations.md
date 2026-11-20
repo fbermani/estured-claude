@@ -1,0 +1,212 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- complementary:
+  - paragraph: EstuRed Admin
+  - paragraph: Panel de administración
+  - button "Notificaciones":
+    - generic: notifications
+  - navigation "Administración":
+    - link "Dashboard":
+      - /url: /admin/dashboard
+      - generic: Dashboard
+    - paragraph: Residencias
+    - link "Residencias":
+      - /url: /admin/residences
+      - generic: Residencias
+    - link "Verificaciones":
+      - /url: /admin/verifications
+      - generic: Verificaciones
+    - link "Ediciones de perfil":
+      - /url: /admin/profile-edits
+      - generic: Ediciones de perfil
+    - link "Solicitudes de alta":
+      - /url: /admin/solicitudes-alta
+      - generic: Solicitudes de alta
+    - link "Residencias pedidas":
+      - /url: /admin/residencias-pedidas
+      - generic: Residencias pedidas
+    - link "Preguntas de fichas":
+      - /url: /admin/faq
+      - generic: Preguntas de fichas
+    - link "Ítems «Otro» de fichas":
+      - /url: /admin/custom-amenities
+      - generic: Ítems «Otro» de fichas
+    - paragraph: Operación
+    - link "Solicitudes":
+      - /url: /admin/applications
+      - generic: Solicitudes
+    - link "Propuestas familiar":
+      - /url: /admin/family-proposals
+      - generic: Propuestas familiar
+    - link "Pagos":
+      - /url: /admin/payments
+      - generic: Pagos
+    - link "Actividad":
+      - /url: /admin/activity
+      - generic: Actividad
+    - link "Seguimiento":
+      - /url: /admin/followups
+      - generic: Seguimiento
+    - paragraph: Plataforma
+    - link "Comunidad":
+      - /url: /admin/community
+      - generic: Comunidad
+    - link "Visibilidad y penalizaciones":
+      - /url: /admin/visibility
+      - generic: Visibilidad y penalizaciones
+    - link "Administración de tarifas":
+      - /url: /admin/pricing
+      - generic: Administración de tarifas
+    - link "Documentos":
+      - /url: /admin/documents
+      - generic: Documentos
+    - link "Tipo de cambio":
+      - /url: /admin/exchange-rate
+      - generic: Tipo de cambio
+    - link "Usuarios":
+      - /url: /admin/users
+      - generic: Usuarios
+    - paragraph: Soporte
+    - link "Soporte":
+      - /url: /admin/support-cases
+      - generic: Soporte
+  - generic: A
+  - paragraph: admin.operaciones@estured.test
+  - paragraph: Admin
+  - button "Cerrar sesión"
+  - button "Colapsar menú":
+- main:
+  - heading "Actividad" [level=1]
+  - paragraph: Negociaciones, reservas, renovaciones, revocaciones, comprobantes, listas de espera y logs — todo lo que es seguimiento, en un solo lugar.
+  - navigation:
+    - link "Negociaciones":
+      - /url: /admin/activity?tab=negotiations
+    - link "Reservas":
+      - /url: /admin/activity?tab=reservations
+    - link "Renovaciones":
+      - /url: /admin/activity?tab=renewals
+    - link "Revocaciones":
+      - /url: /admin/activity?tab=revocations
+    - link "Comprobantes":
+      - /url: /admin/activity?tab=receipts
+    - link "Listas de espera":
+      - /url: /admin/activity?tab=waitlists
+    - link "Logs":
+      - /url: /admin/activity?tab=logs
+  - heading "Reservas" [level=1]
+  - paragraph: 1 activa(s) de 8 en total, todas las residencias. Desde acá se puede reabrir la ventana de pago del fee de una reserva vencida sin pagar.
+  - region "Reservas":
+    - table:
+      - rowgroup:
+        - row "Alta Estudiante Residencia Tipo Ingreso Confirmada Estado":
+          - columnheader "Alta"
+          - columnheader "Estudiante"
+          - columnheader "Residencia"
+          - columnheader "Tipo"
+          - columnheader "Ingreso"
+          - columnheader "Confirmada"
+          - columnheader "Estado"
+          - columnheader
+      - rowgroup:
+        - row "24/10/2026 Camila R. Residencia Norte Palermo Individual 01/04/2026 09/10/2026 Cancelada (estudiante)":
+          - cell "24/10/2026"
+          - cell "Camila R."
+          - cell "Residencia Norte Palermo":
+            - text: Residencia Norte
+            - generic: Palermo
+          - cell "Individual"
+          - cell "01/04/2026"
+          - cell "09/10/2026"
+          - cell "Cancelada (estudiante)":
+            - generic: Cancelada (estudiante)
+          - cell
+        - row "24/10/2026 Camila R. Residencia Norte Palermo Individual 01/03/2026 12/10/2026 Cancelada (estudiante)":
+          - cell "24/10/2026"
+          - cell "Camila R."
+          - cell "Residencia Norte Palermo":
+            - text: Residencia Norte
+            - generic: Palermo
+          - cell "Individual"
+          - cell "01/03/2026"
+          - cell "12/10/2026"
+          - cell "Cancelada (estudiante)":
+            - generic: Cancelada (estudiante)
+          - cell
+        - row "23/10/2026 Lucia F. Residencia Norte Palermo Individual 01/03/2027 — Fee vencido Reabrir":
+          - cell "23/10/2026"
+          - cell "Lucia F."
+          - cell "Residencia Norte Palermo":
+            - text: Residencia Norte
+            - generic: Palermo
+          - cell "Individual"
+          - cell "01/03/2027"
+          - cell "—"
+          - cell "Fee vencido":
+            - generic: Fee vencido
+          - cell "Reabrir":
+            - button "Reabrir"
+        - row "21/10/2026 Camila R. Residencia Norte Palermo Individual 01/05/2026 — Fee vencido Reabrir":
+          - cell "21/10/2026"
+          - cell "Camila R."
+          - cell "Residencia Norte Palermo":
+            - text: Residencia Norte
+            - generic: Palermo
+          - cell "Individual"
+          - cell "01/05/2026"
+          - cell "—"
+          - cell "Fee vencido":
+            - generic: Fee vencido
+          - cell "Reabrir":
+            - button "Reabrir"
+        - row "20/10/2026 Camila R. Residencia Norte Palermo Doble 01/06/2026 20/10/2026 Cancelada (estudiante)":
+          - cell "20/10/2026"
+          - cell "Camila R."
+          - cell "Residencia Norte Palermo":
+            - text: Residencia Norte
+            - generic: Palermo
+          - cell "Doble"
+          - cell "01/06/2026"
+          - cell "20/10/2026"
+          - cell "Cancelada (estudiante)":
+            - generic: Cancelada (estudiante)
+          - cell
+        - row "20/10/2026 Camila R. Residencia Norte Palermo Individual 01/02/2026 20/10/2026 Completada":
+          - cell "20/10/2026"
+          - cell "Camila R."
+          - cell "Residencia Norte Palermo":
+            - text: Residencia Norte
+            - generic: Palermo
+          - cell "Individual"
+          - cell "01/02/2026"
+          - cell "20/10/2026"
+          - cell "Completada":
+            - generic: Completada
+          - cell
+        - row "20/10/2026 Camila R. Residencia Norte Palermo Doble 10/08/2026 — Fee vencido Reabrir":
+          - cell "20/10/2026"
+          - cell "Camila R."
+          - cell "Residencia Norte Palermo":
+            - text: Residencia Norte
+            - generic: Palermo
+          - cell "Doble"
+          - cell "10/08/2026"
+          - cell "—"
+          - cell "Fee vencido":
+            - generic: Fee vencido
+          - cell "Reabrir":
+            - button "Reabrir"
+        - row "20/10/2026 Lucia F. Residencia Río de la Plata Recoleta Individual 15/02/2027 20/10/2026 Confirmada":
+          - cell "20/10/2026"
+          - cell "Lucia F."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Individual"
+          - cell "15/02/2027"
+          - cell "20/10/2026"
+          - cell "Confirmada":
+            - generic: Confirmada
+          - cell
+- button "Admin Operativo": Admin Operativo
+- button "Open Next.js Dev Tools":
+- alert

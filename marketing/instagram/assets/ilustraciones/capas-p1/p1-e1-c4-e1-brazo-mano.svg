@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920" role="img"><title>Brazo derecho de E1 con mano y pulgar, delante del celular.</title><desc>Brazo derecho de E1 con mano y pulgar, delante del celular.</desc><defs /><style>
+  .bg-pared{fill:#ead7b4}
+  .bg-zocalo{fill:#d8bf93}
+  .bg-piso{fill:#c9a77a}
+  .bg-tabla{fill:#b9966a}
+  .bg-marco{fill:#fbf6ec}
+  .bg-vidrio{fill:#f6d9a0}
+  .bg-sol{fill:#fbe9c4}
+  .bg-cuadro{fill:#a87f50}
+  .bg-papel{fill:#fbf6ec}
+  .bg-tierra{fill:#e6cf9f}
+  .bg-ruta{fill:none;stroke:#1f7d5c;stroke-linecap:round}
+  .bg-origen{fill:#c29a55}
+  .bg-caba{fill:#0c3a2c}
+  .bg-luz{fill:#fff3d6;opacity:0.45}
+
+  .fondo{fill:#fbf6ec}
+  .piso{fill:#ece3cf}
+  .piel{fill:#b97a4f}
+  .piel-sombra{fill:#a4683f}
+  .pelo{fill:#2a1d17}
+  .tinta{fill:#1d2722}
+  .trazo{fill:none;stroke:#1d2722;stroke-linecap:round}
+  .abrigo{fill:#1f7d5c}
+  .abrigo-brazo{fill:none;stroke:#1a6e51;stroke-linecap:round;stroke-linejoin:round}
+  .abrigo-brazo-lejos{fill:none;stroke:#155c44;stroke-linecap:round}
+  .abrigo-linea{fill:none;stroke:#0c3a2c;stroke-linecap:round}
+  .cuello{fill:#0c3a2c}
+  .pantalon{fill:#2f3b45}
+  .pantalon-lejos{fill:#27313a}
+  .zapatilla{fill:#1d2722}
+  .mochila{fill:#d8b06a}
+  .mochila-sombra{fill:#c29a55}
+  .tira{fill:none;stroke:#d8b06a;stroke-linecap:round}
+  .valija{fill:#0c3a2c}
+  .valija-manija{fill:#14503c}
+  .valija-banda{fill:#f1d9a8}
+  .celular{fill:#1d2722}
+  .cama-colchon{fill:#efe4cb}
+  .cama-base{fill:#e0cfa8}
+  .cama-almohada{fill:#f8f1e3}
+
+  .piso{fill:#1d2722;fill-opacity:0.12}
+</style>
+<g transform="translate(-40 430) scale(0.9)"><g id="brazo-der" data-parte="brazo-der">
+    <path class="abrigo-brazo" stroke-width="46" d="M536 406 Q526 560 590 588 Q632 600 668 578" />
+    <circle class="piel" cx="682" cy="572" r="21" />
+  </g>
+  <circle class="piel-sombra" cx="716" cy="540" r="17" />
+</g></svg>

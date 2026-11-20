@@ -13,6 +13,7 @@ featured: true
 related_guides:
 - 02-guia-mudarte-buenos-aires
 - 05-guia-para-familias
+- 07-residencia-o-departamento-compartido
 cta:
   label: Buscar residencias
   href: /search
@@ -23,6 +24,8 @@ cta:
 ESTUDIANTES Y FAMILIAS
 
 Qué revisar antes de decidir dónde vas a vivir, especialmente si reservás a distancia.
+
+Para elegir bien una residencia estudiantil, definí primero tu presupuesto total, el tiempo máximo hasta tu facultad y el tipo de habitación que necesitás. Después compará la ubicación real, los espacios compartidos, el reglamento y el costo total (precio mensual, reserva, depósito y ajustes) antes de enviar una solicitud.
 
 ## Empezá por lo que necesitás, no por la foto más linda
 

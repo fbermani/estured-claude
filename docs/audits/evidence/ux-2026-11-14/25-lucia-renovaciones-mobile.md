@@ -1,0 +1,101 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- button "Abrir menú":
+  - generic: menu
+- generic: EstuRed
+- button "Notificaciones, 4 sin leer":
+  - generic: notifications
+  - generic: "4"
+- complementary:
+  - link "EstuRed, inicio":
+    - /url: /
+    - generic: EstuRed
+  - button "Notificaciones, 4 sin leer":
+    - generic: notifications
+    - generic: "4"
+  - button "Cerrar menú":
+    - generic: close
+  - navigation:
+    - link "Inicio":
+      - /url: /students/dashboard
+      - generic: home
+      - generic: Inicio
+    - link "Mi residencia":
+      - /url: /students/residency
+      - generic: apartment
+      - generic: Mi residencia
+    - link "Renovaciones":
+      - /url: /students/renewals
+      - generic: sync
+      - generic: Renovaciones
+    - link "Mis solicitudes":
+      - /url: /students/applications
+      - generic: description
+      - generic: Mis solicitudes
+    - link "Mi perfil":
+      - /url: /students/profile
+      - generic: person
+      - generic: Mi perfil
+    - link "Favoritos":
+      - /url: /students/favorites
+      - generic: favorite
+      - generic: Favoritos
+    - link "Lista de espera":
+      - /url: /students/waitlist
+      - generic: hourglass_top
+      - generic: Lista de espera
+    - link "Soporte":
+      - /url: /students/support
+      - generic: support_agent
+      - generic: Soporte
+  - paragraph: lucia.fernandez@example.com
+  - link "Botón de arrepentimiento":
+    - /url: /students/revocation
+    - generic: undo
+    - generic: Botón de arrepentimiento
+  - button "Salir":
+    - generic: logout
+    - generic: Salir
+- navigation "Navegación principal":
+  - link "Inicio":
+    - /url: /students/dashboard
+    - generic: home
+    - generic: Inicio
+  - link "Mi residencia":
+    - /url: /students/residency
+    - generic: apartment
+    - generic: Residencia
+  - link "Renovar, Renovaciones":
+    - /url: /students/renewals
+    - generic: sync
+    - generic: Renovar
+  - link "Mis solicitudes":
+    - /url: /students/applications
+    - generic: description
+    - generic: Solicitudes
+  - button "Más":
+    - generic: more_horiz
+    - generic: Más
+- main:
+  - heading "Renovaciones" [level=1]
+  - paragraph: Solicitá renovar tu estadía o revisá las ofertas de renovación que te envió la residencia.
+  - button "Residencia Río de la Plata Recoleta Renovación confirmada" [expanded]:
+    - paragraph: Residencia Río de la Plata
+    - paragraph: Recoleta
+    - generic: Renovación confirmada
+    - generic: expand_more
+  - term: Ingreso
+  - definition: 15/02/2027
+  - term: Duración inicial
+  - definition: 6 meses
+  - term: Fin del contrato
+  - definition: 20/07/2027
+  - term: Restante
+  - definition: 248 días
+  - link "Ver oferta de renovación Renovación confirmada":
+    - /url: /students/renewals/80e21896-f584-4af6-b803-d3b1c856e91f
+    - generic: Ver oferta de renovación
+    - generic: Renovación confirmada
+- button "Lucía — Estudiante Alojada": Lucía — Estudiante Alojada
+- button "Open Next.js Dev Tools":
+- alert

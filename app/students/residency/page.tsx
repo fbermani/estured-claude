@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { getSessionUser } from "@/lib/auth/session";
+import { getSessionUser, hasAnyRole } from "@/lib/auth/session";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
@@ -102,7 +102,7 @@ function PendingActivationBlock({ pending }: { pending: StayRow[] }) {
   );
 }
 
-export default async function StudentResidencyPage({ searchParams }: { searchParams?: Promise<{ pendiente?: string; aviso?: string }> }) {
+export default async function StudentResidencyPage({ searchParams }: { searchParams?: Promise<{ pendiente?: string; aviso?: string; estudiante?: string }> }) {
   const sp = await searchParams;
   const pendingNotice = sp?.pendiente === "1";
   const registerNoticeFailed = sp?.aviso === "error";
@@ -151,14 +151,38 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
     mine = (data as unknown as StayRow[]) ?? [];
   }
 
+  // Familiar (sin perfil de estudiante): la estadía es la de uno de sus estudiantes vinculados. Con más de uno se elige con
+  // `?estudiante=` (si falta o no corresponde, el primero con reserva confirmada).
+  const isFamilyOnly = Boolean(sessionUser && hasAnyRole(sessionUser, ["family_member"]) && !hasAnyRole(sessionUser, ["student"]));
+  const familyStudents: { id: string; name: string }[] = [];
+  let selectedStudentId: string | null = null;
+  if (isFamilyOnly && supabase) {
+    const { data: links } = await supabase
+      .from("reservations")
+      .select("student_profile_id, student_profiles(first_name)")
+      .eq("status", "confirmed")
+      .order("confirmed_at", { ascending: false });
+    const seen = new Set<string>();
+    for (const l of (links ?? []) as unknown as { student_profile_id: string; student_profiles: { first_name: string } | null }[]) {
+      if (seen.has(l.student_profile_id)) continue;
+      seen.add(l.student_profile_id);
+      familyStudents.push({ id: l.student_profile_id, name: l.student_profiles?.first_name ?? "tu familiar" });
+    }
+    selectedStudentId = familyStudents.find((st) => st.id === sp?.estudiante)?.id ?? familyStudents[0]?.id ?? null;
+  }
+
+  const subjectName = familyStudents.find((st) => st.id === selectedStudentId)?.name ?? "tu familiar";
+
   let reservation: ReservationRow | null = null;
   if (supabase) {
-    const { data, error: reservationError } = await supabase
+    let reservationQuery = supabase
       .from("reservations")
       .select(
         "id, start_date, initial_duration_months, booking_receipt_id, residences(id, name, public_area, slug, description, minimum_stay_months), room_types(name), application_snapshots(monthly_price_usd)",
       )
-      .eq("status", "confirmed")
+      .eq("status", "confirmed");
+    if (selectedStudentId) reservationQuery = reservationQuery.eq("student_profile_id", selectedStudentId);
+    const { data, error: reservationError } = await reservationQuery
       .order("confirmed_at", { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -364,7 +388,7 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
     ) {
       renewalStatus = { label: "Tu solicitud de renovación está esperando respuesta", tone: "amber" };
     } else if (renewalOffer?.status === "confirmed" || renewalOffer?.status === "receipt_issued") {
-      renewalStatus = { label: "Ya renovaste tu estadía", tone: "sage" };
+      renewalStatus = { label: isFamilyOnly ? `${subjectName} renovó su estadía` : "Ya renovaste tu estadía", tone: "sage" };
     }
 
     const sectionMap = Object.fromEntries((sections ?? []).map((s) => [s.section_type, s.content]));
@@ -471,9 +495,9 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
     <div className="tone-student mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
       <PageHero
         tone="student"
-        eyebrow="Tu casa"
+        eyebrow={isFamilyOnly ? "Su casa" : "Tu casa"}
         eyebrowIcon="home_work"
-        title="Mi residencia"
+        title={isFamilyOnly ? `Estadía de ${subjectName}` : "Mi residencia"}
         subtitle={`${residence?.name ?? ""} · ${residence?.public_area ?? ""}, CABA`}
         glyph="home_work"
         status={
@@ -489,6 +513,27 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
           </>
         }
       />
+
+      {isFamilyOnly && familyStudents.length > 1 && (
+        <nav aria-label="Elegí de quién ver la estadía" className="mb-5 flex flex-wrap items-center gap-2">
+          <span className="text-sm text-ink-soft">Estadía de:</span>
+          {familyStudents.map((st) => {
+            const active = st.id === selectedStudentId;
+            return (
+              <Link
+                key={st.id}
+                href={`/students/residency?estudiante=${st.id}`}
+                aria-current={active ? "page" : undefined}
+                className={`inline-flex min-h-11 items-center rounded-full border px-4 text-sm font-semibold transition-colors ${
+                  active ? "border-forest bg-forest text-white" : "border-line-2 bg-paper text-ink hover:border-forest"
+                }`}
+              >
+                {st.name}
+              </Link>
+            );
+          })}
+        </nav>
+      )}
 
       {stayChange && (
         <div className="mt-6 empty:hidden">
@@ -509,7 +554,7 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
           </div>
           <div className="grid content-start gap-4 p-5 md:p-6">
             <div>
-              <h2 className="font-display text-xl font-extrabold leading-tight text-ink">{residence.name}</h2>
+              <h2 className="font-display text-xl font-bold leading-tight text-ink">{residence.name}</h2>
               <p className="mt-0.5 flex items-center gap-1 text-sm text-ink-soft">
                 <Icon name="location_on" className="text-[17px] text-ink-faint" />
                 {residence.public_area}, CABA
@@ -517,13 +562,13 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
             </div>
             {services.length > 0 && (
               <div>
-                <h3 className="mb-2 text-[11px] font-bold uppercase tracking-[0.08em] text-ink-faint">Servicios incluidos</h3>
+                <h3 className="mb-2 text-xs font-bold uppercase tracking-[0.08em] text-ink-faint">Servicios incluidos</h3>
                 <AmenityGrid layout="chips" items={services.map((s) => ({ name: amenityDisplayName(s, amenityDetails), ...getServiceIcon(s) }))} />
               </div>
             )}
             {commonAreas.length > 0 && (
               <div>
-                <h3 className="mb-2 text-[11px] font-bold uppercase tracking-[0.08em] text-ink-faint">Áreas comunes</h3>
+                <h3 className="mb-2 text-xs font-bold uppercase tracking-[0.08em] text-ink-faint">Áreas comunes</h3>
                 <AmenityGrid layout="chips" items={commonAreas.map((a) => ({ name: amenityDisplayName(a, amenityDetails), ...getCommonAreaIcon(a) }))} />
               </div>
             )}
@@ -534,7 +579,7 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="flex min-w-0 flex-col gap-6 lg:col-span-2">
           <Card className="p-6">
-            <h2 className="text-xs font-extrabold uppercase tracking-wider text-muted">Tu estadía</h2>
+            <h2 className="text-xs font-bold uppercase tracking-wider text-muted">{isFamilyOnly ? `Estadía de ${subjectName}` : "Tu estadía"}</h2>
             <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
               <div>
                 <p className="text-xs text-ink-faint">Habitación</p>
@@ -635,7 +680,7 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
               <h2 className="text-xl font-bold text-ink">Sobre tu residencia</h2>
               {residence.description && <p className="mt-3 leading-relaxed text-ink-soft">{residence.description}</p>}
               <div className="mt-5">
-                <h3 className="text-sm font-extrabold uppercase tracking-wider text-muted">Reglas de convivencia</h3>
+                <h3 className="text-sm font-bold uppercase tracking-wider text-muted">Reglas de convivencia</h3>
                 <div className="mt-3">
                   <RulesHighlight rulesSummary={rulesSummary} pdfUrl={null} slug={residence.slug} hasRegulation />
                 </div>
@@ -654,7 +699,7 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
           {searchingChange && stayChange?.familyName && (
             <Card className="p-5">
               <div className="mb-3 flex items-center justify-between">
-                <p className="text-xs font-extrabold uppercase tracking-wider text-muted">Tu familiar vinculado</p>
+                <p className="text-xs font-bold uppercase tracking-wider text-muted">Tu familiar vinculado</p>
                 <Icon name="family_restroom" className="text-lg text-muted" />
               </div>
               <p className="text-sm leading-relaxed text-ink-soft">
@@ -665,7 +710,7 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
 
           <Card className="p-5">
             <div className="mb-3 flex items-center justify-between">
-              <p className="text-xs font-extrabold uppercase tracking-wider text-muted">Contacto y soporte</p>
+              <p className="text-xs font-bold uppercase tracking-wider text-muted">Contacto y soporte</p>
               <Icon name="support_agent" className="text-lg text-muted" />
             </div>
             <p className="text-sm text-ink-soft">
@@ -685,7 +730,7 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
       {community && (community.totalResidents > 0 || community.totalAvailable > 0) && residence && (
         <section id="comunidad" className="mt-8 scroll-mt-24">
           <h2 className="text-xl font-bold text-ink">Comunidad actual</h2>
-          <p className="mt-2 text-sm text-ink-soft">Tus compañeros de residencia — cada uno decide qué mostrar.</p>
+          <p className="mt-2 text-sm text-ink-soft">{isFamilyOnly ? `Los compañeros de residencia de ${subjectName}` : "Tus compañeros de residencia"} — cada uno decide qué mostrar.</p>
           <div className="mt-4">
             <ReservationSelectionProvider>
               <CommunityBrowser summary={community} slug={residence.slug} isGuest={false} allowSelection={false} />

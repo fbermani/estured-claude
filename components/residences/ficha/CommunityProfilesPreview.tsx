@@ -35,7 +35,7 @@ const typeRank = (name: string) => {
 function ProfileCard({ profile, index }: { profile: PreviewProfile; index: number }) {
   const origin = [profile.flag, profile.originCity ?? profile.nationality].filter(Boolean).join(" ");
   return (
-    <li className="flex items-center gap-3 rounded-[18px] border border-line bg-paper p-3 shadow-card transition-transform duration-200 ease-out-fresh hover:-translate-y-0.5">
+    <li className="flex items-center gap-3 rounded-card border border-line bg-paper p-3 shadow-card transition-transform duration-200 ease-out-fresh hover:-translate-y-0.5">
       <span
         aria-hidden="true"
         className={`flex size-11 shrink-0 items-center justify-center rounded-full text-[17px] font-bold ${TINTS[index % TINTS.length]}`}
@@ -56,7 +56,7 @@ function ProfileCard({ profile, index }: { profile: PreviewProfile; index: numbe
 
 function GhostCard({ index }: { index: number }) {
   return (
-    <li className="flex items-center gap-3 rounded-[18px] border border-line bg-paper p-3 shadow-card" aria-hidden="true">
+    <li className="flex items-center gap-3 rounded-card border border-line bg-paper p-3 shadow-card" aria-hidden="true">
       <span className={`flex size-11 shrink-0 items-center justify-center rounded-full ${TINTS[index % TINTS.length]}`}>
         <Icon name="person" className="text-2xl" />
       </span>
@@ -76,6 +76,7 @@ export function CommunityProfilesPreview({
   slots,
   totalProfiles,
   scrollFilters = false,
+  preview = false,
 }: {
   slug: string;
   isGuest: boolean;
@@ -86,6 +87,8 @@ export function CommunityProfilesPreview({
   totalProfiles: number;
   /** En el modal móvil los filtros van en una sola fila con scroll horizontal. */
   scrollFilters?: boolean;
+  /** Vista previa del equipo: el visitante ve lugares sin datos y NO se ofrecen los enlaces de crear cuenta / ingresar. */
+  preview?: boolean;
 }) {
   const [filter, setFilter] = useState<string>("all");
   const source: { id: string; roomTypeName: string | null }[] = isGuest ? slots : profiles;
@@ -100,7 +103,7 @@ export function CommunityProfilesPreview({
   return (
     <div className="space-y-3">
       {typeNames.length > 1 && (
-        <div role="group" aria-label="Filtrar por tipo de habitación" className={scrollFilters ? "-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0" : "flex flex-wrap gap-2"}>
+        <div role="group" aria-label="Filtrar por tipo de habitación" className={scrollFilters ? "relative -mx-5 flex gap-2 overflow-x-auto px-5 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0" : "flex flex-wrap gap-2"}>
           {[{ value: "all", label: `Todos · ${source.length}` }, ...typeNames.map((n) => ({ value: n, label: n }))].map((f) => (
             <button
               key={f.value}
@@ -132,18 +135,22 @@ export function CommunityProfilesPreview({
             <p className="max-w-[340px] text-[12.5px] text-ink-faint">
               Nombres, carreras e intereses de quienes eligen mostrarlos. Es gratis y no te compromete a nada.
             </p>
-            <Link
-              href="/register/student"
-              className="mt-2 inline-flex h-12 items-center justify-center rounded-full bg-forest px-6 text-sm font-bold text-white shadow-sm transition duration-200 ease-out-fresh motion-safe:active:scale-[0.97] hover:-translate-y-0.5 hover:bg-forest-600 hover:shadow-forest focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
-            >
-              Crear mi cuenta
-            </Link>
-            <Link
-              href="/login"
-              className="inline-flex min-h-11 items-center text-sm font-bold text-forest-700 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
-            >
-              Ya tengo cuenta
-            </Link>
+            {!preview && (
+              <>
+                <Link
+                  href="/register/student"
+                  className="mt-2 inline-flex h-12 items-center justify-center rounded-full bg-forest px-6 text-sm font-bold text-white shadow-sm transition duration-200 ease-out-fresh motion-safe:active:scale-[0.97] hover:-translate-y-0.5 hover:bg-forest-600 hover:shadow-forest focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+                >
+                  Crear mi cuenta
+                </Link>
+                <Link
+                  href="/login"
+                  className="inline-flex min-h-11 items-center text-sm font-bold text-forest-700 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+                >
+                  Ya tengo cuenta
+                </Link>
+              </>
+            )}
           </div>
         </div>
       ) : (
@@ -169,7 +176,7 @@ export function CommunityProfilesPreview({
               ))}
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block font-display text-lg font-extrabold leading-tight sm:text-xl">
+              <span className="block font-display text-lg font-bold leading-tight sm:text-xl">
                 Ver los {totalProfiles} {totalProfiles === 1 ? "perfil" : "perfiles"}
               </span>
               <span className="block text-[13px] text-white/85">Conocé con quién vas a vivir antes de reservar</span>

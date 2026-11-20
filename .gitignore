@@ -19,7 +19,12 @@ yarn-error.log*
 
 # env files — nunca commitear credenciales
 .env
-.env*.local
+.env*
+!.env.example
+*.key
+*.pem
+service-account*.json
+client_secret*.json
 
 # vercel
 .vercel
@@ -33,3 +38,22 @@ next-env.d.ts
 
 # Generado por el flujo dev/prod (Fase 0 auditoría) — no commitear
 db/_generated/
+
+# B14 (decisión del dueño 2026-11-12, opción A): material local que no se versiona
+# Datos del CRM de residencias (contactos y notas internas); los lee scripts/seed-crm-residencias.mjs
+scripts/data/
+# Caché de la herramienta Hallmark (capturas, salt)
+.hallmark/
+# Propuestas de diseño históricas (solo referencia local, pesan)
+design-proposals/
+# Proyectos de video: se versiona el fuente, no lo generado
+video/node_modules/
+video/build/
+video/out/
+video-hf/node_modules/
+video-hf/**/captures/
+video-hf/**/renders/
+video-hf/**/.hyperframes/
+video-hf/**/.waveform-cache/
+video-hf/**/.thumbnails/
+video-hf/**/.media/

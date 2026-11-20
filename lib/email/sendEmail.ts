@@ -1,9 +1,16 @@
 import "server-only";
 import { Resend } from "resend";
 
-/** TODO de producción (GAPS.md): dominio verificado. Hasta entonces Resend sandbox solo entrega al dueño de la cuenta. */
-const FROM_EMAIL = "onboarding@resend.dev";
-const FROM_ADDRESS = `EstuRed <${FROM_EMAIL}>`;
+/**
+ * Remitente. Producción: definir `EMAIL_FROM` con una dirección de un dominio verificado en Resend (p. ej.
+ * `no-reply@tudominio.com`, solo la dirección, sin nombre). Sin esa variable (o si es inválida) se usa el sandbox de
+ * Resend, que solo entrega al dueño de la cuenta (GAPS.md: dominio verificado).
+ */
+const SANDBOX_FROM_EMAIL = "onboarding@resend.dev";
+function fromEmail(): string {
+  const configured = (process.env.EMAIL_FROM ?? "").trim();
+  return sanitizeAddress(configured) ?? SANDBOX_FROM_EMAIL;
+}
 
 let client: Resend | null = null;
 function getClient(): Resend | null {
@@ -22,18 +29,21 @@ function getClient(): Resend | null {
  * un email que falla no debe poder tumbar la acción de negocio que lo
  * generó — el in-app queda como respaldo mínimo garantizado.
  *
- * `FROM_ADDRESS` usa el remitente sandbox de Resend porque el proyecto
- * todavía no tiene un dominio propio verificado — en ese modo, Resend
- * SOLO entrega al email con el que se creó la cuenta, no a destinatarios
- * reales. Cambiar a un remitente del dominio propio (`no-reply@estured.com`
- * o similar) es lo único que hace falta cuando el dominio exista — no
- * hay que tocar los call sites.
+ * Mientras `EMAIL_FROM` no esté definido se usa el remitente sandbox de Resend:
+ * en ese modo Resend SOLO entrega al email con el que se creó la cuenta, no a
+ * destinatarios reales. Al tener dominio verificado alcanza con definir
+ * `EMAIL_FROM` — no hay que tocar los call sites.
  */
 const SAFE_ADDRESS = /^[^\s@<>,;"\\\u0000-\u001f]+@[^\s@<>,;"\\\u0000-\u001f]+\.[^\s@<>,;"\\\u0000-\u001f]+$/;
 /** Dirección simple (sin nombre, listas ni caracteres de control): evita inyección de encabezados y envíos a varios destinatarios. */
 export function sanitizeAddress(value: string | undefined | null): string | null {
   const v = (value ?? "").trim();
   return v.length > 0 && v.length <= 254 && SAFE_ADDRESS.test(v) ? v : null;
+}
+
+/** ¿Hay proveedor de mail configurado (clave de Resend)? No dice si el dominio está verificado: solo evita flujos que dependen de un mail que no puede salir. */
+export function isEmailProviderConfigured(): boolean {
+  return (process.env.RESEND_API_KEY ?? "").trim().length > 0;
 }
 
 export async function sendEmail(entry: {
@@ -57,7 +67,7 @@ export async function sendEmail(entry: {
     return false;
   }
   const { error } = await resend.emails.send({
-    from: entry.fromName ? `${entry.fromName.replace(/[<>"\r\n]/g, " ")} <${FROM_EMAIL}>` : FROM_ADDRESS,
+    from: `${entry.fromName ? entry.fromName.replace(/[<>"\r\n]/g, " ") : "EstuRed"} <${fromEmail()}>`,
     ...(replyTo ? { replyTo } : {}),
     to,
     subject: entry.subject,

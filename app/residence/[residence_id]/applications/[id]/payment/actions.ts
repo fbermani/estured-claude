@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
+import { MAX_AMOUNT_ARS, MAX_AMOUNT_USD, parseOptionalAmount } from "@/lib/payments/amounts";
 import { recordResidencePaymentReceived } from "@/lib/reservations/recordResidencePaymentReceived";
 
 export type MarkReceivedState = { status: "idle" | "error" | "saved"; message?: string };
@@ -24,13 +25,19 @@ export async function markResidencePaymentReceived(
   if (!admin) return { status: "error", message: "No disponible en este momento." };
 
   const receiptFile = formData.get("receipt_file");
+  const arsParsed = parseOptionalAmount(formData.get("received_amount_ars"), MAX_AMOUNT_ARS, "pesos");
+  if (!arsParsed.ok) return { status: "error", message: arsParsed.error };
+  const usdParsed = parseOptionalAmount(formData.get("received_amount_usd"), MAX_AMOUNT_USD, "dólares");
+  if (!usdParsed.ok) return { status: "error", message: usdParsed.error };
+  const paymentMethodLabel = String(formData.get("payment_method_label") ?? "").trim();
+  if (paymentMethodLabel.length > 80) return { status: "error", message: "El medio de pago es demasiado largo (máximo 80 caracteres)." };
 
   const result = await recordResidencePaymentReceived(admin, {
     applicationId,
     actorUserId: sessionUser.id,
-    receivedAmountArs: Number(formData.get("received_amount_ars") ?? 0) || null,
-    receivedAmountUsd: Number(formData.get("received_amount_usd") ?? 0) || null,
-    paymentMethodLabel: String(formData.get("payment_method_label") ?? "").trim(),
+    receivedAmountArs: arsParsed.value,
+    receivedAmountUsd: usdParsed.value,
+    paymentMethodLabel,
     confirmationAccepted: formData.get("confirmation_checkbox_accepted") === "on",
     receiptFile: receiptFile instanceof File && receiptFile.size > 0 ? receiptFile : null,
   });

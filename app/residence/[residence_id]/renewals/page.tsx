@@ -8,9 +8,9 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { assertResidenceAccess } from "@/lib/residences/access";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { PageHero } from "@/components/ui/PageHero";
+import { ResidenceHero } from "@/components/residences/ResidenceHero";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { PremiumNotice } from "@/components/residences/PremiumLock";
+import { PremiumNotice } from "@/components/residences/PremiumNotice";
 import { hasOperationalManagementAccess } from "@/lib/residences/operationalAccess";
 import { RESIDENCE_OFFER_STATUS_COPY } from "@/lib/renewals/statusCopy";
 
@@ -68,16 +68,9 @@ export default async function ResidenceRenewalsPage({
   }
 
   return (
-    <div className="tone-residence mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
-      {!hasPremium && <PremiumNotice residenceId={residenceId} feature="Renovaciones" className="mb-6" />}
-      <PageHero
-        tone="residence"
-        eyebrow="Renovaciones"
-        eyebrowIcon="autorenew"
-        title="Renovaciones"
-        subtitle="Mandá una oferta a quien quiera seguir; cada estudiante la responde desde su cuenta."
-        glyph="autorenew"
-      />
+    <div className="tone-residence mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-8">
+      {!hasPremium && <PremiumNotice residenceId={residenceId} feature="Renovaciones" className="mb-4" />}
+      <ResidenceHero icon="autorenew" title="Renovaciones" subtitle="Mandá una oferta a quien quiera seguir; cada estudiante la responde desde su cuenta." />
       <p className="mt-3 rounded-field bg-amber-soft-100 px-3 py-2 text-xs font-semibold text-ink-soft">
         Solo para estudiantes que reservaron por EstuRed; para el resto, cargalos en Residentes.
       </p>

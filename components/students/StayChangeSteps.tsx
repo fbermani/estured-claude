@@ -17,7 +17,7 @@ export function StayChangeSteps({ uiKey, hasResponse = false }: { uiKey: StayCha
         >
           <span
             aria-hidden
-            className={`flex size-5 shrink-0 items-center justify-center rounded-full border-2 text-[10px] font-extrabold ${
+            className={`flex size-5 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold ${
               step.state === "done"
                 ? "border-forest bg-forest text-white"
                 : step.state === "current"

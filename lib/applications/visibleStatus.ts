@@ -194,8 +194,8 @@ const APPLICATION_STATUS: Record<string, Entry> = {
     tone: "neutral",
     closed: true,
     student: { label: "Vencida — sin respuesta", helper: "La residencia no respondió dentro de las 48 horas." },
-    residence: { label: "Venció sin respuesta" },
-    admin: { label: "Vencida — sin respuesta de la residencia" },
+    residence: { label: "Vencida — sin respuesta", helper: "Venció el plazo de 48 horas para responder esta solicitud." },
+    admin: { label: "Vencida — sin respuesta", helper: "La residencia no respondió dentro de las 48 horas." },
   },
   expired_no_student_payment: {
     tone: "neutral",
@@ -204,18 +204,18 @@ const APPLICATION_STATUS: Record<string, Entry> = {
       label: "Vencida — sin pago a la residencia",
       helper: `No se registró el pago a la residencia dentro de las 48 horas. ${SUPPORT_HINT}`,
     },
-    residence: { label: "Venció por falta de pago" },
-    admin: { label: "Vencida — sin pago a la residencia" },
+    residence: { label: "Vencida — sin pago a la residencia", helper: "El estudiante no pagó a la residencia dentro de las 48 horas." },
+    admin: { label: "Vencida — sin pago a la residencia", helper: "No se registró el pago a la residencia dentro de las 48 horas." },
   },
   expired_offer_no_response: {
     tone: "neutral",
     closed: true,
     student: {
-      label: "Vencida — no respondiste a tiempo",
+      label: "Vencida — propuesta sin respuesta",
       helper: "No respondiste la propuesta de ajuste dentro de las 48 horas.",
     },
-    residence: { label: "Propuesta sin respuesta" },
-    admin: { label: "Vencida — propuesta sin respuesta" },
+    residence: { label: "Vencida — propuesta sin respuesta", helper: "El estudiante no respondió tu propuesta de ajuste dentro de las 48 horas." },
+    admin: { label: "Vencida — propuesta sin respuesta", helper: "El estudiante no respondió la propuesta de ajuste dentro de las 48 horas." },
   },
   cancelled_by_student: {
     tone: "neutral",
@@ -294,10 +294,10 @@ const RESERVATION_STATUS: Record<string, Entry> = {
       helper: `El plazo para pagar el fee EstuRed terminó y esta reserva ya no está vigente. ${SUPPORT_HINT}`,
     },
     residence: {
-      label: "Reserva vencida — fee sin pagar",
+      label: "Reserva vencida",
       helper: "El fee EstuRed no se pagó a tiempo, así que esta reserva no se confirmó. Podés liberar la plaza.",
     },
-    admin: { label: "Reserva vencida — fee sin pagar" },
+    admin: { label: "Reserva vencida", helper: "El fee EstuRed no se pagó dentro del plazo y la reserva no se confirmó." },
   },
   confirmed: {
     tone: "sage",

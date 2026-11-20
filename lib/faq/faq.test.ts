@@ -115,8 +115,9 @@ describe.skipIf(!hasCreds)("residence_faq_questions (integración)", () => {
       answer: "La recepción atiende de 8 a 22 h.",
     });
     expect(answered.ok).toBe(true);
-    expect(await getPublicAnsweredQuestions(admin, residenceId)).toEqual([
-      { question: "¿Cuál es el horario de la recepción? FAQTEST", answer: "La recepción atiende de 8 a 22 h." },
+    // Desde la 0096 cada pregunta pública trae además isFeatured/featuredOrder.
+    expect(await getPublicAnsweredQuestions(admin, residenceId)).toMatchObject([
+      { question: "¿Cuál es el horario de la recepción? FAQTEST", answer: "La recepción atiende de 8 a 22 h.", isFeatured: false },
     ]);
 
     // Avisó a quien preguntó (tenía sesión).

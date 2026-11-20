@@ -29,15 +29,34 @@ export const FAQ_CATEGORIES: { key: FaqCategory; label: string }[] = [
   { key: "privacidad_y_seguridad", label: "Privacidad y seguridad" },
 ];
 
-export function categoryLabel(key: string): string {
-  return FAQ_CATEGORIES.find((c) => c.key === key)?.label ?? "Otros";
-}
-
 /** Tope de la respuesta editada (el catálogo trae textos más largos que la FAQ libre). */
 export const CATALOG_ANSWER_MAX = 3000;
 
 /** Cantidad recomendada de preguntas del catálogo a elegir; la ficha pública muestra estas de entrada y el resto detrás de «Ver todas las preguntas» (DR18). */
 export const FICHA_FAQ_VISIBLE = 10;
+
+/**
+ * Preguntas «Esenciales» (decisión del dueño 2026-11-19): las que, si la ficha no las responde, terminan en consultas directas a la
+ * residencia, y que NO están ya como datos estructurados de la ficha (depósito, matrícula, ajustes, estadía mínima, reglamento y precios
+ * salen de la configuración, no de acá). Son las que las guías públicas dan por respondidas en la ficha: qué llevar, ingreso y egreso,
+ * cambio de habitación, servicios no incluidos, responsable y emergencias. (FAQ-01 visitas y FAQ-38 comida están desactivadas desde la migración 0056.)
+ */
+export const ESSENTIAL_FAQ_IDS: readonly string[] = ["FAQ-07", "FAQ-09", "FAQ-36", "FAQ-42", "FAQ-43", "FAQ-49"];
+
+export function isEssentialFaq(id: string): boolean {
+  return ESSENTIAL_FAQ_IDS.includes(id);
+}
+
+/** Cuántas esenciales ya se muestran en la ficha: elegidas y sin campos `{…}` pendientes (las de texto fijo de EstuRed cuentan si están elegidas). */
+export function countEssentialFaqsReady(
+  entries: { id: string; owner: FaqOwner; suggested_answer: string; selection?: CatalogSelection | null }[],
+): number {
+  return ESSENTIAL_FAQ_IDS.filter((id) => {
+    const e = entries.find((x) => x.id === id);
+    if (!e || !e.selection?.is_selected) return false;
+    return !isEditableOwner(e.owner) || !hasUnfilledFields(effectiveAnswer(e, e.selection));
+  }).length;
+}
 
 export type CatalogQuestion = {
   id: string;

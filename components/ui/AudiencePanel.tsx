@@ -72,20 +72,20 @@ export function AudiencePanel({
   const t = TONES[tone];
   return (
     // En escritorio las 4 franjas (encabezado, mini-UI, ventajas, botón) son filas de la grilla de la home (subgrid): las tres tarjetas quedan alineadas.
-    <article className="group flex h-full flex-col overflow-hidden rounded-[30px] border border-line bg-paper shadow-card transition duration-200 ease-out-fresh focus-within:shadow-card-hover hover:shadow-card-hover lg:row-span-4 lg:grid lg:grid-rows-subgrid motion-safe:focus-within:-translate-y-1 motion-safe:hover:-translate-y-1 motion-safe:active:scale-[0.99]">
+    <article className="group flex h-full flex-col overflow-hidden rounded-card border border-line bg-paper shadow-card transition duration-200 ease-out-fresh focus-within:shadow-card-hover hover:shadow-card-hover lg:row-span-4 lg:grid lg:grid-rows-subgrid motion-safe:focus-within:-translate-y-1 motion-safe:hover:-translate-y-1 motion-safe:active:scale-[0.99]">
       <div className={`relative overflow-hidden px-6 pb-20 pt-6 ${t.top}`}>
         <span
           aria-hidden="true"
           className={`absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-[0.12] ${t.blob}`}
         />
-        <p className={`relative inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.09em] ${t.who}`}>
+        <p className={`relative inline-flex items-center gap-2 text-xs font-bold ${t.who}`}>
           <Icon name={icon} className="text-lg" style={{ fontVariationSettings: "'FILL' 1" }} />
           {who}
         </p>
         <h3 className={`relative mt-3 text-2xl font-bold leading-[1.1] ${t.title}`}>{promise}</h3>
         {badge && (
           <span
-            className={`absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-xl bg-paper py-1 pl-1.5 pr-2.5 text-[11px] font-bold leading-tight shadow-card ring-1 ring-line ${t.who}`}
+            className={`absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-xl bg-paper py-1 pl-1.5 pr-2.5 text-xs font-bold leading-tight shadow-card ring-1 ring-line ${t.who}`}
           >
             <Icon name="verified" className="text-[22px]" style={{ fontVariationSettings: "'FILL' 1" }} />
             <span>{badge}</span>
@@ -94,7 +94,7 @@ export function AudiencePanel({
       </div>
 
       <div className="relative z-10 -mt-14 px-4">
-        <div className="grid gap-2.5 rounded-[20px] border border-line bg-paper p-3.5 text-[13px] shadow-float motion-safe:transition-transform motion-safe:duration-200 motion-safe:ease-out-fresh motion-safe:group-hover:-translate-y-1">
+        <div className="grid gap-2.5 rounded-card border border-line bg-paper p-3.5 text-[13px] shadow-float motion-safe:transition-transform motion-safe:duration-200 motion-safe:ease-out-fresh motion-safe:group-hover:-translate-y-1">
           {mini}
         </div>
       </div>
@@ -131,9 +131,9 @@ export function AudiencePanel({
 
 function MiniTitle({ children }: { children: ReactNode }) {
   return (
-    <h4 className="flex items-center justify-between gap-2 text-xs font-bold uppercase tracking-[0.06em] text-ink-faint">
+    <h4 className="flex items-center justify-between gap-2 text-xs font-bold text-ink-faint">
       {children}
-      <span className="rounded-md bg-cream-2 px-1.5 py-0.5 text-[10.5px] tracking-[0.07em] text-ink-faint">
+      <span className="rounded-md bg-cream-2 px-1.5 py-0.5 text-xs tracking-[0.07em] text-ink-faint">
         Ejemplo
       </span>
     </h4>
@@ -218,7 +218,7 @@ export function FamilyMini() {
         <Icon name="qr_code_2" className="text-orange-700" />
         <div>
           <small className="block text-xs text-ink-faint">Código verificable</small>
-          <b className="rounded-lg bg-cream-2 px-2 py-0.5 font-mono text-[13px] tracking-wider">EST-XXXX-XXXX</b>
+          <b className="rounded-lg bg-cream-2 px-2 py-0.5 font-mono text-[13px] tracking-wider">ER-2026-XXXXX-XXXXX</b>
         </div>
       </Row>
     </>

@@ -1,0 +1,331 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- banner:
+  - navigation:
+    - link "EstuRed, inicio":
+      - /url: /
+      - generic: EstuRed
+    - link "Para estudiantesy familias":
+      - /url: /for-students
+      - generic: Para estudiantesy familias
+    - link "Para residencias":
+      - /url: /for-residences
+    - link "Guías":
+      - /url: /guias
+    - link "Ingresar":
+      - /url: /login
+    - link "Crear cuenta":
+      - /url: /register
+    - link "Buscar residencias":
+      - /url: /search
+      - generic: search
+      - text: Buscar residencias
+- main:
+  - paragraph: Inicio › Buscar residencias
+  - heading "Encontrá tu próximo hogar en Buenos Aires" [level=1]
+  - paragraph: Todas las residencias del catálogo fueron verificadas presencialmente. La disponibilidad es informativa y toda reserva está sujeta a confirmación.
+  - paragraph:
+    - generic: menu_book
+    - generic: "Antes de elegir:"
+    - link "Cómo elegir una residencia estudiantil en Buenos Aires":
+      - /url: /guias/como-elegir-residencia-estudiantil-buenos-aires
+    - generic: ·
+    - link "Guía para mudarte a Buenos Aires a estudiar":
+      - /url: /guias/guia-mudarte-buenos-aires-estudiar
+  - complementary "Resumen del catálogo":
+    - paragraph:
+      - generic: verified
+      - text: Catálogo verificado en persona
+    - list:
+      - generic: apartment
+      - paragraph: "43"
+      - paragraph: residencias
+      - generic: location_on
+      - paragraph: "16"
+      - paragraph: barrios
+      - generic: payments
+      - paragraph: USD 136
+      - paragraph: precio desde
+    - paragraph: Las visitamos una por una antes de publicarlas. Filtrá por barrio, universidad, servicios y precio.
+  - complementary "Filtros":
+    - heading "Filtrar por" [level=2]
+    - button "Borrar todo"
+    - region "Presupuesto mensual":
+      - heading "Presupuesto mensual" [level=3]
+      - slider "Precio mínimo en USD por mes": "130"
+      - slider "Precio máximo en USD por mes": "470"
+      - paragraph:
+        - generic: USD 130
+        - generic: —
+        - generic: USD 470+
+      - paragraph: Precio «desde» por persona, en USD.
+    - switch "Comunidad activa 0 residencias con estudiantes viviendo hoy"
+    - generic: groups
+    - generic: Comunidad activa
+    - generic: 0 residencias con estudiantes viviendo hoy
+    - region "Barrio":
+      - heading "Barrio" [level=3]
+      - group "Barrio":
+        - checkbox "Caballito 1 resultados"
+        - generic: Caballito
+        - generic "1 resultados": "1"
+        - checkbox "Almagro 0 resultados"
+        - generic: Almagro
+        - generic "0 resultados": "0"
+        - checkbox "Balvanera 0 resultados"
+        - generic: Balvanera
+        - generic "0 resultados": "0"
+        - checkbox "Belgrano 0 resultados"
+        - generic: Belgrano
+        - generic "0 resultados": "0"
+        - checkbox "Centro 0 resultados"
+        - generic: Centro
+        - generic "0 resultados": "0"
+        - checkbox "Colegiales 0 resultados"
+        - generic: Colegiales
+        - generic "0 resultados": "0"
+      - button "Mostrar 10 más"
+    - region "Universidad cercana":
+      - heading "Universidad cercana" [level=3]
+      - group "Universidad cercana":
+        - checkbox "Universidad Nacional de las Artes (UNA) 1 resultados"
+        - generic: Universidad Nacional de las Artes (UNA)
+        - generic "1 resultados": "1"
+        - checkbox "Universidad Tecnológica Nacional (UTN - FRBA) 1 resultados"
+        - generic: Universidad Tecnológica Nacional (UTN - FRBA)
+        - generic "1 resultados": "1"
+        - checkbox "Instituto Tecnológico de Buenos Aires (ITBA) 0 resultados"
+        - generic: Instituto Tecnológico de Buenos Aires (ITBA)
+        - generic "0 resultados": "0"
+        - checkbox "Instituto Universitario del Hospital Italiano 0 resultados"
+        - generic: Instituto Universitario del Hospital Italiano
+        - generic "0 resultados": "0"
+        - checkbox "UADE 0 resultados"
+        - generic: UADE
+        - generic "0 resultados": "0"
+      - button "Mostrar 15 más"
+    - region "Tipo de habitación":
+      - heading "Tipo de habitación" [level=3]
+      - group "Tipo de habitación":
+        - checkbox "Individual 40 resultados"
+        - generic: Individual
+        - generic "40 resultados": "40"
+        - checkbox "Doble 43 resultados"
+        - generic: Doble
+        - generic "43 resultados": "43"
+        - checkbox "Triple 39 resultados"
+        - generic: Triple
+        - generic "39 resultados": "39"
+        - checkbox "Cuádruple 35 resultados"
+        - generic: Cuádruple
+        - generic "35 resultados": "35"
+        - checkbox "Compartida 1 resultados" [checked]
+        - generic: Compartida
+        - generic "1 resultados": "1"
+    - region "Servicios":
+      - heading "Servicios" [level=3]
+      - paragraph: Se muestran las que ofrecen todos los que elijas.
+      - group "Servicios":
+        - checkbox "Wifi 1 resultados"
+        - generic: wifi
+        - generic: Wifi
+        - generic "1 resultados": "1"
+        - checkbox "Cámaras 24 hs 0 resultados"
+        - generic: videocam
+        - generic: Cámaras 24 hs
+        - generic "0 resultados": "0"
+        - checkbox "Limpieza General 1 resultados"
+        - generic: mop
+        - generic: Limpieza General
+        - generic "1 resultados": "1"
+        - checkbox "Limpieza de Habitación 0 resultados"
+        - generic: cleaning_services
+        - generic: Limpieza de Habitación
+        - generic "0 resultados": "0"
+        - checkbox "Lavandería 0 resultados"
+        - generic: local_laundry_service
+        - generic: Lavandería
+        - generic "0 resultados": "0"
+        - checkbox "Área Protegida (emergencias médicas) 0 resultados"
+        - generic: shield
+        - generic: Área Protegida (emergencias médicas)
+        - generic "0 resultados": "0"
+      - button "Mostrar 6 más"
+    - region "Áreas comunes":
+      - heading "Áreas comunes" [level=3]
+      - paragraph: Se muestran las que ofrecen todas las que elijas.
+      - group "Áreas comunes":
+        - checkbox "Sala de Estar 0 resultados"
+        - generic: weekend
+        - generic: Sala de Estar
+        - generic "0 resultados": "0"
+        - checkbox "Sala de Estudio 1 resultados"
+        - generic: school
+        - generic: Sala de Estudio
+        - generic "1 resultados": "1"
+        - checkbox "Comedor 1 resultados"
+        - generic: dining
+        - generic: Comedor
+        - generic "1 resultados": "1"
+        - checkbox "Patio 0 resultados"
+        - generic: yard
+        - generic: Patio
+        - generic "0 resultados": "0"
+      - button "Mostrar 5 más"
+    - region "Quiénes viven en la residencia":
+      - heading "Quiénes viven en la residencia" [level=3]
+      - group "Quiénes viven en la residencia":
+        - checkbox "Mixto 1 resultados"
+        - generic: Mixto
+        - generic "1 resultados": "1"
+        - checkbox "Solo mujeres 0 resultados" [active]
+        - generic: Solo mujeres
+        - generic "0 resultados": "0"
+        - checkbox "Solo hombres 0 resultados"
+        - generic: Solo hombres
+        - generic "0 resultados": "0"
+    - region "Disponibilidad":
+      - heading "Disponibilidad" [level=3]
+      - paragraph: "Informativa: toda solicitud queda sujeta a confirmación."
+      - group "Disponibilidad":
+        - checkbox "Disponibilidad informada 0 resultados"
+        - generic: Disponibilidad informada
+        - generic "0 resultados": "0"
+        - checkbox "Residencia completa 1 resultados"
+        - generic: Residencia completa
+        - generic "1 resultados": "1"
+    - region "Otros":
+      - heading "Otros" [level=3]
+      - checkbox "Con promoción vigente 0 resultados"
+      - generic: Con promoción vigente
+      - generic "0 resultados": "0"
+      - checkbox "Admite menores de 18 1 resultados"
+      - generic: Admite menores de 18
+      - generic "1 resultados": "1"
+  - region "Resultados":
+    - heading "1 residencia encontrada" [level=2]
+    - group "Cómo ver los resultados":
+      - button "Lista":
+        - generic: view_agenda
+        - text: Lista
+      - button "Grilla" [pressed]:
+        - generic: grid_view
+        - text: Grilla
+      - button "Mapa":
+        - generic: map
+        - text: Mapa
+    - generic: Ordenar por
+    - combobox "Ordenar por":
+      - option "Recomendadas" [selected]
+      - 'option "Precio: menor a mayor"'
+      - 'option "Precio: mayor a menor"'
+    - list "Filtros activos":
+      - button "Quitar filtro Hab. Compartida":
+        - text: Hab. Compartida
+        - generic: close
+      - button "Borrar todo"
+    - paragraph: Disponibilidad informada por la residencia. Requiere confirmación al solicitar.
+    - article "Residencia Caballito Parque":
+      - 'img "Residencia Caballito Parque: foto próximamente"':
+        - generic: Caballito
+        - generic: Foto próximamente
+      - link "Ver Residencia Caballito Parque":
+        - /url: /residencias/residencia-caballito-parque-demo
+      - generic "Verificada presencialmente por el equipo de EstuRed":
+        - generic: verified
+        - text: Residencia Verificada
+      - heading "Residencia Caballito Parque" [level=3]:
+        - link "Residencia Caballito Parque":
+          - /url: /residencias/residencia-caballito-parque-demo
+      - paragraph:
+        - generic: location_on
+        - text: Caballito
+        - generic: Mixta
+      - paragraph:
+        - generic: desde
+        - generic: USD 220/mes
+      - paragraph:
+        - text: ≈ ARS 345.500
+        - button "Más información sobre el valor en pesos":
+          - generic: i
+      - list:
+        - generic: school
+        - generic: "Universidades cercanas:"
+        - generic: UTN FRBA, 34 cuadras
+        - generic: UNA, 52 cuadras
+        - generic: bed
+        - generic: "Tipos de habitación:"
+        - text: Individual, doble y compartida
+      - 'button "Servicios: Wifi, Dispenser de Agua, Limpieza General"':
+        - generic: Servicios
+        - generic: wifi
+        - generic: water_drop
+        - generic: mop
+      - 'button "Áreas comunes: Terraza, Sala de Estudio, Comedor, Gimnasio / Área para ejercitar, Cocina compartida"':
+        - generic: Áreas comunes
+        - generic: deck
+        - generic: school
+        - generic: dining
+        - generic: fitness_center
+        - generic: kitchen
+      - generic: Residencia completa
+      - generic: Lista de espera abierta
+      - link "Ver residencia":
+        - /url: /residencias/residencia-caballito-parque-demo
+        - text: Ver residencia
+        - generic: chevron_right
+- contentinfo:
+  - generic: EstuRed
+  - generic: EstuRed
+  - paragraph: La convivencia también se elige. Residencias estudiantiles verificadas en CABA, con solicitudes registradas y comprobantes verificables.
+  - list:
+    - generic: check
+    - text: Residencias verificadas presencialmente
+    - generic: check
+    - text: Solicitudes registradas en la plataforma
+    - generic: check
+    - text: Comprobante de Reserva Confirmada
+  - navigation "Explorar":
+    - paragraph: Explorar
+    - list:
+      - link "Buscar residencias":
+        - /url: /search
+      - link "Para estudiantes y familias":
+        - /url: /for-students
+      - link "Para residencias":
+        - /url: /for-residences
+      - link "Guías":
+        - /url: /guias
+      - link "Crear cuenta":
+        - /url: /register
+  - navigation "Ayuda":
+    - paragraph: Ayuda
+    - list:
+      - link "Soporte":
+        - /url: /students/support
+        - generic: support_agent
+        - text: Soporte
+      - link "Preguntas frecuentes":
+        - /url: /for-students#preguntas-frecuentes
+      - link "Cómo funciona":
+        - /url: /#el-proceso
+      - link "Qué pagás y a quién":
+        - /url: /for-students#que-pagas
+      - text: "Contacto:"
+      - link "hola@estured.com":
+        - /url: mailto:hola@estured.com
+      - listitem: ¿Tenés una reserva y algo no coincide? Abrí un caso desde tu panel.
+  - paragraph: EstuRed actúa como plataforma intermediaria de búsqueda, solicitud, registro y comprobante. No presta directamente el alojamiento. Los precios en ARS son referenciales al dólar blue del día.
+  - list:
+    - link "Botón de arrepentimiento":
+      - /url: /students/revocation
+    - link "Verificar un comprobante":
+      - /url: /verify
+    - link "Términos y condiciones":
+      - /url: /terms
+    - link "Política de privacidad":
+      - /url: /privacy
+  - paragraph: Hecho con ♥ en Buenos Aires
+- button "Simular usuario": Simular usuario
+- button "Open Next.js Dev Tools":
+- alert: Buscar residencias en CABA | EstuRed

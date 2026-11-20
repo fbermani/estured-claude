@@ -1,0 +1,196 @@
+- button "Open Next.js Dev Tools":
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- complementary:
+  - link "EstuRed, inicio":
+    - /url: /
+    - generic: EstuRed
+  - button "Notificaciones, 4 sin leer":
+    - generic: notifications
+    - generic: "4"
+  - navigation:
+    - link "Inicio":
+      - /url: /students/dashboard
+      - generic: home
+      - generic: Inicio
+    - link "Mi residencia":
+      - /url: /students/residency
+      - generic: apartment
+      - generic: Mi residencia
+    - link "Renovaciones":
+      - /url: /students/renewals
+      - generic: sync
+      - generic: Renovaciones
+    - link "Mis solicitudes":
+      - /url: /students/applications
+      - generic: description
+      - generic: Mis solicitudes
+    - link "Mi perfil":
+      - /url: /students/profile
+      - generic: person
+      - generic: Mi perfil
+    - link "Favoritos":
+      - /url: /students/favorites
+      - generic: favorite
+      - generic: Favoritos
+    - link "Lista de espera":
+      - /url: /students/waitlist
+      - generic: hourglass_top
+      - generic: Lista de espera
+    - link "Soporte":
+      - /url: /students/support
+      - generic: support_agent
+      - generic: Soporte
+  - paragraph: lucia.fernandez@example.com
+  - link "Botón de arrepentimiento":
+    - /url: /students/revocation
+    - generic: undo
+    - generic: Botón de arrepentimiento
+  - button "Salir":
+    - generic: logout
+    - generic: Salir
+  - button "Colapsar menú":
+    - generic: chevron_left
+- main:
+  - generic: home_work
+  - generic: backpack
+  - text: Tu casa
+  - heading "Hola, Lucia. Ya tenés tu lugar." [level=1]
+  - paragraph: Tu estadía, tu comunidad y tus renovaciones, en un solo lugar.
+  - generic: check_circle
+  - text: Estadía activa
+  - generic: Hasta 20/07/2027
+  - link "Ir a mi residencia":
+    - /url: /students/residency
+    - text: Ir a mi residencia
+    - generic: arrow_forward
+  - region "Tu llegada":
+    - generic: flight_land
+    - paragraph: Faltan 93 días
+    - heading "Tu llegada" [level=2]
+    - paragraph: Residencia Río de la Plata · ingreso previsto el 15/02/2027
+    - generic: Tu checklist
+    - generic: 5 de 44
+    - paragraph: "Esenciales: 1 de 10"
+    - progressbar "Progreso del checklist de llegada"
+    - status
+    - link "Leer la guía para mudarte":
+      - /url: /guias/guia-mudarte-buenos-aires-estudiar
+      - generic: menu_book
+      - text: Leer la guía para mudarte
+    - button "Copiar mensaje":
+      - generic: content_copy
+      - text: Copiar mensaje
+    - link "Abrir WhatsApp":
+      - /url: https://wa.me/?text=%C2%A1Hola!%20Te%20cuento%20que%20mi%20ingreso%20a%20Residencia%20R%C3%ADo%20de%20la%20Plata%20est%C3%A1%20previsto%20para%20el%2015%2F02%2F2027.%20Voy%20preparando%20todo%20desde%20EstuRed.%20Cualquier%20novedad%20te%20aviso.
+      - generic: chat
+      - text: Abrir WhatsApp
+    - paragraph
+    - generic "Checklist para antes de viajar 9 categorías con todo lo que conviene tener listo antes de llegar. 5 de 44 hechos. Abrir":
+      - generic: checklist
+      - generic: Checklist para antes de viajar
+      - generic: 9 categorías con todo lo que conviene tener listo antes de llegar. 5 de 44 hechos.
+      - generic: Abrir
+      - generic: expand_more
+  - term: Ingreso
+  - definition: 15/02/2027
+  - paragraph: Individual
+  - term: Fin de contrato
+  - definition: 20/07/2027
+  - paragraph: Faltan 248 días
+  - term: Valor mensual
+  - definition: USD 350
+  - paragraph: Se paga a la residencia
+  - 'img "Residencia Río de la Plata: fotos próximamente"':
+    - generic: Recoleta
+    - generic: Fotos próximamente
+  - heading "Residencia Río de la Plata" [level=2]
+  - paragraph:
+    - generic: location_on
+    - text: Recoleta, CABA
+  - generic: Alojado
+  - link "Ya renovaste tu estadía":
+    - /url: /students/renewals
+    - generic: sync
+    - text: Ya renovaste tu estadía
+  - link "Documentación pendiente":
+    - /url: /students/profile
+    - generic: folder_shared
+    - text: Documentación pendiente
+  - link "Ver residencia":
+    - /url: /students/residency
+  - link "Ver comunidad":
+    - /url: /students/residency#comunidad
+  - heading "Tu espacio" [level=2]
+  - list:
+    - generic: person
+    - paragraph:
+      - text: Completá tu perfil
+      - generic: Falta 22 %
+    - paragraph: "Falta: Documento de identidad, Comprobante de estudio"
+    - link "Completar perfil":
+      - /url: /students/profile
+  - list:
+    - link "Mis solicitudes 5 solicitudes":
+      - /url: /students/applications
+      - generic: description
+      - generic: Mis solicitudes
+      - generic: 5 solicitudes
+      - generic: chevron_right
+    - link "Lista de espera":
+      - /url: /students/waitlist
+      - generic: hourglass_top
+      - generic: Lista de espera
+      - generic: chevron_right
+    - link "Favoritos 1 guardada":
+      - /url: /students/favorites
+      - generic: favorite
+      - generic: Favoritos
+      - generic: 1 guardada
+      - generic: chevron_right
+    - link "Soporte Abrir un caso":
+      - /url: /students/support
+      - generic: support_agent
+      - generic: Soporte
+      - generic: Abrir un caso
+      - generic: chevron_right
+  - button "Renovaciones Ya renovaste tu estadía" [expanded]:
+    - generic: sync
+    - paragraph: Renovaciones
+    - paragraph: Ya renovaste tu estadía
+    - generic: expand_more
+  - term: Fin de contrato
+  - definition: 20/07/2027
+  - term: Restante
+  - definition: 248 días
+  - link "Ver renovaciones":
+    - /url: /students/renewals
+  - generic: family_restroom
+  - heading "Padre, madre o tutor" [level=3]
+  - paragraph:
+    - generic: check_circle
+    - text: Vinculado
+  - paragraph: Martin Fernandez
+  - paragraph: padre.lucia@example.com
+  - button "Desvincular"
+  - region "Para leer con calma":
+    - heading "Para leer con calma" [level=2]:
+      - generic: menu_book
+      - text: Para leer con calma
+    - link "Ver todas":
+      - /url: /guias
+    - list:
+      - link "Cómo estudiar, organizarte y convivir en una residencia 2 min de lectura":
+        - /url: /guias/como-estudiar-organizarte-convivir-residencia
+        - generic: diversity_3
+        - generic: Cómo estudiar, organizarte y convivir en una residencia
+        - generic: 2 min de lectura
+        - generic: arrow_forward
+      - link "Seis errores comunes al mudarte a Buenos Aires (y cómo evitarlos) 2 min de lectura":
+        - /url: /guias/errores-comunes-mudarse-buenos-aires
+        - generic: luggage
+        - generic: Seis errores comunes al mudarte a Buenos Aires (y cómo evitarlos)
+        - generic: 2 min de lectura
+        - generic: arrow_forward
+- button "Lucía — Estudiante Alojada": Lucía — Estudiante Alojada
+- alert

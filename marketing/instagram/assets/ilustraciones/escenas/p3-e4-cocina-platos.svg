@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920" role="img">
+<title>Cocina con platos acumulados</title>
+<desc>La misma cocina común con una pila de platos sucios, tazas y una olla sobre la mesada, y una burbuja de queja sin texto con un garabato terracota. Escena 4 del post 3, sin personajes.</desc>
+<defs>
+<filter id="papel" x="0" y="0" width="100%" height="100%">
+  <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="7"/>
+  <feColorMatrix type="matrix" values="0 0 0 0 0.36  0 0 0 0 0.29  0 0 0 0 0.19  0 0 0 1.1 -0.48"/>
+</filter>
+
+</defs>
+<style>
+  .bg-pared{fill:#e3e8de}
+  .bg-zocalo{fill:#cfd6c9}
+  .bg-piso{fill:#c9b896}
+  .bg-tabla{fill:#b9a885}
+  .bg-azulejo{fill:#f6f2ea}
+  .bg-junta{fill:#e2dccf}
+  .bg-mesada{fill:#c9b28c}
+  .bg-mueble{fill:#7f9d8c}
+  .bg-mueble-oscuro{fill:#6e8b7a}
+  .bg-tirador{fill:#f1d9a8}
+  .bg-alacena{fill:#8fac9b}
+  .bg-heladera{fill:#f4f2ec}
+  .bg-heladera-borde{fill:#d6d3c9}
+  .bg-heladera-manija{fill:#9fa7ab}
+  .bg-marco{fill:#fbf6ec}
+  .bg-vidrio{fill:#cfe0e3}
+  .bg-sol{fill:#f2f6f2}
+  .bg-maceta{fill:#c0603f}
+  .bg-planta{fill:#1f7d5c}
+  .bg-pava{fill:#1d2722}
+  .bg-plato{fill:#fbf8f1}
+  .bg-plato-borde{fill:#d9d2c3}
+  .bg-taza{fill:#d8b06a}
+  .bg-olla{fill:#5d6a66}
+  .bg-mancha{fill:#b59b6b;opacity:0.5}
+  .bg-burbuja{fill:#fbf6ec}
+  .bg-burbuja-borde{fill:#1d2722}
+  .bg-garabato{fill:none;stroke:#c0603f;stroke-linecap:round;stroke-linejoin:round}
+</style>
+<rect class="bg-pared" width="1080" height="1330"/>
+<rect class="bg-zocalo" y="1304" width="1080" height="26"/>
+<rect class="bg-piso" y="1330" width="1080" height="590"/>
+<rect class="bg-tabla" y="1420" width="1080" height="5"/>
+<rect class="bg-tabla" y="1540" width="1080" height="5"/>
+<rect class="bg-tabla" y="1690" width="1080" height="5"/>
+<rect class="bg-tabla" y="1870" width="1080" height="5"/>
+<g id="alacenas">
+  <rect class="bg-alacena" x="0" y="520" width="440" height="230" rx="8"/>
+  <rect class="bg-mueble-oscuro" x="218" y="530" width="6" height="210"/>
+  <rect class="bg-tirador" x="190" y="700" width="18" height="34" rx="6"/>
+  <rect class="bg-tirador" x="234" y="700" width="18" height="34" rx="6"/>
+</g>
+<g id="ventana">
+  <rect class="bg-marco" x="500" y="520" width="220" height="280" rx="10"/>
+  <rect class="bg-vidrio" x="518" y="538" width="184" height="244" rx="4"/>
+  <circle class="bg-sol" cx="649.6" cy="620.8" r="28.6"/>
+  <rect class="bg-marco" x="602.0" y="538" width="16" height="244"/>
+  <rect class="bg-marco" x="518" y="654.4" width="184" height="14"/>
+  <rect class="bg-marco" x="484" y="794" width="252" height="22" rx="6"/>
+</g>
+<g id="azulejos">
+  <rect class="bg-azulejo" x="0" y="880" width="740" height="210"/>
+  <rect class="bg-junta" x="0" y="900" width="740" height="4"/><rect class="bg-junta" x="0" y="946" width="740" height="4"/><rect class="bg-junta" x="0" y="992" width="740" height="4"/><rect class="bg-junta" x="0" y="1038" width="740" height="4"/><rect class="bg-junta" x="0" y="1084" width="740" height="4"/><rect class="bg-junta" x="46" y="880" width="4" height="210"/><rect class="bg-junta" x="92" y="880" width="4" height="210"/><rect class="bg-junta" x="138" y="880" width="4" height="210"/><rect class="bg-junta" x="184" y="880" width="4" height="210"/><rect class="bg-junta" x="230" y="880" width="4" height="210"/><rect class="bg-junta" x="276" y="880" width="4" height="210"/><rect class="bg-junta" x="322" y="880" width="4" height="210"/><rect class="bg-junta" x="368" y="880" width="4" height="210"/><rect class="bg-junta" x="414" y="880" width="4" height="210"/><rect class="bg-junta" x="460" y="880" width="4" height="210"/><rect class="bg-junta" x="506" y="880" width="4" height="210"/><rect class="bg-junta" x="552" y="880" width="4" height="210"/><rect class="bg-junta" x="598" y="880" width="4" height="210"/><rect class="bg-junta" x="644" y="880" width="4" height="210"/><rect class="bg-junta" x="690" y="880" width="4" height="210"/><rect class="bg-junta" x="736" y="880" width="4" height="210"/>
+</g>
+<g id="mesada">
+  <rect class="bg-mesada" x="0" y="1080" width="760" height="34" rx="6"/>
+  <rect class="bg-mueble" x="0" y="1114" width="740" height="216"/>
+  <rect class="bg-mueble-oscuro" x="246" y="1124" width="6" height="196"/>
+  <rect class="bg-mueble-oscuro" x="494" y="1124" width="6" height="196"/>
+  <rect class="bg-tirador" x="200" y="1150" width="34" height="14" rx="6"/>
+  <rect class="bg-tirador" x="448" y="1150" width="34" height="14" rx="6"/>
+  <rect class="bg-tirador" x="696" y="1150" width="34" height="14" rx="6"/>
+</g>
+<g id="heladera">
+  <rect class="bg-heladera-borde" x="806" y="620" width="244" height="710" rx="22"/>
+  <rect class="bg-heladera" x="814" y="628" width="228" height="694" rx="18"/>
+  <rect class="bg-heladera-borde" x="814" y="880" width="228" height="8"/>
+  <rect class="bg-heladera-manija" x="834" y="790" width="14" height="70" rx="7"/>
+  <rect class="bg-heladera-manija" x="834" y="910" width="14" height="90" rx="7"/>
+</g><g id="pila-platos">
+  <rect class="bg-olla" x="290" y="1000" width="130" height="80" rx="14"/>
+  <rect class="bg-olla" x="420" y="1020" width="46" height="12" rx="6"/>
+  <ellipse class="bg-plato-borde" cx="172" cy="1073" rx="92" ry="16"/><ellipse class="bg-plato" cx="172" cy="1070" rx="88" ry="14"/><ellipse class="bg-plato-borde" cx="180" cy="1057" rx="92" ry="16"/><ellipse class="bg-plato" cx="180" cy="1054" rx="88" ry="14"/><ellipse class="bg-plato-borde" cx="188" cy="1041" rx="92" ry="16"/><ellipse class="bg-plato" cx="188" cy="1038" rx="88" ry="14"/><ellipse class="bg-plato-borde" cx="172" cy="1025" rx="92" ry="16"/><ellipse class="bg-plato" cx="172" cy="1022" rx="88" ry="14"/><ellipse class="bg-plato-borde" cx="180" cy="1009" rx="92" ry="16"/><ellipse class="bg-plato" cx="180" cy="1006" rx="88" ry="14"/><ellipse class="bg-plato-borde" cx="188" cy="993" rx="92" ry="16"/><ellipse class="bg-plato" cx="188" cy="990" rx="88" ry="14"/><ellipse class="bg-plato-borde" cx="172" cy="977" rx="92" ry="16"/><ellipse class="bg-plato" cx="172" cy="974" rx="88" ry="14"/><ellipse class="bg-plato-borde" cx="180" cy="961" rx="92" ry="16"/><ellipse class="bg-plato" cx="180" cy="958" rx="88" ry="14"/><ellipse class="bg-plato-borde" cx="188" cy="945" rx="92" ry="16"/><ellipse class="bg-plato" cx="188" cy="942" rx="88" ry="14"/>
+  <rect class="bg-taza" x="300" y="960" width="50" height="44" rx="10"/>
+  <rect class="bg-taza" x="520" y="1036" width="50" height="44" rx="10"/>
+  <ellipse class="bg-mancha" cx="620" cy="1092" rx="60" ry="8"/>
+</g>
+<g id="burbuja-queja">
+  <path class="bg-burbuja-borde" d="M226 620 Q226 560 286 560 L534 560 Q594 560 594 620 L594 720 Q594 780 534 780 L340 780 L286 836 L292 780 L286 780 Q226 780 226 720 Z"/>
+  <path class="bg-burbuja" d="M236 622 Q236 570 288 570 L532 570 Q584 570 584 622 L584 718 Q584 770 532 770 L336 770 L298 810 L302 770 L288 770 Q236 770 236 718 Z"/>
+  <path class="bg-garabato" stroke-width="10" d="M290 670 L330 620 L360 700 L400 616 L430 704 L470 622 L500 700 L534 640"/>
+</g>
+<rect id="textura-papel" width="1080" height="1920" filter="url(#papel)" opacity="0.55"/>
+</svg>

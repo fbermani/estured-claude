@@ -1,5 +1,6 @@
 "use server";
 
+import { clientIpFromHeaders } from "@/lib/receipts/verifyRateLimit";
 import { headers } from "next/headers";
 import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
@@ -52,7 +53,7 @@ export async function declineInviteAction(token: string, _prev: InviteStepState)
   if (!admin) return { status: "error", message: UNAVAILABLE };
   const result = await declineResidentInvitation(admin, {
     rawToken: token,
-    ipAddress: headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
+    ipAddress: clientIpFromHeaders(headerStore),
     userAgent: headerStore.get("user-agent"),
   });
   return result.ok

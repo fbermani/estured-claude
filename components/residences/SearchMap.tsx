@@ -4,7 +4,15 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
 import { MapTiles } from "@/components/residences/MapTiles";
-import { boundsCenterPixel, chooseZoom, offsetFromCenter, tilesCovering } from "@/lib/maps/osmTiles";
+import { ResidencePhoto } from "@/components/residences/ResidencePhoto";
+import { boundsCenterPixel, chooseZoom, latLngToWorldPixel, offsetFromCenter, tilesCovering, type PixelPoint } from "@/lib/maps/osmTiles";
+import {
+  DEFAULT_VISIBLE_UNIVERSITY_IDS,
+  UNIVERSITY_CATEGORIES,
+  UNIVERSITY_CATEGORY_ORDER,
+  UNIVERSITY_LEGEND,
+  UNIVERSITY_PINS,
+} from "@/lib/maps/universityPins";
 import type { MapPoint } from "@/lib/residences/mapPoints";
 
 /**
@@ -12,15 +20,24 @@ import type { MapPoint } from "@/lib/residences/mapPoints";
  * sin API key ni librería de mapas) con un pin de precio por residencia. Encuadra todos los pines según el ancho real del
  * contenedor. Tocar un pin abre una mini-tarjeta con el enlace a la ficha; Esc o tocar el fondo la cierra. Recibe solo lo
  * mínimo de cada residencia (`MapPoint`). ⚠ Igual que `CompactMap`: antes del lanzamiento masivo hay que cambiar el
- * proveedor de teselas (ver `lib/maps/osmTiles.ts`).
+ * proveedor de teselas (ver `lib/maps/osmTiles.ts`). Además muestra universidades de CABA con un pin numerado y de color según
+ * categoría (nombre al tocarlas). Por defecto solo se ven las de la UBA; debajo del mapa hay una lista numerada, agrupada
+ * (UBA, otras públicas, privadas), donde se elige cuáles ver.
  */
 const PAD_X = 64;
 const PAD_Y = 56;
+const MIN_ZOOM = 10;
+const MAX_ZOOM = 17;
+
+type Cam = { key: string; zoom: number; c: PixelPoint };
 
 export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; withoutLocation: number }) {
   const boxRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState<{ w: number; h: number } | null>(null);
   const [openId, setOpenId] = useState<string | null>(null);
+  const [openUni, setOpenUni] = useState<string | null>(null);
+  // Universidades visibles: por defecto solo la UBA; el resto lo elige la persona desde la lista de abajo.
+  const [visibleUnis, setVisibleUnis] = useState<Set<string>>(() => new Set(DEFAULT_VISIBLE_UNIVERSITY_IDS));
   const pinRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   useLayoutEffect(() => {
@@ -34,27 +51,144 @@ export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; wit
   }, []);
 
   useEffect(() => {
-    if (!openId) return;
+    if (!openId && !openUni) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
-      pinRefs.current[openId]?.focus();
+      if (openId) pinRefs.current[openId]?.focus();
       setOpenId(null);
+      setOpenUni(null);
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [openId]);
+  }, [openId, openUni]);
+
+  const fitKey = points.map((p) => p.id).join("|");
+  const fit = useMemo<Cam | null>(() => {
+    if (!size) return null;
+    // El encuadre incluye las universidades de la UBA (las que se ven al abrir), aunque no haya residencias con ubicación.
+    const all = [...points, ...UNIVERSITY_PINS.filter((u) => DEFAULT_VISIBLE_UNIVERSITY_IDS.includes(u.id))];
+    const zoom = chooseZoom(all, Math.max(40, size.w / 2 - PAD_X), Math.max(40, size.h / 2 - PAD_Y), 11, 15);
+    return { key: fitKey, zoom, c: boundsCenterPixel(all, zoom) };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- el encuadre inicial depende del conjunto de pines, no del redimensionado
+  }, [!!size, fitKey]);
+  const [userCam, setUserCam] = useState<Cam | null>(null);
+  const cam = userCam && userCam.key === fitKey ? userCam : fit;
+  const camRef = useRef(cam);
+  camRef.current = cam;
+
+  /** Zoom a `next` manteniendo fijo el punto bajo `anchor` (px desde el centro de la caja). */
+  const zoomTo = (next: number, anchor: PixelPoint = { x: 0, y: 0 }) => {
+    const cur = camRef.current;
+    if (!cur) return;
+    const z = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, next));
+    if (z === cur.zoom) return;
+    const f = 2 ** (z - cur.zoom);
+    setUserCam({ key: cur.key, zoom: z, c: { x: (cur.c.x + anchor.x) * f - anchor.x, y: (cur.c.y + anchor.y) * f - anchor.y } });
+  };
+
+  const anchorOf = (clientX: number, clientY: number): PixelPoint => {
+    const r = boxRef.current!.getBoundingClientRect();
+    return { x: clientX - r.left - r.width / 2, y: clientY - r.top - r.height / 2 };
+  };
+
+  // Rueda: zoom hacia el cursor (listener no pasivo para no scrollear la página).
+  useEffect(() => {
+    const el = boxRef.current;
+    if (!el) return;
+    let acc = 0;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      acc += e.deltaY;
+      if (Math.abs(acc) < 60) return;
+      const dir = acc < 0 ? 1 : -1;
+      acc = 0;
+      if (camRef.current) zoomTo(camRef.current.zoom + dir, anchorOf(e.clientX, e.clientY));
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  });
+
+  // Arrastre (mouse, touch o lápiz). Un movimiento de más de 4 px no cuenta como click.
+  const drag = useRef<{ x: number; y: number; moved: boolean; id: number } | null>(null);
+  const pointers = useRef(new Map<number, PixelPoint>());
+  const pinch = useRef<number | null>(null);
+  const onPointerDown = (e: React.PointerEvent) => {
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointers.current.size === 2) {
+      const [a, b] = [...pointers.current.values()];
+      pinch.current = Math.hypot(a.x - b.x, a.y - b.y);
+      drag.current = null;
+      return;
+    }
+    drag.current = { x: e.clientX, y: e.clientY, moved: false, id: e.pointerId };
+  };
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (pointers.current.has(e.pointerId)) pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointers.current.size === 2 && pinch.current) {
+      const [a, b] = [...pointers.current.values()];
+      const d = Math.hypot(a.x - b.x, a.y - b.y);
+      if (camRef.current && Math.abs(d - pinch.current) > 40) {
+        zoomTo(camRef.current.zoom + (d > pinch.current ? 1 : -1), anchorOf((a.x + b.x) / 2, (a.y + b.y) / 2));
+        pinch.current = d;
+      }
+      return;
+    }
+    const d = drag.current;
+    const cur = camRef.current;
+    if (!d || d.id !== e.pointerId || !cur) return;
+    const dx = e.clientX - d.x;
+    const dy = e.clientY - d.y;
+    if (!d.moved && Math.hypot(dx, dy) < 4) return;
+    if (!d.moved) boxRef.current?.setPointerCapture(e.pointerId);
+    d.moved = true;
+    d.x = e.clientX;
+    d.y = e.clientY;
+    setUserCam({ key: cur.key, zoom: cur.zoom, c: { x: cur.c.x - dx, y: cur.c.y - dy } });
+  };
+  const onPointerUp = (e: React.PointerEvent) => {
+    pointers.current.delete(e.pointerId);
+    if (pointers.current.size < 2) pinch.current = null;
+    // `moved` se limpia después del click que sigue al soltar.
+    setTimeout(() => {
+      if (drag.current?.id === e.pointerId) drag.current = null;
+    }, 0);
+  };
+  const wasDrag = () => !!drag.current?.moved;
 
   const view = useMemo(() => {
-    if (!size || points.length === 0) return null;
-    const zoom = chooseZoom(points, Math.max(40, size.w / 2 - PAD_X), Math.max(40, size.h / 2 - PAD_Y), 11, 15);
-    const center = boundsCenterPixel(points, zoom);
+    if (!size || !cam) return null;
     return {
-      tiles: tilesCovering(center, zoom, size.w / 2 + 128, size.h / 2 + 128),
-      pins: points.map((p) => ({ p, pos: offsetFromCenter(p, center, zoom) })),
+      tiles: tilesCovering(cam.c, cam.zoom, size.w / 2 + 128, size.h / 2 + 128),
+      pins: points.map((p) => ({ p, pos: offsetFromCenter(p, cam.c, cam.zoom) })),
+      unis: UNIVERSITY_PINS.filter((u) => visibleUnis.has(u.id)).map((u) => ({ u, pos: offsetFromCenter(u, cam.c, cam.zoom) })),
     };
-  }, [size, points]);
+  }, [size, cam, points, visibleUnis]);
 
   const open = points.find((p) => p.id === openId) ?? null;
+  const shownCount = UNIVERSITY_PINS.filter((u) => visibleUnis.has(u.id)).length;
+  const setPins = (ids: string[], on: boolean) => {
+    setVisibleUnis((prev) => {
+      const next = new Set(prev);
+      for (const id of ids) {
+        if (on) next.add(id);
+        else next.delete(id);
+      }
+      return next;
+    });
+    if (!on && openUni && ids.includes(openUni)) setOpenUni(null);
+  };
+  /** Desde la lista: la muestra (si estaba oculta), abre el pin y centra el mapa en la universidad (acercando un poco si estaba muy lejos). */
+  const focusUniversity = (pinId: string) => {
+    const u = UNIVERSITY_PINS.find((x) => x.id === pinId);
+    const cur = camRef.current;
+    if (!u || !cur) return;
+    const z = Math.max(cur.zoom, 14);
+    setPins([u.id], true);
+    setOpenId(null);
+    setOpenUni(u.id);
+    setUserCam({ key: cur.key, zoom: z, c: latLngToWorldPixel(u, z) });
+    boxRef.current?.scrollIntoView({ block: "nearest", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  };
   // El pin abierto va arriba de los demás.
   const pins = view ? [...view.pins].sort((a, b) => (a.p.id === openId ? 1 : 0) - (b.p.id === openId ? 1 : 0)) : [];
 
@@ -66,17 +200,60 @@ export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; wit
           {withoutLocation} {withoutLocation === 1 ? "residencia sin ubicación no aparece" : "residencias sin ubicación no aparecen"} en el mapa. Las ves en la vista Lista o Grilla.
         </p>
       )}
+      <p className="mb-2 flex items-start gap-1.5 text-[13px] text-ink-soft">
+        <Icon name="school" className="mt-px text-base text-petrol-600" />
+        <span>
+          En el mapa ves las sedes de la <b>UBA</b>. <b>Elegí en la lista de abajo</b> qué otras universidades querés ver (públicas y privadas).
+        </span>
+      </p>
       <div
         ref={boxRef}
         role="group"
         aria-label="Mapa de residencias con el precio desde de cada una"
-        onClick={() => setOpenId(null)}
-        className="relative h-[520px] overflow-hidden rounded-card border-[1.5px] border-line bg-cream-2 shadow-card lg:h-[640px]"
+        onClick={() => {
+          if (wasDrag()) return;
+          setOpenId(null);
+          setOpenUni(null);
+        }}
+        onDoubleClick={(e) => cam && zoomTo(cam.zoom + 1, anchorOf(e.clientX, e.clientY))}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+        className="relative h-[520px] touch-none cursor-grab overflow-hidden active:cursor-grabbing rounded-card border-[1.5px] border-line bg-cream-2 shadow-card lg:h-[640px]"
       >
         {view && (
           <>
             <MapTiles tiles={view.tiles} unavailableMessage="El mapa no está disponible por ahora. Mirá las residencias en la vista Lista o Grilla." />
             <div className="absolute left-1/2 top-1/2 h-0 w-0">
+              {view.unis.map(({ u, pos }) => {
+                const isOpen = openUni === u.id;
+                return (
+                  <button
+                    key={u.id}
+                    type="button"
+                    aria-expanded={isOpen}
+                    aria-label={`Universidad ${u.n}: ${u.label}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (wasDrag()) return;
+                      setOpenId(null);
+                      setOpenUni(isOpen ? null : u.id);
+                    }}
+                    style={{ left: pos.x, top: pos.y }}
+                    className={`group/uni absolute ${isOpen ? "z-20" : "z-[11]"} flex size-6 -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border-2 border-paper text-white shadow-[0_2px_6px_rgb(29_39_34/0.3)] hover:z-20 focus-visible:z-20 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest motion-safe:transition-transform hover:scale-110 ${UNIVERSITY_CATEGORIES[u.category].pin} ${isOpen ? "scale-110" : ""}`}
+                  >
+                    <span aria-hidden="true" className="text-[11px] font-bold leading-none tabular-nums">
+                      {u.n}
+                    </span>
+                    <span
+                      className={`pointer-events-none absolute bottom-full mb-1.5 whitespace-nowrap rounded-md bg-forest-ink px-2 py-1 text-xs font-semibold text-white shadow-card ${isOpen ? "block" : "hidden group-hover/uni:block group-focus-visible/uni:block"}`}
+                    >
+                      {isOpen ? `${u.n}. ${u.label}` : `${u.n}. ${u.short}`}
+                    </span>
+                  </button>
+                );
+              })}
               {pins.map(({ p, pos }) => (
                 <button
                   key={p.id}
@@ -88,6 +265,7 @@ export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; wit
                   aria-label={`${p.name}, desde USD ${p.price} por mes`}
                   onClick={(e) => {
                     e.stopPropagation();
+                    if (wasDrag()) return;
                     setOpenId(openId === p.id ? null : p.id);
                   }}
                   style={{ left: pos.x, top: pos.y }}
@@ -103,7 +281,7 @@ export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; wit
         )}
 
         {points.length === 0 && (
-          <p className="absolute inset-0 z-20 grid place-items-center bg-cream/70 p-6 text-center text-sm text-ink-soft">
+          <p className="pointer-events-none absolute inset-x-3 bottom-10 z-20 mx-auto max-w-md rounded-field bg-paper/95 p-3 text-center text-sm text-ink-soft shadow-card">
             Ninguna de estas residencias tiene ubicación cargada todavía. Probá la vista Lista o Grilla.
           </p>
         )}
@@ -113,9 +291,25 @@ export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; wit
             role="dialog"
             aria-label={open.name}
             onClick={(e) => e.stopPropagation()}
-            className="absolute inset-x-3 bottom-3 z-30 flex items-center gap-3 rounded-2xl bg-paper p-3 pl-4 shadow-float sm:inset-x-auto sm:left-4 sm:w-96"
+            onDoubleClick={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+            className="absolute inset-x-3 bottom-3 z-30 overflow-hidden rounded-2xl bg-paper shadow-float sm:inset-x-auto sm:left-4 sm:w-80"
           >
-            <div className="min-w-0 flex-1">
+            <div className="relative h-32 w-full bg-cream-2">
+              <ResidencePhoto src={open.photo} name={open.name} zone={open.zone} sizes="320px" />
+              <button
+                type="button"
+                aria-label="Cerrar"
+                onClick={() => {
+                  pinRefs.current[open.id]?.focus();
+                  setOpenId(null);
+                }}
+                className="absolute right-2 top-2 flex size-10 cursor-pointer items-center justify-center rounded-full bg-paper/95 text-ink-soft shadow-card hover:bg-paper focus-visible:outline-2 focus-visible:outline-forest"
+              >
+                <Icon name="close" className="text-xl" />
+              </button>
+            </div>
+            <div className="p-3 pl-4">
               <p className="truncate font-display text-[15px] font-bold text-ink">{open.name}</p>
               <p className="text-[13px] text-ink-soft">{open.zone}, CABA</p>
               <p className="mt-0.5 text-sm text-ink">
@@ -129,16 +323,16 @@ export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; wit
                 Ver residencia
               </Link>
             </div>
-            <button
-              type="button"
-              aria-label="Cerrar"
-              onClick={() => {
-                pinRefs.current[open.id]?.focus();
-                setOpenId(null);
-              }}
-              className="flex size-10 shrink-0 cursor-pointer items-center justify-center self-start rounded-full text-ink-soft hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-forest"
-            >
-              <Icon name="close" className="text-xl" />
+          </div>
+        )}
+
+        {cam && (
+          <div className="absolute right-3 top-3 z-20 flex flex-col overflow-hidden rounded-field border-[1.5px] border-line bg-paper shadow-card" onClick={(e) => e.stopPropagation()} onDoubleClick={(e) => e.stopPropagation()}>
+            <button type="button" aria-label="Acercar" disabled={cam.zoom >= MAX_ZOOM} onClick={() => zoomTo(cam.zoom + 1)} className="flex size-10 cursor-pointer items-center justify-center text-xl font-bold text-ink hover:bg-cream-2 disabled:cursor-default disabled:text-ink-faint focus-visible:outline-2 focus-visible:outline-forest">
+              +
+            </button>
+            <button type="button" aria-label="Alejar" disabled={cam.zoom <= MIN_ZOOM} onClick={() => zoomTo(cam.zoom - 1)} className="flex size-10 cursor-pointer items-center justify-center border-t-[1.5px] border-line text-xl font-bold text-ink hover:bg-cream-2 disabled:cursor-default disabled:text-ink-faint focus-visible:outline-2 focus-visible:outline-forest">
+              −
             </button>
           </div>
         )}
@@ -147,11 +341,83 @@ export function SearchMap({ points, withoutLocation }: { points: MapPoint[]; wit
           href="https://www.openstreetmap.org/copyright"
           target="_blank"
           rel="noopener noreferrer"
-          className="absolute bottom-1.5 right-1.5 z-20 rounded bg-paper/85 px-1.5 py-0.5 text-[10px] text-ink-soft hover:underline"
+          className="absolute bottom-1.5 right-1.5 z-20 rounded bg-paper/85 px-1.5 py-0.5 text-xs text-ink-soft hover:underline"
         >
           © colaboradores de OpenStreetMap
         </a>
       </div>
+
+      <section aria-labelledby="mapa-unis-titulo" className="mt-5">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <h2 id="mapa-unis-titulo" className="text-lg font-bold text-ink">
+            Universidades en el mapa
+          </h2>
+          <p className="text-[13px] text-ink-soft" aria-live="polite">
+            Mostrando <b className="tabular-nums">{shownCount}</b> de <span className="tabular-nums">{UNIVERSITY_PINS.length}</span> sedes
+          </p>
+        </div>
+        <p className="mt-0.5 text-[13px] text-ink-soft">Marcá las que querés ver. El número es el que aparece en el pin.</p>
+        <div className="mt-3 space-y-5">
+          {UNIVERSITY_CATEGORY_ORDER.map((cat) => {
+            const rows = UNIVERSITY_LEGEND.filter((r) => r.category === cat);
+            const pinIds = [...new Set(rows.map((r) => r.pinId))];
+            const onCount = pinIds.filter((id) => visibleUnis.has(id)).length;
+            const allOn = onCount === pinIds.length;
+            const meta = UNIVERSITY_CATEGORIES[cat];
+            return (
+              <div key={cat}>
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-1.5">
+                  <h3 className="flex items-center gap-2 text-[15px] font-bold text-ink">
+                    <span aria-hidden="true" className={`size-3 rounded-full ${meta.dot}`} />
+                    {meta.label}
+                    <span className="text-[13px] font-normal text-ink-faint tabular-nums">
+                      {onCount} de {pinIds.length} en el mapa
+                    </span>
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => setPins(pinIds, !allOn)}
+                    className="min-h-9 cursor-pointer rounded-field px-1 text-[13.5px] font-semibold text-forest-700 underline underline-offset-[3px] hover:text-forest-600 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest"
+                  >
+                    {allOn ? "Quitar todas del mapa" : "Mostrar todas en el mapa"}
+                  </button>
+                </div>
+                <ul className="mt-1.5 grid gap-x-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {rows.map((r) => {
+                    const checked = visibleUnis.has(r.pinId);
+                    return (
+                      <li key={r.label} className="flex items-center gap-1">
+                        <label className="-mx-1 flex min-h-11 min-w-0 flex-1 cursor-pointer items-center gap-2.5 rounded-field px-1 hover:bg-cream has-[:focus-visible]:outline-[3px] has-[:focus-visible]:outline-offset-1 has-[:focus-visible]:outline-forest">
+                          <input type="checkbox" checked={checked} onChange={() => setPins([r.pinId], !checked)} className="peer sr-only" />
+                          <span
+                            aria-hidden="true"
+                            className="grid size-5 flex-none place-items-center rounded-field border-[1.75px] border-ink-faint bg-white after:h-2.5 after:w-[5px] after:-translate-y-px after:rotate-45 after:border-b-[2.25px] after:border-r-[2.25px] after:border-white after:opacity-0 after:content-[''] motion-safe:transition-colors peer-checked:border-forest peer-checked:bg-forest peer-checked:after:opacity-100"
+                          />
+                          <span aria-hidden="true" className={`grid size-6 flex-none place-items-center rounded-full text-[11px] font-bold leading-none tabular-nums text-white ${meta.pin}`}>
+                            {r.n}
+                          </span>
+                          <span className="min-w-0 flex-1 text-[14px] leading-tight text-ink">
+                            <span className="sr-only">{r.n}. </span>
+                            {r.label}
+                          </span>
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => focusUniversity(r.pinId)}
+                          aria-label={`Ver en el mapa: ${r.label}`}
+                          className="flex size-11 flex-none cursor-pointer items-center justify-center rounded-full text-ink-soft hover:bg-cream hover:text-forest-700 focus-visible:outline-[3px] focus-visible:outline-offset-1 focus-visible:outline-forest"
+                        >
+                          <Icon name="my_location" className="text-xl" />
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            );
+          })}
+        </div>
+      </section>
     </div>
   );
 }

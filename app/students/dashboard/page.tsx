@@ -48,6 +48,7 @@ import { loadReservationInfoByApplication, type ReservationInfo } from "@/lib/ap
 import { FeeUrgentBanner } from "@/components/applications/FeeUrgentBanner";
 import { sortPendingFees } from "@/lib/payments/feeUrgentBanner";
 import { pluralize } from "@/lib/format/plural";
+import { isCountableWaitlistEntry } from "@/lib/waitlist-entries/desiredMonth";
 
 export const metadata: Metadata = { title: "Tu espacio" };
 export const dynamic = "force-dynamic";
@@ -271,7 +272,7 @@ export default async function StudentDashboardPage() {
               const searching = !!change?.view && ["open_no_response", "open_responded", "open_expiring"].includes(change.view.ui.key);
               return (
                 <Reveal key={l.id} delay={Math.min(idx, 5) as 0 | 1 | 2 | 3 | 4 | 5}>
-                <Card className="border-l-[5px] border-l-(--tone) p-5 sm:p-6">
+                <Card className="border-l-4 border-l-(--tone) p-5 sm:p-6">
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex min-w-0 items-center gap-3">
                       <span className="flex size-[42px] shrink-0 items-center justify-center rounded-full bg-(--tone-tint) font-display text-[15px] font-bold text-(--tone-700)">
@@ -285,7 +286,7 @@ export default async function StudentDashboardPage() {
                           {l.status === "pending_student_approval"
                             ? "Esperando que apruebe la vinculación"
                             : l.status === "active"
-                              ? "Vínculo activo"
+                              ? "Estudiante vinculado"
                               : "Vínculo no activo"}
                         </p>
                       </div>
@@ -307,8 +308,8 @@ export default async function StudentDashboardPage() {
                   </div>
                   {l.status === "active" && overviewByLink.get(l.id) && (
                     <div className="mt-4 border-t border-line pt-4">
-                      <p className="mb-3 flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-muted">
-                        <Icon name="visibility" className="text-sm" /> Solicitudes y reserva · solo lectura
+                      <p className="mb-3 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted">
+                        <Icon name="visibility" className="text-sm" /> Solicitudes y reserva, solo lectura
                       </p>
                       <FamilyApplicationsList
                         applications={overviewByLink.get(l.id)!.applications}
@@ -529,7 +530,7 @@ export default async function StudentDashboardPage() {
         .order("created_at", { ascending: false }),
       supabase
         .from("waitlist_entries")
-        .select("id, status")
+        .select("id, status, desired_start_date")
         .in("status", ["active", "availability_notification_sent", "retention_check_sent"]),
     ]);
     studentLinks = (data as unknown as StudentLinkRow[]) ?? [];
@@ -597,8 +598,10 @@ export default async function StudentDashboardPage() {
       applications.filter((a) => a.status === "converted_to_reservation").map((a) => a.id),
     );
 
-    waitlistCount = waitlistRows?.length ?? 0;
-    waitlistNeedsAction = (waitlistRows ?? []).some((w) => w.status !== "active");
+    // DR40: no cuentan las entradas con mes ya terminado (el cron las vence después).
+    const liveWaitlistRows = (waitlistRows ?? []).filter((w) => isCountableWaitlistEntry(w as { status: string; desired_start_date: string | null }));
+    waitlistCount = liveWaitlistRows.length;
+    waitlistNeedsAction = liveWaitlistRows.some((w) => w.status !== "active");
   }
 
   const pendingLinks = studentLinks.filter((l) => l.status === "pending_student_approval");
@@ -657,6 +660,7 @@ export default async function StudentDashboardPage() {
           }
         : null,
     hadPreviousApplications: applications.length > 0,
+    minorWithoutLink: isMinor && !activeLink,
   });
   // Residencias para mirar (solo mientras busca): primeras del catálogo real.
   const suggestedResidences = isHoused ? [] : (await catalogPromise).slice(0, 3);
@@ -689,9 +693,9 @@ export default async function StudentDashboardPage() {
       ))}
 
       {pendingProposalsCount > 0 && (
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-card border-[1.5px] border-orange bg-gradient-to-b from-orange-tint to-paper to-80% p-5">
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-card border-[1.5px] border-line border-l-4 border-l-orange bg-paper p-5">
           <div className="flex items-start gap-3">
-            <span className="flex size-11 shrink-0 items-center justify-center rounded-[14px] bg-paper text-orange-700">
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-field bg-orange-tint text-orange-700">
               <Icon name="mail" className="text-2xl" />
             </span>
             <div>
@@ -712,10 +716,10 @@ export default async function StudentDashboardPage() {
       {pendingLinks.map((link) => (
         <div
           key={link.id}
-          className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-card border-[1.5px] border-orange bg-gradient-to-b from-orange-tint to-paper to-80% p-5"
+          className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-card border-[1.5px] border-line border-l-4 border-l-orange bg-paper p-5"
         >
           <div className="flex items-start gap-3">
-            <span className="flex size-11 shrink-0 items-center justify-center rounded-[14px] bg-paper text-orange-700">
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-field bg-orange-tint text-orange-700">
               <Icon name="family_restroom" className="text-2xl" />
             </span>
             <div>
@@ -776,7 +780,7 @@ export default async function StudentDashboardPage() {
       href: "/students/profile",
       icon: "person",
       title: "Completá tu perfil",
-      badge: `Falta ${100 - completenessPercent} %`,
+      badge: "Recomendado",
       value: `Falta: ${completenessMissing.slice(0, 2).join(", ")}${completenessMissing.length > 2 ? "…" : ""}`,
       progress: completenessPercent,
       cta: { label: "Completar perfil", href: "/students/profile" },
@@ -931,7 +935,7 @@ export default async function StudentDashboardPage() {
               <div key={m.label} className="min-w-0 px-3 py-3.5 sm:px-5">
                 <dt className="text-xs font-semibold text-ink-faint">{m.label}</dt>
                 <dd className="mt-0.5 whitespace-nowrap font-display text-base font-bold tabular-nums text-ink sm:text-xl">{m.value}</dd>
-                {m.hint && <p className="mt-0.5 text-[11px] leading-snug text-ink-soft sm:text-xs">{m.hint}</p>}
+                {m.hint && <p className="mt-0.5 text-xs leading-snug text-ink-soft sm:text-xs">{m.hint}</p>}
               </div>
             ))}
           </dl>
@@ -971,7 +975,7 @@ export default async function StudentDashboardPage() {
                         <Link
                           key={a.label}
                           href={a.href}
-                          className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-orange bg-orange-tint px-3 py-1.5 text-xs font-semibold text-orange-700 transition-colors hover:bg-paper focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange"
+                          className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-orange bg-orange-tint px-3 py-1.5 text-xs font-semibold text-orange-700 transition-colors hover:bg-paper focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange"
                         >
                           <Icon name={a.icon} className="text-sm" />
                           {a.label}
@@ -981,7 +985,7 @@ export default async function StudentDashboardPage() {
                   )}
 
                   <div className="flex flex-wrap gap-3">
-                    <Button href="/students/residency" size="sm">
+                    <Button href="/students/residency" size="sm" variant="outline">
                       Ver residencia
                     </Button>
                     <Button href="/students/residency#comunidad" size="sm" variant="outline">
@@ -1008,7 +1012,7 @@ export default async function StudentDashboardPage() {
               summary={
                 <div className="flex items-center gap-3">
                   <span
-                    className={`flex size-11 shrink-0 items-center justify-center rounded-[14px] ${
+                    className={`flex size-11 shrink-0 items-center justify-center rounded-field ${
                       renewalStatus ? "bg-orange-tint text-orange-700" : "bg-forest-tint text-forest-700"
                     }`}
                   >
@@ -1028,14 +1032,14 @@ export default async function StudentDashboardPage() {
                 </div>
                 <div className="min-w-0">
                   <dt className="text-xs text-ink-faint">Restante</dt>
-                  <dd className="font-semibold text-ink">{remaining > 0 ? `${remaining} días` : "Vencido"}</dd>
+                  <dd className="font-semibold tabular-nums text-ink">{remaining > 0 ? `${remaining} días` : "Vencido"}</dd>
                 </div>
               </dl>
               <div className="mt-4 border-t border-line pt-4">
                 {renewalStatus ? (
                   <Link
                     href="/students/renewals"
-                    className="inline-flex max-w-full flex-wrap items-center gap-2 rounded-full border-[1.5px] border-line px-4 py-2 text-center text-sm font-semibold text-ink hover:border-forest hover:bg-forest-tint"
+                    className="inline-flex min-h-11 max-w-full flex-wrap items-center gap-2 rounded-full border-[1.5px] border-line px-4 py-2 text-center text-sm font-semibold text-ink hover:border-forest hover:bg-forest-tint"
                   >
                     Ver renovaciones
                   </Link>

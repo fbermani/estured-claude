@@ -59,10 +59,12 @@ type Db = {
   siblings?: Array<{ id: string; status: string; room_type_id: string | null }>;
 };
 
+type Rpc = { fn: string; args: Record<string, unknown> };
 type Write = { table: string; patch: Record<string, unknown>; filters: Array<[string, unknown[]]> };
 
 function fakeAdmin(db: Db) {
   const writes: Write[] = [];
+  const rpcs: Rpc[] = [];
   const rowFor = (table: string): Record<string, unknown> | null => {
     switch (table) {
       case "estured_fee_payments":
@@ -89,6 +91,10 @@ function fakeAdmin(db: Db) {
     }
   };
   const admin = {
+    rpc: (fn: string, args: Record<string, unknown>) => {
+      rpcs.push({ fn, args });
+      return Promise.resolve({ data: null, error: null });
+    },
     from(table: string) {
       const state = { op: "select", patch: {} as Record<string, unknown>, filters: [] as Array<[string, unknown[]]> };
       const record = (name: string) => (...args: unknown[]) => {
@@ -129,7 +135,7 @@ function fakeAdmin(db: Db) {
       return builder;
     },
   } as unknown as SupabaseClient;
-  return { admin, writes };
+  return { admin, writes, rpcs };
 }
 
 const run = (admin: SupabaseClient) => confirmReservationAfterFeePaid(admin, { feePaymentId: "fee-1", actorUserId: "admin-1", actorRole: "admin" });
@@ -149,7 +155,7 @@ beforeEach(() => {
 
 describe("confirmReservationAfterFeePaid (cliente falso)", () => {
   it("fee paid + reserva pending_estured_fee: confirma con UPDATE condicional, emite UN comprobante y deja la factura pendiente", async () => {
-    const { admin, writes } = fakeAdmin({ feeStatus: "paid", reservationStatus: "pending_estured_fee", confirmRows: 1 });
+    const { admin, writes, rpcs } = fakeAdmin({ feeStatus: "paid", reservationStatus: "pending_estured_fee", confirmRows: 1 });
     const result = await run(admin);
     expect(result).toEqual({ ok: true, reservationId: "r1", receiptId: "rc-new", verificationCode: "code-1" });
 
@@ -159,7 +165,7 @@ describe("confirmReservationAfterFeePaid (cliente falso)", () => {
     expect(sideEffects.receipts).toBe(1);
     expect(writes.some((w) => w.table === "reservations" && w.patch.booking_receipt_id === "rc-new")).toBe(true);
     expect(writes.some((w) => w.table === "estured_fee_payments" && w.patch.fiscal_invoice_status === "pending_issue")).toBe(true);
-    expect(writes.some((w) => w.table === "profile_availability" && w.patch.available_count === 1)).toBe(true);
+    expect(rpcs.filter((r) => r.fn === "decrement_profile_availability")).toHaveLength(1);
     expect(sideEffects.audit).toEqual(["reservation_confirmed"]);
     expect(sideEffects.milestone).toBe(1);
   });

@@ -1,0 +1,165 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- complementary:
+  - link "Tus residencias":
+    - /url: /residence/dashboard
+    - generic: EstuRed
+  - button "Notificaciones, 16 sin leer":
+    - generic: notifications
+    - generic: "16"
+  - navigation:
+    - link "Panel":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e
+      - generic: dashboard
+      - generic: Panel
+    - link "Solicitudes":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/applications
+      - generic: inbox
+      - generic: Solicitudes
+    - link "Habitaciones":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/rooms
+      - generic: meeting_room
+      - generic: Habitaciones
+    - link "Disponibilidad":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/availability
+      - generic: bed
+      - generic: Disponibilidad
+    - link "Renovaciones":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/renewals
+      - generic: sync_alt
+      - generic: Renovaciones
+    - link "Residentes":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/residents
+      - generic: groups
+      - generic: Residentes
+    - link "Lista de espera":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/waitlist
+      - generic: hourglass_top
+      - generic: Lista de espera
+    - link "Preguntas, 1 preguntas sin responder":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/faq
+      - generic: forum
+      - generic: Preguntas
+      - generic: "1"
+    - link "Reglamento":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/regulation
+      - generic: gavel
+      - generic: Reglamento
+    - link "Soporte":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/support
+      - generic: support_agent
+      - generic: Soporte
+    - link "Plan":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/plan
+      - generic: workspace_premium
+      - generic: Plan
+    - link "Equipo":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/team
+      - generic: supervisor_account
+      - generic: Equipo
+  - link "Todas mis residencias":
+    - /url: /residence/dashboard
+    - generic: apartment
+    - generic: Todas mis residencias
+  - paragraph: owner.residencia.norte@example.com
+  - link "Editar perfil":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/profile
+    - generic: edit
+    - generic: Editar perfil
+  - button "Salir":
+    - generic: logout
+    - generic: Salir
+  - button "Colapsar menú":
+    - generic: chevron_left
+- main:
+  - generic: bed
+  - text: Disponibilidad
+  - heading "Disponibilidad" [level=1]
+  - paragraph: Cuántos lugares ofrecés, por tipo de habitación y por género.
+  - paragraph:
+    - text: Acá informás cuántos lugares ofrecés, por tipo de habitación y por género. Partimos de las camas libres que ya cargaste en
+    - link "Habitaciones":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/rooms
+    - text: ": confirmá o ajustá cada número. Actualizala al menos cada 30 días — si no, se muestra como “sin actualizar” y después de 15 días más deja de aparecer en las búsquedas."
+  - paragraph: Cuádruple
+  - paragraph: USD 160/mes
+  - paragraph: Última actualización 03/11/2026
+  - generic: Disponible
+  - paragraph: Cuádruples mixtas
+  - paragraph: 1 cama libre de 8 · 0 habitaciones libres enteras
+  - generic: Estado
+  - combobox "Estado Estado Estado":
+    - option "Disponible" [selected]
+    - option "Completa"
+    - option "Pausada"
+  - generic: Lugares disponibles
+  - spinbutton "Lugares disponibles Lugares disponibles Lugares disponibles": "1"
+  - generic: Disponible desde
+  - textbox "Disponible desde Disponible desde Disponible desde"
+  - generic: Nota pública
+  - textbox "Nota pública Nota pública Nota pública"
+  - button "Guardar disponibilidad"
+  - paragraph: Doble
+  - paragraph: USD 220/mes
+  - paragraph: Última actualización 03/11/2026
+  - generic: Disponible
+  - paragraph: Dobles mixtas
+  - paragraph: 3 camas libres de 10 · 1 habitación libre entera
+  - generic: Estado
+  - combobox:
+    - option "Disponible" [selected]
+    - option "Completa"
+    - option "Pausada"
+  - generic: Lugares disponibles
+  - spinbutton: "2"
+  - button "Usar 3 (camas libres hoy)"
+  - generic: Disponible desde
+  - textbox
+  - generic: Nota pública
+  - textbox
+  - button "Guardar disponibilidad"
+  - paragraph: Individual
+  - paragraph: USD 300/mes
+  - paragraph: Última actualización 03/11/2026
+  - generic: Disponible
+  - paragraph: Individuales sin género especificado
+  - paragraph: 1 cama libre de 9 · 1 habitación libre entera
+  - paragraph:
+    - generic: info
+    - text: Estas habitaciones no tienen género definido, así que no se ofrecen por género.
+    - link "Definilo en Habitaciones":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/rooms
+    - text: .
+  - generic: Estado
+  - combobox "Estado":
+    - option "Disponible" [selected]
+    - option "Completa"
+    - option "Pausada"
+  - generic: Lugares disponibles
+  - spinbutton "Lugares disponibles": "1"
+  - generic: Disponible desde
+  - textbox "Disponible desde"
+  - generic: Nota pública
+  - textbox "Nota pública"
+  - button "Guardar disponibilidad"
+  - paragraph: Triple
+  - paragraph: USD 190/mes
+  - paragraph: Última actualización 03/11/2026
+  - generic: Disponible
+  - paragraph: Triples mixtas
+  - paragraph: 1 cama libre de 8 · 0 habitaciones libres enteras · 1 cama fuera de servicio
+  - generic: Estado
+  - combobox:
+    - option "Disponible" [selected]
+    - option "Completa"
+    - option "Pausada"
+  - generic: Lugares disponibles
+  - spinbutton: "1"
+  - generic: Disponible desde
+  - textbox
+  - generic: Nota pública
+  - textbox
+  - button "Guardar disponibilidad"
+- button "Ricardo — Dueño de Residencia": Ricardo — Dueño de Residencia
+- button "Open Next.js Dev Tools":
+- alert

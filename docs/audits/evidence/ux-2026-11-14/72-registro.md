@@ -1,0 +1,182 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- banner:
+  - navigation:
+    - link "EstuRed, inicio":
+      - /url: /
+      - generic: EstuRed
+    - link "Para estudiantesy familias":
+      - /url: /for-students
+      - generic: Para estudiantesy familias
+    - link "Para residencias":
+      - /url: /for-residences
+    - link "Guías":
+      - /url: /guias
+    - link "Ingresar":
+      - /url: /login
+    - link "Crear cuenta":
+      - /url: /register
+    - link "Buscar residencias":
+      - /url: /search
+      - generic: search
+      - text: Buscar residencias
+- main:
+  - generic: school
+  - generic: Bienvenida
+  - heading "Creá tu cuenta" [level=1]
+  - paragraph: Elegí cómo vas a usar EstuRed. Después podés sumar otros vínculos.
+  - paragraph: 1. ¿Quién sos?
+  - radiogroup "Tipo de cuenta":
+    - radio "Soy estudiante Busco residencia en CABA" [checked]
+    - generic: school
+    - generic: Soy estudiante
+    - generic: Busco residencia en CABA
+    - generic: check_circle
+    - radio "Soy familiar Acompaño a un estudiante"
+    - generic: family_restroom
+    - generic: Soy familiar
+    - generic: Acompaño a un estudiante
+    - radio "Soy residencia Quiero solicitar sumar mi residencia"
+    - generic: apartment
+    - generic: Soy residencia
+    - generic: Quiero solicitar sumar mi residencia
+  - paragraph: 2. Tus datos
+  - generic "Qué incluye tu cuenta"
+  - paragraph: Paso 1 de 2 — lo justo para crear tu cuenta. El resto de tu perfil (universidad, nacionalidad, documentos) lo completás después, sin apuro.
+  - generic: Nombre
+  - textbox "Nombre"
+  - generic: Apellido
+  - textbox "Apellido"
+  - paragraph: Privado — solo se muestra tu inicial.
+  - generic: Fecha de nacimiento
+  - textbox "Fecha de nacimiento"
+  - paragraph: Privada. Si sos menor de 18, te vamos a pedir un familiar vinculado para enviar solicitudes.
+  - generic: Email
+  - textbox "Email":
+    - /placeholder: tu@email.com
+  - generic: Teléfono / WhatsApp
+  - textbox "Teléfono / WhatsApp":
+    - /placeholder: +54 9 11 1234-5678
+  - paragraph: Privado. Necesario para coordinar tu solicitud.
+  - generic: Contraseña
+  - textbox "Contraseña"
+  - paragraph: Mínimo 8 caracteres.
+  - checkbox "Acepto los términos y condiciones de EstuRed y entiendo que actúa como plataforma intermediaria de solicitud, registro, soporte y comprobante."
+  - text: Acepto los
+  - link "términos y condiciones":
+    - /url: /terms
+  - text: de EstuRed y entiendo que actúa como plataforma intermediaria de solicitud, registro, soporte y comprobante.
+  - checkbox "Acepto la política de privacidad. Mis datos sensibles (apellido, fecha de nacimiento, universidad, contacto) nunca se muestran públicamente."
+  - text: Acepto la
+  - link "política de privacidad":
+    - /url: /privacy
+  - text: . Mis datos sensibles (apellido, fecha de nacimiento, universidad, contacto) nunca se muestran públicamente.
+  - checkbox "Quiero aparecer en la comunidad de mi residencia cuando me aloje (opcional) Otros usuarios registrados van a ver tu nombre de pila y tu texto «Sobre mí». Qué datos más se muestran lo elegís después en tu perfil, y podés cambiarlo cuando quieras. Si no la marcás, solo se ve que hay una plaza ocupada."
+  - generic: Quiero aparecer en la comunidad de mi residencia cuando me aloje (opcional)
+  - generic: Otros usuarios registrados van a ver tu nombre de pila y tu texto «Sobre mí». Qué datos más se muestran lo elegís después en tu perfil, y podés cambiarlo cuando quieras. Si no la marcás, solo se ve que hay una plaza ocupada.
+  - generic "Ya vivo en una residencia (opcional)":
+    - generic: apartment
+    - text: Ya vivo en una residencia
+    - generic: (opcional)
+  - option "Elegí una…" [selected]
+  - option "2340 Residencia Universitaria by Luco, Balvanera"
+  - option "Arcos del Soho, Palermo"
+  - option "Casa Almagro Estudiantes, Almagro"
+  - option "Casa AURA, Constitución"
+  - option "Casa Colegiales, Colegiales"
+  - option "Casa Rica Coliving (Obelisco), San Nicolás"
+  - option "Casa San Telmo, San Telmo"
+  - option "Charlie's Hostel, Villa Crespo"
+  - option "CLEI Residencia de Estudiantes, Monserrat"
+  - option "Entis Residencia Universitaria, San Telmo"
+  - option "IndER Residencia, Constitución"
+  - option "La Casa de Cris - Residencia I Almagro, Almagro"
+  - option "La Casona Monserrat, Monserrat"
+  - option "La Casona Recoleta, Balvanera"
+  - option "La Scala Belgrano, Colegiales"
+  - option "La Scala Hollywood, Palermo"
+  - option "Las Cabañas, Monserrat"
+  - option "Luco Hotel (Residencia), Recoleta"
+  - option "Mansión Paloma, Colegiales"
+  - option "Residencia Balvanera Centro, Balvanera"
+  - option "Residencia Belgrano R, Belgrano"
+  - option "Residencia Caballito Parque, Caballito"
+  - option "Residencia El Ángel, Montserrat"
+  - option "Residencia Family Home, Constitución"
+  - option "Residencia Norte, Palermo"
+  - option "Residencia Núñez Río, Núñez"
+  - option "Residencia Palermo Soho, Palermo"
+  - option "Residencia Recoleta Plaza, Recoleta"
+  - option "Residencia Río de la Plata, Recoleta"
+  - option "Residencia San Marcos, Montserrat"
+  - option "Residencia Sin Fronteras, Centro"
+  - option "Residencia Universitaria Gusti, Balvanera"
+  - option "Residencia Universitaria Lith, Balvanera"
+  - option "Residencia Universitaria Olivia, Núñez"
+  - option "Residencia Villa Crespo, Villa Crespo"
+  - option "Student Hostel La Bamba (Ilvero), Recoleta"
+  - option "Verona del Soho, Palermo"
+  - option "Wanna Centro, San Nicolás"
+  - option "Wanna Congreso, Balvanera"
+  - option "Wanna Independencia, San Cristóbal"
+  - option "Wanna Palermo, Recoleta"
+  - option "Wanna Sur, Montserrat"
+  - option "Wanna Tango, Montserrat"
+  - button "Crear mi cuenta"
+  - paragraph:
+    - text: ¿Ya tenés cuenta?
+    - link "Iniciar sesión":
+      - /url: /login
+- contentinfo:
+  - generic: EstuRed
+  - generic: EstuRed
+  - paragraph: La convivencia también se elige. Residencias estudiantiles verificadas en CABA, con solicitudes registradas y comprobantes verificables.
+  - list:
+    - generic: check
+    - text: Residencias verificadas presencialmente
+    - generic: check
+    - text: Solicitudes registradas en la plataforma
+    - generic: check
+    - text: Comprobante de Reserva Confirmada
+  - navigation "Explorar":
+    - paragraph: Explorar
+    - list:
+      - link "Buscar residencias":
+        - /url: /search
+      - link "Para estudiantes y familias":
+        - /url: /for-students
+      - link "Para residencias":
+        - /url: /for-residences
+      - link "Guías":
+        - /url: /guias
+      - link "Crear cuenta":
+        - /url: /register
+  - navigation "Ayuda":
+    - paragraph: Ayuda
+    - list:
+      - link "Soporte":
+        - /url: /students/support
+        - generic: support_agent
+        - text: Soporte
+      - link "Preguntas frecuentes":
+        - /url: /for-students#preguntas-frecuentes
+      - link "Cómo funciona":
+        - /url: /#el-proceso
+      - link "Qué pagás y a quién":
+        - /url: /for-students#que-pagas
+      - text: "Contacto:"
+      - link "hola@estured.com":
+        - /url: mailto:hola@estured.com
+      - listitem: ¿Tenés una reserva y algo no coincide? Abrí un caso desde tu panel.
+  - paragraph: EstuRed actúa como plataforma intermediaria de búsqueda, solicitud, registro y comprobante. No presta directamente el alojamiento. Los precios en ARS son referenciales al dólar blue del día.
+  - list:
+    - link "Botón de arrepentimiento":
+      - /url: /students/revocation
+    - link "Verificar un comprobante":
+      - /url: /verify
+    - link "Términos y condiciones":
+      - /url: /terms
+    - link "Política de privacidad":
+      - /url: /privacy
+  - paragraph: Hecho con ♥ en Buenos Aires
+- button "Simular usuario": Simular usuario

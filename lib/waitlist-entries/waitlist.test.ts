@@ -1,10 +1,11 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { deleteResidenceCascade } from "@/lib/testing/deleteResidenceCascade";
+import { buildMonthOptions } from "@/lib/waitlist-entries/desiredMonth";
 import { joinWaitlist } from "@/lib/waitlist-entries/joinWaitlist";
 import { leaveWaitlist } from "@/lib/waitlist-entries/leaveWaitlist";
 import { stayInWaitlist } from "@/lib/waitlist-entries/stayInWaitlist";
-import { notifyWaitlistAvailability } from "@/lib/waitlist-entries/notifyWaitlistAvailability";
+import { notifyWaitlistAvailability, notifyWaitlistBatch } from "@/lib/waitlist-entries/notifyWaitlistAvailability";
 import { removeFromWaitlistByResidence } from "@/lib/waitlist-entries/removeFromWaitlistByResidence";
 import { activateFromWaitlist } from "@/lib/waitlist-entries/activateFromWaitlist";
 import { removeWaitlistEntriesOnConfirmedReservation } from "@/lib/waitlist-entries/removeWaitlistEntriesOnConfirmedReservation";
@@ -122,7 +123,7 @@ describe.skipIf(!hasCreds)("disponibilidad y lista de espera (integración)", ()
       actorUserId: studentUserId,
       residenceId,
       roomTypeId,
-      desiredStartDate: "2026-09-01",
+      desiredStartDate: buildMonthOptions()[3].value, // DR40: mes de ingreso futuro (día 1)
       desiredDurationMonths: 6,
     });
     expect(first.ok).toBe(true);
@@ -177,6 +178,49 @@ describe.skipIf(!hasCreds)("disponibilidad y lista de espera (integración)", ()
     expect(afterStay!.status).toBe("active");
 
     await leaveWaitlist(admin, { waitlistEntryId: joined.waitlistEntryId, actorUserId: studentUserId });
+  });
+
+  it("notifyWaitlistBatch (DR41): permiso, estado ya cambiado, tope; stay marca «Decidió esperar» y el reaviso lo limpia", async () => {
+    const joined = await joinWaitlist(admin, {
+      actorUserId: studentUserId,
+      residenceId,
+      roomTypeId,
+      desiredStartDate: null,
+      desiredDurationMonths: null,
+    });
+    expect(joined.ok).toBe(true);
+    if (!joined.ok) return;
+    const id = joined.waitlistEntryId;
+
+    // Sin permiso sobre la residencia: se descarta todo el lote.
+    const denied = await notifyWaitlistBatch(admin, { residenceId, waitlistEntryIds: [id], actorUserId: studentUserId });
+    expect(denied.ok).toBe(false);
+
+    // Tope: 51 ids.
+    const tooMany = Array.from({ length: 51 }, (_, i) => `00000000-0000-4000-8000-${String(i + 1).padStart(12, "0")}`);
+    const capped = await notifyWaitlistBatch(admin, { residenceId, waitlistEntryIds: tooMany, actorUserId: ownerId });
+    expect(capped.ok).toBe(false);
+
+    // Aviso OK; repetirlo la ignora (ya cambió de estado).
+    const first = await notifyWaitlistBatch(admin, { residenceId, waitlistEntryIds: [id], actorUserId: ownerId });
+    expect(first.ok && first.notified).toBe(1);
+    const again = await notifyWaitlistBatch(admin, { residenceId, waitlistEntryIds: [id], actorUserId: ownerId });
+    expect(again.ok && again.notified).toBe(0);
+    expect(again.ok && again.skipped).toHaveLength(1);
+
+    // «Seguir esperando» tras el aviso marca waiting_confirmed_at (si la migración 0079 está aplicada).
+    expect((await stayInWaitlist(admin, { waitlistEntryId: id, actorUserId: studentUserId })).ok).toBe(true);
+    const marked = await admin.from("waitlist_entries").select("status, waiting_confirmed_at").eq("id", id).single();
+    if (!marked.error) {
+      expect(marked.data!.status).toBe("active");
+      expect(marked.data!.waiting_confirmed_at).not.toBeNull();
+      // Reavisar limpia la marca.
+      await notifyWaitlistBatch(admin, { residenceId, waitlistEntryIds: [id], actorUserId: ownerId });
+      const cleared = await admin.from("waitlist_entries").select("waiting_confirmed_at").eq("id", id).single();
+      expect(cleared.data!.waiting_confirmed_at).toBeNull();
+    }
+
+    await leaveWaitlist(admin, { waitlistEntryId: id, actorUserId: studentUserId });
   });
 
   it("notifyWaitlistAvailability: rechaza si el actor no tiene acceso a la residencia", async () => {

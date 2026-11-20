@@ -2,6 +2,95 @@
 
 # EstuRed — Próximos pasos
 
+## Fase 5 de la ficha: compartir por WhatsApp, FAQ destacadas y foto principal — 2026-11-17
+
+Hecho (sin verificar en navegador; ver `docs/00` DR57): `/residence/[id]/share` («Compartir ficha» en el sidebar), `lib/share/*` (plantilla, validación, resolución, `wa.me`), hoja `ShareFichaSheetServer` (`components/share/`), selección de FAQ destacadas en `/residence/[id]/faq` y botón «Principal» en las fotos del perfil. **Pendiente:** (1) aplicar 0095, 0096 y 0097 en `estured-dev` ANTES de pushear (runbook en `docs/PLAN_SALIDA_PRODUCCION.md`) y correr `scripts/seed-demo-share-featured.mjs`; (2) HECHO (sin verificar en navegador): franja `OwnerShareBar` sobre el hero de la ficha (solo equipo de esa residencia), tarjeta «Compartí tu ficha por WhatsApp» en el Panel, etiqueta «Nuevo» en el sidebar hasta `SHARE_NEW_UNTIL` (`lib/share/newBadge.ts`) y `?ref=wa` en el link del mensaje (la ficha lo ignora; se ve en los logs de Vercel, sin analytics propios); (4) las 5 FAQ fijas del perfil no se pueden destacar (son un jsonb); decidir si se migran al catálogo.
+
+## Auditoría UX por recorrido Codex — 2026-11-14
+
+Informe compartible: [`AUDITORIA_UX_RECORRIDO_CODEX_2026-11-14.md`](audits/AUDITORIA_UX_RECORRIDO_CODEX_2026-11-14.md). Siete demos y visitante; 12 hallazgos (2 P1, 8 P2, 2 P3), con capturas, criterios de aceptación y [cobertura explícita](audits/evidence/ux-2026-11-14/COBERTURA.md). No se implementaron fixes.
+
+- Primero **UX01**: corregir la ayuda que dice que la dirección es privada aunque se publica; **UX02**: búsqueda/paginación de Comunidad admin (hoy corta en 300 y no permite llegar a Norte/Río).
+- Luego contadores/listas, preguntas pendientes, orientación del perfil, revisión económica de solicitud y cambios enviados a aprobación. Reproducir con datos actuales antes de editar: hubo tests/commits concurrentes en dev.
+- Para completar los estados no recorridos: casos demo vigentes de solicitud/renovación/espera, menor con vínculo estable y staff limitado. Typecheck/build OK; lint global con 7 errores en `docs/audits/evidence/2026-11-14/repro-actions.cjs`, no modificado por esta auditoría UX.
+
+## DR48: documentos de estudiantes visibles para la residencia — 2026-11-14
+
+- Implementado (acción `lib/documents/requestResidenceDocumentAccess.ts`, UI en Residentes y en el detalle de la solicitud con pago habilitado). Migración **0087** aplicada en dev vía MCP; en prod entra con el bootstrap.
+- Pendiente: verificación visual en staging (dueño, staff con y sin casillero) y, si se quiere, una vista admin del registro `residence_document_access_log`.
+
+## Auditoría de seguridad en dev — 2026-11-14
+
+Informe: `docs/audits/AUDITORIA_SEGURIDAD_2026-11-14.md`. Tres medios sin corregir: **SEG14-01** (no reactivar fee de renovación vencido), **SEG14-02** (revalidar residencia publicada al convertir propuesta familiar) y **SEG14-03/B4** (cuota acumulada y rate limit de documentos). Sin críticos/altos confirmados en el alcance revisado; quedan límites de verificación explícitos en el informe. Antes de beta, implementar MFA obligatorio para admin/superadmin conforme docs/11 y docs/18. La revisión no modifica el estado de migraciones ni aprueba producción.
+
+## Pendientes tras el hardening de seguridad (2026-11-12)
+Detalle en `docs/audits/PLAN_SEGURIDAD_2026-11-12.md` ("Estado al 2026-11-12").
+- Pasar la CSP de Report-Only a enforce tras observar los reportes (M5).
+- Turnstile (M6, opción A, implementado): "Allow new users to sign up" ya apagado en dev (verificado); falta apagarlo en prod y cargar las claves reales en Vercel prod (`NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`).
+- Verificación de email (decidido 2026-11-12, opción C): la preapertura sigue creando cuentas con `email_confirm: true`; antes del lanzamiento público hay que exigir email verificado (link por mail) antes de solicitudes, pagos o contacto con residencias. Requisito de lanzamiento, no de preapertura.
+- "Leaked password protection": requiere plan Pro (dev está en Free, no aplica); activarlo en prod cuando pase a Pro. JWT: queda en 1 h (default), sin cambios.
+- Vercel prod: `NEXT_PUBLIC_APP_URL` obligatorio (`getAppUrl` lanza si falta), `DEMO_*` ausentes en Production y Preview, `CRON_SECRET`; crear el secreto `cron_secret` en Supabase Vault antes del bootstrap de prod.
+
+## Preapertura — Fase 3 implementada 2026-11-08 (sin commit)
+
+**Hecho (pasos 6 y 7 + legales):** `/mi-lugar` final (celebración, #N real, panel blureado «se activa cuando abramos», 5 pasos, carrusel «Se siguen sumando»; variantes perfil incompleto, familiar con invitación esperando/vencida/vinculados y cuenta sin fila; pie «Editar mi perfil»/«Salir»). Carrusel público REAL en entrada, paso 1, fondo blureado y Mi lugar (`communityRail.ts` puro + `communityRailData.ts` con service role y lista blanca de columnas; caché de datos con etiqueta `preapertura-community` que `saveProfile` invalida junto con `/preapertura`, `/` y `/for-students`). `/fundadoras` (medidor de cupo real, `Countdown` solo con `FOUNDERS_CLOSE_AT`, estados 0 / 1–2 / 3–9 / 10 / cerrado) y el CTA de la entrada apunta ahí. `/register/residence`: 5 datos obligatorios (nombre de la residencia, `address`, responsable, teléfono, email), misma validación en cliente y servidor (`validateSignupFields`), éxito con lugar de fundadora según el cupo de ANTES de guardar, mail de confirmación (`lib/residenceSignup/confirmationEmail.ts`, solo con preapertura encendida, degrada sin Resend) y, con flag, reescritura a `/fundadoras/datos` (popup). Legales: `/consentimientos` (líneas del flujo + Términos de la preapertura con la opción C y la comunidad + política) y la misma sección en `/terms` y `/privacy` solo con flag; los casilleros enlazan ahí (pestaña nueva). Sin migración nueva.
+**Decisiones/supuestos reversibles (ratificar o ajustar):**
+- Ejemplos del carrusel: pozo de 5; cada perfil real retira uno (se apagan a los 5 reales); `EXAMPLES_OFF_AT = 12` queda como tope duro (`rules.ts`). Con menos de 4 tarjetas la tira queda quieta.
+- Invitación familiar (revisión de seguridad): el token NUNCA vuelve al familiar (ni en pantalla ni en la respuesta); sale solo por mail al email del invitado, que no se puede cambiar al canjear. Sin proveedor de mail (o si el envío falla) en producción no se emite invitación: se deshace el alta y se muestra «No pudimos enviar la invitación, probá más tarde». Solo con `NODE_ENV=development` se muestra el link copiable. El familiar declara «Soy mayor de 18 años» (validado en servidor). Mi lugar no tiene «Copiar link».
+- `/register/residence` con flag: los campos opcionales (Instagram, camas) no se piden (diseño v4); sin flag siguen opcionales. Dirección válida = 5–200 caracteres con al menos una letra.
+- Si el código sale antes que la 0080, el alta cae al esquema viejo (dirección guardada en `neighborhood`): el formulario nunca se rompe. Igual conviene aplicar 0080 antes de desplegar.
+- La política NO menciona Sin Fronteras; contacto de privacidad = `CONTACT_EMAIL`; «cerrar cuenta» y «desactivar la opción C» se piden por mail (no hay botón en Mi lugar, a diferencia del borrador).
+**Para encender `PREAPERTURA=on` en producción (checklist):**
+1. Aplicar `db/migrations/0080_preapertura.sql` en prod (SQL Editor https://supabase.com/dashboard/project/mrwooskdcnkbitkhcvbf/sql/new, pegar el archivo) y regenerar el bootstrap de prod (`node scripts/build-bootstrap.mjs prod`) si se arma de cero. Hacerlo ANTES de desplegar este código.
+2. Env de Vercel: `PREAPERTURA=on`, `NEXT_PUBLIC_SITE_URL`, `RESEND_API_KEY` + `EMAIL_FROM` con dominio verificado (los mails de invitación y de confirmación de residencias salen solo con eso), `SUPABASE_SERVICE_ROLE_KEY`. Opcional: `FOUNDERS_CLOSE_AT` (ISO 8601); sin ella no hay cuenta regresiva.
+3. Datos del responsable legal de la política de privacidad (hoy `[Responsable: a definir]` y `[Fecha a definir]` en `LegalPreapertura.tsx`) y revisión de un abogado (Ley 25.326; riesgo asumido por el dueño). Confirmar plazos de baja (30 días) y casilla de contacto.
+4. Regla WAF de Vercel (rate limit) sobre `/preregistro`, `/preregistro/familiar`, `/register/residence` y `/fundadoras/datos`: los frenos de la app (IP y email) son en memoria y por instancia; el WAF cubre el resto, incluida la enumeración de cuentas por el mensaje «Ya hay una cuenta con ese email».
+5. Decidir: fecha de cierre de fundadoras, plazo de contacto a residencias, duración de la insignia, Instagram en el formulario, vencimiento/reenvío de la invitación familiar (docs/23 §9).
+6. Probar de punta a punta en un deploy de preview con el flag encendido y mails reales (aún no probado el mail con dominio Resend verificado).
+**Dev (feedback 2):** el fondo del popup es la home real COMPLETA (Navbar + `HomeLanding` + Footer reales, solo escenografía inert; si cambia la home, cambia el fondo; las rutas `(preapertura)` no dibujan header/footer propios, así que no hay duplicados). Navegador flotante «Pantallas (dev)» (arriba a la izquierda) para recorrer las 13 pantallas con su sesión de prueba; `/register/residence` vacío en dev crea una solicitud `test-resi-*` (el seed `--borrar` las limpia junto con `test-preap-*`). Nada de esto existe en producción (el build elimina el navegador; la ruta de preparar da 404).
+**Dev (feedback del dueño):** `node --env-file=.env.local scripts/seed-preapertura-dev.mjs [--apply] [--many] [--borrar]` deja datos para ver todas las pantallas (ver cabecera del script). Enviar vacío el paso 1 o `/preregistro/familiar` en desarrollo crea una cuenta de prueba (`test-preap-*`; `--borrar` las limpia). En producción nunca.
+**Revisión de seguridad Fases 1–3 (2026-11-08, sin commit):** (A) invitación solo por mail, sin token en la respuesta, familiar declara 18+; (B) con flag, `/register/student` y `/register/family` redirigen a `/preregistro` y `/preregistro/familiar` y sus acciones (`registerStudent`, `registerFamily`) se cortan en el servidor (incluye el flujo de invitaciones de residencias DR19, que no opera en preapertura); `/register/residence` no se toca; (C) el menor invitado no da la opción C (ni consentimiento registrado ni `consent_c`) ni la comunidad; (D) cupo de fundadoras con conteos exactos (`head: true`); (E) el carrusel solo muestra valores de listas cerradas («Otra» si la carrera es libre); (F) asunto del mail sin `\r\n` y con el nombre acotado a 80, y freno por email (hash) aparte del de IP en `/register/residence`; (G) `Referrer-Policy: no-referrer` en `/preregistro` (lleva `?invitacion=`).
+**Riesgos aceptados (decididos por el dueño):** (1) el paso 1 crea la cuenta con `email_confirm: true` (el mail no se verifica: fricción mínima); alguien puede registrarse con un mail ajeno. (2) el mensaje «Ya hay una cuenta con ese email» permite enumerar cuentas; se cubre con el WAF. (3) `/register/residence` exige `address` también con el flag apagado (DR46.4); **la 0080 debe aplicarse en prod ANTES de desplegar**, porque el fallback pre-0080 guarda la dirección en `neighborhood`.
+**Falta / fuera de alcance:** tabla `preapertura_interesados`, cierre de cuenta desde Mi lugar, desactivar la opción C desde el perfil, código DR32 de verificación del mail del familiar (se pide al abrir), apagar el flag al abrir (quitar rewrites y volver a la landing real).
+
+## Preapertura — Fase 2 implementada 2026-11-08 (sin commit)
+
+**Hecho (pasos 4 y 5):** `/preregistro` (paso 1, `Step1Form`/`UrgencyPanel`), `/preregistro/perfil` (paso 2, `ProfileForm`, también sirve para «Editar mi perfil»), `/preregistro/familiar` (`FamilyForm`), `/mi-lugar` mínimo (confirma, #N real, editar perfil, salir) y `/students/*` → `/mi-lugar` (solo con flag). Lógica en `lib/preapertura/` (`validation`, `options`, `accounts`, `invitations`, `throttle`, `formState`); acciones en `app/(preapertura)/preregistro/actions.ts` y `familiar/actions.ts`. Avatar extraído a `components/residences/FlagAvatar.tsx` (lo usa también `CommunityBrowser`).
+**Decisiones/supuestos reversibles (documentar en docs si el dueño los ratifica):**
+- Sin selector de rol en el paso 1: el rol sale de la ruta (`/preregistro` = estudiante, `/preregistro/familiar` = familiar), como en el mockup v4. Sin Google (DR26).
+- `student_profiles` y `family_members` exigen nombre/apellido (NOT NULL): se crean con `''` y el nombre de pila se completa en el paso 2 (se copia a `student_profiles.first_name`); apellido y relación familiar se piden al abrir. El familiar queda con `relationship_type = 'familiar'`.
+- Menores: sin invitación, cualquier edad <18 no crea cuenta; con invitación, 14 a 17 entra (mismo piso de 14 del registro de siempre), `is_minor = true`, comunidad bloqueada. Edad con calendario de Buenos Aires (`ageByBirthDate`).
+- Invitación familiar: una por familiar (unique), vence a los 30 días, solo se guarda el hash del token, sin reenvío ni recordatorios. (Superado: ver «Revisión de seguridad» arriba; el link ya no se muestra en producción.) Se manda por mail con Resend si hay clave (en sandbox solo llega al dueño de la cuenta). El mail usa `SITE_URL` (nunca el Host del pedido). Al canjearla se crea `family_links` en `pending_student_approval` (el familiar no aprueba ni consiente por el estudiante). No se manda el código DR32 de verificación del mail del familiar: queda para la apertura.
+- Consentimientos: el casillero único guarda `terms`, `privacy` y `search_visibility_to_verified_residences` (opción C); la comunidad pública guarda `preapertura_community` con `granted` cada vez que cambia. La comunidad vive solo en `preapertura_estudiantes.consent_comunidad` (no toca `student_visibility_settings`).
+- Año de ingreso: `entry_month`/`entry_year` (próxima temporada); «Todavía no sé» = `entry_unsure`.
+- React 19 resetea los formularios con `action={fn}` y desmarcaba casilleros/pastillas controlados: los tres formularios usan `onSubmit` + `startTransition`.
+- Al crear la cuenta la pantalla se re-renderiza con sesión: por eso los formularios muestran «Ya estás adentro» con sesión en vez de redirigir desde el servidor (si no, se perdía el paso 2 y el link de la invitación).
+**Falta (actualizado Fase 3):** lo de Fase 3 quedó hecho (ver arriba); sigue pendiente `preapertura_interesados`, WAF de Vercel sobre `/preregistro` (el rate limit es en memoria) y probar el mail de invitación con dominio Resend verificado.
+
+## Preapertura — Fase 1 implementada 2026-11-08 (sin commit)
+
+**Hecho:** paso 2 (flag + `app/(preapertura)/` + rewrites/redirects + header/footer), paso 3 (`PreaperturaDialog`, `BlurredPreview`, entrada `/` con contador y cupo reales) y la migración **`db/migrations/0080_preapertura.sql`** (escrita, **NO aplicada**). **Parcial del paso 1:** la migración agrega `address` (y deja `neighborhood` nullable), pero el formulario `/register/residence` todavía pide barrio: ajustarlo (5 campos obligatorios, validación de servidor) recién después de aplicar 0080 en dev, porque el insert con `address` falla sin la columna. Stubs navegables: `/preregistro`, `/preregistro/familiar`, `/mi-lugar` (Fase 2). Falta: `/students/*` → Mi lugar con el flag, tabla `preapertura_interesados` (DR42 no define sus datos), tests de integración del cupo contra datos reales.
+Ver el flag: `PREAPERTURA=on` en `.env.local` (reiniciar el dev server); en la pantalla de entrada, «Cerrar (solo dev)» muestra la landing sin blur.
+
+## Preapertura — 2026-11-08 (plan original)
+
+Doc: `docs/23_PREAPERTURA.md`; decisiones DR42–DR47. Orden sugerido (cada paso chico y verificable; migraciones con links dev/prod):
+1. Migración: columna de dirección en `residence_signup_requests` + tablas de preinscriptos/interesados; ajustar `/register/residence` (5 campos obligatorios).
+2. Flag `PREAPERTURA` + `app/(preapertura)/` con header/footer, rewrites/redirects en `next.config` (`/guias` intacto).
+3. `PreaperturaDialog` + `BlurredPreview` y entrada `/` con contador real.
+4. Paso 1 (18+ en servidor, términos con opción C) y bloqueo de menores con derivación a familiar.
+5. Paso 2 con tarjetas en vivo; registro familiar con invitación.
+6. «Mi lugar» y carrusel público (ejemplos rotulados, retiro progresivo).
+7. Fundadoras: medidor de cupo real (10), cuenta regresiva, pantalla de éxito y email.
+8. Tests acotados + `typecheck`/`lint`/`build`; revisión visual contra los HTML v4.
+Antes de implementar: definir fecha de cierre y el resto de pendientes de `docs/23` §9.
+
+## Motion video — 2026-11-05
+
+**Actualización Launch v3:** ya se analizó la grabación de referencia y se crearon `EstuRed-Launch-16x9`/`9x16`: 71,27 segundos, narración argentina, subtítulos, música original 128 BPM, interfaces desktop/mobile y personajes vectoriales. Revisar estas composiciones en Studio (puerto 3100); no hay MP4 nuevo. Guion y tiempos en `video/src/launch/story.json`. Se mantienen las versiones anteriores.
+
+Storyboard aprobado e implementado en las nuevas composiciones `EstuRed-Motion-*` (proyecto `video`). Previsualizar las versiones horizontal y vertical en Remotion Studio; revisar narrativa, ritmo y música original con el dueño. Lint/TypeScript y bundle de video OK; ocho cuadros por formato generados. No se exportó un MP4 nuevo. La referencia de YouTube sigue pendiente de cotejo visual. Detalles en `video/README.md`.
+
 **Fecha:** 2026-07-06 (actualizado tras el Ciclo 2 — calidad visual y UX)
 
 > **Nota (2026-07-08):** este archivo quedó desactualizado como bitácora operativa desde el Ciclo 3 en adelante — `MEMORY.md` es la fuente de verdad viva del estado del proyecto (leer siempre `MEMORY.md` §13/§13bis/§13ter/§13cuater para el historial de ciclos 3-8, y §14 para el plan de continuidad vigente). Este archivo se conserva por su valor histórico del arranque del proyecto (Ciclo 0-2).
@@ -10,7 +99,7 @@
 
 ## Actualización 2026-11-03: config de residencia (DR33–DR34)
 
-Hecho y sin pushear: amenidades (0073), galería por secciones (0074), disponibilidad por tipo+género (0075), cambio de habitación (0076). Dev aplicado hasta 0076; prod vía bootstrap nuevo (regenerar). Próximo: explicación del cobro de mes vacío; verificar el lado estudiante del cambio de habitación (necesita un usuario con estadía activa); investigar `stayChange.test.ts`.
+Hecho y sin pushear: amenidades (0073), galería por secciones (0074), disponibilidad por tipo+género (0075), cambio de habitación (0076). Dev aplicado hasta 0076 (a 2026-11-03; vigente en `MEMORY.md` §3); prod vía bootstrap nuevo (regenerar). Próximo: explicación del cobro de mes vacío; verificar el lado estudiante del cambio de habitación (necesita un usuario con estadía activa); investigar `stayChange.test.ts`.
 **Sin commit (2026-11-03):** cambio de habitación del estudiante verificado (Camila); galería verificada con subida real (Norte) y pendientes de seguridad de la subida; checklist de llegada 44 ítems con 10 esenciales (DR35). Detalle en `MEMORY.md` §2.
 
 ## TRASPASO a otro perfil (2026-11-02, al cierre de la sesión principal)
@@ -133,7 +222,7 @@ Sesión cortada por límite de uso; sigue otra sesión/perfil. Estado detallado 
 
 ### (e) Cómo trabaja el dueño
 - Decisiones **de a una**: pregunta + recomendación + botones. Respuestas breves.
-- Por cada migración: links al SQL Editor dev (https://supabase.com/dashboard/project/gyfbtsuibmecefwovdgh/sql/new) y prod, más el archivo a pegar. Dev ya tiene hasta 0055; prod se arma con el bootstrap.
+- Por cada migración: links al SQL Editor dev (https://supabase.com/dashboard/project/gyfbtsuibmecefwovdgh/sql/new) y prod, más el archivo a pegar. Dev ya tiene hasta 0055 (a la fecha de este texto; estado vigente en `MEMORY.md` §3); prod se arma con el bootstrap.
 - Flujo: docs → agente → revisor/seguridad → fixes → `typecheck` + `lint` + `build` (server parado, `rm -rf .next`) → commit sin push.
 - Elegir modelo/esfuerzo por tarea (sonnet medium/low por defecto).
 - Co-autoría: `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>`.
@@ -278,68 +367,8 @@ Ver `MEMORY.md` Ciclo 42. **Acción manual pendiente del dueño**: pegar `db/mig
 
 ---
 
-## CICLO 2 (2026-07-06) — Qué se hizo
-
-Pase de calidad visual/UX guiado por las referencias Stitch de `/design-references` (detalle completo en `VISUAL_UX_AUDIT.md`):
-
-- **Landing rediseñada:** H1 híbrido en dos tonos ("No solo elijas dónde vivir, sino cómo."), hero con composición de producto (card real + chips flotantes), badge de etapa, sección comparativa "Con EstuRed vs. por fuera", 4 pasos del proceso, sección "Lo que se viene" (futuro etiquetado), frase de marca como cierre.
-- **ResidenceCard enriquecida:** universidades cercanas, resumen de servicios, StatusTag sobre imagen, precio con jerarquía clara, hover sutil.
-- **Componentes:** Navbar con labels claros + Ingresar, Button con estados pressed/sombras y secondary ámbar, TrustBadge legible sobre fotos, StatusTag `elevated`, Footer con firma humana.
-- **Decisiones de comunicación confirmadas por el dueño:** H1 híbrido; marca "EstuRed"; eje universidad en copy/cards; sección de visión futura incluida.
-- **Verificado en 1280px y 375px.** Validación: typecheck ✅ lint ✅ build ✅.
-
-**Pendientes visuales:** fotos curadas, logo real, modal de tipo de cambio (con provider real). Los 10 próximos pasos de infraestructura del Ciclo 1 siguen vigentes abajo.
-
 ---
 
-# Histórico — Ciclo Fundacional 0 (2026-07-05)
+## CICLO 2 (2026-07-06)
 
-## 1. Qué se implementó
-
-Base técnica completa y navegable (detalle en `CLAUDE_CODE_AUDIT.md` §11): Next.js 15 + TS + Tailwind 4; design tokens de marca; 13 componentes reutilizables; landing + landings segmentadas + catálogo con filtros + ficha de residencia + lista de espera; placeholders de dashboards; 6 residencias mock del seed oficial; validación en verde (typecheck, lint, build de 18 páginas, verificación visual en navegador).
-
-## 2. Decisiones tomadas en este ciclo
-
-1. **Re-secuenciación aprobada por prompt:** fundaciones visuales antes que Supabase/auth (contradice el orden de `12`/`22`; documentado y mitigado — ver `CLAUDE_CODE_AUDIT.md` §6.1).
-2. **Identidad visual fundacional:** paleta petróleo `#0F5C7A` / salvia `#7CB89C` / arena `#F4F1EB` / ámbar `#F5B041`, Manrope (display) + Inter (texto). Los docs no definían identidad; esta es la primera definición.
-3. **Routing según docs, no según prompt:** una sola landing `/for-students` para estudiantes y familias; catálogo en `/search`; sin dashboard familiar separado.
-4. **`/waitlist` agregada** como ruta pre-lanzamiento fuera del routing oficial (retirar o redirigir cuando el producto opere).
-5. **Docs estratégicos movidos a `/docs`** (recomendación de `22` §6).
-6. **Mocks tipados** (`types/domain.ts`) con estados oficiales de `docs/04` para que el reemplazo por Supabase no toque componentes.
-
-## 3. Qué quedó pendiente
-
-- Repo git y remoto (no inicializado — decisión del dueño sobre hosting).
-- Supabase completo: DB, auth, RLS, auditoría (Ciclo 1).
-- Persistencia del formulario de lista de espera (hoy es UI sin backend, declarado en la propia UI).
-- Deploy a Vercel.
-- Modal de tipo de cambio obligatorio (requiere `ExchangeRateProvider` real).
-- Fotos reales (hoy picsum.photos).
-- Testing framework (definir al aparecer la primera lógica server-side).
-
-## 4. Riesgos detectados
-
-Ver `CLAUDE_CODE_AUDIT.md` §6. Los principales: código sin versionar; pendientes legales (`00` §29) bloqueantes para operar (no para desarrollar); tipo de cambio mock debe reemplazarse antes de cualquier demo con residencias reales.
-
-## 5. Próximos 10 pasos recomendados (en orden)
-
-1. `git init` + commit fundacional + repo remoto privado.
-2. Deploy preview en Vercel con los mocks (validar mensaje con gente real).
-3. Crear proyecto Supabase (dev) + variables de entorno según `docs/15`.
-4. Persistir el formulario de `/waitlist` (primera server action + primera tabla + validación server-side). Empezar a captar interesados reales.
-5. Migraciones de tablas base de `docs/12` Fase 1 + enums de estados de `docs/04`.
-6. Supabase Auth: registro por rol, login, protección de rutas, redirect por rol.
-7. RLS + policies por rol (incluyendo aislamiento multi-residencia).
-8. Helper `createAuditLog` + auditoría de las primeras acciones críticas.
-9. Seed real desde `docs/17` reemplazando `lib/mock/residences.ts` por repositorios.
-10. QA de Fase 1 según `docs/16` + actualizar `MEMORY.md` y este archivo.
-
-## 6. Qué pedir en el próximo prompt
-
-> Ejecutá el Ciclo 1 del plan de `docs/PRODUCT_IMPLEMENTATION_PLAN.md`: git + Supabase + migraciones base + auth + RLS + audit log + persistencia del formulario de lista de espera. Leé antes `/MEMORY.md`, `docs/12_BUILD_PLAN.md` (Fases 0-1), `docs/06_DATA_MODEL.md`, `docs/05_ROLES_AND_PERMISSIONS.md` y `docs/15_ENVIRONMENT_AND_SETUP.md`.
-
-(Requiere que el usuario tenga o cree una cuenta de Supabase y provea las credenciales del proyecto.)
-
-## 7. Preguntas críticas abiertas
-
-Ninguna bloqueante para el Ciclo 1. Decisión logística necesaria: **dónde hostear el repo** y **credenciales de Supabase** para el próximo ciclo. Las decisiones de negocio abiertas viven en `docs/00` §29.
+Archivado el 2026-11-19 (obsoleto): ver `docs/archive/NEXT_STEPS_CICLO2_2026-07-06.md`.

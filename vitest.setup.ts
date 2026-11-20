@@ -23,6 +23,10 @@ if (existsSync(envPath)) {
   }
 }
 
+// Los tests de actions corren sin CAPTCHA (fail-open fuera de producción); lib/security/turnstile.test.ts usa vi.stubEnv.
+delete process.env.TURNSTILE_SECRET_KEY;
+delete process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+
 /**
  * Guard H26 (auditoría 2026-10-20): los tests de integración crean y borran
  * filas reales. Nunca deben correr contra producción — hacen falta

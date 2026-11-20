@@ -1,6 +1,9 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
+import { extensionForMime, resolveEvidenceType, toTypedBlob } from "@/lib/files/sniffFile";
+import { safeFilename } from "@/lib/files/safeFilename";
+import { consumeRateLimit } from "@/lib/security/rateLimit";
 
 export type OpenSupportCaseResult = { ok: true; supportCaseId: string } | { ok: false; error: string };
 
@@ -17,10 +20,11 @@ const ALLOWED_EVIDENCE_TYPES = [
   "audio/ogg",
 ];
 
-function validateEvidence(files: File[]): string | null {
+async function validateEvidence(files: File[]): Promise<string | null> {
   for (const file of files) {
     if (file.size > MAX_EVIDENCE_BYTES) return `${file.name} supera los 25MB permitidos.`;
-    if (!ALLOWED_EVIDENCE_TYPES.includes(file.type)) {
+    // El MIME lo declara el cliente: además se comprueba el contenido real (firma del archivo).
+    if (!ALLOWED_EVIDENCE_TYPES.includes(file.type) || !(await resolveEvidenceType(file, file.type))) {
       return `${file.name}: tipo de archivo no permitido (PDF, foto, video o audio).`;
     }
   }
@@ -29,31 +33,88 @@ function validateEvidence(files: File[]): string | null {
 
 async function uploadEvidence(admin: SupabaseClient, supportCaseId: string, actorUserId: string, files: File[]) {
   for (const file of files) {
-    const ext = file.name.includes(".") ? file.name.split(".").pop() : file.type.split("/")[1];
+    const realType = await resolveEvidenceType(file, file.type);
+    if (!realType) continue; // ya validado antes de abrir el caso; defensa extra
+    const ext = extensionForMime(realType);
     const path = `${supportCaseId}/${crypto.randomUUID()}.${ext}`;
     const { error: uploadError } = await admin.storage
       .from("support-evidence")
-      .upload(path, file, { contentType: file.type });
+      .upload(path, await toTypedBlob(file, realType), { contentType: realType });
     if (uploadError) {
       console.error("[support] evidence upload failed:", uploadError);
       continue;
     }
-    await admin.from("files").insert({
+    const { error: fileInsertError } = await admin.from("files").insert({
       owner_user_id: actorUserId,
       related_entity_type: "support_cases",
       related_entity_id: supportCaseId,
       bucket: "support-evidence",
       storage_path: path,
-      filename: file.name,
-      mime_type: file.type,
+      filename: safeFilename(file.name),
+      mime_type: realType,
       size_bytes: file.size,
       visibility: "context_shared",
       document_type: "support_case_evidence",
       status: "uploaded",
       uploaded_by_user_id: actorUserId,
     });
+    if (fileInsertError) {
+      console.error("[support] evidence file row failed:", fileInsertError);
+      // El archivo quedó sin registro: se limpia el objeto huérfano (mejor esfuerzo).
+      await admin.storage.from("support-evidence").remove([path]);
+    }
   }
 }
+
+const CLOSED_STATUSES = ["resolved_by_agreement", "closed_no_action", "closed_unresolved", "admin_action_taken"];
+
+/**
+ * SEG15-02: tope por usuario para abrir casos de soporte. Tres frenos, todos antes de crear nada:
+ *  - ritmo: máximo 5 casos por hora (`consumeRateLimit`, atómico entre instancias);
+ *  - casos abiertos a la vez: máximo 10 sin cerrar;
+ *  - evidencia: máximo 100 MB subidos en 24 horas (los 25 MB por archivo ya se validan aparte).
+ * Si no se puede medir la cuota, falla cerrado.
+ */
+export const SUPPORT_MAX_CASES_PER_HOUR = 5;
+export const SUPPORT_MAX_OPEN_CASES = 10;
+export const SUPPORT_MAX_EVIDENCE_BYTES_PER_DAY = 100 * 1024 * 1024;
+const SUPPORT_QUOTA_MESSAGE = "Abriste muchos casos en poco tiempo. Esperá un rato o sumá el detalle a un caso que ya tengas abierto.";
+const SUPPORT_OPEN_CAP_MESSAGE = "Ya tenés varios casos abiertos. Esperá a que cerremos alguno antes de abrir otro.";
+const SUPPORT_EVIDENCE_QUOTA_MESSAGE = "Alcanzaste el límite de archivos que podés adjuntar por hoy. Probá de nuevo mañana.";
+const SUPPORT_CHECK_FAILED = "No pudimos abrir el caso. Probá de nuevo en un rato.";
+
+async function assertSupportQuota(admin: SupabaseClient, userId: string, files: File[]): Promise<string | null> {
+  const open = await admin.from("support_cases").select("status").eq("opened_by_user_id", userId);
+  if (open.error) {
+    console.error("[support] cuota de casos abiertos falló:", open.error.code);
+    return SUPPORT_CHECK_FAILED;
+  }
+  const openCount = (open.data ?? []).filter((c) => !CLOSED_STATUSES.includes((c as { status: string }).status)).length;
+  if (openCount >= SUPPORT_MAX_OPEN_CASES) return SUPPORT_OPEN_CAP_MESSAGE;
+
+  const incoming = files.reduce((sum, f) => sum + f.size, 0);
+  if (incoming > 0) {
+    const since = Date.now() - 24 * 60 * 60 * 1000;
+    const used = await admin.from("files").select("size_bytes, created_at").eq("bucket", "support-evidence").eq("uploaded_by_user_id", userId);
+    if (used.error) {
+      console.error("[support] cuota de evidencia falló:", used.error.code);
+      return SUPPORT_CHECK_FAILED;
+    }
+    const total = (used.data ?? [])
+      .filter((r) => new Date((r as { created_at: string }).created_at).getTime() >= since)
+      .reduce((sum, r) => sum + Number((r as { size_bytes: number | null }).size_bytes ?? 0), 0);
+    if (total + incoming > SUPPORT_MAX_EVIDENCE_BYTES_PER_DAY) return SUPPORT_EVIDENCE_QUOTA_MESSAGE;
+  }
+
+  // Al final: solo consume ritmo un intento que ya pasó los demás chequeos.
+  const rate = await consumeRateLimit({ bucket: "support_open_user", key: userId, windowSeconds: 60 * 60, max: SUPPORT_MAX_CASES_PER_HOUR }, admin);
+  if (!rate.ok) return SUPPORT_QUOTA_MESSAGE;
+  return null;
+}
+
+/** Tope de la descripción de un caso (también CHECK en la base, migración 0084). */
+const MAX_DESCRIPTION_CHARS = 5000;
+const DESCRIPTION_TOO_LONG = `La descripción es demasiado larga (máximo ${MAX_DESCRIPTION_CHARS} caracteres). Resumila y adjuntá el detalle como evidencia.`;
 
 /**
  * Abrir un caso de soporte (docs/12 Fase 14, docs/03 §22). Puede
@@ -85,6 +146,7 @@ export async function openSupportCase(
   if (description.length < 20) {
     return { ok: false, error: "Contanos un poco más — el detalle debe tener al menos 20 caracteres." };
   }
+  if (description.length > MAX_DESCRIPTION_CHARS) return { ok: false, error: DESCRIPTION_TOO_LONG };
   if (!params.termsReminderAccepted) {
     return { ok: false, error: "Tenés que confirmar que leíste el alcance y los términos antes de continuar." };
   }
@@ -92,8 +154,11 @@ export async function openSupportCase(
   const { data: residence } = await admin.from("residences").select("id").eq("id", params.residenceId).maybeSingle();
   if (!residence) return { ok: false, error: "No encontramos esa residencia." };
 
-  const evidenceError = validateEvidence(params.evidenceFiles);
+  const evidenceError = await validateEvidence(params.evidenceFiles);
   if (evidenceError) return { ok: false, error: evidenceError };
+
+  const quotaError = await assertSupportQuota(admin, params.actorUserId, params.evidenceFiles);
+  if (quotaError) return { ok: false, error: quotaError };
 
   const { data: supportCase, error } = await admin
     .from("support_cases")
@@ -171,8 +236,6 @@ export async function loadFeeSupportContext(admin: SupabaseClient, userId: strin
   return resolveFeeReservationAccess(admin, userId, reservationId);
 }
 
-const CLOSED_STATUSES = ["resolved_by_agreement", "closed_no_action", "closed_unresolved", "admin_action_taken"];
-
 /**
  * Caso "problema con el pago del fee" (D2 / H02): el fee lo cobra EstuRed, no
  * la residencia, así que el caso va dirigido a EstuRed — sin residencia y sin
@@ -195,7 +258,8 @@ export async function openFeePaymentSupportCase(
   if (description.length < 20) {
     return { ok: false, error: "Contanos un poco más — el detalle debe tener al menos 20 caracteres." };
   }
-  const evidenceError = validateEvidence(params.evidenceFiles);
+  if (description.length > MAX_DESCRIPTION_CHARS) return { ok: false, error: DESCRIPTION_TOO_LONG };
+  const evidenceError = await validateEvidence(params.evidenceFiles);
   if (evidenceError) return { ok: false, error: evidenceError };
 
   const access = await resolveFeeReservationAccess(admin, params.actorUserId, params.reservationId);
@@ -211,6 +275,9 @@ export async function openFeePaymentSupportCase(
   if ((openCases ?? []).some((c) => !CLOSED_STATUSES.includes(c.status as string))) {
     return { ok: false, error: "Ya tenés un caso abierto por el pago de esta reserva. Lo ves abajo, en \"Tus casos\"." };
   }
+
+  const quotaError = await assertSupportQuota(admin, params.actorUserId, params.evidenceFiles);
+  if (quotaError) return { ok: false, error: quotaError };
 
   const { data: supportCase, error } = await admin
     .from("support_cases")

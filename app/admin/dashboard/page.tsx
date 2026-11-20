@@ -14,6 +14,7 @@ import { auditActionPhrase, auditActorLabel } from "@/lib/format/auditActionLabe
 import { requireAdmin } from "@/lib/auth/requireAdmin";
 import { ACTIONABLE_STATUSES, EXPIRY_WARNING_DAYS, WAITING_STATUS } from "@/lib/residences/verificationReview";
 import { formatDate } from "@/lib/dates/format";
+import { groupConsecutiveActivity } from "@/lib/format/groupActivity";
 
 export const metadata: Metadata = { title: "Dashboard" };
 export const dynamic = "force-dynamic";
@@ -45,6 +46,7 @@ export default async function AdminDashboardPage() {
     staleAvailabilityResidences: 0,
     pendingRevocations: 0,
     oldestRevocationAgeDays: null as number | null,
+    oldestProfileEditAgeDays: null as number | null,
   };
   let expiringVerifications: { residenceId: string; name: string; expiresAt: string }[] = [];
   let recentActivity: { id: string; action: string; created_at: string; actor_role: string }[] = [];
@@ -55,7 +57,7 @@ export default async function AdminDashboardPage() {
     startOfMonth.setHours(0, 0, 0, 0);
 
     const expiryLimit = new Date(Date.now() + EXPIRY_WARNING_DAYS * 24 * 60 * 60 * 1000).toISOString();
-    const [active, pending, waiting, expiring, users, waitlist, activity, reservationsMonth, feePaymentsMonth, pendingProfileEdits, unreviewedTariffAlerts] = await Promise.all([
+    const [active, pending, waiting, expiring, users, waitlist, activity, reservationsMonth, feePaymentsMonth, pendingProfileEdits, unreviewedTariffAlerts, oldestProfileEdit] = await Promise.all([
       admin.from("residences").select("*", { count: "exact", head: true }).eq("status", "verified_active"),
       admin
         .from("residences")
@@ -77,7 +79,7 @@ export default async function AdminDashboardPage() {
         .from("audit_logs")
         .select("id, action, created_at, actor_role")
         .order("created_at", { ascending: false })
-        .limit(8),
+        .limit(40),
       admin
         .from("reservations")
         .select("*", { count: "exact", head: true })
@@ -89,6 +91,12 @@ export default async function AdminDashboardPage() {
         .gte("paid_at", startOfMonth.toISOString()),
       admin.from("residence_profile_edits").select("*", { count: "exact", head: true }).eq("status", "pending_admin_review"),
       admin.from("tariff_change_logs").select("*", { count: "exact", head: true }).eq("alert_triggered", true).eq("admin_review_status", "new"),
+      admin
+        .from("residence_profile_edits")
+        .select("created_at")
+        .eq("status", "pending_admin_review")
+        .order("created_at", { ascending: true })
+        .limit(1),
     ]);
     const staleAvailability = await getStaleAvailabilityByResidence(admin);
     // Revocaciones sin resolver (DR6): nunca rompe el dashboard si la lectura falla.
@@ -108,6 +116,9 @@ export default async function AdminDashboardPage() {
       totalUsers: users.count ?? 0,
       waitlistLeads: waitlist.count ?? 0,
       pendingProfileEdits: pendingProfileEdits.count ?? 0,
+      oldestProfileEditAgeDays: oldestProfileEdit.data?.[0]?.created_at
+        ? Math.max(0, Math.floor((Date.now() - new Date(oldestProfileEdit.data[0].created_at as string).getTime()) / 86_400_000))
+        : null,
       unreviewedTariffAlerts: unreviewedTariffAlerts.count ?? 0,
       reservationsThisMonth: reservationsMonth.count ?? 0,
       feeCollectedThisMonthArs: (feePaymentsMonth.data ?? []).reduce(
@@ -122,60 +133,56 @@ export default async function AdminDashboardPage() {
     });
   }
 
-  const metrics: { label: string; value: string | number; tone: "neutral" | "amber" | "emerald"; href?: string; note?: string }[] = [
-    { label: "Residencias activas", value: stats.activeResidences, tone: "neutral" as const },
-    {
-      label: "Verificaciones pendientes",
-      value: stats.pendingValidations,
-      tone: stats.pendingValidations > 0 ? ("amber" as const) : ("emerald" as const),
-      href: "/admin/verifications",
-    },
-    {
-      label: "Esperando a la residencia",
-      value: stats.waitingForResidence,
-      tone: "neutral" as const,
-      href: "/admin/verifications",
-      note: "Pedimos cambios y esperamos que las corrijan y reenvíen.",
-    },
-    {
-      label: "Residencias con disponibilidad vencida",
-      value: stats.staleAvailabilityResidences,
-      tone: stats.staleAvailabilityResidences > 0 ? ("amber" as const) : ("emerald" as const),
-      href: "/admin/residences?filter=stale-availability",
-    },
+  // Pendientes: cada tarjeta lleva a su lista filtrada. Solo se muestran las que tienen algo por hacer.
+  const pendingItems: { label: string; value: number; href: string; note?: string }[] = [
+    { label: "Verificaciones pendientes", value: stats.pendingValidations, href: "/admin/verifications" },
     {
       label: "Revocaciones sin resolver",
       value: stats.pendingRevocations,
-      tone: stats.pendingRevocations > 0 ? ("amber" as const) : ("emerald" as const),
       href: "/admin/activity?tab=revocations",
       note:
         stats.oldestRevocationAgeDays !== null
           ? `La más vieja espera hace ${pluralize(stats.oldestRevocationAgeDays, "día", "días")}.`
           : undefined,
     },
-    { label: "Usuarios registrados", value: stats.totalUsers, tone: "neutral" as const },
     {
       label: "Ediciones de perfil pendientes",
       value: stats.pendingProfileEdits,
-      tone: stats.pendingProfileEdits > 0 ? ("amber" as const) : ("emerald" as const),
+      href: "/admin/profile-edits",
+      note:
+        stats.oldestProfileEditAgeDays !== null
+          ? `La más vieja espera hace ${pluralize(stats.oldestProfileEditAgeDays, "día", "días")}.`
+          : undefined,
     },
+    { label: "Alertas de tarifa sin revisar", value: stats.unreviewedTariffAlerts, href: "/admin/pricing" },
     {
-      label: "Alertas de tarifa sin revisar",
-      value: stats.unreviewedTariffAlerts,
-      tone: stats.unreviewedTariffAlerts > 0 ? ("amber" as const) : ("emerald" as const),
+      label: "Residencias con disponibilidad vencida",
+      value: stats.staleAvailabilityResidences,
+      href: "/admin/residences?filter=stale-availability",
     },
-    { label: "Leads en lista de espera", value: stats.waitlistLeads, tone: "neutral" as const },
-    { label: "Reservas confirmadas (mes)", value: stats.reservationsThisMonth, tone: "neutral" as const },
+  ].filter((i) => i.value > 0);
+
+  const metrics: { label: string; value: string | number; href?: string; note?: string }[] = [
+    { label: "Residencias activas", value: stats.activeResidences },
+    {
+      label: "Esperando a la residencia",
+      value: stats.waitingForResidence,
+      href: "/admin/verifications",
+      note: "Pedimos cambios y esperamos que las corrijan y reenvíen.",
+    },
+    { label: "Usuarios registrados", value: stats.totalUsers },
+    { label: "Leads en lista de espera", value: stats.waitlistLeads },
+    { label: "Reservas confirmadas (mes)", value: stats.reservationsThisMonth },
     {
       label: "Fee cobrado (mes)",
       value: `ARS ${stats.feeCollectedThisMonthArs.toLocaleString("es-AR")}`,
-      tone: "neutral" as const,
       href: "/admin/payments?tab=paid",
     },
   ];
+  const activityGroups = groupConsecutiveActivity(recentActivity).slice(0, 8);
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-8">
       <PageHero
         tone="admin"
         eyebrow="Admin"
@@ -192,33 +199,67 @@ export default async function AdminDashboardPage() {
         cta={stats.pendingValidations > 0 ? { label: "Revisar verificaciones", href: "/admin/verifications" } : undefined}
       />
 
-      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
-        {metrics.map((m) => (
-          <MetricCard
-            key={m.label}
-            tone="admin"
-            icon={m.tone === "amber" ? "priority_high" : "insights"}
-            label={m.label}
-            value={m.value}
-            className={m.tone === "amber" ? "border-orange/50" : ""}
-            hint={
-              <>
-                {m.note}
-                {m.tone === "amber" && (
-                  <span className="mt-1 block">
-                    <AdminBadge tone="amber">Requiere acción</AdminBadge>
-                  </span>
-                )}
-                {m.href && (
-                  <Link href={m.href} className="mt-1 inline-flex min-h-6 items-center font-bold text-(--tone-700) hover:underline">
-                    Ver detalle →
-                  </Link>
-                )}
-              </>
-            }
-          />
-        ))}
-      </div>
+      <section aria-labelledby="dash-pendientes">
+        <h2 id="dash-pendientes" className="mb-3 text-sm font-bold" style={{ color: cmd.onSurface }}>
+          Requiere acción
+        </h2>
+        {pendingItems.length === 0 ? (
+          <p className="text-sm" style={{ color: cmd.outline }}>
+            No hay nada pendiente por revisar.
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+            {pendingItems.map((m) => (
+              <MetricCard
+                key={m.label}
+                tone="admin"
+                icon="priority_high"
+                label={m.label}
+                value={m.value}
+                className="border-l-4 border-l-orange"
+                hint={
+                  <>
+                    {m.note}
+                    <span className="mt-1 block">
+                      <AdminBadge tone="amber">Requiere acción</AdminBadge>
+                    </span>
+                    <Link href={m.href} className="mt-1 inline-flex min-h-11 items-center font-bold text-(--tone-700) hover:underline">
+                      Ver detalle →
+                    </Link>
+                  </>
+                }
+              />
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section aria-labelledby="dash-metricas" className="mt-6">
+        <h2 id="dash-metricas" className="mb-3 text-sm font-bold" style={{ color: cmd.onSurface }}>
+          Métricas generales
+        </h2>
+        <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+          {metrics.map((m) => (
+            <MetricCard
+              key={m.label}
+              tone="admin"
+              icon="insights"
+              label={m.label}
+              value={m.value}
+              hint={
+                <>
+                  {m.note}
+                  {m.href && (
+                    <Link href={m.href} className="mt-1 inline-flex min-h-11 items-center font-bold text-(--tone-700) hover:underline">
+                      Ver detalle →
+                    </Link>
+                  )}
+                </>
+              }
+            />
+          ))}
+        </div>
+      </section>
 
       <AdminCard className="mt-6 p-5">
         <h2 className="text-sm font-bold" style={{ color: cmd.onSurface }}>
@@ -231,11 +272,11 @@ export default async function AdminDashboardPage() {
         ) : (
           <ul className="mt-3 divide-y" style={{ borderColor: cmd.border }}>
             {expiringVerifications.map((v) => (
-              <li key={v.residenceId} className="flex items-center justify-between py-2.5">
-                <Link href={`/admin/residences/${v.residenceId}`} className="text-sm font-semibold hover:underline" style={{ color: cmd.primary }}>
+              <li key={v.residenceId} className="flex items-center justify-between gap-3 py-1">
+                <Link href={`/admin/residences/${v.residenceId}`} className="inline-flex min-h-11 items-center text-sm font-semibold hover:underline" style={{ color: cmd.primary }}>
                   {v.name}
                 </Link>
-                <span className="text-xs" style={{ color: cmd.outline }}>
+                <span className="shrink-0 text-xs tabular-nums" style={{ color: cmd.outline }}>
                   vence el {formatDate(v.expiresAt)}
                 </span>
               </li>
@@ -254,16 +295,22 @@ export default async function AdminDashboardPage() {
           </p>
         ) : (
           <ul className="mt-3 divide-y" style={{ borderColor: cmd.border }}>
-            {recentActivity.map((a) => (
-              <li key={a.id} className="flex items-center justify-between py-2.5">
+            {activityGroups.map((a) => (
+              <li key={a.id} className="flex items-center justify-between gap-3 py-2.5">
                 <p className="text-sm" style={{ color: cmd.onSurfaceVariant }}>
                   <span className="font-semibold" style={{ color: cmd.onSurface }}>
                     {auditActorLabel(a.actor_role)}
                   </span>{" "}
                   {auditActionPhrase(a.action)}
+                  {a.count > 1 && (
+                    <span className="font-semibold tabular-nums" style={{ color: cmd.onSurface }}>
+                      {" "}
+                      ({a.count} veces)
+                    </span>
+                  )}
                 </p>
-                <span className="text-xs" style={{ color: cmd.outline }}>
-                  {timeAgo(a.created_at)}
+                <span className="shrink-0 text-xs tabular-nums" style={{ color: cmd.outline }}>
+                  {timeAgo(a.latest)}
                 </span>
               </li>
             ))}

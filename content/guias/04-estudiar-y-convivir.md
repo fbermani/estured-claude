@@ -23,6 +23,8 @@ ESTUDIANTES ALOJADOS
 
 Rutinas simples, convivencia respetuosa y bienestar para aprovechar la experiencia.
 
+Para estudiar y convivir bien en una residencia, armá una semana flexible que puedas cumplir, mantené ordenados tu espacio y las áreas comunes, y hablá a tiempo si algo te molesta: explicá el hecho, el efecto y una propuesta concreta. Un miniacuerdo de convivencia complementa el reglamento de la residencia.
+
 ## Organizá una semana que se pueda cumplir
 
 Anotá cursada, viajes, horas de estudio, comidas, sueño y ocio. Empezá con una estructura flexible en vez de planificar cada minuto. Dividí tareas grandes en sesiones de concentración; el método Pomodoro (25 minutos y pausa de 5) es una opción, no una obligación.

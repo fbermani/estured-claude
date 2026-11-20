@@ -1,0 +1,153 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- complementary:
+  - paragraph: EstuRed Admin
+  - paragraph: Panel de administración
+  - button "Notificaciones":
+    - generic: notifications
+  - navigation "Administración":
+    - link "Dashboard":
+      - /url: /admin/dashboard
+      - generic: Dashboard
+    - paragraph: Residencias
+    - link "Residencias":
+      - /url: /admin/residences
+      - generic: Residencias
+    - link "Verificaciones":
+      - /url: /admin/verifications
+      - generic: Verificaciones
+    - link "Ediciones de perfil":
+      - /url: /admin/profile-edits
+      - generic: Ediciones de perfil
+    - link "Solicitudes de alta":
+      - /url: /admin/solicitudes-alta
+      - generic: Solicitudes de alta
+    - link "Residencias pedidas":
+      - /url: /admin/residencias-pedidas
+      - generic: Residencias pedidas
+    - link "Preguntas de fichas":
+      - /url: /admin/faq
+      - generic: Preguntas de fichas
+    - link "Ítems «Otro» de fichas":
+      - /url: /admin/custom-amenities
+      - generic: Ítems «Otro» de fichas
+    - paragraph: Operación
+    - link "Solicitudes":
+      - /url: /admin/applications
+      - generic: Solicitudes
+    - link "Propuestas familiar":
+      - /url: /admin/family-proposals
+      - generic: Propuestas familiar
+    - link "Pagos":
+      - /url: /admin/payments
+      - generic: Pagos
+    - link "Actividad":
+      - /url: /admin/activity
+      - generic: Actividad
+    - link "Seguimiento":
+      - /url: /admin/followups
+      - generic: Seguimiento
+    - paragraph: Plataforma
+    - link "Comunidad":
+      - /url: /admin/community
+      - generic: Comunidad
+    - link "Visibilidad y penalizaciones":
+      - /url: /admin/visibility
+      - generic: Visibilidad y penalizaciones
+    - link "Administración de tarifas":
+      - /url: /admin/pricing
+      - generic: Administración de tarifas
+    - link "Documentos":
+      - /url: /admin/documents
+      - generic: Documentos
+    - link "Tipo de cambio":
+      - /url: /admin/exchange-rate
+      - generic: Tipo de cambio
+    - link "Usuarios":
+      - /url: /admin/users
+      - generic: Usuarios
+    - paragraph: Soporte
+    - link "Soporte":
+      - /url: /admin/support-cases
+      - generic: Soporte
+  - generic: A
+  - paragraph: admin.operaciones@estured.test
+  - paragraph: Admin
+  - button "Cerrar sesión"
+  - button "Colapsar menú":
+- main:
+  - heading "Actividad" [level=1]
+  - paragraph: Negociaciones, reservas, renovaciones, revocaciones, comprobantes, listas de espera y logs — todo lo que es seguimiento, en un solo lugar.
+  - navigation:
+    - link "Negociaciones":
+      - /url: /admin/activity?tab=negotiations
+    - link "Reservas":
+      - /url: /admin/activity?tab=reservations
+    - link "Renovaciones":
+      - /url: /admin/activity?tab=renewals
+    - link "Revocaciones":
+      - /url: /admin/activity?tab=revocations
+    - link "Comprobantes":
+      - /url: /admin/activity?tab=receipts
+    - link "Listas de espera":
+      - /url: /admin/activity?tab=waitlists
+    - link "Logs":
+      - /url: /admin/activity?tab=logs
+  - heading "Renovaciones" [level=1]
+  - paragraph: 1 solicitud(es) esperando respuesta · 0 oferta(s) sin cerrar, todas las residencias. Desde acá se puede reabrir una solicitud cerrada sin oferta o una oferta vencida.
+  - heading "Solicitudes de renovación" [level=2]
+  - region "Renovaciones":
+    - table:
+      - rowgroup:
+        - row "Fecha Estudiante Residencia Estado":
+          - columnheader "Fecha"
+          - columnheader "Estudiante"
+          - columnheader "Residencia"
+          - columnheader "Estado"
+          - columnheader
+      - rowgroup:
+        - row "29/10/2026 Camila R. Residencia Norte Palermo Creada por el estudiante":
+          - cell "29/10/2026"
+          - cell "Camila R."
+          - cell "Residencia Norte Palermo":
+            - text: Residencia Norte
+            - generic: Palermo
+          - cell "Creada por el estudiante":
+            - generic: Creada por el estudiante
+          - cell
+        - row "20/10/2026 Lucia F. Residencia Río de la Plata Recoleta Recibió oferta":
+          - cell "20/10/2026"
+          - cell "Lucia F."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Recibió oferta":
+            - generic: Recibió oferta
+          - cell
+  - heading "Ofertas de renovación" [level=2]
+  - region "Ofertas de renovación":
+    - table:
+      - rowgroup:
+        - row "Fecha Estudiante Residencia Nuevo período desde USD/mes Estado":
+          - columnheader "Fecha"
+          - columnheader "Estudiante"
+          - columnheader "Residencia"
+          - columnheader "Nuevo período desde"
+          - columnheader "USD/mes"
+          - columnheader "Estado"
+          - columnheader
+      - rowgroup:
+        - row "20/10/2026 Lucia F. Residencia Río de la Plata Recoleta 20/01/2027 350 Confirmada":
+          - cell "20/10/2026"
+          - cell "Lucia F."
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "20/01/2027"
+          - cell "350"
+          - cell "Confirmada":
+            - generic: Confirmada
+          - cell
+- button "Admin Operativo": Admin Operativo
+- button "Open Next.js Dev Tools":
+- alert

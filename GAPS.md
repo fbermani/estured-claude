@@ -6,6 +6,10 @@
 
 ---
 
+## [ABIERTO — medio, rendimiento] Material Symbols bloquea el primer pintado (2026-11-08)
+
+`app/layout.tsx` carga la fuente variable completa de Material Symbols con un `<link rel="stylesheet">` a Google Fonts: es CSS bloqueante y descarga todos los íconos y ejes. Se pasó a `display=block` (evita ver «arrow_forward» como texto mientras carga). Fix real: subset con `&icon_names=` (lista ordenada de los íconos usados; ojo con los nombres dinámicos que vienen de datos, p. ej. `cat.icon`, amenities) o self-hosting del subset con `next/font/local`. Requiere inventariar los íconos y un test que falle si aparece uno fuera de la lista.
+
 ## [ABIERTO — bajo, molestia] «Mi residencia no está» desde el alta (DR21)
 
 El tope de 3 avisos por perfil (`MAX_MISSING_RESIDENCE_REQUESTS`) se cuenta con un `select` previo, sin atomicidad: dos envíos en paralelo podrían superarlo. Tampoco hay rate limit por IP en el alta de estudiante (el límite existente es por usuario). El texto libre y el contacto son datos no verificados cargados por estudiantes; el admin los ve marcados así. Fix sugerido si molesta: función SQL con conteo atómico y límite por IP en el registro.
@@ -384,7 +388,7 @@ No hay TODOs/FIXMEs en el código (verificado por grep) — la deuda está docum
 
 ## Vinculación de residentes (DR19, 2026-10-30)
 
-- **[BLOQUEANTE DE PRODUCCIÓN — TODO]** El mail de invitación («Residencia X te invita, vía EstuRed») y el código de verificación salen del **remitente sandbox de Resend** (`onboarding@resend.dev`): solo entregan al dueño de la cuenta Resend. Hace falta un **dominio verificado** y cambiar `FROM_ADDRESS` en `lib/email/sendEmail.ts`; sin eso, ni la invitación por mail ni el OTP funcionan para residentes reales (el canal WhatsApp tampoco puede verificar el mail).
+- **[BLOQUEANTE DE PRODUCCIÓN — TODO]** El mail de invitación («Residencia X te invita, vía EstuRed») y el código de verificación salen del **remitente sandbox de Resend** (`onboarding@resend.dev`): solo entregan al dueño de la cuenta Resend. Hace falta un **dominio verificado** y definir `EMAIL_FROM` (lo lee `lib/email/sendEmail.ts`; sin la variable usa el sandbox); sin eso, ni la invitación por mail ni el OTP funcionan para residentes reales (el canal WhatsApp tampoco puede verificar el mail).
 - **[PENDIENTE]** Menores: la activación exige tutor vinculado, pero falta avisar al tutor y un consentimiento específico para la invitación a un menor.
 - **[RIESGO ACEPTADO]** Los frenos de intentos del enlace y del OTP son en memoria por instancia (como `/verify`); el límite real va en el WAF de Vercel sobre `/register/student` y `/students/residency/invite`. El OTP además tiene tope persistente (5 intentos por código).
 - **[PENDIENTE]** `missing_residence_requests` solo avisa a los admins (notificación); falta una pantalla de admin para listarlas.

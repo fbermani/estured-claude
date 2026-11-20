@@ -198,7 +198,7 @@ export default async function AdminResidenceDetailPage({ params }: { params: Pro
       {staleNotice && (
         <div
           role="alert"
-          className="mt-4 rounded-[14px] px-4 py-3 text-sm font-medium"
+          className="mt-4 rounded-field px-4 py-3 text-sm font-medium"
           style={{ backgroundColor: cmd.amberBg, color: cmd.amber }}
         >
           {staleNotice}
@@ -288,7 +288,7 @@ export default async function AdminResidenceDetailPage({ params }: { params: Pro
               <thead style={{ backgroundColor: cmd.surfaceContainerLow, borderBottom: `1px solid ${cmd.border}` }}>
                 <tr>
                   {["Tipo", "Tarifa", "Disponibilidad", "Lugares", "Última actualización"].map((h) => (
-                    <th key={h} className="px-4 py-2.5 text-[11px] font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
+                    <th key={h} className="px-4 py-2.5 text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
                       {h}
                     </th>
                   ))}

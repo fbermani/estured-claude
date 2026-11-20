@@ -52,7 +52,7 @@ export function StayChangeResponse({
   return (
     <section id={id} aria-labelledby={`${id ?? "stay-change-response"}-title`} className="scroll-mt-24 overflow-hidden rounded-card border-[1.5px] border-line bg-paper shadow-card">
       <header className="flex items-center gap-3 border-b border-line px-5 py-4">
-        <span aria-hidden className="flex size-10 shrink-0 items-center justify-center rounded-full bg-forest-tint text-sm font-extrabold text-forest-700">
+        <span aria-hidden className="flex size-10 shrink-0 items-center justify-center rounded-full bg-forest-tint text-sm font-bold text-forest-700">
           {initials || "R"}
         </span>
         <div className="min-w-0 flex-1">
@@ -77,7 +77,7 @@ export function StayChangeResponse({
           <dl className="divide-y divide-line overflow-hidden rounded-field border border-line">
             {visibleRows.map((row) => (
               <div key={row.key} className={`px-4 py-3 ${row.warm ? "bg-orange-tint/40" : "bg-paper"}`}>
-                <dt className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-muted">
+                <dt className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted">
                   <Icon name={row.icon} className="text-sm text-forest-700" />
                   {row.label}
                 </dt>

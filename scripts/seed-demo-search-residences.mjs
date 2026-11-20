@@ -1,8 +1,7 @@
 /**
  * Seed aditivo e idempotente: 10 residencias demo para probar /search (barrios, género, precios, promoción,
  * menores, disponibilidad). No borra ni recrea filas existentes (no cambia ningún UUID): upsert por slug,
- * tipos por (residencia, nombre), secciones por (residencia, tipo), fotos solo si la residencia no tiene.
- * Las fotos son placeholder: reutilizan los archivos de Storage de «Residencia Sin Fronteras» (sin subir nada).
+ * tipos por (residencia, nombre), secciones por (residencia, tipo). Sin fotos: se ve el placeholder de marca con el barrio.
  * Las direcciones y coordenadas son aproximadas por barrio (ficticias).
  *
  * Uso: node --env-file=.env.local scripts/seed-demo-search-residences.mjs   (solo estured-dev)
@@ -26,11 +25,6 @@ const base = must(await admin.from("residences").select("created_by").eq("slug",
 const ownerId = base.created_by;
 const rateRow = (await admin.from("exchange_rates").select("official_exchange_rate_ars_per_usd").order("rate_date", { ascending: false }).limit(1)).data?.[0];
 const rate = Number(rateRow?.official_exchange_rate_ars_per_usd ?? 1480);
-
-const photoPool = must(
-  await admin.from("files").select("storage_path, filename, mime_type, size_bytes").eq("related_entity_id", "54d972ea-25a2-4933-add3-8a683684d452").eq("document_type", "residence_photo").order("created_at"),
-  "fotos base",
-);
 
 // status de disponibilidad por tipo: [estado, plazas libres]
 const AV = (n) => ["available_to_confirm", n];
@@ -143,16 +137,8 @@ for (const [idx, r] of RESIDENCES.entries()) {
     }
   }
 
-  const hasPhotos = (await admin.from("files").select("id", { count: "exact", head: true }).eq("related_entity_id", residenceId).eq("document_type", "residence_photo")).count;
-  if (!hasPhotos && photoPool.length) {
-    const picks = Array.from({ length: 5 }, (_, i) => photoPool[(idx * 3 + i) % photoPool.length]);
-    must(
-      await admin.from("files").insert(
-        picks.map((p, i) => ({ owner_user_id: ownerId, related_entity_type: "residences", related_entity_id: residenceId, bucket: "public-residence-media", storage_path: p.storage_path, filename: p.filename ?? `foto-${i + 1}.jpg`, mime_type: p.mime_type ?? "image/jpeg", size_bytes: p.size_bytes ?? 1, visibility: "public", document_type: "residence_photo", status: "approved", uploaded_by_user_id: ownerId })),
-      ),
-      "fotos",
-    );
-  }
+  // Sin fotos a propósito: la ficha y las tarjetas muestran el placeholder de marca con el barrio (ResidencePhoto).
+  // Antes se reutilizaban las fotos de Sin Fronteras; se retiró (limpieza: scripts/clean-reused-sin-fronteras-photos.mjs).
   console.log(`✓ ${r.slug} (${r.area}, ${r.gender})`);
 }
 

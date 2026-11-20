@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BrandMark } from "@/components/ui/BrandMark";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSessionUser, roleHome } from "@/lib/auth/session";
@@ -6,7 +7,13 @@ import { CONTACT_EMAIL } from "@/lib/constants/contact";
 import { LoginForm } from "@/app/(public)/login/LoginForm";
 
 // La query de `next` puede llevar `?invite=<token>` de un enlace personal: no viaja en el Referer.
-export const metadata: Metadata = { title: "Iniciar sesión", referrer: "no-referrer" };
+export const metadata: Metadata = {
+  title: "Iniciar sesión",
+  description: "Ingresá a tu cuenta de EstuRed para seguir tus solicitudes y tus residencias.",
+  referrer: "no-referrer",
+  alternates: { canonical: "/login" },
+  robots: { index: false, follow: true },
+};
 
 export default async function LoginPage({
   searchParams,
@@ -20,6 +27,7 @@ export default async function LoginPage({
   return (
     <div className="mx-auto max-w-md px-4 py-14 sm:py-20">
       <div className="text-center">
+        <BrandMark variant="symbol" tile size={52} className="mx-auto mb-4 block" />
         <h1 className="text-3xl font-bold text-ink">Iniciar sesión</h1>
         <p className="mt-2 text-sm text-ink-soft">
           Entrá a tu cuenta de EstuRed.

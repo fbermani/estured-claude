@@ -1,4 +1,5 @@
 import { formatDate } from "@/lib/dates/format";
+import { formatDesiredMonth, isDesiredMonthExpired } from "@/lib/waitlist-entries/desiredMonth";
 import { formatShortName } from "@/lib/format/shortName";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
@@ -18,6 +19,7 @@ const STATUS_BADGE: Record<string, { label: string; tone: "amber" | "emerald" | 
   removed_by_residence: { label: "Sacado (residencia)", tone: "rose" },
   removed_by_admin: { label: "Sacado (admin)", tone: "rose" },
   closed_by_residence: { label: "Lista cerrada", tone: "neutral" },
+  expired: { label: "Venció (mes)", tone: "neutral" },
 };
 
 type WaitlistRow = {
@@ -45,7 +47,13 @@ export async function WaitlistsView() {
         .limit(200)
     : { data: [], error: null };
   if (error) console.error("[admin/waitlists] query failed:", error);
-  const entries = (data as unknown as WaitlistRow[]) ?? [];
+  // DR40: una entrada con mes ya terminado cuenta como vencida aunque el cron todavía no la haya pasado a `expired`.
+  const now = new Date();
+  const entries = ((data as unknown as WaitlistRow[]) ?? []).map((e) =>
+    (e.status === "active" || e.status === "retention_check_sent") && isDesiredMonthExpired(e.desired_start_date, now)
+      ? { ...e, status: "expired" }
+      : e,
+  );
   const activeCount = entries.filter((e) => ACTIVE_STATUSES.includes(e.status)).length;
 
   return (
@@ -62,10 +70,10 @@ export async function WaitlistsView() {
         <table className="w-full text-left text-sm">
           <thead style={{ backgroundColor: cmd.surfaceContainerLow, borderBottom: `1px solid ${cmd.border}` }}>
             <tr>
-              {["Alta", "Estudiante", "Residencia", "Tipo", "Ingreso deseado", "Estado", ""].map((h) => (
+              {["Alta", "Estudiante", "Residencia", "Tipo", "Ingreso", "Estado", ""].map((h) => (
                 <th
                   key={h}
-                  className="px-4 py-2.5 text-[11px] font-bold uppercase tracking-wide"
+                  className="px-4 py-2.5 text-xs font-bold uppercase tracking-wide"
                   style={{ color: cmd.outline }}
                 >
                   {h}
@@ -96,7 +104,7 @@ export async function WaitlistsView() {
                     {e.room_types?.name ?? "Cualquiera"}
                   </td>
                   <td className="px-4 py-2.5 text-xs" style={{ color: cmd.outline }}>
-                    {e.desired_start_date ?? "—"}
+                    {formatDesiredMonth(e.desired_start_date) ?? "Cuando haya lugar"}
                   </td>
                   <td className="px-4 py-2.5">
                     <AdminBadge tone={badge.tone}>{badge.label}</AdminBadge>

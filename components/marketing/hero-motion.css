@@ -62,7 +62,7 @@
   }
 }
 .hero-marquee {
-  animation: hero-marquee var(--dur, 46s) linear infinite;
+  animation: hero-marquee var(--dur, 92s) linear infinite;
 }
 .hero-marquee-wrap:hover .hero-marquee,
 .hero-marquee-wrap:focus-within .hero-marquee {
@@ -93,7 +93,86 @@
   animation: hero-pulse-orange 2s infinite;
 }
 
+/* Franja de confianza: resalta un beneficio por vez (3 s cada uno, ciclo de 12 s). Solo fondo, color y escala mínima: sin saltos de layout. */
+@keyframes trust-glow {
+  0%,
+  100% {
+    background-color: transparent;
+    box-shadow: inset 0 0 0 1px transparent;
+    color: rgb(255 255 255 / 0.9);
+  }
+  4%,
+  22% {
+    background-color: rgb(255 255 255 / 0.12);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.28);
+    color: #fff;
+  }
+  27% {
+    background-color: transparent;
+    box-shadow: inset 0 0 0 1px transparent;
+    color: rgb(255 255 255 / 0.9);
+  }
+}
+@keyframes trust-icon {
+  0%,
+  100%,
+  27% {
+    color: var(--color-mint);
+    transform: none;
+  }
+  4%,
+  22% {
+    color: var(--color-orange-light);
+    transform: scale(1.14);
+  }
+}
+.trust-item {
+  animation: trust-glow 12s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * 3s + 1.2s);
+  animation-fill-mode: backwards;
+}
+.trust-icon {
+  animation: trust-icon 12s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * 3s + 1.2s);
+  animation-fill-mode: backwards;
+}
+
+/* Apertura con el sello: cubre el hero ~1,5 s y se desvanece mientras aparece el contenido (que ya está en el DOM). */
+@keyframes hero-intro-out {
+  0%,
+  72% {
+    opacity: 1;
+    visibility: visible;
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+.hero-intro {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  animation: hero-intro-out 2.1s ease-in-out both;
+}
+
+/* Variante fija a pantalla completa: la usa la preapertura (solo dev) al cerrar el popup; no depende del scroll ni del hero. */
+.hero-intro-fixed {
+  position: fixed;
+  z-index: 70;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .hero-intro {
+    display: none;
+  }
+  .trust-item,
+  .trust-icon {
+    animation: none;
+  }
   .hero-rise,
   .hero-chip,
   .hero-rise-t,

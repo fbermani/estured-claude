@@ -30,6 +30,8 @@ export function Reveal({
       setVisible(true);
       return;
     }
+    // Recién ahora (hay JS y está bajo el pliegue) se arma el estado oculto; el CSS lo exige.
+    el.setAttribute("data-js", "");
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {

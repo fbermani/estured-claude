@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { hardenAuthCookie, sessionHintFor } from "@/lib/supabase/cookie-options";
 import { getSafeUser } from "@/lib/supabase/safe-get-user";
 
 /**
@@ -14,7 +15,13 @@ import { getSafeUser } from "@/lib/supabase/safe-get-user";
 export async function middleware(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !anonKey) return NextResponse.next();
+  if (!url || !anonKey) {
+    // Fail-closed en producción: sin config de Supabase no se puede validar la sesión (auditoría B12).
+    if (process.env.VERCEL_ENV === "production" || process.env.NODE_ENV === "production") {
+      return new NextResponse("Servicio no disponible", { status: 503 });
+    }
+    return NextResponse.next();
+  }
 
   let response = NextResponse.next({ request });
 
@@ -29,8 +36,10 @@ export async function middleware(request: NextRequest) {
         );
         response = NextResponse.next({ request });
         cookiesToSet.forEach(({ name, value, options }) =>
-          response.cookies.set(name, value, options),
+          response.cookies.set(name, value, hardenAuthCookie(options)),
         );
+        const hint = sessionHintFor(cookiesToSet);
+        if (hint) response.cookies.set(hint.name, hint.value, hint.options);
       },
     },
   });

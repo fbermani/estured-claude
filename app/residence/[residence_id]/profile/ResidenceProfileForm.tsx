@@ -1,9 +1,9 @@
 "use client";
 
-import { CLEANING_PER_WEEK_MAX, CLEANING_SERVICE, KITCHENS_MAX, KITCHEN_AREA, amenityDisplayName, type AmenityDetails } from "@/lib/residences/amenityDetails";
+import { CLEANING_PER_WEEK_MAX, CLEANING_SERVICE, KITCHENS_MAX, KITCHEN_AREA, type AmenityDetails } from "@/lib/residences/amenityDetails";
+import { ResidenceHero } from "@/components/residences/ResidenceHero";
 import { formatDate } from "@/lib/dates/format";
-import Image from "next/image";
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -11,9 +11,13 @@ import { Badge } from "@/components/ui/Badge";
 import { Input, Select, Textarea } from "@/components/ui/Input";
 import { Icon } from "@/components/ui/Icon";
 import { SectionNav } from "@/components/residences/ficha/SectionNav";
-import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
+import { SaveStatus } from "@/components/forms/SaveStatus";
+import { DraftNotice } from "@/components/forms/DraftNotice";
+import { UnsavedChangesGuard } from "@/components/forms/UnsavedChangesGuard";
+import { useProfileDraft } from "@/app/residence/[residence_id]/profile/useProfileDraft";
+import { profileStamp, saveImpactNote } from "@/lib/residences/profileDraft";
+import { formatArs, usdToArsRounded } from "@/lib/mock/exchange";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
-import { ResidencePhotoPlaceholder } from "@/components/residences/ResidencePhoto";
 import { computeProfileStrength, profileStrengthSuggestion } from "@/lib/residences/profileStrength";
 import { MIN_PUBLISH_PHOTOS, hasEnoughPhotosToPublish } from "@/lib/residences/photos";
 import { changesRequestedMessageOrFallback } from "@/lib/residences/changesRequest";
@@ -21,13 +25,10 @@ import { NO_PERMISSION_NOTE } from "@/lib/residences/permissions";
 import {
   SERVICE_OPTIONS,
   COMMON_AREA_OPTIONS,
-  UNIVERSITY_OPTIONS,
   ROOM_TYPE_NAMES,
   GENDER_POLICY_OPTIONS,
   ADJUSTMENT_POLICY_OPTIONS,
-  ROOM_FEATURE_OPTIONS,
   serviceLabel,
-  RULE_SUGGESTIONS,
 } from "@/lib/residences/options";
 import {
   CUSTOM_AMENITY_MAX,
@@ -35,7 +36,10 @@ import {
   type CustomAmenityKind,
   type CustomAmenityStatus,
 } from "@/lib/residences/customAmenities";
-import { MAX_TOP_RULES, TOP_RULE_MAX, splitRules } from "@/lib/residences/topRules";
+import { MAX_RULE_ITEMS, ruleItemsToSummary, type HouseRuleItem } from "@/lib/residences/ruleItems";
+import { buildRuleRows } from "@/lib/residences/fichaRules";
+import { splitRules as splitRulesLines } from "@/lib/residences/topRules";
+import { RulesItemsEditor, newRuleDraft, type RuleDraft } from "@/app/residence/[residence_id]/profile/RulesItemsEditor";
 import {
   MAX_OTHER_STAY_DOCUMENTS,
   MAX_OTHER_STAY_DOCUMENT_LENGTH,
@@ -44,6 +48,15 @@ import {
   normalizeRequirementLabel,
   type StayDocumentKey,
 } from "@/lib/residences/stayDocuments";
+import { CompleteFichaDialog } from "@/app/residence/[residence_id]/profile/CompleteFichaDialog";
+import { ProfilePreviewCard } from "@/app/residence/[residence_id]/profile/ProfilePreviewCard";
+import { buildCompletionPanel } from "@/lib/residences/completionPanel";
+import type { AvailabilityMode } from "@/types/domain";
+import { RoomFeaturesField } from "@/app/residence/[residence_id]/profile/RoomFeaturesField";
+import { UniversityPicker } from "@/app/residence/[residence_id]/profile/UniversityPicker";
+import { ProfileFaqCard } from "@/app/residence/[residence_id]/profile/ProfileFaqCard";
+import type { FaqProfileSummary } from "@/lib/faq/profileSummary";
+import type { OwnFaqItem } from "@/lib/residences/ownFaq";
 import { PhotoMetaManager, type PhotoMetaItem } from "@/app/residence/[residence_id]/profile/PhotoMetaManager";
 import { PromotionsManager, type PromotionItem } from "@/app/residence/[residence_id]/profile/PromotionsManager";
 import {
@@ -57,7 +70,7 @@ import {
   type ProfileFormState,
 } from "@/app/residence/[residence_id]/profile/actions";
 
-interface RoomTypeDraft {
+export interface RoomTypeDraft {
   id?: string;
   name: string;
   genderPolicy?: string;
@@ -71,7 +84,7 @@ interface RoomTypeDraft {
 }
 
 /** Condiciones generales de reserva (migración 0025 — ref de configuración). */
-interface ConditionsDraft {
+export interface ConditionsDraft {
   minimumStayMonths: number | "";
   adjustmentPolicy: string;
   /** Pago inicial para reservar (D7/H08, migración 0041): primer mes, monto fijo en USD o solo la matrícula (DR18 t3). */
@@ -117,13 +130,22 @@ interface ProfileInitial {
   /** DR38: documentos que la residencia le pide a sus residentes (claves del catálogo + «Otro»). */
   stayDocuments: { items: StayDocumentKey[]; other: string[] };
   rulesSummary: string;
+  /** Reglas principales estructuradas (`rules.items`); vacío si la residencia solo tiene el resumen de texto. */
+  rulesItems: HouseRuleItem[];
   rulesFileName: string | null;
   /** DR18: ítems «Otro» ya cargados (con su estado) y si la migración 0058 está aplicada. */
   customAmenities: { id: string; kind: CustomAmenityKind; label: string; status: CustomAmenityStatus; rejectReason: string | null }[];
   customAmenitiesReady: boolean;
   /** DR18: la residencia ya publicó un reglamento propio (si no, se la invita a armarlo con el modelo). */
   hasOwnRegulation: boolean;
-  faqItems: { question: string; answer: string }[];
+  /** Miniatura: slug público, disponibilidad ya guardada (misma regla del catálogo) y coordenada de la residencia (para ordenar las universidades por cercanía). */
+  slug: string;
+  availabilityMode: AvailabilityMode;
+  location: { lat: number; lng: number } | null;
+  /** Preguntas propias guardadas (texto libre, sistema anterior al catálogo). */
+  faqItems: OwnFaqItem[];
+  /** Estado del catálogo de preguntas (elegidas, esenciales, destacadas); `null` si no se pudo cargar. */
+  faqSummary: FaqProfileSummary | null;
   /** DR18 (tanda 2): fotos con su clasificación (0059) y los tipos de habitación a los que se pueden asociar. */
   photos: PhotoMetaItem[];
   photoRoomTypes: { id: string; name: string }[];
@@ -131,12 +153,14 @@ interface ProfileInitial {
   photoSectionsReady: boolean;
   /** Migración 0074 (orden de portada). */
   photoCoverReady: boolean;
+  /** Migración 0097 aplicada: se puede elegir la foto principal. */
+  photoMainCoverReady: boolean;
   /** DR18 t3 (migración 0060): promociones de tarifa y si las opciones nuevas de dinero ya se pueden guardar. */
   promotions: PromotionItem[];
   moneyReady: boolean;
   roomTypes: RoomTypeDraft[];
   conditions: ConditionsDraft;
-  pendingEditGroups: { fieldGroup: string; createdAt: string }[];
+  pendingEditGroups: { fieldGroup: string; createdAt: string; summary: { before: string; after: string } | null }[];
   /** Mensaje del admin al pedir cambios (DR5, migración 0048); null si no hay (cambios pedidos antes de la 0048). */
   changesMessage: string | null;
 }
@@ -224,6 +248,7 @@ export function ResidenceProfileForm({
   arsPerUsd,
   readOnly = false,
   canSubmit = true,
+  draftScope,
 }: {
   residenceId: string;
   initial: ProfileInitial;
@@ -232,6 +257,8 @@ export function ResidenceProfileForm({
   readOnly?: boolean;
   /** DR11: enviar o reenviar a verificación es solo del dueño, no delegable. Un staff con `profile.edit` guarda pero no envía. */
   canSubmit?: boolean;
+  /** Borrador local: quién edita. Sin esto no se guarda borrador en el dispositivo. */
+  draftScope?: { userId: string };
 }) {
   const action = saveResidenceProfile.bind(null, residenceId);
   const [state, formAction] = useActionState(action, initialState);
@@ -269,19 +296,28 @@ export function ResidenceProfileForm({
     setStayDocDraft("");
     setStayDocDraftError(null);
   }
-  const [rulesList, setRulesList] = useState<string[]>(() => {
-    const existing = splitRules(initial.rulesSummary).slice(0, MAX_TOP_RULES);
-    return existing.length > 0 ? existing : [""];
+  // Reglas principales: las estructuradas guardadas o, si la residencia solo tiene el resumen de texto, filas armadas a partir de él
+  // (la residencia las revisa; no se guarda nada hasta que toca la lista: `rulesDirty`).
+  const derivedFromText = initial.rulesItems.length === 0 && initial.rulesSummary.trim().length > 0;
+  const [rulesRows, setRulesRows] = useState<RuleDraft[]>(() => {
+    if (initial.rulesItems.length > 0) return initial.rulesItems.map((i) => newRuleDraft({ lead: i.lead, title: i.title, detail: i.detail }));
+    return buildRuleRows({ summary: initial.rulesSummary })
+      .slice(0, MAX_RULE_ITEMS)
+      .map((r) => {
+        // Solo se prefiere el dato cuando es un horario («23 a 7»); «No»/«Sí» repetirían el título.
+        const lead = r.lead && r.lead.includes(" a ") ? r.lead : "";
+        if (r.title) return newRuleDraft({ lead, title: r.title.slice(0, 40), detail: r.body.slice(0, 120) });
+        return r.body.length <= 40 ? newRuleDraft({ lead, title: r.body }) : newRuleDraft({ lead, detail: r.body.slice(0, 120) });
+      });
   });
-  const rulesSummary = rulesList.map((r) => r.trim()).filter(Boolean).join("\n");
+  const [rulesDirty, setRulesDirty] = useState(false);
+  const rulesSummary = rulesDirty
+    ? ruleItemsToSummary(rulesRows.filter((r) => r.title.trim()).map((r) => ({ title: r.title.trim() })))
+    : initial.rulesSummary.trim();
   const [customItems, setCustomItems] = useState<{ id?: string; kind: CustomAmenityKind; label: string; status: CustomAmenityStatus; rejectReason: string | null }[]>(
     initial.customAmenities,
   );
   const [customDraft, setCustomDraft] = useState<Record<CustomAmenityKind, string>>({ service: "", area: "" });
-  const previewDetails: AmenityDetails = {
-    kitchens,
-    cleaningGeneral: cleaningMode === "daily" ? { mode: "daily" } : { mode: "weekly", perWeek: cleaningPerWeek },
-  };
   const pendingCustomCount = customItems.filter((i) => i.status === "pending").length;
 
   function addCustomItem(kind: CustomAmenityKind) {
@@ -348,15 +384,71 @@ export function ResidenceProfileForm({
       </div>
     );
   }
-  const [faqItems, setFaqItems] = useState<{ question: string; answer: string }[]>(
-    initial.faqItems.length > 0 ? initial.faqItems : [{ question: "", answer: "" }],
-  );
+  // Preguntas propias (sistema anterior al catálogo): solo las ya guardadas, sin casilleros vacíos; sumar nuevas se hace desde el catálogo.
+  const [faqItems, setFaqItems] = useState<OwnFaqItem[]>(initial.faqItems);
   const [roomTypes, setRoomTypes] = useState<RoomTypeDraft[]>(
     initial.roomTypes.length > 0 ? initial.roomTypes : [emptyRoomType()],
   );
   const [conditions, setConditions] = useState<ConditionsDraft>(initial.conditions);
   // Fotos del editor de la galería (se suben y se aprueban por su cuenta, no con el guardado del perfil).
   const [photoCounts, setPhotoCounts] = useState({ total: initial.photos.length, approved: initial.photos.filter((p) => !p.pending).length });
+
+  // Borrador local (solo en este dispositivo): se guarda solo mientras se escribe y se recupera al volver. No toca el servidor:
+  // lo único que guarda en la cuenta es «Guardar cambios» (o «Guardar y salir» en el aviso de salida).
+  const draftStamp = useMemo(() => profileStamp(initial), [initial]);
+  const draft = useProfileDraft<RoomTypeDraft, ConditionsDraft>({
+    residenceId,
+    userId: draftScope?.userId ?? "",
+    stamp: draftStamp,
+    enabled: !readOnly && draftScope !== undefined,
+    source: { tagline, description, services, commonAreas, kitchens, cleaningMode, cleaningPerWeek, nearUniversities, stayDocKeys, stayDocOther, rulesRows, rulesDirty, customItems, faqItems, roomTypes, conditions },
+    setters: { setTagline, setDescription, setServices, setCommonAreas, setKitchens, setCleaningMode, setCleaningPerWeek, setNearUniversities, setStayDocKeys, setStayDocOther, setRulesRows, setRulesDirty, setCustomItems, setFaqItems, setRoomTypes, setConditions },
+    roomTemplate: emptyRoomType(),
+  });
+  const formRef = useRef<HTMLFormElement>(null);
+  const saveWaiter = useRef<((r: { ok: boolean; message?: string }) => void) | null>(null);
+  const [accountSavedAt, setAccountSavedAt] = useState<number | null>(null);
+  const { completeSave } = draft;
+  // «Completá tu ficha» (reglamento, preguntas, compartir): se ofrece tras guardar o enviar, solo si falta algo y no cuando el guardado
+  // vino del aviso de salida (esa persona ya se va a otra pantalla).
+  const completion = useMemo(
+    () =>
+      buildCompletionPanel({
+        hasOwnRegulation: initial.hasOwnRegulation,
+        faq: initial.faqSummary ? { essentialReady: initial.faqSummary.essentialReady, essentialTotal: initial.faqSummary.essentialTotal } : null,
+        published: initial.status === "verified_active",
+      }),
+    [initial.hasOwnRegulation, initial.faqSummary, initial.status],
+  );
+  const showCompletionRef = useRef(completion.show);
+  useEffect(() => {
+    showCompletionRef.current = completion.show;
+  }, [completion.show]);
+  const [completionDialog, setCompletionDialog] = useState<"saved" | "submitted" | null>(null);
+  useEffect(() => {
+    if (state.status === "idle") return;
+    const ok = state.status === "saved" || state.status === "saved_pending_review" || state.status === "submitted";
+    const fromLeaveGuard = saveWaiter.current !== null;
+    if (ok) {
+      completeSave();
+      setAccountSavedAt(Date.now());
+      if (!fromLeaveGuard && showCompletionRef.current) setCompletionDialog(state.status === "submitted" ? "submitted" : "saved");
+    }
+    saveWaiter.current?.({ ok, message: state.message });
+    saveWaiter.current = null;
+  }, [state, completeSave]);
+  /** «Guardar y salir» del aviso de salida: envía el formulario como «Guardar cambios» (nunca como «Enviar para revisión») y espera el resultado. */
+  const saveAndWait = useCallback(
+    () =>
+      new Promise<{ ok: boolean; message?: string }>((resolve) => {
+        const form = formRef.current;
+        if (!form) return resolve({ ok: false });
+        if (!form.checkValidity()) return resolve({ ok: false, message: "Hay datos con formato inválido en el formulario. Revisalos o elegí otra opción." });
+        saveWaiter.current = resolve;
+        form.requestSubmit();
+      }),
+    [],
+  );
 
   function updateConditions(patch: Partial<ConditionsDraft>) {
     setConditions((prev) => ({ ...prev, ...patch }));
@@ -371,28 +463,6 @@ export function ResidenceProfileForm({
 
   function updateRoomType(index: number, patch: Partial<RoomTypeDraft>) {
     setRoomTypes((prev) => prev.map((rt, i) => (i === index ? { ...rt, ...patch } : rt)));
-  }
-
-  function updateFaqItem(index: number, patch: Partial<{ question: string; answer: string }>) {
-    setFaqItems((prev) => prev.map((f, i) => (i === index ? { ...f, ...patch } : f)));
-  }
-
-  function addFaqItem() {
-    setFaqItems((prev) => (prev.length >= 5 ? prev : [...prev, { question: "", answer: "" }]));
-  }
-
-  function removeFaqItem(index: number) {
-    setFaqItems((prev) => (prev.length > 1 ? prev.filter((_, i) => i !== index) : prev));
-  }
-
-  function toggleRoomFeature(index: number, feature: string) {
-    setRoomTypes((prev) =>
-      prev.map((rt, i) => {
-        if (i !== index) return rt;
-        const has = rt.features.includes(feature);
-        return { ...rt, features: has ? rt.features.filter((f) => f !== feature) : [...rt.features, feature] };
-      }),
-    );
   }
 
   const strength = useMemo(
@@ -412,16 +482,17 @@ export function ResidenceProfileForm({
   );
   const strengthSuggestion = profileStrengthSuggestion(strength);
 
-  const previewPrice = roomTypes.length > 0 ? Math.min(...roomTypes.map((r) => r.monthlyPriceUsd)) : null;
   const badge = statusCopy[initial.status] ?? statusCopy.draft;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
-      <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-ink">Configuración de Residencia</h1>
-          <p className="mt-1 text-sm text-ink-soft">
-            {readOnly
+    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+      <ResidenceHero
+        icon="settings"
+        title="Configuración de Residencia"
+        className="mb-6"
+        actions={<Badge tone={badge.tone}>{badge.label}</Badge>}
+        subtitle={
+          readOnly
               ? `Así está cargada la información de ${initial.name}.`
               : initial.status === "draft"
               ? `Completá la información de ${initial.name} para poder publicarla. Guardá cuando quieras como borrador.`
@@ -431,11 +502,9 @@ export function ResidenceProfileForm({
                   ? `Corregí lo que pidió el equipo de EstuRed en ${initial.name} y reenviala para revisión.`
                   : initial.status === "verification_expired"
                     ? `La verificación anual de ${initial.name} venció. Revisá que el perfil esté al día y reenviala para revisión.`
-                  : `Mantené al día la información de ${initial.name} mientras el equipo de EstuRed la revisa.`}
-          </p>
-        </div>
-        <Badge tone={badge.tone}>{badge.label}</Badge>
-      </div>
+                  : `Mantené al día la información de ${initial.name} mientras el equipo de EstuRed la revisa.`
+        }
+      />
 
       {readOnly && (
         <section
@@ -486,13 +555,21 @@ export function ResidenceProfileForm({
             Como esta residencia ya está publicada, estos campos no se actualizan hasta que un admin los revise.
             Mientras tanto seguís viendo acá los valores actuales (los que ya están publicados), no los que enviaste.
           </p>
-          <ul className="mt-3 flex flex-wrap gap-2">
+          <ul className="mt-3 space-y-3">
             {initial.pendingEditGroups.map((e) => (
-              <li key={e.fieldGroup}>
-                <Badge tone="amber">
-                  {FIELD_GROUP_LABELS[e.fieldGroup] ?? e.fieldGroup} · enviado el{" "}
-                  {formatDate(e.createdAt)}
-                </Badge>
+              <li key={e.fieldGroup} className="rounded-field bg-paper p-3 text-sm">
+                <p className="flex flex-wrap items-center gap-2">
+                  <span className="font-bold text-ink">{FIELD_GROUP_LABELS[e.fieldGroup] ?? e.fieldGroup}</span>
+                  <Badge tone="amber">Esperando revisión · enviado el {formatDate(e.createdAt)}</Badge>
+                </p>
+                {e.summary && (
+                  <dl className="mt-2 grid gap-1 sm:grid-cols-[auto_1fr] sm:gap-x-3">
+                    <dt className="text-ink-soft">Publicado</dt>
+                    <dd className="break-words text-ink">{e.summary.before}</dd>
+                    <dt className="text-ink-soft">Enviado</dt>
+                    <dd className="break-words font-bold text-ink">{e.summary.after}</dd>
+                  </dl>
+                )}
               </li>
             ))}
           </ul>
@@ -524,18 +601,42 @@ export function ResidenceProfileForm({
         items={PROFILE_SECTIONS}
       />
 
+      <DraftNotice
+        notice={draft.notice}
+        what="tus cambios sin guardar"
+        extra="Si habías elegido fotos o un PDF, volvé a elegirlos: los archivos no se guardan en el borrador."
+        onDiscard={draft.discard}
+        onAccept={draft.acceptStale}
+        onDismiss={draft.dismissNotice}
+        className="mb-6"
+      />
+      <UnsavedChangesGuard
+        active={draft.dirty}
+        description="Lo que escribiste sigue como borrador en este dispositivo y lo recuperás al volver, pero todavía no está en tu cuenta."
+        impactNote={saveImpactNote(initial.status)}
+        onSave={saveAndWait}
+        onLeave={draft.saveNow}
+      />
+      <CompleteFichaDialog
+        open={completionDialog !== null}
+        onClose={() => setCompletionDialog(null)}
+        residenceId={residenceId}
+        variant={completionDialog ?? "saved"}
+        rows={completion.rows}
+      />
+
       <form
+        ref={formRef}
         action={(fd) => {
+          draft.beginSave();
           // El intent viaja como name/value del <button> que disparó el
           // submit (patrón HTML nativo) — leer el botón evita la carrera
           // de usar onClick + estado de React para decidirlo.
           fd.set("room_types_json", JSON.stringify(roomTypes));
           fd.set("stay_documents_other_json", JSON.stringify(stayDocOther));
           fd.set("custom_amenities_json", JSON.stringify(customItems.map((i) => ({ id: i.id, kind: i.kind, label: i.label }))));
-          fd.set(
-            "faq_json",
-            JSON.stringify(faqItems.filter((f) => f.question.trim() && f.answer.trim())),
-          );
+          // Siempre se manda (aunque esté vacío): así quitar todas las preguntas propias se guarda, y su ausencia nunca borra nada.
+          fd.set("faq_json", JSON.stringify(faqItems.filter((f) => f.question.trim() && f.answer.trim())));
           fd.set(
             "conditions_json",
             JSON.stringify({
@@ -580,7 +681,7 @@ export function ResidenceProfileForm({
               value={initial.addressLine}
               disabled
               className="mt-4"
-              hint="Privada. Escribinos si necesitás corregirla."
+              hint="Se muestra en tu ficha pública. Para corregirla, escribinos a Soporte."
             />
             <Input
               label="Frase corta (eslogan)"
@@ -757,57 +858,36 @@ export function ResidenceProfileForm({
               antes de ser público.
             </p>
             <div className="mt-4">
-              <p className="text-sm font-medium text-ink">Reglas de convivencia destacadas</p>
+              <p className="text-sm font-medium text-ink">Reglas principales</p>
               <p className="mt-0.5 text-xs text-ink-soft">
-                Elegí las {MAX_TOP_RULES} reglas más importantes o que quieras destacar. Se muestran en tu ficha pública; el detalle completo va en el reglamento.
+                Hasta {MAX_RULE_ITEMS} reglas, las más importantes. Se muestran en tu ficha pública con el dato grande a la izquierda; el detalle completo va en el
+                reglamento. Ejemplo: <strong>23 a 7</strong> · Silencio · Para música o videos, auriculares. Otro: <strong>Libre</strong> · Entrada y salida · Con tu
+                llave, sin horario de llegada.
               </p>
-              <input type="hidden" name="rules_summary" value={rulesSummary} />
-              <ul className="mt-3 space-y-2">
-                {rulesList.map((rule, i) => (
-                  <li key={i} className="flex gap-2">
-                    <input
-                      value={rule}
-                      maxLength={TOP_RULE_MAX}
-                      onChange={(e) => setRulesList((prev) => prev.map((r, j) => (j === i ? e.target.value : r)))}
-                      aria-label={`Regla destacada ${i + 1}`}
-                      placeholder={RULE_SUGGESTIONS[i % RULE_SUGGESTIONS.length]}
-                      className="min-w-0 flex-1 rounded-field border-[1.5px] border-line-2 bg-paper px-3 py-2 text-sm"
-                    />
-                    {rulesList.length > 1 && (
-                      <button type="button" onClick={() => setRulesList((prev) => prev.filter((_, j) => j !== i))} className="text-xs font-semibold text-ink-soft underline">
-                        Quitar
-                      </button>
-                    )}
-                  </li>
-                ))}
-              </ul>
-              {rulesList.length < MAX_TOP_RULES && (
-                <button type="button" onClick={() => setRulesList((prev) => [...prev, ""])} className="mt-2 text-sm font-semibold text-forest-700 underline">
-                  Agregar otra regla
-                </button>
+              {derivedFromText && !rulesDirty && (
+                <p className="mt-2 rounded-field bg-forest-tint px-3 py-2 text-xs text-ink">
+                  Armamos estas filas a partir del texto que tenías cargado. Revisalas y completalas: hasta que no cambies algo, tu ficha sigue mostrando lo de antes.
+                </p>
               )}
-              <div className="mt-3 flex flex-wrap gap-2" aria-label="Sugerencias de reglas">
-                {RULE_SUGGESTIONS.filter((sg) => !rulesList.includes(sg)).map((sg) => (
-                  <button
-                    key={sg}
-                    type="button"
-                    disabled={rulesList.filter((r) => r.trim()).length >= MAX_TOP_RULES && !rulesList.some((r) => !r.trim())}
-                    onClick={() =>
-                      setRulesList((prev) => {
-                        const emptyAt = prev.findIndex((r) => !r.trim());
-                        if (emptyAt >= 0) return prev.map((r, j) => (j === emptyAt ? sg : r));
-                        return prev.length < MAX_TOP_RULES ? [...prev, sg] : prev;
-                      })
-                    }
-                    className="rounded-full border border-line-2 bg-paper px-3 py-1 text-xs text-ink-soft hover:border-forest hover:text-forest-700 disabled:opacity-40"
-                  >
-                    + {sg}
-                  </button>
-                ))}
+              <input type="hidden" name="rules_summary" value={initial.rulesSummary} />
+              <input type="hidden" name="rules_items_dirty" value={rulesDirty ? "1" : "0"} />
+              <input
+                type="hidden"
+                name="rules_items_json"
+                value={JSON.stringify(rulesRows.map((r) => ({ lead: r.lead, title: r.title, detail: r.detail })))}
+              />
+              <div className="mt-3">
+                <RulesItemsEditor
+                  rows={rulesRows}
+                  onChange={(next) => {
+                    setRulesRows(next);
+                    setRulesDirty(true);
+                  }}
+                />
               </div>
-              {splitRules(initial.rulesSummary).length > MAX_TOP_RULES && (
+              {splitRulesLines(initial.rulesSummary).length > MAX_RULE_ITEMS && !rulesDirty && (
                 <p className="mt-2 text-xs text-warning-fg">
-                  Tenías más de {MAX_TOP_RULES} reglas cargadas: acá ves las primeras {MAX_TOP_RULES}. Al guardar, quedan solo esas.
+                  Tenías más de {MAX_RULE_ITEMS} reglas cargadas: acá ves las primeras {MAX_RULE_ITEMS}. Si guardás cambios en esta lista, quedan solo esas.
                 </p>
               )}
             </div>
@@ -817,6 +897,8 @@ export function ResidenceProfileForm({
                 <a href={`/residence/${residenceId}/regulation`} className="font-semibold text-forest-700 underline">
                   Ir al reglamento
                 </a>
+                . Un reglamento completo y prolijo evita problemas a futuro y preguntas repetidas antes de reservar. Lo que escribas acá queda
+                como borrador en este dispositivo: podés ir, volver con «Volver a la configuración» y seguir.
               </p>
             )}
             <div className="mt-4">
@@ -836,75 +918,14 @@ export function ResidenceProfileForm({
             </div>
           </Card>
 
-          {/* Preguntas frecuentes — hasta 5, se muestran públicamente en la ficha con acordeón */}
-          <Card id="perfil-faq" className="p-6 max-lg:scroll-mt-14">
-            <h2 className="text-lg font-bold text-ink">Preguntas frecuentes</h2>
-            <p className="mt-1 text-sm text-ink-soft">
-              Hasta 5 preguntas que los estudiantes suelen hacer antes de reservar. Se muestran en tu ficha pública.
-            </p>
-            <div className="mt-4 space-y-4">
-              {faqItems.map((faq, i) => (
-                <div key={i} className="rounded-field border-[1.5px] border-line p-4">
-                  <div className="flex items-start justify-between gap-2">
-                    <Input
-                      label={`Pregunta ${i + 1}`}
-                      value={faq.question}
-                      onChange={(e) => updateFaqItem(i, { question: e.target.value })}
-                      placeholder="Ej: ¿Se permiten mascotas?"
-                      className="flex-1"
-                    />
-                    {faqItems.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeFaqItem(i)}
-                        className="mt-7 shrink-0 rounded-field p-2 text-ink-faint transition-colors hover:bg-cream-2 hover:text-danger-fg"
-                        aria-label="Quitar pregunta"
-                      >
-                        <Icon name="close" className="text-lg" />
-                      </button>
-                    )}
-                  </div>
-                  <Textarea
-                    label="Respuesta"
-                    value={faq.answer}
-                    onChange={(e) => updateFaqItem(i, { answer: e.target.value })}
-                    rows={2}
-                    className="mt-3"
-                    placeholder="Respuesta breve y clara"
-                  />
-                </div>
-              ))}
-            </div>
-            {faqItems.length < 5 && (
-              <button
-                type="button"
-                onClick={addFaqItem}
-                className="mt-3 text-sm font-semibold text-forest-700 hover:underline"
-              >
-                + Agregar pregunta
-              </button>
-            )}
-          </Card>
+          {/* Preguntas frecuentes: se eligen del catálogo en /faq; acá el estado real y, si existen, las preguntas propias anteriores */}
+          <ProfileFaqCard residenceId={residenceId} summary={initial.faqSummary} ownItems={faqItems} onChangeOwn={setFaqItems} />
 
           {/* Universidades cercanas */}
           <Card id="perfil-universidades" className="p-6 max-lg:scroll-mt-14">
             <h2 className="text-lg font-bold text-ink">Proximidad a Universidades</h2>
             <p className="mt-1 text-sm text-ink-soft">Elegí solo las sedes a no más de 15 cuadras (≈1,5 km) de tu residencia: es lo que buscan los estudiantes al filtrar por universidad.</p>
-            <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
-              {UNIVERSITY_OPTIONS.map((u) => (
-                <label key={u} className="max-lg:min-h-11 flex items-center gap-2 text-sm text-ink">
-                  <input
-                    type="checkbox"
-                    name="near_universities"
-                    value={u}
-                    checked={nearUniversities.has(u)}
-                    onChange={() => toggle(nearUniversities, setNearUniversities, u)}
-                    className="h-4 w-4 max-lg:size-5! accent-forest"
-                  />
-                  {u}
-                </label>
-              ))}
-            </div>
+            <UniversityPicker selected={nearUniversities} onToggle={(name) => toggle(nearUniversities, setNearUniversities, name)} />
           </Card>
 
           {/* DR38: documentos que se le piden al residente. Solo el dueño los edita; no es contenido público. */}
@@ -1091,20 +1112,7 @@ export function ResidenceProfileForm({
                       />
                     </div>
                   )}
-                  <div className="mt-3 flex flex-wrap gap-4">
-                    <span className="text-sm font-medium text-ink">Características</span>
-                    {ROOM_FEATURE_OPTIONS.map((f) => (
-                      <label key={f} className="max-lg:min-h-11 flex items-center gap-1.5 text-sm text-ink-soft">
-                        <input
-                          type="checkbox"
-                          checked={rt.features.includes(f)}
-                          onChange={() => toggleRoomFeature(i, f)}
-                          className="h-4 w-4 max-lg:size-5! accent-forest"
-                        />
-                        {f}
-                      </label>
-                    ))}
-                  </div>
+                  <RoomFeaturesField features={rt.features} onChange={(next) => updateRoomType(i, { features: next })} />
                 </div>
               ))}
             </div>
@@ -1133,6 +1141,7 @@ export function ResidenceProfileForm({
               schemaReady={initial.photoMetaReady}
               sectionsReady={initial.photoSectionsReady}
               coverReady={initial.photoCoverReady}
+              mainCoverReady={initial.photoMainCoverReady}
               readOnly={readOnly}
               onCountsChange={setPhotoCounts}
             />
@@ -1439,8 +1448,7 @@ export function ResidenceProfileForm({
                     Es una elección de tu residencia. Se muestra a los estudiantes en la tarjeta «Mes vacío» de la ficha.
                   </p>
                   <p className="mt-1 text-xs text-ink-soft">
-                    Cuando un estudiante reserva hoy para ingresar más adelante, podés cobrar un porcentaje de la renta por el tiempo
-                    (hasta 3 meses) en que la plaza queda guardada y vacía para él.
+                    Cuando un estudiante reserva para ingresar más adelante y la plaza queda libre mientras tanto, podés cobrar un porcentaje de la renta (no la renta entera) por ese tiempo, hasta 3 meses.
                   </p>
                 </div>
                 <Switch
@@ -1486,8 +1494,9 @@ export function ResidenceProfileForm({
                     <div>
                       <p className="font-semibold text-ink">¿Qué es?</p>
                       <p>
-                        Si un estudiante reserva hoy pero ingresa más adelante, la plaza queda guardada para él y sin ocupar. Esos meses de
-                        espera, sin él y sin otro estudiante, se pierden. Con el mes vacío cobrás una parte de la renta por ese tiempo.
+                        Si un estudiante reserva para ingresar más adelante y la plaza está libre mientras tanto, se la guardás: por ese
+                        tiempo sin él adentro (el «mes vacío») cobrás un porcentaje de la renta, no la renta entera. No es un descuento: es un
+                        cargo parcial por guardar la plaza vacía.
                       </p>
                     </div>
                     <div>
@@ -1568,6 +1577,13 @@ export function ResidenceProfileForm({
           {/* Bajo md: barra fija sobre la tab bar. Los 61px = alto de MobileTabBar sin safe-area (1 borde + 4 pt + 56 min-h-14): si cambia ese alto, cambiar acá. De md a lg: sticky en el main (no pisa la sidebar). Desde lg, en el flujo. */}
           <div className="max-md:fixed max-md:inset-x-0 max-md:bottom-[calc(61px+max(0.25rem,env(safe-area-inset-bottom)))] max-lg:mb-0! max-lg:z-30 md:max-lg:sticky md:max-lg:bottom-0 md:max-lg:-mx-4 sm:md:max-lg:-mx-6 max-lg:border-t max-lg:border-line max-lg:bg-paper/95 max-lg:px-4 max-lg:py-2 max-lg:backdrop-blur md:max-lg:pb-[max(0.5rem,env(safe-area-inset-bottom))] lg:contents">
           <div className="space-y-2 max-lg:mb-2 max-lg:max-h-24 max-lg:overflow-y-auto max-lg:empty:hidden max-lg:[&>p]:py-2 max-lg:[&>p]:text-xs lg:contents">
+          <SaveStatus
+            dirty={draft.dirty}
+            localState={draft.localState}
+            localSavedAt={draft.savedAt}
+            accountSavedAt={accountSavedAt}
+            className="max-lg:py-0! sm:text-right"
+          />
           {state.status === "error" && (
             <p role="alert" className="rounded-field bg-danger-bg px-4 py-3 text-sm font-medium text-danger-fg">
               {state.message}
@@ -1638,47 +1654,25 @@ export function ResidenceProfileForm({
             )}
           </Card>
 
-          <Card className="overflow-hidden p-0">
-            <p className="border-b border-sand-200 px-5 py-3 text-sm font-bold text-ink">
-              Vista previa
-            </p>
-            <div className="relative h-32 bg-sand-200">
-              {initial.photos.find((p) => !p.pending) ? (
-                <Image
-                  src={initial.photos.find((p) => !p.pending)!.url}
-                  alt=""
-                  fill
-                  sizes="320px"
-                  className="object-cover"
-                />
-              ) : (
-                <ResidencePhotoPlaceholder name={initial.name} zone={initial.zone} variant="card" label="Foto próximamente" />
-              )}
-            </div>
-            <div className="p-4">
-              <p className="font-bold text-ink">{initial.name}</p>
-              <p className="text-xs text-ink-soft">{initial.zone || "Barrio sin definir"}, CABA</p>
-              <div className="mt-2 flex flex-wrap gap-1">
-                {[...services].slice(0, 2).map((s) => (
-                  <Badge key={s} tone="petrol">
-                    {amenityDisplayName(s, previewDetails)}
-                  </Badge>
-                ))}
-                {services.size > 2 && <Badge tone="neutral">+{services.size - 2}</Badge>}
-              </div>
-              <div className="mt-3 flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-ink-faint">Desde</p>
-                  <p className="font-bold text-forest-700">
-                    {previewPrice !== null ? formatUsd(previewPrice) : "—"}
-                  </p>
-                </div>
-                <Button size="sm" variant="outline" disabled>
-                  Ver
-                </Button>
-              </div>
-            </div>
-          </Card>
+          <ProfilePreviewCard
+            residenceId={residenceId}
+            slug={initial.slug}
+            name={initial.name}
+            zone={initial.zone}
+            status={initial.status}
+            availabilityMode={initial.availabilityMode}
+            description={description}
+            services={services}
+            commonAreas={commonAreas}
+            approvedExtraServices={customItems.filter((i) => i.kind === "service" && i.status === "approved").map((i) => i.label)}
+            approvedExtraAreas={customItems.filter((i) => i.kind === "area" && i.status === "approved").map((i) => i.label)}
+            nearUniversities={nearUniversities}
+            roomTypes={roomTypes}
+            photos={initial.photos}
+            location={initial.location}
+            arsPerUsd={arsPerUsd}
+            hasUnsavedChanges={draft.dirty}
+          />
 
           <Card className="border-line-2 bg-forest-tint p-5">
             <h3 className="font-bold text-ink">¿Necesitás ayuda?</h3>

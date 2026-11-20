@@ -1,0 +1,263 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- complementary:
+  - paragraph: EstuRed Admin
+  - paragraph: Panel de administración
+  - button "Notificaciones":
+    - generic: notifications
+  - navigation "Administración":
+    - link "Dashboard":
+      - /url: /admin/dashboard
+      - generic: Dashboard
+    - paragraph: Residencias
+    - link "Residencias":
+      - /url: /admin/residences
+      - generic: Residencias
+    - link "Verificaciones":
+      - /url: /admin/verifications
+      - generic: Verificaciones
+    - link "Ediciones de perfil":
+      - /url: /admin/profile-edits
+      - generic: Ediciones de perfil
+    - link "Solicitudes de alta":
+      - /url: /admin/solicitudes-alta
+      - generic: Solicitudes de alta
+    - link "Residencias pedidas":
+      - /url: /admin/residencias-pedidas
+      - generic: Residencias pedidas
+    - link "Preguntas de fichas":
+      - /url: /admin/faq
+      - generic: Preguntas de fichas
+    - link "Ítems «Otro» de fichas":
+      - /url: /admin/custom-amenities
+      - generic: Ítems «Otro» de fichas
+    - paragraph: Operación
+    - link "Solicitudes":
+      - /url: /admin/applications
+      - generic: Solicitudes
+    - link "Propuestas familiar":
+      - /url: /admin/family-proposals
+      - generic: Propuestas familiar
+    - link "Pagos":
+      - /url: /admin/payments
+      - generic: Pagos
+    - link "Actividad":
+      - /url: /admin/activity
+      - generic: Actividad
+    - link "Seguimiento":
+      - /url: /admin/followups
+      - generic: Seguimiento
+    - paragraph: Plataforma
+    - link "Comunidad":
+      - /url: /admin/community
+      - generic: Comunidad
+    - link "Visibilidad y penalizaciones":
+      - /url: /admin/visibility
+      - generic: Visibilidad y penalizaciones
+    - link "Administración de tarifas":
+      - /url: /admin/pricing
+      - generic: Administración de tarifas
+    - link "Documentos":
+      - /url: /admin/documents
+      - generic: Documentos
+    - link "Tipo de cambio":
+      - /url: /admin/exchange-rate
+      - generic: Tipo de cambio
+    - link "Usuarios":
+      - /url: /admin/users
+      - generic: Usuarios
+    - paragraph: Soporte
+    - link "Soporte":
+      - /url: /admin/support-cases
+      - generic: Soporte
+  - generic: A
+  - paragraph: admin.operaciones@estured.test
+  - paragraph: Admin
+  - button "Cerrar sesión"
+  - button "Colapsar menú":
+- main:
+  - heading "Solicitudes" [level=1]
+  - paragraph: 4 activa(s) de 15 en total, todas las residencias. Cada residencia gestiona sus propias solicitudes desde su panel — desde acá solo se puede reabrir una rechazada o vencida.
+  - region "Solicitudes":
+    - table:
+      - rowgroup:
+        - row "Fecha Estudiante Estado Residencia Tipo Ingreso deseado":
+          - columnheader "Fecha"
+          - columnheader "Estudiante"
+          - columnheader "Estado"
+          - columnheader "Residencia"
+          - columnheader "Tipo"
+          - columnheader "Ingreso deseado"
+          - columnheader
+      - rowgroup:
+        - row "05/11/2026 Lucia F. Vencida — sin pago a la residencia Residencia Río de la Plata Recoleta Individual 01/09/2027":
+          - cell "05/11/2026"
+          - cell "Lucia F."
+          - cell "Vencida — sin pago a la residencia":
+            - generic: Vencida — sin pago a la residencia
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Individual"
+          - cell "01/09/2027"
+          - cell
+        - row "02/11/2026 Lucia F. Vencida — sin pago a la residencia Residencia Río de la Plata Recoleta Individual 01/03/2027":
+          - cell "02/11/2026"
+          - cell "Lucia F."
+          - cell "Vencida — sin pago a la residencia":
+            - generic: Vencida — sin pago a la residencia
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Individual"
+          - cell "01/03/2027"
+          - cell
+        - row "02/11/2026 Camila R. Vencida — propuesta sin respuesta Residencia Río de la Plata Recoleta Individual 01/03/2027 Reabrir":
+          - cell "02/11/2026"
+          - cell "Camila R."
+          - cell "Vencida — propuesta sin respuesta":
+            - generic: Vencida — propuesta sin respuesta
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Individual"
+          - cell "01/03/2027"
+          - cell "Reabrir":
+            - button "Reabrir"
+        - row "24/10/2026 Camila R. Reserva revocada por el estudiante Residencia Norte Palermo Individual 01/04/2026":
+          - cell "24/10/2026"
+          - cell "Camila R."
+          - cell "Reserva revocada por el estudiante":
+            - generic: Reserva revocada por el estudiante
+          - cell "Residencia Norte Palermo":
+            - text: Residencia Norte
+            - generic: Palermo
+          - cell "Individual"
+          - cell "01/04/2026"
+          - cell
+        - row "24/10/2026 Camila R. Reserva revocada por el estudiante Residencia Norte Palermo Individual 01/03/2026":
+          - cell "24/10/2026"
+          - cell "Camila R."
+          - cell "Reserva revocada por el estudiante":
+            - generic: Reserva revocada por el estudiante
+          - cell "Residencia Norte Palermo":
+            - text: Residencia Norte
+            - generic: Palermo
+          - cell "Individual"
+          - cell "01/03/2026"
+          - cell
+        - row "23/10/2026 Lucia F. Reserva vencida — fee sin pagar Residencia Norte Palermo Individual 01/03/2027":
+          - cell "23/10/2026"
+          - cell "Lucia F."
+          - cell "Reserva vencida — fee sin pagar":
+            - generic: Reserva vencida — fee sin pagar
+          - cell "Residencia Norte Palermo":
+            - text: Residencia Norte
+            - generic: Palermo
+          - cell "Individual"
+          - cell "01/03/2027"
+          - cell
+        - row "22/10/2026 Mateo F. Vencida — sin pago a la residencia Residencia Norte Palermo Cuádruple 06/12/2026":
+          - cell "22/10/2026"
+          - cell "Mateo F."
+          - cell "Vencida — sin pago a la residencia":
+            - generic: Vencida — sin pago a la residencia
+          - cell "Residencia Norte Palermo":
+            - text: Residencia Norte
+            - generic: Palermo
+          - cell "Cuádruple"
+          - cell "06/12/2026"
+          - cell
+        - row "21/10/2026 Camila R. Reserva vencida — fee sin pagar Residencia Norte Palermo Individual 01/05/2026":
+          - cell "21/10/2026"
+          - cell "Camila R."
+          - cell "Reserva vencida — fee sin pagar":
+            - generic: Reserva vencida — fee sin pagar
+          - cell "Residencia Norte Palermo":
+            - text: Residencia Norte
+            - generic: Palermo
+          - cell "Individual"
+          - cell "01/05/2026"
+          - cell
+        - row "20/10/2026 Camila R. Reserva revocada por el estudiante Residencia Norte Palermo Doble 01/06/2026":
+          - cell "20/10/2026"
+          - cell "Camila R."
+          - cell "Reserva revocada por el estudiante":
+            - generic: Reserva revocada por el estudiante
+          - cell "Residencia Norte Palermo":
+            - text: Residencia Norte
+            - generic: Palermo
+          - cell "Doble"
+          - cell "01/06/2026"
+          - cell
+        - row "20/10/2026 Camila R. Estadía finalizada Residencia Norte Palermo Individual 01/02/2026":
+          - cell "20/10/2026"
+          - cell "Camila R."
+          - cell "Estadía finalizada":
+            - generic: Estadía finalizada
+          - cell "Residencia Norte Palermo":
+            - text: Residencia Norte
+            - generic: Palermo
+          - cell "Individual"
+          - cell "01/02/2026"
+          - cell
+        - row "20/10/2026 Camila R. Reserva vencida — fee sin pagar Residencia Norte Palermo Doble 10/08/2026":
+          - cell "20/10/2026"
+          - cell "Camila R."
+          - cell "Reserva vencida — fee sin pagar":
+            - generic: Reserva vencida — fee sin pagar
+          - cell "Residencia Norte Palermo":
+            - text: Residencia Norte
+            - generic: Palermo
+          - cell "Doble"
+          - cell "10/08/2026"
+          - cell
+        - row "20/10/2026 Lucia F. Reserva confirmada Residencia Río de la Plata Recoleta Individual 20/07/2026":
+          - cell "20/10/2026"
+          - cell "Lucia F."
+          - cell "Reserva confirmada":
+            - generic: Reserva confirmada
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Individual"
+          - cell "20/07/2026"
+          - cell
+        - row "20/10/2026 Camila R. Vencida — propuesta sin respuesta Residencia Río de la Plata Recoleta Individual 01/09/2026 Reabrir":
+          - cell "20/10/2026"
+          - cell "Camila R."
+          - cell "Vencida — propuesta sin respuesta":
+            - generic: Vencida — propuesta sin respuesta
+          - cell "Residencia Río de la Plata Recoleta":
+            - text: Residencia Río de la Plata
+            - generic: Recoleta
+          - cell "Individual"
+          - cell "01/09/2026"
+          - cell "Reabrir":
+            - button "Reabrir"
+        - row "20/10/2026 Lucia F. Vencida — sin pago a la residencia Residencia Norte Palermo Doble 15/08/2026":
+          - cell "20/10/2026"
+          - cell "Lucia F."
+          - cell "Vencida — sin pago a la residencia":
+            - generic: Vencida — sin pago a la residencia
+          - cell "Residencia Norte Palermo":
+            - text: Residencia Norte
+            - generic: Palermo
+          - cell "Doble"
+          - cell "15/08/2026"
+          - cell
+        - row "20/10/2026 Camila R. Vencida — sin respuesta de la residencia Residencia Norte Palermo Individual 01/08/2026 Reabrir":
+          - cell "20/10/2026"
+          - cell "Camila R."
+          - cell "Vencida — sin respuesta de la residencia":
+            - generic: Vencida — sin respuesta de la residencia
+          - cell "Residencia Norte Palermo":
+            - text: Residencia Norte
+            - generic: Palermo
+          - cell "Individual"
+          - cell "01/08/2026"
+          - cell "Reabrir":
+            - button "Reabrir"
+- button "Admin Operativo": Admin Operativo
+- button "Open Next.js Dev Tools":
+- alert

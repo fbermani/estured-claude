@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200" role="img">
+<title>E1 cerrando la puerta</title>
+<desc>E1 de espaldas, con la mochila puesta, empuja la puerta de su cuarto para cerrarla; queda una franja oscura entre la hoja y el marco.</desc>
+<style>
+  .fondo{fill:#fbf6ec}
+  .piso{fill:#ece3cf}
+  .piel{fill:#b97a4f}
+  .piel-sombra{fill:#a4683f}
+  .pelo{fill:#2a1d17}
+  .abrigo{fill:#1f7d5c}
+  .abrigo-brazo{fill:none;stroke:#1a6e51;stroke-linecap:round;stroke-linejoin:round}
+  .cuello{fill:#0c3a2c}
+  .pantalon{fill:#2f3b45}
+  .zapatilla{fill:#1d2722}
+  .mochila{fill:#d8b06a}
+  .mochila-sombra{fill:#c29a55}
+  .marco{fill:#a87f50}
+  .hoja{fill:#c9a877}
+  .hoja-panel{fill:#bf9c6b}
+  .rendija{fill:#34413b}
+  .picaporte{fill:#1d2722}
+</style>
+
+<rect class="fondo" width="1200" height="1200"/>
+<ellipse class="piso" cx="640" cy="1114" rx="460" ry="22"/>
+
+<g id="puerta">
+  <rect class="marco" x="690" y="196" width="320" height="26"/>
+  <rect class="marco" x="690" y="196" width="24" height="918"/>
+  <rect class="marco" x="986" y="196" width="24" height="918"/>
+  <rect class="rendija" x="714" y="222" width="12" height="892"/>
+  <rect class="hoja" x="726" y="222" width="260" height="892"/>
+  <rect class="hoja-panel" x="770" y="280" width="172" height="300" rx="10"/>
+  <rect class="hoja-panel" x="770" y="640" width="172" height="400" rx="10"/>
+  <rect class="picaporte" x="742" y="634" width="34" height="14" rx="7"/>
+</g>
+
+<!-- E1 de espaldas: mismas medidas que la vista de frente del master -->
+<g id="e1-espaldas" transform="translate(-30 40)">
+  <g id="pierna-izq" data-parte="pierna-izq">
+    <rect class="pantalon" x="444" y="700" width="50" height="345" rx="14"/>
+    <rect class="zapatilla" x="426" y="1034" width="72" height="40" rx="18"/>
+  </g>
+  <g id="pierna-der" data-parte="pierna-der">
+    <rect class="pantalon" x="506" y="700" width="50" height="345" rx="14"/>
+    <rect class="zapatilla" x="502" y="1034" width="72" height="40" rx="18"/>
+  </g>
+
+  <g id="torso" data-parte="torso">
+    <rect class="piel-sombra" x="486" y="330" width="28" height="44" rx="8"/>
+    <path class="abrigo" d="M430 372 Q500 360 570 372 Q615 385 618 432 L625 722 Q500 738 375 722 L382 432 Q385 385 430 372 Z"/>
+    <rect class="cuello" x="464" y="352" width="72" height="34" rx="15"/>
+  </g>
+
+  <g id="mochila" data-parte="mochila">
+    <rect class="mochila" x="414" y="396" width="172" height="292" rx="44"/>
+    <rect class="mochila-sombra" x="414" y="396" width="172" height="84" rx="40"/>
+    <rect class="mochila-sombra" x="446" y="560" width="108" height="100" rx="20"/>
+  </g>
+
+  <g id="cabeza" data-parte="cabeza">
+    <circle class="piel" cx="442" cy="298" r="13"/>
+    <circle class="piel" cx="558" cy="298" r="13"/>
+    <g id="pelo" data-parte="pelo">
+      <ellipse class="pelo" cx="500" cy="268" rx="58" ry="70"/>
+      <circle class="pelo" cx="447" cy="256" r="22"/>
+      <circle class="pelo" cx="455" cy="230" r="26"/>
+      <circle class="pelo" cx="480" cy="210" r="27"/>
+      <circle class="pelo" cx="511" cy="204" r="27"/>
+      <circle class="pelo" cx="540" cy="213" r="26"/>
+      <circle class="pelo" cx="559" cy="236" r="22"/>
+      <circle class="pelo" cx="554" cy="257" r="20"/>
+      <circle class="pelo" cx="464" cy="300" r="22"/>
+      <circle class="pelo" cx="500" cy="310" r="24"/>
+      <circle class="pelo" cx="536" cy="300" r="22"/>
+    </g>
+  </g>
+
+  <g id="brazo-izq" data-parte="brazo-izq">
+    <path class="abrigo-brazo" stroke-width="46" d="M402 404 Q384 525 396 650"/>
+    <circle class="piel" cx="398" cy="676" r="21"/>
+  </g>
+  <g id="brazo-der" data-parte="brazo-der">
+    <path class="abrigo-brazo" stroke-width="46" d="M598 404 Q700 430 770 560"/>
+    <circle class="piel" cx="782" cy="584" r="21"/>
+  </g>
+</g>
+</svg>

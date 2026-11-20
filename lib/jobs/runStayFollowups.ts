@@ -13,6 +13,7 @@ import {
   isNoResponseDue,
   isStayLive,
 } from "@/lib/followups/common";
+import { getAppUrl } from "@/lib/appUrl";
 
 type StayRow = {
   id: string;
@@ -254,7 +255,7 @@ async function sendSurvey(admin: SupabaseClient, followup: FollowupRow, stay: St
   if (profile.is_minor === true) {
     for (const userId of await loadActiveFamilyUserIds(admin, stay.student_profile_id)) surveyUsers.push({ userId, guardian: true });
   }
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const appUrl = getAppUrl();
   for (const target of surveyUsers) {
     const title = target.guardian ? STUDENT_SURVEY.guardianTitle(name) : STUDENT_SURVEY.title;
     const body = target.guardian ? STUDENT_SURVEY.guardianBody : STUDENT_SURVEY.body;

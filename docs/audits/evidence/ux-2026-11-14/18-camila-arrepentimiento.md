@@ -1,0 +1,70 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- complementary:
+  - link "EstuRed, inicio":
+    - /url: /
+    - generic: EstuRed
+  - button "Notificaciones":
+    - generic: notifications
+  - navigation:
+    - link "Inicio":
+      - /url: /students/dashboard
+      - generic: home
+      - generic: Inicio
+    - link "Buscar residencias":
+      - /url: /search
+      - generic: search
+      - generic: Buscar residencias
+    - link "Favoritos":
+      - /url: /students/favorites
+      - generic: favorite
+      - generic: Favoritos
+    - link "Mis solicitudes":
+      - /url: /students/applications
+      - generic: description
+      - generic: Mis solicitudes
+    - link "Lista de espera":
+      - /url: /students/waitlist
+      - generic: hourglass_top
+      - generic: Lista de espera
+    - link "Mi perfil":
+      - /url: /students/profile
+      - generic: person
+      - generic: Mi perfil
+    - link "Mi estadía":
+      - /url: /students/residency
+      - generic: apartment
+      - generic: Mi estadía
+    - link "Soporte":
+      - /url: /students/support
+      - generic: support_agent
+      - generic: Soporte
+  - paragraph: camila.rojas@example.com
+  - link "Botón de arrepentimiento":
+    - /url: /students/revocation
+    - generic: undo
+    - generic: Botón de arrepentimiento
+  - button "Salir":
+    - generic: logout
+    - generic: Salir
+  - button "Colapsar menú":
+    - generic: chevron_left
+- main:
+  - heading "Botón de arrepentimiento" [level=1]
+  - paragraph: Tenés 10 días corridos desde el pago del fee EstuRed para arrepentirte (requisito de contratación a distancia). Si lo hacés dentro de ese plazo, EstuRed te reintegra el fee completo (el 5%) después de una revisión del equipo, salvo que la revisión detecte un uso indebido.
+  - heading "Revocaciones registradas" [level=2]
+  - paragraph: Residencia Norte · Palermo
+  - generic: En revisión por EstuRed
+  - paragraph: Revocaste el 20/10/2026.
+  - paragraph: Estamos revisando tu revocación. Cuando esté resuelta te avisamos acá.
+  - paragraph: Residencia Norte · Palermo
+  - generic: Fee reintegrado
+  - paragraph: Revocaste el 15/10/2026.
+  - paragraph: EstuRed te reintegró el fee el 18/10/2026.
+  - paragraph: "Mensaje de EstuRed: Te transferimos el fee completo. Si no lo ves en tu cuenta en un par de días, escribinos por Soporte."
+  - paragraph: Residencia Norte · Palermo
+  - generic: No correspondió el reintegro
+  - paragraph: Revocaste el 22/10/2026.
+  - paragraph: Revisamos tu revocación y no correspondió reintegrar el fee.
+  - paragraph: "Mensaje de EstuRed: La revocación llegó después de los 10 días corridos desde el pago, por eso no correspondió reintegrar el fee."
+- button "Camila — Estudiante en Búsqueda": Camila — Estudiante en Búsqueda

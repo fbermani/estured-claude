@@ -32,7 +32,7 @@ export function RoomTypeCards({
       <div className="grid gap-2">
         {types.map((rt) => {
           const selected = rt.id === value;
-          const details = [rt.genderLabel, rt.bathroom ? `Baño ${rt.bathroom}` : null].filter(Boolean).join(" · ");
+          const details = [rt.genderLabel, rt.bathroom ? `Baño ${rt.bathroom}` : null].filter(Boolean).join(", ");
           return (
             <label
               key={rt.id}
@@ -64,7 +64,7 @@ export function RoomTypeCards({
                       {formatUsd(rt.listPriceUsd)}
                     </span>
                   )}
-                  <b className="font-display text-base font-extrabold text-ink">{formatUsd(rt.priceUsd)}</b>
+                  <b className="font-display text-base font-bold text-ink">{formatUsd(rt.priceUsd)}</b>
                   <span className="text-xs text-ink-faint">/mes</span>
                 </span>
               </span>

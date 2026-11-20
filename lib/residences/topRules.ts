@@ -5,8 +5,8 @@
 export const MAX_TOP_RULES = 5;
 export const TOP_RULE_MAX = 120;
 
-const URL_RE = /(https?:|www\.|\b[a-z0-9-]+\.(com|ar|net|org|io|me|app|ly|co)\b|wa\.me)/i;
-const EMAIL_RE = /\S+@\S+/;
+export const URL_RE = /(https?:|www\.|\b[a-z0-9-]+\.(com|ar|net|org|io|me|app|ly|co)\b|wa\.me)/i;
+export const EMAIL_RE = /\S+@\S+/;
 
 export function splitRules(summary: string): string[] {
   return summary.split("\n").map((r) => r.trim()).filter(Boolean);

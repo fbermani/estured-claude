@@ -15,8 +15,8 @@ import {
   ROOM_TYPE_NAMES,
   GENDER_POLICY_OPTIONS,
   ADJUSTMENT_POLICY_OPTIONS,
-  ROOM_FEATURE_OPTIONS,
 } from "@/lib/residences/options";
+import { sanitizeRoomFeatures } from "@/lib/residences/roomFeatures";
 import {
   applyRoomTypesUpdate,
   changesRoomStructure,
@@ -32,8 +32,10 @@ import { SUBMITTABLE_RESIDENCE_STATUSES, VERIFICATION_STATUSES_RESET_ON_SUBMIT, 
 import { parseCustomAmenityDrafts } from "@/lib/residences/customAmenities";
 import { syncCustomAmenities } from "@/lib/residences/customAmenitiesDb";
 import { splitRules, validateTopRules } from "@/lib/residences/topRules";
+import { normalizeRuleItems, parseRuleItems, ruleItemsToSummary, sameRuleItems, type HouseRuleItem } from "@/lib/residences/ruleItems";
 import { validateAgeRange } from "@/lib/residences/age";
 import { MAX_RESIDENCE_PHOTOS } from "@/lib/residences/photos";
+import { parseOwnFaqField } from "@/lib/residences/ownFaq";
 import {
   STAY_DOCUMENTS_SECTION,
   normalizeStayDocumentsInput,
@@ -41,9 +43,11 @@ import {
   type StayDocumentsConfig,
 } from "@/lib/residences/stayDocuments";
 import { imageExtension, sniffImageType } from "@/lib/residences/imageSniff";
+import { extensionForMime, resolveDocumentType, toTypedBlob } from "@/lib/files/sniffFile";
 import { validateEarlyExitPolicy } from "@/lib/stayChange/validate";
 import { parseMoneyConditionsInput, type DepositMode } from "@/lib/applications/reservationMoney";
 import { describeInitialPaymentForLog, initialPaymentConfigFromRow, parseInitialPaymentInput, type InitialPaymentConfig } from "@/lib/reservations/initialPayment";
+import { safeFilename } from "@/lib/files/safeFilename";
 
 /** Mensaje cuando un staff con `profile.edit` (sin `operations.rooms_availability`) intenta cambiar la estructura de habitaciones o plazas. */
 const ROOM_STRUCTURE_PERMISSION_MESSAGE =
@@ -60,9 +64,11 @@ const UNIVERSITIES = new Set<string>(UNIVERSITY_OPTIONS);
 const ROOM_NAMES = new Set<string>(ROOM_TYPE_NAMES);
 const GENDER_POLICIES = new Set(GENDER_POLICY_OPTIONS.map((o) => o.value));
 const ADJUSTMENT_POLICIES = new Set(ADJUSTMENT_POLICY_OPTIONS.map((o) => o.value));
-const ROOM_FEATURES = new Set<string>(ROOM_FEATURE_OPTIONS);
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 const MAX_PDF_BYTES = 10 * 1024 * 1024;
+/** Topes de texto libre y de precio (B4); la base tiene CHECK equivalentes en la migración 0084. */
+const MAX_LONG_TEXT_CHARS = 5000;
+const MAX_MONTHLY_PRICE_USD = 100_000;
 
 function parseRoomTypes(raw: string): RoomTypeEditInput[] | null {
   try {
@@ -232,6 +238,10 @@ export async function saveResidenceProfile(
     .map(String)
     .filter((s) => UNIVERSITIES.has(s));
 
+  if (description.length > MAX_LONG_TEXT_CHARS)
+    return { status: "error", message: `La descripción es demasiado larga (máximo ${MAX_LONG_TEXT_CHARS} caracteres).` };
+  if (rulesSummaryRaw.length > MAX_LONG_TEXT_CHARS)
+    return { status: "error", message: `El resumen del reglamento es demasiado largo (máximo ${MAX_LONG_TEXT_CHARS} caracteres).` };
   if (tagline.length > 80)
     return { status: "error", message: "El eslogan no puede superar los 80 caracteres." };
 
@@ -262,7 +272,22 @@ export async function saveResidenceProfile(
     .maybeSingle();
   const storedRulesRaw = ((storedRulesSection?.content as { summary?: string } | null)?.summary ?? "").trim();
   let rulesSummary = rulesSummaryRaw;
-  if (splitRules(rulesSummaryRaw).join("\n") !== splitRules(storedRulesRaw).join("\n")) {
+  // Reglas principales estructuradas (hasta 6 `{ lead?, title, detail? }`): el editor las manda solo si el dueño las tocó
+  // (`rules_items_dirty`); si no, lo guardado (ítems y resumen) queda tal cual y no se pide revisión de nada.
+  const storedRuleItems = parseRuleItems((storedRulesSection?.content as { items?: unknown } | null)?.items);
+  let ruleItems: HouseRuleItem[] = storedRuleItems;
+  if (formData.get("rules_items_dirty") === "1") {
+    let rawItems: unknown;
+    try {
+      rawItems = JSON.parse(String(formData.get("rules_items_json") ?? "[]"));
+    } catch {
+      return { status: "error", message: "No pudimos leer las reglas principales. Probá de nuevo." };
+    }
+    const itemsCheck = normalizeRuleItems(rawItems);
+    if (!itemsCheck.ok) return { status: "error", message: itemsCheck.error };
+    ruleItems = itemsCheck.items;
+    rulesSummary = ruleItemsToSummary(ruleItems);
+  } else if (splitRules(rulesSummaryRaw).join("\n") !== splitRules(storedRulesRaw).join("\n")) {
     const rulesCheck = validateTopRules(rulesSummaryRaw);
     if (!rulesCheck.ok) return { status: "error", message: rulesCheck.error };
     rulesSummary = rulesCheck.items.join("\n");
@@ -323,10 +348,14 @@ export async function saveResidenceProfile(
       return { status: "error", message: "Género permitido inválido." };
     if (rt.monthlyPriceUsd <= 0)
       return { status: "error", message: "Cada tipo de habitación necesita una tarifa mayor a 0." };
+    if (!Number.isFinite(rt.monthlyPriceUsd) || rt.monthlyPriceUsd > MAX_MONTHLY_PRICE_USD)
+      return { status: "error", message: `La tarifa de ${rt.name} es demasiado alta. Revisala (máximo USD ${MAX_MONTHLY_PRICE_USD.toLocaleString("es-AR")} por mes).` };
     if (rt.roomCount <= 0)
       return { status: "error", message: `Indicá cuántas habitaciones ${rt.name} tenés (mínimo 1).` };
-    if (rt.features.some((f) => !ROOM_FEATURES.has(f)))
-      return { status: "error", message: "Una de las características no es válida." };
+    // Las de la lista pasan tal cual; «Otro» admite UNA característica propia de hasta 2 palabras (se normaliza acá: el cliente no manda).
+    const features = sanitizeRoomFeatures(rt.features);
+    if (!features.ok) return { status: "error", message: `Característica de la habitación ${rt.name}: ${features.error}` };
+    rt.features = features.features;
   }
   const names = roomTypes.map((rt) => rt.name);
   if (new Set(names).size !== names.length)
@@ -536,21 +565,10 @@ export async function saveResidenceProfile(
       if (error) throw error;
     }
 
-    // FAQ: hasta 5 pares pregunta/respuesta, sanitizados (largo acotado,
-    // sin HTML) — texto libre del dueño, mismo nivel de confianza que el
-    // resumen de reglas, no crítico (no requiere aprobación de admin).
-    let faqItems: { question: string; answer: string }[] = [];
-    try {
-      const parsed = JSON.parse(String(formData.get("faq_json") ?? "[]"));
-      if (Array.isArray(parsed)) {
-        faqItems = parsed
-          .map((f) => ({ question: String(f?.question ?? "").trim().slice(0, 200), answer: String(f?.answer ?? "").trim().slice(0, 500) }))
-          .filter((f) => f.question && f.answer)
-          .slice(0, 5);
-      }
-    } catch {
-      faqItems = [];
-    }
+    // Preguntas propias (sistema anterior al catálogo): hasta `OWN_FAQ_MAX` pares pregunta/respuesta, sanitizados (largo acotado,
+    // sin HTML) — texto libre del dueño, mismo nivel de confianza que el resumen de reglas, no crítico (no requiere aprobación de
+    // admin). Si el formulario no manda `faq_json` NO se toca lo guardado (un cliente viejo o incompleto nunca borra las preguntas).
+    const faqItems = parseOwnFaqField(formData.get("faq_json"));
 
     // DR18: sedes a más de 20 cuadras (≈2 km) → solo alerta al admin; se guardan y se muestran igual.
     // Se compara contra lo guardado antes para no repetir el aviso en cada guardado.
@@ -579,7 +597,7 @@ export async function saveResidenceProfile(
     for (const section of [
       { section_type: "common_areas", content: { items: commonAreas } },
       { section_type: "near_universities", content: { items: nearUniversities } },
-      { section_type: "faq", content: { items: faqItems } },
+      ...(faqItems !== null ? [{ section_type: "faq", content: { items: faqItems } }] : []),
     ]) {
       const { error } = await admin
         .from("residence_profile_sections")
@@ -698,12 +716,13 @@ export async function saveResidenceProfile(
     if (rulesFile instanceof File && rulesFile.size > 0) {
       if (rulesFile.size > MAX_PDF_BYTES)
         return { status: "error", message: "El reglamento no puede superar los 10MB." };
-      if (rulesFile.type !== "application/pdf")
+      // Se comprueba el contenido real (firma `%PDF-`), no el MIME que declara el cliente.
+      if ((await resolveDocumentType(rulesFile)) !== "application/pdf")
         return { status: "error", message: "El reglamento debe ser un PDF." };
-      const path = `${residenceId}/reglamento-${Date.now()}.pdf`;
+      const path = `${residenceId}/reglamento-${Date.now()}.${extensionForMime("application/pdf")}`;
       const { error: uploadError } = await admin.storage
         .from("private-residence-documents")
-        .upload(path, rulesFile, { contentType: "application/pdf", upsert: true });
+        .upload(path, await toTypedBlob(rulesFile, "application/pdf"), { contentType: "application/pdf", upsert: true });
       if (uploadError) throw uploadError;
       const { data: insertedFile, error: fileInsertError } = await admin
         .from("files")
@@ -713,8 +732,8 @@ export async function saveResidenceProfile(
           related_entity_id: residenceId,
           bucket: "private-residence-documents",
           storage_path: path,
-          filename: rulesFile.name,
-          mime_type: rulesFile.type,
+          filename: safeFilename(rulesFile.name),
+          mime_type: "application/pdf",
           size_bytes: rulesFile.size,
           visibility: "private",
           document_type: "residence_rules_document",
@@ -723,26 +742,30 @@ export async function saveResidenceProfile(
         })
         .select("id")
         .single();
-      if (fileInsertError || !insertedFile) throw fileInsertError;
-      uploadedRulesFile = { fileId: insertedFile.id, filename: rulesFile.name };
+      if (fileInsertError || !insertedFile) {
+        // El PDF quedó sin registro: se limpia el objeto huérfano (mejor esfuerzo) y se propaga el error.
+        await admin.storage.from("private-residence-documents").remove([path]);
+        throw fileInsertError ?? new Error("No se pudo registrar el reglamento.");
+      }
+      uploadedRulesFile = { fileId: insertedFile.id, filename: safeFilename(rulesFile.name) };
     }
 
     // Reglas: crítico (docs/09 §8.1) — gated si publicada. Cambia si el
     // resumen cambió o si se subió un reglamento nuevo.
-    const rulesChanged = rulesSummary !== currentRulesSummary || uploadedRulesFile !== null;
+    const rulesChanged = rulesSummary !== currentRulesSummary || !sameRuleItems(ruleItems, storedRuleItems) || uploadedRulesFile !== null;
     if (gateApplies && rulesChanged) {
       const stage = await stageProfileEdit(admin, {
         residenceId,
         fieldGroup: "rules",
-        oldValue: { summary: currentRulesSummary },
-        newValue: { summary: rulesSummary, rulesFile: uploadedRulesFile },
+        oldValue: { summary: currentRulesSummary, items: storedRuleItems },
+        newValue: { summary: rulesSummary, items: ruleItems, rulesFile: uploadedRulesFile },
         submittedByUserId: sessionUser.id,
       });
       if (!stage.ok) return { status: "error", message: stage.error };
       pendingGroups.push("rules");
     } else {
       const { error } = await admin.from("residence_profile_sections").upsert(
-        { residence_id: residenceId, section_type: "rules", content: { summary: rulesSummary }, requires_admin_review: true },
+        { residence_id: residenceId, section_type: "rules", content: { summary: rulesSummary, items: ruleItems }, requires_admin_review: true },
         { onConflict: "residence_id,section_type" },
       );
       if (error) throw error;
@@ -791,7 +814,7 @@ export async function saveResidenceProfile(
           related_entity_id: residenceId,
           bucket: "public-residence-media",
           storage_path: path,
-          filename: photo.name,
+          filename: safeFilename(photo.name),
           mime_type: realType,
           size_bytes: photo.size,
           visibility: "public",

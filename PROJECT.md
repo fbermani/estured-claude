@@ -4,7 +4,7 @@
 > Última actualización: 2026-07-06, tras el commit `cf89302` (Ciclo 3, paso 1).
 > Complementos: [GAPS.md](GAPS.md) (auditoría honesta de problemas) y [CLAUDE.md](CLAUDE.md) (guía operativa de sesión).
 
-> **Aviso (2026-10-21): este documento es un snapshot del Ciclo 3 y está en gran parte desactualizado** (hoy hay auth, 36 migraciones, loop de reserva completo, panel admin, tests con Vitest, deploy en Vercel, tipo de cambio real y dos proyectos Supabase). Para el estado real leer `MEMORY.md`; para comandos y gotchas vigentes, `CLAUDE.md`. Reescribirlo es trabajo pendiente (ver `GAPS.md`).
+> **Aviso (2026-10-21): este documento es un snapshot del Ciclo 3 y está en gran parte desactualizado** (hoy hay auth, 99 migraciones (0001–0099), loop de reserva completo, panel admin, tests con Vitest, deploy en Vercel, tipo de cambio real y dos proyectos Supabase). Para el estado real leer `MEMORY.md`; para comandos y gotchas vigentes, `CLAUDE.md`. Reescribirlo es trabajo pendiente (ver `GAPS.md`).
 
 ---
 
@@ -21,7 +21,7 @@
 **Partes más importantes del producto hoy:**
 1. La landing (`app/(public)/page.tsx`) — comunica la propuesta de confianza.
 2. El catálogo y la ficha (`/search`, `/r/[slug]`) — la experiencia de descubrimiento.
-3. La lista de espera (`/waitlist`) — única feature con backend real; captura leads pre-lanzamiento.
+3. La lista de espera (`/waitlist`) — única feature con backend real; captura leads pre-lanzamiento. **Retirada el 2026-11-12 (DR31): hoy solo queda el redirect a `/preregistro`.**
 4. **La carpeta `docs/`** — 23 documentos estratégicos que son la fuente de verdad de producto. En este proyecto la documentación manda sobre el código, no al revés.
 
 ## 2. Stack tecnológico
@@ -52,9 +52,8 @@ Visitante
   → lib/mock/residences.ts  (datos mock en memoria — fuente de datos actual)
   → lib/mock/exchange.ts    (tipo de cambio FIJO mock: 1480 ARS/USD)
 
-Formulario /waitlist (única ruta con backend real)
-  → WaitlistForm.tsx ("use client", useActionState)
-  → app/(public)/waitlist/actions.ts ("use server": validación + honeypot)
+Formulario /waitlist (histórico: retirado por DR31 y código borrado el 2026-11-12)
+  → WaitlistForm.tsx + app/(public)/waitlist/actions.ts (ya no existen)
   → lib/supabase/admin.ts (cliente service-role, null si faltan env vars)
   → tabla waitlist_signups (RLS activa SIN policies → solo service role accede)
 ```
@@ -84,7 +83,7 @@ Casi todas las decisiones están **documentadas, no inferidas** (rareza de este 
 1. **Docs mandan.** Jerarquía ante contradicción en `docs/13 §2`: `00_DECISION_LOG.md` > reglas de negocio > estados > permisos > legal > alcance MVP. El código nunca "corrige" una decisión de producto silenciosamente.
 2. **Re-secuenciación deliberada.** Los docs ordenaban infra primero; el dueño pidió landing/visual primero. Documentado en `docs/CLAUDE_CODE_AUDIT.md §6.1`. Mitigación: el código respeta routing, estados y copy oficiales para que nada se tire.
 3. **Estados oficiales como tipos.** `types/domain.ts` no inventa enums: replica `docs/04`. El copy de cara al usuario nunca muestra el estado técnico (traducción centralizada en `StatusTag.tsx`).
-4. **Server-side siempre.** La única mutación existente (`submitWaitlist`) valida todo en el servidor y la tabla es inaccesible para el rol anónimo. Este patrón es obligatorio para todo lo que venga (`docs/11 §5.2`).
+4. **Server-side siempre.** Toda mutación (ej. `app/(public)/login/actions.ts`) valida todo en el servidor y la tabla es inaccesible para el rol anónimo. Este patrón es obligatorio para todo lo que venga (`docs/11 §5.2`).
 5. **Design tokens propios, sin librería UI.** Paleta de marca (petróleo `#0F5C7A`, salvia `#7CB89C`, arena `#F4F1EB`, ámbar `#F5B041`) definida en `@theme` de `globals.css`. Decisión del ciclo 2: rechazar el azul genérico de las referencias Stitch.
 6. **Copy legalmente prudente.** Nunca prometer disponibilidad ni garantías ("solicitud sujeta a confirmación"); "Soporte", no "mediación"; EstuRed es intermediaria. Esto es regla de `docs/08` y `docs/10`, no estilo.
 7. **Mock con contrato real.** Los mocks replican las 6 residencias seed obligatorias de `docs/17`, con la interfaz `Residence` que sobrevivirá a la migración a DB.
@@ -98,7 +97,6 @@ Casi todas las decisiones están **documentadas, no inferidas** (rareza de este 
 | `docs/00`–`22` (los 23 estratégicos) | Fuente de verdad de producto. **Solo se modifican siguiendo el protocolo de `docs/13 §5`** (proponer → aprobar → actualizar doc → recién después código). |
 | `types/domain.ts` | Contrato de datos de toda la UI pública. Los strings de estado deben coincidir con `docs/04`. Cambiarlos rompe `StatusTag`, mocks y filtros de búsqueda. |
 | `components/ui/StatusTag.tsx` | Único lugar con el copy oficial de disponibilidad (`docs/08 §4.5`). Cambiar estos textos es una decisión de producto, no de estilo. |
-| `app/(public)/waitlist/actions.ts` | Única lógica de negocio server-side. La validación server-side y el manejo del código de error `23505` (duplicado = éxito idempotente) son intencionales. |
 | `lib/supabase/admin.ts` | Devuelve `null` sin env vars (degradación intencional, no bug). El `import "server-only"` es una barrera de seguridad: no quitarla. |
 | `db/migrations/0001_waitlist_signups.sql` | RLS **sin policies es intencional**: nadie salvo service role accede. Agregar una policy "para que funcione" abriría la tabla de PII al público. |
 | `app/globals.css` | Todos los tokens del design system. Renombrar una variable `--color-*` rompe clases en todos los componentes. |

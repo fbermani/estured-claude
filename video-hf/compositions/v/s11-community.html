@@ -1,0 +1,33 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; overflow: hidden; background: #faf6ee; }
+    #s11-cam { position: absolute; inset: 0; }
+    #s11-page { position: absolute; left: 60px; top: 116px; width: 1600px; height: 1175px; }
+    #s11-page img { position: absolute; left: 0; top: 0; width: 1600px; height: auto; }
+    #s11-flood { position: absolute; inset: 0; background: #0c3a2c; clip-path: circle(0px at 540px 700px); }
+  </style>
+  <div id="root" data-composition-id="s11-community" data-width="1080" data-height="1920">
+    <div id="s11-cam">
+      <div id="s11-page">
+        <img id="s11-a" src="assets/ui/comunidad-li.png" alt="Comunidad actual de Residencia Norte (demo)" />
+        <img id="s11-b" src="assets/ui/comunidad-perfil.png" alt="Perfil de un residente: sobre mí, intereses y hábitos (demo)" />
+      </div>
+    </div>
+    <div id="s11-flood"></div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    gsap.set("#s11-b", { opacity: 0 });
+    gsap.set("#s11-page", { transformOrigin: "0px 0px", scale: 1.25, x: 0, y: -15 });
+    tl.fromTo("#s11-cam", { scale: 0.92, opacity: 0, filter: "blur(10px)" }, { scale: 1, opacity: 1, filter: "blur(0px)", duration: 0.5, ease: "expo.out", transformOrigin: "540px 660px" }, 0);
+    // «cuántos son»: empuje a «35 actuales»
+    tl.to("#s11-page", { scale: 1.6, x: 34, y: -166, duration: 0.55, ease: "power2.inOut" }, 2.75);
+    // «en qué habitaciones»: tipos y habitaciones
+    tl.to("#s11-page", { scale: 0.92, x: -4, y: -184, duration: 0.6, ease: "power2.inOut" }, 3.75);
+    // «lo que cada uno elige mostrar»: se abre un perfil
+    tl.to("#s11-page", { scale: 1.7, x: -897, y: -291, duration: 0.6, ease: "power2.inOut" }, 4.95);
+    tl.to("#s11-b", { opacity: 1, duration: 0.18, ease: "power2.out" }, 5.25);
+    tl.to("#s11-flood", { clipPath: "circle(1300px at 540px 700px)", duration: 0.5, ease: "power2.inOut" }, 7.0);
+    window.__timelines["s11-community"] = tl;
+  </script>
+</template>

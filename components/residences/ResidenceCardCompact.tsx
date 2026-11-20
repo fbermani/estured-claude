@@ -6,6 +6,7 @@ import { StatusTag } from "@/components/ui/StatusTag";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import { TrustBadge } from "@/components/residences/TrustBadge";
 import { ResidencePhoto } from "@/components/residences/ResidencePhoto";
+import { EsturedSeal } from "@/components/brand/EsturedSeal";
 import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
 
 /** Tarjeta reducida para la home (DR22): foto, sello, nombre, barrio, precio «desde» y disponibilidad. */
@@ -27,16 +28,20 @@ export function ResidenceCardCompact({ residence, arsPerUsd }: { residence: Resi
             <TrustBadge status={residence.verificationStatus} />
           </div>
         </div>
-        <div className="px-4 pt-3">
-          <h3 className="text-base font-bold leading-snug text-ink">
-            <Link href={href} className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest">
-              {residence.name}
-            </Link>
-          </h3>
-          <p className="mt-0.5 flex items-center gap-1 text-sm text-ink-soft">
-            <Icon name="location_on" className="text-base text-ink-faint" />
-            {residence.zone}
-          </p>
+        <div className="flex items-start justify-between gap-2 px-4 pt-3">
+          <div className="min-w-0">
+            <h3 className="text-base font-bold leading-snug text-ink">
+              <Link href={href} className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest">
+                {residence.name}
+              </Link>
+            </h3>
+            <p className="mt-0.5 flex items-center gap-1 text-sm text-ink-soft">
+              <Icon name="location_on" className="text-base text-ink-faint" />
+              {residence.zone}
+            </p>
+          </div>
+          {/* Sello de EstuRed: solo las verificadas llegan al catálogo, pero se muestra según el estado real. */}
+          {residence.verificationStatus === "verified_active" && <EsturedSeal variant="mini" size={44} className="-mt-0.5" />}
         </div>
       </div>
       <div className="pointer-events-none relative mt-auto px-4 pb-4 pt-3 [&_button]:pointer-events-auto">

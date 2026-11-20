@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920" role="img"><title>Foto de cuarto 2 (con sombra y giro propios).</title><desc>Foto de cuarto 2 (con sombra y giro propios).</desc><defs /><style>
+  .bg-fondo{fill:#e9dcc4}
+  .bg-mano{fill:#b97a4f}
+  .bg-celu{fill:#1d2722}
+  .bg-pantalla{fill:#f4f1ea}
+  .bg-burbuja-otro{fill:#e2dccf}
+  .bg-burbuja-yo{fill:#cfe3d8}
+  .bg-renglon{fill:#b9b1a2}
+  .bg-renglon-yo{fill:#8fb9a3}
+  .bg-foto{fill:#fbf6ec}
+  .bg-foto-pared{fill:#e8d7b7}
+  .bg-foto-pared2{fill:#d9e1d8}
+  .bg-foto-pared3{fill:#efd2c0}
+  .bg-foto-cama{fill:#c8ad85}
+  .bg-foto-ventana{fill:#bcd3d6}
+  .bg-sombra{fill:#1d2722;opacity:0.12}
+</style>
+<g id="foto-2" transform="rotate(5 620 1290)">
+  <rect class="bg-sombra" x="440" y="1164" width="372" height="270" rx="14" />
+  <rect class="bg-foto" x="434" y="1154" width="372" height="270" rx="14" />
+  <rect class="bg-foto-pared2" x="452" y="1172" width="336" height="234" rx="6" />
+  <rect class="bg-foto-ventana" x="660" y="1198" width="92" height="96" rx="4" />
+  <rect class="bg-foto-cama" x="470" y="1310" width="200" height="60" rx="10" />
+  <rect class="bg-foto-cama" x="470" y="1280" width="36" height="90" rx="8" />
+</g>
+  </svg>

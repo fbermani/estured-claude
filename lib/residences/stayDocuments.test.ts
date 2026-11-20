@@ -84,6 +84,15 @@ describe("computeRequirementStatuses", () => {
     expect(summarizeRequirementStatuses(statuses)).toEqual({ total: 4, delivered: 2, missing: 2 });
   });
 
+  it("DR48: devuelve el id del archivo más reciente que cubre cada requisito", () => {
+    const statuses = computeRequirementStatuses(requirements, [
+      { id: "viejo", document_type: "student_identity", created_at: "2026-10-01T10:00:00Z" },
+      { id: "nuevo", document_type: "student_identity", created_at: "2026-10-05T10:00:00Z" },
+      { document_type: "student_academic_proof", created_at: "2026-10-05T10:00:00Z" },
+    ]);
+    expect(statuses.map((s) => s.fileId)).toEqual(["nuevo", null, null, null]);
+  });
+
   it("un archivo «other» sin etiqueta o con otra etiqueta no cubre un «Otro»", () => {
     const statuses = computeRequirementStatuses(requirements, [
       { document_type: "other", requirement_label: null },

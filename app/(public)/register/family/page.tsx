@@ -2,11 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSessionUser, roleHome } from "@/lib/auth/session";
+import { isPreaperturaOn } from "@/lib/preapertura/flag";
 import { RegisterFamilyForm } from "@/app/(public)/register/family/RegisterFamilyForm";
 
 export const metadata: Metadata = { title: "Cuenta de familiar" };
 
 export default async function RegisterFamilyPage() {
+  // DR42: con la preapertura encendida el alta familiar es `/preregistro/familiar` (cuenta + invitación al estudiante). La acción
+  // `registerFamily` también se corta en el servidor.
+  if (isPreaperturaOn()) redirect("/preregistro/familiar");
   const sessionUser = await getSessionUser();
   if (sessionUser) redirect(roleHome(sessionUser));
 

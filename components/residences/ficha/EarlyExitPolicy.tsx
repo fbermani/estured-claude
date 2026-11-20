@@ -22,7 +22,7 @@ export function EarlyExitPolicy({
 
   return (
     <section aria-labelledby="early-exit-title" className="mt-4 rounded-sm border-[1.5px] border-line bg-paper p-4 shadow-card sm:p-5">
-      <h3 id="early-exit-title" className="flex items-center gap-2 font-display text-lg font-extrabold text-ink">
+      <h3 id="early-exit-title" className="flex items-center gap-2 font-display text-lg font-bold text-ink">
         <Icon name="logout" className="text-xl text-forest-700" />
         Si te vas antes
       </h3>
@@ -32,7 +32,7 @@ export function EarlyExitPolicy({
       <dl className="mt-3 grid gap-3 sm:grid-cols-2">
         {rows.map((row) => (
           <div key={row.key} className={`rounded-field bg-cream-2/60 p-3.5 ${rows.length === 3 && row.key === "conditions" ? "sm:col-span-2" : ""}`}>
-            <dt className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-muted">
+            <dt className="flex items-center gap-1.5 text-xs font-bold text-muted">
               <Icon name={row.icon} className="text-base text-forest-700" />
               {row.label}
             </dt>

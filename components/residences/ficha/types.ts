@@ -9,6 +9,8 @@ export type FichaRoomType = {
   /** Tarifa de lista, solo si hay una promoción vigente (para mostrar «antes / ahora»). */
   listPriceUsd?: number;
   promotion?: { label: string; percent: number; endsOn: string | null };
+  /** Foto del tipo de habitación (la que la residencia clasificó «Por tipo de habitación»); sin ella la tarjeta muestra la ilustración de marca. */
+  photoUrl?: string;
   /** ARS redondeados (`usdToArsRounded`), solo para mostrar, siempre con `ExchangeRateNote`. */
   arsRounded: number;
   /** "2 personas por habitación · mixta · baño compartido" (solo lo cargado). */

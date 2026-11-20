@@ -1,0 +1,114 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- complementary:
+  - paragraph: EstuRed Admin
+  - paragraph: Panel de administración
+  - button "Notificaciones, 2 sin leer":
+    - generic: notifications
+    - generic: "2"
+  - navigation "Administración":
+    - link "Dashboard":
+      - /url: /admin/dashboard
+      - generic: Dashboard
+    - paragraph: Residencias
+    - link "Residencias":
+      - /url: /admin/residences
+      - generic: Residencias
+    - link "Verificaciones":
+      - /url: /admin/verifications
+      - generic: Verificaciones
+    - link "Ediciones de perfil":
+      - /url: /admin/profile-edits
+      - generic: Ediciones de perfil
+    - link "Solicitudes de alta":
+      - /url: /admin/solicitudes-alta
+      - generic: Solicitudes de alta
+    - link "Residencias pedidas":
+      - /url: /admin/residencias-pedidas
+      - generic: Residencias pedidas
+    - link "Preguntas de fichas":
+      - /url: /admin/faq
+      - generic: Preguntas de fichas
+    - link "Ítems «Otro» de fichas":
+      - /url: /admin/custom-amenities
+      - generic: Ítems «Otro» de fichas
+    - paragraph: Operación
+    - link "Solicitudes":
+      - /url: /admin/applications
+      - generic: Solicitudes
+    - link "Propuestas familiar":
+      - /url: /admin/family-proposals
+      - generic: Propuestas familiar
+    - link "Pagos":
+      - /url: /admin/payments
+      - generic: Pagos
+    - link "Actividad":
+      - /url: /admin/activity
+      - generic: Actividad
+    - link "Seguimiento":
+      - /url: /admin/followups
+      - generic: Seguimiento
+    - paragraph: Plataforma
+    - link "Comunidad":
+      - /url: /admin/community
+      - generic: Comunidad
+    - link "Visibilidad y penalizaciones":
+      - /url: /admin/visibility
+      - generic: Visibilidad y penalizaciones
+    - link "Administración de tarifas":
+      - /url: /admin/pricing
+      - generic: Administración de tarifas
+    - link "Documentos":
+      - /url: /admin/documents
+      - generic: Documentos
+    - link "Tipo de cambio":
+      - /url: /admin/exchange-rate
+      - generic: Tipo de cambio
+    - link "Usuarios":
+      - /url: /admin/users
+      - generic: Usuarios
+    - paragraph: Soporte
+    - link "Soporte":
+      - /url: /admin/support-cases
+      - generic: Soporte
+  - generic: A
+  - paragraph: admin.operaciones@estured.test
+  - paragraph: Admin
+  - button "Cerrar sesión"
+  - button "Colapsar menú":
+- main:
+  - heading "Administración de Tarifas" [level=1]
+  - paragraph: Monitoreo de cambios de precio, matrícula, depósito y política de ajuste — no requiere aprobación previa.
+  - link "Todos los cambios":
+    - /url: /admin/pricing
+  - link "Solo con alerta (±15%)":
+    - /url: /admin/pricing?alert=1
+  - table:
+    - rowgroup:
+      - row "Residencia Campo Antes Después Variación Fecha Usuario Estado":
+        - columnheader "Residencia"
+        - columnheader "Campo"
+        - columnheader "Antes"
+        - columnheader "Después"
+        - columnheader "Variación"
+        - columnheader "Fecha"
+        - columnheader "Usuario"
+        - columnheader "Estado"
+        - columnheader
+    - rowgroup:
+      - row "Residencia Sin Fronteras Pago inicial para reservar Primer mes Matrícula — 03/11/2026 owner.residencia.norte@example.com Sin revisar Revisado Marcar":
+        - cell "Residencia Sin Fronteras"
+        - cell "Pago inicial para reservar"
+        - cell "Primer mes"
+        - cell "Matrícula"
+        - cell "—"
+        - cell "03/11/2026"
+        - cell "owner.residencia.norte@example.com"
+        - cell "Sin revisar":
+          - generic: Sin revisar
+        - cell "Revisado Marcar":
+          - button "Revisado"
+          - button "Marcar"
+- button "Admin Operativo": Admin Operativo
+- button "Open Next.js Dev Tools":
+- alert

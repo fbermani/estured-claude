@@ -5,6 +5,16 @@
 
 export const MAX_FEATURED_PHOTOS = 5;
 
+/**
+ * Etiqueta visible de la sección que antes se llamaba «Fachada / Exterior» (área `entrada`). Cambia solo el rótulo: el valor guardado
+ * (`area = 'entrada'`, y `section = 'Fachada / Exterior'` en lo ya cargado) no se migra; `effectiveSection` traduce lo viejo al mostrarlo.
+ * Ojo: no es lo mismo que la «foto principal» (`isCover`): esa es UNA sola foto, la que encabeza la ficha; esta es la sección donde
+ * la residencia pone sus fotos de presentación (por ejemplo, el frente) y puede tener varias.
+ */
+export const PRESENTATION_LABEL = "Foto principal o de presentación";
+/** Nombre de sección que quedó guardado antes del cambio de rótulo (en minúsculas, para comparar sin distinguir mayúsculas). */
+const LEGACY_PRESENTATION_SECTION = "fachada / exterior";
+
 export type PhotoCategory = "general" | "area" | "room_type";
 
 export const PHOTO_AREAS = [
@@ -17,7 +27,8 @@ export const PHOTO_AREAS = [
   { value: "lavadero", label: "Lavadero" },
   { value: "gimnasio", label: "Gimnasio / área para ejercitar" },
   { value: "estudio", label: "Sala de estudio" },
-  { value: "entrada", label: "Entrada / fachada" },
+  // El valor `entrada` es el que queda guardado; la etiqueta visible es la del dueño (2026-11-19): la foto de presentación no es solo la fachada.
+  { value: "entrada", label: PRESENTATION_LABEL },
   { value: "otra", label: "Otra área" },
 ] as const;
 
@@ -112,7 +123,7 @@ export function validatePhotoMeta(
   }
   const featured = items.filter((i) => i.featured);
   if (featured.length > MAX_FEATURED_PHOTOS)
-    return { ok: false, error: `Podés elegir hasta ${MAX_FEATURED_PHOTOS} fotos de portada (las que rotan en tu ficha). Ahora tenés ${featured.length}.` };
+    return { ok: false, error: `Podés elegir hasta ${MAX_FEATURED_PHOTOS} fotos de portada (las de tu tarjeta en la búsqueda). Ahora tenés ${featured.length}.` };
   // El orden de portada se normaliza: 1..N sin repetidos (los sin orden van al final, en el orden recibido); las que no son de portada, null.
   featured
     .map((it, n) => ({ it, n }))
@@ -136,12 +147,14 @@ export type GalleryPhoto = {
   sortOrder?: number;
   /** Orden entre las de portada (migración 0074). */
   coverOrder?: number | null;
+  /** Foto principal elegida por la residencia (migración 0097): hero de la ficha y vista previa del link. Una sola por residencia. */
+  isCover?: boolean;
 };
 
-/** Sección efectiva: la elegida, o el área / tipo de habitación, o «Fotos adicionales». */
+/** Sección efectiva: la elegida, o el área / tipo de habitación, o «Fotos adicionales». El nombre viejo «Fachada / Exterior» se muestra con la etiqueta vigente. */
 export function effectiveSection(p: Pick<GalleryPhoto, "section" | "category" | "area" | "roomTypeName">): string {
   const own = normalizeSection(p.section);
-  if (own) return own;
+  if (own) return own.toLowerCase() === LEGACY_PRESENTATION_SECTION ? PRESENTATION_LABEL : own;
   if (p.category === "area") return areaLabel(p.area);
   if (p.category === "room_type" && p.roomTypeName) return p.roomTypeName;
   return DEFAULT_SECTION;
@@ -168,17 +181,22 @@ export function groupPhotosBySections<T extends Pick<GalleryPhoto, "section" | "
 }
 
 /**
- * Las fotos que rotan: las de portada (hasta 5) o, si no hay, las primeras 5. Las de portada salen en el orden elegido por el owner
+ * Las fotos de la portada de la residencia (nada rota solo): las que la tarjeta de /search pasa de a una.
+ * Son las de portada (hasta 5) o, si no hay, las primeras 5. Las de portada salen en el orden elegido por el owner
  * (`coverOrder`); sin orden, según el de la galería (`sortOrder`) y, a igualdad, el de llegada (orden estable).
+ * Si la residencia eligió una FOTO PRINCIPAL (`isCover`, migración 0097), va siempre primera —aunque no esté entre las de portada— y las
+ * demás siguen detrás en su orden, hasta completar `MAX_FEATURED_PHOTOS` en total. La principal es la del hero y la de la vista previa del link.
  */
-export function pickRotationPhotos<T extends { featured: boolean; coverOrder?: number | null; sortOrder?: number }>(photos: T[]): T[] {
+export function pickRotationPhotos<T extends { featured: boolean; coverOrder?: number | null; sortOrder?: number; isCover?: boolean }>(photos: T[]): T[] {
   const featured = photos
     .map((p, i) => ({ p, i }))
     .filter(({ p }) => p.featured)
     .sort((a, b) => (a.p.coverOrder ?? 99) - (b.p.coverOrder ?? 99) || (a.p.sortOrder ?? 0) - (b.p.sortOrder ?? 0) || a.i - b.i)
-    .slice(0, MAX_FEATURED_PHOTOS)
     .map(({ p }) => p);
-  return featured.length > 0 ? featured : photos.slice(0, MAX_FEATURED_PHOTOS);
+  const rotation = featured.length > 0 ? featured : photos.slice(0, MAX_FEATURED_PHOTOS);
+  const main = photos.find((p) => p.isCover === true);
+  if (!main) return rotation.slice(0, MAX_FEATURED_PHOTOS);
+  return [main, ...rotation.filter((p) => p !== main)].slice(0, MAX_FEATURED_PHOTOS);
 }
 
 export type PhotoGroup = { key: string; title: string; photos: GalleryPhoto[] };

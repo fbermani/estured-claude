@@ -1,0 +1,127 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- complementary:
+  - paragraph: EstuRed Admin
+  - paragraph: Panel de administración
+  - button "Notificaciones":
+    - generic: notifications
+  - navigation "Administración":
+    - link "Dashboard":
+      - /url: /admin/dashboard
+      - generic: Dashboard
+    - paragraph: Residencias
+    - link "Residencias":
+      - /url: /admin/residences
+      - generic: Residencias
+    - link "Verificaciones":
+      - /url: /admin/verifications
+      - generic: Verificaciones
+    - link "Ediciones de perfil":
+      - /url: /admin/profile-edits
+      - generic: Ediciones de perfil
+    - link "Solicitudes de alta":
+      - /url: /admin/solicitudes-alta
+      - generic: Solicitudes de alta
+    - link "Residencias pedidas":
+      - /url: /admin/residencias-pedidas
+      - generic: Residencias pedidas
+    - link "Preguntas de fichas":
+      - /url: /admin/faq
+      - generic: Preguntas de fichas
+    - link "Ítems «Otro» de fichas":
+      - /url: /admin/custom-amenities
+      - generic: Ítems «Otro» de fichas
+    - paragraph: Operación
+    - link "Solicitudes":
+      - /url: /admin/applications
+      - generic: Solicitudes
+    - link "Propuestas familiar":
+      - /url: /admin/family-proposals
+      - generic: Propuestas familiar
+    - link "Pagos":
+      - /url: /admin/payments
+      - generic: Pagos
+    - link "Actividad":
+      - /url: /admin/activity
+      - generic: Actividad
+    - link "Seguimiento":
+      - /url: /admin/followups
+      - generic: Seguimiento
+    - paragraph: Plataforma
+    - link "Comunidad":
+      - /url: /admin/community
+      - generic: Comunidad
+    - link "Visibilidad y penalizaciones":
+      - /url: /admin/visibility
+      - generic: Visibilidad y penalizaciones
+    - link "Administración de tarifas":
+      - /url: /admin/pricing
+      - generic: Administración de tarifas
+    - link "Documentos":
+      - /url: /admin/documents
+      - generic: Documentos
+    - link "Tipo de cambio":
+      - /url: /admin/exchange-rate
+      - generic: Tipo de cambio
+    - link "Usuarios":
+      - /url: /admin/users
+      - generic: Usuarios
+    - paragraph: Soporte
+    - link "Soporte":
+      - /url: /admin/support-cases
+      - generic: Soporte
+  - generic: A
+  - paragraph: admin.operaciones@estured.test
+  - paragraph: Admin
+  - button "Cerrar sesión"
+  - button "Colapsar menú":
+- main:
+  - heading "Ediciones de Perfil" [level=1]
+  - paragraph: 4 pendientes
+  - list:
+    - link "Mínimo de estadía 02/11/2026 Residencia Norte Palermo · admin.operaciones@estured.test":
+      - /url: /admin/profile-edits?id=29e53571-f577-4189-85aa-9874805d9c00
+      - generic: Mínimo de estadía
+      - generic: 02/11/2026
+      - paragraph: Residencia Norte
+      - paragraph: Palermo · admin.operaciones@estured.test
+    - link "Reglas y reglamento 03/11/2026 Residencia Sin Fronteras Centro · owner.residencia.norte@example.com":
+      - /url: /admin/profile-edits?id=1c67113d-8861-4edc-846a-7ac396af5e64
+      - generic: Reglas y reglamento
+      - generic: 03/11/2026
+      - paragraph: Residencia Sin Fronteras
+      - paragraph: Centro · owner.residencia.norte@example.com
+    - link "Tipos de habitación 03/11/2026 Residencia Sin Fronteras Centro · owner.residencia.norte@example.com":
+      - /url: /admin/profile-edits?id=95533b94-131d-454e-bf9f-c61ddee02e99
+      - generic: Tipos de habitación
+      - generic: 03/11/2026
+      - paragraph: Residencia Sin Fronteras
+      - paragraph: Centro · owner.residencia.norte@example.com
+    - link "Servicios 03/11/2026 Residencia Río de la Plata Recoleta · owner.residencia.norte@example.com":
+      - /url: /admin/profile-edits?id=db4f9ae7-fce5-4465-987a-18f9db5f4bf1
+      - generic: Servicios
+      - generic: 03/11/2026
+      - paragraph: Residencia Río de la Plata
+      - paragraph: Recoleta · owner.residencia.norte@example.com
+  - paragraph: Residencias / Ediciones de perfil
+  - heading "Residencia Norte" [level=1]
+  - link "Ver panel de la residencia →":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e
+  - paragraph:
+    - text: "Palermo · campo:"
+    - strong: Mínimo de estadía
+  - paragraph: Enviado por admin.operaciones@estured.test el 02/11/2026, 20:42
+  - heading "Qué cambió" [level=2]
+  - paragraph: Mínimo de estadía
+  - paragraph: Antes (publicado)
+  - text: 3 meses
+  - paragraph: Propuesto
+  - text: 6 meses
+  - text: Notas de revisión
+  - textbox "Obligatorio si rechazás o pedís corrección. La residencia lo ve como motivo."
+  - button "Pedir corrección"
+  - button "Rechazar"
+  - button "Aprobar y publicar"
+- button "Admin Operativo": Admin Operativo
+- button "Open Next.js Dev Tools":
+- alert

@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getSessionUser, hasAnyRole, roleHome } from "@/lib/auth/session";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { cmd } from "@/components/admin/ui/tokens";
+import { SkipLink } from "@/components/ui/SkipLink";
 
 /**
  * Panel admin (docs/09, docs/11 §7.4). Solo admin/superadmin.
@@ -23,8 +24,9 @@ export default async function AdminLayout({
 
   return (
     <div className="tone-admin flex h-screen flex-col md:flex-row" style={{ backgroundColor: cmd.surface }}>
+      <SkipLink />
       <AdminSidebar userEmail={user.email} roleLabel={roleLabel} />
-      <main className="min-w-0 flex-1 overflow-y-auto">{children}</main>
+      <main id="contenido" tabIndex={-1} className="min-w-0 focus:outline-none flex-1 overflow-y-auto">{children}</main>
     </div>
   );
 }

@@ -1,0 +1,158 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920" role="img">
+<title>Post 1, escena 5</title>
+<desc>Vista previa: E1 y F1 de espaldas miran el celular en la sala.</desc>
+<defs>
+<filter id="papel" x="0" y="0" width="100%" height="100%">
+  <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="7"/>
+  <feColorMatrix type="matrix" values="0 0 0 0 0.36  0 0 0 0 0.29  0 0 0 0 0.19  0 0 0 1.1 -0.48"/>
+</filter>
+
+
+</defs>
+<style>
+  .bg-pared{fill:#e4dccb}
+  .bg-zocalo{fill:#d3c6ac}
+  .bg-piso{fill:#bfa37c}
+  .bg-tabla{fill:#b0946d}
+  .bg-marco{fill:#fbf6ec}
+  .bg-vidrio{fill:#c9dcd6}
+  .bg-sol{fill:#eef3ea}
+  .bg-repisa{fill:#a87f50}
+  .bg-maceta{fill:#c0603f}
+  .bg-planta{fill:#1f7d5c}
+  .bg-libro1{fill:#0c3a2c}
+  .bg-libro2{fill:#d8b06a}
+  .bg-libro3{fill:#6f8290}
+  .bg-lampara{fill:#f1d9a8}
+  .bg-lampara-pie{fill:#1d2722}
+  .bg-cuadro{fill:#fbf6ec}
+  .bg-cuadro-dentro{fill:#cfe0d6}
+
+  .fondo{fill:#fbf6ec}
+  /* E1 */
+  .piel{fill:#b97a4f}
+  .pelo{fill:#2a1d17}
+  .abrigo{fill:#1f7d5c}
+  .abrigo-brazo{fill:none;stroke:#1a6e51;stroke-linecap:round;stroke-linejoin:round}
+  .abrigo-linea{fill:none;stroke:#0c3a2c;stroke-linecap:round}
+  .cuello{fill:#0c3a2c}
+  .mochila{fill:#d8b06a}
+  .mochila-sombra{fill:#c29a55}
+  .tira{fill:none;stroke:#d8b06a;stroke-linecap:round}
+  /* F1 */
+  .f1-piel{fill:#d39a72}
+  .f1-pelo{fill:#4a3a30}
+  .f1-canas{fill:none;stroke:#a3958a;stroke-linecap:round}
+  .f1-cardigan{fill:#6f8290}
+  .f1-brazo{fill:none;stroke:#637583;stroke-linecap:round}
+  .f1-punio{fill:none;stroke:#566773}
+  .anteojos{fill:none;stroke:#1d2722;stroke-linecap:round}
+  /* Celular */
+  .celular{fill:#1d2722}
+  .pantalla{fill:#e4efe9}
+
+  .piso{fill:#1d2722;fill-opacity:0.12}
+</style>
+<rect class="bg-pared" width="1080" height="1330"/>
+<rect class="bg-zocalo" y="1304" width="1080" height="26"/>
+<rect class="bg-piso" y="1330" width="1080" height="590"/>
+<rect class="bg-tabla" y="1420" width="1080" height="5"/>
+<rect class="bg-tabla" y="1540" width="1080" height="5"/>
+<rect class="bg-tabla" y="1690" width="1080" height="5"/>
+<rect class="bg-tabla" y="1870" width="1080" height="5"/>
+
+<g id="ventana">
+  <rect class="bg-marco" x="640" y="330" width="300" height="420" rx="10"/>
+  <rect class="bg-vidrio" x="658" y="348" width="264" height="384" rx="4"/>
+  <circle class="bg-sol" cx="844.0" cy="481.2" r="39.0"/>
+  <rect class="bg-marco" x="782.0" y="348" width="16" height="384"/>
+  <rect class="bg-marco" x="658" y="531.6" width="264" height="14"/>
+  <rect class="bg-marco" x="624" y="744" width="332" height="22" rx="6"/>
+</g>
+<g id="repisa">
+  <rect class="bg-repisa" x="90" y="560" width="400" height="20" rx="4"/>
+  <rect class="bg-libro1" x="120" y="470" width="34" height="90" rx="4"/>
+  <rect class="bg-libro2" x="158" y="486" width="30" height="74" rx="4"/>
+  <rect class="bg-libro3" x="192" y="462" width="36" height="98" rx="4"/>
+  <path class="bg-maceta" d="M360 500 L430 500 L420 560 L370 560 Z"/>
+  <circle class="bg-planta" cx="380" cy="470" r="34"/>
+  <circle class="bg-planta" cx="414" cy="456" r="30"/>
+  <circle class="bg-planta" cx="396" cy="432" r="26"/>
+</g>
+<g id="cuadro">
+  <rect class="bg-cuadro" x="140" y="680" width="220" height="170" rx="6"/>
+  <rect class="bg-cuadro-dentro" x="156" y="696" width="188" height="138" rx="3"/>
+</g>
+<g id="lampara">
+  <rect class="bg-lampara-pie" x="992" y="760" width="12" height="570"/>
+  <path class="bg-lampara" d="M950 660 L1046 660 L1066 770 L930 770 Z"/>
+</g>
+<rect id="textura-papel" width="1080" height="1920" filter="url(#papel)" opacity="0.55"/>
+<g id="personajes" transform="translate(0 840) scale(0.9)">
+
+
+
+<!-- ===================== F1 (detrás, a la derecha) ===================== -->
+<g id="f1">
+  <g id="f1-torso" data-parte="torso">
+    <path class="f1-cardigan" d="M748 742 Q880 712 1012 742 Q1082 762 1090 842 L1100 1200 L660 1200 L670 842 Q680 762 748 742 Z"/>
+    <path class="f1-brazo" stroke-width="84" d="M712 800 Q690 960 700 1200"/>
+    <path class="f1-brazo" stroke-width="84" d="M1048 800 Q1072 960 1062 1200"/>
+    <rect class="f1-piel" x="848" y="660" width="62" height="70" rx="20"/>
+  </g>
+  <g id="f1-cabeza" data-parte="cabeza" transform="rotate(-5 880 700)">
+    <circle class="f1-piel" cx="770" cy="590" r="20"/>
+    <path class="anteojos" stroke-width="7" d="M762 572 L808 566"/>
+    <g id="f1-pelo" data-parte="pelo">
+      <path class="f1-pelo" d="M772 576 Q770 430 880 428 Q990 430 988 576 L990 680 Q880 698 770 680 Z"/>
+      <path class="f1-canas" stroke-width="14" d="M820 470 Q860 444 912 448"/>
+    </g>
+  </g>
+</g>
+
+<!-- ===================== E1 (adelante, a la izquierda) ===================== -->
+<g id="e1">
+  <g id="e1-torso" data-parte="torso">
+    <path class="abrigo" d="M300 650 Q430 620 560 650 Q640 670 650 750 L662 1200 L198 1200 L210 750 Q220 670 300 650 Z"/>
+    <path class="abrigo-brazo" stroke-width="84" d="M250 720 Q214 940 226 1200"/>
+    <rect class="cuello" x="368" y="596" width="124" height="62" rx="28"/>
+  </g>
+
+  <g id="e1-mochila" data-parte="mochila">
+    <path class="tira" stroke-width="30" d="M336 660 L328 730 M524 660 L532 730"/>
+    <rect class="mochila" x="296" y="706" width="268" height="456" rx="56"/>
+    <rect class="mochila-sombra" x="296" y="706" width="268" height="130" rx="56"/>
+    <rect class="mochila-sombra" x="350" y="960" width="160" height="150" rx="30"/>
+  </g>
+
+  <g id="e1-cabeza" data-parte="cabeza" transform="rotate(8 430 600)">
+    <circle class="piel" cx="318" cy="505" r="22"/>
+    <circle class="piel" cx="542" cy="505" r="22"/>
+    <rect class="piel" x="398" y="540" width="64" height="70" rx="22"/>
+    <g id="e1-pelo" data-parte="pelo">
+      <ellipse class="pelo" cx="430" cy="460" rx="112" ry="112"/>
+      <circle class="pelo" cx="336" cy="420" r="50"/>
+      <circle class="pelo" cx="352" cy="360" r="50"/>
+      <circle class="pelo" cx="404" cy="324" r="52"/>
+      <circle class="pelo" cx="462" cy="320" r="52"/>
+      <circle class="pelo" cx="514" cy="352" r="50"/>
+      <circle class="pelo" cx="530" cy="412" r="48"/>
+      <circle class="pelo" cx="522" cy="480" r="44"/>
+      <circle class="pelo" cx="340" cy="482" r="44"/>
+      <circle class="pelo" cx="430" cy="530" r="48"/>
+    </g>
+  </g>
+
+  <g id="celular" data-parte="celular" transform="translate(50 -10)">
+    <rect class="celular" x="560" y="120" width="230" height="440" rx="34" transform="rotate(-4 675 340)"/>
+    <rect id="pantalla-captura" class="pantalla" x="576" y="142" width="198" height="396" rx="22" transform="rotate(-4 675 340)"/>
+  </g>
+
+  <g id="e1-brazo-der" data-parte="brazo-der">
+    <path class="abrigo-brazo" stroke-width="84" d="M610 720 Q740 690 712 552"/>
+    <circle class="piel" cx="700" cy="522" r="36"/>
+  </g>
+</g>
+
+</g>
+</svg>

@@ -30,6 +30,9 @@ export function calculateFeeEstimate(params: {
     params.monthlyPriceUsd * params.durationMonths +
     (params.enrollmentFeeUsd ?? 0) +
     (params.emptyMonthsChargeUsd ?? 0);
+  if (!Number.isFinite(feeBaseUsd) || feeBaseUsd <= 0) {
+    throw new RangeError("La base del fee tiene que ser un monto mayor a 0.");
+  }
   const feeBaseArs = usdToArs(feeBaseUsd, params.arsPerUsd);
   const estimatedFeeArs = roundArs(feeBaseArs * FEE_PERCENT);
   return { feeBaseUsd, feeBaseArs, estimatedFeeArs };

@@ -1,0 +1,87 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- button "Abrir menú":
+  - generic: menu
+- generic: EstuRed
+- button "Notificaciones, 12 sin leer":
+  - generic: notifications
+  - generic: "12"
+- complementary:
+  - link "EstuRed, inicio":
+    - /url: /
+    - generic: EstuRed
+  - button "Notificaciones, 12 sin leer":
+    - generic: notifications
+    - generic: "12"
+  - button "Cerrar menú":
+    - generic: close
+  - navigation:
+    - link "Inicio":
+      - /url: /students/dashboard
+      - generic: home
+      - generic: Inicio
+    - link "Buscar residencias":
+      - /url: /search
+      - generic: search
+      - generic: Buscar residencias
+    - link "Favoritos":
+      - /url: /students/favorites
+      - generic: favorite
+      - generic: Favoritos
+    - link "Mis solicitudes":
+      - /url: /students/applications
+      - generic: description
+      - generic: Mis solicitudes
+    - link "Lista de espera":
+      - /url: /students/waitlist
+      - generic: hourglass_top
+      - generic: Lista de espera
+    - link "Mi perfil":
+      - /url: /students/profile
+      - generic: person
+      - generic: Mi perfil
+    - link "Mi estadía":
+      - /url: /students/residency
+      - generic: apartment
+      - generic: Mi estadía
+    - link "Soporte":
+      - /url: /students/support
+      - generic: support_agent
+      - generic: Soporte
+  - paragraph: padre.lucia@example.com
+  - link "Botón de arrepentimiento":
+    - /url: /students/revocation
+    - generic: undo
+    - generic: Botón de arrepentimiento
+  - button "Salir":
+    - generic: logout
+    - generic: Salir
+- navigation "Navegación principal":
+  - link "Inicio":
+    - /url: /students/dashboard
+    - generic: home
+    - generic: Inicio
+  - link "Buscar residencias":
+    - /url: /search
+    - generic: search
+    - generic: Buscar
+  - link "Favoritos":
+    - /url: /students/favorites
+    - generic: favorite
+    - generic: Favoritos
+  - link "Mis solicitudes":
+    - /url: /students/applications
+    - generic: description
+    - generic: Solicitudes
+  - button "Más":
+    - generic: more_horiz
+    - generic: Más
+- main:
+  - status "Cargando"
+  - status "Cargando"
+  - status "Cargando"
+  - status "Cargando"
+  - status "Cargando"
+- button "Martín — Familiar de Valentina vinculado": Martín — Familiar de Valentina vinculado
+- button "Open Next.js Dev Tools":
+- alert

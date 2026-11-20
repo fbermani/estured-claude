@@ -1,0 +1,2312 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- complementary:
+  - paragraph: EstuRed Admin
+  - paragraph: Panel de administración
+  - button "Notificaciones":
+    - generic: notifications
+  - navigation "Administración":
+    - link "Dashboard":
+      - /url: /admin/dashboard
+      - generic: Dashboard
+    - paragraph: Residencias
+    - link "Residencias":
+      - /url: /admin/residences
+      - generic: Residencias
+    - link "Verificaciones":
+      - /url: /admin/verifications
+      - generic: Verificaciones
+    - link "Ediciones de perfil":
+      - /url: /admin/profile-edits
+      - generic: Ediciones de perfil
+    - link "Solicitudes de alta":
+      - /url: /admin/solicitudes-alta
+      - generic: Solicitudes de alta
+    - link "Residencias pedidas":
+      - /url: /admin/residencias-pedidas
+      - generic: Residencias pedidas
+    - link "Preguntas de fichas":
+      - /url: /admin/faq
+      - generic: Preguntas de fichas
+    - link "Ítems «Otro» de fichas":
+      - /url: /admin/custom-amenities
+      - generic: Ítems «Otro» de fichas
+    - paragraph: Operación
+    - link "Solicitudes":
+      - /url: /admin/applications
+      - generic: Solicitudes
+    - link "Propuestas familiar":
+      - /url: /admin/family-proposals
+      - generic: Propuestas familiar
+    - link "Pagos":
+      - /url: /admin/payments
+      - generic: Pagos
+    - link "Actividad":
+      - /url: /admin/activity
+      - generic: Actividad
+    - link "Seguimiento":
+      - /url: /admin/followups
+      - generic: Seguimiento
+    - paragraph: Plataforma
+    - link "Comunidad":
+      - /url: /admin/community
+      - generic: Comunidad
+    - link "Visibilidad y penalizaciones":
+      - /url: /admin/visibility
+      - generic: Visibilidad y penalizaciones
+    - link "Administración de tarifas":
+      - /url: /admin/pricing
+      - generic: Administración de tarifas
+    - link "Documentos":
+      - /url: /admin/documents
+      - generic: Documentos
+    - link "Tipo de cambio":
+      - /url: /admin/exchange-rate
+      - generic: Tipo de cambio
+    - link "Usuarios":
+      - /url: /admin/users
+      - generic: Usuarios
+    - paragraph: Soporte
+    - link "Soporte":
+      - /url: /admin/support-cases
+      - generic: Soporte
+  - generic: A
+  - paragraph: admin.operaciones@estured.test
+  - paragraph: Admin
+  - button "Cerrar sesión"
+  - button "Colapsar menú":
+- main:
+  - heading "Administración de Documentos" [level=1]
+  - paragraph: Metadata de documentos subidos a la plataforma. Ver un documento sensible requiere declarar un motivo, que queda auditado.
+  - textbox "Buscar por nombre de archivo…"
+  - button "Buscar"
+  - link "Todos":
+    - /url: /admin/documents
+  - link "Identidad estudiante":
+    - /url: /admin/documents?type=student_identity
+  - link "Comprobante académico":
+    - /url: /admin/documents?type=student_academic_proof
+  - link "Antecedentes penales":
+    - /url: /admin/documents?type=student_criminal_record
+  - link "Autorización familiar":
+    - /url: /admin/documents?type=student_family_authorization
+  - link "Comprobante de pago a residencia":
+    - /url: /admin/documents?type=student_payment_proof_to_residence
+  - link "Identidad familiar":
+    - /url: /admin/documents?type=family_identity
+  - link "Identidad responsable residencia":
+    - /url: /admin/documents?type=residence_responsible_identity
+  - link "Identidad coordinador":
+    - /url: /admin/documents?type=residence_coordinator_identity
+  - link "Checklist firmado":
+    - /url: /admin/documents?type=residence_signed_checklist
+  - link "Aceptación de términos":
+    - /url: /admin/documents?type=residence_terms_acceptance
+  - link "Comprobante de pago":
+    - /url: /admin/documents?type=residence_payment_receipt
+  - link "Factura fiscal":
+    - /url: /admin/documents?type=estured_fee_fiscal_receipt
+  - link "Foto de residencia":
+    - /url: /admin/documents?type=residence_photo
+  - link "Reglamento de residencia":
+    - /url: /admin/documents?type=residence_rules_document
+  - link "Otro":
+    - /url: /admin/documents?type=other
+  - region "Documentos":
+    - table:
+      - rowgroup:
+        - row "Archivo Tipo Entidad Estado Subido por Fecha":
+          - columnheader "Archivo"
+          - columnheader "Tipo"
+          - columnheader "Entidad"
+          - columnheader "Estado"
+          - columnheader "Subido por"
+          - columnheader "Fecha"
+          - columnheader
+      - rowgroup:
+        - row "comprobante.pdf Otro Pago del fee EstuRed Subido lucia.fernandez@example.com 14/11/2026 Ver →":
+          - cell "comprobante.pdf"
+          - cell "Otro"
+          - cell "Pago del fee EstuRed"
+          - cell "Subido":
+            - generic: Subido
+          - cell "lucia.fernandez@example.com"
+          - cell "14/11/2026"
+          - cell "Ver →":
+            - button "Ver →"
+        - row "comprobante.pdf Otro Pago del fee EstuRed Subido lucia.fernandez@example.com 14/11/2026 Ver →":
+          - cell "comprobante.pdf"
+          - cell "Otro"
+          - cell "Pago del fee EstuRed"
+          - cell "Subido":
+            - generic: Subido
+          - cell "lucia.fernandez@example.com"
+          - cell "14/11/2026"
+          - cell "Ver →":
+            - button "Ver →"
+        - row "comprobante.pdf Otro Pago del fee EstuRed Subido lucia.fernandez@example.com 14/11/2026 Ver →":
+          - cell "comprobante.pdf"
+          - cell "Otro"
+          - cell "Pago del fee EstuRed"
+          - cell "Subido":
+            - generic: Subido
+          - cell "lucia.fernandez@example.com"
+          - cell "14/11/2026"
+          - cell "Ver →":
+            - button "Ver →"
+        - row "comprobante.pdf Otro Pago del fee EstuRed Subido lucia.fernandez@example.com 14/11/2026 Ver →":
+          - cell "comprobante.pdf"
+          - cell "Otro"
+          - cell "Pago del fee EstuRed"
+          - cell "Subido":
+            - generic: Subido
+          - cell "lucia.fernandez@example.com"
+          - cell "14/11/2026"
+          - cell "Ver →":
+            - button "Ver →"
+        - row "comprobante.pdf Otro Pago del fee EstuRed Subido lucia.fernandez@example.com 14/11/2026 Ver →":
+          - cell "comprobante.pdf"
+          - cell "Otro"
+          - cell "Pago del fee EstuRed"
+          - cell "Subido":
+            - generic: Subido
+          - cell "lucia.fernandez@example.com"
+          - cell "14/11/2026"
+          - cell "Ver →":
+            - button "Ver →"
+        - row "comprobante.pdf Otro Pago del fee EstuRed Subido lucia.fernandez@example.com 12/11/2026 Ver →":
+          - cell "comprobante.pdf"
+          - cell "Otro"
+          - cell "Pago del fee EstuRed"
+          - cell "Subido":
+            - generic: Subido
+          - cell "lucia.fernandez@example.com"
+          - cell "12/11/2026"
+          - cell "Ver →":
+            - button "Ver →"
+        - row "comprobante.pdf Otro Pago del fee EstuRed Subido lucia.fernandez@example.com 12/11/2026 Ver →":
+          - cell "comprobante.pdf"
+          - cell "Otro"
+          - cell "Pago del fee EstuRed"
+          - cell "Subido":
+            - generic: Subido
+          - cell "lucia.fernandez@example.com"
+          - cell "12/11/2026"
+          - cell "Ver →":
+            - button "Ver →"
+        - row "comprobante.pdf Otro Pago del fee EstuRed Subido lucia.fernandez@example.com 12/11/2026 Ver →":
+          - cell "comprobante.pdf"
+          - cell "Otro"
+          - cell "Pago del fee EstuRed"
+          - cell "Subido":
+            - generic: Subido
+          - cell "lucia.fernandez@example.com"
+          - cell "12/11/2026"
+          - cell "Ver →":
+            - button "Ver →"
+        - row "comprobante.pdf Otro Pago del fee EstuRed Subido lucia.fernandez@example.com 12/11/2026 Ver →":
+          - cell "comprobante.pdf"
+          - cell "Otro"
+          - cell "Pago del fee EstuRed"
+          - cell "Subido":
+            - generic: Subido
+          - cell "lucia.fernandez@example.com"
+          - cell "12/11/2026"
+          - cell "Ver →":
+            - button "Ver →"
+        - row "comprobante.pdf Otro Pago del fee EstuRed Subido lucia.fernandez@example.com 12/11/2026 Ver →":
+          - cell "comprobante.pdf"
+          - cell "Otro"
+          - cell "Pago del fee EstuRed"
+          - cell "Subido":
+            - generic: Subido
+          - cell "lucia.fernandez@example.com"
+          - cell "12/11/2026"
+          - cell "Ver →":
+            - button "Ver →"
+        - row "06.jpg Foto de residencia Residencia San Marcos Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "06.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia San Marcos"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/c2f276ec-34ec-44c8-8565-907f5a1b8a1b/1794252384167-06.jpg
+        - row "05.jpg Foto de residencia Residencia San Marcos Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "05.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia San Marcos"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/c2f276ec-34ec-44c8-8565-907f5a1b8a1b/1794252383426-05.jpg
+        - row "04.jpg Foto de residencia Residencia San Marcos Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "04.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia San Marcos"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/c2f276ec-34ec-44c8-8565-907f5a1b8a1b/1794252382609-04.jpg
+        - row "03.jpg Foto de residencia Residencia San Marcos Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "03.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia San Marcos"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/c2f276ec-34ec-44c8-8565-907f5a1b8a1b/1794252381917-03.jpg
+        - row "02.jpg Foto de residencia Residencia San Marcos Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "02.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia San Marcos"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/c2f276ec-34ec-44c8-8565-907f5a1b8a1b/1794252380644-02.jpg
+        - row "01.jpg Foto de residencia Residencia San Marcos Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "01.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia San Marcos"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/c2f276ec-34ec-44c8-8565-907f5a1b8a1b/1794252379306-01.jpg
+        - row "06.jpg Foto de residencia Residencia Universitaria Lith Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "06.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia Universitaria Lith"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/879635ec-b7a2-43ab-882d-7f606cc90823/1794252369537-06.jpg
+        - row "05.jpg Foto de residencia Residencia Universitaria Lith Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "05.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia Universitaria Lith"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/879635ec-b7a2-43ab-882d-7f606cc90823/1794252368769-05.jpg
+        - row "04.jpg Foto de residencia Residencia Universitaria Lith Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "04.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia Universitaria Lith"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/879635ec-b7a2-43ab-882d-7f606cc90823/1794252367886-04.jpg
+        - row "03.jpg Foto de residencia Residencia Universitaria Lith Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "03.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia Universitaria Lith"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/879635ec-b7a2-43ab-882d-7f606cc90823/1794252367193-03.jpg
+        - row "02.jpg Foto de residencia Residencia Universitaria Lith Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "02.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia Universitaria Lith"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/879635ec-b7a2-43ab-882d-7f606cc90823/1794252366356-02.jpg
+        - row "01.jpg Foto de residencia Residencia Universitaria Lith Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "01.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia Universitaria Lith"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/879635ec-b7a2-43ab-882d-7f606cc90823/1794252365264-01.jpg
+        - row "06.jpg Foto de residencia Residencia Family Home Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "06.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia Family Home"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/f9dac5a7-c30a-4149-85e4-be4e0ce5cd7d/1794252355726-06.jpg
+        - row "05.jpg Foto de residencia Residencia Family Home Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "05.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia Family Home"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/f9dac5a7-c30a-4149-85e4-be4e0ce5cd7d/1794252355018-05.jpg
+        - row "04.jpg Foto de residencia Residencia Family Home Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "04.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia Family Home"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/f9dac5a7-c30a-4149-85e4-be4e0ce5cd7d/1794252354151-04.jpg
+        - row "03.jpg Foto de residencia Residencia Family Home Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "03.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia Family Home"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/f9dac5a7-c30a-4149-85e4-be4e0ce5cd7d/1794252353017-03.jpg
+        - row "02.jpg Foto de residencia Residencia Family Home Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "02.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia Family Home"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/f9dac5a7-c30a-4149-85e4-be4e0ce5cd7d/1794252352170-02.jpg
+        - row "01.jpg Foto de residencia Residencia Family Home Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "01.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia Family Home"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/f9dac5a7-c30a-4149-85e4-be4e0ce5cd7d/1794252351504-01.jpg
+        - row "06.jpg Foto de residencia Residencia El Ángel Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "06.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia El Ángel"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/5221d442-72b0-43c4-a939-0ac3c59f761a/1794252345862-06.jpg
+        - row "05.jpg Foto de residencia Residencia El Ángel Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "05.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia El Ángel"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/5221d442-72b0-43c4-a939-0ac3c59f761a/1794252344870-05.jpg
+        - row "04.jpg Foto de residencia Residencia El Ángel Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "04.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia El Ángel"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/5221d442-72b0-43c4-a939-0ac3c59f761a/1794252344104-04.jpg
+        - row "03.jpg Foto de residencia Residencia El Ángel Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "03.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia El Ángel"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/5221d442-72b0-43c4-a939-0ac3c59f761a/1794252342913-03.jpg
+        - row "02.jpg Foto de residencia Residencia El Ángel Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "02.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia El Ángel"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/5221d442-72b0-43c4-a939-0ac3c59f761a/1794252342278-02.jpg
+        - row "01.jpg Foto de residencia Residencia El Ángel Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "01.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia El Ángel"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/5221d442-72b0-43c4-a939-0ac3c59f761a/1794252341539-01.jpg
+        - row "06.jpg Foto de residencia La Casa de Cris - Residencia I Almagro Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "06.jpg"
+          - cell "Foto de residencia"
+          - cell "La Casa de Cris - Residencia I Almagro"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/56ca049c-dfa1-4c14-848d-8730139d7bde/1794252300990-06.jpg
+        - row "05.jpg Foto de residencia La Casa de Cris - Residencia I Almagro Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "05.jpg"
+          - cell "Foto de residencia"
+          - cell "La Casa de Cris - Residencia I Almagro"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/56ca049c-dfa1-4c14-848d-8730139d7bde/1794252300344-05.jpg
+        - row "04.jpg Foto de residencia La Casa de Cris - Residencia I Almagro Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "04.jpg"
+          - cell "Foto de residencia"
+          - cell "La Casa de Cris - Residencia I Almagro"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/56ca049c-dfa1-4c14-848d-8730139d7bde/1794252299281-04.jpg
+        - row "03.jpg Foto de residencia La Casa de Cris - Residencia I Almagro Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "03.jpg"
+          - cell "Foto de residencia"
+          - cell "La Casa de Cris - Residencia I Almagro"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/56ca049c-dfa1-4c14-848d-8730139d7bde/1794252298487-03.jpg
+        - row "02.jpg Foto de residencia La Casa de Cris - Residencia I Almagro Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "02.jpg"
+          - cell "Foto de residencia"
+          - cell "La Casa de Cris - Residencia I Almagro"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/56ca049c-dfa1-4c14-848d-8730139d7bde/1794252297770-02.jpg
+        - row "01.jpg Foto de residencia La Casa de Cris - Residencia I Almagro Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "01.jpg"
+          - cell "Foto de residencia"
+          - cell "La Casa de Cris - Residencia I Almagro"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/56ca049c-dfa1-4c14-848d-8730139d7bde/1794252297135-01.jpg
+        - row "06.jpg Foto de residencia IndER Residencia Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "06.jpg"
+          - cell "Foto de residencia"
+          - cell "IndER Residencia"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/31c527b4-0f07-4c3b-b1a8-10c7c76770ca/1794252291543-06.jpg
+        - row "05.jpg Foto de residencia IndER Residencia Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "05.jpg"
+          - cell "Foto de residencia"
+          - cell "IndER Residencia"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/31c527b4-0f07-4c3b-b1a8-10c7c76770ca/1794252290840-05.jpg
+        - row "04.jpg Foto de residencia IndER Residencia Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "04.jpg"
+          - cell "Foto de residencia"
+          - cell "IndER Residencia"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/31c527b4-0f07-4c3b-b1a8-10c7c76770ca/1794252290097-04.jpg
+        - row "03.jpg Foto de residencia IndER Residencia Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "03.jpg"
+          - cell "Foto de residencia"
+          - cell "IndER Residencia"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/31c527b4-0f07-4c3b-b1a8-10c7c76770ca/1794252289348-03.jpg
+        - row "02.jpg Foto de residencia IndER Residencia Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "02.jpg"
+          - cell "Foto de residencia"
+          - cell "IndER Residencia"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/31c527b4-0f07-4c3b-b1a8-10c7c76770ca/1794252288436-02.jpg
+        - row "01.jpg Foto de residencia IndER Residencia Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "01.jpg"
+          - cell "Foto de residencia"
+          - cell "IndER Residencia"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/31c527b4-0f07-4c3b-b1a8-10c7c76770ca/1794252287206-01.jpg
+        - row "04.jpg Foto de residencia Wanna Tango Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "04.jpg"
+          - cell "Foto de residencia"
+          - cell "Wanna Tango"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/3ef8642d-b2eb-4406-b5ec-b2a86aad3837/1794252243706-04.jpg
+        - row "03.png Foto de residencia Wanna Tango Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "03.png"
+          - cell "Foto de residencia"
+          - cell "Wanna Tango"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/3ef8642d-b2eb-4406-b5ec-b2a86aad3837/1794252242911-03.png
+        - row "02.jpg Foto de residencia Wanna Tango Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "02.jpg"
+          - cell "Foto de residencia"
+          - cell "Wanna Tango"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/3ef8642d-b2eb-4406-b5ec-b2a86aad3837/1794252242053-02.jpg
+        - row "01.png Foto de residencia Wanna Tango Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "01.png"
+          - cell "Foto de residencia"
+          - cell "Wanna Tango"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/3ef8642d-b2eb-4406-b5ec-b2a86aad3837/1794252240867-01.png
+        - row "05.jpg Foto de residencia Wanna Sur Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "05.jpg"
+          - cell "Foto de residencia"
+          - cell "Wanna Sur"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/573b3aab-00ac-475a-a791-aad03c1d9384/1794252234804-05.jpg
+        - row "04.jpg Foto de residencia Wanna Sur Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "04.jpg"
+          - cell "Foto de residencia"
+          - cell "Wanna Sur"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/573b3aab-00ac-475a-a791-aad03c1d9384/1794252233500-04.jpg
+        - row "03.png Foto de residencia Wanna Sur Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "03.png"
+          - cell "Foto de residencia"
+          - cell "Wanna Sur"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/573b3aab-00ac-475a-a791-aad03c1d9384/1794252232153-03.png
+        - row "02.jpg Foto de residencia Wanna Sur Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "02.jpg"
+          - cell "Foto de residencia"
+          - cell "Wanna Sur"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/573b3aab-00ac-475a-a791-aad03c1d9384/1794252230580-02.jpg
+        - row "01.png Foto de residencia Wanna Sur Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "01.png"
+          - cell "Foto de residencia"
+          - cell "Wanna Sur"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/573b3aab-00ac-475a-a791-aad03c1d9384/1794252229556-01.png
+        - row "06.jpg Foto de residencia Wanna Palermo Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "06.jpg"
+          - cell "Foto de residencia"
+          - cell "Wanna Palermo"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/1bf2e897-c215-47b0-9509-ecf992b44452/1794252223862-06.jpg
+        - row "05.jpg Foto de residencia Wanna Palermo Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "05.jpg"
+          - cell "Foto de residencia"
+          - cell "Wanna Palermo"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/1bf2e897-c215-47b0-9509-ecf992b44452/1794252222877-05.jpg
+        - row "04.jpg Foto de residencia Wanna Palermo Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "04.jpg"
+          - cell "Foto de residencia"
+          - cell "Wanna Palermo"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/1bf2e897-c215-47b0-9509-ecf992b44452/1794252221817-04.jpg
+        - row "03.jpg Foto de residencia Wanna Palermo Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "03.jpg"
+          - cell "Foto de residencia"
+          - cell "Wanna Palermo"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/1bf2e897-c215-47b0-9509-ecf992b44452/1794252220380-03.jpg
+        - row "02.jpg Foto de residencia Wanna Palermo Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "02.jpg"
+          - cell "Foto de residencia"
+          - cell "Wanna Palermo"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/1bf2e897-c215-47b0-9509-ecf992b44452/1794252219543-02.jpg
+        - row "01.png Foto de residencia Wanna Palermo Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "01.png"
+          - cell "Foto de residencia"
+          - cell "Wanna Palermo"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/1bf2e897-c215-47b0-9509-ecf992b44452/1794252218542-01.png
+        - row "05.jpg Foto de residencia Wanna Independencia Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "05.jpg"
+          - cell "Foto de residencia"
+          - cell "Wanna Independencia"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/1faa73ea-49c2-4c09-b0d7-ed6199fecfb6/1794252213044-05.jpg
+        - row "04.jpg Foto de residencia Wanna Independencia Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "04.jpg"
+          - cell "Foto de residencia"
+          - cell "Wanna Independencia"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/1faa73ea-49c2-4c09-b0d7-ed6199fecfb6/1794252212161-04.jpg
+        - row "03.jpg Foto de residencia Wanna Independencia Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "03.jpg"
+          - cell "Foto de residencia"
+          - cell "Wanna Independencia"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/1faa73ea-49c2-4c09-b0d7-ed6199fecfb6/1794252211454-03.jpg
+        - row "02.jpg Foto de residencia Wanna Independencia Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "02.jpg"
+          - cell "Foto de residencia"
+          - cell "Wanna Independencia"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/1faa73ea-49c2-4c09-b0d7-ed6199fecfb6/1794252210197-02.jpg
+        - row "01.png Foto de residencia Wanna Independencia Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "01.png"
+          - cell "Foto de residencia"
+          - cell "Wanna Independencia"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/1faa73ea-49c2-4c09-b0d7-ed6199fecfb6/1794252208174-01.png
+        - row "03.jpg Foto de residencia Wanna Congreso Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "03.jpg"
+          - cell "Foto de residencia"
+          - cell "Wanna Congreso"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/9d8350c1-947d-41c5-9c0f-6bfea7c2dc8e/1794252202355-03.jpg
+        - row "02.jpg Foto de residencia Wanna Congreso Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "02.jpg"
+          - cell "Foto de residencia"
+          - cell "Wanna Congreso"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/9d8350c1-947d-41c5-9c0f-6bfea7c2dc8e/1794252201492-02.jpg
+        - row "01.png Foto de residencia Wanna Congreso Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "01.png"
+          - cell "Foto de residencia"
+          - cell "Wanna Congreso"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/9d8350c1-947d-41c5-9c0f-6bfea7c2dc8e/1794252200623-01.png
+        - row "04.jpg Foto de residencia Wanna Centro Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "04.jpg"
+          - cell "Foto de residencia"
+          - cell "Wanna Centro"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/efa60798-2b28-4cef-b37a-f6d636607d3d/1794252195272-04.jpg
+        - row "03.jpg Foto de residencia Wanna Centro Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "03.jpg"
+          - cell "Foto de residencia"
+          - cell "Wanna Centro"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/efa60798-2b28-4cef-b37a-f6d636607d3d/1794252194151-03.jpg
+        - row "02.jpg Foto de residencia Wanna Centro Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "02.jpg"
+          - cell "Foto de residencia"
+          - cell "Wanna Centro"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/efa60798-2b28-4cef-b37a-f6d636607d3d/1794252193103-02.jpg
+        - row "01.jpg Foto de residencia Wanna Centro Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "01.jpg"
+          - cell "Foto de residencia"
+          - cell "Wanna Centro"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/efa60798-2b28-4cef-b37a-f6d636607d3d/1794252191783-01.jpg
+        - row "06.jpg Foto de residencia Verona del Soho Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "06.jpg"
+          - cell "Foto de residencia"
+          - cell "Verona del Soho"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/db2880ab-a808-42a3-a02a-f2c524eb5868/1794252185964-06.jpg
+        - row "05.jpg Foto de residencia Verona del Soho Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "05.jpg"
+          - cell "Foto de residencia"
+          - cell "Verona del Soho"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/db2880ab-a808-42a3-a02a-f2c524eb5868/1794252185319-05.jpg
+        - row "04.jpg Foto de residencia Verona del Soho Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "04.jpg"
+          - cell "Foto de residencia"
+          - cell "Verona del Soho"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/db2880ab-a808-42a3-a02a-f2c524eb5868/1794252184715-04.jpg
+        - row "03.jpg Foto de residencia Verona del Soho Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "03.jpg"
+          - cell "Foto de residencia"
+          - cell "Verona del Soho"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/db2880ab-a808-42a3-a02a-f2c524eb5868/1794252184056-03.jpg
+        - row "02.jpg Foto de residencia Verona del Soho Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "02.jpg"
+          - cell "Foto de residencia"
+          - cell "Verona del Soho"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/db2880ab-a808-42a3-a02a-f2c524eb5868/1794252183336-02.jpg
+        - row "01.jpg Foto de residencia Verona del Soho Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "01.jpg"
+          - cell "Foto de residencia"
+          - cell "Verona del Soho"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/db2880ab-a808-42a3-a02a-f2c524eb5868/1794252182357-01.jpg
+        - row "05.jpg Foto de residencia Student Hostel La Bamba (Ilvero) Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "05.jpg"
+          - cell "Foto de residencia"
+          - cell "Student Hostel La Bamba (Ilvero)"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/cb62951f-8e8f-4043-afed-1d323da4ed0c/1794252176527-05.jpg
+        - row "04.jpg Foto de residencia Student Hostel La Bamba (Ilvero) Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "04.jpg"
+          - cell "Foto de residencia"
+          - cell "Student Hostel La Bamba (Ilvero)"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/cb62951f-8e8f-4043-afed-1d323da4ed0c/1794252175685-04.jpg
+        - row "03.jpg Foto de residencia Student Hostel La Bamba (Ilvero) Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "03.jpg"
+          - cell "Foto de residencia"
+          - cell "Student Hostel La Bamba (Ilvero)"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/cb62951f-8e8f-4043-afed-1d323da4ed0c/1794252174977-03.jpg
+        - row "02.jpg Foto de residencia Student Hostel La Bamba (Ilvero) Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "02.jpg"
+          - cell "Foto de residencia"
+          - cell "Student Hostel La Bamba (Ilvero)"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/cb62951f-8e8f-4043-afed-1d323da4ed0c/1794252174240-02.jpg
+        - row "01.jpg Foto de residencia Student Hostel La Bamba (Ilvero) Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "01.jpg"
+          - cell "Foto de residencia"
+          - cell "Student Hostel La Bamba (Ilvero)"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/cb62951f-8e8f-4043-afed-1d323da4ed0c/1794252173247-01.jpg
+        - row "06.jpg Foto de residencia Residencia Universitaria Olivia Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "06.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia Universitaria Olivia"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/956787c1-44e2-4b18-8049-34bcb15a2db9/1794252162577-06.jpg
+        - row "05.jpg Foto de residencia Residencia Universitaria Olivia Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "05.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia Universitaria Olivia"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/956787c1-44e2-4b18-8049-34bcb15a2db9/1794252161858-05.jpg
+        - row "04.jpg Foto de residencia Residencia Universitaria Olivia Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "04.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia Universitaria Olivia"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/956787c1-44e2-4b18-8049-34bcb15a2db9/1794252160648-04.jpg
+        - row "03.jpg Foto de residencia Residencia Universitaria Olivia Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "03.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia Universitaria Olivia"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/956787c1-44e2-4b18-8049-34bcb15a2db9/1794252159352-03.jpg
+        - row "02.jpg Foto de residencia Residencia Universitaria Olivia Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "02.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia Universitaria Olivia"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/956787c1-44e2-4b18-8049-34bcb15a2db9/1794252158690-02.jpg
+        - row "01.jpg Foto de residencia Residencia Universitaria Olivia Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "01.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia Universitaria Olivia"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/956787c1-44e2-4b18-8049-34bcb15a2db9/1794252157973-01.jpg
+        - row "06.jpg Foto de residencia Residencia Universitaria Gusti Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "06.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia Universitaria Gusti"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/87f99d9d-5f4d-41af-9e6d-38d2b2392f85/1794252146659-06.jpg
+        - row "05.jpeg Foto de residencia Residencia Universitaria Gusti Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "05.jpeg"
+          - cell "Foto de residencia"
+          - cell "Residencia Universitaria Gusti"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/87f99d9d-5f4d-41af-9e6d-38d2b2392f85/1794252145916-05.jpeg
+        - row "04.jpg Foto de residencia Residencia Universitaria Gusti Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "04.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia Universitaria Gusti"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/87f99d9d-5f4d-41af-9e6d-38d2b2392f85/1794252145225-04.jpg
+        - row "03.jpg Foto de residencia Residencia Universitaria Gusti Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "03.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia Universitaria Gusti"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/87f99d9d-5f4d-41af-9e6d-38d2b2392f85/1794252144542-03.jpg
+        - row "02.jpg Foto de residencia Residencia Universitaria Gusti Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "02.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia Universitaria Gusti"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/87f99d9d-5f4d-41af-9e6d-38d2b2392f85/1794252143505-02.jpg
+        - row "01.jpg Foto de residencia Residencia Universitaria Gusti Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "01.jpg"
+          - cell "Foto de residencia"
+          - cell "Residencia Universitaria Gusti"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/87f99d9d-5f4d-41af-9e6d-38d2b2392f85/1794252142670-01.jpg
+        - row "05.jpg Foto de residencia Mansión Paloma Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "05.jpg"
+          - cell "Foto de residencia"
+          - cell "Mansión Paloma"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/7ef4c8d5-276a-49ab-a24b-2d93e95423d9/1794252127823-05.jpg
+        - row "04.jpg Foto de residencia Mansión Paloma Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "04.jpg"
+          - cell "Foto de residencia"
+          - cell "Mansión Paloma"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/7ef4c8d5-276a-49ab-a24b-2d93e95423d9/1794252126893-04.jpg
+        - row "03.jpg Foto de residencia Mansión Paloma Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "03.jpg"
+          - cell "Foto de residencia"
+          - cell "Mansión Paloma"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/7ef4c8d5-276a-49ab-a24b-2d93e95423d9/1794252126194-03.jpg
+        - row "02.jpg Foto de residencia Mansión Paloma Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "02.jpg"
+          - cell "Foto de residencia"
+          - cell "Mansión Paloma"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/7ef4c8d5-276a-49ab-a24b-2d93e95423d9/1794252125378-02.jpg
+        - row "01.jpg Foto de residencia Mansión Paloma Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "01.jpg"
+          - cell "Foto de residencia"
+          - cell "Mansión Paloma"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/7ef4c8d5-276a-49ab-a24b-2d93e95423d9/1794252124508-01.jpg
+        - row "05.jpg Foto de residencia Luco Hotel (Residencia) Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "05.jpg"
+          - cell "Foto de residencia"
+          - cell "Luco Hotel (Residencia)"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/c4849dca-3af0-4ae2-880d-5ce5d4529ddf/1794252119379-05.jpg
+        - row "04.jpg Foto de residencia Luco Hotel (Residencia) Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "04.jpg"
+          - cell "Foto de residencia"
+          - cell "Luco Hotel (Residencia)"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/c4849dca-3af0-4ae2-880d-5ce5d4529ddf/1794252118876-04.jpg
+        - row "03.jpg Foto de residencia Luco Hotel (Residencia) Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "03.jpg"
+          - cell "Foto de residencia"
+          - cell "Luco Hotel (Residencia)"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/c4849dca-3af0-4ae2-880d-5ce5d4529ddf/1794252117127-03.jpg
+        - row "02.jpg Foto de residencia Luco Hotel (Residencia) Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "02.jpg"
+          - cell "Foto de residencia"
+          - cell "Luco Hotel (Residencia)"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/c4849dca-3af0-4ae2-880d-5ce5d4529ddf/1794252116217-02.jpg
+        - row "01.jpg Foto de residencia Luco Hotel (Residencia) Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "01.jpg"
+          - cell "Foto de residencia"
+          - cell "Luco Hotel (Residencia)"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/c4849dca-3af0-4ae2-880d-5ce5d4529ddf/1794252115738-01.jpg
+        - row "06.jpg Foto de residencia 2340 Residencia Universitaria by Luco Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "06.jpg"
+          - cell "Foto de residencia"
+          - cell "2340 Residencia Universitaria by Luco"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/4cfd0b44-155e-4789-97cf-aee75988113d/1794252110529-06.jpg
+        - row "05.jpg Foto de residencia 2340 Residencia Universitaria by Luco Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "05.jpg"
+          - cell "Foto de residencia"
+          - cell "2340 Residencia Universitaria by Luco"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/4cfd0b44-155e-4789-97cf-aee75988113d/1794252110054-05.jpg
+        - row "04.jpg Foto de residencia 2340 Residencia Universitaria by Luco Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "04.jpg"
+          - cell "Foto de residencia"
+          - cell "2340 Residencia Universitaria by Luco"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/4cfd0b44-155e-4789-97cf-aee75988113d/1794252109556-04.jpg
+        - row "03.jpg Foto de residencia 2340 Residencia Universitaria by Luco Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "03.jpg"
+          - cell "Foto de residencia"
+          - cell "2340 Residencia Universitaria by Luco"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/4cfd0b44-155e-4789-97cf-aee75988113d/1794252109069-03.jpg
+        - row "02.jpg Foto de residencia 2340 Residencia Universitaria by Luco Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "02.jpg"
+          - cell "Foto de residencia"
+          - cell "2340 Residencia Universitaria by Luco"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/4cfd0b44-155e-4789-97cf-aee75988113d/1794252108390-02.jpg
+        - row "01.jpg Foto de residencia 2340 Residencia Universitaria by Luco Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "01.jpg"
+          - cell "Foto de residencia"
+          - cell "2340 Residencia Universitaria by Luco"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/4cfd0b44-155e-4789-97cf-aee75988113d/1794252107494-01.jpg
+        - row "06.jpg Foto de residencia Las Cabañas Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "06.jpg"
+          - cell "Foto de residencia"
+          - cell "Las Cabañas"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/8dd399a0-a915-4ca1-ac95-2c255797603b/1794252101896-06.jpg
+        - row "05.jpg Foto de residencia Las Cabañas Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "05.jpg"
+          - cell "Foto de residencia"
+          - cell "Las Cabañas"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/8dd399a0-a915-4ca1-ac95-2c255797603b/1794252100144-05.jpg
+        - row "04.jpg Foto de residencia Las Cabañas Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "04.jpg"
+          - cell "Foto de residencia"
+          - cell "Las Cabañas"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/8dd399a0-a915-4ca1-ac95-2c255797603b/1794252098403-04.jpg
+        - row "03.jpg Foto de residencia Las Cabañas Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "03.jpg"
+          - cell "Foto de residencia"
+          - cell "Las Cabañas"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/8dd399a0-a915-4ca1-ac95-2c255797603b/1794252097718-03.jpg
+        - row "02.jpg Foto de residencia Las Cabañas Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "02.jpg"
+          - cell "Foto de residencia"
+          - cell "Las Cabañas"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/8dd399a0-a915-4ca1-ac95-2c255797603b/1794252096989-02.jpg
+        - row "01.jpg Foto de residencia Las Cabañas Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "01.jpg"
+          - cell "Foto de residencia"
+          - cell "Las Cabañas"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/8dd399a0-a915-4ca1-ac95-2c255797603b/1794252096327-01.jpg
+        - row "06.jpg Foto de residencia La Scala Hollywood Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "06.jpg"
+          - cell "Foto de residencia"
+          - cell "La Scala Hollywood"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/57e53591-43dc-4a9e-929f-cb0d08277fb4/1794252090534-06.jpg
+        - row "05.jpg Foto de residencia La Scala Hollywood Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "05.jpg"
+          - cell "Foto de residencia"
+          - cell "La Scala Hollywood"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/57e53591-43dc-4a9e-929f-cb0d08277fb4/1794252089541-05.jpg
+        - row "04.jpg Foto de residencia La Scala Hollywood Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "04.jpg"
+          - cell "Foto de residencia"
+          - cell "La Scala Hollywood"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/57e53591-43dc-4a9e-929f-cb0d08277fb4/1794252088124-04.jpg
+        - row "03.jpg Foto de residencia La Scala Hollywood Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "03.jpg"
+          - cell "Foto de residencia"
+          - cell "La Scala Hollywood"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/57e53591-43dc-4a9e-929f-cb0d08277fb4/1794252086862-03.jpg
+        - row "02.jpg Foto de residencia La Scala Hollywood Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "02.jpg"
+          - cell "Foto de residencia"
+          - cell "La Scala Hollywood"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/57e53591-43dc-4a9e-929f-cb0d08277fb4/1794252086158-02.jpg
+        - row "01.jpg Foto de residencia La Scala Hollywood Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "01.jpg"
+          - cell "Foto de residencia"
+          - cell "La Scala Hollywood"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/57e53591-43dc-4a9e-929f-cb0d08277fb4/1794252085348-01.jpg
+        - row "06.jpg Foto de residencia La Scala Belgrano Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "06.jpg"
+          - cell "Foto de residencia"
+          - cell "La Scala Belgrano"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/909546df-a993-49e8-9bab-9f1b1ee800ea/1794252079652-06.jpg
+        - row "05.jpg Foto de residencia La Scala Belgrano Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "05.jpg"
+          - cell "Foto de residencia"
+          - cell "La Scala Belgrano"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/909546df-a993-49e8-9bab-9f1b1ee800ea/1794252078622-05.jpg
+        - row "04.jpg Foto de residencia La Scala Belgrano Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "04.jpg"
+          - cell "Foto de residencia"
+          - cell "La Scala Belgrano"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/909546df-a993-49e8-9bab-9f1b1ee800ea/1794252077593-04.jpg
+        - row "03.jpg Foto de residencia La Scala Belgrano Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "03.jpg"
+          - cell "Foto de residencia"
+          - cell "La Scala Belgrano"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/909546df-a993-49e8-9bab-9f1b1ee800ea/1794252076554-03.jpg
+        - row "02.jpg Foto de residencia La Scala Belgrano Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "02.jpg"
+          - cell "Foto de residencia"
+          - cell "La Scala Belgrano"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/909546df-a993-49e8-9bab-9f1b1ee800ea/1794252075888-02.jpg
+        - row "01.jpg Foto de residencia La Scala Belgrano Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "01.jpg"
+          - cell "Foto de residencia"
+          - cell "La Scala Belgrano"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/909546df-a993-49e8-9bab-9f1b1ee800ea/1794252074864-01.jpg
+        - row "05.jpg Foto de residencia La Casona Recoleta Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "05.jpg"
+          - cell "Foto de residencia"
+          - cell "La Casona Recoleta"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/0126cdda-061b-4199-be60-a5d836d30452/1794252068181-05.jpg
+        - row "04.jpg Foto de residencia La Casona Recoleta Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "04.jpg"
+          - cell "Foto de residencia"
+          - cell "La Casona Recoleta"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/0126cdda-061b-4199-be60-a5d836d30452/1794252066475-04.jpg
+        - row "03.jpg Foto de residencia La Casona Recoleta Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "03.jpg"
+          - cell "Foto de residencia"
+          - cell "La Casona Recoleta"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/0126cdda-061b-4199-be60-a5d836d30452/1794252064328-03.jpg
+        - row "02.jpg Foto de residencia La Casona Recoleta Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "02.jpg"
+          - cell "Foto de residencia"
+          - cell "La Casona Recoleta"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/0126cdda-061b-4199-be60-a5d836d30452/1794252062590-02.jpg
+        - row "01.jpg Foto de residencia La Casona Recoleta Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "01.jpg"
+          - cell "Foto de residencia"
+          - cell "La Casona Recoleta"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/0126cdda-061b-4199-be60-a5d836d30452/1794252060989-01.jpg
+        - row "06.jpg Foto de residencia La Casona Monserrat Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "06.jpg"
+          - cell "Foto de residencia"
+          - cell "La Casona Monserrat"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/cb23ec65-aef5-4a05-aee2-51945ee09e5e/1794252054991-06.jpg
+        - row "05.jpg Foto de residencia La Casona Monserrat Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "05.jpg"
+          - cell "Foto de residencia"
+          - cell "La Casona Monserrat"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/cb23ec65-aef5-4a05-aee2-51945ee09e5e/1794252053491-05.jpg
+        - row "04.jpg Foto de residencia La Casona Monserrat Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "04.jpg"
+          - cell "Foto de residencia"
+          - cell "La Casona Monserrat"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/cb23ec65-aef5-4a05-aee2-51945ee09e5e/1794252052094-04.jpg
+        - row "03.jpg Foto de residencia La Casona Monserrat Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "03.jpg"
+          - cell "Foto de residencia"
+          - cell "La Casona Monserrat"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/cb23ec65-aef5-4a05-aee2-51945ee09e5e/1794252051037-03.jpg
+        - row "02.jpg Foto de residencia La Casona Monserrat Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "02.jpg"
+          - cell "Foto de residencia"
+          - cell "La Casona Monserrat"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/cb23ec65-aef5-4a05-aee2-51945ee09e5e/1794252049754-02.jpg
+        - row "01.jpg Foto de residencia La Casona Monserrat Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "01.jpg"
+          - cell "Foto de residencia"
+          - cell "La Casona Monserrat"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/cb23ec65-aef5-4a05-aee2-51945ee09e5e/1794252047541-01.jpg
+        - row "05.jpg Foto de residencia Entis Residencia Universitaria Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "05.jpg"
+          - cell "Foto de residencia"
+          - cell "Entis Residencia Universitaria"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/730bfbf6-e2b7-485d-b882-90acfea4f3f3/1794252031974-05.jpg
+        - row "04.jpg Foto de residencia Entis Residencia Universitaria Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "04.jpg"
+          - cell "Foto de residencia"
+          - cell "Entis Residencia Universitaria"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/730bfbf6-e2b7-485d-b882-90acfea4f3f3/1794252030570-04.jpg
+        - row "03.jpg Foto de residencia Entis Residencia Universitaria Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "03.jpg"
+          - cell "Foto de residencia"
+          - cell "Entis Residencia Universitaria"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/730bfbf6-e2b7-485d-b882-90acfea4f3f3/1794252030046-03.jpg
+        - row "02.jpg Foto de residencia Entis Residencia Universitaria Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "02.jpg"
+          - cell "Foto de residencia"
+          - cell "Entis Residencia Universitaria"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/730bfbf6-e2b7-485d-b882-90acfea4f3f3/1794252028779-02.jpg
+        - row "01.jpg Foto de residencia Entis Residencia Universitaria Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "01.jpg"
+          - cell "Foto de residencia"
+          - cell "Entis Residencia Universitaria"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/730bfbf6-e2b7-485d-b882-90acfea4f3f3/1794252027790-01.jpg
+        - row "06.jpg Foto de residencia CLEI Residencia de Estudiantes Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "06.jpg"
+          - cell "Foto de residencia"
+          - cell "CLEI Residencia de Estudiantes"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/bca9afdf-0a9c-412f-abf9-f6637a425457/1794252022179-06.jpg
+        - row "05.jpg Foto de residencia CLEI Residencia de Estudiantes Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "05.jpg"
+          - cell "Foto de residencia"
+          - cell "CLEI Residencia de Estudiantes"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/bca9afdf-0a9c-412f-abf9-f6637a425457/1794252021209-05.jpg
+        - row "04.jpg Foto de residencia CLEI Residencia de Estudiantes Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "04.jpg"
+          - cell "Foto de residencia"
+          - cell "CLEI Residencia de Estudiantes"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/bca9afdf-0a9c-412f-abf9-f6637a425457/1794252020083-04.jpg
+        - row "03.jpg Foto de residencia CLEI Residencia de Estudiantes Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "03.jpg"
+          - cell "Foto de residencia"
+          - cell "CLEI Residencia de Estudiantes"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/bca9afdf-0a9c-412f-abf9-f6637a425457/1794252019043-03.jpg
+        - row "02.jpg Foto de residencia CLEI Residencia de Estudiantes Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "02.jpg"
+          - cell "Foto de residencia"
+          - cell "CLEI Residencia de Estudiantes"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/bca9afdf-0a9c-412f-abf9-f6637a425457/1794252018193-02.jpg
+        - row "01.jpg Foto de residencia CLEI Residencia de Estudiantes Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "01.jpg"
+          - cell "Foto de residencia"
+          - cell "CLEI Residencia de Estudiantes"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/bca9afdf-0a9c-412f-abf9-f6637a425457/1794252017122-01.jpg
+        - row "06.jpg Foto de residencia Charlie's Hostel Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "06.jpg"
+          - cell "Foto de residencia"
+          - cell "Charlie's Hostel"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/83d0555f-b515-40d9-b548-d094b5d60072/1794252011386-06.jpg
+        - row "05.jpg Foto de residencia Charlie's Hostel Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "05.jpg"
+          - cell "Foto de residencia"
+          - cell "Charlie's Hostel"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/83d0555f-b515-40d9-b548-d094b5d60072/1794252010558-05.jpg
+        - row "04.jpg Foto de residencia Charlie's Hostel Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "04.jpg"
+          - cell "Foto de residencia"
+          - cell "Charlie's Hostel"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/83d0555f-b515-40d9-b548-d094b5d60072/1794252009454-04.jpg
+        - row "03.jpg Foto de residencia Charlie's Hostel Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "03.jpg"
+          - cell "Foto de residencia"
+          - cell "Charlie's Hostel"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/83d0555f-b515-40d9-b548-d094b5d60072/1794252008766-03.jpg
+        - row "02.jpg Foto de residencia Charlie's Hostel Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "02.jpg"
+          - cell "Foto de residencia"
+          - cell "Charlie's Hostel"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/83d0555f-b515-40d9-b548-d094b5d60072/1794252007831-02.jpg
+        - row "01.jpg Foto de residencia Charlie's Hostel Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "01.jpg"
+          - cell "Foto de residencia"
+          - cell "Charlie's Hostel"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/83d0555f-b515-40d9-b548-d094b5d60072/1794252007208-01.jpg
+        - row "06.jpg Foto de residencia Casa Rica Coliving (Obelisco) Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "06.jpg"
+          - cell "Foto de residencia"
+          - cell "Casa Rica Coliving (Obelisco)"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/c3a55b19-c272-42a2-8247-49569b29769f/1794252001734-06.jpg
+        - row "05.jpg Foto de residencia Casa Rica Coliving (Obelisco) Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "05.jpg"
+          - cell "Foto de residencia"
+          - cell "Casa Rica Coliving (Obelisco)"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/c3a55b19-c272-42a2-8247-49569b29769f/1794252000893-05.jpg
+        - row "04.jpg Foto de residencia Casa Rica Coliving (Obelisco) Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "04.jpg"
+          - cell "Foto de residencia"
+          - cell "Casa Rica Coliving (Obelisco)"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/c3a55b19-c272-42a2-8247-49569b29769f/1794251999677-04.jpg
+        - row "03.jpg Foto de residencia Casa Rica Coliving (Obelisco) Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "03.jpg"
+          - cell "Foto de residencia"
+          - cell "Casa Rica Coliving (Obelisco)"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/c3a55b19-c272-42a2-8247-49569b29769f/1794251998821-03.jpg
+        - row "02.jpg Foto de residencia Casa Rica Coliving (Obelisco) Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "02.jpg"
+          - cell "Foto de residencia"
+          - cell "Casa Rica Coliving (Obelisco)"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/c3a55b19-c272-42a2-8247-49569b29769f/1794251997717-02.jpg
+        - row "01.jpg Foto de residencia Casa Rica Coliving (Obelisco) Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "01.jpg"
+          - cell "Foto de residencia"
+          - cell "Casa Rica Coliving (Obelisco)"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/c3a55b19-c272-42a2-8247-49569b29769f/1794251996570-01.jpg
+        - row "06.jpg Foto de residencia Casa AURA Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "06.jpg"
+          - cell "Foto de residencia"
+          - cell "Casa AURA"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/b94522ef-cdb7-47c7-b0bc-08b8237ba727/1794251991053-06.jpg
+        - row "05.jpg Foto de residencia Casa AURA Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "05.jpg"
+          - cell "Foto de residencia"
+          - cell "Casa AURA"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/b94522ef-cdb7-47c7-b0bc-08b8237ba727/1794251990375-05.jpg
+        - row "04.jpg Foto de residencia Casa AURA Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "04.jpg"
+          - cell "Foto de residencia"
+          - cell "Casa AURA"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/b94522ef-cdb7-47c7-b0bc-08b8237ba727/1794251989575-04.jpg
+        - row "03.jpg Foto de residencia Casa AURA Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "03.jpg"
+          - cell "Foto de residencia"
+          - cell "Casa AURA"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/b94522ef-cdb7-47c7-b0bc-08b8237ba727/1794251988894-03.jpg
+        - row "02.jpg Foto de residencia Casa AURA Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "02.jpg"
+          - cell "Foto de residencia"
+          - cell "Casa AURA"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/b94522ef-cdb7-47c7-b0bc-08b8237ba727/1794251988140-02.jpg
+        - row "01.jpg Foto de residencia Casa AURA Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "01.jpg"
+          - cell "Foto de residencia"
+          - cell "Casa AURA"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/b94522ef-cdb7-47c7-b0bc-08b8237ba727/1794251987265-01.jpg
+        - row "06.jpg Foto de residencia Arcos del Soho Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "06.jpg"
+          - cell "Foto de residencia"
+          - cell "Arcos del Soho"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/0183359d-ee3b-4b17-ab20-74daa9744064/1794251981812-06.jpg
+        - row "05.jpg Foto de residencia Arcos del Soho Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "05.jpg"
+          - cell "Foto de residencia"
+          - cell "Arcos del Soho"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/0183359d-ee3b-4b17-ab20-74daa9744064/1794251980956-05.jpg
+        - row "04.jpg Foto de residencia Arcos del Soho Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "04.jpg"
+          - cell "Foto de residencia"
+          - cell "Arcos del Soho"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/0183359d-ee3b-4b17-ab20-74daa9744064/1794251979713-04.jpg
+        - row "03.jpg Foto de residencia Arcos del Soho Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "03.jpg"
+          - cell "Foto de residencia"
+          - cell "Arcos del Soho"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/0183359d-ee3b-4b17-ab20-74daa9744064/1794251978882-03.jpg
+        - row "02.jpg Foto de residencia Arcos del Soho Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "02.jpg"
+          - cell "Foto de residencia"
+          - cell "Arcos del Soho"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/0183359d-ee3b-4b17-ab20-74daa9744064/1794251978009-02.jpg
+        - row "01.jpg Foto de residencia Arcos del Soho Aprobado owner.residencia.norte@example.com 09/11/2026 Ver (público) →":
+          - cell "01.jpg"
+          - cell "Foto de residencia"
+          - cell "Arcos del Soho"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "owner.residencia.norte@example.com"
+          - cell "09/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/0183359d-ee3b-4b17-ab20-74daa9744064/1794251977091-01.jpg
+        - row "comprobante.pdf Otro Pago del fee EstuRed Subido lucia.fernandez@example.com 05/11/2026 Ver →":
+          - cell "comprobante.pdf"
+          - cell "Otro"
+          - cell "Pago del fee EstuRed"
+          - cell "Subido":
+            - generic: Subido
+          - cell "lucia.fernandez@example.com"
+          - cell "05/11/2026"
+          - cell "Ver →":
+            - button "Ver →"
+        - row "comprobante.pdf Otro Pago del fee EstuRed Subido lucia.fernandez@example.com 05/11/2026 Ver →":
+          - cell "comprobante.pdf"
+          - cell "Otro"
+          - cell "Pago del fee EstuRed"
+          - cell "Subido":
+            - generic: Subido
+          - cell "lucia.fernandez@example.com"
+          - cell "05/11/2026"
+          - cell "Ver →":
+            - button "Ver →"
+        - row "comprobante.pdf Otro Pago del fee EstuRed Subido lucia.fernandez@example.com 05/11/2026 Ver →":
+          - cell "comprobante.pdf"
+          - cell "Otro"
+          - cell "Pago del fee EstuRed"
+          - cell "Subido":
+            - generic: Subido
+          - cell "lucia.fernandez@example.com"
+          - cell "05/11/2026"
+          - cell "Ver →":
+            - button "Ver →"
+        - row "comprobante.pdf Otro Pago del fee EstuRed Subido lucia.fernandez@example.com 05/11/2026 Ver →":
+          - cell "comprobante.pdf"
+          - cell "Otro"
+          - cell "Pago del fee EstuRed"
+          - cell "Subido":
+            - generic: Subido
+          - cell "lucia.fernandez@example.com"
+          - cell "05/11/2026"
+          - cell "Ver →":
+            - button "Ver →"
+        - row "comprobante.pdf Otro Pago del fee EstuRed Subido lucia.fernandez@example.com 05/11/2026 Ver →":
+          - cell "comprobante.pdf"
+          - cell "Otro"
+          - cell "Pago del fee EstuRed"
+          - cell "Subido":
+            - generic: Subido
+          - cell "lucia.fernandez@example.com"
+          - cell "05/11/2026"
+          - cell "Ver →":
+            - button "Ver →"
+        - row "prueba-borrar.png Foto de residencia Residencia Norte Rechazado owner.residencia.norte@example.com 03/11/2026 Ver (público) →":
+          - cell "prueba-borrar.png"
+          - cell "Foto de residencia"
+          - cell "Residencia Norte"
+          - cell "Rechazado":
+            - generic: Rechazado
+          - cell "owner.residencia.norte@example.com"
+          - cell "03/11/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/e5f0fa21-fd0d-4703-8907-902918496739.png
+        - row "comprobante.pdf Otro Pago del fee EstuRed Subido lucia.fernandez@example.com 02/11/2026 Ver →":
+          - cell "comprobante.pdf"
+          - cell "Otro"
+          - cell "Pago del fee EstuRed"
+          - cell "Subido":
+            - generic: Subido
+          - cell "lucia.fernandez@example.com"
+          - cell "02/11/2026"
+          - cell "Ver →":
+            - button "Ver →"
+        - row "comprobante.pdf Otro Pago del fee EstuRed Subido lucia.fernandez@example.com 30/10/2026 Ver →":
+          - cell "comprobante.pdf"
+          - cell "Otro"
+          - cell "Pago del fee EstuRed"
+          - cell "Subido":
+            - generic: Subido
+          - cell "lucia.fernandez@example.com"
+          - cell "30/10/2026"
+          - cell "Ver →":
+            - button "Ver →"
+        - row "Cuadruple1.jpeg Foto de residencia Residencia Sin Fronteras Aprobado sinfronteras.demo@example.com 27/10/2026 Ver (público) →":
+          - cell "Cuadruple1.jpeg"
+          - cell "Foto de residencia"
+          - cell "Residencia Sin Fronteras"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "sinfronteras.demo@example.com"
+          - cell "27/10/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/54d972ea-25a2-4933-add3-8a683684d452/abc9a529-7128-47b0-b62b-4ab2dda1308a.jpg
+        - row "Triple3.jpeg Foto de residencia Residencia Sin Fronteras Aprobado sinfronteras.demo@example.com 27/10/2026 Ver (público) →":
+          - cell "Triple3.jpeg"
+          - cell "Foto de residencia"
+          - cell "Residencia Sin Fronteras"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "sinfronteras.demo@example.com"
+          - cell "27/10/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/54d972ea-25a2-4933-add3-8a683684d452/f26be487-cb0b-4afb-8e89-a31fb285d4d3.jpg
+        - row "Triple2.jpeg Foto de residencia Residencia Sin Fronteras Aprobado sinfronteras.demo@example.com 27/10/2026 Ver (público) →":
+          - cell "Triple2.jpeg"
+          - cell "Foto de residencia"
+          - cell "Residencia Sin Fronteras"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "sinfronteras.demo@example.com"
+          - cell "27/10/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/54d972ea-25a2-4933-add3-8a683684d452/14f1b227-c7c4-4598-ba10-2f86e2bc8c29.jpg
+        - row "Triple1.jpeg Foto de residencia Residencia Sin Fronteras Aprobado sinfronteras.demo@example.com 27/10/2026 Ver (público) →":
+          - cell "Triple1.jpeg"
+          - cell "Foto de residencia"
+          - cell "Residencia Sin Fronteras"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "sinfronteras.demo@example.com"
+          - cell "27/10/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/54d972ea-25a2-4933-add3-8a683684d452/c43b2f9b-5b22-4bd9-9127-2fec60f160da.jpg
+        - row "Doble4.jpeg Foto de residencia Residencia Sin Fronteras Aprobado sinfronteras.demo@example.com 27/10/2026 Ver (público) →":
+          - cell "Doble4.jpeg"
+          - cell "Foto de residencia"
+          - cell "Residencia Sin Fronteras"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "sinfronteras.demo@example.com"
+          - cell "27/10/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/54d972ea-25a2-4933-add3-8a683684d452/43d0f9c3-fe43-4840-b88a-a71565bf40b2.jpg
+        - row "Doble3.jpeg Foto de residencia Residencia Sin Fronteras Aprobado sinfronteras.demo@example.com 27/10/2026 Ver (público) →":
+          - cell "Doble3.jpeg"
+          - cell "Foto de residencia"
+          - cell "Residencia Sin Fronteras"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "sinfronteras.demo@example.com"
+          - cell "27/10/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/54d972ea-25a2-4933-add3-8a683684d452/d2b14c21-72c4-430a-89f5-6d0fdf15c0da.jpg
+        - row "Doble2.jpeg Foto de residencia Residencia Sin Fronteras Aprobado sinfronteras.demo@example.com 27/10/2026 Ver (público) →":
+          - cell "Doble2.jpeg"
+          - cell "Foto de residencia"
+          - cell "Residencia Sin Fronteras"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "sinfronteras.demo@example.com"
+          - cell "27/10/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/54d972ea-25a2-4933-add3-8a683684d452/66045b5c-f4b8-474e-841c-1206d49bc500.jpg
+        - row "Doble1.jpeg Foto de residencia Residencia Sin Fronteras Aprobado sinfronteras.demo@example.com 27/10/2026 Ver (público) →":
+          - cell "Doble1.jpeg"
+          - cell "Foto de residencia"
+          - cell "Residencia Sin Fronteras"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "sinfronteras.demo@example.com"
+          - cell "27/10/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/54d972ea-25a2-4933-add3-8a683684d452/432ece19-ceec-43ce-b9bb-1e439ccac6ff.jpg
+        - row "Individual4.jpeg Foto de residencia Residencia Sin Fronteras Aprobado sinfronteras.demo@example.com 27/10/2026 Ver (público) →":
+          - cell "Individual4.jpeg"
+          - cell "Foto de residencia"
+          - cell "Residencia Sin Fronteras"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "sinfronteras.demo@example.com"
+          - cell "27/10/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/54d972ea-25a2-4933-add3-8a683684d452/7239be38-731c-4ec0-a285-b806d0914c91.jpg
+        - row "Individual3.jpeg Foto de residencia Residencia Sin Fronteras Aprobado sinfronteras.demo@example.com 27/10/2026 Ver (público) →":
+          - cell "Individual3.jpeg"
+          - cell "Foto de residencia"
+          - cell "Residencia Sin Fronteras"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "sinfronteras.demo@example.com"
+          - cell "27/10/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/54d972ea-25a2-4933-add3-8a683684d452/6114d93c-3dc4-4d6a-873a-2097cf5f1f5d.jpg
+        - row "Individual2.jpeg Foto de residencia Residencia Sin Fronteras Aprobado sinfronteras.demo@example.com 27/10/2026 Ver (público) →":
+          - cell "Individual2.jpeg"
+          - cell "Foto de residencia"
+          - cell "Residencia Sin Fronteras"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "sinfronteras.demo@example.com"
+          - cell "27/10/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/54d972ea-25a2-4933-add3-8a683684d452/a7477b13-a3ba-47f9-8710-cab3cc8a9218.jpg
+        - row "Individual1.jpeg Foto de residencia Residencia Sin Fronteras Aprobado sinfronteras.demo@example.com 27/10/2026 Ver (público) →":
+          - cell "Individual1.jpeg"
+          - cell "Foto de residencia"
+          - cell "Residencia Sin Fronteras"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "sinfronteras.demo@example.com"
+          - cell "27/10/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/54d972ea-25a2-4933-add3-8a683684d452/ac6f39c1-49a7-43b7-9b3e-cd30afcf9de7.jpg
+        - row "Lockers.jpeg Foto de residencia Residencia Sin Fronteras Aprobado sinfronteras.demo@example.com 27/10/2026 Ver (público) →":
+          - cell "Lockers.jpeg"
+          - cell "Foto de residencia"
+          - cell "Residencia Sin Fronteras"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "sinfronteras.demo@example.com"
+          - cell "27/10/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/54d972ea-25a2-4933-add3-8a683684d452/5bce96df-b04e-4aca-a819-975b49eaf22f.jpg
+        - row "Cafetera y Filtro.jpeg Foto de residencia Residencia Sin Fronteras Aprobado sinfronteras.demo@example.com 27/10/2026 Ver (público) →":
+          - cell "Cafetera y Filtro.jpeg"
+          - cell "Foto de residencia"
+          - cell "Residencia Sin Fronteras"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "sinfronteras.demo@example.com"
+          - cell "27/10/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/54d972ea-25a2-4933-add3-8a683684d452/4f34a7e1-5fe6-4931-8127-f871b8477342.jpg
+        - row "Cafetera.jpeg Foto de residencia Residencia Sin Fronteras Aprobado sinfronteras.demo@example.com 27/10/2026 Ver (público) →":
+          - cell "Cafetera.jpeg"
+          - cell "Foto de residencia"
+          - cell "Residencia Sin Fronteras"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "sinfronteras.demo@example.com"
+          - cell "27/10/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/54d972ea-25a2-4933-add3-8a683684d452/02049f67-4624-4718-99af-e8e1264346bc.jpg
+        - row "Cocina4.jpeg Foto de residencia Residencia Sin Fronteras Aprobado sinfronteras.demo@example.com 27/10/2026 Ver (público) →":
+          - cell "Cocina4.jpeg"
+          - cell "Foto de residencia"
+          - cell "Residencia Sin Fronteras"
+          - cell "Aprobado":
+            - generic: Aprobado
+          - cell "sinfronteras.demo@example.com"
+          - cell "27/10/2026"
+          - cell "Ver (público) →":
+            - link "Ver (público) →":
+              - /url: https://gyfbtsuibmecefwovdgh.supabase.co/storage/v1/object/public/public-residence-media/54d972ea-25a2-4933-add3-8a683684d452/3fd1b06d-7e20-41fd-8aaf-2320a30280dd.jpg
+- button "Admin Operativo": Admin Operativo
+- button "Open Next.js Dev Tools":
+- alert

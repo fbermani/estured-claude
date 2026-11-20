@@ -14,4 +14,9 @@ describe("safeInternalPath (open redirect)", () => {
       expect(safeInternalPath(bad as never)).toBeNull();
     }
   });
+  it("rechaza paths que al normalizarse quedan como //host", () => {
+    for (const bad of ["/.//evil.com", "/a/..//evil.com", "/%2e//evil.com", "/\\evil.com"]) {
+      expect(safeInternalPath(bad)).toBeNull();
+    }
+  });
 });

@@ -120,7 +120,7 @@ export function ProfileEditDetail({
           </p>
         )}
 
-        <div className="mt-5 flex justify-end gap-3">
+        <div className="mt-5 flex flex-wrap justify-end gap-3">
           <ActionButton action="needs_changes" variant="secondary" label="Pedir corrección" />
           <ActionButton action="reject" variant="danger" label="Rechazar" />
           <ActionButton action="approve" variant="primary" label="Aprobar y publicar" />
@@ -142,7 +142,7 @@ function ActionButton({
   const { pending, data } = useFormStatus();
   const isThisPending = pending && data?.get("action") === action;
   return (
-    <AdminButton type="submit" name="action" value={action} variant={variant} disabled={pending}>
+    <AdminButton type="submit" name="action" value={action} variant={variant} disabled={pending} className="whitespace-nowrap">
       {isThisPending ? "Guardando…" : label}
     </AdminButton>
   );
@@ -248,13 +248,13 @@ function BeforeAfterList({ label, before, after }: { label: string; before: stri
       </p>
       <div className="mt-2 grid grid-cols-2 gap-3">
         <div className="rounded p-3 text-sm" style={{ backgroundColor: cmd.roseBg, color: cmd.onSurfaceVariant }}>
-          <p className="mb-1 text-[10px] font-bold uppercase" style={{ color: cmd.rose }}>
+          <p className="mb-1 text-xs font-bold uppercase" style={{ color: cmd.rose }}>
             Antes (publicado)
           </p>
           {before}
         </div>
         <div className="rounded p-3 text-sm" style={{ backgroundColor: cmd.emeraldBg, color: cmd.onSurfaceVariant }}>
-          <p className="mb-1 text-[10px] font-bold uppercase" style={{ color: cmd.emerald }}>
+          <p className="mb-1 text-xs font-bold uppercase" style={{ color: cmd.emerald }}>
             Propuesto
           </p>
           {after}

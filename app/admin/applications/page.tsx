@@ -10,6 +10,8 @@ import { cmd } from "@/components/admin/ui/tokens";
 import { ReopenApplicationControl } from "@/app/admin/applications/ReopenApplicationControl";
 import { getVisibleStatus } from "@/lib/applications/visibleStatus";
 import { loadReservationInfoByApplication } from "@/lib/applications/loadReservationInfo";
+import { isInProgressApplication } from "@/lib/applications/activeApplication";
+import { AdminFilterLinks } from "@/components/admin/ui/AdminFilterLinks";
 import { requireAdmin } from "@/lib/auth/requireAdmin";
 
 export const metadata: Metadata = { title: "Solicitudes" };
@@ -18,13 +20,6 @@ export const dynamic = "force-dynamic";
 /** Tono de `getVisibleStatus` (sage/danger) → tono del sistema de badges del admin (emerald/rose). */
 const ADMIN_TONE = { amber: "amber", sage: "emerald", neutral: "neutral", danger: "rose" } as const;
 
-const CLOSED_STATUSES = [
-  "converted_to_reservation",
-  "rejected",
-  "expired_no_residence_response",
-  "expired_offer_no_response",
-  "cancelled_by_student",
-];
 const REOPENABLE_STATUSES = ["rejected", "expired_no_residence_response", "expired_offer_no_response"];
 
 type ApplicationRow = {
@@ -37,7 +32,9 @@ type ApplicationRow = {
   room_types: { name: string } | null;
 };
 
-export default async function AdminApplicationsPage() {
+export default async function AdminApplicationsPage({ searchParams }: { searchParams: Promise<{ estado?: string }> }) {
+  const { estado } = await searchParams;
+  const onlyInProgress = estado === "en-curso";
   await requireAdmin();
   const admin = getSupabaseAdmin();
 
@@ -59,7 +56,20 @@ export default async function AdminApplicationsPage() {
         applications.filter((a) => a.status === "converted_to_reservation").map((a) => a.id),
       )
     : new Map();
-  const activeCount = applications.filter((a) => !CLOSED_STATUSES.includes(a.status)).length;
+  // Mismo universo para el contador y el filtro «En curso» (estado visible + docs/04 §5.2).
+  const inProgressIds = new Set(
+    applications
+      .filter((a) =>
+        isInProgressApplication(
+          getVisibleStatus({ applicationStatus: a.status, reservation: reservationInfoByAppId.get(a.id), viewer: "admin" }),
+          a.status,
+        ),
+      )
+      .map((a) => a.id),
+  );
+  const activeCount = inProgressIds.size;
+  const totalCount = applications.length;
+  const shown = onlyInProgress ? applications.filter((a) => inProgressIds.has(a.id)) : applications;
 
   return (
     <div className="p-4 sm:p-8">
@@ -67,13 +77,22 @@ export default async function AdminApplicationsPage() {
         Solicitudes
       </h1>
       <p className="text-sm" style={{ color: cmd.onSurfaceVariant }}>
-        {activeCount} activa(s) de {applications.length} en total, todas las residencias. Cada residencia gestiona
+        {activeCount} en curso de {totalCount} en total, todas las residencias. Cada residencia gestiona
         sus propias solicitudes desde su panel — desde acá solo se puede reabrir una rechazada o vencida.
       </p>
 
-      <AdminCard className="mt-6 overflow-hidden">
+      <AdminFilterLinks
+        label="Filtrar solicitudes"
+        className="mt-4"
+        items={[
+          { key: "todas", label: `Todas (${totalCount})`, href: "/admin/applications", on: !onlyInProgress },
+          { key: "en-curso", label: `En curso (${activeCount})`, href: "/admin/applications?estado=en-curso", on: onlyInProgress },
+        ]}
+      />
+
+      <AdminCard className="mt-4 overflow-hidden">
         <ul className="divide-y md:hidden" style={{ borderColor: cmd.border }} aria-label="Solicitudes">
-          {applications.map((a) => {
+          {shown.map((a) => {
             const visible = getVisibleStatus({
               applicationStatus: a.status,
               reservation: reservationInfoByAppId.get(a.id),
@@ -118,7 +137,7 @@ export default async function AdminApplicationsPage() {
               {["Fecha", "Estudiante", "Estado", "Residencia", "Tipo", "Ingreso deseado", ""].map((h) => (
                 <th
                   key={h}
-                  className="px-4 py-2.5 text-[11px] font-bold uppercase tracking-wide"
+                  className="px-4 py-2.5 text-xs font-bold uppercase tracking-wide"
                   style={{ color: cmd.outline }}
                 >
                   {h}
@@ -127,7 +146,7 @@ export default async function AdminApplicationsPage() {
             </tr>
           </thead>
           <tbody>
-            {applications.map((a) => {
+            {shown.map((a) => {
               const visible = getVisibleStatus({
                 applicationStatus: a.status,
                 reservation: reservationInfoByAppId.get(a.id),
@@ -170,9 +189,9 @@ export default async function AdminApplicationsPage() {
         </table>
           </ScrollTable>
         </div>
-        {applications.length === 0 && (
+        {shown.length === 0 && (
           <p className="p-6 text-sm" style={{ color: cmd.outline }}>
-            Todavía no hay solicitudes en el sistema.
+            {totalCount === 0 ? "Todavía no hay solicitudes en el sistema." : "No hay solicitudes en curso."}
           </p>
         )}
       </AdminCard>

@@ -1,0 +1,239 @@
+- button "Open Next.js Dev Tools":
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- banner:
+  - link "EstuRed, inicio":
+    - /url: /
+    - generic: EstuRed
+  - generic: Residencias
+  - button "Notificaciones, 23 sin leer":
+    - generic: notifications
+    - generic: "23"
+  - generic: owner.residencia.norte@example.com
+  - button "Salir"
+- main:
+  - generic: apartment
+  - generic: apartment
+  - text: Residencias
+  - heading "Tus residencias" [level=1]
+  - paragraph: Gestioná el perfil y la publicación de cada una.
+  - generic: 6 residencias
+  - link "Reporte PDF":
+    - /url: /residence/dashboard/pdf
+    - generic: download
+    - text: Reporte PDF
+  - link "+ Sumar otra residencia":
+    - /url: /residence/settings/new
+  - generic: search
+  - textbox "Buscar por nombre o zona…"
+  - button "Todas (6)" [pressed]
+  - button "Verificada y publicada (5)"
+  - button "Pendiente de verificación (1)"
+  - 'img "Residencia Norte: sin fotos cargadas"':
+    - generic: Palermo, CABA
+    - generic: Sin fotos cargadas
+  - generic: Verificada y publicada
+  - heading "Residencia Norte" [level=2]
+  - paragraph:
+    - generic: location_on
+    - text: Palermo, CABA
+  - paragraph: Ocupación
+  - paragraph:
+    - text: 29/35
+    - generic: (83%)
+  - paragraph: Solicitudes
+  - paragraph: 0 nuevas
+  - paragraph: Renovaciones
+  - paragraph: 0 pendientes
+  - paragraph: Soporte
+  - paragraph: 0 abiertos
+  - paragraph: Tarifa promedio
+  - paragraph: USD 218
+  - paragraph:
+    - text: ≈ ARS 342.500 referencial
+    - button "Más información sobre el valor en pesos":
+      - generic: i
+  - link "Gestionar residencia":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e
+  - link "Editar perfil":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/profile
+  - 'img "Residencia Río de la Plata: sin fotos cargadas"':
+    - generic: Recoleta, CABA
+    - generic: Sin fotos cargadas
+  - generic: Verificada y publicada
+  - heading "Residencia Río de la Plata" [level=2]
+  - paragraph:
+    - generic: location_on
+    - text: Recoleta, CABA
+  - paragraph: Ocupación
+  - paragraph:
+    - text: 30/39
+    - generic: (77%)
+  - paragraph: Solicitudes
+  - paragraph: 0 nuevas
+  - paragraph: Renovaciones
+  - paragraph: 0 pendientes
+  - paragraph: Soporte
+  - paragraph: 0 abiertos
+  - paragraph: Tarifa promedio
+  - paragraph: USD 230
+  - paragraph:
+    - text: ≈ ARS 361.000 referencial
+    - button "Más información sobre el valor en pesos":
+      - generic: i
+  - link "Gestionar residencia":
+    - /url: /residence/6f3cfe08-b2e6-4e6b-b59d-2a8efe61b9de
+  - link "Editar perfil":
+    - /url: /residence/6f3cfe08-b2e6-4e6b-b59d-2a8efe61b9de/profile
+  - 'img "Casa Compartida Almagro: sin fotos cargadas"':
+    - generic: Almagro, CABA
+    - generic: Sin fotos cargadas
+  - generic: Pendiente de verificación
+  - heading "Casa Compartida Almagro" [level=2]
+  - paragraph:
+    - generic: location_on
+    - text: Almagro, CABA
+  - paragraph: Ocupación
+  - paragraph:
+    - text: 30/37
+    - generic: (81%)
+  - paragraph: Solicitudes
+  - paragraph: 0 nuevas
+  - paragraph: Renovaciones
+  - paragraph: 0 pendientes
+  - paragraph: Soporte
+  - paragraph: 0 abiertos
+  - paragraph: Tarifa promedio
+  - paragraph: USD 193
+  - paragraph:
+    - text: ≈ ARS 303.000 referencial
+    - button "Más información sobre el valor en pesos":
+      - generic: i
+  - link "Gestionar residencia":
+    - /url: /residence/b9e509f4-e92d-420b-aeb3-43af1a30a88e
+  - link "Editar perfil":
+    - /url: /residence/b9e509f4-e92d-420b-aeb3-43af1a30a88e/profile
+  - img "Foto de Residencia Sin Fronteras en Centro, CABA"
+  - generic: Verificada y publicada
+  - heading "Residencia Sin Fronteras" [level=2]
+  - paragraph:
+    - generic: location_on
+    - text: Centro, CABA
+  - paragraph: Ocupación
+  - paragraph:
+    - text: 24/28
+    - generic: (86%)
+  - paragraph: Solicitudes
+  - paragraph: 0 nuevas
+  - paragraph: Renovaciones
+  - paragraph: 0 pendientes
+  - paragraph: Soporte
+  - paragraph: 0 abiertos
+  - paragraph: Tarifa promedio
+  - paragraph: USD 264
+  - paragraph:
+    - text: ≈ ARS 414.500 referencial
+    - button "Más información sobre el valor en pesos":
+      - generic: i
+  - link "Gestionar residencia":
+    - /url: /residence/54d972ea-25a2-4933-add3-8a683684d452
+  - link "Editar perfil":
+    - /url: /residence/54d972ea-25a2-4933-add3-8a683684d452/profile
+  - 'img "Residencia Test Integración (Ciclo 59 — actual): sin fotos cargadas"':
+    - generic: Palermo, CABA
+    - generic: Sin fotos cargadas
+  - generic: Verificada y publicada
+  - heading "Residencia Test Integración (Ciclo 59 — actual)" [level=2]
+  - paragraph:
+    - generic: location_on
+    - text: Palermo, CABA
+  - paragraph: Ocupación
+  - paragraph: 0/0
+  - paragraph: Solicitudes
+  - paragraph: 0 nuevas
+  - paragraph: Renovaciones
+  - paragraph: 0 pendientes
+  - paragraph: Soporte
+  - paragraph: 0 abiertos
+  - paragraph: Tarifa promedio
+  - paragraph: USD 300
+  - paragraph:
+    - text: ≈ ARS 471.000 referencial
+    - button "Más información sobre el valor en pesos":
+      - generic: i
+  - link "Gestionar residencia":
+    - /url: /residence/c6c35cc3-3a8c-494b-8c2e-05deb2f4b6c1
+  - link "Editar perfil":
+    - /url: /residence/c6c35cc3-3a8c-494b-8c2e-05deb2f4b6c1/profile
+  - 'img "Residencia Test Integración (Ciclo 59 — destino): sin fotos cargadas"':
+    - generic: Palermo, CABA
+    - generic: Sin fotos cargadas
+  - generic: Verificada y publicada
+  - heading "Residencia Test Integración (Ciclo 59 — destino)" [level=2]
+  - paragraph:
+    - generic: location_on
+    - text: Palermo, CABA
+  - paragraph: Ocupación
+  - paragraph: 0/0
+  - paragraph: Solicitudes
+  - paragraph: 0 nuevas
+  - paragraph: Renovaciones
+  - paragraph: 0 pendientes
+  - paragraph: Soporte
+  - paragraph: 0 abiertos
+  - paragraph: Tarifa promedio
+  - paragraph: USD 300
+  - paragraph:
+    - text: ≈ ARS 471.000 referencial
+    - button "Más información sobre el valor en pesos":
+      - generic: i
+  - link "Gestionar residencia":
+    - /url: /residence/dff38e1b-e29d-4f3c-aac3-0433b0b944a9
+  - link "Editar perfil":
+    - /url: /residence/dff38e1b-e29d-4f3c-aac3-0433b0b944a9/profile
+- contentinfo:
+  - generic: EstuRed
+  - generic: EstuRed
+  - paragraph: La convivencia también se elige. Residencias estudiantiles verificadas en CABA, con solicitudes registradas y comprobantes verificables.
+  - list:
+    - generic: check
+    - text: Residencias verificadas presencialmente
+    - generic: check
+    - text: Solicitudes registradas en la plataforma
+    - generic: check
+    - text: Comprobante de Reserva Confirmada
+  - navigation "Explorar":
+    - paragraph: Explorar
+    - list:
+      - link "Buscar residencias":
+        - /url: /search
+      - link "Para estudiantes y familias":
+        - /url: /for-students
+      - link "Para residencias":
+        - /url: /for-residences
+      - link "Guías":
+        - /url: /guias
+  - navigation "Ayuda":
+    - paragraph: Ayuda
+    - list:
+      - link "Preguntas frecuentes":
+        - /url: /for-students#preguntas-frecuentes
+      - link "Cómo funciona":
+        - /url: /#el-proceso
+      - link "Qué pagás y a quién":
+        - /url: /for-students#que-pagas
+      - text: "Contacto:"
+      - link "hola@estured.com":
+        - /url: mailto:hola@estured.com
+      - listitem: ¿Tenés una reserva y algo no coincide? Abrí un caso desde tu panel.
+  - paragraph: EstuRed actúa como plataforma intermediaria de búsqueda, solicitud, registro y comprobante. No presta directamente el alojamiento. Los precios en ARS son referenciales al dólar blue del día.
+  - list:
+    - link "Verificar un comprobante":
+      - /url: /verify
+    - link "Términos y condiciones":
+      - /url: /terms
+    - link "Política de privacidad":
+      - /url: /privacy
+  - paragraph: Hecho con ♥ en Buenos Aires
+- button "Ricardo — Dueño de Residencia": Ricardo — Dueño de Residencia
+- alert

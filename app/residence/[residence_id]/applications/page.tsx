@@ -13,6 +13,11 @@ import { buildApplicantProfile, type ApplicantProfileSource } from "@/lib/applic
 import { movingSignalFor } from "@/lib/stayChange/copy";
 import { advanceGateMessage, stayChangeAdvanceAt } from "@/lib/stayChange/advanceGate";
 import { ApplicationsInbox, type FullApplication } from "@/app/residence/[residence_id]/applications/ApplicationsInbox";
+import { isCountableWaitlistEntry } from "@/lib/waitlist-entries/desiredMonth";
+import { applicationAllowsDocuments } from "@/lib/documents/residenceDocumentAccess";
+import { computeRequirementStatuses } from "@/lib/residences/stayDocuments";
+import { effectiveRequirements, loadStayDocumentsConfig, loadStudentDocumentFiles } from "@/lib/residences/stayDocumentsDb";
+import type { StudentDocumentItem } from "@/components/residences/StudentDocumentChecklist";
 
 export const metadata: Metadata = { title: "Solicitudes recibidas" };
 export const dynamic = "force-dynamic";
@@ -41,18 +46,18 @@ export default async function ResidenceApplicationsPage({
     admin
       .from("application_requests")
       .select(
-        "id, status, contact_target, desired_start_date, initial_duration_months, academic_objective, rejection_reason_code, family_link_id, created_by_user_id, snapshot_original_id, snapshot_final_id, room_type_id, expires_at, payment_deadline_at, contact_established_at, created_at, room_types(name), student_profiles(first_name, last_initial, birth_date, display_age, is_minor, nationality, origin_city, origin_country, career, study_institution_private, bio, habits, interests, student_visibility_settings(is_individual_profile_visible, show_habits_to_registered, show_interests_to_registered))",
+        "id, status, student_profile_id, contact_target, desired_start_date, initial_duration_months, academic_objective, rejection_reason_code, family_link_id, created_by_user_id, snapshot_original_id, snapshot_final_id, room_type_id, expires_at, payment_deadline_at, contact_established_at, created_at, room_types(name), student_profiles(first_name, last_initial, birth_date, display_age, is_minor, nationality, origin_city, origin_country, career, study_institution_private, bio, habits, interests, student_visibility_settings(is_individual_profile_visible, show_habits_to_registered, show_interests_to_registered))",
       )
       .eq("residence_id", residenceId)
       .order("created_at", { ascending: false }),
-    admin.from("waitlist_entries").select("room_type_id").eq("residence_id", residenceId).in("status", WAITLIST_ACTIVE_STATUSES),
+    admin.from("waitlist_entries").select("room_type_id, status, desired_start_date").eq("residence_id", residenceId).in("status", WAITLIST_ACTIVE_STATUSES),
   ]);
 
   const rows = applications ?? [];
 
   const waitlistCountByType = new Map<string, number>();
   for (const w of waitlistEntries ?? []) {
-    if (!w.room_type_id) continue;
+    if (!w.room_type_id || !isCountableWaitlistEntry(w as { status: string; desired_start_date: string | null })) continue;
     waitlistCountByType.set(w.room_type_id, (waitlistCountByType.get(w.room_type_id) ?? 0) + 1);
   }
 
@@ -141,6 +146,29 @@ export default async function ResidenceApplicationsPage({
     }
   }
 
+  // DR48: documentación del solicitante cuando la solicitud ya tiene el pago a la residencia habilitado (o la reserva sigue viva).
+  // Todos ven el estado; solo el dueño y el staff con `payments.residence` reciben el id para «Ver» (la acción vuelve a autorizar).
+  const canOpenApplicantDocs = can(membership, "payments.residence");
+  const docEligibleApps = rows.filter((a) => applicationAllowsDocuments(a.status, reservationInfoByAppId.get(a.id)?.status));
+  const docProfileIds = [...new Set(docEligibleApps.map((a) => a.student_profile_id as string).filter(Boolean))];
+  const [stayDocsConfig, { files: applicantDocFiles, schemaReady: docsSchemaReady }] = docProfileIds.length
+    ? await Promise.all([loadStayDocumentsConfig(admin, residenceId), loadStudentDocumentFiles(admin, docProfileIds)])
+    : [null, { files: [], schemaReady: true }];
+  const docRequirements = stayDocsConfig ? effectiveRequirements(stayDocsConfig, docsSchemaReady) : [];
+  const documentsByAppId = new Map<string, StudentDocumentItem[]>();
+  for (const a of docEligibleApps) {
+    const files = applicantDocFiles.filter((f) => f.student_profile_id === a.student_profile_id);
+    documentsByAppId.set(
+      a.id,
+      computeRequirementStatuses(docRequirements, files).map((st) => ({
+        label: st.requirement.label,
+        delivered: st.delivered,
+        deliveredAt: st.deliveredAt,
+        fileId: canOpenApplicantDocs ? st.fileId : null,
+      })),
+    );
+  }
+
   const fullApplications: FullApplication[] = rows.map((a) => {
     // Perfil crudo: SOLO se usa acá, en el servidor. Al cliente viaja `applicant`, ya filtrado
     // por privacidad (menor / interruptores de visibilidad) y sin apellido, nacimiento ni contacto.
@@ -206,6 +234,7 @@ export default async function ResidenceApplicationsPage({
       waitlistRelatedCount: a.room_type_id ? (waitlistCountByType.get(a.room_type_id) ?? 0) : 0,
       isActive: (ACTIVE_APPLICATION_STATUSES as readonly string[]).includes(a.status),
       moving: movingByAppId.get(a.id) ?? null,
+      documents: documentsByAppId.get(a.id) ?? null,
     };
   });
 
@@ -220,6 +249,7 @@ export default async function ResidenceApplicationsPage({
         residencePayment: can(membership, "payments.residence"),
         sendAdjustment: can(membership, "applications.send_adjustment"),
       }}
+      documentsLimited={!docsSchemaReady}
     />
   );
 }

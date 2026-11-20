@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ResidenceHero } from "@/components/residences/ResidenceHero";
 import { notFound } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
@@ -7,6 +8,8 @@ import { can } from "@/lib/residences/permissions";
 import { PermissionGate } from "@/components/residences/PermissionGate";
 import { formatDate } from "@/lib/dates/format";
 import { Card } from "@/components/ui/Card";
+import { Icon } from "@/components/ui/Icon";
+import { BackToProfileLink } from "@/components/residences/BackToProfileLink";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { RegulationText } from "@/components/regulations/RegulationText";
@@ -41,9 +44,14 @@ export default async function ResidenceRegulationPage({ params }: { params: Prom
   const modelText = normalizeRegulationText(buildModelText());
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
-      <h1 className="text-2xl font-bold text-ink">Reglamento</h1>
-      <p className="mt-1 text-sm text-ink-soft">
+    <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
+      <BackToProfileLink residenceId={residenceId} className="mb-2" />
+      <ResidenceHero icon="gavel" title="Reglamento" subtitle="El que lee y acepta quien envía una solicitud." />
+      <p role="note" className="mb-3 flex items-start gap-2 rounded-field bg-forest-tint px-4 py-3 text-sm font-semibold text-ink">
+        <Icon name="info" className="mt-0.5 shrink-0 text-lg text-forest-700" aria-hidden />
+        Un reglamento completo y prolijo evita problemas a futuro y preguntas repetidas antes de reservar.
+      </p>
+      <p className="text-sm text-ink-soft">
         Es el reglamento que lee quien mira tu ficha y que acepta al enviar su solicitud. Podés partir del modelo de EstuRed o
         cargar el tuyo. No lo revisa EstuRed: lo que publicás rige apenas lo publicás, y cada versión queda registrada.
       </p>
@@ -74,6 +82,7 @@ export default async function ResidenceRegulationPage({ params }: { params: Prom
                 modelText={modelText}
                 canEdit={canEdit && current.view.schemaReady}
                 residenceName={residenceName}
+                draftScope={{ userId: sessionUser.id, stamp: current.view.hash }}
               />
             </PermissionGate>
           </Card>
@@ -111,6 +120,10 @@ export default async function ResidenceRegulationPage({ params }: { params: Prom
           </section>
         </>
       )}
+
+      <div className="mt-10 border-t border-line pt-4">
+        <BackToProfileLink residenceId={residenceId} />
+      </div>
     </div>
   );
 }

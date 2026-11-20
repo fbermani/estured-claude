@@ -50,6 +50,36 @@ export async function deleteResidenceCascade(admin: SupabaseClient, residenceId:
     fail("guard", `la residencia "${target.slug}" no es de test (slug sin prefijo residencia-test-); me niego a borrarla`);
   }
 
+  // Notificaciones generadas por las server actions: apuntan (related_entity_id) a entidades de esta residencia
+  // que se borran más abajo y quedarían como links rotos en el panel de los usuarios demo. Se juntan los ids ANTES.
+  const relatedIds = new Set<string>([residenceId]);
+  const collect = async (table: string, column: string) => {
+    const { data, error } = await admin.from(table).select("id").eq(column, residenceId);
+    if (error) {
+      if (isMissingSchemaError(error)) return;
+      fail(`select ${table} (notificaciones)`, error.message);
+    }
+    for (const row of (data ?? []) as { id: string }[]) relatedIds.add(row.id);
+  };
+  await collect("application_requests", "residence_id");
+  await collect("reservations", "residence_id");
+  await collect("renewal_requests", "residence_id");
+  await collect("renewal_offers", "residence_id");
+  await collect("waitlist_entries", "residence_id");
+  await collect("family_application_proposals", "residence_id");
+  await collect("support_cases", "residence_id");
+  await collect("stay_change_intents", "current_residence_id");
+  await collect("stay_early_exits", "residence_id");
+  await collect("resident_stays", "residence_id");
+  await collect("booking_receipts", "residence_id");
+  const relatedList = [...relatedIds];
+  for (let i = 0; i < relatedList.length; i += 100) {
+    await okIfTableExists(
+      "notifications",
+      admin.from("notifications").delete().in("related_entity_id", relatedList.slice(i, i + 100)),
+    );
+  }
+
   // DR3 (Ciclo 59): avisos "Quiero cambiar" y salidas anticipadas de esta residencia (las FK de solicitudes/listas
   // hacia el aviso son ON DELETE SET NULL). Antes de estadías y reservas, que ellos referencian.
   // (Si la migración 0044 todavía no se aplicó en esta base, las tablas no existen: se omite.)

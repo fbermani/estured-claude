@@ -31,7 +31,7 @@ export function FilterChips<T extends string>({
   className?: string;
 }) {
   return (
-    <div role="group" aria-label={label} className={`${toneClass(tone)} flex gap-2 overflow-x-auto overscroll-x-contain pb-0.5 max-md:pr-8 max-md:[mask-image:linear-gradient(90deg,#000_calc(100%-28px),transparent)] ${className}`}>
+    <div role="group" aria-label={label} className={`${toneClass(tone)} relative flex gap-2 overflow-x-auto overscroll-x-contain pb-0.5 max-md:pr-8 max-md:[mask-image:linear-gradient(90deg,#000_calc(100%-28px),transparent)] ${className}`}>
       {options.map((o) => {
         const pressed = o.value === value;
         return (
@@ -48,7 +48,7 @@ export function FilterChips<T extends string>({
             {o.label}
             {o.count !== undefined && (
               <b
-                className={`rounded-full px-1.5 text-[11.5px] font-bold leading-5 ${
+                className={`rounded-full px-1.5 text-xs font-bold leading-5 ${
                   pressed ? "bg-white/25" : o.attention && o.count > 0 ? "bg-orange text-white" : "bg-black/[0.08]"
                 }`}
               >

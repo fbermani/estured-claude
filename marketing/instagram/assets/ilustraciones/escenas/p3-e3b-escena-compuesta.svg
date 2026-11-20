@@ -1,0 +1,272 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920" role="img">
+<title>Post 3, escena 3 (cocina)</title>
+<desc>Vista previa: E1 y E2 se saludan en la cocina común.</desc>
+<defs>
+<filter id="papel" x="0" y="0" width="100%" height="100%">
+  <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="7"/>
+  <feColorMatrix type="matrix" values="0 0 0 0 0.36  0 0 0 0 0.29  0 0 0 0 0.19  0 0 0 1.1 -0.48"/>
+</filter>
+
+
+</defs>
+<style>
+  .bg-pared{fill:#e3e8de}
+  .bg-zocalo{fill:#cfd6c9}
+  .bg-piso{fill:#c9b896}
+  .bg-tabla{fill:#b9a885}
+  .bg-azulejo{fill:#f6f2ea}
+  .bg-junta{fill:#e2dccf}
+  .bg-mesada{fill:#c9b28c}
+  .bg-mueble{fill:#7f9d8c}
+  .bg-mueble-oscuro{fill:#6e8b7a}
+  .bg-tirador{fill:#f1d9a8}
+  .bg-alacena{fill:#8fac9b}
+  .bg-heladera{fill:#f4f2ec}
+  .bg-heladera-borde{fill:#d6d3c9}
+  .bg-heladera-manija{fill:#9fa7ab}
+  .bg-marco{fill:#fbf6ec}
+  .bg-vidrio{fill:#cfe0e3}
+  .bg-sol{fill:#f2f6f2}
+  .bg-maceta{fill:#c0603f}
+  .bg-planta{fill:#1f7d5c}
+  .bg-pava{fill:#1d2722}
+  .bg-plato{fill:#fbf8f1}
+  .bg-plato-borde{fill:#d9d2c3}
+  .bg-taza{fill:#d8b06a}
+  .bg-olla{fill:#5d6a66}
+  .bg-mancha{fill:#b59b6b;opacity:0.5}
+  .bg-burbuja{fill:#fbf6ec}
+  .bg-burbuja-borde{fill:#1d2722}
+  .bg-garabato{fill:none;stroke:#c0603f;stroke-linecap:round;stroke-linejoin:round}
+
+  .fondo{fill:#fbf6ec}
+  .piso{fill:#ece3cf}
+  .e1-piel{fill:#b97a4f}
+  .e1-piel-sombra{fill:#a4683f}
+  .e1-pelo{fill:#2a1d17}
+  .e1-tinta{fill:#1d2722}
+  .e1-trazo{fill:none;stroke:#1d2722;stroke-linecap:round}
+  .e1-abrigo{fill:#1f7d5c}
+  .e1-abrigo-brazo{fill:none;stroke:#1a6e51;stroke-linecap:round}
+  .e1-abrigo-brazo-lejos{fill:none;stroke:#155c44;stroke-linecap:round}
+  .e1-abrigo-linea{fill:none;stroke:#0c3a2c;stroke-linecap:round}
+  .e1-cuello{fill:#0c3a2c}
+  .e1-pantalon{fill:#2f3b45}
+  .e1-pantalon-lejos{fill:#27313a}
+  .e1-zapatilla{fill:#1d2722}
+  .e1-mochila{fill:#d8b06a}
+  .e1-mochila-sombra{fill:#c29a55}
+  .e1-tira{fill:none;stroke:#d8b06a;stroke-linecap:round}
+  .e1-valija{fill:#0c3a2c}
+  .e1-valija-lado{fill:#082a1f}
+  .e1-valija-manija{fill:#14503c}
+  .e1-valija-banda{fill:#f1d9a8}
+  .e2-piel{fill:#8a5638}
+  .e2-piel-sombra{fill:#764830}
+  .e2-pelo{fill:#1a1412}
+  .e2-gomita{fill:#c0603f}
+  .e2-tinta{fill:#1d2722}
+  .e2-trazo{fill:none;stroke:#1d2722;stroke-linecap:round}
+  .e2-buzo{fill:#c0603f}
+  .e2-buzo-oscuro{fill:#a44f33}
+  .e2-buzo-brazo{fill:none;stroke:#b3583a;stroke-linecap:round;stroke-linejoin:round}
+  .e2-buzo-brazo-lejos{fill:none;stroke:#9c4b31;stroke-linecap:round;stroke-linejoin:round}
+  .e2-punio{fill:none;stroke:#a44f33}
+  .e2-cordon{fill:none;stroke:#f3ead8;stroke-linecap:round}
+  .e2-auriculares{fill:none;stroke:#1d2722;stroke-linecap:round}
+  .e2-auricular{fill:#1d2722}
+  .e2-pantalon{fill:#a8946e}
+  .e2-pantalon-lejos{fill:#958260}
+  .e2-zapatilla{fill:#f3ead8}
+  .e2-suela{fill:#1d2722}
+
+  .piso{fill:#1d2722;fill-opacity:0.12}
+</style>
+<rect class="bg-pared" width="1080" height="1330"/>
+<rect class="bg-zocalo" y="1304" width="1080" height="26"/>
+<rect class="bg-piso" y="1330" width="1080" height="590"/>
+<rect class="bg-tabla" y="1420" width="1080" height="5"/>
+<rect class="bg-tabla" y="1540" width="1080" height="5"/>
+<rect class="bg-tabla" y="1690" width="1080" height="5"/>
+<rect class="bg-tabla" y="1870" width="1080" height="5"/>
+<g id="alacenas">
+  <rect class="bg-alacena" x="0" y="520" width="440" height="230" rx="8"/>
+  <rect class="bg-mueble-oscuro" x="218" y="530" width="6" height="210"/>
+  <rect class="bg-tirador" x="190" y="700" width="18" height="34" rx="6"/>
+  <rect class="bg-tirador" x="234" y="700" width="18" height="34" rx="6"/>
+</g>
+<g id="ventana">
+  <rect class="bg-marco" x="500" y="520" width="220" height="280" rx="10"/>
+  <rect class="bg-vidrio" x="518" y="538" width="184" height="244" rx="4"/>
+  <circle class="bg-sol" cx="649.6" cy="620.8" r="28.6"/>
+  <rect class="bg-marco" x="602.0" y="538" width="16" height="244"/>
+  <rect class="bg-marco" x="518" y="654.4" width="184" height="14"/>
+  <rect class="bg-marco" x="484" y="794" width="252" height="22" rx="6"/>
+</g>
+<g id="azulejos">
+  <rect class="bg-azulejo" x="0" y="880" width="740" height="210"/>
+  <rect class="bg-junta" x="0" y="900" width="740" height="4"/><rect class="bg-junta" x="0" y="946" width="740" height="4"/><rect class="bg-junta" x="0" y="992" width="740" height="4"/><rect class="bg-junta" x="0" y="1038" width="740" height="4"/><rect class="bg-junta" x="0" y="1084" width="740" height="4"/><rect class="bg-junta" x="46" y="880" width="4" height="210"/><rect class="bg-junta" x="92" y="880" width="4" height="210"/><rect class="bg-junta" x="138" y="880" width="4" height="210"/><rect class="bg-junta" x="184" y="880" width="4" height="210"/><rect class="bg-junta" x="230" y="880" width="4" height="210"/><rect class="bg-junta" x="276" y="880" width="4" height="210"/><rect class="bg-junta" x="322" y="880" width="4" height="210"/><rect class="bg-junta" x="368" y="880" width="4" height="210"/><rect class="bg-junta" x="414" y="880" width="4" height="210"/><rect class="bg-junta" x="460" y="880" width="4" height="210"/><rect class="bg-junta" x="506" y="880" width="4" height="210"/><rect class="bg-junta" x="552" y="880" width="4" height="210"/><rect class="bg-junta" x="598" y="880" width="4" height="210"/><rect class="bg-junta" x="644" y="880" width="4" height="210"/><rect class="bg-junta" x="690" y="880" width="4" height="210"/><rect class="bg-junta" x="736" y="880" width="4" height="210"/>
+</g>
+<g id="mesada">
+  <rect class="bg-mesada" x="0" y="1080" width="760" height="34" rx="6"/>
+  <rect class="bg-mueble" x="0" y="1114" width="740" height="216"/>
+  <rect class="bg-mueble-oscuro" x="246" y="1124" width="6" height="196"/>
+  <rect class="bg-mueble-oscuro" x="494" y="1124" width="6" height="196"/>
+  <rect class="bg-tirador" x="200" y="1150" width="34" height="14" rx="6"/>
+  <rect class="bg-tirador" x="448" y="1150" width="34" height="14" rx="6"/>
+  <rect class="bg-tirador" x="696" y="1150" width="34" height="14" rx="6"/>
+</g>
+<g id="heladera">
+  <rect class="bg-heladera-borde" x="806" y="620" width="244" height="710" rx="22"/>
+  <rect class="bg-heladera" x="814" y="628" width="228" height="694" rx="18"/>
+  <rect class="bg-heladera-borde" x="814" y="880" width="228" height="8"/>
+  <rect class="bg-heladera-manija" x="834" y="790" width="14" height="70" rx="7"/>
+  <rect class="bg-heladera-manija" x="834" y="910" width="14" height="90" rx="7"/>
+</g><g id="pava">
+  <path class="bg-pava" d="M90 1080 L100 1020 Q130 1000 160 1020 L170 1080 Z"/>
+  <path class="bg-pava" d="M160 1036 L196 1012 L200 1022 L168 1050 Z"/>
+</g>
+<rect id="textura-papel" width="1080" height="1920" filter="url(#papel)" opacity="0.55"/>
+<g id="personajes" transform="translate(0 470) scale(0.9)">
+
+<ellipse class="piso" cx="600" cy="1114" rx="470" ry="22"/>
+<g id="e2-saludo" transform="translate(1990 40) scale(-1 1)">
+  <g id="e2-tc-pierna-izq" data-parte="pierna-izq">
+    <path class="e2-pantalon-lejos" d="M1160 716 L1214 716 L1226 1046 L1164 1046 Z" />
+    <rect class="e2-zapatilla" x="1162" y="1034" width="82" height="34" rx="15" />
+    <rect class="e2-suela" x="1162" y="1062" width="82" height="10" rx="5" />
+  </g>
+  
+  <g id="e2-tc-pierna-der" data-parte="pierna-der">
+    <path class="e2-pantalon" d="M1100 716 L1158 716 L1160 1046 L1090 1046 Z" />
+    <rect class="e2-zapatilla" x="1086" y="1034" width="84" height="34" rx="15" />
+    <rect class="e2-suela" x="1086" y="1062" width="84" height="10" rx="5" />
+  </g>
+
+  
+  <g id="e2-tc-cola" data-parte="pelo">
+    <path class="e2-pelo" d="M1122 222 Q1062 214 1046 270 Q1032 330 1052 394 Q1070 344 1088 302 Q1104 262 1128 246 Z" />
+  </g>
+
+  
+  <g id="e2-brazo-izq" data-parte="brazo-izq">
+    <path class="e2-buzo-brazo-lejos" stroke-width="46" d="M1238 418 Q1300 400 1306 300"/>
+    <ellipse class="e2-piel" cx="1306" cy="276" rx="21" ry="26"/>
+  </g>
+  <g id="e2-tc-torso" data-parte="torso">
+    <rect class="e2-piel-sombra" x="1142" y="340" width="28" height="40" rx="8" />
+    <path class="e2-buzo-oscuro" d="M1092 384 Q1100 352 1150 356 L1120 400 Z" />
+    <path class="e2-buzo" d="M1096 378 Q1160 394 1222 378 Q1262 392 1264 446 L1270 716 Q1170 732 1066 716 L1072 446 Q1074 392 1096 378 Z" />
+    <path class="e2-buzo-oscuro" d="M1140 590 Q1196 580 1246 590 L1254 676 Q1196 686 1132 676 Z" />
+    <path class="e2-punio" stroke-width="20" d="M1068 706 Q1170 724 1268 706" />
+    <path class="e2-cordon" stroke-width="5" d="M1178 394 L1176 456 M1206 390 L1210 452" />
+  </g>
+
+  
+  <g id="e2-tc-auriculares" data-parte="auriculares">
+    <path class="e2-auriculares" stroke-width="8" d="M1124 386 Q1170 418 1214 384" />
+    <rect class="e2-auricular" x="1200" y="366" width="28" height="40" rx="12" />
+    <rect class="e2-auricular" x="1108" y="372" width="24" height="36" rx="11" />
+  </g>
+
+  
+  <g id="e2-tc-cabeza" data-parte="cabeza">
+    <ellipse class="e2-piel" cx="1160" cy="290" rx="52" ry="68" />
+    <circle class="e2-piel" cx="1122" cy="304" r="11" />
+    <g id="e2-tc-pelo" data-parte="pelo">
+      <path class="e2-pelo" d="M1108 300 Q1100 218 1160 216 Q1216 218 1212 282 Q1196 252 1160 250 Q1130 252 1128 270 Q1124 290 1112 304 Z" />
+      <circle class="e2-pelo" cx="1124" cy="222" r="20" />
+      <rect class="e2-gomita" x="1112" y="226" width="22" height="12" rx="6" transform="rotate(-30 1123 232)" />
+    </g>
+    <g id="e2-tc-cejas" data-parte="cejas">
+      <path class="e2-trazo" stroke-width="5.5" d="M1156 278 Q1168 272 1180 276" />
+      <path class="e2-trazo" stroke-width="5.5" d="M1192 276 Q1201 273 1209 278" />
+    </g>
+    <g id="e2-tc-ojos" data-parte="ojos">
+      <ellipse class="e2-tinta" cx="1168" cy="302" rx="6" ry="6.5" />
+      <ellipse class="e2-tinta" cx="1200" cy="302" rx="5" ry="6" />
+    </g>
+    <g id="e2-tc-boca" data-parte="boca">
+      <path class="e2-trazo" stroke-width="4.5" d="M1176 330 Q1186 336 1196 329" />
+    </g>
+  </g>
+
+  
+  <g id="e2-tc-brazo-der" data-parte="brazo-der">
+    <path class="e2-buzo-brazo" stroke-width="50" d="M1098 420 Q1074 560 1088 680" />
+    <path class="e2-punio" stroke-width="50" d="M1087 668 L1088 686" />
+    <circle class="e2-piel" cx="1090" cy="708" r="20" />
+  </g>
+
+</g>
+<g id="e1-saludo" transform="translate(-780 40)">
+  <g id="e1-tc-pierna-izq" data-parte="pierna-izq">
+    <rect class="e1-pantalon-lejos" x="1166" y="700" width="48" height="345" rx="14" />
+    <rect class="e1-zapatilla" x="1158" y="1034" width="80" height="40" rx="18" />
+  </g>
+  
+  <g id="e1-tc-pierna-der" data-parte="pierna-der">
+    <rect class="e1-pantalon" x="1100" y="700" width="52" height="345" rx="14" />
+    <rect class="e1-zapatilla" x="1092" y="1034" width="82" height="40" rx="18" />
+  </g>
+
+  
+  <g id="e1-tc-mochila" data-parte="mochila">
+    <rect class="e1-mochila" x="1020" y="392" width="64" height="252" rx="24" />
+    <rect class="e1-mochila-sombra" x="1020" y="392" width="64" height="74" rx="24" />
+    <rect class="e1-mochila-sombra" x="1028" y="540" width="40" height="70" rx="12" />
+  </g>
+
+  
+  <g id="e1-brazo-izq" data-parte="brazo-izq">
+    <path class="e1-abrigo-brazo-lejos" stroke-width="42" d="M1236 404 Q1298 390 1302 290"/>
+    <ellipse class="e1-piel-sombra" cx="1302" cy="266" rx="21" ry="26"/>
+  </g>
+  <g id="e1-tc-torso" data-parte="torso">
+    <rect class="e1-piel-sombra" x="1138" y="336" width="28" height="40" rx="8" />
+    <path class="e1-abrigo" d="M1082 376 Q1150 362 1228 376 Q1262 392 1262 440 L1268 722 Q1170 738 1068 720 L1074 440 Q1074 392 1082 376 Z" />
+    <path class="e1-abrigo-linea" stroke-width="5" d="M1184 386 V730" />
+    <path class="e1-abrigo-linea" stroke-width="5" d="M1206 612 H1244" />
+    <rect class="e1-cuello" x="1124" y="352" width="72" height="34" rx="15" />
+    <path class="e1-tira" stroke-width="16" d="M1104 384 Q1098 460 1102 540" />
+    <rect class="e1-mochila-sombra" x="1092" y="512" width="22" height="12" rx="4" />
+  </g>
+
+  
+  <g id="e1-tc-cabeza" data-parte="cabeza">
+    <ellipse class="e1-piel" cx="1155" cy="285" rx="55" ry="70" />
+    <circle class="e1-piel" cx="1208" cy="306" r="9" />
+    <g id="e1-tc-pelo" data-parte="pelo">
+      <ellipse class="e1-pelo" cx="1146" cy="234" rx="56" ry="27" />
+      <circle class="e1-pelo" cx="1100" cy="252" r="26" />
+      <circle class="e1-pelo" cx="1096" cy="278" r="20" />
+      <circle class="e1-pelo" cx="1108" cy="224" r="25" />
+      <circle class="e1-pelo" cx="1132" cy="206" r="26" />
+      <circle class="e1-pelo" cx="1163" cy="202" r="26" />
+      <circle class="e1-pelo" cx="1191" cy="213" r="23" />
+      <circle class="e1-pelo" cx="1206" cy="236" r="18" />
+    </g>
+    <circle class="e1-piel-sombra" cx="1104" cy="300" r="12" />
+    <g id="e1-tc-cejas" data-parte="cejas">
+      <path class="e1-trazo" stroke-width="6" d="M1148 278 Q1160 271 1172 277" />
+      <path class="e1-trazo" stroke-width="6" d="M1186 277 Q1195 272 1203 278" />
+    </g>
+    <g id="e1-tc-ojos" data-parte="ojos">
+      <circle class="e1-tinta" cx="1160" cy="297" r="7" />
+      <circle class="e1-tinta" cx="1195" cy="297" r="6" />
+    </g>
+    <g id="e1-tc-boca" data-parte="boca">
+      <path class="e1-trazo" stroke-width="4.5" d="M1170 323 Q1180 328 1190 322" />
+    </g>
+  </g>
+
+  
+  <g id="e1-tc-brazo-der" data-parte="brazo-der">
+    <path class="e1-abrigo-brazo" stroke-width="46" d="M1090 404 Q1062 525 1076 650" />
+    <circle class="e1-piel" cx="1078" cy="676" r="21" />
+  </g>
+
+</g>
+
+</g>
+</svg>

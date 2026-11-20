@@ -1,5 +1,6 @@
 "use server";
 
+import { clientIpFromHeaders } from "@/lib/receipts/verifyRateLimit";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
@@ -15,6 +16,7 @@ import {
   resolveVisibilityUpdate,
   type VisibilityValues,
 } from "@/lib/students/communityVisibilitySettings";
+import { extensionForMime, resolveDocumentType, toTypedBlob } from "@/lib/files/sniffFile";
 import {
   INTEREST_OPTIONS,
   HABIT_OPTIONS,
@@ -23,6 +25,14 @@ import {
   CAREER_OTHER_VALUE,
   BIO_MAX_LENGTH,
 } from "@/lib/students/profileOptions";
+import { safeFilename } from "@/lib/files/safeFilename";
+import { consumeRateLimit } from "@/lib/security/rateLimit";
+import {
+  STUDENT_DOCUMENT_QUOTA_MESSAGE,
+  STUDENT_DOCUMENT_UPLOADS_PER_HOUR,
+  exceedsDocumentQuota,
+  studentDocumentUsage,
+} from "@/lib/students/documentQuota";
 
 export type UpdateProfileState = { status: "idle" | "error" | "saved"; message?: string };
 export type CommunityVisibilityState = { status: "idle" | "error" | "saved"; message?: string };
@@ -109,7 +119,7 @@ export async function updateStudentProfileDetails(
   // H04: guardar el perfil NO toca la visibilidad en la comunidad. Eso se
   // decide aparte, a conciencia, con `updateCommunityVisibility`.
   const headerStore = await headers();
-  const ip = headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
+  const ip = clientIpFromHeaders(headerStore);
   const userAgent = headerStore.get("user-agent");
 
   await createAuditLog(admin, {
@@ -188,7 +198,7 @@ export async function updateCommunityVisibility(
   }
 
   const headerStore = await headers();
-  const ip = headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
+  const ip = clientIpFromHeaders(headerStore);
   const userAgent = headerStore.get("user-agent");
 
   // El consentimiento se versiona solo cuando el estudiante lo ACTIVA. Si no
@@ -279,6 +289,10 @@ export async function uploadStudentDocument(
   if (!ALLOWED_DOCUMENT_TYPES.includes(file.type)) {
     return { status: "error", message: "El archivo debe ser PDF, JPG, PNG o WebP." };
   }
+  const realType = await resolveDocumentType(file);
+  if (!realType) {
+    return { status: "error", message: "El archivo debe ser PDF, JPG, PNG o WebP." };
+  }
 
   // DR38: la etiqueta del requisito «Otro» se sanitiza y acota acá; en el resto de los tipos se ignora.
   let requirementLabel: string | null = null;
@@ -288,11 +302,17 @@ export async function uploadStudentDocument(
     requirementLabel = label || null;
   }
 
-  const ext = file.type === "application/pdf" ? "pdf" : file.type.split("/")[1];
+  // SEG14-03: freno persistente por usuario y cuota acumulada (falla cerrado si no se puede medir el uso).
+  const rate = await consumeRateLimit({ bucket: "student_document_upload", key: sessionUser.id, windowSeconds: 3_600, max: STUDENT_DOCUMENT_UPLOADS_PER_HOUR });
+  if (!rate.ok) return { status: "error", message: "Subiste varios documentos seguidos. Probá de nuevo en un rato." };
+  const usageBefore = await studentDocumentUsage(admin, profile.id);
+  if (!usageBefore || exceedsDocumentQuota(usageBefore, file.size)) return { status: "error", message: STUDENT_DOCUMENT_QUOTA_MESSAGE };
+
+  const ext = extensionForMime(realType);
   const path = `${profile.id}/${documentType}-${crypto.randomUUID()}.${ext}`;
   const { error: uploadError } = await admin.storage
     .from("student-documents")
-    .upload(path, file, { contentType: file.type });
+    .upload(path, await toTypedBlob(file, realType), { contentType: realType });
   if (uploadError) {
     console.error("[students/profile] upload failed:", uploadError);
     return { status: "error", message: "No pudimos subir el archivo. Intentá de nuevo." };
@@ -304,8 +324,8 @@ export async function uploadStudentDocument(
     related_entity_id: profile.id,
     bucket: "student-documents",
     storage_path: path,
-    filename: file.name,
-    mime_type: file.type,
+    filename: safeFilename(file.name),
+    mime_type: realType,
     size_bytes: file.size,
     visibility: "private",
     document_type: documentType,
@@ -319,6 +339,14 @@ export async function uploadStudentDocument(
     // No dejar un archivo huérfano en el bucket si no se pudo registrar.
     await admin.storage.from("student-documents").remove([path]);
     return { status: "error", message: "No pudimos registrar el archivo. Intentá de nuevo." };
+  }
+
+  // Recuento posterior: si dos subidas concurrentes pasaron el chequeo previo, la que deja el total sobre la cuota se deshace.
+  const usageAfter = await studentDocumentUsage(admin, profile.id);
+  if (!usageAfter || exceedsDocumentQuota(usageAfter)) {
+    await admin.from("files").delete().eq("bucket", "student-documents").eq("storage_path", path);
+    await admin.storage.from("student-documents").remove([path]);
+    return { status: "error", message: STUDENT_DOCUMENT_QUOTA_MESSAGE };
   }
 
   await createAuditLog(admin, {

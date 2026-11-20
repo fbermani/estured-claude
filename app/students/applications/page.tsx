@@ -102,6 +102,11 @@ export default async function StudentApplicationsPage() {
   );
   const actionNeeded = applications.filter((a) => visibleById.get(a.id)?.studentActionRequired);
   const rest = applications.filter((a) => !visibleById.get(a.id)?.studentActionRequired);
+  // Activas arriba; las cerradas (vencidas, rechazadas, finalizadas) van plegadas como historial.
+  const inProgress = rest.filter((a) => !visibleById.get(a.id)?.isClosed);
+  const history = rest.filter((a) => visibleById.get(a.id)?.isClosed);
+  // El objetivo académico suele ser el mismo en todas las solicitudes: se muestra una sola vez.
+  const shownObjectives = new Set<string>();
 
   const renderCard = (a: ApplicationRow, emphasized: boolean) => {
     const copy = visibleById.get(a.id)!;
@@ -153,7 +158,7 @@ export default async function StudentApplicationsPage() {
           </div>
         </dl>
 
-        {a.academic_objective && (
+        {a.academic_objective && !shownObjectives.has(a.academic_objective.trim()) && shownObjectives.add(a.academic_objective.trim()) && (
           <p className="mt-4 text-sm text-ink-soft">
             <span className="font-semibold text-ink">Tu objetivo académico:</span> {a.academic_objective}
           </p>
@@ -238,21 +243,31 @@ export default async function StudentApplicationsPage() {
         <div className="flex flex-col gap-8">
           {actionNeeded.length > 0 && (
             <div>
-              <h2 className="mb-3 flex items-center gap-2 text-sm font-extrabold uppercase tracking-wide text-orange-700">
+              <h2 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-orange-700">
                 <span className="h-2 w-2 rounded-full bg-orange" aria-hidden />
                 Necesitan tu acción
               </h2>
               <div className="space-y-4">{actionNeeded.map((a) => renderCard(a, true))}</div>
             </div>
           )}
-          <div>
-            {actionNeeded.length > 0 && (
-              <h2 className="mb-3 text-sm font-extrabold uppercase tracking-wide text-muted">
-                Resto de tus solicitudes
-              </h2>
-            )}
-            <div className="space-y-4">{rest.map((a) => renderCard(a, false))}</div>
-          </div>
+          {inProgress.length > 0 && (
+            <div>
+              {(actionNeeded.length > 0 || history.length > 0) && (
+                <h2 className="mb-3 text-sm font-bold text-muted">{actionNeeded.length > 0 ? "Otras solicitudes en curso" : "En curso"}</h2>
+              )}
+              <div className="space-y-4">{inProgress.map((a) => renderCard(a, false))}</div>
+            </div>
+          )}
+          {history.length > 0 && (
+            <details className="group" open={actionNeeded.length === 0 && inProgress.length === 0 && history.length <= 2}>
+              <summary className="flex min-h-[44px] cursor-pointer list-none items-center gap-1 text-sm font-bold text-muted marker:hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest [&::-webkit-details-marker]:hidden">
+                Historial ({history.length})
+                <Icon name="expand_more" className="text-lg transition-transform duration-300 group-open:rotate-180" />
+              </summary>
+              <p className="mb-3 text-sm text-ink-soft">Solicitudes ya cerradas: vencidas, rechazadas o finalizadas.</p>
+              <div className="space-y-4">{history.map((a) => renderCard(a, false))}</div>
+            </details>
+          )}
         </div>
       )}
     </div>

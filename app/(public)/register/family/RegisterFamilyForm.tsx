@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { Card } from "@/components/ui/Card";
+import { TurnstileWidget } from "@/components/ui/TurnstileWidget";
 import { Button } from "@/components/ui/Button";
 import { Input, Select } from "@/components/ui/Input";
 import { fieldHint, fieldProps, useFocusOnError } from "@/app/(public)/register/useRegisterFormErrors";
@@ -87,6 +88,7 @@ export function RegisterFamilyForm() {
           </p>
         )}
 
+        <TurnstileWidget resetKey={state} />
         <Button type="submit" size="lg" disabled={isPending}>
           {isPending ? "Creando tu cuenta…" : "Crear cuenta y solicitar vínculo"}
         </Button>

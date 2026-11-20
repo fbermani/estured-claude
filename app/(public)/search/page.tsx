@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo/pageMeta";
 import { GuidePicks } from "@/components/guides/GuidePicks";
 import { SearchShell, type FilterGroup } from "@/app/(public)/search/SearchShell";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
@@ -10,6 +11,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Icon } from "@/components/ui/Icon";
 import { availabilityHelpText, availabilityLabel } from "@/components/ui/StatusTag";
 import { getSessionUser } from "@/lib/auth/session";
+import { ageFilterNotice } from "@/lib/residences/ageFilterNotice";
 import { getStudentAgeAt, parseIngresoParam } from "@/lib/residences/studentAge";
 import { todayIso } from "@/lib/residences/age";
 import { serviceLabel } from "@/lib/residences/options";
@@ -35,18 +37,16 @@ import {
   type SearchParamsInput,
 } from "@/lib/residences/searchFilters";
 
+import { universityCategory } from "@/lib/maps/universityPins";
+import { SITE_URL } from "@/lib/siteUrl";
+
 const SEARCH_DESCRIPTION = "Explorá residencias estudiantiles verificadas en CABA. Filtrá por barrio, universidad, servicios y precio.";
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<SearchParamsInput> }): Promise<Metadata> {
   const params = await searchParams;
   // Cualquier query param (filtros, orden, vista, paginado, ingreso) = variante no indexable; el canonical apunta a /search.
   const hasParams = Object.values(params).some((v) => (Array.isArray(v) ? v.length > 0 : v !== undefined && v !== ""));
-  return {
-    title: "Buscar residencias en CABA",
-    description: SEARCH_DESCRIPTION,
-    alternates: { canonical: "/search" },
-    ...(hasParams ? { robots: { index: false, follow: true } } : {}),
-  };
+  return pageMetadata({ title: "Buscar residencias en CABA", description: SEARCH_DESCRIPTION, path: "/search", noindex: hasParams });
 }
 export const dynamic = "force-dynamic";
 
@@ -73,15 +73,19 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
     ...(minPrice != null ? [{ icon: "payments", value: `USD ${minPrice}`, label: "precio desde" }] : []),
   ];
 
+  // DR51: con edad conocida, el filtro puede ocultar residencias; se avisa cuántas para que 42 vs 43 no parezca un error.
+  const ageNotice = studentAge != null ? ageFilterNotice(total - residences.length, !!parseIngresoParam(ingreso)) : null;
+
   const head = (
     <div className="mb-3 grid grid-cols-[minmax(0,1fr)] gap-4 sm:mb-4 md:grid-cols-[minmax(0,1fr)_21rem] md:items-start md:gap-8">
       <div className="max-w-2xl">
         <p className="mb-1.5 text-[13px] text-ink-faint">Inicio › Buscar residencias</p>
-        <h1 className="text-[26px] leading-[1.15] font-extrabold text-ink min-[900px]:text-[34px]">Encontrá tu próximo hogar en Buenos Aires</h1>
+        <h1 className="text-[26px] leading-[1.15] font-bold text-ink min-[900px]:text-[34px]">Encontrá tu residencia estudiantil en Buenos Aires</h1>
         <p className="mt-1.5 max-w-[42.5rem] text-[14.5px] text-ink-soft">
           Todas las residencias del catálogo fueron verificadas presencialmente. La disponibilidad es informativa y toda
           reserva está sujeta a confirmación.
         </p>
+        {ageNotice && <p className="mt-2 text-[13px] text-ink-faint">{ageNotice}</p>}
         <GuidePicks keys={["01", "02"]} variant="strip" label="Antes de elegir:" className="mt-3" mobileSingle />
       </div>
       {residences.length > 0 && (
@@ -94,8 +98,8 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             {stats.map((st) => (
               <li key={st.label} className="rounded-field bg-cream px-2 py-2.5 text-center">
                 <Icon name={st.icon} className="text-xl text-forest-700" />
-                <p className="mt-0.5 font-display text-lg font-extrabold leading-tight text-ink">{st.value}</p>
-                <p className="text-[11.5px] leading-tight text-ink-faint">{st.label}</p>
+                <p className="mt-0.5 font-display text-lg font-bold leading-tight text-ink">{st.value}</p>
+                <p className="text-xs leading-tight text-ink-faint">{st.label}</p>
               </li>
             ))}
           </ul>
@@ -141,10 +145,17 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
     gender: [...GENDER_FILTER_OPTIONS],
     status: statusOptions,
   };
-  const { counts, promo, minor } = buildCounts(residences, filters, options);
+  const { counts, promo, minor, community } = buildCounts(residences, filters, options);
   // Dentro de cada grupo, primero las opciones con más resultados (los barrios y universidades); servicios/áreas/tipos mantienen el orden de la ficha.
   const opt = (key: keyof typeof options, label: (v: string) => string, sort = false, icon?: (v: string) => string) => {
-    const list = options[key].map((value) => ({ value, label: label(value), count: counts[key][value] ?? 0, icon: icon?.(value) }));
+    const list = options[key].map((value) => ({
+      value,
+      label: label(value),
+      count: counts[key][value] ?? 0,
+      icon: icon?.(value),
+      // «Universidad cercana» se agrupa por tipo (UBA · otras públicas · privadas) en el filtro.
+      ...(key === "uni" ? { category: universityCategory(value) } : {}),
+    }));
     return sort ? list.sort((a, b) => b.count - a.count || a.label.localeCompare(b.label, "es")) : list;
   };
   const same = (v: string) => v;
@@ -168,6 +179,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   const labelOf = (group: string, value?: string) => {
     if (group === "promo") return "Con promoción";
     if (group === "minor") return "Admite menores de 18";
+    if (group === "community") return "Con comunidad activa";
     if (group === "price") return "el presupuesto";
     const o = groups.find((g) => g.key === group)?.options.find((x) => x.value === value);
     return o?.label ?? value ?? "";
@@ -181,12 +193,30 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
           .sort((a, b) => b.count - a.count)
           .slice(0, 3)
       : [];
-  const clearQs = filtersToQuery({ ...filters, barrio: [], uni: [], room: [], services: [], areas: [], gender: [], status: [], promo: false, minor: false, pmin: null, pmax: null });
+  const clearQs = filtersToQuery({ ...filters, barrio: [], uni: [], room: [], services: [], areas: [], gender: [], status: [], promo: false, minor: false, community: false, pmin: null, pmax: null });
   const hrefFor = (qs: string) => (qs ? `/search?${qs}` : "/search");
   const mapData = filters.view === "mapa" ? toMapPoints(results) : null;
 
+  // ItemList solo en la vista canónica (sin filtros): las primeras residencias del catálogo, sin precios ni disponibilidad.
+  const isCanonicalView = Object.values(params).every((v) => (Array.isArray(v) ? v.length === 0 : v === undefined || v === ""));
+  const itemListJsonLd =
+    isCanonicalView && residences.length > 0
+      ? JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          name: "Residencias estudiantiles verificadas en CABA",
+          itemListElement: residences.filter((r) => !r.slug.endsWith("-demo")).slice(0, 10).map((r, i) => ({
+            "@type": "ListItem",
+            position: i + 1,
+            name: r.name,
+            url: `${SITE_URL}/residencias/${r.slug}`,
+          })),
+        }).replace(/</g, "\\u003c")
+      : null;
+
   return (
     <div className="surface-glow-forest relative">
+      {itemListJsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: itemListJsonLd }} />}
       <div aria-hidden="true" className="grain-layer" />
       <div className="relative mx-auto max-w-[80rem] px-4 py-6 sm:px-6 sm:py-8">
       {head}
@@ -197,6 +227,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
         histogram={histogram}
         promoCount={promo}
         minorCount={minor}
+        communityCount={community}
         activeCount={countActiveFilters(filters)}
         resultCount={results.length}
       >
@@ -215,7 +246,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
                           href={hrefFor(t.qs)}
                           className="inline-flex min-h-[34px] items-center gap-1 rounded-full border border-sage-200 bg-forest-tint py-0 pl-3 pr-2 text-[13px] font-semibold text-forest-700 hover:bg-sage-100 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest"
                         >
-                          Quitar «{t.label}» · {t.count} {t.count === 1 ? "resultado" : "resultados"}
+                          Quitar «{t.label}», {t.count} {t.count === 1 ? "resultado" : "resultados"}
                           <Icon name="close" className="text-base" />
                         </Link>
                       </li>
@@ -237,9 +268,11 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
           <>
             <p className="mb-3 text-xs text-ink-faint">{availabilityHelpText("by_room_type_to_confirm")}</p>
             <div className="@container/res">
-              <div className={filters.view === "lista" ? "grid gap-4" : "grid grid-cols-[repeat(auto-fill,minmax(17rem,1fr))] gap-4"}>
+              <div className={filters.view === "lista" ? "grid gap-3 @min-[1100px]/res:grid-cols-2" : "grid grid-cols-[repeat(auto-fill,minmax(17rem,1fr))] gap-4"}>
                 {results.map((r) => (
-                  <SearchResultCard key={r.slug} residence={r} arsPerUsd={rate.arsPerUsd} layout={filters.view === "lista" ? "list" : "grid"} />
+                  <div key={r.slug} className="@container/card min-w-0">
+                    <SearchResultCard residence={r} arsPerUsd={rate.arsPerUsd} layout={filters.view === "lista" ? "list" : "grid"} />
+                  </div>
                 ))}
               </div>
             </div>

@@ -1,0 +1,119 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- complementary:
+  - paragraph: EstuRed Admin
+  - paragraph: Panel de administración
+  - button "Notificaciones":
+    - generic: notifications
+  - navigation "Administración":
+    - link "Dashboard":
+      - /url: /admin/dashboard
+      - generic: Dashboard
+    - paragraph: Residencias
+    - link "Residencias":
+      - /url: /admin/residences
+      - generic: Residencias
+    - link "Verificaciones":
+      - /url: /admin/verifications
+      - generic: Verificaciones
+    - link "Ediciones de perfil":
+      - /url: /admin/profile-edits
+      - generic: Ediciones de perfil
+    - link "Solicitudes de alta":
+      - /url: /admin/solicitudes-alta
+      - generic: Solicitudes de alta
+    - link "Residencias pedidas":
+      - /url: /admin/residencias-pedidas
+      - generic: Residencias pedidas
+    - link "Preguntas de fichas":
+      - /url: /admin/faq
+      - generic: Preguntas de fichas
+    - link "Ítems «Otro» de fichas":
+      - /url: /admin/custom-amenities
+      - generic: Ítems «Otro» de fichas
+    - paragraph: Operación
+    - link "Solicitudes":
+      - /url: /admin/applications
+      - generic: Solicitudes
+    - link "Propuestas familiar":
+      - /url: /admin/family-proposals
+      - generic: Propuestas familiar
+    - link "Pagos":
+      - /url: /admin/payments
+      - generic: Pagos
+    - link "Actividad":
+      - /url: /admin/activity
+      - generic: Actividad
+    - link "Seguimiento":
+      - /url: /admin/followups
+      - generic: Seguimiento
+    - paragraph: Plataforma
+    - link "Comunidad":
+      - /url: /admin/community
+      - generic: Comunidad
+    - link "Visibilidad y penalizaciones":
+      - /url: /admin/visibility
+      - generic: Visibilidad y penalizaciones
+    - link "Administración de tarifas":
+      - /url: /admin/pricing
+      - generic: Administración de tarifas
+    - link "Documentos":
+      - /url: /admin/documents
+      - generic: Documentos
+    - link "Tipo de cambio":
+      - /url: /admin/exchange-rate
+      - generic: Tipo de cambio
+    - link "Usuarios":
+      - /url: /admin/users
+      - generic: Usuarios
+    - paragraph: Soporte
+    - link "Soporte":
+      - /url: /admin/support-cases
+      - generic: Soporte
+  - generic: A
+  - paragraph: admin.operaciones@estured.test
+  - paragraph: Admin
+  - button "Cerrar sesión"
+  - button "Colapsar menú":
+- main:
+  - heading "Propuestas del familiar" [level=1]
+  - paragraph: 3 en total
+  - list:
+    - link "Rechazada 20/10/2026 Martin Fernandez → Lucia F. Residencia Río de la Plata":
+      - /url: /admin/family-proposals?id=4a28bb72-8029-4117-b8d5-dbf6666192d5
+      - generic: Rechazada
+      - generic: 20/10/2026
+      - paragraph: Martin Fernandez → Lucia F.
+      - paragraph: Residencia Río de la Plata
+    - link "Rechazada 20/10/2026 Martin Fernandez → Lucia F. Residencia Norte":
+      - /url: /admin/family-proposals?id=2f9cdee2-7719-416d-9704-bc8c31658492
+      - generic: Rechazada
+      - generic: 20/10/2026
+      - paragraph: Martin Fernandez → Lucia F.
+      - paragraph: Residencia Norte
+    - link "Vencida 20/10/2026 Martin Fernandez → Lucia F. Residencia Norte":
+      - /url: /admin/family-proposals?id=d8ed4f14-e96d-446f-9fb2-15b913150cb6
+      - generic: Vencida
+      - generic: 20/10/2026
+      - paragraph: Martin Fernandez → Lucia F.
+      - paragraph: Residencia Norte
+  - paragraph: "Familiares con 2 o más propuestas rechazadas: Martin Fernandez (2)"
+  - heading "Martin Fernandez → Lucia F." [level=2]
+  - generic: Rechazada
+  - term: Residencia
+  - definition: Residencia Río de la Plata · Recoleta
+  - term: Tipo de habitación
+  - definition: Individual
+  - term: Fecha de ingreso propuesta
+  - definition: 01/09/2026
+  - term: Duración propuesta
+  - definition: 6 meses
+  - term: Enviada
+  - definition: 20/10/2026, 23:07
+  - term: Tiempo de respuesta
+  - definition: < 1 hora
+  - paragraph: "Mensaje del familiar: “Vi este estudio en Río de la Plata, parece cómodo para vos sola.”"
+  - paragraph: "Motivo del rechazo: El precio no entra en el presupuesto que hablamos."
+- button "Admin Operativo": Admin Operativo
+- button "Open Next.js Dev Tools":
+- alert

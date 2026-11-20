@@ -1,0 +1,207 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- banner:
+  - navigation:
+    - link "EstuRed, inicio":
+      - /url: /
+      - generic: EstuRed
+    - link "Para estudiantesy familias":
+      - /url: /for-students
+      - generic: Para estudiantesy familias
+    - link "Para residencias":
+      - /url: /for-residences
+    - link "Guías":
+      - /url: /guias
+    - link "Ingresar":
+      - /url: /login
+    - link "Crear cuenta":
+      - /url: /register
+    - link "Buscar residencias":
+      - /url: /search
+      - generic: search
+      - text: Buscar residencias
+- main:
+  - navigation "Migas de pan":
+    - list:
+      - link "Inicio":
+        - /url: /
+      - generic: chevron_right
+      - link "Guías":
+        - /url: /guias
+      - generic: chevron_right
+      - generic: Cómo elegir una residencia estudiantil en Buenos Aires
+  - generic: bed
+  - generic: bed
+  - text: Alojamiento
+  - generic: ESTUDIANTES Y FAMILIAS
+  - heading "Cómo elegir una residencia estudiantil en Buenos Aires" [level=1]
+  - paragraph: Qué revisar antes de decidir dónde vas a vivir, especialmente si reservás a distancia.
+  - paragraph:
+    - generic: schedule
+    - text: 2 min de lectura
+    - generic: group
+    - text: Estudiantes, Familias
+  - complementary:
+    - navigation "Índice de contenidos":
+      - paragraph: En esta guía
+      - list:
+        - link "Empezá por lo que necesitás, no por la foto más linda":
+          - /url: "#empeza-por-lo-que-necesitas-no-por-la-foto-mas-linda"
+          - generic: "1"
+          - generic: Empezá por lo que necesitás, no por la foto más linda
+        - 'link "Ubicación y movilidad: pensá en tu semana completa"':
+          - /url: "#ubicacion-y-movilidad-pensa-en-tu-semana-completa"
+          - generic: "2"
+          - generic: "Ubicación y movilidad: pensá en tu semana completa"
+        - link "Habitaciones, espacios y convivencia":
+          - /url: "#habitaciones-espacios-y-convivencia"
+          - generic: "3"
+          - generic: Habitaciones, espacios y convivencia
+        - 'link "Reglamento, contrato y costos: leelos antes de reservar"':
+          - /url: "#reglamento-contrato-y-costos-leelos-antes-de-reservar"
+          - generic: "4"
+          - generic: "Reglamento, contrato y costos: leelos antes de reservar"
+        - link "Si reservás desde otra ciudad o país":
+          - /url: "#si-reservas-desde-otra-ciudad-o-pais"
+          - generic: "5"
+          - generic: Si reservás desde otra ciudad o país
+        - link "Checklist antes de confirmar":
+          - /url: "#checklist-antes-de-confirmar"
+          - generic: "6"
+          - generic: Checklist antes de confirmar
+        - link "Tu siguiente paso":
+          - /url: "#tu-siguiente-paso"
+          - generic: "7"
+          - generic: Tu siguiente paso
+  - article:
+    - region "Empezá por lo que necesitás, no por la foto más linda":
+      - heading "Empezá por lo que necesitás, no por la foto más linda" [level=2]
+      - paragraph: "Antes de mirar opciones, anotá tus prioridades: presupuesto mensual total, tiempo máximo tolerable hasta tu facultad, tipo de habitación, privacidad deseada, necesidad de espacio para estudiar y servicios indispensables. No todas las personas necesitan lo mismo. Una residencia que funciona muy bien para un estudiante sociable puede no ser la mejor para quien necesita silencio y horarios estables."
+    - 'region "Ubicación y movilidad: pensá en tu semana completa"':
+      - 'heading "Ubicación y movilidad: pensá en tu semana completa" [level=2]'
+      - paragraph: Buscá la dirección y calculá el recorrido real hasta tu sede universitaria en los horarios habituales. Considerá más de una alternativa de transporte, entendé por dónde tendrás que caminar, y cercanía a servicios cotidianos. Estar en un barrio conocido no garantiza que el viaje diario sea cómodo.
+    - region "Habitaciones, espacios y convivencia":
+      - heading "Habitaciones, espacios y convivencia" [level=2]
+      - paragraph: Chequeá cuántas personas compartirán la habitación, qué mobiliario individual existe, cómo se organizan baños, cocinas, heladeras y lavandería, y qué espacios hay para estudiar o relajarse. Si la residencia muestra perfiles de comunidad, utilizalos para comprender el ambiente, sin sacar conclusiones sobre alguien solo por su edad, nacionalidad o intereses.
+    - 'region "Reglamento, contrato y costos: leelos antes de reservar"':
+      - 'heading "Reglamento, contrato y costos: leelos antes de reservar" [level=2]'
+      - paragraph: "Verificá horarios de descanso, visitas, limpieza, uso de espacios, política de cambios, salida anticipada y renovación. Chequeá el valor total: precio mensual, reserva o matrícula, depósito si corresponde, ajustes, servicios adicionales y condiciones de devolución."
+    - region "Si reservás desde otra ciudad o país":
+      - heading "Si reservás desde otra ciudad o país" [level=2]
+      - paragraph: Antes de reservar, asegurate de leer y ver todo con atención. Alineá tus expectativas con toda la información que tenés a disposición. Si algo no te queda claro, asegurate de leer reglamento y las preguntas frecuentes, antes de realizar una consulta directa a la residencia.
+    - region "Checklist antes de confirmar":
+      - generic: checklist
+      - heading "Checklist antes de confirmar" [level=2]
+      - list:
+        - generic: check
+        - generic: ¿Conozco el costo total y sus condiciones?
+        - generic: check
+        - generic: ¿Sé qué cama o tipo de habitación estoy solicitando?
+        - generic: check
+        - generic: ¿Leí el reglamento?
+        - generic: check
+        - generic: ¿Conozco el proceso de ingreso y egreso?
+        - generic: check
+        - generic: ¿Tengo un contacto responsable?
+        - generic: check
+        - generic: ¿Entiendo qué sucede si cambio de planes?
+      - paragraph: Si alguna respuesta es no, resolvela primero.
+    - region "Tu siguiente paso":
+      - generic: arrow_circle_right
+      - heading "Tu siguiente paso" [level=2]
+      - paragraph: Compará opciones utilizando los filtros de EstuRed por ubicación, servicios, tipo de habitación y disponibilidad, y consultá la ficha específica de cada residencia antes de enviar una solicitud.
+  - paragraph: Seguí con EstuRed
+  - link "Buscar residencias":
+    - /url: /search
+    - text: Buscar residencias
+    - generic: arrow_forward
+  - paragraph:
+    - generic: explore
+    - generic: "Para seguir explorando: consultá otras guías relacionadas con alojamiento, vida universitaria y convivencia. La disponibilidad, los servicios y las reglas deben confirmarse en la ficha particular de cada residencia."
+  - region "Seguí leyendo":
+    - heading "Seguí leyendo" [level=2]
+    - list:
+      - article:
+        - generic: luggage
+        - generic: luggage
+        - text: Mudanza a Buenos Aires
+        - generic: schedule
+        - text: 4 min de lectura
+        - heading "Guía para mudarte a Buenos Aires a estudiar" [level=3]:
+          - link "Guía para mudarte a Buenos Aires a estudiar":
+            - /url: /guias/guia-mudarte-buenos-aires-estudiar
+        - paragraph: "Prepará tu mudanza a Buenos Aires para estudiar: documentación, transporte, alojamiento, presupuesto y adaptación."
+        - generic: Estudiantes
+        - text: Leer
+        - generic: arrow_forward
+      - article:
+        - generic: family_restroom
+        - generic: family_restroom
+        - text: Para familias
+        - generic: schedule
+        - text: 2 min de lectura
+        - 'heading "Guía para familias: elegir residencia y acompañar la nueva etapa" [level=3]':
+          - 'link "Guía para familias: elegir residencia y acompañar la nueva etapa"':
+            - /url: /guias/guia-familias-elegir-residencia-universitaria
+        - paragraph: Cómo elegir una residencia para un hijo o hija y acompañar su nueva etapa universitaria respetando su autonomía.
+        - generic: Familias
+        - text: Leer
+        - generic: arrow_forward
+  - paragraph:
+    - link "Ver todas las guías":
+      - /url: /guias
+      - generic: arrow_back
+      - text: Ver todas las guías
+- contentinfo:
+  - generic: EstuRed
+  - generic: EstuRed
+  - paragraph: La convivencia también se elige. Residencias estudiantiles verificadas en CABA, con solicitudes registradas y comprobantes verificables.
+  - list:
+    - generic: check
+    - text: Residencias verificadas presencialmente
+    - generic: check
+    - text: Solicitudes registradas en la plataforma
+    - generic: check
+    - text: Comprobante de Reserva Confirmada
+  - navigation "Explorar":
+    - paragraph: Explorar
+    - list:
+      - link "Buscar residencias":
+        - /url: /search
+      - link "Para estudiantes y familias":
+        - /url: /for-students
+      - link "Para residencias":
+        - /url: /for-residences
+      - link "Guías":
+        - /url: /guias
+      - link "Crear cuenta":
+        - /url: /register
+  - navigation "Ayuda":
+    - paragraph: Ayuda
+    - list:
+      - link "Soporte":
+        - /url: /students/support
+        - generic: support_agent
+        - text: Soporte
+      - link "Preguntas frecuentes":
+        - /url: /for-students#preguntas-frecuentes
+      - link "Cómo funciona":
+        - /url: /#el-proceso
+      - link "Qué pagás y a quién":
+        - /url: /for-students#que-pagas
+      - text: "Contacto:"
+      - link "hola@estured.com":
+        - /url: mailto:hola@estured.com
+      - listitem: ¿Tenés una reserva y algo no coincide? Abrí un caso desde tu panel.
+  - paragraph: EstuRed actúa como plataforma intermediaria de búsqueda, solicitud, registro y comprobante. No presta directamente el alojamiento. Los precios en ARS son referenciales al dólar blue del día.
+  - list:
+    - link "Botón de arrepentimiento":
+      - /url: /students/revocation
+    - link "Verificar un comprobante":
+      - /url: /verify
+    - link "Términos y condiciones":
+      - /url: /terms
+    - link "Política de privacidad":
+      - /url: /privacy
+  - paragraph: Hecho con ♥ en Buenos Aires
+- button "Simular usuario": Simular usuario

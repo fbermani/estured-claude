@@ -44,7 +44,7 @@ export function StayChangeHighlight({ variant, studentCta = "register" }: { vari
             <p className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-orange-tint px-3 py-1 text-sm font-semibold text-orange-700">
               <Icon name="swap_horiz" className="text-base" /> Si ya vivís en una residencia
             </p>
-            <h2 id="quiero-cambiar-students-title" className="text-3xl font-bold text-ink sm:text-4xl">
+            <h2 id="quiero-cambiar-students-title" className="text-3xl font-bold text-ink sm:text-4xl md:text-5xl">
               Cambiarte de residencia, sin esconderte y con los costos claros
             </h2>
             <p className="mt-4 text-base text-ink-soft sm:text-lg">
@@ -80,19 +80,19 @@ export function StayChangeHighlight({ variant, studentCta = "register" }: { vari
           {/* Réplica estática de la tarjeta de estado de Mi residencia (decorativa). */}
           <Reveal delay={2} className="relative mx-auto w-full max-w-md lg:max-w-none">
             <div aria-hidden className="overflow-hidden rounded-card border-[1.5px] border-orange/30 bg-paper shadow-float">
-              <div className="bg-gradient-to-br from-orange-tint to-paper p-5">
-                <p className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-orange-700">
+              <div className="border-b border-line bg-orange-tint p-5">
+                <p className="flex items-center gap-1.5 text-xs font-bold text-orange-700">
                   <span className="size-2 rounded-full bg-orange" /> Aviso abierto
                 </p>
-                <p className="mt-2 font-display text-xl font-extrabold text-ink">Estás buscando un cambio</p>
+                <p className="mt-2 font-display text-xl font-bold text-ink">Estás buscando un cambio</p>
                 <p className="mt-1 text-sm text-ink-soft">Ya podés solicitar y sumarte a listas de espera aunque las fechas se superpongan con tu estadía.</p>
               </div>
               <div className="space-y-3 p-5">
-                <div className="grid grid-cols-4 gap-2 text-[11px] font-semibold text-ink-soft">
+                <div className="grid grid-cols-4 gap-2 text-xs font-semibold text-ink-soft">
                   {["Avisaste", "Responde", "Buscás", "Confirmás"].map((label, i) => (
                     <div key={label} className="flex flex-col items-start gap-1.5">
                       <span
-                        className={`flex size-4 items-center justify-center rounded-full border-2 text-[9px] ${
+                        className={`flex size-4 items-center justify-center rounded-full border-2 text-xs ${
                           i === 0 ? "border-forest bg-forest text-white" : i === 1 ? "border-orange ring-4 ring-orange-tint" : "border-line-2"
                         }`}
                       >
@@ -103,7 +103,7 @@ export function StayChangeHighlight({ variant, studentCta = "register" }: { vari
                   ))}
                 </div>
                 <div className="rounded-field border border-line bg-cream-2/60 p-3">
-                  <p className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-muted">
+                  <p className="flex items-center gap-1.5 text-xs font-bold text-muted">
                     <Icon name="payments" className="text-sm text-forest-700" /> Costos de salida
                   </p>
                   <p className="mt-1 text-sm text-ink">Lo informa tu residencia por escrito, antes de que decidas.</p>
@@ -131,9 +131,9 @@ export function StayChangeHighlight({ variant, studentCta = "register" }: { vari
                 <Icon name="family_restroom" className="text-[26px]" />
               </span>
               <div>
-                <p className="text-lg font-bold text-forest-700">Para familias: te enterás de todo</p>
+                <p className="text-lg font-bold text-forest-700">Acompañá en cada paso</p>
                 <p className="mt-1 max-w-2xl text-sm leading-relaxed text-ink-soft sm:text-base">
-                  Si estás vinculado como familiar, ves el aviso, la fecha estimada de salida y los costos que informe la residencia. Podés proponer opciones; la decisión
+                  Si estás vinculado como familiar, acompañás el proceso con el aviso, la fecha estimada de salida y los costos que informe la residencia. Podés proponer opciones; la decisión
                   es de tu estudiante.
                 </p>
               </div>
@@ -153,9 +153,9 @@ export function StayChangeHighlight({ variant, studentCta = "register" }: { vari
       <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
         <div className="grid items-stretch gap-8 lg:grid-cols-2 lg:gap-12">
           <Reveal>
-            <p className="text-sm font-extrabold uppercase tracking-wide text-orange-light">Previsibilidad</p>
-            <h2 id="quiero-cambiar-residences-title" className="mt-2.5 text-[28px] font-bold leading-[1.15] sm:text-4xl">
-              Enterate de una salida con tiempo, no el día que se van
+            <p className="text-sm font-bold text-orange-light">Previsibilidad</p>
+            <h2 id="quiero-cambiar-residences-title" className="mt-2.5 text-[28px] font-bold leading-[1.15] sm:text-4xl md:text-5xl">
+              Anticipate a las vacantes: enterate con tiempo cuándo se libera un lugar
             </h2>
             <p className="mt-3 text-base text-white/85 sm:text-lg">
               Con “Quiero cambiar”, te enterás cuando un residente empieza a buscar otra residencia y para cuándo. Así ordenás tu lista de espera y tus renovaciones con margen.
@@ -183,8 +183,8 @@ export function StayChangeHighlight({ variant, studentCta = "register" }: { vari
               </div>
               <p className="text-[13px] text-ink-faint">Respondé con los costos, las condiciones y los detalles de la salida.</p>
               {[
-                { name: "Lucía F.", initials: "LF", detail: "Salida estimada · diciembre", badge: "Sin responder", warm: true, av: "bg-sage-100 text-sage-700" },
-                { name: "Tomás R.", initials: "TR", detail: "Salida estimada · marzo", badge: "Respondida", warm: false, av: "bg-petrol-50 text-petrol-600" },
+                { name: "Lucía F.", initials: "LF", detail: "Salida estimada: diciembre", badge: "Sin responder", warm: true, av: "bg-sage-100 text-sage-700" },
+                { name: "Tomás R.", initials: "TR", detail: "Salida estimada: marzo", badge: "Respondida", warm: false, av: "bg-petrol-50 text-petrol-600" },
               ].map((row) => (
                 <div key={row.name} className="grid grid-cols-[40px_1fr_auto] items-center gap-2.5 rounded-[14px] border border-line p-3">
                   <span className={`flex size-10 items-center justify-center rounded-full text-sm font-bold ${row.av}`}>{row.initials}</span>

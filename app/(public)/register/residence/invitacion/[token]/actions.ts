@@ -7,7 +7,7 @@ import { validatePasswordWithConfirmation } from "@/lib/auth/password";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { createAuditLog } from "@/lib/audit";
-import { createRateLimiter, clientKeyFromHeaders } from "@/lib/receipts/verifyRateLimit";
+import { createRateLimiter, clientKeyFromHeaders, clientIpFromHeaders } from "@/lib/receipts/verifyRateLimit";
 import { saveResidencePrivateDetails } from "@/lib/residences/privateDetails";
 import { BARRIO_OPTIONS } from "@/lib/residences/options";
 import { INVITE_MESSAGES } from "@/lib/residenceSignup/rules";
@@ -60,7 +60,7 @@ export async function redeemResidenceInvite(token: string, _prev: RedeemState, f
 
   if (!(await claimSignupInvite(admin, request.id))) return { status: "error", message: INVITE_MESSAGES.used };
 
-  const ip = headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
+  const ip = clientIpFromHeaders(headerStore);
   const userAgent = headerStore.get("user-agent");
   let userId: string | null = null;
   let createdResidenceId: string | null = null;
@@ -97,7 +97,8 @@ export async function redeemResidenceInvite(token: string, _prev: RedeemState, f
         .insert({
           name: request.residence_name,
           slug: `${slugify(request.residence_name) || "residencia"}-${userId.slice(0, 6)}`,
-          public_area: BARRIOS.has(request.neighborhood) ? request.neighborhood : null,
+          // Las solicitudes nuevas traen dirección y no barrio: el área pública la completa el equipo en la ficha.
+          public_area: request.neighborhood && BARRIOS.has(request.neighborhood) ? request.neighborhood : null,
           city: "CABA",
           created_by: userId,
         })

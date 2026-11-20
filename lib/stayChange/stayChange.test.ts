@@ -317,6 +317,7 @@ describe.skipIf(!hasCreds)("Quiero cambiar (integración)", () => {
   }
 
   let demoLinksBackup: Record<string, unknown>[] = [];
+  let demoCurrentStayIds: string[] = [];
   beforeAll(async () => {
     admin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, { auth: { persistSession: false } });
     // Si la migración 0044 todavía no está aplicada, el bloque entero se saltea (y lo avisa).
@@ -339,6 +340,11 @@ describe.skipIf(!hasCreds)("Quiero cambiar (integración)", () => {
     const { data: demoLinks } = await admin.from("family_links").select("*").eq("student_profile_id", studentProfileId);
     demoLinksBackup = demoLinks ?? [];
     if (demoLinksBackup.length > 0) await admin.from("family_links").delete().eq("student_profile_id", studentProfileId);
+    // Si en dev el familiar ya confirmó la estadía demo (DR32), Valentina tiene una `resident_stays` vigente en Residencia Norte y
+    // `loadStayChangeEligibility` la toma como residencia actual (en vez de la reserva de prueba): se aparta y se restaura al final.
+    const { data: demoStays } = await admin.from("resident_stays").select("id").eq("student_profile_id", studentProfileId).eq("is_current", true);
+    demoCurrentStayIds = (demoStays ?? []).map((s) => s.id as string);
+    if (demoCurrentStayIds.length > 0) await admin.from("resident_stays").update({ is_current: false }).in("id", demoCurrentStayIds);
 
     const a = await insertResidence("actual", "available_to_confirm");
     const b = await insertResidence("destino", "full");
@@ -353,6 +359,7 @@ describe.skipIf(!hasCreds)("Quiero cambiar (integración)", () => {
     if (!admin || !ready) return;
     if (linkId) await admin.from("family_links").delete().eq("id", linkId);
     if (demoLinksBackup.length > 0) await admin.from("family_links").upsert(demoLinksBackup);
+    if (demoCurrentStayIds.length > 0) await admin.from("resident_stays").update({ is_current: true }).in("id", demoCurrentStayIds);
     for (const userId of [ownerId, studentUserId, familyUserId]) {
       await admin
         .from("notifications")

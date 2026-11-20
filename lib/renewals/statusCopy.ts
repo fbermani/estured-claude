@@ -12,6 +12,7 @@ export const RESIDENCE_OFFER_STATUS_COPY: Record<string, { label: string; tone: 
   accepted_by_student: { label: "Aceptada", tone: "sage" },
   rejected_by_student: { label: "Rechazada", tone: "danger" },
   expired: { label: "Vencida", tone: "neutral" },
+  expired_no_student_payment: { label: "Vencida — fee sin pagar", tone: "danger" },
   // Fase 2 (pago a residencia → fee EstuRed → comprobante).
   residence_payment_pending: { label: "Esperando pago del estudiante", tone: "amber" },
   estured_fee_pending: { label: "Esperando fee EstuRed", tone: "amber" },

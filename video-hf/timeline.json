@@ -1,0 +1,17 @@
+{
+  "fps": 30, "bpm": 120, "duration": 88.5,
+  "scenes": [
+    {"id": "s01-hook",      "start": 0,    "duration": 6.5, "line": "line-01", "voice": 0.4},
+    {"id": "s02-tension",   "start": 6.5,  "duration": 7,   "line": "line-02", "voice": 6.8},
+    {"id": "s03-reveal",    "start": 13.5, "duration": 3.5, "line": "line-03", "voice": 13.9},
+    {"id": "s04-verified",  "start": 17,   "duration": 11,  "line": "line-04", "voice": 17.3},
+    {"id": "s05-family",    "start": 28,   "duration": 7,   "line": "line-06", "voice": 28.3},
+    {"id": "s06-request",   "start": 35,   "duration": 8,   "line": "line-05", "voice": 35.3},
+    {"id": "s07-residence", "start": 43,   "duration": 7.5, "line": "line-07", "voice": 43.3},
+    {"id": "s08-steps",     "start": 50.5, "duration": 7,   "line": "line-08", "voice": 50.8},
+    {"id": "s09-receipt",   "start": 57.5, "duration": 8,   "line": "line-09", "voice": 57.8},
+    {"id": "s10-outside",   "start": 65.5, "duration": 8,   "line": "line-12", "voice": 65.8},
+    {"id": "s11-community", "start": 73.5, "duration": 7.5, "line": "line-10", "voice": 73.8},
+    {"id": "s12-end",       "start": 81,   "duration": 7.5, "line": "line-11", "voice": 81.3}
+  ]
+}

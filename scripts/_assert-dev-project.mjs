@@ -10,7 +10,12 @@ import { readFileSync } from "node:fs";
 const { refs } = JSON.parse(readFileSync(new URL("./production-refs.json", import.meta.url), "utf-8"));
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const ref = url ? new URL(url).hostname.split(".")[0] : "";
-if (ref && refs.includes(ref)) {
+if (!ref) {
+  // Sin URL no se puede saber contra qué proyecto se corre: mejor frenar que dejar pasar.
+  console.error("✗ NEXT_PUBLIC_SUPABASE_URL está vacía: no se puede verificar que sea el proyecto de DESARROLLO. Corré con --env-file=.env.local.");
+  process.exit(1);
+}
+if (refs.includes(ref)) {
   console.error(
     `✗ Este script borra/recrea datos demo y se niega a correr contra el proyecto de PRODUCCIÓN (${ref}).\n` +
       "  Apuntá .env.local al proyecto estured-dev.",

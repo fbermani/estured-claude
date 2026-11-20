@@ -7,7 +7,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { validatePasswordWithConfirmation } from "@/lib/auth/password";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSupabaseServer } from "@/lib/supabase/server";
-import { createRateLimiter, clientKeyFromHeaders } from "@/lib/receipts/verifyRateLimit";
+import { createRateLimiter, clientKeyFromHeaders, clientIpFromHeaders } from "@/lib/receipts/verifyRateLimit";
 import { acceptTeamInvitation, peekTeamInvitation } from "@/lib/team/teamInvitations";
 import { INVALID_INVITATION_MESSAGE } from "@/lib/team/teamRules";
 
@@ -35,7 +35,7 @@ async function requestMeta() {
   const headerStore = await headers();
   return {
     clientKey: sha(clientKeyFromHeaders(headerStore)),
-    ipAddress: headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
+    ipAddress: clientIpFromHeaders(headerStore),
     userAgent: headerStore.get("user-agent"),
   };
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ResidenceHero } from "@/components/residences/ResidenceHero";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
@@ -37,11 +38,12 @@ export default async function ResidencePlanPage({
   const isVerified = access === false;
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
-      <h1 className="text-3xl font-bold text-ink">Planes</h1>
-      <p className="mt-1 text-ink-soft">
-        Mirá qué incluye cada plan. Perfil Verificado es gratuito; Plan Premium está bonificado el primer año para Residencias fundadoras.
-      </p>
+    <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
+      <ResidenceHero
+        icon="workspace_premium"
+        title="Planes"
+        subtitle="Mirá qué incluye cada plan. Perfil Verificado es gratuito; Plan Premium está bonificado el primer año para Residencias fundadoras."
+      />
 
       <div className="mt-8 grid gap-6 md:grid-cols-2">
         <Card className={`flex h-full flex-col p-8 ${isVerified ? "border-forest" : ""}`}>

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { ResidenceHero } from "@/components/residences/ResidenceHero";
+import { BackToProfileLink } from "@/components/residences/BackToProfileLink";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
@@ -13,7 +15,11 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { FaqQuestionCard } from "@/app/residence/[residence_id]/faq/FaqQuestionCard";
 import { FaqCatalogItem } from "@/app/residence/[residence_id]/faq/FaqCatalogItem";
 import { loadCatalogForResidence } from "@/lib/faq/residenceCatalog";
-import { FAQ_CATEGORIES, FICHA_FAQ_VISIBLE, effectiveAnswer } from "@/lib/faq/catalog";
+import { loadFeaturedCandidates } from "@/lib/faq/featured";
+import { FeaturedFaqManager } from "@/app/residence/[residence_id]/faq/FeaturedFaqManager";
+import { ESSENTIAL_FAQ_IDS, FAQ_CATEGORIES, FICHA_FAQ_VISIBLE, countEssentialFaqsReady, effectiveAnswer, isEssentialFaq } from "@/lib/faq/catalog";
+import { FEATURED_FAQ_MAX } from "@/lib/residences/featuredFaq";
+import { normalizeOwnFaqItems } from "@/lib/residences/ownFaq";
 
 export const metadata: Metadata = { title: "Preguntas frecuentes" };
 export const dynamic = "force-dynamic";
@@ -44,7 +50,13 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
   // DR11: sin `faq.manage` las acciones se ven deshabilitadas (solo presentación; el servidor valida cada acción).
   const canManage = can(membership, "faq.manage");
 
-  const catalog = await loadCatalogForResidence(admin, residenceId);
+  const [catalog, featured, ownFaqSection] = await Promise.all([
+    loadCatalogForResidence(admin, residenceId),
+    loadFeaturedCandidates(admin, residenceId),
+    admin.from("residence_profile_sections").select("content").eq("residence_id", residenceId).eq("section_type", "faq").maybeSingle(),
+  ]);
+  // Preguntas propias del sistema anterior (texto libre, se editan en la configuración): solo se las nombra si existen.
+  const ownFaqCount = normalizeOwnFaqItems((ownFaqSection.data?.content as { items?: unknown } | null)?.items).length;
 
   const { data, error } = await admin
     .from("residence_faq_questions")
@@ -61,13 +73,30 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
     { key: "hidden", title: "Ocultas", empty: "" },
   ];
 
+  const pendingCount = rows.filter((r) => r.status === "pending").length;
+
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
-      <h1 className="text-2xl font-bold text-ink">Preguntas frecuentes</h1>
-      <p className="mt-1 text-sm text-ink-soft">
+    <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
+      <BackToProfileLink residenceId={residenceId} className="mb-2" />
+      <ResidenceHero icon="forum" title="Preguntas frecuentes" subtitle="Lo que mostrás en tu ficha y lo que te preguntan." />
+      <p className="text-sm text-ink-soft">
         Elegí qué preguntas del catálogo de EstuRed mostrar en tu ficha y ajustá las respuestas con los datos de tu residencia. Abajo
         respondés las preguntas libres de quienes miran tu ficha.
       </p>
+
+      {pendingCount > 0 && (
+        <div role="status" className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-card border-[1.5px] border-amber-soft-300 bg-amber-soft-100 px-4 py-3">
+          <p className="text-sm font-bold text-ink">
+            Sin responder · {pendingCount} {pendingCount === 1 ? "pregunta de un visitante" : "preguntas de visitantes"}
+          </p>
+          <Link
+            href="#preguntas-visitantes"
+            className="rounded-field text-sm font-semibold text-forest-700 underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2"
+          >
+            Ir a responder
+          </Link>
+        </div>
+      )}
 
       <section className="mt-8" aria-labelledby="faq-catalog-title">
         <h2 id="faq-catalog-title" className="text-lg font-bold text-ink">
@@ -78,16 +107,43 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
           entre llaves {"{…}"} antes de mostrarlas. Lo que escribas acá no confirma disponibilidad ni precios: eso se informa en la ficha y
           en la solicitud.
         </p>
+        <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-3" aria-label="Cómo se ordenan tus preguntas en la ficha">
+          <div className="rounded-field border-[1.5px] border-line bg-cream px-4 py-3">
+            <dt className="font-bold text-ink">Esenciales</dt>
+            <dd className="mt-1 text-ink-soft">
+              Cubren lo imprescindible: las que más se repiten antes de reservar. Hay {ESSENTIAL_FAQ_IDS.length} y están marcadas «Esencial».
+            </dd>
+          </div>
+          <div className="rounded-field border-[1.5px] border-line bg-cream px-4 py-3">
+            <dt className="font-bold text-ink">Destacadas</dt>
+            <dd className="mt-1 text-ink-soft">
+              Hasta {FEATURED_FAQ_MAX} que se ven primero en tu ficha. Las elegís más abajo, entre las que ya mostrás.
+            </dd>
+          </div>
+          <div className="rounded-field border-[1.5px] border-line bg-cream px-4 py-3">
+            <dt className="font-bold text-ink">El resto</dt>
+            <dd className="mt-1 text-ink-soft">Las demás que elijas quedan detrás de «Ver todas las preguntas», ordenadas por tema.</dd>
+          </div>
+        </dl>
         <p className="mt-3 rounded-field bg-amber-soft-100 px-4 py-3 text-sm text-ink">
-          Te recomendamos elegir como máximo {FICHA_FAQ_VISIBLE} preguntas: son las que se ven de entrada en tu ficha. Las demás, y las que
-          respondas de los visitantes, quedan detrás de «Ver todas las preguntas». Cuanto más respondas, más consultas vas a recibir por
-          EstuRed.
+          Te recomendamos elegir hasta {FICHA_FAQ_VISIBLE} preguntas, para que se vean de entrada en tu ficha. Podés elegir más: las demás
+          quedan detrás de «Ver todas las preguntas». Cuanto más completa esté tu ficha, menos consultas repetidas recibís y más solicitudes
+          llegan con la decisión avanzada.
           {catalog.ok && (
             <span className="mt-1 block font-semibold">
               Elegiste {catalog.entries.filter((e) => e.selection?.is_selected).length} de {FICHA_FAQ_VISIBLE} recomendadas.
             </span>
           )}
         </p>
+        {catalog.ok && (
+          <p className="mt-3 rounded-field bg-forest-tint px-4 py-3 text-sm text-ink">
+            Si respondés las esenciales en tu ficha, quien te escribe ya tiene la respuesta y llega con la decisión más avanzada. Te las
+            recomendamos, pero no son obligatorias.
+            <span className="mt-1 block font-semibold">
+              Esenciales listas: {countEssentialFaqsReady(catalog.entries)} de {ESSENTIAL_FAQ_IDS.length}.
+            </span>
+          </p>
+        )}
         {!catalog.ok ? (
           <div className="mt-4">
             <EmptyState
@@ -115,15 +171,15 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
                 const entries = catalog.entries.filter((e) => e.category === category.key);
                 if (entries.length === 0) return null;
                 const selectedCount = entries.filter((e) => e.selection?.is_selected).length;
-                const anySelected = catalog.entries.some((e) => e.selection?.is_selected);
                 return (
                   <details
                     key={category.key}
-                    open={selectedCount > 0 || (!anySelected && index === 0)}
+                    // El primer tema siempre abierto (para ver una pregunta a primera vista) y los que ya tienen elegidas.
+                    open={selectedCount > 0 || index === 0}
                     className="group rounded-card border-[1.5px] border-line bg-cream-2/40"
                   >
                     <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-3">
-                      <span className="text-sm font-extrabold uppercase tracking-widest text-muted">{category.label}</span>
+                      <span className="text-sm font-bold uppercase tracking-widest text-muted">{category.label}</span>
                       <span className="rounded-full bg-cream-2 px-2 py-0.5 text-xs font-bold text-ink-soft">
                         {selectedCount} de {entries.length} en tu ficha
                       </span>
@@ -139,6 +195,7 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
                           suggestedAnswer={entry.suggested_answer}
                           initialSelected={entry.selection?.is_selected ?? false}
                           initialAnswer={effectiveAnswer(entry, entry.selection)}
+                          essential={isEssentialFaq(entry.id)}
                         />
                       ))}
                     </div>
@@ -150,7 +207,33 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
         )}
       </section>
 
-      <h2 className="mt-12 text-lg font-bold text-ink">Preguntas de visitantes</h2>
+      {featured.ok ? (
+        <PermissionGate allowed={canManage} className="mt-8">
+          <FeaturedFaqManager
+            residenceId={residenceId}
+            candidates={featured.candidates.map((c) => ({ ref: c.ref, question: c.question, order: c.order }))}
+          />
+        </PermissionGate>
+      ) : (
+        <section className="mt-8" aria-labelledby="faq-featured-title">
+          <h2 id="faq-featured-title" className="text-lg font-bold text-ink">
+            Preguntas destacadas
+          </h2>
+          <div className="mt-3">
+            <EmptyState
+              icon={featured.reason === "schema_pending" ? "hourglass_top" : "error"}
+              title={featured.reason === "schema_pending" ? "Elegir destacadas todavía no está disponible" : "No pudimos cargar las destacadas"}
+              description={
+                featured.reason === "schema_pending"
+                  ? "Lo estamos terminando de preparar en este entorno. Mientras tanto, tu ficha destaca las primeras 6 preguntas."
+                  : "Probá de nuevo en unos minutos. Si sigue pasando, avisale a Soporte."
+              }
+            />
+          </div>
+        </section>
+      )}
+
+      <h2 id="preguntas-visitantes" className="mt-12 scroll-mt-20 text-lg font-bold text-ink">Preguntas de visitantes</h2>
       <p className="mt-1 text-sm text-ink-soft">
         Quienes miran tu ficha pueden hacerte una pregunta libre. Respondé cuando puedas: las respuestas se publican
         debajo de tus preguntas frecuentes. No hay respuestas automáticas.
@@ -160,14 +243,17 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
       </p>
       <p className="mt-2 text-xs text-ink-faint">
         Las preguntas no muestran quién las hizo. No confirmes disponibilidad ni precios por acá: eso se informa en la
-        ficha y en la solicitud. Para cambiar tus{" "}
-        <Link
-          href={`/residence/${residenceId}/profile`}
-          className="font-semibold text-forest-700 underline underline-offset-2"
-        >
-          preguntas frecuentes fijas
-        </Link>{" "}
-        (hasta 5), editá tu perfil.
+        ficha y en la solicitud.
+        {ownFaqCount > 0 && (
+          <>
+            {" "}
+            Las preguntas propias que escribiste antes del catálogo se editan en tu{" "}
+            <Link href={`/residence/${residenceId}/profile#perfil-faq`} className="font-semibold text-forest-700 underline underline-offset-2">
+              configuración
+            </Link>
+            .
+          </>
+        )}
       </p>
 
       {error ? (
@@ -194,7 +280,7 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
             return (
               <section key={section.key}>
                 <div className="mb-3 flex items-center gap-2">
-                  <h2 className="text-sm font-extrabold uppercase tracking-widest text-muted">{section.title}</h2>
+                  <h2 className="text-sm font-bold uppercase tracking-widest text-muted">{section.title}</h2>
                   <span className="rounded-full bg-cream-2 px-2 py-0.5 text-xs font-bold text-ink-soft">
                     {items.length}
                   </span>

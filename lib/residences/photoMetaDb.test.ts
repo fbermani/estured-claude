@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { buildGalleryPhotos, reconcileMetaRow, rotationUrls, type PhotoMetaRow } from "./photoMetaDb";
+import { buildGalleryPhotos, loadPhotoMeta, reconcileMetaRow, rotationUrls, type PhotoMetaRow } from "./photoMetaDb";
+import { createInMemorySupabase } from "@/lib/testing/inMemorySupabase";
 import { buildPhotoSections } from "./photoSections";
 import { residentsToDisplay } from "./occupancy";
 
@@ -67,5 +68,39 @@ describe("residentsToDisplay (gating Premium, fail-closed)", () => {
     expect(residentsToDisplay(false, 5)).toBeNull();
     expect(residentsToDisplay(null, 5)).toBeNull();
     expect(residentsToDisplay(undefined, 5)).toBeNull();
+  });
+});
+
+describe("foto principal (0097)", () => {
+  it("buildGalleryPhotos la marca y rotationUrls la pone primera", () => {
+    const meta = new Map<string, PhotoMetaRow>([
+      ["1", { file_id: "1", residence_id: "r", category: "general", area: null, room_type_id: null, is_featured: true, cover_order: 1 }],
+      ["3", { file_id: "3", residence_id: "r", category: "general", area: null, room_type_id: null, is_featured: false, is_cover: true }],
+    ]);
+    const g = buildGalleryPhotos(files, meta, url, new Map());
+    expect(g.map((p) => p.isCover)).toEqual([false, false, true]);
+    expect(rotationUrls(g)).toEqual(["https://x/c.jpg", "https://x/a.jpg"]);
+  });
+
+  const row = { file_id: "1", residence_id: "r", category: "general", area: null, room_type_id: null, is_featured: true, section: null, sort_order: 0, cover_order: 1, is_cover: true };
+  it("loadPhotoMeta lee is_cover y avisa que está listo", async () => {
+    const db = createInMemorySupabase({ residence_photo_meta: [row] });
+    const r = await loadPhotoMeta(db.client, ["r"], { reconcile: false });
+    expect(r).toMatchObject({ schemaReady: true, sectionsReady: true, coverReady: true, mainCoverReady: true });
+    expect(r.byFileId.get("1")?.is_cover).toBe(true);
+  });
+  it("sin la 0097 degrada a la 0074 (portada con orden) sin perder nada más", async () => {
+    const db = createInMemorySupabase({ residence_photo_meta: [row] }, { missingColumns: { residence_photo_meta: ["is_cover"] } });
+    expect(await loadPhotoMeta(db.client, ["r"], { reconcile: false })).toMatchObject({ schemaReady: true, sectionsReady: true, coverReady: true, mainCoverReady: false });
+  });
+  it("sin la 0074 ni la 0097 degrada a la 0070, y sin la 0070 a la 0059", async () => {
+    const no74 = createInMemorySupabase({ residence_photo_meta: [row] }, { missingColumns: { residence_photo_meta: ["is_cover", "cover_order"] } });
+    expect(await loadPhotoMeta(no74.client, ["r"], { reconcile: false })).toMatchObject({ sectionsReady: true, coverReady: false, mainCoverReady: false });
+    const no70 = createInMemorySupabase({ residence_photo_meta: [row] }, { missingColumns: { residence_photo_meta: ["is_cover", "cover_order", "section"] } });
+    expect(await loadPhotoMeta(no70.client, ["r"], { reconcile: false })).toMatchObject({ schemaReady: true, sectionsReady: false, coverReady: false, mainCoverReady: false });
+  });
+  it("la tabla inexistente no rompe", async () => {
+    const db = createInMemorySupabase({}, { missingTables: ["residence_photo_meta"] });
+    expect(await loadPhotoMeta(db.client, ["r"])).toMatchObject({ schemaReady: false, mainCoverReady: false });
   });
 });

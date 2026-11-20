@@ -35,7 +35,7 @@ export function AreaHeader({
           <form action={signOut}>
             <button
               type="submit"
-              className="rounded-full border border-sand-300 px-4 py-1.5 text-sm font-semibold text-ink-soft transition-colors hover:border-(--tone) hover:text-(--tone-700)"
+              className="inline-flex min-h-11 items-center rounded-full border border-sand-300 px-4 text-sm font-semibold text-ink-soft transition-colors hover:border-(--tone) hover:text-(--tone-700)"
             >
               Salir
             </button>

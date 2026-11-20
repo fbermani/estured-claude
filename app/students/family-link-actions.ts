@@ -5,9 +5,12 @@ import { headers } from "next/headers";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { resetFeePayersOnLinkEnd } from "@/lib/family/setFeePayer";
+import { clientIpFromHeaders } from "@/lib/receipts/verifyRateLimit";
 import { createAuditLog } from "@/lib/audit";
 import { sendEmail } from "@/lib/email/sendEmail";
 import { isFamilyEmailVerified } from "@/lib/family/emailVerification";
+import { escapeHtml, safeSubjectName } from "@/lib/residenceSignup/confirmationEmail";
+import { getAppUrl } from "@/lib/appUrl";
 
 export type FamilyLinkDecisionState = { status: "idle" | "error"; message?: string };
 export type FamilyInviteState = { status: "idle" | "error" | "sent"; message?: string };
@@ -74,7 +77,7 @@ export async function respondFamilyLink(
     action: decision === "approve" ? "family_link_approved" : "family_link_rejected",
     entityType: "family_links",
     entityId: linkId,
-    ipAddress: headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
+    ipAddress: clientIpFromHeaders(headerStore),
     userAgent: headerStore.get("user-agent"),
   });
 
@@ -92,10 +95,14 @@ export async function revokeFamilyLink(linkId: string): Promise<FamilyLinkDecisi
 
   const { data: studentProfile } = await admin
     .from("student_profiles")
-    .select("id")
+    .select("id, is_minor")
     .eq("user_id", sessionUser.id)
     .maybeSingle();
   if (!studentProfile) return { status: "error", message: "No encontramos tu perfil de estudiante." };
+  // docs/05 §4.4: una estudiante menor no puede desvincular a su familiar mientras siga siendo menor.
+  if (studentProfile.is_minor) {
+    return { status: "error", message: "Mientras seas menor de edad no podés desvincular a tu familiar. Si necesitás un cambio, escribí a Soporte." };
+  }
 
   const { data: link } = await admin
     .from("family_links")
@@ -131,7 +138,7 @@ export async function revokeFamilyLink(linkId: string): Promise<FamilyLinkDecisi
     action: "family_link_revoked",
     entityType: "family_links",
     entityId: linkId,
-    ipAddress: headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
+    ipAddress: clientIpFromHeaders(headerStore),
     userAgent: headerStore.get("user-agent"),
   });
 
@@ -190,6 +197,21 @@ export async function inviteFamilyMember(
     return { status: "error", message: "Ya enviaste una invitación — cancelala si querés invitar a otra persona." };
   }
 
+  // Throttle: máx. 5 invitaciones por estudiante cada 24 h (incluye canceladas), para que no se use el mail como relay.
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const { count: recentCount, error: countError } = await admin
+    .from("family_invitations")
+    .select("id", { count: "exact", head: true })
+    .eq("student_profile_id", profile.id)
+    .gte("created_at", since);
+  if (countError) {
+    console.error("[family-invite] throttle count failed:", countError);
+    return { status: "error", message: "No pudimos enviar la invitación. Intentá de nuevo." };
+  }
+  if ((recentCount ?? 0) >= 5) {
+    return { status: "error", message: "Llegaste al máximo de invitaciones por hoy. Probá de nuevo mañana." };
+  }
+
   const { data: invitation, error } = await admin
     .from("family_invitations")
     .insert({ student_profile_id: profile.id, email, invited_by_user_id: sessionUser.id })
@@ -200,14 +222,15 @@ export async function inviteFamilyMember(
     return { status: "error", message: "No pudimos enviar la invitación. Intentá de nuevo." };
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const appUrl = getAppUrl();
+  const safeName = escapeHtml(String(profile.first_name ?? ""));
   await sendEmail({
     to: email,
-    subject: `${profile.first_name} te invitó a EstuRed`,
+    subject: `${safeSubjectName(String(profile.first_name ?? ""))} te invitó a EstuRed`,
     html: `
       <p>Hola,</p>
-      <p><strong>${profile.first_name}</strong> te invitó a sumarte a EstuRed como familiar o tutor para acompañar su búsqueda de residencia estudiantil.</p>
-      <p>Una vez que crees tu cuenta, ${profile.first_name} va a tener que aprobar el vínculo — recién ahí vas a poder ver información de su búsqueda.</p>
+      <p><strong>${safeName}</strong> te invitó a sumarte a EstuRed como familiar o tutor para acompañar su búsqueda de residencia estudiantil.</p>
+      <p>Una vez que crees tu cuenta, ${safeName} va a tener que aprobar el vínculo — recién ahí vas a poder ver información de su búsqueda.</p>
       <p><a href="${appUrl}/register/family">Creá tu cuenta acá</a></p>
     `,
   });
@@ -220,7 +243,7 @@ export async function inviteFamilyMember(
     entityType: "family_invitations",
     entityId: invitation.id,
     newValue: { email },
-    ipAddress: headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
+    ipAddress: clientIpFromHeaders(headerStore),
     userAgent: headerStore.get("user-agent"),
   });
 

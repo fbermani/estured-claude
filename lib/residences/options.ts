@@ -1,5 +1,5 @@
 import type { RoomTypeName } from "@/types/domain";
-import { UNIVERSITY_NAMES } from "@/lib/data/buenosAiresUniversities";
+import { UNIVERSITY_NAMES, UNIVERSITY_OTHER_NAME } from "@/lib/data/buenosAiresUniversities";
 import { CABA_BARRIOS } from "@/lib/data/caBarrios";
 
 /**
@@ -43,7 +43,7 @@ export const COMMON_AREA_OPTIONS = [
  * ahora comparte el mismo dataset que el mapa de la ficha y el filtro
  * de `/search`.
  */
-export const UNIVERSITY_OPTIONS = UNIVERSITY_NAMES;
+export const UNIVERSITY_OPTIONS = [...UNIVERSITY_NAMES, UNIVERSITY_OTHER_NAME];
 
 export const PROPERTY_TYPE_OPTIONS = [
   // Auditoría del Owner (DR18): por ahora solo «Residencia Estudiantil». Las filas viejas con otros valores no se tocan.

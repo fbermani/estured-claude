@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
+import { UNIVERSITY_CATEGORIES, UNIVERSITY_CATEGORY_ORDER, type UniversityCategory } from "@/lib/maps/universityPins";
 import { PARAM_NAMES, type FilterGroupKey, type SearchFilters, type SortKey, type ViewMode } from "@/lib/residences/searchFilters";
 
 /**
@@ -12,7 +13,8 @@ import { PARAM_NAMES, type FilterGroupKey, type SearchFilters, type SortKey, typ
  * control. Los resultados llegan como `children` (Server Components).
  */
 
-export type FilterOption = { value: string; label: string; count: number; icon?: string };
+/** `category`: solo en «Universidad cercana» (UBA · otras públicas · privadas); agrupa las opciones y lleva el mismo color que los pines del mapa. */
+export type FilterOption = { value: string; label: string; count: number; icon?: string; category?: UniversityCategory };
 export type FilterGroup = { key: FilterGroupKey; title: string; hint?: string; options: FilterOption[]; show: number };
 
 const SORT_LABELS: Record<SortKey, string> = { rec: "Recomendadas", pa: "Precio: menor a mayor", pd: "Precio: mayor a menor" };
@@ -33,12 +35,13 @@ type Props = {
   histogram: number[];
   promoCount: number;
   minorCount: number;
+  communityCount: number;
   activeCount: number;
   resultCount: number;
   children: React.ReactNode;
 };
 
-export function SearchShell({ groups, filters, bounds, histogram, promoCount, minorCount, activeCount, resultCount, children }: Props) {
+export function SearchShell({ groups, filters, bounds, histogram, promoCount, minorCount, communityCount, activeCount, resultCount, children }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -85,7 +88,7 @@ export function SearchShell({ groups, filters, bounds, histogram, promoCount, mi
     const cur = filters[key];
     push((p) => setList(p, key, cur.includes(value) ? cur.filter((v) => v !== value) : [...cur, value]));
   };
-  const setFlag = (param: "promo" | "menores", on: boolean) => push((p) => (on ? p.set(param, "1") : p.delete(param)));
+  const setFlag = (param: "promo" | "menores" | "comunidad", on: boolean) => push((p) => (on ? p.set(param, "1") : p.delete(param)));
   const setPrice = (min: number | null, max: number | null) =>
     push((p) => {
       if (min !== null) p.set("min", String(min)); else p.delete("min");
@@ -93,7 +96,7 @@ export function SearchShell({ groups, filters, bounds, histogram, promoCount, mi
     });
   const clearAll = () =>
     push((p) => {
-      [...Object.values(PARAM_NAMES), "promo", "menores", "min", "max"].forEach((k) => p.delete(k));
+      [...Object.values(PARAM_NAMES), "promo", "menores", "comunidad", "min", "max"].forEach((k) => p.delete(k));
     });
 
   // Hoja mobile: Esc cierra, foco al botón de cerrar, devuelve el foco al abrir, y se bloquea el scroll de fondo.
@@ -146,6 +149,7 @@ export function SearchShell({ groups, filters, bounds, histogram, promoCount, mi
     ),
     ...(filters.promo ? [{ key: "promo", label: "Con promoción", remove: () => setFlag("promo", false) }] : []),
     ...(filters.minor ? [{ key: "menores", label: "Admite menores de 18", remove: () => setFlag("menores", false) }] : []),
+    ...(filters.community ? [{ key: "comunidad", label: "Con comunidad activa", remove: () => setFlag("comunidad", false) }] : []),
     ...(filters.pmin !== null || filters.pmax !== null ? [{ key: "precio", label: fmtPrice, remove: () => setPrice(null, null) }] : []),
   ];
 
@@ -159,10 +163,10 @@ export function SearchShell({ groups, filters, bounds, histogram, promoCount, mi
         className={
           drawer
             ? "fixed inset-0 z-[60] flex flex-col bg-paper motion-safe:transition-[transform,opacity] motion-safe:duration-300 starting:translate-y-6 starting:opacity-0 min-[900px]:static min-[900px]:z-auto min-[900px]:block min-[900px]:rounded-card min-[900px]:border-[1.5px] min-[900px]:border-line min-[900px]:shadow-card"
-            : "hidden min-[900px]:sticky min-[900px]:top-20 min-[900px]:block min-[900px]:max-h-[calc(100vh-6rem)] min-[900px]:overflow-y-auto min-[900px]:overscroll-contain min-[900px]:rounded-card min-[900px]:border-[1.5px] min-[900px]:border-line min-[900px]:bg-paper min-[900px]:shadow-card"
+            : "hidden min-[900px]:sticky min-[900px]:top-20 min-[900px]:block min-[900px]:max-h-[calc(100vh-6rem)] min-[900px]:overflow-y-auto min-[900px]:overscroll-contain min-[900px]:[scrollbar-width:thin] min-[900px]:[scrollbar-color:var(--color-line-2)_transparent] min-[900px]:rounded-card min-[900px]:border-[1.5px] min-[900px]:border-line min-[900px]:bg-paper min-[900px]:shadow-card"
         }
       >
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-line bg-paper px-4 py-3 min-[900px]:hidden">
+        <div className="max-[899px]:sticky max-[899px]:top-0 z-10 flex items-center justify-between border-b border-line bg-paper px-4 py-3 min-[900px]:hidden">
           <h2 className="text-lg">Filtros</h2>
           <button ref={closeBtn} type="button" onClick={() => setDrawer(false)} aria-label="Cerrar filtros" className={`flex size-11 cursor-pointer items-center justify-center rounded-full text-ink-soft hover:bg-cream-2 ${FOCUS}`}>
             <Icon name="close" className="text-xl" />
@@ -174,6 +178,7 @@ export function SearchShell({ groups, filters, bounds, histogram, promoCount, mi
             <LinkBtn onClick={clearAll} disabled={activeCount === 0}>Borrar todo</LinkBtn>
           </div>
           <PriceGroup key={`${filters.pmin}-${filters.pmax}`} bounds={bounds} histogram={histogram} filters={filters} onChange={setPrice} />
+          <CommunityToggle count={communityCount} checked={filters.community} onChange={() => setFlag("comunidad", !filters.community)} />
           {groups.map((g) => (
             <OptionGroup key={g.key} group={g} selected={filters[g.key]} onToggle={(v) => toggle(g.key, v)} />
           ))}
@@ -225,7 +230,7 @@ export function SearchShell({ groups, filters, bounds, histogram, promoCount, mi
                   filters.view === v.key ? "bg-paper text-forest-700 shadow-card" : "text-ink-soft hover:text-ink"
                 }`}
               >
-                <Icon name={v.icon} className="text-lg max-sm:hidden" />
+                <span aria-hidden="true" className="inline-flex max-sm:hidden"><Icon name={v.icon} className="text-lg" /></span>
                 {v.label}
               </button>
             ))}
@@ -236,7 +241,7 @@ export function SearchShell({ groups, filters, bounds, histogram, promoCount, mi
               aria-label="Ordenar por"
               value={filters.sort}
               onChange={(e) => push((p) => (e.target.value === "rec" ? p.delete("orden") : p.set("orden", e.target.value)))}
-              className={`min-h-[42px] min-w-0 cursor-pointer rounded-field border-[1.5px] border-line-2 bg-paper py-0 pl-3 pr-3 text-sm font-semibold text-ink max-sm:max-w-[10.5rem] ${FOCUS}`}
+              className={`min-h-[42px] min-w-0 cursor-pointer rounded-field border-[1.5px] border-field-border bg-paper py-0 pl-3 pr-3 text-sm font-semibold text-ink ${FOCUS}`}
             >
               {(Object.keys(SORT_LABELS) as SortKey[]).map((k) => (
                 <option key={k} value={k}>{SORT_LABELS[k]}</option>
@@ -247,7 +252,7 @@ export function SearchShell({ groups, filters, bounds, histogram, promoCount, mi
         </div>
 
         {chips.length > 0 && (
-          <ul aria-label="Filtros activos" className="mb-3 flex items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none] min-[900px]:flex-wrap min-[900px]:overflow-visible min-[900px]:pb-0">
+          <ul aria-label="Filtros activos" className="relative mb-3 flex items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none] min-[900px]:flex-wrap min-[900px]:overflow-visible min-[900px]:pb-0">
             {chips.map((c) => (
               <li key={c.key} className="shrink-0">
                 <button type="button" onClick={c.remove} aria-label={`Quitar filtro ${c.label}`} className={`inline-flex min-h-[34px] cursor-pointer items-center gap-1 whitespace-nowrap rounded-full border border-sage-200 bg-forest-tint py-0 pl-3 pr-2 text-[13px] font-semibold text-forest-700 hover:bg-sage-100 ${FOCUS}`}>
@@ -277,7 +282,7 @@ function LinkBtn({ children, onClick, disabled }: { children: React.ReactNode; o
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`cursor-pointer rounded-[6px] px-0.5 py-1.5 text-[13.5px] font-semibold text-forest-700 underline underline-offset-[3px] hover:text-forest-600 disabled:cursor-default disabled:text-ink-faint disabled:no-underline ${FOCUS}`}
+      className={`cursor-pointer rounded-field px-0.5 py-1.5 text-[13.5px] font-semibold text-forest-700 underline underline-offset-[3px] hover:text-forest-600 disabled:cursor-default disabled:text-ink-faint disabled:no-underline ${FOCUS}`}
     >
       {children}
     </button>
@@ -287,11 +292,11 @@ function LinkBtn({ children, onClick, disabled }: { children: React.ReactNode; o
 function Row({ label, count, checked, onChange, icon }: { label: string; count: number; checked: boolean; onChange: () => void; icon?: string }) {
   const muted = count === 0 && !checked;
   return (
-    <label className={`-mx-1 flex min-h-[34px] cursor-pointer items-center gap-2.5 rounded-[10px] px-1 py-[3px] text-[14.5px] hover:bg-cream ${muted ? "text-ink-faint" : "text-ink"}`}>
+    <label className={`-mx-1 flex min-h-[34px] cursor-pointer items-center gap-2.5 rounded-field px-1 py-[3px] text-[14.5px] hover:bg-cream has-[:focus-visible]:bg-forest-tint has-[:focus-visible]:outline-[3px] has-[:focus-visible]:outline-offset-1 has-[:focus-visible]:outline-forest-ink ${muted ? "text-ink-faint" : "text-ink"}`}>
       <input type="checkbox" checked={checked} onChange={onChange} className="peer sr-only" />
       <span
         aria-hidden="true"
-        className="grid size-5 flex-none place-items-center rounded-[6px] border-[1.75px] border-ink-faint bg-white after:h-2.5 after:w-[5px] after:-translate-y-px after:rotate-45 after:border-b-[2.25px] after:border-r-[2.25px] after:border-white after:opacity-0 after:content-[''] motion-safe:transition-colors peer-checked:border-forest peer-checked:bg-forest peer-checked:after:opacity-100 peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-2 peer-focus-visible:outline-forest"
+        className="grid size-5 flex-none place-items-center rounded-field border-[1.75px] border-ink-faint bg-white after:h-2.5 after:w-[5px] after:-translate-y-px after:rotate-45 after:border-b-[2.25px] after:border-r-[2.25px] after:border-white after:opacity-0 after:content-[''] motion-safe:transition-colors peer-checked:border-forest peer-checked:bg-forest peer-checked:after:opacity-100 peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-2 peer-focus-visible:outline-forest-ink"
       />
       {icon && <Icon name={icon} className="text-lg text-ink-faint" />}
       <span className="min-w-0 flex-1 leading-tight">{label}</span>
@@ -300,7 +305,101 @@ function Row({ label, count, checked, onChange, icon }: { label: string; count: 
   );
 }
 
+/** Interruptor destacado justo bajo el presupuesto: «solo residencias con comunidad activa» (residentes viviendo hoy). */
+function CommunityToggle({ count, checked, onChange }: { count: number; checked: boolean; onChange: () => void }) {
+  const muted = count === 0 && !checked;
+  return (
+    <div className="border-t border-line px-[18px] py-3.5">
+      <label
+        className={`flex cursor-pointer items-center gap-3 rounded-card border-[1.5px] px-3 py-2.5 motion-safe:transition-colors has-[:focus-visible]:outline-[3px] has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-forest-ink ${checked ? "border-forest bg-forest-tint" : "border-line-2 bg-cream hover:border-forest"} ${muted ? "opacity-70" : ""}`}
+      >
+        <input type="checkbox" role="switch" checked={checked} onChange={onChange} className="peer sr-only" />
+        <Icon name="groups" className="text-2xl text-forest-700" />
+        <span className="min-w-0 flex-1 leading-tight">
+          <span className="block text-[14.5px] font-bold text-ink">Comunidad activa</span>
+          <span className="block text-[12.5px] text-ink-soft">
+            <span className="tabular-nums">{count}</span> {count === 1 ? "residencia" : "residencias"} con estudiantes viviendo hoy
+          </span>
+        </span>
+        <span
+          aria-hidden="true"
+          className="relative h-6 w-10 flex-none rounded-full bg-line-2 motion-safe:transition-colors after:absolute after:left-0.5 after:top-0.5 after:size-5 after:rounded-full after:bg-white after:shadow-sm after:content-[''] motion-safe:after:transition-transform peer-checked:bg-forest peer-checked:after:translate-x-4"
+        />
+      </label>
+    </div>
+  );
+}
+
+/**
+ * «Universidad cercana»: a la vista solo las de la UBA; «Mostrar más» despliega las categorías (UBA, otras públicas, privadas)
+ * como secciones plegables, con el color de referencia de los pines del mapa. Las elegidas siempre quedan a la vista.
+ */
+function UniversityGroup({ group, selected, onToggle }: { group: FilterGroup; selected: string[]; onToggle: (v: string) => void }) {
+  const [expanded, setExpanded] = useState(false);
+  const titleId = `g-${group.key}`;
+  const uba = group.options.filter((o) => o.category === "uba");
+  const others = group.options.filter((o) => o.category !== "uba");
+  const hiddenSelected = others.filter((o) => selected.includes(o.value));
+  const visible = expanded ? [] : [...uba, ...hiddenSelected];
+  return (
+    <section className="border-t border-line px-[18px] pb-3 pt-3.5" aria-labelledby={titleId}>
+      <h3 id={titleId} className="mb-2 text-[15px]">{group.title}</h3>
+      {!expanded && uba.length > 0 && (
+        <p className="-mt-1 mb-1.5 flex items-center gap-1.5 text-[12.5px] text-ink-faint">
+          <span aria-hidden="true" className={`size-2.5 rounded-full ${UNIVERSITY_CATEGORIES.uba.dot}`} />
+          UBA
+        </p>
+      )}
+      {!expanded && (
+        <div role="group" aria-labelledby={titleId}>
+          {visible.map((o) => (
+            <Row key={o.value} label={o.label} count={o.count} checked={selected.includes(o.value)} onChange={() => onToggle(o.value)} />
+          ))}
+        </div>
+      )}
+      {expanded && (
+        <div role="group" aria-labelledby={titleId} className="space-y-1">
+          {UNIVERSITY_CATEGORY_ORDER.map((cat) => {
+            const list = group.options.filter((o) => (o.category ?? "private") === cat);
+            if (list.length === 0) return null;
+            const meta = UNIVERSITY_CATEGORIES[cat];
+            const picked = list.filter((o) => selected.includes(o.value)).length;
+            return (
+              <details key={cat} open={cat === "uba" || picked > 0} className="group/cat rounded-field border border-line">
+                <summary className={`flex min-h-10 cursor-pointer list-none items-center gap-2 px-2.5 text-[14px] font-bold text-ink [&::-webkit-details-marker]:hidden ${FOCUS}`}>
+                  <span aria-hidden="true" className={`size-3 flex-none rounded-full ${meta.dot}`} />
+                  <span className="min-w-0 flex-1">{meta.label}</span>
+                  {picked > 0 && <span className="rounded-full bg-forest px-1.5 text-[11px] font-bold tabular-nums text-white">{picked}</span>}
+                  <span className="text-[13px] font-normal tabular-nums text-ink-faint">{list.length}</span>
+                  <Icon name="expand_more" className="text-xl text-ink-faint motion-safe:transition-transform group-open/cat:rotate-180" />
+                </summary>
+                <div className="border-t border-line px-2.5 py-1">
+                  {list.map((o) => (
+                    <Row key={o.value} label={o.label} count={o.count} checked={selected.includes(o.value)} onChange={() => onToggle(o.value)} />
+                  ))}
+                </div>
+              </details>
+            );
+          })}
+        </div>
+      )}
+      {others.length > 0 && (
+        <div className="mt-1">
+          <LinkBtn onClick={() => setExpanded((v) => !v)}>
+            {expanded ? "Mostrar menos" : `Mostrar más: públicas y privadas (${others.length})`}
+          </LinkBtn>
+        </div>
+      )}
+    </section>
+  );
+}
+
 function OptionGroup({ group, selected, onToggle }: { group: FilterGroup; selected: string[]; onToggle: (v: string) => void }) {
+  if (group.key === "uni" && group.options.some((o) => o.category)) return <UniversityGroup group={group} selected={selected} onToggle={onToggle} />;
+  return <PlainOptionGroup group={group} selected={selected} onToggle={onToggle} />;
+}
+
+function PlainOptionGroup({ group, selected, onToggle }: { group: FilterGroup; selected: string[]; onToggle: (v: string) => void }) {
   const [expanded, setExpanded] = useState(false);
   // Las opciones elegidas siempre se ven, aunque caigan en la parte plegada.
   const visible = group.options.filter((o, i) => expanded || i < group.show || selected.includes(o.value));

@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920" role="img"><title>Sombra de piso, cama y valija cerrada.</title><desc>Sombra de piso, cama y valija cerrada.</desc><defs /><style>
+  .bg-pared{fill:#ead7b4}
+  .bg-zocalo{fill:#d8bf93}
+  .bg-piso{fill:#c9a77a}
+  .bg-tabla{fill:#b9966a}
+  .bg-marco{fill:#fbf6ec}
+  .bg-vidrio{fill:#f6d9a0}
+  .bg-sol{fill:#fbe9c4}
+  .bg-cuadro{fill:#a87f50}
+  .bg-papel{fill:#fbf6ec}
+  .bg-tierra{fill:#e6cf9f}
+  .bg-ruta{fill:none;stroke:#1f7d5c;stroke-linecap:round}
+  .bg-origen{fill:#c29a55}
+  .bg-caba{fill:#0c3a2c}
+  .bg-luz{fill:#fff3d6;opacity:0.45}
+
+  .fondo{fill:#fbf6ec}
+  .piso{fill:#ece3cf}
+  .piel{fill:#b97a4f}
+  .piel-sombra{fill:#a4683f}
+  .pelo{fill:#2a1d17}
+  .tinta{fill:#1d2722}
+  .trazo{fill:none;stroke:#1d2722;stroke-linecap:round}
+  .abrigo{fill:#1f7d5c}
+  .abrigo-brazo{fill:none;stroke:#1a6e51;stroke-linecap:round;stroke-linejoin:round}
+  .abrigo-brazo-lejos{fill:none;stroke:#155c44;stroke-linecap:round}
+  .abrigo-linea{fill:none;stroke:#0c3a2c;stroke-linecap:round}
+  .cuello{fill:#0c3a2c}
+  .pantalon{fill:#2f3b45}
+  .pantalon-lejos{fill:#27313a}
+  .zapatilla{fill:#1d2722}
+  .mochila{fill:#d8b06a}
+  .mochila-sombra{fill:#c29a55}
+  .tira{fill:none;stroke:#d8b06a;stroke-linecap:round}
+  .valija{fill:#0c3a2c}
+  .valija-manija{fill:#14503c}
+  .valija-banda{fill:#f1d9a8}
+  .celular{fill:#1d2722}
+  .cama-colchon{fill:#efe4cb}
+  .cama-base{fill:#e0cfa8}
+  .cama-almohada{fill:#f8f1e3}
+
+  .piso{fill:#1d2722;fill-opacity:0.12}
+</style>
+<g transform="translate(-40 430) scale(0.9)"><ellipse class="piso" cx="620" cy="1034" rx="460" ry="22" />
+
+<g id="cama">
+  <rect class="cama-base" x="170" y="752" width="580" height="270" rx="14" />
+  <rect class="cama-colchon" x="150" y="690" width="620" height="76" rx="22" />
+  <rect class="cama-almohada" x="180" y="644" width="150" height="56" rx="24" />
+</g>
+
+<g id="valija" data-parte="valija">
+  <rect class="valija-manija" x="934" y="770" width="9" height="26" rx="3" />
+  <rect class="valija-manija" x="966" y="770" width="9" height="26" rx="3" />
+  <rect class="valija" x="924" y="762" width="62" height="16" rx="8" />
+  <rect class="valija" x="895" y="792" width="120" height="238" rx="20" />
+  <rect class="valija-banda" x="895" y="850" width="120" height="16" />
+  <rect class="valija-banda" x="895" y="950" width="120" height="16" />
+  <circle class="tinta" cx="918" cy="1036" r="10" />
+  <circle class="tinta" cx="992" cy="1036" r="10" />
+</g>
+
+</g></svg>

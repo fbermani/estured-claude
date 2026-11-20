@@ -11,12 +11,13 @@ import { MAX_RESIDENCE_PHOTOS, photoDeleteBlockedMessage } from "@/lib/residence
 import { imageExtension, sniffImageType } from "@/lib/residences/imageSniff";
 import { stageProfileEdit } from "@/lib/residences/profileEdits";
 import type { PhotoMetaItem } from "@/lib/residences/photoSections";
+import { safeFilename } from "@/lib/files/safeFilename";
 
 export type PhotoMetaState = { status: "idle" | "success" | "error"; message?: string };
 
 /**
  * Guarda la clasificación de las fotos (DR18 fase 2, migración 0059; DR30, 0070): categoría, área, tipo de habitación, sección con nombre, orden y destacadas (hasta 5).
- * No pasa por la cola de revisión: no cambia qué fotos son públicas, solo cómo se agrupan y cuáles rotan. Requiere `profile.edit`;
+ * No pasa por la cola de revisión: no cambia qué fotos son públicas, solo cómo se agrupan y cuáles van en la tarjeta de la búsqueda. Requiere `profile.edit`;
  * las fotos y los tipos se validan contra los de ESTA residencia (nunca se confía en los ids del cliente).
  */
 export async function savePhotoMeta(residenceId: string, items: unknown): Promise<PhotoMetaState> {
@@ -75,7 +76,7 @@ export async function savePhotoMeta(residenceId: string, items: unknown): Promis
   }));
   if (rows.length > 0) {
     let { error } = await admin.from("residence_photo_meta").upsert(rows, { onConflict: "file_id" });
-    // Sin la migración 0074 (cover_order) se guarda sin el orden de portada: rotan según el orden de la galería.
+    // Sin la migración 0074 (cover_order) se guarda sin el orden de portada: salen según el orden de la galería.
     if (error && isMissingSchemaError(error)) {
       const withoutCover = rows.map((r) => ({ file_id: r.file_id, residence_id: r.residence_id, category: r.category, area: r.area, room_type_id: r.room_type_id, is_featured: r.is_featured, section: r.section, sort_order: r.sort_order }));
       ({ error } = await admin.from("residence_photo_meta").upsert(withoutCover, { onConflict: "file_id" }));
@@ -187,7 +188,7 @@ export async function uploadResidencePhoto(residenceId: string, formData: FormDa
       related_entity_id: residenceId,
       bucket: "public-residence-media",
       storage_path: path,
-      filename: photo.name,
+      filename: safeFilename(photo.name),
       mime_type: realType,
       size_bytes: photo.size,
       visibility: "public",
@@ -360,4 +361,68 @@ export async function deleteResidencePhoto(residenceId: string, fileId: string):
   });
   revalidatePath(`/residence/${residenceId}/profile`);
   return { status: "success" };
+}
+
+export type MainCoverState = { status: "success"; fileId: string | null } | { status: "error"; message: string };
+
+/**
+ * Elige (o quita, con `fileId = null`) la FOTO PRINCIPAL de la residencia: la del hero de la ficha y la de la vista previa del link
+ * (migración 0097; una sola por residencia, garantizada por un índice único parcial). Requiere `profile.edit`. La foto tiene que ser de
+ * ESTA residencia y estar aprobada (nunca se muestra una pendiente al público). Como la elección es de a una, primero se apaga la anterior
+ * y después se marca la nueva (así el índice único nunca choca). No cambia qué fotos son públicas: no pasa por la cola de revisión.
+ */
+export async function setMainCoverPhoto(residenceId: string, fileId: string | null): Promise<MainCoverState> {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) return { status: "error", message: "Tu sesión expiró. Volvé a iniciar sesión." };
+  const admin = getSupabaseAdmin();
+  if (!admin) return { status: "error", message: "No disponible en este momento. Probá más tarde." };
+  if (typeof residenceId !== "string" || !residenceId) return { status: "error", message: "No encontramos la residencia." };
+  if (fileId !== null && (typeof fileId !== "string" || !fileId)) return { status: "error", message: "No encontramos esa foto." };
+
+  const access = await assertResidencePermission(admin, sessionUser.id, residenceId, "profile.edit");
+  if (!access.ok) return { status: "error", message: access.error };
+
+  if (fileId !== null) {
+    const { data: file, error: fileError } = await admin
+      .from("files")
+      .select("id, status")
+      .eq("id", fileId)
+      .eq("related_entity_type", "residences")
+      .eq("related_entity_id", residenceId)
+      .eq("document_type", "residence_photo")
+      .maybeSingle();
+    if (fileError) return { status: "error", message: "No pudimos guardar la foto principal. Probá de nuevo en unos minutos." };
+    if (!file || file.status === "rejected") return { status: "error", message: "No encontramos esa foto. Puede que ya la hayas borrado." };
+    if (file.status !== "approved") return { status: "error", message: "Esa foto todavía está pendiente de aprobación. Cuando la aprueben, podés elegirla como principal." };
+  }
+
+  // 1) Se apaga la principal actual (si la hay).
+  const { error: clearError } = await admin.from("residence_photo_meta").update({ is_cover: false }).eq("residence_id", residenceId).eq("is_cover", true);
+  if (clearError) {
+    if (isMissingSchemaError(clearError)) return { status: "error", message: "Elegir la foto principal todavía no está disponible. Probá más tarde." };
+    console.error("[photo-main] apagar fallido:", clearError.code, clearError.message);
+    return { status: "error", message: "No pudimos guardar la foto principal. Probá de nuevo en unos minutos." };
+  }
+  // 2) Se marca la nueva. Si la foto no tenía fila de clasificación, se crea con los valores por defecto («general»).
+  if (fileId !== null) {
+    const { error } = await admin
+      .from("residence_photo_meta")
+      .upsert({ file_id: fileId, residence_id: residenceId, is_cover: true }, { onConflict: "file_id" });
+    if (error) {
+      console.error("[photo-main] marcar fallido:", error.code, error.message);
+      return { status: "error", message: "No pudimos guardar la foto principal. Probá de nuevo en unos minutos." };
+    }
+  }
+
+  await createAuditLog(admin, {
+    actorUserId: sessionUser.id,
+    actorRole: access.actorRole,
+    action: "residence_cover_photo_set",
+    entityType: "residences",
+    entityId: residenceId,
+    newValue: { file_id: fileId },
+  });
+  revalidatePath(`/residence/${residenceId}/profile`);
+  revalidatePath("/residencias/[slug]", "page");
+  return { status: "success", fileId };
 }

@@ -1,0 +1,251 @@
+{
+  "tag": "audit-ses-1795093203566",
+  "generated": "2026-11-19T13:01:14.648Z",
+  "evidence": [
+    {
+      "id": "S1:adult->adulto",
+      "control": "adult lee perfil y solicitud del adulto",
+      "expected": "ve ambos",
+      "got": "perfil=1, solicitud=1",
+      "status": "comprobado"
+    },
+    {
+      "id": "S1:f-activo->adulto",
+      "control": "f-activo lee perfil y solicitud del adulto",
+      "expected": "ve ambos",
+      "got": "perfil=1, solicitud=1",
+      "status": "comprobado"
+    },
+    {
+      "id": "S1:f-pendiente->adulto",
+      "control": "f-pendiente lee perfil y solicitud del adulto",
+      "expected": "no ve nada",
+      "got": "perfil=0, solicitud=0",
+      "status": "comprobado"
+    },
+    {
+      "id": "S1:f-revocado->adulto",
+      "control": "f-revocado lee perfil y solicitud del adulto",
+      "expected": "no ve nada",
+      "got": "perfil=0, solicitud=0",
+      "status": "comprobado"
+    },
+    {
+      "id": "S1:f-revocado-fam->adulto",
+      "control": "f-revocado-fam lee perfil y solicitud del adulto",
+      "expected": "no ve nada",
+      "got": "perfil=0, solicitud=0",
+      "status": "comprobado"
+    },
+    {
+      "id": "S1:f-sin-vinculo->adulto",
+      "control": "f-sin-vinculo lee perfil y solicitud del adulto",
+      "expected": "no ve nada",
+      "got": "perfil=0, solicitud=0",
+      "status": "comprobado"
+    },
+    {
+      "id": "S1:other->adulto",
+      "control": "other lee perfil y solicitud del adulto",
+      "expected": "no ve nada",
+      "got": "perfil=0, solicitud=0",
+      "status": "comprobado"
+    },
+    {
+      "id": "S1:admin->adulto",
+      "control": "admin lee perfil y solicitud del adulto",
+      "expected": "no ve nada",
+      "got": "perfil=0, solicitud=0",
+      "status": "comprobado"
+    },
+    {
+      "id": "S1:superadmin->adulto",
+      "control": "superadmin lee perfil y solicitud del adulto",
+      "expected": "no ve nada",
+      "got": "perfil=0, solicitud=0",
+      "status": "comprobado"
+    },
+    {
+      "id": "S1:anon->adulto",
+      "control": "anon lee perfil y solicitud del adulto",
+      "expected": "no ve nada",
+      "got": "perfil=0, solicitud=0",
+      "status": "comprobado"
+    },
+    {
+      "id": "S1:minor->menor",
+      "control": "minor lee perfil y solicitud del menor",
+      "expected": "ve ambos",
+      "got": "perfil=1, solicitud=1",
+      "status": "comprobado"
+    },
+    {
+      "id": "S1:t-activo->menor",
+      "control": "t-activo lee perfil y solicitud del menor",
+      "expected": "ve ambos",
+      "got": "perfil=1, solicitud=1",
+      "status": "comprobado"
+    },
+    {
+      "id": "S1:t-suspendido->menor",
+      "control": "t-suspendido lee perfil y solicitud del menor",
+      "expected": "no ve nada",
+      "got": "perfil=0, solicitud=0",
+      "status": "comprobado"
+    },
+    {
+      "id": "S1:adult->menor",
+      "control": "adult lee perfil y solicitud del menor",
+      "expected": "no ve nada",
+      "got": "perfil=0, solicitud=0",
+      "status": "comprobado"
+    },
+    {
+      "id": "S1:f-activo->menor",
+      "control": "f-activo lee perfil y solicitud del menor",
+      "expected": "no ve nada",
+      "got": "perfil=0, solicitud=0",
+      "status": "comprobado"
+    },
+    {
+      "id": "S1:admin->menor",
+      "control": "admin lee perfil y solicitud del menor",
+      "expected": "no ve nada",
+      "got": "perfil=0, solicitud=0",
+      "status": "comprobado"
+    },
+    {
+      "id": "S1:superadmin->menor",
+      "control": "superadmin lee perfil y solicitud del menor",
+      "expected": "no ve nada",
+      "got": "perfil=0, solicitud=0",
+      "status": "comprobado"
+    },
+    {
+      "id": "S1:minor->adulto",
+      "control": "minor lee perfil y solicitud del adulto",
+      "expected": "no ve nada",
+      "got": "perfil=0, solicitud=0",
+      "status": "comprobado"
+    },
+    {
+      "id": "S1:t-activo->adulto",
+      "control": "t-activo lee perfil y solicitud del adulto",
+      "expected": "no ve nada",
+      "got": "perfil=0, solicitud=0",
+      "status": "comprobado"
+    },
+    {
+      "id": "S2:admin-lecturas",
+      "control": "admin con su JWT lee tablas privadas",
+      "expected": "0 filas ajenas",
+      "got": "0 filas ajenas",
+      "status": "comprobado"
+    },
+    {
+      "id": "S2:superadmin-lecturas",
+      "control": "superadmin con su JWT lee tablas privadas",
+      "expected": "0 filas ajenas",
+      "got": "0 filas ajenas",
+      "status": "comprobado"
+    },
+    {
+      "id": "S3:f-activo:update-solicitud",
+      "control": "escritura directa f-activo:update-solicitud",
+      "expected": "rechazada",
+      "got": "rechazada",
+      "status": "comprobado"
+    },
+    {
+      "id": "S3:f-activo:update-vinculo",
+      "control": "escritura directa f-activo:update-vinculo",
+      "expected": "rechazada",
+      "got": "rechazada",
+      "status": "comprobado"
+    },
+    {
+      "id": "S3:f-revocado:reactivar-vinculo",
+      "control": "escritura directa f-revocado:reactivar-vinculo",
+      "expected": "rechazada",
+      "got": "rechazada",
+      "status": "comprobado"
+    },
+    {
+      "id": "S3:f-pendiente:aprobarse",
+      "control": "escritura directa f-pendiente:aprobarse",
+      "expected": "rechazada",
+      "got": "rechazada",
+      "status": "comprobado"
+    },
+    {
+      "id": "S3:minor:desmarcar-menor",
+      "control": "escritura directa minor:desmarcar-menor",
+      "expected": "rechazada",
+      "got": "rechazada",
+      "status": "comprobado"
+    },
+    {
+      "id": "S3:adult:rol-admin",
+      "control": "escritura directa adult:rol-admin",
+      "expected": "rechazada",
+      "got": "rechazada",
+      "status": "comprobado"
+    },
+    {
+      "id": "S3:adult:insertar-rol",
+      "control": "escritura directa adult:insertar-rol",
+      "expected": "rechazada",
+      "got": "rechazada",
+      "status": "comprobado"
+    },
+    {
+      "id": "S3:other:update-solicitud",
+      "control": "escritura directa other:update-solicitud",
+      "expected": "rechazada",
+      "got": "rechazada",
+      "status": "comprobado"
+    },
+    {
+      "id": "S3:other:borrar-perfil",
+      "control": "escritura directa other:borrar-perfil",
+      "expected": "rechazada",
+      "got": "rechazada",
+      "status": "comprobado"
+    },
+    {
+      "id": "S3:admin:update-solicitud",
+      "control": "escritura directa admin:update-solicitud",
+      "expected": "rechazada",
+      "got": "rechazada",
+      "status": "comprobado"
+    },
+    {
+      "id": "S3:superadmin:update-solicitud",
+      "control": "escritura directa superadmin:update-solicitud",
+      "expected": "rechazada",
+      "got": "rechazada",
+      "status": "comprobado"
+    },
+    {
+      "id": "S3:superadmin:insertar-auditoria",
+      "control": "escritura directa superadmin:insertar-auditoria",
+      "expected": "rechazada",
+      "got": "rechazada",
+      "status": "comprobado"
+    },
+    {
+      "id": "S3:anon:insertar-solicitud",
+      "control": "escritura directa anon:insertar-solicitud",
+      "expected": "rechazada",
+      "got": "rechazada",
+      "status": "comprobado"
+    },
+    {
+      "id": "S3:estado-final",
+      "control": "tras 13 escrituras directas el estado real no cambió",
+      "expected": "sin cambios",
+      "got": "sin cambios",
+      "status": "comprobado"
+    }
+  ]
+}

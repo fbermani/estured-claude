@@ -6,6 +6,7 @@ import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
 import { formatDateOnly } from "@/lib/dates/formatDateOnly";
 import { calculateFeeEstimate, FEE_PERCENT } from "@/lib/applications/fee";
+import { EMPTY_MONTH_IDEA } from "@/lib/residences/emptyMonthCopy";
 import { type InitialPaymentConfig } from "@/lib/reservations/initialPayment";
 import { confirmedEmptyMonthsCharge, MAX_EMPTY_MONTHS, type VacancyOutlook } from "@/lib/applications/emptyMonths";
 import { resolveReservationMoney, todayIso, type DepositMode } from "@/lib/applications/reservationMoney";
@@ -47,7 +48,10 @@ export function CostBreakdown({
   conditions,
   arsPerUsd,
   submitNoun = "solicitud",
+  compact = false,
 }: {
+  /** Revisión previa al envío (paso 2 de `ApplyForm`): solo los tres destinatarios (residencia, EstuRed, depósito), con los mismos cálculos. */
+  compact?: boolean;
   /** Qué se envía (el estudiante envía una solicitud; el familiar, una propuesta): solo cambia el texto. */
   submitNoun?: "solicitud" | "propuesta";
   /** Tarifa de lista del tipo elegido; la promoción vigente (si hay) se aplica acá, igual que en el servidor. */
@@ -108,11 +112,56 @@ export function CostBreakdown({
           ? "depósito"
           : null;
 
+  if (compact) {
+    return (
+      <section aria-label="Resumen de importes estimados" className="rounded-field border border-line-2 bg-paper px-4 py-3 text-sm">
+        <p className="text-xs font-bold text-muted">Importes estimados</p>
+        <dl className="mt-2 divide-y divide-line">
+          <div className="flex items-start justify-between gap-3 py-2">
+            <dt className="text-ink-soft">
+              <span className="font-semibold text-ink">A la residencia</span>
+              <span className="block text-xs text-ink-faint">
+                Pago inicial{initialLabel ? ` (${initialLabel})` : ""}, una vez aprobada la solicitud.
+              </span>
+            </dt>
+            <dd className="text-right font-bold tabular-nums text-ink">
+              {formatArs(initialPayment.arsDisplay)}
+              <span className="block text-xs font-normal text-ink-faint">{formatUsd(initialPayment.usd)}</span>
+            </dd>
+          </div>
+          <div className="flex items-start justify-between gap-3 py-2">
+            <dt className="text-ink-soft">
+              <span className="font-semibold text-ink">A EstuRed: fee ({Math.round(FEE_PERCENT * 100)}%)</span>
+              <span className="block text-xs text-ink-faint">Solo si la residencia confirma la reserva.</span>
+            </dt>
+            <dd className="text-right font-bold tabular-nums text-ink">
+              {formatUsd(feeUsd)}
+              <span className="block text-xs font-normal text-ink-faint">≈ {formatArs(fee.estimatedFeeArs)}</span>
+            </dd>
+          </div>
+          {depositUsd > 0 && (
+            <div className="flex items-start justify-between gap-3 py-2">
+              <dt className="text-ink-soft">
+                <span className="font-semibold text-ink">Depósito</span>
+                <span className="block text-xs text-ink-faint">A la residencia, al ingresar. Reembolsable.</span>
+              </dt>
+              <dd className="text-right font-bold tabular-nums text-ink">{formatUsd(depositUsd)}</dd>
+            </div>
+          )}
+        </dl>
+        <p className="mt-1 text-xs leading-snug text-ink-faint">
+          Importes estimados y sujetos a confirmación de la residencia. Enviar la {submitNoun} es gratis.
+          <ExchangeRateNote />
+        </p>
+      </section>
+    );
+  }
+
   return (
     <div className="space-y-3 text-sm">
       {/* (a) DR30 §6: lo primero que se muestra del dinero es lo que se paga a la residencia para reservar. */}
       <section aria-label="Pago inicial a la residencia" className="rounded-field border-[1.5px] border-forest/30 bg-forest-tint/40 p-4">
-        <p className="text-[11px] font-extrabold uppercase tracking-widest text-forest-700">
+        <p className="text-xs font-bold text-forest-700">
           Pago inicial a la residencia para reservar{initialLabel ? ` (${initialLabel})` : ""}
           <InfoTip label="Qué es el pago inicial">
             {initialPayment.mode === "custom_usd"
@@ -126,7 +175,7 @@ export function CostBreakdown({
             cuando la residencia habilita el pago.
           </InfoTip>
         </p>
-        <p className="mt-1.5 font-display text-3xl font-extrabold leading-none text-ink">
+        <p className="mt-1.5 font-display text-3xl font-bold leading-none text-ink">
           {formatArs(initialPayment.arsDisplay)}
         </p>
         <p className="mt-1 text-xs font-semibold text-ink-soft">
@@ -151,8 +200,8 @@ export function CostBreakdown({
           </span>
           <span className="flex items-center gap-1.5 text-right">
             <span>
-              <span className="block font-extrabold text-ink">{formatUsd(reservationTotalUsd)}</span>
-              <span className="block text-[10px] font-normal text-ink-faint">≈ {formatArs(totalArs)}</span>
+              <span className="block font-bold text-ink">{formatUsd(reservationTotalUsd)}</span>
+              <span className="block text-xs font-normal text-ink-faint">≈ {formatArs(totalArs)}</span>
             </span>
             <Icon name="expand_more" className="text-xl text-ink-faint transition-transform group-open:rotate-180" />
           </span>
@@ -162,12 +211,12 @@ export function CostBreakdown({
       {startDate && (
         <div className="mb-3 flex items-center justify-between rounded-field border border-line bg-paper px-3 py-2.5">
           <span>
-            <span className="block text-[10px] font-extrabold uppercase tracking-widest text-muted">Entrada</span>
+            <span className="block text-xs font-bold text-muted">Entrada</span>
             <span className="font-bold text-ink">{formatDateOnly(startDate)}</span>
           </span>
           <Icon name="arrow_forward" className="text-lg text-ink-faint" />
           <span className="text-right">
-            <span className="block text-[10px] font-extrabold uppercase tracking-widest text-muted">Salida</span>
+            <span className="block text-xs font-bold text-muted">Salida</span>
             <span className="font-bold text-ink">{computeExitDate(startDate, duration)}</span>
           </span>
         </div>
@@ -211,7 +260,7 @@ export function CostBreakdown({
             )}
             {enrollmentUsd > 0 ? formatUsd(enrollmentUsd) : "Bonificada"}
             {money.enrollment.discountPercent > 0 && (
-              <span className="block text-[10px] font-normal text-forest-700">
+              <span className="block text-xs font-normal text-forest-700">
                 {money.enrollment.discountPercent >= 100 ? "Sin costo por ahora" : `${money.enrollment.discountPercent}% de descuento`}
               </span>
             )}
@@ -224,11 +273,10 @@ export function CostBreakdown({
           <span className="text-orange-700">
             Mes vacío ({emptyLabel})
             <InfoTip label="Qué es el mes vacío">
-              Reservás hoy para ingresar más adelante y la habitación está disponible desde {empty.vacantFrom ? formatDateOnly(empty.vacantFrom) : "hoy"}:
-              la residencia te guarda la plaza y ese tiempo hasta tu ingreso, en que queda vacía, se cobra al {emptyPercent}% de la renta.
-              Se cuenta en proporción a los días: más de 15 días extra cuentan como un mes y 15 o menos como medio mes (máximo {MAX_EMPTY_MONTHS} meses). Se
-              confirma al enviar la solicitud, con la disponibilidad de ese momento. Se paga a la residencia y forma parte del total sobre
-              el que se calcula el fee.
+              {EMPTY_MONTH_IDEA} En tu caso la plaza está disponible desde {empty.vacantFrom ? formatDateOnly(empty.vacantFrom) : "hoy"} y la
+              residencia cobra el {emptyPercent}% de la renta por cada mes vacío. Se cuenta en proporción a los días: más de 15 días extra
+              cuentan como un mes y de 1 a 15 como medio mes (máximo {MAX_EMPTY_MONTHS} meses). Se confirma al enviar la solicitud, con la
+              disponibilidad de ese momento. Se paga a la residencia y forma parte del total sobre el que se calcula el fee.
             </InfoTip>
           </span>
           <span className="text-right font-bold text-orange-700">{formatUsd(emptyChargeUsd)}</span>
@@ -237,14 +285,14 @@ export function CostBreakdown({
       {empty.status === "to_confirm" && (
         <div className="border-t border-line py-1.5 text-xs text-ink-soft">
           <span className="font-semibold text-orange-700">Mes vacío: a confirmar por la residencia.</span>{" "}
-          Reservás con ingreso diferido y esta residencia cobra el {emptyPercent}% de la renta por cada mes en que la plaza queda realmente
-          vacía antes de tu ingreso (máximo {MAX_EMPTY_MONTHS}). Todavía no tenemos la disponibilidad publicada para esas fechas: la residencia lo confirma y
-          no se suma al total hasta entonces. Se confirma al enviar la solicitud.
+          Reservás con ingreso a futuro y esta residencia cobra el {emptyPercent}% de la renta por cada mes vacío (el tiempo en que la plaza
+          queda libre esperándote, máximo {MAX_EMPTY_MONTHS} meses). Todavía no tenemos la disponibilidad publicada para esas fechas: la
+          residencia lo confirma y no se suma al total hasta entonces. Se confirma al enviar la solicitud.
         </div>
       )}
       {empty.status === "not_charged" && (
         <p className="border-t border-line py-1.5 text-xs text-ink-faint">
-          Mes vacío: no aplica, ingresás cuando la plaza empieza a estar disponible o antes estaba ocupada (se confirma al enviar la solicitud).
+          Mes vacío: no aplica. Ingresás cuando la plaza empieza a estar disponible, o antes estaba ocupada (se confirma al enviar la solicitud).
         </p>
       )}
 
@@ -261,9 +309,9 @@ export function CostBreakdown({
               reserva — enviar la {submitNoun} no cuesta nada.
             </InfoTip>
           </span>
-          <span className="text-right font-extrabold text-warning-fg">
+          <span className="text-right font-bold text-warning-fg">
             {formatUsd(feeUsd)}
-            <span className="block text-[10px] font-normal">
+            <span className="block text-xs font-normal">
               ≈ {formatArs(fee.estimatedFeeArs)}
               <ExchangeRateNote />
             </span>
@@ -288,7 +336,7 @@ export function CostBreakdown({
             </span>
             <span className="text-right font-bold text-ink">
               {formatUsd(depositUsd)}
-              <span className="block text-[10px] font-normal text-ink-faint">reembolsable</span>
+              <span className="block text-xs font-normal text-ink-faint">reembolsable</span>
             </span>
           </div>
         </div>

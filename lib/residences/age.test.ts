@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 
-import { ageAtDate, describeAgeRange, residenceAcceptsAge, validateAgeRange } from "@/lib/residences/age";
+import { ageAtDate, ageRangeNotice, describeAgeRange, residenceAcceptsAge, validateAgeRange } from "@/lib/residences/age";
 import { parseIngresoParam } from "@/lib/residences/studentAge";
 
 describe("ageAtDate", () => {
@@ -117,5 +117,24 @@ describe("parseIngresoParam", () => {
     expect(parseIngresoParam("25/10/2026", now)).toBeNull();
     expect(parseIngresoParam("2026-02-30", now)).toBeNull();
     expect(parseIngresoParam("2029-10-26", now)).toBeNull();
+  });
+});
+
+describe("ageRangeNotice (DR50)", () => {
+  const rule = { minResidentAge: 18, maxResidentAge: 26, acceptsMinors: false };
+  it("menor de 17 con ficha «De 18 a 26»: avisa con la edad a la fecha de ingreso", () => {
+    const msg = ageRangeNotice(rule, "2009-05-10", "2026-12-01");
+    expect(msg).toContain("17 años");
+    expect(msg).toContain("de 18 a 26 años");
+  });
+  it("cumple 18 antes del ingreso: no avisa", () => {
+    expect(ageRangeNotice(rule, "2009-05-10", "2027-06-01")).toBeNull();
+  });
+  it("sin fecha de ingreso o sin nacimiento: no avisa", () => {
+    expect(ageRangeNotice(rule, "2009-05-10", "")).toBeNull();
+    expect(ageRangeNotice(rule, null, "2026-12-01")).toBeNull();
+  });
+  it("pasa el máximo: avisa", () => {
+    expect(ageRangeNotice(rule, "1995-01-01", "2026-12-01")).toContain("31 años");
   });
 });

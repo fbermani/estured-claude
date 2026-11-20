@@ -1,0 +1,69 @@
+<template>
+  <style>
+    @font-face { font-family: 'Bricolage Grotesque'; src: url('assets/fonts/BricolageGrotesque.woff2') format('woff2'); font-weight: 200 800; }
+    @font-face { font-family: 'Hanken Grotesk'; src: url('assets/fonts/HankenGrotesk.woff2') format('woff2'); font-weight: 100 900; }
+    #root { position: absolute; inset: 0; overflow: hidden; background: #e2f1ea; font-family: 'Hanken Grotesk', sans-serif; color: #1d2722; }
+    #s02-world { position: absolute; inset: 0; }
+    #s02-map { position: absolute; inset: 0; width: 1920px; height: 1080px; }
+    .s02-label { position: absolute; font-weight: 700; font-size: 36px; }
+    #s02-from { left: 190px; top: 728px; }
+    #s02-from small { display: block; font-size: 28px; font-weight: 500; color: #44524b; }
+    #s02-pin { position: absolute; left: 1180px; top: 380px; width: 120px; height: 150px; }
+    #s02-city { left: 1150px; top: 540px; font-size: 40px; }
+    .s02-b { position: absolute; padding: 18px 24px; border-radius: 24px; background: #fffdf8; font-size: 32px; font-weight: 600; line-height: 1.2; box-shadow: 0 18px 44px rgba(12,58,44,.14), 0 2px 6px rgba(12,58,44,.08); display: flex; align-items: center; gap: 16px; }
+    .s02-thumb { width: 92px; height: 70px; border-radius: 12px; background: linear-gradient(135deg, #cdbfa6, #b6a88f); }
+    .s02-q { color: #c0521d; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 44px; }
+    #s02-b1 { left: 1360px; top: 190px; }
+    #s02-b2 { left: 1400px; top: 430px; }
+    #s02-b3 { left: 1340px; top: 660px; flex-direction: column; align-items: flex-start; gap: 10px; }
+    .s02-tag { font-size: 28px; font-weight: 700; color: #9a4118; background: #fde7da; padding: 6px 14px; border-radius: 999px; }
+    #s02-title { position: absolute; left: 120px; top: 110px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 92px; line-height: 1.02; letter-spacing: -0.03em; }
+    #s02-title .acc { color: #c0521d; }
+    #s02-flood { position: absolute; inset: 0; background: #0c3a2c; clip-path: circle(0px at 1240px 455px); }
+  </style>
+  <div id="root" data-composition-id="s02-tension" data-width="1920" data-height="1080">
+    <div id="s02-world">
+      <svg id="s02-map" viewBox="0 0 1920 1080" aria-hidden="true">
+        <path d="M1560 0 H1920 V1080 H1700 C1640 860 1720 620 1600 420 C1540 300 1600 140 1560 0 Z" fill="#cfe3ef" />
+        <g stroke="#c8ded3" stroke-width="3" fill="none">
+          <path d="M860 0 L760 1080 M960 0 L860 1080 M1060 0 L960 1080 M1160 0 L1060 1080 M1260 0 L1160 1080 M1360 0 L1260 1080 M1460 0 L1360 1080 M1560 0 L1460 1080" />
+          <path d="M700 90 L1700 20 M700 190 L1700 120 M700 290 L1700 220 M700 390 L1700 320 M700 490 L1700 420 M700 590 L1700 520 M700 690 L1700 620 M700 790 L1700 720 M700 890 L1700 820 M700 990 L1700 920" />
+        </g>
+        <g stroke="#b3d3c4" stroke-width="8" fill="none" stroke-linecap="round">
+          <path d="M760 1080 C980 700 1180 560 1620 300" />
+          <path d="M700 420 L1650 470" />
+        </g>
+        <path d="M0 860 C300 760 520 720 760 640" stroke="#b3d3c4" stroke-width="8" fill="none" />
+        <clipPath id="s02-reveal"><rect id="s02-reveal-rect" x="0" y="0" width="0" height="1080" /></clipPath>
+        <path clip-path="url(#s02-reveal)" d="M240 700 C520 690 820 560 1240 470" stroke="#1d2722" stroke-width="7" fill="none" stroke-linecap="round" stroke-dasharray="2 18" />
+        <circle cx="240" cy="700" r="16" fill="#1d2722" />
+      </svg>
+      <div id="s02-from" class="s02-label">Rosario<small>donde estás hoy</small></div>
+      <svg id="s02-pin" viewBox="0 0 120 150" aria-hidden="true"><path d="M60 146 C60 146 6 88 6 56 A54 54 0 0 1 114 56 C114 88 60 146 60 146 Z" fill="#c0521d" stroke="#fffdf8" stroke-width="8" /><circle cx="60" cy="56" r="18" fill="#fffdf8" /></svg>
+      <div id="s02-city" class="s02-label">CABA</div>
+      <div id="s02-b1" class="s02-b"><span class="s02-thumb"></span>¿Fotos de cuándo? <span class="s02-q">?</span></div>
+      <div id="s02-b2" class="s02-b">Precio: consultá por privado</div>
+      <div id="s02-b3" class="s02-b">Seña por transferencia<span class="s02-tag">sin comprobante</span></div>
+      <div id="s02-title">Todo por chat,<br />a <span class="acc">distancia</span></div>
+    </div>
+    <div id="s02-flood"></div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    // entra con el mismo sentido del whip de la escena 1
+    tl.fromTo("#s02-world", { x: 1400 }, { x: 0, duration: 0.5, ease: "power3.out" }, 0);
+    tl.fromTo("#s02-title", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power3.out" }, 0.45);
+    tl.fromTo("#s02-reveal-rect", { attr: { width: 0 } }, { attr: { width: 1260 }, duration: 1.2, ease: "power2.inOut" }, 0.4);
+    tl.fromTo("#s02-pin", { y: -60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "back.out(1.6)" }, 1.45);
+    tl.fromTo("#s02-city", { opacity: 0 }, { opacity: 1, duration: 0.2 }, 1.6);
+    const bubbles = [["#s02-b1", 1.0], ["#s02-b2", 3.0], ["#s02-b3", 5.0]];
+    for (const [sel, at] of bubbles) {
+      tl.fromTo(sel, { opacity: 0, scale: 0.75, transformOrigin: "0% 100%" }, { opacity: 1, scale: 1, duration: 0.14, ease: "power3.out" }, at);
+    }
+    // ninguna se responde: las tres tiemblan una vez, sin bucles
+    tl.to(["#s02-b1", "#s02-b2", "#s02-b3"], { x: 6, duration: 0.05, yoyo: true, repeat: 3, ease: "none", stagger: 0.08 }, 5.7);
+    // iris desde el pin: el mundo de marca aparece por donde estaba CABA
+    tl.to("#s02-flood", { clipPath: "circle(2300px at 1240px 455px)", duration: 0.5, ease: "power3.in" }, 6.48);
+    window.__timelines["s02-tension"] = tl;
+  </script>
+</template>

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350" role="img">
+<title>Post 2, diapositiva 3: dos recorridos</title>
+<desc>Plano de barrio sin nombres: desde una casa (pin forest) salen dos recorridos distintos hasta una sede universitaria sin nombre; uno en línea forest con ícono de colectivo y otro punteado en tinta con ícono de subte.</desc>
+<defs>
+<filter id="papel" x="0" y="0" width="100%" height="100%">
+  <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="7"/>
+  <feColorMatrix type="matrix" values="0 0 0 0 0.36  0 0 0 0 0.29  0 0 0 0 0.19  0 0 0 1.1 -0.48"/>
+</filter>
+
+</defs>
+<style>
+  .crema{fill:#fbf6ec}
+  .forest{fill:#1f7d5c}
+  .forest-osc{fill:#0c3a2c}
+  .tinta{fill:#1d2722}
+  .arena{fill:#f1d9a8}
+  .arena-osc{fill:#e2c88f}
+  .hoja{fill:#fffdf7}
+  .sombra{fill:#e9dfc8}
+  .barra{fill:#d9cba8}
+  .menta{fill:#cfe5d9}
+  .tilde{fill:none;stroke:#fbf6ec;stroke-linecap:round;stroke-linejoin:round}
+  .linea-tinta{fill:none;stroke:#1d2722;stroke-linecap:round;stroke-linejoin:round}
+  .linea-forest{fill:none;stroke:#1f7d5c;stroke-linecap:round;stroke-linejoin:round}
+  .linea-crema{fill:none;stroke:#fbf6ec;stroke-linecap:round;stroke-linejoin:round}
+  .vacio{fill:none;stroke:#b9a983;stroke-dasharray:10 8}
+  .calle-fondo{fill:#efe5cf}
+  .arbol{fill:#5fa883}
+</style>
+<rect id="fondo" class="crema" width="1080" height="1350"/>
+<defs><clipPath id="tarjeta-mapa"><rect x="90" y="560" width="900" height="700" rx="28"/></clipPath></defs><g id="mapa-barrio" clip-path="url(#tarjeta-mapa)"><rect class="calle-fondo" x="90" y="560" width="900" height="700"/><rect class="crema" x="90" y="637" width="900" height="26"/><rect class="crema" x="90" y="787" width="900" height="26"/><rect class="crema" x="90" y="947" width="900" height="26"/><rect class="crema" x="90" y="1097" width="900" height="26"/><rect class="crema" x="90" y="1197" width="900" height="26"/><rect class="crema" x="187" y="560" width="26" height="700"/><rect class="crema" x="367" y="560" width="26" height="700"/><rect class="crema" x="547" y="560" width="26" height="700"/><rect class="crema" x="727" y="560" width="26" height="700"/><rect class="crema" x="887" y="560" width="26" height="700"/><rect class="menta" x="393" y="813" width="154" height="134" rx="8"/><circle class="arbol" cx="430" cy="850" r="17"/><circle class="arbol" cx="500" cy="870" r="17"/><circle class="arbol" cx="450" cy="915" r="17"/><circle class="arbol" cx="515" cy="920" r="17"/><path class="linea-forest" stroke-width="16" d="M200 1110 V960 H560 V800 H900 V690"/><path class="linea-tinta" stroke-width="12" stroke-dasharray="2 26" d="M200 1110 H740 V650 H860"/></g><g id="origen"><path class="forest" d="M200 1150 L156 1100 Q148 1050 200 1046 Q252 1050 244 1100 Z"/><path class="crema" d="M178 1092 L200 1072 L222 1092 V1112 H178 Z"/></g><g id="sede"><rect class="tinta" x="842" y="604" width="116" height="16" rx="4"/><path class="tinta" d="M836 604 L900 566 L964 604 Z"/><rect class="tinta" x="852" y="622" width="12" height="54"/><rect class="tinta" x="878" y="622" width="12" height="54"/><rect class="tinta" x="904" y="622" width="12" height="54"/><rect class="tinta" x="930" y="622" width="12" height="54"/><rect class="tinta" x="836" y="676" width="128" height="16" rx="4"/></g><g id="colectivo"><circle class="forest" cx="380" cy="960" r="40"/><rect class="crema" x="360" y="936" width="40" height="40" rx="8"/><rect class="forest" x="366" y="943" width="28" height="13" rx="3"/><circle class="forest" cx="369" cy="968" r="3.5"/><circle class="forest" cx="391" cy="968" r="3.5"/></g><g id="subte"><circle class="tinta" cx="740" cy="900" r="40"/><rect class="crema" x="722" y="876" width="36" height="40" rx="12"/><rect class="tinta" x="729" y="884" width="22" height="12" rx="3"/><path class="linea-crema" stroke-width="5" d="M728 916 L720 928 M752 916 L760 928"/></g>
+<rect id="textura-papel" width="1080" height="1350" filter="url(#papel)" opacity="0.55"/>
+</svg>

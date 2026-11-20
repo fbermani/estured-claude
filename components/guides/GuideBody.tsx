@@ -1,4 +1,5 @@
 import { Icon } from "@/components/ui/Icon";
+import { BrandBullet } from "@/components/ui/BrandMark";
 import { Inline } from "@/components/guides/Inline";
 import type { GuideBlock, GuideSection } from "@/lib/guides/types";
 
@@ -16,12 +17,21 @@ function Blocks({ blocks, linkClass, textClass }: { blocks: GuideBlock[]; linkCl
           case "list": {
             const Tag = b.ordered ? "ol" : "ul";
             return (
-              <Tag key={i} className={`mt-4 grid gap-2 pl-6 text-[17px] leading-8 ${b.ordered ? "list-decimal" : "list-disc"} ${textClass}`}>
-                {b.items.map((it, n) => (
-                  <li key={n}>
-                    <Inline text={it} linkClass={linkClass} />
-                  </li>
-                ))}
+              <Tag key={i} className={`mt-4 grid gap-2 text-[17px] leading-8 ${b.ordered ? "list-decimal pl-6" : "list-none"} ${textClass}`}>
+                {b.items.map((it, n) =>
+                  b.ordered ? (
+                    <li key={n}>
+                      <Inline text={it} linkClass={linkClass} />
+                    </li>
+                  ) : (
+                    <li key={n} className="flex items-start gap-2.5">
+                      <BrandBullet size={20} className="mt-[7px] opacity-70" />
+                      <span>
+                        <Inline text={it} linkClass={linkClass} />
+                      </span>
+                    </li>
+                  ),
+                )}
               </Tag>
             );
           }
@@ -40,9 +50,42 @@ function Blocks({ blocks, linkClass, textClass }: { blocks: GuideBlock[]; linkCl
                 ))}
               </ul>
             );
+          case "table":
+            return (
+              <div key={i} className="mt-4 overflow-x-auto rounded-field border border-sage-200 bg-paper">
+                <table className="w-full min-w-[34rem] border-collapse text-left text-[15px] leading-6">
+                  <thead>
+                    <tr className="bg-forest-tint">
+                      {b.header.map((h, n) => (
+                        <th key={n} scope="col" className="px-4 py-3 font-bold text-ink">
+                          <Inline text={h} />
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {b.rows.map((row, r) => (
+                      <tr key={r} className="border-t border-sage-200">
+                        {row.map((c, n) =>
+                          n === 0 ? (
+                            <th key={n} scope="row" className="px-4 py-3 align-top font-bold text-ink">
+                              <Inline text={c} />
+                            </th>
+                          ) : (
+                            <td key={n} className="px-4 py-3 align-top text-ink">
+                              <Inline text={c} />
+                            </td>
+                          ),
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            );
           case "subheading":
             return (
-              <h3 key={i} id={b.id} className="mt-6 scroll-mt-28 font-display text-xl font-extrabold text-ink">
+              <h3 key={i} id={b.id} className="mt-6 scroll-mt-28 font-display text-xl font-bold text-ink">
                 {b.text}
               </h3>
             );
@@ -70,7 +113,7 @@ export function GuideBody({ sections }: { sections: GuideSection[] }) {
         if (!c) {
           return (
             <section key={s.id} aria-labelledby={s.id} className="mt-10 first:mt-0">
-              <h2 id={s.id} className="scroll-mt-28 font-display text-2xl font-extrabold leading-tight text-ink sm:text-[1.75rem]">
+              <h2 id={s.id} className="scroll-mt-28 font-display text-2xl font-bold leading-tight text-ink sm:text-[1.75rem]">
                 {s.heading}
               </h2>
               <div className="mt-3">
@@ -86,7 +129,7 @@ export function GuideBody({ sections }: { sections: GuideSection[] }) {
               <span className={`flex size-10 flex-none items-center justify-center rounded-xl ${c.icon_cls}`}>
                 <Icon name={c.icon} className="text-2xl!" />
               </span>
-              <h2 id={s.id} className={`scroll-mt-28 font-display text-xl font-extrabold leading-tight sm:text-2xl ${dark ? "text-white" : "text-ink"}`}>
+              <h2 id={s.id} className={`scroll-mt-28 font-display text-xl font-bold leading-tight sm:text-2xl ${dark ? "text-white" : "text-ink"}`}>
                 {s.heading}
               </h2>
             </div>

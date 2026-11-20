@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
+import { FlagAvatar } from "@/components/residences/FlagAvatar";
 import { useReservationSelection } from "@/components/residences/reservationSelection";
 import { StatusTag } from "@/components/ui/StatusTag";
 import { FilterChips } from "@/components/ui/FilterChips";
@@ -35,36 +36,20 @@ import type { CommunityProfileCard, CommunityRoomTypeSummary, CommunitySummary }
  * pantalla permite elegir (`allowSelection`; "Mi residencia" no).
  */
 
-const AVATAR_STYLES = [
-  "bg-forest-tint text-forest-700",
-  "bg-orange-tint text-orange-700",
-  "bg-mint text-forest-700",
-  "bg-sand-100 text-ink-soft",
-];
-
 function items(value: Record<string, unknown> | null | undefined): string[] {
   const list = value?.items;
   return Array.isArray(list) ? list.filter((i): i is string => typeof i === "string") : [];
 }
 
 function Avatar({ card, index, size = "sm" }: { card: CommunityProfileCard; index: number; size?: "sm" | "lg" }) {
-  const initial = card.firstName?.[0]?.toUpperCase() ?? "?";
-  const style = AVATAR_STYLES[index % AVATAR_STYLES.length];
-  const sizing = size === "lg" ? "h-24 w-24 text-3xl" : "h-10 w-10 text-sm";
   return (
-    <div className="relative shrink-0">
-      <div className={`flex items-center justify-center rounded-full font-bold ${style} ${sizing}`}>{initial}</div>
-      {card.countryFlag && (
-        <span
-          className={`absolute -bottom-1 -right-1 flex items-center justify-center rounded-full bg-white shadow-sm ring-2 ring-paper ${
-            size === "lg" ? "h-9 w-9 text-xl" : "h-6 w-6 text-base"
-          }`}
-          aria-label={card.nationality ?? undefined}
-        >
-          {card.countryFlag}
-        </span>
-      )}
-    </div>
+    <FlagAvatar
+      initial={card.firstName?.[0]?.toUpperCase() ?? "?"}
+      flag={card.countryFlag}
+      flagLabel={card.nationality}
+      index={index}
+      size={size}
+    />
   );
 }
 
@@ -223,7 +208,7 @@ function ResidentCell({ card, index, isGuest }: { card: CommunityProfileCard; in
             <>
               {card.bio && (
                 <div className="mt-4">
-                  <h4 className="mb-1.5 flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-widest text-muted">
+                  <h4 className="mb-1.5 flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-muted">
                     <Icon name="person" className="text-xs" /> Sobre mí
                   </h4>
                   <p className="text-xs leading-relaxed text-ink-soft">{card.bio}</p>
@@ -231,14 +216,14 @@ function ResidentCell({ card, index, isGuest }: { card: CommunityProfileCard; in
               )}
               {interests.length > 0 && (
                 <div className="mt-4">
-                  <h4 className="mb-1.5 flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-widest text-muted">
+                  <h4 className="mb-1.5 flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-muted">
                     <Icon name="favorite" className="text-xs" /> Intereses
                   </h4>
                   <div className="flex flex-wrap gap-1.5">
                     {interests.map((item) => (
                       <span
                         key={item}
-                        className="rounded-full border border-line bg-cream-2 px-2.5 py-1 text-[11px] font-medium text-ink-soft"
+                        className="rounded-full border border-line bg-cream-2 px-2.5 py-1 text-xs font-medium text-ink-soft"
                       >
                         {item}
                       </span>
@@ -248,7 +233,7 @@ function ResidentCell({ card, index, isGuest }: { card: CommunityProfileCard; in
               )}
               {habits.length > 0 && (
                 <div className="mt-4">
-                  <h4 className="mb-1.5 flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-widest text-muted">
+                  <h4 className="mb-1.5 flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-muted">
                     <Icon name="schedule" className="text-xs" /> Hábitos
                   </h4>
                   <ul className="space-y-1.5">
@@ -393,7 +378,7 @@ function RoomTypeSection({
     );
 
   return (
-    <section className="overflow-hidden rounded-card border-[1.5px] border-line border-l-[5px] border-l-(--tone) bg-paper shadow-card">
+    <section className="overflow-hidden rounded-card border-[1.5px] border-line border-l-4 border-l-(--tone) bg-paper shadow-card">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
@@ -435,7 +420,7 @@ function RoomTypeSection({
                 {roomType.rooms.map((room) => (
                   <div
                     key={room.roomId}
-                    className="h-full rounded-[18px] border border-line bg-cream/70 p-3 transition-shadow duration-300 hover:shadow-card"
+                    className="h-full rounded-card border border-line bg-cream/70 p-3 transition-shadow duration-300 hover:shadow-card"
                   >
                     <div className="mb-2.5 flex items-center justify-between gap-3 px-1">
                       <p className="flex items-center gap-1.5 text-sm font-bold text-ink">
@@ -463,7 +448,7 @@ function RoomTypeSection({
                   </div>
                 ))}
                 {unassigned.length > 0 && (
-                  <div className="rounded-[18px] border border-line bg-cream/70 p-3">
+                  <div className="rounded-card border border-line bg-cream/70 p-3">
                     <p className="mb-2.5 px-1 text-sm font-bold text-ink-soft">Sin habitación asignada</p>
                     <div className="grid gap-2.5">
                       {unassigned.map((card) => (

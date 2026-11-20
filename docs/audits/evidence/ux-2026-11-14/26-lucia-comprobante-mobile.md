@@ -1,0 +1,120 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- button "Abrir menú":
+  - generic: menu
+- generic: EstuRed
+- button "Notificaciones, 4 sin leer":
+  - generic: notifications
+  - generic: "4"
+- complementary:
+  - link "EstuRed, inicio":
+    - /url: /
+    - generic: EstuRed
+  - button "Notificaciones, 4 sin leer":
+    - generic: notifications
+    - generic: "4"
+  - button "Cerrar menú":
+    - generic: close
+  - navigation:
+    - link "Inicio":
+      - /url: /students/dashboard
+      - generic: home
+      - generic: Inicio
+    - link "Mi residencia":
+      - /url: /students/residency
+      - generic: apartment
+      - generic: Mi residencia
+    - link "Renovaciones":
+      - /url: /students/renewals
+      - generic: sync
+      - generic: Renovaciones
+    - link "Mis solicitudes":
+      - /url: /students/applications
+      - generic: description
+      - generic: Mis solicitudes
+    - link "Mi perfil":
+      - /url: /students/profile
+      - generic: person
+      - generic: Mi perfil
+    - link "Favoritos":
+      - /url: /students/favorites
+      - generic: favorite
+      - generic: Favoritos
+    - link "Lista de espera":
+      - /url: /students/waitlist
+      - generic: hourglass_top
+      - generic: Lista de espera
+    - link "Soporte":
+      - /url: /students/support
+      - generic: support_agent
+      - generic: Soporte
+  - paragraph: lucia.fernandez@example.com
+  - link "Botón de arrepentimiento":
+    - /url: /students/revocation
+    - generic: undo
+    - generic: Botón de arrepentimiento
+  - button "Salir":
+    - generic: logout
+    - generic: Salir
+- navigation "Navegación principal":
+  - link "Inicio":
+    - /url: /students/dashboard
+    - generic: home
+    - generic: Inicio
+  - link "Mi residencia":
+    - /url: /students/residency
+    - generic: apartment
+    - generic: Residencia
+  - link "Renovar, Renovaciones":
+    - /url: /students/renewals
+    - generic: sync
+    - generic: Renovar
+  - link "Mis solicitudes":
+    - /url: /students/applications
+    - generic: description
+    - generic: Solicitudes
+  - button "Más":
+    - generic: more_horiz
+    - generic: Más
+- main:
+  - heading "Comprobante de Reserva Confirmada" [level=1]
+  - generic: Válido
+  - paragraph: N.º ER-2026-5C75F4
+  - term: Estudiante
+  - definition: Lucia F.
+  - term: Residencia
+  - definition: Residencia Río de la Plata · Recoleta
+  - term: Tipo de habitación
+  - definition: Individual
+  - term: Fecha de ingreso
+  - definition: 20/07/2026
+  - term: Duración inicial
+  - definition: 6 meses
+  - term: Tarifa mensual acordada
+  - definition: USD 350 · ARS 532.000
+  - term: Política de ajustes
+  - definition: Ajuste trimestral
+  - term: Pago a la residencia (informado por la residencia)
+  - definition: USD 350 · ARS 532.000
+  - term: Tipo de cambio de referencia
+  - definition: ARS 1.520 por USD (al 21/10/2026)
+  - term: Fee EstuRed pagado
+  - definition: ARS 159.500
+  - term: Fee pagado el
+  - definition: 20/10/2026
+  - term: Emitido
+  - definition: 20/10/2026
+  - paragraph: "Objetivo académico: Iniciar carrera universitaria en CABA durante el ciclo lectivo actual."
+  - paragraph: Los pagos mensuales posteriores y los ajustes de tarifa se acuerdan y se pagan directamente con la residencia, según la política de ajustes indicada. EstuRed no garantiza pagos futuros ni la conducta de las partes.
+  - paragraph: EstuRed es una plataforma intermediaria de búsqueda, solicitud, registro y comprobante. No presta directamente el alojamiento ni garantiza la conducta de las partes.
+  - img "Código QR de verificación"
+  - paragraph: Escaneá el código o compartí el enlace para que cualquiera pueda verificar este comprobante. También pueden ingresar el número ER-2026-5C75F4 en /verify.
+  - link "Descargar PDF":
+    - /url: /students/receipts/077e9372-0b57-4a3d-a482-1e7fcbc6f54c/pdf
+  - button "Copiar enlace de verificación"
+  - link "Ver página de verificación →":
+    - /url: http://localhost:3000/verify/2dd7beb0-6bd6-4538-9cdd-97da333bf352
+  - paragraph: Este comprobante no es una factura fiscal. La factura del fee EstuRed es un documento aparte, independiente de este comprobante.
+- button "Lucía — Estudiante Alojada": Lucía — Estudiante Alojada
+- button "Open Next.js Dev Tools":
+- alert

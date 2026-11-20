@@ -92,7 +92,7 @@ export default async function AdminSignupRequestsPage({ searchParams }: { search
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-sm font-bold" style={{ color: cmd.onSurface }}>{r.residence_name}</span>
                   <AdminBadge tone={TONE[r.status]}>{SIGNUP_STATUS_LABEL[r.status]}</AdminBadge>
-                  <span className="text-xs" style={{ color: cmd.outline }}>{r.neighborhood} · recibida el {formatDate(r.created_at)}</span>
+                  <span className="text-xs" style={{ color: cmd.outline }}>{r.address ?? r.neighborhood ?? "Sin dirección"} · recibida el {formatDate(r.created_at)}</span>
                 </div>
                 <p className="text-xs" style={{ color: cmd.onSurface }}>
                   {r.contact_name} · {r.email} · {r.phone}

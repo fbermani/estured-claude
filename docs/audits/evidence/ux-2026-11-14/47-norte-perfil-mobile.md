@@ -1,0 +1,697 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- button "Abrir menú":
+  - generic: menu
+- generic: EstuRed
+- button "Notificaciones, 19 sin leer":
+  - generic: notifications
+  - generic: "19"
+- complementary:
+  - link "Tus residencias":
+    - /url: /residence/dashboard
+    - generic: EstuRed
+  - button "Notificaciones, 19 sin leer":
+    - generic: notifications
+    - generic: "19"
+  - button "Cerrar menú":
+    - generic: close
+  - navigation:
+    - link "Panel":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e
+      - generic: dashboard
+      - generic: Panel
+    - link "Solicitudes":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/applications
+      - generic: inbox
+      - generic: Solicitudes
+    - link "Habitaciones":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/rooms
+      - generic: meeting_room
+      - generic: Habitaciones
+    - link "Disponibilidad":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/availability
+      - generic: bed
+      - generic: Disponibilidad
+    - link "Renovaciones":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/renewals
+      - generic: sync_alt
+      - generic: Renovaciones
+    - link "Residentes":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/residents
+      - generic: groups
+      - generic: Residentes
+    - link "Lista de espera":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/waitlist
+      - generic: hourglass_top
+      - generic: Lista de espera
+    - link "Preguntas, 1 preguntas sin responder":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/faq
+      - generic: forum
+      - generic: Preguntas
+      - generic: "1"
+    - link "Reglamento":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/regulation
+      - generic: gavel
+      - generic: Reglamento
+    - link "Soporte":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/support
+      - generic: support_agent
+      - generic: Soporte
+    - link "Plan":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/plan
+      - generic: workspace_premium
+      - generic: Plan
+    - link "Equipo":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/team
+      - generic: supervisor_account
+      - generic: Equipo
+  - link "Todas mis residencias":
+    - /url: /residence/dashboard
+    - generic: apartment
+    - generic: Todas mis residencias
+  - paragraph: owner.residencia.norte@example.com
+  - link "Editar perfil":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/profile
+    - generic: edit
+    - generic: Editar perfil
+  - button "Salir":
+    - generic: logout
+    - generic: Salir
+- navigation "Navegación principal":
+  - link "Panel":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e
+    - generic: dashboard
+    - generic: Panel
+  - link "Solicitudes":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/applications
+    - generic: inbox
+    - generic: Solicitudes
+  - link "Camas, Disponibilidad":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/availability
+    - generic: bed
+    - generic: Camas
+  - link "Residentes":
+    - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/residents
+    - generic: groups
+    - generic: Residentes
+  - button "Más, 1 avisos pendientes":
+    - generic: more_horiz
+    - generic: Más
+- main:
+  - generic: settings
+  - text: Configuración de Residencia
+  - heading "Configuración de Residencia" [level=1]
+  - paragraph: Mantené al día la información de Residencia Norte.
+  - generic: Verificada y publicada
+  - paragraph: Tenés cambios esperando aprobación del equipo de EstuRed
+  - paragraph: Como esta residencia ya está publicada, estos campos no se actualizan hasta que un admin los revise. Mientras tanto seguís viendo acá los valores actuales (los que ya están publicados), no los que enviaste.
+  - list:
+    - generic: Mínimo de estadía · enviado el 02/11/2026
+  - paragraph: Fortaleza del Perfil
+  - progressbar "Fortaleza del Perfil"
+  - paragraph: 75%
+  - paragraph: "Sugerencia: cargá al menos 3 fotos (todavía no hay ninguna)."
+  - navigation "Secciones del perfil":
+    - list:
+      - link "Datos":
+        - /url: "#perfil-datos"
+        - text: Datos
+      - link "Edad":
+        - /url: "#perfil-edad"
+        - text: Edad
+      - link "Servicios":
+        - /url: "#perfil-servicios"
+        - text: Servicios
+      - link "Áreas comunes":
+        - /url: "#perfil-areas"
+        - text: Áreas comunes
+      - link "Reglas":
+        - /url: "#perfil-reglas"
+        - text: Reglas
+      - link "Preguntas":
+        - /url: "#perfil-faq"
+        - text: Preguntas
+      - link "Universidades":
+        - /url: "#perfil-universidades"
+        - text: Universidades
+      - link "Documentos":
+        - /url: "#perfil-documentos"
+        - text: Documentos
+      - link "Habitaciones":
+        - /url: "#perfil-habitaciones"
+        - text: Habitaciones
+      - link "Fotos":
+        - /url: "#perfil-fotos"
+        - text: Fotos
+      - link "Condiciones":
+        - /url: "#perfil-condiciones"
+        - text: Condiciones
+  - heading "Datos Básicos" [level=2]
+  - generic: Nombre de la residencia
+  - textbox "Nombre de la residencia" [disabled]: Residencia Norte
+  - paragraph: Se fija al registrarse.
+  - generic: Barrio
+  - textbox "Barrio" [disabled]: Palermo
+  - generic: Dirección completa
+  - textbox "Dirección completa" [disabled]: Av. Santa Fe 4120, Palermo (demo)
+  - paragraph: Privada. Escribinos si necesitás corregirla.
+  - generic: Frase corta (eslogan)
+  - textbox "Frase corta (eslogan)":
+    - /placeholder: Tu lugar de casa
+    - text: Cerca de todo, con onda
+  - paragraph: "Visible en resultados de búsqueda. Una idea breve que te distinga (ej.: «A 10 cuadras de Ciudad Universitaria»); sin teléfonos, enlaces ni promesas. 23/80 caracteres."
+  - generic: Descripción detallada
+  - textbox "Descripción detallada": "Residencia Norte es una casa de estilo racionalista renovada en el corazón de Palermo, a metros de Plaza Italia y a minutos de la Universidad de Palermo y UBA Derecho. Los ambientes son luminosos, con techos altos y espacios comunes recién renovados: patio con parrilla, cocina equipada y un living amplio donde la comunidad se junta a estudiar y cocinar. El barrio ofrece cafés de especialidad, librerías y transporte directo a las principales facultades."
+  - paragraph: "Contá lo que hace distinta a tu residencia: el ambiente, la convivencia, el barrio, qué tipo de estudiantes viven ahí. No repitas lo que ya figura en servicios, áreas comunes o precios, ni pongas teléfonos, enlaces externos o promesas (por ejemplo, «siempre habrá lugar»)."
+  - heading "Edad de los residentes" [level=2]
+  - paragraph: Los estudiantes ven solo las residencias que aceptan su edad. Si no cargás nada, aceptás desde los 18 años y sin tope.
+  - generic: Edad mínima
+  - spinbutton "Edad mínima": "18"
+  - paragraph: Mínimo 18, salvo que aceptes menores.
+  - generic: Edad máxima (opcional)
+  - spinbutton "Edad máxima (opcional)": "26"
+  - paragraph: Dejala vacía si no tenés tope.
+  - checkbox "Acepto residentes menores de 18 La decidís vos, sin aprobación de EstuRed. Con esta opción tu ficha pública suma el apartado «Para menores de 18», y cada solicitud de un menor debe confirmarla su guardián."
+  - text: Acepto residentes menores de 18
+  - generic: La decidís vos, sin aprobación de EstuRed. Con esta opción tu ficha pública suma el apartado «Para menores de 18», y cada solicitud de un menor debe confirmarla su guardián.
+  - heading "Servicios Incluidos" [level=2]
+  - checkbox "Wifi"
+  - text: Wifi
+  - checkbox "Cámaras 24 hs"
+  - text: Cámaras 24 hs
+  - checkbox "Limpieza General"
+  - text: Limpieza General
+  - checkbox "Limpieza de Habitación"
+  - text: Limpieza de Habitación
+  - checkbox "Lavandería"
+  - text: Lavandería
+  - checkbox "Área Protegida (emergencias médicas)"
+  - text: Área Protegida (emergencias médicas)
+  - checkbox "Coordinador Presencial"
+  - text: Coordinador Presencial
+  - checkbox "Lockers Individuales"
+  - text: Lockers Individuales
+  - checkbox "Parrilla"
+  - text: Parrilla
+  - checkbox "Dispenser de Agua"
+  - text: Dispenser de Agua
+  - paragraph: Otro
+  - paragraph: Sumá un servicio que no esté en la lista. Se muestra en tu ficha pública cuando el equipo de EstuRed lo aprueba.
+  - textbox "Otro servicio":
+    - /placeholder: "Ej: Bicicletero"
+  - button "Agregar"
+  - heading "Áreas Comunes" [level=2]
+  - checkbox "Sala de Estar"
+  - text: Sala de Estar
+  - checkbox "Sala de Estudio"
+  - text: Sala de Estudio
+  - checkbox "Área de Estudio"
+  - text: Área de Estudio
+  - checkbox "Comedor"
+  - text: Comedor
+  - checkbox "Patio"
+  - text: Patio
+  - checkbox "Terraza" [checked]
+  - text: Terraza
+  - checkbox "Sala de Juegos"
+  - text: Sala de Juegos
+  - checkbox "Gimnasio / Área para ejercitar"
+  - text: Gimnasio / Área para ejercitar
+  - checkbox "Cocina compartida"
+  - text: Cocina compartida
+  - paragraph: Otro
+  - paragraph: Sumá un área común que no esté en la lista. Se muestra en tu ficha pública cuando el equipo de EstuRed lo aprueba.
+  - textbox "Otro área común":
+    - /placeholder: "Ej: Huerta"
+  - button "Agregar"
+  - heading "Reglas y Políticas" [level=2]
+  - generic: Datos sensibles
+  - paragraph: "Atención: cualquier cambio en esta sección requiere validación del equipo de EstuRed antes de ser público."
+  - paragraph: Reglas de convivencia destacadas
+  - paragraph: Elegí las 5 reglas más importantes o que quieras destacar. Se muestran en tu ficha pública; el detalle completo va en el reglamento.
+  - list:
+    - textbox "Regla destacada 1":
+      - /placeholder: Respetar los horarios de silencio
+      - text: Convivencia respetuosa, silencio después de las 23hs, visitas coordinadas con anticipación.
+  - button "Agregar otra regla"
+  - generic "Sugerencias de reglas":
+    - button "+ Respetar los horarios de silencio"
+    - button "+ Prohibido fumar en interiores"
+    - button "+ Visitas con aviso previo"
+    - button "+ Mantener limpios los espacios compartidos"
+    - button "+ Cuidar las instalaciones y los muebles"
+    - button "+ Avisar si te ausentás varios días"
+    - button "+ Usar auriculares en espacios comunes"
+    - button "+ Respetar las pertenencias de los demás"
+  - text: Reglamento completo (PDF, opcional)
+  - button "Reglamento completo (PDF, opcional)"
+  - heading "Preguntas frecuentes" [level=2]
+  - paragraph: Hasta 5 preguntas que los estudiantes suelen hacer antes de reservar. Se muestran en tu ficha pública.
+  - generic: Pregunta 1
+  - textbox "Pregunta 1":
+    - /placeholder: "Ej: ¿Se permiten mascotas?"
+    - text: ¿La cocina está equipada?
+  - button "Quitar pregunta":
+    - generic: close
+  - generic: Respuesta
+  - textbox "Respuesta":
+    - /placeholder: Respuesta breve y clara
+    - text: Sí, con heladera, anafe, microondas y utensilios básicos compartidos.
+  - generic: Pregunta 2
+  - textbox "Pregunta 2":
+    - /placeholder: "Ej: ¿Se permiten mascotas?"
+    - text: ¿Hay estacionamiento?
+  - button "Quitar pregunta":
+    - generic: close
+  - generic: Respuesta
+  - textbox "Respuesta":
+    - /placeholder: Respuesta breve y clara
+    - text: No contamos con estacionamiento propio, pero hay opciones a metros de la residencia.
+  - generic: Pregunta 3
+  - textbox "Pregunta 3":
+    - /placeholder: "Ej: ¿Se permiten mascotas?"
+    - text: ¿Puedo cambiar de habitación una vez que ingreso?
+  - button "Quitar pregunta":
+    - generic: close
+  - generic: Respuesta
+  - textbox "Respuesta":
+    - /placeholder: Respuesta breve y clara
+    - text: Sujeto a disponibilidad — coordinalo directamente con la administración.
+  - button "+ Agregar pregunta"
+  - heading "Proximidad a Universidades" [level=2]
+  - paragraph: "Elegí solo las sedes a no más de 15 cuadras (≈1,5 km) de tu residencia: es lo que buscan los estudiantes al filtrar por universidad."
+  - checkbox "UBA - Facultad de Derecho" [checked]
+  - text: UBA - Facultad de Derecho
+  - checkbox "UBA - Facultad de Medicina"
+  - text: UBA - Facultad de Medicina
+  - checkbox "UBA - Facultad de Ingeniería"
+  - text: UBA - Facultad de Ingeniería
+  - checkbox "UBA - Facultad de Ciencias Económicas"
+  - text: UBA - Facultad de Ciencias Económicas
+  - checkbox "UBA - Facultad de Filosofía y Letras"
+  - text: UBA - Facultad de Filosofía y Letras
+  - checkbox "UBA - Ciudad Universitaria"
+  - text: UBA - Ciudad Universitaria
+  - checkbox "UBA - Facultad de Arquitectura, Diseño y Urbanismo (FADU)"
+  - text: UBA - Facultad de Arquitectura, Diseño y Urbanismo (FADU)
+  - checkbox "UBA - Facultad de Psicología"
+  - text: UBA - Facultad de Psicología
+  - checkbox "UBA - Facultad de Ciencias Sociales"
+  - text: UBA - Facultad de Ciencias Sociales
+  - checkbox "UBA - Facultad de Odontología"
+  - text: UBA - Facultad de Odontología
+  - checkbox "Universidad Católica Argentina (UCA)"
+  - text: Universidad Católica Argentina (UCA)
+  - checkbox "Universidad de Palermo (UP)" [checked]
+  - text: Universidad de Palermo (UP)
+  - checkbox "UADE"
+  - text: UADE
+  - checkbox "Instituto Tecnológico de Buenos Aires (ITBA)"
+  - text: Instituto Tecnológico de Buenos Aires (ITBA)
+  - checkbox "Universidad de Belgrano"
+  - text: Universidad de Belgrano
+  - checkbox "Universidad Torcuato Di Tella (UTDT)"
+  - text: Universidad Torcuato Di Tella (UTDT)
+  - checkbox "Universidad del Salvador (USAL)"
+  - text: Universidad del Salvador (USAL)
+  - checkbox "Universidad Tecnológica Nacional (UTN - FRBA)"
+  - text: Universidad Tecnológica Nacional (UTN - FRBA)
+  - checkbox "Universidad de Ciencias Empresariales y Sociales (UCES)"
+  - text: Universidad de Ciencias Empresariales y Sociales (UCES)
+  - checkbox "Universidad Abierta Interamericana (UAI)"
+  - text: Universidad Abierta Interamericana (UAI)
+  - checkbox "Universidad Nacional de las Artes (UNA)"
+  - text: Universidad Nacional de las Artes (UNA)
+  - checkbox "Instituto Universitario del Hospital Italiano"
+  - text: Instituto Universitario del Hospital Italiano
+  - checkbox "Universidad Argentina John F. Kennedy (UK)"
+  - text: Universidad Argentina John F. Kennedy (UK)
+  - heading "Documentos que pedís a tus residentes" [level=2]
+  - paragraph: "Elegí qué documentos tiene que presentar quien se aloja. A cada estudiante solo le pedimos los que todavía no tiene cargados en su perfil, y vos ves en Residentes si lo entregó. Es privado: no se muestra en tu ficha."
+  - checkbox "Documento de identidad o pasaporte" [checked]
+  - text: Documento de identidad o pasaporte
+  - checkbox "Certificado de estudios" [checked]
+  - text: Certificado de estudios
+  - checkbox "Antecedentes penales"
+  - text: Antecedentes penales
+  - paragraph: Otro documento
+  - paragraph: Si pedís algo más (por ejemplo, un seguro médico o una carta de aceptación). Hasta 5.
+  - generic: Nombre del documento
+  - textbox "Nombre del documento":
+    - /placeholder: "Ej: Seguro médico"
+  - button "Agregar" [disabled]
+  - heading "Tipos de Habitaciones" [level=2]
+  - heading "Habitación 1" [level=3]
+  - button "Eliminar"
+  - generic: Tipo
+  - combobox "Tipo":
+    - option "Individual" [selected]
+    - option "Doble"
+    - option "Triple"
+    - option "Cuádruple"
+    - option "Compartida"
+  - generic: Género permitido
+  - combobox "Género permitido":
+    - option "Sin especificar" [selected]
+    - option "Mixto"
+    - option "Solo Hombres"
+    - option "Solo Mujeres"
+  - generic: Baño
+  - radio "privado"
+  - text: privado
+  - radio "compartido"
+  - text: compartido
+  - generic: Cantidad de habitaciones
+  - spinbutton "Cantidad de habitaciones": "9"
+  - paragraph: 1 cama por habitación → 9 plazas. Genera "Habitación 1…9", renombrables en el módulo de habitaciones.
+  - generic: Tarifa mensual (USD)
+  - spinbutton "Tarifa mensual (USD)": "300"
+  - paragraph:
+    - text: ≈ ARS 471.000 referencial
+    - button "Más información sobre el valor en pesos":
+      - generic: i
+  - generic: Características
+  - checkbox "Ventana"
+  - text: Ventana
+  - checkbox "Balcón"
+  - text: Balcón
+  - checkbox "Escritorio"
+  - text: Escritorio
+  - checkbox "Velador"
+  - text: Velador
+  - checkbox "Ropero individual"
+  - text: Ropero individual
+  - heading "Habitación 2" [level=3]
+  - button "Eliminar"
+  - generic: Tipo
+  - combobox "Tipo":
+    - option "Individual"
+    - option "Doble" [selected]
+    - option "Triple"
+    - option "Cuádruple"
+    - option "Compartida"
+  - generic: Género permitido
+  - combobox "Género permitido":
+    - option "Sin especificar" [selected]
+    - option "Mixto"
+    - option "Solo Hombres"
+    - option "Solo Mujeres"
+  - generic: Baño
+  - radio "privado"
+  - text: privado
+  - radio "compartido"
+  - text: compartido
+  - generic: Cantidad de habitaciones
+  - spinbutton "Cantidad de habitaciones": "5"
+  - paragraph: 2 camas por habitación → 10 plazas. Genera "Habitación 1…5", renombrables en el módulo de habitaciones.
+  - generic: Tarifa mensual (USD)
+  - spinbutton "Tarifa mensual (USD)": "220"
+  - paragraph:
+    - text: ≈ ARS 345.500 referencial
+    - button "Más información sobre el valor en pesos":
+      - generic: i
+  - generic: Características
+  - checkbox "Ventana"
+  - text: Ventana
+  - checkbox "Balcón"
+  - text: Balcón
+  - checkbox "Escritorio"
+  - text: Escritorio
+  - checkbox "Velador"
+  - text: Velador
+  - checkbox "Ropero individual"
+  - text: Ropero individual
+  - heading "Habitación 3" [level=3]
+  - button "Eliminar"
+  - generic: Tipo
+  - combobox "Tipo":
+    - option "Individual"
+    - option "Doble"
+    - option "Triple" [selected]
+    - option "Cuádruple"
+    - option "Compartida"
+  - generic: Género permitido
+  - combobox "Género permitido":
+    - option "Sin especificar" [selected]
+    - option "Mixto"
+    - option "Solo Hombres"
+    - option "Solo Mujeres"
+  - generic: Baño
+  - radio "privado"
+  - text: privado
+  - radio "compartido"
+  - text: compartido
+  - generic: Cantidad de habitaciones
+  - spinbutton "Cantidad de habitaciones": "3"
+  - paragraph: 3 camas por habitación → 9 plazas. Genera "Habitación 1…3", renombrables en el módulo de habitaciones.
+  - generic: Tarifa mensual (USD)
+  - spinbutton "Tarifa mensual (USD)": "190"
+  - paragraph:
+    - text: ≈ ARS 298.500 referencial
+    - button "Más información sobre el valor en pesos":
+      - generic: i
+  - generic: Características
+  - checkbox "Ventana"
+  - text: Ventana
+  - checkbox "Balcón"
+  - text: Balcón
+  - checkbox "Escritorio"
+  - text: Escritorio
+  - checkbox "Velador"
+  - text: Velador
+  - checkbox "Ropero individual"
+  - text: Ropero individual
+  - heading "Habitación 4" [level=3]
+  - button "Eliminar"
+  - generic: Tipo
+  - combobox "Tipo":
+    - option "Individual"
+    - option "Doble"
+    - option "Triple"
+    - option "Cuádruple" [selected]
+    - option "Compartida"
+  - generic: Género permitido
+  - combobox "Género permitido":
+    - option "Sin especificar"
+    - option "Mixto" [selected]
+    - option "Solo Hombres"
+    - option "Solo Mujeres"
+  - generic: Baño
+  - radio "privado"
+  - text: privado
+  - radio "compartido" [checked]
+  - text: compartido
+  - generic: Cantidad de habitaciones
+  - spinbutton "Cantidad de habitaciones": "2"
+  - paragraph: 4 camas por habitación → 8 plazas. Genera "Habitación 1…2", renombrables en el módulo de habitaciones.
+  - generic: Tarifa mensual (USD)
+  - spinbutton "Tarifa mensual (USD)": "160"
+  - paragraph:
+    - text: ≈ ARS 251.000 referencial
+    - button "Más información sobre el valor en pesos":
+      - generic: i
+  - generic: Características
+  - checkbox "Ventana"
+  - text: Ventana
+  - checkbox "Balcón"
+  - text: Balcón
+  - checkbox "Escritorio"
+  - text: Escritorio
+  - checkbox "Velador"
+  - text: Velador
+  - checkbox "Ropero individual"
+  - text: Ropero individual
+  - button "+ Agregar tipo de habitación"
+  - heading "Galería de Fotos" [level=2]
+  - region "Fotos de portada":
+    - heading "Portada" [level=4]:
+      - generic: star
+      - text: Portada
+    - generic "0 de 5 fotos de portada": 0 de 5
+    - paragraph: Marcá con la estrella las fotos que rotan en tu ficha y en la búsqueda. Si no elegís, rotan las primeras 5.
+    - list:
+      - listitem: "1"
+      - listitem: "2"
+      - listitem: "3"
+      - listitem: "4"
+      - listitem: "5"
+  - generic: cloud_upload
+  - generic: "Subí tus fotos: tocá acá o arrastralas"
+  - generic: Necesitás al menos 3 para publicar. JPG, PNG o WebP · hasta 5 MB cada una · después las acomodás por sección
+  - button "Subir fotos"
+  - region "Fachada / Exterior":
+    - heading "Fachada / Exterior 0" [level=4]:
+      - generic: home_work
+      - text: Fachada / Exterior
+      - generic: "0"
+    - generic: add_photo_alternate
+    - text: Subir
+    - button "Subir fotos a Fachada / Exterior"
+    - paragraph: Arrastrá fotos acá o tocá «Subir».
+  - region "Terraza":
+    - heading "Terraza 0" [level=4]:
+      - generic: deck
+      - text: Terraza
+      - generic: "0"
+    - generic: add_photo_alternate
+    - text: Subir
+    - button "Subir fotos a Terraza"
+    - paragraph: Arrastrá fotos acá o tocá «Subir».
+  - region "Habitación Individual":
+    - heading "Habitación Individual 0" [level=4]:
+      - generic: bed
+      - text: Habitación Individual
+      - generic: "0"
+    - generic: add_photo_alternate
+    - text: Subir
+    - button "Subir fotos a Habitación Individual"
+    - paragraph: Arrastrá fotos acá o tocá «Subir».
+  - region "Habitación Doble":
+    - heading "Habitación Doble 0" [level=4]:
+      - generic: bed
+      - text: Habitación Doble
+      - generic: "0"
+    - generic: add_photo_alternate
+    - text: Subir
+    - button "Subir fotos a Habitación Doble"
+    - paragraph: Arrastrá fotos acá o tocá «Subir».
+  - region "Habitación Triple":
+    - heading "Habitación Triple 0" [level=4]:
+      - generic: bed
+      - text: Habitación Triple
+      - generic: "0"
+    - generic: add_photo_alternate
+    - text: Subir
+    - button "Subir fotos a Habitación Triple"
+    - paragraph: Arrastrá fotos acá o tocá «Subir».
+  - region "Habitación Cuádruple":
+    - heading "Habitación Cuádruple 0" [level=4]:
+      - generic: bed
+      - text: Habitación Cuádruple
+      - generic: "0"
+    - generic: add_photo_alternate
+    - text: Subir
+    - button "Subir fotos a Habitación Cuádruple"
+    - paragraph: Arrastrá fotos acá o tocá «Subir».
+  - heading "Condiciones de Reserva" [level=2]
+  - generic: Datos sensibles
+  - paragraph: Aplican a todos los tipos de habitación y se muestran en la previa de cada solicitud.
+  - generic: Mínimo de estadía
+  - combobox "Mínimo de estadía":
+    - option "Sin mínimo"
+    - option "1 mes"
+    - option "3 meses"
+    - option "6 meses" [selected]
+    - option "9 meses"
+    - option "12 meses"
+  - paragraph: Duración mínima de contrato requerida.
+  - generic: Ajuste cada
+  - combobox "Ajuste cada":
+    - option "Mensual"
+    - option "Trimestral" [selected]
+    - option "Semestral"
+    - option "Anual"
+    - option "Sin ajuste"
+  - paragraph: Pago inicial para confirmar la reserva
+  - paragraph: Lo que el estudiante te paga a vos, directamente, para reservar. Se muestra igual en tu ficha, en la solicitud y en el mensaje de WhatsApp. El fee de EstuRed va aparte y no depende de este monto.
+  - radio "Primer mes de renta" [checked]
+  - text: Primer mes de renta
+  - radio "Matrícula" [disabled]
+  - text: Matrícula
+  - radio "Depósito"
+  - text: Depósito
+  - radio "Monto fijo"
+  - text: Monto fijo
+  - paragraph: Es la tarifa mensual del tipo de habitación que elija el estudiante (con la promoción vigente, si hay). Es el valor por defecto. «Matrícula» y «Depósito» se habilitan cuando activás cobrar matrícula o pedir depósito (son excluyentes entre sí).
+  - paragraph: Matrícula de inscripción
+  - paragraph: ¿Cobrás una tarifa administrativa al inicio? No reembolsable.
+  - switch "Cobrar matrícula" [disabled]
+  - paragraph: Excluyente con el depósito.
+  - paragraph: Depósito
+  - paragraph: Reembolsable al egreso. Excluyente con la matrícula.
+  - switch "Pedir depósito" [checked]
+  - generic: Monto del depósito
+  - combobox "Monto del depósito":
+    - option "Monto fijo en USD" [selected]
+    - option "Medio mes de renta"
+    - option "1 mes de renta"
+    - option "2 meses de renta"
+  - paragraph: En meses de renta se calcula sobre la tarifa de cada tipo de habitación. Siempre es reembolsable y no entra a la base del fee.
+  - generic: Monto (USD)
+  - spinbutton "Monto (USD)": "300"
+  - paragraph: "Cobro de mes vacío: sí"
+  - paragraph: Es una elección de tu residencia. Se muestra a los estudiantes en la tarjeta «Mes vacío» de la ficha.
+  - paragraph: Cuando un estudiante reserva hoy para ingresar más adelante, podés cobrar un porcentaje de la renta por el tiempo (hasta 3 meses) en que la plaza queda guardada y vacía para él.
+  - switch "Cobrar meses vacíos" [checked]
+  - paragraph: ¿Qué porcentaje de la renta se cobra por cada mes vacío?
+  - button "25%"
+  - button "50%" [pressed]
+  - button "75%"
+  - button "100%"
+  - generic: Otro %
+  - spinbutton "Otro %": "50"
+  - paragraph: ¿Qué es?
+  - paragraph: Si un estudiante reserva hoy pero ingresa más adelante, la plaza queda guardada para él y sin ocupar. Esos meses de espera, sin él y sin otro estudiante, se pierden. Con el mes vacío cobrás una parte de la renta por ese tiempo.
+  - paragraph: ¿Cuándo se cobra?
+  - paragraph: "Solo si el ingreso es diferido y la plaza estuvo realmente libre hasta que llega. Se cuenta desde que la habitación está disponible hasta el día anterior al ingreso, en proporción a los días: más de 15 días extra cuentan como un mes y 15 o menos como medio mes. Hasta 3 meses por reserva. Si ese tiempo estaba ocupado por otro residente, no se cobra."
+  - paragraph: "Ejemplo: disponible desde hoy (28/10) e ingresa el 1/12 → 1 mes y medio vacío. Ingresa el 20/12 → 2 meses. Si no hay disponibilidad publicada, el estudiante ve «a confirmar por la residencia» y no se suma al total. Lo cobrado se paga a la residencia y entra en la base del fee de EstuRed, igual que la matrícula."
+  - paragraph: Promociones sobre la renta
+  - paragraph: Un descuento por tiempo limitado, en cualquier momento del año, sin tocar tus tarifas. En tu ficha se ve «antes / ahora».
+  - list:
+    - text: Promo de temporada
+    - generic: −15%
+    - generic: Todos los tipos de habitación · desde 27/10/2026 hasta 27/11/2026 · vigente hoy
+    - button "Finalizar"
+  - paragraph: Nueva promoción
+  - generic: Nombre
+  - textbox "Nombre":
+    - /placeholder: "Ej.: Promo invierno"
+  - generic: Descuento sobre la renta (1% a 90%)
+  - spinbutton "Descuento sobre la renta (1% a 90%)"
+  - generic: Aplica a
+  - combobox "Aplica a":
+    - option "Todos los tipos de habitación" [selected]
+    - option "Individual"
+    - option "Doble"
+    - option "Triple"
+    - option "Cuádruple"
+  - generic: Desde (opcional)
+  - textbox "Desde (opcional)"
+  - generic: Hasta (opcional)
+  - textbox "Hasta (opcional)"
+  - paragraph: Se aplica a las solicitudes nuevas mientras esté vigente; las ya enviadas conservan su precio. Tus tarifas de lista no cambian. Si hay más de una promoción para un tipo, rige la de mayor descuento. El fee de EstuRed se calcula sobre lo que paga el estudiante.
+  - button "Crear promoción" [disabled]
+  - paragraph: Depósito y salida anticipada
+  - paragraph: "Lo ve el estudiante en tu ficha antes de reservar y se precarga cuando respondés un aviso \"Quiero cambiar\". Es información tuya: EstuRed no la fija ni la cobra. Tu reserva tiene depósito: contá sus cláusulas básicas."
+  - generic: Cláusulas básicas del depósito
+  - textbox "Cláusulas básicas del depósito": El depósito se devuelve dentro de los 30 días de la salida, una vez revisada la habitación. Se descuentan únicamente daños comprobados.
+  - paragraph: Derechos y obligaciones de las partes sobre el depósito (cuándo se devuelve, plazos).
+  - generic: Costos de salida anticipada
+  - textbox "Costos de salida anticipada": Si te vas antes de cumplir la estadía mínima, el depósito no se devuelve.
+  - paragraph: "Por ejemplo: pérdida del depósito si no se cumple la estadía mínima."
+  - generic: Condiciones de salida anticipada
+  - textbox "Condiciones de salida anticipada": Preaviso de 30 días con la fecha exacta de salida. Entrega de la habitación con administración.
+  - paragraph: Preaviso, entrega de la habitación y cualquier otro detalle.
+  - button "Guardar cambios"
+  - button "Enviar para revisión"
+  - paragraph: "Los cambios se guardan al instante, salvo fotos, servicios, reglas, mínimo de estadía y tipos de habitación: esos quedan pendientes de aprobación del equipo de EstuRed. No hace falta volver a enviarla."
+  - complementary:
+    - paragraph: Vista previa
+    - 'img "Residencia Norte: foto próximamente"':
+      - generic: Palermo
+      - generic: Foto próximamente
+    - paragraph: Residencia Norte
+    - paragraph: Palermo, CABA
+    - generic: WiFi de alta velocidad
+    - generic: Limpieza semanal de áreas comunes · Todos los días
+    - generic: "+1"
+    - paragraph: Desde
+    - paragraph: USD 160
+    - button "Ver" [disabled]
+    - heading "¿Necesitás ayuda?" [level=3]
+    - paragraph: Contactá a nuestro equipo de soporte para configurar tu perfil.
+    - link "Contactar soporte":
+      - /url: /residence/1c4daf03-e33f-490d-a0c9-c1e46f8bb82e/support
+- button "Ricardo — Dueño de Residencia": Ricardo — Dueño de Residencia
+- button "Open Next.js Dev Tools":
+- alert

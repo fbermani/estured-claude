@@ -1,5 +1,6 @@
 import { normalizeAmenityLists } from "@/lib/residences/amenityDetails";
 import "server-only";
+import { unstable_cache } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { residenceAcceptsAge } from "@/lib/residences/age";
 import { isMissingColumnError } from "@/lib/residences/changesRequest";
@@ -9,6 +10,7 @@ import { todayIso } from "@/lib/applications/reservationMoney";
 import { getApprovedCustomAmenitiesByResidence } from "@/lib/residences/customAmenitiesDb";
 import { buildGalleryPhotos, loadPhotoMeta, rotationUrls } from "@/lib/residences/photoMetaDb";
 import { nearestUniversityNames } from "@/lib/residences/nearestUniversities";
+import { withoutOtherUniversity } from "@/lib/data/buenosAiresUniversities";
 import { getResidenceLocation } from "@/lib/residences/residenceLocation";
 import { computeCapacity, residentsToDisplay } from "@/lib/residences/occupancy";
 import type { Residence, RoomTypeName, RoomTypeOffer } from "@/types/domain";
@@ -47,10 +49,31 @@ function deriveGenderPolicy(policies: (string | null)[]): { genderPolicy?: "mixt
   return { genderPolicy: all.length === 1 ? all[0] : "mixto", genderPolicies: all };
 }
 
-/** Igual que `getCatalogResidences`, pero además devuelve el total publicado antes del filtro por edad (una sola consulta). */
-export async function getCatalogResidencesWithTotal(
-  options: { studentAge?: number | null } = {},
-): Promise<{ residences: Residence[]; total: number }> {
+/** Segundos que el catálogo se sirve desde caché (auditoría 2026-11-19, R19-03). Un cambio de ficha o de cupo tarda hasta este tiempo en verse; `revalidateTag("catalog")` lo fuerza. */
+export const CATALOG_REVALIDATE_SECONDS = 120;
+
+type CatalogOptions = { studentAge?: number | null };
+type CatalogResult = { residences: Residence[]; total: number };
+
+const getCatalogCached = unstable_cache(
+  (options: CatalogOptions) => loadCatalogResidencesUncached(options),
+  ["catalog-residences-v1"],
+  { revalidate: CATALOG_REVALIDATE_SECONDS, tags: ["catalog"] },
+);
+
+/**
+ * Igual que `getCatalogResidences`, pero además devuelve el total publicado antes del filtro por edad (una sola consulta).
+ * Cacheado ~2 min por edad: la home, `/search` y el fondo de la preapertura lo repetían en cada request (9 consultas en 3 rondas).
+ * En tests (`NODE_ENV=test`) no hay caché de Next: se lee directo de la base.
+ */
+export async function getCatalogResidencesWithTotal(options: CatalogOptions = {}): Promise<CatalogResult> {
+  if (process.env.NODE_ENV === "test") return loadCatalogResidencesUncached(options);
+  return getCatalogCached({ studentAge: options.studentAge ?? null });
+}
+
+async function loadCatalogResidencesUncached(
+  options: CatalogOptions = {},
+): Promise<CatalogResult> {
   const admin = getSupabaseAdmin();
   if (!admin) return { residences: [], total: 0 };
 
@@ -144,7 +167,7 @@ export async function getCatalogResidencesWithTotal(
         profile_availability: rt.profile_availability as unknown as { status: string; available_count: number | null } | null,
       }));
 
-    // DR18 (tanda 2): la tarjeta rota las fotos destacadas (o las primeras 5); la portada es la primera de ellas.
+    // DR18 (tanda 2): la tarjeta pasa de a una las fotos destacadas (o las primeras 5), sin rotación automática; la primera es la portada.
     const typeNames = new Map(rts.map((rt) => [rt.id as string, rt.name as string]));
     const photoUrls = rotationUrls(
       buildGalleryPhotos(
@@ -169,7 +192,7 @@ export async function getCatalogResidencesWithTotal(
       services: [...new Set([...((sectionMap.services?.items as string[]) ?? []), ...(custom?.services ?? [])])],
       commonAreas: [...new Set([...((sectionMap.common_areas?.items as string[]) ?? []), ...(custom?.areas ?? [])])],
     });
-    const nearUniversities = (sectionMap.near_universities?.items as string[]) ?? [];
+    const nearUniversities = withoutOtherUniversity((sectionMap.near_universities?.items as string[]) ?? []);
     // La tarjeta muestra solo las 3 sedes más cercanas; la ficha las lista todas (y el filtro usa la lista completa).
     const cardUniversities = nearestUniversityNames(nearUniversities, getResidenceLocation(r));
 

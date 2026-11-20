@@ -23,7 +23,7 @@ import {
 const initialState: RoomChangeActionState = { status: "idle" };
 
 const fieldClass =
-  "w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none";
+  "w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest";
 
 const STATUS_TONE: Record<string, "amber" | "sage" | "neutral"> = { pending: "amber", offered: "sage", resolved: "neutral", cancelled: "neutral" };
 
@@ -169,7 +169,7 @@ export function RoomChangeBlock({
 
   return (
     <div className="mt-4 border-t border-line pt-4">
-      <p className="mb-2 flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest text-muted">
+      <p className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-muted">
         <Icon name="swap_horiz" className="text-sm" /> Cambio de habitación
       </p>
 

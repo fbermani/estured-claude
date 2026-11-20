@@ -592,7 +592,7 @@ Documento de identidad del estudiante; documento académico; documento del famil
 
 ### 18.2 Reglas de documentos
 
-Los documentos son privados por defecto. El acceso debe ser contextual. **El acceso admin debe requerir justificación obligatoria registrada antes de visualizar, generando un audit log específico** (no solo "se accedió", sino el motivo declarado). El acceso de residencia se limita a documentos autorizados para una solicitud, reserva, residente o renovación específica. El acceso público nunca está permitido.
+Los documentos son privados por defecto. El acceso debe ser contextual. **El acceso admin debe requerir justificación obligatoria registrada antes de visualizar, generando un audit log específico** (no solo "se accedió", sino el motivo declarado). El acceso de residencia se limita a documentos autorizados para una solicitud, reserva, residente o renovación específica. **DR48 (`docs/00` §31):** el dueño de la residencia y el staff con el casillero correspondiente pueden abrir los documentos del perfil del estudiante (identidad, estudios, antecedentes y los «Otro» que pide la residencia) cuando es **residente actual** de esa residencia (`residents.manage`) o **solicitante con el pago a la residencia habilitado** (`payments.residence`). A diferencia del admin, la residencia **no declara motivo**, pero cada apertura queda registrada (`residence_document_access_log` + audit log `residence_document_accessed`) y el link firmado dura 5 minutos. El acceso público nunca está permitido.
 
 ### 18.3 Acciones admin
 

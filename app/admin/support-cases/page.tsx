@@ -205,7 +205,7 @@ export default async function AdminSupportCasesPage({
             {isRevocationCase(detail) && (
               <p className="mt-4 rounded-lg p-3 text-sm" style={{ backgroundColor: cmd.surfaceContainerLow, color: cmd.onSurfaceVariant }}>
                 Este caso se cierra solo al resolver la revocación.{" "}
-                <Link href="/admin/activity?tab=revocations" className="font-bold hover:underline" style={{ color: cmd.primary }}>
+                <Link href="/admin/activity?tab=revocations" className="inline-flex min-h-11 items-center font-bold hover:underline xl:min-h-0" style={{ color: cmd.primary }}>
                   Ir a Revocaciones →
                 </Link>
               </p>

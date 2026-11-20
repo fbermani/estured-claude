@@ -69,13 +69,3 @@ export async function getResidenceConditions(
     earlyExitConditionsText: (data.early_exit_conditions_text as string | null) ?? null,
   };
 }
-
-/** Matrícula efectiva en USD para una renta mensual dada (modo "1 mes" o manual). */
-export function resolveEnrollmentFeeUsd(
-  conditions: Pick<ResidenceConditions, "enrollmentFeeMode" | "enrollmentFeeUsd">,
-  monthlyPriceUsd: number,
-): number | null {
-  if (conditions.enrollmentFeeMode === "one_month") return monthlyPriceUsd;
-  if (conditions.enrollmentFeeMode === "manual") return conditions.enrollmentFeeUsd;
-  return null;
-}

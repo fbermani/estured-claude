@@ -1,5 +1,6 @@
 "use server";
 
+import { clientIpFromHeaders } from "@/lib/receipts/verifyRateLimit";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getSessionUser, hasAnyRole } from "@/lib/auth/session";
@@ -32,7 +33,7 @@ export async function addResidence(_prev: AddResidenceState, formData: FormData)
     zone: String(formData.get("zone") ?? "").trim(),
     addressLine: String(formData.get("address_line") ?? ""),
     acceptResponsibility: formData.get("accept_responsibility") === "on",
-    ipAddress: headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
+    ipAddress: clientIpFromHeaders(headerStore),
     userAgent: headerStore.get("user-agent"),
   });
   if (!result.ok) return { status: "error", message: result.error };

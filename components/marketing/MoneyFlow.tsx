@@ -20,7 +20,7 @@ function Payer() {
 }
 
 function Arrow({ tone, title, text }: { tone: "forest" | "amber"; title: string; text: string }) {
-  const color = tone === "forest" ? "border-forest text-forest" : "border-amber-soft-400 text-amber-soft-500";
+  const color = tone === "forest" ? "border-forest text-forest" : "border-amber-soft-400 text-amber-soft-700";
   return (
     <div className="grid grid-cols-[24px_1fr] gap-3 pl-3.5">
       <span aria-hidden className={`relative mx-auto flex min-h-14 w-0 justify-center border-l-2 border-dashed ${color}`}>
@@ -51,7 +51,7 @@ export function MoneyFlow() {
             <div className="grid gap-4 md:grid-cols-2">
               {/* Pago 1 */}
               <div className="grid content-start gap-3 rounded-2xl border border-line p-4">
-                <p className="text-xs font-bold uppercase tracking-[0.08em] text-forest-700">Pago 1 · A tu residencia</p>
+                <p className="text-xs font-bold text-forest-700">Pago 1: a tu residencia</p>
                 <Payer />
                 <Arrow tone="forest" title="Alquiler, matrícula y depósito" text="Paga directo a vos, en tu cuenta y en tus términos." />
                 <div className="flex items-center gap-3 rounded-2xl bg-forest-tint px-4 py-3 font-bold text-forest-700">
@@ -61,7 +61,7 @@ export function MoneyFlow() {
               </div>
               {/* Pago 2 */}
               <div className="grid content-start gap-3 rounded-2xl border border-amber-soft-300 bg-amber-soft-100/40 p-4">
-                <p className="text-xs font-bold uppercase tracking-[0.08em] text-amber-soft-700">Pago 2 · Aparte, a EstuRed</p>
+                <p className="text-xs font-bold text-amber-soft-700">Pago 2: aparte, a EstuRed</p>
                 <Payer />
                 <Arrow tone="amber" title="Fee de EstuRed (5%)" text="También lo paga el estudiante, cuando la reserva se confirma. No sale de lo que te pagan a vos." />
                 <div className="flex items-center gap-3 rounded-2xl bg-amber-soft-100 px-4 py-3 font-bold text-amber-soft-700">
@@ -93,14 +93,14 @@ export function MoneyFlow() {
         <Reveal delay={1}>
           <div className="grid gap-3">
             <div className="grid grid-cols-[auto_1fr] items-center gap-3.5 rounded-field border border-line bg-paper px-[18px] py-4">
-              <span className="min-w-[72px] font-display text-[28px] font-extrabold text-forest-700">0%</span>
+              <span className="min-w-[72px] font-display text-[28px] font-bold text-forest-700">0%</span>
               <p className="text-[14.5px] text-ink-soft">
                 <b className="block text-ink">Descuento sobre tu tarifa</b>
                 No retenemos ni descontamos nada de lo que te pagan.
               </p>
             </div>
             <div className="grid grid-cols-[auto_1fr] items-center gap-3.5 rounded-field border border-line bg-paper px-[18px] py-4">
-              <span className="min-w-[72px] font-display text-[28px] font-extrabold text-forest-700">USD 0</span>
+              <span className="min-w-[72px] font-display text-[28px] font-bold text-forest-700">USD 0</span>
               <p className="text-[14.5px] text-ink-soft">
                 <b className="block text-ink">Publicar y gestionar, hoy</b>
                 Perfil Verificado (gratuito) y Plan Premium (bonificado el primer año para Residencias fundadoras).

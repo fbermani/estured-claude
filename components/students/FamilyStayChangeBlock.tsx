@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { StayChangeResponse } from "@/components/students/StayChangeResponse";
@@ -26,8 +25,8 @@ export function FamilyStayChangeBlock({
 
   return (
     <div className="mt-4 space-y-3 border-t border-line pt-4">
-      <p className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-muted">
-        <Icon name="visibility" className="text-sm" /> Solo lectura
+      <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted">
+        <Icon name="swap_horiz" className="text-sm" /> Cambio de residencia
       </p>
 
       {!live && !resolved && (
@@ -80,26 +79,26 @@ export function FamilyStayChangeBlock({
       {resolved && (
         <div className="rounded-field bg-forest-tint p-4 text-sm leading-relaxed text-forest-700">
           <p className="font-bold">
-            {studentName} confirmó una reserva en otra residencia{resolved.resolvedNewStartDate ? ` desde el ${formatDateOnly(resolved.resolvedNewStartDate)}` : ""}.
+            {studentName} ya tiene una nueva reserva confirmada{resolved.resolvedNewStartDate ? `, con ingreso el ${formatDateOnly(resolved.resolvedNewStartDate)}` : ""}.
           </p>
-          <p className="mt-1 text-ink-soft">{residenceName ?? "Su residencia actual"} registra su salida cuando se retire.</p>
+          <p className="mt-1 text-ink-soft">
+            Hasta entonces sigue en {residenceName ?? "su residencia actual"}, que va a registrar su salida cuando se retire.
+          </p>
         </div>
       )}
 
-      <div className="flex flex-wrap items-center gap-2 rounded-field bg-mint p-4">
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-bold text-forest-700">Si {studentName} quiere cambiarse, no te enterás a último momento</p>
-          <p className="mt-1 text-xs leading-relaxed text-ink-soft">
-            El aviso da previsibilidad: ves cada novedad, los costos de salida por escrito y podés proponerle residencias. Sin promesas de lugar: toda solicitud
-            está sujeta a confirmación.
+      <details className="group rounded-field bg-mint">
+        <summary className="flex min-h-[44px] cursor-pointer list-none items-center justify-between gap-2 px-4 text-sm font-bold text-forest-700 marker:hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest [&::-webkit-details-marker]:hidden">
+          ¿Cómo funciona el aviso de cambio?
+          <Icon name="expand_more" className="text-lg transition-transform duration-300 group-open:rotate-180" />
+        </summary>
+        <div className="px-4 pb-4">
+          <p className="text-xs leading-relaxed text-ink-soft">
+            Si {studentName} quiere cambiarse, el aviso da previsibilidad: ves cada novedad, los costos de salida por escrito y podés proponerle residencias.
+            Sin promesas de lugar: toda solicitud está sujeta a confirmación.
           </p>
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            <Badge tone="petrol">Te avisamos cada novedad</Badge>
-            <Badge tone="petrol">Costos de salida por escrito</Badge>
-            <Badge tone="petrol">Podés proponerle residencias</Badge>
-          </div>
         </div>
-      </div>
+      </details>
     </div>
   );
 }

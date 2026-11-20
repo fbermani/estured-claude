@@ -1,0 +1,87 @@
+- link "Saltar al contenido":
+  - /url: "#contenido"
+- complementary:
+  - link "EstuRed, inicio":
+    - /url: /
+    - generic: EstuRed
+  - button "Notificaciones, 4 sin leer":
+    - generic: notifications
+    - generic: "4"
+  - navigation:
+    - link "Inicio":
+      - /url: /students/dashboard
+      - generic: home
+      - generic: Inicio
+    - link "Buscar residencias":
+      - /url: /search
+      - generic: search
+      - generic: Buscar residencias
+    - link "Favoritos":
+      - /url: /students/favorites
+      - generic: favorite
+      - generic: Favoritos
+    - link "Mis solicitudes":
+      - /url: /students/applications
+      - generic: description
+      - generic: Mis solicitudes
+    - link "Lista de espera":
+      - /url: /students/waitlist
+      - generic: hourglass_top
+      - generic: Lista de espera
+    - link "Mi perfil":
+      - /url: /students/profile
+      - generic: person
+      - generic: Mi perfil
+    - link "Mi estadía":
+      - /url: /students/residency
+      - generic: apartment
+      - generic: Mi estadía
+    - link "Soporte":
+      - /url: /students/support
+      - generic: support_agent
+      - generic: Soporte
+  - paragraph: camila.rojas@example.com
+  - link "Botón de arrepentimiento":
+    - /url: /students/revocation
+    - generic: undo
+    - generic: Botón de arrepentimiento
+  - button "Salir":
+    - generic: logout
+    - generic: Salir
+  - button "Colapsar menú":
+    - generic: chevron_left
+- main:
+  - heading "Soporte" [level=1]
+  - paragraph: Abrí un caso si algo no salió como esperabas con una residencia.
+  - generic: ¿Sobre qué residencia?
+  - combobox "¿Sobre qué residencia?":
+    - option "Elegí una residencia" [disabled] [selected]
+    - option "Residencia Norte"
+    - option "Residencia Río de la Plata"
+  - generic: Contanos qué pasó
+  - textbox "Contanos qué pasó"
+  - text: "Evidencia (opcional): fotos, capturas, video o audio"
+  - 'button "Evidencia (opcional): fotos, capturas, video o audio"'
+  - paragraph: Antes de continuar
+  - paragraph: "EstuRed es una plataforma intermediaria: puede analizar y actuar en los casos que considere pertinente, pero no garantiza un resultado ni interviene en todos los reclamos. Abrir un caso no suspende automáticamente tu solicitud, reserva o renovación."
+  - checkbox "Leí el alcance de la intervención de EstuRed y quiero continuar."
+  - text: Leí el alcance de la intervención de EstuRed y quiero continuar.
+  - button "Abrir caso" [disabled]
+  - heading "Tus casos" [level=2]
+  - paragraph: Revocación del fee EstuRed
+  - generic: Abierto
+  - paragraph: "Revocación del fee EstuRed de la reserva en Residencia Norte, ejercida dentro del plazo de 10 días corridos. EstuRed revisa el caso. Motivo indicado: Conseguí un lugar más cerca de la facultad y no voy a poder mudarme acá."
+  - paragraph: 24/10/2026
+  - paragraph: Revocación del fee EstuRed
+  - generic: Cerrado sin acción
+  - paragraph: "Revocación del fee EstuRed de la reserva en Residencia Norte. Motivo indicado: Prefiero otra residencia."
+  - paragraph: "Respuesta de EstuRed: La revocación llegó después de los 10 días corridos desde el pago, por eso no correspondió reintegrar el fee."
+  - paragraph: 24/10/2026
+  - paragraph: Revocación del fee EstuRed
+  - generic: EstuRed tomó una acción
+  - paragraph: "Revocación del fee EstuRed de la reserva en Residencia Norte. Motivo indicado: Cambié de facultad y ya no voy a mudarme."
+  - paragraph: "Respuesta de EstuRed: Te transferimos el fee completo. Si no lo ves en tu cuenta en un par de días, escribinos por Soporte."
+  - paragraph: 24/10/2026
+- button "Camila — Estudiante en Búsqueda": Camila — Estudiante en Búsqueda
+- button "Open Next.js Dev Tools":
+- alert

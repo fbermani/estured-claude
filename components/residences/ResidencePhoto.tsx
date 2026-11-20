@@ -111,11 +111,11 @@ export function ResidencePhotoPlaceholder({
           {/* Placa tipográfica (auditoría A5): el barrio en grande distingue las residencias sin foto. */}
           <div className={`relative flex max-w-[88%] flex-col items-center gap-1.5 text-center ${tint.fg}`}>
             {zone && (
-              <span className={`font-display font-extrabold leading-tight ${variant === "hero" ? "text-4xl sm:text-5xl" : "text-2xl sm:text-[26px]"}`}>
+              <span className={`font-display font-bold leading-tight ${variant === "hero" ? "text-4xl sm:text-5xl" : "text-2xl sm:text-[26px]"}`}>
                 {zone}
               </span>
             )}
-            <span className="rounded-full bg-paper/80 px-2.5 py-1 text-[11px] font-semibold text-ink-soft">
+            <span className="rounded-full bg-paper/80 px-2.5 py-1 text-xs font-semibold text-ink-soft">
               {label ?? "Foto próximamente"}
             </span>
           </div>

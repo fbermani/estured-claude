@@ -17,7 +17,7 @@ export function AdminBadge({ children, tone = "neutral" }: { children: ReactNode
   const s = toneStyles[tone];
   return (
     <span
-      className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide"
+      className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide"
       style={{ backgroundColor: s.bg, color: s.fg }}
     >
       {children}

@@ -33,24 +33,6 @@ function VizBox({ children }: { children: ReactNode }) {
   );
 }
 
-function Check({ children }: { children: ReactNode }) {
-  return (
-    <div className="flex items-center gap-1.5">
-      <Icon name="check_circle" className="text-base text-forest [font-variation-settings:'FILL'_1]" />
-      {children}
-    </div>
-  );
-}
-
-function Row({ a, b }: { a: string; b: string }) {
-  return (
-    <div className="flex justify-between gap-2">
-      <span>{a}</span>
-      <b className="font-bold">{b}</b>
-    </div>
-  );
-}
-
 /**
  * Bento de beneficios (home «Por qué EstuRed» y for-students «Beneficios»). Cada tarjeta dice «lo que suele pasar» en
  * una línea y qué cambia con EstuRed. En mobile se vuelve un mazo con swipe (`SwipeStack`). Server Component.
@@ -86,64 +68,6 @@ export function BenefitBento({ items, label }: { items: BentoItem[]; label: stri
   );
 }
 
-/** Home · «Por qué EstuRed». */
-export const HOME_BENEFITS: BentoItem[] = [
-  {
-    icon: "verified",
-    title: "Residencias Verificadas",
-    before: "fotos que nadie revisó.",
-    yes: "Revisamos responsable, ubicación y fotos antes de publicar.",
-    tone: "forest",
-    size: "wide",
-    viz: (
-      <VizBox>
-        <Check>Responsable identificado</Check>
-        <Check>Ubicación revisada</Check>
-        <Check>Fotos revisadas</Check>
-      </VizBox>
-    ),
-  },
-  {
-    icon: "receipt",
-    title: "Costos a la vista",
-    before: "el precio cambia según quién responde.",
-    yes: "Tarifa, matrícula, depósito y ajustes, publicados. El fee lo ves antes de pagar.",
-    tone: "amber",
-    size: "wide",
-    viz: (
-      <VizBox>
-        <Row a="Tarifa mensual" b="USD 380" />
-        <Row a="Matrícula · Depósito" b="USD 140 · USD 380" />
-        <Row a="Ajuste de tarifa" b="Semestral" />
-      </VizBox>
-    ),
-  },
-  {
-    icon: "description",
-    title: "Todo queda registrado",
-    before: "acuerdos en un chat que se pierde.",
-    yes: "Solicitud, respuesta y ajustes, con fecha.",
-    tone: "petrol",
-    size: "narrow",
-  },
-  {
-    icon: "qr_code_2",
-    title: "Comprobante verificable",
-    before: "pagás y no te queda nada.",
-    yes: "Tu reserva confirmada, con un código que cualquiera verifica.",
-    tone: "sage",
-    size: "narrow",
-  },
-  {
-    icon: "support_agent",
-    title: "Soporte de EstuRed",
-    before: "si algo falla, nadie responde.",
-    yes: "Abrís un caso y te acompañamos a encontrar otra opción.",
-    tone: "lilac",
-    size: "narrow",
-  },
-];
-
 /** /for-students · «Beneficios». */
 export const STUDENT_BENEFITS: BentoItem[] = [
   {
@@ -168,7 +92,7 @@ export const STUDENT_BENEFITS: BentoItem[] = [
               </span>
             ))}
           </div>
-          <span className="text-xs text-ink-faint">Medicina · Diseño · Económicas</span>
+          <span className="text-xs text-ink-faint">Medicina, Diseño, Económicas</span>
         </div>
       </VizBox>
     ),

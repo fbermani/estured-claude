@@ -1,16 +1,19 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useMemo, useState } from "react";
+import { type TypeAvailabilityState } from "@/lib/availability/typeAvailability";
 import { DrawCheck } from "@/components/ui/DrawCheck";
 import { Button } from "@/components/ui/Button";
-import { Input, Select } from "@/components/ui/Input";
-import { formatDateOnly } from "@/lib/dates/formatDateOnly";
+import { Select } from "@/components/ui/Input";
+import { buildMonthOptions, WAITLIST_ANY_MONTH_VALUE } from "@/lib/waitlist-entries/desiredMonth";
 import { useReservationSelection } from "@/components/residences/reservationSelection";
 import { joinWaitlistAction, type JoinWaitlistState } from "@/app/(public)/residencias/[slug]/waitlist-actions";
 
 interface RoomTypeOption {
   id: string;
   name: string;
+  /** Estado de disponibilidad informado del tipo; ausente = no se acota el mensaje con él. */
+  state?: TypeAvailabilityState;
 }
 
 const initialState: JoinWaitlistState = { status: "idle" };
@@ -22,14 +25,36 @@ export function JoinWaitlistForm({
 }: {
   residenceId: string;
   roomTypes: RoomTypeOption[];
-  /** Reserva vigente (Ciclo 58): la fecha de ingreso es obligatoria y no puede ser anterior. El servidor igual valida. */
+  /** Reserva vigente (Ciclo 58): solo se ofrecen meses desde el mes en que termina. El servidor igual valida. */
   minStartDate?: string | null;
 }) {
   const action = joinWaitlistAction.bind(null, residenceId);
+  const monthOptions = useMemo(() => buildMonthOptions(new Date(), minStartDate), [minStartDate]);
   const [state, formAction, isPending] = useActionState(action, initialState);
   // El tipo que la persona venía mirando en la ficha (por ejemplo, el que tocó "Lista de espera") llega preelegido.
   const { roomTypeId } = useReservationSelection();
   const preselected = roomTypes.some((rt) => rt.id === roomTypeId) ? (roomTypeId as string) : "";
+  const [chosen, setChosen] = useState(preselected);
+  const [seenPreselected, setSeenPreselected] = useState(preselected);
+  if (seenPreselected !== preselected) {
+    setSeenPreselected(preselected);
+    setChosen(preselected);
+  }
+  const chosenType = roomTypes.find((rt) => rt.id === chosen) ?? null;
+  // Otros tipos con disponibilidad informada (no «completos» ni pausados): la espera no los menciona como lugar prometido.
+  const informedOthers = roomTypes.filter((rt) => rt.id !== chosen && rt.state === "available").map((rt) => rt.name);
+  const othersText = informedOthers.length > 0 ? ` Tienen disponibilidad informada: ${informedOthers.join(", ")}. Podés solicitarlos sin esperar.` : "";
+  let scopeMessage: string;
+  if (chosenType) {
+    scopeMessage =
+      chosenType.state === "available"
+        ? `${chosenType.name} tiene disponibilidad informada: podés solicitarla sin esperar.`
+        : chosenType.state === "full"
+          ? `${chosenType.name}: completa por ahora.${othersText}`
+          : `${chosenType.name}: sin lugar para solicitar por ahora.${othersText}`;
+  } else {
+    scopeMessage = `Elegí un tipo para ver su estado, o sumate a la espera de cualquiera.${othersText}`;
+  }
 
   if (state.status === "saved") {
     return (
@@ -44,8 +69,14 @@ export function JoinWaitlistForm({
 
   return (
     <form action={formAction} className="flex flex-col gap-3 px-5 py-5 sm:px-6">
-      <p className="text-sm text-ink-soft">No hay lugares disponibles en este momento.</p>
-      <Select key={preselected} label="Tipo de habitación (opcional)" id="waitlist-room-type" name="room_type_id" defaultValue={preselected}>
+      <p className="text-sm text-ink-soft">{scopeMessage}</p>
+      <Select
+        label="Tipo de habitación (opcional)"
+        id="waitlist-room-type"
+        name="room_type_id"
+        value={chosen}
+        onChange={(e) => setChosen(e.target.value)}
+      >
         <option value="">Cualquiera</option>
         {roomTypes.map((rt) => (
           <option key={rt.id} value={rt.id}>
@@ -54,17 +85,25 @@ export function JoinWaitlistForm({
         ))}
       </Select>
 
-      {minStartDate && (
-        <Input
-          label="Fecha de ingreso deseada"
-          id="waitlist-start-date"
-          name="desired_start_date"
-          type="date"
-          required
-          min={minStartDate}
-          hint={`Podés anotarte desde el ${formatDateOnly(minStartDate)}, cuando termina tu reserva actual.`}
-        />
-      )}
+      <Select
+        label="¿Para qué mes?"
+        id="waitlist-start-month"
+        name="desired_start_date"
+        required
+        defaultValue=""
+        hint={minStartDate ? "Solo meses posteriores a tu reserva actual." : "Si el mes pasa sin lugar, salís de la lista y podés sumarte de nuevo."}
+      >
+        <option value="" disabled>
+          Elegí un mes
+        </option>
+        {monthOptions.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+        {/* Con reserva/estadía vigente no hay «Cuando haya lugar»: sin mes se considera superpuesto (docs/04 §5.6bis, DR40). */}
+        {!minStartDate && <option value={WAITLIST_ANY_MONTH_VALUE}>Cuando haya lugar</option>}
+      </Select>
 
       {state.status === "error" && (
         <p role="alert" className="rounded-field bg-danger-bg px-4 py-3 text-sm font-medium text-danger-fg">
