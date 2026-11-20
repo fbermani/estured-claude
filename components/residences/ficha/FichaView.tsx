@@ -21,6 +21,7 @@ import { loadCurrentRegulation } from "@/lib/regulations/current";
 import { RegulationModal } from "@/components/residences/ficha/RegulationModal";
 import { MODEL_LEGAL_NOTE } from "@/lib/regulations/modelTemplate";
 import { RegulationText } from "@/components/regulations/RegulationText";
+import { RegulationPdfLink } from "@/components/regulations/RegulationPdfLink";
 import { formatDate } from "@/lib/dates/format";
 import { AskQuestionForm } from "@/app/(public)/residencias/[slug]/AskQuestionForm";
 import { CompactMap } from "@/components/residences/CompactMap";
@@ -744,7 +745,12 @@ export async function FichaView({
                       regulation
                         ? {
                             hash: regulation.hash,
-                            content: <RegulationText text={regulation.text} className="max-h-72 overflow-y-auto pr-2" />,
+                            content: (
+                              <>
+                                <RegulationText text={regulation.text} className="max-h-72 overflow-y-auto pr-2" />
+                                {regulation.pdf && <RegulationPdfLink slug={slug} className="mt-3" />}
+                              </>
+                            ),
                             isModel: regulation.isBaseModel,
                           }
                         : null

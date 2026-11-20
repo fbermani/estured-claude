@@ -1,5 +1,6 @@
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { loadCurrentRegulation } from "@/lib/regulations/current";
+import { REGULATION_PDF_BUCKET } from "@/lib/regulations/pdfFile";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { RegulationPdfDocument } from "@/lib/regulations/RegulationPdfDocument";
 
@@ -28,6 +29,18 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
   if (!residence) return new Response("No encontramos esta residencia.", { status: 404 });
 
   const result = await loadCurrentRegulation(admin, residence.id as string);
+  // DR59 a: si la versión vigente ES un PDF, se entrega ese archivo (el mismo que acepta el estudiante).
+  if (result.ok && result.view.pdf) {
+    const safeName = slug.replace(/[^a-z0-9-]/gi, "").slice(0, 80) || "residencia";
+    const { data: signed, error: signedError } = await admin.storage
+      .from(REGULATION_PDF_BUCKET)
+      .createSignedUrl(result.view.pdf.path, 60, { download: `reglamento-${safeName}.pdf` });
+    if (signedError || !signed?.signedUrl) {
+      console.error("[reglamento] no se pudo firmar el PDF de la versión:", signedError);
+      return new Response("No pudimos cargar el reglamento. Probá de nuevo en unos minutos.", { status: 503 });
+    }
+    return Response.redirect(signed.signedUrl, 302);
+  }
   const hasOwnRegulation = result.ok && !result.view.isBaseModel;
   if (!hasOwnRegulation) {
     const { data: file } = await admin

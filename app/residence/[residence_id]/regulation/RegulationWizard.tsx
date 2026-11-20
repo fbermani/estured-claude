@@ -9,6 +9,7 @@ import { DraftNotice } from "@/components/forms/DraftNotice";
 import { draftStorageKey } from "@/lib/forms/localDraft";
 import { REGULATION_WIZARD_DRAFT_SCOPE, sanitizeWizardDraft, type WizardDraftData } from "@/lib/regulations/draft";
 import { assembleWizardText, baseArticleBody, wizardSections } from "@/lib/regulations/wizard";
+import { fieldDef, fillFields, pendingFields } from "@/lib/regulations/fields";
 
 /**
  * Asistente guiado del reglamento (DR18 fase 2, tanda 4). Un paso por sección del modelo de EstuRed: cada artículo se incluye o no y se
@@ -34,12 +35,14 @@ export function RegulationWizard({
       MODEL_ARTICLES.map((a) => [a.n, { included: a.tag === "suggested", body: baseArticleBody(a, residenceName) }]),
     ) as Record<number, { included: boolean; body: string }>,
   );
+  // Valores de los campos `{...}` (opción múltiple, hora, número o texto). Se comparten entre artículos y se aplican al terminar.
+  const [fields, setFields] = useState<Record<string, string>>({});
   // El avance (paso y artículos elegidos) queda en este dispositivo: se puede cerrar el asistente y retomarlo después.
   const draft = useLocalDraft<WizardDraftData>({
     storageKey: draftStorageKey(REGULATION_WIZARD_DRAFT_SCOPE, draftScope?.userId ?? "", draftScope?.residenceId ?? ""),
     enabled: draftScope !== undefined,
     stamp: MODEL_VERSION,
-    value: { step, choices },
+    value: { step, choices, fields },
     validate: (raw) =>
       sanitizeWizardDraft(
         raw,
@@ -50,6 +53,7 @@ export function RegulationWizard({
       setStep(d.step);
       // Lo que falta en el borrador conserva el valor del modelo.
       setChoices((prev) => ({ ...prev, ...d.choices }));
+      setFields(d.fields);
     },
   });
   const section = sections[step];
@@ -60,7 +64,7 @@ export function RegulationWizard({
   }
 
   function finish() {
-    const text = assembleWizardText(MODEL_ARTICLES.map((a) => ({ n: a.n, ...choices[a.n] })));
+    const text = assembleWizardText(MODEL_ARTICLES.map((a) => ({ n: a.n, ...choices[a.n], body: fillFields(choices[a.n].body, fields) })));
     if (onFinish(text)) {
       draft.beginSave();
       draft.completeSave();
@@ -85,8 +89,8 @@ export function RegulationWizard({
         onDismiss={draft.dismissNotice}
       />
       <p className="text-xs text-ink-soft">
-        Elegí qué artículos incluir y completá los campos entre llaves (por ejemplo {"{hora_silencio}"}). Los marcados «sugerido» ordenan la convivencia;
-        los opcionales los decidís vos. Al terminar, el texto pasa al editor para que lo revises y lo publiques.
+        Elegí qué artículos incluir y completá los campos de cada uno: elegí una opción, una hora o un número. Los marcados «sugerido» ordenan la convivencia;
+        los opcionales los decidís vos. Lo que dejes sin completar queda entre llaves en el texto y tenés que resolverlo en el editor antes de publicar. Al terminar, el texto pasa al editor para que lo revises y lo publiques.
         Podés cerrar el asistente cuando quieras: tu avance queda guardado en este dispositivo.
       </p>
       <ul className="space-y-4">
@@ -110,6 +114,42 @@ export function RegulationWizard({
                   onChange={(e) => update(a.n, { body: e.target.value })}
                   className="mt-2 text-sm"
                 />
+              )}
+              {c.included && pendingFields(c.body).length > 0 && (
+                <div className="mt-3 grid gap-3 sm:grid-cols-2" role="group" aria-label={`Campos del artículo: ${a.title}`}>
+                  {pendingFields(c.body).map((name) => {
+                    const def = fieldDef(name);
+                    const id = `wiz-${a.n}-${name}`;
+                    const value = fields[name] ?? "";
+                    const set = (v: string) => setFields((prev) => ({ ...prev, [name]: v }));
+                    const cls = "mt-1 block w-full rounded-field border border-line-2 bg-white px-3 py-2 text-sm text-ink";
+                    return (
+                      <label key={name} htmlFor={id} className="block text-xs font-semibold text-ink-soft">
+                        {def.label}
+                        {def.kind === "select" ? (
+                          <select id={id} className={cls} value={value} onChange={(e) => set(e.target.value)}>
+                            <option value="">Elegí una opción</option>
+                            {def.options?.map((o) => (
+                              <option key={o} value={o}>
+                                {o}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <input
+                            id={id}
+                            className={cls}
+                            type={def.kind === "time" ? "time" : def.kind === "number" ? "number" : "text"}
+                            min={def.kind === "number" ? 0 : undefined}
+                            maxLength={200}
+                            value={value}
+                            onChange={(e) => set(e.target.value)}
+                          />
+                        )}
+                      </label>
+                    );
+                  })}
+                </div>
               )}
             </li>
           );

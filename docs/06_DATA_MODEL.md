@@ -709,7 +709,7 @@ Inmutable una vez publicada:
 | `source` | regulation_source | `own` o `model` |
 | `model_version` | text null | Versión del modelo de EstuRed usada como base (si `source = model`) |
 | `content` | jsonb | Artículos activos y valores elegidos (multiple choice), o el texto del reglamento propio |
-| `file_id` | uuid null | FK `files` (§16.1) si el reglamento propio es un archivo |
+| `file_id` | uuid null | Reservado, sin uso (DR59). Si la versión es un PDF, el dato del archivo va en `content.pdf` (`path`, `filename`, `size_bytes`; bucket `private-residence-documents`, tope 5 MB) y `content_hash` es el SHA-256 de los bytes |
 | `content_hash` | text | SHA-256 del contenido canónico (identifica lo que se aceptó) |
 | `status` | text | `draft`, `published`, `superseded` (sin revisión del admin: la residencia publica sola) |
 | `published_at` | timestamptz null | Publicación |

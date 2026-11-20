@@ -1,4 +1,5 @@
 import { MAX_REGULATION_LENGTH } from "@/lib/regulations/limits";
+import { sanitizeFieldValues } from "@/lib/regulations/fields";
 
 /**
  * Borrador local del reglamento (editor y asistente). Lógica pura. Un borrador vive solo en el dispositivo de quien edita: NO es una
@@ -18,7 +19,7 @@ export function sanitizeRegulationDraft(raw: unknown): RegulationDraftData | nul
   return { text: r.text.slice(0, MAX_REGULATION_LENGTH), source: r.source === "model" ? "model" : "own" };
 }
 
-export type WizardDraftData = { step: number; choices: Record<number, { included: boolean; body: string }> };
+export type WizardDraftData = { step: number; choices: Record<number, { included: boolean; body: string }>; fields: Record<string, string> };
 
 /** Tope por artículo: el mismo `maxLength` del campo del asistente. */
 const WIZARD_BODY_MAX = 2000;
@@ -44,5 +45,5 @@ export function sanitizeWizardDraft(raw: unknown, articleNumbers: readonly numbe
   if (Object.keys(choices).length === 0) return null;
   const rawStep = typeof r.step === "number" && Number.isInteger(r.step) ? r.step : 0;
   const step = Math.min(Math.max(rawStep, 0), Math.max(stepCount - 1, 0));
-  return { step, choices };
+  return { step, choices, fields: sanitizeFieldValues(r.fields) };
 }

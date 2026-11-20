@@ -9,6 +9,7 @@ import { requestBlockedMessage, typeAvailabilityState } from "@/lib/availability
 import { checkReservationWindowOverlap } from "@/lib/students/reservationWindow";
 import { validateMovingNote } from "@/lib/stayChange/validate";
 import { MAX_APPLICATION_TEXT, checkTextMax, isIsoDate, parseDurationMonths } from "@/lib/applications/inputLimits";
+import { notifyGuardianRegulationPending } from "@/lib/regulations/notifyGuardian";
 import { acceptRegulationForApplication, recordRegulationAcceptance, resolveRegulationToAccept } from "@/lib/regulations/acceptance";
 import { revalidatePath } from "next/cache";
 
@@ -170,7 +171,9 @@ export async function createApplicationRequest(
   // Un estudiante MENOR no acepta por sí mismo (docs/06 §11.5): queda pendiente y lo acepta su familiar vinculado.
   // Para un adulto: si no se pudo registrar tras el reintento, la solicitud queda pendiente (la residencia no la avanza) y se lo lleva a su
   // solicitud, donde ve el aviso con el reglamento y el botón «Leí y acepto».
-  if (!studentProfile.is_minor) {
+  if (studentProfile.is_minor) {
+    await notifyGuardianRegulationPending(admin, { applicationId: result.id, studentProfileId: studentProfile.id });
+  } else {
     await recordRegulationAcceptance(admin, {
       applicationRequestId: result.id,
       residenceId,

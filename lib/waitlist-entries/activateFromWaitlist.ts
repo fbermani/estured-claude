@@ -5,6 +5,7 @@ import { createAuditLog } from "@/lib/audit";
 import { ACTIVE_APPLICATION_STATUSES } from "@/lib/applications/types";
 import { createApplicationFromRoomType } from "@/lib/applications/createRequestFromRoomType";
 import { checkReservationWindowOverlap } from "@/lib/students/reservationWindow";
+import { notifyGuardianRegulationPending } from "@/lib/regulations/notifyGuardian";
 
 export type ActivateFromWaitlistResult = { ok: true; applicationId: string } | { ok: false; error: string };
 
@@ -99,6 +100,9 @@ export async function activateFromWaitlist(
     regulationPending: await regulationAcceptanceEnabled(admin),
   });
   if ("error" in result) return { ok: false, error: result.error };
+
+  // DR59 c: si el estudiante es menor, su familiar vinculado es quien acepta el reglamento: se le avisa.
+  await notifyGuardianRegulationPending(admin, { applicationId: result.id, studentProfileId: studentProfile.id });
 
   await admin
     .from("waitlist_entries")

@@ -43,11 +43,11 @@ import {
   type StayDocumentsConfig,
 } from "@/lib/residences/stayDocuments";
 import { imageExtension, sniffImageType } from "@/lib/residences/imageSniff";
-import { extensionForMime, resolveDocumentType, toTypedBlob } from "@/lib/files/sniffFile";
 import { validateEarlyExitPolicy } from "@/lib/stayChange/validate";
 import { parseMoneyConditionsInput, type DepositMode } from "@/lib/applications/reservationMoney";
 import { describeInitialPaymentForLog, initialPaymentConfigFromRow, parseInitialPaymentInput, type InitialPaymentConfig } from "@/lib/reservations/initialPayment";
 import { safeFilename } from "@/lib/files/safeFilename";
+import { publishRegulationPdfVersion } from "@/lib/regulations/publish";
 
 /** Mensaje cuando un staff con `profile.edit` (sin `operations.rooms_availability`) intenta cambiar la estructura de habitaciones o plazas. */
 const ROOM_STRUCTURE_PERMISSION_MESSAGE =
@@ -65,7 +65,6 @@ const ROOM_NAMES = new Set<string>(ROOM_TYPE_NAMES);
 const GENDER_POLICIES = new Set(GENDER_POLICY_OPTIONS.map((o) => o.value));
 const ADJUSTMENT_POLICIES = new Set(ADJUSTMENT_POLICY_OPTIONS.map((o) => o.value));
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
-const MAX_PDF_BYTES = 10 * 1024 * 1024;
 /** Topes de texto libre y de precio (B4); la base tiene CHECK equivalentes en la migración 0084. */
 const MAX_LONG_TEXT_CHARS = 5000;
 const MAX_MONTHLY_PRICE_USD = 100_000;
@@ -708,57 +707,24 @@ export async function saveResidenceProfile(
       if (error) throw error;
     }
 
-    // Reglamento PDF (opcional) — se sube igual, pero si queda pendiente
-    // de revisión el archivo se marca `pending_review` (nunca se sirve
-    // públicamente hasta aprobarse).
-    let uploadedRulesFile: { fileId: string; filename: string } | null = null;
+    // Reglamento PDF (opcional) — DR59: es EL reglamento de la residencia (una sola versión vigente, la que se descarga y se acepta).
+    // Se publica como versión nueva por el mismo camino que la pantalla Reglamento: tope 5 MB, solo PDF, sin revisión del admin.
+    // Subir el mismo PDF que ya rige no es un error: no cambia nada.
     const rulesFile = formData.get("rules_file");
     if (rulesFile instanceof File && rulesFile.size > 0) {
-      if (rulesFile.size > MAX_PDF_BYTES)
-        return { status: "error", message: "El reglamento no puede superar los 10MB." };
-      // Se comprueba el contenido real (firma `%PDF-`), no el MIME que declara el cliente.
-      if ((await resolveDocumentType(rulesFile)) !== "application/pdf")
-        return { status: "error", message: "El reglamento debe ser un PDF." };
-      const path = `${residenceId}/reglamento-${Date.now()}.${extensionForMime("application/pdf")}`;
-      const { error: uploadError } = await admin.storage
-        .from("private-residence-documents")
-        .upload(path, await toTypedBlob(rulesFile, "application/pdf"), { contentType: "application/pdf", upsert: true });
-      if (uploadError) throw uploadError;
-      const { data: insertedFile, error: fileInsertError } = await admin
-        .from("files")
-        .insert({
-          owner_user_id: sessionUser.id,
-          related_entity_type: "residences",
-          related_entity_id: residenceId,
-          bucket: "private-residence-documents",
-          storage_path: path,
-          filename: safeFilename(rulesFile.name),
-          mime_type: "application/pdf",
-          size_bytes: rulesFile.size,
-          visibility: "private",
-          document_type: "residence_rules_document",
-          status: gateApplies ? "pending_review" : "approved",
-          uploaded_by_user_id: sessionUser.id,
-        })
-        .select("id")
-        .single();
-      if (fileInsertError || !insertedFile) {
-        // El PDF quedó sin registro: se limpia el objeto huérfano (mejor esfuerzo) y se propaga el error.
-        await admin.storage.from("private-residence-documents").remove([path]);
-        throw fileInsertError ?? new Error("No se pudo registrar el reglamento.");
-      }
-      uploadedRulesFile = { fileId: insertedFile.id, filename: safeFilename(rulesFile.name) };
+      const published = await publishRegulationPdfVersion(admin, { actorUserId: sessionUser.id, residenceId, file: rulesFile });
+      if (!published.ok && !published.unchanged) return { status: "error", message: published.error };
     }
 
     // Reglas: crítico (docs/09 §8.1) — gated si publicada. Cambia si el
     // resumen cambió o si se subió un reglamento nuevo.
-    const rulesChanged = rulesSummary !== currentRulesSummary || !sameRuleItems(ruleItems, storedRuleItems) || uploadedRulesFile !== null;
+    const rulesChanged = rulesSummary !== currentRulesSummary || !sameRuleItems(ruleItems, storedRuleItems);
     if (gateApplies && rulesChanged) {
       const stage = await stageProfileEdit(admin, {
         residenceId,
         fieldGroup: "rules",
         oldValue: { summary: currentRulesSummary, items: storedRuleItems },
-        newValue: { summary: rulesSummary, items: ruleItems, rulesFile: uploadedRulesFile },
+        newValue: { summary: rulesSummary, items: ruleItems },
         submittedByUserId: sessionUser.id,
       });
       if (!stage.ok) return { status: "error", message: stage.error };
@@ -769,10 +735,6 @@ export async function saveResidenceProfile(
         { onConflict: "residence_id,section_type" },
       );
       if (error) throw error;
-      if (uploadedRulesFile) {
-        const { error: approveError } = await admin.from("files").update({ status: "approved" }).eq("id", uploadedRulesFile.fileId);
-        if (approveError) throw approveError;
-      }
     }
 
     // Fotos: crítico (docs/09 §8.1) — gated si publicada. Se suben
