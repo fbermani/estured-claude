@@ -9,6 +9,7 @@ import { createAuditLog } from "@/lib/audit";
 import { COUNTRY_NAMES, FLAG_BY_COUNTRY } from "@/lib/data/latamCountries";
 import { UNIVERSITY_NAMES } from "@/lib/data/buenosAiresUniversities";
 import { isMinorByBirthDate } from "@/lib/students/isMinorByBirthDate";
+import { validateIdentityDocument } from "@/lib/students/identityDocument";
 import { MAX_OTHER_STAY_DOCUMENT_LENGTH, sanitizeStayDocumentLabel } from "@/lib/residences/stayDocuments";
 import {
   VISIBILITY_FLAG_COLUMNS,
@@ -35,6 +36,7 @@ import {
 } from "@/lib/students/documentQuota";
 
 export type UpdateProfileState = { status: "idle" | "error" | "saved"; message?: string };
+export type IdentityDocumentState = { status: "idle" | "error" | "saved"; message?: string };
 export type CommunityVisibilityState = { status: "idle" | "error" | "saved"; message?: string };
 export type UploadDocumentState = { status: "idle" | "error" | "saved"; message?: string };
 
@@ -142,6 +144,55 @@ export async function updateStudentProfileDetails(
 
   revalidatePath("/students/profile");
   revalidatePath("/students/dashboard");
+  return { status: "saved" };
+}
+
+/**
+ * DR58 — el estudiante carga el tipo y número de su documento. Validación y normalización server-side; el número se
+ * guarda en `student_identity_documents` (solo service role) y NUNCA va a la auditoría.
+ */
+export async function saveIdentityDocument(
+  _prev: IdentityDocumentState,
+  formData: FormData,
+): Promise<IdentityDocumentState> {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) return { status: "error", message: "Tu sesión expiró. Volvé a iniciar sesión." };
+  const admin = getSupabaseAdmin();
+  if (!admin) return { status: "error", message: "No disponible en este momento. Probá más tarde." };
+
+  const parsed = validateIdentityDocument(formData.get("document_type"), formData.get("document_number"));
+  if (!parsed.ok) return { status: "error", message: parsed.message };
+
+  const { data: profile } = await admin
+    .from("student_profiles")
+    .select("id")
+    .eq("user_id", sessionUser.id)
+    .maybeSingle();
+  if (!profile) return { status: "error", message: "No encontramos tu perfil de estudiante." };
+
+  const { error } = await admin
+    .from("student_identity_documents")
+    .upsert({ student_profile_id: profile.id, document_type: parsed.type, document_number: parsed.number }, { onConflict: "student_profile_id" });
+  if (error) {
+    console.error("[students/profile] identity document failed:", error.code);
+    // 42P01 / PGRST205: tabla inexistente (migración 0100 sin aplicar).
+    const missing = error.code === "42P01" || error.code === "PGRST205";
+    return { status: "error", message: missing ? "Todavía no podemos guardar este dato. Probá más tarde." : "No pudimos guardar el documento. Intentá de nuevo." };
+  }
+
+  const headerStore = await headers();
+  await createAuditLog(admin, {
+    actorUserId: sessionUser.id,
+    actorRole: "student",
+    action: "student_identity_document_saved",
+    entityType: "student_profiles",
+    entityId: profile.id,
+    newValue: { document_type: parsed.type },
+    ipAddress: clientIpFromHeaders(headerStore),
+    userAgent: headerStore.get("user-agent"),
+  });
+
+  revalidatePath("/students/profile");
   return { status: "saved" };
 }
 

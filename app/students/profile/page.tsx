@@ -1,3 +1,5 @@
+import { IdentityDocumentForm } from "@/app/students/profile/IdentityDocumentForm";
+import { maskIdentityDocumentNumber } from "@/lib/students/identityDocument";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
@@ -44,6 +46,13 @@ export default async function StudentProfilePage() {
     .filter((f) => f.document_type === "other")
     .map((f) => ({ id: f.id, filename: f.filename, createdAt: f.created_at, label: f.requirement_label ?? null }))
     .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+
+  // DR58: el número se lee solo con service role; a la pantalla va enmascarado. Sin la migración 0100 queda vacío.
+  const { data: identityRow } = await admin
+    .from("student_identity_documents")
+    .select("document_type, document_number")
+    .eq("student_profile_id", profile.id)
+    .maybeSingle();
 
   const { data: activeLinkRow } = await admin
     .from("family_links")
@@ -156,6 +165,10 @@ export default async function StudentProfilePage() {
                 documentType="student_identity"
                 label="Documento de identidad (DNI, pasaporte)"
                 done={types.has("student_identity")}
+              />
+              <IdentityDocumentForm
+                savedType={identityRow?.document_type ?? ""}
+                savedMasked={identityRow?.document_number ? maskIdentityDocumentNumber(identityRow.document_number) : ""}
               />
               <DocumentUpload
                 documentType="student_academic_proof"
