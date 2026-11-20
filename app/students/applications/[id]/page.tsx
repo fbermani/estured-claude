@@ -20,6 +20,7 @@ import { ApplicationTimeline } from "@/components/applications/ApplicationTimeli
 import { effectiveContactDeadline } from "@/lib/applications/paymentDeadline";
 import { ContactDeadlineNote } from "@/components/applications/ContactDeadlineNote";
 import { AgreedConditionsCard } from "@/components/applications/AgreedConditionsCard";
+import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
 import { buildTerminalSummary, isRevokedReservation, isTerminalVisibleStatus } from "@/lib/applications/terminalState";
 import { advanceGateMessage, stayChangeAdvanceAt } from "@/lib/stayChange/advanceGate";
@@ -204,6 +205,10 @@ export default async function StudentApplicationDetailPage({
           <div className="dc-rise">
             <p className="font-semibold">Enviaste tu solicitud.</p>
             <p className="mt-1">Queda sujeta a confirmación de la residencia.</p>
+            <Link href="/instalar" className="mt-2 inline-flex min-h-11 items-center gap-1.5 font-bold underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest md:hidden">
+              <Icon name="notifications_active" className="text-lg" />
+              Instalá la app para enterarte cuando responda
+            </Link>
           </div>
         </div>
       )}

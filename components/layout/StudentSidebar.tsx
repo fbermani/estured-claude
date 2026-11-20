@@ -114,6 +114,7 @@ export function StudentSidebar({
   const moreItems: TabItem[] = [
     ...nav.filter((n) => !tabHrefs.has(n.href)),
     { href: "/students/revocation", label: "Botón de arrepentimiento", icon: "undo" },
+    { href: "/instalar", label: "Instalá la app", icon: "install_mobile" },
   ];
 
   return (

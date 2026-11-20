@@ -62,6 +62,11 @@ export function Footer({ hideSignup = false, staffView = false }: { hideSignup?:
                 Nosotros
               </Link>
             </li>
+            <li>
+              <Link href="/instalar" className={link}>
+                Instalá la app
+              </Link>
+            </li>
             {/* Sin leer la sesión en el servidor (para que las páginas públicas puedan cachearse): quien ya está logueado
                 lleva `data-session-hint` en <html> (app/layout.tsx) y el enlace se oculta por CSS. */}
             {!hideSignup && !staffView && (

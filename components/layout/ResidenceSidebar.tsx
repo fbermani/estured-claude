@@ -110,6 +110,7 @@ export function ResidenceSidebar({
         item(`${base}/plan`),
         ...(isOwner ? [item(`${base}/team`)] : []),
         { href: "/residence/dashboard", label: "Todas mis residencias", icon: "apartment" },
+        { href: "/instalar", label: "Instalá la app", icon: "install_mobile" },
       ],
     },
   ];
