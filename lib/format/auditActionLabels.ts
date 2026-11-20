@@ -165,6 +165,7 @@ const ACTION_PHRASES: Record<string, string> = {
   residence_faq_restored: "volvió a mostrar una pregunta de su ficha",
   residence_faq_restored_by_admin: "volvió a mostrar una pregunta de una ficha",
   residence_faq_answered: "respondió una pregunta de la ficha",
+  residence_own_faq_updated: "actualizó las preguntas propias de su ficha",
   residence_faq_answer_edited: "editó la respuesta a una pregunta de la ficha",
   residence_regulation_published: "publicó una versión del reglamento",
   application_regulation_accepted: "aceptó el reglamento al enviar la solicitud",
