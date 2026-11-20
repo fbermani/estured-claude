@@ -239,6 +239,7 @@ export default async function ResidenceResidentsPage({
       agreedRateUsd: s.reservation_id ? (agreedRateByReservationId.get(s.reservation_id) ?? null) : null,
       renewal,
       studentProfileId: s.student_profile_id,
+      canRevealIdentityNumber: canManage && !!s.student_profile_id,
       documents: s.student_profile_id
         ? computeRequirementStatuses(stayRequirements, docFilesByProfile.get(s.student_profile_id) ?? []).map((st) => ({
             label: st.requirement.label,

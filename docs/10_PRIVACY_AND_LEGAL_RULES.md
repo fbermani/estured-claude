@@ -215,7 +215,7 @@ Nombre + inicial; foto o avatar; edad; nacionalidad/bandera; carrera; ciudad de 
 
 Apellido completo; email; teléfono; fecha de nacimiento; universidad específica; DNI/pasaporte; documentación cargada; datos de pago; datos bancarios; dirección personal; datos familiares sensibles; notas internas; reclamos; auditoría; comunicaciones privadas fuera de contexto; **contenido de una propuesta de solicitud del familiar antes de que el estudiante la apruebe o rechace** (solo visible entre el familiar que la creó y el estudiante destinatario).
 
-> **Número de documento (DR58, 2026-11-20).** El número de DNI/pasaporte del estudiante tiene el mismo alcance que el archivo `student_identity` (DR48): él mismo, su familiar vinculado si es menor, la residencia con vínculo habilitante y admin con justificación. Nunca antes del contacto, nunca en logs.
+> **Número de documento (DR58, 2026-11-20).** El número de DNI/pasaporte del estudiante tiene el mismo alcance que el archivo `student_identity` (DR48): él mismo, su familiar vinculado si es menor, la residencia con vínculo habilitante y admin con justificación. Nunca antes del contacto, nunca en logs. **Residencia (fase 2):** solo con estadía vigente o reserva confirmada de ese estudiante en esa residencia (más estricto que el archivo), por pedido explícito en el servidor, con registro de cada lectura; ver DR58 en `docs/00` §31.
 
 ### 6.5 Datos visibles para residencias por contexto
 
