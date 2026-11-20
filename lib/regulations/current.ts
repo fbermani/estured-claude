@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { isMissingSchemaError } from "@/lib/stayChange/schema";
 import { MODEL_VERSION, buildModelText } from "@/lib/regulations/modelTemplate";
 import { hashRegulationText, normalizeRegulationText } from "@/lib/regulations/text";
+import { parseRegulationPdf, type RegulationPdfInfo } from "@/lib/regulations/pdfFile";
 
 /**
  * Reglamento vigente de una residencia (DR14, docs/06 §8.7). Sin reglamento propio publicado se muestra el MODELO de EstuRed.
@@ -20,6 +21,8 @@ export type RegulationView = {
   /** La residencia todavía no publicó nada propio ni adaptó el modelo: rige el modelo base. */
   isBaseModel: boolean;
   schemaReady: boolean;
+  /** La versión es un archivo PDF (DR62 a): `text` es solo un aviso y `hash` es el de los bytes del archivo. */
+  pdf: RegulationPdfInfo | null;
 };
 
 export type RegulationVersionRow = {
@@ -27,7 +30,7 @@ export type RegulationVersionRow = {
   version_number: number;
   source: "own" | "model";
   model_version: string | null;
-  content: { text?: unknown; base_model?: unknown } | null;
+  content: { text?: unknown; base_model?: unknown; pdf?: unknown } | null;
   content_hash: string;
   status: "draft" | "published" | "superseded";
   published_at: string | null;
@@ -48,6 +51,7 @@ export function baseModelView(schemaReady: boolean): RegulationView {
     publishedAt: null,
     isBaseModel: true,
     schemaReady,
+    pdf: null,
   };
 }
 
@@ -63,6 +67,7 @@ export function viewFromRow(row: RegulationVersionRow): RegulationView {
     publishedAt: row.published_at,
     isBaseModel: row.source === "model" && row.content?.base_model === true,
     schemaReady: true,
+    pdf: parseRegulationPdf(row.content),
   };
 }
 

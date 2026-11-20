@@ -23,3 +23,35 @@ describe("asistente del reglamento", () => {
     expect(assembleWizardText(MODEL_ARTICLES.map((a) => ({ n: a.n, included: false, body: a.body })))).toBe("");
   });
 });
+
+import { fieldDef, fillFields, pendingFields, sanitizeFieldValues } from "@/lib/regulations/fields";
+import { findPlaceholders } from "@/lib/regulations/modelTemplate";
+
+describe("campos del asistente (opción múltiple)", () => {
+  it("lista los campos pendientes sin el nombre de la residencia", () => {
+    expect(pendingFields("Edad entre {edad_minima} y {edad_maxima} en {nombre_residencia}; {edad_minima}")).toEqual(["edad_minima", "edad_maxima"]);
+  });
+  it("reemplaza solo los campos con valor", () => {
+    const out = fillFields("Silencio desde {hora_silencio}, cierre {hora_cierre}.", { hora_silencio: "22:00", hora_cierre: "  " });
+    expect(out).toBe("Silencio desde 22:00, cierre {hora_cierre}.");
+  });
+  it("completar todos los campos de un artículo deja el texto publicable", () => {
+    const a = MODEL_ARTICLES.find((x) => x.n === 5)!;
+    const out = fillFields(baseArticleBody(a, "Casa Norte"), { edad_minima: "18", edad_maxima: "30" });
+    expect(findPlaceholders(out)).toEqual([]);
+  });
+  it("define opciones fijas para moneda y texto libre para el resto", () => {
+    expect(fieldDef("moneda_cobro")).toMatchObject({ kind: "select", options: ["USD", "ARS"] });
+    expect(fieldDef("texto_propio_de_valores")).toMatchObject({ kind: "text", label: "texto propio de valores" });
+  });
+  it("todo campo con opciones tiene al menos dos", () => {
+    for (const a of MODEL_ARTICLES) for (const f of pendingFields(a.body)) {
+      const d = fieldDef(f);
+      if (d.kind === "select") expect(d.options!.length).toBeGreaterThanOrEqual(2);
+    }
+  });
+  it("sanea valores del borrador", () => {
+    expect(sanitizeFieldValues({ a: "x", "b c": "y", d: 3 })).toEqual({ a: "x" });
+    expect(sanitizeFieldValues(null)).toEqual({});
+  });
+});

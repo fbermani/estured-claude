@@ -1049,7 +1049,7 @@ Sin cambios de fondo. Incluye Factura C asociada visible/descargable si es relev
 - Listado de preguntas libres hechas por estudiantes que no obtuvieron respuesta (se moderan con `faq.manage`).
 
 **Pestaña Reglamento:**
-- Elegir **reglamento propio** (texto o archivo) o **adaptar el modelo** de EstuRed (artículos activos/inactivos y opciones multiple choice, `docs/propuestas/REGLAMENTO_MODELO_Y_FAQ.md` Parte A). Sin reglamento propio, la ficha muestra el modelo.
+- Elegir **reglamento propio** (texto o archivo) o **adaptar el modelo** de EstuRed (artículos activos/inactivos y opciones multiple choice, `docs/propuestas/REGLAMENTO_MODELO_Y_FAQ.md` Parte A). Sin reglamento propio, la ficha muestra el modelo. *(DR62)* El archivo es un PDF de hasta 5 MB que se publica como versión y se descarga desde la ficha; el asistente completa los campos de cada artículo con opciones; el familiar de un menor recibe aviso para aceptar y ve la aceptación guardada.
 - Vista previa de lo que verá el estudiante al solicitar.
 - **Versiones:** cada publicación crea una versión nueva (con revisión del admin, supuesto); historial visible. Aviso fijo: «Los cambios rigen para solicitudes nuevas; las solicitudes que ya aceptaron una versión anterior conservan esa versión.»
 - Aviso legal fijo: el modelo es orientativo, no asesoramiento legal; la residencia lo adapta a su realidad.

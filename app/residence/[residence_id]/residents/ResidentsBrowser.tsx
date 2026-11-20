@@ -8,6 +8,7 @@ import { Icon } from "@/components/ui/Icon";
 import { ScrollTable } from "@/components/ui/ScrollTable";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { IdentityNumberReveal } from "@/components/residences/IdentityNumberReveal";
 import { StudentDocumentChecklist, type StudentDocumentItem } from "@/components/residences/StudentDocumentChecklist";
 import { formatUsd } from "@/lib/mock/exchange";
 import { InviteResidentsCard } from "@/app/residence/[residence_id]/residents/InviteResidentsCard";
@@ -67,6 +68,8 @@ export type ResidentRow = {
   /** DR38: documentación que pide la residencia y su estado en este residente (solo estado, nunca el archivo). `null` = sin cuenta de estudiante vinculada. */
   /** DR38/DR48: `fileId` solo viene si quien mira puede abrir el archivo (casillero `residents.manage`). */
   documents: StudentDocumentItem[] | null;
+  /** DR58 fase 2: solo viene si quien mira puede pedir el número de documento (casillero `residents.manage`). */
+  canRevealIdentityNumber: boolean;
   /** Depósito de la reserva vinculada: define las opciones al registrar una salida anticipada. */
   depositMode: "had" | "none" | "unknown";
   /** Pedido de cambio de habitación dentro de la residencia (DR34): el abierto o, si no hay, el último cerrado. */
@@ -279,6 +282,7 @@ function StayDocumentsBlock({ residenceId, row, limited }: { residenceId: string
       ) : (
         <StudentDocumentChecklist residenceId={residenceId} items={docs} />
       )}
+      {row.canRevealIdentityNumber && row.studentProfileId && <IdentityNumberReveal residenceId={residenceId} studentProfileId={row.studentProfileId} />}
       {docs !== null && (
         <p className="mt-2 text-xs leading-relaxed text-ink-faint">
           {docs.some((d) => d.fileId)

@@ -15,6 +15,7 @@ import { advanceGateMessage, stayChangeAdvanceAt } from "@/lib/stayChange/advanc
 import { ApplicationsInbox, type FullApplication } from "@/app/residence/[residence_id]/applications/ApplicationsInbox";
 import { isCountableWaitlistEntry } from "@/lib/waitlist-entries/desiredMonth";
 import { applicationAllowsDocuments } from "@/lib/documents/residenceDocumentAccess";
+import { applicationAllowsIdentityNumber } from "@/lib/documents/studentIdentityNumberAccess";
 import { computeRequirementStatuses } from "@/lib/residences/stayDocuments";
 import { effectiveRequirements, loadStayDocumentsConfig, loadStudentDocumentFiles } from "@/lib/residences/stayDocumentsDb";
 import type { StudentDocumentItem } from "@/components/residences/StudentDocumentChecklist";
@@ -235,6 +236,10 @@ export default async function ResidenceApplicationsPage({
       isActive: (ACTIVE_APPLICATION_STATUSES as readonly string[]).includes(a.status),
       moving: movingByAppId.get(a.id) ?? null,
       documents: documentsByAppId.get(a.id) ?? null,
+      identityStudentProfileId:
+        canOpenApplicantDocs && a.student_profile_id && applicationAllowsIdentityNumber(a.status, reservationInfoByAppId.get(a.id)?.status)
+          ? (a.student_profile_id as string)
+          : null,
     };
   });
 

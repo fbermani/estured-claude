@@ -3,6 +3,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { PROPERTY_TYPE_OPTIONS, BARRIO_OPTIONS } from "@/lib/residences/options";
 import { saveResidencePrivateDetails } from "@/lib/residences/privateDetails";
+import { geocodeAddress, type Geocoder } from "@/lib/geocoding/nominatim";
+import { geocodeResidenceByAdmin } from "@/lib/residences/geocodeResidence";
 
 /** Docs/06 §8.2 / docs/05: un owner gestiona hasta 10 residencias (también lo impone el trigger de la migración 0003). */
 export const MAX_RESIDENCES_PER_OWNER = 10;
@@ -53,6 +55,8 @@ export async function addResidenceForOwner(
     slugPrefix?: string;
     ipAddress?: string | null;
     userAgent?: string | null;
+    /** Inyectable para tests; por defecto Nominatim (en NODE_ENV=test no se llama a la red). */
+    geocoder?: Geocoder;
   },
 ): Promise<AddResidenceResult> {
   const residenceName = params.residenceName.trim();
@@ -210,6 +214,18 @@ export async function addResidenceForOwner(
     if (message.includes("más de 10 residencias"))
       return { ok: false, error: `Llegaste al máximo de ${MAX_RESIDENCES_PER_OWNER} residencias por cuenta.` };
     return { ok: false, error: "No pudimos crear la residencia. Intentá de nuevo en unos minutos." };
+  }
+
+  // DF6: identifica la coordenada desde la dirección. Mejor esfuerzo: si falla, la residencia queda sin pin
+  // (la ficha cae al centro del barrio) y el admin puede usar «Ubicar desde la dirección».
+  try {
+    await geocodeResidenceByAdmin(
+      admin,
+      { residenceId, actorUserId: params.ownerUserId, actorRole: "residence_owner" },
+      params.geocoder ?? (process.env.NODE_ENV === "test" ? async () => null : geocodeAddress),
+    );
+  } catch (error) {
+    console.error("[add-residence] geocodificación falló:", error);
   }
 
   return { ok: true, residenceId };

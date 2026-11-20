@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { AdminButton } from "@/components/admin/ui/AdminButton";
 import { cmd } from "@/components/admin/ui/tokens";
-import { updateResidenceLocationAction, type ResidenceLocationActionState } from "@/app/admin/residences/actions";
+import { geocodeResidenceAction, updateResidenceLocationAction, type ResidenceLocationActionState } from "@/app/admin/residences/actions";
 
 const initialState: ResidenceLocationActionState = { status: "idle" };
 
@@ -19,10 +19,22 @@ export function ResidenceLocationForm({
 }) {
   const action = updateResidenceLocationAction.bind(null, residenceId);
   const [state, formAction, isPending] = useActionState(action, initialState);
+  const [geoState, geoAction, geoPending] = useActionState(geocodeResidenceAction.bind(null, residenceId), initialState);
 
   const inputStyle = { border: `1.5px solid ${cmd.border}`, backgroundColor: cmd.surface, color: cmd.onSurface };
 
   return (
+    <>
+    <form action={geoAction} className="mt-3 space-y-1">
+      <AdminButton type="submit" variant="secondary" className="!px-4 !py-1.5 text-xs" disabled={geoPending}>
+        {geoPending ? "Buscando…" : "Ubicar desde la dirección"}
+      </AdminButton>
+      {geoState.status !== "idle" && (
+        <p role={geoState.status === "error" ? "alert" : "status"} className="text-xs font-medium" style={{ color: geoState.status === "error" ? cmd.rose : cmd.primary }}>
+          {geoState.message}
+        </p>
+      )}
+    </form>
     <form action={formAction} className="mt-3 space-y-3">
       <div className="grid grid-cols-2 gap-3">
         <label className="block text-xs font-semibold" style={{ color: cmd.onSurfaceVariant }}>
@@ -66,5 +78,6 @@ export function ResidenceLocationForm({
         {isPending ? "Guardando…" : "Guardar ubicación"}
       </AdminButton>
     </form>
+    </>
   );
 }

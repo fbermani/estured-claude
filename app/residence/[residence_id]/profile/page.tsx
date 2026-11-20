@@ -162,7 +162,7 @@ export default async function ResidenceProfilePage({
         stayDocuments: parseStayDocumentsContent(sectionMap.stay_documents),
         rulesSummary: (sectionMap.rules?.summary as string) ?? "",
         rulesItems: parseRuleItems(sectionMap.rules?.items),
-        rulesFileName: rulesFile?.filename ?? null,
+        rulesFileName: regulationRes.ok ? (regulationRes.view.pdf?.filename ?? null) : (rulesFile?.filename ?? null),
         customAmenities: (customAmenitiesRes.ok ? customAmenitiesRes.items : []).map((i) => ({
           id: i.id,
           kind: i.kind,

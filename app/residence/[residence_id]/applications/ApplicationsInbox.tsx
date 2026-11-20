@@ -14,6 +14,7 @@ import { getVisibleStatus, type ReservationStatusInput } from "@/lib/application
 import { describePaymentDeadline } from "@/lib/applications/paymentDeadline";
 import type { ApplicantProfileView } from "@/lib/applications/applicantProfile";
 import { ApplicantAvatar, ApplicantProfileBlock } from "@/app/residence/[residence_id]/applications/ApplicantProfileBlock";
+import { IdentityNumberReveal } from "@/components/residences/IdentityNumberReveal";
 import { StudentDocumentChecklist, type StudentDocumentItem } from "@/components/residences/StudentDocumentChecklist";
 
 export type FullApplication = {
@@ -45,6 +46,8 @@ export type FullApplication = {
   moving: { label: string; note: string | null; advanceNotice: string | null } | null;
   /** DR48: documentación del solicitante, solo con el pago a la residencia habilitado (si no, `null`). `fileId` solo con permiso. */
   documents: StudentDocumentItem[] | null;
+  /** DR58 fase 2: id del estudiante solo cuando hay reserva confirmada y quien mira puede pedir el número; si no, `null`. */
+  identityStudentProfileId: string | null;
 };
 
 function visibleOf(app: FullApplication) {
@@ -358,7 +361,14 @@ function ApplicationDetail({
 
       <ApplicantProfileBlock applicant={app.applicant} beforeContact={NEW_STATUSES.includes(app.status)} />
 
-      {app.documents && <ApplicantDocumentsBlock residenceId={residenceId} documents={app.documents} limited={documentsLimited} />}
+      {app.documents && (
+        <ApplicantDocumentsBlock
+          residenceId={residenceId}
+          documents={app.documents}
+          limited={documentsLimited}
+          identityStudentProfileId={app.identityStudentProfileId}
+        />
+      )}
 
       <dl className="mt-6 grid gap-3 text-sm sm:grid-cols-2">
         <div className="flex justify-between border-b border-sand-200 pb-2 sm:col-span-1">
@@ -451,10 +461,12 @@ function ApplicantDocumentsBlock({
   residenceId,
   documents,
   limited,
+  identityStudentProfileId,
 }: {
   residenceId: string;
   documents: StudentDocumentItem[];
   limited: boolean;
+  identityStudentProfileId: string | null;
 }) {
   const missing = documents.filter((d) => !d.delivered).length;
   return (
@@ -472,6 +484,7 @@ function ApplicantDocumentsBlock({
       ) : (
         <StudentDocumentChecklist residenceId={residenceId} items={documents} />
       )}
+      {identityStudentProfileId && <IdentityNumberReveal residenceId={residenceId} studentProfileId={identityStudentProfileId} />}
       {documents.length > 0 && (
         <p className="mt-2 text-xs leading-relaxed text-ink-faint">
           {documents.some((d) => d.fileId)

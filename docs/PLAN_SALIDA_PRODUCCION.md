@@ -142,6 +142,7 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 | `EMAIL_DOMAIN_VERIFIED` | `true` **solo** cuando Resend marque el dominio *Verified* (habilita los avisos de llegada y el mail del familiar) |
 | `PREAPERTURA` | `on` si se sale en preapertura (A1) |
 | `FOUNDERS_CLOSE_AT` | opcional (A5) |
+| `GEOCODER_USER_AGENT` | opcional (DF6, `docs/00` §31): identifica a la app ante Nominatim, p. ej. `EstuRed/1.0 (contacto@estured.com)`. Solo server; sin ella se usa un valor genérico |
 
 - [ ] **`DEMO_LOGIN_ENABLED`, `DEMO_USERS_PASSWORD` y `NEXT_PUBLIC_STAGING` NO existen en Production** (solo en Preview de la rama `staging`, ver A0.2). Verificar con el MCP/dashboard que ninguna tenga `production` entre sus entornos.
 - [ ] Cargadas todas **antes** del primer deploy a prod.
@@ -306,7 +307,7 @@ Informe: `docs/audits/AUDITORIA_PRE_PRODUCCION_2026-11-19.md`. No hay variables 
 Solo lo vigente y no cubierto arriba. Cada ítem se verificó contra el código o `docs/00`. Texto íntegro original en `docs/archive/15_ENVIRONMENT_AND_SETUP.md` y `docs/archive/18_RELEASE_AND_BETA_CHECKLIST.md`. Los ítems de abajo no cambian reglas de negocio.
 
 **K1. Variables y entorno**
-- [ ] `.env.example` coincide con la tabla de E (hoy lo hace). No existen variables de MercadoPago, PayU, TusFacturas ni `QR_SECRET`: el fee se cobra por transferencia manual.
+- [ ] `.env.example` coincide con la tabla de E (hoy lo hace). Incluye `GEOCODER_USER_AGENT` (geocodificación de direcciones con Nominatim, DF6; sin clave, máx. 1 req/s). No existen variables de MercadoPago, PayU, TusFacturas ni `QR_SECRET`: el fee se cobra por transferencia manual.
 - [ ] Un proyecto Supabase por ambiente (dev, prod). Los datos demo y seeds jamás entran a producción.
 - [ ] Sin integración de la API de WhatsApp Business: solo el botón `wa.me` pre-formateado.
 

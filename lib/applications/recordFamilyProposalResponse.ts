@@ -8,6 +8,7 @@ import { createApplicationFromRoomType } from "@/lib/applications/createRequestF
 import { requestBlockedMessage, typeAvailabilityState } from "@/lib/availability/typeAvailability";
 import { checkReservationWindowOverlap } from "@/lib/students/reservationWindow";
 import { MAX_APPLICATION_TEXT, MAX_REJECTION_REASON } from "@/lib/applications/inputLimits";
+import { notifyGuardianRegulationPending } from "@/lib/regulations/notifyGuardian";
 
 export type RecordFamilyProposalResponseResult =
   | { ok: true; applicationId: string | null }
@@ -190,6 +191,9 @@ export async function recordFamilyProposalResponse(
       .eq("status", "approved_by_student");
     return { ok: false, error: result.error };
   }
+
+  // DR62 c: si el estudiante es menor, su familiar vinculado es quien acepta el reglamento: se le avisa.
+  await notifyGuardianRegulationPending(admin, { applicationId: result.id, studentProfileId: studentProfile.id });
 
   await admin
     .from("family_application_proposals")

@@ -1031,6 +1031,7 @@ El FAQ/bot no puede: inventar disponibilidad, confirmar precios fuera de datos o
 - **Aceptarlo:** solo el estudiante al enviar la solicitud (o el familiar vinculado si es menor, §7.2). La aceptación guardada es de solo lectura: nadie la edita ni la borra; la ven el estudiante, la residencia destinataria (staff con acceso a la solicitud) y admin/superadmin.
 - **Cargar o editar el reglamento propio, o adaptar el modelo:** dueño y staff con `profile.edit`. **Sin aprobación del admin:** la residencia decide sola (decisión del dueño, 2026-10-25); la versión nueva rige apenas se publica. Cada versión queda auditada.
 - **Efecto:** una versión nueva rige para solicitudes nuevas; las ya aceptadas conservan la versión que aceptaron.
+- **Formato (DR62):** la versión puede ser texto (editor o asistente con campos de opción múltiple) o un **PDF de hasta 5 MB**; mismo permiso `profile.edit`. El familiar vinculado de un menor acepta desde su cuenta tras leer el reglamento completo y ve la aceptación guardada en solo lectura.
 
 **FAQ (catálogo único).**
 - **Administrar el catálogo** (alta, baja, orden, respuesta sugerida): admin/superadmin.

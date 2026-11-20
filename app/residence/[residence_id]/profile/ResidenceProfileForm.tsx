@@ -922,7 +922,7 @@ export function ResidenceProfileForm({
             )}
             <div className="mt-4">
               <label htmlFor="rules_file" className="text-sm font-medium text-ink">
-                Reglamento completo (PDF, opcional)
+                Reglamento completo (PDF, hasta 5 MB, opcional)
               </label>
               <input
                 id="rules_file"
@@ -935,6 +935,10 @@ export function ResidenceProfileForm({
               {initial.rulesFileName && (
                 <p className="mt-1 text-xs text-ink-faint">Actual: {initial.rulesFileName}</p>
               )}
+              <p className="mt-1 text-xs text-ink-faint">
+                Este PDF es el reglamento de tu residencia: es el que se descarga desde la ficha y el que aceptan quienes envían una solicitud. Al subirlo
+                reemplaza al reglamento vigente, sin revisión de EstuRed.
+              </p>
             </div>
           </Card>
 
