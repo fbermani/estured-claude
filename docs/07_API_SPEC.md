@@ -2131,6 +2131,19 @@ El sistema debe notificar:
 - caso de soporte abierto / actualizado;
 - cambios críticos de estado.
 
+### 29.1. Push web (DR61)
+
+Todas son server actions con `getSafeUser`, validación de entrada y rate limit; ninguna confía en el `user_id` del cliente.
+
+| Acción | Efecto |
+|---|---|
+| `subscribePush(subscription)` | Valida `endpoint` (https, proveedor conocido, longitud) y claves; inserta o reactiva la suscripción del usuario; rechaza si ya tiene 10 activas. Responde sin eco de claves. |
+| `unsubscribePush(endpoint)` | Revoca solo una suscripción del usuario autenticado (`revoked_at`). |
+| `setPushPreference(category, enabled)` | Upsert de la fila del usuario; rechaza categorías `admin_*` si no es admin. |
+| `getPushState()` | Devuelve dispositivo suscripto sí/no, preferencias y si el push está disponible (claves VAPID presentes). |
+
+**Envío.** `createNotification` recibe `category` (opcional, por defecto `none`). Si la categoría es elegible, el usuario tiene una suscripción activa y la preferencia está activa: entre las 9:00 y las 23:59 (Argentina) envía con `web-push`; entre las 0:00 y las 8:59 deja `push_status = 'queued'`. El payload es genérico (DR61 punto 4). 404/410 revocan la suscripción. El job horario `/api/cron/expire-stale-records` envía lo `queued` desde las 9:00. `notifyAdmins` pasa la categoría `admin_requests` o `admin_signups`.
+
 ---
 
 ## 30. Auditoría

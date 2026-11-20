@@ -20,7 +20,7 @@ Debe usarse como referencia para:
 - backend (validaciones server-side de transiciones);
 - frontend (estados visibles, labels, colores);
 - dashboards;
-- notificaciones;
+- notificaciones (el push web de DR61 no agrega ni cambia ningún estado de las máquinas de este documento);
 - permisos;
 - auditoría;
 - QA y casos borde;

@@ -132,7 +132,7 @@ Motivo:
 - facilita SEO y adquisición;
 - mantiene una sola base de código.
 
-La arquitectura debe ser PWA-ready, pero no es obligatorio lanzar como PWA en el MVP.
+**Actualizado por DR61 (2026-11-20):** la PWA con service worker es parte del producto. Hay `app/manifest.ts` (con `id`, `scope` e íconos `maskable`), un service worker en `public/sw.js` (eventos `push` y `notificationclick`, sin caché offline), avisos push web con `web-push` y VAPID, y contador en el ícono con la Badging API. En iPhone el push solo funciona con la app instalada en la pantalla de inicio (iOS 16.4+): la página `/instalar` y la tarjeta de permiso lo explican. Diseño completo en `docs/00` DR61, `docs/06` §21 y `docs/07` §29.1.
 
 ---
 
@@ -1060,6 +1060,9 @@ RECEIPT_PUBLIC_BASE_URL=
 APP_BASE_URL=
 ADMIN_BASE_URL=
 CRON_SECRET=
+NEXT_PUBLIC_VAPID_PUBLIC_KEY=
+VAPID_PRIVATE_KEY=
+VAPID_SUBJECT=
 SENTRY_DSN=
 ```
 

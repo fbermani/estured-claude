@@ -1765,6 +1765,35 @@ Reglas:
 | `provider_response` | jsonb null | Respuesta canal |
 | `created_at` | timestamptz | Alta |
 
+**Campos de push (DR61, migración 0101).** `notifications.category` (`text`, no nulo, por defecto `none`; CHECK: `none`, `requests_reservations`, `payments_fee`, `deadlines`, `admin_requests`, `admin_signups`) y `notifications.push_status` (`text`, no nulo, por defecto `none`; CHECK: `none`, `queued`, `sent`, `skipped`, `failed`). `queued` marca lo que espera las 9:00 (Argentina); índice parcial sobre `queued`. No lleva grants por columna: `notifications` solo tiene lectura propia y la policy restrictiva `notifications_only_active_users` (0081).
+
+### 21.2. `push_subscriptions` *(DR61)*
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `id` | uuid | ID |
+| `user_id` | uuid | Dueño (`users.id`, `on delete cascade`) |
+| `endpoint` | text | URL del proveedor push; única; solo `https` de proveedores conocidos |
+| `p256dh` | text | Clave pública del navegador (secreta de hecho: sin lectura por cliente) |
+| `auth` | text | Secreto de la suscripción (sin lectura por cliente) |
+| `user_agent` | text null | Para mostrar «Este dispositivo» |
+| `created_at` | timestamptz | Alta |
+| `last_seen_at` | timestamptz | Última vez que la app confirmó la suscripción |
+| `revoked_at` | timestamptz null | Baja del usuario o 404/410 del proveedor |
+
+RLS: el usuario lee las suyas (grant por columnas, sin `p256dh` ni `auth`) con la policy restrictiva `push_subscriptions_only_active_users`. Toda escritura va por server action con service role. Máximo 10 activas por usuario.
+
+### 21.3. `push_preferences` *(DR61)*
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `user_id` | uuid | Usuario |
+| `category` | text | Una de las cinco categorías de push |
+| `enabled` | boolean | Sin fila = activado |
+| `updated_at` | timestamptz | Última edición |
+
+Clave primaria (`user_id`, `category`). Lectura propia con policy restrictiva `push_preferences_only_active_users`; escritura solo por server action.
+
 Eventos mínimos:
 - propuesta del familiar recibida (al estudiante);
 - propuesta del familiar aprobada/rechazada/expirada (al familiar);
