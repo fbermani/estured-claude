@@ -4,11 +4,11 @@ import { Children, cloneElement, isValidElement, useEffect, useRef, useState } f
 import type { ComponentProps, CSSProperties, ReactElement } from "react";
 
 /**
- * Entrada escalonada de una sola vez (animate.css `fadeInLeft`): cada hijo entra con un
+ * Entrada escalonada de una sola vez (`.stagger-in`, `fade-in-left` en `app/globals.css`): cada hijo entra con un
  * pequeño retraso la primera vez que el bloque aparece en pantalla. Clona el hijo y le suma
  * las clases, así no agrega wrappers (importa en carruseles con `flex` y `snap`).
  * Si el bloque ya está a la vista al cargar, no se oculta nada. `prefers-reduced-motion`
- * lo resuelve animate.css (duración de 1ms).
+ * lo resuelve la regla global de `globals.css` (duración de 0,01 ms).
  */
 export function StaggerIn({
   children,
@@ -56,7 +56,7 @@ export function StaggerIn({
           });
         }
         return cloneElement(el, {
-          className: `${el.props.className ?? ""} animate__animated animate__fadeInLeft`.trim(),
+          className: `${el.props.className ?? ""} stagger-in`.trim(),
           style: {
             ...el.props.style,
             animationDelay: `${i * step}s`,

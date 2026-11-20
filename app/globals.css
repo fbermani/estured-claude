@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/* Tailwind v4 escanea todo el repo salvo lo ignorado por git: se excluyen carpetas sin clases de la app (auditoría 2026-11-19, R19-07). */
+@source not "../scratchpad";
+@source not "../design-references";
+@source not "../design-proposals";
+@source not "../docs";
+@source not "../marketing";
+
 /* EstuRed - Design tokens. Sistema visual FRESH, ver design-references/fresh-style.md */
 
 @theme {
@@ -422,6 +429,16 @@ p {
 }
 .animate-select-pop {
   animation: select-pop 320ms var(--ease-out-fresh);
+}
+
+/* Entrada escalonada de StaggerIn (reemplaza animate.css fadeInLeft, auditoría 2026-11-19 R19-05). Duración y retraso van inline. */
+@keyframes fade-in-left {
+  from { opacity: 0; transform: translate3d(-100%, 0, 0); }
+  to { opacity: 1; transform: none; }
+}
+.stagger-in {
+  animation-name: fade-in-left;
+  animation-fill-mode: both;
 }
 
 /* ---- Motion: prefers-reduced-motion "gentil": se quita el MOVIMIENTO (translate/scale/rotate,

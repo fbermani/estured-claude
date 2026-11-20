@@ -111,13 +111,13 @@ export function SearchResultCard({
     <article
       aria-label={residence.name}
       className={`group group/card relative grid rounded-card border-[1.5px] border-line-2 bg-paper shadow-anchor motion-safe:transition-[transform,box-shadow] motion-safe:duration-300 motion-safe:ease-out-fresh [@media(hover:hover)]:motion-safe:hover:-translate-y-1 motion-safe:focus-within:-translate-y-1 hover:shadow-card-hover focus-within:shadow-card-hover ${
-        list ? "grid-cols-[7.5rem_minmax(0,1fr)] gap-x-3 @max-[480px]/card:gap-y-1 @min-[480px]/card:gap-x-0 @min-[480px]/card:grid-cols-[11.5rem_minmax(0,1fr)] @min-[640px]/card:grid-cols-[15.5rem_minmax(0,1fr)] @min-[480px]/card:grid-rows-[1fr_auto]" : "grid-cols-[minmax(0,1fr)] grid-rows-[auto_1fr_auto]"
+        list ? "grid-cols-[7.5rem_minmax(0,1fr)] @max-[480px]/card:gap-y-1 @min-[480px]/card:gap-x-0 @min-[480px]/card:grid-cols-[11.5rem_minmax(0,1fr)] @min-[640px]/card:grid-cols-[15.5rem_minmax(0,1fr)] @min-[480px]/card:grid-rows-[1fr_auto]" : "grid-cols-[minmax(0,1fr)] grid-rows-[auto_1fr_auto]"
       }`}
     >
       {list && (
         <div
           data-card-thumb
-          className="relative col-start-1 row-span-2 row-start-1 mb-2 ml-2 mt-2 min-h-24 self-stretch overflow-hidden rounded-[calc(var(--radius-card)-8px)] bg-sand-200 @min-[480px]/card:hidden"
+          className="relative col-start-1 row-span-5 row-start-1 min-h-24 self-stretch overflow-hidden rounded-l-[calc(var(--radius-card)-2px)] bg-sand-200 @min-[480px]/card:hidden"
         >
           {residence.photos[0] ? (
             <Image
@@ -161,7 +161,7 @@ export function SearchResultCard({
       </CardPhotoCarousel>
 
       <div className={`${list ? "contents @min-[480px]/card:grid" : "grid"} min-w-0 content-start gap-x-4 gap-y-2 px-3.5 pb-2.5 pt-3 ${list ? "@min-[560px]/card:grid-cols-[minmax(0,1fr)_auto]" : ""}`}>
-        <div className={list ? "@max-[480px]/card:col-start-2 @max-[480px]/card:pr-3.5 @max-[480px]/card:pt-3" : ""}>
+        <div className={list ? "@max-[480px]/card:col-start-2 @max-[480px]/card:px-3 @max-[480px]/card:pt-3" : ""}>
           <h3 className="text-[17px] leading-tight">
             <Link href={href} className="after:absolute after:inset-0 after:z-[1] after:rounded-card hover:underline focus-visible:outline-2 focus-visible:outline-forest">
               {residence.name}
@@ -178,7 +178,7 @@ export function SearchResultCard({
           </p>
         </div>
 
-        <div className={list ? "@max-[480px]/card:col-start-2 @max-[480px]/card:pr-3.5 @min-[560px]/card:col-start-2 @min-[560px]/card:row-start-1 @min-[560px]/card:row-span-3 @min-[560px]/card:text-right" : ""}>
+        <div className={list ? "@max-[480px]/card:col-start-2 @max-[480px]/card:px-3 @min-[560px]/card:col-start-2 @min-[560px]/card:row-start-1 @min-[560px]/card:row-span-3 @min-[560px]/card:text-right" : ""}>
           <p className={`flex flex-wrap items-baseline gap-x-1 ${list ? "@min-[560px]/card:justify-end" : ""}`}>
             <span className="text-[13px] text-ink-faint">desde</span>
             {residence.priceFromListUsd != null && (
@@ -208,7 +208,7 @@ export function SearchResultCard({
           )}
         </div>
 
-        <ul className={`grid gap-1 text-[13px] leading-snug text-ink-soft ${list ? "@max-[480px]/card:col-span-2 @max-[480px]/card:px-3.5 @min-[560px]/card:col-start-1" : ""}`}>
+        <ul className={`grid gap-1 text-[13px] leading-snug text-ink-soft ${list ? "@max-[480px]/card:col-start-2 @max-[480px]/card:px-3 @min-[560px]/card:col-start-1" : ""}`}>
           {universities.length > 0 && (
             <li className="flex items-start gap-2">
               <Icon name="school" className="mt-px text-[18px] text-forest-700" />
@@ -244,14 +244,14 @@ export function SearchResultCard({
         </ul>
 
         {(serviceItems.length > 0 || areaItems.length > 0) && (
-          <div className={`grid gap-0 ${list ? "@max-[480px]/card:col-span-2 @max-[480px]/card:px-3.5 @max-[480px]/card:pb-1 @min-[560px]/card:col-start-1" : ""}`}>
+          <div className={`grid gap-0 ${list ? "@max-[480px]/card:col-start-2 @max-[480px]/card:px-3 @max-[480px]/card:pb-1 @min-[560px]/card:col-start-1" : ""}`}>
             <CardAmenityLine label="Servicios" residenceName={residence.name} items={serviceItems} />
             <CardAmenityLine label="Áreas comunes" residenceName={residence.name} items={areaItems} />
           </div>
         )}
       </div>
 
-      <div className={`relative z-[2] flex flex-wrap items-center gap-x-2 gap-y-2 rounded-b-[calc(var(--radius-card)-2px)] border-t border-line bg-cream px-3.5 py-2.5 ${list ? "col-span-2 @min-[480px]/card:col-span-1" : ""}`}>
+      <div className={`relative z-[2] flex flex-wrap items-center gap-x-2 gap-y-2 rounded-b-[calc(var(--radius-card)-2px)] border-t border-line bg-cream px-3.5 py-2.5 ${list ? "col-start-2 @max-[480px]/card:rounded-bl-none @max-[480px]/card:px-3" : ""}`}>
         <div className={`flex basis-full flex-wrap items-center gap-1.5 ${list ? "@min-[560px]/card:basis-auto @min-[560px]/card:mr-auto" : ""}`}>
           <StatusTag mode={residence.availabilityMode} />
           {!hasAvailable && residence.availabilityHint === "waitlist" && <Badge tone="neutral">Lista de espera abierta</Badge>}

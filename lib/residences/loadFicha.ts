@@ -59,11 +59,6 @@ async function buildFichaData(admin: SupabaseClient, residence: ResidenceRow) {
     loadResidencePromotions(admin, residence.id),
   ]);
   if (roomTypesRes.error) console.error("[ficha] no se pudieron leer los tipos de habitación:", roomTypesRes.error);
-  // Mes vacío confirmado: la ocupación futura por tipo solo se lee si la residencia configuró un % de mes vacío.
-  const vacancyByType =
-    Number(residence.empty_month_charge_percent) > 0
-      ? await loadVacancyOutlooks(admin, residence.id, (roomTypesRes.data ?? []).map((rt) => rt.id as string), todayIso())
-      : {};
   if (sectionsRes.error) console.error("[ficha] no se pudieron leer las secciones del perfil:", sectionsRes.error);
   if (photosRes.error) console.error("[ficha] no se pudieron leer las fotos:", photosRes.error);
   if (rulesFileRes.error) console.error("[ficha] no se pudo leer el reglamento:", rulesFileRes.error);
@@ -82,23 +77,27 @@ async function buildFichaData(admin: SupabaseClient, residence: ResidenceRow) {
     ((roomsRes.data ?? []) as { room_type_id: string }[]).map((r) => ({ room_type_id: r.room_type_id })),
   );
 
-  let rulesPdfUrl: string | null = null;
-  if (rulesFileRes.data?.storage_path) {
-    const { data: signed, error: signedError } = await admin.storage
-      .from("private-residence-documents")
-      .createSignedUrl(rulesFileRes.data.storage_path, 600);
-    if (signedError) console.error("[ficha] no se pudo firmar el reglamento:", signedError);
-    rulesPdfUrl = signed?.signedUrl ?? null;
-  }
-
-  // profile_availability tiene unique(room_type_id) — PostgREST devuelve
-  // un objeto singular en el embed, no un array (a diferencia de lo que
-  // el tipo inferido por supabase-js sugiere sin un schema generado).
-  // Disponibilidad por género (migración 0075): sin ella no hay detalle por género (queda por tipo).
-  const genderAvailability = await loadGenderAvailability(
-    admin,
-    (roomTypesRes.data ?? []).map((rt) => rt.id as string),
-  );
+  // Lecturas que dependen del resultado anterior (ids de tipos, archivo del reglamento) pero no entre sí: en paralelo (auditoría 2026-11-19, R19-09).
+  const roomTypeIds = (roomTypesRes.data ?? []).map((rt) => rt.id as string);
+  const rulesPath = rulesFileRes.data?.storage_path as string | undefined;
+  const [vacancyByType, rulesPdfUrl, genderAvailability] = await Promise.all([
+    // Mes vacío confirmado: la ocupación futura por tipo solo se lee si la residencia configuró un % de mes vacío.
+    Number(residence.empty_month_charge_percent) > 0
+      ? loadVacancyOutlooks(admin, residence.id, roomTypeIds, todayIso())
+      : Promise.resolve({} as Awaited<ReturnType<typeof loadVacancyOutlooks>>),
+    rulesPath
+      ? admin.storage
+          .from("private-residence-documents")
+          .createSignedUrl(rulesPath, 600)
+          .then(({ data: signed, error: signedError }) => {
+            if (signedError) console.error("[ficha] no se pudo firmar el reglamento:", signedError);
+            return signed?.signedUrl ?? null;
+          })
+      : Promise.resolve(null),
+    // profile_availability tiene unique(room_type_id) — PostgREST devuelve un objeto singular en el embed, no un array.
+    // Disponibilidad por género (migración 0075): sin ella no hay detalle por género (queda por tipo).
+    loadGenderAvailability(admin, roomTypeIds),
+  ]);
   const normalizedRoomTypes = (roomTypesRes.data ?? []).map((rt) => {
     // Género por habitación (0057). Sin la columna o sin habitaciones: queda el género del tipo.
     const genders = ((roomsRes.data ?? []) as { room_type_id: string; gender?: string | null }[])
