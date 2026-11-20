@@ -132,6 +132,9 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 | `NEXT_PUBLIC_APP_URL` | `https://estured.com` (obligatoria: `getAppUrl` lanza en prod si falta) |
 | `NEXT_PUBLIC_SITE_URL` | `https://estured.com` (sitemap, canonical, links de mails de avisos) |
 | `CRON_SECRET` | el mismo valor guardado en D1 (*Sensitive*) |
+| `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | clave pública VAPID de ESE entorno (DR61; generala con `npx web-push generate-vapid-keys`) |
+| `VAPID_PRIVATE_KEY` | clave privada VAPID del mismo par (*Sensitive*; nunca en el chat ni en el repo) |
+| `VAPID_SUBJECT` | la URL del sitio, p. ej. `https://estured.com` (no un email personal) |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | site key real (C1) |
 | `TURNSTILE_SECRET_KEY` | secret real (C1, *Sensitive*). Sin ella, prod rechaza todos los envíos con CAPTCHA |
 | `RESEND_API_KEY` | API key de C3 (*Sensitive*) |
@@ -227,6 +230,15 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 - Sin variables nuevas. El link que se comparte usa `NEXT_PUBLIC_APP_URL` (o `NEXT_PUBLIC_SITE_URL`); en prod tiene que apuntar al dominio real, si no, cae a `https://estured.vercel.app` (`lib/share/shareLink.ts`).
 
 ---
+
+## Push web (DR61, 2026-11-20): migración 0101, claves VAPID y pruebas
+
+- [ ] **Migración 0101** (`db/migrations/0101_push_notifications.sql`): entra sola con el bootstrap de prod (`node scripts/build-bootstrap.mjs prod --host=estured.com`). En dev se pega a mano: https://supabase.com/dashboard/project/gyfbtsuibmecefwovdgh/sql/new. Sin ella el aviso in-app sale igual y el push no envía nada (degrada sin error). La 0100 (documento de identidad) es de otra rama y es independiente.
+- [ ] **Claves VAPID por entorno** (Vercel, sección E): un par para Preview/staging y otro distinto para Production. Una suscripción creada con un par no sirve con otro: si se cambian las claves, hay que volver a activar los avisos en cada dispositivo. `.env.local` ya tiene un par de desarrollo.
+- [ ] **Cron de las 9:00:** los push generados entre las 0:00 y las 8:59 (Argentina) quedan en cola y los envía el cron horario existente (`/api/cron/expire-stale-records`, `pg_cron` de la migración 0013). **En staging no hay cron ni `CRON_SECRET`**: allí lo encolado no sale. Para probarlo, llamá al endpoint a mano con el secreto desde un entorno que lo tenga, o probá de día.
+- [ ] **Probar en celular real** (HTTPS; en el Preview de `staging`): Android Chrome (instalar, activar avisos, recibir y tocar el aviso, contador del ícono) e iPhone con la app en la pantalla de inicio (iOS 16.4+). Chequear: sin datos personales en la pantalla bloqueada, que el aviso lleve al inicio del área y que el contador baje al leer en la campana.
+- [ ] **Publicar `/instalar`:** el DR de esa página dice que no se publica hasta que el push esté activo. Cuando la prueba en celular salga bien, se puede publicar.
+- [ ] **Límites conocidos:** «pago rechazado», «comprobante subido a la residencia» y la baja de cuenta no tienen flujo (no avisan). `notifyWaitlistAvailability` inserta directo y no dispara push. El cierre de sesión revoca las suscripciones del mismo navegador (mismo `user_agent`).
 
 ## J. SEO (auditoría 2026-11-18, informe en `docs/audits/SEO_2026-11-18.md`)
 

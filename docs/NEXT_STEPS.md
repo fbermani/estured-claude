@@ -376,3 +376,9 @@ Ver `MEMORY.md` Ciclo 42. **Acción manual pendiente del dueño**: pegar `db/mig
 ## CICLO 2 (2026-07-06)
 
 Archivado el 2026-11-19 (obsoleto): ver `docs/archive/NEXT_STEPS_CICLO2_2026-07-06.md`.
+
+---
+
+## DR61 — push web (2026-11-20)
+
+Hecho: docs (DR61, `docs/06` §21, `docs/07` §29.1, `docs/11`), migración 0101, service worker, envío con cola de las 9:00, UI de permiso y ajustes, emisores nuevos. Queda: aplicar 0101 en dev, claves VAPID en Vercel, probar en celular real, publicar `/instalar`, y decidir aparte la baja de cuenta, «pago rechazado» y «comprobante subido» (sin flujo). Detalle de pasos: `docs/PLAN_SALIDA_PRODUCCION.md`, sección «Push web».
