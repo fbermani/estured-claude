@@ -5,6 +5,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { setResidencePausedByAdmin } from "@/lib/residences/setResidencePausedByAdmin";
 import { setOperationalAccessByAdmin } from "@/lib/residences/setOperationalAccessByAdmin";
 import { setResidenceLocationByAdmin } from "@/lib/residences/setResidenceLocationByAdmin";
+import { geocodeResidenceByAdmin } from "@/lib/residences/geocodeResidence";
 import { getAdminSession } from "@/lib/auth/requireAdmin";
 
 export type PauseResidenceActionState = { status: "idle" | "error" | "saved"; message?: string };
@@ -119,4 +120,30 @@ export async function updateResidenceLocationAction(
         ? "Quitamos la coordenada: el mapa muestra la ubicación aproximada del barrio."
         : `Ubicación guardada: ${result.lat}, ${result.lng}.`,
   };
+}
+
+/** DF6: identifica la coordenada desde la dirección de la residencia (Nominatim). Solo admin. */
+export async function geocodeResidenceAction(
+  residenceId: string,
+): Promise<ResidenceLocationActionState> {
+  const sessionUser = await getAdminSession();
+  if (!sessionUser) return { status: "error", message: "Tu sesión expiró." };
+  const admin = getSupabaseAdmin();
+  if (!admin) return { status: "error", message: "No disponible en este momento." };
+
+  const result = await geocodeResidenceByAdmin(admin, {
+    residenceId,
+    actorUserId: sessionUser.id,
+    actorRole: sessionUser.primaryRole,
+  });
+  if (result.status === "error") return { status: "error", message: result.message };
+  if (result.status === "not_found")
+    return {
+      status: "error",
+      message: "No pudimos ubicar esa dirección. Revisá que esté completa o cargá la coordenada a mano.",
+    };
+
+  revalidatePath(`/admin/residences/${residenceId}`);
+  revalidatePath("/residencias", "layout");
+  return { status: "saved", message: `Ubicación identificada: ${result.lat}, ${result.lng}. Revisá el pin y corregilo a mano si hace falta.` };
 }
