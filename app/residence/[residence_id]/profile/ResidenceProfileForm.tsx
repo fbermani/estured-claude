@@ -1,9 +1,8 @@
 "use client";
 
-import { CLEANING_PER_WEEK_MAX, CLEANING_SERVICE, KITCHENS_MAX, KITCHEN_AREA, amenityDisplayName, type AmenityDetails } from "@/lib/residences/amenityDetails";
+import { CLEANING_PER_WEEK_MAX, CLEANING_SERVICE, KITCHENS_MAX, KITCHEN_AREA, type AmenityDetails } from "@/lib/residences/amenityDetails";
 import { ResidenceHero } from "@/components/residences/ResidenceHero";
 import { formatDate } from "@/lib/dates/format";
-import Image from "next/image";
 import { useActionState, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { Card } from "@/components/ui/Card";
@@ -17,9 +16,8 @@ import { DraftNotice } from "@/components/forms/DraftNotice";
 import { UnsavedChangesGuard } from "@/components/forms/UnsavedChangesGuard";
 import { useProfileDraft } from "@/app/residence/[residence_id]/profile/useProfileDraft";
 import { profileStamp, saveImpactNote } from "@/lib/residences/profileDraft";
-import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
+import { formatArs, usdToArsRounded } from "@/lib/mock/exchange";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
-import { ResidencePhotoPlaceholder } from "@/components/residences/ResidencePhoto";
 import { computeProfileStrength, profileStrengthSuggestion } from "@/lib/residences/profileStrength";
 import { MIN_PUBLISH_PHOTOS, hasEnoughPhotosToPublish } from "@/lib/residences/photos";
 import { changesRequestedMessageOrFallback } from "@/lib/residences/changesRequest";
@@ -50,6 +48,10 @@ import {
   normalizeRequirementLabel,
   type StayDocumentKey,
 } from "@/lib/residences/stayDocuments";
+import { CompleteFichaDialog } from "@/app/residence/[residence_id]/profile/CompleteFichaDialog";
+import { ProfilePreviewCard } from "@/app/residence/[residence_id]/profile/ProfilePreviewCard";
+import { buildCompletionPanel } from "@/lib/residences/completionPanel";
+import type { AvailabilityMode } from "@/types/domain";
 import { RoomFeaturesField } from "@/app/residence/[residence_id]/profile/RoomFeaturesField";
 import { UniversityPicker } from "@/app/residence/[residence_id]/profile/UniversityPicker";
 import { ProfileFaqCard } from "@/app/residence/[residence_id]/profile/ProfileFaqCard";
@@ -136,6 +138,10 @@ interface ProfileInitial {
   customAmenitiesReady: boolean;
   /** DR18: la residencia ya publicó un reglamento propio (si no, se la invita a armarlo con el modelo). */
   hasOwnRegulation: boolean;
+  /** Miniatura: slug público, disponibilidad ya guardada (misma regla del catálogo) y coordenada de la residencia (para ordenar las universidades por cercanía). */
+  slug: string;
+  availabilityMode: AvailabilityMode;
+  location: { lat: number; lng: number } | null;
   /** Preguntas propias guardadas (texto libre, sistema anterior al catálogo). */
   faqItems: OwnFaqItem[];
   /** Estado del catálogo de preguntas (elegidas, esenciales, destacadas); `null` si no se pudo cargar. */
@@ -312,10 +318,6 @@ export function ResidenceProfileForm({
     initial.customAmenities,
   );
   const [customDraft, setCustomDraft] = useState<Record<CustomAmenityKind, string>>({ service: "", area: "" });
-  const previewDetails: AmenityDetails = {
-    kitchens,
-    cleaningGeneral: cleaningMode === "daily" ? { mode: "daily" } : { mode: "weekly", perWeek: cleaningPerWeek },
-  };
   const pendingCustomCount = customItems.filter((i) => i.status === "pending").length;
 
   function addCustomItem(kind: CustomAmenityKind) {
@@ -407,12 +409,30 @@ export function ResidenceProfileForm({
   const saveWaiter = useRef<((r: { ok: boolean; message?: string }) => void) | null>(null);
   const [accountSavedAt, setAccountSavedAt] = useState<number | null>(null);
   const { completeSave } = draft;
+  // «Completá tu ficha» (reglamento, preguntas, compartir): se ofrece tras guardar o enviar, solo si falta algo y no cuando el guardado
+  // vino del aviso de salida (esa persona ya se va a otra pantalla).
+  const completion = useMemo(
+    () =>
+      buildCompletionPanel({
+        hasOwnRegulation: initial.hasOwnRegulation,
+        faq: initial.faqSummary ? { essentialReady: initial.faqSummary.essentialReady, essentialTotal: initial.faqSummary.essentialTotal } : null,
+        published: initial.status === "verified_active",
+      }),
+    [initial.hasOwnRegulation, initial.faqSummary, initial.status],
+  );
+  const showCompletionRef = useRef(completion.show);
+  useEffect(() => {
+    showCompletionRef.current = completion.show;
+  }, [completion.show]);
+  const [completionDialog, setCompletionDialog] = useState<"saved" | "submitted" | null>(null);
   useEffect(() => {
     if (state.status === "idle") return;
     const ok = state.status === "saved" || state.status === "saved_pending_review" || state.status === "submitted";
+    const fromLeaveGuard = saveWaiter.current !== null;
     if (ok) {
       completeSave();
       setAccountSavedAt(Date.now());
+      if (!fromLeaveGuard && showCompletionRef.current) setCompletionDialog(state.status === "submitted" ? "submitted" : "saved");
     }
     saveWaiter.current?.({ ok, message: state.message });
     saveWaiter.current = null;
@@ -462,7 +482,6 @@ export function ResidenceProfileForm({
   );
   const strengthSuggestion = profileStrengthSuggestion(strength);
 
-  const previewPrice = roomTypes.length > 0 ? Math.min(...roomTypes.map((r) => r.monthlyPriceUsd)) : null;
   const badge = statusCopy[initial.status] ?? statusCopy.draft;
 
   return (
@@ -597,6 +616,13 @@ export function ResidenceProfileForm({
         impactNote={saveImpactNote(initial.status)}
         onSave={saveAndWait}
         onLeave={draft.saveNow}
+      />
+      <CompleteFichaDialog
+        open={completionDialog !== null}
+        onClose={() => setCompletionDialog(null)}
+        residenceId={residenceId}
+        variant={completionDialog ?? "saved"}
+        rows={completion.rows}
       />
 
       <form
@@ -1628,47 +1654,25 @@ export function ResidenceProfileForm({
             )}
           </Card>
 
-          <Card className="overflow-hidden p-0">
-            <p className="border-b border-sand-200 px-5 py-3 text-sm font-bold text-ink">
-              Vista previa
-            </p>
-            <div className="relative h-32 bg-sand-200">
-              {initial.photos.find((p) => !p.pending) ? (
-                <Image
-                  src={initial.photos.find((p) => !p.pending)!.url}
-                  alt=""
-                  fill
-                  sizes="320px"
-                  className="object-cover"
-                />
-              ) : (
-                <ResidencePhotoPlaceholder name={initial.name} zone={initial.zone} variant="card" label="Foto próximamente" />
-              )}
-            </div>
-            <div className="p-4">
-              <p className="font-bold text-ink">{initial.name}</p>
-              <p className="text-xs text-ink-soft">{initial.zone || "Barrio sin definir"}, CABA</p>
-              <div className="mt-2 flex flex-wrap gap-1">
-                {[...services].slice(0, 2).map((s) => (
-                  <Badge key={s} tone="petrol">
-                    {amenityDisplayName(s, previewDetails)}
-                  </Badge>
-                ))}
-                {services.size > 2 && <Badge tone="neutral">+{services.size - 2}</Badge>}
-              </div>
-              <div className="mt-3 flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-ink-faint">Desde</p>
-                  <p className="font-bold text-forest-700">
-                    {previewPrice !== null ? formatUsd(previewPrice) : "—"}
-                  </p>
-                </div>
-                <Button size="sm" variant="outline" disabled>
-                  Ver
-                </Button>
-              </div>
-            </div>
-          </Card>
+          <ProfilePreviewCard
+            residenceId={residenceId}
+            slug={initial.slug}
+            name={initial.name}
+            zone={initial.zone}
+            status={initial.status}
+            availabilityMode={initial.availabilityMode}
+            description={description}
+            services={services}
+            commonAreas={commonAreas}
+            approvedExtraServices={customItems.filter((i) => i.kind === "service" && i.status === "approved").map((i) => i.label)}
+            approvedExtraAreas={customItems.filter((i) => i.kind === "area" && i.status === "approved").map((i) => i.label)}
+            nearUniversities={nearUniversities}
+            roomTypes={roomTypes}
+            photos={initial.photos}
+            location={initial.location}
+            arsPerUsd={arsPerUsd}
+            hasUnsavedChanges={draft.dirty}
+          />
 
           <Card className="border-line-2 bg-forest-tint p-5">
             <h3 className="font-bold text-ink">¿Necesitás ayuda?</h3>

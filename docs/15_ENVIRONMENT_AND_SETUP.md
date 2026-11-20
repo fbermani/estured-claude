@@ -1,5 +1,7 @@
 # 15_ENVIRONMENT_AND_SETUP.md
 
+> **Estado a 2026-11-19:** versión de junio, anterior al código real. Para entornos, variables y deploy vigentes ver `CLAUDE.md` y `docs/PLAN_SALIDA_PRODUCCION.md`. El contenido de abajo no cambió.
+
 ## Propósito del documento
 
 Este documento define cómo preparar el entorno técnico inicial para construir EstuRed desde cero con una base robusta, escalable y consistente con las decisiones de producto ya documentadas.

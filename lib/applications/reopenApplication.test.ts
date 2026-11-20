@@ -175,4 +175,40 @@ describe.skipIf(!hasCreds)("reopenApplication (integración)", () => {
       .maybeSingle();
     expect(notification?.title).toBe("Tu solicitud fue reabierta");
   });
+
+  it("rechaza un motivo que supera el tope", async () => {
+    const id = await insertFixtureApplication("rejected");
+    const result = await reopenApplication(admin, {
+      applicationId: id,
+      actorUserId: adminActorId,
+      actorRole: "admin",
+      reason: "a".repeat(501),
+    });
+    expect(result.status).toBe("error");
+  });
+
+  it("dos reaperturas simultáneas: una gana y no se duplican eventos", async () => {
+    // El máximo de 2 activas cuenta las reabiertas por tests previos: se las deja inactivas antes de competir.
+    await admin
+      .from("application_requests")
+      .update({ status: "rejected" })
+      .eq("student_profile_id", studentProfileId)
+      .in("status", ["submitted", "under_review"]);
+    const id = await insertFixtureApplication("rejected");
+    const params = {
+      applicationId: id,
+      actorUserId: adminActorId,
+      actorRole: "admin",
+      reason: "Reapertura concurrente de prueba.",
+    };
+    const results = await Promise.all([reopenApplication(admin, params), reopenApplication(admin, params)]);
+    expect(results.filter((r) => r.status === "ok"), JSON.stringify(results)).toHaveLength(1);
+
+    const { count } = await admin
+      .from("application_status_events")
+      .select("*", { count: "exact", head: true })
+      .eq("application_request_id", id)
+      .eq("from_status", "rejected");
+    expect(count).toBe(1);
+  });
 });

@@ -4,7 +4,7 @@
 > Última actualización: 2026-07-06, tras el commit `cf89302` (Ciclo 3, paso 1).
 > Complementos: [GAPS.md](GAPS.md) (auditoría honesta de problemas) y [CLAUDE.md](CLAUDE.md) (guía operativa de sesión).
 
-> **Aviso (2026-10-21): este documento es un snapshot del Ciclo 3 y está en gran parte desactualizado** (hoy hay auth, 36 migraciones, loop de reserva completo, panel admin, tests con Vitest, deploy en Vercel, tipo de cambio real y dos proyectos Supabase). Para el estado real leer `MEMORY.md`; para comandos y gotchas vigentes, `CLAUDE.md`. Reescribirlo es trabajo pendiente (ver `GAPS.md`).
+> **Aviso (2026-10-21): este documento es un snapshot del Ciclo 3 y está en gran parte desactualizado** (hoy hay auth, 99 migraciones (0001–0099), loop de reserva completo, panel admin, tests con Vitest, deploy en Vercel, tipo de cambio real y dos proyectos Supabase). Para el estado real leer `MEMORY.md`; para comandos y gotchas vigentes, `CLAUDE.md`. Reescribirlo es trabajo pendiente (ver `GAPS.md`).
 
 ---
 
@@ -21,7 +21,7 @@
 **Partes más importantes del producto hoy:**
 1. La landing (`app/(public)/page.tsx`) — comunica la propuesta de confianza.
 2. El catálogo y la ficha (`/search`, `/r/[slug]`) — la experiencia de descubrimiento.
-3. La lista de espera (`/waitlist`) — única feature con backend real; captura leads pre-lanzamiento.
+3. La lista de espera (`/waitlist`) — única feature con backend real; captura leads pre-lanzamiento. **Retirada el 2026-11-12 (DR31): hoy solo queda el redirect a `/preregistro`.**
 4. **La carpeta `docs/`** — 23 documentos estratégicos que son la fuente de verdad de producto. En este proyecto la documentación manda sobre el código, no al revés.
 
 ## 2. Stack tecnológico

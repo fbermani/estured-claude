@@ -6,6 +6,11 @@ Guía para sesiones de Claude Code (u otro agente) en este repo. Leer también:
 - **`GAPS.md`** — deuda técnica conocida y fixes sugeridos.
 - **`docs/13_CLAUDE_PROJECT_INSTRUCTIONS.md`** — protocolo de trabajo oficial (fases pequeñas, ambigüedades, Definition of Done).
 - **`docs/14_PROJECT_INDEX.md`** — qué documento estratégico leer según la tarea.
+- **`.claude/estilo-respuestas.md`** — estilo obligatorio de todas las respuestas (frases de máximo 15 palabras, una idea por oración, sin relleno).
+
+## Estilo de respuesta (obligatorio, todas las sesiones)
+
+Aplicar `.claude/estilo-respuestas.md` a cada respuesta y documento nuevo: frases de máximo 15 palabras, una idea por oración, imperativo voseante para órdenes, un término por concepto, sin adjetivos, adverbios ni conectores de relleno, conclusión primero. No aplica a código, comandos, tablas ni al copy de la app.
 
 ## Modo de colaboración (decisión del dueño, 2026-07-08)
 
@@ -37,7 +42,7 @@ npm test           # vitest run (unitarios + integración contra estured-dev)
 - **`npm test` existe (Vitest, desde el Ciclo 12):** los `.test.ts` conviven junto al código. Los unitarios puros no necesitan Supabase; los de integración crean/borran filas reales y corren contra `estured-dev` (suite completa ~5–7 min, `fileParallelism: false`). `vitest.setup.ts` se niega a correr si `.env.local` apunta a producción. Si un test deja residuo: `node --env-file=.env.local scripts/cleanup-test-residences.mjs` (simula; `--apply` para borrar).
 - **Deploy:** Vercel conectado al repo — cada push a `main` deploya a https://estured.vercel.app (usa `estured-prod`; el selector de sesión demo, `DEMO_LOGIN_ENABLED`, jamás va a Production; sí al Preview de la rama `staging`, ver `lib/dev/devUi.ts` y `docs/PLAN_SALIDA_PRODUCCION.md` A0.2).
 - ⚠️ **No correr `npm run build` con el dev server levantado**: ambos escriben `.next/` y el dev server se corrompe (`Cannot find module './NNN.js'`). Fix: parar server → `rm -rf .next` → relanzar.
-- Migraciones: SQL manual en `db/migrations/` (numeradas `0001_...`), se aplican pegándolas en el SQL Editor del dashboard de Supabase (en dev y en producción, por separado: aplicar una en un proyecto no la aplica en el otro). No hay supabase CLI instalada. Hoy: 0001–0098 (+0043b) (dev aplicadas hasta 0098; prod todavía sin aplicar: se arma desde cero con `scripts/build-bootstrap.mjs prod`; estado real en `MEMORY.md` §3).
+- Migraciones: SQL manual en `db/migrations/` (numeradas `0001_...`), se aplican pegándolas en el SQL Editor del dashboard de Supabase (en dev y en producción, por separado: aplicar una en un proyecto no la aplica en el otro). No hay supabase CLI instalada. Hoy: 0001–0099 (+0043b) (dev aplicadas hasta 0099; prod todavía sin aplicar: se arma desde cero con `scripts/build-bootstrap.mjs prod`; estado real en `MEMORY.md` §3).
 
 ## Convenciones reales
 
@@ -55,7 +60,7 @@ npm test           # vitest run (unitarios + integración contra estured-dev)
 ## Gotchas
 
 - **`docs/00`–`22` son la fuente de verdad de producto, no el código.** Ante contradicción entre docs: jerarquía de `docs/13 §2` (`00_DECISION_LOG.md` manda). Cambios de reglas de negocio: protocolo de `docs/13 §5` (doc primero, código después).
-- **`/waitlist` no está en el routing oficial** (`docs/11 §7`): es la lista de espera pre-lanzamiento y sigue publicada (qué hacer con ella es una decisión de producto pendiente, auditoría H30). El flujo real de solicitud vive en `/residencias/[slug]` (`application_requests`); `/r/[slug]` redirige ahí y `/residencias` redirige a `/search`. Routing real vs. `docs/08 §3`: ver nota de `docs/08 §3` (D9).
+- **`/waitlist` no está en el routing oficial** (`docs/11 §7`): era la lista de espera pre-lanzamiento; se borró el 2026-11-12 (DR31) y hoy solo queda el redirect a `/preregistro` (`next.config.ts`). El flujo real de solicitud vive en `/residencias/[slug]` (`application_requests`); `/r/[slug]` redirige ahí y `/residencias` redirige a `/search`. Routing real vs. `docs/08 §3`: ver nota de `docs/08 §3` (D9).
 - **El tipo de cambio sale de `lib/exchange/rate.ts`** (monedapi.ar, dólar blue venta, caché diaria en `exchange_rates`; cascada: override manual del admin > fila del día > último valor conocido > constante de `lib/mock/exchange.ts` como último recurso). Los montos ARS **guardados** (snapshot, fee) usan `usdToArs`; la UI usa `usdToArsRounded` + `ExchangeRateNote`. La constante de 1480 ya no es la fuente de verdad.
 - **`waitlist_signups` tiene RLS sin policies a propósito**: solo el service role accede. No agregar policies "para que funcione" — abriría PII al público. Duplicado de email (`23505`) se trata como éxito, también a propósito.
 - **`getSupabaseAdmin()` devuelve `null` sin env vars** — degradación intencional mientras el dueño no aprovisione Supabase. No "arreglarlo" con throws.

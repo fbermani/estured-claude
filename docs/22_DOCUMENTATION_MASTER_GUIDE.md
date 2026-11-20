@@ -1,5 +1,7 @@
 # 22_DOCUMENTATION_MASTER_GUIDE.md
 
+> **Estado a 2026-11-19:** versión de junio. Documentos operativos actuales y de archivo: `docs/14_PROJECT_INDEX.md` §6bis. El contenido de abajo no cambió.
+
 # Guía Madre de Documentación EstuRed
 
 **Versión:** 1.1 (reducida)

@@ -2,9 +2,9 @@
 
 # EstuRed — Índice Maestro del Proyecto
 
-**Versión:** 0.3
+**Versión:** 0.4
 **Estado:** Actualizado — auditoría completa de los 23 documentos cerrada
-**Última actualización:** 2026-07-05
+**Última actualización:** 2026-11-19 (se agregó §6bis «Documentos operativos»; el resto del índice no cambió)
 
 ## 1. Propósito de este documento
 
@@ -145,6 +145,22 @@ Guía de entrega/handoff del paquete a otra IA o equipo externo. Auditada; la du
 
 ### `23_PREAPERTURA.md`
 Preapertura pública (2026-11): capa con flag `PREAPERTURA=on`, preregistro de estudiantes y familiares, carrusel de comunidad, Residencias fundadoras y pendientes. Decisiones DR42–DR47 en `00`. Documentado, sin implementar. Referencia visual: `design-proposals/preapertura-2026-11/`.
+
+---
+
+## 6bis. Documentos operativos y de archivo (no son fuente de reglas)
+
+Complementan los `00`–`23`. Ante contradicción, manda la jerarquía de `13_CLAUDE_PROJECT_INSTRUCTIONS.md` §2.
+
+| Documento | Para qué sirve |
+|---|---|
+| `../MEMORY.md` | Estado real del proyecto y próxima tarea. Leer siempre al iniciar. |
+| `PLAN_SALIDA_PRODUCCION.md` | Runbook vigente de salida a producción (staging, bootstrap 0001–0099, variables, deploy, rollback). |
+| `NEXT_STEPS.md` | Seguimiento técnico por ciclo; histórico desde el traspaso 2026-11-02. |
+| `23_PREAPERTURA.md` | Modo preapertura (DR42–DR47); el flag `PREAPERTURA=on` va en producción. |
+| `audits/` | Auditorías de producto, diseño, UX, seguridad, SEO y pruebas pre-producción, con sus planes. `audits/evidence/` es evidencia cruda. |
+| `propuestas/` | Textos y modelos propuestos (landings, reglamento y FAQ). No son reglas hasta pasar por `13` §5. |
+| `archive/` | Histórico íntegro: `MEMORY_HISTORICO_2026-10-25.md`, `MEMORY_HISTORICO_2026-11-19.md` y los documentos de julio/octubre ya superados. En su lugar original queda un aviso de una línea. |
 
 ---
 

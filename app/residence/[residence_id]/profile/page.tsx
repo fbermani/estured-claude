@@ -1,3 +1,4 @@
+import { residenceAvailabilityMode, typeAvailabilityState } from "@/lib/availability/typeAvailability";
 import { parseRuleItems } from "@/lib/residences/ruleItems";
 import { loadCatalogForResidence } from "@/lib/faq/residenceCatalog";
 import { loadFeaturedCandidates } from "@/lib/faq/featured";
@@ -25,6 +26,14 @@ import { ResidenceProfileForm } from "@/app/residence/[residence_id]/profile/Res
 export const metadata: Metadata = { title: "Configuración de residencia" };
 export const dynamic = "force-dynamic";
 
+/** Coordenada de la residencia para ordenar las universidades de la miniatura por cercanía; `null` si falta o no es válida. */
+function previewLocation(lat: unknown, lng: unknown): { lat: number; lng: number } | null {
+  if (lat === null || lat === undefined || lat === "" || lng === null || lng === undefined || lng === "") return null;
+  const la = Number(lat);
+  const lo = Number(lng);
+  return Number.isFinite(la) && Number.isFinite(lo) ? { lat: la, lng: lo } : null;
+}
+
 export default async function ResidenceProfilePage({
   params,
 }: {
@@ -50,7 +59,7 @@ export default async function ResidenceProfilePage({
       admin.from("residence_profile_sections").select("section_type, content").eq("residence_id", residenceId),
       admin
         .from("room_types")
-        .select("id, name, gender_policy, bathroom_type, features, capacity_per_room, monthly_price_usd")
+        .select("id, name, gender_policy, bathroom_type, features, capacity_per_room, monthly_price_usd, profile_availability(status)")
         .eq("residence_id", residenceId)
         .eq("is_active", true)
         .order("created_at", { ascending: true }),
@@ -157,6 +166,12 @@ export default async function ResidenceProfilePage({
         hasOwnRegulation: regulationRes.ok ? !regulationRes.view.isBaseModel : true,
         faqItems: (sectionMap.faq?.items as { question: string; answer: string }[]) ?? [],
         faqSummary: buildFaqProfileSummary(faqCatalog, faqFeatured),
+        slug: residence.slug as string,
+        // Disponibilidad ya guardada, con la misma regla del catálogo (el estado oficial se muestra solo vía StatusTag).
+        availabilityMode: residenceAvailabilityMode(
+          (roomTypes ?? []).map((rt) => typeAvailabilityState((rt.profile_availability as unknown as { status: string } | null)?.status)),
+        ),
+        location: previewLocation(residence.latitude, residence.longitude),
         photos: photoItems,
         photoRoomTypes: (roomTypes ?? []).map((rt) => ({ id: rt.id as string, name: rt.name as string })),
         photoMetaReady: photoMeta.schemaReady,

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { FichaView } from "@/components/residences/ficha/FichaView";
+import { SkipLink } from "@/components/ui/SkipLink";
 import { PreviewBanner } from "@/components/residences/ficha/PreviewBanner";
 import { getSessionUser } from "@/lib/auth/session";
 import { loadPreviewFicha } from "@/lib/residences/loadFicha";
@@ -26,6 +27,7 @@ export default async function ResidencePreviewPage({ params }: { params: Promise
 
   return (
     <>
+      <SkipLink />
       <PreviewBanner residenceId={residenceId} status={String(residence.status ?? "")} />
       <main id="contenido" tabIndex={-1} className="focus:outline-none">
         <FichaView data={data} slug={String(residence.slug ?? "")} preview />

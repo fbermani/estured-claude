@@ -1,5 +1,7 @@
 # 18_RELEASE_AND_BETA_CHECKLIST.md
 
+> **Estado a 2026-11-19:** versión de junio. El checklist vigente de salida es `docs/PLAN_SALIDA_PRODUCCION.md`. El contenido de abajo no cambió.
+
 # EstuRed - Release & Beta Checklist
 
 **Versión:** 1.1

@@ -1,7 +1,10 @@
 # 23_PREAPERTURA.md
+
+> **Estado a 2026-11-19:** implementada y commiteada. Producción sale con `PREAPERTURA=on` (decisión 2026-11-13); el runbook vigente es `docs/PLAN_SALIDA_PRODUCCION.md` (A1). El contenido de abajo no cambió.
+
 # EstuRed — Preapertura: captación previa al lanzamiento
 
-Última actualización: 2026-11-08. Estado: **implementado en dev (Fases 1–3, sin commit); prod pendiente** (checklist en `docs/NEXT_STEPS.md`). Protocolo `docs/13` §5: doc primero.
+Última actualización: 2026-11-08. Estado: **implementado y commiteado (Fases 1–3); prod pendiente de deploy** (checklist en `docs/NEXT_STEPS.md`). Protocolo `docs/13` §5: doc primero.
 Decisiones: `docs/00_DECISION_LOG.md` DR42–DR47 (mandan ante cualquier contradicción). Referencia visual aprobada (v4): `design-proposals/preapertura-2026-11/` (9 HTML + `SPEC.md` + `CAMBIOS_SUGERIDOS.md`).
 
 ## 1. Objetivo y principios

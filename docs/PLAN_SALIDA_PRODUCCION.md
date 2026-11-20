@@ -4,7 +4,7 @@
 
 Cómo se usa: cada paso dice **quién lo hace**: **[Vos]** (dashboards, cuentas, claves: yo no tengo ni debo tener acceso) o **[Yo]** (código y repo). Se avanza en orden y se tilda. Ningún paso se ejecuta solo, y **nada de esto se hizo todavía**. Regla: este runbook se actualiza cada vez que un cambio agrega un paso o una variable.
 
-Estado del código (2026-11-13): rama `hardening/pre-produccion-2026-11`, migraciones **0001–0087 (+0043b)** (88 archivos; la 0087 es DR48, registro de aperturas de documentos por residencias), auditoría de seguridad final sin críticos ni altos (`docs/audits/PLAN_SEGURIDAD_2026-11-12.md`). `origin/main` (`fbermani/estured-claude`) está ~200 commits atrás y **deploya solo a Vercel al hacer push**.
+Estado del código (2026-11-13): rama `hardening/pre-produccion-2026-11`, migraciones **0001–0099 (+0043b)** (100 archivos; estado al 2026-11-19, ver D1), auditoría de seguridad final sin críticos ni altos (`docs/audits/PLAN_SEGURIDAD_2026-11-12.md`). `origin/main` (`fbermani/estured-claude`) está ~200 commits atrás y **deploya solo a Vercel al hacer push**.
 
 ---
 
@@ -38,16 +38,16 @@ Es **irreversible**: se pierde la base, Auth y Storage de ese proyecto. Estado c
 - [ ] **[Yo]** una vez borrado, dejo el ref viejo en `scripts/production-refs.json` (no molesta: sigue bloqueando seeds/tests contra él) y agrego el ref nuevo en C2.
 
 ### A0.2 Staging en Vercel contra `estured-dev` (ensayo) — HECHO 2026-11-14
-Deploy de la rama `staging` en *Ready* y login real verificado con Turnstile; la URL pide login de Vercel. Pendiente menor: Redirect URL de reset de contraseña en Supabase dev (no había acceso a esa cuenta).
+Deploy de la rama `staging` en *Ready* y login real verificado con Turnstile; ⚠️ **Corrección 2026-11-19:** la URL NO pide login de Vercel hoy y tiene el selector demo público (ver «Staging público» en la sección «Auditoría pre-producción 2026-11-19»). Pendiente menor: Redirect URL de reset de contraseña en Supabase dev (no había acceso a esa cuenta).
 Objetivo: probar el deploy real (build, variables, Turnstile, headers) sin tocar producción, y tener un lugar fuera de localhost para probar cada cambio. **No usa `estured.com` ni Hostinger**: el dominio propio es solo de producción.
 - **Proyecto de Vercel: se reutiliza `estured-claude`** (cuenta personal `fbermani-gmailcoms-projects`, repo `fbermani/estured-claude`, dominio `estured.vercel.app`). Estaba limpio: 4 variables y 3 deploys viejos de `main`. Se transfiere a un Team más adelante si se decide (A3).
 - **Variables separadas por entorno:** *Production* = Supabase nuevo (las 4 viejas quedaron solo en Production, pendientes de reemplazar); *Preview* = `estured-dev`. Ningún preview toca producción. Hecho el 2026-11-14.
 - **Rama `staging`** (creada local; el push lo hace el dueño: `git push -u origin staging`). Su URL es `https://estured.vercel.app` (dominio reasignado de Production a la rama `staging` el 2026-11-14; producción irá en `estured.com`).
-- **Protección:** el proyecto tiene *Vercel Authentication* con alcance `all_except_custom_domains`: las URLs `*.vercel.app` piden login de Vercel (por eso el staging usa `estured.vercel.app` y **no** un subdominio de `estured.com`, que quedaría público con la base de dev y sus usuarios demo). El selector «Simular usuario» **sí** va en el staging (decisión del dueño, 2026-11-14), pero solo como variables de *Preview* **acotadas a la rama `staging`** (`DEMO_LOGIN_ENABLED`, `DEMO_USERS_PASSWORD` sensitive, `NEXT_PUBLIC_STAGING=on`, `PREAPERTURA=on`) y detrás del login de Vercel; `isDemoLoginEnabled()` y `isDevUi()` (`lib/dev/devUi.ts`) las ignoran si `VERCEL_ENV=production`. **Nunca** en Production. Verificar en incógnito que la URL pide login.
+- **Protección:** el proyecto tiene *Vercel Authentication* con alcance `all_except_custom_domains`: se esperaba que las URLs `*.vercel.app` pidieran login de Vercel (la auditoría del 2026-11-19 comprobó que no es así; por eso el staging usa `estured.vercel.app` y **no** un subdominio de `estured.com`, que quedaría público con la base de dev y sus usuarios demo). El selector «Simular usuario» **sí** va en el staging (decisión del dueño, 2026-11-14), pero solo como variables de *Preview* **acotadas a la rama `staging`** (`DEMO_LOGIN_ENABLED`, `DEMO_USERS_PASSWORD` sensitive, `NEXT_PUBLIC_STAGING=on`, `PREAPERTURA=on`) y detrás del login de Vercel; `isDemoLoginEnabled()` y `isDevUi()` (`lib/dev/devUi.ts`) las ignoran si `VERCEL_ENV=production`. **Nunca** en Production. Verificar en incógnito que la URL pide login.
 - **Turnstile propio:** Vercel compila con `NODE_ENV=production`, así que la guarda S3 rechaza las claves de prueba (`1x…`). Widget `EstuRed staging` en Cloudflare con el hostname de la URL de la rama (sin `https://`); sus claves van solo a *Preview* (`NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`; la secret conviene crearla como *Sensitive*).
 - **Variables de Preview cargadas:** claves de `estured-dev`, `NEXT_PUBLIC_APP_URL` y `NEXT_PUBLIC_SITE_URL` = URL de la rama, `NEXT_PUBLIC_APP_NAME`, Turnstile. Sin `PREAPERTURA` (se prueba el sitio completo), sin `RESEND_API_KEY` (mails solo si se quiere probar con el sandbox de Resend, que entrega solo al dueño de la cuenta), sin `CRON_SECRET` (el cron de dev no se aplica).
 - **Supabase dev → Auth → URL Configuration → Redirect URLs:** agregar `https://estured.vercel.app/reset-password`.
-- **Verificación:** deploy *Ready*; la URL pide login de Vercel y luego carga; el widget de Turnstile aparece y un login real funciona; `curl -sI` (con el bypass o ya logueado) muestra CSP Report-Only con `report-uri` y HSTS; sin widget de sesión simulada.
+- **Verificación:** deploy *Ready*; la URL carga (hoy sin login de Vercel: cerrar con Vercel Authentication, ver auditoría 2026-11-19); el widget de Turnstile aparece y un login real funciona; `curl -sI` (con el bypass o ya logueado) muestra CSP Report-Only con `report-uri` y HSTS; sin widget de sesión simulada.
 - Costo: ninguno (Hobby alcanza para ensayar; ver A2 para producción).
 
 ---
@@ -88,8 +88,8 @@ Objetivo: probar el deploy real (build, variables, Turnstile, headers) sin tocar
 
 ## D. Base de datos y Storage (Supabase nuevo)
 
-### D1. Bootstrap con las 87 migraciones [Vos con mi ayuda]
-Genera el SQL completo (0001–0087 + 0043b; la 0087 crea `residence_document_access_log`, sin pasos extra), con el cron de la 0013 ya apuntando a `https://estured.com`. El secreto del cron se guarda en **Supabase Vault** (no queda en texto plano en `cron.job`).
+### D1. Bootstrap con las migraciones 0001–0099 [Vos con mi ayuda]
+Genera el SQL completo (0001–0099 + 0043b; las migraciones posteriores a la 0087 —0093–0099— están detalladas al final de este documento y entran solas, sin pasos extra), con el cron de la 0013 ya apuntando a `https://estured.com`. El secreto del cron se guarda en **Supabase Vault** (no queda en texto plano en `cron.job`).
 
 - [ ] **Migraciones 0088, 0089 y 0090 entran en el bootstrap** (el script toma todos los `db/migrations/*.sql`; verificar que aparezcan al final). La **0089** (SEG15-01) crea el índice único `reservations_one_per_application_uidx`: en una base ya poblada correr antes `select application_request_id, count(*) from reservations where application_request_id is not null group by 1 having count(*) > 1;` (debe dar 0 filas). En un bootstrap desde cero no hay datos y no hace falta. La **0090** (SEG15-04) revoca los permisos de escritura de `anon` y `authenticated`: no toca datos; después correr `select grantee, privilege_type, count(distinct table_name) from information_schema.role_table_grants where table_schema='public' and grantee in ('anon','authenticated') group by 1,2;` (solo debe quedar SELECT).
 - [ ] **Migraciones 0091 y 0092 entran en el bootstrap** (auditoría 2026-11-16, aplicadas en dev). La **0091** agrega CHECK de largo (≤2000/1000) a los textos libres de solicitudes, negociación y propuestas del familiar; en base poblada verificar antes que ningún texto lo supere. La **0092** quita SELECT a `anon` en todo lo que no sea catálogo público (10 tablas); después correr `select c.relname from pg_class c where c.relnamespace='public'::regnamespace and c.relkind in ('r','p') and has_any_column_privilege('anon', c.oid, 'SELECT') order by 1;` (deben salir solo: exchange_rates, profile_availability, profile_availability_genders, residence_custom_amenities, residence_faq_items, residence_faq_predefined_questions, residence_profile_sections, residence_regulation_versions, residences, room_types). Una tabla nueva que anon deba leer necesita `grant select` explícito.
@@ -256,6 +256,7 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 - [x] **Respuestas directas (GEO) al inicio de las 5 guías públicas:** aplicadas 2026-11-19. Las 2 correcciones de la guía de mudanza también se aplicaron. **Ojo:** ahora dice «Revisá en la ficha qué debés llevar»; antes de producción la ficha tiene que mostrar ese dato (ver sugerencias de información para residencias).
 - [x] **Guía «Residencia o departamento compartido»:** aprobada y publicada 2026-11-19 (`content/guias/07-…`; el parser de guías ahora soporta tablas). Verificar en staging cómo se ve la tabla a 320 px y confirmar la frase de garantías de alquiler antes de producción.
 - [x] **Guía «Barrios y universidades»: descartada (decisión del dueño 2026-11-19).** Compararía barrios y perjudicaría a las residencias de los que quedaran mal parados; además la mayoría de las residencias están en el centro, Balvanera y San Telmo, zonas que el dueño no aconseja para vivir, y no se puede ser neutral ni honesto sin dañar a alguien. No se publican valoraciones de barrios. Las guías nuevas se deciden después del lanzamiento con las búsquedas reales de Search Console.
+- [ ] **Post-producción (seguridad):** instalar `gitleaks` y correrlo sobre el historial completo de git antes de abrir el repo a más gente; pasar la CSP a enforce tras observar reportes; probar server actions por HTTP real en un preview sin SSO; revisar `reopenRenewalOffer`, `reopenRenewalRequest` y `reopenEsturedFeeWindow` (reclamo por estado y filas afectadas). Detalle en `docs/audits/PLAN_SEGURIDAD_2026-11-12.md`.
 - [ ] **Post-producción:** menciones externas (blogs universitarios, centros de estudiantes, comunidades) y, recién cuando existan menciones reales, evaluar una sección «Prensa» en `/nosotros`. Es trabajo de marketing, no de código.
 
 ## Auditoría pre-producción 2026-11-19 (informe: `docs/audits/PRUEBAS_PRE_PRODUCCION_2026-11-19.md`)
@@ -263,3 +264,25 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 - [ ] **Supabase → Authentication → Passwords → «Leaked password protection»:** activarla en producción (y en dev). Es un interruptor del panel, no se puede por SQL.
 - [ ] **Staging público:** `estured.vercel.app` NO pide login de Vercel (el runbook A0.2 decía que sí) y tiene el selector demo: cualquiera entra como admin de `estured-dev`. Cerrar con Vercel Authentication en Preview, o apagar `DEMO_LOGIN_ENABLED` cuando no se use. No afecta producción (el selector no existe ahí).
 - [ ] **Antes de prod:** correr `npx playwright test` contra staging con las migraciones al día (E2E en `e2e/`; las sesiones se guardan fuera del repo) y, si se quiere carga, `k6 run -e AUTH_DIR=<carpeta de sesiones> -e PEAK=25 e2e/load/k6-lectura.js` (en staging: 25 usuarios simultáneos ok; 50 degrada a p95 4 s; no es capacidad de producción).
+
+## Auditoría 2026-11-19 (4 fases): pasos que quedan
+Informe: `docs/audits/AUDITORIA_PRE_PRODUCCION_2026-11-19.md`. No hay variables nuevas. Hay correcciones al runbook y tareas nuevas.
+
+**Corregir el runbook**
+- [ ] D1: el bootstrap llega a 0099 (100 archivos, con 0043b). Quitar los conteos "0001–0087", "87 migraciones" y "0001–0094/0097" (líneas 3, 91-95, 219).
+- [ ] B: el merge a `main` sale de `staging`, no de `hardening/pre-produccion` (`origin/main` está 356 commits atrás).
+- [ ] A0.2 contra línea 264: `estured.vercel.app` no pide login de Vercel hoy. Activar Vercel Authentication en Preview o apagar `DEMO_LOGIN_ENABLED` (S19-01) y corregir el texto.
+- [ ] D3: "Leaked password protection" no existe en Free (A2). Decidir pasar a Pro antes de abrir o aceptar el riesgo por escrito (P19-07).
+- [ ] E: verificar el nombre exacto de la variable que exige `lib/appUrl.ts:9` (`NEXT_PUBLIC_APP_URL`) y agregarlo a la tabla si falta (P19-04).
+
+**Tareas nuevas antes de abrir (bloqueantes)**
+- [ ] Crear `app/global-error.tsx` y `app/(preapertura)/error.tsx` en español (P19-05).
+- [ ] Definir monitoreo: alertas de Vercel y guardia; Sentry opcional. Anotar la decisión (P19-06).
+- [ ] Rendimiento: cachear el catálogo y quitar `force-dynamic` de `/` (R19-03, R19-04); quitar `animate.css` (R19-05). Repetir la carga con `e2e/load/k6-publica.js`; meta: 25 usuarios con p95 menor a 2 s.
+
+**No bloqueantes**
+- [ ] Fijar región de funciones en gru1 si el plan lo permite (P19-13).
+- [ ] Redactar errores de Supabase en los logs de registro y auth (S19-05, P19-17).
+- [ ] CI mínimo con typecheck, lint y tests (P19-18).
+- [ ] Agregar `scratchpad/` a `.gitignore` y `@source not` en `globals.css` (S19-06, R19-07).
+- [ ] Aprobar o rechazar el borrado de 2 residencias de test en `estured-dev` (`cleanup-test-residences.mjs --apply`).

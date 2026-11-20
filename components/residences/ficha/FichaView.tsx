@@ -682,7 +682,7 @@ export async function FichaView({
               </p>
               <CompactMap
                 residenceName={residence.name}
-                zone={residence.public_area}
+                zone={residence.public_area ?? ""}
                 nearUniversityNames={nearUniversities}
                 location={location}
                 address={addressLine}
