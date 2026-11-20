@@ -47,7 +47,7 @@ Objetivo: probar el deploy real (build, variables, Turnstile, headers) sin tocar
 - **Turnstile propio:** Vercel compila con `NODE_ENV=production`, así que la guarda S3 rechaza las claves de prueba (`1x…`). Widget `EstuRed staging` en Cloudflare con el hostname de la URL de la rama (sin `https://`); sus claves van solo a *Preview* (`NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`; la secret conviene crearla como *Sensitive*).
 - **Variables de Preview cargadas:** claves de `estured-dev`, `NEXT_PUBLIC_APP_URL` y `NEXT_PUBLIC_SITE_URL` = URL de la rama, `NEXT_PUBLIC_APP_NAME`, Turnstile. Sin `PREAPERTURA` (se prueba el sitio completo), sin `RESEND_API_KEY` (mails solo si se quiere probar con el sandbox de Resend, que entrega solo al dueño de la cuenta), sin `CRON_SECRET` (el cron de dev no se aplica).
 - **Supabase dev → Auth → URL Configuration → Redirect URLs:** agregar `https://estured.vercel.app/reset-password`.
-- **Verificación:** deploy *Ready*; la URL carga (hoy sin login de Vercel: cerrar con Vercel Authentication, ver auditoría 2026-11-19); el widget de Turnstile aparece y un login real funciona; `curl -sI` (con el bypass o ya logueado) muestra CSP Report-Only con `report-uri` y HSTS; sin widget de sesión simulada.
+- **Verificación:** deploy *Ready*; la URL carga (hoy sin login de Vercel, público a propósito: ver «Staging público» en la auditoría 2026-11-19); el widget de Turnstile aparece y un login real funciona; `curl -sI` (con el bypass o ya logueado) muestra CSP Report-Only con `report-uri` y HSTS; sin widget de sesión simulada.
 - Costo: ninguno (Hobby alcanza para ensayar; ver A2 para producción).
 
 ---
@@ -278,13 +278,21 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 - [x] **Staging público — decisión del dueño 2026-11-20: se deja público, no se cierra.** (Hallazgo original: `estured.vercel.app` NO pide login de Vercel (el runbook A0.2 decía que sí) y tiene el selector demo: cualquiera entra como admin de `estured-dev`. Opciones descartadas: Vercel Authentication en Preview o apagar `DEMO_LOGIN_ENABLED`. No afecta producción (el selector no existe ahí).)
 - [ ] **Antes de prod:** correr `npx playwright test` contra staging con las migraciones al día (E2E en `e2e/`; las sesiones se guardan fuera del repo) y, si se quiere carga, `k6 run -e AUTH_DIR=<carpeta de sesiones> -e PEAK=25 e2e/load/k6-lectura.js` (en staging: 25 usuarios simultáneos ok; 50 degrada a p95 4 s; no es capacidad de producción).
 
+## Seguridad externa — Capa Cero (2026-11-20; informe `docs/audits/CAPA_CERO_DIAGNOSTICO_2026-11-20.md`)
+- [x] Diagnóstico inicial gratuito hecho sobre staging. Único hallazgo: E-01, CSP en `Report-Only` con `unsafe-inline` (ya conocido, M5). Next.js 15.5.29 confirmada con los parches vigentes.
+- [ ] **Decidir y contratar el pentest focalizado (USD 250)**, solo contra staging y con usuarios demo. Firmar antes NDA y orden de trabajo. Alcance: solicitudes, pagos, comprobantes y Storage con rol estudiante y rol residencia. No entregar claves de producción ni `SERVICE_ROLE_KEY`.
+- [ ] Pasar a los pentesters la lista de hallazgos ya conocidos (ver el informe) para evitar duplicados.
+- [ ] **Versión de Next:** cotejar `package-lock.json` y el log del build de Vercel que se promueva a producción. Fijar versión exacta (hoy `^15.5.29`).
+- [ ] **E-01:** pasar la CSP a enforce y quitar `unsafe-inline` con nonces o hashes, después de revisar `[csp-report]` en producción. Probar Turnstile, mapas y la caché de rutas públicas. Ya figura en I y en «Post-producción (seguridad)».
+- Servicios descartados por ahora: auditoría de código (USD 550), pruebas de carga (USD 400), optimización (USD 450). Reevaluar con usuarios reales.
+
 ## Auditoría 2026-11-19 (4 fases): pasos que quedan
 Informe: `docs/audits/AUDITORIA_PRE_PRODUCCION_2026-11-19.md`. No hay variables nuevas. Hay correcciones al runbook y tareas nuevas.
 
 **Corregir el runbook**
 - [ ] D1: el bootstrap llega a 0099 (100 archivos, con 0043b). Quitar los conteos "0001–0087", "87 migraciones" y "0001–0094/0097" (líneas 3, 91-95, 219).
 - [ ] B: el merge a `main` sale de `staging`, no de `hardening/pre-produccion` (`origin/main` está 356 commits atrás).
-- [ ] A0.2 contra línea 264: `estured.vercel.app` no pide login de Vercel hoy. Activar Vercel Authentication en Preview o apagar `DEMO_LOGIN_ENABLED` (S19-01) y corregir el texto.
+- [ ] A0.2 contra línea 264: `estured.vercel.app` no pide login de Vercel hoy. El dueño decidió dejarlo público (2026-11-20); falta corregir el texto de A0.2 para que no prometa login de Vercel (S19-01).
 - [ ] D3: "Leaked password protection" no existe en Free (A2). Decidir pasar a Pro antes de abrir o aceptar el riesgo por escrito (P19-07).
 - [ ] E: verificar el nombre exacto de la variable que exige `lib/appUrl.ts:9` (`NEXT_PUBLIC_APP_URL`) y agregarlo a la tabla si falta (P19-04).
 

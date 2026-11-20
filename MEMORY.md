@@ -21,6 +21,7 @@ Demo: selector "Simular usuario" (solo con `DEMO_LOGIN_ENABLED=true` en `.env.lo
 
 El detalle de ciclos anteriores (62–87, preapertura, ficha «placa porteña», DR12–DR48, auditorías) está en `docs/archive/MEMORY_HISTORICO_2026-11-19.md` §B. Lo vigente:
 
+- **Seguridad externa Capa Cero (2026-11-20):** diagnóstico gratis hecho sobre staging (único hallazgo E-01: CSP `Report-Only` con `unsafe-inline`, ya conocido M5; Next 15.5.29 ok). Pentest de USD 250 recomendado solo contra staging, sin claves; otros tres servicios descartados por ahora. Detalle y alcance a pedir: `docs/audits/CAPA_CERO_DIAGNOSTICO_2026-11-20.md`; pasos en `docs/PLAN_SALIDA_PRODUCCION.md` («Seguridad externa — Capa Cero»).
 - **Requisitos para enviar a revisión (2026-11-20, DR59, sin build ni verificación visual):** `lib/residences/submitReadiness.ts` (pura) + `submitReadinessDb.ts`; gate en `saveResidenceProfile` (solo `submit` en `draft`/`needs_changes`/`verification_expired`, antes de escribir); la fortaleza del perfil muestra la checklist (`ProfileReadinessChecklist`, `strengthFromReadiness`). Seed dev actualizado (correrlo con `--dry-run` primero). El Panel sigue con `computeProfileStrength` clásico.
 
 - **Push web / PWA (2026-11-20, DR61, migración 0101 SIN aplicar en dev):** service worker `public/sw.js`, suscripciones por dispositivo y preferencias por categoría (5 categorías; texto genérico, nunca antes de las 9:00 AR con cola en `notifications.push_status`, badge = no leídas), cinco emisores a admin/estudiante/residencia nuevos y 28 avisos con categoría. Código en `lib/push/*`, UI en `components/push/*`, seed `scripts/seed-demo-push.mjs`. Pendiente: aplicar 0101, claves VAPID en Vercel, probar en celular real (runbook «Push web»). Commits 7b97ee2 y 69c74ca, sin push.
@@ -53,8 +54,9 @@ Fuente: `docs/PLAN_SALIDA_PRODUCCION.md` (runbook). Pendientes del dueño antes 
 2. **Activar «Leaked password protection»** en Supabase Auth (prod y dev; es un interruptor del panel).
 3. ~~Cerrar el staging público~~: **decisión del dueño 2026-11-20: se deja público** (estured-dev con selector demo; no afecta producción).
 4. **Correr `npx playwright test` contra staging** con las migraciones al día.
-5. Resto del checklist de producción (proyecto Supabase nuevo, Resend, `CRON_SECRET`, WAF, dominio, admin con `scripts/create-admin.mjs`, datos de cobro): runbook §C–§G. Texto anterior de este punto: archivo histórico §D.
-6. Seguimiento técnico histórico: `docs/NEXT_STEPS.md`.
+5. **Decidir el pentest focalizado de Capa Cero (USD 250)**, firmar NDA y orden de trabajo, y cotejar la versión de Next en el lockfile y en el build de Vercel (runbook, «Seguridad externa — Capa Cero»).
+6. Resto del checklist de producción (proyecto Supabase nuevo, Resend, `CRON_SECRET`, WAF, dominio, admin con `scripts/create-admin.mjs`, datos de cobro): runbook §C–§G. Texto anterior de este punto: archivo histórico §D.
+7. Seguimiento técnico histórico: `docs/NEXT_STEPS.md`.
 
 ## 5. Pendientes vigentes (no derivables del git)
 
