@@ -387,6 +387,8 @@ Reglas:
 | `created_at` | timestamptz | Alta |
 | `updated_at` | timestamptz | Actualización |
 
+**`student_identity_documents` (DR58, migración 0100):** `student_profile_id` (PK, FK `student_profiles`), `document_type` (`dni`, `passport`, `other`), `document_number` (normalizado), `created_at`, `updated_at`. Una fila por estudiante. RLS sin policies (solo service role): el número no se lee por la API ni siquiera con el perfil propio o del familiar. Nunca público ni en logs.
+
 Reglas:
 - `first_name`, `last_name`, `birth_date`, `nationality`, `study_institution_private` son obligatorios para solicitar;
 - apellido completo, fecha de nacimiento e institución exacta nunca son públicos;
