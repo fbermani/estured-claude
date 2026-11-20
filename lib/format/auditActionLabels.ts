@@ -19,6 +19,8 @@ const ACTION_PHRASES: Record<string, string> = {
   family_registered_and_link_requested: "se registró como familiar y pidió vincularse",
   student_profile_updated: "actualizó su perfil",
   student_document_uploaded: "subió un documento de estudiante",
+  student_identity_document_saved: "guardó el tipo y número de documento de un estudiante",
+  student_identity_number_accessed: "vio el número de documento de un estudiante desde su residencia",
   preapertura_student_registered: "se registró como estudiante desde la preapertura",
   preapertura_family_registered_and_invited: "se registró como familiar desde la preapertura e invitó a un estudiante",
   preapertura_community_enabled: "activó su perfil de comunidad en la preapertura",
