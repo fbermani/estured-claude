@@ -12,6 +12,8 @@ import { Icon } from "@/components/ui/Icon";
 import { BackToProfileLink } from "@/components/residences/BackToProfileLink";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { RegulationPdfUpload } from "@/app/residence/[residence_id]/regulation/RegulationPdfUpload";
+import { formatPdfSize, parseRegulationPdf } from "@/lib/regulations/pdfFile";
 import { RegulationText } from "@/components/regulations/RegulationText";
 import { RegulationEditor } from "@/app/residence/[residence_id]/regulation/RegulationEditor";
 import { loadCurrentRegulation, listRegulationVersions } from "@/lib/regulations/current";
@@ -75,9 +77,12 @@ export default async function ResidenceRegulationPage({ params }: { params: Prom
           </p>
           <Card className="mt-4 p-5">
             <PermissionGate allowed={canEdit}>
+              <div className="mb-5">
+                <RegulationPdfUpload residenceId={residenceId} canEdit={canEdit && current.view.schemaReady} currentIsPdf={current.view.pdf !== null} />
+              </div>
               <RegulationEditor
                 residenceId={residenceId}
-                initialText={current.view.isBaseModel ? "" : current.view.text}
+                initialText={current.view.isBaseModel || current.view.pdf ? "" : current.view.text}
                 initialSource={current.view.source}
                 modelText={modelText}
                 canEdit={canEdit && current.view.schemaReady}
@@ -98,6 +103,7 @@ export default async function ResidenceRegulationPage({ params }: { params: Prom
                 {history.versions.map((v) => {
                   const badge = STATUS_BADGE[v.status];
                   const text = typeof v.content?.text === "string" ? v.content.text : "";
+                  const pdf = parseRegulationPdf(v.content);
                   return (
                     <li key={v.id}>
                       <Card className="p-4">
@@ -107,10 +113,16 @@ export default async function ResidenceRegulationPage({ params }: { params: Prom
                           <Badge>{v.source === "model" ? "Modelo de EstuRed" : "Reglamento propio"}</Badge>
                           <span className="text-xs text-ink-faint">{v.published_at ? formatDate(v.published_at) : ""}</span>
                         </div>
-                        <details className="mt-2">
-                          <summary className="cursor-pointer text-sm font-semibold text-forest-700">Ver el texto</summary>
-                          <RegulationText text={text} className="mt-3 max-h-96 overflow-y-auto" />
-                        </details>
+                        {pdf ? (
+                          <p className="mt-2 text-sm text-ink-soft">
+                            Archivo PDF: {pdf.filename} ({formatPdfSize(pdf.sizeBytes)}).
+                          </p>
+                        ) : (
+                          <details className="mt-2">
+                            <summary className="cursor-pointer text-sm font-semibold text-forest-700">Ver el texto</summary>
+                            <RegulationText text={text} className="mt-3 max-h-96 overflow-y-auto" />
+                          </details>
+                        )}
                       </Card>
                     </li>
                   );

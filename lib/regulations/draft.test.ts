@@ -25,7 +25,7 @@ describe("sanitizeWizardDraft", () => {
   const articles = [1, 2, 3];
   it("conserva elecciones válidas y acota el paso", () => {
     const r = sanitizeWizardDraft({ step: 99, choices: { "1": { included: true, body: "uno" }, "2": { included: false, body: "dos" } } }, articles, 4);
-    expect(r).toEqual({ step: 3, choices: { 1: { included: true, body: "uno" }, 2: { included: false, body: "dos" } } });
+    expect(r).toEqual({ step: 3, choices: { 1: { included: true, body: "uno" }, 2: { included: false, body: "dos" } }, fields: {} });
   });
   it("ignora artículos que no existen y elecciones mal formadas", () => {
     const r = sanitizeWizardDraft({ step: 0, choices: { "9": { included: true, body: "x" }, "1": { included: "si", body: "x" }, "2": null, "3": { included: true, body: "tres" } } }, articles, 2);
@@ -37,5 +37,9 @@ describe("sanitizeWizardDraft", () => {
     expect(sanitizeWizardDraft(undefined, articles, 2)).toBeNull();
     expect(sanitizeWizardDraft({ step: -3, choices: { "1": { included: true, body: "a" } } }, articles, 2)?.step).toBe(0);
     expect(sanitizeWizardDraft({ step: 1.5, choices: { "1": { included: true, body: "a" } } }, articles, 2)?.step).toBe(0);
+  });
+  it("conserva los campos completados y descarta los inválidos", () => {
+    const r = sanitizeWizardDraft({ step: 0, choices: { "1": { included: true, body: "a" } }, fields: { hora_silencio: "22:00", "mal nombre": "x", edad_minima: 5 } }, articles, 2);
+    expect(r?.fields).toEqual({ hora_silencio: "22:00" });
   });
 });

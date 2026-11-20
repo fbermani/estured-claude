@@ -27,6 +27,7 @@ import { advanceGateMessage, stayChangeAdvanceAt } from "@/lib/stayChange/advanc
 import { getRegulationGate } from "@/lib/regulations/gate";
 import { loadCurrentRegulation } from "@/lib/regulations/current";
 import { RegulationText } from "@/components/regulations/RegulationText";
+import { RegulationPdfLink } from "@/components/regulations/RegulationPdfLink";
 import { AcceptRegulationForm } from "@/app/students/applications/[id]/AcceptRegulationForm";
 
 /** Estados en los que las condiciones ya fueron aceptadas (docs/04 §5.2). */
@@ -149,7 +150,27 @@ export default async function StudentApplicationDetailPage({
 
   // DR14: solicitud sin aceptación del reglamento (propuesta del familiar, lista de espera, menor o fallo al registrarla): la residencia no puede
   // avanzarla hasta que se acepte. Lectura degradable (sin la migración 0053 no hay aviso).
-  let regulationNotice: { canAccept: boolean; waitingFor: "student" | "guardian"; hash: string; text: string } | null = null;
+  // DR62 c: aceptación guardada (versión, fecha y quién aceptó), de solo lectura para el estudiante y su familiar.
+  let acceptedRegulation: { versionNumber: number | null; acceptedAt: string; byGuardian: boolean } | null = null;
+  {
+    const acceptedAdmin = getSupabaseAdmin();
+    if (acceptedAdmin) {
+      const { data: acc } = await acceptedAdmin
+        .from("application_regulation_acceptances")
+        .select("accepted_at, accepted_by_role, residence_regulation_versions(version_number)")
+        .eq("application_request_id", id)
+        .maybeSingle();
+      if (acc) {
+        const version = (acc as unknown as { residence_regulation_versions: { version_number: number } | null }).residence_regulation_versions;
+        acceptedRegulation = {
+          versionNumber: version?.version_number ?? null,
+          acceptedAt: acc.accepted_at as string,
+          byGuardian: acc.accepted_by_role === "guardian",
+        };
+      }
+    }
+  }
+  let regulationNotice: { canAccept: boolean; waitingFor: "student" | "guardian"; hash: string; text: string; pdfSlug: string | null } | null = null;
   {
     const noticeAdmin = getSupabaseAdmin();
     const gate = noticeAdmin ? await getRegulationGate(noticeAdmin, id) : null;
@@ -160,11 +181,17 @@ export default async function StudentApplicationDetailPage({
       ]);
       if (current.ok) {
         const isMinor = profileRow?.is_minor === true;
+        let pdfSlug: string | null = null;
+        if (current.view.pdf) {
+          const { data: slugRow } = await noticeAdmin.from("residences").select("slug").eq("id", application.residence_id as string).maybeSingle();
+          pdfSlug = (slugRow?.slug as string | undefined) ?? null;
+        }
         regulationNotice = {
           canAccept: isMinor ? isFamilyViewer : !isFamilyViewer,
           waitingFor: isMinor ? "guardian" : "student",
           hash: current.view.hash,
           text: current.view.text,
+          pdfSlug,
         };
       }
     }
@@ -236,6 +263,15 @@ export default async function StudentApplicationDetailPage({
           </div>
         )}
 
+        {acceptedRegulation && (
+          <p className="mt-4 flex items-center gap-2 rounded-field border border-line-2 bg-forest-tint px-4 py-3 text-xs font-semibold text-ink-soft">
+            <Icon name="gavel" className="text-lg text-forest-700" />
+            Reglamento aceptado{acceptedRegulation.versionNumber ? ` (versión ${acceptedRegulation.versionNumber})` : ""} el{" "}
+            {formatDate(acceptedRegulation.acceptedAt)}
+            {acceptedRegulation.byGuardian ? ", por el familiar vinculado" : ""}.
+          </p>
+        )}
+
         {regulationNotice && !terminal && (
           <div className="mt-4 rounded-field border border-line-2 bg-orange-tint/60 px-4 py-3 text-sm text-ink-soft">
             <p className="flex items-center gap-2 font-bold text-orange-700">
@@ -251,7 +287,12 @@ export default async function StudentApplicationDetailPage({
                 <AcceptRegulationForm
                   applicationId={id}
                   hash={regulationNotice.hash}
-                  content={<RegulationText text={regulationNotice.text} className="max-h-72 overflow-y-auto pr-2" />}
+                  content={
+                    <>
+                      <RegulationText text={regulationNotice.text} className="max-h-72 overflow-y-auto pr-2" />
+                      {regulationNotice.pdfSlug && <RegulationPdfLink slug={regulationNotice.pdfSlug} className="mt-3" />}
+                    </>
+                  }
                 />
               </>
             ) : (

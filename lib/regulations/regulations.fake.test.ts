@@ -16,7 +16,9 @@ vi.mock("@/lib/family/access", () => ({
 
 import { createInMemorySupabase, type InMemoryOptions, type Row } from "@/lib/testing/inMemorySupabase";
 import { PERMISSION_DENIED_MESSAGE, permissionsFromChecked } from "@/lib/residences/permissions";
-import { publishRegulationVersion, MIGRATION_PENDING_MESSAGE } from "@/lib/regulations/publish";
+import { publishRegulationPdfVersion, publishRegulationVersion, MIGRATION_PENDING_MESSAGE } from "@/lib/regulations/publish";
+import { MAX_REGULATION_PDF_BYTES, parseRegulationPdf } from "@/lib/regulations/pdfFile";
+import { createHash } from "node:crypto";
 import { loadCurrentRegulation, listRegulationVersions } from "@/lib/regulations/current";
 import {
   REGULATION_CHANGED_MESSAGE,
@@ -327,5 +329,52 @@ describe("solicitudes que nacen sin aceptación: bloqueo y aceptación posterior
     const seenHash = hashRegulationText(TEXT_A);
     await publish(db, "ricardo", TEXT_B);
     expect(await acceptRegulationForApplication(db.client, { applicationId: APP, actorUserId: "lucia", accepted: true, seenHash })).toEqual({ ok: false, error: REGULATION_CHANGED_MESSAGE });
+  });
+});
+
+
+describe("reglamento propio en PDF (DR62 a)", () => {
+  const pdfBytes = (extra = 2000) => new Uint8Array([...Array.from("%PDF-1.4\n", (c) => c.charCodeAt(0)), ...new Array(extra).fill(65)]);
+  const pdfFile = (bytes = pdfBytes(), name = "Reglamento Norte.pdf") => new File([bytes], name, { type: "application/pdf" });
+  function withStorage(db: ReturnType<typeof mkDb>) {
+    const uploads: string[] = [];
+    const client = Object.assign(db.client, {
+      storage: { from: () => ({ upload: async (path: string) => { uploads.push(path); return { error: null }; } }) },
+    });
+    return { client, uploads };
+  }
+  const publishPdf = (client: unknown, userId: string, file: unknown) =>
+    publishRegulationPdfVersion(client as never, { actorUserId: userId, residenceId: NORTE, file });
+
+  it("publica el PDF como versión: hash de los bytes, dato del archivo en content.pdf y vigente para la ficha", async () => {
+    const db = mkDb();
+    const { client, uploads } = withStorage(db);
+    const bytes = pdfBytes();
+    expect(await publishPdf(client, "editora", pdfFile(bytes))).toEqual({ ok: true, versionNumber: 1 });
+    const row = db.tables.residence_regulation_versions[0];
+    expect(row.content_hash).toBe(createHash("sha256").update(bytes).digest("hex"));
+    expect(parseRegulationPdf(row.content)).toMatchObject({ filename: "Reglamento Norte.pdf", sizeBytes: bytes.length });
+    expect(uploads[0]).toMatch(new RegExp(`^${NORTE}/reglamento-version-[0-9a-f]{16}\\.pdf$`));
+    const current = await loadCurrentRegulation(db.client, NORTE);
+    expect(current.ok && current.view.pdf?.path).toBe(uploads[0]);
+  });
+
+  it("rechaza lo que no es PDF, lo que pasa de 5 MB y a quien no tiene profile.edit; no escribe nada", async () => {
+    const db = mkDb();
+    const { client, uploads } = withStorage(db);
+    expect((await publishPdf(client, "ricardo", pdfFile(new TextEncoder().encode("<html>no soy pdf</html>")))).ok).toBe(false);
+    expect((await publishPdf(client, "ricardo", pdfFile(pdfBytes(MAX_REGULATION_PDF_BYTES)))).ok).toBe(false);
+    expect((await publishPdf(client, "ricardo", null)).ok).toBe(false);
+    expect(await publishPdf(client, "solo-lectura", pdfFile())).toEqual({ ok: false, error: PERMISSION_DENIED_MESSAGE });
+    expect(uploads).toHaveLength(0);
+    expect(db.tables.residence_regulation_versions).toHaveLength(0);
+  });
+
+  it("el mismo PDF dos veces no crea una versión nueva", async () => {
+    const db = mkDb();
+    const { client } = withStorage(db);
+    expect((await publishPdf(client, "ricardo", pdfFile())).ok).toBe(true);
+    expect((await publishPdf(client, "ricardo", pdfFile())).ok).toBe(false);
+    expect(db.tables.residence_regulation_versions).toHaveLength(1);
   });
 });
