@@ -204,6 +204,15 @@ export function StudentSidebar({
         </div>
 
         <div className="border-t border-line p-4">
+          <Link
+            href="/instalar"
+            title="Usá EstuRed en tu celular"
+            aria-label="Usá EstuRed en tu celular"
+            className={`mb-1 hidden min-h-11 items-center gap-2 rounded-field px-3 py-2 text-sm font-medium text-ink-soft hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--tone) md:flex ${collapsed ? "md:justify-center" : ""}`}
+          >
+            <Icon name="install_mobile" className="shrink-0 text-lg" />
+            <span className={collapsed ? "md:hidden" : ""}>Usá EstuRed en tu celular</span>
+          </Link>
           <p className={`truncate px-1 text-xs text-ink-faint ${collapsed ? "md:hidden" : ""}`}>{userEmail}</p>
           <Link
             href="/students/revocation"
