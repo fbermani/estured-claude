@@ -40,7 +40,7 @@ const BENEFITS = [
 const tabBase =
   "flex min-h-12 flex-1 items-center justify-center gap-2 rounded-full px-4 text-sm font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest";
 
-export function InstallGuide() {
+export function InstallGuide({ qrSvg }: { qrSvg: string }) {
   const { platform, installed, promptEvent } = useInstallState();
   const [chosen, setChosen] = useState<"ios" | "android" | null>(null);
   const active: "ios" | "android" = chosen ?? (platform === "ios" ? "ios" : "android");
@@ -58,6 +58,23 @@ export function InstallGuide() {
       <p className="mt-3 text-base leading-relaxed text-ink-soft sm:text-lg">
         Tené EstuRed en tu pantalla principal y enterate al instante cuando una residencia responde tu solicitud. Es gratis y no ocupa espacio.
       </p>
+
+      {platform === "other" && (
+        <section aria-labelledby="qr-title" className="mt-8 flex flex-col items-center gap-5 rounded-card border border-line bg-paper p-5 sm:flex-row sm:p-6">
+          <div
+            role="img"
+            aria-label="Código QR que abre esta página en tu celular"
+            className="size-40 shrink-0 rounded-field bg-white p-2 [&>svg]:size-full"
+            dangerouslySetInnerHTML={{ __html: qrSvg }}
+          />
+          <div>
+            <h2 id="qr-title" className="text-xl font-bold text-ink">Seguí desde tu celular</h2>
+            <p className="mt-1 text-sm leading-relaxed text-ink-soft">
+              Abrí la cámara del celular y apuntá al código. Se abre esta página y la instalás ahí, en Android o iPhone.
+            </p>
+          </div>
+        </section>
+      )}
 
       {installed && (
         <p role="status" className="mt-6 flex items-center gap-2 rounded-card bg-forest-tint px-4 py-3 text-sm font-bold text-forest-700">
@@ -131,12 +148,6 @@ export function InstallGuide() {
           {data.note}
         </p>
       </div>
-
-      {platform === "other" && (
-        <p className="mt-6 text-sm text-ink-soft">
-          Estás en una computadora: abrí esta página desde tu celular para instalar la app ({data.browser === "Safari" ? "iPhone" : "Android"} o el otro sistema).
-        </p>
-      )}
     </div>
   );
 }
