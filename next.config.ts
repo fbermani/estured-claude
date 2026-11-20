@@ -54,6 +54,8 @@ function contentSecurityPolicyReportOnly(): string {
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // DR61: web-push es CommonJS; cargarlo como paquete externo evita que el bundler pierda su export por defecto.
+  serverExternalPackages: ["web-push"],
   // DR28: el Centro de Guías lee `content/guias/*.md` con fs; hay que incluirlos en el bundle de Vercel.
   outputFileTracingIncludes: {
     "/guias": ["./content/guias/**/*"],

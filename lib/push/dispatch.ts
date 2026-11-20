@@ -1,5 +1,5 @@
 import "server-only";
-import webpush from "web-push";
+import * as webpushModule from "web-push";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { isPushCategory, PUSH_CATEGORIES, type PushCategory } from "@/lib/notifications/categories";
 import { notificationAreaForRoles } from "@/lib/notifications/links";
@@ -11,6 +11,9 @@ import { isPushSendWindowOpen } from "@/lib/push/schedule";
  * Envío de push web (DR61). Nunca lanza: un push que falla no tumba la acción de negocio que generó el aviso
  * (mismo criterio que `createAuditLog` y `createNotification`). Si faltan las claves VAPID el push se degrada a solo in-app.
  */
+
+// Interop CJS/ESM: según el bundler, la API queda en `default` o en el espacio de nombres.
+const webpush = ((webpushModule as unknown as { default?: typeof webpushModule }).default ?? webpushModule) as typeof webpushModule;
 
 type Row = { id: string; user_id: string; category: string };
 
