@@ -117,7 +117,7 @@ interface ConditionsInput {
   earlyExitConditionsText: string | null;
   /** Edad de residentes (DR14, migración 0052): la residencia decide sola, sin aprobación del admin. */
   ageRange: { minResidentAge: number; maxResidentAge: number | null; acceptsMinors: boolean };
-  /** Para el gate del envío (DR58): «pide depósito» y «cobra mes vacío» aunque el monto o el porcentaje vengan vacíos (el formulario los manda en null). */
+  /** Para el gate del envío (DR59): «pide depósito» y «cobra mes vacío» aunque el monto o el porcentaje vengan vacíos (el formulario los manda en null). */
   depositEnabled: boolean;
   emptyMonthsEnabled: boolean;
 }
@@ -369,7 +369,7 @@ export async function saveResidenceProfile(
   if (new Set(names).size !== names.length)
     return { status: "error", message: "No repitas el mismo tipo de habitación dos veces." };
 
-  // Requisitos para enviar a revisión (DR58). Solo con `intent = "submit"` y cuando el envío mueve la residencia de estado (borrador,
+  // Requisitos para enviar a revisión (DR59). Solo con `intent = "submit"` y cuando el envío mueve la residencia de estado (borrador,
   // «cambios pedidos» o verificación vencida: también cubre el reenvío). «Guardar cambios» y el guardado de una residencia publicada
   // no se bloquean. Se recalcula acá desde la base + este formulario (el cliente no manda conteos) y ANTES de escribir nada.
   if (intent === "submit" && (!residenceRow || (SUBMITTABLE_RESIDENCE_STATUSES as readonly string[]).includes(String(residenceRow.status)))) {

@@ -139,7 +139,7 @@ export default async function ResidenceProfilePage({
       readOnly={readOnly}
       canSubmit={canSubmit}
       draftScope={{ userId: sessionUser.id }}
-      // Requisitos para enviar (DR58) que no viajan en el formulario: reglamento publicado, PDF y preguntas esenciales listas.
+      // Requisitos para enviar (DR59) que no viajan en el formulario: reglamento publicado, PDF y preguntas esenciales listas.
       readinessExternal={{
         rulesPdf: rulesFile !== null,
         regulationPublished: regulationPublishedFlag(regulationRes),

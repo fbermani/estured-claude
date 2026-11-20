@@ -262,7 +262,7 @@ export function ResidenceProfileForm({
   canSubmit?: boolean;
   /** Borrador local: quién edita. Sin esto no se guarda borrador en el dispositivo. */
   draftScope?: { userId: string };
-  /** Requisitos para enviar (DR58) que viven en otras pantallas (reglamento, preguntas esenciales, PDF): los lee el servidor. */
+  /** Requisitos para enviar (DR59) que viven en otras pantallas (reglamento, preguntas esenciales, PDF): los lee el servidor. */
   readinessExternal: { rulesPdf: boolean; regulationPublished: boolean | null; essentialFaqsReady: number | null };
 }) {
   const action = saveResidenceProfile.bind(null, residenceId);
@@ -470,7 +470,7 @@ export function ResidenceProfileForm({
     setRoomTypes((prev) => prev.map((rt, i) => (i === index ? { ...rt, ...patch } : rt)));
   }
 
-  // Requisitos para enviar a revisión (DR58): la misma función que usa el servidor, con lo que se está editando. Reglamento, preguntas
+  // Requisitos para enviar a revisión (DR59): la misma función que usa el servidor, con lo que se está editando. Reglamento, preguntas
   // esenciales y PDF vienen de la base (otras pantallas); las fotos cuentan todas las subidas, también las pendientes de revisión.
   const [rulesPdfPicked, setRulesPdfPicked] = useState(false);
   const readiness = useMemo(
@@ -674,7 +674,7 @@ export function ResidenceProfileForm({
               minResidentAge: conditions.minResidentAge,
               maxResidentAge: conditions.maxResidentAge,
               acceptsMinors: conditions.acceptsMinors,
-              // El servidor los usa para el gate del envío (DR58): «pide depósito» y «cobra mes vacío» aunque el monto o el % vengan vacíos.
+              // El servidor los usa para el gate del envío (DR59): «pide depósito» y «cobra mes vacío» aunque el monto o el % vengan vacíos.
               depositEnabled: conditions.depositEnabled,
               emptyMonthsEnabled: conditions.emptyMonthsEnabled,
             }),

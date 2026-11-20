@@ -3,7 +3,7 @@ import { Icon } from "@/components/ui/Icon";
 import { readinessHeadline, type SubmitReadiness } from "@/lib/residences/submitReadiness";
 
 /**
- * Fortaleza del perfil + lista de requisitos para enviar a revisión (DR58). Un solo componente para la tarjeta lateral (desde `lg`)
+ * Fortaleza del perfil + lista de requisitos para enviar a revisión (DR59). Un solo componente para la tarjeta lateral (desde `lg`)
  * y la versión compacta de bajo `lg`: así las dos muestran lo mismo. Sin estado propio: se actualiza con lo que el formulario edita.
  * `canSend` = el dueño puede enviar ahora (es el dueño y el estado de la residencia lo permite): cambia el titular, no la lista.
  */

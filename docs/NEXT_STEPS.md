@@ -2,7 +2,7 @@
 
 # EstuRed — Próximos pasos
 
-## Requisitos para enviar a revisión (DR58) — 2026-11-20
+## Requisitos para enviar a revisión (DR59) — 2026-11-20
 
 Hecho (sin build ni verificación visual): `computeSubmitReadiness` (`lib/residences/submitReadiness.ts`) con 9 requisitos + depósito y salida anticipada condicionales; el servidor lo recalcula en `saveResidenceProfile` solo con `submit` en `draft`/`needs_changes`/`verification_expired`; la tarjeta «Fortaleza del Perfil» muestra la checklist en vivo. **Pendiente:** (1) correr `scripts/seed-dev-fichas-completas.mjs --dry-run` y después aplicar en dev (deja las demo `verified_active` cumpliendo los requisitos y una en borrador que no); (2) `faq/actions.ts` debería hacer `revalidatePath(`/residence/${id}/profile`)` tras guardar preguntas (hoy el perfil refresca al volver a cargarse); (3) el Panel (`app/residence/[residence_id]/page.tsx`) todavía usa `computeProfileStrength` clásico: migrarlo a `strengthFromReadiness` para que el % coincida; (4) verificar en staging el rechazo del envío y el mensaje.
 

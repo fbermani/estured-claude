@@ -59,7 +59,7 @@ export function computeProfileStrength(input: ProfileStrengthInput): ProfileStre
 }
 
 /**
- * Fortaleza derivada de la lista de requisitos para enviar a revisión (DR58): es el promedio del avance de los requisitos obligatorios
+ * Fortaleza derivada de la lista de requisitos para enviar a revisión (DR59): es el promedio del avance de los requisitos obligatorios
  * (los parciales, como fotos o preguntas esenciales, suman en proporción). Con todos cumplidos da 100 %. Es lo que usa el formulario
  * del perfil; `computeProfileStrength` queda para las pantallas que todavía no calculan la lista completa (el Panel).
  */

@@ -5,7 +5,7 @@
  * Reglas: solo completa HUECOS. Nunca sobrescribe un dato existente y nunca borra filas. Los textos son genéricos y no afirman cosas
  * verificables fuera de lo que ya figura. Sin PDF de reglamento.
  *
- * Requisitos para enviar a revisión (DR58, sección 5): deja cada residencia publicada cumpliendo los 9 (datos básicos, servicios y áreas,
+ * Requisitos para enviar a revisión (DR59, sección 5): deja cada residencia publicada cumpliendo los 9 (datos básicos, servicios y áreas,
  * una regla, reglamento publicado, 3 preguntas esenciales listas, 2 universidades, un tipo de habitación, 3 fotos propias y condiciones).
  * Las FOTOS se completan solo con `--with-photos` (opt-in), copiando objetos de Storage de otra residencia demo que ya tiene (no hay
  * fotos propias de las demo; el dueño ya limpió una vez fotos «prestadas», por eso no se copian por defecto: sin la bandera las demo sin
@@ -83,7 +83,7 @@ const ADJUSTMENT_TEXT = { monthly: "todos los meses", quarterly: "cada 3 meses",
 const usd = (n) => `USD ${Number(n).toLocaleString("es-AR", { maximumFractionDigits: 0 })}`;
 
 
-// ------------------------------------------------- requisitos para enviar (DR58)
+// ------------------------------------------------- requisitos para enviar (DR59)
 const MIN_PHOTOS = 3;
 const MIN_ESSENTIALS = 3;
 const MIN_UNIVERSITIES = 2;
@@ -309,7 +309,7 @@ for (const [i, r] of residences.entries()) {
     row.faq = `ya tenía ${selectedCount}`;
   }
 
-  // ---- 5. Requisitos para enviar a revisión (DR58): completa HUECOS hasta cumplir los 9 ----
+  // ---- 5. Requisitos para enviar a revisión (DR59): completa HUECOS hasta cumplir los 9 ----
   const req = {};
   // 5a. Datos básicos: eslogan y descripción (nombre, barrio y dirección se fijan al registrarse: no se inventan).
   const basicsPatch = {};
@@ -433,6 +433,6 @@ console.table(table.map(({ requisitos, ...rest }) => ({ ...rest, ...Object.fromE
 const unmet = table.filter((t) => Object.values(t.requisitos ?? {}).some((v) => typeof v === "string" && (v.startsWith("falta") || v.includes(" Y "))));
 if (unmet.length > 0) console.log("Residencias que seguirían sin cumplir algún requisito:", unmet.map((t) => t.slug).join(", "));
 
-// ---- 6. Para probar el rechazo del envío (DR58) usá una residencia en borrador sin completar (p. ej. residencia-prueba-dr22-f307f4). Este seed no cambia estados. ----
+// ---- 6. Para probar el rechazo del envío (DR59) usá una residencia en borrador sin completar (p. ej. residencia-prueba-dr22-f307f4). Este seed no cambia estados. ----
 console.log(DRY ? "DRY RUN (no se escribió nada):" : "Listo:", stats);
 if (!DRY) console.log("Mirá cualquier /residencias/<slug> (capítulos 01 a 07).");

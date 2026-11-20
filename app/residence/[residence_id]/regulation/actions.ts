@@ -30,7 +30,7 @@ export async function publishRegulationAction(
   if (!result.ok) return { status: "error", message: result.error };
 
   revalidatePath(`/residence/${residenceId}/regulation`);
-  revalidatePath(`/residence/${residenceId}/profile`); // el reglamento publicado es un requisito para enviar la ficha (DR58)
+  revalidatePath(`/residence/${residenceId}/profile`); // el reglamento publicado es un requisito para enviar la ficha (DR59)
   revalidatePath("/residencias/[slug]", "page");
   return { status: "published", message: `Publicaste la versión ${result.versionNumber}. Rige para las solicitudes nuevas.` };
 }

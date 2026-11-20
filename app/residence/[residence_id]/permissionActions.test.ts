@@ -208,7 +208,7 @@ describe("perfil: guardar es `profile.edit`; enviar a verificación es solo del 
   });
 });
 
-describe("perfil: requisitos para enviar a revisión (DR58, recalculados en el servidor)", () => {
+describe("perfil: requisitos para enviar a revisión (DR59, recalculados en el servidor)", () => {
   /** Formulario válido pero incompleto: sin fotos, sin reglamento, sin universidades, sin preguntas esenciales. */
   const form = (intent: string) => {
     const fd = new FormData();

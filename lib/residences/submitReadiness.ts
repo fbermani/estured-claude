@@ -1,11 +1,11 @@
 import { MIN_PUBLISH_PHOTOS } from "@/lib/residences/photos";
 
 /**
- * Requisitos para ENVIAR una residencia a revisión (decisión del dueño, 2026-11-20, `docs/00` DR58). Función pura, sin `server-only`:
+ * Requisitos para ENVIAR una residencia a revisión (decisión del dueño, 2026-11-20, `docs/00` DR59). Función pura, sin `server-only`:
  * la usan el formulario del perfil (checklist en vivo con lo que se está editando) y la server action `saveResidenceProfile`
  * (que la recalcula siempre desde la base + el formulario enviado; nunca confía en conteos del cliente).
  *
- * Lista de requisitos obligatorios (supuestos reversibles, ver `docs/00` DR58):
+ * Lista de requisitos obligatorios (supuestos reversibles, ver `docs/00` DR59):
  * 1. Datos básicos: nombre, barrio y dirección (se fijan al registrarse), eslogan y descripción de más de 20 caracteres.
  *    El perfil no tiene un campo de contacto propio: no se exige.
  * 2. Al menos 1 servicio y, aparte, al menos 1 área común (los ítems «Otro» pendientes de aprobación no cuentan).
