@@ -4,8 +4,6 @@ import { Bricolage_Grotesque, Hanken_Grotesk } from "next/font/google";
 import { DemoSwitcherGate } from "@/components/dev/DemoSwitcherGate";
 import { isDemoLoginEnabled } from "@/lib/demoLogin";
 import "./globals.css";
-// Clases animate__* (animate.css 4.1.1, MIT). Úsalas con `animate__animated animate__<efecto>`.
-import "animate.css";
 import { SITE_URL } from "@/lib/siteUrl";
 import { siteJsonLd } from "@/lib/seo/siteJsonLd";
 
