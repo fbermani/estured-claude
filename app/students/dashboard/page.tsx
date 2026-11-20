@@ -18,6 +18,7 @@ import { PageHero } from "@/components/ui/PageHero";
 import { ListRow } from "@/components/ui/ListRow";
 import { Reveal } from "@/components/ui/Reveal";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { PushPermissionCard } from "@/components/push/PushPermissionCard";
 import { NextStepCard } from "@/components/students/NextStepCard";
 import { getNextStep } from "@/lib/students/journeyStage";
 import { PhotoCarousel } from "@/components/students/PhotoCarousel";
@@ -895,6 +896,12 @@ export default async function StudentDashboardPage() {
       />
 
       {headerBanners}
+
+      {applications.length > 0 && (
+        <div className="mt-6">
+          <PushPermissionCard audience="student" />
+        </div>
+      )}
 
       {!isHoused && (
         <div className="mt-6">

@@ -4,6 +4,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
+import { PushSettings } from "@/components/push/PushSettings";
 import { ProfileDetailsForm } from "@/app/students/profile/ProfileDetailsForm";
 import { DocumentUpload } from "@/app/students/profile/DocumentUpload";
 import { OtherDocumentsUpload } from "@/app/students/profile/OtherDocumentsUpload";
@@ -173,6 +174,8 @@ export default async function StudentProfilePage() {
             </div>
           </Card>
 
+          <PushSettings />
+
           <FamilyLinkCard
             activeLink={activeLink}
             pendingApprovalCount={pendingApprovalCount ?? 0}
@@ -225,6 +228,9 @@ async function FamilyProfileView({ userId, email }: { userId: string; email: str
           billingTaxId={formatBillingTaxId(row.billing_tax_id)}
           billingVatCondition={row.billing_vat_condition ?? ""}
         />
+      </div>
+      <div className="mt-6">
+        <PushSettings />
       </div>
     </div>
   );

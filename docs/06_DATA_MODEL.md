@@ -1765,7 +1765,7 @@ Reglas:
 | `provider_response` | jsonb null | Respuesta canal |
 | `created_at` | timestamptz | Alta |
 
-**Campos de push (DR61, migración 0101).** `notifications.category` (`text`, no nulo, por defecto `none`; CHECK: `none`, `requests_reservations`, `payments_fee`, `deadlines`, `admin_requests`, `admin_signups`) y `notifications.push_status` (`text`, no nulo, por defecto `none`; CHECK: `none`, `queued`, `sent`, `skipped`, `failed`). `queued` marca lo que espera las 9:00 (Argentina); índice parcial sobre `queued`. No lleva grants por columna: `notifications` solo tiene lectura propia y la policy restrictiva `notifications_only_active_users` (0081).
+**Campos de push (DR61, migración 0101).** `notifications.category` (`text`, no nulo, por defecto `none`; CHECK: `none`, `requests_reservations`, `payments_fee`, `deadlines`, `admin_requests`, `admin_signups`) y `notifications.push_status` (`text`, no nulo, por defecto `none`; CHECK: `none`, `queued`, `sending`, `sent`, `skipped`, `failed`; `sending` es el cierre atómico del cron para que dos corridas solapadas no manden el mismo push). `queued` marca lo que espera las 9:00 (Argentina); índice parcial sobre `queued`. No lleva grants por columna: `notifications` solo tiene lectura propia y la policy restrictiva `notifications_only_active_users` (0081).
 
 ### 21.2. `push_subscriptions` *(DR61)*
 

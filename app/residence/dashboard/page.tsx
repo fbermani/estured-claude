@@ -14,6 +14,8 @@ import { Footer } from "@/components/layout/Footer";
 import { MAX_RESIDENCES_PER_OWNER } from "@/lib/residences/addResidenceForOwner";
 import { OwnerResidenceGrid } from "@/components/residences/OwnerResidenceGrid";
 import { SkipLink } from "@/components/ui/SkipLink";
+import { PushPermissionCard } from "@/components/push/PushPermissionCard";
+import { PushSettings } from "@/components/push/PushSettings";
 
 export const metadata: Metadata = { title: "Panel de residencia" };
 export const dynamic = "force-dynamic";
@@ -36,6 +38,16 @@ export default async function ResidenceDashboardPage() {
     admin ? getCurrentExchangeRate() : Promise.resolve(null),
   ]);
   const arsPerUsd = rate?.arsPerUsd ?? 0;
+  // La tarjeta de avisos se ofrece recién cuando la residencia ya recibió al menos una solicitud.
+  let hasReceivedRequest = false;
+  if (admin && validCards.length > 0) {
+    const { count, error: requestsError } = await admin
+      .from("application_requests")
+      .select("id", { count: "exact", head: true })
+      .in("residence_id", validCards.map((c) => c.residenceId));
+    if (requestsError) console.error("[residence dashboard] conteo de solicitudes falló:", requestsError.code, requestsError.message);
+    hasReceivedRequest = (count ?? 0) > 0;
+  }
   // H22: solo el owner suma residencias (docs/11 §7.3), y hasta el tope de 10.
   // DR10: el reporte PDF y sumar residencias son solo del dueño. Se cuentan las residencias donde es dueño (no donde es staff).
   const ownedCount = validCards.filter((c) => c.role === "owner").length;
@@ -78,6 +90,12 @@ export default async function ResidenceDashboardPage() {
           }
         />
 
+        {hasReceivedRequest && (
+          <div className="mb-6">
+            <PushPermissionCard audience="residence" />
+          </div>
+        )}
+
         {validCards.length === 0 ? (
           <EmptyState
             tone="residence"
@@ -95,6 +113,10 @@ export default async function ResidenceDashboardPage() {
         ) : (
           <OwnerResidenceGrid cards={validCards} arsPerUsd={arsPerUsd} />
         )}
+
+        <div className="mt-10 max-w-xl">
+          <PushSettings />
+        </div>
       </main>
       <Footer staffView />
     </div>

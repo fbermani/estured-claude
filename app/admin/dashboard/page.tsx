@@ -3,6 +3,8 @@ import Link from "next/link";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { PageHero } from "@/components/ui/PageHero";
 import { MetricCard } from "@/components/ui/MetricCard";
+import { PushPermissionCard } from "@/components/push/PushPermissionCard";
+import { PushSettings } from "@/components/push/PushSettings";
 import { Badge } from "@/components/ui/Badge";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
@@ -199,6 +201,10 @@ export default async function AdminDashboardPage() {
         cta={stats.pendingValidations > 0 ? { label: "Revisar verificaciones", href: "/admin/verifications" } : undefined}
       />
 
+      <div className="mb-6">
+        <PushPermissionCard audience="admin" />
+      </div>
+
       <section aria-labelledby="dash-pendientes">
         <h2 id="dash-pendientes" className="mb-3 text-sm font-bold" style={{ color: cmd.onSurface }}>
           Requiere acción
@@ -317,6 +323,10 @@ export default async function AdminDashboardPage() {
           </ul>
         )}
       </AdminCard>
+
+      <div className="mt-6 max-w-xl">
+        <PushSettings />
+      </div>
     </div>
   );
 }

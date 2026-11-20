@@ -16,6 +16,7 @@ import { expireStayChangeIntents } from "@/lib/jobs/expireStayChangeIntents";
 import { runStayFollowups } from "@/lib/jobs/runStayFollowups";
 import { notifyArrivalReminders } from "@/lib/jobs/notifyArrivalReminders";
 import { runGuardianConfirmationJob } from "@/lib/residents/guardianConfirmation";
+import { flushQueuedPush } from "@/lib/push/dispatch";
 
 /**
  * Orquesta los jobs periódicos del proyecto, invocado por
@@ -66,8 +67,11 @@ export async function runExpirationJobs(admin: SupabaseClient) {
     notifyArrivalReminders(admin),
     runGuardianConfirmationJob(admin),
   ]);
+  // DR61: los push generados entre las 0:00 y las 8:59 (Argentina) salen en la primera corrida desde las 9:00.
+  const queuedPush = await flushQueuedPush(admin);
 
   return {
+    queuedPush,
     familyProposals,
     negotiationProposals,
     applicationRequests,

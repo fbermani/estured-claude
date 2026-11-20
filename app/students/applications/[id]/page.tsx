@@ -8,6 +8,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { loadActiveFamilyLink } from "@/lib/family/access";
 import { getSessionUser } from "@/lib/auth/session";
 import { DrawCheck } from "@/components/ui/DrawCheck";
+import { PushPermissionCard } from "@/components/push/PushPermissionCard";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -210,6 +211,11 @@ export default async function StudentApplicationDetailPage({
               Instalá la app para enterarte cuando responda
             </Link>
           </div>
+        </div>
+      )}
+      {justSent && !isFamilyViewer && (
+        <div className="mb-4">
+          <PushPermissionCard audience="student" />
         </div>
       )}
       <Card className="p-8">

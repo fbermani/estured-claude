@@ -62,6 +62,7 @@ export async function notifySuperadminsOfPaymentSettingsChange(
           body: `Los datos de cobro ${what}. Si no lo esperabas, revisalo en Pagos → Datos de cobro.`,
           relatedEntityType: "payment_settings",
           relatedEntityId: params.settingsId ?? undefined,
+          category: "admin_requests",
         }),
         sendEmail({
           to: u.email,

@@ -9,6 +9,7 @@ import {
   markNotificationsRead,
   type NotificationItem,
 } from "@/lib/notifications/actions";
+import { syncAppBadge } from "@/lib/push/client";
 
 function timeAgo(iso: string): string {
   const diffMs = Date.now() - new Date(iso).getTime();
@@ -35,6 +36,10 @@ export function NotificationBell() {
       setUnreadCount(unreadCount);
     });
   }, []);
+
+  useEffect(() => {
+    syncAppBadge(unreadCount);
+  }, [unreadCount]);
 
   useEffect(() => {
     if (!open) return;

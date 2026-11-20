@@ -8,6 +8,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser, roleHome } from "@/lib/auth/session";
 import { getSafeUser } from "@/lib/supabase/safe-get-user";
 import { createAuditLog } from "@/lib/audit";
+import { revokePushForSignOut } from "@/lib/push/revokeForSignOut";
 import { clientIpFromHeaders, clientKeyFromHeaders } from "@/lib/receipts/verifyRateLimit";
 import { TURNSTILE_ERROR_MESSAGE, verifyTurnstile } from "@/lib/security/turnstile";
 import { consumeRateLimit, emailRateLimitKey, isRateLimited } from "@/lib/security/rateLimit";
@@ -117,6 +118,7 @@ export async function signOut(): Promise<void> {
     await supabase.auth.signOut();
     const admin = getSupabaseAdmin();
     if (admin && user) {
+      await revokePushForSignOut(admin, user.id, (await headers()).get("user-agent"));
       await createAuditLog(admin, {
         actorUserId: user.id,
         actorRole: "registered_user",

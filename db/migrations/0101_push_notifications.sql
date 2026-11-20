@@ -3,7 +3,7 @@
 --
 -- QUÉ HACE
 --   1. `notifications.category` (none, requests_reservations, payments_fee, deadlines, admin_requests, admin_signups)
---      y `notifications.push_status` (none, queued, sent, skipped, failed) + índice parcial sobre `queued`.
+--      y `notifications.push_status` (none, queued, sending, sent, skipped, failed) + índice parcial sobre `queued`.
 --   2. `push_subscriptions`: una fila por dispositivo (endpoint único). El usuario lee las suyas SIN `p256dh` ni `auth`.
 --   3. `push_preferences`: interruptor por categoría (sin fila = activado).
 --   Toda escritura va por server action con service role. Policies restrictivas `<tabla>_only_active_users` (patrón 0081).
@@ -35,7 +35,7 @@ alter table public.notifications add constraint notifications_category_check
 
 alter table public.notifications drop constraint if exists notifications_push_status_check;
 alter table public.notifications add constraint notifications_push_status_check
-  check (push_status in ('none', 'queued', 'sent', 'skipped', 'failed'));
+  check (push_status in ('none', 'queued', 'sending', 'sent', 'skipped', 'failed'));
 
 create index if not exists notifications_push_queued_idx
   on public.notifications (created_at) where push_status = 'queued';

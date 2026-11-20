@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createNotification } from "@/lib/notifications/createNotification";
+import type { NotificationCategory } from "@/lib/notifications/categories";
 
 /**
  * Helper obligatorio de auditoría (docs/12 §5.4, docs/06 §22.1).
@@ -76,12 +77,13 @@ export async function alertAdminsOfAuditFailure(
 }
 
 /**
- * Notificación genérica a todos los admin/superadmin (campana del panel). La usan las alertas de dinero que piden revisión humana
+ * Notificación genérica a todos los admin/superadmin (campana del panel). Categoría por defecto `admin_requests` (DR61): todas las alertas de
+ * este helper piden revisión humana y salen también como push; pasá `category: "none"` para una que no deba salir. La usan las alertas de dinero que piden revisión humana
  * (p. ej. fee cobrado cuya reserva no se pudo confirmar, Ciclo 71 DR8). Nunca lanza.
  */
 export async function notifyAdmins(
   admin: SupabaseClient,
-  params: { title: string; body: string; entityType: string; entityId: string },
+  params: { title: string; body: string; entityType: string; entityId: string; category?: NotificationCategory },
 ): Promise<void> {
   const { data: admins } = await admin
     .from("user_roles")
@@ -96,6 +98,7 @@ export async function notifyAdmins(
         body: params.body,
         relatedEntityType: params.entityType,
         relatedEntityId: params.entityId,
+        category: params.category ?? "admin_requests",
       }),
     ),
   );
