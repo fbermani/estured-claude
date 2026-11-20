@@ -79,6 +79,7 @@ export async function getCurrentExchangeRate(): Promise<CurrentExchangeRate> {
       .maybeSingle();
     const fetched = await provider.getReferenceUsdArsRate(
       previous ? Number(previous.official_exchange_rate_ars_per_usd) : null,
+      { fresh: false },
     );
     const { data: inserted, error } = await admin
       .from("exchange_rates")

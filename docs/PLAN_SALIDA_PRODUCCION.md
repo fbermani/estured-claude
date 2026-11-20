@@ -334,3 +334,8 @@ Solo lo vigente y no cubierto arriba. Cada ítem se verificó contra el código 
 - [ ] Incidentes críticos: fee cobrado dos veces, residencia que ve datos de otra del mismo owner, una propuesta de ajuste duplicada, dato sensible expuesto.
 - [ ] Respuesta: 1) pausar lo afectado; 2) registrar; 3) revisar el audit log; 4) contactar a las partes; 5) corregir el dato o estado; 6) documentar la causa; 7) test de regresión; 8) decidir si se reactiva.
 - [ ] La operación manual desde el admin no pierde trazabilidad (rollback técnico en H).
+
+**Rendimiento R19-03/04 aplicado (2026-11-20)**
+- Catálogo cacheado 120 s (`lib/residences/catalog.ts`, tag `catalog`); un cambio de ficha o cupo tarda hasta 2 min en verse. `/` pasa a ISR de 60 s (`revalidate = 60`); la lectura automática del tipo de cambio ya no usa `no-store` (`lib/exchange/provider.ts`).
+- `/` y `/preapertura` solo son estáticas con `DEMO_LOGIN_ENABLED` apagado (como en Production). En el Preview de `staging` (demo activo) siguen dinámicas: allí solo se nota el caché del catálogo.
+- [ ] Repetir la carga con `e2e/load/k6-publica.js` tras el deploy. Meta: 25 usuarios con p95 menor a 2 s.

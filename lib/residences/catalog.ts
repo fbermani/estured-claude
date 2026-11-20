@@ -1,5 +1,6 @@
 import { normalizeAmenityLists } from "@/lib/residences/amenityDetails";
 import "server-only";
+import { unstable_cache } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { residenceAcceptsAge } from "@/lib/residences/age";
 import { isMissingColumnError } from "@/lib/residences/changesRequest";
@@ -48,10 +49,31 @@ function deriveGenderPolicy(policies: (string | null)[]): { genderPolicy?: "mixt
   return { genderPolicy: all.length === 1 ? all[0] : "mixto", genderPolicies: all };
 }
 
-/** Igual que `getCatalogResidences`, pero además devuelve el total publicado antes del filtro por edad (una sola consulta). */
-export async function getCatalogResidencesWithTotal(
-  options: { studentAge?: number | null } = {},
-): Promise<{ residences: Residence[]; total: number }> {
+/** Segundos que el catálogo se sirve desde caché (auditoría 2026-11-19, R19-03). Un cambio de ficha o de cupo tarda hasta este tiempo en verse; `revalidateTag("catalog")` lo fuerza. */
+export const CATALOG_REVALIDATE_SECONDS = 120;
+
+type CatalogOptions = { studentAge?: number | null };
+type CatalogResult = { residences: Residence[]; total: number };
+
+const getCatalogCached = unstable_cache(
+  (options: CatalogOptions) => loadCatalogResidencesUncached(options),
+  ["catalog-residences-v1"],
+  { revalidate: CATALOG_REVALIDATE_SECONDS, tags: ["catalog"] },
+);
+
+/**
+ * Igual que `getCatalogResidences`, pero además devuelve el total publicado antes del filtro por edad (una sola consulta).
+ * Cacheado ~2 min por edad: la home, `/search` y el fondo de la preapertura lo repetían en cada request (9 consultas en 3 rondas).
+ * En tests (`NODE_ENV=test`) no hay caché de Next: se lee directo de la base.
+ */
+export async function getCatalogResidencesWithTotal(options: CatalogOptions = {}): Promise<CatalogResult> {
+  if (process.env.NODE_ENV === "test") return loadCatalogResidencesUncached(options);
+  return getCatalogCached({ studentAge: options.studentAge ?? null });
+}
+
+async function loadCatalogResidencesUncached(
+  options: CatalogOptions = {},
+): Promise<CatalogResult> {
   const admin = getSupabaseAdmin();
   if (!admin) return { residences: [], total: 0 };
 

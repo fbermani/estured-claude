@@ -36,8 +36,13 @@ export function isPlausibleRate(value: unknown, lastKnown?: number | null): valu
 const MONEDAPI_URL = "https://monedapi.ar/api/v2/usd/blue";
 
 export class MonedApiProvider implements ExchangeRateProvider {
-  async getReferenceUsdArsRate(lastKnownArsPerUsd?: number | null): Promise<ExchangeRateResult> {
-    const res = await fetch(MONEDAPI_URL, { cache: "no-store", signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
+  async getReferenceUsdArsRate(lastKnownArsPerUsd?: number | null, options: { fresh?: boolean } = {}): Promise<ExchangeRateResult> {
+    // `fresh: false` (lectura automática del día, auditoría 2026-11-19 R19-04): `no-store` hace dinámica toda página que llega a este fetch
+    // (la home deja de poder ser ISR). Con `revalidate` el dato se reusa hasta 1 h y la página se puede servir estática.
+    const res = await fetch(MONEDAPI_URL, {
+      ...(options.fresh === false ? { next: { revalidate: 3600 } } : { cache: "no-store" as const }),
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    });
     if (!res.ok) {
       throw new Error(`monedapi.ar respondió ${res.status}`);
     }
