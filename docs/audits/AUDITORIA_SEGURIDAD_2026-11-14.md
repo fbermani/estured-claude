@@ -141,7 +141,7 @@ El selector demo, las cuentas de prueba, los secretos Turnstile de prueba y los 
 
 La prueba de integración de recibos creó fixtures temporales en dev y los eliminó automáticamente. Un SELECT posterior confirmó **0 residencias residuales** para el nombre/prefijo exactos del test; no se ejecutó limpieza masiva. No se tocó producción ni se modificaron datos de usuarios ajenos a esos fixtures.
 
-Reproducciones aisladas de SEG14-01 y SEG14-02: `node docs/audits/evidence/2026-11-14/repro-actions.cjs`, desde la raíz del repo. Usan los módulos reales y dependencias simuladas, sin cargar credenciales ni conectarse a la base. Resultado capturado en `docs/audits/evidence/2026-11-14/repro-actions-results.json`. Sus asserts demuestran el comportamiento inseguro actual; al corregirlo, deben sustituirse por regresiones que exijan el rechazo.
+Reproducciones aisladas de SEG14-01 y SEG14-02: `node docs/archive/evidence/2026-11-14/repro-actions.cjs`, desde la raíz del repo. Usan los módulos reales y dependencias simuladas, sin cargar credenciales ni conectarse a la base. Resultado capturado en `docs/archive/evidence/2026-11-14/repro-actions-results.json`. Sus asserts demuestran el comportamiento inseguro actual; al corregirlo, deben sustituirse por regresiones que exijan el rechazo.
 
 El primer intento de `/api/session` devolvió un 500 transitorio del servidor de desarrollo; las comprobaciones posteriores devolvieron 200 y las cabeceras esperadas. No se atribuyó a una vulnerabilidad sin una causa reproducible.
 

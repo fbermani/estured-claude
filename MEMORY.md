@@ -44,7 +44,7 @@ Fuente: `docs/PLAN_SALIDA_PRODUCCION.md` (runbook). Pendientes del dueño antes 
 
 1. **Aplicar 0098 y 0099 en prod** (entran solas con el bootstrap; si prod ya se armó, pegar cada archivo en su SQL Editor).
 2. **Activar «Leaked password protection»** en Supabase Auth (prod y dev; es un interruptor del panel).
-3. **Cerrar el staging público** (`estured.vercel.app`: sin login de Vercel y con selector demo): Vercel Authentication en Preview, o apagar `DEMO_LOGIN_ENABLED`.
+3. ~~Cerrar el staging público~~: **decisión del dueño 2026-11-20: se deja público** (estured-dev con selector demo; no afecta producción).
 4. **Correr `npx playwright test` contra staging** con las migraciones al día.
 5. Resto del checklist de producción (proyecto Supabase nuevo, Resend, `CRON_SECRET`, WAF, dominio, admin con `scripts/create-admin.mjs`, datos de cobro): runbook §C–§G. Texto anterior de este punto: archivo histórico §D.
 6. Seguimiento técnico histórico: `docs/NEXT_STEPS.md`.

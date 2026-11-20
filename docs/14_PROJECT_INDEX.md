@@ -158,7 +158,7 @@ Complementan los `00`–`23`. Ante contradicción, manda la jerarquía de `13_CL
 | `PLAN_SALIDA_PRODUCCION.md` | Runbook vigente de salida a producción (staging, bootstrap 0001–0099, variables, deploy, rollback). |
 | `NEXT_STEPS.md` | Seguimiento técnico por ciclo; histórico desde el traspaso 2026-11-02. |
 | `23_PREAPERTURA.md` | Modo preapertura (DR42–DR47); el flag `PREAPERTURA=on` va en producción. |
-| `audits/` | Auditorías de producto, diseño, UX, seguridad, SEO y pruebas pre-producción, con sus planes. `audits/evidence/` es evidencia cruda. |
+| `audits/` | Auditorías de producto, diseño, UX, seguridad, SEO y pruebas pre-producción, con sus planes. la evidencia cruda de auditorías está en `archive/evidence/`. |
 | `propuestas/` | Textos y modelos propuestos (landings, reglamento y FAQ). No son reglas hasta pasar por `13` §5. |
 | `archive/` | Histórico íntegro: `MEMORY_HISTORICO_2026-10-25.md`, `MEMORY_HISTORICO_2026-11-19.md` y los documentos de julio/octubre ya superados. En su lugar original queda un aviso de una línea. |
 

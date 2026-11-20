@@ -218,9 +218,9 @@ Correcciones de SEG14-01/02/03, hallazgos históricos corregidos, dependencias d
 
 ## Evidencia reproducible
 
-- Prueba: `docs/audits/evidence/2026-11-15/seguridad-complementaria.test.ts` (11 tests, fixtures aislados, se limpian solos).
-- Ejecución: `npx vitest run docs/audits/evidence/2026-11-15/seguridad-complementaria.test.ts`
-- Resultado sanitizado: `docs/audits/evidence/2026-11-15/results.json` (167 controles: 167 comprobados y 0 fallidos tras corregir SEG15-01 y SEG15-02 (en la medición original eran 165 y 2); sin tokens, cookies, URLs firmadas ni correos).
+- Prueba: `docs/archive/evidence/2026-11-15/seguridad-complementaria.test.ts` (11 tests, fixtures aislados, se limpian solos).
+- Ejecución: `npx vitest run docs/archive/evidence/2026-11-15/seguridad-complementaria.test.ts`
+- Resultado sanitizado: `docs/archive/evidence/2026-11-15/results.json` (167 controles: 167 comprobados y 0 fallidos tras corregir SEG15-01 y SEG15-02 (en la medición original eran 165 y 2); sin tokens, cookies, URLs firmadas ni correos).
 - La prueba corre solo contra el ref de `estured-dev` y se niega en otro.
 
 ## Decisiones del dueño (2026-11-15) — registradas en `docs/00` DR54

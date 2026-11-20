@@ -52,7 +52,7 @@ Prioridad: P1 confianza/tarea inaccesible · P2 fricción o información contrad
 | CON-28 | H19 | «Abrir WhatsApp» sin aclarar que abre la app y que el mensaje es borrador. | P3 | Copy breve. | implementado (falta verificar en staging) |
 | CON-29 | B decisión | Valentina (17) puede abrir la solicitud de una ficha «De 18 a 26 años». | — | Decidido (DR50): aviso no bloqueante en el formulario según la edad a la fecha de ingreso. | implementado (falta verificar en staging); lógica con test |
 | CON-30 | B cond. 3–4, A | Demo: «Lucia/Lucía», tutor con mail de otra estudiante, Martín↔Valentina vs Lucía, staff en selector. | P3 | Normalizar datos demo de forma aditiva. | implementado en dev: tildes normalizadas (script idempotente); mail del tutor de Valentina: dejar como está (decisión del dueño, solo demo) |
-| CON-31 | B lint | `npm run lint` falla en `docs/audits/evidence/2026-11-14/repro-actions.cjs` (evidencia de seguridad). | P3 | Ignorarlo en la config de ESLint (no es código de la app). Verificar si sigue fallando. | resuelto: ESLint 0 errores (`docs/audits/evidence/**` ignorado) |
+| CON-31 | B lint | `npm run lint` falla en `docs/archive/evidence/2026-11-14/repro-actions.cjs` (evidencia de seguridad). | P3 | Ignorarlo en la config de ESLint (no es código de la app). Verificar si sigue fallando. | resuelto: ESLint 0 errores (`docs/archive/evidence/**` ignorado) |
 
 ## Lotes
 

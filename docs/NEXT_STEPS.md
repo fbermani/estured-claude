@@ -8,11 +8,11 @@ Hecho (sin verificar en navegador; ver `docs/00` DR57): `/residence/[id]/share` 
 
 ## Auditoría UX por recorrido Codex — 2026-11-14
 
-Informe compartible: [`AUDITORIA_UX_RECORRIDO_CODEX_2026-11-14.md`](audits/AUDITORIA_UX_RECORRIDO_CODEX_2026-11-14.md). Siete demos y visitante; 12 hallazgos (2 P1, 8 P2, 2 P3), con capturas, criterios de aceptación y [cobertura explícita](audits/evidence/ux-2026-11-14/COBERTURA.md). No se implementaron fixes.
+Informe compartible: [`AUDITORIA_UX_RECORRIDO_CODEX_2026-11-14.md`](audits/AUDITORIA_UX_RECORRIDO_CODEX_2026-11-14.md). Siete demos y visitante; 12 hallazgos (2 P1, 8 P2, 2 P3), con capturas, criterios de aceptación y [cobertura explícita](archive/evidence/ux-2026-11-14/COBERTURA.md). No se implementaron fixes.
 
 - Primero **UX01**: corregir la ayuda que dice que la dirección es privada aunque se publica; **UX02**: búsqueda/paginación de Comunidad admin (hoy corta en 300 y no permite llegar a Norte/Río).
 - Luego contadores/listas, preguntas pendientes, orientación del perfil, revisión económica de solicitud y cambios enviados a aprobación. Reproducir con datos actuales antes de editar: hubo tests/commits concurrentes en dev.
-- Para completar los estados no recorridos: casos demo vigentes de solicitud/renovación/espera, menor con vínculo estable y staff limitado. Typecheck/build OK; lint global con 7 errores en `docs/audits/evidence/2026-11-14/repro-actions.cjs`, no modificado por esta auditoría UX.
+- Para completar los estados no recorridos: casos demo vigentes de solicitud/renovación/espera, menor con vínculo estable y staff limitado. Typecheck/build OK; lint global con 7 errores en `docs/archive/evidence/2026-11-14/repro-actions.cjs`, no modificado por esta auditoría UX.
 
 ## DR48: documentos de estudiantes visibles para la residencia — 2026-11-14
 

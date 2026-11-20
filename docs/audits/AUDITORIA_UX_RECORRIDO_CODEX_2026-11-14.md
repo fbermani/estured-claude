@@ -39,10 +39,10 @@ El registro conserva **106 estados válidos por etiqueta y 80 URLs distintas**, 
 
 Se combinaron navegación real, apertura de formularios sin enviarlos, inspección visual, árbol de accesibilidad, medidas del DOM y lectura puntual del código para explicar contradicciones. Se usaron los criterios de Impeccable, revisión de diseño y accesibilidad. No se asigna un puntaje global artificial ni se certifica WCAG.
 
-- [Matriz completa de cobertura y pendientes](evidence/ux-2026-11-14/COBERTURA.md).
-- [Índice navegable de estados y capturas](evidence/ux-2026-11-14/INDICE.md).
-- [Registro estructurado de recorridos](evidence/ux-2026-11-14/recorridos-validos.json).
-- [Mediciones de apoyo](evidence/ux-2026-11-14/mediciones.json).
+- [Matriz completa de cobertura y pendientes](../archive/evidence/ux-2026-11-14/COBERTURA.md).
+- [Índice navegable de estados y capturas](../archive/evidence/ux-2026-11-14/INDICE.md).
+- [Registro estructurado de recorridos](../archive/evidence/ux-2026-11-14/recorridos-validos.json).
+- [Mediciones de apoyo](../archive/evidence/ux-2026-11-14/mediciones.json).
 
 ### Qué se recorrió por perfil
 
@@ -69,7 +69,7 @@ Se combinaron navegación real, apertura de formularios sin enviarlos, inspecci�
 
 **Aceptación.** El dueño puede identificar qué dirección se publica y cómo corregirla; ningún texto la describe como privada. Comparar el mismo valor en edición y ficha, con y sin sesión.
 
-**Reproducción/evidencia:** Ricardo → Norte → Editar perfil → Datos; luego abrir la ficha como visitante. [Captura del campo](evidence/ux-2026-11-14/88-direccion-privada-contradiccion.jpg), [perfil](evidence/ux-2026-11-14/87-perfil-residencia-recheck.md), [ficha](evidence/ux-2026-11-14/08-ficha-visitante-mobile.md).
+**Reproducción/evidencia:** Ricardo → Norte → Editar perfil → Datos; luego abrir la ficha como visitante. [Captura del campo](../archive/evidence/ux-2026-11-14/88-direccion-privada-contradiccion.jpg), [perfil](../archive/evidence/ux-2026-11-14/87-perfil-residencia-recheck.md), [ficha](../archive/evidence/ux-2026-11-14/08-ficha-visitante-mobile.md).
 
 **Código:** `app/residence/[residence_id]/profile/ResidenceProfileForm.tsx:580`–584; `profile/page.tsx:121`; `app/(public)/residencias/[slug]/page.tsx:272`–274 y 560. **Confianza: alta.**
 
@@ -83,7 +83,7 @@ Se combinaron navegación real, apertura de formularios sin enviarlos, inspecci�
 
 **Aceptación.** Buscar un residente conocido de Norte y otro de Río devuelve sus filas sin depender del orden de creación; se puede recorrer más allá de 300, con estados vacío/error y contexto de residencia. Verificar también móvil y teclado.
 
-**Evidencia:** [vista desktop](evidence/ux-2026-11-14/60-community.jpg), [móvil](evidence/ux-2026-11-14/91-admin-comunidad-mobile.jpg), [medición de alcance](evidence/ux-2026-11-14/94-comunidad-alcance.json). **Código:** `app/admin/community/page.tsx:32`–44. **Confianza: alta.**
+**Evidencia:** [vista desktop](../archive/evidence/ux-2026-11-14/60-community.jpg), [móvil](../archive/evidence/ux-2026-11-14/91-admin-comunidad-mobile.jpg), [medición de alcance](../archive/evidence/ux-2026-11-14/94-comunidad-alcance.json). **Código:** `app/admin/community/page.tsx:32`–44. **Confianza: alta.**
 
 ### UX03 · P2 · El número de solicitudes activas no representa los estados visibles
 
@@ -95,7 +95,7 @@ Se combinaron navegación real, apertura de formularios sin enviarlos, inspecci�
 
 **Aceptación.** El número de activas coincide con las filas del filtro correspondiente antes/después de un vencimiento, una conversión a reserva y una revocación. No depende de que un job haya actualizado previamente la fila.
 
-**Evidencia:** [revalidación de las 15 filas](evidence/ux-2026-11-14/93-admin-solicitudes-recheck.md). **Código:** `app/admin/applications/page.tsx:21`, 62 y 78. **Confianza: alta.**
+**Evidencia:** [revalidación de las 15 filas](../archive/evidence/ux-2026-11-14/93-admin-solicitudes-recheck.md). **Código:** `app/admin/applications/page.tsx:21`, 62 y 78. **Confianza: alta.**
 
 ### UX04 · P2 · El indicador de renovaciones abre una lista vacía
 
@@ -107,7 +107,7 @@ Se combinaron navegación real, apertura de formularios sin enviarlos, inspecci�
 
 **Aceptación.** Con el mismo conjunto de datos, cada unidad del contador lleva a un elemento identificable; al vencer/revocar una reserva no queda una tarea fantasma. Verificar cero, pedido pendiente y oferta enviada.
 
-**Evidencia:** [Residentes](evidence/ux-2026-11-14/41-norte-residentes-mobile.md), [Renovaciones vacío](evidence/ux-2026-11-14/43-norte-renovaciones-mobile.md). **Código:** `app/residence/[residence_id]/residents/page.tsx:76`–91; `app/residence/[residence_id]/residents/ResidentsBrowser.tsx` (KPI «en ventana»); `app/residence/[residence_id]/renewals/page.tsx:37`–43. La divergencia entre consultas está confirmada; no se modificó ningún registro para corregirla. **Confianza: alta.**
+**Evidencia:** [Residentes](../archive/evidence/ux-2026-11-14/41-norte-residentes-mobile.md), [Renovaciones vacío](../archive/evidence/ux-2026-11-14/43-norte-renovaciones-mobile.md). **Código:** `app/residence/[residence_id]/residents/page.tsx:76`–91; `app/residence/[residence_id]/residents/ResidentsBrowser.tsx` (KPI «en ventana»); `app/residence/[residence_id]/renewals/page.tsx:37`–43. La divergencia entre consultas está confirmada; no se modificó ningún registro para corregirla. **Confianza: alta.**
 
 ### UX05 · P2 · La pregunta pendiente queda detrás de la configuración del catálogo
 
@@ -119,7 +119,7 @@ Se combinaron navegación real, apertura de formularios sin enviarlos, inspecci�
 
 **Aceptación.** Desde el aviso, la pregunta pendiente y su acción se encuentran en la primera pantalla o con un acceso claramente visible; el catálogo sigue disponible sin bloquear la tarea.
 
-**Evidencia:** [entrada móvil](evidence/ux-2026-11-14/83-pregunta-pendiente-recheck.jpg), [pregunta al final](evidence/ux-2026-11-14/84-pregunta-pendiente-al-final.jpg), [mediciones](evidence/ux-2026-11-14/mediciones.json). **Código:** `app/residence/[residence_id]/faq/page.tsx:154` ubica visitantes después del catálogo. **Confianza: alta.**
+**Evidencia:** [entrada móvil](../archive/evidence/ux-2026-11-14/83-pregunta-pendiente-recheck.jpg), [pregunta al final](../archive/evidence/ux-2026-11-14/84-pregunta-pendiente-al-final.jpg), [mediciones](../archive/evidence/ux-2026-11-14/mediciones.json). **Código:** `app/residence/[residence_id]/faq/page.tsx:154` ubica visitantes después del catálogo. **Confianza: alta.**
 
 ### UX06 · P2 · El perfil completo parece un requisito para empezar a solicitar
 
@@ -131,7 +131,7 @@ Se combinaron navegación real, apertura de formularios sin enviarlos, inspecci�
 
 **Aceptación.** Un perfil incompleto pero elegible entiende que puede avanzar. Un teléfono faltante o vínculo obligatorio de menor tiene una explicación específica. El progreso conserva sentido cuando todas las solicitudes anteriores están cerradas.
 
-**Evidencia:** [panel de Camila](evidence/ux-2026-11-14/10-camila-dashboard-mobile.md), [Valentina revalidada](evidence/ux-2026-11-14/81-valentina-recheck.md), [solicitud paso 2](evidence/ux-2026-11-14/20-camila-solicitud-paso2.md). **Código:** `lib/students/journeyStage.ts:79`–88; `ApplyForm.tsx` documenta y muestra el porcentaje como ayuda no bloqueante. **Confianza: alta sobre el mensaje; impacto estimado por evaluación heurística.**
+**Evidencia:** [panel de Camila](../archive/evidence/ux-2026-11-14/10-camila-dashboard-mobile.md), [Valentina revalidada](../archive/evidence/ux-2026-11-14/81-valentina-recheck.md), [solicitud paso 2](../archive/evidence/ux-2026-11-14/20-camila-solicitud-paso2.md). **Código:** `lib/students/journeyStage.ts:79`–88; `ApplyForm.tsx` documenta y muestra el porcentaje como ayuda no bloqueante. **Confianza: alta sobre el mensaje; impacto estimado por evaluación heurística.**
 
 ### UX07 · P2 · Falta un resumen económico al final de la solicitud
 
@@ -141,7 +141,7 @@ Se combinaron navegación real, apertura de formularios sin enviarlos, inspecci�
 
 **Aceptación.** Antes de enviar se pueden distinguir pago a residencia, fee EstuRed y depósito sin retroceder; cambiar tipo/meses actualiza el resumen y volver conserva lo ya ingresado.
 
-**Evidencia:** [paso 2](evidence/ux-2026-11-14/20-camila-solicitud-paso2.jpg), [árbol del formulario](evidence/ux-2026-11-14/20-camila-solicitud-paso2.md). **Código:** `app/(public)/residencias/[slug]/ApplyForm.tsx`, resumen del paso 2 y pie de envío. **Confianza: alta sobre la ausencia; recomendación heurística, sin abandono medido.**
+**Evidencia:** [paso 2](../archive/evidence/ux-2026-11-14/20-camila-solicitud-paso2.jpg), [árbol del formulario](../archive/evidence/ux-2026-11-14/20-camila-solicitud-paso2.md). **Código:** `app/(public)/residencias/[slug]/ApplyForm.tsx`, resumen del paso 2 y pie de envío. **Confianza: alta sobre la ausencia; recomendación heurística, sin abandono medido.**
 
 ### UX08 · P2 · Los cambios enviados a aprobación no se pueden revisar
 
@@ -151,7 +151,7 @@ Se combinaron navegación real, apertura de formularios sin enviarlos, inspecci�
 
 **Aceptación.** Al regresar días después o con otro integrante autorizado, se sabe qué dato está pendiente y cuál sigue publicado; guardar otros campos no induce a creer que se perdió la propuesta.
 
-**Evidencia:** [banner y formulario](evidence/ux-2026-11-14/87-perfil-residencia-recheck.jpg); comparación admin en [Ediciones de perfil](evidence/ux-2026-11-14/53-profile-edits.md). **Código:** `app/residence/[residence_id]/profile/ResidenceProfileForm.tsx:484`–488. **Confianza: alta.**
+**Evidencia:** [banner y formulario](../archive/evidence/ux-2026-11-14/87-perfil-residencia-recheck.jpg); comparación admin en [Ediciones de perfil](../archive/evidence/ux-2026-11-14/53-profile-edits.md). **Código:** `app/residence/[residence_id]/profile/ResidenceProfileForm.tsx:484`–488. **Confianza: alta.**
 
 ### UX09 · P2 · El dashboard no lleva siempre del pendiente a la tarea
 
@@ -161,7 +161,7 @@ Se combinaron navegación real, apertura de formularios sin enviarlos, inspecci�
 
 **Aceptación.** Se llega en una acción a las cuatro ediciones pendientes; revocaciones y verificaciones se reconocen sin recorrer métricas generales, en 375 y 1280 px.
 
-**Evidencia:** [dashboard móvil](evidence/ux-2026-11-14/52-admin-dashboard-mobile.jpg), [SuperAdmin](evidence/ux-2026-11-14/62-superadmin-dashboard.md). **Código:** `app/admin/dashboard/page.tsx:147`–164; la tarjeta de ediciones carece de `href`. **Confianza: alta sobre navegación; orden propuesto por criterio heurístico.**
+**Evidencia:** [dashboard móvil](../archive/evidence/ux-2026-11-14/52-admin-dashboard-mobile.jpg), [SuperAdmin](../archive/evidence/ux-2026-11-14/62-superadmin-dashboard.md). **Código:** `app/admin/dashboard/page.tsx:147`–164; la tarjeta de ediciones carece de `href`. **Confianza: alta sobre navegación; orden propuesto por criterio heurístico.**
 
 ### UX10 · P2 · La lista de espera generaliza el estado de un tipo de habitación
 
@@ -173,7 +173,7 @@ Se combinaron navegación real, apertura de formularios sin enviarlos, inspecci�
 
 **Aceptación.** Probar residencia parcialmente completa, totalmente completa y cambio de tipo dentro de la espera. El mensaje coincide con el alcance de la selección y no promete una plaza.
 
-**Evidencia:** [ficha con estados mixtos](evidence/ux-2026-11-14/100-ficha-tipos-completos.md), [formulario de espera](evidence/ux-2026-11-14/101-lista-espera-formulario.md). **Código:** `app/(public)/residencias/[slug]/JoinWaitlistForm.tsx:48` contiene la afirmación incondicional. Revisar también la frase equivalente en `ProposeForm.tsx`. **Confianza: alta.**
+**Evidencia:** [ficha con estados mixtos](../archive/evidence/ux-2026-11-14/100-ficha-tipos-completos.md), [formulario de espera](../archive/evidence/ux-2026-11-14/101-lista-espera-formulario.md). **Código:** `app/(public)/residencias/[slug]/JoinWaitlistForm.tsx:48` contiene la afirmación incondicional. Revisar también la frase equivalente en `ProposeForm.tsx`. **Confianza: alta.**
 
 ### UX11 · P3 · El resumen de pagos mezcla cantidad histórica e importe vigente
 
@@ -183,7 +183,7 @@ Se combinaron navegación real, apertura de formularios sin enviarlos, inspecci�
 
 **Aceptación.** Con pagos cobrados y reintegrados, cada número se puede reconciliar con su estado y con el alcance temporal del listado.
 
-**Evidencia:** [historial de pagos](evidence/ux-2026-11-14/64-superadmin-cobrados.md). **Código:** `app/admin/payments/PaidFeesView.tsx:45`–59: consulta ambos estados, totaliza solo `paid` y rotula `rows.length` como cobrados. **Confianza: alta.**
+**Evidencia:** [historial de pagos](../archive/evidence/ux-2026-11-14/64-superadmin-cobrados.md). **Código:** `app/admin/payments/PaidFeesView.tsx:45`–59: consulta ambos estados, totaliza solo `paid` y rotula `rows.length` como cobrados. **Confianza: alta.**
 
 ### UX12 · P3 · El familiar recibe mensajes redactados para el estudiante
 
@@ -193,7 +193,7 @@ Se combinaron navegación real, apertura de formularios sin enviarlos, inspecci�
 
 **Aceptación.** El familiar identifica de quién es la estadía y quién debe actuar, tanto en encabezado como en tarjetas y estados. Si hay varios vínculos, cambiar de estudiante actualiza también el copy.
 
-**Evidencia:** [estadía familiar revalidada](evidence/ux-2026-11-14/89-familiar-residencia-recheck.md), [checklist y explicaciones duplicadas](evidence/ux-2026-11-14/31-martin-dashboard-desktop.md). **Código orientativo:** `app/students/residency/page.tsx:731` y componentes compartidos de estadía/checklist. **Confianza: alta para el texto; multivínculo estable pendiente de repetir.**
+**Evidencia:** [estadía familiar revalidada](../archive/evidence/ux-2026-11-14/89-familiar-residencia-recheck.md), [checklist y explicaciones duplicadas](../archive/evidence/ux-2026-11-14/31-martin-dashboard-desktop.md). **Código orientativo:** `app/students/residency/page.tsx:731` y componentes compartidos de estadía/checklist. **Confianza: alta para el texto; multivínculo estable pendiente de repetir.**
 
 ## Aspectos que conviene conservar
 
@@ -242,13 +242,13 @@ Valentina (17) puede abrir el formulario de una ficha que informa «De 18 a 26 a
 
 **Lote 4 — Pulido:** UX11 + UX12 y repetición del recorrido familiar con fixtures estables.
 
-Antes de cerrar una beta: preparar un caso coherente de solicitud completa, otro de renovación, una espera con respuesta vigente y un menor con vínculo estable; repetir el recorrido con un staff limitado. La [matriz de cobertura](evidence/ux-2026-11-14/COBERTURA.md) enumera las rutas sin visita directa y los envíos pendientes.
+Antes de cerrar una beta: preparar un caso coherente de solicitud completa, otro de renovación, una espera con respuesta vigente y un menor con vínculo estable; repetir el recorrido con un staff limitado. La [matriz de cobertura](../archive/evidence/ux-2026-11-14/COBERTURA.md) enumera las rutas sin visita directa y los envíos pendientes.
 
 ## Verificación técnica y conservación del trabajo
 
 - `npm run typecheck`: **OK**.
 - `npm run build`: **OK**, con advertencias existentes. Se detuvo el servidor dev antes del build y se volvió a iniciar después.
-- `npm run lint`: **no pasó**: siete errores y 51 advertencias. Los siete errores se concentran en el archivo existente `docs/audits/evidence/2026-11-14/repro-actions.cjs` (`no-require-imports` y `no-assign-module-variable`), de la evidencia de seguridad. No se modificó ese archivo para encubrir la validación.
+- `npm run lint`: **no pasó**: siete errores y 51 advertencias. Los siete errores se concentran en el archivo existente `docs/archive/evidence/2026-11-14/repro-actions.cjs` (`no-require-imports` y `no-assign-module-variable`), de la evidencia de seguridad. No se modificó ese archivo para encubrir la validación.
 - No se ejecutó la suite de integración: este trabajo agrega documentación/evidencia y evita crear/borrar filas compartidas. Los checks anteriores no prueban los flujos de UX pendientes.
 - No se implementaron fixes de interfaz, cambios de reglas, migraciones, deploy, commit ni push. Se conservaron los cambios concurrentes.
 

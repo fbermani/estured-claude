@@ -32,6 +32,7 @@ import { getApprovedCustomAmenities } from "@/lib/residences/customAmenitiesDb";
 import { loadStayChangeEligibility } from "@/lib/stayChange/eligibility";
 import { RoomChangeCard } from "@/components/students/RoomChangeCard";
 import { loadStudentRoomChange, type StudentRoomChangeView } from "@/lib/roomChange/load";
+import { loadPendingFollowupForUser } from "@/lib/followups/pending";
 import { StayDocumentsCard, type StayDocumentItem } from "@/components/students/StayDocumentsCard";
 import { computeRequirementStatuses, parseStayDocumentsContent, STAY_DOCUMENTS_SECTION } from "@/lib/residences/stayDocuments";
 import { effectiveRequirements, loadStudentDocumentFiles } from "@/lib/residences/stayDocumentsDb";
@@ -485,6 +486,16 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
     const { data: profile } = await admin.from("student_profiles").select("id").eq("user_id", sessionUser.id).maybeSingle();
     if (profile?.id) roomChange = await loadStudentRoomChange(admin, profile.id as string);
   }
+  // Seguimiento a los 5 días (DR14): enlace a la encuesta pendiente. El estudiante usa su perfil; el familiar, el del estudiante elegido.
+  let pendingFollowup: { id: string; role: "student" | "guardian" } | null = null;
+  if (admin && sessionUser) {
+    let followupProfileId: string | null = selectedStudentId;
+    if (!followupProfileId && sessionUser.roles.includes("student")) {
+      const { data: ownProfile } = await admin.from("student_profiles").select("id").eq("user_id", sessionUser.id).maybeSingle();
+      followupProfileId = (ownProfile?.id as string | undefined) ?? null;
+    }
+    if (followupProfileId) pendingFollowup = await loadPendingFollowupForUser(admin, sessionUser.id, followupProfileId);
+  }
   const searchingChange =
     !!stayChange?.view && ["open_no_response", "open_responded", "open_expiring"].includes(stayChange.view.ui.key);
   const remaining = contract?.daysRemaining ?? 0;
@@ -538,6 +549,16 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
       {stayChange && (
         <div className="mt-6 empty:hidden">
           <StayChangeTopNotices view={stayChange.view} residenceName={residence?.name ?? "tu residencia"} contractEndLabel={contractEndLabel} />
+        </div>
+      )}
+
+      {pendingFollowup && (
+        <div className="mt-6 flex flex-col gap-3 rounded-card border-[1.5px] border-line bg-forest-tint p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-ink">{pendingFollowup.role === "guardian" ? `¿Cómo viene la estadía de ${subjectName}?` : "¿Cómo viene tu estadía?"}</p>
+            <p className="mt-0.5 text-sm text-ink-soft">Contanos en un minuto cómo va todo. Tu respuesta es privada: la residencia no la ve.</p>
+          </div>
+          <Button href={`/students/followup/${pendingFollowup.id}`} size="sm">Responder la encuesta</Button>
         </div>
       )}
 
