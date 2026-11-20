@@ -123,23 +123,33 @@ export async function FichaView({
 
   // Lecturas independientes en paralelo: cotización, sesión y, con la sesión, todo lo que depende de quién mira.
   const adminClient = getSupabaseAdmin();
+  // Las lecturas que no dependen de la sesión arrancan ya, en paralelo con cotización y sesión (auditoría 2026-11-19, R19-08).
+  const answeredQuestionsPromise = adminClient ? getPublicAnsweredQuestions(adminClient, residence.id) : Promise.resolve([]);
+  // DR14: preguntas del catálogo que la residencia eligió mostrar (agrupadas por tema). Vacío si no eligió ninguna o si la 0054 no está aplicada.
+  const catalogFaqPromise = adminClient ? getPublicCatalogFaq(adminClient, residence.id) : Promise.resolve([]);
+  // DR14: reglamento vigente (propio, o el modelo). `null`/`ok:false` = no se pudo leer: no se muestra ni se ofrece aceptarlo.
+  const regulationPromise = adminClient ? loadCurrentRegulation(adminClient, residence.id) : Promise.resolve(null);
+  // Edad promedio de la comunidad vigente: solo con comunidad activa y más de 10 residentes (privacidad).
+  const averageAgePromise = adminClient
+    ? loadAverageResidentAge(adminClient, residence.id, residence.has_operational_management_access as boolean | null)
+    : Promise.resolve(null);
+  // DR18: los ítems «Otro» aprobados se suman a los fijos (los pendientes y rechazados nunca llegan acá; vacío si la 0058 no está aplicada).
+  const customAmenitiesPromise = adminClient ? getApprovedCustomAmenities(adminClient, residence.id) : Promise.resolve({ services: [], areas: [] });
   const [rate, sessionUser] = await Promise.all([getCurrentExchangeRate(), preview ? Promise.resolve(null) : getSessionUser()]);
   const isStudent = sessionUser?.roles.includes("student") ?? false;
   const isFamily = sessionUser?.roles.includes("family_member") ?? false;
-  const [answeredQuestions, catalogFaq, isOwnResidenceTeam, community, studentViewer, familyViewer, regulationResult, averageAge] = await Promise.all([
-    adminClient ? getPublicAnsweredQuestions(adminClient, residence.id) : Promise.resolve([]),
-    // DR14: preguntas del catálogo que la residencia eligió mostrar (agrupadas por tema). Vacío si no eligió ninguna o si la 0054 no está aplicada.
-    adminClient ? getPublicCatalogFaq(adminClient, residence.id) : Promise.resolve([]),
+  const [answeredQuestions, catalogFaq, isOwnResidenceTeam, community, studentViewer, familyViewer, regulationResult, averageAge, customAmenities] = await Promise.all([
+    answeredQuestionsPromise,
+    catalogFaqPromise,
     sessionUser && adminClient ? assertResidenceAccess(adminClient, sessionUser.id, residence.id) : Promise.resolve(false),
     adminClient ? getCommunityVisibility(adminClient, residence.id, sessionUser ? "registered" : "guest") : Promise.resolve(null),
     isStudent && sessionUser && adminClient ? loadStudentViewer(adminClient, sessionUser.id, residence.id) : Promise.resolve(null),
     isFamily && sessionUser && adminClient
       ? loadFamilyViewer(adminClient, sessionUser.id, residence.id)
       : Promise.resolve(null),
-    // DR14: reglamento vigente (propio, o el modelo). `null`/`ok:false` = no se pudo leer: no se muestra ni se ofrece aceptarlo.
-    adminClient ? loadCurrentRegulation(adminClient, residence.id) : Promise.resolve(null),
-    // Edad promedio de la comunidad vigente: solo con comunidad activa y más de 10 residentes (privacidad).
-    adminClient ? loadAverageResidentAge(adminClient, residence.id, residence.has_operational_management_access as boolean | null) : Promise.resolve(null),
+    regulationPromise,
+    averageAgePromise,
+    customAmenitiesPromise,
   ]);
   const regulation = regulationResult?.ok ? regulationResult.view : null;
 
@@ -148,8 +158,6 @@ export async function FichaView({
   const addressLine = (residence.address_line as string | null)?.trim() || null;
   // Dirección y barrio en una línea; en una ficha incompleta (borrador) puede faltar alguno: no se escribe «null».
   const addressZoneText = [addressLine, (residence.public_area as string | null)?.trim(), "CABA"].filter(Boolean).join(", ") + ".";
-  // DR18: los ítems «Otro» aprobados se suman a los fijos (los pendientes y rechazados nunca llegan acá; vacío si la 0058 no está aplicada).
-  const customAmenities = adminClient ? await getApprovedCustomAmenities(adminClient, residence.id) : { services: [], areas: [] };
   const { services, commonAreas } = normalizeAmenityLists({
     services: [...((sectionMap.services?.items as string[]) ?? []), ...customAmenities.services],
     commonAreas: [...((sectionMap.common_areas?.items as string[]) ?? []), ...customAmenities.areas],
