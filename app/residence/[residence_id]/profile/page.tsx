@@ -15,6 +15,7 @@ import { initialPaymentConfigFromRow } from "@/lib/reservations/initialPayment";
 import { normalizeAmenityLists, parseAmenityDetails } from "@/lib/residences/amenityDetails";
 import { listCustomAmenities } from "@/lib/residences/customAmenitiesDb";
 import { loadCurrentRegulation } from "@/lib/regulations/current";
+import { essentialFaqsReadyCount, regulationPublishedFlag } from "@/lib/residences/submitReadinessDb";
 import { parseStayDocumentsContent } from "@/lib/residences/stayDocuments";
 import { loadPhotoMeta } from "@/lib/residences/photoMetaDb";
 import { summarizeProfileEdit } from "@/lib/residences/profileEditSummary";
@@ -78,6 +79,7 @@ export default async function ResidenceProfilePage({
         .eq("related_entity_type", "residences")
         .eq("related_entity_id", residenceId)
         .eq("document_type", "residence_rules_document")
+        .neq("status", "rejected")
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle(),
@@ -137,6 +139,12 @@ export default async function ResidenceProfilePage({
       readOnly={readOnly}
       canSubmit={canSubmit}
       draftScope={{ userId: sessionUser.id }}
+      // Requisitos para enviar (DR58) que no viajan en el formulario: reglamento publicado, PDF y preguntas esenciales listas.
+      readinessExternal={{
+        rulesPdf: rulesFile !== null,
+        regulationPublished: regulationPublishedFlag(regulationRes),
+        essentialFaqsReady: essentialFaqsReadyCount(faqCatalog),
+      }}
       initial={{
         name: residence.name,
         tagline: residence.tagline ?? "",

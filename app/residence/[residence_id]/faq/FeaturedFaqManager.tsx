@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { saveFeaturedFaqAction } from "@/app/residence/[residence_id]/faq/actions";
+import { useReportUnsaved } from "@/app/residence/[residence_id]/faq/FaqEditor";
 import { FEATURED_FAQ_MAX } from "@/lib/residences/featuredFaq";
 import type { FeaturedRef } from "@/lib/faq/featuredSelection";
 
@@ -14,7 +15,7 @@ const keyOf = (r: FeaturedRef) => `${r.kind}:${r.id}`;
 /**
  * Elegir las preguntas destacadas de la ficha: hasta 6, con el orden que quiera la residencia. Son las que se leen de entrada en el
  * capítulo «Preguntas» (el resto queda en «Más preguntas»). Solo se ofrecen las que hoy se muestran en la ficha. Un solo botón «Guardar»;
- * la validación que vale es la del servidor. Sin ninguna elegida, la ficha destaca las primeras 6.
+ * la validación que vale es la del servidor. Sin ninguna elegida, la ficha destaca las primeras 6 (se dice con claridad: es el estado normal, no un error). El «Guardar destacadas» es secundario: la acción primaria de la pantalla es «Guardar todo y volver».
  */
 export function FeaturedFaqManager({ residenceId, candidates }: { residenceId: string; candidates: FeaturedCandidateView[] }) {
   const initial = useMemo(
@@ -33,6 +34,8 @@ export function FeaturedFaqManager({ residenceId, candidates }: { residenceId: s
 
   const byKey = useMemo(() => new Map(candidates.map((c) => [keyOf(c.ref), c])), [candidates]);
   const dirty = order.join("|") !== saved.join("|");
+  // Un orden de destacadas sin guardar frena la salida de la pantalla (se guarda con su propio botón).
+  useReportUnsaved("featured", "las destacadas", dirty);
   const full = order.length >= FEATURED_FAQ_MAX;
   const others = candidates.filter((c) => !order.includes(keyOf(c.ref)));
 
@@ -72,12 +75,14 @@ export function FeaturedFaqManager({ residenceId, candidates }: { residenceId: s
           Preguntas destacadas
         </h2>
         <span className={`rounded-full px-3 py-1 text-sm font-bold tabular-nums ${full ? "bg-forest-tint text-forest-700" : "bg-cream-2 text-ink-soft"}`}>
-          {order.length} de {FEATURED_FAQ_MAX}
+          {order.length === 0 ? "Automáticas" : `${order.length} de ${FEATURED_FAQ_MAX}`}
         </span>
       </div>
       <p className="mt-1 text-sm text-ink-soft">
-        Son las que se leen de entrada en tu ficha, en el orden que elijas. Elegí hasta {FEATURED_FAQ_MAX} entre las que ya mostrás. Si no elegís
-        ninguna, destacamos las primeras {FEATURED_FAQ_MAX}.
+        Son las que se leen de entrada en tu ficha; el resto queda en «Más preguntas». Es opcional.
+        {order.length === 0
+          ? ` Hoy no elegiste ninguna: tu ficha destaca las primeras ${FEATURED_FAQ_MAX} que mostrás. Si querés decidir cuáles y en qué orden, tocá «Destacar» en una de abajo.`
+          : ` Elegí hasta ${FEATURED_FAQ_MAX} entre las que ya mostrás. Si sacás todas, vuelven las automáticas.`}
       </p>
 
       {candidates.length === 0 ? (
@@ -89,7 +94,9 @@ export function FeaturedFaqManager({ residenceId, candidates }: { residenceId: s
           <div>
             <h3 className="text-sm font-bold uppercase tracking-widest text-muted">Destacadas, en este orden</h3>
             {order.length === 0 ? (
-              <p className="mt-2 text-sm text-ink-faint">Ninguna elegida todavía.</p>
+              <p className="mt-2 rounded-field bg-cream-2 px-4 py-3 text-sm text-ink-soft">
+                Sin elección tuya, la ficha usa las primeras {FEATURED_FAQ_MAX} preguntas que mostrás.
+              </p>
             ) : (
               <ol className="mt-2 space-y-2">
                 {order.map((key, index) => {
@@ -140,7 +147,7 @@ export function FeaturedFaqManager({ residenceId, candidates }: { residenceId: s
           )}
 
           <div className="flex flex-wrap items-center gap-3">
-            <Button type="button" variant="primary" size="sm" onClick={save} disabled={pending || !dirty}>
+            <Button type="button" variant="outline" size="sm" onClick={save} disabled={pending || !dirty}>
               {pending ? "Guardando…" : "Guardar destacadas"}
             </Button>
             {dirty && <span className="text-sm font-semibold text-warning-fg">Cambios sin guardar</span>}

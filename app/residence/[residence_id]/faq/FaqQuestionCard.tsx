@@ -5,7 +5,8 @@ import { useFormStatus } from "react-dom";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Input";
 import { moderateFaqQuestionAction, type FaqModerationState } from "@/app/residence/[residence_id]/faq/actions";
-import { ANSWER_MAX } from "@/lib/faq/validateFaq";
+import { useReportUnsaved } from "@/app/residence/[residence_id]/faq/FaqEditor";
+import { ANSWER_MAX, normalizeFreeText } from "@/lib/faq/validateFaq";
 
 const initialState: FaqModerationState = { status: "idle" };
 
@@ -47,6 +48,8 @@ export function FaqQuestionCard({
   const [state, formAction] = useActionState(action, initialState);
   // Controlado: React 19 limpia los campos no controlados tras enviar; así no se pierde lo escrito ante un error.
   const [answer, setAnswer] = useState(initialAnswer);
+  // Una respuesta escrita y sin publicar frena la salida de la pantalla (no la publica «Guardar todo y volver»).
+  useReportUnsaved(`visitor:${questionId}`, "la respuesta a un visitante", status !== "hidden" && normalizeFreeText(answer) !== normalizeFreeText(initialAnswer));
 
   return (
     <form action={formAction} className="mt-3 space-y-3">
@@ -82,7 +85,7 @@ export function FaqQuestionCard({
           <>
             <SubmitButton
               intent="answer"
-              variant="primary"
+              variant="outline"
               label={status === "answered" ? "Guardar cambios" : "Responder y publicar"}
               pendingLabel="Guardando…"
             />

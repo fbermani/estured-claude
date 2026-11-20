@@ -13,11 +13,14 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { FaqQuestionCard } from "@/app/residence/[residence_id]/faq/FaqQuestionCard";
-import { FaqCatalogItem } from "@/app/residence/[residence_id]/faq/FaqCatalogItem";
+import { FaqEditorProvider, type FaqCatalogInfo } from "@/app/residence/[residence_id]/faq/FaqEditor";
+import { FaqCatalogEditor } from "@/app/residence/[residence_id]/faq/FaqCatalogEditor";
+import { OwnFaqSection } from "@/app/residence/[residence_id]/faq/OwnFaqSection";
+import { FaqSaveAll } from "@/app/residence/[residence_id]/faq/FaqSaveAll";
 import { loadCatalogForResidence } from "@/lib/faq/residenceCatalog";
 import { loadFeaturedCandidates } from "@/lib/faq/featured";
 import { FeaturedFaqManager } from "@/app/residence/[residence_id]/faq/FeaturedFaqManager";
-import { ESSENTIAL_FAQ_IDS, FAQ_CATEGORIES, FICHA_FAQ_VISIBLE, countEssentialFaqsReady, effectiveAnswer, isEssentialFaq } from "@/lib/faq/catalog";
+import { ESSENTIAL_FAQ_IDS, FAQ_CATEGORIES, FICHA_FAQ_VISIBLE, countEssentialFaqsReady, effectiveAnswer, isEssentialFaq, sortEssentialFirst } from "@/lib/faq/catalog";
 import { FEATURED_FAQ_MAX } from "@/lib/residences/featuredFaq";
 import { normalizeOwnFaqItems } from "@/lib/residences/ownFaq";
 
@@ -49,14 +52,31 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
   if (!membership) notFound();
   // DR11: sin `faq.manage` las acciones se ven deshabilitadas (solo presentación; el servidor valida cada acción).
   const canManage = can(membership, "faq.manage");
+  // Las preguntas propias viven en la sección `faq` del perfil: se guardan con `profile.edit` (como en la configuración).
+  const canEditOwn = can(membership, "profile.edit");
 
   const [catalog, featured, ownFaqSection] = await Promise.all([
     loadCatalogForResidence(admin, residenceId),
     loadFeaturedCandidates(admin, residenceId),
     admin.from("residence_profile_sections").select("content").eq("residence_id", residenceId).eq("section_type", "faq").maybeSingle(),
   ]);
-  // Preguntas propias del sistema anterior (texto libre, se editan en la configuración): solo se las nombra si existen.
-  const ownFaqCount = normalizeOwnFaqItems((ownFaqSection.data?.content as { items?: unknown } | null)?.items).length;
+  // Preguntas propias (texto libre, sección `faq` del perfil): se editan en «Preguntas propias de tu residencia».
+  const ownFaqItems = normalizeOwnFaqItems((ownFaqSection.data?.content as { items?: unknown } | null)?.items);
+  // Dentro de cada tema, las esenciales van primero (solo el orden de esta pantalla: no cambia ids ni `display_order`).
+  const editorItems: FaqCatalogInfo[] = catalog.ok
+    ? FAQ_CATEGORIES.flatMap((category) =>
+        sortEssentialFirst(catalog.entries.filter((e) => e.category === category.key)).map((entry) => ({
+          id: entry.id,
+          category: entry.category,
+          question: entry.question_text,
+          owner: entry.owner,
+          suggestedAnswer: entry.suggested_answer,
+          essential: isEssentialFaq(entry.id),
+          initialSelected: entry.selection?.is_selected ?? false,
+          initialAnswer: effectiveAnswer(entry, entry.selection),
+        })),
+      )
+    : [];
 
   const { data, error } = await admin
     .from("residence_faq_questions")
@@ -80,8 +100,8 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
       <BackToProfileLink residenceId={residenceId} className="mb-2" />
       <ResidenceHero icon="forum" title="Preguntas frecuentes" subtitle="Lo que mostrás en tu ficha y lo que te preguntan." />
       <p className="text-sm text-ink-soft">
-        Elegí qué preguntas del catálogo de EstuRed mostrar en tu ficha y ajustá las respuestas con los datos de tu residencia. Abajo
-        respondés las preguntas libres de quienes miran tu ficha.
+        Elegí qué preguntas del catálogo de EstuRed mostrar en tu ficha y ajustá las respuestas con los datos de tu residencia. Si falta
+        alguna, escribí la tuya. Abajo respondés las preguntas libres de quienes miran tu ficha.
       </p>
 
       {pendingCount > 0 && (
@@ -98,6 +118,7 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
         </div>
       )}
 
+      <FaqEditorProvider residenceId={residenceId} items={editorItems} initialOwn={ownFaqItems} canEditCatalog={canManage} canEditOwn={canEditOwn}>
       <section className="mt-8" aria-labelledby="faq-catalog-title">
         <h2 id="faq-catalog-title" className="text-lg font-bold text-ink">
           Catálogo de preguntas
@@ -111,7 +132,7 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
           <div className="rounded-field border-[1.5px] border-line bg-cream px-4 py-3">
             <dt className="font-bold text-ink">Esenciales</dt>
             <dd className="mt-1 text-ink-soft">
-              Cubren lo imprescindible: las que más se repiten antes de reservar. Hay {ESSENTIAL_FAQ_IDS.length} y están marcadas «Esencial».
+              Cubren lo imprescindible: las que más se repiten antes de reservar. Hay {ESSENTIAL_FAQ_IDS.length}: van primero en cada tema, con la marca «Esencial».
             </dd>
           </div>
           <div className="rounded-field border-[1.5px] border-line bg-cream px-4 py-3">
@@ -166,43 +187,7 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
           </div>
         ) : (
           <PermissionGate allowed={canManage} className="mt-4">
-            <div className="space-y-3">
-              {FAQ_CATEGORIES.map((category, index) => {
-                const entries = catalog.entries.filter((e) => e.category === category.key);
-                if (entries.length === 0) return null;
-                const selectedCount = entries.filter((e) => e.selection?.is_selected).length;
-                return (
-                  <details
-                    key={category.key}
-                    // El primer tema siempre abierto (para ver una pregunta a primera vista) y los que ya tienen elegidas.
-                    open={selectedCount > 0 || index === 0}
-                    className="group rounded-card border-[1.5px] border-line bg-cream-2/40"
-                  >
-                    <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-3">
-                      <span className="text-sm font-bold uppercase tracking-widest text-muted">{category.label}</span>
-                      <span className="rounded-full bg-cream-2 px-2 py-0.5 text-xs font-bold text-ink-soft">
-                        {selectedCount} de {entries.length} en tu ficha
-                      </span>
-                    </summary>
-                    <div className="space-y-3 px-3 pb-3">
-                      {entries.map((entry) => (
-                        <FaqCatalogItem
-                          key={entry.id}
-                          residenceId={residenceId}
-                          questionId={entry.id}
-                          question={entry.question_text}
-                          owner={entry.owner}
-                          suggestedAnswer={entry.suggested_answer}
-                          initialSelected={entry.selection?.is_selected ?? false}
-                          initialAnswer={effectiveAnswer(entry, entry.selection)}
-                          essential={isEssentialFaq(entry.id)}
-                        />
-                      ))}
-                    </div>
-                  </details>
-                );
-              })}
-            </div>
+            <FaqCatalogEditor />
           </PermissionGate>
         )}
       </section>
@@ -233,6 +218,10 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
         </section>
       )}
 
+      <PermissionGate allowed={canEditOwn}>
+        <OwnFaqSection />
+      </PermissionGate>
+
       <h2 id="preguntas-visitantes" className="mt-12 scroll-mt-20 text-lg font-bold text-ink">Preguntas de visitantes</h2>
       <p className="mt-1 text-sm text-ink-soft">
         Quienes miran tu ficha pueden hacerte una pregunta libre. Respondé cuando puedas: las respuestas se publican
@@ -244,16 +233,6 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
       <p className="mt-2 text-xs text-ink-faint">
         Las preguntas no muestran quién las hizo. No confirmes disponibilidad ni precios por acá: eso se informa en la
         ficha y en la solicitud.
-        {ownFaqCount > 0 && (
-          <>
-            {" "}
-            Las preguntas propias que escribiste antes del catálogo se editan en tu{" "}
-            <Link href={`/residence/${residenceId}/profile#perfil-faq`} className="font-semibold text-forest-700 underline underline-offset-2">
-              configuración
-            </Link>
-            .
-          </>
-        )}
       </p>
 
       {error ? (
@@ -316,6 +295,9 @@ export default async function ResidenceFaqPage({ params }: { params: Promise<{ r
           })}
         </div>
       )}
+
+      {(canManage || canEditOwn) && <FaqSaveAll />}
+      </FaqEditorProvider>
     </div>
   );
 }

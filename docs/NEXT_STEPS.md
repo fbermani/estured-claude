@@ -2,6 +2,10 @@
 
 # EstuRed — Próximos pasos
 
+## Requisitos para enviar a revisión (DR58) — 2026-11-20
+
+Hecho (sin build ni verificación visual): `computeSubmitReadiness` (`lib/residences/submitReadiness.ts`) con 9 requisitos + depósito y salida anticipada condicionales; el servidor lo recalcula en `saveResidenceProfile` solo con `submit` en `draft`/`needs_changes`/`verification_expired`; la tarjeta «Fortaleza del Perfil» muestra la checklist en vivo. **Pendiente:** (1) correr `scripts/seed-dev-fichas-completas.mjs --dry-run` y después aplicar en dev (deja las demo `verified_active` cumpliendo los requisitos y una en borrador que no); (2) `faq/actions.ts` debería hacer `revalidatePath(`/residence/${id}/profile`)` tras guardar preguntas (hoy el perfil refresca al volver a cargarse); (3) el Panel (`app/residence/[residence_id]/page.tsx`) todavía usa `computeProfileStrength` clásico: migrarlo a `strengthFromReadiness` para que el % coincida; (4) verificar en staging el rechazo del envío y el mensaje.
+
 ## Fase 5 de la ficha: compartir por WhatsApp, FAQ destacadas y foto principal — 2026-11-17
 
 Hecho (sin verificar en navegador; ver `docs/00` DR57): `/residence/[id]/share` («Compartir ficha» en el sidebar), `lib/share/*` (plantilla, validación, resolución, `wa.me`), hoja `ShareFichaSheetServer` (`components/share/`), selección de FAQ destacadas en `/residence/[id]/faq` y botón «Principal» en las fotos del perfil. **Pendiente:** (1) aplicar 0095, 0096 y 0097 en `estured-dev` ANTES de pushear (runbook en `docs/PLAN_SALIDA_PRODUCCION.md`) y correr `scripts/seed-demo-share-featured.mjs`; (2) HECHO (sin verificar en navegador): franja `OwnerShareBar` sobre el hero de la ficha (solo equipo de esa residencia), tarjeta «Compartí tu ficha por WhatsApp» en el Panel, etiqueta «Nuevo» en el sidebar hasta `SHARE_NEW_UNTIL` (`lib/share/newBadge.ts`) y `?ref=wa` en el link del mensaje (la ficha lo ignora; se ve en los logs de Vercel, sin analytics propios); (4) las 5 FAQ fijas del perfil no se pueden destacar (son un jsonb); decidir si se migran al catálogo.

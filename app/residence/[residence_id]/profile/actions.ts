@@ -29,6 +29,8 @@ import {
 import { logTariffChange } from "@/lib/residences/tariffLog";
 import { amenityDetailsFromForm, normalizeAmenityLists } from "@/lib/residences/amenityDetails";
 import { SUBMITTABLE_RESIDENCE_STATUSES, VERIFICATION_STATUSES_RESET_ON_SUBMIT, isMissingColumnError, isResubmission } from "@/lib/residences/changesRequest";
+import { computeSubmitReadiness, submitBlockedMessage } from "@/lib/residences/submitReadiness";
+import { loadSubmitReadinessExternal } from "@/lib/residences/submitReadinessDb";
 import { parseCustomAmenityDrafts } from "@/lib/residences/customAmenities";
 import { syncCustomAmenities } from "@/lib/residences/customAmenitiesDb";
 import { splitRules, validateTopRules } from "@/lib/residences/topRules";
@@ -115,6 +117,9 @@ interface ConditionsInput {
   earlyExitConditionsText: string | null;
   /** Edad de residentes (DR14, migración 0052): la residencia decide sola, sin aprobación del admin. */
   ageRange: { minResidentAge: number; maxResidentAge: number | null; acceptsMinors: boolean };
+  /** Para el gate del envío (DR58): «pide depósito» y «cobra mes vacío» aunque el monto o el porcentaje vengan vacíos (el formulario los manda en null). */
+  depositEnabled: boolean;
+  emptyMonthsEnabled: boolean;
 }
 
 function parseConditions(raw: string): ConditionsInput | { error: string } | null {
@@ -159,6 +164,9 @@ function parseConditions(raw: string): ConditionsInput | { error: string } | nul
       earlyExitCostsText: earlyExit.value.costsText,
       earlyExitConditionsText: earlyExit.value.conditionsText,
       ageRange: ageRange.value,
+      depositEnabled: c.depositEnabled === true || depositUsd != null || money.value.depositMode !== null,
+      emptyMonthsEnabled:
+        c.emptyMonthsEnabled === true || (c.emptyMonthChargePercent != null && c.emptyMonthChargePercent !== ""),
     };
   } catch {
     return null;
@@ -361,9 +369,50 @@ export async function saveResidenceProfile(
   if (new Set(names).size !== names.length)
     return { status: "error", message: "No repitas el mismo tipo de habitación dos veces." };
 
-  if (intent === "submit") {
-    if (roomTypes.length === 0)
-      return { status: "error", message: "Agregá al menos un tipo de habitación antes de enviar." };
+  // Requisitos para enviar a revisión (DR58). Solo con `intent = "submit"` y cuando el envío mueve la residencia de estado (borrador,
+  // «cambios pedidos» o verificación vencida: también cubre el reenvío). «Guardar cambios» y el guardado de una residencia publicada
+  // no se bloquean. Se recalcula acá desde la base + este formulario (el cliente no manda conteos) y ANTES de escribir nada.
+  if (intent === "submit" && (!residenceRow || (SUBMITTABLE_RESIDENCE_STATUSES as readonly string[]).includes(String(residenceRow.status)))) {
+    const external = await loadSubmitReadinessExternal(admin, residenceId);
+    if (!external.ok) return { status: "error", message: "No pudimos revisar los requisitos para enviar. Intentá de nuevo en unos minutos." };
+    const newPhotos = formData.getAll("photos").filter((f): f is File => f instanceof File && f.size > 0).length;
+    const newRulesPdf = formData.get("rules_file");
+    const readiness = computeSubmitReadiness({
+      residenceId,
+      name: String(residenceRow?.name ?? ""),
+      zone: String(residenceRow?.public_area ?? ""),
+      addressLine: String(residenceRow?.address_line ?? ""),
+      tagline,
+      description,
+      services: services.length,
+      commonAreas: commonAreas.length,
+      rulesSummary,
+      nearUniversities: nearUniversities.length,
+      roomTypesCount: roomTypes.length,
+      roomTypesPriced: roomTypes.every((rt) => rt.monthlyPriceUsd > 0),
+      photos: external.photos + newPhotos,
+      regulationPublished: external.regulationPublished,
+      rulesPdf: external.rulesPdf || (newRulesPdf instanceof File && newRulesPdf.size > 0),
+      essentialFaqsReady: external.essentialFaqsReady,
+      conditions: {
+        adjustmentPolicy: conditions.adjustmentPolicy,
+        initialPaymentMode: conditions.initialPayment.mode,
+        initialPaymentUsd: conditions.initialPayment.mode === "custom_usd" ? conditions.initialPayment.customUsd : null,
+        enrollmentEnabled: conditions.enrollmentFeeMode !== null,
+        enrollmentFeeMode: conditions.enrollmentFeeMode,
+        enrollmentFeeUsd: conditions.enrollmentFeeUsd,
+        depositEnabled: conditions.depositEnabled,
+        depositMode: conditions.depositMode,
+        depositUsd: conditions.depositUsd,
+        emptyMonthsEnabled: conditions.emptyMonthsEnabled,
+        emptyMonthChargePercent: conditions.emptyMonthChargePercent,
+        earlyExitCostsText: conditions.earlyExitCostsText ?? "",
+        earlyExitConditionsText: conditions.earlyExitConditionsText ?? "",
+      },
+    });
+    if (!readiness.canSubmit) return { status: "error", message: submitBlockedMessage(readiness) };
+  } else if (intent === "submit" && roomTypes.length === 0) {
+    return { status: "error", message: "Agregá al menos un tipo de habitación antes de enviar." };
   }
 
   // Tipos y habitaciones ACTUALES de esta residencia, leídos antes de escribir nada: sirven para (1) rechazar ids de tipos de habitación

@@ -23,7 +23,7 @@ function Stat({ label, value, note }: { label: string; value: string; note?: str
  * Tarjeta «Preguntas frecuentes» de la configuración. Las preguntas se eligen del catálogo de EstuRed en `/residence/<id>/faq` (con
  * respuestas sugeridas editables); acá se ve el estado real y se enlaza a ese selector. Si la residencia ya tenía preguntas propias
  * (sistema anterior, texto libre), se muestran en «Tus preguntas propias» para editarlas o quitarlas y se siguen publicando.
- * No hay casilleros vacíos: sumar preguntas nuevas se hace desde el catálogo.
+ * Las preguntas propias nuevas se suman en `/residence/<id>/faq` (sección «Preguntas propias»).
  */
 export function ProfileFaqCard({
   residenceId,
@@ -75,7 +75,7 @@ export function ProfileFaqCard({
         <div className="mt-6 border-t border-line pt-5">
           <h3 className="text-sm font-bold text-ink">Tus preguntas propias</h3>
           <p className="mt-0.5 text-xs text-ink-soft">
-            Las escribiste antes de que existiera el catálogo y se siguen mostrando en tu ficha. Podés editarlas o quitarlas. Para sumar preguntas nuevas, usá el catálogo.
+            Son preguntas que escribiste vos y se muestran en tu ficha. Podés editarlas o quitarlas. Para sumar otra, andá a «Preguntas propias» en la pantalla de preguntas frecuentes.
           </p>
           <div className="mt-3 space-y-4">
             {ownItems.map((faq, i) => (

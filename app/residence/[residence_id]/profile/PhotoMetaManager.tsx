@@ -3,6 +3,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { Icon } from "@/components/ui/Icon";
+import { CollapsibleSection } from "@/components/residences/CollapsibleSection";
+import {
+  initialOpenKeys,
+  isSectionOpen,
+  openSection,
+  summarizeSection,
+  toggleSection,
+} from "@/lib/residences/photoSectionCollapse";
 import { MAX_FEATURED_PHOTOS } from "@/lib/residences/photoMeta";
 import { MIN_PUBLISH_PHOTOS } from "@/lib/residences/photos";
 import {
@@ -30,6 +38,8 @@ export type { PhotoMetaItem } from "@/lib/residences/photoSections";
 const MAX_BYTES = 5 * 1024 * 1024;
 const ACCEPT = "image/jpeg,image/png,image/webp";
 const SAVE_DEBOUNCE_MS = 700;
+/** Al cargar, todas las secciones arrancan colapsadas: las subidas fallidas no existen todavía y se abren solas cuando ocurren. */
+const INITIAL_OPEN = initialOpenKeys([]);
 
 type Upload = {
   id: string;
@@ -50,7 +60,8 @@ type SaveStatus = "idle" | "saving" | "saved" | "error";
  * Dos formas de cargar: todas juntas a «Sin clasificar» y de ahí arrastrar cada miniatura a su sección (en táctil: «Mover a…»), o subir directo dentro de una sección.
  * Dónde se ve cada cosa (nada rota solo): hasta 5 fotos de portada con orden = la tarjeta de /search las pasa de a una; la foto principal (una sola) = encabeza
  * la ficha, va primera en la tarjeta y es la imagen del link; el mosaico de «Vivir acá» elige solo; el visor «Ver todas» agrupa por sección y oculta las secciones sin fotos.
- * Cada cambio se guarda solo (con debounce); las fotos se suben de a una por server action. Las reglas de moderación son las de siempre:
+ * Cada sección se pliega (cabecera con título, cantidad de fotos y estado; el cuerpo queda montado para no perder subidas ni ediciones) y arranca colapsada;
+ * se abre sola si falla una subida en ella. «Sin clasificar» no se pliega: tiene trabajo pendiente. Cada cambio se guarda solo (con debounce); las fotos se suben de a una por server action. Las reglas de moderación son las de siempre:
  * en una residencia publicada la foto nueva queda «Pendiente» hasta que el equipo la apruebe. Vive dentro del <form> del perfil: todos sus
  * botones son type="button" y sus campos no tienen `name`, así que no viajan en el guardado del perfil.
  */
@@ -97,6 +108,8 @@ export function PhotoMetaManager({
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [mainError, setMainError] = useState<string | null>(null);
+  // Secciones colapsables: solo se guarda lo que la persona tocó (o lo que se abrió solo por un error); el resto sigue el estado inicial.
+  const [toggled, setToggled] = useState<Record<string, boolean>>({});
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const saving = useRef(false);
   const again = useRef(false);
@@ -250,6 +263,7 @@ export function PhotoMetaManager({
       };
     });
     setUploads((prev) => [...prev, ...entries]);
+    if (entries.some((e) => e.status === "error")) setToggled((prev) => openSection(key, prev, INITIAL_OPEN));
     for (const entry of entries) if (entry.status === "uploading") enqueue(entry);
   }
 
@@ -287,6 +301,7 @@ export function PhotoMetaManager({
       }
     }
     setUploads((prev) => prev.map((u) => (u.id === entry.id ? { ...u, status: "error", message, retryable } : u)));
+    setToggled((prev) => openSection(entry.key, prev, INITIAL_OPEN));
   }
 
   function retry(id: string) {
@@ -424,8 +439,15 @@ export function PhotoMetaManager({
             const sectionItems = byKey(d.key);
             const sectionUploads = uploads.filter((u) => u.key === d.key);
             const total = sectionItems.length + sectionUploads.length;
-            const counted = sectionItems.length + sectionUploads.filter((u) => u.status === "uploading").length;
             const isOver = overKey === d.key;
+            const summary = summarizeSection({
+              key: d.key,
+              photos: sectionItems.length,
+              pendingPhotos: sectionItems.filter((i) => i.pending).length,
+              uploading: sectionUploads.filter((u) => u.status === "uploading").length,
+              failedUploads: sectionUploads.filter((u) => u.status === "error").length,
+            });
+            const open = isSectionOpen(d.key, toggled, INITIAL_OPEN);
             return (
               <section
                 key={d.key}
@@ -435,23 +457,28 @@ export function PhotoMetaManager({
                   isOver ? "border-forest bg-forest-tint" : total === 0 ? "border-dashed border-line-2 bg-cream" : "border-line bg-paper"
                 }`}
               >
-                <div className="flex items-center justify-between gap-3">
-                  <SectionHeader icon={d.icon} title={d.title} count={counted} pending={d.pending} />
-                  {editable && (
-                    <PickButton label="Subir" ariaLabel={`Subir fotos a ${d.title}`} onFiles={(files) => startUploads(files, d.key)} />
+                <CollapsibleSection
+                  icon={d.icon}
+                  title={d.title}
+                  countLabel={summary.countLabel}
+                  status={summary.status}
+                  badge={d.pending ? { label: "Pendiente", hint: "Se muestra en la ficha cuando el equipo apruebe esta área" } : null}
+                  open={open}
+                  onToggle={() => setToggled((prev) => toggleSection(d.key, prev, INITIAL_OPEN))}
+                  actions={editable && <PickButton label="Subir" ariaLabel={`Subir fotos a ${d.title}`} onFiles={(files) => startUploads(files, d.key)} />}
+                >
+                  {editable && d.kind === "facade" && (
+                    <p className="mt-1 text-xs text-ink-soft">
+                      Las fotos con las que se presenta tu residencia, por ejemplo el frente.
+                      {mainCoverReady && " La que encabece tu ficha la elegís con el ícono de imagen."}
+                    </p>
                   )}
-                </div>
-                {editable && d.kind === "facade" && (
-                  <p className="mt-1 text-xs text-ink-soft">
-                    Las fotos con las que se presenta tu residencia, por ejemplo el frente.
-                    {mainCoverReady && " La que encabece tu ficha la elegís con el ícono de imagen."}
-                  </p>
-                )}
-                {total === 0 ? (
-                  <p className="mt-2 text-sm text-ink-faint">{editable ? "Arrastrá fotos acá o tocá «Subir»." : "Sin fotos todavía."}</p>
-                ) : (
-                  <PhotoGrid items={sectionItems} uploads={sectionUploads} sectionKey={d.key} sectionTitle={d.title} {...gridCommon()} />
-                )}
+                  {total === 0 ? (
+                    <p className="mt-2 text-sm text-ink-faint">{editable ? "Arrastrá fotos acá o tocá «Subir»." : "Sin fotos todavía."}</p>
+                  ) : (
+                    <PhotoGrid items={sectionItems} uploads={sectionUploads} sectionKey={d.key} sectionTitle={d.title} {...gridCommon()} />
+                  )}
+                </CollapsibleSection>
               </section>
             );
           })}

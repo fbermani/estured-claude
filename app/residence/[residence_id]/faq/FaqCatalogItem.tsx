@@ -1,74 +1,46 @@
 "use client";
 
-import { useActionState, useState } from "react";
-import { useFormStatus } from "react-dom";
-import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Input";
 import { Icon } from "@/components/ui/Icon";
-import { saveFaqCatalogItemAction, type FaqCatalogState } from "@/app/residence/[residence_id]/faq/actions";
-import { CATALOG_ANSWER_MAX, isEditableOwner, listUnfilledFields, hasUnfilledFields, type FaqOwner } from "@/lib/faq/catalog";
-
-const initialState: FaqCatalogState = { status: "idle" };
-
-function SaveButton() {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" variant="primary" size="sm" disabled={pending}>
-      {pending ? "Guardando…" : "Guardar"}
-    </Button>
-  );
-}
+import { CompactButton } from "@/components/residences/CompactButton";
+import { useFaqEditor } from "@/app/residence/[residence_id]/faq/FaqEditor";
+import { CATALOG_ANSWER_MAX, isEditableOwner, listUnfilledFields, hasUnfilledFields } from "@/lib/faq/catalog";
 
 /**
  * Una pregunta del catálogo en el panel de la residencia: interruptor «Mostrar» + respuesta editable partiendo de la sugerida.
- * Las «EstuRed fija» se muestran sin edición. Un solo botón de guardado (sin `onClick` + `setState`).
+ * Las «EstuRed fija» se muestran sin edición. El estado (lo escrito y lo guardado) vive en `FaqEditorProvider`: así «Guardar todo y volver»
+ * ve las ediciones sin guardar de todas las preguntas, también las de los temas cerrados. Controlada: no se pierde lo escrito ante un error.
  */
-export function FaqCatalogItem({
-  residenceId,
-  questionId,
-  question,
-  owner,
-  suggestedAnswer,
-  initialSelected,
-  initialAnswer,
-  essential = false,
-}: {
-  residenceId: string;
-  questionId: string;
-  question: string;
-  owner: FaqOwner;
-  suggestedAnswer: string;
-  initialSelected: boolean;
-  /** Respuesta con la que arranca el campo: el override guardado o, si no hay, la sugerida. */
-  initialAnswer: string;
-  /** Pregunta «Esencial»: se muestra una etiqueta. */
-  essential?: boolean;
-}) {
-  const action = saveFaqCatalogItemAction.bind(null, residenceId, questionId);
-  const [state, formAction] = useActionState(action, initialState);
-  // Controlados: React 19 limpia los campos no controlados tras enviar; así no se pierde lo escrito ante un error.
-  const [selected, setSelected] = useState(initialSelected);
-  const [answer, setAnswer] = useState(initialAnswer);
-  const editable = isEditableOwner(owner);
-  const pending = editable ? listUnfilledFields(answer) : [];
-  const stillHasBraces = editable && hasUnfilledFields(answer);
+export function FaqCatalogItem({ id }: { id: string }) {
+  const ed = useFaqEditor();
+  const info = ed.items.find((i) => i.id === id);
+  const draft = ed.drafts[id];
+  if (!info || !draft) return null;
+
+  const status = ed.statuses[id];
+  const dirty = ed.dirtyIds.has(id);
+  const editable = isEditableOwner(info.owner);
+  const pending = editable ? listUnfilledFields(draft.answer) : [];
+  const stillHasBraces = editable && hasUnfilledFields(draft.answer);
+  const saving = status?.state === "saving";
 
   return (
-    <form action={formAction} className="rounded-card border-[1.5px] border-line bg-paper p-5">
+    <div id={`faq-item-${id}`} className="scroll-mt-24 rounded-card border-[1.5px] border-line bg-paper p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <p className="min-w-0 flex-1 font-semibold text-ink">
-          <span className="mr-2 text-xs font-bold text-ink-faint">{questionId}</span>
-          {question}
-          {essential && (
+          {info.question}
+          {info.essential && (
             <span className="ml-2 inline-flex items-center rounded-full bg-amber-soft-100 px-2 py-0.5 align-middle text-xs font-bold text-ink">Esencial</span>
           )}
+          {dirty && (
+            <span className="ml-2 inline-flex items-center rounded-full bg-warning-bg px-2 py-0.5 align-middle text-xs font-bold text-warning-fg">Sin guardar</span>
+          )}
         </p>
-        <label className="flex shrink-0 cursor-pointer items-center gap-2 text-sm font-semibold text-ink">
+        <label className="flex min-h-11 shrink-0 cursor-pointer items-center gap-2 text-sm font-semibold text-ink">
           <input
             type="checkbox"
-            name="selected"
-            checked={selected}
-            onChange={(e) => setSelected(e.target.checked)}
+            checked={draft.selected}
+            onChange={(e) => ed.setSelected(id, e.target.checked)}
             className="h-5 w-5 accent-forest-700"
           />
           Mostrar
@@ -78,24 +50,23 @@ export function FaqCatalogItem({
       {editable ? (
         <div className="mt-3">
           <Textarea
-            id={`faq-catalog-${questionId}`}
-            name="answer"
+            id={`faq-catalog-${id}`}
             label="Respuesta"
             rows={4}
             maxLength={CATALOG_ANSWER_MAX}
-            value={answer}
-            onChange={(e) => setAnswer(e.target.value)}
+            value={draft.answer}
+            onChange={(e) => ed.setAnswer(id, e.target.value)}
             hint={
               stillHasBraces
                 ? `Completá los datos entre llaves {…}: borrá las llaves y escribí el dato real.${pending.length ? ` Faltan: ${pending.slice(0, 6).join(", ")}${pending.length > 6 ? "…" : ""}.` : ""} Para mostrarla no puede quedar ninguna.`
-                : `${answer.length}/${CATALOG_ANSWER_MAX} caracteres. Partís de la respuesta sugerida; editala con los datos de tu residencia.`
+                : `${draft.answer.length}/${CATALOG_ANSWER_MAX} caracteres. Partís de la respuesta sugerida; editala con los datos de tu residencia.`
             }
           />
-          {answer.trim() !== suggestedAnswer.trim() && (
+          {draft.answer.trim() !== info.suggestedAnswer.trim() && (
             <button
               type="button"
-              onClick={() => setAnswer(suggestedAnswer)}
-              className="mt-1 text-xs font-semibold text-forest-700 underline underline-offset-2"
+              onClick={() => ed.setAnswer(id, info.suggestedAnswer)}
+              className="mt-1 inline-flex min-h-11 items-center text-xs font-semibold text-forest-700 underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
             >
               Volver a la respuesta sugerida
             </button>
@@ -103,29 +74,31 @@ export function FaqCatalogItem({
         </div>
       ) : (
         <div className="mt-3 rounded-field bg-cream-2 px-4 py-3">
-          <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-ink-faint">
+          <p className="flex items-center gap-1.5 text-xs font-bold text-ink-faint">
             <Icon name="lock" className="text-sm" />
             Texto fijo de EstuRed
           </p>
-          <p className="mt-1 whitespace-pre-line break-words text-sm leading-relaxed text-ink-soft">{suggestedAnswer}</p>
+          <p className="mt-1 whitespace-pre-line break-words text-sm leading-relaxed text-ink-soft">{info.suggestedAnswer}</p>
           <p className="mt-2 text-xs text-ink-faint">Solo podés elegir si se muestra: la residencia no lo edita.</p>
         </div>
       )}
 
-      {state.status === "error" && (
+      {status?.state === "error" && (
         <p role="alert" className="mt-3 rounded-field bg-danger-bg px-4 py-3 text-sm font-medium text-danger-fg">
-          {state.message}
+          {status.message}
         </p>
       )}
-      {state.status === "saved" && (
+      {status?.state === "saved" && !dirty && (
         <p role="status" className="mt-3 rounded-field bg-mint px-4 py-3 text-sm font-medium text-forest-700">
-          {state.message}
+          {status.message}
         </p>
       )}
 
       <div className="mt-3">
-        <SaveButton />
+        <CompactButton onClick={() => ed.saveItem(id)} disabled={!dirty || ed.busy}>
+          {saving ? "Guardando…" : "Guardar"}
+        </CompactButton>
       </div>
-    </form>
+    </div>
   );
 }

@@ -10,6 +10,8 @@ import {
 } from "@/lib/faq/moderateResidenceQuestion";
 import { saveCatalogItem } from "@/lib/faq/residenceCatalog";
 import { saveFeaturedFaq } from "@/lib/faq/featured";
+import { saveOwnFaq } from "@/lib/residences/ownFaqSave";
+import { parseFaqBatchInput, summarizeFaqBatch, type FaqBatchItemResult, type FaqBatchResult } from "@/lib/faq/faqEditor";
 
 export type FaqModerationState = { status: "idle" | "saved" | "error"; message?: string };
 
@@ -41,39 +43,54 @@ export async function moderateFaqQuestionAction(
   if (!result.ok) return { status: "error", message: result.error };
 
   revalidatePath(`/residence/${residenceId}/faq`);
+  revalidatePath(`/residence/${residenceId}/profile`);
   revalidatePath("/residencias/[slug]", "page");
   return { status: "saved" };
 }
 
-export type FaqCatalogState = { status: "idle" | "saved" | "error"; message?: string };
-
 /**
- * Elegir mostrar / ocultar una pregunta del catálogo único y editar su respuesta (DR14). El permiso (`faq.manage`), la validación de los
- * campos `{…}` y la auditoría viven en `lib/faq/residenceCatalog`. El interruptor «Mostrar» viaja como checkbox nativo del mismo formulario.
+ * Guardar en lote lo que se edita en esta pantalla: preguntas del catálogo (mostrar / ocultar + respuesta, DR14) y preguntas propias.
+ * La usan el «Guardar» de cada pregunta (un solo ítem), el de las preguntas propias y «Guardar todo y volver». El cliente manda solo lo
+ * que cambió. Cada pregunta del catálogo se valida y se audita en `lib/faq/residenceCatalog` (permiso `faq.manage`); las propias, en
+ * `lib/residences/ownFaqSave` (permiso `profile.edit`). Un ítem que falla no frena a los demás: el resultado trae el estado de cada uno.
  */
-export async function saveFaqCatalogItemAction(
-  residenceId: string,
-  questionId: string,
-  _prev: FaqCatalogState,
-  formData: FormData,
-): Promise<FaqCatalogState> {
+export async function saveFaqBatchAction(residenceId: string, rawInput: unknown): Promise<FaqBatchResult> {
+  const fail = (message: string): FaqBatchResult => ({ status: "error", message, catalog: {} });
   const sessionUser = await getSessionUser();
-  if (!sessionUser) return { status: "error", message: "Tu sesión expiró. Volvé a iniciar sesión." };
+  if (!sessionUser) return fail("Tu sesión expiró. Volvé a iniciar sesión.");
   const admin = getSupabaseAdmin();
-  if (!admin) return { status: "error", message: "No disponible en este momento." };
+  if (!admin) return fail("No disponible en este momento. Probá más tarde.");
+  if (typeof residenceId !== "string" || !residenceId) return fail("No encontramos la residencia.");
 
-  const result = await saveCatalogItem(admin, {
-    actorUserId: sessionUser.id,
-    residenceId,
-    questionId,
-    selected: formData.get("selected") === "on",
-    answer: formData.get("answer"),
-  });
-  if (!result.ok) return { status: "error", message: result.error };
+  const parsed = parseFaqBatchInput(rawInput);
+  if (!parsed.ok) return fail(parsed.error);
+  const { catalog, own } = parsed.value;
 
-  revalidatePath(`/residence/${residenceId}/faq`);
-  revalidatePath("/residencias/[slug]", "page");
-  return { status: "saved", message: result.selected ? "Listo, la pregunta se muestra en tu ficha." : "Listo, la pregunta no se muestra en tu ficha." };
+  const catalogResults: Record<string, FaqBatchItemResult> = {};
+  for (const item of catalog) {
+    const result = await saveCatalogItem(admin, {
+      actorUserId: sessionUser.id,
+      residenceId,
+      questionId: item.id,
+      selected: item.selected,
+      answer: item.answer,
+    });
+    catalogResults[item.id] = result.ok ? { ok: true, selected: result.selected } : { ok: false, error: result.error };
+  }
+
+  let ownResult: FaqBatchResult["own"];
+  if (own !== null) {
+    const saved = await saveOwnFaq(admin, { actorUserId: sessionUser.id, residenceId, items: own });
+    ownResult = saved.ok ? { ok: true } : { ok: false, error: saved.error };
+  }
+
+  const status = summarizeFaqBatch(catalogResults, ownResult);
+  if (status !== "error") {
+    revalidatePath(`/residence/${residenceId}/faq`);
+    revalidatePath(`/residence/${residenceId}/profile`);
+    revalidatePath("/residencias/[slug]", "page");
+  }
+  return { status, catalog: catalogResults, ...(ownResult ? { own: ownResult } : {}) };
 }
 
 export type FaqFeaturedResult = { status: "success"; count: number } | { status: "error"; message: string };
@@ -93,6 +110,7 @@ export async function saveFeaturedFaqAction(residenceId: string, refs: unknown):
   if (!result.ok) return { status: "error", message: result.error };
 
   revalidatePath(`/residence/${residenceId}/faq`);
+  revalidatePath(`/residence/${residenceId}/profile`);
   revalidatePath("/residencias/[slug]", "page");
   return { status: "success", count: result.count };
 }

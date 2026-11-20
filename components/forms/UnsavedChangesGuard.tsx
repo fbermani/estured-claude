@@ -9,7 +9,7 @@ import { leavingNavigationTarget } from "@/lib/forms/navigation";
 /**
  * Avisa antes de salir de una pantalla con cambios sin guardar.
  * - Intercepta los clics en enlaces internos (también el menú lateral) en fase de captura mientras `active` sea true y muestra un
- *   diálogo con tres salidas: «Guardar y salir», «Salir sin guardar» y «Seguir editando».
+ *   diálogo con tres salidas: «Guardar y seguir», «Salir sin guardar» y «Seguir editando».
  * - Agrega `beforeunload` (cerrar la pestaña o recargar) solo mientras `active`.
  * - El botón Atrás del navegador no se puede frenar de forma confiable: ese caso lo cubre el borrador local del formulario.
  * - Sin `onSave` el diálogo ofrece solo «Salir» y «Seguir editando».
@@ -19,7 +19,7 @@ export function UnsavedChangesGuard({
   title = "Tenés cambios sin guardar",
   description,
   impactNote,
-  saveLabel = "Guardar y salir",
+  saveLabel = "Guardar y seguir",
   leaveLabel = "Salir sin guardar",
   stayLabel = "Seguir editando",
   onSave,

@@ -18,9 +18,11 @@ import { useProfileDraft } from "@/app/residence/[residence_id]/profile/useProfi
 import { profileStamp, saveImpactNote } from "@/lib/residences/profileDraft";
 import { formatArs, usdToArsRounded } from "@/lib/mock/exchange";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
-import { computeProfileStrength, profileStrengthSuggestion } from "@/lib/residences/profileStrength";
+import { strengthFromReadiness } from "@/lib/residences/profileStrength";
+import { computeSubmitReadiness } from "@/lib/residences/submitReadiness";
+import { ProfileReadinessChecklist } from "@/app/residence/[residence_id]/profile/ProfileReadinessChecklist";
 import { MIN_PUBLISH_PHOTOS, hasEnoughPhotosToPublish } from "@/lib/residences/photos";
-import { changesRequestedMessageOrFallback } from "@/lib/residences/changesRequest";
+import { SUBMITTABLE_RESIDENCE_STATUSES, changesRequestedMessageOrFallback } from "@/lib/residences/changesRequest";
 import { NO_PERMISSION_NOTE } from "@/lib/residences/permissions";
 import {
   SERVICE_OPTIONS,
@@ -249,6 +251,7 @@ export function ResidenceProfileForm({
   readOnly = false,
   canSubmit = true,
   draftScope,
+  readinessExternal,
 }: {
   residenceId: string;
   initial: ProfileInitial;
@@ -259,6 +262,8 @@ export function ResidenceProfileForm({
   canSubmit?: boolean;
   /** Borrador local: quién edita. Sin esto no se guarda borrador en el dispositivo. */
   draftScope?: { userId: string };
+  /** Requisitos para enviar (DR58) que viven en otras pantallas (reglamento, preguntas esenciales, PDF): los lee el servidor. */
+  readinessExternal: { rulesPdf: boolean; regulationPublished: boolean | null; essentialFaqsReady: number | null };
 }) {
   const action = saveResidenceProfile.bind(null, residenceId);
   const [state, formAction] = useActionState(action, initialState);
@@ -394,7 +399,7 @@ export function ResidenceProfileForm({
   const [photoCounts, setPhotoCounts] = useState({ total: initial.photos.length, approved: initial.photos.filter((p) => !p.pending).length });
 
   // Borrador local (solo en este dispositivo): se guarda solo mientras se escribe y se recupera al volver. No toca el servidor:
-  // lo único que guarda en la cuenta es «Guardar cambios» (o «Guardar y salir» en el aviso de salida).
+  // lo único que guarda en la cuenta es «Guardar cambios» (o «Guardar y seguir» en el aviso de salida).
   const draftStamp = useMemo(() => profileStamp(initial), [initial]);
   const draft = useProfileDraft<RoomTypeDraft, ConditionsDraft>({
     residenceId,
@@ -437,7 +442,7 @@ export function ResidenceProfileForm({
     saveWaiter.current?.({ ok, message: state.message });
     saveWaiter.current = null;
   }, [state, completeSave]);
-  /** «Guardar y salir» del aviso de salida: envía el formulario como «Guardar cambios» (nunca como «Enviar para revisión») y espera el resultado. */
+  /** «Guardar y seguir» del aviso de salida: envía el formulario como «Guardar cambios» (nunca como «Enviar para revisión») y espera el resultado. */
   const saveAndWait = useCallback(
     () =>
       new Promise<{ ok: boolean; message?: string }>((resolve) => {
@@ -465,22 +470,49 @@ export function ResidenceProfileForm({
     setRoomTypes((prev) => prev.map((rt, i) => (i === index ? { ...rt, ...patch } : rt)));
   }
 
-  const strength = useMemo(
+  // Requisitos para enviar a revisión (DR58): la misma función que usa el servidor, con lo que se está editando. Reglamento, preguntas
+  // esenciales y PDF vienen de la base (otras pantallas); las fotos cuentan todas las subidas, también las pendientes de revisión.
+  const [rulesPdfPicked, setRulesPdfPicked] = useState(false);
+  const readiness = useMemo(
     () =>
-      computeProfileStrength({
+      computeSubmitReadiness({
+        residenceId,
+        name: initial.name,
+        zone: initial.zone,
+        addressLine: initial.addressLine,
         tagline,
         description,
         services: services.size,
         commonAreas: commonAreas.size,
         rulesSummary,
         nearUniversities: nearUniversities.size,
-        // Solo cuentan las aprobadas: las pendientes todavía no las ve el público.
-        photos: photoCounts.approved,
-        roomTypesOk: roomTypes.length > 0 && roomTypes.every((rt) => rt.monthlyPriceUsd > 0),
+        roomTypesCount: roomTypes.length,
+        roomTypesPriced: roomTypes.every((rt) => rt.monthlyPriceUsd > 0),
+        photos: photoCounts.total,
+        regulationPublished: readinessExternal.regulationPublished,
+        rulesPdf: readinessExternal.rulesPdf || rulesPdfPicked,
+        essentialFaqsReady: readinessExternal.essentialFaqsReady,
+        conditions: {
+          adjustmentPolicy: conditions.adjustmentPolicy,
+          initialPaymentMode: conditions.initialPaymentMode,
+          initialPaymentUsd: conditions.initialPaymentMode === "custom_usd" ? conditions.initialPaymentUsd : null,
+          enrollmentEnabled: conditions.enrollmentEnabled,
+          enrollmentFeeMode: conditions.enrollmentEnabled ? conditions.enrollmentFeeMode : null,
+          enrollmentFeeUsd: conditions.enrollmentFeeUsd,
+          depositEnabled: conditions.depositEnabled,
+          depositMode: conditions.depositMode,
+          depositUsd: conditions.depositUsd,
+          emptyMonthsEnabled: conditions.emptyMonthsEnabled,
+          emptyMonthChargePercent: conditions.emptyMonthChargePercent,
+          earlyExitCostsText: conditions.earlyExitCostsText,
+          earlyExitConditionsText: conditions.earlyExitConditionsText,
+        },
       }),
-    [tagline, description, services, commonAreas, rulesSummary, nearUniversities, roomTypes, photoCounts.approved],
+    [residenceId, initial.name, initial.zone, initial.addressLine, tagline, description, services, commonAreas, rulesSummary, nearUniversities, roomTypes, photoCounts.total, readinessExternal, rulesPdfPicked, conditions],
   );
-  const strengthSuggestion = profileStrengthSuggestion(strength);
+  const strength = useMemo(() => strengthFromReadiness(readiness), [readiness]);
+  // «Ya podés enviar» respeta los dos controles: que el dueño sea quien envía (`canSubmit`) y que el estado de la residencia lo permita.
+  const canSendNow = canSubmit && (SUBMITTABLE_RESIDENCE_STATUSES as readonly string[]).includes(initial.status);
 
   const badge = statusCopy[initial.status] ?? statusCopy.draft;
 
@@ -577,23 +609,7 @@ export function ResidenceProfileForm({
       )}
 
       {/* Bajo lg: Fortaleza compacta + índice de secciones fijo (L9). Desde lg manda la columna lateral. */}
-      <div className="mb-4 rounded-card border-[1.5px] border-line bg-paper px-4 py-3 lg:hidden">
-        <div className="flex items-center gap-3">
-          <p className="text-sm font-bold text-ink">Fortaleza del Perfil</p>
-          <div
-            role="progressbar"
-            aria-label="Fortaleza del Perfil"
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={strength.percent}
-            className="h-2 flex-1 overflow-hidden rounded-full bg-sand-200"
-          >
-            <div className="h-full w-full origin-left rounded-full bg-forest transition-transform duration-300 ease-out-fresh" style={{ transform: `scaleX(${strength.percent / 100})` }} />
-          </div>
-          <p className="text-sm font-bold text-forest-700">{strength.percent}%</p>
-        </div>
-        {strengthSuggestion && <p className="mt-1.5 text-xs text-ink-soft">{strengthSuggestion}</p>}
-      </div>
+      <ProfileReadinessChecklist readiness={readiness} percent={strength.percent} canSend={canSendNow} variant="compact" />
       <SectionNav
         label="Secciones del perfil"
         className="sticky top-0 z-30 mb-6 lg:hidden"
@@ -658,6 +674,9 @@ export function ResidenceProfileForm({
               minResidentAge: conditions.minResidentAge,
               maxResidentAge: conditions.maxResidentAge,
               acceptsMinors: conditions.acceptsMinors,
+              // El servidor los usa para el gate del envío (DR58): «pide depósito» y «cobra mes vacío» aunque el monto o el % vengan vacíos.
+              depositEnabled: conditions.depositEnabled,
+              emptyMonthsEnabled: conditions.emptyMonthsEnabled,
             }),
           );
           formAction(fd);
@@ -910,6 +929,7 @@ export function ResidenceProfileForm({
                 name="rules_file"
                 type="file"
                 accept="application/pdf"
+                onChange={(e) => setRulesPdfPicked((e.target.files?.length ?? 0) > 0)}
                 className="mt-1.5 block w-full text-sm text-ink-soft file:mr-3 file:rounded-full file:border-0 file:bg-forest-tint file:px-4 file:py-2 file:text-sm file:font-semibold file:text-forest-700"
               />
               {initial.rulesFileName && (
@@ -1643,15 +1663,8 @@ export function ResidenceProfileForm({
 
         {/* Sidebar */}
         <aside className="space-y-6">
-          <Card className="sticky top-24 p-5 max-lg:hidden">
-            <h3 className="font-bold text-ink">Fortaleza del Perfil</h3>
-            <div className="mt-2 h-2 overflow-hidden rounded-full bg-sand-200">
-              <div className="h-full w-full origin-left rounded-full bg-forest transition-transform duration-300 ease-out-fresh" style={{ transform: `scaleX(${strength.percent / 100})` }} />
-            </div>
-            <p className="mt-1 text-right text-sm font-bold text-forest-700">{strength.percent}%</p>
-            {strengthSuggestion && (
-              <p className="mt-2 rounded-field bg-sand-100 px-3 py-2 text-xs text-ink-soft">{strengthSuggestion}</p>
-            )}
+          <Card className="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto p-5 max-lg:hidden">
+            <ProfileReadinessChecklist readiness={readiness} percent={strength.percent} canSend={canSendNow} variant="card" />
           </Card>
 
           <ProfilePreviewCard

@@ -208,6 +208,53 @@ describe("perfil: guardar es `profile.edit`; enviar a verificación es solo del 
   });
 });
 
+describe("perfil: requisitos para enviar a revisión (DR58, recalculados en el servidor)", () => {
+  /** Formulario válido pero incompleto: sin fotos, sin reglamento, sin universidades, sin preguntas esenciales. */
+  const form = (intent: string) => {
+    const fd = new FormData();
+    fd.set("intent", intent);
+    fd.set("tagline", "Casa de estudiantes");
+    fd.set("description", "Una descripción de más de veinte caracteres.");
+    fd.append("services", "Wifi");
+    fd.set("room_types_json", JSON.stringify([{ name: "Individual", features: [], roomCount: 2, capacityPerRoom: 1, monthlyPriceUsd: 400 }]));
+    fd.set(
+      "conditions_json",
+      JSON.stringify({ adjustmentPolicy: "quarterly", initialPaymentMode: "one_month", minResidentAge: 18, maxResidentAge: "", acceptsMinors: false }),
+    );
+    return fd;
+  };
+
+  it("el dueño no puede enviar una residencia en borrador incompleta: el mensaje lista lo que falta y no se escribe nada", async () => {
+    const r = await saveResidenceProfile(RIO, idle, form("submit"));
+    expect(r.status).toBe("error");
+    expect(r.message).toContain("Todavía no podés enviar la residencia a revisión");
+    expect(r.message).toContain("Al menos 3 fotos propias");
+    expect(r.message).toContain("Al menos 2 universidades cercanas");
+    expect(r.message).toContain("Datos básicos");
+    expect(writes()).toHaveLength(0);
+  });
+
+  it("también se bloquea el reenvío tras «cambios pedidos» y tras vencimiento", async () => {
+    for (const status of ["needs_changes", "verification_expired"]) {
+      fake.tables.residences.find((x) => x.id === RIO)!.status = status;
+      const r = await saveResidenceProfile(RIO, idle, form("submit"));
+      expect(r.message, status).toContain("Todavía no podés enviar la residencia a revisión");
+    }
+    expect(writes()).toHaveLength(0);
+  });
+
+  it("«Guardar cambios» (borrador) no se bloquea por los requisitos", async () => {
+    const r = await saveResidenceProfile(RIO, idle, form("draft"));
+    expect(r.message ?? "").not.toContain("Todavía no podés enviar");
+  });
+
+  it("una residencia publicada no pasa por el gate (guardar y «enviar» no se bloquean por los requisitos)", async () => {
+    fake.tables.residences.find((x) => x.id === RIO)!.status = "verified_active";
+    const r = await saveResidenceProfile(RIO, idle, form("submit"));
+    expect(r.message ?? "").not.toContain("Todavía no podés enviar");
+  });
+});
+
 describe("equipo y permisos: solo del dueño, aunque el staff tenga todo lo delegable", () => {
   it("invitar, reenviar, cancelar, quitar acceso y cambiar permisos rechazan a cualquier staff", async () => {
     fake.tables.residence_users.push({ residence_id: NORTE, user_id: "supervisor", role: "staff", is_active: true, permissions: ownerPermissions() });

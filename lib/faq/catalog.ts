@@ -36,15 +36,23 @@ export const CATALOG_ANSWER_MAX = 3000;
 export const FICHA_FAQ_VISIBLE = 10;
 
 /**
- * Preguntas «Esenciales» (decisión del dueño 2026-11-19): las que, si la ficha no las responde, terminan en consultas directas a la
+ * Preguntas «Esenciales» (decisión del dueño 2026-11-19; lista actualizada 2026-11-20: FAQ-07, 09, 15, 25, 33 y 36; para enviar a revisión hacen falta 3): las que, si la ficha no las responde, terminan en consultas directas a la
  * residencia, y que NO están ya como datos estructurados de la ficha (depósito, matrícula, ajustes, estadía mínima, reglamento y precios
  * salen de la configuración, no de acá). Son las que las guías públicas dan por respondidas en la ficha: qué llevar, ingreso y egreso,
  * cambio de habitación, servicios no incluidos, responsable y emergencias. (FAQ-01 visitas y FAQ-38 comida están desactivadas desde la migración 0056.)
  */
-export const ESSENTIAL_FAQ_IDS: readonly string[] = ["FAQ-07", "FAQ-09", "FAQ-36", "FAQ-42", "FAQ-43", "FAQ-49"];
+export const ESSENTIAL_FAQ_IDS: readonly string[] = ["FAQ-07", "FAQ-09", "FAQ-15", "FAQ-25", "FAQ-33", "FAQ-36"];
 
 export function isEssentialFaq(id: string): boolean {
   return ESSENTIAL_FAQ_IDS.includes(id);
+}
+
+/**
+ * Orden de visualización en el panel: dentro de una lista (un tema), las esenciales van primero y el resto sigue en su orden de siempre.
+ * Es una partición estable: no cambia los ids ni el `display_order` de la base, solo cómo se ven acá.
+ */
+export function sortEssentialFirst<T extends { id: string }>(entries: readonly T[]): T[] {
+  return [...entries.filter((e) => isEssentialFaq(e.id)), ...entries.filter((e) => !isEssentialFaq(e.id))];
 }
 
 /** Cuántas esenciales ya se muestran en la ficha: elegidas y sin campos `{…}` pendientes (las de texto fijo de EstuRed cuentan si están elegidas). */

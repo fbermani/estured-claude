@@ -1,4 +1,5 @@
 import { MIN_PUBLISH_PHOTOS } from "@/lib/residences/photos";
+import type { SubmitReadiness } from "@/lib/residences/submitReadiness";
 
 /**
  * Fortaleza del perfil de una residencia (Ciclo 65). Función pura: la usa el
@@ -21,7 +22,7 @@ export interface ProfileStrengthInput {
 }
 
 export interface ProfileStrengthGap {
-  key: "tagline" | "description" | "services" | "commonAreas" | "rules" | "universities" | "roomTypes";
+  key: string;
   label: string;
 }
 
@@ -54,6 +55,23 @@ export function computeProfileStrength(input: ProfileStrengthInput): ProfileStre
     percent: Math.min(100, Math.round(photoPoints + otherPoints)),
     photosMissing,
     gaps: checks.filter((c) => !c.ok).map(({ key, label }) => ({ key, label })),
+  };
+}
+
+/**
+ * Fortaleza derivada de la lista de requisitos para enviar a revisión (DR58): es el promedio del avance de los requisitos obligatorios
+ * (los parciales, como fotos o preguntas esenciales, suman en proporción). Con todos cumplidos da 100 %. Es lo que usa el formulario
+ * del perfil; `computeProfileStrength` queda para las pantallas que todavía no calculan la lista completa (el Panel).
+ */
+export function strengthFromReadiness(readiness: SubmitReadiness): ProfileStrength {
+  const required = readiness.items.filter((i) => i.required);
+  const total = required.reduce((sum, i) => sum + i.progress, 0);
+  const photos = readiness.items.find((i) => i.key === "photos");
+  return {
+    // 100 % solo con todo cumplido: el redondeo nunca lo muestra si falta algo.
+    percent: readiness.canSubmit ? 100 : Math.min(99, Math.round((total / required.length) * 100)),
+    photosMissing: photos && !photos.ok ? Math.max(1, Math.ceil((1 - photos.progress) * MIN_PUBLISH_PHOTOS)) : 0,
+    gaps: readiness.missing.filter((i) => i.key !== "photos").map((i) => ({ key: i.key, label: i.label })),
   };
 }
 

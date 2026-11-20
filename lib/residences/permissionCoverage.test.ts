@@ -46,6 +46,8 @@ const GUARDED: Record<string, string[]> = {
   "lib/waitlist-entries/notifyWaitlistAvailability.ts": ["assertResidencePermission(", "waitlist.manage"],
   "lib/waitlist-entries/removeFromWaitlistByResidence.ts": ["assertResidencePermission(", "waitlist.manage"],
   "lib/faq/moderateResidenceQuestion.ts": ["assertResidencePermission(", "faq.manage"],
+  // Preguntas propias (sección `faq` del perfil), guardadas desde la pantalla de preguntas: mismo permiso que el guardado del perfil
+  "lib/residences/ownFaqSave.ts": ["assertResidencePermission(", "profile.edit"],
   // Compartir la ficha por WhatsApp (mensaje editable): guardar/restablecer requiere `profile.edit`
   "lib/share/shareMessage.ts": ["assertResidencePermission(", "profile.edit"],
   // Solo dueño (no delegable)
@@ -72,7 +74,7 @@ const DELEGATING: Record<string, string[]> = {
   ],
   "app/residence/[residence_id]/residents/stayChangeActions.ts": ["@/lib/stayChange/respondStayChangeIntent"],
   "app/residence/[residence_id]/residents/roomChangeActions.ts": ["@/lib/roomChange/manage"],
-  "app/residence/[residence_id]/faq/actions.ts": ["@/lib/faq/moderateResidenceQuestion"],
+  "app/residence/[residence_id]/faq/actions.ts": ["@/lib/faq/moderateResidenceQuestion", "@/lib/residences/ownFaqSave"],
   "app/residence/[residence_id]/share/actions.ts": ["@/lib/share/shareMessage"],
   "app/residence/[residence_id]/regulation/actions.ts": ["@/lib/regulations/publish"],
   "app/residence/[residence_id]/team/actions.ts": ["@/lib/team/teamInvitations"],

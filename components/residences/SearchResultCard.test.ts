@@ -37,8 +37,9 @@ describe("SearchResultCard: Lista compacta por debajo de 480 px", () => {
     expect(html).toContain("grid-cols-[7.5rem_minmax(0,1fr)]");
     expect(html).toContain("contents @min-[480px]/card:grid");
     expect(html).toContain("@max-[480px]/card:col-start-2");
-    expect(html).toContain("@max-[480px]/card:col-span-2");
-    expect(html).toContain("col-span-2 @min-[480px]/card:col-span-1");
+    // El pie (CTA y disponibilidad) también va en la columna derecha, debajo del texto (commit 38fdf6a).
+    expect(html).toContain("border-t border-line bg-cream");
+    expect(html).toContain("col-start-2 @max-[480px]/card:rounded-bl-none");
   });
 
   it("la miniatura se oculta desde 480 px y el carrusel solo se ve desde 480 px; la miniatura usa solo la primera foto", () => {
