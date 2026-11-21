@@ -33,6 +33,7 @@ vi.mock("@/lib/applications/roomTypeQueue", () => ({ promoteNextQueuedApplicatio
 vi.mock("@/lib/applications/residencePayment", () => ({
   createPendingResidencePayment: async () => {
     state.paymentsCreated += 1;
+    return true;
   },
 }));
 vi.mock("@/lib/applications/reactivatePausedApplications", () => ({
@@ -52,6 +53,8 @@ vi.mock("@/lib/supabase/admin", () => ({
           return { data: null, error: null };
         }
         if (table === "residence_users") return { data: { id: "ru-1" }, error: null };
+        // DR63: residencia sin configurar el cobro de la reserva (= contacto directo por WhatsApp, como antes).
+        if (table === "residences") return { data: { reservation_payment_modes: null, accepted_payment_methods: null, name: "Residencia" }, error: null };
         if (table === "application_snapshots") return { data: { exchange_rate_ars_per_usd: 1500 }, error: null };
         if (table === "application_requests" && q.op === "select") {
           return {

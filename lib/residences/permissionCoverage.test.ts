@@ -15,7 +15,9 @@ const SCAN_DIRS = ["app/residence", "lib/residences", "lib/residents", "lib/rene
 /** Archivo → controles que tiene que contener. `perm:` = `assertResidencePermission` con esa clave; el resto, el identificador literal. */
 const GUARDED: Record<string, string[]> = {
   // Solicitudes y pagos
-  "app/residence/[residence_id]/applications/actions.ts": ["assertResidencePermission(", "applications.review_contact", "applications.reject", "payments.residence"],
+  "app/residence/[residence_id]/applications/actions.ts": ["assertResidencePermission(", "applications.review_contact", "applications.reject"],
+  // DR63 fase 4: habilitar el pago vive en el núcleo (la acción solo delega): `payments.residence`, y solo el dueño en el camino de medios
+  "lib/applications/enableResidencePayment.ts": ["assertResidencePermission(", "payments.residence", "assertResidenceOwner("],
   "app/residence/[residence_id]/applications/[id]/negotiation/actions.ts": ["assertResidencePermission(", "applications.send_adjustment"],
   "lib/reservations/recordResidencePaymentReceived.ts": ["assertResidencePermission(", "payments.residence"],
   // Perfil: guardar es delegable; enviar a verificación, no

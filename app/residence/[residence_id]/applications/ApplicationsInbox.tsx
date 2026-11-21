@@ -9,6 +9,7 @@ import { Icon } from "@/components/ui/Icon";
 import { ResidenceHero } from "@/components/residences/ResidenceHero";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatUsd } from "@/lib/mock/exchange";
+import type { CollectionChoiceView } from "@/lib/applications/collectionChoiceView";
 import { ApplicationActions, type ApplicationAllowed } from "@/app/residence/[residence_id]/applications/[id]/ApplicationActions";
 import { getVisibleStatus, type ReservationStatusInput } from "@/lib/applications/visibleStatus";
 import { describePaymentDeadline } from "@/lib/applications/paymentDeadline";
@@ -40,6 +41,8 @@ export type FullApplication = {
   /** Reserva confirmada con comprobante emitido: solo N.º y código de verificación (sin facturación ni pagador). */
   confirmedBooking: { receiptNumber: string; verificationCode: string } | null;
   whatsappUrl: string | null;
+  /** DR63 (d): cobro de la reserva de esta solicitud (sin datos de cobro). `null` si no aplica o sin la migración 0102. */
+  collection: CollectionChoiceView | null;
   waitlistRelatedCount: number;
   isActive: boolean;
   /** DR3b: solicitud de un residente en proceso de mudanza. Nunca trae la residencia de origen ni el motivo (salvo la nota voluntaria). */
@@ -448,6 +451,7 @@ function ApplicationDetail({
           status={app.status}
           reservation={app.reservation}
           whatsappUrl={app.whatsappUrl}
+          collection={app.collection}
           paymentDeadlineAt={app.paymentDeadlineAt}
           allowed={allowed}
         />

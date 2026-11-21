@@ -10,6 +10,10 @@ import { REJECTION_REASONS } from "@/lib/applications/types";
 import { getVisibleStatus, type ReservationStatusInput } from "@/lib/applications/visibleStatus";
 import { describePaymentDeadline } from "@/lib/applications/paymentDeadline";
 import { Icon } from "@/components/ui/Icon";
+import { formatArs, formatUsd } from "@/lib/mock/exchange";
+import { COLLECTION_PATH_TITLES } from "@/lib/applications/reservationCollectionChoice";
+import type { CollectionChoiceView } from "@/lib/applications/collectionChoiceView";
+import { CollectionPaymentPanel } from "@/app/residence/[residence_id]/applications/[id]/CollectionPaymentPanel";
 import {
   markUnderReview,
   establishContact,
@@ -51,12 +55,54 @@ const PAYMENT_METHOD_OPTIONS = [
   { value: "other", label: "Otro" },
 ];
 
+/** Botón de WhatsApp (enlace manual `wa.me`, sin API). Con un menor va al familiar vinculado. Secundario: la acción principal es habilitar o confirmar el pago. */
+function WhatsappLink({ url, isMinor }: { url: string; isMinor: boolean }) {
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noreferrer"
+      className="inline-flex items-center gap-2 rounded-full border-[1.5px] border-forest px-5 py-2.5 text-sm font-semibold text-forest-700 hover:bg-forest-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+    >
+      {isMinor ? "Escribir al familiar por WhatsApp" : "Escribir por WhatsApp"} →
+    </a>
+  );
+}
+
+/** Resumen del cobro ya definido (sin datos de cobro: esos quedan congelados en el servidor). */
+function ChosenCollectionSummary({ collection }: { collection: CollectionChoiceView }) {
+  const chosen = collection.chosen;
+  if (!chosen) return null;
+  return (
+    <div className="rounded-field bg-sand-100 px-4 py-3 text-sm text-ink-soft">
+      <p className="font-bold text-ink">
+        {COLLECTION_PATH_TITLES[chosen.mode]}
+        {chosen.methodLabel ? `: ${chosen.methodLabel}` : ""}
+      </p>
+      {chosen.amountUsd !== null && (
+        <p className="mt-0.5 tabular-nums">
+          {formatUsd(chosen.amountUsd)}
+          {chosen.amountArs !== null ? ` · ${formatArs(chosen.amountArs)}` : ""}
+        </p>
+      )}
+      <p className="mt-0.5 text-xs">
+        {chosen.mode === "enabled_methods"
+          ? "Los datos de cobro quedaron fijados para esta solicitud."
+          : collection.isMinor
+            ? "El estudiante es menor: escribile solo al familiar vinculado."
+            : "El estudiante ve que le vas a escribir por WhatsApp."}
+      </p>
+    </div>
+  );
+}
+
 export function ApplicationActions({
   applicationId,
   residenceId,
   status,
   reservation,
   whatsappUrl,
+  collection = null,
   paymentDeadlineAt = null,
   allowed,
 }: {
@@ -65,6 +111,8 @@ export function ApplicationActions({
   status: string;
   reservation: ReservationStatusInput | null;
   whatsappUrl: string | null;
+  /** DR63 (d): cómo se cobra la reserva de esta solicitud. `null` sin la migración 0102 (queda el flujo anterior). */
+  collection?: CollectionChoiceView | null;
   /** `application_requests.payment_deadline_at`: plazo de 48 h de `contact_established` (H06). */
   paymentDeadlineAt?: string | null;
   /** DR11: permisos de quien mira. Solo presentación: el servidor rechaza lo que no esté permitido. */
@@ -155,17 +203,9 @@ export function ApplicationActions({
             </span>
           </p>
         )}
+        {collection && <CollectionPaymentPanel applicationId={applicationId} collection={collection} canAct={allowed.residencePayment} mode="enable" />}
         <div className="flex flex-wrap gap-3">
-          {whatsappUrl && (
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-forest-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-forest-700"
-            >
-              Escribir por WhatsApp →
-            </a>
-          )}
+          {whatsappUrl && <WhatsappLink url={whatsappUrl} isMinor={collection?.isMinor ?? false} />}
           {allowed.sendAdjustment ? (
             <Button href={`/residence/${residenceId}/applications/${applicationId}/negotiation`} variant="outline">
               Enviar propuesta de ajuste
@@ -175,13 +215,15 @@ export function ApplicationActions({
               Enviar propuesta de ajuste
             </Button>
           )}
-          <Button
-            variant="outline"
-            disabled={isPending || !allowed.residencePayment}
-            onClick={() => runSimpleAction(() => enableResidencePayment(applicationId))}
-          >
-            Continuar sin cambios (habilitar pago)
-          </Button>
+          {!collection && (
+            <Button
+              variant="outline"
+              disabled={isPending || !allowed.residencePayment}
+              onClick={() => runSimpleAction(() => enableResidencePayment(applicationId))}
+            >
+              Continuar sin cambios (habilitar pago)
+            </Button>
+          )}
         </div>
         <PermissionHint missing={[...(allowed.sendAdjustment ? [] : ["applications.send_adjustment" as const]), ...(allowed.residencePayment ? [] : ["payments.residence" as const])]} />
       </div>
@@ -191,9 +233,19 @@ export function ApplicationActions({
   if (status === "residence_payment_pending") {
     return (
       <div className="space-y-4">
-        <p className="text-sm font-medium text-success-fg">
-          Esperando que el estudiante te pague directamente y confirmes acá que lo recibiste.
-        </p>
+        {collection?.phase === "choose" ? (
+          <CollectionPaymentPanel applicationId={applicationId} collection={collection} canAct={allowed.residencePayment} mode="choose" />
+        ) : (
+          <>
+            <p className="text-sm font-medium text-success-fg">
+              {collection?.chosen?.mode === "whatsapp_direct"
+                ? "Escribile para coordinar el pago y confirmá acá cuando lo recibas."
+                : "Esperando que el estudiante te pague directamente y confirmes acá que lo recibiste."}
+            </p>
+            {collection?.chosen && <ChosenCollectionSummary collection={collection} />}
+            {whatsappUrl && <WhatsappLink url={whatsappUrl} isMinor={collection?.isMinor ?? false} />}
+          </>
+        )}
         <form action={paymentFormAction} className="rounded-card border border-sand-200 bg-sand-50 p-4">
          <fieldset disabled={!allowed.residencePayment} className="m-0 min-w-0 border-0 p-0">
           <h3 className="font-bold text-ink">Marcar pago recibido</h3>

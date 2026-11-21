@@ -9,6 +9,7 @@ import { buildWhatsappUrl } from "@/lib/applications/whatsapp";
 import { estimatedFeeUsd } from "@/lib/reservations/initialPayment";
 import { ACTIVE_APPLICATION_STATUSES } from "@/lib/applications/types";
 import { loadReservationInfoByApplication } from "@/lib/applications/loadReservationInfo";
+import { loadCollectionViews } from "@/lib/applications/loadCollectionViews";
 import { buildApplicantProfile, type ApplicantProfileSource } from "@/lib/applications/applicantProfile";
 import { movingSignalFor } from "@/lib/stayChange/copy";
 import { advanceGateMessage, stayChangeAdvanceAt } from "@/lib/stayChange/advanceGate";
@@ -77,8 +78,28 @@ export default async function ResidenceApplicationsPage({
     rows.filter((a) => a.status === "converted_to_reservation").map((a) => a.id),
   );
 
+  // DR63 (d): cómo se cobra la reserva de cada solicitud con el pago por habilitar o ya habilitado. Sin datos de cobro (solo claves, nombres y montos).
+  const collectionViews = await loadCollectionViews(admin, {
+    residenceId,
+    isOwner: membership.role === "owner",
+    apps: rows.map((a) => ({
+      id: a.id,
+      status: a.status,
+      contactTarget: a.contact_target,
+      snapshotId: (a.snapshot_final_id ?? a.snapshot_original_id) as string | null,
+    })),
+  });
+  // El botón de WhatsApp: con contacto establecido (si la residencia puede coordinar por WhatsApp) y, con el pago habilitado, solo en
+  // «Contacto directo por WhatsApp». En «Cobro con medios habilitados» no hay WhatsApp (DR63 (d)). Sin vista (migración 0102 sin aplicar): como antes.
+  const showsWhatsapp = (a: (typeof rows)[number]): boolean => {
+    const view = collectionViews.get(a.id);
+    if (a.status === "contact_established") return view ? view.whatsappAllowed : true;
+    if (a.status === "residence_payment_pending") return view ? view.whatsappAllowed : false;
+    return false;
+  };
+
   // El teléfono solo se consulta para solicitudes con contacto establecido (docs/10): antes no se lee ni se serializa.
-  const contactRows = rows.filter((a) => a.status === "contact_established");
+  const contactRows = rows.filter(showsWhatsapp);
   const familyLinkIds = [...new Set(contactRows.filter((a) => a.contact_target === "family_member" && a.family_link_id).map((a) => a.family_link_id!))];
   const { data: familyLinks } = familyLinkIds.length
     ? await admin.from("family_links").select("id, family_members(phone)").in("id", familyLinkIds)
@@ -186,8 +207,8 @@ export default async function ResidenceApplicationsPage({
         : (phoneByUserId.get(a.created_by_user_id) ?? null);
 
     const whatsappUrl =
-      // El teléfono sale recién al establecer contacto (docs/10): es el único estado donde la UI muestra el botón.
-      a.status === "contact_established" && contactPhone && student
+      // El teléfono sale recién al establecer contacto (docs/10). Con un menor es siempre el del familiar vinculado (`contact_target`).
+      showsWhatsapp(a) && contactPhone && student
         ? buildWhatsappUrl({
             phone: contactPhone,
             studentName: applicant.displayName,
@@ -197,6 +218,7 @@ export default async function ResidenceApplicationsPage({
             durationMonths: a.initial_duration_months,
             reservationAmountUsd: Number(snapshot?.reservation_payment_amount_usd ?? snapshot?.monthly_price_usd ?? 0),
             feeUsd: snapshot?.fee_base_usd != null ? estimatedFeeUsd(Number(snapshot.fee_base_usd)) : null,
+            paymentDeadlineAt: a.status === "residence_payment_pending" ? a.payment_deadline_at : null,
           })
         : null;
 
@@ -232,6 +254,7 @@ export default async function ResidenceApplicationsPage({
           ? (receiptById.get(reservationInfo.bookingReceiptId) ?? null)
           : null,
       whatsappUrl,
+      collection: collectionViews.get(a.id) ?? null,
       waitlistRelatedCount: a.room_type_id ? (waitlistCountByType.get(a.room_type_id) ?? 0) : 0,
       isActive: (ACTIVE_APPLICATION_STATUSES as readonly string[]).includes(a.status),
       moving: movingByAppId.get(a.id) ?? null,

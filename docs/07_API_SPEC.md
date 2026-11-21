@@ -1403,6 +1403,8 @@ Reglas:
 - con `whatsapp_direct`: igual que hoy. El estudiante ve solo «La residencia te va a escribir por WhatsApp». Nunca recibe un número ni un botón para escribirle;
 - tras una propuesta de ajuste, el pase a `residence_payment_pending` es automático. El servidor aplica los valores por defecto de `docs/00` DR63 (k).
 
+**Implementación (Fase 4, supuestos reversibles):** el camino con medios exige ser el dueño (el staff no ve ni congela datos de cobro). El contacto directo lo puede hacer quien tenga `payments.residence`. El monto sale del snapshot y el cliente no lo envía. `collection_mode` queda en `application_requests`. Si solo hay medios y ninguno tiene datos aprobados, el servidor usa contacto directo. Tras una propuesta de ajuste, con medios disponibles, la residencia define el camino desde el detalle y el plazo de 48 horas se reinicia (`chooseResidencePaymentCollectionCore`).
+
 ### 16.6. Estudiante elige medio preferido *(DR63, propuesto)*
 
 El campo `preferred_payment_method` viaja en el envío de la solicitud. Es opcional. El servidor valida que la clave esté en `accepted_payment_methods` de la residencia, o que sea nula. Si la clave es del catálogo pero la residencia ya no la ofrece (sin datos de cobro aprobados), se guarda `null` sin error.

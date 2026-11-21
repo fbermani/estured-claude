@@ -9,10 +9,9 @@ import { notifyFamilyApplicationMilestone } from "@/lib/family/familyMilestones"
 import { notifyStudentApplicationMilestone } from "@/lib/notifications/notifyStudent";
 import { createAuditLog } from "@/lib/audit";
 import { assertRegulationAccepted } from "@/lib/regulations/gate";
-import { checkStayChangeAdvanceGate } from "@/lib/stayChange/advanceGate";
 import { ACTIVE_APPLICATION_STATUSES, REJECTION_REASONS } from "@/lib/applications/types";
 import { MAX_APPLICATION_TEXT, checkTextMax } from "@/lib/applications/inputLimits";
-import { createPendingResidencePayment } from "@/lib/applications/residencePayment";
+import { chooseResidencePaymentCollectionCore, enableResidencePaymentCore } from "@/lib/applications/enableResidencePayment";
 import { promoteNextQueuedApplication } from "@/lib/applications/roomTypeQueue";
 import { reactivatePausedApplications } from "@/lib/applications/reactivatePausedApplications";
 
@@ -201,72 +200,58 @@ export async function establishContact(applicationId: string): Promise<Applicati
  * en esta sesión: antes de este fix no existía forma de avanzar una
  * solicitud que llegó a `contact_established` sin negociación (el único
  * camino cableado era enviar una propuesta).
+ *
+ * DR63 (d): además define cómo se cobra la reserva de ESTA solicitud (medios habilitados o contacto directo por WhatsApp). La lógica vive
+ * en `lib/applications/enableResidencePayment.ts`; acá solo la sesión, el cliente de servidor y el refresco de la pantalla.
+ * Sin `input` el servidor resuelve el camino solo si hay uno disponible (con dos, pide elegir).
  */
-export async function enableResidencePayment(applicationId: string): Promise<ApplicationActionState> {
+export async function enableResidencePayment(
+  applicationId: string,
+  input?: { collectionMode?: string; chosenMethod?: string },
+): Promise<ApplicationActionState> {
   const sessionUser = await getSessionUser();
   if (!sessionUser) return { status: "error", message: "Tu sesión expiró." };
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento." };
 
-  const result = await loadAndAuthorize(admin, applicationId, sessionUser.id, "payments.residence", { requireRegulation: true });
-  if ("error" in result) return { status: "error", message: result.error };
-  if (result.application.status !== "contact_established") {
-    return { status: "error", message: "Esa solicitud no está en un estado válido para habilitar el pago." };
-  }
-  if (result.application.proposal_count > 0) {
-    return {
-      status: "error",
-      message: "Ya enviaste una propuesta de ajuste — el estudiante tiene que responderla primero.",
-    };
-  }
+  const result = await enableResidencePaymentCore(admin, { actorUserId: sessionUser.id, applicationId, input });
+  if (!result.ok) return { status: "error", message: result.error };
 
-  // DR3: una solicitud creada bajo el aviso "Quiero cambiar" no avanza a pago antes de 48 h (supuesto reversible).
-  const gate = await checkStayChangeAdvanceGate(admin, { applicationId, audience: "residence" });
-  if (!gate.ok) return { status: "error", message: gate.error };
+  revalidatePath(`/residence/${result.residenceId}/applications`);
+  return { status: "saved" };
+}
 
-  const paymentDeadline = new Date(Date.now() + 48 * 60 * 60 * 1000);
-
-  const { data: enabledRow, error } = await admin
-    .from("application_requests")
-    .update({
-      status: "residence_payment_pending",
-      snapshot_final_id: result.application.snapshot_original_id,
-      payment_deadline_at: paymentDeadline.toISOString(),
-    })
-    .eq("id", applicationId)
-    .eq("status", "contact_established")
-    .select("id")
-    .maybeSingle();
-  if (error) return { status: "error", message: "No pudimos guardar el cambio." };
-  if (!enabledRow) return { status: "error", message: STALE_STATE_MESSAGE };
-
-  await admin.from("application_status_events").insert({
-    application_request_id: applicationId,
-    from_status: "contact_established",
-    to_status: "residence_payment_pending",
-    changed_by_user_id: sessionUser.id,
-    changed_by_role: result.actorRole,
-    reason_text: "Sin propuesta de ajuste — condiciones originales confirmadas.",
+/** Formulario «Habilitar el pago» (radios nativos `collection_mode` y `chosen_method`): mismo núcleo que `enableResidencePayment`. */
+export async function submitEnableResidencePayment(
+  applicationId: string,
+  _prev: ApplicationActionState,
+  formData: FormData,
+): Promise<ApplicationActionState> {
+  return enableResidencePayment(applicationId, {
+    collectionMode: String(formData.get("collection_mode") ?? ""),
+    chosenMethod: String(formData.get("chosen_method") ?? ""),
   });
+}
 
-  await createPendingResidencePayment(admin, {
-    applicationId,
-    residenceId: result.application.residence_id,
-    studentProfileId: result.application.student_profile_id,
-  });
+/** DR63 (k): define el cobro de una solicitud que ya está esperando el pago pero sin camino definido. Reinicia el plazo de 48 h. */
+export async function submitChooseResidencePaymentCollection(
+  applicationId: string,
+  _prev: ApplicationActionState,
+  formData: FormData,
+): Promise<ApplicationActionState> {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) return { status: "error", message: "Tu sesión expiró." };
+  const admin = getSupabaseAdmin();
+  if (!admin) return { status: "error", message: "No disponible en este momento." };
 
-  await createAuditLog(admin, {
+  const result = await chooseResidencePaymentCollectionCore(admin, {
     actorUserId: sessionUser.id,
-    actorRole: result.actorRole,
-    action: "residence_payment_enabled_without_negotiation",
-    entityType: "application_requests",
-    entityId: applicationId,
+    applicationId,
+    input: { collectionMode: String(formData.get("collection_mode") ?? ""), chosenMethod: String(formData.get("chosen_method") ?? "") },
   });
-  // DR4: hito para el familiar vinculado (pago a la residencia pedido).
-  await notifyFamilyApplicationMilestone(admin, applicationId, "payment_requested");
-  await notifyStudentApplicationMilestone(admin, applicationId, "payment_enabled");
+  if (!result.ok) return { status: "error", message: result.error };
 
-  revalidatePath(`/residence/${result.application.residence_id}/applications`);
+  revalidatePath(`/residence/${result.residenceId}/applications`);
   return { status: "saved" };
 }
 
