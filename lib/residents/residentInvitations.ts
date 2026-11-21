@@ -2,6 +2,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { sendEmail } from "@/lib/email/sendEmail";
+import { residentInviteMailAllowed } from "@/lib/security/mailQuota";
 import { assertResidencePermission } from "@/lib/residences/access";
 import { generateInvitationToken } from "@/lib/team/invitationToken";
 import { isMissingSchemaError } from "@/lib/stayChange/schema";
@@ -124,7 +125,9 @@ export async function issueResidentInvite(
   let emailSent = false;
   let whatsappUrl: string | null = null;
 
-  if (params.channel === "email") {
+  // C5: con la cuota diaria de invitaciones por mail agotada no se envía; queda `emailSent = false` y la residencia puede copiar el enlace.
+  const emailQuotaOk = params.channel === "email" ? await residentInviteMailAllowed(admin, params.residenceId) : true;
+  if (params.channel === "email" && emailQuotaOk) {
     const { data: priv } = await admin.from("residence_private_details").select("responsible_contact").eq("residence_id", params.residenceId).maybeSingle();
     const firstName = String(stay.invite_name ?? "").trim().split(" ")[0] || null;
     const mail = buildResidentInviteEmail({ residenceName, firstName, link });
@@ -141,7 +144,7 @@ export async function issueResidentInvite(
         .update({ sent_at: now.toISOString(), send_count: 1 })
         .eq("id", (created as { id: string }).id);
     }
-  } else {
+  } else if (params.channel !== "email") {
     whatsappUrl = buildResidentInviteWhatsappUrl(buildPersonalInviteMessage({ residenceName, link }), (stay.invite_phone as string | null) ?? null);
   }
 

@@ -5,6 +5,7 @@ import type { NotificationCategory } from "@/lib/notifications/categories";
 import { sendEmail } from "@/lib/email/sendEmail";
 import { rowCan, type ResidencePermission } from "@/lib/residences/permissions";
 import { getAppUrl } from "@/lib/appUrl";
+import { teamEventMailAllowed } from "@/lib/security/mailQuota";
 
 /**
  * Avisos al equipo de la residencia (owner + staff activos) en el loop central (Ciclo 63, docs/07: "notificar a la
@@ -298,6 +299,8 @@ export async function notifyResidenceTeam(
     const appUrl = getAppUrl();
     const link = `${appUrl}${pathFor(params.event, params.residenceId, params.entityId)}`;
 
+    // C5: con la cuota diaria de mails de la residencia agotada, el aviso sigue dentro de la app y solo se omite el mail.
+    const mailsAllowed = await teamEventMailAllowed(admin, params.residenceId);
     await Promise.all(
       recipients.flatMap((r) => [
         createNotification(admin, {
@@ -308,7 +311,7 @@ export async function notifyResidenceTeam(
           relatedEntityId: params.entityId,
           category: CATEGORY_BY_EVENT[params.event],
         }),
-        r.email
+        r.email && mailsAllowed
           ? sendEmail({
               to: r.email,
               subject: copy.subject,

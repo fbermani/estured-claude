@@ -20,7 +20,7 @@ export type ResidencyActionState = { status: "idle" | "error" | "saved"; message
 export async function sendResidencyCodeAction(residentStayId: string, _prev: ResidencyActionState): Promise<ResidencyActionState> {
   const sessionUser = await getSessionUser();
   if (!sessionUser) return { status: "error", message: "Tu sesión expiró." };
-  if (!residencyStepAllowed(sessionUser.id)) return { status: "error", message: INVITE_TOO_MANY_ATTEMPTS };
+  if (!(await residencyStepAllowed(sessionUser.id))) return { status: "error", message: INVITE_TOO_MANY_ATTEMPTS };
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento." };
   const result = await sendInviteOtpForStay(admin, { userId: sessionUser.id, residentStayId });
@@ -35,7 +35,7 @@ export async function activateWithCodeAction(
 ): Promise<ResidencyActionState> {
   const sessionUser = await getSessionUser();
   if (!sessionUser) return { status: "error", message: "Tu sesión expiró." };
-  if (!residencyStepAllowed(sessionUser.id)) return { status: "error", message: INVITE_TOO_MANY_ATTEMPTS };
+  if (!(await residencyStepAllowed(sessionUser.id))) return { status: "error", message: INVITE_TOO_MANY_ATTEMPTS };
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento." };
 
@@ -52,7 +52,7 @@ export async function activateWithCodeAction(
 /** Activar con el enlace personal de la residencia (la persona ya tiene cuenta y sesión). */
 export async function activateWithInviteAction(token: string, _prev: ResidencyActionState): Promise<ResidencyActionState> {
   const headerStore = await headers();
-  if (!inviteAttemptAllowed(headerStore, token)) return { status: "error", message: INVITE_TOO_MANY_ATTEMPTS };
+  if (!(await inviteAttemptAllowed(headerStore, token))) return { status: "error", message: INVITE_TOO_MANY_ATTEMPTS };
   const sessionUser = await getSessionUser();
   if (!sessionUser) return { status: "error", message: "Tu sesión expiró. Ingresá de nuevo." };
   const admin = getSupabaseAdmin();
@@ -67,7 +67,7 @@ export async function activateWithInviteAction(token: string, _prev: ResidencyAc
 export async function submitLinkRequestAction(_prev: ResidencyActionState, formData: FormData): Promise<ResidencyActionState> {
   const sessionUser = await getSessionUser();
   if (!sessionUser) return { status: "error", message: "Tu sesión expiró." };
-  if (!residencyStepAllowed(sessionUser.id)) return { status: "error", message: INVITE_TOO_MANY_ATTEMPTS };
+  if (!(await residencyStepAllowed(sessionUser.id))) return { status: "error", message: INVITE_TOO_MANY_ATTEMPTS };
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento." };
   const result = await submitLinkRequest(admin, {
@@ -96,7 +96,7 @@ export async function cancelLinkRequestAction(requestId: string, _prev: Residenc
 export async function submitMissingResidenceAction(_prev: ResidencyActionState, formData: FormData): Promise<ResidencyActionState> {
   const sessionUser = await getSessionUser();
   if (!sessionUser) return { status: "error", message: "Tu sesión expiró." };
-  if (!residencyStepAllowed(sessionUser.id)) return { status: "error", message: INVITE_TOO_MANY_ATTEMPTS };
+  if (!(await residencyStepAllowed(sessionUser.id))) return { status: "error", message: INVITE_TOO_MANY_ATTEMPTS };
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento." };
   const result = await submitMissingResidence(admin, {

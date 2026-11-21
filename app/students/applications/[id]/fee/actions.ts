@@ -1,5 +1,6 @@
 "use server";
 
+import { PROOF_UPLOAD_LIMIT_MESSAGE, proofUploadAllowed } from "@/lib/security/uploadLimits";
 import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
@@ -85,6 +86,9 @@ export async function registerManualFeePayment(
   if (designatedFee.expires_at && new Date(designatedFee.expires_at as string) < new Date()) {
     return { status: "error", message: "El plazo para pagar este fee ya venció. Escribile a EstuRed desde Soporte." };
   }
+
+  // C4 (auditoría de costos 2026-11-21): tope de cargas por hora.
+  if (!(await proofUploadAllowed(admin, sessionUser.id))) return { status: "error", message: PROOF_UPLOAD_LIMIT_MESSAGE };
 
   const file = formData.get("file");
   if (!(file instanceof File) || file.size === 0) {

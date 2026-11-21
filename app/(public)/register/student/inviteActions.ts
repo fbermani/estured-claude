@@ -22,7 +22,7 @@ export async function sendInviteCodeAction(
   formData: FormData,
 ): Promise<InviteStepState> {
   const headerStore = await headers();
-  if (!inviteAttemptAllowed(headerStore, token) || !inviteCodeRequestAllowed(token)) return { status: "error", message: INVITE_TOO_MANY_ATTEMPTS };
+  if (!(await inviteAttemptAllowed(headerStore, token)) || !(await inviteCodeRequestAllowed(token))) return { status: "error", message: INVITE_TOO_MANY_ATTEMPTS };
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: UNAVAILABLE };
 
@@ -38,7 +38,7 @@ export async function sendInviteCodeAction(
 
 export async function verifyInviteCodeAction(token: string, _prev: InviteStepState, formData: FormData): Promise<InviteStepState> {
   const headerStore = await headers();
-  if (!inviteAttemptAllowed(headerStore, token)) return { status: "error", message: INVITE_TOO_MANY_ATTEMPTS };
+  if (!(await inviteAttemptAllowed(headerStore, token))) return { status: "error", message: INVITE_TOO_MANY_ATTEMPTS };
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: UNAVAILABLE };
   const result = await verifyInviteOtpByToken(admin, { rawToken: token, code: String(formData.get("code") ?? "").trim() });
@@ -48,7 +48,7 @@ export async function verifyInviteCodeAction(token: string, _prev: InviteStepSta
 /** «No vivo ahí / no soy yo». La residencia lo ve en su lista de residentes. */
 export async function declineInviteAction(token: string, _prev: InviteStepState): Promise<InviteStepState> {
   const headerStore = await headers();
-  if (!inviteAttemptAllowed(headerStore, token)) return { status: "error", message: INVITE_TOO_MANY_ATTEMPTS };
+  if (!(await inviteAttemptAllowed(headerStore, token))) return { status: "error", message: INVITE_TOO_MANY_ATTEMPTS };
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: UNAVAILABLE };
   const result = await declineResidentInvitation(admin, {

@@ -71,7 +71,7 @@ export async function registerStudent(
   // residencia no cargó mail, el mail tiene que estar verificado con el código antes de crear la cuenta.
   if (inviteToken) {
     const headerStore = await headers();
-    if (!inviteAttemptAllowed(headerStore, inviteToken)) return formError(formData, INVITE_TOO_MANY_ATTEMPTS);
+    if (!(await inviteAttemptAllowed(headerStore, inviteToken))) return formError(formData, INVITE_TOO_MANY_ATTEMPTS);
     const inviteAdmin = getSupabaseAdmin();
     if (!inviteAdmin) return formError(formData, "El registro no está disponible en este momento. Probá más tarde.");
     const resolved = await resolveInviteByToken(inviteAdmin, inviteToken);

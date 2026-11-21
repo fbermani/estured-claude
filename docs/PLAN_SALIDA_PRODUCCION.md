@@ -290,9 +290,9 @@ Sin hallazgos altos. Dos medios y cuatro bajos. Propuestas pendientes de aprobac
   7. **Alertas de errores:** decidir Sentry o las alertas de Vercel (P19-06). Sin esto, un abuso se nota recién en la factura.
   Verificación: tras activar todo, anotar en este runbook los topes elegidos (USD por mes, requests por minuto, mails por día).
 - [x] **C1 (medio), parcial (2026-11-21):** catálogo ya cacheado (120 s); ahora también la ficha pública (60 s) y la imagen de vista previa (300 s). Un cambio de ficha, cupo o precio tarda hasta ese tiempo en verse. Queda abierto R19-04: `search`, `for-students` y la ficha siguen dinámicas por leer la sesión; hacerlas estáticas exige mover lo personal a componentes cliente.
-- [ ] **C3:** pasar `lib/residents/inviteThrottle.ts` a `consumeRateLimit` (hoy cuenta en memoria por instancia).
-- [ ] **C4:** tope de cantidad de comprobantes por solicitud y rate limit por usuario en las subidas.
-- [ ] **C5:** cuota diaria de mails por residencia; confirmar límites aguas arriba de los mails internos.
+- [x] **C3 (2026-11-21):** `lib/residents/inviteThrottle.ts` pasó a `consumeRateLimit` (persistente).
+- [ ] **C4, parcial (2026-11-21):** hecho el límite de cargas por hora en el comprobante del fee. **Falta** aplicar `proofUploadAllowed` y `proofCountWithinCap` (`lib/security/uploadLimits.ts`) en el comprobante de pago a la residencia, hoy en reescritura (`lib/applications/studentPaymentProof.ts`).
+- [x] **C5 (2026-11-21):** cuota diaria de mails por residencia (`lib/security/mailQuota.ts`: 100 avisos y 200 invitaciones por día). Solo corta el mail; el aviso en la app se crea igual.
 - [x] **C6:** comentario de `app/api/session/route.ts` corregido (2026-11-21).
 - [ ] Confirmar la cuota diaria del plan de Resend antes del registro masivo.
 

@@ -1,30 +1,28 @@
 import "server-only";
-import { createHash } from "node:crypto";
-import { clientKeyFromHeaders, createRateLimiter } from "@/lib/receipts/verifyRateLimit";
+import { clientKeyFromHeaders } from "@/lib/receipts/verifyRateLimit";
+import { consumeRateLimit } from "@/lib/security/rateLimit";
 
 /**
- * Frenos de los pasos públicos de la invitación personal (DR19): en memoria y por instancia (best-effort en serverless, igual que
- * `verifyRateLimit` y el aceptar-invitación del equipo); el límite real va en el WAF de Vercel. Las claves son hashes (IP y token).
+ * Frenos de los pasos públicos de la invitación personal (DR19). Persistentes en Postgres vía `consumeRateLimit` (migración 0083):
+ * cuentan entre todas las instancias serverless (auditoría de costos 2026-11-21, C3; antes eran en memoria y por instancia). Las
+ * claves (IP, token, usuario) se hashean dentro de `consumeRateLimit`, nunca se guardan en claro.
  */
-const byClient = createRateLimiter({ limit: 30, windowMs: 3_600_000 });
-const byToken = createRateLimiter({ limit: 20, windowMs: 3_600_000 });
-const codeRequestsByToken = createRateLimiter({ limit: 6, windowMs: 3_600_000 });
+const HOUR = 3_600;
 
 export const INVITE_TOO_MANY_ATTEMPTS = "Hiciste muchos intentos. Probá de nuevo en un rato.";
 
-const sha = (value: string) => createHash("sha256").update(value).digest("hex");
-
-export function inviteAttemptAllowed(headers: { get(name: string): string | null }, token: string): boolean {
-  return byClient(sha(clientKeyFromHeaders(headers))) && byToken(sha(String(token)));
+export async function inviteAttemptAllowed(headers: { get(name: string): string | null }, token: string): Promise<boolean> {
+  const byClient = await consumeRateLimit({ bucket: "invite_client", key: clientKeyFromHeaders(headers), windowSeconds: HOUR, max: 30 });
+  if (!byClient.ok) return false;
+  return (await consumeRateLimit({ bucket: "invite_token", key: String(token), windowSeconds: HOUR, max: 20 })).ok;
 }
 
 /** Pedidos de código al mail por enlace: tope bajo para que nadie use la pantalla para llenar un buzón. */
-export function inviteCodeRequestAllowed(token: string): boolean {
-  return codeRequestsByToken(sha(String(token)));
+export async function inviteCodeRequestAllowed(token: string): Promise<boolean> {
+  return (await consumeRateLimit({ bucket: "invite_code_token", key: String(token), windowSeconds: HOUR, max: 6 })).ok;
 }
 
-const residencyByUser = createRateLimiter({ limit: 12, windowMs: 3_600_000 });
 /** Pedidos de código / intentos del estudiante con sesión desde «Mi residencia». */
-export function residencyStepAllowed(userId: string): boolean {
-  return residencyByUser(sha(userId));
+export async function residencyStepAllowed(userId: string): Promise<boolean> {
+  return (await consumeRateLimit({ bucket: "residency_user", key: userId, windowSeconds: HOUR, max: 12 })).ok;
 }
