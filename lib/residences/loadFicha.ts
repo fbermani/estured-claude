@@ -1,5 +1,6 @@
 import "server-only";
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { loadGenderAvailability } from "@/lib/availability/genderAvailabilityDb";
@@ -127,11 +128,30 @@ export type FichaData = Awaited<ReturnType<typeof buildFichaData>>;
  * Una sola lectura por request: `generateMetadata` y la página la llaman con el mismo `slug` y `cache` evita repetir las ~6 consultas
  * (por eso los argumentos son primitivos). Solo residencias `verified_active`.
  */
-export const loadPublicFicha = cache(async (slug: string): Promise<FichaData | null> => {
+async function loadPublicFichaUncached(slug: string): Promise<FichaData | null> {
   const admin = getSupabaseAdmin();
   if (!admin) return null;
   const residence = await findPublicResidence(admin, slug);
   return residence ? buildFichaData(admin, residence) : null;
+}
+
+/**
+ * Segundos que la ficha pública se sirve desde caché (auditoría de costos 2026-11-21, C1). Solo guarda datos públicos de la
+ * residencia (sin nada de la sesión: lo personal se lee aparte en `FichaView`). Un cambio de ficha, cupo o precio tarda hasta este
+ * tiempo en verse en la ficha pública. El reglamento va con enlace firmado de 600 s, que sigue vigente durante todo el caché.
+ */
+export const PUBLIC_FICHA_REVALIDATE_SECONDS = 60;
+
+const loadPublicFichaCached = unstable_cache(
+  (slug: string) => loadPublicFichaUncached(slug),
+  ["public-ficha-v1"],
+  { revalidate: PUBLIC_FICHA_REVALIDATE_SECONDS, tags: ["catalog", "public-ficha"] },
+);
+
+export const loadPublicFicha = cache(async (slug: string): Promise<FichaData | null> => {
+  // En tests (`NODE_ENV=test`) no hay caché de Next: se lee directo de la base.
+  if (process.env.NODE_ENV === "test") return loadPublicFichaUncached(slug);
+  return loadPublicFichaCached(slug);
 });
 
 /**

@@ -281,11 +281,11 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 ## Costos y abuso (2026-11-21; informe `docs/audits/COSTOS_ABUSO_2026-11-21.md`)
 Sin hallazgos altos. Dos medios y cuatro bajos. Propuestas pendientes de aprobación.
 - [ ] **C2 (medio):** antes de abrir, activar Spend Management en Vercel, alertas de uso en Supabase y Resend, y una regla de WAF con límite por IP en las rutas públicas.
-- [ ] **C1 (medio):** cachear el catálogo y sacar `force-dynamic` de `/search`, `/residencias/[slug]`, `/for-students` y `opengraph-image` (mismo trabajo que R19-03 y R19-04).
+- [x] **C1 (medio), parcial (2026-11-21):** catálogo ya cacheado (120 s); ahora también la ficha pública (60 s) y la imagen de vista previa (300 s). Un cambio de ficha, cupo o precio tarda hasta ese tiempo en verse. Queda abierto R19-04: `search`, `for-students` y la ficha siguen dinámicas por leer la sesión; hacerlas estáticas exige mover lo personal a componentes cliente.
 - [ ] **C3:** pasar `lib/residents/inviteThrottle.ts` a `consumeRateLimit` (hoy cuenta en memoria por instancia).
 - [ ] **C4:** tope de cantidad de comprobantes por solicitud y rate limit por usuario en las subidas.
 - [ ] **C5:** cuota diaria de mails por residencia; confirmar límites aguas arriba de los mails internos.
-- [ ] **C6:** corregir el comentario de `app/api/session/route.ts` junto con C1.
+- [x] **C6:** comentario de `app/api/session/route.ts` corregido (2026-11-21).
 - [ ] Confirmar la cuota diaria del plan de Resend antes del registro masivo.
 
 ## Seguridad externa — Capa Cero (2026-11-20; informe `docs/audits/CAPA_CERO_DIAGNOSTICO_2026-11-20.md`)

@@ -1,4 +1,5 @@
 import "server-only";
+import { unstable_cache } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
 import { usdToArsRounded } from "@/lib/mock/exchange";
@@ -24,6 +25,18 @@ export type SharePreview = {
  * Solo residencias publicadas (`verified_active`); devuelve `null` si no existe o no hay conexión con Supabase.
  */
 export async function loadSharePreview(slug: string): Promise<SharePreview | null> {
+  // En tests (`NODE_ENV=test`) no hay caché de Next. Cada bot o WhatsApp que pide la imagen repetía 5 consultas (auditoría 2026-11-21, C1).
+  if (process.env.NODE_ENV === "test") return loadSharePreviewUncached(slug);
+  return loadSharePreviewCached(slug);
+}
+
+const loadSharePreviewCached = unstable_cache(
+  (slug: string) => loadSharePreviewUncached(slug),
+  ["share-preview-v1"],
+  { revalidate: 300, tags: ["catalog", "public-ficha"] },
+);
+
+async function loadSharePreviewUncached(slug: string): Promise<SharePreview | null> {
   const admin = getSupabaseAdmin();
   if (!admin) return null;
   const { data: residence } = await admin
