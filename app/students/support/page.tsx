@@ -122,7 +122,9 @@ export default async function StudentSupportPage({
                     <p className="font-bold text-ink">
                       {c.topic === "fee_revocation"
                         ? "Revocación del fee EstuRed"
-                        : (c.residences?.name ?? (c.related_entity_type === "reservations" ? "Pago del fee EstuRed" : "Residencia"))}
+                        : c.topic === "residence_payment"
+                          ? `Pago de la reserva${c.residences?.name ? ` en ${c.residences.name}` : ""}`
+                          : (c.residences?.name ?? (c.related_entity_type === "reservations" ? "Pago del fee EstuRed" : "Residencia"))}
                     </p>
                     <Badge tone={badge.tone}>{badge.label}</Badge>
                   </div>

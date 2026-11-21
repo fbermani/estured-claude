@@ -14,6 +14,7 @@ import { formatArs, formatUsd } from "@/lib/mock/exchange";
 import { COLLECTION_PATH_TITLES } from "@/lib/applications/reservationCollectionChoice";
 import type { CollectionChoiceView } from "@/lib/applications/collectionChoiceView";
 import { CollectionPaymentPanel } from "@/app/residence/[residence_id]/applications/[id]/CollectionPaymentPanel";
+import { PaymentReportPanel } from "@/app/residence/[residence_id]/applications/[id]/PaymentReportPanel";
 import {
   markUnderReview,
   establishContact,
@@ -245,6 +246,17 @@ export function ApplicationActions({
             {collection?.chosen && <ChosenCollectionSummary collection={collection} />}
             {whatsappUrl && <WhatsappLink url={whatsappUrl} isMinor={collection?.isMinor ?? false} />}
           </>
+        )}
+        {collection?.report && (
+          <PaymentReportPanel
+            applicationId={applicationId}
+            report={collection.report}
+            canAct={allowed.residencePayment}
+            isOwner={collection.isOwner}
+            isMinor={collection.isMinor}
+            methods={collection.methods}
+            currentMethodKey={collection.chosen?.mode === "enabled_methods" ? (collection.methods.find((m) => m.label === collection.chosen?.methodLabel)?.key ?? null) : null}
+          />
         )}
         <form action={paymentFormAction} className="rounded-card border border-sand-200 bg-sand-50 p-4">
          <fieldset disabled={!allowed.residencePayment} className="m-0 min-w-0 border-0 p-0">

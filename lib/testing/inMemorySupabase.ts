@@ -163,6 +163,15 @@ export function createInMemorySupabase(initial: Record<string, Row[]>, options: 
       this.filters.push((r) => String(r[col]) >= String(value));
       return this;
     }
+    lt(col: string, value: unknown) {
+      // Una columna nula nunca cumple `<` (como en SQL).
+      this.filters.push((r) => r[col] !== null && r[col] !== undefined && String(r[col]) < String(value));
+      return this;
+    }
+    lte(col: string, value: unknown) {
+      this.filters.push((r) => r[col] !== null && r[col] !== undefined && String(r[col]) <= String(value));
+      return this;
+    }
     in(col: string, values: unknown[]) {
       this.filters.push((r) => values.includes(r[col]));
       return this;

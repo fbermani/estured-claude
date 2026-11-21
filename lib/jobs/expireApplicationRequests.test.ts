@@ -18,6 +18,13 @@ describe.skipIf(!hasCreds)("expireApplicationRequests (integración)", () => {
   let staleSubmittedId: string;
   let staleResidencePaymentId: string;
   let freshAppId: string;
+  // DR63: dos solicitudes con el plazo vencido que NO deben vencer («Ya pagué» y «No pude realizar el pago» abierto).
+  let reportedStudent: TestStudent;
+  let issueStudent: TestStudent;
+  let reportedAppId: string;
+  let issueAppId: string;
+  // El estudiante demo puede tener otra solicitud activa (tope de 2, 0093): la del pago vencido usa un estudiante descartable.
+  let payStudent: TestStudent;
 
   beforeAll(async () => {
     admin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
@@ -94,6 +101,7 @@ describe.skipIf(!hasCreds)("expireApplicationRequests (integración)", () => {
     }
 
     extraStudent = await createTestStudent(admin, "expire-apps");
+    payStudent = await createTestStudent(admin, "expire-pay");
     async function createApp(status: string, extra: Record<string, unknown>, other?: TestStudent) {
       const snapshotId = await createSnapshot();
       const { data: application } = await admin
@@ -123,10 +131,32 @@ describe.skipIf(!hasCreds)("expireApplicationRequests (integración)", () => {
     });
     staleResidencePaymentId = await createApp("residence_payment_pending", {
       payment_deadline_at: new Date(Date.now() - 3 * 3_600_000).toISOString(),
-    });
+    }, payStudent);
     freshAppId = await createApp("submitted", {
       expires_at: new Date(Date.now() + 48 * 3_600_000).toISOString(),
     }, extraStudent);
+
+    reportedStudent = await createTestStudent(admin, "expire-reported");
+    issueStudent = await createTestStudent(admin, "expire-issue");
+    const overdue = new Date(Date.now() - 3 * 3_600_000).toISOString();
+    reportedAppId = await createApp("residence_payment_pending", { payment_deadline_at: overdue, collection_mode: "enabled_methods" }, reportedStudent);
+    issueAppId = await createApp("residence_payment_pending", { payment_deadline_at: overdue, collection_mode: "enabled_methods" }, issueStudent);
+    await admin.from("external_residence_payments").insert([
+      {
+        application_request_id: reportedAppId,
+        residence_id: residenceId,
+        student_profile_id: reportedStudent.profileId,
+        status: "student_reported_paid",
+        student_reported_paid_at: overdue,
+      },
+      {
+        application_request_id: issueAppId,
+        residence_id: residenceId,
+        student_profile_id: issueStudent.profileId,
+        status: "pending",
+        student_payment_issue_at: overdue,
+      },
+    ]);
 
     // Ciclo 34terdecies: createPendingResidencePayment (Ciclo 8) crea esta fila
     // real al entrar a residence_payment_pending — se replica acá para poder
@@ -134,7 +164,7 @@ describe.skipIf(!hasCreds)("expireApplicationRequests (integración)", () => {
     await admin.from("external_residence_payments").insert({
       application_request_id: staleResidencePaymentId,
       residence_id: residenceId,
-      student_profile_id: studentProfileId,
+      student_profile_id: payStudent.profileId,
       status: "pending",
     });
   });
@@ -142,9 +172,16 @@ describe.skipIf(!hasCreds)("expireApplicationRequests (integración)", () => {
   afterAll(async () => {
     if (!admin || !residenceId) return;
     await admin.from("external_residence_payments").delete().eq("application_request_id", staleResidencePaymentId);
-    await admin.from("application_requests").delete().in("id", [staleSubmittedId, staleResidencePaymentId, freshAppId]);
+    await admin.from("external_residence_payments").delete().in("application_request_id", [reportedAppId, issueAppId].filter(Boolean));
+    await admin
+      .from("application_requests")
+      .delete()
+      .in("id", [staleSubmittedId, staleResidencePaymentId, freshAppId, reportedAppId, issueAppId].filter(Boolean));
     await deleteResidenceCascade(admin, residenceId);
     if (extraStudent) await deleteTestStudent(admin, extraStudent);
+    if (payStudent) await deleteTestStudent(admin, payStudent);
+    if (reportedStudent) await deleteTestStudent(admin, reportedStudent);
+    if (issueStudent) await deleteTestStudent(admin, issueStudent);
   });
 
   it("vence solicitudes sin respuesta de la residencia y sin pago a la residencia, deja intacta la vigente", async () => {
@@ -174,5 +211,18 @@ describe.skipIf(!hasCreds)("expireApplicationRequests (integración)", () => {
       .eq("application_request_id", staleResidencePaymentId)
       .single();
     expect(residencePayment!.status).toBe("expired");
+  });
+
+  it("DR63: no vence «Ya pagué» ni «No pude realizar el pago» abierto, aunque el plazo esté vencido", async () => {
+    await expireApplicationRequests(admin);
+    for (const [id, paymentStatus] of [
+      [reportedAppId, "student_reported_paid"],
+      [issueAppId, "pending"],
+    ]) {
+      const { data: application } = await admin.from("application_requests").select("status").eq("id", id).single();
+      expect(application!.status).toBe("residence_payment_pending");
+      const { data: residencePayment } = await admin.from("external_residence_payments").select("status").eq("application_request_id", id).single();
+      expect(residencePayment!.status).toBe(paymentStatus);
+    }
   });
 });

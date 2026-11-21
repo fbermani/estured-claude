@@ -1309,6 +1309,8 @@ Reglas: no confirma reserva; solo respaldo; notifica residencia; audita.
 
 **DR63 (2026-11-20):** el comprobante es opcional. «Ya pagué» (§16.4) funciona sin archivo. La residencia ve este comprobante junto a «Pago recibido».
 
+**Fase 5 (2026-11-21):** el endpoint de comprobante separado se retiró. El archivo viaja ahora dentro de «Ya pagué» (§16.4), sin concepto ni montos obligatorios.
+
 ---
 
 ### 16.2. Residencia marca pago recibido *(actualizado)*
@@ -1386,6 +1388,16 @@ Efectos:
 
 No confirma reserva. Solo §16.2 la confirma.
 
+**Implementación (Fase 5, supuestos reversibles):**
+- Núcleo `reportResidencePaymentPaidCore` en `lib/applications/studentPaymentReport.ts`. Acción en `app/students/applications/[id]/payment/actions.ts`.
+- El actor sale de la base: el estudiante de la solicitud o el familiar vinculado activo de un menor (`contact_target = family_member`) sin `can_pay_estured_fee` apagado. Antes de «Pago recibido» no existe un pagador designado.
+- Solo con `collection_mode = enabled_methods`. Con contacto directo la tarjeta solo informa.
+- Con un aviso de «No pude realizar el pago» abierto se rechaza.
+- El comprobante es opcional (PDF, JPG, PNG o WebP, hasta 10 MB), bucket privado `payment-proofs`. La residencia lo abre por un link firmado de 5 minutos con permiso `payments.residence`. Cada apertura se audita.
+- Se reclama con update condicional: un segundo toque no repite avisos. Limpia las tres marcas `*_sent_at`.
+- Los avisos y la auditoría no llevan datos de cobro, montos ni el texto de los motivos.
+- Si el job vence la solicitud entre la lectura y el update, el aviso se deshace.
+
 ### 16.5. Residencia habilita el pago, camino A o B *(DR63, propuesto)*
 
 **Server action** `enableResidencePayment` (extiende la existente).
@@ -1425,6 +1437,8 @@ Efectos:
 - audita. El admin resuelve;
 - la solicitud pasa a `disputed` solo por acción de Sistema o Admin (`docs/04` §5.4).
 
+**Implementación (Fase 5):** `disputeReportedResidencePaymentCore`. Exige además marcar que leyó el alcance de Soporte (es el recordatorio de términos del caso `residence_claim`, `docs/03` §22.1). Abre el caso `residence_payment` con el motivo; si el caso falla, deshace la disputa. «Pago recibido» sigue disponible tras una disputa.
+
 ### 16.8. Recordatorios y alerta del pago a la residencia *(DR63, supuesto reversible)*
 
 **JOB** (dentro de `runExpirationJobs`). Frecuencia: cada hora.
@@ -1434,6 +1448,8 @@ Efectos:
 - 12 horas antes de `payment_deadline_at` sin «Ya pagué» ni aviso de problema: avisa al estudiante;
 - marca `residence_reminder_sent_at`, `student_reminder_sent_at` y `admin_alert_sent_at` (alerta de 72 horas) para no repetir;
 - el servidor limpia las tres marcas al registrar cada evento nuevo («Ya pagué» o «No pude realizar el pago»), para no suprimir los avisos del segundo evento.
+
+**Implementación (Fase 5):** `lib/jobs/remindResidencePayments.ts`, dentro de `runExpirationJobs`. Cada aviso se reclama con un update sobre su marca (`*_sent_at is null`) y solo se envía si devolvió la fila. Si el caso de Soporte falla, se devuelve la marca y se reintenta. El aviso de 12 h solo corre con medios habilitados. El caso de las 72 h es `topic = residence_payment` (migración 0103), abierto por el sistema a nombre del estudiante. Si el caso ya está abierto o 0103 falta, el admin recibe solo la alerta. El vencimiento (`expireApplicationRequests`) decide por las fechas de aviso, no por el estado: un «Ya pagué» disputado sigue frenado.
 
 ### 16.9. Estudiante avisa «No pude realizar el pago» *(DR63 (l), supuesto reversible, propuesto)*
 
@@ -1455,6 +1471,8 @@ Efectos:
 
 No hay mensaje directo del estudiante a la residencia. Para ayuda, el estudiante usa Soporte de EstuRed.
 
+**Implementación (Fase 5):** `reportResidencePaymentIssueCore`. El motivo es opcional; si se escribe, de 10 a 200 caracteres. Un aviso nuevo tras una respuesta reabre el aviso (una sola marca por pago).
+
 ### 16.10. Residencia responde al aviso: contactar o rehabilitar *(DR63 (l), supuesto reversible, propuesto)*
 
 **Server action** `resolveStudentPaymentIssue`.
@@ -1468,6 +1486,8 @@ Efectos:
 - con `contact_whatsapp`: `application_requests.collection_mode = whatsapp_direct` y la residencia recibe el botón de WhatsApp al número de `contact_target`;
 - con `reenable_payment`: congela de nuevo `instructions_snapshot` desde los datos aprobados;
 - notifica al estudiante y audita.
+
+**Implementación (Fase 5):** `resolveStudentPaymentIssueCore`. «Volver a habilitar» es solo del dueño y usa los datos aprobados; el monto no cambia. «Contactar por WhatsApp» borra el texto congelado. Ambas limpian las tres marcas y reinician el plazo.
 
 ---
 

@@ -4,6 +4,7 @@ import { notifyFamilyApplicationMilestone } from "@/lib/family/familyMilestones"
 import { createAuditLog } from "@/lib/audit";
 import { promoteNextQueuedApplication } from "@/lib/applications/roomTypeQueue";
 import { reactivatePausedApplications } from "@/lib/applications/reactivatePausedApplications";
+import { paymentHoldsDeadline } from "@/lib/applications/paymentReportView";
 
 /**
  * Job `expire_application_requests` (docs/07 §15.10, §31) — cada hora.
@@ -26,6 +27,10 @@ import { reactivatePausedApplications } from "@/lib/applications/reactivatePause
  * vencer la solicitud. Quedaba huérfana en `pending`/
  * `student_reference_uploaded` para siempre, en desacuerdo con su propia
  * solicitud padre ya `expired_no_student_payment`.
+ *
+ * DR63 (f) y (l): `residence_payment_pending` NO vence mientras el estudiante avisó «Ya pagué» (`student_reported_paid_at` no nulo,
+ * aunque la residencia lo haya disputado después) ni mientras tiene abierto «No pude realizar el pago» (`student_payment_issue_at`
+ * sin `student_payment_issue_resolved_at`). Al responder la residencia, el plazo se reinicia a 48 h (`payment_deadline_at`).
  *
  * Sin notificación real (pendiente, docs/00 §29) y sin liberar
  * disponibilidad automáticamente — docs/00 §9.1 dice que la residencia
@@ -77,14 +82,23 @@ export async function expireApplicationRequests(admin: SupabaseClient): Promise<
     { fromStatus: "residence_payment_pending", legacy: false },
   ] as const;
   for (const { fromStatus, legacy } of paymentPasses) {
+    // DR63: en `residence_payment_pending` se leen primero los candidatos y se descartan los que el estudiante frenó con su aviso.
+    let heldBack: string[] | null = null;
+    if (fromStatus === "residence_payment_pending") {
+      const expirable = await selectExpirablePaymentPending(admin, now);
+      if (expirable === null) continue; // no se pudo verificar los avisos: ante la duda no se vence nada esta hora
+      heldBack = expirable;
+      if (heldBack.length === 0) continue;
+    }
     const base = admin
       .from("application_requests")
       .update({ status: "expired_no_student_payment" })
       .eq("status", fromStatus);
+    const scoped = heldBack ? base.in("id", heldBack) : base;
     const { data: noStudentPayment, error: noPaymentError } = await (
       legacy
-        ? base.is("payment_deadline_at", null).lt("contact_established_at", legacyCutoff)
-        : base.lt("payment_deadline_at", now)
+        ? scoped.is("payment_deadline_at", null).lt("contact_established_at", legacyCutoff)
+        : scoped.lt("payment_deadline_at", now)
     ).select("id, room_type_id, student_profile_id");
     if (noPaymentError) {
       console.error(`[jobs] expireApplicationRequests (sin pago, ${fromStatus}) failed:`, noPaymentError);
@@ -124,4 +138,41 @@ export async function expireApplicationRequests(admin: SupabaseClient): Promise<
   }
 
   return { expiredCount };
+}
+
+const SCHEMA_MISSING_CODES = new Set(["42703", "PGRST204"]);
+
+/**
+ * Ids de `residence_payment_pending` con plazo vencido que SÍ pueden vencer: se excluyen los que tienen «Ya pagué» o un aviso de
+ * «No pude realizar el pago» sin responder (`paymentHoldsDeadline`, por fechas). `null` si no se pudo leer (no se vence nada).
+ * Sin la migración 0102 (columnas inexistentes) no hay avisos posibles: vencen todos, como antes de DR63.
+ */
+export async function selectExpirablePaymentPending(admin: SupabaseClient, nowIso: string): Promise<string[] | null> {
+  const { data: candidates, error } = await admin
+    .from("application_requests")
+    .select("id")
+    .eq("status", "residence_payment_pending")
+    .lt("payment_deadline_at", nowIso);
+  if (error) {
+    console.error("[jobs] expireApplicationRequests (candidatos de pago) failed:", error);
+    return null;
+  }
+  const ids = (candidates ?? []).map((c) => c.id as string);
+  if (ids.length === 0) return [];
+
+  const { data: payments, error: paymentsError } = await admin
+    .from("external_residence_payments")
+    .select("application_request_id, status, student_reported_paid_at, student_payment_issue_at, student_payment_issue_resolved_at")
+    .in("application_request_id", ids);
+  if (paymentsError) {
+    if (SCHEMA_MISSING_CODES.has(paymentsError.code ?? "")) return ids;
+    console.error("[jobs] expireApplicationRequests (avisos de pago) failed:", paymentsError);
+    return null;
+  }
+  const held = new Set(
+    ((payments ?? []) as { application_request_id: string; status: string; student_reported_paid_at: string | null; student_payment_issue_at: string | null; student_payment_issue_resolved_at: string | null }[])
+      .filter((p) => paymentHoldsDeadline(p))
+      .map((p) => p.application_request_id),
+  );
+  return ids.filter((id) => !held.has(id));
 }

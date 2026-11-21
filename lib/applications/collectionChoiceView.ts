@@ -1,4 +1,5 @@
 import { paymentMethodLabel } from "@/lib/payments/paymentMethods";
+import type { PaymentReportView } from "@/lib/applications/paymentReportView";
 import { availableCollectionPaths, resolveExpectedAmounts, type CollectionChoiceContext, type CollectionPath } from "@/lib/applications/reservationCollectionChoice";
 
 /**
@@ -23,6 +24,8 @@ export type CollectionChoiceView = {
   chosen: { mode: CollectionPath; methodLabel: string | null; amountUsd: number | null; amountArs: number | null } | null;
   /** Mostrar el botón de WhatsApp para escribirle al estudiante (o al familiar si es menor). */
   whatsappAllowed: boolean;
+  /** DR63 (e) y (l): lo que el estudiante avisó del pago («Ya pagué», «No pude realizar el pago»). `null` si no avisó nada. */
+  report: PaymentReportView | null;
 };
 
 export function buildCollectionView(input: {
@@ -37,6 +40,8 @@ export function buildCollectionView(input: {
   snapshot: Record<string, unknown> | null;
   /** Fila de `external_residence_payments` (sin instrucciones). */
   payment: { chosenMethod: string | null; expectedUsd: number | null; expectedArs: number | null } | null;
+  /** Aviso del estudiante sobre el pago (sin datos de cobro). */
+  report?: PaymentReportView | null;
 }): CollectionChoiceView | null {
   if (input.status !== "contact_established" && input.status !== "residence_payment_pending") return null;
   const ctx: CollectionChoiceContext = {
@@ -54,6 +59,7 @@ export function buildCollectionView(input: {
     preferredKey: ctx.preferredMethod,
     amountUsd: amounts?.ok ? amounts.value.usd : null,
     amountArs: amounts?.ok ? amounts.value.ars : null,
+    report: input.status === "residence_payment_pending" ? (input.report ?? null) : null,
   };
 
   if (input.status === "contact_established") {

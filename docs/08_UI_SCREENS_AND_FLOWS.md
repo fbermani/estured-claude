@@ -648,6 +648,7 @@ Ruta base: `/students`
 - **Aviso fijo (borrador):** «EstuRed no garantiza ni custodia el pago a la residencia. No transfieras fondos a datos que no llegaron por tu solicitud. EstuRed no es responsable de ningún pago ni del medio de pago elegido, y no custodia fondos. Los pagos posteriores a la reserva los acordás con la residencia.»
 - **Botón «No pude realizar el pago» (solo camino A, supuesto reversible):** abre una confirmación con motivo opcional corto (máximo 200 caracteres). Al confirmar, la tarjeta pasa a «Le avisamos a la residencia que no pudiste pagar. Te va a escribir por WhatsApp o te va a habilitar otro medio.» La cuenta regresiva se detiene hasta que la residencia responda. Al responder, el plazo vuelve a 48 horas.
 - **Solo la residencia confirma.** La tarjeta nunca dice «Pago confirmado» por el aviso del estudiante.
+- **Implementación (Fase 5):** `app/students/applications/[id]/payment/StudentPaymentCard.tsx`. «Ya pagué» es el botón principal, con confirmación y comprobante opcional (sin concepto ni montos). «No pude realizar el pago» es secundario, con motivo opcional. Con el aviso hecho, la tarjeta muestra «Avisaste que pagaste» y no repite los datos de cobro. El familiar pagador de un menor ve la misma tarjeta. Tras una propuesta de ajuste sin camino definido: «La residencia todavía está definiendo cómo cobrar la reserva.» La tarjeta vieja de comprobante (concepto, montos, medio) se retiró.
 - Los pagos posteriores a la reserva los acuerda cada residencia con cada estudiante. EstuRed no los gestiona.
 
 ---
@@ -975,6 +976,7 @@ Sin cambios de fondo. Modo Perfil Verificado: disponibilidad por tipo, estado Co
 - **«No pude realizar el pago»:** si el estudiante lo avisó (camino A), la solicitud muestra «El estudiante avisó que no pudo pagar» con su motivo, si lo dejó. La residencia elige por solicitud: «Contactar por WhatsApp» (botón al número de `contact_target`, como en el camino B) o «Cambiar medio / volver a habilitar el pago». Al elegir, el plazo de 48 horas se reinicia. Sin respuesta: aviso a las 24 horas y alerta al admin a las 72 horas.
 - **«No recibí el pago»:** botón secundario junto a «Pago recibido». Pide un motivo de al menos 10 caracteres. Marca el pago como en disputa, avisa al estudiante y abre un caso de Soporte. A las 72 horas sin confirmar, el admin recibe una alerta (`docs/00` DR63 (j)).
 - Las acciones nuevas están en `docs/07` §16.3 a §16.10.
+- **Implementación (Fase 5):** `PaymentReportPanel.tsx` arriba de «Marcar pago recibido» (la acción principal sigue siendo esa). «Ya pagué»: fecha, comprobante («Ver comprobante», solo con `payments.residence`) y «No recibí el pago» con motivo y casilla de alcance de Soporte. «No pude realizar el pago»: motivo, «Contactar por WhatsApp» y «Volver a habilitar el pago» (solo el dueño). Con la disputa registrada, la pantalla lo indica y «Pago recibido» sigue disponible.
 
 ---
 

@@ -156,7 +156,7 @@ const APPLICATION_STATUS: Record<string, Entry> = {
     student: {
       label: "Pagá a la residencia",
       helper:
-        "Coordiná el pago directamente con la residencia (fuera de EstuRed). Cuando lo reciba, ella lo va a marcar acá.",
+        "Mirá más abajo cómo pagar o cómo te va a contactar la residencia. El pago es fuera de EstuRed: cuando lo reciba, ella lo marca acá.",
     },
     residence: {
       label: "Esperando pago del estudiante",

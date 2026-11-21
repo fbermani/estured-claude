@@ -237,7 +237,11 @@ export default async function ResidenceApplicationsPage({
       paymentDeadlineAt:
         a.status === "contact_established"
           ? effectiveContactDeadline(a.payment_deadline_at, a.contact_established_at)
-          : a.payment_deadline_at,
+          : // DR63 (f), (l): con «Ya pagué» o un aviso de problema abierto el plazo está frenado; no se muestra «Plazo vencido».
+            (() => {
+              const report = collectionViews.get(a.id)?.report;
+              return a.status === "residence_payment_pending" && report && (report.reportedPaidAt || report.issueOpen) ? null : a.payment_deadline_at;
+            })(),
       createdAt: a.created_at,
       priceUsd: snapshot ? Number(snapshot.monthly_price_usd) : null,
       priceAgreed: Boolean(a.snapshot_final_id),

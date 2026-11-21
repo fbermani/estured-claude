@@ -50,7 +50,7 @@ type Plan =
  * Resuelve el camino y arma lo que se congela, SIN escribir nada. En el camino A exige ser el dueño, que el medio esté aceptado con datos
  * aprobados y que el monto del snapshot sea mayor a 0.
  */
-async function planCollection(
+export async function planCollection(
   admin: SupabaseClient,
   params: { applicationId: string; residenceId: string; snapshotId: string | null; actorUserId: string; input: CollectionInput },
 ): Promise<{ ok: true; plan: Plan } | { ok: false; error: string }> {

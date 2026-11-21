@@ -303,7 +303,7 @@ const ALLOWED_DOCUMENT_TYPES = ["application/pdf", "image/jpeg", "image/png", "i
 /**
  * Subida de documentos propios del estudiante (DNI, comprobante de
  * inscripción, otros documentos que pida una residencia puntual) —
- * mismo patrón que `uploadResidencePaymentProof`, bucket privado
+ * mismo patrón que `studentPaymentProof.ts` (comprobante de «Ya pagué»), bucket privado
  * propio (`student-documents`). `document_type` ya existía en el enum
  * desde la migración 0003 (`student_identity`, `student_academic_proof`,
  * `other`) sin ninguna pantalla que lo usara todavía — a diferencia de

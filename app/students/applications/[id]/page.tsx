@@ -12,7 +12,8 @@ import { PushPermissionCard } from "@/components/push/PushPermissionCard";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { PaymentProofUpload } from "@/app/students/applications/[id]/payment/PaymentProofUpload";
+import { StudentPaymentCard } from "@/app/students/applications/[id]/payment/StudentPaymentCard";
+import { loadStudentPaymentCard } from "@/lib/applications/loadStudentPaymentCard";
 import { getVisibleStatus } from "@/lib/applications/visibleStatus";
 import { loadReservationInfoByApplication } from "@/lib/applications/loadReservationInfo";
 import { loadAgreedConditionsByApplication } from "@/lib/applications/loadApplicationSnapshots";
@@ -200,6 +201,14 @@ export default async function StudentApplicationDetailPage({
 
   const familyIsPayer = isFamilyViewer && feePayment?.payer_user_id === sessionUser?.id;
 
+  // DR63: tarjeta del pago de la reserva. Los datos de cobro congelados se leen SOLO con service role y SOLO si `loadStudentPaymentCard`
+  // comprueba en la base que quien mira es el estudiante de la solicitud o el familiar pagador de un menor (si no, devuelve `null`).
+  let paymentCard: Awaited<ReturnType<typeof loadStudentPaymentCard>> = null;
+  if (application.status === "residence_payment_pending" && sessionUser) {
+    const paymentAdmin = getSupabaseAdmin();
+    if (paymentAdmin) paymentCard = await loadStudentPaymentCard(paymentAdmin, { userId: sessionUser.id, applicationId: id });
+  }
+
   // Solicitud terminada (vencida, rechazada, cancelada, reserva vencida/revocada): no se dibuja el recorrido como si siguiera.
   const terminal = isTerminalVisibleStatus(info);
   const terminalSummary = terminal
@@ -352,7 +361,8 @@ export default async function StudentApplicationDetailPage({
         {isFamilyViewer && (
           <p className="mt-4 flex items-start gap-2 rounded-field bg-sand-100 px-4 py-3 text-sm text-ink-soft">
             <Icon name="visibility" className="mt-0.5 shrink-0 text-lg text-forest-700" />
-            Seguís esta solicitud en modo lectura. Las decisiones y los documentos son del estudiante.
+            Seguís esta solicitud en modo lectura. Las decisiones y los documentos son del estudiante
+            {paymentCard?.actorRole === "family_payer" ? ", salvo el pago de la reserva, que podés avisar vos." : "."}
           </p>
         )}
 
@@ -432,7 +442,10 @@ export default async function StudentApplicationDetailPage({
           feeRealArs={feePayment ? Number(feePayment.fee_amount_ars) : null}
           feeIsPaid={feePayment?.status === "paid"}
           residencePaymentDeadlineAt={
-            application.status === "residence_payment_pending" ? (application.payment_deadline_at as string | null) : null
+            // Con «Ya pagué», un aviso de problema abierto o una disputa el plazo está frenado (DR63 (f), (l)): no se muestra cuenta regresiva.
+            application.status === "residence_payment_pending" && !(paymentCard?.kind === "enabled_methods" && paymentCard.stage !== "to_pay")
+              ? (application.payment_deadline_at as string | null)
+              : null
           }
           residencePaymentReported={
             residencePayment && (residencePayment.amount_reported_usd !== null || residencePayment.amount_reported_ars !== null)
@@ -449,9 +462,8 @@ export default async function StudentApplicationDetailPage({
         </Card>
       )}
 
-      {/* H01: el comprobante de pago a la residencia es del paso anterior — una vez
-          que existe la reserva ya no tiene sentido ofrecerlo. */}
-      {application.status === "residence_payment_pending" && !isFamilyViewer && <PaymentProofUpload applicationId={id} />}
+      {/* H01: el pago a la residencia es del paso anterior — una vez que existe la reserva ya no tiene sentido ofrecerlo. */}
+      {application.status === "residence_payment_pending" && paymentCard && <StudentPaymentCard applicationId={id} view={paymentCard} />}
     </div>
   );
 }
