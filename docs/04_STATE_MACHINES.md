@@ -230,7 +230,7 @@ Representa la intención formal del estudiante de reservar una plaza, habitació
 | `submitted` | El estudiante envió la solicitud. | Sí |
 | `queued_for_place` | Entró en cola porque la plaza/tipo ya tiene el máximo visible. | Sí |
 | `under_review` | La residencia abrió o comenzó a revisar la solicitud. | Sí |
-| `contact_established` | La residencia decidió avanzar y habilitó contacto por WhatsApp. | Sí |
+| `contact_established` | La residencia decidió avanzar. En «Contacto directo por WhatsApp» habilitó el contacto. En «Cobro con medios habilitados» alcanza con «Aceptar» (DR63). | Sí |
 | `offer_pending_student_acceptance` | La residencia envió propuesta de ajuste de condiciones. El estudiante debe responder. | Sí |
 | `conditions_accepted` | El estudiante respondió a la propuesta de ajuste (aceptó las nuevas condiciones o eligió continuar con las originales). Solo existe en el flujo con negociación. Listo para pagar. | Sí |
 | `paused_due_to_other_active_request` | Pausada porque el estudiante está avanzando con otra solicitud. | No |
@@ -384,6 +384,8 @@ Ver la tabla canónica de plazos en `00_DECISION_LOG.md` §9.1. Resumen:
 
 > **Decisión D6 (2026-10-20, `docs/00` §31).** El pago a la residencia **solo se habilita desde `contact_established`** (nunca antes). Si no se habilita ni se envía una propuesta de ajuste, `contact_established` **vence a las 48 horas** con `expired_no_student_payment` (fila de transición de §5.4), igual que `residence_payment_pending`. El job de vencimiento debe cubrir ambos estados. El plazo restante es **visible** en el inbox de la residencia y en el detalle de la solicitud del estudiante. Supuesto reversible: la habilitación del pago sigue siendo la acción explícita de la residencia ("Continuar sin cambios (habilitar pago)"), no una transición automática del sistema como sugiere la fila de §5.4; el vencimiento de 48 h evita que la solicitud quede colgada.
 
+> **DR63 (2026-11-20, `docs/00`): «Ya pagué» detiene el vencimiento.** Si el estudiante informa el pago (`student_reported_paid_at` no nulo), `residence_payment_pending` deja de vencer a las 48 horas. El job `expire_application_requests` excluye esas solicitudes. El sync de `external_residence_payments` a `expired` no toca filas en `student_reported_paid`. La solicitud espera a «Pago recibido» de la residencia. **Recordatorios (supuesto reversible):** aviso a la residencia a las 24 horas de «Ya pagué» sin confirmar. Aviso al estudiante 12 horas antes del plazo, solo si no informó el pago. **Pendiente del dueño:** qué pasa si la residencia nunca confirma. Propuesta: a las 72 horas, alerta al admin y caso de Soporte, sin transición automática. Sin esto la solicitud queda colgada y las demás del estudiante siguen pausadas (§5.6). Falta también definir «No recibí el pago».
+
 ---
 
 # 6. Máquina de estados: Pago a residencia
@@ -404,7 +406,8 @@ EstuRed no procesa directamente este pago en el MVP. Se registra para trazabilid
 |---|---|
 | `not_required_yet` | Todavía no corresponde pagar a residencia. |
 | `pending` | El estudiante debe pagar a la residencia. |
-| `student_reference_uploaded` | El estudiante cargó comprobante para referencia. |
+| `student_reference_uploaded` | El estudiante cargó comprobante para referencia. Se conserva para filas anteriores a DR63. |
+| `student_reported_paid` | El estudiante avisó con «Ya pagué» (DR63). Detiene el vencimiento. El comprobante es opcional. |
 | `reported_received_by_residence` | La residencia informó que recibió el pago. |
 | `expired` | El estudiante no pagó dentro del plazo. |
 | `disputed` | Hay conflicto sobre pago, monto o recepción. |
@@ -419,6 +422,11 @@ EstuRed no procesa directamente este pago en el MVP. Se registra para trazabilid
 - El estudiante carga comprobante de pago como referencia. No confirma la reserva.
 - La acción clave es que la residencia marque **Pago recibido**, con confirmación explícita y aceptación de términos.
 - El reembolso de lo abonado a la residencia depende de la residencia y sus condiciones.
+- **DR63 (2026-11-20, `docs/00`):** la residencia configura cómo cobra la reserva. Al habilitar el pago por «Cobro con medios habilitados», monto, medio e instrucciones quedan congelados en `external_residence_payments` (`expected_amount_usd`, `expected_amount_ars`, `chosen_method`, `instructions_snapshot`).
+- **DR63:** `pending` o `student_reference_uploaded` a `student_reported_paid` ocurre cuando el estudiante o el familiar vinculado toca «Ya pagué». Notifica a la residencia. La pantalla de la residencia muestra el comprobante, si existe, junto a «Pago recibido».
+- **DR63:** `student_reported_paid` a `reported_received_by_residence` ocurre solo con «Pago recibido» de la residencia (regla de arriba, sin cambios). «Ya pagué» no confirma nada.
+- **DR63:** `student_reported_paid` no pasa a `expired` por plazo (ver §5.8). El monto y el medio informados por el estudiante (`amount_reported_*`, `payment_method_to_residence`) son distintos de los fijados por la residencia (`expected_*`, `chosen_method`).
+- **DR63:** los pagos posteriores a la reserva no pasan por EstuRed. Los acuerda cada residencia con cada estudiante.
 
 ---
 
@@ -557,6 +565,7 @@ El fee se calcula sobre la tarifa actual guardada en el `snapshot_final`. No rec
 - Si el pagador está fuera de Argentina, la UI sugiere PayU como opción recomendada.
 - Si el pago es en USD: el fee base se calcula en ARS usando el tipo de cambio del `snapshot_final`, y se convierte a USD. Se muestra aclaración al pagador.
 - Debe existir la abstracción técnica `PaymentProvider` desacoplada de cualquier proveedor específico.
+- **Propuesta DR63 (i), sin implementar:** EstuRed habilita medios del catálogo común (`lib/payments/paymentMethods.ts`) para el fee, con datos de cobro propios, separados de los de la residencia. El pagador elige el medio. En medios en USD, el monto usa el tipo de cambio del `snapshot_final`. MercadoPago y PayU automáticos siguen como proveedores `PaymentProvider`.
 
 ---
 
@@ -647,6 +656,8 @@ Efectos de `paid` (sin cambios): se confirma la reserva (`pending_estured_fee` �
 **Fee `paid` con la reserva sin confirmar (revisión Ciclo 71):** si la confirmación de la reserva falla después de marcar `paid`, el fee **no vuelve atrás**: se audita `reservation_confirmation_failed_after_fee_paid`, se avisa a los admins y el caso aparece en `/admin/payments` con **"Reintentar confirmación"** (audita `reservation_confirmation_retried`). La confirmación es **idempotente**: requiere fee `paid`, usa un UPDATE condicional de la reserva (`pending_estured_fee` → `confirmed`) y, si la reserva ya estaba `confirmed`, no duplica comprobante, factura ni disponibilidad.
 
 > **Pendiente de decisión del dueño:** el comprobante verificable y la Factura C se emiten por el **fee esperado completo**, no por el monto realmente recibido.
+
+> **Propuesta DR63 (i), sin decidir (2026-11-20):** «Ya pagué» en el fee detendría el vencimiento de 48 horas hasta que el admin valide o rechace. Hoy `expireEsturedFeeWindows` vence también `pending_manual_payment`. La condición «Plazo» de esta tabla no cambia: un fee vencido no se marca pagado. Aplicar la propuesta exige excluir `pending_manual_payment` del job. Decide el dueño.
 
 ---
 
@@ -1065,7 +1076,7 @@ residence
 - El modo (Perfil Verificado / Gestión Operativa) se gestiona mediante feature flags por residencia.
 - **`needs_changes` → `pending_verification` (DR5, `docs/00` §31):** el admin pide cambios con un mensaje visible para la residencia; la residencia corrige y reenvía a revisión (el equipo vuelve a verla como pendiente). Desde `suspended` no se reenvía.
 - **`pending_verification` → `verification_scheduled` (DR7):** el admin programa la visita presencial (`scheduled_at`); no se puede aprobar sin la fecha de la visita realizada (`visited_at`). Aprobar → `verified_active`; rechazar → `suspended`; pedir cambios → `needs_changes`. Toda decisión es un update condicional por el estado actual (`pending_verification`, `verification_scheduled`, `verification_expired`; el rechazo también desde `needs_changes`).
-- **Requisitos para enviar (DR59, `docs/00`):** el envío desde `draft`, el reenvío desde `needs_changes` y el de `verification_expired` exigen datos básicos, servicios y áreas comunes, una regla, reglamento publicado (o PDF), 3 preguntas esenciales listas, 2 universidades, un tipo de habitación con tarifa, 3 fotos propias y condiciones de reserva completas (depósito y salida anticipada solo si los eligió). El servidor los recalcula y rechaza el envío con la lista de lo que falta; guardar como borrador no se bloquea.
+- **Requisitos para enviar (DR59, `docs/00`):** el envío desde `draft`, el reenvío desde `needs_changes` y el de `verification_expired` exigen datos básicos, servicios y áreas comunes, una regla, reglamento publicado (o PDF), 3 preguntas esenciales listas, 2 universidades, un tipo de habitación con tarifa, 3 fotos propias y condiciones de reserva completas (depósito y salida anticipada solo si los eligió). **Requisito 10 (DR63, pendiente de implementar):** cobro de la reserva con al menos una opción completa: «Cobro con medios habilitados» con 1 medio o más y sus datos de cobro, o «Contacto directo por WhatsApp». El servidor los recalcula y rechaza el envío con la lista de lo que falta; guardar como borrador no se bloquea.
 - **`verification_expired` → `pending_verification` (DR7):** el dueño reenvía la residencia a revisión con el mismo botón; la verificación interna `expired` vuelve a `documents_pending`. El admin la ve en su cola como "Vencida". Treinta días antes del vencimiento se avisa al equipo de la residencia.
 
 ---

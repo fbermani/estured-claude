@@ -370,7 +370,7 @@ Toda residencia debe completar:
 - concepto requerido para reservar;
 - política de ajustes;
 - condiciones de reserva;
-- medios de pago aceptados para pagos a la residencia;
+- cobro de la reserva (DR63): medios de pago aceptados y datos de cobro, y/o contacto directo por WhatsApp. Alcance: solo la reserva. Los pagos posteriores los acuerda la residencia con cada estudiante;
 - disponibilidad o estado `Completa`.
 
 ### 7.2 Ediciones auditadas
@@ -862,6 +862,21 @@ Cada residencia configura su metodología de pago para reservar (seña, matrícu
 
 El monto establecido no puede modificarse caso por caso en una solicitud activa, salvo mediante el proceso de propuesta de ajuste (sección 10ter).
 
+**Cobro de la reserva (DR63, `docs/00`, 2026-11-20).** Cada residencia define cómo cobra la reserva. Activa una o ambas opciones:
+
+- **Cobro con medios habilitados:** elige medios del catálogo (`lib/payments/paymentMethods.ts`) y carga sus datos de cobro una vez.
+- **Contacto directo por WhatsApp:** la residencia escribe al estudiante y coordina el pago. EstuRed no interviene en ese chat.
+
+Reglas:
+
+- La configuración define solo la reserva. Los pagos posteriores los acuerda cada residencia con cada estudiante.
+- Los datos de cobro son sensibles. Solo el dueño los edita. El estudiante los ve solo cuando la residencia habilita el pago de su solicitud.
+- La residencia necesita al menos una opción completa para enviar el perfil a revisión (requisito 10 de DR59).
+- Con una sola opción, el camino queda fijo. Con ambas, la residencia elige por solicitud al aceptarla.
+- El estudiante ve antes de enviar cómo se cobrará. Puede elegir un medio como preferencia, no vinculante.
+- EstuRed no custodia ni garantiza el pago. El pago se ejecuta fuera de EstuRed.
+- Pago a la residencia, fee, reserva y comprobante siguen separados. El catálogo es el mismo para el fee, pero la configuración y los datos de cobro son otros.
+
 ### 12.2 Contacto y pago
 
 Cuando la residencia decide avanzar:
@@ -882,11 +897,14 @@ La residencia debe copiar y pegar el mensaje al iniciar la conversación.
 
 El sistema registra como `contact_established` el momento en que la residencia presiona el botón.
 
+**DR63:** con el camino «Cobro con medios habilitados» no hay botón de WhatsApp. `contact_established` se registra cuando la residencia acepta la solicitud. El botón sigue igual en «Contacto directo por WhatsApp».
+
 EstuRed no registra ni controla la conversación posterior.
 
 ### 12.4 Comprobantes de pago a residencia
 
 - El estudiante puede cargar comprobante de pago a residencia como referencia.
+- **DR63:** el estudiante informa el pago con «Ya pagué». El comprobante es opcional. La residencia ve el comprobante junto a «Pago recibido». «Ya pagué» detiene el vencimiento de 48 horas. Solo la residencia confirma.
 - La residencia puede cargar comprobante o evidencia para referencia propia.
 - Si el pago fue en efectivo, debe quedar constancia.
 

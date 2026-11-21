@@ -363,6 +363,8 @@ Ruta base: `/admin`
 
 > **Decisión de la ficha, DF1 (2026-10-23, `docs/00` §31).** Layout "columna de decisión": la columna lateral es **sticky durante toda la página** y contiene una tarjeta de precio y condiciones con el selector de tipo de habitación (una fila por tipo con su `StatusTag`) y el CTA según el rol; el formulario de solicitud (`ApplyForm`/`ProposeForm`/lista de espera) se abre en una **hoja lateral** (en mobile, hoja inferior casi a pantalla completa). Elegir un tipo en la tabla de tarifas, en la tarjeta o con `?room=` es el mismo estado. "Qué pagás y a quién" es visible para todos los roles. **El mapa de camas sale de la ficha y queda solo en `/residencias/[slug]/comunidad`; la ficha no muestra camas libres ni "x de y plazas"**: la disponibilidad que ve el estudiante es solo por tipo de habitación (D3). El "Desde USD X" es el mínimo entre los tipos **no completos** (si todos están completos, el mínimo de todos). Propuesta de diseño: `design-proposals/ficha-residencia/SPEC.md`.
 >
+> **DR63 (2026-11-20, `docs/00`): cobro de la reserva en la solicitud.** Antes de enviar, la hoja de solicitud muestra cómo se cobrará. Con medios habilitados lista los medios aceptados y ofrece elegir uno como preferencia, con la opción «Lo coordino con la residencia». Con contacto directo muestra: «La residencia te va a escribir por WhatsApp con el monto final y cómo pagar.» La preferencia no obliga a nadie. Los datos de cobro no aparecen acá. Aviso fijo (borrador): «EstuRed no garantiza ni custodia el pago a la residencia. No transfieras fondos a datos que no llegaron por tu solicitud.»
+>
 > **Decisión de la ficha, DF2 (2026-10-23).** La etiqueta de disponibilidad de un tipo completo es una variante **por tipo** de `StatusTag` ("{Tipo}: completa"), distinta de "Residencia completa" (que queda para cuando todos los tipos están completos). El copy oficial es el de "Bloque de disponibilidad" arriba; el cambio en `components/ui/StatusTag.tsx` lo hace el constructor después de este doc.
 >
 > **Bloque de ubicación (DF5, 2026-10-23; reemplaza DF3).** La dirección y la ubicación de la residencia son **información pública**. Mapa de OpenStreetMap con el **pin exacto** de la residencia (coordenadas `latitude`/`longitude`, públicas) y, alrededor, los puntos de interés: universidades cercanas con su distancia en línea recta desde el pin. Sin zona aproximada ni redondeo. Si faltan las coordenadas, el mapa cae al centro del barrio (sin pin) y se muestra solo el barrio. Sin JS de mapas ni interacción: teselas e imagen/SVG con la atribución "© colaboradores de OpenStreetMap". Si fallan las teselas, la dirección en texto y la lista de universidades siguen visibles. Teselas: ver `docs/15` §23 (pendiente de lanzamiento).
@@ -586,7 +588,7 @@ Ruta base: `/students`
 
 **Acciones:** cancelar solicitud; ver contacto habilitado; revisar propuesta de ajuste (si existe); subir comprobante de pago a residencia; pagar fee EstuRed; ver comprobante; abrir soporte; solicitar "Actualizar con mismos parámetros" si venció.
 
-**Nota:** la pantalla de pago a residencia vive dentro de esta pantalla, no es un checkout separado porque ese pago ocurre fuera de EstuRed.
+**Nota:** la pantalla de pago a residencia vive dentro de esta pantalla, no es un checkout separado porque ese pago ocurre fuera de EstuRed. **DR63:** sigue siendo cierto. Lo que cambia es que la residencia define cómo cobra y la pantalla lo muestra (ver §6.7).
 
 ---
 
@@ -630,6 +632,15 @@ Ruta base: `/students`
 
 **Regla:** el comprobante subido por el estudiante no confirma la reserva. Solo sirve como evidencia.
 
+**DR63 (2026-11-20, `docs/00`): tarjeta de pago a la residencia.** Se muestra según el camino que la residencia eligió para esa solicitud.
+
+- **Cobro con medios habilitados:** monto final (USD y ARS), medio elegido, datos de cobro congelados con botón «Copiar» por dato, concepto, plazo de 48 horas con cuenta regresiva y el aviso de seguridad.
+- **Contacto directo por WhatsApp:** monto, plazo y el contacto de la residencia (hoy el estudiante no lo ve; ver `docs/00` DR63 (j)). Texto: «La residencia te escribe por WhatsApp para coordinar el pago.»
+- **Botón «Ya pagué»:** abre una confirmación con comprobante opcional, concepto, montos y medio. Al confirmar, la tarjeta pasa a «Avisaste que pagaste. Esperando que la residencia lo confirme.» y la cuenta regresiva se detiene.
+- **Aviso fijo (borrador):** «EstuRed no garantiza ni custodia el pago a la residencia. No transfieras fondos a datos que no llegaron por tu solicitud.»
+- **Solo la residencia confirma.** La tarjeta nunca dice «Pago confirmado» por el aviso del estudiante.
+- Los pagos posteriores a la reserva los acuerda cada residencia con cada estudiante. EstuRed no los gestiona.
+
 ---
 
 ### 6.8. Pago fee EstuRed (actualizado)
@@ -658,6 +669,8 @@ Ruta base: `/students`
 - el **n.º de reserva como referencia** de la transferencia (formato `EST-` + los primeros 8 caracteres del id de la reserva, en mayúsculas; el admin ve la misma referencia en `/admin/payments` para conciliar);
 - **cuenta regresiva** hasta el vencimiento de la ventana de pago (48 h);
 - botón **"Tengo un problema con el pago"** (abre un caso de Soporte con el contexto de la reserva).
+
+**Propuesta DR63 (i), sin implementar (2026-11-20).** EstuRed habilitaría varios medios del catálogo para el fee, con datos de cobro propios, separados de los de la residencia. El pagador elige el medio. En medios manuales la pantalla muestra los datos con botón «Copiar», el botón «Ya pagué» y el comprobante. En medios en USD, el monto usa el tipo de cambio del `snapshot_final`. Hoy la pantalla ofrece solo transferencia manual (`payment_settings`, una cuenta).
   El fee lo cobra EstuRed, no la residencia: este botón lleva a Soporte con un motivo propio **dirigido a EstuRed** (`/students/support?motivo=pago-fee&reserva=<id>`, copy "Escribile a EstuRed"), sin elegir residencia y sin el recordatorio de deslinde de los reclamos contra residencias; el caso queda con la reserva como contexto y la residencia no lo ve (`support_cases.topic = 'estured_fee_payment'`, migración 0040). Usa los mismos estados del caso.
 - Solo el **pagador designado** de la reserva ve los datos de cobro; si el pagador es otra persona, el estudiante ve "El pago lo hace quien está designado como pagador" con enlace a Soporte. Con el plazo vencido no se muestran datos de transferencia ni el formulario del comprobante.
 - Los datos de cobro **los edita solo un superadmin** (`/admin/payment-settings`); cada cambio se audita y avisa a todos los superadmin (in-app y email, sin datos de la cuenta). El admin común ve un resumen con el CBU enmascarado.
@@ -852,7 +865,13 @@ Ruta base: `/residence`
 
 **Ruta:** `/residence/[residence_id]/profile`
 
-**Secciones:** fotos, descripción, servicios, áreas comunes, reglas, condiciones de reserva, política de ajustes, precios (recomendado en USD), matrícula, depósito, **medios de pago aceptados para pagos a la residencia**, tipos de habitación, capacidad, FAQ, comunidad visible.
+**Secciones:** fotos, descripción, servicios, áreas comunes, reglas, condiciones de reserva, política de ajustes, precios (recomendado en USD), matrícula, depósito, **«Cobro de la reserva» (DR63, antes «medios de pago aceptados para pagos a la residencia»)**, tipos de habitación, capacidad, FAQ, comunidad visible.
+
+**Sección «Cobro de la reserva» (DR63, `docs/00`, 2026-11-20).** Define solo cómo se cobra la reserva. La residencia activa una o ambas opciones: «Cobro con medios habilitados» y «Contacto directo por WhatsApp». Con medios habilitados elige del catálogo y carga una vez los datos de cobro de cada medio. Solo el dueño edita esta sección y ve los datos de cobro; el staff no. Es el requisito 10 de «Enviar para revisión» (DR59). Textos fijos (borrador del dueño):
+- «Esto define solo el pago de la reserva. Los pagos siguientes los acordás con cada estudiante.»
+- «Con contacto directo, la coordinación del pago queda en tu equipo. Es el trabajo que EstuRed busca ahorrarte.»
+- «Con medios habilitados, EstuRed te evita ese chat hasta la confirmación final.»
+Cada cambio de datos de cobro se audita y avisa al dueño.
 
 **Reglas:** tarifas, matrícula y depósito editables sin aprobación previa, auditadas, generan alerta si varían más de 15%. Campos críticos (fotos, dirección, reglas, servicios, condiciones de reserva, capacidad) requieren revisión admin.
 
@@ -937,6 +956,13 @@ Sin cambios de fondo. Modo Perfil Verificado: disponibilidad por tipo, estado Co
 - Ver auditoría resumida.
 
 **Modal obligatorio antes de "Pago recibido":** debe mostrar responsabilidades y aceptación específica de la residencia.
+
+**DR63 (2026-11-20, `docs/00`): caminos al aceptar y pago informado.**
+- Con ambas opciones activas, «Aceptar» pide elegir el camino para esa solicitud: «Cobro con medios habilitados» o «Contacto directo por WhatsApp». Con una sola, el camino queda fijo y no se pregunta.
+- **Cobro con medios habilitados:** no aparece el botón de WhatsApp. Al habilitar el pago, la residencia confirma monto (precargado desde las condiciones finales) y medio (precargado con la preferencia del estudiante).
+- **Contacto directo por WhatsApp:** igual que hoy.
+- **Aviso «Ya pagué»:** la solicitud muestra «El estudiante avisó que pagó» con la fecha, y el comprobante si lo cargó, junto al botón «Pago recibido». El aviso no confirma nada: solo «Pago recibido» confirma.
+- Las acciones nuevas están en `docs/07` §16.3 a §16.7.
 
 ---
 

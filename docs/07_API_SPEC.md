@@ -1100,6 +1100,8 @@ Validaciones:
 - residencia solo puede avanzar con una solicitud por plaza a la vez;
 - si hay otra solicitud del mismo estudiante activa, pausarla.
 
+**DR63:** con `collection_mode = enabled_methods` el endpoint equivale a «Aceptar»: no genera `whatsapp_button_url`. Ver §16.5.
+
 Transición:
 - `application_request.status = contact_established`;
 - `contact_established_at = now()`;
@@ -1286,7 +1288,7 @@ Frecuencia: cada hora.
 
 Reglas:
 - si `expires_at < now()` y solicitud en estado no terminal: marcar vencida según tipo;
-- si pasan 48h desde `contact_established` sin pago a residencia: `expired_no_student_payment`;
+- si pasan 48h desde `contact_established` sin pago a residencia: `expired_no_student_payment`; **DR63:** no aplica si `external_residence_payments.student_reported_paid_at` no es nulo (§16.4);
 - si propuesta de ajuste vence sin respuesta: `expired_offer_no_response` (ver job 15.6);
 - si residencia no responde dentro del plazo: `expired_no_residence_response`;
 - actualizar métricas; notificar; auditar.
@@ -1305,6 +1307,8 @@ Body multipart/form-data: `file`, `amount_ars`, `amount_usd`, `paid_at`, `notes`
 
 Reglas: no confirma reserva; solo respaldo; notifica residencia; audita.
 
+**DR63 (2026-11-20):** el comprobante es opcional. «Ya pagué» (§16.4) funciona sin archivo. La residencia ve este comprobante junto a «Pago recibido».
+
 ---
 
 ### 16.2. Residencia marca pago recibido *(actualizado)*
@@ -1320,7 +1324,7 @@ Body:
   "received_amount_ars": "string|null",
   "received_amount_usd": "string|null",
   "received_at": "ISO_DATE",
-  "payment_method_label": "transfer|cash|virtual_wallet|bank_deposit|other",
+  "payment_method_label": "transfer|cash|virtual_wallet|bank_deposit|other", // DR63: pasa a las claves del catálogo (`lib/payments/paymentMethods.ts`)
   "receipt_document_id": "uuid|null",
   "confirmation_checkbox_accepted": true,
   "terms_acceptance_version": "string", // versión del texto de términos aceptado
@@ -1344,6 +1348,69 @@ Efectos secundarios:
 - notificar estudiante/familiar;
 - iniciar cobro automático si hay medio de pago cargado;
 - auditar.
+
+---
+
+### 16.3. Residencia configura el cobro de la reserva *(DR63, propuesto, sin implementar)*
+
+**Server action** `saveReservationPaymentSetup` (sin ruta REST propia: va dentro del guardado del perfil).
+
+Roles: **solo el dueño** de la residencia. El staff no, aunque tenga `profile.edit`.
+
+Body: `reservation_payment_modes` (`enabled_methods`, `whatsapp_direct` o ambos), `accepted_payment_methods` (claves del catálogo) y, por medio, `details` (y `method_label` si es `other`).
+
+Reglas:
+- el servidor valida claves contra el catálogo y exige `details` completo por cada medio aceptado;
+- con `intent = "submit"` exige al menos una opción completa (requisito 10 de DR59);
+- audita cada cambio con datos enmascarados y avisa al dueño;
+- los datos de cobro se leen solo por server action, nunca por la API pública.
+
+### 16.4. Estudiante informa el pago «Ya pagué» *(DR63, propuesto)*
+
+**Server action** `reportResidencePaymentPaid`.
+
+Roles: estudiante; familiar vinculado.
+
+Validaciones:
+- solicitud en `residence_payment_pending`;
+- el pago no está en `reported_received_by_residence`, `expired` ni `disputed`;
+- el comprobante es opcional (reusa la validación de §16.1).
+
+Efectos:
+- `external_residence_payments.student_reported_paid_at = now()` y `status = student_reported_paid`;
+- detiene el vencimiento de 48 horas (§15.10);
+- notifica a la residencia (in-app y push de DR61 si corresponde);
+- audita. Es idempotente: un segundo toque no cambia nada.
+
+No confirma reserva. Solo §16.2 la confirma.
+
+### 16.5. Residencia habilita el pago, camino A o B *(DR63, propuesto)*
+
+**Server action** `enableResidencePayment` (extiende la existente).
+
+Roles: residence owner; staff con permiso de aplicaciones.
+
+Body: `collection_mode` (`enabled_methods` o `whatsapp_direct`), y con `enabled_methods`: `expected_amount_usd`, `expected_amount_ars` y `chosen_method`.
+
+Reglas:
+- si la residencia tiene una sola opción activa, el servidor ignora el `collection_mode` enviado y usa esa;
+- con `enabled_methods`: precarga monto desde `snapshot_final` y medio desde `preferred_payment_method`;
+- congela `instructions_snapshot` desde `residence_collection_accounts`;
+- la residencia no cambia el monto fuera del proceso de propuesta de ajuste (`docs/04` §6.3);
+- con `whatsapp_direct`: igual que hoy. El estudiante además ve el contacto de la residencia (`docs/00` DR63 (j));
+- tras una propuesta de ajuste, el pase a `residence_payment_pending` es automático. El servidor aplica los valores por defecto de `docs/00` DR63 (k).
+
+### 16.6. Estudiante elige medio preferido *(DR63, propuesto)*
+
+El campo `preferred_payment_method` viaja en el envío de la solicitud. Es opcional. El servidor valida que la clave esté en `accepted_payment_methods` de la residencia, o que sea nula.
+
+### 16.7. Recordatorios del pago a la residencia *(DR63, supuesto reversible)*
+
+**JOB** (dentro de `runExpirationJobs`). Frecuencia: cada hora.
+
+- a las 24 horas de `student_reported_paid_at` sin «Pago recibido»: avisa a la residencia;
+- 12 horas antes de `payment_deadline_at` sin «Ya pagué»: avisa al estudiante;
+- marca `residence_reminder_sent_at` y `student_reminder_sent_at` para no repetir.
 
 ---
 

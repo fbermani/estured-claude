@@ -2,6 +2,38 @@
 
 # EstuRed — Próximos pasos
 
+## DR63: cobro de la reserva a la residencia y medios del fee — 2026-11-20
+
+Estado: Fase 0 hecha (solo docs, sin código ni migración). Decisión y pendientes: `docs/00` DR63. Reglas: `docs/03` §12.1; estados: `docs/04` §5.8, §6; datos: `docs/06` §8.8, §11.1, §12.1; acciones: `docs/07` §16.3 a §16.7; pantallas: `docs/08` §6.7, §7.2, §7.8.
+
+**Antes de la Fase 1, el dueño decide (DR63 (j)):**
+1. Salida si la residencia nunca confirma tras «Ya pagué» (propuesta: alerta al admin a las 72 horas) y qué hace «No recibí el pago».
+2. Contacto de la residencia visible al estudiante en el camino B (campo nuevo propuesto, obligatorio con B).
+3. Si el staff puede leer `instructions_snapshot` (hoy SELECT por tabla lo permitiría).
+4. Rótulo del camino A. La doc usa «Cobro con medios habilitados».
+5. Si el cambio de datos de cobro exige aprobación del admin.
+6. Fee: si «Ya pagué» detiene el vencimiento de `pending_manual_payment` (choca con DR8 (4)).
+
+**Plan de fases (residencia):**
+1. **BD:** migración 0102 (enum `student_reported_paid`, columnas de `residences`, `application_requests` y `external_residence_payments`, tabla `residence_collection_accounts` con RLS sin policies, `grant select (col)` por 0081) y catálogo `lib/payments/paymentMethods.ts`.
+2. **Ficha «Cobro de la reserva»:** sección solo del dueño, validación server-side, auditoría con CBU enmascarado, requisito 10 en `lib/residences/submitReadiness.ts`.
+3. **Solicitud del estudiante:** muestra cómo se cobrará, preferencia opcional, aviso de seguridad.
+4. **Residencia acepta:** camino A o B, monto y medio precargados, datos congelados al habilitar el pago.
+5. **Estudiante paga:** «Ya pagué», tarjeta con datos y botón «Copiar», contacto de la residencia en el camino B, ajuste del job de vencimiento.
+6. **Aviso y cierre:** aviso a la residencia (in-app y push DR61), recordatorios de 24 h y 12 h, tests, seeds de demo y prueba en staging.
+
+**Pista 2, fee EstuRed** (supuestos reversibles, `docs/00` DR63 (i)): mismas seis fases con tabla propia de medios del fee (separada de la de la residencia), medios elegidos por el admin, pagador que elige el medio, «Ya pagué» con comprobante obligatorio (DR8 sin cambios) y monto en USD con el tipo de cambio del `snapshot_final`. Empieza cuando el dueño cierre el punto 6.
+
+### Opciones para conversar con residencias pioneras (DR63 (h), no se implementan)
+
+- Medio fuera del catálogo.
+- Monto distinto según el medio.
+- Comisión del medio a cargo del estudiante.
+- Varias cuentas por medio.
+- Seña en vez del monto completo.
+- Pago en efectivo al llegar (hoy no cabe: el fee exige «Pago recibido» antes de la reserva).
+- Descartado: que EstuRed cobre por la residencia, porque implicaría custodia de fondos.
+
 ## Requisitos para enviar a revisión (DR59) — 2026-11-20
 
 Hecho (sin build ni verificación visual): `computeSubmitReadiness` (`lib/residences/submitReadiness.ts`) con 9 requisitos + depósito y salida anticipada condicionales; el servidor lo recalcula en `saveResidenceProfile` solo con `submit` en `draft`/`needs_changes`/`verification_expired`; la tarjeta «Fortaleza del Perfil» muestra la checklist en vivo. **Pendiente:** (1) correr `scripts/seed-dev-fichas-completas.mjs --dry-run` y después aplicar en dev (deja las demo `verified_active` cumpliendo los requisitos y una en borrador que no); (2) `faq/actions.ts` debería hacer `revalidatePath(`/residence/${id}/profile`)` tras guardar preguntas (hoy el perfil refresca al volver a cargarse); (3) el Panel (`app/residence/[residence_id]/page.tsx`) todavía usa `computeProfileStrength` clásico: migrarlo a `strengthFromReadiness` para que el % coincida; (4) verificar en staging el rechazo del envío y el mensaje.

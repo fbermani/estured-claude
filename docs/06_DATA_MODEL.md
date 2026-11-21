@@ -194,6 +194,8 @@ No usar `jsonb` para reemplazar relaciones centrales como usuarios, residencias,
 ### 4.6. `external_residence_payment_status`
 `not_required_yet`, `pending`, `student_reference_uploaded`, `reported_received_by_residence`, `expired`, `disputed`
 
+**Propuesta DR63 (migración 0102, sin aplicar):** se suma `student_reported_paid` con `alter type public.external_residence_payment_status add value if not exists 'student_reported_paid' after 'student_reference_uploaded'`. `student_reference_uploaded` queda para filas anteriores. Precedentes de `add value`: 0023, 0077, 0078. El valor nuevo no se usa en la misma transacción de la migración.
+
 ---
 
 ### 4.7. `reservation_status`
@@ -536,6 +538,8 @@ Reglas:
 | `max_resident_age` | smallint null | Edad máxima (DR14). Null = sin tope |
 | `accepts_minors` | boolean | Default `false`. Solo si la residencia lo habilita expresamente (DR14; lo decide la residencia sola, sin aprobación del admin) se admiten menores de 18 con apartado para guardián |
 | `current_regulation_version_id` | uuid null | FK `residence_regulation_versions` — versión **vigente** del reglamento (DR14, §8.7). Null = rige el modelo |
+| `reservation_payment_modes` | text[] | *(DR63, propuesta 0102)* Opciones de cobro de la reserva activas: `enabled_methods` y/o `whatsapp_direct`. Vacío = sin configurar: se lee como `whatsapp_direct` (comportamiento actual) |
+| `accepted_payment_methods` | text[] | *(DR63, propuesta 0102)* Claves del catálogo que la residencia acepta (`lib/payments/paymentMethods.ts`). Es lista pública: no lleva datos de cobro |
 | `created_at` | timestamptz | Alta |
 | `updated_at` | timestamptz | Actualización |
 
@@ -724,6 +728,33 @@ Reglas:
 - una versión `published` no se edita: cambiar el reglamento crea una versión nueva;
 - cada versión queda auditada (`audit_logs`);
 - **Supuesto reversible de modelado:** no hay tabla `residence_regulations` aparte; basta esta tabla + el puntero en `residences`.
+
+---
+
+### 8.8. `residence_collection_accounts` *(tabla nueva, DR63, propuesta 0102)*
+
+Datos de cobro de la reserva, un registro por medio y residencia. Son dato sensible.
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `id` | uuid | ID |
+| `residence_id` | uuid | FK `residences` |
+| `method_key` | text | Clave del catálogo (`mercadopago`, `transfer_ars`, `other`…) |
+| `method_label` | text null | Nombre libre. Solo con `other` |
+| `details` | text | Alias, CBU, usuario o instrucciones. Largo máximo propuesto: 500 |
+| `updated_by_user_id` | uuid null | Dueño que lo editó |
+| `created_at` | timestamptz | Alta |
+| `updated_at` | timestamptz | Actualización |
+
+Reglas:
+- `unique (residence_id, method_key)`: una cuenta por medio. Varias cuentas por medio quedan como opción abierta (`docs/00` DR63 (h));
+- cada clave de `accepted_payment_methods` tiene su fila con `details` completo (lo valida el servidor al guardar y al enviar a revisión);
+- RLS habilitada **sin policies**: solo el service role, mismo precedente que `payment_settings` (0038) y `residence_private_details`. Sin policy para `authenticated`, no lleva la restrictiva `<tabla>_only_active_users` de 0081;
+- escribe solo el dueño (`profile.edit` restringido al dueño), validado en la server action. El staff no lee ni edita desde esta tabla;
+- cada cambio se audita con los datos enmascarados (CBU parcial) y avisa al dueño. Precedente: `notifyPaymentSettingsChange` (0038). Si el cambio exige aprobación del admin queda pendiente (`docs/00` DR63 (j));
+- el estudiante recibe estos datos solo como copia congelada en `external_residence_payments.instructions_snapshot`, al habilitarse el pago de su solicitud.
+
+**Fee EstuRed (propuesta DR63 (i), sin migración asignada):** `payment_settings` es una sola fila. Para habilitar varios medios del fee hace falta otra tabla por medio, con RLS sin policies, separada de ésta. Su número es el siguiente libre al implementar.
 
 ---
 
@@ -922,6 +953,8 @@ Reglas:
 | `rejection_reason_internal` | text null | Motivo interno si `other` |
 | `cancelled_reason` | text null | Motivo cancelación |
 | `stay_change_intent_id` | uuid null | FK `stay_change_intents` si se envió bajo la excepción "Quiero cambiar" (DR3, §14bis) |
+| `preferred_payment_method` | text null | *(DR63, propuesta 0102)* Clave del catálogo que el estudiante prefiere. Opcional y no vinculante. Null = «Lo coordino con la residencia» |
+| `collection_mode` | text null | *(DR63, propuesta 0102)* Camino elegido por la residencia al aceptar: `enabled_methods` o `whatsapp_direct`. Null en solicitudes anteriores = `whatsapp_direct` |
 | `expires_at` | timestamptz null | 48h desde envío de solicitud *(actualizado)* |
 | `created_by_user_id` | uuid | Estudiante/familiar autorizado |
 | `created_at` | timestamptz | Enviada |
@@ -933,7 +966,9 @@ Reglas:
 - el snapshot_final = snapshot_original si no hubo propuesta de ajuste aceptada;
 - el fee siempre se calcula sobre `snapshot_final`;
 - `contact_target` determina el número de teléfono del botón WhatsApp; **si el estudiante es menor de edad, `contact_target = family_member` siempre**;
-- `payment_deadline_at`: 48h desde `contact_established`; se reinicia al enviarse una propuesta de ajuste y nuevamente al aceptarse;
+- `payment_deadline_at`: 48h desde `contact_established`; se reinicia al enviarse una propuesta de ajuste y nuevamente al aceptarse. **DR63:** no corre en `residence_payment_pending` si el estudiante informó el pago (`external_residence_payments.student_reported_paid_at`);
+- `contact_established_at`: timestamp del botón WhatsApp. **DR63:** con `collection_mode = enabled_methods` es el momento de «Aceptar», sin WhatsApp;
+- **0081 (grants por columna):** `preferred_payment_method` y `collection_mode` necesitan `grant select (col) on public.application_requests to authenticated`, o el estudiante no las lee por la API;
 - `proposal_count` no puede superar 1 — el sistema bloquea un segundo intento.
 
 ---
@@ -1092,11 +1127,21 @@ Reglas:
 | `reported_received_at` | timestamptz null | Fecha pago recibido |
 | `mark_received_consent_id` | uuid null | FK a `consents` — aceptación de términos al marcar *(nuevo)* |
 | `dispute_reason` | text null | Motivo disputa |
+| `expected_amount_usd` | numeric(14,2) null | *(DR63, propuesta 0102)* Monto que fija la residencia (precargado desde `snapshot_final`). CHECK no negativo, patrón 0082 |
+| `expected_amount_ars` | numeric(14,2) null | *(DR63)* Idem en ARS, con el tipo de cambio vigente al habilitar |
+| `chosen_method` | text null | *(DR63)* Clave del catálogo que fija la residencia. Distinto de `payment_method_to_residence`, que informa el estudiante |
+| `instructions_snapshot` | text null | *(DR63)* Datos de cobro congelados al habilitar el pago. Sensible (ver nota 0081 abajo) |
+| `student_reported_paid_at` | timestamptz null | *(DR63)* Momento de «Ya pagué». Detiene el vencimiento |
+| `residence_reminder_sent_at` | timestamptz null | *(DR63, supuesto)* Marca del aviso de 24 h a la residencia, para no repetirlo |
+| `student_reminder_sent_at` | timestamptz null | *(DR63, supuesto)* Marca del aviso de 12 h al estudiante |
 | `created_at` | timestamptz | Alta |
 | `updated_at` | timestamptz | Actualización |
 
+**Nota 0081 (DR63).** `external_residence_payments` tiene SELECT por tabla, no por columna. Las columnas nuevas quedan visibles para quienes ya ven la fila: estudiante, familiar vinculado y todo el equipo activo de la residencia, staff incluido. Para `instructions_snapshot` eso choca con «solo el dueño». Opciones, sin decidir (`docs/00` DR63 (j)): revoke de SELECT y grant por columna sin `instructions_snapshot`, con lectura por server action; o guardarlo en otra tabla. Las tablas nuevas con policies para `authenticated` necesitan su policy RESTRICTIVE `<tabla>_only_active_users`.
+
 Reglas:
 - solo la residencia marca "Pago recibido" con confirmación explícita y aceptación de términos;
+- DR63: `student_reported_paid_at` lo setea el estudiante o el familiar vinculado con «Ya pagué». El comprobante (`student_proof_file_id`) es opcional;
 - la aceptación queda en `consents` vinculada a esta operación;
 - el comprobante del estudiante no confirma la reserva.
 
