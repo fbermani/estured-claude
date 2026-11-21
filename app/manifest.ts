@@ -7,7 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "EstuRed",
     short_name: "EstuRed",
     description: "Residencias estudiantiles verificadas en CABA.",
-    start_url: "/",
+    // Con sesión, /login redirige al panel del rol (roleHome); sin sesión muestra el ingreso, no la landing con popup.
+    start_url: "/login",
     scope: "/",
     display: "standalone",
     // Pantalla de carga (splash) al abrir la app instalada: verde de marca (= --color-forest-ink de globals.css; el manifest no admite tokens CSS).
