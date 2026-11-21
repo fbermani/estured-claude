@@ -210,6 +210,15 @@ export function Navbar() {
         <Button href="/search" size="sm" className="!px-4">
           Buscar
         </Button>
+        {session.status === "signedIn" && (
+          <Link
+            href={session.href}
+            aria-label="Mi panel"
+            className="flex size-11 items-center justify-center rounded-full bg-forest-tint text-base font-bold text-forest-700 transition-colors hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+          >
+            {session.initial}
+          </Link>
+        )}
         <button
           ref={toggleRef}
           className="flex size-12 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-cream-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
