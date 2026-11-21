@@ -1,3 +1,4 @@
+import { PROOF_UPLOAD_LIMIT_MESSAGE, proofUploadAllowed } from "@/lib/security/uploadLimits";
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
@@ -80,6 +81,8 @@ export async function reportResidencePaymentPaidCore(
   const checked = await validateOptionalProof(params.proofInput ?? null);
   if (!checked.ok) return { ok: false, error: checked.error };
   const proof: ValidatedProof | null = checked.proof;
+  // C4 (auditoría de costos 2026-11-21): tope de cargas de comprobantes por hora. Al reemplazar, el anterior ya se descarta.
+  if (proof && !(await proofUploadAllowed(admin, params.actorUserId))) return { ok: false, error: PROOF_UPLOAD_LIMIT_MESSAGE };
   const stored = proof ? await storeStudentPaymentProof(admin, { applicationId: params.applicationId, ownerUserId: params.actorUserId, proof }) : null;
   if (proof && !stored) return { ok: false, error: "No pudimos subir el comprobante. Intentá de nuevo o avisá el pago sin comprobante." };
 
