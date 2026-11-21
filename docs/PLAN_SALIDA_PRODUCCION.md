@@ -280,7 +280,15 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 
 ## Costos y abuso (2026-11-21; informe `docs/audits/COSTOS_ABUSO_2026-11-21.md`)
 Sin hallazgos altos. Dos medios y cuatro bajos. Propuestas pendientes de aprobación.
-- [ ] **C2 (medio):** antes de abrir, activar Spend Management en Vercel, alertas de uso en Supabase y Resend, y una regla de WAF con límite por IP en las rutas públicas.
+- [ ] **C2 (medio): tope de gasto, alertas y WAF antes de abrir.** Los menús pueden cambiar de nombre; confirmar en cada panel.
+  1. **Vercel → Team → Settings → Billing → Spend Management** (solo Pro): activar, fijar un tope mensual y avisos al 50, 75 y 100 %, con acción «pausar proyectos» al llegar al tope. En Hobby no hay cobro extra: al pasar el límite el servicio se frena. Es otra razón para pasar a Pro antes de cobrar (A2).
+  2. **Vercel → Proyecto → Firewall:** regla de límite por IP en las rutas públicas (por ejemplo 100 requests por minuto por IP en `/search`, `/residencias/*` y `/api/*`), acción «Challenge» o «Deny». Activar «Attack Challenge Mode» solo si hay un ataque. Revisar cuántas reglas permite el plan.
+  3. **Supabase → Organization → Billing:** dejar el *Spend Cap* activado (Pro) para que un pico no se facture. Revisar *Usage* de egress, base y storage cada semana el primer mes. Activar avisos de uso por mail.
+  4. **Supabase → Authentication → Rate Limits:** confirmar límites de mails, SMS y registros por hora. Dejarlos igual o más bajos que los de la app.
+  5. **Resend → Domains y Usage:** confirmar la cuota diaria del plan (Free: 100 por día y 3.000 por mes). Al llegar, los mails fallan. Pasar a un plan pago antes de la campaña de preapertura.
+  6. **Cloudflare Turnstile:** sin cambios. Ya protege login, registro, preregistro y recuperar contraseña.
+  7. **Alertas de errores:** decidir Sentry o las alertas de Vercel (P19-06). Sin esto, un abuso se nota recién en la factura.
+  Verificación: tras activar todo, anotar en este runbook los topes elegidos (USD por mes, requests por minuto, mails por día).
 - [x] **C1 (medio), parcial (2026-11-21):** catálogo ya cacheado (120 s); ahora también la ficha pública (60 s) y la imagen de vista previa (300 s). Un cambio de ficha, cupo o precio tarda hasta ese tiempo en verse. Queda abierto R19-04: `search`, `for-students` y la ficha siguen dinámicas por leer la sesión; hacerlas estáticas exige mover lo personal a componentes cliente.
 - [ ] **C3:** pasar `lib/residents/inviteThrottle.ts` a `consumeRateLimit` (hoy cuenta en memoria por instancia).
 - [ ] **C4:** tope de cantidad de comprobantes por solicitud y rate limit por usuario en las subidas.
