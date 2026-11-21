@@ -278,6 +278,16 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 - [x] **Staging público — decisión del dueño 2026-11-20: se deja público, no se cierra.** (Hallazgo original: `estured.vercel.app` NO pide login de Vercel (el runbook A0.2 decía que sí) y tiene el selector demo: cualquiera entra como admin de `estured-dev`. Opciones descartadas: Vercel Authentication en Preview o apagar `DEMO_LOGIN_ENABLED`. No afecta producción (el selector no existe ahí).)
 - [ ] **Antes de prod:** correr `npx playwright test` contra staging con las migraciones al día (E2E en `e2e/`; las sesiones se guardan fuera del repo) y, si se quiere carga, `k6 run -e AUTH_DIR=<carpeta de sesiones> -e PEAK=25 e2e/load/k6-lectura.js` (en staging: 25 usuarios simultáneos ok; 50 degrada a p95 4 s; no es capacidad de producción).
 
+## Costos y abuso (2026-11-21; informe `docs/audits/COSTOS_ABUSO_2026-11-21.md`)
+Sin hallazgos altos. Dos medios y cuatro bajos. Propuestas pendientes de aprobación.
+- [ ] **C2 (medio):** antes de abrir, activar Spend Management en Vercel, alertas de uso en Supabase y Resend, y una regla de WAF con límite por IP en las rutas públicas.
+- [ ] **C1 (medio):** cachear el catálogo y sacar `force-dynamic` de `/search`, `/residencias/[slug]`, `/for-students` y `opengraph-image` (mismo trabajo que R19-03 y R19-04).
+- [ ] **C3:** pasar `lib/residents/inviteThrottle.ts` a `consumeRateLimit` (hoy cuenta en memoria por instancia).
+- [ ] **C4:** tope de cantidad de comprobantes por solicitud y rate limit por usuario en las subidas.
+- [ ] **C5:** cuota diaria de mails por residencia; confirmar límites aguas arriba de los mails internos.
+- [ ] **C6:** corregir el comentario de `app/api/session/route.ts` junto con C1.
+- [ ] Confirmar la cuota diaria del plan de Resend antes del registro masivo.
+
 ## Seguridad externa — Capa Cero (2026-11-20; informe `docs/audits/CAPA_CERO_DIAGNOSTICO_2026-11-20.md`)
 - [x] Diagnóstico inicial gratuito hecho sobre staging. Único hallazgo: E-01, CSP en `Report-Only` con `unsafe-inline` (ya conocido, M5). Next.js 15.5.29 confirmada con los parches vigentes.
 - [ ] **Decidir y contratar el pentest focalizado (USD 250)**, solo contra staging y con usuarios demo. Firmar antes NDA y orden de trabajo. Alcance: solicitudes, pagos, comprobantes y Storage con rol estudiante y rol residencia. No entregar claves de producción ni `SERVICE_ROLE_KEY`.
