@@ -19,6 +19,8 @@ import { JoinWaitlistForm } from "@/app/(public)/residencias/[slug]/JoinWaitlist
 import { useReservationSelection } from "@/components/residences/reservationSelection";
 import { isTypePaused, isTypeRequestable, typeAvailabilityState } from "@/lib/availability/typeAvailability";
 import { MAX_MOVING_NOTE, MOVING_NOTE_HELP, MOVING_NOTE_LABEL } from "@/lib/stayChange/copy";
+import { ReservationCollectionPreference } from "@/components/applications/ReservationCollectionPreference";
+import type { ReservationCollectionOffer } from "@/lib/residences/offeredPaymentMethods";
 
 interface RoomTypeOption {
   id: string;
@@ -72,8 +74,14 @@ export function ApplyForm({
   ageCheck,
   regulation,
   moveInNotice,
+  collectionOffer,
+  isMinor = false,
 }: {
   residenceId: string;
+  /** DR63 (c): cómo cobra la residencia la reserva (solo claves y nombres de medio, nunca datos de cobro). Lo arma el servidor. */
+  collectionOffer: ReservationCollectionOffer;
+  /** Estudiante menor: la residencia contacta siempre al familiar vinculado (DR63 (m)). */
+  isMinor?: boolean;
   /** Reglamento vigente (DR14) ya renderizado en el servidor + su hash; `null` si no se pudo leer (no se puede enviar). */
   regulation: { hash: string; content: ReactNode; isModel: boolean } | null;
   /** Aviso de lectura (guía de mudanza) que se muestra antes de la fecha de ingreso; lo arma el servidor. */
@@ -401,8 +409,10 @@ export function ApplyForm({
             </div>
           )}
 
+          <ReservationCollectionPreference offer={collectionOffer} isMinor={isMinor} headingNumber={stayChange ? "4" : "3"} />
+
           <div>
-            <p className="mt-1 text-xs font-bold text-muted">{stayChange ? "4" : "3"}. Reglamento</p>
+            <p className="mt-1 text-xs font-bold text-muted">{stayChange ? "5" : "4"}. Reglamento</p>
             {regulation ? (
               <details ref={regulationRef} id="apply-regulation" className="mt-2 rounded-field border border-line-2 bg-cream-2/50 p-4">
                 <summary className="cursor-pointer text-sm font-bold text-forest-700">Leer el reglamento completo de la residencia</summary>

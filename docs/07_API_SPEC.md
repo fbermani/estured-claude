@@ -1405,7 +1405,7 @@ Reglas:
 
 ### 16.6. Estudiante elige medio preferido *(DR63, propuesto)*
 
-El campo `preferred_payment_method` viaja en el envío de la solicitud. Es opcional. El servidor valida que la clave esté en `accepted_payment_methods` de la residencia, o que sea nula.
+El campo `preferred_payment_method` viaja en el envío de la solicitud. Es opcional. El servidor valida que la clave esté en `accepted_payment_methods` de la residencia, o que sea nula. Si la clave es del catálogo pero la residencia ya no la ofrece (sin datos de cobro aprobados), se guarda `null` sin error.
 
 ### 16.7. Residencia registra «No recibí el pago» *(DR63, supuesto reversible, propuesto)*
 

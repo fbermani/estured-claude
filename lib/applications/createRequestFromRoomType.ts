@@ -46,6 +46,8 @@ export async function createApplicationFromRoomType(
     movingContextNote?: string | null;
     /** DR14: la solicitud nace SIN aceptación del reglamento (propuesta del familiar, lista de espera, menor, o ficha con aceptación a registrar): la residencia no puede avanzarla hasta que exista la fila de aceptación. Solo con la migración 0053 aplicada. */
     regulationPending?: boolean;
+    /** DR63 (c): medio de pago de la reserva que el estudiante prefiere (clave del catálogo, ya validada). No vinculante. Solo con la migración 0102 aplicada; `null`/ausente no toca la columna. */
+    preferredPaymentMethod?: string | null;
   },
 ): Promise<{ id: string } | { error: string }> {
   // SEG14-02: punto único de entrada. Una residencia pausada/no publicada no recibe solicitudes nuevas por ningún camino
@@ -175,6 +177,8 @@ export async function createApplicationFromRoomType(
           ? { stay_change_intent_id: params.stayChangeIntentId, move_context_note: params.movingContextNote ?? null }
           : {}),
         ...(params.regulationPending ? { regulation_acceptance_pending: true } : {}),
+        // Solo si eligió uno (DR63 (c), migración 0102): sin preferencia no se toca la columna, así el insert no falla si falta la migración.
+        ...(params.preferredPaymentMethod ? { preferred_payment_method: params.preferredPaymentMethod } : {}),
       })
       .select("id")
       .single();
@@ -196,7 +200,12 @@ export async function createApplicationFromRoomType(
       action: initialStatus.status === "queued_for_place" ? "application_request_queued" : "application_request_submitted",
       entityType: "application_requests",
       entityId: request.id,
-      newValue: { residence_id: params.residenceId, room_type_id: params.roomTypeId, contact_target: params.contactTarget },
+      newValue: {
+        residence_id: params.residenceId,
+        room_type_id: params.roomTypeId,
+        contact_target: params.contactTarget,
+        ...(params.preferredPaymentMethod ? { preferred_payment_method: params.preferredPaymentMethod } : {}),
+      },
     });
 
     // Aviso al equipo de la residencia (best-effort). Las solicitudes en cola aún no son visibles: no avisan.

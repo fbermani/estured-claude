@@ -341,6 +341,12 @@ Ruta base: `/admin`
 - **FAQ de la residencia** (preguntas del catálogo único elegidas por la residencia, con su respuesta editada o la sugerida, + campo de pregunta libre; DR14).
 - **Reglamento completo de la residencia** (propio, o el modelo si no tiene; enlace «Leer el reglamento completo» visible antes de solicitar; DR14).
 - **Edad de residentes:** mínima y máxima de la residencia, y si admite menores (DR14).
+- **«Cómo te van a cobrar la reserva» (DR63 (c)):** sección del paso 2 del formulario, antes del reglamento.
+  - Con «Cobro con medios habilitados» muestra el nombre de los medios aceptados con datos de cobro aprobados por el admin. Suma «Lo coordino con la residencia».
+  - La elección es opcional y no vinculante: «Tu elección no obliga a la residencia». Se guarda en `application_requests.preferred_payment_method`.
+  - Con contacto directo, sin configurar o sin medios aprobados muestra «La residencia te va a escribir para coordinar el pago de la reserva». Con un menor, el contacto es con su familiar vinculado.
+  - Nunca muestra datos de cobro ni datos de contacto de la residencia.
+  - Aviso fijo: «EstuRed no custodia fondos ni se responsabiliza por el pago ni por el medio elegido».
 - CTA "Enviar solicitud de reserva". **Antes de enviar (DR14):** el paso final muestra el reglamento completo (propio o modelo) y un **checkbox obligatorio** «Leí el reglamento de la residencia y acepto sus términos»; sin aceptarlo no se envía. Se guarda la versión aceptada con fecha. Copy: la aceptación no garantiza plaza («solicitud sujeta a confirmación»). Si el estudiante es menor, lo acepta el familiar vinculado. Si la edad del estudiante a la fecha de ingreso queda fuera del rango de la residencia, el CTA se reemplaza por un aviso claro (sin promesas) y, para menores en residencias habilitadas, aparece el **apartado para menores** (datos del guardián).
 - **Vista del familiar vinculado (DR4):** ve la misma ficha con el desglose de costos ("Qué pagás y a quién") y, en lugar de "Enviar solicitud de reserva", el CTA **"Proponer a [nombre del estudiante]"** (flujo de propuestas del familiar, §6.3). No envía solicitudes en nombre del estudiante.
 - CTA "Sumarme a lista de espera" si está completa o sin disponibilidad. **El formulario (DR40) pide un mes de ingreso o «Cuando haya lugar» (obligatorio elegir uno).**

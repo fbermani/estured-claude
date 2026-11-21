@@ -247,3 +247,21 @@ describe("createApplicationFromRoomType: residencia no publicada (SEG14-02)", ()
     expect(inserts.application_requests).toBeUndefined();
   });
 });
+
+describe("createApplicationFromRoomType: medio de pago preferido (DR63 (c))", () => {
+  const residenceRow = { adjustment_policy: "quarterly", enrollment_fee_mode: null };
+
+  it("con preferencia, la solicitud guarda preferred_payment_method", async () => {
+    const { admin, inserts } = fakeAdmin(residenceRow);
+    await createApplicationFromRoomType(admin, { ...params, preferredPaymentMethod: "mercadopago" });
+    expect(inserts.application_requests[0].preferred_payment_method).toBe("mercadopago");
+  });
+
+  it("sin preferencia (null o ausente), no toca la columna: el insert no depende de la migración 0102", async () => {
+    for (const extra of [{ preferredPaymentMethod: null }, {}]) {
+      const { admin, inserts } = fakeAdmin(residenceRow);
+      await createApplicationFromRoomType(admin, { ...params, ...extra });
+      expect("preferred_payment_method" in inserts.application_requests[0]).toBe(false);
+    }
+  });
+});

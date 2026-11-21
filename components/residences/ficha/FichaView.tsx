@@ -75,6 +75,8 @@ import { ClosingCta } from "@/components/residences/ficha/ClosingCta";
 import { buildPaidSeparately } from "@/lib/residences/fichaCosts";
 import { buildAgeFacts } from "@/lib/residences/fichaAge";
 import { canDownloadRegulation } from "@/lib/residences/fichaRules";
+import { CONTACT_OFFER } from "@/lib/residences/offeredPaymentMethods";
+import { loadReservationCollectionOffer } from "@/lib/residences/offeredPaymentMethodsDb";
 import { loadAverageResidentAge } from "@/lib/residents/averageAge";
 
 const FICHA_GENDER_LABEL: Record<string, string> = { mixto: "Mixta", solo_hombres: "Solo hombres", solo_mujeres: "Solo mujeres" };
@@ -139,7 +141,7 @@ export async function FichaView({
   const [rate, sessionUser] = await Promise.all([getCurrentExchangeRate(), preview ? Promise.resolve(null) : getSessionUser()]);
   const isStudent = sessionUser?.roles.includes("student") ?? false;
   const isFamily = sessionUser?.roles.includes("family_member") ?? false;
-  const [answeredQuestions, catalogFaq, isOwnResidenceTeam, community, studentViewer, familyViewer, regulationResult, averageAge, customAmenities] = await Promise.all([
+  const [answeredQuestions, catalogFaq, isOwnResidenceTeam, community, studentViewer, familyViewer, regulationResult, averageAge, customAmenities, collectionOfferResult] = await Promise.all([
     answeredQuestionsPromise,
     catalogFaqPromise,
     sessionUser && adminClient ? assertResidenceAccess(adminClient, sessionUser.id, residence.id) : Promise.resolve(false),
@@ -151,6 +153,8 @@ export async function FichaView({
     regulationPromise,
     averageAgePromise,
     customAmenitiesPromise,
+    // DR63 (c): cómo cobra la residencia la reserva. Solo la necesita el estudiante que ve el formulario (claves y nombres, sin datos de cobro).
+    isStudent && adminClient ? loadReservationCollectionOffer(adminClient, residence.id) : Promise.resolve(null),
   ]);
   const regulation = regulationResult?.ok ? regulationResult.view : null;
 
@@ -748,6 +752,8 @@ export async function FichaView({
                   <ApplyForm
                     typeCards={fichaTypes}
                     residenceId={residence.id}
+                    collectionOffer={collectionOfferResult?.offer ?? CONTACT_OFFER}
+                    isMinor={studentViewer?.isMinor ?? false}
                     moveInNotice={<MoveInGuideNote />}
                     regulation={
                       regulation

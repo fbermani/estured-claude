@@ -24,6 +24,8 @@ export type StudentViewer = {
   windowNotice: ReservationWindowNotice | null;
   /** Tipos de ESTA residencia en los que ya tiene una reserva vigente (no se le ofrece lista de espera ahí). */
   ownReservationTypeIds: string[];
+  /** El estudiante es menor: la residencia lo contacta siempre a través del familiar vinculado (DR63 (m); solo cambia el copy del cobro). */
+  isMinor: boolean;
   /** Fecha de nacimiento del PROPIO estudiante (solo viaja a su navegador, para el aviso de edad del formulario). */
   birthDate: string | null;
 };
@@ -94,6 +96,7 @@ export async function loadStudentViewer(
   return {
     profileCompletenessPercent: completeness?.percent ?? null,
     birthDate: (profile?.birth_date as string | null | undefined) ?? null,
+    isMinor: profile?.is_minor === true,
     studentFavorited,
     minorBlock,
     windowNotice,

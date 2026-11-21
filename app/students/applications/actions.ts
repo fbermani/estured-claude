@@ -10,6 +10,8 @@ import { checkReservationWindowOverlap } from "@/lib/students/reservationWindow"
 import { validateMovingNote } from "@/lib/stayChange/validate";
 import { MAX_APPLICATION_TEXT, checkTextMax, isIsoDate, parseDurationMonths } from "@/lib/applications/inputLimits";
 import { notifyGuardianRegulationPending } from "@/lib/regulations/notifyGuardian";
+import { loadReservationCollectionOffer } from "@/lib/residences/offeredPaymentMethodsDb";
+import { resolvePreferredPaymentMethod } from "@/lib/residences/offeredPaymentMethods";
 import { acceptRegulationForApplication, recordRegulationAcceptance, resolveRegulationToAccept } from "@/lib/regulations/acceptance";
 import { revalidatePath } from "next/cache";
 
@@ -130,6 +132,12 @@ export async function createApplicationRequest(
   });
   if (!regulation.ok) return { status: "error", message: regulation.error };
 
+  // DR63 (c): preferencia de medio de pago de la reserva (opcional, no vinculante). Se valida contra lo que la residencia ofrece AHORA,
+  // calculado en el servidor: nunca se confía en lo que el formulario mostró. No toca estados ni obliga a la residencia.
+  const collection = await loadReservationCollectionOffer(admin, residenceId);
+  const preferred = resolvePreferredPaymentMethod(formData.get("preferred_payment_method"), collection.offer);
+  if (!preferred.ok) return { status: "error", message: preferred.error };
+
   const { data: roomType } = await admin
     .from("room_types")
     .select("id, monthly_price_usd, is_active, profile_availability(status)")
@@ -163,6 +171,7 @@ export async function createApplicationRequest(
     actorRole: "student",
     stayChangeIntentId: overlap.stayChangeIntentId,
     movingContextNote: movingNote.value,
+    preferredPaymentMethod: preferred.value,
     // DR14: nace marcada como pendiente de aceptación (la residencia no puede avanzarla) y se levanta al registrar la aceptación.
     regulationPending: regulation.regulation.versionId !== null,
   });
