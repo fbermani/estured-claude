@@ -872,7 +872,8 @@ Reglas:
 
 - La configuración define solo la reserva. Los pagos posteriores los acuerda cada residencia con cada estudiante.
 - Los datos de cobro son sensibles. Solo el dueño los edita y todo cambio requiere aprobación del admin (§7.3). El estudiante los ve solo cuando la residencia habilita el pago de su solicitud. El staff no los ve.
-- Con «Contacto directo por WhatsApp», la residencia carga un contacto propio, obligatorio con esa opción. El estudiante lo ve solo en solicitudes habilitadas por ese camino.
+- **Principio de contacto (DR63, decisión del dueño 2026-11-20):** el estudiante nunca contacta a la residencia. Siempre la residencia lo contacta a él. Con «Contacto directo por WhatsApp», el estudiante ve solo «La residencia te va a escribir por WhatsApp». No ve un número ni un botón para escribirle.
+- **«No pude realizar el pago» (camino A, supuesto reversible):** el estudiante avisa con motivo opcional. La residencia recibe el aviso y elige por solicitud entre «Contactar por WhatsApp» y «Cambiar medio / volver a habilitar el pago». El aviso detiene el vencimiento de 48 horas. Al responder la residencia, el plazo se reinicia.
 - La residencia necesita al menos una opción completa para enviar el perfil a revisión (requisito 10 de DR59).
 - Con una sola opción, el camino queda fijo. Con ambas, la residencia elige por solicitud al aceptarla.
 - El estudiante ve antes de enviar cómo se cobrará. Puede elegir un medio como preferencia, no vinculante.

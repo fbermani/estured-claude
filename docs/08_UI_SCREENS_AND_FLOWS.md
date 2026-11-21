@@ -635,9 +635,10 @@ Ruta base: `/students`
 **DR63 (2026-11-20, `docs/00`): tarjeta de pago a la residencia.** Se muestra según el camino que la residencia eligió para esa solicitud.
 
 - **Cobro con medios habilitados:** monto final (USD y ARS), medio elegido, datos de cobro congelados con botón «Copiar» por dato, concepto, plazo de 48 horas con cuenta regresiva y el aviso de seguridad.
-- **Contacto directo por WhatsApp:** monto, plazo y el contacto propio de la residencia (hoy el estudiante no lo ve; solo en solicitudes habilitadas por este camino, `docs/00` DR63 (j)). Texto: «La residencia te escribe por WhatsApp para coordinar el pago.»
+- **Contacto directo por WhatsApp:** monto, plazo y el texto «La residencia te va a escribir por WhatsApp para coordinar el pago.» **Principio (DR63 (j) 2):** el estudiante nunca contacta a la residencia. La tarjeta no muestra un número ni un botón para escribirle. Para ayuda, ofrece «Hablar con Soporte» (`/students/support`).
 - **Botón «Ya pagué»:** abre una confirmación con comprobante opcional, concepto, montos y medio. Al confirmar, la tarjeta pasa a «Avisaste que pagaste. Esperando que la residencia lo confirme.» y la cuenta regresiva se detiene.
 - **Aviso fijo (borrador):** «EstuRed no garantiza ni custodia el pago a la residencia. No transfieras fondos a datos que no llegaron por tu solicitud. EstuRed no es responsable de ningún pago ni del medio de pago elegido, y no custodia fondos. Los pagos posteriores a la reserva los acordás con la residencia.»
+- **Botón «No pude realizar el pago» (solo camino A, supuesto reversible):** abre una confirmación con motivo opcional corto (máximo 200 caracteres). Al confirmar, la tarjeta pasa a «Le avisamos a la residencia que no pudiste pagar. Te va a escribir por WhatsApp o te va a habilitar otro medio.» La cuenta regresiva se detiene hasta que la residencia responda. Al responder, el plazo vuelve a 48 horas.
 - **Solo la residencia confirma.** La tarjeta nunca dice «Pago confirmado» por el aviso del estudiante.
 - Los pagos posteriores a la reserva los acuerda cada residencia con cada estudiante. EstuRed no los gestiona.
 
@@ -867,7 +868,7 @@ Ruta base: `/residence`
 
 **Secciones:** fotos, descripción, servicios, áreas comunes, reglas, condiciones de reserva, política de ajustes, precios (recomendado en USD), matrícula, depósito, **«Cobro de la reserva» (DR63, antes «medios de pago aceptados para pagos a la residencia»)**, tipos de habitación, capacidad, FAQ, comunidad visible.
 
-**Sección «Cobro de la reserva» (DR63, `docs/00`, 2026-11-20).** Define solo cómo se cobra la reserva. La residencia activa una o ambas opciones: «Cobro con medios habilitados» y «Contacto directo por WhatsApp». Con medios habilitados elige del catálogo y carga una vez los datos de cobro de cada medio. Solo el dueño edita esta sección y ve los datos de cobro; el staff no. **Todo cambio de datos de cobro queda pendiente de aprobación del admin** y siguen rigiendo los anteriores; la pantalla muestra «Pendiente de aprobación» junto al medio. Con «Contacto directo por WhatsApp» se pide el contacto propio de la residencia (obligatorio, visible al estudiante solo en solicitudes de ese camino). Es el requisito 10 de «Enviar para revisión» (DR59). Textos fijos (borrador del dueño):
+**Sección «Cobro de la reserva» (DR63, `docs/00`, 2026-11-20).** Define solo cómo se cobra la reserva. La residencia activa una o ambas opciones: «Cobro con medios habilitados» y «Contacto directo por WhatsApp». Con medios habilitados elige del catálogo y carga una vez los datos de cobro de cada medio. Solo el dueño edita esta sección y ve los datos de cobro; el staff no. **Todo cambio de datos de cobro queda pendiente de aprobación del admin** y siguen rigiendo los anteriores; la pantalla muestra «Pendiente de aprobación» junto al medio. «Contacto directo por WhatsApp» no pide ningún dato extra: la residencia escribe al estudiante, nunca al revés. La primera carga de datos de cobro la aprueba el admin al verificar la residencia, y un medio solo se ofrece al estudiante con datos aprobados. Es el requisito 10 de «Enviar para revisión» (DR59). Textos fijos (borrador del dueño):
 - «Esto define solo el pago de la reserva. Los pagos siguientes los acordás con cada estudiante.»
 - «Con contacto directo, la coordinación del pago queda en tu equipo. Es el trabajo que EstuRed busca ahorrarte.»
 - «Con medios habilitados, EstuRed te evita ese chat hasta la confirmación final.»
@@ -963,8 +964,9 @@ Sin cambios de fondo. Modo Perfil Verificado: disponibilidad por tipo, estado Co
 - **Cobro con medios habilitados:** no aparece el botón de WhatsApp. Al habilitar el pago, la residencia confirma monto (precargado desde las condiciones finales) y medio (precargado con la preferencia del estudiante).
 - **Contacto directo por WhatsApp:** igual que hoy.
 - **Aviso «Ya pagué»:** la solicitud muestra «El estudiante avisó que pagó» con la fecha, y el comprobante si lo cargó, junto al botón «Pago recibido». El aviso no confirma nada: solo «Pago recibido» confirma.
-- **«No recibí el pago» (supuesto reversible):** botón secundario junto a «Pago recibido». Pide un motivo. Marca el pago como en disputa, avisa al estudiante y abre un caso de Soporte. A las 72 horas sin confirmar, el admin recibe una alerta (`docs/00` DR63 (j)).
-- Las acciones nuevas están en `docs/07` §16.3 a §16.8.
+- **«No pude realizar el pago»:** si el estudiante lo avisó (camino A), la solicitud muestra «El estudiante avisó que no pudo pagar» con su motivo, si lo dejó. La residencia elige por solicitud: «Contactar por WhatsApp» (botón al número de `contact_target`, como en el camino B) o «Cambiar medio / volver a habilitar el pago». Al elegir, el plazo de 48 horas se reinicia. Sin respuesta: aviso a las 24 horas y alerta al admin a las 72 horas.
+- **«No recibí el pago»:** botón secundario junto a «Pago recibido». Pide un motivo de al menos 10 caracteres. Marca el pago como en disputa, avisa al estudiante y abre un caso de Soporte. A las 72 horas sin confirmar, el admin recibe una alerta (`docs/00` DR63 (j)).
+- Las acciones nuevas están en `docs/07` §16.3 a §16.10.
 
 ---
 

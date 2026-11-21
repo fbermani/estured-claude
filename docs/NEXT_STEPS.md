@@ -8,23 +8,24 @@ Estado: Fase 0 hecha (solo docs, sin código ni migración). Decisión y pendien
 
 **Pendientes del dueño: resueltos el 2026-11-20 (`docs/00` DR63 (j)):**
 1. Salida tras «Ya pagué»: a las 72 horas sin confirmar, alerta al admin y caso de Soporte, sin `disputed` automático. «No recibí el pago» (supuesto reversible): la residencia registra la negativa con motivo, el pago pasa a `disputed`, se avisa al estudiante y se abre Soporte.
-2. Contacto de la residencia: campo nuevo `residence_private_details.payment_contact_phone`, obligatorio con el camino B, visible al estudiante solo en solicitudes de ese camino.
-3. `instructions_snapshot`: revoke de columna a `authenticated`; lectura por server action solo para el dueño y el estudiante de la solicitud.
+2. Principio de contacto: el estudiante nunca contacta a la residencia; siempre la residencia lo contacta a él. No hay campo de contacto de la residencia. Con el camino B el estudiante ve solo «La residencia te va a escribir por WhatsApp».
+3. `instructions_snapshot`: revoke de columna a `authenticated`; lectura por server action solo para el dueño, el estudiante de la solicitud y el familiar pagador de un menor (solo lectura).
 4. Rótulo: «Cobro con medios habilitados».
-5. Todo cambio de datos de cobro requiere aprobación del admin (supuesto reversible: rigen los datos anteriores hasta aprobar; las solicitudes habilitadas conservan su snapshot).
+5. Todo cambio de datos de cobro requiere aprobación del admin (rigen los datos anteriores hasta aprobar; las solicitudes habilitadas conservan su snapshot; la primera carga la aprueba el admin al verificar; un medio sin datos aprobados no se ofrece). «No recibí el pago» exige motivo de al menos 10 caracteres.
+   - **Nuevo, 2026-11-20:** botón del estudiante «No pude realizar el pago» (camino A, supuestos reversibles, `docs/00` DR63 (l)). Detiene el vencimiento, avisa a la residencia y le permite «Contactar por WhatsApp» o «Cambiar medio / volver a habilitar el pago».
 6. Fee: el supuesto de DR63 (i) punto 5 y el choque con DR8 (4) siguen vigentes como supuesto reversible. **Se decide al implementar la Pista 2.** DR8 no cambia.
 
 **Textos legales:** `docs/10` §14.5, `docs/19` §9.4, `docs/20` y `docs/21` se actualizaron por decisión del dueño del 2026-11-20. Conviene revisión legal antes de publicarlos.
 
 **Plan de fases (residencia):**
-1. **BD:** migración 0102 (enum `student_reported_paid`, columnas de `residences`, `application_requests` y `external_residence_payments`, `payment_contact_phone`, tabla `residence_collection_accounts` con campos de aprobación y RLS sin policies, `grant select (col)` y revoke de `instructions_snapshot` por 0081) y catálogo `lib/payments/paymentMethods.ts`.
-2. **Ficha «Cobro de la reserva»:** sección solo del dueño, validación server-side, contacto propio con el camino B, cambios pendientes de aprobación del admin (cola en el panel), auditoría con CBU enmascarado y aviso al dueño, requisito 10 en `lib/residences/submitReadiness.ts`.
+1. **BD:** migración 0102 (enum `student_reported_paid`, columnas de `residences`, `application_requests` y `external_residence_payments`, tabla `residence_collection_accounts` con campos de aprobación y RLS sin policies, `grant select (col)` y revoke de `instructions_snapshot` por 0081) y catálogo `lib/payments/paymentMethods.ts`.
+2. **Ficha «Cobro de la reserva»:** sección solo del dueño, validación server-side, cambios pendientes de aprobación del admin (cola en el panel), auditoría con CBU enmascarado y aviso al dueño, requisito 10 en `lib/residences/submitReadiness.ts`.
 3. **Solicitud del estudiante:** muestra cómo se cobrará, preferencia opcional, aviso de seguridad.
 4. **Residencia acepta:** camino A o B, monto y medio precargados, datos congelados al habilitar el pago.
-5. **Estudiante paga:** «Ya pagué», tarjeta con datos y botón «Copiar», contacto de la residencia en el camino B, ajuste del job de vencimiento.
-6. **Aviso y cierre:** aviso a la residencia (in-app y push DR61), recordatorios de 24 h y 12 h, alerta a las 72 h, «No recibí el pago», tests, seeds de demo y prueba en staging.
+5. **Estudiante paga:** «Ya pagué» y «No pude realizar el pago», tarjeta con datos y botón «Copiar», texto «La residencia te va a escribir por WhatsApp» en el camino B (sin número ni botón), ajuste del job de vencimiento para ambos avisos.
+6. **Aviso y cierre:** aviso a la residencia (in-app y push DR61), recordatorios de 24 h y 12 h, alerta a las 72 h, aviso de «No pude realizar el pago» con las acciones de la residencia («Contactar por WhatsApp» o rehabilitar), «No recibí el pago», tests, seeds de demo y prueba en staging.
 
-**Pista 2, fee EstuRed** (supuestos reversibles, `docs/00` DR63 (i)): mismas seis fases con tabla propia de medios del fee (separada de la de la residencia), medios elegidos por el admin, pagador que elige el medio, «Ya pagué» con comprobante obligatorio (DR8 sin cambios) y monto en USD con el tipo de cambio del `snapshot_final`. Se decide el punto 6 al empezarla.
+**Pista 2, fee EstuRed** (supuestos reversibles, `docs/00` DR63 (i)): mismas seis fases con tabla propia de medios del fee (separada de la de la residencia), medios elegidos por el admin, pagador que elige el medio, «Ya pagué» con comprobante obligatorio (DR8 sin cambios) y monto en USD con el tipo de cambio del `snapshot_final`. Se decide el punto 6 al empezarla, junto con el botón análogo «No pude realizar el pago» del fee (hoy pendiente; el estudiante escribe a Soporte, `/students/support`).
 
 ### Opciones para conversar con residencias pioneras (DR63 (h), no se implementan)
 

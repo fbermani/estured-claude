@@ -753,11 +753,11 @@ Datos de cobro de la reserva, un registro por medio y residencia. Son dato sensi
 Reglas:
 - `unique (residence_id, method_key)`: una cuenta por medio. Varias cuentas por medio quedan como opción abierta (`docs/00` DR63 (h));
 - cada clave de `accepted_payment_methods` tiene su fila con datos completos, vigentes o pendientes (lo valida el servidor al guardar y al enviar a revisión);
-- **Aprobación del admin (DR63 (j), supuesto reversible):** todo cambio de datos de cobro requiere aprobación (`docs/03` §7.3). El dueño guarda en `pending_details`. Siguen rigiendo `details`. Al aprobar, `pending_details` pasa a `details`. La primera carga la aprueba el admin al verificar la residencia. Un medio solo se ofrece al estudiante si tiene `details` aprobados. Las solicitudes con el pago ya habilitado conservan su `instructions_snapshot`;
+- **Aprobación del admin (DR63 (j), decidida):** todo cambio de datos de cobro requiere aprobación (`docs/03` §7.3). El dueño guarda en `pending_details`. Siguen rigiendo `details`. Al aprobar, `pending_details` pasa a `details`. La primera carga la aprueba el admin al verificar la residencia. Un medio solo se ofrece al estudiante si tiene `details` aprobados. Las solicitudes con el pago ya habilitado conservan su `instructions_snapshot`;
 - RLS habilitada **sin policies**: solo el service role, mismo precedente que `payment_settings` (0038) y `residence_private_details`. Sin policy para `authenticated`, no lleva la restrictiva `<tabla>_only_active_users` de 0081;
 - escribe solo el dueño (`profile.edit` restringido al dueño), validado en la server action. El staff no lee ni edita desde esta tabla;
 - cada cambio, la aprobación y el rechazo se auditan con los datos enmascarados (CBU parcial) y avisan al dueño. Precedente: `notifyPaymentSettingsChange` (0038);
-- **Contacto del camino B (DR63 (j)):** vive en `residence_private_details.payment_contact_phone` (text null, teléfono con WhatsApp; propuesta 0102). Esa tabla tiene RLS sin policies, así que no es pública. Es obligatorio con `whatsapp_direct`. El estudiante lo recibe por server action solo en solicitudes habilitadas por ese camino. `responsible_contact` sigue privado del admin;
+- **Sin campo de contacto de la residencia (DR63 (j) 2):** el estudiante nunca contacta a la residencia. `residence_private_details` no suma ninguna columna. `responsible_contact` sigue privado del admin;
 - el estudiante recibe estos datos solo como copia congelada en `external_residence_payments.instructions_snapshot`, al habilitarse el pago de su solicitud.
 
 **Fee EstuRed (propuesta DR63 (i), sin migración asignada):** `payment_settings` es una sola fila. Para habilitar varios medios del fee hace falta otra tabla por medio, con RLS sin policies, separada de ésta. Su número es el siguiente libre al implementar.
@@ -972,7 +972,7 @@ Reglas:
 - el snapshot_final = snapshot_original si no hubo propuesta de ajuste aceptada;
 - el fee siempre se calcula sobre `snapshot_final`;
 - `contact_target` determina el número de teléfono del botón WhatsApp; **si el estudiante es menor de edad, `contact_target = family_member` siempre**;
-- `payment_deadline_at`: 48h desde `contact_established`; se reinicia al enviarse una propuesta de ajuste y nuevamente al aceptarse. **DR63:** no corre en `residence_payment_pending` si el estudiante informó el pago (`external_residence_payments.student_reported_paid_at`);
+- `payment_deadline_at`: 48h desde `contact_established`; se reinicia al enviarse una propuesta de ajuste y nuevamente al aceptarse. **DR63:** no corre en `residence_payment_pending` si el estudiante informó el pago (`external_residence_payments.student_reported_paid_at`) ni mientras hay un aviso «No pude realizar el pago» abierto (`student_payment_issue_at`, DR63 (l)); al responder la residencia, el plazo se reinicia a 48 horas;
 - `contact_established_at`: timestamp del botón WhatsApp. **DR63:** con `collection_mode = enabled_methods` es el momento de «Aceptar», sin WhatsApp;
 - **0081 (grants por columna):** `preferred_payment_method` y `collection_mode` necesitan `grant select (col) on public.application_requests to authenticated`, o el estudiante no las lee por la API;
 - `proposal_count` no puede superar 1 — el sistema bloquea un segundo intento.
@@ -1138,15 +1138,19 @@ Reglas:
 | `chosen_method` | text null | *(DR63)* Clave del catálogo que fija la residencia. Distinto de `payment_method_to_residence`, que informa el estudiante |
 | `instructions_snapshot` | text null | *(DR63)* Datos de cobro congelados al habilitar el pago. Sensible (ver nota 0081 abajo) |
 | `student_reported_paid_at` | timestamptz null | *(DR63)* Momento de «Ya pagué». Detiene el vencimiento |
-| `residence_reminder_sent_at` | timestamptz null | *(DR63, supuesto)* Marca del aviso de 24 h a la residencia, para no repetirlo |
+| `student_payment_issue_at` | timestamptz null | *(DR63 (l), supuesto reversible)* Momento de «No pude realizar el pago». Detiene el vencimiento hasta que la residencia responda |
+| `student_payment_issue_reason` | text null | *(DR63 (l))* Motivo opcional, máximo 200 caracteres |
+| `student_payment_issue_resolved_at` | timestamptz null | *(DR63 (l))* Cuando la residencia respondió (contactar o rehabilitar). Cierra el aviso y reinicia el plazo |
+| `residence_reminder_sent_at` | timestamptz null | *(DR63, supuesto)* Marca del aviso de 24 h a la residencia, para no repetirlo. Sirve para «Ya pagué» y para «No pude realizar el pago» |
 | `student_reminder_sent_at` | timestamptz null | *(DR63, supuesto)* Marca del aviso de 12 h al estudiante |
 | `created_at` | timestamptz | Alta |
 | `updated_at` | timestamptz | Actualización |
 
-**Nota 0081 (DR63, decidido 2026-11-20).** `external_residence_payments` tiene SELECT por tabla, no por columna. Las columnas nuevas serían visibles para estudiante, familiar vinculado y todo el equipo activo, staff incluido. Para `instructions_snapshot` eso choca con «solo el dueño». **Decisión:** `revoke select (instructions_snapshot) on public.external_residence_payments from authenticated` (y `anon`). En la práctica, revoke del SELECT de tabla y `grant select (…columnas sin instructions_snapshot…) to authenticated`, como 0081 hizo con `application_requests`. La lectura va por server action, solo para el dueño de la residencia y para el estudiante de esa solicitud. El staff no la lee. **Duda menor, sin decidir:** si el familiar vinculado de un estudiante menor, que paga por él, también la lee. Columnas nuevas visibles: cada una necesita su `grant select (col)`. Las tablas nuevas con policies para `authenticated` necesitan su policy RESTRICTIVE `<tabla>_only_active_users`.
+**Nota 0081 (DR63, decidido 2026-11-20).** `external_residence_payments` tiene SELECT por tabla, no por columna. Las columnas nuevas serían visibles para estudiante, familiar vinculado y todo el equipo activo, staff incluido. Para `instructions_snapshot` eso choca con «solo el dueño». **Decisión:** `revoke select (instructions_snapshot) on public.external_residence_payments from authenticated` (y `anon`). En la práctica, revoke del SELECT de tabla y `grant select (…columnas sin instructions_snapshot…) to authenticated`, como 0081 hizo con `application_requests`. La lectura va por server action, solo para el dueño de la residencia y para el estudiante de esa solicitud. El staff no la lee. El familiar vinculado de un estudiante menor también la lee, solo lectura y solo si es el pagador de esa solicitud (decidido). Columnas nuevas visibles: cada una necesita su `grant select (col)`. Las tablas nuevas con policies para `authenticated` necesitan su policy RESTRICTIVE `<tabla>_only_active_users`.
 
 Reglas:
 - solo la residencia marca "Pago recibido" con confirmación explícita y aceptación de términos;
+- DR63 (l): `student_payment_issue_at` lo setea el estudiante o el familiar pagador con «No pude realizar el pago». El estado sigue en `pending`; no se agrega valor al enum;
 - DR63: `student_reported_paid_at` lo setea el estudiante o el familiar vinculado con «Ya pagué». El comprobante (`student_proof_file_id`) es opcional;
 - la aceptación queda en `consents` vinculada a esta operación;
 - el comprobante del estudiante no confirma la reserva.

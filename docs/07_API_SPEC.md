@@ -1357,14 +1357,14 @@ Efectos secundarios:
 
 Roles: **solo el dueño** de la residencia. El staff no, aunque tenga `profile.edit`.
 
-Body: `reservation_payment_modes` (`enabled_methods`, `whatsapp_direct` o ambos), `accepted_payment_methods` (claves del catálogo), por medio `details` (y `method_label` si es `other`) y `payment_contact_phone` (contacto de la residencia, obligatorio con `whatsapp_direct`).
+Body: `reservation_payment_modes` (`enabled_methods`, `whatsapp_direct` o ambos), `accepted_payment_methods` (claves del catálogo) y, por medio, `details` (y `method_label` si es `other`). No hay campo de contacto: la residencia contacta al estudiante (DR63 (j) 2).
 
 Reglas:
 - el servidor valida claves contra el catálogo y exige `details` completo por cada medio aceptado;
 - con `intent = "submit"` exige al menos una opción completa (requisito 10 de DR59);
 - **todo cambio de datos de cobro requiere aprobación del admin (DR63 (j)):** el servidor guarda en `pending_details`. Siguen rigiendo los datos aprobados. La aprobación o el rechazo son una acción del admin (con motivo si rechaza) que se audita;
 - audita cada cambio con datos enmascarados y avisa al dueño;
-- los datos de cobro y el contacto se leen solo por server action, nunca por la API pública. El staff no los lee.
+- los datos de cobro se leen solo por server action, nunca por la API pública. El staff no los lee.
 
 ### 16.4. Estudiante informa el pago «Ya pagué» *(DR63, propuesto)*
 
@@ -1397,9 +1397,9 @@ Reglas:
 - si la residencia tiene una sola opción activa, el servidor ignora el `collection_mode` enviado y usa esa;
 - con `enabled_methods`: precarga monto desde `snapshot_final` y medio desde `preferred_payment_method`;
 - congela `instructions_snapshot` desde los `details` **aprobados** de `residence_collection_accounts`. Los datos pendientes no se usan;
-- `instructions_snapshot` no es legible por la API (revoke de columna, `docs/06` §12.1). Lo lee una server action solo para el dueño de la residencia y el estudiante de esa solicitud;
+- `instructions_snapshot` no es legible por la API (revoke de columna, `docs/06` §12.1). Lo lee una server action solo para el dueño de la residencia, el estudiante de esa solicitud y, si es menor, su familiar vinculado cuando es el pagador (solo lectura);
 - la residencia no cambia el monto fuera del proceso de propuesta de ajuste (`docs/04` §6.3);
-- con `whatsapp_direct`: igual que hoy. El estudiante además ve el `payment_contact_phone` de la residencia, solo en solicitudes habilitadas por este camino;
+- con `whatsapp_direct`: igual que hoy. El estudiante ve solo «La residencia te va a escribir por WhatsApp». Nunca recibe un número ni un botón para escribirle;
 - tras una propuesta de ajuste, el pase a `residence_payment_pending` es automático. El servidor aplica los valores por defecto de `docs/00` DR63 (k).
 
 ### 16.6. Estudiante elige medio preferido *(DR63, propuesto)*
@@ -1426,10 +1426,44 @@ Efectos:
 
 **JOB** (dentro de `runExpirationJobs`). Frecuencia: cada hora.
 
-- a las 24 horas de `student_reported_paid_at` sin «Pago recibido»: avisa a la residencia;
-- a las 72 horas de `student_reported_paid_at` sin «Pago recibido» (decidido por el dueño): alerta al admin y abre un caso de Soporte. No hay transición automática;
-- 12 horas antes de `payment_deadline_at` sin «Ya pagué»: avisa al estudiante;
+- a las 24 horas de `student_reported_paid_at` (o de `student_payment_issue_at` sin responder) sin respuesta: avisa a la residencia;
+- a las 72 horas de lo mismo (decidido por el dueño para «Ya pagué»; supuesto para «No pude realizar el pago»): alerta al admin y abre un caso de Soporte. No hay transición automática;
+- 12 horas antes de `payment_deadline_at` sin «Ya pagué» ni aviso de problema: avisa al estudiante;
 - marca `residence_reminder_sent_at` y `student_reminder_sent_at` para no repetir.
+
+### 16.9. Estudiante avisa «No pude realizar el pago» *(DR63 (l), supuesto reversible, propuesto)*
+
+**Server action** `reportResidencePaymentIssue`.
+
+Roles: estudiante; familiar vinculado que es el pagador.
+
+Body: `reason` (texto opcional, máximo 200 caracteres).
+
+Validaciones:
+- solicitud en `residence_payment_pending` con `collection_mode = enabled_methods`;
+- pago en `pending` y sin aviso abierto.
+
+Efectos:
+- `student_payment_issue_at = now()` y `student_payment_issue_reason = reason`;
+- detiene el vencimiento de 48 horas (§15.10);
+- notifica a la residencia (in-app y push de DR61);
+- audita. Es idempotente.
+
+No hay mensaje directo del estudiante a la residencia. Para ayuda, el estudiante usa Soporte de EstuRed.
+
+### 16.10. Residencia responde al aviso: contactar o rehabilitar *(DR63 (l), supuesto reversible, propuesto)*
+
+**Server action** `resolveStudentPaymentIssue`.
+
+Roles: residence owner; staff con permiso de aplicaciones.
+
+Body: `resolution` (`contact_whatsapp` o `reenable_payment`) y, con `reenable_payment`, `chosen_method` y `expected_amount_*` opcionales para cambiarlos.
+
+Efectos:
+- `student_payment_issue_resolved_at = now()` y `payment_deadline_at = now() + 48h`;
+- con `contact_whatsapp`: `application_requests.collection_mode = whatsapp_direct` y la residencia recibe el botón de WhatsApp al número de `contact_target`;
+- con `reenable_payment`: congela de nuevo `instructions_snapshot` desde los datos aprobados;
+- notifica al estudiante y audita.
 
 ---
 
