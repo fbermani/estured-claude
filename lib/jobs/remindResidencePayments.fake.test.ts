@@ -6,9 +6,10 @@ vi.mock("@/lib/audit", () => ({ createAuditLog: async (_a: unknown, e: { action:
 const adminNotices = vi.hoisted(() => [] as { title: string; entityType: string }[]);
 vi.mock("@/lib/notifications/notifyAdminsSafe", () => ({ notifyAdminsSafe: async (_a: unknown, p: { title: string; entityType: string }) => void adminNotices.push(p) }));
 const residenceNotices = vi.hoisted(() => [] as { applicationId: string; kind: string; isMinor: boolean }[]);
+const noticeControl = vi.hoisted(() => ({ fail: false }));
 const studentNotices = vi.hoisted(() => [] as { applicationId: string; student: { title: string; body: string }; family: unknown }[]);
 vi.mock("@/lib/applications/paymentReportNotices", () => ({
-  notifyResidencePaymentTeam: async (_a: unknown, p: { applicationId: string; kind: string; isMinor: boolean }) => void residenceNotices.push(p),
+  notifyResidencePaymentTeam: async (_a: unknown, p: { applicationId: string; kind: string; isMinor: boolean }) => (noticeControl.fail ? false : (residenceNotices.push(p), true)),
   notifyStudentAndFamily: async (_a: unknown, p: { applicationId: string; student: { title: string; body: string }; family: unknown }) => void studentNotices.push(p),
 }));
 vi.mock("@/lib/family/notifyLinkedFamily", () => ({ loadStudentShortName: async () => "Valentina R." }));
@@ -62,6 +63,7 @@ beforeEach(() => {
   adminNotices.length = 0;
   residenceNotices.length = 0;
   studentNotices.length = 0;
+  noticeControl.fail = false;
 });
 
 describe("aviso a la residencia a las 24 h", () => {
@@ -72,6 +74,18 @@ describe("aviso a la residencia a las 24 h", () => {
     expect(residenceNotices).toEqual([{ applicationId: "a", residenceId: "res-1", kind: "reminder_reported_paid", isMinor: false }]);
     expect(pay("a").residence_reminder_sent_at).toBe(NOW.toISOString());
     expect(pay("young").residence_reminder_sent_at).toBeNull();
+  });
+
+  it("si el aviso falla, devuelve la marca de 24 h y reintenta en la próxima corrida", async () => {
+    boot([app("f")], [payment("f", reported(25))]);
+    noticeControl.fail = true;
+    const first = await remindResidencePayments(fake.client, NOW);
+    expect(first.residenceReminders).toBe(0);
+    expect(pay("f").residence_reminder_sent_at).toBeNull();
+    noticeControl.fail = false;
+    const second = await remindResidencePayments(fake.client, NOW);
+    expect(second.residenceReminders).toBe(1);
+    expect(pay("f").residence_reminder_sent_at).toBe(NOW.toISOString());
   });
 
   it("también para «No pude realizar el pago» sin responder", async () => {

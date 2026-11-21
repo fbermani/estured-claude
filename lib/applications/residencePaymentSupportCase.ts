@@ -16,7 +16,7 @@ export type ResidencePaymentCaseResult =
  * Caso de Soporte del pago a la residencia (DR63 (j) 1; migración 0103, `topic = 'residence_payment'`): lo abre la residencia al registrar
  * «No recibí el pago», o el sistema (a nombre del estudiante, `opened_by_role = 'system'`) cuando a las 72 h la residencia no confirmó.
  * A diferencia de `openSupportCase` no pasa por la cuota por usuario ni pide recordatorio de términos al sistema: la descripción es
- * neutra y NUNCA lleva datos de cobro. Idempotente: no abre un segundo caso mientras haya uno abierto para la solicitud. Avisa al admin.
+ * neutra y NUNCA lleva datos de cobro. Idempotente: no abre un segundo caso mientras haya uno abierto para la solicitud (búsqueda previa + índice único parcial de la migración 0104; un 23505 se trata como éxito). Avisa al admin.
  */
 export async function openResidencePaymentSupportCase(
   admin: SupabaseClient,
@@ -32,18 +32,22 @@ export async function openResidencePaymentSupportCase(
   },
 ): Promise<ResidencePaymentCaseResult> {
   try {
-    const { data: existing, error: lookupError } = await admin
-      .from("support_cases")
-      .select("id, status")
-      .eq("topic", "residence_payment")
-      .eq("related_entity_id", params.applicationId);
-    if (lookupError) {
-      if (SCHEMA_MISSING_CODES.has(lookupError.code ?? "")) return { ok: false, schemaMissing: true };
-      console.error("[residence-payment-case] lookup failed:", lookupError.code, lookupError.message);
+    const findOpen = async () => {
+      const { data, error } = await admin
+        .from("support_cases")
+        .select("id, status")
+        .eq("topic", "residence_payment")
+        .eq("related_entity_id", params.applicationId);
+      return { open: (data ?? []).find((c) => !CLOSED_STATUSES.includes(c.status as string)), error };
+    };
+
+    const found = await findOpen();
+    if (found.error) {
+      if (SCHEMA_MISSING_CODES.has(found.error.code ?? "")) return { ok: false, schemaMissing: true };
+      console.error("[residence-payment-case] lookup failed:", found.error.code, found.error.message);
       return { ok: false, schemaMissing: false };
     }
-    const open = (existing ?? []).find((c) => !CLOSED_STATUSES.includes(c.status as string));
-    if (open) return { ok: true, supportCaseId: open.id as string, created: false };
+    if (found.open) return { ok: true, supportCaseId: found.open.id as string, created: false };
 
     const { data: created, error } = await admin
       .from("support_cases")
@@ -59,6 +63,13 @@ export async function openResidencePaymentSupportCase(
       })
       .select("id")
       .single();
+    if (error?.code === "23505") {
+      // Carrera: otro proceso abrió el caso entre la búsqueda y el insert (índice único parcial de 0104). Es un éxito: se devuelve ese caso.
+      const raced = await findOpen();
+      if (raced.open) return { ok: true, supportCaseId: raced.open.id as string, created: false };
+      console.error("[residence-payment-case] unique violation sin caso abierto:", error.message);
+      return { ok: false, schemaMissing: false };
+    }
     if (error || !created) {
       if (SCHEMA_MISSING_CODES.has(error?.code ?? "")) {
         console.error("[residence-payment-case] insert rechazado (¿migración 0103 sin aplicar?):", error?.code);

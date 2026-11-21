@@ -40,17 +40,23 @@ const RESIDENCE_COPY: Record<ResidenceNoticeKind, (isMinor: boolean) => { title:
   }),
 };
 
-/** Aviso al equipo de la residencia con permiso `payments.residence` (el dueño siempre). */
+/**
+ * Aviso al equipo de la residencia con permiso `payments.residence` (el dueño siempre). Devuelve `true` si el aviso salió a al menos un
+ * destinatario; `false` si falló o no había a quién avisar. Los llamadores que reclaman una marca antes de avisar (el job de
+ * recordatorios) la devuelven cuando el resultado es `false`; el resto lo ignora (un aviso que no sale nunca tumba la acción).
+ */
 export async function notifyResidencePaymentTeam(
   admin: SupabaseClient,
   params: { applicationId: string; residenceId: string; kind: ResidenceNoticeKind; isMinor: boolean },
-): Promise<void> {
+): Promise<boolean> {
   try {
     const userIds = await loadResidenceUserIds(admin, params.residenceId, "payments.residence");
     const copy = RESIDENCE_COPY[params.kind](params.isMinor);
     await Promise.all(userIds.map((userId) => createNotification(admin, { userId, ...copy, ...RELATED(params.applicationId) })));
+    return userIds.length > 0;
   } catch (error) {
     console.error("[notifications] notifyResidencePaymentTeam failed:", error);
+    return false;
   }
 }
 

@@ -2,7 +2,8 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 /**
- * DR63 (j) 3 (migración 0102): `external_residence_payments.instructions_snapshot` (alias/CBU congelados) y `admin_alert_sent_at` NO son
+ * DR63 (j) 3 (migración 0102) y 0104: `external_residence_payments.instructions_snapshot` (alias/CBU congelados), `admin_alert_sent_at` y
+ * `dispute_reason` (texto libre de la residencia, puede traer contacto) NO son
  * legibles con la API: un JWT de usuario autenticado (`authenticated`) y la anon key reciben «permission denied» (42501). Solo las lee el
  * service role, por server action, para el estudiante de la solicitud, el familiar pagador de un menor y el dueño.
  * Integración contra estured-dev: crea un usuario de auth descartable con contraseña conocida, inicia sesión con la anon key y lo borra al final.
@@ -56,6 +57,20 @@ describe.skipIf(!hasCreds)("instructions_snapshot no es legible con la API (inte
   it("admin_alert_sent_at (marca interna del job) tampoco es legible", async () => {
     const { error } = await userClient.from("external_residence_payments").select("admin_alert_sent_at").limit(1);
     expect(error?.code).toBe("42501");
+  });
+
+  it("dispute_reason (texto libre de la residencia, 0104) tampoco es legible con la API", async () => {
+    const alone = await userClient.from("external_residence_payments").select("dispute_reason").limit(1);
+    expect(alone.error?.code).toBe("42501");
+    const mixed = await userClient.from("external_residence_payments").select("id, status, dispute_reason").limit(1);
+    expect(mixed.error?.code).toBe("42501");
+    const anonRead = await anonClient.from("external_residence_payments").select("dispute_reason").limit(1);
+    expect(anonRead.error).not.toBeNull();
+  });
+
+  it("el service role sí lee dispute_reason (la residencia lo ve por el panel, server-side)", async () => {
+    const { error } = await admin.from("external_residence_payments").select("dispute_reason").limit(1);
+    expect(error).toBeNull();
   });
 
   it("la anon key no lee ni las columnas concedidas ni el snapshot", async () => {

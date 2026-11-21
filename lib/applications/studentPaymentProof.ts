@@ -66,8 +66,23 @@ export async function storeStudentPaymentProof(
   return { fileId: row.id as string, storagePath: path };
 }
 
-/** Borra un comprobante recién subido (cuando la operación que lo usaba no se concretó). Mejor esfuerzo. */
+/**
+ * Borra un comprobante (fila de `files` y objeto). Mejor esfuerzo, con orden seguro: primero la fila; si no se pudo borrar (p. ej. FK
+ * porque `external_residence_payments.student_proof_file_id` todavía lo referencia) el objeto se conserva, para no dejar una fila
+ * apuntando a un archivo inexistente.
+ */
 export async function discardStoredProof(admin: SupabaseClient, stored: { fileId: string; storagePath: string }): Promise<void> {
-  await admin.from("files").delete().eq("id", stored.fileId);
+  const { error } = await admin.from("files").delete().eq("id", stored.fileId);
+  if (error) {
+    console.error("[payment-proof] discard: no se pudo borrar la fila de files:", error.code, error.message);
+    return;
+  }
   await admin.storage.from(PROOF_BUCKET).remove([stored.storagePath]);
+}
+
+/** Descarta un comprobante anterior por id (el reemplazado por uno nuevo). Solo toca filas del bucket y tipo de comprobante de pago. */
+export async function discardProofFileById(admin: SupabaseClient, fileId: string): Promise<void> {
+  const { data: file } = await admin.from("files").select("id, bucket, storage_path, document_type").eq("id", fileId).maybeSingle();
+  if (!file || file.bucket !== PROOF_BUCKET || file.document_type !== PROOF_DOCUMENT_TYPE) return;
+  await discardStoredProof(admin, { fileId, storagePath: file.storage_path as string });
 }

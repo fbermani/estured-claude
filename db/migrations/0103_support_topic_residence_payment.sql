@@ -12,8 +12,10 @@
 --
 -- QUÉ HACE. `support_cases.topic` admite `residence_payment`: con `residence_id`, con la solicitud como contexto
 -- (`related_entity_type = 'application_requests'` + `related_entity_id`) y `terms_reminder_accepted_at` opcional. Los tres topics
--- anteriores conservan su forma. Las policies de 0023 no cambian: quien abre el caso lo ve, y el equipo de la residencia ve los casos
--- de SU residencia. El caso automático (72 h) lo abre el sistema a nombre del estudiante (`opened_by_role = 'system'`); el de
+-- anteriores conservan su forma. Las policies no cambian: con la API solo ve el caso quien lo abrió
+-- (`support_cases_select_opener`, 0023). La residencia NO los lee por la API (0081 borró `support_cases_select_residence`): sus
+-- casos, como los del admin, se leen con service role por server action. El caso automático (72 h) lo abre el sistema a nombre del
+-- estudiante (`opened_by_role = 'system'`); el de
 -- «No recibí el pago» lo abre la persona de la residencia que lo registra. La descripción nunca lleva datos de cobro.
 --
 -- REVERTIR (antes: borrar o pasar a otro topic los casos con topic = 'residence_payment'):

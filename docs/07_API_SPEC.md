@@ -1432,7 +1432,7 @@ Body: `reason` (texto, mínimo 10 caracteres).
 Validaciones: pago en `student_reported_paid`.
 
 Efectos:
-- `external_residence_payments.status = disputed` y `dispute_reason = reason`;
+- `external_residence_payments.status = disputed` y `dispute_reason = reason` (columna sin lectura por API desde 0104: solo service role);
 - notifica al estudiante y abre un caso de Soporte;
 - audita. El admin resuelve;
 - la solicitud pasa a `disputed` solo por acción de Sistema o Admin (`docs/04` §5.4).
@@ -1449,7 +1449,7 @@ Efectos:
 - marca `residence_reminder_sent_at`, `student_reminder_sent_at` y `admin_alert_sent_at` (alerta de 72 horas) para no repetir;
 - el servidor limpia las tres marcas al registrar cada evento nuevo («Ya pagué» o «No pude realizar el pago»), para no suprimir los avisos del segundo evento.
 
-**Implementación (Fase 5):** `lib/jobs/remindResidencePayments.ts`, dentro de `runExpirationJobs`. Cada aviso se reclama con un update sobre su marca (`*_sent_at is null`) y solo se envía si devolvió la fila. Si el caso de Soporte falla, se devuelve la marca y se reintenta. El aviso de 12 h solo corre con medios habilitados. El caso de las 72 h es `topic = residence_payment` (migración 0103), abierto por el sistema a nombre del estudiante. Si el caso ya está abierto o 0103 falta, el admin recibe solo la alerta. El vencimiento (`expireApplicationRequests`) decide por las fechas de aviso, no por el estado: un «Ya pagué» disputado sigue frenado.
+**Implementación (Fase 5):** `lib/jobs/remindResidencePayments.ts`, dentro de `runExpirationJobs`. Cada aviso se reclama con un update sobre su marca (`*_sent_at is null`) y solo se envía si devolvió la fila. Si el caso de Soporte falla, o el aviso de 24 h a la residencia no sale, se devuelve la marca y se reintenta. El aviso de 12 h solo corre con medios habilitados. El caso de las 72 h es `topic = residence_payment` (migración 0103), abierto por el sistema a nombre del estudiante. Un solo caso abierto por solicitud: búsqueda previa e índice único parcial (migración 0104); un 23505 por carrera se trata como éxito. Si el caso ya está abierto o 0103 falta, el admin recibe solo la alerta. El vencimiento (`expireApplicationRequests`) decide por las fechas de aviso, no por el estado: un «Ya pagué» disputado sigue frenado.
 
 ### 16.9. Estudiante avisa «No pude realizar el pago» *(DR63 (l), supuesto reversible, propuesto)*
 

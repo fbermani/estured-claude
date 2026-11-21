@@ -1133,7 +1133,7 @@ Reglas:
 | `reported_received_by_user_id` | uuid null | Usuario residencia |
 | `reported_received_at` | timestamptz null | Fecha pago recibido |
 | `mark_received_consent_id` | uuid null | FK a `consents` — aceptación de términos al marcar *(nuevo)* |
-| `dispute_reason` | text null | Motivo disputa |
+| `dispute_reason` | text null | Motivo disputa (texto libre de la residencia). Interna desde 0104: sin `grant select` a `authenticated`/`anon`; la lee solo el service role, por server action, para el panel de la residencia |
 | `expected_amount_usd` | numeric(14,2) null | *(DR63, propuesta 0102)* Monto que fija la residencia (precargado desde `snapshot_final`). CHECK no negativo, patrón 0082 |
 | `expected_amount_ars` | numeric(14,2) null | *(DR63)* Idem en ARS, con el tipo de cambio vigente al habilitar |
 | `chosen_method` | text null | *(DR63)* Clave del catálogo que fija la residencia. Distinto de `payment_method_to_residence`, que informa el estudiante |
@@ -1148,7 +1148,7 @@ Reglas:
 | `created_at` | timestamptz | Alta |
 | `updated_at` | timestamptz | Actualización |
 
-**Nota 0081 (DR63, decidido 2026-11-20).** `external_residence_payments` tiene SELECT por tabla, no por columna. Las columnas nuevas serían visibles para estudiante, familiar vinculado y todo el equipo activo, staff incluido. Para `instructions_snapshot` eso choca con «solo el dueño». **Decisión:** `revoke select (instructions_snapshot) on public.external_residence_payments from authenticated` (y `anon`). En la práctica, revoke del SELECT de tabla y `grant select (…columnas sin instructions_snapshot…) to authenticated`, como 0081 hizo con `application_requests`. La lectura va por server action, solo para el dueño de la residencia y para el estudiante de esa solicitud. El staff no la lee. El familiar vinculado de un estudiante menor también la lee, solo lectura y solo si es el pagador de esa solicitud (decidido). Columnas nuevas visibles: cada una necesita su `grant select (col)`. Las tablas nuevas con policies para `authenticated` necesitan su policy RESTRICTIVE `<tabla>_only_active_users`.
+**Nota 0081 (DR63, decidido 2026-11-20).** `external_residence_payments` tiene SELECT por tabla, no por columna. Las columnas nuevas serían visibles para estudiante, familiar vinculado y todo el equipo activo, staff incluido. Para `instructions_snapshot` eso choca con «solo el dueño». **Decisión:** `revoke select (instructions_snapshot) on public.external_residence_payments from authenticated` (y `anon`). En la práctica, revoke del SELECT de tabla y `grant select (…columnas sin instructions_snapshot…) to authenticated`, como 0081 hizo con `application_requests`. La lectura va por server action, solo para el dueño de la residencia y para el estudiante de esa solicitud. El staff no la lee. El familiar vinculado de un estudiante menor también la lee, solo lectura y solo si es el pagador de esa solicitud (decidido). **0104 (revisión de seguridad de la fase 5):** `dispute_reason` sale también de la API (`revoke select (dispute_reason)` solo de esa columna: un revoke de tabla borraría los demás grants por columna): es texto libre y puede traer contacto de la residencia. Columnas nuevas visibles: cada una necesita su `grant select (col)`. Las tablas nuevas con policies para `authenticated` necesitan su policy RESTRICTIVE `<tabla>_only_active_users`.
 
 Reglas:
 - solo la residencia marca "Pago recibido" con confirmación explícita y aceptación de términos;

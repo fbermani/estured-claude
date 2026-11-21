@@ -3,7 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { resolvePaymentActor } from "@/lib/applications/studentPaymentAccess";
 import { isPaymentClosedForStudent, isPaymentIssueOpen, validateIssueReason } from "@/lib/applications/paymentReportView";
-import { discardStoredProof, storeStudentPaymentProof, validateOptionalProof, type ValidatedProof } from "@/lib/applications/studentPaymentProof";
+import { discardProofFileById, discardStoredProof, storeStudentPaymentProof, validateOptionalProof, type ValidatedProof } from "@/lib/applications/studentPaymentProof";
 import { notifyPaymentCounterpart, notifyResidencePaymentTeam } from "@/lib/applications/paymentReportNotices";
 
 /**
@@ -38,6 +38,7 @@ type PaymentRow = {
   student_reported_paid_at: string | null;
   student_payment_issue_at: string | null;
   student_payment_issue_resolved_at: string | null;
+  student_proof_file_id: string | null;
 };
 
 async function loadActiveContext(admin: SupabaseClient, userId: string, applicationId: string) {
@@ -49,7 +50,7 @@ async function loadActiveContext(admin: SupabaseClient, userId: string, applicat
 
   const { data, error } = await admin
     .from("external_residence_payments")
-    .select("id, status, student_reported_paid_at, student_payment_issue_at, student_payment_issue_resolved_at")
+    .select("id, status, student_reported_paid_at, student_payment_issue_at, student_payment_issue_resolved_at, student_proof_file_id")
     .eq("application_request_id", applicationId)
     .maybeSingle();
   if (error) {
@@ -109,13 +110,20 @@ export async function reportResidencePaymentPaidCore(
   // Carrera con el job de vencimiento: si la solicitud venció entre la lectura y este update, se deshace el aviso.
   const { data: still } = await admin.from("application_requests").select("status").eq("id", params.applicationId).maybeSingle();
   if (still && still.status !== "residence_payment_pending") {
-    await admin
+    // El rollback devuelve también el comprobante anterior: si no, el nuevo sigue referenciado y no se puede borrar (FK).
+    const { error: rollbackError } = await admin
       .from("external_residence_payments")
-      .update({ status: payment.status, student_reported_paid_at: null })
+      .update({ status: payment.status, student_reported_paid_at: null, ...(stored ? { student_proof_file_id: payment.student_proof_file_id } : {}) })
       .eq("id", payment.id)
       .eq("status", "student_reported_paid");
-    if (stored) await discardStoredProof(admin, stored);
+    if (rollbackError) console.error("[payment-report] rollback failed:", rollbackError.code, rollbackError.message);
+    else if (stored) await discardStoredProof(admin, stored);
     return { ok: false, error: NOT_PENDING };
+  }
+
+  // Un comprobante nuevo reemplaza al anterior: el anterior ya no lo referencia nadie y se descarta (sin dejar huérfanos).
+  if (stored && payment.student_proof_file_id && payment.student_proof_file_id !== stored.fileId) {
+    await discardProofFileById(admin, payment.student_proof_file_id);
   }
 
   await createAuditLog(admin, {
@@ -186,7 +194,8 @@ export async function reportResidencePaymentIssueCore(
     await admin
       .from("external_residence_payments")
       .update({ student_payment_issue_at: payment.student_payment_issue_at, student_payment_issue_reason: null, student_payment_issue_resolved_at: payment.student_payment_issue_resolved_at })
-      .eq("id", payment.id);
+      .eq("id", payment.id)
+      .eq("status", "pending");
     return { ok: false, error: NOT_PENDING };
   }
 

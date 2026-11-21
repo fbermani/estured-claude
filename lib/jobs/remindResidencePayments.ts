@@ -124,13 +124,15 @@ async function runResidenceAndAdmin(admin: SupabaseClient, now: Date, result: Re
     const isMinor = app.contact_target === "family_member";
 
     if (hours >= RESIDENCE_REMINDER_HOURS && !p.residence_reminder_sent_at && (await claimMark(admin, p.id, "residence_reminder_sent_at", nowIso))) {
-      await notifyResidencePaymentTeam(admin, {
+      const sent = await notifyResidencePaymentTeam(admin, {
         applicationId: app.id,
         residenceId: app.residence_id,
         kind: isReported ? "reminder_reported_paid" : "reminder_payment_issue",
         isMinor,
       });
-      result.residenceReminders += 1;
+      // Si el aviso no salió se devuelve la marca para reintentar en la próxima corrida (igual que la alerta de 72 h).
+      if (sent) result.residenceReminders += 1;
+      else await releaseMark(admin, p.id, "residence_reminder_sent_at");
     }
 
     if (hours >= ADMIN_ALERT_HOURS && !p.admin_alert_sent_at && (await claimMark(admin, p.id, "admin_alert_sent_at", nowIso))) {

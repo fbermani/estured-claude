@@ -57,3 +57,6 @@ video-hf/**/.hyperframes/
 video-hf/**/.waveform-cache/
 video-hf/**/.thumbnails/
 video-hf/**/.media/
+
+# Archivos de trabajo temporales de las sesiones de agentes
+scratchpad/
