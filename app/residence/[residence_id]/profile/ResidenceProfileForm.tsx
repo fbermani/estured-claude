@@ -57,6 +57,9 @@ import type { AvailabilityMode } from "@/types/domain";
 import { RoomFeaturesField } from "@/app/residence/[residence_id]/profile/RoomFeaturesField";
 import { UniversityPicker } from "@/app/residence/[residence_id]/profile/UniversityPicker";
 import { ProfileFaqCard } from "@/app/residence/[residence_id]/profile/ProfileFaqCard";
+import { ProfileCollectionCard } from "@/app/residence/[residence_id]/profile/ProfileCollectionCard";
+import type { CollectionCardSummary } from "@/lib/residences/reservationCollectionDb";
+import type { ReservationCollectionConfig } from "@/lib/residences/reservationCollection";
 import type { FaqProfileSummary } from "@/lib/faq/profileSummary";
 import type { OwnFaqItem } from "@/lib/residences/ownFaq";
 import { PhotoMetaManager, type PhotoMetaItem } from "@/app/residence/[residence_id]/profile/PhotoMetaManager";
@@ -148,6 +151,8 @@ interface ProfileInitial {
   faqItems: OwnFaqItem[];
   /** Estado del catálogo de preguntas (elegidas, esenciales, destacadas); `null` si no se pudo cargar. */
   faqSummary: FaqProfileSummary | null;
+  /** Cobro de la reserva (DR63): opciones y estado de cada medio, SIN datos de cobro; `null` = no disponible (migración 0102 pendiente o error). */
+  collectionSummary: CollectionCardSummary | null;
   /** DR18 (tanda 2): fotos con su clasificación (0059) y los tipos de habitación a los que se pueden asociar. */
   photos: PhotoMetaItem[];
   photoRoomTypes: { id: string; name: string }[];
@@ -242,6 +247,7 @@ const PROFILE_SECTIONS = [
   { id: "perfil-habitaciones", label: "Habitaciones" },
   { id: "perfil-fotos", label: "Fotos" },
   { id: "perfil-condiciones", label: "Condiciones" },
+  { id: "perfil-cobro", label: "Cobro" },
 ];
 
 export function ResidenceProfileForm({
@@ -263,7 +269,13 @@ export function ResidenceProfileForm({
   /** Borrador local: quién edita. Sin esto no se guarda borrador en el dispositivo. */
   draftScope?: { userId: string };
   /** Requisitos para enviar (DR59) que viven en otras pantallas (reglamento, preguntas esenciales, PDF): los lee el servidor. */
-  readinessExternal: { rulesPdf: boolean; regulationPublished: boolean | null; essentialFaqsReady: number | null };
+  readinessExternal: {
+    rulesPdf: boolean;
+    regulationPublished: boolean | null;
+    essentialFaqsReady: number | null;
+    /** Solo claves y estados (sin datos de cobro); `null` = migración 0102 pendiente: no se exige. */
+    reservationCollection: ReservationCollectionConfig | null;
+  };
 }) {
   const action = saveResidenceProfile.bind(null, residenceId);
   const [state, formAction] = useActionState(action, initialState);
@@ -492,6 +504,7 @@ export function ResidenceProfileForm({
         regulationPublished: readinessExternal.regulationPublished,
         rulesPdf: readinessExternal.rulesPdf || rulesPdfPicked,
         essentialFaqsReady: readinessExternal.essentialFaqsReady,
+        reservationCollection: readinessExternal.reservationCollection,
         conditions: {
           adjustmentPolicy: conditions.adjustmentPolicy,
           initialPaymentMode: conditions.initialPaymentMode,
@@ -1595,6 +1608,9 @@ export function ResidenceProfileForm({
               </div>
             </div>
           </Card>
+
+          {/* Cobro de la reserva (DR63): resumen; la edición vive en su pantalla y es solo del dueño. */}
+          <ProfileCollectionCard residenceId={residenceId} summary={initial.collectionSummary} isOwner={canSubmit} />
 
           {!readOnly && (
             <>

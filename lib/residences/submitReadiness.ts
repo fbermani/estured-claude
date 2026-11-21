@@ -1,4 +1,5 @@
 import { MIN_PUBLISH_PHOTOS } from "@/lib/residences/photos";
+import { evaluateCollectionRequirement, type ReservationCollectionConfig } from "@/lib/residences/reservationCollection";
 
 /**
  * Requisitos para ENVIAR una residencia a revisión (decisión del dueño, 2026-11-20, `docs/00` DR59). Función pura, sin `server-only`:
@@ -18,6 +19,9 @@ import { MIN_PUBLISH_PHOTOS } from "@/lib/residences/photos";
  * 8. Al menos 3 fotos propias subidas (las pendientes de revisión cuentan; las rechazadas no).
  * 9. Condiciones de reserva completas: ajuste de tarifa, pago inicial coherente con lo que se cobra, matrícula y depósito excluyentes,
  *    matrícula manual con monto y, si cobra mes vacío, su porcentaje.
+ * 10. Cobro de la reserva (DR63): «Contacto directo por WhatsApp», o «Cobro con medios habilitados» con al menos 1 medio y los datos de
+ *    cobro de cada medio aceptado cargados (aprobados o pendientes de aprobación: la primera carga la aprueba el admin al verificar).
+ *    Sin ninguna opción elegida no cumple. Si el entorno no tiene la migración 0102 (`reservationCollection: null`), no se exige.
  *
  * Condicionales (solo se exigen si la residencia eligió la opción): depósito con monto, y salida anticipada con costos Y condiciones.
  * No son obligatorias: promociones, mínimo de estadía («Sin mínimo» es una elección válida), cláusulas del depósito, documentos
@@ -42,6 +46,7 @@ export type SubmitReadinessKey =
   | "roomTypes"
   | "photos"
   | "conditions"
+  | "collection"
   | "deposit"
   | "earlyExit";
 
@@ -112,6 +117,8 @@ export interface SubmitReadinessInput {
   rulesPdf: boolean;
   /** `null` = el catálogo de preguntas no está disponible en este entorno: el requisito no se exige. */
   essentialFaqsReady: number | null;
+  /** Cobro de la reserva (DR63), lo que se guardó en su pantalla. `null` = no se puede leer en este entorno (migración 0102 pendiente): no se exige. */
+  reservationCollection: ReservationCollectionConfig | null;
   conditions: SubmitReadinessConditions;
 }
 
@@ -243,6 +250,19 @@ export function computeSubmitReadiness(input: SubmitReadinessInput): SubmitReadi
       hint: problems.length > 0 ? `${problems[0][0].toUpperCase()}${problems[0].slice(1)}${problems.length > 1 ? ` (y ${problems.length - 1} ${plural(problems.length - 1, "ajuste más", "ajustes más")})` : ""}.` : undefined,
       href: "#perfil-condiciones",
       progress: 0.5,
+    });
+  }
+
+  // 10. Cobro de la reserva (DR63): se configura en su propia pantalla; el servidor lo recalcula desde la base.
+  if (input.reservationCollection !== null) {
+    const collection = evaluateCollectionRequirement(input.reservationCollection);
+    push({
+      key: "collection",
+      label: "Cobro de la reserva",
+      ok: collection.ok,
+      hint: collection.hint,
+      href: `${base}/collection`,
+      progress: collection.progress,
     });
   }
 

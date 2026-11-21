@@ -394,6 +394,7 @@ export async function saveResidenceProfile(
       regulationPublished: external.regulationPublished,
       rulesPdf: external.rulesPdf || (newRulesPdf instanceof File && newRulesPdf.size > 0),
       essentialFaqsReady: external.essentialFaqsReady,
+      reservationCollection: external.reservationCollection,
       conditions: {
         adjustmentPolicy: conditions.adjustmentPolicy,
         initialPaymentMode: conditions.initialPayment.mode,

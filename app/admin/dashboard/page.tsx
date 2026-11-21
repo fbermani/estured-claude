@@ -10,6 +10,7 @@ import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
 import { cmd } from "@/components/admin/ui/tokens";
 import { getStaleAvailabilityByResidence } from "@/lib/residences/staleAvailability";
+import { countPendingCollectionMethods } from "@/lib/residences/collectionApprovalDb";
 import { loadRevocationRecords, summarizePendingRevocations } from "@/lib/revocations/loadRevocations";
 import { pluralize } from "@/lib/format/plural";
 import { auditActionPhrase, auditActorLabel } from "@/lib/format/auditActionLabels";
@@ -47,6 +48,7 @@ export default async function AdminDashboardPage() {
     unreviewedTariffAlerts: 0,
     staleAvailabilityResidences: 0,
     pendingRevocations: 0,
+    pendingCollectionMethods: 0,
     oldestRevocationAgeDays: null as number | null,
     oldestProfileEditAgeDays: null as number | null,
   };
@@ -101,6 +103,8 @@ export default async function AdminDashboardPage() {
         .limit(1),
     ]);
     const staleAvailability = await getStaleAvailabilityByResidence(admin);
+    // Datos de cobro de la reserva por aprobar (DR63 2b): `null` (sin la migración 0102) cuenta como 0.
+    const pendingCollectionMethods = (await countPendingCollectionMethods(admin)) ?? 0;
     // Revocaciones sin resolver (DR6): nunca rompe el dashboard si la lectura falla.
     let revocationsSummary: { count: number; oldestAgeDays: number | null } = { count: 0, oldestAgeDays: null };
     try {
@@ -110,6 +114,7 @@ export default async function AdminDashboardPage() {
     }
     stats = {
       pendingRevocations: revocationsSummary.count,
+      pendingCollectionMethods,
       oldestRevocationAgeDays: revocationsSummary.oldestAgeDays,
       staleAvailabilityResidences: staleAvailability.size,
       activeResidences: active.count ?? 0,
@@ -156,6 +161,7 @@ export default async function AdminDashboardPage() {
           ? `La más vieja espera hace ${pluralize(stats.oldestProfileEditAgeDays, "día", "días")}.`
           : undefined,
     },
+    { label: "Datos de cobro de reserva por aprobar", value: stats.pendingCollectionMethods, href: "/admin/collection-approvals" },
     { label: "Alertas de tarifa sin revisar", value: stats.unreviewedTariffAlerts, href: "/admin/pricing" },
     {
       label: "Residencias con disponibilidad vencida",

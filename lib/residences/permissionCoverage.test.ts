@@ -52,6 +52,8 @@ const GUARDED: Record<string, string[]> = {
   "lib/share/shareMessage.ts": ["assertResidencePermission(", "profile.edit"],
   // Solo dueño (no delegable)
   "lib/team/teamInvitations.ts": ["assertResidenceOwner("],
+  // Cobro de la reserva (DR63): los datos de cobro son sensibles; ni el staff con `profile.edit` los edita ni los lee
+  "lib/residences/reservationCollectionSave.ts": ["assertResidenceOwner("],
   "app/residence/dashboard/pdf/route.ts": ["ownerOnly: true"],
   // Vista previa de la ficha (solo lectura): el filtro de estado se omite SOLO tras comprobar el vínculo activo con ESA residencia
   "lib/residences/fichaResidence.ts": ["assertResidenceAccess("],
@@ -78,6 +80,7 @@ const DELEGATING: Record<string, string[]> = {
   "app/residence/[residence_id]/share/actions.ts": ["@/lib/share/shareMessage"],
   "app/residence/[residence_id]/regulation/actions.ts": ["@/lib/regulations/publish"],
   "app/residence/[residence_id]/team/actions.ts": ["@/lib/team/teamInvitations"],
+  "app/residence/[residence_id]/collection/actions.ts": ["@/lib/residences/reservationCollectionSave"],
   "app/residence/[residence_id]/applications/[id]/payment/actions.ts": ["@/lib/reservations/recordResidencePaymentReceived"],
   "app/residence/[residence_id]/renewals/actions.ts": ["@/lib/renewals/createRenewalOffer", "@/lib/renewals/sendRenewalOffer", "@/lib/renewals/recordRenewalResidencePaymentReceived"],
   "app/residence/[residence_id]/availability/actions.ts": ["@/lib/availability/updateAvailability", "@/lib/availability/updateGenderAvailability"],
@@ -110,6 +113,7 @@ const ALLOWLIST: Record<string, string> = {
   "lib/residences/setResidencePausedByAdmin.ts": "solo admin (requireAdmin en la acción)",
   "lib/residences/setResidenceLocationByAdmin.ts": "solo admin",
   "lib/residences/setOperationalAccessByAdmin.ts": "solo admin",
+  "lib/residences/collectionApproval.ts": "solo admin o superadmin (DR63 2b): lee el rol de user_roles y lo llama app/admin/collection-approvals/actions.ts con getAdminSession; ni el dueño ni el staff aprueban sus propios datos de cobro",
   "lib/residents/setResidentVisibilityByAdmin.ts": "solo admin",
   "lib/residents/markResidentInactiveByAdmin.ts": "solo admin",
   "lib/renewals/reopenRenewalOffer.ts": "solo admin",
@@ -219,5 +223,10 @@ describe("cobertura de permisos en acciones de escritura (DR11)", () => {
   it("las acciones de equipo y de permisos son solo del dueño: ninguna usa assertResidencePermission", () => {
     expect(read("lib/team/teamInvitations.ts")).not.toContain("assertResidencePermission(");
     expect(read("app/residence/[residence_id]/team/actions.ts")).not.toContain("assertResidencePermission(");
+  });
+
+  it("el cobro de la reserva (DR63) es solo del dueño: ninguna de sus acciones usa assertResidencePermission", () => {
+    expect(read("lib/residences/reservationCollectionSave.ts")).not.toContain("assertResidencePermission(");
+    expect(read("app/residence/[residence_id]/collection/actions.ts")).not.toContain("assertResidencePermission(");
   });
 });

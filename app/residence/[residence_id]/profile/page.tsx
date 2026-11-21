@@ -16,6 +16,7 @@ import { normalizeAmenityLists, parseAmenityDetails } from "@/lib/residences/ame
 import { listCustomAmenities } from "@/lib/residences/customAmenitiesDb";
 import { loadCurrentRegulation } from "@/lib/regulations/current";
 import { essentialFaqsReadyCount, regulationPublishedFlag } from "@/lib/residences/submitReadinessDb";
+import { loadCollectionOverview } from "@/lib/residences/reservationCollectionDb";
 import { parseStayDocumentsContent } from "@/lib/residences/stayDocuments";
 import { loadPhotoMeta } from "@/lib/residences/photoMetaDb";
 import { summarizeProfileEdit } from "@/lib/residences/profileEditSummary";
@@ -94,7 +95,7 @@ export default async function ResidenceProfilePage({
   if (!residence) notFound();
 
   // DR18: ítems «Otro» (degrada a vacío sin la migración 0058) y si ya hay reglamento propio publicado (si no, se invita a armarlo).
-  const [customAmenitiesRes, regulationRes, photoMeta, promotionsRes, faqCatalog, faqFeatured] = await Promise.all([
+  const [customAmenitiesRes, regulationRes, photoMeta, promotionsRes, faqCatalog, faqFeatured, collectionRes] = await Promise.all([
     listCustomAmenities(admin, residenceId),
     loadCurrentRegulation(admin, residenceId),
     loadPhotoMeta(admin, [residenceId], { reconcile: false }),
@@ -102,7 +103,10 @@ export default async function ResidenceProfilePage({
     // Estado del catálogo de preguntas para la tarjeta «Preguntas frecuentes» (no editable acá: se elige en /faq).
     loadCatalogForResidence(admin, residenceId),
     loadFeaturedCandidates(admin, residenceId),
+    // Cobro de la reserva (DR63): solo claves y estados, ningún dato de cobro (los datos solo los lee la pantalla del dueño).
+    loadCollectionOverview(admin, residenceId),
   ]);
+  const collectionOverview = collectionRes.ok ? collectionRes.overview : null;
   const today = todayIso();
 
   const changesMessage = !readOnly && residence.status === "needs_changes" ? await loadChangesMessage(admin, residenceId) : null;
@@ -144,6 +148,8 @@ export default async function ResidenceProfilePage({
         rulesPdf: rulesFile !== null,
         regulationPublished: regulationPublishedFlag(regulationRes),
         essentialFaqsReady: essentialFaqsReadyCount(faqCatalog),
+        // Si no se pudo leer, la pantalla no muestra el requisito; el servidor lo exige igual al enviar (y rechaza si no puede leerlo).
+        reservationCollection: collectionOverview?.config ?? null,
       }}
       initial={{
         name: residence.name,
@@ -174,6 +180,8 @@ export default async function ResidenceProfilePage({
         hasOwnRegulation: regulationRes.ok ? !regulationRes.view.isBaseModel : true,
         faqItems: (sectionMap.faq?.items as { question: string; answer: string }[]) ?? [],
         faqSummary: buildFaqProfileSummary(faqCatalog, faqFeatured),
+        // El staff no recibe el estado de cada medio (solo el dueño lo ve): se vacía antes de salir del servidor.
+        collectionSummary: collectionOverview ? (canSubmit ? collectionOverview.summary : { ...collectionOverview.summary, states: {} }) : null,
         slug: residence.slug as string,
         // Disponibilidad ya guardada, con la misma regla del catálogo (el estado oficial se muestra solo vía StatusTag).
         availabilityMode: residenceAvailabilityMode(

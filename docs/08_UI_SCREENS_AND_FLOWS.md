@@ -205,6 +205,7 @@ Ruta base: `/residence`
 | `/residence/[residence_id]/receipts` | Comprobantes | Owner/Staff |
 | `/residence/[residence_id]/faq` | FAQ simple: preguntas libres de estudiantes que la residencia responde (D9) | Owner/Staff |
 | `/residence/[residence_id]/team` | Equipo: miembros, permisos del staff, invitaciones y quitar acceso (§7.20, DR10/DR11) | Owner |
+| `/residence/[residence_id]/collection` | Cobro de la reserva: opciones, medios aceptados y datos de cobro; estado por medio («Sin datos», «Pendiente de aprobación», «Aprobado», «Rechazado» con motivo) (§7.2, DR63) | Owner (el staff ve un aviso) |
 | `/residence/[residence_id]/metrics` | Métricas básicas | Owner |
 | `/residence/[residence_id]/support` | Soporte / resolución de conflictos | Owner/Staff |
 | `/residence/[residence_id]/plan` | Plan freemium / Gestión Operativa | Owner |
@@ -228,6 +229,7 @@ Ruta base: `/admin`
 | `/admin/solicitudes-alta` | Cola de solicitudes de alta de residencias (DR22): estados, notas, visita, generar invitación | Admin/Superadmin |
 | `/admin/verifications` | Verificaciones | Admin/Superadmin |
 | `/admin/profile-edits` | Ediciones de perfil | Admin/Superadmin |
+| `/admin/collection-approvals` | Cobros de reserva: cola por residencia; aprobar o rechazar (con motivo) los datos de cobro pendientes, con lo propuesto y lo vigente lado a lado (§8.4b, DR63 (j) 5) | Admin/Superadmin |
 | `/admin/pricing` | Tarifas y alertas | Admin/Superadmin |
 | `/admin/applications` | Solicitudes | Admin/Superadmin |
 | `/admin/family-proposals` | Propuestas del familiar | Admin/Superadmin |
@@ -1213,6 +1215,14 @@ Sin cambios de fondo.
 **Ruta:** `/admin/profile-edits`
 
 Sin cambios de fondo.
+
+---
+
+### 8.4b. Cobros de reserva *(DR63 fase 2b)*
+
+**Ruta:** `/admin/collection-approvals` (entrada «Cobros de reserva» en la sección Residencias del menú; tarjeta «Datos de cobro de reserva por aprobar» en el dashboard; enlace «Revisar datos de cobro» en la verificación de la residencia).
+
+Cola de residencias con medios de cobro pendientes (`pending_details` / `pending_method_label`), la más antigua primero. El detalle muestra, por medio, lo **propuesto** y lo **vigente** lado a lado, con el CBU o alias completo (los ven solo admin, superadmin y el dueño). Acciones por medio: «Aprobar» (copia lo pendiente a lo vigente) y «Rechazar» (motivo de 10 a 300 caracteres; rigen los datos anteriores, o el medio queda «Sin datos» si nunca hubo aprobados). Ambas son condicionales por la versión que el admin vio: si el dueño editó mientras tanto, piden recargar. Se auditan con el dato enmascarado y avisan al dueño in-app, sin el dato. La verificación de la residencia no queda bloqueada por esta cola.
 
 ---
 

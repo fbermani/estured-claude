@@ -47,6 +47,8 @@ const ADMIN_LIST: Record<string, string> = {
   users: "/admin/users",
   residence_signup_requests: "/admin/solicitudes-alta",
   residence_profile_edits: "/admin/profile-edits",
+  // DR63 2b: datos de cobro de la reserva por aprobar (el id es el de la residencia)
+  residence_collection_accounts: "/admin/collection-approvals",
 };
 
 export function notificationHref(
@@ -118,6 +120,9 @@ export function notificationHref(
   switch (entityType) {
     case "residences":
       return id ? `/residence/${id}` : "/residence/dashboard";
+    case "residence_collection_accounts":
+      // DR63 2b: el id es el de la residencia; la pantalla valida que sea el dueño (el staff no la ve).
+      return id ? `/residence/${id}/collection` : "/residence/dashboard";
     case "residence_team":
       // DR10: el id es el de la residencia; la pantalla Equipo valida que sea el dueño.
       return id ? `/residence/${id}/team` : "/residence/dashboard";

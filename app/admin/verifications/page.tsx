@@ -6,6 +6,7 @@ import { QueueLayout } from "@/components/admin/ui/QueueLayout";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
 import { VerificationDetail } from "@/app/admin/verifications/VerificationDetail";
 import { requireAdmin } from "@/lib/auth/requireAdmin";
+import { countPendingCollectionMethods } from "@/lib/residences/collectionApprovalDb";
 import { pluralize } from "@/lib/format/plural";
 import {
   QUEUE_CHIPS,
@@ -120,6 +121,9 @@ export default async function VerificationsPage({
         ? (lastReviewEvent?.created_at as string)
         : null;
 
+    // DR63 2b: medios de cobro de la reserva por aprobar de esta residencia (informativo, no bloquea la verificación).
+    const collectionPendingCount = await countPendingCollectionMethods(admin, activeId);
+
     if (residence && verification) {
       const sectionMap = Object.fromEntries((sections ?? []).map((s) => [s.section_type, s.content]));
       detail = {
@@ -130,6 +134,7 @@ export default async function VerificationsPage({
         },
         verification,
         residenceStatus: residence.status as string,
+        collectionPendingCount,
         resubmittedAt,
         services: (sectionMap.services?.items as string[]) ?? [],
         nearUniversities: (sectionMap.near_universities?.items as string[]) ?? [],

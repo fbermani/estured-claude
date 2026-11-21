@@ -4,6 +4,8 @@ import { countEssentialFaqsReady } from "@/lib/faq/catalog";
 import type { CatalogLoad } from "@/lib/faq/residenceCatalog";
 import { loadCatalogForResidence } from "@/lib/faq/residenceCatalog";
 import { loadCurrentRegulation } from "@/lib/regulations/current";
+import type { ReservationCollectionConfig } from "@/lib/residences/reservationCollection";
+import { loadReservationCollectionConfig } from "@/lib/residences/reservationCollectionDb";
 
 /**
  * Datos de los requisitos para enviar a revisión (`computeSubmitReadiness`) que NO viajan en el formulario del perfil: viven en otras
@@ -18,6 +20,8 @@ export type SubmitReadinessExternal = {
   regulationPublished: boolean | null;
   /** Preguntas esenciales listas; `null` = catálogo no disponible en este entorno (migración pendiente). */
   essentialFaqsReady: number | null;
+  /** Cobro de la reserva (DR63): solo claves y estados, sin datos de cobro; `null` = migración 0102 pendiente en este entorno (no se exige). */
+  reservationCollection: ReservationCollectionConfig | null;
 };
 
 /** El reglamento cuenta solo si hay una versión publicada que la residencia hizo suya: ni el modelo base sin adaptar ni un borrador. */
@@ -49,11 +53,12 @@ export async function loadSubmitReadinessExternal(
       .eq("related_entity_id", residenceId)
       .eq("document_type", documentType)
       .neq("status", "rejected");
-  const [photosRes, pdfRes, regulation, catalog] = await Promise.all([
+  const [photosRes, pdfRes, regulation, catalog, collection] = await Promise.all([
     filesQuery("residence_photo"),
     filesQuery("residence_rules_document"),
     loadCurrentRegulation(admin, residenceId),
     loadCatalogForResidence(admin, residenceId),
+    loadReservationCollectionConfig(admin, residenceId),
   ]);
   if (photosRes.error || pdfRes.error) {
     console.error("[submit-readiness] files read failed:", photosRes.error ?? pdfRes.error);
@@ -61,11 +66,13 @@ export async function loadSubmitReadinessExternal(
   }
   if (!regulation.ok) return { ok: false };
   if (!catalog.ok && catalog.reason === "failed") return { ok: false };
+  if (!collection.ok) return { ok: false };
   return {
     ok: true,
     photos: photosRes.count ?? 0,
     rulesPdf: (pdfRes.count ?? 0) > 0,
     regulationPublished: regulationPublishedFlag(regulation),
     essentialFaqsReady: essentialFaqsReadyCount(catalog),
+    reservationCollection: collection.config,
   };
 }

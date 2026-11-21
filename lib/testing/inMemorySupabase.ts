@@ -303,7 +303,7 @@ export function createInMemorySupabase(initial: Record<string, Row[]>, options: 
       const hit = matches();
       tables[table] = rows.filter((r) => !hit.includes(r));
       log.push({ table, op: "delete", payload: null });
-      return { data: null, error: null, count: null };
+      return this.returning ? shape(hit.map((r) => ({ ...r })), null) : { data: null, error: null, count: null };
     }
   }
 

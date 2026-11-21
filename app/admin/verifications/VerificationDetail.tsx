@@ -2,6 +2,7 @@
 
 import { formatDate } from "@/lib/dates/format";
 import Image from "next/image";
+import Link from "next/link";
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
@@ -54,6 +55,7 @@ export function VerificationDetail({
   rulesFile,
   resubmittedAt,
   residenceStatus,
+  collectionPendingCount = null,
 }: {
   residence: Residence;
   verification: Verification;
@@ -69,6 +71,8 @@ export function VerificationDetail({
   resubmittedAt?: string | null;
   /** Estado actual de la residencia: define si el admin todavía puede decidir (DR7). */
   residenceStatus: string;
+  /** Medios de cobro de la reserva con datos por aprobar (DR63 2b); `null` si no se pudo contar. No bloquea la decisión. */
+  collectionPendingCount?: number | null;
 }) {
   const action = reviewResidence.bind(null, residence.id);
   const [state, formAction] = useActionState(action, initialState);
@@ -132,6 +136,24 @@ export function VerificationDetail({
           </p>
         )}
       </AdminCard>
+
+      {collectionPendingCount !== null && collectionPendingCount > 0 && (
+        <AdminCard className="p-6">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 className="text-sm font-bold" style={{ color: cmd.onSurface }}>
+                Cobro de la reserva
+              </h2>
+              <p className="mt-1 text-xs" style={{ color: cmd.outline }}>
+                {collectionPendingCount === 1 ? "1 medio tiene" : `${collectionPendingCount} medios tienen`} datos de cobro por aprobar. La primera carga se aprueba al verificar la residencia.
+              </p>
+            </div>
+            <Link href={`/admin/collection-approvals?id=${residence.id}`} className="text-xs font-bold underline" style={{ color: cmd.primary }}>
+              Revisar datos de cobro →
+            </Link>
+          </div>
+        </AdminCard>
+      )}
 
       <AdminCard className="p-6">
         <div className="flex flex-wrap items-center justify-between gap-2">

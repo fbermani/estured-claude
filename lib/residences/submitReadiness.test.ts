@@ -40,6 +40,7 @@ const full: SubmitReadinessInput = {
   regulationPublished: true,
   rulesPdf: false,
   essentialFaqsReady: 3,
+  reservationCollection: { modes: ["whatsapp_direct"], acceptedMethods: [], methodsWithData: [] },
   conditions,
 };
 
@@ -50,7 +51,7 @@ describe("computeSubmitReadiness", () => {
     const r = computeSubmitReadiness(full);
     expect(r.canSubmit).toBe(true);
     expect(r.missing).toEqual([]);
-    expect(r.items.map((i) => i.key)).toEqual(["basics", "services", "commonAreas", "rules", "regulation", "faq", "universities", "roomTypes", "photos", "conditions"]);
+    expect(r.items.map((i) => i.key)).toEqual(["basics", "services", "commonAreas", "rules", "regulation", "faq", "universities", "roomTypes", "photos", "conditions", "collection"]);
     expect(r.items.every((i) => i.ok && i.required && i.progress === 1 && i.hint === undefined)).toBe(true);
   });
 
@@ -71,9 +72,10 @@ describe("computeSubmitReadiness", () => {
       photos: 0,
       regulationPublished: false,
       essentialFaqsReady: 0,
+      reservationCollection: { modes: null, acceptedMethods: null, methodsWithData: [] },
     });
     expect(r.canSubmit).toBe(false);
-    expect(keys(r)).toEqual(["basics", "services", "commonAreas", "rules", "regulation", "faq", "universities", "roomTypes", "photos"]);
+    expect(keys(r)).toEqual(["basics", "services", "commonAreas", "rules", "regulation", "faq", "universities", "roomTypes", "photos", "collection"]);
     expect(r.missing.every((i) => i.hint && i.href)).toBe(true);
   });
 
@@ -124,6 +126,36 @@ describe("computeSubmitReadiness", () => {
     expect(computeSubmitReadiness({ ...full, photos: 2 }).missing[0].hint).toBe("Sumá 1 foto más (hacen falta 3).");
     expect(computeSubmitReadiness({ ...full, photos: 0 }).missing[0].hint).toContain("Cargá al menos 3 fotos");
     expect(computeSubmitReadiness({ ...full, photos: 12 }).canSubmit).toBe(true);
+  });
+
+  describe("cobro de la reserva (requisito 10, DR63)", () => {
+    const run = (reservationCollection: SubmitReadinessInput["reservationCollection"]) => computeSubmitReadiness({ ...full, reservationCollection });
+
+    it("sin configurar no cumple y apunta a su pantalla", () => {
+      const r = run({ modes: null, acceptedMethods: null, methodsWithData: [] });
+      expect(keys(r)).toEqual(["collection"]);
+      expect(r.missing[0].href).toBe("/residence/res-1/collection");
+      expect(r.missing[0].hint).toContain("Elegí cómo cobrás la reserva");
+      expect(run({ modes: [], acceptedMethods: [], methodsWithData: [] }).canSubmit).toBe(false);
+    });
+
+    it("contacto directo cumple sin datos extra", () => {
+      expect(run({ modes: ["whatsapp_direct"], acceptedMethods: null, methodsWithData: [] }).canSubmit).toBe(true);
+    });
+
+    it("medios habilitados necesita al menos un medio con sus datos cargados", () => {
+      expect(keys(run({ modes: ["enabled_methods"], acceptedMethods: [], methodsWithData: [] }))).toEqual(["collection"]);
+      const missing = run({ modes: ["enabled_methods"], acceptedMethods: ["belo", "prex"], methodsWithData: ["belo"] });
+      expect(keys(missing)).toEqual(["collection"]);
+      expect(missing.missing[0].hint).toBe("Cargá los datos de cobro de Prex.");
+      expect(run({ modes: ["enabled_methods"], acceptedMethods: ["belo", "prex"], methodsWithData: ["belo", "prex"] }).canSubmit).toBe(true);
+    });
+
+    it("sin la migración 0102 (null) el requisito no aparece ni se exige", () => {
+      const r = run(null);
+      expect(r.canSubmit).toBe(true);
+      expect(r.items.some((i) => i.key === "collection")).toBe(false);
+    });
   });
 
   describe("condiciones de reserva", () => {

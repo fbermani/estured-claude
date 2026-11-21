@@ -1365,6 +1365,7 @@ Reglas:
 - **todo cambio de datos de cobro requiere aprobación del admin (DR63 (j)):** el servidor guarda en `pending_details` (y el nombre de `other` en `pending_method_label`). Siguen rigiendo los datos y el nombre aprobados; al estudiante se le muestra y se congela solo `method_label` aprobado. La aprobación o el rechazo son una acción del admin (con motivo si rechaza) que se audita;
 - audita cada cambio con datos enmascarados y avisa al dueño;
 - los datos de cobro se leen solo por server action, nunca por la API pública. El staff no los lee.
+- **Aprobación (fase 2b, implementada):** server action `reviewCollectionAccount` (`/admin/collection-approvals`). Roles: admin y superadmin; el rol se lee de `user_roles` en el servidor. «Aprobar» copia `pending_details` a `details` y `pending_method_label` a `method_label`, limpia `pending_*` y marca `approved_at` y `approved_by_user_id`. «Rechazar» exige motivo de 10 a 300 caracteres (va en `audit_logs.reason_text`), limpia `pending_*` y deja rigiendo lo aprobado; si nunca hubo datos aprobados, borra la fila. Ambas actualizan solo si `pending_submitted_at` sigue igual al valor que el admin vio; si no, piden recargar. Audita con el dato enmascarado y avisa in-app al dueño, sin el dato.
 
 ### 16.4. Estudiante informa el pago «Ya pagué» *(DR63, propuesto)*
 

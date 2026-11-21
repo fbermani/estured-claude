@@ -65,6 +65,7 @@ describe("strengthFromReadiness (fortaleza derivada de los requisitos para envia
     regulationPublished: true,
     rulesPdf: false,
     essentialFaqsReady: 3,
+    reservationCollection: { modes: ["whatsapp_direct"], acceptedMethods: [], methodsWithData: [] },
     conditions: {
       adjustmentPolicy: "quarterly",
       initialPaymentMode: "one_month",

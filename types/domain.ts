@@ -96,3 +96,16 @@ export interface Residence {
   /** Todos los valores distintos declarados por sus tipos de habitación (puede haber varios). */
   genderPolicies?: Array<"mixto" | "solo_mujeres" | "solo_hombres">;
 }
+
+/**
+ * Estado del pago a la residencia (`external_residence_payments.status`, docs/04 §6 y docs/06 §4.6).
+ * DR63 (e): `student_reported_paid` es el estado de «Ya pagué» (migración 0102). `student_reference_uploaded` queda para filas anteriores.
+ */
+export type ExternalResidencePaymentStatus =
+  | "not_required_yet"
+  | "pending"
+  | "student_reference_uploaded"
+  | "student_reported_paid"
+  | "reported_received_by_residence"
+  | "expired"
+  | "disputed";
