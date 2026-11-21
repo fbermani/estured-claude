@@ -1362,7 +1362,7 @@ Body: `reservation_payment_modes` (`enabled_methods`, `whatsapp_direct` o ambos)
 Reglas:
 - el servidor valida claves contra el catálogo y exige `details` completo por cada medio aceptado;
 - con `intent = "submit"` exige al menos una opción completa (requisito 10 de DR59);
-- **todo cambio de datos de cobro requiere aprobación del admin (DR63 (j)):** el servidor guarda en `pending_details`. Siguen rigiendo los datos aprobados. La aprobación o el rechazo son una acción del admin (con motivo si rechaza) que se audita;
+- **todo cambio de datos de cobro requiere aprobación del admin (DR63 (j)):** el servidor guarda en `pending_details` (y el nombre de `other` en `pending_method_label`). Siguen rigiendo los datos y el nombre aprobados; al estudiante se le muestra y se congela solo `method_label` aprobado. La aprobación o el rechazo son una acción del admin (con motivo si rechaza) que se audita;
 - audita cada cambio con datos enmascarados y avisa al dueño;
 - los datos de cobro se leen solo por server action, nunca por la API pública. El staff no los lee.
 
@@ -1429,7 +1429,8 @@ Efectos:
 - a las 24 horas de `student_reported_paid_at` (o de `student_payment_issue_at` sin responder) sin respuesta: avisa a la residencia;
 - a las 72 horas de lo mismo (decidido por el dueño para «Ya pagué»; supuesto para «No pude realizar el pago»): alerta al admin y abre un caso de Soporte. No hay transición automática;
 - 12 horas antes de `payment_deadline_at` sin «Ya pagué» ni aviso de problema: avisa al estudiante;
-- marca `residence_reminder_sent_at` y `student_reminder_sent_at` para no repetir.
+- marca `residence_reminder_sent_at`, `student_reminder_sent_at` y `admin_alert_sent_at` (alerta de 72 horas) para no repetir;
+- el servidor limpia las tres marcas al registrar cada evento nuevo («Ya pagué» o «No pude realizar el pago»), para no suprimir los avisos del segundo evento.
 
 ### 16.9. Estudiante avisa «No pude realizar el pago» *(DR63 (l), supuesto reversible, propuesto)*
 

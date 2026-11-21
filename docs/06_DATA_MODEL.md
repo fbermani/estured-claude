@@ -740,10 +740,11 @@ Datos de cobro de la reserva, un registro por medio y residencia. Son dato sensi
 | `id` | uuid | ID |
 | `residence_id` | uuid | FK `residences` |
 | `method_key` | text | Clave del catálogo (`mercadopago`, `transfer_ars`, `other`…) |
-| `method_label` | text null | Nombre libre. Solo con `other` |
+| `method_label` | text null | Nombre libre **aprobado**. Solo con `other`. Sin saltos de línea. Es el único que se muestra y se congela |
+| `pending_method_label` | text null | *(revisión de seguridad 0102)* Nombre nuevo de `other` a la espera de aprobación del admin. Mismo flujo que `pending_details` |
 | `details` | text null | Datos **aprobados y vigentes**: alias, CBU, usuario o instrucciones. Largo máximo propuesto: 500. Null hasta la primera aprobación |
 | `pending_details` | text null | *(DR63 (j))* Datos nuevos a la espera de aprobación del admin. No se muestran a nadie fuera del dueño y el admin |
-| `pending_submitted_at` | timestamptz null | Cuándo el dueño cargó `pending_details` |
+| `pending_submitted_at` | timestamptz null | Cuándo el dueño cargó `pending_details` o `pending_method_label` |
 | `approved_by_user_id` | uuid null | Admin que aprobó el último cambio |
 | `approved_at` | timestamptz null | Cuándo se aprobó |
 | `updated_by_user_id` | uuid null | Dueño que lo editó |
@@ -753,7 +754,7 @@ Datos de cobro de la reserva, un registro por medio y residencia. Son dato sensi
 Reglas:
 - `unique (residence_id, method_key)`: una cuenta por medio. Varias cuentas por medio quedan como opción abierta (`docs/00` DR63 (h));
 - cada clave de `accepted_payment_methods` tiene su fila con datos completos, vigentes o pendientes (lo valida el servidor al guardar y al enviar a revisión);
-- **Aprobación del admin (DR63 (j), decidida):** todo cambio de datos de cobro requiere aprobación (`docs/03` §7.3). El dueño guarda en `pending_details`. Siguen rigiendo `details`. Al aprobar, `pending_details` pasa a `details`. La primera carga la aprueba el admin al verificar la residencia. Un medio solo se ofrece al estudiante si tiene `details` aprobados. Las solicitudes con el pago ya habilitado conservan su `instructions_snapshot`;
+- **Aprobación del admin (DR63 (j), decidida):** todo cambio de datos de cobro requiere aprobación (`docs/03` §7.3). El dueño guarda en `pending_details` (y el nombre de `other` en `pending_method_label`). Siguen rigiendo `details` y `method_label`. Al aprobar, `pending_details` pasa a `details` y `pending_method_label` a `method_label`. La primera carga la aprueba el admin al verificar la residencia. Un medio solo se ofrece al estudiante si tiene `details` aprobados. Las solicitudes con el pago ya habilitado conservan su `instructions_snapshot`;
 - RLS habilitada **sin policies**: solo el service role, mismo precedente que `payment_settings` (0038) y `residence_private_details`. Sin policy para `authenticated`, no lleva la restrictiva `<tabla>_only_active_users` de 0081;
 - escribe solo el dueño (`profile.edit` restringido al dueño), validado en la server action. El staff no lee ni edita desde esta tabla;
 - cada cambio, la aprobación y el rechazo se auditan con los datos enmascarados (CBU parcial) y avisan al dueño. Precedente: `notifyPaymentSettingsChange` (0038);
@@ -1143,6 +1144,7 @@ Reglas:
 | `student_payment_issue_resolved_at` | timestamptz null | *(DR63 (l))* Cuando la residencia respondió (contactar o rehabilitar). Cierra el aviso y reinicia el plazo |
 | `residence_reminder_sent_at` | timestamptz null | *(DR63, supuesto)* Marca del aviso de 24 h a la residencia, para no repetirlo. Sirve para «Ya pagué» y para «No pude realizar el pago» |
 | `student_reminder_sent_at` | timestamptz null | *(DR63, supuesto)* Marca del aviso de 12 h al estudiante |
+| `admin_alert_sent_at` | timestamptz null | *(DR63 (j) 1, 0102)* Marca de la alerta al admin a las 72 h. Evita que el job la repita. Interna: sin `grant select` a `authenticated` |
 | `created_at` | timestamptz | Alta |
 | `updated_at` | timestamptz | Actualización |
 
