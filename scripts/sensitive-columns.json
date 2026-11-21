@@ -17,6 +17,13 @@
     "residence_regulation_versions": [
       "created_by_user_id",
       "file_id"
+    ],
+    "estured_fee_payments": [
+      "instructions_snapshot",
+      "student_payment_issue_reason",
+      "admin_dispute_reason",
+      "admin_disputed_at",
+      "admin_alert_sent_at"
     ]
   },
   "privateTables": [
@@ -42,6 +49,7 @@
     "missing_residence_requests",
     "room_change_requests",
     "room_change_place_alerts",
-    "student_identity_documents"
+    "student_identity_documents",
+    "estured_fee_collection_methods"
   ]
 }

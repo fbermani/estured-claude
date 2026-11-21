@@ -280,7 +280,9 @@ El medio de pago elegido se utilizará exclusivamente para abonar el fee EstuRed
 
 Cada residencia define en su ficha cómo cobra la reserva: con medios de pago habilitados por ella, con contacto directo por WhatsApp, o con ambas opciones. Antes de enviar la solicitud, el usuario puede ver cómo se cobrará y elegir un medio como preferencia, que no es vinculante. El pago a la residencia se realiza por fuera de EstuRed. Los pagos posteriores a la reserva se acuerdan entre el usuario y la residencia.
 
-EstuRed no es responsable de ningún pago ni del medio de pago elegido, incluidos los medios externos que el usuario utilice, y no custodia fondos. El usuario no debe transferir dinero a datos de cobro que no hayan llegado a través de su solicitud en EstuRed. Esta cláusula no modifica las reglas del fee EstuRed, que cobra EstuRed por sus propios medios, ni el derecho de revocación.
+EstuRed no es responsable de ningún pago a la residencia ni del medio de pago elegido para pagarle, incluidos los medios externos que el usuario utilice, y no custodia fondos. El usuario no debe transferir dinero a datos de cobro que no hayan llegado a través de su solicitud en EstuRed.
+
+El fee EstuRed lo cobra EstuRed por sus propios medios. EstuRed responde por registrar, validar y comprobar el pago de su fee. EstuRed no responde por fallas, demoras o costos de bancos, billeteras o medios de pago de terceros, ni por pagos hechos a datos que no vinieron de su pantalla de pago. El usuario elige el medio entre los que EstuRed habilita y paga solo a los datos que ve en esa pantalla. Estas cláusulas no modifican el derecho de revocación. *(DR64 (g), 2026-11-21, `LEGAL_REVIEW_PENDING`: pendiente de revisión legal.)*
 
 > Texto actualizado por decisión del dueño (2026-11-20). Pendiente de revisión legal.
 

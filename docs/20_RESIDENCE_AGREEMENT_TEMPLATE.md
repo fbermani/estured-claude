@@ -200,7 +200,7 @@ La Residencia define en su ficha cómo cobra la reserva: mediante los medios de 
 
 El pago a la Residencia se realiza por fuera de EstuRed, directamente entre estudiante/familiar y Residencia, salvo integración futura específica. Los pagos posteriores a la reserva son acordados entre la Residencia y el estudiante.
 
-EstuRed no es responsable de ningún pago ni del medio de pago elegido, no custodia fondos y no garantiza el cobro. Si la Residencia elige el contacto directo, la coordinación del pago y su responsabilidad quedan a cargo de la Residencia. El fee EstuRed es cobrado por EstuRed por sus propios medios, y esta cláusula no modifica su régimen ni el derecho de revocación.
+EstuRed no es responsable de ningún pago que el estudiante haga a la Residencia ni del medio de pago elegido para ello, no custodia fondos y no garantiza el cobro. Si la Residencia elige el contacto directo, la coordinación del pago y su responsabilidad quedan a cargo de la Residencia. El fee EstuRed es cobrado por EstuRed por sus propios medios. EstuRed responde por registrar y validar el pago de su fee, y no por fallas de bancos, billeteras o medios de pago de terceros. Esta cláusula no modifica el régimen del fee ni el derecho de revocación. *(DR64 (g), 2026-11-21, `LEGAL_REVIEW_PENDING`: pendiente de revisión legal.)*
 
 > Texto actualizado por decisión del dueño (2026-11-20). Pendiente de revisión legal.
 

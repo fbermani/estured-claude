@@ -680,7 +680,14 @@ Ruta base: `/students`
 - **cuenta regresiva** hasta el vencimiento de la ventana de pago (48 h);
 - botón **"Tengo un problema con el pago"** (abre un caso de Soporte con el contexto de la reserva).
 
-**Propuesta DR63 (i), sin implementar (2026-11-20).** EstuRed habilitaría varios medios del catálogo para el fee, con datos de cobro propios, separados de los de la residencia. El pagador elige el medio. En medios manuales la pantalla muestra los datos con botón «Copiar», el botón «Ya pagué» y el comprobante. En medios en USD, el monto usa el tipo de cambio del `snapshot_final`. Hoy la pantalla ofrece solo transferencia manual (`payment_settings`, una cuenta).
+**DR64 (2026-11-21, sin implementar; supuestos del agente pendientes de ratificación).** Reemplaza la propuesta DR63 (i). Hoy la pantalla ofrece solo transferencia manual (`payment_settings`, una cuenta). Con DR64 la tarjeta del pagador queda así:
+- **Medios:** lista de los medios habilitados por el admin. Ninguno viene preseleccionado. Con un solo medio, queda elegido. Sin ningún medio habilitado, se usa `payment_settings` como respaldo.
+- **Datos de cobro:** al elegir un medio aparecen sus datos con botón «Copiar», el monto exacto en la moneda del medio (ARS, o USD con la cotización del `snapshot_final`) y el n.º de reserva como referencia. El pagador puede cambiar de medio hasta «Ya pagué».
+- **«Ya pagué»:** botón principal. Abre el formulario con el comprobante **obligatorio** (DR8) y los datos de facturación. Al enviar, la tarjeta pasa a «Pago informado. EstuRed lo está validando» y no hay cuenta regresiva.
+- **«No pude realizar el pago»:** botón secundario, con motivo opcional. Pasa la tarjeta a «Avisamos a EstuRed. Te vamos a responder» y frena la cuenta regresiva. Convive con el enlace «Tengo un problema con el pago» (Soporte).
+- **«No recibí el pago» del admin:** el pagador ve «EstuRed no encontró tu pago. Soporte te va a escribir» con enlace a Soporte. No se muestra el motivo.
+- **Aviso fijo:** «Pagá solo a los datos de esta pantalla. EstuRed no responde por pagos hechos a otros datos.»
+- Solo el pagador designado ve los datos de cobro; el resto de las reglas de arriba no cambian.
   El fee lo cobra EstuRed, no la residencia: este botón lleva a Soporte con un motivo propio **dirigido a EstuRed** (`/students/support?motivo=pago-fee&reserva=<id>`, copy "Escribile a EstuRed"), sin elegir residencia y sin el recordatorio de deslinde de los reclamos contra residencias; el caso queda con la reserva como contexto y la residencia no lo ve (`support_cases.topic = 'estured_fee_payment'`, migración 0040). Usa los mismos estados del caso.
 - Solo el **pagador designado** de la reserva ve los datos de cobro; si el pagador es otra persona, el estudiante ve "El pago lo hace quien está designado como pagador" con enlace a Soporte. Con el plazo vencido no se muestran datos de transferencia ni el formulario del comprobante.
 - Los datos de cobro **los edita solo un superadmin** (`/admin/payment-settings`); cada cambio se audita y avisa a todos los superadmin (in-app y email, sin datos de la cuenta). El admin común ve un resumen con el CBU enmascarado.
@@ -1292,8 +1299,21 @@ Sin cambios de fondo.
 
 **Validar pago manual (DR8, `docs/00` §31):** el detalle muestra el **plazo** de la ventana de pago (vence en / vencido), el **pagador** (estudiante o familiar), el **cálculo del fee** (base USD × porcentaje × tipo de cambio del snapshot, en ARS y USD) y el comprobante con su acceso auditado. El botón "Marcar pagado y confirmar reserva" **solo aparece con comprobante cargado y plazo vigente**; sin comprobante hay una acción separada y excepcional, "Confirmar sin comprobante", con motivo ≥ 10 caracteres. Se carga **monto recibido + moneda** (se muestra la diferencia contra el fee esperado) y, antes de ejecutar, un paso de confirmación con las consecuencias ("Se confirma la reserva, se emite el comprobante verificable y se dispara la factura") y el checkbox "Verifiqué el pago". Si el plazo venció, la pantalla indica reabrirlo desde Actividad → Reservas.
 
+**DR64 (2026-11-21, supuestos del agente):** el detalle suma el medio elegido y la moneda del medio. Acciones nuevas: **«No recibí el pago»** (motivo de 10 a 500 caracteres; abre un caso de Soporte `estured_fee_payment`), y para el aviso «No pude realizar el pago» **«Contactar al pagador»** y **«Reabrir el pago»**. Un fee en `pending_manual_payment` se muestra sin plazo: no vence (`docs/00` DR64 (d)). Con disputa abierta, los botones son «Marcar pagado» y «Reabrir el plazo».
+
 ---
 
+### 8.10b. Medios de cobro del fee *(DR64 (a), supuesto del agente, sin implementar)*
+
+**Ruta:** `/admin/payment-settings` (existente; hoy una sola cuenta).
+
+**Contenido:** lista del catálogo de medios (`lib/payments/paymentMethods.ts`). Por medio: interruptor «Habilitado», moneda (ARS o USD) y datos de cobro enmascarados (`maskPaymentDetails`) con «Mostrar». Botón «Importar la cuenta actual» para crear `transfer_ars` desde `payment_settings`.
+
+**Quién edita:** solo un `superadmin`. El admin común ve la lista enmascarada. Cada cambio se audita y avisa a todos los superadmin, sin datos de cobro.
+
+**Estados:** vacío («Todavía no hay medios habilitados. Se usa la cuenta de transferencia anterior»), guardado y error en español.
+
+---
 
 ### 8.10bis. Revocaciones del fee — "Resolver revocación" (admin, DR6)
 

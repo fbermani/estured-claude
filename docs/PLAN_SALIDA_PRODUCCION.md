@@ -8,6 +8,84 @@ Estado del código (2026-11-13): rama `hardening/pre-produccion-2026-11`, migrac
 
 ---
 
+## Paso 0. Salida por etapas: preapertura mínima, campaña y app en paralelo (decidido 2026-11-21)
+
+**Decisión del dueño.** Es un MVP y la primera ventana grande de búsqueda ya está abierta. No se espera a que todo esté perfecto: se sale con lo mínimo y se ajusta con datos reales. Las entrevistas con residencias van a cambiar la app, así que definir todo ahora no sirve.
+
+**Estrategia (ya documentada, no se reabre):** `docs/23_PREAPERTURA.md`, `docs/00` DR42–DR47 y `marketing/instagram/ESTRATEGIA_INSTAGRAM.md`. Los estudiantes atraen a las residencias. No hay contacto en frío a residencias. Los registros y los contadores reales de estudiantes son el argumento para que las residencias fundadoras lleguen solas.
+
+### Etapas
+
+1. **Etapa 1 — Cimientos legales y técnicos (antes de gastar en anuncios).**
+2. **Etapa 2 — Instagram (puede avanzar en paralelo con la 1).**
+3. **Etapa 3 — Producción mínima con `PREAPERTURA=on`.** Solo el popup, la landing y `/fundadoras`. El popup no se cierra.
+4. **Etapa 4 — Test de anuncios, una semana, gasto bajo.**
+5. **Etapa 5 — Campaña fuerte, solo con datos del test.**
+6. **En paralelo, todo el tiempo — App, dashboards y flujos en `staging`.** No pasa a producción hasta cumplir la sección I. Producción solo recibe lo del Paso 0 más fixes.
+
+### Etapa 1 — Cimientos (bloquean la Etapa 4)
+
+- [ ] **Textos legales mínimos publicados** en `/terms`, `/privacy` y `/consentimientos` (partir de `docs/audits/TEXTOS_LEGALES_PROVISORIOS_2026-11-21.md`). Meta exige política de privacidad visible y se captan datos personales (Ley 25.326). Riesgo de no validar con abogado: asumido por el dueño (DR45); aun así, los textos tienen que existir y estar enlazados desde el popup.
+- [ ] **Links legales visibles dentro del popup no cerrable.** Que no se pueda cerrar no puede ocultar Términos ni Privacidad.
+- [ ] **Datos del responsable legal** en la política de privacidad (pendiente en `docs/23` §9).
+- [ ] **Proyecto Supabase de producción** con bootstrap (D1–D3). Mínimo para preapertura: tablas de preinscriptos y de solicitudes de residencias, Auth y buckets necesarios.
+- [ ] **Mails** (C3, A4): `hola@estured.com` leída por alguien y Resend con SPF/DKIM. Sin esto no hay confirmación del preregistro ni mail a fundadoras.
+- [ ] **Variables de Vercel** (E) con `PREAPERTURA=on`. Sin `DEMO_LOGIN_ENABLED`.
+- [ ] **Medición.** Pixel de Meta y eventos: `PageView`, preregistro completado (estudiante y familiar), solicitud de fundadora. Verificar el dominio en el Business Manager. Cargar el pixel con consentimiento y sin enviar datos personales en claro. **[Yo]** el código; **[Vos]** las cuentas de Meta.
+- [ ] **Medición sin Meta:** parámetros UTM guardados con cada preregistro, para saber qué pieza trae a quién.
+- [ ] **Secuencia de nutrición** para los preregistrados (mails 1 a 3 en las primeras semanas): confirmación, qué pasa ahora, contenido útil de las guías. Sin promesas de disponibilidad ni de match. Un lead sin contacto en semanas se enfría.
+- [ ] **Estado real de la preapertura en `MEMORY.md`** con los contadores en cero y la fecha de cierre de fundadoras decidida (A5).
+
+### Etapa 2 — Instagram
+
+- [ ] Cuenta profesional, bio, destacadas y la tanda base de 10 posts publicada (`marketing/instagram/ESTRATEGIA_INSTAGRAM.md` §2–§4). Meta Ads arranca **después** de los 10 posts.
+- [ ] Regla vigente: ningún post nombra residencias ni muestra precios.
+- [ ] Enlace de la bio al dominio con UTM propio.
+- [ ] Rutina de interacción diaria (§5.2). Es la actividad que no se negocia: primero Instagram, después la app.
+
+### Etapa 3 — Producción mínima
+
+Se ejecuta con las secciones A a G de este runbook, con este alcance recortado:
+
+- [ ] A1 ya decidido: `PREAPERTURA=on` en producción.
+- [ ] A3, A4, A5, C, D, E y F completas (dominio `estured.com`, DNS de Hostinger hacia Vercel en F2).
+- [ ] G completa. Obligatorio: admin real, anon key sin exposición, Advisors, CAPTCHA y límites, mails de punta a punta, smoke test de preregistro (estudiante y familiar) y de solicitud de fundadora.
+- [ ] Un solo código para staging y producción. La diferencia es solo la variable `PREAPERTURA`. Nada de ramas paralelas.
+- [ ] **Regla de merge:** a `main` solo entra lo que ya pasó por `staging` y no cambia el comportamiento de la preapertura. Lo demás espera a la sección I.
+- [ ] Tope de gasto, alertas y WAF (sección «Costos y abuso»): activos antes de la campaña.
+
+### Etapa 4 — Test de anuncios (una semana)
+
+- [ ] Presupuesto bajo y fijo, definido por el dueño antes de empezar. Tope diario por escrito.
+- [ ] 3 a 5 ángulos distintos de copy y pieza, todos con mensaje honesto: gratis, sin promesa de disponibilidad.
+- [ ] Una sola conversión: preregistro completado. Público: estudiantes y familias que buscan alojamiento en Buenos Aires.
+- [ ] Cuenta publicitaria nueva: calentarla y no cambiar anuncios cada día para evitar restricciones.
+- [ ] Al cierre de la semana: costo por preregistro por ángulo, tasa de paso 1 a paso 2 y tasa de preregistro por visita.
+
+### Etapa 5 — Campaña fuerte
+
+- [ ] Se escala solo el ángulo con mejor costo por preregistro.
+- [ ] **Criterio de corte (completar el dueño antes de la Etapa 4):** costo máximo por preregistro = ___ ARS. Si pasa ese valor tras 7 días, se pausa y se cambia el mensaje.
+- [ ] **Cuello de botella:** los registros de estudiantes tienen que convertirse en solicitudes de residencias fundadoras. Medir por separado (DR46): estudiantes registrados y solicitudes de fundadoras recibidas por semana.
+- [ ] **Alerta temprana:** si hay más de 300 estudiantes y cero solicitudes de fundadoras tras 3 semanas, revisar el mensaje de `/fundadoras`, su visibilidad en la landing y el canal entrante (Instagram, el contacto directo del dueño con quienes ya preguntan). No se pasa a contactar en frío sin decidirlo de nuevo con el dueño.
+
+### Trabajo en paralelo de la app
+
+- Ajustes de dashboards, flujos y fichas siguen en `staging`.
+- Cada bloque cierra con `typecheck` + `lint` + `build` y entra a producción solo con las condiciones de la regla de merge.
+- Las entrevistas con residencias alimentan una lista de cambios. No se implementan en caliente: se priorizan una vez por semana.
+- **Límite de tiempo:** si la app en paralelo consume más del 50 % del día durante la campaña, parar y volver a la Etapa 2 (Instagram y contenido).
+
+### Criterio de éxito del Paso 0
+
+- Producción en `estured.com` con la preapertura activa y el popup que no se cierra.
+- Textos legales publicados y pixel midiendo.
+- 10 posts base en Instagram.
+- Una semana de test de anuncios con números por ángulo.
+- Decisión escrita de escalar, ajustar o pausar.
+
+---
+
 ## A. Decisiones previas (contestar antes de empezar)
 
 - [x] **A1. Lanzamiento en modo preapertura — decidido 2026-11-13: `PREAPERTURA=on` en producción.** Con `PREAPERTURA=on` en producción el sitio abierto queda cerrado (`/` y `/for-students` muestran el popup de preapertura; `/search`, `/register`, `/waitlist` y `/students/*` redirigen). Login, `/admin`, `/for-residences`, `/guias`, `/fundadoras` y `/register/residence` siguen. **Recomendado: salir así** y abrir el sitio completo después (ver sección G). Si se quiere abrir todo ya, dejar la variable vacía, pero entonces hay que cerrar antes los requisitos de la sección G (verificación de email, etc.).
@@ -155,6 +233,9 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 > **Relevamiento solo lectura (2026-11-19):** `estured.com` activo en Hostinger (registrado 2026-11-14, vence 2027-11-14, lock + privacidad + auto-renovación ON, mail de contacto verificado). Nameservers `aster/helios.dns-parking.com` (zona DNS editable por API). DNS hoy: solo `A @ 2.57.91.91` (TTL 50, parking) y `CNAME www → estured.com`; sin MX/TXT/CAA. Responde 200 con la página de parking de Hostinger. En Vercel (proyecto `estured-claude`) el único dominio es `estured.vercel.app`, atado a la rama `staging`; **no hay dominio de Production ni deploys de `main`**. Hostinger tiene además *Unlimited Web Hosting* (activo, auto-renovación) y *Ecommerce Growth* (en prueba, auto-renovación), sin ningún sitio creado: decidir si se cancelan (pendiente, requiere confirmar ítem y monto). Ningún cambio hecho todavía.
 > **Decisión del dueño (2026-11-21):** `estured.com` apunta a Production (proyecto `estured-claude`, rama `main`). `estured.vercel.app` sigue como staging, **sin redirección** a `estured.com`. El DNS de Hostinger se cambia recién en F2, con el deploy de `main` listo, para no servir un 404.
 > **Hecho (2026-11-21):** `estured.com` y `www.estured.com` (308 → apex) agregados al proyecto `estured-claude` en Vercel, sin rama (Production). Vercel los marca `verified` pero `misconfigured` (el DNS sigue en parking). Registros que pide Vercel para F2: apex `A 216.198.79.1` y `A 64.29.17.1` (alternativa `76.76.21.21`); `www` `CNAME 19d4c8ed50265c3e.vercel-dns-017.com.` (alternativa `cname.vercel-dns.com.`). Pendiente: cambiar DNS en Hostinger (reemplaza el `A @ 2.57.91.91` y el `CNAME www`), solo cuando el deploy de `main` esté listo.
+> **Hecho (2026-11-21, a pedido del dueño: Claude configura Hostinger/Vercel/Supabase dev):** DNS de Hostinger actualizado por API: `A @ 216.198.79.1 + 64.29.17.1` y `CNAME www 19d4c8ed50265c3e.vercel-dns-017.com.` (TTL 300). Verificado: Hostinger y 8.8.8.8 devuelven los valores nuevos; Vercel reporta `misconfigured: false`. Hasta el primer deploy de `main`, `estured.com` no sirve la app. Supabase prod y el deploy de `main` siguen pendientes (el push a `origin/main` es del dueño).
+> **Cookies verificadas (2026-11-21):** ninguna cookie de la app define `Domain` (`lib/supabase/cookie-options.ts`, `server.ts`, `middleware.ts`): son host-only, `httpOnly` + `Secure` en prod + `SameSite=Lax`. Un subdominio futuro (`blog.`, `status.`) no puede leer la sesión. Mantener así: no agregar `domain: ".estured.com"`.
+> **Opción futura (no se hace ahora): aislar los paneles en `app.estured.com`.** Hoy sitio público y paneles viven juntos en `estured.com` a propósito: el SEO depende de `/search`, fichas y guías, y el dominio está en `SITE_URL`, canonicals, sitemap, robots, CSP, Turnstile, Redirect URLs de Supabase Auth y links de mails. Se reconsidera si los paneles pesan en el rendimiento del sitio público o si hace falta aislar seguridad. Si se hace: (1) agregar `app.estured.com` al proyecto en Vercel y su CNAME en Hostinger; (2) mover paneles y login a ese host y dejar redirects 308 desde las rutas viejas; (3) actualizar Site URL y Redirect URLs de Supabase, dominios de Turnstile, CSP y `NEXT_PUBLIC_APP_URL` (`NEXT_PUBLIC_SITE_URL` queda en el apex); (4) los usuarios deberán volver a iniciar sesión (cookies host-only); (5) `noindex` en el host de la app.
 - [ ] Vercel → proyecto → Settings → Domains → agregar `estured.com` y `www.estured.com` (www redirige al apex). Vercel muestra los registros exactos.
 - [ ] Hostinger → DNS zone: **borrar** los registros A/AAAA/CNAME de `@` y `www` que haya por defecto (parking) y crear los que indica Vercel (normalmente `A @ 76.76.21.21` y `CNAME www cname.vercel-dns.com`; **usar los valores que muestre Vercel**). No tocar los registros de Resend ni los MX del correo.
 - [ ] Esperar a que Vercel ponga ambos dominios en verde (HTTPS automático; propagación de minutos a horas).
@@ -239,6 +320,7 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 - [ ] **Migración 0101** (`db/migrations/0101_push_notifications.sql`): entra sola con el bootstrap de prod (`node scripts/build-bootstrap.mjs prod --host=estured.com`). En dev se pega a mano: https://supabase.com/dashboard/project/gyfbtsuibmecefwovdgh/sql/new. Sin ella el aviso in-app sale igual y el push no envía nada (degrada sin error). La 0100 (documento de identidad) es de otra rama y es independiente.
 - [ ] **Migración 0103** (`db/migrations/0103_support_topic_residence_payment.sql`, DR63 fase 5): agrega el topic `residence_payment` a Soporte. Entra sola con el bootstrap de prod. En dev ya está aplicada. Sin ella la disputa «No recibí el pago» y la alerta de 72 h funcionan, pero sin caso de Soporte. Requiere 0102 para el resto de DR63.
 - [ ] **Migración 0104** (`db/migrations/0104_payment_hardening_dispute_reason_and_case_unique.sql`, DR63 fase 5, revisión de seguridad): saca `dispute_reason` de la API y crea el índice único de casos `residence_payment` abiertos. Entra sola con el bootstrap de prod (después de 0102 y 0103). En dev ya está aplicada. Sin ella la app funciona, pero `dispute_reason` queda legible para estudiante y familiar.
+- [ ] **Migración 0105** (`db/migrations/0105_estured_fee_collection.sql`, DR64, Pista 2 paso A): tabla `estured_fee_collection_methods` (medios de cobro del fee de EstuRed, solo service role) y 12 columnas nuevas en `estured_fee_payments`. Entra sola con el bootstrap de prod. En dev ya está aplicada. Tras armar prod, un superadmin carga los medios del fee en `/admin/payment-settings` cuando esté el paso B (código). Hasta entonces rige `payment_settings`.
 - [ ] **Claves VAPID por entorno** (Vercel, sección E): un par para Preview/staging y otro distinto para Production. Una suscripción creada con un par no sirve con otro: si se cambian las claves, hay que volver a activar los avisos en cada dispositivo. `.env.local` ya tiene un par de desarrollo.
 - [ ] **Cron de las 9:00:** los push generados entre las 0:00 y las 8:59 (Argentina) quedan en cola y los envía el cron horario existente (`/api/cron/expire-stale-records`, `pg_cron` de la migración 0013). **En staging no hay cron ni `CRON_SECRET`**: allí lo encolado no sale. Para probarlo, llamá al endpoint a mano con el secreto desde un entorno que lo tenga, o probá de día.
 - [ ] **Probar en celular real** (HTTPS; en el Preview de `staging`): Android Chrome (instalar, activar avisos, recibir y tocar el aviso, contador del ícono) e iPhone con la app en la pantalla de inicio (iOS 16.4+). Chequear: sin datos personales en la pantalla bloqueada, que el aviso lleve al inicio del área y que el contador baje al leer en la campana.
@@ -295,7 +377,7 @@ Sin hallazgos altos. Dos medios y cuatro bajos. Propuestas pendientes de aprobac
   Verificación: tras activar todo, anotar en este runbook los topes elegidos (USD por mes, requests por minuto, mails por día).
 - [x] **C1 (medio), parcial (2026-11-21):** catálogo ya cacheado (120 s); ahora también la ficha pública (60 s) y la imagen de vista previa (300 s). Un cambio de ficha, cupo o precio tarda hasta ese tiempo en verse. Queda abierto R19-04: `search`, `for-students` y la ficha siguen dinámicas por leer la sesión; hacerlas estáticas exige mover lo personal a componentes cliente.
 - [x] **C3 (2026-11-21):** `lib/residents/inviteThrottle.ts` pasó a `consumeRateLimit` (persistente).
-- [ ] **C4, parcial (2026-11-21):** hecho el límite de cargas por hora en el comprobante del fee. **Falta** aplicar `proofUploadAllowed` y `proofCountWithinCap` (`lib/security/uploadLimits.ts`) en el comprobante de pago a la residencia, hoy en reescritura (`lib/applications/studentPaymentProof.ts`).
+- [x] **C4 (2026-11-22):** límite de 10 cargas por hora por usuario en el comprobante del fee y en el de «Ya pagué» (`lib/security/uploadLimits.ts`).
 - [x] **C5 (2026-11-21):** cuota diaria de mails por residencia (`lib/security/mailQuota.ts`: 100 avisos y 200 invitaciones por día). Solo corta el mail; el aviso en la app se crea igual.
 - [x] **C6:** comentario de `app/api/session/route.ts` corregido (2026-11-21).
 - [ ] Confirmar la cuota diaria del plan de Resend antes del registro masivo.

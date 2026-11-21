@@ -569,7 +569,7 @@ El fee se calcula sobre la tarifa actual guardada en el `snapshot_final`. No rec
 - Si el pagador está fuera de Argentina, la UI sugiere PayU como opción recomendada.
 - Si el pago es en USD: el fee base se calcula en ARS usando el tipo de cambio del `snapshot_final`, y se convierte a USD. Se muestra aclaración al pagador.
 - Debe existir la abstracción técnica `PaymentProvider` desacoplada de cualquier proveedor específico.
-- **Propuesta DR63 (i), sin implementar:** EstuRed habilita medios del catálogo común (`lib/payments/paymentMethods.ts`) para el fee, con datos de cobro propios, separados de los de la residencia. El pagador elige el medio. En medios en USD, el monto usa el tipo de cambio del `snapshot_final`. MercadoPago y PayU automáticos siguen como proveedores `PaymentProvider`.
+- **DR64 (2026-11-21, sin implementar; supuestos del agente):** EstuRed habilita medios del catálogo común (`lib/payments/paymentMethods.ts`) para el fee, con datos de cobro propios, separados de los de la residencia. El pagador elige el medio. En medios en USD, el monto usa el tipo de cambio del `snapshot_final`. MercadoPago y PayU automáticos siguen como proveedores `PaymentProvider`. Cada medio tiene su moneda (`ARS` o `USD`), que fija `payment_currency`.
 
 ---
 
@@ -613,6 +613,13 @@ El fee se calcula sobre la tarifa actual guardada en el `snapshot_final`. No rec
 - Sin fee pagado: no se confirma reserva, no se emite comprobante, la residencia puede liberar la plaza.
 - **El cobro debe ser idempotente.** Si el proveedor envía el webhook múltiples veces, no debe generarse un cobro duplicado ni un comprobante duplicado.
 
+> **DR64 (2026-11-21, supuestos del agente pendientes de ratificación): plazo del fee en modo manual.**
+> - **«Ya pagué»:** es el pase `pending_payment_method` → `pending_manual_payment` (comprobante obligatorio, §8.10). Setea `student_reported_paid_at`. Desde ahí **el fee no vence** (el job `expire_estured_fee_windows` excluye `pending_manual_payment`).
+> - **«No pude realizar el pago»:** el estado sigue en `pending_payment_method`. `student_payment_issue_at` con `student_payment_issue_resolved_at` nulo **detiene** el vencimiento. El admin responde («Contactar al pagador» o «Reabrir el pago») y `expires_at` se reinicia a 48 horas.
+> - **«No recibí el pago» (admin):** no hay estado nuevo. `admin_disputed_at` queda con fecha, el fee sigue en `pending_manual_payment` y la reserva en `pending_estured_fee`. Soporte valida (§8.10) o reabre: fee a `pending_payment_method`, `expires_at` a 48 horas, se limpian `student_reported_paid_at`, `manual_payment_file_id` y la disputa.
+> - **Recordatorios (job `remindFeePayments`):** 12 horas antes de `expires_at` al pagador, si no informó ni avisó; 24 horas de «Ya pagué» o aviso sin respuesta al admin; 72 horas, alerta al admin y caso de Soporte `estured_fee_payment`. Sin transición automática.
+> - **Propuesta sin implementar:** máximo 2 reaperturas por fee y 7 días sin respuesta (`docs/00` DR64 (i)).
+
 ## 8.9. Revocación del fee — DECISIÓN CONFIRMADA (actualizada por DR6)
 
 Si el estudiante ejerce el derecho de revocación dentro de los **10 días corridos** posteriores al pago del fee:
@@ -649,7 +656,7 @@ La transición `pending_manual_payment` → `paid` por validación del admin (y,
 | Condición | Regla |
 |---|---|
 | Estado de partida | `pending_manual_payment` **con comprobante** (`manual_payment_file_id`). Sin comprobante solo por **override explícito** ("Confirmar sin comprobante"): motivo ≥ 10 caracteres + segunda confirmación; se marca `confirmed_without_receipt`. |
-| Plazo | `expires_at` no vencido. Un fee vencido (o ya `expired`) **no se puede marcar pagado**: primero se reabre el plazo (`expired` → `pending_payment_method`, 48 h, acción existente de Reservas). |
+| Plazo | **Enmienda DR64 (d):** un fee en `pending_manual_payment` ya fue informado dentro del plazo y **no vence**: se valida aunque `expires_at` haya pasado. En `pending_payment_method` (override sin comprobante) `expires_at` debe estar vigente. Un fee `expired` **no se puede marcar pagado**: primero se reabre el plazo (`expired` → `pending_payment_method`, 48 h, acción existente de Reservas). |
 | Monto | El admin carga **monto recibido + moneda**; se compara contra el fee esperado guardado. Hasta **1 %** de diferencia = redondeo (se audita igual); más de 1 % exige checkbox **"Acepto la diferencia"** + motivo ≥ 10 caracteres. Si lo recibido es **menos del 90 %** del esperado, **solo `superadmin`** puede confirmar. Montos ambiguos (`140.500`) se rechazan. |
 | Confirmación | Checkbox "Verifiqué el pago" obligatorio + paso de confirmación con las consecuencias. |
 | Reserva y pago a la residencia | La reserva está `pending_estured_fee` y el pago a la residencia está `reported_received_by_residence`. |
@@ -661,7 +668,9 @@ Efectos de `paid` (sin cambios): se confirma la reserva (`pending_estured_fee` �
 
 > **Pendiente de decisión del dueño:** el comprobante verificable y la Factura C se emiten por el **fee esperado completo**, no por el monto realmente recibido.
 
-> **Supuesto reversible vigente, DR63 (i) (2026-11-20; el dueño no objetó):** «Ya pagué» en el fee detendría el vencimiento de 48 horas hasta que el admin valide o rechace. Hoy `expireEsturedFeeWindows` vence también `pending_manual_payment`. La condición «Plazo» de esta tabla no cambia: un fee vencido no se marca pagado. Aplicarlo exige excluir `pending_manual_payment` del job. DR8 no cambia todavía. Se decide al implementar la Pista 2.
+> **Resuelto en DR64 (d) (2026-11-21, supuesto del agente pendiente de ratificación del dueño):** «Ya pagué» detiene el vencimiento de 48 horas hasta que el admin valide o registre «No recibí el pago». El job `expireEsturedFeeWindows` excluye `pending_manual_payment` y la validación no revisa `expires_at` en ese estado (fila «Plazo»). DR8 no cambia para `pending_payment_method`.
+>
+> **«No recibí el pago» (DR64 (d)):** el admin registra un motivo de 10 a 500 caracteres. No hay estado nuevo: `admin_disputed_at` marca el caso, el fee sigue en `pending_manual_payment` y la reserva en `pending_estured_fee`. Abre un caso de Soporte `estured_fee_payment`. Con disputa abierta el fee no vence. El caso se cierra de dos formas: el admin marca pagado (DR8, limpia la disputa) o reabre el plazo (§8.8).
 
 ---
 

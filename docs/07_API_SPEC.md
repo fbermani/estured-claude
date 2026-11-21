@@ -1561,6 +1561,8 @@ Body multipart/form-data: `file`, `amount_ars`, `amount_usd`, `currency`, `paid_
 
 Reglas: queda pendiente de validación admin; no confirmar reserva hasta admin marque `paid`; auditar.
 
+**DR64 (2026-11-21, supuestos del agente):** este endpoint es «Ya pagué» del fee. El **comprobante `file` es obligatorio** (DR8 (1) no se relaja). Exige que el fee tenga `chosen_method` (§17.7), esté en `pending_payment_method`, con plazo vigente y sin aviso «No pude realizar el pago» abierto. El UPDATE condicional pasa el fee a `pending_manual_payment` y setea `student_reported_paid_at = now()`. `payment_channel` pasa a ser la etiqueta del `chosen_method` (el pagador ya no la escribe). El servidor limpia `payer_reminder_sent_at`, `admin_reminder_sent_at` y `admin_alert_sent_at`. Avisa a los admins. Desde ahí el fee **no vence** (§17.10).
+
 ---
 
 ### 17.4. Admin valida pago manual del fee
@@ -1586,6 +1588,9 @@ Body:
 
 Reglas (DR8, `docs/00` §31): motivo obligatorio (mín. 5; mín. 10 con override o con diferencia > 1 %); `verified` obligatorio; **comprobante cargado** (`manual_payment_file_id`) **o** `confirm_without_receipt = true` (override con motivo ≥ 10 y solo si no hay comprobante); `received_amount` > 0 comparado contra el fee esperado guardado (tolerancia 1 %; mayor diferencia exige `accept_amount_difference = true` y motivo ≥ 10; si lo recibido es < 90 % del esperado solo `superadmin`; `receipt_file_id` = comprobante visto, debe coincidir con el actual); fee no vencido (`expires_at`) y en `pending_manual_payment`/`pending_payment_method`, con UPDATE condicional (la doble confirmación no hace nada); reserva `pending_estured_fee` y pago a la residencia confirmado; marcar fee `paid`; confirmar reserva; disparar generación de comprobante; disparar emisión de Factura C en TusFacturas.app; auditar (quién, esperado vs. recibido, diferencia, override; sin datos de facturación).
 
+
+**Enmienda DR64 (d):** el plazo (`expires_at`) se exige solo en `pending_payment_method` (override sin comprobante). En `pending_manual_payment` no se revisa: ese estado ya fue informado a tiempo. `payment_currency` y la moneda de `received_amount` salen de `chosen_method` (la moneda del medio, §17.6). Al marcar pagado se limpia `admin_disputed_*` si había disputa.
+
 ---
 
 ### 17.5. Webhook de proveedor de pagos *(actualizado)*
@@ -1607,6 +1612,77 @@ Reglas:
   - disparar emisión de Factura C en TusFacturas.app;
 - si pago `failed`: incrementar intento; notificar;
 - si `chargeback`: marcar el pago como `chargeback` y **alertar admin — sin modificar automáticamente la reserva ni el comprobante** (el admin decide las acciones, auditadas).
+
+### 17.6. Admin configura los medios de cobro del fee *(DR64 (a), supuesto del agente, propuesto)*
+
+**Server action** `saveFeeCollectionMethod` (pantalla `/admin/payment-settings`, `docs/08` §8.10b).
+
+Roles: `superadmin` (escribe). `admin` (solo lectura, datos enmascarados).
+
+Body: `method_key` (clave del catálogo `lib/payments/paymentMethods.ts`), `details` (1 a 500 caracteres), `currency` (`ARS` o `USD`), `is_enabled` y, si `method_key = other`, `method_label` (2 a 60).
+
+Validaciones: rol desde la sesión; clave del catálogo; `details` con `validatePaymentDetails`; moneda válida; no se puede habilitar un medio sin datos.
+
+Efectos: upsert por `method_key` en `estured_fee_collection_methods` (solo service role). Audita `estured_fee_collection_method_updated` con valor anterior y nuevo **enmascarados** (`maskPaymentDetails`). Avisa a todos los superadmin (in-app y email), sin datos de cobro. Acción `importFeeCollectionFromSettings`: crea el medio `transfer_ars` desde la fila de `payment_settings` (el CBU no pasa por el cliente ni por SQL).
+
+**Respaldo:** sin ningún medio habilitado, la pantalla del pagador usa `payment_settings` como `transfer_ars` (comportamiento anterior a DR64).
+
+### 17.7. Pagador elige el medio del fee *(DR64 (b), propuesto)*
+
+**Server action** `chooseFeePaymentMethod`.
+
+Roles: pagador designado (`payer_user_id`): estudiante o familiar vinculado con `can_pay_estured_fee`. Se revalida el vínculo en cada llamada.
+
+Body: `application_id` y `method_key`.
+
+Validaciones: la reserva está `pending_estured_fee` y el fee en `pending_payment_method` con plazo vigente; el medio está habilitado.
+
+Efectos: guarda `chosen_method`, `payment_currency` (la del medio) y `instructions_snapshot` (etiqueta y datos congelados); si la moneda es USD, `fee_amount_usd` = `fee_amount_ars` ÷ cotización del snapshot (`docs/04` §8.4). Cambiar de medio antes de «Ya pagué» vuelve a congelar. Audita sin datos de cobro.
+
+La pantalla del pagador lee `instructions_snapshot` con service role, solo para el pagador designado y el admin. La residencia no.
+
+### 17.8. Pagador avisa «No pude realizar el pago» *(DR64 (e), propuesto)*
+
+**Server action** `reportFeePaymentIssue`.
+
+Roles: pagador designado (mismo control que §17.7).
+
+Body: `reason` (opcional; si se escribe, de 10 a 200 caracteres).
+
+Validaciones: fee en `pending_payment_method`, plazo vigente, sin aviso abierto.
+
+Efectos: `student_payment_issue_at = now()` y `student_payment_issue_reason`; limpia `student_payment_issue_resolved_at` y las tres marcas `*_sent_at`. **Detiene el vencimiento** (§17.10). Avisa a los admins (in-app y push DR61). Audita. Es idempotente. No hay mensaje directo a EstuRed: la ayuda es Soporte.
+
+### 17.9. Admin responde al aviso y registra «No recibí el pago» *(DR64 (d) y (e), propuesto)*
+
+**Server action** `resolveFeePaymentIssue`. Roles: `admin`; `superadmin`. Body: `fee_payment_id`, `resolution` (`contact_payer` o `reopen_payment`) y `reason` (mínimo 5).
+- `contact_payer`: abre un caso de Soporte `estured_fee_payment` a nombre del pagador.
+- `reopen_payment`: permite elegir otro medio.
+- Ambas: `student_payment_issue_resolved_at = now()`, `expires_at = now() + 48 h`, notifican al pagador y auditan.
+
+**Server action** `disputeFeePayment` («No recibí el pago»). Roles: `admin`; `superadmin`. Body: `fee_payment_id`, `reason` (de 10 a 500) y `receipt_file_id` (el comprobante visto, debe coincidir con el actual).
+- Validaciones: fee en `pending_manual_payment` con comprobante, sin disputa abierta, reserva `pending_estured_fee`.
+- Efectos: `admin_disputed_at`, `admin_dispute_reason` y `admin_disputed_by_user_id`; **el estado del fee y de la reserva no cambia**. Avisa al pagador con texto genérico (sin el motivo). Abre un caso de Soporte `estured_fee_payment`, único por reserva. Audita.
+- Salida: marcar pagado (§17.4, limpia la disputa) o `reopenEsturedFeeWindow` extendida (§17.9b).
+
+**§17.9b. Reabrir el plazo** (`reopenEsturedFeeWindow`, `lib/reservations/reopenEsturedFeeWindow.ts`). Hoy vale solo para fees `expired`. DR64 la extiende a fees en `pending_manual_payment` con disputa abierta: el fee vuelve a `pending_payment_method`, `expires_at = now() + 48 h`, y se limpian `student_reported_paid_at`, `manual_payment_file_id` y `admin_disputed_*`. UPDATE condicional por el estado leído. Propuesta sin implementar: máximo 2 reaperturas por fee (`docs/00` DR64 (i)).
+
+### 17.10. Vencimiento, recordatorios y alerta del fee *(DR64 (d) y (f), propuesto)*
+
+**JOB** `expire_estured_fee_windows` (cada hora). Cambios:
+- excluye los fees en `pending_manual_payment`;
+- excluye los fees en `pending_payment_method` con `student_payment_issue_at` no nulo y `student_payment_issue_resolved_at` nulo.
+
+**JOB** `remindFeePayments` (dentro de `runExpirationJobs`, cada hora). Cada aviso se reclama con un update sobre su marca (`*_sent_at is null`) y solo se envía si devolvió la fila:
+- 12 horas antes de `expires_at`, sin «Ya pagué» ni aviso abierto: aviso al pagador (`payer_reminder_sent_at`);
+- 24 horas de `student_reported_paid_at` sin validar ni disputa, o de `student_payment_issue_at` sin responder: aviso a los admins (`admin_reminder_sent_at`);
+- 72 horas de lo mismo: alerta a los admins y caso de Soporte `estured_fee_payment`, único por reserva (`admin_alert_sent_at`). Sin transición automática.
+
+Índices: `estured_fee_payments_reported_open_idx` y `estured_fee_payments_issue_open_idx` (0105).
+
+### 17.11. Quién lee qué (RLS y columnas) *(DR64, migración 0105)*
+
+El equipo de la residencia lee `estured_fee_payments` por RLS. Por eso solo `chosen_method`, `student_reported_paid_at`, `student_payment_issue_at` y `student_payment_issue_resolved_at` tienen `grant select` a `authenticated`. `instructions_snapshot`, los dos motivos de texto libre, `admin_disputed_*` y las tres marcas `*_sent_at` solo las lee el service role. `estured_fee_collection_methods` no tiene policies ni grants.
 
 ---
 

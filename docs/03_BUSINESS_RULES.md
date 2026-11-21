@@ -993,6 +993,14 @@ El sistema debe soportar validación manual del fee por admin (transferencia, co
 
 El admin valida y confirma manualmente, generando auditoría.
 
+**Cobro con medios del catálogo (DR64, `docs/00`, 2026-11-21; supuestos del agente pendientes de ratificación).**
+- Los medios del fee y sus datos de cobro los configura el admin (solo un superadmin edita). Son distintos de los de la residencia.
+- El pagador designado ve el monto, los medios habilitados y los datos. Elige con qué medio paga.
+- «Ya pagué» exige comprobante (DR8). Un fee informado así no vence mientras espera al admin.
+- El admin valida (DR8) o registra «No recibí el pago» con motivo. Eso abre un caso de Soporte.
+- «No pude realizar el pago» frena el vencimiento hasta que el admin responda. El pagador nunca contacta a EstuRed por WhatsApp.
+- A las 12 h antes del vencimiento, 24 h y 72 h de un aviso sin respuesta, el sistema avisa. A las 72 h abre un caso de Soporte.
+
 ### 13.8 Estado pendiente de fee
 
 Después de que la residencia marca `Pago recibido`, la operación pasa a:
@@ -1021,6 +1029,8 @@ Si no paga:
 - queda registro interno.
 
 Si falla el cobro automático: hasta 3 reintentos dentro de las 48 horas.
+
+**DR64:** un fee en `pending_manual_payment` (el pagador ya informó el pago con comprobante) **no vence**. Espera la validación del admin. Un fee sin «Ya pagué» o con «No pude realizar el pago» sin responder sigue las reglas de arriba (el aviso frena el plazo hasta que el admin responda).
 
 ### 13.10 Idempotencia del cobro
 

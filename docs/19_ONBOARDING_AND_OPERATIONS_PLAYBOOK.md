@@ -224,7 +224,7 @@ Regla operativa clave: cualquier acuerdo verbal o por WhatsApp entre residencia 
 
 La residencia configura en su ficha cómo cobra la reserva: medios de pago habilitados (con sus datos de cobro, que el admin aprueba), contacto directo por WhatsApp, o ambas opciones. El estudiante paga a la residencia fuera de EstuRed, por esos medios. Puede avisar con «Ya pagué» y subir un comprobante opcional.
 
-En capacitación a residencias, explicar tres puntos. EstuRed no es responsable de ningún pago ni del medio de pago elegido, y no custodia fondos. Con contacto directo, la coordinación del pago queda en la residencia. Los pagos posteriores a la reserva los acuerdan la residencia y el estudiante.
+En capacitación a residencias, explicar tres puntos. EstuRed no es responsable de ningún pago a la residencia ni del medio de pago elegido, y no custodia fondos. El fee lo cobra EstuRed y responde por validarlo (DR64 (g), `LEGAL_REVIEW_PENDING`). Con contacto directo, la coordinación del pago queda en la residencia. Los pagos posteriores a la reserva los acuerdan la residencia y el estudiante.
 
 Si la residencia no recibió lo que el estudiante informó, usa «No recibí el pago». Se abre un caso de Soporte. A las 72 horas de «Ya pagué» sin confirmación, el admin recibe una alerta.
 

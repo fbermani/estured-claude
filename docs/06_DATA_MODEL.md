@@ -761,7 +761,26 @@ Reglas:
 - **Sin campo de contacto de la residencia (DR63 (j) 2):** el estudiante nunca contacta a la residencia. `residence_private_details` no suma ninguna columna. `responsible_contact` sigue privado del admin;
 - el estudiante recibe estos datos solo como copia congelada en `external_residence_payments.instructions_snapshot`, al habilitarse el pago de su solicitud.
 
-**Fee EstuRed (propuesta DR63 (i), sin migración asignada):** `payment_settings` es una sola fila. Para habilitar varios medios del fee hace falta otra tabla por medio, con RLS sin policies, separada de ésta. Su número es el siguiente libre al implementar.
+### 8.9. `estured_fee_collection_methods` *(tabla nueva, DR64, migración 0105)*
+
+Medios con los que EstuRed cobra SU fee. Una fila por medio del catálogo (`lib/payments/paymentMethods.ts`). Es distinta de `residence_collection_accounts` (8.8): aquella lleva datos de la residencia; esta, datos de EstuRed.
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `id` | uuid | ID |
+| `method_key` | text unique | Clave del catálogo. Forma `^[a-z][a-z0-9_]{1,39}$`; el servidor valida contra el catálogo |
+| `method_label` | text null | Solo con `other`: nombre libre (2 a 60 caracteres, una línea). Null en el resto |
+| `details` | text | Datos de cobro de EstuRed (1 a 500 caracteres): alias, CBU, usuario o instrucciones |
+| `currency` | text | `ARS` o `USD`. Fija `estured_fee_payments.payment_currency` |
+| `is_enabled` | boolean | Default `false`. Solo se ofrecen los medios habilitados |
+| `updated_by_user_id` | uuid null | Superadmin que guardó (FK a `users`, `on delete set null`) |
+| `created_at`, `updated_at` | timestamptz | Alta y actualización (`set_updated_at`) |
+
+Reglas:
+- RLS habilitada **sin policies** y `revoke all` a `anon` y `authenticated`: solo service role (precedente `payment_settings`, 0038). No lleva la restrictiva `_only_active_users`;
+- escribe solo un `superadmin`, por server action, con auditoría enmascarada y aviso a los superadmin (`docs/07` §17.6). **Sin aprobación de un segundo admin** (supuesto de `docs/00` DR64 (a); si se quiere, se agregan `pending_*` como en 8.8);
+- no se copia el CBU de `payment_settings` por SQL: el respaldo y la importación van por código;
+- al elegir el pagador un medio, los datos se congelan en `estured_fee_payments.instructions_snapshot` (13.2).
 
 ---
 
@@ -1232,6 +1251,18 @@ Reglas:
 | `revocation_resolved_by` | uuid null | Admin que resolvió (`users.id`). Solo servidor *(0049)* |
 | `revocation_internal_reason` | text null | Motivo interno obligatorio (10–1000). **Nunca visible al estudiante.** Solo servidor *(0049)* |
 | `revocation_student_message` | text null | Mensaje opcional para el estudiante (≤1000). Solo servidor; la pantalla del estudiante lo lee con el service role tras verificar que la reserva es suya *(0049)* |
+| `chosen_method` | text null | *(DR64, 0105)* Clave del catálogo elegida por el pagador. Se puede cambiar en `pending_payment_method`. Con grant a `authenticated` |
+| `instructions_snapshot` | text null | *(DR64, 0105)* Datos de cobro de EstuRed congelados al elegir el medio (máx. 2000). **Sin grant**: solo service role (pagador designado y admin) |
+| `student_reported_paid_at` | timestamptz null | *(DR64, 0105)* Momento de «Ya pagué». Un fee en `pending_manual_payment` no vence. Con grant |
+| `student_payment_issue_at` | timestamptz null | *(DR64 (e), 0105)* Momento de «No pude realizar el pago». Con `_resolved_at` nulo, detiene el vencimiento. Con grant |
+| `student_payment_issue_reason` | text null | *(DR64, 0105)* Motivo opcional, máx. 200. Texto libre: **sin grant** |
+| `student_payment_issue_resolved_at` | timestamptz null | *(DR64, 0105)* Cuando el admin respondió. Exige `student_payment_issue_at`. Con grant |
+| `admin_disputed_at` | timestamptz null | *(DR64 (d), 0105)* «No recibí el pago» del admin. **No es un estado**: el fee sigue en `pending_manual_payment`. Sin grant |
+| `admin_dispute_reason` | text null | *(DR64, 0105)* Motivo del admin, de 10 a 500. Sin grant |
+| `admin_disputed_by_user_id` | uuid null | *(DR64, 0105)* Admin que registró la disputa. Los tres campos `admin_disputed_*` van juntos o ninguno. Sin grant |
+| `payer_reminder_sent_at` | timestamptz null | *(DR64 (f), 0105)* Marca del aviso de 12 h al pagador. Interna, sin grant |
+| `admin_reminder_sent_at` | timestamptz null | *(DR64 (f), 0105)* Marca del aviso de 24 h al admin. Interna, sin grant |
+| `admin_alert_sent_at` | timestamptz null | *(DR64 (f), 0105)* Marca de la alerta de 72 h al admin. Interna, sin grant. El servidor limpia las tres marcas en cada evento nuevo |
 | `received_amount` | numeric(14,2) null | Monto realmente recibido que cargó el admin al validar un pago manual, en `payment_currency` (DR8). Solo servidor *(migración 0050)* |
 | `confirmed_without_receipt` | boolean | `true` si el admin validó con el override "Confirmar sin comprobante" (DR8). Default `false`. Solo servidor *(0050)* |
 | `validated_by_user_id` | uuid null | Admin que validó el pago manual (`users.id`) (DR8). Solo servidor *(0050)* |
@@ -1247,6 +1278,7 @@ Reglas:
 
 Reglas:
 - constraint CHECK: **exactamente uno** de `reservation_id` o `renewal_offer_id` debe ser no nulo;
+- **DR64 (0105):** un fee en `pending_manual_payment` no vence (el job lo excluye). `estured_fee_status` no suma valores: «No recibí el pago» es `admin_disputed_at`. El equipo de la residencia lee esta tabla por RLS: solo 4 de las 12 columnas nuevas llevan `grant select` a `authenticated` (`chosen_method`, `student_reported_paid_at`, `student_payment_issue_at`, `student_payment_issue_resolved_at`). Toda columna nueva futura necesita su propio `grant select (col)`.
 - fee = 5% del `snapshot_final` (no del original si hubo ajuste); el `snapshot_final` hereda la cotización del original;
 - base: tarifa actual × duración + matrícula/cargos no reembolsables; excluye depósito;
 - redondeo al múltiplo de 500 ARS más cercano; en empate exacto, hacia arriba;
