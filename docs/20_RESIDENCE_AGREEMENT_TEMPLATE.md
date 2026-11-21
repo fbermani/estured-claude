@@ -196,7 +196,13 @@ Ese importe podrá incluir, según la configuración de la Residencia: seña; ma
 
 La Residencia deberá indicar si cada concepto es reembolsable o no reembolsable.
 
-El pago a la Residencia se realiza por fuera de EstuRed, directamente entre estudiante/familiar y Residencia, salvo integración futura específica.
+La Residencia define en su ficha cómo cobra la reserva: mediante los medios de pago que habilite, mediante contacto directo con el estudiante o familiar por WhatsApp, o mediante ambas opciones. Los datos de cobro que cargue quedan sujetos a aprobación de EstuRed y solo su titular o dueño puede modificarlos.
+
+El pago a la Residencia se realiza por fuera de EstuRed, directamente entre estudiante/familiar y Residencia, salvo integración futura específica. Los pagos posteriores a la reserva son acordados entre la Residencia y el estudiante.
+
+EstuRed no es responsable de ningún pago ni del medio de pago elegido, no custodia fondos y no garantiza el cobro. Si la Residencia elige el contacto directo, la coordinación del pago y su responsabilidad quedan a cargo de la Residencia. El fee EstuRed es cobrado por EstuRed por sus propios medios, y esta cláusula no modifica su régimen ni el derecho de revocación.
+
+> Texto actualizado por decisión del dueño (2026-11-20). Pendiente de revisión legal.
 
 La Residencia deberá marcar **Pago recibido** únicamente cuando efectivamente haya recibido el pago correspondiente.
 

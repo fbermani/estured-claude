@@ -741,17 +741,23 @@ Datos de cobro de la reserva, un registro por medio y residencia. Son dato sensi
 | `residence_id` | uuid | FK `residences` |
 | `method_key` | text | Clave del catálogo (`mercadopago`, `transfer_ars`, `other`…) |
 | `method_label` | text null | Nombre libre. Solo con `other` |
-| `details` | text | Alias, CBU, usuario o instrucciones. Largo máximo propuesto: 500 |
+| `details` | text null | Datos **aprobados y vigentes**: alias, CBU, usuario o instrucciones. Largo máximo propuesto: 500. Null hasta la primera aprobación |
+| `pending_details` | text null | *(DR63 (j))* Datos nuevos a la espera de aprobación del admin. No se muestran a nadie fuera del dueño y el admin |
+| `pending_submitted_at` | timestamptz null | Cuándo el dueño cargó `pending_details` |
+| `approved_by_user_id` | uuid null | Admin que aprobó el último cambio |
+| `approved_at` | timestamptz null | Cuándo se aprobó |
 | `updated_by_user_id` | uuid null | Dueño que lo editó |
 | `created_at` | timestamptz | Alta |
 | `updated_at` | timestamptz | Actualización |
 
 Reglas:
 - `unique (residence_id, method_key)`: una cuenta por medio. Varias cuentas por medio quedan como opción abierta (`docs/00` DR63 (h));
-- cada clave de `accepted_payment_methods` tiene su fila con `details` completo (lo valida el servidor al guardar y al enviar a revisión);
+- cada clave de `accepted_payment_methods` tiene su fila con datos completos, vigentes o pendientes (lo valida el servidor al guardar y al enviar a revisión);
+- **Aprobación del admin (DR63 (j), supuesto reversible):** todo cambio de datos de cobro requiere aprobación (`docs/03` §7.3). El dueño guarda en `pending_details`. Siguen rigiendo `details`. Al aprobar, `pending_details` pasa a `details`. La primera carga la aprueba el admin al verificar la residencia. Un medio solo se ofrece al estudiante si tiene `details` aprobados. Las solicitudes con el pago ya habilitado conservan su `instructions_snapshot`;
 - RLS habilitada **sin policies**: solo el service role, mismo precedente que `payment_settings` (0038) y `residence_private_details`. Sin policy para `authenticated`, no lleva la restrictiva `<tabla>_only_active_users` de 0081;
 - escribe solo el dueño (`profile.edit` restringido al dueño), validado en la server action. El staff no lee ni edita desde esta tabla;
-- cada cambio se audita con los datos enmascarados (CBU parcial) y avisa al dueño. Precedente: `notifyPaymentSettingsChange` (0038). Si el cambio exige aprobación del admin queda pendiente (`docs/00` DR63 (j));
+- cada cambio, la aprobación y el rechazo se auditan con los datos enmascarados (CBU parcial) y avisan al dueño. Precedente: `notifyPaymentSettingsChange` (0038);
+- **Contacto del camino B (DR63 (j)):** vive en `residence_private_details.payment_contact_phone` (text null, teléfono con WhatsApp; propuesta 0102). Esa tabla tiene RLS sin policies, así que no es pública. Es obligatorio con `whatsapp_direct`. El estudiante lo recibe por server action solo en solicitudes habilitadas por ese camino. `responsible_contact` sigue privado del admin;
 - el estudiante recibe estos datos solo como copia congelada en `external_residence_payments.instructions_snapshot`, al habilitarse el pago de su solicitud.
 
 **Fee EstuRed (propuesta DR63 (i), sin migración asignada):** `payment_settings` es una sola fila. Para habilitar varios medios del fee hace falta otra tabla por medio, con RLS sin policies, separada de ésta. Su número es el siguiente libre al implementar.
@@ -1137,7 +1143,7 @@ Reglas:
 | `created_at` | timestamptz | Alta |
 | `updated_at` | timestamptz | Actualización |
 
-**Nota 0081 (DR63).** `external_residence_payments` tiene SELECT por tabla, no por columna. Las columnas nuevas quedan visibles para quienes ya ven la fila: estudiante, familiar vinculado y todo el equipo activo de la residencia, staff incluido. Para `instructions_snapshot` eso choca con «solo el dueño». Opciones, sin decidir (`docs/00` DR63 (j)): revoke de SELECT y grant por columna sin `instructions_snapshot`, con lectura por server action; o guardarlo en otra tabla. Las tablas nuevas con policies para `authenticated` necesitan su policy RESTRICTIVE `<tabla>_only_active_users`.
+**Nota 0081 (DR63, decidido 2026-11-20).** `external_residence_payments` tiene SELECT por tabla, no por columna. Las columnas nuevas serían visibles para estudiante, familiar vinculado y todo el equipo activo, staff incluido. Para `instructions_snapshot` eso choca con «solo el dueño». **Decisión:** `revoke select (instructions_snapshot) on public.external_residence_payments from authenticated` (y `anon`). En la práctica, revoke del SELECT de tabla y `grant select (…columnas sin instructions_snapshot…) to authenticated`, como 0081 hizo con `application_requests`. La lectura va por server action, solo para el dueño de la residencia y para el estudiante de esa solicitud. El staff no la lee. **Duda menor, sin decidir:** si el familiar vinculado de un estudiante menor, que paga por él, también la lee. Columnas nuevas visibles: cada una necesita su `grant select (col)`. Las tablas nuevas con policies para `authenticated` necesitan su policy RESTRICTIVE `<tabla>_only_active_users`.
 
 Reglas:
 - solo la residencia marca "Pago recibido" con confirmación explícita y aceptación de términos;

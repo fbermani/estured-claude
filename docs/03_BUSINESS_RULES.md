@@ -390,6 +390,7 @@ Requieren aprobación admin antes de publicarse:
 - condiciones de reserva;
 - capacidad total;
 - documentación de residencia;
+- **datos de cobro de la reserva (DR63, decisión del dueño 2026-11-20): todo cambio, siempre.** Los datos nuevos quedan pendientes. Rigen los anteriores hasta la aprobación. Las solicitudes con pago ya habilitado conservan sus datos congelados. Se audita con datos enmascarados y se avisa al dueño;
 - cambios que afecten el alcance de la verificación presencial.
 
 ### 7.4 Tarifas, matrícula y depósito
@@ -870,11 +871,13 @@ El monto establecido no puede modificarse caso por caso en una solicitud activa,
 Reglas:
 
 - La configuración define solo la reserva. Los pagos posteriores los acuerda cada residencia con cada estudiante.
-- Los datos de cobro son sensibles. Solo el dueño los edita. El estudiante los ve solo cuando la residencia habilita el pago de su solicitud.
+- Los datos de cobro son sensibles. Solo el dueño los edita y todo cambio requiere aprobación del admin (§7.3). El estudiante los ve solo cuando la residencia habilita el pago de su solicitud. El staff no los ve.
+- Con «Contacto directo por WhatsApp», la residencia carga un contacto propio, obligatorio con esa opción. El estudiante lo ve solo en solicitudes habilitadas por ese camino.
 - La residencia necesita al menos una opción completa para enviar el perfil a revisión (requisito 10 de DR59).
 - Con una sola opción, el camino queda fijo. Con ambas, la residencia elige por solicitud al aceptarla.
 - El estudiante ve antes de enviar cómo se cobrará. Puede elegir un medio como preferencia, no vinculante.
 - EstuRed no custodia ni garantiza el pago. El pago se ejecuta fuera de EstuRed.
+- **Cláusula de responsabilidad (decisión del dueño, 2026-11-20):** EstuRed no es responsable de ningún pago ni del medio de pago elegido, ni de los medios externos usados. No custodia fondos. Los pagos posteriores a la reserva los acuerdan la residencia y el estudiante. **Salvedad:** el fee EstuRed lo cobra EstuRed por sus propios medios. Esta cláusula no cambia las reglas del fee (sección 13) ni del derecho de revocación (DR6).
 - Pago a la residencia, fee, reserva y comprobante siguen separados. El catálogo es el mismo para el fee, pero la configuración y los datos de cobro son otros.
 
 ### 12.2 Contacto y pago
@@ -905,6 +908,8 @@ EstuRed no registra ni controla la conversación posterior.
 
 - El estudiante puede cargar comprobante de pago a residencia como referencia.
 - **DR63:** el estudiante informa el pago con «Ya pagué». El comprobante es opcional. La residencia ve el comprobante junto a «Pago recibido». «Ya pagué» detiene el vencimiento de 48 horas. Solo la residencia confirma.
+- **DR63 (supuesto reversible): «No recibí el pago».** Si la residencia no recibió lo informado, registra la negativa con motivo. El pago pasa a `disputed`, se avisa al estudiante y se abre un caso de Soporte. El admin resuelve.
+- **DR63:** a las 72 horas de «Ya pagué» sin confirmación, el sistema alerta al admin y abre un caso de Soporte. No hay disputa automática.
 - La residencia puede cargar comprobante o evidencia para referencia propia.
 - Si el pago fue en efectivo, debe quedar constancia.
 

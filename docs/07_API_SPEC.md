@@ -1357,13 +1357,14 @@ Efectos secundarios:
 
 Roles: **solo el dueño** de la residencia. El staff no, aunque tenga `profile.edit`.
 
-Body: `reservation_payment_modes` (`enabled_methods`, `whatsapp_direct` o ambos), `accepted_payment_methods` (claves del catálogo) y, por medio, `details` (y `method_label` si es `other`).
+Body: `reservation_payment_modes` (`enabled_methods`, `whatsapp_direct` o ambos), `accepted_payment_methods` (claves del catálogo), por medio `details` (y `method_label` si es `other`) y `payment_contact_phone` (contacto de la residencia, obligatorio con `whatsapp_direct`).
 
 Reglas:
 - el servidor valida claves contra el catálogo y exige `details` completo por cada medio aceptado;
 - con `intent = "submit"` exige al menos una opción completa (requisito 10 de DR59);
+- **todo cambio de datos de cobro requiere aprobación del admin (DR63 (j)):** el servidor guarda en `pending_details`. Siguen rigiendo los datos aprobados. La aprobación o el rechazo son una acción del admin (con motivo si rechaza) que se audita;
 - audita cada cambio con datos enmascarados y avisa al dueño;
-- los datos de cobro se leen solo por server action, nunca por la API pública.
+- los datos de cobro y el contacto se leen solo por server action, nunca por la API pública. El staff no los lee.
 
 ### 16.4. Estudiante informa el pago «Ya pagué» *(DR63, propuesto)*
 
@@ -1395,20 +1396,38 @@ Body: `collection_mode` (`enabled_methods` o `whatsapp_direct`), y con `enabled_
 Reglas:
 - si la residencia tiene una sola opción activa, el servidor ignora el `collection_mode` enviado y usa esa;
 - con `enabled_methods`: precarga monto desde `snapshot_final` y medio desde `preferred_payment_method`;
-- congela `instructions_snapshot` desde `residence_collection_accounts`;
+- congela `instructions_snapshot` desde los `details` **aprobados** de `residence_collection_accounts`. Los datos pendientes no se usan;
+- `instructions_snapshot` no es legible por la API (revoke de columna, `docs/06` §12.1). Lo lee una server action solo para el dueño de la residencia y el estudiante de esa solicitud;
 - la residencia no cambia el monto fuera del proceso de propuesta de ajuste (`docs/04` §6.3);
-- con `whatsapp_direct`: igual que hoy. El estudiante además ve el contacto de la residencia (`docs/00` DR63 (j));
+- con `whatsapp_direct`: igual que hoy. El estudiante además ve el `payment_contact_phone` de la residencia, solo en solicitudes habilitadas por este camino;
 - tras una propuesta de ajuste, el pase a `residence_payment_pending` es automático. El servidor aplica los valores por defecto de `docs/00` DR63 (k).
 
 ### 16.6. Estudiante elige medio preferido *(DR63, propuesto)*
 
 El campo `preferred_payment_method` viaja en el envío de la solicitud. Es opcional. El servidor valida que la clave esté en `accepted_payment_methods` de la residencia, o que sea nula.
 
-### 16.7. Recordatorios del pago a la residencia *(DR63, supuesto reversible)*
+### 16.7. Residencia registra «No recibí el pago» *(DR63, supuesto reversible, propuesto)*
+
+**Server action** `disputeReportedResidencePayment`.
+
+Roles: residence owner; staff con permiso de aplicaciones.
+
+Body: `reason` (texto, mínimo 10 caracteres).
+
+Validaciones: pago en `student_reported_paid`.
+
+Efectos:
+- `external_residence_payments.status = disputed` y `dispute_reason = reason`;
+- notifica al estudiante y abre un caso de Soporte;
+- audita. El admin resuelve;
+- la solicitud pasa a `disputed` solo por acción de Sistema o Admin (`docs/04` §5.4).
+
+### 16.8. Recordatorios y alerta del pago a la residencia *(DR63, supuesto reversible)*
 
 **JOB** (dentro de `runExpirationJobs`). Frecuencia: cada hora.
 
 - a las 24 horas de `student_reported_paid_at` sin «Pago recibido»: avisa a la residencia;
+- a las 72 horas de `student_reported_paid_at` sin «Pago recibido» (decidido por el dueño): alerta al admin y abre un caso de Soporte. No hay transición automática;
 - 12 horas antes de `payment_deadline_at` sin «Ya pagué»: avisa al estudiante;
 - marca `residence_reminder_sent_at` y `student_reminder_sent_at` para no repetir.
 

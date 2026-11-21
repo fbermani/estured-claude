@@ -472,7 +472,13 @@ El fee se cobra después de que la residencia marca `Pago recibido`. No existe r
 
 ### 14.5 Medio preferido
 
-El medio de pago preferido configurado por el usuario se usa para el fee EstuRed. El pago a residencia se acuerda durante el contacto posterior a la solicitud (fuera de la plataforma, vía WhatsApp con mensaje pre-formateado).
+El medio de pago preferido configurado por el usuario se usa para el fee EstuRed.
+
+La residencia define en su ficha cómo cobra la reserva: con medios de pago habilitados por ella, con contacto directo por WhatsApp, o con ambas opciones. El pago a la residencia se ejecuta fuera de EstuRed, directamente entre el estudiante o familiar y la residencia. Los pagos posteriores a la reserva los acuerdan la residencia y el estudiante.
+
+**Responsabilidad (DR63, decisión del dueño del 2026-11-20).** EstuRed no es responsable de ningún pago ni del medio de pago elegido. Esto incluye el pago de la reserva a la residencia y los medios externos usados para pagar. EstuRed no custodia fondos ni garantiza el pago. El fee EstuRed sí lo cobra EstuRed, por sus propios medios. Esta cláusula no modifica las reglas del fee ni el derecho de revocación (§15).
+
+> Texto actualizado por decisión del dueño. Pendiente de revisión legal antes de publicarse.
 
 ### 14.6 Reintentos
 

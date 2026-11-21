@@ -278,7 +278,11 @@ El usuario podrá elegir, para el fee EstuRed, entre pagar en pesos argentinos o
 
 El medio de pago elegido se utilizará exclusivamente para abonar el fee EstuRed, no para los pagos mensuales ni conceptos que se abonen directamente a la residencia, salvo integración futura específica.
 
-Los medios de pago a la residencia serán definidos por cada residencia durante el contacto posterior a la solicitud.
+Cada residencia define en su ficha cómo cobra la reserva: con medios de pago habilitados por ella, con contacto directo por WhatsApp, o con ambas opciones. Antes de enviar la solicitud, el usuario puede ver cómo se cobrará y elegir un medio como preferencia, que no es vinculante. El pago a la residencia se realiza por fuera de EstuRed. Los pagos posteriores a la reserva se acuerdan entre el usuario y la residencia.
+
+EstuRed no es responsable de ningún pago ni del medio de pago elegido, incluidos los medios externos que el usuario utilice, y no custodia fondos. El usuario no debe transferir dinero a datos de cobro que no hayan llegado a través de su solicitud en EstuRed. Esta cláusula no modifica las reglas del fee EstuRed, que cobra EstuRed por sus propios medios, ni el derecho de revocación.
+
+> Texto actualizado por decisión del dueño (2026-11-20). Pendiente de revisión legal.
 
 Si se utiliza pago manual del fee EstuRed, el usuario deberá cargar comprobante y esperar validación correspondiente.
 
