@@ -155,11 +155,12 @@ describe("recordManualFeePayment con un cliente falso", () => {
       validated_by_user_id: "admin-1",
     });
     const filterNames = updates[0].filters.map(([name]) => name);
-    expect(filterNames).toEqual(expect.arrayContaining(["eq", "or"]));
-    // La condición del UPDATE coincide con lo evaluado: mismo estado leído, mismo comprobante por id y plazo vigente o sin plazo.
+    expect(filterNames).toContain("eq");
+    // DR64 (d): en `pending_manual_payment` el UPDATE NO exige plazo vigente (ya se informó a tiempo).
+    expect(filterNames).not.toContain("or");
+    // La condición del UPDATE coincide con lo evaluado: mismo estado leído y mismo comprobante por id.
     const eqs = updates[0].filters.filter(([n]) => n === "eq").map(([, a]) => a);
     expect(eqs).toEqual(expect.arrayContaining([["id", "fee-1"], ["status", "pending_manual_payment"], ["manual_payment_file_id", "file-1"]]));
-    expect(updates[0].filters.find(([n]) => n === "or")?.[1]).toEqual([`expires_at.is.null,expires_at.gt.${NOW.toISOString()}`]);
     expect(confirmCalls).toHaveLength(1);
 
     expect(auditEntries).toHaveLength(1);
@@ -273,12 +274,29 @@ describe("recordManualFeePayment con un cliente falso", () => {
     expect(auditEntries[0].newValue).toMatchObject({ amount_exact: false, amount_within_tolerance: true, difference: -500 });
   });
 
-  it("plazo vencido: rechaza sin escribir", async () => {
-    const { admin, updates } = fakeAdmin(baseDb({ fee: { ...baseFee, expires_at: "2026-10-24T14:00:00Z" } }));
-    const result = await recordManualFeePayment(admin, params());
+  it("plazo vencido en pending_payment_method (override): rechaza sin escribir", async () => {
+    const { admin, updates } = fakeAdmin(
+      baseDb({ fee: { ...baseFee, status: "pending_payment_method", manual_payment_file_id: null, expires_at: "2026-10-24T14:00:00Z" } }),
+    );
+    const result = await recordManualFeePayment(
+      admin,
+      params({ intent: "confirm_without_receipt", confirmWithoutReceipt: true, seenReceiptFileId: null, reason: "Soporte vio la transferencia en el banco." }),
+    );
     expect(result).toMatchObject({ ok: false });
     if (!result.ok) expect(result.error).toMatch(/Reabrilo/);
     expect(updates).toHaveLength(0);
+  });
+
+  it("DR64 (d): pending_manual_payment con el plazo ya vencido se valida y no exige plazo en el UPDATE", async () => {
+    const { admin, updates } = fakeAdmin(baseDb({ fee: { ...baseFee, expires_at: "2026-10-24T14:00:00Z" } }));
+    expect(await recordManualFeePayment(admin, params())).toEqual({ ok: true });
+    expect(updates[0].filters.map(([n]) => n)).not.toContain("or");
+  });
+
+  it("DR64 (d): validar un pago con «No recibí el pago» abierto limpia la disputa", async () => {
+    const { admin, updates } = fakeAdmin(baseDb({ fee: { ...baseFee, admin_disputed_at: "2026-10-24T15:00:00Z" } }));
+    expect(await recordManualFeePayment(admin, params())).toEqual({ ok: true });
+    expect(updates[0].patch).toMatchObject({ status: "paid", admin_disputed_at: null, admin_dispute_reason: null, admin_disputed_by_user_id: null });
   });
 
   it("doble confirmación: si el update no afecta filas, no audita ni confirma la reserva", async () => {
@@ -299,8 +317,13 @@ describe("recordManualFeePayment con un cliente falso", () => {
   });
 
   it("un fee sin plazo (expires_at null) no se traba: el UPDATE acepta plazo nulo", async () => {
-    const { admin, updates } = fakeAdmin(baseDb({ fee: { ...baseFee, expires_at: null } }));
-    expect(await recordManualFeePayment(admin, params())).toEqual({ ok: true });
+    const { admin, updates } = fakeAdmin(baseDb({ fee: { ...baseFee, status: "pending_payment_method", manual_payment_file_id: null, expires_at: null } }));
+    expect(
+      await recordManualFeePayment(
+        admin,
+        params({ intent: "confirm_without_receipt", confirmWithoutReceipt: true, seenReceiptFileId: null, reason: "Soporte vio la transferencia en el banco." }),
+      ),
+    ).toEqual({ ok: true });
     expect(updates[0].filters.find(([n]) => n === "or")?.[1]?.[0]).toMatch(/^expires_at\.is\.null,/);
   });
 

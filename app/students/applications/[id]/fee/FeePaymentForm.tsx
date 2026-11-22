@@ -35,7 +35,7 @@ export function FeePaymentForm({
     return (
       <Card className="mt-6 border-line-2 bg-mint p-5">
         <p className="text-sm font-medium text-forest-700">
-          Comprobante registrado. Nuestro equipo lo va a validar y confirmar tu reserva.
+          Pago informado. Nuestro equipo valida el comprobante y confirma tu reserva.
         </p>
       </Card>
     );
@@ -43,9 +43,9 @@ export function FeePaymentForm({
 
   return (
     <Card className="mt-6 p-6">
-      <h2 className="font-bold text-ink">Registrar pago manual</h2>
+      <h2 className="font-bold text-ink">Ya pagué: subí el comprobante</h2>
       <p className="mt-1 text-xs text-ink-faint">
-        Datos para tu Factura C. Si no tenés CUIT/CUIL, dejalo en blanco.
+        El comprobante es obligatorio: EstuRed valida el pago contra él. Abajo, los datos para tu Factura C. Si no tenés CUIT/CUIL, dejalo en blanco.
       </p>
       {defaults && (
         <p className="mt-2 rounded-field bg-sand-100 px-3 py-2 text-xs text-ink-soft">
@@ -65,7 +65,6 @@ export function FeePaymentForm({
             </option>
           ))}
         </Select>
-        <Input label="Medio de pago (ej: transferencia)" name="payment_channel" />
         <div>
           <label className="text-sm font-medium text-ink" htmlFor="file">
             Comprobante (PDF, JPG, PNG o WebP)
@@ -98,7 +97,7 @@ export function FeePaymentForm({
         </label>
 
         <Button type="submit" disabled={!confirmed || isPending}>
-          {isPending ? "Enviando…" : "Registrar pago"}
+          {isPending ? "Enviando…" : "Ya pagué"}
         </Button>
       </form>
     </Card>

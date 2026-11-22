@@ -1656,7 +1656,7 @@ Efectos: `student_payment_issue_at = now()` y `student_payment_issue_reason`; li
 ### 17.9. Admin responde al aviso y registra «No recibí el pago» *(DR64 (d) y (e), propuesto)*
 
 **Server action** `resolveFeePaymentIssue`. Roles: `admin`; `superadmin`. Body: `fee_payment_id`, `resolution` (`contact_payer` o `reopen_payment`) y `reason` (mínimo 5).
-- `contact_payer`: abre un caso de Soporte `estured_fee_payment` a nombre del pagador.
+- `contact_payer`: abre un caso de Soporte `estured_fee_payment` a nombre del pagador (`opened_by_role = system`). Solo en fees de reserva: en una renovación solo vale `reopen_payment` (supuesto del agente).
 - `reopen_payment`: permite elegir otro medio.
 - Ambas: `student_payment_issue_resolved_at = now()`, `expires_at = now() + 48 h`, notifican al pagador y auditan.
 
@@ -1676,7 +1676,7 @@ Efectos: `student_payment_issue_at = now()` y `student_payment_issue_reason`; li
 **JOB** `remindFeePayments` (dentro de `runExpirationJobs`, cada hora). Cada aviso se reclama con un update sobre su marca (`*_sent_at is null`) y solo se envía si devolvió la fila:
 - 12 horas antes de `expires_at`, sin «Ya pagué» ni aviso abierto: aviso al pagador (`payer_reminder_sent_at`);
 - 24 horas de `student_reported_paid_at` sin validar ni disputa, o de `student_payment_issue_at` sin responder: aviso a los admins (`admin_reminder_sent_at`);
-- 72 horas de lo mismo: alerta a los admins y caso de Soporte `estured_fee_payment`, único por reserva (`admin_alert_sent_at`). Sin transición automática.
+- 72 horas de lo mismo: alerta a los admins y caso de Soporte `estured_fee_payment`, único por reserva (`admin_alert_sent_at`). Sin transición automática. En una renovación sale solo la alerta, sin caso (supuesto del agente).
 
 Índices: `estured_fee_payments_reported_open_idx` y `estured_fee_payments_issue_open_idx` (0105).
 

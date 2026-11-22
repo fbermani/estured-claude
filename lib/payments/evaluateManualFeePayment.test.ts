@@ -224,9 +224,17 @@ describe("evaluateManualFeePayment", () => {
   });
 
   it("un fee vencido (por fecha o por estado) no se puede marcar pagado y apunta a reabrir el plazo", () => {
-    expect(errorOf(evaluate({ expiresAt: AGO_1H }))).toMatch(/Reabrilo/);
-    expect(errorOf(evaluate({ expiresAt: NOW.toISOString() }))).toMatch(/Reabrilo/);
+    // DR64 (d): el plazo se exige solo en `pending_payment_method` (override sin comprobante).
+    const noReceipt = { feeStatus: "pending_payment_method", hasReceipt: false };
+    const override = { intent: "confirm_without_receipt", confirmWithoutReceipt: true, reason: "Motivo suficientemente largo" };
+    expect(errorOf(evaluate({ ...noReceipt, expiresAt: AGO_1H }, override))).toMatch(/Reabrilo/);
+    expect(errorOf(evaluate({ ...noReceipt, expiresAt: NOW.toISOString() }, override))).toMatch(/Reabrilo/);
     expect(errorOf(evaluate({ feeStatus: "expired", expiresAt: AGO_1H }))).toMatch(/Reabrilo/);
+  });
+
+  it("DR64 (d): un fee en pending_manual_payment ya informado se valida aunque `expires_at` haya pasado", () => {
+    expect(evaluate({ expiresAt: AGO_1H }).ok).toBe(true);
+    expect(evaluate({ expiresAt: NOW.toISOString() }).ok).toBe(true);
   });
 
   it("rechaza estados que ya no están pendientes (doble confirmación)", () => {

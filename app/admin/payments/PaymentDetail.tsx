@@ -25,6 +25,7 @@ import { AdminButton } from "@/components/admin/ui/AdminButton";
 import { DocumentAccessButton } from "@/components/admin/ui/DocumentAccessButton";
 import { cmd } from "@/components/admin/ui/tokens";
 import { markFeePaidManually, type MarkFeePaidState } from "@/app/admin/payments/actions";
+import { DisputeFeeForm, IssueResponseForm, ReopenAfterDisputeForm } from "@/app/admin/payments/FeeReviewActions";
 
 interface FeePayment {
   id: string;
@@ -47,6 +48,18 @@ interface FeePayment {
     initial_duration_months: number;
   } | null;
 }
+
+/**
+ * Lo que el admin ve de DR64 (medio elegido, «Ya pagué», «No pude realizar el pago», «No recibí el pago»). Se arma en el servidor: las
+ * fechas ya vienen formateadas (sin desincronizar la hidratación) y NUNCA viajan los datos de cobro congelados, solo el nombre del medio.
+ */
+export type FeeReview = {
+  chosenLabel: string | null;
+  currency: string | null;
+  reportedPaidLabel: string | null;
+  issue: { reason: string | null; atLabel: string } | null;
+  dispute: { reason: string | null; atLabel: string } | null;
+};
 
 export type FeePayer = { name: string | null; role: "student" | "family" | "unknown" };
 
@@ -77,11 +90,13 @@ export function PaymentDetail({
   payer,
   countdown,
   isSuperadmin,
+  review,
 }: {
   feePayment: FeePayment;
   proofFileId: string | null;
   payer: FeePayer;
   countdown: FeeCountdown | null;
+  review: FeeReview;
   /** Rol de la sesión: solo un superadmin puede confirmar si se recibió menos del 90 % del fee. */
   isSuperadmin: boolean;
 }) {
@@ -96,6 +111,16 @@ export function PaymentDetail({
   const hasReceipt = Boolean(proofFileId) && feePayment.status === "pending_manual_payment";
   // Hay un archivo cargado pero el pagador no terminó de informar el pago (sigue en `pending_payment_method`): ni se confirma ni se ofrece el override.
   const receiptNotInReview = Boolean(proofFileId) && feePayment.status !== "pending_manual_payment";
+  const isReported = feePayment.status === "pending_manual_payment";
+  const disputed = isReported && review.dispute !== null;
+  const issueOpen = feePayment.status === "pending_payment_method" && review.issue !== null;
+  const stageBadge = disputed
+    ? { label: "No recibido", tone: "rose" as const }
+    : issueOpen
+      ? { label: "No pudo pagar", tone: "rose" as const }
+      : hasReceipt
+        ? { label: "Esperando validación", tone: "violet" as const }
+        : { label: "Sin comprobante", tone: "amber" as const };
 
   return (
     <div className="max-w-2xl space-y-6">
@@ -105,7 +130,7 @@ export function PaymentDetail({
             {formatShortName(reservation?.student_profiles?.first_name, reservation?.student_profiles?.last_initial)} —{" "}
             {reservation?.residences?.name}
           </h2>
-          <AdminBadge tone={hasReceipt ? "violet" : "amber"}>{hasReceipt ? "Esperando validación" : "Sin comprobante"}</AdminBadge>
+          <AdminBadge tone={stageBadge.tone}>{stageBadge.label}</AdminBadge>
         </div>
         <dl className="mt-4 space-y-2 text-sm">
           {feePayment.reservation_id && (
@@ -119,7 +144,21 @@ export function PaymentDetail({
             {payer.role === "family" && " (no es el estudiante)"}
           </Row>
           <Row label="Plazo para pagar">
-            {countdown ? (
+            {isReported ? (
+              <span>
+                <strong>Sin vencimiento</strong>
+                <span className="block text-xs font-normal" style={{ color: cmd.outline }}>
+                  El pagador ya informó el pago a tiempo
+                </span>
+              </span>
+            ) : issueOpen ? (
+              <span>
+                <strong>En pausa</strong>
+                <span className="block text-xs font-normal" style={{ color: cmd.outline }}>
+                  Vuelve a correr cuando respondas el aviso
+                </span>
+              </span>
+            ) : countdown ? (
               <span style={{ color: countdown.expired ? cmd.rose : countdown.urgent ? cmd.amber : cmd.onSurface }}>
                 <strong>{countdown.expired ? "Vencido" : `Vence en ${countdown.remaining}`}</strong>
                 <span className="block text-xs font-normal" style={{ color: cmd.outline }}>
@@ -131,7 +170,10 @@ export function PaymentDetail({
             )}
           </Row>
           <Row label="Fecha de ingreso">{formatDateOnly(reservation?.start_date)}</Row>
-          <Row label="Medio informado">{paymentChannelLabel(feePayment.payment_channel)}</Row>
+          <Row label="Medio elegido">
+            {review.chosenLabel ? `${review.chosenLabel}${review.currency ? ` · ${review.currency}` : ""}` : paymentChannelLabel(feePayment.payment_channel)}
+          </Row>
+          {review.reportedPaidLabel && <Row label="El pagador avisó que pagó">{review.reportedPaidLabel}</Row>}
           <Row label="Facturar a">
             {feePayment.payer_billing_name ?? "—"} {feePayment.payer_billing_cuit ? `(${feePayment.payer_billing_cuit})` : ""}
           </Row>
@@ -166,13 +208,19 @@ export function PaymentDetail({
         )}
       </AdminCard>
 
+      {issueOpen && review.issue && (
+        <IssueResponseForm feePaymentId={feePayment.id} canContact={Boolean(feePayment.reservation_id)} issueReason={review.issue.reason} />
+      )}
+      {disputed && review.dispute && <ReopenAfterDisputeForm feePaymentId={feePayment.id} disputeReason={review.dispute.reason} />}
+
       <ValidationCard
         feePaymentId={feePayment.id}
         hasReceipt={hasReceipt}
         receiptFileId={proofFileId}
         receiptNotInReview={receiptNotInReview}
         isSuperadmin={isSuperadmin}
-        expired={Boolean(countdown?.expired)}
+        // DR64 (d): el plazo solo bloquea en `pending_payment_method`; un pago ya informado no vence. Con un aviso abierto la salida es «Reabrir el pago» (arriba).
+        expired={Boolean(countdown?.expired) && feePayment.status === "pending_payment_method" && !issueOpen}
         expected={{
           feeAmountArs: calc.feeArs,
           feeAmountUsd: feePayment.fee_amount_usd === null ? null : Number(feePayment.fee_amount_usd),
@@ -180,6 +228,7 @@ export function PaymentDetail({
           feeBaseArs: Number(feePayment.fee_base_ars),
         }}
       />
+      {hasReceipt && proofFileId && !disputed && <DisputeFeeForm feePaymentId={feePayment.id} receiptFileId={proofFileId} />}
     </div>
   );
 }

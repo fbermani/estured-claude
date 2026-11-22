@@ -251,7 +251,8 @@ export function evaluateManualFeePayment(params: {
   if (facts.residencePaymentStatus !== "reported_received_by_residence") {
     return { ok: false, error: "El pago a la residencia todavía no fue confirmado." };
   }
-  if (facts.expiresAt) {
+  // DR64 (d): un fee en `pending_manual_payment` ya fue informado a tiempo y no vence; el plazo solo se exige en `pending_payment_method`.
+  if (facts.feeStatus === "pending_payment_method" && facts.expiresAt) {
     const deadline = new Date(facts.expiresAt);
     if (!Number.isNaN(deadline.getTime()) && deadline.getTime() <= now.getTime()) return { ok: false, error: EXPIRED_ERROR };
   }

@@ -11,8 +11,10 @@ import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import { Icon } from "@/components/ui/Icon";
 import { FeePaymentForm } from "@/app/students/applications/[id]/fee/FeePaymentForm";
 import { FeeCountdown, FeeCountdownBanner } from "@/app/students/applications/[id]/fee/FeeCountdown";
-import { FeeTransferInstructions } from "@/app/students/applications/[id]/fee/FeeTransferInstructions";
-import { loadFeeInstructionsForPayer } from "@/lib/payments/paymentSettings";
+import { FeeMethodCard } from "@/app/students/applications/[id]/fee/FeeMethodCard";
+import { FeeMethodChooser } from "@/app/students/applications/[id]/fee/FeeMethodChooser";
+import { FeeIssueForm } from "@/app/students/applications/[id]/fee/FeeIssueForm";
+import { loadFeePayerView } from "@/lib/payments/loadFeePayerView";
 import { formatShortName } from "@/lib/format/shortName";
 import { loadActiveFamilyLink, loadActiveFamilyOfStudent, loadFamilyMember } from "@/lib/family/access";
 import { formatBillingTaxId } from "@/lib/family/familyProfile";
@@ -24,7 +26,7 @@ export const metadata: Metadata = { title: "Pago fee EstuRed" };
 export const dynamic = "force-dynamic";
 
 const FEE_STATUS_LABEL: Record<string, string> = {
-  pending_payment_method: "Pendiente de elegir medio de pago",
+  pending_payment_method: "Pendiente de pago",
   pending_manual_payment: "Comprobante enviado — esperando validación de EstuRed",
   pending_auto_charge: "Procesando",
   processing: "Procesando",
@@ -82,7 +84,7 @@ export default async function FeePaymentPage({
 
   const { data: feePayment } = await admin
     .from("estured_fee_payments")
-    .select("*")
+    .select("id, status, payer_user_id, expires_at, fee_amount_ars")
     .eq("id", reservation.estured_fee_payment_id)
     .single();
   if (!feePayment) notFound();
@@ -130,26 +132,27 @@ export default async function FeePaymentPage({
   const otherIsPayer = isBeneficiary && feePayment.payer_user_id !== sessionUser.id;
   const showPayerCard = isBeneficiary && feeOpen && (canPickFamily || otherIsPayer);
   const initialPaymentUsd = Number(snapshot.reservation_payment_amount_usd ?? 0);
-  const alreadyRegistered = feePayment.status !== "pending_payment_method";
   const reference = reservationReference(reservation.id);
-
-  // D2 / H02: los datos de cobro solo se leen si quien mira está pagando este fee.
-  const instructionsResult = alreadyRegistered
-    ? null
-    : await loadFeeInstructionsForPayer(admin, { userId: sessionUser.id, feePaymentId: feePayment.id });
-  const payerMismatch = instructionsResult?.status === "forbidden";
   const supportHref = feeSupportHref(reservation.id);
 
-  const payBlock = (
+  // DR64 (b): los datos de cobro solo se leen si quien mira es el pagador designado (`loadFeePayerView` lo comprueba en la base).
+  const isPayable = feePayment.status === "pending_payment_method";
+  const isReported = feePayment.status === "pending_manual_payment";
+  const view = isPayable || isReported ? await loadFeePayerView(admin, { userId: sessionUser.id, applicationId: id }) : null;
+  const payerMismatch = isPayable && !view;
+  const issueOpen = view?.stage === "issue_open";
+  const statusLabel =
+    view?.stage === "choose"
+      ? "Pendiente de elegir medio de pago"
+      : view?.stage === "issue_open"
+        ? "Avisaste que no pudiste pagar"
+        : view?.stage === "disputed"
+          ? "EstuRed no encontró tu pago"
+          : (FEE_STATUS_LABEL[feePayment.status] ?? feePayment.status);
+
+  const payBlock = view && (view.stage === "choose" || view.stage === "to_pay") && (
     <>
-      {instructionsResult?.status === "ready" && (
-        <FeeTransferInstructions
-          amountArs={Number(feePayment.fee_amount_ars)}
-          reference={reference}
-          instructions={instructionsResult.instructions}
-        />
-      )}
-      {instructionsResult?.status === "not_configured" && (
+      {view.methods.length === 0 ? (
         <p role="status" className="mt-6 rounded-field bg-warning-bg px-4 py-3 text-sm font-medium text-warning-fg">
           Estamos preparando los datos de pago. Escribile a EstuRed desde{" "}
           <Link href={supportHref} className="underline">
@@ -157,10 +160,29 @@ export default async function FeePaymentPage({
           </Link>{" "}
           y te los pasamos; tu referencia es <span className="font-mono font-bold">{reference}</span>.
         </p>
+      ) : (
+        (view.stage === "choose" || view.methods.length > 1) && (
+          <FeeMethodChooser
+            applicationId={id}
+            methods={view.methods}
+            chosenKey={view.chosen?.key ?? null}
+            amountArs={view.amountArs}
+            amountUsd={view.amountUsd}
+          />
+        )
+      )}
+      {view.chosen && (
+        <FeeMethodCard
+          label={view.chosen.label}
+          currency={view.chosen.currency}
+          amount={view.chosen.amount}
+          reference={reference}
+          details={view.chosen.details}
+        />
       )}
       <p className="mt-4 rounded-field bg-sand-100 px-4 py-3 text-xs text-ink-faint">
-        El cobro automático (MercadoPago / PayU Argentina) todavía no está activado: por ahora el fee se paga por
-        transferencia y lo validamos a mano.
+        El cobro automático (MercadoPago / PayU Argentina) todavía no está activado: por ahora el fee se paga con los medios de esta
+        pantalla y lo validamos a mano.
       </p>
     </>
   );
@@ -184,7 +206,7 @@ export default async function FeePaymentPage({
       </p>
 
       {/* El plazo va primero: antes de "¿Quién paga?" y del desglose (también en mobile). */}
-      {!alreadyRegistered && !payerMismatch && feePayment.expires_at && (
+      {isPayable && !payerMismatch && !issueOpen && feePayment.expires_at && (
         <FeeCountdownBanner expiresAt={feePayment.expires_at} nowIso={new Date().toISOString()} supportHref={supportHref} />
       )}
 
@@ -230,7 +252,7 @@ export default async function FeePaymentPage({
           </div>
           <div className="flex justify-between">
             <dt className="text-ink-faint">Estado</dt>
-            <dd className="font-medium text-ink">{FEE_STATUS_LABEL[feePayment.status] ?? feePayment.status}</dd>
+            <dd className="font-medium text-ink">{statusLabel}</dd>
           </div>
         </dl>
       </Card>
@@ -256,26 +278,43 @@ export default async function FeePaymentPage({
         <p className="mt-6 rounded-field bg-success-bg px-4 py-3 text-sm font-medium text-success-fg">
           {isFamilyPayer ? `Fee pagado. La reserva de ${studentName} está confirmada.` : "Fee pagado. Tu reserva está confirmada."}
         </p>
-      ) : alreadyRegistered ? (
+      ) : isReported ? (
+        <>
+          <p role="status" className="mt-6 rounded-field bg-sand-100 px-4 py-3 text-sm text-ink-soft">
+            {view?.stage === "disputed"
+              ? "EstuRed no encontró tu pago. Soporte te va a escribir para resolverlo."
+              : "Pago informado. EstuRed lo está validando y te avisamos cuando se confirme."}
+          </p>
+          {supportLink}
+        </>
+      ) : !isPayable ? (
         <>
           <p className="mt-6 rounded-field bg-sand-100 px-4 py-3 text-sm text-ink-soft">
-            Ya hay un comprobante registrado para este pago — está esperando validación de EstuRed. Te avisamos cuando
-            se confirme.
+            Este pago ya no admite cambios. Si necesitás ayuda, escribile a EstuRed desde Soporte.
+          </p>
+          {supportLink}
+        </>
+      ) : issueOpen ? (
+        <>
+          <p role="status" className="mt-6 rounded-field bg-sand-100 px-4 py-3 text-sm text-ink-soft">
+            Avisamos a EstuRed que no pudiste pagar. Te vamos a responder por acá.
           </p>
           {supportLink}
         </>
       ) : feePayment.expires_at ? (
-        // El plazo manda: vencido, no se muestran datos de transferencia ni el formulario (ni siquiera sin recargar).
+        // El plazo manda: vencido, no se muestran datos de cobro ni el formulario (ni siquiera sin recargar).
         <FeeCountdown expiresAt={feePayment.expires_at} nowIso={new Date().toISOString()} supportHref={supportHref}>
           {payBlock}
+          {view?.stage === "to_pay" && <FeePaymentForm applicationId={id} defaults={billingDefaults} />}
+          <FeeIssueForm applicationId={id} />
           {supportLink}
-          <FeePaymentForm applicationId={id} defaults={billingDefaults} />
         </FeeCountdown>
       ) : (
         <>
           {payBlock}
+          {view?.stage === "to_pay" && <FeePaymentForm applicationId={id} defaults={billingDefaults} />}
+          <FeeIssueForm applicationId={id} />
           {supportLink}
-          <FeePaymentForm applicationId={id} defaults={billingDefaults} />
         </>
       )}
 

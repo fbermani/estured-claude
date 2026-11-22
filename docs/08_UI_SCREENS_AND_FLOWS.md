@@ -680,8 +680,8 @@ Ruta base: `/students`
 - **cuenta regresiva** hasta el vencimiento de la ventana de pago (48 h);
 - botón **"Tengo un problema con el pago"** (abre un caso de Soporte con el contexto de la reserva).
 
-**DR64 (2026-11-21, sin implementar; supuestos del agente pendientes de ratificación).** Reemplaza la propuesta DR63 (i). Hoy la pantalla ofrece solo transferencia manual (`payment_settings`, una cuenta). Con DR64 la tarjeta del pagador queda así:
-- **Medios:** lista de los medios habilitados por el admin. Ninguno viene preseleccionado. Con un solo medio, queda elegido. Sin ningún medio habilitado, se usa `payment_settings` como respaldo.
+**DR64 (2026-11-21; paso B1 implementado, B2 pendiente; supuestos del agente pendientes de ratificación).** Reemplaza la propuesta DR63 (i). Hoy la pantalla ofrece solo transferencia manual (`payment_settings`, una cuenta). Con DR64 la tarjeta del pagador queda así:
+- **Medios:** lista de los medios habilitados por el admin. Ninguno viene preseleccionado. Con un solo medio, viene preseleccionado. Se confirma con «Usar este medio» (supuesto de B1). Sin ningún medio habilitado, se usa `payment_settings` como respaldo.
 - **Datos de cobro:** al elegir un medio aparecen sus datos con botón «Copiar», el monto exacto en la moneda del medio (ARS, o USD con la cotización del `snapshot_final`) y el n.º de reserva como referencia. El pagador puede cambiar de medio hasta «Ya pagué».
 - **«Ya pagué»:** botón principal. Abre el formulario con el comprobante **obligatorio** (DR8) y los datos de facturación. Al enviar, la tarjeta pasa a «Pago informado. EstuRed lo está validando» y no hay cuenta regresiva.
 - **«No pude realizar el pago»:** botón secundario, con motivo opcional. Pasa la tarjeta a «Avisamos a EstuRed. Te vamos a responder» y frena la cuenta regresiva. Convive con el enlace «Tengo un problema con el pago» (Soporte).
@@ -1303,7 +1303,7 @@ Sin cambios de fondo.
 
 ---
 
-### 8.10b. Medios de cobro del fee *(DR64 (a), supuesto del agente, sin implementar)*
+### 8.10b. Medios de cobro del fee *(DR64 (a), supuesto del agente, implementado en B1)*
 
 **Ruta:** `/admin/payment-settings` (existente; hoy una sola cuenta).
 

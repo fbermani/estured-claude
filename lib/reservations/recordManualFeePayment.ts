@@ -71,7 +71,7 @@ export async function recordManualFeePayment(
   const { data: feePayment, error: feeError } = await admin
     .from("estured_fee_payments")
     .select(
-      "id, status, expires_at, manual_payment_file_id, fee_amount_ars, fee_amount_usd, fee_base_usd, fee_base_ars, reservation_id, renewal_offer_id",
+      "id, status, expires_at, manual_payment_file_id, fee_amount_ars, fee_amount_usd, fee_base_usd, fee_base_ars, reservation_id, renewal_offer_id, admin_disputed_at",
     )
     .eq("id", params.feePaymentId)
     .maybeSingle();
@@ -144,13 +144,13 @@ export async function recordManualFeePayment(
 
   // Update condicional que coincide con lo evaluado: mismo estado del fee que se leyó, plazo vigente (o sin plazo) y el mismo
   // comprobante (por id) o ninguno. Solo gana quien encuentra el pago exactamente así; la segunda confirmación no pisa nada.
+  // DR64 (d): el plazo se exige solo en `pending_payment_method`; en `pending_manual_payment` ya se informó a tiempo y no se revisa.
+  // Si había «No recibí el pago» abierto, validar la limpia (los tres campos van juntos por el CHECK de 0105).
+  const hadDispute = Boolean(feePayment.admin_disputed_at);
+  const disputeClear = hadDispute ? { admin_disputed_at: null, admin_dispute_reason: null, admin_disputed_by_user_id: null } : {};
   const conditionalUpdate = (patch: Record<string, unknown>) => {
-    let query = admin
-      .from("estured_fee_payments")
-      .update(patch)
-      .eq("id", params.feePaymentId)
-      .eq("status", facts.feeStatus)
-      .or(`expires_at.is.null,expires_at.gt.${now.toISOString()}`);
+    let query = admin.from("estured_fee_payments").update({ ...patch, ...disputeClear }).eq("id", params.feePaymentId).eq("status", facts.feeStatus);
+    if (facts.feeStatus === "pending_payment_method") query = query.or(`expires_at.is.null,expires_at.gt.${now.toISOString()}`);
     query = plan.hadReceipt ? query.eq("manual_payment_file_id", receiptFileId as string) : query.is("manual_payment_file_id", null);
     return query.select("id");
   };

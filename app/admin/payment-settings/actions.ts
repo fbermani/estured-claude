@@ -10,6 +10,7 @@ import {
   notifySuperadminsOfPaymentSettingsChange,
 } from "@/lib/payments/notifyPaymentSettingsChange";
 import { loadPaymentSettings, type PaymentSettingsRow } from "@/lib/payments/paymentSettings";
+import { importFeeCollectionFromSettingsCore, saveFeeCollectionMethodCore } from "@/lib/payments/feeCollectionSave";
 import {
   maskTail,
   parsePaymentSettingsInput,
@@ -135,4 +136,45 @@ export async function savePaymentSettings(
     status: "saved",
     message: `Datos actualizados el ${formatDateTime(new Date())}. Ya se muestran a quienes tienen un fee por pagar.`,
   };
+}
+
+export type FeeMethodFormState = { status: "idle" | "error" | "saved"; message?: string };
+
+/**
+ * DR64 (a), `docs/07` §17.6 — el superadmin carga, edita, habilita o deshabilita UN medio de cobro del fee. SOLO superadmin (la sesión y
+ * la base lo verifican); validación server-side en `saveFeeCollectionMethodCore`; auditoría con datos enmascarados y aviso a los superadmin.
+ */
+export async function saveFeeCollectionMethod(_prev: FeeMethodFormState, formData: FormData): Promise<FeeMethodFormState> {
+  const sessionUser = await getSuperadminSession();
+  if (!sessionUser) return { status: "error", message: "Solo un superadmin puede modificar los medios de cobro del fee." };
+  const admin = getSupabaseAdmin();
+  if (!admin) return { status: "error", message: "No disponible en este momento." };
+
+  const result = await saveFeeCollectionMethodCore(admin, {
+    actorUserId: sessionUser.id,
+    methodKey: formData.get("method_key"),
+    details: formData.get("details"),
+    currency: formData.get("currency"),
+    isEnabled: formData.get("is_enabled") === "on",
+    label: formData.get("label"),
+  });
+  if (!result.ok) return { status: "error", message: result.error };
+
+  revalidatePath("/admin/payment-settings");
+  return { status: "saved", message: result.changed ? "Guardado. Los pagadores con un fee pendiente ya ven este cambio." : "No había cambios para guardar." };
+}
+
+/** DR64 (a): crea «Transferencia en pesos» desde la cuenta que ya estaba cargada. El CBU pasa por el servidor, nunca por el cliente. */
+export async function importFeeCollectionFromSettings(_prev: FeeMethodFormState, _formData: FormData): Promise<FeeMethodFormState> {
+  void _formData;
+  const sessionUser = await getSuperadminSession();
+  if (!sessionUser) return { status: "error", message: "Solo un superadmin puede modificar los medios de cobro del fee." };
+  const admin = getSupabaseAdmin();
+  if (!admin) return { status: "error", message: "No disponible en este momento." };
+
+  const result = await importFeeCollectionFromSettingsCore(admin, { actorUserId: sessionUser.id });
+  if (!result.ok) return { status: "error", message: result.error };
+
+  revalidatePath("/admin/payment-settings");
+  return { status: "saved", message: "Importada: «Transferencia en pesos» quedó habilitada con los datos de la cuenta actual." };
 }

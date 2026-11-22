@@ -6,7 +6,12 @@ import { reactivatePausedApplications } from "@/lib/applications/reactivatePause
 import { createNotification } from "@/lib/notifications/createNotification";
 import { notifyResidenceTeam } from "@/lib/residences/notifyResidenceTeam";
 
-const PENDING_FEE_STATUSES = ["pending_payment_method", "pending_manual_payment", "pending_auto_charge", "processing"];
+/**
+ * DR64 (d): `pending_manual_payment` NO vence. Un fee en ese estado ya fue informado dentro del plazo («Ya pagué» exige plazo vigente);
+ * vencerlo haría perder la reserva a quien pagó por una demora de EstuRed. Se excluye por ESTADO (no por `student_reported_paid_at`)
+ * para cubrir también las filas anteriores a la migración 0105. Vale para reservas y renovaciones (misma tabla).
+ */
+const PENDING_FEE_STATUSES = ["pending_payment_method", "pending_auto_charge", "processing"];
 
 /**
  * Job `expire_estured_fee_windows` (docs/07 §17.2, §31) — cada hora.
@@ -23,6 +28,10 @@ export async function expireEsturedFeeWindows(admin: SupabaseClient): Promise<{ 
     .update({ status: "expired" })
     .in("status", PENDING_FEE_STATUSES)
     .lt("expires_at", new Date().toISOString())
+    // DR64 (e): con «No pude realizar el pago» abierto (sin responder) el plazo se frena hasta que el admin responda.
+    .or("student_payment_issue_at.is.null,student_payment_issue_resolved_at.not.is.null")
+    // DR64 (d): con «No recibí el pago» abierto el fee tampoco vence (ya está en pending_manual_payment, excluido arriba; defensa en profundidad).
+    .is("admin_disputed_at", null)
     .select("id, reservation_id, payer_user_id");
 
   if (error) {

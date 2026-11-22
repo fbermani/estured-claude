@@ -121,6 +121,11 @@ export async function registerRenewalManualFeePayment(
       payer_billing_name: params.payerBillingName,
       payer_billing_cuit: params.payerBillingCuit,
       payer_iva_condition: params.payerIvaCondition,
+      // DR64: sin `student_reported_paid_at` el job de recordatorios nunca vería este «Ya pagué». Las marcas se limpian en cada evento nuevo.
+      student_reported_paid_at: new Date().toISOString(),
+      payer_reminder_sent_at: null,
+      admin_reminder_sent_at: null,
+      admin_alert_sent_at: null,
     })
     .eq("id", offer.estured_fee_payment_id)
     .eq("status", "pending_payment_method")

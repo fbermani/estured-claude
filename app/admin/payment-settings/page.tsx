@@ -4,6 +4,11 @@ import { requireAdmin } from "@/lib/auth/requireAdmin";
 import { formatDateTime } from "@/lib/dates/format";
 import { loadPaymentSettings } from "@/lib/payments/paymentSettings";
 import { maskTail } from "@/lib/payments/paymentSettingsValidation";
+import { loadFeeCollectionMethods } from "@/lib/payments/feeCollectionMethods";
+import { FEE_FALLBACK_METHOD_KEY } from "@/lib/payments/feeCollection";
+import { PAYMENT_METHODS, maskPaymentDetails, paymentMethodLabel } from "@/lib/payments/paymentMethods";
+import { AdminBadge } from "@/components/admin/ui/AdminBadge";
+import { FeeCollectionMethodForm, ImportFeeCollectionButton } from "@/app/admin/payment-settings/FeeCollectionMethodForm";
 import { cmd } from "@/components/admin/ui/tokens";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { PaymentsTabs } from "@/app/admin/payments/PaidFeesView";
@@ -19,6 +24,12 @@ export default async function PaymentSettingsPage() {
   const admin = getSupabaseAdmin();
   const settings = admin ? await loadPaymentSettings(admin) : null;
 
+  const methodsLoad = admin ? await loadFeeCollectionMethods(admin) : { ok: false as const };
+  const methodRows = methodsLoad.ok ? methodsLoad.rows : [];
+  const rowByKey = new Map(methodRows.map((r) => [r.method_key, r]));
+  const anyEnabled = methodRows.some((r) => r.is_enabled);
+  const canImport = canEdit && !!settings && !rowByKey.has(FEE_FALLBACK_METHOD_KEY);
+
   let updatedBy: string | null = null;
   if (admin && settings?.updated_by_user_id) {
     const { data } = await admin.from("users").select("email").eq("id", settings.updated_by_user_id).maybeSingle();
@@ -28,12 +39,92 @@ export default async function PaymentSettingsPage() {
   return (
     <div className="mx-auto max-w-3xl p-4 sm:p-8">
       <PaymentsTabs active="settings" />
-      <p className="mt-3 text-sm" style={{ color: cmd.onSurfaceVariant }}>
-        Cuenta a la que los estudiantes transfieren el fee EstuRed mientras el cobro automático no esté activo. Se
-        muestra solo a quien tiene un fee pendiente de pago, junto con el monto exacto y su referencia.{" "}
+      <h2 className="mt-4 text-lg font-bold" style={{ color: cmd.onSurface }}>
+        Medios de cobro del fee
+      </h2>
+      <p className="mt-1 text-sm" style={{ color: cmd.onSurfaceVariant }}>
+        Medios con los que quien paga el fee EstuRed elige cómo hacerlo. Cada medio tiene su moneda y sus datos de cobro, que se
+        muestran solo a quien tiene un fee por pagar, junto con el monto exacto y su referencia.{" "}
         {canEdit
-          ? "Cada cambio avisa a todos los superadmin."
-          : "Solo un superadmin puede modificarla; acá ves un resumen con el CBU enmascarado."}
+          ? "Cada cambio se audita y avisa a todos los superadmin."
+          : "Solo un superadmin puede modificarlos; acá ves un resumen con los datos enmascarados."}
+      </p>
+
+      {!methodsLoad.ok && (
+        <AdminCard className="mt-4 p-4">
+          <p role="alert" className="text-sm font-semibold" style={{ color: cmd.rose }}>
+            No pudimos leer los medios de cobro. Recargá la página.
+          </p>
+        </AdminCard>
+      )}
+
+      {methodsLoad.ok && !anyEnabled && (
+        <AdminCard className="mt-4 p-4">
+          <p role="status" className="text-sm font-semibold" style={{ color: cmd.amber }}>
+            Todavía no hay medios habilitados. Se usa la cuenta de transferencia anterior.
+          </p>
+          <p className="mt-1 text-sm" style={{ color: cmd.onSurfaceVariant }}>
+            Mientras no habilites ninguno, el fee se paga por transferencia a la cuenta de más abajo. Podés importarla como el medio
+            «Transferencia en pesos» y sumar otros.
+          </p>
+          {canImport && <ImportFeeCollectionButton />}
+        </AdminCard>
+      )}
+
+      {methodsLoad.ok && canEdit && (
+        <div className="mt-4 space-y-2">
+          {PAYMENT_METHODS.map((m) => {
+            const row = rowByKey.get(m.key);
+            return (
+              <AdminCard key={m.key} className="px-4 py-3">
+                <details>
+                  <summary className="flex min-h-11 cursor-pointer flex-wrap items-center justify-between gap-2 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2" style={{ color: cmd.onSurface }}>
+                    <span>{row ? paymentMethodLabel(m.key, row.method_label) : m.label}</span>
+                    <span className="flex items-center gap-2">
+                      {row && <span className="text-xs font-normal" style={{ color: cmd.outline }}>{row.currency}</span>}
+                      <AdminBadge tone={row?.is_enabled ? "emerald" : "neutral"}>{row ? (row.is_enabled ? "Habilitado" : "Deshabilitado") : "Sin cargar"}</AdminBadge>
+                    </span>
+                  </summary>
+                  <FeeCollectionMethodForm
+                    defaults={{
+                      key: m.key,
+                      label: m.label,
+                      hint: m.detailsHint,
+                      requiresLabel: m.requiresLabel,
+                      customLabel: row?.method_label ?? "",
+                      details: row?.details ?? "",
+                      currency: row?.currency ?? (m.key === "transfer_usd" || m.key === "paypal" || m.key === "airtm" || m.key === "western_union" ? "USD" : "ARS"),
+                      isEnabled: row?.is_enabled ?? false,
+                    }}
+                  />
+                </details>
+              </AdminCard>
+            );
+          })}
+        </div>
+      )}
+
+      {methodsLoad.ok && !canEdit && methodRows.length > 0 && (
+        <AdminCard className="mt-4 p-4">
+          <ul className="divide-y text-sm" style={{ borderColor: cmd.border }}>
+            {methodRows.map((r) => (
+              <li key={r.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
+                <span className="font-semibold" style={{ color: cmd.onSurface }}>
+                  {paymentMethodLabel(r.method_key, r.method_label)} · {r.currency} · {maskPaymentDetails(r.details)}
+                </span>
+                <AdminBadge tone={r.is_enabled ? "emerald" : "neutral"}>{r.is_enabled ? "Habilitado" : "Deshabilitado"}</AdminBadge>
+              </li>
+            ))}
+          </ul>
+        </AdminCard>
+      )}
+
+      <h2 className="mt-10 text-lg font-bold" style={{ color: cmd.onSurface }}>
+        Cuenta de transferencia anterior
+      </h2>
+      <p className="mt-1 text-sm" style={{ color: cmd.onSurfaceVariant }}>
+        Cuenta a la que se transfiere el fee mientras no haya ningún medio habilitado arriba (respaldo).{" "}
+        {canEdit ? "Cada cambio avisa a todos los superadmin." : "Solo un superadmin puede modificarla; acá ves un resumen con el CBU enmascarado."}
       </p>
 
       {!settings && (

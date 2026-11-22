@@ -53,6 +53,30 @@ Estado: Fase 0 hecha (solo docs). Fase 1 hecha (0102 aplicada en dev). **Fase 5 
 **Pista 2, fee EstuRed — DR64 (2026-11-21).** Supuestos del agente pendientes de ratificación del dueño (`docs/00` DR64). **Paso A hecho (solo docs, esquema y tests, sin código de app):** DR64 en `docs/00`; `docs/03` §13, `docs/04` §8.4, §8.8 y §8.10, `docs/06` §8.9 y §13.2, `docs/07` §17.6 a §17.11, `docs/08` §6.8, §8.10 y §8.10b; textos legales en `docs/10`, `19`, `20` y `21` (`LEGAL_REVIEW_PENDING`); migración 0105 aplicada en dev (**en producción entra con el bootstrap**); `scripts/sensitive-columns.json`; test `lib/security/esturedFeeCollection.integration.test.ts`.
 - **Decisiones del paso A:** sin estado nuevo en `estured_fee_status`; «No recibí el pago» es `admin_disputed_at`. Un fee en `pending_manual_payment` no vence; DR8 (4) rige para `pending_payment_method`. Comprobante obligatorio en «Ya pagué» (DR8 (1)). Solo un superadmin edita los medios, sin segundo admin. Moneda por medio.
 - **Paso B (código, pendiente):** (1) pantalla `/admin/payment-settings` con medios, `importFeeCollectionFromSettings` y respaldo a `payment_settings`; (2) tarjeta del pagador en `/students/applications/[id]/fee` (elegir medio, «Copiar», monto en la moneda del medio, `chooseFeePaymentMethod`); (3) adaptar `registerManualFeePayment` (exige medio, setea `student_reported_paid_at`) y `reportFeePaymentIssue`; (4) validación admin: sin chequeo de plazo en `pending_manual_payment` (`evaluateManualFeePayment`, `recordRenewalManualFeePayment`), `disputeFeePayment`, `resolveFeePaymentIssue`, `reopenEsturedFeeWindow` extendida; (5) job: `expireEsturedFeeWindows` excluye `pending_manual_payment` y avisos abiertos, `remindFeePayments`; (6) etiquetas de auditoría, seeds de demo, tests y prueba en staging; (7) corregir el copy de `app/residence/[residence_id]/collection/page.tsx` («ningún pago» pasa a «ningún pago a la residencia»).
+- **Paso B1 hecho (2026-11-21).** Sin commit ni verificación visual.
+  - Admin: `/admin/payment-settings` lista los medios del catálogo. Solo un superadmin escribe. El admin ve datos enmascarados.
+  - Admin: `importFeeCollectionFromSettings` crea «Transferencia en pesos» desde `payment_settings`. Sin medios habilitados rige ese respaldo.
+  - Pagador: `/students/applications/[id]/fee` elige medio, copia los datos y avisa «No pude realizar el pago».
+  - `registerManualFeePayment` exige medio elegido y setea `student_reported_paid_at`. El comprobante sigue obligatorio.
+  - Código: `lib/payments/feeCollection*.ts`, `feePayer*.ts`, `registerFeePayment.ts`.
+  - Tests: `feeCollection.test.ts`, `feePayerActions.fake.test.ts`, `feeCollectionSave.fake.test.ts`.
+  - Seed: `scripts/seed-demo-fee-collection.mjs`. Solo se corrió con `--dry-run`.
+- **Supuestos de B1 (reversibles).**
+  - El acceso del pagador es `payer_user_id` más vínculo activo con `can_pay_estured_fee`. Un familiar puede pagar por un adulto (DR4).
+  - Con un solo medio, la pantalla lo muestra preseleccionado. El pagador confirma con «Usar este medio». La página no escribe al renderizar.
+  - Elegir medio se bloquea mientras hay un aviso abierto.
+  - La importación deja el medio habilitado. Si el texto pasa de 500 caracteres, falla en vez de recortar.
+- **Paso B2 hecho (2026-11-22).** Sin commit ni verificación visual.
+  - Job de vencimiento: `expireEsturedFeeWindows` excluye `pending_manual_payment` (por estado, cubre filas legacy), avisos «No pude pagar» abiertos y disputas. Vale para reservas y renovaciones. Test de integración en `expireEsturedFeeWindows.test.ts`.
+  - Validación del admin: `evaluateManualFeePayment`, `recordManualFeePayment` (incluido el UPDATE condicional) y `recordRenewalManualFeePayment` exigen plazo solo en `pending_payment_method`. Validar limpia la disputa.
+  - Acciones admin: `lib/payments/feeAdminActions.ts` (`disputeFeePaymentCore`, `resolveFeePaymentIssueCore`), `reopenEsturedFeeWindow` extendida (descarta el comprobante anterior, solo si es de ese fee), caso de Soporte `lib/payments/feeSupportCase.ts`, avisos `feePayerNotices.ts`. Server actions en `app/admin/payments/actions.ts`.
+  - Pantalla: `/admin/payments` muestra medio elegido, fecha de «Ya pagué», comprobante (link firmado de 5 min con motivo y auditoría) y `FeeReviewActions.tsx`. Nunca viajan los datos de cobro al cliente.
+  - Job `lib/jobs/remindFeePayments.ts` dentro de `runExpirationJobs`: 12 h al pagador, 24 h y 72 h a los admin. Idempotente con marcas; devuelve la marca si no hay a quién avisar o falla el caso.
+  - Renovaciones: `registerRenewalManualFeePayment` setea `student_reported_paid_at` y limpia las marcas.
+  - Etiquetas de auditoría: 4 del fee más las 6 de DR63 Fase 5.
+  - Seed: `seed-demo-fee-collection.mjs` (medios con alias `estured.demo.fee`, reserva de Camila con fee pendiente).
+  - **Supuestos B2 (reversibles):** (1) el caso de Soporte va a nombre del pagador, `opened_by_role = system`, único por reserva por búsqueda previa (no hay índice único para este tema). (2) En una renovación solo se puede «Reabrir el pago» y la alerta de 72 h sale sin caso. (3) Si el aviso al pagador falla no hay forma de saberlo (`createNotification` no devuelve resultado): la marca solo se devuelve si no hay a quién avisar. (4) Tras «No recibí el pago» el pagador no puede avisar «No pude pagar» (el fee sigue en `pending_manual_payment`).
+  - **Pendiente:** verificación visual en staging (320 px); índice único parcial de casos `estured_fee_payment` abiertos por reserva (migración aparte); tope de reaperturas (decisión del dueño).
 - **Pendiente de decisión del dueño (no implementado):** tope de reaperturas del fee (máximo 2) y los 7 días sin respuesta (`docs/00` DR64 (i)). Recomendación del agente: no vencer un «Ya pagué» por demora de EstuRed; escalar a los superadmin.
 - **Opciones abiertas del fee (DR64 (h), no se implementan):** varias cuentas por medio; recargo o descuento según el medio; fee en cuotas; cobro automático con MercadoPago o PayU; segundo admin que apruebe cambios de datos de cobro; conciliación automática por webhook.
 

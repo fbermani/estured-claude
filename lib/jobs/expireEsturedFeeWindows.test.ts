@@ -19,6 +19,11 @@ describe.skipIf(!hasCreds)("expireEsturedFeeWindows (integración)", () => {
   let residencePaymentId: string;
   let reservationId: string;
   let staleFeeId: string;
+  // DR64: fees que el job NO debe vencer (y uno con aviso ya respondido, que sí vence).
+  let legacyManualFeeId: string;
+  let disputedFeeId: string;
+  let openIssueFeeId: string;
+  let resolvedIssueFeeId: string;
 
   beforeAll(async () => {
     admin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
@@ -171,12 +176,46 @@ describe.skipIf(!hasCreds)("expireEsturedFeeWindows (integración)", () => {
       .single();
     staleFeeId = feePayment!.id;
     await admin.from("reservations").update({ estured_fee_payment_id: staleFeeId }).eq("id", reservationId);
+
+    const longAgo = new Date(Date.now() - 3 * 3_600_000).toISOString();
+    const base = {
+      reservation_id: reservationId,
+      payer_user_id: studentUserId,
+      beneficiary_student_profile_id: studentProfileId,
+      fee_base_usd: 1900,
+      fee_base_ars: 2812000,
+      fee_amount_ars: 140500,
+      expires_at: longAgo,
+    };
+    const insertFee = async (extra: Record<string, unknown>) => {
+      const { data, error } = await admin.from("estured_fee_payments").insert({ ...base, ...extra }).select("id").single();
+      if (error || !data) throw new Error(`No se pudo crear el fee de prueba: ${error?.message}`);
+      return data.id as string;
+    };
+    // Fila anterior a 0105: pending_manual_payment sin `student_reported_paid_at` (no hay backfill).
+    legacyManualFeeId = await insertFee({ status: "pending_manual_payment" });
+    disputedFeeId = await insertFee({
+      status: "pending_manual_payment",
+      student_reported_paid_at: longAgo,
+      admin_disputed_at: new Date().toISOString(),
+      admin_dispute_reason: "No encontramos el pago en la cuenta (prueba).",
+      admin_disputed_by_user_id: ownerId,
+    });
+    openIssueFeeId = await insertFee({ status: "pending_payment_method", student_payment_issue_at: longAgo });
+    resolvedIssueFeeId = await insertFee({
+      status: "pending_payment_method",
+      student_payment_issue_at: longAgo,
+      student_payment_issue_resolved_at: longAgo,
+    });
   });
 
   afterAll(async () => {
     if (!admin || !residenceId) return;
     await admin.from("reservations").update({ estured_fee_payment_id: null }).eq("id", reservationId);
-    await admin.from("estured_fee_payments").delete().eq("id", staleFeeId);
+    await admin
+      .from("estured_fee_payments")
+      .delete()
+      .in("id", [staleFeeId, legacyManualFeeId, disputedFeeId, openIssueFeeId, resolvedIssueFeeId].filter(Boolean));
     await admin.from("external_residence_payments").update({ reservation_id: null }).eq("id", residencePaymentId);
     await admin.from("reservations").delete().eq("id", reservationId);
     await admin.from("external_residence_payments").delete().eq("id", residencePaymentId);
@@ -198,5 +237,14 @@ describe.skipIf(!hasCreds)("expireEsturedFeeWindows (integración)", () => {
     // docs/04 §5.6: la reserva no se confirmó → la solicitud pausada del estudiante se reactiva.
     const { data: paused } = await admin.from("application_requests").select("status").eq("id", pausedAppId).single();
     expect(paused!.status).toBe("submitted");
+  });
+
+  it("DR64: no vence pending_manual_payment (ni legacy ni con disputa) ni un aviso «No pude pagar» abierto; sí uno ya respondido", async () => {
+    await expireEsturedFeeWindows(admin);
+    const status = async (id: string) => ((await admin.from("estured_fee_payments").select("status").eq("id", id).single()).data as { status: string }).status;
+    expect(await status(legacyManualFeeId)).toBe("pending_manual_payment");
+    expect(await status(disputedFeeId)).toBe("pending_manual_payment");
+    expect(await status(openIssueFeeId)).toBe("pending_payment_method");
+    expect(await status(resolvedIssueFeeId)).toBe("expired");
   });
 });

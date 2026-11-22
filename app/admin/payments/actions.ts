@@ -5,6 +5,8 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { recordManualFeePayment } from "@/lib/reservations/recordManualFeePayment";
 import { retryReservationConfirmation } from "@/lib/reservations/retryReservationConfirmation";
 import { recordRenewalManualFeePayment } from "@/lib/renewals/recordRenewalManualFeePayment";
+import { disputeFeePaymentCore, resolveFeePaymentIssueCore } from "@/lib/payments/feeAdminActions";
+import { reopenEsturedFeeWindow } from "@/lib/reservations/reopenEsturedFeeWindow";
 import { adminActorRole, getAdminSession } from "@/lib/auth/requireAdmin";
 
 export type MarkFeePaidState = { status: "idle" | "error" | "saved"; message?: string };
@@ -101,4 +103,66 @@ export async function markRenewalFeePaidManually(
 
   revalidatePath("/admin/payments");
   return { status: "saved" };
+}
+
+/**
+ * DR64 (d) — «No recibí el pago». Capa fina: sesión admin/superadmin, parseo de `FormData` y delegación a `disputeFeePaymentCore`. El
+ * estado del fee y de la reserva no cambia; abre un caso de Soporte y avisa al pagador (sin el motivo).
+ */
+export async function disputeFeePaymentAction(feePaymentId: string, _prev: MarkFeePaidState, formData: FormData): Promise<MarkFeePaidState> {
+  const sessionUser = await getAdminSession();
+  if (!sessionUser) return { status: "error", message: "No tenés permiso para esta acción." };
+  const admin = getSupabaseAdmin();
+  if (!admin) return { status: "error", message: "No disponible en este momento." };
+
+  const result = await disputeFeePaymentCore(admin, {
+    feePaymentId,
+    reason: String(formData.get("reason") ?? ""),
+    seenReceiptFileId: String(formData.get("receipt_file_id") ?? "").trim() || null,
+    actorUserId: sessionUser.id,
+    actorRole: adminActorRole(sessionUser),
+  });
+  revalidatePath("/admin/payments");
+  if (!result.ok) return { status: "error", message: result.error };
+  return { status: "saved", message: "Registramos que no recibiste el pago. Se abrió un caso de Soporte y se avisó al pagador." };
+}
+
+/**
+ * DR64 (e) — responde «No pude realizar el pago». La opción llega en el `name`/`value` nativo del botón (`contact_payer` o
+ * `reopen_payment`). Ambas reinician el plazo de 48 h.
+ */
+export async function resolveFeeIssueAction(feePaymentId: string, _prev: MarkFeePaidState, formData: FormData): Promise<MarkFeePaidState> {
+  const sessionUser = await getAdminSession();
+  if (!sessionUser) return { status: "error", message: "No tenés permiso para esta acción." };
+  const admin = getSupabaseAdmin();
+  if (!admin) return { status: "error", message: "No disponible en este momento." };
+
+  const result = await resolveFeePaymentIssueCore(admin, {
+    feePaymentId,
+    resolution: formData.get("resolution"),
+    reason: String(formData.get("reason") ?? ""),
+    actorUserId: sessionUser.id,
+    actorRole: adminActorRole(sessionUser),
+  });
+  revalidatePath("/admin/payments");
+  if (!result.ok) return { status: "error", message: result.error };
+  return { status: "saved", message: "Respondiste el aviso. El pagador tiene 48 horas más." };
+}
+
+/** DR64 (d) — «Reabrir el pago» tras «No recibí el pago»: el pagador elige medio y sube otro comprobante (48 h). */
+export async function reopenFeePaymentAction(feePaymentId: string, _prev: MarkFeePaidState, formData: FormData): Promise<MarkFeePaidState> {
+  const sessionUser = await getAdminSession();
+  if (!sessionUser) return { status: "error", message: "No tenés permiso para esta acción." };
+  const admin = getSupabaseAdmin();
+  if (!admin) return { status: "error", message: "No disponible en este momento." };
+
+  const result = await reopenEsturedFeeWindow(admin, {
+    feePaymentId,
+    actorUserId: sessionUser.id,
+    actorRole: adminActorRole(sessionUser),
+    reason: String(formData.get("reason") ?? ""),
+  });
+  revalidatePath("/admin/payments");
+  if (result.status === "error") return { status: "error", message: result.message };
+  return { status: "saved", message: "Reabriste el pago. El pagador tiene 48 horas para elegir el medio y subir otro comprobante." };
 }

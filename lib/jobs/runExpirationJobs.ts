@@ -4,6 +4,7 @@ import { expireFamilyProposals } from "@/lib/jobs/expireFamilyProposals";
 import { expireNegotiationProposals } from "@/lib/jobs/expireNegotiationProposals";
 import { expireApplicationRequests } from "@/lib/jobs/expireApplicationRequests";
 import { remindResidencePayments } from "@/lib/jobs/remindResidencePayments";
+import { remindFeePayments } from "@/lib/jobs/remindFeePayments";
 import { expireEsturedFeeWindows } from "@/lib/jobs/expireEsturedFeeWindows";
 import { checkStaleAvailability } from "@/lib/jobs/checkStaleAvailability";
 import { notifyWaitlistKeepAlive } from "@/lib/jobs/notifyWaitlistKeepAlive";
@@ -51,6 +52,7 @@ export async function runExpirationJobs(admin: SupabaseClient) {
     arrivalReminders,
     guardianConfirmations,
     residencePaymentReminders,
+    feePaymentReminders,
   ] = await Promise.all([
     expireFamilyProposals(admin),
     expireNegotiationProposals(admin),
@@ -70,6 +72,8 @@ export async function runExpirationJobs(admin: SupabaseClient) {
     runGuardianConfirmationJob(admin),
     // DR63: recordatorios y alerta del pago a la residencia. Va en el mismo Promise.all: los vencimientos excluyen los pagos avisados por fecha, no por orden.
     remindResidencePayments(admin),
+    // DR64 (f): recordatorios y alerta del fee de EstuRed. Idempotente con marcas `*_sent_at`; no vence nada.
+    remindFeePayments(admin),
   ]);
   // DR61: los push generados entre las 0:00 y las 8:59 (Argentina) salen en la primera corrida desde las 9:00.
   const queuedPush = await flushQueuedPush(admin);
@@ -93,5 +97,6 @@ export async function runExpirationJobs(admin: SupabaseClient) {
     arrivalReminders,
     guardianConfirmations,
     residencePaymentReminders,
+    feePaymentReminders,
   };
 }

@@ -7,7 +7,9 @@ import { formatArs } from "@/lib/mock/exchange";
 import { cmd } from "@/components/admin/ui/tokens";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
-import { PaymentDetail, type FeePayer } from "@/app/admin/payments/PaymentDetail";
+import { PaymentDetail, type FeePayer, type FeeReview } from "@/app/admin/payments/PaymentDetail";
+import { splitFeeSnapshot } from "@/lib/payments/feeCollection";
+import { paymentMethodLabel } from "@/lib/payments/paymentMethods";
 import { describeFeeCountdown } from "@/lib/payments/feeTransferPresentation";
 import { RenewalPaymentDetail } from "@/app/admin/payments/RenewalPaymentDetail";
 import { PaidFeesView, PaymentsTabs } from "@/app/admin/payments/PaidFeesView";
@@ -18,6 +20,14 @@ export const metadata: Metadata = { title: "Pagos fee EstuRed" };
 export const dynamic = "force-dynamic";
 
 const PENDING_STATUSES = ["pending_payment_method", "pending_manual_payment"];
+
+/** Fecha y hora en Argentina, fijas en el servidor para no desincronizar la hidratación. */
+function formatWhen(iso: string | null | undefined): string | null {
+  if (!iso) return null;
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return null;
+  return new Intl.DateTimeFormat("es-AR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Argentina/Buenos_Aires" }).format(date);
+}
 
 const statusBadge: Record<string, { label: string; tone: "amber" | "violet" | "rose" }> = {
   pending_payment_method: { label: "Sin comprobante", tone: "amber" },
@@ -43,7 +53,7 @@ export default async function AdminPaymentsPage({
     ? await admin
         .from("estured_fee_payments")
         .select(
-          "id, status, fee_amount_ars, payment_channel, created_at, reservations!estured_fee_payments_reservation_id_fkey(residences(name), student_profiles(first_name, last_initial)), renewal_offers!estured_fee_payments_renewal_offer_fk(residences(name), student_profiles(first_name, last_initial))",
+          "id, status, fee_amount_ars, payment_channel, created_at, student_payment_issue_at, student_payment_issue_resolved_at, admin_disputed_at, reservations!estured_fee_payments_reservation_id_fkey(residences(name), student_profiles(first_name, last_initial)), renewal_offers!estured_fee_payments_renewal_offer_fk(residences(name), student_profiles(first_name, last_initial))",
         )
         .in("status", PENDING_STATUSES)
         .order("created_at", { ascending: true })
@@ -64,13 +74,15 @@ export default async function AdminPaymentsPage({
     const { data: feePayment, error: feePaymentError } = await admin
       .from("estured_fee_payments")
       .select(
-        "id, status, fee_amount_ars, fee_amount_usd, fee_rate_percent, fee_base_usd, fee_base_ars, expires_at, payer_user_id, payment_channel, payer_billing_name, payer_billing_cuit, payer_iva_condition, manual_payment_file_id, reservation_id, renewal_offer_id, reservations!estured_fee_payments_reservation_id_fkey(residences(name), student_profiles(first_name, last_initial, user_id), start_date, initial_duration_months), renewal_offers!estured_fee_payments_renewal_offer_fk(residences(name), student_profiles(first_name, last_initial), period_start_date, period_end_date, duration_months)",
+        "id, status, fee_amount_ars, fee_amount_usd, fee_rate_percent, fee_base_usd, fee_base_ars, expires_at, payer_user_id, payment_channel, payment_currency, payer_billing_name, payer_billing_cuit, payer_iva_condition, manual_payment_file_id, reservation_id, renewal_offer_id, chosen_method, instructions_snapshot, student_reported_paid_at, student_payment_issue_at, student_payment_issue_reason, student_payment_issue_resolved_at, admin_disputed_at, admin_dispute_reason, reservations!estured_fee_payments_reservation_id_fkey(residences(name), student_profiles(first_name, last_initial, user_id), start_date, initial_duration_months), renewal_offers!estured_fee_payments_renewal_offer_fk(residences(name), student_profiles(first_name, last_initial), period_start_date, period_end_date, duration_months)",
       )
       .eq("id", activeId)
       .maybeSingle();
     if (feePaymentError) console.error("[admin-payments] detail query failed:", feePaymentError);
 
     if (feePayment) {
+      // Los datos de cobro congelados (`instructions_snapshot`) NO viajan al cliente: de ahí solo se saca el nombre del medio, acá en el servidor.
+      const { instructions_snapshot: frozenSnapshot, ...feeForClient } = feePayment;
       // El signed URL ya NO se genera acá (docs/09 §18.2: requiere
       // justificación auditada antes de verse) — solo pasamos el id
       // del archivo, `DocumentAccessButton` pide el motivo y genera el
@@ -84,7 +96,7 @@ export default async function AdminPaymentsPage({
           period_end_date: string;
           duration_months: number;
         } | null;
-        renewalDetail = { feePayment: { ...feePayment, renewal_offers: renewalOfferDetail }, proofFileId };
+        renewalDetail = { feePayment: { ...feeForClient, renewal_offers: renewalOfferDetail }, proofFileId };
       } else {
         const reservationDetail = feePayment.reservations as unknown as {
           residences: { name: string } | null;
@@ -110,8 +122,26 @@ export default async function AdminPaymentsPage({
             role: "family",
           };
         }
+        // DR64: de los datos de cobro congelados solo sale el NOMBRE del medio (primera línea), nunca el contenido.
+        const chosenKey = (feePayment.chosen_method as string | null) ?? null;
+        const chosenLabel = chosenKey
+          ? (splitFeeSnapshot((frozenSnapshot as string | null) ?? null).label ?? paymentMethodLabel(chosenKey))
+          : null;
+        const issueAt = (feePayment.student_payment_issue_at as string | null) ?? null;
+        const disputedAt = (feePayment.admin_disputed_at as string | null) ?? null;
+        const review: FeeReview = {
+          chosenLabel,
+          currency: chosenKey ? ((feePayment.payment_currency as string | null) ?? null) : null,
+          reportedPaidLabel: formatWhen(feePayment.student_reported_paid_at as string | null),
+          issue:
+            issueAt && !feePayment.student_payment_issue_resolved_at
+              ? { reason: (feePayment.student_payment_issue_reason as string | null) ?? null, atLabel: formatWhen(issueAt) ?? "" }
+              : null,
+          dispute: disputedAt ? { reason: (feePayment.admin_dispute_reason as string | null) ?? null, atLabel: formatWhen(disputedAt) ?? "" } : null,
+        };
         detail = {
-          feePayment: { ...feePayment, reservations: reservationDetail },
+          review,
+          feePayment: { ...feeForClient, reservations: reservationDetail },
           proofFileId,
           payer,
           isSuperadmin: adminUser.roles.includes("superadmin"),
@@ -157,7 +187,13 @@ export default async function AdminPaymentsPage({
                 student_profiles: { first_name: string; last_initial: string } | null;
               } | null;
               const target = reservation ?? renewalOffer;
-              const badge = statusBadge[p.status] ?? statusBadge.pending_payment_method;
+              const issueOpen = p.status === "pending_payment_method" && Boolean(p.student_payment_issue_at) && !p.student_payment_issue_resolved_at;
+              const badge =
+                p.status === "pending_manual_payment" && p.admin_disputed_at
+                  ? { label: "No recibido", tone: "rose" as const }
+                  : issueOpen
+                    ? { label: "No pudo pagar", tone: "rose" as const }
+                    : (statusBadge[p.status] ?? statusBadge.pending_payment_method);
               const active = p.id === activeId;
               return (
                 <li key={p.id} style={{ borderBottom: `1px solid ${cmd.border}` }}>

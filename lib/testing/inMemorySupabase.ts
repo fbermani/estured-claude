@@ -149,6 +149,12 @@ export function createInMemorySupabase(initial: Record<string, Row[]>, options: 
       this.filters.push((r) => (column(r, col) ?? null) === value);
       return this;
     }
+    not(col: string, op: string, value: unknown) {
+      // Solo `not(col, "is", null)`: la columna tiene valor (lo único que usa el código del fee).
+      if (op !== "is") throw new Error(`inMemorySupabase: not(${op}) no soportado`);
+      this.filters.push((r) => (column(r, col) ?? null) !== value);
+      return this;
+    }
     ilike(col: string, pattern: string) {
       // Solo el comodín «%» y el escape «\\» que usa el código (sin patrones parciales: se compara el texto entero, sin distinguir mayúsculas).
       const text = pattern.replace(/\\(.)/g, "$1").toLowerCase();

@@ -867,8 +867,9 @@ describe.skipIf(!hasCreds)("módulo de renovaciones (integración)", () => {
       expect(after!.status).toBe("expired");
       expect(after!.manual_payment_file_id).toBeNull();
 
-      // Un fee pendiente pero con el plazo ya cumplido tampoco se valida como admin.
-      await admin.from("estured_fee_payments").update({ status: "pending_manual_payment" }).eq("id", feeId);
+      // Un fee pendiente de pago (sin «Ya pagué») con el plazo ya cumplido tampoco se valida como admin. DR64 (d): en
+      // `pending_manual_payment` el plazo ya no se revisa (el pago se informó a tiempo), por eso se prueba en `pending_payment_method`.
+      await admin.from("estured_fee_payments").update({ status: "pending_payment_method" }).eq("id", feeId);
       const validated = await recordRenewalManualFeePayment(admin, {
         feePaymentId: feeId,
         reason: "Intento sobre un fee vencido (test).",
@@ -879,7 +880,7 @@ describe.skipIf(!hasCreds)("módulo de renovaciones (integración)", () => {
       });
       expect(validated.ok).toBe(false);
       const { data: unpaid } = await admin.from("estured_fee_payments").select("status").eq("id", feeId).single();
-      expect(unpaid!.status).toBe("pending_manual_payment");
+      expect(unpaid!.status).toBe("pending_payment_method");
 
       await cleanupFase2(offerId);
       await cleanupFixture(fixture, { renewalOfferIds: [offerId] });

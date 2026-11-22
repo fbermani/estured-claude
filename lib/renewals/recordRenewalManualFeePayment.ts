@@ -38,8 +38,9 @@ export async function recordRenewalManualFeePayment(
     return { ok: false, error: "Ese pago ya no está pendiente de validación." };
   }
 
-  // SEG14-01: un fee vencido no se marca pagado (docs/04 §17: primero se reabre el plazo).
-  if (feePayment.expires_at && new Date(feePayment.expires_at) <= new Date()) {
+  // SEG14-01: un fee vencido no se marca pagado (docs/04 §17: primero se reabre el plazo). DR64 (d): en `pending_manual_payment`
+  // el pago ya se informó a tiempo y no vence: el plazo solo se exige en `pending_payment_method`.
+  if (feePayment.status === "pending_payment_method" && feePayment.expires_at && new Date(feePayment.expires_at) <= new Date()) {
     return { ok: false, error: "El plazo de este pago venció: reabrilo antes de validarlo." };
   }
 
@@ -55,7 +56,7 @@ export async function recordRenewalManualFeePayment(
       paid_at: now.toISOString(),
     })
     .eq("id", params.feePaymentId)
-    .in("status", VALIDATABLE_STATUSES)
+    .eq("status", feePayment.status)
     .select("id");
   if (updateError) {
     console.error("[renewals] mark-paid failed:", updateError);

@@ -1637,7 +1637,7 @@ Decisión del dueño. Amplía DR4 (qué ve el familiar vinculado) y completa la 
 **Decisión del dueño.** La tarjeta «Documentación de tu estadía» solo pide los documentos que el estudiante **no tiene ya cargados en su perfil**. Cada residencia elige, al configurarse, qué documentos le pide a sus residentes, y su equipo ve en la gestión de cada residente si lo entregó.
 
 **Reglas.**
-1. **Catálogo estándar** (casillas en el perfil de la residencia): Documento de identidad o pasaporte, Certificado de estudios y Antecedentes penales. Más hasta **5** documentos propios («Otro»), de hasta 80 caracteres cada uno, sin HTML ni saltos de línea.
+1. **Catálogo estándar** (casillas en el perfil de la residencia): Documento de identidad o pasaporte y Certificado de estudios (~~y Antecedentes penales~~: quitado por DR65 (a), 2026-11-22). Más hasta **5** documentos propios («Otro»), de hasta 80 caracteres cada uno, sin HTML ni saltos de línea.
 2. **Default** de una residencia que nunca configuró nada: identidad + certificado de estudios (lo que se pedía hasta ahora). Una residencia puede quedarse sin pedir ninguno.
 3. **Quién edita:** solo el dueño; el staff lo ve en solo lectura (como el resto del perfil, DR10). Cambiarlo **no requiere aprobación del admin**: no es contenido público (no se muestra en la ficha) ni cambia condiciones económicas.
 4. **Estudiante:** ve «Ya tenés N de M en tu perfil» y, de lo que falta, solo lo que le corresponde subir; los ya cargados aparecen atenuados con ✓. Si no falta nada: «Documentación completa». Un documento del perfil vale para todas las residencias; los «Otro» se reconocen por su nombre (sin distinguir mayúsculas ni espacios).
@@ -1901,3 +1901,11 @@ Decisión del dueño. Hasta hoy el estudiante solo subía el **archivo** `studen
 
 **Archivos que reflejan DR64:** `docs/03` §13; `docs/04` §8.4, §8.8 y §8.10; `docs/06` §8.9 y §13.2; `docs/07` §17.3 y §17.6 a §17.11; `docs/08` §6.8 y §8.10; `docs/NEXT_STEPS.md`; `db/migrations/0105_estured_fee_collection.sql`.
 **Textos legales (pendientes de revisión legal):** `docs/10` §14.5, `docs/19` §9.4, `docs/20` y `docs/21`.
+
+### DR65: Ola 0 de la auditoría legal, decisiones del dueño sin asesor (2026-11-22)
+
+**Fuente:** `docs/audits/AUDITORIA_LEGAL_2026-11-21.md`, «Respuestas del dueño sin asesor» y «Ola 0 ajustada». Protocolo `docs/13` §5: doc primero, código después. Los riesgos N1 que no se cierran quedan como **riesgo aceptado por el dueño**, no como resueltos.
+
+| # | Decisión |
+|---|---|
+| DR65 (a) | **Sin antecedentes penales (LEG-003).** EstuRed no pide ni deja pedir certificados de antecedentes penales. Se quita «Antecedentes penales» del catálogo de DR38 (clave `criminal_record`), del perfil del estudiante y del acceso de la residencia a documentos (DR48). El valor `student_criminal_record` queda en el enum (Postgres no borra valores); los archivos viejos quedan sin acceso para la residencia y se ven solo desde admin. Una configuración guardada con `criminal_record` se ignora al leerla. Reemplaza DR38 (1), (6) y (7) en lo que nombran antecedentes. |
