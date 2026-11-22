@@ -6,6 +6,8 @@ import { REVOCATION_WINDOW_DAYS, daysBetween } from "@/lib/revocations/window";
 import { openFeeRevocationSupportCase } from "@/lib/revocations/openRevocationSupportCase";
 import { REVOCATION_ADULT_STUDENT_ONLY_ERROR } from "@/lib/revocations/copy";
 import { isMinorByBirthDate } from "@/lib/students/isMinorByBirthDate";
+import { sendEmail } from "@/lib/email/sendEmail";
+import { buildRevocationEmail } from "@/lib/revocations/revocationEmail";
 
 export type RevokeEsturedFeeResult = { ok: true } | { ok: false; error: string };
 
@@ -164,5 +166,32 @@ export async function revokeEsturedFee(
     studentReason: params.reason,
   });
 
+  // DR65 (b): código de seguimiento por email a quien revocó (best-effort: nunca rompe la revocación; el código también se ve en
+  // «Botón de arrepentimiento»).
+  await sendRevocationEmail(admin, { actorUserId: params.actorUserId, reservationId: reservation.id, residenceName, revokedAtIso: now });
+
   return { ok: true };
+}
+
+async function sendRevocationEmail(
+  admin: SupabaseClient,
+  params: { actorUserId: string; reservationId: string; residenceName: string | null; revokedAtIso: string },
+): Promise<void> {
+  try {
+    const { data: actor, error } = await admin.from("users").select("email").eq("id", params.actorUserId).maybeSingle();
+    if (error || !actor?.email) {
+      if (error) console.error("[revocation] actor email lookup failed:", error.code);
+      return;
+    }
+    const email = buildRevocationEmail({
+      reservationId: params.reservationId,
+      residenceName: params.residenceName,
+      revokedAtIso: params.revokedAtIso,
+      firstName: null,
+    });
+    const sent = await sendEmail({ to: actor.email as string, subject: email.subject, html: email.html });
+    if (!sent) console.error("[revocation] tracking email not sent");
+  } catch (e) {
+    console.error("[revocation] tracking email failed:", e instanceof Error ? e.message : e);
+  }
 }

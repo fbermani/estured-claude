@@ -212,7 +212,7 @@ export function ResolveRevocationForm({
         <p className="mt-1 text-xs" style={{ color: cmd.onSurfaceVariant }}>
           La reserva no se restaura: sigue cancelada y el fee queda pagado.
           {withinWindow
-            ? ` Se revocó dentro de los 10 días (${dayLabel}), así que para denegar necesitás una causa justificada.`
+            ? ` Se revocó dentro de los 10 días (${dayLabel}): el reintegro es incondicional. Solo se deniega por una causa ajena al uso del servicio (por ejemplo, un pedido duplicado o hecho por error).`
             : ` Se revocó ${dayLabel}.`}
         </p>
         {withinWindow && (
@@ -224,7 +224,7 @@ export function ResolveRevocationForm({
               onChange={(e) => setJustifiedCause(e.target.checked)}
               className="mt-0.5 h-4 w-4 shrink-0"
             />
-            <span>Hay una causa justificada para denegar (la explico en el motivo).</span>
+            <span>Es un pedido duplicado o hecho por error, no un tema de uso del servicio (lo explico en el motivo).</span>
           </label>
         )}
         <label className="mt-3 flex items-start gap-2.5 text-sm" style={{ color: cmd.onSurface }}>

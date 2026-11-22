@@ -139,7 +139,7 @@ describe("evaluateRevocationResolution — reintegrar", () => {
 
 describe("evaluateRevocationResolution — denegar", () => {
   it("dentro de los 10 días exige causa justificada además del motivo", () => {
-    expect(run({ ...denyInput, justifiedCause: false })).toMatchObject({ ok: false, error: expect.stringMatching(/causa justificada/i) });
+    expect(run({ ...denyInput, justifiedCause: false })).toMatchObject({ ok: false, error: expect.stringMatching(/duplicado o hecho por error/i) });
     const r = run(denyInput);
     expect(r.ok).toBe(true);
     if (!r.ok) return;

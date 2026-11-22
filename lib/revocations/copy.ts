@@ -11,27 +11,28 @@
  *   5. lib/applications/visibleStatus.ts — helper "Reserva revocada por vos" (sin cambios, a revisar).
  *   5bis. (Ciclo 69, DR6 (i)) REVOCATION_ADULT_STUDENT_ONLY_ERROR y revocationAdultStudentOnlyNote: familiar pagador de un estudiante mayor de edad.
  *   6. docs/10 §15.1 y §15.4 (copy sugerido) y checkbox de renovaciones (RenewalFeePaymentForm, sin cambios).
- * Sin promesas: el reintegro no es automático y no se garantiza antes de la revisión; lo pagado a la residencia queda fuera.
+ * DR65 (b) (2026-11-22, Ola 0 legal): dentro de los 10 días el reintegro es incondicional (sin «uso indebido»); se envía un código de
+ * seguimiento por email. El reintegro sigue siendo manual (no automático); lo pagado a la residencia queda fuera.
  */
 export const LEGAL_REVIEW_PENDING = true;
 
 export const REVOCATION_PAGE_INTRO =
-  "Tenés 10 días corridos desde el pago del fee EstuRed para arrepentirte (requisito de contratación a distancia). Si lo hacés dentro de ese plazo, EstuRed te reintegra el fee completo (el 5%) después de una revisión del equipo, salvo que la revisión detecte un uso indebido.";
+  "Tenés 10 días corridos desde el pago del fee EstuRed para arrepentirte. No necesitás explicar por qué ni pagar nada. EstuRed te reintegra el fee completo (el 5%) por transferencia. Al registrarlo te enviamos por email un código de seguimiento.";
 
 export const REVOCATION_CONSEQUENCES: readonly string[] = [
   "La reserva se cancela y el comprobante se anula.",
-  "El equipo de EstuRed revisa tu caso y, después de la revisión, te reintegra el fee completo (el 5%), salvo que la revisión detecte un uso indebido. El reintegro no es automático.",
+  "EstuRed te reintegra el fee completo (el 5%). El equipo hace la transferencia a mano y te avisa cuando está hecha.",
   "Lo que pagaste directamente a la residencia no lo reintegra EstuRed: se acuerda con la residencia.",
 ];
 
 export const REVOCATION_UNDERSTANDING_LABEL =
-  "Entiendo que la reserva se cancela, que EstuRed reintegra el fee después de una revisión del equipo y que lo pagado a la residencia se acuerda con ella.";
+  "Entiendo que la reserva se cancela, que EstuRed me reintegra el fee completo y que lo pagado a la residencia se acuerda con ella.";
 
 export const REVOCATION_SUBMITTED_MESSAGE =
-  "Revocación registrada. Tu reserva quedó cancelada y el equipo de EstuRed va a revisar tu caso. Te avisamos acá cuando esté resuelto.";
+  "Revocación registrada. Tu reserva quedó cancelada. Te enviamos por email un código de seguimiento. Te avisamos acá cuando hagamos el reintegro.";
 
 export const REVOCATION_PENDING_HELPER =
-  "Estamos revisando tu revocación. Cuando esté resuelta te avisamos acá.";
+  "Estamos gestionando el reintegro de tu fee. Cuando esté hecho te avisamos acá.";
 
 export const REVOCATION_NOT_ALLOWED_NOTE =
   "Solo el estudiante o quien pagó el fee puede ejercer este derecho.";
@@ -46,13 +47,14 @@ export function revocationAdultStudentOnlyNote(studentFirstName: string | null):
 }
 
 export const FEE_PAGE_REVOCATION_NOTE =
-  "Una vez pagado, tenés 10 días corridos para arrepentirte desde «Botón de arrepentimiento»: EstuRed te reintegra el fee completo después de una revisión del equipo. Fuera de ese derecho, el fee no se reembolsa automáticamente ante una cancelación.";
+  "Una vez pagado, tenés 10 días corridos para arrepentirte desde «Botón de arrepentimiento»: EstuRed te reintegra el fee completo. Fuera de ese derecho, el fee no se reembolsa automáticamente ante una cancelación.";
 
 /** Párrafos de /terms §17, subsección "Derecho de revocación del fee EstuRed". */
 export const REVOCATION_TERMS_PARAGRAPHS: readonly string[] = [
-  "Podés ejercer tu derecho de revocación sobre el fee EstuRed dentro de los 10 días corridos posteriores a su pago, mediante el enlace «Botón de arrepentimiento» disponible en el pie de página de la plataforma.",
-  "Al ejercerlo, tu reserva queda cancelada y el comprobante emitido se anula. Si la revocación se ejerce dentro de ese plazo, EstuRed reintegra el fee EstuRed completo después de una revisión de su equipo. El reintegro no es automático y EstuRed lo realiza por fuera de la plataforma, por ejemplo por transferencia. En la revisión, EstuRed puede cotejar con la residencia para evaluar situaciones de uso indebido.",
-  "Este derecho aplica únicamente al fee EstuRed. No alcanza a los montos que hayas pagado directamente a la residencia: su devolución se acuerda con la residencia.",
+  "Podés arrepentirte del pago del fee de EstuRed dentro de los 10 días corridos desde que lo pagaste. No necesitás explicar por qué ni pagar nada. Entrá a «Botón de arrepentimiento», al pie del sitio, con tu cuenta. Al registrarlo te enviamos por email un código de seguimiento de tu pedido.",
+  "Al ejercerlo, tu reserva queda cancelada y el comprobante emitido se anula. EstuRed te reintegra el fee completo por transferencia, por fuera de la plataforma, dentro de los plazos de ley.",
+  "Si la residencia no cumple lo confirmado, escribinos a Soporte. Revisamos el caso y, si corresponde, te reintegramos el fee.",
+  "Este derecho aplica únicamente al fee EstuRed. No alcanza a los montos que hayas pagado directamente a la residencia: su devolución se acuerda con la residencia. Nada de esto limita los derechos que te da la ley como consumidor.",
 ];
 
 function formatDay(iso: string): string {
@@ -84,3 +86,10 @@ export const REFUND_METHOD_LABELS: Record<string, string> = {
   digital_wallet: "Billetera virtual",
   other: "Otro medio",
 };
+
+/** DR65 (b): código de seguimiento de una revocación, derivado del id de la reserva (estable, sin tabla nueva). */
+export function revocationTrackingCode(reservationId: string): string {
+  return `ARR-${reservationId.replace(/[^0-9a-f]/gi, "").slice(0, 10).toUpperCase()}`;
+}
+
+export const REVOCATION_EMAIL_SUBJECT = "Registramos tu arrepentimiento del fee de EstuRed";

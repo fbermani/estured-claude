@@ -510,7 +510,7 @@ Si la residencia cancela o no honra la reserva: el estudiante puede abrir un cas
 
 ### 15.4 Derecho de revocación del fee EstuRed — DECISIÓN CONFIRMADA (actualizada por DR6)
 
-**Mecanismo:** enlace visible en el footer de la plataforma ("Botón de arrepentimiento").
+**Mecanismo:** enlace visible en el footer de la plataforma ("Botón de arrepentimiento"). Requiere iniciar sesión (decisión del dueño, DR65 (b): riesgo aceptado frente a un botón sin cuenta).
 
 **Plazo:** 10 días corridos desde el pago del fee, alineado a la normativa de contratación a distancia (Ley 24.240 / Decreto 1798/94).
 
@@ -522,7 +522,8 @@ Si la residencia cancela o no honra la reserva: el estudiante puede abrir un cas
 - el comprobante emitido se anula (`voided`);
 - se abre un caso de Soporte interno y la revisión del admin;
 - **EstuRed reintegra el fee completo (el 5%)** si la revocación se ejerció dentro de los 10 días corridos, **previa resolución del admin con motivo obligatorio** — no es automático: el fee permanece `paid` hasta esa resolución;
-- el admin evalúa cada caso para detectar patrones de bypass (por ejemplo, revocar el fee después de haber usado el contacto establecido para acordar directamente con la residencia por fuera de la plataforma) y puede cotejar con la residencia; solo puede **denegar** si la revocación está fuera de los 10 días o hay una causa justificada, siempre con motivo, y queda auditado;
+- ~~el admin evalúa cada caso para detectar patrones de bypass y puede cotejar con la residencia~~ (quitado por DR65 (b), 2026-11-22): dentro de los 10 días el reintegro es incondicional y el uso del servicio no es causa de denegación. El admin solo puede **denegar** si la revocación está fuera de los 10 días o por una causa que no es el uso del servicio (por ejemplo, un pedido duplicado o hecho por error), siempre con motivo, y queda auditado;
+- al registrarse la revocación, quien revocó recibe por email un **código de seguimiento** (`ARR-…`), que también ve en «Botón de arrepentimiento» (DR65 (b));
 - el reintegro lo hace EstuRed manualmente, por fuera de la plataforma (p. ej. transferencia); el admin registra fecha, medio y referencia. No hay reintegros automáticos ni integración de pagos.
 
 **Alcance:** el derecho de revocación aplica únicamente al fee EstuRed. EstuRed está exenta de reembolsar cualquier monto pagado directamente a la residencia — esa relación y sus condiciones de devolución son responsabilidad exclusiva de la residencia y el estudiante/familiar, y **se acuerdan con la residencia directamente**.

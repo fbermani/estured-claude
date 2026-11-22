@@ -13,6 +13,7 @@ import {
   REVOCATION_PAGE_INTRO,
   REVOCATION_PENDING_HELPER,
   revocationAdultStudentOnlyNote,
+  revocationTrackingCode,
 } from "@/lib/revocations/copy";
 import { isMinorByBirthDate } from "@/lib/students/isMinorByBirthDate";
 import { REVOCATION_WINDOW_DAYS, isRevocationWindowOpen, revocationDaysRemaining } from "@/lib/revocations/window";
@@ -204,11 +205,16 @@ export default async function RevocationPage() {
                     <p className="text-sm font-medium text-ink">
                       {r.residences?.name} · {r.residences?.public_area}
                     </p>
-                    {state === "pending" && <Badge tone="amber">En revisión por EstuRed</Badge>}
+                    {state === "pending" && <Badge tone="amber">Reintegro en curso</Badge>}
                     {state === "refunded" && <Badge tone="sage">Fee reintegrado</Badge>}
                     {state === "denied" && <Badge tone="neutral">No correspondió el reintegro</Badge>}
                   </div>
-                  {r.cancelled_at && <p className="mt-1 text-xs text-ink-faint">Revocaste el {formatDate(r.cancelled_at)}.</p>}
+                  {r.cancelled_at && (
+                    <p className="mt-1 text-xs text-ink-faint">
+                      Revocaste el {formatDate(r.cancelled_at)}. Código de seguimiento:{" "}
+                      <span className="font-semibold tabular-nums text-ink-soft">{revocationTrackingCode(r.id)}</span>
+                    </p>
+                  )}
                   {state === "pending" && <p className="mt-2 text-sm text-ink-soft">{REVOCATION_PENDING_HELPER}</p>}
                   {state === "refunded" && (
                     <p className="mt-2 text-sm text-ink-soft">

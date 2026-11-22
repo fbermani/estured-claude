@@ -27,7 +27,7 @@ export type RevocationResolutionInput = {
   refundReference: string | null;
   /** Fecha del reintegro, `YYYY-MM-DD`. */
   refundedOn: string | null;
-  /** Denegar dentro de los 10 días exige marcar una causa justificada. */
+  /** DR65 (b): denegar dentro de los 10 días exige marcar que es un pedido duplicado o hecho por error (no un tema de uso del servicio). */
   justifiedCause: boolean;
   /** Confirmación explícita de la denegación (acción irreversible desde la plataforma). */
   confirmDenial: boolean;
@@ -123,7 +123,7 @@ export function evaluateRevocationResolution(params: {
     if (window.withinWindow && !input.justifiedCause) {
       return {
         ok: false,
-        error: `La revocación se ejerció dentro de los 10 días (día ${window.dayNumber} de ${REVOCATION_WINDOW_DAYS}): para denegarla marcá que hay una causa justificada y explicala en el motivo.`,
+        error: `La revocación se ejerció dentro de los 10 días (día ${window.dayNumber} de ${REVOCATION_WINDOW_DAYS}): el reintegro es incondicional. Solo podés denegarla si es un pedido duplicado o hecho por error; marcalo y explicalo en el motivo.`,
       };
     }
     return { ok: true, decision, window, patch: resolutionBase, refundedAtIso: null };

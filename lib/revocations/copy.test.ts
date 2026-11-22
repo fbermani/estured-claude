@@ -9,6 +9,7 @@ import {
   REVOCATION_SUBMITTED_MESSAGE,
   REVOCATION_TERMS_PARAGRAPHS,
   REVOCATION_UNDERSTANDING_LABEL,
+  revocationTrackingCode,
   deniedNotificationBody,
   refundedNotificationBody,
 } from "@/lib/revocations/copy";
@@ -41,18 +42,27 @@ describe("copy de la revocación (DR6)", () => {
     }
   });
 
-  it("dice lo que cubre y lo que no: reintegro del fee tras revisión, lo pagado a la residencia se acuerda con ella", () => {
+  it("dice lo que cubre y lo que no: reintegro del fee completo, lo pagado a la residencia se acuerda con ella", () => {
     const joined = REVOCATION_CONSEQUENCES.join(" ");
     expect(joined).toMatch(/fee completo \(el 5%\)/);
-    expect(joined).toMatch(/no es autom[aá]tico/i);
+    expect(joined).toMatch(/a mano/i);
     expect(joined).toMatch(/se acuerda con la residencia/);
     // Ya no se contradice: no dice a la vez "tenés el derecho" y "no se reembolsa".
     expect(joined).not.toMatch(/no se reembolsa autom[aá]ticamente/i);
   });
 
-  it("aclara que la revisión puede detectar un uso indebido (coherente con /terms §17)", () => {
-    expect(REVOCATION_PAGE_INTRO).toMatch(/uso indebido/);
-    expect(REVOCATION_CONSEQUENCES.join(" ")).toMatch(/uso indebido/);
+  it("DR65 (b): no condiciona el reintegro a un «uso indebido» ni a la Res. 424/2020, y anuncia el código por email", () => {
+    for (const text of ALL_COPY) {
+      expect(text).not.toMatch(/uso indebido/i);
+      expect(text).not.toMatch(/424/);
+    }
+    expect(REVOCATION_PAGE_INTRO).toMatch(/código de seguimiento/);
+    expect(REVOCATION_SUBMITTED_MESSAGE).toMatch(/código de seguimiento/);
+  });
+
+  it("DR65 (b): el código de seguimiento sale del id de la reserva y es estable", () => {
+    expect(revocationTrackingCode("3f2b8c1e-7a4d-4b6f-9c2a-1d5e8f0a3b7c")).toBe("ARR-3F2B8C1E7A");
+    expect(revocationTrackingCode("3f2b8c1e-7a4d-4b6f-9c2a-1d5e8f0a3b7c")).toBe(revocationTrackingCode("3F2B8C1E-7A4D-4b6f-9c2a-1d5e8f0a3b7c"));
   });
 
   it("el aviso de denegación incluye solo el mensaje al estudiante", () => {
