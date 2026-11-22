@@ -124,10 +124,12 @@ export default async function VerifyReceiptPage({
               </div>
               {result.detail && (
                 <>
-                  <div className="flex justify-between border-b border-sand-200 pb-2">
-                    <dt className="text-ink-faint">Estudiante</dt>
-                    <dd className="font-medium text-ink">{result.detail.studentLabel ?? "—"}</dd>
-                  </div>
+                  {!result.detail.studentHidden && (
+                    <div className="flex justify-between border-b border-sand-200 pb-2">
+                      <dt className="text-ink-faint">Estudiante</dt>
+                      <dd className="font-medium text-ink">{result.detail.studentLabel ?? "—"}</dd>
+                    </div>
+                  )}
                   {result.receiptKind === "renewal" ? (
                     <>
                       <div className="flex justify-between border-b border-sand-200 pb-2">

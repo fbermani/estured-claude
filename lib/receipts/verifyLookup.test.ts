@@ -248,11 +248,33 @@ describe.skipIf(!hasCreds)("lookupPublicReceipt (integración)", () => {
     expect(result.found).toBe(true);
     if (!result.found) return;
     expect(result.detail?.studentLabel).toBe("Lucía F.");
+    expect(result.detail?.studentHidden).toBe(false);
     expect(result.detail?.roomType).toBe("Individual");
     const serialized = JSON.stringify(result);
     expect(serialized).not.toContain("140500");
     expect(serialized).not.toContain("20-12345678-9");
     expect(serialized).not.toContain("payer");
+  });
+
+  it("LEG-005: si el titular es menor (por birth_date), el código completo no muestra su nombre", async () => {
+    const { data: minorUser } = await admin.from("users").select("id").eq("email", "valentina.sosa@example.com").maybeSingle();
+    const { data: minorProfile } = minorUser
+      ? await admin.from("student_profiles").select("id, birth_date").eq("user_id", minorUser.id).maybeSingle()
+      : { data: null };
+    expect(minorProfile, "falta la estudiante menor demo (Valentina) en estured-dev").toBeTruthy();
+    const { data: original } = await admin.from("booking_receipts").select("student_profile_id").eq("id", receiptId).single();
+    await admin.from("booking_receipts").update({ student_profile_id: minorProfile!.id }).eq("id", receiptId);
+    try {
+      const result = await lookupPublicReceipt(admin, parseReceiptReference(verificationCode)!);
+      expect(result.found).toBe(true);
+      if (!result.found) return;
+      expect(result.detail?.studentHidden).toBe(true);
+      expect(result.detail?.studentLabel).toBeNull();
+      expect(JSON.stringify(result)).not.toContain("Lucía");
+      expect(result.residenceName).toContain("Residencia Test Integración");
+    } finally {
+      await admin.from("booking_receipts").update({ student_profile_id: original!.student_profile_id }).eq("id", receiptId);
+    }
   });
 
   it("un número que no existe devuelve not found", async () => {

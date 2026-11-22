@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { normalizeReceiptNumber } from "@/lib/receipts/receiptNumber";
+import { isMinorByBirthDate } from "@/lib/students/isMinorByBirthDate";
 
 /**
  * Búsqueda pública de comprobantes para `/verify` (docs/08 §4.6; auditoría
@@ -65,7 +66,10 @@ export type PublicReceiptResult =
     };
 
 export type PublicReceiptDetail = {
+  /** null también cuando el titular es menor (LEG-005): la verificación pública no muestra su nombre. */
   studentLabel: string | null;
+  /** LEG-005: el titular es menor de edad (por `birth_date` al momento de la consulta); la pantalla omite la fila «Estudiante». */
+  studentHidden: boolean;
   roomType: string | null;
   desiredStartDate: string | null;
   initialDurationMonths: number | null;
@@ -107,7 +111,7 @@ export async function lookupPublicReceipt(
 
   const { data: booking, error: bookingError } = await admin
     .from("booking_receipts")
-    .select("status, receipt_number, issued_at, receipt_payload, residences(name)")
+    .select("status, receipt_number, issued_at, receipt_payload, student_profile_id, residences(name)")
     .eq(column, reference.value)
     .maybeSingle();
   if (bookingError) {
@@ -120,6 +124,7 @@ export async function lookupPublicReceipt(
     if (!status) return { found: false };
     const payload = (booking.receipt_payload ?? {}) as Payload;
     const residence = booking.residences as unknown as { name: string } | null;
+    const hidden = reference.kind === "code" ? await isHolderMinor(admin, booking.student_profile_id as string | null) : true;
     return {
       found: true,
       receiptKind: "booking",
@@ -130,7 +135,8 @@ export async function lookupPublicReceipt(
       detail:
         reference.kind === "code"
           ? {
-              studentLabel: studentLabel(payload),
+              studentLabel: hidden ? null : studentLabel(payload),
+              studentHidden: hidden,
               roomType: payload.room_type ?? null,
               desiredStartDate: payload.desired_start_date ?? null,
               initialDurationMonths: payload.initial_duration_months ?? null,
@@ -144,7 +150,7 @@ export async function lookupPublicReceipt(
 
   const { data: renewal, error: renewalError } = await admin
     .from("renewal_receipts")
-    .select("status, receipt_number, issued_at, receipt_payload")
+    .select("status, receipt_number, issued_at, receipt_payload, renewal_offers!renewal_receipts_renewal_offer_id_fkey(student_profile_id)")
     .eq(column, reference.value)
     .maybeSingle();
   if (renewalError) {
@@ -156,6 +162,8 @@ export async function lookupPublicReceipt(
   const status = toPublicStatus(renewal.status as string);
   if (!status) return { found: false };
   const payload = (renewal.receipt_payload ?? {}) as Payload;
+  const offer = renewal.renewal_offers as unknown as { student_profile_id: string | null } | null;
+  const hidden = reference.kind === "code" ? await isHolderMinor(admin, offer?.student_profile_id ?? null) : true;
   return {
     found: true,
     receiptKind: "renewal",
@@ -166,7 +174,8 @@ export async function lookupPublicReceipt(
     detail:
       reference.kind === "code"
         ? {
-            studentLabel: studentLabel(payload),
+            studentLabel: hidden ? null : studentLabel(payload),
+            studentHidden: hidden,
             roomType: null,
             desiredStartDate: null,
             initialDurationMonths: null,
@@ -176,6 +185,17 @@ export async function lookupPublicReceipt(
           }
         : null,
   };
+}
+
+/**
+ * LEG-005: ¿el titular del comprobante es menor HOY? Se calcula por `birth_date` (no por `is_minor`, H04). Ante cualquier duda
+ * (sin perfil, sin fecha o error de lectura) se trata como menor y no se muestra el nombre.
+ */
+async function isHolderMinor(admin: SupabaseClient, studentProfileId: string | null): Promise<boolean> {
+  if (!studentProfileId) return true;
+  const { data, error } = await admin.from("student_profiles").select("birth_date").eq("id", studentProfileId).maybeSingle();
+  if (error || !data) return true;
+  return isMinorByBirthDate((data as { birth_date: string | null }).birth_date);
 }
 
 function studentLabel(payload: Payload): string | null {
