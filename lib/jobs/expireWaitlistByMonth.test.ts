@@ -42,7 +42,15 @@ function fakeAdmin(rows: Row[]) {
         }
         return chain;
       }
-      return { insert: (v: Record<string, unknown>) => { if (table === "notifications") notifications.push(v); return Promise.resolve({ error: null }); } };
+      return {
+        // El job y createNotification pueden encadenar `.select(...)` tras el insert: se soportan ambas formas.
+        insert: (v: Record<string, unknown>) => {
+          if (table === "notifications") notifications.push(v);
+          return Object.assign(Promise.resolve({ error: null }), {
+            select: () => ({ maybeSingle: () => Promise.resolve({ data: { id: "n" }, error: null }), single: () => Promise.resolve({ data: { id: "n" }, error: null }), then: (r: (v: unknown) => void) => r({ data: [{ id: "n" }], error: null }) }),
+          });
+        },
+      };
     },
   } as unknown as SupabaseClient;
   return { admin, notifications };

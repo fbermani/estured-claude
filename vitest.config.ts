@@ -14,7 +14,7 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["**/*.test.ts"],
-    exclude: ["**/node_modules/**", ".next", "scratchpad/**"],
+    exclude: ["**/node_modules/**", ".next", "scratchpad/**", ".claude/worktrees/**"],
     setupFiles: ["./vitest.setup.ts"],
     // Los tests de integración pegan contra el mismo Supabase real del
     // proyecto y reusan los mismos usuarios demo (docs/17) entre archivos

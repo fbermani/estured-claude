@@ -1,0 +1,33 @@
+name: CI
+
+# Control 22 del kit de seguridad (ND1): validar antes de desplegar.
+# No usa secretos: los tests de integración (Supabase dev) se saltean solos sin credenciales
+# y se corren a mano con `npm test` contra estured-dev antes de promover a main.
+on:
+  push:
+    branches: [staging, main]
+  pull_request:
+    branches: [main, staging]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm audit --omit=dev --audit-level=high
+      - run: npm test

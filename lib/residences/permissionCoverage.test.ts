@@ -20,6 +20,8 @@ const GUARDED: Record<string, string[]> = {
   "lib/applications/enableResidencePayment.ts": ["assertResidencePermission(", "payments.residence", "assertResidenceOwner("],
   "app/residence/[residence_id]/applications/[id]/negotiation/actions.ts": ["assertResidencePermission(", "applications.send_adjustment"],
   "lib/reservations/recordResidencePaymentReceived.ts": ["assertResidencePermission(", "payments.residence"],
+  // DR63 fase 5: disputar «Ya pagué», responder «No pude pagar» y abrir el comprobante viven en el núcleo (reportActions solo delega)
+  "lib/applications/residencePaymentReview.ts": ["assertResidencePermission(", "payments.residence"],
   // Perfil: guardar es delegable; enviar a verificación, no
   "app/residence/[residence_id]/profile/actions.ts": ["assertResidencePermission(", "profile.edit", "assertResidenceOwner("],
   // Galería de fotos (DR18 t2) y promociones de tarifa (DR18 t3): ambas requieren `profile.edit`
@@ -84,6 +86,7 @@ const DELEGATING: Record<string, string[]> = {
   "app/residence/[residence_id]/team/actions.ts": ["@/lib/team/teamInvitations"],
   "app/residence/[residence_id]/collection/actions.ts": ["@/lib/residences/reservationCollectionSave"],
   "app/residence/[residence_id]/applications/[id]/payment/actions.ts": ["@/lib/reservations/recordResidencePaymentReceived"],
+  "app/residence/[residence_id]/applications/[id]/payment/reportActions.ts": ["@/lib/applications/residencePaymentReview"],
   "app/residence/[residence_id]/renewals/actions.ts": ["@/lib/renewals/createRenewalOffer", "@/lib/renewals/sendRenewalOffer", "@/lib/renewals/recordRenewalResidencePaymentReceived"],
   "app/residence/[residence_id]/availability/actions.ts": ["@/lib/availability/updateAvailability", "@/lib/availability/updateGenderAvailability"],
   "app/residence/[residence_id]/rooms/actions.ts": ["@/lib/residences/roomManagement"],
