@@ -312,14 +312,20 @@ const ALLOWED_DOCUMENT_TYPES = ["application/pdf", "image/jpeg", "image/png", "i
  * que subir varias veces con `documentType: "other"` ya funciona sin
  * cambios de esquema (Ciclo 37).
  *
- * DR38: también acepta `student_criminal_record` (antecedentes penales, migración 0077) y, con `other`, un campo opcional
+ * DR38: con `other` acepta un campo opcional
  * `requirement_label` en el formulario: el nombre del documento «Otro» que pide una residencia, para reconocerlo después.
  */
+const UPLOADABLE_DOCUMENT_TYPES: readonly string[] = ["student_identity", "student_academic_proof", "other"];
+
 export async function uploadStudentDocument(
-  documentType: "student_identity" | "student_academic_proof" | "student_criminal_record" | "other",
+  documentType: "student_identity" | "student_academic_proof" | "other",
   _prev: UploadDocumentState,
   formData: FormData,
 ): Promise<UploadDocumentState> {
+  // LEG-003: el tipo llega del cliente (bind); solo se aceptan estos tres. Antecedentes penales ya no se piden.
+  if (!UPLOADABLE_DOCUMENT_TYPES.includes(documentType)) {
+    return { status: "error", message: "Ese tipo de documento no se puede subir." };
+  }
   const sessionUser = await getSessionUser();
   if (!sessionUser) return { status: "error", message: "Tu sesión expiró. Volvé a iniciar sesión." };
   const admin = getSupabaseAdmin();

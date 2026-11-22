@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
 import { ExchangeRateNote } from "@/components/ui/ExchangeRateNote";
 import { PaymentSteps } from "@/components/residences/ficha/PaymentSteps";
@@ -53,7 +54,14 @@ export function CostsBoard({ included, paid, residenceName }: { included: string
           <p className="min-w-0">
             <strong className="block font-display text-[17px] font-bold text-ink">Residencia verificada</strong>
             <span className="block text-[15px] leading-snug text-ink-soft">
-              EstuRed la visitó en persona y chequeó que lo que ves sea real.
+              EstuRed la visitó en persona: controlamos la identidad del responsable, la dirección y que las fotos coincidan.{" "}
+              <Link
+                href="/nosotros"
+                title="La verificación no certifica habilitaciones, seguridad edilicia, seguros ni calidad del servicio. Vence al año."
+                className="rounded-sm font-semibold text-forest-700 underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest-ink"
+              >
+                Qué verificamos
+              </Link>
             </span>
           </p>
         </div>

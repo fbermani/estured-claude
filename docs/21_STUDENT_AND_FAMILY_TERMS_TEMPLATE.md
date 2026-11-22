@@ -1,5 +1,7 @@
 # Términos y Condiciones para Estudiantes y Familias EstuRed
 
+> **Ola 0 legal (2026-11-22, DR65):** el texto publicado vive en `lib/legal/termsText.ts`. Las cláusulas de fee, medios de pago, precios, reembolso (sin «bajo ninguna circunstancia»), residencias y la §30 (responsabilidad, modificaciones, ley y jurisdicción) se reemplazaron por TP-03 de `docs/audits/TEXTOS_LEGALES_PROVISORIOS_2026-11-21.md`, y se sumó la sección «Quiénes somos» con los datos del titular. No restaurar las cláusulas viejas desde esta plantilla.
+
 **Versión:** 1.1
 **Estado:** Borrador operativo actualizado — requiere revisión legal profesional antes de uso comercial
 **Última actualización:** 2026-06-27

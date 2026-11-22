@@ -1,19 +1,14 @@
-import type { ReactNode } from "react";
+import Link from "next/link";
 import { CONTACT_EMAIL } from "@/lib/constants/contact";
+import { LEGAL_DOCUMENTS } from "@/lib/legal/versions";
+import { OPERATOR_SECTION_HREF } from "@/lib/legal/operator";
 
 /**
  * Textos legales de la preapertura (`consentimientos.html` v4, DR45). UNA sola fuente: la usan la pantalla `/consentimientos`
  * y las secciones «Preapertura» de `/terms` y `/privacy` (solo con el flag encendido), así no se duplican ni se desalinean.
- * RIESGO ASUMIDO POR EL DUEÑO: sin validación legal frente a la Ley 25.326 (docs/23 §5). Lo que no está definido va como
- * `Tbd` (visible, con borde punteado) para que no pase inadvertido: nunca se inventan datos del responsable legal.
+ * RIESGO ASUMIDO POR EL DUEÑO: sin validación legal frente a la Ley 25.326 (docs/23 §5). El responsable es el titular de
+ * `/terms#quienes-somos` (LEG-001, decisión del dueño 2026-11-22: sus datos se publican solo ahí).
  */
-
-/** Marcador visible de un dato que el dueño todavía no definió. */
-export function Tbd({ children }: { children: ReactNode }) {
-  return (
-    <span className="rounded-field border-[1.5px] border-dashed border-butter-fg bg-butter px-2 py-0.5 text-sm font-bold text-butter-fg">{children}</span>
-  );
-}
 
 const list = "list-disc space-y-1.5 pl-5";
 const h3 = "pt-2 font-display text-lg font-bold text-ink";
@@ -98,12 +93,15 @@ export function PreaperturaPrivacyBody() {
   return (
     <div className="grid gap-3 text-[15px] leading-relaxed text-ink-soft">
       <p className="text-sm">
-        Versión de la preapertura, vigente desde <Tbd>[Fecha a definir]</Tbd>.
+        Versión de la preapertura, vigente desde el {LEGAL_DOCUMENTS.privacy.updatedLabel}.
       </p>
       <h3 className={h3}>Quién es responsable de tus datos</h3>
       <p>
-        El responsable de la base de datos es <Tbd>[Responsable: a definir]</Tbd> (nombre o razón social, CUIT y domicilio en la Ciudad Autónoma de
-        Buenos Aires), que opera EstuRed. Contacto: {mail}.
+        El responsable de la base de datos es el titular que opera EstuRed. Su nombre, CUIT y domicilio figuran en{" "}
+        <Link href={OPERATOR_SECTION_HREF} className="font-bold text-forest-700 underline underline-offset-2">
+          Términos y condiciones › Quiénes somos
+        </Link>
+        . Contacto: {mail}.
       </p>
       <h3 className={h3}>Qué datos pedimos</h3>
       <ul className={list}>

@@ -341,6 +341,8 @@ Los documentos son privados por defecto. No deben ser públicos ni visibles para
 
 Documentos de estudiante: DNI/pasaporte; constancia de estudio o inscripción; documentación solicitada por residencia; comprobante de pago a residencia; comprobantes relacionados con reserva o renovación; documentación cargada por familiar.
 
+No se piden ni se aceptan certificados de antecedentes penales, ni como documento estándar ni como pedido propio de una residencia (DR65 (a), 2026-11-22). La residencia tampoco puede pedirlos por la plataforma (`docs/20`, condiciones para residencias).
+
 Documentos de residencia: DNI responsable; DNI coordinador; aceptación de términos; checklist firmado; evidencia de visita; documentación de verificación; recibos/comprobantes internos si aplica.
 
 Documentos fiscales: Factura C del fee emitida vía TusFacturas.app.

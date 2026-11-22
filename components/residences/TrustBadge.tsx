@@ -1,6 +1,10 @@
 import type { VerificationStatus } from "@/types/domain";
 import { Icon } from "@/components/ui/Icon";
 
+/** TP-13 (LEG-016): alcance del sello en el texto al pasar el mouse. El texto ampliado con enlace va en la ficha (`CostsBoard`). */
+const SEAL_SCOPE =
+  "Visitada en persona por EstuRed: controlamos la identidad del responsable, la dirección y que las fotos coincidan. No certifica habilitaciones, seguridad edilicia, seguros ni calidad del servicio. Vence al año.";
+
 /**
  * Sello "Residencia Verificada" (docs/00 §7, docs/01 §11).
  * La verificación es presencial y realizada por el equipo de EstuRed.
@@ -21,7 +25,7 @@ export function TrustBadge({
     return (
       <span
         className="inline-flex size-6 items-center justify-center rounded-full bg-white/95 text-forest-700 shadow-sm ring-[1.5px] ring-forest-tint"
-        title="Verificada presencialmente por el equipo de EstuRed"
+        title={SEAL_SCOPE}
       >
         <Icon name="verified" className="text-sm" />
         <span className="sr-only">Residencia Verificada</span>
@@ -33,7 +37,7 @@ export function TrustBadge({
   return (
     <span
       className={`${stamp ? "stamp-in " : ""}inline-flex items-center gap-1 rounded-full bg-white/95 font-bold text-forest-700 shadow-sm ring-[1.5px] ring-forest-tint ${sizing}`}
-      title="Verificada presencialmente por el equipo de EstuRed"
+      title={SEAL_SCOPE}
     >
       <Icon name="verified" className={size === "md" ? "text-base" : "text-sm"} />
       Residencia Verificada

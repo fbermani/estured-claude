@@ -13,7 +13,7 @@ export function DocumentUpload({
   done,
   requirementLabel,
 }: {
-  documentType: "student_identity" | "student_academic_proof" | "student_criminal_record" | "other";
+  documentType: "student_identity" | "student_academic_proof" | "other";
   label: string;
   done: boolean;
   /** DR38: con `other`, el nombre del documento «Otro» que pide la residencia (se guarda para reconocerlo después). */

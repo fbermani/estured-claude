@@ -7,7 +7,7 @@ import { DocumentUpload } from "@/app/students/profile/DocumentUpload";
 export type StayDocumentItem = {
   id: string;
   label: string;
-  documentType: "student_identity" | "student_academic_proof" | "student_criminal_record" | "other";
+  documentType: "student_identity" | "student_academic_proof" | "other";
   /** Solo en «Otro»: nombre con el que se guarda el archivo para reconocerlo. */
   requirementLabel: string | null;
   delivered: boolean;

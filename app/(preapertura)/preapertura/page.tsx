@@ -9,9 +9,9 @@ import { getPreaperturaEntryData } from "@/lib/preapertura/counts";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: { absolute: "EstuRed: acceso anticipado a residencias estudiantiles verificadas en Buenos Aires" },
+  title: { absolute: "EstuRed: acceso anticipado a residencias estudiantiles en Buenos Aires" },
   description:
-    "Sumate gratis y enterate primero cuáles son las residencias estudiantiles verificadas en Buenos Aires. Estamos visitándolas una por una.",
+    "Sumate gratis y enterate primero qué residencias estudiantiles de Buenos Aires pasan nuestra visita presencial. Estamos visitándolas una por una.",
 };
 
 export default async function PreaperturaEntryPage() {

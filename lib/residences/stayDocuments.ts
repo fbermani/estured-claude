@@ -11,7 +11,6 @@ export const STAY_DOCUMENTS_SECTION = "stay_documents";
 export const STAY_DOCUMENT_CATALOG = [
   { key: "identity", label: "Documento de identidad o pasaporte", documentType: "student_identity" },
   { key: "academic_proof", label: "Certificado de estudios", documentType: "student_academic_proof" },
-  { key: "criminal_record", label: "Antecedentes penales", documentType: "student_criminal_record" },
 ] as const;
 
 export type StayDocumentKey = (typeof STAY_DOCUMENT_CATALOG)[number]["key"];
@@ -47,6 +46,12 @@ export function normalizeRequirementLabel(raw: unknown): string {
     .toLowerCase();
 }
 
+/** DR65 (a): ningún documento propio puede pedir antecedentes penales ni algo equivalente. */
+export function isForbiddenStayDocumentLabel(raw: unknown): boolean {
+  const norm = normalizeRequirementLabel(raw);
+  return /penal|reincidencia|prontuario|buena conducta|antecedentes?(?!s?\s+academ)/.test(norm);
+}
+
 function orderedKeys(keys: Iterable<string>): StayDocumentKey[] {
   const set = new Set(keys);
   return STAY_DOCUMENT_CATALOG.filter((c) => set.has(c.key)).map((c) => c.key);
@@ -73,7 +78,7 @@ export function parseStayDocumentsContent(content: unknown): StayDocumentsConfig
   const other = dedupeLabels(
     (Array.isArray(raw.other) ? raw.other : [])
       .map(sanitizeStayDocumentLabel)
-      .filter((l) => l.length > 0)
+      .filter((l) => l.length > 0 && !isForbiddenStayDocumentLabel(l))
       .map((l) => l.slice(0, MAX_OTHER_STAY_DOCUMENT_LENGTH)),
   ).slice(0, MAX_OTHER_STAY_DOCUMENTS);
   return { items, other };
@@ -87,6 +92,8 @@ export function normalizeStayDocumentsInput(keys: unknown[], other: unknown[]): 
   const labels = other.map(sanitizeStayDocumentLabel).filter((l) => l.length > 0);
   if (labels.some((l) => l.length > MAX_OTHER_STAY_DOCUMENT_LENGTH))
     return { ok: false, error: `Cada documento propio puede tener hasta ${MAX_OTHER_STAY_DOCUMENT_LENGTH} caracteres.` };
+  if (labels.some(isForbiddenStayDocumentLabel))
+    return { ok: false, error: "EstuRed no permite pedir antecedentes penales. Quitá ese documento de la lista." };
   const unique = dedupeLabels(labels);
   if (unique.length > MAX_OTHER_STAY_DOCUMENTS)
     return { ok: false, error: `Podés pedir hasta ${MAX_OTHER_STAY_DOCUMENTS} documentos propios.` };
@@ -94,7 +101,7 @@ export function normalizeStayDocumentsInput(keys: unknown[], other: unknown[]): 
 }
 
 export type StayRequirement = {
-  /** `identity` | `academic_proof` | `criminal_record` | `other:<etiqueta normalizada>` */
+  /** `identity` | `academic_proof` | `other:<etiqueta normalizada>` (LEG-003: ya no se piden antecedentes penales) */
   id: string;
   label: string;
   kind: "standard" | "other";
@@ -124,7 +131,7 @@ export function listStayRequirements(config: StayDocumentsConfig): StayRequireme
 
 /** Sin la migración 0077 solo se pueden pedir (y reconocer) los dos documentos de siempre. */
 export function restrictToLegacyRequirements(requirements: StayRequirement[]): StayRequirement[] {
-  return requirements.filter((r) => r.kind === "standard" && r.documentType !== "student_criminal_record");
+  return requirements.filter((r) => r.kind === "standard");
 }
 
 export type StudentDocumentFile = {

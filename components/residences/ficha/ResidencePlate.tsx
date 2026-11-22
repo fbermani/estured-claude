@@ -99,7 +99,7 @@ function HeroPlate({
         <span
           data-plate-region="seal"
           role="img"
-          aria-label="Verificada por EstuRed: la visitamos en persona"
+          aria-label="Verificada por EstuRed: la visitamos en persona y controlamos identidad del responsable, dirección y fotos"
           className="aspect-square shrink-0 [--seal-delay:0.6s]"
           style={{ width: PLATE_SEAL_WIDTH }}
         >

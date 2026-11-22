@@ -2,6 +2,8 @@ import Link from "next/link";
 import { BrandMark } from "@/components/ui/BrandMark";
 import { Icon } from "@/components/ui/Icon";
 import { CONTACT_EMAIL } from "@/lib/constants/contact";
+import { OPERATOR_SECTION_HREF } from "@/lib/legal/operator";
+import { LEGAL_TEXTS_UPDATED_LABEL } from "@/lib/legal/versions";
 
 const link =
   "inline-flex min-h-11 items-center rounded-sm transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:min-h-8";
@@ -118,7 +120,8 @@ export function Footer({ hideSignup = false, staffView = false }: { hideSignup?:
         <div className="mx-auto max-w-6xl px-4 py-3 sm:px-6">
           <p className="text-xs text-white/60">
             EstuRed actúa como plataforma intermediaria de búsqueda, solicitud, registro y comprobante. No presta
-            directamente el alojamiento. Los precios en ARS son referenciales al dólar blue del día.
+            directamente el alojamiento. Los precios en ARS son referenciales al dólar blue del día. Última actualización de
+            los textos legales: {LEGAL_TEXTS_UPDATED_LABEL}.
           </p>
           <div className="mt-1 flex flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
             <ul className="flex flex-wrap gap-x-5 text-xs text-white/70">
@@ -142,6 +145,11 @@ export function Footer({ hideSignup = false, staffView = false }: { hideSignup?:
               <li>
                 <Link href="/privacy" className={legalLink}>
                   Política de privacidad
+                </Link>
+              </li>
+              <li>
+                <Link href={OPERATOR_SECTION_HREF} className={legalLink}>
+                  Datos del titular
                 </Link>
               </li>
             </ul>

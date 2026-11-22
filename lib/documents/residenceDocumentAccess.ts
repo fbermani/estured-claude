@@ -20,7 +20,8 @@ import type { ResidenceActorRole, ResidencePermission } from "@/lib/residences/p
  */
 
 export const STUDENT_DOCUMENTS_BUCKET = "student-documents";
-export const RESIDENCE_DOCUMENT_TYPES = ["student_identity", "student_academic_proof", "student_criminal_record", "other"] as const;
+/** LEG-003 (2026-11-22): `student_criminal_record` ya no se abre desde la residencia; los archivos viejos quedan sin acceso. */
+export const RESIDENCE_DOCUMENT_TYPES = ["student_identity", "student_academic_proof", "other"] as const;
 /** Solicitud con el pago a la residencia habilitado y todavía sin reserva (docs/04 §5.2). */
 export const PAYMENT_ENABLED_APPLICATION_STATUSES = ["residence_payment_pending", "residence_payment_reported"] as const;
 /** Reserva nacida de la solicitud que todavía sigue viva (docs/04 §7.2): cubre el tramo hasta que se crea la estadía. */

@@ -197,6 +197,10 @@ export function HowItWorksSteps({ steps }: { steps: Step[] }) {
                       <i className="h-2 w-2 rounded-full bg-line-2" />
                       <i className="h-2 w-2 rounded-full bg-line-2" />
                     </span>
+                    {/* LEG-017: las capturas muestran residencias y precios de demostración. */}
+                    <span className="absolute right-3 top-3 z-20 rounded-md bg-amber-soft-100 px-2 py-0.5 text-xs font-bold text-amber-soft-700 lg:top-[34px]">
+                      Datos de ejemplo
+                    </span>
                     <div className="absolute inset-x-0 bottom-0 top-0 lg:top-[26px]">
                       <picture>
                         <source media="(min-width: 1024px)" srcSet={shotProps(s.img, "640px").srcSet} sizes="640px" />

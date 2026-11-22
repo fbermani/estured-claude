@@ -55,13 +55,12 @@ export default function NosotrosPage() {
         <li className={li}>La identidad del responsable de la residencia y, si lo hay, del coordinador.</li>
         <li className={li}>Que la dirección existe y que la residencia funciona ahí.</li>
         <li className={li}>Que las fotos publicadas se parecen razonablemente al lugar real.</li>
-        <li className={li}>Que existen los tipos de habitación y las áreas comunes declarados, y que los servicios publicados coinciden con lo que vimos.</li>
       </ul>
 
       <h2 className={h2}>La visita presencial</h2>
       <p className={p}>
-        Es obligatoria y la hace una persona de EstuRed en la residencia. Se completa una lista de control que firman las dos partes y
-        queda registrada la fecha de la visita.
+        Es obligatoria y la hace una persona de EstuRed en la residencia. Usamos una lista de control en cada visita y queda registrada la
+        fecha.
       </p>
 
       <h2 className={h2}>Cada cuánto se renueva</h2>
@@ -72,8 +71,9 @@ export default function NosotrosPage() {
 
       <h2 className={h2}>Qué no garantiza el sello</h2>
       <p className={p}>
-        Verificada no significa garantía de calidad, de convivencia ni de que se cumpla todo lo legal. Tampoco garantiza que los
-        precios o las condiciones no cambien. Verificamos identidad, ubicación y fotos mediante control presencial.
+        Verificada no significa garantía de calidad, de convivencia ni de que se cumpla todo lo legal. No certifica habilitaciones,
+        seguridad edilicia ni seguros. Tampoco garantiza que los precios o las condiciones no cambien. Verificamos identidad,
+        ubicación y fotos mediante control presencial.
       </p>
 
       <h2 className={h2}>Si algo no coincide con lo publicado</h2>

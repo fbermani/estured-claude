@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   computeRequirementStatuses,
+  isForbiddenStayDocumentLabel,
   defaultStayDocumentsConfig,
   listStayRequirements,
   normalizeRequirementLabel,
@@ -19,12 +20,12 @@ describe("parseStayDocumentsContent", () => {
     expect(defaultStayDocumentsConfig()).toEqual({ items: ["identity", "academic_proof"], other: [] });
   });
 
-  it("descarta claves desconocidas, ordena según el catálogo y limpia los «Otro»", () => {
+  it("descarta claves desconocidas (incluida «criminal_record», LEG-003), ordena según el catálogo y limpia los «Otro»", () => {
     const cfg = parseStayDocumentsContent({
-      items: ["criminal_record", "nope", "identity", "identity"],
+      items: ["criminal_record", "nope", "academic_proof", "identity", "identity"],
       other: ["  Seguro   médico ", "seguro médico", "", "<b>Visa</b>", 7],
     });
-    expect(cfg.items).toEqual(["identity", "criminal_record"]);
+    expect(cfg.items).toEqual(["identity", "academic_proof"]);
     expect(cfg.other).toEqual(["Seguro médico", "bVisa/b", "7"]);
   });
 
@@ -66,7 +67,7 @@ describe("sanitize / normalize de etiquetas", () => {
 });
 
 describe("computeRequirementStatuses", () => {
-  const requirements = listStayRequirements({ items: ["identity", "academic_proof", "criminal_record"], other: ["Seguro médico"] });
+  const requirements = listStayRequirements({ items: ["identity", "academic_proof"], other: ["Seguro médico"] });
 
   it("marca lo entregado y lo que falta, con la fecha más reciente", () => {
     const statuses = computeRequirementStatuses(requirements, [
@@ -77,11 +78,10 @@ describe("computeRequirementStatuses", () => {
     expect(statuses.map((s) => [s.requirement.id, s.delivered])).toEqual([
       ["identity", true],
       ["academic_proof", false],
-      ["criminal_record", false],
       ["other:seguro medico", true],
     ]);
     expect(statuses[0].deliveredAt).toBe("2026-10-05T10:00:00Z");
-    expect(summarizeRequirementStatuses(statuses)).toEqual({ total: 4, delivered: 2, missing: 2 });
+    expect(summarizeRequirementStatuses(statuses)).toEqual({ total: 3, delivered: 2, missing: 1 });
   });
 
   it("DR48: devuelve el id del archivo más reciente que cubre cada requisito", () => {
@@ -90,7 +90,7 @@ describe("computeRequirementStatuses", () => {
       { id: "nuevo", document_type: "student_identity", created_at: "2026-10-05T10:00:00Z" },
       { document_type: "student_academic_proof", created_at: "2026-10-05T10:00:00Z" },
     ]);
-    expect(statuses.map((s) => s.fileId)).toEqual(["nuevo", null, null, null]);
+    expect(statuses.map((s) => s.fileId)).toEqual(["nuevo", null, null]);
   });
 
   it("un archivo «other» sin etiqueta o con otra etiqueta no cubre un «Otro»", () => {
@@ -98,18 +98,30 @@ describe("computeRequirementStatuses", () => {
       { document_type: "other", requirement_label: null },
       { document_type: "other", requirement_label: "Visa" },
     ]);
-    expect(statuses[3].delivered).toBe(false);
+    expect(statuses[2].delivered).toBe(false);
   });
 
   it("sin archivos todo falta; sin requisitos no hay nada que cumplir", () => {
-    expect(summarizeRequirementStatuses(computeRequirementStatuses(requirements, []))).toEqual({ total: 4, delivered: 0, missing: 4 });
+    expect(summarizeRequirementStatuses(computeRequirementStatuses(requirements, []))).toEqual({ total: 3, delivered: 0, missing: 3 });
     expect(summarizeRequirementStatuses(computeRequirementStatuses([], []))).toEqual({ total: 0, delivered: 0, missing: 0 });
   });
 });
 
 describe("restrictToLegacyRequirements", () => {
   it("sin la migración solo quedan identidad y estudios", () => {
-    const all = listStayRequirements({ items: ["identity", "criminal_record"], other: ["Visa"] });
+    const all = listStayRequirements({ items: ["identity"], other: ["Visa"] });
     expect(restrictToLegacyRequirements(all).map((r) => r.id)).toEqual(["identity"]);
+  });
+});
+
+describe("DR65 (a): sin antecedentes penales", () => {
+  it("rechaza un documento propio que pide antecedentes y lo ignora al leer lo guardado", () => {
+    expect(isForbiddenStayDocumentLabel("Certificado de Antecedentes Penales")).toBe(true);
+    expect(isForbiddenStayDocumentLabel("Reincidencia")).toBe(true);
+    expect(isForbiddenStayDocumentLabel("Seguro médico")).toBe(false);
+    expect(isForbiddenStayDocumentLabel("Antecedentes académicos")).toBe(false);
+    const r = normalizeStayDocumentsInput(["identity"], ["Antecedentes penales"]);
+    expect(r.ok).toBe(false);
+    expect(parseStayDocumentsContent({ items: ["identity"], other: ["antecedentes penales", "Visa"] }).other).toEqual(["Visa"]);
   });
 });

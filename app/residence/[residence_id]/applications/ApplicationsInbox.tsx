@@ -496,7 +496,7 @@ function ApplicantDocumentsBlock({
             : documents.some((d) => d.delivered)
               ? "Solo ves si lo entregó: para abrir los documentos necesitás el permiso «Pago a la residencia»."
               : "Cuando lo entregue, vas a poder abrirlo desde acá."}
-          {limited ? " Antecedentes penales y los documentos propios se van a poder ver cuando se actualice el sistema." : ""}
+          {limited ? " Los documentos propios se van a poder ver cuando se actualice el sistema." : ""}
         </p>
       )}
     </section>

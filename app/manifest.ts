@@ -6,7 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
     id: "/",
     name: "EstuRed",
     short_name: "EstuRed",
-    description: "Residencias estudiantiles verificadas en CABA.",
+    description: "Residencias estudiantiles en CABA, visitadas en persona antes de publicarlas.",
     // Con sesión, /login redirige al panel del rol (roleHome); sin sesión muestra el ingreso, no la landing con popup.
     start_url: "/login",
     scope: "/",

@@ -37,7 +37,7 @@ export async function loadStudentDocumentFiles(
     .select("id, filename, document_type, requirement_label, created_at, related_entity_id")
     .eq("related_entity_type", "student_profiles")
     .in("related_entity_id", studentProfileIds)
-    .in("document_type", [...LEGACY_TYPES, "student_criminal_record"]);
+    .in("document_type", LEGACY_TYPES);
   if (!full.error) return { files: toRows(full.data), schemaReady: true };
 
   const legacy = await admin

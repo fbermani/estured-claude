@@ -25,11 +25,11 @@ export const metadata: Metadata = {
   // Hace absolutas las URLs relativas de canonical/OG/imágenes con el dominio definitivo (NEXT_PUBLIC_SITE_URL; por defecto estured.com).
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "EstuRed — Residencias estudiantiles verificadas en CABA",
+    default: "EstuRed — Residencias estudiantiles en CABA, visitadas en persona",
     template: "%s | EstuRed",
   },
   description:
-    "EstuRed te ayuda a elegir con confianza dónde empieza tu nueva etapa: residencias estudiantiles verificadas en CABA, con solicitudes registradas y comprobantes verificables.",
+    "EstuRed te ayuda a elegir con confianza dónde empieza tu nueva etapa: residencias estudiantiles de CABA que visitamos en persona antes de publicarlas, con solicitudes registradas y comprobantes verificables.",
 };
 
 /** Color de la barra del navegador en mobile = --color-cream. Sin bloquear el zoom (WCAG 1.4.4). */

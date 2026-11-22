@@ -40,8 +40,8 @@ export default async function StudentProfilePage() {
     .maybeSingle();
   if (!profile) notFound();
 
-  // DR38: identidad, estudios, antecedentes penales (0077) y «otros»; sin la migración devuelve solo lo de siempre.
-  const { files: docFiles, schemaReady: docsSchemaReady } = await loadStudentDocumentFiles(admin, [profile.id]);
+  // DR38: identidad, estudios y «otros» (LEG-003: sin antecedentes penales); sin la migración devuelve solo lo de siempre.
+  const { files: docFiles } = await loadStudentDocumentFiles(admin, [profile.id]);
   const types = new Set(docFiles.map((f) => f.document_type));
   const otherFiles = docFiles
     .filter((f) => f.document_type === "other")
@@ -176,13 +176,6 @@ export default async function StudentProfilePage() {
                 label="Comprobante de estudio (constancia de alumno regular, aceptación)"
                 done={types.has("student_academic_proof")}
               />
-              {docsSchemaReady && (
-                <DocumentUpload
-                  documentType="student_criminal_record"
-                  label="Antecedentes penales (certificado de antecedentes)"
-                  done={types.has("student_criminal_record")}
-                />
-              )}
               <OtherDocumentsUpload files={otherFiles} />
             </div>
           </Card>
