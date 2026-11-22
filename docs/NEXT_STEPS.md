@@ -61,6 +61,15 @@ Estado: Fase 0 hecha (solo docs). Fase 1 hecha (0102 aplicada en dev). **Fase 5 
   - Código: `lib/payments/feeCollection*.ts`, `feePayer*.ts`, `registerFeePayment.ts`.
   - Tests: `feeCollection.test.ts`, `feePayerActions.fake.test.ts`, `feeCollectionSave.fake.test.ts`.
   - Seed: `scripts/seed-demo-fee-collection.mjs`. Solo se corrió con `--dry-run`.
+- **Endurecimiento DR64 tras la revisión de seguridad (2026-11-22).** Sin commit. Migración 0108 aplicada en dev (en prod entra con el bootstrap; ver `docs/PLAN_SALIDA_PRODUCCION.md`).
+  - Reabrir el pago (vencido o tras «No recibí el pago») limpia `chosen_method` e `instructions_snapshot`; `payment_currency` vuelve a `'ARS'` (NOT NULL). El pagador elige de nuevo.
+  - El comprobante en disputa no se borra: queda `archived` en `files` y su id va a la auditoría (`disputed_proof_file_id`).
+  - «Ya pagué» re-chequea que el medio siga habilitado, antes de subir el archivo. Deshabilitar o cambiar un medio invalida la elección de los fees en `pending_payment_method` y avisa al pagador (`invalidateFeeMethodChoice`).
+  - Respaldo a `payment_settings` solo si la tabla no tiene ninguna fila `transfer_ars`.
+  - Email de alerta de cambios de medios con HTML escapado. Recordatorios del job solo a admin con rol activo.
+  - Validación del admin: la moneda del monto debe ser la del medio elegido (la pantalla la preselecciona); el update exige el mismo `admin_disputed_at` que se leyó (validar tras disputa sigue permitido, DR8 intacto).
+  - 0108: revoca a `authenticated` las 4 columnas de DR64 que 0105 concedió; índice único parcial de casos de Soporte `estured_fee_payment` abiertos por reserva (23505 tratado como éxito o como «ya hay un caso abierto»).
+  - Pendiente del dueño: tope de reaperturas (DR64 (g)); no implementado.
 - **Supuestos de B1 (reversibles).**
   - El acceso del pagador es `payer_user_id` más vínculo activo con `can_pay_estured_fee`. Un familiar puede pagar por un adulto (DR4).
   - Con un solo medio, la pantalla lo muestra preseleccionado. El pagador confirma con «Usar este medio». La página no escribe al renderizar.

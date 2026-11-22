@@ -66,7 +66,7 @@ async function releaseMark(admin: SupabaseClient, feeId: string, column: Mark, n
 /** Aviso a todos los admin/superadmin. `false` si no hay a quién avisar o no se pudo leer (el llamador devuelve la marca). */
 async function notifyAdminsCounted(admin: SupabaseClient, params: { title: string; body: string; entityType: string; entityId: string }): Promise<boolean> {
   try {
-    const { data, error } = await admin.from("user_roles").select("user_id").in("role", ["admin", "superadmin"]);
+    const { data, error } = await admin.from("user_roles").select("user_id").in("role", ["admin", "superadmin"]).eq("is_active", true);
     if (error) return false;
     const ids = [...new Set((data ?? []).map((r) => r.user_id as string))];
     if (ids.length === 0) return false;

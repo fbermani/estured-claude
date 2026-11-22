@@ -41,9 +41,10 @@ function world(feeOver: Row = {}, extra: Partial<Record<string, Row[]>> = {}): R
   return {
     estured_fee_payments: [{ ...baseFee, ...feeOver }],
     user_roles: [
-      { user_id: "u-admin1", role: "admin" },
-      { user_id: "u-super", role: "superadmin" },
-      { user_id: "u-student", role: "student" },
+      { user_id: "u-admin1", role: "admin", is_active: true },
+      { user_id: "u-super", role: "superadmin", is_active: true },
+      { user_id: "u-admin-baja", role: "admin", is_active: false },
+      { user_id: "u-student", role: "student", is_active: true },
     ],
     estured_fee_collection_methods: [
       { id: "m1", method_key: "transfer_ars", method_label: null, details: "CBU de demo", currency: "ARS", is_enabled: true, updated_by_user_id: null, updated_at: "2026-11-20T00:00:00Z" },
@@ -103,6 +104,14 @@ describe("recordatorio de 12 h al pagador", () => {
 });
 
 describe("aviso de 24 h y alerta de 72 h a los admin", () => {
+  it("no avisa a un admin con el rol dado de baja (is_active = false)", async () => {
+    boot(world(reported(25)));
+    await run();
+    const recipients = notices.map((n) => n.userId);
+    expect(recipients).toEqual(expect.arrayContaining(["u-admin1", "u-super"]));
+    expect(recipients).not.toContain("u-admin-baja");
+  });
+
   it("«Ya pagué» sin validar: a las 24 h avisa a los admin (no al estudiante); antes, no", async () => {
     boot(world(reported(23)));
     expect(await run()).toMatchObject({ adminReminders: 0 });

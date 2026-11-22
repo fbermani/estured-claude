@@ -52,7 +52,8 @@ export async function loadFeePayerView(admin: SupabaseClient, params: { userId: 
   const offered = await loadOfferedFeeMethods(admin);
   const methods = offered.ok ? offered.methods.map(toFeeMethodChoice) : [];
 
-  if (!fee.chosen_method) return { ...base, stage: "choose", methods, chosen: null };
+  // Un medio elegido que el superadmin deshabilitó después no se muestra como «para pagar»: el pagador vuelve a elegir.
+  if (!fee.chosen_method || (offered.ok && !methods.some((m) => m.key === fee.chosen_method))) return { ...base, stage: "choose", methods, chosen: null };
 
   const { data: snap } = await admin.from("estured_fee_payments").select("instructions_snapshot").eq("id", fee.id).maybeSingle();
   const { label, details } = splitFeeSnapshot((snap?.instructions_snapshot as string | null) ?? null);

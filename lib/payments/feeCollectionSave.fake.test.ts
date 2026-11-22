@@ -13,6 +13,11 @@ vi.mock("@/lib/payments/notifyFeeCollectionChange", () => ({
   notifySuperadminsOfFeeCollectionChange: async (_a: unknown, p: { entityId: string | null; changes: string[] }) => void notices.push(p),
 }));
 
+const payerNotices = vi.hoisted(() => [] as { payerUserId: string; kind: string; related: { type: string; id: string } }[]);
+vi.mock("@/lib/payments/feePayerNotices", () => ({
+  notifyFeePayer: async (_a: unknown, p: { payerUserId: string; kind: string; related: { type: string; id: string } }) => void payerNotices.push(p),
+}));
+
 import { createInMemorySupabase, type Row } from "@/lib/testing/inMemorySupabase";
 import { importFeeCollectionFromSettingsCore, saveFeeCollectionMethodCore } from "@/lib/payments/feeCollectionSave";
 
@@ -49,6 +54,7 @@ const input = (over: Partial<Parameters<typeof saveFeeCollectionMethodCore>[1]> 
 beforeEach(() => {
   audits.length = 0;
   notices.length = 0;
+  payerNotices.length = 0;
   boot();
 });
 
@@ -110,6 +116,51 @@ describe("saveFeeCollectionMethodCore", () => {
     expect(methods()[0]).toMatchObject({ is_enabled: false, details: `CBU ${CBU} alias estured.cobro` });
     expect(notices[0].changes).toEqual(["Se deshabilitó «Transferencia en pesos»."]);
     expect(audits[0].oldValue).toMatchObject({ is_enabled: true });
+  });
+});
+
+describe("invalidar el medio elegido al deshabilitar o cambiar un medio (revisión de seguridad)", () => {
+  const fees = (): Row[] => [
+    { id: "f-elige", status: "pending_payment_method", chosen_method: "transfer_ars", instructions_snapshot: `Transferencia en pesos\n${CBU}`, payment_currency: "USD", payer_user_id: "u-p1", reservation_id: "r1" },
+    { id: "f-otro-medio", status: "pending_payment_method", chosen_method: "belo", instructions_snapshot: "Belo\nbelo.estured", payment_currency: "ARS", payer_user_id: "u-p2", reservation_id: "r2" },
+    { id: "f-informado", status: "pending_manual_payment", chosen_method: "transfer_ars", instructions_snapshot: `Transferencia en pesos\n${CBU}`, payment_currency: "ARS", payer_user_id: "u-p3", reservation_id: "r3" },
+  ];
+  const seed = async () => {
+    boot({ ...world(), estured_fee_payments: fees() });
+    await saveFeeCollectionMethodCore(fake.client, input());
+    audits.length = 0;
+    notices.length = 0;
+    payerNotices.length = 0;
+  };
+  const feeRow = (id: string) => fake.tables.estured_fee_payments.find((f) => f.id === id)!;
+
+  it("deshabilitar el medio limpia el medio congelado de los fees que esperan el pago y avisa al pagador sin datos", async () => {
+    await seed();
+    expect(await saveFeeCollectionMethodCore(fake.client, input({ isEnabled: false, details: "" }))).toEqual({ ok: true, changed: true });
+    expect(feeRow("f-elige")).toMatchObject({ chosen_method: null, instructions_snapshot: null, payment_currency: "ARS" });
+    // Otro medio y un fee que ya informó el pago no se tocan.
+    expect(feeRow("f-otro-medio")).toMatchObject({ chosen_method: "belo" });
+    expect(feeRow("f-informado")).toMatchObject({ chosen_method: "transfer_ars", status: "pending_manual_payment" });
+    expect(payerNotices).toEqual([{ payerUserId: "u-p1", kind: "method_unavailable", related: { type: "reservations", id: "r1" } }]);
+    expect(audits[0].newValue).toMatchObject({ invalidated_fee_choices: 1 });
+    expect(JSON.stringify([audits, payerNotices])).not.toContain(CBU);
+  });
+
+  it("cambiar los datos de cobro también invalida; habilitar de nuevo o guardar sin cambios no", async () => {
+    await seed();
+    expect((await saveFeeCollectionMethodCore(fake.client, input({ details: `CBU ${CBU} alias nuevo.cobro` }))).ok).toBe(true);
+    expect(feeRow("f-elige").chosen_method).toBeNull();
+
+    await seed();
+    expect(await saveFeeCollectionMethodCore(fake.client, input())).toEqual({ ok: true, changed: false });
+    expect(feeRow("f-elige").chosen_method).toBe("transfer_ars");
+    expect(payerNotices).toHaveLength(0);
+  });
+
+  it("crear el medio por primera vez no invalida nada", async () => {
+    boot({ ...world(), estured_fee_payments: fees() });
+    await saveFeeCollectionMethodCore(fake.client, input());
+    expect(feeRow("f-elige").chosen_method).toBe("transfer_ars");
   });
 });
 

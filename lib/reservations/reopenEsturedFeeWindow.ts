@@ -4,16 +4,21 @@ import { createAuditLog } from "@/lib/audit";
 import { notifyFamilyReservationMilestone } from "@/lib/family/familyMilestones";
 import { createNotification } from "@/lib/notifications/createNotification";
 import { notifyFeePayer } from "@/lib/payments/feePayerNotices";
-import { discardStoredProof, PROOF_BUCKET } from "@/lib/applications/studentPaymentProof";
+import { PROOF_BUCKET } from "@/lib/applications/studentPaymentProof";
 
 export type ReopenEsturedFeeWindowResult = { status: "ok" } | { status: "error"; message: string };
 
 const FORTY_EIGHT_HOURS_MS = 48 * 60 * 60 * 1000;
+/** El pagador vuelve a elegir el medio. `payment_currency` es NOT NULL con default 'ARS' (migración 0010): no admite null. */
+const CLEAR_CHOSEN_METHOD = { chosen_method: null, instructions_snapshot: null, payment_currency: "ARS" } as const;
 
 /**
  * DR64 (d): también reabre un fee en `pending_manual_payment` con «No recibí el pago» abierto (`reopenAfterDispute`): el fee vuelve a
- * `pending_payment_method` con 48 h nuevas, se limpian «Ya pagué», el comprobante y la disputa, y se descarta el comprobante anterior.
- * La reserva sigue en `pending_estured_fee`. El tope de reaperturas está propuesto y NO implementado (`docs/00` DR64 (i)).
+ * `pending_payment_method` con 48 h nuevas y se limpian «Ya pagué», la referencia al comprobante y la disputa. El comprobante en disputa NO se
+ * borra: queda en `files` (estado `archived`) como evidencia del caso de Soporte, y su id se guarda en la auditoría. En ambas reaperturas el
+ * pagador vuelve a elegir el medio (se limpian `chosen_method`, `instructions_snapshot` y `payment_currency` vuelve a `'ARS'`, su valor por
+ * defecto): el medio pudo deshabilitarse o cambiar de datos mientras tanto. La reserva sigue en `pending_estured_fee`. El tope de reaperturas
+ * está propuesto y NO implementado (`docs/00` DR64 (g)).
  *
  * Reabrir la ventana de pago del fee EstuRed de una reserva vencida sin
  * pagar (`expired_fee_unpaid` / `estured_fee_payments.status = 'expired'`)
@@ -55,7 +60,7 @@ export async function reopenEsturedFeeWindow(
   const newExpiresAt = new Date(Date.now() + FORTY_EIGHT_HOURS_MS).toISOString();
   const { error: feeUpdateError } = await admin
     .from("estured_fee_payments")
-    .update({ status: "pending_payment_method", expires_at: newExpiresAt })
+    .update({ status: "pending_payment_method", expires_at: newExpiresAt, ...CLEAR_CHOSEN_METHOD })
     .eq("id", feePayment.id)
     .eq("status", "expired");
   if (feeUpdateError) {
@@ -102,11 +107,17 @@ export async function reopenEsturedFeeWindow(
 
 type DisputedFee = { id: string; status: string; reservation_id: string | null; payer_user_id: string; manual_payment_file_id: string | null };
 
-/** Descarta el comprobante del fee reabierto. Solo toca un archivo del bucket de comprobantes que sea de ESE fee. Mejor esfuerzo. */
-async function discardFeeProof(admin: SupabaseClient, fileId: string, feeId: string): Promise<void> {
-  const { data: file } = await admin.from("files").select("id, bucket, storage_path, related_entity_type, related_entity_id").eq("id", fileId).maybeSingle();
-  if (!file || file.bucket !== PROOF_BUCKET || file.related_entity_type !== "estured_fee_payments" || file.related_entity_id !== feeId) return;
-  await discardStoredProof(admin, { fileId, storagePath: file.storage_path as string });
+/**
+ * Conserva el comprobante del fee en disputa como evidencia del caso de Soporte: NO borra la fila de `files` ni el objeto del bucket; la
+ * marca `archived` (reemplazada por el nuevo intento). Solo toca un archivo del bucket de comprobantes que sea de ESE fee. Mejor esfuerzo.
+ * Devuelve `true` si el archivo es de ese fee (y quedó conservado).
+ */
+async function archiveDisputedProof(admin: SupabaseClient, fileId: string, feeId: string): Promise<boolean> {
+  const { data: file } = await admin.from("files").select("id, bucket, related_entity_type, related_entity_id").eq("id", fileId).maybeSingle();
+  if (!file || file.bucket !== PROOF_BUCKET || file.related_entity_type !== "estured_fee_payments" || file.related_entity_id !== feeId) return false;
+  const { error } = await admin.from("files").update({ status: "archived" }).eq("id", fileId);
+  if (error) console.error("[reservations] reopenEsturedFeeWindow: no se pudo archivar el comprobante en disputa:", error.code, error.message);
+  return true;
 }
 
 async function reopenAfterDispute(
@@ -135,6 +146,7 @@ async function reopenAfterDispute(
       payer_reminder_sent_at: null,
       admin_reminder_sent_at: null,
       admin_alert_sent_at: null,
+      ...CLEAR_CHOSEN_METHOD,
     })
     .eq("id", fee.id)
     .eq("status", "pending_manual_payment")
@@ -148,8 +160,8 @@ async function reopenAfterDispute(
   if (!updated || updated.length === 0) {
     return { status: "error", message: "El pago cambió mientras lo revisabas. Recargá la pantalla para ver su estado actual." };
   }
-  // Primero se limpia la referencia (FK) y recién después se descarta el archivo.
-  if (fee.manual_payment_file_id) await discardFeeProof(admin, fee.manual_payment_file_id, fee.id);
+  // La referencia ya se limpió; el archivo se conserva (evidencia del caso de Soporte) y su id queda en la auditoría.
+  const keptProofFileId = fee.manual_payment_file_id && (await archiveDisputedProof(admin, fee.manual_payment_file_id, fee.id)) ? fee.manual_payment_file_id : null;
 
   await createAuditLog(admin, {
     actorUserId: params.actorUserId,
@@ -157,7 +169,7 @@ async function reopenAfterDispute(
     action: "estured_fee_payment_reopened_after_dispute",
     entityType: "estured_fee_payments",
     entityId: fee.id,
-    oldValue: { status: "pending_manual_payment", disputed: true },
+    oldValue: { status: "pending_manual_payment", disputed: true, disputed_proof_file_id: keptProofFileId },
     newValue: { status: "pending_payment_method", expires_at: newExpiresAt, reservation_id: fee.reservation_id },
     reasonText: params.reason,
     source: "admin",

@@ -301,6 +301,10 @@ export async function openFeePaymentSupportCase(
     })
     .select("id")
     .single();
+  // Índice único parcial (0108): un solo caso abierto por reserva, aunque lo haya abierto otra persona o EstuRed.
+  if (error?.code === "23505") {
+    return { ok: false, error: "Ya hay un caso abierto por el pago de esta reserva. Soporte lo está revisando y te responde por acá." };
+  }
   if (error || !supportCase) {
     console.error("[support] openFeePaymentSupportCase insert failed:", error);
     return { ok: false, error: "No pudimos enviar tu consulta. Probá de nuevo." };

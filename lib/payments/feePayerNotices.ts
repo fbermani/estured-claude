@@ -7,7 +7,7 @@ import { createNotification } from "@/lib/notifications/createNotification";
  * el admin, y no prometen disponibilidad ni garantías. Nunca lanza (`createNotification` ya traga sus errores).
  */
 
-export type FeePayerNoticeKind = "disputed" | "issue_contact" | "issue_reopen" | "reopened_after_dispute" | "reminder_12h";
+export type FeePayerNoticeKind = "disputed" | "issue_contact" | "issue_reopen" | "reopened_after_dispute" | "reminder_12h" | "method_unavailable";
 
 const COPY: Record<FeePayerNoticeKind, { title: string; body: string }> = {
   disputed: {
@@ -25,6 +25,10 @@ const COPY: Record<FeePayerNoticeKind, { title: string; body: string }> = {
   reopened_after_dispute: {
     title: "Reabrimos el pago del fee",
     body: "Para confirmar tu pago necesitamos que elijas el medio y subas el comprobante de nuevo. Tenés 48 horas. La reserva sigue sujeta a confirmación.",
+  },
+  method_unavailable: {
+    title: "Elegí de nuevo el medio de pago del fee",
+    body: "El medio que habías elegido para pagar el fee EstuRed ya no está disponible. Entrá a tu solicitud y elegí otro medio. Tu plazo no cambia. La reserva sigue sujeta a confirmación.",
   },
   reminder_12h: {
     title: "Tu plazo para pagar el fee vence pronto",

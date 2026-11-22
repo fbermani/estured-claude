@@ -9,7 +9,9 @@ import { safeFilename } from "@/lib/files/safeFilename";
 import { resolveFeePayer } from "@/lib/payments/feePayerAccess";
 import { feeStageBlocker } from "@/lib/payments/feePayerActions";
 import { isFeeIssueOpen, splitFeeSnapshot } from "@/lib/payments/feeCollection";
+import { loadOfferedFeeMethods } from "@/lib/payments/feeCollectionMethods";
 import { paymentMethodLabel } from "@/lib/payments/paymentMethods";
+import { consentVersion } from "@/lib/legal/consentVersion";
 
 /**
  * «Ya pagué» del fee de EstuRed (DR64 (c); `docs/07` §17.3). El pagador designado (estudiante o familiar con vínculo activo y
@@ -28,6 +30,7 @@ const ALLOWED_TYPES = ["application/pdf", "image/jpeg", "image/png", "image/webp
 const IVA_CONDITIONS = new Set(["consumidor_final", "responsable_inscripto", "monotributista", "exento"]);
 
 export const CHOOSE_METHOD_FIRST = "Elegí con qué medio vas a pagar antes de informar el pago.";
+export const METHOD_NO_LONGER_ENABLED = "El medio que elegiste ya no está habilitado. Elegí otro medio y volvé a informar el pago.";
 const ISSUE_OPEN = "Avisaste que no pudiste pagar. Esperá la respuesta de EstuRed antes de informar un pago.";
 
 /** Reglas de estado de «Ya pagué», antes de tocar archivos. `null` = se puede registrar. Pura. */
@@ -45,7 +48,7 @@ export function feeRegistrationBlocker(
 
 export async function registerManualFeePaymentCore(
   admin: SupabaseClient,
-  params: { actorUserId: string; applicationId: string; formData: FormData; now?: Date },
+  params: { actorUserId: string; applicationId: string; formData: FormData; now?: Date; ipAddress?: string | null; userAgent?: string | null },
 ): Promise<RegisterFeePaymentResult> {
   const now = params.now ?? new Date();
   const ctx = await resolveFeePayer(admin, params.actorUserId, params.applicationId);
@@ -55,6 +58,12 @@ export async function registerManualFeePaymentCore(
   const blocker = feeRegistrationBlocker(fee, now);
   if (blocker) return { ok: false, error: blocker };
   const chosenMethod = fee.chosen_method as string;
+
+  // El medio elegido puede haberse deshabilitado después de elegirlo: no se informa un pago a un medio que EstuRed ya no ofrece.
+  // Va ANTES de subir nada, para no dejar un archivo huérfano. Si no se pueden leer los medios, no se adivina.
+  const offered = await loadOfferedFeeMethods(admin);
+  if (!offered.ok) return { ok: false, error: "No pudimos verificar el pago. Probá de nuevo en unos minutos." };
+  if (!offered.methods.some((m) => m.key === chosenMethod)) return { ok: false, error: METHOD_NO_LONGER_ENABLED };
 
   // La etiqueta del medio sale del texto congelado al elegirlo (en «Otro» es el nombre que cargó el admin).
   const { data: snapshotRow, error: snapshotError } = await admin.from("estured_fee_payments").select("instructions_snapshot").eq("id", fee.id).maybeSingle();
@@ -86,7 +95,7 @@ export async function registerManualFeePaymentCore(
   const ivaCondition = String(params.formData.get("payer_iva_condition") ?? "consumidor_final");
   if (!IVA_CONDITIONS.has(ivaCondition)) return { ok: false, error: "Condición de IVA inválida." };
   if (params.formData.get("acknowledge_no_refund") !== "on") {
-    return { ok: false, error: "Tenés que confirmar que leíste la política de no reembolso." };
+    return { ok: false, error: "Tenés que confirmar que leíste la política del fee." };
   }
 
   const ext = extensionForMime(realType);
@@ -159,6 +168,20 @@ export async function registerManualFeePaymentCore(
         : "El pago ya no se puede registrar: cambió el pagador o el medio, el plazo venció o hay un aviso abierto. Actualizá la página.",
     };
   }
+
+  // LEG-012: la casilla del fee queda como consentimiento con versión y hash del texto. Si no se puede guardar, el pago ya quedó
+  // registrado: se loguea y se avisa al admin (la casilla se validó arriba).
+  const { error: consentError } = await admin.from("consents").insert({
+    user_id: params.actorUserId,
+    consent_type: "estured_fee_terms",
+    version: consentVersion("estured_fee_terms"),
+    ip_address: params.ipAddress ?? null,
+    user_agent: params.userAgent ?? null,
+    related_entity_type: "estured_fee_payments",
+    related_entity_id: fee.id,
+    metadata: { reported_by: ctx.role },
+  });
+  if (consentError) console.error("[fee-register] consent insert failed:", consentError.code);
 
   await createAuditLog(admin, {
     actorUserId: params.actorUserId,

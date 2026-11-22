@@ -299,6 +299,24 @@ describe("recordManualFeePayment con un cliente falso", () => {
     expect(updates[0].patch).toMatchObject({ status: "paid", admin_disputed_at: null, admin_dispute_reason: null, admin_disputed_by_user_id: null });
   });
 
+  it("el update exige el MISMO estado de disputa que se leyó: sin disputa, `admin_disputed_at is null`; con disputa, ese valor", async () => {
+    const clean = fakeAdmin(baseDb());
+    expect(await recordManualFeePayment(clean.admin, params())).toEqual({ ok: true });
+    expect(clean.updates[0].filters).toContainEqual(["is", ["admin_disputed_at", null]]);
+    const disputedAt = "2026-10-24T15:00:00Z";
+    const disputed = fakeAdmin(baseDb({ fee: { ...baseFee, admin_disputed_at: disputedAt } }));
+    expect(await recordManualFeePayment(disputed.admin, params())).toEqual({ ok: true });
+    expect(disputed.updates[0].filters).toContainEqual(["eq", ["admin_disputed_at", disputedAt]]);
+  });
+
+  it("con un medio elegido, el monto se registra en la moneda del medio; sin medio elegido no obliga", async () => {
+    const usd = fakeAdmin(baseDb({ fee: { ...baseFee, chosen_method: "transfer_usd", payment_currency: "USD", fee_amount_usd: 100 } }));
+    expect(await recordManualFeePayment(usd.admin, params({ paymentCurrency: "ARS" }))).toMatchObject({ ok: false, error: expect.stringContaining("en USD") });
+    expect(usd.updates).toHaveLength(0);
+    const legacy = fakeAdmin(baseDb({ fee: { ...baseFee, chosen_method: null, payment_currency: "USD" } }));
+    expect(await recordManualFeePayment(legacy.admin, params({ paymentCurrency: "ARS" }))).toEqual({ ok: true });
+  });
+
   it("doble confirmación: si el update no afecta filas, no audita ni confirma la reserva", async () => {
     const { admin } = fakeAdmin(baseDb({ updatedRows: 0 }));
     const result = await recordManualFeePayment(admin, params());

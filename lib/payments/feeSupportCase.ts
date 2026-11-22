@@ -14,7 +14,7 @@ export type FeeSupportCaseResult = { ok: true; supportCaseId: string; created: b
  * motivo que escribió el admin.
  *
  * Idempotente: único por reserva mientras haya uno abierto (búsqueda previa sin filtrar por quién lo abrió; un 23505 se trata como éxito
- * y devuelve el caso existente). Todavía no hay índice único parcial para este tema (pendiente: migración aparte). Nunca lanza.
+ * y devuelve el caso existente). El índice único parcial `support_cases_estured_fee_payment_open_uniq` (migración 0108) lo respalda en la base. Nunca lanza.
  */
 export async function openFeeReviewSupportCase(
   admin: SupabaseClient,

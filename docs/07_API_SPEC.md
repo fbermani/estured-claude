@@ -1665,7 +1665,7 @@ Efectos: `student_payment_issue_at = now()` y `student_payment_issue_reason`; li
 - Efectos: `admin_disputed_at`, `admin_dispute_reason` y `admin_disputed_by_user_id`; **el estado del fee y de la reserva no cambia**. Avisa al pagador con texto genérico (sin el motivo). Abre un caso de Soporte `estured_fee_payment`, único por reserva. Audita.
 - Salida: marcar pagado (§17.4, limpia la disputa) o `reopenEsturedFeeWindow` extendida (§17.9b).
 
-**§17.9b. Reabrir el plazo** (`reopenEsturedFeeWindow`, `lib/reservations/reopenEsturedFeeWindow.ts`). Hoy vale solo para fees `expired`. DR64 la extiende a fees en `pending_manual_payment` con disputa abierta: el fee vuelve a `pending_payment_method`, `expires_at = now() + 48 h`, y se limpian `student_reported_paid_at`, `manual_payment_file_id` y `admin_disputed_*`. UPDATE condicional por el estado leído. Propuesta sin implementar: máximo 2 reaperturas por fee (`docs/00` DR64 (i)).
+**§17.9b. Reabrir el plazo** (`reopenEsturedFeeWindow`, `lib/reservations/reopenEsturedFeeWindow.ts`). Hoy vale solo para fees `expired`. DR64 la extiende a fees en `pending_manual_payment` con disputa abierta: el fee vuelve a `pending_payment_method`, `expires_at = now() + 48 h`, y se limpian `student_reported_paid_at`, `manual_payment_file_id`, `admin_disputed_*`, `chosen_method` e `instructions_snapshot` (`payment_currency` vuelve a `'ARS'`): el pagador elige el medio de nuevo. El comprobante en disputa NO se borra: queda en `files` con `status = 'archived'` como evidencia del caso de Soporte y su id va en la auditoría (`disputed_proof_file_id`). UPDATE condicional por el estado leído. «Ya pagué» re-chequea que el medio elegido siga habilitado («Elegí otro medio»). Al deshabilitar o cambiar un medio del fee, los fees en `pending_payment_method` que lo tenían elegido se invalidan y el pagador recibe un aviso sin datos de cobro. El respaldo a `payment_settings` rige solo si la tabla no tiene ninguna fila `transfer_ars`. Propuesta sin implementar: máximo 2 reaperturas por fee (`docs/00` DR64 (i)).
 
 ### 17.10. Vencimiento, recordatorios y alerta del fee *(DR64 (d) y (f), propuesto)*
 
@@ -1680,9 +1680,9 @@ Efectos: `student_payment_issue_at = now()` y `student_payment_issue_reason`; li
 
 Índices: `estured_fee_payments_reported_open_idx` y `estured_fee_payments_issue_open_idx` (0105).
 
-### 17.11. Quién lee qué (RLS y columnas) *(DR64, migración 0105)*
+### 17.11. Quién lee qué (RLS y columnas) *(DR64, migraciones 0105 y 0108)*
 
-El equipo de la residencia lee `estured_fee_payments` por RLS. Por eso solo `chosen_method`, `student_reported_paid_at`, `student_payment_issue_at` y `student_payment_issue_resolved_at` tienen `grant select` a `authenticated`. `instructions_snapshot`, los dos motivos de texto libre, `admin_disputed_*` y las tres marcas `*_sent_at` solo las lee el service role. `estured_fee_collection_methods` no tiene policies ni grants.
+El equipo de la residencia lee `estured_fee_payments` por RLS. Por eso ninguna de las 12 columnas de DR64 tiene `grant select` a `authenticated` (0105 concedió `chosen_method`, `student_reported_paid_at`, `student_payment_issue_at` y `student_payment_issue_resolved_at`; la 0108 las revocó). Todas las lee solo el service role. `estured_fee_collection_methods` no tiene policies ni grants.
 
 ---
 

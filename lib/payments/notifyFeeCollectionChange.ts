@@ -4,6 +4,7 @@ import { createNotification } from "@/lib/notifications/createNotification";
 import { sendEmail } from "@/lib/email/sendEmail";
 import { formatDateTime } from "@/lib/dates/format";
 import { getAppUrl } from "@/lib/appUrl";
+import { escapeHtml } from "@/lib/team/teamCopy";
 
 /**
  * Avisa a TODOS los superadmin activos que cambiaron los medios de cobro del fee (DR64 (a); `docs/07` §17.6): notificación in-app con
@@ -41,7 +42,7 @@ export async function notifySuperadminsOfFeeCollectionChange(
           subject: "EstuRed: cambiaron los medios de cobro del fee",
           html: `
             <p>Hola,</p>
-            <p>${what} (${when}, hora de Buenos Aires).</p>
+            <p>${escapeHtml(what)} (${when}, hora de Buenos Aires).</p>
             <p>Si no lo esperabas, entrá a <a href="${appUrl}/admin/payment-settings">Datos de cobro</a> y revisalo.</p>
           `,
         }),

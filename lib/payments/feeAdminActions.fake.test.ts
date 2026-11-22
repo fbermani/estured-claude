@@ -46,6 +46,7 @@ function world(feeOver: Row = {}, extra: Partial<Record<string, Row[]>> = {}): R
         student_payment_issue_at: null,
         student_payment_issue_resolved_at: null,
         chosen_method: "transfer_ars",
+        payment_currency: "USD",
         instructions_snapshot: `Transferencia en pesos\n${SECRET_DETAILS}`,
         payer_reminder_sent_at: "2026-11-20T01:00:00Z",
         admin_reminder_sent_at: "2026-11-20T02:00:00Z",
@@ -236,7 +237,7 @@ describe("reopenEsturedFeeWindow tras «No recibí el pago»", () => {
     reopenEsturedFeeWindow(fake.client, { feePaymentId: "fee-1", actorUserId: "u-admin", actorRole: "admin", reason: "Soporte pidió otro comprobante", ...over });
   beforeEach(() => boot(world(disputed)));
 
-  it("vuelve a pending_payment_method con 48 h, limpia reporte, comprobante y disputa, y descarta el comprobante anterior", async () => {
+  it("vuelve a pending_payment_method con 48 h, limpia reporte, comprobante y disputa, conserva el comprobante como evidencia y pide elegir el medio de nuevo", async () => {
     const before = Date.now();
     expect(await reopen()).toEqual({ status: "ok" });
     expect(fee()).toMatchObject({
@@ -249,20 +250,28 @@ describe("reopenEsturedFeeWindow tras «No recibí el pago»", () => {
       payer_reminder_sent_at: null,
       admin_reminder_sent_at: null,
       admin_alert_sent_at: null,
-      chosen_method: "transfer_ars",
+      chosen_method: null,
+      instructions_snapshot: null,
+      payment_currency: "ARS",
     });
     expect(new Date(fee().expires_at as string).getTime()).toBeGreaterThanOrEqual(before + 48 * 3_600_000 - 1000);
     expect(fake.tables.reservations[0].status).toBe("pending_estured_fee");
-    expect(discarded).toEqual([{ fileId: "file-1", storagePath: "app-1/fee-proof-1.pdf" }]);
+    // El comprobante en disputa NO se borra: queda archivado en `files` y su id va a la auditoría (evidencia del caso de Soporte).
+    expect(discarded).toHaveLength(0);
+    expect(fake.tables.files).toHaveLength(1);
+    expect(fake.tables.files[0]).toMatchObject({ id: "file-1", status: "archived", storage_path: "app-1/fee-proof-1.pdf" });
     expect(audits[0]).toMatchObject({ action: "estured_fee_payment_reopened_after_dispute", reasonText: "Soporte pidió otro comprobante" });
+    expect(audits[0].oldValue).toMatchObject({ disputed_proof_file_id: "file-1" });
     expect(notices.some((n) => n.userId === "u-payer")).toBe(true);
     expect(JSON.stringify(notices)).not.toContain("Soporte pidió otro comprobante");
   });
 
-  it("no descarta un archivo que no es de ese fee", async () => {
-    boot(world(disputed, { files: [{ id: "file-1", bucket: "payment-proofs", storage_path: "x.pdf", related_entity_type: "application_requests", related_entity_id: "otro" }] }));
+  it("no toca un archivo que no es de ese fee", async () => {
+    boot(world(disputed, { files: [{ id: "file-1", bucket: "payment-proofs", storage_path: "x.pdf", related_entity_type: "application_requests", related_entity_id: "otro", status: "uploaded" }] }));
     expect(await reopen()).toEqual({ status: "ok" });
     expect(discarded).toHaveLength(0);
+    expect(fake.tables.files[0]).toMatchObject({ status: "uploaded" });
+    expect(audits[0].oldValue).toMatchObject({ disputed_proof_file_id: null });
   });
 
   it("sin disputa ni vencimiento no se puede reabrir; tampoco con la reserva ya confirmada", async () => {

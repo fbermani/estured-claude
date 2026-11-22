@@ -59,8 +59,10 @@ export type OfferedFeeMethod = {
 export type OfferedFeeMethodsResult = { ok: true; methods: OfferedFeeMethod[]; usingFallback: boolean } | { ok: false };
 
 /**
- * Medios habilitados HOY. Si no hay ninguno, el respaldo: la cuenta de `payment_settings` como «Transferencia en pesos» (ARS), que es
- * como se cobra el fee antes de DR64. Sin medios y sin cuenta devuelve lista vacía (la pantalla dirige a Soporte).
+ * Medios habilitados HOY. Respaldo: la cuenta de `payment_settings` como «Transferencia en pesos» (ARS), que es como se cobra el fee antes
+ * de DR64, SOLO si la tabla no tiene ninguna fila `transfer_ars` y no hay ningún medio habilitado. Si el superadmin cargó `transfer_ars`
+ * (aunque la haya deshabilitado), el respaldo no la resucita: sin medios habilitados el cobro se frena y la pantalla dirige a Soporte.
+ * Sin medios y sin cuenta devuelve lista vacía.
  */
 export async function loadOfferedFeeMethods(admin: SupabaseClient): Promise<OfferedFeeMethodsResult> {
   const loaded = await loadFeeCollectionMethods(admin);
@@ -79,6 +81,7 @@ export async function loadOfferedFeeMethods(admin: SupabaseClient): Promise<Offe
       })),
     };
   }
+  if (loaded.rows.some((r) => r.method_key === FEE_FALLBACK_METHOD_KEY)) return { ok: true, usingFallback: false, methods: [] };
   const settings = await loadPaymentSettings(admin);
   if (!settings) return { ok: true, usingFallback: true, methods: [] };
   return {

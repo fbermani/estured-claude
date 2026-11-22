@@ -1251,12 +1251,12 @@ Reglas:
 | `revocation_resolved_by` | uuid null | Admin que resolvió (`users.id`). Solo servidor *(0049)* |
 | `revocation_internal_reason` | text null | Motivo interno obligatorio (10–1000). **Nunca visible al estudiante.** Solo servidor *(0049)* |
 | `revocation_student_message` | text null | Mensaje opcional para el estudiante (≤1000). Solo servidor; la pantalla del estudiante lo lee con el service role tras verificar que la reserva es suya *(0049)* |
-| `chosen_method` | text null | *(DR64, 0105)* Clave del catálogo elegida por el pagador. Se puede cambiar en `pending_payment_method`. Con grant a `authenticated` |
+| `chosen_method` | text null | *(DR64, 0105)* Clave del catálogo elegida por el pagador. Se puede cambiar en `pending_payment_method`. **Sin grant** desde 0108: solo service role |
 | `instructions_snapshot` | text null | *(DR64, 0105)* Datos de cobro de EstuRed congelados al elegir el medio (máx. 2000). **Sin grant**: solo service role (pagador designado y admin) |
-| `student_reported_paid_at` | timestamptz null | *(DR64, 0105)* Momento de «Ya pagué». Un fee en `pending_manual_payment` no vence. Con grant |
-| `student_payment_issue_at` | timestamptz null | *(DR64 (e), 0105)* Momento de «No pude realizar el pago». Con `_resolved_at` nulo, detiene el vencimiento. Con grant |
+| `student_reported_paid_at` | timestamptz null | *(DR64, 0105)* Momento de «Ya pagué». Un fee en `pending_manual_payment` no vence. **Sin grant** desde 0108 |
+| `student_payment_issue_at` | timestamptz null | *(DR64 (e), 0105)* Momento de «No pude realizar el pago». Con `_resolved_at` nulo, detiene el vencimiento. **Sin grant** desde 0108 |
 | `student_payment_issue_reason` | text null | *(DR64, 0105)* Motivo opcional, máx. 200. Texto libre: **sin grant** |
-| `student_payment_issue_resolved_at` | timestamptz null | *(DR64, 0105)* Cuando el admin respondió. Exige `student_payment_issue_at`. Con grant |
+| `student_payment_issue_resolved_at` | timestamptz null | *(DR64, 0105)* Cuando el admin respondió. Exige `student_payment_issue_at`. **Sin grant** desde 0108 |
 | `admin_disputed_at` | timestamptz null | *(DR64 (d), 0105)* «No recibí el pago» del admin. **No es un estado**: el fee sigue en `pending_manual_payment`. Sin grant |
 | `admin_dispute_reason` | text null | *(DR64, 0105)* Motivo del admin, de 10 a 500. Sin grant |
 | `admin_disputed_by_user_id` | uuid null | *(DR64, 0105)* Admin que registró la disputa. Los tres campos `admin_disputed_*` van juntos o ninguno. Sin grant |
@@ -1278,7 +1278,7 @@ Reglas:
 
 Reglas:
 - constraint CHECK: **exactamente uno** de `reservation_id` o `renewal_offer_id` debe ser no nulo;
-- **DR64 (0105):** un fee en `pending_manual_payment` no vence (el job lo excluye). `estured_fee_status` no suma valores: «No recibí el pago» es `admin_disputed_at`. El equipo de la residencia lee esta tabla por RLS: solo 4 de las 12 columnas nuevas llevan `grant select` a `authenticated` (`chosen_method`, `student_reported_paid_at`, `student_payment_issue_at`, `student_payment_issue_resolved_at`). Toda columna nueva futura necesita su propio `grant select (col)`.
+- **DR64 (0105):** un fee en `pending_manual_payment` no vence (el job lo excluye). `estured_fee_status` no suma valores: «No recibí el pago» es `admin_disputed_at`. El equipo de la residencia lee esta tabla por RLS: ninguna de las 12 columnas nuevas lleva `grant select` a `authenticated` (0105 concedió 4; la 0108 las revocó porque ninguna pantalla las lee con sesión de usuario y revelan el estado interno del cobro). Toda columna nueva futura necesita su propio `grant select (col)` solo si una pantalla con sesión de usuario la lee. Un solo caso de Soporte `estured_fee_payment` abierto por reserva (índice único parcial `support_cases_estured_fee_payment_open_uniq`, 0108). Al reabrir el pago se limpian `chosen_method` e `instructions_snapshot` y `payment_currency` vuelve a `'ARS'` (NOT NULL): el pagador elige de nuevo.
 - fee = 5% del `snapshot_final` (no del original si hubo ajuste); el `snapshot_final` hereda la cotización del original;
 - base: tarifa actual × duración + matrícula/cargos no reembolsables; excluye depósito;
 - redondeo al múltiplo de 500 ARS más cercano; en empate exacto, hacia arriba;

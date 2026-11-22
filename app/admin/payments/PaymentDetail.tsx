@@ -221,6 +221,8 @@ export function PaymentDetail({
         isSuperadmin={isSuperadmin}
         // DR64 (d): el plazo solo bloquea en `pending_payment_method`; un pago ya informado no vence. Con un aviso abierto la salida es «Reabrir el pago» (arriba).
         expired={Boolean(countdown?.expired) && feePayment.status === "pending_payment_method" && !issueOpen}
+        // Con medio elegido, el pago se valida en la moneda que eligió el pagador (el servidor lo exige).
+        initialCurrency={review.currency === "USD" ? "USD" : "ARS"}
         expected={{
           feeAmountArs: calc.feeArs,
           feeAmountUsd: feePayment.fee_amount_usd === null ? null : Number(feePayment.fee_amount_usd),
@@ -242,9 +244,11 @@ function ValidationCard({
   receiptNotInReview,
   isSuperadmin,
   expired,
+  initialCurrency,
   expected,
 }: {
   feePaymentId: string;
+  initialCurrency: "ARS" | "USD";
   hasReceipt: boolean;
   /** `manual_payment_file_id` que se está viendo: se reenvía oculto para que el servidor confirme que no cambió. */
   receiptFileId: string | null;
@@ -258,7 +262,7 @@ function ValidationCard({
   const [overrideOpen, setOverrideOpen] = useState(false);
   const [step, setStep] = useState<"edit" | "confirm">("edit");
   const [amount, setAmount] = useState("");
-  const [currency, setCurrency] = useState("ARS");
+  const [currency, setCurrency] = useState<string>(initialCurrency);
   const [reference, setReference] = useState("");
   const [reason, setReason] = useState("");
   const [verified, setVerified] = useState(false);

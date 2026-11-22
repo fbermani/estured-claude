@@ -23,7 +23,11 @@
       "student_payment_issue_reason",
       "admin_dispute_reason",
       "admin_disputed_at",
-      "admin_alert_sent_at"
+      "admin_alert_sent_at",
+      "chosen_method",
+      "student_reported_paid_at",
+      "student_payment_issue_at",
+      "student_payment_issue_resolved_at"
     ]
   },
   "privateTables": [

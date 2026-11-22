@@ -71,7 +71,7 @@ export async function recordManualFeePayment(
   const { data: feePayment, error: feeError } = await admin
     .from("estured_fee_payments")
     .select(
-      "id, status, expires_at, manual_payment_file_id, fee_amount_ars, fee_amount_usd, fee_base_usd, fee_base_ars, reservation_id, renewal_offer_id, admin_disputed_at",
+      "id, status, expires_at, manual_payment_file_id, fee_amount_ars, fee_amount_usd, fee_base_usd, fee_base_ars, reservation_id, renewal_offer_id, admin_disputed_at, chosen_method, payment_currency",
     )
     .eq("id", params.feePaymentId)
     .maybeSingle();
@@ -82,6 +82,15 @@ export async function recordManualFeePayment(
   if (!feePayment) return { ok: false, error: "No encontramos ese pago." };
   if (feePayment.renewal_offer_id || !feePayment.reservation_id) {
     return { ok: false, error: "Este pago no corresponde a una reserva inicial." };
+  }
+
+  // DR64: con un medio elegido, el monto se compara en la moneda de ESE medio (la fija `payment_currency` al elegirlo). Sin medio elegido
+  // (fee anterior a DR64 o validación directa) `payment_currency` es solo el valor por defecto y no obliga.
+  if (feePayment.chosen_method && feePayment.payment_currency && feePayment.payment_currency !== params.paymentCurrency) {
+    return {
+      ok: false,
+      error: `El pagador eligió un medio en ${feePayment.payment_currency}. Registrá el monto recibido en esa moneda para compararlo con el fee.`,
+    };
   }
 
   const { data: reservation, error: reservationError } = await admin
@@ -145,13 +154,16 @@ export async function recordManualFeePayment(
   // Update condicional que coincide con lo evaluado: mismo estado del fee que se leyó, plazo vigente (o sin plazo) y el mismo
   // comprobante (por id) o ninguno. Solo gana quien encuentra el pago exactamente así; la segunda confirmación no pisa nada.
   // DR64 (d): el plazo se exige solo en `pending_payment_method`; en `pending_manual_payment` ya se informó a tiempo y no se revisa.
-  // Si había «No recibí el pago» abierto, validar la limpia (los tres campos van juntos por el CHECK de 0105).
+  // Si había «No recibí el pago» abierto, validar la limpia (los tres campos van juntos por el CHECK de 0105). Validar DESPUÉS de una
+  // disputa sigue permitido (DR8 no cambia: el admin puede encontrar el pago más tarde). Lo que se evita es la carrera inversa: el update
+  // exige el MISMO `admin_disputed_at` que se leyó (nulo o ese valor), así una disputa que entra mientras se valida no queda pisada en silencio.
   const hadDispute = Boolean(feePayment.admin_disputed_at);
   const disputeClear = hadDispute ? { admin_disputed_at: null, admin_dispute_reason: null, admin_disputed_by_user_id: null } : {};
   const conditionalUpdate = (patch: Record<string, unknown>) => {
     let query = admin.from("estured_fee_payments").update({ ...patch, ...disputeClear }).eq("id", params.feePaymentId).eq("status", facts.feeStatus);
     if (facts.feeStatus === "pending_payment_method") query = query.or(`expires_at.is.null,expires_at.gt.${now.toISOString()}`);
     query = plan.hadReceipt ? query.eq("manual_payment_file_id", receiptFileId as string) : query.is("manual_payment_file_id", null);
+    query = hadDispute ? query.eq("admin_disputed_at", feePayment.admin_disputed_at as string) : query.is("admin_disputed_at", null);
     return query.select("id");
   };
 

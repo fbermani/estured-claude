@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { loadPaymentSettings } from "@/lib/payments/paymentSettings";
 import { loadFeeCollectionMethods } from "@/lib/payments/feeCollectionMethods";
+import { invalidateFeeMethodChoice } from "@/lib/payments/invalidateFeeMethodChoice";
 import { notifySuperadminsOfFeeCollectionChange } from "@/lib/payments/notifyFeeCollectionChange";
 import {
   FEE_FALLBACK_METHOD_KEY,
@@ -120,6 +121,12 @@ export async function saveFeeCollectionMethodCore(admin: SupabaseClient, params:
     rowId = data.id as string;
   }
 
+  // Un medio deshabilitado o con datos, moneda o nombre cambiados ya no es el que vio quien lo eligió: ese pagador vuelve a elegir.
+  const invalidatesChoice =
+    Boolean(existing) &&
+    (!next.is_enabled || details.trim() !== (existing?.details ?? "").trim() || currency !== existing?.currency || (label ?? "") !== (existing?.method_label ?? ""));
+  const invalidated = invalidatesChoice ? await invalidateFeeMethodChoice(admin, key) : 0;
+
   await createAuditLog(admin, {
     actorUserId: params.actorUserId,
     actorRole: "superadmin",
@@ -127,7 +134,7 @@ export async function saveFeeCollectionMethodCore(admin: SupabaseClient, params:
     entityType: "estured_fee_collection_methods",
     entityId: rowId,
     oldValue: before ? feeMethodAuditView(before) : null,
-    newValue: feeMethodAuditView(next),
+    newValue: invalidated !== 0 ? { ...feeMethodAuditView(next), invalidated_fee_choices: invalidated } : feeMethodAuditView(next),
     source: "admin",
   });
   await notifySuperadminsOfFeeCollectionChange(admin, { entityId: rowId, changes });

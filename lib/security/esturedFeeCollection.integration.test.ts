@@ -5,9 +5,9 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
  * DR64 (migración 0105): cobro del fee EstuRed con medios del catálogo.
  * - `estured_fee_collection_methods` (datos de cobro de EstuRed) es solo service role: RLS sin policies y sin grants. Un JWT de usuario
  *   autenticado y la anon key reciben «permission denied» (42501) al leerla o escribirla.
- * - `estured_fee_payments`: el equipo de la residencia lee la tabla por RLS, así que solo 4 columnas nuevas se conceden
- *   (chosen_method, student_reported_paid_at, student_payment_issue_at, student_payment_issue_resolved_at). Las otras 8 (datos de cobro
- *   congelados, texto libre, marcas del job) dan 42501 con la API y las lee solo el service role.
+ * - `estured_fee_payments`: el equipo de la residencia lee la tabla por RLS, así que ninguna de las 12 columnas nuevas se concede (0105 +
+ *   0108): el medio elegido, las marcas de «Ya pagué» / «No pude realizar el pago», los datos de cobro congelados, el texto libre y las
+ *   marcas del job dan 42501 con la API y las lee solo el service role.
  * Integración contra estured-dev: crea un usuario de auth descartable con contraseña conocida y lo borra al final.
  * Incluye CONTROL POSITIVO: sin él, una sesión nula o una clave mal puesta también darían error y el test pasaría en falso.
  */
@@ -16,8 +16,13 @@ const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const service = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const hasCreds = Boolean(url && anon && service);
 
-const GRANTED = ["chosen_method", "student_reported_paid_at", "student_payment_issue_at", "student_payment_issue_resolved_at"];
+/** Control positivo: columnas ya existentes que siguen concedidas. */
+const GRANTED = ["status", "manual_payment_file_id"];
 const PRIVATE = [
+  "chosen_method",
+  "student_reported_paid_at",
+  "student_payment_issue_at",
+  "student_payment_issue_resolved_at",
   "instructions_snapshot",
   "student_payment_issue_reason",
   "admin_dispute_reason",
@@ -56,9 +61,7 @@ describe.skipIf(!hasCreds)("cobro del fee EstuRed: columnas y tabla sin acceso p
   it("control positivo: la sesión existe y lee columnas concedidas de estured_fee_payments (sin error)", async () => {
     const { data: who } = await userClient.auth.getUser();
     expect(who.user?.id).toBe(userId);
-    const base = await userClient.from("estured_fee_payments").select("id, status, manual_payment_file_id").limit(1);
-    expect(base.error).toBeNull();
-    const granted = await userClient.from("estured_fee_payments").select(["id", "status", ...GRANTED].join(", ")).limit(1);
+    const granted = await userClient.from("estured_fee_payments").select(["id", ...GRANTED].join(", ")).limit(1);
     expect(granted.error).toBeNull();
   });
 
@@ -78,7 +81,7 @@ describe.skipIf(!hasCreds)("cobro del fee EstuRed: columnas y tabla sin acceso p
     expect(error?.code).toBe("42501");
   });
 
-  it("el service role sí lee las 8 columnas privadas y las 4 concedidas (es el único camino a las privadas)", async () => {
+  it("el service role sí lee las 12 columnas privadas y las concedidas (es el único camino a las privadas)", async () => {
     const { error } = await admin.from("estured_fee_payments").select([...PRIVATE, ...GRANTED].join(", ")).limit(1);
     expect(error).toBeNull();
   });

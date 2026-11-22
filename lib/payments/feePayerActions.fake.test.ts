@@ -157,6 +157,13 @@ describe("elegir el medio del fee", () => {
     expect(other.ok).toBe(false);
   });
 
+  it("con una fila transfer_ars en la tabla, deshabilitada, el respaldo NO la resucita: el cobro se frena", async () => {
+    boot(world({ methods: [{ id: "m1", method_key: "transfer_ars", method_label: null, details: CBU_ARS, currency: "ARS", is_enabled: false, updated_by_user_id: null, updated_at: "2026-11-20T00:00:00Z" }], settings: [{ id: "s1", account_holder: "EstuRed SAS", alias: "estured.demo", cbu: "0".repeat(22), bank_name: "Banco X", holder_cuit: null, instructions: null, updated_by_user_id: null, updated_at: "2026-11-20T00:00:00Z" }] }));
+    const res = await chooseFeePaymentMethodCore(fake.client, { actorUserId: "u-student", applicationId: "app-1", methodKey: "transfer_ars", now: NOW });
+    expect(res).toMatchObject({ ok: false, error: expect.stringContaining("no está habilitado") });
+    expect(fee().chosen_method).toBeNull();
+  });
+
   it("no elige con el plazo vencido, con el pago ya informado ni con un aviso abierto", async () => {
     boot(world({ fee: { expires_at: "2020-01-01T00:00:00Z" } }));
     expect(await chooseFeePaymentMethodCore(fake.client, { actorUserId: "u-student", applicationId: "app-1", methodKey: "transfer_ars", now: NOW })).toMatchObject({ ok: false, error: expect.stringContaining("venció") });
@@ -284,6 +291,16 @@ describe("«Ya pagué» (comprobante obligatorio)", () => {
     expect(fee().status).toBe("pending_payment_method");
     expect(fee().student_reported_paid_at).toBeNull();
     expect(adminNotices).toHaveLength(0);
+  });
+
+  it("si el medio elegido se deshabilitó después, pide elegir otro y no sube nada", async () => {
+    boot(world({ fee: chosen, methods: [{ id: "m1", method_key: "transfer_ars", method_label: null, details: CBU_ARS, currency: "ARS", is_enabled: false, updated_by_user_id: null, updated_at: "2026-11-20T00:00:00Z" }] }));
+    const { uploaded } = withStorage();
+    const res = await registerManualFeePaymentCore(fake.client, { actorUserId: "u-student", applicationId: "app-1", formData: registerForm(), now: NOW });
+    expect(res).toMatchObject({ ok: false, error: expect.stringContaining("Elegí otro medio") });
+    expect(uploaded).toHaveLength(0);
+    expect(fee().status).toBe("pending_payment_method");
+    expect(writes()).toHaveLength(0);
   });
 
   it("exige medio elegido y rechaza con un aviso «No pude realizar el pago» abierto", async () => {
