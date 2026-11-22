@@ -148,6 +148,11 @@ export function Footer({ hideSignup = false, staffView = false }: { hideSignup?:
                 </Link>
               </li>
               <li>
+                <Link href="/terms/residencias" className={legalLink}>
+                  Condiciones para residencias
+                </Link>
+              </li>
+              <li>
                 <Link href={OPERATOR_SECTION_HREF} className={legalLink}>
                   Datos del titular
                 </Link>

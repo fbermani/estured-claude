@@ -17,13 +17,13 @@ import { activateResidentStay } from "@/lib/residents/activateResidentStay";
 import { otpRequiredFor, resolveInviteByToken } from "@/lib/residents/inviteVerification";
 import { submitLinkRequest, submitMissingResidence } from "@/lib/residents/linkRequestsStudent";
 import { INVITE_TOO_MANY_ATTEMPTS, inviteAttemptAllowed } from "@/lib/residents/inviteThrottle";
+import { consentVersion } from "@/lib/legal/consentVersion";
 
 export type RegisterState = RegisterFormState;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 /** Versión de los textos legales aceptados. Borrador: docs/10 y docs/21
  * requieren revisión legal profesional antes del lanzamiento comercial. */
-const CONSENT_VERSION = "v0.1-borrador";
 
 function ageFrom(birthDate: Date, today = new Date()): number {
   let age = today.getFullYear() - birthDate.getFullYear();
@@ -206,18 +206,18 @@ export async function registerStudent(
 
     const consentBase = {
       user_id: userId,
-      version: CONSENT_VERSION,
       ip_address: ip,
       user_agent: userAgent,
     };
     const { error: consentError } = await admin.from("consents").insert([
-      { ...consentBase, consent_type: "terms", metadata: {} },
-      { ...consentBase, consent_type: "privacy", metadata: {} },
+      { ...consentBase, consent_type: "terms", version: consentVersion("terms"), metadata: {} },
+      { ...consentBase, consent_type: "privacy", version: consentVersion("privacy"), metadata: {} },
       ...(communityOptIn
         ? [
             {
               ...consentBase,
               consent_type: "student_visibility",
+              version: consentVersion("student_visibility"),
               metadata: { is_individual_profile_visible: true, source: "registration" },
             },
           ]

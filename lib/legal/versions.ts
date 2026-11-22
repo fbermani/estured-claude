@@ -6,7 +6,19 @@
 export const LEGAL_DOCUMENTS = {
   terms: { version: "2026-11-22", updatedLabel: "22 de noviembre de 2026", title: "Términos y condiciones" },
   privacy: { version: "2026-11-22", updatedLabel: "22 de noviembre de 2026", title: "Política de privacidad" },
+  residence_terms: { version: "2026-11-22", updatedLabel: "22 de noviembre de 2026", title: "Condiciones para residencias" },
+  /** Casilla del fee (`lib/legal/clauses.ts`). */
+  estured_fee_terms: { version: "2026-11-22", updatedLabel: "22 de noviembre de 2026", title: "Política del fee" },
+  /** Casilla de responsabilidad de la residencia (`lib/legal/clauses.ts`). */
+  residence_responsibility: { version: "2026-11-22", updatedLabel: "22 de noviembre de 2026", title: "Responsabilidad de la residencia" },
 } as const;
+
+/**
+ * Versión de los consentimientos que no tienen un texto propio en este módulo (casillas que viven en su formulario, como
+ * `student_visibility` o `residence_payment_received`). Reemplaza al viejo «v0.1-borrador». Pendiente: mover esos textos acá para
+ * versionarlos con hash.
+ */
+export const DATED_CONSENT_VERSION = "2026-11-22";
 
 export type LegalDocumentKey = keyof typeof LEGAL_DOCUMENTS;
 

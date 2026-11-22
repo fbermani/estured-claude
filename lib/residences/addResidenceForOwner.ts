@@ -5,10 +5,10 @@ import { PROPERTY_TYPE_OPTIONS, BARRIO_OPTIONS } from "@/lib/residences/options"
 import { saveResidencePrivateDetails } from "@/lib/residences/privateDetails";
 import { geocodeAddress, type Geocoder } from "@/lib/geocoding/nominatim";
 import { geocodeResidenceByAdmin } from "@/lib/residences/geocodeResidence";
+import { consentVersion } from "@/lib/legal/consentVersion";
 
 /** Docs/06 §8.2 / docs/05: un owner gestiona hasta 10 residencias (también lo impone el trigger de la migración 0003). */
 export const MAX_RESIDENCES_PER_OWNER = 10;
-const CONSENT_VERSION = "v0.1-borrador";
 const PROPERTY_TYPES = new Set<string>(PROPERTY_TYPE_OPTIONS.map((o) => o.value));
 const BARRIOS = new Set<string>(BARRIO_OPTIONS);
 
@@ -52,6 +52,8 @@ export async function addResidenceForOwner(
     zone: string;
     addressLine: string;
     acceptResponsibility: boolean;
+    /** LEG-013: casilla propia de las Condiciones para residencias (`/terms/residencias`). */
+    acceptResidenceTerms: boolean;
     slugPrefix?: string;
     ipAddress?: string | null;
     userAgent?: string | null;
@@ -69,6 +71,7 @@ export async function addResidenceForOwner(
   if (!addressLine || addressLine.length > 200) return { ok: false, error: "Contanos la dirección completa." };
   if (!params.acceptResponsibility)
     return { ok: false, error: "Necesitamos que confirmes que sos responsable de la información que cargues." };
+  if (!params.acceptResidenceTerms) return { ok: false, error: "Para seguir, aceptá las Condiciones para residencias." };
 
   // Solo un owner activo puede sumar residencias (el staff no).
   const { data: owned, error: ownedError } = await admin
@@ -159,16 +162,19 @@ export async function addResidenceForOwner(
       .insert({ residence_id: residenceId, status: "not_started" });
     if (verificationError) throw verificationError;
 
-    const { error: consentError } = await admin.from("consents").insert({
+    const consentBase = {
       user_id: params.ownerUserId,
-      consent_type: "residence_responsibility",
-      version: CONSENT_VERSION,
       ip_address: params.ipAddress ?? null,
       user_agent: params.userAgent ?? null,
       related_entity_type: "residences",
       related_entity_id: residenceId,
       metadata: {},
-    });
+    };
+    // LEG-013: cada alta acepta las Condiciones para residencias con casilla propia, además de la responsabilidad.
+    const { error: consentError } = await admin.from("consents").insert([
+      { ...consentBase, consent_type: "residence_terms", version: consentVersion("residence_terms") },
+      { ...consentBase, consent_type: "residence_responsibility", version: consentVersion("residence_responsibility") },
+    ]);
     if (consentError) throw consentError;
 
     await createAuditLog(admin, {
@@ -197,7 +203,7 @@ export async function addResidenceForOwner(
         .from("consents")
         .delete()
         .eq("related_entity_id", residenceId)
-        .eq("consent_type", "residence_responsibility");
+        .in("consent_type", ["residence_responsibility", "residence_terms"]);
       logFailure("consents", consentsError);
       const { error: rolesError } = await admin
         .from("user_roles")

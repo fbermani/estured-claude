@@ -9,6 +9,7 @@ import {
   registerManualFeePayment,
   type RegisterFeePaymentState,
 } from "@/app/students/applications/[id]/fee/actions";
+import { FEE_ACKNOWLEDGEMENT_LABEL } from "@/lib/legal/clauses";
 
 const initialState: RegisterFeePaymentState = { status: "idle" };
 
@@ -93,7 +94,7 @@ export function FeePaymentForm({
             onChange={(e) => setConfirmed(e.target.checked)}
             className="mt-0.5 h-4 w-4 accent-forest"
           />
-          Entiendo que el fee EstuRed no se reembolsa automáticamente ante una cancelación.
+          {FEE_ACKNOWLEDGEMENT_LABEL}
         </label>
 
         <Button type="submit" disabled={!confirmed || isPending}>

@@ -6,6 +6,8 @@
 **Estado:** Borrador operativo actualizado — requiere revisión legal profesional antes de uso comercial
 **Última actualización:** 2026-06-27
 
+> **Ola 0 legal (2026-11-22, LEG-013, DR65):** la versión publicada y aceptable de este acuerdo son las «Condiciones para residencias» en `/terms/residencias` (texto en `lib/legal/residenceTermsText.ts`, base TP-04). Se aceptan con casilla propia al crear la cuenta por invitación (junto con la Política de privacidad) y en cada alta directa de una residencia; se guardan como consentimiento `residence_terms` con versión y hash (`lib/legal/consentVersion.ts`). La cláusula de cobro sigue DR65 (c): EstuRed no revisa ni aprueba los datos de cobro; cada residencia responde por los suyos. Esta plantilla queda como referencia extensa; si cambia una regla, actualizar primero el texto publicado.
+
 ## 1. Estado del documento
 
 Este documento es un borrador operativo para regular la participación de residencias estudiantiles dentro de EstuRed durante el MVP, beta o primera etapa comercial.

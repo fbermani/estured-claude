@@ -33,6 +33,7 @@ export async function addResidence(_prev: AddResidenceState, formData: FormData)
     zone: String(formData.get("zone") ?? "").trim(),
     addressLine: String(formData.get("address_line") ?? ""),
     acceptResponsibility: formData.get("accept_responsibility") === "on",
+    acceptResidenceTerms: formData.get("accept_residence_terms") === "on",
     ipAddress: clientIpFromHeaders(headerStore),
     userAgent: headerStore.get("user-agent"),
   });

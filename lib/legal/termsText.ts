@@ -340,7 +340,7 @@ export const TERMS_SECTIONS: TermsSection[] = [
   {
     title: "29. Residencias",
     paras: [
-      "Las condiciones para residencias (alta, verificación, publicación y relación con EstuRed) son un documento propio, distinto de estos términos.",
+      "Las condiciones para residencias (alta, verificación, publicación y relación con EstuRed) son un documento propio, distinto de estos términos, publicado en /terms/residencias.",
     ],
   },
   {

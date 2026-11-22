@@ -52,6 +52,7 @@ describe("addResidenceForOwner: contacto del responsable (unitario)", () => {
       zone: "Palermo",
       addressLine: "Calle 1",
       acceptResponsibility: true,
+    acceptResidenceTerms: true,
     });
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error).toContain("Completá el contacto");
@@ -92,6 +93,7 @@ describe("addResidenceForOwner: contacto del responsable (unitario)", () => {
       zone: "Palermo",
       addressLine: "Calle 1",
       acceptResponsibility: true,
+    acceptResidenceTerms: true,
     });
     expect(result.ok).toBe(false);
     const logged = spy.mock.calls.map((c) => String(c[0]) + String(c[1] ?? "")).join("\n");
@@ -116,6 +118,7 @@ describe.skipIf(!hasCreds)("addResidenceForOwner (integración)", () => {
     zone: "Palermo",
     addressLine: "Calle Falsa 123",
     acceptResponsibility: true,
+    acceptResidenceTerms: true,
     slugPrefix: "residencia-test-",
     ...overrides,
   });
@@ -173,8 +176,10 @@ describe.skipIf(!hasCreds)("addResidenceForOwner (integración)", () => {
     const { data: verification } = await admin.from("residence_verifications").select("status").eq("residence_id", id).single();
     expect(verification!.status).toBe("not_started");
 
-    const { data: consents } = await admin.from("consents").select("consent_type").eq("related_entity_id", id);
-    expect((consents ?? []).map((c) => c.consent_type)).toEqual(["residence_responsibility"]);
+    const { data: consents } = await admin.from("consents").select("consent_type, version").eq("related_entity_id", id);
+    expect((consents ?? []).map((c) => c.consent_type).sort()).toEqual(["residence_responsibility", "residence_terms"]);
+    // LEG-012: versión con fecha y hash, nunca el viejo «v0.1-borrador».
+    for (const c of consents ?? []) expect(c.version).toMatch(/^\d{4}-\d{2}-\d{2}\+sha256:[0-9a-f]{16}$/);
 
     const { data: audit } = await admin.from("audit_logs").select("action, actor_user_id").eq("entity_type", "residences").eq("entity_id", id);
     expect(audit).toEqual([{ action: "residence_registered", actor_user_id: ownerId }]);
@@ -193,6 +198,7 @@ describe.skipIf(!hasCreds)("addResidenceForOwner (integración)", () => {
       [{ zone: "Marte" }, "barrio"],
       [{ addressLine: "" }, "dirección"],
       [{ acceptResponsibility: false }, "responsable"],
+      [{ acceptResidenceTerms: false }, "condiciones para residencias"],
     ];
     for (const [override, fragment] of cases) {
       const result = await addResidenceForOwner(admin, base(override));

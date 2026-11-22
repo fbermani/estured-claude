@@ -12,11 +12,11 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { createAuditLog } from "@/lib/audit";
 import { formError, type RegisterFormState } from "@/app/(public)/register/formState";
+import { consentVersion } from "@/lib/legal/consentVersion";
 
 export type RegisterFamilyState = RegisterFormState;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const CONSENT_VERSION = "v0.1-borrador";
 const RELATIONSHIPS = new Set(["padre", "madre", "tutor", "familiar"]);
 
 /**
@@ -166,13 +166,12 @@ export async function registerFamily(
 
     const consentBase = {
       user_id: userId,
-      version: CONSENT_VERSION,
       ip_address: ip,
       user_agent: userAgent,
     };
     const { error: consentError } = await admin.from("consents").insert([
-      { ...consentBase, consent_type: "terms", metadata: {} },
-      { ...consentBase, consent_type: "privacy", metadata: {} },
+      { ...consentBase, consent_type: "terms", version: consentVersion("terms"), metadata: {} },
+      { ...consentBase, consent_type: "privacy", version: consentVersion("privacy"), metadata: {} },
     ]);
     if (consentError) throw consentError;
 

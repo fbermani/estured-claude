@@ -10,12 +10,12 @@ import { assertRegulationAccepted } from "@/lib/regulations/gate";
 import { promoteNextQueuedApplication } from "@/lib/applications/roomTypeQueue";
 import { extensionForMime, resolveDocumentType, toTypedBlob } from "@/lib/files/sniffFile";
 import { safeFilename } from "@/lib/files/safeFilename";
+import { consentVersion } from "@/lib/legal/consentVersion";
 
 export type RecordResidencePaymentReceivedResult =
   | { ok: true; reservationId: string; residenceId: string }
   | { ok: false; error: string };
 
-const CONSENT_VERSION = "v0.1-borrador";
 const MAX_RECEIPT_BYTES = 10 * 1024 * 1024;
 const ALLOWED_RECEIPT_TYPES = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
 
@@ -169,7 +169,7 @@ export async function recordResidencePaymentReceived(
       .insert({
         user_id: params.actorUserId,
         consent_type: "residence_payment_received",
-        version: CONSENT_VERSION,
+        version: consentVersion("residence_payment_received"),
         related_entity_type: "external_residence_payments",
         related_entity_id: payment.id,
       })

@@ -10,10 +10,10 @@ import { getSupabaseServer } from "@/lib/supabase/server";
 import { createRateLimiter, clientKeyFromHeaders, clientIpFromHeaders } from "@/lib/receipts/verifyRateLimit";
 import { acceptTeamInvitation, peekTeamInvitation } from "@/lib/team/teamInvitations";
 import { INVALID_INVITATION_MESSAGE } from "@/lib/team/teamRules";
+import { consentVersion } from "@/lib/legal/consentVersion";
 
 export type AcceptInvitationState = { status: "idle" | "error"; message?: string };
 
-const CONSENT_VERSION = "v0.1-borrador";
 
 /**
  * Frenos del formulario de aceptación (DR10): en memoria y por instancia (best-effort en serverless, igual que `verifyRateLimit` y
@@ -126,15 +126,14 @@ export async function acceptInvitationWithPassword(
       if (roleError) throw roleError;
       const consentBase = {
         user_id: userId,
-        version: CONSENT_VERSION,
         ip_address: meta.ipAddress,
         user_agent: meta.userAgent,
         related_entity_type: "residences",
         related_entity_id: invitation.residenceId,
       };
       const { error: consentError } = await admin.from("consents").insert([
-        { ...consentBase, consent_type: "terms", metadata: {} },
-        { ...consentBase, consent_type: "privacy", metadata: {} },
+        { ...consentBase, consent_type: "terms", version: consentVersion("terms"), metadata: {} },
+        { ...consentBase, consent_type: "privacy", version: consentVersion("privacy"), metadata: {} },
       ]);
       if (consentError) throw consentError;
     } catch (error) {

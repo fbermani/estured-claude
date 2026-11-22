@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Input, Select } from "@/components/ui/Input";
 import { PROPERTY_TYPE_OPTIONS, BARRIO_OPTIONS } from "@/lib/residences/options";
 import { addResidence, type AddResidenceState } from "@/app/residence/settings/new/actions";
+import { RESIDENCE_RESPONSIBILITY_LABEL } from "@/lib/legal/clauses";
 
 const initialState: AddResidenceState = { status: "idle" };
 
@@ -55,13 +56,22 @@ export function AddResidenceForm() {
           required
         />
 
-        <label className="flex items-start gap-3 rounded-field bg-sand-100 p-4 text-sm text-ink">
-          <input type="checkbox" name="accept_responsibility" required className="mt-0.5 h-4 w-4 accent-forest" />
-          <span>
-            Entiendo que esta residencia solo se publica tras verificación presencial del equipo de EstuRed, y que soy
-            responsable de la veracidad de la información que cargo.
-          </span>
-        </label>
+        <div className="flex flex-col gap-3 rounded-field bg-sand-100 p-4">
+          <label className="flex items-start gap-3 text-sm text-ink">
+            <input type="checkbox" name="accept_residence_terms" required className="mt-0.5 h-4 w-4 shrink-0 accent-forest" />
+            <span>
+              Acepto las{" "}
+              <a href="/terms/residencias" target="_blank" rel="noopener noreferrer" className="font-semibold text-forest-700 underline">
+                Condiciones para residencias
+              </a>
+              .
+            </span>
+          </label>
+          <label className="flex items-start gap-3 text-sm text-ink">
+            <input type="checkbox" name="accept_responsibility" required className="mt-0.5 h-4 w-4 shrink-0 accent-forest" />
+            <span>{RESIDENCE_RESPONSIBILITY_LABEL}</span>
+          </label>
+        </div>
 
         {state.status === "error" && (
           <p role="alert" className="rounded-field bg-danger-bg px-4 py-3 text-sm font-medium text-danger-fg">

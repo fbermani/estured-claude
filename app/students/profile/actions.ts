@@ -34,13 +34,13 @@ import {
   exceedsDocumentQuota,
   studentDocumentUsage,
 } from "@/lib/students/documentQuota";
+import { consentVersion } from "@/lib/legal/consentVersion";
 
 export type UpdateProfileState = { status: "idle" | "error" | "saved"; message?: string };
 export type IdentityDocumentState = { status: "idle" | "error" | "saved"; message?: string };
 export type CommunityVisibilityState = { status: "idle" | "error" | "saved"; message?: string };
 export type UploadDocumentState = { status: "idle" | "error" | "saved"; message?: string };
 
-const CONSENT_VERSION = "v0.1-borrador";
 
 /** Paso 2 del alta (Ciclo 35): completar lo que el registro dejó afuera a propósito. */
 export async function updateStudentProfileDetails(
@@ -262,7 +262,7 @@ export async function updateCommunityVisibility(
     const { error: consentError } = await admin.from("consents").insert({
       user_id: sessionUser.id,
       consent_type: "student_visibility",
-      version: CONSENT_VERSION,
+      version: consentVersion("student_visibility"),
       ip_address: ip,
       user_agent: userAgent,
       metadata: { is_individual_profile_visible: true, source: "profile" },

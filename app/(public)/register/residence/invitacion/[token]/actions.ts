@@ -18,10 +18,10 @@ import {
   peekSignupInvite,
   releaseSignupInvite,
 } from "@/lib/residenceSignup/signupRequests";
+import { consentVersion } from "@/lib/legal/consentVersion";
 
 export type RedeemState = { status: "idle" | "error"; message?: string };
 
-const CONSENT_VERSION = "v0.1-borrador";
 const BARRIOS = new Set<string>(BARRIO_OPTIONS);
 const attemptsByClient = createRateLimiter({ limit: 15, windowMs: 3_600_000 });
 const attemptsByToken = createRateLimiter({ limit: 10, windowMs: 3_600_000 });
@@ -122,10 +122,12 @@ export async function redeemResidenceInvite(token: string, _prev: RedeemState, f
     const { error: linkError } = await admin.from("residence_users").insert({ residence_id: residenceId, user_id: userId, role: "owner" });
     if (linkError) throw linkError;
 
-    const consentBase = { user_id: userId, version: CONSENT_VERSION, ip_address: ip, user_agent: userAgent, related_entity_type: "residences", related_entity_id: residenceId };
+    // LEG-013: la residencia acepta SUS condiciones (`/terms/residencias`) y la privacidad, con casilla propia; no los términos de estudiantes.
+    const consentBase = { user_id: userId, ip_address: ip, user_agent: userAgent, related_entity_type: "residences", related_entity_id: residenceId };
     const { error: consentError } = await admin.from("consents").insert([
-      { ...consentBase, consent_type: "terms", metadata: {} },
-      { ...consentBase, consent_type: "residence_responsibility", metadata: {} },
+      { ...consentBase, consent_type: "residence_terms", version: consentVersion("residence_terms"), metadata: {} },
+      { ...consentBase, consent_type: "privacy", version: consentVersion("privacy"), metadata: {} },
+      { ...consentBase, consent_type: "residence_responsibility", version: consentVersion("residence_responsibility"), metadata: {} },
     ]);
     if (consentError) throw consentError;
 

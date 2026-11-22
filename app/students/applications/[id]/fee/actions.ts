@@ -1,6 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
+import { clientIpFromHeaders } from "@/lib/receipts/verifyRateLimit";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { registerManualFeePaymentCore } from "@/lib/payments/registerFeePayment";
@@ -22,7 +24,14 @@ export async function registerManualFeePayment(
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento." };
 
-  const result = await registerManualFeePaymentCore(admin, { actorUserId: sessionUser.id, applicationId, formData });
+  const headerStore = await headers();
+  const result = await registerManualFeePaymentCore(admin, {
+    actorUserId: sessionUser.id,
+    applicationId,
+    formData,
+    ipAddress: clientIpFromHeaders(headerStore),
+    userAgent: headerStore.get("user-agent"),
+  });
   if (!result.ok) return { status: "error", message: result.error };
 
   revalidatePath(`/students/applications/${applicationId}/fee`);

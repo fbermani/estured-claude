@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { redeemResidenceInvite, type RedeemState } from "@/app/(public)/register/residence/invitacion/[token]/actions";
+import { RESIDENCE_RESPONSIBILITY_LABEL } from "@/lib/legal/clauses";
 
 const initialState: RedeemState = { status: "idle" };
 
@@ -18,14 +19,16 @@ export function RedeemInviteForm({ token, email }: { token: string; email: strin
         <label className="flex items-start gap-3 text-sm text-ink">
           <input type="checkbox" name="accept_terms" required className="mt-0.5 h-4 w-4 shrink-0 accent-forest" />
           <span>
-            Acepto los{" "}
-            <a href="/terms" target="_blank" rel="noopener noreferrer" className="font-semibold text-forest-700 underline">términos y condiciones</a>{" "}
-            de EstuRed como residencia asociada.
+            Acepto las{" "}
+            <a href="/terms/residencias" target="_blank" rel="noopener noreferrer" className="font-semibold text-forest-700 underline">Condiciones para residencias</a>{" "}
+            y la{" "}
+            <a href="/privacy" target="_blank" rel="noopener noreferrer" className="font-semibold text-forest-700 underline">Política de privacidad</a>{" "}
+            de EstuRed.
           </span>
         </label>
         <label className="flex items-start gap-3 text-sm text-ink">
           <input type="checkbox" name="accept_responsibility" required className="mt-0.5 h-4 w-4 shrink-0 accent-forest" />
-          <span>Entiendo que mi residencia solo se publica tras la verificación del equipo de EstuRed, y que soy responsable de la veracidad de la información que cargo.</span>
+          <span>{RESIDENCE_RESPONSIBILITY_LABEL}</span>
         </label>
       </div>
       {state.status === "error" && (
