@@ -37,7 +37,7 @@ Estado del código (2026-11-13): rama `hardening/pre-produccion-2026-11`, migrac
 ### Etapa 1 — Cimientos (bloquean la Etapa 4)
 
 - [ ] **Textos legales mínimos publicados** en `/terms`, `/privacy` y `/consentimientos` (partir de `docs/audits/TEXTOS_LEGALES_PROVISORIOS_2026-11-21.md`). Meta exige política de privacidad visible y se captan datos personales (Ley 25.326). Riesgo de no validar con abogado: asumido por el dueño (DR45); aun así, los textos tienen que existir y estar enlazados desde el popup.
-- [ ] **Links legales visibles dentro del popup no cerrable.** Que no se pueda cerrar no puede ocultar Términos ni Privacidad.
+- [ ] **Links legales visibles dentro del popup no cerrable.** Que no se pueda cerrar no puede ocultar Términos ni Privacidad. Visto en producción el 2026-11-25: `/preregistro` los muestra junto a la casilla; la primera pantalla del popup no los muestra.
 - [ ] **Datos del responsable legal** en la política de privacidad (pendiente en `docs/23` §9).
 - [ ] **Proyecto Supabase de producción** con bootstrap (D1–D3). Mínimo para preapertura: tablas de preinscriptos y de solicitudes de residencias, Auth y buckets necesarios.
 - [ ] **Mails** (C3, A4): `hola@estured.com` leída por alguien y Resend con SPF/DKIM. Sin esto no hay confirmación del preregistro ni mail a fundadoras.
@@ -308,10 +308,10 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 - [x] Esperar a que Vercel ponga ambos dominios en verde (HTTPS automático; propagación de minutos a horas). Verificado el 2026-11-25: DNS sin errores (`misconfigured: false`).
 
 ### F2. Push y deploy [Vos con mi ayuda]
-- [ ] Sección B completa (typecheck/lint/build) y sección E completa.
-- [ ] `main` es ancestro de `staging`: no hace falta commit de merge. Yo te paso el comando `git push origin <commit validado>:main`; lo corrés vos (dispara el deploy).
+- [x] Sección B completa (typecheck/lint/build) y sección E completa.
+- [x] `main` es ancestro de `staging`: no hace falta commit de merge. Yo te paso el comando `git push origin <commit validado>:main`; lo corrés vos (dispara el deploy).
   - 2026-11-25: validado `ea9326b` (typecheck, lint 0 errores, build, staging *Ready* en `gru1`). Comando [Vos]: `git push origin ea9326b8f071194ccbb861388f0b8294ec891d7f:main`.
-- [ ] Éxito: deploy *Ready*; `https://estured.com/` carga (popup de preapertura si A1 = on), `/login` carga, **sin** widget de "Simular usuario" en la esquina.
+- [x] Éxito: deploy *Ready*; `https://estured.com/` carga (popup de preapertura si A1 = on), `/login` carga, **sin** widget de "Simular usuario" en la esquina. **Publicado el 2026-11-25:** `ea9326b`, deploy `dpl_63XVtaM6qV7vhNXTy1AnvLw3RoaG` en `gru1`; popup visible, `/login` 200, sin selector demo, 0 errores de runtime en los primeros minutos. El servidor lee y escribe en `hioscbefryufsbypsmtx` (logs de la API: preregistro, fundadoras y `exchange_rates` con 200/201).
 
 ---
 
@@ -323,15 +323,15 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
   ```
   Éxito: login en `/login` y acceso a `/admin/dashboard`. Un `--superadmin` también puede hacer todo lo del admin; crear un `admin` común aparte solo si lo necesitás.
 - [ ] **Datos de cobro:** `/admin/payment-settings` (titular, CBU/alias, CUIT, banco).
-- [ ] **Exposición con anon key** (solo lectura): crear un archivo fuera del repo con `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` de prod y correr `node --env-file=<ese archivo> scripts/check-anon-exposure.mjs --allow-production` → exit 0. No usar `.env.local` (apunta a dev).
+- [x] **Exposición con anon key** (solo lectura): crear un archivo fuera del repo con `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` de prod y correr `node --env-file=<ese archivo> scripts/check-anon-exposure.mjs --allow-production` → exit 0. No usar `.env.local` (apunta a dev). Hecho el 2026-11-25: exit 0.
 - [ ] **Advisors de Supabase** (Dashboard → Advisors → Security): solo los esperados (tablas con RLS y sin policies a propósito, helpers `SECURITY DEFINER` de RLS, `pg_net` en `public`; `auth_leaked_password_protection` hasta pasar a Pro).
-- [ ] **Cron:** `GET https://estured.com/api/cron/expire-stale-records` sin header → 401/403; con `Authorization: Bearer <CRON_SECRET>` → 200. Pasada la primera hora: `select status, return_message from cron.job_run_details order by start_time desc limit 3;` y `select status_code from net._http_response order by created desc limit 3;` → 200.
+- [ ] **Cron:** `GET https://estured.com/api/cron/expire-stale-records` sin header → 401/403; con `Authorization: Bearer <CRON_SECRET>` → 200. Pasada la primera hora: `select status, return_message from cron.job_run_details order by start_time desc limit 3;` y `select status_code from net._http_response order by created desc limit 3;` → 200. 2026-11-25: sin header → 401. Falta el resto.
 - [ ] **Tipo de cambio:** `/admin/exchange-rate` muestra un valor del día (monedapi.ar); si falla, cargar override manual.
-- [ ] **CAPTCHA y límites:** el widget aparece y funciona en `/login` y `/forgot-password`; con el widget sin resolver el envío se rechaza; una ráfaga de logins fallidos devuelve «Hiciste muchos intentos». El alta de residencias (`/register/residence`) también pide CAPTCHA.
-- [ ] **Cookies y headers** (DevTools o `curl -sI https://estured.com`): cookies `sb-*` HttpOnly y Secure; `Content-Security-Policy-Report-Only` (con `report-uri /api/csp-report`), `Strict-Transport-Security`, `Permissions-Policy`; sin `X-Powered-By`.
+- [ ] **CAPTCHA y límites:** el widget aparece y funciona en `/login` y `/forgot-password`; con el widget sin resolver el envío se rechaza; una ráfaga de logins fallidos devuelve «Hiciste muchos intentos». El alta de residencias (`/register/residence`) también pide CAPTCHA. 2026-11-25: el widget aparece y valida en `/login` y `/preregistro` (la consola registró un error `600010` de Turnstile con el navegador automatizado; repetir en un navegador común). Falta probar `/forgot-password`, el rechazo sin resolver, la ráfaga y `/register/residence`.
+- [ ] **Cookies y headers** (DevTools o `curl -sI https://estured.com`): cookies `sb-*` HttpOnly y Secure; `Content-Security-Policy-Report-Only` (con `report-uri /api/csp-report`), `Strict-Transport-Security`, `Permissions-Policy`; sin `X-Powered-By`. 2026-11-25: headers OK (CSP *Report-Only*, HSTS, `Permissions-Policy`, sin `X-Powered-By`). Faltan las cookies (requiere sesión).
 - [ ] **Reset de contraseña de punta a punta** (llega el mail desde `no-reply@estured.com` y el link abre `/reset-password` en `estured.com`).
 - [ ] **Mails:** una solicitud de fundadora de prueba (`/register/residence`) manda el mail de confirmación a una casilla externa (revisar spam; si cae en spam, revisar SPF/DKIM en Resend).
-- [ ] **Smoke test por rol** con cuentas reales de prueba creadas por el flujo (no seeds): visitante (`/`, `/for-residences`, `/guias`, `/terms`, `/privacy`, `/verify/<inválido>` = 404 limpio); preregistro estudiante y familiar; residencia (solicitud de alta → cola de admin → invitación); admin (verificar una residencia, `/admin/support-cases`). Si se abrió el sitio completo (A1 = vacío): solicitud → aprobación → pago del fee → comprobante PDF → mail.
+- [ ] **Smoke test por rol** con cuentas reales de prueba creadas por el flujo (no seeds): visitante (`/`, `/for-residences`, `/guias`, `/terms`, `/privacy`, `/verify/<inválido>` = 404 limpio); preregistro estudiante y familiar; residencia (solicitud de alta → cola de admin → invitación); admin (verificar una residencia, `/admin/support-cases`). Si se abrió el sitio completo (A1 = vacío): solicitud → aprobación → pago del fee → comprobante PDF → mail. 2026-11-25, visitante: rutas públicas 200, URL inexistente 404, `/search` → `/preregistro`, `www` 308. `/verify/<inválido>` muestra «No encontramos ese comprobante» pero responde 200, no 404 (igual en staging).
 - [ ] **Residencias reales:** coordenadas exactas por residencia en `/admin/residences/[id]` (sin ellas la ficha cae al centro del barrio). El seed del CRM (`scripts/seed-crm-residencias.mjs`) necesita `scripts/data/crm-residencias/` en la máquina que lo corre (no viaja con el repo) y la guarda `_assert-dev-project.mjs`: no corre contra prod; la carga a prod es por el flujo normal o un script específico.
 - [ ] **Cuentas de prueba:** borrarlas antes de abrir al público.
 - [ ] **Monitoreo:** mirar los logs de Vercel por líneas `[csp-report]` (violaciones de CSP) y `[rate-limit]` / `[turnstile]` (errores de configuración).
@@ -459,7 +459,7 @@ Sin hallazgos altos. Dos medios y cuatro bajos. Propuestas pendientes de aprobac
 - [x] Diagnóstico inicial gratuito hecho sobre staging. Único hallazgo: E-01, CSP en `Report-Only` con `unsafe-inline` (ya conocido, M5). Next.js 15.5.29 confirmada con los parches vigentes.
 - [ ] **Decidir y contratar el pentest focalizado (USD 250)**, solo contra staging y con usuarios demo. Firmar antes NDA y orden de trabajo. Alcance: solicitudes, pagos, comprobantes y Storage con rol estudiante y rol residencia. No entregar claves de producción ni `SERVICE_ROLE_KEY`.
 - [ ] Pasar a los pentesters la lista de hallazgos ya conocidos (ver el informe) para evitar duplicados.
-- [ ] **Versión de Next:** cotejar `package-lock.json` y el log del build de Vercel que se promueva a producción. Fijar versión exacta (hoy `^15.5.29`). 2026-11-25: el lock fija 15.5.29 y `npm audit --omit=dev` da 0 avisos; no se toca `package.json` antes del primer deploy. Falta mirar el log del build de producción.
+- [x] **Versión de Next:** cotejar `package-lock.json` y el log del build de Vercel que se promueva a producción. Fijar versión exacta (hoy `^15.5.29`). 2026-11-25: el lock fija 15.5.29 y `npm audit --omit=dev` da 0 avisos; no se toca `package.json` antes del primer deploy. Falta mirar el log del build de producción. Log del build de producción: Next.js 15.5.29.
 - [ ] **E-01:** pasar la CSP a enforce y quitar `unsafe-inline` con nonces o hashes, después de revisar `[csp-report]` en producción. Probar Turnstile, mapas y la caché de rutas públicas. Ya figura en I y en «Post-producción (seguridad)».
 - Servicios descartados por ahora: auditoría de código (USD 550), pruebas de carga (USD 400), optimización (USD 450). Reevaluar con usuarios reales.
 
