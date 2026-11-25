@@ -978,6 +978,7 @@ Sin cambios de fondo. Modo Perfil Verificado: disponibilidad por tipo, estado Co
 
 **DR63 (2026-11-20, `docs/00`): caminos al aceptar y pago informado.**
 - Con ambas opciones activas, «Aceptar» pide elegir el camino para esa solicitud: «Cobro con medios habilitados» o «Contacto directo por WhatsApp». Con una sola, el camino queda fijo y no se pregunta.
+- **«Otro» (DR66 (g)):** si el estudiante lo eligió, la solicitud ofrece ambos caminos, aunque la residencia cobre solo con medios. Muestra «Otro: coordinar forma de pago alternativa», el botón de WhatsApp (al familiar vinculado si es menor) y «Contacto directo por WhatsApp» preseleccionado.
 - **Cobro con medios habilitados:** no aparece el botón de WhatsApp. Al habilitar el pago, la residencia confirma monto (precargado desde las condiciones finales) y medio (precargado con la preferencia del estudiante).
 - **Contacto directo por WhatsApp:** igual que hoy.
 - **Aviso «Ya pagué»:** la solicitud muestra «El estudiante avisó que pagó» con la fecha, y el comprobante si lo cargó, junto al botón «Pago recibido». El aviso no confirma nada: solo «Pago recibido» confirma.

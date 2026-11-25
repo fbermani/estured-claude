@@ -1407,12 +1407,13 @@ Roles: residence owner; staff con permiso de aplicaciones.
 Body: `collection_mode` (`enabled_methods` o `whatsapp_direct`), y con `enabled_methods`: `expected_amount_usd`, `expected_amount_ars` y `chosen_method`.
 
 Reglas:
-- si la residencia tiene una sola opción activa, el servidor ignora el `collection_mode` enviado y usa esa;
+- si queda un solo camino disponible, el servidor ignora el `collection_mode` enviado y usa ese;
+- **DR66 (g):** con `preferred_payment_method = alternative` se suma `whatsapp_direct` a los caminos de esa solicitud, aunque la residencia cobre solo con medios. Con dos caminos, `collection_mode` es obligatorio;
 - con `enabled_methods`: precarga monto desde `snapshot_final` y medio desde `preferred_payment_method`;
 - congela `instructions_snapshot` desde los `details` **aprobados** de `residence_collection_accounts`. Los datos pendientes no se usan;
 - `instructions_snapshot` no es legible por la API (revoke de columna, `docs/06` §12.1). Lo lee una server action solo para el dueño de la residencia, el estudiante de esa solicitud y, si es menor, su familiar vinculado cuando es el pagador (solo lectura);
 - la residencia no cambia el monto fuera del proceso de propuesta de ajuste (`docs/04` §6.3);
-- con `whatsapp_direct`: igual que hoy. El estudiante ve solo «La residencia te va a escribir por WhatsApp». Nunca recibe un número ni un botón para escribirle;
+- con `whatsapp_direct`: igual que hoy. El estudiante ve solo «La residencia te va a indicar el monto final y cómo pagar» (DR66 (b)). Nunca recibe un número ni un botón para escribirle;
 - tras una propuesta de ajuste, el pase a `residence_payment_pending` es automático. El servidor aplica los valores por defecto de `docs/00` DR63 (k).
 
 **Implementación (Fase 4, supuestos reversibles):** el camino con medios exige ser el dueño (el staff no ve ni congela datos de cobro). El contacto directo lo puede hacer quien tenga `payments.residence`. El monto sale del snapshot y el cliente no lo envía. `collection_mode` queda en `application_requests`. Si solo hay medios y ninguno tiene datos aprobados, el servidor usa contacto directo. Tras una propuesta de ajuste, con medios disponibles, la residencia define el camino desde el detalle y el plazo de 48 horas se reinicia (`chooseResidencePaymentCollectionCore`).

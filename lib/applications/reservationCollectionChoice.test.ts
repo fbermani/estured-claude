@@ -31,6 +31,29 @@ describe("caminos disponibles", () => {
   });
 });
 
+describe("preferencia «Otro» (DR66 (g))", () => {
+  const alternative = (over: Parameters<typeof ctx>[0] = {}) => ctx({ preferred: "alternative", ...over });
+
+  it("con solo medios suma el contacto directo para esa solicitud", () => {
+    expect(availableCollectionPaths(alternative())).toEqual({ paths: ["enabled_methods", "whatsapp_direct"], degraded: false });
+  });
+  it("con ambas opciones activas no duplica el camino", () => {
+    expect(availableCollectionPaths(alternative({ modes: ["enabled_methods", "whatsapp_direct"] })).paths).toEqual(["enabled_methods", "whatsapp_direct"]);
+  });
+  it("sin datos aprobados sigue degradado a contacto directo", () => {
+    expect(availableCollectionPaths(alternative({ approved: [] }))).toEqual({ paths: ["whatsapp_direct"], degraded: true });
+  });
+  it("sin «Otro» las residencias solo con medios no ofrecen contacto directo", () => {
+    expect(availableCollectionPaths(ctx({ preferred: "mercadopago" })).paths).toEqual(["enabled_methods"]);
+  });
+  it("el servidor acepta el contacto directo y exige elegir el camino", () => {
+    expect(resolveCollectionChoice(alternative(), { collectionMode: "whatsapp_direct" })).toEqual({ ok: true, value: { mode: "whatsapp_direct" } });
+    expect(resolveCollectionChoice(alternative(), { chosenMethod: "mercadopago" }).ok).toBe(false);
+    const methods = resolveCollectionChoice(alternative(), { collectionMode: "enabled_methods", chosenMethod: "mercadopago" });
+    expect(methods.ok && methods.value.mode).toBe("enabled_methods");
+  });
+});
+
 describe("resolveCollectionChoice", () => {
   it("con un solo camino ignora el modo enviado", () => {
     const res = resolveCollectionChoice(ctx(), { collectionMode: "whatsapp_direct", chosenMethod: "mercadopago" });

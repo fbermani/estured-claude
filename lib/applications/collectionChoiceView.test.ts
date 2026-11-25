@@ -22,6 +22,24 @@ describe("buildCollectionView", () => {
     const only = buildCollectionChoiceContext({ modes: ["enabled_methods"], acceptedMethods: ["transfer_ars"], approved: [{ methodKey: "transfer_ars", methodLabel: null }] });
     expect(buildCollectionView({ ...base, ctx: only, status: "contact_established" })?.whatsappAllowed).toBe(false);
   });
+  it("«Otro» con solo medios: ofrece contacto directo y botón, aunque el contexto se cargó sin preferencia (DR66 (g))", () => {
+    const only = buildCollectionChoiceContext({ modes: ["enabled_methods"], acceptedMethods: ["transfer_ars"], approved: [{ methodKey: "transfer_ars", methodLabel: null }] });
+    const input = { ...base, ctx: only, preferred: "alternative" };
+    expect(buildCollectionView({ ...input, status: "contact_established" })).toMatchObject({
+      paths: ["enabled_methods", "whatsapp_direct"],
+      preferredAlternative: true,
+      whatsappAllowed: true,
+    });
+    expect(buildCollectionView({ ...input, status: "residence_payment_pending" })).toMatchObject({ phase: "choose", whatsappAllowed: true });
+    expect(
+      buildCollectionView({ ...input, status: "residence_payment_pending", collectionMode: "enabled_methods", payment: { chosenMethod: "transfer_ars", expectedUsd: 300, expectedArs: 450000 } })
+        ?.whatsappAllowed,
+    ).toBe(false);
+  });
+  it("la preferencia «Otro» de una solicitud no se contagia a otra", () => {
+    const loaded = buildCollectionChoiceContext({ modes: ["enabled_methods"], acceptedMethods: ["transfer_ars"], approved: [{ methodKey: "transfer_ars", methodLabel: null }], preferred: "alternative" });
+    expect(buildCollectionView({ ...base, ctx: loaded, preferred: null, status: "contact_established" })).toMatchObject({ paths: ["enabled_methods"], whatsappAllowed: false });
+  });
   it("pendiente con medios: resumen sin WhatsApp ni datos de cobro", () => {
     const v = buildCollectionView({
       ...base,

@@ -50,6 +50,8 @@ export function buildCollectionView(input: {
   const ctx: CollectionChoiceContext = {
     ...input.ctx,
     preferredMethod: input.preferred && input.ctx.methods.some((m) => m.key === input.preferred) ? (input.preferred as CollectionChoiceContext["preferredMethod"]) : null,
+    // El contexto se carga una vez por residencia: la preferencia «Otro» sale siempre de ESTA solicitud.
+    preferredAlternative: input.preferred === ALTERNATIVE_PREFERENCE_KEY,
   };
   const { paths, degraded } = availableCollectionPaths(ctx);
   const amounts = input.snapshot ? resolveExpectedAmounts(input.snapshot) : null;
@@ -60,7 +62,7 @@ export function buildCollectionView(input: {
     degraded,
     methods: ctx.methods.map((m) => ({ key: m.key, label: m.label })),
     preferredKey: ctx.preferredMethod,
-    preferredAlternative: input.preferred === ALTERNATIVE_PREFERENCE_KEY,
+    preferredAlternative: ctx.preferredAlternative === true,
     amountUsd: amounts?.ok ? amounts.value.usd : null,
     amountArs: amounts?.ok ? amounts.value.ars : null,
     report: input.status === "residence_payment_pending" ? (input.report ?? null) : null,
@@ -88,5 +90,6 @@ export function buildCollectionView(input: {
   if (paths.length === 1 && paths[0] === "whatsapp_direct") {
     return { ...base, phase: "chosen", chosen: { mode: "whatsapp_direct", methodLabel: null, amountUsd: null, amountArs: null }, whatsappAllowed: true };
   }
-  return { ...base, phase: "choose", chosen: null, whatsappAllowed: false };
+  // DR66 (g): con «Otro», la residencia puede escribirle mientras define cómo cobrar.
+  return { ...base, phase: "choose", chosen: null, whatsappAllowed: base.preferredAlternative };
 }

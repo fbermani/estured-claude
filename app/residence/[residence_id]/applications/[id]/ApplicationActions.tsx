@@ -235,7 +235,10 @@ export function ApplicationActions({
     return (
       <div className="space-y-4">
         {collection?.phase === "choose" ? (
-          <CollectionPaymentPanel applicationId={applicationId} collection={collection} canAct={allowed.residencePayment} mode="choose" />
+          <>
+            <CollectionPaymentPanel applicationId={applicationId} collection={collection} canAct={allowed.residencePayment} mode="choose" />
+            {whatsappUrl && <WhatsappLink url={whatsappUrl} isMinor={collection.isMinor} />}
+          </>
         ) : (
           <>
             <p className="text-sm font-medium text-success-fg">

@@ -1,6 +1,6 @@
 import { isPaymentMethodKey, paymentMethodLabel, type Checked, type PaymentMethodKey } from "@/lib/payments/paymentMethods";
 import { RESERVATION_MODE_LABELS, effectiveReservationModes, isReservationPaymentMode, type ReservationPaymentMode } from "@/lib/residences/reservationCollection";
-import { offeredReservationCollection, type ApprovedCollectionMethod, type OfferedPaymentMethod } from "@/lib/residences/offeredPaymentMethods";
+import { ALTERNATIVE_PREFERENCE_KEY, offeredReservationCollection, type ApprovedCollectionMethod, type OfferedPaymentMethod } from "@/lib/residences/offeredPaymentMethods";
 import { usdToArs } from "@/lib/mock/exchange";
 
 /**
@@ -20,6 +20,8 @@ export interface CollectionChoiceContext {
   methods: OfferedPaymentMethod[];
   /** Preferencia del estudiante (DR63 (c)), solo si hoy se ofrece. */
   preferredMethod: PaymentMethodKey | null;
+  /** DR66 (g): el estudiante eligió «Otro»: el contacto directo se suma como camino para ESTA solicitud. */
+  preferredAlternative?: boolean;
 }
 
 /**
@@ -39,19 +41,21 @@ export function buildCollectionChoiceContext(input: {
     modes: effectiveReservationModes(input.modes),
     methods,
     preferredMethod: preferred && methods.some((m) => m.key === preferred) ? preferred : null,
+    preferredAlternative: input.preferred === ALTERNATIVE_PREFERENCE_KEY,
   };
 }
 
 /**
  * Caminos elegibles para la solicitud. «Medios» exige la opción activa Y al menos un medio con datos aprobados. «Contacto directo» exige
  * la opción activa. Si no queda ninguno (solo «medios» y ninguno aprobado), se degrada a contacto directo: es lo que el estudiante vio
- * (`degraded` avisa a la pantalla para explicarlo).
+ * (`degraded` avisa a la pantalla para explicarlo). DR66 (g): con la preferencia «Otro» se suma el contacto directo.
  */
 export function availableCollectionPaths(ctx: CollectionChoiceContext): { paths: CollectionPath[]; degraded: boolean } {
   const paths: CollectionPath[] = [];
   if (ctx.modes.includes("enabled_methods") && ctx.methods.length > 0) paths.push("enabled_methods");
   if (ctx.modes.includes("whatsapp_direct")) paths.push("whatsapp_direct");
   if (paths.length === 0) return { paths: ["whatsapp_direct"], degraded: true };
+  if (ctx.preferredAlternative && !paths.includes("whatsapp_direct")) paths.push("whatsapp_direct");
   return { paths, degraded: false };
 }
 

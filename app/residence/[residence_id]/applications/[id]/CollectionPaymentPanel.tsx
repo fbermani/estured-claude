@@ -43,7 +43,10 @@ export function CollectionPaymentPanel({
   const [state, formAction, isPending] = useActionState(action, initialState);
 
   const { paths, methods, isOwner, isMinor } = collection;
-  const [pathChoice, setPathChoice] = useState<CollectionPath | "">(paths.length === 1 ? paths[0] : "");
+  const [pathChoice, setPathChoice] = useState<CollectionPath | "">(
+    // DR66 (g): con «Otro» viene preseleccionado el contacto directo.
+    paths.length === 1 ? paths[0] : collection.preferredAlternative ? "whatsapp_direct" : "",
+  );
   const [methodChoice, setMethodChoice] = useState<string>(collection.preferredKey ?? (methods.length === 1 ? methods[0].key : ""));
 
   const onlyMethods = paths.length === 1 && paths[0] === "enabled_methods";
@@ -89,7 +92,9 @@ export function CollectionPaymentPanel({
             <span>
               <span className="font-bold">{COLLECTION_ALTERNATIVE_RESIDENCE_LABEL}</span>
               <span className="block text-xs text-ink-soft">
-                Ningún medio de los que ofrecés le sirve al estudiante. Contactalo {isMinor ? "a su familiar vinculado " : ""}para definir cómo paga.
+                Ningún medio de los que ofrecés le sirve al estudiante.{" "}
+                {isMinor ? "Escribile solo a su familiar vinculado" : "Escribile"} para definir cómo paga.
+                {paths.length > 1 ? ` Para cobrar de otra forma, dejá «${COLLECTION_PATH_TITLES.whatsapp_direct}».` : ""}
               </span>
             </span>
           </p>
