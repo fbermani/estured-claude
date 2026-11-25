@@ -2,7 +2,6 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { createNotification } from "@/lib/notifications/createNotification";
-import { notifyAdminsSafe } from "@/lib/notifications/notifyAdminsSafe";
 import {
   maskPaymentDetails,
   normalizePaymentMethodKeys,
@@ -21,15 +20,14 @@ import { normalizeReservationModes, type ReservationPaymentMode } from "@/lib/re
  * lee. El rol sale de `residence_users` en el servidor, nunca del formulario.
  *
  * Reglas:
- *  - Los datos de cobro se escriben SIEMPRE en `pending_details` (y el nombre de «Otro» en `pending_method_label`), con
- *    `pending_submitted_at = now()`. Jamás en `details` ni `method_label`: esos los escribe solo el admin al aprobar (fase 2b). Siguen
- *    rigiendo los aprobados hasta entonces.
- *  - Con «Cobro con medios habilitados» activa hace falta al menos 1 medio y que CADA medio aceptado tenga datos cargados (aprobados,
- *    pendientes o los que llegan en este mismo guardado) y, en «Otro», un nombre. Sin esa opción se guardan 0 medios aceptados (las filas
+ *  - DR65 (c): EstuRed NO aprueba los datos de cobro. Se escriben directo en `details` (y el nombre de «Otro» en `method_label`) y
+ *    quedan vigentes al guardar; cada residencia responde por los suyos. Las columnas `pending_*` se dejan en null (sin uso).
+ *  - Con «Cobro con medios habilitados» activa hace falta al menos 1 medio y que CADA medio aceptado tenga datos cargados (los guardados
+ *    o los que llegan en este mismo guardado) y, en «Otro», un nombre. Sin esa opción se guardan 0 medios aceptados (las filas
  *    de datos se conservan: reactivar la opción no obliga a cargarlos de nuevo).
- *  - Un valor igual al que ya está pendiente no escribe nada. Un valor igual al aprobado limpia el cambio pendiente.
- *  - Cada cambio se audita con los datos de cobro ENMASCARADOS (solo los últimos 4 caracteres; un valor corto no se muestra) y avisa al dueño y a los
- *    admin (aprobación pendiente), sin datos.
+ *  - Un valor igual al guardado no escribe nada.
+ *  - Cada cambio se audita con los datos de cobro ENMASCARADOS (solo los últimos 4 caracteres; un valor corto no se muestra) y avisa al
+ *    dueño, sin datos (control contra un cambio que no hizo él).
  */
 
 export type SaveReservationCollectionInput = {
@@ -47,7 +45,7 @@ export type SaveReservationCollectionInput = {
 };
 
 export type SaveReservationCollectionResult =
-  | { ok: true; modes: ReservationPaymentMode[]; methods: PaymentMethodKey[]; pendingChanges: number }
+  | { ok: true; modes: ReservationPaymentMode[]; methods: PaymentMethodKey[]; updatedAccounts: number }
   | { ok: false; error: string };
 
 type ExistingAccount = {
@@ -109,7 +107,7 @@ export async function saveReservationCollection(
   for (const row of (accountsRead.data ?? []) as ExistingAccount[]) existingByKey.set(row.method_key, row);
 
   // Validación COMPLETA antes de escribir: un solo error y no se guarda nada.
-  type Plan = { key: PaymentMethodKey; existing: ExistingAccount | undefined; pendingDetails: string | null; pendingLabel: string | null; targetDetails: string; targetLabel: string | null; changed: boolean };
+  type Plan = { key: PaymentMethodKey; existing: ExistingAccount | undefined; targetDetails: string; targetLabel: string | null; changed: boolean };
   const plans: Plan[] = [];
   for (const key of methods) {
     const info = paymentMethodInfo(key);
@@ -119,6 +117,7 @@ export async function saveReservationCollection(
     if (entry !== undefined && !isRecord(entry)) return { ok: false, error: `Los datos de cobro de ${name} no son válidos.` };
     const entryRecord = isRecord(entry) ? entry : {};
 
+    // Un pendiente viejo (antes de DR65 (c)) cuenta como lo último que cargó el dueño; al guardar queda vigente.
     const currentDetails = text(existing?.pending_details) || text(existing?.details);
     const currentLabel = text(existing?.pending_method_label) || text(existing?.method_label);
 
@@ -144,29 +143,30 @@ export async function saveReservationCollection(
       }
     }
 
-    const approvedDetails = text(existing?.details);
-    const approvedLabel = text(existing?.method_label);
-    // Lo que debe quedar PENDIENTE: lo que difiere de lo aprobado (si es igual, no hay nada que aprobar).
-    const pendingDetails = targetDetails !== approvedDetails ? targetDetails : null;
-    const pendingLabel = targetLabel !== null && targetLabel !== approvedLabel ? targetLabel : null;
-    const changed = pendingDetails !== (text(existing?.pending_details) || null) || pendingLabel !== (text(existing?.pending_method_label) || null) || !existing;
-    plans.push({ key, existing, pendingDetails, pendingLabel, targetDetails, targetLabel, changed });
+    const savedDetails = text(existing?.details);
+    const savedLabel = text(existing?.method_label) || null;
+    const hasStalePending = Boolean(text(existing?.pending_details) || text(existing?.pending_method_label));
+    const changed = !existing || targetDetails !== savedDetails || targetLabel !== savedLabel || hasStalePending;
+    plans.push({ key, existing, targetDetails, targetLabel, changed });
   }
 
-  // Escritura de los datos de cobro: SOLO columnas pending_* (nunca details ni method_label).
-  const now = new Date().toISOString();
+  // Escritura de los datos de cobro: vigentes al guardar (DR65 (c)); `pending_*` siempre en null.
   const changedPlans = plans.filter((p) => p.changed);
   for (const plan of changedPlans) {
-    const pendingAny = plan.pendingDetails !== null || plan.pendingLabel !== null;
-    const pendingValues = {
-      pending_details: plan.pendingDetails,
-      pending_method_label: plan.pendingLabel,
-      pending_submitted_at: pendingAny ? now : null,
+    // `approved_at` / `approved_by_user_id` = «vigente desde / guardado por» (la constraint de 0102 exige approved_at con datos).
+    const values = {
+      details: plan.targetDetails,
+      method_label: plan.targetLabel,
+      approved_at: new Date().toISOString(),
+      approved_by_user_id: params.actorUserId,
+      pending_details: null,
+      pending_method_label: null,
+      pending_submitted_at: null,
       updated_by_user_id: params.actorUserId,
     };
     const { error } = plan.existing
-      ? await admin.from("residence_collection_accounts").update(pendingValues).eq("id", plan.existing.id)
-      : await admin.from("residence_collection_accounts").insert({ residence_id: params.residenceId, method_key: plan.key, ...pendingValues });
+      ? await admin.from("residence_collection_accounts").update(values).eq("id", plan.existing.id)
+      : await admin.from("residence_collection_accounts").insert({ residence_id: params.residenceId, method_key: plan.key, ...values });
     if (error) {
       console.error("[reservation-collection] account save failed:", error.code, error.message);
       return { ok: false, error: GENERIC_ERROR };
@@ -203,44 +203,33 @@ export async function saveReservationCollection(
     await createAuditLog(admin, {
       actorUserId: params.actorUserId,
       actorRole: access.actorRole,
-      action: "residence_collection_account_pending",
+      action: "residence_collection_account_updated",
       entityType: "residences",
       entityId: params.residenceId,
       oldValue: {
         method_key: plan.key,
-        pending_details: plan.existing?.pending_details ? maskPaymentDetails(plan.existing.pending_details) : null,
         details: plan.existing?.details ? maskPaymentDetails(plan.existing.details) : null,
       },
       newValue: {
         method_key: plan.key,
         method_label: plan.targetLabel,
-        pending_details: plan.pendingDetails ? maskPaymentDetails(plan.pendingDetails) : null,
-        awaiting_approval: plan.pendingDetails !== null || plan.pendingLabel !== null,
+        details: maskPaymentDetails(plan.targetDetails),
       },
     });
   }
 
-  const pendingChanges = changedPlans.filter((p) => p.pendingDetails !== null || p.pendingLabel !== null).length;
-  if (pendingChanges > 0) {
-    // Aviso al dueño, sin datos de cobro: solo qué medios quedaron a la espera.
-    const names = changedPlans
-      .filter((p) => p.pendingDetails !== null || p.pendingLabel !== null)
-      .map((p) => paymentMethodLabel(p.key, p.targetLabel));
+  const updatedAccounts = changedPlans.length;
+  if (updatedAccounts > 0) {
+    // Aviso al dueño, sin datos de cobro: qué medios cambiaron (si no fue él, lo detecta).
+    const names = changedPlans.map((p) => paymentMethodLabel(p.key, p.targetLabel));
     await createNotification(admin, {
       userId: params.actorUserId,
-      title: "Datos de cobro enviados a revisión",
-      body: `EstuRed revisa los datos de cobro de ${names.join(", ")}. Hasta que se aprueben siguen rigiendo los anteriores.`,
+      title: "Actualizaste tus datos de cobro",
+      body: `Guardamos los datos de cobro de ${names.join(", ")}. Ya rigen para las próximas solicitudes. Vos respondés por estos datos: revisalos.`,
       relatedEntityType: "residence_collection_accounts",
       relatedEntityId: params.residenceId,
     });
-    // Aviso a los admin (DR63 (j) 5): hay datos de cobro por aprobar. Sin datos de cobro: solo la residencia y cuántos medios.
-    await notifyAdminsSafe(admin, {
-      title: "Hay datos de cobro pendientes de aprobación",
-      body: `${text(previous.name) || "Una residencia"} envió datos de cobro de ${pendingChanges === 1 ? "1 medio" : `${pendingChanges} medios`} para revisar.`,
-      entityType: "residence_collection_accounts",
-      entityId: params.residenceId,
-    });
   }
 
-  return { ok: true, modes: modes.value, methods, pendingChanges };
+  return { ok: true, modes: modes.value, methods, updatedAccounts };
 }

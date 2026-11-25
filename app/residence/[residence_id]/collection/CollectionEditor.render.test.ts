@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: () => undefined, refresh: () => undefined }), usePathname: () => "/" }));
-vi.mock("@/app/residence/[residence_id]/collection/actions", () => ({ saveReservationCollectionAction: async () => ({ status: "success", pendingChanges: 0 }) }));
+vi.mock("@/app/residence/[residence_id]/collection/actions", () => ({ saveReservationCollectionAction: async () => ({ status: "success", updatedAccounts: 0 }) }));
 
 import { CollectionEditor, type CollectionEditorAccount } from "@/app/residence/[residence_id]/collection/CollectionEditor";
 import { ProfileCollectionCard } from "@/app/residence/[residence_id]/profile/ProfileCollectionCard";
@@ -54,23 +54,21 @@ describe("pantalla «Cobro de la reserva» del dueño (render del servidor)", ()
       methods: ["transfer_ars"],
       accounts: [{ methodKey: "transfer_ars", state: "pending", hasApproved: false, rejectedReason: null, details: SECRET, label: "" }],
     });
-    expect(html).toContain("Pendiente de aprobación");
+    expect(html).toContain("Pendiente");
     expect(html).toContain("Mostrar y editar");
     expect(html).toContain("•••• ");
     expect(html).not.toContain("0170099220000067797370");
     expect(html).not.toContain("casa.norte");
   });
 
-  it("un medio rechazado muestra el estado y el motivo del admin (solo el dueño ve esta pantalla)", () => {
+  it("DR65 (c): dice que la residencia responde por sus datos y que EstuRed no los aprueba", () => {
     const html = renderEditor({
       modes: ["enabled_methods"],
       methods: ["transfer_ars"],
-      accounts: [{ methodKey: "transfer_ars", state: "rejected", hasApproved: true, rejectedReason: "El alias no coincide con el titular.", details: SECRET, label: "" }],
+      accounts: [{ methodKey: "transfer_ars", state: "approved", hasApproved: true, rejectedReason: null, details: SECRET, label: "" }],
     });
-    expect(html).toContain("Rechazado");
-    expect(html).toContain("Siguen rigiendo los datos anteriores.");
-    expect(html).toContain("Motivo: El alias no coincide con el titular.");
-    expect(html).not.toContain("0170099220000067797370");
+    expect(html).toContain("EstuRed no los revisa ni los aprueba");
+    expect(html).not.toContain("pendiente de aprobación");
   });
 
   it("con ambas opciones explica que se elige por solicitud", () => {
@@ -86,15 +84,15 @@ describe("tarjeta «Cobro de la reserva» de la configuración", () => {
   it("el dueño ve las opciones, el estado de cada medio y el enlace a la pantalla", () => {
     const html = render(true);
     expect(html).toContain("Esto define solo el pago de la reserva. Los pagos siguientes los acordás con cada estudiante.");
-    expect(html).toContain("Pendiente de aprobación");
-    expect(html).toContain("Aprobado");
+    expect(html).toContain("Pendiente");
+    expect(html).toContain("Cargado");
     expect(html).toContain('href="/residence/res-1/collection"');
   });
 
   it("el staff ve el aviso, sin estados de medios ni enlace", () => {
     const html = render(false);
     expect(html).toContain("Solo el dueño puede ver y editar los datos de cobro.");
-    expect(html).not.toContain("Pendiente de aprobación");
+    expect(html).not.toContain("Pendiente");
     expect(html).not.toContain("/collection");
   });
 

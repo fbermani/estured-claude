@@ -69,11 +69,12 @@ const rows = [
   {
     residence_id: RESIDENCE_ID,
     method_key: "uala",
-    details: null,
-    pending_details: "norte.demo.uala (DEMO: pendiente de aprobación)",
-    pending_submitted_at: now,
-    approved_by_user_id: null,
-    approved_at: null,
+    // DR65 (c): sin aprobación del admin, los datos rigen al guardar.
+    details: "norte.demo.uala (DEMO)",
+    pending_details: null,
+    pending_submitted_at: null,
+    approved_by_user_id: owner?.id ?? null,
+    approved_at: now,
     updated_by_user_id: owner?.id ?? null,
   },
 ];

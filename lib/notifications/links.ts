@@ -47,8 +47,6 @@ const ADMIN_LIST: Record<string, string> = {
   users: "/admin/users",
   residence_signup_requests: "/admin/solicitudes-alta",
   residence_profile_edits: "/admin/profile-edits",
-  // DR63 2b: datos de cobro de la reserva por aprobar (el id es el de la residencia)
-  residence_collection_accounts: "/admin/collection-approvals",
 };
 
 export function notificationHref(

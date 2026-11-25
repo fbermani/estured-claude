@@ -56,10 +56,8 @@ export function explicitReservationModes(stored: readonly string[] | null | unde
 export type MethodDataState = "none" | "pending" | "approved" | "rejected";
 
 /**
- * «Pendiente de aprobación»: hay datos o nombre nuevos a la espera del admin (siguen rigiendo los aprobados). «Rechazado»: el admin
- * rechazó el último cambio y no hay nada pendiente (rigen los aprobados, si hay; si no, el medio no tiene datos). «Aprobado»: hay datos
- * aprobados y nada pendiente. «Sin datos»: no hay ninguno. Para «Otro», el nombre pendiente cuenta como pendiente.
- * `rejected` lo calcula quien lee el historial de auditoría (solo la pantalla del dueño): sin él, nunca se devuelve «Rechazado».
+ * DR65 (c): EstuRed ya no aprueba datos de cobro; quedan vigentes al guardar. «Cargado» (`approved`): hay datos vigentes. «Sin datos»:
+ * no hay ninguno. `pending` solo aparece con filas viejas anteriores a la migración 0109 (que las promueve); `rejected` ya no se calcula.
  */
 export function methodDataState(
   row: { details: string | null; pendingDetails: string | null; pendingMethodLabel?: string | null } | null | undefined,
@@ -74,8 +72,8 @@ export function methodDataState(
 
 export const METHOD_DATA_STATE_LABELS: Record<MethodDataState, string> = {
   none: "Sin datos",
-  pending: "Pendiente de aprobación",
-  approved: "Aprobado",
+  pending: "Pendiente",
+  approved: "Cargado",
   rejected: "Rechazado",
 };
 

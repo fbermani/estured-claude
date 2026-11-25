@@ -91,7 +91,7 @@ describe("saveReservationCollection: quién puede", () => {
 
   it("el dueño guarda", async () => {
     const res = await save("ricardo");
-    expect(res).toEqual({ ok: true, modes: ["enabled_methods"], methods: ["transfer_ars"], pendingChanges: 1 });
+    expect(res).toEqual({ ok: true, modes: ["enabled_methods"], methods: ["transfer_ars"], updatedAccounts: 1 });
     expect(residence(NORTE).reservation_payment_modes).toEqual(["enabled_methods"]);
     expect(residence(NORTE).accepted_payment_methods).toEqual(["transfer_ars"]);
     // No toca la otra residencia.
@@ -99,41 +99,34 @@ describe("saveReservationCollection: quién puede", () => {
   });
 });
 
-describe("saveReservationCollection: los datos van SIEMPRE a pending_*", () => {
-  it("la primera carga escribe solo pending_details y pending_submitted_at; details y method_label quedan nulos", async () => {
+describe("saveReservationCollection: los datos rigen al guardar (DR65 (c), sin aprobación del admin)", () => {
+  it("la primera carga escribe details y deja pending_* en null", async () => {
     await save("ricardo");
     const [row] = accountsOf(NORTE);
     expect(row.method_key).toBe("transfer_ars");
-    expect(row.pending_details).toBe("CBU 0170099220000067797370 alias casa.norte");
-    expect(row.pending_submitted_at).toEqual(expect.any(String));
+    expect(row.details).toBe("CBU 0170099220000067797370 alias casa.norte");
+    expect(row.pending_details ?? null).toBeNull();
+    expect(row.pending_submitted_at ?? null).toBeNull();
     expect(row.updated_by_user_id).toBe("ricardo");
-    expect(row.details ?? null).toBeNull();
     expect(row.method_label ?? null).toBeNull();
-    // Ninguna escritura incluye details ni method_label.
-    for (const w of writes().filter((l) => l.table === "residence_collection_accounts")) {
-      const payload = w.payload as Row;
-      expect("details" in payload).toBe(false);
-      expect("method_label" in payload).toBe(false);
-    }
   });
 
-  it("editar datos ya aprobados deja los aprobados intactos y suma el cambio pendiente", async () => {
+  it("editar datos guardados los reemplaza", async () => {
     fake = createInMemorySupabase(
       world({
         residence_collection_accounts: [
-          { id: "acc-1", residence_id: NORTE, method_key: "transfer_ars", details: "CBU viejo aprobado", method_label: null, pending_details: null, pending_method_label: null, approved_at: "2026-11-01T00:00:00Z" },
+          { id: "acc-1", residence_id: NORTE, method_key: "transfer_ars", details: "CBU viejo", method_label: null, pending_details: null, pending_method_label: null, approved_at: "2026-11-01T00:00:00Z" },
         ],
       }),
     );
     const res = await save("ricardo", { accounts: { transfer_ars: { details: "CBU nuevo" } } });
-    expect(res.ok).toBe(true);
+    expect(res).toMatchObject({ ok: true, updatedAccounts: 1 });
     const row = accountsOf(NORTE)[0];
-    expect(row.details).toBe("CBU viejo aprobado");
-    expect(row.pending_details).toBe("CBU nuevo");
-    expect(row.pending_submitted_at).toEqual(expect.any(String));
+    expect(row.details).toBe("CBU nuevo");
+    expect(row.pending_details).toBeNull();
   });
 
-  it("volver al valor aprobado limpia el cambio pendiente", async () => {
+  it("un pendiente viejo (antes de la 0109) se promueve al guardar", async () => {
     fake = createInMemorySupabase(
       world({
         residence_collection_accounts: [
@@ -141,13 +134,12 @@ describe("saveReservationCollection: los datos van SIEMPRE a pending_*", () => {
         ],
       }),
     );
-    const res = await save("ricardo", { accounts: { transfer_ars: { details: "CBU aprobado" } } });
-    expect(res).toMatchObject({ ok: true, pendingChanges: 0 });
+    const res = await save("ricardo", { accounts: {} });
+    expect(res).toMatchObject({ ok: true, updatedAccounts: 1 });
     const row = accountsOf(NORTE)[0];
-    expect(row.details).toBe("CBU aprobado");
+    expect(row.details).toBe("CBU a medias");
     expect(row.pending_details).toBeNull();
     expect(row.pending_submitted_at).toBeNull();
-    expect(notifications).toEqual([]);
   });
 
   it("guardar de nuevo lo mismo no escribe la cuenta ni avisa de nuevo", async () => {
@@ -156,7 +148,7 @@ describe("saveReservationCollection: los datos van SIEMPRE a pending_*", () => {
     audits.length = 0;
     notifications.length = 0;
     const res = await save("ricardo");
-    expect(res).toMatchObject({ ok: true, pendingChanges: 0 });
+    expect(res).toMatchObject({ ok: true, updatedAccounts: 0 });
     expect(writes().filter((l) => l.table === "residence_collection_accounts")).toEqual([]);
     expect(audits).toEqual([]);
     expect(notifications).toEqual([]);
@@ -165,16 +157,16 @@ describe("saveReservationCollection: los datos van SIEMPRE a pending_*", () => {
   it("un medio que ya tiene datos no obliga a mandarlos otra vez", async () => {
     await save("ricardo");
     const res = await save("ricardo", { accounts: {} });
-    expect(res).toMatchObject({ ok: true, pendingChanges: 0 });
+    expect(res).toMatchObject({ ok: true, updatedAccounts: 0 });
   });
 
-  it("«Otro» guarda el nombre en pending_method_label", async () => {
+  it("«Otro» guarda el nombre en method_label", async () => {
     const res = await save("ricardo", { methods: ["other"], accounts: { other: { details: "Cuenta DNI: casa.norte", label: "  Cuenta DNI " } } });
     expect(res.ok).toBe(true);
     const row = accountsOf(NORTE)[0];
-    expect(row.pending_method_label).toBe("Cuenta DNI");
-    expect(row.method_label ?? null).toBeNull();
-    expect(row.pending_details).toBe("Cuenta DNI: casa.norte");
+    expect(row.method_label).toBe("Cuenta DNI");
+    expect(row.pending_method_label ?? null).toBeNull();
+    expect(row.details).toBe("Cuenta DNI: casa.norte");
   });
 });
 
@@ -212,7 +204,7 @@ describe("saveReservationCollection: validación", () => {
   it("solo contacto directo guarda sin datos y deja 0 medios aceptados", async () => {
     fake = createInMemorySupabase(world({ residences: [{ id: NORTE, reservation_payment_modes: ["enabled_methods"], accepted_payment_methods: ["cash"] }, { id: RIO }] }));
     const res = await save("ricardo", { modes: ["whatsapp_direct"], methods: ["cash"], accounts: {} });
-    expect(res).toEqual({ ok: true, modes: ["whatsapp_direct"], methods: [], pendingChanges: 0 });
+    expect(res).toEqual({ ok: true, modes: ["whatsapp_direct"], methods: [], updatedAccounts: 0 });
     expect(residence(NORTE).reservation_payment_modes).toEqual(["whatsapp_direct"]);
     expect(residence(NORTE).accepted_payment_methods).toEqual([]);
   });
@@ -233,7 +225,7 @@ describe("saveReservationCollection: validación", () => {
 describe("saveReservationCollection: auditoría y aviso", () => {
   it("audita con los datos de cobro enmascarados y con el rol del dueño", async () => {
     await save("ricardo", { accounts: { transfer_ars: { details: "CBU 0170099220000067797370 alias casa.norte" } } });
-    expect(audits.map((a) => a.action).sort()).toEqual(["residence_collection_account_pending", "residence_reservation_collection_updated"]);
+    expect(audits.map((a) => a.action).sort()).toEqual(["residence_collection_account_updated", "residence_reservation_collection_updated"]);
     expect(audits.every((a) => a.actorRole === "residence_owner" && a.actorUserId === "ricardo")).toBe(true);
     const serialized = JSON.stringify(audits);
     expect(serialized).not.toContain("0170099220000067797370");
@@ -249,14 +241,7 @@ describe("saveReservationCollection: auditoría y aviso", () => {
     expect(JSON.stringify(notifications)).not.toContain("0170099220000067797370");
   });
 
-  it("avisa a los admin que hay datos por aprobar, sin datos de cobro, y no los avisa si no hay nada pendiente", async () => {
-    await save("ricardo");
-    expect(adminNotices).toHaveLength(1);
-    expect(adminNotices[0]).toMatchObject({ title: "Hay datos de cobro pendientes de aprobación", entityType: "residence_collection_accounts", entityId: NORTE });
-    expect(adminNotices[0].body).toContain("1 medio");
-    expect(JSON.stringify(adminNotices)).not.toContain("0170099220000067797370");
-    adminNotices.length = 0;
-    // Mismo valor otra vez: nada pendiente nuevo, ningún aviso.
+  it("DR65 (c): no avisa a los admin (ya no hay aprobación)", async () => {
     await save("ricardo");
     expect(adminNotices).toEqual([]);
   });
@@ -276,7 +261,7 @@ describe("lecturas de «Cobro de la reserva»", () => {
       acceptedMethods: ["cash", "belo"],
       methodsWithData: expect.arrayContaining(["cash", "belo"]),
     });
-    expect(res.ok && res.overview?.summary.states).toEqual({ cash: "pending", belo: "pending" });
+    expect(res.ok && res.overview?.summary.states).toEqual({ cash: "approved", belo: "approved" });
     expect(JSON.stringify(res)).not.toContain("En el hall");
     expect(JSON.stringify(res)).not.toContain("usuario belo");
   });
@@ -284,7 +269,7 @@ describe("lecturas de «Cobro de la reserva»", () => {
   it("la lectura del dueño trae los datos para editarlos", async () => {
     await save("ricardo");
     const res = await loadCollectionAccountsForOwner(fake.client, NORTE);
-    expect(res.ok && res.ready && res.accounts[0]).toMatchObject({ methodKey: "transfer_ars", state: "pending", pendingDetails: expect.stringContaining("alias casa.norte") });
+    expect(res.ok && res.ready && res.accounts[0]).toMatchObject({ methodKey: "transfer_ars", state: "approved", details: expect.stringContaining("alias casa.norte") });
   });
 
   it("sin la migración 0102 (columnas o tabla inexistentes) se degrada a «no disponible» y no rompe", async () => {

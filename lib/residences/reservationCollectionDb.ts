@@ -136,42 +136,6 @@ export type OwnerCollectionLoad =
   | { ok: true; ready: false }
   | { ok: false };
 
-/** Acciones de auditoría que mueven el estado de un medio (guardado del dueño, aprobación y rechazo del admin). */
-export const COLLECTION_AUDIT_ACTIONS = {
-  pending: "residence_collection_account_pending",
-  approved: "residence_collection_account_approved",
-  rejected: "residence_collection_account_rejected",
-} as const;
-
-/**
- * Último rechazo vigente por medio, leído del historial de auditoría (sin columna propia: la 0102 no guarda el motivo). Un rechazo
- * «rige» solo si es lo ÚLTIMO que pasó con ese medio (después el dueño pudo volver a enviar o el admin aprobar). Nunca lanza: si la
- * lectura falla, no hay rechazos que mostrar.
- */
-export async function loadLatestRejections(admin: SupabaseClient, residenceId: string): Promise<Map<string, { reason: string; at: string }>> {
-  const out = new Map<string, { reason: string; at: string }>();
-  const { data, error } = await admin
-    .from("audit_logs")
-    .select("action, reason_text, created_at, new_value")
-    .eq("entity_type", "residences")
-    .eq("entity_id", residenceId)
-    .in("action", [COLLECTION_AUDIT_ACTIONS.pending, COLLECTION_AUDIT_ACTIONS.approved, COLLECTION_AUDIT_ACTIONS.rejected])
-    .order("created_at", { ascending: false })
-    .limit(200);
-  if (error) {
-    console.error("[reservation-collection] audit read failed:", error.code, error.message);
-    return out;
-  }
-  const seen = new Set<string>();
-  for (const row of (data ?? []) as { action: string; reason_text: string | null; created_at: string; new_value: unknown }[]) {
-    const key = (row.new_value as { method_key?: unknown } | null)?.method_key;
-    if (typeof key !== "string" || seen.has(key)) continue;
-    seen.add(key);
-    if (row.action === COLLECTION_AUDIT_ACTIONS.rejected) out.set(key, { reason: (row.reason_text ?? "").trim(), at: row.created_at });
-  }
-  return out;
-}
-
 /**
  * Configuración completa del «Cobro de la reserva» PARA EL DUEÑO (incluye los datos de cobro). El que llama tiene que haber comprobado
  * antes que el usuario es el dueño de la residencia (`assertResidenceOwner`): esta función no valida permisos.
@@ -180,39 +144,17 @@ export async function loadCollectionAccountsForOwner(admin: SupabaseClient, resi
   const read = await readRaw(admin, residenceId, "owner");
   if (read.kind === "missing") return { ok: true, ready: false };
   if (read.kind === "error") return { ok: false };
-  const rejections = await loadLatestRejections(admin, residenceId);
-  const accounts: OwnerCollectionAccount[] = read.raw.rows.map((a) => {
-      const rejection = rejections.get(a.method_key) ?? null;
-      return {
-        methodKey: a.method_key,
-        state: methodDataState(
-          { details: a.details, pendingDetails: a.pending_details, pendingMethodLabel: a.pending_method_label },
-          { rejected: rejection !== null },
-        ),
-        methodLabel: a.method_label,
-        pendingMethodLabel: a.pending_method_label,
-        details: a.details,
-        pendingDetails: a.pending_details,
-        pendingSubmittedAt: a.pending_submitted_at,
-        rejectedReason: rejection && rejection.reason !== "" ? rejection.reason : null,
-        rejectedAt: rejection?.at ?? null,
-      };
-  });
-  // Un medio rechazado que nunca tuvo datos aprobados no conserva fila (el admin la borra al rechazar): igual se muestra como «Rechazado».
-  const withRow = new Set(accounts.map((a) => a.methodKey));
-  for (const [key, rejection] of rejections) {
-    if (withRow.has(key) || !isPaymentMethodKey(key)) continue;
-    accounts.push({
-      methodKey: key,
-      state: "rejected",
-      methodLabel: null,
-      pendingMethodLabel: null,
-      details: null,
-      pendingDetails: null,
-      pendingSubmittedAt: null,
-      rejectedReason: rejection.reason !== "" ? rejection.reason : null,
-      rejectedAt: rejection.at,
-    });
-  }
+  // DR65 (c): sin aprobación del admin no hay rechazos que mostrar.
+  const accounts: OwnerCollectionAccount[] = read.raw.rows.map((a) => ({
+    methodKey: a.method_key,
+    state: methodDataState({ details: a.details, pendingDetails: a.pending_details, pendingMethodLabel: a.pending_method_label }),
+    methodLabel: a.method_label,
+    pendingMethodLabel: a.pending_method_label,
+    details: a.details,
+    pendingDetails: a.pending_details,
+    pendingSubmittedAt: a.pending_submitted_at,
+    rejectedReason: null,
+    rejectedAt: null,
+  }));
   return { ok: true, ready: true, modes: read.raw.modes, acceptedMethods: read.raw.accepted, accounts };
 }

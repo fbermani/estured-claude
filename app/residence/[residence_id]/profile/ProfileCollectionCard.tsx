@@ -18,7 +18,7 @@ const STATE_TONE: Record<MethodDataState, "neutral" | "amber" | "sage" | "danger
 /**
  * Tarjeta «Cobro de la reserva» de la configuración (DR63). Solo resume: la edición y los datos de cobro viven en
  * `/residence/<id>/collection`, que es SOLO del dueño. Acá no viaja ningún dato de cobro: solo las opciones elegidas y el estado de cada
- * medio («Sin datos», «Pendiente de aprobación», «Aprobado»). El staff ve el aviso y las opciones, sin estados ni enlace.
+ * medio («Sin datos», «Cargado»; DR65 (c): sin aprobación del admin). El staff ve el aviso y las opciones, sin estados ni enlace.
  */
 export function ProfileCollectionCard({
   residenceId,

@@ -8,9 +8,9 @@ import { formatArs, formatUsd } from "@/lib/mock/exchange";
 import type { StudentPaymentCardView } from "@/lib/applications/loadStudentPaymentCard";
 import { StudentPaymentActions } from "@/app/students/applications/[id]/payment/StudentPaymentActions";
 
-/** Aviso de seguridad (DR63 (g)): EstuRed no custodia ni garantiza el pago. */
+/** Aviso de seguridad (DR63 (g)) y TP-06 (DR65 (c)): EstuRed no recibe este dinero ni revisa los datos de cobro de la residencia. */
 const SECURITY_NOTICE =
-  "EstuRed no custodia ni garantiza este pago, y no es responsable del medio elegido. Pagá solo a los datos que figuran acá: si te piden transferir a otros, no lo hagas y escribinos a Soporte.";
+  "Pagás directamente a la residencia. EstuRed no recibe este dinero. Los datos de cobro los carga la residencia, que responde por ellos: EstuRed no los revisa ni los aprueba. Pagá solo a los datos que figuran acá: si te piden transferir a otros, no lo hagas y escribinos a Soporte. Esto no limita tus derechos como consumidor.";
 
 function SupportButton({ label = "Escribir a Soporte" }: { label?: string }) {
   return (

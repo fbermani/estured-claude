@@ -45,7 +45,7 @@ const sameList = (a: readonly string[], b: readonly string[]) => a.length === b.
 /**
  * Edición del «Cobro de la reserva» (DR63), SOLO para el dueño. Dos opciones activables a la vez: «Cobro con medios habilitados» (medios
  * del catálogo + datos de cobro de cada uno) y «Contacto directo por WhatsApp». Los datos de cobro se ven enmascarados hasta tocar
- * «Mostrar». Todo cambio de datos queda pendiente de aprobación del admin (el servidor lo escribe en `pending_*`); el cliente solo
+ * «Mostrar». DR65 (c): los datos rigen al guardar (EstuRed no los aprueba; la residencia responde por ellos); el cliente solo
  * manda lo que el dueño tocó. Una sola acción primaria: «Guardar y volver».
  */
 export function CollectionEditor({
@@ -187,7 +187,8 @@ export function CollectionEditor({
             Medios que aceptás
           </h2>
           <p className="mt-1 text-sm text-ink-soft">
-            Todo cambio de datos de cobro queda pendiente de aprobación de EstuRed. Hasta que se apruebe, rigen los datos anteriores.
+            Vos cargás estos datos y respondés por ellos. EstuRed no los revisa ni los aprueba: rigen apenas los guardás, para las
+            próximas solicitudes. Las solicitudes con el pago ya habilitado conservan los datos que vieron.
           </p>
           <fieldset className="mt-4 min-w-0">
             <legend className="sr-only">Medios de cobro del catálogo</legend>
@@ -308,21 +309,6 @@ function MethodPanel({
           <Badge tone={STATE_TONE[state]}>{METHOD_DATA_STATE_LABELS[state]}</Badge>
         </div>
       </div>
-      {state === "pending" && (
-        <p className="mt-2 text-xs text-ink-soft">
-          {account?.hasApproved ? "Cargaste un cambio. Hasta que EstuRed lo apruebe, rigen los datos anteriores." : "EstuRed revisa estos datos. La primera carga se aprueba al verificar tu residencia."}
-        </p>
-      )}
-
-      {state === "rejected" && (
-        <p role="status" className="mt-2 rounded-field bg-danger-bg px-3 py-2 text-sm text-danger-fg">
-          {account?.hasApproved
-            ? "EstuRed rechazó tu último cambio. Siguen rigiendo los datos anteriores."
-            : "EstuRed rechazó estos datos. Cargalos de nuevo con las correcciones."}
-          {account?.rejectedReason ? <span className="mt-1 block font-semibold">Motivo: {account.rejectedReason}</span> : null}
-        </p>
-      )}
-
       {info.requiresLabel && (
         <div className="mt-4">
           <Input

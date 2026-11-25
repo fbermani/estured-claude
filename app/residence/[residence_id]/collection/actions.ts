@@ -5,7 +5,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { saveReservationCollection } from "@/lib/residences/reservationCollectionSave";
 
-export type SaveCollectionResult = { status: "success"; pendingChanges: number } | { status: "error"; message: string };
+export type SaveCollectionResult = { status: "success"; updatedAccounts: number } | { status: "error"; message: string };
 
 /**
  * Guardar el «Cobro de la reserva» (DR63): opciones activas, medios aceptados y datos de cobro. Acción fina: el permiso (SOLO el dueño,
@@ -34,5 +34,5 @@ export async function saveReservationCollectionAction(residenceId: string, rawIn
   revalidatePath(`/residence/${residenceId}/profile`);
   revalidatePath("/residence/dashboard");
   revalidatePath("/residencias/[slug]", "page");
-  return { status: "success", pendingChanges: result.pendingChanges };
+  return { status: "success", updatedAccounts: result.updatedAccounts };
 }

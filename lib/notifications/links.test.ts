@@ -42,8 +42,8 @@ describe("notificationHref", () => {
     // DR63 2b: el aviso de datos de cobro aprobados/rechazados lleva al dueño a «Cobro de la reserva»
     expect(notificationHref({ entityType: "residence_collection_accounts", entityId: ID, area: "residence" })).toBe(`/residence/${ID}/collection`);
     expect(notificationHref({ entityType: "residence_collection_accounts", entityId: "x/y", area: "residence" })).toBe("/residence/dashboard");
-    // …y al admin, a la cola de aprobación
-    expect(notificationHref({ entityType: "residence_collection_accounts", entityId: ID, area: "admin" })).toBe("/admin/collection-approvals");
+    // DR65 (c): ya no hay cola de aprobación del admin para los datos de cobro
+    expect(notificationHref({ entityType: "residence_collection_accounts", entityId: ID, area: "admin" })).not.toBe("/admin/collection-approvals");
     expect(
       notificationHref(
         { entityType: "support_cases", entityId: ID, area: "residence" },

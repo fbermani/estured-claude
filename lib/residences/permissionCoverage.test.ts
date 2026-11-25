@@ -118,7 +118,6 @@ const ALLOWLIST: Record<string, string> = {
   "lib/residences/setResidencePausedByAdmin.ts": "solo admin (requireAdmin en la acción)",
   "lib/residences/setResidenceLocationByAdmin.ts": "solo admin",
   "lib/residences/setOperationalAccessByAdmin.ts": "solo admin",
-  "lib/residences/collectionApproval.ts": "solo admin o superadmin (DR63 2b): lee el rol de user_roles y lo llama app/admin/collection-approvals/actions.ts con getAdminSession; ni el dueño ni el staff aprueban sus propios datos de cobro",
   "lib/residents/setResidentVisibilityByAdmin.ts": "solo admin",
   "lib/residents/markResidentInactiveByAdmin.ts": "solo admin",
   "lib/renewals/reopenRenewalOffer.ts": "solo admin",

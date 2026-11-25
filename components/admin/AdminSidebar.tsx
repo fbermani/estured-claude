@@ -143,7 +143,6 @@ const NAV_GROUPS = [
     { href: "/admin/residences", label: "Residencias", Icon: BuildingIcon },
     { href: "/admin/verifications", label: "Verificaciones", Icon: ValidationsIcon },
     { href: "/admin/profile-edits", label: "Ediciones de perfil", Icon: ProfileEditsIcon },
-    { href: "/admin/collection-approvals", label: "Cobros de reserva", Icon: PaymentsIcon },
     { href: "/admin/solicitudes-alta", label: "Solicitudes de alta", Icon: BuildingIcon },
     { href: "/admin/residencias-pedidas", label: "Residencias pedidas", Icon: BuildingIcon },
     { href: "/admin/faq", label: "Preguntas de fichas", Icon: SupportCasesIcon },

@@ -482,6 +482,8 @@ La residencia define en su ficha cómo cobra la reserva: con medios de pago habi
 
 > Texto actualizado por decisión del dueño. Pendiente de revisión legal antes de publicarse.
 
+**Datos de cobro de la residencia (DR65 (c), 2026-11-22).** Cada residencia carga sus datos de cobro y responde por ellos. EstuRed no los revisa ni los aprueba: quedan vigentes al guardarlos. Solo el dueño de la residencia los edita; cada cambio se audita enmascarado y le avisa al dueño. Texto al estudiante (TP-06): «Pagás directamente a la residencia. EstuRed no recibe este dinero. Los datos de cobro los carga la residencia, que responde por ellos: EstuRed no los revisa ni los aprueba.»
+
 **Responsabilidad por el fee (DR64 (g), 2026-11-21, borrador del agente).** EstuRed cobra su propio fee, así que responde por registrar, validar y comprobar ese pago, y por emitir su comprobante y su factura. EstuRed no responde por fallas, demoras ni costos de bancos, billeteras o medios de pago de terceros. Tampoco responde por pagos hechos a datos que no vinieron de su pantalla de pago. La frase «no es responsable de ningún pago» de arriba se refiere a los pagos a la residencia y a sus medios. `LEGAL_REVIEW_PENDING`: pendiente de revisión legal antes de publicarse.
 
 ### 14.6 Reintentos

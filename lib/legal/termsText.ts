@@ -211,7 +211,9 @@ export const TERMS_SECTIONS: TermsSection[] = [
       "El pago requerido para asegurar la plaza se hace directamente a la residencia, por los medios que ella indique (transferencia bancaria, billetera virtual, efectivo u otros). Puede corresponder a seña, matrícula, depósito, cargo de reserva u otro concepto informado por la residencia.",
       "La residencia configura previamente sus parámetros de matrícula, depósito y monto requerido para reservar. Esos montos no pueden modificarse caso por caso dentro de una solicitud activa, salvo mediante la propuesta formal de ajuste.",
       "Podés cargar el comprobante de tu pago a la residencia como referencia, pero ese comprobante no confirma por sí solo la reserva dentro de EstuRed. La residencia debe marcar Pago recibido únicamente cuando efectivamente haya recibido el pago.",
-      "El reembolso de montos abonados directamente a la residencia depende de las políticas de la residencia, los acuerdos entre las partes y la normativa aplicable. EstuRed no custodia esos fondos.",
+      "El pago de la reserva y las mensualidades los cobra la residencia, directamente. EstuRed no recibe, no retiene y no administra ese dinero.",
+      "Los datos de cobro que ves los carga la residencia, que responde por ellos. EstuRed no los revisa ni los aprueba, y no responde por el medio de pago ni por la cuenta de destino.",
+      "Las devoluciones de lo que pagaste a la residencia se acuerdan con la residencia. Si tenés un problema, escribinos a Soporte. Esto no limita los derechos que te da la ley como consumidor.",
     ],
   },
   {
