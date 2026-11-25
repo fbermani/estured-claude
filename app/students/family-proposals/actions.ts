@@ -9,6 +9,7 @@ import { recordFamilyProposalResponse } from "@/lib/applications/recordFamilyPro
 import { requestBlockedMessage, typeAvailabilityState } from "@/lib/availability/typeAvailability";
 import { checkReservationWindowOverlap } from "@/lib/students/reservationWindow";
 import { MAX_APPLICATION_TEXT, checkTextMax, isIsoDate, parseDurationMonths } from "@/lib/applications/inputLimits";
+import { guardianConsentMissing, minorHoldError } from "@/lib/students/minorHold";
 
 export type CreateFamilyProposalState = { status: "idle" | "error"; message?: string };
 export type RespondFamilyProposalState = { status: "idle" | "error"; message?: string };
@@ -64,6 +65,10 @@ export async function createFamilyProposal(
   const permissions = link.permissions as { can_create_proposals?: boolean } | null;
   if (permissions?.can_create_proposals === false) {
     return { status: "error", message: "No tenés permiso para crear propuestas para este estudiante." };
+  }
+  // DR65 (e): por un menor, el familiar primero da su consentimiento como responsable.
+  if (await guardianConsentMissing(admin, studentProfileId, sessionUser.id)) {
+    return { status: "error", message: "Primero dá tu consentimiento como familiar responsable desde tu panel." };
   }
 
   // Ciclo 58: no se propone para fechas que se superpongan con una reserva vigente del estudiante (se vuelve a
@@ -152,6 +157,9 @@ export async function respondFamilyProposal(
 
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento." };
+  // DR65 (e): la cuenta de un menor sin consentimiento del familiar está en espera.
+  const onHold = await minorHoldError(admin, sessionUser.id);
+  if (onHold) return { status: "error", message: onHold };
 
   const result = await recordFamilyProposalResponse(admin, {
     proposalId,

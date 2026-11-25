@@ -4,7 +4,7 @@ import { LEGAL_DOCUMENTS, DATED_CONSENT_VERSION, type LegalDocumentKey } from "@
 import { TERMS_SECTIONS } from "@/lib/legal/termsText";
 import { PRIVACY_SECTIONS } from "@/lib/legal/privacyText";
 import { RESIDENCE_TERMS_SECTIONS } from "@/lib/legal/residenceTermsText";
-import { FEE_ACKNOWLEDGEMENT_LABEL, RESIDENCE_RESPONSIBILITY_LABEL } from "@/lib/legal/clauses";
+import { FEE_ACKNOWLEDGEMENT_LABEL, GUARDIAN_CONSENT_LABEL, RESIDENCE_RESPONSIBILITY_LABEL } from "@/lib/legal/clauses";
 import { LEGAL_OPERATOR } from "@/lib/legal/operator";
 
 /**
@@ -18,6 +18,7 @@ const SOURCES: Record<LegalDocumentKey, () => unknown> = {
   residence_terms: () => RESIDENCE_TERMS_SECTIONS,
   estured_fee_terms: () => FEE_ACKNOWLEDGEMENT_LABEL,
   residence_responsibility: () => RESIDENCE_RESPONSIBILITY_LABEL,
+  guardian_consent: () => GUARDIAN_CONSENT_LABEL,
 };
 
 const cache = new Map<LegalDocumentKey, string>();

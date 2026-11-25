@@ -10,3 +10,10 @@ export const FEE_ACKNOWLEDGEMENT_LABEL =
 /** Casilla de responsabilidad al dar de alta una residencia (`residence_responsibility`). */
 export const RESIDENCE_RESPONSIBILITY_LABEL =
   "Entiendo que la residencia solo se publica tras la verificación presencial del equipo de EstuRed, y que soy responsable de la veracidad de la información que cargo, incluidos mis datos de cobro.";
+
+/**
+ * TP-07 (DR65 (e)): consentimiento del familiar responsable de un estudiante menor (se guarda como `guardian_consent`, con el
+ * `user_id` del familiar y el perfil del estudiante como entidad relacionada). El nombre del estudiante lo completa la pantalla.
+ */
+export const GUARDIAN_CONSENT_LABEL =
+  "Declaro que soy el padre, la madre o el tutor de este estudiante. Acepto los Términos y la Política de Privacidad en su nombre. Autorizo el tratamiento de sus datos para gestionar solicitudes y estadías en residencias.";

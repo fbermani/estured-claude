@@ -305,6 +305,8 @@ No se deben generar agregados que permitan identificar a una persona en grupos m
 
 Si un estudiante es menor de 18 años: no puede finalizar registro completo sin familiar vinculado; debe requerirse aprobación/vinculación de padre, madre o responsable; el familiar vinculado se vuelve obligatorio; las acciones críticas deben requerir aceptación del familiar cuando corresponda.
 
+**Cuenta en espera (DR65 (e), 2026-11-25).** La cuenta de un estudiante de 14 a 17 años queda en espera hasta que un familiar con vínculo activo da su consentimiento (TP-07: declara ser padre, madre o tutor, acepta Términos y Privacidad en nombre del menor y autoriza el tratamiento de sus datos). Mientras tanto el menor solo vincula a su familiar y pide Soporte. La minoría se calcula por `birth_date` en cada acción.
+
 ### 9.1bis Confirmación del tutor para la estadía *(DR32)*
 
 La estadía de un menor no se vincula hasta que su familiar/tutor con vínculo activo la confirme. El tutor ve solo nombre corto + residencia antes de confirmar; la residencia no ve al tutor ni su decisión; la tabla `guardian_stay_confirmations` solo la leen el estudiante y su familiar activo y la escribe únicamente el servidor. Vence a los 7 días sin activar nada. El mail del familiar se verifica con un código antes de que el estudiante apruebe el vínculo; la condición de adulto/tutor es **responsabilidad declarada** de quien se registra. Alcance legal del consentimiento: sigue pendiente de revisión (§9.6).

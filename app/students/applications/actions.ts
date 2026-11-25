@@ -14,6 +14,7 @@ import { loadReservationCollectionOffer } from "@/lib/residences/offeredPaymentM
 import { resolvePreferredPaymentMethod } from "@/lib/residences/offeredPaymentMethods";
 import { acceptRegulationForApplication, recordRegulationAcceptance, resolveRegulationToAccept } from "@/lib/regulations/acceptance";
 import { revalidatePath } from "next/cache";
+import { minorHoldError } from "@/lib/students/minorHold";
 
 export type CreateApplicationState = { status: "idle" | "error"; message?: string };
 
@@ -56,6 +57,9 @@ export async function createApplicationRequest(
 
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento. Probá más tarde." };
+  // DR65 (e): la cuenta de un menor sin consentimiento del familiar está en espera.
+  const onHold = await minorHoldError(admin, sessionUser.id);
+  if (onHold) return { status: "error", message: onHold };
 
   const { data: studentProfile } = await admin
     .from("student_profiles")
@@ -211,6 +215,9 @@ export async function acceptRegulationAction(
   if (!sessionUser) return { status: "error", message: "Tu sesión expiró. Volvé a iniciar sesión." };
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento. Probá más tarde." };
+  // DR65 (e): la cuenta de un menor sin consentimiento del familiar está en espera.
+  const onHold = await minorHoldError(admin, sessionUser.id);
+  if (onHold) return { status: "error", message: onHold };
 
   const result = await acceptRegulationForApplication(admin, {
     applicationId,

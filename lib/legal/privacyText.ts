@@ -3,8 +3,8 @@
  * legal), adaptados a la decisión del dueño de publicar los datos del titular solo en `/terms#quienes-somos`.
  * Es dato puro: la página lo muestra y `lib/legal/consentVersion.ts` calcula su hash. Solo describe lo que el código hace hoy.
  *
- * Condiciones de publicación (TP-01): §4 dice «estamos formalizando» las garantías hasta archivar los DPA (LEG-006); §6 describe el
- * flujo actual de menores y se reescribe cuando la cuenta del menor quede en espera del consentimiento del familiar (DR65).
+ * Condiciones de publicación (TP-01): §4 dice «estamos formalizando» las garantías hasta archivar los DPA (LEG-006); §6 describe la
+ * cuenta del menor en espera hasta el consentimiento del familiar (DR65 (e)).
  */
 import { LEGAL_OPERATOR } from "@/lib/legal/operator";
 
@@ -73,7 +73,8 @@ export const PRIVACY_SECTIONS: PrivacySection[] = [
   {
     title: "6. Menores de edad",
     paras: [
-      "Si sos menor de 18 años, necesitás un familiar vinculado para enviar solicitudes y avanzar con una reserva. Tu familiar responsable acompaña el proceso.",
+      "Si tenés entre 14 y 17 años, podés crear tu cuenta, pero queda en espera hasta que tu padre, tu madre o tu tutor se vincule y dé su consentimiento. Mientras tanto solo podés invitarlo y pedir ayuda a Soporte.",
+      "Tu familiar responsable acepta estas condiciones en tu nombre y autoriza el tratamiento de tus datos para gestionar solicitudes y estadías.",
       "El perfil de un menor no se muestra en la comunidad. La residencia se comunica con el familiar vinculado.",
     ],
   },

@@ -35,6 +35,7 @@ import {
   studentDocumentUsage,
 } from "@/lib/students/documentQuota";
 import { consentVersion } from "@/lib/legal/consentVersion";
+import { minorHoldError } from "@/lib/students/minorHold";
 
 export type UpdateProfileState = { status: "idle" | "error" | "saved"; message?: string };
 export type IdentityDocumentState = { status: "idle" | "error" | "saved"; message?: string };
@@ -51,6 +52,9 @@ export async function updateStudentProfileDetails(
   if (!sessionUser) return { status: "error", message: "Tu sesión expiró. Volvé a iniciar sesión." };
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento. Probá más tarde." };
+  // DR65 (e): la cuenta de un menor sin consentimiento del familiar está en espera.
+  const onHold = await minorHoldError(admin, sessionUser.id);
+  if (onHold) return { status: "error", message: onHold };
 
   // Nacionalidad y universidad son selects (no texto libre) desde
   // Ciclo 36 — igual se revalida server-side contra el whitelist, no
@@ -159,6 +163,9 @@ export async function saveIdentityDocument(
   if (!sessionUser) return { status: "error", message: "Tu sesión expiró. Volvé a iniciar sesión." };
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento. Probá más tarde." };
+  // DR65 (e): la cuenta de un menor sin consentimiento del familiar está en espera.
+  const onHold = await minorHoldError(admin, sessionUser.id);
+  if (onHold) return { status: "error", message: onHold };
 
   const parsed = validateIdentityDocument(formData.get("document_type"), formData.get("document_number"));
   if (!parsed.ok) return { status: "error", message: parsed.message };
@@ -210,6 +217,9 @@ export async function updateCommunityVisibility(
   if (!sessionUser) return { status: "error", message: "Tu sesión expiró. Volvé a iniciar sesión." };
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento. Probá más tarde." };
+  // DR65 (e): la cuenta de un menor sin consentimiento del familiar está en espera.
+  const onHold = await minorHoldError(admin, sessionUser.id);
+  if (onHold) return { status: "error", message: onHold };
 
   const { data: profile } = await admin
     .from("student_profiles")
@@ -330,6 +340,9 @@ export async function uploadStudentDocument(
   if (!sessionUser) return { status: "error", message: "Tu sesión expiró. Volvé a iniciar sesión." };
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento. Probá más tarde." };
+  // DR65 (e): la cuenta de un menor sin consentimiento del familiar está en espera.
+  const onHold = await minorHoldError(admin, sessionUser.id);
+  if (onHold) return { status: "error", message: onHold };
 
   const { data: profile } = await admin
     .from("student_profiles")

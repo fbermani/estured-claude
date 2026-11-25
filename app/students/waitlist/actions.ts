@@ -6,6 +6,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { leaveWaitlist } from "@/lib/waitlist-entries/leaveWaitlist";
 import { stayInWaitlist } from "@/lib/waitlist-entries/stayInWaitlist";
 import { activateFromWaitlist } from "@/lib/waitlist-entries/activateFromWaitlist";
+import { minorHoldError } from "@/lib/students/minorHold";
 
 export type WaitlistActionState = { status: "idle" | "error" | "saved"; message?: string };
 
@@ -50,6 +51,9 @@ export async function activateFromWaitlistAction(
   if (!sessionUser) return { status: "error", message: "Tu sesión expiró." };
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento." };
+  // DR65 (e): la cuenta de un menor sin consentimiento del familiar está en espera.
+  const onHold = await minorHoldError(admin, sessionUser.id);
+  if (onHold) return { status: "error", message: onHold };
 
   const desiredStartDate = String(formData.get("desired_start_date") ?? "").trim();
   const durationRaw = String(formData.get("initial_duration_months") ?? "").trim();

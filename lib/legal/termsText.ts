@@ -112,8 +112,8 @@ export const TERMS_SECTIONS: TermsSection[] = [
   {
     title: "5. Estudiantes menores de edad",
     paras: [
-      "Si el estudiante es menor de edad, debe contar obligatoriamente con un familiar vinculado para finalizar el registro y avanzar en operaciones relevantes. El familiar vinculado debe aprobar, acompañar o intervenir en los pasos que EstuRed determine para menores.",
-      "EstuRed puede bloquear solicitudes, propuestas de solicitud, pagos, comunidad visible o documentación cuando el estudiante menor no tenga un vínculo familiar activo, y puede aplicar controles reforzados y exigir una aceptación adicional del familiar vinculado.",
+      "Si el estudiante tiene entre 14 y 17 años puede crear su cuenta, pero la cuenta queda en espera hasta que su padre, su madre o su tutor se vincule como familiar y dé su consentimiento en la plataforma. Con ese consentimiento, el familiar acepta estos términos y la política de privacidad en nombre del estudiante y autoriza el tratamiento de sus datos para gestionar solicitudes y estadías.",
+      "Mientras la cuenta está en espera, el estudiante solo puede vincular a su familiar y pedir ayuda a Soporte. No puede cargar documentos, enviar solicitudes ni activar una estadía. Si el vínculo con ese familiar se revoca, la cuenta vuelve a quedar en espera.",
       "El estudiante, incluso siendo menor de edad, es quien aprueba o rechaza una propuesta de solicitud enviada por su familiar vinculado. El familiar no puede aprobarla en su representación bajo ninguna circunstancia.",
       "Cuando el estudiante es menor de edad, el contacto que establezca la residencia se dirige siempre al familiar vinculado, independientemente de quién haya iniciado la solicitud. Por eso, el teléfono del familiar vinculado es un dato obligatorio para que un estudiante menor pueda enviar o aprobar solicitudes.",
     ],

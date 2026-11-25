@@ -10,6 +10,7 @@ import { INVITE_TOO_MANY_ATTEMPTS, inviteAttemptAllowed, residencyStepAllowed } 
 import { headers } from "next/headers";
 import { submitLinkRequest, submitMissingResidence, cancelLinkRequest } from "@/lib/residents/linkRequestsStudent";
 import { setResidentVisibility } from "@/lib/residents/setResidentVisibility";
+import { minorHoldError } from "@/lib/students/minorHold";
 
 export type ResidencyActionState = { status: "idle" | "error" | "saved"; message?: string };
 
@@ -23,6 +24,9 @@ export async function sendResidencyCodeAction(residentStayId: string, _prev: Res
   if (!(await residencyStepAllowed(sessionUser.id))) return { status: "error", message: INVITE_TOO_MANY_ATTEMPTS };
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento." };
+  // DR65 (e): la cuenta de un menor sin consentimiento del familiar está en espera.
+  const onHold = await minorHoldError(admin, sessionUser.id);
+  if (onHold) return { status: "error", message: onHold };
   const result = await sendInviteOtpForStay(admin, { userId: sessionUser.id, residentStayId });
   return result.ok ? { status: "saved", message: result.message } : { status: "error", message: result.error };
 }
@@ -38,6 +42,9 @@ export async function activateWithCodeAction(
   if (!(await residencyStepAllowed(sessionUser.id))) return { status: "error", message: INVITE_TOO_MANY_ATTEMPTS };
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento." };
+  // DR65 (e): la cuenta de un menor sin consentimiento del familiar está en espera.
+  const onHold = await minorHoldError(admin, sessionUser.id);
+  if (onHold) return { status: "error", message: onHold };
 
   const verified = await verifyInviteOtpForStay(admin, { userId: sessionUser.id, residentStayId, code: String(formData.get("code") ?? "").trim() });
   if (!verified.ok) return { status: "error", message: verified.error };
@@ -57,6 +64,9 @@ export async function activateWithInviteAction(token: string, _prev: ResidencyAc
   if (!sessionUser) return { status: "error", message: "Tu sesión expiró. Ingresá de nuevo." };
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento." };
+  // DR65 (e): la cuenta de un menor sin consentimiento del familiar está en espera.
+  const onHold = await minorHoldError(admin, sessionUser.id);
+  if (onHold) return { status: "error", message: onHold };
   const result = await activateResidentStay(admin, { actorUserId: sessionUser.id, rawToken: token });
   if (!result.ok) return { status: "error", message: result.error };
   revalidatePath("/students/residency");
@@ -70,6 +80,9 @@ export async function submitLinkRequestAction(_prev: ResidencyActionState, formD
   if (!(await residencyStepAllowed(sessionUser.id))) return { status: "error", message: INVITE_TOO_MANY_ATTEMPTS };
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento." };
+  // DR65 (e): la cuenta de un menor sin consentimiento del familiar está en espera.
+  const onHold = await minorHoldError(admin, sessionUser.id);
+  if (onHold) return { status: "error", message: onHold };
   const result = await submitLinkRequest(admin, {
     actorUserId: sessionUser.id,
     residenceId: String(formData.get("residence_id") ?? "") || null,
@@ -99,6 +112,9 @@ export async function submitMissingResidenceAction(_prev: ResidencyActionState, 
   if (!(await residencyStepAllowed(sessionUser.id))) return { status: "error", message: INVITE_TOO_MANY_ATTEMPTS };
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento." };
+  // DR65 (e): la cuenta de un menor sin consentimiento del familiar está en espera.
+  const onHold = await minorHoldError(admin, sessionUser.id);
+  if (onHold) return { status: "error", message: onHold };
   const result = await submitMissingResidence(admin, {
     actorUserId: sessionUser.id,
     residenceName: formData.get("residence_name"),

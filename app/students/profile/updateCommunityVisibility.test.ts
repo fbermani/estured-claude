@@ -14,6 +14,7 @@ const state = vi.hoisted(() => ({
   audits: [] as unknown[],
 }));
 
+vi.mock("@/lib/students/minorHold", () => ({ minorHoldError: async () => null }));
 vi.mock("next/headers", () => ({
   headers: async () => new Headers({ "x-forwarded-for": "1.2.3.4", "user-agent": "vitest" }),
 }));
