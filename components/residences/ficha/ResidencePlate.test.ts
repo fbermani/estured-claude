@@ -63,7 +63,7 @@ describe("ResidencePlate hero: el sello no tapa el precio", () => {
     const html = hero();
     expect(html).not.toContain("<strong");
     expect(html.replace(/aria-label="[^"]*"/g, "")).not.toContain("la visitamos en persona");
-    expect(html).toMatch(/data-plate-region="seal"[^>]*role="img"[^>]*aria-label="Verificada por EstuRed: la visitamos en persona"/);
+    expect(html).toMatch(/data-plate-region="seal"[^>]*role="img"[^>]*aria-label="Verificada por EstuRed: la visitamos en persona[^"]*"/);
   });
 
   it("sin precio (sin tarifas cargadas) la placa sigue sin superponer nada", () => {

@@ -6,7 +6,9 @@ import { guardianConsentMissing, loadMinorHold, loadPendingGuardianConsents } fr
  * DR65 (e) — integración contra estured-dev (solo lectura). Requiere los seeds demo y `scripts/seed-demo-guardian-consent.mjs`
  * (Martín dio su consentimiento por Valentina, menor).
  */
-describe("cuenta del menor en espera (integración)", () => {
+const hasCreds = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
+
+describe.skipIf(!hasCreds)("cuenta del menor en espera (integración)", () => {
   let admin: SupabaseClient;
   const ids: Record<string, string | null> = {};
 
