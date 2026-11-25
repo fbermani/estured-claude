@@ -246,7 +246,7 @@ Genera el SQL completo (111 archivos, 0001–0110 con la 0043b; ~560 KB; revisad
   ```
 
 ### D3. Supabase Auth [Vos]
-- Estado 2026-11-25: URLs cargadas y registro apagado (`disable_signup: true` verificado). CAPTCHA nativo apagado (correcto). Falta SMTP propio y revisar la plantilla de *Reset Password*.
+- Estado 2026-11-25: URLs cargadas y registro apagado (`disable_signup: true` verificado). CAPTCHA nativo apagado (correcto). Falta SMTP propio y revisar la plantilla de *Reset Password*. La configuración pública de Auth (`/auth/v1/settings`) coincide con la de dev; MFA TOTP habilitado.
 - [x] Authentication → URL Configuration: **Site URL** `https://estured.com`; **Redirect URLs**: `https://estured.com/reset-password` y `https://www.estured.com/reset-password`.
 - [x] Authentication → Sign In / Providers → **"Allow new users to sign up": apagado** → *Save* (confirmar el ref). Todas las altas usan `auth.admin.createUser` desde el servidor. Verificación: `curl -s https://<ref>.supabase.co/auth/v1/settings -H "apikey: <anon key>"` → `"disable_signup": true`.
 - [ ] Authentication → SMTP Settings: SMTP propio con Resend (`smtp.resend.com`, puerto `465`, usuario `resend`, contraseña = API key de C3, remitente `no-reply@estured.com`). El SMTP por defecto de Supabase tiene un límite muy bajo.
