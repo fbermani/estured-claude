@@ -27,6 +27,8 @@ const ACTION_PHRASES: Record<string, string> = {
   preapertura_community_disabled: "dejó su perfil de comunidad desactivado en la preapertura",
   user_logged_out: "cerró sesión",
   admin_user_created: "creó un usuario admin",
+  admin_mfa_verified: "verificó el segundo factor de su cuenta de admin",
+  guardian_consent_given: "dio, como familiar, el consentimiento para la cuenta de un menor",
   demo_user_seeded: "sembró un usuario demo",
   user_blocked: "bloqueó a un usuario",
   user_unblocked: "desbloqueó a un usuario",

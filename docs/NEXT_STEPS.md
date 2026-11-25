@@ -119,12 +119,12 @@ Estado: Fase 0 hecha (solo docs). Fase 1 hecha (0102 aplicada en dev). **Fase 5 
 
 ### DR66 — tope de reaperturas, copy sin WhatsApp, «Otro» y sin asesor legal (2026-11-25)
 
-Estado: doc y código hechos en dev, sin commit ni verificación visual. Migración 0110 aplicada en **estured-dev**; en producción entra con el bootstrap (ver `docs/PLAN_SALIDA_PRODUCCION.md`). Detalle en `docs/00` DR66.
+Estado: doc y código en `staging` desde 2026-11-25; verificación visual parcial. Migración 0110 aplicada en **estured-dev**; en producción entra con el bootstrap (ver `docs/PLAN_SALIDA_PRODUCCION.md`). Detalle en `docs/00` DR66.
 1. **Tope y escalado:** `reopen_count` y `admin_escalated_at` en `external_residence_payments` y `estured_fee_payments`; `lib/payments/reopenCap.ts`; escalado a 7 días en `remindResidencePayments` y `remindFeePayments`.
 2. **Copy sin WhatsApp** en lo que ve el estudiante y la familia; **«Otro»** (`alternative`) reemplaza «Lo coordino con la residencia» en la preferencia de la solicitud.
 3. **Requisito 10 de verificación:** no exige aprobación (ya no existe); sigue exigiendo opción elegida y datos cargados. Decisión del dueño pendiente si quiere quitarlo entero (`docs/00` DR66 (c)).
 4. **Sin asesor legal:** marcas de DR63/DR64 reemplazadas.
-5. **Pendiente:** verificación visual en staging (panel de la residencia con el botón deshabilitado, chips «Otro», pantalla de Pagos del admin) y decidir si el fee vencido con el tope alcanzado necesita un override explícito de superadmin.
+5. **Pendiente:** verificación visual en staging (panel de la residencia con el botón deshabilitado, chips «Otro», pantalla de Pagos del admin). El fee vencido con el tope alcanzado quedó decidido: sin override, lo resuelve Soporte (DR66 (f)).
 
 ### Opciones para conversar con residencias pioneras (DR63 (h), no se implementan)
 
