@@ -2,6 +2,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { createNotification } from "@/lib/notifications/createNotification";
+import { MAX_REJECTION_REASON } from "@/lib/applications/inputLimits";
 
 export type ReopenRenewalRequestResult = { status: "ok" } | { status: "error"; message: string };
 
@@ -20,6 +21,9 @@ export async function reopenRenewalRequest(
 ): Promise<ReopenRenewalRequestResult> {
   const reason = params.reason.trim();
   if (reason.length < 5) return { status: "error", message: "El motivo de la reapertura es obligatorio." };
+  if (reason.length > MAX_REJECTION_REASON) {
+    return { status: "error", message: `El motivo no puede superar los ${MAX_REJECTION_REASON} caracteres.` };
+  }
 
   const { data: request } = await admin
     .from("renewal_requests")
@@ -32,14 +36,19 @@ export async function reopenRenewalRequest(
   }
 
   const newExpiresAt = new Date(Date.now() + THIRTY_DAYS_MS).toISOString();
-  const { error: updateError } = await admin
+  const { data: reopened, error: updateError } = await admin
     .from("renewal_requests")
     .update({ status: "notified_to_residence", expires_at: newExpiresAt })
     .eq("id", request.id)
-    .eq("status", "closed_no_offer");
+    .eq("status", "closed_no_offer")
+    .select("id");
   if (updateError) {
-    console.error("[renewals] reopenRenewalRequest update failed:", updateError);
+    console.error("[renewals] reopenRenewalRequest update failed:", updateError.code, updateError.message);
     return { status: "error", message: "No pudimos reabrir la solicitud. Probá de nuevo." };
+  }
+  // Compare-and-set: si otra reapertura (u otro cambio) ganó, no se duplican auditoría ni notificación.
+  if (!reopened || reopened.length === 0) {
+    return { status: "error", message: "Esta solicitud ya cambió de estado. Actualizá la página." };
   }
 
   await createAuditLog(admin, {

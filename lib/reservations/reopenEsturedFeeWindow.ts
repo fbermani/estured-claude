@@ -70,7 +70,7 @@ export async function reopenEsturedFeeWindow(
     .eq("reopen_count", reopenCount)
     .select("id");
   if (feeUpdateError) {
-    console.error("[reservations] reopenEsturedFeeWindow fee update failed:", feeUpdateError);
+    console.error("[reservations] reopenEsturedFeeWindow fee update failed:", feeUpdateError.code, feeUpdateError.message);
     return { status: "error", message: "No pudimos reabrir el pago. Probá de nuevo." };
   }
   // Sin fila actualizada (otra reapertura o el cron ganaron): no se toca la reserva, para que fee y reserva no queden desalineados.
@@ -84,7 +84,7 @@ export async function reopenEsturedFeeWindow(
     .eq("id", reservation.id)
     .eq("status", "expired_fee_unpaid");
   if (reservationUpdateError) {
-    console.error("[reservations] reopenEsturedFeeWindow reservation update failed:", reservationUpdateError);
+    console.error("[reservations] reopenEsturedFeeWindow reservation update failed:", reservationUpdateError.code, reservationUpdateError.message);
     return { status: "error", message: "No pudimos reabrir la reserva. Probá de nuevo." };
   }
 
@@ -168,7 +168,7 @@ async function reopenAfterDispute(
   query = fee.manual_payment_file_id ? query.eq("manual_payment_file_id", fee.manual_payment_file_id) : query.is("manual_payment_file_id", null);
   const { data: updated, error } = await query.select("id");
   if (error) {
-    console.error("[reservations] reopenEsturedFeeWindow (disputa) update failed:", error);
+    console.error("[reservations] reopenEsturedFeeWindow (disputa) update failed:", error.code, error.message);
     return { status: "error", message: "No pudimos reabrir el pago. Probá de nuevo." };
   }
   if (!updated || updated.length === 0) {

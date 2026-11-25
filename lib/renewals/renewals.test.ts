@@ -1041,13 +1041,36 @@ describe.skipIf(!hasCreds)("módulo de renovaciones (integración)", () => {
       });
       expect(badReopen.status).toBe("error");
 
-      const reopened = await reopenRenewalRequest(admin, {
+      const tooLong = await reopenRenewalRequest(admin, {
+        renewalRequestId: requestId,
+        actorUserId: adminActorId,
+        actorRole: "admin",
+        reason: "x".repeat(501),
+      });
+      expect(tooLong.status).toBe("error");
+
+      // Dos reaperturas simultáneas: una sola gana, con una sola auditoría y un solo aviso.
+      const reopenParams = {
         renewalRequestId: requestId,
         actorUserId: adminActorId,
         actorRole: "admin",
         reason: "La residencia confirmó que sigue interesada, fue un error no responder.",
-      });
-      expect(reopened.status).toBe("ok");
+      };
+      const race = await Promise.all([reopenRenewalRequest(admin, reopenParams), reopenRenewalRequest(admin, reopenParams)]);
+      expect(race.filter((r) => r.status === "ok")).toHaveLength(1);
+
+      const { count: auditCount } = await admin
+        .from("audit_logs")
+        .select("*", { count: "exact", head: true })
+        .eq("entity_id", requestId)
+        .eq("action", "renewal_request_reopened_by_admin");
+      expect(auditCount).toBe(1);
+      const { count: noticeCount } = await admin
+        .from("notifications")
+        .select("*", { count: "exact", head: true })
+        .eq("related_entity_id", requestId)
+        .eq("title", "Tu solicitud de renovación fue reabierta");
+      expect(noticeCount).toBe(1);
 
       const { data: afterReopen } = await admin
         .from("renewal_requests")
@@ -1120,13 +1143,36 @@ describe.skipIf(!hasCreds)("módulo de renovaciones (integración)", () => {
       });
       expect(badReopen.status).toBe("error");
 
-      const reopened = await reopenRenewalOffer(admin, {
+      const tooLong = await reopenRenewalOffer(admin, {
+        renewalOfferId: offerId,
+        actorUserId: adminActorId,
+        actorRole: "admin",
+        reason: "x".repeat(501),
+      });
+      expect(tooLong.status).toBe("error");
+
+      // Dos reaperturas simultáneas: una sola gana, con una sola auditoría y un solo aviso.
+      const reopenParams = {
         renewalOfferId: offerId,
         actorUserId: adminActorId,
         actorRole: "admin",
         reason: "El estudiante avisó que no vio la notificación a tiempo.",
-      });
-      expect(reopened.status).toBe("ok");
+      };
+      const race = await Promise.all([reopenRenewalOffer(admin, reopenParams), reopenRenewalOffer(admin, reopenParams)]);
+      expect(race.filter((r) => r.status === "ok")).toHaveLength(1);
+
+      const { count: auditCount } = await admin
+        .from("audit_logs")
+        .select("*", { count: "exact", head: true })
+        .eq("entity_id", offerId)
+        .eq("action", "renewal_offer_reopened_by_admin");
+      expect(auditCount).toBe(1);
+      const { count: noticeCount } = await admin
+        .from("notifications")
+        .select("*", { count: "exact", head: true })
+        .eq("related_entity_id", offerId)
+        .eq("title", "Te dieron otra chance para responder una oferta de renovación");
+      expect(noticeCount).toBe(1);
 
       const { data: afterReopen } = await admin
         .from("renewal_offers")
