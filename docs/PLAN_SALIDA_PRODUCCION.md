@@ -37,11 +37,11 @@ Estado del código (2026-11-13): rama `hardening/pre-produccion-2026-11`, migrac
 ### Etapa 1 — Cimientos (bloquean la Etapa 4)
 
 - [ ] **Textos legales mínimos publicados** en `/terms`, `/privacy` y `/consentimientos` (partir de `docs/audits/TEXTOS_LEGALES_PROVISORIOS_2026-11-21.md`). Meta exige política de privacidad visible y se captan datos personales (Ley 25.326). Riesgo de no validar con abogado: asumido por el dueño (DR45); aun así, los textos tienen que existir y estar enlazados desde el popup.
-- [ ] **Links legales visibles dentro del popup no cerrable.** Que no se pueda cerrar no puede ocultar Términos ni Privacidad. Visto en producción el 2026-11-25: `/preregistro` los muestra junto a la casilla; la primera pantalla del popup no los muestra.
+- [ ] **Links legales visibles dentro del popup no cerrable.** Que no se pueda cerrar no puede ocultar Términos ni Privacidad. Visto en producción el 2026-11-25: `/preregistro` los muestra junto a la casilla; la primera pantalla del popup no tiene ninguno (confirmado en el DOM: solo están en el pie, inerte detrás del popup). Bloquea la Etapa 4, no Instagram.
 - [ ] **Datos del responsable legal** en la política de privacidad (pendiente en `docs/23` §9).
-- [ ] **Proyecto Supabase de producción** con bootstrap (D1–D3). Mínimo para preapertura: tablas de preinscriptos y de solicitudes de residencias, Auth y buckets necesarios.
+- [x] **Proyecto Supabase de producción** con bootstrap (D1–D3). Mínimo para preapertura: tablas de preinscriptos y de solicitudes de residencias, Auth y buckets necesarios. Mínimo cumplido el 2026-11-25; quedan abiertos puntos de D1 y D3.
 - [ ] **Mails** (C3, A4): `hola@estured.com` leída por alguien y Resend con SPF/DKIM. Sin esto no hay confirmación del preregistro ni mail a fundadoras.
-- [ ] **Variables de Vercel** (E) con `PREAPERTURA=on`. Sin `DEMO_LOGIN_ENABLED`.
+- [x] **Variables de Vercel** (E) con `PREAPERTURA=on`. Sin `DEMO_LOGIN_ENABLED`. Hecho el 2026-11-25.
 - [ ] **Medición.** Pixel de Meta y eventos: `PageView`, preregistro completado (estudiante y familiar), solicitud de fundadora. Verificar el dominio en el Business Manager. Cargar el pixel con consentimiento y sin enviar datos personales en claro. **[Yo]** el código; **[Vos]** las cuentas de Meta.
   - Código listo (2026-11-22); falta `NEXT_PUBLIC_META_PIXEL_ID` en Production y verificar dominio en Meta **[Vos]**.
   - Aviso de cookies hecho (2026-11-22); el pixel carga solo con consentimiento.
@@ -61,7 +61,7 @@ Estado del código (2026-11-13): rama `hardening/pre-produccion-2026-11`, migrac
 
 Se ejecuta con las secciones A a G de este runbook, con este alcance recortado:
 
-- [ ] A1 ya decidido: `PREAPERTURA=on` en producción.
+- [x] A1 ya decidido: `PREAPERTURA=on` en producción. Publicado el 2026-11-25.
 - [ ] A3, A4, A5, C, D, E y F completas (dominio `estured.com`, DNS de Hostinger hacia Vercel en F2).
 - [ ] G completa. Obligatorio: admin real, anon key sin exposición, Advisors, CAPTCHA y límites, mails de punta a punta, smoke test de preregistro (estudiante y familiar) y de solicitud de fundadora.
 - [ ] Un solo código para staging y producción. La diferencia es solo la variable `PREAPERTURA`. Nada de ramas paralelas.
@@ -311,13 +311,13 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 - [x] Sección B completa (typecheck/lint/build) y sección E completa.
 - [x] `main` es ancestro de `staging`: no hace falta commit de merge. Yo te paso el comando `git push origin <commit validado>:main`; lo corrés vos (dispara el deploy).
   - 2026-11-25: validado `ea9326b` (typecheck, lint 0 errores, build, staging *Ready* en `gru1`). Comando [Vos]: `git push origin ea9326b8f071194ccbb861388f0b8294ec891d7f:main`.
-- [x] Éxito: deploy *Ready*; `https://estured.com/` carga (popup de preapertura si A1 = on), `/login` carga, **sin** widget de "Simular usuario" en la esquina. **Publicado el 2026-11-25:** `ea9326b`, deploy `dpl_63XVtaM6qV7vhNXTy1AnvLw3RoaG` en `gru1`; popup visible, `/login` 200, sin selector demo, 0 errores de runtime en los primeros minutos. El servidor lee y escribe en `hioscbefryufsbypsmtx` (logs de la API: preregistro, fundadoras y `exchange_rates` con 200/201).
+- [x] Éxito: deploy *Ready*; `https://estured.com/` carga (popup de preapertura si A1 = on), `/login` carga, **sin** widget de "Simular usuario" en la esquina. **Publicado el 2026-11-25:** `ea9326b`, deploy `dpl_63XVtaM6qV7vhNXTy1AnvLw3RoaG` en `gru1`; popup visible, `/login` 200, sin selector demo, 0 errores de runtime en los primeros minutos. El servidor se conecta a `hioscbefryufsbypsmtx`: lee los conteos de preregistro y fundadoras (200) y escribe `exchange_rates` (201).
 
 ---
 
 ## G. Post-deploy
 
-- [ ] **Crear el admin real y el superadmin** (contraseñas de 12+ caracteres; credenciales del proyecto nuevo solo en esa invocación):
+- [ ] **Crear el admin real y el superadmin** (contraseñas de 12+ caracteres; credenciales del proyecto nuevo solo en esa invocación): **Camino sin Terminal (recomendado):** [Vos] Supabase → Authentication → Users → *Add user* → *Create new user* (email, contraseña de 12+ y *Auto Confirm User*; usar un email distinto al del preregistro de prueba). [Yo] En SQL Editor, con ese email: `with u as (select id, lower(email) email from auth.users where email = lower('TU-EMAIL')), a as (insert into public.users (id, email, primary_role) select id, email, 'superadmin' from u on conflict (id) do update set primary_role = 'superadmin' returning id, email), r as (insert into public.user_roles (user_id, role, scope_type) select id, 'superadmin', 'global' from a on conflict (user_id, role, scope_type, scope_id) do nothing) insert into public.audit_logs (actor_role, action, entity_type, entity_id, is_system_action, source, new_value) select 'system', 'admin_user_created', 'users', id, true, 'admin', jsonb_build_object('email', email, 'role', 'superadmin') from a returning entity_id;` (devuelve 1 fila). Después, enrolar MFA en `/admin-mfa`. Alternativa por Terminal:
   ```bash
   read -rs 'SR?Secret key de prod: ' && read -rs 'PW?Contraseña del admin: ' && SUPABASE_SERVICE_ROLE_KEY=$SR NEXT_PUBLIC_SUPABASE_URL=https://hioscbefryufsbypsmtx.supabase.co node scripts/create-admin.mjs TU-EMAIL "$PW" --superadmin; unset SR PW
   ```
@@ -327,7 +327,7 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 - [ ] **Advisors de Supabase** (Dashboard → Advisors → Security): solo los esperados (tablas con RLS y sin policies a propósito, helpers `SECURITY DEFINER` de RLS, `pg_net` en `public`; `auth_leaked_password_protection` hasta pasar a Pro).
 - [ ] **Cron:** `GET https://estured.com/api/cron/expire-stale-records` sin header → 401/403; con `Authorization: Bearer <CRON_SECRET>` → 200. Pasada la primera hora: `select status, return_message from cron.job_run_details order by start_time desc limit 3;` y `select status_code from net._http_response order by created desc limit 3;` → 200. 2026-11-25: sin header → 401. Falta el resto.
 - [ ] **Tipo de cambio:** `/admin/exchange-rate` muestra un valor del día (monedapi.ar); si falla, cargar override manual.
-- [ ] **CAPTCHA y límites:** el widget aparece y funciona en `/login` y `/forgot-password`; con el widget sin resolver el envío se rechaza; una ráfaga de logins fallidos devuelve «Hiciste muchos intentos». El alta de residencias (`/register/residence`) también pide CAPTCHA. 2026-11-25: el widget aparece y valida en `/login` y `/preregistro` (la consola registró un error `600010` de Turnstile con el navegador automatizado; repetir en un navegador común). Falta probar `/forgot-password`, el rechazo sin resolver, la ráfaga y `/register/residence`.
+- [ ] **CAPTCHA y límites:** el widget aparece y funciona en `/login` y `/forgot-password`; con el widget sin resolver el envío se rechaza; una ráfaga de logins fallidos devuelve «Hiciste muchos intentos». El alta de residencias (`/register/residence`) también pide CAPTCHA. 2026-11-25: el widget aparece y valida del lado del navegador en `/login` y `/preregistro` (la verificación del servidor todavía no corrió) (la consola registró un error `600010` de Turnstile con el navegador automatizado; repetir en un navegador común). Falta probar `/forgot-password`, el rechazo sin resolver, la ráfaga y `/register/residence`.
 - [ ] **Cookies y headers** (DevTools o `curl -sI https://estured.com`): cookies `sb-*` HttpOnly y Secure; `Content-Security-Policy-Report-Only` (con `report-uri /api/csp-report`), `Strict-Transport-Security`, `Permissions-Policy`; sin `X-Powered-By`. 2026-11-25: headers OK (CSP *Report-Only*, HSTS, `Permissions-Policy`, sin `X-Powered-By`). Faltan las cookies (requiere sesión).
 - [ ] **Reset de contraseña de punta a punta** (llega el mail desde `no-reply@estured.com` y el link abre `/reset-password` en `estured.com`).
 - [ ] **Mails:** una solicitud de fundadora de prueba (`/register/residence`) manda el mail de confirmación a una casilla externa (revisar spam; si cae en spam, revisar SPF/DKIM en Resend).
