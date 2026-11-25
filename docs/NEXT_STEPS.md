@@ -2,6 +2,10 @@
 
 # EstuRed — Próximos pasos
 
+## Seguridad — kit de 25 controles (2026-11-25)
+
+Hecho en `0b87bde`. Estado y pendientes: `docs/audits/PLAN_SEGURIDAD_2026-11-12.md` y `docs/PLAN_SALIDA_PRODUCCION.md`. Falta la pasada A/B (`docs/audits/FICHA_ACCESO_CRUZADO_2026-11-25.md`).
+
 ## Ola 0 de la auditoría legal (DR65) — 2026-11-22 a 2026-11-25
 
 Fuente: `docs/audits/AUDITORIA_LEGAL_2026-11-21.md` («Ola 0 ajustada»). Commits en `staging`: f6265e2 (1 y 2), b2dbb9a (3), 511f056 (4), 6b724e8 (5 y 6), 0ac642f (7), 10de285 (10).
