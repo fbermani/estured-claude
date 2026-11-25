@@ -127,7 +127,7 @@ Estado: doc y código en `staging` desde 2026-11-25; verificación visual parcia
 3. **Requisito 10 de verificación:** no exige aprobación (ya no existe); sigue exigiendo opción elegida y datos cargados. Decisión del dueño pendiente si quiere quitarlo entero (`docs/00` DR66 (c)).
 4. **Sin asesor legal:** marcas de DR63/DR64 reemplazadas.
 5. **Verificación visual (2026-11-25, `estured.vercel.app`):** vistos el chip «Otro» con su aviso (Camila), «Otro: coordinar forma de pago alternativa» (residencia) y «Volver a habilitar el pago» deshabilitado con el mensaje del tope (datos de dev forzados y restaurados). **Sin ver:** pantallas del admin (el selector demo no tiene admin) y aviso de la variante menor. El fee vencido con el tope alcanzado quedó decidido: sin override (DR66 (f)).
-6. **Resuelto (DR66 (g), opción (b), 2026-11-25):** con «Otro», la residencia ve el botón de contacto y puede habilitar el pago por contacto directo, aunque cobre solo con medios. Sin migración.
+6. **Resuelto (DR66 (g), opción (b), 2026-11-25):** con «Otro», la residencia ve el botón de contacto y puede habilitar el pago por contacto directo, aunque cobre solo con medios. Sin migración. Visto en `estured.vercel.app` (Ricardo, solicitud de Camila): botón de WhatsApp, ambos caminos y contacto directo preseleccionado. No se envió «Habilitar el pago»; lo cubren los tests. Preferencia de Camila restaurada.
 
 ### Opciones para conversar con residencias pioneras (DR63 (h), no se implementan)
 
