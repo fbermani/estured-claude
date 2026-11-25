@@ -5,6 +5,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { hashIp } from "@/lib/waitlist/hashIp";
 import { submitResidenceQuestion } from "@/lib/faq/submitResidenceQuestion";
+import { minorHoldError } from "@/lib/students/minorHold";
 
 export type AskQuestionState = { status: "idle" | "sent" | "error"; message?: string };
 
@@ -39,6 +40,11 @@ export async function askResidenceQuestionAction(
   if (!admin) return { status: "error", message: "No disponible en este momento. Probá de nuevo más tarde." };
 
   const sessionUser = await getSessionUser();
+  // DR65 (e): con sesión, un menor en espera no pregunta. Sin sesión la pregunta es anónima y no hay cuenta que revisar.
+  if (sessionUser) {
+    const onHold = await minorHoldError(admin, sessionUser.id);
+    if (onHold) return { status: "error", message: onHold };
+  }
   const ip = await getClientIp();
 
   const result = await submitResidenceQuestion(admin, {

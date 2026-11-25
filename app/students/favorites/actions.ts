@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { toggleFavorite } from "@/lib/students/favorites";
+import { minorHoldError } from "@/lib/students/minorHold";
 
 export type ToggleFavoriteState = { status: "idle" | "error"; favorited?: boolean; message?: string };
 
@@ -17,6 +18,9 @@ export async function toggleStudentFavorite(
   if (!sessionUser) return { status: "error", message: "Tu sesión expiró." };
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento." };
+  // DR65 (e): la cuenta de un menor sin consentimiento del familiar está en espera.
+  const onHold = await minorHoldError(admin, sessionUser.id);
+  if (onHold) return { status: "error", message: onHold };
 
   const { data: profile } = await admin
     .from("student_profiles")

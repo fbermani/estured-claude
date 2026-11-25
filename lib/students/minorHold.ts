@@ -13,10 +13,21 @@ export const GUARDIAN_CONSENT_TYPE = "guardian_consent";
 export const MINOR_ON_HOLD_MESSAGE =
   "Tu cuenta está en espera: como sos menor de 18, tu familiar responsable tiene que vincularse y dar su consentimiento. Invitalo desde «Mi perfil».";
 
-export type MinorHold = { onHold: boolean; studentProfileId: string | null };
+/** Ya hay un vínculo activo: solo falta que ese familiar dé su consentimiento. */
+export const MINOR_ON_HOLD_LINKED_MESSAGE =
+  "Tu cuenta está en espera: como sos menor de 18, falta el consentimiento de tu familiar responsable. Pedile que entre a EstuRed y lo dé desde su inicio.";
+
+export type MinorHold = { onHold: boolean; studentProfileId: string | null; hasActiveGuardian: boolean };
+
+export function minorHoldMessage(hold: Pick<MinorHold, "hasActiveGuardian">): string {
+  return hold.hasActiveGuardian ? MINOR_ON_HOLD_LINKED_MESSAGE : MINOR_ON_HOLD_MESSAGE;
+}
 
 /** Familiares (user_id) con vínculo activo que ya dieron su consentimiento por ese perfil. */
-export async function consentingGuardians(admin: SupabaseClient, studentProfileId: string): Promise<{ ok: true; userIds: string[] } | { ok: false }> {
+export async function consentingGuardians(
+  admin: SupabaseClient,
+  studentProfileId: string,
+): Promise<{ ok: true; userIds: string[]; hasActiveLink: boolean } | { ok: false }> {
   const { data: links, error: linkError } = await admin
     .from("family_links")
     .select("family_members(user_id)")
@@ -29,7 +40,7 @@ export async function consentingGuardians(admin: SupabaseClient, studentProfileI
   const activeUserIds = (links ?? [])
     .map((l) => (l.family_members as unknown as { user_id: string } | null)?.user_id)
     .filter((id): id is string => Boolean(id));
-  if (activeUserIds.length === 0) return { ok: true, userIds: [] };
+  if (activeUserIds.length === 0) return { ok: true, userIds: [], hasActiveLink: false };
   const { data: consents, error: consentError } = await admin
     .from("consents")
     .select("user_id")
@@ -41,7 +52,7 @@ export async function consentingGuardians(admin: SupabaseClient, studentProfileI
     console.error("[minor-hold] consents read failed:", consentError.code);
     return { ok: false };
   }
-  return { ok: true, userIds: [...new Set((consents ?? []).map((c) => c.user_id as string))] };
+  return { ok: true, userIds: [...new Set((consents ?? []).map((c) => c.user_id as string))], hasActiveLink: true };
 }
 
 /** ¿La cuenta de estudiante de este usuario está en espera? Un usuario sin perfil de estudiante (familiar, admin) nunca lo está. */
@@ -49,19 +60,20 @@ export async function loadMinorHold(admin: SupabaseClient, userId: string, now: 
   const { data: profile, error } = await admin.from("student_profiles").select("id, birth_date").eq("user_id", userId).maybeSingle();
   if (error) {
     console.error("[minor-hold] profile read failed:", error.code);
-    return { onHold: true, studentProfileId: null };
+    return { onHold: true, studentProfileId: null, hasActiveGuardian: false };
   }
-  if (!profile) return { onHold: false, studentProfileId: null };
+  if (!profile) return { onHold: false, studentProfileId: null, hasActiveGuardian: false };
   const studentProfileId = profile.id as string;
-  if (!isMinorByBirthDate(profile.birth_date as string | null, now)) return { onHold: false, studentProfileId };
+  if (!isMinorByBirthDate(profile.birth_date as string | null, now)) return { onHold: false, studentProfileId, hasActiveGuardian: false };
   const guardians = await consentingGuardians(admin, studentProfileId);
-  if (!guardians.ok) return { onHold: true, studentProfileId };
-  return { onHold: guardians.userIds.length === 0, studentProfileId };
+  if (!guardians.ok) return { onHold: true, studentProfileId, hasActiveGuardian: false };
+  return { onHold: guardians.userIds.length === 0, studentProfileId, hasActiveGuardian: guardians.hasActiveLink };
 }
 
 /** Atajo para las server actions: devuelve el mensaje de error si la cuenta está en espera, o `null` si puede seguir. */
 export async function minorHoldError(admin: SupabaseClient, userId: string): Promise<string | null> {
-  return (await loadMinorHold(admin, userId)).onHold ? MINOR_ON_HOLD_MESSAGE : null;
+  const hold = await loadMinorHold(admin, userId);
+  return hold.onHold ? minorHoldMessage(hold) : null;
 }
 
 /**
