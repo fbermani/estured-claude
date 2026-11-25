@@ -4,7 +4,7 @@
  * `lib/legal/consentVersion.ts` (solo servidor) y se guarda junto con la versión en cada consentimiento.
  */
 export const LEGAL_DOCUMENTS = {
-  terms: { version: "2026-11-22", updatedLabel: "22 de noviembre de 2026", title: "Términos y condiciones" },
+  terms: { version: "2026-11-25", updatedLabel: "25 de noviembre de 2026", title: "Términos y condiciones" },
   privacy: { version: "2026-11-22", updatedLabel: "22 de noviembre de 2026", title: "Política de privacidad" },
   residence_terms: { version: "2026-11-22", updatedLabel: "22 de noviembre de 2026", title: "Condiciones para residencias" },
   /** Casilla del fee (`lib/legal/clauses.ts`). */
@@ -22,5 +22,7 @@ export const DATED_CONSENT_VERSION = "2026-11-22";
 
 export type LegalDocumentKey = keyof typeof LEGAL_DOCUMENTS;
 
-/** Fecha más reciente entre los textos publicados (la que muestra el pie). */
-export const LEGAL_TEXTS_UPDATED_LABEL = "22 de noviembre de 2026";
+/** Fecha más reciente entre los textos publicados (la que muestra el pie). Se deriva: no puede quedar desfasada. */
+export const LEGAL_TEXTS_UPDATED_LABEL: string = Object.values(LEGAL_DOCUMENTS).reduce((newest, doc) =>
+  doc.version > newest.version ? doc : newest,
+).updatedLabel;

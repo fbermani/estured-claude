@@ -17,3 +17,11 @@ describe("consentVersion (LEG-012)", () => {
     expect(consentVersion("residence_payment_received")).not.toMatch(/borrador/);
   });
 });
+
+describe("fecha del pie", () => {
+  it("es la del texto legal más reciente", async () => {
+    const { LEGAL_TEXTS_UPDATED_LABEL } = await import("@/lib/legal/versions");
+    const newest = Object.values(LEGAL_DOCUMENTS).sort((a, b) => b.version.localeCompare(a.version))[0];
+    expect(LEGAL_TEXTS_UPDATED_LABEL).toBe(newest.updatedLabel);
+  });
+});

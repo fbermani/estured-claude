@@ -2,6 +2,30 @@
 
 # EstuRed — Próximos pasos
 
+## Ola 0 de la auditoría legal (DR65) — 2026-11-22 a 2026-11-25
+
+Fuente: `docs/audits/AUDITORIA_LEGAL_2026-11-21.md` («Ola 0 ajustada»). Commits en `staging`: f6265e2 (1 y 2), b2dbb9a (3), 511f056 (4), 6b724e8 (5 y 6), 0ac642f (7), 10de285 (10).
+
+| # | Ítem | Estado |
+|---|---|---|
+| 1 | Datos del titular, `/terms` y `/privacy` sin placeholders | Hecho. Titular solo en `/terms#quienes-somos` (decisión del dueño). Falta crear la casilla `hola@estured.com` (runbook). |
+| 2 | Sin antecedentes penales | Hecho (DR65 (a); FAQ-11 en 0109). |
+| 3 | Cuenta del menor en espera | **Pendiente.** Bloque L: gate server-side por `birth_date` + consentimiento del familiar (`consents` con su `user_id`), también en `activateResidentStay`, piso de 14 años, reescribir `privacyText` §6 y `termsText` §5, seed de Valentina. |
+| 4 | `/verify` sin nombre de menor | Hecho. |
+| 5 | TP-01 y TP-02 en `/privacy` | Hecho. §4 dice «estamos formalizando» las garantías hasta archivar los DPA. |
+| 6 | Arrepentimiento | Hecho (DR65 (b)): sin «uso indebido», código ARR por email; se mantiene el login. |
+| 7 | `/terms` con TP-03 | Hecho. |
+| 8 | Versión con hash | Hecho para términos, privacidad, condiciones de residencias y casillas del fee y de responsabilidad. **Pendiente:** `student_visibility` y `residence_payment_received` usan versión con fecha (sin hash); preapertura sigue `v0.1-borrador-preapertura` (`lib/preapertura/accounts.ts` lo estaba editando otra sesión); re-aceptación al cambiar versión. |
+| 9 | Condiciones para residencias | Hecho (`/terms/residencias`, invitación y alta directa). |
+| 10 | Sin aprobación admin de datos de cobro | Hecho (DR65 (c), 0109). Ver riesgo de seguridad abajo. |
+| 11 | Claims de `/nosotros`, `CostsBoard` y sello | Hecho. |
+| 12 | «Datos de ejemplo» y SEO | Hecho. |
+| 13 | MFA admin y confirmación de email | **Pendiente.** Requiere dos decisiones del dueño: excepción de MFA para admins demo en staging; confirmación de email con Resend en sandbox (staging no entrega). |
+| 14 | Número de Factura C | Hecho (registro manual en «Cobrados»). |
+
+**Riesgo nuevo (DR65 (c)):** sin aprobación del admin, una cuenta de dueño robada puede cambiar el CBU. El único aviso es in-app a esa misma cuenta. Evaluar un email al dueño en cada cambio de datos de cobro.
+**Test con datos de dev:** `lib/reservations/recordResidencePaymentReceived.test.ts` falla en el `beforeAll` porque el estudiante demo ya tiene 2 solicitudes activas en estured-dev (trigger P0001); no es del código.
+
 ## DR63: cobro de la reserva a la residencia y medios del fee — 2026-11-20
 
 Estado: Fase 0 hecha (solo docs). Fase 1 hecha (0102 aplicada en dev). **Fase 5 hecha el 2026-11-21 (ver punto 5). Fase 2a y 2b hechas el 2026-11-21 (sin commit): configuración del dueño, requisito 10 y gate; cola de aprobación del admin.** Decisión y pendientes: `docs/00` DR63. Reglas: `docs/03` §12.1; estados: `docs/04` §5.8, §6; datos: `docs/06` §8.8, §11.1, §12.1; acciones: `docs/07` §16.3 a §16.8; pantallas: `docs/08` §6.7, §7.2, §7.8.
