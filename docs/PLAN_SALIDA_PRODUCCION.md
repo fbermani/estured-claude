@@ -310,6 +310,7 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 ### F2. Push y deploy [Vos con mi ayuda]
 - [ ] Sección B completa (typecheck/lint/build) y sección E completa.
 - [ ] `main` es ancestro de `staging`: no hace falta commit de merge. Yo te paso el comando `git push origin <commit validado>:main`; lo corrés vos (dispara el deploy).
+  - 2026-11-25: validado `ea9326b` (typecheck, lint 0 errores, build, staging *Ready* en `gru1`). Comando [Vos]: `git push origin ea9326b8f071194ccbb861388f0b8294ec891d7f:main`.
 - [ ] Éxito: deploy *Ready*; `https://estured.com/` carga (popup de preapertura si A1 = on), `/login` carga, **sin** widget de "Simular usuario" en la esquina.
 
 ---
