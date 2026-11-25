@@ -1,6 +1,7 @@
 "use server";
 
 import { headers } from "next/headers";
+import { readAttribution } from "@/lib/attribution/server";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { clientIpFromHeaders, clientKeyFromHeaders } from "@/lib/receipts/verifyRateLimit";
 import { TURNSTILE_ERROR_MESSAGE, verifyTurnstile } from "@/lib/security/turnstile";
@@ -72,7 +73,7 @@ export async function requestResidenceSignup(_prev: RequestResidenceState, formD
   const preapertura = isPreaperturaOn();
   const place: FounderPlace | undefined = preapertura ? founderPlace(founderState(await getFounderInputs()), getFounderClosure()) : undefined;
 
-  const saved = await createSignupRequest(admin, result.value);
+  const saved = await createSignupRequest(admin, result.value, await readAttribution());
   if (!saved.ok) return failure("No pudimos enviar tu solicitud. Intentá de nuevo en unos minutos. Lo que escribiste sigue acá.", raw);
 
   // Un duplicado activo cuenta como éxito pero no repite el mail (evita usar el formulario para mandar mails a un tercero).

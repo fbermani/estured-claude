@@ -1,6 +1,10 @@
 import { notFound } from "next/navigation";
 import { SkipLink } from "@/components/ui/SkipLink";
 import { isPreaperturaOn } from "@/lib/preapertura/flag";
+import { AttributionCapture } from "@/components/analytics/AttributionCapture";
+import { CookieNotice } from "@/components/analytics/CookieNotice";
+import { MetaPixel } from "@/components/analytics/MetaPixel";
+import { resolveMetaPixelId } from "@/lib/analytics/metaPixel";
 import "./preapertura.css";
 import { Suspense } from "react";
 
@@ -17,9 +21,14 @@ export default async function PreaperturaLayout({ children }: { children: React.
   if (!isPreaperturaOn()) notFound();
   const showDevNav = process.env.NODE_ENV === "development" || (process.env.NEXT_PUBLIC_STAGING === "on" && process.env.VERCEL_ENV !== "production");
   const DevScreenNav = showDevNav ? (await import("@/components/dev/DevScreenNav")).DevScreenNav : null;
+  const pixelId = resolveMetaPixelId(process.env);
   return (
     <>
       <SkipLink />
+      <AttributionCapture />
+      <MetaPixel pixelId={pixelId} />
+      {/* Fuera del contenido inerte y por encima del popup (z-70): ver `CookieNotice`. */}
+      <CookieNotice pixelId={pixelId} />
       <main id="contenido">{children}</main>
       {/* `DevScreenNav` usa `useSearchParams`: sin Suspense falla el prerender del build (staging). */}
       {DevScreenNav && (

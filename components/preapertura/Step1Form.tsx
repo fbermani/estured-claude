@@ -2,7 +2,8 @@
 
 import { DevEmptyHint } from "@/components/preapertura/DevAccountNotice";
 import { BackNav } from "@/components/preapertura/BackNav";
-import { startTransition, useActionState, useEffect, useState } from "react";
+import { startTransition, useActionState, useEffect, useRef, useState } from "react";
+import { trackMetaEvent } from "@/lib/analytics/metaPixel";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { TurnstileWidget } from "@/components/ui/TurnstileWidget";
@@ -52,8 +53,15 @@ export function Step1Form({ invitation, loggedIn }: { invitation: { token: strin
   const hasFieldErrors = Boolean(errors && Object.keys(errors).length > 0);
   const { formRef, alertRef } = useFocusOnError(state, failed);
 
+  // Pixel: el alta se cuenta una sola vez por envío exitoso (el estado vive en memoria: recargar no lo repite). Sin datos personales.
+  const tracked = useRef(false);
   useEffect(() => {
-    if (state.status === "success" && state.redirectTo) router.replace(state.redirectTo);
+    if (state.status !== "success") return;
+    if (!tracked.current) {
+      tracked.current = true;
+      trackMetaEvent("CompleteRegistration", "preregistro_estudiante");
+    }
+    if (state.redirectTo) router.replace(state.redirectTo);
   }, [state, router]);
 
   // El menor se detecta en el servidor con la fecha que mandó: si la cambia, el aviso deja de aplicar y puede volver a intentar.

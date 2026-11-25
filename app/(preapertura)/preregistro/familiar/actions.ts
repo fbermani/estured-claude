@@ -2,6 +2,7 @@
 
 import { headers } from "next/headers";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { readAttribution } from "@/lib/attribution/server";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { validatePassword } from "@/lib/auth/password";
 import { isEmailProviderConfigured, sendEmail } from "@/lib/email/sendEmail";
@@ -84,6 +85,7 @@ export async function registerFamilyInvite(_prev: FamilyState, formData: FormDat
     declaredAdult,
     ip: clientIpOf(headerStore),
     userAgent: headerStore.get("user-agent"),
+    attribution: await readAttribution(),
   });
   if (!result.ok) {
     if (result.reason === "email_exists") return fail("Ya hay una cuenta con ese email.", values, "email", "email_exists");

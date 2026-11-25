@@ -4,6 +4,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { headers } from "next/headers";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSupabaseServer } from "@/lib/supabase/server";
+import { readAttribution } from "@/lib/attribution/server";
 import { getSafeUser } from "@/lib/supabase/safe-get-user";
 import { createAuditLog } from "@/lib/audit";
 import { validatePassword } from "@/lib/auth/password";
@@ -92,6 +93,7 @@ export async function registerStudentStep1(_prev: Step1State, formData: FormData
     invitation,
     ip: clientIpOf(headerStore),
     userAgent: headerStore.get("user-agent"),
+    attribution: await readAttribution(),
   });
   if (!result.ok) {
     if (result.reason === "email_exists") {

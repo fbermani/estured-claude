@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
+import { isMissingAttributionColumn, type Attribution } from "@/lib/attribution/attribution";
 import { notifyAdminsSafe } from "@/lib/notifications/notifyAdminsSafe";
 import { isMissingSchemaError } from "@/lib/stayChange/schema";
 import { generateInvitationToken, hashInvitationToken, isPlausibleInvitationToken } from "@/lib/team/invitationToken";
@@ -53,8 +54,17 @@ type Actor = { actorUserId: string; actorRole: string };
 export async function createSignupRequest(
   admin: SupabaseClient,
   input: SignupInput,
+  attribution?: Attribution | null,
 ): Promise<{ ok: true; duplicate: boolean } | { ok: false; unavailable: boolean }> {
-  let { data: inserted, error } = await admin.from("residence_signup_requests").insert({ ...input, source: "web" }).select("id").single();
+  let { data: inserted, error } = await admin
+    .from("residence_signup_requests")
+    .insert({ ...input, source: "web", ...(attribution ? { attribution } : {}) })
+    .select("id")
+    .single();
+  // Migración 0106 sin aplicar: se guarda igual, sin la atribución.
+  if (error && attribution && isMissingAttributionColumn(error)) {
+    ({ data: inserted, error } = await admin.from("residence_signup_requests").insert({ ...input, source: "web" }).select("id").single());
+  }
   if (error && isMissingSchemaError(error) && /address/i.test(error.message ?? "")) {
     const { address, ...rest } = input;
     ({ data: inserted, error } = await admin

@@ -1,6 +1,7 @@
 "use client";
 
-import { startTransition, useActionState, useEffect, useState } from "react";
+import { startTransition, useActionState, useEffect, useRef, useState } from "react";
+import { trackMetaEvent } from "@/lib/analytics/metaPixel";
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
@@ -122,6 +123,14 @@ export function RegisterResidenceForm({ variant = "default", devSuccess }: { var
   const errors = clientErrors?.errors ?? (state.status === "error" ? state.fieldErrors : undefined);
   const failed = Boolean(clientErrors) || state.status === "error";
   const { formRef, alertRef } = useFocusOnError(clientErrors ?? state, failed);
+
+  // Pixel: `Lead` una sola vez por envío exitoso de la solicitud de fundadora (solo variante preapertura; sin datos personales).
+  const tracked = useRef(false);
+  useEffect(() => {
+    if (state.status !== "success" || !pre || devSuccess || tracked.current) return;
+    tracked.current = true;
+    trackMetaEvent("Lead", "solicitud_fundadora");
+  }, [state.status, pre, devSuccess]);
 
   if (state.status === "success") {
     if (pre) return <SuccessPreapertura founder={state.founder} devEmail={state.devEmail} />;

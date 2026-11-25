@@ -5,6 +5,7 @@ import { createAuditLog } from "@/lib/audit";
 import { notifyAdminsSafe } from "@/lib/notifications/notifyAdminsSafe";
 import { createInvitation, redeemInvitation, type ResolvedInvitation } from "@/lib/preapertura/invitations";
 import { isMissingSchemaError } from "@/lib/stayChange/schema";
+import { isMissingAttributionColumn, type Attribution } from "@/lib/attribution/attribution";
 
 /**
  * Alta de cuentas REALES de la preapertura (DR43.1), mismo patrón que `registerStudent` / `registerFamily`: usuario de Auth
@@ -27,7 +28,7 @@ export function clientIpOf(headers: { get(name: string): string | null }): strin
 export type AccountFailure = "email_exists" | "unavailable" | "failed";
 export type AccountResult<T = object> = ({ ok: true; userId: string } & T) | { ok: false; reason: AccountFailure };
 
-type Meta = { ip: string | null; userAgent: string | null };
+type Meta = { ip: string | null; userAgent: string | null; attribution?: Attribution | null };
 
 async function createAuthUser(admin: SupabaseClient, email: string, password: string): Promise<{ userId: string } | { failure: AccountFailure }> {
   const { data, error } = await admin.auth.admin.createUser({ email, password, email_confirm: true });
@@ -42,6 +43,17 @@ async function createAuthUser(admin: SupabaseClient, email: string, password: st
 /** Si el error de una inserción es «falta la migración 0080» el flujo avisa que todavía no está disponible. */
 function failureOf(error: unknown): AccountFailure {
   return isMissingSchemaError(error as { code?: string; message?: string }) ? "unavailable" : "failed";
+}
+
+/**
+ * Inserta la fila de `preapertura_estudiantes` con la atribución de campaña (migración 0106) cuando hay. Si la columna todavía no
+ * existe (código antes que la migración), reintenta sin ella: el alta nunca se rompe por la medición.
+ */
+async function insertPreapertura(admin: SupabaseClient, row: Record<string, unknown>, attribution: Attribution | null | undefined) {
+  if (!attribution) return admin.from("preapertura_estudiantes").insert(row);
+  const result = await admin.from("preapertura_estudiantes").insert({ ...row, attribution });
+  if (result.error && isMissingAttributionColumn(result.error)) return admin.from("preapertura_estudiantes").insert(row);
+  return result;
 }
 
 export async function createStudentAccount(
@@ -96,14 +108,14 @@ export async function createStudentAccount(
     const { error: consentError } = await admin.from("consents").insert(consentRows);
     if (consentError) throw consentError;
 
-    const { error: preError } = await admin.from("preapertura_estudiantes").insert({
+    const { error: preError } = await insertPreapertura(admin, {
       user_id: userId,
       role: "student",
       birth_date: input.birthDate,
       consent_c: !input.isMinor,
       consent_comunidad: false,
       invited_by_user_id: input.invitation?.inviterUserId ?? null,
-    });
+    }, input.attribution);
     if (preError) {
       failure = failureOf(preError);
       throw preError;
@@ -183,9 +195,7 @@ export async function createFamilyAccount(
     ]);
     if (consentError) throw consentError;
 
-    const { error: preError } = await admin
-      .from("preapertura_estudiantes")
-      .insert({ user_id: userId, role: "family", consent_c: false, consent_comunidad: false });
+    const { error: preError } = await insertPreapertura(admin, { user_id: userId, role: "family", consent_c: false, consent_comunidad: false }, input.attribution);
     if (preError) {
       failure = failureOf(preError);
       throw preError;

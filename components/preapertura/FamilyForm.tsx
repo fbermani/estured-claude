@@ -3,7 +3,8 @@
 import { DevAccountNotice, DevEmptyHint } from "@/components/preapertura/DevAccountNotice";
 import { BackNav } from "@/components/preapertura/BackNav";
 import { TurnstileWidget } from "@/components/ui/TurnstileWidget";
-import { startTransition, useActionState, useEffect, useState } from "react";
+import { startTransition, useActionState, useEffect, useRef, useState } from "react";
+import { trackMetaEvent } from "@/lib/analytics/metaPixel";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
@@ -50,8 +51,15 @@ export function FamilyForm({ loggedIn }: { loggedIn: boolean }) {
   const { formRef, alertRef } = useFocusOnError(state, failed);
 
   // Al llegar el resultado el foco pasa al título de la pantalla de éxito (el formulario desaparece).
+  const tracked = useRef(false);
   useEffect(() => {
-    if (state.status === "success") document.getElementById("pre-family-done")?.focus();
+    if (state.status !== "success") return;
+    document.getElementById("pre-family-done")?.focus();
+    // Pixel: una sola vez por envío exitoso, sin datos personales.
+    if (!tracked.current) {
+      tracked.current = true;
+      trackMetaEvent("CompleteRegistration", "preregistro_familiar");
+    }
   }, [state.status]);
 
   // Ver el comentario de `Step1Form`: el aviso no puede depender de un redirect de servidor porque la sesión nace con este mismo envío.

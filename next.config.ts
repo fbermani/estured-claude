@@ -26,6 +26,11 @@ const DEV_UI = process.env.NODE_ENV === "development" || (process.env.NEXT_PUBLI
 const PREAPERTURA_LOCKED = PREAPERTURA_ON && !DEV_UI;
 
 const IS_PROD = process.env.NODE_ENV === "production";
+/**
+ * Meta Pixel (Paso 0, «Medición»): sus orígenes solo entran a la CSP con el pixel realmente activo (ID válido y producción de Vercel).
+ * Misma regla que `resolveMetaPixelId` (lib/analytics/metaPixel.ts); se repite acá porque la config no importa con el alias `@/`.
+ */
+const META_PIXEL_ON = /^\d{5,20}$/.test((process.env.NEXT_PUBLIC_META_PIXEL_ID ?? "").trim()) && process.env.VERCEL_ENV === "production";
 
 /**
  * CSP en modo Report-Only (auditoría M5): todavía no se aplica. Orígenes externos reales (barrido de app/components/lib): Google Fonts
@@ -37,11 +42,11 @@ function contentSecurityPolicyReportOnly(): string {
   const supabaseOrigin = supabase ? ` https://${supabase}` : "";
   return [
     "default-src 'self'",
-    `script-src 'self' 'unsafe-inline'${IS_PROD ? "" : " 'unsafe-eval'"} https://challenges.cloudflare.com`,
+    `script-src 'self' 'unsafe-inline'${IS_PROD ? "" : " 'unsafe-eval'"} https://challenges.cloudflare.com${META_PIXEL_ON ? " https://connect.facebook.net https://www.facebook.com" : ""}`,
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-    `img-src 'self' data: blob: https://tile.openstreetmap.org${supabaseOrigin}`,
+    `img-src 'self' data: blob: https://tile.openstreetmap.org${supabaseOrigin}${META_PIXEL_ON ? " https://www.facebook.com" : ""}`,
     "font-src 'self' data: https://fonts.gstatic.com",
-    `connect-src 'self'${supabaseOrigin}${IS_PROD ? "" : " ws: wss:"}`,
+    `connect-src 'self'${supabaseOrigin}${META_PIXEL_ON ? " https://connect.facebook.net https://www.facebook.com" : ""}${IS_PROD ? "" : " ws: wss:"}`,
     "frame-src https://challenges.cloudflare.com",
     "frame-ancestors 'none'",
     "base-uri 'self'",

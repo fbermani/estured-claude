@@ -81,17 +81,20 @@ export function PreaperturaDialog({
    */
   function onKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     if (event.key === "Tab") {
-      const nodes = Array.from(wrapperRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? []).filter(
+      // El aviso de cookies (`data-cookie-notice`, fuera del popup) entra en el ciclo de Tab: va primero en el DOM y así es alcanzable.
+      const notice = document.querySelector<HTMLElement>("[data-cookie-notice]");
+      const nodes = [...Array.from(notice?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? []), ...Array.from(wrapperRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? [])].filter(
         (el) => el.getClientRects().length > 0,
       );
       if (nodes.length === 0) return;
       const first = nodes[0];
       const last = nodes[nodes.length - 1];
       const active = document.activeElement;
-      if (event.shiftKey && (active === first || !wrapperRef.current?.contains(active))) {
+      const inside = wrapperRef.current?.contains(active) || notice?.contains(active);
+      if (event.shiftKey && (active === first || !inside)) {
         event.preventDefault();
         last.focus();
-      } else if (!event.shiftKey && (active === last || !wrapperRef.current?.contains(active))) {
+      } else if (!event.shiftKey && (active === last || !inside)) {
         event.preventDefault();
         first.focus();
       }
