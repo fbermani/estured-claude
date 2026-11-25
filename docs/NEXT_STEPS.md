@@ -23,7 +23,7 @@ Fuente: `docs/audits/AUDITORIA_LEGAL_2026-11-21.md` («Ola 0 ajustada»). Commit
 | 13 | MFA admin y confirmación de email | **Pendiente.** Requiere dos decisiones del dueño: excepción de MFA para admins demo en staging; confirmación de email con Resend en sandbox (staging no entrega). |
 | 14 | Número de Factura C | Hecho (registro manual en «Cobrados»). |
 
-**Riesgo nuevo (DR65 (c)):** sin aprobación del admin, una cuenta de dueño robada puede cambiar el CBU. El único aviso es in-app a esa misma cuenta. Evaluar un email al dueño en cada cambio de datos de cobro.
+**Riesgo nuevo (DR65 (c)):** sin aprobación del admin, una cuenta de dueño robada puede cambiar el CBU. Mitigación aplicada: cada cambio manda un email al dueño (sin los datos) además del aviso in-app. Si el atacante también cambia el email de la cuenta, el aviso se pierde: evaluar avisar al email anterior al cambiar el email. Revisión de seguridad de los bloques 3, 4, 5–6, 7 y 10 (2026-11-25): sin hallazgos de alta confianza.
 **Test con datos de dev:** `lib/reservations/recordResidencePaymentReceived.test.ts` falla en el `beforeAll` porque el estudiante demo ya tiene 2 solicitudes activas en estured-dev (trigger P0001); no es del código.
 
 ## DR63: cobro de la reserva a la residencia y medios del fee — 2026-11-20

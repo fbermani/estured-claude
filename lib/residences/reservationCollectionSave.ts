@@ -2,6 +2,8 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { createNotification } from "@/lib/notifications/createNotification";
+import { sendEmail } from "@/lib/email/sendEmail";
+import { escapeHtml } from "@/lib/residenceSignup/confirmationEmail";
 import {
   maskPaymentDetails,
   normalizePaymentMethodKeys,
@@ -229,7 +231,26 @@ export async function saveReservationCollection(
       relatedEntityType: "residence_collection_accounts",
       relatedEntityId: params.residenceId,
     });
+    // DR65 (c): sin aprobación del admin, el email es el control ante un cambio que el dueño no hizo (cuenta tomada). Best-effort.
+    await emailOwnerCollectionChange(admin, params.actorUserId, text(previous.name) || null, names);
   }
 
   return { ok: true, modes: modes.value, methods, updatedAccounts };
+}
+
+async function emailOwnerCollectionChange(admin: SupabaseClient, ownerUserId: string, residenceName: string | null, methodNames: string[]): Promise<void> {
+  try {
+    const { data, error } = await admin.from("users").select("email").eq("id", ownerUserId).maybeSingle();
+    if (error || !data?.email) return;
+    const where = residenceName ? ` de <b>${escapeHtml(residenceName)}</b>` : "";
+    const html = `<div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#1d2722;line-height:1.55">
+<p style="font-size:20px;font-weight:700;margin:0 0 16px">EstuRed</p>
+<p>Se guardaron cambios en los datos de cobro${where}: ${methodNames.map(escapeHtml).join(", ")}.</p>
+<p>Ya rigen para las próximas solicitudes. Si no hiciste este cambio, cambiá tu contraseña y escribinos a Soporte de inmediato.</p>
+<p style="font-size:12px;color:#5b665f">Por seguridad, este email no incluye los datos de cobro.</p>
+</div>`;
+    await sendEmail({ to: data.email as string, subject: "Cambiaron los datos de cobro de tu residencia", html });
+  } catch (e) {
+    console.error("[reservation-collection] owner email failed:", e instanceof Error ? e.message : e);
+  }
 }
